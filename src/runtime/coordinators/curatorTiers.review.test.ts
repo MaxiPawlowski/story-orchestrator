@@ -8,7 +8,7 @@ import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecr
 import { createStagecraft } from "../extras";
 import type { StagecraftRuntimeState } from "../types";
 
-type Entry = { uid: number; comment: string; key: string[]; content: string; disable: boolean };
+type Entry = { uid: number; comment: string; key: string[]; content: string; disable: boolean; constant?: boolean };
 
 const story = parseStoryV2OrThrow({
   format: 2, id: "sp8-fixture", title: "Crossing", description: "Curator.", qualities: [],
@@ -26,7 +26,7 @@ function harness(entries: Entry[], options: { mode?: "auto" | "review" } = {}) {
   let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { ...createStagecraft().settings, curatorEnabled: true, acceptMode: options.mode ?? "review" } };
   const replies: string[] = [];
   const model = recordingModel(() => replies.shift() ?? "NONE");
-  const view = (entry: Entry) => ({ comment: entry.comment, content: entry.content, keys: entry.key, constant: false, disabled: entry.disable, uid: entry.uid });
+  const view = (entry: Entry) => ({ comment: entry.comment, content: entry.content, keys: entry.key, constant: entry.constant === true, disabled: entry.disable, uid: entry.uid });
   const host = {
     loadLorebook: async () => ({ entries: Object.fromEntries([...book].map(([uid, entry]) => [uid, { ...entry }])) }),
     readWIEntry: async (_book: string, comment: string) => { const entry = [...book.values()].find((candidate) => candidate.comment === comment); return entry ? view(entry) : null; },
@@ -175,6 +175,27 @@ async function runW2(mode: "auto" | "review", entries: Entry[] = TIERED) {
 }
 
 describe("v2.7 02 C13 (SP8 W2): tier routing through the coordinator, no flag", () => {
+  it("constant auto-tier entries wait for review across enable, disable, rewrite and patch", async () => {
+    const entries = TIERED.map((entry) => ({ ...entry, constant: AUTO.has(entry.comment) }));
+    const { decided, written } = await runW2("auto", entries);
+    expect(decided.map((entry) => entry.status)).toEqual(Array(8).fill("pending"));
+    expect(written).toEqual([]);
+  });
+
+  it("an author can approve a constant entry and its write rolls back", async () => {
+    const run = harness(TIERED.map((entry) => ({ ...entry, constant: true })), { mode: "auto" });
+    run.reply("[patch] Bells || are silent || ring again\n[why] the town recovered");
+    const outcome = await run.coordinator.runCuratorPass("test");
+    expect(outcome.record!.ops[0].status).toBe("pending");
+    expect(await run.coordinator.applyAccepted()).toBe(0);
+    await run.coordinator.setOpDecision(outcome.record!.id, 0, "accepted");
+    expect(await run.coordinator.applyAccepted()).toBe(1);
+    expect(run.book.get(14)!.content).toContain("ring again");
+    expect(run.book.get(14)!.constant).toBe(true);
+    expect(await run.coordinator.revertAppliedSince(20)).toBe(1);
+    expect(run.book.get(14)!.content).toBe(TIERED[3].content);
+  });
+
   it("in auto, exactly the auto-tier ops are accepted and applied; the review-tier ops wait and are not written", async () => {
     const { decided, after, written } = await runW2("auto");
     expect(decided).toHaveLength(8);

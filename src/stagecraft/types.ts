@@ -81,6 +81,7 @@ export interface CuratorEntryView {
   keys: string[];
   content: string;
   disabled: boolean;
+  constant?: boolean;
   uid?: number;
 }
 

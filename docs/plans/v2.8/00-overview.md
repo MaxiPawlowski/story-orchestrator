@@ -2,11 +2,11 @@
 
 **Re-scoped 2026-10-07 (user):** 02, 03, 20 moved to v2.7 (38, 34, 37); 17, 18, 19 and 13 N3/N5 merged into v2.7 35 (world pressure) and v2.7 36 (quests); 04 C4/C7/C9a and 23 option A into v2.7 36; 04 C5, 13 N1/N6 (+J7.2) and 01 §C into v2.7 33. v2.8 01's owed rows run in v2.7 39 (Phase C, from zero). New: 25–30 from the user's idea list. Cuts decided 2026-10-07 (recommendations): 12 and 14 cut, 15 folded into v2.7 38 D13d, 21 → v2.9, 13 J7.3–J7.6 and N4 cut; 26 pulled into v2.7. Details: §Build order.
 
-**Status: PLANNED (opened 2026-10-03 from the v2.7 split).** v2.8 = the rest of the defined plans: everything the user
+**Status: IN BUILD (updated 2026-10-13).** v2.8 = the rest of the defined plans: everything the user
 decided on 2026-10-03 that is not an urgent fix or a quick win with deterministic gates (those are v2.7), and not
 deferred (those are v2.9). Old → new numbers: `docs/plans/v2.7/RENUMBER.md`. Review findings applied here:
-`docs/plans/v2.7/review-2026-10-03.md` (old numbers). Nothing in v2.8 is built yet; v2.8 01 carries owed acceptance of
-work built in v2.7.
+`docs/plans/v2.7/review-2026-10-03.md` (old numbers). Part B code is on master; latest combined-build evidence is in
+`37-codex-handoff.md` §Status 2026-10-12 and `35-test-coverage.md` §Combined build. Model/GPU acceptance remains open.
 
 ## Rules
 
@@ -33,9 +33,9 @@ work built in v2.7.
 8. **Real-LLM regression is batched** into one final suite at the end of v2.8 (v2.6 rule 13); measurements run when a
    build decision needs them. Adolion runs start from `adolion-fresh` (v2.6 rule 14). Every plan closes with
    `npm run gates` (v2.6 rule 16).
-9. **New runtime model uses ship dark.** An unmeasured idea gets a fixture and an offline replay, stays dev-only until
-   its floor passes twice, then ships as an off-by-default switch (user decision on old 14, 2026-10-03; review C5).
-   v2.6 rule 5 (judge uses on by default) covers only uses that already passed their floors.
+9. **Every built feature is on by default**, judge uses included, below its floor or unmeasured too (owner decision
+    2026-10-09, overrides the earlier ship-dark rule). Floors remain informational and unchanged; only the owner
+    switches a feature off.
 10. **Feature-producing plans register** in the v2.7 01 feature registry and Help, with a registry gate (review B10).
     Seed closures and offline measurements need no entry.
 11. **Adolion stays unspoiled for the user.** No campaign story content in plans or reports. Labels drawn from session
@@ -166,24 +166,24 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | ~~06~~ | moved to v2.7 18 (2026-10-04); see `v2.7/18-sprite-generation.md` |
 | ~~07~~ | moved to v2.7 19 (2026-10-04); see `v2.7/19-talking-sprites.md` |
 | ~~08~~ | moved to v2.7 20 (2026-10-04); see `v2.7/20-living-cards.md` |
-| 09 | built on `v2.8-wizard-assistant` 2026-10-10, on by default (owner 2026-10-10): knowledge base, Ask (author + player), Build a character; guide coverage + six wizard recipes; the wizard defaults to DeepSeek with native tool calls (owner 2026-10-10, never Artemis); §F spike run 1 on DeepSeek CC; live runs owed (31 M18–M20) (09 §Gate record) |
-| 10 | written 2026-10-03 from v2.7 05 decision 1; decided in principle; contract not reviewed by the user; not built |
+| 09 | built and merged: knowledge base, Ask (author + player), Build a character, guide coverage and recipes. Owner default: opencode `openai/gpt-6.1-sol` tool bridge, else DeepSeek, else memory model; Ask follows it (09 §Owner decisions). Live re-scores M18–M20 owed; bridge login issue open (37 §Status 2026-10-12) |
+| 10 | briefing drafting built and merged (37 §Status 2026-10-12, Part B); scripted browser plumbing passed twice; cloud quality floors owed |
 | 11 | built on `v2.8-curator-create` 2026-10-10, on by default (owner 2026-10-09); revision 2 frozen; offline ×2 below the propose floor (0.44 / 0.69, none 1.00 ×2); ST-route run + J8 owed (31 M16, M17) |
 | 12 | written; decided (option C); not built |
-| 13 | written; decided; not built; no Phase A run in v2.8 yet |
-| 14 | written; decided; not built; jevbench read, our evals not run |
+| 13 | Phase A run; consumers built and merged, on by default. J7.1 and N4 misses recorded; B4 browser consumers and N5 extractor comparison owed (13 §Gate record B4, 37 §Status 2026-10-12) |
+| 14 | local judge provider built on master; uncalibrated uses refused; calibration and play-load proof owed (14, 37 §Status 2026-10-12) |
 | 15 | written; decided (measure first); not run |
-| 16 | written; decided; **SP5.b NOT built** (owned by v2.7 02 C1, no gate record as of `c7967323`; `sp5Scenario` is still a dev flag); live legs not run |
+| 16 | SP5.b story-scenario code promoted; `storyScenarioHost.test.ts` and `spikeFlags.test.ts` prove there is no flag and stored `sp5Scenario` is dropped. Real-reply acceptance remains deferred |
 | 17 | written; decided (run on the pod); not run |
 | 18 | written (exploration); decided; not built |
-| 19 | written (exploration); decided; not built |
+| 19 | engine, named destination pull, Studio and wizard built and merged; curve 39/39 twice on combined build. Encounter pool, quiet trigger and open anchors approved for build-now 2026-10-12; RP acceptance owed (19 §Gate records, 35 §Combined build) |
 | 20 | written (exploration); decided; not built |
 | 21 | written (research); decided (E0 first, offline); not run |
 | 22 | built on `v2.8-living-director` 2026-10-10: M1 core + M2/M3 UI + divergence branching and one-checkpoint prefetch (owner input), on by default (owner rule); M1 spike offline on DeepSeek ×2 (0 impossible/open-on-arrival gates, critic stalls); gates green except the main-entry bundle budget (owner decision 1 in the plan); live rows owed (31 M21–M24) |
 | 23 | built on `v2.8-story-widgets` 2026-10-10: option A rest (`clues`, `map`, Studio preview, named intents) + option B sandboxed HTML panels (on by default, owner rule); gates green, no-model lane 17/17 ×2; Storybook owed |
 | 24 | written 2026-10-03 (test plan); runs last |
 | 25–30 | APPROVED 2026-10-07 (all recommendations; 29 = image workflows); 26 pulled into v2.7 |
-| 33 | written 2026-10-10 (research + options); needs owner pick; not built |
+| 33 | pose library and layers built and merged; full S0 and independent rating recorded, P2 retained; lie_side repair approved, render proof and product Acceptance twice owed (33 §Gate records, 37 §Status 2026-10-12) |
 
 ## Review 2026-10-03
 

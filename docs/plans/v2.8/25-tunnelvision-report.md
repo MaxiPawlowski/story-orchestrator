@@ -236,3 +236,24 @@ See plan 25 §Run record.
 - Header diff against `run-header-tv-before.json`: exit 0, no undeclared drift. Private archive `v28-a18-tunnelvision`: 64 files, no archive problems; `npm run sessions:archive` exit 0.
 - Full-gate attempts: initial fixture lacked a description and a story was added after the Storybook build began; corrected both. Next run passed Storybook (130 suites / 786 tests) and build (main bundle 1,248,027 B), but the corpus arrival golden lacked the new fixture. Added its empty findings row; final full gate pending.
 - Final `npm run gates -- --jobs=4`: exit 0, all 11 steps green in 192.3 s. Jest 684 suites / 7,880 tests passed (1 suite/test skipped); Storybook 130 suites / 786 tests; replay 32/32 killed. Both typechecks, lint, debug typecheck, plugin/debug/release checks and build passed. A18 accepted with no model dependency; the broader build-now pass remains open.
+
+## A19 gate record — 2026-10-13
+
+- Owner approved 2026-10-12. Pattern: existing `entriesForScope` and `routeByTier`, unchanged author decision/boundary/revert paths.
+- Scope carries the host `constant` flag. In auto mode, constant entries wait for review even with `so:auto`; non-constant auto-tier entries still auto-accept. Explicit author approval still applies and rolls back.
+- Coordinator regression covers enable, disable, rewrite and patch on constant entries, approval and before-image restore. Scope test rejects truthy malformed flags. Existing curator prompt hash unchanged.
+- Updated guide; `npm run docs:guide` and `npm run docs:settings`: exit 0. No new authored campaign field; existing constant entries inherit the review policy, no campaign asset changes needed.
+- First quick gate exposed the old exact scope-object expectation missing `constant: false`; corrected it. Final `npm run gates:quick`: exit 0, 108 suites / 1,445 tests, typechecks/lint green, replay 32/32 killed.
+- `npm run gates -- --jobs=4`: exit 0, all 11 steps green in 198.4 s; Jest 684 suites / 7,883 tests (one skipped), Storybook 130 suites / 786 tests. Main bundle 1,248,065 B.
+- Lane 38: new `v28-25-curator-constant-review.json` green twice; original `v27-d-02-c13-curator-tiers.json` green twice (batch `2026-10-13T06-04-36-632Z`, complete evidence). Original fixture now marks only its protected entry constant; its auto control is non-constant.
+- Initial four-run batch hit the shell's 120 s limit after the two A19 passes. Re-ran original regression with a 600 s limit. Cleaned one owned test provisioning ledger and restored transition-announcement setting after the interrupted run. Final header diff exit 0 with initial navigation and build-manifest metadata declared; inventories/settings otherwise unchanged. Served bundle unchanged. Offline media inventory 404 and props 500 probes recorded; no inference/render ran.
+- Lane stopped: `serverUp: false`. Private archive `v28-a19-constant-review`: 139 files, no problems; `npm run sessions:archive`: exit 0. TypeSafe calls: 0.
+- Deterministic routing accepted. Real-model curator quality remains deferred under the owner's exclusions; not claimed as a model acceptance pass.
+
+## Build-now inventory record — 2026-10-13
+
+- Corrected queue/overview/agent status against master and the October 12 combined-build records. N3 docs merged as `c1eac2f0` (source `7ee9e025`). A18 merged/pushed as `3892086f`.
+- Local judge branch `9fe2ee4e` ancestry does not describe shipped content: provider code is on master; the provider test diff is readiness import placement only.
+- SP5.b has no dev flag: `storyScenarioHost.test.ts` and `spikeFlags.test.ts` cover promoted behaviour and dropping stored `sp5Scenario`.
+- Four dirty worktrees remain untouched: `agent-a700752773d04da7b` (2 files), `agent-a8b3ad3b82169da94` (45), `agent-abb7c96323fd54958` (2), `charming-wright-d54382` (5), under `C:\dev\story-orchestrator\.claude\worktrees` (prior read-only inventory).
+- Remaining build-now tasks and dependency-specific deferred protocols are in the approved external execution plan. This inventory does not close the overall pass.

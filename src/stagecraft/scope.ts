@@ -36,7 +36,7 @@ export const isCuratorWritable = (story: NormalizedStoryV2 | null, lorebook: str
   return Boolean(wanted) && curatorLorebooks(story).some((name) => name.toLowerCase() === wanted) && !isCuratorHidden(story, lorebook, comment);
 };
 
-export const entriesForScope = (lorebook: string, entries: Array<{ uid?: unknown; comment?: string; content?: unknown; key?: unknown; disable?: unknown }>): CuratorEntryView[] =>
+export const entriesForScope = (lorebook: string, entries: Array<{ uid?: unknown; comment?: string; content?: unknown; key?: unknown; disable?: unknown; constant?: unknown }>): CuratorEntryView[] =>
   entries
     .filter((entry) => typeof entry.comment === "string" && entry.comment.trim().length > 0)
     .map((entry) => ({
@@ -45,6 +45,7 @@ export const entriesForScope = (lorebook: string, entries: Array<{ uid?: unknown
       keys: Array.isArray(entry.key) ? entry.key.filter((key): key is string => typeof key === "string") : [],
       content: typeof entry.content === "string" ? entry.content : "",
       disabled: entry.disable === true,
+      constant: entry.constant === true,
       ...(typeof entry.uid === "number" && Number.isInteger(entry.uid) ? { uid: entry.uid } : {}),
     }));
 

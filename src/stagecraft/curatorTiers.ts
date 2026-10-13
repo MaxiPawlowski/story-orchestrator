@@ -101,7 +101,7 @@ export function refuseProtected(plan: CuratorPlan, entries: CuratorEntryView[]):
 export function routeByTier(records: CuratorOpRecord[], entries: CuratorEntryView[], mode: StagecraftAcceptMode): CuratorOpRecord[] {
   return records.map((record) => {
     const entry = viewForOp(entries, record.op as WiCuratorOp);
-    const auto = mode === "auto" && entry !== undefined && entryMarks(entry.content).tier === "auto";
+    const auto = mode === "auto" && entry !== undefined && !entry.constant && entryMarks(entry.content).tier === "auto";
     return auto ? { ...record, status: "accepted" as const } : record;
   });
 }

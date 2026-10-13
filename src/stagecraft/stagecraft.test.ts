@@ -70,7 +70,15 @@ describe("curator scope", () => {
     expect(entriesForScope("Story Lore", [
       { comment: " The bridge ", content: "text", key: ["bridge", 7], disable: true },
       { comment: "  ", content: "ignored" },
-    ])).toEqual([{ lorebook: "Story Lore", comment: "The bridge", keys: ["bridge"], content: "text", disabled: true }]);
+    ])).toEqual([{ lorebook: "Story Lore", comment: "The bridge", keys: ["bridge"], content: "text", disabled: true, constant: false }]);
+  });
+
+  it("carries the host constant flag into curator routing without coercing other values", () => {
+    expect(entriesForScope("Story Lore", [
+      { comment: "Always", constant: true },
+      { comment: "Keyed", constant: false },
+      { comment: "Malformed", constant: "true" },
+    ]).map((entry) => entry.constant)).toEqual([true, false, false]);
   });
 });
 

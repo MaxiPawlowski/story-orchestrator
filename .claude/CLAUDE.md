@@ -24,7 +24,7 @@ Status lives in tables, not prose (v2.3 process rule 15). One line per version; 
 | v2.4 (plans 01–09) | plans 01–08 live green ×2 (06 F5 `create` not built; 08 calibration below floor); 09 on FROZEN `4ebe1db`: PARTIAL, not accepted; post-freeze fixes 13/14 rows green ×2 on `e7626d7` | `docs/plans/v2.4/00-overview.md` §Status, `09-acceptance.md` §Gate record, `docs/release/2.4.0/attestation.json` |
 | v2.6 (plans 00–15) | FROZEN 2026-10-03 (absorbs v2.5, closed unreleased); remaining work split into v2.7/v2.8/v2.9 | `docs/plans/v2.6/00-overview.md`, `15-final-review-and-autonomous-testing.md`, `15-review.md` |
 | v2.7 | WRAPPED 2026-10-09, symbolic (owner decision: private plugin, one user); every built feature on by default, below its floor too | `docs/plans/v2.7/39-test-from-zero.md`, `src/runtime/settingsModel.ts` |
-| v2.8 | IN BUILD: work top to bottom of the queue; sprite/pose/live-head items and branches stopped 2026-10-10 handed off to codex | `docs/plans/v2.8/32-queue.md`, `37-codex-handoff.md`, `00-overview.md` |
+| v2.8 | IN BUILD: Part B code merged; combined-build browser evidence recorded; no-model build-now pass active, model/GPU/laptop acceptance deferred per owner 2026-10-12 | `docs/plans/v2.8/32-queue.md`, `37-codex-handoff.md` §Status 2026-10-12, `35-test-coverage.md` §Combined build, `00-overview.md` |
 
 Older status paragraphs: `docs/plans/v2.3/status-history.md` (history only).
 
