@@ -65,15 +65,15 @@ capture baseline and final run header, declare intentional differences, clean ow
 - **A19 constant-entry review**, [25](25-tunnelvision-report.md): completed, merged/pushed `50bcbc2b`; full gates
   and Storybook, new browser and existing tier regression each twice. Curator model quality deferred.
 - **D-P5 shallow injections**, [31](31-v27-wrap-backlog.md): player-role block and other deep owned blocks;
-  player role, scene history, ledger and story-so-far moved to depth 4; predecessor payload captured (six cases / 31 captures),
-  prompt-offset proof and declared payload diff owed. R7 SWA/cache measurement deferred.
+  player role, scene history, ledger and story-so-far moved to depth 4. Payload goldens identical (no fixture
+  carries a moved block); new offset scenario PASS twice. Merged with the integration record below. R7 deferred.
 - **J6d reconstruction/replay**, [12](12-j6d-shadow-record.md): deterministic reconstruction and replay; comparison
   legs that need an extractor model deferred.
 - **J7 fixtures/runners**, [13](13-j7-judge-ideas.md): independent synthetic J7.4/J7.5 rows, N7 intermediate levels,
   N5 tension comparison runner and quiet baseline. TypeSafe-only legs permitted; extractor comparison deferred.
 - **lie_side geometry**, [33](33-pose-library-and-avatars.md): repair skeleton/retarget math; keep listed pending
   render/PCK evidence. Sonnet branch commits `2e5d87db` and `c257f67e` repair geometry and scope cache invalidation
-  to lying poses; quick gate green, parent integration pending. De-list only if repair fails, per owner decision.
+  to lying poses; integrated as `e91814ad`, `fb3b7701`. De-list only if repair fails, per owner decision.
 - **Q1-M1 retirement**, [v2.7 36](../v2.7/36-quests-and-story-panels.md) / [31](31-v27-wrap-backlog.md): docs-only retirement into passing
   S-17/37-S17 on combined scope budget; recorded in plan 31 and v2.7 plan 36 on 2026-10-13, no scorer change.
 - **C13-b curator digest**, [01](01-v27-carry-over.md): approved product build overrides the old requirement to wait
@@ -84,10 +84,9 @@ capture baseline and final run header, declare intentional differences, clean ow
   guide topics, Studio, stories and offline scenario. This approval does not include the separate SP6 measurement/pool.
   Agent branch `v2.8-build-encounters`: `33726a82` plus review correction `c7934a1c` (quiet means no change inside
   the window, not zero net change; anchor `player_text` accepted and hidden during the opening). Agent-reported:
-  full jest 690 suites / 7,987 tests, quick gate green, build 1,253,770 B, targeted stories 20/20. Parent review of
-  `c7934a1c`, integration, full gates and the two offline scenarios twice still owed.
-- **Paused 2026-10-13 (owner).** D-P5 candidate payload capture stopped at a 120 s tool timeout in case 4 of 6
-  before cleanup; lane 38 may hold one sandbox chat and imported test story. Next: clean lane 38, rerun capture.
+  full jest 690 suites / 7,987 tests, quick gate green, build 1,253,770 B, targeted stories 20/20. Parent reviewed
+  and integrated as `254a92f2`, `2907b686`; both offline scenarios PASS twice after a fixture fix (turn 6 is the
+  steady pull stage, so the gentle "never a push" line is not expected there). RP acceptance and M2 owed.
 
 ### 5. Permitted TypeSafe validation
 
@@ -160,3 +159,21 @@ Product integration and image model selection, including the Qwen fast-model POC
 - Owner requested Sonnet delegation. Three Sonnet 5.5 agents use separate worktrees for curator digest,
   open-stretch additions and pose geometry. Parent owns shared lane staging, integration review and full gates.
 - Pose branch returned deterministic repair plus pose-sensitive cache-version follow-up; no GPU acceptance claimed.
+
+## Gate record — integration into master, 2026-10-13
+
+- Scope merged: correctness fixes (lore-select eligibility, A20 observer, A21 test), lie_side geometry, Q1-M1
+  docs, D-P5 depths, C13-b curator digest, open-stretch encounter pool/quiet read/open anchors, plan 41, queue rows.
+  Not merged: harness-auth agent branch (still running). Orphaned chapter-diagnostics fix stays in the backup, unreviewed.
+- `npm run gates -- --jobs=4`: all green in 248.9 s; Jest 698 suites / 8,094 tests (1 skipped), Storybook 130
+  suites / 790 tests, replay 32/32 killed, plugin, release, debug and typechecks green. Main bundle 1,257,967 B
+  (`bc1dc2402c53`), under the 1,300,000 B budget.
+- After two scenario fixes: `npm run gates:quick` green (6,724 tests, replay 32/32), `npm run test:debug` 1,234/1,234.
+- Lane 38 (isolated copy, offline backend), bundle `bc1dc2402c53`: payload capture six cases / 31 captures, identical
+  to predecessor; D-P5 offset scenario PASS twice; `v28-19-open-opening` and `v28-19-encounters` PASS twice each
+  (reload included). Expected noise: plugin status 404s (lane tree has no server plugins), backend props 500s.
+- Run header before/after: 0 blocking differences (`build.head` declared). Evidence private:
+  `so-evidence archive --label v28-integration-p5-stretches` 297 files, no problems; `npm run sessions:archive` exit 0.
+- TypeSafe calls this pass: 0. No model, GPU, pod or laptop use.
+- Campaign: no authored change needed for D-P5, digest or lie_side. Open stretches: adoption deferred until RP
+  acceptance; no pin bump. Installation into the owner ST waits for an owner-approved idle point.

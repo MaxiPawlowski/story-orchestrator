@@ -167,7 +167,11 @@ on by default).
 - `npm run gates:quick`: exit 0, 383 suites / 4,179 tests; typechecks/lint green, replay 32/32 killed in 113.9 s.
 - Guide updated; `npm run docs:guide` and `npm run docs:settings`: exit 0. Predecessor payload capture exit 0,
   six cases / 31 captures on bundle `5e41970bfd5a`; six offline backend-properties 500 responses recorded;
-  candidate offset proof, declared payload diff, full gates and final integration still owed.
+  candidate capture on integrated bundle `bc1dc2402c53`: six cases / 31 captures, diff `payload invariance:
+  identical`. Vacuous for D-P5: none of the six fixtures carries a moved block. Positive proof added as
+  `test/scenarios/v28-31-p5-depth.json` (player block, eight lines, dry run): block registered at depth 4,
+  5 chat lines above it and 4 below, PASS twice on lane 38; at the old depth 10 it would sit above all 9.
+  Full `npm run gates -- --jobs=4` green on the integration branch (see plan 40 record).
 - R7 SWA/cache and model-quality measurement deferred under owner exclusions; floors unchanged. No cache-reuse
   or quality pass claimed from moving depths. Campaign inherits placement, no authored change or pin bump needed.
 
