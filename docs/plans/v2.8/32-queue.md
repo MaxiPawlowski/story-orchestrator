@@ -8,6 +8,9 @@ Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instruc
 
 ## Now (running)
 
+The owner-approved no-GPU/no-authoring-model execution pass is [plan 40](40-build-now-no-gpu.md).
+It records current progress, source-plan links and deferred acceptance protocols.
+
 | # | Item | Source | State |
 |---|---|---|---|
 | N1 | Living story director: divergence detection, branch-on-divergence, one-checkpoint prefetch | 22, D6 | built and merged; pace2/F25 fixes included; scripted divergence/prefetch and model acceptance still owed (37 §Status 2026-10-12) |

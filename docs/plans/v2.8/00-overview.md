@@ -57,6 +57,9 @@ measurements or sessions need. A plan is done only when its acceptance rows are 
 
 ## Build order
 
+Current approved build-now execution index: [40 — no GPU or authoring-model calls](40-build-now-no-gpu.md).
+Individual designs below remain the source of truth; plan 40 tracks sequencing and deferred acceptance.
+
 Numbered in dependency order: a plan never depends on a higher number except where an integration gate is named.
 
 | # | Plan | Was (v2.7) | What gets built | Implementation | Acceptance |
