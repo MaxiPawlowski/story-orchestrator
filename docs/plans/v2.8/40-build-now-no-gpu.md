@@ -77,7 +77,9 @@ capture baseline and final run header, declare intentional differences, clean ow
 - **Q1-M1 retirement**, [v2.7 36](../v2.7/36-quests-and-story-panels.md) / [31](31-v27-wrap-backlog.md): docs-only retirement into passing
   S-17/37-S17 on combined scope budget; recorded in plan 31 and v2.7 plan 36 on 2026-10-13, no scorer change.
 - **C13-b curator digest**, [01](01-v27-carry-over.md): approved product build overrides the old requirement to wait
-  for index-arm measurements twice. Declare curator prompt diff; real curator calibration deferred.
+  for index-arm measurements twice. Integrated as `0ffbdcb6` and `31dcafb4`; original-order listed vocabulary fixes
+  cross-book numeric references. Combined quick gate green: 390 suites / 4,254 tests, both typechecks, lint,
+  replay 32/32 killed (24 reused), 87.9 s. Build exit 0 (`9d2d1804782e`); real curator calibration deferred.
 - **Open stretches**, [19](19-open-stretches.md): encounter pool, quiet trigger and open anchors; validator,
   guide topics, Studio, stories and offline scenario. This approval does not include the separate SP6 measurement/pool.
 
@@ -142,6 +144,8 @@ capture baseline and final run header, declare intentional differences, clean ow
 
 Smart-context harvest, inner voice L5, cue/scene merge, SP5 real-reply legs, SP6 pool and local-judge calibration.
 Canon prose stays enabled; M25 blind pack awaits a second-model rater.
+Product integration and image model selection, including the Qwen fast-model POC, are planned separately in
+[41](41-product-integration-and-image-models.md).
 
 ## Gate record — 2026-10-13
 
