@@ -1,4 +1,4 @@
-import { questStatus, valueReader, type ApplyQueueEntry, type BoundaryLogEntry, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { anchorOpening, questStatus, valueReader, type ApplyQueueEntry, type BoundaryLogEntry, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
 import { questMoveText } from "@features/gameCopy";
 import type { SharedReadAudit, ReconciliationEvent } from "@extraction/index";
 import type { JudgeCallRecord } from "@judge/index";
@@ -118,7 +118,8 @@ function progressItems(sources: InlineSources): Draft[] {
     const drafts: Draft[] = [];
     if (entry.fired) {
       const name = checkpointPlayerName(story, entry.fired.to);
-      const objective = name ? story?.checkpointById[entry.fired.to]?.player_text ?? null : null;
+      const entered = story?.checkpointById[entry.fired.to];
+      const objective = name && !anchorOpening(entered) ? entered?.player_text ?? null : null;
       drafts.push({
         id: `progress:transition:${entry.boundary}`, messageId, category: "progress", level: 1, state: "applied",
         text: inlineTransitionText(name, objective),

@@ -1,4 +1,4 @@
-import type { Checkpoint, NormalizedStoryV2 } from "@engine/index";
+import { openPhase, type Checkpoint, type NormalizedStoryV2 } from "@engine/index";
 import { PLAYER_COPY, type NarrativeSectionId, type NarrativeStatus } from "./narrative";
 
 export const PROJECTION_TRANSCRIPT_MESSAGES = 12;
@@ -47,6 +47,7 @@ export interface ProjectionInput {
   chat: readonly unknown[];
   playerName: string;
   messages?: number;
+  playerTurns?: number;
 }
 
 export const playerCheckpointName = (checkpoint: Pick<Checkpoint, "player_name">): string | null => checkpoint.player_name?.trim() || null;
@@ -92,7 +93,7 @@ export function playedProjection(input: ProjectionInput): PlayedProjection {
     intro: intro(story),
     player: input.playerName.trim(),
     visited: reachedNames(story, input.visitedPath, input.activeCheckpointId),
-    current: active ? { name: shownCheckpointName(active), text: active.player_text?.trim() || null } : null,
+    current: active ? { name: shownCheckpointName(active), text: openPhase(active, input.playerTurns ?? 0) ? null : active.player_text?.trim() || null } : null,
     sections: input.narrative.sections
       .filter((section) => PLAYER_SECTIONS.includes(section.id) && section.lines.length)
       .map((section) => ({ id: section.id, label: section.label, lines: [...section.lines] })),
@@ -107,7 +108,7 @@ export function startProjection(story: NormalizedStoryV2, playerName: string, ca
     title: story.title,
     intro: intro(story),
     player: playerName.trim(),
-    start: start ? { name: shownCheckpointName(start), text: start.player_text?.trim() || null } : null,
+    start: start ? { name: shownCheckpointName(start), text: openPhase(start, 0) ? null : start.player_text?.trim() || null } : null,
     cast: [...new Set(cast.map((name) => name.trim()).filter(Boolean))],
   };
 }

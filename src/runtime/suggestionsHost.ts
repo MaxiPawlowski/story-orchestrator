@@ -4,6 +4,7 @@ import { log } from "@utils/log";
 import { couldNot, type WriteResult } from "@utils/writeResult";
 import { playedProjection, withheldNames } from "./playerProjection";
 import { nameForRosterId } from "./roster";
+import { playerTurnsInCheckpoint } from "./stretchTurns";
 import { beginRun, type RunGuard } from "./runToken";
 import type { RuntimeManager } from "./runtimeManager";
 import { buildSuggestionPrompt, fillRefusal, parseSuggestions, SUGGESTION_MAX_TOKENS, suggestionsUsable } from "./suggestions";
@@ -43,6 +44,7 @@ export const projectionFor = (manager: SuggestionManager) => {
     cast: manager.getEnabledCharacterIds().map((id) => nameForRosterId(story, id)),
     chat: Array.isArray(chat) ? chat : [],
     playerName: getPlayerName(),
+    playerTurns: playerTurnsInCheckpoint(state, Array.isArray(chat) ? chat : []),
   });
 };
 

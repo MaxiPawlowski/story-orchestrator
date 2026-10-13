@@ -12,6 +12,8 @@ import { changedAgo, provenanceOf, shownItem } from "./widgetHistory";
 import { checkLabel, type CheckRecord } from "./storyCheckDraws";
 import { questMoveText } from "@features/gameCopy";
 
+import { shownPlayerText } from "./stretchTurns";
+
 export const LOG_LIMIT = 40;
 export const ACTION_CHARS = 140;
 export const PLAYER_ACTOR = "You";
@@ -63,10 +65,10 @@ const visibleQuests = (story: NormalizedStoryV2, reader: GateReader, values: Rea
     return status === "hidden" ? [] : [questView(quest, status, reader, values, castNames)];
   });
 
-const mainLine = (story: NormalizedStoryV2, state: EngineState): MainLineView => {
+const mainLine = (story: NormalizedStoryV2, state: EngineState, chat: readonly unknown[]): MainLineView => {
   const active = story.checkpointById[state.activeCheckpointId];
   const done = [...new Set(state.visitedPath.slice(0, -1).map((id) => story.checkpointById[id]?.player_name).filter((name): name is string => Boolean(name)))];
-  return { done, current: active?.player_name ?? null, objective: active?.player_name ? active.player_text ?? null : null };
+  return { done, current: active?.player_name ?? null, objective: active?.player_name ? shownPlayerText(active, state, chat) : null };
 };
 
 const milestones = (story: NormalizedStoryV2, reader: GateReader): MilestoneView[] => (story.milestones ?? []).flatMap((milestone) => {
@@ -289,7 +291,7 @@ export function composeGame(sources: GameSources): GameCompose {
   const still = story.display?.motion === false;
   const parts = {
     quests: visibleQuests(story, reader, values, sources.castNames), sheet: sheetOf(story.qualities, sources),
-    main: mainLine(story, state), log: composeLog(sources),
+    main: mainLine(story, state, sources.chat), log: composeLog(sources),
   };
   const visible = (story.widgets ?? []).filter((widget) => !widget.visible_when || evaluateGate(widget.visible_when, reader));
   const ordinary = visible.filter((widget) => widget.kind !== "html").flatMap((widget) => {

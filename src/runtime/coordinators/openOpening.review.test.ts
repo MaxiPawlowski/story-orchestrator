@@ -91,9 +91,33 @@ describe("v2.8 19: the open opening of an anchor, the format", () => {
     });
   });
 
-  it("refuses pressure and trigger like a stretch, and player_text, because the player sees the name and never a task", () => {
+  it("refuses pressure and trigger like a stretch", () => {
     expect(errorsOf(raw({ ...OPEN, pressure: "complications", trigger: "quiet" })).filter((error) => error.includes("is not built yet"))).toHaveLength(2);
-    expect(errorsOf(raw(OPEN, { camp: { player_text: "The gate is shut." } }))).toContain("checkpoints.0.player_text: an open stretch shows its name, never a task: leave player_text out");
+  });
+
+  it("keeps the anchor's authored player_text: it validates, and survives parsing", () => {
+    const authored = raw(OPEN, { camp: { player_name: "The Harbour", player_text: "Gulls over the quay." } });
+    expect(errorsOf(authored)).toEqual([]);
+    const parsed = parseStoryV2OrThrow(authored);
+    expect(parsed.checkpointById.harbour.player_text).toBe("Gulls over the quay.");
+    expect(parsed.checkpointById.harbour.stretch).toEqual({ mode: "open", pace: "brief", pull_after: 3 });
+  });
+
+  it("still refuses player_text on an intermediate open stretch", () => {
+    const road = {
+      ...raw(null),
+      qualities: [...raw(null).qualities, { key: "reached_walls", type: "bool", source: "extractor", rubric: "Arrived?" }],
+      checkpoints: [
+        { id: "harbour", name: "The harbour", objective: OBJECTIVE, type: "anchor", start: true },
+        { id: "road", name: "On the road", objective: "Reach the walls.", type: "intermediate", player_text: "Dusty road.", stretch: { mode: "open", pace: "brief", arrive_when: { q: "reached_walls", op: "==", v: true } } },
+        { id: "town", name: "The town", objective: "Find a bed.", type: "anchor" },
+      ],
+      transitions: [
+        { from: "harbour", to: "road", priority: 1, gate: { q: "gate_open", op: "==", v: true } },
+        { from: "road", to: "town", priority: 1, gate: { q: "reached_walls", op: "==", v: true } },
+      ],
+    };
+    expect(errorsOf(road)).toContain("checkpoints.1.player_text: an open stretch shows its name, never a task: leave player_text out");
   });
 
   it("leaves the anchor's exits alone: any gate, a progress counter or a turn count is still allowed", () => {
@@ -141,6 +165,18 @@ describe("v2.8 19: the opening ends at its player-turn boundary", () => {
     const text = block(plain, 0);
     expect(text).toBe(composeGuidanceBlock(plain.checkpointById.harbour, { protect_player_choice: true, never_narrate_player_action: true, objective_kind: "world_pressure" }, true));
     expect(text).toContain(`Objective: ${OBJECTIVE}`);
+  });
+
+  it("an anchor that also authors player_text gets the same narrator block: no objective at turns 1 and 2, the objective at 3", () => {
+    const authored = parseStoryV2OrThrow(raw(OPEN, { camp: { player_name: "The Harbour", player_text: "Gulls over the quay." } }));
+    [1, 2].forEach((turns) => {
+      const text = block(authored, turns);
+      expect(text).toBe([GUIDANCE_PREAMBLE, OPENING_LINE].join("\n"));
+      expect(text).not.toContain(OBJECTIVE);
+      expect(text).not.toContain("Gulls over the quay.");
+    });
+    expect(block(authored, 3)).toContain(`Objective: ${OBJECTIVE}`);
+    expect(block(authored, 3)).not.toContain(OPENING_LINE);
   });
 
   it("{{story_current_checkpoint}} names the scene only while the opening lasts", () => {

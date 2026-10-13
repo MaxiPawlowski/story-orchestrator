@@ -530,3 +530,54 @@ wrapper's served-candidate route does not survive it, drop that step and say so.
 - RP: real-model pool generation quality (critic and code-check pass rate, agency flags), whether a narrator actually
   offers one situation and never resolves it, and the M2 A/B with the pool arm. Floors unchanged (M2 above).
 - Engagement latching, pool spent-ness, pressure and `trigger` (need v2.8 17 -> 18 Q6), epilogue play.
+
+
+## Gate record (2026-10-13, review corrections to the build-now pass)
+
+Same branch (`v2.8-build-encounters`), follow-up to `33726a82`. Tier D, no model, GPU, lane, browser or staging. This record
+supersedes two statements of the previous one.
+
+- **Correction 1, quiet is "no CHANGE", not "zero net change".** The first cut compared the value at the window's baseline
+  with the value now, so true -> false -> true (or 0 -> 1 -> 0) inside the last 3 player turns read as quiet.
+  `pacing/quiet.ts` now walks every snapshot of the current visit that the window touches: the baseline (the `after` of
+  the last boundary before the window's first player message, else the `before` of the visit's first boundary), then the
+  `before` and `after` of every later boundary of the visit, then the current engine state. A watched quality has moved
+  when any two consecutive snapshots differ, so a write between two boundaries, several boundaries inside one player
+  turn, and a write after the last logged boundary all count. Nothing before the visit is read (another checkpoint's
+  boundaries and an earlier visit to the same stretch are filtered out by checkpoint id and `checkpointStartedMessageId`).
+  The neutral rule is now symmetric and limited to unobservable differences: unset <-> false/0/"" is not a move, unset <->
+  anything else is. Mechanical counters stay excluded. The quiet is back only when every move has left the window.
+- **Correction 2, an open anchor keeps its `player_text`.** The previous cut refused `player_text` on an anchor with an
+  opening (an unsolicited restriction). `checkStretches` now refuses it for an intermediate open stretch only. An anchor's
+  authored `player_text` validates and is hidden from the player while the opening lasts and shown after, through the same
+  `openPhase` test as the objective line: the Where-you-are note (`snapshotBuilder`), the main-line widget (`widgets.ts`),
+  the player projection Ask and suggestions read (`playerProjection.ts`, new optional `playerTurns`; the start projection
+  hides it at turn 0), the entry note (`transitionNoteText`) and the inline progress chip (`inlineTimeline.ts`). The entry
+  note and chip are emitted once at entry, so for an opening anchor they carry the name only and are not re-issued later.
+  `shownPlayerText` (`runtime/stretchTurns.ts`) is the shared helper; turns are computed only for a checkpoint that has a
+  `stretch`.
+- **Authoring surfaces.** Studio `StretchEditor` (anchor form): the red "clear the public situation" line is replaced by a
+  neutral note that the public situation stays hidden for the opening and then shows. Intermediate panel unchanged
+  (the refusal line stays). Guide `docs/authoring/story-guide.md` §Open stretches and the compact topic say an anchor's
+  `player_text` waits during the opening; the intermediate refusal is unchanged. Wizard tool text needed no change
+  (an anchor patch never carried `player_text` rules). `npm run docs:guide` run; only `docs/guide/author/fields/scenes.md`
+  and `src/guide/pages.generated.ts` carry content changes.
+- **Tests.** `runtime/quietStretch.review.test.ts` (29, was 14): out-and-back inside the window with a toggling derived
+  quality (a switch line flips a parity quality, so equal values at both ends), first move leaving while the second is
+  inside, an out-and-back wholly before the window, scripted cases and a 4 seeds x 100 cuts property test comparing the
+  engine read, a replay of the chat and an independent reference computed from the chat text alone (0 mismatches,
+  more than 10 out-and-back and more than 20 quiet cases); synthetic-log cases for a 0 -> 1 -> 0 counter, several
+  boundaries in one player turn, a write between boundaries, a write after the last boundary, pre-visit movements,
+  the neutral rule and counters. The 7 new tests that exercise the correction fail on the previous implementation
+  (checked by swapping it back). `runtime/coordinators/openOpening.review.test.ts` (18): anchor with `player_text`
+  validates and parses, the intermediate refusal is retained, narrator block hides the objective at turns 1 and 2 and
+  restores at 3 with `player_text` authored. `runtime/openOpeningPlayerText.review.test.ts` (5): the player surfaces
+  above at 1, 2 and 3 turns, with plain-anchor controls. Story `CapsTheOpening` asserts the neutral note.
+- **Commands and results.** `npm run typecheck`, `typecheck:test`, `lint` (0 errors, 2 untouched warnings) clean; full
+  `npx jest --silent` -> 690 suites passed (1 skipped), 7987 tests passed (1 skipped); `npm run build` -> main bundle
+  1,253,770 B (budget 1,300,000 B); `npm run storybook:build` then `test-storybook --includeTags b3-open-stretch` on owned
+  port 6034 -> 2 suites, 20 stories passed, no accessibility violations, server stopped; `npm run gates:quick` result is in
+  the hand-over (this file is edited before its final run).
+- **Limitations.** The player-facing hiding is proved at the function level and for the composed inline chip; the
+  main-line widget and the snapshot narrative use `shownPlayerText` but have no end-to-end test of their own. Not run in a
+  browser or lane. Plan 40 and the queue were not touched in this follow-up.

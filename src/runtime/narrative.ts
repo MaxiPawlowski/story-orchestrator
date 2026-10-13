@@ -1,4 +1,4 @@
-import type { Checkpoint, NormalizedStoryV2, ObjectiveKind, TensionLevel } from "@engine/index";
+import { anchorOpening, type Checkpoint, type NormalizedStoryV2, type ObjectiveKind, type TensionLevel } from "@engine/index";
 import type { MemoryTier } from "@memory/index";
 import type { PipelineStatus } from "./pipeline";
 import type { LatestScene } from "./recapCurrent";
@@ -41,9 +41,9 @@ const ROLLBACK_CAUSE: Record<RollbackKind, string> = {
 export const rollbackNoticeText = (notice: Pick<RollbackNotice, "playerName" | "kind">): string =>
   `The story stepped back to ${playerPlaceText(notice.playerName)} ${notice.kind ? ROLLBACK_CAUSE[notice.kind] : "to match the change in the chat"}.`;
 
-export const transitionNoteText = (checkpoint: Pick<Checkpoint, "name" | "objective" | "player_name" | "player_text">): string => {
+export const transitionNoteText = (checkpoint: Pick<Checkpoint, "name" | "objective" | "player_name" | "player_text"> & Partial<Pick<Checkpoint, "stretch" | "type">>): string => {
   const title = (checkpoint.player_name ?? checkpoint.name).trim();
-  const text = checkpoint.player_text?.trim();
+  const text = anchorOpening(checkpoint) ? undefined : checkpoint.player_text?.trim();
   return text && text !== title ? `◈ ${title} — ${text}` : `◈ ${title}`;
 };
 

@@ -100,7 +100,8 @@ export const CapsTheOpening: Story = {
     await userEvent.clear(canvas.getByLabelText("Open for"));
     await userEvent.type(canvas.getByLabelText("Open for"), "40");
     await expect(record(canvasElement)).toBe(JSON.stringify({ mode: "open", pace: "long", pull_after: 10 }));
-    await expect(canvasElement.querySelector('[data-so="opening-player-text"]')).not.toBeNull();
+    await expect(canvasElement.querySelector('[data-so="opening-player-text"]')?.textContent).toContain("stays hidden from the player while the opening lasts");
+    await expect(canvasElement.querySelector('[data-so="opening-player-text"]')?.className).not.toContain("st-text-error");
   },
 };
 

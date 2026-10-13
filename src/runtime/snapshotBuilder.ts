@@ -21,6 +21,7 @@ import { noGroupView } from "./noGroup";
 import { getGlobalSettings } from "./settingsStore";
 import { resolveFeatures } from "./featureResolve";
 import { noChatView } from "./noChat";
+import { shownPlayerText } from "./stretchTurns";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { orphanedLorebooks, reapDecisions } from "./mirrorReaper";
 import { loreEvidenceView } from "./worldInfoEvidence";
@@ -373,7 +374,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   const narrative = buildNarrativeStatus({
     storyTitle: story?.title ?? null,
     checkpointName: active ? active.player_name?.trim() || PLAYER_COPY.currentScene : null,
-    objective: active?.player_text ?? null,
+    objective: shownPlayerText(active, state, sources.chat),
     publicIntro: publishedIntro(story),
     lastTransition: playerTransition(story, sources.boundaryLog), latestScene: scene,
     openThreads,

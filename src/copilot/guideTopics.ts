@@ -125,7 +125,7 @@ export const GUIDE_TOPICS = {
     text: "stretch: {mode: open, pace, pull_after, max_turns, offer, arrive_when} on an intermediate is free play: no objective line, no beat chain, no stall re-read. "
       + "pace brief, unhurried, long = pull_after 3, 6, 10 player turns; then hooks toward the next place (max_turns: plain), never a move. "
       + "Every exit uses arrive_when; progress exits and player_text are refused. offer: [encounters] = 3 to 5 optional situations, shown only once quiet "
-      + "(no exit-gate quality changed for 3 player turns). On an anchor, {mode, pace, pull_after up to 10} is an open opening: no task for those turns. "
+      + "(no exit-gate quality changed for 3 player turns). On an anchor, {mode, pace, pull_after up to 10} is an open opening: no task, and its player_text waits, for those turns. "
       + "Set with updateCheckpoint patch.stretch (null clears) or the Studio. pressure, trigger: not built.",
   },
   tension: {

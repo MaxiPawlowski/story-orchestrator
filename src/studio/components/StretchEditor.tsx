@@ -17,7 +17,7 @@ const turnCount = (raw: string): number | undefined => {
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
-function OpeningEditor({ stretch, hasPlayerText, onChange }: Pick<StretchEditorProps, "hasPlayerText" | "onChange"> & { stretch: CheckpointStretch | undefined }) {
+function OpeningEditor({ stretch, hasPublicText, onChange }: Pick<StretchEditorProps, "onChange"> & { stretch: CheckpointStretch | undefined; hasPublicText: boolean }) {
   return (
     <div data-so="opening-editor" className="flex flex-col gap-2">
       <label className="flex items-center gap-2 text-xs">
@@ -44,8 +44,8 @@ function OpeningEditor({ stretch, hasPlayerText, onChange }: Pick<StretchEditorP
           <div className="text-xs st-muted">
             The first {stretch.pull_after} player turns here carry no task. The story's exits work as usual and nothing moves the party.
           </div>
-          {hasPlayerText ? (
-            <div data-so="opening-player-text" className="text-xs st-text-error">An open opening shows its name, never a task: clear the public situation above.</div>
+          {hasPublicText ? (
+            <div data-so="opening-player-text" className="text-xs st-muted">The public situation above stays hidden from the player while the opening lasts, then shows as usual.</div>
           ) : null}
         </>
       ) : null}
@@ -54,7 +54,7 @@ function OpeningEditor({ stretch, hasPlayerText, onChange }: Pick<StretchEditorP
 }
 
 export function StretchEditor({ anchor = false, stretch, exits, hasPlayerText, onChange }: StretchEditorProps) {
-  if (anchor) return <OpeningEditor stretch={stretch} hasPlayerText={hasPlayerText} onChange={onChange} />;
+  if (anchor) return <OpeningEditor stretch={stretch} hasPublicText={hasPlayerText} onChange={onChange} />;
   const arrival = stretch ? arrivalExit(stretch, exits) : null;
   const sideExits = stretch ? offArrivalExits(stretch, exits) : [];
   return (

@@ -1,4 +1,4 @@
-import { openPhase, PLAYER_TURNS_KEY, playerTurnsBetween, type DerivedQualityView, type EngineState, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { openPhase, PLAYER_TURNS_KEY, playerTurnsBetween, type Checkpoint, type DerivedQualityView, type EngineState, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
 import { playerTurnIds } from "./agencyRecovery";
 import type { ChanceSeams } from "./chance";
 import { gameLayer } from "@engine/validate/gameLayer";
@@ -17,6 +17,9 @@ export const deriveQualities = (chance: ChanceSeams, story: () => NormalizedStor
     const life = loaded?.life ? gameLayer()?.life.deriveLife(loaded, view, chat()) ?? [] : [];
     return [...chance.derive(view), ...playerTurnValues(loaded, view, chat()), ...life];
   };
+
+export const shownPlayerText = (checkpoint: Checkpoint | null | undefined, state: TurnWindow | null, chat: readonly unknown[]): string | null =>
+  (checkpoint?.player_text && !openPhase(checkpoint, checkpoint.stretch ? playerTurnsInCheckpoint(state, chat) : 0) ? checkpoint.player_text : null);
 
 export const currentCheckpointText = (
   story: Pick<NormalizedStoryV2, "checkpointById"> | null,

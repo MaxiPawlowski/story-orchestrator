@@ -22,15 +22,22 @@ export interface QuietInput {
 export const watchedQualities = (story: Pick<NormalizedStoryV2, "outgoingByCheckpoint">, checkpointId: string): string[] =>
   [...new Set((story.outgoingByCheckpoint[checkpointId] ?? []).flatMap((transition) => gateKeys(transition.gate)))].filter((key) => !COUNTERS.includes(key));
 
-const moves = (before: PrimitiveValue | undefined, after: PrimitiveValue | undefined): boolean => (before == null ? Boolean(after) : before !== after);
+type Values = Readonly<Record<string, PrimitiveValue>>;
 
-const baselineValues = (input: QuietInput, windowStart: number): Record<string, PrimitiveValue> | null => {
+const blank = (value: PrimitiveValue | undefined | null): boolean => value === undefined || value === null;
+
+const moves = (before: PrimitiveValue | undefined, after: PrimitiveValue | undefined): boolean =>
+  (blank(before) || blank(after) ? Boolean(blank(before) ? after : before) : before !== after);
+
+const windowSnapshots = (input: QuietInput, windowStart: number): Values[] | null => {
   const state = input.state;
   if (!state) return null;
   const visit = input.log.filter((entry) => entry.before.activeCheckpointId === state.activeCheckpointId && entry.before.checkpointStartedMessageId === state.checkpointStartedMessageId);
   if (!visit.length) return null;
   const settled = visit.filter((entry) => entry.context.lastMessageId < windowStart);
-  return (settled.length ? settled[settled.length - 1].after : visit[0].before).blackboard.values;
+  const base = settled.length ? settled[settled.length - 1].after.blackboard.values : visit[0].before.blackboard.values;
+  const inside = visit.filter((entry) => entry.context.lastMessageId >= windowStart);
+  return [base, ...inside.flatMap((entry) => [entry.before.blackboard.values, entry.after.blackboard.values]), state.blackboard.values];
 };
 
 export const quietRead = (input: QuietInput): QuietRead | null => {
@@ -41,9 +48,9 @@ export const quietRead = (input: QuietInput): QuietRead | null => {
   const playerTurns = inVisit.length;
   if (playerTurns < stretch.pull_after) return { holds: false, playerTurns, moved: [] };
   const window = Math.max(1, input.window ?? QUIET_WINDOW_TURNS);
-  const baseline = baselineValues(input, inVisit[Math.max(0, playerTurns - window)]);
-  if (!baseline) return { holds: false, playerTurns, moved: [] };
-  const now = state.blackboard.values;
-  const moved = watchedQualities(story, state.activeCheckpointId).filter((key) => moves(baseline[key], now[key]));
+  const snapshots = windowSnapshots(input, inVisit[Math.max(0, playerTurns - window)]);
+  if (!snapshots) return { holds: false, playerTurns, moved: [] };
+  const moved = watchedQualities(story, state.activeCheckpointId)
+    .filter((key) => snapshots.slice(1).some((values, index) => moves(snapshots[index][key], values[key])));
   return { holds: moved.length === 0, playerTurns, moved };
 };

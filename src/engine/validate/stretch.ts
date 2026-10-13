@@ -62,8 +62,8 @@ export const checkStretches = (checkpoints: Checkpoint[], transitions: Transitio
     const stretch = checkpoint.stretch;
     if (!stretch) return;
     const path = `checkpoints.${index}`;
-    if (checkpoint.player_text) addError(errors, `${path}.player_text`, "an open stretch shows its name, never a task: leave player_text out");
     if (checkpoint.type === "anchor") return;
+    if (checkpoint.player_text) addError(errors, `${path}.player_text`, "an open stretch shows its name, never a task: leave player_text out");
     if (!stretch.arrive_when) {
       addError(errors, `${path}.stretch.arrive_when`, "an open stretch needs arrive_when, the arrival that lets the player leave");
       return;
