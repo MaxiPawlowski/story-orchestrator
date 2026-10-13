@@ -1,7 +1,7 @@
 import { parseStoryV2OrThrow, stretchDestination, type CheckpointStretch, type Transition } from "@engine/index";
 import { OPEN_STRETCH_LINE, pullLine } from "@pacing/index";
 import { readCheckpoint, readCheckpointPatch } from "@copilot/parseFields";
-import { arrivalExit, newOpenStretch, offArrivalExits, stretchExits, withArrival, withMaxTurns, withPace, withPullAfter } from "./stretchDraft";
+import { arrivalExit, newOpenStretch, newOpening, offArrivalExits, stretchExits, withArrival, withEncounters, withMaxTurns, withOpeningTurns, withPace, withPullAfter } from "./stretchDraft";
 import { currentCheckpointText } from "@runtime/stretchTurns";
 
 const arrive = { q: "reached_walls", op: "==", v: true } as const;
@@ -65,10 +65,10 @@ describe("the wizard writes a stretch through updateCheckpoint (v2.8 19)", () =>
 
   it("refuses a stretch the validator would refuse, naming the field", () => {
     const issues: string[] = [];
-    const patch = readCheckpointPatch({ stretch: { mode: "open", offer: ["encounters"] } }, "ops.0.patch", issues);
+    const patch = readCheckpointPatch({ type: "intermediate", stretch: { mode: "open", pressure: "complications" } }, "ops.0.patch", issues);
     expect(patch.stretch).toBeUndefined();
     expect(issues).toEqual(expect.arrayContaining([
-      "ops.0.patch.stretch.offer: offer is not built yet: a stretch has no complications or encounters",
+      "ops.0.patch.stretch.pressure: pressure is not built yet: it needs the production complication pool",
       "ops.0.patch.stretch.arrive_when: an open stretch needs arrive_when, the arrival that lets the player leave",
     ]));
   });
@@ -80,6 +80,52 @@ describe("the wizard writes a stretch through updateCheckpoint (v2.8 19)", () =>
     expect(readCheckpoint({ id: "road", type: "intermediate", stretch: { mode: "open", arrive_when: arrive } }, "c", issues)?.stretch?.pull_after).toBe(6);
     expect(readCheckpoint({ id: "road", type: "intermediate" }, "c", issues)).not.toHaveProperty("stretch");
     expect(issues).toEqual([]);
+  });
+});
+
+describe("the wizard writes an open opening and an encounter offer (v2.8 19)", () => {
+  it("an anchor takes mode, pace and turns, and nothing that needs an arrival", () => {
+    const issues: string[] = [];
+    const patch = readCheckpointPatch({ type: "anchor", stretch: { mode: "open", pace: "brief" } }, "ops.0.patch", issues);
+    expect(issues).toEqual([]);
+    expect(patch.stretch).toEqual({ mode: "open", pace: "brief", pull_after: 3 });
+    const refused: string[] = [];
+    expect(readCheckpointPatch({ type: "anchor", stretch: { mode: "open", arrive_when: arrive, offer: ["encounters"], pull_after: 12 } }, "p", refused).stretch).toBeUndefined();
+    expect(refused).toEqual(expect.arrayContaining([
+      "p.stretch.pull_after: on an anchor pull_after is the open opening in player turns, at most 10",
+      "p.stretch.arrive_when: an anchor's open opening has no arrive_when: the anchor's own exits end it",
+      "p.stretch.offer: an anchor's open opening has no offer: the anchor's own exits end it",
+    ]));
+  });
+
+  it("a stretch takes offer: [encounters], and a patch that names no type is judged when the draft validates", () => {
+    const issues: string[] = [];
+    const patch = readCheckpointPatch({ type: "intermediate", stretch: { mode: "open", offer: ["encounters"], arrive_when: arrive } }, "p", issues);
+    expect(issues).toEqual([]);
+    expect(patch.stretch).toEqual({ mode: "open", pace: "unhurried", pull_after: 6, offer: ["encounters"], arrive_when: arrive });
+    const bad: string[] = [];
+    readCheckpointPatch({ type: "intermediate", stretch: { mode: "open", offer: ["complications"], arrive_when: arrive } }, "p", bad);
+    expect(bad).toEqual(["p.stretch.offer: offer lists what the stretch may hold, from: encounters"]);
+    const untyped: string[] = [];
+    expect(readCheckpointPatch({ stretch: { mode: "open", pace: "long" } }, "p", untyped).stretch).toEqual({ mode: "open", pace: "long", pull_after: 10 });
+    expect(untyped).toEqual([]);
+  });
+
+  it("the draft helpers build an opening, cap its turns and toggle the offer, and every result validates", () => {
+    expect(newOpening()).toEqual({ mode: "open", pace: "unhurried", pull_after: 6 });
+    expect(withOpeningTurns(newOpening(), 4).pull_after).toBe(4);
+    expect(withOpeningTurns(newOpening(), 99).pull_after).toBe(10);
+    expect(withOpeningTurns(newOpening(), undefined).pull_after).toBe(6);
+    const on = withEncounters(newOpenStretch([]), true);
+    expect(on.offer).toEqual(["encounters"]);
+    expect(withEncounters(on, false)).not.toHaveProperty("offer");
+    const anchorStory = parseStoryV2OrThrow({
+      format: 2, id: "opening-draft", title: "Opening draft", description: "x", roster: [],
+      qualities: [{ key: "reached_walls", type: "bool", source: "extractor", rubric: "Reached the walls?" }],
+      checkpoints: [{ id: "gate", name: "The gate", objective: "Get in.", type: "anchor", start: true, stretch: withOpeningTurns(newOpening(), 10) }, { id: "walls", name: "The walls", objective: "Arrive.", type: "anchor" }],
+      transitions: [{ from: "gate", to: "walls", priority: 1, gate: arrive }],
+    });
+    expect(anchorStory.checkpointById.gate.stretch?.pull_after).toBe(10);
   });
 });
 

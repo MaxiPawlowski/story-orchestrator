@@ -9,7 +9,7 @@ const checkpointLine = (story: NormalizedStoryV2, id: string): string => {
   return checkpoint ? `${id} "${checkpoint.name}" — ${checkpoint.objective}` : id;
 };
 
-const storyContext = (story: NormalizedStoryV2): string[] => {
+export const storyContext = (story: NormalizedStoryV2): string[] => {
   const premise = story.description.trim();
   const cast = story.roster.map((member) => `${member.name ?? member.id}${member.role ? ` (${member.role})` : ""}`);
   return [

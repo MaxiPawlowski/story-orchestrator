@@ -6,7 +6,7 @@ import { currentCheckpointText } from "./stretchTurns";
 import { createQualityMacroSync, QUALITY_ARG_MACRO, QUALITY_MACRO_PREFIX, renderQualityArg } from "./qualityMacros";
 import type { RuntimeManager } from "./runtimeManager";
 
-const renderCurrentCheckpoint = (manager: RuntimeManager): string => currentCheckpointText(manager.getStory(), manager.getCachedSnapshot());
+const renderCurrentCheckpoint = (manager: RuntimeManager): string => currentCheckpointText(manager.getStory(), manager.getCachedSnapshot(), manager.getPlayerTurns());
 
 const renderPastCheckpoints = (manager: RuntimeManager): string => {
   const names = manager.getCachedSnapshot().checkpoints.filter((checkpoint) => checkpoint.visited && !checkpoint.active).map((checkpoint) => checkpoint.name);

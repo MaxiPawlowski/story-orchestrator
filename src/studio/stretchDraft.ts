@@ -1,4 +1,4 @@
-import { DEFAULT_STRETCH_PACE, PACE_PULL_AFTER, type CheckpointStretch, type GateNode, type StretchPace, type Transition } from "@engine/index";
+import { DEFAULT_STRETCH_PACE, OPENING_MAX_TURNS, PACE_PULL_AFTER, type CheckpointStretch, type GateNode, type StretchPace, type Transition } from "@engine/index";
 
 export interface StretchExit {
   index: number;
@@ -17,13 +17,27 @@ export const stretchExits = (
   return [{ index, to: transition.to, toName: target?.player_name ?? target?.name ?? transition.to, gate: transition.gate }];
 });
 
-const sameGate = (left: GateNode, right: GateNode): boolean => JSON.stringify(left) === JSON.stringify(right);
+const sameGate = (left: GateNode, right: GateNode | undefined): boolean => right !== undefined && JSON.stringify(left) === JSON.stringify(right);
 
 export const arrivalExit = (stretch: CheckpointStretch, exits: readonly StretchExit[]): StretchExit | null =>
   exits.find((exit) => sameGate(exit.gate, stretch.arrive_when)) ?? null;
 
 export const offArrivalExits = (stretch: CheckpointStretch, exits: readonly StretchExit[]): StretchExit[] =>
   exits.filter((exit) => !sameGate(exit.gate, stretch.arrive_when));
+
+export const newOpening = (): CheckpointStretch => ({
+  mode: "open",
+  pace: DEFAULT_STRETCH_PACE,
+  pull_after: PACE_PULL_AFTER[DEFAULT_STRETCH_PACE],
+});
+
+export const withOpeningTurns = (stretch: CheckpointStretch, turns: number | undefined): CheckpointStretch =>
+  ({ ...stretch, pull_after: Math.min(OPENING_MAX_TURNS, turns && turns >= 1 ? turns : PACE_PULL_AFTER[stretch.pace]) });
+
+export const withEncounters = (stretch: CheckpointStretch, on: boolean): CheckpointStretch => {
+  const { offer: _dropped, ...rest } = stretch;
+  return on ? { ...rest, offer: ["encounters"] } : rest;
+};
 
 export const newOpenStretch = (exits: readonly StretchExit[]): CheckpointStretch => ({
   mode: "open",

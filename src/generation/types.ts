@@ -11,7 +11,20 @@ export interface QualityDeltaPlan {
   distance: number | null;
 }
 
+export type ExpansionKind = "chain" | "encounters";
+
+export const ENCOUNTER_POOL_MIN = 3;
+export const ENCOUNTER_POOL_MAX = 5;
+export const ENCOUNTER_POOL_SIZE = 4;
+
+export interface GeneratedEncounter {
+  id: string;
+  title: string;
+  situation: string;
+}
+
 export interface StubExpansionCandidate {
+  kind?: ExpansionKind;
   sourceCheckpointId: string;
   stubId: string;
   targetAnchorId: string;
@@ -79,10 +92,12 @@ export interface VariantRecord {
  * read `outcomes[0]` before this revision, so a chain from that era has no outcome ids and would keep
  * the single-route behaviour removed.
  */
-export const EXPANSION_CONTRACT = 2;
+export const EXPANSION_CONTRACT = 3;
 
 export interface ExpansionCacheEntry {
   key: string;
+  kind?: ExpansionKind;
+  encounters?: GeneratedEncounter[];
   status: ExpansionStatus;
   /** The contract this chain was generated under; anything else is discarded on hydrate. */
   contract: number;

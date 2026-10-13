@@ -230,17 +230,16 @@ const CheckpointBehaviour = ({ selected, draft, backgroundNames, patch }: { sele
       <MotivesEditor selected={selected} draft={draft} />
     </div>
 
-    {selected.type === "intermediate" || selected.stretch ? (
-      <div className="flex flex-col gap-1">
-        <span className="text-xs st-muted">Open stretch</span>
-        <StretchEditor
-          stretch={selected.stretch}
-          exits={stretchExits(selected.id, draft.transitions, draft.checkpoints)}
-          hasPlayerText={Boolean(selected.player_text)}
-          onChange={(next) => patch({ stretch: next })}
-        />
-      </div>
-    ) : null}
+    <div className="flex flex-col gap-1">
+      <span className="text-xs st-muted">{selected.type === "anchor" ? "Open opening" : "Open stretch"}</span>
+      <StretchEditor
+        anchor={selected.type === "anchor"}
+        stretch={selected.stretch}
+        exits={stretchExits(selected.id, draft.transitions, draft.checkpoints)}
+        hasPlayerText={Boolean(selected.player_text)}
+        onChange={(next) => patch({ stretch: next })}
+      />
+    </div>
 
     <div className="flex flex-col gap-1">
       <span className="text-xs st-muted">Agency</span>

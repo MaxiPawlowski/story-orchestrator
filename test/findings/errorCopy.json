@@ -239,6 +239,16 @@
       "reason": "invalid critic JSON becomes a failed verdict"
     },
     {
+      "site": "src/generation/encounters.ts#parseEncounters",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "invalid pool JSON becomes a named generation issue, one repair pass, then a failed pool the author sees"
+    },
+    {
       "site": "src/components/settings/StoryGroup.tsx#deletionChoice",
       "kind": 1,
       "template": "`${question} ${entries}`",

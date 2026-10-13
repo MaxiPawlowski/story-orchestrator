@@ -69,6 +69,21 @@ const PULL_LINES: Record<PullStage, (place: string) => string> = {
   strong: (place) => `Let the world press toward ${place} plainly in this reply, as a deadline or someone urging.`,
 };
 
+export const OPENING_LINE = `Open start: there is no task yet. Follow what ${PLAYER_REF} starts (a look around, a talk, a rest) and let the world answer it.`;
+
+export interface EncounterOffer {
+  title: string;
+  situation: string;
+}
+
+export const encounterOfferLine = (offers: readonly EncounterOffer[]): string => (offers.length
+  ? [
+    `The place has gone quiet. At most once, and only if it fits, let the world put one of these situations in front of ${PLAYER_REF}; skip any the chat already shows. `
+      + `None is required and ${PLAYER_REF} may ignore it: never resolve it for ${PLAYER_REF}, never list them, never name a title.`,
+    ...offers.map((offer) => `- ${offer.title}: ${offer.situation.trim()}`),
+  ].join("\n")
+  : "");
+
 const nextPlace = (destination: string | null): string => (destination ? `the next place (${destination})` : "the next place");
 
 export const pullLine = (stage: PullStage | null, destination: string | null = null): string =>

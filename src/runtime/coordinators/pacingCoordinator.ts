@@ -1,9 +1,10 @@
 import {
-  TENSION_CURRENT_KEY, agencyForCheckpoint, guidanceForMember, objectiveLineApplies, openStretch, pullStage, stretchDestination, type ArcTemplate, type BoundaryLogEntry, type BoundaryResult,
+  TENSION_CURRENT_KEY, agencyForCheckpoint, guidanceForMember, objectiveLineApplies, offersEncounters, openPhase, openStretch, pullStage, stretchDestination,
+  type ArcTemplate, type BoundaryLogEntry, type BoundaryResult,
   type Checkpoint, type EngineState, type NormalizedStoryV2, type TensionLevel,
 } from "@engine/index";
 import type { ParsedDelta } from "@extraction/index";
-import { composeGuidanceBlock, getSteeringHint, pullLine, tensionEvidenceFresh, updateEma } from "@pacing/index";
+import { OPENING_LINE, composeGuidanceBlock, encounterOfferLine, getSteeringHint, pullLine, quietRead, tensionEvidenceFresh, updateEma, type EncounterOffer } from "@pacing/index";
 import { PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 
@@ -11,6 +12,7 @@ const GUIDANCE = INJECTION_REGISTRY.checkpointGuidance;
 import { computeExpectedTension } from "../snapshot";
 import { appendTensionHistory, defaultTension } from "../tensionState";
 import type { ChatHost, PromptHost } from "../hostPorts";
+import { playerTurnIds } from "../agencyRecovery";
 import { playerTurnsInCheckpoint } from "../stretchTurns";
 import type { PacingSettings, TensionRuntimeState } from "../types";
 
@@ -20,6 +22,7 @@ export interface PacingCoordinatorDeps {
   getStory: () => NormalizedStoryV2 | null;
   getState: () => EngineState | null;
   getStateLog: () => BoundaryLogEntry[];
+  getEncounters?: (stretchId: string) => EncounterOffer[];
   getTensionTarget: () => string | undefined;
   getTension: () => TensionRuntimeState;
   setTension: (next: TensionRuntimeState) => void;
@@ -130,15 +133,20 @@ export class PacingCoordinator {
     if (this.deps.getPacing().hintEnabled && hint) prompt.setStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY, hint.text, PACING_HINT_DEPTH);
     else prompt.clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
     const active = activeId ? story.checkpointById[activeId] : null;
-    const guidance = composeGuidanceBlock(active, policy, objectiveLineApplies(story, active), this.memberLine(story, active), this.stretchLine(story, active));
+    const rows = this.deps.hosts.chat?.chatRows() ?? [];
+    const turns = active?.stretch ? playerTurnsInCheckpoint(this.deps.getState(), rows) : 0;
+    const guidance = composeGuidanceBlock(active, policy, objectiveLineApplies(story, active, turns), this.memberLine(story, active), this.stretchLine(story, active, rows, turns));
     if (guidance) prompt.setStoryExtensionPrompt(GUIDANCE.key, guidance, GUIDANCE.depth);
     else this.clearGuidance();
   }
 
-  private stretchLine(story: NormalizedStoryV2, active: Checkpoint | null): string | null {
+  private stretchLine(story: NormalizedStoryV2, active: Checkpoint | null, rows: readonly unknown[], turns: number): string | null {
     const stretch = openStretch(active);
-    if (!stretch || !active) return null;
-    return pullLine(pullStage(stretch, playerTurnsInCheckpoint(this.deps.getState(), this.deps.hosts.chat?.chatRows() ?? [])), stretchDestination(story, active.id));
+    if (!active) return null;
+    if (!stretch) return openPhase(active, turns) ? OPENING_LINE : null;
+    const quiet = offersEncounters(active) ? quietRead({ story, state: this.deps.getState(), log: this.deps.getStateLog(), playerTurnIds: playerTurnIds(rows) }) : null;
+    const offer = quiet?.holds ? encounterOfferLine(this.deps.getEncounters?.(active.id) ?? []) : "";
+    return [pullLine(pullStage(stretch, turns), stretchDestination(story, active.id)), offer].filter(Boolean).join("\n");
   }
 
   private memberLine(story: NormalizedStoryV2, active: Checkpoint | null) {

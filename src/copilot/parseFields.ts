@@ -277,7 +277,7 @@ export const readCheckpointPatch = (value: Record<string, unknown>, path: string
   if (motives) patch.motives = motives;
   if (value.stretch !== undefined) {
     const errors: Array<{ path: string; message: string }> = [];
-    const stretch = value.stretch === null ? null : readStretch(value.stretch, `${path}.stretch`, errors);
+    const stretch = value.stretch === null ? null : readStretch(value.stretch, `${path}.stretch`, errors, patch.type);
     issues.push(...errors.map((error) => `${error.path}: ${error.message}`));
     if (value.stretch === null || stretch) patch.stretch = stretch ?? undefined;
   }

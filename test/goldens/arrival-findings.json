@@ -243,6 +243,8 @@
   "test/scenarios/v28-04-panels-off.story.json#0": [],
   "test/scenarios/v28-09-ask-player-clean.json#0": [],
   "test/scenarios/v28-10-briefing-draft.json#0": [],
+  "test/scenarios/v28-19-encounters.story.json#0": [],
+  "test/scenarios/v28-19-open-opening.story.json#0": [],
   "test/scenarios/v28-23-widgets-followups.story.json#0": [],
   "test/scenarios/v28-23-widgets.story.json#0": [],
   "test/scenarios/v28-25-tunnelvision-coexistence.json#0": [],

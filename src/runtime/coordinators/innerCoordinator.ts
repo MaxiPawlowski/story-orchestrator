@@ -1,4 +1,4 @@
-import { agencyForCheckpoint, isOpenStretch, renderAgencyPolicy, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { agencyForCheckpoint, openPhase, renderAgencyPolicy, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { askText, type ModelCall } from "@extraction/modelRoute";
 import { stripChannelNoise } from "@extraction/parse";
 import type { InnerBeat } from "@memory/index";
@@ -7,6 +7,7 @@ import { INNER_BEAT_MAX_TOKENS, INNER_BEAT_REPAIR, OPEN_STRETCH_SCENE, parseInne
 import { buildCandidates } from "@talk/index";
 import { likelyNextSpeakers } from "@talk/nextSpeakers";
 import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
+import { playerTurnsInCheckpoint } from "../stretchTurns";
 import type { InnerFanOut } from "../types";
 
 export const INNER_CALLS_PER_TURN = 2;
@@ -86,7 +87,7 @@ export class InnerCoordinator {
       memberName: member?.name ?? rosterId,
       ...(member?.role ? { memberRole: member.role } : {}),
       checkpointName: checkpoint?.name ?? state.activeCheckpointId,
-      objective: isOpenStretch(checkpoint) ? OPEN_STRETCH_SCENE : checkpoint?.objective ?? "",
+      objective: openPhase(checkpoint, checkpoint?.stretch ? playerTurnsInCheckpoint(state, this.deps.chatRows()) : 0) ? OPEN_STRETCH_SCENE : checkpoint?.objective ?? "",
       agency: renderAgencyPolicy(agencyForCheckpoint(story, state.activeCheckpointId)),
       steering: this.deps.steering(),
       privateRows: this.deps.privateRows(rosterId),

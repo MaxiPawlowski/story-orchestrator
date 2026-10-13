@@ -66,7 +66,7 @@ import type { MutationKind } from "./turnBridge";
 import { SettingsDelegates } from "./settingsDelegates";
 import { required } from "@utils/guards";
 import { chanceContext, createChanceSeams } from "./chance";
-import { deriveQualities } from "./stretchTurns";
+import { deriveQualities, playerTurnsInCheckpoint } from "./stretchTurns";
 import { recordLoreFired, type LoreFiredRecord } from "./loreFired";
 import type { InlineSettings } from "./settingsModel";
 
@@ -370,6 +370,7 @@ export class RuntimeManager extends SettingsDelegates {
   // What this chat is actually playing, authored form — the Studio edits this, not the library's copy.
   getPlayedStoryRaw(): unknown { return this.loaded?.record.raw ?? null; }
   getEngineState(): EngineState | null { return this.loaded ? this.engine.serialize() : null; }
+  getPlayerTurns(): number { return this.loaded && this.engine.activeCheckpoint?.stretch ? playerTurnsInCheckpoint(this.engine.serialize(), coordinatorHosts.chat.chatRows()) : 0; }
   getReadCursorSeed(): number | null { return this.loaded ? readCursorSeed(this.engine.serializeHistory()) : null; }
   getMirrorBook(): MemoryMirrorBook | null { return this.extras.memory.wiBook; }
   getExtractionSettings(): ExtractionRuntimeSettings { return this.extras.extraction.settings; }

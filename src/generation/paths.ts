@@ -1,5 +1,15 @@
 import { renderGateText, type GateLeaf, type GateNode, type PrimitiveValue, type ScaffoldingDelta } from "@engine/index";
-import type { GeneratedBeat, GeneratedOutcome } from "./types";
+import type { ExpansionCacheEntry, GeneratedBeat, GeneratedOutcome } from "./types";
+
+export const isEncounterPool = (entry: Pick<ExpansionCacheEntry, "kind">): boolean => entry.kind === "encounters";
+
+export const POOL_USABLE: readonly string[] = ["validated", "inserted"];
+
+export const encounterOffers = (entries: Record<string, ExpansionCacheEntry>, stretchId: string): Array<{ title: string; situation: string }> => {
+  const pools = Object.values(entries).filter((entry) => isEncounterPool(entry) && entry.stubId === stretchId && POOL_USABLE.includes(entry.status) && entry.encounters?.length);
+  const newest = pools.sort((left, right) => right.updatedAt.localeCompare(left.updatedAt))[0];
+  return (newest?.encounters ?? []).map(({ title, situation }) => ({ title, situation }));
+};
 
 // A generated beat with several outcomes is several routes, and both the code
 // checks and the staleness revalidation have to reason about all of them: `outcomes[0]` described one

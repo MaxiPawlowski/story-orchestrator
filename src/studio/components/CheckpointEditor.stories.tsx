@@ -40,6 +40,19 @@ export const AuthorsAnOpenStretch: Story = {
     await expect(importDraft(exportDraft(draft))).toEqual(draft);
     await userEvent.click(canvas.getByRole("button", { name: /The Cache/ }));
     await expect(canvasElement.querySelector('[data-so="stretch-editor"]')).toBeNull();
+    await expect(canvasElement.querySelector('[data-so="opening-editor"]')).not.toBeNull();
+  },
+};
+
+export const AuthorsAnOpenOpening: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: /The Cache/ }));
+    await userEvent.click(canvas.getByText(/Open opening: no objective line/));
+    await userEvent.selectOptions(canvas.getByLabelText("Opening pace"), "brief");
+    const draft = useDraftStore.getState().draft;
+    await expect(draft.checkpoints.find((checkpoint) => checkpoint.name === "The Cache")?.stretch).toEqual({ mode: "open", pace: "brief", pull_after: 3 });
+    await expect(importDraft(exportDraft(draft))).toEqual(draft);
   },
 };
 

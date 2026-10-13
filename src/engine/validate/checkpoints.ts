@@ -315,7 +315,7 @@ export const readCheckpoint = (value: unknown, path: string, errors: ValidationE
   const motives = value.motives === undefined ? undefined : readMotives(value.motives, `${path}.motives`, errors);
   if (motives) checkpoint.motives = motives;
   if (value.stretch !== undefined) {
-    const stretch = readStretch(value.stretch, `${path}.stretch`, errors);
+    const stretch = readStretch(value.stretch, `${path}.stretch`, errors, type);
     if (stretch) checkpoint.stretch = stretch;
   }
   readCheckpointChapter(value, checkpoint, path, errors);

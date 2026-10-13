@@ -1,5 +1,6 @@
 import type { NormalizedStoryV2 } from "@engine/index";
 import { estimateTokens } from "@extraction/callBudget";
+import { generateReviewedEncounters, renderEncounterPrompt } from "@generation/encounters";
 import { generateReviewedBeats, type ExpansionJudge } from "@generation/generate";
 import { renderGenerationPrompt } from "@generation/prompts";
 import type { GeneratedBeat, PlannedExpansionInput } from "@generation/types";
@@ -29,6 +30,7 @@ export function expansionJudge(judge: JudgeRuntime | null, story: NormalizedStor
   };
 }
 
-export const generationRequestTokens = (story: NormalizedStoryV2, input: PlannedExpansionInput): number => estimateTokens(renderGenerationPrompt(story, input));
+export const generationRequestTokens = (story: NormalizedStoryV2, input: PlannedExpansionInput): number =>
+  estimateTokens(input.candidate.kind === "encounters" ? renderEncounterPrompt(story, input) : renderGenerationPrompt(story, input));
 
-export { generateReviewedBeats };
+export { generateReviewedBeats, generateReviewedEncounters };

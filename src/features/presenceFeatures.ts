@@ -89,7 +89,8 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
   {
     id: "open-stretches", name: "Open stretches", area: "authoring", audience: "author",
     oneLine: "Free play between two turning points, with no task.",
-    what: "An open bridge scene has no goal line. After a few turns the world points toward the next place; the player leaves by their own move.",
+    what: "An open bridge scene has no goal line. After a few turns the world points toward the next place and, once play goes quiet, may offer small optional encounters; "
+      + "the player leaves by their own move. An anchor can open the same way for its first turns.",
     where: { selector: "#so-studio-modal", label: "Studio › Checkpoints", surface: "studio" },
     settings: [], guideTopic: "open-stretches", doc: authorGuideDoc("open-stretches"), status: "experimental", needs: ["story"],
   },

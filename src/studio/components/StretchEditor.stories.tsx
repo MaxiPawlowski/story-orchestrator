@@ -12,11 +12,11 @@ const exits: StretchExit[] = [
   { index: 3, to: "inn", toName: "The inn", gate: { q: "player_turns_in_checkpoint", op: ">=", v: 8 } },
 ];
 
-const Harness: React.FC<{ initial?: CheckpointStretch; playerText?: boolean; withExits?: StretchExit[] }> = ({ initial, playerText = false, withExits = exits }) => {
+const Harness: React.FC<{ initial?: CheckpointStretch; playerText?: boolean; withExits?: StretchExit[]; anchor?: boolean }> = ({ initial, playerText = false, withExits = exits, anchor = false }) => {
   const [stretch, setStretch] = useState<CheckpointStretch | undefined>(initial);
   return (
     <>
-      <StretchEditor stretch={stretch} exits={withExits} hasPlayerText={playerText} onChange={setStretch} />
+      <StretchEditor anchor={anchor} stretch={stretch} exits={withExits} hasPlayerText={playerText} onChange={setStretch} />
       <pre data-so="stretch-record">{JSON.stringify(stretch ?? null)}</pre>
     </>
   );
@@ -64,6 +64,43 @@ export const ClosesToAPlainStub: Story = {
     await expect(canvasElement.querySelector('[data-so="stretch-player-text"]')).not.toBeNull();
     await userEvent.click(canvas.getByText(/Open stretch: free play/));
     await expect(record(canvasElement)).toBe("null");
+  },
+};
+
+export const OffersEncounters: Story = {
+  args: { initial: { mode: "open", pace: "brief", pull_after: 3, arrive_when: arrive } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText(/Offer encounters/));
+    await expect(record(canvasElement)).toBe(JSON.stringify({ mode: "open", pace: "brief", pull_after: 3, arrive_when: arrive, offer: ["encounters"] }));
+    await userEvent.click(canvas.getByText(/Offer encounters/));
+    await expect(record(canvasElement)).toBe(JSON.stringify({ mode: "open", pace: "brief", pull_after: 3, arrive_when: arrive }));
+  },
+};
+
+export const OpensAnAnchorOpening: Story = {
+  args: { anchor: true, withExits: [] },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvasElement.querySelector('[data-so="stretch-editor"]')).toBeNull();
+    await userEvent.click(canvas.getByText(/Open opening: no objective line/));
+    await expect(record(canvasElement)).toBe(JSON.stringify({ mode: "open", pace: "unhurried", pull_after: 6 }));
+    await userEvent.selectOptions(canvas.getByLabelText("Opening pace"), "brief");
+    await expect(record(canvasElement)).toBe(JSON.stringify({ mode: "open", pace: "brief", pull_after: 3 }));
+    await expect(canvasElement.querySelector('[data-so="stretch-arrival"]')).toBeNull();
+    await userEvent.click(canvas.getByText(/Open opening: no objective line/));
+    await expect(record(canvasElement)).toBe("null");
+  },
+};
+
+export const CapsTheOpening: Story = {
+  args: { anchor: true, initial: { mode: "open", pace: "long", pull_after: 10 }, playerText: true },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.clear(canvas.getByLabelText("Open for"));
+    await userEvent.type(canvas.getByLabelText("Open for"), "40");
+    await expect(record(canvasElement)).toBe(JSON.stringify({ mode: "open", pace: "long", pull_after: 10 }));
+    await expect(canvasElement.querySelector('[data-so="opening-player-text"]')).not.toBeNull();
   },
 };
 

@@ -1,8 +1,9 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import { EXPANSION_CONTRACT } from "@generation/types";
 import { collectExpansionGateSources, insertedCheckpointIds, mergeExpansions } from "@generation/merge";
-import { findStubExpansionCandidate, findStubExpansionCandidates, planExpansion } from "@generation/planner";
-import { isLivingId } from "@engine/index";
+import { findEncounterCandidate, findStubExpansionCandidate, findStubExpansionCandidates, planEncounterPool, planExpansion } from "@generation/planner";
+import { isLivingId, offersEncounters } from "@engine/index";
+import { isEncounterPool } from "@generation/paths";
 import { revalidateExpansion } from "@generation/revalidate";
 import type { ExpansionCacheEntry, ExpansionRuntimeState, PlannedExpansionInput, StubExpansionCandidate } from "@generation/types";
 import { isSceneStale, LOOKAHEAD_PREGEN_P, type SceneReadRecord } from "@judge/index";
@@ -10,6 +11,7 @@ import type { PlayerHost } from "../hostPorts";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
 import { failureClass } from "@extraction/breaker";
+import type { ModelAsk } from "@extraction/modelRoute";
 import type { ExtraGateSource, ModelCall, Preflight, PreflightConfirm } from "@extraction/index";
 import { required } from "@utils/guards";
 import { log } from "@utils/log";
@@ -18,10 +20,11 @@ type ExpansionUnit = typeof import("../expansionUnit");
 const loadUnit = (): Promise<ExpansionUnit> => import("../expansionUnit");
 
 export const LIVING_STUB_ATTEMPTS = 3;
+export const POOL_ATTEMPTS = 2;
 
 export const expansionKey = (
-  candidate: Pick<StubExpansionCandidate, "sourceCheckpointId" | "stubId" | "targetAnchorId">,
-) => `${candidate.sourceCheckpointId}->${candidate.stubId}->${candidate.targetAnchorId}`;
+  candidate: Pick<StubExpansionCandidate, "sourceCheckpointId" | "stubId" | "targetAnchorId" | "kind">,
+) => (candidate.kind === "encounters" ? `${candidate.stubId}->encounters` : `${candidate.sourceCheckpointId}->${candidate.stubId}->${candidate.targetAnchorId}`);
 
 export interface ExpansionCoordinatorDeps {
   getStory: () => NormalizedStoryV2 | null;
@@ -124,7 +127,8 @@ export class ExpansionCoordinator {
   }
 
   pruneMissing(story: NormalizedStoryV2): number {
-    const missing = Object.entries(this.entries).filter(([, entry]) => [entry.sourceCheckpointId, entry.stubId, entry.targetAnchorId].some((id) => !story.checkpointById[id]));
+    const missing = Object.entries(this.entries).filter(([, entry]) => [entry.sourceCheckpointId, entry.stubId, entry.targetAnchorId].some((id) => !story.checkpointById[id])
+      || (isEncounterPool(entry) && !offersEncounters(story.checkpointById[entry.stubId])));
     missing.forEach(([key]) => { delete this.entries[key]; this.liveJobs.delete(key); });
     return missing.length;
   }
@@ -142,6 +146,7 @@ export class ExpansionCoordinator {
     const state = required(this.deps.getState(), "engine state");
     return {
       key: expansionKey(candidate),
+      kind: candidate.kind ?? "chain",
       status,
       contract: EXPANSION_CONTRACT,
       sourceCheckpointId: candidate.sourceCheckpointId,
@@ -167,6 +172,8 @@ export class ExpansionCoordinator {
     if (!story || !state) return false;
     const candidate = findStubExpansionCandidate(story, state.activeCheckpointId);
     const queued = candidate ? this.queue(candidate, "active", schedule) : false;
+    const pool = findEncounterCandidate(story, state.activeCheckpointId);
+    if (pool) this.queue(pool, "active", schedule);
     findStubExpansionCandidates(story, state.activeCheckpointId)
       .filter((branch) => branch.stubId !== candidate?.stubId && isLivingId(branch.stubId))
       .forEach((branch) => this.queue(branch, "active", schedule));
@@ -182,7 +189,8 @@ export class ExpansionCoordinator {
     const existing = this.entries[key];
     const retryable = origin === "active" && Boolean(existing) && (
       (existing?.origin === "lookahead" && ["stale", "failed"].includes(existing.status) && existing.attempts < 2)
-      || (isLivingId(candidate.stubId) && existing?.status === "failed" && existing.attempts < LIVING_STUB_ATTEMPTS));
+      || (isLivingId(candidate.stubId) && existing?.status === "failed" && existing.attempts < LIVING_STUB_ATTEMPTS)
+      || (candidate.kind === "encounters" && existing?.status === "failed" && existing.attempts < POOL_ATTEMPTS));
     const orphaned = Boolean(existing && ["queued", "generating"].includes(existing.status) && !this.hasLiveJob(key));
     if (existing && !retryable && !orphaned) return false;
     const job = beginRun(this.deps.ownership);
@@ -244,7 +252,7 @@ export class ExpansionCoordinator {
     const story = this.deps.getStory();
     const state = this.deps.getState();
     if (!entry || !story || !state) return false;
-    const candidate = findStubExpansionCandidate(story, entry.sourceCheckpointId);
+    const candidate = isEncounterPool(entry) ? findEncounterCandidate(story, entry.stubId) : findStubExpansionCandidate(story, entry.sourceCheckpointId);
     if (!candidate || candidate.stubId !== entry.stubId) return false;
     await this.generate(candidate, this.deps.model.planted?.("generation") ?? null);
     return true;
@@ -254,7 +262,7 @@ export class ExpansionCoordinator {
     const story = this.deps.getStory();
     const state = this.deps.getState();
     if (!story || !state) return false;
-    const candidate = findStubExpansionCandidate(story, state.activeCheckpointId);
+    const candidate = findStubExpansionCandidate(story, state.activeCheckpointId) ?? findEncounterCandidate(story, state.activeCheckpointId);
     if (!candidate) {
       this.deps.setStatus("No reachable stub from active checkpoint");
       this.deps.notify();
@@ -266,11 +274,17 @@ export class ExpansionCoordinator {
     return true;
   }
 
+  private plan(story: NormalizedStoryV2, state: EngineState, candidate: StubExpansionCandidate): PlannedExpansionInput {
+    return candidate.kind === "encounters"
+      ? planEncounterPool(state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts())
+      : planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
+  }
+
   // What an author's "generate now" is about to send: every variant, plus the critic.
   private async preflight(story: NormalizedStoryV2, state: EngineState, candidate: StubExpansionCandidate): Promise<Preflight> {
     const unit = await loadUnit();
-    const input = planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
-    const requests = (this.judgeFor(unit, story, input).variants?.n ?? 1) + 1;
+    const input = this.plan(story, state, candidate);
+    const requests = (candidate.kind === "encounters" ? 1 : this.judgeFor(unit, story, input).variants?.n ?? 1) + 1;
     return { requests, tokens: requests * unit.generationRequestTokens(story, input) };
   }
 
@@ -292,32 +306,36 @@ export class ExpansionCoordinator {
     let transport: unknown = null;
     try {
       const state = required(this.deps.getState(), "engine state");
-      const input = planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
+      const input = this.plan(story, state, candidate);
       const unit = await loadUnit();
-      const generated = await unit.generateReviewedBeats(story, input, this.deps.model, { role: "authoring",
-          pass: "generation", signal: run.signal, debugResponse: debugResponse ?? null }, this.judgeFor(unit, story, input));
+      const ask: ModelAsk = { role: "authoring", pass: "generation", signal: run.signal, debugResponse: debugResponse ?? null };
+      const generated = candidate.kind === "encounters"
+        ? await unit.generateReviewedEncounters(story, input, this.deps.model, ask, [this.deps.hosts.player.getPlayerName()])
+        : await unit.generateReviewedBeats(story, input, this.deps.model, ask, this.judgeFor(unit, story, input));
       if (!current()) return;
+      const content = "encounters" in generated ? { beats: [], encounters: generated.encounters } : { beats: generated.beats };
+      const variants = "variants" in generated && generated.variants ? { variants: generated.variants } : {};
       if (generated.issues.length || !generated.codeCheck || !generated.codeCheck.ok) {
-        this.entries[key] = { ...this.entries[key], status: "failed", beats: generated.beats,
+        this.entries[key] = { ...this.entries[key], status: "failed", ...content,
             codeCheck: generated.codeCheck,
             lastError: generated.issues.join("; ") || generated.codeCheck?.issues.join("; ") || "Generation failed",
-            ...(generated.variants ? { variants: generated.variants } : {}), updatedAt: new Date().toISOString() };
+            ...variants, updatedAt: new Date().toISOString() };
       } else {
         this.entries[key] = {
           ...this.entries[key],
           status: generated.needsReview ? "needs_review" : "validated",
           basis: { ...state.blackboard.values },
           blackboardVersionSum: this.versionSum(state),
-          beats: generated.beats,
+          ...content,
           needsReview: generated.needsReview,
           verdicts: [generated.verdict],
           codeCheck: generated.codeCheck,
-          insertedCheckpointIds: insertedCheckpointIds({ ...this.entries[key], beats: generated.beats }),
-          ...(generated.variants ? { variants: generated.variants } : {}),
+          insertedCheckpointIds: "encounters" in generated ? [] : insertedCheckpointIds({ ...this.entries[key], beats: generated.beats }),
+          ...variants,
           lastError: null,
           updatedAt: new Date().toISOString(),
         };
-        this.rebuildMergedStory();
+        if (!("encounters" in generated)) this.rebuildMergedStory();
       }
     } catch (error) {
       if (!current()) return;

@@ -248,15 +248,18 @@ export interface Checkpoint {
 
 export const STRETCH_MODES = ["open"] as const;
 export const STRETCH_PACES = ["brief", "unhurried", "long"] as const;
+export const STRETCH_OFFERS = ["encounters"] as const;
 export type StretchMode = typeof STRETCH_MODES[number];
 export type StretchPace = typeof STRETCH_PACES[number];
+export type StretchOffer = typeof STRETCH_OFFERS[number];
 
 export interface CheckpointStretch {
   mode: StretchMode;
   pace: StretchPace;
   pull_after: number;
   max_turns?: number;
-  arrive_when: GateNode;
+  offer?: StretchOffer[];
+  arrive_when?: GateNode;
 }
 
 export interface MemberGuidance {

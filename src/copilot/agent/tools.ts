@@ -42,7 +42,7 @@ const ID = req("string", "checkpoint id");
 const REF = req("object", "{from, to, priority?, index?} naming one transition; index is its number in readGraph, for telling identical ones apart");
 const QUALITY = "{key, type: string|int|float|bool|enum, values?: string[], source: \"extractor\", rubric, latching?: boolean}";
 const CHECKPOINT = "{id, name, objective, type: anchor|intermediate, tension_target?, guidance?, agency?, talk_control?, convergence_threshold?, "
-  + "stretch?: {mode: open, pace?, pull_after?, max_turns?, arrive_when} (null clears)}";
+  + "stretch?: {mode: open, pace?, pull_after?, max_turns?, offer?: [encounters], arrive_when (an anchor's opening has only mode, pace, pull_after)} (null clears)}";
 const GATE = "{q, op: ==|!=|>=|<=|>|<|in, v} | {all: gate[]} | {any: gate[]} | {not: gate}";
 const QUEST = "[{id, title, visible_when?, offered_when?, done_when?, failed_when?, steps: [{text, done_when}], requires?, progress?, labels?, giver?, reward?}]";
 const CHECK = "{id, label?, quality, roll: {sides, target, dice?}, modifiers?: [{q, v, add, label?}], narrate: public|hidden, outcome?, twist?}";

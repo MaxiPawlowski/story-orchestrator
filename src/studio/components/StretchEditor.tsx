@@ -1,8 +1,9 @@
 import React from "react";
-import { STRETCH_PACES, type CheckpointStretch, type StretchPace } from "@engine/index";
-import { arrivalExit, newOpenStretch, offArrivalExits, withArrival, withMaxTurns, withPace, withPullAfter, type StretchExit } from "../stretchDraft";
+import { OPENING_MAX_TURNS, STRETCH_PACES, type CheckpointStretch, type StretchPace } from "@engine/index";
+import { arrivalExit, newOpenStretch, newOpening, offArrivalExits, withArrival, withEncounters, withMaxTurns, withOpeningTurns, withPace, withPullAfter, type StretchExit } from "../stretchDraft";
 
 export interface StretchEditorProps {
+  anchor?: boolean;
   stretch: CheckpointStretch | undefined;
   exits: StretchExit[];
   hasPlayerText: boolean;
@@ -16,7 +17,44 @@ const turnCount = (raw: string): number | undefined => {
   return Number.isFinite(parsed) ? parsed : undefined;
 };
 
-export function StretchEditor({ stretch, exits, hasPlayerText, onChange }: StretchEditorProps) {
+function OpeningEditor({ stretch, hasPlayerText, onChange }: Pick<StretchEditorProps, "hasPlayerText" | "onChange"> & { stretch: CheckpointStretch | undefined }) {
+  return (
+    <div data-so="opening-editor" className="flex flex-col gap-2">
+      <label className="flex items-center gap-2 text-xs">
+        <input type="checkbox" data-so="opening-open" checked={Boolean(stretch)}
+          onChange={(event) => onChange(event.target.checked ? newOpening() : undefined)} />
+        <span>Open opening: no objective line for the first player turns here, then the objective applies</span>
+      </label>
+      {stretch ? (
+        <>
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <label className="flex flex-col gap-1 text-xs">
+              <span>Pace</span>
+              <select data-so="opening-pace" aria-label="Opening pace" className="text_pole st-input" value={stretch.pace}
+                onChange={(event) => onChange(withOpeningTurns(withPace(stretch, event.target.value as StretchPace), undefined))}>
+                {STRETCH_PACES.map((pace) => <option key={pace} value={pace}>{PACE_LABELS[pace]}</option>)}
+              </select>
+            </label>
+            <label className="flex flex-col gap-1 text-xs">
+              <span>Open for (player turns, at most {OPENING_MAX_TURNS})</span>
+              <input type="number" min={1} max={OPENING_MAX_TURNS} data-so="opening-turns" aria-label="Open for" className="text_pole st-input" value={stretch.pull_after}
+                onChange={(event) => onChange(withOpeningTurns(stretch, turnCount(event.target.value)))} />
+            </label>
+          </div>
+          <div className="text-xs st-muted">
+            The first {stretch.pull_after} player turns here carry no task. The story's exits work as usual and nothing moves the party.
+          </div>
+          {hasPlayerText ? (
+            <div data-so="opening-player-text" className="text-xs st-text-error">An open opening shows its name, never a task: clear the public situation above.</div>
+          ) : null}
+        </>
+      ) : null}
+    </div>
+  );
+}
+
+export function StretchEditor({ anchor = false, stretch, exits, hasPlayerText, onChange }: StretchEditorProps) {
+  if (anchor) return <OpeningEditor stretch={stretch} hasPlayerText={hasPlayerText} onChange={onChange} />;
   const arrival = stretch ? arrivalExit(stretch, exits) : null;
   const sideExits = stretch ? offArrivalExits(stretch, exits) : [];
   return (
@@ -48,6 +86,11 @@ export function StretchEditor({ stretch, exits, hasPlayerText, onChange }: Stret
                 onChange={(event) => onChange(withMaxTurns(stretch, turnCount(event.target.value)))} />
             </label>
           </div>
+          <label className="flex items-center gap-2 text-xs">
+            <input type="checkbox" data-so="stretch-encounters" checked={stretch.offer?.includes("encounters") === true}
+              onChange={(event) => onChange(withEncounters(stretch, event.target.checked))} />
+            <span>Offer encounters: prepare 3 to 5 optional situations the world may put forward once play goes quiet</span>
+          </label>
           <label className="flex flex-col gap-1 text-xs">
             <span>Arrival (the exit whose gate ends the stretch)</span>
             <select data-so="stretch-arrival" aria-label="Arrival exit" className="text_pole st-input" value={arrival ? String(arrival.index) : ""}

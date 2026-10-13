@@ -1,0 +1,25 @@
+{
+  "format": 2,
+  "id": "v28-19-encounters",
+  "title": "v28-19 Encounters",
+  "description": "v2.8 19 fixture story: the start beat is an open stretch (pace brief, pull after 3 player turns) that offers encounters. Its only exit needs two qualities the fixture never completes, so the chat stays in the stretch; lamp_lit is the quality the scenario moves to break the quiet.",
+  "qualities": [
+    { "key": "reached_walls", "type": "bool", "source": "extractor", "rubric": "Has the party arrived at the city walls?" },
+    { "key": "lamp_lit", "type": "bool", "source": "extractor", "rubric": "Has the party lit the lamp?" }
+  ],
+  "checkpoints": [
+    {
+      "id": "road", "name": "On the road", "objective": "Reach the walls.", "type": "intermediate", "start": true,
+      "guidance": "Late summer, dusty road, the party is in no hurry.",
+      "stretch": {
+        "mode": "open", "pace": "brief", "offer": ["encounters"],
+        "arrive_when": { "all": [{ "q": "reached_walls", "op": "==", "v": true }, { "q": "lamp_lit", "op": "==", "v": true }] }
+      }
+    },
+    { "id": "walls", "name": "The walls", "objective": "The gate is shut.", "type": "anchor" }
+  ],
+  "transitions": [
+    { "from": "road", "to": "walls", "priority": 1, "gate": { "all": [{ "q": "reached_walls", "op": "==", "v": true }, { "q": "lamp_lit", "op": "==", "v": true }] } }
+  ],
+  "roster": []
+}

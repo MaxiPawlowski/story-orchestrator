@@ -4,6 +4,7 @@ import {
 } from "@engine/index";
 import type { ExtraGateSource } from "@extraction/types";
 import type { ExpansionCacheEntry } from "./types";
+import { isEncounterPool } from "./paths";
 import { LIVING_BEAT_TURNS } from "./living/types";
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -32,7 +33,7 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
   const raw = clone(rawStory) as StoryV2;
   const checkpoints = [...raw.checkpoints];
   const transitions = [...raw.transitions];
-  Object.values(entries).filter((entry) => ["cached", "needs_review", "validated", "inserted"].includes(entry.status) && entry.beats.length).forEach((entry) => {
+  Object.values(entries).filter((entry) => !isEncounterPool(entry) && ["cached", "needs_review", "validated", "inserted"].includes(entry.status) && entry.beats.length).forEach((entry) => {
     const sourceTransition = transitions.find((transition) => transition.from === entry.sourceCheckpointId && transition.to === entry.stubId);
     if (!sourceTransition) return;
     const target = raw.checkpoints.find((checkpoint) => checkpoint.id === entry.targetAnchorId);
@@ -103,7 +104,7 @@ export function insertedCheckpointIds(entry: ExpansionCacheEntry): string[] {
 
 export function collectExpansionGateSources(entries: Record<string, ExpansionCacheEntry>): ExtraGateSource[] {
   const sources: ExtraGateSource[] = [];
-  Object.values(entries).forEach((entry) => {
+  Object.values(entries).filter((entry) => !isEncounterPool(entry)).forEach((entry) => {
     // `validated` is merged (above) exactly like `inserted`, so its gates are already in the played
     // graph and are not extra sources. The list matches the pre-plan-07 one.
     if (!["cached", "needs_review"].includes(entry.status)) return;

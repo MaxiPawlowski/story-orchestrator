@@ -1,5 +1,6 @@
 export * from "./critic";
 export * from "./delta";
+export * from "./encounters";
 export * from "./generate";
 export * from "./merge";
 export * from "./parse";

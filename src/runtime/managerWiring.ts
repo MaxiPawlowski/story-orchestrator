@@ -9,6 +9,7 @@ import { MemoryCoordinator } from "./coordinators/memoryCoordinator";
 import { PacingCoordinator } from "./coordinators/pacingCoordinator";
 import { StagecraftCoordinator } from "./coordinators/stagecraftCoordinator";
 import { createWarden, establishedFacts } from "./continuity";
+import { encounterOffers } from "@generation/paths";
 import { enabledCharacterIds, rosterMemberName } from "./roster";
 import { createCuratorFilter } from "./curatorFilter";
 import { loreEligibility } from "./loreRoute";
@@ -137,6 +138,7 @@ export function wireCoordinators(port: ManagerPort) {
   const pacing = new PacingCoordinator({
     ...view,
     getStateLog: () => engine.stateLog,
+    getEncounters: (stretchId) => encounterOffers(port.extras().expansion.entries, stretchId),
     getTensionTarget: () => engine.activeCheckpoint?.tension_target,
     getTension: () => port.extras().tension,
     setTension: (next) => { port.extras().tension = next; },

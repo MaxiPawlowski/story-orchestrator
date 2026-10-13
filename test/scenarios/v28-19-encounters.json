@@ -1,0 +1,226 @@
+{
+  "_note": "v2.8 19, the encounter pool and the quiet trigger in a group chat, no model. The pool is planted through the expand verb's debugResponse (plumbing only: it proves the cache entry, the guidance block, the quiet state and rollback/reopen, never generation quality). The start beat is an open stretch (pull after 3) that offers encounters. Asserts: no menu before 3 player turns; the menu from the 3rd while nothing the exit gate names has moved (a group round counts one turn); a /cp set on a gate quality (it commits its own boundary after turn 3) hides it while the move is inside the last 3 player turns (turns 4 and 5), and it returns at turn 6; a swipe keeps the block; deleting a player line takes the menu away; after a reload the pool, the turn count and the quiet read are the same and play resumes to the menu. No objective line anywhere.",
+  "requires": {
+    "lane": "no-model",
+    "group": "SO-Open-Stretch-Curve",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off"
+  },
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error(`the sandbox chat still holds ${ctx.chat.length} message(s)`); return { cleared: true };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return { pinned: 'SCENE_NONE' };"
+    },
+    {
+      "import_story": {
+        "file": "v28-19-encounters.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const read = () => ({ turns: rt.getPlayerTurns(), block: String(SillyTavern.getContext().extensionPrompts?.story_orchestrator_guidance?.value ?? ''), macro: SillyTavern.getContext().substituteParams('{{story_current_checkpoint}}') }); globalThis.__so19 = { read, check: (turns, want) => { const now = read(); const shown = JSON.stringify(now.block.slice(-420)); if (now.turns !== turns) throw new Error(`expected ${turns} player turns, read ${now.turns}`); (want.has ?? []).forEach((text) => { if (!now.block.includes(text)) throw new Error(`the block lacks ${JSON.stringify(text)} at ${turns} turns: ${shown}`); }); (want.hasNot ?? []).forEach((text) => { if (now.block.includes(text)) throw new Error(`the block holds ${JSON.stringify(text)} at ${turns} turns: ${shown}`); }); if (want.macro !== undefined && now.macro !== want.macro) throw new Error(`the macro reads ${JSON.stringify(now.macro)} at ${turns} turns`); return { turns, macro: now.macro, tail: now.block.slice(-160) }; } }; return { ready: true };"
+    },
+    {
+      "eval": "const state = globalThis.storyOrchestratorRuntime.getEngineState(); if (state?.activeCheckpointId !== 'road') throw new Error(`the story did not start in the stretch: ${state?.activeCheckpointId}`); return { active: state.activeCheckpointId };"
+    },
+    {
+      "expand": {
+        "debugResponse": "{\"encounters\":[{\"title\":\"A broken cart\",\"situation\":\"A merchant's cart lies tipped at the roadside, a wheel split, and the driver is shouting for help.\"},{\"title\":\"Smoke on the ridge\",\"situation\":\"A thin column of smoke rises from the ridge, too steady for a campfire and too far to be sure.\"},{\"title\":\"The toll keeper\",\"situation\":\"A bored toll keeper has set a rope across the road and wants a coin from every traveller.\"},{\"title\":\"A lost goat\",\"situation\":\"A goat with a bell round its neck wanders out of the hedge and will not be driven off.\"}]}"
+      }
+    },
+    {
+      "eval": "const entry = globalThis.storyOrchestratorRuntime.getSnapshot().expansion.entries['road->encounters']; if (!entry || entry.kind !== 'encounters') throw new Error('no encounter pool entry: ' + JSON.stringify(Object.keys(globalThis.storyOrchestratorRuntime.getSnapshot().expansion.entries))); if (!['validated', 'inserted'].includes(entry.status)) throw new Error('the pool is ' + entry.status + ': ' + entry.lastError); if (entry.encounters.length !== 4 || entry.beats.length !== 0) throw new Error('unexpected pool shape'); return { status: entry.status, titles: entry.encounters.map((item) => item.title) };",
+      "log": true
+    },
+    {
+      "send": "We walk on and I hum an old song."
+    },
+    {
+      "slash": "/sendas name=Arin Arin joins in, off key."
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The road bends through yellow fields."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "return globalThis.__so19.check(1, {\"has\":[\"Open stretch: there is no task here.\"],\"hasNot\":[\"Objective:\",\"A broken cart\",\"Smoke on the ridge\",\"At most once\"]});",
+      "log": true
+    },
+    {
+      "send": "I stop to pick blackberries."
+    },
+    {
+      "slash": "/sendas name=Arin Arin eats more than she picks."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "return globalThis.__so19.check(2, {\"has\":[\"Open stretch: there is no task here.\"],\"hasNot\":[\"Objective:\",\"A broken cart\",\"Smoke on the ridge\",\"At most once\"]});",
+      "log": true
+    },
+    {
+      "send": "We make camp by the stream."
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The water is cold and clear."
+    },
+    {
+      "slash": "/sendas name=Arin Arin builds the fire."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "return globalThis.__so19.check(3, {\"has\":[\"Open stretch: there is no task here.\",\"never a push\",\"- A broken cart:\",\"- Smoke on the ridge:\",\"- The toll keeper:\",\"- A lost goat:\",\"None is required\",\"At most once\"],\"hasNot\":[\"Objective:\"]});",
+      "log": true
+    },
+    {
+      "slash": "/cp set lamp_lit true"
+    },
+    {
+      "send": "I trim the wick of our lantern."
+    },
+    {
+      "slash": "/sendas name=Arin Arin hands you the oil."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "return globalThis.__so19.check(4, {\"has\":[\"Open stretch: there is no task here.\",\"never a push\"],\"hasNot\":[\"Objective:\",\"A broken cart\",\"Smoke on the ridge\",\"At most once\"]});",
+      "log": true
+    },
+    {
+      "send": "I check the stars."
+    },
+    {
+      "slash": "/sendas name=Arin Arin names a constellation wrongly."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "return globalThis.__so19.check(5, {\"has\":[\"Open stretch: there is no task here.\",\"never a push\"],\"hasNot\":[\"Objective:\",\"A broken cart\",\"Smoke on the ridge\",\"At most once\"]});",
+      "log": true
+    },
+    {
+      "send": "We sleep under the stars."
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" Owls call all night."
+    },
+    {
+      "slash": "/sendas name=Arin Arin snores."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "return globalThis.__so19.check(6, {\"has\":[\"Open stretch: there is no task here.\",\"never a push\",\"- A broken cart:\",\"- Smoke on the ridge:\",\"- The toll keeper:\",\"- A lost goat:\",\"None is required\",\"At most once\"],\"hasNot\":[\"Objective:\"]});",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const last = ctx.chat.length - 1; const reply = ctx.chat[last]; if (reply.is_user) throw new Error('the last message is not a reply'); reply.swipes = ['She changes the subject.', reply.mes]; reply.swipe_id = 1; reply.swipe_info = [{}, {}]; await ctx.saveChat(); await ctx.swipe.left(); if (ctx.chat[last].swipe_id !== 0) throw new Error(`the swipe did not move to the existing alternative: ${ctx.chat[last].swipe_id}`); return { swiped: last };",
+      "log": true
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "extract": {
+        "debugResponse": "SCENE_NONE",
+        "reason": "v28-19:encounters-after-swipe"
+      }
+    },
+    {
+      "eval": "return globalThis.__so19.check(6, {\"has\":[\"Open stretch: there is no task here.\",\"never a push\",\"- A broken cart:\",\"- Smoke on the ridge:\",\"- The toll keeper:\",\"- A lost goat:\",\"None is required\",\"At most once\"],\"hasNot\":[\"Objective:\"]});",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const id = ctx.chat.findIndex((m) => m.is_user && String(m.mes).includes(\"sleep under the stars\")); if (id < 0) throw new Error('the player line is gone already'); await ctx.deleteMessage(id, undefined, false); return { deleted: id };",
+      "log": true
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "extract": {
+        "debugResponse": "SCENE_NONE",
+        "reason": "v28-19:encounters-after-delete"
+      }
+    },
+    {
+      "eval": "return globalThis.__so19.check(5, {\"has\":[\"Open stretch: there is no task here.\",\"never a push\"],\"hasNot\":[\"Objective:\",\"A broken cart\",\"Smoke on the ridge\",\"At most once\"]});",
+      "log": true
+    },
+    {
+      "reload": {
+        "timeoutMs": 90000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const read = () => ({ turns: rt.getPlayerTurns(), block: String(SillyTavern.getContext().extensionPrompts?.story_orchestrator_guidance?.value ?? ''), macro: SillyTavern.getContext().substituteParams('{{story_current_checkpoint}}') }); globalThis.__so19 = { read, check: (turns, want) => { const now = read(); const shown = JSON.stringify(now.block.slice(-420)); if (now.turns !== turns) throw new Error(`expected ${turns} player turns, read ${now.turns}`); (want.has ?? []).forEach((text) => { if (!now.block.includes(text)) throw new Error(`the block lacks ${JSON.stringify(text)} at ${turns} turns: ${shown}`); }); (want.hasNot ?? []).forEach((text) => { if (now.block.includes(text)) throw new Error(`the block holds ${JSON.stringify(text)} at ${turns} turns: ${shown}`); }); if (want.macro !== undefined && now.macro !== want.macro) throw new Error(`the macro reads ${JSON.stringify(now.macro)} at ${turns} turns`); return { turns, macro: now.macro, tail: now.block.slice(-160) }; } }; return { ready: true };"
+    },
+    {
+      "eval": "const entry = globalThis.storyOrchestratorRuntime.getSnapshot().expansion.entries['road->encounters']; if (!entry || entry.kind !== 'encounters') throw new Error('no encounter pool entry: ' + JSON.stringify(Object.keys(globalThis.storyOrchestratorRuntime.getSnapshot().expansion.entries))); if (!['validated', 'inserted'].includes(entry.status)) throw new Error('the pool is ' + entry.status + ': ' + entry.lastError); if (entry.encounters.length !== 4 || entry.beats.length !== 0) throw new Error('unexpected pool shape'); return { status: entry.status, titles: entry.encounters.map((item) => item.title) };",
+      "log": true
+    },
+    {
+      "eval": "const now = globalThis.__so19.read(); if (now.turns !== 5) throw new Error(`after the reload the stretch reads ${now.turns} player turns, expected 5`); return { turns: now.turns };",
+      "log": true
+    },
+    {
+      "send": "We sleep under the stars again."
+    },
+    {
+      "slash": "/sendas name=Arin Arin snores louder."
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "return globalThis.__so19.check(6, {\"has\":[\"Open stretch: there is no task here.\",\"never a push\",\"- A broken cart:\",\"- Smoke on the ridge:\",\"- The toll keeper:\",\"- A lost goat:\",\"None is required\",\"At most once\"],\"hasNot\":[\"Objective:\"]});",
+      "log": true
+    },
+    {
+      "expect": {
+        "activeCheckpoint": "road"
+      }
+    }
+  ]
+}

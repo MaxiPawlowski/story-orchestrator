@@ -1,0 +1,21 @@
+{
+  "format": 2,
+  "id": "v28-19-open-opening",
+  "title": "v28-19 Open Opening",
+  "description": "v2.8 19 fixture story: the start anchor opens free for its first three player turns (pace brief), then reads as an ordinary anchor with an objective line. Its only exit waits on a quality the fixture never sets, so the chat stays on the anchor.",
+  "qualities": [
+    { "key": "left_harbour", "type": "bool", "source": "extractor", "rubric": "Has the party left the harbour for the town?" }
+  ],
+  "checkpoints": [
+    {
+      "id": "harbour", "name": "The harbour", "objective": "Persuade the harbour master to open the gate.", "type": "anchor", "start": true,
+      "guidance": "Gulls over the quay, a long queue at the customs shed.",
+      "stretch": { "mode": "open", "pace": "brief" }
+    },
+    { "id": "town", "name": "The town", "objective": "Find a bed for the night.", "type": "anchor" }
+  ],
+  "transitions": [
+    { "from": "harbour", "to": "town", "priority": 1, "gate": { "q": "left_harbour", "op": "==", "v": true } }
+  ],
+  "roster": []
+}

@@ -1,8 +1,8 @@
 import { getGenerationBias, getTensionTrajectory } from "@pacing/index";
-import { isOpenStretch, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { isOpenStretch, offersEncounters, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
 import { computeStateDelta } from "./delta";
 import { gatePins } from "./paths";
-import type { PlannedExpansionInput, StubExpansionCandidate } from "./types";
+import { ENCOUNTER_POOL_SIZE, type PlannedExpansionInput, type StubExpansionCandidate } from "./types";
 
 const tensionToNumeric: Record<string, number> = { calm: 0, stirring: 0.25, tense: 0.5, critical: 0.75, peak: 1 };
 
@@ -44,6 +44,33 @@ export function findStubExpansionCandidate(story: NormalizedStoryV2, sourceCheck
     if (targetAnchorId) return { sourceCheckpointId, stubId: transition.to, targetAnchorId, transition };
   }
   return null;
+}
+
+export function findEncounterCandidate(story: NormalizedStoryV2, checkpointId: string): StubExpansionCandidate | null {
+  const entering = (story.outgoingByCheckpoint[checkpointId] ?? []).find((transition) => offersEncounters(story.checkpointById[transition.to]));
+  const stretchId = offersEncounters(story.checkpointById[checkpointId]) ? checkpointId : entering?.to;
+  if (!stretchId) return null;
+  const transition = (story.outgoingByCheckpoint[stretchId] ?? [])[0];
+  const targetAnchorId = findFirstReachableAnchor(story, stretchId);
+  return transition && targetAnchorId ? { kind: "encounters", sourceCheckpointId: stretchId, stubId: stretchId, targetAnchorId, transition } : null;
+}
+
+export function planEncounterPool(
+  blackboard: { values: Record<string, PrimitiveValue> },
+  candidate: StubExpansionCandidate,
+  canon: string,
+  facts: string[],
+): PlannedExpansionInput {
+  return {
+    candidate: { ...candidate, kind: "encounters" },
+    beats: ENCOUNTER_POOL_SIZE,
+    deltas: [],
+    tensionTrajectory: [],
+    generationBias: null,
+    canon,
+    facts,
+    entry: { ...blackboard.values },
+  };
 }
 
 export function planExpansion(

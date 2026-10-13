@@ -122,11 +122,11 @@ export const GUIDE_TOPICS = {
   "open-stretches": {
     title: "Open stretches",
     fields: "checkpoints[].stretch, player_turns_in_checkpoint",
-    text: "stretch: {mode: open, pace, pull_after, max_turns, arrive_when} on an intermediate is free play: no objective line, no beat chain, no stall re-read. pace brief, "
-      + "unhurried or long = pull_after 3, 6 or 10 player turns; after that the world offers hooks toward the next place "
-      + "(named from the arrival exit's target), max_turns makes them plain, never a move. "
-      + "arrive_when must be the gate of every one of its exits; progress exits and player_text are refused. The objective stays for the readers, never the narrator. "
-      + "Set it with updateCheckpoint patch.stretch (null clears) or the Studio's Open stretch panel. pressure, offer and trigger are not built yet.",
+    text: "stretch: {mode: open, pace, pull_after, max_turns, offer, arrive_when} on an intermediate is free play: no objective line, no beat chain, no stall re-read. "
+      + "pace brief, unhurried, long = pull_after 3, 6, 10 player turns; then hooks toward the next place (max_turns: plain), never a move. "
+      + "Every exit uses arrive_when; progress exits and player_text are refused. offer: [encounters] = 3 to 5 optional situations, shown only once quiet "
+      + "(no exit-gate quality changed for 3 player turns). On an anchor, {mode, pace, pull_after up to 10} is an open opening: no task for those turns. "
+      + "Set with updateCheckpoint patch.stretch (null clears) or the Studio. pressure, trigger: not built.",
   },
   tension: {
     title: "Tension targets",

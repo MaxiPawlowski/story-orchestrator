@@ -81,12 +81,18 @@ describe("v2.7 35 Phase 2: the open stretch format", () => {
       .toEqual({ mode: "open", pace: "long", pull_after: 4, max_turns: 9, arrive_when: ARRIVE });
   });
 
-  it("refuses pressure, offer and trigger as not built, and an unknown key with its nearest name", () => {
-    const errors = errorsOf(raw({ ...OPEN, pressure: "complications", offer: ["encounters"], trigger: "quiet", pul_after: 2 }));
+  it("refuses pressure and trigger as not built, and an unknown key with its nearest name", () => {
+    const errors = errorsOf(raw({ ...OPEN, pressure: "complications", trigger: "quiet", pul_after: 2 }));
     expect(errors.some((error) => error.startsWith("checkpoints.1.stretch.pressure: pressure is not built yet"))).toBe(true);
-    expect(errors.some((error) => error.startsWith("checkpoints.1.stretch.offer: offer is not built yet"))).toBe(true);
-    expect(errors.some((error) => error.startsWith("checkpoints.1.stretch.trigger:"))).toBe(true);
+    expect(errors.some((error) => error.startsWith("checkpoints.1.stretch.trigger: trigger is not built yet"))).toBe(true);
     expect(errors).toContain('checkpoints.1.stretch.pul_after: unknown key (did you mean "pull_after"?)');
+  });
+
+  it("accepts offer: [encounters] and refuses any other offer", () => {
+    expect(errorsOf(raw({ ...OPEN, offer: ["encounters"] }))).toEqual([]);
+    expect(parseStoryV2OrThrow(raw({ ...OPEN, offer: ["encounters", "encounters"] })).checkpointById.road.stretch?.offer).toEqual(["encounters"]);
+    expect(errorsOf(raw({ ...OPEN, offer: ["complications"] }))).toContain("checkpoints.1.stretch.offer: offer lists what the stretch may hold, from: encounters");
+    expect(errorsOf(raw({ ...OPEN, offer: "encounters" }))).toContain("checkpoints.1.stretch.offer: offer lists what the stretch may hold, from: encounters");
   });
 
   it("requires arrive_when, and that it is the gate of one of the stretch's exits", () => {
@@ -96,7 +102,7 @@ describe("v2.7 35 Phase 2: the open stretch format", () => {
     expect(errorsOf(raw({ ...OPEN, arrive_when: { q: "nowhere", op: "==", v: true } })).some((error) => error.includes("nowhere"))).toBe(true);
   });
 
-  it("refuses a progress exit, a stretch on an anchor, player_text, a bad pace and max_turns at or below pull_after", () => {
+  it("refuses a progress exit, an arrival on an anchor, player_text, a bad pace and max_turns at or below pull_after", () => {
     const progress = errorsOf(raw(OPEN, { transitions: [
       { from: "road", to: "walls", priority: 1, gate: ARRIVE },
       { from: "road", to: "walls", priority: 2, gate: { q: "progress_toward_walls", op: ">=", v: 1 } },
@@ -105,7 +111,7 @@ describe("v2.7 35 Phase 2: the open stretch format", () => {
     const effect = errorsOf(raw(OPEN, { transitions: [{ from: "road", to: "walls", priority: 1, gate: ARRIVE, effects: { progress: { anchor: "walls", amount: 1 } } }] }));
     expect(effect).toContain("transitions.1: an open stretch ends by the player's move, never a progress counter");
     const anchor = { ...raw(null), checkpoints: raw(null).checkpoints.map((checkpoint) => (checkpoint.id === "camp" ? { ...checkpoint, stretch: { ...OPEN, arrive_when: { q: "left_camp", op: "==", v: true } } } : checkpoint)) };
-    expect(errorsOf(anchor)).toContain("checkpoints.0.stretch: only an intermediate can be an open stretch");
+    expect(errorsOf(anchor)).toContain("checkpoints.0.stretch.arrive_when: an anchor's open opening has no arrive_when: the anchor's own exits end it");
     expect(errorsOf(raw(OPEN, { checkpoint: { player_text: "Find the road." } }))).toContain("checkpoints.1.player_text: an open stretch shows its name, never a task: leave player_text out");
     expect(errorsOf(raw({ ...OPEN, pace: "slow" }))).toContain("checkpoints.1.stretch.pace: pace must be brief, unhurried or long");
     expect(errorsOf(raw({ ...OPEN, max_turns: 3 })).some((error) => error.startsWith("checkpoints.1.stretch.max_turns"))).toBe(true);

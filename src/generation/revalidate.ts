@@ -1,6 +1,6 @@
 import type { NormalizedStoryV2, PrimitiveValue } from "@engine/index";
 import { insertedCheckpointIds } from "./merge";
-import { applyOutcome, gatePins, outcomePaths } from "./paths";
+import { applyOutcome, gatePins, isEncounterPool, outcomePaths } from "./paths";
 import type { ExpansionCacheEntry, GeneratedBeat, RevalidationResult } from "./types";
 
 const matches = (current: PrimitiveValue | undefined, target: PrimitiveValue, tolerance: number) => {
@@ -37,6 +37,7 @@ export function revalidateExpansion(
   blackboard: Record<string, PrimitiveValue>,
   tolerance = 0.001,
 ): RevalidationResult {
+  if (isEncounterPool(entry)) return { status: "pass", validBeatCount: 0, issues: [] };
   const target = story.checkpointById[entry.targetAnchorId];
   if (!target) return { status: "fail", validBeatCount: 0, issues: [`Unknown target anchor ${entry.targetAnchorId}`] };
   const driftIssues = Object.entries(target.state_snapshot ?? {})

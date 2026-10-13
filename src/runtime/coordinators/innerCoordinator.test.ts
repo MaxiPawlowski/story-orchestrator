@@ -97,6 +97,21 @@ describe("the inner beat pass (v2.6 plan 06 C)", () => {
     expect(open.prompts[0]).not.toContain("Get inside.");
   });
 
+  it("v2.8 19: an anchor's open opening drops the task from the scene line for its first player turns only", async () => {
+    const opening = { mode: "open", pace: "brief", pull_after: 3 };
+    const turn = (index: number) => [{ name: "Max", mes: `Line ${index}.`, is_user: true }, { name: "Arin", mes: "Hm." }];
+    const arm = async (turns: number) => {
+      const env = harness({ rows: Array.from({ length: turns }, (_, index) => turn(index)).flat() });
+      env.deps.getStory = () => ({ ...story, checkpointById: { cp1: { ...story.checkpointById.cp1, stretch: opening } } }) as never;
+      env.deps.getState = () => ({ activeCheckpointId: "cp1", boundary: 2, checkpointStartedMessageId: -1, lastMessageId: turns * 2 - 1 }) as never;
+      await new InnerCoordinator(env.deps).run();
+      return env.prompts[0];
+    };
+    expect(await arm(2)).toContain("Scene: The Vault — free play, no task: the player leads");
+    expect(await arm(2)).not.toContain("Get inside.");
+    expect(await arm(3)).toContain("Scene: The Vault — Get inside.");
+  });
+
   it("does nothing unless the newest message is a character reply (the player's line is already in)", async () => {
     const { deps, prompts } = harness({ rows: [{ name: "Arin", mes: "Not yet." }, { name: "Max", mes: "Open it.", is_user: true }] });
     expect(await new InnerCoordinator(deps).run()).toBe(0);

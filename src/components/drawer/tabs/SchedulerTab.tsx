@@ -150,7 +150,8 @@ export const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: Runt
       {snapshot.expansion.scheduler.lastError && <div className="text-red-300">{snapshot.expansion.scheduler.lastError}</div>}
       {Object.values(snapshot.expansion.entries).map((entry) => (
         <div key={entry.key} className="border-t border-solid border-white/10 mt-1 pt-1">
-          <div>{entry.stubId} → {entry.targetAnchorId}: {entry.status}{entry.needsReview ? " review" : ""}{entry.origin === "lookahead" ? ` · prepared ahead (${Math.round(
+          <div>{entry.kind === "encounters" ? `${entry.stubId} encounters` : `${entry.stubId} → ${entry.targetAnchorId}`}: {entry.status}
+            {entry.needsReview ? " review" : ""}{entry.origin === "lookahead" ? ` · prepared ahead (${Math.round(
             (entry.headingP ?? 0) * 100,
           )}%)` : ""}</div>
           {(entry.verdicts.at(-1)?.judge || entry.variants) && (
@@ -160,11 +161,12 @@ export const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: Runt
                 `${entry.variants.picker}${entry.variants.pickFallback ? ` (${entry.variants.pickFallback} fell back)` : ""}` : ""}
             </div>
           )}
-          <div>{entry.beats.length} beats{entry.lastError ? ` — ${entry.lastError}` : ""}</div>
-          {(entry.status === "stale" || entry.status === "failed") && (
+          <div>{entry.kind === "encounters" ? `${entry.encounters?.length ?? 0} encounters` : `${entry.beats.length} beats`}{entry.lastError ? ` — ${entry.lastError}` : ""}</div>
+          {(entry.status === "stale" || entry.status === "failed" || (entry.kind === "encounters" && entry.status === "needs_review")) && (
             <button data-so="expansion-regenerate" className="menu_button text-xs" onClick={() => { void manager.expansions.regenerate(entry.key); }}>Regenerate</button>
           )}
           {entry.beats.slice(0, 3).map((beat) => <div key={beat.objective}>- {beat.objective}</div>)}
+          {(entry.encounters ?? []).map((encounter) => <div key={encounter.id} data-so="encounter-row">- {encounter.title}</div>)}
         </div>
       ))}
     </div>

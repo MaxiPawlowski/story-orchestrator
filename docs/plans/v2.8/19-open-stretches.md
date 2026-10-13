@@ -1,5 +1,8 @@
 # Plan 19 — Open stretches: free play between the story's fixed points
 
+**Update 2026-10-13: encounter pool, `trigger: "quiet"` logic (gating the encounter menu; no pressure) and open anchors are
+built deterministically on `v2.8-build-encounters` (§Gate record 2026-10-13); RP acceptance is deferred, floors unchanged;
+epilogue play and the SP6 pool are still not built.**
 **Status (2026-10-10): engine half built (v2.7 35 Phase 2, 2026-10-07) and completed by queue A6 (branch
 `v2.8-open-stretches`, §Gate record 2026-10-10): the pull names the destination, no task reaches the narrator, Studio
 and wizard author it. Encounter pool, `trigger: "quiet"`/pressure, open anchors and epilogue play not built (decisions
@@ -400,3 +403,130 @@ WIP 2026-10-10: built as above; macros.test and line-length fixes applied but th
 - Owed: main checkout full `npm run gates` (Storybook and replay included); `npm run sessions:archive`; an ST Studio save
   walk (this is a Storybook walk and export round-trip); M1 decision and M2 RP; encounter pool, `trigger: "quiet"`, open
   anchors and epilogue play remain NOT built.
+
+
+## Gate record (2026-10-13, build-now: encounter pool, quiet trigger, open anchors)
+
+Branch `v2.8-build-encounters` (worktree `C:\dev\so-build-encounters`, base `ccfdbf95`). Tier D only: no model, GPU, pod, lane,
+browser, TypeSafe or staging. Owner approval 2026-10-13 (plan 40 §4) builds the three pieces deterministically ahead of M2;
+RP acceptance is deferred and floors are unchanged. Epilogue play and the separate SP6 pool/measurement are not touched.
+No mock result below is a model-quality claim.
+
+### Built
+
+- **Format.** `stretch.offer: ["encounters"]` is accepted on an intermediate (unique, non-empty, only that value).
+  `pressure` and `trigger` stay refused ("it needs the production complication pool"). On an **anchor**, `stretch`
+  is an open opening: `{mode, pace, pull_after}` only, `pull_after` at most 10 (`OPENING_MAX_TURNS`, the `long`
+  preset), `arrive_when`, `max_turns`, `offer` and `player_text` refused. `CheckpointStretch.arrive_when` is now
+  optional in the type; an intermediate without it is still the validator's error.
+- **Encounter pool (cache + route).** `EXPANSION_CONTRACT` read as 2 in code at base and is now 3; contract-2 entries
+  are dropped by `sanitizeExpansion` (chain or pool). Pool entries carry `kind: "encounters"` and `encounters:
+  [{id, title, situation}]` with `beats: []`; key `<stretch>->encounters` (`expansionKey`). The candidate
+  (`findEncounterCandidate`) is found from the checkpoint before the stretch or at the stretch; the stretch is its own
+  source. Same `ExpansionCoordinator` path: queue, `liveJobs`, `beginRun`/`current()` checks before every write,
+  one retry of a failed pool (`POOL_ATTEMPTS` 2), `regenerate`, `runNow` + preflight, `commitValidated`,
+  `pruneMissing` (also drops a pool whose stretch stopped offering). Same authoring route (`role authoring`, pass
+  `generation`), same critic pass, agency clauses from `agencyForCheckpoint`. New lazy module
+  `generation/encounters.ts` (prompt, critic prompt, parse, pool checks, `generateReviewedEncounters`);
+  `isEncounterPool`/`encounterOffers` in `generation/paths.ts`; route enumeration (`revalidateExpansion`), merge and
+  gate sources skip pools.
+- **Pool checks.** 3 to 5 encounters, distinct titles, at most 6 title words, situation 20 to 400 characters, no
+  situation or title that `narratesPlayer` flags (reused from the living director guard), and any `outcomes`, `gate`,
+  `progress`, `deltas`, `objective`, `exit` key is a parse issue (one repair re-ask, then a failed pool).
+- **Use.** `pacingCoordinator.stretchLine` appends `encounterOfferLine` to the stretch's pull line only when the
+  stretch offers encounters, a usable pool exists (status `validated` or `inserted`) and the stretch is quiet.
+  Everything stays inside the private guidance block (preamble first). No player surface reads pool text.
+- **Quiet (pure).** `pacing/quiet.ts` `quietRead({story, state, log, playerTurnIds, window?})` -> `{holds,
+  playerTurns, moved}`: holds when player turns in the visit are at least `pull_after` and no watched quality moved
+  over the last 3 player turns (`QUIET_WINDOW_TURNS`). Watched = the qualities of every outgoing gate of the stretch,
+  `arrive_when` included, minus the mechanical counters. Baseline = the `after` of the last boundary whose
+  `context.lastMessageId` precedes the window's first player message, else the `before` of the visit's first
+  boundary; no log in the visit = not quiet. A value unset at the baseline moves only to a truthy value (a first read of
+  `false`/0/"" is not an event). Boundaries are never counted as turns.
+- **Open opening (runtime).** `openPhase(checkpoint, playerTurns)` (engine) is the one test: a stretch is always open,
+  an anchor opening only while `playerTurns < pull_after`. Consumers: `objectiveLineApplies(story, cp, turns)`, the
+  guidance block (`OPENING_LINE` while open, the ordinary objective line from the boundary on), the
+  `{{story_current_checkpoint}}` macro (`RuntimeManager.getPlayerTurns`), the inner voice scene line, and
+  `agencyRecovery` (no refusal while open). The stall re-read (`planReconciliation`) is deliberately untouched: it is
+  a read, never narration. Turns are computed only for a checkpoint that has a `stretch` (ordinary stories unchanged;
+  payload-invariance tests green).
+- **Studio / wizard.** Studio Checkpoints tab: the **Open stretch** panel gains an "Offer encounters" checkbox; anchors
+  get an **Open opening** panel (pace, open-for turns capped at 10, a red line for a left-over public situation).
+  Helpers `newOpening`, `withOpeningTurns`, `withEncounters` in `studio/stretchDraft.ts`. Wizard `updateCheckpoint`
+  `patch.stretch` reads through `readStretch` with the patch's own `type`; the tool shape text names `offer` and the
+  anchor form. Author drawer Scheduler tab lists a pool as "<stretch> encounters" with its titles and a Regenerate
+  button for a failed or review pool (author view only).
+- **Guide and registry.** `docs/authoring/story-guide.md` §Open stretches (encounters, quiet definition, open opening),
+  compact twin `copilot/guideTopics.ts` (`open-stretches`, under the 800-character cap), registry row text
+  (`features/presenceFeatures.ts`). `npm run docs:guide` and `npm run docs:settings` run; only
+  `docs/guide/author/fields/scenes.md` and `src/guide/pages.generated.ts` carry content changes (the other
+  regenerated pages differ by line endings only and were reverted).
+- **Scenario fixtures (no model).** `test/scenarios/v28-19-open-opening.json` (+ `.story.json`) and
+  `test/scenarios/v28-19-encounters.json` (+ `.story.json`). `scripts/debug/so-open-stretch-check.mts` now takes
+  `SO_STRETCH_SCENARIOS=<comma list of test/scenarios/*.json>` (default: the v2.7 curve) and accepts lane 33 or 38.
+  The pool is planted through the `expand` verb's `debugResponse` (plumbing only).
+
+### Decisions and deviations
+
+- **Quiet gates the encounter menu, not complications.** `pressure`/`trigger` stay refused; the quiet logic is reusable
+  and tested, and the only live consumer is the already-built encounter menu ("the narrator may offer one when play
+  lulls"). No complication pool was built. The window is the constant 3, not the not-yet-existing
+  `complication_after` field; when Q6 builds that field it passes it as `window`.
+- **Counters excluded from "watched".** `player_turns_in_checkpoint`, `message_count`, `messages_in_checkpoint`,
+  `elapsed` change every turn and would make quiet unreachable if an authored gate named them.
+- **Anchor opening reuses `stretch`** (the plan's own wording) rather than a new field; `pull_after` on an anchor is the
+  opening's length. `player_text` is refused on an opening, as on a stretch, because the objective is never player
+  copy and player copy is the only task text a player could see.
+- **Only `validated`/`inserted` pools reach the narrator.** Chains merge `needs_review`; a pool is a private direction to
+  the narrator and a failed critic (agency) must not reach it, so a review pool waits for the author's Regenerate.
+- **No judge critic and no variants for pools** (they score chains against a target anchor); one generation, the code
+  checks, one LLM critic call.
+- **Not built:** engagement latching (an engaged encounter latching a quality or starting a side quest), pool
+  spent-ness (the menu is shown while quiet holds; the narrator is told to skip any the chat already shows), epilogue
+  play, any player-facing pool text.
+- **Contract bump cost.** Every existing chat's generated-chain cache is dropped on load and regenerated on arrival
+  (as every earlier bump).
+- **Fresh worktree tooling gap (not fixed here).** `gates:quick`'s `defect replay --cached` fails in a worktree with no
+  `.build/defect-replay-cache.json` (every file counts as changed and the `--findRelatedTests` argument list is too
+  long on Windows); untracked new files also stay out of the staged copy until `git add`. The full `npm run test:replay`
+  was run once, after which `--cached` worked.
+- **Campaign adoption (private repo, pin untouched).** Encounters are per-stretch opt-in: the three lab stretches could
+  add `"offer": ["encounters"]` for the M2 open arm; an anchor opening suits scene-setting anchors. No campaign file was
+  read or changed. Decision after M2.
+
+### Commands and results
+
+- `npm run typecheck`, `npm run typecheck:test`, `npm run debug:typecheck` -> exit 0. `npm run lint` -> 0 errors, 2 warnings
+  (`BriefingHost.stories.tsx`, `LiveHead.tsx`, untouched).
+- New and changed tests: `generation/encounters.test.ts` (24), `runtime/coordinators/encounterPool.review.test.ts` (15),
+  `encounterOffer.review.test.ts` (8), `openOpening.review.test.ts` (15), `runtime/quietStretch.review.test.ts` (14, incl.
+  rollback = replay over 4 seeds x 100 cuts, 0 mismatches, more than 20 quiet and more than 20 broken cases),
+  `studio/stretchAuthoring.test.ts` (+3), `innerCoordinator.test.ts` (+1), `openStretch.review.test.ts` (offer cases).
+  Census updates: `test/findings/errorCopy.json` (one probe row), `passProfiles.test.ts` (caller list),
+  `test/goldens/arrival-findings.json` (two fixture stories).
+- Full `npx jest --silent` -> 689 suites passed (1 skipped), 7964 tests passed (1 skipped).
+- `npm run gates:quick` -> green in 85.5 s (typecheck, typecheck:test, lint changed, jest related 494 suites / 6294 tests,
+  defect replay --cached ok); `npm run test:replay` -> 32 of 32 killed in 102.8 s.
+- `npm run test:debug` -> 1234 of 1234; scenario schema/requires tests 31 of 31 (the new fixtures validate).
+- `npm run build` -> compiled; main bundle `dist/index.js` 1,253,438 B on this checkout (1,248,065 B before the change,
+  +5,373 B; budget 1,300,000 B). `generation/encounters.ts` (prompt text) lands in a lazy chunk.
+- Storybook: `npm run storybook:build` exit 0, served `.sb-static` on owned port 6034, `test-storybook --includeTags
+  b3-open-stretch` -> 2 suites, 20 stories passed (4 new: `OffersEncounters`, `OpensAnAnchorOpening`,
+  `CapsTheOpening`, `AuthorsAnOpenOpening`), no accessibility violations; server stopped. Not the full Storybook gate.
+
+### Scenario for the parent (no model, offline lane, not run here)
+
+`SO_STRETCH_SCENARIOS=test/scenarios/v28-19-open-opening.json,test/scenarios/v28-19-encounters.json node scripts/debug/st-lanes.mts run 38 --evidence -- scripts/debug/so-open-stretch-check.mts`
+(each scenario runs twice; header diff, blocked-request count and asset cleanup as in the B3 record). Expected: opening
+line and no objective at 1 and 2 player turns, objective and macro with the objective from the 3rd, swipe keeps, delete
+reopens; encounter menu absent at 1 and 2, present at 3, absent at 4 and 5 after a `/cp set` on the gate quality, present at 6,
+swipe keeps, delete drops it, reload keeps the pool and the count. A reload step ends the encounter scenario; if the
+wrapper's served-candidate route does not survive it, drop that step and say so.
+
+### Owed (NOT green)
+
+- The two offline scenarios on a lane (above), twice, with header diff and cleanup; full `npm run gates` with the whole
+  Storybook; `SO_ACCEPTANCE` paths untouched.
+- RP: real-model pool generation quality (critic and code-check pass rate, agency flags), whether a narrator actually
+  offers one situation and never resolves it, and the M2 A/B with the pool arm. Floors unchanged (M2 above).
+- Engagement latching, pool spent-ness, pressure and `trigger` (need v2.8 17 -> 18 Q6), epilogue play.

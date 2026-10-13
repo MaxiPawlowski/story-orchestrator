@@ -35,6 +35,7 @@ const makeManager = (roster: Array<{ id: string; name?: string }>): RuntimeManag
     getSnapshot: () => snapshot(),
     getCachedSnapshot: () => snapshot(),
     getStory: () => story,
+    getPlayerTurns: () => 0,
     getPossibleTransitions: () => ["→ Inner Sanctum when has_key == true"],
     subscribe: (fn: () => void) => {
       listener = fn;

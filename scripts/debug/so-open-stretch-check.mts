@@ -12,7 +12,9 @@ import { snapshotAssets, listMarkedAssets, removeMarkedAssets, leakCount } from 
 import { saveSettingsNow } from './lib/settingsSave.mts';
 
 await runCli(async (page) => {
-  assert.equal(process.env.SO_LANE, '33', 'Open-stretch checks require isolated lane 33');
+  assert.ok(['33', '38'].includes(process.env.SO_LANE ?? ''), 'Open-stretch checks require isolated lane 33 or 38');
+  const scenarios = (process.env.SO_STRETCH_SCENARIOS ?? 'test/scenarios/v27-35-open-stretch-curve.json').split(',').map((entry) => entry.trim()).filter(Boolean);
+  assert.ok(scenarios.length > 0 && scenarios.every((entry) => /^test\/scenarios\/[a-zA-Z0-9_.-]+\.json$/.test(entry)), 'SO_STRETCH_SCENARIOS must list test/scenarios/*.json files');
   const files = new Map<string, Buffer>();
   let blocked = 0;
   let offlineProbes = 0;
@@ -79,11 +81,14 @@ await runCli(async (page) => {
     const before = await captureHeader(page, 'open-stretch-start');
     await writeJSON(before, 'open-stretch-header-start');
     const results = [];
-    for (const run of [1, 2]) {
-      const result = await runScenario(page, 'test/scenarios/v27-35-open-stretch-curve.json', { sandbox: true, group });
-      await writeJSON({ run, media, blocked, offlineProbes, result }, `open-stretch-curve-run${run}`);
-      assert.equal(result.ok, true, JSON.stringify(result.error));
-      results.push({ run, steps: (result.steps as unknown[]).length, ok: result.ok });
+    for (const scenario of scenarios) {
+      const name = scenario.replace(/^.*\//, '').replace(/\.json$/, '');
+      for (const run of [1, 2]) {
+        const result = await runScenario(page, scenario, { sandbox: true, group });
+        await writeJSON({ scenario, run, media, blocked, offlineProbes, result }, `open-stretch-${name}-run${run}`);
+        assert.equal(result.ok, true, JSON.stringify(result.error));
+        results.push({ scenario, run, steps: (result.steps as unknown[]).length, ok: result.ok });
+      }
     }
     assert.equal(blocked, 0, 'The no-model curve attempted a model or media request');
     const after = await captureHeader(page, 'open-stretch-end');
