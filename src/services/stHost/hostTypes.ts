@@ -87,6 +87,7 @@ export interface SillyTavernContext {
   substituteParams?: (text: string) => string;
   groups: HostGroup[];
   characters: HostCharacter[];
+  tagMap?: Record<string, unknown>;
   worldInfo?: Record<string, HostWorldInfoEntry>;
   // persona_description_lorebook: the persona's own book (world-info.js:4566); reasoning: the reasoning template, prefix/suffix (power-user.js:274-281);
   // persona_description: the selected persona's description, copied in on selection (power-user.js:290, personas.js:897-945).

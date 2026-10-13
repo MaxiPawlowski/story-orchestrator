@@ -257,3 +257,16 @@ See plan 25 §Run record.
 - SP5.b has no dev flag: `storyScenarioHost.test.ts` and `spikeFlags.test.ts` cover promoted behaviour and dropping stored `sp5Scenario`.
 - Four dirty worktrees remain untouched: `agent-a700752773d04da7b` (2 files), `agent-a8b3ad3b82169da94` (45), `agent-abb7c96323fd54958` (2), `charming-wright-d54382` (5), under `C:\dev\story-orchestrator\.claude\worktrees` (prior read-only inventory).
 - Remaining build-now tasks and dependency-specific deferred protocols are in the approved external execution plan. This inventory does not close the overall pass.
+
+## A20/A21 implementation record — 2026-10-13
+
+- A20 reproduced on isolated lane 38: native lorebook creation updated readiness but did not hydrate the waiting checkpoint effects within three seconds. Initial readiness-only probe passed and was insufficient; the strengthened hydration assertion failed twice before the fix.
+- Pattern: existing `onGroupEdited` source feeds `RequirementsWatch`. Added a host-only lorebook-picker inventory observer feeding the same debounced ownership-guarded refresh. It compares sorted names, ignores selection/reordering and disconnects on runtime disposal.
+- Native `createNewWorldInfo` and `importWorldInfo` both call `updateWorldInfoList`; scenario covers create, due scenario-effect hydration, delete and import. No UI pointer interaction or chat-switch coverage claimed for this new fixture.
+- `st-lanes.mts batch --lanes 38 --repeat 2 --strict test/scenarios/v28-25-requirements-lorebook-list.json`: exit 0, 2/2 green (18 s, 19 s), no incomplete rows; batch `2026-10-13T07-59-29-646Z`. Offline media inventory 404 probes recorded; no inference/render ran.
+- Header diff against `run-header-a20-before.json`: exit 0 with initial navigation paths `chat.chatId`, `chat.groupId`, `group.members`, `group.name` declared. Inventories/settings unchanged. First diff omitted group navigation declarations and exited 1; no product residue found.
+- A21 regression traverses real manager, turn bridge, scheduler and extraction coordinator with scripted responses. Swiping during a read rejects the old answer, stores no old audit/fact and queues exactly one replacement read of the new reply; unchanged-reply control accepts the original read. No product change needed.
+- `npm run gates:quick`: exit 0, 215 suites / 2,277 tests, both typechecks and changed-file lint green, replay 32/32 killed in 87.7 s. Earlier quick replay discovery failed with an empty `jest --listTests` error; standalone `npm run test:replay` passed 32/32 in 120.2 s.
+- Full gates with Storybook running; private archive and final commit/merge pending. TypeSafe calls: 0. These records do not close the broader build-now pass.
+- Private archive `v28-a20-requirements-refresh`: 195 files, no problems; `npm run sessions:archive` from main checkout: exit 0. Final commit/merge pending full gates.
+- Final `npm run gates -- --jobs=4`: exit 0, all 11 steps green in 370.0 s; Jest 688 suites / 7,905 tests passed (one suite/test skipped), Storybook 130 suites / 786 tests, replay 32/32 killed. This build also includes the lore-select eligibility fix; its real judge/browser acceptance is still owed.

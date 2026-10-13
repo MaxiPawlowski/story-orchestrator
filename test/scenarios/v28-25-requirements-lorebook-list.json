@@ -1,0 +1,71 @@
+{
+  "name": "v28-25-requirements-lorebook-list",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "judge": "off",
+    "briefingDraft": "off",
+    "innerBeat": "off",
+    "why": "A20: the same host list-update routine used by the lorebook create/import UI, no inference."
+  },
+  "steps": [
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return true;"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-a20-list",
+        "title": "SO-A20 List",
+        "description": "Synthetic lorebook readiness refresh.",
+        "requirements": {
+          "lorebooks": [
+            "SO-A20 Required"
+          ]
+        },
+        "qualities": [],
+        "checkpoints": [
+          {
+            "id": "hall",
+            "name": "The hall",
+            "type": "anchor",
+            "start": true,
+            "objective": "Explore.",
+            "effects": {
+              "scenario": "SO-A20 readiness has hydrated the checkpoint."
+            }
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; if (rt.getSnapshot().requirements.ready) throw new Error('missing book unexpectedly ready'); const wi = await import('/scripts/world-info.js'); if (!(await wi.createNewWorldInfo('SO-A20 Required', { interactive: false }))) throw new Error('book creation failed'); const end = Date.now() + 3000; while ((!rt.getSnapshot().requirements.ready || SillyTavern.getContext().chatMetadata.scenario !== 'SO-A20 readiness has hydrated the checkpoint.') && Date.now() < end) await new Promise((resolve) => setTimeout(resolve, 50)); if (!rt.getSnapshot().requirements.ready) throw new Error('A20: requirements stale after host lorebook creation'); if (SillyTavern.getContext().chatMetadata.scenario !== 'SO-A20 readiness has hydrated the checkpoint.') throw new Error('A20: checkpoint effects not hydrated after readiness'); return { created: true, ready: true, hydrated: true };"
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const wi = await import('/scripts/world-info.js'); if (!(await wi.deleteWorldInfo('SO-A20 Required'))) throw new Error('book deletion failed'); const end = Date.now() + 3000; while (rt.getSnapshot().requirements.ready && Date.now() < end) await new Promise((resolve) => setTimeout(resolve, 50)); if (rt.getSnapshot().requirements.ready) throw new Error('A20: requirements stale after deletion'); return { deleted: true, ready: false };"
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const wi = await import('/scripts/world-info.js'); await wi.importWorldInfo(new File([JSON.stringify({ entries: {} })], 'SO-A20 Required.json', { type: 'application/json' })); const end = Date.now() + 3000; while (!rt.getSnapshot().requirements.ready && Date.now() < end) await new Promise((resolve) => setTimeout(resolve, 50)); if (!rt.getSnapshot().requirements.ready) throw new Error('A20: requirements stale after host import'); return { imported: true, ready: true };"
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "assets": {
+          "action": "remove",
+          "marker": "SO-A20"
+        }
+      },
+      {
+        "eval": "delete globalThis.storyOrchestratorDebugExtractionResponse; return true;"
+      }
+    ]
+  }
+}

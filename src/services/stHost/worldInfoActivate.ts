@@ -3,6 +3,7 @@ import type { HostScannableEntry } from "./hostTypes";
 import { worldInfoModule } from "./modules";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { triggerGenerationType } from "@utils/wiKeys";
+import type { LoreMember } from "@utils/wiCharacterFilter";
 
 export type { HostScannableEntry } from "./hostTypes";
 
@@ -70,4 +71,14 @@ export function draftedCardName(): string | null {
   if (id === undefined || id === null || id === "") return null;
   const name = context.characters[Number(id)]?.name;
   return typeof name === "string" && name.trim() ? name : null;
+}
+
+export function draftedLoreMember(): LoreMember {
+  const context = getContext();
+  const id = context.characterId;
+  const character = id === undefined || id === null || id === "" ? null : context.characters[Number(id)];
+  const avatar = character?.avatar;
+  if (typeof avatar !== "string") return { filename: null, tags: null };
+  const tags = context.tagMap?.[avatar];
+  return { filename: avatar.replace(/\.[^/.]+$/, ""), tags: Array.isArray(tags) ? tags.filter((tag): tag is string => typeof tag === "string") : [] };
 }

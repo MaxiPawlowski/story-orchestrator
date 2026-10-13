@@ -1,4 +1,4 @@
-import { draftedCardName, forceActivateEntries, getContext, getScannableEntries, readScanBuffer, settingsReady, willAddUserMessage } from "@services/STAPI";
+import { draftedCardName, draftedLoreMember, forceActivateEntries, getContext, getScannableEntries, readScanBuffer, settingsReady, willAddUserMessage } from "@services/STAPI";
 import { transcriptCopiersOn } from "@services/stHost/transcriptCopiers";
 import { readCopiersWith } from "../transcriptCopiers";
 import { extensionConflictsWith } from "@services/stHost/extensionConflicts";
@@ -83,6 +83,7 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
     force: forceActivateEntries,
     getScanBuffer: readScanBuffer,
     getDrafted: draftedCardName,
+    getMember: draftedLoreMember,
     ownership: runtimeManager.getOwnership(),
   });
   globalThis.storyOrchestratorLore = { selector: lore, willAddUserMessage };

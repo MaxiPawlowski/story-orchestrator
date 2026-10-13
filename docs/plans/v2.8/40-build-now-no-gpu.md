@@ -30,9 +30,10 @@ Source: [queue](32-queue.md), [handoff](37-codex-handoff.md), [coverage](35-test
 - **Lore-select eligibility**, [34](34-lorebook-features.md): drafted avatar/filename and tags, include/exclude semantics,
   changed-member cache and in-flight controls. Implementation underway on `v2.8-build-fixes`; real TypeSafe/browser check owed.
 - **A21 swipe during a read**, [25](25-tunnelvision-report.md): regression through real manager, turn bridge,
-  ownership and extraction coordinator. New scripted test passes 2/2; typechecks/quick/full gates and record owed.
+  ownership and extraction coordinator. New scripted test passes 2/2; quick gate green, full gate running; no product fix needed.
 - **A20 requirements refresh**, [25](25-tunnelvision-report.md): first reproduce through ST create/import UI;
-  verified host signal or observer only if stale. Cover create/import/delete/chat switch.
+  reproduced missing effect hydration through the native create routine; host-list observer implemented. Create/hydrate/delete/import
+  scenario green twice on lane 38, quick gate green and evidence archived. UI-pointer/chat-switch checks still owed.
 - **Harness auth**, [33](33-pose-library-and-avatars.md), [36](36-live-head.md): supported OpenCode client/session
   interface, fake-server/plugin tests, useful expired-login UI. Never read credentials. Live Ask/wizard/vision deferred.
 - **LI1 desktop**, [36](36-live-head.md): synthetic rigs, frame clock and CPU profile; optimize only with
@@ -68,7 +69,8 @@ capture baseline and final run header, declare intentional differences, clean ow
 - **J7 fixtures/runners**, [13](13-j7-judge-ideas.md): independent synthetic J7.4/J7.5 rows, N7 intermediate levels,
   N5 tension comparison runner and quiet baseline. TypeSafe-only legs permitted; extractor comparison deferred.
 - **lie_side geometry**, [33](33-pose-library-and-avatars.md): repair skeleton/retarget math; keep listed pending
-  render/PCK evidence. De-list only if repair fails, per owner decision.
+  render/PCK evidence. Sonnet branch commits `2e5d87db` and `c257f67e` repair geometry and scope cache invalidation
+  to lying poses; quick gate green, parent integration pending. De-list only if repair fails, per owner decision.
 - **Q1-M1 retirement**, [36](36-live-head.md) / [31](31-v27-wrap-backlog.md): docs-only retirement into passing
   S-17/37-S17 on combined scope budget; no scorer change.
 - **C13-b curator digest**, [01](01-v27-carry-over.md): approved product build overrides the old requirement to wait
@@ -124,3 +126,6 @@ Canon prose stays enabled; M25 blind pack awaits a second-model rater.
 
 - Plan index added during the continued approved pass. Documentation only; no gate claim for unfinished rows.
 - Completed A18/A19 evidence and commands are in plan 25. Remaining rows above remain open until their own records land.
+- Owner requested Sonnet delegation. Three Sonnet 5.5 agents use separate worktrees for curator digest,
+  open-stretch additions and pose geometry. Parent owns shared lane staging, integration review and full gates.
+- Pose branch returned deterministic repair plus pose-sensitive cache-version follow-up; no GPU acceptance claimed.

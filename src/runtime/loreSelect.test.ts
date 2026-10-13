@@ -8,6 +8,7 @@ import { windowOf } from "@extraction/chatRows";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./runToken";
 import { testOwnership } from "../../test/findings/testOwnership";
 import type { ScanBufferView } from "./loreKeyMatch";
+import type { LoreMember } from "@utils/wiCharacterFilter";
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
@@ -40,6 +41,7 @@ const setup = (options: {
   entries?: HostScannableEntry[];
   buffer?: (type?: string) => ScanBufferView | null;
   drafted?: () => string | null;
+  member?: () => LoreMember;
   roster?: unknown[];
   refuse?: (request: JudgeRequest, sent: number) => Error | null;
   wait?: (ms: number) => Promise<void>;
@@ -81,6 +83,7 @@ const setup = (options: {
     ownership,
     ...(options.buffer ? { getScanBuffer: options.buffer } : {}),
     ...(options.drafted ? { getDrafted: options.drafted } : {}),
+    ...(options.member ? { getMember: options.member } : {}),
     ...(options.wait ? { wait: async (ms: number) => { skew += ms; await options.wait?.(ms); } } : {}),
   });
   return {
@@ -91,6 +94,37 @@ const setup = (options: {
 };
 
 describe("LoreSelector (v2.2 plan 04)", () => {
+  it("rates and forces only entries eligible for the drafted avatar and tags", async () => {
+    const entries = [
+      entry("Story Lore", 1, { characterFilter: { names: ["Arin"], tags: ["cast"] } }),
+      entry("Story Lore", 2, { characterFilter: { names: ["Arin"], isExclude: true } }),
+      entry("Story Lore", 6, { characterFilter: { tags: ["other"] } }),
+    ];
+    const env = setup({ entries, member: () => ({ filename: "Arin", tags: ["cast"] }) });
+    await env.selector.select("GENERATION_STARTED");
+    expect(Object.keys(env.requests[0].questions)).toHaveLength(1);
+    expect(env.forced[0]).toEqual([entries[0]]);
+  });
+
+  it("does not reuse a forced selection when only the drafted member's tags change", async () => {
+    let tags = ["cast"];
+    const env = setup({ entries: [entry("Story Lore", 1, { characterFilter: { tags: ["cast"] } })], member: () => ({ filename: "Arin", tags }) });
+    await env.selector.select("GENERATION_STARTED");
+    expect(env.forced).toHaveLength(1);
+    tags = [];
+    await env.selector.select("GENERATION_STARTED");
+    expect(env.forced).toHaveLength(1);
+    expect(env.requests).toHaveLength(1);
+  });
+
+  it("discards a selection if the drafted member changes during rating", async () => {
+    let filename = "Arin";
+    const env = setup({ entries: [entry("Story Lore", 1)], member: () => ({ filename, tags: [] }), refuse: () => { filename = "Other"; return null; } });
+    expect(await env.selector.select("GENERATION_STARTED")).toBeNull();
+    expect(env.forced).toEqual([]);
+    expect(env.selector.completeSelection()).toBeNull();
+  });
+
   it("does nothing with the usage off or no authored scope", async () => {
     const off = setup({ uses: { loreSelect: false } });
     expect(await off.selector.select("MESSAGE_SENT")).toBeNull();

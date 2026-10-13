@@ -6,6 +6,7 @@ import type { HostScannableEntry } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";
 import type { JudgeRuntime } from "./judge";
 import { excludedByTrigger, leftToScan, type ScanBufferView } from "./loreKeyMatch";
+import { eligibleLoreMember, type LoreMember } from "@utils/wiCharacterFilter";
 
 export type LoreTrigger = "MESSAGE_SENT" | "GENERATION_STARTED";
 
@@ -20,6 +21,7 @@ export interface LoreSelectDeps {
   force: (entries: HostScannableEntry[]) => Promise<WriteResult<{ entries: number }>>;
   getScanBuffer?: (generationType?: string) => ScanBufferView | null;
   getDrafted?: () => string | null;
+  getMember?: () => LoreMember;
   wait?: (ms: number) => Promise<void>;
   // Optional: an unwired caller never lapses.
   ownership: RunOwnership;
@@ -84,6 +86,8 @@ export class LoreSelector {
     // story with the same lore scope used to match the departed story's cache and force its picks
     // into the new story's next generation (matrix).
     const member = memberNames(story, this.deps.getDrafted?.() ?? null);
+    const eligibility = this.deps.getMember?.() ?? { filename: null, tags: null };
+    const memberKey = JSON.stringify(eligibility);
     const window = this.deps.getWindow();
     // Names four surfaces and this is one of them. force() pushes entries into the NEXT
     // generation, so a selection that outlives its chat seeds another chat prompt with this story
@@ -98,8 +102,9 @@ export class LoreSelector {
     };
     const scannable = await this.deps.getEntries();
     if (!run.stillOwns()) return null;
+    if (this.deps.getMember && JSON.stringify(this.deps.getMember()) !== memberKey) return null;
     const sceneKey = `${chatId ?? ""}:${loreStoryKey(story)}:${messageId}:${JSON.stringify(scope)}:${checkpoint.id}:${fnv1a(JSON.stringify(window))}:${fnv1a(JSON.stringify(scannable))}`;
-    const key = `${sceneKey}:${generationType ?? ""}:${member.join("|")}`;
+    const key = `${sceneKey}:${generationType ?? ""}:${member.join("|")}:${memberKey}`;
     if (this.cache?.key === key) {
       const { picks: cached, left: cachedLeft } = this.cache;
       if (!(await this.forced(this.cache.entries, run))) return null;
@@ -124,6 +129,7 @@ export class LoreSelector {
     const left: LoreSelection["left"] = [];
     const rated = candidates.filter((candidate) => {
       const host = byKey.get(`${candidate.world}.${candidate.uid}`);
+      if (host && !eligibleLoreMember(host.characterFilter, eligibility)) return false;
       if (host && excludedByTrigger(host, buffer?.trigger)) return false;
       const reason = host ? leftToScan(host, buffer, member) : null;
       if (reason) left.push({ world: candidate.world, uid: candidate.uid, comment: candidate.comment, reason });
@@ -158,6 +164,7 @@ export class LoreSelector {
       const p = known.get(loreKey(candidate));
       return typeof p === "number" ? [{ entry: candidate, p }] : [];
     }), pickScope);
+    if (this.deps.getMember && JSON.stringify(this.deps.getMember()) !== memberKey) return null;
     const entries = picked.flatMap((pick) => byKey.get(`${pick.entry.world}.${pick.entry.uid}`) ?? []);
     const picks = picked.map((pick) => ({ world: pick.entry.world, uid: pick.entry.uid, comment: pick.entry.comment, p: pick.p }));
     const everyAnswered = rated.every((candidate) => known.has(loreKey(candidate)));

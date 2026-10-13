@@ -1,7 +1,7 @@
 import { getChatWindow } from "@extraction/index";
 import {
   clearStoryExtensionPrompt, getContext, loadPersonasModule, loadPersonaWrites, noteHostSettingsLoaded, readPersonas,
-  onGroupEdited, setStoryExtensionPrompt, settingsReady, startSaveWatcherSurface, subscribeToHostEvents,
+  onGroupEdited, onLorebookListChanged, setStoryExtensionPrompt, settingsReady, startSaveWatcherSurface, subscribeToHostEvents,
 } from "@services/STAPI";
 import { registerRuntimeMacros } from "./macros";
 import { startMirrorReaper } from "./mirrorReaperHost";
@@ -119,7 +119,7 @@ const startWatches = () => {
   bridge.start();
   runtimeDisposers.push(startEmptyReplyRecovery(bridge, () => live.talk?.chainPending() ?? false));
   void import("./spikes").then(({ installSpikes }) => { if (started && bridge) runtimeDisposers.push(installSpikes(bridge, runtimeManager)); });
-  const requirementsWatch = new RequirementsWatch(runtimeManager.requirementsHost, subscribeToHostEvents, undefined, [onGroupEdited]);
+  const requirementsWatch = new RequirementsWatch(runtimeManager.requirementsHost, subscribeToHostEvents, undefined, [onGroupEdited, onLorebookListChanged]);
   requirementsWatch.start();
   runtimeDisposers.push(() => requirementsWatch.stop());
   runtimeDisposers.push(startMirrorReaper(() => runtimeManager.notify()));
