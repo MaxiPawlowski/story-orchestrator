@@ -84,6 +84,24 @@ capture baseline and final run header, declare intentional differences, clean ow
 - Supported J6d replay legs; no full judge-versus-extractor claim without the extractor run.
 - Current pass spend: **0 TypeSafe calls** through A19. Update per task.
 
+## Workspace recovery — 2026-10-13
+
+- Owner requested an audit and cleanup of 82 `C:\dev\so-*` folders and inactive agent worktrees.
+- 69 top-level folders archived under `C:\dev\backups\story-orchestrator\workspace-cleanup-2026-10-13`:
+  20 merged worktrees, 40 junction-only remnants, one guide snapshot and eight historical artifact folders.
+  Four dirty inactive agent worktrees also moved there with Git registration and their changes preserved.
+- Full audit and exact move manifests live in the backup folder. Active build worktrees, configured lane/art roots
+  and private evidence repository remain at their original paths. Clean merged `so-ui-rework` remains because Windows refused its move.
+- **Recovered unfinished fix:** `charming-wright-d54382` has five staged source/test/guide files narrowing living-frontier
+  diagnostics to anchors. Not shipped; preserve patch and originals in `orphan-recovery/charming-wright-d54382`.
+  Review against current open-anchor work, integrate source/test/guide changes, regenerate docs and run required gates.
+- **Recovered evidence:** eight missing M25 blind-pack files copied to the ignored main session store with matching hashes;
+  `npm run sessions:archive` exited 0. Second-model rating remains owed.
+- Seven repo stashes retained. Filename inventory found no extra v2.8 remaining-items document; old guide stash covers shipped
+  guide tooling, remaining stashes concern local settings or earlier versions. No stash applied or dropped.
+- Plan 40 restored to main master and pushed as `aa4eb224`. Earlier external plans remain in the owner's `.opencode/plan` folder.
+
+
 ## Deferred acceptance protocols
 
 ### Authoring/cloud model required
