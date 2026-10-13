@@ -284,7 +284,8 @@ async function sheets(): Promise<void> {
 }
 
 const MODE = process.env.SO_S0_PACK_MODE ?? 'edit';
-const NATIVE = process.env.SO_S0_ALPHA === 'native';
+const NATIVE = process.env.SO_S0_ALPHA === 'native' || process.env.SO_S0_ALPHA === 'nativeprompt';
+const ALPHA_PROMPT = process.env.SO_S0_ALPHA === 'nativeprompt';
 
 async function makePackImage(member: string, view: PackView): Promise<void> {
     const stem = `${member}-s${SEED}-${view.id}`;
@@ -299,7 +300,8 @@ async function makePackImage(member: string, view: PackView): Promise<void> {
         graph = t2iGraph({ arm: ARM, prompt, seed, width: view.width, height: view.height, ...(cutout ? { cutout } : {}), prefix: `${PREFIX}-pack`, ...VARIANT });
     } else {
         const reference = await upload(path.join(BASES, `${member}.png`), upName(`${member}-card.png`));
-        graph = editGraph({ models: MODELS as never, steps: STEPS, seed, reference, instruction: editInstruction('view', view.edit), resolution: 1024, ...(ARM.sigmas ? { sigmas: ARM.sigmas } : {}),
+        const instruction = ALPHA_PROMPT ? rgbaPrompt(editInstruction('view', view.edit).replace('plain white background', 'transparent background')) : editInstruction('view', view.edit);
+        graph = editGraph({ models: MODELS as never, steps: STEPS, seed, reference, instruction, resolution: 1024, ...(ARM.sigmas ? { sigmas: ARM.sigmas } : {}),
             ...(cutout ? { cutout } : {}), prefix: `${PREFIX}-pack` });
     }
     const { outputs, seconds } = await run(graph);
