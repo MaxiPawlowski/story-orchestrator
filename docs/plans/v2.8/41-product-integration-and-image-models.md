@@ -154,9 +154,35 @@ Phases (each its own gate record):
    rebuilt through the product path instead of scripted bases.
 5. **A — acceptance:** the journey above twice, plus the owed plan 28/29/33/36 LI rows on the same build.
 
+## 5a. Folded work (owner 2026-10-13: focus on plan 41 and a full e2e POC; the 3090 may be used)
+
+Owed rows that sit on the same end-to-end path are run inside this plan, on the same frozen build, instead of
+separately. Their original floors and protocols stay as written in their source plans.
+
+- **Plan 28 LI/LT**: text → image → text twice with the in-process broker (Artemis and ComfyUI on one 3090).
+- **Plan 29 LI**: two purposes on two `SO-` workflows, player selection unchanged on disk, twice.
+- **Plan 33 Acceptance ×2** through the product path, the repaired `lie_side` renders and PCK, and the `lie_rest` audit.
+- **Plan 36**: live head on a reference-pack bust; streamed mouth on real Artemis replies.
+- **v2.7 20**: living-card look change in play (sprites, close shot, illustration follow), lifecycle acceptance.
+- **Plan 37 showcase**: rebuilt through the product path instead of scripted pilot bases.
+
+Not folded: R7 SWA/cache, LI1 laptop, campaign sprite work (A6), the harness-auth branch (its own agent),
+Sol-bridge calibration (needs that branch), smart-context and inner-voice measurements.
+
+## 5b. Stages and stop points
+
+1. **Stage 1 (now):** R0–R4, then the POC (§4) on installed models: arm B and pack arm Q (Qwen-Image 2512 vs 2.1 at
+   40 steps), the repaired `lie_side` and `lie_rest` renders, and the plan 28 broker LI/LT. Turbo arms T and T+R only
+   after the owner approves its download. No product code except POC drivers. Stop with a report.
+2. **Stage 2:** design build (§5 D) from the POC decision.
+3. **Stage 3:** integration and the e2e journey (§5 I and A), with the folded rows above.
+
+Raters: a second model reads contact sheets, never the owner. `opencode run` with `openai/gpt-6.1-sol` is allowed for
+rating in stage 1, at most 150 calls, counted; when unavailable, the executing session rates and marks it provisional.
+
 ## 6. Decisions for the owner
 
-1. Approve the R phase now (docs and read-only, no GPU)? Recommended: yes.
+1. Approve the R phase now (docs and read-only, no GPU)? Recommended: yes. **Approved 2026-10-13, with the 3090.**
 2. Approve downloading Qwen-Image-2.1-Turbo (and a ComfyUI node update if needed) for the POC? Size quoted in R0.
 3. Reference pack contents: the six images in §3.1, or fewer? Recommended: six, author approves once.
 4. Keep SDXL for backgrounds and cast-free scenes until measured? Recommended: yes.
