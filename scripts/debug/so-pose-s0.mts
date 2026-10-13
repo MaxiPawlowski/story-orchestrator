@@ -4,6 +4,7 @@ import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { editGraph, editInstruction } from './lib/poseS0Graph.mts';
+import { ARMS, armOf, packPrompt, PACK_VIEWS, rgbaPrompt, t2iGraph, WHO, type PackView } from './lib/poseS0Models.mts';
 import { readDwpose, posePck, shapePck, headToHipRatio, poseHead, retarget, median, percentile, quote, peakFromSamples, verdict, type Keypoints, type PoseLike, type Box } from './lib/poseS0.mts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -13,10 +14,15 @@ const WORK = process.env.SO_S0_DIR ?? 'C:/dev/so-s0';
 const PY = process.env.SO_COMFY_PY ?? 'C:/dev/tools/story-orchestrator-local/comfy-cu130/Scripts/python.exe';
 const PIXELS = path.join(here, 'lib', 'poseS0Pixels.py');
 const SEED = Number(process.env.SO_S0_SEED ?? 1234);
-const STEPS = 25;
-const MODELS = { diffusion: { name: 'qwen_image_2.1_int8_convrot.safetensors' }, encoder: { name: 'qwen3vl_8b_int8_convrot.safetensors' }, vae: { name: 'qwen_image_2.1_vae_bf16.safetensors' } };
+const ARM = armOf(process.env.SO_S0_ARM);
+const MODELS = ARM.models;
+const STEPS = ARM.steps;
+const RUN = process.env.SO_S0_RUN ?? 'r1';
+const BASES = process.env.SO_S0_BASES ?? path.join(WORK, 'bases');
+const PACKDIR = process.env.SO_S0_PACKDIR;
 const CUTOUT = { id: 'birefnet_toonout', node: 'BiRefNetRMBG', model: 'BiRefNet_toonout', files: [] };
-const PREFIX = 'so-s0';
+const PREFIX = `so-s0-${ARM.id}`;
+const VARIANT = RUN === 'r1' ? {} : { variant: RUN };
 
 export const MEMBERS: Record<string, string> = {
     m1: 'Full-body anime character sprite, a young woman adventurer with short red hair and green eyes, green tunic with a brown belt, brown leather boots, standing relaxed, front view, whole body visible from head to feet, plain white background',
@@ -27,8 +33,12 @@ const PILOT_POSES = ['stand_arms_crossed', 'sit_chair', 'kneel_one', 'fight_swin
 const FULL_POSES = ['stand_arms_crossed', 'sit_chair', 'kneel_one', 'fight_swing', 'cast_two_hands', 'crouch', 'walk', 'lie_side'];
 export const POSES = process.env.SO_S0_POSES === 'full' ? FULL_POSES : process.env.SO_S0_POSES ? process.env.SO_S0_POSES.split(',') : PILOT_POSES;
 export const EXPRESSIONS = ['happy', 'angry'];
-const ARMS = ['p2', 'p3'] as const;
-type Arm = typeof ARMS[number];
+const ARM_IDS = (process.env.SO_S0_PARMS ?? 'p2,p3').split(',') as ('p2' | 'p3')[];
+const ARMS_P = ARM_IDS;
+type Arm = 'p2' | 'p3';
+const CHAIN_EXPRESSIONS = ['neutral', 'happy', 'angry', 'worried'];
+const FRAMES = [{ id: 'blink', text: 'the eyes closed in a blink' }, { id: 'talk', text: 'the mouth open as if speaking' }];
+const LOOK_TEXT = 'a dark hooded travel cloak worn over the current outfit';
 
 const dwposeGraph = (reference: string) => ({
     '1': { class_type: 'LoadImage', inputs: { image: reference } },
@@ -40,6 +50,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const exists = (file: string) => fs.access(file).then(() => true, () => false);
 const dir = (...parts: string[]) => path.join(WORK, ...parts);
 const log = (...parts: unknown[]) => console.log(new Date().toISOString().slice(11, 19), ...parts);
+const readJson = async (file: string) => JSON.parse(await fs.readFile(file, 'utf8'));
 
 function py(command: string, args: unknown): any {
     const result = spawnSync(PY, [PIXELS, command, JSON.stringify(args)], { encoding: 'utf8', maxBuffer: 1 << 26 });
@@ -56,13 +67,13 @@ async function upload(file: string, name: string): Promise<string> {
     return ((await response.json()) as { name: string }).name;
 }
 
-async function run(graph: Record<string, unknown>, timeoutMs = 900000): Promise<{ outputs: Record<string, any>; seconds: number }> {
+async function run(graph: Record<string, unknown>, timeoutMs = 1800000): Promise<{ outputs: Record<string, any>; seconds: number }> {
     const started = performance.now();
     const response = await fetch(`${COMFY}/prompt`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt: graph, client_id: 'so-s0' }) });
     const queued = (await response.json()) as { prompt_id?: string; error?: unknown; node_errors?: unknown };
     if (!queued.prompt_id) throw new Error(`queue refused: ${JSON.stringify(queued).slice(0, 600)}`);
     while (performance.now() - started < timeoutMs) {
-        await sleep(1000);
+        await sleep(500);
         const history = (await (await fetch(`${COMFY}/history/${queued.prompt_id}`)).json()) as Record<string, any>;
         const item = history[queued.prompt_id];
         if (item?.status?.status_str === 'error') throw new Error(`render failed: ${JSON.stringify(item.status.messages ?? '').slice(0, 800)}`);
@@ -73,30 +84,20 @@ async function run(graph: Record<string, unknown>, timeoutMs = 900000): Promise<
 
 async function fetchImage(ref: { filename: string; subfolder: string; type: string }, to: string): Promise<void> {
     const url = `${COMFY}/view?filename=${encodeURIComponent(ref.filename)}&subfolder=${encodeURIComponent(ref.subfolder)}&type=${ref.type}`;
+    await fs.mkdir(path.dirname(to), { recursive: true });
     await fs.writeFile(to, Buffer.from(await (await fetch(url)).arrayBuffer()));
 }
 
 const savedImage = (outputs: Record<string, any>) => Object.values(outputs).flatMap((o: any) => o.images ?? []).find((i: any) => i.type === 'output');
 
 async function appendResult(row: Record<string, unknown>): Promise<void> {
-    await fs.appendFile(dir('results.jsonl'), JSON.stringify(row) + '\n');
+    await fs.appendFile(dir('results.jsonl'), JSON.stringify({ model: ARM.id, recipe: ARM.recipe, run: RUN, seed: SEED, ...row }) + '\n');
 }
 
+const upName = (stem: string) => `${PREFIX}-${RUN}-${SEED}-${stem}`;
+
 function baseGraph(prompt: string, seed: number): Record<string, unknown> {
-    const node = (class_type: string, inputs: Record<string, unknown>) => ({ class_type, inputs });
-    return {
-        '1': node('UNETLoader', { unet_name: MODELS.diffusion.name, weight_dtype: 'default' }),
-        '2': node('QwenImage21Cache', { model: ['1', 0], device: 'auto', dtype: 'default' }),
-        '3': node('CLIPLoader', { clip_name: MODELS.encoder.name, type: 'qwen_image', device: 'default' }),
-        '4': node('VAELoader', { vae_name: MODELS.vae.name }),
-        '5': node('TextEncodeQwenImage21', { clip: ['3', 0], prompt, negative_prompt: 'text, watermark, deformed face, cropped, extra limbs, multiple characters', vae: ['4', 0], resolution: 1024 }),
-        '6': node('EmptySD3LatentImage', { width: 768, height: 1152, batch_size: 1 }),
-        '7': node('KSampler', { model: ['2', 0], seed, steps: STEPS, cfg: 1, sampler_name: 'euler', scheduler: 'simple', positive: ['5', 0], negative: ['5', 1], latent_image: ['6', 0], denoise: 1 }),
-        '8': node('VAEDecode', { samples: ['7', 0], vae: ['4', 0] }),
-        '9': node('SplitImageWithAlpha', { image: ['8', 0] }),
-        '10': node(CUTOUT.node, { image: ['9', 0], model: CUTOUT.model, background: 'Alpha', sensitivity: 1, mask_blur: 0, mask_offset: 0, invert_output: false, refine_foreground: false, background_color: '#ffffff' }),
-        '11': node('SaveImage', { filename_prefix: `${PREFIX}-base`, images: ['10', 0] }),
-    };
+    return t2iGraph({ arm: ARMS.b, prompt, seed, width: 768, height: 1152, cutout: CUTOUT, prefix: `${PREFIX}-base`, ...VARIANT });
 }
 
 async function dwpose(image: string): Promise<Keypoints> {
@@ -108,14 +109,15 @@ async function dwpose(image: string): Promise<Keypoints> {
 }
 
 async function makeBase(member: string): Promise<void> {
-    const out = dir('bases', `${member}.png`);
+    const out = path.join(BASES, `${member}.png`);
     if (await exists(out)) return;
+    await fs.mkdir(BASES, { recursive: true });
     const { outputs, seconds } = await run(baseGraph(MEMBERS[member], SEED + Number(member.slice(1))));
     const image = savedImage(outputs);
     await fetchImage(image, out);
     const box = py('alpha-box', { image: out });
     const keypoints = await dwpose(out);
-    await fs.writeFile(dir('bases', `${member}.dwpose.json`), JSON.stringify({ keypoints, box, ratio: headToHipRatio(keypoints) }));
+    await fs.writeFile(path.join(BASES, `${member}.dwpose.json`), JSON.stringify({ keypoints, box, ratio: headToHipRatio(keypoints) }));
     await appendResult({ kind: 'base', member, seconds, comfyFile: image.filename });
     log('base', member, `${seconds.toFixed(1)}s`, JSON.stringify(box));
 }
@@ -124,36 +126,38 @@ async function loadPose(id: string): Promise<PoseLike> {
     return JSON.parse(await fs.readFile(path.join(repo, 'assets', 'poses', `${id}.json`), 'utf8'));
 }
 
+const packRefs = (member: string, ids: string[]): string[] => ids.map((id) => path.join(PACKDIR as string, `${member}-s${SEED}-${id}.png`));
+
 async function makeBody(member: string, poseId: string, arm: Arm): Promise<{ seconds: number }> {
     const out = dir('bodies', `${member}-${poseId}-${arm}.png`);
     const metaFile = out.replace(/\.png$/, '.json');
     if (await exists(metaFile)) return JSON.parse(await fs.readFile(metaFile, 'utf8'));
     const pose = await loadPose(poseId);
-    const base = dir('bases', `${member}.png`);
-    const info = JSON.parse(await fs.readFile(dir('bases', `${member}.dwpose.json`), 'utf8'));
+    const base = path.join(BASES, `${member}.png`);
+    const info = JSON.parse(await fs.readFile(path.join(BASES, `${member}.dwpose.json`), 'utf8'));
     const standing = (await loadPose('stand_relaxed')).keypoints;
     const measured: Keypoints | undefined = info.keypoints ? { ...info.keypoints, points: info.keypoints.points.map((p: [number, number] | null) => p ? [Math.round(p[0]), Math.round(p[1])] : null) } : undefined;
     const keypoints = retarget(pose, { canvas: info.box.canvas, box: { x: info.box.x, y: info.box.y, width: info.box.width, height: info.box.height }, headToHip: info.ratio, member: measured }, standing);
     const target = dir('targets', `${member}-${poseId}.json`);
     await fs.mkdir(path.dirname(target), { recursive: true });
     await fs.writeFile(target, JSON.stringify(keypoints));
-    const reference = await upload(base, `${PREFIX}-${member}-base.png`);
+    const reference = await upload(base, upName(`${member}-base.png`));
     let skeleton: string | undefined;
     if (arm === 'p2') {
         const png = dir('targets', `${member}-${poseId}.png`);
         py('skeleton', { points: target, out: png });
-        skeleton = await upload(png, `${PREFIX}-${member}-${poseId}-skeleton.png`);
+        skeleton = await upload(png, upName(`${member}-${poseId}-skeleton.png`));
     }
+    const references = PACKDIR ? await Promise.all(packRefs(member, ['bust_front', 'three_quarter', 'side']).map((file, at) => upload(file, upName(`${member}-pack${at}.png`)))) : undefined;
     const graph = editGraph({ models: MODELS as never, steps: STEPS, seed: SEED, reference, instruction: editInstruction('pose', pose.text), cutout: CUTOUT as never, resolution: 1024,
-        ...(skeleton ? { skeleton } : {}), secondReference: arm === 'p3' });
+        ...(skeleton ? { skeleton } : {}), secondReference: arm === 'p3', ...(ARM.sigmas ? { sigmas: ARM.sigmas } : {}), ...(references ? { references } : {}), prefix: `${PREFIX}-body` });
     const { outputs, seconds } = await run(graph);
     const image = savedImage(outputs);
     const raw = dir('raw', `${member}-${poseId}-${arm}.png`);
-    await fs.mkdir(path.dirname(raw), { recursive: true });
     await fetchImage(image, raw);
     py('resize-to', { base, image: raw, out });
     const qa = py('qa', { image: out });
-    const row = { kind: 'body', member, pose: poseId, arm, seconds, qa, comfyFile: image.filename };
+    const row = { kind: 'body', member, pose: poseId, arm, seconds, qa, comfyFile: image.filename, refs: references?.length ?? 0 };
     await fs.writeFile(metaFile, JSON.stringify(row));
     await appendResult(row);
     log('body', member, poseId, arm, `${seconds.toFixed(1)}s`, qa.ok ? 'qa ok' : `qa FAIL ${qa.reasons.join('; ')}`);
@@ -185,8 +189,10 @@ async function makeHead(member: string, poseId: string, arm: Arm, expression: st
     }
     const cropFile = dir(folder, `${stem}-${expression}.crop.png`);
     py('crop', { image: body, box, out: cropFile });
-    const reference = await upload(cropFile, `${PREFIX}-${stem}-${expression}-crop.png`);
-    const graph = editGraph({ models: MODELS as never, steps: STEPS, seed: SEED, reference, instruction: editInstruction('expression', `facial expression: ${expression}`), resolution: 1024 });
+    const reference = await upload(cropFile, upName(`${stem}-${expression}-crop.png`));
+    const references = PACKDIR ? await Promise.all(packRefs(member, ['bust_front', 'expr_happy', 'expr_angry']).map((file, at) => upload(file, upName(`${member}-hpack${at}.png`)))) : undefined;
+    const graph = editGraph({ models: MODELS as never, steps: STEPS, seed: SEED, reference, instruction: editInstruction('expression', `facial expression: ${expression}`), resolution: 1024,
+        ...(ARM.sigmas ? { sigmas: ARM.sigmas } : {}), ...(references ? { references } : {}), prefix: `${PREFIX}-head` });
     const { outputs, seconds } = await run(graph);
     const image = savedImage(outputs);
     const raw = dir('raw', `${stem}-${expression}${boxFrom === 'output' ? '' : '-target'}.png`);
@@ -199,13 +205,12 @@ async function makeHead(member: string, poseId: string, arm: Arm, expression: st
 }
 
 async function scoreBodies(): Promise<void> {
-    for (const member of Object.keys(MEMBERS)) for (const poseId of POSES) for (const arm of ARMS) {
+    for (const member of Object.keys(MEMBERS)) for (const poseId of POSES) for (const arm of ARMS_P) {
         const body = dir('bodies', `${member}-${poseId}-${arm}.png`), file = dir('scores', `${member}-${poseId}-${arm}.json`);
         if (!await exists(body) || await exists(file)) continue;
         const target = JSON.parse(await fs.readFile(dir('targets', `${member}-${poseId}.json`), 'utf8')) as Keypoints;
-        const raw = dir('raw', `${member}-${poseId}-${arm}.png`);
         let found: Keypoints | null = null, error: string | null = null;
-        try { found = await dwpose(await exists(raw) ? body : body); } catch (e) { error = (e as Error).message; }
+        try { found = await dwpose(body); } catch (e) { error = (e as Error).message; }
         await fs.mkdir(path.dirname(file), { recursive: true });
         await fs.writeFile(file, JSON.stringify({ member, pose: poseId, arm, pck: found ? posePck(found, target) : 0, error, found }));
         log('score', member, poseId, arm, found ? posePck(found, target).toFixed(2) : `none (${error})`);
@@ -223,6 +228,7 @@ async function summary(vram: number | null): Promise<void> {
     const scores: any[] = [];
     for (const f of await fs.readdir(dir('scores')).catch(() => [])) scores.push(JSON.parse(await fs.readFile(dir('scores', f), 'utf8')));
     const byArm = (arm: string) => scores.filter((s) => s.arm === arm).map((s) => s.pck);
+    const byPose = (arm: string) => Object.fromEntries([...new Set(scores.map((s) => s.pose))].map((pose) => [pose, scores.filter((s) => s.arm === arm && s.pose === pose).reduce((a, s) => a + s.pck, 0) / Math.max(1, scores.filter((s) => s.arm === arm && s.pose === pose).length)]));
     const shape = (arm: string) => scores.filter((x) => x.arm === arm && x.found).map((x) => shapePck(x.found, JSON.parse(readFileSync(dir('targets', `${x.member}-${x.pose}.json`), 'utf8'))));
     const mean = (v: number[]) => v.length ? v.reduce((a, b) => a + b, 0) / v.length : NaN;
     const rates = (arm: string) => bodies.filter((b) => b.arm === arm);
@@ -234,8 +240,9 @@ async function summary(vram: number | null): Promise<void> {
     const labelOutboxRate = labels.length ? Object.entries<any>(identity.labels).filter(([key, x]) => (key in outbox ? outbox[key] : x.visible)).length / labels.length : null;
     const bodyS = bodies.map((b) => b.seconds), headS = heads.map((h) => h.seconds);
     const result = {
-        bodies: bodies.length, heads: heads.length, bodySeconds: { median: median(bodyS), p90: percentile(bodyS, 0.9), min: Math.min(...bodyS), max: Math.max(...bodyS) },
-        headSeconds: { median: median(headS), p90: percentile(headS, 0.9) }, peakVramGb: vram, pckMean: { p2: mean(byArm('p2')), p3: mean(byArm('p3')) }, shapePckMean: { p2: mean(shape('p2')), p3: mean(shape('p3')) },
+        model: ARM.id, recipe: ARM.recipe, bodies: bodies.length, heads: heads.length, bodySeconds: { median: median(bodyS), p90: percentile(bodyS, 0.9), min: Math.min(...bodyS), max: Math.max(...bodyS) },
+        headSeconds: { median: median(headS), p90: percentile(headS, 0.9) }, peakVramGb: vram, pckMean: { p2: mean(byArm('p2')), p3: mean(byArm('p3')) }, pckByPose: { p2: byPose('p2'), p3: byPose('p3') },
+        shapePckMean: { p2: mean(shape('p2')), p3: mean(shape('p3')) },
         qaRate: { p2: rates('p2').filter((b) => b.qa.ok).length / Math.max(1, rates('p2').length), p3: rates('p3').filter((b) => b.qa.ok).length / Math.max(1, rates('p3').length) },
         headQaRate: heads.filter((h) => h.qaOk).length / Math.max(1, heads.length), headsSkipped: all.filter((r) => r.kind === 'head-skipped').length, identity: { p2: idRate('p2'), p3: idRate('p3') }, labelVisible: labelRate, labelVisibleOutputBox: labelOutboxRate,
     };
@@ -247,17 +254,17 @@ async function summary(vram: number | null): Promise<void> {
 
 async function sheets(): Promise<void> {
     for (const member of Object.keys(MEMBERS)) for (const poseId of POSES) {
-        const items = [{ label: `${member} base`, path: dir('bases', `${member}.png`) }];
-        for (const arm of ARMS) {
+        const items = [{ label: `${member} base`, path: path.join(BASES, `${member}.png`) }];
+        for (const arm of ARMS_P) {
             const stem = `${member}-${poseId}-${arm}`;
             items.push({ label: `${poseId} ${arm}`, path: dir('bodies', `${stem}.png`) });
         }
         items.push({ label: 'target skeleton', path: dir('targets', `${member}-${poseId}.png`) });
         const heads: { label: string; path: string; box?: Box }[] = [];
-        for (const arm of ARMS) for (const ex of EXPRESSIONS) {
+        for (const arm of ARMS_P) for (const ex of EXPRESSIONS) {
             const file = dir('heads', `${member}-${poseId}-${arm}-${ex}`);
             const meta = await fs.readFile(`${file}.json`, 'utf8').then(JSON.parse, () => null);
-            heads.push({ label: `${arm} ${ex}`, path: `${file}.png`, ...(meta ? { box: meta.box } : {}) });
+            heads.push({ label: `${arm} ${ex}`, path: `${file}.png`, ...(meta?.box ? { box: meta.box } : {}) });
         }
         await fs.mkdir(dir('sheets'), { recursive: true });
         const present = <T extends { path: string }>(list: T[]) => Promise.all(list.map((i) => exists(i.path))).then((flags) => list.filter((_, at) => flags[at]));
@@ -267,34 +274,153 @@ async function sheets(): Promise<void> {
     }
 }
 
+const MODE = process.env.SO_S0_PACK_MODE ?? 'edit';
+const NATIVE = process.env.SO_S0_ALPHA === 'native';
+
+async function makePackImage(member: string, view: PackView): Promise<void> {
+    const stem = `${member}-s${SEED}-${view.id}`;
+    const out = dir('pack', `${stem}.png`);
+    const metaFile = dir('pack', `${stem}.json`);
+    if (await exists(metaFile)) return;
+    const seed = SEED + Number(member.slice(1));
+    const cutout = NATIVE ? undefined : CUTOUT;
+    let graph: Record<string, unknown>;
+    if (MODE === 't2i') {
+        const prompt = NATIVE ? rgbaPrompt(packPrompt(member, view)) : packPrompt(member, view);
+        graph = t2iGraph({ arm: ARM, prompt, seed, width: view.width, height: view.height, ...(cutout ? { cutout } : {}), prefix: `${PREFIX}-pack`, ...VARIANT });
+    } else {
+        const reference = await upload(path.join(BASES, `${member}.png`), upName(`${member}-card.png`));
+        graph = editGraph({ models: MODELS as never, steps: STEPS, seed, reference, instruction: editInstruction('view', view.edit), resolution: 1024, ...(ARM.sigmas ? { sigmas: ARM.sigmas } : {}),
+            ...(cutout ? { cutout } : {}), prefix: `${PREFIX}-pack` });
+    }
+    const { outputs, seconds } = await run(graph);
+    const image = savedImage(outputs);
+    await fetchImage(image, out);
+    const alpha = py('qa-alpha', { image: out, allowEdge: view.head });
+    const row = { kind: 'pack', mode: MODE, native: NATIVE, member, view: view.id, seconds, alpha, comfyFile: image.filename };
+    await fs.writeFile(metaFile, JSON.stringify(row));
+    await appendResult(row);
+    log('pack', member, view.id, `${seconds.toFixed(1)}s`, alpha.ok ? 'alpha ok' : `alpha FAIL ${alpha.reasons.join('; ')}`);
+}
+
+async function chainTask(task: string, member: string, produce: () => Promise<{ file: string; seconds: number; extra?: Record<string, unknown> }>): Promise<string> {
+    const metaFile = dir('chain', `${member}-${task}.json`);
+    if (await exists(metaFile)) return (await readJson(metaFile)).file;
+    await fs.mkdir(dir('chain'), { recursive: true });
+    const made = await produce();
+    const row = { kind: 'task', task, member, seconds: made.seconds, file: made.file, ...made.extra };
+    await fs.writeFile(metaFile, JSON.stringify(row));
+    await appendResult(row);
+    log('task', task, member, `${made.seconds.toFixed(1)}s`);
+    return made.file;
+}
+
+async function editStep(parts: { stem: string; refs: string[]; instruction: string; cutout?: boolean; latent?: { width: number; height: number }; negative?: string }): Promise<{ file: string; seconds: number }> {
+    const names = await Promise.all(parts.refs.map((file, at) => upload(file, upName(`${parts.stem}-ref${at}.png`))));
+    const graph = editGraph({ models: MODELS as never, steps: STEPS, seed: SEED, reference: names[0], references: names.slice(1), instruction: parts.instruction, resolution: 1024,
+        ...(ARM.sigmas ? { sigmas: ARM.sigmas } : {}), ...(parts.cutout ? { cutout: CUTOUT as never } : {}), ...(parts.latent ? { latent: parts.latent } : {}),
+        ...(parts.negative ? { negative: parts.negative } : {}), prefix: `${PREFIX}-${parts.stem}` });
+    const { outputs, seconds } = await run(graph);
+    const file = dir('chain', `${parts.stem}.png`);
+    await fetchImage(savedImage(outputs), file);
+    return { file, seconds };
+}
+
+async function headEdit(member: string, source: string, stem: string, text: string, packIds: string[]): Promise<{ file: string; seconds: number; extra: Record<string, unknown> }> {
+    const info = await readJson(dir('chain', `${member}-head-box.json`)).catch(async () => {
+        const keypoints = await dwpose(source);
+        const box = poseHead(keypoints);
+        if (!box) throw new Error(`no head found on ${source}`);
+        await fs.writeFile(dir('chain', `${member}-head-box.json`), JSON.stringify({ box }));
+        return { box };
+    });
+    const box = info.box as Box;
+    const cropFile = dir('chain', `${stem}.crop.png`);
+    py('crop', { image: source, box, out: cropFile });
+    const refs = [cropFile, ...(PACKDIR ? packRefs(member, packIds) : [])];
+    const edited = await editStep({ stem: `${stem}-edit`, refs, instruction: editInstruction('expression', text) });
+    const out = dir('chain', `${stem}.png`);
+    const pasted = py('paste', { base: source, edit: edited.file, box, out });
+    return { file: out, seconds: edited.seconds, extra: { changed: pasted.changed, box } };
+}
+
+async function chain(): Promise<void> {
+    const cardDir = process.env.SO_S0_CARDART;
+    if (!cardDir) throw new Error('SO_S0_CARDART must hold <member>-s<seed>-bust_front.png card art');
+    const members = Object.keys(MEMBERS);
+    for (const member of members) {
+        const art = dir('chain', `${member}-card.png`);
+        await fs.mkdir(dir('chain'), { recursive: true });
+        if (!await exists(art)) py('flatten', { image: path.join(cardDir, `${member}-s${SEED}-bust_front.png`), out: art });
+        const shared = process.env.SO_S0_CHAIN_BASE;
+        const baseFile = await chainTask('card_base', member, async () => {
+            if (shared) { const from = path.join(shared, 'chain', `${member}-card_base.png`); const meta = await readJson(path.join(shared, 'chain', `${member}-card_base.json`)); await fs.copyFile(from, dir('chain', `${member}-card_base.png`)); return { file: dir('chain', `${member}-card_base.png`), seconds: 0, extra: { shared: true, sharedSeconds: meta.seconds } }; }
+            const made = await editStep({ stem: `${member}-card_base`, refs: [art], instruction: editInstruction('view', 'a full-body neutral standing sprite, front view, whole body visible from head to feet, relaxed pose'), cutout: true });
+            return made;
+        });
+        const sprites: Record<string, string> = {};
+        for (const label of CHAIN_EXPRESSIONS) {
+            sprites[label] = label === 'neutral' ? baseFile : await chainTask(`expr_${label}`, member, () => headEdit(member, baseFile, `${member}-expr_${label}`, `facial expression: ${label}`, ['bust_front', 'expr_happy', 'expr_angry']));
+        }
+        for (const frame of FRAMES) await chainTask(`frame_${frame.id}`, member, () => headEdit(member, sprites.happy, `${member}-frame_${frame.id}`, frame.text, ['bust_front', 'expr_happy', 'expr_angry']));
+        await chainTask('look', member, async () => editStep({ stem: `${member}-look`, refs: [baseFile, ...(PACKDIR ? packRefs(member, ['bust_front', 'three_quarter', 'side']) : [])], instruction: editInstruction('look', LOOK_TEXT), cutout: true }));
+    }
+    const [a, b] = members.slice(0, 2);
+    const sceneRefs = (member: string) => [dir('chain', `${member}-card_base.png`), ...(PACKDIR ? packRefs(member, ['bust_front']) : [])];
+    const refsA = sceneRefs(a), refsB = sceneRefs(b);
+    const refs = PACKDIR ? [refsA[0], refsB[0], refsA[1], refsB[1]] : [refsA[0], refsB[0]];
+    const text = PACKDIR ? 'Image 1 and image 3 show the same first character; image 2 and image 4 show the same second character. ' : 'Image 1 shows the first character and image 2 the second character. ';
+    await chainTask('scene', 'm1m2', async () => editStep({ stem: 'scene', refs, instruction: editInstruction('scene', `${text}Show both characters standing side by side in an old stone courtyard at dusk, full bodies visible, anime illustration, no text.`), latent: { width: 1152, height: 768 } }));
+}
+
+async function latency(): Promise<void> {
+    const all = await rows();
+    const groups = new Map<string, number[]>();
+    for (const r of all) {
+        if (typeof r.seconds !== 'number') continue;
+        const key = r.kind === 'task' ? `task:${String(r.task).replace(/_(neutral|happy|angry|worried|blink|talk)$/, '')}` : r.kind === 'pack' ? `pack:${r.view}` : `${r.kind}`;
+        groups.set(key, [...(groups.get(key) ?? []), r.seconds]);
+    }
+    const out = Object.fromEntries([...groups].map(([key, values]) => [key, { n: values.length, median: Number(median(values).toFixed(1)), p90: Number(percentile(values, 0.9).toFixed(1)) }]));
+    console.log(JSON.stringify({ model: ARM.id, recipe: ARM.recipe, run: RUN, seed: SEED, latency: out }, null, 2));
+}
+
 async function main(): Promise<void> {
     const [command = 'help', ...rest] = process.argv.slice(2);
     await fs.mkdir(WORK, { recursive: true });
-    for (const sub of ['bases', 'bodies', 'heads', 'targets', 'raw', 'scores']) await fs.mkdir(dir(sub), { recursive: true });
+    for (const sub of ['bodies', 'heads', 'targets', 'raw', 'scores']) await fs.mkdir(dir(sub), { recursive: true });
     if (command === 'bases') { for (const member of Object.keys(MEMBERS)) await makeBase(member); return; }
     if (command === 'body') { await makeBody(rest[0], rest[1], rest[2] as Arm); return; }
     if (command === 'quote') {
         const all = await rows();
         const deadline = new Date(); const [h, m] = (rest[0] ?? '12:40').split(':').map(Number); deadline.setHours(h, m, 0, 0);
-        const bodies = Object.keys(MEMBERS).length * POSES.length * ARMS.length;
+        const bodies = Object.keys(MEMBERS).length * POSES.length * ARMS_P.length;
         const q = quote({ bodySeconds: all.filter((r) => r.kind === 'body').map((r) => r.seconds), headSeconds: all.filter((r) => r.kind === 'head').map((r) => r.seconds), bodies, heads: bodies * EXPRESSIONS.length, deadlineMs: deadline.getTime(), nowMs: Date.now() });
         console.log(JSON.stringify({ bodies, heads: bodies * EXPRESSIONS.length, ...q, finishesAt: new Date(q.finishesAtMs).toTimeString().slice(0, 8) }));
         return;
     }
     if (command === 'bodies') {
-        for (const poseId of POSES) for (const member of Object.keys(MEMBERS)) for (const arm of ARMS) await makeBody(member, poseId, arm);
+        for (const poseId of POSES) for (const member of Object.keys(MEMBERS)) for (const arm of ARMS_P) await makeBody(member, poseId, arm);
         return;
     }
     if (command === 'head') { await makeHead(rest[0], rest[1], rest[2] as Arm, rest[3], (rest[4] as 'target' | 'output' | undefined) ?? 'output'); return; }
     if (command === 'heads') {
         const limit = Number(rest[0] ?? Infinity);
         let n = 0;
-        for (const poseId of POSES) for (const member of Object.keys(MEMBERS)) for (const arm of ARMS) for (const ex of EXPRESSIONS) { if (n++ >= limit) return; await makeHead(member, poseId, arm, ex); }
+        for (const poseId of POSES) for (const member of Object.keys(MEMBERS)) for (const arm of ARMS_P) for (const ex of EXPRESSIONS) { if (n++ >= limit) return; await makeHead(member, poseId, arm, ex); }
         return;
     }
     if (command === 'score') { await scoreBodies(); return; }
     if (command === 'sheets') { await sheets(); return; }
     if (command === 'summary') { await summary(rest[0] ? Number(rest[0]) : null); return; }
+    if (command === 'pack') { for (const member of Object.keys(MEMBERS)) for (const view of PACK_VIEWS) await makePackImage(member, view); return; }
+    if (command === 'chain') { await chain(); return; }
+    if (command === 'latency') { await latency(); return; }
+    if (command === 'smoke') {
+        const view = PACK_VIEWS[Number(rest[0] ?? 0)];
+        await makePackImage(rest[1] ?? 'm1', view);
+        return;
+    }
     if (command === 'vram') {
         const out = dir('vram.csv');
         const child = spawn('nvidia-smi', ['--query-gpu=timestamp,memory.used', '--format=csv,noheader,nounits', '-lms', '500'], { stdio: ['ignore', (await fs.open(out, 'a')).fd, 'ignore'], detached: true });
@@ -303,7 +429,8 @@ async function main(): Promise<void> {
         return;
     }
     if (command === 'vram-peak') { console.log(peakFromSamples(await fs.readFile(dir('vram.csv'), 'utf8')) ?? 'none'); return; }
-    console.log('commands: bases | body <m> <pose> <arm> | bodies | heads [n] | score | sheets | summary [vramGb] | quote [HH:MM] | vram | vram-peak');
+    console.log('commands: bases | body <m> <pose> <arm> | bodies | heads [n] | score | sheets | summary [vramGb] | quote [HH:MM] | pack | chain | latency | smoke [view] [member] | vram | vram-peak');
+    console.log('env: SO_S0_ARM b|q21|turbo|q2512, SO_S0_DIR, SO_S0_BASES, SO_S0_SEED, SO_S0_RUN, SO_S0_POSES, SO_S0_PARMS, SO_S0_PACK_MODE edit|t2i, SO_S0_ALPHA native|cutout, SO_S0_PACKDIR, SO_S0_CARDART, SO_S0_CHAIN_BASE');
 }
 
 main().catch((error) => { console.error(error instanceof Error ? error.stack : error); process.exit(1); });

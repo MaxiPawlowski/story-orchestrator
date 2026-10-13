@@ -117,7 +117,68 @@ def sheet(args):
     return {"width": out.size[0], "height": out.size[1]}
 
 
-COMMANDS = {"skeleton": skeleton, "alpha-box": alpha_box, "crop": crop, "paste": paste, "resize-to": resize_to, "qa": qa, "sheet": sheet}
+def flatten(args):
+    image = Image.open(args["image"]).convert("RGBA")
+    canvas = Image.new("RGBA", image.size, (255, 255, 255, 255))
+    canvas.alpha_composite(image)
+    canvas.convert("RGB").save(args["out"])
+    return {"width": image.size[0], "height": image.size[1]}
+
+
+def alpha_stats(args):
+    array = np.array(Image.open(args["image"]).convert("RGBA"))
+    alpha = array[:, :, 3]
+    total = alpha.size
+    clear = float((alpha <= 8).sum()) / total
+    solid = float((alpha >= 247).sum()) / total
+    visible = alpha > 8
+    ys, xs = np.nonzero(visible)
+    colours = len({tuple(c) for c in array[visible][:4096, :3]}) if visible.any() else 0
+    edge = bool(visible.any() and (ys.min() <= 1 or ys.max() >= alpha.shape[0] - 2 or xs.min() <= 1 or xs.max() >= alpha.shape[1] - 2))
+    return {"clear": round(clear, 4), "solid": round(solid, 4), "soft": round(1 - clear - solid, 4), "colours": colours, "touchesEdge": edge,
+            "width": int(array.shape[1]), "height": int(array.shape[0])}
+
+
+def qa_alpha(args):
+    stats = alpha_stats(args)
+    reasons = []
+    if stats["clear"] < 0.05:
+        reasons.append("no transparent background")
+    if stats["solid"] < 0.04:
+        reasons.append("subject smaller than 4 percent of the canvas")
+    if stats["colours"] < 8:
+        reasons.append("blank or nearly single-colour")
+    if not args.get("allowEdge") and stats["touchesEdge"]:
+        reasons.append("subject touches the canvas edge")
+    return {"ok": not reasons, "reasons": reasons, **stats}
+
+
+def grid(args):
+    cell = args.get("cell", 320)
+    rows = args["rows"]
+    cols = max(len(row["items"]) for row in rows)
+    head = 22
+    out = Image.new("RGB", (cols * cell + 120, len(rows) * (cell + head)), "white")
+    draw = ImageDraw.Draw(out)
+    for r, row in enumerate(rows):
+        top = r * (cell + head)
+        draw.text((4, top + head + cell // 2), row["label"], fill="black")
+        for c, item in enumerate(row["items"]):
+            left = 120 + c * cell
+            draw.text((left + 4, top + 5), item["label"], fill="black")
+            if not item.get("path"):
+                continue
+            image = Image.open(item["path"]).convert("RGBA")
+            ratio = min(cell / image.width, cell / image.height)
+            image = image.resize((max(1, round(image.width * ratio)), max(1, round(image.height * ratio))), Image.LANCZOS)
+            tile = Image.new("RGBA", (cell, cell), (235, 235, 235, 255))
+            tile.alpha_composite(image, ((cell - image.width) // 2, (cell - image.height) // 2))
+            out.paste(tile.convert("RGB"), (left, top + head))
+    out.save(args["out"])
+    return {"width": out.size[0], "height": out.size[1]}
+
+
+COMMANDS = {"skeleton": skeleton, "alpha-box": alpha_box, "crop": crop, "paste": paste, "resize-to": resize_to, "qa": qa, "sheet": sheet, "flatten": flatten, "alpha-stats": alpha_stats, "qa-alpha": qa_alpha, "grid": grid}
 
 if __name__ == "__main__":
     print(json.dumps(COMMANDS[sys.argv[1]](json.loads(sys.argv[2]))))
