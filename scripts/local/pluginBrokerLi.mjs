@@ -85,7 +85,7 @@ try {
     const queueBefore = await fetch(`${local.comfyUrl}/queue`).then((response) => response.json()).catch(() => null);
     report.comfyQueueBefore = queueBefore ? { running: queueBefore.queue_running?.length ?? 0, pending: queueBefore.queue_pending?.length ?? 0 } : 'comfy-not-running';
     const leaseBegan = Date.now();
-    const granted = await plugin('/lease', { workflowKey: renderSignature(graph), needGpuMiB, nextTextTokens: 128, modelFiles, ...size, hires: false });
+    const granted = await plugin('/lease', { workflowKey: renderSignature(graph), needGpuMiB, nextTextTokens: 768, modelFiles, ...size, hires: false });
     lease = granted.lease;
     report.lease = { decision: granted.decision ?? null, brokered: granted.brokered ?? null, admissionMs: Date.now() - leaseBegan, warning: granted.warning ?? null };
     report.stateDuringLease = (await plugin('/status')).state;

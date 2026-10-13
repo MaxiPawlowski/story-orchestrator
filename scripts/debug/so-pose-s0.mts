@@ -5,6 +5,7 @@ import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { editGraph, editInstruction, referenceRoles } from './lib/poseS0Graph.mts';
 import { ARMS, armOf, packPrompt, PACK_VIEWS, rgbaPrompt, t2iGraph, WHO, type PackView } from './lib/poseS0Models.mts';
+import { requireUncachedRepeat, renderLatency } from './lib/poseS0Measurements.mts';
 import { readDwpose, posePck, shapePck, headToHipRatio, poseHead, retarget, median, percentile, quote, peakFromSamples, verdict, type Keypoints, type PoseLike, type Box } from './lib/poseS0.mts';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -24,7 +25,6 @@ const REFPX = Number(process.env.SO_S0_REFPX ?? 0);
 const CUTOUT = { id: 'birefnet_toonout', node: 'BiRefNetRMBG', model: 'BiRefNet_toonout', files: [] };
 const RECIPE = `${ARM.recipe}${PACKDIR ? '+pack-refs-roles' : ''}${REFPX ? `+ref${REFPX}` : ''}`;
 const PREFIX = `so-s0-${ARM.id}${REFPX ? `-ref${REFPX}` : ''}`;
-const VARIANT = RUN === 'r1' ? {} : { variant: RUN };
 
 export const MEMBERS: Record<string, string> = {
     m1: 'Full-body anime character sprite, a young woman adventurer with short red hair and green eyes, green tunic with a brown belt, brown leather boots, standing relaxed, front view, whole body visible from head to feet, plain white background',
@@ -70,6 +70,7 @@ async function upload(file: string, name: string): Promise<string> {
 }
 
 async function run(graph: Record<string, unknown>, timeoutMs = 1800000): Promise<{ outputs: Record<string, any>; seconds: number }> {
+    if (RUN !== 'r1') requireUncachedRepeat(RUN, await (await fetch(`${COMFY}/system_stats`)).json());
     const started = performance.now();
     const response = await fetch(`${COMFY}/prompt`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ prompt: graph, client_id: 'so-s0' }) });
     const queued = (await response.json()) as { prompt_id?: string; error?: unknown; node_errors?: unknown };
@@ -99,7 +100,7 @@ async function appendResult(row: Record<string, unknown>): Promise<void> {
 const upName = (stem: string) => `${PREFIX}-${RUN}-${SEED}-${stem}`;
 
 function baseGraph(prompt: string, seed: number): Record<string, unknown> {
-    return t2iGraph({ arm: ARMS.b, prompt, seed, width: 768, height: 1152, cutout: CUTOUT, prefix: `${PREFIX}-base`, ...VARIANT });
+    return t2iGraph({ arm: ARMS.b, prompt, seed, width: 768, height: 1152, cutout: CUTOUT, prefix: `${PREFIX}-base`, run: RUN });
 }
 
 async function dwpose(image: string): Promise<Keypoints> {
@@ -297,7 +298,7 @@ async function makePackImage(member: string, view: PackView): Promise<void> {
     let graph: Record<string, unknown>;
     if (MODE === 't2i') {
         const prompt = NATIVE ? rgbaPrompt(packPrompt(member, view)) : packPrompt(member, view);
-        graph = t2iGraph({ arm: ARM, prompt, seed, width: view.width, height: view.height, ...(cutout ? { cutout } : {}), prefix: `${PREFIX}-pack`, ...VARIANT });
+        graph = t2iGraph({ arm: ARM, prompt, seed, width: view.width, height: view.height, ...(cutout ? { cutout } : {}), prefix: `${PREFIX}-pack`, run: RUN });
     } else {
         const reference = await upload(path.join(BASES, `${member}.png`), upName(`${member}-card.png`));
         const instruction = ALPHA_PROMPT ? rgbaPrompt(editInstruction('view', view.edit).replace('plain white background', 'transparent background')) : editInstruction('view', view.edit);
@@ -386,15 +387,7 @@ async function chain(): Promise<void> {
 }
 
 async function latency(): Promise<void> {
-    const all = await rows();
-    const groups = new Map<string, number[]>();
-    for (const r of all) {
-        if (typeof r.seconds !== 'number') continue;
-        const key = r.kind === 'task' ? `task:${String(r.task).replace(/_(neutral|happy|angry|worried|blink|talk)$/, '')}` : r.kind === 'pack' ? `pack:${r.view}` : `${r.kind}`;
-        groups.set(key, [...(groups.get(key) ?? []), r.seconds]);
-    }
-    const out = Object.fromEntries([...groups].map(([key, values]) => [key, { n: values.length, median: Number(median(values).toFixed(1)), p90: Number(percentile(values, 0.9).toFixed(1)) }]));
-    console.log(JSON.stringify({ model: ARM.id, recipe: ARM.recipe, run: RUN, seed: SEED, latency: out }, null, 2));
+    console.log(JSON.stringify({ model: ARM.id, recipe: ARM.recipe, run: RUN, seed: SEED, ...renderLatency(await rows()) }, null, 2));
 }
 
 const PACK_PROMPT = (labels: string[]) => `You are an independent rater for an AI character-art pipeline. The attached grid has a first row "reference" with one panel: the original character art, then ${labels.length} rows labelled ${labels.join(', ')}. Each of those rows is a set of six images made by one generator, in this column order: neutral full body, front bust, three-quarter full body, side full body, happy head, angry head (the column captions are printed). Judge only from the pictures.

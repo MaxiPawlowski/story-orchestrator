@@ -28,7 +28,7 @@ export const rgbaPrompt = (prompt: string): string => `This is an RGBA image wit
 const NEGATIVE = 'text, watermark, deformed face, cropped, extra limbs, multiple characters';
 const node = (class_type: string, inputs: Record<string, unknown>) => ({ class_type, inputs });
 
-export interface T2iParameters { arm: ArmSpec; prompt: string; seed: number; width: number; height: number; cutout?: { node: string; model: string }; prefix: string; variant?: string }
+export interface T2iParameters { arm: ArmSpec; prompt: string; seed: number; width: number; height: number; cutout?: { node: string; model: string }; prefix: string; run?: string }
 
 export function t2iGraph(params: T2iParameters): Record<string, unknown> {
     const { arm } = params;
@@ -44,7 +44,7 @@ export function t2iGraph(params: T2iParameters): Record<string, unknown> {
             '2': node('QwenImage21Cache', { model: ['1', 0], device: 'auto', dtype: 'default' }),
             '3': node('CLIPLoader', { clip_name: arm.models.encoder.name, type: 'qwen_image', device: 'default' }),
             '4': node('VAELoader', { vae_name: arm.models.vae.name }),
-            '5': node('TextEncodeQwenImage21', { clip: ['3', 0], prompt: params.prompt, negative_prompt: params.variant ? `${NEGATIVE} ${params.variant}` : NEGATIVE, vae: ['4', 0], resolution: 1024 }),
+            '5': node('TextEncodeQwenImage21', { clip: ['3', 0], prompt: params.prompt, negative_prompt: NEGATIVE, vae: ['4', 0], resolution: 1024 }),
             '6': node('EmptySD3LatentImage', { width: params.width, height: params.height, batch_size: 1 }),
             ...samplerNodes({ sigmas: arm.sigmas, steps: arm.steps, seed: params.seed, model: ['2', 0], positive: ['5', 0], negative: ['5', 1], latent: ['6', 0] }),
             ...decode, ...tail,
@@ -52,7 +52,7 @@ export function t2iGraph(params: T2iParameters): Record<string, unknown> {
     }
     return {
         '1': node('UNETLoader', { unet_name: arm.models.diffusion.name, weight_dtype: 'default' }),
-        '2': node('ModelSamplingAuraFlow', { model: ['1', 0], shift: (arm.shift ?? 3.1) + (params.variant ? 1e-7 * (Number(params.variant.replace(/\D/g, '')) || 1) : 0) }),
+        '2': node('ModelSamplingAuraFlow', { model: ['1', 0], shift: arm.shift ?? 3.1 }),
         '3': node('CLIPLoader', { clip_name: arm.models.encoder.name, type: 'qwen_image', device: 'default' }),
         '4': node('VAELoader', { vae_name: arm.models.vae.name }),
         '5': node('CLIPTextEncode', { text: params.prompt, clip: ['3', 0] }),

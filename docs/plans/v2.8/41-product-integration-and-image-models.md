@@ -322,7 +322,8 @@ Look-to-rig texture reuse remains unmeasured. Other open acceptance items are li
 - Local uncached B lying repeat seed 1234 completed twelve bodies and its head attempts. Eleven of twelve
   body PNGs are byte-identical to r1; body median 59.8 s/p90 60.0 s, 22 made heads median 22.5 s/p90 23.5 s.
   Repeat P2 lie_side PCK 0.407 and lie_rest 0.815; P3 zero. This is a bounded same-machine repeat, not a full
-  repeat gate. Remaining queued broad repeats were cancelled under the owner's report-priority steering.
+  repeat gate. Remaining queued broad repeats were cancelled during parent-prioritized bounded closeout
+  after quota recovery; this was not an explicit owner cancellation.
   Full local T/T+R repeatability and both-seed B repeat acceptance remain incomplete.
 - The full-reference chain driver vanished after its third result at 13:45:53, leaving ComfyUI empty and
   weights resident. At 14:00 no matching Node process existed. Resumed only unfinished tasks; completed
@@ -436,3 +437,62 @@ Look-to-rig texture reuse remains unmeasured. Other open acceptance items are li
   full-resolution pose variant; independently rated
   pod quality; broker readiness reliability/LT; and the stage-3 real end-user product journey. These do not
   authorize a recipe replacement or stage-2 implementation without the owner's next instruction.
+
+## Stage-1 parent-review corrections — 2026-10-13
+
+- Historical driver `90051302` changed generation inputs on text-to-image repetitions: Qwen 2.1 added
+  `r2` to the negative prompt, and 2512 changed flow shift from 3.1 to 3.1000002. A changed generation
+  parameter is not cache clearing, regardless of how small the change is.
+- Affected completed batches: `pack-q21t-r2-s1234/5678`, `pack-q2512-r2-s1234/5678`, and
+  `pack-turbo-t2i-native-r2-s1234/5678`. These are **variant plus cross-hardware evidence**, not frozen-input
+  repetitions. The same workaround also affected any non-r1 `bases` command; no such additional stage-1
+  batch is claimed here. Edit packs/chains/poses do not call this text-to-image variant branch.
+- The conservative keep-B/SDXL decision stands. Historical archives and driver pin remain unchanged;
+  no stage-1 images were rerendered. The bounded local B comparison is not a dedicated no-cache proof.
+- Future driver run labels are metadata only. Installed ComfyUI source (`comfy/cli_args.py:143`,
+  `main.py:337`, `execution.py:122`, `server.py:736`) confirms native `--cache-none`, with argv exposed
+  by `/system_stats`. `/free` queues asynchronous executor reset (`main.py:394–395`), without an awaited
+  reset acknowledgement; it is not used as an exact-repeat barrier. Repeated renders now refuse a server
+  whose native no-cache mode cannot be verified. No server started during stage 2.
+- `latency()` now excludes shared/copied bases and nonpositive/untimed rows from newly rendered medians,
+  preserving shared, untimed and newly timed counts separately. Earlier pod summaries that include copied
+  zero-second bases must not be treated as render-speed measurements for those groups.
+- Broker lease hint now matches its 768-token generation maximum. The stage-1 hint mismatch and outputs
+  remain recorded above; this correction has no new LI result. Rating total remains 113, stage-2 calls zero.
+
+## Stage-2 refined design — parent-directed deterministic build
+
+- Vertical slice: wizard-created/installed cast → Studio **Prepare presentation** → existing four-candidate
+  Qwen 2.1/BiRefNet base picker → explicit base/bust review → persisted accepted visual source → sprites
+  and current-look lineage → explicit cast illustration. Six generated views are optional future work;
+  neither a six-view quality pass nor automatic identity approval is invented.
+- One per-character visual manifest lives in install-wide sprite settings, through the established settings
+  save/read-back evidence path. It records installed card provenance/hash, accepted base set/file/hash/recipe,
+  a separately reviewed crop bust and its base hash, and published downstream look artifacts tied to the
+  accepted root. Candidate review state is transient and never read by runtime consumers. Replacing the root
+  clears derived looks; missing/replaced card or modified source files refuses reuse rather than guessing.
+- Existing builder controls remain the generation surface. Preparation can also explicitly review an installed
+  generated base. Bust preparation is a crop of that accepted candidate, using the author-controlled head box;
+  it does not spend a speculative quality-model call. Author can replace/review assets before acceptance.
+- Ownership: mint a RunOwnership guard for every async prepare/review operation; validate before every
+  candidate/file/settings write. Cancel, unmount, draft/chat change and a newer accepted root refuse publication.
+  Physical preview files are not accepted merely because the media plugin saved them. Persist only after the
+  author approves and the source fingerprints are rechecked. Reload reads the persisted accepted manifest.
+- Builder raw/final keys and look/pose cache keys incorporate accepted-root lineage. A published changed look
+  is a derivative of that approved source, not a new claim of human/vision quality approval. Cast illustration
+  requires the current look's verified derivative, never substitutes the original outfit while a look is pending.
+- Cast illustration is a distinct lazy Qwen 2.1 two-reference scene recipe/cache identity, through existing
+  broker/media owned jobs and image-save/place APIs. It is explicitly selected from the chat surface, accepts
+  one or two prepared non-narrator members, and refuses missing/stale current identities. Existing SDXL
+  backgrounds and cast-free workflows retain their established route and controls.
+- Live head resolves only a bust/rig matching the current accepted root/look. A changed look without a valid
+  bust/rig shows rebuild pending/static fallback. Existing rig import remains supported; the future vision-rig
+  harness invocation is a deferred seam until parent integration. No texture-only rig reuse is claimed.
+- One accurate per-use-case route/status view joins preparation, edits/poses, bust/rig, cast scene and SDXL
+  background controls. It makes no guaranteed quality/fast-tier claim. All new UI is in existing lazy chunks;
+  main bundle budget remains 1,300,000 B. No feature/thinking/inner-voice defaults are switched off.
+- Deterministic tests target cancellation/root replacement, candidate isolation, reload/sanitization, file/card
+  invalidation, current-look scene refusal/cache identity, and rig staleness. Synthetic Storybook cases cover
+  no artwork, review, progress/cancel, refusal and changed-look stale. Guide and queue records move with code.
+- Stage-2 stop: full deterministic gates including Storybook, then parent review. No GPU, browser/model
+  acceptance, rating, download, pod, owner staging, campaign adoption or harness/installer edits in this stage.

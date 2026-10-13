@@ -71,14 +71,12 @@ test('the 2512 graph uses true CFG with its own encoder, vae and flow shift', ()
     assert.equal(graph['12'].class_type, 'CLIPTextEncode');
 });
 
-test('a run variant changes the graph without changing the seed, so a second run is not an execution-cache replay', () => {
-    const one = t2iGraph({ arm: ARMS.turbo, prompt: 'p', seed: 1, width: 8, height: 8, prefix: 'x' }) as any;
-    const two = t2iGraph({ arm: ARMS.turbo, prompt: 'p', seed: 1, width: 8, height: 8, prefix: 'x', variant: 'r2' }) as any;
-    assert.notEqual(one['5'].inputs.negative_prompt, two['5'].inputs.negative_prompt);
-    assert.equal(one['7'].inputs.noise_seed, two['7'].inputs.noise_seed);
-    const big1 = t2iGraph({ arm: ARMS.q2512, prompt: 'p', seed: 1, width: 8, height: 8, prefix: 'x' }) as any;
-    const big2 = t2iGraph({ arm: ARMS.q2512, prompt: 'p', seed: 1, width: 8, height: 8, prefix: 'x', variant: 'r2' }) as any;
-    assert.notEqual(big1['2'].inputs.shift, big2['2'].inputs.shift);
+test('repeat labels leave every generating graph input unchanged for every arm', () => {
+    for (const arm of Object.values(ARMS)) {
+        const params = { arm, prompt: 'same identity and pose', seed: 5678, width: 768, height: 1152, prefix: 'same-output' };
+        assert.deepEqual(t2iGraph({ ...params, run: 'r2' }), t2iGraph({ ...params, run: 'r1' }));
+        assert.deepEqual(t2iGraph({ ...params, run: 'r77' }), t2iGraph(params));
+    }
 });
 
 test('pack views: six, one neutral full body first, head views are 1024 square, prompts name the member and the view', () => {
