@@ -385,6 +385,101 @@ async function latency(): Promise<void> {
     console.log(JSON.stringify({ model: ARM.id, recipe: ARM.recipe, run: RUN, seed: SEED, latency: out }, null, 2));
 }
 
+const PACK_PROMPT = (labels: string[]) => `You are an independent rater for an AI character-art pipeline. The attached grid has a first row "reference" with one panel: the original character art, then ${labels.length} rows labelled ${labels.join(', ')}. Each of those rows is a set of six images made by one generator, in this column order: neutral full body, front bust, three-quarter full body, side full body, happy head, angry head (the column captions are printed). Judge only from the pictures.
+For each row answer: consistent_within_row (true only if all six images clearly show one and the same character); same_as_reference (an array of six booleans, true only if hair, face and outfit clearly match the reference art); view_ok (six booleans: the column's requested view or expression is shown); clean (six booleans: plain light background, no halo, fringe, leftover shadow or cropped limbs).
+For each column also rank the rows from best to worst overall visual quality (anatomy, clean line art, appeal), as an array of row labels.
+Reply with one JSON object only, no prose, in exactly this shape: {"rows":{"R1":{"consistent_within_row":true,"same_as_reference":[true,true,true,true,true,true],"view_ok":[true,true,true,true,true,true],"clean":[true,true,true,true,true,true]}},"rank_by_column":[["R1"],["R1"],["R1"],["R1"],["R1"],["R1"]]}`;
+
+const hashOf = (text: string): number => [...text].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+const shuffled = <T,>(items: T[], key: string): T[] => items.map((item, at) => ({ item, at, k: hashOf(`${key}:${at}`) })).sort((a, b) => a.k - b.k).map((x) => x.item);
+
+async function packGrids(): Promise<void> {
+    const spec = (process.env.SO_S0_PACKARMS ?? '').split(';').filter(Boolean).map((entry) => { const [name, ...rest] = entry.split('='); return { name, pattern: rest.join('=') }; });
+    if (!spec.length) throw new Error('SO_S0_PACKARMS=name=dir{seed};name=dir{seed}');
+    const seeds = (process.env.SO_S0_SEEDS ?? '1234,5678').split(',').map(Number);
+    await fs.mkdir(dir('packsheets'), { recursive: true });
+    const jobs: string[] = [];
+    for (const member of Object.keys(MEMBERS)) for (const seed of seeds) {
+        const key = `${member}-s${seed}`;
+        const order = shuffled(spec, key);
+        const labels = order.map((_, at) => `R${at + 1}`);
+        const rowsOut = [{ label: 'reference', items: [{ label: 'card art', path: path.join(BASES, `${member}.png`) }] }, ...order.map((arm, at) => ({
+            label: labels[at],
+            items: PACK_VIEWS.map((view) => ({ label: view.id, path: path.join(arm.pattern.replace('{seed}', String(seed)), 'pack', `${member}-s${seed}-${view.id}.png`) })),
+        }))];
+        const out = dir('packsheets', `${key}.png`);
+        py('grid', { rows: rowsOut, out, cell: 288 });
+        await fs.writeFile(dir('packsheets', `${key}.map.json`), JSON.stringify(Object.fromEntries(order.map((arm, at) => [labels[at], arm.name]))));
+        jobs.push(JSON.stringify({ key: `pack/${key}`, path: out, prompt: PACK_PROMPT(labels) }));
+    }
+    await fs.writeFile(dir('jobs-pack.jsonl'), jobs.join('\n') + '\n');
+    log('pack grids', jobs.length);
+}
+
+const CHAIN_HEADS_PROMPT = `You are an independent rater for an AI sprite pipeline. The attached contact sheet has seven panels left to right: "reference card art", then six head crops of one generated sprite captioned neutral, happy, angry, worried, blink, talk. Judge from the pictures only.
+For each of the six crops answer same_character (true only if hair, face and colours clearly match the reference art) and label_visible (true only if the caption plainly reads: neutral = calm neutral face; happy = smiling or joyful; angry = angry; worried = worried or anxious; blink = both eyes closed; talk = mouth open as if speaking), and artifact (true if the crop has a visible seam, smeared face or duplicated features).
+Reply with one JSON object only, no prose, in exactly this shape: {"crops":{"neutral":{"same_character":true,"label_visible":true,"artifact":false},"happy":{},"angry":{},"worried":{},"blink":{},"talk":{}}}`;
+const CHAIN_BODY_PROMPT = `You are an independent rater for an AI sprite pipeline. The attached sheet has three panels: "reference card art", "card base sprite" (a full-body neutral standing sprite made from the card art), and "look" (the same sprite re-dressed in a dark hooded travel cloak worn over the outfit). Judge from the pictures only.
+Answer: base_same_character (true only if hair, face and outfit colours clearly match the reference), base_full_body (whole body visible, plain background), look_same_character (true only if the face and hair match the reference), look_applied (a dark hooded cloak over the outfit is visible), defects (array from "extra_limb","missing_limb","cropped","background_not_plain","deformed_hands","none").
+Reply with one JSON object only, no prose, in exactly this shape: {"base_same_character":true,"base_full_body":true,"look_same_character":true,"look_applied":true,"defects":["none"]}`;
+const SCENE_PROMPT = `You are an independent rater for an AI sprite pipeline. The attached sheet has three panels: "character A", "character B" and "scene" (a generated scene that should show both characters standing side by side). Judge from the pictures only.
+Answer: both_present (true only if exactly two people are in the scene), a_same_character and b_same_character (true only if hair, face and outfit clearly match that reference), merged (true if the two characters' features are blended into each other), text_or_watermark (true if any text or watermark appears), defects (array from "extra_limb","missing_limb","cropped","deformed_hands","none").
+Reply with one JSON object only, no prose, in exactly this shape: {"both_present":true,"a_same_character":true,"b_same_character":true,"merged":false,"text_or_watermark":false,"defects":["none"]}`;
+
+async function chainSheets(): Promise<void> {
+    await fs.mkdir(dir('chainsheets'), { recursive: true });
+    const jobs: string[] = [];
+    for (const member of Object.keys(MEMBERS)) {
+        const info = await readJson(dir('chain', `${member}-head-box.json`)).catch(() => null);
+        const box = info?.box as Box | undefined;
+        const heads: { label: string; path: string; box?: Box }[] = [{ label: 'reference', path: dir('chain', `${member}-card.png`) }];
+        for (const task of ['card_base', 'expr_happy', 'expr_angry', 'expr_worried', 'frame_blink', 'frame_talk']) {
+            heads.push({ label: task === 'card_base' ? 'neutral' : task.replace(/^(expr|frame)_/, ''), path: dir('chain', `${member}-${task}.png`), ...(box ? { box } : {}) });
+        }
+        const headsOut = dir('chainsheets', `${member}-heads.png`);
+        py('sheet', { items: heads, out: headsOut, cell: 288 });
+        jobs.push(JSON.stringify({ key: `chain-heads/${member}`, path: headsOut, prompt: CHAIN_HEADS_PROMPT }));
+        const bodyOut = dir('chainsheets', `${member}-body.png`);
+        py('sheet', { items: [{ label: 'reference card art', path: dir('chain', `${member}-card.png`) }, { label: 'card base sprite', path: dir('chain', `${member}-card_base.png`) }, { label: 'look', path: dir('chain', `${member}-look.png`) }], out: bodyOut, cell: 512 });
+        jobs.push(JSON.stringify({ key: `chain-body/${member}`, path: bodyOut, prompt: CHAIN_BODY_PROMPT }));
+    }
+    const sceneOut = dir('chainsheets', 'scene.png');
+    py('sheet', { items: [{ label: 'character A', path: dir('chain', 'm1-card_base.png') }, { label: 'character B', path: dir('chain', 'm2-card_base.png') }, { label: 'scene', path: dir('chain', 'scene.png') }], out: sceneOut, cell: 512 });
+    jobs.push(JSON.stringify({ key: 'chain-scene', path: sceneOut, prompt: SCENE_PROMPT }));
+    await fs.writeFile(dir('jobs-chain.jsonl'), jobs.join('\n') + '\n');
+    log('chain sheets', jobs.length);
+}
+
+const iou = (a: Box, b: Box): number => {
+    const w = Math.max(0, Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x)), h = Math.max(0, Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y));
+    return (w * h) / Math.max(1, a.width * a.height + b.width * b.height - w * h);
+};
+
+async function poseReport(): Promise<void> {
+    const out: Record<string, any> = {};
+    for (const f of await fs.readdir(dir('scores')).catch(() => [])) {
+        const s = JSON.parse(await fs.readFile(dir('scores', f), 'utf8'));
+        const target = await readJson(dir('targets', `${s.member}-${s.pose}.json`)) as Keypoints;
+        const found = s.found as Keypoints | null;
+        const wanted = target.points.filter(Boolean).length;
+        const missing = found ? target.points.filter((p, i) => p && !found.points[i]).length : wanted;
+        const want = poseHead(target), got = found ? poseHead(found) : null;
+        const row = (out[`${s.pose} ${s.arm}`] ??= { n: 0, pck: 0, shape: 0, shapeN: 0, missing: 0, noPerson: 0, headIou: 0, headIouN: 0, headCentreInTarget: 0, headCentreN: 0 });
+        row.n += 1; row.pck += s.pck; row.missing += missing; row.noPerson += found ? 0 : 1;
+        if (found) { row.shape += shapePck(found, target); row.shapeN += 1; }
+        if (want && got) {
+            row.headIou += iou(want, got); row.headIouN += 1;
+            const cx = got.x + got.width / 2, cy = got.y + got.height / 2;
+            row.headCentreN += 1; row.headCentreInTarget += cx >= want.x && cx <= want.x + want.width && cy >= want.y && cy <= want.y + want.height ? 1 : 0;
+        }
+    }
+    const rounded = Object.fromEntries(Object.entries(out).sort().map(([key, r]: [string, any]) => [key, {
+        n: r.n, pck: Number((r.pck / r.n).toFixed(3)), shapePck: r.shapeN ? Number((r.shape / r.shapeN).toFixed(3)) : null, missingJointsPerBody: Number((r.missing / r.n).toFixed(2)), noPerson: r.noPerson,
+        headIou: r.headIouN ? Number((r.headIou / r.headIouN).toFixed(3)) : null, headCentreInTargetBox: r.headCentreN ? Number((r.headCentreInTarget / r.headCentreN).toFixed(3)) : null }]));
+    console.log(JSON.stringify(rounded, null, 2));
+    await fs.writeFile(dir('pose-report.json'), JSON.stringify(rounded, null, 2));
+}
+
 async function main(): Promise<void> {
     const [command = 'help', ...rest] = process.argv.slice(2);
     await fs.mkdir(WORK, { recursive: true });
@@ -416,6 +511,9 @@ async function main(): Promise<void> {
     if (command === 'pack') { for (const member of Object.keys(MEMBERS)) for (const view of PACK_VIEWS) await makePackImage(member, view); return; }
     if (command === 'chain') { await chain(); return; }
     if (command === 'latency') { await latency(); return; }
+    if (command === 'posereport') { await poseReport(); return; }
+    if (command === 'packgrid') { await packGrids(); return; }
+    if (command === 'chainsheets') { await chainSheets(); return; }
     if (command === 'smoke') {
         const view = PACK_VIEWS[Number(rest[0] ?? 0)];
         await makePackImage(rest[1] ?? 'm1', view);
@@ -429,7 +527,7 @@ async function main(): Promise<void> {
         return;
     }
     if (command === 'vram-peak') { console.log(peakFromSamples(await fs.readFile(dir('vram.csv'), 'utf8')) ?? 'none'); return; }
-    console.log('commands: bases | body <m> <pose> <arm> | bodies | heads [n] | score | sheets | summary [vramGb] | quote [HH:MM] | pack | chain | latency | smoke [view] [member] | vram | vram-peak');
+    console.log('commands: bases | body <m> <pose> <arm> | bodies | heads [n] | score | sheets | summary [vramGb] | quote [HH:MM] | pack | packgrid | chain | chainsheets | latency | posereport | smoke [view] [member] | vram | vram-peak');
     console.log('env: SO_S0_ARM b|q21|turbo|q2512, SO_S0_DIR, SO_S0_BASES, SO_S0_SEED, SO_S0_RUN, SO_S0_POSES, SO_S0_PARMS, SO_S0_PACK_MODE edit|t2i, SO_S0_ALPHA native|cutout, SO_S0_PACKDIR, SO_S0_CARDART, SO_S0_CHAIN_BASE');
 }
 
