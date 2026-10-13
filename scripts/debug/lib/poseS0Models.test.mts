@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { editGraph, TURBO_SIGMAS } from './poseS0Graph.mts';
+import { editGraph, editInstruction, referenceRoles, TURBO_SIGMAS } from './poseS0Graph.mts';
 import { ARMS, armOf, packPrompt, PACK_VIEWS, rgbaPrompt, t2iGraph } from './poseS0Models.mts';
 
 const models = ARMS.turbo.models;
@@ -87,4 +87,12 @@ test('pack views: six, one neutral full body first, head views are 1024 square, 
     assert.ok(PACK_VIEWS.filter((view) => view.head).every((view) => view.width === 1024 && view.height === 1024));
     assert.match(packPrompt('m1', PACK_VIEWS[2]), /red hair.*three-quarter view/);
     assert.match(rgbaPrompt('a cat.'), /^This is an RGBA image with transparency\. a cat\. The image has alpha channel/);
+});
+
+test('identity references get their roles stated so the model edits image 1 instead of tiling the references', () => {
+    assert.match(referenceRoles(2, 4), /Images 2 to 4 are identity references only/);
+    assert.match(referenceRoles(3, 3), /Image 3 is identity reference only/);
+    assert.equal(editInstruction('expression', 'x'), editInstruction('expression', 'x', undefined));
+    assert.ok(!editInstruction('pose', 'sitting', [3, 2]).includes('identity reference'));
+    assert.match(editInstruction('pose', 'sitting', [3, 5]), /image 2 when present: sitting\..*Images 3 to 5 are identity references only.*single image framed like image 1/);
 });

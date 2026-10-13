@@ -5,7 +5,9 @@ export interface EditParameters {
     sigmas?: number[]; references?: string[]; latent?: { width: number; height: number }; prefix?: string; negative?: string;
 }
 
-export const editInstruction = (kind: 'pose' | 'expression' | 'view' | 'look' | 'scene', value: string): string => kind === 'pose'
+export const referenceRoles = (first: number, last: number): string => ` Image 1 is the picture to edit. Image${first === last ? ` ${first} is` : `s ${first} to ${last} are`} identity reference${first === last ? '' : 's'} only: the same character, never a layout to copy. Do not copy their pose, crop or expression and do not tile or repeat them. Output one single image framed like image 1.`;
+
+const editText = (kind: 'pose' | 'expression' | 'view' | 'look' | 'scene', value: string): string => kind === 'pose'
     ? 'Same character as image 1. Preserve face, hair, outfit, proportions and art style. '
         + `Take the body pose shown in image 2 when present: ${value}. Single full character, plain white background.`
     : kind === 'view'
@@ -15,6 +17,9 @@ export const editInstruction = (kind: 'pose' | 'expression' | 'view' | 'look' | 
             : kind === 'scene'
                 ? `The references show different characters, each keeping its own face, hair, outfit and art style. ${value}`
                 : `Same image, same character, same pose, head angle, framing, lighting and colours. Change only ${value}. Everything else stays identical. Plain white background.`;
+
+export const editInstruction = (kind: 'pose' | 'expression' | 'view' | 'look' | 'scene', value: string, identityRefs?: [number, number]): string =>
+    editText(kind, value) + (identityRefs && identityRefs[0] <= identityRefs[1] ? referenceRoles(identityRefs[0], identityRefs[1]) : '');
 
 export const TURBO_SIGMAS = [1.0, 0.978453, 0.95418, 0.926626, 0.89508, 0.845148, 0.704534, 0.414568, 0.0];
 

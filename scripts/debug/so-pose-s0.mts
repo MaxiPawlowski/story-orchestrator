@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { editGraph, editInstruction } from './lib/poseS0Graph.mts';
+import { editGraph, editInstruction, referenceRoles } from './lib/poseS0Graph.mts';
 import { ARMS, armOf, packPrompt, PACK_VIEWS, rgbaPrompt, t2iGraph, WHO, type PackView } from './lib/poseS0Models.mts';
 import { readDwpose, posePck, shapePck, headToHipRatio, poseHead, retarget, median, percentile, quote, peakFromSamples, verdict, type Keypoints, type PoseLike, type Box } from './lib/poseS0.mts';
 
@@ -22,6 +22,7 @@ const BASES = process.env.SO_S0_BASES ?? path.join(WORK, 'bases');
 const PACKDIR = process.env.SO_S0_PACKDIR;
 const REFPX = Number(process.env.SO_S0_REFPX ?? 0);
 const CUTOUT = { id: 'birefnet_toonout', node: 'BiRefNetRMBG', model: 'BiRefNet_toonout', files: [] };
+const RECIPE = `${ARM.recipe}${PACKDIR ? '+pack-refs-roles' : ''}${REFPX ? `+ref${REFPX}` : ''}`;
 const PREFIX = `so-s0-${ARM.id}${REFPX ? `-ref${REFPX}` : ''}`;
 const VARIANT = RUN === 'r1' ? {} : { variant: RUN };
 
@@ -92,7 +93,7 @@ async function fetchImage(ref: { filename: string; subfolder: string; type: stri
 const savedImage = (outputs: Record<string, any>) => Object.values(outputs).flatMap((o: any) => o.images ?? []).find((i: any) => i.type === 'output');
 
 async function appendResult(row: Record<string, unknown>): Promise<void> {
-    await fs.appendFile(dir('results.jsonl'), JSON.stringify({ model: ARM.id, recipe: ARM.recipe, run: RUN, seed: SEED, ...row }) + '\n');
+    await fs.appendFile(dir('results.jsonl'), JSON.stringify({ model: ARM.id, recipe: RECIPE, run: RUN, seed: SEED, ...row }) + '\n');
 }
 
 const upName = (stem: string) => `${PREFIX}-${RUN}-${SEED}-${stem}`;
@@ -156,7 +157,7 @@ async function makeBody(member: string, poseId: string, arm: Arm): Promise<{ sec
         skeleton = await upload(png, upName(`${member}-${poseId}-skeleton.png`));
     }
     const references = PACKDIR ? await Promise.all(packRefs(member, ['bust_front', 'three_quarter', 'side']).map((file, at) => upload(file, upName(`${member}-pack${at}.png`)))) : undefined;
-    const graph = editGraph({ models: MODELS as never, steps: STEPS, seed: SEED, reference, instruction: editInstruction('pose', pose.text), cutout: CUTOUT as never, resolution: REFPX ? 0 : 1024,
+    const graph = editGraph({ models: MODELS as never, steps: STEPS, seed: SEED, reference, instruction: editInstruction('pose', pose.text, references ? [3, 2 + references.length] : undefined), cutout: CUTOUT as never, resolution: REFPX ? 0 : 1024,
         ...(skeleton ? { skeleton } : {}), secondReference: arm === 'p3', ...(ARM.sigmas ? { sigmas: ARM.sigmas } : {}), ...(references ? { references } : {}), prefix: `${PREFIX}-body` });
     const { outputs, seconds } = await run(graph);
     const image = savedImage(outputs);
@@ -196,9 +197,10 @@ async function makeHead(member: string, poseId: string, arm: Arm, expression: st
     }
     const cropFile = dir(folder, `${stem}-${expression}.crop.png`);
     py('crop', { image: body, box, out: cropFile });
+    if (REFPX) py('scale', { image: cropFile, out: cropFile, size: 1024 });
     const reference = await upload(cropFile, upName(`${stem}-${expression}-crop.png`));
     const references = PACKDIR ? await Promise.all(packRefs(member, ['bust_front', 'expr_happy', 'expr_angry']).map((file, at) => upload(file, upName(`${member}-hpack${at}.png`)))) : undefined;
-    const graph = editGraph({ models: MODELS as never, steps: STEPS, seed: SEED, reference, instruction: editInstruction('expression', `facial expression: ${expression}`), resolution: 1024,
+    const graph = editGraph({ models: MODELS as never, steps: STEPS, seed: SEED, reference, instruction: editInstruction('expression', `facial expression: ${expression}`, references ? [2, 1 + references.length] : undefined), resolution: REFPX ? 0 : 1024,
         ...(ARM.sigmas ? { sigmas: ARM.sigmas } : {}), ...(references ? { references } : {}), prefix: `${PREFIX}-head` });
     const { outputs, seconds } = await run(graph);
     const image = savedImage(outputs);
@@ -322,9 +324,9 @@ async function chainTask(task: string, member: string, produce: () => Promise<{ 
     return made.file;
 }
 
-async function editStep(parts: { stem: string; refs: string[]; instruction: string; cutout?: boolean; latent?: { width: number; height: number }; negative?: string }): Promise<{ file: string; seconds: number }> {
+async function editStep(parts: { stem: string; refs: string[]; instruction: string; cutout?: boolean; latent?: { width: number; height: number }; negative?: string; roles?: boolean }): Promise<{ file: string; seconds: number }> {
     const names = await Promise.all(parts.refs.map((file, at) => upload(file, upName(`${parts.stem}-ref${at}.png`))));
-    const graph = editGraph({ models: MODELS as never, steps: STEPS, seed: SEED, reference: names[0], references: names.slice(1), instruction: parts.instruction, resolution: 1024,
+    const graph = editGraph({ models: MODELS as never, steps: STEPS, seed: SEED, reference: names[0], references: names.slice(1), instruction: parts.instruction + (parts.roles && names.length > 1 ? referenceRoles(2, names.length) : ''), resolution: REFPX ? 0 : 1024,
         ...(ARM.sigmas ? { sigmas: ARM.sigmas } : {}), ...(parts.cutout ? { cutout: CUTOUT as never } : {}), ...(parts.latent ? { latent: parts.latent } : {}),
         ...(parts.negative ? { negative: parts.negative } : {}), prefix: `${PREFIX}-${parts.stem}` });
     const { outputs, seconds } = await run(graph);
@@ -344,8 +346,9 @@ async function headEdit(member: string, source: string, stem: string, text: stri
     const box = info.box as Box;
     const cropFile = dir('chain', `${stem}.crop.png`);
     py('crop', { image: source, box, out: cropFile });
+    if (REFPX) py('scale', { image: cropFile, out: cropFile, size: 1024 });
     const refs = [cropFile, ...(PACKDIR ? packRefs(member, packIds) : [])];
-    const edited = await editStep({ stem: `${stem}-edit`, refs, instruction: editInstruction('expression', text) });
+    const edited = await editStep({ stem: `${stem}-edit`, refs, instruction: editInstruction('expression', text), roles: true });
     const out = dir('chain', `${stem}.png`);
     const pasted = py('paste', { base: source, edit: edited.file, box, out });
     return { file: out, seconds: edited.seconds, extra: { changed: pasted.changed, box } };
@@ -370,7 +373,7 @@ async function chain(): Promise<void> {
             sprites[label] = label === 'neutral' ? baseFile : await chainTask(`expr_${label}`, member, () => headEdit(member, baseFile, `${member}-expr_${label}`, `facial expression: ${label}`, ['bust_front', 'expr_happy', 'expr_angry']));
         }
         for (const frame of FRAMES) await chainTask(`frame_${frame.id}`, member, () => headEdit(member, sprites.happy, `${member}-frame_${frame.id}`, frame.text, ['bust_front', 'expr_happy', 'expr_angry']));
-        await chainTask('look', member, async () => editStep({ stem: `${member}-look`, refs: [baseFile, ...(PACKDIR ? packRefs(member, ['bust_front', 'three_quarter', 'side']) : [])], instruction: editInstruction('look', LOOK_TEXT), cutout: true }));
+        await chainTask('look', member, async () => editStep({ stem: `${member}-look`, refs: [baseFile, ...(PACKDIR ? packRefs(member, ['bust_front', 'three_quarter', 'side']) : [])], instruction: editInstruction('look', LOOK_TEXT), cutout: true, roles: true }));
     }
     const [a, b] = members.slice(0, 2);
     const sceneRefs = (member: string) => [dir('chain', `${member}-card_base.png`), ...(PACKDIR ? packRefs(member, ['bust_front']) : [])];

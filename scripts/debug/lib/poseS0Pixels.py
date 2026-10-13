@@ -191,7 +191,15 @@ def fit(args):
     return {"width": image.size[0], "height": image.size[1]}
 
 
-COMMANDS = {"skeleton": skeleton, "alpha-box": alpha_box, "crop": crop, "paste": paste, "resize-to": resize_to, "qa": qa, "sheet": sheet, "flatten": flatten, "alpha-stats": alpha_stats, "qa-alpha": qa_alpha, "grid": grid, "fit": fit}
+def scale(args):
+    image = Image.open(args["image"]).convert("RGBA")
+    ratio = args["size"] / max(image.size)
+    image = image.resize((max(1, round(image.width * ratio)), max(1, round(image.height * ratio))), Image.LANCZOS)
+    image.save(args["out"])
+    return {"width": image.size[0], "height": image.size[1]}
+
+
+COMMANDS = {"skeleton": skeleton, "alpha-box": alpha_box, "crop": crop, "paste": paste, "resize-to": resize_to, "qa": qa, "sheet": sheet, "flatten": flatten, "alpha-stats": alpha_stats, "qa-alpha": qa_alpha, "grid": grid, "fit": fit, "scale": scale}
 
 if __name__ == "__main__":
     print(json.dumps(COMMANDS[sys.argv[1]](json.loads(sys.argv[2]))))
