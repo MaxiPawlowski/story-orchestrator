@@ -6,7 +6,35 @@ const read = (file: string): any[] => existsSync(file) ? readFileSync(file, 'utf
 const rate = (hit: number, total: number) => total ? Number((hit / total).toFixed(3)) : null;
 const out: Record<string, unknown> = { kind };
 
-if (kind === 'pose') {
+if (kind === 'pose-dense') {
+    const [arm, ...files] = args;
+    const a = { bodies: 0, same: 0, yes: 0, partly: 0, no: 0, crops: 0, label: 0, samefaceSheets: 0, faceN: 0, defects: {} as Record<string, number> };
+    const byPose: Record<string, { n: number; same: number; yes: number; labelN: number; label: number }> = {};
+    let failed = 0, sheets = 0;
+    for (const file of files) for (const row of read(file)) {
+        if (row.failed) { failed += 1; continue; }
+        if (!row.key || !row.rating) continue;
+        sheets += 1;
+        if (String(row.key).endsWith('-dense-bodies')) {
+            for (const [pose, v] of Object.entries<any>(row.rating)) {
+                const s = (byPose[pose] ??= { n: 0, same: 0, yes: 0, labelN: 0, label: 0 });
+                a.bodies += 1; s.n += 1; a.same += v.same_character ? 1 : 0; s.same += v.same_character ? 1 : 0;
+                if (v.pose_matches === 'yes') { a.yes += 1; s.yes += 1; } else if (v.pose_matches === 'partly') a.partly += 1; else a.no += 1;
+                for (const d of v.defects ?? []) a.defects[d] = (a.defects[d] ?? 0) + 1;
+            }
+        } else {
+            for (const crop of row.rating.crops ?? []) {
+                const pose = String(crop.caption).split(' ')[0];
+                const s = (byPose[pose] ??= { n: 0, same: 0, yes: 0, labelN: 0, label: 0 });
+                a.crops += 1; a.label += crop.label_visible ? 1 : 0; s.labelN += 1; s.label += crop.label_visible ? 1 : 0;
+            }
+            a.faceN += 1; a.samefaceSheets += row.rating.same_face_across ? 1 : 0;
+        }
+    }
+    out.arm = arm; out.sheets = sheets; out.failed = failed;
+    out.total = { bodies: a.bodies, identity: rate(a.same, a.bodies), poseYes: a.yes, posePartly: a.partly, poseNo: a.no, defects: a.defects, crops: a.crops, labelVisible: rate(a.label, a.crops), sameFaceSheets: `${a.samefaceSheets}/${a.faceN}` };
+    out.byPose = Object.fromEntries(Object.entries(byPose).map(([pose, s]) => [pose, { identity: rate(s.same, s.n), poseYes: `${s.yes}/${s.n}`, labelVisible: rate(s.label, s.labelN) }]));
+} else if (kind === 'pose') {
     const arms: Record<string, any> = {};
     let failed = 0, sheets = 0;
     const byPose: Record<string, { same: number; n: number; label: number; labelN: number }> = {};

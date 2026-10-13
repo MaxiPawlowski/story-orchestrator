@@ -169,6 +169,9 @@ def grid(args):
             if not item.get("path"):
                 continue
             image = Image.open(item["path"]).convert("RGBA")
+            if item.get("box"):
+                b = item["box"]
+                image = image.crop((b["x"], b["y"], b["x"] + b["width"], b["y"] + b["height"]))
             ratio = min(cell / image.width, cell / image.height)
             image = image.resize((max(1, round(image.width * ratio)), max(1, round(image.height * ratio))), Image.LANCZOS)
             tile = Image.new("RGBA", (cell, cell), (235, 235, 235, 255))
@@ -178,7 +181,17 @@ def grid(args):
     return {"width": out.size[0], "height": out.size[1]}
 
 
-COMMANDS = {"skeleton": skeleton, "alpha-box": alpha_box, "crop": crop, "paste": paste, "resize-to": resize_to, "qa": qa, "sheet": sheet, "flatten": flatten, "alpha-stats": alpha_stats, "qa-alpha": qa_alpha, "grid": grid}
+def fit(args):
+    image = Image.open(args["image"]).convert("RGBA")
+    longest = max(image.size)
+    if longest > args["max"]:
+        ratio = args["max"] / longest
+        image = image.resize((max(1, round(image.width * ratio)), max(1, round(image.height * ratio))), Image.LANCZOS)
+    image.save(args["out"])
+    return {"width": image.size[0], "height": image.size[1]}
+
+
+COMMANDS = {"skeleton": skeleton, "alpha-box": alpha_box, "crop": crop, "paste": paste, "resize-to": resize_to, "qa": qa, "sheet": sheet, "flatten": flatten, "alpha-stats": alpha_stats, "qa-alpha": qa_alpha, "grid": grid, "fit": fit}
 
 if __name__ == "__main__":
     print(json.dumps(COMMANDS[sys.argv[1]](json.loads(sys.argv[2]))))

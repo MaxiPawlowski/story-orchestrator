@@ -20,8 +20,9 @@ const STEPS = ARM.steps;
 const RUN = process.env.SO_S0_RUN ?? 'r1';
 const BASES = process.env.SO_S0_BASES ?? path.join(WORK, 'bases');
 const PACKDIR = process.env.SO_S0_PACKDIR;
+const REFPX = Number(process.env.SO_S0_REFPX ?? 0);
 const CUTOUT = { id: 'birefnet_toonout', node: 'BiRefNetRMBG', model: 'BiRefNet_toonout', files: [] };
-const PREFIX = `so-s0-${ARM.id}`;
+const PREFIX = `so-s0-${ARM.id}${REFPX ? `-ref${REFPX}` : ''}`;
 const VARIANT = RUN === 'r1' ? {} : { variant: RUN };
 
 export const MEMBERS: Record<string, string> = {
@@ -126,7 +127,13 @@ async function loadPose(id: string): Promise<PoseLike> {
     return JSON.parse(await fs.readFile(path.join(repo, 'assets', 'poses', `${id}.json`), 'utf8'));
 }
 
-const packRefs = (member: string, ids: string[]): string[] => ids.map((id) => path.join(PACKDIR as string, `${member}-s${SEED}-${id}.png`));
+const packRefs = (member: string, ids: string[]): string[] => ids.map((id) => {
+    const file = path.join(PACKDIR as string, `${member}-s${SEED}-${id}.png`);
+    if (!REFPX) return file;
+    const small = dir('refs-small', `${member}-s${SEED}-${id}-${REFPX}.png`);
+    py('fit', { image: file, out: small, max: REFPX });
+    return small;
+});
 
 async function makeBody(member: string, poseId: string, arm: Arm): Promise<{ seconds: number }> {
     const out = dir('bodies', `${member}-${poseId}-${arm}.png`);
@@ -149,7 +156,7 @@ async function makeBody(member: string, poseId: string, arm: Arm): Promise<{ sec
         skeleton = await upload(png, upName(`${member}-${poseId}-skeleton.png`));
     }
     const references = PACKDIR ? await Promise.all(packRefs(member, ['bust_front', 'three_quarter', 'side']).map((file, at) => upload(file, upName(`${member}-pack${at}.png`)))) : undefined;
-    const graph = editGraph({ models: MODELS as never, steps: STEPS, seed: SEED, reference, instruction: editInstruction('pose', pose.text), cutout: CUTOUT as never, resolution: 1024,
+    const graph = editGraph({ models: MODELS as never, steps: STEPS, seed: SEED, reference, instruction: editInstruction('pose', pose.text), cutout: CUTOUT as never, resolution: REFPX ? 0 : 1024,
         ...(skeleton ? { skeleton } : {}), secondReference: arm === 'p3', ...(ARM.sigmas ? { sigmas: ARM.sigmas } : {}), ...(references ? { references } : {}), prefix: `${PREFIX}-body` });
     const { outputs, seconds } = await run(graph);
     const image = savedImage(outputs);
@@ -502,10 +509,55 @@ async function rateJobs(): Promise<void> {
     log('pose rating jobs', jobs.length);
 }
 
+const denseBodyPrompt = (poses: string[]) => `You are an independent rater for an AI sprite pipeline. The attached grid shows one character. Its first panel is the "base" (the reference character). Each pose panel is captioned with a pose id and shows a generated body; the panel right below it is the coloured target skeleton for that pose. Judge each pose panel from the pictures only.
+For each pose id answer: same_character (true only if the hair, face, skin, outfit and colours clearly match the base); pose_matches (one of "yes", "partly", "no": does the figure's posture follow its target skeleton); defects (an array drawn from "extra_limb", "missing_limb", "invented_prop", "cropped", "background_not_plain", "deformed_hands", "none").
+Reply with one JSON object only, no prose, keyed by pose id, in exactly this shape: {${poses.map((p) => `"${p}":{"same_character":true,"pose_matches":"yes","defects":["none"]}`).join(',')}}`;
+
+const denseHeadPrompt = (captions: string[]) => `You are an independent rater for an AI sprite pipeline. The attached grid has head crops of one character. Each crop is captioned "<pose> <expression>". For each crop decide label_visible: true only if the facial expression plainly reads as the caption's expression (happy = smiling or joyful, angry = angry) to a viewer who cannot see the caption. Also decide same_face_across: true if all crops show the same character.
+Reply with one JSON object only, no prose, in exactly this shape: {"crops":[${captions.map((c) => `{"caption":"${c}","label_visible":true}`).join(',')}],"same_face_across":true}`;
+
+async function denseJobs(): Promise<void> {
+    const jobs: string[] = [];
+    await fs.mkdir(dir('dense'), { recursive: true });
+    const arm = ARMS_P[0];
+    for (const member of Object.keys(MEMBERS)) {
+        const ids = POSES.filter((poseId) => true);
+        const half = Math.ceil(ids.length / 2);
+        const rows = [] as { label: string; items: { label: string; path?: string }[] }[];
+        for (let start = 0; start < ids.length; start += half) {
+            const part = ids.slice(start, start + half);
+            rows.push({ label: start === 0 ? 'render' : 'render', items: [start === 0 ? { label: 'base', path: path.join(BASES, `${member}.png`) } : { label: '' }, ...part.map((poseId) => ({ label: poseId, path: dir('bodies', `${member}-${poseId}-${arm}.png`) }))] });
+            rows.push({ label: 'target', items: [{ label: '' }, ...part.map((poseId) => ({ label: `target ${poseId}`, path: dir('targets', `${member}-${poseId}.png`) }))] });
+        }
+        const bodies = dir('dense', `${member}-bodies.png`);
+        py('grid', { rows, out: bodies, cell: 320 });
+        jobs.push(JSON.stringify({ key: `${RUN}-s${SEED}/${member}-dense-bodies`, path: bodies, prompt: denseBodyPrompt(ids) }));
+        const crops: { label: string; path: string; box?: Box }[] = [];
+        const captions: string[] = [];
+        for (const poseId of ids) for (const ex of EXPRESSIONS) {
+            const stem = dir('heads', `${member}-${poseId}-${arm}-${ex}`);
+            const meta = await fs.readFile(`${stem}.json`, 'utf8').then(JSON.parse, () => null);
+            if (!meta?.box) continue;
+            crops.push({ label: `${poseId} ${ex}`, path: `${stem}.png`, box: meta.box });
+            captions.push(`${poseId} ${ex}`);
+        }
+        if (crops.length) {
+            const perRow = 8;
+            const headRows = [] as { label: string; items: { label: string; path: string; box?: Box }[] }[];
+            for (let at = 0; at < crops.length; at += perRow) headRows.push({ label: '', items: crops.slice(at, at + perRow) });
+            const headsOut = dir('dense', `${member}-heads.png`);
+            py('grid', { rows: headRows, out: headsOut, cell: 256 });
+            jobs.push(JSON.stringify({ key: `${RUN}-s${SEED}/${member}-dense-heads`, path: headsOut, prompt: denseHeadPrompt(captions) }));
+        }
+    }
+    await fs.writeFile(dir('jobs-dense.jsonl'), jobs.join('\n') + '\n');
+    log('dense rating jobs', jobs.length);
+}
+
 async function main(): Promise<void> {
     const [command = 'help', ...rest] = process.argv.slice(2);
     await fs.mkdir(WORK, { recursive: true });
-    for (const sub of ['bodies', 'heads', 'targets', 'raw', 'scores']) await fs.mkdir(dir(sub), { recursive: true });
+    for (const sub of ['bodies', 'heads', 'targets', 'raw', 'scores', 'refs-small']) await fs.mkdir(dir(sub), { recursive: true });
     if (command === 'bases') { for (const member of Object.keys(MEMBERS)) await makeBase(member); return; }
     if (command === 'body') { await makeBody(rest[0], rest[1], rest[2] as Arm); return; }
     if (command === 'quote') {
@@ -534,6 +586,7 @@ async function main(): Promise<void> {
     if (command === 'chain') { await chain(); return; }
     if (command === 'latency') { await latency(); return; }
     if (command === 'ratejobs') { await rateJobs(); return; }
+    if (command === 'densejobs') { await denseJobs(); return; }
     if (command === 'posereport') { await poseReport(); return; }
     if (command === 'packgrid') { await packGrids(); return; }
     if (command === 'chainsheets') { await chainSheets(); return; }
@@ -550,7 +603,7 @@ async function main(): Promise<void> {
         return;
     }
     if (command === 'vram-peak') { console.log(peakFromSamples(await fs.readFile(dir('vram.csv'), 'utf8')) ?? 'none'); return; }
-    console.log('commands: bases | body <m> <pose> <arm> | bodies | heads [n] | score | sheets | summary [vramGb] | quote [HH:MM] | pack | packgrid | chain | chainsheets | latency | ratejobs | posereport | smoke [view] [member] | vram | vram-peak');
+    console.log('commands: bases | body <m> <pose> <arm> | bodies | heads [n] | score | sheets | summary [vramGb] | quote [HH:MM] | pack | packgrid | chain | chainsheets | latency | ratejobs | densejobs | posereport | smoke [view] [member] | vram | vram-peak');
     console.log('env: SO_S0_ARM b|q21|turbo|q2512, SO_S0_DIR, SO_S0_BASES, SO_S0_SEED, SO_S0_RUN, SO_S0_POSES, SO_S0_PARMS, SO_S0_PACK_MODE edit|t2i, SO_S0_ALPHA native|cutout, SO_S0_PACKDIR, SO_S0_CARDART, SO_S0_CHAIN_BASE');
 }
 
