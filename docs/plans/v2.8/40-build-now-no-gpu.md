@@ -191,3 +191,20 @@ Product integration and image model selection, including the Qwen fast-model POC
 - `npm run gates:quick`: typecheck, typecheck:test, lint (changed) and jest green on the second run (688 suites); the first run failed `codeHealth.guard` S5 on five new over-long lines (wrapped) and lint (changed); the second run is green for typecheck, typecheck:test, lint (changed) and jest. Its `defect replay (--cached)` step fails on this fresh worktree before running a defect: with no replay cache every one of 4,423 files counts as changed and `spawnSync` of `jest --listTests --findRelatedTests` fails with ENAMETOOLONG (reproduced with a debug copy of the script). `node scripts/suite/defect-replay.mjs --full` was run once with the machine loaded by other agents: baseline green over the whole jest suite (7950 tests, 403.3 s), then 16 of 32 defects KILLED, 0 SURVIVED, the rest TIMEOUT at 600 s each and the 30-minute cap ended it. Recorded as incomplete, not green.
 - Deviations: pinned client 2.0.28 while the owner's CLI is 2.0.6 (shapes used are in both); the plugin folder gains a 57 MB `node_modules` (the client's `effect` dependency); each wizard session adds an OpenCode project row for its temp directory (no API removes it); which credential OpenCode uses when both a subscription and a key exist is OpenCode's choice (`opencode auth switch`), the status shows only the credential kinds; the owner's global OpenCode instructions or MCP servers still load in our sessions (tools stay denied).
 - Deferred, owner and model needed (not claimed): a real Ask answer, a real wizard tool call (the `so_*` names exposed to the model with `codemode: false`, `session.status` retry shape with an auth action) and a real vision request, all on `openai/gpt-6.1-sol`, after the owner signs in with `opencode auth login` if the status says so. Then plan 33 CL LLM leg and M18/M19/M20 recipes, plan 36 LI5 calibration. Parent: full `npm run gates`, Storybook (`MemoryModelGroup` label), staging, `npm run plugins:install -- --with harness`, ST restart.
+
+## Parent harness review — 2026-10-13
+
+- Integrated the harness branch as `016a39a3` in `so-build-fixes` for plan-41 wizard/vision acceptance. Owner ST untouched.
+- `npm run gates:quick`: green in 127.5 s; Jest 698 suites / 8,098 tests; replay 32/32 killed. This precedes the parent fixes below.
+- Private credential-free server check initially failed because its offline model catalog was empty. The test now verifies
+  catalog parity instead of assuming any providers exist. Re-run: 1 passed, zero failures, 10.7 s.
+- Actual OpenCode 2.0.6 returned connection metadata without `method` or `status`, so the agent's harness still labelled
+  the owner's working OAuth login unpaired. The parent reproduced it through the client before sending a model prompt.
+- Parent fix: only when connection methods are omitted, ask the supported `opencode auth list` CLI for metadata.
+  Unknown output refuses explicitly; OAuth is recognised and key-only connections remain refused. No credential file or
+  secret-bearing credential API is read. Also preserve public model alias IDs instead of colliding on vendor model IDs.
+- `node --test server-plugin/story-orchestrator-harness/opencode.test.mjs`: 32 passed, zero failures, including the
+  missing-method regression and distinct-alias availability checks.
+- Real transport smoke: service 2.0.6, OpenAI state ok; `openai/gpt-6.1-sol` returned PONG, tool-denied owned session,
+  effort applied, input 316 / output 6 tokens. One non-rating Sol call. Browser Ask/wizard/vision acceptance still owed.
+- Full combined gates and lane staging remain pending after these fixes; no master merge or owner installation yet.

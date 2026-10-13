@@ -1,4 +1,5 @@
 import crypto from 'node:crypto';
+import { execFile } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { BRIDGE_AGENT, BRIDGE_SERVER, SHIM_PATH } from './agentBridge.mjs';
@@ -126,6 +127,26 @@ const signInAction = (option) => LOGIN_ACTION.replace('choose the provider', `ch
 
 const providerName = (integration, provider) => (typeof integration?.name === 'string' && integration.name ? integration.name : provider);
 
+export function methodsFromAuthList(output) {
+    const methods = new Map();
+    const text = String(output).replace(/\x1b\[[0-9;]*m/g, '');
+    for (const line of text.split(/\r?\n/)) {
+        const fields = line.trim().split(/\s{2,}/);
+        if (fields.length !== 3 || fields[2] !== 'stored') continue;
+        const method = fields[1] === 'OAuth' ? 'oauth' : fields[1] === 'API key' ? 'key' : null;
+        if (method) methods.set(fields[0].toLowerCase(), method);
+    }
+    return methods;
+}
+
+const readAuthList = (executable) => new Promise((resolve, reject) => {
+    if (!executable) { reject(new Error('the OpenCode executable is unavailable')); return; }
+    execFile(executable, ['auth', 'list'], { timeout: OPENCODE_LIMITS.connectMs, windowsHide: true }, (error, stdout) => {
+        if (error) { reject(new Error('OpenCode could not list its sign-in methods')); return; }
+        resolve(methodsFromAuthList(stdout));
+    });
+});
+
 export function loginFromIntegration(integration, provider) {
     const name = providerName(integration, provider);
     const oauthLabels = (Array.isArray(integration?.methods) ? integration.methods : []).filter((method) => method?.type === 'oauth' && typeof method.label === 'string').map((method) => method.label);
@@ -203,6 +224,7 @@ export function createOpencodeTransport({
     log = () => undefined,
     loadLibs = defaultLoadLibs,
     binary = () => null,
+    authMethods = readAuthList,
     nodePath = process.execPath,
     pid = process.pid,
     alive = () => false,
@@ -249,7 +271,14 @@ export function createOpencodeTransport({
 
     const integrationLogin = async (client, provider) => {
         try {
-            return loginFromIntegration(unwrap(await client.integration.get({ integrationID: provider })), provider);
+            const integration = unwrap(await client.integration.get({ integrationID: provider }));
+            const connections = Array.isArray(integration?.connections) ? integration.connections : [];
+            const incomplete = connections.some((entry) => entry?.type === 'credential' && typeof entry.method !== 'string');
+            if (!incomplete) return loginFromIntegration(integration, provider);
+            const methods = await authMethods(binary()).catch(() => new Map());
+            const method = methods.get(provider.toLowerCase()) ?? methods.get(providerName(integration, provider).toLowerCase());
+            if (!method) throw new Refused('config', 'OpenCode returned a stored sign-in without its method, and its CLI could not identify it; update OpenCode or check `opencode auth list`', { state: 'unavailable', service: 'running' });
+            return loginFromIntegration({ ...integration, connections: connections.map((entry) => entry?.type === 'credential' && !entry.method ? { ...entry, method } : entry) }, provider);
         } catch (error) {
             if (error?._tag === 'IntegrationNotFoundError') return { state: 'unpaired', message: `OpenCode has no ${provider} integration; ${signInAction(provider)}`, action: 'sign-in', methods: [] };
             throw refusedFrom(error);
@@ -261,7 +290,7 @@ export function createOpencodeTransport({
         const rows = new Map();
         for (const model of Array.isArray(listed) ? listed : []) {
             if (!isRecord(model) || typeof model.providerID !== 'string') continue;
-            const id = typeof model.modelID === 'string' ? model.modelID : model.id;
+            const id = typeof model.id === 'string' ? model.id : model.modelID;
             rows.set(`${model.providerID}/${id}`, {
                 available: model.enabled !== false,
                 image: Array.isArray(model.capabilities?.input) ? model.capabilities.input.includes('image') : null,

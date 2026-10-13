@@ -77,7 +77,13 @@ test('a private OpenCode server (no login, no owner data): the transport\'s real
         assert.deepEqual([refused.ok, refused.kind, refused.loginState], [false, 'auth', 'unpaired']);
         const handle = view.handle;
         const modelRows = [...view.models.values()];
-        assert.ok(modelRows.length > 0 && modelRows.every((row) => Array.isArray(row.variants) && typeof row.available === 'boolean'), 'model rows keep their shape');
+        const listedModels = await handle.model.list();
+        const catalog = listedModels.data ?? listedModels;
+        assert.ok(Array.isArray(catalog), 'the private server returns a model catalog');
+        const catalogKeys = new Set(catalog.filter((row) => typeof row.providerID === 'string')
+            .map((row) => `${row.providerID}/${row.modelID ?? row.id}`));
+        assert.deepEqual([...view.models.keys()].sort(), [...catalogKeys].sort(), 'the transport preserves the isolated catalog, including an empty offline catalog');
+        assert.ok(modelRows.every((row) => Array.isArray(row.variants) && typeof row.available === 'boolean'), 'model rows keep their shape');
 
         const textDir = t.internals.textDirectory('You answer one request. No tools.');
         const agent = await t.internals.verifyAgent(handle, textDir, transport.TEXT_AGENT, transport.toolsDenied);

@@ -63,6 +63,63 @@ const request = (overrides = {}) => ({
 });
 const clean = (ctx) => until(() => ctx.fake.state.sessions.size === 0 && ctx.fake.state.running === 0);
 
+test('OpenCode 2.0.6 connection metadata uses the CLI method listing without accessing credential values', async () => {
+    const fake = createFakeOpencode();
+    const make = fake.libs.OpenCode.make;
+    fake.libs.OpenCode.make = () => {
+        const client = make();
+        const get = client.integration.get;
+        client.integration.get = async (input) => {
+            const response = await get(input);
+            response.data.connections = response.data.connections.map(({ method, ...entry }) => entry);
+            return response;
+        };
+        return client;
+    };
+    let method = 'oauth';
+    const ctx = setup({ loadLibs: async () => fake.libs, transportOptions: {
+        authMethods: async () => new Map(method ? [['openai', method]] : []),
+    } });
+    const t = transport.createOpencodeTransport({ config: ctx.config, loadLibs: async () => fake.libs,
+        authMethods: async () => new Map(method ? [['openai', method]] : []) });
+    try {
+        assert.equal((await t.inspect({ force: true })).logins.openai.state, 'ok');
+        method = 'key';
+        assert.equal((await t.inspect({ force: true })).logins.openai.state, 'unpaired');
+        method = null;
+        const unknown = await t.inspect({ force: true });
+        assert.equal(unknown.problemKind, 'config');
+        assert.match(unknown.problem, /CLI could not identify/);
+        assert.equal(fake.state.created.length, 0, 'metadata inspection sends no prompt');
+    } finally {
+        fake.close();
+        fs.rmSync(ctx.root, plugin.RM_RETRY);
+    }
+});
+
+test('the supported CLI sign-in listing identifies OAuth and API-key methods without guessing labels', () => {
+    const methods = transport.methodsFromAuthList('\u001b[32mOpenAI\u001b[0m            OAuth              stored\nDeepSeek          API key            stored\nAnthropic         Anthropic          stored\nunknown           OAuth              missing');
+    assert.deepEqual([...methods], [['openai', 'oauth'], ['deepseek', 'key']]);
+});
+
+test('model aliases keep distinct public IDs even when their vendor model IDs match', async () => {
+    const fake = createFakeOpencode({ models: [
+        { id: 'gpt-6.1-sol', modelID: 'gpt-6.1-sol', providerID: 'openai', enabled: true, variants: [] },
+        { id: 'gpt-6.1-sol-fast', modelID: 'gpt-6.1-sol', providerID: 'openai', enabled: false, variants: [] },
+    ] });
+    const ctx = setup({ loadLibs: async () => fake.libs });
+    const t = transport.createOpencodeTransport({ config: ctx.config, loadLibs: async () => fake.libs });
+    try {
+        const view = await t.inspect({ force: true });
+        assert.equal(view.models.get(MODEL).available, true);
+        assert.equal(view.models.get(`${MODEL}-fast`).available, false);
+        assert.equal(view.models.size, 2);
+    } finally {
+        fake.close();
+        fs.rmSync(ctx.root, plugin.RM_RETRY);
+    }
+});
+
 test('a text call is one OpenCode session in an owned project directory, with every tool denied, and nothing is left behind', async () => {
     const ctx = setup();
     const { service, fake } = ctx;
