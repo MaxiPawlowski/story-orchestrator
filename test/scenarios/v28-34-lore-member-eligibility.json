@@ -1,0 +1,75 @@
+{
+  "name": "v28-34-lore-member-eligibility",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "judge": "off",
+    "briefingDraft": "off",
+    "innerBeat": "off",
+    "why": "Scripted judge, native scan inventory and force event; no inference."
+  },
+  "steps": [
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); const wi = await import('/scripts/world-info.js'); const host = await import('/script.js'); const book = 'SO-Lore-Eligibility'; if (wi.world_names.includes(book)) throw new Error('fixture book already exists'); const id = ctx.characters.findIndex((c) => c.name === 'Arin'); if (id < 0) throw new Error('fixture character missing'); const avatar = ctx.characters[id].avatar; const filename = avatar.replace(/\\.[^/.]+$/, ''); const previousId = ctx.characterId; const tags = ctx.tagMap[avatar]; globalThis.__loreEligibility = { book, host, wi, id, avatar, filename, previousId, tags, calls: [], forces: [] }; host.setCharacterId(id); ctx.tagMap[avatar] = ['so-eligible']; await wi.createNewWorldInfo(book, { interactive: false }); const filters = [{ names: [filename] }, { names: [filename], isExclude: true }, { tags: ['so-eligible'] }, { tags: ['so-eligible'], isExclude: true }, { names: [filename], tags: ['so-other'] }, { names: ['SO-Other'] }, { tags: ['so-other'], isExclude: true }]; await wi.saveWorldInfo(book, { entries: Object.fromEntries(filters.map((characterFilter, uid) => [uid, { uid, comment: 'Entry ' + uid, key: ['SO-unmentioned-' + uid], keysecondary: [], content: 'Synthetic harbor context ' + uid, constant: false, disable: false, selective: false, position: 1, order: 100 - uid, probability: 100, useProbability: true, characterFilter }])) }, true); wi.worldInfoCache.delete(book); return { entries: filters.length };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-lore-eligibility",
+        "title": "SO-Lore-Eligibility",
+        "description": "Synthetic drafted-member lore selection.",
+        "requirements": {
+          "lorebooks": [
+            "SO-Lore-Eligibility"
+          ]
+        },
+        "qualities": [],
+        "checkpoints": [
+          {
+            "id": "harbor",
+            "name": "Harbor",
+            "type": "anchor",
+            "start": true,
+            "objective": "Explore the harbor."
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          }
+        ],
+        "lore_select": {
+          "lorebooks": [
+            "SO-Lore-Eligibility"
+          ],
+          "top_k": 12,
+          "min_p": 0
+        }
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const b = globalThis.__loreEligibility; const ctx = SillyTavern.getContext(); const judge = rt.getJudge(); if (!judge) throw new Error('judge runtime missing'); b.judge = judge; b.active = judge.active; b.ask = judge.ask; judge.active = (use) => use === 'loreSelect'; judge.ask = async (use, request) => { b.calls.push(Object.values(request.questions).map((q) => q.instructions)); return { answers: Object.fromEntries(Object.keys(request.questions).map((key) => [key, { type: 'noul', noul: 0.99 }])) }; }; b.forceEvent = ctx.eventTypes.WORLDINFO_FORCE_ACTIVATE; b.forceListener = (entries) => b.forces.push(entries.filter((e) => e.world === b.book).map((e) => e.uid).sort()); ctx.eventSource.on(b.forceEvent, b.forceListener); const selected = await globalThis.storyOrchestratorLore.selector.select('GENERATION_STARTED', 'normal'); if (JSON.stringify(selected?.picks.map((e) => e.uid).sort()) !== '[0,2,6]') throw new Error('wrong eligible selection: ' + JSON.stringify(selected)); if (b.calls.flat().length !== 3) throw new Error('ineligible entries were rated'); if (JSON.stringify(b.forces.at(-1)) !== '[0,2,6]') throw new Error('wrong forced entries'); return { picked: [0,2,6], rated: 3 };"
+    },
+    {
+      "eval": "const b = globalThis.__loreEligibility; SillyTavern.getContext().tagMap[b.avatar] = []; const result = await globalThis.storyOrchestratorLore.selector.select('GENERATION_STARTED', 'normal'); if (JSON.stringify(result?.picks.map((e) => e.uid).sort()) !== '[0,3,6]') throw new Error('tag change reused stale selection: ' + JSON.stringify(result)); if (result.cached) throw new Error('tag change hit forced cache'); return { tagsChanged: true, picked: [0,3,6] };"
+    },
+    {
+      "eval": "const b = globalThis.__loreEligibility; const data = await b.wi.loadWorldInfo(b.book); data.entries[0].content += ' Updated harbor context.'; await b.wi.saveWorldInfo(b.book, data, true); b.wi.worldInfoCache.delete(b.book); SillyTavern.getContext().tagMap[b.avatar] = ['so-eligible', 'so-new']; const before = b.forces.length; let changed = false; b.judge.ask = async (use, request) => { changed = true; b.host.setCharacterId(undefined); return { answers: Object.fromEntries(Object.keys(request.questions).map((key) => [key, { type: 'noul', noul: 0.99 }])) }; }; const result = await globalThis.storyOrchestratorLore.selector.select('GENERATION_STARTED', 'normal'); if (!changed || result !== null || b.forces.length !== before || globalThis.storyOrchestratorLore.selector.completeSelection() !== null) throw new Error('changed-member rating was applied or not exercised'); return { discarded: true };"
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "const b = globalThis.__loreEligibility; if (b) { if (b.judge) { b.judge.active = b.active; b.judge.ask = b.ask; } const ctx = SillyTavern.getContext(); if (b.forceListener) ctx.eventSource.removeListener(b.forceEvent, b.forceListener); if (b.tags === undefined) delete ctx.tagMap[b.avatar]; else ctx.tagMap[b.avatar] = b.tags; b.host.setCharacterId(b.previousId); await b.wi.checkWorldInfo([], 32768, false, { type: 'normal' }); } delete globalThis.__loreEligibility; delete globalThis.storyOrchestratorDebugExtractionResponse; return true;"
+      },
+      {
+        "assets": {
+          "action": "remove",
+          "marker": "SO-Lore-Eligibility"
+        }
+      }
+    ]
+  }
+}

@@ -158,6 +158,19 @@ on by default).
   paragraphs saying the Q1-M1 decision is owed are superseded by this decision.
 - Documentation-only gate: no code gate required. Campaign adoption: no content change or pin bump.
 
+### D-P5 implementation record — 2026-10-13
+
+- Existing injection registry remains the single depth source. Player role 10, scene history 6, ledger 5 and
+  story-so-far 8 move to depth 4; the explicit collision allowlist includes the resulting group.
+- The story-so-far block is included under the approved other-deep-owned-block scope; leaving it at 8 would
+  retain an earlier shifting owned injection. Text, roles, scannability and private-member filtering unchanged.
+- `npm run gates:quick`: exit 0, 383 suites / 4,179 tests; typechecks/lint green, replay 32/32 killed in 113.9 s.
+- Guide updated; `npm run docs:guide` and `npm run docs:settings`: exit 0. Predecessor payload capture exit 0,
+  six cases / 31 captures on bundle `5e41970bfd5a`; six offline backend-properties 500 responses recorded;
+  candidate offset proof, declared payload diff, full gates and final integration still owed.
+- R7 SWA/cache and model-quality measurement deferred under owner exclusions; floors unchanged. No cache-reuse
+  or quality pass claimed from moving depths. Campaign inherits placement, no authored change or pin bump needed.
+
 **Local variant, not pod evidence.** Every number in this section comes from the owner's RTX 3090: controller `:18888` profile `fast`
 (32K, 1 slot, GGUF `Artemis-31B-v1m-Q4_K_M`, not the pods' v1.1), its config untouched, one model lane at a time and nothing else on
 the controller (`activeText` checked before each run). Lanes 12 (model) and 13 (no model) on a private ST code copy
