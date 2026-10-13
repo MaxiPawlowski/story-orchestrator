@@ -82,6 +82,12 @@ capture baseline and final run header, declare intentional differences, clean ow
   replay 32/32 killed (24 reused), 87.9 s. Build exit 0 (`9d2d1804782e`); real curator calibration deferred.
 - **Open stretches**, [19](19-open-stretches.md): encounter pool, quiet trigger and open anchors; validator,
   guide topics, Studio, stories and offline scenario. This approval does not include the separate SP6 measurement/pool.
+  Agent branch `v2.8-build-encounters`: `33726a82` plus review correction `c7934a1c` (quiet means no change inside
+  the window, not zero net change; anchor `player_text` accepted and hidden during the opening). Agent-reported:
+  full jest 690 suites / 7,987 tests, quick gate green, build 1,253,770 B, targeted stories 20/20. Parent review of
+  `c7934a1c`, integration, full gates and the two offline scenarios twice still owed.
+- **Paused 2026-10-13 (owner).** D-P5 candidate payload capture stopped at a 120 s tool timeout in case 4 of 6
+  before cleanup; lane 38 may hold one sandbox chat and imported test story. Next: clean lane 38, rerun capture.
 
 ### 5. Permitted TypeSafe validation
 
