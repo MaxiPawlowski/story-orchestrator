@@ -145,6 +145,19 @@ on by default).
 
 ## 3090 measurements 2026-10-10 (branch `v2.8-3090-measure`)
 
+### Q1-M1 retirement decision — 2026-10-13
+
+- Owner approved retirement into S-17 during the 2026-10-12 no-GPU build-now decisions (plan 40).
+- `36-Q1-M1` is retired as a standalone acceptance task, not passed. Its incomplete local runs and old arm/floor
+  definitions remain historical evidence. The current combined token budget cannot carry the arm-20 denominator.
+- Replacement evidence: M7's S-17 PASS twice and 37-S17 PASS twice on master `83403197`, lane 32,
+  DeepSeek 4.1 flash: tokens +10.4%, pair max wait 3 and none over, block p95 122; private records
+  `so-sessions:evidence/phase-c/pod2-2026-10-10/rows/s17b/`. The original failed measurements stay recorded.
+- No scorer, fixture, product cap or feature-default changes; no new measurement or model calls.
+- M8's other recall/voice measurements and M2 quest completion recall remain their own tasks. Historical
+  paragraphs saying the Q1-M1 decision is owed are superseded by this decision.
+- Documentation-only gate: no code gate required. Campaign adoption: no content change or pin bump.
+
 **Local variant, not pod evidence.** Every number in this section comes from the owner's RTX 3090: controller `:18888` profile `fast`
 (32K, 1 slot, GGUF `Artemis-31B-v1m-Q4_K_M`, not the pods' v1.1), its config untouched, one model lane at a time and nothing else on
 the controller (`activeText` checked before each run). Lanes 12 (model) and 13 (no model) on a private ST code copy

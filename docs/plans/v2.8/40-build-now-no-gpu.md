@@ -71,8 +71,8 @@ capture baseline and final run header, declare intentional differences, clean ow
 - **lie_side geometry**, [33](33-pose-library-and-avatars.md): repair skeleton/retarget math; keep listed pending
   render/PCK evidence. Sonnet branch commits `2e5d87db` and `c257f67e` repair geometry and scope cache invalidation
   to lying poses; quick gate green, parent integration pending. De-list only if repair fails, per owner decision.
-- **Q1-M1 retirement**, [36](36-live-head.md) / [31](31-v27-wrap-backlog.md): docs-only retirement into passing
-  S-17/37-S17 on combined scope budget; no scorer change.
+- **Q1-M1 retirement**, [v2.7 36](../v2.7/36-quests-and-story-panels.md) / [31](31-v27-wrap-backlog.md): docs-only retirement into passing
+  S-17/37-S17 on combined scope budget; recorded in plan 31 and v2.7 plan 36 on 2026-10-13, no scorer change.
 - **C13-b curator digest**, [01](01-v27-carry-over.md): approved product build overrides the old requirement to wait
   for index-arm measurements twice. Declare curator prompt diff; real curator calibration deferred.
 - **Open stretches**, [19](19-open-stretches.md): encounter pool, quiet trigger and open anchors; validator,

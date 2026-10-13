@@ -72,6 +72,12 @@ Every row: ownership census rows for any write after an await; fault-matrix rows
   cases (second-model labels, never the user): `done_when` latched within **N = 3 player turns** of the act in
   **≥ 0.80** of cases, false latches **≤ 1 of 20**.
 
+**Owner decision 2026-10-12, recorded 2026-10-13:** retire standalone Q1-M1 into the combined
+S-17 / 37-S17 scope-budget measurement. The arms and floors above remain historical; their incomplete results
+are not passes. The combined budget cannot carry the old arm-20 denominator, so it is not a current product
+acceptance task. S-17 and 37-S17 passed twice on the shipped token-budget/fairness implementation; see
+`v2.8/31-v27-wrap-backlog.md` M7 and the retirement record. No scorer, fixture, cap or default changes. M2 stays separate.
+
 ### Q2. Visible qualities (stats, inventory, meters)
 
 - Read model `snapshot.game.sheet`: groups of `{label, as, value text}` from public qualities only.
