@@ -24,10 +24,15 @@ export function selectCuratorDigest(entries: CuratorEntryView[], scope: DigestCo
   const scored = entries.map((entry, index) => ({ entry, index, hits: hitsIn(entry, context) }));
   const picked = new Set(scored.filter((row) => row.hits > 0).sort((left, right) => right.hits - left.hits || left.index - right.index).slice(0, CURATOR_DIGEST_FULL_LIMIT).map((row) => row.entry));
   const rest = entries.filter((entry) => !picked.has(entry));
-  return { full: entries.filter((entry) => picked.has(entry)), titleOnly: rest.slice(0, CURATOR_DIGEST_INDEX_LIMIT), unlisted: rest.slice(CURATOR_DIGEST_INDEX_LIMIT) };
+  const unlisted = rest.slice(CURATOR_DIGEST_INDEX_LIMIT);
+  const hidden = new Set(unlisted);
+  return {
+    full: entries.filter((entry) => picked.has(entry)), titleOnly: rest.slice(0, CURATOR_DIGEST_INDEX_LIMIT), unlisted,
+    listed: entries.filter((entry) => !hidden.has(entry)),
+  };
 }
 
-export const digestVocabulary = (digest: CuratorDigest): CuratorEntryView[] => [...digest.full, ...digest.titleOnly];
+export const digestVocabulary = (digest: CuratorDigest): CuratorEntryView[] => digest.listed;
 
 const isEdit = (op: { kind: string }) => op.kind === "rewrite" || op.kind === "patch";
 

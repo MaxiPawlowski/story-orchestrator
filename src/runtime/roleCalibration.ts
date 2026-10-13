@@ -2,7 +2,7 @@ import type { StoryV2 } from "@engine/index";
 import { detectDegenerate, profileRoute, routedModel, type ModelCall, estimateTokens, maxTokensFor, maxTokensForInput, stripChannelNoise, type PassRole } from "@extraction/index";
 import { renderStagePrompt, runAuthoringStage, type CopilotStage, type ProposalOp } from "@copilot/index";
 import { parseDirectorResponse, renderDirectorPrompt, type DirectorWindowMessage } from "@talk/index";
-import { buildWiCuratorPrompt, parseCuratorResponse, planCuratorProposal, type CuratorScope, type WiCuratorOp } from "@stagecraft/index";
+import { buildWiCuratorPrompt, digestVocabulary, parseCuratorResponse, planCuratorProposal, type CuratorScope, type WiCuratorOp } from "@stagecraft/index";
 import { buildSceneSummaryPrompt } from "@memory/contract";
 import { draftCastNames, emptyEnvironment, type ProvisioningEnvironment } from "@wizard/index";
 import { DIRECTOR_MAX_TOKENS, DIRECTOR_TIMEOUT_MS } from "./talkControl";
@@ -104,11 +104,12 @@ export function scoreDirector(entry: DirectorCalibrationCase, raw: string, laten
 }
 
 export function scoreCurator(entry: CuratorCalibrationCase, raw: string): CuratorScore {
-  const proposal = parseCuratorResponse(raw, entry.scope.entries);
+  const arm = entry.indexArm ? curatorIndexArm(entry.scope) : null;
+  const vocabulary = arm ? digestVocabulary(arm.digest) : entry.scope.entries;
+  const proposal = parseCuratorResponse(raw, vocabulary);
   const opLines = proposal.ops.length + proposal.dropped.length;
   const explicitNone = stripChannelNoise(raw ?? "").split(/\r?\n/).some((line) => line.trim().replace(/^[-*]\s+/, "").toUpperCase() === "NONE");
-  const initial = planCuratorProposal(proposal, entry.scope.entries, { mode: "review" });
-  const arm = entry.indexArm ? curatorIndexArm(entry.scope) : null;
+  const initial = planCuratorProposal(proposal, vocabulary, { mode: "review" });
   const plan = arm ? refuseIndexEdits(initial, arm) : initial;
   const kept = plan.records.map((record) => `${record.op.kind}:${"comment" in record.op ? record.op.comment : ""}`);
   const touched = plan.records.flatMap((record) => ("comment" in record.op ? [{ kind: record.op.kind, comment: record.op.comment.toLowerCase() }] : []));

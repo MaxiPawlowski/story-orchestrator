@@ -18,10 +18,15 @@ export const renderCuratorEntry = (entry: CuratorEntryView, entries: CuratorEntr
   `  content: ${truncate(collapseContent(entry.content), CURATOR_SHOWN_CONTENT) || "(empty)"}`,
 ].join("\n");
 
-const digestLine = (entry: CuratorEntryView, entries: CuratorEntryView[]): string =>
-  `${[entryRef(entry, entries), `"${entry.comment}"`].filter(Boolean).join(" ")} [currently ${entry.disabled ? "off" : "on"}]`;
+const sameTitle = (left: CuratorEntryView, right: CuratorEntryView) => left.comment.trim().toLowerCase() === right.comment.trim().toLowerCase();
 
-export function renderDigestListing(digest: CuratorDigest, entries: CuratorEntryView[]): string {
+const digestLine = (entry: CuratorEntryView, entries: CuratorEntryView[]): string => {
+  const twin = entries.some((other) => other !== entry && sameTitle(other, entry));
+  return `${[entryRef(entry, entries), `"${entry.comment}"`, twin ? `(${entry.lorebook})` : ""].filter(Boolean).join(" ")} [currently ${entry.disabled ? "off" : "on"}]`;
+};
+
+export function renderDigestListing(digest: CuratorDigest): string {
+  const entries = digest.listed;
   const groups = new Map<string, string[]>();
   for (const entry of digest.titleOnly) {
     const initial = entry.comment.trim().charAt(0).toUpperCase();
@@ -39,7 +44,7 @@ export function renderDigestListing(digest: CuratorDigest, entries: CuratorEntry
 // drift into prose. The prompt never receives a lorebook the story did not put on its allowlist.
 export function buildWiCuratorPrompt(scope: CuratorScope, digest?: CuratorDigest | null): string {
   const entries = digest
-    ? renderDigestListing(digest, scope.entries)
+    ? renderDigestListing(digest)
     : scope.entries.length
       ? scope.entries.map((entry) => renderCuratorEntry(entry, scope.entries)).join("\n")
       : NO_CURATOR_ENTRIES;

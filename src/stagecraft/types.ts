@@ -103,6 +103,7 @@ export interface CuratorDigest {
   full: CuratorEntryView[];
   titleOnly: CuratorEntryView[];
   unlisted: CuratorEntryView[];
+  listed: CuratorEntryView[];
 }
 
 export interface CuratorProposal {

@@ -1,9 +1,11 @@
 import { buildCreateCandidatePrompt } from "./createCandidate";
 import { digestVocabulary, refuseTitleOnlyEdits, selectCuratorDigest, titleOnlyEditRefusal, TITLE_ONLY_REFUSAL } from "./digest";
+import { parseCuratorResponse } from "./parse";
 import { buildWiCuratorPrompt } from "./prompt";
+import { entryRef } from "./scope";
 import {
   CURATOR_DIGEST_FULL_LIMIT, CURATOR_DIGEST_INDEX_LIMIT, CURATOR_DIGEST_MIN_ENTRIES,
-  type CuratorEntryView, type CuratorOpRecord, type CuratorPlan, type CuratorScope,
+  type CuratorDigest, type CuratorEntryView, type CuratorOpRecord, type CuratorPlan, type CuratorScope,
 } from "./types";
 
 const scope = (entries: CuratorEntryView[], canon = "The ferry arrived."): CuratorScope =>
@@ -63,6 +65,69 @@ describe("buildWiCuratorPrompt with a digest", () => {
     expect(prompt).toMatch(/\n#: #2 "9 steps" \[currently on\]/);
     expect(prompt).toMatch(/\nA: #1 "alpha gate" \[currently on\]/);
     expect(prompt).not.toContain("more entries are not listed");
+  });
+});
+
+describe("one vocabulary for the prompt, the parse and the plan", () => {
+  const inBook = (lorebook: string, uid: number, tweak: Partial<CuratorEntryView> = {}): CuratorEntryView =>
+    ({ lorebook, uid, comment: `${lorebook} ${uid}`, keys: [`k-${lorebook}-${uid}`], content: `Body ${lorebook} ${uid}`, disabled: false, ...tweak });
+
+  const holds = (digest: CuratorDigest, all: CuratorEntryView[]) => {
+    const prompt = buildWiCuratorPrompt(scope(all), digest);
+    for (const entry of digest.listed) {
+      const ref = entryRef(entry, digest.listed)!;
+      expect(prompt).toContain(`${ref} "${entry.comment}"`);
+      const [op] = parseCuratorResponse(`[disable] ${ref}`, digestVocabulary(digest)).ops;
+      expect([op?.lorebook, op?.uid]).toEqual([entry.lorebook, entry.uid]);
+    }
+    for (const entry of digest.unlisted) expect(parseCuratorResponse(`[disable] "${entry.comment}"`, digestVocabulary(digest)).ops).toEqual([]);
+    return prompt;
+  };
+
+  it("reorders nothing: listed entries keep their shown order whatever was picked in full", () => {
+    const all = [...Array.from({ length: 25 }, (_, at) => inBook("A", at + 1)), ...Array.from({ length: 25 }, (_, at) => inBook("B", at + 1, at === 9 ? { keys: ["ferry"] } : {}))];
+    const digest = selectCuratorDigest(all, scope(all))!;
+    expect(digest.full.map((entry) => `${entry.lorebook}${entry.uid}`)).toEqual(["B10"]);
+    expect(digestVocabulary(digest)).toEqual(all);
+    const prompt = holds(digest, all);
+    expect(prompt).toContain('- #2.10 "B 10" (B)');
+    expect(prompt).toContain('#1.10 "A 10" [currently on]');
+  });
+
+  it("when a whole earlier book is unlisted the later book's references drop their ordinals", () => {
+    const earlier = Array.from({ length: 3 }, (_, at) => inBook("A", at + 1));
+    const later = Array.from({ length: 3 }, (_, at) => inBook("B", at + 1));
+    const digest: CuratorDigest = { full: [later[0]], titleOnly: later.slice(1), unlisted: earlier, listed: later };
+    const prompt = holds(digest, [...earlier, ...later]);
+    expect(prompt).toContain('- #1 "B 1" (B)');
+    expect(prompt).not.toContain("#1.1");
+    expect(prompt).toContain("(3 more entries are not listed, so you may not touch them)");
+  });
+
+  it("a numeric clash across books is spelled with ordinals, and a bare clashing number names nothing", () => {
+    const all = [inBook("A", 1), inBook("A", 2), inBook("B", 2), inBook("B", 12)];
+    const digest: CuratorDigest = { full: [], titleOnly: all, unlisted: [], listed: all };
+    const prompt = holds(digest, all);
+    expect(prompt).toContain('#1 "A 1"');
+    expect(prompt).toContain('#1.2 "A 2"');
+    expect(prompt).toContain('#2.2 "B 2"');
+    expect(prompt).toContain('#12 "B 12"');
+    expect(parseCuratorResponse("[disable] #2", all).ops).toEqual([]);
+  });
+
+  it("lists the book beside a title-only entry only when another listed entry shares its title", () => {
+    const all = [inBook("A", 1, { comment: "Shared" }), inBook("B", 1, { comment: "shared " }), inBook("B", 2)];
+    const digest: CuratorDigest = { full: [], titleOnly: all, unlisted: [], listed: all };
+    const prompt = buildWiCuratorPrompt(scope(all), digest);
+    expect(prompt).toContain('#1.1 "Shared" (A) [currently on]');
+    expect(prompt).toContain('#2.1 "shared " (B) [currently on]');
+    expect(prompt).toContain('#2 "B 2" [currently on]');
+  });
+
+  it("an unlisted twin no longer forces a book onto a listed title", () => {
+    const all = [inBook("A", 1, { comment: "Shared" }), inBook("B", 1, { comment: "Shared" })];
+    const digest: CuratorDigest = { full: [], titleOnly: [all[0]], unlisted: [all[1]], listed: [all[0]] };
+    expect(buildWiCuratorPrompt(scope(all), digest)).toContain('#1 "Shared" [currently on]');
   });
 });
 
