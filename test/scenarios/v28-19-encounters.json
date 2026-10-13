@@ -142,7 +142,7 @@
       }
     },
     {
-      "eval": "return globalThis.__so19.check(6, {\"has\":[\"Open stretch: there is no task here.\",\"never a push\",\"- A broken cart:\",\"- Smoke on the ridge:\",\"- The toll keeper:\",\"- A lost goat:\",\"None is required\",\"At most once\"],\"hasNot\":[\"Objective:\"]});",
+      "eval": "return globalThis.__so19.check(6, {\"has\":[\"Open stretch: there is no task here.\",\"carry one hook toward\",\"- A broken cart:\",\"- Smoke on the ridge:\",\"- The toll keeper:\",\"- A lost goat:\",\"None is required\",\"At most once\"],\"hasNot\":[\"Objective:\"]});",
       "log": true
     },
     {
@@ -162,7 +162,7 @@
       }
     },
     {
-      "eval": "return globalThis.__so19.check(6, {\"has\":[\"Open stretch: there is no task here.\",\"never a push\",\"- A broken cart:\",\"- Smoke on the ridge:\",\"- The toll keeper:\",\"- A lost goat:\",\"None is required\",\"At most once\"],\"hasNot\":[\"Objective:\"]});",
+      "eval": "return globalThis.__so19.check(6, {\"has\":[\"Open stretch: there is no task here.\",\"carry one hook toward\",\"- A broken cart:\",\"- Smoke on the ridge:\",\"- The toll keeper:\",\"- A lost goat:\",\"None is required\",\"At most once\"],\"hasNot\":[\"Objective:\"]});",
       "log": true
     },
     {
@@ -214,7 +214,7 @@
       }
     },
     {
-      "eval": "return globalThis.__so19.check(6, {\"has\":[\"Open stretch: there is no task here.\",\"never a push\",\"- A broken cart:\",\"- Smoke on the ridge:\",\"- The toll keeper:\",\"- A lost goat:\",\"None is required\",\"At most once\"],\"hasNot\":[\"Objective:\"]});",
+      "eval": "return globalThis.__so19.check(6, {\"has\":[\"Open stretch: there is no task here.\",\"carry one hook toward\",\"- A broken cart:\",\"- Smoke on the ridge:\",\"- The toll keeper:\",\"- A lost goat:\",\"None is required\",\"At most once\"],\"hasNot\":[\"Objective:\"]});",
       "log": true
     },
     {
