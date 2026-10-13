@@ -46,7 +46,8 @@ export const createBridgeRoute = (bridge: AgentToolBridge, target: HarnessTarget
       let tokens = 0;
       if (!sessionId) {
         const opened = await bridge.open({
-          harness: target.harness, model: target.model, role: BRIDGE_ROLE, system: BRIDGE_SYSTEM, prompt, tools, timeoutMs: target.timeoutMs, maxOutputChars: BRIDGE_MAX_OUTPUT_CHARS,
+          harness: target.harness, model: target.model, role: BRIDGE_ROLE, system: BRIDGE_SYSTEM, prompt, tools,
+          ...(target.images?.length ? { images: target.images } : {}), timeoutMs: target.timeoutMs, maxOutputChars: BRIDGE_MAX_OUTPUT_CHARS,
         });
         if (!opened.ok) throw new AgentRouteUnavailable("harness", `${opened.kind}: ${opened.message}`, opened.kind);
         sessionId = opened.sessionId;

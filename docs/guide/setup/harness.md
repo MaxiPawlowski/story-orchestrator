@@ -10,10 +10,14 @@ every other task uses it only when you route that task to it.
 
 ## Install
 
-1. Install the plugin (see [Server plugins](README.md#server-plugins)).
-2. On the server, make sure the CLI is on the `PATH` (`claude`, `codex` or `opencode`) and logged in. The plugin uses
-   the login files (`~/.claude/.credentials.json`, `~/.codex/auth.json`, `~/.local/share/opencode/auth.json`); a login
-   must stay valid for at least 90 more minutes.
+1. Install the plugin: `npm run plugins:install -- --with harness` (see [Server plugins](README.md#server-plugins)). For
+   opencode it also installs the plugin's one dependency, OpenCode's own client library, inside the plugin's folder.
+2. On the server, make sure the CLI is on the `PATH` (`claude`, `codex` or `opencode`) and signed in.
+   - **Claude Code and Codex:** the plugin uses their login files (`~/.claude/.credentials.json`,
+     `~/.codex/auth.json`); a login must stay valid for at least 90 more minutes.
+   - **opencode:** the plugin talks to OpenCode's own background service through OpenCode's client library, one
+     session per call. It never reads, copies or refreshes an opencode login: OpenCode owns the sign-in. Sign in once
+     in a terminal on the server with `opencode auth login`, choose OpenAI, then ChatGPT Pro/Plus.
 3. Write `config.json` next to the plugin's `index.mjs` and offer each harness you want:
 
    ```json
@@ -22,6 +26,29 @@ every other task uses it only when you route that task to it.
 
 4. Restart SillyTavern. In **Models per task**, each task now lists the offered harnesses under "Cloud harness (on the
    SillyTavern server)".
+
+## When opencode is not ready
+
+The Models per task list marks a harness that cannot answer, and the plugin's status says why. For opencode:
+
+| You see | It means | What to do |
+|---|---|---|
+| "(sign-in expired)" | OpenCode says its OpenAI subscription sign-in needs renewing | In a terminal on the server run `opencode auth login` and sign in again; the next status check sees it |
+| "(log in first)", "no OpenAI subscription sign-in" | OpenCode has no subscription sign-in for the model's provider (an API key alone is not used) | Run `opencode auth login`, choose OpenAI, then ChatGPT Pro/Plus |
+| "(setup needed)", "client library ... is not installed" | The plugin's folder has no OpenCode client library | Run `npm run plugins:install -- --with harness`, then restart SillyTavern |
+| "refused this plugin" | OpenCode's background service no longer accepts the plugin's pairing | Run `opencode service restart` in a terminal on the server |
+| "background service ... could not be reached or started" | The service is down and could not be started | Run `opencode service start`, then check `opencode service status` |
+
+A routed task that finds one of these stops with that message; the wizard does not fall back to a local profile. A
+stopped OpenCode service is not a problem: it starts with the first call. A usage limit is reported with its retry
+time and holds the route until then.
+
+## Pictures
+
+An opencode call can carry up to four PNG, JPEG, GIF or WebP pictures, checked by their bytes (8 MB each, 20 MB in
+all), for the wizard's vision work. A model without image input refuses them, so a rig or other vision task on a
+text-only model stays on its static fallback instead of sending words in place of pixels. Each model's image input is
+shown in the plugin's status.
 
 ## Who may use it
 

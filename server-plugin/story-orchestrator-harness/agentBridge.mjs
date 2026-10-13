@@ -23,6 +23,7 @@ export const BRIDGE_LIMITS = Object.freeze({
     maxLineBytes: 1_000_000,
     tombstoneMs: 60_000,
     maxTombstones: 32,
+    maxImages: 4,
 });
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -78,7 +79,7 @@ const intIn = (value, min, max) => Number.isInteger(value) && value >= min && va
 
 export function validateOpen(body, config, limits) {
     if (!isRecord(body)) return { issue: 'body must be a JSON object', kind: 'config' };
-    const { harness, model, role, system, prompt, timeoutMs, callTimeoutMs, maxOutputChars, effort, tools } = body;
+    const { harness, model, role, system, prompt, timeoutMs, callTimeoutMs, maxOutputChars, effort, tools, images } = body;
     if (!BRIDGE_HARNESSES.includes(harness)) return { issue: `the tool bridge runs on ${BRIDGE_HARNESSES.join(', ')} only`, kind: 'config' };
     if (typeof role !== 'string' || !ROLE_PATTERN.test(role)) return { issue: 'role must be a role id', kind: 'config' };
     if (typeof model !== 'string' || !config.harnesses[harness].models.some((entry) => entry.id === model)) return { issue: `model not permitted for ${harness}: ${String(model).slice(0, 80)}`, kind: 'config' };
@@ -89,57 +90,26 @@ export function validateOpen(body, config, limits) {
     if (callTimeoutMs !== undefined && !intIn(callTimeoutMs, BRIDGE_LIMITS.minCallMs, BRIDGE_LIMITS.maxCallMs)) return { issue: `callTimeoutMs must be ${BRIDGE_LIMITS.minCallMs}-${BRIDGE_LIMITS.maxCallMs}`, kind: 'config' };
     if (!intIn(maxOutputChars, 1, limits.maxOutputChars)) return { issue: `maxOutputChars must be 1-${limits.maxOutputChars}`, kind: 'config' };
     if (effort !== undefined && effort !== null && !EFFORTS.includes(effort)) return { issue: `effort must be one of ${EFFORTS.join(', ')}`, kind: 'config' };
+    if (images !== undefined && (!Array.isArray(images) || images.length > BRIDGE_LIMITS.maxImages)) return { issue: `images must be a list of at most ${BRIDGE_LIMITS.maxImages}`, kind: 'refused' };
     const checked = validateTools(tools);
     if (checked.issue) return { issue: checked.issue, kind: 'refused' };
-    return { issue: null, value: { harness, model, role, system, prompt, timeoutMs, callTimeoutMs: callTimeoutMs ?? BRIDGE_LIMITS.defaultCallMs, maxOutputChars, effort: effort ?? null, tools: checked.tools } };
+    return { issue: null, value: { harness, model, role, system, prompt, timeoutMs, callTimeoutMs: callTimeoutMs ?? BRIDGE_LIMITS.defaultCallMs, maxOutputChars, effort: effort ?? null, tools: checked.tools, ...(images?.length ? { images } : {}) } };
 }
 
-export const bridgeAgentConfig = ({ systemFile, nodePath, shimPath, pipe, secret, toolsFile }) => JSON.stringify({
-    $schema: 'https://opencode.ai/config.json',
-    mcp: {
-        [BRIDGE_SERVER]: {
-            type: 'local',
-            command: [nodePath, shimPath],
-            environment: { SO_BRIDGE_PIPE: pipe, SO_BRIDGE_SECRET: secret, SO_BRIDGE_TOOLS: toolsFile },
-            enabled: true,
-        },
-    },
-    agent: {
-        [BRIDGE_AGENT]: {
-            mode: 'primary',
-            prompt: `{file:${systemFile}}`,
-            tools: { '*': false, [`${BRIDGE_SERVER}_*`]: true },
-            permission: { edit: 'deny', bash: 'deny', webfetch: 'deny' },
-        },
-    },
-});
-
-export const bridgeArgv = ({ model, cwd, effort = null }) => ['run', '--pure', '--format', 'json', '--agent', BRIDGE_AGENT, '-m', model, '--dir', cwd, ...(EFFORTS.includes(effort) ? ['--variant', effort] : [])];
-
 export const defaultPipe = (sessionId, owned, platform = process.platform) => (platform === 'win32' ? `\\\\.\\pipe\\so-agent-${sessionId}` : path.join(owned.root, 'bridge.sock'));
-
-const toolNameOf = (event) => {
-    const part = isRecord(event.part) ? event.part : {};
-    const name = part.tool ?? part.name ?? event.tool ?? event.name;
-    return typeof name === 'string' ? name : '';
-};
-
-export const isToolEvent = (event) => isRecord(event) && (/tool/i.test(String(event.type ?? '')) || /tool/i.test(String(event.part?.type ?? '')));
-
-export const isShimTool = (name) => name.startsWith(`${BRIDGE_SERVER}_`);
 
 const ENDED_KIND = { closed: 'lapsed', replaced: 'lapsed', shutdown: 'lapsed', timeout: 'timeout', 'call-timeout': 'timeout', refused: 'refused', finished: 'lapsed' };
 const ENDED_TEXT = {
     closed: 'the session was closed',
     replaced: 'a newer session for this user and role replaced it',
     shutdown: 'the plugin shut down',
-    timeout: 'the session reached its deadline; its process tree was stopped',
+    timeout: 'the session reached its deadline; its OpenCode session was interrupted and removed',
     'call-timeout': 'a tool call waited past its deadline for the page; the session was stopped',
-    refused: 'the harness used a tool that is not the bridge\'s; the session was stopped and its answer discarded',
+    refused: 'the harness used a tool or permission that is not the bridge\'s; the session was stopped and its answer discarded',
     finished: 'the session had already finished',
 };
 
-export function createAgentBridge({ config, env, helpers, host, spawnImpl, killTree, fsImpl, now = Date.now, nodePath = process.execPath, shimPath = SHIM_PATH, pipeFor = defaultPipe, netImpl = net, limits }) {
+export function createAgentBridge({ config, helpers, host, fsImpl, now = Date.now, pipeFor = defaultPipe, netImpl = net }) {
     const sessions = new Map();
     const owners = new Map();
     const tombstones = new Map();
@@ -247,43 +217,9 @@ export function createAgentBridge({ config, env, helpers, host, spawnImpl, killT
         });
     };
 
-    const watchStdout = (session) => {
-        let buffer = '';
-        return (text) => {
-            buffer += text;
-            let at;
-            while ((at = buffer.indexOf('\n')) >= 0) {
-                const line = buffer.slice(0, at).trim();
-                buffer = buffer.slice(at + 1);
-                if (!line.startsWith('{')) continue;
-                let event;
-                try { event = JSON.parse(line); } catch { continue; }
-                if (isToolEvent(event) && !isShimTool(toolNameOf(event))) {
-                    session.foreign += 1;
-                    void teardown(session, 'refused');
-                }
-            }
-        };
-    };
-
-    const finishRun = (session, run) => {
+    const finishRun = (session, outcome) => {
         if (session.closed) return;
-        const events = run.stdout.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.startsWith('{')).flatMap((line) => {
-            try { return [JSON.parse(line)]; } catch { return []; }
-        });
-        const foreign = events.filter((event) => isToolEvent(event) && !isShimTool(toolNameOf(event))).length;
-        if (foreign) {
-            session.foreign += foreign;
-            void teardown(session, 'refused');
-            return;
-        }
         session.finished = true;
-        const kept = run.stdout.split(/\r?\n/).filter((line) => {
-            const trimmed = line.trim();
-            if (!trimmed.startsWith('{')) return true;
-            try { return !isToolEvent(JSON.parse(trimmed)); } catch { return true; }
-        }).join('\n');
-        const outcome = helpers.classify('opencode', { ...run, stdout: kept }, { maxOutputChars: session.maxOutputChars, now: now() });
         if (outcome.kind === 'quota') host.noteQuota(session.harness, outcome.retryAt ?? null);
         const event = outcome.ok ? { kind: 'done', text: outcome.text, finish: outcome.finish, usage: outcome.usage ?? null } : { kind: 'ended', errorKind: outcome.kind, message: outcome.message };
         for (const call of session.parked.values()) {
@@ -315,16 +251,15 @@ export function createAgentBridge({ config, env, helpers, host, spawnImpl, killT
         }
         let owned = null;
         try {
-            const blocked = await host.ready(request.harness, request.model);
+            const blocked = await host.ready(request.harness, request.model, request.images);
             if (blocked) {
                 release();
                 return { ok: false, ...blocked };
             }
             await replacing;
-            owned = helpers.openOwnedHome(request.harness, { tmpRoot: config.tmpRoot, loginFile: host.loginFile(request.harness), model: request.model, cacheDir: host.cacheDir, fsImpl });
+            owned = helpers.openOwnedHome(request.harness, { tmpRoot: config.tmpRoot, loginFile: null, fsImpl });
             owned.harness = request.harness;
-            owned.systemFile = path.join(owned.tmp, 'system.txt');
-            fsImpl.writeFileSync(owned.systemFile, request.system, 'utf-8');
+            owned.label = `${user}/${request.role}`;
             fsImpl.writeFileSync(path.join(owned.tmp, 'tools.json'), JSON.stringify(request.tools), 'utf-8');
         } catch (error) {
             abandon(owned, release);
@@ -353,22 +288,20 @@ export function createAgentBridge({ config, env, helpers, host, spawnImpl, killT
         }
         sessions.set(id, session);
         owners.set(ownerKey, id);
-        const childEnvironment = helpers.childEnv(request.harness, owned, env);
-        childEnvironment.OPENCODE_CONFIG_CONTENT = bridgeAgentConfig({ systemFile: owned.systemFile, nodePath, shimPath, pipe, secret, toolsFile });
         host.noteSpawn(request.harness);
-        session.done = helpers.runProcess({
-            bin: host.binary(request.harness),
-            argv: bridgeArgv({ model: request.model, cwd: owned.cwd, effort: request.effort }),
-            env: childEnvironment,
-            cwd: owned.cwd,
-            stdin: request.prompt,
-            deadlineMs: request.timeoutMs,
-            maxOutputChars: request.maxOutputChars,
-            spawnImpl,
-            killTree,
+        session.done = host.startRun({
+            request,
+            owned,
+            pipe,
+            secret,
+            toolsFile,
             signal: session.controller.signal,
-            onStdout: watchStdout(session),
-        }).then((run) => { finishRun(session, run); });
+            deadlineMs: request.timeoutMs,
+            onForeign: () => {
+                session.foreign += 1;
+                void teardown(session, 'refused');
+            },
+        }).then((outcome) => { finishRun(session, outcome); }, (error) => { finishRun(session, { ok: false, kind: 'transport', message: `the agent run failed: ${error?.message ?? 'error'}` }); });
         session.deadlineTimer = setTimeout(() => { void teardown(session, 'timeout'); }, request.timeoutMs);
         return { ok: true, sessionId: id, deadlineAt: session.deadlineAt };
     };

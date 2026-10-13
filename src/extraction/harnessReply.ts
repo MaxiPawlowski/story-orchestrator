@@ -23,6 +23,7 @@ export async function viaHarness(harness: HarnessTransport, route: ModelRoute & 
     role: options.role ?? "read",
     ...(route.effort ? { effort: route.effort } : {}),
     prompt,
+    ...(options.images?.length ? { images: options.images } : {}),
     maxOutputChars: Math.min(HARNESS_MAX_OUTPUT_CHARS, maxTokens * HARNESS_CHARS_PER_TOKEN),
     timeoutMs,
     signal: anySignal([options.signal, AbortSignal.timeout(timeoutMs + 5_000)]),
@@ -42,8 +43,10 @@ export async function probeHarness(key: string): Promise<ProbeResult> {
   if (!parsed || !row) return { ok: false, kind: "transport", message: "the harness plugin did not answer its status" };
   if (!row.installed || !row.offered) return { ok: false, kind: "config", message: row.problem ?? `${parsed.harness} is not offered on this install` };
   if (row.blocked) return { ok: false, kind: "config", message: row.blocked };
-  if (row.cacheWarm === false) return { ok: false, kind: "config", message: `${parsed.harness}'s model cache is not warmed yet: the host owner runs the warm-up once (POST /warm, admin)` };
-  if (!row.fresh) return { ok: false, kind: "transport", message: row.loginProblem ?? `${parsed.harness} is not logged in` };
+  if (!row.fresh) {
+    const mustAct = row.loginState === "expired" || row.loginState === "unpaired" || row.loginState === "unavailable";
+    return { ok: false, kind: mustAct ? "config" : "transport", message: row.loginProblem ?? `${parsed.harness} is not logged in` };
+  }
   if (row.quotaUntil && row.quotaUntil > Date.now()) return { ok: false, kind: "transport", message: `${parsed.harness} usage limit until ${new Date(row.quotaUntil).toISOString()}` };
   return { ok: true };
 }

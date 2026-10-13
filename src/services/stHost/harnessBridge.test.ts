@@ -38,6 +38,12 @@ describe("the agent bridge host seam (v2.6 plan 04 H, option 2)", () => {
     expect(calls[1].body.waitMs).toBeLessThanOrEqual(20_000);
   });
 
+  it("sends the images of a vision session with the open call", async () => {
+    const { calls, fetchImpl } = scripted([json(200, { ok: true, sessionId: "a".repeat(32) })]);
+    await createHarnessBridgeClient(fetchImpl, () => ({})).open({ ...OPEN, images: [{ data: "QUJD", mime: "image/png" }] });
+    expect(calls[0].body.images).toEqual([{ data: "QUJD", mime: "image/png" }]);
+  });
+
   it("names refusals: a missing route, a refused user, a busy harness, the plugin's own verdict", async () => {
     const refused = json(403, { error: "harness routes are admin-only on this install" });
     for (const [answer, kind] of [[json(404, {}), "config"], [refused, "config"], [json(429, { ok: false, kind: "busy" }), "busy"], [json(200, { ok: false, kind: "auth", message: "log in" }), "auth"]] as const) {

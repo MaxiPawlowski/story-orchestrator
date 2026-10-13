@@ -5,12 +5,17 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BRIDGE_HARNESSES, createAgentBridge, validateOpen } from './agentBridge.mjs';
+import { AUTH_TEXT, NETWORK_TEXT, QUOTA_TEXT, readRetryAt } from './errors.mjs';
+import { createOpencodeTransport, OPENCODE_CLIENT } from './opencodeTransport.mjs';
 
-export const PLUGIN_VERSION = '1.2.0';
+export { readRetryAt };
+export const PLUGIN_VERSION = '2.0.0';
 export const HARNESS_IDS = Object.freeze(['claude', 'codex', 'opencode']);
 export const PLUGIN_HEADER = 'x-so-plugin';
 export const LIMITS = Object.freeze({
     maxBodyBytes: 2_000_000,
+    maxImageBodyBytes: 30_000_000,
+    maxImages: 4,
     maxPromptChars: 400_000,
     maxSystemChars: 20_000,
     maxOutputChars: 400_000,
@@ -31,7 +36,7 @@ export const quotaHoldMs = (env = process.env) => {
 export const PHASE0 = Object.freeze({
     claude: 'not run: the stored login had expired (v2.5 plan 13 run 3)',
     codex: 'not run in owned homes (quota, then a stale login)',
-    opencode: 'P0-2, H-N1, H-N1b, P0-3 pass in owned homes; P0-7 5/5 re-run on the pre-warmed cache owed (B2)',
+    opencode: 'one OpenCode session per call on the shared background service, project config in an owned directory, every tool denied; no login file is read or copied',
 });
 export const DEFAULT_MODELS = Object.freeze({
     claude: Object.freeze([{ id: 'haiku', context: 200_000 }, { id: 'sonnet', context: 200_000 }, { id: 'opus', context: 200_000 }]),
@@ -39,15 +44,6 @@ export const DEFAULT_MODELS = Object.freeze({
     opencode: Object.freeze([{ id: 'openai/gpt-6.1-sol', context: 200_000 }, { id: 'openai/gpt-6-luna', context: 200_000 }]),
 });
 export const CODEX_TOOL_FEATURES = Object.freeze(['shell_tool', 'browser_use', 'computer_use', 'image_generation', 'apps', 'plugins', 'hooks']);
-export const OPENCODE_QUIET = Object.freeze({
-    OPENCODE_DISABLE_AUTOUPDATE: '1',
-    OPENCODE_DISABLE_SHARE: '1',
-    OPENCODE_DISABLE_CLAUDE_CODE: '1',
-    OPENCODE_DISABLE_PROJECT_CONFIG: '1',
-    OPENCODE_DISABLE_EXTERNAL_SKILLS: '1',
-    OPENCODE_DISABLE_LSP_DOWNLOAD: '1',
-    OPENCODE_DISABLE_MODELS_FETCH: '1',
-});
 export const BASE_ENV = Object.freeze([
     'PATH', 'Path', 'SystemRoot', 'SYSTEMROOT', 'windir', 'ComSpec', 'PATHEXT', 'ProgramData', 'ProgramFiles', 'ProgramFiles(x86)',
     'NUMBER_OF_PROCESSORS', 'PROCESSOR_ARCHITECTURE', 'OS', 'SystemDrive', 'LANG', 'LC_ALL', 'TZ',
@@ -66,7 +62,7 @@ const MODEL_PATTERN = /^[A-Za-z0-9._:/-]{1,80}$/;
 export const info = {
     id: 'story-orchestrator-harness',
     name: 'Story Orchestrator harness',
-    description: 'Answers Story Orchestrator passes through Claude Code, Codex or opencode on this machine, text in and text out, with tools off. Off until a role is routed to it.',
+    description: 'Answers Story Orchestrator passes through Claude Code, Codex or opencode on this machine (opencode through its own client and background service), text in and text out, with tools off. Off until a role is routed to it.',
 };
 
 const isRecord = (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -139,11 +135,10 @@ export function resolveBinary(harness, { configured = null, env = process.env, p
 
 export function realLoginFile(harness, env = process.env, home = os.homedir()) {
     if (harness === 'claude') return path.join(env.CLAUDE_CONFIG_DIR || path.join(home, '.claude'), '.credentials.json');
-    if (harness === 'codex') return path.join(env.CODEX_HOME || path.join(home, '.codex'), 'auth.json');
-    return path.join(env.XDG_DATA_HOME || path.join(home, '.local', 'share'), 'opencode', 'auth.json');
+    return path.join(env.CODEX_HOME || path.join(home, '.codex'), 'auth.json');
 }
 
-const LOGIN_DEST = { claude: ['config', '.credentials.json'], codex: ['config', 'auth.json'], opencode: ['data', 'opencode', 'auth.json'] };
+const LOGIN_DEST = { claude: ['config', '.credentials.json'], codex: ['config', 'auth.json'] };
 
 const jwtExpiry = (token) => {
     try {
@@ -153,9 +148,7 @@ const jwtExpiry = (token) => {
     }
 };
 
-export const modelProvider = (model) => (typeof model === 'string' && model.includes('/') ? model.slice(0, model.indexOf('/')) : null);
-
-export function loginFreshness(harness, file, { now = Date.now(), minMinutes = LIMITS.loginMinMinutes, readFile = fs.readFileSync, providers = null } = {}) {
+export function loginFreshness(harness, file, { now = Date.now(), minMinutes = LIMITS.loginMinMinutes, readFile = fs.readFileSync } = {}) {
     let parsed;
     try {
         parsed = JSON.parse(readFile(file, 'utf8'));
@@ -169,28 +162,15 @@ export function loginFreshness(harness, file, { now = Date.now(), minMinutes = L
         if (!isRecord(oauth)) return { loggedIn: false, fresh: false, reason: 'no subscription login in the saved file (API keys are not used)' };
         return oauth.expiresAt > floor ? { loggedIn: true, fresh: true, reason: null } : { loggedIn: true, fresh: false, reason: stale };
     }
-    if (harness === 'codex') {
-        if (!isRecord(parsed?.tokens)) return { loggedIn: false, fresh: false, reason: 'no ChatGPT login in the saved file (API keys are not used)' };
-        const age = now - Date.parse(parsed.last_refresh ?? '');
-        if (!(jwtExpiry(parsed.tokens.access_token) > floor)) return { loggedIn: true, fresh: false, reason: stale };
-        if (!(age < 7 * 86_400_000)) return { loggedIn: true, fresh: false, reason: `the saved login was last refreshed over 7 days ago: run \`codex\` once in a terminal on this machine` };
-        return { loggedIn: true, fresh: true, reason: null };
-    }
-    const oauth = Object.entries(isRecord(parsed) ? parsed : {}).filter(([name, entry]) => entry?.type === 'oauth' && (!providers || providers.includes(name)));
-    if (!oauth.length) return { loggedIn: false, fresh: false, reason: providers ? `no subscription (oauth) login for ${providers.join(', ')} in the saved file` : 'no subscription (oauth) login in the saved file' };
-    return oauth.every(([, entry]) => entry.expires > floor) ? { loggedIn: true, fresh: true, reason: null } : { loggedIn: true, fresh: false, reason: stale };
+    if (!isRecord(parsed?.tokens)) return { loggedIn: false, fresh: false, reason: 'no ChatGPT login in the saved file (API keys are not used)' };
+    const age = now - Date.parse(parsed.last_refresh ?? '');
+    if (!(jwtExpiry(parsed.tokens.access_token) > floor)) return { loggedIn: true, fresh: false, reason: stale };
+    if (!(age < 7 * 86_400_000)) return { loggedIn: true, fresh: false, reason: `the saved login was last refreshed over 7 days ago: run \`codex\` once in a terminal on this machine` };
+    return { loggedIn: true, fresh: true, reason: null };
 }
 
 const digest = (bytes) => crypto.createHash('sha256').update(bytes).digest('hex');
 const sha256 = (file, readFile = fs.readFileSync) => digest(readFile(file));
-
-export function ownedLoginCopy(harness, text, model) {
-    if (harness !== 'opencode') return text;
-    const provider = modelProvider(model);
-    const parsed = JSON.parse(text);
-    const entry = provider && isRecord(parsed) ? parsed[provider] : null;
-    return JSON.stringify(entry?.type === 'oauth' ? { [provider]: entry } : {});
-}
 
 export const OWNER_MARKER = '.so-owner.json';
 export const UNMARKED_STALE_MS = 24 * 3_600_000;
@@ -206,7 +186,7 @@ export function pidAlive(pid) {
     }
 }
 
-export function openOwnedHome(harness, { tmpRoot, loginFile, model = null, cacheDir = null, fsImpl = fs, pid = process.pid }) {
+export function openOwnedHome(harness, { tmpRoot, loginFile, fsImpl = fs, pid = process.pid }) {
     fsImpl.mkdirSync(path.join(tmpRoot, 'calls'), { recursive: true });
     const root = fsImpl.mkdtempSync(path.join(tmpRoot, 'calls', `${harness}-`));
     try {
@@ -217,18 +197,14 @@ export function openOwnedHome(harness, { tmpRoot, loginFile, model = null, cache
             dirs[name] = path.join(root, name);
             fsImpl.mkdirSync(dirs[name], { recursive: true });
         }
-        if (cacheDir) {
-            fsImpl.mkdirSync(cacheDir, { recursive: true });
-            dirs.cache = cacheDir;
-        }
         for (const name of ['AppData/Roaming', 'AppData/Local']) fsImpl.mkdirSync(path.join(dirs.home, name), { recursive: true });
+        if (!loginFile) return { ...dirs, loginFile: null, copy: null, before: null, copyBefore: null };
         const real = fsImpl.readFileSync(loginFile);
         const before = digest(real);
         const copy = path.join(root, ...LOGIN_DEST[harness]);
         fsImpl.mkdirSync(path.dirname(copy), { recursive: true });
-        const copied = harness === 'opencode' ? ownedLoginCopy(harness, real.toString('utf8'), model) : real;
-        fsImpl.writeFileSync(copy, copied);
-        return { ...dirs, loginFile, copy, before, copyBefore: digest(copied) };
+        fsImpl.writeFileSync(copy, real);
+        return { ...dirs, loginFile, copy, before, copyBefore: before };
     } catch (error) {
         openHomes.delete(root);
         try { fsImpl.rmSync(root, RM_RETRY); } catch { /* reported by the caller's error */ }
@@ -238,16 +214,18 @@ export function openOwnedHome(harness, { tmpRoot, loginFile, model = null, cache
 
 export function closeOwnedHome(home, fsImpl = fs) {
     const report = { copyRewritten: false, realChanged: false, removed: false };
-    try {
-        report.copyRewritten = fsImpl.existsSync(home.copy) && sha256(home.copy, fsImpl.readFileSync) !== (home.copyBefore ?? home.before);
-    } catch {
-        report.copyRewritten = false;
-    }
-    try { fsImpl.rmSync(home.copy, { force: true }); } catch { /* removed with the root below */ }
-    try {
-        report.realChanged = sha256(home.loginFile, fsImpl.readFileSync) !== home.before;
-    } catch {
-        report.realChanged = true;
+    if (home.copy) {
+        try {
+            report.copyRewritten = fsImpl.existsSync(home.copy) && sha256(home.copy, fsImpl.readFileSync) !== (home.copyBefore ?? home.before);
+        } catch {
+            report.copyRewritten = false;
+        }
+        try { fsImpl.rmSync(home.copy, { force: true }); } catch { /* removed with the root below */ }
+        try {
+            report.realChanged = sha256(home.loginFile, fsImpl.readFileSync) !== home.before;
+        } catch {
+            report.realChanged = true;
+        }
     }
     openHomes.delete(home.root);
     try { fsImpl.rmSync(home.root, RM_RETRY); } catch { report.removed = false; }
@@ -305,22 +283,8 @@ export function childEnv(harness, home, parent = process.env) {
     if (/^[A-Za-z]:/.test(home.home)) Object.assign(env, { HOMEDRIVE: home.home.slice(0, 2), HOMEPATH: home.home.slice(2) });
     if (harness === 'claude') env.CLAUDE_CONFIG_DIR = home.config;
     if (harness === 'codex') env.CODEX_HOME = home.config;
-    if (harness === 'opencode') {
-        Object.assign(env, OPENCODE_QUIET, {
-            XDG_CONFIG_HOME: home.config,
-            XDG_DATA_HOME: home.data,
-            XDG_CACHE_HOME: home.cache,
-            XDG_STATE_HOME: home.state,
-            OPENCODE_CONFIG_CONTENT: opencodeAgent(home.systemFile),
-        });
-    }
     return env;
 }
-
-export const opencodeAgent = (systemFile) => JSON.stringify({
-    $schema: 'https://opencode.ai/config.json',
-    agent: { 'so-text': { mode: 'primary', prompt: `{file:${systemFile}}`, tools: { '*': false }, permission: { edit: 'deny', bash: 'deny', webfetch: 'deny' } } },
-});
 
 export function buildArgv(harness, { model, effort = null, systemFile, cwd }) {
     const level = EFFORTS.includes(effort) ? effort : null;
@@ -333,7 +297,7 @@ export function buildArgv(harness, { model, effort = null, systemFile, cwd }) {
             ...CODEX_TOOL_FEATURES.flatMap((feature) => ['--disable', feature]), ...(model === 'default' ? [] : ['-m', model]),
             ...(level ? ['-c', `model_reasoning_effort="${level}"`] : [])];
     }
-    return ['run', '--pure', '--format', 'json', '--agent', 'so-text', '-m', model, '--dir', cwd, ...(level ? ['--variant', level] : [])];
+    throw new Error(`${harness} has no command line: opencode runs through its client library`);
 }
 
 export const stdinFor = (harness, { system, prompt }) => (harness === 'codex' ? `${system}\n\n${prompt}` : prompt);
@@ -385,31 +349,7 @@ export function parseOutput(harness, stdout) {
             parsed: events.length > 0,
         };
     }
-    const finishes = events.filter((event) => event.type === 'step_finish').map((event) => event.part ?? {});
-    const tokens = finishes.map((part) => part.tokens).filter(isRecord);
-    const errors = events.filter((event) => event.type === 'error').map((event) => {
-        const error = event.error ?? {};
-        return { status: error.data?.statusCode ?? error.statusCode ?? null, message: String(error.data?.message ?? error.message ?? error.name ?? 'error') };
-    });
-    return {
-        text: events.filter((event) => event.type === 'text').map((event) => event.part?.text ?? '').join(''),
-        finish: finishes.length ? finishOf(finishes[finishes.length - 1].reason) : 'unknown',
-        usage: tokens.length ? { input: tokens.reduce((sum, row) => sum + (row.input ?? 0) + (row.cache?.read ?? 0), 0), output: tokens.reduce((sum, row) => sum + (row.output ?? 0), 0), costUsd: null } : null,
-        errors,
-        toolEvents: events.filter((event) => /tool/i.test(event.type) || /tool/i.test(event.part?.type ?? '')).length,
-        parsed: events.length > 0,
-    };
-}
-
-const AUTH_TEXT = /not logged in|please run \/login|401|unauthori[sz]ed|authenticat|invalid (api key|token)|oauth token|login required|403 forbidden/i;
-const QUOTA_TEXT = /usage limit|rate.?limit|\b429\b|quota|insufficient balance|limit reached|too many requests/i;
-const NETWORK_TEXT = /ECONNREFUSED|ECONNRESET|ENOTFOUND|EAI_AGAIN|ETIMEDOUT|certificate|self.signed|unable to verify|proxy|tls|socket hang up/i;
-
-export function readRetryAt(text, now = Date.now()) {
-    const match = /(?:try again|resets?|available again)\s+(?:at|on|after)\s+([^.\n)]+)/i.exec(text);
-    if (!match) return null;
-    const at = Date.parse(match[1].replace(/(\d)(st|nd|rd|th)\b/g, '$1').replace(/\s+\([^)]*\)/, '').trim());
-    return Number.isFinite(at) && at > now ? at : null;
+    return { text: '', finish: 'unknown', usage: null, errors: [], toolEvents: 0, parsed: false };
 }
 
 export function classify(harness, run, { maxOutputChars, now = Date.now() } = {}) {
@@ -605,7 +545,7 @@ export async function readTextBody(request, limit = LIMITS.maxBodyBytes) {
 
 export function validateComplete(body, config) {
     if (!isRecord(body)) return { issue: 'body must be a JSON object', kind: 'config' };
-    const { requestId, harness, model, role, system, prompt, timeoutMs, maxOutputChars, effort } = body;
+    const { requestId, harness, model, role, system, prompt, timeoutMs, maxOutputChars, effort, images } = body;
     if (typeof requestId !== 'string' || !ID_PATTERN.test(requestId)) return { issue: 'requestId must be 1-64 of [A-Za-z0-9_-]', kind: 'config' };
     if (!HARNESS_IDS.includes(harness)) return { issue: `unknown harness ${String(harness)}`, kind: 'config' };
     if (typeof role !== 'string' || !ROLE_PATTERN.test(role)) return { issue: 'role must be a role id', kind: 'config' };
@@ -618,7 +558,9 @@ export function validateComplete(body, config) {
     if (!Number.isInteger(timeoutMs) || timeoutMs < LIMITS.minTimeoutMs || timeoutMs > LIMITS.maxTimeoutMs) return { issue: `timeoutMs must be ${LIMITS.minTimeoutMs}-${LIMITS.maxTimeoutMs}`, kind: 'config' };
     if (!Number.isInteger(maxOutputChars) || maxOutputChars < 1 || maxOutputChars > LIMITS.maxOutputChars) return { issue: `maxOutputChars must be 1-${LIMITS.maxOutputChars}`, kind: 'config' };
     if (effort !== undefined && effort !== null && !EFFORTS.includes(effort)) return { issue: `effort must be one of ${EFFORTS.join(', ')}`, kind: 'config' };
-    return { issue: null, value: { requestId, harness, model, role, system, prompt, timeoutMs, maxOutputChars, effort: effort ?? null } };
+    if (images !== undefined && harness !== 'opencode') return { issue: 'images are carried by the opencode harness only', kind: 'config' };
+    if (images !== undefined && (!Array.isArray(images) || images.length > LIMITS.maxImages)) return { issue: `images must be a list of at most ${LIMITS.maxImages}`, kind: 'refused' };
+    return { issue: null, value: { requestId, harness, model, role, system, prompt, timeoutMs, maxOutputChars, effort: effort ?? null, ...(images?.length ? { images } : {}) } };
 }
 
 const readVersion = (bin, spawnImpl, killTree) => runProcess({ bin, argv: ['--version'], env: { PATH: process.env.PATH ?? process.env.Path ?? '', SystemRoot: process.env.SystemRoot ?? '' }, cwd: os.tmpdir(), stdin: '', deadlineMs: LIMITS.versionTimeoutMs, maxOutputChars: 2000, spawnImpl, killTree })
@@ -634,9 +576,11 @@ export function createHarnessService({
     now = Date.now,
     log = (line) => console.log(`[story-orchestrator-harness] ${line}`),
     bridge = {},
+    opencode = {},
 } = {}) {
     const gate = createGate(config);
     const inFlight = new Map();
+    const pending = new Set();
     const state = Object.fromEntries(HARNESS_IDS.map((id) => [id, { spawns: 0, quotaUntil: null, quotaHeld: false, blocked: null, blockedHash: null, copyRewrites: 0, leakedHomes: 0 }]));
     const holdMs = quotaHoldMs(env);
     const noteQuota = (harness, retryAt) => {
@@ -646,19 +590,22 @@ export function createHarnessService({
         state[harness].quotaHeld = !retryAt;
     };
     let probed = null;
-    const cacheDir = path.join(config.tmpRoot, 'opencode-cache');
-    const warmMarker = path.join(cacheDir, '.so-warm');
     const loginFileOf = (harness) => config.harnesses[harness].loginFile ?? realLoginFile(harness, env, home);
     const swept = sweepCalls(config.tmpRoot, fsImpl);
     if (swept.swept || swept.left || swept.kept) log(JSON.stringify({ sweptHomes: swept.swept, leftHomes: swept.left, keptHomes: swept.kept }));
 
-    const providersOf = (harness, model = null) => {
-        if (harness !== 'opencode') return null;
-        const models = model ? [model] : config.harnesses[harness].models.map((entry) => entry.id);
-        return [...new Set(models.map(modelProvider).filter(Boolean))];
-    };
+    const transport = createOpencodeTransport({
+        config,
+        env,
+        fsImpl,
+        now,
+        log,
+        binary: () => probed?.rows.opencode?.binary.path ?? null,
+        alive: pidAlive,
+        ...opencode,
+    });
 
-    const freshness = (harness, model = null) => loginFreshness(harness, loginFileOf(harness), { now: now(), minMinutes: config.loginMinMinutes, readFile: fsImpl.readFileSync, providers: providersOf(harness, model) });
+    const freshness = (harness) => loginFreshness(harness, loginFileOf(harness), { now: now(), minMinutes: config.loginMinMinutes, readFile: fsImpl.readFileSync });
 
     const realHash = (harness) => {
         try {
@@ -705,25 +652,36 @@ export function createHarnessService({
         return probed;
     };
 
-    const harnessStatus = (harness, admin) => {
+    const opencodeLogin = (view) => {
+        if (!view) return { loginState: 'unchecked', loginAction: null, loggedIn: null, fresh: false, loginProblem: null, service: null, serviceVersion: null, clientInstalled: null };
+        const base = { service: view.service, serviceVersion: view.serviceVersion, clientInstalled: view.client !== 'missing' };
+        if (view.problem) return { ...base, loginState: view.problemState === 'unpaired' ? 'unpaired' : 'unavailable', loginAction: null, loggedIn: null, fresh: false, loginProblem: view.problem };
+        const logins = Object.values(view.logins);
+        const bad = logins.find((login) => login.state === 'unpaired') ?? logins.find((login) => login.state === 'expired');
+        if (bad) return { ...base, loginState: bad.state, loginAction: bad.action, loggedIn: false, fresh: false, loginProblem: bad.message };
+        if (view.service !== 'running') return { ...base, loginState: 'unchecked', loginAction: null, loggedIn: null, fresh: true, loginProblem: null };
+        return { ...base, loginState: 'ok', loginAction: null, loggedIn: true, fresh: true, loginProblem: null };
+    };
+
+    const modelRows = (harness, view) => config.harnesses[harness].models.map((model) => {
+        const seen = harness === 'opencode' ? view?.models.get(model.id) : null;
+        if (!seen) return { ...model };
+        return { ...model, ...(seen.context ? { context: Math.min(model.context, seen.context) } : {}), available: seen.available, ...(seen.image === null ? {} : { image: seen.image }) };
+    });
+
+    const harnessStatus = (harness, admin, view) => {
         const entry = config.harnesses[harness];
         const row = probed?.rows[harness] ?? { binary: { path: null, error: 'not probed yet' }, version: null };
-        const login = entry.offer ? freshness(harness) : { loggedIn: null, fresh: false, reason: null };
-        const blocked = entry.offer ? heldFor(harness) : null;
         const counts = gate.counts(harness);
         const quotaUntil = state[harness].quotaUntil && state[harness].quotaUntil > now() ? state[harness].quotaUntil : null;
-        return {
+        const common = {
             installed: Boolean(row.binary.path),
             version: row.version,
             ...(admin ? { path: row.binary.path } : {}),
             problem: row.binary.error,
-            loggedIn: login.loggedIn,
-            fresh: login.fresh,
-            loginProblem: blocked ?? login.reason,
-            blocked,
             offered: entry.offer,
             isolation: PHASE0[harness],
-            models: entry.models.map((model) => ({ ...model })),
+            models: modelRows(harness, entry.offer ? view : null),
             concurrency: entry.concurrency,
             queueLimit: entry.queueLimit,
             running: counts.running,
@@ -731,30 +689,39 @@ export function createHarnessService({
             spawns: state[harness].spawns,
             leakedHomes: state[harness].leakedHomes,
             quotaUntil,
-            ...(harness === 'opencode' ? { cacheWarm: fsImpl.existsSync(warmMarker) } : {}),
             agentBridge: entry.offer && BRIDGE_HARNESSES.includes(harness),
         };
+        if (harness === 'opencode') {
+            const login = opencodeLogin(entry.offer ? view : null);
+            return { ...common, ...login, blocked: null, clientVersion: OPENCODE_CLIENT.version, leakedSessions: transport.state.leakedSessions };
+        }
+        const login = entry.offer ? freshness(harness) : { loggedIn: null, fresh: false, reason: null };
+        const blocked = entry.offer ? heldFor(harness) : null;
+        return { ...common, loggedIn: login.loggedIn, fresh: login.fresh, loginProblem: blocked ?? login.reason, blocked };
     };
 
     const status = async ({ refresh = false, admin = false } = {}) => {
         if (!probed || refresh) await probe();
+        const view = config.harnesses.opencode.offer ? await transport.inspect({ force: refresh }) : null;
         return {
             pluginVersion: PLUGIN_VERSION,
             allowNonAdmin: config.allowNonAdmin,
-            harnesses: Object.fromEntries(HARNESS_IDS.map((harness) => [harness, harnessStatus(harness, admin)])),
+            harnesses: Object.fromEntries(HARNESS_IDS.map((harness) => [harness, harnessStatus(harness, admin, view)])),
         };
     };
 
-    const preconditions = (request, { warming = false } = {}) => {
+    const preconditions = async (request) => {
         const { harness } = request;
         const entry = config.harnesses[harness];
         const row = probed?.rows[harness];
         if (!entry.offer) return { kind: 'config', message: `${harness} is not offered on this install (Phase 0: ${PHASE0[harness]}); the host owner turns it on in the plugin's config.json` };
         if (!row?.binary.path) return { kind: 'config', message: `${harness} is not installed on the machine running SillyTavern (${row?.binary.error ?? 'not probed'})` };
-        const held = heldFor(harness);
-        if (held) return { kind: 'auth', message: held };
-        const login = freshness(harness, request.model ?? null);
-        if (!login.fresh) return { kind: 'auth', message: `${harness}: ${login.reason}` };
+        if (harness !== 'opencode') {
+            const held = heldFor(harness);
+            if (held) return { kind: 'auth', message: held };
+            const login = freshness(harness);
+            if (!login.fresh) return { kind: 'auth', message: `${harness}: ${login.reason}` };
+        }
         if (state[harness].quotaUntil && state[harness].quotaUntil > now()) {
             const until = new Date(state[harness].quotaUntil).toISOString();
             const message = state[harness].quotaHeld
@@ -762,16 +729,18 @@ export function createHarnessService({
                 : `${harness} reported its usage limit until ${until}`;
             return { kind: 'quota', message, retryAt: state[harness].quotaUntil };
         }
-        if (harness === 'opencode' && !warming && !fsImpl.existsSync(warmMarker)) {
-            return { kind: 'config', message: 'opencode\'s model cache is not warmed yet: the host owner runs the warm-up once (POST /warm, admin), which is the only call that may contact opencode\'s catalog' };
+        if (harness === 'opencode') {
+            const checked = await transport.ready(request.model ?? entry.models[0].id, { images: request.images });
+            if (!checked.ok) return { kind: checked.kind, message: checked.message, ...(checked.loginState ? { loginState: checked.loginState } : {}) };
         }
         return null;
     };
 
-    const execute = async (request, { signal = null, user = 'default-user', warming = false } = {}) => {
+    const execute = async (request, { signal = null, user = 'default-user' } = {}) => {
         const arrived = now();
+        if (signal?.aborted) return { ok: false, kind: 'lapsed', message: 'the request was cancelled' };
         if (!probed) await probe();
-        const blocked = preconditions(request, { warming });
+        const blocked = await preconditions(request);
         if (blocked) return { ok: false, ...blocked };
         const key = `${user}|${request.harness}|${request.role}`;
         const acquired = gate.acquire(request.harness, key, signal);
@@ -782,16 +751,19 @@ export function createHarnessService({
         try {
             const remaining = request.timeoutMs - LIMITS.deadlineMarginMs - (now() - arrived);
             if (remaining <= 0) return { ok: false, kind: 'timeout', message: `${request.harness} waited in the queue past its deadline` };
-            owned = openOwnedHome(request.harness, { tmpRoot: config.tmpRoot, loginFile: loginFileOf(request.harness), model: request.model, cacheDir: request.harness === 'opencode' ? cacheDir : null, fsImpl });
+            state[request.harness].spawns += 1;
+            if (request.harness === 'opencode') {
+                const outcome = await transport.complete(request, { signal, deadlineMs: request.timeoutMs - LIMITS.deadlineMarginMs, startedAt: arrived, user });
+                if (outcome.kind === 'quota') noteQuota('opencode', outcome.retryAt ?? null);
+                return { ...outcome, model: request.model, ms: now() - arrived };
+            }
+            owned = openOwnedHome(request.harness, { tmpRoot: config.tmpRoot, loginFile: loginFileOf(request.harness), fsImpl });
             owned.systemFile = path.join(owned.tmp, 'system.txt');
             fsImpl.writeFileSync(owned.systemFile, request.system, 'utf-8');
-            const childEnvironment = childEnv(request.harness, owned, env);
-            if (warming) delete childEnvironment.OPENCODE_DISABLE_MODELS_FETCH;
-            state[request.harness].spawns += 1;
             const run = await runProcess({
                 bin: probed.rows[request.harness].binary.path,
                 argv: buildArgv(request.harness, { model: request.model, effort: request.effort, systemFile: owned.systemFile, cwd: owned.cwd }),
-                env: childEnvironment,
+                env: childEnv(request.harness, owned, env),
                 cwd: owned.cwd,
                 stdin: stdinFor(request.harness, request),
                 deadlineMs: remaining,
@@ -817,11 +789,15 @@ export function createHarnessService({
         inFlight.set(key, entry);
         const onAbort = () => entry.controller.abort();
         options.signal?.addEventListener('abort', onAbort);
+        if (options.signal?.aborted) onAbort();
+        const work = execute(request, { signal: entry.controller.signal, user: entry.user });
+        pending.add(work);
         try {
-            const answer = await execute(request, { signal: entry.controller.signal, user: entry.user });
+            const answer = await work;
             log(JSON.stringify({ harness: request.harness, model: request.model, ms: answer.ms ?? null, usage: answer.usage ?? null, kind: answer.ok ? 'ok' : answer.kind }));
             return answer;
         } finally {
+            pending.delete(work);
             options.signal?.removeEventListener('abort', onAbort);
             if (inFlight.get(key) === entry) inFlight.delete(key);
         }
@@ -834,32 +810,18 @@ export function createHarnessService({
         return true;
     };
 
-    const warm = async () => {
-        if (!probed) await probe();
-        const model = config.harnesses.opencode.models[0].id;
-        const answer = await execute({ requestId: 'warm', harness: 'opencode', model, role: 'warm', system: 'Reply with exactly: PONG', prompt: 'Reply now.', timeoutMs: 120_000, maxOutputChars: 200, effort: null }, { warming: true });
-        if (answer.ok) fsImpl.writeFileSync(warmMarker, new Date(now()).toISOString(), 'utf-8');
-        return answer.ok ? { ok: true } : answer;
-    };
-
     const agent = createAgentBridge({
         config,
-        env,
-        spawnImpl,
-        killTree,
         fsImpl,
         now,
-        limits: LIMITS,
-        helpers: { openOwnedHome, closeOwnedHome, childEnv, runProcess, classify },
+        helpers: { openOwnedHome, closeOwnedHome },
         host: {
-            ready: async (harness, model = null) => {
+            ready: async (harness, model = null, images = undefined) => {
                 if (!probed) await probe();
-                return preconditions({ harness, model });
+                return preconditions({ harness, model, images });
             },
             reserve: (harness) => gate.tryAcquire(harness),
-            binary: (harness) => probed.rows[harness].binary.path,
-            loginFile: loginFileOf,
-            cacheDir,
+            startRun: (args) => transport.runAgent(args),
             noteSpawn: (harness) => { state[harness].spawns += 1; },
             log: (line) => log(`agent ${line}`),
             noteQuota,
@@ -868,12 +830,13 @@ export function createHarnessService({
         ...bridge,
     });
 
-    const shutdown = () => {
+    const shutdown = async () => {
         for (const entry of inFlight.values()) entry.controller.abort();
-        return agent.shutdown();
+        await agent.shutdown();
+        await Promise.allSettled([...pending]);
     };
 
-    return { status, complete, cancel, warm, shutdown, probe, gate, state, agent };
+    return { status, complete, cancel, shutdown, probe, gate, state, agent, transport, sweep: () => transport.sweepSessions() };
 }
 
 export function guardRoute(handler, log = (line) => console.error(`[story-orchestrator-harness] ${line}`)) {
@@ -899,10 +862,10 @@ export function guardRoute(handler, log = (line) => console.error(`[story-orches
 const userHandle = (request) => request?.user?.profile?.handle ?? 'default-user';
 
 export function createHandlers(service, config) {
-    const entry = async (request, response, run) => {
+    const entry = async (request, response, run, limit = LIMITS.maxBodyBytes) => {
         const blocked = guardRequest(request) ?? mayCall(request, config);
         if (blocked) return response.status(blocked.status).json({ error: blocked.error });
-        const read = await readTextBody(request);
+        const read = await readTextBody(request, limit);
         if (read.error) return response.status(read.status).json({ error: read.error });
         return run(read.body);
     };
@@ -920,18 +883,12 @@ export function createHandlers(service, config) {
                 response.on?.('close', () => { if (!response.writableFinished) controller.abort(); });
                 const answer = await service.complete(checked.value, { signal: controller.signal, user: userHandle(request) });
                 return answer.kind === 'busy' ? response.status(429).json(answer) : response.json(answer);
-            });
+            }, LIMITS.maxImageBodyBytes);
         },
         cancel(request, response) {
             return entry(request, response, async (body) => {
                 const requestId = isRecord(body) && typeof body.requestId === 'string' ? body.requestId : '';
                 return response.json({ cancelled: service.cancel(requestId, userHandle(request)) });
-            });
-        },
-        warm(request, response) {
-            return entry(request, response, async () => {
-                if (!isAdmin(request)) return response.status(403).json({ error: 'the warm-up is admin-only' });
-                return response.json(await service.warm());
             });
         },
         agentOpen(request, response) {
@@ -940,7 +897,7 @@ export function createHandlers(service, config) {
                 if (checked.issue) return response.json({ ok: false, kind: checked.kind, message: checked.issue });
                 const opened = await service.agent.open(checked.value, { user: userHandle(request) });
                 return opened.kind === 'busy' ? response.status(429).json(opened) : response.json(opened);
-            });
+            }, LIMITS.maxImageBodyBytes);
         },
         agentNext(request, response) {
             return entry(request, response, async (body) => {
@@ -976,12 +933,12 @@ export async function init(router) {
     router.get('/status', guardRoute(handlers.status));
     router.post('/complete', guardRoute(handlers.complete));
     router.post('/cancel', guardRoute(handlers.cancel));
-    router.post('/warm', guardRoute(handlers.warm));
     router.post('/agent/open', guardRoute(handlers.agentOpen));
     router.post('/agent/next', guardRoute(handlers.agentNext));
     router.post('/agent/answer', guardRoute(handlers.agentAnswer));
     router.post('/agent/close', guardRoute(handlers.agentClose));
     const offered = HARNESS_IDS.filter((id) => config.harnesses[id].offer);
+    if (config.harnesses.opencode.offer) void service.sweep();
     console.log(`[story-orchestrator-harness] loaded; offered: ${offered.length ? offered.join(', ') : 'none (config.json)'}; admin-only: ${!config.allowNonAdmin}`);
 }
 

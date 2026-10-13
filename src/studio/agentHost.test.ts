@@ -56,6 +56,8 @@ describe("the Studio's agent host (v2.6 plan 04 agent bridge)", () => {
     expect(down?.refusal).toContain("does not fall back to the local profile");
     const held = await resolveAgentHarness(deps(true, true, { pluginVersion: "1", harnesses: { opencode: { ...row(true), blocked: "opencode's real login file changed" } } }));
     expect(held?.refusal).toContain("real login file changed");
+    const expired = await resolveAgentHarness(deps(true, true, { pluginVersion: "1", harnesses: { opencode: { ...row(true), fresh: false, loggedIn: false, loginState: "expired", loginProblem: "OpenCode reports its OpenAI sign-in has expired: run `opencode auth login`" } } }));
+    expect(expired?.refusal).toContain("sign-in has expired: run `opencode auth login`");
     const unlisted = await resolveAgentHarness(deps(true, true, { pluginVersion: "1", harnesses: { opencode: { ...row(true), models: [] } } }));
     expect(unlisted?.refusal).toContain("does not list the model");
   });

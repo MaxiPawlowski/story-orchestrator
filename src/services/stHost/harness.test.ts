@@ -64,6 +64,27 @@ describe("H3: the host seam to the harness plugin", () => {
     expect((await fetchHarnessStatus())?.harnesses.opencode?.blocked).toBe("opencode's real login file changed during a call");
   });
 
+  it("reads the OpenCode login state, service and per-model image input, and drops what it does not know", async () => {
+    globalThis.fetch = jest.fn(async () => json(200, { pluginVersion: "2.0.0", harnesses: { opencode: {
+      installed: true, offered: true, fresh: false, loggedIn: false, loginState: "expired", loginAction: "sign-in-again", loginProblem: "run `opencode auth login`", service: "running", serviceVersion: "2.0.6", clientInstalled: true,
+      models: [{ id: "openai/gpt-6.1-sol", context: 200000, image: true, available: true }, { id: "openai/gpt-6-luna", context: 128000, image: "yes" }],
+    } } })) as unknown as typeof fetch;
+    const row = (await fetchHarnessStatus(true))?.harnesses.opencode;
+    expect(row).toMatchObject({ loginState: "expired", loginAction: "sign-in-again", service: "running", serviceVersion: "2.0.6", clientInstalled: true, loginProblem: "run `opencode auth login`" });
+    expect(row?.models).toEqual([{ id: "openai/gpt-6.1-sol", context: 200000, image: true, available: true }, { id: "openai/gpt-6-luna", context: 128000 }]);
+    globalThis.fetch = jest.fn(async () => json(200, { pluginVersion: "2.0.0", harnesses: { opencode: { installed: true, offered: true, fresh: true, loginState: "wrong", models: [] } } })) as unknown as typeof fetch;
+    expect((await fetchHarnessStatus(true))?.harnesses.opencode?.loginState).toBeUndefined();
+  });
+
+  it("sends the images of a vision request and nothing when there are none", async () => {
+    const bodies: Array<Record<string, unknown>> = [];
+    globalThis.fetch = jest.fn(async (_url: string, init: RequestInit) => { bodies.push(JSON.parse(String(init.body)) as Record<string, unknown>); return json(200, { ok: true, text: "seen", finish: "stop" }); }) as unknown as typeof fetch;
+    await sendHarnessRequest({ ...request, harness: "opencode", model: "openai/gpt-6.1-sol", images: [{ data: "QUJD", mime: "image/png", description: "panel" }] });
+    await sendHarnessRequest({ ...request, harness: "opencode", model: "openai/gpt-6.1-sol", images: [] });
+    expect(bodies[0].images).toEqual([{ data: "QUJD", mime: "image/png", description: "panel" }]);
+    expect("images" in bodies[1]).toBe(false);
+  });
+
   it("reads the status rows it knows and drops the rest", async () => {
     globalThis.fetch = jest.fn(async () => json(200, { pluginVersion: "1.0.0", harnesses: { claude: { installed: true, offered: true, fresh: false, loginProblem: "run `claude` once", models: [{ id: "haiku", context: 200000 }, { bad: 1 }] }, gemini: {} } })) as unknown as typeof fetch;
     const status = await fetchHarnessStatus(true);

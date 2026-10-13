@@ -193,12 +193,16 @@ describe("H3: a harness breaker is probed by status, never by a model call", () 
 describe("review fixes CR-J (harness routing)", () => {
   const row = (extra: Record<string, unknown> = {}) => ({ installed: true, offered: true, fresh: true, quotaUntil: null, models: [], ...extra });
 
-  it("CR-J6: a held harness and an unwarmed opencode cache keep the breaker open as config", async () => {
+  it("CR-J6: a held harness keeps the breaker open as config, and an expired or missing OpenCode sign-in says what to do", async () => {
     mockStatus.value = { harnesses: { opencode: row({ blocked: "opencode's real login file changed during a call" }) } };
     await expect(probeHarness("harness:opencode:openai/gpt-6-astra")).resolves.toEqual({ ok: false, kind: "config", message: "opencode's real login file changed during a call" });
-    mockStatus.value = { harnesses: { opencode: row({ cacheWarm: false }) } };
-    await expect(probeHarness("harness:opencode:openai/gpt-6-astra")).resolves.toMatchObject({ ok: false, kind: "config", message: expect.stringContaining("not warmed") });
-    mockStatus.value = { harnesses: { opencode: row({ cacheWarm: true, blocked: null }) } };
+    for (const loginState of ["expired", "unpaired", "unavailable"]) {
+      mockStatus.value = { harnesses: { opencode: row({ fresh: false, loggedIn: false, loginState, loginProblem: `next step for ${loginState}` }) } };
+      await expect(probeHarness("harness:opencode:openai/gpt-6-astra")).resolves.toEqual({ ok: false, kind: "config", message: `next step for ${loginState}` });
+    }
+    mockStatus.value = { harnesses: { opencode: row({ fresh: false, loginState: "unchecked", loginProblem: "unknown" }) } };
+    await expect(probeHarness("harness:opencode:openai/gpt-6-astra")).resolves.toMatchObject({ ok: false, kind: "transport" });
+    mockStatus.value = { harnesses: { opencode: row({ blocked: null, loginState: "ok" }) } };
     await expect(probeHarness("harness:opencode:openai/gpt-6-astra")).resolves.toEqual({ ok: true });
   });
 

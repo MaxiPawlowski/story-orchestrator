@@ -43,8 +43,10 @@
     "server-plugin/story-orchestrator-media/package.json",
     "server-plugin/story-orchestrator-media/README.md",
     "server-plugin/story-orchestrator-harness/agentBridge.mjs",
+    "server-plugin/story-orchestrator-harness/errors.mjs",
     "server-plugin/story-orchestrator-harness/index.mjs",
     "server-plugin/story-orchestrator-harness/mcpShim.mjs",
+    "server-plugin/story-orchestrator-harness/opencodeTransport.mjs",
     "server-plugin/story-orchestrator-harness/package.json",
     "server-plugin/story-orchestrator-harness/README.md"
   ],

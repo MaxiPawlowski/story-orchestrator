@@ -7,7 +7,7 @@ import { createModelCall } from "@runtime/modelCall";
 import { roleHealth } from "@runtime/roleHealth";
 import { resolvedProfileId, resolveRoute, roleHarness } from "@runtime/passProfiles";
 import { HARNESS_LABELS, harnessVendor, routeMeters, withRoleEffort, withRoleFallback, withRoleHarness } from "@runtime/roleRouteEdits";
-import { HARNESS_IDS, harnessKey, parseHarnessKey } from "@utils/harness";
+import { HARNESS_IDS, harnessKey, loginHint, parseHarnessKey } from "@utils/harness";
 import { PASS_ROLES } from "@extraction/passRole";
 import type { ReasoningEffort } from "@utils/reasoningEffort";
 import type { PassRole } from "@extraction/passRole";
@@ -27,7 +27,7 @@ export const harnessOptions = (status: HarnessStatus | null): HarnessOption[] =>
   if (!row?.installed || !row.offered) return [];
   return row.models.map((model) => ({
     key: harnessKey(harness, model.id),
-    label: `${HARNESS_LABELS[harness]} · ${model.id}${row.fresh ? "" : " (log in first)"}`,
+    label: `${HARNESS_LABELS[harness]} · ${model.id}${row.fresh ? "" : ` (${loginHint(row, "log in first")})`}`,
     vendor: harnessVendor(harness, model.id),
   }));
 });
