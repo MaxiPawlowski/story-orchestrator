@@ -3,12 +3,13 @@ export interface Keypoints { format: "openpose-body18"; canvas: [number, number]
 export interface RetargetBox { x: number; y: number; width: number; height: number }
 export interface Retarget { canvas: [number, number]; box: RetargetBox; headToHip?: number; member?: Keypoints; version?: number }
 
-export const RETARGET_VERSION = 2;
+export const RETARGET_VERSION = 3;
 
 const BONES: ReadonlyArray<readonly [number, number]> = [[1, 2], [2, 3], [3, 4], [1, 5], [5, 6], [6, 7], [1, 8], [8, 9], [9, 10], [1, 11], [11, 12], [12, 13], [1, 0],
   [0, 14], [14, 16], [0, 15], [15, 17]];
 const MIRROR: Readonly<Record<number, number>> = { 2: 5, 5: 2, 3: 6, 6: 3, 4: 7, 7: 4, 8: 11, 11: 8, 9: 12, 12: 9, 10: 13, 13: 10, 14: 15, 15: 14, 16: 17, 17: 16 };
 const HEAD_BONES: ReadonlySet<number> = new Set([0, 14, 15, 16, 17]);
+const TRUNK_PAIRS: ReadonlyArray<readonly [number, number]> = [[2, 5], [8, 11]];
 const FLOOR_TAGS: ReadonlySet<string> = new Set(["sitting", "kneeling", "lying"]);
 const DEFAULT_NECK = 0.22, DEFAULT_HIP = 0.47, DEFAULT_ANKLE = 0.9;
 const CANONICAL_NECK_TO_ANKLE = 830 / 1152;
@@ -87,6 +88,11 @@ export function retargetPose(pose: { keypoints: Keypoints; tags: readonly string
     const known = measured[child], stand = standing[child];
     if (known !== undefined && stand !== undefined && stand >= MIN_BONE) return known * Math.max(FORESHORTEN_MIN, Math.min(FORESHORTEN_MAX, length / stand));
     return length * scale;
+  });
+  if (lying) TRUNK_PAIRS.forEach(([a, b]) => {
+    const left = BONES.findIndex(([, child]) => child === a), right = BONES.findIndex(([, child]) => child === b);
+    if (lengths[left] === undefined || lengths[right] === undefined) return;
+    lengths[left] = lengths[right] = ((lengths[left] as number) + (lengths[right] as number)) / 2;
   });
   if (!member && ratio) {
     const torso = [8, 11].flatMap((child) => { const at = BONES.findIndex(([, b]) => b === child); return lengths[at] === undefined ? [] : [lengths[at] as number]; });
