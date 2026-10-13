@@ -480,6 +480,28 @@ async function poseReport(): Promise<void> {
     await fs.writeFile(dir('pose-report.json'), JSON.stringify(rounded, null, 2));
 }
 
+const bodyPrompt = (arms: string[]) => `You are an independent rater for an AI sprite pipeline. The attached contact sheet has panels left to right: "base" (the reference character), the requested pose rendered by ${arms.map((a) => `arm ${a}`).join(' and ')}, and a coloured target skeleton for that pose. Judge each arm separately from the pictures only.
+For each arm answer: same_character (true only if the hair, face, skin, outfit and colours clearly match the base; a different outfit or face is false); pose_matches (one of "yes", "partly", "no": does the figure's posture follow the target skeleton); defects (an array drawn from "extra_limb", "missing_limb", "invented_prop", "cropped", "background_not_plain", "deformed_hands", "none").
+Reply with one JSON object only, no prose, in exactly this shape: {${arms.map((a) => `"${a}":{"same_character":true,"pose_matches":"yes","defects":["none"]}`).join(',')}}`;
+
+const headPrompt = (captions: string[]) => `You are an independent rater for an AI sprite pipeline. The attached contact sheet has ${captions.length} head crops left to right, each captioned "<arm> <label>" for example "p2 happy". For each crop decide label_visible: true only if the facial expression plainly reads as the caption's emotion to a viewer who cannot see the caption. Also decide same_face_across: true if all crops show the same character.
+Reply with one JSON object only, no prose, in exactly this shape: {"crops":[${captions.map((c) => `{"caption":"${c}","label_visible":true}`).join(',')}],"same_face_across":true}`;
+
+async function rateJobs(): Promise<void> {
+    const jobs: string[] = [];
+    for (const member of Object.keys(MEMBERS)) for (const poseId of POSES) {
+        const bodies = dir('sheets', `${member}-${poseId}-bodies.png`), heads = dir('sheets', `${member}-${poseId}-heads.png`);
+        if (await exists(bodies)) jobs.push(JSON.stringify({ key: `${RUN}-s${SEED}/${member}-${poseId}-bodies`, path: bodies, prompt: bodyPrompt(ARMS_P) }));
+        if (await exists(heads)) {
+            const present: string[] = [];
+            for (const arm of ARMS_P) for (const ex of EXPRESSIONS) if (await exists(dir('heads', `${member}-${poseId}-${arm}-${ex}.png`))) present.push(`${arm} ${ex}`);
+            if (present.length) jobs.push(JSON.stringify({ key: `${RUN}-s${SEED}/${member}-${poseId}-heads`, path: heads, prompt: headPrompt(present) }));
+        }
+    }
+    await fs.writeFile(dir('jobs-pose.jsonl'), jobs.join('\n') + '\n');
+    log('pose rating jobs', jobs.length);
+}
+
 async function main(): Promise<void> {
     const [command = 'help', ...rest] = process.argv.slice(2);
     await fs.mkdir(WORK, { recursive: true });
@@ -511,6 +533,7 @@ async function main(): Promise<void> {
     if (command === 'pack') { for (const member of Object.keys(MEMBERS)) for (const view of PACK_VIEWS) await makePackImage(member, view); return; }
     if (command === 'chain') { await chain(); return; }
     if (command === 'latency') { await latency(); return; }
+    if (command === 'ratejobs') { await rateJobs(); return; }
     if (command === 'posereport') { await poseReport(); return; }
     if (command === 'packgrid') { await packGrids(); return; }
     if (command === 'chainsheets') { await chainSheets(); return; }
@@ -527,7 +550,7 @@ async function main(): Promise<void> {
         return;
     }
     if (command === 'vram-peak') { console.log(peakFromSamples(await fs.readFile(dir('vram.csv'), 'utf8')) ?? 'none'); return; }
-    console.log('commands: bases | body <m> <pose> <arm> | bodies | heads [n] | score | sheets | summary [vramGb] | quote [HH:MM] | pack | packgrid | chain | chainsheets | latency | posereport | smoke [view] [member] | vram | vram-peak');
+    console.log('commands: bases | body <m> <pose> <arm> | bodies | heads [n] | score | sheets | summary [vramGb] | quote [HH:MM] | pack | packgrid | chain | chainsheets | latency | ratejobs | posereport | smoke [view] [member] | vram | vram-peak');
     console.log('env: SO_S0_ARM b|q21|turbo|q2512, SO_S0_DIR, SO_S0_BASES, SO_S0_SEED, SO_S0_RUN, SO_S0_POSES, SO_S0_PARMS, SO_S0_PACK_MODE edit|t2i, SO_S0_ALPHA native|cutout, SO_S0_PACKDIR, SO_S0_CARDART, SO_S0_CHAIN_BASE');
 }
 

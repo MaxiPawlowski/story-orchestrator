@@ -5,7 +5,8 @@ const [jobsFile, resultsFile] = process.argv.slice(2);
 if (!jobsFile || !resultsFile) throw new Error('usage: so-pose-s0-rate.mts <jobs.jsonl> <results.jsonl> [--limit n]');
 const MODEL = 'openai/gpt-6.1-sol';
 const CONCURRENCY = Number(process.env.SO_RATE_CONCURRENCY ?? 3);
-const limit = Number(process.argv[process.argv.indexOf('--limit') + 1] || Infinity);
+const limitAt = process.argv.indexOf('--limit');
+const limit = limitAt >= 0 ? Number(process.argv[limitAt + 1]) : Infinity;
 const jobs: { key: string; path: string; prompt: string }[] = readFileSync(jobsFile, 'utf8').split('\n').filter(Boolean).map((line) => JSON.parse(line));
 const done = new Set(existsSync(resultsFile) ? readFileSync(resultsFile, 'utf8').split('\n').filter(Boolean).map((line) => JSON.parse(line)).filter((row) => row.rating).map((row) => row.key) : []);
 
