@@ -7,7 +7,22 @@ import { pathToFileURL } from 'node:url';
 
 const REPO_ROOT = resolve(import.meta.dirname, '..', '..', '..');
 
-type ReplayModule = typeof import('./j6dReplayEntry.ts');
+type Skipped = { 'not-judged': number; 'judge-failed': number };
+type Refusal = { id: string; at: string; code: string; reason: string };
+type Answered = { key: string; readAs: string | null; confidence: number | null; before: unknown; judge: { moved: boolean; value: unknown } };
+type ReplayCase = { id: string; at: string; window: { from: number; to: number }; fullPrompt: string; answered: Answered[] };
+type KeyRow = { caseId: string; run: number; key: string; class: string };
+type CompareResult = { rows: KeyRow[]; refusedReplies: Array<{ caseId: string; run: number; reason: string }>; unasked: string[] };
+type Summary = { verdict: 'rate' | 'insufficient' | 'deferred'; [field: string]: unknown };
+
+interface ReplayModule {
+  parseStoryV2OrThrow(raw: unknown): unknown;
+  readSessionArchive(files: unknown): { storyId: string; storyRaw: Record<string, unknown>; audits: unknown[] };
+  rebuildSession(session: unknown, story: unknown): { cases: ReplayCase[]; refusals: Refusal[]; skipped: Skipped; rebuiltKeys: number };
+  compareCases(input: { cases: ReplayCase[]; story: unknown; replies: unknown }): CompareResult;
+  summarizeReplay(result: CompareResult, refusals: Refusal[], rebuilt: number): Summary;
+  arbitrationSample(rows: KeyRow[]): KeyRow[];
+}
 
 let loaded: Promise<ReplayModule> | null = null;
 
