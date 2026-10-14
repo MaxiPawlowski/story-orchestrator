@@ -1,0 +1,72 @@
+{
+ "68cb556b": [
+  {
+   "text": "DELTA q=smith_trust value=1 evidence=\"The smith relaxes a little and pours tea.\"",
+   "finish": "stop"
+  },
+  {
+   "text": "DELTA q=smith_trust value=1 evidence=\"The smith relaxes a little and pours tea.\"",
+   "finish": "stop"
+  }
+ ],
+ "af2b52c6": [
+  {
+   "text": "NO_DELTA",
+   "finish": "stop"
+  },
+  {
+   "text": "DELTA q=gate_choice value=\"north\" evidence=\"Everyone agrees the north road it is.\"",
+   "finish": "stop"
+  }
+ ],
+ "af9383ab": [
+  {
+   "text": "DELTA q=has_map value=true evidence=\"The smith hands over a folded map of the hills.\"",
+   "finish": "stop"
+  },
+  {
+   "text": "DELTA q=has_map value=true evidence=\"The smith hands over a folded map of the hills.\"",
+   "finish": "stop"
+  }
+ ],
+ "e9fee0d0": [
+  {
+   "text": "DELTA q=smith_trust value=3 evidence=\"The smith laughs and calls the party friends.\"",
+   "finish": "stop"
+  },
+  {
+   "text": "DELTA q=smith_trust value=3 evidence=\"The smith laughs and calls the party friends.\"",
+   "finish": "stop"
+  }
+ ],
+ "46f4f8fd": [
+  {
+   "text": "NO_DELTA",
+   "finish": "stop"
+  },
+  {
+   "text": "DELTA q=has_map value=false evidence=\"The smith offers a second cup.\"",
+   "finish": "stop"
+  }
+ ],
+ "c6b51908": [
+  {
+   "text": "NO_DELTA",
+   "finish": "stop"
+  },
+  {
+   "text": "NO_DELTA",
+   "finish": "stop"
+  }
+ ],
+ "aae8e1c0": [
+  {
+   "text": "NO_DELTA",
+   "finish": "stop"
+  },
+  {
+   "text": "NO_DELTA",
+   "finish": "stop"
+  }
+ ]
+}

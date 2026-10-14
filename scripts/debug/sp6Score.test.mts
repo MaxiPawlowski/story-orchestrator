@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readSp6Runs, scoreSp6, type Sp6Release, type Sp6Run } from './lib/sp6Score.mts';
+import { readSp6Runs, releasedTurns, scoreSp6, type Sp6Release, type Sp6Run } from './lib/sp6Score.mts';
 
 const release = (index: number, reached: boolean | null, reply = 'The rain keeps falling on the roof while the keeper sweeps the floor.'): Sp6Release => ({
   boundary: index * 3,
@@ -70,6 +70,16 @@ test('SP6 K5: fewer than 20 measured releases pooled per arm is INCOMPLETE (13 p
 test('SP6: fewer than two runs in a cell, or fewer than 20 releases in a run, is INCOMPLETE, never PASS', () => {
   assert.equal(scoreSp6(full({ controlOff: [run('control', 'off', 0.1)] })).overall, 'INCOMPLETE');
   assert.equal(scoreSp6(full({ releaseOn: [run('release', 'on', 0.7, 1, 19), run('release', 'on', 0.7, 1)] })).overall, 'INCOMPLETE');
+});
+
+test('SP6 K3 size (X5): with turns recorded, 20 releases over 19 player turns is INCOMPLETE; without turns each release counts', () => {
+  const shared = run('release', 'on', 0.7, 1);
+  shared.releases = shared.releases.map((entry, index) => ({ ...entry, turn: index === 19 ? 18 : index }));
+  assert.equal(releasedTurns(shared), 19);
+  assert.equal(scoreSp6(full({ releaseOn: [shared, run('release', 'on', 0.7, 1)] })).overall, 'INCOMPLETE');
+  const distinct = { ...shared, releases: shared.releases.map((entry, index) => ({ ...entry, turn: index })) };
+  assert.equal(releasedTurns(distinct), 20);
+  assert.equal(releasedTurns(run('release', 'on', 0.7, 1)), 20);
 });
 
 test('SP6: the reader refuses a record that is not an SP6 run, and accepts the stored string form', () => {

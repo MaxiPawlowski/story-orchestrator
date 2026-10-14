@@ -42,7 +42,7 @@ It records current progress, source-plan links and deferred acceptance protocols
 | X2 | Send latency on the 3090: the player's line waits behind other model calls (10–14 s worst); fix: `/tokenize`/`/detokenize` bypass the GPU broker queue (`v2.8-local-3090`); 3090 x2 p95 5.8 s / 11.9 s → 808 ms / 517 ms | F1, F18, F19, M11 **Done** (`v2.8-local-3090`, backlog §Local controller X2: p95 5.8–11.9 s -> 0.5–0.8 s ×2) |
 | X3 | Model-file parity: 3090 runs v1m, pods v1.1 | F12. **Done 2026-10-10**: same v1.1 weights, different quantizer (TheDrummer's vs bartowski's Q4_K_M); 3090 serves 32768 |
 | X4 | Owner flags from play | F14 |
-| X5 | K3 lab check assumes one boundary per turn (real 1.4–1.6) | F4 |
+| X5 | K3 lab check assumes one boundary per turn (real 1.4–1.6) | F4. **Done 2026-10-14** (`v2.8-offline-replays`): release streak counts player turns, not boundaries; sim at 1.0/1.4/1.5/1.6 per turn in `runtime/spikes/sp6BoundariesPerTurn.test.ts`; 31 §F4 |
 | X6 | Campaign sprite fixes | F13 |
 | X7 | Any defect the pod round (N4) or the director check finds | 31 |
 | X8 | Guide reads disorganized (owner 2026-10-10): reader nav sorted pages alphabetically, 46 one-topic field pages, lorebook mechanics outside the guide, root README listing 2 Play / 3 Set up pages | owner. **Done** (`v2.8-guide-structure`): fields on 8 group pages, each topic a `##` anchored by its id (groups in `src/features/guideTopicGroups.json`); reader + site nav follow the guide's own index sections, collapsible, with a page outline; lorebook mechanics under author Reference; root README lists every Play and Set up page; 69 -> 32 pages |
@@ -89,7 +89,7 @@ It records current progress, source-plan links and deferred acceptance protocols
 | R6 | ~~S-17 on the scope budget~~ **Done** (PASS ×2 after `83403197`). **2026-10-10 (pod 2): S-17 FAIL ×2, 37-S17 FAIL ×2 (F27); after the F27 fix (master `83403197`) PASS ×2 both, 37-M1 PASS ×2** | M7 |
 | R7 | Lorebook R5: sheets after character definitions vs depth 4. **2026-10-10 (pod 2): INCOMPLETE, no `--swa-full` reuse 0 both arms (first difference moved to ~65 %, the player role); swa rerun not started; P5 owed (31 D-P5, M9)**. 2026-10-13: D-P5 built (player role, scene history, ledger, story-so-far at depth 4); R7 cache measurement still deferred | M9; measured by the same `place-all.sh` A/B (control = after the card, late = depth 4) |
 | R8 | v2.8 01 owed: Q-M5/P3, inner voice B2/C, W6, R4, thinking A/B | M15 |
-| R9 | J6d shadow record, offline replay (option C); stays in v2.8 (owner 2026-10-14) | 12 |
+| R9 | J6d shadow record, offline replay (option C); stays in v2.8 (owner 2026-10-14) | 12. **Reconstruction + replay built 2026-10-14** (`v2.8-offline-replays`): `extraction/shadowReplay.ts`, `so-j6d-replay.mts`, synthetic golden; extractor leg (read model ×2) and second-model arbitration deferred (12 §Gate record) |
 | R10 | Cue + scene read merge A/B; stays in v2.8 (owner 2026-10-14) | 15 |
 | R11 | SP5 story scenario live legs | 16 |
 | R12 | SP6 complication pool; stays in v2.8 (owner 2026-10-14) | 17 |
