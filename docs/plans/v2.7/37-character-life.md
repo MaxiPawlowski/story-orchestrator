@@ -1,5 +1,7 @@
 # Plan 37 — Character life: relationships, mood, agendas, whereabouts
 
+**Status (2026-10-14): built, see Gate record; acceptance owed → v2.8 24.** Status lines below are history.
+
 > **Moved 2026-10-07: now v2.7 37** (was v2.8 20; user: "the rest of character life" in v2.7). Depends on v2.7 33 W2 (agency notes reach players), v2.7 35 (one complication component), v2.7 36 (`revertOriginSince`, scope sources). L6 voice warden replaces v2.8 13 N7. Acceptance in v2.7 39. Old numbers inside: `v2.7/RENUMBER.md` §2026-10-07.
 
 **Status (2026-10-03): v2.8 plan 20 (was v2.7 plan 18). Exploration topic from the user; decided (relationships toward

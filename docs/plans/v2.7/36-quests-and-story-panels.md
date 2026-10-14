@@ -1,5 +1,7 @@
 # Plan 36 — Quests and story panels
 
+**Status (2026-10-14): built, see Gate record; acceptance owed → v2.8 24.** Status lines below are history.
+
 **Status: SEEDED 2026-10-07; merges v2.8 18 Q1–Q5 (quests, visible qualities, visible checks, milestones, quest log),
 v2.8 04 C4/C7/C9 (a) (Journal, stat sheet, public roll chips) and v2.8 23 option A (story widgets, still DRAFT); needs
 user approval; not built.** Quests are in v2.7 (user 2026-10-07: "3. 2.7"). Gate tiers: implementation D; acceptance D

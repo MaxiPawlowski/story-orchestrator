@@ -1,6 +1,7 @@
 # Implementation Overview — Story Orchestrator v2.7
 
-**Status: IN BUILD, RE-SCOPED 2026-10-07 (user) for player experience.** v2.7 now = the built 01–28 (history, every
+**Status: WRAPPED 2026-10-09 (symbolic, owner), NOT accepted; Phase C INCOMPLETE (`39-test-from-zero.md` §Wrap
+record 2026-10-14).** Re-scoped 2026-10-07 (user) for player experience. v2.7 now = the built 01–28 (history, every
 gate re-run), Phase A clean-up (29–31), Phase B player experience (32–37: images and living characters, player-loop
 fixes, persona, world pressure and open stretches, quests and story panels, character life), the Adolion campaign
 (38) and Phase C, every test from zero (39). Real-model acceptance runs inside v2.7 (RunPod for volume). v2.8 keeps
@@ -181,7 +182,7 @@ re-read each against the current tree, then fix.
 | Raw evidence | to the private `so-sessions` repo (done: `test/sessions/evidence/`, pushed 2026-10-07) |
 | New v2.8 ideas | TunnelVision harvest, test/gate speed, gamification prior art, GPU broker in the ST plugin, ST workflows in stories, Civitai/HF model downloads → v2.8 25–30 |
 | v2.8 01 split (owner) | measurements into 39 B1, build work + model A/B stay in v2.8 01 |
-| One build (owner) | never released publicly, so one build (`npm run build`, branch `v2.7-one-build`): the bundle always ships the debug/test handles (`storyOrchestrator*` globals, debug-response seams, spike and harness modules as lazy chunks); every feature the prod build stripped or forced off is an ordinary install setting, off by default (judge uses `loreExclusive`, `expressions`, `wardenVoice`; inner voice; chapter records; `spikes.*`); measured-and-passed features keep their defaults. No `build:dev`, `serve:dev`, `dist-dev/`, `--flavor` or manifest `flavor`; bundle budget 1,250,000 B unchanged. Closes 39 rule 9's prod/dev-diagnostic split and its "no prod-build drive path" B0 blocker; supersedes 29's release-build stripping and finding 20's availability flag |
+| One build (owner) | never released publicly, so one build (`npm run build`, branch `v2.7-one-build`): the bundle always ships the debug/test handles (`storyOrchestrator*` globals, debug-response seams, spike and harness modules as lazy chunks); every feature the prod build stripped or forced off is an ordinary install setting, off by default (judge uses `loreExclusive`, `expressions`, `wardenVoice`; inner voice; chapter records; `spikes.*`); measured-and-passed features keep their defaults. No `build:dev`, `serve:dev`, `dist-dev/`, `--flavor` or manifest `flavor`; bundle budget 1,250,000 B unchanged. Closes 39 rule 9's prod/dev-diagnostic split and its "no prod-build drive path" B0 blocker; supersedes 29's release-build stripping and finding 20's availability flag. **Superseded 2026-10-09 (owner):** every built feature on by default; budget 1,300,000 B since `a11cb81e` |
 
 ## Decisions (user, 2026-10-03)
 
@@ -255,8 +256,10 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 | 27 | COMPLETE (2026-10-06): plugin + nine stories on the main install, regular expression sprites |
 | 28 | IN BUILD: eight base packs generated and verified (238/238, 58 speaking composites recomposed), user approved 2026-10-07. Open: 31 authored outfits, living-card prompt repair + S32-1 rerun, text→image recovery gate (red: RAM admission), Saga integration ×2 |
 | 29–33, 35, 36, 39 | APPROVED 2026-10-07 (user: all recommendations; image workflows; RunPod budget approved); Phase A first (30, 29, 31), then v2.8 26 (pulled in) |
-| 34, 37, 38 | moved from v2.8 03, 20, 02 (decided there); re-homed headers 2026-10-07; not built |
+| 34, 37, 38 | moved from v2.8 03, 20, 02 (decided there); re-homed headers 2026-10-07; built 2026-10-07 (§Build order, gate records) |
 | 01–28 | history: every gate re-runs in Phase C (39); no earlier green counts |
+| 29–38 | built and merged (§Build order, each plan's Gate record); acceptance owed → v2.8 24 (2026-10-14) |
+| 39 | WRAPPED, NOT accepted, Phase C INCOMPLETE (`39-test-from-zero.md` §Wrap record 2026-10-14) |
 ## Review 2026-10-03
 
 Applied here: F01 (per-plan status), F15 (gate taxonomy), A4 (rows rewritten from decisions), B10 (registry rule 9),

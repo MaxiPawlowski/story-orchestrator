@@ -1,5 +1,7 @@
 # Plan 35 — World pressure and open stretches
 
+**Status (2026-10-14): built, see Gate record; acceptance owed → v2.8 24.** Status lines below are history.
+
 **Status: SEEDED 2026-10-07; merges v2.8 17 (SP6 measurement), v2.8 18 Q6 (production complication component),
 v2.8 19 (open stretches), v2.8 13 N3/N5 (adversity and nothing-happens signals) and names v2.8 22's pressure input as a
 later consumer; needs user approval; not built, M1/M2 not run.** On approval the merged sections of v2.8 17, 18 Q6, 19

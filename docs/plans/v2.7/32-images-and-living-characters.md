@@ -144,7 +144,8 @@ Tiers per `00-overview.md` §Gate taxonomy. "Model input" = whether the change a
 - What: S32-1 re-run from zero on the RunPod main model, unchanged fixture (3 members, one visual change, 10 replies
   each, N = 30 per arm, arms depth 1 / depth 4 / no block, second-model rater). S32-2 full matrix: 5 looks ×
   neutral + 3 expressions on ≥ 3 characters, plus lifecycle (cache reuse, supersession, reopen, rollback, new chat,
-  text wait). `cardOverlay` and `onDemand` stay default off until their rows pass ×2.
+  text wait). `cardOverlay` and `onDemand` stay default off until their rows pass ×2. **Superseded 2026-10-09
+  (owner):** every built feature on by default, below its floor too.
 - Model input: yes (`cardOverlay` block, S32-1 arms only).
 - Gate: D (v2.7 20 §Gates D rows) + RP (S32-1 ×2) + LI + LT/RP (S32-2).
 - Floors (verbatim): S32-1 "≥90% of mentioning replies agree with Y and ≥15 mentioning replies per arm; the baseline

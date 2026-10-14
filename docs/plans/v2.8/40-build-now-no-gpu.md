@@ -36,7 +36,7 @@ Source: [queue](32-queue.md), [handoff](37-codex-handoff.md), [coverage](35-test
   reproduced missing effect hydration through the native create routine; host-list observer implemented. Create/hydrate/delete/import
   scenario green twice on lane 38, quick gate green and evidence archived. UI-pointer/chat-switch checks still owed.
 - **Harness auth**, [33](33-pose-library-and-avatars.md), [36](36-live-head.md): supported OpenCode client/session
-  interface, fake-server/plugin tests, useful expired-login UI. Sonnet implementation active on `v2.8-build-harness-auth`.
+  interface, fake-server/plugin tests, useful expired-login UI. Built on `v2.8-build-fixes` (gates green, real Sol smoke on lane 38); merge pending 2026-10-14.
   Never read credentials. Live Ask/wizard/vision deferred.
 - **LI1 desktop**, [36](36-live-head.md): synthetic rigs, frame clock and CPU profile; optimize only with
   equivalence proof. Re-measure twice at unchanged floor. Laptop stays unmeasured.
@@ -45,6 +45,7 @@ Source: [queue](32-queue.md), [handoff](37-codex-handoff.md), [coverage](35-test
 
 Source: [35](35-test-coverage.md), [31](31-v27-wrap-backlog.md). Each browser row runs twice on an offline lane;
 capture baseline and final run header, declare intentional differences, clean owned assets and archive evidence.
+Status 2026-10-14: of this pass's new scenarios only the D-P5 offset scenario exists; every row below is open.
 
 - Lorebook/card provisioning roundtrip: regex keys, secondary NOT_ANY logic, outlet, triggers; scanned-memory control.
 - Workflow checkpoint override and missing workflow/GPU/media/download plugin findings; no renders/downloads.

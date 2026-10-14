@@ -293,6 +293,9 @@ loudGeneration, editCatchUp, onEnter, snapshot, settings, narrative, secretLeak,
 
 ### W1 — edit re-read (option A), behind dev flag `spikes.editReread` (default off)
 
+**Superseded 2026-10-09 (owner):** every built feature on by default (spikes on unless literally false); "default
+off" here is history.
+
 - `src/runtime/spikes/editReread.ts` (dev-only import, listed in `devOnly.guard`): per message id **settle window
   750 ms (placeholder, `EDIT_SETTLE_MS`; step 0 not measured)**, one cycle per settled burst on the last text; the
   cycle mints a `RunOwnership` run when the window fires and checks it before every write: roll back from the edited
