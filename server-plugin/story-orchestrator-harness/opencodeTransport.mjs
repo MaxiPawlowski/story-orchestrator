@@ -280,16 +280,38 @@ export function createOpencodeTransport({
         return OpenCode.make({ baseUrl: endpoint.url, headers: Service.headers(endpoint) });
     };
 
+    const readIntegration = async (client, provider) => {
+        try {
+            return unwrap(await client.integration.get({ integrationID: provider }));
+        } catch (error) {
+            if (error?._tag !== 'IntegrationNotFoundError' || typeof client.integration.list !== 'function') throw error;
+            const listed = unwrap(await client.integration.list().catch(() => []));
+            const found = Array.isArray(listed) ? listed.find((row) => isRecord(row) && row.id === provider) : null;
+            if (found) return found;
+            throw error;
+        }
+    };
+
+    const providerListed = async (client, provider) => {
+        if (typeof client.provider?.list !== 'function') return null;
+        const listed = unwrap(await client.provider.list().catch(() => null));
+        if (!Array.isArray(listed)) return null;
+        return listed.some((row) => isRecord(row) && (row.id === provider || row.integrationID === provider) && row.activation !== 'disabled');
+    };
+
     const integrationLogin = async (client, provider) => {
         try {
-            const integration = unwrap(await client.integration.get({ integrationID: provider }));
+            const integration = await readIntegration(client, provider);
             const connections = Array.isArray(integration?.connections) ? integration.connections : [];
             const incomplete = connections.some((entry) => entry?.type === 'credential' && typeof entry.method !== 'string');
             if (!incomplete) return loginFromIntegration(integration, provider);
             const methods = await authMethods(binary()).catch(() => new Map());
             const method = methods.get(provider.toLowerCase()) ?? methods.get(providerName(integration, provider).toLowerCase());
-            if (!method) throw new Refused('config', 'OpenCode returned a stored sign-in without its method, and its CLI could not identify it; update OpenCode or check `opencode auth list`', { state: 'unavailable', service: 'running' });
-            return loginFromIntegration({ ...integration, connections: connections.map((entry) => entry?.type === 'credential' && !entry.method ? { ...entry, method } : entry) }, provider);
+            if (method) return loginFromIntegration({ ...integration, connections: connections.map((entry) => entry?.type === 'credential' && !entry.method ? { ...entry, method } : entry) }, provider);
+            const expired = connections.some((entry) => entry?.type === 'credential' && entry.status?.status === 'needs_auth');
+            if (expired) return loginFromIntegration({ ...integration, connections: connections.map((entry) => entry?.type === 'credential' && !entry.method ? { ...entry, method: 'external' } : entry) }, provider);
+            if (await providerListed(client, provider)) return { state: 'ok', message: null, action: null, methods: ['unidentified'], evidence: 'service-connection' };
+            return { state: 'unavailable', message: `OpenCode holds a ${providerName(integration, provider)} sign-in without its method and does not list the provider as connected; check \`opencode auth list\` or update OpenCode`, action: null, methods: [] };
         } catch (error) {
             if (error?._tag === 'IntegrationNotFoundError') return { state: 'unpaired', message: `OpenCode has no ${provider} integration; ${signInAction(provider)}`, action: 'sign-in', methods: [] };
             throw refusedFrom(error);
@@ -323,9 +345,10 @@ export function createOpencodeTransport({
                 return state.view;
             }
             const info = unwrap(await client.server.info().catch((error) => { throw refusedFrom(error); }));
+            const models = await readModels(client);
             const logins = {};
             for (const provider of providers) logins[provider] = await integrationLogin(client, provider);
-            state.view = { ...base, service: 'running', serviceVersion: typeof info?.version === 'string' ? info.version : null, logins, models: await readModels(client), handle: client };
+            state.view = { ...base, service: 'running', serviceVersion: typeof info?.version === 'string' ? info.version : null, logins, models, handle: client };
         } catch (error) {
             const refused = refusedFrom(error);
             state.view = { ...base, client: refused.service === 'unavailable' && state.libsError ? 'missing' : 'ready', service: refused.service ?? 'unreachable', problem: refused.message, problemKind: refused.kind, problemState: refused.state };
