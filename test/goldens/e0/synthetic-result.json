@@ -1,0 +1,127 @@
+{
+ "plan": "v2.8 21 E0",
+ "source": "synthetic",
+ "provider": "stub-trigram-256",
+ "floors": {
+  "hitAt4": 0.8,
+  "mrrMargin": 0.1,
+  "poolRecall": 0.8,
+  "slack": 1e-9
+ },
+ "counts": {
+  "labels": 40,
+  "droppedDisagreed": 0,
+  "droppedInvalid": 0,
+  "pooled": 40,
+  "poolRefused": 0
+ },
+ "arms": [
+  {
+   "arm": "e",
+   "label": "ST score order",
+   "metrics": {
+    "questions": 40,
+    "hits1": 4,
+    "hits4": 17,
+    "inPool": 25,
+    "ties": 0,
+    "hitAt1": 0.1,
+    "hitAt4": 0.425,
+    "mrrAt4": 0.2270833333333334,
+    "poolRecall": 0.625,
+    "tieRate": 0,
+    "callsPerQuestion": 0,
+    "latencyP50": null,
+    "latencyP95": null,
+    "inputTokensPerQuestion": 0
+   },
+   "owed": null,
+   "refused": 0
+  },
+  {
+   "arm": "c",
+   "label": "local Jaccard + recency",
+   "metrics": {
+    "questions": 40,
+    "hits1": 1,
+    "hits4": 9,
+    "inPool": 25,
+    "ties": 0,
+    "hitAt1": 0.025,
+    "hitAt4": 0.225,
+    "mrrAt4": 0.08958333333333333,
+    "poolRecall": 0.625,
+    "tieRate": 0,
+    "callsPerQuestion": 0,
+    "latencyP50": null,
+    "latencyP95": null,
+    "inputTokensPerQuestion": 0
+   },
+   "owed": null,
+   "refused": 0
+  },
+  {
+   "arm": "a",
+   "label": "bands 0.82/0.55",
+   "metrics": {
+    "questions": 40,
+    "hits1": 4,
+    "hits4": 17,
+    "inPool": 25,
+    "ties": 40,
+    "hitAt1": 0.1,
+    "hitAt4": 0.425,
+    "mrrAt4": 0.2270833333333334,
+    "poolRecall": 0.625,
+    "tieRate": 1,
+    "callsPerQuestion": 0,
+    "latencyP50": null,
+    "latencyP95": null,
+    "inputTokensPerQuestion": 0
+   },
+   "owed": null,
+   "refused": 0
+  },
+  {
+   "arm": "b",
+   "label": "bands 0.82/0.7/0.55/0.4",
+   "metrics": {
+    "questions": 40,
+    "hits1": 4,
+    "hits4": 17,
+    "inPool": 25,
+    "ties": 40,
+    "hitAt1": 0.1,
+    "hitAt4": 0.425,
+    "mrrAt4": 0.2270833333333334,
+    "poolRecall": 0.625,
+    "tieRate": 1,
+    "callsPerQuestion": 0,
+    "latencyP50": null,
+    "latencyP95": null,
+    "inputTokensPerQuestion": 0
+   },
+   "owed": null,
+   "refused": 0
+  },
+  {
+   "arm": "d",
+   "label": "judge Choice with removal",
+   "metrics": null,
+   "owed": "recorded Choice calls (TypeSafe, 4 per question) not supplied",
+   "refused": 0
+  }
+ ],
+ "verdict": {
+  "questions": 40,
+  "winner": null,
+  "cheapestPassing": null,
+  "diagnostic": "e",
+  "problem": "retrieval",
+  "owed": [
+   "d"
+  ],
+  "status": "incomplete",
+  "witnessStep": "BLOCKED (insufficient E0)"
+ }
+}
