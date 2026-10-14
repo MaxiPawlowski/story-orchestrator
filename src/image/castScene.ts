@@ -2,20 +2,30 @@ import { stableStringify } from "@runtime/hash";
 import { currentVisual, lookSignature, visualRoot, type VisualManifest, type VisualLook } from "../sprites/visualManifest";
 import { editGraph, type EditModels } from "../sprites/builder/recipes";
 import { builderRender, type SpriteSettings } from "../sprites/settings";
+import { lookLayers } from "../sprites/poses/layers";
+import type { CardBinding } from "@engine/schema";
 
 export const CAST_SCENE_RECIPE = { id: "qwen21-current-look-cast-scene", version: 1 } as const;
-export interface CastSceneMember { character: string; fields: Record<string, string>; source?: VisualManifest }
-export interface CastSceneIdentity { character: string; root: string; signature: string; look: VisualLook }
+export interface CastSceneMember { character: string; fields: Record<string, string>; source?: VisualManifest; card?: CardBinding }
+export interface CastSceneIdentity { character: string; root: string; signature: string; look: VisualLook; layered?: string[] }
+function layeredLook(member: CastSceneMember & { source: VisualManifest }): { signature: string; look: VisualLook; layered: string[] } | null {
+  if (!member.card) return null;
+  const layers = lookLayers(member.card, member.fields), layered = [...Object.keys(layers.face), ...Object.keys(layers.decal)].sort();
+  if (!layered.length || !Object.keys(member.fields).every((field) => field in layers.base || field in layers.face || field in layers.decal)) return null;
+  const signature = lookSignature(layers.base), look = currentVisual(member.source, signature);
+  return look ? { signature, look, layered } : null;
+}
 export function castSceneIdentities(members: CastSceneMember[]): CastSceneIdentity[] {
   if (!members.length || members.length > 2 || new Set(members.map((member) => member.character)).size !== members.length) {
     throw new Error("Choose one or two different prepared cast members.");
   }
   return members.map((member) => {
-    const signature = lookSignature(member.fields);
     if (!member.source || member.source.character !== member.character) throw new Error("Prepare each selected character's base and bust first.");
-    const look = currentVisual(member.source, signature);
-    if (!look) throw new Error("A selected character's current look is pending or stale. Prepare that look before illustrating the cast.");
-    return { character: member.character, root: visualRoot(member.source), signature, look };
+    const source = member.source, signature = lookSignature(member.fields), look = currentVisual(source, signature);
+    if (look) return { character: member.character, root: visualRoot(source), signature, look };
+    const layered = layeredLook({ ...member, source });
+    if (layered) return { character: member.character, root: visualRoot(source), ...layered };
+    throw new Error("A selected character's current look is pending or stale. Prepare that look before illustrating the cast.");
   });
 }
 type SceneBuilder = Pick<SpriteSettings["builders"][string], "models" | "steps" | "resolution">;
@@ -31,7 +41,7 @@ export function castSceneBuilder(selected: string[], builders: Record<string, Sc
 }
 export const castSceneKey = (identities: CastSceneIdentity[], input: { prompt: string; models: EditModels; seed: number; steps: number; resolution: number }): string =>
   stableStringify({ recipe: CAST_SCENE_RECIPE, identities: identities.map((identity) => ({ character: identity.character, root: identity.root,
-    signature: identity.signature, sha256: identity.look.base.sha256 })), ...input });
+    signature: identity.signature, sha256: identity.look.base.sha256, ...(identity.layered ? { layered: identity.layered } : {}) })), ...input });
 
 export function castSceneGraph(references: string[], input: { prompt: string; models: EditModels; seed: number; steps: number; resolution: number }): Record<string, unknown> {
   if (references.length < 1 || references.length > 2) throw new Error("The cast scene recipe supports at most two identities.");

@@ -1,3 +1,4 @@
+import type { CardBinding } from "@engine/schema";
 import { castSceneBuilder, castSceneIdentities, castSceneKey, castSceneGraph } from "./castScene";
 import { visualFixture } from "../sprites/visualFixtures";
 import { publishVisualLook, lookSignature, visualRoot } from "../sprites/visualManifest";
@@ -35,4 +36,20 @@ test("scene route reads every selected member's builder and refuses a missing or
   expect(() => castSceneBuilder(["A", "Missing"], builders)).toThrow("every selected character");
   expect(() => castSceneBuilder(["Missing", "A"], builders)).toThrow("every selected character");
   expect(() => castSceneBuilder(["A", "C"], builders)).toThrow("different Qwen models");
+});
+
+test("a face or decal-only change reuses the current outfit derivative and records the layered fields in the cache identity", () => {
+  const card: CardBinding = { fields: { outfit: { quality: "q_outfit", visual: true }, scar: { quality: "q_scar", visual: true, layer: "decal", region: { x: 1, y: 1, width: 4, height: 4 } },
+    eyes: { quality: "q_eyes", visual: true, layer: "face" } } };
+  const changed = publishVisualLook(source, visualRoot(source), "look_blue", lookSignature({ outfit: "blue coat" }), { ...source.base, sha256: "e".repeat(64) });
+  const fields = { outfit: "blue coat", scar: "thin scar on the cheek", eyes: "tired" };
+  expect(() => castSceneIdentities([{ character: "Synthetic", fields, source: changed }])).toThrow("pending or stale");
+  const [identity] = castSceneIdentities([{ character: "Synthetic", fields, source: changed, card }]);
+  expect(identity.look.base.sha256).toBe("e".repeat(64)); expect(identity.layered).toEqual(["eyes", "scar"]);
+  const plain = castSceneIdentities([{ character: "Synthetic", fields: { outfit: "blue coat" }, source: changed, card }]);
+  expect(castSceneKey([identity], input)).not.toBe(castSceneKey(plain, input));
+  const faceOnly = castSceneIdentities([{ character: "Synthetic", fields: { eyes: "tired" }, source, card }]);
+  expect(faceOnly[0].look.base.sha256).toBe(source.base.sha256);
+  expect(() => castSceneIdentities([{ character: "Synthetic", fields: { outfit: "red coat", eyes: "tired" }, source: changed, card }])).toThrow("pending or stale");
+  expect(() => castSceneIdentities([{ character: "Synthetic", fields: { unbound: "x", eyes: "tired" }, source, card }])).toThrow("pending or stale");
 });
