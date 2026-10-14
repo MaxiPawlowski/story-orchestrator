@@ -1,0 +1,335 @@
+{
+  "id": "GS2",
+  "title": "golden session 2: the living hub (adolion-aegis, cloud reply)",
+  "objective": "v2.8 24 golden session GS2. One adolion-fresh CL lane: reply and memory roles on the cloud profile (DeepSeek flash by default), authoring on the default Sol route, judge on TypeSafe; no GPU. The subject is the pipeline (living director, curator, lore selection, life, meanwhile, speaker direction), not Artemis text, so the cheapest real model honestly validates it (24 §Rules 2). Story adolion-aegis in its own group, picked by id; checkpoints are found by structure and the product's liv_ prefix, never by name. 18 real player turns. Run twice back to back on one lane, run 2 from the seeded snapshot. Written, validated by the loader, not run yet.",
+  "expensive": true,
+  "setup": {
+    "newChat": true,
+    "resetChatState": true,
+    "snapshotGlobalConfig": true,
+    "group": "Adolion - Between the Roads",
+    "extraction": {
+      "cadence": 3,
+      "stabilityLag": 0,
+      "profile": "inherit"
+    }
+  },
+  "cleanup": {
+    "restoreConfig": true,
+    "deleteChat": true
+  },
+  "capabilities": {
+    "living": "typeof globalThis.storyOrchestratorRuntime?.livingStory === 'function'",
+    "curator": "typeof globalThis.storyOrchestratorRuntime?.runWiCuratorPass === 'function'"
+  },
+  "checks": [
+    {
+      "id": "GS2.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Lane guard, start, and the living director opening a way in from play. Closes: living-story (code pace fallback after 3 player turns, a liv_ checkpoint in the played graph), road-ahead; row M21 functional half (L1 premise start), queue N1.",
+      "requires": ["living"],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); if (!ctx.groupId) throw new Error('needs the story group open'); if (!(rt.getSnapshot().library ?? []).some((r) => r.id === 'adolion-aegis')) throw new Error('adolion-aegis is not in the library: seed the lane with adolion-fresh first'); const s = rt.getGlobalSettings(); if (!s.stagecraft.livingEnabled || !s.stagecraft.branchingEnabled || !s.stagecraft.prefetchEnabled) throw new Error('living, branching or prefetch is off; the suite runs on shipped defaults'); if (!s.memory.innerBeat || !s.judge.enabled) throw new Error('inner voice or judge is off'); return { ok: true };"
+        },
+        {
+          "select_story": "adolion-aegis"
+        },
+        {
+          "ui": {
+            "action": "select-profile"
+          }
+        },
+        {
+          "expect": {
+            "storyId": "adolion-aegis",
+            "requirementsReady": true
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I take in my surroundings and the people around me before I say anything.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I ask whoever is closest what is happening here, and listen carefully.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I nod and follow along, keeping my eyes open.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I tell them plainly what I want to do next and ask for their help.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); const living = snap.checkpoints.filter((c) => c.id.startsWith('liv_')).length; if (!living) throw new Error('no liv_ checkpoint after 4 player turns (pace fallback opens a way in after 3)'); return { livingCheckpoints: living, boundary: snap.boundary };"
+        }
+      ]
+    },
+    {
+      "id": "GS2.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "On-script turns: the divergence reader reads and commits no branch. Closes: judge-use-divergence; rows M22 / queue R1 (false divergence on committed turns, informational, recorded), 33-W3-live (attention checks answer in a group). Counts judge calls by use from the run's own ring.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I agree to go along with the plan for now.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I follow their lead and do what was asked.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I keep going the way we agreed.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const calls = rt.extras?.judge?.calls ?? []; const byUse = {}; for (const c of calls) byUse[c.use] = (byUse[c.use] ?? 0) + 1; const branches = rt.getSnapshot().checkpoints.filter((c) => /^liv_b\\d+_way/.test(c.id)).length; globalThis.__gs2OnScriptBranches = branches; return { judgeCalls: calls.length, byUse, branchesOnScript: branches };"
+        }
+      ]
+    },
+    {
+      "id": "GS2.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Off-script play branches, and a swipe and a delete take the branch back. Closes: story-branching, living rollback; rows M23 (L2 branch landing, swipe rollback F26, delete rollback). Two plainly off-route turns; a liv_b<n>_way branch is expected (a reading is model-dependent, so no branch is recorded as a miss with the readings, not retried); then the newest reply is swiped and deleted and the branch must be gone or withdrawn.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I turn my back on all of this and head off somewhere else entirely, on my own business.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I keep walking away and start something completely unrelated to what they wanted.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ways = rt.getSnapshot().checkpoints.filter((c) => /^liv_b\\d+_way/.test(c.id)).map((c) => c.id); globalThis.__gs2Ways = ways; return { branches: ways.length, before: globalThis.__gs2OnScriptBranches ?? 0 };"
+        },
+        {
+          "swipe": {
+            "messageId": "last",
+            "swipeId": 1
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "delete": {
+            "messageId": "last"
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); if (snap.rollbackUnavailable) throw new Error(`rollback unavailable: ${JSON.stringify(snap.rollbackUnavailable)}`); const now = snap.checkpoints.filter((c) => /^liv_b\\d+_way/.test(c.id) && (c.active || c.visited)).length; const had = (globalThis.__gs2Ways ?? []).length; return { branchesBefore: had, branchesStillReached: now, stepBack: Boolean(snap.lastRollback) };"
+        }
+      ]
+    },
+    {
+      "id": "GS2.4",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Prefetch at an anchor and the director's applied ops. Closes: living prefetch (row M23 L4: one way forward per checkpoint), save-run-as-story availability (canSave read; the save itself is the existing L5 leg on the CL lane, 24 §Targeted CL). Reads the living author view in Author view and switches back to player mode.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I come back to the matter at hand and ask what comes next.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); await new Promise((r) => setTimeout(r, 500)); const view = rt.getSnapshot().living; const a = view?.author; rt.setUiSettings({ authorView: false }); if (!a) throw new Error('no living author view in Author view'); if (!a.ops) throw new Error('the living director applied no op over 11 player turns'); return { ops: a.ops, generated: a.generated, reached: a.reachedGenerated, proposals: a.proposals.length, canSave: view?.canSave ?? null };"
+        }
+      ]
+    },
+    {
+      "id": "GS2.5",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Curator in real play. Closes: curator, curator-create, curator-markers, judge-use-curator-filter; rows O7 (one real curator pass), O14 (promoted tiers hold), M17 functional half (proposal waits in review, written only at the next boundary). Assets the curator writes are removed by the journey's asset cleanup (baseline).",
+      "requires": ["curator"],
+      "steps": [
+        {
+          "stagecraft": {
+            "action": "curate"
+          }
+        },
+        {
+          "stagecraft": {
+            "action": "state"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const st = rt.getStagecraftState?.(); if (!st) throw new Error('no stagecraft state'); const props = (st.proposals ?? []).length; globalThis.__gs2Proposals = props; return { proposals: props, acceptMode: rt.getGlobalSettings().stagecraft.acceptMode };"
+        },
+        {
+          "send_generate": {
+            "text": "I ask a question about what was just said.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ]
+    },
+    {
+      "id": "GS2.6",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Lore selection, late lore and memory lore on the real judge. Closes: story-lorebooks, lorebook-switching, late-lore, memory-lore, judge-use-lore-select, judge-use-lore-exclusive; rows queue M10 (judge calls per reply, informational), 33-W1-V7-live context. Counts lore calls per loud turn from the ring; asserts the story's books are scanned for this chat only.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I ask about the history of this place and the people who run it.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); if (!snap.requirements?.ready) throw new Error('requirements not ready'); if ((snap.globalStoryLore ?? []).length) throw new Error('a story book is selected globally'); const lore = (rt.extras?.judge?.calls ?? []).filter((c) => /lore/i.test(c.use)).length; return { loreCalls: lore, scanGate: snap.scanGate ? Object.keys(snap.scanGate).length : 0 };"
+        }
+      ]
+    },
+    {
+      "id": "GS2.7",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Character life, meanwhile and speaker direction. Closes: character-life, meanwhile-proposals, speaker-direction, talk-chain, judge-use-director, continuity-warden; rows M16 functional half (an accepted off-stage event lands in the holder's private block only), 38-C7-life (life half), 37-D1 live. Plays to a scene shift and reads the proposal and talk rings.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "Some time passes. I move on to another part of the place and see who is there.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I greet everyone here and ask how things have been.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I listen to whoever wants to speak.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); const decisions = snap.talk?.decisions?.length ?? 0; if (!decisions) throw new Error('no talk decision recorded over 3 group turns'); const proposals = snap.lifeAuthor?.proposals?.length ?? 0; return { talkDecisions: decisions, lifeProposals: proposals };"
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ]
+    },
+    {
+      "id": "GS2.8",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Close-out turns and player-clean sweep. Closes: repair (no blocks row in a seeded campaign chat), hud count chip; rows 16-04-health-center live, 37-spoiler live.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I think it over for a moment, then press on.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I wrap up here and get ready to move on.",
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ]
+    }
+  ]
+}

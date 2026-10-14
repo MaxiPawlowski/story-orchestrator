@@ -1,0 +1,86 @@
+{
+  "_note": "v2.8 24 AS-smoke, story adolion-saga: every campaign story starts and plays on a real model. adolion-fresh CL lane (reply and memory on the cloud profile, authoring on Sol, judge on TypeSafe; no GPU). Run: node scripts/debug/so-scenario.mts run test/scenarios/live-v28-24-smoke-saga.json --sandbox, twice in a row; the nine files run back to back as one batch (st-lanes.mts batch --lanes <n> --repeat 2 --strict test/scenarios/live-v28-24-smoke-*.json). Generic player lines; names no checkpoint or character. Closes rows 38-C7 (start, three real turns, reopen, swipe, counts only), C8-smoke, 16-07-A6 live half; replaces the nine 38-C7 units (24 §Cuts). Written, validated by the loader, not run yet.",
+  "requires": {
+    "lane": "model",
+    "group": "Adolion - The Saga",
+    "why": "real replies and real reads on the cloud profile; campaign group ids change on every adolion-fresh seed, so the group is pinned by name"
+  },
+  "steps": [
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; if (!(rt.getSnapshot().library ?? []).some((r) => r.id === 'adolion-saga')) throw new Error('adolion-saga is not in the library: seed the lane with adolion-fresh first'); globalThis.__asStory = 'adolion-saga'; return { ok: true };"
+    },
+    {
+      "select_story": "adolion-saga"
+    },
+    {
+      "ui": {
+        "action": "select-profile"
+      }
+    },
+    {
+      "expect": {
+        "requirementsReady": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I take in my surroundings and the people around me before I say anything.",
+        "timeoutMs": 600000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I ask whoever is closest what is happening here, and listen carefully.",
+        "timeoutMs": 600000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I tell them plainly what I want to do next and ask for their help.",
+        "timeoutMs": 600000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const snap = rt.getSnapshot(); if (snap.storyId !== globalThis.__asStory) throw new Error('the story changed under the run'); if (snap.boundary < 3) throw new Error(`expected a boundary per reply, boundary is ${snap.boundary}`); const replies = ctx.chat.filter((m) => !m.is_user && !m.is_system && String(m.mes ?? '').trim()).length; if (replies < 3) throw new Error(`expected 3 rendered replies, saw ${replies}`); if (snap.saveHealth?.lastOutcome === 'unsaved') throw new Error('a save was lost'); return { boundary: snap.boundary, replies, audits: snap.extraction?.audits?.length ?? 0 };"
+    },
+    {
+      "reload": {
+        "timeoutMs": 90000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; for (let i = 0; i < 60 && rt.getSnapshot().storyId !== globalThis.__asStory; i++) await new Promise((r) => setTimeout(r, 500)); if (rt.getSnapshot().storyId !== globalThis.__asStory) throw new Error('the story did not come back after reload'); return { reopened: true, boundary: rt.getSnapshot().boundary };"
+    },
+    {
+      "swipe": {
+        "messageId": "last",
+        "swipeId": 1
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); if (snap.rollbackUnavailable) throw new Error(`rollback unavailable: ${JSON.stringify(snap.rollbackUnavailable)}`); if (!snap.activeCheckpointId) throw new Error('no active checkpoint after the swipe'); return { boundary: snap.boundary };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    }
+  ]
+}
