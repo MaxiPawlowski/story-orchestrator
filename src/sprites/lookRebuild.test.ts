@@ -57,6 +57,16 @@ test("lineage: a re-rendered look or a replaced root invalidates the rebuilt bus
   expect(visualHead(f.source(), LOOK, MEMBER, { [liveHeadKey(stale)]: stale }).state).toBe("pending-rig");
 });
 
+test("republishing the same look artwork after a rebuild keeps its bust and rig", async () => {
+  const f = fixture();
+  await f.rebuild.accept(await f.rebuild.prepare(target));
+  const signature = f.source().looks[LOOK].signature;
+  const again = publishVisualLook(f.source(), visualRoot(f.source()), LOOK, signature, { ...lookBase, path: `${lookBase.path}?t=1` });
+  expect(again.looks[LOOK].bust).toEqual(savedBust);
+  expect(visualHead(again, LOOK, MEMBER, f.refs()).state).toBe("ready");
+  expect(publishVisualLook(f.source(), visualRoot(f.source()), LOOK, "[]", lookBase).looks[LOOK].bust).toBeUndefined();
+});
+
 test.each(["cancel", "chat", "delete", "replacement", "rerender"])("%s while the bust saves publishes neither bust nor rig", async (event) => {
   const f = fixture(), review = await f.rebuild.prepare(target);
   f.deps.save = jest.fn(async () => {
