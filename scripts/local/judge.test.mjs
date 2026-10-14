@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { childEnv, DEFAULT_JUDGE_ROOT, JUDGE_MODELS, judgeConfig, readinessLine, requiredGB, serverCommands, setupSteps } from './judgeModels.mjs';
+import { childEnv, DEFAULT_JUDGE_ROOT, JUDGE_MODELS, judgeConfig, missingDistributions, readinessLine, requiredGB, serverCommands, setupSteps } from './judgeModels.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 
@@ -80,4 +82,32 @@ test('v2.8 14: the Python server normalises answers to the System One shape and 
     const wide = spawnSync(python, [path.join(here, 'judgeServer.py'), '--host', '0.0.0.0', '--model-id', 'x'], { encoding: 'utf8' });
     assert.equal(wide.status, 2);
     assert.match(wide.stderr, /127\.0\.0\.1 only/);
+});
+
+test('v2.8 14: the install step is done once its distributions sit in the venv site-packages', () => {
+    const config = judgeConfig({}, { platform: 'win32' });
+    assert.equal(config.sitePackages, 'C:/dev/models/so-judge/venv/Lib/site-packages');
+    assert.equal(judgeConfig({}, { platform: 'linux' }).sitePackages, 'C:/dev/models/so-judge/venv/lib/python3.12/site-packages');
+    assert.equal(setupSteps(config)[1].skipIf, 'packages');
+    const listing = (entries) => (dir) => (dir === config.sitePackages ? entries : assert.fail(dir));
+    assert.deepEqual(missingDistributions(config, listing(['decider_ai-1.9.0.dist-info', 'llama_cpp_python-0.3.36.dist-info', 'huggingface_hub-2.2.0.dist-info', 'llama_cpp'])), []);
+    assert.deepEqual(missingDistributions(config, listing(['decider_ai-1.9.0.dist-info', 'llama_cpp'])), ['llama_cpp_python', 'huggingface_hub']);
+    assert.deepEqual(missingDistributions(config, () => { throw new Error('ENOENT'); }), ['decider_ai', 'llama_cpp_python', 'huggingface_hub']);
+    assert.deepEqual(missingDistributions(judgeConfig({}, { model: 'plumb-4b' }), () => ['jevk5-0.2.0.dist-info', 'Huggingface_Hub-2.2.0.dist-info']), []);
+});
+
+test('v2.8 14: plan reports the install step done when the packages are installed, todo otherwise', () => {
+    const root = fs.mkdtempSync(path.join(os.tmpdir(), 'so-judge-plan-'));
+    try {
+        const env = { ...process.env, SO_JUDGE_MODELS_DIR: root };
+        const config = judgeConfig(env);
+        fs.mkdirSync(path.dirname(config.python), { recursive: true });
+        fs.writeFileSync(config.python, '');
+        const planLine = () => spawnSync(process.execPath, [path.join(here, 'judge.mjs'), 'plan'], { encoding: 'utf8', env }).stdout.split(/\r?\n/).find((line) => line.includes('install '));
+        assert.match(planLine(), /^ {2}todo {2}install/);
+        for (const name of ['decider_ai-1.9.0', 'llama_cpp_python-0.3.36', 'huggingface_hub-2.2.0']) fs.mkdirSync(path.join(config.sitePackages, `${name}.dist-info`), { recursive: true });
+        assert.match(planLine(), /^ {2}done {2}install/);
+    } finally {
+        fs.rmSync(root, { recursive: true, force: true });
+    }
 });

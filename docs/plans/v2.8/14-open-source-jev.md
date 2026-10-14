@@ -499,3 +499,55 @@ Branch `v2.8-local-judge` (worktree `C:\dev\so-local-judge`), from master `9b457
 - Local calibration rows on the 3090: **BLOCKED**. No decider-4b weights on this machine (`C:/dev/models/so-judge` absent;
   no `*decider*` under `C:/dev/models` or `D:/models`), and this window allowed no downloads. Nothing changed; the
   pod-2 result above stands (memory-pairs only, no readiness row).
+
+## Gate record: CPU calibration on this PC, 2026-10-14 (branch `v2.8-local-judge-calibration`)
+
+- Setup: owner approved the download 2026-10-14; `node scripts/local/judge.mjs plan` = venv, decider-ai 1.9.0 + llama-cpp-python
+  0.3.36, weights all present under `C:/dev/models/so-judge`. `SO_JUDGE_LOCAL_THREADS=8 node scripts/local/judge.mjs start --model
+  decider-4b`: up on 127.0.0.1:8095, `/health` device `cpu`, load 17.4 s; `check`: ok, 1,128 ms, p(loud)=0.99. Tray
+  `status.txt`: `OK story-orchestrator.json (59 entries)`. No GPU: `CUDA_VISIBLE_DEVICES=""`, server pid absent from
+  `nvidia-smi`. Box: i9-9900 (8 cores / 16 threads), 32 GB, shared with other agents and a robocopy (CPU load 77–100 % during
+  the run), so these are loaded-box numbers.
+- Prereg: `prereg-decider-4b.json` as committed (hardware "else CPU"); floors, thresholds and budgets untouched.
+- Full matrix (`--arm systemone-local --use all --holdout --runs 2 --rotate`) started 13:01Z and **stopped after 8 director calls**:
+  each director request takes ~25 s on CPU (curl ×3: 24.9 / 25.3 / 26.2 s), the plugin cuts every upstream call at
+  `UPSTREAM_TIMEOUT_MS` 10 s, and the server's model lock keeps working the aborted request, so every later call queues and
+  times out. 1,410 requests at ≥ 10 s would answer nothing. Deviation: replaced by a latency screen plus the full matrix for the
+  one use that had passed on the pod.
+- Latency screen (direct POST to the server, the median-size and largest request of every fixture and holdout, lore skipped:
+  64 questions, already 3.4 s on the pod GPU against 1,500 ms): fastest observed request 7.5 s (backgrounds, 1 question); every
+  use's fastest request is over its budget. Evidence: `test/measurements/v2.8/14-local-judge/cpu-2026-10-14-decider-4b-latency-screen.jsonl`.
+- memory-pairs full matrix ×2 + rotated + holdout (`--use memory-pairs`), 13:44–14:03Z, exit 0. Summary:
+  `test/measurements/v2.8/14-local-judge/cpu-2026-10-14-decider-4b-memory-pairs-summary.json`.
+
+Per use (floor = fixture floor, unchanged; budget from `policy.ts`):
+
+- memory-pairs: fixture run 1 1/29 MISS (28 timeouts), run 2 25/29 floor ok, rotated 2/29; holdout 0/11 ×2 (all timed out);
+  p95 9,539 ms / 3,000. **MISS** (budget ×2, holdout ×2). Still refused.
+- director (budget 1,500): screen 66.5 / 78.4 s. **MISS (budget)**. Still refused.
+- memory-verify (3,000): 32.3–93.4 s incl. holdout. **MISS (budget)**. Still refused.
+- scene (2,500): 93.7–200.0 s. **MISS (budget)**. Still refused.
+- lore (1,500): not screened (over budget on GPU). **MISS (budget)**. Still refused.
+- curator-filter (4,000): 50.4 / 64.5 s. **MISS (budget)**. Still refused.
+- continuity (4,000): 15.4–25.6 s. **MISS (budget)**. Still refused.
+- backgrounds (2,500): 7.5 / 7.6 s. **MISS (budget)**. Still refused.
+- typed (5,000): 8.0 / 101.3 s. **MISS (budget)**. Still refused.
+- stall (4,000): 9.7–83.8 s incl. holdout. **MISS (budget)**. Still refused.
+- critic (2,500): 47.1 / 109.6 s. **MISS (budget)**. Still refused.
+- variants (2,500): 86.8 / 112.0 s. **MISS (budget)**. Still refused.
+- agency (4,000): 68.2 / 119.9 s. **MISS (budget)**. Still refused.
+- house-rules (4,000): 29.3 / 75.5 s. **MISS (budget)**. Still refused.
+
+- Verdict: no use passes on CPU. `JUDGE_READINESS_BY_PROVIDER["systemone-local"]` stays empty; every local route is refused;
+  TypeSafe stays the default. No `src/` change.
+- Latency / memory (8 threads): prompt eval ~70–190 tokens/s depending on load (memory-pairs 2 × ~310 tokens in 8.4–9.9 s;
+  director 8 × ~608 tokens in ~25 s when quieter); no output tokens (decision read from logits). Server process: working set
+  ~4.2–5.9 GB (peak 6.0 GB), private 7.5 GB. CPU decider-4b is ~25–60× slower than the pod GPU (director p95 539 ms there).
+- Model calls: local decider only. TypeSafe calls: **0** (the baseline column is not needed for a gold-label floor; not run). No
+  Sol/DeepSeek.
+- Server stopped: `judge.mjs stop` → `status` `down` (exit 1), no listener on :8095, no `judgeServer` process.
+- Also fixed: `judge.mjs plan` showed "todo install …" forever (no skipIf); the step is now done when its distributions
+  (`decider_ai`, `llama_cpp_python` / `jevk5`, `huggingface_hub`) have `.dist-info` in the venv site-packages
+  (`missingDistributions`, 2 node:tests).
+- Next: decider-4b is GPU-only for our budgets. A 3090 run (`SO_JUDGE_LOCAL_GPU_LAYERS=99` + a CUDA llama-cpp-python wheel)
+  when ComfyUI is idle; pod 2's GPU result (memory-pairs only) stands as the best evidence.

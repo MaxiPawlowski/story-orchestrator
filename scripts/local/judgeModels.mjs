@@ -23,6 +23,7 @@ export const JUDGE_MODELS = Object.freeze({
         weightsGB: 2.7,
         runtimeGB: 2.5,
         packages: ['decider-ai[gguf]'],
+        distributions: Object.freeze(['decider_ai', 'llama_cpp_python']),
         backend: 'decider',
         verified: 'README read 2026-10-10; not run on this box yet',
     }),
@@ -37,6 +38,7 @@ export const JUDGE_MODELS = Object.freeze({
         weightsGB: 8.4,
         runtimeGB: 3,
         packages: ['jevk5[fast] @ git+https://github.com/allebee/jevk5@v0.2.0'],
+        distributions: Object.freeze(['jevk5']),
         backend: 'proxy',
         verified: 'README read 2026-10-10; served by jevk5-serve behind the proxy backend; not run on this box yet',
     }),
@@ -64,6 +66,7 @@ export function judgeConfig(env = process.env, { model = DEFAULT_JUDGE_MODEL, pl
         extraIndex: env[ENV_EXTRA_INDEX]?.trim() || null,
         venv,
         python: `${bin}/python${exe}`,
+        sitePackages: platform === 'win32' ? `${venv}/Lib/site-packages` : `${venv}/lib/python${PYTHON_VERSION}/site-packages`,
         hf: `${bin}/hf${exe}`,
         jevk5Serve: `${bin}/jevk5-serve${exe}`,
         modelDir,
@@ -85,9 +88,23 @@ export function setupSteps(config) {
         : [config.hf, 'download', entry.repo, '--revision', entry.revision, '--local-dir', config.modelDir];
     return [
         { label: `create the Python ${PYTHON_VERSION} environment in ${config.venv}`, command: ['uv', 'venv', '--python', PYTHON_VERSION, config.venv], skipIf: 'venv' },
-        { label: `install ${entry.packages.join(', ')} and huggingface_hub`, command: ['uv', 'pip', 'install', '--python', config.python, ...(config.extraIndex ? ['--extra-index-url', config.extraIndex, '--index-strategy', 'unsafe-best-match'] : []), ...entry.packages, 'huggingface_hub[cli]'], skipIf: null },
+        { label: `install ${entry.packages.join(', ')} and huggingface_hub`, command: ['uv', 'pip', 'install', '--python', config.python, ...(config.extraIndex ? ['--extra-index-url', config.extraIndex, '--index-strategy', 'unsafe-best-match'] : []), ...entry.packages, 'huggingface_hub[cli]'], skipIf: 'packages' },
         { label: `download ${entry.repo}${entry.file ? ` ${entry.file}` : ` at ${entry.revision.slice(0, 8)}`} (~${entry.weightsGB} GB) to ${config.modelDir}`, command: download, skipIf: 'weights' },
     ];
+}
+
+export const distributionName = (name) => name.toLowerCase().replace(/[-_.]+/g, '_');
+
+export function missingDistributions(config, listDir) {
+    const wanted = [...config.model.distributions, 'huggingface_hub'];
+    let entries;
+    try {
+        entries = listDir(config.sitePackages);
+    } catch {
+        return wanted;
+    }
+    const installed = new Set(entries.filter((entry) => entry.endsWith('.dist-info')).map((entry) => distributionName(entry.split('-')[0])));
+    return wanted.filter((name) => !installed.has(distributionName(name)));
 }
 
 export function serverCommands(config, serverScript) {
