@@ -51,6 +51,19 @@ export const NothingDownloadsWithoutTheCardsButton: Story = {
   },
 };
 
+export const UnknownSizeStillDownloads: Story = {
+  args: { api: api({ planModelDownload: fn(async () => ({ ...card, sizeBytes: null, warning: "The source did not state the size; free space is checked again as it downloads." })) }) },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.type(canvas.getByLabelText("Civitai model version"), "4242");
+    await userEvent.click(canvas.getByRole("button", { name: "Check" }));
+    await expect(await canvas.findByText("ink-lines.safetensors · unknown size")).toBeInTheDocument();
+    await expect(canvas.getByText(/did not state the size/)).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("button", { name: "Download" }));
+    await expect(args.api?.startModelDownload).toHaveBeenCalledWith("p1");
+  },
+};
+
 export const NotEnoughSpaceDisablesDownload: Story = {
   args: { api: api({ planModelDownload: fn(async () => ({ ...card, fits: false, freeBytes: 1024 ** 3 })) }) },
   play: async ({ canvasElement }) => {

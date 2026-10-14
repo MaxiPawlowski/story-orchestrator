@@ -62,6 +62,7 @@ export function divergenceSkip(turn: PlayerTurn | null, lastTurn: number): Diver
 export const commitsToAction = (reading: DivergenceReading): boolean => (reading.commits ?? 0) >= DIVERGENCE_COMMIT_P;
 
 export function stepDivergence(previous: DivergenceState, checkpointId: string, reading: DivergenceReading): DivergenceStep {
+  if (previous.checkpointId === checkpointId && reading.turn <= previous.lastTurn) return { state: previous, diverged: false, reason: null };
   const fresh = previous.checkpointId === checkpointId ? previous : { ...previous, checkpointId, streak: 0 };
   const base = { ...fresh, lastBoundary: reading.boundary, lastTurn: Math.max(fresh.lastTurn, reading.turn), last: reading };
   const hold = (streak: number): DivergenceStep => ({ state: { ...base, streak }, diverged: false, reason: null });

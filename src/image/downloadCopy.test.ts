@@ -24,6 +24,14 @@ describe("v2.8 30: model download cards", () => {
     expect(cardLines({ ...card, fits: true, nsfw: false }).join("\n")).toMatch(/Free there/);
   });
 
+  it("an unknown-size card the server says fits shows free space and the warning, not a shortfall", () => {
+    const lines = cardLines({ ...card, sizeBytes: null, fits: true, nsfw: false, warning: "The source did not state the size; free space is checked again as it downloads." });
+    expect(lines[0]).toBe("ink.safetensors · unknown size");
+    expect(lines.join("\n")).toMatch(/Free there: 1.00 GiB/);
+    expect(lines.join("\n")).not.toMatch(/Not enough space/);
+    expect(lines.at(-1)).toMatch(/did not state the size/);
+  });
+
   it("says what happened to a download", () => {
     const job = { id: "j", planId: "p1", name: "ink.safetensors", root: "/m", state: "running", bytes: 50, total: 200, error: null };
     expect(jobLine(job)).toBe("ink.safetensors: running 25%");

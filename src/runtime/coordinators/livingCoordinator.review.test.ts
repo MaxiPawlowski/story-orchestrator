@@ -4,8 +4,8 @@ import { gateLeaves, parseStoryV2OrThrow, PLAYER_TURNS_KEY, StoryEngine, type No
 import { diffStories } from "@engine/storyDiff";
 import type { ModelCall, SchedulerJob } from "@extraction/index";
 import { compactOps, graphEpoch, livingRaw } from "@generation/living/fold";
-import { directorLeads, followsPlayer, type DivergenceAnswer } from "@generation/living/divergence";
-import type { LivingRuntimeState } from "@generation/living/types";
+import { directorLeads, followsPlayer, stepDivergence, type DivergenceAnswer } from "@generation/living/divergence";
+import { createDivergenceState, type LivingRuntimeState } from "@generation/living/types";
 import { mintToken, tokenMatches, type RunContext } from "../runToken";
 import type { LivingInputs } from "../livingInputs";
 import { LivingCoordinator } from "./livingCoordinator";
@@ -424,6 +424,21 @@ describe("v2.8 22 divergence branching", () => {
     expect(rigged.extras.living?.divergence?.streak).toBe(1);
     await rigged.commit();
     expect(await rigged.coordinator.checkDivergence(rigged.at(), sink.place)).toBe(true);
+  });
+
+  it("two readings of the same player turn never reach streak 2: overlapping boundaries count it once", async () => {
+    const rigged = await atMill([act(0.85), act(0.85)]);
+    const sink = placed();
+    const both = await Promise.all([rigged.coordinator.checkDivergence(rigged.at(), sink.place), rigged.coordinator.checkDivergence(rigged.at(), sink.place)]);
+    expect(both).toEqual([false, false]);
+    expect(rigged.extras.living?.divergence?.streak).toBe(1);
+    expect(sink.jobs).toEqual([]);
+    const first = stepDivergence(createDivergenceState(), "mill", { turn: 3, none: true, p: 0.85, commits: 0.9, boundary: 1 });
+    const again = stepDivergence(first.state, "mill", { turn: 3, none: true, p: 0.85, commits: 0.9, boundary: 2 });
+    const stale = stepDivergence(first.state, "mill", { turn: 2, none: true, p: 0.99, commits: 0.9, boundary: 2 });
+    expect(first.state.streak).toBe(1);
+    expect(again).toEqual({ state: first.state, diverged: false, reason: null });
+    expect(stale).toEqual({ state: first.state, diverged: false, reason: null });
   });
 
   interface GoldenTurn { text: string; readings: Array<{ none: boolean; p: number; commits?: number }> }

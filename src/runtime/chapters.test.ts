@@ -125,6 +125,24 @@ describe("chapter diagnostics and mutations", () => {
     expect(codes({ ...open, living: { premise: "p", authored_until: "elsewhere" } })).toEqual(["chapter-no-exit", "story-dead-end"]);
   });
 
+  it("fires on a non-final dead end without living, and stays silent on the hybrid's authored_until anchor", () => {
+    const open = { ...raw(), chapters: raw().chapters!.map((chapter) => ({ ...chapter, final: false })) };
+    expect(codes(open)).toEqual(["chapter-no-exit", "story-dead-end"]);
+    expect(codes({ ...open, living: { premise: "p", authored_until: "dawn" } })).toEqual([]);
+    expect(codes({ ...open, living: { premise: "p" } })).toEqual([]);
+  });
+
+  it("treats a liv_ anchor as the frontier, and never an exitless intermediate", () => {
+    const open = { ...raw(), chapters: raw().chapters!.map((chapter) => ({ ...chapter, final: false })) };
+    const rename = (from: string, to: string, type?: "anchor" | "intermediate") => ({
+      ...open,
+      checkpoints: open.checkpoints.map((checkpoint) => (checkpoint.id === from ? { ...checkpoint, id: to, type: type ?? checkpoint.type } : checkpoint)),
+      transitions: open.transitions.map((transition) => ({ ...transition, to: transition.to === from ? to : transition.to })),
+    });
+    expect(codes({ ...rename("dawn", "liv_1"), living: { premise: "p", authored_until: "gate" } })).toEqual([]);
+    expect(codes({ ...rename("dawn", "dusk", "intermediate"), living: { premise: "p" } })).toEqual(["chapter-no-exit", "story-dead-end"]);
+  });
+
   it("names a re-entry, an unreachable chapter and a checkpoint with no chapter", () => {
     const draft = raw();
     draft.transitions.push({ from: "walls", to: "gate", priority: 0, gate: { all: [] } });

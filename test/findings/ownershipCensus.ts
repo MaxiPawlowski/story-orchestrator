@@ -24,7 +24,7 @@ export interface OwnershipSite {
 // `ExtractionScheduler.pump`, outside the roots the census had. `src/services/stHost` is left out on
 // purpose: those are host primitives that take no ownership by design, and every caller of one is
 // censused here. The pure packages (engine, memory, judge, …) hold no state across an await.
-export const CENSUS_ROOTS = ["src/runtime", "src/wizard", "src/extraction", "src/generation", "src/copilot/agent", "src/sprites", "src/studio/components/PosesList.tsx"];
+export const CENSUS_ROOTS = ["src/runtime", "src/wizard", "src/extraction", "src/generation", "src/copilot/agent", "src/sprites", "src/studio/components"];
 
 // A name that mutates something. Deliberately broad: a false positive costs one classified row,
 // a false negative costs a silent cross-chat write.
@@ -41,14 +41,14 @@ const WRITE_NAME = /^(set|add|push|record|inject|enqueue|persist|save|apply|writ
 // `lapsed` meaning a lapsed continuity note, and a bare-word match read that as an ownership
 // check (caught 2026-09-20). A name-based heuristic has to assume the domain will reuse its
 // words, so it matches `run.lapsed()` and never `lapsed`.
-const TOKEN_CHECK = /(\bwithToken\(|\btokenMatches\(|ownership\??\.check\(|\.ownsOpenChat\(|\.stillOwns\(|\.lapsed(Detail)?\()/;
+const TOKEN_CHECK = /(\bwithToken\(|\btokenMatches\(|[oO]wnership\??\.check\(|\.ownsOpenChat\(|\.stillOwns\(|\.lapsed(Detail)?\()/;
 
 function walkFiles(dir: string, out: string[] = []): string[] {
   if (statSync(dir).isFile()) { out.push(dir.split("\\").join("/")); return out; }
   for (const entry of readdirSync(dir)) {
     const path = join(dir, entry).split("\\").join("/");
     if (statSync(path).isDirectory()) walkFiles(path, out);
-    else if (path.endsWith(".ts") && !path.endsWith(".test.ts")) out.push(path);
+    else if (/\.tsx?$/.test(path) && !/\.(test|stories)\.tsx?$/.test(path)) out.push(path);
   }
   return out;
 }

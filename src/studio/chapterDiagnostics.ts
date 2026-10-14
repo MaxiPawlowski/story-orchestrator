@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import { isLivingId, type StoryV2 } from "@engine/index";
 
 type ChapterCode = "chapter-missing" | "chapter-unknown" | "chapter-unreachable" | "chapter-no-exit" | "chapter-reentry" | "story-dead-end";
 
@@ -26,7 +26,12 @@ export const checkChapters = (run: ChapterRun) => {
   const reachable = new Set([startId, ...reachableFrom(startId)]);
   const leaves = (id: string) => draft.transitions.some((transition) => chapterOf(transition.from) === id && chapterOf(transition.to) !== id);
   const hasExit = (checkpointId: string) => draft.transitions.some((transition) => transition.from === checkpointId);
-  const frontier = (checkpointId: string) => Boolean(draft.living) && (!draft.living?.authored_until || draft.living.authored_until === checkpointId);
+  const frontier = (checkpointId: string) => {
+    const living = draft.living;
+    if (!living || run.checkpointById.get(checkpointId)?.type !== "anchor") return false;
+    if (isLivingId(checkpointId)) return true;
+    return living.authored_until ? living.authored_until === checkpointId : true;
+  };
   const frontierChapter = (chapterId: string) => draft.checkpoints.some((checkpoint) => checkpoint.chapter === chapterId && !hasExit(checkpoint.id) && frontier(checkpoint.id));
   chapters.forEach((chapter, index) => {
     const members = draft.checkpoints.filter((checkpoint) => checkpoint.chapter === chapter.id);

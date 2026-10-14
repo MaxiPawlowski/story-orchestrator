@@ -9,7 +9,9 @@ import {
 } from "@wizard/index";
 import { isAgentSession, type AgentSession } from "@copilot/agent/index";
 import { fellBackText, type FellBack } from "@extraction/modelRoute";
+import { draftOwnership } from "../agentHost";
 import { useDraftStore } from "../draft";
+import { lapsedProvisioningCopy, provisionOwned } from "./ownedProvisioning";
 import type { KnowledgeShowMe } from "@copilot/knowledge/types";
 import AgentWizard, { type AgentTurnRunner } from "./AgentWizard";
 import CharacterTutorial from "./CharacterTutorial";
@@ -234,26 +236,29 @@ const useProvisioning = ({ host, mutate, applied, setApplied, setEnvironment, pe
     if (!host || busy !== null) return;
     setBusy(index);
     try {
-      const outcome = await host.applyProvisioning(op, useDraftStore.getState().draft);
+      // A grant is permission over an existing user asset, not something this wizard created. Never
+      // put it in `applied`: that ledger is the cleanup scope for test-created assets.
+      const { outcome, lapsed } = await provisionOwned(op, {
+        ownership: draftOwnership,
+        draft: () => useDraftStore.getState().draft,
+        provision: (created, draft) => host.applyProvisioning(created, draft),
+        recordCreated: (created) => {
+          const nextApplied = applied.includes(created) ? applied : [...applied, created];
+          setApplied(nextApplied);
+          persist({ applied: nextApplied });
+        },
+        applyFollowUps: (created) => mutate((current) => applyOps(current, provisioningFollowUpOps(current, created))),
+      });
       // A grant and its revoke are two keys for one book. Confirming one makes the other card
       // reappear, and its old success line is about the opposite decision, so the flip clears both
       // before the new outcome is recorded.
       setResults((previous) => {
         const next = { ...previous };
         if (op.kind === "grantLorebook") { delete next[grantIndex(op.lorebook)]; delete next[revokeIndex(op.lorebook)]; }
-        next[index] = { ok: outcome.ok, message: outcome.message };
+        next[index] = { ok: outcome.ok, message: lapsed ? lapsedProvisioningCopy(outcome.message, lapsed) : outcome.message };
         return next;
       });
-      if (!outcome.ok) return;
-      mutate((current) => applyOps(current, provisioningFollowUpOps(current, op)));
-      // A grant is permission over an existing user asset, not something this wizard created. Never
-      // put it in `applied`: that ledger is the cleanup scope for test-created assets.
-      const nextApplied = outcome.created
-        ? applied.includes(outcome.created) ? applied : [...applied, outcome.created]
-        : applied;
-      setApplied(nextApplied);
-      setEnvironment(host.environment(useDraftStore.getState().draft));
-      persist({ applied: nextApplied });
+      if (outcome.ok && !lapsed) setEnvironment(host.environment(useDraftStore.getState().draft));
     } catch (caught) {
       setResults((previous) => ({ ...previous, [index]: { ok: false, message: studioFailure("Creating that asset failed", caught) } }));
     } finally {

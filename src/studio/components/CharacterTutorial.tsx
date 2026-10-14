@@ -9,7 +9,9 @@ import { ALL_AUDIENCES, findTopic } from "@copilot/knowledge/index";
 import type { KnowledgeShowMe } from "@copilot/knowledge/types";
 import { emptyEnvironment, newWizardSession, wizardSessionKey, type ProvisioningOp } from "@wizard/index";
 import { studioFailure } from "../errorCopy";
+import { draftOwnership } from "../agentHost";
 import { useDraftStore } from "../draft";
+import { lapsedProvisioningCopy, provisionOwned } from "./ownedProvisioning";
 import ProvisioningCard from "./ProvisioningCard";
 import type { WizardHost } from "./StudioCopilot";
 
@@ -103,17 +105,22 @@ const ReviewStep = ({ card, host, onCreated }: { card: TutorialCard; host?: Wiza
   const apply = async (op: ProvisioningOp) => {
     if (!host || busy) return;
     setBusy(true);
+    const key = wizardSessionKey(useDraftStore.getState().draft);
     try {
-      const outcome = await host.applyProvisioning(op, useDraftStore.getState().draft);
-      setResult({ ok: outcome.ok, message: outcome.message });
-      onCreated(outcome.message, outcome.ok);
-      if (!outcome.ok) return;
-      mutate((current) => applyOps(current, provisioningFollowUpOps(current, op)));
-      if (outcome.created && host.loadSession && host.saveSession) {
-        const key = wizardSessionKey(useDraftStore.getState().draft);
-        const { createdLorebooks: _coordinatorOwned, ...stored } = host.loadSession(key) ?? newWizardSession(key);
-        if (!stored.applied.includes(outcome.created)) host.saveSession({ ...stored, applied: [...stored.applied, outcome.created] });
-      }
+      const { outcome, lapsed } = await provisionOwned(op, {
+        ownership: draftOwnership,
+        draft: () => useDraftStore.getState().draft,
+        provision: (created, draft) => host.applyProvisioning(created, draft),
+        recordCreated: (created) => {
+          if (!host.loadSession || !host.saveSession) return;
+          const { createdLorebooks: _coordinatorOwned, ...stored } = host.loadSession(key) ?? newWizardSession(key);
+          if (!stored.applied.includes(created)) host.saveSession({ ...stored, applied: [...stored.applied, created] });
+        },
+        applyFollowUps: (created) => mutate((current) => applyOps(current, provisioningFollowUpOps(current, created))),
+      });
+      const message = lapsed ? lapsedProvisioningCopy(outcome.message, lapsed) : outcome.message;
+      setResult({ ok: outcome.ok, message });
+      onCreated(message, outcome.ok);
     } catch (caught) {
       setResult({ ok: false, message: studioFailure("Creating that card failed", caught) });
     } finally {

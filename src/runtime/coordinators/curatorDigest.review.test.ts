@@ -1,7 +1,7 @@
 import { recordingModel } from "../../../test/support/modelCall";
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import {
-  CURATOR_DIGEST_FULL_LIMIT, CURATOR_DIGEST_INDEX_LIMIT, DIGEST_NO_MATCH, TITLE_ONLY_REFUSAL, buildWiCuratorPrompt, entriesForScope,
+  CURATOR_DIGEST_FULL_LIMIT, CURATOR_DIGEST_INDEX_LIMIT, DIGEST_NO_MATCH, SEEN_TARGET_REFUSAL, TITLE_ONLY_REFUSAL, buildWiCuratorPrompt, entriesForScope,
   type CuratorOpRecord, type CuratorProposalRecord,
 } from "@stagecraft/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
@@ -203,12 +203,27 @@ describe("C13-b curator digest through the coordinator", () => {
     expect(run.writes).toEqual([]);
   });
 
+  it("write edge: an edit stamped at proposal cannot be moved onto an entry the curator was not shown", async () => {
+    const run = harness(entries(60));
+    const outcome = await pass(run, "[patch] Bridge || The bridge stands || new and taut || The bridge is gone.");
+    expect(outcome.record!.ops.map((entry) => [entry.seen, entry.seenTarget?.comment])).toEqual([["full", "Bridge"]]);
+    await run.coordinator.setOpDecision(outcome.record!.id, 0, "accepted", { kind: "rewrite", lorebook: "Story Lore", comment: "Place 7", uid: 7, text: "Smuggled." });
+    expect(await run.coordinator.applyAccepted()).toBe(0);
+    expect(run.read().proposals[0].ops[0]).toMatchObject({ status: "failed", message: expect.stringContaining(SEEN_TARGET_REFUSAL) });
+    expect(run.writes).toEqual([]);
+    const kept = harness(entries(60));
+    const proposed = await pass(kept, "[patch] Bridge || The bridge stands || new and taut || The bridge is gone.");
+    await kept.coordinator.setOpDecision(proposed.record!.id, 0, "accepted", { kind: "rewrite", lorebook: "Story Lore", comment: "Bridge", uid: 1, text: "The author's own words." });
+    expect(await kept.coordinator.applyAccepted()).toBe(1);
+    expect(kept.book.get(1)!.content).toBe("The author's own words.");
+  });
+
   it("a relevant entry stays editable, and its protected span still holds", async () => {
     const run = harness(entries(60, (entry) => (entry.uid === 1 ? { ...entry, content: "The bridge stands {{// so:protect}}by the old oak{{// so:end}} and its ropes are taut." } : entry)));
     const outcome = await pass(run, "[patch] Bridge || and its ropes || are taut || and its ropes are cut.\n[rewrite] Bridge || The bridge is gone.");
     expect(kinds(outcome.record)).toEqual(["patch:Bridge"]);
     expect(outcome.record!.dropped.join(" ")).toContain("touches protected text");
-    expect(outcome.record!.ops[0].seen).toBeUndefined();
+    expect(outcome.record!.ops[0].seen).toBe("full");
   });
 
   it("a title-only entry with a protected span cannot be switched off, though the model never saw the span", async () => {

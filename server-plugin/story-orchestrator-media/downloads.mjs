@@ -170,7 +170,7 @@ export function createDownloads({ config = {}, fetchImpl = fetch, statfs = (dir)
         if (part && (part.isSymbolicLink() || !part.isFile())) refuse('A partial download in that folder is not a plain file; remove it first.', 409);
         const free = await freeBytes(root);
         const remaining = Math.max(0, (resolved.sizeBytes ?? 0) - (part?.size ?? 0));
-        const fits = present || (resolved.sizeBytes !== null && free >= remaining + margin);
+        const fits = present || free >= remaining + margin;
         const id = randomUUID();
         const row = { id, user, provider, resolved, kind: chosenKind, root, realRoot, target, present, createdAt: now() };
         plans.set(id, row);

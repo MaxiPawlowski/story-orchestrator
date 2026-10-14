@@ -17,10 +17,15 @@ describe("drafted lore member host identity", () => {
     expect(draftedLoreMember()).toEqual({ filename: "Other", tags: ["other"] });
   });
 
-  it("distinguishes a character with no tags from no drafted character", () => {
+  it("an absent tag-map entry is no tag info (null), as world-info.js:4832 applies the tag filter only when Array.isArray(tagMapEntry)", () => {
     context.characterId = 1;
-    delete context.tagMap["Other.png"];
+    context.tagMap["Other.png"] = [];
     expect(draftedLoreMember()).toEqual({ filename: "Other", tags: [] });
+    delete context.tagMap["Other.png"];
+    expect(draftedLoreMember()).toEqual({ filename: "Other", tags: null });
+    context.tagMap["Other.png"] = "other";
+    expect(draftedLoreMember()).toEqual({ filename: "Other", tags: null });
+    delete context.tagMap["Other.png"];
     context.characterId = undefined;
     expect(draftedLoreMember()).toEqual({ filename: null, tags: null });
     context.characterId = "";

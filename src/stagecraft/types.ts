@@ -139,7 +139,8 @@ export interface CuratorOpRecord {
    * Apply ran at; `StagecraftCoordinator.reconcileWriteAhead` settles it on hydrate. */
   writeAhead?: { status: "pending"; at: string; messageId?: number };
   fuzzy?: { anchor: string; span: string; score: number };
-  seen?: "title";
+  seen?: "title" | "full";
+  seenTarget?: WiCuratorTarget;
   nearDups?: NearDup[];
   created?: { keys: string[] };
 }
