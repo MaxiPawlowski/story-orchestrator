@@ -2,7 +2,9 @@
 
 **Status (2026-10-11): v2.8 plan 13 (was v2.7 plan 14). Decided: the user chose A, a Phase A evaluation for EVERY J7
 idea (J7.1-J7.7), plus the ST-jeved ideas N1-N8 in order. Phase A has run for every idea that has a question; consumers
-are built for the ideas that passed x2, on by default (owner rule 2026-10-09). See the Gate record B4 at the end.**
+are built for the ideas that passed x2, on by default (owner rule 2026-10-09). See the Gate record B4 at the end.
+2026-10-14: J7.6 Phase A run (Gate record J7.6): fixture side PASS x2 for every kind at lower frozen floors; the replay
+side cannot evidence a lowered floor (0 real reads rebuild; keys under 0.8 are never archived), so no floor moved.**
 Source: `docs/plans/v2.6/v2.7-seeds.md` row "J7 judge ideas". Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D (fixtures, goldens, pure rules, offline replay tool);
 acceptance CL (TypeSafe calibration ×2; offline replay over archived sessions; no pod).
@@ -568,3 +570,63 @@ Machine-readable: `test/measurements/v2.8/13-phase-a/b4-summary.json`, `calls.js
 - A third N4 run if the owner wants the reply-path consumer; J7.1 would need a new predeclared floor decision, not a retune.
 - J7.6 after plan 12's replay; N8 inside v2.8 20 M1.
 - Canon prose is player-visible: default-on needs the owner's explicit nod (v2.8 rule 4); it is on because of the 2026-10-09 rule.
+
+## Gate record J7.6 (2026-10-14, branch `v2.8-j76-nonce`)
+
+Phase A for J7.6 (per-quality floors) on plan 12's J6d reconstruction, per the protocol predeclared under §J7.6
+(committed `6979e324` before any call; fixtures `ba30c09a`; floors frozen `7e8a6fe2` before the held-out runs).
+Scorer `src/judge/typedKindFloors.ts` (pure, not imported by the runtime); runner `scripts/spike/typesafe/typed-kinds.mts`
+(production typed plan + `readTypedDeltas` with a per-kind floor function, real judge plugin handler, TypeSafe
+`jev-1.13.0`). Machine-readable: `test/measurements/v2.8/13-phase-a/j76-summary.json`.
+
+**Calls.** 80 TypeSafe calls (cap 150): tuning 20, held-out 2 x 30. Ledger `j76-attempts.jsonl`, rows in `calls.jsonl`.
+
+**Frozen floors** (`test/fixtures/judge/spike-typed-kinds.floors.json`): choice 0.5, stated 0.5, rating 0.65 (latching
++0.1 on top). Tuning accuracy was 1.0 at every grid point for choice and stated, so the rule took the grid's bottom;
+rating first reached 0.95 at 0.65 (0.875 at 0.5, 11 answered at 0.65).
+
+**Held-out verdict (30 rows per kind, x2):**
+- choice at 0.5: PASS x2. Accuracy 0.9615 (25/26) both runs, coverage 0.87 vs 0.63 at the single floor (19 answered, 1.0).
+  The one miss is the same row both runs, at confidence 0.78 / 0.76 (the single floor would have refused it).
+- stated at 0.5: PASS x2. Accuracy 1.0 (30/30), coverage 1.0 vs 0.93 (28 answered, 1.0).
+- rating at 0.65: PASS x2. Accuracy 1.0 (16/16, 15/15), coverage 0.53 / 0.50 vs 0.37 (11 answered, 1.0).
+- p50 220 / 221 ms. Judge-off column (same answers at 0.8): 1.0 accuracy for every kind, lower coverage.
+
+**Replay leg (J6d).**
+- Synthetic `test/fixtures/j6d` (stubbed judge and extractor): 7 cases, 28 judge-answered keys; at the frozen floors no
+  key is handed back (every one is at 0.78+, all kinds lowered); 4 of 56 compared rows differ at either floor. Plumbing
+  only.
+- Real private corpus (48 session dirs with a runtime blob, counts only): 1,423 audits, 713 not judged, 710 judged
+  reads all refused, **0 rebuilt** (`prompt-mismatch` Canon-lite 592, `scope-not-rebuilt` 62, `missing-snapshot` 52,
+  `prompt-mismatch` Story 4). So there is nothing to send to the extractor leg; it stays owed.
+- Fixed on the way: the J6d runner refused every real story (`GAME_LAYER_LOADING`) because its bundle never installed
+  the game layer; `scripts/debug/lib/j6dReplayEntry.ts` now installs it (node:test case, mutant-checked).
+- Census of judged keys in the real corpus (journal `judged.keys`, kind from the pinned story): rating 854, stated 75,
+  choice 59, unknown 272 (story not archived). Confidences are archived only for keys that produced a delta (68 keys;
+  rating 15 under 0.85, 26 at 0.85-0.9). Rating is the kind real play asks most; `typed.json` holds 2 rating rows.
+
+**Verdict: no floor moved, no consumer built.**
+- The fixture side passes x2 for all three kinds, but every frozen floor is below 0.8. The J6d replay can only replay
+  keys the judge answered at 0.8+ (keys under the floor are dropped before the audit), so it cannot show judge/extractor
+  agreement for the keys a lowered floor would add. F16 ("no floor moves on fixture rows alone") therefore blocks the
+  move, whatever the extractor leg shows.
+
+**Deviations.**
+- The recorded `typed.json` golden is stale for 49 of 55 requests (the typed question wording changed after
+  2026-09-19), so the tuning split was in effect the new tuning fixture plus 6 `typed.json` cases. The rule ran as
+  declared.
+- The grid's lowest point (0.5) was a predeclared bound; choice and stated were never probed below it.
+
+**Gates.**
+- `npx jest src/judge/typedKindFloors.test.ts`: 9/9 (recorded tuning reproduces the frozen floors; both held-out runs
+  replay their exact requests and verdicts; empty answers are `insufficient`; the single floors equal production's
+  `readTypedDeltas`; rule unit cases).
+- `node --test scripts/debug/j6dReplay.test.mts`: 8/8.
+- `npm run gates:quick`: green. Branch gates (plan 23 record 2026-10-14): `npm run gates -- --jobs=2 --no-storybook --skip=test` all green, jest `--maxWorkers=4` 722 suites / 8,307 tests, staged Storybook 136 / 817.
+
+**Owed / owner questions.**
+- To evidence a lowered floor in real play the audit must keep the judge's confidence (and decoded value) for every
+  asked key, not only answered ones; or plan 12's option A live shadow. Either is a product change: owner decision.
+- Real-corpus reconstruction refuses on Canon-lite facts that are not archived (592 of 710); archiving them, or a
+  canon-free comparison, is plan 12's follow-up.
+- The extractor leg (DeepSeek read model x2) once any real case rebuilds.
