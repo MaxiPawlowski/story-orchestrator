@@ -1,19 +1,22 @@
 # Plan 44 — Rumors and gossip
 
-**Status: v2.8, owner decision 2026-10-14 (new idea), not built.** Pairs with v2.8 42 (who heard what) and v2.8 43
-(exact words). Implementation D; acceptance CL (voicing fixture, second-model labels) and RP or LT (one live leg).
+**Status: v2.8, owner decision 2026-10-14 (new idea), not built. Revised 2026-10-14 against the Astra review (owner
+approved; §12).** Pairs with v2.8 42 (who heard what; §0 shared audience/provenance contract) and v2.8 43 (exact
+words). Implementation D; acceptance CL (voicing fixture, second-model labels) and RP or LT (one live leg).
 
 ## 1. What it is
 
 - Today a character knows what extraction says it witnessed or was told, and nothing travels after that. If the
   blacksmith learns something at noon, the innkeeper never hears it, however close the two are.
-- Rumors make knowledge **move between characters over story time**: along authored channels (who talks to whom), after
-  a delay, sometimes changed on the way. The innkeeper ends up with a secondhand version ("heard from the blacksmith
-  that…"), possibly wrong.
-- It reuses what exists: the epistemic rows (`[knows]`, `[suspects]`, `[believes]`, `[hiding]`, `[unaware]`), the
-  per-member private block, character life (relationships, agendas, schedule, clock) and seeded chance.
+- Rumors make **claims move between characters over story time**: along authored channels (who talks to whom, when
+  they are in contact), after a delay, sometimes changed on the way. The innkeeper ends up with **hearsay**: "the
+  blacksmith told me that…", which may be wrong.
+- Hearsay is typed separately from truth (v2.8 42 §0 **told** + **believed**): the receiver knows that someone said
+  something, holds a belief stance about it, and the authored truth stays author-side. Extraction never promotes
+  hearsay into fact or canon.
 - The player meets rumors **secondhand**: a character repeats its version; nothing announces "a rumor spread".
-- Secrets travel only where the author allows it, and then as a reveal the held-secret machinery already understands.
+- **Stage 1 carries non-secret subjects only.** Secrets travel only after recipient-specific disclosure is built
+  (§5.4), and then only along an authored `leaks_to` rule, as a disclosure to one recipient.
 - Group chats only (v2.7 03).
 
 ## 2. History and evidence
@@ -26,161 +29,230 @@
 - Privacy history this must not reopen: v2.6 T2-2 (secrets through shared tiers, fixed per member, `a19c7023`),
   K1/K2 (`7ee079f2`), the held-secret invariant (`.claude/rules/architecture.md` §Memory and privacy).
 - Common-knowledge pruning exists because models hand everyone the same `[knows]` line (`src/memory/epistemic.ts:198-220`);
-  a rumor that reaches everyone has the same shape and must be treated the same way.
+  a rumor that reaches everyone has the same shape.
 
 ## 3. Current state in code
 
-Verified on master `211d8d96`.
+Verified on master `211d8d96`; re-checked on `3a716f2b` for the review.
 
 - **Epistemic rows:** `EpistemicEntry {subject, tag, content, hiddenFrom?, messageId?, pinned?, provenance, retiredAt?}`
-  (`src/memory/types.ts:105-124`); tags `knows, unaware, suspects, believes, hiding, intends` (`:95`).
+  (`src/memory/types.ts:105-124`); tags `knows, unaware, suspects, believes, hiding, intends` (`:95`). Row ids come
+  from `generateMemoryId()` (`crypto.randomUUID` or `Math.random`, `src/memory/types.ts:237-242`): not stable across
+  replay, so never a seed for draws.
 - **Write path:** `MemoryCoordinator.applyEpistemic` → `dropCommonKnowledge` → `applyEpistemicSignals` →
-  `capEpistemic` → `updateInjection()` (`src/runtime/coordinators/memoryCoordinator.ts:351-363`); retire by id via
-  `retireIds` (`src/memory/epistemic.ts:72-118`). Caps: 80 total, 12 per subject (`:9-10`, `capEpistemic` `:223-240`).
+  `capEpistemic` → `updateInjection()` → **memory-mirror resync when `heldSecretsKey()` changed**
+  (`src/runtime/coordinators/memoryCoordinator.ts:351-363`). Calling the pure helpers alone skips the mirror resync.
+- **Retirement is whole-row:** `applyEpistemicSignals(…, retireIds)` sets `supersededBy` on the whole entry
+  (`src/memory/epistemic.ts:72-90`); `heldSecrets()` derives protection from active rows only
+  (`src/memory/heldSecrets.ts:21-35`). Retiring a `[hiding]` row hidden from several members lifts it for all of them.
+- **Caps do not reserve protection:** `capEpistemic` keeps the newest unpinned rows per subject (12) and overall (80)
+  with no reservation for `[hiding]`/`[unaware]` (`src/memory/epistemic.ts:223-240`). New rows on a subject can evict
+  its secret restriction. **A fix is in progress on branch `v2.8-epistemic-cap`** (protection rows reserved, never
+  evicted by caps); this plan depends on it.
 - **Rollback:** `rollbackEpistemic(entries, messageId)` drops rows sourced at or after the message (pinned rows go
-  `source-removed`) and un-retires rows retired after it (`src/memory/epistemic.ts:178-189`; `keepPinnedFrom`
-  `src/memory/provenance.ts:108-113`).
+  `source-removed`) and un-retires rows retired after it (`src/memory/epistemic.ts:178-189`).
 - **Held secrets:** `heldSecrets()` excludes a barred member's own echoes from `knowers`
-  (`src/memory/heldSecrets.ts:27-30`), so a `[knows]` row given to a barred member does **not** make it a knower: the
-  secret is still redacted from its shared tiers. A rumor reaching a barred member must therefore be an explicit
-  retire of the `[hiding]`/`[unaware]` row, never a quiet extra `[knows]`.
+  (`src/memory/heldSecrets.ts:27-30`), so a `[knows]` row given to a barred member does not make it a knower.
 - **Private block per drafted member:** `renderPrivateEpistemicBlock` (`src/memory/epistemic.ts:139`), swapped in
-  `onMemberDrafted` (`src/runtime/memoryInjector.ts:119,254`); registry key `story_orchestrator_epistemic`, depth 4, not
-  scannable (`src/constants/injectionRegistry.ts:20`). Epistemic data is never written to World Info (architecture).
-- **Character life:** `LifeMember {relationships, mood?, agenda, schedule}`, `RelationshipDecl {toward, axes, range,
-  step, start}`, `StoryClock`, relationship quality key `rel_<holder>_<toward>_<axis>` (`src/engine/lifeSchema.ts:15-85`);
-  day key `story_day` (`:9`). Presence/away per member (`src/engine/life/presence.ts:45-65`). Agendas never call a model.
-- **Seeded chance:** `chanceSeed`, `seededStream`, `unitDraw(parts)` (`src/engine/chance.ts:10-33`); runtime context
-  hash(chat, story, boundary, key) (`src/runtime/chance.ts`).
-- **Boundary work registry:** entries like `meanwhile-land` (order 6), `living-apply`, `scene-read`
-  (`src/runtime/boundaryWork.ts:36-210`).
-- **Nothing spreads knowledge** between members today; no rumor schema, no channel, no `rumor` provenance.
+  `onMemberDrafted` (`src/runtime/memoryInjector.ts:119,254`); registry key `story_orchestrator_epistemic`, depth 4,
+  not scannable (`src/constants/injectionRegistry.ts:20`).
+- **Character life:** `LifeMember {relationships, mood?, agenda, schedule}`, relationship key
+  `rel_<holder>_<toward>_<axis>` (`src/engine/lifeSchema.ts:15-85`); day key `story_day` (`:9`). Presence compares a
+  member's schedule location with the **party** location (`src/engine/life/presence.ts:15-20`): "away from the
+  player" says nothing about whether two NPCs are together.
+- **Seeded chance:** `chanceSeed`, `seededStream`, `unitDraw(parts)` (`src/engine/chance.ts:10-33`).
+- **Boundary work:** `meanwhile-land` (order 6) **launches** `meanwhile.land` with `void` and does not await it
+  (`src/runtime/boundaryWork.ts:43-48`); "after meanwhile-land" does not mean after its writes.
+- **Nothing spreads knowledge** between members today; no rumor schema, no channel, no hearsay type.
 
 ## 4. Design options
 
 | | Design | Model calls | Risk | Verdict |
 |---|---|---|---|---|
-| A. Authored rumors only | Story declares rumors (seed text, origin member, versions, spread gate); code spreads them along channels with seeded delay and seeded version pick | none | author work; nothing emergent | **stage 1** |
-| B. Emergent spread of extracted rows | Any live `[knows]` row whose subject has an authored channel may spread to the channel's partner, verbatim or hedged (`[suspects]` "heard that …"); never `[hiding]`/`[unaware]` content | none | spreads trivia; cap pressure on the 12-per-subject budget | **stage 2** |
-| C. Model-distorted versions | B plus a model rewrites the passed-on version (exaggerate, blur names) | one CL call per hop, propose-only like meanwhile | drift into invented facts; unreached-content spoilers | later, only if A/B voicing is flat |
+| **A. Authored rumors, typed hearsay, non-secret subjects** | Story declares rumors (claim text, origin member, versions with authored truth, start gate); code spreads them along channels with explicit contact, seeded delay and seeded version pick, as hearsay rows | none | author work; nothing emergent | **stage 1** |
+| A+. Authored secret leaks | A plus `leaks_to` disclosures of a held secret to one named recipient | none | needs recipient-specific reveal state (§5.4) | **stage 1b, after §5.4 and the cap fix** |
+| B. Emergent spread of extracted rows | A live `[knows]` row on an explicitly eligible topic, with stable source lineage, spreads as hedged hearsay; never `[hiding]`/`[unaware]` content | none | trivia; crowding | **stage 2**, only with G15 crowding measured |
+| C. Model-distorted versions | B plus a model rewrites the passed-on version | one CL call per hop, propose-only | drift into invented facts; spoilers | later, only if voicing is flat |
 | D. Shared "town knowledge" tier | Rumors as a shared memory tier everyone reads | none | breaks per-member privacy; the T2-2 class | refused |
-| E. Nothing | Characters keep inventing carriers (v2.6 finding) | — | — | fallback |
+| E. Nothing | Characters keep inventing carriers | — | — | fallback |
 
 ## 5. Recommendation
 
-**A then B, deterministic, no model call. C stays a candidate.**
+**A first (non-secret, typed hearsay), then A+ once recipient-specific disclosure and the cap fix land, then B with
+topic eligibility and crowding measured. No model call. C stays a candidate.**
 
-**Authoring** (story schema, validated in `engine/validate/life.ts` style):
-- `life.members[].gossip: { talks_to: [rosterId], when?: <gate>, delay: { boundaries: [min, max] } | { days: [min, max] },
-  hops?: 2 }`. A channel is one-way; `when` can read relationship qualities (`rel_*`), schedule location, or any gate.
-- `rumors: [{ id, from: rosterId, text, versions?: [{ text, true: boolean, weight }], starts_when?: <gate>,
-  leaks_to?: [{ member, when: <gate> }] }]` (stage 1). Stage 2 adds `gossip.topics?: [entity]` to scope which extracted
-  rows may travel.
+### 5.1 Authoring (validated in `engine/validate/life.ts` style)
 
-**Spread** (pure core `src/memory/rumors.ts`, runtime boundary work `rumor-spread` after `meanwhile-land`, lazy chunk
-with the game layer):
-- At each committed boundary, for each carrier row and open channel whose gate holds: a pending hop is scheduled with a
-  delay drawn by `unitDraw([chat, story, rumorId, from, to, hop])`; when due, the version is drawn the same way.
-  **Never `Math.random`.** The draw keys omit the boundary, so the same hop yields the same delay and version on replay.
-- A due hop becomes an epistemic signal for the receiver: faithful true version → `[knows]` "heard from <from>: …";
-  false version → `[believes]`; hedged (stage 2 default) → `[suspects]`. Provenance `code` with detail
-  `rumor:<id>:<from>:<hop>`, `messageId` = the boundary's `lastMessageId`.
-- Applied through the existing write path (`applyEpistemicSignals` + `capEpistemic` + `updateInjection()`), skipping
-  `dropCommonKnowledge` for rumor signals, but a rumor that reaches every enabled member stops spreading and stays as
-  ordinary rows.
-- Away members (presence) and members outside the group receive nothing; a hop waits until both ends are present or
-  the channel says otherwise.
-- Hop limit (default 2) and a per-boundary cap (3 hops) keep it bounded.
+- `life.members[].gossip: { talks_to: [rosterId], contact: "together" | "any" | <gate>, when?: <gate>,
+  delay: { boundaries: [min, max] } | { days: [min, max] }, hops?: 2 }`. A channel is one-way.
+- **Contact model:** `together` (default) = both members' schedule locations (`whereabouts`) are equal and known;
+  `any` = they can reach each other regardless (letters, messengers); a gate = author-defined. Being away from the
+  party does not close a channel. A member outside the group never sends or receives.
+- `rumors: [{ id, from: rosterId, claim, about?: [entity], versions?: [{ text, truth: "true" | "false" | "unknown",
+  weight }], starts_when?: <gate>, leaks_to?: [{ member, when: <gate> }] }]`. `truth` is author-only data; it never
+  reaches a prompt.
+- Validation refuses a stage-1 rumor whose claim restates an active `[hiding]`/`[unaware]` phrasing at import time
+  when the story authors that secret, and refuses `days` without a story clock.
 
-**Secrets:**
-- A row with tag `hiding`/`unaware`, or a `[knows]` row that `keptFrom` would redact for the receiver, never travels to
-  a barred receiver. Not even a distorted version (distortion of a secret is still the secret).
-- Only an authored `leaks_to` rule may pass one, and then the hop **retires** the `[hiding]`/`[unaware]` row through
-  `retireIds` (a reveal) and adds the receiver's row. The reveal is journaled like any retire.
-- Stage 2 rows are checked against `heldSecrets` at spread time **and** at apply time (state may change in between).
+### 5.2 Hearsay rows (typed, not facts)
 
-**State and rollback:**
-- `extras.rumors {pending: [{rumorId, from, to, hop, due, version}], landed: [{…, messageId}]}`, cap 200, persisted.
-- Rollback to message m: drop `landed` rows with `messageId ≥ m` and `pending` scheduled at or after m;
-  `rollbackEpistemic` already drops the receiver rows and un-retires leak reveals. Replay recomputes the same hops.
-- Never written to World Info, never to the memory mirror, never to the shared tiers.
+- A landed hop writes a **hearsay row**, a slice of its own (`extras.memory.hearsay`), not an epistemic `[knows]`:
+  `{occurrenceId, receiver, teller, claim (the version text), rumorId, stance: "believes" | "doubts" | "unsure",
+  told: <v2.8 42 §0 source: the boundary's lastMessageId + revision>}`. Stance is drawn deterministically from the
+  version weight and the receiver→teller relationship (authored mapping, default `unsure`).
+- The private block renders it as attributed speech: "<teller> told you: <claim> (you <stance> it)". The epistemic
+  extraction contract gains one rule: a claim the window only repeats from hearsay is not a `[knows]` or a fact; the
+  memory read treats hearsay rows as read-only context.
+- A receiver who later witnesses the truth gets an ordinary epistemic row; the hearsay row stays (history of being
+  told), with its stance moved to `doubts` by an explicit correction signal, never deleted.
 
-**Player and author surfaces:**
-- Player: none new (v2.8 rule 4); rumors reach play only through characters' private blocks. A player-facing "rumors
-  heard" journal waits for a session that asks for it.
-- Author view: a rumor list in the Memory panel (origin, hops, version, landed at), and next-turn preview shows the
-  receiver's rumor rows (already part of the private block).
+### 5.3 Spread as reversible hop events
+
+- Pure core `src/memory/rumors.ts`; runtime boundary work `rumor-spread` in the lazy game-layer chunk.
+- **Stable occurrence ids:** `occurrenceId = hash(chatId, storyId, rumorId, from, to, hop, parentOccurrenceId)`.
+  Draws use `unitDraw([chat, story, occurrenceId, "delay" | "version" | "stance"])`. Never a memory id, never
+  `Math.random`, never the boundary.
+- **Event log** `extras.rumors.events: [{occurrenceId, rumorId, from, to, hop, scheduledAt: {boundary, messageId},
+  due, version, landedAt?: {boundary, messageId}}]`, deduplicated by `occurrenceId`. Cap 200 with deterministic order
+  (due, then occurrenceId), and retention never below the engine's rollback horizon (`historyFloor`): events newer
+  than the floor are never evicted.
+- **Rollback to message m:** events with `scheduledAt.messageId ≥ m` are removed; events with `landedAt.messageId ≥ m`
+  but scheduled before m return to **pending** (`landedAt` cleared, hearsay rows for that occurrence removed). Replay
+  re-lands them at the same due point.
+- **Sequencing:** `rumor-spread` reads a stable boundary input snapshot taken synchronously at boundary work start
+  (the committed blackboard, the hearsay slice and the active epistemic rows at that moment). It does not depend on
+  `meanwhile-land`'s asynchronous writes; those are visible at the next boundary.
+- Per-boundary cap 3 landings, hop limit default 2; a claim that reaches every enabled member stops spreading.
+
+### 5.4 Secrets: recipient-specific disclosure (stage 1b)
+
+- **Never whole-row retirement for a reveal.** A `[hiding]`/`[unaware]` row gains `disclosedTo: [{member,
+  occurrenceId, at: {boundary, messageId}}]`. `heldSecrets()` treats a disclosed member as a knower **of that secret
+  only**; every other barred member stays barred.
+- Disclosure happens only through an authored `leaks_to` rule (v2.8 42 §0 **authorized disclosure**), lands through a
+  coordinated memory write (§5.5) and is journaled. Rollback removes `disclosedTo` entries at/after m.
+- Protection rows are never evicted by caps (branch `v2.8-epistemic-cap`); hearsay rows have their own cap (48 per
+  chat, 6 per receiver) and never count against the epistemic budget.
+- Stage 2 rows are checked against `heldSecrets` at schedule time **and** at land time.
+
+### 5.5 Writes go through the coordinator
+
+- A new `MemoryCoordinator.applyHearsay(rows, disclosures, messageId)` writes the hearsay slice and any
+  `disclosedTo`, then `updateInjection()` and, when `heldSecretsKey()` changed, the memory-mirror resync, the same
+  sequence `applyEpistemic` uses (`memoryCoordinator.ts:351-363`). The pure core never writes.
+
+### 5.6 Stage 2 (extracted rows)
+
+- Only rows whose subject is in an explicit `gossip.topics` list (no default topic), with stable source lineage: the
+  row's source span (v2.8 42 §0), so `occurrenceId` derives from the span, not the random row id. Hedged as
+  `stance: "unsure"`. Requires G15 crowding numbers before it is on.
+
+### 5.7 Surfaces
+
+- Player: none new (v2.8 rule 4).
+- Author view: a rumor list in the Memory panel (origin, hops, version, stance, pending/landed), next-turn preview
+  shows the receiver's hearsay rows.
 - Studio: `rumors` and `gossip` editors under "State and rules", guide topics (`copilot/guideCoverage.test.ts`).
 - On by default once built (v2.8 rule 9); a story with no `gossip`/`rumors` does nothing.
 
 ## 6. Predeclared floors
 
-Committed before any run; never retuned.
+Committed before any run; never retuned. G11–G15 added and G7–G9 tightened 2026-10-14 by the review (never run).
 
 | # | Condition | Floor |
 |---|---|---|
-| G1 | Determinism: same chat, story, boundaries → same hops, delays, versions | 0 divergent across 4 seeds × 2 runs |
+| G1 | Determinism: same chat, story, boundaries → same events, delays, versions, stances | 0 divergent across 4 seeds × 2 runs |
 | G2 | `rollback ≡ replay` (swipe, edit, delete, reopen mid-delay) | 0 divergent in property cases |
 | G3 | Secret safety: a held-secret phrasing reaching a barred member without a `leaks_to` rule | 0 over the property generator (planted secret per case) |
-| G4 | Leak reveals: an authored leak retires the secret row and is journaled | 100 % of fixture leaks |
-| G5 | No `Math.random`, no World Info write | guard tests: chance-source grep, `lorebookWriters.guard.test.ts` census unchanged |
+| G4 | Authored leaks: a disclosure adds `disclosedTo` for the named recipient and is journaled | 100 % of fixture leaks |
+| G5 | No `Math.random`, no memory-id seed, no World Info write | guard tests: chance-source grep, `lorebookWriters.guard.test.ts` census unchanged |
 | G6 | Player surfaces identical with and without a rumor in flight | 0 diffs (`so-ui.mts assert-player-clean` + snapshot diff) |
-| G7 | Voicing (CL): on a 20-case fixture where a receiver holds a rumor and the turn invites it, the reply uses the **received** version, not the origin's | ≥ 0.7, second-model labelled |
-| G8 | Fidelity of false versions (CL): reply asserts the false version as heard, not as narrator fact | ≥ 0.8 |
-| G9 | Spoilers: a rumor row referencing unreached checkpoints | 0 in a spoiler subset (stage 1 rumors gated by `starts_when`) |
-| G10 | Cost | 0 added model calls (stages 1–2); boundary work p95 ≤ 5 ms on a 12-member fixture |
+| G7 | Voicing (CL): 20 cases where the receiver's prompt holds both the origin's version (in the transcript) and its received version, and the turn invites it | received version used ≥ 0.7, second-model labelled; **feature-off baseline** on the same cases reported beside it and on-minus-off ≥ +0.3 |
+| G8 | Hearsay framing (CL): reply presents a received claim as heard ("I heard…"), not as narrator fact | ≥ 0.8; off baseline reported |
+| G9 | Spoilers: a rumor row referencing unreached content | 0 in a spoiler subset that includes **paraphrased** spoilers of unreached checkpoints, not only checkpoint names |
+| G10 | Cost | 0 added model calls; boundary work p95 ≤ 5 ms on a 12-member fixture |
+| G11 | Recipient-specific reveal: after a leak to one recipient, every other barred member's shared tiers and private block | 0 secret phrasings (property, ≥ 2 barred members per case) |
+| G12 | Protection survives caps: rumor and epistemic churn on a secret's subject | 0 evicted `[hiding]`/`[unaware]` rows (depends on `v2.8-epistemic-cap`) |
+| G13 | Pending restored: a hop scheduled before m and landed after m, rollback to m | 100 % back to pending and re-landed at the same due point on replay |
+| G14 | No promotion: hearsay claims (true and false versions) appearing as facts, `[knows]` rows, canon or chapter consequences after a 30-turn fixture | 0 |
+| G15 | Crowding (stage 2): DELTA and epistemic recall with stage 2 on vs off | live-suite per-tier floors not below the off arm by more than 0.02; private block p95 tokens reported |
 
 ## 7. Gates by tier
 
 **Implementation (D):**
 - `npm run gates`; `npm run typecheck:test` for the new tests.
-- jest: schema validation (unknown member, self-channel, cycle with hops > limit refused), spread core (delay window,
-  version weights from seeded draws, hop limit, per-boundary cap, away members), G1–G5 property tests, leak retire path,
-  `heldSecrets` re-check at apply time, rollback of pending and landed hops.
+- jest: schema validation (unknown member, self-channel, cycle with hops > limit, `days` without clock, secret-restating
+  stage-1 claim refused), contact model (`together` from two schedules, away-from-party NPCs still in contact),
+  spread core (delay window, version and stance draws, hop limit, per-boundary cap), event log rollback (G13),
+  occurrence-id stability, `applyHearsay` calls injection refresh and mirror resync (coordinator test with injected
+  deps), G1–G5, G11, G12 property tests.
 - No-LLM scenario on a lane: a fixture story with two channels and one leak, `send` turns, `expect` receiver rows and
   journal lines; swipe mid-delay; cleanup per debug-scripts rules.
+- Integration case **rumor reveal × memory mirror**: a disclosure changes the mirror only for the recipient's view.
 - Storybook stories for the author rumor list and the Studio editors; feature registry + Help entry (v2.8 rule 10).
 - Guide topics in `docs/authoring/story-guide.md`, then `npm run docs:guide`, `npm run docs:settings`.
 
 **Acceptance:**
-- CL: G7/G8 voicing fixture (20 cases, second-model labels), ×2.
+- CL: G7/G8 voicing fixture (20 cases, on and off arms, second-model labels), ×2; G14 on the 30-turn fixture.
 - RP or LT: one live leg on an adolion-fresh lane if the campaign adopts rumors (decision 4), else on a generic fixture
   group: 30 turns, run header diff around the batch, G6 checked live.
 
 ## 8. Privacy and spoiler notes
 
-- Rumor rows live only in the receiver's private block; the shared transcript is unchanged. ST Summarize / Vector
+- Hearsay rows live only in the receiver's private block; the shared transcript is unchanged. ST Summarize / Vector
   Storage do not see rows, only what characters say aloud (the `transcript-copiers` alert covers that channel).
+- Authored truth values never reach a prompt or a player surface.
 - No rumor text appears in player surfaces; reports name counts only for campaign data.
-- If the Adolion campaign adopts rumors, the authored rumor content lives in the private campaign repo and is reviewed
-  by a second model, never by the owner.
+- If the Adolion campaign adopts rumors, the authored content lives in the private campaign repo and is reviewed by a
+  second model, never by the owner.
 
 ## 9. Dependencies and links
 
-- v2.7 37 character life: relationships, schedule, clock, agendas (channels read them); meanwhile facts are the closest
-  existing pattern.
-- v2.8 42 witness filter v2: once its witness record exists, a member present but not addressed can "overhear" (a
-  channel with origin = witness set); without it, origins are extracted rows only.
-- v2.8 43 verbatim recall: a stage 3 option is quoting the origin line through 43's filter ("she said, word for word…").
-- v2.8 22 living director: may author new rumors as part of its future-only ops later; not in this plan.
-- v2.8 13 J7.3 epistemic via the judge: could check voicing (G7) instead of a second model; not required.
+- v2.8 42 §0 shared audience/provenance contract (told, believed, authorized disclosure) and B (overhearing).
+- Branch `v2.8-epistemic-cap` (capEpistemic reserves protection rows): required before A+ and B.
+- v2.7 37 character life: relationships, schedule, clock (contact and stance read them).
+- v2.8 43 verbatim recall: a told member may get the telling span, never the origin.
+- v2.8 22 living director: may author rumors as future-only ops later; not in this plan.
+- v2.8 47 promises: a public fulfilment can become an authored rumor; private promises never spread.
+- v2.8 53 reputation: a faction reacting to a received version is a later combination, not here.
 
 ## 10. Decisions for the owner
 
-1. Build stage 1 (authored rumors, deterministic) now? **Recommended: yes.**
-2. Stage 2 (extracted `[knows]` rows spread along channels)? **Recommended: yes, after stage 1's gates; hedged as
-   `[suspects]` by default.**
-3. Model-distorted versions (C)? **Recommended: not now; revisit if G7 shows flat, repetitive voicing.**
-4. Should the Adolion campaign use rumors? **Recommended: yes for stage 1, authored by another model in the campaign
+1. Build stage 1 (authored rumors as typed hearsay, non-secret subjects, deterministic) now? **Recommended: yes.**
+2. Secret leaks (A+)? **Recommended: yes, only after recipient-specific disclosure (§5.4) and the
+   `v2.8-epistemic-cap` fix land; authored `leaks_to` only.**
+3. Stage 2 (extracted rows along channels)? **Recommended: after stage 1's gates, explicit `gossip.topics` only, with
+   G15 measured; hedged by default.**
+4. Model-distorted versions (C)? **Recommended: not now; revisit if G7 shows flat voicing.**
+5. Should the Adolion campaign use rumors? **Recommended: yes for stage 1, authored by another model in the campaign
    repo, pin bump and reinstall per the docs-and-campaign rule.**
-5. Player-visible "rumors heard" journal? **Recommended: no until a session asks for it (v2.8 rule 4).**
-6. Leaks of secrets through people: author rule only, or also on relationship thresholds without a rule?
-   **Recommended: authored `leaks_to` only.**
+6. Player-visible "rumors heard" journal? **Recommended: no until a session asks for it (v2.8 rule 4).**
+7. Default contact model? **Recommended: `together` (shared schedule location); `any` must be authored.**
 
 ## 11. Unresolved questions
 
-- Whether rumor rows should count against the 12-per-subject cap or get their own small cap (G7 runs will show crowding).
-- Clock-based delays need a story clock; stories without one fall back to boundaries. Whether `days` should be refused
-  without a clock (validation) or silently mapped.
-- How a receiver who later witnesses the truth retires a false `[believes]` rumor: the existing retire prompt should
-  do it; to be confirmed on the fixture.
+- Whether the stance mapping from relationship axes needs authoring per member pair or a story-wide default suffices.
+- Whether hearsay rows should feed the codex's "I was told" lane (v2.8 52) directly or only through player-visible
+  speech.
+- Whether a correction (witnessing the truth) should be an extraction signal or an authored event in stage 1.
+
+## 12. Review 2026-10-14 (Astra)
+
+Source: `review-astra-2026-10-14.md` §Plans 42-47 (44). Verified on `3a716f2b`.
+
+- **P0 — retiring a secret row reveals too broadly.** Accepted. Verified whole-row `supersededBy`
+  (`epistemic.ts:72-90`) and active-row derivation (`heldSecrets.ts:21-35`). → §5.4 `disclosedTo` per recipient, no
+  retirement for reveals; G11; secrets deferred to stage 1b.
+- **P0 — gossip can evict the protection; coordinated write needed.** Accepted. Verified `capEpistemic` has no
+  reservation (`epistemic.ts:223-240`) and the coordinator's mirror resync (`memoryCoordinator.ts:351-363`). → depends
+  on branch `v2.8-epistemic-cap`; hearsay has its own cap; §5.5 `applyHearsay` through the coordinator; G12.
+- **P1 — rollback loses pending work.** Accepted. Verified random ids (`types.ts:237-242`). → §5.3 event log with
+  scheduling stamps, stable occurrence ids, dedup, deterministic cap order, retention ≥ rollback horizon; G13.
+- **P1 — "after meanwhile-land" is not after completion.** Accepted. Verified `void` launch (`boundaryWork.ts:43-48`).
+  → §5.3 stable synchronous input snapshot; no dependency on meanwhile writes.
+- **P1 — hearsay and truth mixed; contact not modelled.** Accepted. Verified presence compares with party location
+  (`presence.ts:15-20`). → §5.2 typed hearsay with teller and stance, author-only truth, no promotion (G14); §5.1
+  explicit contact model.
+- **Recommendation (authored, typed hearsay, non-secret first; topic eligibility, lineage and crowding for stage 2;
+  off baselines; paraphrased spoilers).** Adopted: decisions 1–3, G7/G8 off baselines, G9 paraphrases, G15.
+- Cross-plan: shared contract in v2.8 42 §0 referenced. Rebutted: none.
