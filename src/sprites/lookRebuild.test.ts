@@ -123,3 +123,11 @@ test("refusals: tampered look file, saved bytes differing from review, stale rev
   expect(() => publishLookBust(source, "other:1", "default", source.base.sha256, source.bust)).toThrow("source changed");
   expect(() => publishLookBust(source, visualRoot(source), "missing", source.base.sha256, savedBust)).toThrow("no longer published");
 });
+
+test("a saved bust path with a cache-busting query is published and rigged without it", async () => {
+  const f = fixture();
+  f.deps.save = jest.fn(async () => ({ ...savedBust, path: `${savedBust.path}?t=999999999999` }));
+  const accepted = await f.rebuild.accept(await f.rebuild.prepare(target));
+  expect(accepted.source.looks[LOOK].bust?.path).toBe(savedBust.path); expect(accepted.rig?.source).toBe(savedBust.path);
+  expect(visualHead(f.source(), LOOK, MEMBER, f.refs()).state).toBe("ready");
+});

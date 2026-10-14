@@ -96,6 +96,7 @@ let stage = { framing: "thigh", cast: {} as Record<string, unknown> } as Record<
 let settings: SpriteSettings = { ...defaultSpriteSettings(), enabled: true, explicit: true };
 let judgeAnswers: Record<string, unknown> | null = null;
 let snapshotBuilds = 0;
+let roster: Array<{ id: string; name?: string }> = [];
 
 const manager = {
   getEffectiveSettings: () => ({ sprites: settings }),
@@ -103,7 +104,7 @@ const manager = {
     sprites: settings, judge: { enabled: judgeAnswers !== null, uses: { expressions: judgeAnswers !== null }, timeoutMs: 1000 }, image: { directorProfileId: "" },
   }),
   getStory: () => ({
-    roster: [],
+    roster,
     checkpoints: [{ id: "cp1", effects: stage ? { stage } : {} }],
     checkpointById: { cp1: { id: "cp1", effects: stage ? { stage } : {} } },
   }),
@@ -132,6 +133,7 @@ beforeEach(() => {
   chatId = "chat-1";
   vnMode = true;
   storyListeners.length = 0;
+  roster = [];
   members = [{ name: "Ellie", avatar: "ellie.png" }, { name: "Tobias", avatar: "tobias.png" }];
   hints.length = 0;
   pending = [];
@@ -324,6 +326,17 @@ describe("sprite stage: who stands on stage", () => {
     members[0].muted = false;
     for (const listener of storyListeners) listener();
     expect(names(sprites)).toEqual(["Ellie", "Tobias", "Vallie", "Domas"]);
+  });
+
+  it("a story started in an already open chat directs its cast by roster id", async () => {
+    stage = { cast: { lead: { face: "happy" } } };
+    const sprites = await started();
+    expect(names(sprites)).toEqual([]);
+    roster = [{ id: "lead", name: "Ellie" }];
+    for (const listener of storyListeners) listener();
+    await flush();
+    expect(names(sprites)).toEqual(["Ellie"]);
+    expect(sprites.view().actors[0].label).toBe("happy");
   });
 });
 

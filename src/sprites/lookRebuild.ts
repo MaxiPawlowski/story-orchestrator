@@ -5,7 +5,7 @@ import type { LiveHeadRef } from "./liveHeadRefs";
 import type { HeadManifest } from "./liveHead/manifest";
 import type { RigSynthesisInput, SynthesizedHead } from "./liveHead/synthesis/synthesize";
 import type { LandmarkCrossCheck } from "./liveHead/synthesis/landmarkCheck";
-import { visualHead, visualRoot, visualSources, type VisualAsset, type VisualManifest } from "./visualManifest";
+import { servedAsset, visualHead, visualRoot, visualSources, type VisualAsset, type VisualManifest } from "./visualManifest";
 
 export const LOOK_BUST_RECIPE = { id: "visual-look-bust-crop", version: 1 } as const;
 export interface LookRebuildTarget { character: string; member: string; look: string }
@@ -124,7 +124,7 @@ export class LookRebuild {
     let current = this.guard(run, target, root, base.sha256);
     let bust = current.looks[target.look].bust;
     if (!value.bust.path) {
-      const saved = await this.deps.save(value, signal);
+      const saved = servedAsset(await this.deps.save(value, signal));
       current = this.guard(run, target, root, base.sha256);
       if (saved.sha256 !== value.bust.sha256) throw new Error("The saved bust does not match the reviewed image.");
       bust = saved;

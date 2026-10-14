@@ -54,6 +54,7 @@ export class SpriteStage {
   private bodies: StagePoses | null = null;
   private lookModule: Promise<void> | null = null;
   private membership: string | null = null;
+  private rosterKey = "";
   private packIssues: SpriteStageIssue[] = [];
   private readonly lists = new SpriteListCache(spriteList);
 
@@ -200,6 +201,7 @@ export class SpriteStage {
     this.bodies?.close(); this.bodies = null;
     this.looks?.close(); this.looks = null; this.lookModule = null;
     const ticket = ++this.loading;
+    this.rosterKey = this.rosterStamp();
     this.capability = await capabilityState("sprites");
     if (ticket !== this.loading) return;
     const cast = spriteCast();
@@ -235,6 +237,10 @@ export class SpriteStage {
   private lookStamp(): string {
     const story = this.manager.getStory(), values = this.manager.getCachedSnapshot().blackboard;
     return story?.cardFieldByQuality ? JSON.stringify(Object.entries(story.cardFieldByQuality).filter(([, field]) => field.visual).map(([key]) => [key, values[key]])) : "";
+  }
+
+  private rosterStamp(): string {
+    return JSON.stringify((this.manager.getStory()?.roster ?? []).map((member) => [member.id, member.name ?? ""]));
   }
 
   private keysFor(name: string): string[] {
@@ -273,6 +279,7 @@ export class SpriteStage {
   }
 
   private placeChanged(): void {
+    if (this.rosterStamp() !== this.rosterKey) { void this.reload(); return; }
     this.looks?.revalidate(); this.bodies?.revalidate();
     if (this.activation() !== this.snapshot.activation) this.notify();
     if (!this.actors.length) return;

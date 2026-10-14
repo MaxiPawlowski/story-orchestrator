@@ -1,6 +1,6 @@
 import { beginRun, type RunGuard, type RunOwnership } from "@runtime/runToken";
 import { anySignal } from "@utils/signals";
-import { visualSources, lookSignature, type VisualAsset, type VisualManifest } from "./visualManifest";
+import { visualSources, lookSignature, servedAsset, type VisualAsset, type VisualManifest } from "./visualManifest";
 import type { HeadBox } from "./builder/pixels";
 
 export interface VisualPreparationInput {
@@ -69,12 +69,12 @@ export class VisualPreparation {
     const [card, base] = await Promise.all([this.deps.fingerprint(input.card.path, signal), this.deps.fingerprint(input.base.path, signal)]);
     this.guard(run, input, revision);
     if (card !== input.card.sha256 || base !== input.base.sha256) throw new Error("The source changed during review. Prepare it again.");
-    const bust = await this.deps.save(value, signal);
+    const bust = servedAsset(await this.deps.save(value, signal)), kept = servedAsset(input.base);
     this.guard(run, input, revision);
     if (bust.sha256 !== value.sha256) throw new Error("The saved bust does not match the reviewed image.");
     const source: VisualManifest = { id: value.key, revision: revision + 1, character: input.character, card: input.card,
-      baseSet: input.baseSet, base: input.base, bust, box: input.box,
-      looks: { default: { root: `${value.key}:${revision + 1}`, signature: lookSignature({}), base: input.base, bust } } };
+      baseSet: input.baseSet, base: kept, bust, box: input.box,
+      looks: { default: { root: `${value.key}:${revision + 1}`, signature: lookSignature({}), base: kept, bust } } };
     if (!visualSources({ [source.character]: source })[source.character]) throw new Error("The reviewed visual manifest is incomplete.");
     this.guard(run, input, revision);
     if (!run.stillOwns()) throw new Error("The draft changed before this source could be accepted.");
