@@ -318,8 +318,8 @@ test('status lists each model with its image input, availability and the smaller
     const ctx = setup();
     const row = (await ctx.service.status({ refresh: true })).harnesses.opencode;
     assert.deepEqual(row.models, [
-        { id: 'openai/gpt-6.1-sol', context: 200_000, available: true, image: true },
-        { id: 'openai/gpt-6-luna', context: 128_000, available: true, image: false },
+        { id: 'openai/gpt-6.1-sol', context: 200_000, available: true, image: true, agent: true },
+        { id: 'openai/gpt-6-luna', context: 128_000, available: true, image: false, agent: true },
     ]);
     assert.match(row.isolation, /no login file is read or copied/);
     const gone = setup({ fake: { models: FAKE_MODELS.filter((model) => model.modelID !== 'gpt-6-luna') } });

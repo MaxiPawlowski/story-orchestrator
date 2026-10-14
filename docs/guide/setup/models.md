@@ -8,7 +8,7 @@ something different, so splitting them is usually better and often cheaper.
 | **Replies** | Writes what the characters say. | Prose, voice, staying in character, a long context. An RP or storytelling finetune is a good fit. | TheDrummer's Artemis 31B | SillyTavern's own connection (the chat model) |
 | **Memory model** | Reads the chat after each reply: story facts, memories, summaries, whether a scene is over. | Following instructions and strict output formats, not prose flair. Needs its instruct template. | DeepSeek (Chat Completion) | **Memory → Memory model profile** |
 | **Judge** | Answers short yes/no and pick-one questions: who speaks next, which lore matters, is this memory real. | Speed (two uses run before a reply, with a 1.5 s budget). | TypeSafe's Jev, through the judge plugin; experimental: decider-4b on this machine ([local judge](judge.md#local-judge-experimental)) | **Judge** section ([Judge](judge.md)) |
-| **Wizard and road ahead** | Builds stories from a premise through tool calls, writes generated scenes, and answers Ask. | Reliable tool calling and planning. | opencode `openai/gpt-6.1-sol` on a subscription; DeepSeek pay-per-token | **Memory → Models per task → Wizard and road ahead** |
+| **Wizard and road ahead** | Builds stories from a premise through tool calls, writes generated scenes, and answers Ask. | Reliable tool calling and planning. | opencode `openai/gpt-6.1-sol` or Claude Code `claude-sonnet-5-5` on a subscription; DeepSeek pay-per-token | **Memory → Models per task → Wizard and road ahead** |
 | **Image prompts** | Turns a scene into a picture prompt. Optional. | Short, literal output. | any small instruct model | **Images → Image-prompt model** ([Illustrations](images.md)) |
 
 **The wizard's default.** Left on its default, **Wizard and road ahead** (and Ask, which shares it) uses, in order:
@@ -18,6 +18,11 @@ token once its quota runs out); otherwise the memory model. The select shows whi
 or harness you pick there always wins. gpt-6.1-sol was the better author in our runs but much slower: about 25 s per
 Ask answer and close to half an hour per wizard run, against 3 s and 2 minutes on DeepSeek flash. If a default
 gpt-6.1-sol call fails, that call is retried on the next default (DeepSeek, or the memory model).
+
+**Claude instead of ChatGPT.** With the harness plugin offering Claude Code, pick `Claude Code · claude-sonnet-5-5`
+(or `claude-opus-5-5`, slower and heavier on the usage limit) for **Wizard and road ahead**. The wizard then runs on
+your Claude subscription with the same tools and the same review steps; it does not fall back to a profile when Claude
+is unavailable. Haiku and the short `sonnet`/`opus` names answer plain tasks only and show "(no wizard tools)".
 
 An RP finetune is a poor wizard. It is tuned to stay in a scene and write prose, so it tends to narrate instead of
 calling a tool, invent arguments, or drift from the plan; the wizard needs a model that follows a tool schema exactly.
