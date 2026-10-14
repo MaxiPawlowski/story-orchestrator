@@ -14,7 +14,7 @@ export const STUDIO_TAB_GUIDE: Partial<Record<StudioTab, readonly GuideTopicId[]
     "opening-scene", "npc-replies", "talk-control", "convergence", "experimental-effects",
   ],
   transitions: ["gates", "transitions", "convergence"],
-  roster: ["roster", "drives-motives", "opening-scene", "character-life", "living-cards", "poses"],
+  roster: ["roster", "drives-motives", "inner-voice", "opening-scene", "character-life", "living-cards", "poses"],
   sprites: ["poses"],
   game: ["quests", "checks", "widgets", "clues-and-maps", "html-panels"],
 };

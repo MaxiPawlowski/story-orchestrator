@@ -5,10 +5,13 @@ import { InnerCoordinator, type InnerCoordinatorDeps } from "./coordinators/inne
 import type { MemoryCoordinator } from "./coordinators/memoryCoordinator";
 import type { PacingCoordinator } from "./coordinators/pacingCoordinator";
 import type { ManagerPort } from "./managerWiring";
+import { spikeSeams } from "./spikeSeams";
 import { activeSpeakerId, enabledCharacterIds, nameForRosterId } from "./roster";
 
 export interface InnerBeatHostDeps extends InnerCoordinatorDeps {
   enabled: () => boolean;
+  harvest?: () => boolean;
+  personas?: () => string[];
   memberName: (rosterId: string) => string;
 }
 
@@ -26,6 +29,17 @@ const within = async (work: Promise<unknown>, ms: number): Promise<void> => {
   clearTimeout(timer);
 };
 
+const carried = (deps: InnerBeatHostDeps, rosterId: string): string => {
+  if (!spikeSeams.carry || deps.harvest?.() !== true) return "";
+  const name = deps.memberName(rosterId);
+  const rows = deps.chatRows();
+  const started = deps.getState()?.checkpointStartedMessageId ?? -1;
+  const result = spikeSeams.carry({ rosterId, name, rows, players: deps.personas?.() ?? [], from: Math.max(0, started + 1) });
+  if (result.line) deps.journal(`Inner thought carried for ${name}`, `from message ${String(result.messageId)}`);
+  else if (result.reason !== "off") deps.journal(`No thought to carry for ${name}`, result.reason);
+  return result.line;
+};
+
 export function createInnerBeatHost(deps: InnerBeatHostDeps): InnerBeatHost {
   const coordinator = new InnerCoordinator(deps);
   return {
@@ -34,7 +48,7 @@ export function createInnerBeatHost(deps: InnerBeatHostDeps): InnerBeatHost {
     beatFor: (rosterId) => (deps.enabled() ? takeBeat(rosterId, {
       beats: deps.getBeats() ?? [], chatId: deps.chatId() ?? "", checkpointId: deps.getState()?.activeCheckpointId ?? null,
       rows: deps.chatRows(), name: deps.memberName(rosterId), journal: deps.journal, setBeats: deps.setBeats,
-    }) : ""),
+    }) || carried(deps, rosterId) : ""),
   };
 }
 
@@ -44,6 +58,8 @@ export function innerBeatHostFor(port: ManagerPort, memory: MemoryCoordinator, p
     ...view,
     ...lifecycle,
     enabled: () => port.extras().memory.settings.innerBeat === true,
+    harvest: () => port.extras().memory.settings.harvestReasoning === true,
+    personas: () => view.getStory()?.requirements?.personas ?? [],
     fanOut: () => port.extras().memory.settings.innerFanOut ?? "lead",
     chatId: () => view.hosts.chat.chatId(),
     chatRows: () => view.hosts.chat.chatRows(),

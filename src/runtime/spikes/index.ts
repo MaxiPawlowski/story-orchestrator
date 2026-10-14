@@ -7,6 +7,7 @@ import type { TurnBridge } from "../turnBridge";
 import { EditReread, p95 } from "./editReread";
 import { readEdited } from "./editRereadHost";
 import { chatStore, SwipeBack } from "./swipeBack";
+import { ThoughtCarry } from "./thoughtCarry";
 
 const openChat = () => {
   const context = getContext();
@@ -33,10 +34,12 @@ export function installSpikes(bridge: TurnBridge, manager: RuntimeManager): () =
   });
   const swipe = new SwipeBack({ host: manager, store: chatStore, enabled: () => getGlobalSettings().spikes.swipeBackCache, chat: openChat });
   bridge.setMutationSeam((kind, messageId, entered) => edit.seam(kind, messageId, entered) ?? (entered ? null : swipe.seam(kind, messageId)));
-  const releaseHold = installSpikeSeams({ hold: (type) => edit.hold(type), ownsReread: () => edit.ownsReread() });
+  const thought = new ThoughtCarry(() => getGlobalSettings().spikes.thoughtCarry);
+  const releaseHold = installSpikeSeams({ hold: (type) => edit.hold(type), ownsReread: () => edit.ownsReread(), carry: (input) => thought.carry(input) });
   const unpublish = publishSpikeDebug({
     swipeBackCache: { stats: () => ({ ...swipe.stats }) },
     editReread: { stats: () => ({ ...edit.stats, holdMs: [...edit.stats.holdMs], holdP95Ms: p95(edit.stats.holdMs) }) },
+    thoughtCarry: { stats: () => ({ ...thought.stats }) },
   });
   return () => {
     bridge.setMutationSeam(null);

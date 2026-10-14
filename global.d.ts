@@ -69,6 +69,7 @@ declare global {
   var storyOrchestratorSpikes: ({
     swipeBackCache?: { stats: () => import("./src/runtime/spikes/swipeBack").SwipeBackStats };
     editReread?: { stats: () => import("./src/runtime/spikes/editReread").EditRereadStats & { holdP95Ms: number | null } };
+    thoughtCarry?: { stats: () => import("./src/runtime/spikes/thoughtCarry").ThoughtCarryStats };
     reasoningEffect?: import("./src/runtime/replyEffortHost").EffortDebug;
     emptyReply?: import("./src/runtime/emptyReply").EmptyReplyDebug;
   } & Partial<import("./src/runtime/spikes/install").SpikeDebug>) | undefined;

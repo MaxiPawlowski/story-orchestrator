@@ -70,6 +70,14 @@ export const GUIDE_TOPICS = {
       + "their own aim in one line: \"Keep the debt secret from her brother.\" Avoid: a plan for the player, a stage direction, or a motive for the player's persona (nobody is told it). "
       + "A motive keyed by an id no cast member has is told to nobody.",
   },
+  "inner-voice": {
+    title: "Inner voice",
+    fields: "memory.innerBeat, memory.harvestReasoning, spikes.thoughtCarry",
+    text: "After a reply the memory model writes a one-line private intent (a beat) for the likely next speaker. When no fresh beat is ready, the carried-thought "
+      + "experiment takes a standing aim from that character's own reasoning on their latest reply (a goals line or \"<name> wants to\"), with no model call, "
+      + "in that character's private block only. It drops writing instructions, lines about the player or another character, and kept-from secrets. "
+      + "Author drives and motives so the beat has an aim; the carry needs a reply model that thinks.",
+  },
   qualities: {
     title: "Qualities",
     fields: "qualities[].key, type, values, source",

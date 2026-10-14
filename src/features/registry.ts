@@ -235,9 +235,19 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "After a reply, the memory model can write a short private note of what the next speaker wants, handed only to that "
       + "character. It can also read a reply's reasoning for what the character intends.",
     where: settingsAt("#so-inner-beat", "Characters › Inner voice"),
-    settings: ["memory.innerBeat", "memory.innerFanOut", "memory.harvestReasoning"], guideTopic: "drives-motives", doc: authorGuideDoc("drives-motives"), status: "shipped",
+    settings: ["memory.innerBeat", "memory.innerFanOut", "memory.harvestReasoning"], guideTopic: "inner-voice", doc: authorGuideDoc("inner-voice"), status: "shipped",
     needs: ["memory-profile", "author-view"],
     isOn: (settings) => settings.memory.innerBeat === true || settings.memory.harvestReasoning === true,
+  },
+  {
+    id: "thought-carry", name: "Carried thought", area: "setup", audience: "author",
+    oneLine: "When no private intent is ready, a character keeps the aim from its own last thought.",
+    what: "An experiment. When a character is about to speak without a fresh private intent, the aim it gave in its own reasoning on its latest reply "
+      + "is handed back to it privately, with no extra model call. It needs a reply model that thinks and the reasoning read switched on.",
+    where: settingsAt("#so-area-setup", "Setup"),
+    settings: ["spikes.thoughtCarry"], guideTopic: "inner-voice", doc: authorGuideDoc("inner-voice"), status: "experimental",
+    needs: ["author-view"],
+    isOn: (settings) => settings.spikes.thoughtCarry && settings.memory.innerBeat === true && settings.memory.harvestReasoning === true,
   },
   {
     id: "lorebook-switching", name: "Story lorebook switching", area: "world", audience: "author",
@@ -425,7 +435,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Unmeasured trials.",
     what: "Each experiment sits behind its own switch, on by default so it is seen in play.",
     where: settingsAt("#so-area-setup", "Setup"),
-    settings: ["spikes"], doc: "setup/settings-reference.md", status: "experimental",
+    settings: ["spikes.swipeBackCache", "spikes.sp6Complications", "spikes.reasoningEffect", "spikes.editReread"], doc: "setup/settings-reference.md", status: "experimental",
   },
 ];
 

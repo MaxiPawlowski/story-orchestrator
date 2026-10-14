@@ -17,6 +17,7 @@ const SPIKES = [
   "src/runtime/spikes/sp6Complications.ts",
   "src/runtime/spikes/swipeBack.ts",
   "src/runtime/spikes/swipeCache.ts",
+  "src/runtime/spikes/thoughtCarry.ts",
 ];
 const SPIKE_PATTERN = /^src\/runtime\/spikes\//;
 const DROPPED_SPIKES = [

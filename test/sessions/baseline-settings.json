@@ -235,7 +235,8 @@
       "swipeBackCache": true,
       "sp6Complications": true,
       "reasoningEffect": true,
-      "editReread": true
+      "editReread": true,
+      "thoughtCarry": true
     }
   }
 }
