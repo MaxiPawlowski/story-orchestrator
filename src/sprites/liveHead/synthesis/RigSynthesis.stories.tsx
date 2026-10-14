@@ -9,7 +9,7 @@ import type { HeadManifest } from "../manifest";
 import { syntheticBust } from "./syntheticBust";
 import { encodePngStored, base64 } from "./png";
 import { synthesizeHead } from "./synthesize";
-import { decodeBytes } from "./host";
+import { decodeBytes } from "./decode";
 
 const owner = (): RunGuard => ({ stillOwns: () => true, lapsed: () => null, lapsedDetail: () => null, signal: new AbortController().signal, release: () => undefined });
 

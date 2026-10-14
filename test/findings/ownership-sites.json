@@ -1073,7 +1073,7 @@
       "status": "local",
       "note": "Pixel buffer and encoded crop are invocation-local. Nothing is persisted; enclosing VisualPreparation.prepare guards before exposing review."
     },
-    "src/sprites/liveHead/synthesis/host.ts#decodeBytes": {
+    "src/sprites/liveHead/synthesis/decode.ts#decodeBytes": {
       "status": "local",
       "note": "Decodes into a canvas and pixel buffer created inside this invocation; nothing persists. Callers (synthesizeHead) check ownership after it returns."
     },
