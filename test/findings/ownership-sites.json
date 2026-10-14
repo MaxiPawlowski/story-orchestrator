@@ -985,6 +985,14 @@
       "status": "checked",
       "note": "Plan 33: RunGuard checks before picks and stores; stale ownership and stage controls in sprites/poses/bodyRenderer.test.ts."
     },
+    "src/studio/components/PreparePresentation.tsx#PreparePresentation.prepare": {
+      "status": "checked",
+      "note": "guard() runs after the last await before setReview and the error path checks current(); it writes only the panel's own review/error/busy state, nothing reaches the draft or settings until accept."
+    },
+    "src/studio/components/PreparePresentation.tsx#PreparePresentation.accept": {
+      "status": "delegate",
+      "note": "awaits VisualPreparation.accept, which checks run.stillOwns() before the settings write (sprites/visualPreparation.ts); the panel then writes only its own accepted/review/error/busy state behind a generation check."
+    },
     "src/sprites/poses/stageBodies.ts#StagePoses.request": {
       "status": "checked",
       "note": "Plan 33: RunGuard and current-stage checks precede renders, saves and application. Tests: sprites/poses/bodyRenderer.test.ts."

@@ -36,7 +36,7 @@ Source: [queue](32-queue.md), [handoff](37-codex-handoff.md), [coverage](35-test
   reproduced missing effect hydration through the native create routine; host-list observer implemented. Create/hydrate/delete/import
   scenario green twice on lane 38, quick gate green and evidence archived. UI-pointer/chat-switch checks still owed.
 - **Harness auth**, [33](33-pose-library-and-avatars.md), [36](36-live-head.md): supported OpenCode client/session
-  interface, fake-server/plugin tests, useful expired-login UI. Built on `v2.8-build-fixes` (gates green, real Sol smoke on lane 38); merge pending 2026-10-14.
+  interface, fake-server/plugin tests, useful expired-login UI. Built on `v2.8-build-fixes` (gates green, real Sol smoke on lane 38); merged `004abc8a` 2026-10-14.
   Never read credentials. Live Ask/wizard/vision deferred.
 - **LI1 desktop**, [36](36-live-head.md): synthetic rigs, frame clock and CPU profile; optimize only with
   equivalence proof. Re-measure twice at unchanged floor. Laptop stays unmeasured.

@@ -198,7 +198,7 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | 34 | built and merged `1cb58c18`; provisioning roundtrip scenario owed |
 | 36 | deterministic rig/runtime merged; LI1 misses by 0.06 ms, laptop check and LI2 owed (32 A23) |
 | 38 | fixed 2026-10-11 (32 X9) |
-| 40 | active execution index; harness auth built on `v2.8-build-fixes` (merge pending) |
+| 40 | active execution index; harness auth merged `004abc8a`; plan 41 stage 2 merged `d1a3f487` (deterministic only) |
 | 41 | planning only (2026-10-13) |
 
 ## Review 2026-10-03

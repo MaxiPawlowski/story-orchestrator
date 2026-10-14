@@ -30,8 +30,8 @@ It records current progress, source-plan links and deferred acceptance protocols
 | N4 | Pod round: curator create (M17), meanwhile auto (M16), lore exclusive (M10/F21), warden timeouts (M12/F22), widgets glance | 31 | historical results in backlog; no pod/GPU work in the owner-approved build-now pass |
 | N5 | Text vs Chat Completion, thinking on, fair config, blind rating pack | 15-model-config §3 | prior measurement records retained; remaining model comparison and blind rating deferred |
 | N6 | Merge N1–N3, full gates with Storybook, install | — | code merged; latest master gate includes Storybook (25 A18 gate record); owner install scheduled separately |
-| N8 | Harness auth: stale opencode login fix | owner 2026-10-14 | built on `v2.8-build-fixes`; gates green, real Sol smoke on lane 38; merge in progress 2026-10-14 |
-| N9 | Review fixes | audit 2026-10-14 | in progress on `v2.8-review-fixes` |
+| N8 | Harness auth: stale opencode login fix | owner 2026-10-14 | built on `v2.8-build-fixes`; gates green, real Sol smoke on lane 38; setup deadline/cancel fix added; merged `004abc8a` 2026-10-14 |
+| N9 | Review fixes | audit 2026-10-14 | merged `d57b3c19` 2026-10-14: divergence double count, untagged lore eligibility, workflow path nodes, studio provisioning ownership (census over all studio components), unknown-size downloads, digest seen-target, living frontier diagnostics; two census `todo` sites left (StoryEditor export, StagedWizard.run) |
 | N7 | B6 coverage audit and top-three no-model gaps | 35, 37 B6 | combined-build living rollback, curator create and lore placement PASS ×2 (6/6), 2026-10-12; full gates with Storybook subsequently green (25 A18 record). Additional gaps remain; near-duplicate advice stays advisory |
 
 ## Fixes
