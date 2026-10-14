@@ -1,4 +1,4 @@
-import { castSceneIdentities, castSceneKey, castSceneGraph } from "./castScene";
+import { castSceneBuilder, castSceneIdentities, castSceneKey, castSceneGraph } from "./castScene";
 import { visualFixture } from "../sprites/visualFixtures";
 import { publishVisualLook, lookSignature, visualRoot } from "../sprites/visualManifest";
 const source = visualFixture();
@@ -25,4 +25,14 @@ test("two-member scene uses exactly two identities and never a pose skeleton or 
   expect(graph["6"].inputs["images.image_2"]).toEqual(["12", 0]);
   expect(graph["12"].inputs.image).toBe("second.png"); expect(graph["6"].inputs["images.image_3"]).toBeUndefined();
   expect(graph["7"].inputs.steps).toBe(25); expect(graph["6"].inputs.prompt).toContain("current outfit");
+});
+
+test("scene route reads every selected member's builder and refuses a missing or mismatched one", () => {
+  const models = { diffusion: "qwen", encoder: "encoder", vae: "vae" };
+  const builders = { A: { models, steps: 20 }, B: { models, steps: 30, resolution: 1280 }, C: { models: { ...models, vae: "other" }, steps: 20 } };
+  expect(castSceneBuilder(["A", "B"], builders)).toEqual({ models, steps: 30, resolution: 1280 });
+  expect(castSceneBuilder(["B", "A"], builders)).toEqual(castSceneBuilder(["A", "B"], builders));
+  expect(() => castSceneBuilder(["A", "Missing"], builders)).toThrow("every selected character");
+  expect(() => castSceneBuilder(["Missing", "A"], builders)).toThrow("every selected character");
+  expect(() => castSceneBuilder(["A", "C"], builders)).toThrow("different Qwen models");
 });

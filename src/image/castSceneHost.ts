@@ -9,13 +9,18 @@ import { reserveGpu, releaseGpu, renewGpu } from "@services/stHost/gpuBroker";
 import { anySignal } from "@utils/signals";
 import { verifyVisualSource, sourceStillCurrent } from "../sprites/visualHost";
 import { contentHash, recipeProblems } from "../sprites/builder/recipes";
-import { builderRender } from "../sprites/settings";
-import { castSceneGraph, castSceneIdentities, castSceneKey, CAST_SCENE_RECIPE } from "./castScene";
+import { castSceneBuilder, castSceneGraph, castSceneIdentities, castSceneKey, CAST_SCENE_RECIPE } from "./castScene";
 import { isNarratorMember } from "./cast";
 import type { ImageQueue } from "./queue";
 import { decodeImage, encodeImage } from "../sprites/builder/images";
 import { waitForTextPriority } from "../sprites/builder/textPriority";
 import { gpuBrokerStatus } from "@services/stHost/gpuBroker";
+import { log } from "@utils/log";
+
+async function discardUnplaced(path: string): Promise<void> {
+  const removed = await imageDelete(path).catch((reason: unknown) => ({ ok: false as const, reason: reason instanceof Error ? reason.message : String(reason) }));
+  if (!removed.ok) log.warn(`Cast scene image ${path} was not removed after a refusal: ${removed.reason}`);
+}
 
 export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueue, selected: string[], direction: string): Promise<string> {
   const run = beginRun(manager.getOwnership());
@@ -34,8 +39,7 @@ export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueu
       return { character: folder, fields: cardValues(story, snapshot.blackboard, roster.id, true), source };
     });
     const identities = castSceneIdentities(members);
-    const config = settings.builders[selected[0]];
-    if (!config) throw new Error("Configure the selected character's Qwen edit route under Prepare presentation.");
+    const config = castSceneBuilder(selected, settings.builders);
     const target = chat.messages.length ? chat.messages.length - 1 : null;
     const targetText = target === null ? null : chat.messages[target].mes;
     const guard = () => {
@@ -64,7 +68,7 @@ export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueu
         && !discovery.nodes.TextEncodeQwenImage21?.input?.required?.["images.image_2"]) throw new Error("This Qwen node does not offer the two-reference cast scene input.");
       const [diffusion, encoder, vae] = await Promise.all([comfyFingerprint("diffusionModels", config.models.diffusion, signal),
         comfyFingerprint("textEncoders", config.models.encoder, signal), comfyFingerprint("vaes", config.models.vae, signal)]);
-      const render = builderRender(config);
+      const render = { steps: config.steps, resolution: config.resolution };
       const prompt = [direction.trim() || "The selected characters together in the current scene.",
         ...members.map((member, index) => `Character ${index + 1}: ${publicLook(member.fields)}`)].join(" ");
       const input = { prompt, models: { diffusion, encoder, vae }, seed: 1234, ...render };
@@ -100,6 +104,6 @@ export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueu
         root: identity.root, signature: identity.signature, sha256: identity.look.base.sha256 })) } }, "inline");
     if (!placed.ok) throw new Error(placed.reason);
     return path;
-  } catch (error) { if (path) await imageDelete(path); throw error; }
+  } catch (error) { if (path) await discardUnplaced(path); throw error; }
   finally { run.release(); }
 }

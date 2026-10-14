@@ -44,6 +44,7 @@ const setup = () => {
   jest.mocked(comfyReleaseReference).mockResolvedValue({ ok: true, released: true });
   jest.mocked(imageSave).mockResolvedValue("/images/synthetic.png");
   jest.mocked(imagePlace).mockResolvedValue({ ok: true, placed: true });
+  jest.mocked(imageDelete).mockResolvedValue({ ok: true, path: "/images/late.png" });
   const manager = { getOwnership: () => ({ mint: () => ({ chatId: "chat", storyId: "story", storyHash: "hash", sessionEpoch: 1, windowRevision: 0, window: null }),
     check: () => owns ? { ok: true } : { ok: false, reason: "chat", detail: "changed" } }),
   getStory: () => ({ roster: [{ id: "synthetic", name: "Synthetic" }], cardFieldByQuality: {} }),
@@ -73,4 +74,14 @@ test("cancel during media save removes the unplaced image", async () => {
   const f = setup(); jest.mocked(imageSave).mockImplementation(async () => { f.queue.cancelAll(); return "/images/late.png"; });
   await expect(drawPreparedCast(f.manager, f.queue, ["Synthetic"], "")).rejects.toThrow();
   expect(imagePlace).not.toHaveBeenCalled(); expect(imageDelete).toHaveBeenCalledWith("/images/late.png");
+});
+
+test.each(["refused", "threw"])("a cleanup that %s is logged and the original refusal still surfaces", async (outcome) => {
+  const f = setup(); const warn = jest.spyOn(console, "warn").mockImplementation(() => undefined);
+  jest.mocked(imageSave).mockImplementation(async () => { f.queue.cancelAll(); return "/images/late.png"; });
+  if (outcome === "refused") jest.mocked(imageDelete).mockResolvedValue({ ok: false, reason: "ST did not remove the unused image (500)." });
+  else jest.mocked(imageDelete).mockRejectedValue(new Error("network down"));
+  await expect(drawPreparedCast(f.manager, f.queue, ["Synthetic"], "")).rejects.not.toThrow(/network down|did not remove/);
+  expect(warn).toHaveBeenCalledWith(expect.stringContaining("/images/late.png was not removed"));
+  warn.mockRestore();
 });
