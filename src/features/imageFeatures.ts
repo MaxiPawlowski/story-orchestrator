@@ -16,8 +16,17 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     id: "prepared-presentation", name: "Prepared cast presentation", area: "images", audience: "author",
     oneLine: "Review and accept each character's base and bust before sprites, poses and live heads use them.",
     what: "After the wizard builds a cast, pick a generated base, set its head box and accept base and bust together. "
-      + "Expressions, changed looks and poses follow that accepted source; a changed card or artwork asks for a new review.",
+      + "Expressions, changed looks and poses follow that accepted source; a changed card or artwork asks for a new review. "
+      + "The wizard's character cards show the accepted bust and base, or a placeholder with Prepare presentation.",
     where: studioAt("#so-prepare-presentation", "Sprites › Prepare presentation"), settings: [], guideTopic: "poses", doc: authorGuideDoc("poses"),
+    status: "experimental", needs: ["comfyui"],
+  },
+  {
+    id: "reference-pack", name: "Reference views", area: "images", audience: "author",
+    oneLine: "Draw an accepted character three-quarter left and right, in profile and from behind, then accept or cancel all six views.",
+    what: "Optional. The accepted base and bust fill the full-body and front slots; the other four views come from the same Qwen edit route. "
+      + "Accepting stamps the pack hash into every later sprite, pose, look and scene key, so changed looks render again.",
+    where: studioAt("#so-reference-pack", "Sprites › Reference views"), settings: [], guideTopic: "poses", doc: authorGuideDoc("poses"),
     status: "experimental", needs: ["comfyui"],
   },
   {

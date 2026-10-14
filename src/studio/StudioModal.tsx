@@ -23,6 +23,7 @@ import * as wizardAgent from "@copilot/agent/index";
 import type { ModelCall } from "@extraction/modelRoute";
 import StudioToolbar, { type StudioSaveHandler } from "./components/StudioToolbar";
 import { GateReplayContext } from "./replayContext";
+import { PreparePresentationContext } from "./presentationNavigation";
 import type { GateReplaySource } from "./gateReplay";
 import { resolveAgentHarness } from "./agentHost";
 import { studioAssist, studioTopicTarget } from "./studioAssist";
@@ -280,7 +281,7 @@ const StudioTabContent = ({
   if (activeTab === "diagnostics") return <DiagnosticsPanel />;
   if (activeTab === "copilot") {
     return (
-      <div className="flex flex-col gap-3"><StudioCopilot
+      <PreparePresentationContext.Provider value={() => onSelect("sprites")}><div className="flex flex-col gap-3"><StudioCopilot
         mode={wizardMode}
         onModeChange={onWizardMode}
         enabled={copilotEnabled}
@@ -293,7 +294,7 @@ const StudioTabContent = ({
         draftTutorialStep={draftTutorialStep}
         onShowTopic={onShowTopic}
       />{hasCast && <button id="so-wizard-prepare-presentation" type="button" className="st-button"
-        onClick={() => onSelect("sprites")}>Next: prepare cast presentation</button>}</div>
+        onClick={() => onSelect("sprites")}>Next: prepare cast presentation</button>}</div></PreparePresentationContext.Provider>
     );
   }
   return <GraphTab copilotEnabled={copilotEnabled} onSelect={onSelect} backgroundNames={options.backgroundNames} />;

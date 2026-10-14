@@ -1104,6 +1104,30 @@
     "src/studio/components/ChangedLookRebuild.tsx#ChangedLookRebuild.accept": {
       "status": "delegate",
       "note": "awaits LookRebuild.accept, which checks run.stillOwns() before the bust and rig settings writes; the panel then writes only its own rows/review/notice/error/busy state behind a generation check."
+    },
+    "src/sprites/referenceViews.ts#ReferencePackSession.prepare": {
+      "status": "checked",
+      "note": "guard() (run.stillOwns(), operation identity, cancellation, installed card, accepted root unchanged) after every await: verify, route, open, and per view the key hash, the render and the data hash; writes only transient review state. referenceViews.test.ts lapses at each of the 15 awaits and covers cancel, chat switch, card deletion and root replacement during a render."
+    },
+    "src/sprites/referenceViews.ts#ReferencePackSession.accept": {
+      "status": "checked",
+      "note": "guard() after verify and after each view save, again after the pack hash; run.stillOwns() immediately before commit. referenceViews.test.ts covers cancel, chat switch, card deletion and root replacement during a save: no pack is committed."
+    },
+    "src/sprites/referenceViewsHost.ts#createReferencePackSession.save": {
+      "status": "partial",
+      "note": "The combined signal is checked before the upload; this primitive has no RunOwnership of its own. ReferencePackSession.accept guards after it answers and only that caller commits the pack. A cancelled save may leave an unaccepted view file, never accepted settings."
+    },
+    "src/sprites/referenceViewsHost.ts#openViews": {
+      "status": "partial",
+      "note": "Signal-checked after the text-priority wait and after the base decode; starts only the GPU lease heartbeat and the reference upload, both released by close() on every path (also when open fails). ReferencePackSession.prepare guards after open() answers."
+    },
+    "src/studio/components/ReferencePackStep.tsx#ReferencePackStep.prepare": {
+      "status": "delegate",
+      "note": "awaits ReferencePackSession.prepare, which checks run.stillOwns() after each await; the panel writes only its own review/progress/error/busy state behind a generation check."
+    },
+    "src/studio/components/ReferencePackStep.tsx#ReferencePackStep.accept": {
+      "status": "delegate",
+      "note": "awaits ReferencePackSession.accept, which checks run.stillOwns() before the settings write; the panel then writes only its own source/review/error/busy state behind a generation check."
     }
   }
 }

@@ -631,3 +631,10 @@ Gates:
 - Staged Storybook (`%TEMP%\so-sb-mouthcap`, `npm run test-storybook:ci`): run 1 RED, 1 test, `Workspace/Shell › Desktop` ("Axe is already running", a11y runner race in a story this branch does not touch); run 2 136 suites / 817 tests passed, including `Sprites/LiveHeadDrawn` (`MeshOnlyMouthCapped`, `LiveHeadWithMouthShapes`) and `Sprites/LiveHeadAuthor` (`ImportWithStillMouth`). Copy removed.
 - Main bundle **1,265,343 B / 1,300,000 B** (harvest build 1,264,929 B, +414 B: `frameKeys` and `mouthConfig` ride with the sprite stage's static imports; renderer, drawn layer and lip-sync stay in lazy chunks).
 - Not claimed: how the capped mouth looks on the three real showcase busts (needs a browser on the showcase lane; no GPU needed for that, only for new frames), any real mouth_o / mouth_wide frame (render job above), a real Artemis stream through the cap.
+
+## Gate record: gaze +-1 iris (2026-10-14, branch `v2.8-p41-extras`, LIST)
+
+- The owed open-eye fix for the bean iris at gaze +-1 is built: the iris slides whole under the eye-white clip and its old place fills with
+  the sclera tone; gaze 0 keeps the shipped path byte for byte. Upstream `26243f9` keeps the same dome warp (only a 7 px travel), so nothing
+  was ported. Measurements, goldens and the Storybook before/after (`Sprites/LiveHeadGaze`) are in plan 41 §Gate record — extras.
+- Not run: LI rows or a browser check on real or amber/slate/ember rigs; listed under plan 41 Ready to run. Floors LI1-LI6 unchanged.

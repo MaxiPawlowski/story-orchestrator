@@ -147,6 +147,7 @@ export const reserveGpu = async () => ({ ok: true as const });
 export const releaseGpu = async () => undefined;
 export const renewGpu = async () => ({ ok: true, renewed: true });
 export const spriteBuilderMembers = (names: string[]) => names.map((name) => ({ name, folder: name }));
+export const spriteVisualCardPresent = () => true;
 export const spriteList = async () => [];
 export const spriteReferences = async () => [];
 export const comfyDiscover = async () => { throw new Error("No image backend in Storybook."); };
