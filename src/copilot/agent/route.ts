@@ -65,7 +65,7 @@ export class AgentRouteUnavailable extends Error {
 export const HARNESS_FALLBACK_KINDS: ReadonlySet<string> = new Set(["auth", "quota", "transport", "timeout"]);
 
 export type AgentBridgeEvent =
-  | { kind: "call"; callId: string; tool: string; args: Record<string, unknown> }
+  | { kind: "call"; callId: string; tool: string; args: Record<string, unknown>; argsError?: string }
   | { kind: "done"; text: string }
   | { kind: "ended"; errorKind: string; message: string };
 

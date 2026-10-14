@@ -19,7 +19,7 @@ export interface BridgeOpenInput {
 export type BridgeOpenResult = { ok: true; sessionId: string } | { ok: false; kind: string; message: string };
 
 export type BridgeEvent =
-  | { kind: "call"; callId: string; tool: string; args: Record<string, unknown> }
+  | { kind: "call"; callId: string; tool: string; args: Record<string, unknown>; argsError?: string }
   | { kind: "done"; text: string }
   | { kind: "ended"; errorKind: string; message: string };
 
@@ -40,7 +40,7 @@ export const readBridgeEvent = (data: unknown): BridgeEvent | null => {
   if (!isRecord(data)) return ended("malformed", "the bridge answered with no JSON object");
   if (data.kind === "pending") return null;
   if (data.kind === "call" && typeof data.callId === "string" && typeof data.tool === "string") {
-    return { kind: "call", callId: data.callId, tool: data.tool, args: isRecord(data.args) ? data.args : {} };
+    return { kind: "call", callId: data.callId, tool: data.tool, args: isRecord(data.args) ? data.args : {}, ...(typeof data.argsError === "string" ? { argsError: data.argsError } : {}) };
   }
   if (data.kind === "done" && typeof data.text === "string") return { kind: "done", text: data.text };
   if (data.kind === "ended") return ended(typeof data.errorKind === "string" ? data.errorKind : "transport", typeof data.message === "string" ? data.message : "the bridge session ended");

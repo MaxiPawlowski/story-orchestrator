@@ -16,12 +16,12 @@ const functionTools = (schemas: Array<Record<string, unknown>>): Array<Record<st
   function: { name: schema.name, description: schema.description, parameters: schema.inputSchema },
 }));
 
-const parseArgs = (text: string): Record<string, unknown> => {
+const parseArgs = (text: string): { args: Record<string, unknown>; argsError?: string } => {
   try {
     const parsed: unknown = JSON.parse(text || "{}");
-    return isRecord(parsed) ? parsed : {};
-  } catch {
-    return {};
+    return isRecord(parsed) ? { args: parsed } : { args: {}, argsError: "the arguments were JSON but not an object" };
+  } catch (error) {
+    return { args: {}, argsError: `the arguments were not valid JSON (${error instanceof Error ? error.message : String(error)})` };
   }
 };
 
@@ -41,7 +41,7 @@ const replyMessage = (reply: unknown): Record<string, unknown> | null => {
 
 const callEvents = (calls: unknown[]): BridgeEvent[] => calls.filter(isRecord).map((call) => {
   const fn = isRecord(call.function) ? call.function : {};
-  return { kind: "call", callId: String(call.id ?? ""), tool: String(fn.name ?? ""), args: parseArgs(String(fn.arguments ?? "{}")) };
+  return { kind: "call", callId: String(call.id ?? ""), tool: String(fn.name ?? ""), ...parseArgs(String(fn.arguments ?? "{}")) };
 });
 
 export const createProfileToolBridge = (send: ToolSend, now: () => number = Date.now): HarnessBridgeClient => {
