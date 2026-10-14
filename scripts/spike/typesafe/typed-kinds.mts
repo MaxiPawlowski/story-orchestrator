@@ -230,7 +230,9 @@ async function replay(args: string[]) {
   console.log(JSON.stringify({
     rebuiltCases: reconstruction.sessions.reduce((sum: number, session: any) => sum + session.cases.length, 0),
     refusedCases: reconstruction.sessions.reduce((sum: number, session: any) => sum + session.refusals.length, 0),
-    judgeAnsweredKeys: floors.replayKindLeg(keys, at),
+    judgeAnsweredKeys: Object.fromEntries(Object.entries(floors.replayKindLeg(keys, at)).map(([kind, leg]: [string, any]) => [kind, {
+      keys: leg.keys, withConfidence: leg.withConfidence, keptAtCandidate: leg.keptAtCandidate, handedBack: leg.handedBack, unseenBelowSingle: leg.unseenBelowSingle,
+    }])),
     comparedRows: rows.length, verdict: result.summary.verdict,
     compared: { single: floors.replayKindLeg(rows, floors.SINGLE_FLOORS), candidate: floors.replayKindLeg(rows, at) },
   }, null, 1));

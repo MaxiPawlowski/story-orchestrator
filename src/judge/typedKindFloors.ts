@@ -127,7 +127,7 @@ export interface KindVerdict {
   moved: boolean;
   runs: KindRunScore[];
   status: KindStatus;
-  policyMayMove: boolean;
+  fixtureAllowsMove: boolean;
 }
 
 export function heldOutVerdict(floors: KindFloors, runs: ReadonlyArray<{ candidate: readonly KindRow[]; single: readonly KindRow[] }>): Record<QualityReadAs, KindVerdict> {
@@ -136,7 +136,7 @@ export function heldOutVerdict(floors: KindFloors, runs: ReadonlyArray<{ candida
     const status: KindStatus = scored.length < J76_RUNS || scored.some((run) => run.status === "insufficient") ? "insufficient"
       : scored.every((run) => run.status === "pass") ? "pass" : "fail";
     const moved = floors[kind] !== EXTRACTION_CONFIDENCE;
-    return [kind, { floor: floors[kind], moved, runs: scored, status, policyMayMove: moved && status === "pass" }];
+    return [kind, { floor: floors[kind], moved, runs: scored, status, fixtureAllowsMove: moved && status === "pass" }];
   })) as Record<QualityReadAs, KindVerdict>;
 }
 

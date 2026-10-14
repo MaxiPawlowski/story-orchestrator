@@ -28,6 +28,18 @@ test('J6d C: the synthetic session rebuilds 7 judged reads (28 keys), skips the 
   assert.deepEqual(session.refusals.map((entry) => entry.code), ['prompt-mismatch']);
 });
 
+test('J6d C: a pinned story that uses the game layer still rebuilds (the real corpus stories carry widgets and checks)', async () => {
+  const dir = await copySession(async (target) => {
+    const file = await runtimeFile(target);
+    const blob = JSON.parse(await readFile(file, 'utf-8'));
+    const record = Object.values(blob.stories)[0] as { pinnedStory: Record<string, unknown> };
+    record.pinnedStory.widgets = [];
+    await writeFile(file, JSON.stringify(blob));
+  });
+  const [session] = (await reconstruct([dir])).sessions;
+  assert.equal(session.cases.length, 7);
+});
+
 test('J6d C refusal: a window the archived transcripts do not cover', async () => {
   const dir = await copySession(async (target) => {
     const lines = (await readFile(join(target, 'transcripts.jsonl'), 'utf-8')).split('\n').filter(Boolean);
