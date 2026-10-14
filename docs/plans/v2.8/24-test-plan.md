@@ -67,6 +67,15 @@ DeepSeek capped at EUR 15. 3090 image time about 9 h, listed apart. Old estimate
       merges, and every newly merged plan (42–69) moves from §Planned features into the matrix when built. A
       generated coverage report (registry ids × matrix rows × carriers × plan floors) is attached to the record;
       an unmapped feature or floor is a red check, not a footnote.
+12. **Image track closes first; the suite is text** (owner 2026-10-14). Image generation (LI rows, GS5, plan 33
+    pose bodies, plan 36 frames and live-head rows, plan 41 journeys, reference views, cast illustration, changed
+    looks, plan 28 broker legs) runs as its own close-out track: the 3090 block of 2026-10-14 plus at most one
+    image close-out session. Its results are recorded per row and the track is then closed; what it cannot finish
+    is listed as deferred with a reopen trigger, not carried into the suite. The real-model suite (golden sessions
+    GS1–GS4, AS-smoke, targeted scenarios, measurements) then runs with `image.enabled` and `sprites.enabled` off
+    and covers text and everything it drives: replies, thinking and inner voice, reads and memory, judge, director,
+    quests and game layer, UI and rollback. GS5 is not part of the suite. The Adolion X6 animation job (about 36 h)
+    is outside both and waits for the owner.
 
 ## Budget
 
