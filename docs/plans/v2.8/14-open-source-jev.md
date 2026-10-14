@@ -620,3 +620,7 @@ calibration rate and p50):
   killed); Storybook skipped (no component changed). `npm run gates:quick` green (jest related 3,057/3,057, replay --cached).
   `node --test scripts/local/judgeServerQueue.test.mjs scripts/local/judge.test.mjs` 11/11. No live ST gate: nothing ST-facing
   ran (owner's :8000 and lane 0 untouched); the routable memory-pairs route is NOT live-validated in a browser or under play load.
+
+## Owner decision 2026-10-14: local judge deferred to v2.9
+
+- No implementation depends on a local decision model; every use runs on TypeSafe (default) and keeps its pre-judge fallback. The decider-4b baselines (CPU, 3090) stay recorded; the memory-pairs readiness row stays as an optional route. Reopen with Plumb-4B (jevbench #2) when wanted.
