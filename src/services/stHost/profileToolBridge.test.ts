@@ -42,6 +42,12 @@ describe("v2.8 09: native tool calls over a Chat Completion profile (the wizard'
       if (!opened.ok) throw new Error("open failed");
       expect(await bridge.nextCall(opened.sessionId, Infinity)).toEqual({ kind: "ended", errorKind: kind, message });
     }
+    for (const [cause, kind] of [[new Error("401 Unauthorized"), "auth"], ["429 Too Many Requests", "quota"], [new Error("fetch failed"), "transport"]] as const) {
+      const bridge = createProfileToolBridge(async () => { throw new Error("API request failed", { cause }); });
+      const opened = await bridge.open(open);
+      if (!opened.ok) throw new Error("open failed");
+      expect(await bridge.nextCall(opened.sessionId, Infinity)).toEqual({ kind: "ended", errorKind: kind, message: `API request failed: ${cause instanceof Error ? cause.message : cause}` });
+    }
     const late = createProfileToolBridge(async () => reply({ content: "x" }), () => 10);
     const opened = await late.open(open);
     if (!opened.ok) throw new Error("open failed");
