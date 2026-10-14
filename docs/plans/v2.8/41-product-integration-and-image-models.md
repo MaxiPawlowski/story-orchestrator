@@ -833,3 +833,47 @@ Gates:
      --label p41-refviews`); unload, stop ComfyUI, prove the GPU idle; `so-assets.mts remove --marker SO-` for test cards.
 - Gaze iris, no GPU: lane 30 `so-live-head-check.mts --candidate` with gaze pinned at +-1 on the amber/slate/ember synthetic looks; a second
   model rates iris roundness before/after from screenshots (Storybook `Sprites/LiveHeadGaze` gives the synthetic before/after).
+
+## Gate record: dry-run findings fixed (changed-look live head, cast illustration route), 2026-10-14, branch `v2.8-p41-livehead-gap`
+
+Changed-look live head with poses on. Two causes, both fixed:
+- The head lookup used the stage set. With poses on a look shows an `lp_` posed body, so the head was looked up under `lp_…` and never under `look_<key>`.
+  - Fix: `actorLook` in `src/sprites/liveHeadStage.ts`, used by `actorHeadRef` and `castHeadStatus`.
+  - A posed body maps to the published look whose signature matches the body's base fields. Empty base fields map to `default`, the same rule cast illustration uses for face/decal-only looks.
+  - A body with no matching published look keeps its own set, so the head shows the static fallback.
+  - The legacy path, used when no prepared source exists, is unchanged.
+- A rebuilt bust was dropped by the next body render. The pose renderer republishes a cached look base on every render. `publishVisualLook` rewrote the look without its bust, so the head stayed `pending-bust` even after the rig was accepted.
+  - Fix: `publishVisualLook` (`src/sprites/visualManifest.ts`) keeps the bust when the root, signature, base sha256 and served path are all unchanged.
+  - A re-rendered base (new sha256) still invalidates the bust, as before. `visualRoot` with the pack hash is untouched.
+- The bust drop was found by probing a `--keep` dry run in the page. After the first fix the status read `look_<key>` with state `pending-bust`, and the rig for that look was present.
+
+Cast illustration route:
+- `#so-cast-scene` renders in DrawerTabs (the chat tools under Overview), which sits on the workspace Author page.
+- `drawerAt` in `src/features/where.ts` no longer routes it to Play. The registry label is now "Author › Illustrate prepared cast".
+
+Tests (each fails on the old code):
+- `visualCast.test.ts`: a posed body of a changed look resolves that look's rig and `castHeadStatus` ready. A plain posed body resolves `default`. An unpublished look resolves no rig.
+- `lookRebuild.test.ts`: republishing the same artwork after a rebuild keeps the bust and the `ready` state. A changed signature drops it.
+- `showMeTargets.test.ts`: every feature routed to the Play page has its selector rendered in the Play page tree, which is built from `Workspace.tsx`'s play branch. It failed on `cast-illustration`.
+- `test/findings/errorCopy.json`: one probe row, for the `bodyFields` JSON catch.
+
+Dry journey on offline lane 47:
+- Setup: `SO_LANE_OFFLINE=1 st-lanes seed 47 --fresh --slim`, then `start 47`. No GPU, no ComfyUI, no model; every call came from the fakes.
+- Command: `node scripts/debug/st-lanes.mts run 47 -- scripts/debug/so-p41-journey.mts run <k> --dry --candidate --label gapfix`. The build was this branch's `dist/`, after the master merge.
+- Before the bust fix: PLUMBING-OK, but look-rebuild still failed with "close shot rig look none != look_<key>".
+- run 1 `2026-10-14T19-47-14-258Z-gapfix-dry-run1`: PLUMBING-OK, 29 pass and 1 stub (gpu-idle).
+  - look-rebuild passed: the close-shot head is on `look_<key>` and 2 changed-look turns had visemes.
+  - Calls, all fake: 55 comfy, 4 sol, 4 landmarks, 72 artemis; 0 refusals; cleanup leaked 0.
+- run 2 `2026-10-14T19-50-10-786Z-gapfix-dry-run2`: the same result, with 74 artemis calls.
+- Header diff in both runs: only the known warning "open group is not in ctx.groups", because the owned group was deleted while it was still open. The lane was stopped afterwards.
+
+Gates:
+- `npm run gates:quick`: green. typecheck, typecheck:test, lint, jest related 1,528/1,528, replay `--cached`.
+- `npm run gates -- --no-storybook --jobs=2`: all green in 184.9s.
+  - jest: 8,411 passed and 1 skipped.
+  - replay: 32/32 killed.
+  - test:debug: 1,294/1,294.
+  - build, typecheck, lint, test:release and test:plugin all green.
+  - Storybook was skipped because no `.stories.tsx` or UI component changed.
+- An earlier full-gates run before the merge was red on the `gaze-iris` golden. That golden was already stale on `35a9267e` and master `4b21fe8e` regenerated it. After the merge it passes unchanged, so this branch did not regenerate it.
+- Worktree setup: `.build/` has no replay cache, so the first `gates:quick` replay `--cached` failed with E2BIG on the `--listTests` arguments; it passed once a full run had written the cache. `test:debug` needs the gitignored `test/sessions/adolion-stories.json`, which was copied from the main checkout.
