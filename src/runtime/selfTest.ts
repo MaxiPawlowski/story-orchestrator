@@ -80,7 +80,9 @@ const CAPABILITY_FIXTURE: ExtractionFixtureSpec = {
 // mis-graded. Each tier now checks that the answer is about the fixture, whose right answer is
 // unambiguous by construction.
 
-const has = (haystack: string, needle: string) => haystack.toLowerCase().includes(needle.toLowerCase());
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const has = (haystack: string, needle: string) =>
+  new RegExp(`${/^[\p{L}\p{N}]/u.test(needle) ? "(?<![\\p{L}\\p{N}])" : ""}${escapeRegExp(needle)}`, "iu").test(haystack);
 const someHas = (values: string[], needle: string) => values.some((value) => has(value, needle));
 
 const gradeCore = (parsed: ParsedSharedRead): SelfTestTierResult[] => {

@@ -42,6 +42,10 @@ export interface ContainsSpec {
 }
 
 /** Shared shape for the free-text tiers: a floor on how many lines, and words that must (not) appear. */
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+export const containsWordStart = (haystack: string, needle: string): boolean =>
+  new RegExp(`${/^[\p{L}\p{N}]/u.test(needle) ? '(?<![\\p{L}\\p{N}])' : ''}${escapeRegExp(needle)}`, 'iu').test(haystack);
+
 export function scoreContains(tier: TierName, spec: ContainsSpec | undefined, live: unknown[]): TierOutcome {
   if (!spec) return { tier, scored: false, pass: false, detail: 'the fixture states no expectation for this tier' };
   if (typeof spec.none === 'string') return { tier, scored: false, pass: false, detail: `the fixture declares no ${tier} expectation: ${spec.none || '(no reason given)'}` };
@@ -57,11 +61,11 @@ export function scoreContains(tier: TierName, spec: ContainsSpec | undefined, li
     // `mustContain: [""]` matches everything, so it is an expectation that cannot fail. Several
     // shipped fixtures carry one; they are named rather than counted as evidence.
     if (!needle.trim()) { vacuous.push('mustContain: ""'); continue; }
-    if (!haystack.includes(needle.toLowerCase())) problems.push(`missing "${needle}"`);
+    if (!containsWordStart(haystack, needle)) problems.push(`missing "${needle}"`);
   }
   for (const needle of spec.mustNotContain ?? []) {
     if (!needle.trim()) { vacuous.push('mustNotContain: ""'); continue; }
-    if (haystack.includes(needle.toLowerCase())) problems.push(`must not contain "${needle}"`);
+    if (containsWordStart(haystack, needle)) problems.push(`must not contain "${needle}"`);
   }
   const claims = (spec.minCount ?? 0) > 0 || [...(spec.mustContain ?? []), ...(spec.mustNotContain ?? [])].some((needle) => needle.trim());
   if (!claims) vacuous.push('no assertion');
