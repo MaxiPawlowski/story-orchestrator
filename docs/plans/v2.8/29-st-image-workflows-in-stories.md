@@ -213,3 +213,24 @@ row). Revisit after the LI check and once a portrait/background workflow exists 
   hand each time, lane copy only.
 - Acceptance: LI green ×2 on the no-plugin path; the brokered path is owed until the box has the RAM headroom (or the
   fix above is staged and re-run).
+
+## Gate record — 3090 re-run 2026-10-14
+
+Brokered path, production config: the installed GPU plugin (`plugins/story-orchestrator-gpu/config.json`, `managed`
+-> standalone controller on :18888), plugins enabled on lane 38 (`[story-orchestrator-gpu] managed adapter` in its
+log), master `46699b15` built, staged and plugins installed (`npm run build && npm run stage && npm run plugins:install`;
+owner's ST on :8000 was down; restart not needed for a lane). Controller `cli.mjs start`, `unload` (manual hold, no
+text), `start-comfy` (ComfyUI ready in 23 s). Lane 38 no-model, same lane setup as the earlier record.
+- Command: `node scripts/local/storyWorkflowLi.mjs 38 runN C:/dev/so-lanes/m3090-rerun-2026-10-14/plan29`.
+- run1: exit 0, **PASS** every floor. Jobs in order `SO_LI_A`, `SO_LI_B`, `SillyTavern/janku`; selection on disk
+  `JANKU_v777.json` before and after; no `SO-LI-` file left; scenario 60.5 s.
+- run2: exit 0, **PASS** every floor, same prefixes, 46.6 s.
+- run3 (lease proof, same floors, PASS, 45.6 s): a 200 ms poll of the controller's `/status`
+  (`plan29/run3-leases.json`) saw 3 separate image leases for the 3 renders (`phase: image`/`reserving`, need
+  9,776-9,796 MiB, decision `retain-text`), min RAM available 14,396 MiB. The empty-checkpoint lease fix
+  (`renderFacts`) is live-proven: the `background` render got its lease.
+- Controller footprints updated after each run (`plan29/controller-footprints.json`, measurement
+  `checkpoints:waiIllustriousSDXL_v170.safetensors@832x1216`). Peak GPU in the window 10,468 MiB, min free RAM 14,623 MiB
+  (`samples.log`).
+- Images kept (synthetic test story only): `C:\dev\so-lanes\m3090-rerun-2026-10-14\plan29\images` (9 PNG).
+- Acceptance: LI green ×2 on the brokered path as well as the no-plugin path. Evidence label `m3090-rerun-20261014`.

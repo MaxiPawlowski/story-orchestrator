@@ -282,3 +282,35 @@ Gates:
   --index-json`): 133 suites, 799 tests passed. All green, the Storybook step by that manual route.
 - GPU after the window: `nvidia-smi` 755 MiB used, 1 %, no compute process of ours; ComfyUI, broker, controller, lane 38
   stopped.
+
+## Gate record — 3090 re-run 2026-10-14
+
+Branch `v2.8-3090-rerun` from `46699b15`, 08:43-09:04 AST, nothing else on the box (free RAM 16.9 GiB at start, GPU
+789 MiB). Evidence `C:\dev\so-lanes\m3090-rerun-2026-10-14\r14` (+ `samples.log`, 5 s nvidia-smi/RAM samples), archived
+privately (label below).
+
+R14 with the real Qwen sprite models (`qwen_image_2.1_int8_convrot`, `qwen3vl_8b_int8_convrot`, VAE bf16; 25 steps,
+1024; synthetic lighthouse-keeper subject), `retainBatches` default (on), `imageCacheMode: evict`, reserves 2048/4096 MiB,
+`needGpuMiB` 18,964:
+- Command: `node scripts/local/retainBatchLi.mjs C:/dev/tools/story-orchestrator-local/config.json C:/dev/so-lanes/m3090-rerun-2026-10-14/r14 runN`.
+- run1: exit 0, **PASS** every floor. Base render, then A: 1 lease for 3 images, frames 35.3 / 24.3 / 24.8 s. B: text
+  asked 5 s into image 1, lease dropped after that image (`may-retain false`), reply 56.8 s after the request (35.3 s
+  after the hand-off), second lease 3.4 s after the reply; frames 28.3 / 71.6 (waits for text) / 23.3 s. Leases 3,
+  renews 3, releases 3. Min GPU free 2,991 MiB, min RAM available 13,867 MiB, peak 21,585 MiB, ComfyUI warm 42.2 s,
+  total 282.6 s, GPU after exit 770 MiB.
+- run2: exit 0, **PASS** every floor. A: 1 lease, 28.5 / 23.3 / 23.8 s. B: 2 leases, reply 50.6 s (29.5 s after the
+  hand-off), frames 28.7 / 66.1 / 23.4 s. Min GPU free 2,991 MiB, min RAM 12,601 MiB, peak 21,585 MiB, warm 24.1 s,
+  total 240.3 s, GPU after 772 MiB.
+- No RAM refusal this time. RAM available at each lease grant 14,774-18,381 MiB against 10,673 + 4,096 = 14,769 needed:
+  run1's post-text B lease cleared by about 5 MiB, so this host admits the Qwen batch only when idle.
+- Estimate vs measured: during Qwen renders RAM available fell 2-6 GiB below its pre-lease level (low 12.6 GiB),
+  against a 10,673 MiB workload estimate: the RAM size estimate looks about 2× conservative for this batch (weights
+  stream from the page cache). Reserves and floors left unchanged.
+- Mid-batch text used the final channel (96 tokens), as before: R14 measures the hand-off.
+
+R14 is green ×2 with both the SDXL (earlier record) and Qwen sprite models. Evidence archive:
+`node scripts/debug/so-evidence.mts archive --label m3090-rerun-20261014 --lanes 38 --since 2026-10-14T11:40:00Z`: exit
+0, 70 files, 26,014,108 B, problems none (private so-sessions tree, not pushed).
+
+GPU after the window: controller stopped (`node scripts/local/cli.mjs stop`), lane 38 stopped, no python/llama process,
+`nvidia-smi` 765 MiB used, no compute process of ours. Tray `status.txt` 6/6 OK.
