@@ -58,6 +58,7 @@ notes/
 /test/sessions/T*/T*-*/
 /test/sessions/rating-pack/
 /test/sessions/media-check/
+/test/sessions/e0/
 # v2.7 re-scope 2026-10-07: raw image-track/T7 evidence lives in private so-sessions
 /test/sessions/evidence/
 /test/sessions/T7/integration/

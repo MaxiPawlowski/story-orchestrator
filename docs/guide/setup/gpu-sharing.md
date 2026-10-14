@@ -59,10 +59,30 @@ The plugin keeps some memory free for your desktop. Without `reserves` in the co
 (at least 1 GiB) and 10% of system memory (at least 2 GiB). Set `"reserves": { "gpuMiB": …, "ramMiB": … }` to pin your
 own numbers.
 
+## When text stays loaded
+
+Before each picture the plugin reads the card's free memory and system memory, and compares them with what the picture
+needs plus both reserves. If the picture fits beside the loaded text model, the text model stays loaded and the next
+reply starts at once. If it does not fit, the text model unloads first and loads again for the next reply, which is
+where most of the wait after a picture comes from. A large text model on a 24 GB card usually leaves too little room
+beside it, so expect a swap there. Without a memory reading the plugin never keeps text beside a picture.
+
+What a picture needs in system memory comes from, in order: what the plugin measured for that picture before, your
+own `ramEstimates` in the config, a built-in measured value for the Qwen sprite models (about 8 GiB at 1024×1024), or
+an estimate from the model files. To pin your own number for a model set:
+
+```json
+"ramEstimates": [{ "id": "my-sprites", "models": ["diffusionModels:my-model.safetensors", "vaes:my-vae.safetensors"], "ramMiB": 7000 }]
+```
+
+`text.loadMode` (`none`, `mmap`, `dio`, …) chooses how `llama-server` reads the model file; the status reports each
+load's time, so you can compare modes on your own disk.
+
 ## What you see
 
 **Images → Image service** shows a **GPU sharing** line while the plugin runs: idle, text model loaded, rendering a
-picture, or waiting, and why a picture waits. If the text server stops by itself, the line says so: pictures keep
+picture, or waiting, and why a picture waits. The plugin's status (`lastResidency`) also says whether the last picture
+kept text loaded or swapped it out, and the memory readings behind that. If the text server stops by itself, the line says so: pictures keep
 rendering, and replies fail with a reason until an admin loads text again.
 
 Load, unload, automatic, restore and free-image controls are **admin-only** routes under

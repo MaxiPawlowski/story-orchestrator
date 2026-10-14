@@ -1,0 +1,446 @@
+{
+ "format": "so-e0-labels/1",
+ "source": "synthetic",
+ "questions": [
+  {
+   "id": "session-a-q01",
+   "session": "session-a",
+   "askMessageId": 40,
+   "asker": "Wren",
+   "text": "What oath did Sela ask Wren to swear at the pass?",
+   "gold": [
+    36
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q02",
+   "session": "session-a",
+   "askMessageId": 42,
+   "asker": "Wren",
+   "text": "What exactly did Odo offer for the silver locket?",
+   "gold": [
+    38
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q03",
+   "session": "session-a",
+   "askMessageId": 44,
+   "asker": "Wren",
+   "text": "What exactly did Tobin promise about the wagon axle?",
+   "gold": [
+    0
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q04",
+   "session": "session-a",
+   "askMessageId": 46,
+   "asker": "Wren",
+   "text": "Why did Odo say he never sells maps of the marsh?",
+   "gold": [
+    14
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q05",
+   "session": "session-a",
+   "askMessageId": 48,
+   "asker": "Wren",
+   "text": "What did Sela say about stitching the wound?",
+   "gold": [
+    28
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q06",
+   "session": "session-a",
+   "askMessageId": 50,
+   "asker": "Wren",
+   "text": "What price did Odo name for the mule?",
+   "gold": [
+    6
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q07",
+   "session": "session-a",
+   "askMessageId": 52,
+   "asker": "Wren",
+   "text": "What did Sela warn about the blue mushrooms?",
+   "gold": [
+    20
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q08",
+   "session": "session-a",
+   "askMessageId": 54,
+   "asker": "Wren",
+   "text": "What did Kestra say her mother's compass points at?",
+   "gold": [
+    34
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q09",
+   "session": "session-a",
+   "askMessageId": 56,
+   "asker": "Wren",
+   "text": "What did Sela say she owes the abbess?",
+   "gold": [
+    12
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q10",
+   "session": "session-a",
+   "askMessageId": 58,
+   "asker": "Wren",
+   "text": "What exactly did Kestra say about the wolves?",
+   "gold": [
+    26
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q11",
+   "session": "session-a",
+   "askMessageId": 60,
+   "asker": "Wren",
+   "text": "What exactly did Sela say she would brew?",
+   "gold": [
+    4
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q12",
+   "session": "session-a",
+   "askMessageId": 62,
+   "asker": "Wren",
+   "text": "What did Kestra say the ferryman takes?",
+   "gold": [
+    18
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q13",
+   "session": "session-a",
+   "askMessageId": 64,
+   "asker": "Wren",
+   "text": "What did Tobin say about the river stones?",
+   "gold": [
+    32
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q14",
+   "session": "session-a",
+   "askMessageId": 66,
+   "asker": "Wren",
+   "text": "What was Kestra's rule about the lantern going out?",
+   "gold": [
+    10
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q15",
+   "session": "session-a",
+   "askMessageId": 68,
+   "asker": "Wren",
+   "text": "What did Tobin name his anvil and why?",
+   "gold": [
+    24
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q16",
+   "session": "session-a",
+   "askMessageId": 70,
+   "asker": "Wren",
+   "text": "What did Kestra call the north road?",
+   "gold": [
+    2
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q17",
+   "session": "session-a",
+   "askMessageId": 72,
+   "asker": "Wren",
+   "text": "What did Tobin promise he could make with one quiet night?",
+   "gold": [
+    16
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q18",
+   "session": "session-a",
+   "askMessageId": 74,
+   "asker": "Wren",
+   "text": "What did Odo say happens to his profit?",
+   "gold": [
+    30
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q19",
+   "session": "session-a",
+   "askMessageId": 76,
+   "asker": "Wren",
+   "text": "What did Tobin say about the bell his father forged?",
+   "gold": [
+    8
+   ],
+   "review": null
+  },
+  {
+   "id": "session-a-q20",
+   "session": "session-a",
+   "askMessageId": 78,
+   "asker": "Wren",
+   "text": "What password did Odo give for the toll at Brask?",
+   "gold": [
+    22
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q01",
+   "session": "session-b",
+   "askMessageId": 40,
+   "asker": "Wren",
+   "text": "What did Ilse ask Wren to promise about the music box?",
+   "gold": [
+    36
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q02",
+   "session": "session-b",
+   "askMessageId": 42,
+   "asker": "Wren",
+   "text": "What did Doctor Hale say grew from the gardener's seeds?",
+   "gold": [
+    38
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q03",
+   "session": "session-b",
+   "askMessageId": 44,
+   "asker": "Wren",
+   "text": "What did Lady Vey say about the east wing?",
+   "gold": [
+    0
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q04",
+   "session": "session-b",
+   "askMessageId": 46,
+   "asker": "Wren",
+   "text": "How many drops did Doctor Hale say were safe?",
+   "gold": [
+    14
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q05",
+   "session": "session-b",
+   "askMessageId": 48,
+   "asker": "Wren",
+   "text": "What did Ilse swear she saw on the lawn?",
+   "gold": [
+    28
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q06",
+   "session": "session-b",
+   "askMessageId": 50,
+   "asker": "Wren",
+   "text": "What did Doctor Hale say the old lord died of?",
+   "gold": [
+    6
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q07",
+   "session": "session-b",
+   "askMessageId": 52,
+   "asker": "Wren",
+   "text": "Why did Ilse say the cook puts rosemary in everything?",
+   "gold": [
+    20
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q08",
+   "session": "session-b",
+   "askMessageId": 54,
+   "asker": "Wren",
+   "text": "What did Brann say about the clock in the hall?",
+   "gold": [
+    34
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q09",
+   "session": "session-b",
+   "askMessageId": 56,
+   "asker": "Wren",
+   "text": "What did Ilse say her grandmother hid?",
+   "gold": [
+    12
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q10",
+   "session": "session-b",
+   "askMessageId": 58,
+   "asker": "Wren",
+   "text": "What did Brann say green candle flames mean?",
+   "gold": [
+    26
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q11",
+   "session": "session-b",
+   "askMessageId": 60,
+   "asker": "Wren",
+   "text": "What condition did Ilse set for reading the cards?",
+   "gold": [
+    4
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q12",
+   "session": "session-b",
+   "askMessageId": 62,
+   "asker": "Wren",
+   "text": "What did Brann say about the masters he served?",
+   "gold": [
+    18
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q13",
+   "session": "session-b",
+   "askMessageId": 64,
+   "asker": "Wren",
+   "text": "What were Lady Vey's terms for borrowing the grey mare?",
+   "gold": [
+    32
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q14",
+   "session": "session-b",
+   "askMessageId": 66,
+   "asker": "Wren",
+   "text": "What exactly did Brann say to do when the pantry bell rings by itself?",
+   "gold": [
+    10
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q15",
+   "session": "session-b",
+   "askMessageId": 68,
+   "asker": "Wren",
+   "text": "What did Lady Vey say about the chapel bell?",
+   "gold": [
+    24
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q16",
+   "session": "session-b",
+   "askMessageId": 70,
+   "asker": "Wren",
+   "text": "What did Brann say happens every Tuesday?",
+   "gold": [
+    2
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q17",
+   "session": "session-b",
+   "askMessageId": 72,
+   "asker": "Wren",
+   "text": "What did Lady Vey promise about the inheritance?",
+   "gold": [
+    16
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q18",
+   "session": "session-b",
+   "askMessageId": 74,
+   "asker": "Wren",
+   "text": "What did Doctor Hale say about the scar on Lady Vey's wrist?",
+   "gold": [
+    30
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q19",
+   "session": "session-b",
+   "askMessageId": 76,
+   "asker": "Wren",
+   "text": "What did Lady Vey call the gardener?",
+   "gold": [
+    8
+   ],
+   "review": null
+  },
+  {
+   "id": "session-b-q20",
+   "session": "session-b",
+   "askMessageId": 78,
+   "asker": "Wren",
+   "text": "What did Doctor Hale ask be done with his notebook?",
+   "gold": [
+    22
+   ],
+   "review": null
+  }
+ ]
+}

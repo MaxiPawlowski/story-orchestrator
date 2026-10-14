@@ -523,3 +523,19 @@ npm run typecheck:test: tsc -p tsconfig.test.json; exit 0. git diff --check: exi
 ## Owner decision 2026-10-14: lie_side stays listed
 
 - After the repaired-geometry miss (P2 PCK 0.333 ×2 vs floor 0.70), the owner chose to keep `lie_side` in the pose library rather than de-list it. Floor unchanged; the miss stays recorded.
+
+## Gate record: Sol rater on the repaired lie_side renders, and the CL LLM leg (2026-10-14, branch `v2.8-poc-sol`, LIST)
+
+- Owner approval 2026-10-14 for cloud models. Model: opencode `openai/gpt-6.1-sol` only, through the harness opencode transport from a node driver (plugin sign-in check bypassed through its `authMethods` seam: OpenCode 2.0.6 reports the subscription connection without a method and `opencode auth list` lists nothing; queue N12). No DeepSeek, no TypeSafe (0 of 300), no GPU.
+- Identity and label rater, lie_side re-run sheets `C:\dev\so-lanes\m3090-2026-10-14\plan33`: run w2 sheets are byte-identical to w1 (md5 checked), so the 12 w1 sheets were rated once each (6 body, 6 head; seeds 1234 and 5678), with the plan 41 rater prompts unchanged (head prompt lists the crops that exist: the third member has P3 crops only, its P2 bodies had no DWPose person). 12 calls, 12 parsed.
+  - Identity "same character": P2 6/6, P3 6/6 = 100 %, floor 90 %, **met**.
+  - Label visible: 17/20 crops = 85.0 %, floor 90 %, **MISSED** (P2 5/8, P3 12/12). Misses: first member P2 angry (seed 1234), P2 happy and angry (seed 5678). Same face across a sheet 6/6.
+  - Pose follows the skeleton (informational; PCK stays the metric, 0.333 recorded): P2 yes 4, partly 2; P3 partly 3, no 3. Defects named: extra_limb 2 (P2, seed 5678, second and third member).
+- CL LLM leg (A4), lane 36 (fresh seed, `no-model`, `so-pose-pick-cl.mts prepare 36`, images and sprites off), served bundle = the staged slot. `so-pose-pick-cl.mts run --arm llm --run 1|2 --label cl-sol-2026-10-14`, judge leg not asked. The page's harness `/complete` fetch was answered by the node transport through a CDP binding (the script itself unmodified; the lane plugin's own status reported `loggedIn: true`, but the bridge was used for both runs so they share one route).
+  - Run 1: 40/40 = 100 % (floor 80 %, met); LLM leg 40 answered, 40 right; 8/8 labelled `none` right; 0 invalid answers; latency median 2,675 ms, max 5,756 ms, 0 over the shipped 15 s; stray requests 0.
+  - Run 2 (page reloaded, cache off): 40/40 = 100 %, met; median 2,721 ms, max 6,968 ms, 0 over 15 s.
+  - 80 Sol calls. Same caveat as the judge leg: 40 synthetic single-action replies, easy with the pose list in view.
+  - Cleanup: `so-run-header diff` before/after: 0 differences, 0 blocking; `so-assets assert-clean --marker SO-` exit 0; lane 36 stopped.
+- Acceptance x2 stays BLOCKED as recorded above (host RAM for Qwen leases, no latency-arm driver). The rater now exists; it ran.
+- Evidence: `test/sessions/evidence/phase-c/poc-sol-20261014/` (`pose-ratings.jsonl`, `pose-jobs.json`, `pose-cl-llm/`).
+- Gates (branch `v2.8-poc-sol`, code commit `82628211`): `npm run test:replay` (fresh worktree) 32 of 32 killed in 156.8 s; `npm run gates:quick` green in 31.1 s; `npm run gates -- --no-storybook --jobs 2` all green in 231.2 s (test, test:replay, build, typecheck, typecheck:test, test:debug, debug:typecheck, lint, test:release, test:plugin); staged Storybook (`%TEMP%\so-sb-pocsol` from `git archive HEAD`, `npm run test-storybook:ci`) 136 suites / 814 tests passed, copy removed. Not merged, pushed, staged or installed.

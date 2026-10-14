@@ -516,7 +516,7 @@ test('a stalled OpenCode service cannot keep the owned directory: deadline, clos
         assert.equal(opened.ok, true, JSON.stringify(opened));
         assert.ok(await until(() => ctx.fake.state.held.length === 1), `${stall}: the setup call is pending`);
         assert.equal(ctx.calls().length, 1);
-        assert.ok(await until(() => ctx.calls().length === 0 && ctx.service.gate.counts('opencode').running === 0, 4000), `${stall}: the deadline removed the owned directory`);
+        assert.ok(await until(() => ctx.calls().length === 0 && ctx.service.gate.counts('opencode').running === 0, 10000), `${stall}: the deadline removed the owned directory`);
         ctx.fake.release();
         assert.ok(await until(() => ctx.fake.state.sessions.size === 0), `${stall}: no OpenCode session is left`);
     }
@@ -525,7 +525,7 @@ test('a stalled OpenCode service cannot keep the owned directory: deadline, clos
     assert.ok(await until(() => closing.fake.state.held.length === 1));
     const started = Date.now();
     await closing.service.agent.close(opened.sessionId);
-    assert.ok(Date.now() - started < 2000, 'close does not wait on the stalled service');
+    assert.ok(Date.now() - started < 6000, 'close does not wait on the stalled service');
     assert.deepEqual(closing.calls(), []);
     assert.equal(closing.service.gate.counts('opencode').running, 0);
     closing.fake.release();

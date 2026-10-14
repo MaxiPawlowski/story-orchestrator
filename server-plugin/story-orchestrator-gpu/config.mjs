@@ -1,10 +1,12 @@
 import path from 'node:path';
 import { brokerAddress } from './managed.mjs';
+import { validateRamEstimates } from './broker/ramEstimates.mjs';
 
 export const ADAPTERS = Object.freeze(['none', 'observe', 'supervise', 'managed']);
 const LOOPBACK_HOSTS = ['127.0.0.1', 'localhost', '[::1]'];
 const ARG_REFUSED = /^--(?:host|port|listen|api-key|ssl-|path)/;
 const REFUSED_KEYS = ['allowRemote', 'publicHost', 'bindAll'];
+export const LOAD_MODES = Object.freeze(['auto', 'none', 'mmap', 'mlock', 'mmap+mlock', 'dio']);
 
 const fail = (message) => { throw new Error(`GPU broker config: ${message}`); };
 const isRecord = (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -51,6 +53,8 @@ export function validateConfig(raw = {}) {
             if (!isRecord(profile) || !Array.isArray(profile.args) || profile.args.some((arg) => typeof arg !== 'string')) fail(`profile ${id} needs args as a list of strings.`);
             if (profile.args.some((arg) => ARG_REFUSED.test(arg))) fail(`profile ${id} may not set the host, port or paths; the broker binds loopback itself.`);
         }
+        if (text.loadMode !== undefined && !LOAD_MODES.includes(text.loadMode)) fail(`text.loadMode must be one of ${LOAD_MODES.join(', ')}.`);
+        if (raw.ramEstimates !== undefined) { const problem = validateRamEstimates(raw.ramEstimates); if (problem) fail(problem); }
         const defaultProfile = text.defaultProfile ?? Object.keys(text.profiles)[0];
         if (!Object.hasOwn(text.profiles, defaultProfile)) fail('text.defaultProfile must name a profile.');
         absolute(raw.stateDir, 'stateDir');
@@ -72,6 +76,7 @@ export function validateConfig(raw = {}) {
             stateDir: raw.stateDir, modelDirs: raw.modelDirs, modelCacheRoot: raw.modelCacheRoot, telemetryPython: raw.telemetryPython,
             maxQueue: raw.maxQueue ?? 16, queueTimeoutMs: raw.queueTimeoutMs ?? 600000, keepTextResident: text.keepResident === true,
             retainBatches: raw.retainBatches !== false, imageCacheMode: raw.imageCacheMode ?? 'warm', defaultImageMiB: raw.defaultImageMiB, defaultImageRamMiB: raw.defaultImageRamMiB,
+            ramEstimates: raw.ramEstimates ?? [],
         };
     }
     return config;

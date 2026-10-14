@@ -15,7 +15,7 @@ export function visionRigRequest(bust: Pick<VisualAsset, "sha256">, image: strin
       + (size ? `It is ${size.width} x ${size.height} pixels; use pixel coordinates with the origin at the top left. ` : "")
       + "Describe visible face landmarks, occlusions and whether a live-head rig can be safely prepared. "
       + "Each eye is a closed contour of 6 to 16 points tracing the visible opening (lid line to lid line), the image's left eye first. "
-      + "face is the head outline (face and hair mass, no neck). ears may be omitted when hidden. "
+      + "face is the head outline (face and hair mass, no neck). ears lists both ears, image-left first; leave the ears key out entirely when either ear is hidden. "
       + `Return JSON only, shaped ${LANDMARK_SCHEMA}. Set refused true with a reason when the face is not front-facing, eyes or mouth are hidden, or hands or props cover the face. `
       + "Do not invent hidden anatomy or approve identity.",
     maxOutputChars: 12000, timeoutMs: 180000 };

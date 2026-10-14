@@ -27,7 +27,12 @@ const CONNECTIONS = {
     none: [],
     key: [{ type: 'credential', id: 'cred_key', label: 'synthetic key', method: 'key' }],
     env: [{ type: 'env', name: 'OPENAI_API_KEY' }],
+    methodless: [{ type: 'credential', id: 'cred_synthetic', label: 'synthetic account' }],
+    'methodless-expired': [{ type: 'credential', id: 'cred_synthetic', label: 'synthetic account', status: { status: 'needs_auth', message: 'the refresh token was rejected' } }],
+    cold: [{ type: 'credential', id: 'cred_synthetic', label: 'synthetic account' }],
 };
+
+const integrationRow = (integrationID, login) => ({ id: integrationID, name: 'OpenAI', methods: [{ type: 'key' }, { id: 'chatgpt-browser', type: 'oauth', label: 'ChatGPT Pro/Plus (browser)' }], connections: CONNECTIONS[login] ?? [] });
 
 const startMcp = (server) => {
     const child = spawn(server.command[0], server.command.slice(1), { env: { ...process.env, ...(server.environment ?? {}) }, stdio: ['pipe', 'pipe', 'ignore'], windowsHide: true });
@@ -258,8 +263,20 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
         integration: {
             get: async ({ integrationID }) => {
                 check();
-                if (state.login === 'unknown-integration') throw failure('IntegrationNotFoundError', 'no such integration');
-                return { location: { directory: '/x' }, data: { id: integrationID, name: 'OpenAI', methods: [{ type: 'key' }, { id: 'chatgpt-browser', type: 'oauth', label: 'ChatGPT Pro/Plus (browser)' }], connections: CONNECTIONS[state.login] ?? [] } };
+                if (state.login === 'unknown-integration' || state.login === 'cold') throw failure('IntegrationNotFoundError', 'no such integration');
+                return { location: { directory: '/x' }, data: integrationRow(integrationID, state.login) };
+            },
+            list: async () => {
+                check();
+                const providers = [...new Set(state.models.map((model) => model.providerID))];
+                return { location: { directory: '/x' }, data: state.login === 'unknown-integration' ? [] : providers.map((id) => integrationRow(id, state.login)) };
+            },
+        },
+        provider: {
+            list: async () => {
+                check();
+                const providers = state.providers ?? [...new Set(state.models.map((model) => model.providerID))];
+                return { location: { directory: '/x' }, data: providers.map((id) => ({ id, integrationID: id, name: id, activation: 'auto', package: 'synthetic' })) };
             },
         },
         model: { list: async () => { check(); return { location: { directory: '/x' }, data: state.models }; } },

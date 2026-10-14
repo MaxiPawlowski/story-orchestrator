@@ -100,6 +100,20 @@ test('config: supervise takes binaries and models only as absolute paths from th
     assert.throws(() => validateConfig({ ...good, comfy: { startTimeoutMs: 5 } }), /startTimeoutMs/);
 });
 
+test('config: text.loadMode takes only llama-server load modes; ramEstimates rows are checked and reach the arbiter', async () => {
+    const good = await superviseConfig();
+    assert.equal(validateConfig({ ...good, text: { ...good.text, loadMode: 'dio' } }).arbiter.modelLoadMode, 'dio');
+    assert.equal(validateConfig(good).arbiter.modelLoadMode, undefined);
+    assert.throws(() => validateConfig({ ...good, text: { ...good.text, loadMode: 'fast' } }), /text.loadMode must be one of/);
+    const row = { id: 'my-qwen', models: ['diffusionModels:a.safetensors', 'vaes:b.safetensors'], ramMiB: 7000, maxPixels: 1048576, streaming: true };
+    assert.deepEqual(validateConfig({ ...good, ramEstimates: [row] }).arbiter.ramEstimates, [row]);
+    assert.deepEqual(validateConfig(good).arbiter.ramEstimates, []);
+    assert.throws(() => validateConfig({ ...good, ramEstimates: [{ ...row, ramMiB: 0 }] }), /ramMiB must be a positive number/);
+    assert.throws(() => validateConfig({ ...good, ramEstimates: [{ ...row, models: ['a.safetensors'] }] }), /kind:file name/);
+    assert.throws(() => validateConfig({ ...good, ramEstimates: [{ ...row, id: '../x' }] }), /short id/);
+    assert.throws(() => validateConfig({ ...good, ramEstimates: {} }), /short list/);
+});
+
 test('controls: a path, a binary or an argument in the request body is refused; profiles are picked by id', () => {
     const config = { profiles: { normal: { args: [] } } };
     assert.throws(() => controlRequest('load', { profile: 'normal', binary: 'C:/evil.exe' }, config), /takes no binary/);

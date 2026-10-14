@@ -12,7 +12,7 @@ import { withinReserve } from './policy.mjs';
 import { comfyPort } from './controllerStatus.mjs';
 
 export const BROKER_SOURCE_FILES = Object.freeze(['arbiter', 'backend', 'controllerStatus', 'estimate', 'fastTelemetry', 'footprints', 'gateway', 'gguf',
-    'imageCache', 'models', 'policy', 'responseTiming', 'runtimeIdentity', 'safetensors', 'scheduler', 'telemetry']);
+    'imageCache', 'models', 'policy', 'ramEstimates', 'responseTiming', 'runtimeIdentity', 'safetensors', 'scheduler', 'telemetry']);
 
 export async function brokerBuild(extra = []) {
     const source = createHash('sha256');
@@ -173,7 +173,8 @@ export function createArbiter(config, deps = {}) {
             scheduler = deps.scheduler ?? new ResidencyScheduler({ config, backend, snapshot, startComfy,
                 queue: () => jsonFetch('/queue'), freeImages,
                 saveFootprints: (data) => fsImpl.writeFile(footprintsPath, JSON.stringify(data, null, 2)), footprints,
-                timings, saveTimings: (data) => fsImpl.writeFile(timingsPath, JSON.stringify({ identity, timings: data }, null, 2)), runtime });
+                timings, saveTimings: (data) => fsImpl.writeFile(timingsPath, JSON.stringify({ identity, timings: data }, null, 2)), runtime,
+                log: deps.log ?? ((line) => console.log(`[story-orchestrator-gpu] ${line}`)) });
             if (fast) unsubscribe = fast.subscribe((sample) => scheduler.observe(sample));
             if (deps.timers !== false) {
                 timer = setInterval(() => {
