@@ -9,7 +9,7 @@ export const settingsAt = (selector: string, label: string): FeatureWhere => ({
 });
 export const drawerAt = (selector: string, label: string): FeatureWhere => ({
   selector, label: `This story › ${label}`, surface: "drawer",
-  workspace: { context: "story", page: /so-player-overview|so-memory-search|so-open-(activity|suggestions|journal|widgets|stat)/.test(selector) ? "play" : "author",
+  workspace: { context: "story", page: /so-player-overview|so-memory-search|so-cast-scene|so-open-(activity|suggestions|journal|widgets|stat)/.test(selector) ? "play" : "author",
     control: selector.replace(/^#/, "") },
 });
 export const chatAt = (selector: string, label: string): FeatureWhere => ({ selector, label, surface: "chat" });

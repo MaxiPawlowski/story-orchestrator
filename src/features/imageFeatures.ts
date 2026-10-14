@@ -1,5 +1,5 @@
 import type { Feature } from "./registry";
-import { settingsAt, studioAt } from "./where";
+import { drawerAt, settingsAt, studioAt } from "./where";
 import { authorGuideDoc } from "./guideLinks";
 
 export const IMAGE_FEATURES: readonly Feature[] = [
@@ -10,6 +10,22 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     where: settingsAt("#so-live-head-enabled", "Images › Sprite stage › Live close-shot head"),
     settings: [], doc: "setup/sprites.md", status: "experimental", needs: ["sprite-pack"],
     isOn: (settings) => settings.sprites.liveHead,
+  },
+  {
+    id: "prepared-presentation", name: "Prepared cast presentation", area: "images", audience: "author",
+    oneLine: "Review and accept each character's base and bust before sprites, poses and live heads use them.",
+    what: "After the wizard builds a cast, pick a generated base, set its head box and accept base and bust together. "
+      + "Expressions, changed looks and poses follow that accepted source; a changed card or artwork asks for a new review.",
+    where: studioAt("#so-prepare-presentation", "Sprites › Prepare presentation"), settings: [], guideTopic: "poses", doc: authorGuideDoc("poses"),
+    status: "experimental", needs: ["comfyui"],
+  },
+  {
+    id: "cast-illustration", name: "Prepared cast illustration", area: "images", audience: "setup",
+    oneLine: "Draw one or two prepared characters together in their current looks.",
+    what: "Choose up to two characters whose presentation was accepted. "
+      + "The picture uses each one's current look; a look still being prepared is refused rather than drawn in the old outfit.",
+    where: drawerAt("#so-cast-scene", "Play › Illustrate prepared cast"), settings: [], doc: authorGuideDoc("poses"),
+    status: "experimental", needs: ["comfyui", "story"],
   },
   {
     id: "pose-library", name: "Poses and character layers", area: "images", audience: "author",

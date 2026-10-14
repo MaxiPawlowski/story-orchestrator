@@ -6,7 +6,7 @@ export default function PresentationReview({ review, accepted, busy, error, stal
   review?: VisualReview | null; accepted?: VisualManifest; busy: boolean; error?: string | null; stale?: boolean;
   prepare(): void; accept(): void; cancel(): void;
 }) {
-  return <section aria-label="Prepare presentation" className="flex flex-col gap-2 st-subpanel p-3">
+  return <section id="so-prepare-presentation" aria-label="Prepare presentation" className="flex flex-col gap-2 st-subpanel p-3">
     <h3>Prepare presentation</h3>
     <p>Keep a base candidate or select an installed base, adjust its head box, then review both images. Transparency checks do not approve identity.</p>
     <button type="button" className="st-button" disabled={busy} onClick={prepare}>Review selected base and bust</button>

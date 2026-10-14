@@ -22,7 +22,7 @@ export default function CastSceneControls({ manager, snapshot, queue, members, r
     catch (reason) { log.warn("prepared cast illustration refused", reason); setError(PLAYER_COPY.imageError); }
     finally { setBusy(false); }
   };
-  return <details><summary>Illustrate prepared cast</summary><div className="flex flex-col gap-2">
+  return <details id="so-cast-scene"><summary>Illustrate prepared cast</summary><div className="flex flex-col gap-2">
     <p>Select up to two characters. Uses accepted current-look identities with Qwen 2.1. Prepare presentation in Studio first.</p>
     {cast.map((member) => <label key={member.folder}><input type="checkbox"
       disabled={busy || (!selected.includes(member.folder) && selected.length === 2)}
