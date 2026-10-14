@@ -493,3 +493,9 @@ Branch `v2.8-local-judge` (worktree `C:\dev\so-local-judge`), from master `9b457
   refused. memory-pairs would be the first row (`measuredOn` `decider-4b-v2.1-Q4_K_M`). It stays dev-only until the play-load
   check (RP), which was not run. That is the owner's call.
 - The TypeSafe baseline column was not re-run here.
+
+## Gate record: 3090 window 2026-10-14 (not run)
+
+- Local calibration rows on the 3090: **BLOCKED**. No decider-4b weights on this machine (`C:/dev/models/so-judge` absent;
+  no `*decider*` under `C:/dev/models` or `D:/models`), and this window allowed no downloads. Nothing changed; the
+  pod-2 result above stands (memory-pairs only, no readiness row).

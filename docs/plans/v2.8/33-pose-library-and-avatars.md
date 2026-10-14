@@ -488,3 +488,34 @@ npm run typecheck:test: tsc -p tsconfig.test.json; exit 0. git diff --check: exi
 - `npm run gates:quick`: typecheck, typecheck:test, lint (changed) and jest green on the second run (688 suites); the first run failed `codeHealth.guard` S5 on five new over-long lines (wrapped) and lint (changed); the second run is green for typecheck, typecheck:test, lint (changed) and jest. Its `defect replay (--cached)` step fails on this fresh worktree before running a defect: with no replay cache every one of 4,423 files counts as changed and `spawnSync` of `jest --listTests --findRelatedTests` fails with ENAMETOOLONG (reproduced with a debug copy of the script). `node scripts/suite/defect-replay.mjs --full` was run once with the machine loaded by other agents: baseline green over the whole jest suite (7950 tests, 403.3 s), then 16 of 32 defects KILLED, 0 SURVIVED, the rest TIMEOUT at 600 s each and the 30-minute cap ended it. Recorded as incomplete, not green.
 - Deviations: pinned client 2.0.28 while the owner's CLI is 2.0.6 (shapes used are in both); the plugin folder gains a 57 MB `node_modules` (the client's `effect` dependency); each wizard session adds an OpenCode project row for its temp directory (no API removes it); which credential OpenCode uses when both a subscription and a key exist is OpenCode's choice (`opencode auth switch`), the status shows only the credential kinds; the owner's global OpenCode instructions or MCP servers still load in our sessions (tools stay denied).
 - Deferred, owner and model needed (not claimed): a real Ask answer, a real wizard tool call (the `so_*` names exposed to the model with `codemode: false`, `session.status` retry shape with an auth action) and a real vision request, all on `openai/gpt-6.1-sol`, after the owner signs in with `opencode auth login` if the status says so. Then plan 33 CL LLM leg and M18/M19/M20 recipes, plan 36 LI5 calibration. Parent: full `npm run gates`, Storybook (`MemoryModelGroup` label), staging, `npm run plugins:install -- --with harness`, ST restart.
+
+## Gate record: repaired lie_side render and PCK, Acceptance status (2026-10-14, 3090, branch `v2.8-3090-li`)
+
+- Geometry: master with `e91814ad`/`fb3b7701` (lie_side v2, rigid lying trunk, per-pose retarget version). Driver
+  `scripts/debug/so-pose-s0.mts` (`bodies`, `score`, `heads`, `sheets`, `summary`), `SO_S0_ARM=b` (Qwen 2.1 int8, 25
+  steps, 1024), `SO_S0_POSES=lie_side`, the pilot's three synthetic bases (backup
+  `historical-artifacts/so-s0-repilot/bases`), arms P2 and P3, seeds 1234 and 5678, two runs (w1, then w2 after a
+  ComfyUI restart so nothing came from its cache). ComfyUI direct on :8188, no text model loaded. 24 bodies, 40 head
+  edits (8 skipped: DWPose found no person on the P3 bodies).
+- Floors unchanged, not retuned (PCK@0.1 per §6, missing joints are misses):
+  - lie_side P2 PCK: w1 0.407 / 0.259, w2 0.407 / 0.259 (seed 1234 / 5678); pooled **0.333, MISS** (floor 0.70). Per
+    body (both runs identical): first member 0.611 / 0.778, second 0.611 / 0.000, third 0.000 / 0.000.
+  - lie_side P3 PCK 0.000 every body; gain +0.333 (floor +0.10, met; P3 is not usable for lying).
+  - body QA 12 of 12 per arm (floor 90 %, met); body render median 62.8 / 63.9 / 61.8 / 62.5 s, p90 78.1 / 65.4 / 93.2 /
+    66.3 s (floors 90 and 150, met); head edit median about 23 s.
+  - peak VRAM 19,867 MiB by `nvidia-smi` every 1 s over the whole render (floor 22 GB, met).
+  - identity and label visible: not rated (no second-model rater available: the Sol leg is unavailable in this window).
+- Run 2 reproduced run 1 exactly after the restart (same PCK per body), so the result is deterministic per seed, not
+  noise.
+- Comparison: before the repair 0.51 (full S0); plan 41's repaired runs 0.232 (both seeds) and 0.407 (seed 1234 repeat).
+  The repair did not lift lie_side over the floor. **Recorded miss; the owner's de-list rule (plan 40) now applies.
+  Nothing was de-listed here.** `lie_rest` was not re-run (plan 41 measured it at 0.815 / 0.759).
+- Product Acceptance ×2 (3 looks × 4 directed poses × 3 labels on a lane, send→reply latency within +10 % of a
+  no-sprites arm): **BLOCKED**, not attempted.
+  - It needs Artemis replying and Qwen sprite renders brokered on one 3090; on this host the broker refused every Qwen
+    sprite lease on RAM (10,673 + 4,096 MiB needed, 9.0-14.0 GiB available; plan 28 R14 record).
+  - No driver measures the send→reply latency arm pair yet (`so-showcase.mts` renders, it does not time replies).
+  - The identity/label rater and the pick's LLM leg run on Sol, unavailable in this window; the TypeSafe pick leg is
+    already scored (CL, 40/40 ×2). TypeSafe calls this window: 0.
+- Evidence: `C:\dev\so-lanes\m3090-2026-10-14\plan33` (sheets, scores, results, vram.csv), archived privately (plan 28
+  record names the label).
