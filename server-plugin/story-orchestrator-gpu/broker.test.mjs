@@ -94,7 +94,10 @@ test('config: supervise takes binaries and models only as absolute paths from th
     assert.throws(() => validateConfig({ ...good, comfy: { url: 'http://192.168.1.4:8188' } }), /comfy.url must be an http loopback/);
     assert.throws(() => validateConfig({ ...good, comfy: { supervise: true, python: 'python' } }), /comfy.python must be an absolute/);
     assert.equal(validateConfig(good).arbiter.keepTextResident, false);
-    assert.equal(validateConfig(good).arbiter.retainBatches, false);
+    assert.equal(validateConfig(good).arbiter.retainBatches, true);
+    assert.equal(validateConfig({ ...good, retainBatches: false }).arbiter.retainBatches, false);
+    assert.equal(validateConfig({ ...good, comfy: { startTimeoutMs: 300000 } }).arbiter.comfyStartTimeoutMs, 300000);
+    assert.throws(() => validateConfig({ ...good, comfy: { startTimeoutMs: 5 } }), /startTimeoutMs/);
 });
 
 test('controls: a path, a binary or an argument in the request body is refused; profiles are picked by id', () => {
@@ -147,7 +150,7 @@ test('supervise: starts nothing at init, loads text on demand, and the routes ar
         assert.equal(procs.spawned.length, 0);
         const status = await call(r, 'GET /status');
         assert.equal(status.data.state, 'idle');
-        assert.equal(status.data.mayRetain, false);
+        assert.equal(status.data.mayRetain, true);
         assert.equal(status.data.reservesFrom, 'config');
         assert.equal((await call(r, 'POST /control/:action', { params: { action: 'load' } })).code, 403);
         assert.equal((await call(r, 'GET /status', { user: null })).code, 401);
@@ -218,6 +221,26 @@ test('a crashed supervised text server reads degraded, fails text with a reason 
     await arbiter.stop();
 });
 
+test('mayRetain stays true for the batch holding the image lease and turns false once text waits', async () => {
+    const procs = fakeProcesses();
+    const { fetchImpl } = fakeFetch({ procs });
+    const arbiter = createArbiter(validateConfig(await superviseConfig({ reserves: { gpuMiB: 1024, ramMiB: 2048 }, retainBatches: true })).arbiter, { spawn: procs.spawn, killTree: procs.killTree, fetch: fetchImpl,
+        memorySnapshot: async () => reading(), fastTelemetry: null, timers: false });
+    await arbiter.start();
+    await arbiter.control('load', {});
+    const lease = await arbiter.reserve({ workflowKey: 'scene', width: 1024, height: 1024 });
+    assert.equal(lease.brokered, true, JSON.stringify(lease));
+    assert.equal((await arbiter.status()).mayRetain, true);
+    const waiting = arbiter.text(async () => 'reply');
+    await new Promise((resolve) => setImmediate(resolve));
+    const busy = await arbiter.status();
+    assert.equal(busy.waitingText, 1);
+    assert.equal(busy.mayRetain, false);
+    await arbiter.release(lease.lease);
+    assert.equal(await waiting, 'reply');
+    await arbiter.stop();
+});
+
 test('a text model that is loaded while admission cannot be read is a reasoned refusal, not a pass', async () => {
     const procs = fakeProcesses();
     const { fetchImpl } = fakeFetch({ procs });
@@ -231,17 +254,18 @@ test('a text model that is loaded while admission cannot be read is a reasoned r
     await arbiter.stop();
 });
 
-test('mayRetain is off by default and answers only for an idle broker within its reserves', async () => {
+test('mayRetain is on by default, off when retainBatches is false, and answers only within the reserves', async () => {
     const procs = fakeProcesses();
     const { fetchImpl } = fakeFetch({ procs });
     const make = async (retainBatches, free) => {
-        const arbiter = createArbiter(validateConfig(await superviseConfig({ reserves: { gpuMiB: 2048, ramMiB: 4096 }, retainBatches })).arbiter,
+        const arbiter = createArbiter(validateConfig(await superviseConfig({ reserves: { gpuMiB: 2048, ramMiB: 4096 }, ...(retainBatches === undefined ? {} : { retainBatches }) })).arbiter,
             { spawn: procs.spawn, fetch: fetchImpl, memorySnapshot: async () => reading(free), fastTelemetry: null, timers: false });
         await arbiter.start();
         const status = await arbiter.status();
         await arbiter.stop();
         return status.mayRetain;
     };
+    assert.equal(await make(undefined, 20000), true);
     assert.equal(await make(false, 20000), false);
     assert.equal(await make(true, 20000), true);
     assert.equal(await make(true, 1000), false);

@@ -186,3 +186,30 @@ Not run (3090 busy): LI — a test story mapping two purposes to two `SO-` workf
 Adolion: not recommended for now. The campaign renders through the default route; a per-type workflow only pays once
 the owner has tuned workflows in ST's ComfyUI, and every Adolion player without them falls back to their own (Setup
 row). Revisit after the LI check and once a portrait/background workflow exists on the owner's install.
+
+## Gate record: LI on the 3090 (2026-10-14, branch `v2.8-3090-li`)
+
+- Command: `node scripts/local/storyWorkflowLi.mjs 38 runN C:/dev/so-lanes/m3090-2026-10-14/plan29` (lane 38, no-model,
+  seeded fresh from the install; staged build `619078fb`, served unchanged). ComfyUI on :8188 hosted by the in-process
+  broker (`start-comfy`), no text model loaded.
+- run1: **PASS** every floor. Three new ComfyUI jobs in order `SO_LI_A` (scene), `SO_LI_B` (background),
+  `SillyTavern/janku` (unmapped `character` on the player's selected workflow); selection on disk `JANKU_v777.json`
+  before and after; no `SO-LI-` file left; scenario exit 0, 51.9 s.
+- run2: **PASS** every floor, same prefixes, 44.1 s.
+- Plan 41 recorded the same check twice on lane 39 on 2026-10-13 (80.7 / 76.1 s); this is a second, independent ×2.
+- The passing runs used a lane started with `SILLYTAVERN_ENABLESERVERPLUGINS=false`, so the GPU plugin answered 404 and
+  images passed through (the product's no-plugin path). Attempts with the plugin in `managed` mode in front of the
+  standalone controller failed before any floor:
+  - three refusals by the controller's RAM admission (available 12.2-12.9 GiB against SDXL 9,011 + reserve 4,096);
+  - one `Invalid model file name.` for `background`: that picture type had no checkpoint in this install, so the lease
+    asked for a checkpoint named `""` although the story workflow, not the checkpoint, renders. Fixed:
+    `src/image/renderFacts.ts` drops empty model names (test "leaves out a picture type with no checkpoint, so a story
+    workflow still gets a lease"). Not live-proven: lanes serve the staged build and nothing was staged.
+  - with the controller stopped, `managed` answers 409 by design (see plan 28).
+- Lane setup (lane copy only): `sd.comfy_url` and the image `comfyUrl` set to `http://127.0.0.1:8188` (the install's
+  settings name the closed port 18079), `stable-diffusion` removed from `disabledExtensions` (disabled in the install),
+  a `background` checkpoint (`waiIllustriousSDXL_v170`). The install's own settings were not touched.
+- Failed attempts left `SO-LI-A.json`/`SO-LI-B.json` in the lane's workflows (the cleanup step never ran); removed by
+  hand each time, lane copy only.
+- Acceptance: LI green ×2 on the no-plugin path; the brokered path is owed until the box has the RAM headroom (or the
+  fix above is staged and re-run).

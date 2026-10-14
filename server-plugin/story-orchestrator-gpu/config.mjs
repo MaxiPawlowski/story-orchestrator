@@ -58,6 +58,7 @@ export function validateConfig(raw = {}) {
         const comfyUrl = loopbackUrl(comfy.url ?? 'http://127.0.0.1:8188', 'comfy.url');
         if (comfy.supervise === true) { absolute(comfy.python, 'comfy.python'); absolute(comfy.root, 'comfy.root'); }
         if (comfy.extraArgs !== undefined && (!Array.isArray(comfy.extraArgs) || comfy.extraArgs.some((arg) => typeof arg !== 'string' || ARG_REFUSED.test(arg)))) fail('comfy.extraArgs must be strings and may not set the host or port.');
+        if (comfy.startTimeoutMs !== undefined && (!Number.isInteger(comfy.startTimeoutMs) || comfy.startTimeoutMs < 1000)) fail('comfy.startTimeoutMs must be a whole number of milliseconds, at least 1000.');
         if (raw.telemetryPython !== undefined) absolute(raw.telemetryPython, 'telemetryPython');
         if (raw.modelDirs !== undefined) {
             if (!isRecord(raw.modelDirs)) fail('modelDirs maps a kind to folders.');
@@ -67,10 +68,10 @@ export function validateConfig(raw = {}) {
             model: text.model, binary: text.binary, backendPort: text.port, modelAlias: text.alias ?? 'local', profiles: text.profiles, defaultProfile,
             maxContext: text.maxContext ?? 32768, fitMarginMiB: text.fitMarginMiB, modelLoadMode: text.loadMode,
             reserves: raw.reserves ? { gpuMiB: raw.reserves.gpuMiB, ramMiB: raw.reserves.ramMiB } : undefined,
-            comfyUrl, comfySupervise: comfy.supervise === true, comfyPython: comfy.python, comfyRoot: comfy.root, comfyExtraArgs: comfy.extraArgs ?? [],
+            comfyUrl, comfySupervise: comfy.supervise === true, comfyPython: comfy.python, comfyRoot: comfy.root, comfyExtraArgs: comfy.extraArgs ?? [], comfyStartTimeoutMs: comfy.startTimeoutMs,
             stateDir: raw.stateDir, modelDirs: raw.modelDirs, modelCacheRoot: raw.modelCacheRoot, telemetryPython: raw.telemetryPython,
             maxQueue: raw.maxQueue ?? 16, queueTimeoutMs: raw.queueTimeoutMs ?? 600000, keepTextResident: text.keepResident === true,
-            retainBatches: raw.retainBatches === true, imageCacheMode: raw.imageCacheMode ?? 'warm', defaultImageMiB: raw.defaultImageMiB, defaultImageRamMiB: raw.defaultImageRamMiB,
+            retainBatches: raw.retainBatches !== false, imageCacheMode: raw.imageCacheMode ?? 'warm', defaultImageMiB: raw.defaultImageMiB, defaultImageRamMiB: raw.defaultImageRamMiB,
         };
     }
     return config;

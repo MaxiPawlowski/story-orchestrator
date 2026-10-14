@@ -79,6 +79,17 @@ try {
     await start(router, config);
     report.statusStart = await plugin('/status');
     report.reserves = { ...report.statusStart.reserves, from: report.statusStart.reservesFrom };
+    const warmBegan = Date.now();
+    const warming = plugin('/control/start-comfy', {}).catch((error) => ({ error: error.message }));
+    const warmDeadline = Date.now() + 600000;
+    let comfyUp = false;
+    while (!comfyUp && Date.now() < warmDeadline) {
+        comfyUp = await fetch(`${local.comfyUrl}/system_stats`).then((response) => response.ok).catch(() => false);
+        if (!comfyUp) await new Promise((resolve) => setTimeout(resolve, 2000));
+    }
+    if (!comfyUp) throw new Error('ComfyUI did not answer within 600 s of start-comfy.');
+    report.comfyWarmMs = Date.now() - warmBegan;
+    report.comfyWarmControl = (await warming)?.error ?? 'ok';
     report.gpuBefore = await smi();
     report.text1 = await text('before');
     report.stateAfterText1 = (await plugin('/status')).state;

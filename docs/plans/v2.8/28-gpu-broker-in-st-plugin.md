@@ -203,3 +203,82 @@ documents the template). Acceptance stays open.
 - `node --test scripts/local/pluginBrokerLiConfig.test.mjs scripts/local/storyWorkflowLi.test.mjs`: 6 pass, 0 fail.
 - The agent running the LI protocol hung when the 3090 window closed (12:45). No LI floor was measured. Its orphaned ComfyUI and lane 38 lease stub were stopped; GPU back to idle.
 - Owed: plan 28 LI + LT x2 and plan 29 LI, on a lane, with a new GPU window.
+
+## Gate record: LI + LT and R14 on the 3090 (2026-10-14, branch `v2.8-3090-li`)
+
+Owner's 3090 window 04:45-10:15 AST. Evidence: `C:\dev\so-lanes\m3090-2026-10-14\{plan28,plan28t,r14}`, archived privately
+(label below). Broker in `supervise` (in-process arbiter, text and ComfyUI supervised), config from
+`C:\dev\tools\story-orchestrator-local\config.json` profile `fast` (32k), reserves pinned 2048/4096 MiB, SDXL
+`waiIllustriousSDXL_v170`. Host RAM available ran 8.5-16 GiB (other agents' runs on the same box).
+
+LI + LT, text -> image -> text:
+- Readiness first: the in-process broker's ComfyUI start timed out three times (`ComfyUI did not become ready`; a cold
+  ComfyUI took about 4 min to answer, the arbiter waits 120 s; a third attempt lost the lease to undici's 300 s header
+  timeout). Plan 41 hit the same failure three times on 2026-10-13. Fixed: `comfy.startTimeoutMs` (config, validated,
+  default 120000; the LI config sets 300000) and the driver warms ComfyUI through `/control/start-comfy` before the
+  measured cycle. Readiness failures after the fix: 0 of 4 runs.
+- Discovery runs on the old driver (final channel forced, 128 tokens, timer from lease request): run1/run2 functional
+  floors all true; lease-to-reply 151.6 s / 98.0 s. Not counted: plan 41 replaced that driver.
+- Counted, master's thinking-enabled driver (`node scripts/local/pluginBrokerLi.mjs <config> <out> runN`), ×2
+  consecutive, ComfyUI already warm:
+  - run1: exit 0; text before visible (458 tokens, 1,473 reasoning chars); lease `swap-text` admission 0.9 s; render
+    22.2 s; release 0.5 s; reply after 73.6 s; lease-to-reply **100.8 s**; min GPU free 2,959 MiB (reserve 2,048);
+    peak 21,617 MiB; foreign queue 0/0 before and after; GPU after exit 1,153 MiB.
+  - run2: exit 0; admission 1.0 s; render 44.2 s; release 0.2 s; reply after 39.4 s; lease-to-reply **86.1 s**; min
+    free 2,928 MiB; peak 21,648 MiB.
+  - Functional LI floors (no OOM, no foreign job interrupted, text resumes, reserve held): **PASS ×2**.
+  - LT floor (plan 41's historical median 59.492 s + 10 % = 65.441 s): median **93.5 s, FAIL ×2**. Same protocol
+    caveat as plan 41: 458 thinking tokens against the historical 128-token final-only reply; the reload after the
+    swap dominates (reply 39-74 s).
+
+R14, `retainBatches` with a real warm batch (`scripts/local/retainBatchLi.mjs`; the page's own `SpriteBatchLease` and
+`mayRetainBatch`, limit 3; batch A three images with no text; batch B three images with a text request 5 s into image 1).
+Floors predeclared in the driver before the first run: A takes one lease for three images; B's text is answered and
+before B's second lease; reserves held (min GPU free >= 2,048, min RAM available >= 4,096).
+- As built, it never retained: `mayRetain` required `!imageLease`, so the batch holding the lease always read `false`
+  and dropped it after every image (as-is SDXL run: 3 leases for 3 images, `may-retain false, waitingText 0,
+  imageLease true`). Fixed in `broker/arbiter.mjs`: idle means no active or waiting text; test "mayRetain stays true
+  for the batch holding the image lease and turns false once text waits".
+- After the fix, SDXL portrait frames, `imageCacheMode: evict`:
+  - run1: PASS, every floor. A: 1 lease, frames 17.6 / 10.2 / 12.2 s (as-is unretained: 25.8 / 20.9 / 18.3 s). B: text
+    asked during image 1, `may-retain false, waitingText 1`, lease dropped, reply 38.5 s, then a second lease; 3
+    images. Min GPU free 2,918 MiB, min RAM available 10,887 MiB.
+  - run5: PASS, every floor. A: 1 lease, 25.8 / 14.2 / 14.2 s. B: 2 leases, reply 45.0 s before the second lease. Min
+    GPU free 2,959 MiB, min RAM 9,837 MiB.
+  - runs 2 and 3: A retained (1 lease, 3 images), then B's first lease was refused by RAM admission (available 9,065
+    and 10,094 MiB against 9,011 + 4,096): the reserve held, the batch did not run. run4 (B first): refused at the
+    first lease (12,345 MiB). Recorded as host-RAM misses, not retain failures.
+- Real Qwen sprite batch (the product's sprite models): BLOCKED by RAM admission on this host (`10,673 + 4,096` needed,
+  9.0-14.0 GiB available, three attempts); only one base render ran. `imageCacheMode: warm` also refuses the second
+  lease while the first model sits in RAM.
+- Mid-batch text used the final channel (96 tokens): R14 measures the hand-off, not reply latency.
+- Decision (owner: "test it and if it works fine turn it on"): **on**. `retainBatches` now defaults to true
+  (`config.mjs`; `false` turns it off), README, guide `setup/gpu-sharing.md`, `broker.test.mjs`. Retaining also means
+  one admission per three images, which on this RAM-tight host is fewer chances of a 409.
+
+Other findings:
+- The managed adapter answers 409 when its controller is down; `managed.test.mjs` pins that on purpose (a managed
+  controller may hold a live text model), so it was left alone.
+- `cli.mjs start` on the standalone controller starts restoring text at once (keepTextResident); `unload` straight
+  after holds it.
+
+Order used (owner: batch by model, avoid reloads): plan 28 discovery and counted LI ×2 (text + image), R14 runs (text
++ image), then image-only on one ComfyUI session with text unloaded: plan 29 ×2, then plan 33 lie_side (seed 1234, 5678),
+a ComfyUI restart, the second lie_side run. Text was reloaded only inside plan 28 and R14 cycles.
+
+Evidence archive: `node scripts/debug/so-evidence.mts archive --label m3090-li-20261014 --lanes 38 --since 2026-10-14T00:00:00Z`: exit 0, 497 files, 185,528,410 B, problems none (evidence copied into lane 38 `debug/runs/m3090-2026-10-14`; private so-sessions tree, not pushed).
+
+Gates:
+- `node --test server-plugin/story-orchestrator-gpu/broker.test.mjs`: 13 pass, 0 fail; `npx jest src/image/renderFacts.test.ts`: 3 pass.
+- `npm run gates:quick`: typecheck, typecheck:test, lint (changed), jest (related) ok; defect replay (`--cached`) FAIL
+  `jest --listTests failed` with empty stderr (no replay cache in a fresh worktree, so every tracked file counts as
+  changed; the same failure plan 41 recorded). Covered by the full replay below.
+- `npm run gates -- --jobs 4`: test (707 suites, 8,156 passed, 1 skipped), build, test:replay (32 of 32 killed),
+  typecheck, test:debug (1,256 pass), typecheck:test, lint (0 errors, 2 existing warnings) ok; test-storybook:ci FAIL
+  because :6006 already served another agent's Storybook (not stopped: not ours), so debug:typecheck, test:plugin and
+  test:release were not run by it. Run separately: `npm run debug:typecheck` exit 0, `npm run test:plugin` 270 pass 0
+  fail, `npm run test:release` 123 pass 0 fail, Storybook from this worktree's `.sb-static` on :6017
+  (`node node_modules/@storybook/test-runner/dist/test-storybook.js --url http://127.0.0.1:6017 --maxWorkers 4
+  --index-json`): 133 suites, 799 tests passed. All green, the Storybook step by that manual route.
+- GPU after the window: `nvidia-smi` 755 MiB used, 1 %, no compute process of ours; ComfyUI, broker, controller, lane 38
+  stopped.

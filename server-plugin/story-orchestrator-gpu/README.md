@@ -29,11 +29,11 @@ binary/model paths, a profile argument that sets the host, port or a path, and a
 | `text.port` | Loopback port the owned `llama-server` listens on. |
 | `text.profiles` | `{ id: { args: [...] , estimatedGpuMiB?, estimatedRamMiB? } }`; the page picks by id only. |
 | `text.defaultProfile`, `text.alias`, `text.maxContext`, `text.keepResident` | Defaults: first profile, `local`, 32768, false (load on demand). |
-| `comfy.url`, `comfy.supervise`, `comfy.python`, `comfy.root`, `comfy.extraArgs` | ComfyUI (observed by default). |
+| `comfy.url`, `comfy.supervise`, `comfy.python`, `comfy.root`, `comfy.extraArgs`, `comfy.startTimeoutMs` | ComfyUI (observed by default); a supervised ComfyUI gets `startTimeoutMs` (default 120000) to answer before a lease is refused. |
 | `reserves` | `{ gpuMiB, ramMiB }`; absent = probe (10% of VRAM, min 1 GiB; 10% of RAM, min 2 GiB). |
 | `modelDirs` | `{ kind: [absolute folders] }` for model-size estimates. |
 | `telemetryPython` | Optional Python with `pynvml`/`psutil` for high-cadence telemetry (`broker/memory-probe.py`); without it `nvidia-smi` is sampled. |
-| `retainBatches` | `true` lets `/status` answer `mayRetain` for warm sprite batches (default false). |
+| `retainBatches` | On by default: `/status` answers `mayRetain` so a sprite batch keeps its image lease for up to three images while no text waits and memory stays above the reserves. `false` turns it off. |
 
 `exit()` stops only children the broker started (tree kill), never a server it did not start.
 
