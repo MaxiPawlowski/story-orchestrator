@@ -180,6 +180,18 @@ describe("live head stage seam", () => {
     emit("GENERATION_ENDED"); expect(sprites.activity.view()).toBeNull();
     jest.useRealTimers();
   });
+
+  it("hands the lip-sync the visible streamed reply, never the thinking", async () => {
+    const sprites = await started();
+    const pushed: string[] = [];
+    await sprites.activity.visemes(async () => () => ({ push: (text: string) => { pushed.push(text); }, sample: () => null }));
+    emit("GROUP_MEMBER_DRAFTED", 0);
+    chat.push({ name: "Ellie", mes: "<think>planning" }); emit("STREAM_TOKEN_RECEIVED");
+    chat[0].mes = "<think>planning</think>Hello"; emit("STREAM_TOKEN_RECEIVED");
+    chat[0].mes = "<think>planning</think>Hello there"; emit("STREAM_TOKEN_RECEIVED");
+    expect(pushed).toEqual(["Hello", "Hello there"]);
+    sprites.activity.stop();
+  });
 });
 
 describe("sprite stage: what it classifies", () => {

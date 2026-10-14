@@ -117,7 +117,8 @@ export const IMAGE_FEATURES: readonly Feature[] = [
   {
     id: "sprite-animation", name: "Animated faces", area: "images", audience: "setup",
     oneLine: "Blink and talking-mouth frames give sprites movement.",
-    what: "Packs with animation frames blink and move the speaker’s mouth while replies stream. Missing frames keep the static sprite. Reduced motion switches facial animation off.",
+    what: "Packs with animation frames blink and move the speaker’s mouth with the words while replies stream, read from the English text. "
+      + "Missing frames keep the static sprite. Reduced motion switches facial animation off.",
     where: settingsAt("#so-sprite-mouth", "Images › Sprite stage › Mouth movement"), settings: [], doc: "setup/sprites.md", status: "experimental", needs: ["sprite-pack"],
   },
 ];
