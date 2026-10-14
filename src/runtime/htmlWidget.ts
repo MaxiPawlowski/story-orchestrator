@@ -28,25 +28,36 @@ export const FRAME_CSP = [
   "connect-src 'none'", "frame-src 'none'", "worker-src 'none'", "object-src 'none'", "form-action 'none'", "base-uri 'none'",
 ].join("; ");
 
-export const FRAME_HELPER = [
-  "(function(){var n=0,p={},h=[],last=null;",
-  "function send(m){m.jsonrpc='2.0';parent.postMessage(m,'*');}",
-  "function size(){send({method:'ui/notifications/size-changed',params:{height:Math.ceil(document.documentElement.scrollHeight)}});}",
-  "function deliver(w){last=w;h.forEach(function(f){f(w);});setTimeout(size,0);}",
-  "function request(method,params){var id=++n;send({id:id,method:method,params:params||{}});return new Promise(function(res,rej){p[id]={res:res,rej:rej};});}",
-  "window.addEventListener('message',function(e){if(e.source!==parent)return;var m=e.data;if(!m||m.jsonrpc!=='2.0')return;",
-  "if(m.id!==undefined&&p[m.id]){var q=p[m.id];delete p[m.id];if(m.error)q.rej(m.error);else q.res(m.result);return;}",
-  "if(m.method==='ui/notifications/widget-data'&&m.params)deliver(m.params.widget);});",
-  "window.storyWidget={ready:function(){return request('ui/initialize',{protocolVersion:'" + BRIDGE_PROTOCOL + "'})",
-  ".then(function(r){send({method:'ui/notifications/initialized',params:{}});deliver(r.widget);return r;});},",
-  "onData:function(f){h.push(f);if(last)f(last);},propose:function(id){return request('story/propose-intent',{id:id});},resize:size};})();",
-].join("");
+export const NONCE_BYTES = 16;
+const NONCE_PATTERN = /^[0-9a-f]{32}$/;
+
+export const createNonce = (random: (bytes: Uint8Array) => Uint8Array = (bytes) => globalThis.crypto.getRandomValues(bytes)): string =>
+  Array.from(random(new Uint8Array(NONCE_BYTES)), (byte) => byte.toString(16).padStart(2, "0")).join("");
+
+export const frameHelper = (nonce: string): string => {
+  if (!NONCE_PATTERN.test(nonce)) throw new Error("frame nonce must be 32 hex characters");
+  return [
+    "(function(){var N='" + nonce + "',P=parent,n=0,p={},h=[],last=null,s=document.currentScript;if(s&&s.parentNode)s.parentNode.removeChild(s);",
+    "function send(m){P.postMessage({jsonrpc:'2.0',nonce:N,id:m.id,method:m.method,params:m.params},'*');}",
+    "function size(){send({method:'ui/notifications/size-changed',params:{height:Math.ceil(document.documentElement.scrollHeight)}});}",
+    "function deliver(w){last=w;h.forEach(function(f){f(w);});setTimeout(size,0);}",
+    "function request(method,params){var id=++n;send({id:id,method:method,params:params||{}});return new Promise(function(res,rej){p[id]={res:res,rej:rej};});}",
+    "window.addEventListener('message',function(e){if(e.source!==P)return;var m=e.data;if(!m||m.jsonrpc!=='2.0')return;",
+    "if(m.id!==undefined&&p[m.id]){var q=p[m.id];delete p[m.id];if(m.error)q.rej(m.error);else q.res(m.result);return;}",
+    "if(m.method==='ui/notifications/widget-data'&&m.params)deliver(m.params.widget);});",
+    "window.storyWidget={ready:function(){return request('ui/initialize',{protocolVersion:'" + BRIDGE_PROTOCOL + "'})",
+    ".then(function(r){send({method:'ui/notifications/initialized',params:{}});deliver(r.widget);return r;});},",
+    "onData:function(f){h.push(f);if(last)f(last);},propose:function(id){return request('story/propose-intent',{id:id});},resize:size};})();",
+  ].join("");
+};
 
 const escapeAttribute = (text: string) => text.replace(/&/g, "&amp;").replace(/"/g, "&quot;");
 
-export const buildSrcdoc = (template: string): string =>
+export const buildSrcdoc = (template: string, nonce: string): string =>
   `<!doctype html><html><head><meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="${escapeAttribute(FRAME_CSP)}">`
-  + `<meta name="referrer" content="no-referrer"><script>${FRAME_HELPER}</script></head><body>${template}</body></html>`;
+  + `<meta name="referrer" content="no-referrer"><script>${frameHelper(nonce)}</script></head><body>${template}</body></html>`;
+
+export const carriesNonce = (raw: unknown, nonce: string): boolean => isRecord(raw) && typeof raw.nonce === "string" && raw.nonce === nonce;
 
 export interface AuditEntry {
   at: number;
@@ -94,6 +105,7 @@ export const ERRORS = {
   tooSoon: "one action at a time: wait a moment",
   badHeight: "height is a number",
   noOpen: "this panel cannot open the story drawer here",
+  unsigned: "message without this frame's nonce: dropped",
 } as const;
 
 const clip = (value: unknown): string | undefined => {
@@ -111,6 +123,8 @@ export const dataNotification = (widget: WidgetView) => ({ jsonrpc: "2.0" as con
 export const frameMayTalk = (loads: number): boolean => loads <= 1;
 
 export const frameOnFirstLoad = (loads: number): boolean => loads === 1;
+
+export const unsignedAudit = (widget: WidgetView, now: number): AuditEntry => ({ at: now, widgetId: widget.id, direction: "in", method: "(unsigned)", outcome: "refused", detail: ERRORS.unsigned });
 
 export const teardownNotification = (reason: string) => ({ jsonrpc: "2.0" as const, method: BRIDGE.teardown, params: { reason } });
 

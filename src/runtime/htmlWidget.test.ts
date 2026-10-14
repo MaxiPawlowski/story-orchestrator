@@ -1,6 +1,6 @@
 import {
-  BRIDGE, ERRORS, FRAME_CSP, FRAME_HEIGHT, FRAME_SANDBOX, INTENT_INTERVAL_MS, appendAudit, buildSrcdoc, dataNotification, frameMayTalk, frameOnFirstLoad, handleViewMessage,
-  type BridgeContext,
+  BRIDGE, ERRORS, FRAME_CSP, FRAME_HEIGHT, FRAME_SANDBOX, INTENT_INTERVAL_MS, appendAudit, buildSrcdoc, carriesNonce, createNonce, dataNotification, frameHelper, frameMayTalk,
+  frameOnFirstLoad, handleViewMessage, unsignedAudit, type BridgeContext,
 } from "./htmlWidget";
 import { journalWorthy } from "./htmlWidgetAudit";
 import type { WidgetView } from "./gameTypes";
@@ -21,6 +21,8 @@ const context = (overrides: Partial<BridgeContext> = {}): BridgeContext & { fill
   return { widget: page, now: 10_000, state: { lastIntentAt: null }, fill: (text): WriteResult => { filled.push(text); return { ok: true }; }, ...overrides, filled };
 };
 
+const NONCE = "0123456789abcdef0123456789abcdef";
+
 const rpc = (method: string, params: unknown = {}, id: number | null = 1) => ({ jsonrpc: "2.0", method, params, ...(id === null ? {} : { id }) });
 
 describe("the HTML panel frame (v2.8 23 option B)", () => {
@@ -33,7 +35,7 @@ describe("the HTML panel frame (v2.8 23 option B)", () => {
     expect(FRAME_CSP).toContain("default-src 'none'");
     expect(FRAME_CSP).toContain("connect-src 'none'");
     expect(FRAME_CSP).not.toMatch(/https?:|\*/);
-    const doc = buildSrcdoc("<script>fetch('/api/settings/get')</script>");
+    const doc = buildSrcdoc("<script>fetch('/api/settings/get')</script>", NONCE);
     expect(doc.indexOf("Content-Security-Policy")).toBeGreaterThan(-1);
     expect(doc.indexOf("Content-Security-Policy")).toBeLessThan(doc.indexOf("fetch("));
     expect(doc.indexOf("window.storyWidget")).toBeLessThan(doc.indexOf("fetch("));
@@ -47,6 +49,83 @@ describe("a frame that navigated itself is cut off (v2.8 small fixes 5)", () => 
 
   test("data is pushed only while it shows its first load", () => {
     expect([0, 1, 2].map(frameOnFirstLoad)).toEqual([false, true, false]);
+  });
+});
+
+interface HelperRun {
+  sent: unknown[];
+  removed: boolean;
+  listener: ((event: { source: unknown; data: unknown }) => void) | null;
+  widget: { ready: () => Promise<unknown>; propose: (id: string) => Promise<unknown>; resize: () => void; onData: (f: (w: unknown) => void) => void };
+  parent: object;
+}
+
+const runHelper = (nonce: string): HelperRun => {
+  const run: HelperRun = { sent: [], removed: false, listener: null, widget: undefined as never, parent: {} };
+  const parent = { postMessage: (message: unknown) => { run.sent.push(message); } };
+  run.parent = parent;
+  const script = { parentNode: { removeChild: () => { run.removed = true; } } };
+  const window: Record<string, unknown> = { addEventListener: (_type: string, listener: HelperRun["listener"]) => { run.listener = listener; } };
+  const document = { currentScript: script, documentElement: { scrollHeight: 120 } };
+  new Function("window", "parent", "document", "setTimeout", frameHelper(nonce))(window, parent, document, () => 0);
+  run.widget = window.storyWidget as HelperRun["widget"];
+  return run;
+};
+
+describe("every frame message carries a per-mount nonce (v2.8 queue N10)", () => {
+  test("a nonce is 16 random bytes in hex, and two mounts get different ones", () => {
+    expect(createNonce(() => new Uint8Array(16).fill(171))).toBe("ab".repeat(16));
+    const [a, b] = [createNonce(), createNonce()];
+    expect(a).toMatch(/^[0-9a-f]{32}$/);
+    expect(a).not.toBe(b);
+  });
+
+  test("only a hex nonce is written into the page", () => {
+    expect(() => frameHelper("x';alert(1);'")).toThrow();
+    expect(() => buildSrcdoc("<p>x</p>", "abc")).toThrow();
+    expect(buildSrcdoc("<p>x</p>", NONCE).split(NONCE)).toHaveLength(2);
+  });
+
+  test("a message is heard only with the current nonce", () => {
+    const signed = { ...rpc(BRIDGE.intent, { id: "ask" }), nonce: NONCE };
+    expect(carriesNonce(signed, NONCE)).toBe(true);
+    expect(carriesNonce(rpc(BRIDGE.intent, { id: "ask" }), NONCE)).toBe(false);
+    expect(carriesNonce({ ...signed, nonce: NONCE.toUpperCase() }, NONCE)).toBe(false);
+    expect(carriesNonce({ ...signed, nonce: 7 }, NONCE)).toBe(false);
+    expect(carriesNonce("story/propose-intent", NONCE)).toBe(false);
+    expect(carriesNonce(null, NONCE)).toBe(false);
+  });
+
+  test("a remount rotates the nonce, so the old page's messages are dropped", () => {
+    const before = createNonce();
+    const after = createNonce();
+    expect(carriesNonce({ ...rpc(BRIDGE.intent, { id: "ask" }), nonce: before }, after)).toBe(false);
+  });
+
+  test("a page the frame navigated to has no helper, so its messages before its own load are unsigned and dropped", () => {
+    const navigated = { jsonrpc: "2.0", id: 1, method: BRIDGE.intent, params: { id: "ask" } };
+    expect(carriesNonce(navigated, NONCE)).toBe(false);
+    expect(unsignedAudit(page, 5)).toEqual({ at: 5, widgetId: "page", direction: "in", method: "(unsigned)", outcome: "refused", detail: ERRORS.unsigned });
+  });
+
+  test("the helper signs every message, removes its own script and never exposes the nonce", async () => {
+    const leaked: unknown[] = [];
+    Object.defineProperty(Object.prototype, "nonce", { configurable: true, set: (value: unknown) => { leaked.push(value); } });
+    try {
+      const run = runHelper(NONCE);
+      expect(run.removed).toBe(true);
+      const ready = run.widget.ready();
+      void run.widget.propose("ask");
+      run.widget.resize();
+      run.listener?.({ source: run.parent, data: { jsonrpc: "2.0", id: 1, result: { widget: null } } });
+      await ready;
+      expect(run.sent.map((message) => (message as { method: string }).method)).toEqual([BRIDGE.initialize, BRIDGE.intent, BRIDGE.sizeChanged, BRIDGE.initialized]);
+      for (const message of run.sent) expect(carriesNonce(message, NONCE)).toBe(true);
+      for (const exposed of Object.values(run.widget)) expect(String(exposed)).not.toContain(NONCE);
+      expect(leaked).toEqual([]);
+    } finally {
+      delete (Object.prototype as Record<string, unknown>).nonce;
+    }
   });
 });
 
