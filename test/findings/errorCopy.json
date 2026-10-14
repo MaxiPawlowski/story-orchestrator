@@ -598,13 +598,23 @@
     },
     {
       "site": "src/services/stHost/profileToolBridge.ts#parseArgs",
+      "kind": 2,
+      "template": "`the arguments were not valid JSON (${error instanceof Error ? error.message : String(error)})`",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "v2.8 small fixes 7: the JSON parse message rides the call as argsError; checkToolCall/checkAskCall refuse it as not valid JSON, which the wizard model hears and the author sees in the refused step; never player copy"
+    },
+    {
+      "site": "src/runtime/imageHealth.ts#loopbackUrl",
       "kind": 3,
       "template": "catch {} #1",
       "surface": "console",
       "rawError": false,
       "silentCatch": "probe",
       "verdict": "pass",
-      "reason": "a tool call whose arguments are not JSON reads as no arguments; checkToolCall then refuses it with the missing argument, which the model sees"
+      "reason": "an unparsable reply-connection URL reads as not local, so the info-only gpu-broker-absent row stays quiet rather than guessing"
     },
     {
       "site": "src/services/stHost/harnessBridge.ts#answer",
