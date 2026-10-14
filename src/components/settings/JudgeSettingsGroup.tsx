@@ -1,7 +1,8 @@
 import { useState } from "react";
 import {
   AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, JUDGE_PROVIDER_IDS, JUDGE_PROVIDERS, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES,
-  judgeProviderControlId, judgeUseActive, providerLeavesMachine, type JudgeMeterView, type JudgeProviderId, type JudgeProviderRoutes, type JudgeReadinessKey, type JudgeReadinessRow,
+  judgeProviderControlId, judgeUseActive, providerLeavesMachine, ridesWardenRoute, routedProvider, WARDEN_RIDERS, type JudgeMeterView, type JudgeProviderId,
+  type JudgeProviderRoutes, type JudgeReadinessKey, type JudgeReadinessRow,
   type JudgeSettings, type JudgeUseKey, type JudgeUses,
 } from "@judge/index";
 import { judgeReadiness, judgeReadinessConcerns } from "@judge/readinessRows";
@@ -68,8 +69,10 @@ const meterText = (meter: JudgeMeterView): string =>
 const providersInUse = (settings: JudgeSettings, wardenEnabled: boolean): JudgeProviderId[] => {
   if (!settings.enabled) return [];
   const keys: JudgeReadinessKey[] = [...BUILT_JUDGE_USES.filter((use) => judgeUseActive(settings, use)), ...(wardenEnabled ? ["warden" as const] : [])];
-  return JUDGE_PROVIDER_IDS.filter((id) => keys.some((key) => settings.provider[key] === id));
+  return JUDGE_PROVIDER_IDS.filter((id) => keys.some((key) => routedProvider(settings, key) === id));
 };
+
+const RIDES_WARDEN_TEXT = "Uses the warden's route: it shares the warden's call.";
 
 const ProviderSelect = ({ id, label, value, disabled, onPick }: { id: string; label: string; value: JudgeProviderId; disabled: boolean; onPick(value: JudgeProviderId): void }) => (
   <select id={id} aria-label={`${label}: provider`} className="text_pole w-auto text-xs" value={value} disabled={disabled} onChange={(event) => onPick(event.target.value as JudgeProviderId)}>
@@ -110,22 +113,24 @@ const JudgeUseRows = ({ settings, builtUses, authorView, wardenEnabled, onChange
             help={`${copy.description} Sends: ${copy.sends}.`}
           />
           {blocked && <span className="text-xs opacity-70">{blocked}</span>}
-          <ProviderSelect
-            id={judgeProviderControlId(use)}
-            label={copy.label}
-            value={settings.provider[use]}
-            disabled={!settings.enabled}
-            onPick={(provider) => onChange({ provider: { [use]: provider } })}
-          />
+          {ridesWardenRoute(use)
+            ? <span id={judgeProviderControlId(use)} data-so="judge-rides-warden" className="text-xs opacity-70">{RIDES_WARDEN_TEXT}</span>
+            : <ProviderSelect
+              id={judgeProviderControlId(use)}
+              label={copy.label}
+              value={settings.provider[use]}
+              disabled={!settings.enabled}
+              onPick={(provider) => onChange({ provider: { [use]: provider } })}
+            />}
         </div>
       );
     })}
-    {wardenEnabled && (
+    {(wardenEnabled || WARDEN_RIDERS.some((use) => builtUses.includes(use) && settings.uses[use])) && (
       <div className="flex flex-wrap items-center gap-2 text-sm">
-        <span>Continuity warden</span>
+        <span>Warden call (continuity, attention, voice)</span>
         <ProviderSelect
           id={judgeProviderControlId("warden")}
-          label="Continuity warden"
+          label="Warden call"
           value={settings.provider.warden}
           disabled={!settings.enabled}
           onPick={(provider) => onChange({ provider: { warden: provider } })}

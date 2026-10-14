@@ -1,6 +1,6 @@
 import {
   askJudge, createJudgeGate, modelVerdict, buildDirectorRequest, decideDirector, directorJudgeEligible,
-  directorRecordP, judgeRoute, judgeUseActive, providerCleared, DEFAULT_JUDGE_PROVIDER, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord,
+  directorRecordP, judgeRoute, judgeUseActive, providerCleared, routedProvider, DEFAULT_JUDGE_PROVIDER, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord,
   type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeGate, type JudgeProviderId, type JudgeRequest, type JudgeResponse,
   type JudgeResult, type JudgeServedModels, type JudgeSettings, type JudgeTransport, type JudgeUseKey,
 } from "@judge/index";
@@ -60,7 +60,7 @@ export class JudgeRuntime {
 
   ridesWarden(use: JudgeUseKey): boolean {
     const settings = this.deps.getSettings();
-    return judgeUseActive(settings, use) && providerCleared(settings.provider?.warden ?? DEFAULT_JUDGE_PROVIDER, use, this.served);
+    return judgeUseActive(settings, use) && providerCleared(routedProvider(settings, "warden"), use, this.served);
   }
 
   // variants are their own opt-in (count > 1), still behind the master switch.

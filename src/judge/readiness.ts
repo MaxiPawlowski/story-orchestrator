@@ -1,4 +1,4 @@
-import { BUILT_JUDGE_USES, judgeUseActive, type JudgeRouteKey, type JudgeSettings, type JudgeUseKey } from "./settings";
+import { BUILT_JUDGE_USES, judgeUseActive, routedProvider, type JudgeRouteKey, type JudgeSettings, type JudgeUseKey } from "./settings";
 import { DEFAULT_JUDGE_PROVIDER, type JudgeProviderId } from "./providers";
 
 // Re-measured The recommended-configuration table as data the settings
@@ -220,7 +220,7 @@ export function judgeRoute(settings: JudgeSettings, use: string, served: JudgeSe
   if (!keys.length) return { provider: DEFAULT_JUDGE_PROVIDER, keys };
   const active = keys.filter((key) => keyActive(settings, key));
   const deciding = active.length ? active : keys.slice(0, 1);
-  const providers = [...new Set(deciding.map((key) => settings.provider?.[key] ?? DEFAULT_JUDGE_PROVIDER))];
+  const providers = [...new Set(deciding.map((key) => routedProvider(settings, key)))];
   const provider = providers[0];
   if (providers.length > 1) return { provider, keys: deciding, refused: "split" };
   return deciding.every((key) => providerCleared(provider, key, served)) ? { provider, keys: deciding } : { provider, keys: deciding, refused: "uncalibrated" };
@@ -238,7 +238,7 @@ export function judgeRouteGaps(settings: JudgeSettings, warden: boolean, served:
   if (!settings.enabled) return [];
   const keys: JudgeReadinessKey[] = [...BUILT_JUDGE_USES.filter((key) => judgeUseActive(settings, key)), ...(warden ? ["warden" as const] : [])];
   return keys.flatMap((key) => {
-    const provider = settings.provider?.[key] ?? DEFAULT_JUDGE_PROVIDER;
+    const provider = routedProvider(settings, key);
     const problem = provider === DEFAULT_JUDGE_PROVIDER ? null : calibrationProblem(key, routedReadinessFact(provider, key), served[provider]);
     return problem ? [{ key, provider, problem }] : [];
   });

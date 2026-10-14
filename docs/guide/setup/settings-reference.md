@@ -132,7 +132,7 @@ An optional fast model for small choices; it never blocks a reply. [More](../set
 |---|---|---|---|---|
 | **Use the judge** | Orchestrator › Judge | A second, fast model for yes/no and pick-one decisions. Each use can be switched off on its own and says what it sends. It never receives character cards, persona text, other chats or the key. | On | `judge.enabled` |
 | **Judge uses** | Orchestrator › Judge | Each use answers one kind of question for the story. Switch off any you do not want; the story falls back to its usual path. | Per entry | `judge.uses` |
-| **Where this use runs** | Orchestrator › Judge | Which provider answers this use. A provider that was not measured for a use is refused, and the use takes its usual path. | Per entry | `judge.provider` |
+| **Where this use runs** | Orchestrator › Judge | Which provider answers this use. A provider that was not measured for a use is refused, and the use takes its usual path. The attention and voice checks share the warden's call, so they take the warden's provider and have none of their own. | Per entry | `judge.provider` |
 
 ## Authoring
 

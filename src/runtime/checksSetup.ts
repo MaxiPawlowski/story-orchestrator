@@ -1,5 +1,5 @@
 import type { PassRole } from "@extraction/passRole";
-import { DEFAULT_JUDGE_PROVIDER, JUDGE_PROVIDERS, JUDGE_USE_COPY, judgeProviderControlId, type JudgeCalibrationProblem, type JudgeReadinessKey } from "@judge/index";
+import { DEFAULT_JUDGE_PROVIDER, JUDGE_PROVIDERS, JUDGE_USE_COPY, judgeProviderControlId, ridesWardenRoute, type JudgeCalibrationProblem, type JudgeReadinessKey } from "@judge/index";
 import type { RuntimeSnapshot } from "./types";
 import type { Check, CheckFinding } from "./checks";
 import { hasUnsavedChanges, playerSaveNotice, SAVE_PLAYER_TEXT } from "./saveHealth";
@@ -369,7 +369,7 @@ export const DEGRADING_SETUP_CHECKS: readonly Check[] = [
         consequence: `${them(gaps.map((gap) => gap.key), "A judge use is", "Some judge uses are")} routed to a provider not calibrated for ${them(gaps.map((gap) => gap.key), "it", "them")}, `
           + "so every call is refused and the story takes its usual path without the judge.",
         detail: `${rows.join("; ")}. Route ${them(rows, "it", "them")} back to ${JUDGE_PROVIDERS[DEFAULT_JUDGE_PROVIDER].label} under Connections › Judge, or measure that provider first.`,
-        target: { kind: "setting", id: judgeProviderControlId(gaps[0].key) },
+        target: { kind: "setting", id: judgeProviderControlId(ridesWardenRoute(gaps[0].key) ? "warden" : gaps[0].key) },
       };
     },
   }),

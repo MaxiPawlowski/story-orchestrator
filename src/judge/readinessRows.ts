@@ -1,5 +1,5 @@
 import { canonicalModel, isFloatingModel } from "./policy";
-import { JUDGE_USE_KEYS, type JudgeSettings, type JudgeUseKey } from "./settings";
+import { JUDGE_USE_KEYS, routedProvider, type JudgeSettings, type JudgeUseKey } from "./settings";
 import { DEFAULT_JUDGE_PROVIDER, type JudgeProviderId } from "./providers";
 import {
   calibrationProblem, fixtureStale, judgeRoute, MEASURED_FIXTURE_REVISION, ROUTED_READINESS, RING_USE_ROUTE_KEYS, servedId, UNCALIBRATED_FACT, withFixtureRevisions,
@@ -212,7 +212,7 @@ const splitPartners = (settings: JudgeSettings, key: JudgeReadinessKey): JudgeRe
   const use = Object.keys(RING_USE_ROUTE_KEYS).find((ring) => RING_USE_ROUTE_KEYS[ring].includes(key));
   if (!use) return [];
   const route = judgeRoute(settings, use);
-  return route.refused === "split" && route.keys.includes(key) ? route.keys.filter((other) => settings.provider?.[other] !== settings.provider?.[key]) : [];
+  return route.refused === "split" && route.keys.includes(key) ? route.keys.filter((other) => routedProvider(settings, other) !== routedProvider(settings, key)) : [];
 };
 
 /**
@@ -227,7 +227,7 @@ export function judgeReadiness(
   extra: { warden?: boolean; fixtureRevisions?: Partial<Record<JudgeReadinessKey, string>>; served?: JudgeServedModels } = {},
 ): JudgeReadinessRow[] {
   const row = (key: JudgeReadinessKey, enabled: boolean): JudgeReadinessRow => {
-    const provider = settings.provider?.[key] ?? DEFAULT_JUDGE_PROVIDER;
+    const provider = routedProvider(settings, key);
     const fact = readinessFact(provider, key);
     const base = { key, ...fact, enabled, provider };
     if (!settings.enabled || !enabled) return { ...base, verdict: "off" };

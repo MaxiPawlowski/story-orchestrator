@@ -277,7 +277,8 @@ export const SETTING_COPY = {
   ),
   "judge.provider": copy(
     "Where this use runs",
-    "Which provider answers this use. A provider that was not measured for a use is refused, and the use takes its usual path.",
+    "Which provider answers this use. A provider that was not measured for a use is refused, and the use takes its usual path. "
+      + "The attention and voice checks share the warden's call, so they take the warden's provider and have none of their own.",
   ),
   "judge.expansion.variants": copy(
     "Outlines per gap",
