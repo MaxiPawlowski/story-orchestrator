@@ -4,8 +4,10 @@ import { spriteManifest, spriteFileFingerprint } from "@services/stHost/media";
 import { draftOwnership } from "../agentHost";
 import type { HeadBox } from "../../sprites/builder/pixels";
 import { createVisualPreparation } from "../../sprites/visualHost";
+import { subscribeVisualSources } from "../../sprites/visualChanges";
 import type { VisualReview } from "../../sprites/visualPreparation";
 import PresentationReview from "./PresentationReview";
+import ReferencePackStep from "./ReferencePackStep";
 import { beginRun } from "@runtime/runToken";
 
 export default function PreparePresentation({ character, card, reference, box, busy, setBusy }: {
@@ -15,6 +17,7 @@ export default function PreparePresentation({ character, card, reference, box, b
   const [review, setReview] = useState<VisualReview | null>(null), [error, setError] = useState<string | null>(null);
   const [accepted, setAccepted] = useState(getGlobalSettings().sprites.visualSources[character]);
   const generation = useRef(0);
+  useEffect(() => subscribeVisualSources(() => setAccepted(getGlobalSettings().sprites.visualSources[character])), [character]);
   const cancel = () => { generation.current += 1; preparation.cancel(); setReview(null); };
   useEffect(() => { generation.current += 1; preparation.cancel(); setReview(null); setError(null); setAccepted(getGlobalSettings().sprites.visualSources[character]);
     return () => { generation.current += 1; preparation.cancel(); }; }, [character, card, reference, box.x, box.y, box.width, box.height, preparation]);
@@ -50,6 +53,7 @@ export default function PreparePresentation({ character, card, reference, box, b
     catch (reason) { if (version === generation.current) setError(reason instanceof Error ? reason.message : String(reason)); }
     finally { setBusy(false); }
   };
-  return <PresentationReview review={review} accepted={accepted} busy={busy} error={error}
-    prepare={() => void prepare()} accept={() => void accept()} cancel={cancel} />;
+  return <><PresentationReview review={review} accepted={accepted} busy={busy} error={error}
+    prepare={() => void prepare()} accept={() => void accept()} cancel={cancel} />
+    {character && <ReferencePackStep key={`pack:${character}:${accepted?.revision ?? 0}`} character={character} busy={busy} setBusy={setBusy} />}</>;
 }

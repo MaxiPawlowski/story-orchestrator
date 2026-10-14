@@ -21,6 +21,14 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     status: "experimental", needs: ["comfyui"],
   },
   {
+    id: "reference-pack", name: "Reference views", area: "images", audience: "author",
+    oneLine: "Draw an accepted character three-quarter left and right, in profile and from behind, then accept or cancel all six views.",
+    what: "Optional. The accepted base and bust fill the full-body and front slots; the other four views come from the same Qwen edit route. "
+      + "Accepting stamps the pack hash into every later sprite, pose, look and scene key, so changed looks render again.",
+    where: studioAt("#so-reference-pack", "Sprites › Reference views"), settings: [], guideTopic: "poses", doc: authorGuideDoc("poses"),
+    status: "experimental", needs: ["comfyui"],
+  },
+  {
     id: "changed-look-rebuild", name: "Changed-look bust and rig", area: "images", audience: "author",
     oneLine: "Rebuild a changed look's bust and live-head rig, then accept or cancel.",
     what: "A look whose artwork changed shows static art in close shots. Rebuild crops its bust with the accepted head box and fits a rig to face "
