@@ -111,7 +111,8 @@ const createLease = (batch) => async () => {
     mark('lease-request', { batch });
     const granted = await plugin('/lease', { workflowKey: editKey, needGpuMiB, nextTextTokens: 96, modelFiles, ...size, hires: false });
     counts.leases += 1;
-    mark('lease-granted', { batch, decision: granted.decision ?? null, brokered: granted.brokered ?? null });
+    const residency = (await plugin('/status').catch(() => null))?.lastResidency ?? null;
+    mark('lease-granted', { batch, decision: granted.decision ?? null, brokered: granted.brokered ?? null, needRamMiB: residency?.needRamMiB ?? null, ramSource: residency?.ramSource ?? null, ramAvailableMiB: residency?.readings?.ramAvailableMiB ?? null, reason: residency?.reason ?? null });
     if (!granted.lease) throw new Error(`No lease: ${granted.warning ?? 'unbrokered'}`);
     const timer = setInterval(() => { void plugin('/renew', { lease: granted.lease }).catch(() => {}); }, 30000);
     return {
@@ -148,7 +149,8 @@ try {
     let reference = null;
     if (FAMILY !== 'sdxl') {
         const baseLease = await plugin('/lease', { workflowKey: baseKey, needGpuMiB, nextTextTokens: 96, modelFiles, ...size, hires: false });
-        mark('base-lease', { decision: baseLease.decision ?? null });
+        const baseResidency = (await plugin('/status').catch(() => null))?.lastResidency ?? null;
+        mark('base-lease', { decision: baseLease.decision ?? null, needRamMiB: baseResidency?.needRamMiB ?? null, ramSource: baseResidency?.ramSource ?? null, ramAvailableMiB: baseResidency?.readings?.ramAvailableMiB ?? null });
         const node = (class_type, inputs) => ({ class_type, inputs });
         const baseGraph = {
             '1': node('UNETLoader', { unet_name: MODELS.diffusion.name, weight_dtype: 'default' }),

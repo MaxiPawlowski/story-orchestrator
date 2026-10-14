@@ -29,13 +29,36 @@ binary/model paths, a profile argument that sets the host, port or a path, and a
 | `text.port` | Loopback port the owned `llama-server` listens on. |
 | `text.profiles` | `{ id: { args: [...] , estimatedGpuMiB?, estimatedRamMiB? } }`; the page picks by id only. |
 | `text.defaultProfile`, `text.alias`, `text.maxContext`, `text.keepResident` | Defaults: first profile, `local`, 32768, false (load on demand). |
+| `text.loadMode` | Overrides each profile's `--load-mode` (`auto`, `none`, `mmap`, `mlock`, `mmap+mlock`, `dio`); absent = the profile's own args. Reload time per mode is in `/status` `text.loadMs`. |
 | `comfy.url`, `comfy.supervise`, `comfy.python`, `comfy.root`, `comfy.extraArgs`, `comfy.startTimeoutMs` | ComfyUI (observed by default); a supervised ComfyUI gets `startTimeoutMs` (default 120000) to answer before a lease is refused. |
 | `reserves` | `{ gpuMiB, ramMiB }`; absent = probe (10% of VRAM, min 1 GiB; 10% of RAM, min 2 GiB). |
 | `modelDirs` | `{ kind: [absolute folders] }` for model-size estimates. |
 | `telemetryPython` | Optional Python with `pynvml`/`psutil` for high-cadence telemetry (`broker/memory-probe.py`); without it `nvidia-smi` is sampled. |
+| `ramEstimates` | `[{ id, models: ["kind:file", …], ramMiB, maxPixels?, streaming? }]`: this host's measured RAM need for a model set; overrides the shipped table (`broker/ramEstimates.mjs`). |
 | `retainBatches` | On by default: `/status` answers `mayRetain` so a sprite batch keeps its image lease for up to three images while no text waits and memory stays above the reserves. `false` turns it off. |
 
 `exit()` stops only children the broker started (tree kill), never a server it did not start.
+
+### Image admission: keep text or swap
+
+Each lease needs `need + reserve` free on both the GPU and host RAM (and commit), read live just before the decision.
+
+- GPU need: the larger of the request's `needGpuMiB` (or the size read from `modelFiles`) and a verified footprint.
+- RAM need, first match: a verified footprint for this workflow, a `ramEstimates` row from the config, a shipped
+  measured row, the loader estimate (`min(weights, 8 GiB)` + activation when ComfyUI streams, full weights otherwise).
+  A request's `needRamMiB` can only raise it. Rows match the exact model set, and only within their `maxPixels` and
+  `streaming` condition; anything else falls back to the estimate.
+- Shipped row `qwen-image-2.1-int8-sprites` (the Qwen 2.1 int8 sprite set, streaming, up to 1024×1024): 8,139 MiB, the
+  largest free-RAM drop from idle seen in any of 8 Qwen leases on a 3090 / 32 GB host (6,782 MiB) × 1.2. The loader
+  estimate for the same set was 10,673 MiB.
+- When the image fits beside a loaded text model, text stays loaded (`retain-text`: no unload, no reload). When it
+  does not, text unloads first (`swap-text`), or reloads smaller when measured timings say that is faster
+  (`shed-text`). No reading means no keep. The reserves are never lowered to make a job fit.
+- `/status` `lastResidency` says what was decided and why: `decision`, `reason`, `textResident`, `needGpuMiB`,
+  `needRamMiB`, `ramSource`, `reserves`, `readings` (before), `admittedReadings` (after a swap), `shortBy`. Each decision
+  is also logged as `[story-orchestrator-gpu] lease <decision>: …`.
+- Host RAM on Windows is `FreePhysicalMemory` (standby cache not counted), so readings and the measured row are both on
+  the conservative side.
 
 ## Routes
 

@@ -9,6 +9,17 @@ export function admission(snapshot, requirements, reserves) {
     return { allowed: true, gpu };
 }
 
+export function residencyChoice({ snapshot, needGpuMiB, needRamMiB, reserves, textResident }) {
+    const gpu = snapshot?.gpus?.[0];
+    const readings = { gpuFreeMiB: gpu?.freeMiB ?? null, ramAvailableMiB: snapshot?.host?.availableMiB ?? null, commitFreeMiB: snapshot?.host?.commitFreeMiB ?? null };
+    const short = (have, need, reserve) => (Number.isFinite(have) ? Math.max(0, Math.ceil(need + reserve - have)) : null);
+    const shortBy = { gpuMiB: short(readings.gpuFreeMiB, needGpuMiB, reserves?.gpuMiB ?? 0), ramMiB: short(Math.min(readings.ramAvailableMiB ?? NaN, readings.commitFreeMiB ?? NaN), needRamMiB, reserves?.ramMiB ?? 0) };
+    if (!gpu || !snapshot?.host || !reserves) return { keep: false, reason: 'Memory telemetry is unavailable; text is not kept beside an image without a reading.', readings, shortBy };
+    const fit = admission(snapshot, { gpuMiB: needGpuMiB, ramMiB: needRamMiB }, reserves);
+    if (fit.allowed) return { keep: true, reason: textResident ? 'Kept text: the image fits beside the loaded text model with both reserves held.' : 'No text model is loaded; the image fits with both reserves held.', readings, shortBy };
+    return { keep: false, reason: textResident ? `Text must unload: ${fit.reason}` : fit.reason, readings, shortBy };
+}
+
 export function withinReserve(snapshot, reserves) {
     return admission(snapshot, { gpuMiB: 0, ramMiB: 0 }, reserves).allowed;
 }

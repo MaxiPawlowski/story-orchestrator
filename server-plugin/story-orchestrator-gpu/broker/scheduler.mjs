@@ -1,11 +1,12 @@
 import { randomUUID } from 'node:crypto';
-import { admission, textLatencyDecision } from './policy.mjs';
+import { admission, residencyChoice, textLatencyDecision } from './policy.mjs';
+import { measuredRamMiB } from './ramEstimates.mjs';
 import { estimateNeedMiB, modelIdentities, estimateRamMiB } from './models.mjs';
 import { footprintKey, observedFootprint, FOOTPRINT_REVISION } from './footprints.mjs';
 
 export class ResidencyScheduler {
-    constructor({ config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints = {}, timings = {}, saveTimings = async () => {}, runtime = async () => ({ id: 'unknown', streaming: false }) }) {
-        Object.assign(this, { config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints, timings, saveTimings, runtime });
+    constructor({ config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints = {}, timings = {}, saveTimings = async () => {}, runtime = async () => ({ id: 'unknown', streaming: false }), log = () => {} }) {
+        Object.assign(this, { config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints, timings, saveTimings, runtime, log });
         this.pending = [];
         this.activeText = false;
         this.imagePending = false;
@@ -14,6 +15,7 @@ export class ResidencyScheduler {
         this.restoring = false;
         this.lastLeaseAt = null;
         this.lastDecision = null;
+        this.lastResidency = null;
         this.lastNeedGpuMiB = null;
         this.lastError = null;
         this.releasing = null;
@@ -116,25 +118,28 @@ export class ResidencyScheduler {
             const observedKey = key ? footprintKey(identity) : null;
             const needGpuMiB = await this.needFor(body, observedKey);
             const footprint = observedKey ? this.footprints[observedKey] : null;
-            const measuredRam = footprint?.revision === FOOTPRINT_REVISION && footprint.verified && Number.isFinite(footprint.ramMiB) ? footprint.ramMiB : null;
-            const estimatedRam = models.length ? estimateRamMiB({ weightMiB: models.reduce((sum, row) => sum + row.weightsMiB, 0),
-                width: body.width, height: body.height, hires: body.hires, streaming: runtime.streaming }) : this.config.defaultImageRamMiB ?? 8192;
-            const needRamMiB = Math.ceil(Math.max(measuredRam ?? estimatedRam,
-                Number.isFinite(body.needRamMiB) && body.needRamMiB >= 0 ? body.needRamMiB : 0));
+            const { needRamMiB, ramSource } = this.ramNeed({ body, footprint, models, runtime });
             const room = needGpuMiB + this.config.reserves.gpuMiB;
             const benchmarkMode = this.config.experiments ? body.benchmarkMode : null;
             let snapshot = await this.snapshot({ fresh: true });
             let decision;
+            const textState = this.backend.status();
+            const textResident = Boolean(textState.pid);
+            const choice = residencyChoice({ snapshot, needGpuMiB, needRamMiB, reserves: this.config.reserves, textResident });
+            let reason = choice.reason;
+            this.lastResidency = { decision: 'deciding', reason, textResident, textProfile: textState.profile ?? null, needGpuMiB, needRamMiB, ramSource,
+                reserves: { ...this.config.reserves }, readings: choice.readings, shortBy: choice.shortBy, at: new Date().toISOString() };
             const fits = () => admission(snapshot, { gpuMiB: needGpuMiB, ramMiB: needRamMiB }, this.config.reserves);
-            if (fits().allowed && benchmarkMode !== 'swap') {
+            if (choice.keep && benchmarkMode !== 'swap') {
                 decision = 'retain-text';
             } else if (benchmarkMode !== 'swap' && this.streams({ snapshot, runtime, models, needRamMiB })) {
                 decision = 'stream-image';
-            } else if (benchmarkMode !== 'swap' && this.backend.status().pid && room <= (this.config.shedCeilingMiB ?? 13000) && (benchmarkMode === 'shed' || this.shouldShed(room, body.nextTextTokens))) {
+                reason = `${choice.reason} Streaming the image beside text instead.`;
+            } else if (benchmarkMode !== 'swap' && textResident && room <= (this.config.shedCeilingMiB ?? 13000) && (benchmarkMode === 'shed' || this.shouldShed(room, body.nextTextTokens))) {
                 try {
                     await this.backend.load(this.backend.desiredProfile ?? this.config.defaultProfile, { fitTarget: room });
                     snapshot = await this.snapshot({ fresh: true });
-                    if (fits().allowed) decision = 'shed-text';
+                    if (fits().allowed) { decision = 'shed-text'; reason = `${choice.reason} Text reloaded smaller to leave room.`; }
                 } catch (error) {
                     if (!/memory|RAM|headroom/.test(error.message)) throw error;
                     this.lastError = error.message;
@@ -148,9 +153,16 @@ export class ResidencyScheduler {
                 await this.freeImages({ ramRequiredMiB: needRamMiB });
                 snapshot = await this.snapshot({ fresh: true });
                 decision = 'swap-text';
+                if (benchmarkMode === 'swap') reason = 'Benchmark forced a swap.';
             }
+            if (decision === 'swap-text' && textResident && benchmarkMode !== 'swap') reason = `Swapped text out. ${choice.reason}`;
             const admitted = decision === 'stream-image' ? { allowed: this.streams({ snapshot, runtime, models, needRamMiB }), reason: 'Streaming headroom changed.' } : fits();
-            if (!admitted.allowed) throw new Error(`Image admission refused: ${admitted.reason}`);
+            const admittedReadings = { gpuFreeMiB: snapshot?.gpus?.[0]?.freeMiB ?? null, ramAvailableMiB: snapshot?.host?.availableMiB ?? null };
+            if (!admitted.allowed) {
+                this.recordResidency({ decision: 'refused', reason: `Image admission refused: ${admitted.reason}`, admittedReadings });
+                throw new Error(`Image admission refused: ${admitted.reason}`);
+            }
+            this.recordResidency({ decision, reason, admittedReadings });
             this.lastDecision = decision;
             this.lastError = null;
             this.lastNeedGpuMiB = needGpuMiB;
@@ -160,8 +172,28 @@ export class ResidencyScheduler {
                 lowGpu: snapshot.gpus[0].freeMiB, highCadence: snapshot.highCadence === true, seenJob: false, decision, needGpuMiB, needRamMiB,
                 trace: [] };
             return { lease: this.lease.id, brokered: true, decision };
-        } catch (error) { this.lastError = error.message; throw error; }
+        } catch (error) {
+            this.lastError = error.message;
+            if (this.lastResidency?.decision === 'deciding') this.lastResidency = { ...this.lastResidency, decision: 'error', reason: error.message };
+            throw error;
+        }
         finally { this.imagePending = false; if (!this.lease) void this.pump(); }
+    }
+
+    ramNeed({ body, footprint, models, runtime }) {
+        const requested = Number.isFinite(body.needRamMiB) && body.needRamMiB >= 0 ? body.needRamMiB : 0;
+        const measured = footprint?.revision === FOOTPRINT_REVISION && footprint.verified && Number.isFinite(footprint.ramMiB) ? { ramMiB: footprint.ramMiB, source: 'footprint' } : null;
+        const table = measured ? null : measuredRamMiB({ models, width: body.width, height: body.height, hires: body.hires === true, streaming: runtime?.streaming === true, rows: this.config.ramEstimates });
+        const estimate = measured ?? table ?? (models.length ? { ramMiB: estimateRamMiB({ weightMiB: models.reduce((sum, row) => sum + row.weightsMiB, 0),
+            width: body.width, height: body.height, hires: body.hires, streaming: runtime?.streaming }), source: 'loader-estimate' } : { ramMiB: this.config.defaultImageRamMiB ?? 8192, source: 'default' });
+        return requested > estimate.ramMiB ? { needRamMiB: Math.ceil(requested), ramSource: 'request' } : { needRamMiB: Math.ceil(estimate.ramMiB), ramSource: estimate.source };
+    }
+
+    recordResidency({ decision, reason, admittedReadings }) {
+        const row = { ...this.lastResidency, decision, reason, admittedReadings };
+        this.lastResidency = row;
+        const mib = (value) => (Number.isFinite(value) ? Math.round(value) : '?');
+        this.log(`lease ${decision}: ${reason} (GPU free ${mib(row.readings?.gpuFreeMiB)} MiB, need ${row.needGpuMiB} + reserve ${row.reserves?.gpuMiB}; RAM available ${mib(row.readings?.ramAvailableMiB)} MiB, need ${row.needRamMiB} [${row.ramSource}] + reserve ${row.reserves?.ramMiB})`);
     }
 
     streams({ snapshot, runtime, models, needRamMiB }) {
@@ -319,7 +351,7 @@ export class ResidencyScheduler {
         return { phase: this.imagePending ? 'reserving' : this.lease ? 'image' : this.restoring ? 'restoring' : this.manualHold ? 'manual-hold' : 'text',
             activeText: this.activeText ? 1 : 0, waitingText: this.pending.length, imageLease: Boolean(this.lease),
             text: this.backend.status(), objective: this.config.residencyObjective ?? 'total-wait', timings: this.timings, lastTextDecision: this.lastTextDecision,
-            lastDecision: this.lastDecision, lastNeedGpuMiB: this.lastNeedGpuMiB, measurement: this.lastMeasurement ? { ...this.lastMeasurement, trace: undefined } : null,
+            lastDecision: this.lastDecision, lastResidency: this.lastResidency, lastNeedGpuMiB: this.lastNeedGpuMiB, measurement: this.lastMeasurement ? { ...this.lastMeasurement, trace: undefined } : null,
             lastError: this.lastError };
     }
 }

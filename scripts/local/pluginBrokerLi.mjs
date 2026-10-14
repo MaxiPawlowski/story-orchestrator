@@ -17,6 +17,8 @@ const ROUTER = 18897;
 await fs.mkdir(outDir, { recursive: true });
 const config = superviseConfigFromLocal(local, { stateDir: path.join(outDir, 'state'), listenPort: LISTEN, textPort: 18899 });
 if (process.env.SO_LI_RESERVES === 'probe') delete config.reserves;
+if (process.env.SO_LI_LOAD_MODE) config.text.loadMode = process.env.SO_LI_LOAD_MODE;
+const LT_FLOOR_MS = 65441;
 await fs.mkdir(config.stateDir, { recursive: true });
 
 const home = fileURLToPath(new URL('../../', import.meta.url));
@@ -72,7 +74,7 @@ const text = async (label) => {
     return { label, elapsedMs: Date.now() - began, thinkingEnabled: true, visible: Boolean(message?.content?.trim()), chars: message?.content?.length ?? 0, reasoningChars: message?.reasoning_content?.length ?? 0, finishReason: data.choices?.[0]?.finish_reason ?? null, usage: data.usage ?? null, predictedPerSecond: data.timings?.predicted_per_second ?? null };
 };
 
-const report = { runLabel, at: new Date().toISOString(), needGpuMiB, checkpoint: checkpoint.file, reserveMode: config.reserves ? 'pinned' : 'probe', ok: false };
+const report = { runLabel, at: new Date().toISOString(), needGpuMiB, checkpoint: checkpoint.file, reserveMode: config.reserves ? 'pinned' : 'probe', loadMode: config.text.loadMode ?? 'profile', ok: false };
 let lease = null;
 let promptId = null;
 try {
@@ -99,7 +101,10 @@ try {
     const granted = await plugin('/lease', { workflowKey: renderSignature(graph), needGpuMiB, nextTextTokens: 768, modelFiles, ...size, hires: false });
     lease = granted.lease;
     report.lease = { decision: granted.decision ?? null, brokered: granted.brokered ?? null, admissionMs: Date.now() - leaseBegan, warning: granted.warning ?? null };
-    report.stateDuringLease = (await plugin('/status')).state;
+    const leaseStatus = await plugin('/status');
+    report.stateDuringLease = leaseStatus.state;
+    report.residency = leaseStatus.lastResidency ?? null;
+    report.textLoadsBeforeReply = leaseStatus.text?.loads ?? null;
     const renderBegan = Date.now();
     const queued = await call(local.comfyUrl, '/prompt', { prompt: graph, client_id: `so-plugin-li-${process.pid}` });
     promptId = queued.prompt_id;
@@ -123,7 +128,11 @@ try {
     report.postRenderToReplyMs = report.releaseMs + report.text2.elapsedMs;
     report.imageToReplyMs = Date.now() - leaseBegan;
     report.timingDefinition = 'lease request through completed thinking-enabled reply; includes admission, render, release and text';
-    report.stateEnd = (await plugin('/status')).state;
+    const statusEnd = await plugin('/status');
+    report.stateEnd = statusEnd.state;
+    report.reloaded = Number.isFinite(statusEnd.text?.loads) && Number.isFinite(report.textLoadsBeforeReply) ? statusEnd.text.loads > report.textLoadsBeforeReply : null;
+    report.reloadMs = report.reloaded ? statusEnd.text.loadMs : 0;
+    report.latency = { imageToReplyMs: report.imageToReplyMs, floorMs: LT_FLOOR_MS, withinFloor: report.imageToReplyMs <= LT_FLOOR_MS };
     const queueAfter = await fetch(`${local.comfyUrl}/queue`).then((response) => response.json()).catch(() => null);
     report.comfyQueueAfter = queueAfter ? { running: queueAfter.queue_running?.length ?? 0, pending: queueAfter.queue_pending?.length ?? 0 } : null;
     report.floors = {
