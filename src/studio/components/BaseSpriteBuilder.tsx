@@ -7,10 +7,11 @@ import type { SpriteBuilderHost } from "./SpriteBuilder";
 import { draftOwnership } from "../agentHost";
 import { builderRender, RENDER_PRESETS } from "../../sprites/settings";
 
-export default function BaseSpriteBuilder({ character, image, set, models, discovery, steps, resolution = RENDER_PRESETS.standard.resolution, seed, busy, setBusy, builder, services }: {
+export default function BaseSpriteBuilder({ character, image, set, models, discovery, steps, resolution = RENDER_PRESETS.standard.resolution, seed, busy, setBusy, builder, services, onSaved }: {
   character: string; image?: string; set: string; models: { diffusion: string; encoder: string; vae: string };
   discovery: ComfyDiscovery; steps: number; resolution?: number; seed: number; busy: boolean; setBusy(value: boolean): void;
   builder: Pick<Builder, "build" | "save" | "cancel" | "close">; services: SpriteBuilderHost;
+  onSaved?(path: string): void;
 }) {
   const [alpha, setAlpha] = useState(discovery.alpha?.[0]?.id ?? "");
   const [candidates, setCandidates] = useState<SpriteCandidate[]>([]);
@@ -62,6 +63,7 @@ export default function BaseSpriteBuilder({ character, image, set, models, disco
         box: { x: Math.round((neutral.width - width) / 2), y: 0, width, height },
         models: { diffusion: input.models.diffusion.name, encoder: input.models.encoder.name, vae: input.models.vae.name }, ...builderRender(input) } } } });
       setSaved(result.path);
+      onSaved?.(result.path);
     } catch (error) { if (live.current) setErrors([String(error)]); }
     finally { setBusy(false); }
   };
@@ -83,6 +85,6 @@ export default function BaseSpriteBuilder({ character, image, set, models, disco
       <p>{candidate.seconds.toFixed(1)} seconds · transparency checks passed</p>
       <button type="button" className="st-button" disabled={busy || Boolean(saved)} onClick={() => void keep(candidate)}>Keep base {at + 1}</button>
     </div>)}</div>
-    {saved && <p role="status">Saved neutral base to {saved}. Reload the Sprites tab to use it as a reference.</p>}
+    {saved && <p role="status">Saved neutral base to {saved}. Adjust its head box and review presentation above.</p>}
   </details>;
 }
