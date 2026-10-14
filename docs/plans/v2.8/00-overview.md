@@ -227,3 +227,22 @@ Round 3 (Sol): R3-15, R3-20 applied; both decided by the user 2026-10-03 (as rec
 
 
 User ideas 2026-10-07 → plans 25–30 (§Build order).
+
+## Roleplay mechanics added 2026-10-14 (owner)
+
+Plans 42–53 (42, 43, 45 moved from v2.9 02, 05.4, 03). Status: written, not built; decisions pending in each plan.
+
+| Plan | Title | Implementation / acceptance |
+|---|---|---|
+| 42 | [Witness filter v2: who heard what (B measure first, C filter after)](42-witness-filter-v2.md) | D+CL |
+| 43 | [Verbatim recall: exact past lines, witness-filtered](43-verbatim-recall.md) | D+CL; gated on A12 E0 + 42 |
+| 44 | [Rumors and gossip: knowledge travels, seeded delay/version](44-rumors-and-gossip.md) | D |
+| 45 | [New Game+: outcome carry + epilogue "Previously"](45-new-game-plus.md) | D; live final chapter owed |
+| 46 | [Consequences recap: "Because you X, Y"](46-consequences-recap.md) | D (+CL if C1 misses) |
+| 47 | [Promises remembered: typed promises, overdue hooks](47-promises-remembered.md) | D+CL |
+| 48 | [Director scene test: seeded expected/altered/interrupt](48-director-scene-test.md) | D |
+| 49 | [Complications and twists: meter, pool, focus](49-complications-and-twists.md) | D now; model-facing build gated on SP6 (RP) |
+| 50 | [Story calendar: story_time + derived calendar](50-story-calendar.md) | D |
+| 51 | [Discoverable relationship labels](51-relationship-labels.md) | D |
+| 52 | [People and Places codex (known_when)](52-people-places-codex.md) | D |
+| 53 | [Reputation with groups (factions, word bands)](53-reputation-factions.md) | D |
