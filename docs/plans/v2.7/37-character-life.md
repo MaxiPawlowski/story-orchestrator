@@ -139,7 +139,7 @@ a mood that colours the scene, plans that advance when nobody is looking, and a 
 
 ### L5. Inner voice, promoted (owner elsewhere)
 
-- **2026-10-14:** built as a spike, the carried thought (`spikes.thoughtCarry`): `v2.8/42-inner-voice-l5.md` (as built, floors, Gate record).
+- **2026-10-14:** built as a spike, the carried thought (`spikes.thoughtCarry`): `v2.8/54-inner-voice-l5.md` (as built, floors, Gate record).
 
 - No new design here. Promotion of the reasoning harvest (B2) and the inner beat (C) waits on the frozen v2.6
   measurements, which **v2.8 01** owns (00-overview row 01: "frozen v2.6 measurements"). Both stay off by default until

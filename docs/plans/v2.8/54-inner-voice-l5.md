@@ -1,4 +1,4 @@
-# Plan 42 — Inner voice L5 spike: the carried thought
+# Plan 54 — Inner voice L5 spike: the carried thought
 
 **Status (2026-10-14): built on `v2.8-a13-l5` (queue A13, backlog D3). Deterministic gates in the Gate record; CL leg
 run below; RP legs owed.** Source: `v2.7/37-character-life.md` §L5 ("inner voice, promoted"), `v2.6/06-inner-voice.md`
