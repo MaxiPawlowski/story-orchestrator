@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { lazy, Suspense, useState } from "react";
 import { describeProvisioningOp, validateProvisioningOp, type ExistingEntry, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
 
 export interface ProvisioningCardProps {
@@ -13,6 +13,8 @@ export interface ProvisioningCardProps {
   existing?: ExistingEntry | null;
   onApply: (op: ProvisioningOp) => void;
 }
+
+const CharacterCardArt = lazy(() => import("./CharacterCardArt"));
 
 type FieldSpec = { key: string; label: string; kind: "text" | "area" | "list" | "bool" | "select"; options?: Array<[string, string]> };
 
@@ -99,6 +101,11 @@ const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, ap
         <span className="st-pill px-2 py-0.5 text-[10px]">{KIND_LABELS[draft.kind]}</span>
         <span className="text-sm">{describeProvisioningOp(draft).label}</span>
       </div>
+      {draft.kind === "createCharacterCard" ? (
+        <Suspense fallback={<span className="text-[11px] st-muted" role="status">Loading artwork…</span>}>
+          <CharacterCardArt name={draft.name} created={applied} />
+        </Suspense>
+      ) : null}
       {fields.map((field) => (
         <label key={field.key} className="flex flex-col gap-1 text-xs">
           <span className="st-muted">{field.label}</span>

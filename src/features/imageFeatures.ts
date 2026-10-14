@@ -16,7 +16,8 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     id: "prepared-presentation", name: "Prepared cast presentation", area: "images", audience: "author",
     oneLine: "Review and accept each character's base and bust before sprites, poses and live heads use them.",
     what: "After the wizard builds a cast, pick a generated base, set its head box and accept base and bust together. "
-      + "Expressions, changed looks and poses follow that accepted source; a changed card or artwork asks for a new review.",
+      + "Expressions, changed looks and poses follow that accepted source; a changed card or artwork asks for a new review. "
+      + "The wizard's character cards show the accepted bust and base, or a placeholder with Prepare presentation.",
     where: studioAt("#so-prepare-presentation", "Sprites › Prepare presentation"), settings: [], guideTopic: "poses", doc: authorGuideDoc("poses"),
     status: "experimental", needs: ["comfyui"],
   },

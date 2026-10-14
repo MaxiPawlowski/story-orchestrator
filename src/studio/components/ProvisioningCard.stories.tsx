@@ -1,6 +1,8 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { within, userEvent, expect, fn } from "@storybook/test";
+import React from "react";
 import ProvisioningCard from "./ProvisioningCard";
+import { PreparePresentationContext } from "../presentationNavigation";
 
 const meta: Meta<typeof ProvisioningCard> = {
   title: "Studio/ProvisioningCard",
@@ -127,5 +129,16 @@ export const LoreEntryFeatures: Story = {
     await userEvent.click(canvas.getByLabelText("Always in context"));
     await expect(canvas.getByRole("button", { name: "Create it" })).toBeDisabled();
     await expect(canvas.getByRole("alert")).toHaveTextContent("skips every key check");
+  },
+};
+
+const prepare = fn();
+export const CharacterArtPlaceholder: Story = {
+  decorators: [(Story) => <PreparePresentationContext.Provider value={prepare}><Story /></PreparePresentationContext.Provider>],
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByText("No accepted artwork yet.")).toBeVisible();
+    await userEvent.click(canvas.getByRole("button", { name: "Prepare presentation" }));
+    await expect(prepare).toHaveBeenCalled();
   },
 };
