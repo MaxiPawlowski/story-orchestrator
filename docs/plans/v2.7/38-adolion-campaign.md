@@ -1,6 +1,7 @@
 # Plan 38 — Adolion campaign: lab data, playtest fixes and the campaign rows
 
-**Status (2026-10-14): built, see Gate record; acceptance owed → v2.8 24.** Status lines below are history.
+**Status (2026-10-14): built, see Gate record; acceptance owed → v2.8 24. v2.8 adoption pass 2026-10-14: see the last
+Gate record (campaign branch, not merged).** Status lines below are history.
 
 > **Moved 2026-10-07: now v2.7 38** (was v2.8 02; user: the Adolion campaign in v2.7). Also owns: v2.7 07 A3/A6 live rows; the Saga main-cast assets and 31 authored outfits from v2.7 28; the stub lab copy for v2.7 35 M2 (v2.8 19:205 hand-off); the campaign scripts and lane-pinned scenarios split out by v2.7 31 §B. D13b (weights off `C:`) is superseded by the image-model exception (v2.7 rule 8). Integration ×2 is v2.7 39 C7.
 
@@ -134,3 +135,45 @@ Gates:
 Deviations: trigger tuning is in-sample on the same v2.6 sessions; the stub baseline is thin (9 visits); A4 labels and
 D13a profiles need a content review by another model before B1. Owed: A5, D13c, the D13b LI re-render, the D13d CL
 cue-read run, every v2.7 39 B1 measurement on these labs, the C7 rows.
+
+## Gate record (2026-10-14, v2.8 adoption pass)
+
+Campaign branch `v2.8-adolion-in-step-2026-10-14` (from campaign master `ecccdb7`): `6c5ceb6` (adoption, data, frame
+job), `03441dc` (lane scenarios after their first lane runs). Not merged or pushed. Counts and ids only (rule 11);
+the decision table is private (campaign `docs/FEATURE-COVERAGE.md`, "adoption audit, second pass").
+
+- Adoption audit against plugin master `a302b65e`: 26 rows. Adopted 5: v2.8 01 C11-F2 (per-value guard, 1 quality, 1
+  of its 3 values), C11-F1 (guard on 1 read_as quality; closes campaign findings F1 and F2), v2.8 34 regex keys (2
+  World-book keys), v2.8 19 encounter pool (1 lab stretch), v2.8 19 open opening (1 lab anchor). 3 land in the shipped
+  stories (2 acts + the Saga), 2 on the stretch lab copy. Not used or nothing to author (21): v2.8 34 NOT logic,
+  outlets, triggers; 19 pressure/trigger (refused by the plugin); 01 E (R4 reasoning); C11-F7; C13-b (scope under 40
+  entries); A15/A16/A19; R7 D-P5; A2 and A4 (already fed); N1 (already on); A1; A22 (deferred, owner); A23/36/41
+  (deferred to plan 41 RP acceptance); N11 (frame data prepared, see X6); A10; A9/A11/A18/A20; A8; meanwhile; N2.
+- Campaign gates: `check_all.sh` ALL GREEN (harness 94/94, 13 labs). Guarded qualities 6 -> 8 in the Saga; harness now
+  also proves each unguarded value of a per-value map passes.
+- Plugin: `src/studio/adolionPinnedBuild.test.ts` counts the stretch copies by kind (3 stretches, 1 open opening, 1
+  encounter pool).
+- Lane scenarios: 7 in campaign `lab/v28/` (5 no-model, 2 model-lane-ready), run from the campaign directory with
+  groups pinned by name; `lab/v28/check.py` resolves every group, member, story, checkpoint and mocked delta. On
+  adolion-fresh lane 44 (no-model, judge off, images and sprites off): all 5 no-model scenarios PASS x2 consecutive
+  (batch: 9 of 10 green, 1 INCOMPLETE after all its steps passed: cleanup settings-save timeout; that scenario re-run
+  x2 green). Model-lane scenarios not run (GPU reserved).
+- Data refreshed: SP6 pools re-derived (15 pools / 44 lines; K3 journey kept as patched), M1 stub lengths re-measured
+  (21 stubs, 9 visits, unchanged), life copy regenerated (1 changed), quest arms regenerated (5, unchanged), stretch
+  copies regenerated (1 changed), aliases lab (1 source key).
+- Pin `03441dc`: lane 44 seeded twice (at `6c5ceb6`, then the pin), 0 problems, drift = the commit only; `check` 0
+  problems, 0 drift; no `accept-baseline` needed. Not installed into the owner's ST.
+- X6 / D13b / D13c prepared, not rendered: `render_sprites.py --anim` (blink + talk per label from the label's own
+  sprite, band QA, `--plan`, `--tier`), `install_st.py` uploads `anim-<set>` packs, job file
+  `campaign/sprites/anim-job.json`: 201 sets, 5,778 edits, about 2,148 min at 22.3 s per head edit (v2.8 33 S0 median);
+  tiers 650 / 1,096 / 3,470 / 562 edits; D13b LI = 1 set (~10 min), D13c pilot = 1 set, 32 edits (~12 min), with the
+  S28 90 % first-seed floor as its stop rule. Ready-to-run list in campaign `docs/SPRITE-PIPELINE.md`.
+- Plan 33 pose bodies for the campaign: recommendation written (keep authored action sets until plan 33 passes x2 and
+  the owner decides); nothing converted.
+- Second-model content review: Sol (opencode `openai/gpt-6.1-sol`), 2 calls, 8 items + 3 re-checks, 2 issues fixed;
+  verdicts private (campaign `docs/reviews/`). Lane evidence: so-sessions `evidence/phase-c/adolion-v28-2026-10-14/`.
+- Gates (public): `npm run gates:quick -- --jobs=2` green (defect replay 32/32 killed); `npm run test:debug` 1,267/1,267
+  (the first run, before `npm run build` in the fresh worktree, failed only `so-run-header.test.mts`'s build half on the
+  missing `dist/manifest.json`); `npm run test:release` green (137, 14 skipped).
+- Owed: the 2 model-lane scenarios x2; the X6 render job (owner GPU slot); the owner install (approval); campaign
+  merge.
