@@ -230,19 +230,29 @@ User ideas 2026-10-07 → plans 25–30 (§Build order).
 
 ## Roleplay mechanics added 2026-10-14 (owner)
 
-Plans 42–53 (42, 43, 45 moved from v2.9 02, 05.4, 03). Status: written, not built; decisions pending in each plan. 42–47 revised 2026-10-14 against `review-astra-2026-10-14.md` (each plan's "Review 2026-10-14 (Astra)" section).
+Plans 42–53 (42, 43, 45 moved from v2.9 02, 05.4, 03). Status: written, not built; decisions pending in each plan. All
+twelve revised 2026-10-14 against `review-astra-2026-10-14.md` (each plan's closing "Review 2026-10-14 (Astra)"
+section); the shared contract for 48–53 (SC1 rollback detectors, SC2 one evaluation order, SC3 disclosure vs
+knowledge, SC4 feature-only fixtures, SC5 bookkeeping) lives in plan 52's review. Plans 55–59 are candidates from the
+same review's brainstorm: written, not queued, owner decision pending.
 
 | Plan | Title | Implementation / acceptance |
 |---|---|---|
 | 42 | [Witness filter v2: span witness record + shared audience contract (B first, C separate)](42-witness-filter-v2.md) | D+CL |
 | 43 | [Verbatim recall: exact spans on request, provenance-filtered](43-verbatim-recall.md) | D+CL; gated on A12 E0 + 42 |
-| 44 | [Rumors and gossip: typed hearsay, reversible hops, recipient reveals](44-rumors-and-gossip.md) | D |
+| 44 | [Rumors and gossip: typed hearsay, reversible hops, recipient reveals](44-rumors-and-gossip.md) | D+CL (+RP or LT leg) |
 | 45 | [New Game+: public carry projection, sequel vs replay](45-new-game-plus.md) | D; live final chapter owed |
-| 46 | [Consequences recap: authored + neutral first, evidenced "Because you"](46-consequences-recap.md) | D (+CL if C1 misses) |
-| 47 | [Promises remembered: exact-quote promises, relevance reminders](47-promises-remembered.md) | D+CL |
-| 48 | [Director scene test: seeded expected/altered/interrupt](48-director-scene-test.md) | D |
-| 49 | [Complications and twists: meter, pool, focus](49-complications-and-twists.md) | D now; model-facing build gated on SP6 (RP) |
-| 50 | [Story calendar: story_time + derived calendar](50-story-calendar.md) | D |
-| 51 | [Discoverable relationship labels](51-relationship-labels.md) | D |
-| 52 | [People and Places codex (known_when)](52-people-places-codex.md) | D |
-| 53 | [Reputation with groups (factions, word bands)](53-reputation-factions.md) | D |
+| 46 | [Consequences recap: authored + neutral first, evidenced "Because you"](46-consequences-recap.md) | D |
+| 47 | [Promises remembered: exact-quote promises, relevance reminders](47-promises-remembered.md) | D+CL (+LT) |
+| 48 | [Director scene test: frozen tension signal, expected/altered/interrupt (A narrowed)](48-director-scene-test.md) | D+CL (+RP living row) |
+| 49 | [Complications and twists: finish SP6 first (A); focus picker only if 48 takes it](49-complications-and-twists.md) | D now; model-facing build gated on SP6 (RP) |
+| 50 | [Story calendar: canonical story_time, exactly-once writers, B1a → B2](50-story-calendar.md) | D+CL (+RP) |
+| 51 | [Discoverable relationship labels: event-gated rows on 52's pages](51-relationship-labels.md) | D+CL (+RP); after 52 A |
+| 52 | [People and Places codex (known_when, discovery scope); shared contract SC1–SC5](52-people-places-codex.md) | D+CL |
+| 53 | [Reputation with groups: authored moves, word bands, clamp](53-reputation-factions.md) | D+CL+RP |
+| 54 | [Inner voice L5 spike: the carried thought](54-inner-voice-l5.md) (queue A13; built on `v2.8-a13-l5`, unmerged) | D green; CL FAIL ×2 then picker fix; RP owed |
+| 55 | [NPC commitments to the player](55-npc-commitments.md) (candidate) | D+LT/RP (+CL with B) |
+| 56 | [Social permissions](56-social-permissions.md) (candidate) | D+LT/RP |
+| 57 | [Shared rituals](57-shared-rituals.md) (candidate) | D+LT/RP |
+| 58 | [Keepsakes tied to witnessed moments](58-keepsakes.md) (candidate) | D+LT/RP |
+| 59 | [Reconciliation beats](59-reconciliation-beats.md) (candidate) | D+CL+LT/RP |

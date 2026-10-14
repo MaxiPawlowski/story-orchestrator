@@ -119,19 +119,36 @@ It records current progress, source-plan links and deferred acceptance protocols
 
 ## Roleplay mechanics (owner 2026-10-14)
 
-Moved from v2.9 or new; plans written 2026-10-14, owner decisions pending per plan.
+Moved from v2.9 or new; plans written 2026-10-14, each revised the same day against `review-astra-2026-10-14.md`
+(each plan ends with "Review 2026-10-14 (Astra)"; shared contract SC1–SC5 for 48–53 in plan 52's review). Not built;
+owner decisions pending per plan.
 
 | # | Item | Plan | Tiers |
 |---|---|---|---|
-| M42 | Witness filter v2: who heard what (B measure first, C filter after) | 42 | D+CL |
-| M43 | Verbatim recall: exact past lines, witness-filtered | 43 | D+CL; gated on A12 E0 + 42 |
-| M44 | Rumors and gossip: knowledge travels, seeded delay/version | 44 | D |
-| M45 | New Game+: outcome carry + epilogue "Previously" | 45 | D; live final chapter owed |
-| M46 | Consequences recap: "Because you X, Y" | 46 | D (+CL if C1 misses) |
-| M47 | Promises remembered: typed promises, overdue hooks | 47 | D+CL |
-| M48 | Director scene test: seeded expected/altered/interrupt | 48 | D |
-| M49 | Complications and twists: meter, pool, focus | 49 | D now; model-facing build gated on SP6 (RP) |
-| M50 | Story calendar: story_time + derived calendar | 50 | D |
-| M51 | Discoverable relationship labels | 51 | D |
-| M52 | People and Places codex (known_when) | 52 | D |
-| M53 | Reputation with groups (factions, word bands) | 53 | D |
+| M42 | Witness filter v2: span witness record + shared audience contract (B first, measured offline; C separate) | 42 | D+CL |
+| M43 | Verbatim recall: exact spans on request, provenance-filtered | 43 | D+CL; gated on A12 E0 + 42 |
+| M44 | Rumors and gossip: typed hearsay, reversible hops, recipient reveals | 44 | D+CL (+RP or LT leg) |
+| M45 | New Game+: public carry projection, sequel vs replay | 45 | D; live final chapter owed |
+| M46 | Consequences recap: authored + neutral first (A), evidenced "Because you" | 46 | D |
+| M47 | Promises remembered: exact-quote promises, relevance reminders | 47 | D+CL (+LT) |
+| M48 | Director scene test: frozen tension signal, expected/altered/interrupt (A narrowed) | 48 | D+CL (+RP living row) |
+| M49 | Complications and twists: finish SP6 first (A); focus picker only if 48 takes it | 49 | D now; model-facing build gated on SP6 (RP) |
+| M50 | Story calendar: canonical `story_time`, exactly-once writers, built B1a → B1b → B1c → B2 | 50 | D+CL (+RP) |
+| M51 | Discoverable relationship labels: event-gated public/secret rows on 52's pages | 51 | D+CL (+RP); after 52 A |
+| M52 | People and Places codex (`known_when`, `discovery` scope, `knownEntities`) | 52 | D+CL |
+| M53 | Reputation with groups: authored moves, word bands, clamp | 53 | D+CL+RP |
+
+Plan 54 (inner voice L5 spike) is queue row A13.
+
+### Candidates (Astra brainstorm 2026-10-14, not queued)
+
+Written 2026-10-14 from the review's brainstorm; owner decision pending; not queued until the owner says so. All cite
+plan 52's SC1–SC5.
+
+| # | Item | Plan | Tiers |
+|---|---|---|---|
+| M55 | NPC commitments to the player (A authored; B after 47's read) | 55 | D+LT/RP (+CL with B) |
+| M56 | Social permissions: event-granted, event-revoked, `known_to` scoped | 56 | D+LT/RP |
+| M57 | Shared rituals: authored cues, cooldown from the offer, no streaks | 57 | D+LT/RP |
+| M58 | Keepsakes tied to witnessed moments | 58 | D+LT/RP; witness = heard after 42 |
+| M59 | Reconciliation beats: three beats per rupture, no player narration | 59 | D+CL+LT/RP |

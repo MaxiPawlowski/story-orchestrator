@@ -77,7 +77,7 @@ Artemis acceptance (×2 each, one 3090 lane):
 - Campaign model scenarios (other agent, acceptance turns): commit-model 12 min per run, 24 min; encounters-model
   6 turns + one real pool, 20 min per run, 40 min.
 - Seeds 3 × 10 and 14 snapshot restores × 2: 58 min.
-- **Total 564 min = 9.4 h.** Plans 42–53 add about 0.3 h when built (checks folded into GS1/GS3, §Plans 42–53).
+- **Total 564 min = 9.4 h.** Plans 42–59 add about 0.3 h when built (checks folded into GS1–GS3, §Plans 42–59).
 
 Artemis informational (×1, cap 2.5 h in the suite, priority order; anything over the cap is deferred with its
 reopen trigger):
@@ -85,7 +85,8 @@ reopen trigger):
 1. T-Q3 check narration (36-Q3), 10 turns on a synthetic checks story: 25 min.
 2. Encounters-model M2 tail (35-M2 campaign arm): 21 min.
 3. Over-steer card (33-W2-oversteer), 40 turns as a `so-session` charter: 120 min.
-4. When built: 51 R7/R8 (about 25 min), 53 F7 (25), 43 VR7 (30), 47 P7 (60, LT).
+4. When built: 51 R7/R9 (about 25 min), 53 F7 (25), 43 VR7/VR7p (30), 47 P7/P7h (60, LT). Candidates 55 M7,
+   56 G7, 57 U7, 58 K7, 59 B7 (about 25 min each, LT or RP, lab story) only if the owner queues and builds them.
 
 CL (cloud reply and memory, Sol authoring, TypeSafe judge; no GPU), lane-hours with ×2 included:
 
@@ -401,6 +402,32 @@ real-model carrier, or why none is needed.
 
 Every judge use also gets the judge-off column through J11's off arm (CL).
 
+### Planned features (plans 42–59, not in the feature registry yet)
+
+Rows for plans written but not built (54 is built on a branch, 55–59 are candidates). The proposed ids join the
+registry, and the 109-id check above, when a plan is built. Floor ids are the plans' own; detail in §Plans 42–59.
+
+| Plan feature | Cheapest honest tier | D evidence | Real-model carrier |
+|---|---|---|---|
+| 42 witness record (B) / message filter (C) | CL (B), D + CL (C) | C: F1, F5–F7 payload goldens | B: W4 family + RB1–RB4 CL offline ×2; C: F3 (J5 + J6 cloud), F2a/F2b folded into GS1, GS3 |
+| 43 verbatim recall | CL | VR4, VR4c, VR4x | VR1–VR3, VR8 CL offline ×2; VR6r read in GS1/GS3; VR7/VR7p informational ×1 (RP) |
+| 44 rumors | D + CL | G1–G6, G9–G14 | G7/G8 CL ×2 (20-case fixture); G6 live read in GS3 if the campaign adopts rumors; G15 CL (stage 2) |
+| 45 New Game+ | D | N1–N6, N8–N13 | N7 deferred (needs two finished source runs; LT replies, CL rater) |
+| 46 consequences recap | D | C1–C6, C8–C10 | none: no model pass (A) |
+| 47 promises | D + CL | P2r, P3–P5, P4a, P4d | P1, P1s, P2, P2w, P6, P8 CL ×2; P7/P7h informational ×1 (LT) |
+| 48 director scene test | D + CL | S1–S6, S12, S13 | S7–S9, S11 CL offline ×2 (director route); S10 read in GS2 and GS3 |
+| 49 complications (production) | D; RP gated on SP6 | C1–C7, C11 | C8–C10 deferred with SP6 (RP, informational); GS4.5 keeps the spike's functional row |
+| 50 story calendar | D + CL | T1–T7, T12–T16 | T8–T10 CL ×2; T11 read in GS3.3 |
+| 51 relationship labels | D | R1–R6, R8, R10–R12 | R7/R9 informational ×1 (RP lab story, second-model rater) |
+| 52 codex | D + CL | C1–C5, C9–C13 | C7 CL ×2 (wizard recipe on Sol); C6, C8 only with B |
+| 53 factions | D | F1–F6, F8, F10–F14 | F7 informational ×1 (RP); F9 CL informational |
+| 54 inner voice L5 (`spikes.thoughtCarry`) | D + CL + RP | plan 54 D gates; no-model scenario (live run owed) | L5-CL1..4 CL (FAIL ×2, picker fix, informational re-score); L5-RP1/RP3 read in GS1.2/GS1.5; L5-RP2 blind pack, informational |
+| 55 NPC commitments (candidate) | D | M1–M6 | M7 informational ×1 (LT or RP lab story); M8 CL with B |
+| 56 social permissions (candidate) | D | G1–G6 | G7 informational ×1 (LT or RP lab story) |
+| 57 shared rituals (candidate) | D | U1–U6 | U7 informational ×1 (LT or RP lab story) |
+| 58 keepsakes (candidate) | D | K1–K6 | K7 informational ×1 (LT or RP lab story) |
+| 59 reconciliation beats (candidate) | D + CL | B1–B5 | B6 CL ×2 (read route); B7 informational ×1 (LT or RP lab story) |
+
 ## Measurement rows
 
 | Measurement | Disposition | Tier | Carrier |
@@ -507,31 +534,44 @@ Each with its reason; none changes a floor.
   Informational with a campaign carrier: 35-M1, 35-M2, 35-M2-C5. Cut: B1-PAR, 35-P4-M2, 35-P4-K3, 35-P4-K4.
 
 New v2.8 rows (not in the v2.7 manifest; a v2.8 attestation names them): GS1.1–GS1.10, GS2.1–GS2.8, GS3.1–GS3.7,
-GS4.1–GS4.6, AS-smoke ×9, T-R4, the plan 40 §3 and B6 no-model scenarios, and the plans 42–53 rows below.
+GS4.1–GS4.6, AS-smoke ×9, T-R4, the plan 40 §3 and B6 no-model scenarios, and the plans 42–59 rows below.
 Proposal: a v2.8 manifest (`test/phase-c/v28-manifest.json`) with these ids, written with the freeze, so plan 39's
 parity test keeps guarding the v2.7 file only.
 
-## Plans 42–53 (when built)
+## Plans 42–59 (when built)
 
 Rows join the suite when the plan is built; each lands in the cheapest tier that validates it. D rows close in the
-plan's own gates; real-model rows are folded into the golden sessions where they can be.
+plan's own gates; real-model rows are folded into the golden sessions where they can be. Floor ids follow each plan as
+revised on 2026-10-14 (its "Review 2026-10-14 (Astra)" section); 48–59 also carry plan 52's shared contract: an SC1
+code-only rollback seed and an SC4 feature-only fixture, both D. A D-floor miss is a defect to fix; a CL/LT/RP miss is
+recorded and the feature stays on (00-overview rule 9).
 
-- 42 witness filter: B W4/W4a/W4n, Wc CL offline ×2 (acceptance once B is built); Wr D. C: F1, F3, F5, F6 D; F2
-  (nonce markers, Summarize off, Vector Storage on/off) folded into GS1 and GS3 runs when C is built (+0.2 h).
-- 43 verbatim recall: R-Gates and VR1/VR2/VR2s/VR3 CL offline ×2; VR4 D; VR6r latency read in GS1/GS3 (no extra
-  turns); VR7 informational ×1 (20 labelled turns, 30 min Artemis).
-- 44 rumors: G1–G6, G9, G10 D (G6 live read in GS3 if the campaign adopts rumors, else a CL fixture of 30 turns);
-  G7/G8 CL ×2 on a 20-case fixture with second-model labels.
-- 45 New Game+: N1–N6 D; N7 deferred (needs two finished source runs; informational).
-- 46 consequences recap: C1–C6 D; C7 CL only if C is built.
-- 47 promises: P3–P5 D; P1, P2, P6, P8 CL ×2 (scorer and live suite); P7 informational ×1 on LT (60 min).
-- 48 director scene test: S1–S6 D; S7–S9 CL offline ×2 (Sol); S10 read in GS3 (living on) and GS2.
-- 49 complications: C1–C7 D; C8–C10 deferred with SP6 (informational, pod or a free night).
-- 50 story calendar: T1–T7 D; T8–T10 CL ×2; T11 read in GS3.3.
-- 51 relationship labels: R1–R6 D; R7/R8 informational ×1 (synthetic lab story, 20 replies, 25 min Artemis, second
-  model rates).
-- 52 codex: C1–C6 D; C7 CL ×2 (wizard recipe on Sol); C8 only with B.
-- 53 factions: F1–F6, F8 D; F7 informational ×1 (20 openings, 25 min Artemis); F9 CL informational.
+- 42 witness filter: B W4, W4fi, W4fe, W4cov, W4u, W4m, W4a, W4n CL offline ×2 on the lab and real-session label sets
+  (acceptance once B is built); RB1–RB4 CL ×2, combined with 47 P8. C (a separate decision): F1, F5, F6, F7 D; F3
+  J5 + J6 ×2 on the cloud reply; F2a/F2b (nonce markers, Summarize off, Vector Storage on/off) folded into GS1 and GS3
+  runs when C is built (+0.2 h).
+- 43 verbatim recall: VR1, VR2, VR2s, VR2t, VR2k, VR3, VR8 CL offline ×2; VR4, VR4c, VR4x D; VR6r latency read in
+  GS1/GS3 (no extra turns); VR7/VR7p informational ×1 (20 labelled turns on vs off, 30 min Artemis); VR9 only with F.
+- 44 rumors: G1–G6, G9–G14 D (G6 live read in GS3 if the campaign adopts rumors, else a CL fixture of 30 turns);
+  G7/G8 CL ×2 on a 20-case fixture with second-model labels; G15 CL with stage 2 only.
+- 45 New Game+: N1–N6, N8–N13 D; N7 deferred (needs two finished source runs; informational).
+- 46 consequences recap: C1–C6, C8–C10 D (C1n reported beside C1); no model row (A is deterministic).
+- 47 promises: P2r, P3, P4, P4a, P4d, P5 D; P1, P1s, P2, P2w, P6, P8 CL ×2 (scorer and live suite); P7/P7h
+  informational ×1 on LT (60 min).
+- 48 director scene test: S1–S6, S12, S13 D; S7, S8, S9, S11 CL offline ×2 (frozen frontiers, director route); S10 read
+  in GS3 (living on) and GS2.
+- 49 complications: C1–C7, C11 D; C8–C10 deferred with SP6 (RP, informational, pod or a free night).
+- 50 story calendar: T1–T7, T12–T16 D; T8–T10 CL ×2; T11 read in GS3.3.
+- 51 relationship labels: R1–R6, R8 (zero-leak, now D), R10–R12 D; R7/R9 informational ×1 (synthetic lab story,
+  20 replies, 25 min Artemis, second model rates).
+- 52 codex: C1–C5, C9–C13 D; C7 CL ×2 (wizard recipe on Sol); C6, C8 only with B.
+- 53 factions: F1–F6, F8, F10–F14 D; F7 informational ×1 (20 openings, 25 min Artemis); F9 CL informational.
+- 54 inner voice L5 (built on `v2.8-a13-l5`, unmerged): D gates green; L5-CL1..4 FAIL ×2, then the picker fix and an
+  informational re-score; the no-model scenario's live run is owed. L5-RP1/RP3 read in GS1.2/GS1.5 (no extra turns),
+  L5-RP2 a blind pack (informational, ×1).
+- Candidates 55–59 (not queued; rows apply only if the owner queues and builds them): 55 M1–M6, 56 G1–G6, 57 U1–U6,
+  58 K1–K6, 59 B1–B5 D; 55 M8 (with B) and 59 B6 CL ×2; 55 M7, 56 G7, 57 U7, 58 K7, 59 B7 informational ×1 on a lab
+  story (LT or RP, about 25 min each), inside the 2.5 h informational cap or deferred with their reopen trigger.
 
 ## Sessions and blind packs
 
@@ -541,7 +581,7 @@ plan's own gates; real-model rows are folded into the golden sessions where they
   card runs only if a golden session's record leaves its question open.
 - Blind packs are built from recorded replies only (`rating-pack`), shuffled, rated by a second model, never the owner
   for Adolion excerpts. A pack reads "recorded, not rated" until rated. Packs: R4, Q-M5/P3, inner voice C3, W6,
-  thinking A/B, plan 10 drafts, plans 42–53 preference legs, M25 (owner's).
+  thinking A/B, plan 10 drafts, plans 42–59 preference legs, M25 (owner's).
 
 ## Freeze and attestation
 
@@ -584,6 +624,10 @@ plan's own gates; real-model rows are folded into the golden sessions where they
 - Feature matrix checked against the registry by script: 109 of 109 ids, none extra.
 - Not run: any lane, journey or scenario; no model, TypeSafe, GPU or pod use.
 
+Addendum 2026-10-14 (branch `v2.8-docs-index-55-59`, docs only): plans 42–59 rows added (§Feature → validation matrix,
+planned features; §Plans 42–59 refreshed to the revised floor ids); Appendix A rule 5 (dark launch) annotated as
+superseded; plan 52 SC5 resolved.
+
 ## Appendix A — plan 24 before the 2026-10-14 rework (history)
 
 Kept verbatim (headings demoted). Superseded by the sections above; the RunPod EUR 20 cap and the per-plan index remain as history.
@@ -605,8 +649,9 @@ owed here through `01-v27-carry-over.md`.
 3. **Floors are predeclared and never retuned** (rule 2). A row that misses stays red; the plan says what happens then.
 4. **×2, consecutive, on one lane**, run header diffed around each batch (`so-run-header.mts`); a gate is green only
    after both.
-5. **Dark launch** (rule 9): a new runtime model use passes its floor twice before it leaves dev-only, then ships off by
-   default.
+5. ~~**Dark launch** (rule 9): a new runtime model use passes its floor twice before it leaves dev-only, then ships off by
+   default.~~ Superseded 2026-10-09 (owner): every built feature is on by default, judge uses included, below its floor
+   or unmeasured too; a floor is informational (AGENTS.md, 00-overview rule 9). Annotated 2026-10-14 (plan 52 SC5).
 6. **Adolion stays unspoiled** (rule 11): Adolion excerpts are rated by a second model, never the user; the user rates
    synthetic rows only, and only if they choose.
 7. **Group chats only; tray; models off `C:`** (rules 5, 6): every LT/LI service is started from its tray entry and its
