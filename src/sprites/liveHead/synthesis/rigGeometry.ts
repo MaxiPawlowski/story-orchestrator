@@ -4,6 +4,7 @@ import { eyeCentre, type FaceLandmarks } from "./landmarks";
 
 export const EYE_SAMPLES = 24;
 export const MAX_LAYER_VERTICES = 40_000;
+export const LOWER_LID_OUTSET = 0.7;
 
 const r2 = (n: number): number => Math.round(n * 100) / 100;
 const clamp = (n: number, lo: number, hi: number): number => Math.min(hi, Math.max(lo, n));
@@ -61,7 +62,8 @@ export function synthesizeRig(marks: FaceLandmarks): Rig {
   const lipHeight = Math.max(2, dist(m.top, m.bottom));
   const pad = Math.max(2, Math.round(s * 0.08));
   const eyes = marks.eyes.map((contour): Eye => {
-    const opening = contour.map((p): Point => [r2(p[0]), r2(p[1])]);
+    const centreY = eyeCentre(contour)[1];
+    const opening = contour.map((p): Point => [r2(p[0]), r2(Math.min(height, p[1] > centreY ? p[1] + LOWER_LID_OUTSET : p[1]))]);
     return { opening, roi: eyeRoi(opening, pad, size), ...eyeCurves(opening) };
   });
   const eyeEllipse = (eye: Eye, c: Point): Ellipse => {
@@ -71,7 +73,7 @@ export function synthesizeRig(marks: FaceLandmarks): Rig {
   const earY = (eyeY + marks.nose[1]) / 2;
   const ears: [Point, Point] = marks.ears ?? [[marks.face.cx - marks.face.rx * 0.97, earY], [marks.face.cx + marks.face.rx * 0.97, earY]];
   const chin = marks.chin, neck = marks.neck, [sl, sr] = marks.shoulders, shoulderY = (sl[1] + sr[1]) / 2, shoulderX = (sl[0] + sr[0]) / 2;
-  const jawTop = mouthCy + Math.max(1, (chin[1] - mouthCy) * 0.1), jawBottom = Math.max(chin[1] + s * 0.05, jawTop + 2);
+  const chinGap = Math.max(4, chin[1] - mouthCy), jawTop = mouthCy + Math.max(1, (chin[1] - mouthCy) * 0.1), jawBottom = Math.max(chin[1] + s * 0.05, jawTop + 2);
   const headBox = [marks.face.cx - marks.face.rx, marks.face.cy - marks.face.ry, marks.face.cx + marks.face.rx, marks.face.cy + marks.face.ry];
   const margin = s * 0.06;
   const fine = { x0: Math.round(clamp(headBox[0] - margin, 0, width - 1)), x1: Math.round(clamp(headBox[2] + margin, 1, width)),
@@ -98,7 +100,7 @@ export function synthesizeRig(marks: FaceLandmarks): Rig {
       eyeA: eyeEllipse(eyes[0], ca), eyeB: eyeEllipse(eyes[1], cb),
       earL: ellipse(ears[0][0], ears[0][1], s * 0.11, s * 0.33), earR: ellipse(ears[1][0], ears[1][1], s * 0.11, s * 0.33),
       brow: { ...ellipse(browX, browY, s * 0.97, s * 0.28), band: band(browY, eyeY) },
-      jaw: { ...ellipse(mouthCx, (jawTop + jawBottom) / 2 + s * 0.06, s * 0.7, s * 0.33), band: band(jawTop, jawBottom) },
+      jaw: { ...ellipse(mouthCx, mouthCy + chinGap * 0.4, s * 0.7, chinGap * 0.45), band: band(jawTop, jawBottom) },
     },
     eyes,
     mouth: { cx: r2(mouthCx), cy: r2(mouthCy), angle: r2(angle), halfLen: r2(halfLen), bow: r2(bow),
