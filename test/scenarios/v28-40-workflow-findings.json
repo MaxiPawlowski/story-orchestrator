@@ -1,0 +1,145 @@
+{
+  "name": "v28-40-workflow-findings",
+  "objective": "Plans 28-30 on a clean host without server plugins: a story workflow map with a checkpoint override resolves per visited checkpoint (story map at the start, checkpoint override after the transition, unmapped purpose falls back to the player's selection, which stays untouched); with no ComfyUI source every mapped workflow is reported missing through the player-audience story-workflow-missing row (author detail names each file); the absent media plugin is reported by images-on-no-service with its detail, the absent GPU broker reads as no broker (fail-open, no row) and no blocking row appears. A page tripwire proves no render, workflow write, ComfyUI or download request left the page. Plans only, raw:true, no director model.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "judge": "off",
+    "briefingDraft": "off",
+    "innerBeat": "off",
+    "why": "Workflow resolution and Setup findings only; the lane has no server plugins and no image service."
+  },
+  "steps": [
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const img = globalThis.storyOrchestratorImage; if (!img) throw new Error('image runtime missing'); const ctx = SillyTavern.getContext(); const urls = []; const original = globalThis.fetch; globalThis.__w40 = { urls, original, imageSettings: JSON.parse(JSON.stringify(img.settings())), selected: ctx.extensionSettings.sd?.comfy_workflow ?? null, author: globalThis.storyOrchestratorRuntime.getSnapshot().ui?.authorView ?? false }; globalThis.fetch = function (input, init) { urls.push({ url: String(typeof input === 'string' ? input : input?.url ?? input), method: init?.method ?? 'GET' }); return original.apply(this, arguments); }; img.updateSettings({ enabled: true, backend: 'st', automation: { mode: 'tool', everyN: 5 } }); return { selected: globalThis.__w40.selected, before: globalThis.__w40.imageSettings.backend };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-w40-workflows",
+        "title": "SO-W40 Workflows",
+        "description": "Synthetic story workflow map with a checkpoint override.",
+        "illustrations": {
+          "checkpoints": true,
+          "scenes": true,
+          "workflows": {
+            "scene": "SO-W40-A.json"
+          }
+        },
+        "qualities": [
+          {
+            "key": "done",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Scripted gate."
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "gate",
+            "name": "The Gate",
+            "type": "anchor",
+            "start": true,
+            "objective": "Begin."
+          },
+          {
+            "id": "road",
+            "name": "The Road",
+            "type": "anchor",
+            "objective": "Go on.",
+            "effects": {
+              "illustrations": {
+                "workflows": {
+                  "scene": "SO-W40-B.json",
+                  "background": "SO-W40-C.json"
+                }
+              }
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "from": "gate",
+            "to": "road",
+            "priority": 1,
+            "gate": {
+              "q": "done",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator"
+          }
+        ]
+      }
+    },
+    {
+      "send": "We set out from the gate."
+    },
+    {
+      "eval": "const img = globalThis.storyOrchestratorImage; const rows = {}; for (const purpose of ['scene', 'background', 'character']) rows[purpose] = (await img.plan({ purpose, text: 'an old stone gate at dusk', messageId: null, raw: true }))?.workflow ?? null; if (rows.scene !== 'SO-W40-A.json' || rows.background !== null || rows.character !== null) throw new Error('start resolution wrong: ' + JSON.stringify(rows)); globalThis.__w40.start = rows; return rows;",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const img = globalThis.storyOrchestratorImage; await img.refreshHealth(); rt.setUiSettings({ authorView: true }); rt.notify(); const health = rt.getSnapshot().imageHealth; const wanted = [...(health?.storyWorkflows?.wanted ?? [])].sort(); const missing = [...(health?.storyWorkflows?.missing ?? [])].sort(); if (JSON.stringify(wanted) !== JSON.stringify(['SO-W40-A.json', 'SO-W40-B.json', 'SO-W40-C.json'])) throw new Error('wanted workflows wrong: ' + JSON.stringify(health)); if (JSON.stringify(missing) !== JSON.stringify(wanted)) throw new Error('without a ComfyUI source every mapped workflow is missing: ' + JSON.stringify(health)); if (health.broker !== null) throw new Error('broker should read absent (null) with no GPU plugin: ' + JSON.stringify(health.broker)); return { service: health.service, source: health.source, wanted, missing, broker: health.broker };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const row = (id) => document.querySelector(`#so-setup [data-so=\"setup-row\"][data-check=\"${id}\"]`); const until = Date.now() + 8000; while (!row('story-workflow-missing') && Date.now() < until) { rt.notify(); await new Promise((r) => setTimeout(r, 100)); } const wf = row('story-workflow-missing'); if (!wf) throw new Error('story-workflow-missing row not shown: ' + JSON.stringify([...document.querySelectorAll('#so-setup [data-so=\"setup-row\"]')].map((r) => r.dataset.check))); const detail = wf.querySelector('[data-so=\"setup-detail\"]')?.textContent ?? ''; if (wf.dataset.severity !== 'degrades' || !wf.textContent.includes('Some pictures use your own image settings.') || !['SO-W40-A.json', 'SO-W40-B.json', 'SO-W40-C.json'].every((name) => detail.includes(name))) throw new Error('row copy wrong: ' + wf.textContent); if (row('gpu-broker-no-text-model')) throw new Error('broker row shown with no broker plugin'); const blocking = [...document.querySelectorAll('#so-setup [data-so=\"setup-row\"][data-severity=\"blocks\"]')].map((r) => r.dataset.check).filter((id) => /^(image|gpu|story-workflow|media|model-download)/.test(id)); if (blocking.length) throw new Error('blocking image/plugin rows on a plugin-less host: ' + blocking); return { row: wf.dataset.check, detail };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const row = () => document.querySelector('#so-setup [data-so=\"setup-row\"][data-check=\"story-workflow-missing\"]'); const until = Date.now() + 8000; while ((!row() || row().querySelector('[data-so=\"setup-detail\"]')) && Date.now() < until) { rt.notify(); await new Promise((r) => setTimeout(r, 100)); } if (!row()) throw new Error('player view lost the player-audience row: ' + JSON.stringify({ author: rt.getSnapshot().ui?.authorView, setups: document.querySelectorAll('#so-setup').length, rows: [...document.querySelectorAll('[data-so=\"setup-row\"]')].map((r) => r.dataset.check), drawer: (document.querySelector('#drawer-manager')?.textContent ?? '').slice(0, 400) })); if (row().querySelector('[data-so=\"setup-detail\"]') || row().textContent.includes('SO-W40-')) throw new Error('player view shows author detail: ' + row().textContent); return { player: row().textContent.trim() };",
+      "log": true
+    },
+    {
+      "slash": "/cp set done true"
+    },
+    {
+      "wait": {
+        "checkpoint": "road",
+        "timeoutMs": 20000
+      }
+    },
+    {
+      "eval": "const img = globalThis.storyOrchestratorImage; const rows = {}; for (const purpose of ['scene', 'background', 'character']) rows[purpose] = (await img.plan({ purpose, text: 'a long road through hills', messageId: null, raw: true }))?.workflow ?? null; if (rows.scene !== 'SO-W40-B.json' || rows.background !== 'SO-W40-C.json' || rows.character !== null) throw new Error('override resolution wrong: ' + JSON.stringify(rows)); const sd = SillyTavern.getContext().extensionSettings.sd; if ((sd?.comfy_workflow ?? null) !== globalThis.__w40.selected) throw new Error('player workflow selection changed'); return { road: rows, selectionUnchanged: true };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const img = globalThis.storyOrchestratorImage; img.updateSettings({ backend: 'comfy' }); await img.refreshHealth(); rt.setUiSettings({ authorView: true }); const health = rt.getSnapshot().imageHealth; if (health.service !== 'absent' || health.detail !== 'The optional media plugin is not installed.' || health.broker !== null) throw new Error('media-plugin absence not reported: ' + JSON.stringify(health)); const row = (id) => document.querySelector(`#so-setup [data-so=\"setup-row\"][data-check=\"${id}\"]`); const until = Date.now() + 8000; while ((!row('images-on-no-service') || row('story-workflow-missing')) && Date.now() < until) { rt.notify(); await new Promise((r) => setTimeout(r, 100)); } const media = row('images-on-no-service'); if (!media || !media.textContent.includes('The optional media plugin is not installed.')) throw new Error('images-on-no-service row missing or wrong: ' + (media?.textContent ?? 'none')); if (row('story-workflow-missing')) throw new Error('story workflows are a SillyTavern-backend concern; the row stayed on the comfy backend'); const blocking = [...document.querySelectorAll('#so-setup [data-so=\"setup-row\"][data-severity=\"blocks\"]')].map((r) => r.dataset.check).filter((id) => /^(image|gpu|story-workflow|media|model-download)/.test(id)); if (blocking.length) throw new Error('blocking rows: ' + blocking); return { media: media.dataset.check, severity: media.dataset.severity };",
+      "log": true
+    },
+    {
+      "eval": "const w = globalThis.__w40; const rt = globalThis.storyOrchestratorRuntime; globalThis.fetch = w.original; globalThis.storyOrchestratorImage.updateSettings(w.imageSettings); rt.setUiSettings({ authorView: w.author }); const reads = w.urls.filter(({ url }) => /\\/api\\/sd\\/comfy\\/(workflows|ping)$/.test(url)); const forbidden = w.urls.filter(({ url }) => !/\\/api\\/sd\\/comfy\\/(workflows|ping)$/.test(url) && /\\/api\\/sd\\/|\\/prompt\\b|story-orchestrator-media\\/(?!status|sprites\\/inventory)|story-orchestrator-gpu\\/(?!status)|\\/models\\/|download|civitai|huggingface/i.test(url)); if (forbidden.length) throw new Error('render/download traffic: ' + JSON.stringify(forbidden)); const probes = [...new Set(w.urls.map(({ url }) => url.replace(/^https?:\\/\\/[^/]+/, '')).filter((url) => url.includes('/api/plugins/')))]; delete globalThis.storyOrchestratorDebugExtractionResponse; return { requests: w.urls.length, comfyReadOnlyLists: reads.length, pluginProbes: probes, forbidden: 0 };",
+      "log": true
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "const w = globalThis.__w40; if (w) { if (globalThis.fetch !== w.original) globalThis.fetch = w.original; globalThis.storyOrchestratorImage?.updateSettings(w.imageSettings); globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: w.author }); } return true;"
+      }
+    ]
+  }
+}
