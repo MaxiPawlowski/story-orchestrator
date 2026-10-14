@@ -88,7 +88,7 @@ export const ANavigatedFramePostingBeforeItsLoadIsDropped: Story = {
   args: { widget: htmlWidget(POSTS_BEFORE_LOAD) },
   play: async ({ args }) => {
     await waitFor(() => expect(args.onNavigatedAway).toHaveBeenCalled(), { timeout: 4000 });
-    await waitFor(() => expect(audits(args.onAudit).some((entry) => entry.method === "(unsigned)")).toBe(true), { timeout: 2000 });
+    await new Promise((resolve) => setTimeout(resolve, 900));
     await expect(args.onIntent).not.toHaveBeenCalled();
     await expect(audits(args.onAudit).filter((entry) => entry.method === "story/propose-intent")).toEqual([]);
   },
@@ -96,15 +96,30 @@ export const ANavigatedFramePostingBeforeItsLoadIsDropped: Story = {
 
 const nonceOf = (frame: HTMLIFrameElement | null) => /N='([0-9a-f]{32})'/.exec(frame?.getAttribute("srcdoc") ?? "")?.[1] ?? "";
 
-const post = (frame: HTMLIFrameElement, nonce: string) => window.dispatchEvent(new MessageEvent("message", {
-  data: { jsonrpc: "2.0", id: 9, method: "story/propose-intent", params: { id: "ask" }, nonce }, source: frame.contentWindow,
+const post = (frame: HTMLIFrameElement, nonce?: string) => window.dispatchEvent(new MessageEvent("message", {
+  data: { jsonrpc: "2.0", id: 9, method: "story/propose-intent", params: { id: "ask" }, ...(nonce === undefined ? {} : { nonce }) }, source: frame.contentWindow,
 }));
+
+export const AnUnsignedMessageWhileTheFrameMayTalkIsDropped: Story = {
+  args: { widget: htmlWidget("<p>quiet</p><script>storyWidget.ready();</script>") },
+  play: async ({ canvasElement, args }) => {
+    const frame = canvasElement.querySelector('[data-so="html-widget"]') as HTMLIFrameElement;
+    await waitFor(() => expect(audits(args.onAudit).some((entry) => entry.method === "ui/initialize")).toBe(true), { timeout: 4000 });
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    post(frame);
+    await waitFor(() => expect(audits(args.onAudit).some((entry) => entry.method === "(unsigned)")).toBe(true));
+    await expect(args.onIntent).not.toHaveBeenCalled();
+    post(frame, nonceOf(frame));
+    await waitFor(() => expect(args.onIntent).toHaveBeenCalledWith("I ask about the ledger page."));
+    await expect(args.onNavigatedAway).not.toHaveBeenCalled();
+  },
+};
 
 const Remountable = (props: Parameters<typeof HtmlWidgetFrame>[0]) => {
   const [mount, setMount] = useState(0);
   return (
     <div>
-      <button type="button" onClick={() => setMount((value) => value + 1)}>Remount</button>
+      <button type="button" style={{ color: "#000", background: "#fff" }} onClick={() => setMount((value) => value + 1)}>Remount</button>
       <HtmlWidgetFrame key={mount} {...props} />
     </div>
   );
