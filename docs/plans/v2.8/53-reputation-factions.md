@@ -251,3 +251,15 @@ SC4 feature-only fixture (F12).
 - **Brainstorm: standing affecting access, greetings, competing invitations; a friendly individual bending an
   unfriendly institution's rule.** Access and invitations are v2.8 56 (social permissions, candidate), which can gate
   a permission on a band; F7 covers the individual-vs-institution split.
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H4 P3 one clamp for every int writer, from display bounds** (`docs/plans/v2.8/extension-research-2026-10-14/st-gamemaster.md` P3, 3/S). This plan adds `range` to
+  compiled faction qualities; extend it to every authored int quality: `range` defaults from `display.min/max`, `applyDelta`
+  and reward `{add}` clamp to it, the validator warns when display bounds exist without a range, and the display-time clamp
+  (`src/runtime/gameSheet.ts:14`) goes, so player view = blackboard. Plan 60 B16 (reward clamp against `step_rule`) is the
+  narrow fix and lands first. Floor: property over ≥ 500 delta sequences, 0 values outside range, D.
+- Cross-check (`docs/plans/v2.8/extension-research-2026-10-14/rpg-companion.md` P7): faction rows shown through a `roster` widget must omit `changedAgo`
+  (`src/runtime/widgets.ts:170-171`), as this plan's no-recency rule requires.
