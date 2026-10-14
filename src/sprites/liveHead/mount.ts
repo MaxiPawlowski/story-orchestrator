@@ -6,6 +6,20 @@ import { HeadRenderer } from "./renderer";
 
 export interface HeadSurface { add: HeadRenderer["add"]; draw: HeadRenderer["draw"]; destroy(): void }
 
+export const FRAME_MS = 1000 / 60;
+const FRAME_SLACK_MS = 2;
+
+export function frameGate(interval = FRAME_MS, slack = FRAME_SLACK_MS): (now?: number) => boolean {
+  let last = Number.NEGATIVE_INFINITY;
+  return (now) => {
+    if (now === undefined) { last = Number.NEGATIVE_INFINITY; return true; }
+    const elapsed = now - last;
+    if (elapsed < interval - slack) return false;
+    last = elapsed >= interval && elapsed < 2 * interval ? now - (elapsed - interval) : now;
+    return true;
+  };
+}
+
 export async function attachHead(canvas: HTMLCanvasElement, ref: LiveHeadRef, run: RunGuard, deps: HeadAssetDeps,
   parameters: () => HeadParameters, visible: (ready: boolean) => void,
   factory: (canvas: HTMLCanvasElement, manifest: import("./manifest").HeadManifest) => HeadSurface = (element, manifest) => new HeadRenderer(element, manifest),
@@ -14,6 +28,7 @@ export async function attachHead(canvas: HTMLCanvasElement, ref: LiveHeadRef, ru
   if (!prepared || !run.stillOwns()) return null;
   const renderer = factory(canvas, prepared.manifest);
   let frame = 0, closed = false, ready = false;
+  const gate = frameGate();
   const stop = () => {
     if (closed) return;
     closed = true; cancelAnimationFrame(frame); visible(false); renderer.destroy();
@@ -26,8 +41,8 @@ export async function attachHead(canvas: HTMLCanvasElement, ref: LiveHeadRef, ru
     try { renderer.draw(parameters()); if (!ready) { ready = true; visible(true); } }
     catch { stop(); }
   };
-  const tick = () => {
-    draw();
+  const tick = (time?: number) => {
+    if (gate(time)) draw();
     if (!closed && !document.hidden) frame = requestAnimationFrame(tick);
   };
   const lost = (event: Event) => { event.preventDefault(); stop(); };

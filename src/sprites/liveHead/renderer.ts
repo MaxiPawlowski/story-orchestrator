@@ -23,10 +23,13 @@ SOFTWARE.
 */
 import type { HeadManifest, HeadLayer } from "./manifest";
 import type { HeadParameters } from "./drivers";
-import { deformInto, eyeVertexY, headGrid, type HeadMesh } from "./geometry";
+import { deformInto, deformWeighted, eyeVertexY, headGrid, vertexWeights, type HeadMesh } from "./geometry";
 import { VS, FS } from "./shaders";
 
-interface LayerResources { layer: HeadLayer; mesh: HeadMesh; vao: WebGLVertexArrayObject; position: WebGLBuffer; texture: WebGLTexture; buffers: WebGLBuffer[]; eye: number; part: string }
+interface LayerResources {
+  layer: HeadLayer; mesh: HeadMesh; vao: WebGLVertexArrayObject; position: WebGLBuffer; texture: WebGLTexture; buffers: WebGLBuffer[];
+  eye: number; part: string; lidded: boolean; weights: Float64Array | null;
+}
 
 const ERROR_CHECK_EVERY = 120;
 
@@ -42,6 +45,7 @@ export class HeadRenderer {
   private readonly eyeBot: Float32Array;
   private readonly cheeks: Float32Array;
   private readonly eyeState = new Float32Array(8);
+  private readonly uploaded = new Float64Array(9).fill(Number.NaN);
 
   constructor(private readonly canvas: HTMLCanvasElement, private readonly manifest: HeadManifest) {
     const gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: true, antialias: true });
@@ -82,7 +86,9 @@ export class HeadRenderer {
       throw new Error("Could not allocate mesh resources.");
     }
     const eye = /^eye([01])_(.+)$/.exec(layer.name);
-    this.layers.push({ layer, mesh, vao, texture, position, buffers: [position, uv, index], eye: eye ? Number(eye[1]) : -1, part: eye?.[2] ?? "" });
+    const part = eye?.[2] ?? "", lidded = part === "lash" || part === "low" || part === "crease";
+    this.layers.push({ layer, mesh, vao, texture, position, buffers: [position, uv, index], eye: eye ? Number(eye[1]) : -1, part,
+      lidded, weights: lidded ? null : vertexWeights(rig, mesh.rest) });
     gl.bindVertexArray(vao);
     gl.bindBuffer(gl.ARRAY_BUFFER, position); gl.bufferData(gl.ARRAY_BUFFER, mesh.pos, gl.DYNAMIC_DRAW);
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
@@ -124,16 +130,24 @@ export class HeadRenderer {
     gl.uniform4f(this.uniform("uMouthState"), p.mouthOpen, p.mouthForm, rig.mouth.bow, Math.max(8, rig.face.jaw.cy + rig.face.jaw.ry - rig.mouth.cy));
     gl.uniform4fv(this.uniform("uCheeks"), this.cheeks); gl.uniform1f(this.uniform("uCheek"), p.blush);
     gl.activeTexture(gl.TEXTURE0);
+    const seen = this.uploaded;
+    const deformed = seen[0] !== p.breath || seen[1] !== p.angleX || seen[2] !== p.angleY || seen[3] !== p.angleZ
+      || seen[4] !== p.browY || seen[5] !== p.browAngle || seen[6] !== p.mouthOpen;
+    const lids = deformed || seen[7] !== p.eyeOpen || seen[8] !== p.eyeSmile;
+    seen[0] = p.breath; seen[1] = p.angleX; seen[2] = p.angleY; seen[3] = p.angleZ; seen[4] = p.browY; seen[5] = p.browAngle;
+    seen[6] = p.mouthOpen; seen[7] = p.eyeOpen; seen[8] = p.eyeSmile;
     for (const resource of this.layers) {
       const { layer, mesh } = resource;
       const part = resource.part, rest = mesh.rest, pos = mesh.pos;
-      if (resource.eye >= 0) {
-        const eye = rig.eyes[resource.eye];
-        for (let i = 0; i < rest.length; i += 2) deformInto(rig, rest[i], eyeVertexY(eye, part, rest[i], rest[i + 1], p.eyeOpen, p.eyeSmile), p, pos, i);
-      } else {
-        for (let i = 0; i < rest.length; i += 2) deformInto(rig, rest[i], rest[i + 1], p, pos, i);
+      gl.bindVertexArray(resource.vao);
+      if (resource.lidded ? lids : deformed) {
+        if (resource.weights) deformWeighted(rig, rest, resource.weights, p, pos);
+        else {
+          const eye = rig.eyes[resource.eye];
+          for (let i = 0; i < rest.length; i += 2) deformInto(rig, rest[i], eyeVertexY(eye, part, rest[i], rest[i + 1], p.eyeOpen, p.eyeSmile), p, pos, i);
+        }
+        gl.bindBuffer(gl.ARRAY_BUFFER, resource.position); gl.bufferSubData(gl.ARRAY_BUFFER, 0, mesh.pos);
       }
-      gl.bindVertexArray(resource.vao); gl.bindBuffer(gl.ARRAY_BUFFER, resource.position); gl.bufferSubData(gl.ARRAY_BUFFER, 0, mesh.pos);
       gl.bindTexture(gl.TEXTURE_2D, resource.texture); gl.uniform4fv(this.uniform("uRect"), layer.rect);
       gl.uniform1i(this.uniform("uFace"), part === "ball" ? 2 + resource.eye : layer.name === "base" ? 1 : 0);
       const blink = Math.min(1, Math.max(0, 1 - p.eyeOpen));

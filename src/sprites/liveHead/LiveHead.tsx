@@ -3,7 +3,7 @@ import type { RunGuard } from "@runtime/runToken";
 import { headArtHash, headAssetBytes } from "@services/stHost/liveHeadAssets";
 import type { LiveHeadRef } from "../liveHeadRefs";
 import type { StreamActivity } from "../animation";
-import { driveHead } from "./drivers";
+import { HeadDriver } from "./headDriver";
 import { headImage } from "./load";
 import { attachHead } from "./mount";
 
@@ -43,7 +43,7 @@ export function LiveHead(props: LiveHeadProps) {
       return live && !abort.signal.aborted && owner.stillOwns() && current.member === member && current.look === look
         && current.artHash === artHash && current.source === source && current.manifest === manifest;
     } };
-    const start = performance.now();
+    const start = performance.now(), driver = new HeadDriver(binding.member);
     const visible = (ready: boolean) => {
       if (!live) return;
       element.style.visibility = ready ? "visible" : "hidden";
@@ -52,8 +52,8 @@ export function LiveHead(props: LiveHeadProps) {
     visible(false);
     void attachHead(element, binding, run, { bytes: headAssetBytes, hash: headArtHash, image: headImage }, () => {
       const current = latest.current;
-      return driveHead(binding.member, performance.now() - start, current.label, current.activity.view() === current.name, current.motion,
-        { breathing: current.breathing, blink: current.blink, mouth: current.mouth });
+      return driver.drive(performance.now() - start, current.label, current.activity.view() === current.name, current.motion,
+        current.breathing, current.blink, current.mouth);
     }, visible).then((stop) => {
       clearTimeout(timeout);
       if (run.stillOwns()) dispose = stop;

@@ -1,6 +1,6 @@
 import { syntheticHead } from "./synthetic";
 import { restHead, type HeadParameters } from "./drivers";
-import { deformInto, deformVertex, eyeVertexY, headGrid } from "./geometry";
+import { deformInto, deformVertex, deformWeighted, eyeVertexY, headGrid, vertexWeights } from "./geometry";
 import type { Band, Ellipse, Eye, Point, Rig } from "./types";
 
 const smooth = (a: number, b: number, x: number): number => {
@@ -110,6 +110,20 @@ describe("the allocation-free deformation equals the original formulas", () => {
         const x = eye.x0 - 6 + (eye.x1 - eye.x0 + 12) * random(), y = eye.top[12] - 8 + 30 * random();
         const open = round % 7 === 0 ? 1 : random() * 1.1 - 0.05, smile = round % 5 === 0 ? 0 : random();
         near(eyeVertexY(eye, part, x, y, open, smile), referenceEye(eye, part, x, y, open, smile));
+      }
+    }
+  });
+
+  test("precomputed vertex weights deform bit-identically to the per-vertex formulas", () => {
+    const random = seeded(13), keys = Object.keys(restHead());
+    for (const layer of syntheticHead.layers) {
+      const mesh = headGrid(layer.rect, 4), weights = vertexWeights(rig, mesh.rest);
+      const fast = new Float32Array(mesh.rest.length), slow = new Float32Array(mesh.rest.length);
+      for (let round = 0; round < 12; round += 1) {
+        const p = parameters(random, new Set(keys.filter(() => random() < 0.3)));
+        deformWeighted(rig, mesh.rest, weights, p, fast);
+        for (let i = 0; i < mesh.rest.length; i += 2) deformInto(rig, mesh.rest[i], mesh.rest[i + 1], p, slow, i);
+        expect(Buffer.from(fast.buffer).equals(Buffer.from(slow.buffer))).toBe(true);
       }
     }
   });

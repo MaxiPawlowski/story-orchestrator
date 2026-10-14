@@ -95,6 +95,68 @@ export function deformInto(rig: Rig, x: number, y: number, p: HeadParameters, ou
   out[at] = px; out[at + 1] = py;
 }
 
+export const WEIGHT_STRIDE = 14;
+
+export function vertexWeights(rig: Rig, rest: Float32Array): Float64Array {
+  const head = rig.head, body = rig.body, face = rig.face, weights = new Float64Array(rest.length / 2 * WEIGHT_STRIDE);
+  for (let i = 0, k = 0; i < rest.length; i += 2, k += WEIGHT_STRIDE) {
+    const x = rest[i], y = rest[i + 1];
+    weights[k] = gaussian(x, y, face.brow) * (1 - smooth(face.brow.band[0], face.brow.band[1], y));
+    weights[k + 1] = gaussian(x, y, face.jaw); weights[k + 2] = smooth(face.jaw.band[0], face.jaw.band[1], y);
+    weights[k + 3] = gaussian(x, y, face.nose); weights[k + 4] = gaussian(x, y, face.mouth);
+    weights[k + 5] = gaussian(x, y, face.eyeA); weights[k + 6] = gaussian(x, y, face.eyeB);
+    weights[k + 7] = gaussian(x, y, face.earR); weights[k + 8] = gaussian(x, y, face.earL);
+    weights[k + 9] = 1 - smooth(head.turnBand[0], head.turnBand[1], y);
+    weights[k + 10] = 1 - smooth(head.weightBand[0], head.weightBand[1], y);
+    weights[k + 11] = 1 - smooth(body.breathBand[0], body.breathBand[1], y);
+    let shoulders = 0;
+    for (const shoulder of body.shoulders) shoulders += gaussian(x, y, shoulder);
+    weights[k + 12] = shoulders; weights[k + 13] = gaussian(x, y, body.chest);
+  }
+  return weights;
+}
+
+export function deformWeighted(rig: Rig, rest: Float32Array, weights: Float64Array, p: HeadParameters, out: Float32Array): void {
+  const head = rig.head, body = rig.body, face = rig.face;
+  const ax = p.angleX / 30, ay = p.angleY / 30, roll = -p.angleZ / 30 * head.maxRoll;
+  const brows = p.browY !== 0 || p.browAngle !== 0, jaw = p.mouthOpen * 3.5;
+  for (let i = 0, k = 0; i < rest.length; i += 2, k += WEIGHT_STRIDE) {
+    const x = rest[i], y = rest[i + 1];
+    let px = x, py = y;
+    if (brows) {
+      const brow = weights[k];
+      py -= p.browY * 7 * brow;
+      py += (x - face.brow.cx) * Math.sin(p.browAngle * 0.12 * brow);
+    }
+    if (p.mouthOpen !== 0) py += jaw * weights[k + 1] * weights[k + 2];
+    if (ax !== 0) {
+      px += ax * (8 * weights[k + 3] + 5 * weights[k + 4])
+        + (x - face.eyeA.cx) * 0.12 * ax * weights[k + 5] - (x - face.eyeB.cx) * 0.12 * ax * weights[k + 6]
+        - ax * 9 * weights[k + 7] + ax * 4 * weights[k + 8];
+    }
+    if (ay !== 0) {
+      py -= ay * (6 * weights[k + 3] + 3 * weights[k + 4]);
+      py += (y - face.eyeA.cy) * -0.06 * Math.abs(ay) * weights[k + 5] + (y - face.eyeB.cy) * -0.06 * Math.abs(ay) * weights[k + 6];
+    }
+    if (ax !== 0 || ay !== 0) {
+      const bump = 1 - ((px - head.cx) / head.rx) ** 2 - ((py - head.cy) / head.ry) ** 2;
+      const t = Math.min(1, Math.max(0, bump / 0.84)), turn = t * t * (3 - 2 * t) * weights[k + 9];
+      px += ax * head.shiftX * turn; py -= ay * head.shiftY * turn;
+    }
+    if (p.angleZ !== 0) {
+      const angle = roll * weights[k + 10];
+      const dx = px - head.pivotX, dy = py - head.pivotY;
+      px = head.pivotX + dx * Math.cos(angle) - dy * Math.sin(angle);
+      py = head.pivotY + dx * Math.sin(angle) + dy * Math.cos(angle);
+    }
+    if (p.breath !== 0) {
+      py -= p.breath * (5 * weights[k + 11] + 4 * weights[k + 12]);
+      px += (px - body.chest.cx) * 0.012 * p.breath * weights[k + 13];
+    }
+    out[i] = px; out[i + 1] = py;
+  }
+}
+
 export function deformVertex(rig: Rig, x: number, y: number, p: HeadParameters): Point {
   const out: [number, number] = [0, 0];
   deformInto(rig, x, y, p, out);
