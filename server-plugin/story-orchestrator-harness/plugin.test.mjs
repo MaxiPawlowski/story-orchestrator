@@ -117,7 +117,7 @@ test('config defaults: nothing offered, admin-only, every knob bounded', () => {
     for (const id of plugin.HARNESS_IDS) assert.equal(config.harnesses[id].offer, false);
     assert.equal(config.harnesses.claude.concurrency, 8);
     assert.equal(config.harnesses.claude.queueLimit, 8);
-    assert.deepEqual(config.harnesses.claude.models.map((model) => model.id), ['haiku', 'sonnet', 'opus']);
+    assert.deepEqual(config.harnesses.claude.models.map((model) => model.id), ['claude-sonnet-5-5', 'claude-opus-5-5', 'haiku', 'sonnet', 'opus']);
 });
 
 test('rule 1-2: fixed argv per harness; the prompt and the system text never reach argv or env', () => {

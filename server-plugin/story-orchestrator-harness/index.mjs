@@ -4,7 +4,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { BRIDGE_HARNESSES, createAgentBridge, validateOpen } from './agentBridge.mjs';
+import { BRIDGE_HARNESSES, BRIDGE_MODELS, createAgentBridge, validateOpen } from './agentBridge.mjs';
+import { createClaudeAgentTransport } from './claudeTransport.mjs';
 import { AUTH_TEXT, NETWORK_TEXT, QUOTA_TEXT, readRetryAt } from './errors.mjs';
 import { createOpencodeTransport, OPENCODE_CLIENT } from './opencodeTransport.mjs';
 
@@ -34,12 +35,12 @@ export const quotaHoldMs = (env = process.env) => {
     return Number.isInteger(value) && value >= 0 ? value : QUOTA_HOLD_MS;
 };
 export const PHASE0 = Object.freeze({
-    claude: 'not run: the stored login had expired (v2.5 plan 13 run 3)',
+    claude: 'one claude -p process per call or wizard session in an owned home with a copy of the login, built-in tools off, no settings or saved sessions; its wizard tools through one MCP shim',
     codex: 'not run in owned homes (quota, then a stale login)',
     opencode: 'one OpenCode session per call on the shared background service, project config in an owned directory, every tool denied; no login file is read or copied',
 });
 export const DEFAULT_MODELS = Object.freeze({
-    claude: Object.freeze([{ id: 'haiku', context: 200_000 }, { id: 'sonnet', context: 200_000 }, { id: 'opus', context: 200_000 }]),
+    claude: Object.freeze([{ id: 'claude-sonnet-5-5', context: 200_000 }, { id: 'claude-opus-5-5', context: 200_000 }, { id: 'haiku', context: 200_000 }, { id: 'sonnet', context: 200_000 }, { id: 'opus', context: 200_000 }]),
     codex: Object.freeze([{ id: 'default', context: 200_000 }]),
     opencode: Object.freeze([{ id: 'openai/gpt-6.1-sol', context: 200_000 }, { id: 'openai/gpt-6-luna', context: 200_000 }]),
 });
@@ -593,7 +594,7 @@ export function createHarnessService({
     const gate = createGate(config);
     const inFlight = new Map();
     const pending = new Set();
-    const state = Object.fromEntries(HARNESS_IDS.map((id) => [id, { spawns: 0, quotaUntil: null, quotaHeld: false, blocked: null, blockedHash: null, copyRewrites: 0, leakedHomes: 0 }]));
+    const state = Object.fromEntries(HARNESS_IDS.map((id) => [id, { spawns: 0, quotaUntil: null, quotaHeld: false, blocked: null, blockedHash: null, copyRewrites: 0, leakedHomes: 0, meter: null }]));
     const holdMs = quotaHoldMs(env);
     const noteQuota = (harness, retryAt) => {
         const until = retryAt ?? (holdMs > 0 ? now() + holdMs : null);
@@ -615,6 +616,22 @@ export function createHarnessService({
         binary: () => probed?.rows.opencode?.binary.path ?? null,
         alive: pidAlive,
         ...opencode,
+    });
+
+    const claudeAgent = createClaudeAgentTransport({
+        binary: () => probed?.rows.claude?.binary.path ?? null,
+        runProcess,
+        childEnv,
+        classify,
+        env,
+        fsImpl,
+        spawnImpl,
+        killTree,
+        now,
+        onMeter: (meter) => {
+            state.claude.meter = meter;
+            if (meter.status === 'rejected') noteQuota('claude', meter.resetsAt);
+        },
     });
 
     const freshness = (harness) => loginFreshness(harness, loginFileOf(harness), { now: now(), minMinutes: config.loginMinMinutes, readFile: fsImpl.readFileSync });
@@ -675,10 +692,13 @@ export function createHarnessService({
         return { ...base, loginState: 'ok', loginAction: null, loggedIn: true, fresh: true, loginProblem: null };
     };
 
+    const agentModel = (harness, id) => BRIDGE_HARNESSES.includes(harness) && (!BRIDGE_MODELS[harness] || BRIDGE_MODELS[harness].includes(id));
+
     const modelRows = (harness, view) => config.harnesses[harness].models.map((model) => {
         const seen = harness === 'opencode' ? view?.models.get(model.id) : null;
-        if (!seen) return { ...model };
-        return { ...model, ...(seen.context ? { context: Math.min(model.context, seen.context) } : {}), available: seen.available, ...(seen.image === null ? {} : { image: seen.image }) };
+        const agent = { agent: agentModel(harness, model.id) };
+        if (!seen) return { ...model, ...agent };
+        return { ...model, ...(seen.context ? { context: Math.min(model.context, seen.context) } : {}), available: seen.available, ...(seen.image === null ? {} : { image: seen.image }), ...agent };
     });
 
     const harnessStatus = (harness, admin, view) => {
@@ -709,7 +729,7 @@ export function createHarnessService({
         }
         const login = entry.offer ? freshness(harness) : { loggedIn: null, fresh: false, reason: null };
         const blocked = entry.offer ? heldFor(harness) : null;
-        return { ...common, loggedIn: login.loggedIn, fresh: login.fresh, loginProblem: blocked ?? login.reason, blocked };
+        return { ...common, loggedIn: login.loggedIn, fresh: login.fresh, loginProblem: blocked ?? login.reason, blocked, ...(harness === 'claude' && state.claude.meter ? { meter: state.claude.meter } : {}) };
     };
 
     const status = async ({ refresh = false, admin = false } = {}) => {
@@ -833,7 +853,8 @@ export function createHarnessService({
                 return preconditions({ harness, model, images });
             },
             reserve: (harness) => gate.tryAcquire(harness),
-            startRun: (args) => transport.runAgent(args),
+            startRun: (args) => (args.request.harness === 'claude' ? claudeAgent.runAgent(args) : transport.runAgent(args)),
+            loginFile: (harness) => (harness === 'opencode' ? null : loginFileOf(harness)),
             noteSpawn: (harness) => { state[harness].spawns += 1; },
             log: (line) => log(`agent ${line}`),
             noteQuota,
@@ -848,7 +869,7 @@ export function createHarnessService({
         await Promise.allSettled([...pending]);
     };
 
-    return { status, complete, cancel, shutdown, probe, gate, state, agent, transport, sweep: () => transport.sweepSessions() };
+    return { status, complete, cancel, shutdown, probe, gate, state, agent, transport, claudeAgent, sweep: () => transport.sweepSessions() };
 }
 
 export function guardRoute(handler, log = (line) => console.error(`[story-orchestrator-harness] ${line}`)) {

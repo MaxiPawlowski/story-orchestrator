@@ -53,7 +53,7 @@ Any task can run on a cloud provider SillyTavern supports, with the key kept on 
 3. Pick that profile for the task under **Models per task**. Tasks you leave alone keep the memory model.
 
 Worked example: the DeepSeek API, one Chat Completion profile, used for every task while the replies stay on a local
-model. Claude and ChatGPT subscriptions work only through the [harness plugin](harness.md) (opencode), never as a key.
+model. Claude and ChatGPT subscriptions work only through the [harness plugin](harness.md) (Claude Code or opencode), never as a key.
 OpenRouter is another way to reach many models with one key; any Chat Completion source works the same way.
 
 Each task sends its own part of the story to the provider you pick for it: the line under each task says what.

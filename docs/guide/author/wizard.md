@@ -32,7 +32,8 @@ agent** steers its next step; **Continue** resumes after it finishes.
 The agent runs on the model chosen for **Wizard and road ahead** under **Models per task**. Left on its default it
 takes opencode `openai/gpt-6.1-sol` through the [harness plugin](../setup/harness.md) when the plugin offers it (for
 subscription users), else the first DeepSeek profile (the pay-per-token fallback), else the memory model; see
-[Choosing models](../setup/models.md). On the harness, and on a DeepSeek profile, the agent calls its tools natively.
+[Choosing models](../setup/models.md). To run it on a Claude subscription instead, pick `Claude Code · claude-sonnet-5-5` (or `claude-opus-5-5`) there.
+On the harness (opencode or Claude Code), and on a DeepSeek profile, the agent calls its tools natively.
 A harness you pick yourself never falls back to a local profile when it is unavailable; the default does.
 
 ## Ask
