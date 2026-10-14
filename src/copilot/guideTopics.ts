@@ -73,10 +73,8 @@ export const GUIDE_TOPICS = {
   "inner-voice": {
     title: "Inner voice",
     fields: "memory.innerBeat, memory.harvestReasoning, spikes.thoughtCarry",
-    text: "After a reply the memory model writes a one-line private intent (a beat) for the likely next speaker. When no fresh beat is ready, the carried-thought "
-      + "experiment takes a standing aim from that character's own reasoning on their latest reply (a goals line or \"<name> wants to\"), with no model call, "
-      + "in that character's private block only. It drops writing instructions, lines about the player or another character, and kept-from secrets. "
-      + "Author drives and motives so the beat has an aim; the carry needs a reply model that thinks.",
+    text: "A beat is a one-line private intent for the next speaker. With none fresh, the carried thought reuses that character's own stated aim "
+      + "from its last reasoning (no call, own block only). Author drives and motives; the carry needs a thinking reply model.",
   },
   qualities: {
     title: "Qualities",
@@ -412,14 +410,9 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "house-rule-compound": "house-rules",
   "checkpoint-inherits-author-note": "author-note",
   "world-info-rests-off": "world-info",
-  "motive-member-unknown": "drives-motives",
-  "motive-for-player": "drives-motives",
-  "chapter-missing": "chapters",
-  "chapter-unknown": "chapters",
-  "chapter-unreachable": "chapters",
-  "chapter-no-exit": "chapters",
-  "chapter-reentry": "chapters",
-  "story-dead-end": "chapters",
+  "motive-member-unknown": "drives-motives", "motive-for-player": "drives-motives",
+  "chapter-missing": "chapters", "chapter-unknown": "chapters", "chapter-unreachable": "chapters",
+  "chapter-no-exit": "chapters", "chapter-reentry": "chapters", "story-dead-end": "chapters",
   "requirement-member-roster-id": "requirements",
   "cast-member-no-card": "cast-changes",
   "background-missing": "background",
@@ -434,9 +427,7 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "player-spoiler-risk": "player",
   "agenda-pace-no-chapters": "character-life",
   "stage-sprite-unknown": "presentation",
-  "widget-item-never-read": "clues-and-maps",
-  "map-pin-unreachable": "clues-and-maps",
-  "map-image-missing": "clues-and-maps",
+  "widget-item-never-read": "clues-and-maps", "map-pin-unreachable": "clues-and-maps", "map-image-missing": "clues-and-maps",
   "html-widget-declared": "html-panels",
 };
 
