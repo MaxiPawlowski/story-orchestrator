@@ -877,3 +877,13 @@ Gates:
   - Storybook was skipped because no `.stories.tsx` or UI component changed.
 - An earlier full-gates run before the merge was red on the `gaze-iris` golden. That golden was already stale on `35a9267e` and master `4b21fe8e` regenerated it. After the merge it passes unchanged, so this branch did not regenerate it.
 - Worktree setup: `.build/` has no replay cache, so the first `gates:quick` replay `--cached` failed with E2BIG on the `--listTests` arguments; it passed once a full run had written the cache. `test:debug` needs the gitignored `test/sessions/adolion-stories.json`, which was copied from the main checkout.
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H16f director tag canonicalisation against a Danbooru vocabulary** (`docs/plans/v2.8/extension-research-2026-10-14/booru-autocomplete.md` P1, 3/M; MIT, tag data
+  reusable with notice). The image director's prompt only forbids names, artists and quality tags (`src/image/prompt.ts:58-62`);
+  nothing maps its tags to the model's vocabulary or drops duplicates. Recommended: **measure first** on the existing image
+  goldens: share of director tags absent from the tag list, and whether canonicalising (alias → canonical, drop unknown)
+  changes a blind pick. Build only if the unknown share is above 20 %. LI tier, informational.

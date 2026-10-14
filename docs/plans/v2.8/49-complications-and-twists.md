@@ -296,3 +296,12 @@ get detectors), SC2 (all complication writes are step 3), SC3 (focus candidates 
   not mandatory trouble.** Phase 3 guide rule: a pool line states a world change, never a demand, and an exhausted
   pool releases nothing (`next` absent already returns no release, `:99-100`); the guide's Good example shows a line
   the player can ignore without penalty.
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H16d chance-ramp pressure trigger** (`docs/plans/v2.8/extension-research-2026-10-14/filigree.md` P1, 3/M). G17 fires at a deterministic meter threshold. Their
+  variant raises a per-boundary chance as pressure builds (seeded, so rollback ≡ replay holds through `runtime/chance.ts`).
+  Recommended: a `trigger: { ramp: { from, to, per } }` variant of G17 behind the same SP6 gate, only if the SP6 run shows
+  threshold firing feels mechanical; no player copy (decision 4 stands). Floor: seeded replay identical over 4 seeds, D.

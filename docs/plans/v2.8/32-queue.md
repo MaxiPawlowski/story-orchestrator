@@ -152,3 +152,22 @@ plan 52's SC1–SC5.
 | M57 | Shared rituals: authored cues, cooldown from the offer, no streaks | 57 | D+LT/RP |
 | M58 | Keepsakes tied to witnessed moments | 58 | D+LT/RP; witness = heard after 42 |
 | M59 | Reconciliation beats: three beats per rupture, no player narration | 59 | D+CL+LT/RP |
+
+### Harvest 2026-10-14 (extension pattern harvest, not queued)
+
+Triage of every idea from `extension-research-2026-10-14/SUMMARY.md` (H1–H16) and the unbuilt v2.4 harvest ideas:
+`61-harvest-triage-2026-10-14.md`. Defects B1–B19 are plan 60's. New candidate plans below; folds are "Harvest 2026-10-14
+addendum" sections in 09, 11, 18, 22, 41, 42, 43, 47, 49, 50, 51, 52, 53, 55. Owner decision pending per plan; not queued
+until the owner says so.
+
+| # | Item | Plan | Tiers |
+|---|---|---|---|
+| M61 | Harvest triage (index of every idea, verdict, destination) | 61 | docs |
+| M62 | Quantum-ogre probe; prepared world facts only on a probe miss | 62 | D + RP (probe) + CL |
+| M63 | Stepped history window; front-trim arm rides R2 first | 63 | D + RP (with R2) + CL |
+| M64 | Public sheet reaches the narrator, "just happened" rows, warn bands | 64 | D (+RP informational) |
+| M65 | "Here now" scene card (reopens 51 decision 2: owner call first) | 65 | D; session or owner decision |
+| M66 | Authoring quality: card review on agent cards, lore preview + key lint, lore templates, read-back | 66 | D + CL |
+| M67 | Grader hygiene and adversarial extractor fixtures (after plan 60 B2) | 67 | D + CL |
+| M68 | "Your move" HUD chip, derived | 68 | D; owner decision |
+| M69 | Harvest hardening bundle (small S items) | 69 | D (+CL one row) |

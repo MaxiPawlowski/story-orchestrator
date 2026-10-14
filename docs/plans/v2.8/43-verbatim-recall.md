@@ -215,3 +215,13 @@ Source: `review-astra-2026-10-14.md` §Plans 42-47 (43). Verified on `3a716f2b`.
 - **Recommendation (cheaper on tie; explicit requests + promise references first; clear on failure).** Adopted:
   option D first (decision 4 reversed), decision 2 prefers the cheaper, VR4x clear events.
 - Rebutted: none.
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H13b time anchor on recalled spans** (`docs/plans/v2.8/extension-research-2026-10-14/timeline-memory.md` P2, 3/S). The render is `Name said: "…"` with no time
+  (§5); `src/memory/archiveRecall.ts:42` holds `playerTitle` but never renders it. Recommended: once v2.8 50 B1 lands, a
+  recalled span carries its story-time label ("on the second evening, Name said: …"); before 50, the chapter title. Floor:
+  every rendered span has a label when 50 is built, D.
+- **H13c hidden spans** are not recall-eligible: the rule lives in v2.8 42 §0 (addendum there).

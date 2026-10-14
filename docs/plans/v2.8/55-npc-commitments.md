@@ -130,3 +130,10 @@ Synthetic English lab stories only; the owner spot-checks synthetic rows (rule 1
 - Commitments to another member (NPC-to-NPC): out of scope; agendas cover them.
 - Should a kept commitment move a relationship axis? Proposed: no in v1; an author gates a 51 label on the latch.
 - Cap values (6 per member, 160 characters, 12 boundaries) are placeholders until the editor is drawn.
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H13a message ids on pledge lines**: option B's `[pledged]` line carries `m=<id>` like v2.8 47's `[promised]` (addendum
+  there; `docs/plans/v2.8/extension-research-2026-10-14/timeline-memory.md` P1).

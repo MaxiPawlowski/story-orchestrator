@@ -256,3 +256,22 @@ same review's brainstorm: written, not queued, owner decision pending.
 | 57 | [Shared rituals](57-shared-rituals.md) (candidate) | D+LT/RP |
 | 58 | [Keepsakes tied to witnessed moments](58-keepsakes.md) (candidate) | D+LT/RP |
 | 59 | [Reconciliation beats](59-reconciliation-beats.md) (candidate) | D+CL+LT/RP |
+
+
+## Extension harvest 2026-10-14 (candidates)
+
+Source: `extension-research-2026-10-14/` (SUMMARY H1–H16, `_verification.md` B1–B19). Defects B1–B19 are plan 60 (another
+agent). Every idea and every unbuilt v2.4 harvest idea is triaged in plan 61; plans 62–69 are candidates (written, not
+queued, owner decision pending); folds are "Harvest 2026-10-14 addendum" sections in the named plans.
+
+| Plan | Title | Implementation / acceptance |
+|---|---|---|
+| 61 | [Harvest triage 2026-10-14](61-harvest-triage-2026-10-14.md) | docs |
+| 62 | [Quantum-ogre probe, then prepared world facts](62-quantum-ogre-and-prepared-facts.md) (candidate) | D; RP probe gates stage 2; CL |
+| 63 | [Stepped history window and the front-trim cache A/B](63-stepped-history-window.md) (candidate) | D; RP with R2; CL |
+| 64 | [The public sheet reaches the narrator](64-public-sheet-to-narrator.md) (candidate) | D (+RP informational) |
+| 65 | ["Here now" scene card](65-here-now-scene-card.md) (candidate; reopens 51 decision 2) | D; session or owner decision |
+| 66 | [Authoring quality: cards and lore](66-authoring-quality-cards-and-lore.md) (candidate) | D + CL |
+| 67 | [Grader hygiene and adversarial fixtures](67-grader-hygiene-and-adversarial-fixtures.md) (candidate) | D + CL |
+| 68 | ["Your move" HUD chip](68-your-move-chip.md) (candidate) | D; owner decision |
+| 69 | [Harvest hardening bundle](69-harvest-hardening-bundle.md) (candidate) | D (+CL one row) |

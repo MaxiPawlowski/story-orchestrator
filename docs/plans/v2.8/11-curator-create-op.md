@@ -312,3 +312,27 @@ duplicates. The vector path is not measured here (needs ST's embedding source); 
 - Adolion campaign: no change needed. Its curator books get stamps only on new creates; nothing it ships carries
   `so:created`.
 
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H9b destructive-rewrite guard in `auto` mode** (`docs/plans/v2.8/extension-research-2026-10-14/worldinfo-workspace.md` P3, value 3, S). `routeByTier`
+  (`src/stagecraft/curatorTiers.ts:101-106`) accepts any op on an `auto` entry with no size check. Recommended: a pure
+  `isDestructiveRewrite(before, after)` (word diff, more than 50 % of the entry's words removed) sends the op to review even
+  for `auto` entries. Floor: planted controls (60 % removal → review; 10 % → auto), 100 %, D. Shares one test file with
+  plan 60's B15 fix (the `rewrite` content baseline, `seenHash` at proposal), which is the same harvest item H9a and is not
+  re-planned here.
+- **H9c idempotency receipt on created entries** (`docs/plans/v2.8/extension-research-2026-10-14/st-memory-books.md` P2, 3/M). The created stamp holds chat and group
+  but no op id (`src/stagecraft/createdStamp.ts:6,12`); the effect ledger decides pending rows by value
+  (`src/runtime/effectLedger.ts:110-150`), so two identical creates both read "applied". Recommended: add the op id to the
+  `{{// so:created …}}` stamp; reconcile counts entries carrying it and more than one is a conflict row. Floor: a resumed
+  write after a lost save lands once on 4 seeds, D.
+- **H14b "lasting identity, not scene events" rule** (`docs/plans/v2.8/extension-research-2026-10-14/multihog-dnd-framework.md` P3, 2/S). `createCandidate`
+  (`src/stagecraft/createCandidate.ts:7,98`) gates only on `CREATE_MIN_FACTS`. Recommended: one prompt rule for `create`
+  ("an entry describes something that stays true: a person, place, thing or group, never a scene event") plus a near-dup
+  fixture row; the M16/M17 offline frozen fixtures re-run ×2 (CL). Same rule for v2.8 52 codex facts (addendum there).
+- **H16b accepted-uncertainty memo keyed by identity** (`docs/plans/v2.8/extension-research-2026-10-14/bb-interactive-map.md` P2, 3/S–M). Declined proposals are
+  remembered by op wording, so a reworded proposal for the same entry and field comes back. Recommended: key the decline
+  memory by (entry uid, field, normalised target) and refuse a re-proposal with the same key for N boundaries. Floor: a
+  reworded re-proposal of a declined op is refused on 5/5 planted cases, D.
