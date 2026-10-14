@@ -134,6 +134,7 @@ export abstract class CoordinatorDelegates {
   commitContinuityNote(rendered: boolean) { this.co.stagecraft.commitNote(rendered); this.co.memory.chapters.commitBridge(rendered); }
   runWardenPass(replyMessageId: number) { return this.co.stagecraft.runWardenPass(replyMessageId); }
   withholdTurnBlocks() { this.co.memory.withholdPrivateKnowledge(); this.co.pacing.withholdGuidance(); }
+  turnBlocksHeld(): boolean { return this.co.pacing.holding; }
   getEpistemic(): EpistemicEntry[] { return this.co.memory.getEpistemic(); }
   getLedger(): LedgerView[] { return this.co.memory.getLedger(); }
   getEpistemicBlock(): string { return this.co.memory.getEpistemicBlock(); }

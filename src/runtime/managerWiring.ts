@@ -145,6 +145,7 @@ export function wireCoordinators(port: ManagerPort) {
     setTension: (next) => { port.extras().tension = next; },
     getPacing: () => port.extras().pacing,
     ended: () => storyEnded(port.extras().memory.chapters ?? []),
+    onHoldChange: lifecycle.notify,
   });
   const stagecraft = new StagecraftCoordinator({
     ...view,

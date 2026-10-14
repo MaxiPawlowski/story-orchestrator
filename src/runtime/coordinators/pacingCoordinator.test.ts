@@ -26,6 +26,7 @@ function harness(loaded: NormalizedStoryV2 | null) {
     clearStoryExtensionPrompt: (key: string) => { calls.push(`clear:${key}`); },
   } as unknown as PromptHost;
   let tension: TensionRuntimeState = { levels: [], smoothed: null, history: [] };
+  let holdChanges = 0;
   const pacing = new PacingCoordinator({
     getStory: () => loaded,
     getState: () => (loaded ? ({ activeCheckpointId: "a" } as EngineState) : null),
@@ -35,8 +36,9 @@ function harness(loaded: NormalizedStoryV2 | null) {
     setTension: (next) => { tension = next; },
     getPacing: () => ({ alpha: 0.5, shapeOverride: null, hintEnabled: true }),
     hosts: { prompt },
+    onHoldChange: () => { holdChanges += 1; },
   });
-  return { pacing, calls };
+  return { pacing, calls, holds: () => holdChanges };
 }
 
 describe("PacingCoordinator prompt host", () => {
@@ -44,6 +46,22 @@ describe("PacingCoordinator prompt host", () => {
     const { pacing, calls } = harness(story);
     pacing.updateSteering();
     expect(calls).toContain(`set:${INJECTION_REGISTRY.checkpointGuidance.key}`);
+  });
+
+  it("B10: a quiet or impersonate hold clears the pacing hint with the guidance, keeps both off until released, and announces each change", () => {
+    const { pacing, calls, holds } = harness(story);
+    pacing.updateSteering();
+    calls.length = 0;
+    pacing.withholdGuidance();
+    expect(calls).toEqual([`clear:${PACING_HINT_EXTENSION_KEY}`, `clear:${INJECTION_REGISTRY.checkpointGuidance.key}`]);
+    expect(pacing.holding).toBe(true);
+    calls.length = 0;
+    pacing.updateSteering();
+    expect(calls.filter((call) => call.startsWith("set:"))).toEqual([]);
+    pacing.releaseDraftGuidance();
+    expect(pacing.holding).toBe(false);
+    expect(calls).toContain(`set:${INJECTION_REGISTRY.checkpointGuidance.key}`);
+    expect(holds()).toBe(2);
   });
 
   it("clears the hint and the guidance through the host when no story is loaded", () => {
