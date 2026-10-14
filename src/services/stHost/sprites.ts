@@ -84,6 +84,12 @@ export function spriteBuilderMembers(names: string[]): Array<{ name: string; fol
   });
 }
 
+export function spriteVisualCardPresent(folder: string, image: string): boolean {
+  return cards().some((card) => typeof card.name === "string" && typeof card.avatar === "string"
+    && folderOf(card.name, card.avatar, card.data?.extensions?.so_sprites) === folder
+    && image === `/characters/${encodeURIComponent(card.avatar)}`);
+}
+
 export function spriteDraftedName(characterId: number | [number]): string | null {
   const index = Array.isArray(characterId) ? characterId[0] : characterId;
   const card = cards()[index];

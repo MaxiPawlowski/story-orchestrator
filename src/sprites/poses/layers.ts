@@ -23,12 +23,14 @@ export function lookLayers(card: CardBinding | undefined, values: Record<string,
 
 export interface PoseCacheInput { member: string; story: string; fields: Record<string, string>; pose: Pick<PoseEntry, "id" | "version" | "keypoints" | "text">;
   retarget: Retarget; recipe: { id: string; version: number }; models: EditModels; base: string; steps: number; resolution: number;
-  cutout?: AlphaRecipe; secondReference?: boolean }
+  cutout?: AlphaRecipe; secondReference?: boolean; visualRoot?: string }
 export const poseKeyInput = (input: PoseCacheInput): string => stableStringify({ contract: 1, ...input });
 export const poseCacheKey = (input: PoseCacheInput): Promise<string> => contentHash(new TextEncoder().encode(poseKeyInput(input)));
 export const poseSet = (key: string): string => `lp_${key.slice(0, 8)}`;
 
-export interface CachedBody { set: string; look: string; pose: string; tags: readonly string[]; stamp?: string }
+export interface CachedBody { set: string; look: string; pose: string; tags: readonly string[]; stamp?: string; visualRoot?: string }
+export const bodyStamp = (pose: unknown, layers: unknown, config: unknown, root?: string): string =>
+  stableStringify(root ? [pose, layers, config, root] : [pose, layers, config]);
 export function fallbackBodies(wanted: CachedBody, cached: readonly CachedBody[], current: string): string[] {
   return [...new Set([wanted.set, ...cached.filter((body) => body.look === wanted.look && body.tags.some((tag) => wanted.tags.includes(tag))).map((body) => body.set),
     ...cached.filter((body) => body.look === wanted.look && body.pose === "stand_relaxed").map((body) => body.set),

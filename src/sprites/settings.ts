@@ -1,5 +1,6 @@
 import { isRecord } from "@utils/guards";
 import { liveHeadRefs, type LiveHeadRef } from "./liveHeadRefs";
+import { visualSources, type VisualSources } from "./visualManifest";
 
 export type StageMode = "vn" | "always" | "off";
 export type RenderPreset = "standard" | "fast";
@@ -31,6 +32,7 @@ export interface SpriteSettings {
   onDemand: boolean;
   liveHead: boolean;
   liveHeadRigs: Record<string, LiveHeadRef>;
+  visualSources: VisualSources;
   poses: boolean;
   customPoses: import("@engine/poseSchema").PoseEntry[];
   renderPreset: RenderPreset;
@@ -55,6 +57,7 @@ export const defaultSpriteSettings = (): SpriteSettings => ({
   onDemand: true,
   liveHead: true,
   liveHeadRigs: {},
+  visualSources: {},
   poses: true,
   customPoses: [],
   renderPreset: "standard",
@@ -83,6 +86,7 @@ export function sanitizeSpriteSettings(value: unknown): SpriteSettings {
     onDemand: value.onDemand !== false,
     liveHead: value.liveHead !== false,
     liveHeadRigs: liveHeadRefs(value.liveHeadRigs),
+    visualSources: visualSources(value.visualSources),
     poses: value.poses !== false,
     customPoses: Array.isArray(value.customPoses) ? value.customPoses.slice(0, 256) as SpriteSettings["customPoses"] : [],
     renderPreset: value.renderPreset === "fast" ? "fast" : d.renderPreset,

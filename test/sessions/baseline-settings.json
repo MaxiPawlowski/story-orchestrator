@@ -220,6 +220,7 @@
       "breathing": true,
       "liveHead": true,
       "liveHeadRigs": {},
+      "visualSources": {},
       "blink": true,
       "mouth": "simple",
       "cardOverlay": true,

@@ -6,10 +6,19 @@ import { decodeImage, encodeImage, cropReference, resizeEdit } from "./images";
 import { BASE_RECIPE, EDIT_RECIPE, REST_RECIPE, POSE_RECIPE, POSE_FALLBACK_RECIPE, DECAL_RECIPE } from "./recipes";
 import { log } from "@utils/log";
 import { activeSpriteBatch } from "./batchSlot";
+import { getGlobalSettings } from "@runtime/settingsStore";
+import { verifyVisualSource, sourceStillCurrent } from "../visualHost";
+import { visualRoot } from "../visualManifest";
 
 export function createSpriteBuilder(ownership: RunOwnership): SpriteBuilder {
   return new SpriteBuilder({
     ownership, decode: decodeImage, encode: encodeImage, crop: cropReference, resize: resizeEdit,
+    lineage: async (request, signal) => {
+      const source = getGlobalSettings().sprites.visualSources[request.character];
+      if (!source) return null;
+      await verifyVisualSource(source, signal);
+      return { root: visualRoot(source), current: () => sourceStillCurrent(source) };
+    },
     uploadReference: comfyReference, render: comfyRenderOwned,
     releaseReference: async (name) => {
       const result = await comfyReleaseReference(name);

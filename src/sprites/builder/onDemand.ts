@@ -10,6 +10,8 @@ import { log } from "@utils/log";
 import { waitForTextPriority } from "./textPriority";
 import { completeLookFrames, lookFrameRequest, lookKeyInput, lookStillRequest } from "./lookFrames";
 import { frameIndex, type AnimationFrames } from "../animation";
+import { visualRoot } from "../visualManifest";
+import { verifyVisualSource, sourceStillCurrent, publishDerivedVisual } from "../visualHost";
 
 export interface LookRequest {
   folder: string; member: string; label: string; fields: Record<string, string>;
@@ -63,12 +65,15 @@ export class OnDemandLooks {
     const builder = createSpriteBuilder(this.manager.getOwnership());
     this.active = builder;
     this.activeRequest = request;
+    const accepted = this.manager.getGlobalSettings().sprites.visualSources[request.folder];
     const guard = () => {
       if (this.stopped || !run.stillOwns() || !request.accepts()) throw new Error("The look changed before this sprite was ready.");
+      if (accepted && !sourceStillCurrent(accepted)) throw new Error("The accepted visual source changed before this look was ready.");
     };
     try {
       const settings = this.manager.getGlobalSettings().sprites;
       const config = settings.builders[request.folder];
+      if (accepted) await verifyVisualSource(accepted, run.signal);
       if (!config || !settings.onDemand) throw new Error("Choose an expression reference pack in Studio before enabling on-demand look edits.");
       const story = this.manager.getCachedSnapshot().storyId;
       if (!story) return;
@@ -80,11 +85,11 @@ export class OnDemandLooks {
         comfyFingerprint("textEncoders", config.models.encoder, run.signal),
         comfyFingerprint("vaes", config.models.vae, run.signal),
       ]);
-      const base = await spriteReferencePack(request.folder, config.baseSet);
+      const base = await spriteReferencePack(request.folder, accepted?.baseSet ?? config.baseSet);
       const version = base.sha256;
       const models = { diffusion, encoder, vae };
       const key = await contentHash(new TextEncoder().encode(lookKeyInput({ story, member: request.member, fields: request.fields, version, models,
-        recipe: EDIT_RECIPE, config })));
+        recipe: EDIT_RECIPE, config, ...(accepted ? { visualRoot: visualRoot(accepted) } : {}) })));
       const set = `look_${key.slice(0, 8)}`;
       const build = { folder: request.folder, set, label: request.label, key, story, member: request.member, models, config };
       const existing = await spriteList(`${request.folder}/${set}`);
@@ -126,21 +131,25 @@ export class OnDemandLooks {
         if (!file) throw new Error("The cached look expression is missing.");
         const frames = await animate(file.path, file.sha256);
         guard();
+        if (accepted && request.label === "neutral") publishDerivedVisual(request.folder, visualRoot(accepted), set, request.fields,
+          { path: file.path, sha256: file.sha256, key: cached.labels[request.label].key, recipe: cached.labels[request.label].recipe });
         request.apply(set, existing, frames); return;
       }
-      const reference = base.files.find((file) => file.label === request.label) ?? base.files.find((file) => file.label === "neutral");
+      const reference = accepted ? { ...accepted.base, label: "neutral" } : base.files.find((file) => file.label === request.label) ?? base.files.find((file) => file.label === "neutral");
       if (!reference) throw new Error("The base pack has no reference for this expression.");
       await waitForTextPriority({ status: gpuBrokerStatus, current: () => !this.stopped && run.stillOwns() && request.accepts(),
         signal: run.signal, now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) });
       guard();
       const candidate = await builder.build(lookStillRequest(build, publicLook(request.fields), reference));
-      const after = await spriteReferencePack(request.folder, config.baseSet);
+      const after = await spriteReferencePack(request.folder, accepted?.baseSet ?? config.baseSet);
       guard();
       if (after.sha256 !== version) throw new Error("The reference pack changed during the render. Generate this look again.");
       const saved = await builder.save(candidate);
       guard();
       const frames = await animate(saved.path, saved.sha256);
       guard();
+      if (accepted && request.label === "neutral") publishDerivedVisual(request.folder, visualRoot(accepted), set, request.fields,
+        { ...saved, key: candidate.key, recipe: EDIT_RECIPE });
       request.apply(set, [...existing.filter((file) => file.label !== request.label), { label: request.label, path: saved.path }], frames);
     } catch (error) {
       if (!this.stopped && run.stillOwns() && request.accepts()) request.failed?.(error instanceof Error ? error.message : String(error));
