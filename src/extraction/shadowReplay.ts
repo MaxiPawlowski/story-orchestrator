@@ -79,6 +79,11 @@ const hostRow = (message: unknown): Record<string, unknown> => {
   return { name: row.name, is_user: row.isUser === true, is_system: row.isSystem === true, mes: typeof row.text === "string" ? row.text : "", ...(isObject(row.extra) ? { extra: row.extra } : {}) };
 };
 
+const isAuditRow = (row: Record<string, unknown>): row is Record<string, unknown> & ArchivedAudit =>
+  row.kind === "audit" && typeof row.at === "string" && isObject(row.detail) && typeof row.detail.prompt === "string" && Array.isArray(row.detail.scope);
+
+const isHistory = (value: unknown): value is EngineHistory => isObject(value) && isObject(value.base) && Array.isArray(value.log);
+
 const jsonLines = (text: string | undefined): unknown[] => (text ?? "").split(/\r?\n/).filter((line) => line.trim()).map((line) => JSON.parse(line) as unknown);
 
 export function readSessionArchive(files: SessionFiles): SessionArchive {
@@ -86,15 +91,15 @@ export function readSessionArchive(files: SessionFiles): SessionArchive {
   const stories = isObject(blob.stories) ? blob.stories : {};
   const storyId = typeof blob.selectedStoryId === "string" ? blob.selectedStoryId : Object.keys(stories)[0];
   const record = storyId ? stories[storyId] : undefined;
-  if (!storyId || !isObject(record) || !isObject(record.pinnedStory) || !isObject(record.engineHistory)) throw new Error("the runtime blob holds no pinned story with an engine history");
+  if (!storyId || !isObject(record) || !isObject(record.pinnedStory) || !isHistory(record.engineHistory)) throw new Error("the runtime blob holds no pinned story with an engine history");
   const rows = jsonLines(files.journal).filter(isObject);
-  const audits = rows.filter((row) => row.kind === "audit" && isObject(row.detail) && typeof row.at === "string") as unknown as ArchivedAudit[];
+  const audits: ArchivedAudit[] = rows.filter(isAuditRow);
   const boundaries = rows.filter((row) => row.kind === "boundary" && typeof row.boundary === "number" && row.boundary >= 0 && typeof row.at === "string")
     .map((row) => ({ at: row.at as string, boundary: row.boundary as number }));
   const revisions = jsonLines(files.transcripts).filter(isObject).filter((row) => Array.isArray(row.messages))
     .map((row, index) => ({ label: `transcripts:${index + 1}`, at: typeof row.at === "string" ? row.at : null, rows: (row.messages as unknown[]).map(hostRow) }));
   const full = Array.isArray(files.chatFull) ? [{ label: "chat-full", at: null, rows: files.chatFull.map(hostRow) }] : [];
-  return { storyId, storyRaw: record.pinnedStory, history: record.engineHistory as unknown as EngineHistory, transcripts: [...revisions, ...full], boundaries, audits };
+  return { storyId, storyRaw: record.pinnedStory, history: record.engineHistory, transcripts: [...revisions, ...full], boundaries, audits };
 }
 
 export interface AnsweredKey {
