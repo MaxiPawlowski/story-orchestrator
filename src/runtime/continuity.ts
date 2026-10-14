@@ -1,6 +1,6 @@
 import { agencyForCheckpoint, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import {
-  buildWardenRequests, CONTINUITY_MAX_FACTS, CONTINUITY_TIMEOUT_MS, houseRulesDecidedInCode, readWarden, readWardenLore, wardenRecordP,
+  buildWardenRequests, CONTINUITY_MAX_FACTS, CONTINUITY_TIMEOUT_MS, houseRulesDecidedInCode, readWarden, readWardenLore, wardenCallFamilies, wardenRecordP,
   type HouseRuleScene, type WardenInput, type WardenLore,
 } from "@judge/index";
 import type { WardenCheckFinding } from "@stagecraft/index";
@@ -72,7 +72,8 @@ export const createWardenCheck = (judge: () => JudgeRuntime | null): WardenCheck
   if (!requests.length && !loreRequests.length && !houseRulesDecidedInCode(today)) return ideas.length ? ideas : null;
   const ask = async (use: string, list: typeof requests, asked: WardenInput) => {
     if (!list.length) return null;
-    const results = await Promise.all(list.map((request) => runtime.ask(use, request, { timeoutMs: CONTINUITY_TIMEOUT_MS, summarize: (answers) => wardenRecordP(answers, asked) })));
+    const families = wardenCallFamilies(asked);
+    const results = await Promise.all(list.map((request) => runtime.ask(use, request, { timeoutMs: CONTINUITY_TIMEOUT_MS, summarize: (answers) => wardenRecordP(answers, asked), families })));
     return results.some((result) => !result.answers) ? null : Object.assign({}, ...results.map((result) => result.answers));
   };
   const [asked, loreAnswers] = await Promise.all([ask("warden", requests, today), ask("wardenLore", loreRequests, lore)]);

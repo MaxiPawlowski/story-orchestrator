@@ -1046,12 +1046,12 @@
       "note": "SpriteBuilder.save (builder.ts) refuses a preview whose RunGuard lapsed before the upload starts. After the upload the writes are the install-wide builder settings keyed by the character whose file was just saved, and component state: not draft- or chat-scoped, so no re-check (an upload that landed is recorded)."
     },
     "src/studio/components/StoryEditor.tsx#IllustrationsSection>anonymous": {
-      "status": "todo",
-      "note": "Export with workflows: after awaiting bundleMapped it writes update({ bundle }) into the draft from the render-time `art` closure, with no draftOwnership check; an undo or draft switch during the read would merge into the wrong draft."
+      "status": "checked",
+      "note": "Export with workflows (v2.8 small fixes 4): mints on draftOwnership before awaiting bundleMapped and checks draftOwnership.check(run) after it; a lapsed run writes nothing and says so (lapsedBundleCopy). The write merges into the CURRENT draft's illustrations inside mutate (withBundle), not the render-time `art` closure (ownedBundle.test.ts)."
     },
     "src/studio/components/StudioCopilot.tsx#StagedWizard.run": {
-      "status": "todo",
-      "note": "After awaiting runStage it sets the proposal/questions and persists history under its render-time session key without a draftOwnership check; no draft write happens here (ops apply only on the author's click), but a proposal built for a replaced draft can still be shown."
+      "status": "checked",
+      "note": "v2.8 small fixes 4: mints on draftOwnership before awaiting runStage and checks draftOwnership.check(owner) right after, before the proposal/questions are shown and before the wizard session is saved under its render-time key; a lapsed run shows lapsedStageCopy and saves nothing (same pattern as provisionOwned in ownedProvisioning.ts)."
     },
     "src/studio/components/StudioCopilot.tsx#useProvisioning.provision": {
       "status": "delegate",

@@ -27,6 +27,7 @@ export type AgentRouteId = "local" | "harness";
 export interface AgentToolCall {
   tool: string;
   args: Record<string, unknown>;
+  argsError?: string;
 }
 
 export type AgentStepStatus = "observed" | "pending" | "accepted" | "rejected" | "applied" | "failed" | "refused";

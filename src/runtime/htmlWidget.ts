@@ -108,6 +108,10 @@ const declared = (widget: WidgetView): IntentView[] => (widget.body.kind === "ht
 
 export const dataNotification = (widget: WidgetView) => ({ jsonrpc: "2.0" as const, method: BRIDGE.data, params: { widget: frameData(widget) } });
 
+export const frameMayTalk = (loads: number): boolean => loads <= 1;
+
+export const frameOnFirstLoad = (loads: number): boolean => loads === 1;
+
 export const teardownNotification = (reason: string) => ({ jsonrpc: "2.0" as const, method: BRIDGE.teardown, params: { reason } });
 
 const isId = (value: unknown): value is number | string => (typeof value === "number" && Number.isFinite(value)) || (typeof value === "string" && value.length <= 64);

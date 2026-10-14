@@ -1,4 +1,5 @@
 import type { PassRole } from "@extraction/passRole";
+import { DEFAULT_JUDGE_PROVIDER, JUDGE_PROVIDERS, JUDGE_USE_COPY, judgeProviderControlId, ridesWardenRoute, type JudgeCalibrationProblem, type JudgeReadinessKey } from "@judge/index";
 import type { RuntimeSnapshot } from "./types";
 import type { Check, CheckFinding } from "./checks";
 import { hasUnsavedChanges, playerSaveNotice, SAVE_PLAYER_TEXT } from "./saveHealth";
@@ -222,6 +223,15 @@ export const REQUIREMENT_CHECKS: readonly Check[] = [
 
 const degrades = (check: Omit<Check, "severity">): Check => ({ ...check, severity: "degrades" });
 
+const JUDGE_GAP_COPY: Record<JudgeCalibrationProblem, string> = {
+  unmeasured: "never measured there",
+  failed: "measured there and below its floor",
+  stale: "measured on an older test set",
+  model: "measured on another model",
+};
+
+const judgeLabel = (key: JudgeReadinessKey): string => (key === "warden" ? "Continuity warden" : JUDGE_USE_COPY[key].label);
+
 export const IMAGE_TARGET_ID = "so-image-settings";
 
 export const IMAGE_CHECKS: readonly Check[] = [
@@ -291,6 +301,18 @@ export const INFO_SETUP_CHECKS: readonly Check[] = [
       detail: "Adapter: none; images pass through.",
     } : null),
   },
+  {
+    id: "gpu-broker-absent", area: "image", scope: "install", audience: "author", severity: "info", feature: "images",
+    detect: (snapshot) => {
+      const health = snapshot.imageHealth;
+      return health?.enabled && health.localText && health.broker === null ? {
+        consequence: "Pictures and the local text model share one GPU with nothing taking turns between them, so a render can stall replies or fail for lack of memory.",
+        detail: "The GPU broker plugin (story-orchestrator-gpu) did not answer, and replies come from a model on this machine. Install it with npm run plugins:install "
+          + "and restart SillyTavern; if the image service runs on another machine, dismiss this row.",
+        target: { kind: "setting", id: IMAGE_TARGET_ID },
+      } : null;
+    },
+  },
 ];
 
 export const DEGRADING_SETUP_CHECKS: readonly Check[] = [
@@ -335,6 +357,20 @@ export const DEGRADING_SETUP_CHECKS: readonly Check[] = [
         consequence: "A deleted chat left its story memory behind in a lorebook.",
         detail: orphans.map((orphan) => `${orphan.label ? `${orphan.label[0].toUpperCase()}${orphan.label.slice(1)}` : "A deleted chat"}: ${orphan.detail}. Lorebook: ${orphan.name}`).join("; "),
       } : null;
+    },
+  }),
+  degrades({
+    id: "judge-route-uncalibrated", area: "judge", scope: "install", audience: "author", feature: "judge",
+    detect: (snapshot) => {
+      const gaps = snapshot.judgeRouteGaps ?? [];
+      if (!gaps.length) return null;
+      const rows = gaps.map((gap) => `${judgeLabel(gap.key)} on ${JUDGE_PROVIDERS[gap.provider].label} (${JUDGE_GAP_COPY[gap.problem]})`);
+      return {
+        consequence: `${them(gaps.map((gap) => gap.key), "A judge use is", "Some judge uses are")} routed to a provider not calibrated for ${them(gaps.map((gap) => gap.key), "it", "them")}, `
+          + "so every call is refused and the story takes its usual path without the judge.",
+        detail: `${rows.join("; ")}. Route ${them(rows, "it", "them")} back to ${JUDGE_PROVIDERS[DEFAULT_JUDGE_PROVIDER].label} under Connections › Judge, or measure that provider first.`,
+        target: { kind: "setting", id: judgeProviderControlId(ridesWardenRoute(gaps[0].key) ? "warden" : gaps[0].key) },
+      };
     },
   }),
   degrades({

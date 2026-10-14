@@ -12,6 +12,8 @@ import { fellBackText, type FellBack } from "@extraction/modelRoute";
 import { draftOwnership } from "../agentHost";
 import { useDraftStore } from "../draft";
 import { lapsedProvisioningCopy, provisionOwned } from "./ownedProvisioning";
+import { lapsedStageCopy } from "./ownedBundle";
+import { describeMismatch } from "@runtime/runToken";
 import type { KnowledgeShowMe } from "@copilot/knowledge/types";
 import AgentWizard, { type AgentTurnRunner } from "./AgentWizard";
 import CharacterTutorial from "./CharacterTutorial";
@@ -345,8 +347,14 @@ const StagedWizard: React.FC<Props & { modeSwitch?: React.ReactNode }> = ({ enab
     const nextHistory: CopilotMessage[] = authorText ? [...baseHistory, { role: "author", text: authorText }] : baseHistory;
     const nextEnvironment = host?.environment(useDraftStore.getState().draft) ?? environment;
     setEnvironment(nextEnvironment);
+    const owner = draftOwnership.mint();
     try {
       const stageResult = await runStage({ draft: useDraftStore.getState().draft, stage, message: authorText, history: baseHistory, environment: nextEnvironment });
+      const owned = draftOwnership.check(owner);
+      if (!owned.ok) {
+        setError(lapsedStageCopy(describeMismatch(owned)));
+        return;
+      }
       setFellBack(stageResult.fellBack ?? null);
       setAccepted(new Set());
       provisioning.setResults({});

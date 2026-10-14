@@ -1,6 +1,7 @@
 import type { ApplyQueueEntry, BoundaryLogEntry } from "@engine/index";
 import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { JudgeCallRecord } from "@judge/index";
+import { judgeCallUse } from "@judge/settings";
 import type { PayloadCapture, TalkDecisionAudit } from "./types";
 import { judgeRoute } from "./modelCalls";
 import type { ModelCallRecord } from "./modelCallLog";
@@ -192,9 +193,10 @@ export function buildSessionJournal(sources: JournalSources): JournalEvent[] {
       boundary: call.boundary,
       messageId: call.messageId,
       kind: "judge" as const,
-      summary: `judge ${call.use}${call.fallback ? ` fell back (${call.fallback})` : ""} in ${call.latencyMs} ms`,
+      summary: `judge ${judgeCallUse(call)}${call.fallback ? ` fell back (${call.fallback})` : ""} in ${call.latencyMs} ms`,
       detail: {
-        use: call.use, model: call.model, route: judgeRoute(call.model), questions: call.questionCount, stateChars: call.stateChars, latencyMs: call.latencyMs,
+        use: call.use, ...(call.families ? { families: call.families } : {}), model: call.model, route: judgeRoute(call.model),
+        questions: call.questionCount, stateChars: call.stateChars, latencyMs: call.latencyMs,
         ...(call.fallback ? { fallback: call.fallback } : {}), ...(call.cached ? { cached: true } : {}),
         ...(call.inputTokens !== undefined ? { inputTokens: call.inputTokens } : {}), ...(call.outputTokens !== undefined ? { outputTokens: call.outputTokens } : {}),
         ...(call.cost !== undefined ? { cost: call.cost } : {}), ...(call.p ? { p: call.p } : {}),

@@ -3,7 +3,8 @@ import {
   imageChat, imageModel, imageSave, imageDelete, imagePlace, imageChatSettings, imageWriteChatSettings, type ImageMedia,
 } from "@services/stHost/image";
 import { reserveGpu, releaseGpu, gpuBrokerStatus } from "@services/stHost/gpuBroker";
-import { setImageHealth, type ImageHealthView } from "@runtime/imageHealth";
+import { loopbackUrl, setImageHealth, type ImageHealthView } from "@runtime/imageHealth";
+import { readReplyContext } from "@services/stHost/servedContext";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { imageSize, resolutionProblem, resolveCheckpointFile, resolveUpscaler, type Aspect } from "./catalog";
 import { imageServiceReady } from "./service";
@@ -70,7 +71,7 @@ export class StoryImageDirector {
 
   private async computeHealth(): Promise<ImageHealthView> {
     const settings = this.settings();
-    const base = { enabled: settings.enabled, backend: settings.backend, automation: settings.automation.mode } as const;
+    const base = { enabled: settings.enabled, backend: settings.backend, automation: settings.automation.mode, localText: loopbackUrl(readReplyContext()?.url) } as const;
     const broker = (await gpuBrokerStatus())?.adapter ?? null;
     if (!settings.enabled) return { ...base, service: "unknown", detail: "Illustrations are off.", source: null, missingModels: [], broker };
     if (settings.backend === "st") {

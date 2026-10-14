@@ -1,5 +1,6 @@
 import {
-  BRIDGE, ERRORS, FRAME_CSP, FRAME_HEIGHT, FRAME_SANDBOX, INTENT_INTERVAL_MS, appendAudit, buildSrcdoc, dataNotification, handleViewMessage, type BridgeContext,
+  BRIDGE, ERRORS, FRAME_CSP, FRAME_HEIGHT, FRAME_SANDBOX, INTENT_INTERVAL_MS, appendAudit, buildSrcdoc, dataNotification, frameMayTalk, frameOnFirstLoad, handleViewMessage,
+  type BridgeContext,
 } from "./htmlWidget";
 import { journalWorthy } from "./htmlWidgetAudit";
 import type { WidgetView } from "./gameTypes";
@@ -36,6 +37,16 @@ describe("the HTML panel frame (v2.8 23 option B)", () => {
     expect(doc.indexOf("Content-Security-Policy")).toBeGreaterThan(-1);
     expect(doc.indexOf("Content-Security-Policy")).toBeLessThan(doc.indexOf("fetch("));
     expect(doc.indexOf("window.storyWidget")).toBeLessThan(doc.indexOf("fetch("));
+  });
+});
+
+describe("a frame that navigated itself is cut off (v2.8 small fixes 5)", () => {
+  test("it is heard and answered only before and on its first load", () => {
+    expect([0, 1, 2, 3].map(frameMayTalk)).toEqual([true, true, false, false]);
+  });
+
+  test("data is pushed only while it shows its first load", () => {
+    expect([0, 1, 2].map(frameOnFirstLoad)).toEqual([false, true, false]);
   });
 });
 

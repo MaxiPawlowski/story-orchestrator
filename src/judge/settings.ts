@@ -41,6 +41,13 @@ export const JUDGE_ROUTE_KEYS = [...JUDGE_USE_KEYS, "warden"] as const;
 export type JudgeRouteKey = (typeof JUDGE_ROUTE_KEYS)[number];
 export type JudgeProviderRoutes = Record<JudgeRouteKey, JudgeProviderId>;
 
+export const WARDEN_RIDERS: readonly JudgeUseKey[] = ["attentionCheck", "wardenVoice"];
+
+export const ridesWardenRoute = (key: JudgeRouteKey): boolean => (WARDEN_RIDERS as readonly string[]).includes(key);
+
+export const routedProvider = (settings: Pick<JudgeSettings, "provider">, key: JudgeRouteKey): JudgeProviderId =>
+  settings.provider?.[ridesWardenRoute(key) ? "warden" : key] ?? DEFAULT_JUDGE_PROVIDER;
+
 export const JUDGE_USE_DEPENDENCIES: Partial<Record<JudgeUseKey, JudgeUseKey>> = { expansionLookahead: "lookahead", loreExclusive: "loreSelect", toneCheck: "idleCheck" };
 
 export const JUDGE_PICK_MODES = ["code", "llm"] as const;
@@ -124,6 +131,8 @@ export function judgeUseActive(settings: JudgeSettings, key: JudgeUseKey): boole
   const dependency = JUDGE_USE_DEPENDENCIES[key];
   return dependency ? judgeUseActive(settings, dependency) : true;
 }
+
+export const judgeCallUse = (call: Pick<JudgeCallRecord, "use" | "families">): string => (call.families?.length ? `${call.use} (${call.families.join(", ")})` : call.use);
 
 export const emptyJudgeMeter = (): JudgeMeter => ({ calls: 0, cachedCalls: 0, inputTokens: 0, outputTokens: 0, cost: 0 });
 

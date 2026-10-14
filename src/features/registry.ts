@@ -1,4 +1,4 @@
-import { JUDGE_USE_COPY, JUDGE_USE_KEYS, JUDGE_USES_OFF_BY_DEFAULT, AUTHOR_JUDGE_USES, type JudgeUseKey } from "@judge/settings";
+import { JUDGE_ROUTE_KEYS, JUDGE_USE_COPY, JUDGE_USE_KEYS, JUDGE_USES_OFF_BY_DEFAULT, AUTHOR_JUDGE_USES, routedProvider, type JudgeUseKey } from "@judge/settings";
 import type { GuideTopicId } from "@copilot/guideTopics";
 import type { GlobalSettings } from "@runtime/settingsModel";
 import { PRESENCE_FEATURES } from "./presenceFeatures";
@@ -198,7 +198,8 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "continuity-warden", name: "Continuity warden", area: "memory", audience: "author",
     oneLine: "Catches a reply that breaks an established fact and restates the fact for the next reply.",
     what: "After each character reply, the judge checks it against the established facts. When the reply breaks one, "
-      + "the next reply's prompt restates that fact once, after your approval or on its own.",
+      + "the next reply's prompt restates that fact once, after your approval or on its own. The switch covers this continuity check only; "
+      + "the other reply checks share the warden's call under their own judge use switches.",
     where: settingsAt("#so-warden-enabled", "Memory › Continuity warden"),
     settings: ["stagecraft.wardenEnabled", "stagecraft.wardenAcceptMode", "stagecraft.agencyAcceptMode", "judge.provider.warden"],
     doc: authorGuideDoc("house-rules"), status: "shipped", needs: ["judge-plugin"],
@@ -315,7 +316,7 @@ const CORE_FEATURES: readonly Feature[] = [
       + "Pick it per use in the provider list beside each use. Until a use has been measured on it, that use keeps its usual path.",
     where: settingsAt("#so-judge-local-systemone-local", "Judge › Local judge (this machine)"),
     settings: [], doc: "setup/judge.md", status: "experimental", needs: ["judge-plugin"],
-    isOn: (settings) => settings.judge.enabled && Object.values(settings.judge.provider).includes("systemone-local"),
+    isOn: (settings) => settings.judge.enabled && JUDGE_ROUTE_KEYS.some((key) => routedProvider(settings.judge, key) === "systemone-local"),
   },
   {
     id: "road-ahead", name: "Prepared road ahead", area: "authoring", audience: "author",

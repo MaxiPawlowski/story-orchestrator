@@ -34,6 +34,7 @@ export default function ModelSources({ api = hostApi }: { api?: ModelSourcesApi 
   return <div id="so-model-sources" className="flex flex-col gap-2">
     <p className="text-xs opacity-80">Tokens are stored in SillyTavern's secrets and read only by the media plugin; this page never sees them again.
       Nothing downloads unless you press Download on a card. Downloads are admin-only.</p>
+    {notes.keys ? <p role="alert" data-so="model-sources-unavailable" className="so-warning-text text-xs">Model downloads are unavailable: {notes.keys}</p> : null}
     <label>DWPose catalogue<select aria-label="DWPose catalogue" className="text_pole" defaultValue="" onChange={(event) => {
       const entry = POSE_DOWNLOADS.find((entry) => entry.file === event.target.value);
       if (entry) { setProvider("huggingface"); setFields({ version: "", repo: entry.repo, file: entry.file, revision: entry.revision, kind: "poseModels" }); setCard(null); }

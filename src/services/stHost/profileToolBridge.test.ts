@@ -27,11 +27,11 @@ describe("v2.8 09: native tool calls over a Chat Completion profile (the wizard'
     expect(sent[1].messages[3]).toMatchObject({ tool_call_id: "c1", content: "observed: draft" });
   });
 
-  it("a malformed argument string reaches the tool check as an empty object, never a throw", async () => {
+  it("a malformed argument string reaches the tool check as an empty object with its parse error, never a throw", async () => {
     const bridge = createProfileToolBridge(async () => reply({ content: null, tool_calls: [call("c1", "readDraft", "{not json")] }));
     const opened = await bridge.open(open);
     if (!opened.ok) throw new Error("open failed");
-    expect(await bridge.nextCall(opened.sessionId, Infinity)).toEqual({ kind: "call", callId: "c1", tool: "readDraft", args: {} });
+    expect(await bridge.nextCall(opened.sessionId, Infinity)).toEqual({ kind: "call", callId: "c1", tool: "readDraft", args: {}, argsError: expect.stringMatching(/^the arguments were not valid JSON/) });
   });
 
   it("names the failure so the runner can fall back: auth, quota, transport, timeout", async () => {

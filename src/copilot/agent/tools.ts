@@ -333,7 +333,12 @@ const readChaptersCall = (spec: AgentToolSpec, args: Record<string, unknown>): T
   return { ok: true, spec, op: { kind: "setChapters", chapters, assign: Object.fromEntries(Object.entries(assign).map(([checkpoint, chapter]) => [checkpoint, String(chapter).trim()])) } };
 };
 
+export const malformedArgs = (call: AgentToolCall): string | null =>
+  call.argsError ? `${call.tool}: ${call.argsError}. Send the arguments again as one JSON object with the listed fields.` : null;
+
 export const argProblems = (spec: AgentToolSpec, call: AgentToolCall): string | null => {
+  const malformed = malformedArgs(call);
+  if (malformed) return malformed;
   const known = Object.keys(spec.args);
   const unknown = Object.keys(call.args).filter((key) => !known.includes(key));
   if (unknown.length) return unknown.map((key) => `${call.tool}: unknown argument "${key}"${hint(key, known)}`).join("; ");

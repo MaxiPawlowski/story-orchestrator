@@ -1,6 +1,7 @@
 import { CHECKS, isDismissed, runCheck, withDismissal, type Check } from "./checks";
 import { beforeYouStart, installFindings, nextRepairStep, repairSteps, setupAlert, setupCounts, setupFindings, viewerRepairStep } from "./repair";
 import { createSaveHealth } from "./saveHealth";
+import { loopbackUrl } from "./imageHealth";
 import { hudSetupText, hudSetupTitle } from "./pipeline";
 import { FEATURES } from "@features/registry";
 import { jargonIn } from "@features/jargon";
@@ -14,6 +15,9 @@ const quiet = (overrides: Record<string, unknown> = {}): RuntimeSnapshot => ({
   ui: { authorView: false },
   ...overrides,
 }) as unknown as RuntimeSnapshot;
+
+const IMAGE_HEALTH = { enabled: true, backend: "comfy", automation: "story", service: "absent", detail: "ComfyUI did not answer.", source: null, missingModels: ["missing.safetensors"], broker: "none",
+  storyWorkflows: { wanted: ["SO-Portrait.json"], missing: ["SO-Portrait.json"], missingNodes: ["FaceDetailer"], comfySource: true } };
 
 const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot => quiet({
   extraction: { settings: { enabled: true, profileId: null } },
@@ -36,8 +40,7 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   thinkingSilent: true,
   contextOverServer: { set: 98304, served: 32768, url: "http://127.0.0.1:18888" },
   imageStory: { checkpoints: true, scenes: false },
-  imageHealth: { enabled: true, backend: "comfy", automation: "story", service: "absent", detail: "ComfyUI did not answer.", source: null, missingModels: ["missing.safetensors"], broker: "none",
-    storyWorkflows: { wanted: ["SO-Portrait.json"], missing: ["SO-Portrait.json"], missingNodes: ["FaceDetailer"], comfySource: true } },
+  imageHealth: IMAGE_HEALTH,
   imageRetired: [{ where: "background", was: "flux1-dev-fp8.safetensors" }],
   spriteLookIssues: [{ name: "Arin", reason: "Choose a reference expression pack in Studio." }],
   spriteStage: { builtInExpressions: true, packIssues: [{ name: "Belle", reason: "no sprite pack on the card (so_sprites)" }], inventory: {} },
@@ -47,6 +50,7 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   globalStoryLore: ["Ruins Lore"],
   orphanedLorebooks: [{ name: "Story Orchestrator - Old - c0", detail: "4 memories", label: "the old chat" }],
   stylesMissing: true,
+  judgeRouteGaps: [{ key: "canonDraft", provider: "systemone-local", problem: "unmeasured" }],
   extensionConflicts: ["stepped-thinking-separated", "presence", "prompt-inspector", "vectors-world-info"],
   tunnelVisionBooks: [{ name: "Ruins Lore", suppressesScan: true, canWrite: true }],
   playerSetup: {
@@ -56,10 +60,16 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   ...overrides,
 });
 
+const EXCLUSIVE_VARIANTS: Record<string, Record<string, unknown>> = {
+  "gpu-broker-absent": { imageHealth: { ...IMAGE_HEALTH, broker: null, localText: true } },
+};
+
+const fired = (check: Check) => runCheck(check, everything(EXCLUSIVE_VARIANTS[check.id] ?? {}));
+
 const REPAIR_ORDER = [
   "memory-model", "model-role", "story-needs-group",
   "cast-absent", "cast-unbound", "cast-muted", "lore-absent", "lore-unscanned", "lore-hidden", "persona-absent", "persona-unselected", "memory-slot-taken", "save-unconfirmed", "persona-fit", "persona-lock",
-  "model-role-outage", "context-over-server", "transcript-copiers", "model-not-thinking", "tunnelvision-story-lore", "stepped-thinking-separated", "presence-hides-chat", "prompt-inspector-on", "persona-switch", "persona-fit-cast", "chapter-unsummarized", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "styles-missing",
+  "model-role-outage", "context-over-server", "transcript-copiers", "model-not-thinking", "tunnelvision-story-lore", "stepped-thinking-separated", "presence-hides-chat", "prompt-inspector-on", "persona-switch", "persona-fit-cast", "chapter-unsummarized", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing",
   "images-on-no-service", "image-model-missing", "image-model-retired", "story-workflow-missing", "stage-pack-missing", "quest-scope-overflow", "relationship-scope-overflow",
 ];
 
@@ -83,19 +93,17 @@ describe("v2.7 plan 04: one check registry", () => {
   });
 
   it("every check fires on the complete fixture and states its consequence before its detail", () => {
-    const snapshot = everything();
-    const fired = CHECKS.map((check) => [check.id, runCheck(check, snapshot)] as const);
-    expect(fired.filter(([, result]) => !result).map(([id]) => id)).toEqual([]);
-    for (const [, result] of fired) {
+    const results = CHECKS.map((check) => [check.id, fired(check)] as const);
+    expect(results.filter(([, result]) => !result).map(([id]) => id)).toEqual([]);
+    for (const [, result] of results) {
       expect(result?.consequence.trim().length).toBeGreaterThan(0);
       expect(result?.detail.trim().length).toBeGreaterThan(0);
     }
   });
 
   it("player copy uses no jargon word", () => {
-    const snapshot = everything();
     const offenders = CHECKS.flatMap((check) => {
-      const player = runCheck(check, snapshot)?.player;
+      const player = fired(check)?.player;
       return player ? jargonIn(player).map((entry) => `${check.id}: ${entry.term}`) : [];
     });
     expect(offenders).toEqual([]);
@@ -107,8 +115,7 @@ describe("v2.7 plan 04: one check registry", () => {
   });
 
   it("a blocks check has no dismiss path; every other severity has one", () => {
-    const snapshot = everything();
-    for (const check of CHECKS) expect(runCheck(check, snapshot)?.dismissable).toBe(check.severity !== "blocks");
+    for (const check of CHECKS) expect(fired(check)?.dismissable).toBe(check.severity !== "blocks");
   });
 
   it("control: a planted blocks check with a stored dismissal is still in Repair, and a planted duplicate id is caught", () => {
@@ -149,7 +156,7 @@ describe("v2.7 plan 04 B: Repair is the registry's ordering (F33)", () => {
 
   it("with no story only install checks and the engine-free one run, and an ordinary chat is quiet", () => {
     expect(repairSteps(everything({ storyId: null })).map((step) => step.check))
-      .toEqual(["story-needs-group", "context-over-server", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "styles-missing", "images-on-no-service", "image-model-missing", "image-model-retired"]);
+      .toEqual(["story-needs-group", "context-over-server", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing", "images-on-no-service", "image-model-missing", "image-model-retired"]);
     expect(repairSteps(quiet({ storyId: null }))).toEqual([]);
   });
 
@@ -189,8 +196,8 @@ describe("v2.7 plan 04 C: dismissal (decision 4, F34)", () => {
 describe("v2.7 plan 04 C: one surface", () => {
   it("the HUD counts by severity, leaving the save row to its own line", () => {
     const counts = setupCounts(everything({ ui: { authorView: true } }));
-    expect(counts).toEqual({ blocks: 14, degrades: 22 });
-    expect(hudSetupText(counts)).toBe("fix setup (36)");
+    expect(counts).toEqual({ blocks: 14, degrades: 23 });
+    expect(hudSetupText(counts)).toBe("fix setup (37)");
     expect(hudSetupText({ blocks: 0, degrades: 2 })).toBe("check setup (2)");
     expect(hudSetupTitle({ blocks: 1, degrades: 2 })).toBe("1 thing stops the story. 2 things weaken it.");
   });
@@ -204,7 +211,7 @@ describe("v2.7 plan 04 C: one surface", () => {
 
   it("Getting started reads the install checks", () => {
     expect(installFindings(everything({ ui: { authorView: true } })).map((step) => step.check))
-      .toEqual(["context-over-server", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "styles-missing", "images-on-no-service", "image-model-missing", "image-model-retired", "gpu-broker-no-text-model", "sprites-builtin-expressions"]);
+      .toEqual(["context-over-server", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing", "images-on-no-service", "image-model-missing", "image-model-retired", "gpu-broker-no-text-model", "sprites-builtin-expressions"]);
     expect(installFindings(everything()).map((step) => step.check)).toEqual(["context-over-server", "styles-missing", "sprites-builtin-expressions"]);
   });
 
@@ -238,5 +245,29 @@ describe("v2.7 plan 04 privacy leg (K1, F34): the copier finding a player sees d
     expect(setupFindings(author(true)).degrades[0]?.detail).toMatch(/A secret is held right now/);
     expect(setupFindings(author(false)).degrades[0]?.detail).toMatch(/No secret is held yet/);
     expect(setupFindings(author(true)).degrades[0]?.consequence).toBe(setupFindings(author(false)).degrades[0]?.consequence);
+  });
+});
+
+describe("v2.8 small fixes 2: an absent GPU broker is named only when it matters", () => {
+  const gpu = CHECKS.find((check) => check.id === "gpu-broker-absent") as Check;
+  const author = (imageHealth: Record<string, unknown>) => quiet({ storyId: null, ui: { authorView: true }, imageHealth: { ...IMAGE_HEALTH, ...imageHealth } });
+
+  it("is info, author-only and points at the image settings", () => {
+    expect(gpu).toMatchObject({ severity: "info", audience: "author", scope: "install" });
+    expect(runCheck(gpu, author({ broker: null, localText: true }))).toMatchObject({ severity: "info", player: null, targetId: "so-image-settings" });
+    expect(setupFindings(author({ broker: null, localText: true })).info.map((step) => step.check)).toContain("gpu-broker-absent");
+    expect(setupCounts(author({ broker: null, localText: true }))).toEqual(setupCounts(author({ broker: "none", localText: true })));
+  });
+
+  it("a local text model is one served from this machine", () => {
+    expect(["http://127.0.0.1:5001", "http://localhost:8080/v1", "http://[::1]:8080"].map(loopbackUrl)).toEqual([true, true, true]);
+    expect(["https://api.example.com", "http://192.168.50.130:8000", "", "not a url"].map(loopbackUrl)).toEqual([false, false, false, false]);
+  });
+
+  it("stays quiet with a broker, a remote text model or images off", () => {
+    expect(runCheck(gpu, author({ broker: "none", localText: true }))).toBeNull();
+    expect(runCheck(gpu, author({ broker: null, localText: false }))).toBeNull();
+    expect(runCheck(gpu, author({ broker: null }))).toBeNull();
+    expect(runCheck(gpu, author({ broker: null, localText: true, enabled: false }))).toBeNull();
   });
 });

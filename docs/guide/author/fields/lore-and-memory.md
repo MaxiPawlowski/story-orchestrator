@@ -74,7 +74,7 @@ Topic `house-rules`.
 
 Field: `house_rules[]`: at most 8 rules, each at most 240 characters, no duplicates (`schema.ts` `HOUSE_RULES_MAX`, `validate/storyOptions.ts` `readHouseRules`).
 
-- **What it does.** Rules every reply is checked against by the continuity warden; a broken rule is named in the next reply's prompt. The check is on by default although it is below its measured floor (`judge.uses.houseRules`, `src/judge/settings.ts` `JUDGE_USES_OFF_BY_DEFAULT` is empty).
+- **What it does.** Rules every reply is checked against by the continuity warden; a broken rule is named in the next reply's prompt. The check is on by default although it is below its measured floor (`judge.uses.houseRules`, `src/judge/settings.ts` `JUDGE_USES_OFF_BY_DEFAULT` is empty). It shares the warden's judge call under its own switch: the Continuity warden switch (`stagecraft.wardenEnabled`) covers the fact and lore check only.
 - **Good.** `"{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop."`; `"Magic is never used inside the city walls."`
 - **Bad.** `"No magic in the city and keep replies short."`
 - **If wrong.** The check asks one question per rule, so a rule with two demands is judged on whichever one the model reads (`house-rule-compound`). One rule, one demand; no "and" or `;` compounds.

@@ -10,8 +10,18 @@ export interface ImageHealthView {
   source: string | null;
   missingModels: string[];
   broker: ImageBrokerAdapter | null;
+  localText?: boolean;
   storyWorkflows?: { wanted: string[]; missing: string[]; missingNodes: string[]; comfySource: boolean };
 }
+
+export const loopbackUrl = (url: string | null | undefined): boolean => {
+  try {
+    const host = new URL(url ?? "").hostname.replace(/^\[|\]$/g, "").toLowerCase();
+    return host === "localhost" || host === "::1" || /^127\./.test(host);
+  } catch {
+    return false;
+  }
+};
 
 let current: ImageHealthView | null = null;
 

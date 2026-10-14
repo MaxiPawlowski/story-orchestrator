@@ -67,7 +67,7 @@ export const createBridgeRoute = (bridge: AgentToolBridge, target: HarnessTarget
       const raw = JSON.stringify({ tool: event.tool, args: event.args });
       const parsed: ParsedAgentReply = expect === "plan"
         ? { ok: false, issues: [PLAN_FIRST] }
-        : { ok: true, reply: { kind: "call", call: { tool: event.tool, args: event.args } } };
+        : { ok: true, reply: { kind: "call", call: { tool: event.tool, args: event.args, ...(event.argsError ? { argsError: event.argsError } : {}) } } };
       return answerFor(prompt, raw, parsed, tokens + estimateTokens(raw), check);
     },
     settle: async (turn: AgentTurn) => {

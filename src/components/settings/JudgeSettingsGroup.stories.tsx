@@ -284,6 +284,19 @@ export const RoutedToAnUncalibratedLocalProvider: Story = {
   },
 };
 
+export const AttentionAndVoiceUseTheWardensRoute: Story = {
+  args: { settings: settings({ enabled: true }, { attentionCheck: true, wardenVoice: true, stallCheck: true }), authorView: true },
+  play: async ({ canvasElement }) => {
+    for (const id of ["#so-judge-provider-attention-check", "#so-judge-provider-warden-voice"]) {
+      const control = required(canvasElement.querySelector(id), id);
+      await expect(control.tagName).toBe("SPAN");
+      await expect(control.textContent).toMatch(/Uses the warden's route/);
+    }
+    await expect(canvasElement.querySelector("select#so-judge-provider-stall-check")).not.toBeNull();
+    await expect(canvasElement.querySelector("select#so-judge-provider-warden")).not.toBeNull();
+  },
+};
+
 export const RoutedToARefusedLocalProvider: Story = {
   args: {
     settings: settings({ enabled: true, provider: { ...defaultJudgeSettings().provider, director: "llama-logprob" } }, { director: true }),
