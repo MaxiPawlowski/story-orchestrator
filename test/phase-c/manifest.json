@@ -79,7 +79,13 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/payload/b0-live-cand-r1 (candidate, not the predecessor)",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/payload/b0-live-cand-r2 (candidate, not the predecessor)"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-payload (so-payload-golden, no model)",
+        "disposition": "acceptance",
+        "note": "re-captured as the C0 baseline on the frozen candidate"
+      }
     },
     {
       "id": "35-K2",
@@ -105,7 +111,13 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b1b-2026-10-08/lane-4/debug/batch/2026-10-08T08-14-59-572Z/live-v25-09-sp6-k2-run1",
         "so-sessions:evidence/phase-c/b1b-2026-10-08/lane-4/debug/batch/2026-10-08T08-14-59-572Z/live-v25-09-sp6-k2-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS4.5",
+        "disposition": "carried",
+        "note": "evidence pair exists; GS4.5 re-reads the block placement on the production path"
+      }
     },
     {
       "id": "35-K3",
@@ -133,7 +145,13 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b1c-2026-10-08/local/k3 (run 1 only, 4 cells, provisional; carried check harness-INCOMPLETE)",
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "none",
+        "disposition": "deferred",
+        "note": "SP6 measurement; floors informational (owner 2026-10-09); runs with plan 49 C8 when a pod or a free 3090 night is approved"
+      }
     },
     {
       "id": "35-K4",
@@ -158,7 +176,13 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b1c-2026-10-08/local/k3 (run 1 only, provisional)",
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "offline",
+        "disposition": "deferred",
+        "note": "scored from 35-K3 runs; deferred with it"
+      }
     },
     {
       "id": "35-K5",
@@ -184,7 +208,13 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b1c-2026-10-08/local/k3 (run 1 only, INCOMPLETE: pooled denominator < 20)",
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "none",
+        "disposition": "deferred",
+        "note": "needs >= 20 pooled releases (queue R3); deferred with SP6"
+      }
     },
     {
       "id": "35-M1",
@@ -208,7 +238,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "campaign lab offline (counts only)",
+        "disposition": "informational"
+      }
     },
     {
       "id": "35-M2",
@@ -237,7 +272,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "campaign v28-adolion-encounters-model (other agent), run 1 tail",
+        "disposition": "informational",
+        "note": "pull quality recorded once; its acceptance turns run x2"
+      }
     },
     {
       "id": "36-Q1-M1",
@@ -264,7 +305,13 @@
       "evidence": [
         "test/phase-c/records/36-Q1-M1/run-1.json (b1b-2026-10-08)",
         "test/phase-c/records/36-Q1-M1/run-2.json (b1b-2026-10-08)"
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "none",
+        "disposition": "retired",
+        "note": "retired 2026-10-13 into S-17/37-S17 (v2.7 36)"
+      }
     },
     {
       "id": "36-Q1-M2",
@@ -290,7 +337,13 @@
       "evidence": [
         "test/phase-c/records/36-Q1-M2/run-1.json (b1b-2026-10-08)",
         "test/phase-c/records/36-Q1-M2/run-2.json (b1b-2026-10-08)"
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "none",
+        "disposition": "carried",
+        "note": "evidence pair exists"
+      }
     },
     {
       "id": "37-M1",
@@ -320,7 +373,13 @@
       "evidence": [
         "test/phase-c/records/37-M1/run-1.json (b1b-2026-10-08)",
         "test/phase-c/records/37-M1/run-2.json (b1b-2026-10-08)"
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "none",
+        "disposition": "carried",
+        "note": "evidence pair exists"
+      }
     },
     {
       "id": "37-M2",
@@ -349,7 +408,13 @@
       "evidence": [
         "test/phase-c/records/37-M2/run-1.json (b1b-2026-10-08)",
         "test/phase-c/records/37-M2/run-2.json (b1b-2026-10-08)"
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "none",
+        "disposition": "carried",
+        "note": "evidence pair exists"
+      }
     },
     {
       "id": "S-17",
@@ -378,7 +443,13 @@
       "evidence": [
         "test/phase-c/records/S-17/run-1.json (b1b-2026-10-08)",
         "test/phase-c/records/S-17/run-2.json (b1b-2026-10-08)"
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "none",
+        "disposition": "carried",
+        "note": "PASS x2 after F27 on master 83403197"
+      }
     },
     {
       "id": "37-S17",
@@ -406,7 +477,13 @@
       "evidence": [
         "test/phase-c/records/37-S17/run-1.json (b1b-2026-10-08)",
         "test/phase-c/records/37-S17/run-2.json (b1b-2026-10-08)"
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "none",
+        "disposition": "carried",
+        "note": "PASS x2 after F27"
+      }
     },
     {
       "id": "37-L3",
@@ -436,7 +513,13 @@
       "evidence": [
         "test/phase-c/records/37-L3/run-1.json (b1b-2026-10-08)",
         "test/phase-c/records/37-L3/run-2.json (b1b-2026-10-08)"
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "none",
+        "disposition": "carried",
+        "note": "evidence pair exists"
+      }
     },
     {
       "id": "37-L6-C",
@@ -466,7 +549,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL offline (frozen fixture or recorded inputs)",
+        "disposition": "carried",
+        "note": "local x2 PASS recorded in v2.8 31 M8, not yet written into this manifest"
+      }
     },
     {
       "id": "B1-C3",
@@ -500,7 +589,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "offline from GS1-GS4 judge tails (so-b1-judge-causes score)",
+        "disposition": "informational",
+        "note": "no dedicated play; >= 100 calls per use pooled over the golden sessions, else recorded short"
+      }
     },
     {
       "id": "B1-C12",
@@ -529,7 +624,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "offline from GS1-GS4 judge tails",
+        "disposition": "informational"
+      }
     },
     {
       "id": "B1-R4",
@@ -559,7 +659,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "none",
+        "disposition": "deferred",
+        "note": "blind preference pack; needs arm runs"
+      }
     },
     {
       "id": "B1-PAR",
@@ -588,7 +694,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "none",
+        "disposition": "cut",
+        "note": "sizes LLM_PARALLEL on a pod; the plan runs one 3090 lane; reopen only with the optional pod block P1 (15 min there)"
+      }
     },
     {
       "id": "B1-PFX",
@@ -617,7 +729,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "optional pod block P2",
+        "disposition": "deferred",
+        "note": "needs --swa-full and more VRAM than the 3090 or the RTX PRO 4500 hold at 98K"
+      }
     },
     {
       "id": "B1-HIST",
@@ -646,7 +764,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "optional pod block P2",
+        "disposition": "deferred",
+        "note": "98K arm does not fit the 3090 profile (32K)"
+      }
     },
     {
       "id": "C0-freeze",
@@ -672,7 +796,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-local",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "C0-goldens",
@@ -696,7 +825,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-payload (so-payload-golden, no model)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "C1-gates",
@@ -721,7 +855,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-local",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "C1-release",
@@ -745,7 +884,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-local",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "C1-clean-host",
@@ -770,7 +914,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-local",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "C1b-ratchet",
@@ -795,7 +944,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-local",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "37-B3",
@@ -822,7 +976,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-local",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "C2-corpus",
@@ -847,7 +1006,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/batches/batch-2026-10-08T01-52-26-610Z.json",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/local/corpus2.log"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "C2-rendered-targets",
@@ -873,7 +1037,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "16-K1",
@@ -898,7 +1067,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "16-07-A3A8",
@@ -922,7 +1096,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/local/seed2-r1.log",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/local/seed2-r2.log"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "adolion-fresh seed + check, day 0",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "16-01-in-app-walk",
@@ -950,7 +1129,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-d-01-in-app-walk-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-d-01-in-app-walk-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "16-02-C1",
@@ -975,7 +1159,13 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/effects-story-scenario-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/effects-story-scenario-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance",
+        "note": "GS1.4 adds the real-reply half"
+      }
     },
     {
       "id": "16-02-C2-K1",
@@ -1003,7 +1193,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T00-07-50-956Z/v27-d-02-c2-k1-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T00-07-50-956Z/v27-d-02-c2-k1-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "16-02-C11-F1a",
@@ -1031,7 +1226,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T20-42-09-161Z/v27-d-02-c11-f1a-run1",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T20-42-09-161Z/v27-d-02-c11-f1a-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "16-02-C13",
@@ -1059,7 +1259,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-d-02-c13-curator-tiers-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-d-02-c13-curator-tiers-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "16-02-C14",
@@ -1087,7 +1292,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T20-42-09-161Z/v27-d-02-c14-role-picker-run1",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T20-42-09-161Z/v27-d-02-c14-role-picker-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "16-03-group-only",
@@ -1112,7 +1322,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-03-no-group-solo-blob-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-03-no-group-solo-blob-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "16-04-health-center",
@@ -1140,7 +1355,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-27-58-201Z/v27-d-04-health-center-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-27-58-201Z/v27-d-04-health-center-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "16-05-briefing",
@@ -1168,7 +1388,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-04-10-004Z/v27-d-05-briefing-run1",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-04-10-004Z/v27-d-05-briefing-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "16-06-presence",
@@ -1196,7 +1421,13 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T20-42-09-161Z/v27-d-06-presence-run1",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T20-42-09-161Z/v27-d-06-presence-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance",
+        "note": "GS1.7 adds a real seal"
+      }
     },
     {
       "id": "16-07-A6",
@@ -1220,7 +1451,13 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/local/badges2-r1.observed.json",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/local/badges2-r2.log"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "adolion-fresh no-model lane, day 0",
+        "disposition": "acceptance",
+        "note": "AS-smoke adds the live half"
+      }
     },
     {
       "id": "16-08-thinking",
@@ -1248,7 +1485,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-00-37-110Z/v27-d-08-thinking-warning-run1",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-00-37-110Z/v27-d-08-thinking-warning-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "16-09-commitment",
@@ -1276,7 +1518,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T20-42-09-161Z/v27-d-09-commit-hold-run1",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T20-42-09-161Z/v27-d-09-commit-hold-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "16-10-catch-up",
@@ -1304,7 +1551,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T02-40-53-492Z/v27-d-10-edit-catch-up-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T02-40-53-492Z/v27-d-10-edit-catch-up-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "O2",
@@ -1328,7 +1580,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "29-D1",
@@ -1352,7 +1609,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "29-D2",
@@ -1376,7 +1638,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "30-D1",
@@ -1400,7 +1667,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "30-D2",
@@ -1424,7 +1696,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "30-D3",
@@ -1448,7 +1725,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "31-G3",
@@ -1472,7 +1754,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "32-W4-scenario",
@@ -1497,7 +1784,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T20-42-09-161Z/v27-32-images-clean-host-run1",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T20-42-09-161Z/v27-32-images-clean-host-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "33-D-clean",
@@ -1521,7 +1813,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance",
+        "note": "GS4.6 adds the live sweep"
+      }
     },
     {
       "id": "34-L-flow",
@@ -1546,7 +1844,13 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-34-player-setup-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-34-player-setup-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance",
+        "note": "GS1.1 adds the live start"
+      }
     },
     {
       "id": "34-L-F11",
@@ -1570,7 +1874,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-34-player-setup-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-34-player-setup-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "34-L-switch",
@@ -1594,7 +1903,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-persona-switch-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-persona-switch-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "34-L-reopen",
@@ -1618,7 +1932,13 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-persona-switch-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-persona-switch-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance",
+        "note": "GS1.8 adds the live reopen"
+      }
     },
     {
       "id": "34-L-restart",
@@ -1642,7 +1962,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-persona-switch-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-persona-switch-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "34-L-fixed",
@@ -1666,7 +1991,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-fixed-name-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-fixed-name-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "34-L-brief-off",
@@ -1690,7 +2020,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-34-player-setup-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-34-player-setup-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "34-L-solo",
@@ -1714,7 +2049,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-solo-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-34-solo-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "34-L-harness",
@@ -1738,7 +2078,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "34-L-multiuser",
@@ -1762,7 +2107,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "S-04",
@@ -1790,7 +2140,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-34-lock-refused-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-34-lock-refused-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "S-05",
@@ -1818,7 +2173,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-38-13-662Z/v27-34-switch-during-write-run1",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-38-13-662Z/v27-34-switch-during-write-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "S-09",
@@ -1846,7 +2206,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T21-51-24-503Z/v27-35-side-exit-run1",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T21-51-24-503Z/v27-35-side-exit-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "35-P2-curve",
@@ -1871,7 +2236,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-35-open-stretch-curve-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-35-open-stretch-curve-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "35-P2-clean",
@@ -1895,7 +2265,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "36-Q5-scn",
@@ -1920,7 +2295,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-36-quests-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-36-quests-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "36-P-live",
@@ -1944,7 +2324,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance",
+        "note": "GS1.3 adds a real read"
+      }
     },
     {
       "id": "36-spoiler-sweep",
@@ -1968,7 +2354,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "37-D1",
@@ -1996,7 +2387,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-37-character-life-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-1/debug/batch/2026-10-08T01-52-26-610Z/v27-37-character-life-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "37-D2",
@@ -2025,7 +2421,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T20-42-09-161Z/v27-37-whereabouts-run1",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T20-42-09-161Z/v27-37-whereabouts-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "37-D3",
@@ -2053,7 +2454,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-37-agenda-effect-run1",
         "so-sessions:evidence/phase-c/b0-live-r2-2026-10-07/lane-2/debug/batch/2026-10-08T01-52-26-610Z/v27-37-agenda-effect-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "37-spoiler",
@@ -2077,7 +2483,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance",
+        "note": "GS1.5 and GS2.7 add live sweeps"
+      }
     },
     {
       "id": "C3-preservation",
@@ -2103,7 +2515,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-payload (so-payload-golden, no model)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "C3-repeatability",
@@ -2128,7 +2545,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-payload (so-payload-golden, no model)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "PC-role-line",
@@ -2157,7 +2579,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-payload (so-payload-golden, no model)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "PC-open-stretch",
@@ -2186,7 +2613,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-payload (so-payload-golden, no model)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "PC-check-outcomes",
@@ -2215,7 +2647,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-payload (so-payload-golden, no model)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "PC-agency-notes",
@@ -2244,7 +2681,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-payload (so-payload-golden, no model)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "PC-quest-scope",
@@ -2273,7 +2715,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-payload (so-payload-golden, no model)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "PC-relationship-scope",
@@ -2302,7 +2749,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-payload (so-payload-golden, no model)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "PC-privacy",
@@ -2330,7 +2782,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-payload (so-payload-golden, no model)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "PC-off-path",
@@ -2354,7 +2811,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-payload (so-payload-golden, no model)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "J0",
@@ -2380,7 +2842,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T20-42-09-161Z/J0-run1",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T20-42-09-161Z/J0-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "J1",
@@ -2407,7 +2874,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance",
+        "note": "journey on the cloud reply model: its checks read the pipeline, not Artemis text"
+      }
     },
     {
       "id": "J2",
@@ -2434,7 +2907,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "J3",
@@ -2461,7 +2939,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "J4",
@@ -2488,7 +2971,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "no-model lane (0 checks need a model)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "J5",
@@ -2515,7 +3003,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "J6",
@@ -2542,7 +3035,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "J7",
@@ -2569,7 +3067,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance",
+        "note": "46 min synthetic long haul moved to the cloud lane; GS3 carries the campaign long chat on Artemis"
+      }
     },
     {
       "id": "J8",
@@ -2596,7 +3100,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "J9",
@@ -2623,7 +3132,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance",
+        "note": "wizard on the default Sol route"
+      }
     },
     {
       "id": "J10",
@@ -2650,7 +3165,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "J11",
@@ -2677,7 +3197,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance",
+        "note": "judge uses on TypeSafe; reply is the carrier"
+      }
     },
     {
       "id": "J12",
@@ -2704,7 +3230,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "J13",
@@ -2731,7 +3262,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "T-R4 block (Artemis, llama.cpp)",
+        "disposition": "acceptance",
+        "note": "preset overlay exists only on Text Completion"
+      }
     },
     {
       "id": "J14",
@@ -2758,7 +3295,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "no-model lane (0 checks need a model)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "J6-W1",
@@ -2784,7 +3326,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "O1",
@@ -2809,7 +3356,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "C8b-stranger",
+        "disposition": "acceptance",
+        "note": "merged: same first-reply-from-guidance question; C8b keeps the clean install"
+      }
     },
     {
       "id": "O3",
@@ -2835,7 +3388,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "O4",
@@ -2861,7 +3419,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "O5",
@@ -2885,7 +3448,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "O6",
@@ -2909,7 +3477,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "O7",
@@ -2934,7 +3507,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "GS2.5",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "O8",
@@ -2958,7 +3536,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "O9",
@@ -2983,7 +3566,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS1.2",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "O10",
@@ -3007,7 +3595,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "O11",
@@ -3031,7 +3624,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "O12",
@@ -3055,7 +3653,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-local",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "O13",
@@ -3080,7 +3683,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS1.4",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "O13b",
@@ -3104,7 +3712,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance",
+        "note": "Sol"
+      }
     },
     {
       "id": "O14",
@@ -3129,7 +3743,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "GS2.5",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "O15",
@@ -3154,7 +3773,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL offline (frozen fixture or recorded inputs)",
+        "disposition": "acceptance",
+        "note": "second-model campaign review, counts only"
+      }
     },
     {
       "id": "O16",
@@ -3179,7 +3804,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance",
+        "note": "Sol"
+      }
     },
     {
       "id": "C14-b",
@@ -3205,7 +3836,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL offline (frozen fixture or recorded inputs)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "C4-R6",
@@ -3232,7 +3868,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS4.2 (functional); rubric rating informational",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "C4-J8",
@@ -3258,7 +3899,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance",
+        "note": "J8 house rules on/off arms on the cloud lane"
+      }
     },
     {
       "id": "R4-live",
@@ -3283,7 +3930,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "T-R4 (live-v28-24-reply-effort)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "33-W1-V0",
@@ -3311,7 +3963,13 @@
       ],
       "labels": [
         "33 W1 V0 traced"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "none",
+        "disposition": "carried",
+        "note": "evidence pair exists"
+      }
     },
     {
       "id": "33-W1-V3",
@@ -3341,7 +3999,12 @@
       ],
       "labels": [
         "33 W1 V3 post-processor"
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "33-W1-V4",
@@ -3367,7 +4030,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "33-W1-V5",
@@ -3392,7 +4060,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance",
+        "note": "derived from V3/V4"
+      }
     },
     {
       "id": "33-W1-V7-live",
@@ -3421,7 +4095,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "33-W2-oversteer",
@@ -3448,7 +4127,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "over-steer so-session card, x1",
+        "disposition": "informational",
+        "note": "40-turn card; floors are v2.9 04, informational"
+      }
     },
     {
       "id": "33-W2-J8.10",
@@ -3473,7 +4158,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "33-W3-N1",
@@ -3498,7 +4188,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL offline (frozen fixture or recorded inputs)",
+        "disposition": "informational",
+        "note": "calibration"
+      }
     },
     {
       "id": "33-W3-combined",
@@ -3523,7 +4219,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL offline (frozen fixture or recorded inputs)",
+        "disposition": "informational",
+        "note": "fixture rows"
+      }
     },
     {
       "id": "33-W3-live",
@@ -3547,7 +4249,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "GS2.2",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "33-W4-live",
@@ -3571,7 +4278,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "GS1.9 (Artemis lane) + CL suggestions block",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "33-W4-spoiler",
@@ -3595,7 +4307,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "GS1.9 + CL suggestions block (10 runs)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "33-W4-useful",
@@ -3620,7 +4337,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL offline (frozen fixture or recorded inputs)",
+        "disposition": "informational",
+        "note": "rated sets"
+      }
     },
     {
       "id": "34-RP",
@@ -3648,7 +4371,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS1.1",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "34-copy",
@@ -3672,7 +4400,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS1.10 (second-model read, counts only)",
+        "disposition": "informational"
+      }
     },
     {
       "id": "S-06",
@@ -3701,7 +4434,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS1.1",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "S-07",
@@ -3728,7 +4466,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance",
+        "note": "CL privacy block"
+      }
     },
     {
       "id": "S-08",
@@ -3755,7 +4499,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance",
+        "note": "CL privacy block"
+      }
     },
     {
       "id": "S-10",
@@ -3784,7 +4534,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS1.6",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "S-11",
@@ -3811,7 +4566,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance",
+        "note": "CL privacy block"
+      }
     },
     {
       "id": "S-12",
@@ -3838,7 +4599,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance",
+        "note": "CL privacy block"
+      }
     },
     {
       "id": "S-15",
@@ -3866,7 +4633,13 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/local/S-15-jest-run1.log + so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-44-50-999Z/v27-37-agenda-effect-run1",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/local/S-15-jest-run2.log + so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T22-44-50-999Z/v27-37-agenda-effect-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "none",
+        "disposition": "carried",
+        "note": "evidence pair exists"
+      }
     },
     {
       "id": "S-16",
@@ -3893,7 +4666,13 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T23-02-50-269Z/v27-36-quest-lifecycle-run1",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-2/debug/batch/2026-10-07T23-02-50-269Z/v27-36-quest-lifecycle-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "none",
+        "disposition": "carried",
+        "note": "evidence pair exists"
+      }
     },
     {
       "id": "S-19",
@@ -3922,7 +4701,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS3.2",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "S-19-OOC",
@@ -3952,7 +4736,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS3.2",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "37-S19",
@@ -3981,7 +4770,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS3.3",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "37-M1-C5",
@@ -4006,7 +4800,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL offline (frozen fixture or recorded inputs)",
+        "disposition": "informational",
+        "note": "local x2 PASS; re-run offline on the candidate"
+      }
     },
     {
       "id": "37-M3",
@@ -4038,7 +4838,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "none",
+        "disposition": "deferred",
+        "note": "life on vs off A/B with a rater; needs arm runs"
+      }
     },
     {
       "id": "36-Q3",
@@ -4065,7 +4871,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "T-Q3 synthetic checks story, x1",
+        "disposition": "informational",
+        "note": "campaign stories author no checks; the functional half is PC-check-outcomes"
+      }
     },
     {
       "id": "36-pilot-academy",
@@ -4091,7 +4903,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS1.3",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "36-pilot-saga",
@@ -4116,7 +4933,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS3.1/GS3.6",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "35-M2-C5",
@@ -4142,7 +4964,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "campaign v28-adolion-encounters-model run 1 tail",
+        "disposition": "informational"
+      }
     },
     {
       "id": "35-K3-C5",
@@ -4168,7 +4995,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "none",
+        "disposition": "deferred",
+        "note": "SP6, with plan 49 C8"
+      }
     },
     {
       "id": "35-K4-C5",
@@ -4193,7 +5026,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "offline",
+        "disposition": "deferred",
+        "note": "SP6, with plan 49 C8"
+      }
     },
     {
       "id": "35-K5-C5",
@@ -4218,7 +5057,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "none",
+        "disposition": "deferred",
+        "note": "SP6, with plan 49 C8"
+      }
     },
     {
       "id": "35-P3-K2",
@@ -4244,7 +5089,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS4.5",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "35-P4-M2",
@@ -4271,7 +5121,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "none",
+        "disposition": "cut",
+        "note": "pressure stays refused (v2.8 19); 35-DROP proves the refusal"
+      }
     },
     {
       "id": "35-P4-K3",
@@ -4298,7 +5154,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "none",
+        "disposition": "cut",
+        "note": "pressure stays refused (v2.8 19)"
+      }
     },
     {
       "id": "35-P4-K4",
@@ -4323,7 +5185,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "none",
+        "disposition": "cut",
+        "note": "pressure stays refused (v2.8 19)"
+      }
     },
     {
       "id": "35-ENC",
@@ -4348,7 +5216,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-local",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "35-DROP",
@@ -4373,7 +5246,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-local",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "32-W8-S32-1",
@@ -4402,7 +5280,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance",
+        "note": "stop each arm at 15 mentioning replies (39a S6)"
+      }
     },
     {
       "id": "32-W6-stream",
@@ -4427,7 +5311,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance",
+        "note": "text-driven lip-sync on a real Artemis stream"
+      }
     },
     {
       "id": "32-W1-A",
@@ -4452,7 +5342,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "32-W1-template",
@@ -4476,7 +5371,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "32-W1-director",
@@ -4501,7 +5401,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "32-W2-B",
@@ -4525,7 +5430,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "32-W3",
@@ -4550,7 +5460,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "32-W4-nobroker",
@@ -4574,7 +5489,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "32-W5-builder",
@@ -4601,7 +5521,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "informational",
+        "note": "rating informational"
+      }
     },
     {
       "id": "32-W5-cancel",
@@ -4625,7 +5551,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "32-W5-cleanup",
@@ -4649,7 +5580,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "32-W5-base",
@@ -4673,7 +5609,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "32-W6-frames",
@@ -4697,7 +5638,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "32-W6-seam",
@@ -4721,7 +5667,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL offline (frozen fixture or recorded inputs)",
+        "disposition": "informational",
+        "note": "rated clips"
+      }
     },
     {
       "id": "32-W7-look",
@@ -4747,7 +5699,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "S32-2",
@@ -4772,7 +5729,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "informational",
+        "note": "rated sets informational"
+      }
     },
     {
       "id": "S32-2-lifecycle",
@@ -4797,7 +5760,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "32-director-payload",
@@ -4822,7 +5790,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL offline (frozen fixture or recorded inputs)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "16-18-refadopt",
@@ -4846,7 +5819,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "16-19-S28",
@@ -4872,7 +5850,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "informational",
+        "note": "blind, preference and performance floors informational"
+      }
     },
     {
       "id": "16-20-local-card",
@@ -4897,7 +5881,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LT",
+        "carrier": "night N3 (local route on the 3090)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "38-D13b",
@@ -4922,7 +5911,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "38-D13c",
@@ -4946,7 +5940,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance",
+        "note": "counts only"
+      }
     },
     {
       "id": "38-assets-saga",
@@ -4970,7 +5970,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance",
+        "note": "counts only"
+      }
     },
     {
       "id": "C6-stage",
@@ -4998,7 +6004,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "LI",
+        "carrier": "GS5 media block, night N3 (3090 through the broker)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "38-G-campaign",
@@ -5022,7 +6033,13 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/local/38-G-campaign-run1.log",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/local/38-G-campaign-run2.log"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-local",
+        "disposition": "acceptance",
+        "note": "campaign check_all on the pin"
+      }
     },
     {
       "id": "38-C7",
@@ -5048,7 +6065,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP+CL",
+        "carrier": "GS1, GS3, GS4 (Artemis) + GS2 and AS-smoke (cloud)",
+        "disposition": "acceptance",
+        "note": "merged: the nine 2 h units become three Artemis golden sessions plus a 9-story cloud smoke"
+      }
     },
     {
       "id": "38-C7-life",
@@ -5073,7 +6096,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "GS2.7 (+ GS1.5 on Artemis)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "38-C7-quest",
@@ -5098,7 +6126,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS1.3",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "C8-smoke",
@@ -5123,7 +6156,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "AS-smoke",
+        "disposition": "acceptance",
+        "note": "merged"
+      }
     },
     {
       "id": "C8b-stranger",
@@ -5147,7 +6186,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance",
+        "note": "fresh lane, guide only"
+      }
     },
     {
       "id": "Z-docs",
@@ -5171,7 +6216,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-local",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "Z-attestation",
@@ -5196,7 +6246,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-local",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "S-19-OOC-b",
@@ -5224,7 +6279,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS3.2 + GS4.6",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "37-Q1",
@@ -5251,7 +6311,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-46-28-644Z/v27-37-start-seed-run1",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/lane-1/debug/batch/2026-10-07T22-46-28-644Z/v27-37-start-seed-run2"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "37-Q2",
@@ -5278,7 +6343,12 @@
       "evidence": [
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/local/37-Q2-run1.log",
         "so-sessions:evidence/phase-c/b0-live-2026-10-07/local/37-Q2-run2.log"
-      ]
+      ],
+      "v28": {
+        "tier": "D",
+        "carrier": "D-lane (no-model corpus, lanes 30+)",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "37-Q3",
@@ -5306,7 +6376,12 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "GS3.3 (live occurrence) + D row",
+        "disposition": "acceptance"
+      }
     },
     {
       "id": "S-13",
@@ -5334,7 +6409,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "CL",
+        "carrier": "CL lane (cloud reply, Sol authoring, TypeSafe)",
+        "disposition": "acceptance",
+        "note": "CL privacy block"
+      }
     },
     {
       "id": "B1-EMPTY",
@@ -5363,7 +6444,13 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "offline count over GS1-GS4 chat files and spike records",
+        "disposition": "informational",
+        "note": "replaces the formal arms"
+      }
     },
     {
       "id": "B1-NARR",
@@ -5392,7 +6479,18 @@
       "evidence": [
         null,
         null
-      ]
+      ],
+      "v28": {
+        "tier": "RP",
+        "carrier": "none",
+        "disposition": "deferred",
+        "note": "run 1 PASS recorded; run 2 waits for a pod block"
+      }
     }
-  ]
+  ],
+  "v28": {
+    "plan": "docs/plans/v2.8/24-test-plan.md",
+    "writtenAt": "2026-10-14",
+    "note": "Each row carries v28 {tier, carrier, disposition}: where the v2.8 final suite closes it. Dispositions: acceptance (x2 in the suite), informational (x1, record only), deferred (informational, outside the capped suite), carried (evidence pair kept; re-run only if a path it covers changed since, owner decision 24 Q2), cut, retired. Plan 39 parity is unchanged."
+  }
 }

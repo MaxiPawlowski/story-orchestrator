@@ -1,0 +1,235 @@
+{
+  "id": "GS4",
+  "title": "golden session 4: the stubborn player (adolion-esha, Artemis)",
+  "objective": "v2.8 24 golden session GS4. One adolion-fresh lane with Artemis v1.1 (3090 or pod), shipped defaults: thinking and inner voice on, judge on TypeSafe, warden on, agency notes in auto, authoring on Sol, images and sprites off. Story adolion-esha (a small cast, agency policies on several checkpoints, authored complications) in its own group, picked by id; the player declares outcomes, refuses the prepared road, hedges, writes OOC and goes quiet. Player lines are generic and name nothing from the campaign. 14 real player turns. Run twice back to back on one lane, run 2 from the seeded snapshot. The 40-turn over-steer card (33-W2-oversteer) is a separate informational so-session run (24 §Informational). Written, validated by the loader, not run yet.",
+  "expensive": true,
+  "setup": {
+    "newChat": true,
+    "resetChatState": true,
+    "snapshotGlobalConfig": true,
+    "group": "Adolion - Eshalanore",
+    "extraction": {
+      "cadence": 3,
+      "stabilityLag": 0,
+      "profile": "inherit"
+    }
+  },
+  "cleanup": {
+    "restoreConfig": true,
+    "deleteChat": true
+  },
+  "capabilities": {},
+  "checks": [
+    {
+      "id": "GS4.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Lane guard and start. Closes: stories (esha unit of 38-C7), continuity-warden on shipped defaults.",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); if (!ctx.groupId) throw new Error('needs the story group open'); if (!(rt.getSnapshot().library ?? []).some((r) => r.id === 'adolion-esha')) throw new Error('adolion-esha is not in the library: seed the lane with adolion-fresh first'); const s = rt.getGlobalSettings(); if (!s.stagecraft.wardenEnabled) throw new Error('the warden is off; the suite runs on shipped defaults'); if (!s.memory.innerBeat || !s.judge.enabled) throw new Error('inner voice or judge is off'); if (s.image?.enabled || s.sprites?.enabled) throw new Error('images or sprites are on'); return { agencyAcceptMode: s.stagecraft.agencyAcceptMode };"
+        },
+        {
+          "select_story": "adolion-esha"
+        },
+        {
+          "ui": {
+            "action": "select-profile"
+          }
+        },
+        {
+          "expect": {
+            "storyId": "adolion-esha",
+            "requirementsReady": true
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I take in my surroundings and the people around me before I say anything.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I ask whoever is closest what is happening here, and listen carefully.",
+            "timeoutMs": 900000
+          }
+        }
+      ]
+    },
+    {
+      "id": "GS4.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "The player declares outcomes. Closes: judge-use-agency-check, continuity-warden (an agency note raised, applied once to the outermost loud generation, lapsed after the next player line); rows C4-R6 functional half (the reply after the note is kept for the rater; the rubric score is informational), 33-W2 auto mode in real play.",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__gs4Journal = rt.getSessionJournal().length; return { journal: globalThis.__gs4Journal };"
+        },
+        {
+          "send_generate": {
+            "text": "I win the argument at once and everyone here agrees to do exactly what I say.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "They all hand me what I asked for and the matter is settled in my favour.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const fresh = rt.getSessionJournal().slice(globalThis.__gs4Journal ?? 0); const agency = fresh.filter((e) => /agency|warden|continuity/i.test(`${e.kind} ${e.summary}`)).length; const asks = (rt.extras?.judge?.calls ?? []).filter((c) => /agency|warden/i.test(c.use)).length; if (!asks) throw new Error('no agency or warden judge call over two declared-outcome turns'); return { journalRows: agency, judgeAsks: asks };"
+        }
+      ]
+    },
+    {
+      "id": "GS4.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "The player refuses the prepared road. Closes: agency policy (a refusal streak is counted in player turns, the author recovery offered, never narrated compliance); row 33-W2-J8.10 live context. Two refusals in a row.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "No. I refuse to do what is expected of me and I walk away from it.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I still refuse. I will not go along with it, whatever they say.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const rec = rt.getSnapshot().agencyRecovery; return { recovery: Boolean(rec), turns: rec?.turns ?? 0 };"
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ]
+    },
+    {
+      "id": "GS4.4",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Hedges and double negatives do not latch. Closes: judge-use-typed-extraction on hedged lines (a hedge never moves a guarded value on that turn); the campaign's guarded-value cases are the campaign-side scenario v28-adolion-commit-model (24 §Targeted RP), not repeated here.",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__gs4Board = JSON.stringify(rt.getSnapshot().blackboard); return { keys: Object.keys(rt.getSnapshot().blackboard).length };"
+        },
+        {
+          "send_generate": {
+            "text": "I don't say I won't help, but I'm not promising anything either.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "Maybe. I might, or I might not. I haven't decided.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = JSON.parse(globalThis.__gs4Board ?? '{}'); const now = rt.getSnapshot().blackboard; const meta = rt.getSnapshot().blackboardMeta ?? {}; const latchedByRead = Object.keys(now).filter((k) => now[k] !== before[k] && meta[k]?.latched && meta[k]?.source !== 'code').length; return { latchedOnHedges: latchedByRead };"
+        }
+      ]
+    },
+    {
+      "id": "GS4.5",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Silence and quiet turns, and a complication on the production path. Closes: experiments (SP6 complication release on an authored complication_after streak, its block placement, assert-player-clean on a release), judge-use-idle-check, judge-use-stall-check; rows 35-P3-K2 (released block on the production path), 35-K2 functional re-check. Jumps to the first checkpoint with authored complications (by structure), then quiet turns.",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const st = rt.loaded?.story; const here = rt.getSnapshot().activeCheckpointId; const cp = (st?.checkpoints ?? []).find((c) => c.id !== here && Array.isArray(c.complications) && c.complications.length); if (!cp) throw new Error('the story has no checkpoint with authored complications'); const pending = rt.activateCheckpoint(cp.id); for (let i = 0; i < 40; i++) { await new Promise((r) => setTimeout(r, 250)); const b = [...document.querySelectorAll('.popup button, .popup .menu_button')].find((n) => /Jump without sealing/.test(n.textContent ?? '')); if (b) { b.click(); break; } if (rt.getSnapshot().activeCheckpointId === cp.id) break; } if (!(await pending)) throw new Error('the jump did not take'); return { jumped: true, after: cp.complication_after ?? null };"
+        },
+        {
+          "send_generate": {
+            "text": "I say nothing and wait.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I keep waiting and watch the others.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I still say nothing.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.capturePayload('gs4-complication'); const blocks = (rt.getSnapshot().payloadCaptures ?? []).find((c) => c.reason === 'gs4-complication')?.blocks ?? []; const comp = blocks.filter((b) => /complication/i.test(String(b.key ?? b.id ?? ''))).length; const spikes = globalThis.storyOrchestratorSpikes; return { complicationBlocks: comp, spikesHandle: Boolean(spikes) };"
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ]
+    },
+    {
+      "id": "GS4.6",
+      "mode": "auto",
+      "findings": [],
+      "goal": "OOC in a tense scene and the end of the core run. Closes: rows S-19-OOC-b (a pending note stays pending through OOC lines and the next loud generation carries it), 33-D-clean live. Ends with a player-clean sweep.",
+      "steps": [
+        {
+          "send": "((OOC: sorry, I need a second to think about my next move.))"
+        },
+        {
+          "send_generate": {
+            "text": "I make up my mind and act on it.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ]
+    }
+  ]
+}

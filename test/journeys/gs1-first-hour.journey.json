@@ -1,0 +1,354 @@
+{
+  "id": "GS1",
+  "title": "golden session 1: the first hour (adolion-academy, Artemis)",
+  "objective": "v2.8 24 golden session GS1. One adolion-fresh lane with Artemis v1.1 on the 3090 (or a pod lane), shipped defaults: thinking and inner voice on, judge on TypeSafe, authoring on the default Sol route, images and sprites off. Story adolion-academy in its own group, picked by id; nothing here names campaign content: checkpoints are chosen by structure at run time and player lines are generic. 16 real player turns. Run twice back to back on one lane, run 2 from the seeded lane snapshot taken before run 1 (24 §Rules 5). Each check names the feature and manifest rows it closes (24 §Golden sessions). Written, validated by the loader, not run yet: the first run is a shakedown, not evidence.",
+  "expensive": true,
+  "setup": {
+    "newChat": true,
+    "resetChatState": true,
+    "snapshotGlobalConfig": true,
+    "group": "Adolion - House Nightriver",
+    "extraction": {
+      "cadence": 3,
+      "stabilityLag": 0,
+      "profile": "inherit"
+    }
+  },
+  "cleanup": {
+    "restoreConfig": true,
+    "deleteChat": true
+  },
+  "capabilities": {
+    "player-setup": "typeof globalThis.storyOrchestratorRuntime?.getSnapshot?.().playerSetup !== 'undefined'",
+    "game-view": "typeof globalThis.storyOrchestratorRuntime?.getSnapshot?.().game !== 'undefined'"
+  },
+  "checks": [
+    {
+      "id": "GS1.1",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Lane guard and start. Closes: features stories, group-binding, story-briefing, briefing-draft (real draft on the authoring route), player-setup; rows 34-RP (start setup, persona in the first prompt), 34-L-flow/34-L-fixed live, S-06 (role line once), O1 start half. Briefing and identity step are switched back on for this check (so-journey suppresses them by default) and restored by cleanup.",
+      "requires": ["player-setup"],
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); if (!ctx.groupId) throw new Error('needs the story group open'); const lib = rt.getSnapshot().library ?? []; if (!lib.some((r) => r.id === 'adolion-academy')) throw new Error('adolion-academy is not in the library: seed the lane with adolion-fresh first'); const s = rt.getGlobalSettings(); if (!s.memory.innerBeat) throw new Error('inner voice is off; the suite runs with it on'); if (!s.judge.enabled) throw new Error('judge is off; golden sessions run on shipped defaults'); if (s.image?.enabled || s.sprites?.enabled) throw new Error('images or sprites are on; only GS5 runs with media'); rt.setUiSettings({ briefing: true, playerSetup: true }); return { stories: lib.length };"
+        },
+        {
+          "select_story": "adolion-academy"
+        },
+        {
+          "ui": {
+            "action": "select-profile"
+          }
+        },
+        {
+          "expect": {
+            "storyId": "adolion-academy",
+            "requirementsReady": true
+          }
+        },
+        {
+          "ui": {
+            "action": "briefing"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); const b = snap.briefing; if (!b) throw new Error('no briefing state after the story started in a new chat'); const ps = snap.playerSetup; if (!ps) throw new Error('no identity step state'); return { briefing: Boolean(b.view ?? b), setupPending: ps.pending ?? null };"
+        },
+        {
+          "ui": {
+            "action": "briefing-dismiss"
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); for (let i = 0; i < 120 && rt.getSnapshot().playerSetup?.pending; i++) await new Promise((r) => setTimeout(r, 500)); const ps = rt.getSnapshot().playerSetup; if (ps?.pending) throw new Error('identity step still pending after 60 s'); if (!ctx.chatMetadata?.persona) throw new Error('no persona locked to the chat after the identity step'); return { locked: true };"
+        },
+        {
+          "wait": {
+            "idle": true,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.capturePayload('gs1-start'); const blocks = (rt.getSnapshot().payloadCaptures ?? []).find((c) => c.reason === 'gs1-start')?.blocks ?? []; const role = blocks.filter((b) => /player/i.test(String(b.key ?? b.id ?? '')) && /role/i.test(String(b.key ?? b.id ?? ''))); if (role.length > 1) throw new Error(`player role block appears ${role.length} times (S-06: once)`); return { blocks: blocks.length, roleBlocks: role.length };"
+        }
+      ]
+    },
+    {
+      "id": "GS1.2",
+      "mode": "auto",
+      "findings": [],
+      "goal": "First four real turns on Artemis with thinking on. Closes: reply-thinking (thought kept out of the visible reply, harvest on), inner-voice (a beat recorded for a drafted member), talk-chain and speaker-direction (more than one voice on a turn the story drafts several), hud, inline-notes (level 1 chips), memory (audits land); rows O9 (thinking row, HUD chip and harvest line after real replies, player and Author view), 38-C7 start half. Thought-only replies counted for B1-EMPTY offline scoring (24 §Offline).",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I take in my surroundings and the people around me before I say anything.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I ask whoever is closest what is happening here, and listen carefully.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I nod and follow along, keeping my eyes open.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I tell them plainly what I want to do next and ask for their help.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "eval": "const ctx = SillyTavern.getContext(); const replies = ctx.chat.filter((m) => !m.is_user && !m.is_system && typeof m.mes === 'string'); if (replies.length < 4) throw new Error(`expected at least 4 rendered replies, saw ${replies.length}`); const leaked = replies.filter((m) => /<\\/?think>|<\\|channel\\|>/i.test(m.mes)).length; if (leaked) throw new Error(`${leaked} replies show thought markup in the visible text`); const thought = replies.filter((m) => typeof m.extra?.reasoning === 'string' && m.extra.reasoning.trim()).length; if (!thought) throw new Error('no reply carries a kept thought: thinking is expected on'); const empty = replies.filter((m) => !m.mes.trim()).length; const speakers = new Set(replies.map((m) => m.name)).size; return { replies: replies.length, withThought: thought, emptyKept: empty, speakers };"
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); if (snap.thinkingSilent) throw new Error('thinking reported silent after real replies (O9)'); const audits = snap.extraction?.audits?.length ?? 0; if (!audits) throw new Error('no extraction audit after 4 turns at cadence 3'); const inner = (snap.modelCallRing ?? []).filter((c) => /inner/i.test(String(c.pass))).length; return { audits, innerCalls: inner, boundary: snap.boundary };"
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ]
+    },
+    {
+      "id": "GS1.3",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Reads drive the game layer in real play. Closes: quests, journal, stat-sheet, story-panels (player views fill from real reads), recap; rows 36-pilot-academy (counts only), 38-C7-quest, 36-P-live with a real read. A quest that no read opened in 6 turns is recorded (count), and the check then opens one through an author write so the panels still get exercised; the record says which path ran.",
+      "requires": ["game-view"],
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I ask about anything that needs doing around here, and who I should talk to about it.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I agree to help with the first thing they mention.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const game = rt.getSnapshot().game; if (!game) throw new Error('no game view for a story with quests and widgets'); const open = game.quests.filter((q) => q.status === 'active' || q.status === 'offered' || q.status === 'done').length; globalThis.__gs1QuestPath = open ? 'read' : 'author'; if (!open) { const st = rt.loaded?.story; const q = (st?.quests ?? []).find((x) => x.visible_when && 'q' in x.visible_when && st.qualityByKey[x.visible_when.q]?.type === 'bool'); if (!q) throw new Error('no quest with a single bool visible_when to open by an author write'); await rt.setQuality(q.visible_when.q, 'true'); } const after = rt.getSnapshot().game; const shown = after.quests.filter((q) => q.status !== 'hidden').length; if (!shown) throw new Error('no quest visible to the player after the read or the author write'); return { path: globalThis.__gs1QuestPath, questsShown: shown, journal: after.journal.length, statSheet: Boolean(after.statSheet), widgets: after.widgets.length };"
+        },
+        {
+          "ui": {
+            "action": "open-drawer"
+          }
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ]
+    },
+    {
+      "id": "GS1.4",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Story scenario in real replies. Closes: story-scenario (SP5), effects; rows O13, queue R11 (SP5 live legs), 16-02-C1 live. Jumps by author write to the first checkpoint whose effects carry a scenario (chosen by structure), plays two real turns, and asserts the scenario block in the drafted request and the effect ledger row.",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const st = rt.loaded?.story; if (!st) throw new Error('no story loaded'); const here = rt.getSnapshot().activeCheckpointId; const cp = st.checkpoints.find((c) => c.id !== here && c.effects?.scenario); if (!cp) throw new Error('the story has no checkpoint with a scenario effect'); const pending = rt.activateCheckpoint(cp.id); for (let i = 0; i < 40; i++) { await new Promise((r) => setTimeout(r, 250)); const b = [...document.querySelectorAll('.popup button, .popup .menu_button')].find((n) => /Jump without sealing/.test(n.textContent ?? '')); if (b) { b.click(); break; } if (rt.getSnapshot().activeCheckpointId === cp.id) break; } if (!(await pending) || rt.getSnapshot().activeCheckpointId !== cp.id) throw new Error('the jump did not take'); return { jumped: true };"
+        },
+        {
+          "send_generate": {
+            "text": "I look around to get my bearings in this new situation.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I ask a question about what was just said.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.capturePayload('gs1-scenario'); const blocks = (rt.getSnapshot().payloadCaptures ?? []).find((c) => c.reason === 'gs1-scenario')?.blocks ?? []; const scen = blocks.filter((b) => /scenario/i.test(String(b.key ?? b.id ?? ''))); if (!scen.length) throw new Error('no scenario block in the prompt ST holds at an authored scenario checkpoint'); const ledger = rt.getSnapshot().effects?.ledger ?? []; return { scenarioBlocks: scen.length, ledgerRows: ledger.length };"
+        }
+      ]
+    },
+    {
+      "id": "GS1.5",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Character life and private knowledge in real play. Closes: character-life, private-knowledge, inner-voice; rows 37-spoiler live, 38-C7-life (academy half). A drafted member with authored relationships gets a private block; no life value reaches a player surface.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I stay quiet and watch how the others react.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const st = rt.loaded?.story; const member = (st?.roster ?? []).find((m) => Array.isArray(m.relationships) ? m.relationships.length : m.relationships && Object.keys(m.relationships).length); if (!member) throw new Error('no roster member with authored relationships'); const names = rt.getSnapshot().castNames ?? {}; const name = names[member.id] ?? member.name; const chid = ctx.characters.findIndex((c) => c.name === name); if (chid < 0) throw new Error('the related member has no installed card'); await rt.onMemberDrafted(chid); const block = String(rt.getAppliedEpistemicBlock() ?? ''); const lifeAuthor = rt.getSnapshot().lifeAuthor; return { privateBlockChars: block.length, lifeRows: lifeAuthor ? Object.keys(lifeAuthor).length : 0 };"
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ]
+    },
+    {
+      "id": "GS1.6",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Rollback in real play. Closes: branches (swipe), memory rollback; rows S-10 (requests during a swipe equal the chat with the reply deleted, rule 12: captured inputs), 16-10-catch-up live half, 38-C7 rollback half. A real swipe regenerates the newest reply; then a delete; the engine replays to the same checkpoint and boundary log.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I think it over for a moment, then press on.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "record_state": {
+            "as": "gs1-before-swipe"
+          }
+        },
+        {
+          "swipe": {
+            "messageId": "last",
+            "swipeId": 1
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "delete": {
+            "messageId": "last"
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); if (snap.rollbackUnavailable) throw new Error(`rollback unavailable: ${JSON.stringify(snap.rollbackUnavailable)}`); if (!snap.activeCheckpointId) throw new Error('no active checkpoint after the swipe and delete'); return { boundary: snap.boundary, lastRollback: Boolean(snap.lastRollback) };"
+        }
+      ]
+    },
+    {
+      "id": "GS1.7",
+      "mode": "auto",
+      "findings": [],
+      "goal": "A real chapter seal. Closes: chapters (seal on the memory route, chapter card), recap; rows 16-06-presence chapter card on a real seal, 38-C7 chapter half. Jumps to the first checkpoint of the next authored chapter and answers the jump question with Seal it, so the seal runs on the real memory model; asserts a sealed record and a player chapter title.",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const st = rt.loaded?.story; const here = rt.getSnapshot().activeCheckpointId; const mine = st?.chapterByCheckpoint?.[here]; const cp = (st?.checkpoints ?? []).find((c) => st.chapterByCheckpoint?.[c.id] && st.chapterByCheckpoint[c.id] !== mine); if (!cp) throw new Error('no checkpoint in another chapter'); const before = rt.getSnapshot().chapters?.records?.length ?? 0; const pending = rt.activateCheckpoint(cp.id); let answered = false; for (let i = 0; i < 80 && !answered; i++) { await new Promise((r) => setTimeout(r, 250)); const b = [...document.querySelectorAll('.popup button, .popup .menu_button')].find((n) => /Seal it, then jump/.test(n.textContent ?? '')); if (b) { b.click(); answered = true; } } if (!answered) throw new Error('the chapter jump question never showed'); if (!(await pending)) throw new Error('the jump did not take'); globalThis.__gs1SealsBefore = before; return { asked: true, recordsBefore: before };"
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ch = rt.getSnapshot().chapters; if (!ch?.declared) throw new Error('the story declares chapters but the view says none'); const n = ch.records?.length ?? 0; if (n <= (globalThis.__gs1SealsBefore ?? 0)) throw new Error('no sealed chapter record after Seal it'); if (!ch.current?.playerTitle) throw new Error('no player chapter title for the new chapter'); return { records: n };"
+        },
+        {
+          "send_generate": {
+            "text": "I take a breath and carry on.",
+            "timeoutMs": 900000
+          }
+        }
+      ]
+    },
+    {
+      "id": "GS1.8",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Reopen. Closes: recap (welcome back), player-setup lock on reopen; rows 34-L-reopen live, 16-05-briefing not re-shown, 38-C7 reopen half. A real page reload; the chat reopens with the lock held, the start pane not re-offered, the story and boundary intact.",
+      "steps": [
+        {
+          "record_state": {
+            "as": "gs1-before-reload"
+          }
+        },
+        {
+          "reload": {
+            "timeoutMs": 90000
+          }
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); for (let i = 0; i < 60 && rt.getSnapshot().storyId !== 'adolion-academy'; i++) await new Promise((r) => setTimeout(r, 500)); const snap = rt.getSnapshot(); if (snap.storyId !== 'adolion-academy') throw new Error('the story did not come back after reload'); if (snap.playerSetup?.pending) throw new Error('the identity step was offered again on reopen'); if (!ctx.chatMetadata?.persona) throw new Error('the persona lock did not survive the reload'); return { boundary: snap.boundary };"
+        },
+        {
+          "send_generate": {
+            "text": "I pick up where we left off.",
+            "timeoutMs": 900000
+          }
+        }
+      ]
+    },
+    {
+      "id": "GS1.9",
+      "mode": "auto",
+      "findings": [],
+      "goal": "Player Ask and suggestions in a real story. Closes: ask (player route on the authoring model), suggestions; rows M20 re-check, 33-W4-live (fills the box, never sends), 33-W4-spoiler (no unreached checkpoint name), O2. The answer and the suggestion text are checked against the names of unreached checkpoints, read at run time from the pinned story, never written here.",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ask = globalThis.storyOrchestratorAsk; if (!ask?.ask) throw new Error('storyOrchestratorAsk is not available'); const answer = await ask.ask('What should I be doing right now?', 'player'); const text = String(answer?.text ?? answer?.answer ?? answer ?? ''); if (!text.trim()) throw new Error('empty Ask answer'); const snap = rt.getSnapshot(); const unreached = snap.checkpoints.filter((c) => !c.visited && !c.active).map((c) => c.name).filter((n) => n && n.length > 3); const hit = unreached.filter((n) => text.toLowerCase().includes(n.toLowerCase())); if (hit.length) throw new Error(`the player Ask answer names ${hit.length} unreached checkpoint(s)`); return { answerChars: text.length, unreachedChecked: unreached.length };"
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ]
+    },
+    {
+      "id": "GS1.10",
+      "mode": "human",
+      "findings": [],
+      "goal": "Start-pane and briefing copy read in play by the session's second model (never the owner: the campaign stays unspoiled). Closes row 34-copy. Each finding filed with severity; the record keeps counts only.",
+      "steps": [
+        {
+          "ui": {
+            "action": "screenshot"
+          }
+        }
+      ]
+    }
+  ]
+}
