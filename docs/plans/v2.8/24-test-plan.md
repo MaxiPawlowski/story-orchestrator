@@ -48,6 +48,25 @@ DeepSeek capped at EUR 15. 3090 image time about 9 h, listed apart. Old estimate
 10. **A written fixture is not a passed gate.** The golden sessions and smoke files below are validated by the loader
     and have never run; their first run on a model lane is a shakedown. A harness defect found there is fixed and the
     row re-run ×2 (39a triage).
+11. **Readiness before the suite** (owner 2026-10-14). No golden session, smoke batch or Phase C row runs until
+    all three checks below are recorded green in §Gate record (lists, counts only):
+    - **Campaign scenarios and data.** Every row whose carrier is a golden session, AS-smoke or a campaign `lab/`
+      scenario has the story structure it needs in the pinned campaign (`adolion-fresh.pin.json`): the checkpoint
+      shapes, qualities, quests, life, stretches, encounters and lab copies its checks find by structure, plus every
+      model-lane scenario it names. Check: campaign `scripts/check_all.sh` green, `lab/v28/check.py` resolves every
+      group, member, story, checkpoint and mocked delta, `adolion-fresh check <lane>` 0 problems, and a
+      row → carrier → campaign file list with no gaps. Missing data is added in the campaign repo (pin bump +
+      reinstall), never faked in a fixture. Content review goes to a second model (rule 9).
+    - **Plugin docs current.** Every built feature in the registry has its guide topic and settings page up to date:
+      `copilot/guideCoverage.test.ts` and the guide drift test green, `npm run docs:guide` and `npm run docs:settings`
+      leave no diff, and each merged plan since the last check (including 41, 52, 46, 47, 53, 60, 54) has its user
+      guide section and Gate record. A feature whose docs lag is listed, fixed, then the check re-runs.
+    - **Coverage is complete.** Every feature id in `src/features/` maps to at least one row in §Feature → validation
+      matrix, every row names a carrier that exists (journey check, scenario file, jest file or measurement row),
+      every planned test case in the plan docs' floor tables maps to a row or is listed with a reason in §Cuts and
+      merges, and every newly merged plan (42–69) moves from §Planned features into the matrix when built. A
+      generated coverage report (registry ids × matrix rows × carriers × plan floors) is attached to the record;
+      an unmapped feature or floor is a red check, not a footnote.
 
 ## Budget
 
