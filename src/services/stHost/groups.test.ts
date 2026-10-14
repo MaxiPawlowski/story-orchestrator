@@ -8,7 +8,12 @@ const state = {
 const edited: Array<{ id: string; immediately: boolean }> = [];
 const server: { answer: "page" | "stale" | "unreadable"; stale: typeof state.groups } = { answer: "page", stale: [] };
 
-jest.mock("./context", () => ({ getContext: () => ({ groupId: state.groupId, groups: state.groups, characters: [], getRequestHeaders: () => ({}) }) }));
+const announced: string[] = [];
+const characters = [{ avatar: "x.png" }, { avatar: "a.png" }];
+jest.mock("./context", () => ({ getContext: () => ({
+  groupId: state.groupId, groups: state.groups, characters, getRequestHeaders: () => ({}),
+  eventTypes: { GROUP_UPDATED: "group_updated" }, eventSource: { emit: async (event: string) => { announced.push(event); } },
+}) }));
 jest.mock("./modules", () => ({ groupChatsModule: { editGroup: async (id: string, immediately: boolean) => { edited.push({ id, immediately }); } } }));
 
 import { readGroupMemberDisabled, setGroupMemberDisabled, setGroupMemberFlags, setGroupMembersDisabled } from "./groups";
@@ -64,6 +69,45 @@ describe("V15c: a cast write is saved now and read back, never left to ST's debo
     expect(result).toMatchObject({ ok: true, confirmed: false });
     server.answer = "page";
     expect(await setGroupMembersDisabled(["a.png"], [])).toMatchObject({ ok: true, confirmed: true });
+  });
+});
+
+describe("B6: a confirmed cast write tells ST and other extensions, as ST's own toggle does", () => {
+  it("emits GROUP_UPDATED and flips the open group's member row in ST's panel", async () => {
+    announced.length = 0;
+    const toggles: Array<[string, boolean]> = [];
+    const queried: string[] = [];
+    (globalThis as { document?: unknown }).document = {
+      querySelectorAll: (selector: string) => {
+        queried.push(selector);
+        return [{ classList: { toggle: (name: string, on: boolean) => toggles.push([name, on]) } }];
+      },
+    };
+    try {
+      expect(await setGroupMembersDisabled([], ["a.png"])).toMatchObject({ ok: true, confirmed: true });
+      expect(announced).toEqual(["group_updated"]);
+      expect(queried).toEqual(['.rm_group_members .group_member[data-chid="1"]']);
+      expect(toggles).toEqual([["disabled", true]]);
+      await setGroupMembersDisabled(["a.png"], []);
+      expect(toggles.at(-1)).toEqual(["disabled", false]);
+    } finally {
+      delete (globalThis as { document?: unknown }).document;
+    }
+  });
+
+  it("a lost write announces nothing; a write on a group that is not open announces without touching the panel", async () => {
+    announced.length = 0;
+    server.answer = "stale";
+    await setGroupMemberDisabled("luke.png", !readGroupMemberDisabled("luke.png", "recorded"), "recorded");
+    expect(announced).toEqual([]);
+    server.answer = "page";
+    (globalThis as { document?: unknown }).document = { querySelectorAll: () => { throw new Error("the panel shows the open group only"); } };
+    try {
+      expect((await setGroupMemberDisabled("luke.png", true, "recorded")).ok).toBe(true);
+      expect(announced).toEqual(["group_updated"]);
+    } finally {
+      delete (globalThis as { document?: unknown }).document;
+    }
   });
 });
 
