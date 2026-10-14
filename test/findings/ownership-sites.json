@@ -972,6 +972,82 @@
     "src/sprites/poses/stageBodies.ts#StagePoses.request": {
       "status": "checked",
       "note": "Plan 33: RunGuard and current-stage checks precede renders, saves and application. Tests: sprites/poses/bodyRenderer.test.ts."
+    },
+    "src/sprites/SpriteGroup.tsx#SpriteGroup>anonymous": {
+      "status": "local",
+      "note": "v2.8 review fixes (2026-10-14), census widened to .tsx: the author's confirmed removal of one story's generated sprite files (install-wide media, keyed by the story id named in the confirm), then the component's own notice. Not chat- or draft-scoped, so no run token applies (releaseGlobalStoryLore precedent)."
+    },
+    "src/studio/components/AgentWizard.tsx#AgentWizard.drive": {
+      "status": "delegate",
+      "note": "awaits driveAgent, which mints on draftOwnership and checks before every op it applies; afterwards only the component's busy/error state is written."
+    },
+    "src/studio/components/AgentWizard.tsx#AgentWizard.provision": {
+      "status": "delegate",
+      "note": "awaits confirmProvisioning, which checks draftOwnership after the asset is created and before the follow-up ops; afterwards only busy/error state and the next drive."
+    },
+    "src/studio/components/BaseSpriteBuilder.tsx#BaseSpriteBuilder.build": {
+      "status": "delegate",
+      "note": "awaits SpriteBuilder.build, which holds the draft RunGuard before upload, render and retaining a preview; afterwards only the component's candidate/error state, behind live.current."
+    },
+    "src/studio/components/BaseSpriteBuilder.tsx#BaseSpriteBuilder.keep": {
+      "status": "checked",
+      "note": "Mints on draftOwnership before the save and checks draftOwnership.check(run) after the decode, before the install-wide builder settings write."
+    },
+    "src/studio/components/CharacterTutorial.tsx#CharacterTutorial.draftIt": {
+      "status": "local",
+      "note": "After the drafting model call it writes only the tutorial's own card/notice/busy component state; the Studio draft is untouched until the author confirms the card (ReviewStep.apply)."
+    },
+    "src/studio/components/CharacterTutorial.tsx#ReviewStep.apply": {
+      "status": "delegate",
+      "note": "awaits provisionOwned, which re-checks draftOwnership after applyProvisioning and before the follow-up ops; the created asset goes to the ledger of the draft it was created for. Tests: studio/components/ownedProvisioning.test.ts."
+    },
+    "src/studio/components/GeneratedSpriteSets.tsx#GeneratedSpriteSets.erase": {
+      "status": "local",
+      "note": "The author's confirmed removal of one named generated sprite, compare-and-delete by sha256 in the media plugin, then the component's own list. Install-wide media, not chat- or draft-scoped, so no run token applies."
+    },
+    "src/studio/components/ownedProvisioning.ts#provisionOwned": {
+      "status": "checked",
+      "note": "v2.8 review fixes (2026-10-14): mints before applyProvisioning and checks ownership after it; a lapsed draft gets no follow-up ops (the created asset is still recorded in its own session ledger). Tests: studio/components/ownedProvisioning.test.ts."
+    },
+    "src/studio/components/ReferencePackPicker.tsx#ReferencePackPicker.adopt": {
+      "status": "checked",
+      "note": "Mints on draftOwnership before the pack checks and checks draftOwnership.check(run) before the install-wide builder settings write."
+    },
+    "src/studio/components/SpriteBuilder.tsx#SpriteBuilder.discover": {
+      "status": "local",
+      "note": "After the media discovery call it writes only the component's discovery/models/busy/error state, behind live.current."
+    },
+    "src/studio/components/SpriteBuilder.tsx#SpriteBuilder.generate": {
+      "status": "delegate",
+      "note": "awaits SpriteBuilder.build, which holds the draft RunGuard before upload, render and retaining a preview; afterwards it annotates its own result's timings and sets component preview state."
+    },
+    "src/studio/components/SpriteBuilder.tsx#SpriteBuilder.save": {
+      "status": "local",
+      "note": "SpriteBuilder.save (builder.ts) refuses a preview whose RunGuard lapsed before the upload starts. After the upload the writes are the install-wide builder settings keyed by the character whose file was just saved, and component state: not draft- or chat-scoped, so no re-check (an upload that landed is recorded)."
+    },
+    "src/studio/components/StoryEditor.tsx#IllustrationsSection>anonymous": {
+      "status": "todo",
+      "note": "Export with workflows: after awaiting bundleMapped it writes update({ bundle }) into the draft from the render-time `art` closure, with no draftOwnership check; an undo or draft switch during the read would merge into the wrong draft."
+    },
+    "src/studio/components/StudioCopilot.tsx#StagedWizard.run": {
+      "status": "todo",
+      "note": "After awaiting runStage it sets the proposal/questions and persists history under its render-time session key without a draftOwnership check; no draft write happens here (ops apply only on the author's click), but a proposal built for a replaced draft can still be shown."
+    },
+    "src/studio/components/StudioCopilot.tsx#useProvisioning.provision": {
+      "status": "delegate",
+      "note": "awaits provisionOwned, which re-checks draftOwnership after applyProvisioning and before the follow-up ops; the environment refresh runs only when it still owns. Tests: studio/components/ownedProvisioning.test.ts."
+    },
+    "src/studio/components/StudioGraph.tsx#StudioGraph.handleCopyMermaid": {
+      "status": "local",
+      "note": "Copies the graph text to the clipboard and sets the component's copied flag; no draft, chat or host state."
+    },
+    "src/studio/components/StudioToolbar.tsx#StudioToolbar.handleFile": {
+      "status": "local",
+      "note": "The author's own import: after reading the chosen file it replaces the whole draft by design (loadDraft bumps runEpoch, ending every older run) and sets toolbar feedback. It continues no earlier draft's work."
+    },
+    "src/studio/components/StudioToolbar.tsx#StudioToolbar.handleSave": {
+      "status": "local",
+      "note": "The library save and loadDraft run before the first await; after awaiting onSaved (the runtime's applyStoryUpdate owns the chat half) and the save evidence it writes only toolbar feedback/pending state."
     }
   }
 }
