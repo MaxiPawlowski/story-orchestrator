@@ -4,6 +4,7 @@ import { resolveFeatures } from "@runtime/featureResolve";
 import { getGlobalSettings } from "@runtime/settingsStore";
 import { useDraftStore } from "../draft";
 import { setFeaturePolicy } from "../mutations";
+import CodexEditor from "./CodexEditor";
 
 export default function StoryFeaturesEditor() {
   const draft = useDraftStore((state) => state.draft);
@@ -42,5 +43,6 @@ export default function StoryFeaturesEditor() {
         {resolved[id].masterOff && <p>Currently off on this install. The authored policy still travels with the story.</p>}
       </details>;
     })}
+    <CodexEditor />
   </section>;
 }

@@ -1,6 +1,8 @@
 # Plan 52 — People and Places codex
 
-**Status (2026-10-14): DRAFT, not built.** Owner decision 2026-10-14: plans 51–53 go into v2.8 and are written now.
+**Status (2026-10-14): option A + shared contract SC1–SC5 BUILT on `v2.8-p52-codex` (not merged); D floors green as jest;
+C7 (CL) and the live lane gate owed; B and E not built (see §Gate record).** Owner decision 2026-10-14: plans 51–53 go
+into v2.8 and are written now; owner 2026-10-14: "yes to all from your recommendations".
 Source row: v2.8 27 report G24 ("typed entity pages (people/places) with `known_when`"; target "new seed (Journal
 People/Places, v2.8 04)"). Gate tiers (v2.8 00 §Gate taxonomy): implementation **D**; acceptance **D** + **CL**
 (the wizard writes codex entries on the authoring route; optional fact route on the read model) + **RP** only if the

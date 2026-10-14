@@ -1,3 +1,4 @@
+import { foldEpistemicSignals, foldLedgerSignals, nameIndexOf } from "@memory/nameFold";
 import { progressQualityForAnchor, type BlackboardDelta, type EngineState, type NormalizedStoryV2, type NormalizedTransition } from "@engine/index";
 import { maxTokensForInput } from "@extraction/callBudget";
 import { askText } from "@extraction/modelRoute";
@@ -350,9 +351,8 @@ export class MemoryCoordinator {
   // --- epistemic / ledger ------------------------------------------------
 
   applyEpistemic(signals: ParsedEpistemicSignal[], messageId: number, retireIds: string[] = [], window?: { from: number; to: number }) {
-    const inner = innerRender();
-    const story = this.deps.getStory();
-    const common = dropCommonKnowledge(signals, enabledCharacterNames(story, this.deps.hosts.roster), this.state.epistemic);
+    const inner = innerRender(), story = this.deps.getStory();
+    const common = dropCommonKnowledge(foldEpistemicSignals(nameIndexOf(story), signals), enabledCharacterNames(story, this.deps.hosts.roster), this.state.epistemic);
     const kept = inner && window
       ? inner.admitIntents(common, inner.intentEvidence(this.deps.hosts.chat.chatWindow(window.from, window.to).messages, story?.requirements?.personas ?? []))
       : common.filter((signal) => signal.tag !== "intends");
@@ -365,7 +365,8 @@ export class MemoryCoordinator {
   }
 
   applyLedger(signals: ParsedLedgerSignal[], messageId: number) {
-    const applied = applyLedgerSignals(this.state.ledger, signals, buildBoundKeySet(this.ledgerBindings()), { boundary: this.boundaryStamp(), messageId });
+    const folded = foldLedgerSignals(nameIndexOf(this.deps.getStory()), signals);
+    const applied = applyLedgerSignals(this.state.ledger, folded, buildBoundKeySet(this.ledgerBindings()), { boundary: this.boundaryStamp(), messageId });
     this.patch({ ledger: capLedger(applied, undefined, undefined, this.deps.historyFloor?.() ?? null) }); this.updateInjection();
   }
 

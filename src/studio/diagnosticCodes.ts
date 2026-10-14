@@ -54,4 +54,7 @@ export const DIAGNOSTIC_CODES = [
   "map-pin-unreachable",
   "map-image-missing",
   "html-widget-declared",
+  "codex-fact-never-read",
+  "codex-gate-holds-at-start",
+  "disclosure-names-unknown-entity",
 ] as const;

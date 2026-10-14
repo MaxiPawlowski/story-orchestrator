@@ -37,6 +37,7 @@ export function gameSlices(input: GameSliceInput): { game: GameView | null; game
   const gameAuthor: GameAuthorView | null = input.authorView ? {
     quests: (story.quests ?? []).map((quest) => ({ id: quest.id, title: quest.title, status: questStatus(quest, reader) })),
     scopeOverflow: scopeDropped(story, state, "quest", input.scopeContext),
+    ...(story.codex ? { discoveryOverflow: scopeDropped(story, state, "discovery", input.scopeContext) } : {}),
     widgets: composed?.authorWidgets ?? [],
     provenance: composed?.provenance,
   } : null;

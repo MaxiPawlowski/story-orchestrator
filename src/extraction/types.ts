@@ -10,7 +10,7 @@ export interface ScopedQuality {
 }
 
 export interface ScopePull {
-  kind: "gate" | "snapshot" | "builtin" | "card" | "quest" | "relationship";
+  kind: "gate" | "snapshot" | "builtin" | "card" | "quest" | "relationship" | "discovery";
   checkpointId: string;
   detail: string;
 }

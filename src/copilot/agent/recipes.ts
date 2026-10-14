@@ -90,6 +90,23 @@ export const RECIPES = {
       { topic: "clues-and-maps", cue: "a clue's `text` that names a secret", text: "a clue's text shows the moment it is found: write what the player sees" },
     ],
   },
+  "codex-pages": {
+    title: "Add People and Places pages",
+    when: "the author wants the player's Journal to fill in with the people and places they learn about",
+    topics: ["codex", "gates"],
+    steps: [
+      { tool: "readGuide", does: "read the codex topic" },
+      { tool: "readGraph", does: "see which checkpoints the player reaches, to gate facts on them with reached" },
+      { tool: "setCodexEntry", does: "a page per cast member and the starting place: the opening place and the player's background \"start\", "
+        + "every other fact gated on a checkpoint the player reaches or a quality the story reads" },
+    ],
+    verify: VERIFY,
+    diagnostics: ["disclosure-names-unknown-entity", "codex-fact-never-read", "codex-gate-holds-at-start"],
+    traps: [
+      { topic: "codex", cue: "names a person the player has not met yet", text: "a fact shows the moment it is known: never name someone the player has not met under that gate" },
+      { topic: "codex", cue: "not a scene event", text: "write what stays true about the person or place, not what happened in one scene" },
+    ],
+  },
   chapters: {
     title: "Add chapters",
     when: "the author wants the story split into acts with written-up records",

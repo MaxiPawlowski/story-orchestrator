@@ -544,6 +544,7 @@ export interface RuntimeSnapshot {
   lastRollback: RollbackNotice | null;
   /** Display names keyed by avatar file, avatar stem and roster id, for player-facing cast lines. */
   castNames?: Record<string, string>;
+  sameCharacter?: string[];
   rollbackUnavailable: RollbackUnavailable | null;
   ledger: LedgerView[];
   /** Each memory row's fate and each tier's trim, from the last injection (author view, in memory only). */
