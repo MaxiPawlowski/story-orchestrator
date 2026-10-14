@@ -23,12 +23,17 @@ const WRITING = new RegExp([
   "\\bwrit(e|es|ing|ten)\\b", "\\bnarrat", "\\bdescrib", "\\bparagraphs?\\b", "\\btone\\b", "\\brepl(y|ies)\\b", "\\brespon(se|d|ds)\\b",
   "\\bscene\\b", "\\bportray", "\\bdepict", "\\bdialogue\\b", "\\bprose\\b", "\\bpersona\\b", "\\bnpcs?\\b", "\\bin[- ]character\\b",
   "\\bpersonality\\b", "\\btraits?\\b", "\\bthe user\\b", "\\bthe (story|narrative|plot)\\b", "\\bstop where\\b", "\\b(third|first|second) person\\b",
-  "\\bsensory\\b", "\\bthe reader\\b", "\\bthe prompt\\b", "\\bsystem\\b",
+  "\\bsensory\\b", "\\bthe reader\\b", "\\bthe prompt\\b", "\\bsystem\\b", "\\breact(s|ing)? to\\b", "\\bshows? how\\b", "\\breconcil",
+  "\\bdetermine (if|whether)\\b", "\\bremember\\b", "\\bimpersonat", "\\bmaintain", "\\bensure\\b", "\\bmake sure\\b", "\\bfocus on\\b",
+  "\\bhighlight", "\\bemphasi[sz]e", "\\bconvey", "\\bthis reality\\b", "\\bcharacters?\\b", "\\bstay true\\b", "\\bplayer\\b", ":\\s*$",
 ].join("|"), "i");
+
+const AUTHOR_VOICE = /(^|[.!?;:]\s*)i\b|\bi('ll| will| need| should| must| have to| want to| am going to| can| think)\b|\b(me|my|myself|let's|we)\b/i;
 
 const AIM_NOUN = "(?:goals?|aims?|wants?|desires?|motivations?|objectives?|intentions?|drives?|priorit(?:y|ies))";
 const AIM_VERB = "(?:wants?|needs? to|intends?|plans? to|hopes? to|is determined to|is trying to|longs? to|aims? to|is desperate to|resolves? to|means to|is set on|wishes? to|refuses to)";
 const ADVERB = "(?:(?:still|now|really|desperately|clearly|just|also|only|mostly|badly|secretly)\\s+)?";
+const NAME_STOP = new Set(["the", "and", "von", "van", "der", "lady", "lord", "sir"]);
 
 const escape = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -36,8 +41,20 @@ const subjects = (name: string): string => {
   const lower = name.trim().toLowerCase();
   const first = lower.split(/\s+/)[0] ?? "";
   const named = [...new Set([lower, ...(first.length >= 3 ? [first] : [])])].filter(Boolean).map(escape);
-  return `(?:${[...named, "he", "she", "they", "i"].join("|")})`;
+  return `(?:${[...named, "he", "she", "they"].join("|")})`;
 };
+
+export const playerTokens = (players: string[]): string[] => [...new Set(players.flatMap((player) => {
+  const lower = player.trim().toLowerCase();
+  return lower ? [lower, ...lower.split(/[^\p{L}\p{N}']+/u).filter((word) => word.length >= 3 && !NAME_STOP.has(word))] : [];
+}))];
+
+const names = (segment: string, tokens: string[]) => {
+  const flat = ` ${segment.toLowerCase().replace(/[^\p{L}\p{N}']+/gu, " ")} `;
+  return tokens.some((token) => flat.includes(` ${token} `) || flat.includes(` ${token}'s `));
+};
+
+const leadWords = (text: string, count: number) => text.split(/\s+/).slice(0, count).join(" ");
 
 const clean = (line: string) => line.replace(/\*\*|__|`/g, "").replace(/^\s*(?:[-*•]+|\d+[.)])\s*/, "").trim();
 
@@ -51,20 +68,20 @@ const clip = (text: string) => {
   return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), CARRY_MIN_CHARS)).trim()}…`;
 };
 
-const usable = (text: string, players: string[]) => {
-  const lower = text.toLowerCase();
-  if (text.length < CARRY_MIN_CHARS || isMetaCommentary(text) || WRITING.test(text)) return false;
-  return !players.some((player) => player && lower.startsWith(player.toLowerCase()));
-};
+const usable = (text: string, subject: string, tokens: string[]) =>
+  text.length >= CARRY_MIN_CHARS && !isMetaCommentary(text) && !WRITING.test(text) && !AUTHOR_VOICE.test(text) && !names(subject, tokens);
 
 export const aimsIn = (reasoning: string, name: string, players: string[]): string[] => {
   const who = subjects(name);
-  const label = new RegExp(`^(?:(?:${who})'s\\s+|his\\s+|her\\s+|their\\s+|my\\s+)?${AIM_NOUN}\\s*(?:\\([^)]*\\))?\\s*:\\s*(.+)$`, "i");
+  const tokens = playerTokens(players);
+  const label = new RegExp(`^(?:(?:${who})'s\\s+|his\\s+|her\\s+|their\\s+)?${AIM_NOUN}\\s*(?:\\([^)]*\\))?\\s*:\\s*(.+)$`, "i");
   const verb = new RegExp(`^${who}\\s+${ADVERB}${AIM_VERB}\\b`, "i");
   const owned = new RegExp(`^${who}'s\\s+(?:goal|aim|plan|desire|intention|priority)\\s+(?:is|remains|was)\\b`, "i");
+  const split = new RegExp(`\\s${ADVERB}${AIM_VERB}\\b|'s\\s`, "i");
+  const subjectOf = (sentence: string) => sentence.slice(0, Math.max(0, sentence.search(split)));
   const lines = reasoning.split(/\n+/).map(clean).filter(Boolean);
-  const labelled = lines.map((line) => label.exec(line)?.[1]?.trim() ?? "").filter((aim) => usable(aim, players));
-  const stated = sentences(reasoning).filter((sentence) => (verb.test(sentence) || owned.test(sentence)) && usable(sentence, players));
+  const labelled = lines.map((line) => label.exec(line)?.[1]?.trim() ?? "").filter((aim) => usable(aim, leadWords(aim, 3), tokens));
+  const stated = sentences(reasoning).filter((sentence) => (verb.test(sentence) || owned.test(sentence)) && usable(sentence, subjectOf(sentence), tokens));
   return [...labelled, ...stated.reverse()].map(clip);
 };
 

@@ -24,10 +24,16 @@ evidence. Stepped Thinking's second value, "that want persists across turns", is
 - **What:** the drafted member's own newest reply in the last 8 rows and after the active checkpoint's start message,
   never the member's in-progress draft row. From its reasoning: the first labelled aim (`goals:`, `aim:`, `wants:`,
   `motivation:`, … with an own possessive or none), else the latest sentence whose subject is the member (name, first
-  name, he/she/they/I) followed by an aim verb (`wants`, `needs to`, `intends`, `plans to`, `hopes to`, `is determined
+  name, he/she/they; `I` until the fix below) followed by an aim verb (`wants`, `needs to`, `intends`, `plans to`, `hopes to`, `is determined
   to`, …). Refused: meta-commentary (`isMetaCommentary`) and writing instructions (write, narrate, describe, tone, reply,
   scene, prose, persona, the user, the story, …), lines whose subject is the player (story personas plus the chat's user
   names) or another character, under 12 characters; clipped at 200.
+- **Picker fix (2026-10-14, after the CL miss; coordinator request):** the `I` subject and the `my` label are gone, and any
+  line with first-person author voice (`I need/should/will/…`, `me`, `my`, `we`, `let's`) is dropped; the player match is by
+  token (every persona and user-row name, plus each name word of 3+ letters), refusing a line whose subject segment (the words
+  before the aim verb, or a labelled aim's first three words) names the player; more direction markers are refused (`react to`,
+  `show how`, `reconcile`, `determine if`, `remember`, `impersonate`, `maintain`, `ensure`, `character`, `player`, a trailing
+  colon, …). An NPC aim that names the player as object ("Kael wants Max to hand over the map") is still carried.
 - **Line:** `(carried from your last thought) <aim>`, rendered by the existing path as `- Your intent this turn: …` in that
   member's private block only. It rides the beat channel, so the held-secret drop (`keptFrom`) applies unchanged, the
   narrator view never sees another member's carry, and the resting block stays empty.
@@ -77,3 +83,9 @@ corpus and ratings hold campaign text: they stay in the debug dir or the private
 - No-model scenario `test/scenarios/v28-a13-thought-carry.json` (debugResponse plumbing only; schema and requires validate): **not run, owed**. Creating a private ST copy under `C:devso-lanes` was refused by the session permission policy, and the owner ST, lane 0 and the real extension slot were left untouched.
 - RP legs L5-RP1..3: owed (no GPU work in this pass).
 - Campaign: install-wide spike, no authored field, so Adolion needs no change and no pin bump.
+
+### Addendum 2026-10-14: picker fix
+
+- Merged master (`4c2232c8`); plan renumbered 42 → 54 (42 is witness filter v2); references updated (queue A13, backlog D3, plan 37 L5, scenario note).
+- Fix as described in §L5 as built; 3 new jest cases from synthetic counterexamples (8 author-voice lines, 6 player/persona variants with 2 controls that must still carry, 10 direction markers with 1 control); each family holds lines the old picker carried (checked by bundling the previous file).
+- Re-score, **informational only: same recorded corpus, not fresh** (the fix was designed after reading its misses, so this is not a floor test). Picks 32/106 (yield 0.30), Sol 4 calls (batch 8), one run: precision 0.906, meta leak 0.000, player lines 0. Files `items-fix.json`, `ratings-fix.jsonl` in the same private evidence dir. Total Sol calls for A13: 14. The CL verdict stays the recorded FAIL ×2 on the as-built picker; a floor verdict on the fixed picker needs a fresh corpus (the RP leg).

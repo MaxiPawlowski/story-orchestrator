@@ -59,6 +59,35 @@ describe("v2.8 A13 L5 thought carry: the pure picker", () => {
     expect(aimsIn("Kael wants Max to hand over the map.", "Kael", ["Max"])).toEqual(["Kael wants Max to hand over the map."]);
   });
 
+  it("picker fix: refuses first-person author voice (synthetic counterexamples)", () => {
+    const voice = [
+      "I need to keep Kael guarded.", "I should have Kael refuse the deal.", "I'll make Kael glare at the door.", "My goals: keep the pace quick.",
+      "Goals: let me keep Kael cold.", "Kael wants to stall; I think that fits.", "Goals: we keep Kael angry.", "Kael needs to win, so I must show it.",
+    ];
+    for (const line of voice) expect([line, aimsIn(line, "Kael", ["Max"])]).toEqual([line, []]);
+  });
+
+  it("picker fix: refuses a line whose subject is the player under any name variant, or the persona", () => {
+    const players = ["Max Nightriver", "The Wanderer"];
+    const cases = [
+      "Goals: Max and Kael sneak out and infiltrate the keep.", "Goals: Nightriver hands over the map.", "Goals: Max's crew gets inside.",
+      "Goals: the wanderer opens the gate.", "Goals: Wanderer pays the toll.", "Kael wants the player to open the gate.",
+    ];
+    for (const line of cases) expect([line, aimsIn(line, "Kael", players)]).toEqual([line, []]);
+    expect(aimsIn("Kael wants Max to hand over the map.", "Kael", players)).toEqual(["Kael wants Max to hand over the map."]);
+    expect(aimsIn("Goals: get the map back from Max.", "Kael", players)).toEqual(["get the map back from Max."]);
+  });
+
+  it("picker fix: refuses narrative-direction markers", () => {
+    const meta = [
+      "Kael needs to react to the encounter.", "Kael needs to reconcile this.", "Goals: remember the earlier oath.", "Kael needs to show how the others feel.",
+      "Goal: impersonate the guard during this parley.", "Kael needs to determine if the guard is present.", "Kael needs to match this reality.",
+      "Kael wants to maintain the mood.", "Kael needs to stay true to his past.", "Goals:",
+    ];
+    for (const line of meta) expect([line, aimsIn(line, "Kael", ["Max"])]).toEqual([line, []]);
+    expect(aimsIn("Kael wants to leave the city before the bell.", "Kael", ["Max"])).toEqual(["Kael wants to leave the city before the bell."]);
+  });
+
   it("skips the member's in-progress draft row, reads only the window and the current checkpoint", () => {
     const drafting = [...chat(), { name: "Max", mes: "Well?", is_user: true }, { name: "Kael", mes: "", extra: { reasoning: "Kael's goals: something newer" } }];
     expect(pickCarry(input(drafting)).messageId).toBe(0);
