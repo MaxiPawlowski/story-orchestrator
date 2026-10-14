@@ -15,6 +15,9 @@ import BundledWorkflowsPanel from "./BundledWorkflowsPanel";
 import { bundleMapped, installBundled, mappedNames } from "../workflowBundle";
 import { comfyDiscover } from "@services/stHost/media";
 import { useDraftStore } from "../draft";
+import { draftOwnership } from "../agentHost";
+import { describeMismatch } from "@runtime/runToken";
+import { lapsedBundleCopy, withBundle } from "./ownedBundle";
 import { slugifyStoryId } from "@engine/index";
 import {
   addArcBridge, removeArcBridge, setArcTemplate, setBriefing, setHouseRules, setLoreSelect, setPlayer, setRequirements, setSceneRead, setStagecraft, setStoryField, setStoryId, updateArcBridge,
@@ -265,6 +268,7 @@ const readNodes = async (): Promise<string[] | null> => comfyDiscover().then((fo
 const IllustrationsSection = ({ draft, mutate }: { draft: Draft; mutate: Mutate }) => {
   const art = draft.illustrations;
   const update = (patch: NonNullable<Draft["illustrations"]>) => mutate((current) => setStoryField(current, "illustrations", { ...current.illustrations, ...patch }));
+  const applyBundle = (bundle: Parameters<typeof withBundle>[1]) => mutate((current) => setStoryField(current, "illustrations", withBundle(current.illustrations, bundle)));
   const names = useWorkflowNames();
   const mapped = mappedNames([art?.workflows, ...draft.checkpoints.map((checkpoint) => checkpoint.effects?.illustrations?.workflows)]);
   return <div data-so="story-illustrations" className="st-subpanel flex flex-col gap-3 p-3">
@@ -285,8 +289,11 @@ const IllustrationsSection = ({ draft, mutate }: { draft: Draft; mutate: Mutate 
     </Field>
     <BundledWorkflowsPanel bundle={art?.bundle} mapped={mapped} nodes={null}
       onBundle={async () => {
+        const run = draftOwnership.mint();
         const { bundle, skipped } = await bundleMapped(mapped);
-        update({ bundle: Object.keys(bundle).length ? { ...art?.bundle, ...bundle } : art?.bundle });
+        const owned = draftOwnership.check(run);
+        if (!owned.ok) return lapsedBundleCopy(describeMismatch(owned));
+        applyBundle(bundle);
         return `${Object.keys(bundle).length} workflow(s) copied into the story.${skipped.length ? ` Not readable: ${skipped.join(", ")}.` : ""}`;
       }}
       onInstall={async (name, entry) => installBundled(name, entry, await readNodes())}
