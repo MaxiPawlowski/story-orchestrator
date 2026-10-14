@@ -314,3 +314,93 @@ R14 is green ×2 with both the SDXL (earlier record) and Qwen sprite models. Evi
 
 GPU after the window: controller stopped (`node scripts/local/cli.mjs stop`), lane 38 stopped, no python/llama process,
 `nvidia-smi` 765 MiB used, no compute process of ours. Tray `status.txt` 6/6 OK.
+
+## Broker tuning 2026-10-14 (branch `v2.8-broker-tuning`, deterministic; 3090 run owed)
+
+Owner-approved after the re-run: (1) a data-driven Qwen RAM estimate, (2) render without unloading text when the image
+fits beside it. Built and tested without GPU or models; the 3090 block below is still owed.
+
+RAM estimate:
+- Data: the R14 re-run (`C:\dev\so-lanes\m3090-rerun-2026-10-14`): `samples.log` (5 s) and run1/run2 `ramSamples` (the
+  broker's own `/status` telemetry, Windows `FreePhysicalMemory`, the value admission compares). 8 Qwen leases.
+- Free-RAM drop from the reading at the grant: 822-4,468 MiB. From the idle reading before ComfyUI started: 2,518-6,782
+  MiB. The broker's learned footprints for the same leases: 2,220-5,915 MiB (never verified: the spread fails
+  `stableSamples`, so the learner never replaced the estimate).
+- Method: largest drop from idle (6,782 MiB, run2 batch A) × 1.2 (the footprint learner's own margin) = **8,139 MiB**.
+  The old value was the loader estimate, min(16,482 weights, 8,192) + 2,481 activation = 10,673 MiB. Reserve 4,096 MiB
+  unchanged: free RAM needed at the lease goes from 14,769 to 12,235 MiB.
+- Built: `broker/ramEstimates.mjs` (shipped measured table; a row matches the exact `kind:file` model set, a streaming
+  runtime, at most 1024×1024, no hires), config `ramEstimates` rows (validated) override it. Order: verified footprint,
+  config row, shipped row, loader estimate; a request's `needRamMiB` only raises it. `/status` `lastResidency.ramSource`
+  names which one decided.
+- Replayed readings: the re-run's lease grants (14,774-18,381 MiB) admit with at least 2,539 MiB to spare (old: 5 MiB);
+  plan 28's desktop-load reading (12,705 MiB) now admits the Qwen batch (old: refused); the first window's R14 readings
+  below 12,235 MiB (9,065, ...) still refuse.
+- No SDXL row: the first window's SDXL footprints ran with other agents on the box (760-8,144 MiB); the loader estimate
+  stays for SDXL.
+
+Keep text or swap:
+- The scheduler already kept text when admission passed with text loaded (`retain-text`). Now explicit and visible:
+  `residencyChoice` (`broker/policy.mjs`), `/status` `lastResidency` (`decision`, `reason`, `textResident`, `needGpuMiB`,
+  `needRamMiB`, `ramSource`, `reserves`, `readings`, `admittedReadings`, `shortBy`), one log line per lease
+  (`[story-orchestrator-gpu] lease <decision>: ...`). Fail closed: no reading = no keep; reserves never lowered.
+- Finding from the recorded readings: with Artemis 31B (`fast`, 32k) loaded the GPU holds 18,051 of 24,576 MiB, so 6,525
+  MiB are free beside text. Plan 28's SDXL needs 9,059 + 2,048 = 11,107 MiB (short 4,582); Qwen needs 18,964 + 2,048. On
+  this host the rule swaps for both, so keeping text cannot close plan 28's LT miss here.
+- Where the miss is (plan28t native logs): reload 23.2-27.6 s with the GGUF in the page cache, 53.5 s once (run1, cold
+  read after the render); reply 458 tokens in 15-18 s; render 22-44 s. Lease-to-reply = about 1 + render + 0.5 + reload
+  + 15-18 s, so 65.4 s needs a reload of at most about 26 s after a 22 s render, about 3 s after a 44 s render.
+- Faster reload, ready to measure: `text.loadMode` (validated: `auto | none | mmap | mlock | mmap+mlock | dio`) overrides
+  each profile's `--load-mode` (this machine's profiles use `none`). `pluginBrokerLi.mjs` takes `SO_LI_LOAD_MODE` and
+  reports `loadMode`, `residency`, `reloaded`, `reloadMs`, `latency.withinFloor`; `retainBatchLi.mjs` lease events carry
+  `needRamMiB`, `ramSource`, `ramAvailableMiB`, `reason`.
+- Not built (owner call): ComfyUI streaming beside text (the scheduler's `stream-image`) could render SDXL in the 6.5 GiB
+  beside text, but then the GPU reserve rests on ComfyUI's own `--reserve-vram`; it stays unwired in the config.
+
+Tests: `broker/ramEstimates.test.mjs` (shipped row = recorded drop × 1.2; old 10,673 vs new 8,139 at recorded readings:
+desktop load and the 5 MiB case admit only with the new value; 9,065 and 12,234 MiB still refuse; non-streaming, larger
+size and a raising `needRamMiB` keep the loader estimate; config row wins both ways), `broker/residency.test.mjs` (recorded
+3090 reading: SDXL beside Artemis swaps with the reason and readings in `lastResidency`; a job that fits keeps text, no
+unload or reload; 1 MiB short on either reserve swaps; no reading never keeps and a refusal is recorded; reserves held by
+every admitted lease; forced benchmark swap says so), `broker.test.mjs` (`text.loadMode`, `ramEstimates` validation).
+
+Gates (fresh worktree, `node_modules` junctioned, `.st-root` copied):
+- `npm run test:replay`: 32 of 32 killed (230.2 s).
+- `npm run test:plugin`: 287 pass, 0 fail, 4 skipped on the third run; the first two runs failed 3 then 1 harness
+  session-deadline tests (`agent.test.mjs` "the session deadline tears everything down…"), the known flake under load,
+  no broker test among them.
+- `npm run gates:quick`: green (typecheck, lint changed, jest related, replay `--cached` 32 of 32).
+- `npm run gates -- --no-storybook --jobs 4`: all green in 250.4 s (test 8,292 passed / 1 skipped, build, test:replay,
+  typecheck, typecheck:test, debug:typecheck, test:debug 1,267, test:release 123, test:plugin 287, lint 0 errors / 2
+  existing warnings). Storybook skipped (`--no-storybook`): the only `src/` change is the regenerated guide bundle
+  (`npm run docs:guide`), no UI component changed.
+
+Ready to run (3090 block 2026-10-14):
+- Preconditions: owner not playing; `nvidia-smi` under 1 GiB used, no compute process; standalone controller stopped
+  (`node scripts/local/cli.mjs stop`); nothing listening on 8188 or 18897-18899
+  (`netstat -ano | findstr ":8188 :18897 :18898 :18899"`); normal desktop load: ST on :8000 and a browser on it, left as
+  they are. Run from this branch's checkout (no build, stage or ST restart: the drivers load the plugin from the repo).
+  Output root `C:/dev/so-lanes/m3090-tuning-2026-10-14` must be new (no stored footprints, so the shipped row decides).
+- Note the block start: `node -e "console.log(new Date().toISOString())"`.
+- Plan 28 text -> image -> text ×2, about 7 min (3-3.5 min a run):
+  - `node scripts/local/pluginBrokerLi.mjs C:/dev/tools/story-orchestrator-local/config.json C:/dev/so-lanes/m3090-tuning-2026-10-14/plan28 run1`
+  - same with `run2`.
+  - Expected: exit 0 ×2 (functional floors); `residency.decision` `swap-text`, reason names GPU headroom, `shortBy.gpuMiB`
+    about 4,500. LT floor (median `imageToReplyMs` ≤ 65,441 ms) expected to miss again unless the reload is warm and the
+    render short; record it, floors unchanged.
+  - Median: `node -e "const r=['run1','run2'].map(n=>require('C:/dev/so-lanes/m3090-tuning-2026-10-14/plan28/'+n+'.json'));console.log(r.map(x=>({ok:x.ok,decision:x.residency?.decision,reloadMs:x.reloadMs,ms:x.imageToReplyMs})),'median s',(r[0].imageToReplyMs+r[1].imageToReplyMs)/2000)"`
+- Reload mode A/B (informational, floors unchanged), about 12 min:
+  - `$env:SO_LI_LOAD_MODE='mmap'; node scripts/local/pluginBrokerLi.mjs C:/dev/tools/story-orchestrator-local/config.json C:/dev/so-lanes/m3090-tuning-2026-10-14/plan28-mmap run1`, then `run2`.
+  - `$env:SO_LI_LOAD_MODE='dio'`, same into `plan28-dio`, `run1` and `run2`; then `Remove-Item Env:SO_LI_LOAD_MODE`.
+  - Compare `reloadMs` and `imageToReplyMs` with the `none` runs above (same median command, other folder). A mode
+    that cuts `reloadMs` with every floor held is a candidate for this machine's `text.loadMode` (owner decision).
+- R14 Qwen warm batch ×2 under the new estimate, about 10 min (4-5 min a run):
+  - `node scripts/local/retainBatchLi.mjs C:/dev/tools/story-orchestrator-local/config.json C:/dev/so-lanes/m3090-tuning-2026-10-14/r14 run1`
+  - same with `run2`.
+  - Expected: exit 0 ×2, every floor; every `base-lease`/`lease-granted` event has `ramSource`
+    `measured:qwen-image-2.1-int8-sprites` and `needRamMiB` 8139; no RAM refusal while `ramAvailableMiB` ≥ 12,235;
+    `minRamAvailableMiB` ≥ 4,096. A refusal below 12,235 MiB is a genuine short: record it, it does not fail the estimate.
+- Evidence: `Copy-Item -Recurse C:\dev\so-lanes\m3090-tuning-2026-10-14 C:\dev\so-lanes\38\debug\runs\`, then
+  `node scripts/debug/so-evidence.mts archive --label m3090-tuning-20261014 --lanes 38 --since <block start>`.
+- After: `nvidia-smi` with no compute process of ours; nothing left on 8188/18897-18899; `C:\dev\tray\status.txt` OK.
+- Total: about 30 min of GPU time, 35-40 min with setup and archive. Without the A/B: about 17 min.
