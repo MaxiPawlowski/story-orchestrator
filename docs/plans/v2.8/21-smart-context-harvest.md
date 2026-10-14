@@ -1,7 +1,7 @@
 # Plan 21 — Smart Context and Chat Vectorization: what to harvest (E0 + offline group evaluation)
 
-**Status (2026-10-03): v2.8 plan 21 (was v2.7 plan 29). Research written; decided (group chats only, offline only, E0
-first; answers below); not run. No fixture, no runner, no labels yet.** Runtime verbatim recall is deferred, v2.9 05.
+**Status (2026-10-14): v2.8 plan 21 (was v2.7 plan 29). E0 tooling built on `v2.8-a12-e0` (arms, scorer, runner, synthetic
+run; Gate record at the end); E0 CL run owed (private labels, lane pool, arm (d)). §6.2 not started.** Runtime verbatim recall is deferred, v2.9 05.
 Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D (fixture tooling, offline runner, scorer); acceptance CL
 (TypeSafe Choice arm, second-model labels). Embeddings run in a lane's ST server (`transformers`, CPU); no pod.
@@ -358,3 +358,58 @@ No feature registry entry: offline measurements need none (v2.8 rule 10). No run
   arm (e) and the tie rule use).
 
 Round 3 (Sol): R3-13 applied.
+
+## Gate record: E0 build (2026-10-14, branch `v2.8-a12-e0`, queue A12)
+
+Built (offline only, no runtime code, no ST, no lane, no GPU, no model call):
+- `src/memory/e0Ranking.ts`: the five arms as pure functions (a/b bands from recorded membership, c local Jaccard +
+  recency, d Choice-with-removal over recorded calls plus `e0ChoiceRequest`, e ST order), tie rule, ordered-output
+  contract, constants and floors. `src/memory/e0Score.ts`: hit@1/hit@4/MRR@4, pool recall, raw tie rate, calls, latency
+  p50/p95, input tokens; `decideE0` (winner / no-winner + diagnostic + problem / incomplete / insufficient).
+  `src/memory/e0Pool.ts`: label format `so-e0-labels/1` with the review rule, chat reader (session `chat-*.json` shape),
+  collection (protect 5), query, pool builder `so-e0-pool/1` over an `E0VectorProvider`, stub trigram provider.
+  Not imported by the bundle (scripts and tests only).
+- `scripts/debug/so-e0.mts` (`pool`, `freeze`, `run`) + `lib/e0.mts`: sha256 freeze over parsed JSON (line-ending
+  proof), `run` refuses no freeze or a changed file (exit 3), private output refused inside the repo outside
+  `test/sessions/e0/` (now gitignored).
+- Fixture: `test/fixtures/e0/synthetic/` (2 generic sessions, 40 questions; generator `generate-synthetic.mjs`; one
+  invented name collided with a campaign name and was replaced before commit). Pool + freeze in
+  `test/measurements/v2.8/21-e0/`; result golden `test/goldens/e0/synthetic-result.json`.
+- Order: declarations committed (`6f2dc2d1`), then fixture + pool + freeze (`3a58e87f`), then the code and the run
+  (`c1764024`).
+
+Synthetic run (`node scripts/debug/so-e0.mts run --labels test/fixtures/e0/synthetic/labels.json --pool
+test/measurements/v2.8/21-e0/synthetic.pool.json --freeze test/measurements/v2.8/21-e0/synthetic.freeze.json`, exit 2 =
+incomplete): 40 questions, pool recall 0.625 (25/40; 4 golds planted in `protect`, the rest lost by the stub).
+- (e) ST order: hit@1 0.10, hit@4 0.425 (17/40), MRR@4 0.2271, tie rate 0.
+- (c) Jaccard + recency: hit@1 0.025, hit@4 0.225 (9/40), MRR@4 0.0896, tie rate 0.
+- (a), (b) bands: identical to (e) (hit@4 0.425, MRR@4 0.2271), tie rate 1.0: the predicted equivalence under the tie
+  rule holds on the recording.
+- (d): owed (no recorded Choice calls). Verdict `incomplete`, provisional no winner, diagnostic (e), problem
+  `retrieval`, §6.2 BLOCKED (insufficient E0). Synthetic + stub embedding: a tooling check, not the E0 verdict; no floor
+  retuned.
+
+Tests: `src/memory/e0Ranking.test.ts`, `e0Pool.test.ts` (23 jest cases: planted tie, planted missing gold, arm (d)'s four
+calls in cost/latency, contract violations, review rule, protect, verdict branches); `scripts/debug/e0.test.mts` (6
+node cases: pool rebuild = committed pool, freeze match, golden replay, unfrozen/tampered refusal, private-output and
+non-stub refusals, arm (d) through the CLI with recorded calls).
+
+Gates:
+- `npm run gates:quick`: green (typecheck, typecheck:test, lint changed, jest related, replay cached 32/32 killed).
+- `npm run gates -- --no-storybook --jobs=2`: all green in 344.6 s (test 723 suites / 8,315 passed + 1 skipped, replay,
+  typecheck, typecheck:test, build, test:debug, debug:typecheck, lint, test:plugin, test:release). Storybook skipped: no
+  UI change. Main bundle 1,265,343 B (budget 1,300,000).
+- `npm run test:replay` once on the fresh worktree: 32/32 killed.
+
+Model calls: 0.
+
+Owed (E0 CL acceptance):
+- Private labels: ≥ 40 questions written by one model and checked by a second (Sol `openai/gpt-6.1-sol` / DeepSeek),
+  stored in `so-sessions` under `test/sessions/e0/`. Available evidence (counts only): 48 session dirs with a chat,
+  2,257 messages, 24 sessions with ≥ 40 messages.
+- The st-vectors pool: a lane's ST server (`/api/vector/*`, `transformers`, CPU) for the pool and band queries, with
+  query latencies; the `pool --provider` path refuses anything but `stub` until then. Embedding model cache location
+  (§8 row) recorded with it.
+- Arm (d): 4 TypeSafe Choice calls per question through the judge plugin (no `e0` use or calibration row exists; the
+  plugin refuses uncalibrated uses), recorded in the `--choices` format; 160+ calls for 40 questions.
+- Private freeze committed in `so-sessions`, its hashes copied here, then `run`.
