@@ -141,7 +141,7 @@ export const MemoryModelGroup = ({ snapshot, manager, connectionsOnly = false }:
     setTestingRole(role);
     try {
       const { runRoleSelfTest } = await import("@runtime/roleSelfTest");
-      roleHealth.record(await runRoleSelfTest(role, { profileId: route.ok ? resolvedProfileId(route) : null }));
+      roleHealth.record(await runRoleSelfTest(role, { profileId: route.ok ? resolvedProfileId(route) : null, route: route.ok ? route.route : null }));
     } catch (error) {
       log.warn("role test failed", error);
     } finally {

@@ -162,6 +162,7 @@ until the owner says so.
 
 | # | Item | Plan | Tiers |
 |---|---|---|---|
+| M60 | Harvest defects B1-B3, B5, B6, B9-B16 fixed on `v2.8-harvest-defects` (unmerged), one commit + regression test each; B4/B7/B8/B17 plausible, not built; B18/B19 refuted. Live gate owed (B14, B6, B10, B3, B5): no private ST copy | 60 | D green; L owed |
 | M61 | Harvest triage (index of every idea, verdict, destination) | 61 | docs |
 | M62 | Quantum-ogre probe; prepared world facts only on a probe miss | 62 | D + RP (probe) + CL |
 | M63 | Stepped history window; front-trim arm rides R2 first | 63 | D + RP (with R2) + CL |

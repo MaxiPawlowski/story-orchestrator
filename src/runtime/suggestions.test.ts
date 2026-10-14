@@ -23,6 +23,11 @@ describe("v2.7 33 W4: the suggestion prompt and parser", () => {
     expect(suggestionsUsable(["a", "b", "c"])).toBe(true);
   });
 
+  it("B11: a line starting with a slash would run as a command when sent, so it is dropped", () => {
+    const text = ["- /sendas name=Max I win.", "-   /echo hi", "- I haggle.", "- I wait.", "- I say \"/bye\" and leave."].join("\n");
+    expect(parseSuggestions(text, projection)).toEqual(["I haggle.", "I wait.", "I say \"/bye\" and leave."]);
+  });
+
   it("v2.8 04: a line naming a withheld name the player has not seen is dropped; a name already shown stays", () => {
     const text = ["- I ask about the Vault of Corvin.", "- I haggle.", "- I look for the vault-internal door.", "- I wait at the dock.", "- I watch the fog."].join("\n");
     expect(parseSuggestions(text, projection, ["The Vault of Corvin", "Vault of Corvin", "vault-internal", "The Dock"])).toEqual(["I haggle.", "I wait at the dock.", "I watch the fog."]);

@@ -1,4 +1,4 @@
-import { quoteSlashArg } from "./string";
+import { quoteSlashArg, runsAsCommand } from "./string";
 
 const decodeStrictQuotedArg = (encoded: string): string => {
   if (!encoded.startsWith('"')) throw new Error("not a quoted value");
@@ -28,6 +28,15 @@ const decodeStrictQuotedArg = (encoded: string): string => {
   }
   throw new Error("Unexpected end of quoted value");
 };
+
+describe("runsAsCommand (B11)", () => {
+  it("is true only when the first non-space character is a slash", () => {
+    expect(runsAsCommand("/echo hi")).toBe(true);
+    expect(runsAsCommand("  \n/sendas x")).toBe(true);
+    expect(runsAsCommand("I say /bye")).toBe(false);
+    expect(runsAsCommand("")).toBe(false);
+  });
+});
 
 describe("quoteSlashArg", () => {
   it("keeps a pipe literal instead of escaping it, because the parser runs with strict escaping", () => {

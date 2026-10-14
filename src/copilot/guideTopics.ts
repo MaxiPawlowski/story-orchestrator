@@ -143,7 +143,7 @@ export const GUIDE_TOPICS = {
   guidance: {
     title: "Narrator guidance",
     fields: "checkpoints[].guidance",
-    text: "Private direction for how the beat plays: text, or {all, members: {id: text}}. all reaches every generation; a member's text only while that member is drafted. "
+    text: "Private direction for how the beat plays: text, or {all, members: {id: text}}. all reaches every reply, never quiet/impersonate; a member's text only while drafted. "
       + "A secret never goes in shared guidance, which every character reads; put it in that member's entry. Write pressure and intent, never the ending, and call the "
       + "player {{user}}. A member key no cast member has reaches nobody.",
   },

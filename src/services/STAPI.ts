@@ -46,6 +46,8 @@ export {
   observeNextSave, observeNextSettingsSave, onGroupEdited, saveOpenChat, installSaveWatcher, startSaveWatcherSurface, readServerBoundary,
   readServerExtensionSettings, saveWatcherStats, boundaryInBlob, SAVE_OBSERVE_MS, type SaveObservation,
 } from "@services/stHost/persistence";
+export { saveSettingsSoon } from "@services/stHost/settingsSave";
+export { watchPendingWorldSaves } from "@services/stHost/worldInfoPending";
 export { applyCharacterAN, clearCharacterAN } from "@services/stHost/authorNotes";
 export { setStoryExtensionPrompt, clearStoryExtensionPrompt } from "@services/stHost/extensionPrompts";
 export {

@@ -146,6 +146,7 @@ export const readHarnessAnswer = (data: unknown, effort: ReasoningEffort): Model
       collapsed: false, unsupported: applied || effort === "default" ? null : "this harness takes low, medium or high only", budget: 0, chars: 0, tokens: null,
     },
     usage: usage ?? { input: null, output: null, costUsd: null },
+    model: text(data.model),
     spawnMs: num(data.spawnMs),
   };
 };

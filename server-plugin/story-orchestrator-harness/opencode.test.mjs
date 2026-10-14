@@ -163,6 +163,14 @@ test('model aliases keep distinct public IDs even when their vendor model IDs ma
     }
 });
 
+test('B5: the answer names the model OpenCode served, with the asked-for model kept as requested', async () => {
+    const ctx = setup();
+    ctx.fake.state.servedModel = { providerID: 'openai', id: 'gpt-6-luna' };
+    const answer = await ctx.service.complete(request());
+    assert.equal(answer.ok, true, JSON.stringify(answer));
+    assert.deepEqual([answer.model, answer.requested], ['openai/gpt-6-luna', MODEL]);
+});
+
 test('a text call is one OpenCode session in an owned project directory, with every tool denied, and nothing is left behind', async () => {
     const ctx = setup();
     const { service, fake } = ctx;

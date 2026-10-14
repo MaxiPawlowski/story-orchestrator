@@ -1,7 +1,7 @@
 import { getChatWindow } from "@extraction/index";
 import {
   clearStoryExtensionPrompt, getContext, loadPersonasModule, loadPersonaWrites, noteHostSettingsLoaded, readPersonas,
-  onGroupEdited, onLorebookListChanged, setStoryExtensionPrompt, settingsReady, startSaveWatcherSurface, subscribeToHostEvents,
+  onGroupEdited, onLorebookListChanged, setStoryExtensionPrompt, settingsReady, startSaveWatcherSurface, subscribeToHostEvents, watchPendingWorldSaves,
 } from "@services/STAPI";
 import { registerRuntimeMacros } from "./macros";
 import { startMirrorReaper } from "./mirrorReaperHost";
@@ -162,6 +162,7 @@ export function startRuntime() {
   if (started) return runtimeManager;
   started = true;
   runtimeDisposers.push(startSaveWatcherSurface());
+  runtimeDisposers.push(watchPendingWorldSaves());
   runtimeDisposers.push(readGatingModeWith(() => getGlobalSettings().worldInfo.gatingMode));
   startScheduler(live, runtimeDisposers);
   void loadInlineComposer().then(() => { if (started) runtimeManager.notify(); });
