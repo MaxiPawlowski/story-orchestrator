@@ -21,15 +21,23 @@ export function installLiveHeadProbe() {
       gl[remove] = (resource: unknown) => { state.resources.delete(resource); return drop(resource); };
     }
     this.addEventListener('webglcontextlost', () => state.contexts.delete(gl));
-    const clear = gl.clear.bind(gl), buffer = gl.bufferSubData.bind(gl), uniform = gl.uniform4f.bind(gl), location = gl.getUniformLocation.bind(gl), bind = gl.bindBuffer.bind(gl);
+    const clear = gl.clear.bind(gl), buffer = gl.bufferSubData.bind(gl), data = gl.bufferData.bind(gl), uniform = gl.uniform4f.bind(gl), location = gl.getUniformLocation.bind(gl), bind = gl.bindBuffer.bind(gl);
     let mouth: unknown = null, bound: unknown = null;
     const meshes = new Map<unknown, number>();
     gl.bindBuffer = (target: number, value: unknown) => { if (target === gl.ARRAY_BUFFER) bound = value; return bind(target, value); };
+    gl.bufferData = (...args: any[]) => {
+      if (args[0] === gl.ARRAY_BUFFER && args[1] instanceof Float32Array && args[2] === gl.DYNAMIC_DRAW) {
+        let vector = 2166136261;
+        for (const word of new Uint32Array(args[1].buffer, args[1].byteOffset, args[1].length)) vector = Math.imul(vector ^ word, 16777619);
+        meshes.set(bound, vector);
+      }
+      return data(...args);
+    };
     gl.getUniformLocation = (program: unknown, name: string) => { const value = location(program, name); if (name === 'uMouthState') mouth = value; return value; };
     gl.uniform4f = (at: unknown, ...values: number[]) => { if (state.sample && at === mouth) state.mouths.push(values[0]); return uniform(at, ...values); };
     gl.bufferSubData = (...args: any[]) => {
       if (state.sample) state.uploads++;
-      if (state.parameterSample && args[0] === gl.ARRAY_BUFFER) {
+      if (args[0] === gl.ARRAY_BUFFER) {
         const data = args[2] as Float32Array;
         const words = new Uint32Array(data.buffer, data.byteOffset, data.length);
         let vector = 2166136261;
