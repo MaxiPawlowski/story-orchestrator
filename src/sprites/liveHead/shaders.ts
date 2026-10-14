@@ -88,6 +88,13 @@ float irisWeight(vec4 c, vec3 tone) {
 
 float interior(float y, float top, float bot) { return smoothstep(0.5, 2.5, y - top) * smoothstep(0.5, 2.5, bot - y); }
 
+float trust(vec2 q, float top, float bot, vec3 tone) {
+  float inside = interior(q.y, top, bot);
+  if (inside >= 1.0) return 1.0;
+  float inward = q.y + (q.y - top < bot - q.y ? 2.5 : -2.5);
+  return max(inside, irisWeight(texAt(vec2(q.x, inward)), tone) * interior(inward, top, bot));
+}
+
 vec4 slideBall(vec4 here, vec4 moved, vec3 tone, float inHere, float inMoved) {
   vec3 h = here.rgb / max(here.a, 1e-4), m = moved.rgb / max(moved.a, 1e-4);
   vec3 rgb = h - irisWeight(here, tone) * inHere * (h - tone) + irisWeight(moved, tone) * inMoved * (m - tone);
@@ -108,7 +115,7 @@ vec4 eyeBall(int e, vec2 p) {
   else {
     vec2 q = p - off;
     float uq = clamp((q.x - box.x) / (box.y - box.x), 0.0, 1.0);
-    c = slideBall(texAt(p), texAt(q), tone.rgb, interior(p.y, top, bot), interior(q.y, crv(e, true, uq), crv(e, false, uq)));
+    c = slideBall(texAt(p), texAt(q), tone.rgb, trust(p, top, bot, tone.rgb), trust(q, crv(e, true, uq), crv(e, false, uq), tone.rgb));
   }
 
   return c * smoothstep(lids.x - 1.0, lids.x + 0.5, p.y) * (1.0 - smoothstep(lids.y - 0.9, lids.y + 0.6, p.y));

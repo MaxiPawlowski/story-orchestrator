@@ -88,7 +88,11 @@ export function renderOpenBall(image: PixelImage, rect: Rect, eye: Eye, offset: 
       c = sample(px - offset[0] * w, py - offset[1] * w);
     } else {
       const qx = px - offset[0], qy = py - offset[1], uq = Math.min(1, Math.max(0, (qx - eye.x0) / (eye.x1 - eye.x0)));
-      c = slideBall(sample(px, py), sample(qx, qy), tone, interior(py, top, bot), interior(qy, curve(eye.top, uq), curve(eye.bot, uq)));
+      const trust = (x: number, y: number, t: number, b: number): number => {
+        const inside = interior(y, t, b), inward = y + (y - t < b - y ? 2.5 : -2.5);
+        return inside >= 1 ? 1 : Math.max(inside, irisWeight(sample(x, inward), tone) * interior(inward, t, b));
+      };
+      c = slideBall(sample(px, py), sample(qx, qy), tone, trust(px, py, top, bot), trust(qx, qy, curve(eye.top, uq), curve(eye.bot, uq)));
     }
     const lid = smoothstep(top - 1, top + 0.5, py) * (1 - smoothstep(bot - 0.9, bot + 0.6, py)), at = (j * rect[2] + i) * 4;
     for (let k = 0; k < 4; k++) data[at + k] = Math.round(c[k] * lid * 255);

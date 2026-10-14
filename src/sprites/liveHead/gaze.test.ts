@@ -126,6 +126,22 @@ describe("live head gaze keeps the iris round", () => {
     }
   });
 
+  test("no iris is left behind at the old position, edge rows included (synthetic iris disc, r 8 at scale 2)", () => {
+    for (const entry of eyes) {
+      const tone = entry.tone!, cx = [62, 98][entry.index] * 2, cy = 156;
+      for (const gaze of [-1, 1]) {
+        const [dx] = gazeOffset(entry.index, gaze, 0), image = render(entry, gaze, "slide");
+        let left = 0;
+        for (let k = 0; k < image.width * image.height; k++) {
+          const px = entry.rect[0] + k % image.width + 0.5, py = entry.rect[1] + Math.floor(k / image.width) + 0.5;
+          if (Math.hypot(px - cx, py - cy) <= 7.5 && Math.hypot(px - cx - dx, py - cy) > 8.5 && image.data[k * 4 + 3] > 191
+            && irisWeight(pixel(image, k * 4), tone) > 0.5) left++;
+        }
+        expect(left).toBe(0);
+      }
+    }
+  });
+
   test("goldens: synthetic bust ball renders at gaze -1, 0, +1", () => {
     const summary = Object.fromEntries(eyes.flatMap((entry) => [-1, 0, 1].map((gaze) => [`eye${entry.index}:${gaze}`, sha(render(entry, gaze, "slide"))])));
     if (process.env.SO_UPDATE_GOLDEN === "1") { mkdirSync(dirname(GOLDEN), { recursive: true }); writeFileSync(GOLDEN, `${JSON.stringify(summary, null, 2)}\n`); }
@@ -136,7 +152,8 @@ describe("live head gaze keeps the iris round", () => {
     expect(FS).toContain("uniform vec4 uSclera[2];");
     expect(FS).toContain("smoothstep(0.1, 0.26, distance(c.rgb / c.a, tone)) * smoothstep(0.25, 0.75, c.a)");
     expect(FS).toContain("if (tone.w < 0.5 || (off.x == 0.0 && off.y == 0.0)) c = texAt(p - off * w);");
-    expect(FS).toContain("c = slideBall(texAt(p), texAt(q), tone.rgb, interior(p.y, top, bot), interior(q.y, crv(e, true, uq), crv(e, false, uq)));");
+    expect(FS).toContain("c = slideBall(texAt(p), texAt(q), tone.rgb, trust(p, top, bot, tone.rgb), trust(q, crv(e, true, uq), crv(e, false, uq), tone.rgb));");
+    expect(FS).toContain("return max(inside, irisWeight(texAt(vec2(q.x, inward)), tone) * interior(inward, top, bot));");
     expect(FS).toContain("smoothstep(0.5, 2.5, y - top) * smoothstep(0.5, 2.5, bot - y)");
   });
 
