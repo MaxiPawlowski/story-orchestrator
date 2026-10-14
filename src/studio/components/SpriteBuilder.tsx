@@ -21,6 +21,7 @@ import PresentationRoutes from "./PresentationRoutes";
 
 const PosesList = lazy(() => import("./PosesList"));
 const PreparePresentation = lazy(() => import("./PreparePresentation"));
+const ChangedLookRebuild = lazy(() => import("./ChangedLookRebuild"));
 
 export interface SpriteBuilderHost {
   discover: typeof comfyDiscover;
@@ -39,6 +40,11 @@ export interface SpriteBuilderHost {
 const host: SpriteBuilderHost = { discover: comfyDiscover, fingerprint: comfyFingerprint, manifest: spriteManifest,
   members: spriteBuilderMembers, list: spriteReferences, decode: decodeImage, builder: () => createSpriteBuilder(draftOwnership),
   sets: generatedSpriteSets, delete: deleteGeneratedSprite, referenceSets: spriteReferenceSets, referencePack: spriteReferencePack };
+
+const rosterIdOf = (roster: readonly { id: string; name?: string }[], members: readonly { folder: string; name: string }[], folder: string): string => {
+  const name = members.find((member) => member.folder === folder)?.name ?? folder;
+  return roster.find((member) => (member.name ?? member.id).toLowerCase() === name.toLowerCase())?.id ?? folder;
+};
 
 export default function SpriteBuilder({ services = host }: { services?: SpriteBuilderHost }) {
   const draft = useDraftStore((state) => state.draft);
@@ -153,6 +159,8 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
       mouth={["talk", "talk2", "rest"].includes(kind)} changeRegion={(region) => setRegions((all) => ({ ...all, [reference]: region }))} />
     <Suspense fallback={<p role="status">Loading presentation review…</p>}><PreparePresentation key={character} character={character}
       card={members.find((member) => member.folder === character)?.image} reference={reference} box={box} busy={busy} setBusy={setBusy} /></Suspense>
+    {character && <Suspense fallback={<p role="status">Loading changed looks…</p>}><ChangedLookRebuild key={`looks:${character}`} character={character}
+      member={rosterIdOf(draft.roster ?? [], members, character)} name={members.find((member) => member.folder === character)?.name ?? character} busy={busy} setBusy={setBusy} /></Suspense>}
     <PresentationRoutes />
     <button type="button" className="st-button" disabled={busy} onClick={() => void discover()}>Discover image-edit setup</button>
     {discovery && <fieldset className="flex flex-col gap-2"><legend>Installed models — {EDIT_RECIPE.id}</legend>

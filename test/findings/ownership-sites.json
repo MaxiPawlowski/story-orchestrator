@@ -9,10 +9,6 @@
       "status": "checked",
       "note": "Guard before save and before accepted manifest commit; rechecks card/base bytes and saved bust hash. visualPreparation.test.ts covers cancellation, chat switch, card deletion and root replacement during save."
     },
-    "src/sprites/visualHost.ts#createVisualPreparation.crop": {
-      "status": "local",
-      "note": "Pixel buffer and encoded crop are invocation-local. Nothing is persisted; enclosing VisualPreparation.prepare guards before exposing review."
-    },
     "src/sprites/visualHost.ts#createVisualPreparation.save": {
       "status": "partial",
       "note": "The combined signal is checked before preview upload, but this primitive has no independent RunOwnership. VisualPreparation.accept checks before calling and after the awaited upload; only that caller commits an accepted manifest. Cancellation may leave an unaccepted preview file, never accepted source state."
@@ -1072,6 +1068,38 @@
     "src/studio/components/StudioToolbar.tsx#StudioToolbar.handleSave": {
       "status": "local",
       "note": "The library save and loadDraft run before the first await; after awaiting onSaved (the runtime's applyStoryUpdate owns the chat half) and the save evidence it writes only toolbar feedback/pending state."
+    },
+    "src/sprites/visualHost.ts#cropBust": {
+      "status": "local",
+      "note": "Pixel buffer and encoded crop are invocation-local. Nothing is persisted; enclosing VisualPreparation.prepare guards before exposing review."
+    },
+    "src/sprites/liveHead/synthesis/host.ts#decodeBytes": {
+      "status": "local",
+      "note": "Decodes into a canvas and pixel buffer created inside this invocation; nothing persists. Callers (synthesizeHead) check ownership after it returns."
+    },
+    "src/sprites/liveHead/synthesis/synthesize.ts#synthesizeHead": {
+      "status": "checked",
+      "note": "run.stillOwns() after every await (read, hash, decode, landmarks, each layer encode) and before returning; it only pushes into its local layer list and returns a manifest, never writes settings. synthesis.test.ts lapses at each step and asserts no later step runs."
+    },
+    "src/sprites/lookRebuild.ts#LookRebuild.prepare": {
+      "status": "checked",
+      "note": "guard() (run.stillOwns(), operation identity, card present, accepted root and look base hash) after every await, including the rig synthesis and its failure path; writes only transient review state. lookRebuild.test.ts covers a lapse during synthesis."
+    },
+    "src/sprites/lookRebuild.ts#LookRebuild.accept": {
+      "status": "checked",
+      "note": "guard() after the base fingerprint and after the bust save; run.stillOwns() immediately before commitBust, guard() before commitRig. lookRebuild.test.ts covers cancel, chat switch, card deletion, root replacement and a re-rendered look during the save: neither bust nor rig is committed."
+    },
+    "src/sprites/lookRebuildHost.ts#createLookRebuild.save": {
+      "status": "partial",
+      "note": "The combined signal is checked before the upload; this primitive has no RunOwnership of its own. LookRebuild.accept guards before calling it and after it answers, and only that caller publishes the bust. A cancelled save may leave an unaccepted bust file, never accepted settings."
+    },
+    "src/studio/components/ChangedLookRebuild.tsx#ChangedLookRebuild.rebuild": {
+      "status": "delegate",
+      "note": "awaits LookRebuild.prepare, which checks run.stillOwns() after each await; the panel writes only its own review/error/busy state behind a generation check."
+    },
+    "src/studio/components/ChangedLookRebuild.tsx#ChangedLookRebuild.accept": {
+      "status": "delegate",
+      "note": "awaits LookRebuild.accept, which checks run.stillOwns() before the bust and rig settings writes; the panel then writes only its own rows/review/notice/error/busy state behind a generation check."
     }
   }
 }
