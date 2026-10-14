@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { WidgetView } from "@runtime/gameTypes";
 import {
-  FRAME_HEIGHT, FRAME_SANDBOX, buildSrcdoc, dataNotification, frameData, frameMayTalk, frameOnFirstLoad, handleViewMessage, teardownNotification, type AuditEntry, type BridgeState,
+  FRAME_HEIGHT, FRAME_SANDBOX, buildSrcdoc, carriesNonce, createNonce, dataNotification, frameData, frameMayTalk, frameOnFirstLoad, handleViewMessage, teardownNotification, unsignedAudit,
+  type AuditEntry, type BridgeState,
 } from "@runtime/htmlWidget";
 import type { WidgetDrawerTab } from "@engine/index";
 import type { WriteResult } from "@utils/writeResult";
@@ -22,7 +23,12 @@ export const HtmlWidgetFrame = ({ widget, onIntent, onOpen, onAudit, onNavigated
   const bridge = useRef<BridgeState>({ lastIntentAt: null });
   const [height, setHeight] = useState<number>(FRAME_HEIGHT.start);
   const template = widget.body.kind === "html" ? widget.body.template : "";
-  const srcdoc = useMemo(() => buildSrcdoc(template), [template]);
+  const frameDoc = useMemo(() => {
+    const nonce = createNonce();
+    return { nonce, srcdoc: buildSrcdoc(template, nonce) };
+  }, [template]);
+  const nonce = useRef(frameDoc.nonce);
+  nonce.current = frameDoc.nonce;
   const dataKey = JSON.stringify(frameData(widget));
   const latest = useRef(widget);
   latest.current = widget;
@@ -34,6 +40,10 @@ export const HtmlWidgetFrame = ({ widget, onIntent, onOpen, onAudit, onNavigated
     const listen = (event: MessageEvent) => {
       const view = node?.contentWindow;
       if (!view || event.source !== view || !frameMayTalk(loads.current)) return;
+      if (!carriesNonce(event.data, nonce.current)) {
+        handlers.current.onAudit(unsignedAudit(latest.current, handlers.current.now()));
+        return;
+      }
       const outcome = handleViewMessage(event.data, { widget: latest.current, now: handlers.current.now(), state: bridge.current, fill: (text) => handlers.current.onIntent(text),
         ...(handlers.current.onOpen ? { open: handlers.current.onOpen } : {}),
       });
@@ -64,7 +74,7 @@ export const HtmlWidgetFrame = ({ widget, onIntent, onOpen, onAudit, onNavigated
       title={widget.title}
       sandbox={FRAME_SANDBOX}
       referrerPolicy="no-referrer"
-      srcDoc={srcdoc}
+      srcDoc={frameDoc.srcdoc}
       className="so-game-html"
       style={{ height }}
       onLoad={() => {

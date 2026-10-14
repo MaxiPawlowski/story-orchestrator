@@ -238,3 +238,11 @@ Deferred legs (not claimed):
 - Second-model arbitration of the 20-row sample (decision 3 as narrowed): `arbitrationSample` selects the rows;
   labelling deferred.
 - Option A stays unbuilt until a real rate ≥ 10 %.
+
+Addendum 2026-10-14 (v2.8 13 J7.6, branch `v2.8-j76-nonce`):
+- The runner refused every real story (`GAME_LAYER_LOADING`): its bundle never installed the game layer. Fixed in
+  `scripts/debug/lib/j6dReplayEntry.ts` (node:test case, mutant-checked).
+- Real corpus reconstruction, counts only: 48 session dirs with a runtime blob, 1,423 audits, 713 not judged, 710
+  judged reads refused, 0 rebuilt (`prompt-mismatch` Canon-lite 592, `scope-not-rebuilt` 62, `missing-snapshot` 52,
+  `prompt-mismatch` Story 4). The extractor leg has nothing to send until Canon-lite facts are archived or compared
+  without the canon.

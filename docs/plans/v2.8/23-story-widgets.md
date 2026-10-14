@@ -224,6 +224,13 @@ no frame attribute or CSP directive blocks that in current browsers, so a hostil
 what it was shown (player-safe data the player has already seen). The frame counts its loads; a second load closes the page
 at once, shows the plain panel and journals it (`LeavingThePageClosesIt` story). Fetch, XHR, images, fonts, frames,
 workers, forms, popups, top navigation, parent access, cookies and storage are all blocked (`EscapeAttemptsAreBlocked`).
+**Bridge nonce (2026-10-14, queue N10):** a page the frame navigated to could still post one message before its own
+load event (the load counter had not moved yet). Every mount now writes a fresh 128-bit nonce into the helper; the
+helper builds each message as a literal carrying it (a prototype setter cannot read it), removes its own script tag, and
+exposes no function whose source holds it. The host drops any message without the current nonce and journals it as
+`(unsigned)`; a remount rotates the nonce. So a navigated page is never heard, before or after its load
+(`ANavigatedFramePostingBeforeItsLoadIsDropped`, `ARemountRotatesTheNonce`, jest `htmlWidget.test.ts`). What stays: the
+self-navigation request itself (one request carrying what the page was shown), which no attribute or CSP blocks.
 
 ## Decisions (2026-10-10, for the user)
 
@@ -385,3 +392,25 @@ checkpoints by chapter, dates optional) next to the arcs board pilot of decision
 
 **Not run / owed**: Storybook interaction and a11y (above); the gate docs' `--jobs 2` form (silently ignored); the 50-lane cap in
 `st-lanes.mts` against the coordinator's lane numbers above 50.
+
+### 2026-10-14: bridge nonce (queue N10 residual) on `v2.8-j76-nonce` (from master `a302b65e`)
+
+- Built: `runtime/htmlWidget.ts` `createNonce` (16 random bytes, hex), `frameHelper(nonce)` (hex-only, signs every
+  message as an object literal, removes its own script, keeps the nonce out of every exposed function), `carriesNonce`,
+  `unsignedAudit`; `HtmlWidgetFrame.tsx` mints a nonce per mount (and per template), drops and journals `(unsigned)`
+  messages before any bridge handling. Main entry unchanged in kind (lazy panel chunk); `dist/index.js` 1,265,406 B.
+- jest `runtime/htmlWidget.test.ts` +6: nonce shape and uniqueness, hex-only injection guard, exact-match check,
+  remount rotation, a navigated page's unsigned message, the helper run in a stub window (every message signed, script
+  removed, nonce absent from exposed sources, an `Object.prototype` setter never fires).
+- Storybook `Panels/HtmlWidgetFrame`: `ANavigatedFramePostingBeforeItsLoadIsDropped` (a navigated page posting at parse
+  time is never heard), `AnUnsignedMessageWhileTheFrameMayTalkIsDropped` (an unsigned message while the load counter
+  still allows talk is dropped and journaled; the signed one is heard), `ARemountRotatesTheNonce` (old nonce dropped,
+  new one heard); `EscapeAttemptsAreBlocked` now reports through the signed bridge and asserts a raw post is
+  `(unsigned)`; `ANavigatedFrameIsNotHeard` unchanged and green.
+- First staged run RED (2 tests): a race-dependent wait on the before-load path and a colour-contrast a11y violation on
+  the test's remount button; story rewritten (deterministic synthetic post) and button styled.
+- Gates: `npm run gates:quick` green; `SO_REPLAY_WORKERS=2 npm run gates -- --jobs=2 --no-storybook --skip=test` all
+  green in 372 s (build, test:replay 32/32, test:debug, typecheck, typecheck:test, debug:typecheck, lint, test:release,
+  test:plugin); jest run separately `npx jest --maxWorkers=4`: 722 suites / 8,307 tests passed (1 skipped). Staged
+  Storybook (`%TEMP%\so-sb-nonce`, `npm run test-storybook:ci`) run 2: 136 suites / 817 tests passed; copy removed.
+- Not run: a live browser check in ST (no stage, per task). Residual stated in §MCP Apps: the self-navigation request.

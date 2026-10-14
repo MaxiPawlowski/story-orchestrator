@@ -194,14 +194,15 @@ export const typedFloor = (quality: Pick<Quality, "latching">) => EXTRACTION_CON
 
 // Deltas only for answers over the floor, with the value checked exactly as the LLM read's parser
 // checks it. Anything else stays with the LLM read (residual scope).
-export function readTypedDeltas(answers: Record<string, JudgeAnswer>, plan: TypedPlan, qualities: Quality[], window: TypedWindowMessage[]): { deltas: TypedDelta[]; answered: string[] } {
+export function readTypedDeltas(answers: Record<string, JudgeAnswer>, plan: TypedPlan, qualities: Quality[], window: TypedWindowMessage[],
+  floorOf: (quality: Quality) => number = typedFloor): { deltas: TypedDelta[]; answered: string[] } {
   const byKey = new Map(qualities.map((quality) => [quality.key, quality]));
   const deltas: TypedDelta[] = [];
   const answered: string[] = [];
   for (const decoder of plan.decoders) {
     const quality = byKey.get(decoder.key);
     const read = quality ? decoder.decode(answers) : null;
-    if (!quality || !read || read.confidence < typedFloor(quality)) continue;
+    if (!quality || !read || read.confidence < floorOf(quality)) continue;
     const picked = (decoder.evidenceId ? choiceAnswer(answers, decoder.evidenceId)?.choice : undefined) ?? read.messageKey;
     const messageId = picked !== undefined ? plan.messageIds[picked] : window.length === 1 ? window[0].id : undefined;
     const source = window.find((message) => message.id === messageId);

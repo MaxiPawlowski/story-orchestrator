@@ -1,0 +1,522 @@
+{
+ "plan": "v2.8 13 J7.6 per-quality floors, Phase A",
+ "at": "2026-10-14",
+ "branch": "v2.8-j76-nonce",
+ "protocol": "docs/plans/v2.8/13-j7-judge-ideas.md J7.6 Phase A protocol (predeclared, committed before any call)",
+ "calls": {
+  "tune": 20,
+  "held": 60,
+  "total": 80,
+  "cap": 150,
+  "ledger": "test/measurements/v2.8/13-phase-a/j76-attempts.jsonl"
+ },
+ "fixtures": {
+  "tune": {
+   "file": "test/fixtures/judge/spike-typed-kinds-tune.json",
+   "revision": "d0b9d83a6c25",
+   "cases": 20
+  },
+  "heldOut": {
+   "file": "test/fixtures/judge/spike-typed-kinds.json",
+   "revision": "8073759ddfaa",
+   "cases": 30
+  }
+ },
+ "frozenFloors": {
+  "choice": 0.5,
+  "stated": 0.5,
+  "rating": 0.65
+ },
+ "tuning": {
+  "typed": "test/goldens/judge/typed.json",
+  "tune": "test/goldens/judge/spike-typed-kinds-tune.run1.json",
+  "tuneRevision": "d0b9d83a6c25",
+  "typedMissing": 49
+ },
+ "tuningCurves": {
+  "choice": {
+   "floor": 0.5,
+   "moved": true,
+   "reason": "lowest grid floor with tuning accuracy >= 0.95 on >= 10 answered rows",
+   "curve": [
+    {
+     "at": 0.5,
+     "answered": 17,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.55,
+     "answered": 17,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.6,
+     "answered": 16,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.65,
+     "answered": 15,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.7,
+     "answered": 15,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.75,
+     "answered": 14,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.8,
+     "answered": 13,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.85,
+     "answered": 9,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.9,
+     "answered": 7,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.95,
+     "answered": 2,
+     "asked": 20,
+     "accuracy": 1
+    }
+   ]
+  },
+  "stated": {
+   "floor": 0.5,
+   "moved": true,
+   "reason": "lowest grid floor with tuning accuracy >= 0.95 on >= 10 answered rows",
+   "curve": [
+    {
+     "at": 0.5,
+     "answered": 21,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.55,
+     "answered": 21,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.6,
+     "answered": 21,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.65,
+     "answered": 21,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.7,
+     "answered": 21,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.75,
+     "answered": 21,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.8,
+     "answered": 20,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.85,
+     "answered": 19,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.9,
+     "answered": 18,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.95,
+     "answered": 18,
+     "asked": 23,
+     "accuracy": 1
+    }
+   ]
+  },
+  "rating": {
+   "floor": 0.65,
+   "moved": true,
+   "reason": "lowest grid floor with tuning accuracy >= 0.95 on >= 10 answered rows",
+   "curve": [
+    {
+     "at": 0.5,
+     "answered": 16,
+     "asked": 22,
+     "accuracy": 0.875
+    },
+    {
+     "at": 0.55,
+     "answered": 14,
+     "asked": 22,
+     "accuracy": 0.8571
+    },
+    {
+     "at": 0.6,
+     "answered": 14,
+     "asked": 22,
+     "accuracy": 0.8571
+    },
+    {
+     "at": 0.65,
+     "answered": 11,
+     "asked": 22,
+     "accuracy": 1
+    },
+    {
+     "at": 0.7,
+     "answered": 11,
+     "asked": 22,
+     "accuracy": 1
+    },
+    {
+     "at": 0.75,
+     "answered": 6,
+     "asked": 22,
+     "accuracy": 1
+    },
+    {
+     "at": 0.8,
+     "answered": 5,
+     "asked": 22,
+     "accuracy": 1
+    },
+    {
+     "at": 0.85,
+     "answered": 3,
+     "asked": 22,
+     "accuracy": 1
+    },
+    {
+     "at": 0.9,
+     "answered": 0,
+     "asked": 22,
+     "accuracy": null
+    },
+    {
+     "at": 0.95,
+     "answered": 0,
+     "asked": 22,
+     "accuracy": null
+    }
+   ]
+  }
+ },
+ "heldOut": [
+  {
+   "run": 1,
+   "model": "jev-1.13.0",
+   "actualCalls": 30,
+   "latencyP50Ms": 220,
+   "verdict": {
+    "choice": {
+     "status": "pass",
+     "candidate": {
+      "rows": 30,
+      "asked": 30,
+      "answered": 26,
+      "right": 25,
+      "accuracy": 0.9615,
+      "coverage": 0.8667
+     },
+     "single": {
+      "rows": 30,
+      "asked": 30,
+      "answered": 19,
+      "right": 19,
+      "accuracy": 1,
+      "coverage": 0.6333
+     }
+    },
+    "stated": {
+     "status": "pass",
+     "candidate": {
+      "rows": 30,
+      "asked": 30,
+      "answered": 30,
+      "right": 30,
+      "accuracy": 1,
+      "coverage": 1
+     },
+     "single": {
+      "rows": 30,
+      "asked": 30,
+      "answered": 28,
+      "right": 28,
+      "accuracy": 1,
+      "coverage": 0.9333
+     }
+    },
+    "rating": {
+     "status": "pass",
+     "candidate": {
+      "rows": 30,
+      "asked": 30,
+      "answered": 16,
+      "right": 16,
+      "accuracy": 1,
+      "coverage": 0.5333
+     },
+     "single": {
+      "rows": 30,
+      "asked": 30,
+      "answered": 11,
+      "right": 11,
+      "accuracy": 1,
+      "coverage": 0.3667
+     }
+    }
+   }
+  },
+  {
+   "run": 2,
+   "model": "jev-1.13.0",
+   "actualCalls": 30,
+   "latencyP50Ms": 221,
+   "verdict": {
+    "choice": {
+     "status": "pass",
+     "candidate": {
+      "rows": 30,
+      "asked": 30,
+      "answered": 26,
+      "right": 25,
+      "accuracy": 0.9615,
+      "coverage": 0.8667
+     },
+     "single": {
+      "rows": 30,
+      "asked": 30,
+      "answered": 19,
+      "right": 19,
+      "accuracy": 1,
+      "coverage": 0.6333
+     }
+    },
+    "stated": {
+     "status": "pass",
+     "candidate": {
+      "rows": 30,
+      "asked": 30,
+      "answered": 30,
+      "right": 30,
+      "accuracy": 1,
+      "coverage": 1
+     },
+     "single": {
+      "rows": 30,
+      "asked": 30,
+      "answered": 28,
+      "right": 28,
+      "accuracy": 1,
+      "coverage": 0.9333
+     }
+    },
+    "rating": {
+     "status": "pass",
+     "candidate": {
+      "rows": 30,
+      "asked": 30,
+      "answered": 15,
+      "right": 15,
+      "accuracy": 1,
+      "coverage": 0.5
+     },
+     "single": {
+      "rows": 30,
+      "asked": 30,
+      "answered": 11,
+      "right": 11,
+      "accuracy": 1,
+      "coverage": 0.3667
+     }
+    }
+   }
+  }
+ ],
+ "replay": {
+  "synthetic": {
+   "source": "test/fixtures/j6d (stubbed judge and extractor replies; plumbing only, says nothing about real play)",
+   "rebuiltCases": 7,
+   "refusedCases": 1,
+   "judgeAnsweredKeys": {
+    "choice": {
+     "keys": 14,
+     "withConfidence": 14,
+     "keptAtCandidate": 14,
+     "handedBack": 0,
+     "unseenBelowSingle": true
+    },
+    "rating": {
+     "keys": 7,
+     "withConfidence": 7,
+     "keptAtCandidate": 7,
+     "handedBack": 0,
+     "unseenBelowSingle": true
+    },
+    "stated": {
+     "keys": 7,
+     "withConfidence": 7,
+     "keptAtCandidate": 7,
+     "handedBack": 0,
+     "unseenBelowSingle": true
+    }
+   },
+   "comparedRows": 56,
+   "verdict": "rate",
+   "compared": {
+    "single": {
+     "choice": {
+      "keys": 28,
+      "withConfidence": 28,
+      "keptAtCandidate": 28,
+      "handedBack": 0,
+      "differAll": 2,
+      "differKept": 2,
+      "unseenBelowSingle": false
+     },
+     "rating": {
+      "keys": 14,
+      "withConfidence": 14,
+      "keptAtCandidate": 14,
+      "handedBack": 0,
+      "differAll": 2,
+      "differKept": 2,
+      "unseenBelowSingle": false
+     },
+     "stated": {
+      "keys": 14,
+      "withConfidence": 14,
+      "keptAtCandidate": 12,
+      "handedBack": 2,
+      "differAll": 0,
+      "differKept": 0,
+      "unseenBelowSingle": false
+     }
+    },
+    "candidate": {
+     "choice": {
+      "keys": 28,
+      "withConfidence": 28,
+      "keptAtCandidate": 28,
+      "handedBack": 0,
+      "differAll": 2,
+      "differKept": 2,
+      "unseenBelowSingle": true
+     },
+     "rating": {
+      "keys": 14,
+      "withConfidence": 14,
+      "keptAtCandidate": 14,
+      "handedBack": 0,
+      "differAll": 2,
+      "differKept": 2,
+      "unseenBelowSingle": true
+     },
+     "stated": {
+      "keys": 14,
+      "withConfidence": 14,
+      "keptAtCandidate": 14,
+      "handedBack": 0,
+      "differAll": 0,
+      "differKept": 0,
+      "unseenBelowSingle": true
+     }
+    }
+   }
+  },
+  "realCorpus": {
+   "source": "private session corpus (journal tails + runtime blobs), counts only",
+   "sessionDirs": 48,
+   "audits": 1423,
+   "notJudged": 713,
+   "judgeFailed": 0,
+   "rebuiltCases": 0,
+   "refusedBy": {
+    "prompt-mismatch (Canon-lite)": 592,
+    "scope-not-rebuilt": 62,
+    "missing-snapshot": 52,
+    "prompt-mismatch (Story)": 4
+   },
+   "extractorLeg": "owed (read model over full-scope prompts, x2): nothing to send while 0 cases rebuild"
+  },
+  "judgedKeyCensus": {
+   "source": "judged.keys in every journal audit of the private corpus, kind from the pinned story; confidences are archived only for keys with a delta",
+   "sessions": 60,
+   "judgedReads": 934,
+   "keys": {
+    "stated": 75,
+    "rating": 854,
+    "choice": 59,
+    "unknown": 272
+   },
+   "withConfidence": {
+    "rating": 41,
+    "stated": 3,
+    "choice": 1,
+    "unknown": 23
+   },
+   "confidences": {
+    "rating": {
+     "<0.85": 15,
+     "0.85-0.9": 26,
+     "0.9-0.95": 0,
+     ">=0.95": 0
+    },
+    "stated": {
+     "<0.85": 0,
+     "0.85-0.9": 0,
+     "0.9-0.95": 2,
+     ">=0.95": 1
+    },
+    "choice": {
+     "<0.85": 0,
+     "0.85-0.9": 0,
+     "0.9-0.95": 0,
+     ">=0.95": 1
+    },
+    "unknown": {
+     "<0.85": 8,
+     "0.85-0.9": 8,
+     "0.9-0.95": 2,
+     ">=0.95": 5
+    }
+   },
+   "sessionsWithStory": 48
+  }
+ }
+}
