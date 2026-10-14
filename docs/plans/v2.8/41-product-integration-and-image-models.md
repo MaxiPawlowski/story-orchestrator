@@ -596,3 +596,51 @@ Look-to-rig texture reuse remains unmeasured. Other open acceptance items are li
     two-member scene render, no reload/chat-switch proof in a browser. Every claim here is deterministic tests and
     Storybook only. The §5 A journey ×2 and the folded plan 28/29/33/36 rows remain owed.
   - Campaign adoption, showcase rebuild through the product path, not staged into ST, not merged.
+
+## Gate record — stage 2b (rigs, changed look), 2026-10-14
+
+- Branch `v2.8-plan41-rigs` from master `e0831f41`, worktree `.claude/worktrees/agent-a7bceb950b85f2de1`. Commits `9d47c374` (rig
+  synthesis, changed-look rebuild), `b3d6aaa9` (face/decal-only cast illustration), `191ddadb` (registry, guide), `124a7d75` (lazy
+  harness import, decode split). Not merged, not pushed, not staged. No model call, download, GPU, ComfyUI, lane or ST use.
+- Landmark source: plans 36/41 name the Sol vision session (no MediaPipe). Built as an injected `LandmarkProvider`; the product provider
+  (`synthesis/host.ts` `solLandmarks`) wraps the existing `visionRigRequest` route, now asking for a typed landmark JSON with image size.
+  It is wired but never called here; every test and story injects synthetic landmarks.
+- Built:
+  - `src/sprites/liveHead/synthesis/`: `landmarks.ts` (schema v1, validation naming every problem), `rigGeometry.ts` (landmarks → upstream-v1
+    rig: head/body/face ellipses, bands, eye openings/ROI with the build-layers 24-sample column curves, mouth line/bow, cheeks, mesh cells
+    fitted under the 40,000-vertex limit), `layers.ts` (deterministic CPU cut: eyeball/low/crease/lash masks, eye holes filled by skin
+    diffusion), `png.ts` (stored-deflate PNG for goldens), `synthesize.ts` (pipeline; RunGuard after every await; output goes through the
+    shipped `loadHeadManifest` with the expected member/look/art-hash/source; package size limit), `visionLandmarks.ts`, `syntheticBust.ts`
+    (owned geometric bust + true landmarks), `RigPreview.tsx`.
+  - Changed-look review/rebuild: `src/sprites/lookRebuild.ts` (rows from `visualHead` state, `publishLookBust`, `LookRebuild`
+    prepare/accept/cancel), `lookRebuildHost.ts`, Studio Sprites `ChangedLookRebuild` + `ChangedLookReview` (`#so-changed-look-rebuild`).
+    Rebuild crops the look base with the accepted head box (or keeps its saved bust), synthesizes a rig preview from a data-URL source,
+    saves nothing until accept; accept saves the bust, publishes it on the look, rehomes the rig to the saved path and replaces that
+    member/look rig. A refused rig still allows bust-only acceptance (static fallback stays). Lineage: a re-rendered look base or a new
+    accepted root makes bust/rig stale again (tests).
+  - Face/decal-only looks: `castSceneIdentities` falls back to the base-layer signature when every field is card-bound and the rest are
+    `face`/`decal` layers; those fields join the cache identity (`layered`) and the scene prompt says the reference predates them. A base
+    change without its derivative is still refused.
+  - Feature registry `changed-look-rebuild` (author, experimental, on, no switch); guide paragraph; `npm run docs:guide`, `docs:settings`.
+- Skipped: tier settings model (fast vs quality) — the stage-1 POC accepted no fast-tier recipe for any task, so the setting would route
+  nowhere; six-view reference packs and wizard card art (not trivial).
+- Tests: `synthesis.test.ts` 17 (golden `test/goldens/liveHead/synthetic-rig.json` rig + layer hashes, determinism, 2x-scale equivalence,
+  contour start/winding invariance, layer content, vertex limit up to 2048 px, oversize/hash refusal, lapse at each of 5 awaits, landmark
+  validation, rehome, vision provider parse/refusal with fake transport); `lookRebuild.test.ts` 11; `castScene.test.ts` +1.
+  Ownership census +8 rows (one renamed), error-copy +5 rows; no ratchet raised.
+- Storybook: `Sprites/RigSynthesis` synthesizes a 320 x 448 synthetic bust in the browser (canvas decode/encode) and asserts the existing
+  `LiveHead` reached its first draw (`data-live-head-ready="true"`, canvas visible); `Studio/ChangedLookReview` 5 stories.
+- Main bundle `dist/index.js` 1,261,945 B (budget 1,300,000 B); synthesis, rebuild and preview strings are only in lazy chunks.
+- Gates:
+  - `npm run gates:quick`: green in 117.4 s (typecheck, typecheck:test, lint, jest related, replay 32/32).
+  - `npm run gates -- --no-storybook --jobs=2` run 1 (`191ddadb`): all green in 272.1 s.
+  - Staged Storybook (`%TEMP%\so-sb-rigs`, `npm run test-storybook:ci`) run 1: RED, 4 suites / 7 tests. RigSynthesis and SpriteBuilder
+    failed on `script.js` (the rig provider imported `stHost/harness` statically); fixed in `124a7d75`. PosesList (color-contrast) and
+    WorkspaceShell (missing heading) also failed; untouched code, both passed on the rerun, recorded as flaky.
+  - Staged Storybook run 2: 135 suites / 805 tests passed.
+  - `npm run gates -- --no-storybook --jobs=2` final (`124a7d75`): all green in 266.6 s; jest 709 suites / 8,187 tests (1 skipped),
+    replay 32/32, debug 1,260, release 123, plugin 269, 0 failures.
+- Still unproven: real landmark quality (no Sol call made; the provider prompt and JSON parse are tested only with a fake transport);
+  rig quality on real art (synthetic geometric bust only; the simplified CPU cut has no OpenCV inpainting and no LI5-style review);
+  browser/lane acceptance of the rebuild screen with real saves; GPU/ComfyUI renders; cast illustration with layered fields on a model.
+  Plan 36 LI rows and the §5 A journey remain owed.
