@@ -62,6 +62,8 @@ export function readStageDirection(value: unknown): StageDirection | null {
   return { framing, spotlight, cast };
 }
 
+export const rosterStamp = (roster: ReadonlyArray<{ id: string; name?: string }> = []): string => JSON.stringify(roster.map((member) => [member.id, member.name ?? ""]));
+
 export function directionKeys(name: string, aliases: readonly string[] = []): string[] {
   return [name, ...aliases].map((key) => key.trim().toLowerCase()).filter(Boolean);
 }

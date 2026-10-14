@@ -18,7 +18,7 @@ import type { SpriteActivation, SpriteSettings } from "./settings";
 import { spriteActivation, spritesActive, storyDirectsStage } from "./activation";
 import { setGlobalSettings } from "@runtime/settingsStore";
 import { isRecord } from "@utils/guards";
-import { directionKeys, isSpotlit, memberDirection, readStageDirection, standsOnStage, type StageDirection } from "./direction";
+import { directionKeys, rosterStamp, isSpotlit, memberDirection, readStageDirection, standsOnStage, type StageDirection } from "./direction";
 import { StreamActivity } from "./animation";
 import { publishSpriteLookIssues } from "@runtime/spriteLookHealth";
 import { publishSpriteStageHealth, type SpriteStageIssue } from "@runtime/spriteStageHealth";
@@ -53,8 +53,7 @@ export class SpriteStage {
   private looks: import("./builder/onDemand").OnDemandLooks | null = null;
   private bodies: StagePoses | null = null;
   private lookModule: Promise<void> | null = null;
-  private membership: string | null = null;
-  private rosterKey = "";
+  private membership: string | null = null; private rosterKey = "";
   private packIssues: SpriteStageIssue[] = [];
   private readonly lists = new SpriteListCache(spriteList);
 
@@ -200,8 +199,7 @@ export class SpriteStage {
     this.activity.stop();
     this.bodies?.close(); this.bodies = null;
     this.looks?.close(); this.looks = null; this.lookModule = null;
-    const ticket = ++this.loading;
-    this.rosterKey = this.rosterStamp();
+    const ticket = ++this.loading; this.rosterKey = rosterStamp(this.manager.getStory()?.roster);
     this.capability = await capabilityState("sprites");
     if (ticket !== this.loading) return;
     const cast = spriteCast();
@@ -237,10 +235,6 @@ export class SpriteStage {
   private lookStamp(): string {
     const story = this.manager.getStory(), values = this.manager.getCachedSnapshot().blackboard;
     return story?.cardFieldByQuality ? JSON.stringify(Object.entries(story.cardFieldByQuality).filter(([, field]) => field.visual).map(([key]) => [key, values[key]])) : "";
-  }
-
-  private rosterStamp(): string {
-    return JSON.stringify((this.manager.getStory()?.roster ?? []).map((member) => [member.id, member.name ?? ""]));
   }
 
   private keysFor(name: string): string[] {
@@ -279,7 +273,7 @@ export class SpriteStage {
   }
 
   private placeChanged(): void {
-    if (this.rosterStamp() !== this.rosterKey) { void this.reload(); return; }
+    if (this.rosterKey !== (this.rosterKey = rosterStamp(this.manager.getStory()?.roster))) return void this.reload();
     this.looks?.revalidate(); this.bodies?.revalidate();
     if (this.activation() !== this.snapshot.activation) this.notify();
     if (!this.actors.length) return;
