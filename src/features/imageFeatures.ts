@@ -50,7 +50,7 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     oneLine: "Draw one or two prepared characters together in their current looks.",
     what: "Choose up to two characters whose presentation was accepted. "
       + "The picture uses each one's current look; a look still being prepared is refused rather than drawn in the old outfit.",
-    where: drawerAt("#so-cast-scene", "Play › Illustrate prepared cast"), settings: [], doc: authorGuideDoc("poses"),
+    where: drawerAt("#so-cast-scene", "Author › Illustrate prepared cast"), settings: [], doc: authorGuideDoc("poses"),
     status: "experimental", needs: ["comfyui", "story"],
   },
   {

@@ -143,3 +143,25 @@ describe("v2.7 plan 29 (finding 20): every Help \"Show me\" target exists in the
     expect(dirname("src/x.tsx")).toBe("src");
   });
 });
+
+const WORKSPACE = "src/components/workspace/Workspace.tsx";
+const workspacePage = (page: "play"): Read => (path) => {
+  const source = diskRead(path);
+  if (path !== WORKSPACE || source === null) return source;
+  const start = source.indexOf(`if (location.page === "${page}") return`);
+  const end = source.indexOf("\n      if (", start + 1);
+  const imports = source.slice(0, source.search(/^export default function/m));
+  return `${imports}export const Page = () => <>${source.slice(source.indexOf("return", start) + 6, end)}</>;\n`;
+};
+
+describe("v2.8 plan 41: a feature routed to the workspace Play page renders there", () => {
+  it("every Play-routed feature selector is defined by the Play page tree", () => {
+    const play = [...renderedFiles([{ file: WORKSPACE, component: "Page" }], workspacePage("play")).values()];
+    expect(play.join("\n")).toContain("PlayerOverview");
+    const misrouted = FEATURES.filter((feature) => feature.where.workspace?.context === "story" && feature.where.workspace.page === "play"
+      && !definesSelector(play, feature.where.selector)).map((feature) => `${feature.id}: ${feature.where.selector}`);
+    expect(misrouted).toEqual([]);
+    expect(definesSelector(play, "#so-cast-scene")).toBe(false);
+    expect(FEATURES.find((feature) => feature.id === "cast-illustration")?.where.workspace).toMatchObject({ context: "story", page: "author", control: "so-cast-scene" });
+  });
+});
