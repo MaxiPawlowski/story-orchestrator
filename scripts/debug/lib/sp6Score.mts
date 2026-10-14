@@ -3,7 +3,7 @@ import { COMPLICATION_FAMILY, restateCheck } from './overSteer.mts';
 export type Sp6Arm = 'release' | 'control';
 export type Sp6Judge = 'on' | 'off';
 
-export type Sp6Release = { boundary: number; id: string; block: string; reply: string | null; after: string[]; reached: boolean | null };
+export type Sp6Release = { boundary: number; turn?: number; id: string; block: string; reply: string | null; after: string[]; reached: boolean | null };
 
 export type Sp6Run = { at?: string; chatId?: string; arm: Sp6Arm; judge: Sp6Judge; replies: number; agencyFlags: number; releases: Sp6Release[]; carried: number };
 
@@ -12,6 +12,9 @@ export const SP6_BARS = { runsPerCell: 2, minReleases: 20, k3Slack: 1, k4MaxRest
 export type Sp6Verdict = 'PASS' | 'FAIL' | 'INCOMPLETE';
 
 const mean = (values: number[]) => (values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : Number.NaN);
+
+export const releasedTurns = (run: Sp6Run): number =>
+  (run.releases.every((release) => typeof release.turn === 'number') ? new Set(run.releases.map((release) => release.turn)).size : run.releases.length);
 
 const reachRate = (run: Sp6Run) => {
   const measured = run.releases.filter((release) => release.reached !== null);
@@ -33,7 +36,7 @@ export function scoreSp6(runs: Sp6Run[]) {
   const cell = (arm: Sp6Arm, judge: Sp6Judge) => runs.filter((run) => run.arm === arm && run.judge === judge);
   const cells = { releaseOn: cell('release', 'on'), controlOn: cell('control', 'on'), releaseOff: cell('release', 'off'), controlOff: cell('control', 'off') };
   const short = Object.entries(cells).filter(([, list]) => list.length < SP6_BARS.runsPerCell).map(([name, list]) => `${name}: ${list.length} of ${SP6_BARS.runsPerCell} runs`);
-  const small = runs.filter((run) => run.releases.length < SP6_BARS.minReleases).map((run) => `${run.arm}/${run.judge} ${run.at ?? ''}: ${run.releases.length} releases`);
+  const small = runs.filter((run) => releasedTurns(run) < SP6_BARS.minReleases).map((run) => `${run.arm}/${run.judge} ${run.at ?? ''}: ${releasedTurns(run)} released turns`);
 
   const controlMean = mean(cells.controlOn.map((run) => run.agencyFlags));
   const k3Rows = cells.releaseOn.map((run) => ({ at: run.at ?? null, flags: run.agencyFlags, bar: controlMean + SP6_BARS.k3Slack, ok: run.agencyFlags <= controlMean + SP6_BARS.k3Slack }));

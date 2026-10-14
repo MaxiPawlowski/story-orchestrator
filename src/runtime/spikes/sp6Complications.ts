@@ -20,6 +20,7 @@ export interface ComplicationPool {
 
 export interface ComplicationRelease {
   boundary: number;
+  turn: number;
   checkpointId: string;
   id: string;
   text: string;
@@ -31,6 +32,7 @@ export interface ReleaseInput {
   log: readonly BoundaryLogEntry[];
   shape: ArcTemplate | null;
   spent?: ReadonlyMap<string, number>;
+  playerTurnIds?: readonly number[];
 }
 
 const readItem = (value: unknown, index: number): Complication | null => {
@@ -61,7 +63,10 @@ const directionOf = (story: NormalizedStoryV2, entry: BoundaryLogEntry, shape: A
   return getSteeringHint(typeof smoothed === "number" ? smoothed : null, expected)?.direction ?? "none";
 };
 
-export const deriveReleases = ({ story, pools, log, shape, spent }: ReleaseInput): ComplicationRelease[] => {
+const turnOf = (entry: BoundaryLogEntry, playerTurnIds: readonly number[] | undefined): number =>
+  (playerTurnIds ? playerTurnIds.filter((id) => id <= entry.context.lastMessageId).length : entry.boundary);
+
+export const deriveReleases = ({ story, pools, log, shape, spent, playerTurnIds }: ReleaseInput): ComplicationRelease[] => {
   const releases: ComplicationRelease[] = [];
   const used = new Set<string>();
   // A release that has fallen out of the retained log window is remembered in `spent`; one that is
@@ -71,20 +76,30 @@ export const deriveReleases = ({ story, pools, log, shape, spent }: ReleaseInput
   if (spent) for (const [key, boundary] of spent) if (boundary < oldest) used.add(key);
   let streak = 0;
   let streakAt: string | null = null;
+  let closedTurn: number | null = null;
   for (const entry of log) {
     const checkpointId = entry.after.activeCheckpointId;
+    const turn = turnOf(entry, playerTurnIds);
     if (checkpointId !== streakAt || entry.fired) {
       streak = 0;
       streakAt = checkpointId;
+      closedTurn = null;
     }
-    streak = directionOf(story, entry, shape) === "escalate" ? streak + 1 : 0;
+    if (directionOf(story, entry, shape) !== "escalate") {
+      streak = 0;
+      closedTurn = turn;
+      continue;
+    }
+    if (turn === closedTurn) continue;
+    streak += 1;
+    closedTurn = turn;
     const pool = pools[checkpointId];
     if (!pool || streak < pool.after) continue;
     streak = 0;
     const next = pool.items.find((item) => !used.has(`${checkpointId}:${item.id}`));
     if (!next) continue;
     used.add(`${checkpointId}:${next.id}`);
-    releases.push({ boundary: entry.boundary, checkpointId, id: next.id, text: next.text });
+    releases.push({ boundary: entry.boundary, turn, checkpointId, id: next.id, text: next.text });
   }
   return releases;
 };

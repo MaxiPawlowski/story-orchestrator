@@ -75,6 +75,7 @@ const spikePort = () => ({
   story: () => runtimeManager.getStory(),
   log: () => runtimeManager.getBoundaryLog(),
   shape: () => runtimeManager.getSnapshot().pacing.shapeOverride ?? null,
+  chat: (): readonly unknown[] => (Array.isArray(getContext().chat) ? getContext().chat : []),
   prompt: {
     set: (key: string, text: string, depth: number) => { setStoryExtensionPrompt(key, text, depth); },
     clear: (key: string) => { clearStoryExtensionPrompt(key); },

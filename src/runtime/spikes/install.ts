@@ -2,6 +2,7 @@ import type { ArcTemplate, BoundaryLogEntry, NormalizedStoryV2 } from "@engine/i
 import { installSpikeSeams } from "../spikeSeams";
 import type { SpikeSettings } from "../settingsModel";
 import { onChanceDraw, type ChanceDraw } from "../chance";
+import { playerTurnIds } from "../agencyRecovery";
 import {
   composeComplication, createComplicationSeam, deriveReleases, logDirections, pendingRelease, readComplicationPools,
   type ComplicationEvent, type ComplicationRelease, type PromptPort, type ReleaseInput,
@@ -13,6 +14,7 @@ export interface SpikePort {
   story?(): NormalizedStoryV2 | null;
   log?(): readonly BoundaryLogEntry[];
   shape?(): ArcTemplate | null;
+  chat?(): readonly unknown[];
   prompt?: PromptPort;
 }
 
@@ -35,7 +37,8 @@ export const SPIKE_DRAW_RING = 200;
 export const releaseInput = (port: SpikePort): ReleaseInput | null => {
   const story = port.story?.() ?? null;
   if (!story) return null;
-  return { story, pools: readComplicationPools(port.raw()), log: port.log?.() ?? [], shape: port.shape?.() ?? story.arc_template ?? null };
+  const base = { story, pools: readComplicationPools(port.raw()), log: port.log?.() ?? [], shape: port.shape?.() ?? story.arc_template ?? null };
+  return port.chat ? { ...base, playerTurnIds: playerTurnIds(port.chat()) } : base;
 };
 
 export const complicationView = (port: SpikePort, spent?: ReadonlyMap<string, number>): ComplicationView | null => {
