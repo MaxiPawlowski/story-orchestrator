@@ -335,6 +335,7 @@ real-model carrier, or why none is needed.
 | talk-chain | RP | voiceStart, talkChainYield | GS1.2, GS3.1 |
 | private-knowledge | RP + CL | PC-privacy, secret reviews | GS1.5; S-07/08/11/12/13 (CL) |
 | inner-voice | RP | inner jest | GS1.2, GS1.5 |
+| thought-carry | D + CL + RP | thoughtCarry review test, v28-a13-thought-carry (no-model, live run owed) | GS1.5 player-clean with the spike on (L5-RP3 half); L5-RP1 coverage read owed (informational) |
 | lorebook-switching | CL | scanGate scenarios | GS2.6 |
 | story-lorebooks | CL | storyLore scenarios | GS2.6 |
 | memory-lore | CL | v28-40-provisioning-roundtrip | GS2.6 |
@@ -357,27 +358,28 @@ real-model carrier, or why none is needed.
 | memory-test | CL | settings tests | C8b-stranger |
 | reply-thinking | RP | replyEffort jest, 16-08 | T-R4, GS1.2 |
 | models-per-task | D + CL | 16-02-C14 | routes recorded in every run header |
-| capabilities | D | capability tests | none: no model |
+| capabilities | D | capabilities jest | none: no model |
 | experiments | D + RP | spike tests, K3 sim | GS4.5; SP6 measurements deferred |
 | story-briefing | RP | 16-05 | GS1.1 |
 | briefing-draft | CL | v28-10-briefing-draft (S) | GS1.1; 30-draft floors (informational) |
 | player-setup | RP | 34-L-* | GS1.1, GS1.8 |
-| live-head | LI | plan 36 A1 rows ×2 | N3 (LI2, LI5 campaign rigs); LI1 laptop deferred |
-| prepared-presentation | LI | plan 41 D slice | N3 |
-| changed-look-rebuild | LI | plan 41 D slice | N3 |
+| live-head | LI | plan 36 A1 rows ×2, liveHead jest | N3 (LI2, LI5 campaign rigs); LI1 laptop deferred |
+| prepared-presentation | LI | plan 41 D slice: visualPreparation jest | N3 |
+| reference-pack | LI | referenceViews jest | N3 (image track, rule 12) |
+| changed-look-rebuild | LI | plan 41 D slice: lookRebuild jest | N3 |
 | landmark-cross-check | D + CL | rig tooling node:test | Sol calibration ×6 carried (N12) |
-| cast-illustration | LI | plan 41 D slice | N3 |
-| pose-library | LI | plan 33 suites | N3 product Acceptance ×2; rater 40/40 ×2 carried |
-| backgrounds | D | effects.background idempotence | none: no model |
+| cast-illustration | LI | plan 41 D slice: castScene jest | N3 |
+| pose-library | LI | plan 33 suites: poses jest, stageBodies | N3 product Acceptance ×2; rater 40/40 ×2 carried |
+| backgrounds | D | backgrounds jest (effects.background idempotence) | none: no model |
 | story-scenario | RP | 16-02-C1, PC payloads | GS1.4 |
 | images | LI | 32-W4-scenario, C1-clean-host | GS5 (O3–O6) |
 | gpu-sharing | LI | broker node:test | plan 28 LI ×2 carried; LT latency informational |
 | story-workflows | D + LI | v28-40-workflow-findings ×2 | plan 29 brokered ×2 carried |
-| model-downloads | D | fake providers | real download deferred (needs a token and the owner's OK) |
+| model-downloads | D | downloads node:test (fake providers), downloadCopy jest | real download deferred (needs a token and the owner's OK) |
 | sprites | LI | VnStage tests | GS5 (C6-stage) |
 | sprite-builder | LI | builder contract tests | N3 (32-W5) |
 | sprite-mouth-region | LI | mask import tests | N3 (32-W6-frames) |
-| sprite-edit-resolution | LI | tests | N3 |
+| sprite-edit-resolution | LI | SpriteRenderControls Storybook | N3 |
 | sprite-animation | LI + RP | lipsync jest | GS5 (32-W6-stream) |
 | story-badges | D | 16-06 | none: no model |
 | story-card | D | 16-06 | none: no model |
@@ -516,6 +518,11 @@ registry, and the 109-id check above, when a plan is built. Floor ids are the pl
 | plan 33 product Acceptance | acceptance | LI | N2 spill ×2 |
 | plan 36 LI1 laptop / LI5 rigs | deferred / acceptance | LI | laptop when available; LI5 in N3 |
 | v2.7 20 L5 inner voice spike (A13) | informational | RP | deferred unless the informational cap has room |
+| v2.8 01 §F M1–M5 (Q-M5/P3, inner voice B2, inner voice C, W6, Part B packs) | deferred | RP + CL | as M15/R8: packs from GS replies where the arm is the shipped default; other arms deferred |
+| v2.8 17 K1, K2 (SP6 release, one block) | carried | D + RP | K1 complication jest replay; K2 = 35-K2 (live-v25-09-sp6-k2, carried); GS4.5 re-reads the release |
+| v2.8 17 K3–K5 (SP6 agency, over-steer, tension) | deferred | RP | = 35-K3/K4/K5, with plan 49 C8 (§Cuts 8) |
+| v2.8 21 §6.2 VR1–VR5 | superseded | CL | measured as plan 43 VR1–VR4 (CL offline ×2 when 43 is built); VR5 report only, v2.9 05 |
+| plan 36 LI3, LI4, LI6 (fault, reduced motion, mobile) | image track (rule 12) | D + LI | owed no-model lane / Storybook rows of plan 36, closed with the image track |
 
 ## Cuts and merges
 
@@ -588,6 +595,7 @@ recorded and the feature stays on (00-overview rule 9).
   runs when C is built (+0.2 h).
 - 43 verbatim recall: VR1, VR2, VR2s, VR2t, VR2k, VR3, VR8 CL offline ×2; VR4, VR4c, VR4x D; VR6r latency read in
   GS1/GS3 (no extra turns); VR7/VR7p informational ×1 (20 labelled turns on vs off, 30 min Artemis); VR9 only with F.
+  R-Gate1, R-Gate2, R-Gate3 are 43's build gates (21 E0, 21 §6.2, 42 witness record), decided before any VR row runs.
 - 44 rumors: G1–G6, G9–G14 D (G6 live read in GS3 if the campaign adopts rumors, else a CL fixture of 30 turns);
   G7/G8 CL ×2 on a 20-case fixture with second-model labels; G15 CL with stage 2 only.
 - 45 New Game+: N1–N6, N8–N13 D; N7 deferred (needs two finished source runs; informational).
