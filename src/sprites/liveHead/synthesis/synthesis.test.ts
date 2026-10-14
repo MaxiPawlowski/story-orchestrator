@@ -5,7 +5,7 @@ import type { RunGuard } from "@runtime/runToken";
 import type { PixelImage } from "../../builder/pixels";
 import { syntheticBust } from "./syntheticBust";
 import { landmarkProblems, parseLandmarks, type FaceLandmarks } from "./landmarks";
-import { synthesizeRig, eyeCurves, fitCell, layerVertices, MAX_LAYER_VERTICES } from "./rigGeometry";
+import { synthesizeRig, eyeCurves, fitCell, layerVertices, MAX_LAYER_VERTICES, LOWER_LID_OUTSET } from "./rigGeometry";
 import { cutHeadLayers } from "./layers";
 import { encodePngStored, base64 } from "./png";
 import { synthesizeHead, rehomeHead, type RigSynthesisDeps } from "./synthesize";
@@ -64,7 +64,7 @@ describe("landmark rig synthesis", () => {
     two.eyes.forEach((eye, i) => {
       expect(eye.x0).toBeCloseTo(one.eyes[i].x0 * 2, 1);
       eye.top.forEach((y, k) => expect(Math.abs(y - one.eyes[i].top[k] * 2)).toBeLessThanOrEqual(0.03));
-      eye.bot.forEach((y, k) => expect(Math.abs(y - one.eyes[i].bot[k] * 2)).toBeLessThanOrEqual(0.03));
+      eye.bot.forEach((y, k) => expect(Math.abs(y - one.eyes[i].bot[k] * 2)).toBeLessThanOrEqual(0.03 + LOWER_LID_OUTSET));
     });
     expect(two.mouth.halfLen).toBeCloseTo(one.mouth.halfLen * 2, 1); expect(two.mouth.angle).toBe(one.mouth.angle);
   });

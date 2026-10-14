@@ -644,3 +644,13 @@ Look-to-rig texture reuse remains unmeasured. Other open acceptance items are li
   rig quality on real art (synthetic geometric bust only; the simplified CPU cut has no OpenCV inpainting and no LI5-style review);
   browser/lane acceptance of the rebuild screen with real saves; GPU/ComfyUI renders; cast illustration with layered fields on a model.
   Plan 36 LI rows and the §5 A journey remain owed.
+
+## Gate record — real landmarks to rigs with Sol (stage 2b follow-up), 2026-10-14
+
+- Branch `v2.8-poc-sol` from master `0ae3c6ec`; commit `82628211`. Not merged, pushed or staged. Detail and per-bust numbers: plan 36 §"Gate record: Sol landmarks, rig synthesis and LI5 review on six real busts".
+- First real `solLandmarks`-shaped calls: the shipped `visionLandmarkProvider` / `visionRigRequest` on six real busts (m1-m3 accepted B-recipe bases, three showcase busts), Sol over the harness opencode transport (sign-in check bypassed through its `authMethods` seam, see plan 36 and queue N12). Six of six rigs valid through `synthesizeCheckedHead` and `loadHeadManifest` after one prompt fix (m1's one-ear answer refused by the validator).
+- Detector cross-check on real art: eyes, mouth and chin agree within 0.07 W on all six (limit 0.15); the face-oval width check disagrees on 4 of 6 first answers (long hair, hats; prompt asks for face and hair mass, checker compares with the jaw). Recorded, limits unchanged.
+- Synthesis defects found on real art and fixed: the jaw ellipse ended below the chin, so the open mouth crossed the chin on every rig; lower lid now traced 0.7 px outward. Still open: mesh-only closed eyes keep skin patches and iris slivers (simplified CPU cut, no inpainting); the drawn layer covers it where plan 19 neutral frames exist (m1, m3; m2's blink frames refused on ring drift).
+- Changed-look rebuild is unchanged; no browser/lane acceptance of the Studio rebuild screen, no product save path exercised. LI5 not accepted (eye-contour floor unmeasured on real art).
+- Gates: see plan 36 record (same branch).
+- Gates (branch `v2.8-poc-sol`, code commit `82628211`): `npm run test:replay` (fresh worktree) 32 of 32 killed in 156.8 s; `npm run gates:quick` green in 31.1 s; `npm run gates -- --no-storybook --jobs 2` all green in 231.2 s (test, test:replay, build, typecheck, typecheck:test, test:debug, debug:typecheck, lint, test:release, test:plugin); staged Storybook (`%TEMP%\so-sb-pocsol` from `git archive HEAD`, `npm run test-storybook:ci`) 136 suites / 814 tests passed, copy removed. Not merged, pushed, staged or installed.
