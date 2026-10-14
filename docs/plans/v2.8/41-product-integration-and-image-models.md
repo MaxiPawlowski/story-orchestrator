@@ -496,3 +496,54 @@ Look-to-rig texture reuse remains unmeasured. Other open acceptance items are li
   no artwork, review, progress/cancel, refusal and changed-look stale. Guide and queue records move with code.
 - Stage-2 stop: full deterministic gates including Storybook, then parent review. No GPU, browser/model
   acceptance, rating, download, pod, owner staging, campaign adoption or harness/installer edits in this stage.
+
+### Stage-2 as-built scope and remaining gaps
+
+- Entry: Wizard **Next: prepare cast presentation** → Sprites existing four-candidate base builder.
+  Keeping a base selects its saved reference immediately. Set the head box; review and explicitly accept
+  base+bust. Installed-card path/hash, generated recipe/key/hash, crop box, bust hash and source revision
+  persist in `sprites.visualSources`. No source from transient candidate state is consumed by runtime.
+- Accepted sources also provision the runtime presentation profile for a wizard card with no old `so_sprites`
+  profile; reload uses the reviewed base set. Source acceptance reloads stage inventory and closes old look/body
+  work. Missing/modified card or root files refuses the stage inventory with a readiness finding.
+- Expression/raw/final keys, changed-look keys, pose keys and stage body stamps carry root identity.
+  Changed-look base derivatives are published only while their root remains current; pose fallback inventory
+  filters out a different accepted root. Cancellation during bust save cannot publish accepted settings;
+  cancellation during scene save deletes the unplaced image. Preview files may remain unaccepted after
+  cancellation; they are never treated as accepted presentation artifacts.
+- Chat **Illustrate prepared cast** → select at most two → **Draw current-look cast**. Distinct lazy Qwen
+  2.1 scene recipe, exact accepted/current-look hashes, native two-image node inputs, no four-reference head
+  conditioning. References are uploaded as decoded image bytes through existing owned media jobs, and
+  broker lease/reference cleanup runs on success or refusal. SDXL/cast-free route implementations are retained.
+- Live-head resolution checks the selected look's bust path/hash; changed-look bust/rig absence is shown
+  as pending/static fallback. The Sol image-capable request contract is wired and tested against adopted
+  harness types. **Automatic landmark-to-valid-rig synthesis is not built**, and no product rig call/trial was
+  made. The parent-proven synthetic vision transport is dependency evidence only.
+- **Stage 2 is a bounded vertical slice, not the finished journey.** Changed-look bust review/rebuild UI,
+  optional reference-view authoring, full wizard card artwork provisioning, independently reviewed dynamic
+  look quality and end-user Artemis streaming integration remain unproven or incomplete. A nonempty current
+  card look requires its matching published derivative; initial accepted default does not guess a match.
+  Face/decal-only look signatures may currently refuse cast illustration until a matching full-look derivative
+  is prepared. These are acceptance/next-design gaps, not alternate quality floors.
+- Harness parent commits adopted locally as `4da44c44` (`016a39a3`), `ed4ebd47` (`6e260f34`),
+  `1d245583` (`7537491f`). Both parent plan-40 records retained. No conflicting harness source edits.
+- Campaign adoption deferred to RP acceptance; no private campaign material, pin bump or install.
+
+### Exact next acceptance sequence — after parent product review
+
+- Parent first reviews this bounded scope, source/persistence seams and rig-generation gap; implement the
+  missing changed-look bust/rig author workflow before calling the whole journey complete.
+- On an owned isolated lane, stage the reviewed combined build/plugins and compare served bundle hashes.
+  Start a fresh synthetic story through real Sol wizard; create its cast, prepare/review base+bust, accept,
+  reload and verify persisted hashes. Cancel another candidate and switch/delete a test card during work;
+  verify no accepted publication or cross-chat placement.
+- Configure established Qwen/BiRefNet and SDXL routes. Real Artemis with thinking/inner voice retained:
+  play a turn, stream presentation, change current look, render expression and both lying poses. Verify source
+  lineage/cache invalidation, transparent pending state and unchanged visibility/open-anchor behavior.
+- Rebuild/import a valid current-look bust/rig through the reviewed product route; verify actual live-head
+  rendering, refusal and static fallback. Request a two-member current-look scene and a cast-free SDXL
+  background; verify distinct route/cache identities and all GPU/reference ownership cleanup.
+- Repeat the complete browser/model path independently on the same machine twice, preserving failures and
+  predeclared floors; use a verified native `--cache-none` server for identical-input generation repeats.
+  Keep pod evidence separate, reconcile rating calls against 113/150, archive privately, stop/unload and prove
+  idle. No current deterministic result substitutes for those acceptance runs.
