@@ -34,6 +34,22 @@ export const ReviewWithRig: Story = { args: { rows, review: { ...review, rig: sy
   await userEvent.click(canvas.getByRole("button", { name: "Accept rebuilt bust and rig" }));
   await expect(args.accept).toHaveBeenCalled();
 } };
+export const ReviewWithLandmarkWarning: Story = { args: { review: { ...review, rig: syntheticHead, rigCheck: { status: "disagree",
+  note: "The face detector disagrees with the vision model's landmarks. Check the preview before accepting.",
+  warnings: [{ feature: "mouth", message: "The mouth is 0.31 face widths from the detector's mouth.", faceWidths: 0.31 }] } } },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("alert")).toHaveTextContent("0.31 face widths");
+    await userEvent.click(canvas.getByRole("button", { name: "Accept rebuilt bust and rig" }));
+    await expect(args.accept).toHaveBeenCalled();
+  } };
+export const ReviewWithDetectorSkipped: Story = { args: { review: { ...review, rig: syntheticHead,
+  rigCheck: { status: "skipped", note: "The face detector is not running; landmarks were not cross-checked." } } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/not cross-checked/)).toBeVisible();
+    await expect(canvas.queryByRole("alert")).toBeNull();
+  } };
 export const RigRefused: Story = { args: { review: { ...review, rigError: "The vision model refused this bust: hair covers both eyes." } },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);

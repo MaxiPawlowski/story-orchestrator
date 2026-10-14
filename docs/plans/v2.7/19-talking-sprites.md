@@ -371,3 +371,54 @@ Applied from `v2.7/review-2026-10-03.md`:
 - **B10**: registry + Help gate row.
 
 Not re-checked: the `src/sprites` and `render_sprites.py` line refs in §2 and §5 (not named by the ledger).
+
+## Gate record 2026-10-14: mask-only frame import and text-driven mouth (branch `v2.8-frames-lipsync`)
+
+Owner-approved harvest items 2 and 4 of `C:\dev\st-extensions-research\animation-second-look-2026-10-14.md`.
+Commits `e6cfc074`, `7ba23c53`, `f519e906` on master `ec920fbe`. Not merged.
+
+- Sources (read only, nothing installed or run): mesh-avatar-studio `26243f9` (`tools/build-sprites.py` mask-only
+  import, `packages/runtime/src/engine/sprites.js` `classifyVowel`), TalkingHead `modules/lipsync-en.mjs` at
+  `2afe6d79779313db8909badebf46f9805a6c7b70` (MIT). Notices in the derived files and `THIRD-PARTY-NOTICES.md`.
+- Item A, `src/sprites/builder/maskImport.ts`, called by `SpriteBuilder.build` for expression, blink, talk, talk2 and
+  rest edits (not base, pose, look or decal) and by `scripts/debug/lib/recomposeSagaMouth.ts`:
+  - aspect check before the rescale: tolerance 0.5 % plus Qwen's 32 px rounding (16 px per side; read from
+    ComfyUI `nodes_qwen.py` `TextEncodeQwenImage21`, which keeps aspect and stretches);
+  - whole-image shift: a brute-force search to ±6 px on Sobel edges of the opaque area outside the mask (in place of
+    `cv2.phaseCorrelate`; no FFT on the page); kept only when it lowers the difference; over 3 px refused;
+  - refusal reasons: redrawn outside the mask (opaque mean > 16/255), spill (12 px ring: mean > 20 or > 12 % over
+    48), shift, aspect ratio; each names its numbers;
+  - source alpha restored; median tint from a 10 px band inside the mask removed from the mask area (≤ 24 levels);
+  - deviation: an empty ring skips only the spill check (upstream refuses), since an expression ellipse can leave no
+    opaque pixels beside it. The report rides on `qa.maskImport`.
+- Item B: `src/sprites/lipsync/` (lazy chunk) turns streamed visible text into timed visemes. Word duration follows
+  the measured character arrival rate (EMA, clamped); backlog over 700 ms is compressed, over 1.4 s skipped; a last
+  word with no delimiter plays after 180 ms quiet. `src/sprites/mouthShape.ts` (main sprite chunk) holds the vowel
+  hysteresis, an open/close hysteresis, a 60 ms frame hold and `withVisemeMouth` for the live head.
+- Mouth movement decision: **both `simple` and `smooth` are text-driven** (deviation from the brief's "simple keeps
+  the flap"): the owner's default is the two-frame mouth (v2.7 32 W6) and every built feature is on by default, so a
+  flap-only default would ship the feature off. `simple`: base ↔ `talk`, opened on vowels (open ≥ 0.45, closes
+  below 0.35). `smooth`: `talk2` for half and narrow shapes (aHalf, e, i, u), `talk` for a and o; a set without
+  `talk2` behaves as `simple`. `off`: still. The old 110 ms flap remains as the fallback until the chunk loads or if
+  it fails. Reduced motion stops it as before. Default unchanged (`simple`).
+- Live head: **not wired.** `StreamActivity.mouth(name)` and `withVisemeMouth(params, sample)` are ready; the one-line
+  hookup in `liveHead/LiveHead.tsx` (`withVisemeMouth(driveHead(...), current.activity.mouth(current.name))`, plus
+  `activity.visemes()`) is left to `v2.8-live-head-harvest`, which owns those files.
+- Tests: `maskImport.test.ts` (clean, shifted 2/−1 corrected, shift 5 refused, tint removed, tint > 24 left, spill,
+  redrawn, aspect, distance), `builder.test.ts` (shift reported, redrawn refused before save; fixture edit is now a
+  crop of the base), `lipsync.test.ts` (fixed viseme sequences, numbers, timing, determinism, backlog, resume),
+  `mouthShape.test.ts` (hysteresis, stepper hold, two-frame rule, animator, chunk load/failure),
+  `stage.test.ts` (lip-sync gets visible text, never thinking), `lazyLipsync.guard.test.ts` (+ planted control).
+  Storybook: `VnStage` `ScriptedStreamedReplyMovesTheMouthWithTheWords`.
+- Bundle: main 1,264,849 B (≤ 1,300,000; master build 1,264,815). Sprite stage chunk 67,583 B (master 64,276, +3,307,
+  inside §6.5's 4 KB). Lip-sync chunk 12,419 B.
+- Gates:
+  - `npm run gates:quick` green after each item.
+  - `npm run gates -- --no-storybook` (final, on `f519e906`): every step ok except `test:plugin`, one harness timing
+    test (`agent.test.mjs` "the session deadline tears everything down…", 15 s timeout under load); passed in the
+    first full run on `7ba23c53` and on a solo re-run `npm run test:plugin` (270 pass, 0 fail). Earlier full run on
+    `7ba23c53` failed `codeHealth` S4 branches on `SpriteBuilder.build`; fixed in `f519e906`.
+  - Staged Storybook (copy at `C:\dev\so-sb-frames-lipsync`, removed after; port 6016 because 6006 was busy):
+    135 suites / 810 tests green.
+- Not run: no live gate, no real stream, no ComfyUI or model call. Real Qwen frames were not put through the import,
+  so how often real edits are refused at upstream's thresholds is unmeasured.

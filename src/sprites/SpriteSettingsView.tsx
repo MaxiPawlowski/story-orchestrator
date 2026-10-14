@@ -63,7 +63,7 @@ export function SpriteSettingsView({
         <CheckRow id="so-sprite-on-demand" setting="sprites.onDemand" checked={settings.onDemand} onChange={(onDemand) => onChange({ onDemand })} />
         <FieldLabel htmlFor="so-sprite-mouth" setting="sprites.mouth" />
         <select id="so-sprite-mouth" value={settings.mouth} onChange={(event) => onChange({ mouth: event.target.value as typeof settings.mouth })}>
-          <option value="off">Off</option><option value="simple">Simple</option><option value="smooth">Smooth (falls back to simple)</option>
+          <option value="off">Off</option><option value="simple">Simple</option><option value="smooth">Smooth (half-open frames; falls back to simple)</option>
         </select>
         {onRemoveStorySprites && <div className="flex flex-col gap-1">
           <button id="so-sprite-remove-story" type="button" className="menu_button text-xs" onClick={onRemoveStorySprites}>Remove generated sprites for this story</button>

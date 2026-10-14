@@ -437,7 +437,7 @@ export class SpriteStage {
     const reply = stream ? spriteStreamingReply() : null;
     if (!stream || !reply || reply.name !== stream.speaker) return;
     const text = visibleReply(reply.text);
-    if (text && text !== stream.visibleText) { stream.visibleText = text; this.activity.pulse(stream.speaker); }
+    if (text && text !== stream.visibleText) { stream.visibleText = text; this.activity.pulse(stream.speaker, text); }
     this.feed(stream, text, false);
   }
 

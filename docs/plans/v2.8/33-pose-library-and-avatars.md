@@ -519,3 +519,7 @@ npm run typecheck:test: tsc -p tsconfig.test.json; exit 0. git diff --check: exi
     already scored (CL, 40/40 ×2). TypeSafe calls this window: 0.
 - Evidence: `C:\dev\so-lanes\m3090-2026-10-14\plan33` (sheets, scores, results, vram.csv), archived privately (plan 28
   record names the label).
+
+## Owner decision 2026-10-14: lie_side stays listed
+
+- After the repaired-geometry miss (P2 PCK 0.333 ×2 vs floor 0.70), the owner chose to keep `lie_side` in the pose library rather than de-list it. Floor unchanged; the miss stays recorded.

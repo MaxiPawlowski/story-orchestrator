@@ -22,7 +22,7 @@ const fixture = () => {
     read: () => source, present: () => present,
     fingerprint: jest.fn(async (path: string) => path === lookBase.path ? lookBase.sha256 : path === first.bust.path ? first.bust.sha256 : path === first.base.path ? first.base.sha256 : savedBust.sha256),
     crop: jest.fn(async () => ({ data: "c3ludGhldGlj", sha256: savedBust.sha256 })), hash: async () => savedBust.key,
-    synthesize: jest.fn(async (input) => rigFor(input)),
+    synthesize: jest.fn(async (input) => ({ manifest: rigFor(input) })),
     rehome: (manifest, path, sha256) => ({ ...manifest, source: path, artHash: sha256 }),
     save: jest.fn(async () => savedBust),
     commitBust: jest.fn((next: VisualManifest) => { source = next; }),
@@ -73,7 +73,7 @@ test.each(["cancel", "chat", "delete", "replacement", "rerender"])("%s while the
 
 test("a lapse during rig synthesis leaves no review to accept", async () => {
   const f = fixture();
-  f.deps.synthesize = jest.fn(async (input) => { f.lapse(); return rigFor(input); });
+  f.deps.synthesize = jest.fn(async (input) => { f.lapse(); return { manifest: rigFor(input) }; });
   await expect(f.rebuild.prepare(target)).rejects.toThrow(); expect(f.deps.commitBust).not.toHaveBeenCalled();
 });
 
@@ -85,6 +85,16 @@ test("a refused rig still lets the author accept the bust; the head stays pendin
   await f.rebuild.accept(review);
   expect(f.deps.commitRig).not.toHaveBeenCalled();
   expect(visualHead(f.source(), LOOK, MEMBER, f.refs()).state).toBe("pending-rig");
+});
+
+test("a detector disagreement rides on the review as a warning and never blocks accepting the rig", async () => {
+  const f = fixture();
+  const check = { status: "disagree" as const, warnings: [{ feature: "mouth" as const, message: "The mouth is 0.4 face widths from the detector's mouth.", faceWidths: 0.4 }], note: "The face detector disagrees." };
+  f.deps.synthesize = jest.fn(async (input) => ({ manifest: rigFor(input), check }));
+  const review = await f.rebuild.prepare(target);
+  expect(review.rigCheck).toEqual(check); expect(review.rig).toBeDefined();
+  await f.rebuild.accept(review);
+  expect(f.deps.commitRig).toHaveBeenCalledTimes(1);
 });
 
 test("a look with a saved bust rebuilds only its rig, from the saved file", async () => {

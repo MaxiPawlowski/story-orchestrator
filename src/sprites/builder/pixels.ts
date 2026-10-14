@@ -3,29 +3,38 @@ import { mouthRegion, regionWeight, validateRegion, type FrameRegion } from "./f
 
 export interface PixelImage { width: number; height: number; data: Uint8ClampedArray; sha256?: string }
 export interface HeadBox { x: number; y: number; width: number; height: number }
-export interface PixelQA { ok: boolean; reasons: string[]; changed: number; alphaPixels: number; ringDrift: number }
+export interface PixelQA { ok: boolean; reasons: string[]; changed: number; alphaPixels: number; ringDrift: number; maskImport?: import("./maskImport").MaskImportReport }
 
 export function validateBox(image: Pick<PixelImage, "width" | "height">, box: HeadBox): void {
   if (!Object.values(box).every(Number.isInteger) || box.x < 0 || box.y < 0 || box.width < 8 || box.height < 8
     || box.x + box.width > image.width || box.y + box.height > image.height) throw new Error("The head box must fit inside the reference image.");
 }
 
-export function pasteEdit(base: PixelImage, edit: PixelImage, box: HeadBox, kind: EditKind, frameRegion?: FrameRegion): PixelImage {
-  validateBox(base, box);
-  if (edit.width !== box.width || edit.height !== box.height) throw new Error("Resize the edit to the reference head box before compositing.");
-  const frame = kind === "blink" || kind === "talk" || kind === "talk2";
+export function editWeights(box: Pick<HeadBox, "width" | "height">, kind: EditKind, frameRegion?: FrameRegion): Float64Array {
   const mouth = kind === "talk" || kind === "talk2" || kind === "rest";
   const region = mouth ? frameRegion ?? mouthRegion(box) : undefined;
   const eyeExclusion = kind === "blink" ? mouthRegion(box) : undefined;
   if (region) validateRegion(box, region);
-  const data = frame ? new Uint8ClampedArray(base.data.length) : new Uint8ClampedArray(base.data);
   const low = kind === "blink" ? 0.12 : kind === "talk" || kind === "talk2" ? 0.55 : 0;
   const high = kind === "blink" ? 0.55 : 1;
+  const weights = new Float64Array(box.width * box.height);
   for (let y = 0; y < box.height; y += 1) for (let x = 0; x < box.width; x += 1) {
     const distance = Math.sqrt(((x + 0.5 - box.width / 2) / (box.width / 2)) ** 2 + ((y + 0.5 - box.height / 2) / (box.height / 2)) ** 2);
     const edge = Math.min(1, Math.max(0, (1 - distance) / 0.12));
     const band = Math.min(1, Math.max(0, (y / box.height - low) / 0.04), Math.max(0, (high - y / box.height) / 0.04));
-    const weight = eyeExclusion && regionWeight(x, y, eyeExclusion) > 0 ? 0 : region ? regionWeight(x, y, region) : edge * band;
+    weights[y * box.width + x] = eyeExclusion && regionWeight(x, y, eyeExclusion) > 0 ? 0 : region ? regionWeight(x, y, region) : edge * band;
+  }
+  return weights;
+}
+
+export function pasteEdit(base: PixelImage, edit: PixelImage, box: HeadBox, kind: EditKind, frameRegion?: FrameRegion): PixelImage {
+  validateBox(base, box);
+  if (edit.width !== box.width || edit.height !== box.height) throw new Error("Resize the edit to the reference head box before compositing.");
+  const frame = kind === "blink" || kind === "talk" || kind === "talk2";
+  const weights = editWeights(box, kind, frameRegion);
+  const data = frame ? new Uint8ClampedArray(base.data.length) : new Uint8ClampedArray(base.data);
+  for (let y = 0; y < box.height; y += 1) for (let x = 0; x < box.width; x += 1) {
+    const weight = weights[y * box.width + x];
     if (!weight) continue;
     const target = ((box.y + y) * base.width + box.x + x) * 4, source = (y * edit.width + x) * 4;
     for (let channel = 0; channel < 3; channel += 1) {

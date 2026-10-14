@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect } from "@storybook/test";
+import { expect, waitFor } from "@storybook/test";
 import { defaultSpriteSettings } from "./settings";
 import type { SpriteStage, StageActor, StageView } from "./stage";
 import { VnStage } from "./VnStage";
+import { StreamActivity } from "./animation";
 import { expectFits, VIEWPORTS } from "../../.storybook/fit";
 
 const swatch = (color: string) =>
@@ -33,7 +34,11 @@ const view = (patch: Partial<StageView> = {}): StageView => ({
   ...patch,
 });
 
-const stage = (current: StageView): SpriteStage => ({ subscribe: () => () => {}, view: () => current }) as unknown as SpriteStage;
+const stage = (current: StageView, activity?: StreamActivity): SpriteStage => ({ subscribe: () => () => {}, view: () => current, activity }) as unknown as SpriteStage;
+
+const scripted = new StreamActivity();
+const SCRIPT = "Hello there, friend. I see you made it through the old gate at last.";
+const talking = { ...actor("Arin", "#a55"), frames: { talk: swatch("#222"), talk2: swatch("#777") } };
 
 const meta: Meta<typeof VnStage> = {
   title: "Sprites/VnStage",
@@ -98,5 +103,24 @@ export const PhoneUsesTheStrip: Story = {
     await expect(sprites[0]).toHaveClass("so-talking");
     await expect(sprites[1]).toHaveClass("so-speaking");
     await expectFits(canvasElement, sprites[1]);
+  },
+};
+
+export const ScriptedStreamedReplyMovesTheMouthWithTheWords: Story = {
+  args: { stage: stage(view({ actors: [talking], settings: { ...defaultSpriteSettings(), enabled: true, explicit: true, mouth: "smooth", blink: false } }), scripted) },
+  play: async ({ canvasElement }) => {
+    await scripted.visemes();
+    const seen = new Set<string>();
+    const mouth = () => [...canvasElement.querySelectorAll<HTMLImageElement>(".so-face-overlay")].find((image) => image.style.opacity === "1");
+    for (let at = 1; at <= SCRIPT.length; at += 1) {
+      scripted.pulse("Arin", SCRIPT.slice(0, at));
+      await new Promise((resolve) => setTimeout(resolve, 35));
+      const open = mouth();
+      if (open) seen.add(open.getAttribute("src") ?? "");
+    }
+    await waitFor(() => expect(seen.size).toBeGreaterThan(0));
+    await expect([...seen].every((src) => src === talking.frames.talk || src === talking.frames.talk2)).toBe(true);
+    scripted.stop();
+    await waitFor(() => expect(mouth()).toBeUndefined());
   },
 };

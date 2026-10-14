@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { mouthSequence, type AnimationFrames, type MouthMode, type StreamActivity } from "./animation";
-import { decodeFrames, decodeImage, frameMemory, startBlink, startMouth } from "./faceFrames";
+import { decodeFrames, decodeImage, frameMemory, startBlink, startVisemeMouth } from "./faceFrames";
 
 export function AnimatedFace({ frames, activity, name, seed, blink, mouth, paused, budget, style }: {
   frames: AnimationFrames; activity: StreamActivity; name: string; seed: string; blink: boolean; mouth: MouthMode; paused: boolean; budget: number; style?: React.CSSProperties;
@@ -29,9 +29,10 @@ export function AnimatedFace({ frames, activity, name, seed, blink, mouth, pause
     const element = mouthRef.current;
     if (!element) return;
     element.style.opacity = "0";
-    if (paused || speaker !== name) return;
-    return startMouth(element, mouthSequence(mouth, ready));
-  }, [mouth, name, paused, ready, speaker]);
+    if (paused || speaker !== name || mouth === "off") return;
+    void activity.visemes();
+    return startVisemeMouth(element, mouth === "smooth" ? ready : { talk: ready.talk }, (now) => activity.mouth(name, now), mouthSequence(mouth, ready));
+  }, [activity, mouth, name, paused, ready, speaker]);
 
   return <>
     {ready.blink && <img ref={blinkRef} src={ready.blink} alt="" aria-hidden="true" className="so-face-overlay" style={{ ...style, opacity: 0 }} />}

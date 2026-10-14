@@ -2,6 +2,12 @@
   "$comment": "v2.5 plan 03 E2. Rows are extracted by test/support/codeHealth.ts errorCopySites (kinds: 1 toast/popup literal, 2 template interpolating an error, 3 bare catch or constant .catch). Reviewed by hand: surface, rawError, silentCatch, verdict, reason. Pass = no rawError on a player surface; every kind-3 row logs or is a probe. 'closed' flips true when no row fails.",
   "closed": true,
   "rows": [
+    { "site": "src/services/stHost/landmarkDetector.ts#detectFaceLandmarks", "kind": 3, "template": "catch {} #1",
+      "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Optional landmark detector unreachable: a typed unavailable answer; the rig review notes the cross-check was skipped." },
+    { "site": "src/services/stHost/landmarkDetector.ts#detectFaceLandmarks", "kind": 3, "template": ".catch(() => null)",
+      "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Non-JSON plugin answer becomes the typed unavailable answer, never an agreeing check." },
+    { "site": "src/sprites/liveHead/synthesis/detectorCheck.ts#detectorChecker>callback", "kind": 3, "template": "catch {} #1",
+      "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A failed detector call skips the advisory cross-check with a status note on the rig review; aborts still throw." },
     { "site": "src/sprites/liveHead/synthesis/visionLandmarks.ts#readLandmarkAnswer", "kind": 3, "template": "catch {} #1",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A vision answer that is not JSON becomes the named malformed-landmarks refusal in the changed-look review; nothing is rigged." },
     { "site": "src/sprites/liveHead/synthesis/visionLandmarks.ts#visionLandmarkProvider>callback", "kind": 2, "template": "`The vision model could not place landmarks: ${reply.message}`",

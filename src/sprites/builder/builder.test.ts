@@ -1,6 +1,7 @@
 import { webcrypto } from "node:crypto";
 import { SpriteBuilder, type BuilderDeps, type SpriteBuildRequest } from "./builder";
 import { checkPixels, pasteEdit, type PixelImage } from "./pixels";
+import { cropPixels } from "./maskImport";
 import { editKey } from "./recipes";
 import { referenceProblems } from "./referencePack";
 import { sanitizeSpriteSettings } from "../settings";
@@ -15,7 +16,9 @@ const image = (width: number, height: number, shift = 0): PixelImage => {
   }
   return { width, height, data };
 };
-const base = image(32, 32), edit = image(16, 16, 80), box = { x: 8, y: 8, width: 16, height: 16 };
+const base = image(32, 32), box = { x: 8, y: 8, width: 16, height: 16 };
+const edit = cropPixels(base, box);
+for (let y = 9; y < 12; y += 1) for (let x = 5; x < 11; x += 1) edit.data.set([x * 9, y * 5, (x + y) * 3, 255], (y * 16 + x) * 4);
 const models = { diffusion: { name: "edit", sha256: "a".repeat(64), size: 1 }, encoder: { name: "encoder", sha256: "b".repeat(64), size: 1 }, vae: { name: "vae", sha256: "c".repeat(64), size: 1 } };
 const request: SpriteBuildRequest = { character: "Test", set: "pilot", label: "happy", kind: "expression", value: "happy", reference: "base", box, models, seed: 1, steps: 25 };
 
@@ -78,7 +81,9 @@ test("expression edits keep the body and reference alpha byte-identical", () => 
 });
 
 test("blink and mouth edits are transparent outside separate non-overlapping bands", () => {
-  const blink = pasteEdit(base, edit, box, "blink"), talk = pasteEdit(base, edit, box, "talk");
+  const eyes = { ...edit, data: new Uint8ClampedArray(edit.data) };
+  for (let y = 3; y < 7; y += 1) for (let x = 3; x < 13; x += 1) eyes.data.set([x * 9, y * 5, (x + y) * 3, 255], (y * 16 + x) * 4);
+  const blink = pasteEdit(base, eyes, box, "blink"), talk = pasteEdit(base, edit, box, "talk");
   expect(checkPixels(base, blink, box, true).ok).toBe(true);
   for (let offset = 3; offset < blink.data.length; offset += 4) expect(blink.data[offset] > 0 && talk.data[offset] > 0).toBe(false);
 });
@@ -160,4 +165,20 @@ test("a failed reference cleanup still releases the GPU lease", async () => {
   deps.releaseReference = async () => { throw new Error("cleanup unavailable"); };
   await expect(builder.build(request)).rejects.toThrow("cleanup unavailable");
   expect(release).toHaveBeenCalledTimes(1);
+});
+
+test("a raw edit is imported through its mask: a small shift is corrected and reported, a redrawn picture is refused before save", async () => {
+  const { builder, deps } = fixture();
+  const shifted = { ...edit, data: new Uint8ClampedArray(edit.data.length) };
+  for (let y = 0; y < 16; y += 1) for (let x = 0; x < 16; x += 1) {
+    const from = (Math.min(15, Math.max(0, y + 1)) * 16 + Math.min(15, Math.max(0, x - 1))) * 4;
+    shifted.data.set(edit.data.subarray(from, from + 4), (y * 16 + x) * 4);
+  }
+  deps.decode = async (src) => src === "base" ? base : shifted;
+  const candidate = await builder.build({ ...request, kind: "talk", value: "happy" });
+  expect(candidate.qa.maskImport).toMatchObject({ shift: { x: 1, y: -1 }, corrected: { x: 1, y: -1 }, compared: true });
+  const redrawn = { ...edit, data: edit.data.map((value, at) => at % 4 === 3 ? value : Math.min(255, value + 60)) };
+  deps.decode = async (src) => src === "base" ? base : redrawn;
+  await expect(builder.build({ ...request, kind: "talk", value: "happy", seed: 2 })).rejects.toThrow("redrew the picture outside its mask");
+  expect(deps.save).not.toHaveBeenCalled();
 });

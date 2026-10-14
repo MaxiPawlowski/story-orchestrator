@@ -74,10 +74,18 @@ fast render. The builder remembers your choice, and you can still change **Steps
 or 1024) by hand. The setup you keep is what changed looks later render with. The saved frame retains the original
 canvas size. Preview timing includes cleanup, with rendering reported separately.
 
-The eyes and mouth use separate transparent patches, so blinking can overlap speech. **Mouth movement** defaults to
-Simple: two frames, closed and open, switched while the reply streams. Smooth adds the half-open frame and falls
-back to Simple if it is missing; Off keeps the mouth still. No frames means a static face that still breathes and
-cross-fades. Both the browser's and ST's reduced-motion setting disable facial animation.
+Before a generated frame is kept, the builder imports only the area inside its mask. It corrects a whole-image shift
+of up to 3 px, rescales a result that kept the head box's shape, removes a colour tint measured just inside the mask
+edge and keeps the reference's transparency. It refuses an edit that redrew the picture outside the mask, spills over
+the mask edge, moved more than 3 px or came back at a different aspect ratio, and says which. Render it again, or
+widen the mouth region if the new mouth is larger than the old one.
+
+The eyes and mouth use separate transparent patches, so blinking can overlap speech. While a reply streams, the
+mouth follows the words: the English text is read as mouth shapes as it arrives, with no audio, and a shape is held
+briefly so it does not flicker. **Mouth movement** defaults to Simple: two frames, closed and open, opened on vowels.
+Smooth also shows the half-open frame for narrow sounds (ee, eh, oo) and falls back to Simple if it is missing; Off
+keeps the mouth still. Until the lip-sync rules load, the mouth flaps at a steady pace. No frames means a static face
+that still breathes and cross-fades. Both the browser's and ST's reduced-motion setting disable facial animation.
 
 ## Public changes inside one story
 

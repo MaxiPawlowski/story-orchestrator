@@ -29,6 +29,14 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     status: "experimental", needs: ["sprite-pack", "harness-plugin"],
   },
   {
+    id: "landmark-cross-check", name: "Face landmark cross-check", area: "images", audience: "author",
+    oneLine: "A local face detector double-checks the vision model's eyes, mouth and jaw before you accept a rebuilt rig.",
+    what: "When the optional landmark server runs, Rebuild bust and rig also reads the bust with an anime face detector on the CPU and "
+      + "warns when an eye, the mouth or the jaw sits far from where the vision model placed it. It never blocks; without the server the review says it was skipped.",
+    where: studioAt("#so-changed-look-rebuild", "Sprites › Changed-look bust and rig"), settings: [], guideTopic: "poses", doc: authorGuideDoc("poses"),
+    status: "experimental", needs: ["sprite-pack"],
+  },
+  {
     id: "cast-illustration", name: "Prepared cast illustration", area: "images", audience: "setup",
     oneLine: "Draw one or two prepared characters together in their current looks.",
     what: "Choose up to two characters whose presentation was accepted. "
@@ -118,7 +126,8 @@ export const IMAGE_FEATURES: readonly Feature[] = [
   {
     id: "sprite-animation", name: "Animated faces", area: "images", audience: "setup",
     oneLine: "Blink and talking-mouth frames give sprites movement.",
-    what: "Packs with animation frames blink and move the speaker’s mouth while replies stream. Missing frames keep the static sprite. Reduced motion switches facial animation off.",
+    what: "Packs with animation frames blink and move the speaker’s mouth with the words while replies stream, read from the English text. "
+      + "Missing frames keep the static sprite. Reduced motion switches facial animation off.",
     where: settingsAt("#so-sprite-mouth", "Images › Sprite stage › Mouth movement"), settings: [], doc: "setup/sprites.md", status: "experimental", needs: ["sprite-pack"],
   },
 ];

@@ -7,7 +7,7 @@ import { cropBust } from "./visualHost";
 import { visualSourceAccepted } from "./visualChanges";
 import { liveHeadKey } from "./liveHeadRefs";
 import { manifestRef } from "./liveHead/manifest";
-import { rehomeHead, synthesizeHead, type LandmarkProvider } from "./liveHead/synthesis/synthesize";
+import { rehomeHead, synthesizeCheckedHead, type LandmarkProvider } from "./liveHead/synthesis/synthesize";
 import { rigSynthesisDeps } from "./liveHead/synthesis/host";
 import { LookRebuild, LOOK_BUST_RECIPE, replaceRig } from "./lookRebuild";
 
@@ -17,7 +17,7 @@ export function createLookRebuild(ownership: RunOwnership, landmarks?: LandmarkP
     ownership, read: (character) => getGlobalSettings().sprites.visualSources[character], present: spriteVisualCardPresent,
     fingerprint: spriteFileFingerprint, crop: cropBust,
     hash: (value) => contentHash(new TextEncoder().encode(value)),
-    synthesize: (input, run) => synthesizeHead(input, run, synthesis),
+    synthesize: (input, run) => synthesizeCheckedHead(input, run, synthesis),
     rehome: rehomeHead,
     save: async (review, signal) => {
       signal.throwIfAborted();

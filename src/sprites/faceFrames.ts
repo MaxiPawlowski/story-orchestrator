@@ -1,5 +1,6 @@
 import { log } from "@utils/log";
 import { blinkGap, type AnimationFrames } from "./animation";
+import { MouthStepper, type MouthSample } from "./mouthShape";
 
 const MB = 1024 * 1024;
 export const FRAME_BYTES_PER_ACTOR = 24 * MB;
@@ -8,6 +9,7 @@ const MAX_FRAME_BUDGET = 256 * MB;
 const FRAME_KEYS = ["talk", "talk2", "blink"] as const;
 const BLINK_MS = 140;
 const MOUTH_MS = 110;
+const VISEME_TICK_MS = 30;
 
 export const frameBudget = (actors: number): number => Math.min(MAX_FRAME_BUDGET, Math.max(MIN_FRAME_BUDGET, actors * FRAME_BYTES_PER_ACTOR));
 
@@ -92,5 +94,26 @@ export function startMouth(target: Faded & { src: string }, sequence: Array<stri
     if (path) target.src = path;
     target.style.opacity = path ? "1" : "0";
   }, MOUTH_MS);
+  return () => { clearInterval(timer); target.style.opacity = "0"; };
+}
+
+export function startVisemeMouth(target: Faded & { src: string }, frames: Pick<AnimationFrames, "talk" | "talk2">,
+  sample: (now: number) => MouthSample | null | undefined, fallback: Array<string | null>, clock: () => number = () => performance.now()): () => void {
+  if (!frames.talk) return () => { target.style.opacity = "0"; };
+  const stepper = new MouthStepper();
+  const began = clock();
+  let shown: string | null = null;
+  const show = (path: string | null) => {
+    if (path === shown) return;
+    shown = path;
+    if (path) target.src = path;
+    target.style.opacity = path ? "1" : "0";
+  };
+  const timer = setInterval(() => {
+    const now = clock(), value = sample(now);
+    if (value === undefined) { show(fallback.length > 1 ? fallback[Math.floor((now - began) / MOUTH_MS) % fallback.length] : null); return; }
+    const frame = stepper.next(value, frames, now);
+    show(frame ? frames[frame] ?? null : null);
+  }, VISEME_TICK_MS);
   return () => { clearInterval(timer); target.style.opacity = "0"; };
 }

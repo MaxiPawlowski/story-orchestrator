@@ -349,8 +349,9 @@ export const SETTING_COPY = {
   "sprites.onDemand": copy("Generate changed looks when needed",
     "Uses the Studio builder’s saved reference setup to edit the current expression when a public look changes. Needs the media plugin and ComfyUI. The current sprite stays visible while rendering."),
   "sprites.mouth": copy("Mouth movement",
-    "Moves the speaking character’s mouth while replies stream. Simple, the default, switches between closed and open frames. "
-      + "Smooth adds half-open frames when the pack has them. Reduced motion switches this off."),
+    "Moves the speaking character’s mouth with the words while replies stream (English text read as mouth shapes, no audio). "
+      + "Simple, the default, opens the closed/open frames on vowels. Smooth also uses half-open frames for narrow sounds when the pack has them. "
+      + "Off keeps the mouth still. Reduced motion switches this off."),
   "sprites.renderPreset": copy("Render preset",
     "The size and steps the Studio sprite builder starts with. Standard renders at 1024 px with 25 steps; Fast preview at 512 px with 20 steps, quicker but softer."),
 } as const satisfies Record<string, SettingCopy>;

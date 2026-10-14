@@ -1081,9 +1081,9 @@
       "status": "local",
       "note": "Decodes into a canvas and pixel buffer created inside this invocation; nothing persists. Callers (synthesizeHead) check ownership after it returns."
     },
-    "src/sprites/liveHead/synthesis/synthesize.ts#synthesizeHead": {
+    "src/sprites/liveHead/synthesis/synthesize.ts#synthesizeCheckedHead": {
       "status": "checked",
-      "note": "run.stillOwns() after every await (read, hash, decode, landmarks, each layer encode) and before returning; it only pushes into its local layer list and returns a manifest, never writes settings. synthesis.test.ts lapses at each step and asserts no later step runs."
+      "note": "run.stillOwns() after every await (read, hash, decode, landmarks, detector cross-check, each layer encode) and before returning; it only pushes into its local layer list and returns a manifest, never writes settings. synthesis.test.ts lapses at each step and asserts no later step runs; landmarkCheck.test.ts lapses during the cross-check. synthesizeHead only unwraps it."
     },
     "src/sprites/lookRebuild.ts#LookRebuild.prepare": {
       "status": "checked",
