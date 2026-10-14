@@ -36,7 +36,7 @@ export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueu
       if (!installed || !roster || isNarratorMember(roster)) throw new Error("Choose a present, non-narrator story member.");
       const source = settings.visualSources[folder];
       if (!source) throw new Error("Prepare each selected character's base and bust first.");
-      return { character: folder, fields: cardValues(story, snapshot.blackboard, roster.id, true), source };
+      return { character: folder, fields: cardValues(story, snapshot.blackboard, roster.id, true), source, card: roster.card };
     });
     const identities = castSceneIdentities(members);
     const config = castSceneBuilder(selected, settings.builders);
@@ -51,7 +51,7 @@ export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueu
         const installed = spriteCast().members.find((row) => row.folder === member.character);
         const roster = story.roster.find((row) => (row.name ?? row.id) === installed?.name);
         if (!roster) throw new Error("The cast changed.");
-        return { ...member, fields: cardValues(story, current.blackboard, roster.id, true), source: getGlobalSettings().sprites.visualSources[member.character] };
+        return { ...member, fields: cardValues(story, current.blackboard, roster.id, true), source: getGlobalSettings().sprites.visualSources[member.character], card: roster.card };
       });
       if (JSON.stringify(castSceneIdentities(currentMembers)) !== JSON.stringify(identities)) throw new Error("A current look changed while the cast scene was preparing.");
     };
@@ -70,7 +70,8 @@ export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueu
         comfyFingerprint("textEncoders", config.models.encoder, signal), comfyFingerprint("vaes", config.models.vae, signal)]);
       const render = { steps: config.steps, resolution: config.resolution };
       const prompt = [direction.trim() || "The selected characters together in the current scene.",
-        ...members.map((member, index) => `Character ${index + 1}: ${publicLook(member.fields)}`)].join(" ");
+        ...members.map((member, index) => `Character ${index + 1}: ${publicLook(member.fields)}`
+          + (identities[index].layered?.length ? ` (the reference image predates ${identities[index].layered?.join(", ")}; draw those details as described)` : ""))].join(" ");
       const input = { prompt, models: { diffusion, encoder, vae }, seed: 1234, ...render };
       const key = await contentHash(new TextEncoder().encode(castSceneKey(identities, input)));
       await waitForTextPriority({ status: gpuBrokerStatus, current: () => run.stillOwns(), signal,

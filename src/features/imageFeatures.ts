@@ -20,6 +20,14 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     status: "experimental", needs: ["comfyui"],
   },
   {
+    id: "changed-look-rebuild", name: "Changed-look bust and rig", area: "images", audience: "author",
+    oneLine: "Rebuild a changed look's bust and live-head rig, then accept or cancel.",
+    what: "A look whose artwork changed shows static art in close shots. Rebuild crops its bust with the accepted head box and fits a rig to face "
+      + "landmarks read by the Sol vision model; you see both and the moving preview before anything is saved.",
+    where: studioAt("#so-changed-look-rebuild", "Sprites › Changed-look bust and rig"), settings: [], guideTopic: "poses", doc: authorGuideDoc("poses"),
+    status: "experimental", needs: ["sprite-pack", "harness-plugin"],
+  },
+  {
     id: "cast-illustration", name: "Prepared cast illustration", area: "images", audience: "setup",
     oneLine: "Draw one or two prepared characters together in their current looks.",
     what: "Choose up to two characters whose presentation was accepted. "

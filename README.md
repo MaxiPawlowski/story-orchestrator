@@ -98,6 +98,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | World | Branches that follow you | When you leave the prepared ways forward, the story writes a branch that follows you and later comes back. | Experimental |
 | Images | Live close-shot head | A rigged close shot breathes, blinks and talks as a reply streams. | Experimental |
 | Images | Prepared cast presentation | Review and accept each character's base and bust before sprites, poses and live heads use them. | Experimental |
+| Images | Changed-look bust and rig | Rebuild a changed look's bust and live-head rig, then accept or cancel. | Experimental |
 | Images | Prepared cast illustration | Draw one or two prepared characters together in their current looks. | Experimental |
 | Images | Poses and character layers | Direct a body pose and let looks change with the story. |  |
 | Images | Backgrounds | A turning point can switch the chat background. |  |
