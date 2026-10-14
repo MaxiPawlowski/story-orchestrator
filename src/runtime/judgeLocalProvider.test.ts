@@ -56,11 +56,12 @@ const withRow = async (run: () => Promise<void>) => {
 };
 
 describe("local judge provider (v2.8 plan 14, A1)", () => {
-  it("is a selectable provider that never leaves the machine, with no calibration rows yet", () => {
+  it("is a selectable provider that never leaves the machine, calibrated for memory pairs only", () => {
     expect(JUDGE_PROVIDER_IDS).toContain(LOCAL);
     expect(JUDGE_PROVIDERS[LOCAL].remote).toBe(false);
     expect(providerLeavesMachine(LOCAL, { configured: true, local: true, host: "127.0.0.1:8095" })).toBe(false);
-    expect(JUDGE_READINESS_BY_PROVIDER[LOCAL]).toEqual({});
+    expect(Object.keys(JUDGE_READINESS_BY_PROVIDER[LOCAL])).toEqual(["memoryPairs"]);
+    expect(JUDGE_READINESS_BY_PROVIDER[LOCAL].memoryPairs).toMatchObject({ passed: true, measuredOn: MODEL, fixtureRevision: JUDGE_FIXTURE_REVISION.memoryPairs });
     expect(sanitizeJudgeSettings({ provider: { director: LOCAL } }).provider.director).toBe(LOCAL);
   });
 
@@ -69,11 +70,13 @@ describe("local judge provider (v2.8 plan 14, A1)", () => {
     for (const key of JUDGE_ROUTE_KEYS) expect(settings.provider[key]).toBe("typesafe");
   });
 
-  it("refuses every use routed to it until calibrated: nothing is sent to either provider", async () => {
+  it("refuses every uncalibrated use routed to it: nothing is sent to either provider", async () => {
     for (const use of Object.keys(RING_USE_ROUTE_KEYS)) {
       const routes = Object.fromEntries(RING_USE_ROUTE_KEYS[use].map((key) => [key, LOCAL]));
-      expect([use, judgeRoute(routed(routes), use).refused]).toEqual([use, "uncalibrated"]);
+      expect([use, judgeRoute(routed(routes), use).refused]).toEqual([use, use === "memoryPairs" ? undefined : "uncalibrated"]);
     }
+    expect(judgeRoute(routed({ memoryPairs: LOCAL }), "memoryPairs", { [LOCAL]: "plumb-4b" }).refused).toBe("uncalibrated");
+    expect(judgeRoute(defaultJudgeSettings(), "memoryPairs").provider).toBe("typesafe");
     const { runtime, records, typesafe, local } = setup(routed({ director: LOCAL }));
     expect(await runtime.director(input)).toBeNull();
     expect(typesafe).not.toHaveBeenCalled();

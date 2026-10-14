@@ -147,7 +147,20 @@ const LLAMA_LOGPROB_READINESS: ReadinessFacts = {
   ),
 };
 
-const SYSTEMONE_LOCAL_READINESS: ReadinessFacts = {};
+export const SYSTEMONE_LOCAL_MEASURED_ON = "decider-4b-v2.1-Q4_K_M";
+
+const SYSTEMONE_LOCAL_READINESS: ReadinessFacts = {
+  memoryPairs: {
+    calibration: 0.8966,
+    latencyP50Ms: 102,
+    live: null,
+    measuredOn: SYSTEMONE_LOCAL_MEASURED_ON,
+    passed: true,
+    recommendation:
+      "Met its floor with its held-out twin twice inside its 3000 ms budget: 26/29 and holdout 10/11 both runs, p95 111 ms, 1 rotation flip of 29 " +
+      "(2026-10-14, RTX 3090, full offload; pod 2 2026-10-10 the same). TypeSafe stays the default; this use is only routable here. Play-load check not run.",
+  },
+};
 
 export const ROUTED_READINESS: Partial<Record<JudgeProviderId, ReadinessFacts>> = {
   "llama-logprob": withFixtureRevisions(LLAMA_LOGPROB_READINESS, MEASURED_FIXTURE_REVISION),

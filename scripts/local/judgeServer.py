@@ -9,6 +9,9 @@ Backends:
   proxy    forwards /v1/systemone to another System One server (e.g. jevk5-serve for Plumb-4B)
            and adds /health with the model id and path.
 
+One request runs at a time: a request still queued after --queue-timeout seconds (default 10, the plugin's own
+upstream cut) is refused 503 busy, and one whose client left while it queued is dropped before the model runs.
+
 Started by scripts/local/judge.mjs (the tray's Start). Stdlib only, apart from the backend.
 """
 
@@ -16,6 +19,8 @@ import argparse
 import json
 import math
 import os
+import select
+import socket
 import sys
 import threading
 import time
@@ -136,6 +141,16 @@ def shape_issues(body):
     return issues
 
 
+def client_gone(sock):
+    try:
+        readable, _, _ = select.select([sock], [], [], 0)
+        if not readable:
+            return False
+        return sock.recv(1, socket.MSG_PEEK) == b""
+    except (OSError, ValueError):
+        return True
+
+
 class DeciderBackend:
     name = "decider"
 
@@ -199,6 +214,8 @@ def make_handler(state):
                 "device": getattr(state["backend"], "device", None),
                 "loaded": state["backend"] is not None,
                 "loadSeconds": state["load_seconds"],
+                "queueTimeoutSeconds": state["queue_timeout"],
+                "shed": dict(state["shed"]),
             })
 
         def do_POST(self):
@@ -215,9 +232,15 @@ def make_handler(state):
             if issues:
                 return self.reply(400, {"error": "invalid request", "issues": issues})
             started = time.perf_counter()
+            if not state["lock"].acquire(timeout=state["queue_timeout"]):
+                state["shed"]["busy"] += 1
+                return self.reply(503, {"error": "the local judge is busy", "busy": True})
             try:
-                with state["lock"]:
-                    raw, usage = state["backend"].ask(body["state"], body["questions"])
+                if client_gone(self.connection):
+                    state["shed"]["gone"] += 1
+                    self.close_connection = True
+                    return None
+                raw, usage = state["backend"].ask(body["state"], body["questions"])
             except ValueError as error:
                 text = str(error)
                 if "token" in text.lower() or "context" in text.lower():
@@ -225,6 +248,8 @@ def make_handler(state):
                 return self.reply(400, {"error": text})
             except Exception as error:
                 return self.reply(500, {"error": f"the local model failed: {error}"})
+            finally:
+                state["lock"].release()
             answers = normalize_answers(raw, body["questions"])
             usage = usage if isinstance(usage, dict) else {}
             return self.reply(200, {
@@ -277,6 +302,7 @@ def main(argv=None):
     parser.add_argument("--gpu-layers", type=int, default=0)
     parser.add_argument("--n-ctx", type=int, default=32768)
     parser.add_argument("--max-state-tokens", type=int, default=28800)
+    parser.add_argument("--queue-timeout", type=float, default=10.0)
     parser.add_argument("--self-test", action="store_true")
     args = parser.parse_args(argv)
     if args.self_test:
@@ -302,6 +328,8 @@ def main(argv=None):
         "model_path": os.path.abspath(args.model_path) if args.model_path else None,
         "lock": threading.Lock(),
         "load_seconds": round(time.perf_counter() - started, 1),
+        "queue_timeout": args.queue_timeout,
+        "shed": {"busy": 0, "gone": 0},
     }
     server = ThreadingHTTPServer((args.host, args.port), make_handler(state))
     print(f"[local-judge] {args.model_id} ({backend.name}, {getattr(backend, 'device', '?')}) on http://{args.host}:{args.port}, loaded in {state['load_seconds']} s", flush=True)
