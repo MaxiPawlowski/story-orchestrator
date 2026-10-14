@@ -230,16 +230,16 @@ User ideas 2026-10-07 → plans 25–30 (§Build order).
 
 ## Roleplay mechanics added 2026-10-14 (owner)
 
-Plans 42–53 (42, 43, 45 moved from v2.9 02, 05.4, 03). Status: written, not built; decisions pending in each plan.
+Plans 42–53 (42, 43, 45 moved from v2.9 02, 05.4, 03). Status: written, not built; decisions pending in each plan. 42–47 revised 2026-10-14 against `review-astra-2026-10-14.md` (each plan's "Review 2026-10-14 (Astra)" section).
 
 | Plan | Title | Implementation / acceptance |
 |---|---|---|
-| 42 | [Witness filter v2: who heard what (B measure first, C filter after)](42-witness-filter-v2.md) | D+CL |
-| 43 | [Verbatim recall: exact past lines, witness-filtered](43-verbatim-recall.md) | D+CL; gated on A12 E0 + 42 |
-| 44 | [Rumors and gossip: knowledge travels, seeded delay/version](44-rumors-and-gossip.md) | D |
-| 45 | [New Game+: outcome carry + epilogue "Previously"](45-new-game-plus.md) | D; live final chapter owed |
-| 46 | [Consequences recap: "Because you X, Y"](46-consequences-recap.md) | D (+CL if C1 misses) |
-| 47 | [Promises remembered: typed promises, overdue hooks](47-promises-remembered.md) | D+CL |
+| 42 | [Witness filter v2: span witness record + shared audience contract (B first, C separate)](42-witness-filter-v2.md) | D+CL |
+| 43 | [Verbatim recall: exact spans on request, provenance-filtered](43-verbatim-recall.md) | D+CL; gated on A12 E0 + 42 |
+| 44 | [Rumors and gossip: typed hearsay, reversible hops, recipient reveals](44-rumors-and-gossip.md) | D |
+| 45 | [New Game+: public carry projection, sequel vs replay](45-new-game-plus.md) | D; live final chapter owed |
+| 46 | [Consequences recap: authored + neutral first, evidenced "Because you"](46-consequences-recap.md) | D (+CL if C1 misses) |
+| 47 | [Promises remembered: exact-quote promises, relevance reminders](47-promises-remembered.md) | D+CL |
 | 48 | [Director scene test: seeded expected/altered/interrupt](48-director-scene-test.md) | D |
 | 49 | [Complications and twists: meter, pool, focus](49-complications-and-twists.md) | D now; model-facing build gated on SP6 (RP) |
 | 50 | [Story calendar: story_time + derived calendar](50-story-calendar.md) | D |
