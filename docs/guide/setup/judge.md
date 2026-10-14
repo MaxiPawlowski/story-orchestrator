@@ -90,10 +90,12 @@ asked leaves the machine: the plugin only talks to a server on `127.0.0.1` and r
 model is **decider-4b v2.1** (Apache-2.0, `Mapika/decider-4b-GGUF`, Q4_K_M); **Plumb-4B** (Apache-2.0,
 `crh225/plumb-4b`) is prepared as the second.
 
-**Not measured yet.** A use routed to the local judge is refused until it has been measured there against the same
-floors as TypeSafe (twice, on held-out rows too, inside the use's time budget, then in a real play session). Until
-then it keeps its usual path and the readiness list says "not calibrated there". TypeSafe stays the default for every
-use; picking the local judge is per use, in the provider list beside it.
+**Measured for one use.** A use routed to the local judge is refused until it has been measured there against the same
+floors as TypeSafe (twice, on held-out rows too, inside the use's time budget). Until then it keeps its usual path and
+the readiness list says "not calibrated there". So far only **memory pairs** has passed (decider-4b on a GPU, twice,
+held-out rows too, about 0.1 s per call); it has not been tried in a real play session yet. TypeSafe stays the default
+for every use; picking the local judge is per use, in the provider list beside it. On the CPU decider-4b is far too
+slow for any use's budget: run it on a GPU.
 
 ### Disk space
 
@@ -119,7 +121,10 @@ start when there is not enough.
    ```
 
    For a GPU build of llama.cpp set `SO_JUDGE_PIP_EXTRA_INDEX` to a CUDA wheel index first
-   (e.g. `https://abetlen.github.io/llama-cpp-python/whl/cu124`).
+   (e.g. `https://abetlen.github.io/llama-cpp-python/whl/cu124`). That index has Linux wheels for the version decider
+   needs (0.3.35 or newer) but no Windows ones; on Windows build it from source into the judge's environment with the
+   CUDA toolkit and Visual Studio Build Tools (`CMAKE_ARGS=-DGGML_CUDA=on`, then
+   `uv pip install --python <judge venv python> --no-cache --reinstall-package llama-cpp-python --no-binary llama-cpp-python --no-deps llama-cpp-python==0.3.36`).
 2. Start the server from the tray (**Story Orchestrator › Local judge › Start**), or
    `node scripts/local/judge.mjs start`. It listens on `127.0.0.1:8095` (`SO_JUDGE_LOCAL_PORT`) and runs on the CPU
    unless `SO_JUDGE_LOCAL_GPU_LAYERS` is set. **Check** asks it one question and prints the model, the latency and

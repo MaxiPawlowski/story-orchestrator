@@ -1,0 +1,1194 @@
+{
+  "run": "3090-2026-10-14-decider-4b-summary.json",
+  "head": "61b9161324bd",
+  "rows": [
+    {
+      "use": "director",
+      "fixture": [
+        {
+          "right": 23,
+          "total": 25,
+          "rate": 0.92,
+          "ok": true,
+          "p50": 389,
+          "p95": 509,
+          "within": true,
+          "ece": 0.3327097909790979,
+          "brier": 0.19640605772287445,
+          "fallbacks": 0,
+          "budget": 1500
+        },
+        {
+          "right": 23,
+          "total": 25,
+          "rate": 0.92,
+          "ok": true,
+          "p50": 367,
+          "p95": 445,
+          "within": true,
+          "ece": 0.3327097909790979,
+          "brier": 0.19640605772287445,
+          "fallbacks": 0,
+          "budget": 1500
+        }
+      ],
+      "holdout": null,
+      "rotationFlips": {
+        "flips": 0,
+        "compared": 25,
+        "rate": 0
+      },
+      "pod": [
+        {
+          "right": 20,
+          "total": 25,
+          "rate": 0.8,
+          "ok": false,
+          "p50": 398,
+          "p95": 453,
+          "within": true,
+          "ece": 0.3656285714285713,
+          "brier": 0.19871491333333333,
+          "fallbacks": 4,
+          "budget": 1500
+        },
+        {
+          "right": 23,
+          "total": 25,
+          "rate": 0.92,
+          "ok": true,
+          "p50": 438,
+          "p95": 539,
+          "within": true,
+          "ece": 0.33866,
+          "brier": 0.20217535720000004,
+          "fallbacks": 0,
+          "budget": 1500
+        }
+      ],
+      "typesafe": {
+        "key": "director",
+        "calibration": 0.88,
+        "p50": 245
+      },
+      "passes": false,
+      "floorX2": true,
+      "twinX2": null
+    },
+    {
+      "use": "memory-verify",
+      "fixture": [
+        {
+          "right": 35,
+          "total": 36,
+          "rate": 0.9722,
+          "ok": true,
+          "p50": 274,
+          "p95": 555,
+          "within": true,
+          "ece": 0.17869999999999994,
+          "brier": 0.06984581444444439,
+          "fallbacks": 0,
+          "budget": 3000
+        },
+        {
+          "right": 35,
+          "total": 36,
+          "rate": 0.9722,
+          "ok": true,
+          "p50": 270,
+          "p95": 557,
+          "within": true,
+          "ece": 0.17869999999999994,
+          "brier": 0.06984581444444439,
+          "fallbacks": 0,
+          "budget": 3000
+        }
+      ],
+      "holdout": [
+        {
+          "right": 22,
+          "total": 24,
+          "rate": 0.9167,
+          "ok": false,
+          "p50": 300,
+          "p95": 307,
+          "within": true,
+          "ece": 0.1268458333333333,
+          "brier": 0.09405849625,
+          "fallbacks": 0,
+          "budget": 3000
+        },
+        {
+          "right": 22,
+          "total": 24,
+          "rate": 0.9167,
+          "ok": false,
+          "p50": 305,
+          "p95": 307,
+          "within": true,
+          "ece": 0.1268458333333333,
+          "brier": 0.09405849625,
+          "fallbacks": 0,
+          "budget": 3000
+        }
+      ],
+      "rotationFlips": {
+        "flips": 0,
+        "compared": 36,
+        "rate": 0
+      },
+      "pod": [
+        {
+          "right": 35,
+          "total": 36,
+          "rate": 0.9722,
+          "ok": true,
+          "p50": 353,
+          "p95": 512,
+          "within": true,
+          "ece": 0.17065555555555556,
+          "brier": 0.0641675722222222,
+          "fallbacks": 0,
+          "budget": 3000
+        },
+        {
+          "right": 35,
+          "total": 36,
+          "rate": 0.9722,
+          "ok": true,
+          "p50": 342,
+          "p95": 513,
+          "within": true,
+          "ece": 0.17065555555555556,
+          "brier": 0.0641675722222222,
+          "fallbacks": 0,
+          "budget": 3000
+        }
+      ],
+      "typesafe": {
+        "key": "memoryVerify",
+        "calibration": 0.9722,
+        "p50": 236
+      },
+      "passes": false,
+      "floorX2": true,
+      "twinX2": false
+    },
+    {
+      "use": "memory-pairs",
+      "fixture": [
+        {
+          "right": 26,
+          "total": 29,
+          "rate": 0.8966,
+          "ok": true,
+          "p50": 102,
+          "p95": 110,
+          "within": true,
+          "ece": 0.14955859189530996,
+          "brier": 0.11979760138360875,
+          "fallbacks": 0,
+          "budget": 3000
+        },
+        {
+          "right": 26,
+          "total": 29,
+          "rate": 0.8966,
+          "ok": true,
+          "p50": 106,
+          "p95": 111,
+          "within": true,
+          "ece": 0.14955859189530996,
+          "brier": 0.11979760138360875,
+          "fallbacks": 0,
+          "budget": 3000
+        }
+      ],
+      "holdout": [
+        {
+          "right": 10,
+          "total": 11,
+          "rate": 0.9091,
+          "ok": true,
+          "p50": 103,
+          "p95": 105,
+          "within": true,
+          "ece": 0.12044545454545458,
+          "brier": 0.06874804818181819,
+          "fallbacks": 0,
+          "budget": 3000
+        },
+        {
+          "right": 10,
+          "total": 11,
+          "rate": 0.9091,
+          "ok": true,
+          "p50": 104,
+          "p95": 110,
+          "within": true,
+          "ece": 0.12044545454545458,
+          "brier": 0.06874804818181819,
+          "fallbacks": 0,
+          "budget": 3000
+        }
+      ],
+      "rotationFlips": {
+        "flips": 1,
+        "compared": 29,
+        "rate": 0.034482758620689655
+      },
+      "pod": [
+        {
+          "right": 26,
+          "total": 29,
+          "rate": 0.8966,
+          "ok": true,
+          "p50": 241,
+          "p95": 386,
+          "within": true,
+          "ece": 0.15254478477386163,
+          "brier": 0.11756225675507359,
+          "fallbacks": 0,
+          "budget": 3000
+        },
+        {
+          "right": 26,
+          "total": 29,
+          "rate": 0.8966,
+          "ok": true,
+          "p50": 277,
+          "p95": 349,
+          "within": true,
+          "ece": 0.15254478477386163,
+          "brier": 0.11756225675507359,
+          "fallbacks": 0,
+          "budget": 3000
+        }
+      ],
+      "typesafe": {
+        "key": "memoryPairs",
+        "calibration": 0.931,
+        "p50": 254
+      },
+      "passes": true,
+      "floorX2": true,
+      "twinX2": true
+    },
+    {
+      "use": "scene",
+      "fixture": [
+        {
+          "right": 176,
+          "total": 214,
+          "rate": 0.8224,
+          "ok": false,
+          "p50": 722,
+          "p95": 1053,
+          "within": true,
+          "ece": 0.20273851049182928,
+          "brier": 0.1836645411775278,
+          "fallbacks": 0,
+          "budget": 2500
+        },
+        {
+          "right": 176,
+          "total": 214,
+          "rate": 0.8224,
+          "ok": false,
+          "p50": 704,
+          "p95": 1011,
+          "within": true,
+          "ece": 0.20273851049182928,
+          "brier": 0.1836645411775278,
+          "fallbacks": 0,
+          "budget": 2500
+        }
+      ],
+      "holdout": [
+        {
+          "right": 19,
+          "total": 20,
+          "rate": 0.95,
+          "ok": false,
+          "p50": 167,
+          "p95": 677,
+          "within": true,
+          "ece": 0.33587179313515636,
+          "brier": 0.130734066610329,
+          "fallbacks": 0,
+          "budget": 2500
+        },
+        {
+          "right": 19,
+          "total": 20,
+          "rate": 0.95,
+          "ok": false,
+          "p50": 168,
+          "p95": 684,
+          "within": true,
+          "ece": 0.33587179313515636,
+          "brier": 0.130734066610329,
+          "fallbacks": 0,
+          "budget": 2500
+        }
+      ],
+      "rotationFlips": {
+        "flips": 56,
+        "compared": 214,
+        "rate": 0.2616822429906542
+      },
+      "pod": [
+        {
+          "right": 178,
+          "total": 214,
+          "rate": 0.8318,
+          "ok": false,
+          "p50": 614,
+          "p95": 867,
+          "within": true,
+          "ece": 0.21180327898958426,
+          "brier": 0.1806753944186651,
+          "fallbacks": 0,
+          "budget": 2500
+        },
+        {
+          "right": 178,
+          "total": 214,
+          "rate": 0.8318,
+          "ok": false,
+          "p50": 625,
+          "p95": 858,
+          "within": true,
+          "ece": 0.21180327898958426,
+          "brier": 0.1806753944186651,
+          "fallbacks": 0,
+          "budget": 2500
+        }
+      ],
+      "typesafe": {
+        "key": "sceneTrigger",
+        "calibration": 0.9673,
+        "p50": 243
+      },
+      "passes": false,
+      "floorX2": false,
+      "twinX2": false
+    },
+    {
+      "use": "lore",
+      "fixture": [
+        {
+          "right": 34,
+          "total": 50,
+          "rate": 0.68,
+          "ok": false,
+          "p50": 4398,
+          "p95": 4505,
+          "within": false,
+          "ece": 0.17660200000000031,
+          "brier": 0.24712817820000005,
+          "fallbacks": 0,
+          "budget": 1500
+        },
+        {
+          "right": 34,
+          "total": 50,
+          "rate": 0.68,
+          "ok": false,
+          "p50": 4405,
+          "p95": 4509,
+          "within": false,
+          "ece": 0.17660200000000031,
+          "brier": 0.24712817820000005,
+          "fallbacks": 0,
+          "budget": 1500
+        }
+      ],
+      "holdout": [
+        {
+          "right": 10,
+          "total": 20,
+          "rate": 0.5,
+          "ok": false,
+          "p50": 4379,
+          "p95": 4489,
+          "within": false,
+          "ece": 0.035250000000000115,
+          "brier": 0.24385937899999996,
+          "fallbacks": 0,
+          "budget": 1500
+        },
+        {
+          "right": 10,
+          "total": 20,
+          "rate": 0.5,
+          "ok": false,
+          "p50": 4373,
+          "p95": 4480,
+          "within": false,
+          "ece": 0.035250000000000115,
+          "brier": 0.24385937899999996,
+          "fallbacks": 0,
+          "budget": 1500
+        }
+      ],
+      "rotationFlips": {
+        "flips": 0,
+        "compared": 50,
+        "rate": 0
+      },
+      "pod": [
+        {
+          "right": 36,
+          "total": 51,
+          "rate": 0.7059,
+          "ok": false,
+          "p50": 2969,
+          "p95": 3141,
+          "within": false,
+          "ece": 0.1980607843137254,
+          "brier": 0.2394769652941177,
+          "fallbacks": 0,
+          "budget": 1500
+        },
+        {
+          "right": 36,
+          "total": 51,
+          "rate": 0.7059,
+          "ok": false,
+          "p50": 2980,
+          "p95": 3420,
+          "within": false,
+          "ece": 0.1980607843137254,
+          "brier": 0.2394769652941177,
+          "fallbacks": 0,
+          "budget": 1500
+        }
+      ],
+      "typesafe": {
+        "key": "loreSelect",
+        "calibration": 0.8966,
+        "p50": 291
+      },
+      "passes": false,
+      "floorX2": false,
+      "twinX2": false
+    },
+    {
+      "use": "curator-filter",
+      "fixture": [
+        {
+          "right": 10,
+          "total": 18,
+          "rate": 0.5556,
+          "ok": true,
+          "p50": 508,
+          "p95": 520,
+          "within": true,
+          "ece": 0.03335555555555558,
+          "brier": 0.24772580888888893,
+          "fallbacks": 0,
+          "budget": 4000
+        },
+        {
+          "right": 10,
+          "total": 18,
+          "rate": 0.5556,
+          "ok": true,
+          "p50": 506,
+          "p95": 516,
+          "within": true,
+          "ece": 0.03335555555555558,
+          "brier": 0.24772580888888893,
+          "fallbacks": 0,
+          "budget": 4000
+        }
+      ],
+      "holdout": null,
+      "rotationFlips": {
+        "flips": 0,
+        "compared": 18,
+        "rate": 0
+      },
+      "pod": [
+        {
+          "right": 10,
+          "total": 18,
+          "rate": 0.5556,
+          "ok": true,
+          "p50": 501,
+          "p95": 751,
+          "within": true,
+          "ece": 0.03765555555555555,
+          "brier": 0.24749640111111118,
+          "fallbacks": 0,
+          "budget": 4000
+        },
+        {
+          "right": 10,
+          "total": 18,
+          "rate": 0.5556,
+          "ok": true,
+          "p50": 534,
+          "p95": 604,
+          "within": true,
+          "ece": 0.03765555555555555,
+          "brier": 0.24749640111111118,
+          "fallbacks": 0,
+          "budget": 4000
+        }
+      ],
+      "typesafe": {
+        "key": "curatorFilter",
+        "calibration": 0.8889,
+        "p50": 281
+      },
+      "passes": false,
+      "floorX2": true,
+      "twinX2": null
+    },
+    {
+      "use": "continuity",
+      "fixture": [
+        {
+          "right": 60,
+          "total": 67,
+          "rate": 0.8955,
+          "ok": false,
+          "p50": 92,
+          "p95": 157,
+          "within": true,
+          "ece": 0.13230447761194034,
+          "brier": 0.11085599283582089,
+          "fallbacks": 0,
+          "budget": 4000
+        },
+        {
+          "right": 60,
+          "total": 67,
+          "rate": 0.8955,
+          "ok": false,
+          "p50": 94,
+          "p95": 159,
+          "within": true,
+          "ece": 0.13230447761194034,
+          "brier": 0.11085599283582089,
+          "fallbacks": 0,
+          "budget": 4000
+        }
+      ],
+      "holdout": [
+        {
+          "right": 16,
+          "total": 18,
+          "rate": 0.8889,
+          "ok": false,
+          "p50": 144,
+          "p95": 154,
+          "within": true,
+          "ece": 0.30902777777777773,
+          "brier": 0.15392515277777782,
+          "fallbacks": 0,
+          "budget": 4000
+        },
+        {
+          "right": 16,
+          "total": 18,
+          "rate": 0.8889,
+          "ok": false,
+          "p50": 145,
+          "p95": 159,
+          "within": true,
+          "ece": 0.30902777777777773,
+          "brier": 0.15392515277777782,
+          "fallbacks": 0,
+          "budget": 4000
+        }
+      ],
+      "rotationFlips": {
+        "flips": 0,
+        "compared": 67,
+        "rate": 0
+      },
+      "pod": [
+        {
+          "right": 60,
+          "total": 67,
+          "rate": 0.8955,
+          "ok": false,
+          "p50": 241,
+          "p95": 333,
+          "within": true,
+          "ece": 0.17461044776119417,
+          "brier": 0.10853772820895517,
+          "fallbacks": 0,
+          "budget": 4000
+        },
+        {
+          "right": 60,
+          "total": 67,
+          "rate": 0.8955,
+          "ok": false,
+          "p50": 238,
+          "p95": 307,
+          "within": true,
+          "ece": 0.17461044776119417,
+          "brier": 0.10853772820895517,
+          "fallbacks": 0,
+          "budget": 4000
+        }
+      ],
+      "typesafe": {
+        "key": "warden",
+        "calibration": 0.9701,
+        "p50": 247
+      },
+      "passes": false,
+      "floorX2": false,
+      "twinX2": false
+    },
+    {
+      "use": "backgrounds",
+      "fixture": [
+        {
+          "right": 13,
+          "total": 19,
+          "rate": 0.6842,
+          "ok": false,
+          "p50": 67,
+          "p95": 73,
+          "within": true,
+          "ece": 0.2391939900662735,
+          "brier": 0.09405951044549568,
+          "fallbacks": 0,
+          "budget": 2500
+        },
+        {
+          "right": 13,
+          "total": 19,
+          "rate": 0.6842,
+          "ok": false,
+          "p50": 66,
+          "p95": 73,
+          "within": true,
+          "ece": 0.2391939900662735,
+          "brier": 0.09405951044549568,
+          "fallbacks": 0,
+          "budget": 2500
+        }
+      ],
+      "holdout": null,
+      "rotationFlips": {
+        "flips": 19,
+        "compared": 19,
+        "rate": 1
+      },
+      "pod": [
+        {
+          "right": 13,
+          "total": 19,
+          "rate": 0.6842,
+          "ok": false,
+          "p50": 270,
+          "p95": 570,
+          "within": true,
+          "ece": 0.23864484987839166,
+          "brier": 0.09471339595967461,
+          "fallbacks": 0,
+          "budget": 2500
+        },
+        {
+          "right": 13,
+          "total": 19,
+          "rate": 0.6842,
+          "ok": false,
+          "p50": 276,
+          "p95": 371,
+          "within": true,
+          "ece": 0.23864484987839166,
+          "brier": 0.09471339595967461,
+          "fallbacks": 0,
+          "budget": 2500
+        }
+      ],
+      "typesafe": {
+        "key": "pictureCue",
+        "calibration": 1,
+        "p50": 247
+      },
+      "passes": false,
+      "floorX2": false,
+      "twinX2": null
+    },
+    {
+      "use": "typed",
+      "fixture": [
+        {
+          "right": 88,
+          "total": 120,
+          "rate": 0.7333,
+          "ok": true,
+          "p50": 76,
+          "p95": 407,
+          "within": true,
+          "ece": 0.07405050538688304,
+          "brier": 0.14785534121993021,
+          "fallbacks": 0,
+          "budget": 5000
+        },
+        {
+          "right": 88,
+          "total": 120,
+          "rate": 0.7333,
+          "ok": true,
+          "p50": 76,
+          "p95": 403,
+          "within": true,
+          "ece": 0.07405050538688304,
+          "brier": 0.14785534121993021,
+          "fallbacks": 0,
+          "budget": 5000
+        }
+      ],
+      "holdout": null,
+      "rotationFlips": {
+        "flips": 45,
+        "compared": 117,
+        "rate": 0.38461538461538464
+      },
+      "pod": [
+        {
+          "right": 87,
+          "total": 120,
+          "rate": 0.725,
+          "ok": false,
+          "p50": 284,
+          "p95": 476,
+          "within": true,
+          "ece": 0.065715250866548,
+          "brier": 0.14411912199691385,
+          "fallbacks": 0,
+          "budget": 5000
+        },
+        {
+          "right": 87,
+          "total": 120,
+          "rate": 0.725,
+          "ok": false,
+          "p50": 241,
+          "p95": 482,
+          "within": true,
+          "ece": 0.065715250866548,
+          "brier": 0.14411912199691385,
+          "fallbacks": 0,
+          "budget": 5000
+        }
+      ],
+      "typesafe": {
+        "key": "typedExtraction",
+        "calibration": 0.8295,
+        "p50": 260
+      },
+      "passes": false,
+      "floorX2": true,
+      "twinX2": null
+    },
+    {
+      "use": "stall",
+      "fixture": [
+        {
+          "right": 76,
+          "total": 77,
+          "rate": 0.987,
+          "ok": false,
+          "p50": 104,
+          "p95": 289,
+          "within": true,
+          "ece": null,
+          "brier": null,
+          "fallbacks": 0,
+          "budget": 4000
+        },
+        {
+          "right": 76,
+          "total": 77,
+          "rate": 0.987,
+          "ok": false,
+          "p50": 103,
+          "p95": 290,
+          "within": true,
+          "ece": null,
+          "brier": null,
+          "fallbacks": 0,
+          "budget": 4000
+        }
+      ],
+      "holdout": [
+        {
+          "right": 31,
+          "total": 31,
+          "rate": 1,
+          "ok": true,
+          "p50": 90,
+          "p95": 136,
+          "within": true,
+          "ece": 0.13306451612903214,
+          "brier": 0.03844463483870969,
+          "fallbacks": 0,
+          "budget": 4000
+        },
+        {
+          "right": 31,
+          "total": 31,
+          "rate": 1,
+          "ok": true,
+          "p50": 90,
+          "p95": 135,
+          "within": true,
+          "ece": 0.13306451612903214,
+          "brier": 0.03844463483870969,
+          "fallbacks": 0,
+          "budget": 4000
+        }
+      ],
+      "rotationFlips": {
+        "flips": 0,
+        "compared": 77,
+        "rate": 0
+      },
+      "pod": [
+        {
+          "right": 75,
+          "total": 77,
+          "rate": 0.974,
+          "ok": false,
+          "p50": 274,
+          "p95": 478,
+          "within": true,
+          "ece": null,
+          "brier": null,
+          "fallbacks": 0,
+          "budget": 4000
+        },
+        {
+          "right": 75,
+          "total": 77,
+          "rate": 0.974,
+          "ok": false,
+          "p50": 242,
+          "p95": 358,
+          "within": true,
+          "ece": null,
+          "brier": null,
+          "fallbacks": 0,
+          "budget": 4000
+        }
+      ],
+      "typesafe": {
+        "key": "stallCheck",
+        "calibration": 1,
+        "p50": 243
+      },
+      "passes": false,
+      "floorX2": false,
+      "twinX2": true
+    },
+    {
+      "use": "critic",
+      "fixture": [
+        {
+          "right": 117,
+          "total": 136,
+          "rate": 0.8603,
+          "ok": false,
+          "p50": 420,
+          "p95": 443,
+          "within": true,
+          "ece": 0.37675652381453584,
+          "brier": 0.2908404757206831,
+          "fallbacks": 0,
+          "budget": 2500
+        },
+        {
+          "right": 117,
+          "total": 136,
+          "rate": 0.8603,
+          "ok": false,
+          "p50": 416,
+          "p95": 449,
+          "within": true,
+          "ece": 0.37675652381453584,
+          "brier": 0.2908404757206831,
+          "fallbacks": 0,
+          "budget": 2500
+        }
+      ],
+      "holdout": null,
+      "rotationFlips": {
+        "flips": 32,
+        "compared": 136,
+        "rate": 0.23529411764705882
+      },
+      "pod": [
+        {
+          "right": 118,
+          "total": 136,
+          "rate": 0.8676,
+          "ok": false,
+          "p50": 451,
+          "p95": 568,
+          "within": true,
+          "ece": 0.3854932508140207,
+          "brier": 0.29493331806670325,
+          "fallbacks": 0,
+          "budget": 2500
+        },
+        {
+          "right": 118,
+          "total": 136,
+          "rate": 0.8676,
+          "ok": false,
+          "p50": 438,
+          "p95": 587,
+          "within": true,
+          "ece": 0.3854932508140207,
+          "brier": 0.29493331806670325,
+          "fallbacks": 0,
+          "budget": 2500
+        }
+      ],
+      "typesafe": {
+        "key": "expansionCritic",
+        "calibration": 0.9853,
+        "p50": 245
+      },
+      "passes": false,
+      "floorX2": false,
+      "twinX2": null
+    },
+    {
+      "use": "variants",
+      "fixture": [
+        {
+          "right": 15,
+          "total": 16,
+          "rate": 0.9375,
+          "ok": false,
+          "p50": 422,
+          "p95": 443,
+          "within": true,
+          "ece": null,
+          "brier": null,
+          "fallbacks": 0,
+          "budget": 2500
+        },
+        {
+          "right": 15,
+          "total": 16,
+          "rate": 0.9375,
+          "ok": false,
+          "p50": 422,
+          "p95": 448,
+          "within": true,
+          "ece": null,
+          "brier": null,
+          "fallbacks": 0,
+          "budget": 2500
+        }
+      ],
+      "holdout": null,
+      "rotationFlips": {
+        "flips": 4,
+        "compared": 16,
+        "rate": 0.25
+      },
+      "pod": [
+        {
+          "right": 15,
+          "total": 16,
+          "rate": 0.9375,
+          "ok": false,
+          "p50": 454,
+          "p95": 535,
+          "within": true,
+          "ece": null,
+          "brier": null,
+          "fallbacks": 0,
+          "budget": 2500
+        },
+        {
+          "right": 15,
+          "total": 16,
+          "rate": 0.9375,
+          "ok": false,
+          "p50": 444,
+          "p95": 533,
+          "within": true,
+          "ece": null,
+          "brier": null,
+          "fallbacks": 0,
+          "budget": 2500
+        }
+      ],
+      "typesafe": {
+        "key": "expansionLookahead",
+        "calibration": 1,
+        "p50": 270
+      },
+      "passes": false,
+      "floorX2": false,
+      "twinX2": null
+    },
+    {
+      "use": "agency",
+      "fixture": [
+        {
+          "right": 23,
+          "total": 41,
+          "rate": 0.561,
+          "ok": false,
+          "p50": 217,
+          "p95": 486,
+          "within": true,
+          "ece": 0.09089601341793582,
+          "brier": 0.24771739948404217,
+          "fallbacks": 0,
+          "budget": 4000
+        },
+        {
+          "right": 23,
+          "total": 41,
+          "rate": 0.561,
+          "ok": false,
+          "p50": 216,
+          "p95": 481,
+          "within": true,
+          "ece": 0.09089601341793582,
+          "brier": 0.24771739948404217,
+          "fallbacks": 0,
+          "budget": 4000
+        }
+      ],
+      "holdout": null,
+      "rotationFlips": {
+        "flips": 0,
+        "compared": 41,
+        "rate": 0
+      },
+      "pod": [
+        {
+          "right": 24,
+          "total": 41,
+          "rate": 0.5854,
+          "ok": false,
+          "p50": 360,
+          "p95": 472,
+          "within": true,
+          "ece": 0.14405953229998553,
+          "brier": 0.24921077383447962,
+          "fallbacks": 0,
+          "budget": 4000
+        },
+        {
+          "right": 24,
+          "total": 41,
+          "rate": 0.5854,
+          "ok": false,
+          "p50": 346,
+          "p95": 483,
+          "within": true,
+          "ece": 0.14405953229998553,
+          "brier": 0.24921077383447962,
+          "fallbacks": 0,
+          "budget": 4000
+        }
+      ],
+      "typesafe": {
+        "key": "agencyCheck",
+        "calibration": 1,
+        "p50": 241
+      },
+      "passes": false,
+      "floorX2": false,
+      "twinX2": null
+    },
+    {
+      "use": "house-rules",
+      "fixture": [
+        {
+          "right": 77,
+          "total": 80,
+          "rate": 0.9625,
+          "ok": false,
+          "p50": 189,
+          "p95": 436,
+          "within": true,
+          "ece": 0.17135500000000012,
+          "brier": 0.06987867250000004,
+          "fallbacks": 0,
+          "budget": 4000
+        },
+        {
+          "right": 77,
+          "total": 80,
+          "rate": 0.9625,
+          "ok": false,
+          "p50": 187,
+          "p95": 429,
+          "within": true,
+          "ece": 0.17135500000000012,
+          "brier": 0.06987867250000004,
+          "fallbacks": 0,
+          "budget": 4000
+        }
+      ],
+      "holdout": null,
+      "rotationFlips": {
+        "flips": 0,
+        "compared": 80,
+        "rate": 0
+      },
+      "pod": [
+        {
+          "right": 76,
+          "total": 80,
+          "rate": 0.95,
+          "ok": false,
+          "p50": 333,
+          "p95": 437,
+          "within": true,
+          "ece": 0.15336999999999992,
+          "brier": 0.07050180800000001,
+          "fallbacks": 0,
+          "budget": 4000
+        },
+        {
+          "right": 76,
+          "total": 80,
+          "rate": 0.95,
+          "ok": false,
+          "p50": 295,
+          "p95": 438,
+          "within": true,
+          "ece": 0.15336999999999992,
+          "brier": 0.07050180800000001,
+          "fallbacks": 0,
+          "budget": 4000
+        }
+      ],
+      "typesafe": {
+        "key": "houseRules",
+        "calibration": 0.965,
+        "p50": 235
+      },
+      "passes": false,
+      "floorX2": false,
+      "twinX2": null
+    }
+  ],
+  "hardware": "RTX 3090 24 GB, llama-cpp-python 0.3.36 built from source with CUDA 12.0 (sm_86), n_gpu_layers 99, n_ctx 32768; server code at 61b9161324bd (unchanged)",
+  "typesafeSource": "src/judge/readinessRows.ts JUDGE_READINESS (jev-1.13.0, calibration rate + p50; not re-run)",
+  "podSource": "pod2-2026-10-10-decider-4b-summary.json",
+  "rule": "passes = fixture floor ok x2 inside budget AND held-out twin floor ok x2 inside budget"
+}

@@ -551,3 +551,67 @@ Per use (floor = fixture floor, unchanged; budget from `policy.ts`):
   (`missingDistributions`, 2 node:tests).
 - Next: decider-4b is GPU-only for our budgets. A 3090 run (`SO_JUDGE_LOCAL_GPU_LAYERS=99` + a CUDA llama-cpp-python wheel)
   when ComfyUI is idle; pod 2's GPU result (memory-pairs only) stands as the best evidence.
+
+## Gate record: 3090 GPU baseline, 2026-10-14 (branch `v2.8-local-judge-3090`)
+
+Owner asked for it 2026-10-14 ("how good could this be"). Window 11:27–14:00 AST; GPU idle again at 12:13 AST.
+
+- GPU build: the venv's `llama_cpp` 0.3.36 was the CPU wheel (`llama_supports_gpu_offload()` False). The official abetlen
+  index has Windows CUDA wheels only up to 0.3.4 (cu121–cu124; cu125 empty, cu126/cu128 absent), and decider-ai needs
+  `llama-cpp-python>=0.3.35` (the model is `qwen35`, which 0.3.4 cannot load). So 0.3.36 was built from the PyPI sdist
+  (76.6 MB, plus scikit-build-core/cmake/ninja build deps) into `C:/dev/models/so-judge/venv` only: CUDA 12.0 nvcc + VS 2022
+  BuildTools 17.14, `CMAKE_ARGS=-DGGML_CUDA=on -DCMAKE_CUDA_ARCHITECTURES=86`, `CUDAFLAGS=-allow-unsupported-compiler
+  -D_ALLOW_COMPILER_AND_STL_VERSION_MISMATCH` (CUDA 12.0 refuses MSVC 14.44 otherwise), 14 min. Offload then True
+  (`ggml_cuda_init: RTX 3090, compute 8.6`). CPU copy of the old package kept in the run's scratch; nothing else touched.
+- Server: `SO_JUDGE_LOCAL_GPU_LAYERS=99 node scripts/local/judge.mjs start --model decider-4b` → `/health` device
+  `gpu-layers:99` (first load 120 s, CUDA warm-up; 15 s on restart). VRAM 6.7 GiB total in use (0.8 GiB before): ~5.9 GiB for
+  the judge, more than the ~3 GiB expected because the server allocates the 32,768-token KV cache. `check`: ok, 216 ms cold,
+  64 ms warm.
+- Command (code at master `61b9161324bd`, unchanged; prereg as committed): `SO_JUDGE_LOCAL_URL=http://127.0.0.1:8095
+  SO_JUDGE_MODELS_DIR=C:/dev/models/so-judge node --no-warnings --experimental-transform-types scripts/spike/typesafe/matrix.mts
+  --arm systemone-local --use all --holdout --runs 2 --rotate --prereg test/measurements/v2.8/14-local-judge/prereg-decider-4b.json
+  --out <scratch>/run-full`. 12:01–12:10 AST, exit 0, 1,410 calls, 0 fallbacks, 0 timeouts (no call near the plugin's 10 s cut).
+  Summary: `test/measurements/v2.8/14-local-judge/3090-2026-10-14-decider-4b-summary.json`; per-use comparison:
+  `3090-2026-10-14-decider-4b-comparison.json`. Calls/rows/logs: `test/sessions/evidence/phase-c/local-judge-3090-20261014/`.
+- Model calls: local decider only. TypeSafe calls: **0** (the prereg's TypeSafe column is gold-label scored and already recorded
+  in `readinessRows.ts`; re-running it would need ~1,400 calls, over the 300 cap). No Sol/DeepSeek.
+
+Per use (fixture run 1, run 2; held-out twin ×2; p50 / p95 vs budget; ECE run 1; pod 2 for comparison; TypeSafe = recorded
+calibration rate and p50):
+
+- memory-pairs: 26/29 ok, 26/29 ok; twin 10/11 ok ×2; 102 / 111 of 3000 ms; ECE 0.150; rotation flips 1/29. Pod 2: same
+  counts, p95 386, ECE 0.153. TypeSafe 0.931, p50 254. **PASS ×2 with twin: calibration row written.**
+- director: 23/25 ok ×2; no twin; 389 / 509 of 1500; ECE 0.333. Pod 20/25 MISS, 23/25 ok. TypeSafe 0.88, p50 245. Floor ×2 but no
+  twin: does not count.
+- memory-verify: 35/36 ok ×2; twin 22/24 MISS ×2; 274 / 557 of 3000; ECE 0.179. Pod same. TypeSafe 0.9722. No.
+- scene: 176/214 MISS ×2; twin 19/20 MISS ×2; 722 / 1053 of 2500; ECE 0.203; flips 56/214. Pod 178/214. TypeSafe 0.9673. No.
+- lore: 34/50 MISS ×2; twin 10/20 MISS ×2; 4,398 / 4,509 of 1500 (**over budget**). Pod p95 3,141. TypeSafe 0.8966, p50 291. No.
+- curator-filter: 10/18 ok ×2; no twin; 508 / 520 of 4000; ECE 0.033. Pod same. TypeSafe 0.8889. Floor ×2, no twin: does not count.
+- continuity: 60/67 MISS ×2; twin 16/18 MISS ×2; 92 / 159 of 4000; ECE 0.132. Pod same. TypeSafe 0.9701. No.
+- backgrounds: 13/19 MISS ×2; no twin; 67 / 73 of 2500; ECE 0.239; flips 19/19. Pod same. TypeSafe 1. No.
+- typed: 88/120 ok ×2; no twin; 76 / 407 of 5000; ECE 0.074; flips 45/117. Pod 87/120 MISS. TypeSafe 0.8295. Floor ×2, no twin:
+  does not count.
+- stall: 76/77 MISS ×2; twin 31/31 ok ×2; 104 / 290 of 4000. Pod 75/77. TypeSafe 1. No.
+- critic: 117/136 MISS ×2; no twin; 420 / 449 of 2500; ECE 0.377. Pod 118/136. TypeSafe 0.9853. No.
+- variants: 15/16 MISS ×2; no twin; 422 / 448 of 2500. Pod same. TypeSafe 1. No.
+- agency: 23/41 MISS ×2; no twin; 217 / 486 of 4000; ECE 0.091. Pod 24/41. TypeSafe 1. No.
+- house-rules: 77/80 MISS ×2; no twin; 189 / 436 of 4000; ECE 0.171. Pod 76/80. TypeSafe 0.965. No.
+
+- Baseline verdict: on the 3090 decider-4b is fast (every use but lore under 1.1 s p95; memory-pairs, continuity, stall,
+  backgrounds ≤ 0.3 s, 2–3× under TypeSafe's p50) and answers the same as on pod 2 (within ±2 per fixture), so
+  hardware is not the limit: accuracy is. It reaches TypeSafe's level on memory-pairs, memory-verify (fixture, not twin), director,
+  curator-filter and typed; it falls well short on scene, lore, agency, backgrounds, critic. Option-order sensitivity is high on
+  scene, typed, critic and backgrounds (rotation flips 26–100 %). TypeSafe ECE/p95 are not in the recorded rows, so the
+  comparison is accuracy and p50 only on that side.
+- Readiness: `SYSTEMONE_LOCAL_READINESS.memoryPairs` (`src/judge/readiness.ts`): calibration 0.8966, p50 102 ms,
+  `measuredOn` `decider-4b-v2.1-Q4_K_M`, fixture revision as measured, passed. memory-pairs is now **routable** to
+  `systemone-local`; every other local route is still refused; TypeSafe stays the default for every use. Play-load check (RP) not
+  run. `judgeLocalProvider.test.ts` now pins the table to `memoryPairs` only and keeps a served-model mismatch refused.
+- Queueing defect (seen on CPU), fixed separately after the measurement (`scripts/local/judgeServer.py`): a request still waiting
+  for the model after `--queue-timeout` seconds (default 10, the plugin's upstream cut) is refused 503 `busy`, and a request whose
+  client went away while it queued is dropped before the model runs; `/health` reports `shed {busy, gone}`. node:tests
+  `scripts/local/judgeServerQueue.test.mjs` (proxy backend over a slow fake upstream: an abandoned queued request never reaches
+  it; an over-long wait gets 503). Re-check on the GPU with the fixed server: memory-pairs 26/29, holdout 10/11, p95 108 ms,
+  `shed {busy 0, gone 0}`. The 1,410-call measurement ran on the unchanged server.
+- Server stopped: `judge.mjs stop` → `status` `down`; no `judgeServer` process, nothing on :8095; `nvidia-smi` 749 MiB. Tray
+  `status.txt`: `OK story-orchestrator.json (66 entries)`.
