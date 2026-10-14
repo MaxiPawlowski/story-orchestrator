@@ -20,6 +20,7 @@ const uidTarget = (entry: CuratorOpRecord): WIEntryTarget | null =>
 const reopened = (entry: CuratorOpRecord): CuratorOpRecord => ({
   op: entry.op, status: "pending", message: CURATOR_OP_REVERTED,
   ...(entry.before ? { before: entry.before } : {}), ...(entry.fuzzy ? { fuzzy: entry.fuzzy } : {}), ...(entry.seen ? { seen: entry.seen } : {}),
+  ...(entry.seenTarget ? { seenTarget: entry.seenTarget } : {}),
   ...(entry.nearDups ? { nearDups: entry.nearDups } : {}), ...(entry.created ? { created: entry.created } : {}),
 });
 

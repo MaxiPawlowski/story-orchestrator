@@ -1,5 +1,5 @@
 import { buildCreateCandidatePrompt } from "./createCandidate";
-import { digestVocabulary, refuseTitleOnlyEdits, selectCuratorDigest, titleOnlyEditRefusal, TITLE_ONLY_REFUSAL } from "./digest";
+import { digestVocabulary, refuseTitleOnlyEdits, selectCuratorDigest, SEEN_TARGET_REFUSAL, titleOnlyEditRefusal, TITLE_ONLY_REFUSAL } from "./digest";
 import { parseCuratorResponse } from "./parse";
 import { buildWiCuratorPrompt } from "./prompt";
 import { entryRef } from "./scope";
@@ -145,7 +145,7 @@ describe("refuseTitleOnlyEdits", () => {
       record({ kind: "rewrite", lorebook: "Unit", comment: "Ferry", uid: 0, text: "y" }),
       record({ kind: "create", lorebook: "Unit", comment: "Fresh", keys: ["fresh"], text: "z" }),
     ]), digest);
-    expect(result.records.map((entry) => [entry.op.kind, entry.seen])).toEqual([["disable", "title"], ["rewrite", undefined], ["create", undefined]]);
+    expect(result.records.map((entry) => [entry.op.kind, entry.seen])).toEqual([["disable", "title"], ["rewrite", "full"], ["create", undefined]]);
     expect(result.dropped.filter((reason) => reason.includes(TITLE_ONLY_REFUSAL))).toHaveLength(2);
     expect(result.refused.map((op) => op.comment)).toEqual(["Entry 9", "Entry 8"]);
   });
@@ -154,6 +154,10 @@ describe("refuseTitleOnlyEdits", () => {
     expect(titleOnlyEditRefusal({ op: { kind: "rewrite", lorebook: "Unit", comment: "Entry 9", text: "x" }, status: "accepted", seen: "title" })).toContain(TITLE_ONLY_REFUSAL);
     expect(titleOnlyEditRefusal({ op: { kind: "rewrite", lorebook: "Unit", comment: "Entry 9", text: "x" }, status: "accepted" })).toBeNull();
     expect(titleOnlyEditRefusal({ op: { kind: "enable", lorebook: "Unit", comment: "Entry 9" }, status: "accepted", seen: "title" })).toBeNull();
+    const seenTarget = { lorebook: "Unit", comment: "Ferry", uid: 0 };
+    expect(titleOnlyEditRefusal({ op: { kind: "rewrite", lorebook: "Unit", comment: "Entry 9", uid: 9, text: "x" }, status: "accepted", seen: "full", seenTarget })).toContain(SEEN_TARGET_REFUSAL);
+    expect(titleOnlyEditRefusal({ op: { kind: "rewrite", lorebook: "unit", comment: "ferry", text: "x" }, status: "accepted", seen: "full", seenTarget })).toBeNull();
+    expect(titleOnlyEditRefusal({ op: { kind: "rewrite", lorebook: "Unit", comment: "Ferry", uid: 0, text: "x" }, status: "accepted", seen: "full", seenTarget })).toBeNull();
   });
 });
 

@@ -1,10 +1,11 @@
 import { viewForOp } from "./scope";
 import {
   CURATOR_DIGEST_FULL_LIMIT, CURATOR_DIGEST_INDEX_LIMIT, CURATOR_DIGEST_MIN_ENTRIES,
-  type CuratorDigest, type CuratorEntryView, type CuratorOpRecord, type CuratorPlan, type CuratorScope, type WiCuratorOp,
+  type CuratorDigest, type CuratorEntryView, type CuratorOpRecord, type CuratorPlan, type CuratorScope, type WiCuratorOp, type WiCuratorTarget,
 } from "./types";
 
 export const TITLE_ONLY_REFUSAL = "only the title of this entry was shown";
+export const SEEN_TARGET_REFUSAL = "the curator proposed this change for another entry";
 
 type DigestContext = Pick<CuratorScope, "checkpointName" | "objective" | "canon" | "openArcs"> & { extra?: string[] };
 
@@ -45,8 +46,13 @@ export function refuseTitleOnlyEdits(plan: CuratorPlan, digest: CuratorDigest): 
   for (const record of plan.records) {
     const op = record.op as WiCuratorOp;
     const entry = op.kind === "create" ? undefined : viewForOp(vocabulary, op);
-    if (!entry || !hidden.has(entry)) {
+    if (!entry) {
       records.push(record);
+      continue;
+    }
+    const seenTarget: WiCuratorTarget = { lorebook: entry.lorebook, comment: entry.comment, ...(entry.uid !== undefined ? { uid: entry.uid } : {}) };
+    if (!hidden.has(entry)) {
+      records.push({ ...record, seen: "full", seenTarget });
       continue;
     }
     if (isEdit(op)) {
@@ -54,10 +60,19 @@ export function refuseTitleOnlyEdits(plan: CuratorPlan, digest: CuratorDigest): 
       refused.push(op);
       continue;
     }
-    records.push({ ...record, seen: "title" });
+    records.push({ ...record, seen: "title", seenTarget });
   }
   return { ...plan, records, dropped, refused };
 }
 
-export const titleOnlyEditRefusal = (record: CuratorOpRecord): string | null =>
-  record.seen === "title" && isEdit(record.op) && "comment" in record.op ? `"${record.op.comment}": ${TITLE_ONLY_REFUSAL}` : null;
+const sameTarget = (seen: WiCuratorTarget, op: WiCuratorTarget): boolean =>
+  seen.lorebook.toLowerCase() === op.lorebook.toLowerCase()
+  && (seen.uid !== undefined && op.uid !== undefined ? seen.uid === op.uid : seen.comment.toLowerCase() === op.comment.toLowerCase());
+
+export function titleOnlyEditRefusal(record: CuratorOpRecord): string | null {
+  const op = record.op;
+  if (!isEdit(op) || !("comment" in op) || !("lorebook" in op)) return null;
+  if (record.seen === "title") return `"${op.comment}": ${TITLE_ONLY_REFUSAL}`;
+  if (record.seenTarget && !sameTarget(record.seenTarget, op)) return `"${op.comment}": ${SEEN_TARGET_REFUSAL} ("${record.seenTarget.comment}")`;
+  return null;
+}
