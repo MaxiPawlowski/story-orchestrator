@@ -18,6 +18,11 @@ describe("H3: the host seam to the harness plugin", () => {
     expect(readHarnessAnswer("nope", "default")).toMatchObject({ ok: false, kind: "malformed" });
   });
 
+  it("B5: the reply carries the model the plugin says answered, or null when it could not tell, never the one asked for", () => {
+    expect(readHarnessAnswer({ ok: true, text: "x", model: "claude-sonnet-4-5", requested: "opus" }, "default")).toMatchObject({ model: "claude-sonnet-4-5" });
+    expect(readHarnessAnswer({ ok: true, text: "x", model: null, requested: "gpt-6" }, "default")).toMatchObject({ model: null });
+  });
+
   it("posts text/plain with the plugin header, the fixed system text and the prompt; retries a busy plugin", async () => {
     const calls: Array<{ url: string; init: RequestInit }> = [];
     const answers = [json(429, { ok: false, kind: "busy" }), json(200, { ok: true, text: "PONG", finish: "stop" })];

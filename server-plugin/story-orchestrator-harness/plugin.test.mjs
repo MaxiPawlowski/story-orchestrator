@@ -184,7 +184,7 @@ test('B1: a login that expires within the window is refused, never refreshed in 
 
 test('rule 10: output is classified from the harness\'s own words (recorded Phase 0 shapes)', () => {
     const run = (stdout, extra = {}) => ({ stdout, stderr: '', code: 1, killed: null, spawnError: null, ...extra });
-    assert.deepEqual(plugin.classify('claude', run(OUTPUTS.claude('PONG'), { code: 0 })), { ok: true, text: 'PONG', finish: 'stop', usage: { input: 402, output: 3, costUsd: 0.001 } });
+    assert.deepEqual(plugin.classify('claude', run(OUTPUTS.claude('PONG'), { code: 0 })), { ok: true, text: 'PONG', finish: 'stop', usage: { input: 402, output: 3, costUsd: 0.001 }, model: null });
     assert.equal(plugin.classify('codex', run(OUTPUTS.codex('PONG'), { code: 0 })).text, 'PONG');
     assert.equal(plugin.classify('claude', run(RECORDED.claudeLoggedOut)).kind, 'auth');
     assert.equal(plugin.classify('codex', run(RECORDED.codexLoggedOut)).kind, 'auth');
@@ -197,6 +197,15 @@ test('rule 10: output is classified from the harness\'s own words (recorded Phas
     assert.match(plugin.classify('codex', run(JSON.stringify({ type: 'error', message: 'self signed certificate in certificate chain' }))).message, /proxy or CA/);
     const bound = plugin.classify('codex', run(OUTPUTS.codex('x'.repeat(50)), { killed: 'output-bound' }), { maxOutputChars: 10 });
     assert.deepEqual([bound.ok, bound.finish, bound.text.length], [true, 'length', 10]);
+});
+
+test('B5: claude reports the model that answered, not the one asked for, and a refusal is never an answer', () => {
+    const run = (stdout) => ({ stdout, stderr: '', code: 0, killed: null, spawnError: null });
+    const result = (extra) => JSON.stringify({ type: 'result', subtype: 'success', is_error: false, result: 'I cannot help with that.', stop_reason: 'end_turn', usage: { output_tokens: 3 }, ...extra });
+    const served = plugin.classify('claude', run(result({ modelUsage: { 'claude-haiku-4-5': { outputTokens: 2 }, 'claude-sonnet-4-5': { outputTokens: 40 } } })));
+    assert.deepEqual([served.ok, served.model], [true, 'claude-sonnet-4-5']);
+    const refused = plugin.classify('claude', run(result({ stop_reason: 'refusal' })));
+    assert.deepEqual([refused.ok, refused.kind], [false, 'refused']);
 });
 
 test('rule 6 / P0-3: the deadline kills the process tree and answers timeout', async () => {

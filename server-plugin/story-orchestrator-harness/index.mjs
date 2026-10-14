@@ -318,11 +318,19 @@ const finishOf = (reason) => {
     return /end_turn|stop|complete|stop_sequence/i.test(reason) ? 'stop' : 'unknown';
 };
 
+const servedClaudeModel = (modelUsage) => {
+    if (!isRecord(modelUsage)) return null;
+    const rows = Object.entries(modelUsage).filter(([, row]) => isRecord(row));
+    if (!rows.length) return null;
+    const output = (row) => (typeof row.outputTokens === 'number' ? row.outputTokens : 0);
+    return rows.reduce((best, entry) => (output(entry[1]) > output(best[1]) ? entry : best))[0];
+};
+
 export function parseOutput(harness, stdout) {
     const events = parseJsonl(stdout);
     if (harness === 'claude') {
         const result = [...events].reverse().find((event) => event.type === 'result');
-        if (!result) return { text: '', finish: 'unknown', usage: null, errors: [], toolEvents: 0, parsed: false };
+        if (!result) return { text: '', finish: 'unknown', usage: null, errors: [], toolEvents: 0, parsed: false, model: null };
         const usage = isRecord(result.usage) ? result.usage : {};
         const input = (usage.input_tokens ?? 0) + (usage.cache_creation_input_tokens ?? 0) + (usage.cache_read_input_tokens ?? 0);
         const errors = result.is_error ? [{ status: result.api_error_status ?? null, message: typeof result.result === 'string' ? result.result : 'error' }] : [];
@@ -333,6 +341,8 @@ export function parseOutput(harness, stdout) {
             errors,
             toolEvents: Array.isArray(result.permission_denials) ? result.permission_denials.length : 0,
             parsed: true,
+            model: servedClaudeModel(result.modelUsage),
+            refused: result.stop_reason === 'refusal',
         };
     }
     if (harness === 'codex') {
@@ -347,9 +357,10 @@ export function parseOutput(harness, stdout) {
             errors,
             toolEvents: items.filter((item) => !['agent_message', 'reasoning'].includes(item.type)).length,
             parsed: events.length > 0,
+            model: null,
         };
     }
-    return { text: '', finish: 'unknown', usage: null, errors: [], toolEvents: 0, parsed: false };
+    return { text: '', finish: 'unknown', usage: null, errors: [], toolEvents: 0, parsed: false, model: null };
 }
 
 export function classify(harness, run, { maxOutputChars, now = Date.now() } = {}) {
@@ -360,13 +371,14 @@ export function classify(harness, run, { maxOutputChars, now = Date.now() } = {}
     const errorText = parsed.errors.map((error) => `${error.status ?? ''} ${error.message}`).join(' | ');
     const statuses = parsed.errors.map((error) => Number(error.status)).filter(Number.isFinite);
     if (parsed.toolEvents > 0) return { ok: false, kind: 'refused', message: `${harness} attempted ${parsed.toolEvents} tool call(s) with tools off; the answer is discarded` };
+    if (parsed.refused) return { ok: false, kind: 'refused', message: `${harness} declined to answer (stop reason: refusal); the text is discarded` };
     if (run.killed === 'output-bound') {
-        return parsed.text ? { ok: true, text: parsed.text.slice(0, maxOutputChars), finish: 'length', usage: parsed.usage } : { ok: false, kind: 'malformed', message: `${harness} output passed its bound before a reply could be read` };
+        return parsed.text ? { ok: true, text: parsed.text.slice(0, maxOutputChars), finish: 'length', usage: parsed.usage, model: parsed.model } : { ok: false, kind: 'malformed', message: `${harness} output passed its bound before a reply could be read` };
     }
     if (parsed.text && (!parsed.errors.length || parsed.finish !== 'unknown')) {
         const cut = maxOutputChars && parsed.text.length > maxOutputChars;
         const warnings = parsed.errors.map((error) => `${error.status ?? ''} ${error.message}`.trim().slice(0, 200));
-        return { ok: true, text: cut ? parsed.text.slice(0, maxOutputChars) : parsed.text, finish: cut ? 'length' : parsed.finish, usage: parsed.usage, ...(warnings.length ? { warnings } : {}) };
+        return { ok: true, text: cut ? parsed.text.slice(0, maxOutputChars) : parsed.text, finish: cut ? 'length' : parsed.finish, usage: parsed.usage, model: parsed.model, ...(warnings.length ? { warnings } : {}) };
     }
     const evidence = `${errorText} ${run.stderr ?? ''}`;
     if (statuses.includes(401) || statuses.includes(403) || AUTH_TEXT.test(evidence)) {
@@ -755,7 +767,7 @@ export function createHarnessService({
             if (request.harness === 'opencode') {
                 const outcome = await transport.complete(request, { signal, deadlineMs: request.timeoutMs - LIMITS.deadlineMarginMs, startedAt: arrived, user });
                 if (outcome.kind === 'quota') noteQuota('opencode', outcome.retryAt ?? null);
-                return { ...outcome, model: request.model, ms: now() - arrived };
+                return { ...outcome, model: outcome.model ?? null, requested: request.model, ms: now() - arrived };
             }
             owned = openOwnedHome(request.harness, { tmpRoot: config.tmpRoot, loginFile: loginFileOf(request.harness), fsImpl });
             owned.systemFile = path.join(owned.tmp, 'system.txt');
@@ -774,7 +786,7 @@ export function createHarnessService({
             });
             const outcome = classify(request.harness, run, { maxOutputChars: request.maxOutputChars, now: now() });
             if (outcome.kind === 'quota') noteQuota(request.harness, outcome.retryAt ?? null);
-            return { ...outcome, model: request.model, ms: now() - arrived, spawnMs: run.spawnMs, effortApplied: EFFORTS.includes(request.effort) };
+            return { ...outcome, model: outcome.model ?? null, requested: request.model, ms: now() - arrived, spawnMs: run.spawnMs, effortApplied: EFFORTS.includes(request.effort) };
         } catch (error) {
             return { ok: false, kind: 'config', message: `${request.harness}: the plugin could not prepare the call (${error?.code ?? error?.message ?? 'error'})` };
         } finally {
