@@ -1,0 +1,3285 @@
+{
+ "format": "so-e0-pool/1",
+ "source": "synthetic",
+ "provider": "stub-trigram-256",
+ "topK": 8,
+ "threshold": 0,
+ "protect": 5,
+ "bandThresholds": [
+  0.82,
+  0.7,
+  0.55,
+  0.4
+ ],
+ "questions": [
+  {
+   "id": "session-a-q01",
+   "askMessageId": 40,
+   "query": "Tobin talks to that anvil more than to people.\nWhat oath did Sela ask Wren to swear at the pass?",
+   "gold": [
+    36
+   ],
+   "candidates": [
+    {
+     "messageId": 12,
+     "textHash": "eae96fc6",
+     "text": "I owe the abbess at Corven a favour, and she will collect it at the worst possible moment.",
+     "stRank": 0,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 4,
+     "textHash": "b3255b39",
+     "text": "Bring me three sprigs of moonwort and I will brew a draught that stops the fever by dawn.",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 3,
+     "textHash": "4dc5cf87",
+     "text": "That cut needs more than thread.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 0,
+     "textHash": "0b03418c",
+     "text": "I swear the wagon axle will be mended before the frost moon, or you may keep my hammer.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 5,
+     "textHash": "2c7b731b",
+     "text": "Odo loses at dice more than he wins.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 30,
+     "textHash": "7b948ea3",
+     "text": "Half my profit goes to the orphan house in Lisle, and the other half goes to dice.",
+     "stRank": 5,
+     "bands": []
+    },
+    {
+     "messageId": 20,
+     "textHash": "4ac417a3",
+     "text": "Do not eat the blue mushrooms, whatever the cook says. They taste of copper and regret.",
+     "stRank": 6,
+     "bands": []
+    },
+    {
+     "messageId": 2,
+     "textHash": "80d53c31",
+     "text": "Call the north road the Widow Path; nobody who walks it comes back the same.",
+     "stRank": 7,
+     "bands": []
+    }
+   ]
+  },
+  {
+   "id": "session-a-q02",
+   "askMessageId": 42,
+   "query": "Give me a moment to remember.\nWhat exactly did Odo offer for the silver locket?",
+   "gold": [
+    38
+   ],
+   "candidates": [
+    {
+     "messageId": 6,
+     "textHash": "14891511",
+     "text": "Forty silver for the mule, and I throw in the saddlebags because I like your face.",
+     "stRank": 0,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 20,
+     "textHash": "4ac417a3",
+     "text": "Do not eat the blue mushrooms, whatever the cook says. They taste of copper and regret.",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 4,
+     "textHash": "b3255b39",
+     "text": "Bring me three sprigs of moonwort and I will brew a draught that stops the fever by dawn.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 7,
+     "textHash": "99c496fd",
+     "text": "The river runs red after the rains.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 14,
+     "textHash": "6fad9fc1",
+     "text": "I never sell maps of the marsh. The last buyer drowned and his widow still writes to me.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 0,
+     "textHash": "0b03418c",
+     "text": "I swear the wagon axle will be mended before the frost moon, or you may keep my hammer.",
+     "stRank": 5,
+     "bands": []
+    },
+    {
+     "messageId": 18,
+     "textHash": "91040a44",
+     "text": "The ferryman takes coin from the living and buttons from the dead. Keep a button handy.",
+     "stRank": 6,
+     "bands": []
+    },
+    {
+     "messageId": 35,
+     "textHash": "b92db0f4",
+     "text": "The cook makes a decent stew when he is sober.",
+     "stRank": 7,
+     "bands": []
+    }
+   ]
+  },
+  {
+   "id": "session-a-q03",
+   "askMessageId": 44,
+   "query": "I think I can recall that.\nWhat exactly did Tobin promise about the wagon axle?",
+   "gold": [
+    0
+   ],
+   "candidates": [
+    {
+     "messageId": 20,
+     "textHash": "4ac417a3",
+     "text": "Do not eat the blue mushrooms, whatever the cook says. They taste of copper and regret.",
+     "stRank": 0,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 36,
+     "textHash": "cb0c273a",
+     "text": "Swear on the salt that you will not leave anyone behind at the pass, Wren.",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 0,
+     "textHash": "0b03418c",
+     "text": "I swear the wagon axle will be mended before the frost moon, or you may keep my hammer.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 2,
+     "textHash": "80d53c31",
+     "text": "Call the north road the Widow Path; nobody who walks it comes back the same.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 4,
+     "textHash": "b3255b39",
+     "text": "Bring me three sprigs of moonwort and I will brew a draught that stops the fever by dawn.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 22,
+     "textHash": "31115cb8",
+     "text": "My cousin Pell runs the toll at Brask; tell him the goose sent you and he waves you through.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 6,
+     "textHash": "14891511",
+     "text": "Forty silver for the mule, and I throw in the saddlebags because I like your face.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 12,
+     "textHash": "eae96fc6",
+     "text": "I owe the abbess at Corven a favour, and she will collect it at the worst possible moment.",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-a-q04",
+   "askMessageId": 46,
+   "query": "Let me think back on it.\nWhy did Odo say he never sells maps of the marsh?",
+   "gold": [
+    14
+   ],
+   "candidates": [
+    {
+     "messageId": 14,
+     "textHash": "6fad9fc1",
+     "text": "I never sell maps of the marsh. The last buyer drowned and his widow still writes to me.",
+     "stRank": 0,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 4,
+     "textHash": "b3255b39",
+     "text": "Bring me three sprigs of moonwort and I will brew a draught that stops the fever by dawn.",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 36,
+     "textHash": "cb0c273a",
+     "text": "Swear on the salt that you will not leave anyone behind at the pass, Wren.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 0,
+     "textHash": "0b03418c",
+     "text": "I swear the wagon axle will be mended before the frost moon, or you may keep my hammer.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 5,
+     "textHash": "2c7b731b",
+     "text": "Odo loses at dice more than he wins.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 38,
+     "textHash": "e905a5ed",
+     "text": "I will buy the silver locket back from you for double, the day you decide to part with it.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 20,
+     "textHash": "4ac417a3",
+     "text": "Do not eat the blue mushrooms, whatever the cook says. They taste of copper and regret.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 29,
+     "textHash": "e92b29f1",
+     "text": "The marsh shifts every spring anyway.",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-a-q05",
+   "askMessageId": 48,
+   "query": "That was a while ago now.\nWhat did Sela say about stitching the wound?",
+   "gold": [
+    28
+   ],
+   "candidates": [
+    {
+     "messageId": 36,
+     "textHash": "cb0c273a",
+     "text": "Swear on the salt that you will not leave anyone behind at the pass, Wren.",
+     "stRank": 0,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 40,
+     "textHash": "8150725d",
+     "text": "What oath did Sela ask Wren to swear at the pass?",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 20,
+     "textHash": "4ac417a3",
+     "text": "Do not eat the blue mushrooms, whatever the cook says. They taste of copper and regret.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 13,
+     "textHash": "a7f92618",
+     "text": "That locket has a crack along the hinge.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 4,
+     "textHash": "b3255b39",
+     "text": "Bring me three sprigs of moonwort and I will brew a draught that stops the fever by dawn.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 0,
+     "textHash": "0b03418c",
+     "text": "I swear the wagon axle will be mended before the frost moon, or you may keep my hammer.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 22,
+     "textHash": "31115cb8",
+     "text": "My cousin Pell runs the toll at Brask; tell him the goose sent you and he waves you through.",
+     "stRank": 6,
+     "bands": []
+    },
+    {
+     "messageId": 12,
+     "textHash": "eae96fc6",
+     "text": "I owe the abbess at Corven a favour, and she will collect it at the worst possible moment.",
+     "stRank": 7,
+     "bands": []
+    }
+   ]
+  },
+  {
+   "id": "session-a-q06",
+   "askMessageId": 50,
+   "query": "Ask me again later if I get it wrong.\nWhat price did Odo name for the mule?",
+   "gold": [
+    6
+   ],
+   "candidates": [
+    {
+     "messageId": 5,
+     "textHash": "2c7b731b",
+     "text": "Odo loses at dice more than he wins.",
+     "stRank": 0,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 6,
+     "textHash": "14891511",
+     "text": "Forty silver for the mule, and I throw in the saddlebags because I like your face.",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 21,
+     "textHash": "20c91ef3",
+     "text": "Never pay Odo his first price for anything.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 38,
+     "textHash": "e905a5ed",
+     "text": "I will buy the silver locket back from you for double, the day you decide to part with it.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 42,
+     "textHash": "7464a6de",
+     "text": "What exactly did Odo offer for the silver locket?",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 15,
+     "textHash": "8cdecc3d",
+     "text": "That axle has cracked twice since the ford.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 28,
+     "textHash": "82812cbe",
+     "text": "I will stitch that wound once and only once. Tear it open again and you sew it yourself.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 0,
+     "textHash": "0b03418c",
+     "text": "I swear the wagon axle will be mended before the frost moon, or you may keep my hammer.",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-a-q07",
+   "askMessageId": 52,
+   "query": "Rain drums on the roof for a while.\nWhat did Sela warn about the blue mushrooms?",
+   "gold": [
+    20
+   ],
+   "candidates": [
+    {
+     "messageId": 36,
+     "textHash": "cb0c273a",
+     "text": "Swear on the salt that you will not leave anyone behind at the pass, Wren.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 20,
+     "textHash": "4ac417a3",
+     "text": "Do not eat the blue mushrooms, whatever the cook says. They taste of copper and regret.",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 40,
+     "textHash": "8150725d",
+     "text": "What oath did Sela ask Wren to swear at the pass?",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "af7997a4",
+     "text": "What exactly did Tobin promise about the wagon axle?",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 38,
+     "textHash": "e905a5ed",
+     "text": "I will buy the silver locket back from you for double, the day you decide to part with it.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 4,
+     "textHash": "b3255b39",
+     "text": "Bring me three sprigs of moonwort and I will brew a draught that stops the fever by dawn.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 0,
+     "textHash": "0b03418c",
+     "text": "I swear the wagon axle will be mended before the frost moon, or you may keep my hammer.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 42,
+     "textHash": "7464a6de",
+     "text": "What exactly did Odo offer for the silver locket?",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-a-q08",
+   "askMessageId": 54,
+   "query": "I think I can recall that.\nWhat did Kestra say her mother's compass points at?",
+   "gold": [
+    34
+   ],
+   "candidates": [
+    {
+     "messageId": 34,
+     "textHash": "9f544c85",
+     "text": "I keep my mother's compass. It points at whatever I miss most, never at north.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 43,
+     "textHash": "6965106b",
+     "text": "I think I can recall that.",
+     "stRank": 1,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 20,
+     "textHash": "4ac417a3",
+     "text": "Do not eat the blue mushrooms, whatever the cook says. They taste of copper and regret.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 48,
+     "textHash": "d0904221",
+     "text": "What did Sela say about stitching the wound?",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 36,
+     "textHash": "cb0c273a",
+     "text": "Swear on the salt that you will not leave anyone behind at the pass, Wren.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 4,
+     "textHash": "b3255b39",
+     "text": "Bring me three sprigs of moonwort and I will brew a draught that stops the fever by dawn.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 2,
+     "textHash": "80d53c31",
+     "text": "Call the north road the Widow Path; nobody who walks it comes back the same.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 47,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-a-q09",
+   "askMessageId": 56,
+   "query": "Let me think back on it.\nWhat did Sela say she owes the abbess?",
+   "gold": [
+    12
+   ],
+   "candidates": [
+    {
+     "messageId": 45,
+     "textHash": "164a4141",
+     "text": "Let me think back on it.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 48,
+     "textHash": "d0904221",
+     "text": "What did Sela say about stitching the wound?",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 36,
+     "textHash": "cb0c273a",
+     "text": "Swear on the salt that you will not leave anyone behind at the pass, Wren.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 40,
+     "textHash": "8150725d",
+     "text": "What oath did Sela ask Wren to swear at the pass?",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 12,
+     "textHash": "eae96fc6",
+     "text": "I owe the abbess at Corven a favour, and she will collect it at the worst possible moment.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 50,
+     "textHash": "1180c384",
+     "text": "What price did Odo name for the mule?",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 4,
+     "textHash": "b3255b39",
+     "text": "Bring me three sprigs of moonwort and I will brew a draught that stops the fever by dawn.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 2,
+     "textHash": "80d53c31",
+     "text": "Call the north road the Widow Path; nobody who walks it comes back the same.",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-a-q10",
+   "askMessageId": 58,
+   "query": "That was a while ago now.\nWhat exactly did Kestra say about the wolves?",
+   "gold": [
+    26
+   ],
+   "candidates": [
+    {
+     "messageId": 47,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "af7997a4",
+     "text": "What exactly did Tobin promise about the wagon axle?",
+     "stRank": 1,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 48,
+     "textHash": "d0904221",
+     "text": "What did Sela say about stitching the wound?",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 36,
+     "textHash": "cb0c273a",
+     "text": "Swear on the salt that you will not leave anyone behind at the pass, Wren.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 42,
+     "textHash": "7464a6de",
+     "text": "What exactly did Odo offer for the silver locket?",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 20,
+     "textHash": "4ac417a3",
+     "text": "Do not eat the blue mushrooms, whatever the cook says. They taste of copper and regret.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 51,
+     "textHash": "1ac8c61b",
+     "text": "Rain drums on the roof for a while.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 52,
+     "textHash": "8924668d",
+     "text": "What did Sela warn about the blue mushrooms?",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-a-q11",
+   "askMessageId": 60,
+   "query": "Ask me again later if I get it wrong.\nWhat exactly did Sela say she would brew?",
+   "gold": [
+    4
+   ],
+   "candidates": [
+    {
+     "messageId": 49,
+     "textHash": "eaeb4f20",
+     "text": "Ask me again later if I get it wrong.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "af7997a4",
+     "text": "What exactly did Tobin promise about the wagon axle?",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 48,
+     "textHash": "d0904221",
+     "text": "What did Sela say about stitching the wound?",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 42,
+     "textHash": "7464a6de",
+     "text": "What exactly did Odo offer for the silver locket?",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 52,
+     "textHash": "8924668d",
+     "text": "What did Sela warn about the blue mushrooms?",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 40,
+     "textHash": "8150725d",
+     "text": "What oath did Sela ask Wren to swear at the pass?",
+     "stRank": 5,
+     "bands": []
+    },
+    {
+     "messageId": 32,
+     "textHash": "eb492631",
+     "text": "The river stones here are iron-red. Smelt enough of them and you could shoe a whole army.",
+     "stRank": 6,
+     "bands": []
+    },
+    {
+     "messageId": 22,
+     "textHash": "31115cb8",
+     "text": "My cousin Pell runs the toll at Brask; tell him the goose sent you and he waves you through.",
+     "stRank": 7,
+     "bands": []
+    }
+   ]
+  },
+  {
+   "id": "session-a-q12",
+   "askMessageId": 62,
+   "query": "Give me a moment to remember.\nWhat did Kestra say the ferryman takes?",
+   "gold": [
+    18
+   ],
+   "candidates": [
+    {
+     "messageId": 41,
+     "textHash": "fea4b85f",
+     "text": "Give me a moment to remember.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 40,
+     "textHash": "8150725d",
+     "text": "What oath did Sela ask Wren to swear at the pass?",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 18,
+     "textHash": "91040a44",
+     "text": "The ferryman takes coin from the living and buttons from the dead. Keep a button handy.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 36,
+     "textHash": "cb0c273a",
+     "text": "Swear on the salt that you will not leave anyone behind at the pass, Wren.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 4,
+     "textHash": "b3255b39",
+     "text": "Bring me three sprigs of moonwort and I will brew a draught that stops the fever by dawn.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 48,
+     "textHash": "d0904221",
+     "text": "What did Sela say about stitching the wound?",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 39,
+     "textHash": "4ec38ec8",
+     "text": "Tobin talks to that anvil more than to people.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 30,
+     "textHash": "7b948ea3",
+     "text": "Half my profit goes to the orphan house in Lisle, and the other half goes to dice.",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-a-q13",
+   "askMessageId": 64,
+   "query": "A door creaks somewhere down the hall.\nWhat did Tobin say about the river stones?",
+   "gold": [
+    32
+   ],
+   "candidates": [
+    {
+     "messageId": 48,
+     "textHash": "d0904221",
+     "text": "What did Sela say about stitching the wound?",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "af7997a4",
+     "text": "What exactly did Tobin promise about the wagon axle?",
+     "stRank": 1,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 58,
+     "textHash": "ce60f730",
+     "text": "What exactly did Kestra say about the wolves?",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 8,
+     "textHash": "790dc3f9",
+     "text": "My father forged the bell at Harrowgate, and it still rings a half tone flat.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 32,
+     "textHash": "eb492631",
+     "text": "The river stones here are iron-red. Smelt enough of them and you could shoe a whole army.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 18,
+     "textHash": "91040a44",
+     "text": "The ferryman takes coin from the living and buttons from the dead. Keep a button handy.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 56,
+     "textHash": "49208db0",
+     "text": "What did Sela say she owes the abbess?",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 20,
+     "textHash": "4ac417a3",
+     "text": "Do not eat the blue mushrooms, whatever the cook says. They taste of copper and regret.",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-a-q14",
+   "askMessageId": 66,
+   "query": "Let me think back on it.\nWhat was Kestra's rule about the lantern going out?",
+   "gold": [
+    10
+   ],
+   "candidates": [
+    {
+     "messageId": 45,
+     "textHash": "164a4141",
+     "text": "Let me think back on it.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 55,
+     "textHash": "164a4141",
+     "text": "Let me think back on it.",
+     "stRank": 1,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 58,
+     "textHash": "ce60f730",
+     "text": "What exactly did Kestra say about the wolves?",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 36,
+     "textHash": "cb0c273a",
+     "text": "Swear on the salt that you will not leave anyone behind at the pass, Wren.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 13,
+     "textHash": "a7f92618",
+     "text": "That locket has a crack along the hinge.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 54,
+     "textHash": "16ffc556",
+     "text": "What did Kestra say her mother's compass points at?",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "af7997a4",
+     "text": "What exactly did Tobin promise about the wagon axle?",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 52,
+     "textHash": "8924668d",
+     "text": "What did Sela warn about the blue mushrooms?",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-a-q15",
+   "askMessageId": 68,
+   "query": "That was a while ago now.\nWhat did Tobin name his anvil and why?",
+   "gold": [
+    24
+   ],
+   "candidates": [
+    {
+     "messageId": 47,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 0,
+     "bands": [
+      0.7,
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 57,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 1,
+     "bands": [
+      0.7,
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "af7997a4",
+     "text": "What exactly did Tobin promise about the wagon axle?",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 39,
+     "textHash": "4ec38ec8",
+     "text": "Tobin talks to that anvil more than to people.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 4,
+     "textHash": "b3255b39",
+     "text": "Bring me three sprigs of moonwort and I will brew a draught that stops the fever by dawn.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 13,
+     "textHash": "a7f92618",
+     "text": "That locket has a crack along the hinge.",
+     "stRank": 5,
+     "bands": []
+    },
+    {
+     "messageId": 50,
+     "textHash": "1180c384",
+     "text": "What price did Odo name for the mule?",
+     "stRank": 6,
+     "bands": []
+    },
+    {
+     "messageId": 54,
+     "textHash": "16ffc556",
+     "text": "What did Kestra say her mother's compass points at?",
+     "stRank": 7,
+     "bands": []
+    }
+   ]
+  },
+  {
+   "id": "session-a-q16",
+   "askMessageId": 70,
+   "query": "Ask me again later if I get it wrong.\nWhat did Kestra call the north road?",
+   "gold": [
+    2
+   ],
+   "candidates": [
+    {
+     "messageId": 49,
+     "textHash": "eaeb4f20",
+     "text": "Ask me again later if I get it wrong.",
+     "stRank": 0,
+     "bands": [
+      0.7,
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 59,
+     "textHash": "eaeb4f20",
+     "text": "Ask me again later if I get it wrong.",
+     "stRank": 1,
+     "bands": [
+      0.7,
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 17,
+     "textHash": "9f2829b0",
+     "text": "The north road is quicker if the bridges hold.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 2,
+     "textHash": "80d53c31",
+     "text": "Call the north road the Widow Path; nobody who walks it comes back the same.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 62,
+     "textHash": "10ca5d81",
+     "text": "What did Kestra say the ferryman takes?",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 34,
+     "textHash": "9f544c85",
+     "text": "I keep my mother's compass. It points at whatever I miss most, never at north.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 54,
+     "textHash": "16ffc556",
+     "text": "What did Kestra say her mother's compass points at?",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 47,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-a-q17",
+   "askMessageId": 72,
+   "query": "Give me a moment to remember.\nWhat did Tobin promise he could make with one quiet night?",
+   "gold": [
+    16
+   ],
+   "candidates": [
+    {
+     "messageId": 41,
+     "textHash": "fea4b85f",
+     "text": "Give me a moment to remember.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 61,
+     "textHash": "fea4b85f",
+     "text": "Give me a moment to remember.",
+     "stRank": 1,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 16,
+     "textHash": "b18d8e51",
+     "text": "Give me one quiet night and a hot forge and I will make you a blade that sings.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "af7997a4",
+     "text": "What exactly did Tobin promise about the wagon axle?",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 64,
+     "textHash": "d470f5ac",
+     "text": "What did Tobin say about the river stones?",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 32,
+     "textHash": "eb492631",
+     "text": "The river stones here are iron-red. Smelt enough of them and you could shoe a whole army.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 12,
+     "textHash": "eae96fc6",
+     "text": "I owe the abbess at Corven a favour, and she will collect it at the worst possible moment.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 4,
+     "textHash": "b3255b39",
+     "text": "Bring me three sprigs of moonwort and I will brew a draught that stops the fever by dawn.",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-a-q18",
+   "askMessageId": 74,
+   "query": "I think I can recall that.\nWhat did Odo say happens to his profit?",
+   "gold": [
+    30
+   ],
+   "candidates": [
+    {
+     "messageId": 43,
+     "textHash": "6965106b",
+     "text": "I think I can recall that.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 53,
+     "textHash": "6965106b",
+     "text": "I think I can recall that.",
+     "stRank": 1,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 62,
+     "textHash": "10ca5d81",
+     "text": "What did Kestra say the ferryman takes?",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 4,
+     "textHash": "b3255b39",
+     "text": "Bring me three sprigs of moonwort and I will brew a draught that stops the fever by dawn.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 5,
+     "textHash": "2c7b731b",
+     "text": "Odo loses at dice more than he wins.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 39,
+     "textHash": "4ec38ec8",
+     "text": "Tobin talks to that anvil more than to people.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 50,
+     "textHash": "1180c384",
+     "text": "What price did Odo name for the mule?",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 68,
+     "textHash": "8f67ff5b",
+     "text": "What did Tobin name his anvil and why?",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-a-q19",
+   "askMessageId": 76,
+   "query": "Rain drums on the roof for a while.\nWhat did Tobin say about the bell his father forged?",
+   "gold": [
+    8
+   ],
+   "candidates": [
+    {
+     "messageId": 51,
+     "textHash": "1ac8c61b",
+     "text": "Rain drums on the roof for a while.",
+     "stRank": 0,
+     "bands": [
+      0.7,
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 64,
+     "textHash": "d470f5ac",
+     "text": "What did Tobin say about the river stones?",
+     "stRank": 1,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "af7997a4",
+     "text": "What exactly did Tobin promise about the wagon axle?",
+     "stRank": 2,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 58,
+     "textHash": "ce60f730",
+     "text": "What exactly did Kestra say about the wolves?",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 36,
+     "textHash": "cb0c273a",
+     "text": "Swear on the salt that you will not leave anyone behind at the pass, Wren.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 48,
+     "textHash": "d0904221",
+     "text": "What did Sela say about stitching the wound?",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 38,
+     "textHash": "e905a5ed",
+     "text": "I will buy the silver locket back from you for double, the day you decide to part with it.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 62,
+     "textHash": "10ca5d81",
+     "text": "What did Kestra say the ferryman takes?",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-a-q20",
+   "askMessageId": 78,
+   "query": "That was a while ago now.\nWhat password did Odo give for the toll at Brask?",
+   "gold": [
+    22
+   ],
+   "candidates": [
+    {
+     "messageId": 47,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 57,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 1,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 67,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 2,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 50,
+     "textHash": "1180c384",
+     "text": "What price did Odo name for the mule?",
+     "stRank": 3,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 4,
+     "textHash": "b3255b39",
+     "text": "Bring me three sprigs of moonwort and I will brew a draught that stops the fever by dawn.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 40,
+     "textHash": "8150725d",
+     "text": "What oath did Sela ask Wren to swear at the pass?",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 36,
+     "textHash": "cb0c273a",
+     "text": "Swear on the salt that you will not leave anyone behind at the pass, Wren.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 5,
+     "textHash": "2c7b731b",
+     "text": "Odo loses at dice more than he wins.",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-b-q01",
+   "askMessageId": 40,
+   "query": "The chapel roof leaks over the altar.\nWhat did Ilse ask Wren to promise about the music box?",
+   "gold": [
+    36
+   ],
+   "candidates": [
+    {
+     "messageId": 16,
+     "textHash": "b731e827",
+     "text": "I promise the inheritance goes to whoever finds the key, not to whoever shouts loudest.",
+     "stRank": 0,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 20,
+     "textHash": "6d5117c6",
+     "text": "The cook puts rosemary in everything to hide the taste of the well water.",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 24,
+     "textHash": "24db8449",
+     "text": "The chapel bell has been silent since the wedding, and I intend to keep it that way.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 17,
+     "textHash": "80342b17",
+     "text": "The silver here is older than the house.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 12,
+     "textHash": "06320111",
+     "text": "My grandmother hid a letter behind the third stair, and I never had the courage to read it.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 21,
+     "textHash": "cbef6571",
+     "text": "The old lord climbed the tower stairs every night.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 26,
+     "textHash": "c4ccc601",
+     "text": "Call me when the candles gutter green. That means the cellar door is open again.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 27,
+     "textHash": "c18cabb9",
+     "text": "The stairs creak worst near the landing.",
+     "stRank": 7,
+     "bands": []
+    }
+   ]
+  },
+  {
+   "id": "session-b-q02",
+   "askMessageId": 42,
+   "query": "Give me a moment to remember.\nWhat did Doctor Hale say grew from the gardener's seeds?",
+   "gold": [
+    38
+   ],
+   "candidates": [
+    {
+     "messageId": 30,
+     "textHash": "ae54af7b",
+     "text": "The scar on Lady Vey's wrist is older than her marriage. Ask her who gave it to her.",
+     "stRank": 0,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 3,
+     "textHash": "8da0a1b7",
+     "text": "Children from the village sometimes cut across the lawn.",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 16,
+     "textHash": "b731e827",
+     "text": "I promise the inheritance goes to whoever finds the key, not to whoever shouts loudest.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 8,
+     "textHash": "0fac9726",
+     "text": "Call the gardener the Mole; he digs in places nobody asked him to dig.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 12,
+     "textHash": "06320111",
+     "text": "My grandmother hid a letter behind the third stair, and I never had the courage to read it.",
+     "stRank": 4,
+     "bands": []
+    },
+    {
+     "messageId": 18,
+     "textHash": "fefe5765",
+     "text": "I served three masters in this house, and only the second one ever said thank you.",
+     "stRank": 5,
+     "bands": []
+    },
+    {
+     "messageId": 26,
+     "textHash": "c4ccc601",
+     "text": "Call me when the candles gutter green. That means the cellar door is open again.",
+     "stRank": 6,
+     "bands": []
+    },
+    {
+     "messageId": 23,
+     "textHash": "4a5fd627",
+     "text": "The gardener grows roses the colour of bruises.",
+     "stRank": 7,
+     "bands": []
+    }
+   ]
+  },
+  {
+   "id": "session-b-q03",
+   "askMessageId": 44,
+   "query": "I think I can recall that.\nWhat did Lady Vey say about the east wing?",
+   "gold": [
+    0
+   ],
+   "candidates": [
+    {
+     "messageId": 26,
+     "textHash": "c4ccc601",
+     "text": "Call me when the candles gutter green. That means the cellar door is open again.",
+     "stRank": 0,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 18,
+     "textHash": "fefe5765",
+     "text": "I served three masters in this house, and only the second one ever said thank you.",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 38,
+     "textHash": "ca4496d5",
+     "text": "The gardener paid me in seeds once. They grew into something with teeth.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 20,
+     "textHash": "6d5117c6",
+     "text": "The cook puts rosemary in everything to hide the taste of the well water.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 24,
+     "textHash": "24db8449",
+     "text": "The chapel bell has been silent since the wedding, and I intend to keep it that way.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 0,
+     "textHash": "99a0644c",
+     "text": "The east wing stays locked. My husband's portraits do not care for visitors.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 15,
+     "textHash": "6986ebc8",
+     "text": "The east wing smells of damp and old varnish.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 4,
+     "textHash": "3084a3c3",
+     "text": "I will read the cards for you at midnight, but you must not laugh, or they turn sour.",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-b-q04",
+   "askMessageId": 46,
+   "query": "Let me think back on it.\nHow many drops did Doctor Hale say were safe?",
+   "gold": [
+    14
+   ],
+   "candidates": [
+    {
+     "messageId": 18,
+     "textHash": "fefe5765",
+     "text": "I served three masters in this house, and only the second one ever said thank you.",
+     "stRank": 0,
+     "bands": []
+    },
+    {
+     "messageId": 29,
+     "textHash": "e470fa87",
+     "text": "The doctor drinks more than he prescribes.",
+     "stRank": 1,
+     "bands": []
+    },
+    {
+     "messageId": 22,
+     "textHash": "ccc1e44b",
+     "text": "Burn my notebook if anything happens to me. Do not read it, just burn it.",
+     "stRank": 2,
+     "bands": []
+    },
+    {
+     "messageId": 26,
+     "textHash": "c4ccc601",
+     "text": "Call me when the candles gutter green. That means the cellar door is open again.",
+     "stRank": 3,
+     "bands": []
+    },
+    {
+     "messageId": 34,
+     "textHash": "e0cecb6a",
+     "text": "The clock in the hall runs eleven minutes slow, and nobody is allowed to correct it.",
+     "stRank": 4,
+     "bands": []
+    },
+    {
+     "messageId": 24,
+     "textHash": "24db8449",
+     "text": "The chapel bell has been silent since the wedding, and I intend to keep it that way.",
+     "stRank": 5,
+     "bands": []
+    },
+    {
+     "messageId": 2,
+     "textHash": "f7fc08d7",
+     "text": "I polish the silver every Tuesday, and every Tuesday one spoon is missing.",
+     "stRank": 6,
+     "bands": []
+    },
+    {
+     "messageId": 12,
+     "textHash": "06320111",
+     "text": "My grandmother hid a letter behind the third stair, and I never had the courage to read it.",
+     "stRank": 7,
+     "bands": []
+    }
+   ]
+  },
+  {
+   "id": "session-b-q05",
+   "askMessageId": 48,
+   "query": "That was a while ago now.\nWhat did Ilse swear she saw on the lawn?",
+   "gold": [
+    28
+   ],
+   "candidates": [
+    {
+     "messageId": 28,
+     "textHash": "97322c12",
+     "text": "I swear I saw a child on the lawn at dawn, barefoot, holding a lantern without a flame.",
+     "stRank": 0,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 42,
+     "textHash": "2f915743",
+     "text": "What did Doctor Hale say grew from the gardener's seeds?",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 40,
+     "textHash": "101e833d",
+     "text": "What did Ilse ask Wren to promise about the music box?",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 26,
+     "textHash": "c4ccc601",
+     "text": "Call me when the candles gutter green. That means the cellar door is open again.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 3,
+     "textHash": "8da0a1b7",
+     "text": "Children from the village sometimes cut across the lawn.",
+     "stRank": 4,
+     "bands": []
+    },
+    {
+     "messageId": 17,
+     "textHash": "80342b17",
+     "text": "The silver here is older than the house.",
+     "stRank": 5,
+     "bands": []
+    },
+    {
+     "messageId": 24,
+     "textHash": "24db8449",
+     "text": "The chapel bell has been silent since the wedding, and I intend to keep it that way.",
+     "stRank": 6,
+     "bands": []
+    },
+    {
+     "messageId": 30,
+     "textHash": "ae54af7b",
+     "text": "The scar on Lady Vey's wrist is older than her marriage. Ask her who gave it to her.",
+     "stRank": 7,
+     "bands": []
+    }
+   ]
+  },
+  {
+   "id": "session-b-q06",
+   "askMessageId": 50,
+   "query": "Ask me again later if I get it wrong.\nWhat did Doctor Hale say the old lord died of?",
+   "gold": [
+    6
+   ],
+   "candidates": [
+    {
+     "messageId": 42,
+     "textHash": "2f915743",
+     "text": "What did Doctor Hale say grew from the gardener's seeds?",
+     "stRank": 0,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 6,
+     "textHash": "8f9c6c14",
+     "text": "The old lord died of a weak heart. I signed the paper myself and I stand by it.",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 40,
+     "textHash": "101e833d",
+     "text": "What did Ilse ask Wren to promise about the music box?",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "be2ad4fc",
+     "text": "What did Lady Vey say about the east wing?",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 26,
+     "textHash": "c4ccc601",
+     "text": "Call me when the candles gutter green. That means the cellar door is open again.",
+     "stRank": 4,
+     "bands": []
+    },
+    {
+     "messageId": 34,
+     "textHash": "e0cecb6a",
+     "text": "The clock in the hall runs eleven minutes slow, and nobody is allowed to correct it.",
+     "stRank": 5,
+     "bands": []
+    },
+    {
+     "messageId": 28,
+     "textHash": "97322c12",
+     "text": "I swear I saw a child on the lawn at dawn, barefoot, holding a lantern without a flame.",
+     "stRank": 6,
+     "bands": []
+    },
+    {
+     "messageId": 18,
+     "textHash": "fefe5765",
+     "text": "I served three masters in this house, and only the second one ever said thank you.",
+     "stRank": 7,
+     "bands": []
+    }
+   ]
+  },
+  {
+   "id": "session-b-q07",
+   "askMessageId": 52,
+   "query": "Rain drums on the roof for a while.\nWhy did Ilse say the cook puts rosemary in everything?",
+   "gold": [
+    20
+   ],
+   "candidates": [
+    {
+     "messageId": 20,
+     "textHash": "6d5117c6",
+     "text": "The cook puts rosemary in everything to hide the taste of the well water.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 12,
+     "textHash": "06320111",
+     "text": "My grandmother hid a letter behind the third stair, and I never had the courage to read it.",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 26,
+     "textHash": "c4ccc601",
+     "text": "Call me when the candles gutter green. That means the cellar door is open again.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 10,
+     "textHash": "d20aed81",
+     "text": "If the bell in the pantry rings by itself, you leave the room and you do not look back.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 25,
+     "textHash": "99d895fa",
+     "text": "Pantry bells ring when the wind is in the flue.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 16,
+     "textHash": "b731e827",
+     "text": "I promise the inheritance goes to whoever finds the key, not to whoever shouts loudest.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 17,
+     "textHash": "80342b17",
+     "text": "The silver here is older than the house.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 36,
+     "textHash": "38aa86c0",
+     "text": "Wren, promise me you will open the music box only when I am in the room.",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-b-q08",
+   "askMessageId": 54,
+   "query": "I think I can recall that.\nWhat did Brann say about the clock in the hall?",
+   "gold": [
+    34
+   ],
+   "candidates": [
+    {
+     "messageId": 43,
+     "textHash": "6965106b",
+     "text": "I think I can recall that.",
+     "stRank": 0,
+     "bands": [
+      0.7,
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 34,
+     "textHash": "e0cecb6a",
+     "text": "The clock in the hall runs eleven minutes slow, and nobody is allowed to correct it.",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "be2ad4fc",
+     "text": "What did Lady Vey say about the east wing?",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 26,
+     "textHash": "c4ccc601",
+     "text": "Call me when the candles gutter green. That means the cellar door is open again.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 48,
+     "textHash": "0a83f0a3",
+     "text": "What did Ilse swear she saw on the lawn?",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 24,
+     "textHash": "24db8449",
+     "text": "The chapel bell has been silent since the wedding, and I intend to keep it that way.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 18,
+     "textHash": "fefe5765",
+     "text": "I served three masters in this house, and only the second one ever said thank you.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 40,
+     "textHash": "101e833d",
+     "text": "What did Ilse ask Wren to promise about the music box?",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-b-q09",
+   "askMessageId": 56,
+   "query": "Let me think back on it.\nWhat did Ilse say her grandmother hid?",
+   "gold": [
+    12
+   ],
+   "candidates": [
+    {
+     "messageId": 45,
+     "textHash": "164a4141",
+     "text": "Let me think back on it.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 12,
+     "textHash": "06320111",
+     "text": "My grandmother hid a letter behind the third stair, and I never had the courage to read it.",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 48,
+     "textHash": "0a83f0a3",
+     "text": "What did Ilse swear she saw on the lawn?",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 42,
+     "textHash": "2f915743",
+     "text": "What did Doctor Hale say grew from the gardener's seeds?",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 50,
+     "textHash": "9830a16b",
+     "text": "What did Doctor Hale say the old lord died of?",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 17,
+     "textHash": "80342b17",
+     "text": "The silver here is older than the house.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 30,
+     "textHash": "ae54af7b",
+     "text": "The scar on Lady Vey's wrist is older than her marriage. Ask her who gave it to her.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 26,
+     "textHash": "c4ccc601",
+     "text": "Call me when the candles gutter green. That means the cellar door is open again.",
+     "stRank": 7,
+     "bands": []
+    }
+   ]
+  },
+  {
+   "id": "session-b-q10",
+   "askMessageId": 58,
+   "query": "That was a while ago now.\nWhat did Brann say green candle flames mean?",
+   "gold": [
+    26
+   ],
+   "candidates": [
+    {
+     "messageId": 47,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 0,
+     "bands": [
+      0.7,
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 28,
+     "textHash": "97322c12",
+     "text": "I swear I saw a child on the lawn at dawn, barefoot, holding a lantern without a flame.",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 26,
+     "textHash": "c4ccc601",
+     "text": "Call me when the candles gutter green. That means the cellar door is open again.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 48,
+     "textHash": "0a83f0a3",
+     "text": "What did Ilse swear she saw on the lawn?",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 42,
+     "textHash": "2f915743",
+     "text": "What did Doctor Hale say grew from the gardener's seeds?",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "be2ad4fc",
+     "text": "What did Lady Vey say about the east wing?",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 9,
+     "textHash": "8133d86c",
+     "text": "That clock chimes at odd hours.",
+     "stRank": 6,
+     "bands": []
+    },
+    {
+     "messageId": 50,
+     "textHash": "9830a16b",
+     "text": "What did Doctor Hale say the old lord died of?",
+     "stRank": 7,
+     "bands": []
+    }
+   ]
+  },
+  {
+   "id": "session-b-q11",
+   "askMessageId": 60,
+   "query": "Ask me again later if I get it wrong.\nWhat condition did Ilse set for reading the cards?",
+   "gold": [
+    4
+   ],
+   "candidates": [
+    {
+     "messageId": 49,
+     "textHash": "eaeb4f20",
+     "text": "Ask me again later if I get it wrong.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 26,
+     "textHash": "c4ccc601",
+     "text": "Call me when the candles gutter green. That means the cellar door is open again.",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 48,
+     "textHash": "0a83f0a3",
+     "text": "What did Ilse swear she saw on the lawn?",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 42,
+     "textHash": "2f915743",
+     "text": "What did Doctor Hale say grew from the gardener's seeds?",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 40,
+     "textHash": "101e833d",
+     "text": "What did Ilse ask Wren to promise about the music box?",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "be2ad4fc",
+     "text": "What did Lady Vey say about the east wing?",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 4,
+     "textHash": "3084a3c3",
+     "text": "I will read the cards for you at midnight, but you must not laugh, or they turn sour.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 52,
+     "textHash": "25c6308a",
+     "text": "Why did Ilse say the cook puts rosemary in everything?",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-b-q12",
+   "askMessageId": 62,
+   "query": "Give me a moment to remember.\nWhat did Brann say about the masters he served?",
+   "gold": [
+    18
+   ],
+   "candidates": [
+    {
+     "messageId": 41,
+     "textHash": "fea4b85f",
+     "text": "Give me a moment to remember.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 54,
+     "textHash": "ee9050de",
+     "text": "What did Brann say about the clock in the hall?",
+     "stRank": 1,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 40,
+     "textHash": "101e833d",
+     "text": "What did Ilse ask Wren to promise about the music box?",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "be2ad4fc",
+     "text": "What did Lady Vey say about the east wing?",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 18,
+     "textHash": "fefe5765",
+     "text": "I served three masters in this house, and only the second one ever said thank you.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 42,
+     "textHash": "2f915743",
+     "text": "What did Doctor Hale say grew from the gardener's seeds?",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 56,
+     "textHash": "39dcfaac",
+     "text": "What did Ilse say her grandmother hid?",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 48,
+     "textHash": "0a83f0a3",
+     "text": "What did Ilse swear she saw on the lawn?",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-b-q13",
+   "askMessageId": 64,
+   "query": "A door creaks somewhere down the hall.\nWhat were Lady Vey's terms for borrowing the grey mare?",
+   "gold": [
+    32
+   ],
+   "candidates": [
+    {
+     "messageId": 26,
+     "textHash": "c4ccc601",
+     "text": "Call me when the candles gutter green. That means the cellar door is open again.",
+     "stRank": 0,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "be2ad4fc",
+     "text": "What did Lady Vey say about the east wing?",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 32,
+     "textHash": "4fd9d469",
+     "text": "You may borrow the grey mare, but if she comes back lame you will pay in blood or gold.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 38,
+     "textHash": "ca4496d5",
+     "text": "The gardener paid me in seeds once. They grew into something with teeth.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 20,
+     "textHash": "6d5117c6",
+     "text": "The cook puts rosemary in everything to hide the taste of the well water.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 12,
+     "textHash": "06320111",
+     "text": "My grandmother hid a letter behind the third stair, and I never had the courage to read it.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 42,
+     "textHash": "2f915743",
+     "text": "What did Doctor Hale say grew from the gardener's seeds?",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 4,
+     "textHash": "3084a3c3",
+     "text": "I will read the cards for you at midnight, but you must not laugh, or they turn sour.",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-b-q14",
+   "askMessageId": 66,
+   "query": "Let me think back on it.\nWhat exactly did Brann say to do when the pantry bell rings by itself?",
+   "gold": [
+    10
+   ],
+   "candidates": [
+    {
+     "messageId": 45,
+     "textHash": "164a4141",
+     "text": "Let me think back on it.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 55,
+     "textHash": "164a4141",
+     "text": "Let me think back on it.",
+     "stRank": 1,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 10,
+     "textHash": "d20aed81",
+     "text": "If the bell in the pantry rings by itself, you leave the room and you do not look back.",
+     "stRank": 2,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 25,
+     "textHash": "99d895fa",
+     "text": "Pantry bells ring when the wind is in the flue.",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 54,
+     "textHash": "ee9050de",
+     "text": "What did Brann say about the clock in the hall?",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 36,
+     "textHash": "38aa86c0",
+     "text": "Wren, promise me you will open the music box only when I am in the room.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 20,
+     "textHash": "6d5117c6",
+     "text": "The cook puts rosemary in everything to hide the taste of the well water.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 24,
+     "textHash": "24db8449",
+     "text": "The chapel bell has been silent since the wedding, and I intend to keep it that way.",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-b-q15",
+   "askMessageId": 68,
+   "query": "That was a while ago now.\nWhat did Lady Vey say about the chapel bell?",
+   "gold": [
+    24
+   ],
+   "candidates": [
+    {
+     "messageId": 47,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 0,
+     "bands": [
+      0.7,
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 57,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 1,
+     "bands": [
+      0.7,
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "be2ad4fc",
+     "text": "What did Lady Vey say about the east wing?",
+     "stRank": 2,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 54,
+     "textHash": "ee9050de",
+     "text": "What did Brann say about the clock in the hall?",
+     "stRank": 3,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 62,
+     "textHash": "bf18d648",
+     "text": "What did Brann say about the masters he served?",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 48,
+     "textHash": "0a83f0a3",
+     "text": "What did Ilse swear she saw on the lawn?",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 24,
+     "textHash": "24db8449",
+     "text": "The chapel bell has been silent since the wedding, and I intend to keep it that way.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 40,
+     "textHash": "101e833d",
+     "text": "What did Ilse ask Wren to promise about the music box?",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-b-q16",
+   "askMessageId": 70,
+   "query": "Ask me again later if I get it wrong.\nWhat did Brann say happens every Tuesday?",
+   "gold": [
+    2
+   ],
+   "candidates": [
+    {
+     "messageId": 49,
+     "textHash": "eaeb4f20",
+     "text": "Ask me again later if I get it wrong.",
+     "stRank": 0,
+     "bands": [
+      0.7,
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 59,
+     "textHash": "eaeb4f20",
+     "text": "Ask me again later if I get it wrong.",
+     "stRank": 1,
+     "bands": [
+      0.7,
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 58,
+     "textHash": "937e2ee4",
+     "text": "What did Brann say green candle flames mean?",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 62,
+     "textHash": "bf18d648",
+     "text": "What did Brann say about the masters he served?",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 2,
+     "textHash": "f7fc08d7",
+     "text": "I polish the silver every Tuesday, and every Tuesday one spoon is missing.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 56,
+     "textHash": "39dcfaac",
+     "text": "What did Ilse say her grandmother hid?",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 54,
+     "textHash": "ee9050de",
+     "text": "What did Brann say about the clock in the hall?",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 40,
+     "textHash": "101e833d",
+     "text": "What did Ilse ask Wren to promise about the music box?",
+     "stRank": 7,
+     "bands": []
+    }
+   ]
+  },
+  {
+   "id": "session-b-q17",
+   "askMessageId": 72,
+   "query": "Give me a moment to remember.\nWhat did Lady Vey promise about the inheritance?",
+   "gold": [
+    16
+   ],
+   "candidates": [
+    {
+     "messageId": 41,
+     "textHash": "fea4b85f",
+     "text": "Give me a moment to remember.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 61,
+     "textHash": "fea4b85f",
+     "text": "Give me a moment to remember.",
+     "stRank": 1,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 40,
+     "textHash": "101e833d",
+     "text": "What did Ilse ask Wren to promise about the music box?",
+     "stRank": 2,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "be2ad4fc",
+     "text": "What did Lady Vey say about the east wing?",
+     "stRank": 3,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 16,
+     "textHash": "b731e827",
+     "text": "I promise the inheritance goes to whoever finds the key, not to whoever shouts loudest.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 54,
+     "textHash": "ee9050de",
+     "text": "What did Brann say about the clock in the hall?",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 62,
+     "textHash": "bf18d648",
+     "text": "What did Brann say about the masters he served?",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 30,
+     "textHash": "ae54af7b",
+     "text": "The scar on Lady Vey's wrist is older than her marriage. Ask her who gave it to her.",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-b-q18",
+   "askMessageId": 74,
+   "query": "I think I can recall that.\nWhat did Doctor Hale say about the scar on Lady Vey's wrist?",
+   "gold": [
+    30
+   ],
+   "candidates": [
+    {
+     "messageId": 43,
+     "textHash": "6965106b",
+     "text": "I think I can recall that.",
+     "stRank": 0,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 53,
+     "textHash": "6965106b",
+     "text": "I think I can recall that.",
+     "stRank": 1,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "be2ad4fc",
+     "text": "What did Lady Vey say about the east wing?",
+     "stRank": 2,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 68,
+     "textHash": "170ef9dc",
+     "text": "What did Lady Vey say about the chapel bell?",
+     "stRank": 3,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 42,
+     "textHash": "2f915743",
+     "text": "What did Doctor Hale say grew from the gardener's seeds?",
+     "stRank": 4,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 50,
+     "textHash": "9830a16b",
+     "text": "What did Doctor Hale say the old lord died of?",
+     "stRank": 5,
+     "bands": [
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 48,
+     "textHash": "0a83f0a3",
+     "text": "What did Ilse swear she saw on the lawn?",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 54,
+     "textHash": "ee9050de",
+     "text": "What did Brann say about the clock in the hall?",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-b-q19",
+   "askMessageId": 76,
+   "query": "Rain drums on the roof for a while.\nWhat did Lady Vey call the gardener?",
+   "gold": [
+    8
+   ],
+   "candidates": [
+    {
+     "messageId": 51,
+     "textHash": "1ac8c61b",
+     "text": "Rain drums on the roof for a while.",
+     "stRank": 0,
+     "bands": [
+      0.7,
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 44,
+     "textHash": "be2ad4fc",
+     "text": "What did Lady Vey say about the east wing?",
+     "stRank": 1,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 8,
+     "textHash": "0fac9726",
+     "text": "Call the gardener the Mole; he digs in places nobody asked him to dig.",
+     "stRank": 2,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 68,
+     "textHash": "170ef9dc",
+     "text": "What did Lady Vey say about the chapel bell?",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 47,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 57,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 5,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 67,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 6,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 42,
+     "textHash": "2f915743",
+     "text": "What did Doctor Hale say grew from the gardener's seeds?",
+     "stRank": 7,
+     "bands": [
+      0.4
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-b-q20",
+   "askMessageId": 78,
+   "query": "That was a while ago now.\nWhat did Doctor Hale ask be done with his notebook?",
+   "gold": [
+    22
+   ],
+   "candidates": [
+    {
+     "messageId": 47,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 0,
+     "bands": [
+      0.7,
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 57,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 1,
+     "bands": [
+      0.7,
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 67,
+     "textHash": "bfaec800",
+     "text": "That was a while ago now.",
+     "stRank": 2,
+     "bands": [
+      0.7,
+      0.55,
+      0.4
+     ]
+    },
+    {
+     "messageId": 50,
+     "textHash": "9830a16b",
+     "text": "What did Doctor Hale say the old lord died of?",
+     "stRank": 3,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 42,
+     "textHash": "2f915743",
+     "text": "What did Doctor Hale say grew from the gardener's seeds?",
+     "stRank": 4,
+     "bands": [
+      0.4
+     ]
+    },
+    {
+     "messageId": 58,
+     "textHash": "937e2ee4",
+     "text": "What did Brann say green candle flames mean?",
+     "stRank": 5,
+     "bands": []
+    },
+    {
+     "messageId": 48,
+     "textHash": "0a83f0a3",
+     "text": "What did Ilse swear she saw on the lawn?",
+     "stRank": 6,
+     "bands": []
+    },
+    {
+     "messageId": 44,
+     "textHash": "be2ad4fc",
+     "text": "What did Lady Vey say about the east wing?",
+     "stRank": 7,
+     "bands": []
+    }
+   ]
+  }
+ ],
+ "refused": []
+}
