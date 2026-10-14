@@ -1,6 +1,6 @@
 # Plan 03 — New game plus
 
-**Status: DEFERRED to v2.9 (user, 2026-10-03).** Was v2.7 plan 25; moved at the version split
+**Status: moved to v2.8 45 (owner 2026-10-14)**: `docs/plans/v2.8/45-new-game-plus.md` supersedes this plan. Was: DEFERRED to v2.9 (user, 2026-10-03). Was v2.7 plan 25; moved at the version split
 (`docs/plans/v2.7/RENUMBER.md`). Not scheduled until v2.8 closes. Source: `docs/plans/v2.6/v2.7-seeds.md` row "New game
 plus". Overview: `00-overview.md` (this folder).
 
