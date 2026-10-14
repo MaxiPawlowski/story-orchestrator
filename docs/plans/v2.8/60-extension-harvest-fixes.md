@@ -97,7 +97,17 @@ regression test that fails on the parent tree (checked by stashing the source ch
   cache); one plain `node scripts/suite/defect-replay.mjs` (32 of 32 killed) seeded the cache.
 - `node --test` over the four harness plugin suites: 93 pass, 0 fail.
 - Full `npx jest` before B6: 8429 tests, 1 skipped, 0 failed.
-- Full `npm run gates -- --jobs=2`: see the tail of this section.
+- Full gates after merging master `9e96871d` (merge `0b056ec9`), on the branch tip with the plan doc:
+  `npm run gates -- --jobs=2 --skip=test-storybook:ci` **all green in 596.3 s**: test:replay, test (8434 tests, 1
+  skipped), build (main `dist/index.js` 1,270,379 B, budget 1,300,000), test:debug (1295 pass), typecheck,
+  typecheck:test, debug:typecheck, test:plugin, lint (0 errors, 2 existing warnings), test:release. The first run was
+  RED at test:debug (45 fails, all `ENOENT test/sessions/adolion-stories.json`: the gitignored campaign index is not in
+  a fresh worktree; copied from the main checkout, not committed).
+- Storybook outside the gates runner, on port 6226 (6006 is hard-coded in `test-storybook:ci` and shared with other
+  sessions): `npm run storybook:build`, then `http-server .sb-static -p 6226` + `test-storybook --url
+  http://127.0.0.1:6226 --maxWorkers 2`: first run 8 fails in 5 suites (the Storybook STAPI mock lacked the new
+  `saveSettingsSoon`, and the master-base `spriteNarrowViewport`/`spriteWatchViewport` that `sprites/stage.ts` imports);
+  mock completed, rerun **139/139 suites, 833/833 tests green**.
 - Live gate (B14, B6, B10; also owed for B3 and B5): **NOT run, NOT green.** A private ST copy under
   `C:\dev\so-lanes` (code copy plus `data`/`node_modules` junctions, the plan 04/23 recipe) was refused by the session
   permission policy; the owner ST, :8000, lane 0, lane 31 and the real extension slot were left untouched. Owed: a
