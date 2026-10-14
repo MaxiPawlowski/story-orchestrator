@@ -2,6 +2,7 @@ const settings: Record<string, unknown> = {};
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
+  saveSettingsSoon: () => ({ ok: true, queued: true }),
   settingsReady: async () => {},
   observeNextSettingsSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false, failed: false }),
   readServerExtensionSettings: async () => null,

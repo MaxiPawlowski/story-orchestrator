@@ -13,6 +13,7 @@ const host = { observation: { requested: true, status: 200, ok: true, timedOut: 
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
+  saveSettingsSoon: () => ({ ok: true, queued: true }),
   settingsReady: async () => {},
   observeNextSettingsSave: async () => { host.observed += 1; return { ...host.observation, burst: ++host.burst }; },
   readServerExtensionSettings: async () => host.server,

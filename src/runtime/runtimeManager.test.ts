@@ -77,6 +77,7 @@ jest.mock("@services/STAPI", () => {
     // and was accepted" unless a test says otherwise, because that is the ordinary case every test
     // written before the seam existed assumed.
     settingsAreLoaded: () => true,
+    saveSettingsSoon: () => ({ ok: true, queued: true }),
     settingsReady: async () => {},
     observeNextSave: jest.fn(async () => ({ requested: true, status: 200, ok: true, timedOut: false })),
     readServerBoundary: async () => null,

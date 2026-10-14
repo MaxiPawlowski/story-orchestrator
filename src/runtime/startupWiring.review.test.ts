@@ -30,6 +30,7 @@ jest.mock("@services/STAPI", () => ({
   listConnectionProfiles: () => [],
   readLoreBindings: () => ({ global: [], chat: null, persona: null, characters: [] }),
   settingsAreLoaded: () => true,
+  saveSettingsSoon: () => ({ ok: true, queued: true }),
   observeSamplerPayloads: () => () => undefined,
   installScanGating: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined, scans: () => 0 }),
   onGroupEdited: () => () => undefined,

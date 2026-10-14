@@ -170,6 +170,7 @@ export interface ScriptHostModule {
   // the only flag `sendTextareaMessage` checks at :1739).
   Generate: (type: string, params?: { force_chid?: number }) => Promise<unknown>;
   setSendButtonState: (value: boolean) => void;
+  saveSettings?: () => Promise<void>;
   stopGeneration: () => boolean;
   streamingProcessor: HostStreamingProcessor | null;
   chat: unknown[];
