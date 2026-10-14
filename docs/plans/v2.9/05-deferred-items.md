@@ -64,6 +64,8 @@ source. Old → new numbers: `docs/plans/v2.7/RENUMBER.md`. Overview: `00-overvi
 
 ## 05.4 Runtime verbatim recall (old v2.7 29 options B/P1/P5)
 
+**Status: moved to v2.8 43 (owner 2026-10-14)** (`docs/plans/v2.8/43-verbatim-recall.md`). Entry kept for history.
+
 - **Context.** Our tiers cover summarised memory; what is missing is getting an exact past message back ("what exactly
   did X promise"). In a group (stories are group-only, v2.7 03) recall must be filtered by who witnessed the message, or
   it re-opens the leak that per-member privacy closed.
