@@ -232,7 +232,7 @@ export class LivingCoordinator {
     if (!turn || divergenceSkip(turn, this.divergence.lastTurn)) return false;
     const run = beginRun(this.deps.ownership);
     const judged = await this.deps.askDivergence(story, activeId);
-    if (!run.stillOwns() || this.deps.getState()?.activeCheckpointId !== activeId || !judged) return false;
+    if (!run.stillOwns() || this.deps.getState()?.activeCheckpointId !== activeId || !judged || divergenceSkip(turn, this.divergence.lastTurn)) return false;
     const reading: DivergenceReading = { turn: turn.id, none: judged.none, p: judged.p, commits: judged.commits, boundary: at.boundary };
     const step = stepDivergence(this.divergence, activeId, reading);
     this.write({ ...this.state, divergence: step.state });
