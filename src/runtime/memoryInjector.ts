@@ -57,6 +57,7 @@ export class MemoryInjector {
   private withheld = false;
   private lastInjection: MemoryInjectionView | null = null;
   private readonly highWater: Partial<Record<MemoryTier, number>> = {};
+  private privateSources: Array<(rosterId: string) => string[]> = [];
 
   constructor(private readonly deps: MemoryInjectorDeps) {}
 
@@ -123,7 +124,16 @@ export class MemoryInjector {
       ? render.narratorScope(story, this.deps.getState()?.activeCheckpointId ?? null, enabledCharacterIds(story, this.hosts.roster), this.hosts.chat.chatRows())
       : undefined;
     const block = render ? render.memberAimsBlock(voices, id, beat, known, privateBlock, scope) : privateBlock;
-    return [block, this.lifeLines(story, id)].filter(Boolean).join("\n\n");
+    return [block, this.lifeLines(story, id), this.sourcedLines(story, id)].filter(Boolean).join("\n\n");
+  }
+
+  addPrivateSource(source: (rosterId: string) => string[]): void {
+    this.privateSources = [...this.privateSources, source];
+  }
+
+  private sourcedLines(story: NormalizedStoryV2, id: string): string {
+    const lines = this.privateSources.flatMap((source) => source(id));
+    return lines.length ? withoutSecretLines(lines.join("\n"), this.secrets(story), namesForRosterId(story, id)) : "";
   }
 
   private lifeLines(story: NormalizedStoryV2, id: string): string {

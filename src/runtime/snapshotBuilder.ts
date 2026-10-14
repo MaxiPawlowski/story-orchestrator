@@ -53,6 +53,7 @@ import { checkRolls } from "./storyCheckDraws";
 import { gameSlices } from "./gameSnapshot";
 import { lifeAuthorSlice } from "./lifeSnapshot";
 import { livingSlice } from "./livingSnapshot";
+import { promisesSlice } from "./promiseSnapshot";
 import { graphEpoch } from "@generation/living/fold";
 import { buildPresence } from "./presence";
 import { readPlaysIndex } from "./playsIndexHost";
@@ -442,6 +443,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     expansion: extras.expansion,
     memory: extras.memory, memoryShown: shownRows(extras.memory.entries, sources.resting ?? ((text: string) => text)),
     chapters,
+    promises: promisesSlice(story, extras, blackboard),
     pacing: extras.pacing,
     copilot: extras.copilot,
     ui: extras.ui,

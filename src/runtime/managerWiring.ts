@@ -34,6 +34,7 @@ import { landedMeanwhile } from "./agendaProposals";
 import { createMeanwhilePort } from "./meanwhilePort";
 import type { EffectsApplier } from "./effectsApplier";
 import { wireLiving } from "./livingWiring";
+import { createPromisePort } from "./promisePort";
 
 export const restingTexts = <T extends { text: string }>(memory: MemoryCoordinator, rows: readonly T[]): T[] => shownRows(rows, memory.injector.restingFilter());
 
@@ -61,6 +62,18 @@ export interface ManagerPort {
   effects: () => EffectsApplier;
 }
 
+function wirePromises(port: ManagerPort, memory: MemoryCoordinator) {
+  const { view, engine } = port;
+  const promises = createPromisePort({
+    ...view, extras: port.extras, chatId: () => view.hosts.chat.chatId(), storyId: () => port.loaded()?.record.id,
+    chatWindow: (from, to) => view.hosts.chat.chatWindow(from, to), chatRows: () => view.hosts.chat.chatRows(),
+    historyFloor: () => (port.loaded() ? engine.historyFrom().messageId : null), playerName: () => getPlayerName(),
+    journal: (summary, note) => port.journal("author", summary, note), refresh: () => memory.updateInjection(),
+  });
+  memory.injector.addPrivateSource((rosterId) => promises.reminder(rosterId));
+  return promises;
+}
+
 export function wireCoordinators(port: ManagerPort) {
   const { view, lifecycle, engine } = port;
   const memory: MemoryCoordinator = new MemoryCoordinator({
@@ -86,6 +99,7 @@ export function wireCoordinators(port: ManagerPort) {
       journal: (summary, note) => port.journal("chapter", summary, note), playerName: () => getPlayerName(),
     },
   });
+  const promises = wirePromises(port, memory);
   let innerHost: InnerBeatHost | null = null;
   let innerLoad: Promise<InnerBeatHost> | null = null;
   const loadInner = () => (innerLoad ??= loadInnerRender().then(() => import("./innerBeatHost"))
@@ -133,7 +147,7 @@ export function wireCoordinators(port: ManagerPort) {
     setStatus: (status) => port.setStatus(status),
     judge: () => port.judge(),
     requestBudget: (role) => requestBudgetFor(role),
-    spikes: () => getGlobalSettings().spikes,
+    spikes: () => getGlobalSettings().spikes, promises,
     ...lifecycle,
   });
   const pacing = new PacingCoordinator({
@@ -192,7 +206,7 @@ export function wireCoordinators(port: ManagerPort) {
   });
   const living = wireLiving({
     view, lifecycle, engine, loaded: port.loaded, extras: port.extras, memory, expansion, replaceStory: (story) => port.replaceStory(story),
-    refused: () => refusing()?.checkpointName ?? null, journal: port.journal, judge: port.judge, chatRows: () => view.hosts.chat.chatRows(),
+    refused: () => refusing()?.checkpointName ?? null, journal: port.journal, judge: port.judge, chatRows: () => view.hosts.chat.chatRows(), promiseHooks: () => promises.hooks(),
   });
   const rollbackDeps: RollbackDeps = {
     ...port.rollback, engine, memory, stagecraft, pacing, ownership: lifecycle.ownership, revalidateExpansion: () => expansion.revalidateInserted(),
@@ -207,5 +221,5 @@ export function wireCoordinators(port: ManagerPort) {
     chatOpen: () => Boolean(view.hosts.chat.chatId()),
     groupOpen: hasOpenGroup,
   };
-  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps };
+  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, promises, rollbackDeps, storyUpdateDeps };
 }

@@ -5,6 +5,7 @@ import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 
 const PlayerChapters = lazyRetry(() => import("./PlayerChapters"));
+const PlayerPromises = lazyRetry(() => import("./PlayerPromises"));
 
 export interface PlayerOverviewProps {
   snapshot: RuntimeSnapshot;
@@ -70,6 +71,7 @@ export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, 
             </div>
           )
       ))}
+      {snapshot.promises?.length ? <Lazy fallback={null}><PlayerPromises promises={snapshot.promises} /></Lazy> : null}
       {snapshot.lastRollback && (
         <div id="so-rollback-notice" className="text-xs opacity-90">
           {rollbackNoticeText(snapshot.lastRollback)}

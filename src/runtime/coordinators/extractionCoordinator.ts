@@ -32,6 +32,7 @@ import { beginRun, type RunOwnership, type RunToken } from "../runToken";
 import type { ChatHost, RosterHost } from "../hostPorts";
 import type { SpikeSettings } from "../settingsModel";
 import { MemorizeBacklog } from "../memorizeBacklog";
+import type { PromisePort } from "../promisePort";
 import {
   buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, STALL_TIMEOUT_MS, verifyVerdict,
   VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS,
@@ -67,6 +68,7 @@ export interface ExtractionCoordinatorDeps {
   notify: () => void;
   ownership: RunOwnership;
   hosts: { chat: ChatHost; roster: RosterHost };
+  promises?: Pick<PromisePort, "open" | "ready" | "apply">;
 }
 
 // Owns extras.extraction and every off-path read: the shared-read audit pipeline, the
@@ -263,17 +265,19 @@ export class ExtractionCoordinator {
     const run = beginRun(this.deps.ownership, { from: audit.window.from, to: audit.window.to });
     const verified = await this.verifyEntries(newMemoryEntries, audit.window);
     if (intents) await intents;
+    if (this.deps.promises) await this.deps.promises.ready(audit);
     if (!run.stillOwns()) return;
     if (memory.capable && epistemicSignals.length) memory.applyEpistemic(epistemicSignals, audit.window.to, [], audit.window);
     await memory.applyEntries(verified.kept, audit.window);
     if (!run.stillOwns()) return;
     memory.recordVerifyDrops(verified.dropped);
-    const resolvedArcs = memoryEnabled && arcSignals.length ? memory.applyArcSignals(arcSignals, audit.window.to) : [];
+    const arcs = this.deps.promises?.apply(audit, arcSignals) ?? arcSignals;
+    const resolvedArcs = memoryEnabled && arcs.length ? memory.applyArcSignals(arcs, audit.window.to) : [];
     if (memory.capable && ledgerSignals.length) memory.applyLedger(ledgerSignals, audit.window.to);
     if (!this.state.audits.some((entry) => entry.id === audit.id)) this.state.audits = [...this.state.audits, audit].slice(-20);
     if (audit.reason.startsWith("reconcile:")) this.resolveReconciliation(audit);
     this.state.lastReadBoundary = boundary;
-    if (memoryEnabled && (newMemoryEntries.length || arcSignals.length || epistemicSignals.length || ledgerSignals.length)) memory.updateInjection();
+    if (memoryEnabled && (newMemoryEntries.length || arcs.length || epistemicSignals.length || ledgerSignals.length || audit.promiseLines?.length)) memory.updateInjection();
     if (resolvedArcs.length) this.deps.emitArcsResolved(resolvedArcs);
     await this.save();
     if (memoryEnabled && audit.sceneBreak) this.deps.emitSceneBreak(audit, sceneWork);
@@ -332,6 +336,7 @@ export class ExtractionCoordinator {
       extraGateSources: this.deps.getExpansionGateSources(),
       cardScope: this.cardScope(),
       openArcs: memory.getOpenArcs(),
+      openPromises: this.deps.promises?.open() ?? null,
       epistemicLedgerCapable: memory.capable,
       entities: memory.getEntities(),
       model: this.deps.model,

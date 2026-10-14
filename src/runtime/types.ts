@@ -178,6 +178,7 @@ export interface RuntimeExtras {
   chance?: ChanceRuntimeState;
   checks?: ChecksRuntimeState;
   agendaProposals?: AgendaProposalsState;
+  promises?: import("@memory/promises/types").PromisesState;
   living?: LivingRuntimeState;
   journal: JournalRecord[];
   modelCalls: ModelCallRecord[];
@@ -226,6 +227,7 @@ export interface MemoryRuntimeSettings {
   innerBeat?: boolean;
   innerFanOut?: InnerFanOut;
   harvestReasoning?: boolean;
+  promises?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
 
@@ -485,6 +487,7 @@ export interface RuntimeSnapshot {
   memory: MemoryRuntimeState;
   memoryShown?: MemoryEntry[];
   chapters?: ChapterView;
+  promises?: import("@memory/promises/types").PlayerPromise[];
   pacing: PacingSettings;
   copilot: CopilotRuntimeSettings;
   ui: UiRuntimeSettings;

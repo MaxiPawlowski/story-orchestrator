@@ -9,7 +9,7 @@ import { readGate, validateGate, validateLiteral } from "./gates";
 import { GAME_ID_PATTERN, readLabel } from "./checks";
 import { readCheckpointEffects } from "./checkpoints";
 
-const QUEST_KEYS = ["id", "title", "kind", "visible_when", "offered_when", "done_when", "failed_when", "steps", "requires", "progress", "labels", "giver", "author_note", "reward"] as const;
+const QUEST_KEYS = ["id", "title", "kind", "visible_when", "offered_when", "done_when", "failed_when", "steps", "requires", "progress", "labels", "giver", "author_note", "reward", "promise"] as const;
 const STEP_KEYS = ["text", "done_when", "failed_when", "visible_when", "progress"] as const;
 const REWARD_KEYS = ["set", "effects", "label", "visible_when"] as const;
 const REWARD_EFFECT_KEYS = ["world_info", "cast_changes", "npc_replies"] as const;
@@ -116,9 +116,11 @@ const questOptions = (value: Record<string, unknown>, path: string, errors: Vali
   const giver = value.giver === undefined ? null : asString(value.giver)?.trim() ?? refuse(errors, `${path}.giver`, "giver is a roster id", null);
   const note = value.author_note === undefined ? null : readText(value.author_note, AUTHOR_NOTE_MAX, `${path}.author_note`, errors);
   const reward = readReward(value.reward, `${path}.reward`, errors);
+  const promise = value.promise === undefined ? false : value.promise === true || (value.promise !== false && refuse(errors, `${path}.promise`, "promise is true or false", false));
   return {
     ...(visible ? { visible_when: visible } : {}), ...(offered ? { offered_when: offered } : {}), ...(failed ? { failed_when: failed } : {}),
     ...(requires ? { requires } : {}), ...(labels ? { labels } : {}), ...(giver ? { giver } : {}), ...(note ? { author_note: note } : {}), ...(reward ? { reward } : {}),
+    ...(promise ? { promise: true } : {}),
   };
 };
 
@@ -249,6 +251,7 @@ const checkQuest = (quest: Quest, index: number, qualityByKey: Record<string, Qu
     addError(errors, `${path}.failed_when`, "an offered quest never fails on time alone");
   }
   if (quest.giver && !rosterIds.has(quest.giver)) addError(errors, `${path}.giver`, `'${quest.giver}' is not a roster id`);
+  if (quest.promise && !quest.giver) addError(errors, `${path}.promise`, "a promise quest needs a giver: the cast member the player promised");
   checkRewardSet(quest, path, qualityByKey, errors);
 };
 

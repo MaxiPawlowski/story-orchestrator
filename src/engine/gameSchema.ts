@@ -69,6 +69,7 @@ export interface Quest {
   giver?: string;
   author_note?: string;
   reward?: QuestReward;
+  promise?: boolean;
 }
 
 export const CHECK_NARRATE = ["public", "hidden"] as const;
