@@ -441,3 +441,14 @@ its quota runs out.
 - No live gate (nothing staged into ST). Owed: M18 re-score with the widened golden, M19 at 60 / 36 steps, and one live
   check that a fresh install with opencode offered shows "Default: opencode · openai/gpt-6.1-sol" and runs the wizard on
   the bridge; `so-ui.mts assert-player-clean` with a cloud task assigned (F23).
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H12c harness quota meter from in-stream events** (`docs/plans/v2.8/extension-research-2026-10-14/sillytavern-subscriptions.md` P2, 3/M). The harness learns of a
+  quota only when a call fails; it never reads usage events in the stream (grep `rate_limit_event` = 0 under
+  `server-plugin/story-orchestrator-harness/`). Their plugin reads CLI login files: an anti-pattern for us (never read a login
+  file). Recommended: only if the opencode route's own stream carries usage or limit events (a host fact to verify on the
+  pinned opencode), surface them as a route-health line in Connections; otherwise skip. H12a/H12b (status-code
+  classification, served model, refusal is final) are plan 60's B4/B5.

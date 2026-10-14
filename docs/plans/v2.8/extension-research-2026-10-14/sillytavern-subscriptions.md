@@ -1,0 +1,59 @@
+# SillyTavern-Subscriptions — 2026-10-14 harvest
+
+meta: https://github.com/LukaTheHero/SillyTavern-Subscriptions · head `46fe9ce` (single squashed commit, v3.1.x) · **AGPL-3.0: ideas only, no code** · read: `docs/DESIGN.md`, `lib/common/{abort,stops,sse,completion}.js`, `lib/claude/{chat,oauth,env,status}.js`, `lib/codex/{app-server,chat,status}.js` (grep), `lib/listener.js` (grep), `lib/status.js`; skipped: gemini/agy internals, UI `index.js`, tests, oauth refresh/keychain code (reads login files: out of bounds for us) · prior review: none (new repo)
+
+## What it is / what changed
+Server plugin + panel exposing an OpenAI-compatible listener (:8901) that routes ST chat completions to the Claude Agent SDK, `codex app-server` (JSON-RPC stdio) or Google `agy`. Model list from the account, reasoning streamed as `delta.reasoning_content`, quota meters, Claude synthetic session resume for prompt caching, server-side stop strings, real cancellation, refusals are final errors, a served-model guard. Same problem space as our `server-plugin/story-orchestrator-harness`, but for narrative replies (we do non-narrative passes only). Claude subscription path reads and refreshes the Claude login token itself: we must not copy that part.
+
+## How it works
+- Cancellation: one AbortController per request, aborted on **response** `close` before `writableFinished`, never `req` close (Node ≥16 fires it once the body is read) — `lib/common/abort.js:1-13`, `lib/listener.js:168-169`. Codex stop = `turn/interrupt` + grace wait for `turn/completed` (`lib/codex/chat.js:42,300-312`).
+- Error classifiers match HTTP codes only as status codes: `hasStatus(s, code)` = code preceded by `^|api error:|(|status:|http` and not followed by a digit/dot — `lib/claude/oauth.js:138-141`. Separate predicates for transient rate limit vs quota-window exhausted vs expired token vs safeguard refusal vs CLI-too-old vs stale session (`oauth.js:143-196`); each maps to an actionable hint (`claude/chat.js:410-425`).
+- Quota meters without any extra call: Claude SDK stream emits `rate_limit_event` with `rate_limit_info.unifiedWindows{utilization,resetsAt}` (`claude/chat.js:314-315`, `oauth.js:311-336`); Codex app-server pushes `account/rateLimits/updated` and answers `account/rateLimits/read` (primary/secondary windows `usedPercent`, `resetsAt`, `windowDurationMins`) (`codex/app-server.js:292`, `codex/status.js:40-69`). A third source (OAuth usage endpoint with the login token, `oauth.js:340+`) needs the login file: not for us.
+- No substitution: Claude CLI refusal/model fallbacks off by env (`claude/env.js:54-58`, their claim: `CLAUDE_CODE_DISABLE_REFUSAL_FALLBACK`, `..._REFUSAL_RETRY`, `CLAUDE_CODE_NO_MODEL_FALLBACK`, `..._MODEL_ACCESS_FALLBACK`, `..._LEGACY_MODEL_REMAP`; unverified here). Refusal detected structurally (`model_refusal_*` subtype, `stop_reason: "refusal"`) and thrown `noRetry` (`chat.js:308-309,347,359,366,525-526`). Served-model guard compares canonical ids on init, every `message_start`, every assistant message; `<synthetic>` model = CLI-local error whose text IS the error (`chat.js:212-226,354`). Codex: `model/rerouted` hard error; `thread/start` reporting another model refused.
+- `max_tokens`: Claude CLI silently injects up to 3 hidden "resume" turns; plugin aborts at first `message_delta stop_reason:max_tokens` and reports `length` (`chat.js:342-346`, DESIGN "Max response length").
+- Codex isolation check after start: `thread/start.instructionSources` non-empty (global `AGENTS.md`) refuses before any model call; `config/read` checked for still-enabled MCP servers (`codex/chat.js:211,280-285`).
+- Streaming: SSE comment keep-alive every 15 s through silent thinking (`common/sse.js` `writeComment`); `StopScanner` holds back `maxStopLen-1` chars to catch stops straddling chunks (`common/stops.js`).
+- Host fact claimed: Opus 5.5 safety classifier reads the cwd from the environment note; a nondescript/drive-root cwd refused plain RP as "cyber" deterministically; a folder named like a chat app answered (DESIGN "Working directory matters").
+
+## Patterns for SO
+
+### P1. Status-code-only matching in harness error classification — anti-pattern (ours) · harness · our state: present-but-wrong · value 4 · effort S
+What: their classifier never matches bare digits; distinguishes transient 429 from quota-window exhaustion.
+Ours: `server-plugin/story-orchestrator-harness/errors.mjs:1` `AUTH_TEXT` has bare `401` and bare `authenticat`; it is tested **before** quota in both `index.mjs:372-376` and `opencodeTransport.mjs:192-195` (also the `session.retry.scheduled` path, `opencodeTransport.mjs:553-554`, where `auth` becomes `track.fatal`). A 429 body mentioning "1401 tokens", "resets in 4010 s" or a request id with `401` classifies as **auth** (`signIn: true`, owner told to re-login). `QUOTA_TEXT` (`errors.mjs:2`) has `limit reached` / `quota`, so "context limit reached" / "output token limit reached" holds the harness for `SO_HARNESS_QUOTA_HOLD_MS` (10 min, `index.mjs:29`) on what is really a request-size problem.
+Fit: no invariant conflict. Sketch: `hasStatus`-style matcher in `errors.mjs` (code after `status|http|api error|(`, not followed by digit); check quota before auth when a 429 status/phrase is present; drop `limit reached` or require `usage|rate` before it; table test in `plugin.test.mjs`/`opencode.test.mjs` with the false-positive strings above as negative controls.
+
+### P2. Quota meter from in-stream / push events (no login file) — feature · harness + roleHealth · our state: partial · value 3 · effort M
+What: utilization + reset per window shown before the wall is hit, read only from events the run already produces (Claude `rate_limit_event`, Codex `account/rateLimits/updated`).
+Ours: reactive only — quota detected after a failing call, held (`index.mjs:584-590,725-730`), surfaced as `quotaUntil` (`src/services/stHost/harness.ts:38,92`), role state `quota` (`src/runtime/roleHealth.ts:11,46`), breaker probe (`src/extraction/harnessReply.ts:50`). Usage-limit stops cost real time on v2.8 (queue N8, A22 "authoring route at its usage limit").
+Fit: respects "never read login files" only if limited to stream/RPC events. Our Claude path is `-p --output-format json` (`index.mjs:292-293`), which yields a final `result` only; `stream-json` would be needed to see `rate_limit_event` (unverified for the CLI). Codex: only via app-server (P4). OpenCode: unknown whether the service exposes usage windows; check the client API before building. Sketch: `state[harness].meter = {windows, observedAt}` in `/status`; a `degrades` info row when utilization ≥ 0.9 so long passes (wizard, calibration) can be deferred.
+
+### P3. Served-model guard + refusal is final on the harness — pattern · harness · our state: partial · value 3 · effort S
+What: any reply from a model other than the requested one is an error; refusal never reads as an answer, never retried or rerouted.
+Ours: the plugin echoes the **requested** model (`index.mjs:777` `model: request.model`), so `reply.model` in `src/extraction/harnessReply.ts:35` is not evidence. OpenCode assistant messages carry `model` (fixture `fixtures/fake-opencode-server.mjs:166`); `summarize` ignores it (`opencodeTransport.mjs:473-494`). We already refuse a session that drops agent/permissions (`opencodeTransport.mjs:587-588`) and content-filter finishes (`:658`); the judge has `model-mismatch` (architecture.md §Judge) — same idea not applied to harness routes. Claude path: `parseOutput` maps `stop_reason: "refusal"` to finish `unknown` (`index.mjs:316-318`) and `classify` returns `ok: true` with the refusal text when `is_error` is false (`index.mjs:366-369`) — a refusal would be parsed as a read. Claude harness is PHASE0 "not run" (`index.mjs:37`) but still offerable.
+Sketch: return served model from the transport; refuse `model-mismatch` when canonical ids differ; Claude: `stop_reason === 'refusal'` → `kind: 'refused'`; add the no-fallback env names to the Claude env (verify names against the CLI first).
+
+### P4. Codex via `app-server` instead of `codex exec` — pattern · harness · our state: absent · value 2 · effort L
+What: one long-lived JSON-RPC process; `baseInstructions` replaces the coding prompt; `ephemeral` threads; `turn/interrupt` real cancel; rate limits pushed; `instructionSources` + `config/read` verify isolation before any model call.
+Ours: `codex exec - --json --ephemeral --ignore-user-config ...` with system prepended to stdin (`index.mjs:296-299,303`), cancel = kill tree (`index.mjs:385-390`); PHASE0 "not run in owned homes" (`index.mjs:38`), and that path copies `auth.json` into an owned home (README "Install" table) — which conflicts with the "never read/copy CLI login files" constraint as the coordinator stated it (architecture.md states it for opencode only). Value low while Codex is unused; worth only if Codex is revived, and then the login-copy question comes first. The "verify isolation from the service's own report before the prompt" idea we already do for opencode (`opencodeTransport.mjs:406`).
+
+### P5. Response-close cancellation — pattern · harness · our state: present
+`index.mjs:883,905` abort on `response` close when `!writableFinished`; page sends `/cancel` on abort (`src/services/stHost/harness.ts:194-197`). Matches theirs; nothing to take.
+
+### P6. max_tokens hidden-resume trap — host-fact/test-idea · harness (claude) · our state: unknown · value 2 · effort S
+Claude CLI auto-continues past `max_tokens` with hidden turns (their claim). We bound by `maxOutputChars` and kill on `output-bound` (`index.mjs:363-364,424`), so cost is capped, but a `-p` result could be a 3-turn concatenation reported as `stop`. Only matters if the Claude harness is revived; add a fixture then.
+
+### P7. cwd-sensitive safety classifier — host-fact · harness (claude) · value 2 · effort S
+Our Claude/Codex cwd is an owned tmp home under `<os tmp>/so-harness` (README `tmpRoot`). Wizard/Ask prompts carry story text; if the Claude harness is revived and refuses RP-ish content, try a descriptively named cwd before anything else. OpenCode sessions run in `<tmpRoot>/opencode-loc/text-<hash>`; unknown whether OpenAI models see the directory name.
+
+## Host facts
+- Node ≥16: `IncomingMessage` `close` fires after the body is consumed, not on client disconnect; use `res.on('close')` + `!res.writableFinished` (ours already does).
+- ST Custom (OpenAI-compatible) source lifts `choices[0].delta.reasoning_content` into the reasoning block; Connection Manager profile requests skip `CHAT_COMPLETION_SETTINGS_READY`, so `custom_include_body` injected by an extension on that event is absent on CM calls (their DESIGN "Request settings channel"; not verified in ST source here). Relevant only if we ever inject per-request settings that way.
+- ST shows an SSE `{error:{message}}` event as a toast; HTTP `statusMessage` carries the phrase for non-stream errors (`common/completion.js:296-317`).
+
+## Not worth taking
+- Stop-string scanner: our passes parse structured output, no impersonation risk; narrative replies never go through the harness.
+- SSE keep-alive: we answer one JSON per call inside ST, no proxy first-byte timeout in the path.
+- Claude synthetic session resume for caching: our calls are one-shot reads with a stable system prefix (server-side prompt cache already applies); wizard multi-turn already lives in one opencode session (`agentBridge.mjs`).
+- Token refresh / Keychain / OAuth usage endpoint / account-isolation via token in env: all need reading the login; forbidden for us.
+- API-key overflow ("Auto" backend): we use subscription sign-ins only; DeepSeek fallback is already a separate route (`passProfiles.ts` authoring default).
+- Reasoning streaming into ST thoughts: our harness output is not shown as a chat reply; thinking is not stripped by any of the above (no thinking/inner-voice impact).

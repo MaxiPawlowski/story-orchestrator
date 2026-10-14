@@ -10,6 +10,8 @@
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A failed detector call skips the advisory cross-check with a status note on the rig review; aborts still throw." },
     { "site": "src/sprites/liveHead/synthesis/visionLandmarks.ts#readLandmarkAnswer", "kind": 3, "template": "catch {} #1",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A vision answer that is not JSON becomes the named malformed-landmarks refusal in the changed-look review; nothing is rigged." },
+    { "site": "src/sprites/liveHeadStage.ts#bodyFields", "kind": 3, "template": "catch {} #1",
+      "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A cached pose body whose look record is not readable keeps its own set as the look; the close shot stays static until a matching look is published." },
     { "site": "src/sprites/liveHead/synthesis/visionLandmarks.ts#visionLandmarkProvider>callback", "kind": 2, "template": "`The vision model could not place landmarks: ${reply.message}`",
       "surface": "author", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Author-only Studio rig preparation failure (sign-in, quota, transport); the bust can still be accepted and close shots stay static." },
     { "site": "src/sprites/lookRebuild.ts#LookRebuild.prepare", "kind": 2, "template": "error instanceof Error ? error.message : String(error)",

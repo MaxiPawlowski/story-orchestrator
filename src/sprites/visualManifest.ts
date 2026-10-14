@@ -74,7 +74,10 @@ export function publishVisualLook(source: VisualManifest, root: string, set: str
   const base = servedAsset(served);
   if (visualRoot(source) !== root) throw new Error("The accepted visual source changed. Prepare this look again.");
   if (!asset(base)) throw new Error("The changed-look artifact is incomplete.");
-  const looks = { ...source.looks, [set]: { root, signature, base } };
+  const previous = source.looks[set];
+  const kept = previous?.bust && previous.root === root && previous.signature === signature && previous.base.sha256 === base.sha256
+    && previous.base.path === base.path ? { bust: previous.bust } : {};
+  const looks = { ...source.looks, [set]: { root, signature, base, ...kept } };
   return { ...source, looks: Object.fromEntries(Object.entries(looks).filter(([key]) => key === "default" || key === set || Object.keys(looks).indexOf(key) > Object.keys(looks).length - 128)) };
 }
 

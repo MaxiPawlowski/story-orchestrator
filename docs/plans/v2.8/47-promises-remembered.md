@@ -212,3 +212,14 @@ Source: `review-astra-2026-10-14.md` §Plans 42-47 (47). Verified on `3a716f2b`.
 - **Recommendation (C with evidence, stable ids, history, no deadline invention, relevance reminders; quests linked).**
   Adopted; reciprocal NPC promises folded in as option F (brainstorm).
 - Rebutted: none.
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H13a quote lines carry the message id** (`docs/plans/v2.8/extension-research-2026-10-14/timeline-memory.md` P1, 3/S). `evidenceSources`
+  (`src/extraction/evidence.ts:88-92`) returns every message holding a quote, so a pledge said twice matches two spans and
+  the stable id (P2w) is ambiguous. Recommended: the `[promised]` line takes `m=<id>` as v2.8 42 §5.1 witness lines do
+  (`[promised] Promisee | m=<id> | "<words>"`); a line whose quote is not in message `<id>` is refused. Floor: on a fixture
+  with the same pledge in two messages, every accepted promise binds to the cited message, 100 %, D (parser) + CL (read
+  emits ids, ×2). The same applies to v2.8 55 option B `[pledged]`.

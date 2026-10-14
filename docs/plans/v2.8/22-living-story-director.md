@@ -578,3 +578,12 @@ Stories to re-run on the pod (adolion-fresh lane, Artemis reply, DeepSeek author
 - `npm run typecheck:test`: exit 0 (also run separately).
 - New jest: `runtime/livingPaceL1.review.test.ts` (3 cases, the control replays the f031637b ops), `engine/authorHold.test.ts` (5 cases, 3 controls), 1 case in `studio/widgetDiagnostics.test.ts`.
 - No live gate here (nothing staged into ST); the pod rows are listed in §Living pace 2 and F25.
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H1 prepared world facts** (`docs/plans/v2.8/extension-research-2026-10-14/simulation-blackboard.md` P1). The director prepares the graph ahead (frontier, prefetch);
+  nothing prepares world facts (contents, who knows what). That is new plan v2.8 62, **gated on its quantum-ogre probe
+  (H2)**. If 62 stage 2 is built, the director's prefetch becomes a natural trigger for "checkpoint within one step", and the
+  director never sees held prepared rows (resting filter, as for arcs).

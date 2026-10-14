@@ -1,7 +1,9 @@
 import { loadCast } from "./castLoad";
 import { visualFixture } from "./visualFixtures";
 import { bodyStamp } from "./poses/layers";
-import { actorHeadRef } from "./liveHeadStage";
+import { actorHeadRef, castHeadStatus } from "./liveHeadStage";
+import { lookSignature } from "./visualManifest";
+import { stableStringify } from "@runtime/hash";
 import { liveHeadKey } from "./liveHeadRefs";
 
 test("wizard card without a legacy sprite profile loads its explicitly accepted base after reload", async () => {
@@ -29,4 +31,28 @@ test("same pose and same pixels from another accepted root do not reuse the stag
   const pose = { id: "lie_side" }, layers = { base: {} }, config = { baseSet: "base" };
   expect(bodyStamp(pose, layers, config, "root:1")).not.toBe(bodyStamp(pose, layers, config, "root:2"));
   expect(bodyStamp(pose, layers, config)).not.toBe(bodyStamp(pose, layers, config, "root:1"));
+});
+
+test("a posed body of a changed look resolves the live head of that look's published bust", async () => {
+  const source = visualFixture(), root = source.looks.default.root;
+  const bust = { path: "/characters/Synthetic/look_abcd1234/bust.png", sha256: "f".repeat(64), key: "look-bust", recipe: { id: "visual-bust-crop", version: 1 } };
+  const base = { ...bust, path: "/characters/Synthetic/look_abcd1234/neutral.png", sha256: "e".repeat(64), key: "look-base" };
+  source.looks.look_abcd1234 = { root, signature: lookSignature({ outfit: "storm cloak" }), base, bust };
+  const cast = await loadCast([{ name: "Synthetic", avatar: "Synthetic.png", folder: "Synthetic", muted: false, profile: null }], {
+    builders: {}, sources: { Synthetic: source }, keysFor: () => ["synthetic"], verifySource: async () => {},
+    list: async (folder) => folder === "Synthetic/base" ? [{ label: "neutral", path: source.base.path }] : [],
+  });
+  const actor = cast.actors[0], roster = [{ id: "synthetic", name: "Synthetic" }];
+  const look = { member: "synthetic", look: "look_abcd1234", artHash: bust.sha256, source: bust.path, manifest: "/rigs/look.json" };
+  const plain = { member: "synthetic", look: "default", artHash: source.bust.sha256, source: source.bust.path, manifest: "/rigs/default.json" };
+  const refs = { [liveHeadKey(look)]: look, [liveHeadKey(plain)]: plain };
+  const body = (set: string, fields: Record<string, string>) => ({ set, look: stableStringify(fields), pose: "sit_chair", tags: [], visualRoot: root });
+  actor.bodies = [body("lp_11111111", { outfit: "storm cloak" }), body("lp_22222222", {}), body("lp_33333333", { outfit: "unpublished" })];
+  actor.set = "lp_11111111";
+  expect(actorHeadRef(actor, roster, refs, { Synthetic: source })).toEqual(look);
+  expect(castHeadStatus([actor], [actor], roster, refs, { Synthetic: source })[0]).toMatchObject({ look: "look_abcd1234", present: true, state: "ready" });
+  actor.set = "lp_22222222";
+  expect(actorHeadRef(actor, roster, refs, { Synthetic: source })).toEqual(plain);
+  actor.set = "lp_33333333";
+  expect(actorHeadRef(actor, roster, refs, { Synthetic: source })).toBeUndefined();
 });

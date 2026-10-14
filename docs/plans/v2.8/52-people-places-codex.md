@@ -295,3 +295,18 @@ is that checkout. Format: finding → verification → resolution.
   `reached` checkpoint name. The latch value is the latch boundary, which orders `fresh` without new state.
 - **Brainstorm: return visits.** Folded in as option E (decision 8). **Evidence notebook** (source, correction): the
   `from` line is its first step; "heard a rumour" vs "established" waits for 44's player surface and B.
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H16e structural name fold for ledger and epistemic keys** (`docs/plans/v2.8/extension-research-2026-10-14/dooms-enhancement-suite.md` P2, 3/S–M). `ledgerKey` is
+  trim + lowercase (`src/memory/ledger.ts:23-24`), the epistemic subject key the same (`src/memory/epistemic.ts:18`), so
+  "Mara", "Mara Venn" and "the captain" are three subjects. Recommended for the shared contract: one read-only resolver
+  (roster `aliases` + card name + this plan's entity aliases → roster id) applied to ledger and epistemic subjects at write
+  time, ambiguous names left unresolved (never guessed). Floor: alias fixture 100 % resolved, 0 merges of two distinct
+  members, D. Same resolver answers the v2.4 harvest's open "same character?" idea (`docs/plans/v2.4/extension-research/SUMMARY.md`
+  theme 7, dooms/smart-memory): an unresolved name seen in ≥ 3 reads becomes an author-only "same character?" card (merge or
+  keep apart); never merged automatically.
+- **H14b "lasting identity, not scene events"** for codex facts (same rule as the v2.8 11 addendum): a discovered fact
+  describes something that stays true. Prompt rule + C7 fixture row, CL.
