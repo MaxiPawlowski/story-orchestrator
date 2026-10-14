@@ -20,3 +20,4 @@
 {"at":"2026-10-11T11:49:17.594Z","idea":"tone","run":2,"calls":20,"passed":true,"fixtureRevision":"139664bd5667","model":"jev-1.13.0"}
 {"at":"2026-10-11T11:56:25.232Z","idea":"sceneConfirm","run":2,"calls":12,"passed":false,"fixtureRevision":"6448d2605f71","model":"jev-1.13.0"}
 {"at":"2026-10-11T11:56:34.717Z","idea":"sceneKind","run":2,"calls":20,"passed":true,"fixtureRevision":"0d53cac64a03","model":"jev-1.13.0"}
+{"at":"2026-10-14T17:24:00.090Z","idea":"typedKinds","label":"tune","run":1,"calls":20,"fixtureRevision":"d0b9d83a6c25","model":"jev-1.13.0"}

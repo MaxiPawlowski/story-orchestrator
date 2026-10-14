@@ -1,0 +1,220 @@
+{
+ "idea": "J7.6",
+ "frozenAt": "2026-10-14T17:24:20.481Z",
+ "rule": "per kind, the lowest of 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.95 whose tuning answered accuracy is >= 0.95 on >= 10 answered rows, else the single floor 0.8; the latching bump stays on top",
+ "tuning": {
+  "typed": "test/goldens/judge/typed.json",
+  "tune": "test/goldens/judge/spike-typed-kinds-tune.run1.json",
+  "tuneRevision": "d0b9d83a6c25",
+  "typedMissing": 49
+ },
+ "heldOutRevision": "8073759ddfaa",
+ "floors": {
+  "choice": 0.5,
+  "stated": 0.5,
+  "rating": 0.65
+ },
+ "kinds": {
+  "choice": {
+   "floor": 0.5,
+   "moved": true,
+   "reason": "lowest grid floor with tuning accuracy >= 0.95 on >= 10 answered rows",
+   "curve": [
+    {
+     "at": 0.5,
+     "answered": 17,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.55,
+     "answered": 17,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.6,
+     "answered": 16,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.65,
+     "answered": 15,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.7,
+     "answered": 15,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.75,
+     "answered": 14,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.8,
+     "answered": 13,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.85,
+     "answered": 9,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.9,
+     "answered": 7,
+     "asked": 20,
+     "accuracy": 1
+    },
+    {
+     "at": 0.95,
+     "answered": 2,
+     "asked": 20,
+     "accuracy": 1
+    }
+   ]
+  },
+  "stated": {
+   "floor": 0.5,
+   "moved": true,
+   "reason": "lowest grid floor with tuning accuracy >= 0.95 on >= 10 answered rows",
+   "curve": [
+    {
+     "at": 0.5,
+     "answered": 21,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.55,
+     "answered": 21,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.6,
+     "answered": 21,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.65,
+     "answered": 21,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.7,
+     "answered": 21,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.75,
+     "answered": 21,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.8,
+     "answered": 20,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.85,
+     "answered": 19,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.9,
+     "answered": 18,
+     "asked": 23,
+     "accuracy": 1
+    },
+    {
+     "at": 0.95,
+     "answered": 18,
+     "asked": 23,
+     "accuracy": 1
+    }
+   ]
+  },
+  "rating": {
+   "floor": 0.65,
+   "moved": true,
+   "reason": "lowest grid floor with tuning accuracy >= 0.95 on >= 10 answered rows",
+   "curve": [
+    {
+     "at": 0.5,
+     "answered": 16,
+     "asked": 22,
+     "accuracy": 0.875
+    },
+    {
+     "at": 0.55,
+     "answered": 14,
+     "asked": 22,
+     "accuracy": 0.8571
+    },
+    {
+     "at": 0.6,
+     "answered": 14,
+     "asked": 22,
+     "accuracy": 0.8571
+    },
+    {
+     "at": 0.65,
+     "answered": 11,
+     "asked": 22,
+     "accuracy": 1
+    },
+    {
+     "at": 0.7,
+     "answered": 11,
+     "asked": 22,
+     "accuracy": 1
+    },
+    {
+     "at": 0.75,
+     "answered": 6,
+     "asked": 22,
+     "accuracy": 1
+    },
+    {
+     "at": 0.8,
+     "answered": 5,
+     "asked": 22,
+     "accuracy": 1
+    },
+    {
+     "at": 0.85,
+     "answered": 3,
+     "asked": 22,
+     "accuracy": 1
+    },
+    {
+     "at": 0.9,
+     "answered": 0,
+     "asked": 22,
+     "accuracy": null
+    },
+    {
+     "at": 0.95,
+     "answered": 0,
+     "asked": 22,
+     "accuracy": null
+    }
+   ]
+  }
+ }
+}

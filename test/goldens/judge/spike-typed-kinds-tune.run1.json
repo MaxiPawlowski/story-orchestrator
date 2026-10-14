@@ -1,0 +1,2749 @@
+{
+ "source": "typed-kinds.mts tune over test/fixtures/judge/spike-typed-kinds-tune.json (v2.8 13 J7.6 tuning split): real answers, replayed by jest keyed on state + questions",
+ "recordedAt": "2026-10-14T17:24:00.087Z",
+ "model": "jev-1.13.0",
+ "fixtureRevision": "d0b9d83a6c25",
+ "run": 1,
+ "latencyP50Ms": 211,
+ "actualCalls": 20,
+ "calls": [
+  {
+   "id": "T01",
+   "state": {
+    "story": {
+     "title": "Harbor Lights",
+     "current_scene": "The Smuggler's Dock",
+     "scene_goal": "Find out who runs the night shipments."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "Max",
+      "text": "I walk down the pier toward the lantern and call out for Corrin."
+     },
+     {
+      "id": "msg_11",
+      "speaker": "DM Narrator",
+      "text": "A wiry man steps out from behind a stack of seven crates. \"You found me. Corrin. Talk fast.\""
+     },
+     {
+      "id": "msg_12",
+      "speaker": "Corrin",
+      "text": "He eyes your empty hands and relaxes a little. \"No weapons. Good. Maybe you're not with the harbor watch after all.\""
+     }
+    ]
+   },
+   "questions": {
+    "q:met_smuggler": {
+     "type": "choice",
+     "instructions": "Did the player meet the smuggler Corrin face to face?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "yes in msg_10": "The transcript shows the answer is yes",
+      "yes in msg_11": "The transcript shows the answer is yes",
+      "yes in msg_12": "The transcript shows the answer is yes",
+      "no in msg_10": "The transcript shows the answer is no",
+      "no in msg_11": "The transcript shows the answer is no",
+      "no in msg_12": "The transcript shows the answer is no",
+      "not shown": "The transcript does not settle the question"
+     }
+    },
+    "q:crates_counted": {
+     "type": "choice",
+     "instructions": "How many crates are stacked on the dock?\nWhich number mention in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"seven\" in msg_11": "A wiry man steps out from behind a stack of seven crates. \"You found me. Corrin. Talk fast.\"",
+      "none": "No number in the transcript gives this value"
+     }
+    },
+    "presence:corrin_trust": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How much does Corrin trust the player?"
+    },
+    "q:corrin_trust": {
+     "type": "score",
+     "instructions": "How much does Corrin trust the player?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: none",
+      "1: wary",
+      "2: neutral",
+      "3: friendly",
+      "4: complete"
+     ]
+    },
+    "evidence:corrin_trust": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How much does Corrin trust the player?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:met_smuggler": {
+     "type": "choice",
+     "choice": "yes in msg_11",
+     "confidence": 0.94,
+     "probabilities": {
+      "yes in msg_10": 0.01,
+      "yes in msg_11": 0.95,
+      "yes in msg_12": 0.04,
+      "no in msg_10": 0,
+      "no in msg_11": 0,
+      "no in msg_12": 0,
+      "not shown": 0
+     }
+    },
+    "q:crates_counted": {
+     "type": "choice",
+     "choice": "\"seven\" in msg_11",
+     "confidence": 1,
+     "probabilities": {
+      "\"seven\" in msg_11": 1,
+      "none": 0
+     }
+    },
+    "presence:corrin_trust": {
+     "type": "noul",
+     "noul": 0.86
+    },
+    "q:corrin_trust": {
+     "type": "score",
+     "score": 1.19,
+     "confidence": 0.84,
+     "legend": {
+      "0": "0: none",
+      "1": "1: wary",
+      "2": "2: neutral",
+      "3": "3: friendly",
+      "4": "4: complete"
+     },
+     "probabilities": {
+      "0": 0,
+      "1": 0.85,
+      "2": 0.11,
+      "3": 0.04,
+      "4": 0
+     }
+    },
+    "evidence:corrin_trust": {
+     "type": "choice",
+     "choice": "msg_12",
+     "confidence": 0.98,
+     "probabilities": {
+      "msg_10": 0,
+      "msg_11": 0.01,
+      "msg_12": 0.99
+     }
+    }
+   },
+   "latencyMs": 554
+  },
+  {
+   "id": "T02",
+   "state": {
+    "story": {
+     "title": "Harbor Lights",
+     "current_scene": "The Customs House",
+     "scene_goal": "Get the ledger out of the customs house."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "Max",
+      "text": "I wait in the queue and watch the clerk's desk."
+     },
+     {
+      "id": "msg_11",
+      "speaker": "DM Narrator",
+      "text": "The clerk stamps papers without looking up. Two guards lean on the wall, bored, trading jokes about the weather."
+     },
+     {
+      "id": "msg_12",
+      "speaker": "Arin",
+      "text": "Arin whispers, \"The ledger's in the drawer on the left. Not yet. Wait for the shift bell.\""
+     }
+    ]
+   },
+   "questions": {
+    "q:ledger_taken": {
+     "type": "choice",
+     "instructions": "Has the party taken the customs ledger?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "yes in msg_10": "The transcript shows the answer is yes",
+      "yes in msg_11": "The transcript shows the answer is yes",
+      "yes in msg_12": "The transcript shows the answer is yes",
+      "no in msg_10": "The transcript shows the answer is no",
+      "no in msg_11": "The transcript shows the answer is no",
+      "no in msg_12": "The transcript shows the answer is no",
+      "not shown": "The transcript does not settle the question"
+     }
+    },
+    "q:clerk_name": {
+     "type": "choice",
+     "instructions": "The name the customs clerk gives.\nWhich span in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"The\" in msg_11": "The clerk stamps papers without looking up. Two guard",
+      "\"Two\" in msg_11": "The clerk stamps papers without looking up. Two guards lean on the wall, bored, trading jokes abo",
+      "\"Arin\" in msg_12": "Arin whispers, \"The ledger's in the drawer on the left",
+      "\"Not\" in msg_12": "hispers, \"The ledger's in the drawer on the left. Not yet. Wait for the shift bell.\"",
+      "\"Wait\" in msg_12": "\"The ledger's in the drawer on the left. Not yet. Wait for the shift bell.\"",
+      "none": "No span in the transcript gives this value"
+     }
+    },
+    "presence:guard_alert": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How alert are the customs guards?"
+    },
+    "q:guard_alert": {
+     "type": "score",
+     "instructions": "How alert are the customs guards?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: unaware",
+      "1: curious",
+      "2: suspicious",
+      "3: alarmed"
+     ]
+    },
+    "evidence:guard_alert": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How alert are the customs guards?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:ledger_taken": {
+     "type": "choice",
+     "choice": "no in msg_12",
+     "confidence": 0.93,
+     "probabilities": {
+      "yes in msg_10": 0,
+      "yes in msg_11": 0,
+      "yes in msg_12": 0,
+      "no in msg_10": 0.02,
+      "no in msg_11": 0.01,
+      "no in msg_12": 0.94,
+      "not shown": 0.03
+     }
+    },
+    "q:clerk_name": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 1,
+     "probabilities": {
+      "\"The\" in msg_11": 0,
+      "\"Two\" in msg_11": 0,
+      "\"Arin\" in msg_12": 0,
+      "\"Not\" in msg_12": 0,
+      "\"Wait\" in msg_12": 0,
+      "none": 1
+     }
+    },
+    "presence:guard_alert": {
+     "type": "noul",
+     "noul": 0.87
+    },
+    "q:guard_alert": {
+     "type": "score",
+     "score": 0.04,
+     "confidence": 0.97,
+     "legend": {
+      "0": "0: unaware",
+      "1": "1: curious",
+      "2": "2: suspicious",
+      "3": "3: alarmed"
+     },
+     "probabilities": {
+      "0": 0.97,
+      "1": 0.03,
+      "2": 0,
+      "3": 0
+     }
+    },
+    "evidence:guard_alert": {
+     "type": "choice",
+     "choice": "msg_11",
+     "confidence": 1,
+     "probabilities": {
+      "msg_10": 0,
+      "msg_11": 1,
+      "msg_12": 0
+     }
+    }
+   },
+   "latencyMs": 584
+  },
+  {
+   "id": "T03",
+   "state": {
+    "story": {
+     "title": "The Long Winter",
+     "current_scene": "Snowbound Inn",
+     "scene_goal": "Survive the night at the inn."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "DM Narrator",
+      "text": "The wind screams against the shutters; outside, a full blizzard has swallowed the road."
+     },
+     {
+      "id": "msg_11",
+      "speaker": "Innkeeper",
+      "text": "Old Hesk counts the woodpile with shaking hands. \"Four logs. Four. That won't last till dawn, and those howls are getting closer.\""
+     },
+     {
+      "id": "msg_12",
+      "speaker": "Max",
+      "text": "I put a hand on his shoulder. \"We'll figure it out.\""
+     }
+    ]
+   },
+   "questions": {
+    "q:weather": {
+     "type": "choice",
+     "instructions": "What is the weather outside the inn?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "clear in msg_10": null,
+      "clear in msg_11": null,
+      "clear in msg_12": null,
+      "snowing in msg_10": null,
+      "snowing in msg_11": null,
+      "snowing in msg_12": null,
+      "blizzard in msg_10": null,
+      "blizzard in msg_11": null,
+      "blizzard in msg_12": null,
+      "not shown": "The transcript does not settle this"
+     }
+    },
+    "q:logs_left": {
+     "type": "choice",
+     "instructions": "How many firewood logs are left?\nWhich number mention in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"Four\" in msg_11": "Old Hesk counts the woodpile with shaking hands. \"Four logs. Four. That won't last till dawn, and those",
+      "\"Four\" in msg_11 #2": "unts the woodpile with shaking hands. \"Four logs. Four. That won't last till dawn, and those howls are g",
+      "none": "No number in the transcript gives this value"
+     }
+    },
+    "presence:innkeeper_fear": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How afraid is the innkeeper?"
+    },
+    "q:innkeeper_fear": {
+     "type": "score",
+     "instructions": "How afraid is the innkeeper?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: calm",
+      "1: uneasy",
+      "2: afraid",
+      "3: terrified"
+     ]
+    },
+    "evidence:innkeeper_fear": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How afraid is the innkeeper?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:weather": {
+     "type": "choice",
+     "choice": "blizzard in msg_10",
+     "confidence": 1,
+     "probabilities": {
+      "clear in msg_10": 0,
+      "clear in msg_11": 0,
+      "clear in msg_12": 0,
+      "snowing in msg_10": 0,
+      "snowing in msg_11": 0,
+      "snowing in msg_12": 0,
+      "blizzard in msg_10": 1,
+      "blizzard in msg_11": 0,
+      "blizzard in msg_12": 0,
+      "not shown": 0
+     }
+    },
+    "q:logs_left": {
+     "type": "choice",
+     "choice": "\"Four\" in msg_11",
+     "confidence": 0.97,
+     "probabilities": {
+      "\"Four\" in msg_11": 0.98,
+      "\"Four\" in msg_11 #2": 0.01,
+      "none": 0.01
+     }
+    },
+    "presence:innkeeper_fear": {
+     "type": "noul",
+     "noul": 0.9
+    },
+    "q:innkeeper_fear": {
+     "type": "score",
+     "score": 2.06,
+     "confidence": 0.9,
+     "legend": {
+      "0": "0: calm",
+      "1": "1: uneasy",
+      "2": "2: afraid",
+      "3": "3: terrified"
+     },
+     "probabilities": {
+      "0": 0,
+      "1": 0.02,
+      "2": 0.9,
+      "3": 0.08
+     }
+    },
+    "evidence:innkeeper_fear": {
+     "type": "choice",
+     "choice": "msg_11",
+     "confidence": 1,
+     "probabilities": {
+      "msg_10": 0,
+      "msg_11": 1,
+      "msg_12": 0
+     }
+    }
+   },
+   "latencyMs": 222
+  },
+  {
+   "id": "T04",
+   "state": {
+    "story": {
+     "title": "The Long Winter",
+     "current_scene": "The Frozen Mill",
+     "scene_goal": "Fix the mill wheel before the river freezes."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "Max",
+      "text": "I hammer the new pin into the axle."
+     },
+     {
+      "id": "msg_11",
+      "speaker": "DM Narrator",
+      "text": "The axle groans and the pin holds. Half of the broken paddles are replaced; the rest lie in the snow beside you."
+     },
+     {
+      "id": "msg_12",
+      "speaker": "Arin",
+      "text": "\"Ice is two inches already,\" Arin says, testing the river with her boot. \"We have maybe a day.\""
+     }
+    ]
+   },
+   "questions": {
+    "q:wheel_fixed": {
+     "type": "choice",
+     "instructions": "Is the mill wheel repaired and turning?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "yes in msg_10": "The transcript shows the answer is yes",
+      "yes in msg_11": "The transcript shows the answer is yes",
+      "yes in msg_12": "The transcript shows the answer is yes",
+      "no in msg_10": "The transcript shows the answer is no",
+      "no in msg_11": "The transcript shows the answer is no",
+      "no in msg_12": "The transcript shows the answer is no",
+      "not shown": "The transcript does not settle the question"
+     }
+    },
+    "q:ice_thickness": {
+     "type": "choice",
+     "instructions": "How many inches thick is the ice on the river?\nWhich number mention in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"two\" in msg_12": "\"Ice is two inches already,\" Arin says, testing the river wit",
+      "none": "No number in the transcript gives this value"
+     }
+    },
+    "presence:repair_progress": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How far along is the repair of the mill wheel?"
+    },
+    "q:repair_progress": {
+     "type": "score",
+     "instructions": "How far along is the repair of the mill wheel?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: not started",
+      "1: begun",
+      "2: halfway",
+      "3: nearly done",
+      "4: finished"
+     ]
+    },
+    "evidence:repair_progress": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How far along is the repair of the mill wheel?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:wheel_fixed": {
+     "type": "choice",
+     "choice": "no in msg_11",
+     "confidence": 0.57,
+     "probabilities": {
+      "yes in msg_10": 0,
+      "yes in msg_11": 0.03,
+      "yes in msg_12": 0,
+      "no in msg_10": 0.01,
+      "no in msg_11": 0.63,
+      "no in msg_12": 0.02,
+      "not shown": 0.31
+     }
+    },
+    "q:ice_thickness": {
+     "type": "choice",
+     "choice": "\"two\" in msg_12",
+     "confidence": 1,
+     "probabilities": {
+      "\"two\" in msg_12": 1,
+      "none": 0
+     }
+    },
+    "presence:repair_progress": {
+     "type": "noul",
+     "noul": 0.94
+    },
+    "q:repair_progress": {
+     "type": "score",
+     "score": 2,
+     "confidence": 0.95,
+     "legend": {
+      "0": "0: not started",
+      "1": "1: begun",
+      "2": "2: halfway",
+      "3": "3: nearly done",
+      "4": "4: finished"
+     },
+     "probabilities": {
+      "0": 0,
+      "1": 0.03,
+      "2": 0.94,
+      "3": 0.03,
+      "4": 0
+     }
+    },
+    "evidence:repair_progress": {
+     "type": "choice",
+     "choice": "msg_11",
+     "confidence": 1,
+     "probabilities": {
+      "msg_10": 0,
+      "msg_11": 1,
+      "msg_12": 0
+     }
+    }
+   },
+   "latencyMs": 253
+  },
+  {
+   "id": "T05",
+   "state": {
+    "story": {
+     "title": "Starfall Station",
+     "current_scene": "Docking Ring",
+     "scene_goal": "Board the station without tripping the alarms."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "DM Narrator",
+      "text": "The shuttle scrapes the docking collar with a shriek of metal. A long gash opens along the port side, venting frost."
+     },
+     {
+      "id": "msg_11",
+      "speaker": "Max",
+      "text": "I seal my helmet and check the corridor."
+     },
+     {
+      "id": "msg_12",
+      "speaker": "DM Narrator",
+      "text": "Three crew in grey jumpsuits hurry past the viewport, arguing, without glancing your way. No klaxon sounds."
+     }
+    ]
+   },
+   "questions": {
+    "q:alarm_tripped": {
+     "type": "choice",
+     "instructions": "Did the party trip the station alarm?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "yes in msg_10": "The transcript shows the answer is yes",
+      "yes in msg_11": "The transcript shows the answer is yes",
+      "yes in msg_12": "The transcript shows the answer is yes",
+      "no in msg_10": "The transcript shows the answer is no",
+      "no in msg_11": "The transcript shows the answer is no",
+      "no in msg_12": "The transcript shows the answer is no",
+      "not shown": "The transcript does not settle the question"
+     }
+    },
+    "q:crew_seen": {
+     "type": "choice",
+     "instructions": "How many station crew members has the party seen?\nWhich number mention in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"Three\" in msg_12": "Three crew in grey jumpsuits hurry past the viewport, a",
+      "none": "No number in the transcript gives this value"
+     }
+    },
+    "presence:hull_damage": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How damaged is the shuttle's hull?"
+    },
+    "q:hull_damage": {
+     "type": "score",
+     "instructions": "How damaged is the shuttle's hull?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: intact",
+      "1: scratched",
+      "2: damaged",
+      "3: wrecked"
+     ]
+    },
+    "evidence:hull_damage": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How damaged is the shuttle's hull?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:alarm_tripped": {
+     "type": "choice",
+     "choice": "no in msg_12",
+     "confidence": 1,
+     "probabilities": {
+      "yes in msg_10": 0,
+      "yes in msg_11": 0,
+      "yes in msg_12": 0,
+      "no in msg_10": 0,
+      "no in msg_11": 0,
+      "no in msg_12": 1,
+      "not shown": 0
+     }
+    },
+    "q:crew_seen": {
+     "type": "choice",
+     "choice": "\"Three\" in msg_12",
+     "confidence": 1,
+     "probabilities": {
+      "\"Three\" in msg_12": 1,
+      "none": 0
+     }
+    },
+    "presence:hull_damage": {
+     "type": "noul",
+     "noul": 0.94
+    },
+    "q:hull_damage": {
+     "type": "score",
+     "score": 1.99,
+     "confidence": 0.99,
+     "legend": {
+      "0": "0: intact",
+      "1": "1: scratched",
+      "2": "2: damaged",
+      "3": "3: wrecked"
+     },
+     "probabilities": {
+      "0": 0,
+      "1": 0.01,
+      "2": 0.99,
+      "3": 0
+     }
+    },
+    "evidence:hull_damage": {
+     "type": "choice",
+     "choice": "msg_10",
+     "confidence": 1,
+     "probabilities": {
+      "msg_10": 1,
+      "msg_11": 0,
+      "msg_12": 0
+     }
+    }
+   },
+   "latencyMs": 232
+  },
+  {
+   "id": "T06",
+   "state": {
+    "story": {
+     "title": "Starfall Station",
+     "current_scene": "Reactor Deck",
+     "scene_goal": "Find the source of the power drain."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "DM Narrator",
+      "text": "The lift opens onto the reactor deck. Warning lights paint everything amber; the main gauge reads 40% and falling."
+     },
+     {
+      "id": "msg_11",
+      "speaker": "Engineer Vos",
+      "text": "\"We've been down here for twenty hours,\" Vos mutters. \"Nobody's slept. Half the team wants to abandon the station.\""
+     },
+     {
+      "id": "msg_12",
+      "speaker": "Max",
+      "text": "\"Show me the drain readings.\""
+     }
+    ]
+   },
+   "questions": {
+    "q:location": {
+     "type": "choice",
+     "instructions": "Where in the station is the party?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "docking ring in msg_10": null,
+      "docking ring in msg_11": null,
+      "docking ring in msg_12": null,
+      "corridor in msg_10": null,
+      "corridor in msg_11": null,
+      "corridor in msg_12": null,
+      "reactor deck in msg_10": null,
+      "reactor deck in msg_11": null,
+      "reactor deck in msg_12": null,
+      "bridge in msg_10": null,
+      "bridge in msg_11": null,
+      "bridge in msg_12": null,
+      "not shown": "The transcript does not settle this"
+     }
+    },
+    "q:power_level": {
+     "type": "choice",
+     "instructions": "What fraction of reactor power is left, 0.0 to 1.0?\nWhich number mention in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"40%\" in msg_10": "ghts paint everything amber; the main gauge reads 40% and falling.",
+      "\"twenty\" in msg_11": "\"We've been down here for twenty hours,\" Vos mutters. \"Nobody's slept. Half the te",
+      "none": "No number in the transcript gives this value"
+     }
+    },
+    "presence:crew_morale": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: What is the station crew's morale?"
+    },
+    "q:crew_morale": {
+     "type": "score",
+     "instructions": "What is the station crew's morale?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: broken",
+      "1: low",
+      "2: steady",
+      "3: high",
+      "4: elated"
+     ]
+    },
+    "evidence:crew_morale": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: What is the station crew's morale?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:location": {
+     "type": "choice",
+     "choice": "reactor deck in msg_10",
+     "confidence": 1,
+     "probabilities": {
+      "docking ring in msg_10": 0,
+      "docking ring in msg_11": 0,
+      "docking ring in msg_12": 0,
+      "corridor in msg_10": 0,
+      "corridor in msg_11": 0,
+      "corridor in msg_12": 0,
+      "reactor deck in msg_10": 1,
+      "reactor deck in msg_11": 0,
+      "reactor deck in msg_12": 0,
+      "bridge in msg_10": 0,
+      "bridge in msg_11": 0,
+      "bridge in msg_12": 0,
+      "not shown": 0
+     }
+    },
+    "q:power_level": {
+     "type": "choice",
+     "choice": "\"40%\" in msg_10",
+     "confidence": 0.97,
+     "probabilities": {
+      "\"40%\" in msg_10": 0.98,
+      "\"twenty\" in msg_11": 0,
+      "none": 0.02
+     }
+    },
+    "presence:crew_morale": {
+     "type": "noul",
+     "noul": 0.92
+    },
+    "q:crew_morale": {
+     "type": "score",
+     "score": 0.89,
+     "confidence": 0.91,
+     "legend": {
+      "0": "0: broken",
+      "1": "1: low",
+      "2": "2: steady",
+      "3": "3: high",
+      "4": "4: elated"
+     },
+     "probabilities": {
+      "0": 0.11,
+      "1": 0.89,
+      "2": 0,
+      "3": 0,
+      "4": 0
+     }
+    },
+    "evidence:crew_morale": {
+     "type": "choice",
+     "choice": "msg_11",
+     "confidence": 1,
+     "probabilities": {
+      "msg_10": 0,
+      "msg_11": 1,
+      "msg_12": 0
+     }
+    }
+   },
+   "latencyMs": 244
+  },
+  {
+   "id": "T07",
+   "state": {
+    "story": {
+     "title": "Rain on Mercer Street",
+     "current_scene": "The Pawn Shop",
+     "scene_goal": "Find out who pawned the stolen watch."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "Max",
+      "text": "I slide my badge across the counter. \"The silver watch. Who brought it in?\""
+     },
+     {
+      "id": "msg_11",
+      "speaker": "Pawnbroker",
+      "text": "Mrs. Ilse sighs and pulls a ticket from the drawer. The name on it reads *Teodor Brask*. The watch itself sits in the case behind her."
+     },
+     {
+      "id": "msg_12",
+      "speaker": "Pawnbroker",
+      "text": "\"I don't want trouble. You'll keep my name out of it? Then we understand each other.\""
+     }
+    ]
+   },
+   "questions": {
+    "q:watch_found": {
+     "type": "choice",
+     "instructions": "Has the detective found the stolen watch?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "yes in msg_10": "The transcript shows the answer is yes",
+      "yes in msg_11": "The transcript shows the answer is yes",
+      "yes in msg_12": "The transcript shows the answer is yes",
+      "no in msg_10": "The transcript shows the answer is no",
+      "no in msg_11": "The transcript shows the answer is no",
+      "no in msg_12": "The transcript shows the answer is no",
+      "not shown": "The transcript does not settle the question"
+     }
+    },
+    "q:pawn_name": {
+     "type": "choice",
+     "instructions": "The name written on the pawn ticket.\nWhich span in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"The\" in msg_10": "I slide my badge across the counter. \"The silver watch. Who brought it in?\"",
+      "\"Who\" in msg_10": "e my badge across the counter. \"The silver watch. Who brought it in?\"",
+      "\"Teodor Brask\" in msg_11": "ls a ticket from the drawer. The name on it reads *Teodor Brask*. The watch itself sits in the case behind her.",
+      "\"Mrs\" in msg_11": "Mrs. Ilse sighs and pulls a ticket from the drawer. T",
+      "\"Ilse\" in msg_11": "Mrs. Ilse sighs and pulls a ticket from the drawer. The nam",
+      "\"Teodor\" in msg_11": "s a ticket from the drawer. The name on it reads *Teodor Brask*. The watch itself sits in the case behind",
+      "\"Brask\" in msg_11": "ket from the drawer. The name on it reads *Teodor Brask*. The watch itself sits in the case behind her.",
+      "\"You\" in msg_12": "\"I don't want trouble. You'll keep my name out of it? Then we understand eac",
+      "\"Then\" in msg_12": "on't want trouble. You'll keep my name out of it? Then we understand each other.\"",
+      "none": "No span in the transcript gives this value"
+     }
+    },
+    "presence:owner_trust": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How much does the pawnshop owner trust the detective?"
+    },
+    "q:owner_trust": {
+     "type": "score",
+     "instructions": "How much does the pawnshop owner trust the detective?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: none",
+      "1: wary",
+      "2: neutral",
+      "3: friendly",
+      "4: complete"
+     ]
+    },
+    "evidence:owner_trust": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How much does the pawnshop owner trust the detective?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:watch_found": {
+     "type": "choice",
+     "choice": "yes in msg_11",
+     "confidence": 1,
+     "probabilities": {
+      "yes in msg_10": 0,
+      "yes in msg_11": 1,
+      "yes in msg_12": 0,
+      "no in msg_10": 0,
+      "no in msg_11": 0,
+      "no in msg_12": 0,
+      "not shown": 0
+     }
+    },
+    "q:pawn_name": {
+     "type": "choice",
+     "choice": "\"Teodor Brask\" in msg_11",
+     "confidence": 1,
+     "probabilities": {
+      "\"The\" in msg_10": 0,
+      "\"Who\" in msg_10": 0,
+      "\"Teodor Brask\" in msg_11": 1,
+      "\"Mrs\" in msg_11": 0,
+      "\"Ilse\" in msg_11": 0,
+      "\"Teodor\" in msg_11": 0,
+      "\"Brask\" in msg_11": 0,
+      "\"You\" in msg_12": 0,
+      "\"Then\" in msg_12": 0,
+      "none": 0
+     }
+    },
+    "presence:owner_trust": {
+     "type": "noul",
+     "noul": 0.81
+    },
+    "q:owner_trust": {
+     "type": "score",
+     "score": 0.96,
+     "confidence": 0.96,
+     "legend": {
+      "0": "0: none",
+      "1": "1: wary",
+      "2": "2: neutral",
+      "3": "3: friendly",
+      "4": "4: complete"
+     },
+     "probabilities": {
+      "0": 0.05,
+      "1": 0.95,
+      "2": 0,
+      "3": 0,
+      "4": 0
+     }
+    },
+    "evidence:owner_trust": {
+     "type": "choice",
+     "choice": "msg_12",
+     "confidence": 1,
+     "probabilities": {
+      "msg_10": 0,
+      "msg_11": 0,
+      "msg_12": 1
+     }
+    }
+   },
+   "latencyMs": 202
+  },
+  {
+   "id": "T08",
+   "state": {
+    "story": {
+     "title": "Rain on Mercer Street",
+     "current_scene": "The Rooftop",
+     "scene_goal": "Catch the thief before he jumps."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "DM Narrator",
+      "text": "The thief backs toward the edge, six floors above the wet street, and laughs."
+     },
+     {
+      "id": "msg_11",
+      "speaker": "Thief",
+      "text": "\"You think I'm scared of you? I've done this jump a hundred times.\""
+     },
+     {
+      "id": "msg_12",
+      "speaker": "Max",
+      "text": "I lunge for his coat."
+     }
+    ]
+   },
+   "questions": {
+    "q:thief_caught": {
+     "type": "choice",
+     "instructions": "Did the detective catch the thief?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "yes in msg_10": "The transcript shows the answer is yes",
+      "yes in msg_11": "The transcript shows the answer is yes",
+      "yes in msg_12": "The transcript shows the answer is yes",
+      "no in msg_10": "The transcript shows the answer is no",
+      "no in msg_11": "The transcript shows the answer is no",
+      "no in msg_12": "The transcript shows the answer is no",
+      "not shown": "The transcript does not settle the question"
+     }
+    },
+    "q:floors_down": {
+     "type": "choice",
+     "instructions": "How many floors down is the street from the roof?\nWhich number mention in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"six\" in msg_10": "The thief backs toward the edge, six floors above the wet street, and laughs.",
+      "none": "No number in the transcript gives this value"
+     }
+    },
+    "presence:thief_fear": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How afraid is the thief?"
+    },
+    "q:thief_fear": {
+     "type": "score",
+     "instructions": "How afraid is the thief?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: calm",
+      "1: uneasy",
+      "2: afraid",
+      "3: terrified"
+     ]
+    },
+    "evidence:thief_fear": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How afraid is the thief?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:thief_caught": {
+     "type": "choice",
+     "choice": "not shown",
+     "confidence": 0.94,
+     "probabilities": {
+      "yes in msg_10": 0,
+      "yes in msg_11": 0,
+      "yes in msg_12": 0.01,
+      "no in msg_10": 0,
+      "no in msg_11": 0.01,
+      "no in msg_12": 0.03,
+      "not shown": 0.95
+     }
+    },
+    "q:floors_down": {
+     "type": "choice",
+     "choice": "\"six\" in msg_10",
+     "confidence": 0.98,
+     "probabilities": {
+      "\"six\" in msg_10": 0.99,
+      "none": 0.01
+     }
+    },
+    "presence:thief_fear": {
+     "type": "noul",
+     "noul": 0.77
+    },
+    "q:thief_fear": {
+     "type": "score",
+     "score": 0.02,
+     "confidence": 0.98,
+     "legend": {
+      "0": "0: calm",
+      "1": "1: uneasy",
+      "2": "2: afraid",
+      "3": "3: terrified"
+     },
+     "probabilities": {
+      "0": 0.98,
+      "1": 0.02,
+      "2": 0,
+      "3": 0
+     }
+    },
+    "evidence:thief_fear": {
+     "type": "choice",
+     "choice": "msg_11",
+     "confidence": 1,
+     "probabilities": {
+      "msg_10": 0,
+      "msg_11": 1,
+      "msg_12": 0
+     }
+    }
+   },
+   "latencyMs": 223
+  },
+  {
+   "id": "T09",
+   "state": {
+    "story": {
+     "title": "Quest for the Sun Ruins",
+     "current_scene": "The Desert Camp",
+     "scene_goal": "Rest and prepare for the ruins."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "Arin",
+      "text": "Arin drops her pack and shakes it. \"Two days of food, if we're careful. And the well here is dry.\""
+     },
+     {
+      "id": "msg_11",
+      "speaker": "Max",
+      "text": "I peer down the well."
+     },
+     {
+      "id": "msg_12",
+      "speaker": "DM Narrator",
+      "text": "Dust. Nothing but dust and an old bucket."
+     }
+    ]
+   },
+   "questions": {
+    "q:water_found": {
+     "type": "choice",
+     "instructions": "Did the party find fresh water at the camp?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "yes in msg_10": "The transcript shows the answer is yes",
+      "yes in msg_11": "The transcript shows the answer is yes",
+      "yes in msg_12": "The transcript shows the answer is yes",
+      "no in msg_10": "The transcript shows the answer is no",
+      "no in msg_11": "The transcript shows the answer is no",
+      "no in msg_12": "The transcript shows the answer is no",
+      "not shown": "The transcript does not settle the question"
+     }
+    },
+    "q:days_food": {
+     "type": "choice",
+     "instructions": "How many days of food does the party have?\nWhich number mention in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"Two\" in msg_10": "Arin drops her pack and shakes it. \"Two days of food, if we're careful. And the well here",
+      "none": "No number in the transcript gives this value"
+     }
+    },
+    "presence:arin_mood": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How is Arin's mood, from 0 (miserable) to 4 (cheerful)?"
+    },
+    "q:arin_mood": {
+     "type": "score",
+     "instructions": "How is Arin's mood, from 0 (miserable) to 4 (cheerful)?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: miserable",
+      "1",
+      "2",
+      "3",
+      "4: cheerful"
+     ]
+    },
+    "evidence:arin_mood": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How is Arin's mood, from 0 (miserable) to 4 (cheerful)?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:water_found": {
+     "type": "choice",
+     "choice": "no in msg_10",
+     "confidence": 0.8,
+     "probabilities": {
+      "yes in msg_10": 0,
+      "yes in msg_11": 0,
+      "yes in msg_12": 0,
+      "no in msg_10": 0.83,
+      "no in msg_11": 0,
+      "no in msg_12": 0.17,
+      "not shown": 0
+     }
+    },
+    "q:days_food": {
+     "type": "choice",
+     "choice": "\"Two\" in msg_10",
+     "confidence": 1,
+     "probabilities": {
+      "\"Two\" in msg_10": 1,
+      "none": 0
+     }
+    },
+    "presence:arin_mood": {
+     "type": "noul",
+     "noul": 0.34
+    },
+    "q:arin_mood": {
+     "type": "score",
+     "score": 1.22,
+     "confidence": 0.74,
+     "legend": {
+      "0": "0: miserable",
+      "1": "1",
+      "2": "2",
+      "3": "3",
+      "4": "4: cheerful"
+     },
+     "probabilities": {
+      "0": 0.05,
+      "1": 0.69,
+      "2": 0.26,
+      "3": 0,
+      "4": 0
+     }
+    },
+    "evidence:arin_mood": {
+     "type": "choice",
+     "choice": "msg_10",
+     "confidence": 1,
+     "probabilities": {
+      "msg_10": 1,
+      "msg_11": 0,
+      "msg_12": 0
+     }
+    }
+   },
+   "latencyMs": 211
+  },
+  {
+   "id": "T10",
+   "state": {
+    "story": {
+     "title": "Quest for the Sun Ruins",
+     "current_scene": "The Sphinx Gate",
+     "scene_goal": "Answer the sphinx's riddle."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "Sphinx",
+      "text": "\"You have failed two riddles already. Fail once more and you stay here forever. What has keys but opens no locks?\""
+     },
+     {
+      "id": "msg_11",
+      "speaker": "Max",
+      "text": "\"A piano.\""
+     },
+     {
+      "id": "msg_12",
+      "speaker": "Sphinx",
+      "text": "The sphinx bows its great head. \"Correct. Few remember the old answer. You may pass, and you have my regard.\""
+     }
+    ]
+   },
+   "questions": {
+    "q:riddle_result": {
+     "type": "choice",
+     "instructions": "How did the riddle attempt go?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "unanswered in msg_10": null,
+      "unanswered in msg_11": null,
+      "unanswered in msg_12": null,
+      "solved in msg_10": null,
+      "solved in msg_11": null,
+      "solved in msg_12": null,
+      "failed in msg_10": null,
+      "failed in msg_11": null,
+      "failed in msg_12": null,
+      "not shown": "The transcript does not settle this"
+     }
+    },
+    "q:riddles_failed": {
+     "type": "choice",
+     "instructions": "How many riddles has the party failed so far?\nWhich number mention in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"two\" in msg_10": "\"You have failed two riddles already. Fail once more and you stay here",
+      "\"once\" in msg_10": "\"You have failed two riddles already. Fail once more and you stay here forever. What has keys but",
+      "none": "No number in the transcript gives this value"
+     }
+    },
+    "presence:sphinx_respect": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How much does the sphinx respect the party?"
+    },
+    "q:sphinx_respect": {
+     "type": "score",
+     "instructions": "How much does the sphinx respect the party?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: none",
+      "1: wary",
+      "2: neutral",
+      "3: friendly",
+      "4: complete"
+     ]
+    },
+    "evidence:sphinx_respect": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How much does the sphinx respect the party?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:riddle_result": {
+     "type": "choice",
+     "choice": "solved in msg_11",
+     "confidence": 0.72,
+     "probabilities": {
+      "unanswered in msg_10": 0,
+      "unanswered in msg_11": 0,
+      "unanswered in msg_12": 0,
+      "solved in msg_10": 0,
+      "solved in msg_11": 0.75,
+      "solved in msg_12": 0.25,
+      "failed in msg_10": 0,
+      "failed in msg_11": 0,
+      "failed in msg_12": 0,
+      "not shown": 0
+     }
+    },
+    "q:riddles_failed": {
+     "type": "choice",
+     "choice": "\"two\" in msg_10",
+     "confidence": 0.82,
+     "probabilities": {
+      "\"two\" in msg_10": 0.88,
+      "\"once\" in msg_10": 0.01,
+      "none": 0.11
+     }
+    },
+    "presence:sphinx_respect": {
+     "type": "noul",
+     "noul": 0.85
+    },
+    "q:sphinx_respect": {
+     "type": "score",
+     "score": 3,
+     "confidence": 0.94,
+     "legend": {
+      "0": "0: none",
+      "1": "1: wary",
+      "2": "2: neutral",
+      "3": "3: friendly",
+      "4": "4: complete"
+     },
+     "probabilities": {
+      "0": 0,
+      "1": 0.01,
+      "2": 0.01,
+      "3": 0.94,
+      "4": 0.04
+     }
+    },
+    "evidence:sphinx_respect": {
+     "type": "choice",
+     "choice": "msg_12",
+     "confidence": 1,
+     "probabilities": {
+      "msg_10": 0,
+      "msg_11": 0,
+      "msg_12": 1
+     }
+    }
+   },
+   "latencyMs": 221
+  },
+  {
+   "id": "T11",
+   "state": {
+    "story": {
+     "title": "Ashes of Veldt",
+     "current_scene": "The Burned Village",
+     "scene_goal": "Search the village for survivors."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "DM Narrator",
+      "text": "Smoke still curls from the ruins. Of the twelve houses, nine are black shells."
+     },
+     {
+      "id": "msg_11",
+      "speaker": "Max",
+      "text": "I call out, listening for any answer."
+     },
+     {
+      "id": "msg_12",
+      "speaker": "DM Narrator",
+      "text": "Only the crackle of embers answers you."
+     }
+    ]
+   },
+   "questions": {
+    "q:survivor_found": {
+     "type": "choice",
+     "instructions": "Has the party found a survivor in the village?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "yes in msg_10": "The transcript shows the answer is yes",
+      "yes in msg_11": "The transcript shows the answer is yes",
+      "yes in msg_12": "The transcript shows the answer is yes",
+      "no in msg_10": "The transcript shows the answer is no",
+      "no in msg_11": "The transcript shows the answer is no",
+      "no in msg_12": "The transcript shows the answer is no",
+      "not shown": "The transcript does not settle the question"
+     }
+    },
+    "q:houses_burned": {
+     "type": "choice",
+     "instructions": "How many houses have burned down?\nWhich number mention in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"twelve\" in msg_10": "Smoke still curls from the ruins. Of the twelve houses, nine are black shells.",
+      "\"nine\" in msg_10": "still curls from the ruins. Of the twelve houses, nine are black shells.",
+      "none": "No number in the transcript gives this value"
+     }
+    },
+    "presence:party_morale": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: What is the party's morale?"
+    },
+    "q:party_morale": {
+     "type": "score",
+     "instructions": "What is the party's morale?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: broken",
+      "1: low",
+      "2: steady",
+      "3: high",
+      "4: elated"
+     ]
+    },
+    "evidence:party_morale": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: What is the party's morale?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:survivor_found": {
+     "type": "choice",
+     "choice": "no in msg_12",
+     "confidence": 0.95,
+     "probabilities": {
+      "yes in msg_10": 0,
+      "yes in msg_11": 0,
+      "yes in msg_12": 0,
+      "no in msg_10": 0,
+      "no in msg_11": 0,
+      "no in msg_12": 0.96,
+      "not shown": 0.04
+     }
+    },
+    "q:houses_burned": {
+     "type": "choice",
+     "choice": "\"nine\" in msg_10",
+     "confidence": 1,
+     "probabilities": {
+      "\"twelve\" in msg_10": 0,
+      "\"nine\" in msg_10": 1,
+      "none": 0
+     }
+    },
+    "presence:party_morale": {
+     "type": "noul",
+     "noul": 0.14
+    },
+    "q:party_morale": {
+     "type": "score",
+     "score": 1.54,
+     "confidence": 0.61,
+     "legend": {
+      "0": "0: broken",
+      "1": "1: low",
+      "2": "2: steady",
+      "3": "3: high",
+      "4": "4: elated"
+     },
+     "probabilities": {
+      "0": 0,
+      "1": 0.46,
+      "2": 0.53,
+      "3": 0.01,
+      "4": 0
+     }
+    },
+    "evidence:party_morale": {
+     "type": "choice",
+     "choice": "msg_12",
+     "confidence": 0.34,
+     "probabilities": {
+      "msg_10": 0.14,
+      "msg_11": 0.3,
+      "msg_12": 0.5599999999999999
+     }
+    }
+   },
+   "latencyMs": 250
+  },
+  {
+   "id": "T12",
+   "state": {
+    "story": {
+     "title": "Ashes of Veldt",
+     "current_scene": "The Ranger's Tower",
+     "scene_goal": "Convince the ranger to guide you."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "Ranger",
+      "text": "The ranger lowers her bow. \"Name's Sefa. I don't guide strangers.\""
+     },
+     {
+      "id": "msg_11",
+      "speaker": "Max",
+      "text": "\"The raiders who burned Veldt are heading for your valley next.\""
+     },
+     {
+      "id": "msg_12",
+      "speaker": "Ranger",
+      "text": "Sefa is quiet for a long moment. \"Fine. I'll take you as far as the pass. Don't make me regret it.\""
+     }
+    ]
+   },
+   "questions": {
+    "q:guide_agreed": {
+     "type": "choice",
+     "instructions": "Has the ranger agreed to guide the party?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "yes in msg_10": "The transcript shows the answer is yes",
+      "yes in msg_11": "The transcript shows the answer is yes",
+      "yes in msg_12": "The transcript shows the answer is yes",
+      "no in msg_10": "The transcript shows the answer is no",
+      "no in msg_11": "The transcript shows the answer is no",
+      "no in msg_12": "The transcript shows the answer is no",
+      "not shown": "The transcript does not settle the question"
+     }
+    },
+    "q:ranger_name": {
+     "type": "choice",
+     "instructions": "The ranger's name.\nWhich span in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"The\" in msg_10": "The ranger lowers her bow. \"Name's Sefa. I don't guid",
+      "\"Name\" in msg_10": "The ranger lowers her bow. \"Name's Sefa. I don't guide strangers.\"",
+      "\"Sefa\" in msg_10": "The ranger lowers her bow. \"Name's Sefa. I don't guide strangers.\"",
+      "\"Veldt\" in msg_11": "\"The raiders who burned Veldt are heading for your valley next.\"",
+      "\"Fine\" in msg_12": "Sefa is quiet for a long moment. \"Fine. I'll take you as far as the pass. Don't make me",
+      "\"Don\" in msg_12": "moment. \"Fine. I'll take you as far as the pass. Don't make me regret it.\"",
+      "none": "No span in the transcript gives this value"
+     }
+    },
+    "presence:ranger_trust": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How much does the ranger trust the party?"
+    },
+    "q:ranger_trust": {
+     "type": "score",
+     "instructions": "How much does the ranger trust the party?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: none",
+      "1: wary",
+      "2: neutral",
+      "3: friendly",
+      "4: complete"
+     ]
+    },
+    "evidence:ranger_trust": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How much does the ranger trust the party?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:guide_agreed": {
+     "type": "choice",
+     "choice": "yes in msg_12",
+     "confidence": 1,
+     "probabilities": {
+      "yes in msg_10": 0,
+      "yes in msg_11": 0,
+      "yes in msg_12": 1,
+      "no in msg_10": 0,
+      "no in msg_11": 0,
+      "no in msg_12": 0,
+      "not shown": 0
+     }
+    },
+    "q:ranger_name": {
+     "type": "choice",
+     "choice": "\"Sefa\" in msg_10",
+     "confidence": 0.88,
+     "probabilities": {
+      "\"The\" in msg_10": 0.01,
+      "\"Name\" in msg_10": 0.06,
+      "\"Sefa\" in msg_10": 0.9,
+      "\"Veldt\" in msg_11": 0,
+      "\"Fine\" in msg_12": 0.03,
+      "\"Don\" in msg_12": 0,
+      "none": 0
+     }
+    },
+    "presence:ranger_trust": {
+     "type": "noul",
+     "noul": 0.86
+    },
+    "q:ranger_trust": {
+     "type": "score",
+     "score": 1,
+     "confidence": 0.99,
+     "legend": {
+      "0": "0: none",
+      "1": "1: wary",
+      "2": "2: neutral",
+      "3": "3: friendly",
+      "4": "4: complete"
+     },
+     "probabilities": {
+      "0": 0.01,
+      "1": 0.99,
+      "2": 0,
+      "3": 0,
+      "4": 0
+     }
+    },
+    "evidence:ranger_trust": {
+     "type": "choice",
+     "choice": "msg_12",
+     "confidence": 0.94,
+     "probabilities": {
+      "msg_10": 0.04,
+      "msg_11": 0,
+      "msg_12": 0.96
+     }
+    }
+   },
+   "latencyMs": 204
+  },
+  {
+   "id": "T13",
+   "state": {
+    "story": {
+     "title": "The Clockwork Court",
+     "current_scene": "The Ballroom",
+     "scene_goal": "Find the forged invitation's source."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "DM Narrator",
+      "text": "You smooth the borrowed noble's coat and step into a ballroom crowded with perhaps forty guests."
+     },
+     {
+      "id": "msg_11",
+      "speaker": "Countess",
+      "text": "The countess glances at you, then away. \"Another cousin of the Marquis, I suppose. Enjoy the wine.\""
+     },
+     {
+      "id": "msg_12",
+      "speaker": "Max",
+      "text": "I take a glass and drift toward the musicians."
+     }
+    ]
+   },
+   "questions": {
+    "q:disguise": {
+     "type": "choice",
+     "instructions": "What disguise is the player wearing?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "none in msg_10": null,
+      "none in msg_11": null,
+      "none in msg_12": null,
+      "servant in msg_10": null,
+      "servant in msg_11": null,
+      "servant in msg_12": null,
+      "noble in msg_10": null,
+      "noble in msg_11": null,
+      "noble in msg_12": null,
+      "guard in msg_10": null,
+      "guard in msg_11": null,
+      "guard in msg_12": null,
+      "not shown": "The transcript does not settle this"
+     }
+    },
+    "q:guests_count": {
+     "type": "choice",
+     "instructions": "How many guests are in the ballroom?\nWhich number mention in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"forty\" in msg_10": "oat and step into a ballroom crowded with perhaps forty guests.",
+      "none": "No number in the transcript gives this value"
+     }
+    },
+    "presence:host_suspicion": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How suspicious is the host of the player?"
+    },
+    "q:host_suspicion": {
+     "type": "score",
+     "instructions": "How suspicious is the host of the player?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: unaware",
+      "1: curious",
+      "2: suspicious",
+      "3: alarmed"
+     ]
+    },
+    "evidence:host_suspicion": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How suspicious is the host of the player?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:disguise": {
+     "type": "choice",
+     "choice": "noble in msg_10",
+     "confidence": 0.92,
+     "probabilities": {
+      "none in msg_10": 0,
+      "none in msg_11": 0,
+      "none in msg_12": 0,
+      "servant in msg_10": 0,
+      "servant in msg_11": 0,
+      "servant in msg_12": 0,
+      "noble in msg_10": 0.93,
+      "noble in msg_11": 0.07,
+      "noble in msg_12": 0,
+      "guard in msg_10": 0,
+      "guard in msg_11": 0,
+      "guard in msg_12": 0,
+      "not shown": 0
+     }
+    },
+    "q:guests_count": {
+     "type": "choice",
+     "choice": "\"forty\" in msg_10",
+     "confidence": 0.98,
+     "probabilities": {
+      "\"forty\" in msg_10": 0.99,
+      "none": 0.01
+     }
+    },
+    "presence:host_suspicion": {
+     "type": "noul",
+     "noul": 0.32
+    },
+    "q:host_suspicion": {
+     "type": "score",
+     "score": 0.87,
+     "confidence": 0.14,
+     "legend": {
+      "0": "0: unaware",
+      "1": "1: curious",
+      "2": "2: suspicious",
+      "3": "3: alarmed"
+     },
+     "probabilities": {
+      "0": 0.4,
+      "1": 0.34,
+      "2": 0.26,
+      "3": 0
+     }
+    },
+    "evidence:host_suspicion": {
+     "type": "choice",
+     "choice": "msg_11",
+     "confidence": 1,
+     "probabilities": {
+      "msg_10": 0,
+      "msg_11": 1,
+      "msg_12": 0
+     }
+    }
+   },
+   "latencyMs": 197
+  },
+  {
+   "id": "T14",
+   "state": {
+    "story": {
+     "title": "The Clockwork Court",
+     "current_scene": "The Archive",
+     "scene_goal": "Copy the treaty before the guard returns."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "Max",
+      "text": "I copy as fast as I can, page after page."
+     },
+     {
+      "id": "msg_11",
+      "speaker": "DM Narrator",
+      "text": "Three pages done, three to go. Footsteps echo somewhere down the hall."
+     },
+     {
+      "id": "msg_12",
+      "speaker": "Max",
+      "text": "I keep writing."
+     }
+    ]
+   },
+   "questions": {
+    "q:treaty_copied": {
+     "type": "choice",
+     "instructions": "Has the player copied the treaty?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "yes in msg_10": "The transcript shows the answer is yes",
+      "yes in msg_11": "The transcript shows the answer is yes",
+      "yes in msg_12": "The transcript shows the answer is yes",
+      "no in msg_10": "The transcript shows the answer is no",
+      "no in msg_11": "The transcript shows the answer is no",
+      "no in msg_12": "The transcript shows the answer is no",
+      "not shown": "The transcript does not settle the question"
+     }
+    },
+    "q:pages_copied": {
+     "type": "choice",
+     "instructions": "How many treaty pages has the player copied?\nWhich number mention in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"Three\" in msg_11": "Three pages done, three to go. Footsteps echo somewhere",
+      "\"three\" in msg_11": "Three pages done, three to go. Footsteps echo somewhere down the hall.",
+      "none": "No number in the transcript gives this value"
+     }
+    },
+    "presence:copy_progress": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How far along is the copying of the treaty?"
+    },
+    "q:copy_progress": {
+     "type": "score",
+     "instructions": "How far along is the copying of the treaty?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: not started",
+      "1: begun",
+      "2: halfway",
+      "3: nearly done",
+      "4: finished"
+     ]
+    },
+    "evidence:copy_progress": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How far along is the copying of the treaty?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:treaty_copied": {
+     "type": "choice",
+     "choice": "no in msg_11",
+     "confidence": 0.66,
+     "probabilities": {
+      "yes in msg_10": 0,
+      "yes in msg_11": 0.01,
+      "yes in msg_12": 0,
+      "no in msg_10": 0.03,
+      "no in msg_11": 0.71,
+      "no in msg_12": 0.21,
+      "not shown": 0.04
+     }
+    },
+    "q:pages_copied": {
+     "type": "choice",
+     "choice": "\"three\" in msg_11",
+     "confidence": 0.31,
+     "probabilities": {
+      "\"Three\" in msg_11": 0.45,
+      "\"three\" in msg_11": 0.54,
+      "none": 0.01
+     }
+    },
+    "presence:copy_progress": {
+     "type": "noul",
+     "noul": 0.95
+    },
+    "q:copy_progress": {
+     "type": "score",
+     "score": 2,
+     "confidence": 0.97,
+     "legend": {
+      "0": "0: not started",
+      "1": "1: begun",
+      "2": "2: halfway",
+      "3": "3: nearly done",
+      "4": "4: finished"
+     },
+     "probabilities": {
+      "0": 0,
+      "1": 0.02,
+      "2": 0.96,
+      "3": 0.02,
+      "4": 0
+     }
+    },
+    "evidence:copy_progress": {
+     "type": "choice",
+     "choice": "msg_11",
+     "confidence": 1,
+     "probabilities": {
+      "msg_10": 0,
+      "msg_11": 1,
+      "msg_12": 0
+     }
+    }
+   },
+   "latencyMs": 200
+  },
+  {
+   "id": "T15",
+   "state": {
+    "story": {
+     "title": "Deep Water",
+     "current_scene": "The Dive Boat",
+     "scene_goal": "Prepare for the wreck dive."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "Captain",
+      "text": "Captain Rook taps the gauges. \"Five tanks. That's all we have. Weather looks fine.\""
+     },
+     {
+      "id": "msg_11",
+      "speaker": "Max",
+      "text": "I check my regulator and mask."
+     },
+     {
+      "id": "msg_12",
+      "speaker": "Captain",
+      "text": "\"Take your time. No rush today.\""
+     }
+    ]
+   },
+   "questions": {
+    "q:dive_started": {
+     "type": "choice",
+     "instructions": "Has the dive started?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "yes in msg_10": "The transcript shows the answer is yes",
+      "yes in msg_11": "The transcript shows the answer is yes",
+      "yes in msg_12": "The transcript shows the answer is yes",
+      "no in msg_10": "The transcript shows the answer is no",
+      "no in msg_11": "The transcript shows the answer is no",
+      "no in msg_12": "The transcript shows the answer is no",
+      "not shown": "The transcript does not settle the question"
+     }
+    },
+    "q:air_tanks": {
+     "type": "choice",
+     "instructions": "How many air tanks are aboard?\nWhich number mention in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"Five\" in msg_10": "Captain Rook taps the gauges. \"Five tanks. That's all we have. Weather looks fine.\"",
+      "none": "No number in the transcript gives this value"
+     }
+    },
+    "presence:captain_fear": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How afraid is the captain?"
+    },
+    "q:captain_fear": {
+     "type": "score",
+     "instructions": "How afraid is the captain?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: calm",
+      "1: uneasy",
+      "2: afraid",
+      "3: terrified"
+     ]
+    },
+    "evidence:captain_fear": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How afraid is the captain?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:dive_started": {
+     "type": "choice",
+     "choice": "no in msg_12",
+     "confidence": 0.59,
+     "probabilities": {
+      "yes in msg_10": 0,
+      "yes in msg_11": 0,
+      "yes in msg_12": 0,
+      "no in msg_10": 0.06,
+      "no in msg_11": 0.22,
+      "no in msg_12": 0.65,
+      "not shown": 0.07
+     }
+    },
+    "q:air_tanks": {
+     "type": "choice",
+     "choice": "\"Five\" in msg_10",
+     "confidence": 1,
+     "probabilities": {
+      "\"Five\" in msg_10": 1,
+      "none": 0
+     }
+    },
+    "presence:captain_fear": {
+     "type": "noul",
+     "noul": 0.3
+    },
+    "q:captain_fear": {
+     "type": "score",
+     "score": 0.01,
+     "confidence": 0.99,
+     "legend": {
+      "0": "0: calm",
+      "1": "1: uneasy",
+      "2": "2: afraid",
+      "3": "3: terrified"
+     },
+     "probabilities": {
+      "0": 0.99,
+      "1": 0.01,
+      "2": 0,
+      "3": 0
+     }
+    },
+    "evidence:captain_fear": {
+     "type": "choice",
+     "choice": "msg_12",
+     "confidence": 0.82,
+     "probabilities": {
+      "msg_10": 0.12,
+      "msg_11": 0,
+      "msg_12": 0.88
+     }
+    }
+   },
+   "latencyMs": 199
+  },
+  {
+   "id": "T16",
+   "state": {
+    "story": {
+     "title": "Deep Water",
+     "current_scene": "The Wreck",
+     "scene_goal": "Recover the ship's bell."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "DM Narrator",
+      "text": "At thirty meters the wreck looms out of the blue. A grey shark circles once, lazily, then drifts away."
+     },
+     {
+      "id": "msg_11",
+      "speaker": "Max",
+      "text": "I swim to the bow and pry at the bell's mount."
+     },
+     {
+      "id": "msg_12",
+      "speaker": "DM Narrator",
+      "text": "The bell comes free in a cloud of silt. You clip it to your line."
+     }
+    ]
+   },
+   "questions": {
+    "q:bell_recovered": {
+     "type": "choice",
+     "instructions": "Has the party recovered the ship's bell?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "yes in msg_10": "The transcript shows the answer is yes",
+      "yes in msg_11": "The transcript shows the answer is yes",
+      "yes in msg_12": "The transcript shows the answer is yes",
+      "no in msg_10": "The transcript shows the answer is no",
+      "no in msg_11": "The transcript shows the answer is no",
+      "no in msg_12": "The transcript shows the answer is no",
+      "not shown": "The transcript does not settle the question"
+     }
+    },
+    "q:depth_meters": {
+     "type": "choice",
+     "instructions": "At what depth in meters is the wreck?\nWhich number mention in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"thirty\" in msg_10": "At thirty meters the wreck looms out of the blue. A grey sh",
+      "\"once\" in msg_10": "wreck looms out of the blue. A grey shark circles once, lazily, then drifts away.",
+      "none": "No number in the transcript gives this value"
+     }
+    },
+    "presence:diver_alert": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How alert is the shark circling the wreck?"
+    },
+    "q:diver_alert": {
+     "type": "score",
+     "instructions": "How alert is the shark circling the wreck?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: unaware",
+      "1: curious",
+      "2: suspicious",
+      "3: alarmed"
+     ]
+    },
+    "evidence:diver_alert": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How alert is the shark circling the wreck?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:bell_recovered": {
+     "type": "choice",
+     "choice": "yes in msg_12",
+     "confidence": 1,
+     "probabilities": {
+      "yes in msg_10": 0,
+      "yes in msg_11": 0,
+      "yes in msg_12": 1,
+      "no in msg_10": 0,
+      "no in msg_11": 0,
+      "no in msg_12": 0,
+      "not shown": 0
+     }
+    },
+    "q:depth_meters": {
+     "type": "choice",
+     "choice": "\"thirty\" in msg_10",
+     "confidence": 0.98,
+     "probabilities": {
+      "\"thirty\" in msg_10": 0.99,
+      "\"once\" in msg_10": 0,
+      "none": 0.01
+     }
+    },
+    "presence:diver_alert": {
+     "type": "noul",
+     "noul": 0.75
+    },
+    "q:diver_alert": {
+     "type": "score",
+     "score": 0.54,
+     "confidence": 0.52,
+     "legend": {
+      "0": "0: unaware",
+      "1": "1: curious",
+      "2": "2: suspicious",
+      "3": "3: alarmed"
+     },
+     "probabilities": {
+      "0": 0.47,
+      "1": 0.52,
+      "2": 0.01,
+      "3": 0
+     }
+    },
+    "evidence:diver_alert": {
+     "type": "choice",
+     "choice": "msg_10",
+     "confidence": 1,
+     "probabilities": {
+      "msg_10": 1,
+      "msg_11": 0,
+      "msg_12": 0
+     }
+    }
+   },
+   "latencyMs": 244
+  },
+  {
+   "id": "T17",
+   "state": {
+    "story": {
+     "title": "Lanterns of Oru",
+     "current_scene": "The Market",
+     "scene_goal": "Buy a lantern from the old maker."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "Lantern Maker",
+      "text": "\"Twelve coins for the blue one. It never goes out.\""
+     },
+     {
+      "id": "msg_11",
+      "speaker": "Max",
+      "text": "I count out twelve coins and hand them over."
+     },
+     {
+      "id": "msg_12",
+      "speaker": "Lantern Maker",
+      "text": "She smiles and wraps it in cloth. \"Come back anytime, friend.\""
+     }
+    ]
+   },
+   "questions": {
+    "q:lantern_bought": {
+     "type": "choice",
+     "instructions": "Did the player buy a lantern?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "yes in msg_10": "The transcript shows the answer is yes",
+      "yes in msg_11": "The transcript shows the answer is yes",
+      "yes in msg_12": "The transcript shows the answer is yes",
+      "no in msg_10": "The transcript shows the answer is no",
+      "no in msg_11": "The transcript shows the answer is no",
+      "no in msg_12": "The transcript shows the answer is no",
+      "not shown": "The transcript does not settle the question"
+     }
+    },
+    "q:price_paid": {
+     "type": "choice",
+     "instructions": "How many coins did the player pay?\nWhich number mention in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"Twelve\" in msg_10": "\"Twelve coins for the blue one. It never goes out.\"",
+      "\"one\" in msg_10": "\"Twelve coins for the blue one. It never goes out.\"",
+      "\"twelve\" in msg_11": "I count out twelve coins and hand them over.",
+      "none": "No number in the transcript gives this value"
+     }
+    },
+    "presence:maker_trust": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How much does the lantern maker trust the player?"
+    },
+    "q:maker_trust": {
+     "type": "score",
+     "instructions": "How much does the lantern maker trust the player?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: none",
+      "1: wary",
+      "2: neutral",
+      "3: friendly",
+      "4: complete"
+     ]
+    },
+    "evidence:maker_trust": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How much does the lantern maker trust the player?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:lantern_bought": {
+     "type": "choice",
+     "choice": "yes in msg_11",
+     "confidence": 0.95,
+     "probabilities": {
+      "yes in msg_10": 0,
+      "yes in msg_11": 0.96,
+      "yes in msg_12": 0.04,
+      "no in msg_10": 0,
+      "no in msg_11": 0,
+      "no in msg_12": 0,
+      "not shown": 0
+     }
+    },
+    "q:price_paid": {
+     "type": "choice",
+     "choice": "\"twelve\" in msg_11",
+     "confidence": 0.99,
+     "probabilities": {
+      "\"Twelve\" in msg_10": 0.01,
+      "\"one\" in msg_10": 0,
+      "\"twelve\" in msg_11": 0.99,
+      "none": 0
+     }
+    },
+    "presence:maker_trust": {
+     "type": "noul",
+     "noul": 0.59
+    },
+    "q:maker_trust": {
+     "type": "score",
+     "score": 2.99,
+     "confidence": 0.95,
+     "legend": {
+      "0": "0: none",
+      "1": "1: wary",
+      "2": "2: neutral",
+      "3": "3: friendly",
+      "4": "4: complete"
+     },
+     "probabilities": {
+      "0": 0.01,
+      "1": 0,
+      "2": 0.01,
+      "3": 0.96,
+      "4": 0.02
+     }
+    },
+    "evidence:maker_trust": {
+     "type": "choice",
+     "choice": "msg_12",
+     "confidence": 0.97,
+     "probabilities": {
+      "msg_10": 0.02,
+      "msg_11": 0,
+      "msg_12": 0.98
+     }
+    }
+   },
+   "latencyMs": 208
+  },
+  {
+   "id": "T18",
+   "state": {
+    "story": {
+     "title": "Lanterns of Oru",
+     "current_scene": "The Bridge",
+     "scene_goal": "Cross the rope bridge."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "Keeper",
+      "text": "The keeper blocks the bridge. \"Password.\""
+     },
+     {
+      "id": "msg_11",
+      "speaker": "Max",
+      "text": "\"Moonwater.\""
+     },
+     {
+      "id": "msg_12",
+      "speaker": "Keeper",
+      "text": "\"Wrong. Go back.\" Behind him, the ropes creak; several strands have already snapped."
+     }
+    ]
+   },
+   "questions": {
+    "q:bridge_state": {
+     "type": "choice",
+     "instructions": "What state is the rope bridge in?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "intact in msg_10": null,
+      "intact in msg_11": null,
+      "intact in msg_12": null,
+      "fraying in msg_10": null,
+      "fraying in msg_11": null,
+      "fraying in msg_12": null,
+      "broken in msg_10": null,
+      "broken in msg_11": null,
+      "broken in msg_12": null,
+      "not shown": "The transcript does not settle this"
+     }
+    },
+    "q:password": {
+     "type": "choice",
+     "instructions": "The password the bridge keeper asks for, if any.\nWhich span in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"The\" in msg_10": "The keeper blocks the bridge. \"Password.\"",
+      "\"Password\" in msg_10": "The keeper blocks the bridge. \"Password.\"",
+      "\"Moonwater\" in msg_11": "\"Moonwater.\"",
+      "\"Wrong\" in msg_12": "\"Wrong. Go back.\" Behind him, the ropes creak; several s",
+      "\"Behind\" in msg_12": "\"Wrong. Go back.\" Behind him, the ropes creak; several strands have alread",
+      "none": "No span in the transcript gives this value"
+     }
+    },
+    "presence:keeper_mood": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How is the keeper's mood, from 0 (hostile) to 4 (warm)?"
+    },
+    "q:keeper_mood": {
+     "type": "score",
+     "instructions": "How is the keeper's mood, from 0 (hostile) to 4 (warm)?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: hostile",
+      "1",
+      "2",
+      "3",
+      "4: warm"
+     ]
+    },
+    "evidence:keeper_mood": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How is the keeper's mood, from 0 (hostile) to 4 (warm)?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:bridge_state": {
+     "type": "choice",
+     "choice": "fraying in msg_12",
+     "confidence": 0.82,
+     "probabilities": {
+      "intact in msg_10": 0,
+      "intact in msg_11": 0,
+      "intact in msg_12": 0,
+      "fraying in msg_10": 0,
+      "fraying in msg_11": 0,
+      "fraying in msg_12": 0.84,
+      "broken in msg_10": 0,
+      "broken in msg_11": 0,
+      "broken in msg_12": 0.16,
+      "not shown": 0
+     }
+    },
+    "q:password": {
+     "type": "choice",
+     "choice": "none",
+     "confidence": 0.42,
+     "probabilities": {
+      "\"The\" in msg_10": 0,
+      "\"Password\" in msg_10": 0.05,
+      "\"Moonwater\" in msg_11": 0.42,
+      "\"Wrong\" in msg_12": 0.01,
+      "\"Behind\" in msg_12": 0,
+      "none": 0.52
+     }
+    },
+    "presence:keeper_mood": {
+     "type": "noul",
+     "noul": 0.82
+    },
+    "q:keeper_mood": {
+     "type": "score",
+     "score": 0.18,
+     "confidence": 0.86,
+     "legend": {
+      "0": "0: hostile",
+      "1": "1",
+      "2": "2",
+      "3": "3",
+      "4": "4: warm"
+     },
+     "probabilities": {
+      "0": 0.83,
+      "1": 0.17,
+      "2": 0,
+      "3": 0,
+      "4": 0
+     }
+    },
+    "evidence:keeper_mood": {
+     "type": "choice",
+     "choice": "msg_12",
+     "confidence": 0.66,
+     "probabilities": {
+      "msg_10": 0.23,
+      "msg_11": 0,
+      "msg_12": 0.77
+     }
+    }
+   },
+   "latencyMs": 207
+  },
+  {
+   "id": "T19",
+   "state": {
+    "story": {
+     "title": "The Hollow Crown",
+     "current_scene": "The Throne Room",
+     "scene_goal": "Present the evidence to the queen."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "DM Narrator",
+      "text": "The queen sits beneath the hollow crown, flanked by four guards."
+     },
+     {
+      "id": "msg_11",
+      "speaker": "Max",
+      "text": "I keep the letter hidden in my sleeve and bow. \"Your Majesty.\""
+     },
+     {
+      "id": "msg_12",
+      "speaker": "Queen",
+      "text": "\"Speak, then. You have one minute.\""
+     }
+    ]
+   },
+   "questions": {
+    "q:evidence_shown": {
+     "type": "choice",
+     "instructions": "Has the player shown the evidence to the queen?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "yes in msg_10": "The transcript shows the answer is yes",
+      "yes in msg_11": "The transcript shows the answer is yes",
+      "yes in msg_12": "The transcript shows the answer is yes",
+      "no in msg_10": "The transcript shows the answer is no",
+      "no in msg_11": "The transcript shows the answer is no",
+      "no in msg_12": "The transcript shows the answer is no",
+      "not shown": "The transcript does not settle the question"
+     }
+    },
+    "q:guards_present": {
+     "type": "choice",
+     "instructions": "How many guards are present?\nWhich number mention in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"four\" in msg_10": "e queen sits beneath the hollow crown, flanked by four guards.",
+      "\"one\" in msg_12": "\"Speak, then. You have one minute.\"",
+      "none": "No number in the transcript gives this value"
+     }
+    },
+    "presence:queen_trust": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How much does the queen trust the player?"
+    },
+    "q:queen_trust": {
+     "type": "score",
+     "instructions": "How much does the queen trust the player?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: none",
+      "1: wary",
+      "2: neutral",
+      "3: friendly",
+      "4: complete"
+     ]
+    },
+    "evidence:queen_trust": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How much does the queen trust the player?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:evidence_shown": {
+     "type": "choice",
+     "choice": "no in msg_11",
+     "confidence": 0.89,
+     "probabilities": {
+      "yes in msg_10": 0,
+      "yes in msg_11": 0,
+      "yes in msg_12": 0,
+      "no in msg_10": 0,
+      "no in msg_11": 0.91,
+      "no in msg_12": 0.04,
+      "not shown": 0.05
+     }
+    },
+    "q:guards_present": {
+     "type": "choice",
+     "choice": "\"four\" in msg_10",
+     "confidence": 1,
+     "probabilities": {
+      "\"four\" in msg_10": 1,
+      "\"one\" in msg_12": 0,
+      "none": 0
+     }
+    },
+    "presence:queen_trust": {
+     "type": "noul",
+     "noul": 0.47
+    },
+    "q:queen_trust": {
+     "type": "score",
+     "score": 1.21,
+     "confidence": 0.75,
+     "legend": {
+      "0": "0: none",
+      "1": "1: wary",
+      "2": "2: neutral",
+      "3": "3: friendly",
+      "4": "4: complete"
+     },
+     "probabilities": {
+      "0": 0.05,
+      "1": 0.7,
+      "2": 0.25,
+      "3": 0,
+      "4": 0
+     }
+    },
+    "evidence:queen_trust": {
+     "type": "choice",
+     "choice": "msg_12",
+     "confidence": 0.94,
+     "probabilities": {
+      "msg_10": 0.03,
+      "msg_11": 0.01,
+      "msg_12": 0.96
+     }
+    }
+   },
+   "latencyMs": 211
+  },
+  {
+   "id": "T20",
+   "state": {
+    "story": {
+     "title": "The Hollow Crown",
+     "current_scene": "The Dungeon",
+     "scene_goal": "Free the prisoner."
+    },
+    "transcript": [
+     {
+      "id": "msg_10",
+      "speaker": "Max",
+      "text": "I try the first of the two keys in the lock."
+     },
+     {
+      "id": "msg_11",
+      "speaker": "DM Narrator",
+      "text": "It turns. The cell door swings open."
+     },
+     {
+      "id": "msg_12",
+      "speaker": "Prisoner",
+      "text": "The prisoner stumbles out, sobbing with relief. \"Thank you. Thank you. I thought I'd die here.\""
+     }
+    ]
+   },
+   "questions": {
+    "q:prisoner_freed": {
+     "type": "choice",
+     "instructions": "Has the prisoner been freed?\nChoose the value and the message in `transcript` that shows it.",
+     "criteria": {
+      "yes in msg_10": "The transcript shows the answer is yes",
+      "yes in msg_11": "The transcript shows the answer is yes",
+      "yes in msg_12": "The transcript shows the answer is yes",
+      "no in msg_10": "The transcript shows the answer is no",
+      "no in msg_11": "The transcript shows the answer is no",
+      "no in msg_12": "The transcript shows the answer is no",
+      "not shown": "The transcript does not settle the question"
+     }
+    },
+    "q:keys_held": {
+     "type": "choice",
+     "instructions": "How many keys does the player hold?\nWhich number mention in `transcript` gives this value as it stands at the end of the transcript? Pick \"none\" if no mention gives it.",
+     "criteria": {
+      "\"two\" in msg_10": "I try the first of the two keys in the lock.",
+      "none": "No number in the transcript gives this value"
+     }
+    },
+    "presence:prisoner_fear": {
+     "type": "noul",
+     "instructions": "Does `transcript` show anything that reveals or changes the answer to this question: How afraid is the prisoner?"
+    },
+    "q:prisoner_fear": {
+     "type": "score",
+     "instructions": "How afraid is the prisoner?\nJudge only from what `transcript` shows.",
+     "criteria": [
+      "0: calm",
+      "1: uneasy",
+      "2: afraid",
+      "3: terrified"
+     ]
+    },
+    "evidence:prisoner_fear": {
+     "type": "choice",
+     "instructions": "Which message in `transcript` shows the answer to this question: How afraid is the prisoner?",
+     "criteria": {
+      "msg_10": null,
+      "msg_11": null,
+      "msg_12": null
+     }
+    }
+   },
+   "answers": {
+    "q:prisoner_freed": {
+     "type": "choice",
+     "choice": "yes in msg_12",
+     "confidence": 0.44,
+     "probabilities": {
+      "yes in msg_10": 0,
+      "yes in msg_11": 0.48,
+      "yes in msg_12": 0.52,
+      "no in msg_10": 0,
+      "no in msg_11": 0,
+      "no in msg_12": 0,
+      "not shown": 0
+     }
+    },
+    "q:keys_held": {
+     "type": "choice",
+     "choice": "\"two\" in msg_10",
+     "confidence": 0.78,
+     "probabilities": {
+      "\"two\" in msg_10": 0.89,
+      "none": 0.11
+     }
+    },
+    "presence:prisoner_fear": {
+     "type": "noul",
+     "noul": 0.88
+    },
+    "q:prisoner_fear": {
+     "type": "score",
+     "score": 2.4,
+     "confidence": 0.41,
+     "legend": {
+      "0": "0: calm",
+      "1": "1: uneasy",
+      "2": "2: afraid",
+      "3": "3: terrified"
+     },
+     "probabilities": {
+      "0": 0.08,
+      "1": 0.03,
+      "2": 0.29,
+      "3": 0.6
+     }
+    },
+    "evidence:prisoner_fear": {
+     "type": "choice",
+     "choice": "msg_12",
+     "confidence": 1,
+     "probabilities": {
+      "msg_10": 0,
+      "msg_11": 0,
+      "msg_12": 1
+     }
+    }
+   },
+   "latencyMs": 210
+  }
+ ]
+}
