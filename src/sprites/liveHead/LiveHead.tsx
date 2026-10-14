@@ -9,6 +9,8 @@ import { headImage } from "./load";
 import { attachHead } from "./mount";
 import type { DrawnSource } from "./drawn";
 import { decodeBytes } from "./synthesis/decode";
+import { HeadRenderer } from "./renderer";
+import { DEFAULT_MOUTH_CONFIG, type MouthConfig } from "../mouthConfig";
 
 export interface LiveHeadProps {
   binding: LiveHeadRef;
@@ -21,6 +23,7 @@ export interface LiveHeadProps {
   mouth: boolean;
   beginRun(): RunGuard;
   drawn?: DrawnSource;
+  mouthConfig?: MouthConfig;
   style?: React.CSSProperties;
 }
 
@@ -33,8 +36,9 @@ export function LiveHead(props: LiveHeadProps) {
   const { beginRun } = props;
   const { member, look, artHash, source, manifest } = props.binding;
   const drawnKey = props.drawn ? JSON.stringify(props.drawn) : "";
+  const mouthConfig = props.mouthConfig ?? DEFAULT_MOUTH_CONFIG;
   const revision = useRef(0);
-  const canvasKey = useMemo(() => ++revision.current, [member, look, artHash, source, manifest, beginRun, drawnKey]);
+  const canvasKey = useMemo(() => ++revision.current, [member, look, artHash, source, manifest, beginRun, drawnKey, mouthConfig]);
   useEffect(() => {
     const binding = { member, look, artHash, source, manifest };
     const element = canvas.current;
@@ -61,18 +65,22 @@ export function LiveHead(props: LiveHeadProps) {
       const current = latest.current;
       const speaking = current.activity.view() === current.name, p = driver.drive(performance.now() - start, current.label, speaking, current.motion,
         current.breathing, current.blink, current.mouth);
-      return speaking && current.motion && current.mouth ? visemeMouth(p, current.activity.mouth(current.name)) : p;
-    }, visible, undefined, drawnKey ? { source: JSON.parse(drawnKey) as DrawnSource, deps: drawnDeps, report: (set, error) => {
+      return speaking && current.motion && current.mouth ? visemeMouth(p, current.activity.mouth(current.name), mouthConfig) : p;
+    }, visible, (target, prepared) => new HeadRenderer(target, prepared, mouthConfig), drawnKey ? { source: JSON.parse(drawnKey) as DrawnSource, deps: drawnDeps, report: (set, error) => {
       if (!live) return;
       element.dataset.liveHeadDrawn = set?.sprites.map((sprite) => sprite.name).join(" ") || "none";
       if (set?.refused.length || error) log.debug("Live head drawn frames partly refused", set?.refused ?? error);
-    } } : undefined).then((stop) => {
+    } } : undefined, (mode, problem) => {
+      if (!live) return;
+      element.dataset.liveHeadMouth = mode;
+      if (problem) log.debug("Live head mouth kept still", problem);
+    }).then((stop) => {
       clearTimeout(timeout);
       if (run.stillOwns()) dispose = stop;
       else stop?.();
     }).catch(() => { clearTimeout(timeout); abort.abort(); visible(false); owner.release(); });
     return () => { dispose?.(); visible(false); live = false; clearTimeout(timeout); abort.abort(); owner.signal.removeEventListener("abort", onOwnerAbort); owner.release(); };
-  }, [member, look, artHash, source, manifest, beginRun, drawnKey]);
+  }, [member, look, artHash, source, manifest, beginRun, drawnKey, mouthConfig]);
   const { activity, mouth } = props;
   useEffect(() => { if (mouth) void activity.visemes(); }, [activity, mouth]);
   return <canvas key={canvasKey} ref={canvas} className="so-live-head" aria-hidden="true" style={{ ...props.style, visibility: "hidden" }} />;

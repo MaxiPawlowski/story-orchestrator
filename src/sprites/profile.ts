@@ -1,4 +1,5 @@
 import { isRecord } from "@utils/guards";
+import { FRAME_KIND_PATTERN } from "./frameKeys";
 
 export interface SpriteLabel {
   what: string;
@@ -51,7 +52,7 @@ export function spriteFileName(path: string): string {
   }
 }
 
-const FRAME_SUFFIX = /[.-](blink|talk2|talk)$/i;
+const FRAME_SUFFIX = new RegExp("[.-](" + FRAME_KIND_PATTERN + ")$", "i");
 
 const baseRank = (file: SpriteFile): number | null => {
   const name = spriteFileName(file.path).toLowerCase();

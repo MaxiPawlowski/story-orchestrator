@@ -87,6 +87,7 @@ export class FakeWebGl {
   }
   getUniformLocation(_program: unknown, name: string) { return name; }
   private uniform(name: string | null, values: number[]) { if (name) this.uniformValues.set(name, values); }
+  uniformValue(name: string): number[] | undefined { return this.uniformValues.get(name); }
   uniform1i(at: string, x: number) { this.uniform(at, [x]); }
   uniform1f(at: string, x: number) { this.uniform(at, [x]); }
   uniform2f(at: string, x: number, y: number) { this.uniform(at, [x, y]); }

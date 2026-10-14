@@ -37,10 +37,10 @@ const guard = (check = () => true): RunGuard => ({ signal: new AbortController()
 
 describe("cutting plan 19 frames into drawn sprites", () => {
   const art = syntheticArt(), frames = syntheticFrames(art, rig);
-  test("blink and both talk frames become per-eye closed sprites and two mouths, premultiplied", () => {
+  test("blink and the four mouth frames become per-eye closed sprites and four mouths, premultiplied", () => {
     const { sprites, refused } = cutDrawn(rig, art, frames);
     expect(refused).toEqual([]);
-    expect(sprites.map((sprite) => sprite.name)).toEqual(["eyes_closed_0", "eyes_closed_1", "mouth_talk", "mouth_talk2"]);
+    expect(sprites.map((sprite) => sprite.name)).toEqual(["eyes_closed_0", "eyes_closed_1", "mouth_talk", "mouth_talk2", "mouth_o", "mouth_wide"]);
     for (const sprite of sprites) {
       expect(sprite.pixels.length).toBe(sprite.rect[2] * sprite.rect[3] * 4);
       for (let i = 0; i < sprite.pixels.length; i += 4) expect(Math.max(sprite.pixels[i], sprite.pixels[i + 1], sprite.pixels[i + 2])).toBeLessThanOrEqual(sprite.pixels[i + 3]);
@@ -53,9 +53,17 @@ describe("cutting plan 19 frames into drawn sprites", () => {
     const box = { x: 30, y: 12, width: rig.image.width, height: rig.image.height };
     const full = Object.fromEntries(Object.entries(frames).map(([key, image]) => [key, pad(image, box, 200, 240)]));
     expect(cutDrawn(rig, art, full, box).sprites.map((sprite) => sprite.pixels)).toEqual(cutDrawn(rig, art, frames).sprites.map((sprite) => sprite.pixels));
-    expect(cutDrawn(rig, art, full).refused).toEqual(["blink: frame size differs from the rig artwork", "talk: frame size differs from the rig artwork", "talk2: frame size differs from the rig artwork"]);
+    expect(cutDrawn(rig, art, full).refused).toEqual(["blink", "talk", "talk2", "mouth_o", "mouth_wide"].map((key) => `${key}: frame size differs from the rig artwork`));
     expect(cutDrawn(rig, art, full, { ...box, width: 100 }).sprites).toEqual([]);
     expect(cutDrawn(rig, art, full, { ...box, x: 150 }).refused[0]).toBe("blink: head box falls outside the frame");
+  });
+  test("the rounded and wide mouth frames pass the same guard: a drifting or empty shape is refused, the rest kept", () => {
+    const empty: PixelImage = { ...art, data: new Uint8ClampedArray(art.data.length) };
+    const tinted: PixelImage = { ...frames.mouth_o, data: frames.mouth_o.data.map((value, at) => at % 4 === 3 ? (value ? 255 : 0) : Math.min(255, value + 80)) };
+    const result = cutDrawn(rig, art, { talk: frames.talk, mouth_o: tinted, mouth_wide: empty });
+    expect(result.sprites.map((sprite) => sprite.name)).toEqual(["mouth_talk"]);
+    expect(result.refused[0]).toMatch(/^mouth_o: mouth edge drifts/);
+    expect(result.refused[1]).toBe("mouth_wide: frame has no mouth near the rig's mouth");
   });
   test("a frame whose edge drifts from the artwork is refused; a missing eye or mouth is refused, the rest kept", () => {
     const moved = cutDrawn(rig, art, { blink: shift(frames.blink, 3), talk: frames.talk });
@@ -73,8 +81,11 @@ describe("cutting plan 19 frames into drawn sprites", () => {
       drawnLineage("a".repeat(64), source, { blink: { path: "/b/neutral.blink.png", sha256: "1" }, talk: { path: "/a/neutral.talk.png", sha256: "2" } }),
       drawnLineage("a".repeat(64), source, { blink: { path: "/a/neutral.blink.png", sha256: "1" } }),
       drawnLineage("a".repeat(64), { ...source, box: { x: 1, y: 0, width: 128, height: 192 } }, { blink: { path: "/a/neutral.blink.png", sha256: "1" }, talk: { path: "/a/neutral.talk.png", sha256: "2" } }),
+      drawnLineage("a".repeat(64), source, { blink: { path: "/a/neutral.blink.png", sha256: "1" }, talk: { path: "/a/neutral.talk.png", sha256: "2" }, mouth_o: { path: "/a/neutral.mouth_o.png", sha256: "3" } }),
+      drawnLineage("a".repeat(64), source, { blink: { path: "/a/neutral.blink.png", sha256: "1" }, talk: { path: "/a/neutral.talk.png", sha256: "2" }, mouth_wide: { path: "/a/neutral.mouth_wide.png", sha256: "3" } }),
     ];
-    expect(new Set([base, ...variants]).size).toBe(6);
+    expect(new Set([base, ...variants]).size).toBe(8);
+    expect(JSON.parse(base).recipe).toEqual({ id: "live-head-drawn-frames", version: 2 });
   });
 });
 
@@ -133,6 +144,25 @@ describe("drawn frame selection", () => {
     expect(new DrawnDirector(new Set<DrawnName>(["mouth_talk"])).update(p({ mouthOpen: 0.3 }), 16)).toMatchObject({ mouth: "mouth_talk", squash: 0.5 });
     expect(new DrawnDirector(new Set<DrawnName>(["eyes_closed_0"])).update(p({ mouthOpen: 0.3 }), 16)).toMatchObject({ mouth: null, shaderMouth: 0.3 });
   });
+  test("with all four mouth drawings each vowel takes its own shape: ee wide, oh and oo rounded, eh and half open on the half frame", () => {
+    const names = new Set<DrawnName>(["eyes_closed_0", "eyes_closed_1", "mouth_talk", "mouth_talk2", "mouth_o", "mouth_wide"]);
+    const pick = (open: number, form: number) => new DrawnDirector(names).update(p({ mouthOpen: open, mouthForm: form }), 16);
+    expect(pick(0.5, -0.85)).toMatchObject({ mouth: "mouth_wide", squash: 0.5 / 0.55 });
+    expect(pick(0.75, 0.6)).toMatchObject({ mouth: "mouth_o", squash: 1, width: 1 });
+    expect(pick(0.4, 0.9)).toMatchObject({ mouth: "mouth_o", width: 0.78 });
+    expect(pick(0.62, -0.4)).toMatchObject({ mouth: "mouth_talk2", width: 1.06 });
+    expect(pick(0.9, 0)).toMatchObject({ mouth: "mouth_talk", shaderMouth: 0 });
+    expect(pick(0.4, 0)).toMatchObject({ mouth: "mouth_talk2" });
+  });
+  test("a missing shape falls back to the nearest drawing, then to the mesh", () => {
+    const only = (...list: DrawnName[]) => new DrawnDirector(new Set<DrawnName>(list));
+    expect(only("mouth_talk", "mouth_talk2").update(p({ mouthOpen: 0.75, mouthForm: 0.6 }), 16).mouth).toBe("mouth_talk");
+    expect(only("mouth_talk", "mouth_talk2").update(p({ mouthOpen: 0.5, mouthForm: -0.85 }), 16).mouth).toBe("mouth_talk2");
+    expect(only("mouth_o").update(p({ mouthOpen: 0.9 }), 16)).toMatchObject({ mouth: "mouth_o", shaderMouth: 0 });
+    expect(only("mouth_wide", "mouth_o").update(p({ mouthOpen: 0.9 }), 16).mouth).toBe("mouth_o");
+    expect(only("mouth_wide", "mouth_o").update(p({ mouthOpen: 0.4, mouthForm: -0.1 }), 16).mouth).toBe("mouth_wide");
+    expect(only("eyes_closed_0", "eyes_closed_1").update(p({ mouthOpen: 0.5, mouthForm: -0.85 }), 16)).toMatchObject({ mouth: null, shaderMouth: 0.5 });
+  });
   test("vowel regions hold across a boundary by the upstream hysteresis", () => {
     expect(classifyVowel(-0.21, null)).toBe("e");
     expect(classifyVowel(-0.15, "e")).toBe("e");
@@ -157,7 +187,7 @@ describe("rendering drawn sprites", () => {
     expect(drawn.gl.counts.draws).toBe(1 + 2);
     drawn.renderer.draw({ ...restHead() }, 100);
     expect(drawn.gl.counts.draws - 3).toBe(9);
-    expect(drawn.renderer.drawnNames()).toEqual(["eyes_closed_0", "eyes_closed_1", "mouth_talk", "mouth_talk2"]);
+    expect(drawn.renderer.drawnNames()).toEqual(["eyes_closed_0", "eyes_closed_1", "mouth_talk", "mouth_talk2", "mouth_o", "mouth_wide"]);
   });
   test("a streaming mouth draws one mouth sprite, re-uploads it only when its squash changes, and the shader mouth stays shut", () => {
     const { gl, renderer } = head(true), p = { ...restHead(), mouthOpen: 0.4 };

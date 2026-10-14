@@ -2,6 +2,7 @@ import { findLiveHead, type LiveHeadRef } from "./liveHeadRefs";
 import type { Actor } from "./castLoad";
 import { visualHead, type VisualSources } from "./visualManifest";
 import type { DrawnSource } from "./liveHead/drawn";
+import { FRAME_KEYS } from "./frameKeys";
 
 type Member = { name: string; avatar: string };
 type Roster = readonly { id: string; name?: string }[];
@@ -17,7 +18,7 @@ export function actorHeadRef(actor: Actor, roster: Roster, refs: Record<string, 
 
 export function actorHeadFrames(actor: Actor, sources?: VisualSources): DrawnSource | undefined {
   const frames = actor.frames.get(actor.set)?.get("neutral");
-  if (!frames?.blink && !frames?.talk && !frames?.talk2) return undefined;
+  if (!FRAME_KEYS.some((key) => frames?.[key])) return undefined;
   const box = sources?.[actor.profile.folder]?.box;
   return box ? { frames: { ...frames }, box: { ...box } } : { frames: { ...frames } };
 }

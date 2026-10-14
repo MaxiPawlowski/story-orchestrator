@@ -1,12 +1,33 @@
-import { preProcessText, wordsToVisemes } from "./lipsyncEn";
+import { preProcessText, wordsToVisemes, type VisemeTrack } from "./lipsyncEn";
 import type { MouthSample } from "../mouthShape";
+import { DEFAULT_MOUTH_CONFIG, type MouthConfig, type MouthTarget, type MouthTiming } from "../mouthConfig";
 
-export const VISEME_MOUTH: Record<string, { open: number; form: number }> = {
-  sil: { open: 0, form: 0 }, PP: { open: 0, form: 0 }, FF: { open: 0.15, form: -0.3 }, TH: { open: 0.25, form: -0.2 },
-  DD: { open: 0.3, form: -0.3 }, kk: { open: 0.35, form: -0.1 }, CH: { open: 0.3, form: 0.3 }, SS: { open: 0.15, form: -0.6 },
-  nn: { open: 0.2, form: -0.2 }, RR: { open: 0.3, form: 0.4 }, aa: { open: 0.9, form: 0 }, E: { open: 0.62, form: -0.4 },
-  EE: { open: 0.62, form: -0.4 }, I: { open: 0.5, form: -0.85 }, O: { open: 0.75, form: 0.6 }, U: { open: 0.4, form: 0.9 },
-};
+export const VISEME_MOUTH = DEFAULT_MOUTH_CONFIG.visemes;
+const VOWEL_VISEMES = new Set(["aa", "E", "EE", "I", "O", "U"]);
+const LETTER_VISEMES: Record<string, string> = { A: "aa", E: "E", I: "I", O: "O", U: "U", Y: "I", B: "PP", M: "PP", P: "PP", F: "FF", V: "FF",
+  S: "SS", Z: "SS", C: "kk", G: "kk", K: "kk", Q: "kk", X: "kk", D: "DD", T: "DD", L: "nn", N: "nn", R: "RR", W: "U", J: "CH", H: "kk" };
+
+export function timedTrack(word: string, timing: MouthTiming): VisemeTrack {
+  if (timing === "character") {
+    const letters = [...word.toUpperCase()];
+    return { words: word, visemes: letters.map((letter) => LETTER_VISEMES[letter] ?? "nn"), times: letters.map((_, index) => index), durations: letters.map(() => 1) };
+  }
+  const track = wordsToVisemes(preProcessText(word));
+  if (timing === "word") return track;
+  const out: VisemeTrack = { words: track.words, visemes: [], times: [], durations: [] };
+  let start = -1, end = 0, consonant = "";
+  const emit = (viseme: string) => { out.visemes.push(viseme); out.times.push(start); out.durations.push(end - start); start = -1; consonant = ""; };
+  track.visemes.forEach((viseme, index) => {
+    if (start < 0) start = track.times[index];
+    end = track.times[index] + track.durations[index];
+    if (VOWEL_VISEMES.has(viseme)) emit(viseme);
+    else consonant ||= viseme;
+  });
+  if (start >= 0) {
+    if (out.visemes.length) { const last = out.durations.length - 1; out.durations[last] = end - out.times[last]; } else emit(consonant || "nn");
+  }
+  return out;
+}
 
 export const TEXT_MOUTH = {
   charMs: 55, minCharMs: 25, maxCharMs: 140, minUnitMs: 30, maxUnitMs: 160, maxLagMs: 700, idleFlushMs: 180, easeMs: 50, floorUnitMs: 18,
@@ -19,7 +40,6 @@ const CLOSED = { open: 0, form: 0 };
 interface Cue { viseme: string; start: number; end: number; from: { open: number; form: number } }
 
 const clamp = (value: number, low: number, high: number) => Math.min(high, Math.max(low, value));
-const target = (viseme: string) => VISEME_MOUTH[viseme] ?? { open: 0.3, form: 0 };
 
 export class TextMouth {
   private text: string;
@@ -28,9 +48,11 @@ export class TextMouth {
   private charMs: number = TEXT_MOUTH.charMs;
   private cursor = -Infinity;
   private cues: Cue[] = [];
-  private tail = CLOSED;
+  private tail: MouthTarget = CLOSED;
 
-  constructor(spoken = "") { this.text = spoken; }
+  constructor(spoken = "", private readonly config: MouthConfig = DEFAULT_MOUTH_CONFIG) { this.text = spoken; }
+
+  private target(viseme: string): MouthTarget { return this.config.visemes[viseme] ?? this.config.unknownViseme; }
 
   push(text: string, now: number): void {
     if (!text.startsWith(this.text)) { this.text = text; this.word = ""; return; }
@@ -54,7 +76,7 @@ export class TextMouth {
     while (this.cues.length && this.cues[0].end <= now) this.cues.shift();
     const cue = this.cues[0];
     if (!cue || cue.start > now) return null;
-    const goal = target(cue.viseme);
+    const goal = this.target(cue.viseme);
     const span = Math.max(1, Math.min(TEXT_MOUTH.easeMs, (cue.end - cue.start) / 2));
     const x = clamp((now - cue.start) / span, 0, 1), ease = x * x * (3 - 2 * x);
     return { viseme: cue.viseme, open: cue.from.open + (goal.open - cue.from.open) * ease, form: cue.from.form + (goal.form - cue.from.form) * ease };
@@ -72,7 +94,7 @@ export class TextMouth {
     if (!this.word) return;
     const word = this.word;
     this.word = "";
-    const track = wordsToVisemes(preProcessText(word));
+    const track = timedTrack(word, this.config.timing);
     const last = track.visemes.length - 1;
     if (last < 0) return;
     const units = track.times[last] + track.durations[last];
@@ -85,12 +107,12 @@ export class TextMouth {
     track.visemes.forEach((viseme, index) => {
       const cueStart = start + track.times[index] * unitMs;
       const previous = this.cues[this.cues.length - 1];
-      const from = previous && Math.abs(previous.end - cueStart) < 1 ? target(previous.viseme) : index === 0 ? this.tail : CLOSED;
+      const from = previous && Math.abs(previous.end - cueStart) < 1 ? this.target(previous.viseme) : index === 0 ? this.tail : CLOSED;
       this.cues.push({ viseme, start: cueStart, end: cueStart + track.durations[index] * unitMs, from });
     });
-    this.tail = target(track.visemes[last]);
+    this.tail = this.target(track.visemes[last]);
     this.cursor = start + units * unitMs;
   }
 }
 
-export const createTextMouth = (spoken: string): TextMouth => new TextMouth(spoken);
+export const createTextMouth = (spoken: string, config: MouthConfig = DEFAULT_MOUTH_CONFIG): TextMouth => new TextMouth(spoken, config);

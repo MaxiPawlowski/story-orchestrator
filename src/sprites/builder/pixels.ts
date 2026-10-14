@@ -1,4 +1,5 @@
 import type { EditKind } from "./recipes";
+import { isFrameKey, isMouthFrameKey } from "../frameKeys";
 import { mouthRegion, regionWeight, validateRegion, type FrameRegion } from "./frameRegion";
 
 export interface PixelImage { width: number; height: number; data: Uint8ClampedArray; sha256?: string }
@@ -11,11 +12,11 @@ export function validateBox(image: Pick<PixelImage, "width" | "height">, box: He
 }
 
 export function editWeights(box: Pick<HeadBox, "width" | "height">, kind: EditKind, frameRegion?: FrameRegion): Float64Array {
-  const mouth = kind === "talk" || kind === "talk2" || kind === "rest";
+  const mouth = isMouthFrameKey(kind) || kind === "rest";
   const region = mouth ? frameRegion ?? mouthRegion(box) : undefined;
   const eyeExclusion = kind === "blink" ? mouthRegion(box) : undefined;
   if (region) validateRegion(box, region);
-  const low = kind === "blink" ? 0.12 : kind === "talk" || kind === "talk2" ? 0.55 : 0;
+  const low = kind === "blink" ? 0.12 : isMouthFrameKey(kind) ? 0.55 : 0;
   const high = kind === "blink" ? 0.55 : 1;
   const weights = new Float64Array(box.width * box.height);
   for (let y = 0; y < box.height; y += 1) for (let x = 0; x < box.width; x += 1) {
@@ -30,7 +31,7 @@ export function editWeights(box: Pick<HeadBox, "width" | "height">, kind: EditKi
 export function pasteEdit(base: PixelImage, edit: PixelImage, box: HeadBox, kind: EditKind, frameRegion?: FrameRegion): PixelImage {
   validateBox(base, box);
   if (edit.width !== box.width || edit.height !== box.height) throw new Error("Resize the edit to the reference head box before compositing.");
-  const frame = kind === "blink" || kind === "talk" || kind === "talk2";
+  const frame = isFrameKey(kind);
   const weights = editWeights(box, kind, frameRegion);
   const data = frame ? new Uint8ClampedArray(base.data.length) : new Uint8ClampedArray(base.data);
   for (let y = 0; y < box.height; y += 1) for (let x = 0; x < box.width; x += 1) {

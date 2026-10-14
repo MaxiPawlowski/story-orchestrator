@@ -1,6 +1,7 @@
 import type { AlphaRecipe, ComfyDiscovery, ModelFingerprint } from "@services/stHost/media";
+import type { FrameKey } from "../frameKeys";
 
-export type EditKind = "expression" | "blink" | "talk" | "talk2" | "look" | "base" | "rest" | "pose" | "decal";
+export type EditKind = "expression" | FrameKey | "look" | "base" | "rest" | "pose" | "decal";
 export interface EditModels { diffusion: ModelFingerprint; encoder: ModelFingerprint; vae: ModelFingerprint }
 export interface EditParameters { models: EditModels; steps: number; seed: number; reference: string; instruction: string; cutout?: AlphaRecipe; resolution?: number;
   skeleton?: string; secondReference?: boolean }
@@ -38,6 +39,10 @@ export const editInstruction = (kind: EditKind, value: string): string => {
         + "preserve nose, cheeks, jaw and eyes; not shouting or surprised"
       : "mouth open as if speaking; preserve the eyes and emotion"
       : kind === "talk2" ? "mouth slightly open as if speaking; preserve the eyes and emotion"
+      : kind === "mouth_o" ? "mouth in a small rounded open shape as if saying \"oh\", lips gently pushed forward into a soft circle; "
+        + "replace the original lip line completely, no second mouth; preserve the eyes, nose, cheeks, jaw and emotion"
+      : kind === "mouth_wide" ? "mouth slightly open and stretched wide as if saying \"ee\", lips spread with the teeth just visible; "
+        + "replace the original lip line completely, no second mouth; preserve the eyes, nose, cheeks, jaw and emotion"
         : (kind === "look" || kind === "decal") ? value : value.startsWith("facial expression:") ? value : `facial expression: ${value}`;
   return `Same image, same character, same pose, head angle, framing, lighting and colours. Change only ${change}. Everything else stays identical. Plain white background.`;
 };

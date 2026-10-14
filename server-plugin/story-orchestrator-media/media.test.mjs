@@ -104,6 +104,18 @@ test('sprite writes and deletion refuse foreign files and changed owned files', 
     await assert.rejects(saveSprite(root, { ...request, set: '../escape' }), /Invalid/);
 });
 
+test('animation frame labels accept the drawn mouth shapes and refuse unknown frame kinds', async (t) => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), 'so-media-'));
+    t.after(() => fs.rm(root, { recursive: true, force: true }));
+    const data = Buffer.alloc(32);
+    Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]).copy(data);
+    data.writeUInt32BE(64, 16); data.writeUInt32BE(64, 20);
+    const request = { character: 'Test', set: 'anim-pilot', data: data.toString('base64'), key: digest('input'), recipe: { id: 'expression', version: 1 }, qa: {} };
+    for (const kind of ['blink', 'talk', 'talk2', 'mouth_o', 'mouth_wide']) assert.equal((await saveSprite(root, { ...request, label: `neutral.${kind}` })).sha256, digest(data));
+    await fs.access(path.join(root, 'Test/anim-pilot/neutral.mouth_wide.png'));
+    await assert.rejects(saveSprite(root, { ...request, label: 'neutral.mouth_x' }), /label|provenance/i);
+});
+
 test('a crashed sprite write is reconciled: a landed file completes its row, a partial one is dropped', async (t) => {
     const root = await fs.mkdtemp(path.join(os.tmpdir(), 'so-media-'));
     t.after(() => fs.rm(root, { recursive: true, force: true }));

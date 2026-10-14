@@ -4,8 +4,10 @@ import type { HeadParameters } from "./drivers";
 import { prepareHead, type HeadAssetDeps } from "./load";
 import { HeadRenderer } from "./renderer";
 import { drawnFrames, prepareDrawn, type DrawnDeps, type DrawnSet, type DrawnSource } from "./drawn";
+import { mouthRegionProblem, type MeshMouthMode } from "./meshMouth";
 
-export interface HeadSurface { add: HeadRenderer["add"]; draw: HeadRenderer["draw"]; destroy(): void; addDrawn?: HeadRenderer["addDrawn"] }
+export interface HeadSurface { add: HeadRenderer["add"]; draw: HeadRenderer["draw"]; destroy(): void; addDrawn?: HeadRenderer["addDrawn"]; mouthMode?(): MeshMouthMode }
+export type MouthReport = (mode: MeshMouthMode, problem: string | null) => void;
 export interface HeadDrawn { source: DrawnSource; deps: DrawnDeps; report?(set: DrawnSet | null, error?: unknown): void }
 
 export const FRAME_MS = 1000 / 60;
@@ -25,7 +27,7 @@ export function frameGate(interval = FRAME_MS, slack = FRAME_SLACK_MS): (now?: n
 export async function attachHead(canvas: HTMLCanvasElement, ref: LiveHeadRef, run: RunGuard, deps: HeadAssetDeps,
   parameters: () => HeadParameters, visible: (ready: boolean) => void,
   factory: (canvas: HTMLCanvasElement, manifest: import("./manifest").HeadManifest) => HeadSurface = (element, manifest) => new HeadRenderer(element, manifest),
-  drawn?: HeadDrawn,
+  drawn?: HeadDrawn, mouth?: MouthReport,
 ): Promise<(() => void) | null> {
   const prepared = await prepareHead(ref, run, deps);
   if (!prepared || !run.stillOwns()) return null;
@@ -67,6 +69,7 @@ export async function attachHead(canvas: HTMLCanvasElement, ref: LiveHeadRef, ru
       renderer.add(prepared.manifest.layers[i], prepared.images[i]);
     }
     if (sprites?.sprites.length && renderer.addDrawn) renderer.addDrawn(sprites.sprites);
+    mouth?.(renderer.mouthMode?.() ?? "full", mouthRegionProblem(prepared.manifest.rig));
     if (!run.stillOwns()) { stop(); return null; }
     canvas.addEventListener("webglcontextlost", lost); document.addEventListener("visibilitychange", visibility);
     run.signal.addEventListener("abort", stop, { once: true });
