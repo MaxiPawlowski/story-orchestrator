@@ -32,6 +32,11 @@ export const harnessContextLimit = (harness: HarnessId, model: string): number |
   return found ? found.context : null;
 };
 
+export const harnessAcceptsImages = (harness: HarnessId, model: string): boolean | null => {
+  const found = modelOf(harness, model);
+  return found && typeof found.image === "boolean" ? found.image : null;
+};
+
 export const rowOffersAgent = (row: HarnessRow | undefined, model: string): boolean =>
   Boolean(row && row.installed && row.offered && !row.blocked && row.loggedIn !== false && row.agentBridge === true && row.models.some((entry) => entry.id === model));
 

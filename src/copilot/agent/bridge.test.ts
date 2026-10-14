@@ -79,6 +79,17 @@ describe("agent tool bridge route (v2.6 plan 04 H, option 2)", () => {
     expect(second.session).toMatchObject({ status: "done", summary: expect.stringContaining("read it") });
   });
 
+  it("a vision target sends its images with the open call, and a text target sends none", async () => {
+    const images = [{ data: "QUJD", mime: "image/png", description: "the bust" }];
+    const vision = fakeBridge([{ kind: "done", text: "{\"done\": \"x\"}" }]);
+    const route = createBridgeRoute(vision, { ...TARGET, images }, agentToolSchemas());
+    await settled(await advanceAgent(running(), agentContext(story()), route, AT), route);
+    expect(vision.opened[0].images).toEqual(images);
+    const text = fakeBridge([{ kind: "done", text: "{\"done\": \"x\"}" }]);
+    await advanceAgent(running(), agentContext(story()), createBridgeRoute(text, TARGET, agentToolSchemas()), AT);
+    expect(text.opened[0]).not.toHaveProperty("images");
+  });
+
   it("refuses an unknown tool call through checkToolCall, tells the shim so, and writes nothing", async () => {
     const bridge = fakeBridge([call("c1", "writeFile", { path: "/etc/passwd", content: "x" })]);
     const route = createBridgeRoute(bridge, TARGET, agentToolSchemas());

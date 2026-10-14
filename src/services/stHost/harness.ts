@@ -1,6 +1,6 @@
 import { getContext } from "./context";
 import { isRecord } from "@utils/guards";
-import { HARNESS_IDS, type HarnessId } from "@utils/harness";
+import { HARNESS_IDS, loginHint, type HarnessId } from "@utils/harness";
 import { pluginVersionIssue } from "@utils/pluginVersions";
 import type { ReasoningEffort } from "@utils/reasoningEffort";
 import type { ModelFailureKind, ModelFinish, ModelReply, ModelUsage } from "./modelReply";
@@ -12,6 +12,16 @@ export const HARNESS_SYSTEM = "You answer one request from a story-tracking tool
 export interface HarnessModel {
   id: string;
   context: number;
+  image?: boolean;
+  available?: boolean;
+}
+
+export type HarnessLoginState = "ok" | "expired" | "unpaired" | "unchecked" | "unavailable";
+
+export interface HarnessImage {
+  data: string;
+  mime?: string;
+  description?: string;
 }
 
 export interface HarnessRow {
@@ -27,7 +37,11 @@ export interface HarnessRow {
   models: HarnessModel[];
   quotaUntil: number | null;
   spawns: number;
-  cacheWarm?: boolean;
+  loginState?: HarnessLoginState;
+  loginAction?: string | null;
+  service?: string | null;
+  serviceVersion?: string | null;
+  clientInstalled?: boolean | null;
   agentBridge?: boolean;
 }
 
@@ -42,6 +56,7 @@ export interface HarnessRequest {
   role: string;
   effort?: ReasoningEffort;
   prompt: string;
+  images?: HarnessImage[];
   maxOutputChars: number;
   timeoutMs: number;
   signal?: AbortSignal;
@@ -54,6 +69,8 @@ const MAX_TIMEOUT_MS = 900_000;
 
 const headers = (): Record<string, string> => (getContext() as unknown as { getRequestHeaders: () => Record<string, string> }).getRequestHeaders();
 const text = (value: unknown): string | null => (typeof value === "string" ? value : null);
+const LOGIN_STATES: ReadonlySet<string> = new Set(["ok", "expired", "unpaired", "unchecked", "unavailable"]);
+
 const num = (value: unknown): number | null => (typeof value === "number" && Number.isFinite(value) ? value : null);
 
 const readRow = (row: Record<string, unknown>): HarnessRow => ({
@@ -66,16 +83,26 @@ const readRow = (row: Record<string, unknown>): HarnessRow => ({
   blocked: text(row.blocked),
   offered: row.offered === true,
   isolation: text(row.isolation) ?? "",
-  models: Array.isArray(row.models) ? row.models.filter(isRecord).flatMap((model) => (typeof model.id === "string" ? [{ id: model.id, context: num(model.context) ?? 0 }] : [])) : [],
+  models: Array.isArray(row.models) ? row.models.filter(isRecord).flatMap((model) => (typeof model.id === "string"
+    ? [{
+      id: model.id, context: num(model.context) ?? 0,
+      ...(typeof model.image === "boolean" ? { image: model.image } : {}), ...(typeof model.available === "boolean" ? { available: model.available } : {}),
+    }]
+    : [])) : [],
   quotaUntil: num(row.quotaUntil),
   spawns: num(row.spawns) ?? 0,
-  ...(typeof row.cacheWarm === "boolean" ? { cacheWarm: row.cacheWarm } : {}),
+  ...(typeof row.loginState === "string" && LOGIN_STATES.has(row.loginState) ? { loginState: row.loginState as HarnessLoginState } : {}),
+  ...(text(row.loginAction) ? { loginAction: text(row.loginAction) } : {}),
+  ...(text(row.service) ? { service: text(row.service) } : {}),
+  ...(text(row.serviceVersion) ? { serviceVersion: text(row.serviceVersion) } : {}),
+  ...(typeof row.clientInstalled === "boolean" ? { clientInstalled: row.clientInstalled } : {}),
   ...(row.agentBridge === true ? { agentBridge: true } : {}),
 });
 
 export async function harnessCapability(): Promise<{ state: "present" | "absent"; detail: string }> {
   const status = await (await import("./harnessCache")).refreshHarnessStatus();
-  const offered = Object.entries(status?.harnesses ?? {}).filter(([, row]) => row?.installed && row.offered).map(([id, row]) => `${id} ${row?.version ?? "?"}${row?.fresh ? "" : " (log in)"}`);
+  const offered = Object.entries(status?.harnesses ?? {}).filter(([, row]) => row?.installed && row.offered)
+    .map(([id, row]) => `${id} ${row?.version ?? "?"}${!row || row.fresh ? "" : ` (${loginHint(row, "log in")})`}`);
   const issue = pluginVersionIssue("harness", status?.pluginVersion);
   if (offered.length) return { state: "present", detail: `${offered.join(", ")}${issue ? `; ${issue}` : ""}` };
   return { state: "absent", detail: `${status ? "no harness is offered" : "no harness plugin"}; every task stays on a profile` };
@@ -159,6 +186,7 @@ export async function sendHarnessRequest(request: HarnessRequest): Promise<Model
     role: request.role,
     system: HARNESS_SYSTEM,
     prompt: request.prompt,
+    ...(request.images?.length ? { images: request.images } : {}),
     timeoutMs: Math.min(MAX_TIMEOUT_MS, Math.max(1000, Math.round(request.timeoutMs))),
     maxOutputChars: request.maxOutputChars,
     ...(effort === "low" || effort === "medium" || effort === "high" ? { effort } : {}),

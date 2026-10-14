@@ -16,7 +16,6 @@ const jwt = (exp) => `h.${Buffer.from(JSON.stringify({ exp: Math.floor(exp / 100
 const LOGINS = {
     claude: (expiresAt) => ({ claudeAiOauth: { accessToken: 'at', refreshToken: 'rt', expiresAt } }),
     codex: (expiresAt) => ({ tokens: { access_token: jwt(expiresAt), refresh_token: 'rt' }, last_refresh: new Date(NOW - HOUR).toISOString() }),
-    opencode: (expiresAt) => ({ openai: { type: 'oauth', access: 'at', refresh: 'rt', expires: expiresAt } }),
 };
 
 const OUTPUTS = {
@@ -27,10 +26,6 @@ const OUTPUTS = {
         { type: 'item.completed', item: { id: 'i1', type: 'agent_message', text } },
         { type: 'turn.completed', usage: { input_tokens: 900, cached_input_tokens: 0, output_tokens: 4 } },
     ].map((event) => JSON.stringify(event)).join('\n'),
-    opencode: (text) => [
-        { type: 'step_start', part: {} }, { type: 'text', part: { type: 'text', text } },
-        { type: 'step_finish', part: { reason: 'stop', tokens: { input: 133, output: 2, cache: { read: 0 } } } },
-    ].map((event) => JSON.stringify(event)).join('\n'),
 };
 
 const RECORDED = {
@@ -40,9 +35,6 @@ const RECORDED = {
         { type: 'error', message: 'Reconnecting... 2/5 (unexpected status 401 Unauthorized: Missing bearer or basic authentication in header, url: wss://api.openai.com/v1/responses)' },
     ].map((event) => JSON.stringify(event)).join('\n'),
     codexQuota: JSON.stringify({ type: 'error', message: "You've hit your usage limit. Upgrade to Pro or try again at Sep 27th, 2026 8:58 PM." }),
-    opencodeUnknown: JSON.stringify({ type: 'error', error: { name: 'UnknownError', data: { message: 'Unexpected server error. Check server logs for details.' } } }),
-    opencode429: JSON.stringify({ type: 'error', error: { name: 'APIError', data: { message: 'Insufficient balance', statusCode: 429, isRetryable: true } } }),
-    opencodeTool: [JSON.stringify({ type: 'tool_use', part: { type: 'tool', tool: 'bash' } }), OUTPUTS.opencode('done')].join('\n'),
 };
 
 const tempRoot = () => fs.mkdtempSync(path.join(os.tmpdir(), 'so-harness-test-'));
@@ -90,7 +82,9 @@ const emitting = (stdout, code = 1) => (child) => {
 };
 const hanging = () => undefined;
 
-function setup({ harness = 'claude', offer = true, expiresAt = NOW + 5 * HOUR, script = answering(harness), extraConfig = {}, warm = true, extraEnv = {} } = {}) {
+const NO_CLIENT = async () => { throw Object.assign(new Error('not installed'), { code: 'ERR_MODULE_NOT_FOUND' }); };
+
+function setup({ harness = 'claude', offer = true, expiresAt = NOW + 5 * HOUR, script = answering(harness), extraConfig = {}, extraEnv = {} } = {}) {
     const root = tempRoot();
     const loginFile = path.join(root, 'real-login.json');
     fs.writeFileSync(loginFile, JSON.stringify(LOGINS[harness](expiresAt)));
@@ -103,11 +97,7 @@ function setup({ harness = 'claude', offer = true, expiresAt = NOW + 5 * HOUR, s
         ? (() => { versionCalls.push(bin2); const c = new EventEmitter(); c.pid = 1; c.stdout = new EventEmitter(); c.stderr = new EventEmitter(); c.stdin = { on() {}, end() { setImmediate(() => { c.stdout.emit('data', Buffer.from('9.9.9')); c.emit('close', 0); }); } }; return c; })()
         : processes.spawnImpl(bin2, argv, options));
     const lines = [];
-    const service = plugin.createHarnessService({ config, env: { PATH: '', ANTHROPIC_API_KEY: 'sk-canary', ANTHROPIC_AUTH_TOKEN: 'canary', SO_SECRET_CANARY: 'x', HTTPS_PROXY: 'http://proxy:1', ...extraEnv }, home: root, spawnImpl: versions, killTree: processes.killTree, now: () => NOW, log: (line) => lines.push(line) });
-    if (warm && harness === 'opencode') {
-        fs.mkdirSync(path.join(config.tmpRoot, 'opencode-cache'), { recursive: true });
-        fs.writeFileSync(path.join(config.tmpRoot, 'opencode-cache', '.so-warm'), 'x');
-    }
+    const service = plugin.createHarnessService({ opencode: { loadLibs: NO_CLIENT }, config, env: { PATH: '', ANTHROPIC_API_KEY: 'sk-canary', ANTHROPIC_AUTH_TOKEN: 'canary', SO_SECRET_CANARY: 'x', HTTPS_PROXY: 'http://proxy:1', ...extraEnv }, home: root, spawnImpl: versions, killTree: processes.killTree, now: () => NOW, log: (line) => lines.push(line) });
     return { root, loginFile, config, service, processes, lines, versionCalls, spawnImpl: versions };
 }
 
@@ -132,7 +122,7 @@ test('config defaults: nothing offered, admin-only, every knob bounded', () => {
 
 test('rule 1-2: fixed argv per harness; the prompt and the system text never reach argv or env', () => {
     const hostile = `--model x; rm -rf / && $(whoami) \`id\`\n${'z'.repeat(40_000)}`;
-    for (const harness of plugin.HARNESS_IDS) {
+    for (const harness of ['claude', 'codex']) {
         const home = { home: '/o/home', config: '/o/config', data: '/o/data', cache: '/o/cache', state: '/o/state', tmp: '/o/tmp', cwd: '/o/cwd', systemFile: '/o/tmp/system.txt' };
         const argv = plugin.buildArgv(harness, { model: 'm', systemFile: home.systemFile, cwd: home.cwd });
         const env = plugin.childEnv(harness, home, {});
@@ -146,20 +136,19 @@ test('rule 1-2: fixed argv per harness; the prompt and the system text never rea
     for (const flag of ['--ignore-user-config', '--ephemeral', '--ignore-rules']) assert.ok(codex.includes(flag));
     for (const feature of plugin.CODEX_TOOL_FEATURES) assert.ok(codex.join(' ').includes(`--disable ${feature}`));
     assert.ok(!codex.includes('-m'));
-    assert.deepEqual(plugin.buildArgv('opencode', { model: 'openai/gpt-6-astra', systemFile: 'S', cwd: 'C' }).slice(0, 6), ['run', '--pure', '--format', 'json', '--agent', 'so-text']);
+    assert.throws(() => plugin.buildArgv('opencode', { model: 'openai/gpt-6.1-sol', systemFile: 'S', cwd: 'C' }), /client library/, 'opencode has no command line');
 });
 
 test('effort maps per harness, and anything off the list sends nothing', () => {
     assert.deepEqual(plugin.buildArgv('claude', { model: 'm', effort: 'high', systemFile: 'S', cwd: 'C' }).slice(-2), ['--effort', 'high']);
     assert.ok(plugin.buildArgv('codex', { model: 'm', effort: 'low', systemFile: 'S', cwd: 'C' }).includes('model_reasoning_effort="low"'));
-    assert.deepEqual(plugin.buildArgv('opencode', { model: 'm', effort: 'medium', systemFile: 'S', cwd: 'C' }).slice(-2), ['--variant', 'medium']);
     assert.ok(!plugin.buildArgv('codex', { model: 'm', effort: '"x" --danger', systemFile: 'S', cwd: 'C' }).join(' ').includes('danger'));
 });
 
 test('rule 5: ST\'s environment stays out of the child; named pass-through variables arrive unchanged', () => {
     const parent = { ANTHROPIC_API_KEY: 'k', ANTHROPIC_AUTH_TOKEN: 't', OPENAI_API_KEY: 'o', SO_SECRET_CANARY: 'c', HTTPS_PROXY: 'http://p:1', NODE_EXTRA_CA_CERTS: '/ca.pem', DO_NOT_TRACK: '1', PATH: '/bin' };
     const home = { home: 'C:\\o\\home', config: 'C:\\o\\config', data: 'C:\\o\\data', cache: 'C:\\o\\cache', state: 'C:\\o\\state', tmp: 'C:\\o\\tmp', cwd: 'C:\\o\\cwd', systemFile: 'C:\\o\\tmp\\system.txt' };
-    for (const harness of plugin.HARNESS_IDS) {
+    for (const harness of ['claude', 'codex']) {
         const env = plugin.childEnv(harness, home, parent);
         for (const secret of ['ANTHROPIC_API_KEY', 'ANTHROPIC_AUTH_TOKEN', 'OPENAI_API_KEY', 'SO_SECRET_CANARY']) assert.equal(env[secret], undefined, `${harness} ${secret}`);
         for (const key of ['HTTPS_PROXY', 'NODE_EXTRA_CA_CERTS', 'DO_NOT_TRACK', 'PATH']) assert.equal(env[key], parent[key]);
@@ -168,10 +157,6 @@ test('rule 5: ST\'s environment stays out of the child; named pass-through varia
     }
     assert.equal(plugin.childEnv('claude', home, parent).CLAUDE_CONFIG_DIR, home.config);
     assert.equal(plugin.childEnv('codex', home, parent).CODEX_HOME, home.config);
-    const opencode = plugin.childEnv('opencode', home, parent);
-    assert.equal(opencode.OPENCODE_DISABLE_MODELS_FETCH, '1');
-    assert.equal(JSON.parse(opencode.OPENCODE_CONFIG_CONTENT).agent['so-text'].prompt, `{file:${home.systemFile}}`);
-    assert.deepEqual(JSON.parse(opencode.OPENCODE_CONFIG_CONTENT).agent['so-text'].tools, { '*': false });
 });
 
 test('rule 1 / P0-6: a script shim is never spawned', () => {
@@ -183,7 +168,7 @@ test('rule 1 / P0-6: a script shim is never spawned', () => {
 
 test('B1: a login that expires within the window is refused, never refreshed in a copy', () => {
     const root = tempRoot();
-    for (const harness of plugin.HARNESS_IDS) {
+    for (const harness of ['claude', 'codex']) {
         const file = path.join(root, `${harness}.json`);
         fs.writeFileSync(file, JSON.stringify(LOGINS[harness](NOW + 30 * 60_000)));
         const stale = plugin.loginFreshness(harness, file, { now: NOW });
@@ -201,20 +186,16 @@ test('rule 10: output is classified from the harness\'s own words (recorded Phas
     const run = (stdout, extra = {}) => ({ stdout, stderr: '', code: 1, killed: null, spawnError: null, ...extra });
     assert.deepEqual(plugin.classify('claude', run(OUTPUTS.claude('PONG'), { code: 0 })), { ok: true, text: 'PONG', finish: 'stop', usage: { input: 402, output: 3, costUsd: 0.001 } });
     assert.equal(plugin.classify('codex', run(OUTPUTS.codex('PONG'), { code: 0 })).text, 'PONG');
-    assert.equal(plugin.classify('opencode', run(OUTPUTS.opencode('PONG'), { code: 0 })).usage.input, 133);
     assert.equal(plugin.classify('claude', run(RECORDED.claudeLoggedOut)).kind, 'auth');
     assert.equal(plugin.classify('codex', run(RECORDED.codexLoggedOut)).kind, 'auth');
     const quota = plugin.classify('codex', run(RECORDED.codexQuota), { now: Date.parse('2026-09-25T12:00:00Z') });
     assert.equal(quota.kind, 'quota');
     assert.equal(new Date(quota.retryAt).getFullYear(), 2026);
-    assert.equal(plugin.classify('opencode', run(RECORDED.opencode429)).kind, 'quota');
-    assert.equal(plugin.classify('opencode', run(RECORDED.opencodeUnknown)).kind, 'transport', 'P0-4: opencode cannot tell logged-out from a bad model');
-    assert.equal(plugin.classify('opencode', run(RECORDED.opencodeTool, { code: 0 })).kind, 'refused');
     assert.equal(plugin.classify('claude', run('', { spawnError: 'ENOENT spawn' })).kind, 'config');
     assert.equal(plugin.classify('claude', run('', { killed: 'deadline' })).kind, 'timeout');
     assert.equal(plugin.classify('claude', run('garbage', { code: 0 })).kind, 'malformed');
     assert.match(plugin.classify('codex', run(JSON.stringify({ type: 'error', message: 'self signed certificate in certificate chain' }))).message, /proxy or CA/);
-    const bound = plugin.classify('opencode', run(OUTPUTS.opencode('x'.repeat(50)), { killed: 'output-bound' }), { maxOutputChars: 10 });
+    const bound = plugin.classify('codex', run(OUTPUTS.codex('x'.repeat(50)), { killed: 'output-bound' }), { maxOutputChars: 10 });
     assert.deepEqual([bound.ok, bound.finish, bound.text.length], [true, 'length', 10]);
 });
 
@@ -263,16 +244,14 @@ test('a routed call runs in an owned home that is gone afterwards; the real logi
     assert.ok(await until(() => fs.readdirSync(path.join(config.tmpRoot, 'calls')).length === 0), 'the owned home is gone');
 });
 
-test('not offered, not logged in, or not warmed: refused before anything spawns', async () => {
+test('not offered or not logged in: refused before anything spawns', async () => {
     const off = setup({ harness: 'claude', offer: false });
     assert.equal((await off.service.complete(request('claude'))).kind, 'config');
     const stale = setup({ harness: 'codex', expiresAt: NOW + 10 * 60_000 });
     const auth = await stale.service.complete(request('codex'));
     assert.equal(auth.kind, 'auth');
     assert.match(auth.message, /run `codex` once/);
-    const cold = setup({ harness: 'opencode', warm: false });
-    assert.match((await cold.service.complete(request('opencode'))).message, /not warmed/);
-    for (const { processes } of [off, stale, cold]) assert.equal(processes.calls.length, 0);
+    for (const { processes } of [off, stale]) assert.equal(processes.calls.length, 0);
 });
 
 test('a quota answer holds the harness until its retry time without spawning again', async () => {
@@ -303,8 +282,8 @@ test('a real login file that changes during a call holds every later call', asyn
 });
 
 test('rule 11: the log line carries harness, model, ms, usage and kind only', async () => {
-    const { service, lines } = setup({ harness: 'opencode', script: answering('opencode', 'REPLYCANARY') });
-    await service.complete(request('opencode', { prompt: 'PROMPTCANARY' }));
+    const { service, lines } = setup({ harness: 'codex', script: answering('codex', 'REPLYCANARY') });
+    await service.complete(request('codex', { prompt: 'PROMPTCANARY' }));
     assert.equal(lines.length, 1);
     assert.deepEqual(Object.keys(JSON.parse(lines[0])), ['harness', 'model', 'ms', 'usage', 'kind']);
     assert.ok(!lines[0].includes('CANARY'));
@@ -332,13 +311,16 @@ test('rules 8-10: header, origin, admin and body bounds are checked before any s
         [Object.assign(body(request('claude')), { user: { profile: { handle: 'guest', admin: false } } }), 403],
         [Object.assign(body(request('claude')), { user: undefined }), 403],
         [Object.assign(body(request('claude'), { 'content-type': 'application/json' }), { body: { harness: 'claude' } }), 415],
-        [body('x'.repeat(plugin.LIMITS.maxBodyBytes + 10)), 413],
+        [body('x'.repeat(plugin.LIMITS.maxImageBodyBytes + 10)), 413],
     ];
     for (const [req, status] of cases) {
         const { res, out } = fakeResponse();
         await handlers.complete(req, res);
         assert.equal(out.statusCode, status, JSON.stringify(out.body));
     }
+    const small = fakeResponse();
+    await handlers.cancel(body('x'.repeat(plugin.LIMITS.maxBodyBytes + 10)), small.res);
+    assert.equal(small.out.statusCode, 413, 'a route that carries no image keeps the small body limit');
     const unlisted = fakeResponse();
     await handlers.complete(body(request('claude', { model: 'claude-9-ultra' })), unlisted.res);
     assert.equal(unlisted.out.body.kind, 'config');
@@ -401,7 +383,7 @@ const abortingBody = (headers = {}) => {
 test('CR-J1: a request stream aborted mid-body answers 400 on every route instead of rejecting the handler', async () => {
     const { service, config, processes } = setup({ harness: 'claude' });
     const handlers = plugin.createHandlers(service, config);
-    for (const route of ['complete', 'cancel', 'warm', 'agentOpen', 'agentNext', 'agentAnswer', 'agentClose']) {
+    for (const route of ['complete', 'cancel', 'agentOpen', 'agentNext', 'agentAnswer', 'agentClose']) {
         const { res, out } = fakeResponse();
         await handlers[route](abortingBody(), res);
         assert.equal(out.statusCode, 400, route);
@@ -516,38 +498,6 @@ test('CR-J6: a held harness says so in its status row, and a fresh login re-arms
     assert.equal(processes.calls.length, 2);
 });
 
-test('CR-J9: the owned home carries only the routed provider\'s OAuth entry, never an API key', async () => {
-    const seen = {};
-    const { service, loginFile } = setup({
-        harness: 'opencode',
-        script: (child, call) => {
-            seen.copy = JSON.parse(fs.readFileSync(path.join(call.options.env.XDG_DATA_HOME, 'opencode', 'auth.json'), 'utf8'));
-            answering('opencode')(child);
-        },
-    });
-    fs.writeFileSync(loginFile, JSON.stringify({
-        openai: { type: 'oauth', access: 'at', refresh: 'rt', expires: NOW + 5 * HOUR },
-        anthropic: { type: 'api', key: 'sk-api-canary' },
-        github: { type: 'oauth', access: 'gh', refresh: 'gr', expires: NOW + 5 * HOUR },
-    }));
-    assert.equal((await service.complete(request('opencode'))).ok, true);
-    assert.deepEqual(Object.keys(seen.copy), ['openai']);
-    assert.ok(!JSON.stringify(seen.copy).includes('sk-api-canary'));
-});
-
-test('CR-J19: only the routed model\'s provider login decides freshness', async () => {
-    const { service, loginFile, processes } = setup({ harness: 'opencode' });
-    fs.writeFileSync(loginFile, JSON.stringify({
-        openai: { type: 'oauth', access: 'at', refresh: 'rt', expires: NOW + 5 * HOUR },
-        github: { type: 'oauth', access: 'gh', refresh: 'gr', expires: NOW + 10 * 60_000 },
-    }));
-    assert.equal((await service.complete(request('opencode'))).ok, true);
-    assert.equal((await service.status()).harnesses.opencode.fresh, true);
-    fs.writeFileSync(loginFile, JSON.stringify({ openai: { type: 'oauth', access: 'at', refresh: 'rt', expires: NOW + 10 * 60_000 }, github: { type: 'oauth', access: 'gh', refresh: 'gr', expires: NOW + 5 * HOUR } }));
-    assert.equal((await service.complete(request('opencode', { requestId: 'r2' }))).kind, 'auth', 'control: the routed provider\'s own stale login still refuses');
-    assert.equal(processes.calls.length, 1);
-});
-
 test('CR-J20: a malformed config.json is logged; a missing one is not', () => {
     const root = tempRoot();
     const lines = [];
@@ -558,17 +508,6 @@ test('CR-J20: a malformed config.json is logged; a missing one is not', () => {
     assert.match(lines[0], /not valid JSON/);
     plugin.loadConfig(path.join(root, 'missing.json'), fs.readFileSync, (line) => lines.push(line));
     assert.equal(lines.length, 1);
-});
-
-test('CR-J11: text with a finish is an answer even when the stream also carried an error event; the error rides as a warning', () => {
-    const stdout = [RECORDED.opencodeUnknown, OUTPUTS.opencode('PONG')].join('\n');
-    const answer = plugin.classify('opencode', { stdout, stderr: '', code: 0, killed: null, spawnError: null });
-    assert.equal(answer.ok, true);
-    assert.equal(answer.text, 'PONG');
-    assert.equal(answer.finish, 'stop');
-    assert.match(answer.warnings[0], /Unexpected server error/);
-    const unfinished = [RECORDED.opencodeUnknown, JSON.stringify({ type: 'text', part: { type: 'text', text: 'half' } })].join('\n');
-    assert.equal(plugin.classify('opencode', { stdout: unfinished, stderr: '', code: 1, killed: null, spawnError: null }).ok, false, 'control: text with no finish and an error is still a failure');
 });
 
 test('CR-J14: two users may use the same requestId, and each cancels only their own call', async () => {
@@ -590,40 +529,41 @@ test('CR-J17: status and the probes touch only offered harnesses; an unoffered C
         fs.writeFileSync(file, '');
         return file;
     };
-    const { service, versionCalls } = setup({ harness: 'opencode', extraConfig: { claude: { binary: other('claude'), offer: false }, codex: { binary: other('codex'), offer: false } } });
+    const { service, versionCalls } = setup({ harness: 'codex', extraConfig: { claude: { binary: other('claude'), offer: false }, opencode: { binary: other('opencode'), offer: false } } });
     const status = await service.status({ refresh: true });
     assert.equal(versionCalls.length, 1);
-    assert.match(versionCalls[0], /opencode\.exe$/);
+    assert.match(versionCalls[0], /codex\.exe$/);
     assert.equal(status.harnesses.claude.installed, false);
     assert.equal(status.harnesses.claude.version, null);
-    assert.match(status.harnesses.codex.problem, /not offered/);
+    assert.match(status.harnesses.opencode.problem, /not offered/);
+    assert.equal(status.harnesses.opencode.loginState, 'unchecked');
     assert.equal((await service.complete(request('claude'))).kind, 'config');
-    assert.equal((await service.complete(request('codex', { requestId: 'r2' }))).kind, 'config');
+    assert.equal((await service.complete(request('opencode', { requestId: 'r2' }))).kind, 'config');
 });
 
 test('T6-3-3 MEDIUM: a usage limit with no retry time holds the harness for the cool-down, failing fast with the reason', async () => {
-    const limit = JSON.stringify({ type: 'error', error: { name: 'APIError', data: { message: 'usage limit reached', statusCode: 429 } } });
-    const { service, processes } = setup({ harness: 'opencode', script: emitting(limit) });
-    const first = await service.complete(request('opencode'));
+    const limit = JSON.stringify({ type: 'error', message: 'usage limit reached' });
+    const { service, processes } = setup({ harness: 'codex', script: emitting(limit) });
+    const first = await service.complete(request('codex'));
     assert.deepEqual([first.kind, first.retryAt ?? null], ['quota', null]);
-    const second = await service.complete(request('opencode', { requestId: 'r2' }));
+    const second = await service.complete(request('codex', { requestId: 'r2' }));
     assert.equal(second.kind, 'quota');
     assert.match(second.message, /no retry time/);
     assert.equal(second.retryAt, NOW + plugin.QUOTA_HOLD_MS);
     assert.equal(processes.calls.length, 1, 'the held call never spawns');
-    assert.equal((await service.status()).harnesses.opencode.quotaUntil, NOW + plugin.QUOTA_HOLD_MS);
+    assert.equal((await service.status()).harnesses.codex.quotaUntil, NOW + plugin.QUOTA_HOLD_MS);
     assert.equal(plugin.QUOTA_HOLD_MS, 600_000);
 });
 
 test('T6-3-3 MEDIUM: SO_HARNESS_QUOTA_HOLD_MS sets the cool-down, and 0 turns it off', async () => {
-    const limit = JSON.stringify({ type: 'error', error: { name: 'APIError', data: { message: 'usage limit reached', statusCode: 429 } } });
-    const short = setup({ harness: 'opencode', script: emitting(limit), extraEnv: { SO_HARNESS_QUOTA_HOLD_MS: '60000' } });
-    await short.service.complete(request('opencode'));
-    assert.equal((await short.service.status()).harnesses.opencode.quotaUntil, NOW + 60_000);
-    const off = setup({ harness: 'opencode', script: emitting(limit), extraEnv: { SO_HARNESS_QUOTA_HOLD_MS: '0' } });
-    await off.service.complete(request('opencode'));
-    await off.service.complete(request('opencode', { requestId: 'r2' }));
+    const limit = JSON.stringify({ type: 'error', message: 'usage limit reached' });
+    const short = setup({ harness: 'codex', script: emitting(limit), extraEnv: { SO_HARNESS_QUOTA_HOLD_MS: '60000' } });
+    await short.service.complete(request('codex'));
+    assert.equal((await short.service.status()).harnesses.codex.quotaUntil, NOW + 60_000);
+    const off = setup({ harness: 'codex', script: emitting(limit), extraEnv: { SO_HARNESS_QUOTA_HOLD_MS: '0' } });
+    await off.service.complete(request('codex'));
+    await off.service.complete(request('codex', { requestId: 'r2' }));
     assert.equal(off.processes.calls.length, 2);
-    assert.equal((await off.service.status()).harnesses.opencode.quotaUntil, null);
+    assert.equal((await off.service.status()).harnesses.codex.quotaUntil, null);
     assert.equal(plugin.quotaHoldMs({ SO_HARNESS_QUOTA_HOLD_MS: 'soon' }), plugin.QUOTA_HOLD_MS);
 });

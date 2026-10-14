@@ -1,6 +1,6 @@
 import { getContext } from "./context";
 import { isRecord } from "@utils/guards";
-import { HARNESS_PLUGIN_BASE, pluginRefusal, STALE_PAGE_REFUSAL } from "./harness";
+import { HARNESS_PLUGIN_BASE, pluginRefusal, STALE_PAGE_REFUSAL, type HarnessImage } from "./harness";
 
 export const BRIDGE_POLL_MS = 20_000;
 
@@ -11,6 +11,7 @@ export interface BridgeOpenInput {
   system: string;
   prompt: string;
   tools: Array<Record<string, unknown>>;
+  images?: HarnessImage[];
   timeoutMs: number;
   maxOutputChars: number;
 }

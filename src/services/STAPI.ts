@@ -91,8 +91,9 @@ export {
   getSelectedConnectionProfileId, listConnectionProfiles, openProfileToolBridge, profileExists, sendConnectionProfileRequest,
 } from "@services/stHost/connectionProfiles";
 export type { ModelFailureKind, ModelFinish, ModelReply, ModelRequestOptions, ModelSamplers, ModelUsage, ReasoningMeter } from "@services/stHost/modelReply";
-export { harnessContextLimit, harnessListed, harnessOffersAgent, harnessStatusCached, openAgentBridge, refreshHarnessStatus, rowOffersAgent, sendHarness } from "@services/stHost/harnessCache";
-export type { HarnessModel, HarnessRequest, HarnessRow, HarnessStatus } from "@services/stHost/harness";
+export { harnessAcceptsImages, harnessContextLimit, harnessListed, harnessOffersAgent, harnessStatusCached } from "@services/stHost/harnessCache";
+export { openAgentBridge, refreshHarnessStatus, rowOffersAgent, sendHarness } from "@services/stHost/harnessCache";
+export type { HarnessImage, HarnessLoginState, HarnessModel, HarnessRequest, HarnessRow, HarnessStatus } from "@services/stHost/harness";
 export type { ConnectionProfileSummary } from "@services/stHost/connectionProfiles";
 export { countTokens, countTokensBatch, tokenizerIdentity } from "@services/stHost/tokenizer";
 export { readProfileContextLimit, readProfilePresetName } from "@services/stHost/contextLimit";

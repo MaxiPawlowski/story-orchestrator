@@ -1,4 +1,4 @@
-import type { HarnessRequest, ModelReply, ModelRequestOptions } from "@services/STAPI";
+import type { HarnessImage, HarnessRequest, ModelReply, ModelRequestOptions } from "@services/STAPI";
 import { anySignal } from "@utils/signals";
 import { reasoningBudgetFor, reasoningExhaustedMessage, type ReasoningBudget } from "@utils/reasoningEffort";
 import { callTimeoutMs, DEFAULT_MAX_TOKENS, estimateTokens } from "./callBudget";
@@ -19,6 +19,7 @@ export interface CallOptions {
   budgetKind?: string;
   reasoningBudget?: ReasoningBudget;
   role?: string;
+  images?: HarnessImage[];
 }
 
 export type RouteReply = (prompt: string, route: ModelRoute | null, options?: CallOptions) => Promise<ExtractionReply>;

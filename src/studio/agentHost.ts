@@ -60,6 +60,7 @@ const NO_STATUS = "the harness plugin did not answer its status (not installed, 
 const reasonFor = (harness: string, model: string, row: HarnessRow | undefined): string | null => {
   if (!row) return `the harness plugin does not list ${harness}`;
   if (row.blocked) return row.blocked;
+  if (row.fresh === false && row.loginProblem) return row.loginProblem;
   if (row.agentBridge !== true) return `${harness} offers no agent tool bridge on this install (the plugin's config.json offers it, opencode only)`;
   if (!row.models.some((entry) => entry.id === model)) return `the harness plugin does not list the model ${model}`;
   return null;

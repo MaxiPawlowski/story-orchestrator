@@ -69,8 +69,16 @@ export type AgentBridgeEvent =
   | { kind: "done"; text: string }
   | { kind: "ended"; errorKind: string; message: string };
 
+export interface AgentImage {
+  data: string;
+  mime?: string;
+  description?: string;
+}
+
 export interface AgentToolBridge {
-  open: (input: { harness: string; model: string; role: string; system: string; prompt: string; tools: Array<Record<string, unknown>>; timeoutMs: number; maxOutputChars: number }) =>
+  open: (input: {
+    harness: string; model: string; role: string; system: string; prompt: string; tools: Array<Record<string, unknown>>; images?: AgentImage[]; timeoutMs: number; maxOutputChars: number;
+  }) =>
     Promise<{ ok: true; sessionId: string } | { ok: false; kind: string; message: string }>;
   nextCall: (sessionId: string, deadlineAt: number) => Promise<AgentBridgeEvent>;
   answer: (sessionId: string, callId: string, result: { ok: boolean; text: string }) => Promise<boolean>;
@@ -81,6 +89,7 @@ export interface HarnessTarget {
   harness: string;
   model: string;
   timeoutMs: number;
+  images?: AgentImage[];
 }
 
 export interface HarnessTransport {

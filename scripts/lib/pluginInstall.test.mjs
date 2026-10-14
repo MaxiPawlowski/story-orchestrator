@@ -4,7 +4,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
-import { applyInstall, planInstall, pluginVersions, selectedPlugins, SERVER_PLUGINS, shippedFiles } from './pluginInstall.mjs';
+import { applyInstall, dependencyPlan, npmInstall, planInstall, pluginVersions, selectedPlugins, SERVER_PLUGINS, shippedFiles } from './pluginInstall.mjs';
 
 const PLUGINS = ['story-orchestrator-judge', 'story-orchestrator-harness'];
 
@@ -83,6 +83,45 @@ test('a local config.json is preserved and never compared', () => {
     applyInstall(plan);
     assert.equal(fs.readFileSync(target(stRoot, 'story-orchestrator-judge', 'config.json'), 'utf-8'), '{"local":true}\n');
     assert.equal(planInstall({ extensionRoot, stRoot, plugins: ['story-orchestrator-judge'] })[0].action, 'unchanged');
+});
+
+test('a plugin that declares dependencies gets them in its own folder when they are missing or another version, and only then', () => {
+    const { extensionRoot, stRoot } = fixture();
+    write(path.join(extensionRoot, 'server-plugin', 'story-orchestrator-harness', 'package.json'), JSON.stringify({ name: 'story-orchestrator-harness', version: '2.0.0', dependencies: { '@scope/client': '2.0.28' } }));
+    const installs = [];
+    const install = (cwd) => {
+        installs.push(cwd);
+        write(path.join(cwd, 'node_modules', '@scope', 'client', 'package.json'), JSON.stringify({ name: '@scope/client', version: '2.0.28' }));
+    };
+    const first = applyInstall(planInstall({ extensionRoot, stRoot, plugins: PLUGINS }), { install });
+    assert.deepEqual(installs, [path.join(stRoot, 'plugins', 'story-orchestrator-harness')]);
+    assert.deepEqual(first.map((row) => row.installedDependencies), [[], ['@scope/client@2.0.28']]);
+    assert.ok(planInstall({ extensionRoot, stRoot, plugins: PLUGINS }).every((row) => row.upToDate), 'a second plan finds everything current');
+    write(path.join(stRoot, 'plugins', 'story-orchestrator-harness', 'node_modules', '@scope', 'client', 'package.json'), JSON.stringify({ version: '1.0.0' }));
+    const stale = planInstall({ extensionRoot, stRoot, plugins: PLUGINS });
+    assert.deepEqual([stale[1].action, stale[1].upToDate, stale[1].dependencies[0].installed], ['dependencies', false, '1.0.0']);
+    applyInstall(stale, { install });
+    assert.equal(installs.length, 2);
+    assert.equal(applyInstall(planInstall({ extensionRoot, stRoot, plugins: PLUGINS }), { install })[1].action, 'unchanged');
+    assert.equal(installs.length, 2);
+    applyInstall(planInstall({ extensionRoot, stRoot: path.join(stRoot, 'other'), plugins: ['story-orchestrator-harness'] }), { install: null });
+    assert.equal(installs.length, 2, '--skip-deps installs nothing');
+    assert.deepEqual(dependencyPlan(path.join(extensionRoot, 'server-plugin', 'story-orchestrator-judge'), stRoot), []);
+});
+
+test('npm install runs only in the plugin folder, with scripts off and no lockfile, and a failure stops the install', () => {
+    const seen = [];
+    npmInstall('C:/plugins/x', (command, args, options) => { seen.push([command, args, options.cwd]); return { status: 0 }; });
+    assert.match(seen[0][0], /^npm(\.cmd)?$/);
+    assert.deepEqual(seen[0][1], ['install', '--omit=dev', '--no-audit', '--no-fund', '--no-package-lock', '--ignore-scripts']);
+    assert.equal(seen[0][2], 'C:/plugins/x');
+    assert.throws(() => npmInstall('C:/plugins/x', () => ({ status: 1 })), /npm install failed/);
+});
+
+test('the harness plugin pins the OpenCode client library exactly', () => {
+    const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+    const manifest = JSON.parse(fs.readFileSync(path.join(root, 'server-plugin', 'story-orchestrator-harness', 'package.json'), 'utf8'));
+    assert.match(manifest.dependencies['@opencode/client'], /^\d+\.\d+\.\d+$/);
 });
 
 test('judge by default; an optional plugin joins when asked or already installed', () => {

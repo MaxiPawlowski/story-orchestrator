@@ -292,6 +292,7 @@ export async function saveStudioDraft(page, choice = null, options: { title?: st
 export async function openWizard(page, { newStory = false, title = null as string | null } = {}) {
   if (newStory) {
     await openExtensionSettings(page);
+    await page.locator('#so-workspace-page-library').click();
     const button = page.locator('#so-new-story-wizard');
     if (!(await button.count())) throw new Error('"New story (wizard)" button (#so-new-story-wizard) not found.');
     await button.click();

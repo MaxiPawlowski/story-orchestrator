@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { configuredStRoot, stRootIssue } from './lib/stRoot.mjs';
 import { applyInstall, planInstall, selectedPlugins } from './lib/pluginInstall.mjs';
 
-const USAGE = `Usage: node scripts/plugin-install.mjs [--st-root <path>] [--with gpu,media,harness] [--check]
+const USAGE = `Usage: node scripts/plugin-install.mjs [--st-root <path>] [--with gpu,media,harness] [--check] [--skip-deps]
        npm run plugins:install -- [--with gpu,media,harness] [--check]
 
 Copies the judge plugin into <ST root>/plugins/. Add --with gpu,media,harness for the optional plugins.
@@ -13,7 +13,9 @@ The ST root is ST_ROOT or the gitignored .st-root file. ST loads plugins only wi
 enableServerPlugins: true in config.yaml, after a restart.
 Decided by content, never by version: every shipped file (tests, README.md and fixtures/ excluded) is compared
 by sha256, and only the files that differ are copied. A plugin's local config.json is never touched.
---check reports, per plugin, which files differ, without writing; exit 2 when any do.`;
+A plugin that declares dependencies (the harness plugin: @opencode/client, pinned) gets them with npm install in its own
+folder when they are missing or at another version; --skip-deps leaves that to you. Nothing is installed in ST itself.
+--check reports, per plugin, which files differ and which dependencies are not current, without writing; exit 2 when any are.`;
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const extensionRoot = path.resolve(here, '..');
@@ -39,14 +41,21 @@ const withFlag = args.indexOf('--with');
 const selected = withFlag < 0 ? [] : (args[withFlag + 1] ?? '').split(',').filter(Boolean);
 if (withFlag >= 0 && !selected.length) throw new Error('--with needs gpu, media or harness.');
 const rows = planInstall({ extensionRoot, stRoot, plugins: selectedPlugins(selected, { stRoot }) });
-const report = (row) => ({ name: row.name, target: row.target, action: row.action, ...(row.differs.length ? { differs: row.differs } : {}), ...(row.copied ? { copied: row.copied } : {}) });
+const missingDependencies = (row) => row.dependencies.filter((dependency) => !dependency.current).map((dependency) => `${dependency.name}@${dependency.version}${dependency.installed ? ` (found ${dependency.installed})` : ''}`);
+const report = (row) => ({
+    name: row.name, target: row.target, action: row.action,
+    ...(row.differs.length ? { differs: row.differs } : {}),
+    ...(row.copied ? { copied: row.copied } : {}),
+    ...(missingDependencies(row).length ? { dependencies: missingDependencies(row) } : {}),
+    ...(row.installedDependencies?.length ? { installedDependencies: row.installedDependencies } : {}),
+});
 
 if (args.includes('--check')) {
     console.log(JSON.stringify({ stRoot, plugins: rows.map(report) }));
     process.exit(rows.every((row) => row.upToDate) ? 0 : 2);
 }
 
-const applied = applyInstall(rows);
+const applied = applyInstall(rows, { install: args.includes('--skip-deps') ? null : undefined });
 const config = fs.existsSync(path.join(stRoot, 'config.yaml')) ? fs.readFileSync(path.join(stRoot, 'config.yaml'), 'utf-8') : '';
 const enabled = /^enableServerPlugins:\s*true\s*$/m.test(config);
 const changed = applied.some((row) => row.copied.length);

@@ -1,8 +1,11 @@
 {
   "name": "story-orchestrator-harness",
-  "version": "1.2.0",
-  "description": "SillyTavern server plugin: answers Story Orchestrator's non-narrative passes through a CLI harness the host owner is logged into (Claude Code, Codex, opencode), text in, text out, tools off.",
+  "version": "2.0.0",
+  "description": "SillyTavern server plugin: answers Story Orchestrator's non-narrative passes through a CLI harness the host owner is logged into (Claude Code, Codex) or through OpenCode's own client and background service, text in, text out, tools off.",
   "type": "module",
   "main": "index.mjs",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@opencode/client": "2.0.28"
+  }
 }
