@@ -17,7 +17,7 @@ export interface VisualPreparationDeps {
   crop(path: string, box: HeadBox, signal: AbortSignal): Promise<{ data: string; sha256: string }>;
   hash(value: string): Promise<string>;
   save(review: VisualReview, signal: AbortSignal): Promise<VisualAsset>;
-  commit(source: VisualManifest): void;
+  commit(source: VisualManifest, run: RunGuard): void;
 }
 
 export class VisualPreparation {
@@ -78,7 +78,7 @@ export class VisualPreparation {
     if (!visualSources({ [source.character]: source })[source.character]) throw new Error("The reviewed visual manifest is incomplete.");
     this.guard(run, input, revision);
     if (!run.stillOwns()) throw new Error("The draft changed before this source could be accepted.");
-    this.deps.commit(source);
+    this.deps.commit(source, run);
     this.review = null; run.release();
     return structuredClone(source);
   }

@@ -1,5 +1,5 @@
 import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
-import type { RunOwnership } from "@runtime/runToken";
+import type { RunGuard, RunOwnership } from "@runtime/runToken";
 import { spriteFileFingerprint, saveGeneratedSprite } from "@services/stHost/media";
 import { spriteVisualCardPresent } from "@services/stHost/sprites";
 import { contentHash } from "./builder/recipes";
@@ -41,7 +41,8 @@ export function createVisualPreparation(ownership: RunOwnership): VisualPreparat
       if (!saved.ok) throw new Error(saved.reason);
       return { path: saved.path, sha256: saved.sha256, key: review.key, recipe };
     },
-    commit: (source) => {
+    commit: (source, run) => {
+      if (!run.stillOwns()) throw new Error("The draft changed before this source could be accepted.");
       const settings = getGlobalSettings().sprites;
       setGlobalSettings({ sprites: { visualSources: { ...settings.visualSources, [source.character]: source } } });
       visualSourceAccepted();
@@ -49,7 +50,8 @@ export function createVisualPreparation(ownership: RunOwnership): VisualPreparat
   });
 }
 
-export function publishDerivedVisual(character: string, root: string, set: string, fields: Record<string, string>, base: VisualAsset): void {
+export function publishDerivedVisual(run: Pick<RunGuard, "stillOwns">, character: string, root: string, set: string, fields: Record<string, string>, base: VisualAsset): void {
+  if (!run.stillOwns()) throw new Error("The story changed before this look could be published.");
   const settings = getGlobalSettings().sprites, source = settings.visualSources[character];
   if (!source) return;
   if (!spriteVisualCardPresent(character, source.card.path)) throw new Error("The prepared card is no longer installed.");

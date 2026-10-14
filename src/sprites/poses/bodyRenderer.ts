@@ -1,4 +1,4 @@
-import { beginRun, type RunOwnership } from "@runtime/runToken";
+import { beginRun, type RunGuard, type RunOwnership } from "@runtime/runToken";
 import { stableStringify } from "@runtime/hash";
 import { publicLook } from "@engine/cardFields";
 import type { PoseEntry } from "@engine/poseSchema";
@@ -34,7 +34,8 @@ export interface BodyDeps {
   proportions?(image: PixelImage, discovery: ComfyDiscovery, signal: AbortSignal): Promise<PoseEntry["keypoints"] | undefined>;
   head?(image: PixelImage, discovery: ComfyDiscovery, signal: AbortSignal): Promise<PoseEntry["keypoints"] | null | undefined>;
   lineage?(folder: string, signal: AbortSignal): Promise<{ root: string; baseSet: string; current(): boolean } | undefined>;
-  publishLook?(folder: string, root: string, set: string, fields: Record<string, string>, base: { path: string; sha256: string; key: string; recipe: { id: string; version: number } }): void;
+  publishLook?(run: Pick<RunGuard, "stillOwns">, folder: string, root: string, set: string, fields: Record<string, string>,
+    base: { path: string; sha256: string; key: string; recipe: { id: string; version: number } }): void;
 }
 
 export function alphaBox(image: PixelImage): HeadBox {
@@ -176,7 +177,7 @@ export class PoseBodies {
           base = { label: "neutral", ...saved, width: image.width, height: image.height };
         }
         guard();
-        if (lineage) this.deps.publishLook?.(request.folder, lineage.root, set, request.layers.base,
+        if (lineage) this.deps.publishLook?.(run, request.folder, lineage.root, set, request.layers.base,
           { path: base.path, sha256: base.sha256, key, recipe: BASE_RECIPE });
       }
       const image = await this.deps.decode(base.path);

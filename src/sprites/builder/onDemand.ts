@@ -131,7 +131,7 @@ export class OnDemandLooks {
         if (!file) throw new Error("The cached look expression is missing.");
         const frames = await animate(file.path, file.sha256);
         guard();
-        if (accepted && request.label === "neutral") publishDerivedVisual(request.folder, visualRoot(accepted), set, request.fields,
+        if (accepted && request.label === "neutral") publishDerivedVisual(run, request.folder, visualRoot(accepted), set, request.fields,
           { path: file.path, sha256: file.sha256, key: cached.labels[request.label].key, recipe: cached.labels[request.label].recipe });
         request.apply(set, existing, frames); return;
       }
@@ -148,7 +148,7 @@ export class OnDemandLooks {
       guard();
       const frames = await animate(saved.path, saved.sha256);
       guard();
-      if (accepted && request.label === "neutral") publishDerivedVisual(request.folder, visualRoot(accepted), set, request.fields,
+      if (accepted && request.label === "neutral") publishDerivedVisual(run, request.folder, visualRoot(accepted), set, request.fields,
         { ...saved, key: candidate.key, recipe: EDIT_RECIPE });
       request.apply(set, [...existing.filter((file) => file.label !== request.label), { label: request.label, path: saved.path }], frames);
     } catch (error) {
