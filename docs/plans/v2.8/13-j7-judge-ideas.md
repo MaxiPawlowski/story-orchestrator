@@ -160,6 +160,25 @@ Per idea below. Shared: `JUDGE_USE_KEYS` (`src/judge/settings.ts:7-25`) holds no
 - **Order (F16):** J7.6's gate runs **after v2.8 12** (J6d offline replay), which shows where the judge and extractor
   disagree by kind. No floor moves on fixture rows alone.
 
+**J7.6 Phase A protocol (predeclared 2026-10-14, branch `v2.8-j76-nonce`, committed before any call):**
+- Fixtures (synthetic, labelled before any answer, `ba30c09a`): tuning `test/fixtures/judge/spike-typed-kinds-tune.json`
+  (20 cases) and held-out `spike-typed-kinds.json` (30 cases). Each case holds one `choice`, one `stated` and one `rating`
+  quality in the production typed shapes (rating via authored `criteria.levels`, as the campaign authors all 38 of its
+  hinted ratings, or a rubric range), so 20 / 30 rows per kind.
+- Tuning split = the recorded `typed.json` golden (no new call) + one run of the tuning fixture.
+- Selection rule, fixed now: per kind, the lowest floor of {0.50, 0.55, ..., 0.95} whose tuning answered accuracy is
+  >= 0.95 on >= 10 answered rows; none = the single floor 0.8 stays. The latching bump (+0.1) stays on top. The floors
+  are frozen to `test/fixtures/judge/spike-typed-kinds.floors.json` (bound to the held-out revision) before the
+  held-out runs.
+- Held-out pass per kind, x2 (page-free, `scripts/spike/typesafe/typed-kinds.mts`): answered accuracy >= 0.95 (the typed
+  `answered` floor) at its frozen floor in both runs, with >= 20 rows and >= 15 answered rows per run, else
+  `insufficient`. Judge-off column: the same answers at the single floor 0.8.
+- A kind's floor may move only if its frozen floor differs from 0.8, it passes x2, AND the J6d replay shows the
+  judge/extractor disagreement by kind (F16: no floor moves on fixture rows alone). The replay leg reports, per kind,
+  which judge-answered keys a frozen floor keeps or hands back; a floor below 0.8 cannot be replayed (keys under 0.8 are
+  not archived).
+- Budget: at most 150 TypeSafe calls (`test/measurements/v2.8/13-phase-a/j76-attempts.jsonl`).
+
 ### J7.7 Canon regeneration drafts
 
 - **What it would add:** when the canon regenerates, store the result as a draft the author approves, with each
