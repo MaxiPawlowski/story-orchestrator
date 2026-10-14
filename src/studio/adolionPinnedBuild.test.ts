@@ -93,6 +93,8 @@ const load = (path: string) => {
     for (const n of [0, 5, 10, 20]) expect(ok(`lab/quests/academy-quests.arm-${n}.story.json`).quests?.length).toBe(3 + n);
     const stretches = ["lab/stretches/aegis-open.story.json", "lab/stretches/adventurer-open.story.json"]
       .flatMap((path) => ok(path).checkpoints.filter((checkpoint) => checkpoint.stretch?.mode === "open"));
-    expect(stretches.length).toBe(3);
+    expect(stretches.filter((checkpoint) => checkpoint.type !== "anchor").length).toBe(3);
+    expect(stretches.filter((checkpoint) => checkpoint.type === "anchor").length).toBe(1);
+    expect(stretches.filter((checkpoint) => checkpoint.stretch?.offer?.includes("encounters")).length).toBe(1);
   });
 });

@@ -8,7 +8,7 @@
   "campaign": {
     "repo": "C:/dev/adolion-campaign",
     "pinFile": "scripts/debug/adolion-fresh.pin.json",
-    "commit": "ecccdb781d0dc1a43c443e55ed911e126fe479a1",
+    "commit": "03441dc3baed8b991934c8e1515062501edbd99f",
     "routes": {
       "tests/routes-adventurer.json": "7d8dd25e72e872a5e2ce2275e08883c63c693adf9f3caf68aa97d107b2037050",
       "tests/routes-academy.json": "aae5a8635f11afb8c693f850520f282ccdd74adda605559c38632f42222e5125",
