@@ -462,6 +462,8 @@ export interface RuntimeSnapshot {
   imageHealth?: ImageHealthView | null;
   /** Install image choices that named a retired model and now use the default. */
   imageRetired?: Array<{ where: string; was: string }>;
+  /** Judge uses routed to a provider with no passed calibration for them: refused as `uncalibrated` at call time. */
+  judgeRouteGaps?: import("@judge/index").JudgeRouteGap[];
   spriteLookIssues?: SpriteLookIssue[];
   spriteStage?: SpriteStageHealth;
   activeCheckpointId: string | null;

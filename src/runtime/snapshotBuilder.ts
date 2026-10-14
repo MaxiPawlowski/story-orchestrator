@@ -5,7 +5,7 @@ import {
 import type { DriverContext } from "@copilot/index";
 import { castVoices, sceneFieldsInConflict, shownRows, withoutExcludedThreads, type LedgerView, type MemoryInjectionView } from "@memory/index";
 import { curatorLorebooks, mineRepetition, replyTexts } from "@stagecraft/index";
-import { confirmedSceneFacts, isSceneStale, judgeMeterView } from "@judge/index";
+import { confirmedSceneFacts, isSceneStale, judgeMeterView, judgeRouteGaps } from "@judge/index";
 import { buildConvergenceReadout, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot, playerLastTransition } from "./snapshot";
 import { currentThreads, latestScene } from "./recapCurrent";
 import { buildNarrativeStatus, PLAYER_COPY, playerLocation, type NarrativeTransition, type RollbackNotice, type RollbackUnavailable } from "./narrative";
@@ -166,7 +166,12 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   scopeContext: port.scopeContext,
 });
 
-const stem = (value: string) => value.replace(/\.(png|webp|jpe?g)$/i, "");
+const routeGaps = () => {
+  const { judge, stagecraft } = getGlobalSettings();
+  return judgeRouteGaps(judge, stagecraft.wardenEnabled && stagecraft.wardenAcceptMode !== "off");
+};
+
+const stem = (value: string) =>value.replace(/\.(png|webp|jpe?g)$/i, "");
 
 export const buildCastNames = (story: NormalizedStoryV2 | null, characters: ReadonlyArray<{ avatar?: string; name?: string }>): Record<string, string> => {
   const names: Record<string, string> = {};
@@ -409,7 +414,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     storyDescription: story?.description ?? null,
     publicStoryIntro: publishedIntro(story),
     imageStory: story?.illustrations ? { checkpoints: story.illustrations.checkpoints === true, scenes: story.illustrations.scenes === true } : null,
-    imageHealth: imageHealth(), imageRetired: getGlobalSettings().image.retired,
+    imageHealth: imageHealth(), imageRetired: getGlobalSettings().image.retired, judgeRouteGaps: routeGaps(),
     activeCheckpointId: active?.id ?? null,
     activeCheckpointName: active?.name ?? null,
     activeObjective: active?.objective ?? null,

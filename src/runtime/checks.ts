@@ -7,7 +7,7 @@ import { SPRITE_DEGRADE_CHECKS, SPRITE_INFO_CHECKS } from "./checksSprites";
 import { EXTENSION_DEGRADE_CHECKS, EXTENSION_INFO_CHECKS } from "./checksExtensions";
 
 export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save" | "chapter" | "privacy" | "thinking" | "group" | "image" | "quest"
-  | "characters" | "display" | "extension";
+  | "characters" | "display" | "extension" | "judge";
 
 export type CheckScope = "install" | "chat" | "story";
 export type CheckAudience = "player" | "author";

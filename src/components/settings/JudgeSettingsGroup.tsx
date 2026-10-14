@@ -1,7 +1,7 @@
 import { useState } from "react";
 import {
   AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, JUDGE_PROVIDER_IDS, JUDGE_PROVIDERS, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES,
-  judgeUseActive, providerLeavesMachine, type JudgeMeterView, type JudgeProviderId, type JudgeProviderRoutes, type JudgeReadinessKey, type JudgeReadinessRow,
+  judgeProviderControlId, judgeUseActive, providerLeavesMachine, type JudgeMeterView, type JudgeProviderId, type JudgeProviderRoutes, type JudgeReadinessKey, type JudgeReadinessRow,
   type JudgeSettings, type JudgeUseKey, type JudgeUses,
 } from "@judge/index";
 import { judgeReadiness, judgeReadinessConcerns } from "@judge/readinessRows";
@@ -111,7 +111,7 @@ const JudgeUseRows = ({ settings, builtUses, authorView, wardenEnabled, onChange
           />
           {blocked && <span className="text-xs opacity-70">{blocked}</span>}
           <ProviderSelect
-            id={`so-judge-provider-${kebab(use)}`}
+            id={judgeProviderControlId(use)}
             label={copy.label}
             value={settings.provider[use]}
             disabled={!settings.enabled}
@@ -124,7 +124,7 @@ const JudgeUseRows = ({ settings, builtUses, authorView, wardenEnabled, onChange
       <div className="flex flex-wrap items-center gap-2 text-sm">
         <span>Continuity warden</span>
         <ProviderSelect
-          id="so-judge-provider-warden"
+          id={judgeProviderControlId("warden")}
           label="Continuity warden"
           value={settings.provider.warden}
           disabled={!settings.enabled}
