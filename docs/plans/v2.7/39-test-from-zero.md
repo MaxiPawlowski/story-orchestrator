@@ -1,5 +1,8 @@
 # Plan 39 — Phase C: test everything from zero
 
+**Status (2026-10-14): WRAPPED (symbolic, owner 2026-10-09), NOT accepted; Phase C INCOMPLETE under rule 8.** See
+§Wrap record 2026-10-14. The status line below is history.
+
 **Status (2026-10-07): SEEDED from the user (2026-10-07: "then do all test over from 0"; "u can use runpod if there're
 many test to be done"); needs user approval; not run.** Overview: `00-overview.md`. Supersedes `16-test-plan.md`'s
 close-out (§Close-out checklist) and absorbs the real-model rows v2.7 had moved to `v2.8/01-v27-carry-over.md` §A and
@@ -39,6 +42,8 @@ checks in C5; their fixes, the R4 gate lift and the model A/B stay in `v2.8/01-v
    and it ships the debug handles, so every row runs on it, driven by the harness, with the shipped defaults (every
    setting the old release build stripped is an ordinary setting, off by default; shipped chapter-seal settings). A
    row that needs a setting on says so in its prerequisites. The `prod` / `dev-diagnostic` split is gone.
+   **Superseded 2026-10-09 (owner):** every built feature is on by default, below its floor too; "off by default"
+   above is history.
 10. **Row manifest** (finding 13). `test/phase-c/manifest.json`, written in B0, before the freeze. Each row has: `id`,
     source plan, prerequisites, reset procedure, tier, assertion, floor (verbatim,
     with a citation), `evidence[2]` (record paths). Only manifest rows count. A row added after the freeze needs a
@@ -283,7 +288,7 @@ pod at every pause; `test/sessions/BUDGET.md` updated per block.
 
 "Go with the recommendations": every decision in §Decisions above takes its **Recommended** answer. RunPod budget **approved** (about 27 pod-hours, stop at 150%).
 
-## Prerequisites before the freeze (test review 2026-10-07, `40-test-case-review.md`)
+## Prerequisites before the freeze (test review 2026-10-07, `40-test-case-review.md`, never committed: missing)
 
 The payload-golden tool (C0/C3), `requires` on every scenario (C2), the de-pinned image harness with a ≥ 3-character
 test cast (C6), the missing plan 01–10 D scenarios (C2), the guards the review lists (FLUX nodes, `.safetensors`
@@ -1152,3 +1157,25 @@ under `C:\dev\so-lanes\pod2` on a private ST copy; the real ST slot, :8000, lane
 - B1-NARR: **PASS (run 1 only)**; P3 copy `agent-st-b1c-cand` (2e9ae27b, `a52734d6326e`) vs pre-P3 `agent-st-b1c-prep3` (d33a75a8, `8a71ef276e84`), both arms at once from one seeded image, 20/20 Narrator turns each. Holdings p50 2,197 vs 5,478 tokens; P3 additions beyond the enabled members max 768 (never > 1,100 in 21 Narrator requests); Narrator prompt p50 41,845 vs 45,698 (−3,853, floor −2,500). Blind rating (codex exec, delegated, sides shuffled by hash, 20 pairs): P3 12, control 8, tie 0 = 60 % (floor 50 %); invented strangers 2 vs 2. One empty reply left after recovery in the P3 arm. Run 2 not run
 
 Not run (budget): 35-K5 (R3), B1-EMPTY formal arms (R4), lorebook R5 (R7), v2.8 01 owed rows (R8).
+
+## Wrap record 2026-10-14
+
+- Verdict: v2.7 **WRAPPED** 2026-10-09, symbolic (owner: private plugin, one user; `v2.8/31-v27-wrap-backlog.md` §Status).
+  **NOT accepted.** Phase C **INCOMPLETE** under rule 8: 155 of 204 `test/phase-c/manifest.json` rows have no evidence pair.
+- No freeze (C0) and no Phase C ×2 run happened; the pod Phase C was dropped (no RunPod budget for the rest of October 2026).
+- Stage B decision record (B2) never completed. Recorded here:
+  - SP6: INCOMPLETE (35-K5 under 20 pooled releases; 35-K3 run 2 one cell only, `v2.8/31` M1/M2).
+  - 35 M2: not run.
+  - 36 `clock`: ships.
+  - Experiment flags: ship on.
+  - All of the above superseded by the owner 2026-10-09 rule: every built feature on by default, floors informational.
+  - Pressure and `trigger` stay refused (`v2.8/19`).
+- Main-entry budget: rows citing 1,250,000 B are history; the real budget is 1,300,000 B since `a11cb81e`
+  (main 1,257,967 B on master `6642dc50`).
+- `40-test-case-review.md` (cited in §Prerequisites) was never committed: missing.
+- Manifest evidence lag, not written into `test/phase-c/manifest.json` (owed): B1-PFX FAIL ×2, B1-NARR run 1,
+  37-L6-C local ×2 (records in §Pod 2 record and `v2.8/31` M6/M8). 36-Q1-M1 carries an evidence pair but is retired,
+  not passed.
+- Every open row moves to the v2.8 final suite: `v2.8/24-test-plan.md` §v2.7 rows carried in (2026-10-14).
+- Gates on master `6642dc50` (audit 2026-10-14): `npm run gates` green, 326 s; jest 698 suites / 8,094 tests,
+  Storybook 130 / 790, replay 32/32.

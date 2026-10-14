@@ -73,6 +73,21 @@ Each plan's own file holds the floors; this table is the index. A plan is done o
 4. **×2** on one lane series, run header diffed around each pass.
 5. **A failure is fixed, the candidate re-freezes, and only the affected rows re-run ×2.** The fix commit names them.
 
+## v2.7 rows carried in (2026-10-14)
+
+v2.7 wrapped without Phase C (`v2.7/39-test-from-zero.md` §Wrap record 2026-10-14). Its open rows join this final
+suite. Row source: `test/phase-c/manifest.json` (204 rows; 155 without an evidence pair). By tier:
+
+- D: 40 single-tier rows without an evidence pair, including C0, C1, C1b and C3; the 7 PC-* payload contracts; C2;
+  29-D1/D2; 30-D1..D3; 31-G3; 36-P-live; spoiler sweeps; 35-ENC/35-DROP; 37-B3; Z-docs; Z-attestation.
+- D, never-run no-model scenarios: `v27-32-images-clean-host`, `v27-36-quests`, `v27-37-character-life`.
+- CL: 26 single-tier, plus mixed (CL+RP 7, RP+CL 10, D+CL 2).
+- RP: 24 single-tier, plus 21 D+RP.
+- LI: 14 single-tier, plus mixed (LI+CL 5, LI+RP 4, LI+LT+CL 1); LT 1.
+- Manifest evidence lag (owed, manifest not edited): B1-PFX FAIL ×2, B1-NARR run 1, 37-L6-C local ×2 are not written
+  in; 36-Q1-M1 is retired, not passed.
+- Floors stay informational (owner 2026-10-09); a miss is recorded, never retuned.
+
 ## Sessions
 
 Charter cards in `test/sessions/charters.json` (validated; `v2.6/14-cards.md`-style index regenerated), played with

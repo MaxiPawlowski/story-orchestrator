@@ -1,5 +1,7 @@
 # Plan 31 — FLUX out, product vs local tooling, harness hygiene
 
+**Status (2026-10-14): built, see Gate record; acceptance owed → v2.8 24.** Status lines below are history.
+
 **Status (2026-10-07): SEEDED from the user's decisions (2026-10-07: FLUX out of scope; "parallel if it's nice";
 evidence to the private repo — done); needs user approval; not built.** Overview: `00-overview.md`. Gate tier: D.
 
