@@ -525,8 +525,8 @@ Look-to-rig texture reuse remains unmeasured. Other open acceptance items are li
   card look requires its matching published derivative; initial accepted default does not guess a match.
   Face/decal-only look signatures may currently refuse cast illustration until a matching full-look derivative
   is prepared. These are acceptance/next-design gaps, not alternate quality floors.
-- Harness parent commits adopted locally as `4da44c44` (`016a39a3`), `ed4ebd47` (`6e260f34`),
-  `1d245583` (`7537491f`). Both parent plan-40 records retained. No conflicting harness source edits.
+- Harness parent commits were adopted locally, then dropped on 2026-10-14 when the branch was rebased onto
+  master (`004abc8a` merged `016a39a3`/`6e260f34`/`7537491f`). Both parent plan-40 records retained.
 - Campaign adoption deferred to RP acceptance; no private campaign material, pin bump or install.
 
 ### Exact next acceptance sequence — after parent product review
@@ -547,3 +547,52 @@ Look-to-rig texture reuse remains unmeasured. Other open acceptance items are li
   predeclared floors; use a verified native `--cache-none` server for identical-input generation repeats.
   Keep pod evidence separate, reconcile rating calls against 113/150, archive privately, stop/unload and prove
   idle. No current deterministic result substitutes for those acceptance runs.
+
+## Gate record — stage 2 (deterministic), 2026-10-14
+
+- Branch `v2.8-plan41-poc`, worktree `C:\dev\so-plan41`. Uncommitted stage-2 work committed as four logical commits,
+  then rebased onto master `004abc8a`; the three duplicated harness commits dropped as already applied. No conflicts.
+- Review fixes:
+  - `drawPreparedCast`: the unplaced-image cleanup reads `imageDelete`'s WriteResult (and a rejected delete), logs a
+    failed removal, and always rethrows the original refusal. Tests: castSceneHost.test.ts (refused and threw cases).
+  - Cast scene builder config came from `selected[0]` only: a second member's missing route went unnoticed and a
+    different model triple was silently ignored. `castSceneBuilder` now requires every selected member's route, refuses
+    mismatched diffusion/encoder/VAE, and takes the larger steps/resolution (order independent). Tests: castScene.test.ts.
+  - `visualHost` commit and `publishDerivedVisual` take the caller's RunGuard and re-check `stillOwns()` immediately
+    before the settings write (onDemand, bodyRenderer and VisualPreparation pass their run). Both are synchronous, so the
+    ownership census has no new rows; ownership.guard green. Tests: visualHost.test.ts.
+  - Stray lone-LF lines fixed (stage.ts 3, StudioCopilot.tsx 1, castSceneHost.test.ts 7); StudioCopilot.tsx is now
+    unchanged against master.
+  - Feature registry: `prepared-presentation` (author, Studio `#so-prepare-presentation`) and `cast-illustration`
+    (setup, drawer `#so-cast-scene`), both experimental and on, with no setting to switch them off. README table and
+    settings reference regenerated (`npm run docs:settings`, `npm run docs:guide`).
+  - LiveHeadAuthor story still asserted the old "rig missing" copy; updated to the fallback copy.
+- Main bundle `dist/index.js` 1,261,282 B (budget 1,300,000 B). Cast scene host, Prepare presentation and cast
+  controls load lazily; the stage, keys and live-head status changes ride the main entry.
+- Gates:
+  - `npm run gates:quick`: typecheck, typecheck:test, defect replay 32/32 green; lint and codeHealth S5 red on two
+    over-long lines in imageFeatures.ts, fixed.
+  - `npm run gates` run 1: red on errorCopy.guard (new cleanup log row) and the LiveHeadAuthor story; both fixed.
+  - `npm run gates` run 2: every step green, Storybook included, except test:plugin: 2 harness deadline tests
+    (`the session deadline tears everything down…`, `a stalled OpenCode service…`) failed while CPU was pegged by a
+    parallel 3090 measurement. They passed in run 1, and a solo `npm run test:plugin` rerun exited 0 (fail 0). No
+    harness code changed on this branch.
+  - Final run `npm run gates -- --jobs=2` (throttled for the measurement window): all green in 374.6s, Storybook
+    included (test, test:replay, test-storybook:ci, test:debug, typecheck, typecheck:test, debug:typecheck, lint,
+    test:release, test:plugin, build).
+- Built in stage 2 (against §5 D and the refined design): per-character accepted visual manifest with card/base/bust
+  hashes and revision; Studio Prepare presentation (four-candidate base picker, head box, base+bust review, accept,
+  cancel); wizard "Next: prepare cast presentation" entry; accepted-root lineage in expression/raw/final, changed-look,
+  pose and body-stamp keys; derived-look publication only while the root is current; cast scene as a distinct lazy
+  Qwen 2.1 two-reference recipe with current-look refusal and owned broker/reference cleanup; live-head pending/static
+  fallback by look bust hash; per-use-case route/status view; synthetic Storybook cases.
+- NOT built or NOT proven:
+  - Automatic landmark-to-rig synthesis (vision rig) is not built; only the image-capable request contract exists.
+    No product rig call or trial.
+  - Changed-look bust review/rebuild and rig UI is missing; a changed look shows pending/static fallback only.
+  - Optional six-view reference pack authoring, a tier settings model, and full wizard card artwork provisioning
+    are not built. Face/decal-only look signatures may refuse cast illustration until a full-look derivative exists.
+  - No browser, lane, model, GPU or ComfyUI acceptance: no render, no real Sol wizard, no Artemis play, no
+    two-member scene render, no reload/chat-switch proof in a browser. Every claim here is deterministic tests and
+    Storybook only. The §5 A journey ×2 and the folded plan 28/29/33/36 rows remain owed.
+  - Campaign adoption, showcase rebuild through the product path, not staged into ST, not merged.
