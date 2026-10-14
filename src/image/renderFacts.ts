@@ -11,7 +11,7 @@ export const renderFacts = (input: {
     modelFiles: [
       { kind: "checkpoints", name: input.checkpoint.file },
       ...input.loras.map((lora) => ({ kind: "loras", name: lora.entry.file })),
-    ],
+    ].filter((file) => file.name),
     width: size.width, height: size.height, hires: input.quality === "hires",
   };
 };

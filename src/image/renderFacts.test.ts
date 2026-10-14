@@ -27,4 +27,8 @@ describe("render facts", () => {
     expect(renderKey(withLora)).not.toBe(base);
     expect(withLora.modelFiles).toContainEqual({ kind: "loras", name: "style.safetensors" });
   });
+
+  it("leaves out a picture type with no checkpoint, so a story workflow still gets a lease", () => {
+    expect(facts({ checkpoint: { ...checkpoint(WAI), file: "" } }).modelFiles).toEqual([]);
+  });
 });
