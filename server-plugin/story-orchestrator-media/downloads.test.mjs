@@ -122,6 +122,22 @@ test('download: a free-space shortfall refuses before a byte is written, naming 
     assert.deepEqual(await fs.readdir(root), []);
 });
 
+test('download: a source that does not state the size can still be downloaded, with the warning, while the margin is free', async () => {
+    const unsized = () => fakeProviders({ version: civitaiVersion({ files: [{ ...civitaiVersion().files[0], sizeKB: undefined }] }) });
+    const { root, downloads } = await setup({ providers: unsized() });
+    const card = await downloads.plan({ user: 'u', provider: 'civitai', ref: { versionId: 4242 }, key: KEY });
+    assert.equal(card.sizeBytes, null);
+    assert.equal(card.fits, true);
+    assert.match(card.warning, /did not state the size; free space is checked again as it downloads/);
+    downloads.start({ user: 'u', planId: card.id, key: KEY });
+    await downloads.idle();
+    const [job] = downloads.list('u');
+    assert.equal(job.state, 'done', job.error);
+    assert.deepEqual(await fs.readdir(root), ['ink-lines.safetensors']);
+    const short = await setup({ providers: unsized(), free: 1024 ** 3 });
+    assert.equal((await short.downloads.plan({ user: 'u', provider: 'civitai', ref: { versionId: 4242 }, key: KEY })).fits, false);
+});
+
 test('resume: a cancelled download continues with Range, and restarts when the server ignores Range', async () => {
     for (const rangeSupported of [true, false]) {
         const providers = fakeProviders({ rangeSupported });
