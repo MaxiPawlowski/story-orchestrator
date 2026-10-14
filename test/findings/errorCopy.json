@@ -1409,9 +1409,29 @@
       "reason": "author or console surface: raw error kept for diagnosis"
     },
     {
-      "site": "src/services/stHost/profileToolBridge.ts#nextCall",
+      "site": "src/services/stHost/profileToolBridge.ts#failureText",
+      "kind": 2,
+      "template": "`${message}: ${cause}`",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author surface: the profile's own failure, named auth/quota/transport, ends the agent session and the runner falls back to the text route"
+    },
+    {
+      "site": "src/services/stHost/profileToolBridge.ts#failureText",
       "kind": 2,
       "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author surface: the profile's own failure, named auth/quota/transport, ends the agent session and the runner falls back to the text route"
+    },
+    {
+      "site": "src/services/stHost/profileToolBridge.ts#textOf",
+      "kind": 2,
+      "template": "value instanceof Error ? value.message : typeof value === \"string\" ? value : \"\"",
       "surface": "author",
       "rawError": true,
       "silentCatch": null,
