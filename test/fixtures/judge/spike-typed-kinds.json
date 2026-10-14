@@ -1,0 +1,2636 @@
+{
+ "use": "typed",
+ "idea": "J7.6",
+ "split": "held-out",
+ "revision": 1,
+ "labelledAt": "2026-10-14",
+ "source": "Synthetic, authored for v2.8 13 J7.6 Phase A (no campaign content). One choice, one stated and one rating quality per case, the production typed shapes (rating via authored criteria.levels, as the campaign authors them, or a rubric range). Labels written before any answer was read. acceptable = the values the chain may hold after the window (the prior when unchanged; null = nothing set).",
+ "rows": [
+  {
+   "id": "K01",
+   "lang": "en",
+   "story": {
+    "title": "Ember Road",
+    "checkpointName": "The Toll Gate",
+    "objective": "Get past the toll gate."
+   },
+   "qualities": [
+    {
+     "key": "toll_paid",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Did the party pay the toll?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "toll_cost",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many silver pieces is the toll?",
+     "read_as": "stated"
+    },
+    {
+     "key": "collector_suspicion",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How suspicious is the toll collector?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: unaware"
+       },
+       {
+        "value": 1,
+        "label": "1: curious"
+       },
+       {
+        "value": 2,
+        "label": "2: suspicious"
+       },
+       {
+        "value": 3,
+        "label": "3: alarmed"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Collector",
+     "text": "\"Five silver per head. No exceptions.\""
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I drop fifteen silver into his palm for the three of us.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "Collector",
+     "text": "He bites one coin, grunts, and lifts the bar. \"Move along.\""
+    }
+   ],
+   "prior": {
+    "collector_suspicion": 1
+   },
+   "acceptable": {
+    "toll_paid": [
+     true
+    ],
+    "toll_cost": [
+     5
+    ],
+    "collector_suspicion": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "id": "K02",
+   "lang": "en",
+   "story": {
+    "title": "Ember Road",
+    "checkpointName": "The Ambush",
+    "objective": "Survive the bandit ambush."
+   },
+   "qualities": [
+    {
+     "key": "bandits_fled",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Did the bandits flee?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "bandits_count",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many bandits attacked?",
+     "read_as": "stated"
+    },
+    {
+     "key": "party_morale",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "What is the party's morale?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: broken"
+       },
+       {
+        "value": 1,
+        "label": "1: low"
+       },
+       {
+        "value": 2,
+        "label": "2: steady"
+       },
+       {
+        "value": 3,
+        "label": "3: high"
+       },
+       {
+        "value": 4,
+        "label": "4: elated"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "Eight bandits burst from the trees, blades out."
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I draw my sword and shout for Arin to cover the wagon.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "Steel rings. Two bandits fall; the rest press in harder, and Arin is bleeding from a cut on her arm."
+    }
+   ],
+   "prior": {
+    "party_morale": 2
+   },
+   "acceptable": {
+    "bandits_fled": [
+     false
+    ],
+    "bandits_count": [
+     8
+    ],
+    "party_morale": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "id": "K03",
+   "lang": "en",
+   "story": {
+    "title": "Ember Road",
+    "checkpointName": "The Roadside Shrine",
+    "objective": "Leave an offering at the shrine."
+   },
+   "qualities": [
+    {
+     "key": "offering_left",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the party left an offering at the shrine?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "shrine_god",
+     "type": "string",
+     "source": "extractor",
+     "rubric": "The name of the god the shrine honors.",
+     "read_as": "stated"
+    },
+    {
+     "key": "arin_faith",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How strong is Arin's faith right now, from 0 (none) to 4 (devout)?",
+     "read_as": "rating"
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "A weathered stone shrine stands by the road. The carving reads *Hollen, Keeper of Roads*."
+    },
+    {
+     "id": 11,
+     "speaker": "Arin",
+     "text": "Arin snorts. \"Gods never helped me. Let's keep moving.\""
+    },
+    {
+     "id": 12,
+     "speaker": "Max",
+     "text": "I nod and walk on past it.",
+     "isUser": true
+    }
+   ],
+   "prior": {
+    "arin_faith": 1
+   },
+   "acceptable": {
+    "offering_left": [
+     false
+    ],
+    "shrine_god": [
+     "Hollen",
+     "Hollen, Keeper of Roads"
+    ],
+    "arin_faith": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "id": "K04",
+   "lang": "en",
+   "story": {
+    "title": "Glass Harbor",
+    "checkpointName": "The Fish Market",
+    "objective": "Find the informant among the stalls."
+   },
+   "qualities": [
+    {
+     "key": "informant_found",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the player found the informant?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "stalls_searched",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many stalls had the player already checked before this one?",
+     "read_as": "stated"
+    },
+    {
+     "key": "informant_fear",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How afraid is the informant?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: calm"
+       },
+       {
+        "value": 1,
+        "label": "1: uneasy"
+       },
+       {
+        "value": 2,
+        "label": "2: afraid"
+       },
+       {
+        "value": 3,
+        "label": "3: terrified"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Max",
+     "text": "I've checked four stalls already. I try the next one, where an old woman guts herring.",
+     "isUser": true
+    },
+    {
+     "id": 11,
+     "speaker": "Old Woman",
+     "text": "She doesn't look up. \"You're the one asking about Nell. I'm Nell. Don't look at me. They watch this market.\""
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "Her knife hand trembles slightly."
+    }
+   ],
+   "prior": {
+    "informant_fear": 1
+   },
+   "acceptable": {
+    "informant_found": [
+     true
+    ],
+    "stalls_searched": [
+     4
+    ],
+    "informant_fear": [
+     2
+    ]
+   }
+  },
+  {
+   "id": "K05",
+   "lang": "en",
+   "story": {
+    "title": "Glass Harbor",
+    "checkpointName": "The Lighthouse",
+    "objective": "Relight the lighthouse lamp."
+   },
+   "qualities": [
+    {
+     "key": "lamp_lit",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Is the lighthouse lamp lit?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "stairs_climbed",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many stairs did the player climb?",
+     "read_as": "stated"
+    },
+    {
+     "key": "lamp_progress",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How far along is the relighting of the lamp?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: not started"
+       },
+       {
+        "value": 1,
+        "label": "1: begun"
+       },
+       {
+        "value": 2,
+        "label": "2: halfway"
+       },
+       {
+        "value": 3,
+        "label": "3: nearly done"
+       },
+       {
+        "value": 4,
+        "label": "4: finished"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "200 stairs later, you reach the lamp room, gasping."
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I fill the reservoir with oil and strike the flint.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "The wick catches. The great lens turns, and a beam sweeps out across the black water."
+    }
+   ],
+   "prior": {
+    "lamp_progress": 0
+   },
+   "acceptable": {
+    "lamp_lit": [
+     true
+    ],
+    "stairs_climbed": [
+     200
+    ],
+    "lamp_progress": [
+     4
+    ]
+   }
+  },
+  {
+   "id": "K06",
+   "lang": "en",
+   "story": {
+    "title": "Glass Harbor",
+    "checkpointName": "The Harbormaster's Office",
+    "objective": "Get a berth for the ship."
+   },
+   "qualities": [
+    {
+     "key": "berth_status",
+     "type": "enum",
+     "values": [
+      "none",
+      "waiting",
+      "granted",
+      "refused"
+     ],
+     "source": "extractor",
+     "rubric": "What is the status of the ship's berth?",
+     "read_as": "choice"
+    },
+    {
+     "key": "fee",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many crowns is the berth fee?",
+     "read_as": "stated"
+    },
+    {
+     "key": "master_trust",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How much does the harbormaster trust the player?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: none"
+       },
+       {
+        "value": 1,
+        "label": "1: wary"
+       },
+       {
+        "value": 2,
+        "label": "2: neutral"
+       },
+       {
+        "value": 3,
+        "label": "3: friendly"
+       },
+       {
+        "value": 4,
+        "label": "4: complete"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Harbormaster",
+     "text": "\"Berths are full. You can wait in the outer roads like everyone else.\""
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "\"How long?\"",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "Harbormaster",
+     "text": "\"Three days, maybe four. Fee's the same either way.\" He doesn't bother to say what the fee is."
+    }
+   ],
+   "prior": {
+    "berth_status": "none",
+    "master_trust": 2
+   },
+   "acceptable": {
+    "berth_status": [
+     "waiting"
+    ],
+    "fee": null,
+    "master_trust": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "id": "K07",
+   "lang": "en",
+   "story": {
+    "title": "The Silent Abbey",
+    "checkpointName": "The Gatehouse",
+    "objective": "Gain entry to the abbey."
+   },
+   "qualities": [
+    {
+     "key": "entry_granted",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the party been granted entry to the abbey?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "monks_seen",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many monks has the party seen?",
+     "read_as": "stated"
+    },
+    {
+     "key": "abbot_trust",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How much does the abbot trust the party?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: none"
+       },
+       {
+        "value": 1,
+        "label": "1: wary"
+       },
+       {
+        "value": 2,
+        "label": "2: neutral"
+       },
+       {
+        "value": 3,
+        "label": "3: friendly"
+       },
+       {
+        "value": 4,
+        "label": "4: complete"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "Two monks in grey robes open the gate a crack and stare at you without a word."
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "\"We seek shelter for one night.\"",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "The monks exchange a glance and close the gate again. You hear the bolt slide home."
+    }
+   ],
+   "prior": {
+    "abbot_trust": 2
+   },
+   "acceptable": {
+    "entry_granted": [
+     false
+    ],
+    "monks_seen": [
+     2
+    ],
+    "abbot_trust": [
+     2
+    ]
+   }
+  },
+  {
+   "id": "K08",
+   "lang": "en",
+   "story": {
+    "title": "The Silent Abbey",
+    "checkpointName": "The Library",
+    "objective": "Find the book of hours."
+   },
+   "qualities": [
+    {
+     "key": "book_found",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the player found the book of hours?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "shelf_label",
+     "type": "string",
+     "source": "extractor",
+     "rubric": "The label on the shelf where the book is kept.",
+     "read_as": "stated"
+    },
+    {
+     "key": "librarian_alert",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How alert is the librarian monk?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: unaware"
+       },
+       {
+        "value": 1,
+        "label": "1: curious"
+       },
+       {
+        "value": 2,
+        "label": "2: suspicious"
+       },
+       {
+        "value": 3,
+        "label": "3: alarmed"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Max",
+     "text": "I scan the shelves by candlelight, moving quietly.",
+     "isUser": true
+    },
+    {
+     "id": 11,
+     "speaker": "DM Narrator",
+     "text": "The old librarian monk snores softly at his desk. On a high shelf marked *Devotions*, a gilt spine catches the light: the book of hours."
+    },
+    {
+     "id": 12,
+     "speaker": "Max",
+     "text": "I climb the ladder and take it down.",
+     "isUser": true
+    }
+   ],
+   "prior": {
+    "librarian_alert": 0
+   },
+   "acceptable": {
+    "book_found": [
+     true
+    ],
+    "shelf_label": [
+     "Devotions"
+    ],
+    "librarian_alert": [
+     0
+    ]
+   }
+  },
+  {
+   "id": "K09",
+   "lang": "en",
+   "story": {
+    "title": "The Silent Abbey",
+    "checkpointName": "The Crypt",
+    "objective": "Learn what lies under the abbey."
+   },
+   "qualities": [
+    {
+     "key": "light_source",
+     "type": "enum",
+     "values": [
+      "none",
+      "candle",
+      "torch",
+      "lantern"
+     ],
+     "source": "extractor",
+     "rubric": "What light does the party carry in the crypt?",
+     "read_as": "choice"
+    },
+    {
+     "key": "coffins_count",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many coffins are in the crypt?",
+     "read_as": "stated"
+    },
+    {
+     "key": "party_fear",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How afraid is the party?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: calm"
+       },
+       {
+        "value": 1,
+        "label": "1: uneasy"
+       },
+       {
+        "value": 2,
+        "label": "2: afraid"
+       },
+       {
+        "value": 3,
+        "label": "3: terrified"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "Your torch throws long shadows over eleven stone coffins. One lid has been pushed aside from within."
+    },
+    {
+     "id": 11,
+     "speaker": "Arin",
+     "text": "Arin's voice is barely a whisper. \"I want to leave. Now. Please.\""
+    },
+    {
+     "id": 12,
+     "speaker": "Max",
+     "text": "I swallow and step closer to the open coffin.",
+     "isUser": true
+    }
+   ],
+   "prior": {
+    "light_source": "candle",
+    "party_fear": 1
+   },
+   "acceptable": {
+    "light_source": [
+     "torch"
+    ],
+    "coffins_count": [
+     11
+    ],
+    "party_fear": [
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "id": "K10",
+   "lang": "en",
+   "story": {
+    "title": "Neon Saints",
+    "checkpointName": "The Club",
+    "objective": "Meet the fixer at the club."
+   },
+   "qualities": [
+    {
+     "key": "fixer_met",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the player met the fixer?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "fixer_alias",
+     "type": "string",
+     "source": "extractor",
+     "rubric": "The alias the fixer uses.",
+     "read_as": "stated"
+    },
+    {
+     "key": "bouncer_suspicion",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How suspicious is the bouncer?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: unaware"
+       },
+       {
+        "value": 1,
+        "label": "1: curious"
+       },
+       {
+        "value": 2,
+        "label": "2: suspicious"
+       },
+       {
+        "value": 3,
+        "label": "3: alarmed"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Bouncer",
+     "text": "The bouncer blocks the door and looks you up and down. \"Never seen you before. Who sent you?\""
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "\"Tell Mr. Halcyon I'm here about the job.\"",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "Bouncer",
+     "text": "He doesn't move. His hand drifts toward his jacket. \"Wait here. Don't touch anything.\""
+    }
+   ],
+   "prior": {
+    "bouncer_suspicion": 1
+   },
+   "acceptable": {
+    "fixer_met": [
+     false
+    ],
+    "fixer_alias": [
+     "Halcyon"
+    ],
+    "bouncer_suspicion": [
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "id": "K11",
+   "lang": "en",
+   "story": {
+    "title": "Neon Saints",
+    "checkpointName": "The Server Farm",
+    "objective": "Plant the data spike."
+   },
+   "qualities": [
+    {
+     "key": "spike_planted",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the player planted the data spike?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "racks_count",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many server racks are in the room?",
+     "read_as": "stated"
+    },
+    {
+     "key": "upload_progress",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How far along is the data upload?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: not started"
+       },
+       {
+        "value": 1,
+        "label": "1: begun"
+       },
+       {
+        "value": 2,
+        "label": "2: halfway"
+       },
+       {
+        "value": 3,
+        "label": "3: nearly done"
+       },
+       {
+        "value": 4,
+        "label": "4: finished"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "Twenty racks hum in the cold room. You jam the spike into the third one."
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I watch the progress bar on my wrist.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "The bar crawls to the halfway mark and holds there, blinking."
+    }
+   ],
+   "prior": {
+    "upload_progress": 0
+   },
+   "acceptable": {
+    "spike_planted": [
+     true
+    ],
+    "racks_count": [
+     20
+    ],
+    "upload_progress": [
+     2
+    ]
+   }
+  },
+  {
+   "id": "K12",
+   "lang": "en",
+   "story": {
+    "title": "Neon Saints",
+    "checkpointName": "The Getaway",
+    "objective": "Escape the corporate tower."
+   },
+   "qualities": [
+    {
+     "key": "escape_route",
+     "type": "enum",
+     "values": [
+      "unknown",
+      "elevator",
+      "stairs",
+      "roof"
+     ],
+     "source": "extractor",
+     "rubric": "Which route is the player using to escape?",
+     "read_as": "choice"
+    },
+    {
+     "key": "drones_chasing",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many drones are chasing the player?",
+     "read_as": "stated"
+    },
+    {
+     "key": "player_wounds",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How badly hurt is the player's getaway car?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: intact"
+       },
+       {
+        "value": 1,
+        "label": "1: scratched"
+       },
+       {
+        "value": 2,
+        "label": "2: damaged"
+       },
+       {
+        "value": 3,
+        "label": "3: wrecked"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "You burst onto the roof. Two security drones rise over the edge, searchlights locking on."
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I sprint for the parked car and dive inside.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "Bullets stitch across the hood and shatter the rear window as you peel away."
+    }
+   ],
+   "prior": {
+    "escape_route": "unknown",
+    "player_wounds": 0
+   },
+   "acceptable": {
+    "escape_route": [
+     "roof"
+    ],
+    "drones_chasing": [
+     2
+    ],
+    "player_wounds": [
+     2
+    ]
+   }
+  },
+  {
+   "id": "K13",
+   "lang": "en",
+   "story": {
+    "title": "The Orchard War",
+    "checkpointName": "The Farmhouse",
+    "objective": "Convince the farmer to sell."
+   },
+   "qualities": [
+    {
+     "key": "farm_sold",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the farmer agreed to sell the farm?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "offer_gold",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How much gold has the player offered?",
+     "read_as": "stated"
+    },
+    {
+     "key": "farmer_trust",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How much does the farmer trust the player?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: none"
+       },
+       {
+        "value": 1,
+        "label": "1: wary"
+       },
+       {
+        "value": 2,
+        "label": "2: neutral"
+       },
+       {
+        "value": 3,
+        "label": "3: friendly"
+       },
+       {
+        "value": 4,
+        "label": "4: complete"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Max",
+     "text": "\"300 gold. More than fair.\"",
+     "isUser": true
+    },
+    {
+     "id": 11,
+     "speaker": "Farmer",
+     "text": "Old Brannoch spits. \"My father planted these trees. Not for three hundred, not for three thousand. Get off my land.\""
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "He reaches for the pitchfork by the door."
+    }
+   ],
+   "prior": {
+    "farmer_trust": 1
+   },
+   "acceptable": {
+    "farm_sold": [
+     false
+    ],
+    "offer_gold": [
+     300
+    ],
+    "farmer_trust": [
+     0
+    ]
+   }
+  },
+  {
+   "id": "K14",
+   "lang": "en",
+   "story": {
+    "title": "The Orchard War",
+    "checkpointName": "The Cider Press",
+    "objective": "Sabotage the rival's press."
+   },
+   "qualities": [
+    {
+     "key": "press_broken",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the rival's cider press been sabotaged?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "barrels_spoiled",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many barrels were spoiled?",
+     "read_as": "stated"
+    },
+    {
+     "key": "worker_alert",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How alert are the press workers?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: unaware"
+       },
+       {
+        "value": 1,
+        "label": "1: curious"
+       },
+       {
+        "value": 2,
+        "label": "2: suspicious"
+       },
+       {
+        "value": 3,
+        "label": "3: alarmed"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "The press workers are asleep in the loft. You loosen the main screw."
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I tip a bag of salt into the vats too.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "Morning will find six barrels ruined and a press that cracks on its first turn."
+    }
+   ],
+   "prior": {
+    "worker_alert": 0
+   },
+   "acceptable": {
+    "press_broken": [
+     true
+    ],
+    "barrels_spoiled": [
+     6
+    ],
+    "worker_alert": [
+     0
+    ]
+   }
+  },
+  {
+   "id": "K15",
+   "lang": "en",
+   "story": {
+    "title": "The Orchard War",
+    "checkpointName": "The Fair",
+    "objective": "Win the cider judging."
+   },
+   "qualities": [
+    {
+     "key": "judging_result",
+     "type": "enum",
+     "values": [
+      "pending",
+      "won",
+      "lost"
+     ],
+     "source": "extractor",
+     "rubric": "How did the cider judging end?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "score",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many points out of ten did the judge give the player's cider?",
+     "read_as": "stated"
+    },
+    {
+     "key": "crowd_mood",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "What is the crowd's mood?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: broken"
+       },
+       {
+        "value": 1,
+        "label": "1: low"
+       },
+       {
+        "value": 2,
+        "label": "2: steady"
+       },
+       {
+        "value": 3,
+        "label": "3: high"
+       },
+       {
+        "value": 4,
+        "label": "4: elated"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Judge",
+     "text": "The judge sips, frowns, sips again. \"Seven out of ten. The Brannoch cider scored nine; it takes the prize.\""
+    },
+    {
+     "id": 11,
+     "speaker": "DM Narrator",
+     "text": "The crowd groans; a few boo the judge."
+    },
+    {
+     "id": 12,
+     "speaker": "Max",
+     "text": "I force a smile and shake the winner's hand.",
+     "isUser": true
+    }
+   ],
+   "prior": {
+    "judging_result": "pending",
+    "crowd_mood": 3
+   },
+   "acceptable": {
+    "judging_result": [
+     "lost"
+    ],
+    "score": [
+     7
+    ],
+    "crowd_mood": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "id": "K16",
+   "lang": "en",
+   "story": {
+    "title": "Iron Pilgrims",
+    "checkpointName": "The Mountain Pass",
+    "objective": "Cross the pass before nightfall."
+   },
+   "qualities": [
+    {
+     "key": "pass_crossed",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the caravan crossed the pass?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "mules_lost",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many mules has the caravan lost?",
+     "read_as": "stated"
+    },
+    {
+     "key": "guide_fear",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How afraid is the guide?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: calm"
+       },
+       {
+        "value": 1,
+        "label": "1: uneasy"
+       },
+       {
+        "value": 2,
+        "label": "2: afraid"
+       },
+       {
+        "value": 3,
+        "label": "3: terrified"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "A rockslide thunders down the slope. When the dust clears, two mules are gone over the edge."
+    },
+    {
+     "id": 11,
+     "speaker": "Guide",
+     "text": "The guide grips your arm, white-faced. \"We go back. This mountain wants us dead.\""
+    },
+    {
+     "id": 12,
+     "speaker": "Max",
+     "text": "\"We're halfway. We keep going.\"",
+     "isUser": true
+    }
+   ],
+   "prior": {
+    "guide_fear": 1
+   },
+   "acceptable": {
+    "pass_crossed": [
+     false
+    ],
+    "mules_lost": [
+     2
+    ],
+    "guide_fear": [
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "id": "K17",
+   "lang": "en",
+   "story": {
+    "title": "Iron Pilgrims",
+    "checkpointName": "The Monastery Forge",
+    "objective": "Have the sacred blade reforged."
+   },
+   "qualities": [
+    {
+     "key": "blade_reforged",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the blade been reforged?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "smith_name",
+     "type": "string",
+     "source": "extractor",
+     "rubric": "The master smith's name.",
+     "read_as": "stated"
+    },
+    {
+     "key": "forge_progress",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How far along is the reforging?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: not started"
+       },
+       {
+        "value": 1,
+        "label": "1: begun"
+       },
+       {
+        "value": 2,
+        "label": "2: halfway"
+       },
+       {
+        "value": 3,
+        "label": "3: nearly done"
+       },
+       {
+        "value": 4,
+        "label": "4: finished"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Smith",
+     "text": "\"I am Brother Ulm. Leave the shards with me.\""
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I set the broken blade on his anvil.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "Smith",
+     "text": "He studies the pieces. \"I will start at dawn. It will take seven days.\""
+    }
+   ],
+   "prior": {
+    "forge_progress": 0
+   },
+   "acceptable": {
+    "blade_reforged": [
+     false
+    ],
+    "smith_name": [
+     "Ulm",
+     "Brother Ulm"
+    ],
+    "forge_progress": [
+     0
+    ]
+   }
+  },
+  {
+   "id": "K18",
+   "lang": "en",
+   "story": {
+    "title": "Iron Pilgrims",
+    "checkpointName": "The Pilgrim Camp",
+    "objective": "Settle the dispute between the pilgrims."
+   },
+   "qualities": [
+    {
+     "key": "dispute_settled",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Is the pilgrims' dispute settled?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "pilgrims_count",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many pilgrims are in the camp?",
+     "read_as": "stated"
+    },
+    {
+     "key": "elder_mood",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How is the camp elder's mood, from 0 (furious) to 4 (content)?",
+     "read_as": "rating"
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "About thirty pilgrims crowd around two shouting men."
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I step between them and propose they share the well by day and night.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "Elder",
+     "text": "The elder raises her hands. \"It is fair. It is decided.\" Both men bow, and the elder smiles for the first time."
+    }
+   ],
+   "prior": {
+    "elder_mood": 1
+   },
+   "acceptable": {
+    "dispute_settled": [
+     true
+    ],
+    "pilgrims_count": [
+     30
+    ],
+    "elder_mood": [
+     3,
+     4
+    ]
+   }
+  },
+  {
+   "id": "K19",
+   "lang": "en",
+   "story": {
+    "title": "Black Tide",
+    "checkpointName": "The Pirate Ship",
+    "objective": "Parley with the pirate captain."
+   },
+   "qualities": [
+    {
+     "key": "parley_accepted",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Did the pirate captain accept the parley?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "cannons",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many cannons does the pirate ship carry?",
+     "read_as": "stated"
+    },
+    {
+     "key": "captain_trust",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How much does the pirate captain trust the player?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: none"
+       },
+       {
+        "value": 1,
+        "label": "1: wary"
+       },
+       {
+        "value": 2,
+        "label": "2: neutral"
+       },
+       {
+        "value": 3,
+        "label": "3: friendly"
+       },
+       {
+        "value": 4,
+        "label": "4: complete"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "The pirate ship runs out sixteen cannons along her side."
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I raise a white flag and shout across the water for a parley.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "No answer. The gun ports stay open, and the pirates go on loading."
+    }
+   ],
+   "prior": {
+    "captain_trust": 1
+   },
+   "acceptable": {
+    "parley_accepted": [
+     false
+    ],
+    "cannons": [
+     16
+    ],
+    "captain_trust": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "id": "K20",
+   "lang": "en",
+   "story": {
+    "title": "Black Tide",
+    "checkpointName": "The Storm",
+    "objective": "Keep the ship afloat through the storm."
+   },
+   "qualities": [
+    {
+     "key": "ship_state",
+     "type": "enum",
+     "values": [
+      "seaworthy",
+      "leaking",
+      "sinking"
+     ],
+     "source": "extractor",
+     "rubric": "What state is the ship in?",
+     "read_as": "choice"
+    },
+    {
+     "key": "crew_overboard",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many crew went overboard?",
+     "read_as": "stated"
+    },
+    {
+     "key": "crew_morale",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "What is the crew's morale?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: broken"
+       },
+       {
+        "value": 1,
+        "label": "1: low"
+       },
+       {
+        "value": 2,
+        "label": "2: steady"
+       },
+       {
+        "value": 3,
+        "label": "3: high"
+       },
+       {
+        "value": 4,
+        "label": "4: elated"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "A wave smashes over the deck. When it passes, one sailor is gone and the hold is taking water."
+    },
+    {
+     "id": 11,
+     "speaker": "Bosun",
+     "text": "\"She's leaking, Captain, but the pumps can keep up if we keep at it!\""
+    },
+    {
+     "id": 12,
+     "speaker": "Max",
+     "text": "\"Everyone to the pumps!\" The crew answers with a ragged cheer.",
+     "isUser": true
+    }
+   ],
+   "prior": {
+    "ship_state": "seaworthy",
+    "crew_morale": 2
+   },
+   "acceptable": {
+    "ship_state": [
+     "leaking"
+    ],
+    "crew_overboard": [
+     1
+    ],
+    "crew_morale": [
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "id": "K21",
+   "lang": "en",
+   "story": {
+    "title": "Black Tide",
+    "checkpointName": "The Treasure Isle",
+    "objective": "Find the buried chest."
+   },
+   "qualities": [
+    {
+     "key": "chest_found",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the party found the buried chest?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "paces_walked",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many paces did the map say to walk from the rock?",
+     "read_as": "stated"
+    },
+    {
+     "key": "dig_progress",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How far along is the digging?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: not started"
+       },
+       {
+        "value": 1,
+        "label": "1: begun"
+       },
+       {
+        "value": 2,
+        "label": "2: halfway"
+       },
+       {
+        "value": 3,
+        "label": "3: nearly done"
+       },
+       {
+        "value": 4,
+        "label": "4: finished"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Arin",
+     "text": "Arin reads the map. \"Forty paces north from the skull rock.\""
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I pace it out and start digging.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "An hour later the hole is deep, but there is no chest yet. Just sand and more sand."
+    }
+   ],
+   "prior": {
+    "dig_progress": 0
+   },
+   "acceptable": {
+    "chest_found": [
+     false
+    ],
+    "paces_walked": [
+     40
+    ],
+    "dig_progress": [
+     1,
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "id": "K22",
+   "lang": "en",
+   "story": {
+    "title": "The Glass Garden",
+    "checkpointName": "The Greenhouse",
+    "objective": "Find the poisoned plant."
+   },
+   "qualities": [
+    {
+     "key": "plant_found",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the player found the poisoned plant?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "plant_name",
+     "type": "string",
+     "source": "extractor",
+     "rubric": "The name of the poisoned plant.",
+     "read_as": "stated"
+    },
+    {
+     "key": "gardener_alert",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How alert is the gardener?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: unaware"
+       },
+       {
+        "value": 1,
+        "label": "1: curious"
+       },
+       {
+        "value": 2,
+        "label": "2: suspicious"
+       },
+       {
+        "value": 3,
+        "label": "3: alarmed"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Max",
+     "text": "I check the labels on each pot.",
+     "isUser": true
+    },
+    {
+     "id": 11,
+     "speaker": "DM Narrator",
+     "text": "Behind the orchids, a pot labeled *Nightbloom* holds a plant with black-veined leaves and a faint bitter smell."
+    },
+    {
+     "id": 12,
+     "speaker": "Gardener",
+     "text": "\"Can I help you?\" the gardener calls from the door, frowning. \"Visitors aren't allowed back there.\""
+    }
+   ],
+   "prior": {
+    "gardener_alert": 0
+   },
+   "acceptable": {
+    "plant_found": [
+     true
+    ],
+    "plant_name": [
+     "Nightbloom"
+    ],
+    "gardener_alert": [
+     2
+    ]
+   }
+  },
+  {
+   "id": "K23",
+   "lang": "en",
+   "story": {
+    "title": "The Glass Garden",
+    "checkpointName": "The Conservatory",
+    "objective": "Question the heir."
+   },
+   "qualities": [
+    {
+     "key": "heir_confessed",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the heir confessed?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "visits_count",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many times did the heir say he visited the greenhouse?",
+     "read_as": "stated"
+    },
+    {
+     "key": "heir_fear",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How afraid is the heir?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: calm"
+       },
+       {
+        "value": 1,
+        "label": "1: uneasy"
+       },
+       {
+        "value": 2,
+        "label": "2: afraid"
+       },
+       {
+        "value": 3,
+        "label": "3: terrified"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Max",
+     "text": "\"How often did you visit the greenhouse?\"",
+     "isUser": true
+    },
+    {
+     "id": 11,
+     "speaker": "Heir",
+     "text": "\"Two times. Only two. And I never touched anything.\" He laughs, easy and relaxed."
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "He pours himself more tea, steady as stone."
+    }
+   ],
+   "prior": {
+    "heir_fear": 1
+   },
+   "acceptable": {
+    "heir_confessed": [
+     false
+    ],
+    "visits_count": [
+     2
+    ],
+    "heir_fear": [
+     0
+    ]
+   }
+  },
+  {
+   "id": "K24",
+   "lang": "en",
+   "story": {
+    "title": "The Glass Garden",
+    "checkpointName": "The Study",
+    "objective": "Read the late lord's will."
+   },
+   "qualities": [
+    {
+     "key": "will_status",
+     "type": "enum",
+     "values": [
+      "unread",
+      "read",
+      "burned"
+     ],
+     "source": "extractor",
+     "rubric": "What has happened to the will?",
+     "read_as": "choice"
+    },
+    {
+     "key": "beneficiary",
+     "type": "string",
+     "source": "extractor",
+     "rubric": "The name of the will's main beneficiary.",
+     "read_as": "stated"
+    },
+    {
+     "key": "lawyer_trust",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How much does the family lawyer trust the player?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: none"
+       },
+       {
+        "value": 1,
+        "label": "1: wary"
+       },
+       {
+        "value": 2,
+        "label": "2: neutral"
+       },
+       {
+        "value": 3,
+        "label": "3: friendly"
+       },
+       {
+        "value": 4,
+        "label": "4: complete"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Lawyer",
+     "text": "The lawyer unfolds the will. \"I leave my estate entire to my niece, *Odile*.\""
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I watch the room for reactions.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "Lawyer",
+     "text": "\"You were right to insist on hearing it, detective. I owe you an apology.\""
+    }
+   ],
+   "prior": {
+    "will_status": "unread",
+    "lawyer_trust": 1
+   },
+   "acceptable": {
+    "will_status": [
+     "read"
+    ],
+    "beneficiary": [
+     "Odile"
+    ],
+    "lawyer_trust": [
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "id": "K25",
+   "lang": "en",
+   "story": {
+    "title": "Frostfall",
+    "checkpointName": "The Ice Cave",
+    "objective": "Find shelter from the storm."
+   },
+   "qualities": [
+    {
+     "key": "shelter_found",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the party found shelter?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "hours_left",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many hours until the storm hits?",
+     "read_as": "stated"
+    },
+    {
+     "key": "party_fear",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How afraid is the party?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: calm"
+       },
+       {
+        "value": 1,
+        "label": "1: uneasy"
+       },
+       {
+        "value": 2,
+        "label": "2: afraid"
+       },
+       {
+        "value": 3,
+        "label": "3: terrified"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Guide",
+     "text": "\"Storm's coming in three hours. We need a cave.\""
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I point at the dark opening in the glacier.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "Inside, the cave is dry and quiet. Arin laughs with relief and starts unpacking."
+    }
+   ],
+   "prior": {
+    "party_fear": 2
+   },
+   "acceptable": {
+    "shelter_found": [
+     true
+    ],
+    "hours_left": [
+     3
+    ],
+    "party_fear": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "id": "K26",
+   "lang": "en",
+   "story": {
+    "title": "Frostfall",
+    "checkpointName": "The Wolf Den",
+    "objective": "Get past the wolves."
+   },
+   "qualities": [
+    {
+     "key": "wolves_passed",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the party gotten past the wolves?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "wolves_count",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many wolves are there?",
+     "read_as": "stated"
+    },
+    {
+     "key": "wolf_alert",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How alert are the wolves?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: unaware"
+       },
+       {
+        "value": 1,
+        "label": "1: curious"
+       },
+       {
+        "value": 2,
+        "label": "2: suspicious"
+       },
+       {
+        "value": 3,
+        "label": "3: alarmed"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "Five wolves sleep in the den below the ridge."
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I signal Arin to wait while the wind is right.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "One wolf lifts its head and sniffs the air, ears pricked, then slowly settles again."
+    }
+   ],
+   "prior": {
+    "wolf_alert": 0
+   },
+   "acceptable": {
+    "wolves_passed": [
+     false
+    ],
+    "wolves_count": [
+     5
+    ],
+    "wolf_alert": [
+     1
+    ]
+   }
+  },
+  {
+   "id": "K27",
+   "lang": "en",
+   "story": {
+    "title": "Frostfall",
+    "checkpointName": "The Frozen Lake",
+    "objective": "Cross the lake."
+   },
+   "qualities": [
+    {
+     "key": "ice_state",
+     "type": "enum",
+     "values": [
+      "solid",
+      "cracking",
+      "broken"
+     ],
+     "source": "extractor",
+     "rubric": "What state is the lake ice in?",
+     "read_as": "choice"
+    },
+    {
+     "key": "distance_left",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many meters are left to the far shore?",
+     "read_as": "stated"
+    },
+    {
+     "key": "crossing_progress",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How far along is the lake crossing?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: not started"
+       },
+       {
+        "value": 1,
+        "label": "1: begun"
+       },
+       {
+        "value": 2,
+        "label": "2: halfway"
+       },
+       {
+        "value": 3,
+        "label": "3: nearly done"
+       },
+       {
+        "value": 4,
+        "label": "4: finished"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "Halfway across, the ice groans beneath your boots. A crack zigzags past your feet."
+    },
+    {
+     "id": 11,
+     "speaker": "Arin",
+     "text": "\"200 meters to go. Spread out. Slowly.\""
+    },
+    {
+     "id": 12,
+     "speaker": "Max",
+     "text": "I lie flat and crawl.",
+     "isUser": true
+    }
+   ],
+   "prior": {
+    "ice_state": "solid",
+    "crossing_progress": 1
+   },
+   "acceptable": {
+    "ice_state": [
+     "cracking"
+    ],
+    "distance_left": [
+     200
+    ],
+    "crossing_progress": [
+     2
+    ]
+   }
+  },
+  {
+   "id": "K28",
+   "lang": "en",
+   "story": {
+    "title": "The Copper Circus",
+    "checkpointName": "The Big Top",
+    "objective": "Find the missing acrobat."
+   },
+   "qualities": [
+    {
+     "key": "acrobat_found",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the missing acrobat been found?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "acrobat_name",
+     "type": "string",
+     "source": "extractor",
+     "rubric": "The missing acrobat's name.",
+     "read_as": "stated"
+    },
+    {
+     "key": "ringmaster_trust",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How much does the ringmaster trust the player?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: none"
+       },
+       {
+        "value": 1,
+        "label": "1: wary"
+       },
+       {
+        "value": 2,
+        "label": "2: neutral"
+       },
+       {
+        "value": 3,
+        "label": "3: friendly"
+       },
+       {
+        "value": 4,
+        "label": "4: complete"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Ringmaster",
+     "text": "\"Our star, *Lisette*, vanished two nights ago. Find her and I'll pay you double.\""
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "\"Who saw her last?\"",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "Ringmaster",
+     "text": "\"Ask the clowns. And don't believe a word they say.\""
+    }
+   ],
+   "prior": {
+    "ringmaster_trust": 2
+   },
+   "acceptable": {
+    "acrobat_found": [
+     false
+    ],
+    "acrobat_name": [
+     "Lisette"
+    ],
+    "ringmaster_trust": [
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "id": "K29",
+   "lang": "en",
+   "story": {
+    "title": "The Copper Circus",
+    "checkpointName": "The Menagerie",
+    "objective": "Calm the escaped tiger."
+   },
+   "qualities": [
+    {
+     "key": "tiger_calmed",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the tiger been calmed?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "keepers_hurt",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many keepers were hurt?",
+     "read_as": "stated"
+    },
+    {
+     "key": "tiger_fear",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How afraid is the tiger?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: calm"
+       },
+       {
+        "value": 1,
+        "label": "1: uneasy"
+       },
+       {
+        "value": 2,
+        "label": "2: afraid"
+       },
+       {
+        "value": 3,
+        "label": "3: terrified"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "The tiger crouches in the straw, ears flat, hissing at the three keepers who lie groaning nearby."
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I kneel slowly and hum the tune the trainer always used.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "The tiger's ears lift. It stops hissing and lies down, still watchful."
+    }
+   ],
+   "prior": {
+    "tiger_fear": 3
+   },
+   "acceptable": {
+    "tiger_calmed": [
+     true
+    ],
+    "keepers_hurt": [
+     3
+    ],
+    "tiger_fear": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "id": "K30",
+   "lang": "en",
+   "story": {
+    "title": "The Copper Circus",
+    "checkpointName": "The Wagon Yard",
+    "objective": "Search the clowns' wagon."
+   },
+   "qualities": [
+    {
+     "key": "wagon_state",
+     "type": "enum",
+     "values": [
+      "locked",
+      "open",
+      "searched"
+     ],
+     "source": "extractor",
+     "rubric": "What state is the clowns' wagon in?",
+     "read_as": "choice"
+    },
+    {
+     "key": "letters_found",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many letters were found in the wagon?",
+     "read_as": "stated"
+    },
+    {
+     "key": "clown_suspicion",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How suspicious are the clowns of the player?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: unaware"
+       },
+       {
+        "value": 1,
+        "label": "1: curious"
+       },
+       {
+        "value": 2,
+        "label": "2: suspicious"
+       },
+       {
+        "value": 3,
+        "label": "3: alarmed"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "The wagon door is locked. Laughter drifts from the campfire where the four clowns sit."
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I try the handle again, quietly.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "Still locked. Nobody at the fire looks your way."
+    }
+   ],
+   "prior": {
+    "wagon_state": "locked",
+    "clown_suspicion": 0
+   },
+   "acceptable": {
+    "wagon_state": [
+     "locked"
+    ],
+    "letters_found": null,
+    "clown_suspicion": [
+     0
+    ]
+   }
+  }
+ ]
+}

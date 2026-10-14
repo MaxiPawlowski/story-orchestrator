@@ -1,0 +1,1746 @@
+{
+ "use": "typed",
+ "idea": "J7.6",
+ "split": "tune",
+ "revision": 1,
+ "labelledAt": "2026-10-14",
+ "source": "Synthetic, authored for v2.8 13 J7.6 Phase A (no campaign content). One choice, one stated and one rating quality per case, the production typed shapes (rating via authored criteria.levels, as the campaign authors them, or a rubric range). Labels written before any answer was read. acceptable = the values the chain may hold after the window (the prior when unchanged; null = nothing set).",
+ "rows": [
+  {
+   "id": "T01",
+   "lang": "en",
+   "story": {
+    "title": "Harbor Lights",
+    "checkpointName": "The Smuggler's Dock",
+    "objective": "Find out who runs the night shipments."
+   },
+   "qualities": [
+    {
+     "key": "met_smuggler",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Did the player meet the smuggler Corrin face to face?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "crates_counted",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many crates are stacked on the dock?",
+     "read_as": "stated"
+    },
+    {
+     "key": "corrin_trust",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How much does Corrin trust the player?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: none"
+       },
+       {
+        "value": 1,
+        "label": "1: wary"
+       },
+       {
+        "value": 2,
+        "label": "2: neutral"
+       },
+       {
+        "value": 3,
+        "label": "3: friendly"
+       },
+       {
+        "value": 4,
+        "label": "4: complete"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Max",
+     "text": "I walk down the pier toward the lantern and call out for Corrin.",
+     "isUser": true
+    },
+    {
+     "id": 11,
+     "speaker": "DM Narrator",
+     "text": "A wiry man steps out from behind a stack of seven crates. \"You found me. Corrin. Talk fast.\""
+    },
+    {
+     "id": 12,
+     "speaker": "Corrin",
+     "text": "He eyes your empty hands and relaxes a little. \"No weapons. Good. Maybe you're not with the harbor watch after all.\""
+    }
+   ],
+   "prior": {
+    "corrin_trust": 1
+   },
+   "acceptable": {
+    "met_smuggler": [
+     true
+    ],
+    "crates_counted": [
+     7
+    ],
+    "corrin_trust": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "id": "T02",
+   "lang": "en",
+   "story": {
+    "title": "Harbor Lights",
+    "checkpointName": "The Customs House",
+    "objective": "Get the ledger out of the customs house."
+   },
+   "qualities": [
+    {
+     "key": "ledger_taken",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the party taken the customs ledger?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "clerk_name",
+     "type": "string",
+     "source": "extractor",
+     "rubric": "The name the customs clerk gives.",
+     "read_as": "stated"
+    },
+    {
+     "key": "guard_alert",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How alert are the customs guards?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: unaware"
+       },
+       {
+        "value": 1,
+        "label": "1: curious"
+       },
+       {
+        "value": 2,
+        "label": "2: suspicious"
+       },
+       {
+        "value": 3,
+        "label": "3: alarmed"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Max",
+     "text": "I wait in the queue and watch the clerk's desk.",
+     "isUser": true
+    },
+    {
+     "id": 11,
+     "speaker": "DM Narrator",
+     "text": "The clerk stamps papers without looking up. Two guards lean on the wall, bored, trading jokes about the weather."
+    },
+    {
+     "id": 12,
+     "speaker": "Arin",
+     "text": "Arin whispers, \"The ledger's in the drawer on the left. Not yet. Wait for the shift bell.\""
+    }
+   ],
+   "prior": {
+    "guard_alert": 0
+   },
+   "acceptable": {
+    "ledger_taken": [
+     false
+    ],
+    "clerk_name": null,
+    "guard_alert": [
+     0
+    ]
+   }
+  },
+  {
+   "id": "T03",
+   "lang": "en",
+   "story": {
+    "title": "The Long Winter",
+    "checkpointName": "Snowbound Inn",
+    "objective": "Survive the night at the inn."
+   },
+   "qualities": [
+    {
+     "key": "weather",
+     "type": "enum",
+     "values": [
+      "clear",
+      "snowing",
+      "blizzard"
+     ],
+     "source": "extractor",
+     "rubric": "What is the weather outside the inn?",
+     "read_as": "choice"
+    },
+    {
+     "key": "logs_left",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many firewood logs are left?",
+     "read_as": "stated"
+    },
+    {
+     "key": "innkeeper_fear",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How afraid is the innkeeper?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: calm"
+       },
+       {
+        "value": 1,
+        "label": "1: uneasy"
+       },
+       {
+        "value": 2,
+        "label": "2: afraid"
+       },
+       {
+        "value": 3,
+        "label": "3: terrified"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "The wind screams against the shutters; outside, a full blizzard has swallowed the road."
+    },
+    {
+     "id": 11,
+     "speaker": "Innkeeper",
+     "text": "Old Hesk counts the woodpile with shaking hands. \"Four logs. Four. That won't last till dawn, and those howls are getting closer.\""
+    },
+    {
+     "id": 12,
+     "speaker": "Max",
+     "text": "I put a hand on his shoulder. \"We'll figure it out.\"",
+     "isUser": true
+    }
+   ],
+   "prior": {
+    "weather": "snowing",
+    "innkeeper_fear": 1
+   },
+   "acceptable": {
+    "weather": [
+     "blizzard"
+    ],
+    "logs_left": [
+     4
+    ],
+    "innkeeper_fear": [
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "id": "T04",
+   "lang": "en",
+   "story": {
+    "title": "The Long Winter",
+    "checkpointName": "The Frozen Mill",
+    "objective": "Fix the mill wheel before the river freezes."
+   },
+   "qualities": [
+    {
+     "key": "wheel_fixed",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Is the mill wheel repaired and turning?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "ice_thickness",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many inches thick is the ice on the river?",
+     "read_as": "stated"
+    },
+    {
+     "key": "repair_progress",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How far along is the repair of the mill wheel?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: not started"
+       },
+       {
+        "value": 1,
+        "label": "1: begun"
+       },
+       {
+        "value": 2,
+        "label": "2: halfway"
+       },
+       {
+        "value": 3,
+        "label": "3: nearly done"
+       },
+       {
+        "value": 4,
+        "label": "4: finished"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Max",
+     "text": "I hammer the new pin into the axle.",
+     "isUser": true
+    },
+    {
+     "id": 11,
+     "speaker": "DM Narrator",
+     "text": "The axle groans and the pin holds. Half of the broken paddles are replaced; the rest lie in the snow beside you."
+    },
+    {
+     "id": 12,
+     "speaker": "Arin",
+     "text": "\"Ice is two inches already,\" Arin says, testing the river with her boot. \"We have maybe a day.\""
+    }
+   ],
+   "prior": {
+    "repair_progress": 1
+   },
+   "acceptable": {
+    "wheel_fixed": [
+     false
+    ],
+    "ice_thickness": [
+     2
+    ],
+    "repair_progress": [
+     2
+    ]
+   }
+  },
+  {
+   "id": "T05",
+   "lang": "en",
+   "story": {
+    "title": "Starfall Station",
+    "checkpointName": "Docking Ring",
+    "objective": "Board the station without tripping the alarms."
+   },
+   "qualities": [
+    {
+     "key": "alarm_tripped",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Did the party trip the station alarm?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "crew_seen",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many station crew members has the party seen?",
+     "read_as": "stated"
+    },
+    {
+     "key": "hull_damage",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How damaged is the shuttle's hull?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: intact"
+       },
+       {
+        "value": 1,
+        "label": "1: scratched"
+       },
+       {
+        "value": 2,
+        "label": "2: damaged"
+       },
+       {
+        "value": 3,
+        "label": "3: wrecked"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "The shuttle scrapes the docking collar with a shriek of metal. A long gash opens along the port side, venting frost."
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I seal my helmet and check the corridor.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "Three crew in grey jumpsuits hurry past the viewport, arguing, without glancing your way. No klaxon sounds."
+    }
+   ],
+   "prior": {
+    "hull_damage": 0
+   },
+   "acceptable": {
+    "alarm_tripped": [
+     false
+    ],
+    "crew_seen": [
+     3
+    ],
+    "hull_damage": [
+     2
+    ]
+   }
+  },
+  {
+   "id": "T06",
+   "lang": "en",
+   "story": {
+    "title": "Starfall Station",
+    "checkpointName": "Reactor Deck",
+    "objective": "Find the source of the power drain."
+   },
+   "qualities": [
+    {
+     "key": "location",
+     "type": "enum",
+     "values": [
+      "docking ring",
+      "corridor",
+      "reactor deck",
+      "bridge"
+     ],
+     "source": "extractor",
+     "rubric": "Where in the station is the party?",
+     "read_as": "choice"
+    },
+    {
+     "key": "power_level",
+     "type": "float",
+     "source": "extractor",
+     "rubric": "What fraction of reactor power is left, 0.0 to 1.0?",
+     "read_as": "stated"
+    },
+    {
+     "key": "crew_morale",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "What is the station crew's morale?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: broken"
+       },
+       {
+        "value": 1,
+        "label": "1: low"
+       },
+       {
+        "value": 2,
+        "label": "2: steady"
+       },
+       {
+        "value": 3,
+        "label": "3: high"
+       },
+       {
+        "value": 4,
+        "label": "4: elated"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "The lift opens onto the reactor deck. Warning lights paint everything amber; the main gauge reads 40% and falling."
+    },
+    {
+     "id": 11,
+     "speaker": "Engineer Vos",
+     "text": "\"We've been down here for twenty hours,\" Vos mutters. \"Nobody's slept. Half the team wants to abandon the station.\""
+    },
+    {
+     "id": 12,
+     "speaker": "Max",
+     "text": "\"Show me the drain readings.\"",
+     "isUser": true
+    }
+   ],
+   "prior": {
+    "location": "corridor",
+    "crew_morale": 2
+   },
+   "acceptable": {
+    "location": [
+     "reactor deck"
+    ],
+    "power_level": [
+     0.4
+    ],
+    "crew_morale": [
+     1
+    ]
+   }
+  },
+  {
+   "id": "T07",
+   "lang": "en",
+   "story": {
+    "title": "Rain on Mercer Street",
+    "checkpointName": "The Pawn Shop",
+    "objective": "Find out who pawned the stolen watch."
+   },
+   "qualities": [
+    {
+     "key": "watch_found",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the detective found the stolen watch?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "pawn_name",
+     "type": "string",
+     "source": "extractor",
+     "rubric": "The name written on the pawn ticket.",
+     "read_as": "stated"
+    },
+    {
+     "key": "owner_trust",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How much does the pawnshop owner trust the detective?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: none"
+       },
+       {
+        "value": 1,
+        "label": "1: wary"
+       },
+       {
+        "value": 2,
+        "label": "2: neutral"
+       },
+       {
+        "value": 3,
+        "label": "3: friendly"
+       },
+       {
+        "value": 4,
+        "label": "4: complete"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Max",
+     "text": "I slide my badge across the counter. \"The silver watch. Who brought it in?\"",
+     "isUser": true
+    },
+    {
+     "id": 11,
+     "speaker": "Pawnbroker",
+     "text": "Mrs. Ilse sighs and pulls a ticket from the drawer. The name on it reads *Teodor Brask*. The watch itself sits in the case behind her."
+    },
+    {
+     "id": 12,
+     "speaker": "Pawnbroker",
+     "text": "\"I don't want trouble. You'll keep my name out of it? Then we understand each other.\""
+    }
+   ],
+   "prior": {
+    "owner_trust": 1
+   },
+   "acceptable": {
+    "watch_found": [
+     true
+    ],
+    "pawn_name": [
+     "Teodor Brask"
+    ],
+    "owner_trust": [
+     2,
+     3
+    ]
+   }
+  },
+  {
+   "id": "T08",
+   "lang": "en",
+   "story": {
+    "title": "Rain on Mercer Street",
+    "checkpointName": "The Rooftop",
+    "objective": "Catch the thief before he jumps."
+   },
+   "qualities": [
+    {
+     "key": "thief_caught",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Did the detective catch the thief?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "floors_down",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many floors down is the street from the roof?",
+     "read_as": "stated"
+    },
+    {
+     "key": "thief_fear",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How afraid is the thief?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: calm"
+       },
+       {
+        "value": 1,
+        "label": "1: uneasy"
+       },
+       {
+        "value": 2,
+        "label": "2: afraid"
+       },
+       {
+        "value": 3,
+        "label": "3: terrified"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "The thief backs toward the edge, six floors above the wet street, and laughs."
+    },
+    {
+     "id": 11,
+     "speaker": "Thief",
+     "text": "\"You think I'm scared of you? I've done this jump a hundred times.\""
+    },
+    {
+     "id": 12,
+     "speaker": "Max",
+     "text": "I lunge for his coat.",
+     "isUser": true
+    }
+   ],
+   "prior": {
+    "thief_fear": 1
+   },
+   "acceptable": {
+    "thief_caught": [
+     false
+    ],
+    "floors_down": [
+     6
+    ],
+    "thief_fear": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "id": "T09",
+   "lang": "en",
+   "story": {
+    "title": "Quest for the Sun Ruins",
+    "checkpointName": "The Desert Camp",
+    "objective": "Rest and prepare for the ruins."
+   },
+   "qualities": [
+    {
+     "key": "water_found",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Did the party find fresh water at the camp?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "days_food",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many days of food does the party have?",
+     "read_as": "stated"
+    },
+    {
+     "key": "arin_mood",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How is Arin's mood, from 0 (miserable) to 4 (cheerful)?",
+     "read_as": "rating"
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Arin",
+     "text": "Arin drops her pack and shakes it. \"Two days of food, if we're careful. And the well here is dry.\""
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I peer down the well.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "Dust. Nothing but dust and an old bucket."
+    }
+   ],
+   "prior": {
+    "arin_mood": 2
+   },
+   "acceptable": {
+    "water_found": [
+     false
+    ],
+    "days_food": [
+     2
+    ],
+    "arin_mood": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "id": "T10",
+   "lang": "en",
+   "story": {
+    "title": "Quest for the Sun Ruins",
+    "checkpointName": "The Sphinx Gate",
+    "objective": "Answer the sphinx's riddle."
+   },
+   "qualities": [
+    {
+     "key": "riddle_result",
+     "type": "enum",
+     "values": [
+      "unanswered",
+      "solved",
+      "failed"
+     ],
+     "source": "extractor",
+     "rubric": "How did the riddle attempt go?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "riddles_failed",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many riddles has the party failed so far?",
+     "read_as": "stated"
+    },
+    {
+     "key": "sphinx_respect",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How much does the sphinx respect the party?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: none"
+       },
+       {
+        "value": 1,
+        "label": "1: wary"
+       },
+       {
+        "value": 2,
+        "label": "2: neutral"
+       },
+       {
+        "value": 3,
+        "label": "3: friendly"
+       },
+       {
+        "value": 4,
+        "label": "4: complete"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Sphinx",
+     "text": "\"You have failed two riddles already. Fail once more and you stay here forever. What has keys but opens no locks?\""
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "\"A piano.\"",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "Sphinx",
+     "text": "The sphinx bows its great head. \"Correct. Few remember the old answer. You may pass, and you have my regard.\""
+    }
+   ],
+   "prior": {
+    "riddle_result": "unanswered",
+    "sphinx_respect": 2
+   },
+   "acceptable": {
+    "riddle_result": [
+     "solved"
+    ],
+    "riddles_failed": [
+     2
+    ],
+    "sphinx_respect": [
+     3,
+     4
+    ]
+   }
+  },
+  {
+   "id": "T11",
+   "lang": "en",
+   "story": {
+    "title": "Ashes of Veldt",
+    "checkpointName": "The Burned Village",
+    "objective": "Search the village for survivors."
+   },
+   "qualities": [
+    {
+     "key": "survivor_found",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the party found a survivor in the village?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "houses_burned",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many houses have burned down?",
+     "read_as": "stated"
+    },
+    {
+     "key": "party_morale",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "What is the party's morale?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: broken"
+       },
+       {
+        "value": 1,
+        "label": "1: low"
+       },
+       {
+        "value": 2,
+        "label": "2: steady"
+       },
+       {
+        "value": 3,
+        "label": "3: high"
+       },
+       {
+        "value": 4,
+        "label": "4: elated"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "Smoke still curls from the ruins. Of the twelve houses, nine are black shells."
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I call out, listening for any answer.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "Only the crackle of embers answers you."
+    }
+   ],
+   "prior": {
+    "party_morale": 2
+   },
+   "acceptable": {
+    "survivor_found": [
+     false
+    ],
+    "houses_burned": [
+     9
+    ],
+    "party_morale": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "id": "T12",
+   "lang": "en",
+   "story": {
+    "title": "Ashes of Veldt",
+    "checkpointName": "The Ranger's Tower",
+    "objective": "Convince the ranger to guide you."
+   },
+   "qualities": [
+    {
+     "key": "guide_agreed",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the ranger agreed to guide the party?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "ranger_name",
+     "type": "string",
+     "source": "extractor",
+     "rubric": "The ranger's name.",
+     "read_as": "stated"
+    },
+    {
+     "key": "ranger_trust",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How much does the ranger trust the party?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: none"
+       },
+       {
+        "value": 1,
+        "label": "1: wary"
+       },
+       {
+        "value": 2,
+        "label": "2: neutral"
+       },
+       {
+        "value": 3,
+        "label": "3: friendly"
+       },
+       {
+        "value": 4,
+        "label": "4: complete"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Ranger",
+     "text": "The ranger lowers her bow. \"Name's Sefa. I don't guide strangers.\""
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "\"The raiders who burned Veldt are heading for your valley next.\"",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "Ranger",
+     "text": "Sefa is quiet for a long moment. \"Fine. I'll take you as far as the pass. Don't make me regret it.\""
+    }
+   ],
+   "prior": {
+    "ranger_trust": 0
+   },
+   "acceptable": {
+    "guide_agreed": [
+     true
+    ],
+    "ranger_name": [
+     "Sefa"
+    ],
+    "ranger_trust": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "id": "T13",
+   "lang": "en",
+   "story": {
+    "title": "The Clockwork Court",
+    "checkpointName": "The Ballroom",
+    "objective": "Find the forged invitation's source."
+   },
+   "qualities": [
+    {
+     "key": "disguise",
+     "type": "enum",
+     "values": [
+      "none",
+      "servant",
+      "noble",
+      "guard"
+     ],
+     "source": "extractor",
+     "rubric": "What disguise is the player wearing?",
+     "read_as": "choice"
+    },
+    {
+     "key": "guests_count",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many guests are in the ballroom?",
+     "read_as": "stated"
+    },
+    {
+     "key": "host_suspicion",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How suspicious is the host of the player?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: unaware"
+       },
+       {
+        "value": 1,
+        "label": "1: curious"
+       },
+       {
+        "value": 2,
+        "label": "2: suspicious"
+       },
+       {
+        "value": 3,
+        "label": "3: alarmed"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "You smooth the borrowed noble's coat and step into a ballroom crowded with perhaps forty guests."
+    },
+    {
+     "id": 11,
+     "speaker": "Countess",
+     "text": "The countess glances at you, then away. \"Another cousin of the Marquis, I suppose. Enjoy the wine.\""
+    },
+    {
+     "id": 12,
+     "speaker": "Max",
+     "text": "I take a glass and drift toward the musicians.",
+     "isUser": true
+    }
+   ],
+   "prior": {
+    "disguise": "none",
+    "host_suspicion": 0
+   },
+   "acceptable": {
+    "disguise": [
+     "noble"
+    ],
+    "guests_count": [
+     40
+    ],
+    "host_suspicion": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "id": "T14",
+   "lang": "en",
+   "story": {
+    "title": "The Clockwork Court",
+    "checkpointName": "The Archive",
+    "objective": "Copy the treaty before the guard returns."
+   },
+   "qualities": [
+    {
+     "key": "treaty_copied",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the player copied the treaty?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "pages_copied",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many treaty pages has the player copied?",
+     "read_as": "stated"
+    },
+    {
+     "key": "copy_progress",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How far along is the copying of the treaty?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: not started"
+       },
+       {
+        "value": 1,
+        "label": "1: begun"
+       },
+       {
+        "value": 2,
+        "label": "2: halfway"
+       },
+       {
+        "value": 3,
+        "label": "3: nearly done"
+       },
+       {
+        "value": 4,
+        "label": "4: finished"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Max",
+     "text": "I copy as fast as I can, page after page.",
+     "isUser": true
+    },
+    {
+     "id": 11,
+     "speaker": "DM Narrator",
+     "text": "Three pages done, three to go. Footsteps echo somewhere down the hall."
+    },
+    {
+     "id": 12,
+     "speaker": "Max",
+     "text": "I keep writing.",
+     "isUser": true
+    }
+   ],
+   "prior": {
+    "copy_progress": 0
+   },
+   "acceptable": {
+    "treaty_copied": [
+     false
+    ],
+    "pages_copied": [
+     3
+    ],
+    "copy_progress": [
+     2
+    ]
+   }
+  },
+  {
+   "id": "T15",
+   "lang": "en",
+   "story": {
+    "title": "Deep Water",
+    "checkpointName": "The Dive Boat",
+    "objective": "Prepare for the wreck dive."
+   },
+   "qualities": [
+    {
+     "key": "dive_started",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the dive started?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "air_tanks",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many air tanks are aboard?",
+     "read_as": "stated"
+    },
+    {
+     "key": "captain_fear",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How afraid is the captain?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: calm"
+       },
+       {
+        "value": 1,
+        "label": "1: uneasy"
+       },
+       {
+        "value": 2,
+        "label": "2: afraid"
+       },
+       {
+        "value": 3,
+        "label": "3: terrified"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Captain",
+     "text": "Captain Rook taps the gauges. \"Five tanks. That's all we have. Weather looks fine.\""
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I check my regulator and mask.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "Captain",
+     "text": "\"Take your time. No rush today.\""
+    }
+   ],
+   "prior": {
+    "captain_fear": 0
+   },
+   "acceptable": {
+    "dive_started": [
+     false
+    ],
+    "air_tanks": [
+     5
+    ],
+    "captain_fear": [
+     0
+    ]
+   }
+  },
+  {
+   "id": "T16",
+   "lang": "en",
+   "story": {
+    "title": "Deep Water",
+    "checkpointName": "The Wreck",
+    "objective": "Recover the ship's bell."
+   },
+   "qualities": [
+    {
+     "key": "bell_recovered",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the party recovered the ship's bell?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "depth_meters",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "At what depth in meters is the wreck?",
+     "read_as": "stated"
+    },
+    {
+     "key": "diver_alert",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How alert is the shark circling the wreck?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: unaware"
+       },
+       {
+        "value": 1,
+        "label": "1: curious"
+       },
+       {
+        "value": 2,
+        "label": "2: suspicious"
+       },
+       {
+        "value": 3,
+        "label": "3: alarmed"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "At thirty meters the wreck looms out of the blue. A grey shark circles once, lazily, then drifts away."
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I swim to the bow and pry at the bell's mount.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "DM Narrator",
+     "text": "The bell comes free in a cloud of silt. You clip it to your line."
+    }
+   ],
+   "prior": {
+    "diver_alert": 1
+   },
+   "acceptable": {
+    "bell_recovered": [
+     true
+    ],
+    "depth_meters": [
+     30
+    ],
+    "diver_alert": [
+     0,
+     1
+    ]
+   }
+  },
+  {
+   "id": "T17",
+   "lang": "en",
+   "story": {
+    "title": "Lanterns of Oru",
+    "checkpointName": "The Market",
+    "objective": "Buy a lantern from the old maker."
+   },
+   "qualities": [
+    {
+     "key": "lantern_bought",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Did the player buy a lantern?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "price_paid",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many coins did the player pay?",
+     "read_as": "stated"
+    },
+    {
+     "key": "maker_trust",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How much does the lantern maker trust the player?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: none"
+       },
+       {
+        "value": 1,
+        "label": "1: wary"
+       },
+       {
+        "value": 2,
+        "label": "2: neutral"
+       },
+       {
+        "value": 3,
+        "label": "3: friendly"
+       },
+       {
+        "value": 4,
+        "label": "4: complete"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Lantern Maker",
+     "text": "\"Twelve coins for the blue one. It never goes out.\""
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I count out twelve coins and hand them over.",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "Lantern Maker",
+     "text": "She smiles and wraps it in cloth. \"Come back anytime, friend.\""
+    }
+   ],
+   "prior": {
+    "maker_trust": 2
+   },
+   "acceptable": {
+    "lantern_bought": [
+     true
+    ],
+    "price_paid": [
+     12
+    ],
+    "maker_trust": [
+     3
+    ]
+   }
+  },
+  {
+   "id": "T18",
+   "lang": "en",
+   "story": {
+    "title": "Lanterns of Oru",
+    "checkpointName": "The Bridge",
+    "objective": "Cross the rope bridge."
+   },
+   "qualities": [
+    {
+     "key": "bridge_state",
+     "type": "enum",
+     "values": [
+      "intact",
+      "fraying",
+      "broken"
+     ],
+     "source": "extractor",
+     "rubric": "What state is the rope bridge in?",
+     "read_as": "choice"
+    },
+    {
+     "key": "password",
+     "type": "string",
+     "source": "extractor",
+     "rubric": "The password the bridge keeper asks for, if any.",
+     "read_as": "stated"
+    },
+    {
+     "key": "keeper_mood",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How is the keeper's mood, from 0 (hostile) to 4 (warm)?",
+     "read_as": "rating"
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Keeper",
+     "text": "The keeper blocks the bridge. \"Password.\""
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "\"Moonwater.\"",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "Keeper",
+     "text": "\"Wrong. Go back.\" Behind him, the ropes creak; several strands have already snapped."
+    }
+   ],
+   "prior": {
+    "keeper_mood": 2
+   },
+   "acceptable": {
+    "bridge_state": [
+     "fraying"
+    ],
+    "password": null,
+    "keeper_mood": [
+     1,
+     2
+    ]
+   }
+  },
+  {
+   "id": "T19",
+   "lang": "en",
+   "story": {
+    "title": "The Hollow Crown",
+    "checkpointName": "The Throne Room",
+    "objective": "Present the evidence to the queen."
+   },
+   "qualities": [
+    {
+     "key": "evidence_shown",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the player shown the evidence to the queen?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "guards_present",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many guards are present?",
+     "read_as": "stated"
+    },
+    {
+     "key": "queen_trust",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How much does the queen trust the player?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: none"
+       },
+       {
+        "value": 1,
+        "label": "1: wary"
+       },
+       {
+        "value": 2,
+        "label": "2: neutral"
+       },
+       {
+        "value": 3,
+        "label": "3: friendly"
+       },
+       {
+        "value": 4,
+        "label": "4: complete"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "DM Narrator",
+     "text": "The queen sits beneath the hollow crown, flanked by four guards."
+    },
+    {
+     "id": 11,
+     "speaker": "Max",
+     "text": "I keep the letter hidden in my sleeve and bow. \"Your Majesty.\"",
+     "isUser": true
+    },
+    {
+     "id": 12,
+     "speaker": "Queen",
+     "text": "\"Speak, then. You have one minute.\""
+    }
+   ],
+   "prior": {
+    "queen_trust": 2
+   },
+   "acceptable": {
+    "evidence_shown": [
+     false
+    ],
+    "guards_present": [
+     4
+    ],
+    "queen_trust": [
+     2
+    ]
+   }
+  },
+  {
+   "id": "T20",
+   "lang": "en",
+   "story": {
+    "title": "The Hollow Crown",
+    "checkpointName": "The Dungeon",
+    "objective": "Free the prisoner."
+   },
+   "qualities": [
+    {
+     "key": "prisoner_freed",
+     "type": "bool",
+     "source": "extractor",
+     "rubric": "Has the prisoner been freed?",
+     "read_as": "choice",
+     "latching": true
+    },
+    {
+     "key": "keys_held",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How many keys does the player hold?",
+     "read_as": "stated"
+    },
+    {
+     "key": "prisoner_fear",
+     "type": "int",
+     "source": "extractor",
+     "rubric": "How afraid is the prisoner?",
+     "read_as": "rating",
+     "criteria": {
+      "levels": [
+       {
+        "value": 0,
+        "label": "0: calm"
+       },
+       {
+        "value": 1,
+        "label": "1: uneasy"
+       },
+       {
+        "value": 2,
+        "label": "2: afraid"
+       },
+       {
+        "value": 3,
+        "label": "3: terrified"
+       }
+      ]
+     }
+    }
+   ],
+   "window": [
+    {
+     "id": 10,
+     "speaker": "Max",
+     "text": "I try the first of the two keys in the lock.",
+     "isUser": true
+    },
+    {
+     "id": 11,
+     "speaker": "DM Narrator",
+     "text": "It turns. The cell door swings open."
+    },
+    {
+     "id": 12,
+     "speaker": "Prisoner",
+     "text": "The prisoner stumbles out, sobbing with relief. \"Thank you. Thank you. I thought I'd die here.\""
+    }
+   ],
+   "prior": {
+    "prisoner_fear": 3
+   },
+   "acceptable": {
+    "prisoner_freed": [
+     true
+    ],
+    "keys_held": [
+     2
+    ],
+    "prisoner_fear": [
+     0,
+     1
+    ]
+   }
+  }
+ ]
+}
