@@ -1,6 +1,7 @@
 # Plan 02 — SP9 witness filter, v2
 
-**Status: DEFERRED to v2.9 (user, 2026-10-03).** Was v2.7 plan 22; moved at the version split
+**Status: moved to v2.8 42 (owner 2026-10-14)** (`docs/plans/v2.8/42-witness-filter-v2.md`; history kept here).
+Was DEFERRED to v2.9 (user, 2026-10-03). Was v2.7 plan 22; moved at the version split
 (`docs/plans/v2.7/RENUMBER.md`). Not scheduled until v2.8 closes. Its option A shipped as **v2.7 02 C2**; what stays
 here is the witness source (B) and the message-level filter (C). Source: `docs/plans/v2.6/v2.7-seeds.md` row "SP9
 witness filter, v2". Overview: `00-overview.md` (this folder).
