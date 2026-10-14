@@ -1,0 +1,82 @@
+{
+  "name": "v28-40-judge-consumers",
+  "objective": "Plan 13 B4 shipped J7 consumers, scripted judge (PLUMBING ONLY: the JudgeRuntime's active/ask are stubbed in the page, no TypeSafe, no model). Each consumer is shown consuming a scripted verdict and, with the judge off, keeping its fallback: canonVerify drops the sentence the judge scores below 0.5 (off: canon kept whole); canonDraft writes a checked draft that accept moves into the canon (off: no draft); idleCheck, toneCheck, adversityTrend and repetitionCheck raise their warden notes at their predeclared counts (idle on the 4th low-change sample, tone on the 5th, adversity on the 20th, repetition once a phrase repeats in 4 replies; off: no idea notes). pictureCue needs a ready image service and is not runnable on a no-model lane.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off",
+    "briefingDraft": "off",
+    "innerBeat": "off",
+    "why": "Judge verdicts and model replies are scripted; this proves the consumers read them, not judge quality."
+  },
+  "steps": [
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return true;"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-k40-consumers",
+        "title": "SO-K40 Consumers",
+        "description": "Synthetic judge consumer plumbing.",
+        "qualities": [],
+        "checkpoints": [
+          {
+            "id": "mill",
+            "name": "The Mill",
+            "type": "anchor",
+            "start": true,
+            "objective": "Find out who set the mill fire.",
+            "intent": "A tense, careful investigation."
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const judge = rt.getJudge(); globalThis.__k40 = { judge, active: judge.active, ask: judge.ask, enabled: judge.enabled, on: new Set(), calls: [], sleep: (ms) => new Promise((r) => setTimeout(r, ms)) }; const k = globalThis.__k40; judge.active = (use) => k.on.has(use); judge.enabled = () => k.on.size > 0 || k.enabled.call(judge); judge.ask = async (use, request) => { if (!k.on.has(use)) return { answers: null, fallback: 'disabled', latencyMs: 0, cached: false }; k.calls.push(use); const answers = {}; for (const [key, q] of Object.entries(request.questions)) { if (key.startsWith('sentence:')) answers[key] = { type: 'noul', noul: /dragon/i.test(q.instructions ?? '') ? 0.1 : 0.9 }; else answers[key] = { type: 'score', score: { adversity: 0, change: 1, tension: 0, tone: 0 }[key] ?? 0, confidence: 0.9, probabilities: {} }; } return { answers, latencyMs: 0, cached: false }; }; await rt.applyExtractionAudit({ id: 'k40-open', createdAt: new Date().toISOString(), priority: 0, reason: 'manual', contractHash: 'h', scope: [], window: { from: 0, to: 0 }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [], rejected: [] }, [], [], [{ kind: 'open', text: 'Who set the mill fire is still unknown.' }]); await rt.applyExtractionAudit({ id: 'k40-resolve', createdAt: new Date().toISOString(), priority: 0, reason: 'manual', contractHash: 'h', scope: [], window: { from: 0, to: 0 }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [], rejected: [] }, [], [], [{ kind: 'resolved', text: 'Who set the mill fire is now known: the miller.' }]); globalThis.storyOrchestratorDebugArcSummaryResponse = 'The miller set the mill fire to hide his debts.'; globalThis.storyOrchestratorDebugCanonResponse = 'WHAT HAS HAPPENED: The miller confessed to setting the mill fire. A dragon sleeps under the mill.\\nCURRENT STATE: The village is calm again.'; const arc = rt.getArcs().find((a) => a.status === 'resolved'); if (!arc) throw new Error('no resolved arc'); await rt.runArcSummaryPass([arc.id]); const canon = rt.getSnapshot().memory.canon?.text ?? ''; if (!canon.includes('dragon') || !canon.includes('miller confessed')) throw new Error('judge-off canon should be kept whole: ' + canon); if (k.calls.length) throw new Error('judge asked while off'); return { offCanon: canon };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const k = globalThis.__k40; k.on = new Set(['canonVerify']); const changed = await rt.regenerateCanon(true); const canon = rt.getSnapshot().memory.canon?.text ?? ''; if (!changed) throw new Error('regenerateCanon did not run'); if (!k.calls.includes('canonVerify')) throw new Error('canonVerify never asked'); if (canon.includes('dragon')) throw new Error('scored-low sentence kept: ' + canon); if (!canon.includes('miller confessed') || !canon.includes('village is calm')) throw new Error('kept sentences lost: ' + canon); return { verified: canon };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const k = globalThis.__k40; k.on = new Set(); const drafted = await rt.draftCanon(); if (drafted || rt.extras.memory.canonDraft) throw new Error('judge-off draft written'); k.on = new Set(['canonDraft']); k.calls = []; const ok = await rt.draftCanon(); const draft = rt.extras.memory.canonDraft; if (!ok || !draft?.text) throw new Error('no canon draft: ' + JSON.stringify(draft)); if (!k.calls.includes('canonDraft')) throw new Error('canonDraft never asked'); if (draft.text.includes('dragon')) throw new Error('draft kept the scored-low sentence'); const accepted = await rt.decideCanonDraft(true); const canon = rt.getSnapshot().memory.canon?.text ?? ''; if (!accepted || canon !== draft.text || rt.extras.memory.canonDraft) throw new Error('accept did not move the draft into the canon: ' + JSON.stringify({ accepted, canon })); k.on = new Set(); return { draft: draft.text, accepted };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const k = globalThis.__k40; const ctx = SillyTavern.getContext(); k.say = async (text) => { await ctx.executeSlashCommandsWithOptions('/sendas name=\"DM Narrator\" ' + JSON.stringify(text)); for (let i = 0; i < 50 && !ctx.chat.at(-1)?.mes?.includes(text.slice(0, 20)); i += 1) await k.sleep(100); const id = ctx.chat.length - 1; await rt.runWardenPass(id); await k.sleep(150); return id; }; k.notes = () => rt.extras.stagecraft.proposals.filter((p) => p.curator === 'warden').flatMap((p) => p.ops.map((entry) => entry.op?.family ?? entry.op?.kind)); k.calls = []; const before = k.notes().length; for (let i = 0; i < 4; i += 1) await k.say('The lantern light flickers softly over the quiet mill, scene ' + i + '.'); const ideaFamilies = k.notes().slice(before).filter((f) => ['idle', 'tone', 'adversity', 'repetition'].includes(f)); if (ideaFamilies.length || k.calls.length) throw new Error('judge-off arm raised idea notes: ' + JSON.stringify({ ideaFamilies, calls: k.calls })); return { offReplies: 4, ideaNotes: 0 };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const k = globalThis.__k40; await k.sleep(1500); k.on = new Set(['idleCheck', 'toneCheck', 'adversityTrend', 'repetitionCheck']); k.calls = []; const known = new Set(rt.extras.stagecraft.proposals.map((p) => p.id)); const fresh = []; const collect = () => { for (const p of rt.extras.stagecraft.proposals) { if (known.has(p.id) || p.curator !== 'warden') continue; known.add(p.id); for (const entry of p.ops) if (['idle', 'tone', 'adversity', 'repetition'].includes(entry.op?.family)) fresh.push(entry.op); } }; for (let i = 1; i <= 21; i += 1) { const text = i % 5 === 0 ? 'The lantern light flickers softly over the empty road, pass ' + i + '.' : 'Nothing much happens on watch number ' + i + ' tonight.'; await k.say(text); collect(); } const first = {}; for (const op of fresh) if (!(op.family in first)) first[op.family] = op.score ?? 'unscored'; const asked = k.calls.reduce((acc, use) => ({ ...acc, [use]: (acc[use] ?? 0) + 1 }), {}); for (const use of ['idleCheck', 'toneCheck', 'adversityTrend']) if (!asked[use]) throw new Error(use + ' never asked: ' + JSON.stringify(asked)); if (asked.repetitionCheck) throw new Error('repetition asked the judge'); if (first.idle !== 4) throw new Error('idle note expected at sample 4: ' + JSON.stringify(first)); if (first.tone !== 5) throw new Error('tone note expected at sample 5: ' + JSON.stringify(first)); if (first.adversity !== 20) throw new Error('adversity note expected at sample 20: ' + JSON.stringify(first)); if (!('repetition' in first)) throw new Error('repetition note never raised: ' + JSON.stringify(first)); const idleScores = fresh.filter((op) => op.family === 'idle').map((op) => op.score); return { firstAtSample: first, idleScores, asked };",
+      "log": true
+    },
+    {
+      "eval": "const k = globalThis.__k40; k.judge.active = k.active; k.judge.ask = k.ask; k.judge.enabled = k.enabled; delete globalThis.storyOrchestratorDebugArcSummaryResponse; delete globalThis.storyOrchestratorDebugCanonResponse; delete globalThis.storyOrchestratorDebugExtractionResponse; return { judgeRestored: true };"
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "const k = globalThis.__k40; if (k?.judge) { k.judge.active = k.active; k.judge.ask = k.ask; k.judge.enabled = k.enabled; } return true;"
+      }
+    ]
+  }
+}
