@@ -5,7 +5,10 @@ Not decided, not built.** Patterns G17, G19 and G21 of `v2.8/27-gamification-rep
 
 - **The model-facing build is gated on SP6, per the existing decision:** the production complication component is
   built only on SP6 PASS (v2.8 17 decisions 1–3, v2.7 35 Phase 3).
-- **A deterministic half can build now.** It has no model input change; see §Recommendation.
+- ~~A deterministic half can build now. It has no model input change.~~ **Revised 2026-10-14 (Astra review):** that
+  claim was false (a `world_info` switch or a `set` changes what the model receives), and the recommendation is now
+  **A: finish SP6 first**. Only the pure focus picker is extracted now, and only if v2.8 48 takes focus (decision 6).
+  §Review 2026-10-14 (Astra) records each finding; the shared contract lives in v2.8 52 §Review 2026-10-14 (Astra).
 
 Implementation tier D. Acceptance: RP (SP6 K2–K5 and the model half), CL (read routes during those runs).
 
@@ -100,15 +103,20 @@ Verified on master `211d8d96`.
 | | Design | Cost | Risk | Needs |
 |---|---|---|---|---|
 | **A. Wait for SP6, build all of it in Phase 3** | Nothing now. On PASS, Phase 3 builds the component with G17/G19/G21 | 0 now; L later | Phase 3 lands as one large change | SP6 PASS |
-| **B. Deterministic half now, model half on SP6 PASS** | Now: typed format, pure `pacing/complications.ts` (release rule, meter, weighted pick, spent-ness, focus), author-only shadow read model, meter effects limited to `set`/`world_info`. The spike stays byte-identical. On PASS: Phase 3 swaps the spike for the pure module and adds the registered injection, the meter-as-trigger and the focus line | M now; M later | A pure module unused by play could drift from the spike. Mitigated by C5 (both answer the same release boundaries on the spike's own cases) | D now; SP6 for the rest |
+| **B. Deterministic half now, model half on SP6 PASS** (rejected as scoped, 2026-10-14) | Now: typed format, pure `pacing/complications.ts` (release rule, meter, weighted pick, spent-ness, focus), author-only shadow read model, meter effects limited to `set`/`world_info`. The spike stays byte-identical. On PASS: Phase 3 swaps the spike for the pure module and adds the registered injection, the meter-as-trigger and the focus line | M now; M later | A pure module unused by play could drift from the spike. Mitigated by C5 (both answer the same release boundaries on the spike's own cases) | D now; SP6 for the rest |
 | **C. B, and switch the spike to weighted/focus now** | Change what the live spike releases before SP6 runs | S | **Moves the SP6 measurement's conditions** (K3–K5 lab data assumes next-unused order). Refused | — |
 | **D. Drop G17/G19/G21** | Keep v2.8 17's plain pool only | 0 | Loses the authoring value the harvest rated 4/5 | — |
 
 ## Recommendation
 
-**B.**
+**A (revised 2026-10-14).** Finish SP6 (v2.8 17) first. Build now only `focusPick`, as a pure module
+(`src/pacing/focus.ts`), and only if v2.8 48 takes an interrupt focus (decision 6). The rest of the design below is
+kept as the **Phase 3 content** to build on SP6 PASS, amended by §Review: the release counting unit is the player
+turn, the streak phase is rolled-back state, and focus safety is tested by forbidden information. The meter is built
+only for a concrete authored use case, and then with its own state, origin and replay (§Review P1). There is no
+author shadow panel and no pool field the build cannot honour.
 
-### Build now (tier D, no model input change)
+### Phase 3 design (was "Build now"; builds on SP6 PASS; it does change model input)
 
 1. **Format** (game-layer lazy chunk, beside `validate/stretch.ts`).
    - `checkpoints[].complications: Array<string | {id, text, weight?, focus?: "arcs" | "members" | "any"}>`.
@@ -131,22 +139,25 @@ Verified on master `211d8d96`.
    - `spentFromPath(log, field)`.
    - `focusPick(candidates, unitDraw([..., "focus"]))`.
    - Candidates are members present this boundary (`whereabouts`, enabled and not away), and arcs from the resting
-     view. Never a member listed only in a held secret, never an arc not yet open.
-3. **Spent-ness field.** `extras.complications.spent` (`{checkpointId: {lineId: boundary}}`), written at the release
-   boundary and truncated by rollback. This answers v2.8 17's open reopen question.
-4. **Shadow read model (author only).** `snapshot.complicationsAuthor` holds:
-   - each pool's remaining lines and weights;
-   - the meter value and threshold;
-   - the line that **would** be picked next, with its focus;
-   - the last spike release.
-   It is shown in the author Scheduler tab / driver panel with a Storybook story. Player projection unchanged.
-5. **Meter effects now:** `fires.set` and `fires.world_info` only.
-   - These are authored deterministic effects, like agenda step effects. They are applied at the boundary through the
-     existing earned-effects path (`EffectsApplier.applyEarnedEffects`, origin `{kind: "meter"}`) and replayed with the
-     path.
-   - No model text is added.
-6. **The spike is untouched.** Its block, its order and its boundaries stay byte-identical (floor C5), so the SP6 lab
-   data still measures what it was built for.
+     view whose named entities are all known to the player (v2.8 52 `knownEntities`, SC3). A known member who holds a
+     secret **may** be picked; what is excluded is forbidden information (secret content, a hidden arc's text, the
+     name of someone the player has not met), tested as such (C4).
+   - **Counting unit: the player turn.** One escalate count per player turn (`playerTurnIds`, as the spike does with
+     turn ids, `src/runtime/spikes/sp6Complications.ts:66-67`), never per boundary, so group size and Continue do not
+     speed pressure.
+3. **Spent-ness and phase as rolled-back state.** Spent lines, the escalate streak, the last counted turn and the
+   release sequence are reserved code keys written in the derive step (SC2 step 3): `cmp_<cp>_spent_<line>` (boundary),
+   `cmp_streak`, `cmp_turn`, `cmp_seq`. They roll back with the blackboard (rollback detector registry, SC1) and a
+   reopen with a truncated log resumes the exact phase. This answers v2.8 17's reopen question for timing too, not
+   only duplicates.
+4. **Author read model** on the production coordinator only (no shadow panel beside the spike): remaining lines,
+   weights, meter value, last release and its focus.
+5. **Meter effects, only with a concrete authored use case.** `fires.world_info` changes the lore the model gets, so it
+   is model input. It needs: an occurrence latch `cmp_meter_<id>_fired_<n>` (rolled back, SC1); `EarnedEffects.kind`
+   gains `"meter"` (today `"quest" | "agenda"`, `src/runtime/effectsApplier.ts:83-88`); `earnedWorldInfo`
+   (`src/runtime/worldInfoGates.ts:50-51`, agendas only) replays meter switches from the latches. `fires.set` waits for
+   a general state-write facility (none exists; v2.8 50's entry pass is time-only).
+6. **The spike stays untouched until SP6 runs.** Its block, order and boundaries stay byte-identical (floor C5).
 
 ### On SP6 PASS (v2.7 35 Phase 3, the model half)
 
@@ -162,11 +173,9 @@ The design is carried from v2.8 17 Step 2, plus:
 
 ### On SP6 FAIL or INCOMPLETE ×2
 
-v2.8 17 decision 3: drop the spike.
-
-- The deterministic half keeps only the meter's `set`/`world_info` effects and the focus pick (v2.8 48 reuses it).
-- Pool weights and spent-ness become inert data the guide marks unsupported.
-- `fires.release` stays refused.
+v2.8 17 decision 3 predates 00-overview rule 9 (every built feature on; only the owner switches one off). Revised: a
+FAIL is recorded and **goes to the owner**; nothing is dropped automatically. Phase 3 is not built on a FAIL unless the
+owner says so. `focusPick` stays (v2.8 48 may use it). No pool field is added that the build cannot honour.
 
 ## Predeclared floors
 
@@ -176,29 +185,34 @@ Committed before any run; never retuned (00-overview rule 2).
 |---|---|---|---|
 | C1 | Meter determinism | fires at exactly the first boundary where value ≥ threshold, resets in that boundary; rollback ≡ replay 0 mismatches over 4 seeds × 100 cuts (swipes, deletes, reopen) | D |
 | C2 | Weighted pick | over 10,000 synthetic keys per pool, each line's share within ±0.02 of `weight / Σweights` of unspent lines | D |
-| C3 | Spent-ness | 0 re-releases of a spent line over the property run, **including reopen with a boundary log truncated past the release** (control: the in-memory map re-releases) | D |
-| C4 | Focus is spoiler-safe | planted hidden arc, absent member and held-secret subject are picked 0 times in 10,000 draws; control with the filter off picks each | D |
-| C5 | Spike unchanged | the spike's release boundaries, block text and K2 dry-run payload are byte-identical before and after the build-now change (golden over `sp6Complications.test.ts` cases and `live-v25-09-sp6-k2.json` dry run); the pure core answers the same release boundaries on the same cases | D |
+| C3 | Spent-ness and phase | 0 re-releases of a spent line and identical release boundaries over the property run, **including reopen with a boundary log truncated past the release and mid-streak** (control: the in-memory map re-releases, and a zeroed streak shifts the next release) | D |
+| C4 | Focus is spoiler-safe by information | over 10,000 draws, the composed focus line contains 0 planted forbidden strings (held-secret content, a hidden arc's text, an unmet person's name); a known member who holds a secret is a legal pick and is picked at its share; control with the filter off emits each forbidden string | D |
+| C5 | Spike unchanged | the spike's release boundaries, block text and K2 dry-run payload are byte-identical until SP6 runs (golden over `sp6Complications.test.ts` cases and `live-v25-09-sp6-k2.json` dry run); the pure core answers the same release boundaries on the same cases | D |
 | C6 | No refusal-driven pressure | no `fills.from` reads the agency recovery, refusal counter or wall-clock (guard test with a planted source as control) | D |
 | C7 | Player clean | player surfaces byte-identical with and without pools, meters and focus; `assert-player-clean` passes | D |
 | C8 | SP6 itself | K1–K5 as v2.8 17 §Floor and v2.7 35 Stage B (verbatim; K5 pooled per arm) | RP + CL |
-| C9 | Production parity (Phase 3) | K2 ×2 on the production path; C1–C3 re-run on the coordinator path | RP, D |
+| C9 | Production parity (Phase 3) | K2–K5 ×2 on the production path with weights and focus on (they change the distribution K3–K5 measure); C1–C3 re-run on the coordinator path | RP, D |
+| C11 | Counting unit | a group round with 3 members and a Continue counts one escalate turn (property over round shapes) | D |
 | C10 | Focus lands (Phase 3) | over ≥ 20 focused releases, a second model rates "the reply engages the named focus, world-side" ≥ 0.60; K3 agency flags ≤ unfocused control + 1; K4 0 verbatim restatements | RP |
 
 Synthetic English fixtures for C1–C7. Adolion-derived rows are rated by a second model, never by the owner (rule 11).
 
 ## Gates by tier
 
-- **D, build now:**
-  - `npm run gates`: validator tests, the property tests C1–C4 and C6, the golden C5, Storybook for the shadow panel.
+- **D, now (only if decision 6 extracts `focusPick`):** `npm run gates` with C4 on the pure picker; no registry row
+  (no feature of its own).
+- **D, Phase 3 (on SP6 PASS):**
+  - `npm run gates`: validator tests, the property tests C1–C4, C6 and C11, the golden C5, Storybook for the author
+    read model.
   - `architecture.test.ts`: pacing stays pure; the coordinator budget is 560.
   - `typedResults.test.ts` for any stHost write; `ownership.guard.test.ts` for the meter-effect writer (a `RunToken`
     before each write).
-  - A no-LLM group scenario: a meter fills through escalate boundaries, fires a `world_info` switch, then a swipe undoes
-    it and a reopen keeps it. Run ×2 on a no-model lane.
-  - Registry: feature `complication-meter` (the shadow panel sits under the existing pacing group) and Help.
-  - Guide: §Experimental effects gains weights, meter and focus, marked as "release waits for the production pool";
-    then `npm run docs:guide` and `npm run docs:settings`.
+  - A no-LLM group scenario: releases across a group round and a Continue (one count), a swipe mid-streak, a reopen
+    with a truncated log (same next release). With a meter use case: it fires a `world_info` switch, a swipe undoes
+    it, a reopen keeps it. Run ×2 on a no-model lane.
+  - Registry: feature `complications` under the pacing group, and Help.
+  - Guide: §Experimental effects gains weights, focus and (with its use case) the meter; then `npm run docs:guide`
+    and `npm run docs:settings`.
 - **RP + CL (acceptance):** C8 on the pod or the 3090, run header diff, `--strict`, records to `so-sessions`. On PASS,
   Phase 3: C9, C10, `npm run gates`, registry row, `so-ui assert-player-clean`, the bundle from a named build
   (`scripts/release/buildChecks.mjs`).
@@ -228,17 +242,20 @@ Synthetic English fixtures for C1–C7. Adolion-derived rows are rated by a seco
 
 ## Decisions for the owner
 
-1. **Build the deterministic half now (option B), with the model half on SP6 PASS?** **Recommended: yes.**
+1. **Option A: finish SP6 first, Phase 3 on PASS?** **Recommended: yes** (revised 2026-10-14; B as scoped rejected).
 2. **Leave the live SP6 spike exactly as it is until SP6 runs** (on by default under rule 9, unregistered block,
    next-unused order)? **Recommended: yes.** Changing it would move the measurement's conditions (option C refused).
-3. **Meter effects before SP6:** allow `fires.set` and `fires.world_info` now, and keep `fires.release` refused?
-   **Recommended: yes.** These are authored deterministic effects of the kind agendas already fire.
+3. **Meter effects before SP6?** **Recommended: no** (revised). A meter is built for a concrete authored use case,
+   with occurrence latches, a `meter` earned origin and replay; `fires.set` waits for a state-write facility.
 4. **Encounter pool spent-ness:** reuse `spentFromPath` so a stretch's menu drops encounters the chat already engaged?
    **Recommended: yes, as a follow-up row.** Engagement detection (latching) stays out: it needs a model read with its
    own floor.
 5. **Who runs SP6:** the pod (Artemis on the RTX PRO 4500, budget per v2.8 24), or the 3090 locally while the owner is
    not playing (RunPod is not used for the rest of October 2026, `.claude/rules/gotchas.md` §Model, backend)? **Recommended: the 3090 lane run,** route
    recorded. The K-bars are model-agnostic, as v2.5 wrote them.
+6. **Extract `focusPick` now?** **Recommended: only if v2.8 48 takes interrupt focus** (48 decision 6); otherwise it
+   arrives with Phase 3.
+7. **SP6 FAIL handling under rule 9:** record and ask the owner, no automatic drop? **Recommended: yes.**
 
 ## Unresolved questions
 
@@ -249,3 +266,33 @@ Synthetic English fixtures for C1–C7. Adolion-derived rows are rated by a seco
   keyed by the release boundary, so a replay gives the same focus.
 - If K5 passes but K3 fails, is the drop branch total, or may the meter's deterministic effects stay? The proposal is
   that they stay: they add no model input.
+
+## Review 2026-10-14 (Astra)
+
+Source: `review-astra-2026-10-14.md` §Plans 48-53 ("49: reject B as currently scoped"), checked on master `3a716f2b`.
+Shared findings resolve through v2.8 52 §Review 2026-10-14 (Astra): SC1 (the phase and spent keys and meter latches
+get detectors), SC2 (all complication writes are step 3), SC3 (focus candidates through `knownEntities`).
+
+- **P1 The first phase changes model input indirectly.** Verified: `world_info` switches change supplied lore;
+  `EarnedEffects.kind` is `"quest" | "agenda"` (`src/runtime/effectsApplier.ts:83-88`) and `applyEarnedEffects`
+  (`:339-353`) has no `set`; `earnedWorldInfo` replays agendas only (`src/runtime/worldInfoGates.ts:50-51`). → Claim
+  withdrawn; recommendation is A; the meter needs occurrence state, a `meter` origin and replay and is built only for
+  a concrete authored use (decision 3).
+- **P1 Persisting spent ids does not preserve release timing.** Verified: `deriveReleases` restarts `streak` and
+  `closedTurn` at the log's start (`src/runtime/spikes/sp6Complications.ts:69-104`); the `spent` map only prevents
+  duplicates (`:74-76`) and is in-memory by default (`:130`). → Streak, last counted turn and release sequence become
+  rolled-back code keys; C3 adds a mid-streak truncated reopen.
+- **P1 Focus safety is overstated.** Verified: presence filtering only drops away members
+  (`src/runtime/whereabouts.ts:7-10`); open threads pass the resting filter (`src/runtime/livingInputs.ts:37`), which
+  strips recognised secret content, not names, and does not prove the player opened the arc. → No "player-opened"
+  claim; candidates through `knownEntities`; C4 tests forbidden information and allows a known secret-holder.
+- **P2 Boundary counting can amplify group size.** Verified: the spike dedups by player turn only when turn ids are
+  supplied (`:66-67`, else `entry.boundary`). → The counting unit is the player turn, always; C11.
+- **P2 SP6 success does not validate weighted/focused behaviour; drop branch vs rule 9.** Accepted. → C9 re-runs
+  K2–K5 with weights and focus; the automatic drop is replaced by "record, owner decides" (decision 7).
+- **Cheaper design** (pure focus picker only if 48 needs it; finish SP6; meters only for a concrete use; no shadow UI,
+  no unsupported pool fields). Adopted.
+- **Brainstorm: complications with several viable responses, including leaving them alone; exhaustion produces quiet,
+  not mandatory trouble.** Phase 3 guide rule: a pool line states a world change, never a demand, and an exhausted
+  pool releases nothing (`next` absent already returns no release, `:99-100`); the guide's Good example shows a line
+  the player can ignore without penalty.

@@ -6,6 +6,10 @@ Not decided, not built.** Pattern G13 of `v2.8/27-gamification-report.md`. Imple
 - CL for the read changes (shared read on the memory/orchestrator route, director on the authoring route);
 - RP for the final-suite row.
 
+**Revised 2026-10-14 against the Astra review**: §Review 2026-10-14 (Astra) records each finding; the shared contract
+(SC1–SC5) lives in v2.8 52 §Review 2026-10-14 (Astra). B is now built in four steps (canonical time + read parity →
+entry advances → calendar formatting → skip read and director); scene-break advancement is deferred.
+
 **The premise "L4 gates on time with no convention" is stale.** v2.7 37 built a story clock on 2026-10-07: `time_of_day`
 plus `story_day` (§Current state). What does not exist is a **calendar** (date, weekday, month, season), a single
 story-time number, and any writer other than the shared read. This plan builds those on top of the clock.
@@ -24,8 +28,9 @@ story-time number, and any writer other than the shared read. This plan builds t
   2. **Authored effects**, on checkpoint entry. This was v2.7 37 producer (1), never built.
   3. **An explicit time-skip read**, for "the next morning" or "three days later". New; it needs a CL floor.
   4. **The living director**, as a validated op on a generated anchor.
-  5. **Scene breaks**, only when a story opts in.
-  Every writer is clamped, and none runs on wall-clock (trap 2).
+  5. **Scene breaks**, only when a story opts in. **Deferred** (revised 2026-10-14) until 1–4 prove stable.
+  Every writer is clamped, arbitrated per boundary (§Recommendation, Writer arbitration), applied exactly once, and
+  none runs on wall-clock (trap 2).
 - **Consumers:**
   - character-life schedules and mood (v2.7 37 L2/L4);
   - agendas (v2.7 37 L3);
@@ -108,42 +113,80 @@ Verified on master `211d8d96`.
 
 ## Recommendation
 
-**B, in two steps.** There is no backward compatibility to keep (AGENTS.md: no migrations), so the existing keys
-change source without a migration. Story JSON keeps `clock` and gains `calendar`.
+**B, in four steps** (revised 2026-10-14, Astra's sequence): **B1a** canonical `story_time` + read parity; **B1b**
+authored entry advances; **B1c** calendar formatting; **B2** skip read and director op. Scene-break advancement
+(old item 5) is **B3, deferred** until B1–B2 have run stable. There is no backward compatibility to keep (AGENTS.md:
+no migrations), so the existing keys change source without a migration. Story JSON keeps `clock` and gains `calendar`.
 
-### B1 (D implementation; CL acceptance for the read rename)
+### B1 (D implementation; CL acceptance for the read rename). B1a = items 1–2 and 6; B1b = item 3; B1c = items 4, 7, 8
 
 1. **`story_time`.** A code int, monotonic, starting at `(start_day − 1) × P + start_part`, where `P = clock.times.length`.
    Written only in the derive seam (`runtime/stretchTurns.ts` → `deriveLife`). Derived each boundary:
    - `story_day = ⌊story_time / P⌋ + 1`;
    - `time_of_day = times[story_time mod P]`.
    Both become code qualities. Mood's scene marker, schedules and every authored gate keep working by name.
-2. **Read input.** The shared read keeps the same rubric and criteria under the key `life_time_read`. A change of the
-   read moves `story_time` forward by `(idx(read) − idx(time_of_day)) mod P` parts, clamped to 1 per boundary (today's
-   clamp). The **step baseline is the derived `time_of_day`**, not the read key's last value, so a jump by an effect
-   does not make the next read count twice.
+2. **Read input (a parser and resolution change, not a rename).** Today the read key is stepped in the parser against
+   its own stored value (`src/extraction/parse.ts:149-151`, `resolveStep(quality.step_rule, word, values[q])`).
+   - `life_time_read` is compiled as a plain extractor choice over `clock.times` **with no `step_rule`**, so the parser
+     stores the absolute part word the read names and never steps it.
+   - The derive step (SC2 step 3) turns it into an advance: `(idx(read) − idx(time_of_day)) mod P` parts against the
+     **derived** `time_of_day`, clamped to 1 per boundary (today's clamp).
+   - **Stale reads.** Each applied read carries its window end (`turnRange.to`). If a non-read writer advanced time at
+     a boundary whose `lastMessageId` is after that window end, the read is stale and yields no advance (the effect
+     already moved time past what that window described).
+   - `life_time_seen` is retired; `story_time` is the only history.
 3. **`effects.time`** on checkpoint entry: `{advance: {days?, parts?}} | {to: {part, next_day?: bool}}`.
-   - It is replayed with the path, like earned effects, so a swipe undoes it.
-   - The validator refuses a negative advance, more than `calendar.max_skip_days` (default 30), and an unknown part.
+   - Computed in the **pure entry pass** (SC2 step 7) inside `commitBoundary`, as a code write to `story_time`, so the
+     committed snapshot and every consumer see it in the same boundary. Never through `EffectsApplier` (host work
+     only). Rolled back with the blackboard; the rollback detector registry covers story-time keys (SC1).
+   - The validator refuses a negative advance, more than `clock.max_skip_days` (default 30), and an unknown part.
+   - `to` semantics: a later part today moves to it; the current part is a no-op unless `next_day: true` (then +P);
+     an earlier part moves to that part tomorrow.
 4. **`calendar`** (optional):
-   `{start: {year?, month, day}, months: [{name, days}], weekdays?: [names], seasons?: [{name, from_month}],
-   night: [part names], label?: "day" | "date"}`.
-   - The derived code qualities `cal_*` and `is_night` are read-only.
-   - Authored gates may name them. An authored write is refused, and so is a `display` value the projection cannot
-     show.
-   - Without `calendar`, only `story_day`, `time_of_day` and `is_night` (from `night`, default none) exist.
-5. **Scene breaks:** `calendar.on_scene_break?: {parts}` (absent = no advance). It is applied at the boundary whose
-   extraction audit carries `sceneBreak` (`extraction/parse.ts:178`), clamped to 1 day.
-6. **Quest time rule.** `TIME_KEYS` gains `story_time`, `story_day`, `time_of_day`, `is_night` and `cal_*` (T6).
+   `{start: {year?, month, day, weekday?}, months: [{name, days}], weekdays?: [names], seasons?: [{name, from_month}],
+   label?: "day" | "date"}`. Semantics, fixed (Astra P2):
+   - `calendar.start` is the date of **story day 1**. `clock.start_day` (default 1) only moves where the story begins:
+     day N is `start + (N − 1)` days. `clock.start_part` (default `times[0]`) is the initial part, so
+     `story_time₀ = (start_day − 1) × P + idx(start_part)`.
+   - Weekday origin: `start.weekday` (index, default 0) is the weekday of story day 1.
+   - Seasons are ordered by `from_month`; a month before the first season's `from_month` belongs to the last season
+     (wrap); years advance after the last month.
+   - `night` lives on **`clock`** (`clock.night: [part names]`, default none), so `is_night` exists without a calendar.
+   - The derived code qualities `cal_*`, `is_night` and `time_part` (`0..P−1`) are reserved like `story_day`
+     (`isLifeKey`, `src/engine/lifeSchema.ts:95`): an authored quality with those names, a `reward.set`, a move or any
+     effect targeting them is refused; only the derive and entry passes write them.
+   - Authored gates may name them; a `display` value the projection cannot show is refused.
+   - Without `calendar`, only `story_time`, `story_day`, `time_of_day`, `time_part` and `is_night` exist.
+5. **Scene breaks (B3, deferred):** `clock.on_scene_break?: {parts}`, applied at the boundary whose audit carries
+   `sceneBreak` (`extraction/parse.ts:178`), only when no read, skip or entry advance moved time that boundary.
+   Not built until B1–B2 are stable.
+6. **Quest time rule, scoped (Astra P2).** Runtime already reports an offered quest as `offered` before it tests
+   failure (`src/engine/quests.ts:10-14`), so the risk is acceptance **after** the deadline (the quest fails the moment
+   it is taken) and proxy gates. `TIME_KEYS` (`src/engine/validate/quests.ts:19`) gains `story_time`, `story_day`,
+   `time_of_day`, `time_part`, `is_night` and `cal_*`; tests cover acceptance after the deadline and a gate on a
+   derived time key. An author code quality that merely follows time cannot be detected: no refusal, a guide note.
 7. **Widgets.**
    - `clock` may bind a derived `time_part` int (`0..P−1`) when `2 ≤ P ≤ 12`.
-   - `timeline` fills a missing `dates` label from the calendar label at the boundary the checkpoint was first reached.
+   - `timeline` fills a missing `dates` label from the checkpoint's **first-visit time**, stored explicitly: the entry
+     pass writes `time_reached_<cp>` (code int, the `story_time` at first entry, only for checkpoints a `timeline`
+     names without a date). The engine keeps only 200 log entries (`src/engine/engine.ts:277`) and `visitedPath` holds
+     ids, not times, so the label cannot be rebuilt after truncation without it.
    - A deadline clock (a widget whose bound quality appears in a quest `failed_when` or a promise due) defaults to
      `audience: "author"` (trap 9).
 8. **Surfaces.**
    - Player: the time label only where the author puts it (a `display` on `time_of_day`/`cal_*`, or the `timeline`).
      Time of day and date are player-safe facts (G13).
    - Author view: `story_time`, the last writer (read, effect, skip, director, scene break) with boundary and message.
+9. **Writer arbitration (Astra P1).** Per boundary, candidate advances are collected with an evidence id:
+   - read step: `read:<turnRange.to>`; skip line: `skip:<messageId>:<hash(line)>`; entry effect: `entry:<cp>`;
+     director op: `op:<opId>`; scene break: `break:<messageId>`.
+   - Precedence: an entry `to` sets the part last; entry and director advances **compose** (they are path events);
+     an explicit skip **supersedes** the read step from the same window (the skip names the part); a scene-break
+     advance applies only when nothing else moved time.
+   - The total is clamped to `max_skip_days` per boundary.
+   - **Exactly once:** skips and breaks are consumed by message id. `life_time_consumed_to` (code int, rolled back with
+     the blackboard) holds the highest consumed message id; a candidate whose evidence message is at or before it is
+     dropped, so overlapping read windows never repeat "three days later".
 
 ### B2 (CL acceptance)
 
@@ -164,17 +207,22 @@ Committed before any run; never retuned (00-overview rule 2).
 
 | # | Condition | Floor | Tier |
 |---|---|---|---|
-| T1 | Rollback ≡ replay | `story_time` and every derived key: 0 mismatches over 4 seeds × 100 cuts mixing reads, effects, skips, director ops, scene breaks, OOC lines, Continue, swipes and reopen | D |
+| T1 | Rollback ≡ replay | `story_time` and every derived key: 0 mismatches over 4 seeds × 100 cuts mixing reads, effects, skips, director ops, OOC lines, Continue, swipes, reopen and a code-only boundary (SC1) | D |
 | T2 | Calendar derivation | 1,000 consecutive days over an authored calendar with months of unequal length, a weekday cycle not dividing the month, and 4 seasons: exact equality with an independent reference walker written in the test | D |
 | T3 | Clamps | read ≤ 1 part per boundary; skip and director ≤ `max_skip_days` per boundary; `story_time` never decreases except by rollback (property) | D |
 | T4 | No wall-clock | `engine/life/*`, the calendar module and the derive seam never call `Date`, `performance` or `host.now` (guard test with a planted call as control) | D |
 | T5 | Clock parity | on `engine/life/life.test.ts`'s clock and schedule cases, `time_of_day`/`story_day` sequences and schedule drops are identical before and after the re-key (golden) | D |
-| T6 | Offered-quest time rule | an offered quest with `failed_when` on any story-time key alone is refused; control on a non-time key passes | D |
+| T6 | Offered-quest time rule | an offered quest with `failed_when` on any story-time or derived time key alone is refused; a runtime case accepts a quest after its deadline and shows the failure the validator prevents; control on a non-time key passes | D |
 | T7 | Player clean | with no `display` and no timeline, player surfaces are byte-identical with and without `calendar`; a deadline-bound clock is author-only by default | D |
 | T8 | Read parity (B1) | the existing time windows of the live suite score within its per-tier floors with `life_time_read` (the rename does not cost accuracy); declared payload-golden hunk only on the key name | CL |
-| T9 | Skip read (B2) | on 40 synthetic windows with an explicit skip, the parsed advance matches the label (days and part) on ≥ 0.90; on 40 windows without a skip, false advances ≤ 0.05; read prompt growth ≤ +5 % tokens for a story with `clock` | CL |
+| T9 | Skip read (B2) | on 40 synthetic windows with an explicit skip, the parsed advance matches the label (days and part) on ≥ 0.90; on 60 windows without a real skip, 10 each of quotation, hypothetical, flashback, negation, duplicate window and multi-member round, false advances ≤ 0.05 overall and ≤ 1 per kind; read prompt growth ≤ +5 % tokens for a story with `clock` | CL |
 | T10 | Director time (B2) | 0 director ops over `max_skip_days` reach a story (guard); on 20 frozen frontiers, a second model rates the label-consistency of the anchor (no "morning" scene stated at night) ≥ 0.85 | CL |
 | T11 | Played session | in the final suite, a schedule drop and its return happen with time advancing from the read and from one authored effect, and reopen keeps the label | RP |
+| T12 | Exactly once | the same skip line present in 3 overlapping read windows advances once; a multi-member round with one skip advances once (property over window overlaps) | D |
+| T13 | Stale read and arbitration | a read whose window ends before an effect's advance yields no advance; precedence and composition match a reference table of every writer pair | D |
+| T14 | Calendar semantics | the fixed cases (start date vs `start_day`, `start_part`, weekday origin, season wrap, `to` same/earlier/later part, `is_night` without calendar) match the reference walker | D |
+| T15 | First-visit time | a timeline label survives a reopen with the log truncated past the visit (`time_reached_<cp>`) | D |
+| T16 | Entry consistency | after a boundary that enters a checkpoint with `effects.time`, the committed snapshot, the derived keys and the next quest/schedule evaluation all see the advanced time (no host-path lag) | D |
 
 ## Gates by tier
 
@@ -219,8 +267,8 @@ Committed before any run; never retuned (00-overview rule 2).
 
 1. **Option B (one `story_time` truth, today's keys derived, read re-keyed to an input)?** **Recommended: yes.** It is
    the only option that lets authored effects and the director move time without fighting the extractor-source rule.
-2. **Who advances time:** read + authored effects + skip read + director, with scene breaks only by story opt-in?
-   **Recommended: yes.** Scene breaks are opt-in because a location change is not always time passing.
+2. **Who advances time:** read + authored effects + skip read + director; scene breaks deferred (B3), opt-in when
+   built? **Recommended: yes** (revised 2026-10-14). A location change is not always time passing.
 3. **Calendar scope:** months, weekdays, seasons and a start date, with no moons, holidays or leap rules for now?
    **Recommended: yes.** Holidays are gates on `cal_*` an author can already write.
 4. **Default player visibility:** the time label is shown only where the author asks (a `display` or `timeline`), and
@@ -228,6 +276,9 @@ Committed before any run; never retuned (00-overview rule 2).
 5. **`elapsed` (real seconds since checkpoint entry, `engine.ts:474-475`):** leave it, or remove it as a T2 wall-clock
    trap? **Recommended: leave it for now** and point the guide at `story_time` for in-fiction time. Removal is its own
    change.
+6. **Build sequence** B1a → B1b → B1c → B2, B3 deferred? **Recommended: yes**, each step its own `npm run gates`.
+7. **Writer arbitration** (item 9: compose path events, skip supersedes read, break only alone, consumed by message
+   id)? **Recommended: yes.**
 
 ## Unresolved questions
 
@@ -239,3 +290,36 @@ Committed before any run; never retuned (00-overview rule 2).
   `engineHistory`. T1's reopen case proves it.
 - Plan 47's due-time format (absolute day/part vs "within N days") is not known yet. This plan's read model must serve
   both.
+
+## Review 2026-10-14 (Astra)
+
+Source: `review-astra-2026-10-14.md` §Plans 48-53, checked on master `3a716f2b`. Shared findings resolve through the
+shared contract in v2.8 52 §Review 2026-10-14 (Astra): SC1 rollback detectors (T1 code-only seed), SC2 order
+(read-steps in step 3; `effects.time` and `time_reached_<cp>` in the step 7 entry pass), SC3 (time is player-safe;
+deadlines stay author-only), SC4 (a clock-only story has no game view unless `display`/`timeline` is authored; T7
+covers it).
+
+- **P1 Multiple writers need arbitration and exactly-once application.** Accepted. → Item 9: evidence ids per writer,
+  precedence vs composition, a consumed-message watermark in the blackboard (rolled back with it), stale-read rule in
+  item 2. Floors T12, T13; decision 7.
+- **P1 Renaming the read key is not enough.** Verified: stepping happens in the parser against the read key's own
+  value (`src/extraction/parse.ts:149-151`); the day count derives from `life_time_seen` (`src/engine/life/derive.ts:47-55`).
+  → `life_time_read` loses its `step_rule`, the parser stores the absolute word, and the derive step resolves against
+  the derived `time_of_day`; an older pending read that predates an effect's advance is stale and yields nothing.
+- **P1 Entry effects need a new engine transaction point.** Verified: entry `effects` leave `commitBoundary` for the
+  runtime (`engine.ts:269,280`); derive runs on the pre-transition view (`:482`). → `effects.time` is computed in the
+  pure entry pass (SC2 step 7); runtime effects stay host-only. Floor T16.
+- **P2 Calendar semantics undefined.** Accepted. → Item 4 fixes start date vs `start_day`, `start_part`, weekday
+  origin, season wrap, `to` same/earlier/later part (item 3), `night` on `clock`, `time_part` declared and reserved.
+  Floor T14.
+- **P2 First-visit dates cannot be reconstructed.** Verified: 200-entry log (`engine.ts:277`), `visitedPath` ids only.
+  → `time_reached_<cp>` written at first entry, only for undated timeline checkpoints. Floor T15.
+- **P2 Quest validator gap narrower than claimed.** Verified: `liveStatus` returns `offered` before testing failure
+  (`src/engine/quests.ts:10-12`); `TIME_KEYS` lacks story-time keys (`src/engine/validate/quests.ts:19,248`). →
+  Item 6 rescoped: acceptance after the deadline and derived-key proxies are the tested cases; T6 extended.
+- **Cheaper sequence.** Adopted as B1a → B1b → B1c → B2, scene breaks deferred (decisions 2, 6). T9 strengthened with
+  quotations, hypotheticals, flashbacks, negation, duplicate windows and multi-member rounds.
+- **Brainstorm: recurring social rhythms, appointments, seasonal atmosphere; time opens opportunities without closing
+  others.** Schedules already read `time_of_day`; appointments are v2.8 47 due points and v2.8 55 commitments
+  (candidate); recurring rhythms are v2.8 57 rituals (candidate). No time-based closing is added here: a deadline
+  stays an authored `failed_when`.

@@ -4,17 +4,20 @@
 v2.8 and are written now. Gate tiers (v2.8 00 §Gate taxonomy): implementation **D**; acceptance **D** + **RP** (members
 open differently by standing, on the main reply model) + **CL** (second-model rater; living director hint uptake on
 the director's route). Overview: `docs/plans/v2.8/00-overview.md`. Not in `32-queue.md` yet (the owner queues it).
+**Revised 2026-10-14 against the Astra review**: §Review 2026-10-14 (Astra) records each finding; the shared contract
+(SC1–SC5) lives in v2.8 52 §Review 2026-10-14 (Astra). Snapshot writes and hidden-faction director input are removed.
 
 ## What it is
 
 - A story declares **factions**: groups such as a guild, a village or the crown. Each has a **standing** with the
   player, a bounded whole number that only the author sees.
-- Standing moves on **story events**: authored moves that fire once when their gate first holds, quest rewards
-  (`reward.set {add}`), and checkpoint/transition snapshots. It never moves on the player's refusal alone
-  (`DEFAULT_AGENCY`, trap T1) and never on wall-clock time (T2).
+- Standing moves on **story events**: authored moves that fire once ever when their gate first holds, and quest
+  rewards (`reward.set {add}`). Both are clamped to the faction's range by one shared rule. It never moves on the
+  player's refusal or inaction (`DEFAULT_AGENCY`, trap T1) and never on wall-clock time (T2).
 - Roster members **belong** to factions (`roster[].factions`). A drafted member that belongs to a faction gets one
-  private line saying how its faction regards the player, so it opens toward the player accordingly. The living
-  director gets the standings as hints ("the crown distrusts the player").
+  private line saying how its faction regards the player as far as that member has heard, so it opens toward the
+  player accordingly. The living director gets the standings of factions the player knows as hints ("the crown
+  distrusts the player").
 - The player sees each faction's standing as **authored words** (G6 bands: "Hostile", "Wary", "Trusted"), never a
   number, a range or a trend arrow by default.
 - Standing is ordinary story state: it rolls back with the blackboard and replays identically.
@@ -50,8 +53,12 @@ Verified on master `211d8d96`. `grep -rli faction src docs/authoring` finds thre
 - **Word bands.** `QualityDisplay.bands: DisplayBand[]` (`src/engine/gameSchema.ts:7-22`), validated ascending and
   covering `[min, max]` (`src/engine/validate/display.ts:15-41`); the Stat sheet shows the band word.
 - **Code-moved numbers.** Quest `reward.set` with `{add: n}` writes code qualities (`src/engine/gameSchema.ts:43-50`,
-  `src/engine/quests.ts:73-79`); checkpoints and transitions carry `state_snapshot` (`src/engine/schema.ts:234`, `:349`).
-  No authored checkpoint `set {add}` effect exists (v2.7 37 deviation "no authored checkpoint `set` effect").
+  `src/engine/quests.ts:74-84`, no range clamp: `:79-80` adds directly). Checkpoints and transitions carry
+  `state_snapshot` (`src/engine/schema.ts:234`, `:349`), but it is an **expectation** for generation and scope
+  (`src/generation/critic.ts:40,55`, `src/extraction/scope.ts:69`); checkpoint entry never applies it
+  (`src/engine/engine.ts:259-271`). No authored checkpoint `set {add}` effect exists (v2.7 37 deviation).
+- **No range enforcement.** `Blackboard.applyDelta` checks quality, source, type, monotonic and latch, never a numeric
+  range (`src/engine/blackboard.ts:71-95`).
 - **Member private block.** `privateLifeLines` (`src/engine/life/lines.ts:45-58`) via `MemoryInjector.lifeLines`
   (`src/runtime/memoryInjector.ts:129-134`), filtered per member.
 - **Director.** `renderDirectorPrompt` lists cast, canon, threads and "Private plans of the cast"
@@ -82,36 +89,53 @@ Format (story level, lazy game layer):
 "roster": [{ "id": "mara", "factions": ["guild"] }]
 ```
 
-- **Standing.** Compiled to `rep_<faction>` (code int, `step_rule {min, max, start}`, seeded at `start` like an unread
-  relationship, v2.7 37 Q1). Clamped to `range` on every write.
-- **Moves.** Each fires once, the first boundary its gate holds, adding `add` (±, |add| ≤ range width); latched in
-  `rep_<faction>_move_<id>` (code bool). A move whose gate turns false and true again does not fire twice. Moves run
-  in the derive seam after quest rewards, in declaration order; rollback drops both the latch and the change.
-  `reward.set {"rep_guild": {"add": 1}}` and `state_snapshot` keep working as they do for any code quality.
+- **Standing.** Compiled to `rep_<faction>` (code int, `range` + `start`, seeded at `start` like an unread
+  relationship, v2.7 37 Q1).
+- **One clamp for every writer.** A compiled quality may carry `range: [min, max]`; `Blackboard.applyDelta` clamps a
+  code-source int write into it before the type check (one place, so quest `reward.set {add}`, moves and any later
+  writer are bounded alike). Extractor qualities keep their `step_rule` clamp. A write that clamps records
+  `clamped: true` in its outcome for the author panel.
+- **Moves.** Each fires **once ever** (not once per onset), the first boundary its gate holds, adding `add` (±,
+  |add| ≤ range width); latched in `rep_<faction>_move_<id>` (code int = the boundary it fired). The add and the latch
+  are written in one step of the latch pass (shared contract SC2 step 5, after quest rewards; re-run at step 7): the
+  latch is written only if the add's outcome is `ok`, so completion is atomic. Rollback drops both, and the rollback
+  detector registry sees them (SC1). `reward.set {"rep_guild": {"add": 1}}` keeps working. **`state_snapshot` is not
+  a standing writer** (it is never applied); the validator warns on a `rep_*` key in a snapshot.
+- **Affirmative events only.** A move with `add < 0` must gate on an evidenced event: its gate may not be satisfiable
+  by absence or time alone. Refused: every gate key in `TIME_KEYS` or a story-time key, a leaf comparing to `false`
+  or to the quality's start value, a `not` node at the top. Diagnostic `faction-move-on-inaction` names the leaf.
+- **Who hears.** Each move declares `heard_by: "present" | "faction"` (default `present`). The member line uses a
+  per-member perceived standing `rep_<faction>_seen_<member>` (code int, derived in the latch pass): it takes a move
+  when the member was present at its boundary, or when the move says `faction`. v2.8 44 rumors may later carry a move
+  to an absent member. The player-facing band reads the true standing.
 - **Membership.** `roster[].factions: [id]` (at most 3 per member). A faction with no member is allowed (a crown that
   never speaks).
 - **Member line.** A drafted member of faction F gets, in its private block after its own relationship lines:
-  "Your group, The Guild, regards the player as: Wary. Let it colour how you open toward them; your own feelings
-  come first." The band word only, never the number. Members of several factions get one line each. Payload
-  invariance: a story without factions sends byte-identical member blocks.
+  "Your group, The Guild, regards the player as: Wary (as far as you have heard). Let it colour how you open toward
+  them; your own feelings come first." The band word of the member's perceived standing, never the number. Members of
+  several factions get one line each. Payload invariance: a story without factions sends byte-identical member blocks.
 - **Director hint.** `renderDirectorPrompt` gains a list "How groups regard the player (world pressure may follow from
-  this)": one line per visible faction with its band word. Hidden factions (`visible_when` false) are included too,
-  marked "the player does not know this group yet" (decision 4).
+  this)": one line per **visible** faction with its band word. Hidden factions are not sent (decision 4 revised). A
+  faction may set `introduce: true`: the director then receives its name alone, marked "the player has not met this
+  group; you may introduce it", with no band, members or lore.
 - **Player view.** A faction is visible when `visible_when` holds (default: always). `GameView` gains `standing:
-  [{name, band, changedAgo?}]` for visible factions, shown as a "Standing" group on the Stat sheet; `roster` widget
+  [{name, band}]` for visible factions, shown as a "Standing" group on the Stat sheet; `roster` widget
   rows may name a faction (`faction: "<id>"` instead of `quality`) and then show its band word (`rosterBody` extended
   to read bands). No numbers; `trend` refused on standing by default (decision 3).
 - **Band crossing.** `{q: "rep_guild", op: "<=", v: -3}` is an ordinary gate, so an author reacts to "Hostile" with a
   transition, a quest offer or a `when` on a widget row; no on-cross hook.
 - **Validator.** Bands as `readBands` (ascending, last open, cover the range); unknown faction id in `roster[].factions`
-  or `faction` widget rows refused; a move gate true at start refused; `display.public` on `rep_*` refused (the band
-  projection is the one player route); a `rep_*` key authored as a quality refused.
+  or `faction` widget rows refused; a move gate true at start refused; a negative move on inaction refused (above);
+  `display.public` on `rep_*` refused (the band projection is the one player route); a `rep_*` key authored as a
+  quality refused; a `reward.set` or move that targets `rep_*_seen_*` or a move latch refused.
+- **Extraction.** Move gate keys join the shared `discovery` scope source (v2.8 52), budgeted with rotation, so a gate
+  on a read key is asked.
 - **Author view.** A Factions panel row per faction: number, band, moves fired (boundary + message id), members; in
   the lazy Blackboard tab next to `CharacterLifePanel`.
 - **Studio + wizard + guide.** Factions editor under Characters (bands editor reused from the quality display editor,
   moves with the gate builder, member pickers); mutation `setFactions` and a `factions` field in the character-life
   tool for membership; wizard tool `set_faction`; guide topic `factions` (+ `npm run docs:guide`); diagnostics
-  `faction-never-moves` (no move, no reward writes it, no snapshot sets it) and `faction-no-visible-band`.
+  `faction-never-moves` (no move and no reward writes it) and `faction-no-visible-band`.
 - **Feature registry.** `factions` (area characters, audience player) in `src/features/lifeFeatures.ts`, on by
   default; story toggle `display.standing` (default on).
 - **Ledger.** Unchanged; the author panel shows ledger `faction` rows whose entity name equals a faction's `name`
@@ -124,13 +148,18 @@ Format (story level, lazy game layer):
 |---|---|---|---|
 | F1 | No number: player view, Stat sheet DOM, roster rows, player Ask projection and log contain no standing value, range or trend (≥ 500 random blackboards) | 0 hits | D |
 | F2 | Hidden faction: a faction whose `visible_when` is false is absent from every player surface and count; page byte-identical with and without it | 0 leaks, identical | D |
-| F3 | Move once: each move adds exactly once per onset across gate flapping (property test) | 100 % | D |
-| F4 | Rollback ≡ replay of `rep_*` and move latches over 4 seeds (swipe, edit, delete, reopen) | 4/4 | D |
+| F3 | Move once ever: each move adds exactly once across gate flapping, and never again after its gate turns false and true (property test) | 100 % | D |
+| F4 | Rollback ≡ replay of `rep_*`, `rep_*_seen_*` and move latches over 4 seeds (swipe, edit, delete, reopen) plus a code-only boundary (SC1) | 4/4 + 1 | D |
 | F5 | Payload invariance: no factions → byte-identical member blocks, director prompt and read prompt | 0 undeclared hunks | D |
 | F6 | Member line scope: only members of a faction receive its line (drafted-member property) | 0 strays | D |
-| F7 | Opening differs by band: 10 paired lab scenes (same member, standing Hostile vs Trusted), second-model rater picks the warmer opening blind | ≥ 8/10 | RP + CL |
-| F8 | No inaction punishment: 10 lab runs where the player ignores a faction's request; standing unchanged unless an authored move names that outcome | 10/10 | D (scripted) |
-| F9 | Director uptake: 10 director turns with one Hostile faction; rater marks "world pressure from that faction appears or is set up" | ≥ 5/10 (informational) | CL |
+| F7 | Personal vs institutional: 10 paired lab scenes, same member with warm personal `rel_*` toward the player, faction band Hostile vs Trusted; rater (blind) identifies which opening shows institutional distrust while keeping personal warmth | ≥ 8/10 | RP + CL |
+| F8 | No inaction punishment: 10 scripted lab runs where the player ignores a faction's request, including a story that authors a punitive move on the unmet request (refused by the validator, `faction-move-on-inaction`); standing unchanged in all 10 | 10/10, planted move refused | D (scripted) |
+| F9 | Director uptake: 10 director turns with one visible Hostile faction; rater marks "world pressure from that faction appears or is set up" | ≥ 5/10 (informational) | CL |
+| F10 | Clamp: every writer (move, quest `reward.set {add}`, a planted future writer) keeps `rep_*` inside its range over ≥ 1,000 random sequences; the move latch exists iff its add applied | 100 % | D |
+| F11 | Hidden faction never reaches the director: with `visible_when` false and no `introduce`, the faction's name, band and lore are absent from the director prompt; with `introduce: true` only the name is present (prompt golden) | 0 leaks | D |
+| F12 | Feature-only fixture: a story whose only game feature is factions renders the Standing group (SC4) | holds | D |
+| F13 | Hearing: a member absent at a `heard_by: "present"` move keeps its prior band in its line; a `faction` move reaches every member (property) | 100 % | D |
+| F14 | Move scope: move gate keys are offered by the `discovery` scope source within the rotation bound; control starves | 100 %, control fails | D |
 
 Lab stories only; never Adolion; the owner spot-checks synthetic rows only.
 
@@ -147,8 +176,10 @@ Lab stories only; never Adolion; the owner spot-checks synthetic rows only.
 - Words, never numbers (F1). Bands that are too fine reveal the number; the guide recommends 3–5 bands.
 - A hidden faction leaks nothing: not a row, not a count, not a "?" (F2, G1, T5).
 - The member line names only the band and the member's own faction; it says nothing about other factions.
-- The director receives hidden factions as world context; its rules already forbid naming private plans in
-  player-visible text, and its output passes the living spoiler property (`runtime/livingSpoilers.review.test.ts`).
+- The director receives visible factions only, and a name-only line for a faction the author marked `introduce`.
+  Hidden faction lore never enters its prompt (F11); a prompt rule is not evidence of secrecy once generation can
+  surface it.
+- No `changedAgo` or any recency field reaches a player surface: it would reveal hidden movement.
 - Standing is authored state, not memory, so held-secret filtering does not apply; the member line still passes
   `withoutSecretLines` for that member.
 - No Adolion content in this plan, fixtures or reports.
@@ -169,12 +200,16 @@ Lab stories only; never Adolion; the owner spot-checks synthetic rows only.
 1. **Option A (authored moves, code-moved standing, band words)?** **Recommended: yes.**
 2. **Extractor-read nudges (B) later?** **Recommended: not now; measure after A ships, behind its own switch.**
 3. **Trend arrow on standing for players?** **Recommended: off; refused for `rep_*`.** It tells the player a hidden
-   move fired.
-4. **Does the director see factions the player has not met?** **Recommended: yes, marked as unknown to the player**, so
-   the world can introduce them.
+   move fired. `changedAgo` is dropped for the same reason.
+4. **Does the director see factions the player has not met?** **Recommended: no** (revised 2026-10-14). Only visible
+   factions; a faction marked `introduce: true` reaches it as a name only, so the world can still introduce it.
 5. **Field name `factions` (player copy "Standing")** rather than `groups`? **Recommended: `factions`.** "Group" already
    means the SillyTavern group chat everywhere in this codebase.
 6. **Faction rows in the `roster` widget** (extend it) rather than a new widget kind? **Recommended: extend `roster`.**
+7. **Do members know every standing change at once?** **Recommended: no.** Per move `heard_by` (default `present`);
+   `faction` for public acts.
+8. **Range clamp in `Blackboard.applyDelta` for every code int with a `range`** (not a faction-only clamp)?
+   **Recommended: yes.** One place covers every writer.
 
 ## Unresolved questions
 
@@ -183,3 +218,36 @@ Lab stories only; never Adolion; the owner spot-checks synthetic rows only.
 - Should a member's own `rel_*` toward the player start from its faction's standing? Proposed: no; independent starts.
 - Should standing between factions (guild vs crown) exist? Out of scope; one standing per faction toward the player.
 - Cap values (3 factions per member, range width) are placeholders until the editor is drawn.
+
+## Review 2026-10-14 (Astra)
+
+Source: `review-astra-2026-10-14.md` §Plans 48-53, checked on master `3a716f2b`. Shared findings resolve through the
+shared contract in v2.8 52 §Review 2026-10-14 (Astra): SC1 rollback detectors (F4), SC2 order (moves are step 5 after
+quest rewards, re-run at step 7), SC3 disclosure (member perceived standing; director gets disclosed factions only),
+SC4 feature-only fixture (F12).
+
+- **P1 Snapshot writes are a false claim.** Confirmed: `state_snapshot` is read by the critic, planner and scope
+  (`src/generation/critic.ts:40,55`, `src/generation/planner.ts:87`, `src/extraction/scope.ts:69`); `commitBoundary`
+  applies only transition progress and card entry on entry (`src/engine/engine.ts:259-271`). → Removed. Standing moves
+  only through authored moves and quest `reward.set`; the validator warns on a `rep_*` key in a snapshot. A general
+  state-write facility is v2.8 50's entry pass (SC2 step 7, `effects.time` only); extending it to `set` is a separate
+  decision, not taken here.
+- **P1 Bounds are not enforced by existing writes.** Confirmed: `applyDelta` has no range check
+  (`src/engine/blackboard.ts:71-95`); `applyQuestRewards` adds directly (`src/engine/quests.ts:79-80`). → One clamp in
+  `applyDelta` for code int qualities that declare `range` (decision 8); the move latch is written only when its add
+  applied. Floor F10.
+- **P1 Move gates need extraction scope; "after quest rewards" needs the ordering change.** Accepted. → Move gates
+  join the `discovery` source (F14). The latch pass is SC2 step 5, after step 4 quest rewards; that ordering is now
+  explicit rather than assumed from the derive seam (which runs before rewards, `engine.ts:482-483`).
+- **P1 Spoiler tests do not protect arbitrary hidden factions.** Confirmed: the director's secret guard is the resting
+  memory filter (`src/runtime/livingInputs.ts:43`, `src/generation/living/guard.ts:30-41`); authored faction lore is
+  not a memory row. → Hidden factions are not sent; `introduce: true` sends a name only. Decision 4 revised; F11.
+- **P2 F8 permits the forbidden behaviour.** Accepted. → A negative move must gate on an affirmative, evidenced event
+  (validator rule `faction-move-on-inaction`); F8 now plants a punitive move and requires its refusal.
+- **P2 Once-only and knowledge semantics.** Accepted. → Once ever (F3 reworded). Membership is not omniscience:
+  per-move `heard_by`, per-member perceived standing (F13, decision 7). `changedAgo` dropped.
+- **Cheaper design** (authored moves, visible band words, roster widget, personal feelings independent; defer
+  extractor nudges and hidden hints). This is now the plan. **F7** tests personal warmth vs institutional distrust.
+- **Brainstorm: standing affecting access, greetings, competing invitations; a friendly individual bending an
+  unfriendly institution's rule.** Access and invitations are v2.8 56 (social permissions, candidate), which can gate
+  a permission on a band; F7 covers the individual-vs-institution split.

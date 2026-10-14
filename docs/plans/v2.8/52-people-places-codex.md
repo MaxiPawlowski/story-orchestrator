@@ -5,6 +5,9 @@ Source row: v2.8 27 report G24 ("typed entity pages (people/places) with `known_
 People/Places, v2.8 04)"). Gate tiers (v2.8 00 §Gate taxonomy): implementation **D**; acceptance **D** + **CL**
 (the wizard writes codex entries on the authoring route; optional fact route on the read model) + **RP** only if the
 fact route is on. Overview: `docs/plans/v2.8/00-overview.md`. Not in `32-queue.md` yet (the owner queues it).
+**Revised 2026-10-14 against the Astra review** (`review-astra-2026-10-14.md` §Plans 48-53): §Review 2026-10-14
+(Astra) records each finding and its resolution, and holds the **shared contract** plans 48–53 cite. Where older text
+and that section differ, the section wins.
 
 ## What it is
 
@@ -70,6 +73,7 @@ Verified on master `211d8d96`.
 | **B. A + accepted memory facts** | A, plus per entry `learn_from_memory: true`: live memory facts whose `entities` name the entry, through `restingEntries` | M+ | memory facts can carry what only a member witnessed (no witness source, v2.9 02); wording quality varies | needs the held-secret filter and a witness answer |
 | **C. Generated pages** | the read model writes pages from the transcript | L | spoilers from lore the model saw; nondeterministic; a new write path | rejected: stagecraft proposes, never writes |
 | **D. Clues widget only** | reuse the `clues` widget per person/place | S | no entity grouping; a wall per person is clumsy | possible today, no new code |
+| **E. A + return visits** (Astra brainstorm) | places carry `returns: [{id, when, text}]`: a line on the place page, earned like a fact, that acknowledges a known past event there ("The boathouse door is still splintered"); the model side stays authored checkpoint `world_info` | S on top of A | a return line can name an event the player did not see; same disclosure rule as facts | follow-up row after A (decision 8) |
 
 ## Recommendation
 
@@ -91,23 +95,34 @@ Format (story level, lazy game layer):
   optionally a `location` value of the `location` enum. An entry's own optional `known_when` makes it appear with no
   fact (a person met, a place visited). Default for a place with `location`: known once `location` has held that
   value at any boundary. Default for a person with `member`: none (an author states when they are met).
-- **Facts.** At most 12 per entry, text ≤ 200 characters, plain text, no macros. `known_when` is a `GateNode` or
-  `{reached: <checkpoint id>}`; `reached` is resolved like a map pin (`visitedPath` + active).
-- **Latch.** A derive-seam pass writes `codex_<entry>_<fact>` (code bool) and `codex_<entry>` (entry known) the first
-  boundary the condition holds, never false. Rollback drops them with the blackboard; replay rewrites them at the same
-  boundary. Story updates keep latches for facts whose id survives (`storyDiff` prunes removed ids).
+- **Facts.** At most 12 per entry, text ≤ 200 characters, plain text, no macros. `known_when` is a `GateNode`,
+  `{reached: <checkpoint id>}` (resolved like a map pin: `visitedPath` + active), or `"start"` (an initially-known
+  fact: the player's background, the opening place). Optional `source: <entry or roster id>` (who it came from) and
+  `rev` (int, default 1; see §Review C10). Entries take `aliases: [string]` so later routes link by id, never by
+  display-name matching.
+- **Latch.** The latch pass (shared contract SC2 step 5, and again in step 7 after a transition) writes
+  `codex_p_<entry>_<fact>` / `codex_l_<entry>_<fact>` (code int = the boundary it latched, monotonic) and
+  `codex_p_<entry>` / `codex_l_<entry>` (entry known) the first boundary the condition holds, never cleared. People and
+  Places are namespaced so equal ids never collide. Rollback drops them with the blackboard and the rollback detector
+  registry sees them (SC1); replay rewrites them at the same boundary. Story updates: §Review C10 (identity = id + rev
+  + gate).
 - **Projection.** `GameView.codex {people: CodexEntryView[], places: CodexEntryView[]}`, each `{name, facts:
-  [{text, fresh}]}`, built only from latched facts, in authored order. An entry with no known fact and no known
+  [{text, fresh, from?}]}`, built only from latched facts, in authored order. An entry with no known fact and no known
   entry gate is absent. A page (People or Places) with no entry is absent; the Journal tabs reflect only non-empty
   pages; counts ("4 people") count the projection.
 - **Relationship labels (v2.8 51).** A person page for a roster member carries that member's projected relations rows
-  (public label + revealed secrets) once 51 ships; 51's interim Journal section is dropped then.
-- **Fresh marker and log.** A fact latched at the last boundary is marked new; the player log gets kind `learned`
+  (public label + revealed secrets). 51 builds onto these pages directly; there is no interim Journal section.
+- **Provenance ("learned from…").** `from` is "From <source name>" when the fact names a `source` that is itself known
+  (SC3), or "At <checkpoint name>" for a `reached` fact; otherwise absent. Never a gate, key or boundary number.
+- **Fresh marker and log.** `fresh` = latched at the last committed boundary (no viewer state is kept); the player log gets kind `learned`
   ("Learned about The ferryman"), and the session journal derives it by diffing `codex_*` keys between boundary
   snapshots. No inline chip by default (decision 4).
-- **Extraction.** A `known_when` key no transition or snapshot reads would stay at its start: add the `codex` scope
-  source (like the quest source) for keys of facts not yet known on entries already known, capped; overflow named by
-  an author check `codex-scope-overflow` (degrades). Diagnostic `codex-fact-never-read` mirrors `widget-item-never-read`.
+- **Extraction.** A `known_when` key no transition or snapshot reads would stay at its start. A budgeted `discovery`
+  scope source (shared with 51's reveal gates and 53's move gates) reads, in rotation: the entry's own `known_when` and
+  every fact gate of an entry **not yet known** (a first fact can be what makes the entry known), then unknown facts on
+  known entries. Rotation phases as `lifeUnits` (`src/extraction/scopeSources.ts:86-91`); `SCOPE_SOURCES` (`:65`) gains it; `BUDGETED` gains it
+  (`:79`). Overflow is the author check `discovery-scope-overflow` (degrades). Diagnostic `codex-fact-never-read`
+  mirrors `widget-item-never-read`.
 - **Studio.** A Codex editor under Story features (People / Places lists, fact rows with the gate builder and a
   checkpoint picker for `reached`), mutations `setCodex` / `updateCodexEntry` in `src/studio/gameMutations.ts`.
 - **Wizard.** Tool `set_codex_entry` (create or replace one entry) with the same schema; edits go through review like
@@ -133,8 +148,13 @@ editing. It ships only when decision 2 says the witness question is answered.
 | C4 | Rollback ≡ replay of `codex_*` latches over 4 seeds (swipe, edit, delete, reopen) | 4/4 identical | D |
 | C5 | Read-prompt invariance: a story without `codex` sends byte-identical extraction prompts and payloads | 0 undeclared hunks | D |
 | C6 | Held secrets (B only): planted `[hiding]` row about an entry, ≥ 50 seeds; no secret line on any player codex page; control without the row shows the fact | 0 leaks, control passes | D |
-| C7 | Wizard authoring: 10 runs of the codex recipe on the authoring route over a lab story; every created fact validates and none is known at the start | ≥ 9/10 | CL |
+| C7 | Wizard authoring: 10 runs of the codex recipe on the authoring route over a lab story; every created fact validates and none is known at the start unless marked `"start"` | ≥ 9/10 | CL |
 | C8 | Fact route usefulness (B only): 20 accepted memory facts surfaced on lab pages, second-model rater marks each "player could know this" | ≥ 17/20 | CL + RP |
+| C9 | No discovery deadlock: fixture whose every entry starts unknown and whose first facts gate on read keys; with the scope budget at its floor, every entry gate and first-fact key is offered to the read within ⌈units / per-read cap⌉ + 1 reads (rotation property); control without the unknown-entry tier never reads them | 100 % offered, control fails | D |
+| C10 | Story edit semantics: an earned fact whose text changes (same rev, same gate) stays shown with the new text; a gate change or rev bump drops the latch and the new text is absent until earned; a removed id is pruned (`storyDiff` cases) | 100 % | D |
+| C11 | Rollback coverage: C4 extended with unknown→known entry, a same-boundary checkpoint discovery (SC2 step 7), equal People/Places ids, a hot edit (C10), reopen past 200 logged boundaries, and a code-only boundary (SC1) | 0 mismatches | D |
+| C12 | Initially-known facts: `"start"` facts project at boundary 0 and pass C1/C2 (no unknown text alongside them) | 100 % | D |
+| C13 | Feature-only fixture: a story with only `codex` renders the codex (SC4); a story with nothing stays `game: null` | both hold | D |
 
 ## Gates by tier
 
@@ -181,6 +201,11 @@ editing. It ships only when decision 2 says the witness question is answered.
    would crowd the chat).
 5. **Place default:** known when `location` has held its value once? **Recommended: yes**, overridable by its own
    `known_when`.
+6. **Initially-known facts (`known_when: "start"`)?** **Recommended: yes** (Astra P2); the opening place and the
+   player's background are what a codex starts from.
+7. **Story edits to an earned fact:** text-only change = editorial correction shown at once; gate change or `rev` bump =
+   a new discovery that must be earned again? **Recommended: yes** (§Review C10).
+8. **Return visits (option E)** as a follow-up row after A? **Recommended: yes, page-side only.**
 
 ## Unresolved questions
 
@@ -189,3 +214,84 @@ editing. It ships only when decision 2 says the witness question is answered.
 - Cap values (12 facts, 200 characters, scope cap) are placeholders until the editor and the scope budget are drawn.
 - Whether the ledger's `place` state rows (author-only today) could seed place facts for authors in Studio, as a
   suggestion only.
+
+## Review 2026-10-14 (Astra)
+
+Source: `review-astra-2026-10-14.md` §Plans 48-53. Each finding was checked against master `3a716f2b`; file:line below
+is that checkout. Format: finding → verification → resolution.
+
+### Shared contract for plans 48–53 (canonical; 48–51 and 53 cite this section)
+
+- **SC1. Rollback detection for every new writer (Astra P1, shared).**
+  - Verified. `rollback.ts:136` rolls the engine back only when `engine.shouldRollbackFromMessage`
+    (`src/engine/engine.ts:378-387`) or `livingMovedAfter` says so. The engine test sees a fired transition, a quest
+    latch change (`questLatchesMoved`, `src/engine/quests.ts:88-89`), a landed agenda step (`lifeMoved`,
+    `src/engine/life/lines.ts:80`, steps only, not arbitrary `life_*`) or an applied read whose window reaches the
+    message. A code-derived latch, reveal, standing move, meter fire or time advance on a boundary with none of those
+    survives the swipe.
+  - Resolution: the hand list becomes one registry `ROLLBACK_DETECTORS` in `engine/` (`{id, moved(story, before,
+    after)}`): quests, life steps, and one entry per new writer (`codex_*`, `life_reveal_*`, `rep_*` and move latches,
+    story-time keys, meter and complication-phase keys). Guard `rollbackDetectors.guard.test.ts`: every reserved
+    code-key prefix the validator compiles has a detector; a planted prefix without one fails. Every plan's rollback
+    floor adds a **code-only boundary** seed (the only change at the swiped boundary is that plan's derived write).
+- **SC2. One evaluation order (Astra P1, shared).**
+  - Verified. `commitBoundary` (`engine.ts:244-283`): drain (`:252`) → `refreshMechanicalQualities` (`:253`, body
+    `:470-484`: counters, `host.derive` on the **pre-transition** view `:482`, `applyQuestRewards` `:483`) →
+    `selectFiring` (`:257`) → on fire, transition progress + card entry (`:259-271`). Entry `effects` go back to the
+    runtime for host work; `state_snapshot` is never applied (no call site outside validation, critic, planner, scope).
+  - Resolution, one order written once in `commitBoundary` and added to `architecture.md` when built:
+    1. drain queued reads;
+    2. mechanical counters;
+    3. derive (life, chance, clock read-steps, meters, complication phase);
+    4. quest closes and rewards;
+    5. **latch pass** (codex, label reveals, standing moves), reading the values after 4, so a reward can earn a fact
+       or a move in the same boundary;
+    6. transition select, one per boundary (unchanged); it may gate on latches from 5;
+    7. only on a fired transition, **entry pass**: the pure state part of entry effects (`effects.time`, v2.8 50),
+       `time_reached_<cp>`, then the latch pass again so `reached` facts land in this boundary.
+  - Deliberately not extended: derive and quest rewards do not re-run after entry (they see the new checkpoint next
+    boundary, as today), and there is never a second transition. Each plan names the step its writer occupies.
+    `boundaryOrder.test.ts` pins the sequence with one planted writer per step.
+- **SC3. Disclosure is not knowledge (Astra P1, shared).**
+  - A player surface shows what an authored gate has **disclosed** (a latch). Being on stage, appearing in an open arc
+    or passing the resting filter is not disclosure. Disclosure to the player gives no member knowledge (no epistemic
+    row, no shared tier).
+  - Authored disclosure text has its own rule: diagnostic `disclosure-names-unknown-entity` (warning) when fact, label,
+    band or return text names an entry or roster member (name or alias) not known at that gate; the guide's Bad example.
+  - **Entity-discovery projection**, one pure function `knownEntities(story, values)` owned here: an entry is known by
+    its latch; a roster member with no entry is known while enabled in the group (SillyTavern already lists the
+    group's members to the player); anything else is unknown. 51's labels, 53's factions and these pages project
+    through it.
+- **SC4. Feature-only fixtures (Astra P2, shared).**
+  - Verified. `hasGameLayer` (`quests.ts:33-34`) checks quests, milestones, widgets and displayed qualities;
+    `gameSlices` returns `game: null` otherwise (`src/runtime/gameSnapshot.ts:28-32`). A story with only a codex,
+    labels or factions would render nothing.
+  - Resolution: `hasGameLayer` gains `codex`, labelled relationships and `factions`. Each plan carries a fixture story
+    with only its feature (it renders) and one with nothing (stays `null`): C13 here, R10 in 51, F12 in 53.
+- **SC5. Bookkeeping (Astra P2).** Plan 24's matrix lacks 48–53 and its rule 5 still says dark launch (confirmed by the
+  review). Not edited on this branch (the owner indexes); flagged. A D-floor miss is a defect to fix; a CL/RP miss is
+  recorded and the feature stays on (00-overview rule 9).
+
+### Plan 52 findings
+
+- **P1 Discovery can deadlock** (scope read only unknown facts of known entries). Verified against the plan text
+  (old §Recommendation, Extraction) and the quest precedent (`quests.ts:45`: hidden quests scope their activation
+  gates). → The `discovery` scope source reads unknown entries' own gates and every first-fact gate, with bounded
+  rotation. Floor C9 (with a control).
+- **P1 Keeping a latch by id can expose rewritten content.** Verified: `storyDiff` has no codex case; `diffQuests`
+  (`src/engine/storyDiff.ts:322-337`) shows the pattern (earned reward kept, change reported). → Identity is
+  `(id, rev, gate)`. `diffCodex`: text-only change = editorial correction (`codex-fact-edited`, compatible, shown);
+  gate change or `rev` bump = new identity (`codex-fact-replaced`, compatible, latch pruned through `pruneEngineState`,
+  earned again). Floor C10, decision 7.
+- **P2 Rejecting facts known at start.** Accepted. → `known_when: "start"`; a gate that already holds at start becomes
+  a warning that suggests `"start"`, not a refusal. C7 reworded; C12 added; decision 6.
+- **P2 Plan 42 is necessary, not sufficient, for B.** Accepted. → B additionally needs: per-fact provenance (the
+  message ids it derives from); for each, evidence that the **player character** was present (42's witness record gains
+  `player: present | absent | unknown`); every message `present`, else the fact is not "known"; entity linking by entry
+  `id` + `aliases`. B stays later (decision 2 unchanged).
+- **P2 Four rollback seeds are weak; `fresh` undefined.** Accepted. → C11 (extended seeds incl. truncation and a
+  code-only boundary); `fresh` = latched at the last committed boundary, no viewer state.
+- **Recommendation "learned from…" provenance.** Adopted: authored `source` (shown only when known, SC3) or the
+  `reached` checkpoint name. The latch value is the latch boundary, which orders `fresh` without new state.
+- **Brainstorm: return visits.** Folded in as option E (decision 8). **Evidence notebook** (source, correction): the
+  `from` line is its first step; "heard a rumour" vs "established" waits for 44's player surface and B.

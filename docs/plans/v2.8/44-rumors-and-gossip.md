@@ -74,7 +74,18 @@ Verified on master `211d8d96`; re-checked on `3a716f2b` for the review.
 | B. Emergent spread of extracted rows | A live `[knows]` row on an explicitly eligible topic, with stable source lineage, spreads as hedged hearsay; never `[hiding]`/`[unaware]` content | none | trivia; crowding | **stage 2**, only with G15 crowding measured |
 | C. Model-distorted versions | B plus a model rewrites the passed-on version | one CL call per hop, propose-only | drift into invented facts; spoilers | later, only if voicing is flat |
 | D. Shared "town knowledge" tier | Rumors as a shared memory tier everyone reads | none | breaks per-member privacy; the T2-2 class | refused |
-| E. Nothing | Characters keep inventing carriers | — | — | fallback |
+| E. Nothing | Characters keep inventing carriers (v2.6 finding) | — | — | fallback |
+| F. Conflicting testimony (added 2026-10-14, Astra brainstorm) | Track "who claims what" apart from truth: an authored or landed rumor version becomes a **claim** row `{claimant, subject, version, true?}`; two members holding different versions of one rumor are "in disagreement"; each member's private block may say "<other> tells it differently"; conversation, not exposition, settles it, through an authored `settles_when` gate that retires the false version as a `[believes]` correction | none | a disagreement line can reveal that a false version exists to a member who should not know; the truth flag must never reach a shared tier | candidate on top of A (decision 7) |
+
+**Option F detail (candidate).** Builds on stage 1 versions (`versions[].true`). The claim is the version a member
+holds (`[knows]` for a true one, `[believes]` for a false one, as stage 1 already writes), so no new store: a pure
+read `claimsOf(rumorId)` groups the receivers' rows by version. A member sees "<other> tells it differently" only
+when both are present and the other has spoken of it in a witnessed exchange (v2.8 42); never the truth flag, never
+which version is true. `settles_when` (authored gate) retires the false rows through `retireIds` and adds a
+`[knows]` correction, journaled; history of having heard the false version stays in the journal, not in play. The
+existing claim rule (`CLAIM_RULE`, `src/memory/contract.ts:28-29`: a character's claim is recorded as a claim, never as
+the event) is the read-side precedent. Floor if built: 0 truth flags or "which is true" text in any shared tier or
+player surface over ≥ 500 seeds (D); rollback ≡ replay of settle retirements (D).
 
 ## 5. Recommendation
 
@@ -228,6 +239,8 @@ Committed before any run; never retuned. G11–G15 added and G7–G9 tightened 2
    repo, pin bump and reinstall per the docs-and-campaign rule.**
 6. Player-visible "rumors heard" journal? **Recommended: no until a session asks for it (v2.8 rule 4).**
 7. Default contact model? **Recommended: `together` (shared schedule location); `any` must be authored.**
+8. Option F, conflicting testimony (added 2026-10-14 from the Astra brainstorm)? **Recommended: candidate after stage
+   1's gates and v2.8 42's witness record; no player surface.**
 
 ## 11. Unresolved questions
 
