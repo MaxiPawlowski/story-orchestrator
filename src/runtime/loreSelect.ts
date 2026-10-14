@@ -104,7 +104,8 @@ export class LoreSelector {
     if (!run.stillOwns()) return null;
     if (this.deps.getMember && JSON.stringify(this.deps.getMember()) !== memberKey) return null;
     const sceneKey = `${chatId ?? ""}:${loreStoryKey(story)}:${messageId}:${JSON.stringify(scope)}:${checkpoint.id}:${fnv1a(JSON.stringify(window))}:${fnv1a(JSON.stringify(scannable))}`;
-    const key = `${sceneKey}:${generationType ?? ""}:${member.join("|")}:${memberKey}`;
+    const buffer = this.deps.getScanBuffer?.(generationType) ?? null;
+    const key = `${sceneKey}:${generationType ?? ""}:${member.join("|")}:${memberKey}:${buffer?.injected ?? ""}`;
     if (this.cache?.key === key) {
       const { picks: cached, left: cachedLeft } = this.cache;
       if (!(await this.forced(this.cache.entries, run))) return null;
@@ -125,7 +126,6 @@ export class LoreSelector {
       books,
     );
     if (!candidates.length) return null;
-    const buffer = this.deps.getScanBuffer?.(generationType) ?? null;
     const left: LoreSelection["left"] = [];
     const rated = candidates.filter((candidate) => {
       const host = byKey.get(`${candidate.world}.${candidate.uid}`);
