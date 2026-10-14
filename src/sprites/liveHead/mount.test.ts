@@ -70,3 +70,10 @@ test("a chat change during decoding allocates no renderer; ownership loss on a f
   current = false; frame();
   expect(visible.mock.calls).toEqual([[true], [false]]); expect(renderer.draw).toHaveBeenCalledTimes(1); expect(frames.size).toBe(0);
 });
+
+test("the surface's mouth mode and the rig's mouth problem are reported once the head is built", async () => {
+  const renderer = { ...surface(), mouthMode: () => "capped" as const }, report = jest.fn();
+  const stop = await attachHead(new EventTarget() as HTMLCanvasElement, syntheticRef, owner(), assets(), restHead, jest.fn(), () => renderer, undefined, report);
+  expect(report).toHaveBeenCalledWith("capped", null);
+  stop?.();
+});

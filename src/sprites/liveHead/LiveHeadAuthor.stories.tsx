@@ -26,3 +26,16 @@ export const StatusAndImport: Story = {
     await expect(canvas.getByRole("status")).toHaveTextContent("Rig imported for shape, default.");
   },
 };
+
+const degenerate = { ...syntheticHead, rig: { ...syntheticHead.rig, mouth: { ...syntheticHead.rig.mouth, halfLen: 0.25 } } };
+export const ImportWithStillMouth: Story = {
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText("Import a live head rig"));
+    await userEvent.click(canvas.getByRole("textbox", { name: "Rig package JSON" }));
+    await userEvent.paste(JSON.stringify(degenerate));
+    await userEvent.click(canvas.getByRole("button", { name: "Import rig" }));
+    await expect(args.onImport).toHaveBeenCalledOnce();
+    await expect(canvas.getByRole("status")).toHaveTextContent("Rig imported for shape, default. The rig's mouth region has no width. Its mouth stays still.");
+  },
+};

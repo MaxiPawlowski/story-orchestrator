@@ -28,7 +28,7 @@ async function syntheticArt(): Promise<{ art: PixelImage; frames: ReturnType<typ
 
 function Pane({ title, drawn, pose }: { title: string; drawn: boolean; pose: string }) {
   const canvas = useRef<HTMLCanvasElement>(null), renderer = useRef<HeadRenderer | null>(null);
-  const [names, setNames] = useState<string | null>(null);
+  const [names, setNames] = useState<string | null>(null), [mouth, setMouth] = useState("loading");
   useEffect(() => {
     let live = true;
     const element = canvas.current;
@@ -41,14 +41,14 @@ function Pane({ title, drawn, pose }: { title: string; drawn: boolean; pose: str
       syntheticHead.layers.forEach((layer, index) => head.add(layer, images[index]));
       if (drawn) head.addDrawn(cutDrawn(syntheticHead.rig, art, frames).sprites);
       renderer.current = head;
-      setNames(head.drawnNames().join(", ") || "none");
+      setNames(head.drawnNames().join(", ") || "none"); setMouth(head.mouthMode());
     })();
     return () => { live = false; renderer.current?.destroy(); renderer.current = null; };
   }, [drawn]);
   useEffect(() => { if (names !== null) renderer.current?.draw({ ...restHead(), ...POSES[pose] }); }, [pose, names]);
   return <figure style={{ margin: 0 }}>
     <canvas ref={canvas} aria-label={`${title}: ${pose}`} role="img" style={{ width: 192, height: 288, background: "#8c8c8c", display: "block" }} />
-    <figcaption>{title}<br /><span data-so="drawn-names">Drawn sprites: {names ?? "loading"}</span></figcaption>
+    <figcaption>{title}<br /><span data-so="drawn-names">Drawn sprites: {names ?? "loading"}</span><br /><span data-so="mouth-mode">Mouth: {mouth}</span></figcaption>
   </figure>;
 }
 
@@ -61,6 +61,19 @@ function BeforeAfter() {
     <div style={{ display: "flex", gap: 16 }}>
       <Pane title="Mesh only (before)" drawn={false} pose={pose} />
       <Pane title="Drawn frames (after)" drawn pose={pose} />
+    </div>
+  </div>;
+}
+
+function MeshOnlyLive() {
+  const [activity] = useState(() => new StreamActivity());
+  return <div style={{ pointerEvents: "auto" }}>
+    <button type="button" className="menu_button" onClick={() => { void activity.visemes().then(() => activity.pulse("Shape", "Hello, how are you today?")); }}>Stream reply</button>
+    <div id="so-vn-root" style={{ position: "relative", width: "100%", maxWidth: 360, height: 420 }}>
+      <div className="so-sprite" style={{ width: "100%", left: "50%" }}><div className="so-sprite-breath">
+        <img src={syntheticHead.source} alt="Synthetic shape bust" />
+        <LiveHead binding={syntheticRef} name="Shape" label="neutral" activity={activity} motion breathing blink mouth beginRun={owner} />
+      </div></div>
     </div>
   </div>;
 }
@@ -102,6 +115,8 @@ export const MeshVersusDrawn: Story = {
     const canvas = within(canvasElement);
     await waitFor(() => expect(canvas.getByText("Drawn sprites: eyes_closed_0, eyes_closed_1, mouth_talk, mouth_talk2")).toBeVisible(), { timeout: 15000 });
     await expect(canvas.getByText("Drawn sprites: none")).toBeVisible();
+    await expect(canvas.getByText("Mouth: capped")).toBeVisible();
+    await expect(canvas.getByText("Mouth: full")).toBeVisible();
     for (const pose of ["Talking", "Gaze right", "Eyes closed"]) {
       await userEvent.selectOptions(canvas.getByRole("combobox", { name: "Pose" }), pose);
       await expect(canvas.getByRole("img", { name: `Drawn frames (after): ${pose}` })).toBeInTheDocument();
@@ -115,9 +130,24 @@ export const LiveHeadWithFrames: Story = {
     const canvas = within(canvasElement);
     const head = () => canvasElement.querySelector<HTMLCanvasElement>("canvas.so-live-head");
     await waitFor(() => expect(head()?.dataset.liveHeadDrawn).toBe("eyes_closed_0 eyes_closed_1 mouth_talk mouth_talk2"), { timeout: 15000 });
+    await waitFor(() => expect(head()?.dataset.liveHeadMouth).toBe("full"), { timeout: 15000 });
     await waitFor(() => expect(canvasElement.querySelector<HTMLCanvasElement>("canvas.so-live-head")?.parentElement?.dataset.liveHeadReady).toBe("true"), { timeout: 15000 });
     await userEvent.click(canvas.getByRole("button", { name: "Stream reply" }));
     await waitFor(() => expect(canvas.getByLabelText("Viseme mouth")).not.toHaveTextContent("none"), { timeout: 5000 });
     await expect(canvasElement.querySelector("canvas.so-live-head")).toHaveStyle({ visibility: "visible" });
+  },
+};
+
+export const MeshOnlyMouthCapped: Story = {
+  render: () => <MeshOnlyLive />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const head = () => canvasElement.querySelector<HTMLCanvasElement>("canvas.so-live-head");
+    await waitFor(() => expect(head()?.parentElement?.dataset.liveHeadReady).toBe("true"), { timeout: 15000 });
+    await expect(head()?.dataset.liveHeadMouth).toBe("capped");
+    await expect(head()?.dataset.liveHeadDrawn).toBeUndefined();
+    await userEvent.click(canvas.getByRole("button", { name: "Stream reply" }));
+    await expect(head()).toHaveStyle({ visibility: "visible" });
+    await expect(head()?.dataset.liveHeadMouth).toBe("capped");
   },
 };

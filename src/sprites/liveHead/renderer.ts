@@ -26,6 +26,7 @@ import type { HeadParameters } from "./drivers";
 import { deformInto, deformWeighted, eyeVertexY, headGrid, vertexWeights, type HeadMesh } from "./geometry";
 import { VS, FS } from "./shaders";
 import { DrawnDirector, mouthInner, squashVertex, type DrawnSprite, type DrawnState } from "./drawn";
+import { MeshMouth, meshMouthMode, type MeshMouthMode } from "./meshMouth";
 
 interface LayerResources {
   layer: HeadLayer; mesh: HeadMesh; vao: WebGLVertexArrayObject; position: WebGLBuffer; texture: WebGLTexture; buffers: WebGLBuffer[];
@@ -55,6 +56,7 @@ export class HeadRenderer {
   private readonly drawn: DrawnResources[] = [];
   private director: DrawnDirector | null = null;
   private lastTime = Number.NaN;
+  private readonly meshMouth: MeshMouth;
 
   constructor(private readonly canvas: HTMLCanvasElement, private readonly manifest: HeadManifest) {
     const gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: true, antialias: true });
@@ -65,6 +67,7 @@ export class HeadRenderer {
     this.eyeTop = new Float32Array(eyes.flatMap((eye) => eye.top));
     this.eyeBot = new Float32Array(eyes.flatMap((eye) => eye.bot));
     this.cheeks = new Float32Array(manifest.rig.cheeks.flat());
+    this.meshMouth = new MeshMouth(meshMouthMode(manifest.rig, false));
     const program = gl.createProgram();
     if (!program) { gl.getExtension("WEBGL_lose_context")?.loseContext(); throw new Error("Could not allocate a WebGL program."); }
     this.program = program;
@@ -136,18 +139,22 @@ export class HeadRenderer {
       if (gl.getError() !== gl.NO_ERROR) throw new Error("Drawn sprite upload failed.");
     }
     this.director = this.drawn.length ? new DrawnDirector(new Set(this.drawn.map((entry) => entry.sprite.name))) : null;
+    this.meshMouth.mode = meshMouthMode(rig, this.drawn.some((entry) => entry.inner !== null));
   }
 
   drawnNames(): string[] { return this.drawn.map((entry) => entry.sprite.name); }
+
+  mouthMode(): MeshMouthMode { return this.meshMouth.mode; }
 
   private uniform(name: string): WebGLUniformLocation | null {
     if (!this.uniforms.has(name)) this.uniforms.set(name, this.gl.getUniformLocation(this.program, name));
     return this.uniforms.get(name) ?? null;
   }
 
-  draw(p: HeadParameters, now = Number.NaN): void {
+  draw(input: HeadParameters, now = Number.NaN): void {
     const gl = this.gl, canvas = this.canvas, rig = this.manifest.rig;
-    const drawn = this.director?.update(p, Number.isFinite(now - this.lastTime) ? now - this.lastTime : 0) ?? null;
+    const dt = Number.isFinite(now - this.lastTime) ? now - this.lastTime : 0, p = this.meshMouth.apply(input, dt);
+    const drawn = this.director?.update(p, dt) ?? null;
     this.lastTime = now;
     if (this.closed || gl.isContextLost()) throw new Error("Live head context was lost.");
     if (canvas.parentElement?.parentElement?.classList.contains("so-framed")) canvas.style.width = `${canvas.clientHeight * rig.image.width / rig.image.height}px`;

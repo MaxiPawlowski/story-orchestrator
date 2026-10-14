@@ -66,7 +66,11 @@ export function LiveHead(props: LiveHeadProps) {
       if (!live) return;
       element.dataset.liveHeadDrawn = set?.sprites.map((sprite) => sprite.name).join(" ") || "none";
       if (set?.refused.length || error) log.debug("Live head drawn frames partly refused", set?.refused ?? error);
-    } } : undefined).then((stop) => {
+    } } : undefined, (mode, problem) => {
+      if (!live) return;
+      element.dataset.liveHeadMouth = mode;
+      if (problem) log.debug("Live head mouth kept still", problem);
+    }).then((stop) => {
       clearTimeout(timeout);
       if (run.stillOwns()) dispose = stop;
       else stop?.();
