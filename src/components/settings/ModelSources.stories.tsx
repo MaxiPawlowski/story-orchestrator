@@ -74,3 +74,21 @@ export const NotEnoughSpaceDisablesDownload: Story = {
     await expect(canvas.getByRole("button", { name: "Download" })).toBeDisabled();
   },
 };
+
+export const NoMediaPluginSaysSo: Story = {
+  args: { api: api({ modelKeyStatus: fn(async () => { throw new Error("The optional media plugin is not installed, or is older than model downloads."); }) }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const alert = await canvas.findByRole("alert");
+    await expect(alert).toHaveTextContent(/Model downloads are unavailable: The optional media plugin is not installed/);
+    await expect(canvas.getAllByText("(unknown)").length).toBe(2);
+  },
+};
+
+export const WithThePluginNoWarning: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByText("(set)")).toBeInTheDocument();
+    await expect(canvas.queryByRole("alert")).toBeNull();
+  },
+};

@@ -301,6 +301,18 @@ export const INFO_SETUP_CHECKS: readonly Check[] = [
       detail: "Adapter: none; images pass through.",
     } : null),
   },
+  {
+    id: "gpu-broker-absent", area: "image", scope: "install", audience: "author", severity: "info", feature: "images",
+    detect: (snapshot) => {
+      const health = snapshot.imageHealth;
+      return health?.enabled && health.localText && health.broker === null ? {
+        consequence: "Pictures and the local text model share one GPU with nothing taking turns between them, so a render can stall replies or fail for lack of memory.",
+        detail: "The GPU broker plugin (story-orchestrator-gpu) did not answer, and replies come from a model on this machine. Install it with npm run plugins:install "
+          + "and restart SillyTavern; if the image service runs on another machine, dismiss this row.",
+        target: { kind: "setting", id: IMAGE_TARGET_ID },
+      } : null;
+    },
+  },
 ];
 
 export const DEGRADING_SETUP_CHECKS: readonly Check[] = [
