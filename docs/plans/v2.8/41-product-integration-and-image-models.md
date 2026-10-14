@@ -644,3 +644,80 @@ Look-to-rig texture reuse remains unmeasured. Other open acceptance items are li
   rig quality on real art (synthetic geometric bust only; the simplified CPU cut has no OpenCV inpainting and no LI5-style review);
   browser/lane acceptance of the rebuild screen with real saves; GPU/ComfyUI renders; cast illustration with layered fields on a model.
   Plan 36 LI rows and the §5 A journey remain owed.
+
+## Gate record — extras (gaze iris, reference views, wizard card art), 2026-10-14
+
+- Branch `v2.8-p41-extras` from master `a302b65e`, worktree `.claude/worktrees/agent-acc1c568232e11ce2`. Commits `bedff377` + `8414eca9`
+  (gaze iris), `0a4b4b8a` (reference views), `e8ea9ec7` (wizard card art), `39355b1d` (story lint), plus this record. Not merged, not pushed, not staged. No model call, download,
+  GPU, ComfyUI, lane or owner ST use. Mouth code untouched (`mouthShape.ts`, mouth cap, drawn mouth layer: `v2.8-mouth-cap` owns them).
+- Gaze +-1 iris (plan 36 owed row):
+  - Upstream mesh-avatar-studio `26243f9` (`packages/runtime/src/engine/renderer.js` `eyeBall`, `createMeshAvatar.js` 7 px travel) uses the
+    same dome warp as our port (`texAt(p - gaze * sqrt(4u(1-u)) * sqrt(4v(1-v)))`), so it does not keep the iris round; it only keeps the
+    travel small. Nothing to copy; the fix is ours.
+  - Fix (`liveHead/gaze.ts`, `shaders.ts` `slideBall`): the eye white stays put; the iris (ball pixels far from a sclera tone) is removed
+    from where it was, filled with the sclera tone, and redrawn translated whole by the gaze offset, clipped by the current opening alpha and
+    the lids. Within 2.5 px of the lid curves a pixel counts as iris only when the pixel 2.5 px inward is interior iris, so the iris's top and
+    bottom rows move with it while lash pixels inside the ball layer (rim, corners) stay. First cut without that rule left 2 iris pixels at
+    the old place and, with a naive inward rule, moved corner lash into the white; both caught by tests and the story, both fixed. Sclera tone = mean of the brightest 30 % of opaque ball
+    pixels, read once per ball layer (`OffscreenCanvas`); unreadable or dark (luma < 0.55) keeps the shipped dome path. Gaze 0 takes the
+    shipped path byte for byte. No plateau warp; no new rig field.
+  - CPU model of the shader (`renderOpenBall`), synthetic bust x2 (`gaze.test.ts`): at gaze +-1 the iris mask equals the gaze-0 mask
+    translated and clipped (overlap 1.00 both eyes) vs 0.76 / 0.81 for the dome warp; second-moment aspect 1.37-1.38 vs rest 1.30 (clip at
+    the corner) vs dome 2.06-2.30 (the bean). Old position fills with the tone (irisWeight < 0.05), alpha unchanged everywhere, and no iris
+    pixel stays inside the old iris disc (0 vs 2 before the edge rule). Goldens
+    `test/goldens/liveHead/gaze-iris.json` (gaze -1, 0, +1 per eye; gaze 0 identical to the dome render). Renderer test: `uSclera` is set
+    only when a ball tone was read; without one the uniform stream (frame-loop golden) is unchanged.
+  - Storybook `Sprites/LiveHeadGaze`: dome (before) vs slide (after) zoomed eye renders at gaze -1/0/+1, plus the WebGL head on the
+    synthetic rig.
+  - Not proven: real campaign rigs or the amber/slate/ember synthetic looks in a browser (no LI run); an iris close to the sclera tone (very pale)
+    is not separated and stays in place. Gaze up/down lash fragments not touched.
+- Six-view reference pack (§3.1, optional):
+  - Views: `full_body` (accepted base), `front` (accepted bust), and four renders `three_quarter_left`, `three_quarter_right`, `profile`,
+    `back` (`sprites/referenceViews.ts`). Recipe `qwen21-reference-view` v1: existing `editGraph` (Qwen 2.1 edit, 1 reference = accepted
+    base), the member's builder models/steps/resolution, first discovered BiRefNet cutout, seed 1234, `referenceProblems` alpha QA, one GPU
+    lease and one reference upload per prepare, both released on every path; text priority first.
+  - Studio Sprites › Prepare presentation › **Reference views** (`#so-reference-pack`): draw, review all six, Accept all six views / Cancel.
+    Nothing saved before accept; accept saves the four renders through `saveGeneratedSprite` (`refpack_<key16>`), hashes the six
+    (`referencePackText`), and writes `visualSources[folder].pack` with `revision + 1`.
+  - Lineage: `visualRoot` = `<id>:<revision>:<pack16>` when a pack exists, so every key that already carries the root (expression/raw/final,
+    look, pose, body stamp, cast scene) carries the pack hash. Accepting a pack keeps the default look (re-rooted) and drops derived looks,
+    which render again. Parser refuses a pack whose full-body/front differ from base/bust or that misses a view. No recipe consumes the views
+    as references yet (stage-1 POC accepted no multi-reference tier).
+  - Ownership: `ReferencePackSession.prepare` guards after each of 15 awaits (test lapses at each), `accept` after every save and before
+    commit; cancel/chat/card-delete/root-replacement during a render or a save publish nothing. Census +6 rows, error copy +3 rows.
+  - Registry `reference-pack` (author, experimental, on, no switch); guide paragraph; routes view row.
+- Wizard card artwork: `createCharacterCard` provisioning cards lazy-load `CharacterCardArt` (own chunk): accepted bust and base
+  (`loading="lazy"`), or a placeholder (not created yet / no accepted artwork / card changed) with **Prepare presentation**, which opens
+  Sprites through `PreparePresentationContext` from the Studio wizard tab. Pure resolver `sprites/cardArt.ts`; stories `Studio/CardArtView`,
+  `Studio/ProvisioningCard` `CharacterArtPlaceholder`.
+- Main bundle `dist/index.js` **1,266,141 B** / 1,300,000 B (plan 36 harvest record 1,264,929 B). Renderer, reference-view host/UI and card art
+  ride lazy chunks (`qwen21-reference-view` only in `6172.index.js`).
+- Gates:
+  - `npm run test:replay` (fresh worktree): 32 of 32 killed.
+  - `npm run gates:quick` after each item: green (349.8 s, 185.0 s); item 2 run 1 RED on `typecheck:test` (implicit any in a test stub), fixed.
+    Guards met by changes, not ratchet raises: SpriteBuilder S4 length (the step mounts inside PreparePresentation instead), S8 duplicate
+    `cancel` body, ownership census +6, error copy +3.
+  - `npm run gates -- --no-storybook --jobs=2` run 1 RED on lint (non-null assertion in `Gaze.stories.tsx`, which `gates:quick` lint does not
+    reach); fixed in `39355b1d`. Run 2 green in 340.0 s. Final run (`8414eca9`) green in 249.9 s: jest 724 suites / 8,310 tests (1 skipped),
+    replay 32/32, test:debug 1,267, test:release 123, test:plugin 273, 0 failures.
+  - Staged Storybook (`%TEMP%\so-sb-p41`, junctioned `node_modules`, served on port 6046 because another agent's copy held 6006, test runner
+    `--maxWorkers 4`): run 1 139 suites / 827 tests passed; after the edge-row fix, rebuilt, run 2 139 / 827 passed, including
+    `Sprites/LiveHeadGaze`, `Studio/ReferencePackReview`, `Studio/CardArtView`, `Studio/ProvisioningCard`. Copy removed.
+
+### Ready to run (3090, owner OK required)
+
+- Reference-view render job, synthetic members only:
+  1. Owner OK for a 3090 window while not playing; no download (Qwen 2.1 int8 + Qwen3-VL 8B int8 + 2.1 VAE + BiRefNet-HR are installed).
+     `node scripts/local/cli.mjs unload` (Artemis off), then ComfyUI with native `--cache-none`, verified in `/system_stats` argv.
+  2. `npm run build && npm run stage` from `v2.8-p41-extras`; lane `node scripts/debug/st-lanes.mts seed 31 --fresh`, `start 31 --headed`
+     (owner-approved exception to the no-ComfyUI lane rule; images/sprites stay off for imports, only the Studio builder calls ComfyUI).
+  3. For the 3 S0 synthetic showcase members: Studio › Sprites, keep a base candidate, set the head box, Review selected base and bust,
+     Accept. Then Reference views › Draw reference views: 4 renders each (`qwen21-reference-view` v1, standard preset 25 steps, 1024, euler
+     simple cfg 1, seed 1234, BiRefNet). Accept all six views.
+  4. Record per view: seconds, peak VRAM (floor 22 GB), alpha QA, saved path/sha; per member: pack hash, revision bump, reload read-back of
+     `visualSources[<folder>].pack`, changed `visualRoot` in one expression key.
+  5. Sol contact sheet of 6 views x 3 members, same-character identity (floor >= 90 %, §4), at most 3 rating calls, counted against 113/150.
+  6. Repeat steps 3-5 once more on the same machine with the same `--cache-none` server; archive privately (`so-evidence.mts archive
+     --label p41-refviews`); unload, stop ComfyUI, prove the GPU idle; `so-assets.mts remove --marker SO-` for test cards.
+- Gaze iris, no GPU: lane 30 `so-live-head-check.mts --candidate` with gaze pinned at +-1 on the amber/slate/ember synthetic looks; a second
+  model rates iris roundness before/after from screenshots (Storybook `Sprites/LiveHeadGaze` gives the synthetic before/after).

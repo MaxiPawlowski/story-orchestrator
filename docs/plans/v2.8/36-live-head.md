@@ -552,3 +552,10 @@ optional drawn variants (GPU, plan 30). LI1 laptop and LI2 network capture stay 
   - Staged Storybook (`%TEMP%\so-sb-lhh`, `npm run test-storybook:ci`): run 1 RED, 2 tests in `Workspace/DevicePreferences` (the new device row had no label, a11y `label`), fixed in `9ca6858f`; run 2 136 suites / 814 tests passed, including `Sprites/LiveHeadDrawn`. Copy removed.
   - Main bundle **1,264,929 B / 1,300,000 B** (master build 1,264,838 B, +91 B); drawn, renderer and driver code stay in lazy chunks (`live-head-drawn-frames` only in `1151.index.js`).
 - Owed: LI1 x2 with motion on a quiet machine and on the laptop; an open-eye fix for the gaze +-1 iris; drawn frames on real campaign looks (needs plan 19 frames for a rigged look); a real Artemis stream through the viseme path.
+
+## Gate record: gaze +-1 iris (2026-10-14, branch `v2.8-p41-extras`, LIST)
+
+- The owed open-eye fix for the bean iris at gaze +-1 is built: the iris slides whole under the eye-white clip and its old place fills with
+  the sclera tone; gaze 0 keeps the shipped path byte for byte. Upstream `26243f9` keeps the same dome warp (only a 7 px travel), so nothing
+  was ported. Measurements, goldens and the Storybook before/after (`Sprites/LiveHeadGaze`) are in plan 41 §Gate record — extras.
+- Not run: LI rows or a browser check on real or amber/slate/ember rigs; listed under plan 41 Ready to run. Floors LI1-LI6 unchanged.
