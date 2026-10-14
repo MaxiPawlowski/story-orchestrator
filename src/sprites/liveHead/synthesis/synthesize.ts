@@ -5,6 +5,8 @@ import { parseLandmarks } from "./landmarks";
 import { synthesizeRig } from "./rigGeometry";
 import { cutHeadLayers } from "./layers";
 import { base64 } from "./png";
+import type { LandmarkChecker } from "./detectorCheck";
+import type { LandmarkCrossCheck } from "./landmarkCheck";
 
 export const MAX_RIG_PACKAGE = 24_000_000;
 export interface LandmarkRequest { source: string; sha256: string; width: number; height: number; png: string }
@@ -16,9 +18,15 @@ export interface RigSynthesisDeps {
   hash(bytes: Uint8Array): Promise<string>;
   decode(bytes: Uint8Array, signal: AbortSignal): Promise<PixelImage>;
   encode(image: PixelImage): Promise<string>;
+  check?: LandmarkChecker;
 }
+export interface SynthesizedHead { manifest: HeadManifest; check?: LandmarkCrossCheck }
 
 export async function synthesizeHead(input: RigSynthesisInput, run: RunGuard, deps: RigSynthesisDeps): Promise<HeadManifest | null> {
+  return (await synthesizeCheckedHead(input, run, deps))?.manifest ?? null;
+}
+
+export async function synthesizeCheckedHead(input: RigSynthesisInput, run: RunGuard, deps: RigSynthesisDeps): Promise<SynthesizedHead | null> {
   if (!run.stillOwns()) return null;
   const bytes = await deps.read(input.source, run.signal);
   if (!run.stillOwns()) return null;
@@ -28,9 +36,13 @@ export async function synthesizeHead(input: RigSynthesisInput, run: RunGuard, de
   const image = await deps.decode(bytes, run.signal);
   if (!run.stillOwns()) return null;
   if (image.width > 2048 || image.height > 2048) throw new Error("Live head images must fit within 2048 pixels.");
-  const raw = await deps.landmarks({ source: input.source, sha256: input.sha256, width: image.width, height: image.height, png: base64(bytes) }, run.signal);
+  const png = base64(bytes);
+  const raw = await deps.landmarks({ source: input.source, sha256: input.sha256, width: image.width, height: image.height, png }, run.signal);
   if (!run.stillOwns()) return null;
-  const rig = synthesizeRig(parseLandmarks(raw, image));
+  const marks = parseLandmarks(raw, image);
+  const check = deps.check ? await deps.check(png, marks, run.signal) : undefined;
+  if (!run.stillOwns()) return null;
+  const rig = synthesizeRig(marks);
   const cut = cutHeadLayers(image, rig), layers = [];
   for (const layer of cut) {
     const data = await deps.encode(layer.image);
@@ -41,7 +53,7 @@ export async function synthesizeHead(input: RigSynthesisInput, run: RunGuard, de
   const manifest = loadHeadManifest({ version: HEAD_MANIFEST_VERSION, member: input.member, look: input.look, artHash: input.sha256, source: input.source, rig, layers },
     { member: input.member, look: input.look, artHash: input.sha256, source: input.source, manifest: "" });
   if (manifestRef(manifest).manifest.length > MAX_RIG_PACKAGE) throw new Error("The synthesized rig exceeds the import limit. Use a smaller bust.");
-  return manifest;
+  return check ? { manifest, check } : { manifest };
 }
 
 export function rehomeHead(manifest: HeadManifest, source: string, sha256: string): HeadManifest {

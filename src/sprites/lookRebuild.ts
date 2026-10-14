@@ -3,7 +3,8 @@ import { anySignal } from "@utils/signals";
 import type { HeadBox } from "./builder/pixels";
 import type { LiveHeadRef } from "./liveHeadRefs";
 import type { HeadManifest } from "./liveHead/manifest";
-import type { RigSynthesisInput } from "./liveHead/synthesis/synthesize";
+import type { RigSynthesisInput, SynthesizedHead } from "./liveHead/synthesis/synthesize";
+import type { LandmarkCrossCheck } from "./liveHead/synthesis/landmarkCheck";
 import { visualHead, visualRoot, visualSources, type VisualAsset, type VisualManifest } from "./visualManifest";
 
 export const LOOK_BUST_RECIPE = { id: "visual-look-bust-crop", version: 1 } as const;
@@ -12,7 +13,7 @@ export interface ChangedLookRow { look: string; state: "pending-bust" | "pending
 export interface LookRebuildReview {
   target: LookRebuildTarget; root: string; base: VisualAsset; box: HeadBox;
   bust: { path?: string; data?: string; sha256: string; key: string };
-  rig?: HeadManifest; rigError?: string;
+  rig?: HeadManifest; rigError?: string; rigCheck?: LandmarkCrossCheck;
 }
 export interface LookRebuildDeps {
   ownership: RunOwnership;
@@ -21,7 +22,7 @@ export interface LookRebuildDeps {
   fingerprint(path: string, signal: AbortSignal): Promise<string>;
   crop(path: string, box: HeadBox, signal: AbortSignal): Promise<{ data: string; sha256: string }>;
   hash(value: string): Promise<string>;
-  synthesize(input: RigSynthesisInput, run: RunGuard): Promise<HeadManifest | null>;
+  synthesize(input: RigSynthesisInput, run: RunGuard): Promise<SynthesizedHead | null>;
   rehome(manifest: HeadManifest, source: string, sha256: string): HeadManifest;
   save(review: LookRebuildReview, signal: AbortSignal): Promise<VisualAsset>;
   commitBust(source: VisualManifest, run: RunGuard): void;
@@ -97,9 +98,12 @@ export class LookRebuild {
       this.guard(run, target, root, base.sha256);
       const value: LookRebuildReview = { target: structuredClone(target), root, base, box, bust };
       try {
-        const rig = await this.deps.synthesize({ member: target.member, look: target.look, source: bust.path ?? `data:image/png;base64,${bust.data}`, sha256: bust.sha256 }, run);
+        const synthesized = await this.deps.synthesize({ member: target.member, look: target.look, source: bust.path ?? `data:image/png;base64,${bust.data}`, sha256: bust.sha256 }, run);
         this.guard(run, target, root, base.sha256);
-        if (rig) value.rig = rig;
+        if (synthesized) {
+          value.rig = synthesized.manifest;
+          if (synthesized.check) value.rigCheck = synthesized.check;
+        }
         else value.rigError = "The rig was not prepared.";
       } catch (error) {
         this.guard(run, target, root, base.sha256);
