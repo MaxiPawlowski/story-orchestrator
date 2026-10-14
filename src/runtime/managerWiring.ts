@@ -80,6 +80,7 @@ export function wireCoordinators(port: ManagerPort) {
     beatFor: (rosterId) => inner.beatFor(rosterId),
     meanwhile: (rosterId) => landedMeanwhile(port.extras().agendaProposals, rosterId),
     journal: (summary, note) => port.journal("story", summary, note),
+    authorNote: (summary, note) => port.journal("author", summary, note),
     chapterHost: {
       closeScene: (to) => extraction.closeSceneAt(to), announce: (text) => port.announce(text),
       journal: (summary, note) => port.journal("chapter", summary, note), playerName: () => getPlayerName(),

@@ -1,4 +1,4 @@
-import { activeEpistemic } from "./epistemic";
+import { activeEpistemic, protectsSecret } from "./epistemic";
 import type { EpistemicEntry, LedgerView, MemoryEntry } from "./types";
 import { contentWords, restatesWords, RESTATE_MIN_SHARED_WORDS } from "./words";
 
@@ -20,8 +20,9 @@ const targets = (entry: EpistemicEntry): string[] => people(entry.hiddenFrom ?? 
 
 export function heldSecrets(epistemic: readonly EpistemicEntry[], names: readonly string[]): HeldSecret[] {
   const active = activeEpistemic([...epistemic]);
-  const named = new Set([...names, ...active.map((entry) => entry.subject)].flatMap((name) => [...contentWords(name)]));
-  return active.filter((entry) => entry.tag === "hiding" || entry.tag === "unaware").flatMap((secret) => {
+  const protecting = epistemic.filter(protectsSecret);
+  const named = new Set([...names, ...active.map((entry) => entry.subject), ...protecting.map((entry) => entry.subject)].flatMap((name) => [...contentWords(name)]));
+  return protecting.flatMap((secret) => {
     const words = stripNames(secret.content, named);
     if (words.size < RESTATE_MIN_SHARED_WORDS) return [];
     const barred = new Set(secret.tag === "hiding" ? targets(secret) : [normalize(secret.subject)]);

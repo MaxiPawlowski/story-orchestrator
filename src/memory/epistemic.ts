@@ -8,6 +8,7 @@ export const EPISTEMIC_MIN_LENGTH = 3;
 export const EPISTEMIC_DEDUP_THRESHOLD = 0.6;
 export const EPISTEMIC_CAP = 80;
 export const EPISTEMIC_SUBJECT_CAP = 12;
+export const EPISTEMIC_SECRET_CEILING = 80;
 export const AFFIRMATION_CAP = 32;
 const INTENT_SHARED_WORDS = 3;
 const INTENT_OVERLAP = 0.5;
@@ -188,10 +189,15 @@ export function rollbackEpistemic(entries: EpistemicEntry[], messageId: number):
 }
 
 // Each character keeps its newest entries, so one talkative subject cannot fill the private block
-// (or the whole store) with scene detail; pinned entries never count against either cap.
+// (or the whole store) with scene detail; pinned entries never count against either cap, and a row that
+// keeps a secret is never evicted: it takes its slot first, so the newest other rows fill what is left.
 const knowledgeKey = (content: string) => content.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 
 const SECRET_TAGS: ReadonlySet<EpistemicTag> = new Set<EpistemicTag>(["unaware", "hiding"]);
+
+export const restrictsSecret = (entry: EpistemicEntry): boolean => SECRET_TAGS.has(entry.tag) && !entry.supersededBy;
+
+export const protectsSecret = (entry: EpistemicEntry): boolean => restrictsSecret(entry) && isLive(entry);
 
 const contests = (claim: Set<string>, other: Set<string>): boolean => restatesWords(other, claim) || restatesWords(claim, other);
 
@@ -223,10 +229,16 @@ const isRetired = (entry: EpistemicEntry): boolean => Boolean(entry.supersededBy
 export function capEpistemic(entries: EpistemicEntry[], cap: number = EPISTEMIC_CAP, subjectCap: number = EPISTEMIC_SUBJECT_CAP): EpistemicEntry[] {
   const keep = new Set<string>();
   for (const retiredPass of [false, true]) {
+    const pass = entries.filter((entry) => !entry.pinned && isRetired(entry) === retiredPass);
     const perSubject = new Map<string, number>();
-    let total = 0;
-    for (const entry of [...entries].reverse()) {
-      if (entry.pinned || isRetired(entry) !== retiredPass) continue;
+    const reserved = pass.filter(restrictsSecret);
+    for (const entry of reserved) {
+      keep.add(entry.id);
+      perSubject.set(normalize(entry.subject), (perSubject.get(normalize(entry.subject)) ?? 0) + 1);
+    }
+    let total = reserved.length;
+    for (const entry of [...pass].reverse()) {
+      if (keep.has(entry.id)) continue;
       const subject = normalize(entry.subject);
       const count = perSubject.get(subject) ?? 0;
       if (count >= subjectCap || total >= cap) continue;
@@ -236,6 +248,20 @@ export function capEpistemic(entries: EpistemicEntry[], cap: number = EPISTEMIC_
     }
   }
   return entries.filter((entry) => entry.pinned || keep.has(entry.id));
+}
+
+export function capKnowledge(
+  before: EpistemicEntry[],
+  entries: EpistemicEntry[],
+  note?: (summary: string, text: string) => void,
+  ceiling: number = EPISTEMIC_SECRET_CEILING,
+): EpistemicEntry[] {
+  const capped = capEpistemic(entries);
+  const count = capped.filter(restrictsSecret).length;
+  if (count > ceiling && before.filter(restrictsSecret).length <= ceiling) {
+    note?.("Secrets past the knowledge cap", `${count} secret rows are kept past the cap of ${ceiling}; none is dropped, so the store grows with them.`);
+  }
+  return capped;
 }
 
 export function isEpistemicTag(value: string): value is EpistemicTag {
