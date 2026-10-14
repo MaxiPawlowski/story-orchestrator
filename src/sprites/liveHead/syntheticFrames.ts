@@ -21,7 +21,9 @@ function patch(art: PixelImage, rect: [number, number, number, number], paint: (
   return { width: art.width, height: art.height, data };
 }
 
-export function syntheticFrames(art: PixelImage, rig: Rig): { blink: PixelImage; talk: PixelImage; talk2: PixelImage } {
+export type SyntheticFrames = Record<"blink" | "talk" | "talk2" | "mouth_o" | "mouth_wide", PixelImage>;
+
+export function syntheticFrames(art: PixelImage, rig: Rig): SyntheticFrames {
   const cheek = rig.cheeks[0], at = (Math.round(cheek[1]) * art.width + Math.round(cheek[0])) * 4;
   const skin: Colour = [art.data[at], art.data[at + 1], art.data[at + 2]];
   const xs = rig.eyes.flatMap((eye) => eye.roi.map((point) => point[0])), ys = rig.eyes.flatMap((eye) => eye.roi.map((point) => point[1]));
@@ -38,11 +40,12 @@ export function syntheticFrames(art: PixelImage, rig: Rig): { blink: PixelImage;
   });
   const area = rig.mouth.area, mouthRect: [number, number, number, number] = [Math.floor(area.cx - area.rx * 1.8), Math.floor(area.cy - area.ry * 1.6),
     Math.ceil(area.rx * 3.6), Math.ceil(area.ry * 3.2)];
-  const mouth = (open: number) => patch(art, mouthRect, (x, y) => {
-    const dx = (x - rig.mouth.cx) / (rig.mouth.halfLen * 0.95), dy = (y - rig.mouth.cy - open * 0.35) / open;
+  const mouth = (open: number, width = 0.95) => patch(art, mouthRect, (x, y) => {
+    const dx = (x - rig.mouth.cx) / (rig.mouth.halfLen * width), dy = (y - rig.mouth.cy - open * 0.35) / open;
     const d = dx * dx + dy * dy;
     if (d <= 1) return dy > 0.35 && Math.abs(dx) < 0.55 ? TONGUE : MOUTH;
     return d <= 1.25 ? skin : null;
   });
-  return { blink, talk: mouth(Math.max(3, area.ry * 0.7)), talk2: mouth(Math.max(2, area.ry * 0.38)) };
+  return { blink, talk: mouth(Math.max(3, area.ry * 0.7)), talk2: mouth(Math.max(2, area.ry * 0.38)),
+    mouth_o: mouth(Math.max(3, area.ry * 0.6), 0.55), mouth_wide: mouth(Math.max(2, area.ry * 0.3), 1.1) };
 }

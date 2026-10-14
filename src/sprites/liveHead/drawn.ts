@@ -22,16 +22,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 import type { RunGuard } from "@runtime/runToken";
-import type { AnimationFrames } from "../animation";
+import { FRAME_KEYS, type AnimationFrames, type MouthFrameKey } from "../frameKeys";
+import { classifyVowel as classifyMouthVowel } from "../mouthShape";
+import { DEFAULT_MOUTH_CONFIG, type MouthConfig, type MouthShape, type Vowel } from "../mouthConfig";
+import { usesDrawnMouth as usesDrawn } from "./meshMouth";
 import type { HeadBox, PixelImage } from "../builder/pixels";
 import type { HeadParameters } from "./drivers";
 import type { Rect } from "./manifest";
 import type { Rig } from "./types";
 
-export const DRAWN_RECIPE = { id: "live-head-drawn-frames", version: 1 } as const;
-export const DRAWN_FRAMES = ["blink", "talk", "talk2"] as const;
+export const DRAWN_RECIPE = { id: "live-head-drawn-frames", version: 2 } as const;
+export const DRAWN_FRAMES = FRAME_KEYS;
 export type DrawnFrame = typeof DRAWN_FRAMES[number];
-export type DrawnName = "eyes_closed_0" | "eyes_closed_1" | "mouth_talk" | "mouth_talk2";
+export const MOUTH_SPRITES = { talk: "mouth_talk", talk2: "mouth_talk2", mouth_o: "mouth_o", mouth_wide: "mouth_wide" } as const satisfies Record<MouthFrameKey, string>;
+export type MouthSpriteName = typeof MOUTH_SPRITES[MouthFrameKey];
+export type DrawnName = "eyes_closed_0" | "eyes_closed_1" | MouthSpriteName;
 export interface DrawnSource { frames: AnimationFrames; box?: HeadBox }
 export interface DrawnSprite { name: DrawnName; rect: Rect; pixels: Uint8Array }
 export interface DrawnSet { key: string; sprites: DrawnSprite[]; refused: string[] }
@@ -42,7 +47,7 @@ export interface DrawnDeps {
 }
 
 const RING = 3, RING_DRIFT = 20, OPAQUE = 240;
-const EYE_CLOSED_MAX = 0.3, EYE_FADE_MS = 60, MOUTH_OPEN_MIN = 0.16, MOUTH_FADE = 0.04;
+const EYE_CLOSED_MAX = 0.3, EYE_FADE_MS = 60;
 
 export const drawnFrames = (source: DrawnSource | undefined): Array<[DrawnFrame, string]> =>
   DRAWN_FRAMES.flatMap((key) => (source?.frames[key] ? [[key, source.frames[key]] as [DrawnFrame, string]] : []));
@@ -104,7 +109,7 @@ function eyeSprites(rig: Rig, view: Window, art: PixelImage, refused: string[]):
   });
 }
 
-function mouthSprite(rig: Rig, view: Window, art: PixelImage, key: "talk" | "talk2", refused: string[]): DrawnSprite[] {
+function mouthSprite(rig: Rig, view: Window, art: PixelImage, key: MouthFrameKey, refused: string[]): DrawnSprite[] {
   const area = rig.mouth.area, cos = Math.cos(area.angle), sin = Math.sin(area.angle);
   const hx = Math.hypot(area.rx * cos, area.ry * sin) * 2.5, hy = Math.hypot(area.rx * sin, area.ry * cos) * 2.5;
   const search = clampRect(rig, area.cx - hx, area.cy - hy, area.cx + hx, area.cy + hy);
@@ -120,7 +125,7 @@ function mouthSprite(rig: Rig, view: Window, art: PixelImage, key: "talk" | "tal
   };
   const sprite = cut(view, art, rect, () => 1, outside);
   if (sprite.drift > RING_DRIFT) { refused.push(`${key}: mouth edge drifts ${sprite.drift.toFixed(1)} levels from the artwork`); return []; }
-  return [{ name: key === "talk" ? "mouth_talk" : "mouth_talk2", rect, pixels: sprite.pixels }];
+  return [{ name: MOUTH_SPRITES[key], rect, pixels: sprite.pixels }];
 }
 
 export function cutDrawn(rig: Rig, art: PixelImage, frames: Partial<Record<DrawnFrame, PixelImage>>, box?: HeadBox): { sprites: DrawnSprite[]; refused: string[] } {
@@ -161,34 +166,41 @@ const sstep = (a: number, b: number, x: number): number => {
   return t * t * (3 - 2 * t);
 };
 
-const VOWELS: Array<[string, number, number]> = [["i", -9, -0.55], ["e", -0.55, -0.2], ["a", -0.2, 0.35], ["o", 0.35, 0.75], ["u", 0.75, 9]];
-export function classifyVowel(form: number, previous: string | null): string {
-  const pad = previous ? 0.07 : 0;
-  const was = previous ? VOWELS.find((region) => region[0] === previous) : undefined;
-  if (was && form >= was[1] - pad && form < was[2] + pad) return was[0];
-  return (VOWELS.find((region) => form >= region[1] && form < region[2]) ?? VOWELS[2])[0];
+export function classifyVowel(form: number, previous: string | null, config: MouthConfig = DEFAULT_MOUTH_CONFIG): string {
+  return classifyMouthVowel(form, previous, config);
 }
 
-const WIDTH: Record<string, number> = { e: 1.06, u: 0.78 };
+const MOUTH_KEYS = Object.keys(MOUTH_SPRITES) as MouthFrameKey[];
 
 export interface DrawnState {
   eyes: [number, number];
   covered: [boolean, boolean];
   mouth: DrawnName | null;
   mouthAlpha: number;
+  mouthFrom: DrawnName | null;
+  mouthFromAlpha: number;
   squash: number;
   width: number;
   shaderMouth: number;
 }
 
 export class DrawnDirector {
-  readonly state: DrawnState = { eyes: [0, 0], covered: [false, false], mouth: null, mouthAlpha: 0, squash: 1, width: 1, shaderMouth: 0 };
+  readonly state: DrawnState = { eyes: [0, 0], covered: [false, false], mouth: null, mouthAlpha: 0, mouthFrom: null, mouthFromAlpha: 0, squash: 1, width: 1, shaderMouth: 0 };
   private readonly eyeFrames = [0, 1].map(() => ({ closed: false, was: false, t: 1 }));
   private vowel: string | null = null;
-  constructor(private readonly names: ReadonlySet<DrawnName>) {}
+  private readonly mouths: MouthFrameKey[];
+  private shown: DrawnName | null = null;
+  private from: DrawnName | null = null;
+  private fade = 1;
+  private held = Infinity;
+  constructor(private readonly names: ReadonlySet<DrawnName>, private readonly config: MouthConfig = DEFAULT_MOUTH_CONFIG) {
+    this.mouths = usesDrawn(config) ? MOUTH_KEYS.filter((key) => names.has(MOUTH_SPRITES[key])) : [];
+  }
+
+  hasMouth(): boolean { return this.mouths.length > 0; }
 
   update(p: HeadParameters, dtMs: number): DrawnState {
-    const state = this.state;
+    const state = this.state, config = this.config, drawnConfig = config.drawn;
     for (let index = 0; index < 2; index++) {
       const frame = this.eyeFrames[index], drawn = this.names.has(index === 0 ? "eyes_closed_0" : "eyes_closed_1");
       const closed = drawn && p.eyeOpen < EYE_CLOSED_MAX;
@@ -198,17 +210,30 @@ export class DrawnDirector {
       state.eyes[index] = frame.closed ? (frame.t >= 1 ? 1 : k) : frame.was && frame.t < 1 ? 1 - k : 0;
       state.covered[index] = frame.closed && k >= 0.999;
     }
-    const talk = this.names.has("mouth_talk"), talk2 = this.names.has("mouth_talk2");
-    state.mouth = null; state.mouthAlpha = 0; state.squash = 1; state.width = 1;
-    if ((talk || talk2) && p.mouthOpen >= MOUTH_OPEN_MIN) {
-      this.vowel = classifyVowel(p.mouthForm, this.vowel);
-      const wide = p.mouthOpen >= 0.6 && this.vowel === "a";
-      const name: DrawnName = (wide && talk) || !talk2 ? "mouth_talk" : "mouth_talk2";
-      const ref = name === "mouth_talk" ? 0.9 : this.vowel === "e" ? 0.65 : 0.55;
-      state.mouth = name; state.mouthAlpha = sstep(MOUTH_OPEN_MIN, MOUTH_OPEN_MIN + MOUTH_FADE, p.mouthOpen);
-      state.squash = Math.min(1.1, Math.max(0.5, p.mouthOpen / ref)); state.width = WIDTH[this.vowel] ?? 1;
+    const mouths = this.mouths, step = dtMs > 0 && Number.isFinite(dtMs) ? dtMs : 0;
+    let wanted: DrawnName | null = null, alpha = 0;
+    state.squash = 1; state.width = 1;
+    if (mouths.length && p.mouthOpen >= config.openMin) {
+      this.vowel = classifyMouthVowel(p.mouthForm, this.vowel, config);
+      const shape = (this.vowel === "a" ? (p.mouthOpen >= config.wideOpen ? "a" : "aHalf") : this.vowel) as MouthShape;
+      const key = config.chains[shape].find((entry) => mouths.includes(entry)) ?? mouths[0];
+      const ref = key === "talk2" && this.vowel === "e" ? drawnConfig.halfRefForE : drawnConfig.refs[key];
+      wanted = MOUTH_SPRITES[key]; alpha = sstep(config.openMin, config.openMin + drawnConfig.fade, p.mouthOpen);
+      state.squash = Math.min(drawnConfig.squashMax, Math.max(drawnConfig.squashMin, p.mouthOpen / ref));
+      state.width = drawnConfig.widths[this.vowel as Vowel] ?? 1;
     } else this.vowel = null;
-    state.shaderMouth = talk || talk2 ? 0 : p.mouthOpen;
+    this.held += step;
+    if (wanted !== this.shown && (wanted === null || this.shown === null || this.held >= drawnConfig.holdMs)) {
+      this.from = wanted && this.shown && drawnConfig.crossfadeMs > 0 ? this.shown : null;
+      this.fade = this.from ? 0 : 1;
+      this.shown = wanted; this.held = 0;
+    }
+    if (this.from) this.fade = step > 0 ? Math.min(1, this.fade + step / drawnConfig.crossfadeMs) : 1;
+    if (this.fade >= 1) this.from = null;
+    const k = this.from ? sstep(0, 1, this.fade) : 1;
+    state.mouth = this.shown; state.mouthAlpha = this.shown ? alpha * k : 0;
+    state.mouthFrom = this.from; state.mouthFromAlpha = this.from ? alpha * (1 - k) : 0;
+    state.shaderMouth = mouths.length ? 0 : p.mouthOpen;
     return state;
   }
 }

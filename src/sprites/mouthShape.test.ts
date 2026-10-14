@@ -1,4 +1,5 @@
 import { classifyVowel, MouthStepper, mouthShape, shapeFrame, withVisemeMouth, type MouthSample } from "./mouthShape";
+import { DEFAULT_MOUTH_CONFIG } from "./mouthConfig";
 import { startVisemeMouth } from "./faceFrames";
 import { StreamActivity, type TextMouthEngine } from "./animation";
 
@@ -33,6 +34,30 @@ describe("vowel hysteresis (mesh-avatar-studio classifyVowel port)", () => {
   });
 });
 
+describe("drawn mouth shapes beyond talk and talk2", () => {
+  const five = { ...three, mouth_o: "/oh.png", mouth_wide: "/ee.png" };
+  it("maps every viseme group onto its own frame when all four mouths exist", () => {
+    expect((["a", "aHalf", "e", "i", "o", "u"] as const).map((shape) => shapeFrame(shape, five))).toEqual(["talk", "talk2", "talk2", "mouth_wide", "mouth_o", "mouth_o"]);
+  });
+  it("falls back to the nearest available frame, and to no frame (the capped mesh) when no mouth is drawn", () => {
+    expect(shapeFrame("o", { ...three, mouth_wide: "/ee.png" })).toBe("talk");
+    expect(shapeFrame("i", { ...three, mouth_o: "/oh.png" })).toBe("talk2");
+    expect(shapeFrame("e", { talk: "/open.png", mouth_wide: "/ee.png" })).toBe("mouth_wide");
+    expect(shapeFrame("a", { mouth_o: "/oh.png" })).toBe("mouth_o");
+    expect(shapeFrame("u", { talk2: "/half.png" })).toBe("talk2");
+    expect(shapeFrame("i", { blink: "/b.png" } as never)).toBeNull();
+  });
+  it("keeps hysteresis and the minimum hold across the new frames, and talk plus any other mouth leaves the talk-only vowel gate", () => {
+    const stepper = new MouthStepper();
+    expect(stepper.next(say(0.75, 0.6, "O"), five, 0)).toBe("mouth_o");
+    expect(stepper.next(say(0.5, -0.85, "I"), five, 30)).toBe("mouth_o");
+    expect(stepper.next(say(0.5, -0.85, "I"), five, 61)).toBe("mouth_wide");
+    expect(stepper.next(say(0.5, -0.58, "I"), five, 130)).toBe("mouth_wide");
+    const gated = new MouthStepper(DEFAULT_MOUTH_CONFIG, 0);
+    expect(gated.next(say(0.3, -0.3, "DD"), { talk: "/open.png", mouth_o: "/oh.png" }, 0)).toBe("talk");
+  });
+});
+
 describe("mouth stepper", () => {
   it("holds a frame for at least 60 ms so a hovering sample cannot flicker", () => {
     const stepper = new MouthStepper();
@@ -45,7 +70,7 @@ describe("mouth stepper", () => {
   });
 
   it("opens a two-frame mouth only on vowels, with open/close hysteresis", () => {
-    const stepper = new MouthStepper(0);
+    const stepper = new MouthStepper(DEFAULT_MOUTH_CONFIG, 0);
     expect(stepper.next(say(0.3, -0.3, "DD"), two, 0)).toBeNull();
     expect(stepper.next(say(0.9, 0, "aa"), two, 10)).toBe("talk");
     expect(stepper.next(say(0.4, 0.9, "U"), two, 20)).toBe("talk");

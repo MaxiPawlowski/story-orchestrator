@@ -30,7 +30,7 @@ export const MASK_IMPORT = {
   tintBand: 10, maxTint: 24, opaqueAlpha: 240, aspectTolerance: 0.005, encoderRound: 16,
 } as const;
 
-export const MASK_IMPORT_KINDS: readonly EditKind[] = ["expression", "blink", "talk", "talk2", "rest"];
+export const MASK_IMPORT_KINDS: readonly EditKind[] = ["expression", "blink", "talk", "talk2", "mouth_o", "mouth_wide", "rest"];
 
 export interface MaskImportReport {
   shift: { x: number; y: number };

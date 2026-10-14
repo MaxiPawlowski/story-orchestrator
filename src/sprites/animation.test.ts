@@ -6,6 +6,12 @@ test("frame listing reads suffixes independently of ST's collapsed expression la
   expect(Object.keys(frames.get("happy") ?? {})).toEqual(["blink", "talk", "talk2"]);
 });
 
+test("the rounded and wide mouth frames are read by name; an unknown frame kind is not", () => {
+  const frames = frameIndex([{ path: "/c/T/anim-default/neutral.mouth_o.png" }, { path: "/c/T/anim-default/neutral.MOUTH_WIDE.png" },
+    { path: "/c/T/anim-default/neutral.mouth_x.png" }, { path: "/c/T/anim-default/neutral.talk.png" }]);
+  expect(frames.get("neutral")).toEqual({ mouth_o: "/c/T/anim-default/neutral.mouth_o.png", mouth_wide: "/c/T/anim-default/neutral.MOUTH_WIDE.png", talk: "/c/T/anim-default/neutral.talk.png" });
+});
+
 test("all mouth modes degrade safely as frames disappear", () => {
   expect(mouthSequence("off", { talk: "open", talk2: "half" })).toEqual([null]);
   expect(mouthSequence("smooth", { talk: "open", talk2: "half" })).toEqual([null, "half", "open", "half", null]);

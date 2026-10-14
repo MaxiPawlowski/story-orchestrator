@@ -21,56 +21,51 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
-import type { AnimationFrames } from "./animation";
+import { MOUTH_FRAME_KEYS, type AnimationFrames, type MouthFrameKey } from "./frameKeys";
+import { DEFAULT_MOUTH_CONFIG, type MouthConfig, type MouthShape, type Vowel } from "./mouthConfig";
 
+export type { MouthShape, Vowel } from "./mouthConfig";
 export interface MouthSample { open: number; form: number; viseme: string }
-export type Vowel = "i" | "e" | "a" | "o" | "u";
-export type MouthShape = Vowel | "aHalf";
-export type MouthFrame = "talk" | "talk2" | null;
+export type MouthFrame = MouthFrameKey | null;
+export type MouthFrames = Pick<AnimationFrames, MouthFrameKey>;
 
-const VOWEL_PAD = 0.07;
-const OPEN_MIN = 0.16;
-const OPEN_PAD = 0.04;
-const WIDE_OPEN = 0.6;
-const WIDE_PAD = 0.05;
-const TWO_FRAME_OPEN = 0.45;
-const TWO_FRAME_CLOSE = 0.35;
-const REGIONS: Array<[Vowel, number, number]> = [["i", -9, -0.55], ["e", -0.55, -0.2], ["a", -0.2, 0.35], ["o", 0.35, 0.75], ["u", 0.75, 9]];
-
-export function classifyVowel(form: number, previous: MouthShape | null): Vowel {
-  const pad = previous ? VOWEL_PAD : 0;
-  const was = previous ? REGIONS.find(([vowel]) => vowel === previous || (previous === "aHalf" && vowel === "a")) : undefined;
+export function classifyVowel(form: number, previous: MouthShape | string | null, config: MouthConfig = DEFAULT_MOUTH_CONFIG): Vowel {
+  const regions = config.regions, pad = previous ? config.vowelPad : 0;
+  const was = previous ? regions.find(([vowel]) => vowel === previous || (previous === "aHalf" && vowel === "a")) : undefined;
   if (was && form >= was[1] - pad && form < was[2] + pad) return was[0];
-  return (REGIONS.find(([, low, high]) => form >= low && form < high) ?? REGIONS[2])[0];
+  return (regions.find(([, low, high]) => form >= low && form < high) ?? regions.find(([vowel]) => vowel === "a") ?? regions[0])[0];
 }
 
-export function mouthShape(open: number, form: number, previous: MouthShape | null): MouthShape | null {
-  if (open < (previous ? OPEN_MIN - OPEN_PAD : OPEN_MIN)) return null;
-  const vowel = classifyVowel(form, previous);
+export function mouthShape(open: number, form: number, previous: MouthShape | null, config: MouthConfig = DEFAULT_MOUTH_CONFIG): MouthShape | null {
+  if (open < (previous ? config.openMin - config.openPad : config.openMin)) return null;
+  const vowel = classifyVowel(form, previous, config);
   if (vowel !== "a") return vowel;
-  const wide = previous === "a" ? open >= WIDE_OPEN - WIDE_PAD : open >= WIDE_OPEN;
+  const wide = previous === "a" ? open >= config.wideOpen - config.widePad : open >= config.wideOpen;
   return wide ? "a" : "aHalf";
 }
 
-export function shapeFrame(shape: MouthShape | null, frames: Pick<AnimationFrames, "talk" | "talk2">): MouthFrame {
-  if (!shape || !frames.talk) return null;
-  return frames.talk2 && (shape === "aHalf" || shape === "e" || shape === "i" || shape === "u") ? "talk2" : "talk";
+export function shapeFrame(shape: MouthShape | null, frames: MouthFrames, config: MouthConfig = DEFAULT_MOUTH_CONFIG): MouthFrame {
+  if (!shape) return null;
+  return config.chains[shape].find((key) => frames[key]) ?? null;
 }
+
+export const onlyTalk = (frames: MouthFrames): boolean => Boolean(frames.talk) && MOUTH_FRAME_KEYS.every((key) => key === "talk" || !frames[key]);
 
 export class MouthStepper {
   private shape: MouthShape | null = null;
   private frame: MouthFrame = null;
   private since = -Infinity;
 
-  constructor(private readonly holdMs = 60) {}
+  constructor(private readonly config: MouthConfig = DEFAULT_MOUTH_CONFIG, private readonly holdMs = config.holdMs) {}
 
-  next(sample: MouthSample | null, frames: Pick<AnimationFrames, "talk" | "talk2">, now: number): MouthFrame {
-    this.shape = sample ? mouthShape(sample.open, sample.form, this.shape) : null;
-    const twoFrame = Boolean(frames.talk) && !frames.talk2;
+  next(sample: MouthSample | null, frames: MouthFrames, now: number): MouthFrame {
+    const config = this.config;
+    this.shape = sample ? mouthShape(sample.open, sample.form, this.shape, config) : null;
+    const twoFrame = onlyTalk(frames);
     const open = sample?.open ?? 0;
     const wanted = twoFrame && this.shape
-      ? (open >= (this.frame ? TWO_FRAME_CLOSE : TWO_FRAME_OPEN) ? "talk" : null)
-      : shapeFrame(this.shape, frames);
+      ? (open >= (this.frame ? config.twoFrameClose : config.twoFrameOpen) ? "talk" : null)
+      : shapeFrame(this.shape, frames, config);
     if (wanted !== this.frame && now - this.since >= this.holdMs) { this.frame = wanted; this.since = now; }
     return this.frame;
   }
@@ -78,8 +73,11 @@ export class MouthStepper {
   reset(): void { this.shape = null; this.frame = null; this.since = -Infinity; }
 }
 
-export function withVisemeMouth<T extends { mouthOpen: number; mouthForm: number }>(parameters: T, sample: MouthSample | null | undefined): T {
+export const blendForm = (current: number, sample: number, config: MouthConfig = DEFAULT_MOUTH_CONFIG): number =>
+  Math.max(-1, Math.min(1, current * (1 - config.visemeFormShare) + sample * config.visemeFormShare));
+
+export function withVisemeMouth<T extends { mouthOpen: number; mouthForm: number }>(parameters: T, sample: MouthSample | null | undefined, config: MouthConfig = DEFAULT_MOUTH_CONFIG): T {
   if (sample === undefined) return parameters;
   if (!sample) return { ...parameters, mouthOpen: 0 };
-  return { ...parameters, mouthOpen: sample.open, mouthForm: Math.max(-1, Math.min(1, parameters.mouthForm * 0.4 + sample.form * 0.6)) };
+  return { ...parameters, mouthOpen: sample.open, mouthForm: blendForm(parameters.mouthForm, sample.form, config) };
 }

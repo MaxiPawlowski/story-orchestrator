@@ -1,9 +1,10 @@
 import type { HeadParameters } from "./drivers";
 import type { Rig } from "./types";
+import { DEFAULT_MOUTH_CONFIG, type MeshMouthConfig, type MouthConfig } from "../mouthConfig";
 
-export const MESH_MOUTH_CAP = { openGain: 0.18, openMax: 0.15, formGain: 0.2, formMax: 0.12, attackMs: 35, releaseMs: 50, settle: 0.002 } as const;
+export const MESH_MOUTH_CAP = DEFAULT_MOUTH_CONFIG.mesh;
 export const MOUTH_REGION_MIN_WIDTH = 2;
-export type MeshMouthMode = "full" | "capped" | "still";
+export type MeshMouthMode = "full" | "capped" | "hybrid" | "still";
 
 export function mouthRegionProblem(rig: Rig): string | null {
   const mouth = rig.mouth, area = mouth.area, head = rig.head;
@@ -18,17 +19,22 @@ export function mouthRegionProblem(rig: Rig): string | null {
   return null;
 }
 
-export const meshMouthMode = (rig: Rig, drawnMouth: boolean): MeshMouthMode =>
-  mouthRegionProblem(rig) ? "still" : drawnMouth ? "full" : "capped";
+export const usesDrawnMouth = (config: MouthConfig = DEFAULT_MOUTH_CONFIG): boolean => config.style !== "mesh";
 
-export const cappedOpen = (open: number): number => Math.min(MESH_MOUTH_CAP.openMax, Math.max(0, open) * MESH_MOUTH_CAP.openGain);
-export const cappedForm = (form: number): number => Math.max(-MESH_MOUTH_CAP.formMax, Math.min(MESH_MOUTH_CAP.formMax, form * MESH_MOUTH_CAP.formGain));
+export function meshMouthMode(rig: Rig, drawnMouth: boolean, config: MouthConfig = DEFAULT_MOUTH_CONFIG): MeshMouthMode {
+  if (mouthRegionProblem(rig)) return "still";
+  if (!drawnMouth || !usesDrawnMouth(config)) return "capped";
+  return config.style === "drawn" ? "still" : config.style === "hybrid" ? "hybrid" : "full";
+}
 
-const approach = (current: number, goal: number, dtMs: number): number => {
+export const cappedOpen = (open: number, cap: MeshMouthConfig = MESH_MOUTH_CAP): number => Math.min(cap.openMax, Math.max(0, open) * cap.openGain);
+export const cappedForm = (form: number, cap: MeshMouthConfig = MESH_MOUTH_CAP): number => Math.max(-cap.formMax, Math.min(cap.formMax, form * cap.formGain));
+
+const approach = (current: number, goal: number, dtMs: number, cap: MeshMouthConfig): number => {
   if (!(dtMs > 0) || !Number.isFinite(dtMs)) return goal;
-  const tau = Math.abs(goal) > Math.abs(current) ? MESH_MOUTH_CAP.attackMs : MESH_MOUTH_CAP.releaseMs;
-  const next = current + (goal - current) * (1 - Math.exp(-dtMs / tau));
-  return Math.abs(goal - next) < MESH_MOUTH_CAP.settle ? goal : next;
+  const tau = Math.abs(goal) > Math.abs(current) ? cap.attackMs : cap.releaseMs;
+  const next = tau > 0 ? current + (goal - current) * (1 - Math.exp(-dtMs / tau)) : goal;
+  return Math.abs(goal - next) < cap.settle ? goal : next;
 };
 
 export class MeshMouth {
@@ -36,14 +42,15 @@ export class MeshMouth {
   private open = 0;
   private form = 0;
 
-  constructor(public mode: MeshMouthMode) {}
+  constructor(public mode: MeshMouthMode, private readonly config: MouthConfig = DEFAULT_MOUTH_CONFIG) {}
 
   apply(p: HeadParameters, dtMs: number): HeadParameters {
     if (this.mode === "full") return p;
     const out = Object.assign(this.out, p);
     if (this.mode === "still") { out.mouthOpen = 0; out.mouthForm = 0; this.open = 0; this.form = 0; return out; }
-    this.open = approach(this.open, cappedOpen(p.mouthOpen), dtMs);
-    this.form = approach(this.form, cappedForm(p.mouthForm), dtMs);
+    const cap = this.mode === "hybrid" ? this.config.hybrid : this.config.mesh;
+    this.open = approach(this.open, cappedOpen(p.mouthOpen, cap), dtMs, cap);
+    this.form = approach(this.form, cappedForm(p.mouthForm, cap), dtMs, cap);
     out.mouthOpen = this.open; out.mouthForm = this.form;
     return out;
   }

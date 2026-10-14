@@ -17,7 +17,8 @@ import "../styles.css";
 
 const owner = (): RunGuard => ({ stillOwns: () => true, lapsed: () => null, lapsedDetail: () => null, signal: new AbortController().signal, release: () => undefined });
 const POSES: Record<string, Partial<HeadParameters>> = {
-  "Eyes closed": { eyeOpen: 0 }, Talking: { mouthOpen: 0.45 }, "Open mouth": { mouthOpen: 0.8 }, "Gaze right": { gazeX: 1 }, "Gaze left": { gazeX: -1 }, Rest: {},
+  "Eyes closed": { eyeOpen: 0 }, Talking: { mouthOpen: 0.45 }, "Open mouth": { mouthOpen: 0.8 }, "Rounded oh": { mouthOpen: 0.75, mouthForm: 0.6 },
+  "Wide ee": { mouthOpen: 0.5, mouthForm: -0.85 }, "Gaze right": { gazeX: 1 }, "Gaze left": { gazeX: -1 }, Rest: {},
 };
 
 async function syntheticArt(): Promise<{ art: PixelImage; frames: ReturnType<typeof syntheticFrames> }> {
@@ -78,7 +79,7 @@ function MeshOnlyLive() {
   </div>;
 }
 
-function LiveWithFrames() {
+function LiveWithFrames({ shapes = false }: { shapes?: boolean }) {
   const [activity] = useState(() => new StreamActivity());
   const [drawn, setDrawn] = useState<DrawnSource | null>(null), [viseme, setViseme] = useState("none");
   useEffect(() => {
@@ -89,10 +90,11 @@ function LiveWithFrames() {
     let live = true;
     void syntheticArt().then(({ frames }) => {
       const url = (image: PixelImage) => `data:image/png;base64,${encodeImage(image)}`;
-      if (live) setDrawn({ frames: { blink: url(frames.blink), talk: url(frames.talk), talk2: url(frames.talk2) } });
+      if (live) setDrawn({ frames: { blink: url(frames.blink), talk: url(frames.talk), talk2: url(frames.talk2),
+        ...(shapes ? { mouth_o: url(frames.mouth_o), mouth_wide: url(frames.mouth_wide) } : {}) } });
     });
     return () => { live = false; };
-  }, []);
+  }, [shapes]);
   return <div style={{ pointerEvents: "auto" }}>
     <button type="button" className="menu_button" onClick={() => { void activity.visemes().then(() => activity.pulse("Shape", "Hello, how are you today?")); }}>Stream reply</button>
     <output data-so="viseme" aria-label="Viseme mouth">{viseme}</output>
@@ -113,11 +115,11 @@ export const MeshVersusDrawn: Story = {
   render: () => <BeforeAfter />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await waitFor(() => expect(canvas.getByText("Drawn sprites: eyes_closed_0, eyes_closed_1, mouth_talk, mouth_talk2")).toBeVisible(), { timeout: 15000 });
+    await waitFor(() => expect(canvas.getByText("Drawn sprites: eyes_closed_0, eyes_closed_1, mouth_talk, mouth_talk2, mouth_o, mouth_wide")).toBeVisible(), { timeout: 15000 });
     await expect(canvas.getByText("Drawn sprites: none")).toBeVisible();
     await expect(canvas.getByText("Mouth: capped")).toBeVisible();
     await expect(canvas.getByText("Mouth: full")).toBeVisible();
-    for (const pose of ["Talking", "Gaze right", "Eyes closed"]) {
+    for (const pose of ["Talking", "Rounded oh", "Wide ee", "Gaze right", "Eyes closed"]) {
       await userEvent.selectOptions(canvas.getByRole("combobox", { name: "Pose" }), pose);
       await expect(canvas.getByRole("img", { name: `Drawn frames (after): ${pose}` })).toBeInTheDocument();
     }
@@ -149,5 +151,18 @@ export const MeshOnlyMouthCapped: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Stream reply" }));
     await expect(head()).toHaveStyle({ visibility: "visible" });
     await expect(head()?.dataset.liveHeadMouth).toBe("capped");
+  },
+};
+
+export const LiveHeadWithMouthShapes: Story = {
+  render: () => <LiveWithFrames shapes />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const head = () => canvasElement.querySelector<HTMLCanvasElement>("canvas.so-live-head");
+    await waitFor(() => expect(head()?.dataset.liveHeadDrawn).toBe("eyes_closed_0 eyes_closed_1 mouth_talk mouth_talk2 mouth_o mouth_wide"), { timeout: 15000 });
+    await waitFor(() => expect(head()?.dataset.liveHeadMouth).toBe("full"), { timeout: 15000 });
+    await userEvent.click(canvas.getByRole("button", { name: "Stream reply" }));
+    await waitFor(() => expect(canvas.getByLabelText("Viseme mouth")).not.toHaveTextContent("none"), { timeout: 5000 });
+    await expect(head()).toHaveStyle({ visibility: "visible" });
   },
 };

@@ -9,6 +9,7 @@ import { mouthRegion, validateRegion, type FrameRegion } from "./frameRegion";
 import { RawEditCache } from "./rawCache";
 import { validateBuildRequest } from "./buildRequest";
 import { alignEdit, MASK_IMPORT_KINDS, type MaskImportReport } from "./maskImport";
+import { isFrameKey, isMouthFrameKey } from "../frameKeys";
 
 export interface BuildTimings { prepareMs: number; leaseMs: number; uploadMs: number; renderMs: number; decodeMs: number; compositeMs: number;
   referenceReleaseMs: number; leaseReleaseMs: number; totalMs: number; cacheHit: boolean; fingerprintMs?: number }
@@ -122,7 +123,7 @@ export class SpriteBuilder {
       const base = await this.deps.decode(request.reference);
       const box = request.kind === "look" || request.kind === "base" || request.kind === "pose" ? { x: 0, y: 0, width: base.width, height: base.height } : request.box;
       validateBox(base, box);
-      const region = ["talk", "talk2", "rest"].includes(request.kind) ? request.frameRegion ?? mouthRegion(box) : undefined;
+      const region = isMouthFrameKey(request.kind) || request.kind === "rest" ? request.frameRegion ?? mouthRegion(box) : undefined;
       if (region) validateRegion(box, region);
       if (request.kind !== "base" && (!base.data.some((value, at) => at % 4 === 3 && value < 255) || !base.data.some((value, at) => at % 4 === 3 && value > 0))) {
         throw new Error("Choose a transparent reference sprite with a visible subject before generating expressions.");
@@ -166,7 +167,7 @@ reference: reference as string, instruction: editInstruction(request.kind, reque
       const reasons = full ? referenceProblems(output) : [];
       const qa = full ? { ok: !reasons.length, reasons, changed: 0,
         alphaPixels: output.data.filter((value, at) => at % 4 === 3 && value <= 8).length, ringDrift: 0 }
-        : checkPixels(base, output, box, ["blink", "talk", "talk2"].includes(request.kind));
+        : checkPixels(base, output, box, isFrameKey(request.kind));
       if (region) qa.reasons.push(...checkMouthCoverage(base, output, box, region, request.kind !== "rest"));
       qa.maskImport = maskImport;
       qa.ok = qa.ok && !qa.reasons.length;

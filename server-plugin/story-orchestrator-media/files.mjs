@@ -8,7 +8,7 @@ const hashes = new Map();
 const locks = new Map();
 const id = (value) => typeof value === 'string' && /^[a-z0-9_]{1,80}$/.test(value);
 const setId = (value) => id(value) || typeof value === 'string' && /^anim-[a-z0-9_]{1,80}$/.test(value);
-const labelId = (value) => id(value) || typeof value === 'string' && /^[a-z0-9_]{1,80}\.(blink|talk|talk2)$/.test(value);
+const labelId = (value) => id(value) || typeof value === 'string' && /^[a-z0-9_]{1,80}\.(blink|talk|talk2|mouth_o|mouth_wide)$/.test(value);
 const plainName = (value) => typeof value === 'string' && value.length <= 160 && !/[\\/:\x00-\x1f]/.test(value) && value !== '.' && value !== '..' && value.trim() === value && value.length > 0;
 
 export async function fingerprint(roots, name) {

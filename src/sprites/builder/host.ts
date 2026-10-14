@@ -5,6 +5,7 @@ import { SpriteBuilder } from "./builder";
 import { decodeImage, encodeImage, cropReference, resizeEdit } from "./images";
 import { BASE_RECIPE, EDIT_RECIPE, REST_RECIPE, POSE_RECIPE, POSE_FALLBACK_RECIPE, DECAL_RECIPE } from "./recipes";
 import { log } from "@utils/log";
+import { isFrameKey } from "../frameKeys";
 import { activeSpriteBatch } from "./batchSlot";
 import { getGlobalSettings } from "@runtime/settingsStore";
 import { verifyVisualSource, sourceStillCurrent } from "../visualHost";
@@ -53,7 +54,7 @@ export function createSpriteBuilder(ownership: RunOwnership): SpriteBuilder {
     },
     save: async (candidate, expectedHash) => {
       const { character, set, label, kind } = candidate.request;
-      const frame = ["blink", "talk", "talk2"].includes(kind);
+      const frame = isFrameKey(kind);
       const result = await saveGeneratedSprite({ character, set: frame ? `anim-${set}` : set, label: frame ? `${label}.${kind}` : label,
         data: candidate.data, key: candidate.key,
         recipe: kind === "pose" ? (candidate.request.poseRoute === "p3" ? POSE_FALLBACK_RECIPE : POSE_RECIPE)

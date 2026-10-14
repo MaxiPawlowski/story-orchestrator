@@ -26,7 +26,8 @@ import type { HeadParameters } from "./drivers";
 import { deformInto, deformWeighted, eyeVertexY, headGrid, vertexWeights, type HeadMesh } from "./geometry";
 import { VS, FS } from "./shaders";
 import { DrawnDirector, mouthInner, squashVertex, type DrawnSprite, type DrawnState } from "./drawn";
-import { MeshMouth, meshMouthMode, type MeshMouthMode } from "./meshMouth";
+import { MeshMouth, meshMouthMode, mouthRegionProblem, type MeshMouthMode } from "./meshMouth";
+import { DEFAULT_MOUTH_CONFIG, type MouthConfig } from "../mouthConfig";
 
 interface LayerResources {
   layer: HeadLayer; mesh: HeadMesh; vao: WebGLVertexArrayObject; position: WebGLBuffer; texture: WebGLTexture; buffers: WebGLBuffer[];
@@ -57,8 +58,9 @@ export class HeadRenderer {
   private director: DrawnDirector | null = null;
   private lastTime = Number.NaN;
   private readonly meshMouth: MeshMouth;
+  private readonly mouthBroken: boolean;
 
-  constructor(private readonly canvas: HTMLCanvasElement, private readonly manifest: HeadManifest) {
+  constructor(private readonly canvas: HTMLCanvasElement, private readonly manifest: HeadManifest, private readonly mouth: MouthConfig = DEFAULT_MOUTH_CONFIG) {
     const gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: true, antialias: true });
     if (!gl) throw new Error("WebGL2 is unavailable.");
     this.gl = gl;
@@ -67,7 +69,8 @@ export class HeadRenderer {
     this.eyeTop = new Float32Array(eyes.flatMap((eye) => eye.top));
     this.eyeBot = new Float32Array(eyes.flatMap((eye) => eye.bot));
     this.cheeks = new Float32Array(manifest.rig.cheeks.flat());
-    this.meshMouth = new MeshMouth(meshMouthMode(manifest.rig, false));
+    this.mouthBroken = mouthRegionProblem(manifest.rig) !== null;
+    this.meshMouth = new MeshMouth(meshMouthMode(manifest.rig, false, mouth), mouth);
     const program = gl.createProgram();
     if (!program) { gl.getExtension("WEBGL_lose_context")?.loseContext(); throw new Error("Could not allocate a WebGL program."); }
     this.program = program;
@@ -138,8 +141,8 @@ export class HeadRenderer {
       this.sampling();
       if (gl.getError() !== gl.NO_ERROR) throw new Error("Drawn sprite upload failed.");
     }
-    this.director = this.drawn.length ? new DrawnDirector(new Set(this.drawn.map((entry) => entry.sprite.name))) : null;
-    this.meshMouth.mode = meshMouthMode(rig, this.drawn.some((entry) => entry.inner !== null));
+    this.director = this.drawn.length ? new DrawnDirector(new Set(this.drawn.map((entry) => entry.sprite.name)), this.mouth) : null;
+    this.meshMouth.mode = meshMouthMode(rig, this.director?.hasMouth() ?? false, this.mouth);
   }
 
   drawnNames(): string[] { return this.drawn.map((entry) => entry.sprite.name); }
@@ -154,7 +157,7 @@ export class HeadRenderer {
   draw(input: HeadParameters, now = Number.NaN): void {
     const gl = this.gl, canvas = this.canvas, rig = this.manifest.rig;
     const dt = Number.isFinite(now - this.lastTime) ? now - this.lastTime : 0, p = this.meshMouth.apply(input, dt);
-    const drawn = this.director?.update(p, dt) ?? null;
+    const drawn = this.director?.update(this.mouthBroken ? p : input, dt) ?? null;
     this.lastTime = now;
     if (this.closed || gl.isContextLost()) throw new Error("Live head context was lost.");
     if (canvas.parentElement?.parentElement?.classList.contains("so-framed")) canvas.style.width = `${canvas.clientHeight * rig.image.width / rig.image.height}px`;
@@ -173,7 +176,7 @@ export class HeadRenderer {
     state[4] = p.eyeOpen; state[5] = p.eyeSmile; state[6] = p.gazeX * 5.95; state[7] = -p.gazeY * 4.2;
     gl.uniform4fv(this.uniform("uEyeState"), state);
     gl.uniform4f(this.uniform("uMouth"), rig.mouth.cx, rig.mouth.cy, rig.mouth.angle, rig.mouth.halfLen);
-    gl.uniform4f(this.uniform("uMouthState"), drawn ? drawn.shaderMouth : p.mouthOpen, p.mouthForm, rig.mouth.bow, Math.max(8, rig.face.jaw.cy + rig.face.jaw.ry - rig.mouth.cy));
+    gl.uniform4f(this.uniform("uMouthState"), this.director?.hasMouth() ? 0 : p.mouthOpen, p.mouthForm, rig.mouth.bow, Math.max(8, rig.face.jaw.cy + rig.face.jaw.ry - rig.mouth.cy));
     gl.uniform4fv(this.uniform("uCheeks"), this.cheeks); gl.uniform1f(this.uniform("uCheek"), p.blush);
     gl.activeTexture(gl.TEXTURE0);
     const seen = this.uploaded;
@@ -210,7 +213,7 @@ export class HeadRenderer {
     const gl = this.gl, rig = this.manifest.rig;
     gl.uniform1i(this.uniform("uFace"), 0);
     for (const entry of this.drawn) {
-      const alpha = entry.eye >= 0 ? drawn.eyes[entry.eye] : entry.sprite.name === drawn.mouth ? drawn.mouthAlpha : 0;
+      const name = entry.sprite.name, alpha = entry.eye >= 0 ? drawn.eyes[entry.eye] : name === drawn.mouth ? drawn.mouthAlpha : name === drawn.mouthFrom ? drawn.mouthFromAlpha : 0;
       const reshaped = entry.inner !== null && alpha > 0 && (entry.squash !== drawn.squash || entry.width !== drawn.width);
       if (deformed || reshaped) entry.dirty = true;
       if (alpha <= 0.001) continue;

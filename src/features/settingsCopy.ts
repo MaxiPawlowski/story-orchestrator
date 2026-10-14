@@ -341,7 +341,7 @@ export const SETTING_COPY = {
   "sprites.liveHead": copy("Live close-shot head",
     "Animates a close shot when this member's look has a rig. Falls back to the static sprite. Reduced motion and the story's motion setting stop movement."),
   "sprites.liveHeadFrames": copy("Drawn eyes and mouth on the live head",
-    "Uses this look's blink and talk frames for closed eyes and open mouths on a live close shot. Without frames the head keeps its own eyes and mouth."),
+    "Uses this look's blink and mouth frames for closed eyes and mouth shapes on a live close shot. Without mouth frames the head moves its own lips only a little."),
   "sprites.blink": copy("Blink", "Uses eyes-closed frames when the sprite pack has them. Reduced motion switches this off."),
   "sprites.cardOverlay": copy("Current character state in replies",
     "Adds this story’s applied public changes to the next reply prompt. Character cards and personas stay unchanged."),
@@ -350,7 +350,7 @@ export const SETTING_COPY = {
     "Uses the Studio builder’s saved reference setup to edit the current expression when a public look changes. Needs the media plugin and ComfyUI. The current sprite stays visible while rendering."),
   "sprites.mouth": copy("Mouth movement",
     "Moves the speaking character’s mouth with the words while replies stream (English text read as mouth shapes, no audio). "
-      + "Simple, the default, opens the closed/open frames on vowels. Smooth also uses half-open frames for narrow sounds when the pack has them. "
+      + "Simple, the default, opens the closed/open frames on vowels. Smooth also uses the pack's half-open, rounded (oh) and wide (ee) frames, nearest frame when one is missing. "
       + "Off keeps the mouth still. Reduced motion switches this off."),
   "sprites.renderPreset": copy("Render preset",
     "The size and steps the Studio sprite builder starts with. Standard renders at 1024 px with 25 steps; Fast preview at 512 px with 20 steps, quicker but softer."),

@@ -76,6 +76,7 @@ describe("sprite profile", () => {
     expect(spriteIndex([{ label: "joy", path: "/x/joy-1.png" }, { label: "joy", path: "/x/joy.webp" }]).get("joy")).toBe("/x/joy.webp");
     expect(spriteIndex([{ label: "joy", path: "/x/joy-1.png" }, { label: "joy", path: "/x/joy-talk.png" }]).get("joy")).toBe("/x/joy-1.png");
     expect(spriteIndex([{ label: "joy", path: "/x/joy.talk.png" }, { label: "joy", path: "/x/joy.talk2.png" }, { label: "joy", path: "/x/joy-blink.png" }]).has("joy")).toBe(false);
+    expect(spriteIndex([{ label: "joy", path: "/x/joy.mouth_o.png" }, { label: "joy", path: "/x/joy.mouth_wide.png" }]).has("joy")).toBe(false);
     expect(spriteIndex([{ label: "joy", path: "/x/Joy%20.png" }, { label: "joy", path: "/x/%E0%A4%A.png" }]).get("joy")).toBe("/x/Joy%20.png");
   });
 });

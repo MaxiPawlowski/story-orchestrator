@@ -1,12 +1,13 @@
 import { log } from "@utils/log";
-import { blinkGap, type AnimationFrames } from "./animation";
+import { blinkGap } from "./animation";
+import { FRAME_KEYS, type AnimationFrames, type MouthFrameKey } from "./frameKeys";
 import { MouthStepper, type MouthSample } from "./mouthShape";
+import { DEFAULT_MOUTH_CONFIG, type MouthConfig } from "./mouthConfig";
 
 const MB = 1024 * 1024;
 export const FRAME_BYTES_PER_ACTOR = 24 * MB;
 const MIN_FRAME_BUDGET = 64 * MB;
 const MAX_FRAME_BUDGET = 256 * MB;
-const FRAME_KEYS = ["talk", "talk2", "blink"] as const;
 const BLINK_MS = 140;
 const MOUTH_MS = 110;
 const VISEME_TICK_MS = 30;
@@ -97,10 +98,11 @@ export function startMouth(target: Faded & { src: string }, sequence: Array<stri
   return () => { clearInterval(timer); target.style.opacity = "0"; };
 }
 
-export function startVisemeMouth(target: Faded & { src: string }, frames: Pick<AnimationFrames, "talk" | "talk2">,
-  sample: (now: number) => MouthSample | null | undefined, fallback: Array<string | null>, clock: () => number = () => performance.now()): () => void {
+export function startVisemeMouth(target: Faded & { src: string }, frames: Pick<AnimationFrames, MouthFrameKey>,
+  sample: (now: number) => MouthSample | null | undefined, fallback: Array<string | null>, clock: () => number = () => performance.now(),
+  config: MouthConfig = DEFAULT_MOUTH_CONFIG): () => void {
   if (!frames.talk) return () => { target.style.opacity = "0"; };
-  const stepper = new MouthStepper();
+  const stepper = new MouthStepper(config);
   const began = clock();
   let shown: string | null = null;
   const show = (path: string | null) => {

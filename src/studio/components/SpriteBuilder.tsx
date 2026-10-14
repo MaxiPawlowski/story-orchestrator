@@ -18,6 +18,7 @@ import SpriteEditRegion from "./SpriteEditRegion";
 import SpritePreview from "./SpritePreview";
 import type { FrameRegion } from "../../sprites/builder/frameRegion";
 import PresentationRoutes from "./PresentationRoutes";
+import { isMouthFrameKey } from "../../sprites/frameKeys";
 
 const PosesList = lazy(() => import("./PosesList"));
 const PreparePresentation = lazy(() => import("./PreparePresentation"));
@@ -156,7 +157,7 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
       const reader = new FileReader(); reader.onload = () => { if (live.current && typeof reader.result === "string") setReference(reader.result); }; reader.readAsDataURL(file);
     }} /></label>
     <SpriteEditRegion reference={reference} size={size} box={box} changeBox={setBox} region={regions[reference]} busy={busy}
-      mouth={["talk", "talk2", "rest"].includes(kind)} changeRegion={(region) => setRegions((all) => ({ ...all, [reference]: region }))} />
+      mouth={isMouthFrameKey(kind) || kind === "rest"} changeRegion={(region) => setRegions((all) => ({ ...all, [reference]: region }))} />
     <Suspense fallback={<p role="status">Loading presentation review…</p>}><PreparePresentation key={character} character={character}
       card={members.find((member) => member.folder === character)?.image} reference={reference} box={box} busy={busy} setBusy={setBusy} /></Suspense>
     {character && <Suspense fallback={<p role="status">Loading changed looks…</p>}><ChangedLookRebuild key={`looks:${character}`} character={character}
@@ -177,7 +178,8 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
     <label>Edit<select aria-label="Edit" className="text_pole" disabled={busy} value={kind} onChange={(event) => setKind(event.target.value as EditKind)}>
       <option value="expression">Expression</option><option value="rest">Closed-mouth neutral rest</option>
       <option value="blink">Blink frame</option><option value="talk">Mouth open frame</option>
-      <option value="talk2">Mouth half-open frame</option><option value="look">Changed look</option></select></label>
+      <option value="talk2">Mouth half-open frame</option><option value="mouth_o">Mouth rounded frame (oh)</option>
+      <option value="mouth_wide">Mouth wide frame (ee)</option><option value="look">Changed look</option></select></label>
     <label>Expression label<input className="text_pole" disabled={busy} list="so-sprite-labels" value={label} onChange={(event) => setLabel(event.target.value)} /></label>
     <datalist id="so-sprite-labels">{EXPRESSIONS.map((name) => <option key={name} value={name} />)}</datalist>
     {kind === "look" && <label>Visible change<input className="text_pole" value={value} disabled={busy} onChange={(event) => setValue(event.target.value)} placeholder="hair dyed red" /></label>}

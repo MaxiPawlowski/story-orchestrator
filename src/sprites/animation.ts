@@ -1,18 +1,21 @@
-export interface AnimationFrames { blink?: string; talk?: string; talk2?: string }
 import { fnv1a } from "@runtime/hash";
 import { spriteFileName } from "./profile";
 import { log } from "@utils/log";
 import type { MouthSample } from "./mouthShape";
+import { FRAME_KIND_PATTERN, type AnimationFrames, type FrameKey } from "./frameKeys";
+import { DEFAULT_MOUTH_CONFIG, type MouthConfig } from "./mouthConfig";
+export { FRAME_KEYS, MOUTH_FRAME_KEYS, type AnimationFrames, type FrameKey, type MouthFrameKey } from "./frameKeys";
 export type MouthMode = "off" | "simple" | "smooth";
+const FRAME_FILE = new RegExp(`^([a-z0-9_]+)\\.(${FRAME_KIND_PATTERN})\\.png$`, "i");
 
 export function frameIndex(files: Array<{ path: string }>): Map<string, AnimationFrames> {
   const result = new Map<string, AnimationFrames>();
   for (const { path } of files) {
     const filename = spriteFileName(path);
-    const match = /^([a-z0-9_]+)\.(blink|talk2|talk)\.png$/i.exec(filename);
+    const match = FRAME_FILE.exec(filename);
     if (!match) continue;
     const entry = result.get(match[1]) ?? {};
-    entry[match[2] as keyof AnimationFrames] = path;
+    entry[match[2].toLowerCase() as FrameKey] = path;
     result.set(match[1], entry);
   }
   return result;
@@ -28,7 +31,7 @@ export function blinkGap(seed: string, cycle: number): number {
 }
 
 export interface TextMouthEngine { push(text: string, now: number): void; sample(now: number): MouthSample | null }
-export type TextMouthFactory = (spoken: string) => TextMouthEngine;
+export type TextMouthFactory = (spoken: string, config?: MouthConfig) => TextMouthEngine;
 
 export const loadTextMouth = (): Promise<TextMouthFactory> => import("./lipsync/textMouth").then((module) => module.createTextMouth);
 
@@ -40,7 +43,7 @@ export class StreamActivity {
   private loading: Promise<void> | null = null;
   private engine: TextMouthEngine | null = null;
   private spoken = "";
-  constructor(private readonly clock: () => number = () => performance.now()) {}
+  constructor(private readonly clock: () => number = () => performance.now(), readonly mouthConfig: MouthConfig = DEFAULT_MOUTH_CONFIG) {}
   subscribe = (listener: () => void): (() => void) => { this.listeners.add(listener); return () => this.listeners.delete(listener); };
   view = (): string | null => this.speaker;
   visemes(load: () => Promise<TextMouthFactory> = loadTextMouth): Promise<void> {
@@ -51,7 +54,7 @@ export class StreamActivity {
     if (this.timer) clearTimeout(this.timer);
     if (this.speaker !== name) { this.speaker = name; this.engine = null; this.spoken = ""; this.listeners.forEach((listener) => listener()); }
     if (text !== undefined) {
-      if (this.factory) { this.engine ??= this.factory(this.spoken); this.engine.push(text, this.clock()); }
+      if (this.factory) { this.engine ??= this.factory(this.spoken, this.mouthConfig); this.engine.push(text, this.clock()); }
       this.spoken = text;
     }
     this.timer = setTimeout(() => this.stop(), 300);

@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { mouthSequence, type AnimationFrames, type MouthMode, type StreamActivity } from "./animation";
 import { decodeFrames, decodeImage, frameMemory, startBlink, startVisemeMouth } from "./faceFrames";
+import { DEFAULT_MOUTH_CONFIG, type MouthConfig } from "./mouthConfig";
 
-export function AnimatedFace({ frames, activity, name, seed, blink, mouth, paused, budget, style }: {
+export function AnimatedFace({ frames, activity, name, seed, blink, mouth, paused, budget, style, mouthConfig = DEFAULT_MOUTH_CONFIG }: {
   frames: AnimationFrames; activity: StreamActivity; name: string; seed: string; blink: boolean; mouth: MouthMode; paused: boolean; budget: number; style?: React.CSSProperties;
+  mouthConfig?: MouthConfig;
 }) {
   const speaker = useSyncExternalStore(activity.subscribe, activity.view);
   const [ready, setReady] = useState<AnimationFrames>({});
@@ -31,8 +33,8 @@ export function AnimatedFace({ frames, activity, name, seed, blink, mouth, pause
     element.style.opacity = "0";
     if (paused || speaker !== name || mouth === "off") return;
     void activity.visemes();
-    return startVisemeMouth(element, mouth === "smooth" ? ready : { talk: ready.talk }, (now) => activity.mouth(name, now), mouthSequence(mouth, ready));
-  }, [activity, mouth, name, paused, ready, speaker]);
+    return startVisemeMouth(element, mouth === "smooth" ? ready : { talk: ready.talk }, (now) => activity.mouth(name, now), mouthSequence(mouth, ready), undefined, mouthConfig);
+  }, [activity, mouth, mouthConfig, name, paused, ready, speaker]);
 
   return <>
     {ready.blink && <img ref={blinkRef} src={ready.blink} alt="" aria-hidden="true" className="so-face-overlay" style={{ ...style, opacity: 0 }} />}

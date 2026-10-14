@@ -56,8 +56,10 @@ changes only the selected mouth region and keeps a complete transparent sprite. 
 set; review the still image before using it as an animation reference. The original/default PNG is never edited.
 
 Select the expression's own image as the reference. Generate **Blink frame**, **Mouth open frame**, and optionally
-**Mouth half-open frame**. Use the same output set and expression label. Frames go into `anim-<set>` so ST never
-mistakes them for ordinary expression sprites.
+**Mouth half-open frame**, **Mouth rounded frame (oh)** and **Mouth wide frame (ee)**. Use the same output set and
+expression label. Frames go into `anim-<set>` (`neutral.mouth_o.png`, `neutral.mouth_wide.png` beside
+`neutral.talk.png`) so ST never mistakes them for ordinary expression sprites. The rounded and wide frames use the same
+mouth region, mask import and checks as the other mouth frames.
 
 For a mouth frame, open **Mouth replacement region**. Green shows its patch inside the red head box. Keep the old
 and new lip outlines and smile corners inside the opaque middle; feather only the surrounding skin. Coordinates
@@ -83,8 +85,9 @@ widen the mouth region if the new mouth is larger than the old one.
 The eyes and mouth use separate transparent patches, so blinking can overlap speech. While a reply streams, the
 mouth follows the words: the English text is read as mouth shapes as it arrives, with no audio, and a shape is held
 briefly so it does not flicker. **Mouth movement** defaults to Simple: two frames, closed and open, opened on vowels.
-Smooth also shows the half-open frame for narrow sounds (ee, eh, oo) and falls back to Simple if it is missing; Off
-keeps the mouth still. Until the lip-sync rules load, the mouth flaps at a steady pace. No frames means a static face
+Smooth also uses the extra mouth frames the pack has: half-open for short and narrow sounds (eh), rounded for oh and oo,
+wide for ee. A missing shape uses the nearest frame there is (rounded falls back to open, wide to half-open), and with
+only the open frame Smooth behaves like Simple; Off keeps the mouth still. Until the lip-sync rules load, the mouth flaps at a steady pace. No frames means a static face
 that still breathes and cross-fades. Both the browser's and ST's reduced-motion setting disable facial animation.
 
 ## Public changes inside one story
@@ -122,14 +125,18 @@ streams. Other shots use the usual sprites. Missing or failed rigs keep the stat
 reduced motion and the story's motion switch stop movement.
 
 **Drawn eyes and mouth on the live head** is on by default. When the look's neutral expression has
-blink and talk frames (the same `neutral.blink.png`, `neutral.talk.png` and `neutral.talk2.png` the
-plain sprite uses), the live head crops them to the bust with the accepted head box and swaps the
-drawn closed eyes in during a blink and the drawn open mouth in while a reply streams. On the live head
-the mouth follows the same text mouth shapes as the plain sprite: a wide shape picks the open frame, a half or rounded
-shape the half frame (narrowed for "u"). They follow the
+blink and mouth frames (the same `neutral.blink.png`, `neutral.talk.png`, `neutral.talk2.png`,
+`neutral.mouth_o.png` and `neutral.mouth_wide.png` the plain sprite uses), the live head crops them to the
+bust with the accepted head box and swaps the drawn closed eyes in during a blink and a drawn mouth in
+while a reply streams. On the live head the mouth follows the same text mouth shapes and the same
+fallbacks as the plain sprite (oo is the rounded frame narrowed, eh the half frame widened). They follow the
 head's turns, tilt and breathing. A frame whose edge does not line up with the artwork, or whose size
 does not match the rig, is skipped; with no usable frames the head keeps its own eyes and mouth.
 Changing a frame file rebuilds the drawn layer on the next close shot.
+
+Without a usable drawn mouth the head has only its closed lips to move, so it opens them a little,
+smoothly, on vowels instead of stretching them. A rig whose mouth points have no width or fall
+outside the face keeps its mouth still; Author view says so when that rig is imported or previewed.
 
 In Author view, Images → Sprite stage lists rig present or missing per member and selected look.
 Open **Import a live head rig**, paste the rig package JSON and select **Import rig**. The package

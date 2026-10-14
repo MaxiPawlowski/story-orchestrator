@@ -64,6 +64,28 @@ const required = (flag: string): string => {
   return given;
 };
 
+export const FRAME_KINDS = ['blink', 'talk', 'talk2', 'mouth_o', 'mouth_wide'] as const;
+export function frameKinds(list: string): string[] {
+  const kinds = list.split(',').map((kind) => kind.trim()).filter(Boolean);
+  const unknown = kinds.filter((kind) => !(FRAME_KINDS as readonly string[]).includes(kind));
+  if (!kinds.length || unknown.length) throw new Error(`--kinds takes a comma list of ${FRAME_KINDS.join(', ')}${unknown.length ? `; unknown: ${unknown.join(', ')}` : ''}.`);
+  return [...new Set(kinds)];
+}
+
+async function frameSaved(page, folder: string, set: string, label: string) {
+  return page.evaluate(async (args) => {
+    const ctx = SillyTavern.getContext();
+    const response = await fetch('/api/plugins/story-orchestrator-media/sprites/read', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify(args) });
+    const data = await response.json();
+    return response.ok && data?.labels?.[args.label]?.status === 'complete';
+  }, { character: folder, set, label });
+}
+
+async function keepPreview(page) {
+  await page.locator('#so-sprite-builder').getByRole('button', { name: 'Keep this sprite' }).click({ force: true });
+  await page.waitForFunction(() => document.getElementById('so-sprite-builder')?.innerText.includes('Saved to '), undefined, { polling: 250, timeout: 30_000 });
+}
+
 const packSpec = async (page) => {
   const character = required('--character');
   const folder = value('--folder', character);
@@ -120,19 +142,26 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) runCli(async (page) => {
       }
     }
     for (const label of ['neutral', 'happy', 'angry', 'worried']) for (const kind of ['blink', 'talk', 'talk2']) {
-      const exists = await page.evaluate(async (args) => {
-        const ctx = SillyTavern.getContext();
-        const response = await fetch('/api/plugins/story-orchestrator-media/sprites/read', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify(args) });
-        const data = await response.json();
-        return response.ok && data?.labels?.[args.label]?.status === 'complete';
-      }, { character: folder, set: `anim-${set}`, label: `${label}.${kind}` });
-      if (exists) continue;
+      if (await frameSaved(page, folder, `anim-${set}`, `${label}.${kind}`)) continue;
       const result = await buildSpriteFromUI(page, { character, set, label, kind, reference: `${set}/${label}`, box, seed: 1, steps: 25 });
       await writeJSON(result, `sprite-pilot-${label}-${kind}`);
-      await page.locator('#so-sprite-builder').getByRole('button', { name: 'Keep this sprite' }).click({ force: true });
-      await page.waitForFunction(() => document.getElementById('so-sprite-builder')?.innerText.includes('Saved to '), undefined, { polling: 250, timeout: 30_000 });
+      await keepPreview(page);
     }
     await writeJSON({ complete: true, expressions: 4, frames: 12 }, 'sprite-pilot-pack');
+  } else if (command === 'frames') {
+    const { character, folder, set, box } = await packSpec(page);
+    const label = value('--label', 'neutral'), reference = value('--reference', label), kinds = frameKinds(value('--kinds', FRAME_KINDS.join(',')));
+    if (!await page.locator('#so-studio-modal[open]').count()) await openCheckpointStudio(page);
+    const built: string[] = [], skipped: string[] = [];
+    for (const kind of kinds) {
+      if (await frameSaved(page, folder, `anim-${set}`, `${label}.${kind}`)) { skipped.push(kind); continue; }
+      const began = Date.now();
+      const result = await buildSpriteFromUI(page, { character, set, label, kind, reference, box, seed: Number(value('--seed', '1')), steps: Number(value('--steps', '25')) });
+      await writeJSON({ ...result, wallMs: Date.now() - began }, `sprite-frames-${setSlug(character)}-${label}-${kind}`);
+      await keepPreview(page);
+      built.push(kind);
+    }
+    await writeJSON({ character, folder, set: `anim-${set}`, label, built, skipped }, `sprite-frames-${setSlug(character)}-${label}`);
   } else if (command === 'look-check') {
     await page.waitForFunction(() => globalThis.storyOrchestratorSprites.view().actors.some((actor) => actor.set.startsWith('look_')),
       undefined, { polling: 500, timeout: 900_000 });
@@ -150,5 +179,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) runCli(async (page) => {
     await writeJSON({ clicked: true }, 'sprite-builder-cancel');
   } else if (command === 'state') {
     await writeJSON({ evidence: await page.locator('#so-sprite-builder').innerText() }, 'sprite-builder-state');
-  } else throw new Error('Use setup, build, save, pilot-pack, cancel or state.');
+  } else throw new Error('Use setup, build, save, pilot-pack, frames, cancel or state.');
 });
