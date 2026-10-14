@@ -7,7 +7,7 @@ import { runSharedRead } from "@extraction/sharedRead";
 import type { ExtraGateSource, ModelCall, ParsedDelta, ParsedFact, SharedReadWindow } from "@extraction/index";
 import {
   activeEpistemic, addMemoryEntries, applyArcSignals, applyConsolidation, applyEpistemicSignals, applyLedgerSignals,
-  ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, capAllTiers, capEpistemic, capLedger,
+  ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, capAllTiers, capKnowledge, capLedger,
   highImportanceFacts, isLive, ledgerBindings, ledgerEntityList, storyEntities, disappearingEntries, recordDerived,
   reverseMemoryState, dropCommonKnowledge, capOpenArcs, capResolvedArcs, CONSOLIDATION_MIN_GROUP, consolidateTier,
   editEntryText, expireScoped, matchArcBridges, openArcTexts, withoutExcludedThreads, removeArc, removeEpistemic,
@@ -60,6 +60,7 @@ export interface MemoryCoordinatorDeps {
   beatFor?: (rosterId: string) => string;
   meanwhile?: (rosterId: string) => string[];
   journal?: (summary: string, note: string) => void;
+  authorNote?: (summary: string, note: string) => void;
   chapterHost?: { closeScene: (to: number) => Promise<void>; announce: (text: string) => Promise<void>; journal: (summary: string, detail?: string) => void; playerName: () => string };
 }
 
@@ -358,7 +359,8 @@ export class MemoryCoordinator {
     const applied = applyEpistemicSignals(this.state.epistemic, kept, { boundary: this.boundaryStamp(), messageId }, retireIds);
     const held = this.injector.heldSecretsKey();
     // Refresh here too, or a pass that lapses after this write injects the member an empty block.
-    this.patch({ epistemic: capEpistemic(inner ? inner.capIntents(applied.entries) : applied.entries) }); this.updateInjection();
+    const entries = inner ? inner.capIntents(applied.entries) : applied.entries;
+    this.patch({ epistemic: capKnowledge(this.state.epistemic, entries, this.deps.authorNote) }); this.updateInjection();
     if (this.state.wiBook && this.injector.heldSecretsKey() !== held) void this.syncWorldInfo(beginRun(this.deps.ownership));
   }
 

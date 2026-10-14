@@ -52,6 +52,24 @@ It records current progress, source-plan links and deferred acceptance protocols
 | X9 | Already-muted authored scene cast falsely blocks Before you start | owner report 2026-10-10; **fixed 2026-10-11**, active cast intent included in the requirement read; full gates green, synthetic lane 30 ×2; 38 |
 | X10 | Payload goldens on a no-model lane: parked jobs hold `schedulerIdle`, briefing/inner calls trip the tripwire, `group-relationships` expects 8 axes | F29 (31 §F29 payload cases on a no-model lane). **Done 2026-10-11** (`v2.8-payload-nomodel`, handoff B5): all six cases capture on lane 62, candidate x2 identical, identical to master (31 of 31); merged `f83d3fb6` |
 
+- X11: the epistemic cap could evict the `[hiding]`/`[unaware]` row that protects a secret (Astra review 2026-10-14).
+  - Fix (`v2.8-epistemic-cap`): `capEpistemic` reserves every unsuperseded secret row (`restrictsSecret`) before the
+    newest-first fill. Reserved rows count against the subject and total caps (not exempt like pinned), so the store
+    stays at 80 while secrets fit; past `EPISTEMIC_SECRET_CEILING` (80) all are kept and `capKnowledge` writes one
+    author journal note when the ceiling is crossed. The coordinator still refreshes the injection and re-syncs the
+    mirror on a held-secret change (defect-replay row `empty-private-block-epistemic` repointed at the new line). A superseded (model-retired) secret row is no longer protected and competes
+    normally.
+  - Same class, fixed: a chapter fold set `foldedInto` on a `[hiding]` row whose hider and target left, which ended the
+    protection for members who stayed. `heldSecrets` now derives from `protectsSecret` (secret tag, not superseded,
+    live), so a fold only removes the row from the private block.
+  - Other paths checked, cannot evict a restriction row: `capIntents` (only `intends`), `dropCommonKnowledge` (only
+    `knows`), `rollbackEpistemic` (rows from rolled-back messages, rollback = replay), `capLedger`/`capAllTiers`/
+    short-term compaction/`foldChapter` (memory and ledger stores, never epistemic), `sanitizeMemory` (drops only rows
+    without a provenance envelope). Open: an echo `[knows]` row (a knower restating the
+    secret) can still be capped; that shrinks the knower set (safe) but drops its paraphrase from the filter, so only
+    the secret's own wording and surviving echoes still match.
+  - Tests: `runtime/secretCap.review.test.ts` (planted: 5 fail on the old code), `rollbackReplay.property.test.ts` green.
+
 ## Features
 
 | # | Item | Source |
