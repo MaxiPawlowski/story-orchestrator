@@ -13,7 +13,9 @@ import { cutHeadLayers } from "./synthesis/layers";
 
 const ZOOM = 6, GRAY = 0.55;
 const bust = syntheticBust(2), rig = synthesizeRig(bust.landmarks), layers = cutHeadLayers(bust.image, rig);
-const ball = layers.find((layer) => layer.name === "eye0_ball")!;
+const found = layers.find((layer) => layer.name === "eye0_ball");
+if (!found) throw new Error("The synthetic bust has no eye ball layer.");
+const ball = found;
 const tone = scleraTone(ball.image.data);
 
 function paint(canvas: HTMLCanvasElement, image: PixelImage): void {
