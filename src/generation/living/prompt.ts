@@ -28,6 +28,7 @@ export interface DirectorInput {
   openThreads: string[];
   resolvedThreads: string[];
   plans: string[];
+  standing?: string[];
   refused: string | null;
   qualities: DirectorQualityLine[];
   tension: { suggested: TensionLevel; current: TensionLevel | null };
@@ -37,6 +38,7 @@ export interface DirectorInput {
 }
 
 const PATH_SHOWN = 8;
+export const DIRECTOR_STANDING_TITLE = "How groups regard the player (world pressure may follow from this)";
 const THREADS_SHOWN = 10;
 
 const qualityLine = (line: DirectorQualityLine): string => {
@@ -71,6 +73,7 @@ export function renderDirectorPrompt(input: DirectorInput): string {
     list("Threads the player has opened and is still pursuing (build on one of these first)", input.openThreads.slice(-THREADS_SHOWN)),
     list("Threads resolved recently", input.resolvedThreads.slice(-THREADS_SHOWN)),
     list("Private plans of the cast (they may shape what the world does; never name or reveal them in what you write)", input.plans),
+    ...(input.standing?.length ? [list(DIRECTOR_STANDING_TITLE, input.standing)] : []),
     ...(input.refused ? [`The player refused the prepared route at "${input.refused}". Do not bring it back; let the world answer the refusal instead.`] : []),
     list("Story values (reuse these before declaring new ones)", input.qualities.map(qualityLine)),
     `Tension: now ${input.tension.current ?? "unknown"}; the story's shape asks for about ${input.tension.suggested} next.`,

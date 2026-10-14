@@ -164,7 +164,8 @@ export interface WidgetRosterRow {
   id: string;
   label?: string;
   member?: string;
-  quality: string;
+  quality?: string;
+  faction?: string;
   when?: GateNode;
 }
 

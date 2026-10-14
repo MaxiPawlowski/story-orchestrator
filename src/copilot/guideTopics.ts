@@ -1,6 +1,7 @@
 import { nearestKey } from "@utils/levenshtein";
 import type { DIAGNOSTIC_CODES } from "../studio/diagnostics";
 import type { CopilotStage } from "./types";
+import { CHARACTER_TOPICS, FACTION_DIAGNOSTIC_TOPICS } from "./guideTopicsCharacters";
 
 export interface GuideTopic {
   title: string;
@@ -309,7 +310,7 @@ export const GUIDE_TOPICS = {
   },
   widgets: {
     title: "Stats and story panels",
-    fields: "qualities[].display, widgets[], bind, audience, rows[], dates, actions[], display.journal, display.stat_sheet, display.widgets, display.motion",
+    fields: "qualities[].display, widgets[], bind, audience, rows[], dates, actions[], display.journal, display.stat_sheet, display.widgets, display.motion, display.standing",
     text: "display {public, label, as: item|count|meter|boxes|word, group, min, max, bands, trend} puts a quality on the Stat sheet (never rel_* or gated lore keys). "
       + "widgets [{id, kind: meters|track|log|clock|board|clues|map|html|roster|timeline, title, bind, audience}]; player widgets show public qualities only. "
       + "roster rows [{id, member|label, quality: enum, when?}]; timeline: reached named checkpoints by chapter, dates {checkpointId: label}. "
@@ -330,15 +331,7 @@ export const GUIDE_TOPICS = {
       + "Runs in a sandboxed frame with no network and no access to SillyTavern; "
       + "window.storyWidget.onData(f) gets the source widget's player view, ready() starts it, propose(id) puts that action's text in the box. Off for the player = the source panel shows.",
   },
-  "character-life": {
-    title: "Character life",
-    fields: "roster[].relationships, roster[].mood, roster[].agenda, roster[].schedule, clock",
-    text: "relationships [{toward: id|player, axes, range, step, start, label}] compile to rel_<holder>_<toward>_<axis> ratings: start until read, read as up or down (never a level) while "
-      + "both are present, at most step a turn, seen only by the holder and Author view. mood {baseline, values, lasts}: re-read after a scene change, else "
-      + "baseline. agenda [{id, goal, steps [{text, when, effect: world_info|npc_replies, public, repeat}], pace per_n_boundaries|per_chapter (needs chapters), "
-      + "every}] moves in code, never on OOC. schedule [{when, at}]: away drops a member from speakers; addressed, the narrator says they are not here. "
-      + "clock {times, start_day}: time_of_day a step a turn, story_day counts wraps.",
-  },
+  ...CHARACTER_TOPICS,
   "living-director": {
     title: "Living stories",
     fields: "living.premise, living.tone, living.cast, living.horizon, living.chapter_size, living.ending, living.autonomy, living.authored_until, living.opening",
@@ -426,6 +419,7 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "opener-uses-player-name": "player",
   "player-spoiler-risk": "player",
   "agenda-pace-no-chapters": "character-life",
+  ...FACTION_DIAGNOSTIC_TOPICS,
   "stage-sprite-unknown": "presentation",
   "widget-item-never-read": "clues-and-maps", "map-pin-unreachable": "clues-and-maps", "map-image-missing": "clues-and-maps",
   "html-widget-declared": "html-panels",

@@ -56,6 +56,7 @@ import type { LivingRuntimeState } from "@generation/living/types";
 import type { LivingView } from "./livingSnapshot";
 import type { GameAuthorView, GameView } from "./gameTypes";
 import type { LifeAuthorView } from "./lifeSnapshot";
+import type { FactionAuthorView } from "./factionSnapshot";
 
 export interface PayloadCapture {
   at: string;
@@ -579,6 +580,7 @@ export interface RuntimeSnapshot {
   game?: GameView | null;
   gameAuthor?: GameAuthorView | null;
   lifeAuthor?: LifeAuthorView | null;
+  factionsAuthor?: FactionAuthorView | null;
   living?: LivingView | null;
 }
 

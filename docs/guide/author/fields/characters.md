@@ -9,6 +9,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 - [Inner voice](#inner-voice)
 - [Speaker direction](#talk-control)
 - [Character life](#character-life)
+- [Factions and standing](#factions)
 - [Living cards](#living-cards)
 - [Poses and character layers](#poses)
 
@@ -77,6 +78,19 @@ Fields: `roster[].relationships` (`toward`, `axes`, `range`, `step`, `start`, `l
 - **Good.** `{ "id": "arin", "relationships": [{ "toward": "player", "axes": ["trust"], "range": [-3, 3] }], "mood": { "baseline": "calm" }, "agenda": [{ "id": "debt", "goal": "Repay the smuggler before the festival", "pace": "per_n_boundaries", "every": 4, "steps": [{ "text": "sold her mother's ring" }, { "text": "met the smuggler at the docks", "when": { "q": "location", "op": "!=", "v": "docks" } }] }], "schedule": [{ "when": { "q": "time_of_day", "op": "==", "v": "night" }, "at": "the docks" }] }`.
 - **Bad.** `display` on a `rel_*` quality (refused: feelings are never public); an agenda step with `cast_changes` (refused: use a checkpoint); `pace: "per_chapter"` in a story without `chapters` (refused, `agenda-pace-no-chapters`: it would move once and never again; use `per_n_boundaries` with `every`, or add chapters); a relationship toward the member itself or toward an id not in the roster (refused); an authored quality named like a compiled one (refused).
 - **If wrong.** Too many axes in one scene: the rest are left out of that read and Author view's setup list names them (`relationship-scope-overflow`); in a crowded scene a pair can wait longer than 4 reads.
+
+<a id="factions"></a>
+
+## Factions and standing
+
+Topic `factions`.
+
+Fields: `factions[]` (`id`, `name`, `range`, `start`, `bands`, `visible_when`, `introduce`, `moves[]` with `id`, `when`, `add`, `heard_by`) and `roster[].factions` (`engine/factionSchema.ts`, `validate/factions.ts`, `engine/factions/standing.ts`).
+
+- **What it does.** A faction is a group such as a guild, a village or the crown. Its standing with the player is an ordinary int quality `rep_<id>` (`range` default -5 to 5, `start` default 0), on the blackboard from the first turn. It moves only on story events: a `move` fires once ever, the first turn its `when` holds (after quest rewards, and again after a transition), adding `add` (clamped to the range), and its record `rep_<id>_move_<move>` keeps the turn it fired; a quest `reward.set {"rep_<id>": {"add": n}}` moves it too. It never moves on time or on what the player did not do, and a checkpoint `state_snapshot` never writes it (a `rep_*` key there is the warning `faction-snapshot-key`). A member listed in `roster[].factions` (at most 3) hears a move when it is present that turn (`heard_by: "present"`, the default: not away by its schedule) or always (`heard_by: "faction"`), and keeps its own `rep_<id>_seen_<member>`. A drafted member gets one private line per faction: "Your group, The Guild, regards the player as: Wary (as far as you have heard). Let it colour how you open toward them; your own feelings come first." The player sees the band word of a faction whose `visible_when` holds (default: always) in a Standing group on the Stat sheet and in `roster` rows with `faction`, never a number, a range or an arrow. The living director gets the band of each visible faction; a hidden one reaches it only with `introduce: true`, and then by name alone. A swipe takes standing, what members heard and the move records back. Author view lists each faction under Factions: its number, band, members and the moves that fired.
+- **Good.** `{ "factions": [{ "id": "guild", "name": "The Guild", "bands": [{ "max": -3, "label": "Hostile" }, { "max": -1, "label": "Wary" }, { "max": 2, "label": "Neutral" }, { "label": "Trusted" }], "visible_when": { "q": "met_guild", "op": "==", "v": true }, "moves": [{ "id": "saved-apprentice", "when": { "q": "apprentice_saved", "op": "==", "v": true }, "add": 2, "heard_by": "faction" }, { "id": "stole-ledger", "when": { "q": "ledger_stolen", "op": "==", "v": true }, "add": -2 }] }], "roster": [{ "id": "mara", "factions": ["guild"] }] }`. Three to five bands; finer bands give the number away.
+- **Bad.** A move that lowers standing on inaction (refused, `faction-move-on-inaction`): a `not` at the top of its gate, a gate that reads only time (`message_count`, `story_day`, …), or a leaf that holds before anything happens (`== false`, `!= true`, or the quality's start value); a move whose gate holds at the start (refused); `display` on a `rep_*` quality or an authored `rep_*` quality (refused); a reward that writes `rep_<id>_seen_*` or a move record (refused); an id with an underscore (refused).
+- **If wrong.** A faction with no move and no reward never changes (`faction-never-moves`); with `display.standing: false` and no roster row the player never sees it (`faction-no-visible-band`). A move gate the reader is never asked about stays false: move gates are read a few at a time, in rotation, and Author view names the ones left out of a read.
 
 <a id="living-cards"></a>
 

@@ -114,7 +114,10 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const milestones = layer?.readMilestones(json.milestones, errors);
   const builtin = addBuiltinTensionQuality(addProgressQualities(baseQualities, checkpoints, errors), errors);
   const life = layer?.life.readLife(json, errors);
-  const qualities = layer ? layer.life.addLifeQualities(layer.addRewardQualities(builtin, quests, errors), life, errors) : builtin;
+  const factions = layer?.factions.readFactions(json.factions, errors);
+  const qualities = layer
+    ? layer.factions.addFactionQualities(layer.life.addLifeQualities(layer.addRewardQualities(builtin, quests, errors), life, errors), factions, (json.roster as unknown[]).filter(isRecord), errors)
+    : builtin;
   const options = readStoryOptions(json, errors);
   const features = readFeaturePolicies(json.features, (path, message) => addError(errors, path, message));
   const roster = readRoster(json.roster as StoryV2["roster"], errors);
@@ -145,7 +148,8 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const game = quests ? layer?.expandRequires(quests, errors) : undefined;
   layer?.checkQuests(game, milestones, qualityByKey, new Set(roster.map((member) => member.id)), errors);
   layer?.life.checkLife(life, roster, qualityByKey, errors, Boolean(chapters?.length));
-  const widgets = layer?.readWidgets(json.widgets, { qualityByKey, qualities, checkpointIds: new Set(Object.keys(checkpointById)), checkpoints, transitions, roster }, errors);
+  layer?.factions.checkFactions({ factions, roster, qualityByKey, quests: game }, errors);
+  const widgets = layer?.readWidgets(json.widgets, { qualityByKey, qualities, checkpointIds: new Set(Object.keys(checkpointById)), checkpoints, transitions, roster, factions }, errors);
   checkLiving(living, checkpointById, roster, qualityByKey, errors);
   const chapterIndex = indexChapters(chapters, checkpoints, errors);
   if (errors.length) return errors;
@@ -184,6 +188,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     ...(life?.clock ? { clock: life.clock } : {}),
     ...(life ? { life } : {}),
     ...(living ? { living } : {}),
+    ...(factions ? { factions } : {}),
     startCheckpointId,
     checkpointById,
     outgoingByCheckpoint: orderOutgoing(checkpoints, normalizedTransitions),

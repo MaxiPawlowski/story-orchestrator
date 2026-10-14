@@ -127,7 +127,7 @@ export class MemoryInjector {
   }
 
   private lifeLines(story: NormalizedStoryV2, id: string): string {
-    const layer = story.life ? gameLayer() : null;
+    const layer = story.life || story.factions?.length ? gameLayer() : null;
     if (!layer) return "";
     const lines = layer.life.privateLifeLines(story, this.deps.getState()?.blackboard.values ?? {}, id, this.deps.meanwhile?.(id) ?? []);
     return withoutSecretLines(lines, this.secrets(story), namesForRosterId(story, id));

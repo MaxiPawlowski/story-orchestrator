@@ -13,7 +13,7 @@ const STORY: Record<keyof StoryV2, Covered> = {
   scene_read: "scene-read", lore_select: "lore-select", house_rules: "house-rules",
   scaffolding: { none: "written by the road-ahead generator, never authored" },
   objective_block: "objective-agency", display: "presentation", chapters: "chapters", memory: "chapters", quests: "quests", milestones: "quests",
-  widgets: "widgets", clock: "character-life", living: "living-director",
+  widgets: "widgets", clock: "character-life", living: "living-director", factions: "factions",
 };
 
 const CHECKPOINT: Record<keyof Checkpoint, Covered> = {
@@ -35,13 +35,14 @@ const TRANSITION: Record<keyof Transition, Covered> = {
 
 const ROSTER: Record<keyof RosterMember, Covered> = {
   id: "roster", name: "roster", role: "roster", drive: "drives-motives", view: "roster", aliases: "roster", card: "living-cards", sprites: "poses",
-  relationships: "character-life", mood: "character-life", agenda: "character-life", schedule: "character-life",
+  relationships: "character-life", mood: "character-life", agenda: "character-life", schedule: "character-life", factions: "factions",
 };
 
 const QUALITY: Record<keyof Quality, Covered> = {
   key: "qualities", type: "qualities", values: "qualities", player_labels: "quality-reads", source: "qualities", latching: "latching", monotonic: "latching",
   rubric: "quality-rubric", scope_hint: "quality-reads", ledger_binding: "quality-reads", read_as: "quality-reads", criteria: "quality-reads",
   evidence_from: "quality-reads", commit_evidence: "quality-reads", roll: "chance-roll", display: "widgets", step_rule: { none: "compiled from character-life relationships and the clock; an authored one is dropped" },
+  range: { none: "compiled from display min and max and from a faction's range; an authored one is dropped" },
 };
 
 const POSE: Record<keyof PoseEntry, Covered> = { id: "poses", label: "poses", tags: "poses", framing: "poses", props: "poses", text: "poses", keypoints: "poses", version: "poses", when: "poses" };

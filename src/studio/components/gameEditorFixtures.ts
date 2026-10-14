@@ -30,3 +30,16 @@ export const widgetStory = (): StoryDraft => ({
     { id: "case-board", kind: "html", title: "Case board", audience: "player", source: "clue-wall", template: "<p>board</p>", actions: [{ id: "ask", text: "I ask who rang the bell." }] },
   ],
 });
+
+export const factionStory = (): StoryDraft => {
+  const base = sampleStory();
+  return {
+    ...base,
+    roster: base.roster.map((member, at) => (at === 0 ? { ...member, factions: ["guild"] } : member)),
+    factions: [{
+      id: "guild", name: "The Guild", range: [-5, 5], start: 0,
+      bands: [{ max: -3, label: "Hostile" }, { max: -1, label: "Wary" }, { max: 2, label: "Neutral" }, { label: "Trusted" }],
+      moves: [{ id: "helped", when: { q: "trust", op: ">=", v: 2 }, add: 2, heard_by: "present" }],
+    }],
+  };
+};

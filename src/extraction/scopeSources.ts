@@ -10,6 +10,7 @@ export const QUEST_SCOPE_CAP = 5;
 export const REL_AXES_PER_READ = 12;
 export const REL_ROTATION_READS = 4;
 export const CARD_MIN_SHARE = 1;
+export const FACTION_SCOPE_CAP = 4;
 
 export interface ScopeSourceContext {
   owners?: string[];
@@ -25,7 +26,7 @@ export interface ScopeSourceRead {
 }
 
 export interface ScopeSource {
-  kind: Extract<ScopePull["kind"], "card" | "quest" | "relationship">;
+  kind: Extract<ScopePull["kind"], "card" | "quest" | "relationship" | "faction">;
   detail: string;
   cap: number | null;
   keys: (story: NormalizedStoryV2, blackboard: BlackboardSnapshot, context: ScopeSourceContext) => string[];
@@ -62,7 +63,20 @@ export const RELATIONSHIP_SOURCE: ScopeSource = {
     : []),
 };
 
-export const SCOPE_SOURCES: readonly ScopeSource[] = [CARD_SOURCE, QUEST_SOURCE, RELATIONSHIP_SOURCE];
+export const factionUnits = (story: NormalizedStoryV2, blackboard: BlackboardSnapshot, rotation: number): string[][] => {
+  const units = (story.factions?.length ? gameLayer()?.factions.factionScopeUnits(story, blackboard.values) ?? [] : [])
+    .map((keys) => keys.filter(readable(story, blackboard))).filter((keys) => keys.length);
+  return rotated(units, units.length ? (Math.max(0, Math.floor(rotation)) * FACTION_SCOPE_CAP) % units.length : 0);
+};
+
+export const FACTION_SOURCE: ScopeSource = {
+  kind: "faction",
+  detail: "an event that would move a group's standing",
+  cap: FACTION_SCOPE_CAP,
+  keys: (story, blackboard, context) => [...new Set(factionUnits(story, blackboard, context.rotation ?? context.cursor ?? 0).flat())],
+};
+
+export const SCOPE_SOURCES: readonly ScopeSource[] = [CARD_SOURCE, QUEST_SOURCE, RELATIONSHIP_SOURCE, FACTION_SOURCE];
 
 export const readScopeSource = (
   source: ScopeSource, story: NormalizedStoryV2, blackboard: BlackboardSnapshot, context: ScopeSourceContext, admits: (key: string) => boolean = () => true,
@@ -76,7 +90,7 @@ export interface ScopeSourceResult extends ScopeSourceRead {
   cap: number | null;
 }
 
-const BUDGETED: ReadonlySet<ScopeSource["kind"]> = new Set(["quest", "relationship"]);
+const BUDGETED: ReadonlySet<ScopeSource["kind"]> = new Set(["quest", "relationship", "faction"]);
 
 export interface LifeUnit {
   keys: string[];
@@ -155,12 +169,18 @@ export const readScopeSources = (
     const group = capped(read, `relationship:${at}`);
     return { drafted: { read, tier: { units: split.drafted, ...group } }, due: { read, tier: { units: split.due, ...group } }, rest: { read, tier: { units: split.rest, ...group } } };
   });
+  const factions = ofKind("faction").map((read, at) => {
+    const offered = new Set([...read.keys, ...read.dropped]);
+    const units = factionUnits(story, blackboard, rotation).map((keys) => keys.filter((key) => offered.has(key))).filter((keys) => keys.length);
+    return { read, tier: { units, ...capped(read, `faction:${at}`) } };
+  });
   const ordered: Array<{ read: Read; tier: BudgetTier }> = [
     ...quests.map((quest) => quest.active),
     ...relationships.map((relationship) => relationship.drafted),
     ...relationships.map((relationship) => relationship.due),
     ...cardShare,
     ...quests.map((quest) => quest.rest),
+    ...factions,
     ...ofKind("card").map((read) => ({ read, tier: { units: single(rotated(read.keys, rotation)) } })),
     ...relationships.map((relationship) => relationship.rest),
   ];

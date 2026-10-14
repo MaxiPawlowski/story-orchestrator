@@ -268,6 +268,7 @@ export class StoryEngine {
       this.visitedPath.push(fired.to);
       effects = checkpoint?.effects ?? null;
       applyCardEntry(story, this.activeCheckpointId, blackboard, this.boundary + 1);
+      this.latchPass();
       this.advanceCallbacks.forEach((callback) => callback(fired));
     }
 
@@ -382,6 +383,7 @@ export class StoryEngine {
       if (entry.fired) return true;
       if (questLatchesMoved(this.story, entry.before.blackboard.values, entry.after.blackboard.values)) return true;
       if (this.story?.life && gameLayer()?.life.lifeMoved(this.story, entry.before.blackboard.values, entry.after.blackboard.values)) return true;
+      if (this.story?.factions && gameLayer()?.factions.factionsMoved(this.story, entry.before.blackboard.values, entry.after.blackboard.values)) return true;
       return entry.queue.applied.some((applied) => applied.turnRange && applied.turnRange.to >= normalized);
     });
   }
@@ -481,6 +483,12 @@ export class StoryEngine {
     };
     for (const delta of this.host.derive?.(view) ?? []) blackboard.applyDelta({ q: delta.q, v: delta.v, source: "code" });
     applyQuestRewards(story, blackboard);
+    this.latchPass();
+  }
+
+  private latchPass(): void {
+    const story = this.requireStory();
+    if (story.factions?.length) gameLayer()?.factions.applyFactionMoves(story, this.requireBlackboard(), this.boundary + 1);
   }
 
   private recordSnapshot(): void {

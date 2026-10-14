@@ -3,6 +3,7 @@ import type { Agenda, MoodDecl, QualityStepRule, RelationshipDecl, ScheduleEntry
 
 export * from "./gameSchema";
 export * from "./lifeSchema";
+export * from "./factionSchema";
 
 export const QUALITY_TYPES = ["int", "float", "bool", "enum", "string"] as const;
 export const QUALITY_SOURCES = ["code", "extractor"] as const;
@@ -91,6 +92,7 @@ export interface Quality {
   roll?: QualityRoll;
   display?: QualityDisplay;
   step_rule?: QualityStepRule;
+  range?: [number, number];
 }
 
 export type EvidenceFrom = typeof EVIDENCE_FROM[number];
@@ -333,6 +335,7 @@ export interface RosterMember {
   mood?: MoodDecl;
   agenda?: Agenda[];
   schedule?: ScheduleEntry[];
+  factions?: string[];
 }
 
 
@@ -498,6 +501,7 @@ export interface StoryV2 {
   widgets?: StoryWidget[];
   clock?: StoryClock;
   living?: StoryLiving;
+  factions?: import("./factionSchema").Faction[];
 }
 
 export const LIVING_PREFIX = "liv_";
@@ -533,7 +537,7 @@ export const isLivingId = (id: string): boolean => id.startsWith(LIVING_PREFIX);
 export const STORY_KINDS = ["saga", "story"] as const;
 export type StoryKind = typeof STORY_KINDS[number];
 
-export const STORY_DISPLAY_TOGGLES = ["continue_list", "group_card", "chapter_card", "wand", "roll_chips", "suggestions", "journal", "stat_sheet", "widgets", "motion"] as const;
+export const STORY_DISPLAY_TOGGLES = ["continue_list", "group_card", "chapter_card", "wand", "roll_chips", "suggestions", "journal", "stat_sheet", "widgets", "motion", "standing"] as const;
 export type StoryDisplayToggle = typeof STORY_DISPLAY_TOGGLES[number];
 
 export interface StoryDisplay extends Partial<Record<StoryDisplayToggle, boolean>> {

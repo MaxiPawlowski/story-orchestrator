@@ -52,6 +52,7 @@ import { composeRolls, createChance, reconstructQualityRolls } from "./rolls";
 import { checkRolls } from "./storyCheckDraws";
 import { gameSlices } from "./gameSnapshot";
 import { lifeAuthorSlice } from "./lifeSnapshot";
+import { factionAuthorSlice } from "./factionSnapshot";
 import { livingSlice } from "./livingSnapshot";
 import { graphEpoch } from "@generation/living/fold";
 import { buildPresence } from "./presence";
@@ -316,6 +317,7 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
       threads: { open: game.openThreads, resolved: story ? resolvedThreads(extras.memory, sources.resting) : [] },
     }),
     lifeAuthor: lifeAuthorSlice(story, state, extras.ui.authorView, extras.agendaProposals, sources.scopeContext),
+    factionsAuthor: factionAuthorSlice(story, state, extras.ui.authorView, sources.boundaryLog, extras.memory.ledger, sources.scopeContext),
     living: livingSlice({
       story, state, living: extras.living, authorView: extras.ui.authorView, enabled: extras.stagecraft.settings.livingEnabled !== false,
       branching: extras.stagecraft.settings.branchingEnabled !== false,

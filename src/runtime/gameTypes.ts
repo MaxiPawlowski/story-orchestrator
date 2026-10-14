@@ -164,6 +164,7 @@ export interface GameView {
   journal: WidgetView[];
   statSheet: WidgetView | null;
   widgets: WidgetView[];
+  standing?: Array<{ name: string; band: string }>;
 }
 
 export interface GameAuthorView {

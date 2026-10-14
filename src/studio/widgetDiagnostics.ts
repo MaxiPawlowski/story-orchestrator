@@ -34,7 +34,7 @@ const itemGates = (draft: StoryV2): Array<{ path: string; keys: string[]; what: 
   ...(widget.visible_when ? [{ path: `widgets.${index}.visible_when`, keys: gateKeys(widget.visible_when), what: `panel '${widget.id}'` }] : []),
   ...(widget.clues ?? []).map((clue, at) => ({ path: `widgets.${index}.clues.${at}`, keys: clueKeys(clue), what: `clue '${clue.id}'` })),
   ...(widget.pins ?? []).flatMap((pin, at) => (pin.when ? [{ path: `widgets.${index}.pins.${at}`, keys: gateKeys(pin.when), what: `pin '${pin.id}'` }] : [])),
-  ...(widget.rows ?? []).map((row, at) => ({ path: `widgets.${index}.rows.${at}`, keys: [row.quality, ...(row.when ? gateKeys(row.when) : [])], what: `row '${row.id}'` })),
+  ...(widget.rows ?? []).map((row, at) => ({ path: `widgets.${index}.rows.${at}`, keys: [...(row.quality ? [row.quality] : []), ...(row.when ? gateKeys(row.when) : [])], what: `row '${row.id}'` })),
 ]);
 
 export const widgetGateKeys = (draft: StoryV2): Set<string> => new Set(itemGates(draft).flatMap(({ keys }) => keys));

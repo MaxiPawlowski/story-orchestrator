@@ -32,7 +32,7 @@ export const previewKeys = (widget: StoryWidget, draft: StoryV2): string[] => [.
   ...bindKeys(widget, draft),
   ...(widget.clues ?? []).flatMap(clueKeys),
   ...(widget.pins ?? []).flatMap((pin) => (pin.when ? gateKeys(pin.when) : [])),
-  ...(widget.rows ?? []).flatMap((row) => [row.quality, ...(row.when ? gateKeys(row.when) : [])]),
+  ...(widget.rows ?? []).flatMap((row) => [...(row.quality ? [row.quality] : []), ...(row.when ? gateKeys(row.when) : [])]),
 ])].filter((key) => draft.qualities.some((quality) => quality.key === key));
 
 export const previewCheckpoints = (widget: StoryWidget): string[] => [...new Set([
