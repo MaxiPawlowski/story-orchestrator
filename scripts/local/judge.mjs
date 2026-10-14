@@ -3,7 +3,7 @@ import fsp from 'node:fs/promises';
 import path from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { childEnv, DEFAULT_JUDGE_MODEL, judgeConfig, PROBE_REQUEST, readinessLine, requiredGB, serverCommands, setupSteps } from './judgeModels.mjs';
+import { childEnv, DEFAULT_JUDGE_MODEL, judgeConfig, missingDistributions, PROBE_REQUEST, readinessLine, requiredGB, serverCommands, setupSteps } from './judgeModels.mjs';
 
 const USAGE = `Usage: node scripts/local/judge.mjs plan|setup|start|stop|status|check [--model decider-4b|plumb-4b] [--yes]
 
@@ -26,6 +26,10 @@ const config = judgeConfig(process.env, { model });
 
 const exists = (file) => fs.existsSync(file);
 const weightsPresent = () => (config.model.file ? exists(config.modelPath) && config.companionPaths.every(exists) : exists(path.join(config.modelDir, 'config.json')));
+const stepDone = (step) =>
+    (step.skipIf === 'venv' && exists(config.python)) ||
+    (step.skipIf === 'weights' && weightsPresent()) ||
+    (step.skipIf === 'packages' && exists(config.python) && missingDistributions(config, fs.readdirSync).length === 0);
 
 function freeGB(dir) {
     let probe = dir;
@@ -59,8 +63,7 @@ function plan() {
     console.log(`local judge: ${config.model.key} (${config.model.id}, ${config.model.licence})`);
     console.log(`root: ${config.root}${process.env.SO_JUDGE_MODELS_DIR ? '' : ' (default; set SO_JUDGE_MODELS_DIR to move it)'}`);
     for (const step of setupSteps(config)) {
-        const done = (step.skipIf === 'venv' && exists(config.python)) || (step.skipIf === 'weights' && weightsPresent());
-        console.log(`${done ? '  done ' : '  todo '} ${step.label}`);
+        console.log(`${stepDone(step) ? '  done ' : '  todo '} ${step.label}`);
     }
     console.log(`space: needs ~${need} GB, ${free === null ? 'free space unknown' : `${free} GB free`} on that drive`);
     return { need, free };
@@ -85,7 +88,7 @@ async function setup() {
     await fsp.mkdir(config.modelDir, { recursive: true });
     const env = childEnv(config);
     for (const step of setupSteps(config)) {
-        if ((step.skipIf === 'venv' && exists(config.python)) || (step.skipIf === 'weights' && weightsPresent())) continue;
+        if (stepDone(step)) continue;
         run(step.command, env);
     }
     console.log(`ready: node scripts/local/judge.mjs start --model ${config.model.key}`);
