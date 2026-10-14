@@ -615,3 +615,8 @@ calibration rate and p50):
   `shed {busy 0, gone 0}`. The 1,410-call measurement ran on the unchanged server.
 - Server stopped: `judge.mjs stop` → `status` `down`; no `judgeServer` process, nothing on :8095; `nvidia-smi` 749 MiB. Tray
   `status.txt`: `OK story-orchestrator.json (66 entries)`.
+- Gates (worktree on `7f35d81a`): `npm run gates -- --no-storybook` all green in 215.5 s (typecheck, typecheck:test,
+  debug:typecheck, build, lint, test:release, test:plugin, test:debug, test 8,256 passed / 1 skipped, test:replay 32 of 32
+  killed); Storybook skipped (no component changed). `npm run gates:quick` green (jest related 3,057/3,057, replay --cached).
+  `node --test scripts/local/judgeServerQueue.test.mjs scripts/local/judge.test.mjs` 11/11. No live ST gate: nothing ST-facing
+  ran (owner's :8000 and lane 0 untouched); the routable memory-pairs route is NOT live-validated in a browser or under play load.
