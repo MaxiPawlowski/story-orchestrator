@@ -39,7 +39,7 @@ async function startJudge(upstream, queueTimeout) {
     const base = `http://127.0.0.1:${port}`;
     for (let i = 0; i < 100; i += 1) {
         try {
-            if ((await fetch(`${base}/health`)).ok) return { base, stop: () => child.kill() };
+            if ((await fetch(`${base}/health`, { signal: AbortSignal.timeout(1000) })).ok) return { base, stop: () => child.kill() };
         } catch {
             await new Promise((resolve) => setTimeout(resolve, 100));
         }
