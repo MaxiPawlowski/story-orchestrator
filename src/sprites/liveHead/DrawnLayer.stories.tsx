@@ -113,7 +113,8 @@ export const LiveHeadWithFrames: Story = {
   render: () => <LiveWithFrames />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await waitFor(() => expect(canvasElement.querySelector<HTMLCanvasElement>("canvas.so-live-head")?.dataset.liveHeadDrawn).toBe("eyes_closed_0 eyes_closed_1 mouth_talk mouth_talk2"), { timeout: 15000 });
+    const head = () => canvasElement.querySelector<HTMLCanvasElement>("canvas.so-live-head");
+    await waitFor(() => expect(head()?.dataset.liveHeadDrawn).toBe("eyes_closed_0 eyes_closed_1 mouth_talk mouth_talk2"), { timeout: 15000 });
     await waitFor(() => expect(canvasElement.querySelector<HTMLCanvasElement>("canvas.so-live-head")?.parentElement?.dataset.liveHeadReady).toBe("true"), { timeout: 15000 });
     await userEvent.click(canvas.getByRole("button", { name: "Stream reply" }));
     await waitFor(() => expect(canvas.getByLabelText("Viseme mouth")).not.toHaveTextContent("none"), { timeout: 5000 });
