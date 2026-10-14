@@ -18,7 +18,7 @@ import type { SpriteActivation, SpriteSettings } from "./settings";
 import { spriteActivation, spritesActive, storyDirectsStage } from "./activation";
 import { setGlobalSettings } from "@runtime/settingsStore";
 import { isRecord } from "@utils/guards";
-import { directionKeys, isSpotlit, memberDirection, readStageDirection, standsOnStage, type StageDirection } from "./direction";
+import { directionKeys, rosterStamp, isSpotlit, memberDirection, readStageDirection, standsOnStage, type StageDirection } from "./direction";
 import { StreamActivity } from "./animation";
 import { publishSpriteLookIssues } from "@runtime/spriteLookHealth";
 import { publishSpriteStageHealth, type SpriteStageIssue } from "@runtime/spriteStageHealth";
@@ -53,7 +53,7 @@ export class SpriteStage {
   private looks: import("./builder/onDemand").OnDemandLooks | null = null;
   private bodies: StagePoses | null = null;
   private lookModule: Promise<void> | null = null;
-  private membership: string | null = null;
+  private membership: string | null = null; private rosterKey = "";
   private packIssues: SpriteStageIssue[] = [];
   private readonly lists = new SpriteListCache(spriteList);
 
@@ -199,7 +199,7 @@ export class SpriteStage {
     this.activity.stop();
     this.bodies?.close(); this.bodies = null;
     this.looks?.close(); this.looks = null; this.lookModule = null;
-    const ticket = ++this.loading;
+    const ticket = ++this.loading; this.rosterKey = rosterStamp(this.manager.getStory()?.roster);
     this.capability = await capabilityState("sprites");
     if (ticket !== this.loading) return;
     const cast = spriteCast();
@@ -273,6 +273,7 @@ export class SpriteStage {
   }
 
   private placeChanged(): void {
+    if (this.rosterKey !== (this.rosterKey = rosterStamp(this.manager.getStory()?.roster))) return void this.reload();
     this.looks?.revalidate(); this.bodies?.revalidate();
     if (this.activation() !== this.snapshot.activation) this.notify();
     if (!this.actors.length) return;

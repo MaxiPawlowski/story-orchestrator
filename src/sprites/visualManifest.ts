@@ -14,6 +14,7 @@ export interface VisualManifest {
 }
 export type VisualSources = Record<string, VisualManifest>;
 export const visualRoot = (source: Pick<VisualManifest, "id" | "revision">): string => `${source.id}:${source.revision}`;
+export const servedAsset = <T extends { path: string }>(value: T): T => ({ ...value, path: value.path.split("?")[0] });
 export const lookSignature = (fields: Record<string, string>): string => JSON.stringify(Object.entries(fields).sort(([a], [b]) => a.localeCompare(b)));
 export const visualHash = (value: unknown): value is string => typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
 export const visualPath = (value: unknown): value is string => {
@@ -54,7 +55,8 @@ export function currentVisual(source: VisualManifest, signature: string): Visual
   return matches.length && hashes.size === 1 ? matches.at(-1) ?? null : null;
 }
 
-export function publishVisualLook(source: VisualManifest, root: string, set: string, signature: string, base: VisualAsset): VisualManifest {
+export function publishVisualLook(source: VisualManifest, root: string, set: string, signature: string, served: VisualAsset): VisualManifest {
+  const base = servedAsset(served);
   if (visualRoot(source) !== root) throw new Error("The accepted visual source changed. Prepare this look again.");
   if (!asset(base)) throw new Error("The changed-look artifact is incomplete.");
   const looks = { ...source.looks, [set]: { root, signature, base } };

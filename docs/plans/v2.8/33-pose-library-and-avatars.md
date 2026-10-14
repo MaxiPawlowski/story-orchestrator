@@ -539,3 +539,47 @@ npm run typecheck:test: tsc -p tsconfig.test.json; exit 0. git diff --check: exi
 - Acceptance x2 stays BLOCKED as recorded above (host RAM for Qwen leases, no latency-arm driver). The rater now exists; it ran.
 - Evidence: `test/sessions/evidence/phase-c/poc-sol-20261014/` (`pose-ratings.jsonl`, `pose-jobs.json`, `pose-cl-llm/`).
 - Gates (branch `v2.8-poc-sol`, code commit `82628211`): `npm run test:replay` (fresh worktree) 32 of 32 killed in 156.8 s; `npm run gates:quick` green in 31.1 s; `npm run gates -- --no-storybook --jobs 2` all green in 231.2 s (test, test:replay, build, typecheck, typecheck:test, test:debug, debug:typecheck, lint, test:release, test:plugin); staged Storybook (`%TEMP%\so-sb-pocsol` from `git archive HEAD`, `npm run test-storybook:ci`) 136 suites / 814 tests passed, copy removed. Not merged, pushed, staged or installed.
+
+## Ready to run: Acceptance latency pair and product-path pose renders (driver built 2026-10-14, dry only)
+
+Driver: `scripts/debug/so-pose-latency.mts`. It shares its libraries with the plan 41 journey (`lib/pocDrivers.mts`,
+`pocFakes.mts`, `pocLive.mts`, `pocSteps.mts`). `floors` prints the floors below, copied unchanged from §6.
+
+- The poses-on arm's send→reply median is at most 1.10 × the no-sprites arm's median, per run.
+- Product-path pose renders: every directed (member, pose) of the walked checkpoints shows a posed body within the run,
+  and no render is refused.
+- Cleanup leaves the owned sprite inventory unchanged against the run baseline.
+
+What one run does:
+1. Provisions 3 `SO-PL` cards and the group "SO-PL Forge" (create-only provisioning ops).
+2. Builds and prepares a base per member.
+3. Plays the arms in alternating order: run 1 plays off then on, run 2 plays on then off. Each arm has its own new chat
+   and imports the story.
+   - "off": sprites off.
+   - "on": sprites on, with poses, live head and on-demand renders.
+4. Plays 8 Artemis turns per arm, walking c1–c4. The 4 checkpoints direct 4 poses × 3 members × 3 faces, and the looks
+   change at c2–c4. Each send→reply is timed.
+5. After arm "on", waits up to 20 min until every directed pose has a body in the sprite manifests.
+6. Cleans up, then compares the inventory against the baseline.
+
+Dry runs on offline lane 46 (fakes, no GPU, no model):
+- dry1 run 1: PLUMBING-OK. 12/12 directed poses got a body.
+- dry2 run 2: PLUMBING-OK. 10/12 got a body: (Oren, c1) and (Nell, c3) were never rendered after the stage moved on.
+  Check this in the real run.
+- Cleanup leaked nothing in either run. The dry latency ratios (1.20, 1.77) come from fake streams and are not a result.
+- These dry runs found and fixed a stage bug: a story imported into an already open chat never applied its directed
+  poses, because actor keys lacked roster ids until a reload. The fix is in `src/sprites/stage.ts`, with a test.
+
+Real runs (3090, owner go-ahead):
+1. Set up the lane as in plan 41 "Ready to run" steps 1–3: a lane ≥ 30 with a model, `image-harness.json`
+   (`allowComfy`, `editModels`, `backgroundRemoval`), `--allow-local`, and Artemis through the controller.
+2. Run twice:
+   - `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-pose-latency.mts run 1 --label a`
+   - `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-pose-latency.mts run 2 --label a`
+   - Add `--candidate` to serve the worktree build. Cleanup after an abort: `... so-pose-latency.mts cleanup`.
+3. Expected GPU time per run:
+   - about 6 min of base and prepare renders;
+   - about 12–25 min of arm-on pose bodies and heads (12 bodies at about 60 s);
+   - Artemis is shared during both arms.
+   - About 30 min of wall time per run, about 60 min for ×2.
+4. No Sol call is made; the cards come from provisioning ops.

@@ -60,3 +60,14 @@ test("look publication carries the root; changing root prevents old look reuse a
   expect(currentVisual({ ...changed, revision: 2 }, signature)).toBeNull();
   expect(visualSources({ Synthetic: { ...changed, revision: 2 } })).toEqual({});
 });
+
+test("served paths with a cache-busting query are accepted and stored without it", async () => {
+  const f = fixture();
+  const input = { ...f.input, base: { ...f.input.base, path: `${f.input.base.path}?t=20261014120000` } };
+  f.deps.save = jest.fn(async () => ({ ...f.source.bust, path: `${f.source.bust.path}?t=${f.source.bust.sha256.slice(0, 12)}` }));
+  const accepted = await f.preparation.accept(await f.preparation.prepare(input));
+  expect(accepted.base.path).toBe(f.source.base.path); expect(accepted.bust.path).toBe(f.source.bust.path);
+  expect(visualSources({ Synthetic: accepted }).Synthetic.looks.default.bust?.path).toBe(f.source.bust.path);
+  const look = publishVisualLook(accepted, visualRoot(accepted), "look_q", lookSignature({ outfit: "coat" }), { ...f.source.base, path: "/characters/Synthetic/look_q/neutral.png?t=abc" });
+  expect(look.looks.look_q.base.path).toBe("/characters/Synthetic/look_q/neutral.png");
+});
