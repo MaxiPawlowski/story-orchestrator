@@ -88,12 +88,55 @@ test('OpenCode 2.0.6 connection metadata uses the CLI method listing without acc
         assert.equal((await t.inspect({ force: true })).logins.openai.state, 'unpaired');
         method = null;
         const unknown = await t.inspect({ force: true });
-        assert.equal(unknown.problemKind, 'config');
-        assert.match(unknown.problem, /CLI could not identify/);
+        assert.equal(unknown.problem, null);
+        assert.deepEqual([unknown.logins.openai.state, unknown.logins.openai.evidence], ['ok', 'service-connection']);
+        fake.state.providers = [];
+        const unlisted = await t.inspect({ force: true });
+        assert.equal(unlisted.logins.openai.state, 'unavailable');
+        assert.match(unlisted.logins.openai.message, /does not list the provider/);
         assert.equal(fake.state.created.length, 0, 'metadata inspection sends no prompt');
     } finally {
         fake.close();
         fs.rmSync(ctx.root, plugin.RM_RETRY);
+    }
+});
+
+test('N12: OpenCode 2.0.6 method-less connection with an empty CLI listing reads as signed in from service presence, without a prompt', async () => {
+    const emptyListing = async () => transport.methodsFromAuthList('No authenticated integrations');
+    const cases = [
+        [{ login: 'methodless' }, 'ok', true, null],
+        [{ login: 'cold' }, 'ok', true, null],
+        [{ login: 'methodless', providers: [] }, 'unavailable', false, /does not list the provider/],
+        [{ login: 'none' }, 'unpaired', false, /no OpenAI subscription sign-in/],
+        [{ login: 'unknown-integration' }, 'unpaired', false, /no openai integration/],
+        [{ login: 'expired' }, 'expired', false, /subscription sign-in has expired/],
+        [{ login: 'methodless-expired' }, 'expired', false, /subscription sign-in has expired.*refresh token was rejected/s],
+    ];
+    for (const [fake, loginState, loggedIn, pattern] of cases) {
+        const ctx = setup({ fake, transportOptions: { authMethods: emptyListing } });
+        try {
+            const row = (await ctx.service.status({ refresh: true })).harnesses.opencode;
+            assert.deepEqual([row.loginState, row.loggedIn], [loginState, loggedIn], JSON.stringify(fake));
+            if (pattern) assert.match(row.loginProblem, pattern, JSON.stringify(fake));
+            else assert.equal(row.loginProblem, null);
+            if (loginState === 'expired') assert.equal(row.loginAction, 'sign-in-again');
+            if (loginState !== 'ok') {
+                const answer = await ctx.service.complete(request());
+                assert.deepEqual([answer.ok, answer.kind, answer.loginState], [false, 'auth', loginState], JSON.stringify(fake));
+            }
+            assert.equal(ctx.fake.state.created.length, 0, 'status sends no prompt');
+        } finally {
+            ctx.fake.close();
+            fs.rmSync(ctx.root, plugin.RM_RETRY);
+        }
+    }
+    const signedIn = setup({ fake: { login: 'methodless' }, transportOptions: { authMethods: emptyListing } });
+    try {
+        const answer = await signedIn.service.complete(request({ prompt: script([{ say: 'PONG' }]) }));
+        assert.deepEqual([answer.ok, answer.text], [true, 'PONG']);
+    } finally {
+        signedIn.fake.close();
+        fs.rmSync(signedIn.root, plugin.RM_RETRY);
     }
 });
 

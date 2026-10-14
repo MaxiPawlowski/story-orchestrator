@@ -657,7 +657,7 @@ export function createHarnessService({
         const base = { service: view.service, serviceVersion: view.serviceVersion, clientInstalled: view.client !== 'missing' };
         if (view.problem) return { ...base, loginState: view.problemState === 'unpaired' ? 'unpaired' : 'unavailable', loginAction: null, loggedIn: null, fresh: false, loginProblem: view.problem };
         const logins = Object.values(view.logins);
-        const bad = logins.find((login) => login.state === 'unpaired') ?? logins.find((login) => login.state === 'expired');
+        const bad = logins.find((login) => login.state === 'unpaired') ?? logins.find((login) => login.state === 'expired') ?? logins.find((login) => login.state === 'unavailable');
         if (bad) return { ...base, loginState: bad.state, loginAction: bad.action, loggedIn: false, fresh: false, loginProblem: bad.message };
         if (view.service !== 'running') return { ...base, loginState: 'unchecked', loginAction: null, loggedIn: null, fresh: true, loginProblem: null };
         return { ...base, loginState: 'ok', loginAction: null, loggedIn: true, fresh: true, loginProblem: null };

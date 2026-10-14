@@ -17,7 +17,8 @@ every other task uses it only when you route that task to it.
      `~/.codex/auth.json`); a login must stay valid for at least 90 more minutes.
    - **opencode:** the plugin talks to OpenCode's own background service through OpenCode's client library, one
       session per call. It never reads, copies or refreshes an opencode login: OpenCode owns the sign-in. Older V2
-      services omit the sign-in method; the plugin then checks the supported `opencode auth list` metadata. Sign in once
+      services omit the sign-in method; the plugin then checks the supported `opencode auth list` metadata, and when that
+      names none, a connection OpenCode lists as a connected provider counts as signed in (no prompt is sent). Sign in once
      in a terminal on the server with `opencode auth login`, choose OpenAI, then ChatGPT Pro/Plus.
 3. Write `config.json` next to the plugin's `index.mjs` and offer each harness you want:
 

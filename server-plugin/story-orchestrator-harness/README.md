@@ -51,7 +51,9 @@ Promise client), never through a login file:
 1. `Service.discover` finds OpenCode's background service (a status read never starts it). A call starts it with
    `Service.ensure` using the `opencode` binary, accepting any 2.x server and never replacing one.
 2. Sign-in and model are read from the service's own API (`integration` connections and the model list), not from a file:
-   services omitting connection methods use the supported `opencode auth list` metadata; unknown methods refuse.
+   services omitting connection methods use the supported `opencode auth list` metadata; when that names no method, a
+   connection the service lists as a connected provider (`provider.list`) counts as signed in, with no prompt sent.
+   An integration that reads as missing is re-read from `integration.list` (a cold 2.0.6 service answers not-found).
    no subscription sign-in is **unpaired**, one OpenCode marks `needs_auth` is **expired**; the call refuses with the next
    step (`opencode auth login`) before any session exists.
 3. The call's system text and its deny-everything agent live in an `opencode.json` in the plugin's own directory
