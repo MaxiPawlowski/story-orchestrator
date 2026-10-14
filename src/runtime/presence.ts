@@ -1,6 +1,6 @@
 import type { BoundaryLogEntry, NormalizedStoryV2, StoryDisplay } from "@engine/index";
 import { isRecord } from "@utils/guards";
-import { composeChapterCards, type ChapterCard } from "./chapterCards";
+import { composeChapterCards, type ChapterCard, type ChapterCardRecap } from "./chapterCards";
 import { defaultPresenceSettings, presenceShown, type PresenceSettings, type PresenceShown } from "./displayToggles";
 import { continueRows, type ContinueRow, type PlaysIndex } from "./playsIndex";
 import type { RollRecord } from "./rolls";
@@ -18,18 +18,24 @@ export interface PresenceSources {
   boundaryLog: readonly BoundaryLogEntry[];
   plays: PlaysIndex;
   library: ReadonlyArray<{ id: string; raw: Record<string, unknown> }>;
+  cardRecaps?: Record<number, ChapterCardRecap>;
 }
+
+const withRecaps = (cards: ChapterCard[], recaps: Record<number, ChapterCardRecap> | undefined): ChapterCard[] => cards.map((card) => {
+  const recap = recaps?.[card.messageId];
+  return recap ? { ...card, recap: { label: recap.label, lines: [...recap.lines] } } : card;
+});
 
 export const libraryDisplay = (raw: Record<string, unknown> | undefined): StoryDisplay | null => (raw && isRecord(raw.display) ? raw.display as StoryDisplay : null);
 
-export function buildPresence({ story, settings, boundaryLog, plays, library }: PresenceSources): PresenceView {
+export function buildPresence({ story, settings, boundaryLog, plays, library, cardRecaps }: PresenceSources): PresenceView {
   const install = settings ?? defaultPresenceSettings();
   const shown = presenceShown(story?.display, install);
   const displays = new Map(library.map((record) => [record.id, libraryDisplay(record.raw)]));
   return {
     shown,
     listBadges: install.listBadges,
-    chapterCards: shown.chapterCard ? composeChapterCards(story, boundaryLog) : [],
+    chapterCards: shown.chapterCard ? withRecaps(composeChapterCards(story, boundaryLog), cardRecaps) : [],
     continueRows: continueRows(plays, (storyId) => displays.get(storyId), install.continueList),
   };
 }

@@ -30,7 +30,7 @@ const EFFECTS: Record<keyof CheckpointEffects, Covered> = {
 
 const TRANSITION: Record<keyof Transition, Covered> = {
   from: "transitions", to: "transitions", gate: "gates", priority: "transitions", effects: "convergence",
-  extractor_trigger: "transitions", extraction_hint: "transitions", check: "checks",
+  extractor_trigger: "transitions", extraction_hint: "transitions", check: "checks", recap: "consequences", recap_when: "consequences",
 };
 
 const ROSTER: Record<keyof RosterMember, Covered> = {
@@ -41,7 +41,7 @@ const ROSTER: Record<keyof RosterMember, Covered> = {
 const QUALITY: Record<keyof Quality, Covered> = {
   key: "qualities", type: "qualities", values: "qualities", player_labels: "quality-reads", source: "qualities", latching: "latching", monotonic: "latching",
   rubric: "quality-rubric", scope_hint: "quality-reads", ledger_binding: "quality-reads", read_as: "quality-reads", criteria: "quality-reads",
-  evidence_from: "quality-reads", commit_evidence: "quality-reads", roll: "chance-roll", display: "widgets", step_rule: { none: "compiled from character-life relationships and the clock; an authored one is dropped" },
+  evidence_from: "quality-reads", commit_evidence: "quality-reads", roll: "chance-roll", display: "widgets", player_action: "consequences", step_rule: { none: "compiled from character-life relationships and the clock; an authored one is dropped" },
 };
 
 const POSE: Record<keyof PoseEntry, Covered> = { id: "poses", label: "poses", tags: "poses", framing: "poses", props: "poses", text: "poses", keypoints: "poses", version: "poses", when: "poses" };

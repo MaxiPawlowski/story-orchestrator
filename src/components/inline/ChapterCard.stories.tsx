@@ -59,6 +59,31 @@ export const Phone: Story = { ...longCard, ...fitsAt(VIEWPORTS.phone, chapterTit
 export const Tablet: Story = { ...longCard, ...fitsAt(VIEWPORTS.tablet, chapterTitle) };
 export const Wide: Story = { ...longCard, ...fitsAt(VIEWPORTS.wide, chapterTitle) };
 
+export const WithRecap: Story = {
+  args: {
+    card: {
+      messageId: 6, chapterId: "siege", title: "The Siege", number: 2, interlude: false, final: false,
+      recap: { label: "Because of you", lines: ["The garrison opened its gates.", "Reached The Gatehouse, because you took the posting.", "Milestone: First Blood"] },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const recap = canvasElement.querySelector('[data-so="chapter-card-recap"]');
+    await expect(recap?.textContent).toContain("Because of you");
+    await expect(recap?.querySelectorAll("li").length).toBe(3);
+    await expect(within(canvasElement).getByText("The Siege")).toBeInTheDocument();
+  },
+};
+
+export const RecapPhone: Story = {
+  args: {
+    card: {
+      messageId: 6, chapterId: "siege", title: "The Siege", number: 2, interlude: false, final: false,
+      recap: { label: "What changed", lines: ["Quest complete: The Long Watch of the Northern Towers and Every Gate Between", "Reached The Gatehouse"] },
+    },
+  },
+  ...fitsAt(VIEWPORTS.phone, (canvasElement: HTMLElement) => within(canvasElement).getByText(/The Long Watch/)),
+};
+
 export const Interlude: Story = {
   args: { card: { messageId: 4, chapterId: "camp", title: "Night Camp", number: null, interlude: true, final: false } },
   play: async ({ canvasElement }) => {

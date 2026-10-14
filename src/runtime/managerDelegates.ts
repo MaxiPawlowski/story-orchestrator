@@ -30,6 +30,7 @@ export abstract class CoordinatorDelegates {
 
   get chapters() { return this.co.memory.chapters; }
   get game() { return this.co.game; }
+  get recap() { return this.co.recap; }
   get meanwhile() { return this.co.meanwhile; }
   get living() { return this.co.living; }
   async livingStory(input: Omit<LivingStartInput, "members">): Promise<StoryV2> {

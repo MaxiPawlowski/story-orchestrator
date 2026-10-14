@@ -29,6 +29,7 @@ import type {
 import { defaultTension, sanitizeTension } from "./tensionState";
 import { log } from "@utils/log";
 import { readFeaturePolicies } from "@engine/featurePolicy";
+import { sanitizeRecap } from "./recapPort";
 
 export const TALK_DECISION_LIMIT = 10;
 
@@ -437,6 +438,8 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.chance = sanitizeChance(extras.chance);
   if (extras.checks) extras.checks = sanitizeChecks(extras.checks);
   if (extras.agendaProposals) extras.agendaProposals = sanitizeAgendaProposals(extras.agendaProposals);
+  const recap = sanitizeRecap(extras.recap);
+  if (recap) extras.recap = recap; else delete extras.recap;
   const living = sanitizeLivingState(extras.living);
   if (living) extras.living = living; else delete extras.living;
   extras.journal = sanitizeJournalRecords(extras.journal);

@@ -3,6 +3,7 @@ import type { GuideTopicId } from "@copilot/guideTopics";
 import type { GlobalSettings } from "@runtime/settingsModel";
 import { PRESENCE_FEATURES } from "./presenceFeatures";
 import { GAME_FEATURES } from "./gameFeatures";
+import { RECAP_FEATURES } from "./recapFeatures";
 import { LIFE_FEATURES } from "./lifeFeatures";
 import { LIVING_FEATURES } from "./livingFeatures";
 import { START_FEATURES } from "./startFeatures";
@@ -450,6 +451,7 @@ const POLICY_TARGETS: Record<string, [import("@engine/featurePolicy").StoryFeatu
 
 export const FEATURES: readonly Feature[] = [
   ...CORE_FEATURES, ...PRESENCE_FEATURES, ...GAME_FEATURES, ...LIFE_FEATURES, ...LIVING_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature),
+  ...RECAP_FEATURES,
 ].map((feature) => {
   const target = POLICY_TARGETS[feature.id];
   if (!target) return feature;
