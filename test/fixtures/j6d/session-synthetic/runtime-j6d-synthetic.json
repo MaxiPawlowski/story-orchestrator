@@ -1,0 +1,1043 @@
+{
+ "version": 7,
+ "chatId": "j6d-synthetic",
+ "selectedStoryId": "j6d-shadow-crossroads",
+ "stories": {
+  "j6d-shadow-crossroads": {
+   "storyId": "j6d-shadow-crossroads",
+   "storyTitle": "J6d Shadow Crossroads",
+   "pinnedStory": {
+    "format": 2,
+    "id": "j6d-shadow-crossroads",
+    "title": "J6d Shadow Crossroads",
+    "description": "v2.8 plan 12 J6d synthetic fixture: four typed qualities (two choice, a rating, a stated count) the judge answers, one residual quality the extractor answers. The exits need a storm that never comes, so the read stays at the crossroads.",
+    "qualities": [
+     {
+      "key": "gate_choice",
+      "type": "enum",
+      "values": [
+       "north",
+       "south"
+      ],
+      "source": "extractor",
+      "read_as": "choice",
+      "rubric": "Which road has the party chosen at the crossroads?"
+     },
+     {
+      "key": "smith_trust",
+      "type": "int",
+      "source": "extractor",
+      "read_as": "rating",
+      "rubric": "How much does the smith trust the party, from 0 (wary) to 3 (trusting)?"
+     },
+     {
+      "key": "has_map",
+      "type": "bool",
+      "source": "extractor",
+      "read_as": "choice",
+      "rubric": "Does the party hold the smith's map?"
+     },
+     {
+      "key": "coins_paid",
+      "type": "int",
+      "source": "extractor",
+      "read_as": "stated",
+      "rubric": "How many coins has the party paid the smith?"
+     },
+     {
+      "key": "weather",
+      "type": "enum",
+      "values": [
+       "clear",
+       "storm"
+      ],
+      "source": "extractor",
+      "rubric": "What is the weather at the crossroads?"
+     }
+    ],
+    "roster": [
+     {
+      "id": "narrator",
+      "name": "Narrator"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "crossroads",
+      "name": "The Crossroads",
+      "objective": "Choose a road with the smith's help.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "north_road",
+      "name": "The North Road",
+      "objective": "Follow the north road.",
+      "type": "anchor"
+     },
+     {
+      "id": "south_road",
+      "name": "The South Road",
+      "objective": "Follow the south road.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "crossroads",
+      "to": "north_road",
+      "priority": 2,
+      "gate": {
+       "all": [
+        {
+         "q": "gate_choice",
+         "op": "==",
+         "v": "north"
+        },
+        {
+         "q": "has_map",
+         "op": "==",
+         "v": true
+        },
+        {
+         "q": "weather",
+         "op": "==",
+         "v": "storm"
+        }
+       ]
+      }
+     },
+     {
+      "from": "crossroads",
+      "to": "south_road",
+      "priority": 1,
+      "gate": {
+       "all": [
+        {
+         "q": "smith_trust",
+         "op": ">=",
+         "v": 3
+        },
+        {
+         "q": "coins_paid",
+         "op": ">=",
+         "v": 5
+        },
+        {
+         "q": "weather",
+         "op": "==",
+         "v": "storm"
+        }
+       ]
+      }
+     }
+    ]
+   },
+   "contentHashAtLoad": "synthetic",
+   "engineState": {
+    "blackboard": {
+     "values": {
+      "smith_trust": 2,
+      "weather": "clear",
+      "gate_choice": "north",
+      "has_map": true
+     },
+     "versions": {
+      "smith_trust": 2,
+      "weather": 1,
+      "gate_choice": 1,
+      "has_map": 1
+     },
+     "latched": {}
+    },
+    "activeCheckpointId": "crossroads",
+    "visitedAnchors": [
+     "crossroads"
+    ],
+    "visitedPath": [
+     "crossroads"
+    ],
+    "boundary": 10,
+    "checkpointStartedBoundary": 0,
+    "checkpointStartedAt": 0,
+    "checkpointStartedMessageId": -1,
+    "lastMessageId": 20,
+    "chatLength": 21
+   },
+   "engineHistory": {
+    "from": {
+     "boundary": 0,
+     "messageId": -1
+    },
+    "base": {
+     "blackboard": {
+      "values": {},
+      "versions": {},
+      "latched": {}
+     },
+     "activeCheckpointId": "crossroads",
+     "visitedAnchors": [
+      "crossroads"
+     ],
+     "visitedPath": [
+      "crossroads"
+     ],
+     "boundary": 0,
+     "checkpointStartedBoundary": 0,
+     "checkpointStartedAt": 0,
+     "checkpointStartedMessageId": -1,
+     "lastMessageId": -1,
+     "chatLength": 0
+    },
+    "log": [
+     {
+      "at": 0,
+      "boundary": 1,
+      "before": {
+       "blackboard": {
+        "values": {},
+        "versions": {},
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 0,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": -1,
+       "chatLength": 0
+      },
+      "after": {
+       "blackboard": {
+        "values": {},
+        "versions": {},
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 1,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 2,
+       "chatLength": 3
+      },
+      "fired": null,
+      "source": "gate",
+      "context": {
+       "lastMessageId": 2,
+       "chatLength": 3
+      },
+      "queue": {
+       "applied": [],
+       "discarded": []
+      },
+      "evaluated": {}
+     },
+     {
+      "at": 0,
+      "boundary": 2,
+      "before": {
+       "blackboard": {
+        "values": {},
+        "versions": {},
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 1,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 2,
+       "chatLength": 3
+      },
+      "after": {
+       "blackboard": {
+        "values": {},
+        "versions": {},
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 2,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 4,
+       "chatLength": 5
+      },
+      "fired": null,
+      "source": "gate",
+      "context": {
+       "lastMessageId": 4,
+       "chatLength": 5
+      },
+      "queue": {
+       "applied": [],
+       "discarded": []
+      },
+      "evaluated": {}
+     },
+     {
+      "at": 0,
+      "boundary": 3,
+      "before": {
+       "blackboard": {
+        "values": {},
+        "versions": {},
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 2,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 4,
+       "chatLength": 5
+      },
+      "after": {
+       "blackboard": {
+        "values": {
+         "smith_trust": 1,
+         "weather": "clear"
+        },
+        "versions": {
+         "smith_trust": 1,
+         "weather": 1
+        },
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 3,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 6,
+       "chatLength": 7
+      },
+      "fired": null,
+      "source": "gate",
+      "context": {
+       "lastMessageId": 6,
+       "chatLength": 7
+      },
+      "queue": {
+       "applied": [
+        {
+         "source": "extractor",
+         "blackboardVersionSum": 0,
+         "deltas": [
+          {
+           "q": "smith_trust",
+           "v": 1,
+           "source": "extractor"
+          },
+          {
+           "q": "weather",
+           "v": "clear",
+           "source": "extractor"
+          }
+         ],
+         "outcomes": [
+          {
+           "ok": true,
+           "key": "smith_trust",
+           "value": 1,
+           "version": 1
+          },
+          {
+           "ok": true,
+           "key": "weather",
+           "value": "clear",
+           "version": 1
+          }
+         ]
+        }
+       ],
+       "discarded": []
+      },
+      "evaluated": {
+       "smith_trust": 1,
+       "weather": "clear"
+      }
+     },
+     {
+      "at": 0,
+      "boundary": 4,
+      "before": {
+       "blackboard": {
+        "values": {
+         "smith_trust": 1,
+         "weather": "clear"
+        },
+        "versions": {
+         "smith_trust": 1,
+         "weather": 1
+        },
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 3,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 6,
+       "chatLength": 7
+      },
+      "after": {
+       "blackboard": {
+        "values": {
+         "smith_trust": 1,
+         "weather": "clear",
+         "gate_choice": "north"
+        },
+        "versions": {
+         "smith_trust": 1,
+         "weather": 1,
+         "gate_choice": 1
+        },
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 4,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 8,
+       "chatLength": 9
+      },
+      "fired": null,
+      "source": "gate",
+      "context": {
+       "lastMessageId": 8,
+       "chatLength": 9
+      },
+      "queue": {
+       "applied": [
+        {
+         "source": "extractor",
+         "blackboardVersionSum": 0,
+         "deltas": [
+          {
+           "q": "gate_choice",
+           "v": "north",
+           "source": "extractor"
+          }
+         ],
+         "outcomes": [
+          {
+           "ok": true,
+           "key": "gate_choice",
+           "value": "north",
+           "version": 1
+          }
+         ]
+        }
+       ],
+       "discarded": []
+      },
+      "evaluated": {
+       "smith_trust": 1,
+       "weather": "clear",
+       "gate_choice": "north"
+      }
+     },
+     {
+      "at": 0,
+      "boundary": 5,
+      "before": {
+       "blackboard": {
+        "values": {
+         "smith_trust": 1,
+         "weather": "clear",
+         "gate_choice": "north"
+        },
+        "versions": {
+         "smith_trust": 1,
+         "weather": 1,
+         "gate_choice": 1
+        },
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 4,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 8,
+       "chatLength": 9
+      },
+      "after": {
+       "blackboard": {
+        "values": {
+         "smith_trust": 1,
+         "weather": "clear",
+         "gate_choice": "north",
+         "has_map": true
+        },
+        "versions": {
+         "smith_trust": 1,
+         "weather": 1,
+         "gate_choice": 1,
+         "has_map": 1
+        },
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 5,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 10,
+       "chatLength": 11
+      },
+      "fired": null,
+      "source": "gate",
+      "context": {
+       "lastMessageId": 10,
+       "chatLength": 11
+      },
+      "queue": {
+       "applied": [
+        {
+         "source": "extractor",
+         "blackboardVersionSum": 0,
+         "deltas": [
+          {
+           "q": "has_map",
+           "v": true,
+           "source": "extractor"
+          }
+         ],
+         "outcomes": [
+          {
+           "ok": true,
+           "key": "has_map",
+           "value": true,
+           "version": 1
+          }
+         ]
+        }
+       ],
+       "discarded": []
+      },
+      "evaluated": {
+       "smith_trust": 1,
+       "weather": "clear",
+       "gate_choice": "north",
+       "has_map": true
+      }
+     },
+     {
+      "at": 0,
+      "boundary": 6,
+      "before": {
+       "blackboard": {
+        "values": {
+         "smith_trust": 1,
+         "weather": "clear",
+         "gate_choice": "north",
+         "has_map": true
+        },
+        "versions": {
+         "smith_trust": 1,
+         "weather": 1,
+         "gate_choice": 1,
+         "has_map": 1
+        },
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 5,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 10,
+       "chatLength": 11
+      },
+      "after": {
+       "blackboard": {
+        "values": {
+         "smith_trust": 2,
+         "weather": "clear",
+         "gate_choice": "north",
+         "has_map": true
+        },
+        "versions": {
+         "smith_trust": 2,
+         "weather": 1,
+         "gate_choice": 1,
+         "has_map": 1
+        },
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 6,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 12,
+       "chatLength": 13
+      },
+      "fired": null,
+      "source": "gate",
+      "context": {
+       "lastMessageId": 12,
+       "chatLength": 13
+      },
+      "queue": {
+       "applied": [
+        {
+         "source": "extractor",
+         "blackboardVersionSum": 0,
+         "deltas": [
+          {
+           "q": "smith_trust",
+           "v": 2,
+           "source": "extractor"
+          }
+         ],
+         "outcomes": [
+          {
+           "ok": true,
+           "key": "smith_trust",
+           "previous": 1,
+           "value": 2,
+           "version": 2
+          }
+         ]
+        }
+       ],
+       "discarded": []
+      },
+      "evaluated": {
+       "smith_trust": 2,
+       "weather": "clear",
+       "gate_choice": "north",
+       "has_map": true
+      }
+     },
+     {
+      "at": 0,
+      "boundary": 7,
+      "before": {
+       "blackboard": {
+        "values": {
+         "smith_trust": 2,
+         "weather": "clear",
+         "gate_choice": "north",
+         "has_map": true
+        },
+        "versions": {
+         "smith_trust": 2,
+         "weather": 1,
+         "gate_choice": 1,
+         "has_map": 1
+        },
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 6,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 12,
+       "chatLength": 13
+      },
+      "after": {
+       "blackboard": {
+        "values": {
+         "smith_trust": 2,
+         "weather": "clear",
+         "gate_choice": "north",
+         "has_map": true
+        },
+        "versions": {
+         "smith_trust": 2,
+         "weather": 1,
+         "gate_choice": 1,
+         "has_map": 1
+        },
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 7,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 14,
+       "chatLength": 15
+      },
+      "fired": null,
+      "source": "gate",
+      "context": {
+       "lastMessageId": 14,
+       "chatLength": 15
+      },
+      "queue": {
+       "applied": [
+        {
+         "source": "extractor",
+         "blackboardVersionSum": 0,
+         "deltas": [],
+         "outcomes": []
+        }
+       ],
+       "discarded": []
+      },
+      "evaluated": {
+       "smith_trust": 2,
+       "weather": "clear",
+       "gate_choice": "north",
+       "has_map": true
+      }
+     },
+     {
+      "at": 0,
+      "boundary": 8,
+      "before": {
+       "blackboard": {
+        "values": {
+         "smith_trust": 2,
+         "weather": "clear",
+         "gate_choice": "north",
+         "has_map": true
+        },
+        "versions": {
+         "smith_trust": 2,
+         "weather": 1,
+         "gate_choice": 1,
+         "has_map": 1
+        },
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 7,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 14,
+       "chatLength": 15
+      },
+      "after": {
+       "blackboard": {
+        "values": {
+         "smith_trust": 2,
+         "weather": "clear",
+         "gate_choice": "north",
+         "has_map": true
+        },
+        "versions": {
+         "smith_trust": 2,
+         "weather": 1,
+         "gate_choice": 1,
+         "has_map": 1
+        },
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 8,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 16,
+       "chatLength": 17
+      },
+      "fired": null,
+      "source": "gate",
+      "context": {
+       "lastMessageId": 16,
+       "chatLength": 17
+      },
+      "queue": {
+       "applied": [
+        {
+         "source": "extractor",
+         "blackboardVersionSum": 0,
+         "deltas": [],
+         "outcomes": []
+        }
+       ],
+       "discarded": []
+      },
+      "evaluated": {
+       "smith_trust": 2,
+       "weather": "clear",
+       "gate_choice": "north",
+       "has_map": true
+      }
+     },
+     {
+      "at": 0,
+      "boundary": 9,
+      "before": {
+       "blackboard": {
+        "values": {
+         "smith_trust": 2,
+         "weather": "clear",
+         "gate_choice": "north",
+         "has_map": true
+        },
+        "versions": {
+         "smith_trust": 2,
+         "weather": 1,
+         "gate_choice": 1,
+         "has_map": 1
+        },
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 8,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 16,
+       "chatLength": 17
+      },
+      "after": {
+       "blackboard": {
+        "values": {
+         "smith_trust": 2,
+         "weather": "clear",
+         "gate_choice": "north",
+         "has_map": true
+        },
+        "versions": {
+         "smith_trust": 2,
+         "weather": 1,
+         "gate_choice": 1,
+         "has_map": 1
+        },
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 9,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 18,
+       "chatLength": 19
+      },
+      "fired": null,
+      "source": "gate",
+      "context": {
+       "lastMessageId": 18,
+       "chatLength": 19
+      },
+      "queue": {
+       "applied": [
+        {
+         "source": "extractor",
+         "blackboardVersionSum": 0,
+         "deltas": [],
+         "outcomes": []
+        }
+       ],
+       "discarded": []
+      },
+      "evaluated": {
+       "smith_trust": 2,
+       "weather": "clear",
+       "gate_choice": "north",
+       "has_map": true
+      }
+     },
+     {
+      "at": 0,
+      "boundary": 10,
+      "before": {
+       "blackboard": {
+        "values": {
+         "smith_trust": 2,
+         "weather": "clear",
+         "gate_choice": "north",
+         "has_map": true
+        },
+        "versions": {
+         "smith_trust": 2,
+         "weather": 1,
+         "gate_choice": 1,
+         "has_map": 1
+        },
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 9,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 18,
+       "chatLength": 19
+      },
+      "after": {
+       "blackboard": {
+        "values": {
+         "smith_trust": 2,
+         "weather": "clear",
+         "gate_choice": "north",
+         "has_map": true
+        },
+        "versions": {
+         "smith_trust": 2,
+         "weather": 1,
+         "gate_choice": 1,
+         "has_map": 1
+        },
+        "latched": {}
+       },
+       "activeCheckpointId": "crossroads",
+       "visitedAnchors": [
+        "crossroads"
+       ],
+       "visitedPath": [
+        "crossroads"
+       ],
+       "boundary": 10,
+       "checkpointStartedBoundary": 0,
+       "checkpointStartedAt": 0,
+       "checkpointStartedMessageId": -1,
+       "lastMessageId": 20,
+       "chatLength": 21
+      },
+      "fired": null,
+      "source": "gate",
+      "context": {
+       "lastMessageId": 20,
+       "chatLength": 21
+      },
+      "queue": {
+       "applied": [
+        {
+         "source": "extractor",
+         "blackboardVersionSum": 0,
+         "deltas": [],
+         "outcomes": []
+        }
+       ],
+       "discarded": []
+      },
+      "evaluated": {
+       "smith_trust": 2,
+       "weather": "clear",
+       "gate_choice": "north",
+       "has_map": true
+      }
+     }
+    ]
+   },
+   "extras": {}
+  }
+ }
+}

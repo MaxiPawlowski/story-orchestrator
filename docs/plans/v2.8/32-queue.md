@@ -81,7 +81,7 @@ It records current progress, source-plan links and deferred acceptance protocols
 | R6 | S-17 on the scope budget. **2026-10-10 (pod 2): S-17 FAIL ×2, 37-S17 FAIL ×2 (F27); after the F27 fix (master `83403197`) PASS ×2 both, 37-M1 PASS ×2** | M7 |
 | R7 | Lorebook R5: sheets after character definitions vs depth 4. **2026-10-10 (pod 2): INCOMPLETE, no `--swa-full` reuse 0 both arms (first difference moved to ~65 %, the player role); swa rerun not started; P5 owed (31 D-P5, M9)**. 2026-10-13: D-P5 built (player role, scene history, ledger, story-so-far at depth 4); R7 cache measurement still deferred | M9; measured by the same `place-all.sh` A/B (control = after the card, late = depth 4) |
 | R8 | v2.8 01 owed: Q-M5/P3, inner voice B2/C, W6, R4, thinking A/B | M15 |
-| R9 | J6d shadow record, offline replay (option C) | 12 |
+| R9 | J6d shadow record, offline replay (option C) | 12. **Reconstruction + replay built 2026-10-14** (`v2.8-offline-replays`): `extraction/shadowReplay.ts`, `so-j6d-replay.mts`, synthetic golden; extractor leg (read model ×2) and second-model arbitration deferred (12 §Gate record) |
 | R10 | Cue + scene read merge A/B | 15 |
 | R11 | SP5 story scenario live legs | 16 |
 | R12 | SP6 complication pool | 17 |

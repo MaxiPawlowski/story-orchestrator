@@ -39,7 +39,7 @@ const answeredMove = (quote: string, sources: number[], window: SharedReadWindow
 
 const describeDelta = (entry: ParsedDelta) => `DELTA ${entry.delta.q} value=${String(entry.delta.v)} evidence="${entry.evidence}"`;
 
-const refusal = (reply: ExtractionReply, parsed: ParsedSharedRead, maxTokens?: number): string | null => {
+export const refusal = (reply: ExtractionReply, parsed: ParsedSharedRead, maxTokens?: number): string | null => {
   if (reply.finish === "length") return "truncated response";
   if (parsed.deltas.length > MAX_DELTAS_PER_READ) return "oversized response";
   if (reply.finish === "unknown" && reply.text.length > (maxTokens ?? DEFAULT_RESPONSE_TOKENS) * CHARS_PER_TOKEN) return "oversized response";
@@ -56,7 +56,7 @@ const refusal = (reply: ExtractionReply, parsed: ParsedSharedRead, maxTokens?: n
  * settled it. Evidence is checked for the same reason: a quote that is not in the window the read
  * was given is a claim about a transcript the read never saw.
  */
-const screenDeltas = (parsed: ParsedSharedRead, residual: readonly ScopedQuality[], answered: Set<string>, window: SharedReadWindow) => {
+export const screenDeltas = (parsed: ParsedSharedRead, residual: readonly ScopedQuality[], answered: Set<string>, window: SharedReadWindow) => {
   const byKey = new Map(residual.map((entry) => [entry.key, entry.quality]));
   const accepted: ParsedDelta[] = [];
   const rejected: Array<{ line: string; reason: string }> = [];
@@ -133,7 +133,9 @@ export function sharedReadWindow(options: Pick<RunSharedReadOptions, "state" | "
 const scopeOf = (options: RunSharedReadOptions): ScopedQuality[] =>
   options.scope ?? deriveScope(options.story, options.state.activeCheckpointId, options.state.blackboard, options.extraGateSources ?? [], options.cardScope);
 
-const readContract = (options: RunSharedReadOptions, window: SharedReadWindow, qualities: ScopedQuality[]): SharedReadContract => ({
+export type ReadContractOptions = Pick<RunSharedReadOptions, "story" | "state" | "firedTransitions" | "facts" | "openArcs" | "epistemicLedgerCapable" | "entities" | "deltasOnly">;
+
+export const readContract = (options: ReadContractOptions, window: SharedReadWindow, qualities: ScopedQuality[]): SharedReadContract => ({
   storyTitle: options.story.title,
   activeCheckpointId: options.state.activeCheckpointId,
   qualities,

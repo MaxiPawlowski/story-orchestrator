@@ -1,0 +1,25 @@
+{
+  "format": 2,
+  "id": "j6d-shadow-crossroads",
+  "title": "J6d Shadow Crossroads",
+  "description": "v2.8 plan 12 J6d synthetic fixture: four typed qualities (two choice, a rating, a stated count) the judge answers, one residual quality the extractor answers. The exits need a storm that never comes, so the read stays at the crossroads.",
+  "qualities": [
+    { "key": "gate_choice", "type": "enum", "values": ["north", "south"], "source": "extractor", "read_as": "choice", "rubric": "Which road has the party chosen at the crossroads?" },
+    { "key": "smith_trust", "type": "int", "source": "extractor", "read_as": "rating", "rubric": "How much does the smith trust the party, from 0 (wary) to 3 (trusting)?" },
+    { "key": "has_map", "type": "bool", "source": "extractor", "read_as": "choice", "rubric": "Does the party hold the smith's map?" },
+    { "key": "coins_paid", "type": "int", "source": "extractor", "read_as": "stated", "rubric": "How many coins has the party paid the smith?" },
+    { "key": "weather", "type": "enum", "values": ["clear", "storm"], "source": "extractor", "rubric": "What is the weather at the crossroads?" }
+  ],
+  "roster": [
+    { "id": "narrator", "name": "Narrator" }
+  ],
+  "checkpoints": [
+    { "id": "crossroads", "name": "The Crossroads", "objective": "Choose a road with the smith's help.", "type": "anchor", "start": true },
+    { "id": "north_road", "name": "The North Road", "objective": "Follow the north road.", "type": "anchor" },
+    { "id": "south_road", "name": "The South Road", "objective": "Follow the south road.", "type": "anchor" }
+  ],
+  "transitions": [
+    { "from": "crossroads", "to": "north_road", "priority": 2, "gate": { "all": [ { "q": "gate_choice", "op": "==", "v": "north" }, { "q": "has_map", "op": "==", "v": true }, { "q": "weather", "op": "==", "v": "storm" } ] } },
+    { "from": "crossroads", "to": "south_road", "priority": 1, "gate": { "all": [ { "q": "smith_trust", "op": ">=", "v": 3 }, { "q": "coins_paid", "op": ">=", "v": 5 }, { "q": "weather", "op": "==", "v": "storm" } ] } }
+  ]
+}

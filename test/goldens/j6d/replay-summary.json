@@ -1,0 +1,159 @@
+{
+ "summary": {
+  "verdict": "rate",
+  "rebuiltCases": 7,
+  "refusedCases": 1,
+  "refusedBy": {
+   "prompt-mismatch": 1
+  },
+  "unaskedCases": 0,
+  "refusedReplies": 0,
+  "perRun": [
+   {
+    "run": 0,
+    "keys": 28,
+    "classes": {
+     "agree": 26,
+     "disagree": 1,
+     "judge-moved": 1,
+     "extractor-moved": 0
+    },
+    "disagreementRate": 0.07142857142857142,
+    "strictDisagreementRate": 0.03571428571428571,
+    "verdict": "rate"
+   },
+   {
+    "run": 1,
+    "keys": 28,
+    "classes": {
+     "agree": 26,
+     "disagree": 1,
+     "judge-moved": 0,
+     "extractor-moved": 1
+    },
+    "disagreementRate": 0.07142857142857142,
+    "strictDisagreementRate": 0.03571428571428571,
+    "verdict": "rate"
+   }
+  ],
+  "pooled": {
+   "keys": 56,
+   "classes": {
+    "agree": 52,
+    "disagree": 2,
+    "judge-moved": 1,
+    "extractor-moved": 1
+   },
+   "disagreementRate": 0.07142857142857142,
+   "strictDisagreementRate": 0.03571428571428571
+  },
+  "byReadAs": {
+   "choice": {
+    "keys": 28,
+    "classes": {
+     "agree": 26,
+     "disagree": 0,
+     "judge-moved": 1,
+     "extractor-moved": 1
+    },
+    "disagreementRate": 0.07142857142857142,
+    "strictDisagreementRate": 0
+   },
+   "rating": {
+    "keys": 14,
+    "classes": {
+     "agree": 12,
+     "disagree": 2,
+     "judge-moved": 0,
+     "extractor-moved": 0
+    },
+    "disagreementRate": 0.14285714285714285,
+    "strictDisagreementRate": 0.14285714285714285
+   },
+   "stated": {
+    "keys": 14,
+    "classes": {
+     "agree": 14,
+     "disagree": 0,
+     "judge-moved": 0,
+     "extractor-moved": 0
+    },
+    "disagreementRate": 0,
+    "strictDisagreementRate": 0
+   }
+  },
+  "byConfidence": {
+   "0.8-0.9": {
+    "keys": 22,
+    "classes": {
+     "agree": 20,
+     "disagree": 2,
+     "judge-moved": 0,
+     "extractor-moved": 0
+    },
+    "disagreementRate": 0.09090909090909091,
+    "strictDisagreementRate": 0.09090909090909091
+   },
+   "0.9-0.95": {
+    "keys": 12,
+    "classes": {
+     "agree": 11,
+     "disagree": 0,
+     "judge-moved": 1,
+     "extractor-moved": 0
+    },
+    "disagreementRate": 0.08333333333333333,
+    "strictDisagreementRate": 0
+   },
+   "<0.8": {
+    "keys": 2,
+    "classes": {
+     "agree": 2,
+     "disagree": 0,
+     "judge-moved": 0,
+     "extractor-moved": 0
+    },
+    "disagreementRate": 0,
+    "strictDisagreementRate": 0
+   },
+   ">=0.95": {
+    "keys": 20,
+    "classes": {
+     "agree": 19,
+     "disagree": 0,
+     "judge-moved": 0,
+     "extractor-moved": 1
+    },
+    "disagreementRate": 0.05,
+    "strictDisagreementRate": 0
+   }
+  },
+  "buildLiveShadow": false
+ },
+ "arbitrationSample": [
+  {
+   "case": "af2b52c6",
+   "key": "gate_choice",
+   "run": 0,
+   "class": "judge-moved"
+  },
+  {
+   "case": "46f4f8fd",
+   "key": "has_map",
+   "run": 1,
+   "class": "extractor-moved"
+  },
+  {
+   "case": "e9fee0d0",
+   "key": "smith_trust",
+   "run": 1,
+   "class": "disagree"
+  },
+  {
+   "case": "e9fee0d0",
+   "key": "smith_trust",
+   "run": 0,
+   "class": "disagree"
+  }
+ ]
+}

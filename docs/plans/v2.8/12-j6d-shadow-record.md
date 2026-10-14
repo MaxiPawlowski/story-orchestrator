@@ -1,7 +1,9 @@
 # Plan 12 — J6d shadow record
 
 **Status (2026-10-03): v2.8 plan 12 (was v2.7 plan 20). Decided: option C (offline replay) only; option A (live
-author-only shadow) only if C shows ≥ 10 % disagreement. Not built; replay not run.**
+author-only shadow) only if C shows ≥ 10 % disagreement. 2026-10-14: deterministic reconstruction and replay built
+(§Gate record); the extractor leg (read model ×2 over the real corpus) and the second-model arbitration are deferred
+(v2.8 40), so no disagreement rate exists yet.**
 Source: `docs/plans/v2.6/v2.7-seeds.md` row "J6d shadow record". Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D (reconstruction tool); acceptance CL (the replay calls
 the DeepSeek read model; no pod).
