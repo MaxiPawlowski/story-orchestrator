@@ -1,0 +1,310 @@
+{
+  "name": "v28-40-provisioning-roundtrip",
+  "objective": "Plan 34 owed no-model protocol: provision a marked owned lorebook through the runtime (regex primary key, NOT_ANY secondary logic, outlet, generation triggers) and a marked card; read every field back from the server file; refused shapes stay refused. Scanned-memory control: a NOT_ANY entry whose secondary key sits only in scanned memory is never classified certain (rated, not left to scan) and ST's own dry-run scan suppresses it; with memory scanning off the same entry is left to the keyword scan and ST activates it. The quiet-only entry is never rated or forced on a normal turn; the outlet entry keeps its authored position. Judge scripted, extraction scripted, no model.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "judge": "off",
+    "briefingDraft": "off",
+    "innerBeat": "off",
+    "why": "Provisioning, host scan and lore selection only; judge answers are scripted and no request leaves the page."
+  },
+  "steps": [
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); const wi = await import('/scripts/world-info.js'); await wi.updateWorldInfoList(); if (wi.world_names.includes('SO-P40 Lore')) throw new Error('fixture book already exists'); if (ctx.characters.some((c) => c.name === 'SO-P40 Keeper')) throw new Error('fixture card already exists'); let cleared = null; if (ctx.groupId && ctx.characterId !== undefined && ctx.characterId !== null) { cleared = String(ctx.characterId); (await import('/script.js')).setCharacterId(undefined); } globalThis.__p40 = { scanBefore: globalThis.storyOrchestratorRuntime.getGlobalSettings().worldInfo.scanMemory, calls: [], forces: [] }; return { cleared, scanBefore: globalThis.__p40.scanBefore };"
+    },
+    {
+      "copilot": {
+        "action": "provision",
+        "draft": {
+          "id": "so-p40-roundtrip",
+          "title": "SO-P40 Roundtrip",
+          "requirements": {
+            "lorebooks": [
+              "SO-P40 Lore"
+            ]
+          }
+        },
+        "op": {
+          "kind": "createStoryLorebook",
+          "name": "SO-P40 Lore"
+        }
+      }
+    },
+    {
+      "copilot": {
+        "action": "provision",
+        "draft": {
+          "id": "so-p40-roundtrip",
+          "title": "SO-P40 Roundtrip",
+          "requirements": {
+            "lorebooks": [
+              "SO-P40 Lore"
+            ]
+          }
+        },
+        "op": {
+          "kind": "upsertLorebookEntry",
+          "lorebook": "SO-P40 Lore",
+          "comment": "SO-P40 bell",
+          "keys": [
+            "/harbou?r\\s+bell/i"
+          ],
+          "secondaryKeys": [
+            "storm"
+          ],
+          "logic": "not-any",
+          "content": "SO-P40 bell lore: the bell is rung only in calm weather.",
+          "triggers": [
+            "normal"
+          ]
+        }
+      }
+    },
+    {
+      "copilot": {
+        "action": "provision",
+        "draft": {
+          "id": "so-p40-roundtrip",
+          "title": "SO-P40 Roundtrip",
+          "requirements": {
+            "lorebooks": [
+              "SO-P40 Lore"
+            ]
+          }
+        },
+        "op": {
+          "kind": "upsertLorebookEntry",
+          "lorebook": "SO-P40 Lore",
+          "comment": "SO-P40 outlet",
+          "keys": [
+            "lantern"
+          ],
+          "content": "SO-P40 outlet lore: the lantern hangs by the door.",
+          "outlet": "so-p40-lantern"
+        }
+      }
+    },
+    {
+      "copilot": {
+        "action": "provision",
+        "draft": {
+          "id": "so-p40-roundtrip",
+          "title": "SO-P40 Roundtrip",
+          "requirements": {
+            "lorebooks": [
+              "SO-P40 Lore"
+            ]
+          }
+        },
+        "op": {
+          "kind": "upsertLorebookEntry",
+          "lorebook": "SO-P40 Lore",
+          "comment": "SO-P40 quiet",
+          "keys": [
+            "dawn"
+          ],
+          "content": "SO-P40 quiet lore: only quiet generations read this.",
+          "triggers": [
+            "quiet"
+          ]
+        }
+      }
+    },
+    {
+      "copilot": {
+        "action": "provision",
+        "draft": {
+          "id": "so-p40-roundtrip",
+          "title": "SO-P40 Roundtrip",
+          "requirements": {
+            "lorebooks": [
+              "SO-P40 Lore"
+            ]
+          }
+        },
+        "op": {
+          "kind": "upsertLorebookEntry",
+          "lorebook": "SO-P40 Lore",
+          "comment": "SO-P40 bad logic",
+          "keys": [
+            "bell"
+          ],
+          "logic": "not-any",
+          "content": "Must never land."
+        },
+        "expectFail": true
+      },
+      "expectFail": true
+    },
+    {
+      "copilot": {
+        "action": "provision",
+        "draft": {
+          "id": "so-p40-roundtrip",
+          "title": "SO-P40 Roundtrip",
+          "requirements": {
+            "lorebooks": [
+              "SO-P40 Lore"
+            ]
+          }
+        },
+        "op": {
+          "kind": "upsertLorebookEntry",
+          "lorebook": "SO-P40 Lore",
+          "comment": "SO-P40 bad outlet",
+          "keys": [
+            "bell"
+          ],
+          "outlet": "so-{bad}",
+          "content": "Must never land."
+        },
+        "expectFail": true
+      },
+      "expectFail": true
+    },
+    {
+      "copilot": {
+        "action": "provision",
+        "draft": {
+          "id": "so-p40-roundtrip",
+          "title": "SO-P40 Roundtrip",
+          "requirements": {
+            "lorebooks": [
+              "SO-P40 Lore"
+            ]
+          }
+        },
+        "op": {
+          "kind": "upsertLorebookEntry",
+          "lorebook": "SO-P40 Lore",
+          "comment": "SO-P40 bad trigger",
+          "keys": [
+            "bell"
+          ],
+          "triggers": [
+            "dance"
+          ],
+          "content": "Must never land."
+        },
+        "expectFail": true
+      },
+      "expectFail": true
+    },
+    {
+      "copilot": {
+        "action": "provision",
+        "draft": {
+          "id": "so-p40-roundtrip",
+          "title": "SO-P40 Roundtrip",
+          "requirements": {
+            "lorebooks": [
+              "SO-P40 Lore"
+            ]
+          }
+        },
+        "op": {
+          "kind": "createCharacterCard",
+          "name": "SO-P40 Keeper",
+          "description": "A synthetic lighthouse keeper made by the provisioning roundtrip.",
+          "personality": "Calm.",
+          "tags": [
+            "so-p40"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const book = await (await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-P40 Lore' }), cache: 'no-cache' })).json(); const entries = Object.values(book.entries ?? {}); const by = (c) => entries.find((e) => e.comment === c); const bell = by('SO-P40 bell'); const outlet = by('SO-P40 outlet'); const quiet = by('SO-P40 quiet'); const problems = []; if (entries.length !== 3) problems.push('entries ' + entries.length); if (!bell || JSON.stringify(bell.key) !== JSON.stringify(['/harbou?r\\\\s+bell/i'])) problems.push('regex key ' + JSON.stringify(bell?.key)); if (!bell || JSON.stringify(bell.keysecondary) !== '[\"storm\"]' || bell.selective !== true || bell.selectiveLogic !== 2) problems.push('NOT_ANY ' + JSON.stringify({ s: bell?.keysecondary, sel: bell?.selective, logic: bell?.selectiveLogic })); if (JSON.stringify(bell?.triggers) !== '[\"normal\"]') problems.push('bell triggers ' + JSON.stringify(bell?.triggers)); if (!outlet || outlet.position !== 7 || outlet.outletName !== 'so-p40-lantern') problems.push('outlet ' + JSON.stringify({ p: outlet?.position, n: outlet?.outletName })); if (JSON.stringify(quiet?.triggers) !== '[\"quiet\"]') problems.push('quiet triggers ' + JSON.stringify(quiet?.triggers)); const card = ctx.characters.find((c) => c.name === 'SO-P40 Keeper'); if (!card) problems.push('card missing'); if (ctx.groupId === null || ctx.groupId === undefined) problems.push('left the group'); const env = globalThis.storyOrchestratorRuntime.getProvisioningEnvironment({ id: 'so-p40-roundtrip', title: 'SO-P40 Roundtrip', requirements: { lorebooks: ['SO-P40 Lore'] } }); if (!env.ownedLorebooks.includes('SO-P40 Lore')) problems.push('not owned'); if (problems.length) throw new Error(problems.join('; ')); globalThis.__p40.uids = { bell: bell.uid, outlet: outlet.uid, quiet: quiet.uid }; return { entries: 3, card: card.name, uids: globalThis.__p40.uids };",
+      "log": true
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-p40-roundtrip",
+        "title": "SO-P40 Roundtrip",
+        "description": "Synthetic provisioning roundtrip.",
+        "requirements": {
+          "lorebooks": [
+            "SO-P40 Lore"
+          ]
+        },
+        "qualities": [],
+        "checkpoints": [
+          {
+            "id": "quay",
+            "name": "The Quay",
+            "type": "anchor",
+            "start": true,
+            "objective": "Walk the quay."
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator"
+          }
+        ],
+        "lore_select": {
+          "lorebooks": [
+            "SO-P40 Lore"
+          ],
+          "top_k": 12,
+          "min_p": 0
+        }
+      }
+    },
+    {
+      "expect": {
+        "requirementsReady": true
+      }
+    },
+    {
+      "send": "I ring the harbor bell at dawn and light the lantern."
+    },
+    {
+      "extract": {
+        "debugResponse": "FACT importance=3 text=\"A storm is gathering beyond the reef.\" evidence=\"I ring the harbor bell at dawn and light the lantern.\""
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setScanMemory(true); const until = Date.now() + 5000; const scanned = () => Object.entries(SillyTavern.getContext().extensionPrompts).filter(([k, p]) => p?.scan && typeof p.value === 'string' && p.value.includes('storm')).map(([k]) => k); while (!scanned().length && Date.now() < until) await new Promise((r) => setTimeout(r, 100)); if (!scanned().length) throw new Error('no scanned memory prompt carries the fact: ' + JSON.stringify(Object.keys(SillyTavern.getContext().extensionPrompts))); return { scannedKeys: scanned() };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const b = globalThis.__p40; const ctx = SillyTavern.getContext(); const judge = rt.getJudge(); b.judge = judge; b.active = judge.active; b.ask = judge.ask; judge.active = (use) => use === 'loreSelect'; judge.ask = async (use, request) => { b.calls.push(Object.values(request.questions).map((q) => q.instructions ?? '')); return { answers: Object.fromEntries(Object.keys(request.questions).map((key) => [key, { type: 'noul', noul: 0.99 }])) }; }; b.forceEvent = ctx.eventTypes.WORLDINFO_FORCE_ACTIVATE; b.forceListener = (entries) => b.forces.push(entries.filter((e) => e.world === 'SO-P40 Lore').map((e) => e.uid).sort()); ctx.eventSource.on(b.forceEvent, b.forceListener); return { stubbed: true };"
+    },
+    {
+      "eval": "const b = globalThis.__p40; const wi = await import('/scripts/world-info.js'); const ctx = SillyTavern.getContext(); const scan = async () => { const chat = ctx.chat.filter((m) => !m.is_system).map((m) => `${m.name}: ${m.mes}`).reverse(); const dry = await wi.checkWorldInfo(chat, 8192, true, { trigger: 'normal', personaDescription: '', characterDescription: '', characterPersonality: '', characterDepthPrompt: '', scenario: '', creatorNotes: '' }); return [...(dry.allActivatedEntries?.values() ?? [])].filter((e) => e.world === 'SO-P40 Lore').map((e) => e.comment).sort(); }; wi.worldInfoCache.delete('SO-P40 Lore'); const native = await scan(); if (native.includes('SO-P40 bell')) throw new Error('ST did not suppress the NOT_ANY entry beside scanned memory: ' + JSON.stringify(native)); if (native.includes('SO-P40 quiet')) throw new Error('ST activated the quiet-only entry on a normal scan'); const before = b.forces.length; const selected = await globalThis.storyOrchestratorLore.selector.select('GENERATION_STARTED', 'normal'); if (!selected) throw new Error('no selection'); const left = selected.left.filter((e) => e.world === 'SO-P40 Lore'); const picks = selected.picks.filter((e) => e.world === 'SO-P40 Lore').map((e) => e.uid); if (left.some((e) => e.uid === b.uids.bell)) throw new Error('NOT_ANY entry classified certain beside scanned memory: ' + JSON.stringify(left)); if (!picks.includes(b.uids.bell)) throw new Error('NOT_ANY entry was not rated: ' + JSON.stringify(selected)); if (picks.includes(b.uids.quiet) || left.some((e) => e.uid === b.uids.quiet)) throw new Error('quiet-only entry reached a normal selection'); const forced = b.forces.slice(before).flat(); if (!forced.includes(b.uids.bell)) throw new Error('rated NOT_ANY pick was not forced: ' + JSON.stringify(b.forces)); if (forced.includes(b.uids.quiet)) throw new Error('quiet-only entry forced'); const landed = await scan(); if (!landed.includes('SO-P40 bell')) throw new Error('forced NOT_ANY pick did not land in the next scan: ' + JSON.stringify(landed)); if (landed.includes('SO-P40 quiet')) throw new Error('quiet-only entry landed'); b.scannedArm = { native, picks, forced, landed, left: left.map((e) => e.uid + ':' + e.reason) }; return b.scannedArm;",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setScanMemory(false); const until = Date.now() + 5000; const scanned = () => Object.values(SillyTavern.getContext().extensionPrompts).filter((p) => p?.scan && typeof p.value === 'string' && p.value.trim()).length; while (scanned() && Date.now() < until) await new Promise((r) => setTimeout(r, 100)); if (scanned()) throw new Error('scan prompts remain with memory scanning off: ' + JSON.stringify(Object.entries(SillyTavern.getContext().extensionPrompts).filter(([k, p]) => p?.scan && p.value?.trim()).map(([k]) => k))); return { scanning: 0 };"
+    },
+    {
+      "eval": "const b = globalThis.__p40; const wi = await import('/scripts/world-info.js'); wi.worldInfoCache.delete('SO-P40 Lore'); const before = b.forces.length; const selected = await globalThis.storyOrchestratorLore.selector.select('GENERATION_STARTED', 'normal'); if (!selected) throw new Error('no selection'); const left = selected.left.filter((e) => e.world === 'SO-P40 Lore'); const bell = left.find((e) => e.uid === b.uids.bell); if (!bell || bell.reason !== 'keyword') throw new Error('with memory unscanned the NOT_ANY entry should be left to the keyword scan: ' + JSON.stringify(selected)); if (b.forces.slice(before).flat().includes(b.uids.bell)) throw new Error('keyword-left entry was forced too'); const ctx = SillyTavern.getContext(); const chat = ctx.chat.filter((m) => !m.is_system).map((m) => `${m.name}: ${m.mes}`).reverse(); const dry = await wi.checkWorldInfo(chat, 8192, true, { trigger: 'normal', personaDescription: '', characterDescription: '', characterPersonality: '', characterDepthPrompt: '', scenario: '', creatorNotes: '' }); const active = [...(dry.allActivatedEntries?.values() ?? [])].filter((e) => e.world === 'SO-P40 Lore').map((e) => e.comment); if (!active.includes('SO-P40 bell')) throw new Error('control: ST did not activate the NOT_ANY entry with memory unscanned: ' + JSON.stringify(active)); if (active.includes('SO-P40 quiet')) throw new Error('quiet-only entry activated on a normal scan'); const file = await (await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-P40 Lore' }), cache: 'no-cache' })).json(); const outlet = Object.values(file.entries).find((e) => e.comment === 'SO-P40 outlet'); if (outlet.position !== 7 || outlet.outletName !== 'so-p40-lantern') throw new Error('outlet entry moved on disk'); return { controlLeft: left.map((e) => e.uid + ':' + e.reason), stActive: active, outletPosition: outlet.position, scannedArm: b.scannedArm, ratedQuestions: b.calls.flat().length };",
+      "log": true
+    },
+    {
+      "eval": "const b = globalThis.__p40; const rt = globalThis.storyOrchestratorRuntime; b.judge.active = b.active; b.judge.ask = b.ask; SillyTavern.getContext().eventSource.removeListener(b.forceEvent, b.forceListener); rt.setScanMemory(b.scanBefore); if (rt.getGlobalSettings().worldInfo.scanMemory !== b.scanBefore) throw new Error('scanMemory not restored'); delete globalThis.storyOrchestratorDebugExtractionResponse; return { restored: true };"
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "const b = globalThis.__p40; if (b?.judge) { b.judge.active = b.active; b.judge.ask = b.ask; } if (b?.forceListener) SillyTavern.getContext().eventSource.removeListener(b.forceEvent, b.forceListener); if (b && typeof b.scanBefore === 'boolean') globalThis.storyOrchestratorRuntime.setScanMemory(b.scanBefore); return true;"
+      },
+      {
+        "assets": {
+          "action": "remove",
+          "marker": "SO-P40"
+        }
+      }
+    ]
+  }
+}

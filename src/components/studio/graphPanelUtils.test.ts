@@ -1,4 +1,4 @@
-import { buildGraphElements, CHAPTER_LANE_PREFIX } from "./graphPanelUtils";
+import { buildGraphElements, CHAPTER_LANE_PREFIX, holdTapGate } from "./graphPanelUtils";
 
 describe("graph chapter lanes (v2.6 plan 07 D13)", () => {
   const draft = {
@@ -21,5 +21,26 @@ describe("graph chapter lanes (v2.6 plan 07 D13)", () => {
 
   it("draws no lane when no chapter is declared", () => {
     expect(buildGraphElements({ checkpoints: draft.checkpoints }, null).some((element) => element.data.type === "chapter")).toBe(false);
+  });
+});
+
+describe("hold then release on a touch screen", () => {
+  it("swallows the tap Cytoscape emits on the release that ends a long-press, and only that one", () => {
+    const gate = holdTapGate();
+    gate.start();
+    expect(gate.tapAllowed()).toBe(true);
+    gate.start();
+    gate.hold();
+    expect(gate.tapAllowed()).toBe(false);
+    gate.start();
+    expect(gate.tapAllowed()).toBe(true);
+  });
+
+  it("a new press clears a hold whose release emitted no tap", () => {
+    const gate = holdTapGate();
+    gate.start();
+    gate.hold();
+    gate.start();
+    expect(gate.tapAllowed()).toBe(true);
   });
 });

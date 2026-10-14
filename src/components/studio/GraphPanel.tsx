@@ -4,6 +4,7 @@ import HelpTooltip from "./HelpTooltip";
 import {
   buildGraphElements,
   createGraphStyles,
+  holdTapGate,
   type LayoutName,
   resizeAndFitGraph,
   resolveGraphThemeColors,
@@ -66,7 +67,9 @@ const useCytoscape = (containerRef: ContainerRef, onSelect: (id: string) => void
         return;
       }
 
+      const holdGate = holdTapGate();
       const handleTap = (event: EventObject) => {
+        if (!holdGate.tapAllowed()) return;
         const id = event.target.id();
         if (id) {
           selectHandlerRef.current?.(id);
@@ -81,11 +84,16 @@ const useCytoscape = (containerRef: ContainerRef, onSelect: (id: string) => void
       };
       cy.on("tap", CHECKPOINT_NODES, handleTap);
       const handleLongPress = (event: EventObject) => longPressRef.current?.(event.target.id());
+      const handleHold = (event: EventObject) => {
+        holdGate.hold();
+        handleLongPress(event);
+      };
       const refreshPosition = () => cy?.resize();
       container.addEventListener("mousedown", refreshPosition, true);
       container.addEventListener("touchstart", refreshPosition, true);
       cy.on("cxttap", CHECKPOINT_NODES, handleLongPress);
-      cy.on("taphold", CHECKPOINT_NODES, handleLongPress);
+      cy.on("tapstart", holdGate.start);
+      cy.on("taphold", CHECKPOINT_NODES, handleHold);
       cy.on("mouseover", "edge", handleEdgeOver);
       cy.on("mouseout", "edge", handleEdgeOut);
       cyRef.current = cy;
@@ -95,7 +103,8 @@ const useCytoscape = (containerRef: ContainerRef, onSelect: (id: string) => void
         container.removeEventListener("mousedown", refreshPosition, true);
         container.removeEventListener("touchstart", refreshPosition, true);
         cy?.off("cxttap", CHECKPOINT_NODES, handleLongPress);
-        cy?.off("taphold", CHECKPOINT_NODES, handleLongPress);
+        cy?.off("tapstart", holdGate.start);
+        cy?.off("taphold", CHECKPOINT_NODES, handleHold);
         try {
           cy?.off("tap", CHECKPOINT_NODES, handleTap);
           cy?.off("mouseover", "edge", handleEdgeOver);

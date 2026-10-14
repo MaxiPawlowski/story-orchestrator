@@ -277,6 +277,22 @@ describe("R12: entries ST's own scan already settles never reach the judge", () 
     expect(asked(held)).toEqual(["Story Lore 1"]);
   });
 
+  it("does not reuse a selection at the same message after scanned memory starts or stops holding text", async () => {
+    const not = [keyed(1, ["harbour"], { selective: true, selectiveLogic: 2, keysecondary: ["storm"] })];
+    let injected = true;
+    const env = setup({ entries: not, buffer: () => buffer(["Max: the harbour bell rings"], { injected }) });
+    const scanned = await env.selector.select("GENERATION_STARTED", "normal");
+    expect(scanned?.picks.map((pick) => pick.uid)).toEqual([1]);
+    injected = false;
+    const settled = await env.selector.select("GENERATION_STARTED", "normal");
+    expect(settled?.cached).toBe(false);
+    expect(settled?.left.map((item) => `${item.uid}:${item.reason}`)).toEqual(["1:keyword"]);
+    injected = true;
+    const again = await env.selector.select("GENERATION_STARTED", "normal");
+    expect(again?.left).toEqual([]);
+    expect(again?.picks.map((pick) => pick.uid)).toEqual([1]);
+  });
+
   it("drops an entry about the drafted member, by card name or roster alias", async () => {
     const roster = [{ id: "arin", name: "Arin", role: "guide" }, { id: "keeper", name: "Old Keeper", aliases: ["the Warden"], role: "keeper" }];
     const arin = setup({ entries, roster, drafted: () => "Arin" });

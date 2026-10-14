@@ -232,3 +232,22 @@ export const syncGraphElements = (
     runGraphLayout(cy, layout, dagreReady);
   }
 };
+
+export interface HoldTapGate {
+  start: () => void;
+  hold: () => void;
+  tapAllowed: () => boolean;
+}
+
+export const holdTapGate = (): HoldTapGate => {
+  let held = false;
+  return {
+    start: () => { held = false; },
+    hold: () => { held = true; },
+    tapAllowed: () => {
+      const allowed = !held;
+      held = false;
+      return allowed;
+    },
+  };
+};

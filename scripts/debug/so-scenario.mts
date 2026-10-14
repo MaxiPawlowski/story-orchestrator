@@ -6,6 +6,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
+import { touchPress } from './lib/touchPress.mts';
 import { STEP_MODIFIERS, validateFixture } from './lib/scenarioSchema.mts';
 import { payloadFailures } from './lib/payloadAssert.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
@@ -59,6 +60,7 @@ Step keys:
 ui actions ({ui: {action, label?, note?}}):
   open-drawer, drawer-tab, open-settings, select-profile, open-studio, close-studio, studio-tab, studio-save, flag, screenshot,
   open-wizard, new-story-wizard, wizard-run ({stage?, message?}), wizard-answer ({answers?}), wizard-apply ({index?}), wizard-state,
+  touch-press ({selector?, graphNode?, holdMs?} — a real CDP touch: touchStart, hold (default 700 ms), touchEnd, at an element's centre or a Studio graph node),
   branch-continue ({timeoutMs?} — hit-tests and pointer-clicks #so-branch-continue in the drawer Overview, then waits for #so-branch-notice to go),
   next-turn (the Payload tab's preview: tokens, cost, trim, foreign rows + the snapshot), memory-fates (fate badges vs snapshot),
   jump ({selector?, index?} — clicks a message citation, reports whether that message rendered in view),
@@ -819,6 +821,7 @@ async function uiStep(page, spec) {
     if (!result.clickable) throw new Error(`${result.selector} is not clickable by a pointer: ${result.reason}`);
     return result;
   }
+  if (action === 'touch-press') return touchPress(page, spec);
   if (action === 'branch-continue') return branchContinue(page, { timeoutMs: spec?.timeoutMs ?? 10000 });
   if (action === 'pointer-click') return pointerClick(page, spec?.selector ?? label, { expectVisible: spec?.expectVisible ?? null, answerPopup: Boolean(spec?.answerPopup), timeoutMs: spec?.timeoutMs ?? 10000 });
   if (action === 'assert-player-clean') {
