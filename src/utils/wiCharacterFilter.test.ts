@@ -25,4 +25,10 @@ describe("ST character-filter eligibility", () => {
     expect(eligibleLoreMember({ tags: ["cast"] }, { filename: null, tags: null })).toBe(true);
     expect(eligibleLoreMember({ names: ["Arin"] }, { filename: null, tags: null })).toBe(false);
   });
+
+  it("a drafted character with no tag-map entry skips the tag filter both ways (world-info.js:4825-4840)", () => {
+    expect(eligibleLoreMember({ tags: ["cast"] }, { filename: "Arin", tags: null })).toBe(true);
+    expect(eligibleLoreMember({ tags: ["cast"], isExclude: true }, { filename: "Arin", tags: null })).toBe(true);
+    expect(eligibleLoreMember({ names: ["Other"], tags: ["cast"] }, { filename: "Arin", tags: null })).toBe(false);
+  });
 });

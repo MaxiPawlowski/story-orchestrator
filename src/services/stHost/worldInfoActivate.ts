@@ -80,5 +80,5 @@ export function draftedLoreMember(): LoreMember {
   const avatar = character?.avatar;
   if (typeof avatar !== "string") return { filename: null, tags: null };
   const tags = context.tagMap?.[avatar];
-  return { filename: avatar.replace(/\.[^/.]+$/, ""), tags: Array.isArray(tags) ? tags.filter((tag): tag is string => typeof tag === "string") : [] };
+  return { filename: avatar.replace(/\.[^/.]+$/, ""), tags: Array.isArray(tags) ? tags.filter((tag): tag is string => typeof tag === "string") : null };
 }
