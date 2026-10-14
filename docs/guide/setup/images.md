@@ -26,8 +26,8 @@ The author maps them in Studio (**Story → Illustrations → Workflows**, and *
   picture uses your own workflow, and Setup says which one is missing.
 - A story can carry its workflows (**Export with workflows**). **Install in SillyTavern** in Studio shows the node
   classes and model files each one uses, adds it under a new name if yours already has that name, and never overwrites
-  one of yours. Workflows with nodes that can run code or read files are never installed from a story, and Story
-  Orchestrator never installs custom nodes or models.
+  one of yours. Workflows with nodes that can run code, read files, or take a path, folder, URL or file name are
+  never installed from a story, and Story Orchestrator never installs custom nodes or models.
 
 ## Advanced ComfyUI recipes
 

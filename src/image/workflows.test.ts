@@ -1,3 +1,5 @@
+import { readdirSync, readFileSync } from "fs";
+import { join } from "path";
 import { ILLUSTRATION_PURPOSES, isValidationErrorList, type StoryV2 } from "@engine/schema";
 import { parseStoryV2, parseStoryV2OrThrow } from "@engine/validate";
 import type { Purpose } from "./catalog";
@@ -46,6 +48,34 @@ describe("v2.8 29 C: bundled workflows are checked and installed create-only", (
     expect(check).toEqual({ nodes: ["CLIPTextEncode", "CheckpointLoaderSimple", "FaceDetailer"], missingNodes: ["FaceDetailer"], deniedNodes: [], hasPrompt: true, models: ["illustrious.safetensors"] });
     expect(checkWorkflowGraph({ 1: { class_type: "ExecutePythonCode", inputs: {} }, 2: { class_type: "LoadTextFile", inputs: {} } }, null).deniedNodes).toEqual(["ExecutePythonCode", "LoadTextFile"]);
     for (const core of ["LoadImage", "SaveImage", "KSampler", "VAEDecode", "UpscaleModelLoader", "ImageScaleBy", "CLIPTextEncode", "LoraLoader", "EmptyLatentImage"]) expect(isDeniedNode(core)).toBe(false);
+  });
+
+  it("refuses a node that takes a path, directory, URL or file name, whatever its class is called", () => {
+    const refused = [
+      { class_type: "Image Save", inputs: { images: ["1", 0], output_path: "C:/Users/x/Startup", filename_prefix: "ComfyUI" } },
+      { class_type: "Load Image Batch", inputs: { mode: "single_image", path: "C:/Users/x/Pictures", pattern: "*" } },
+      { class_type: "Image Load", inputs: { image_path: "/etc/passwd" } },
+      { class_type: "SaveTo", inputs: { saveDir: "/tmp" } },
+      { class_type: "Fetch", inputs: { imageUrl: "http://10.0.0.1/" } },
+      { class_type: "AudioIn", inputs: { audio_file: "x.wav" } },
+    ];
+    for (const node of refused) expect(checkWorkflowGraph({ 1: node }, null).deniedNodes).toEqual([node.class_type]);
+    const allowed = { 1: { class_type: "SaveImage", inputs: { images: ["2", 0], filename_prefix: "SO" } }, 2: { class_type: "LoadImage", inputs: { image: "%char_avatar%" } },
+      3: { class_type: "ImageStitch", inputs: { direction: "right", profile: "x" } }, 4: { class_type: "Linked", inputs: { output_path: ["1", 0] } } };
+    expect(checkWorkflowGraph(allowed, null).deniedNodes).toEqual([]);
+  });
+
+  it("every workflow shipped in the repo still passes the denylist", () => {
+    const graphs: Array<[string, Record<string, unknown>]> = [];
+    const collect = (value: unknown, where: string): void => {
+      if (!value || typeof value !== "object") return;
+      const entries = Object.entries(value as Record<string, unknown>);
+      if (entries.some(([, node]) => node && typeof node === "object" && typeof (node as { class_type?: unknown }).class_type === "string")) graphs.push([where, value as Record<string, unknown>]);
+      else for (const [key, child] of entries) collect(child, `${where}.${key}`);
+    };
+    for (const file of readdirSync(join(process.cwd(), "assets/workflows/poses")).filter((name) => name.endsWith(".json"))) collect(JSON.parse(readFileSync(join(process.cwd(), "assets/workflows/poses", file), "utf8")), file);
+    expect(graphs.length).toBeGreaterThanOrEqual(3);
+    for (const [where, shipped] of graphs) expect([where, checkWorkflowGraph(shipped, null).deniedNodes]).toEqual([where, []]);
   });
 
   it("never overwrites: an existing name with other bytes gets a suffixed name, the same bytes are already present", () => {
