@@ -182,7 +182,7 @@ test('the session deadline tears everything down even when the page never polls'
 test('a parked call nobody answers tears the session down at its call deadline', async () => {
     const ctx = setup();
     const { service } = ctx;
-    const opened = await service.agent.open(openRequest([{ call: 'readStory', args: {} }], { callTimeoutMs: 1000 }));
+    const opened = await service.agent.open(openRequest([{ call: 'readStory', args: {} }], { callTimeoutMs: 3000 }));
     const session = service.agent.sessions.get(opened.sessionId);
     const call = await nextEvent(service, opened.sessionId);
     assert.equal(call.kind, 'call');
