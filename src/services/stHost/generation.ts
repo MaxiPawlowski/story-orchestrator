@@ -1,3 +1,4 @@
+import { runsAsCommand } from "@utils/string";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { getContext } from "./context";
 import { subscribeToHostEvent } from "./events";
@@ -66,6 +67,7 @@ export const startGroupVoice = (name: string): Promise<WriteResult> => startVoic
 export function fillChatInput(text: string, expected: string): WriteResult {
   const box = inputBox();
   if (!box) return couldNot("The box where you type is not on the page.");
+  if (runsAsCommand(text)) return couldNot("That text starts with a slash and would run as a command, so it was not put in.");
   if (box.value.trim() && box.value !== expected) return couldNot("You started typing, so the suggestion was not put in.");
   box.value = text;
   box.dispatchEvent(new Event("input", { bubbles: true }));

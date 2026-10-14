@@ -21,4 +21,6 @@ const isControlChar = (char: string) => {
 };
 export const lorebookFileId = (name: string): string => [...name.trim()].filter((char) => !ILLEGAL_FILE_CHARS.has(char) && !isControlChar(char)).join("");
 
+export const runsAsCommand = (text: string): boolean => /^\s*\//.test(text);
+
 export const truncate = (value: string, limit: number) => (value.length > limit ? `${value.slice(0, limit)}…` : value);
