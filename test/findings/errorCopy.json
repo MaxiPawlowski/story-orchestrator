@@ -2,6 +2,8 @@
   "$comment": "v2.5 plan 03 E2. Rows are extracted by test/support/codeHealth.ts errorCopySites (kinds: 1 toast/popup literal, 2 template interpolating an error, 3 bare catch or constant .catch). Reviewed by hand: surface, rawError, silentCatch, verdict, reason. Pass = no rawError on a player surface; every kind-3 row logs or is a probe. 'closed' flips true when no row fails.",
   "closed": true,
   "rows": [
+    { "site": "src/image/castSceneHost.ts#discardUnplaced>callback", "kind": 2, "template": "reason instanceof Error ? reason.message : String(reason)",
+      "surface": "console", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "A failed removal of an unplaced cast image is logged to the console; the original refusal still surfaces to the caller." },
     { "site": "src/sprites/visualManifest.ts#visualPath", "kind": 3, "template": "catch {} #1",
       "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Malformed URL encoding is rejected as an invalid local asset path; no host write or hidden success." },
     { "site": "src/studio/components/PreparePresentation.tsx#prepare", "kind": 2, "template": "reason instanceof Error ? reason.message : String(reason)",

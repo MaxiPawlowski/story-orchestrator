@@ -11,7 +11,7 @@ type Story = StoryObj<typeof LiveHeadAuthor>;
 export const StatusAndImport: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText("Shape (default): rig missing")).toBeInTheDocument();
+    await expect(canvas.getByText("Shape (default): rig missing; static fallback")).toBeInTheDocument();
     await expect(canvas.getByText("Other (default): rig present")).toBeInTheDocument();
     await userEvent.click(canvas.getByText("Import a live head rig"));
     const input = canvas.getByRole("textbox", { name: "Rig package JSON" });
