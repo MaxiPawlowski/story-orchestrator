@@ -204,7 +204,7 @@ export interface WorldInfoHostModule {
   updateWorldInfoList: () => Promise<void>;
   // `loadWorldInfo`'s cache (world-info.js:882, a Map). It also keeps the dummy `{entries:{}}` a
   // missing name returns, and `importWorldInfo` never evicts it.
-  worldInfoCache: { delete: (name: string) => boolean };
+  worldInfoCache: { delete: (name: string) => boolean; get?: (name: string) => unknown; set?: (name: string, data: unknown) => unknown };
   createNewWorldInfo: (worldName: string, options?: { interactive?: boolean }) => Promise<boolean>;
   createWorldInfoEntry: (name: string, data: unknown) => unknown;
   saveWorldInfo: (name: string, data: unknown, immediately?: boolean) => Promise<unknown>;
