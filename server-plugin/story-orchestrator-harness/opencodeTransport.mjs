@@ -31,6 +31,7 @@ export const LOGIN_ACTION = 'in a terminal on this machine run `opencode auth lo
 const DENY_ALL = Object.freeze([Object.freeze({ action: '*', resource: '*', effect: 'deny' })]);
 const FOREIGN_PROBES = Object.freeze(['shell', 'edit', 'read', 'glob', 'grep', 'webfetch', 'websearch', 'skill', 'subagent', 'question', 'execute', 'external_directory', 'zz_other_tool']);
 const IMAGE_MIMES = Object.freeze({ png: 'image/png', jpeg: 'image/jpeg', gif: 'image/gif', webp: 'image/webp' });
+const SIGN_IN_TEXT = /needs[_ .-]?auth|\b(please|must|need to|needs to)\b[\w ]{0,10}\bsign[ -]?in\b|\b(expired|invalid|missing|revoked|rejected|no)\b[\w ]{0,30}\b(credentials?|sign[ -]?in)\b|\b(credentials?|sign[ -]?in)\b[\w ]{0,30}\b(expired|invalid|missing|revoked|rejected|required|failed|again)\b/i;
 const TERMINAL = new Set(['session.execution.succeeded', 'session.execution.failed', 'session.execution.interrupted']);
 
 const isRecord = (value) => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -38,10 +39,19 @@ const unwrap = (value) => (isRecord(value) && 'data' in value && !('id' in value
 const digest = (text) => crypto.createHash('sha256').update(text).digest('hex');
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const within = (ms, promise, message) => new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(message)), ms);
-    promise.then((value) => { clearTimeout(timer); resolve(value); }, (error) => { clearTimeout(timer); reject(error); });
+const within = (ms, promise, failure, signal = null) => new Promise((resolve, reject) => {
+    let timer = null;
+    const fail = (kind) => reject(typeof failure === 'function' ? failure(kind) : new Error(failure));
+    const stop = () => { clearTimeout(timer); signal?.removeEventListener('abort', aborted); };
+    const aborted = () => { stop(); fail('lapsed'); };
+    if (signal?.aborted) { aborted(); return; }
+    timer = setTimeout(() => { stop(); fail('timeout'); }, Math.max(0, ms));
+    signal?.addEventListener('abort', aborted, { once: true });
+    promise.then((value) => { stop(); resolve(value); }, (error) => { stop(); reject(error); });
 });
+const SETUP_TIMEOUT = 'opencode did not answer before the deadline while the call was being set up; the call was abandoned and any session it opened is removed';
+const lapse = (kind) => (kind === 'timeout' ? new Refused('timeout', SETUP_TIMEOUT) : new Refused('lapsed', 'the request was cancelled'));
+const stalled = (error) => error instanceof Refused && (error.kind === 'timeout' || error.kind === 'lapsed');
 const clip = (value, size = 400) => String(value ?? '').replace(/\s+/g, ' ').trim().slice(0, size);
 
 export class Refused extends Error {
@@ -178,14 +188,15 @@ export function classifyV2Error(error, { now = Date.now() } = {}) {
     const message = clip(source.message, 400);
     const body = typeof source.response?.body === 'string' ? source.response.body.slice(0, 2000) : '';
     const evidence = `${type} ${message} ${body}`;
-    if (status === 401 || status === 403 || AUTH_TEXT.test(evidence) || /needs[_ .-]?auth|sign[ -]?in|credential/i.test(evidence)) {
+    const routing = /no-route|model unavailable|model not found|unknown model/i.test(evidence);
+    if (status === 401 || status === 403 || /(^|\.)auth$/i.test(type) || (!routing && (AUTH_TEXT.test(evidence) || SIGN_IN_TEXT.test(`${message} ${body}`)))) {
         return { ok: false, kind: 'auth', message: `OpenCode could not authenticate with the model's provider (${message || type || 'no detail'}): ${signInAction('the routed provider')}`, signIn: true };
     }
     if (status === 429 || QUOTA_TEXT.test(evidence)) {
         const retryAt = readRetryAt(evidence, now);
         return { ok: false, kind: 'quota', message: `opencode reports its usage limit${retryAt ? ` until ${new Date(retryAt).toISOString()}` : ''}`, ...(retryAt ? { retryAt } : {}) };
     }
-    if (/no-route|model unavailable|model not found|unknown model/i.test(evidence)) {
+    if (routing) {
         return { ok: false, kind: 'config', message: `OpenCode cannot route to the model (${message || type}); check the model id and that its provider is signed in`, forget: true };
     }
     if (NETWORK_TEXT.test(evidence)) return { ok: false, kind: 'transport', message: `opencode could not reach its vendor (a proxy or CA certificate setting is a likely cause): ${message || type || 'connection failed'}`.slice(0, 400) };
@@ -341,6 +352,11 @@ export function createOpencodeTransport({
 
     const locationFor = (directory) => ({ directory: path.resolve(directory) });
 
+    const writePrivate = (file, text) => {
+        fsImpl.writeFileSync(file, text, { encoding: 'utf-8', mode: 0o600 });
+        try { fsImpl.chmodSync(file, 0o600); } catch { return; }
+    };
+
     const textDirectory = (system) => {
         const dir = path.join(config.tmpRoot, 'opencode-loc', `text-${digest(system).slice(0, 16)}`);
         const file = path.join(dir, 'opencode.json');
@@ -392,7 +408,7 @@ export function createOpencodeTransport({
 
     const evict = async (client, directory) => {
         try {
-            await client.debug.location.evict({ location: locationFor(directory) });
+            await within(OPENCODE_LIMITS.stopMs, client.debug.location.evict({ location: locationFor(directory) }), 'evict stalled');
         } catch {
             return;
         }
@@ -458,11 +474,11 @@ export function createOpencodeTransport({
     const FINISH = { stop: 'stop', length: 'length' };
 
     const interruptAndWait = async (client, sessionID) => {
-        try { await client.session.interrupt({ sessionID }); } catch { return false; }
         const until = Date.now() + OPENCODE_LIMITS.stopMs;
+        try { await within(OPENCODE_LIMITS.stopMs, client.session.interrupt({ sessionID }), 'interrupt stalled'); } catch { return false; }
         while (Date.now() < until) {
             try {
-                const active = await client.session.active();
+                const active = await within(until - Date.now(), client.session.active(), 'active stalled');
                 if (!isRecord(unwrap(active)) || !(sessionID in unwrap(active))) return true;
             } catch {
                 return false;
@@ -471,6 +487,16 @@ export function createOpencodeTransport({
         }
         return false;
     };
+
+    const removeSession = (client, sessionID) => Promise.resolve().then(() => client.session.remove({ sessionID })).then(() => true, (error) => {
+        if (error?._tag !== 'SessionNotFoundError') {
+            state.leakedSessions += 1;
+            log(JSON.stringify({ harness: 'opencode', leakedSession: true }));
+        }
+        return false;
+    });
+
+    const removeLate = (client, late) => (isRecord(late) && typeof late.id === 'string' ? removeSession(client, late.id) : undefined);
 
     const runSession = async (client, spec) => {
         const control = new AbortController();
@@ -511,14 +537,16 @@ export function createOpencodeTransport({
         };
 
         if (spec.signal?.aborted) return { ok: false, kind: 'lapsed', message: 'the request was cancelled' };
-        const watcher = watchEvents(client, control.signal, onEvent);
-        let removed = false;
-        let session = null;
-        const timers = [];
+        const until = spec.until ?? Date.now() + Math.max(0, spec.deadlineMs - (now() - spec.startedAt));
+        const left = () => until - Date.now();
+        const timers = [setTimeout(() => settle({ type: 'timeout' }), Math.max(0, left()))];
         const onAbort = () => settle({ type: 'cancelled' });
+        spec.signal?.addEventListener('abort', onAbort);
+        const watcher = watchEvents(client, control.signal, onEvent);
+        let session = null;
         try {
-            await within(OPENCODE_LIMITS.subscribeMs, watcher.connected, 'no event stream').catch(() => undefined);
-            session = unwrap(await client.session.create({
+            await within(Math.min(OPENCODE_LIMITS.subscribeMs, left()), watcher.connected, 'no event stream', spec.signal).catch(() => undefined);
+            const creating = Promise.resolve().then(() => client.session.create({
                 agent: spec.agent,
                 model: spec.model,
                 location: locationFor(spec.directory),
@@ -526,16 +554,19 @@ export function createOpencodeTransport({
                 metadata: { owner: SESSION_OWNER, pid, label: spec.label },
                 permissions: spec.rules,
             }));
+            try {
+                session = unwrap(await within(left(), creating, lapse, spec.signal));
+            } catch (error) {
+                if (stalled(error)) void creating.then((late) => removeLate(client, unwrap(late)), () => undefined);
+                throw error;
+            }
             if (!isRecord(session) || typeof session.id !== 'string') throw new Refused('malformed', 'OpenCode answered the session request without a session');
             if (session.agent !== spec.agent || !Array.isArray(session.permissions) || !spec.check(session.permissions)) {
                 throw new Refused('refused', 'OpenCode did not keep the requested agent and permissions on the session; no call was made', { state: 'unavailable' });
             }
             track.sessionID = session.id;
-            if (spec.signal?.aborted) return { ok: false, kind: 'lapsed', message: 'the request was cancelled' };
-            spec.signal?.addEventListener('abort', onAbort);
-            await client.session.prompt({ sessionID: session.id, text: spec.prompt, ...(spec.files?.length ? { files: spec.files } : {}) });
+            await within(left(), Promise.resolve().then(() => client.session.prompt({ sessionID: session.id, text: spec.prompt, ...(spec.files?.length ? { files: spec.files } : {}) })), lapse, spec.signal);
             const admittedMs = now();
-            timers.push(setTimeout(() => settle({ type: 'timeout' }), Math.max(0, spec.deadlineMs - (admittedMs - spec.startedAt))));
             let polling = false;
             const poll = async () => {
                 if (polling) return;
@@ -576,7 +607,7 @@ export function createOpencodeTransport({
             let messages = [];
             let summary = null;
             for (let tries = 0; tries < OPENCODE_LIMITS.messageSettleTries; tries += 1) {
-                messages = await readMessages(client, session.id);
+                messages = await within(Math.max(0, left()) + OPENCODE_LIMITS.stopMs, readMessages(client, session.id), lapse, spec.signal);
                 if (result.type === 'bound' || isIdle(messages)) break;
                 await sleep(150);
             }
@@ -608,22 +639,13 @@ export function createOpencodeTransport({
         } catch (error) {
             const refused = refusedFrom(error);
             if (refused.forget || refused.state === 'unpaired') forget();
+            if (stalled(refused) && session?.id) await interruptAndWait(client, session.id);
             return { ok: false, kind: refused.kind, message: refused.message };
         } finally {
             spec.signal?.removeEventListener('abort', onAbort);
             for (const timer of timers) { clearTimeout(timer); clearInterval(timer); }
             control.abort();
-            if (session?.id && !removed) {
-                removed = true;
-                try {
-                    await client.session.remove({ sessionID: session.id });
-                } catch (error) {
-                    if (error?._tag !== 'SessionNotFoundError') {
-                        state.leakedSessions += 1;
-                        log(JSON.stringify({ harness: 'opencode', leakedSession: true }));
-                    }
-                }
-            }
+            if (isRecord(session) && typeof session.id === 'string') await within(OPENCODE_LIMITS.stopMs, removeSession(client, session.id), 'remove stalled').catch(() => undefined);
         }
     };
 
@@ -634,7 +656,14 @@ export function createOpencodeTransport({
 
     const complete = async (request, { signal = null, deadlineMs, startedAt = now(), user = 'default-user' } = {}) => {
         state.calls += 1;
-        const checked = await ready(request.model, { images: request.images });
+        if (signal?.aborted) return { ok: false, kind: 'lapsed', message: 'the request was cancelled' };
+        const until = Date.now() + Math.max(0, deadlineMs - (now() - startedAt));
+        let checked;
+        try {
+            checked = await within(until - Date.now(), ready(request.model, { images: request.images }), lapse, signal);
+        } catch (error) {
+            return { ok: false, kind: refusedFrom(error).kind, message: refusedFrom(error).message };
+        }
         if (!checked.ok) return checked;
         const imaged = prepareImages(request.images);
         let directory;
@@ -646,11 +675,12 @@ export function createOpencodeTransport({
         const effort = withEffort(checked.row, checked.split, request.effort);
         let setupMs = null;
         try {
-            await verifyAgent(checked.client, directory, TEXT_AGENT, toolsDenied);
+            await within(until - Date.now(), verifyAgent(checked.client, directory, TEXT_AGENT, toolsDenied), lapse, signal);
         } catch (error) {
             return { ok: false, kind: refusedFrom(error).kind, message: refusedFrom(error).message };
         }
         const outcome = await runSession(checked.client, {
+            until,
             agent: TEXT_AGENT,
             directory,
             rules: textRules(),
@@ -672,16 +702,22 @@ export function createOpencodeTransport({
 
     const runAgent = async ({ request, owned, pipe, secret, toolsFile, signal, onForeign, deadlineMs }) => {
         const startedAt = now();
-        const connectBy = Date.now() + OPENCODE_LIMITS.connectMs;
-        const checked = await ready(request.model, { images: request.images });
+        const until = Date.now() + Math.max(0, deadlineMs);
+        const connectBy = Math.min(until, Date.now() + OPENCODE_LIMITS.connectMs);
+        let checked;
+        try {
+            checked = await within(until - Date.now(), ready(request.model, { images: request.images }), lapse, signal);
+        } catch (error) {
+            return { ok: false, kind: refusedFrom(error).kind, message: refusedFrom(error).message };
+        }
         if (!checked.ok) return checked;
         const imaged = prepareImages(request.images);
         const names = new Set(request.tools.map((tool) => `${BRIDGE_SERVER}_${tool.name}`));
         const effort = withEffort(checked.row, checked.split, request.effort);
         try {
-            fsImpl.writeFileSync(path.join(owned.cwd, 'opencode.json'), bridgeConfig({ system: request.system, nodePath, pipe, secret, toolsFile, callTimeoutMs: request.callTimeoutMs }), 'utf-8');
-            await verifyAgent(checked.client, owned.cwd, BRIDGE_AGENT, (rules) => bridgeOnly(rules, request.tools.map((tool) => tool.name)));
-            await mcpConnected(checked.client, owned.cwd, connectBy, signal);
+            writePrivate(path.join(owned.cwd, 'opencode.json'), bridgeConfig({ system: request.system, nodePath, pipe, secret, toolsFile, callTimeoutMs: request.callTimeoutMs }));
+            await within(until - Date.now(), verifyAgent(checked.client, owned.cwd, BRIDGE_AGENT, (rules) => bridgeOnly(rules, request.tools.map((tool) => tool.name))), lapse, signal);
+            await within(until - Date.now(), mcpConnected(checked.client, owned.cwd, connectBy, signal), lapse, signal);
         } catch (error) {
             await evict(checked.client, owned.cwd);
             const refused = error instanceof Refused ? error : new Refused('config', `the plugin could not prepare the wizard's session (${error?.code ?? error?.message ?? 'error'})`);
@@ -689,6 +725,7 @@ export function createOpencodeTransport({
         }
         try {
             return await runSession(checked.client, {
+                until,
                 agent: BRIDGE_AGENT,
                 directory: owned.cwd,
                 rules: bridgeRules(),

@@ -346,6 +346,43 @@ test('rule 6: the deadline interrupts the OpenCode session and removes it, and t
     assert.deepEqual(ctx.fake.state.removed.map((row) => row.running), [false], 'the session was stopped before it was removed');
 });
 
+test('a stalled OpenCode service cannot hold a text call past its deadline: a hanging session create, prompt or agent read times out, frees the slot, and its session is removed', async () => {
+    for (const stall of ['create', 'prompt', 'agent']) {
+        const ctx = setup({ concurrency: 1, fake: { stall: [stall] } });
+        const started = Date.now();
+        const answer = await ctx.service.complete(request({ requestId: stall, timeoutMs: 1500 }));
+        const took = Date.now() - started;
+        assert.deepEqual([answer.ok, answer.kind], [false, 'timeout'], `${stall}: ${JSON.stringify(answer)}`);
+        assert.match(answer.message, /before the deadline/);
+        assert.ok(took < 1500 + 1000, `${stall}: answered after ${took} ms`);
+        assert.equal(ctx.fake.state.held.length, 1, `${stall}: the stalled request was really pending`);
+        assert.equal(ctx.service.gate.counts('opencode').running, 0, `${stall}: the slot is free`);
+        assert.equal(ctx.fake.state.prompts.length, 0, `${stall}: nothing reached the model`);
+        ctx.fake.release();
+        const next = await ctx.service.complete(request({ requestId: `${stall}-after` }));
+        assert.equal(next.ok, true, `${stall}: ${JSON.stringify(next)}`);
+        assert.ok(await clean(ctx), `${stall}: a session the stalled call opened is removed, even one created after the deadline`);
+        assert.equal(ctx.service.transport.state.leakedSessions, 0);
+    }
+});
+
+test('cancel during setup returns at once against a stalled service, frees the slot and leaves no session', async () => {
+    for (const stall of ['create', 'prompt', 'agent']) {
+        const ctx = setup({ concurrency: 1, fake: { stall: [stall] } });
+        const pending = ctx.service.complete(request({ requestId: 'setup' }), { user: 'alice' });
+        assert.ok(await until(() => ctx.fake.state.held.length === 1), `${stall}: the setup call is pending`);
+        const started = Date.now();
+        assert.equal(ctx.service.cancel('setup', 'alice'), true);
+        const answer = await pending;
+        assert.equal(answer.kind, 'lapsed', `${stall}: ${JSON.stringify(answer)}`);
+        assert.ok(Date.now() - started < 1000, `${stall}: the cancel was honoured during setup`);
+        assert.equal(ctx.service.gate.counts('opencode').running, 0);
+        ctx.fake.release();
+        assert.ok(await clean(ctx), `${stall}: no session is left`);
+        assert.equal(ctx.fake.state.prompts.length, 0, `${stall}: nothing reached the model`);
+    }
+});
+
 test('cancel stops only the call of the user who made it, and a call cancelled before it starts sends nothing', async () => {
     const ctx = setup();
     const pending = ctx.service.complete(request({ requestId: 'mine', prompt: script([{ hang: true }]) }), { user: 'alice' });
@@ -538,6 +575,28 @@ test('the package, the transport and the expected plugin version agree', () => {
     const manifest = JSON.parse(fs.readFileSync(path.join(here, 'package.json'), 'utf8'));
     assert.equal(manifest.dependencies[transport.OPENCODE_CLIENT.name], transport.OPENCODE_CLIENT.version, 'the pinned client library is the one the transport names');
     assert.equal(manifest.version, plugin.PLUGIN_VERSION);
+});
+
+test('a routing or config error that only mentions credentials or sign-in is not a sign-in failure; a real one is', () => {
+    const notAuth = [
+        [{ type: 'provider.no-route', message: 'Model unavailable: openai/gpt-6.1-sol; check that the provider credentials are configured and signed in' }, 'config'],
+        [{ type: 'provider.model-not-found', message: 'unknown model: openai/x (sign in to see more models)' }, 'config'],
+        [{ type: 'config.invalid', message: 'the credential store path in opencode.json is not a string' }, 'transport'],
+        [{ type: 'unknown', message: 'see the sign-in docs for proxy settings' }, 'transport'],
+    ];
+    for (const [error, kind] of notAuth) assert.equal(transport.classifyV2Error(error).kind, kind, JSON.stringify(error));
+    const auth = [
+        { type: 'provider.auth', message: 'rejected' },
+        { type: 'provider.error', message: 'The credential has expired' },
+        { type: 'provider.error', message: 'invalid credentials for openai' },
+        { type: 'provider.error', message: 'needs_auth' },
+        { type: 'provider.error', message: 'Please sign in again' },
+        { type: 'provider.no-route', message: 'no route', status: 401 },
+    ];
+    for (const error of auth) {
+        const classified = transport.classifyV2Error(error);
+        assert.deepEqual([classified.kind, classified.signIn], ['auth', true], JSON.stringify(error));
+    }
 });
 
 test('transport helpers: permissions evaluate last-match, images are sniffed from bytes, errors keep their words', () => {

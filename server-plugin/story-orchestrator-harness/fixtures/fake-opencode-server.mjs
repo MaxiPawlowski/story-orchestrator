@@ -71,6 +71,15 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
         running: 0, peak: 0, removeFails: false,
         sessions: new Map(), locations: new Map(), subscribers: new Set(), nextId: 1,
         ...flags,
+        stall: new Set(flags.stall ?? []), held: [],
+    };
+
+    const hold = async (name) => {
+        if (state.stall.has(name)) await new Promise((resolve) => state.held.push(resolve));
+    };
+    const release = () => {
+        state.stall.clear();
+        for (const resolve of state.held.splice(0)) resolve();
     };
 
     const check = () => {
@@ -257,6 +266,7 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
         agent: {
             get: async ({ agentID, location }) => {
                 check();
+                await hold('agent');
                 const booted = bootLocation(location.directory);
                 const rules = agentRules(booted, agentID);
                 if (!rules || Date.now() - booted.bootedAt < (state.configDelayMs ?? 0)) throw failure('AgentNotFoundError', `Agent not found: ${agentID}`);
@@ -286,6 +296,7 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
         session: {
             create: async (input) => {
                 check();
+                await hold('create');
                 const id = `ses_${state.nextId++}`;
                 const made = {
                     id, agent: input.agent ?? 'build', model: { ...input.model, variant: input.model?.variant ?? 'default' }, permissions: input.permissions ?? [], metadata: input.metadata ?? {}, title: input.title,
@@ -298,6 +309,7 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
             },
             prompt: async ({ sessionID, text, files }) => {
                 check();
+                await hold('prompt');
                 const found = session(sessionID);
                 state.prompts.push({ sessionID, text, files: files ?? [] });
                 const user = { id: `msg_${state.nextId++}`, type: 'user', time: { created: Date.now() }, text, ...(files?.length ? { files } : {}) };
@@ -359,5 +371,5 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
         state.locations.clear();
     };
 
-    return { libs, state, close };
+    return { libs, state, close, release };
 }

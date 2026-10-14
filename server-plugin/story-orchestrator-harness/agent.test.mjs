@@ -496,3 +496,43 @@ test('the bridge config declares the tool server\'s own execution bound and the 
     assert.equal(parsed.mcp.servers.so.environment.SO_BRIDGE_SECRET, 'SECRET');
     assert.deepEqual(parsed.agents[bridge.BRIDGE_AGENT].permissions, [{ action: '*', resource: '*', effect: 'deny' }, { action: 'so_*', resource: '*', effect: 'allow' }]);
 });
+
+test('the bridge config holding the owned secret is written owner-only', async () => {
+    const writes = [];
+    const fsImpl = { ...fs, writeFileSync: (file, data, options) => { writes.push({ file: String(file), options }); return fs.writeFileSync(file, data, options); } };
+    const ctx = setup({ fsImpl });
+    const opened = await ctx.service.agent.open(openRequest([{ say: 'ok' }]));
+    const done = await nextEvent(ctx.service, opened.sessionId);
+    assert.equal(done.kind, 'done', JSON.stringify(done));
+    const config = writes.find((row) => row.file.endsWith('opencode.json'));
+    assert.equal(config.options.mode, 0o600);
+    assert.ok(await cleaned(ctx), 'the owned directory with the secret is removed');
+});
+
+test('a stalled OpenCode service cannot keep the owned directory: deadline, close and a refused setup all remove it and free the slot', async () => {
+    for (const stall of ['create', 'prompt', 'agent']) {
+        const ctx = setup({ concurrency: 1, fake: { stall: [stall] } });
+        const opened = await ctx.service.agent.open(openRequest([{ say: 'never' }], { timeoutMs: 1500, callTimeoutMs: 1000 }));
+        assert.equal(opened.ok, true, JSON.stringify(opened));
+        assert.ok(await until(() => ctx.fake.state.held.length === 1), `${stall}: the setup call is pending`);
+        assert.equal(ctx.calls().length, 1);
+        assert.ok(await until(() => ctx.calls().length === 0 && ctx.service.gate.counts('opencode').running === 0, 4000), `${stall}: the deadline removed the owned directory`);
+        ctx.fake.release();
+        assert.ok(await until(() => ctx.fake.state.sessions.size === 0), `${stall}: no OpenCode session is left`);
+    }
+    const closing = setup({ fake: { stall: ['create'] } });
+    const opened = await closing.service.agent.open(openRequest([{ say: 'never' }]));
+    assert.ok(await until(() => closing.fake.state.held.length === 1));
+    const started = Date.now();
+    await closing.service.agent.close(opened.sessionId);
+    assert.ok(Date.now() - started < 2000, 'close does not wait on the stalled service');
+    assert.deepEqual(closing.calls(), []);
+    assert.equal(closing.service.gate.counts('opencode').running, 0);
+    closing.fake.release();
+    assert.ok(await until(() => closing.fake.state.sessions.size === 0));
+    const refused = setup({ fake: { dropPermissions: true } });
+    const denied = await refused.service.agent.open(openRequest([{ hang: true }]));
+    const ended = await nextEvent(refused.service, denied.sessionId);
+    assert.equal(ended.errorKind, 'refused');
+    assert.ok(await until(() => refused.calls().length === 0 && refused.service.gate.counts('opencode').running === 0), 'a refused setup removes the owned directory');
+});
