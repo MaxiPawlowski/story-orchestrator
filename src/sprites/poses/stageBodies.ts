@@ -8,7 +8,8 @@ import { NARRATION, type ExpressionRead } from "../classify";
 import { expressionDeps, type ExpressionCallTrace } from "../expressionCalls";
 import { memberPoses, poseLibrary } from "./library";
 import { replayPose, poseRead } from "./stageChoice";
-import { fallbackBodies, lookLayers } from "./layers";
+import { bodyStamp, fallbackBodies, lookLayers } from "./layers";
+import { visualRoot } from "../visualManifest";
 import { memberDirection, type StageDirection } from "../direction";
 import { resolveSprite, spriteIndex } from "../profile";
 import type { Actor } from "../castLoad";
@@ -76,8 +77,9 @@ export class StagePoses {
     if (!pose || direction.set) return false;
     const fields = cardValues(story, snapshot.blackboard, member.id, true), layers = lookLayers(member.card, fields);
     if (pose.id === "stand_relaxed" && !Object.keys(fields).length) return false;
-    const config = this.deps.settings().builders[actor.profile.folder], stamp = stableStringify([pose, layers, config]);
-    const available = actor.bodies ?? [];
+    const source = this.deps.settings().visualSources[actor.profile.folder], root = source ? visualRoot(source) : undefined;
+    const config = this.deps.settings().builders[actor.profile.folder], stamp = bodyStamp(pose, layers, config, root);
+    const available = (actor.bodies ?? []).filter((body) => body.visualRoot === root);
     const exact = available.find((body) => body.stamp === stamp && actor.packs.get(body.set)?.has(actor.desiredLabel));
     const wanted = exact ?? { set: "", pose: pose.id, tags: pose.tags, look: stableStringify(layers.base) };
     const nearest = fallbackBodies(wanted, available, actor.set).find((set) => actor.packs.has(set));
@@ -96,8 +98,8 @@ export class StagePoses {
         && this.deps.manager.getCachedSnapshot().storyId === storyId && actor.pose === pose.id && actor.desiredLabel === label
         && stableStringify(replayPose(this.allowed(actor), actor.poseReads ?? [], this.scope(),
           memberDirection(this.deps.direction(), actor.keys).pose, member.sprites?.pose)) === stableStringify(pose)
-        && stableStringify([pose, lookLayers(member.card, cardValues(story, this.deps.manager.getCachedSnapshot().blackboard, member.id, true)),
-          this.deps.settings().builders[actor.profile.folder]]) === stamp,
+        && bodyStamp(pose, lookLayers(member.card, cardValues(story, this.deps.manager.getCachedSnapshot().blackboard, member.id, true)),
+           this.deps.settings().builders[actor.profile.folder], root) === stamp,
       apply: (result) => {
         actor.bodies = [...(actor.bodies ?? []).filter((body) => body.set !== result.set), result.body];
         const pack = actor.packs.get(result.set) ?? new Map<string, string>();

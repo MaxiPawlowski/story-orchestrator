@@ -1,9 +1,11 @@
 # Plan 41 — One product: integration review, model selection and the Qwen fast-model POC
 
-Status (2026-10-13): planning only. Owner request: the image and presentation features were built as separate
+Status (2026-10-13): stage-1 review and POC executed; acceptance incomplete, decision is retain current routes.
+Stage 2 has not started. Measurements and limitations are in the stage-1 record below. Owner request:
+the image and presentation features were built as separate
 tracks and never joined into one product; the models and workflows per use case were never chosen against each
 other. This plan dumps what exists, names the seams, proposes a tiered model design around a per-character
-reference pack, and defines a POC for Qwen's fast image checkpoint. Nothing here is built or measured yet.
+reference pack, and defines a POC for Qwen's fast image checkpoint. The context dump below predates the POC.
 Gate tiers: review D (docs), POC LI (3090), product acceptance LI + RP.
 
 ## 1. Context dump
@@ -154,9 +156,35 @@ Phases (each its own gate record):
    rebuilt through the product path instead of scripted bases.
 5. **A — acceptance:** the journey above twice, plus the owed plan 28/29/33/36 LI rows on the same build.
 
+## 5a. Folded work (owner 2026-10-13: focus on plan 41 and a full e2e POC; the 3090 may be used)
+
+Owed rows that sit on the same end-to-end path are run inside this plan, on the same frozen build, instead of
+separately. Their original floors and protocols stay as written in their source plans.
+
+- **Plan 28 LI/LT**: text → image → text twice with the in-process broker (Artemis and ComfyUI on one 3090).
+- **Plan 29 LI**: two purposes on two `SO-` workflows, player selection unchanged on disk, twice.
+- **Plan 33 Acceptance ×2** through the product path, the repaired `lie_side` renders and PCK, and the `lie_rest` audit.
+- **Plan 36**: live head on a reference-pack bust; streamed mouth on real Artemis replies.
+- **v2.7 20**: living-card look change in play (sprites, close shot, illustration follow), lifecycle acceptance.
+- **Plan 37 showcase**: rebuilt through the product path instead of scripted pilot bases.
+
+Not folded: R7 SWA/cache, LI1 laptop, campaign sprite work (A6), the harness-auth branch (its own agent),
+Sol-bridge calibration (needs that branch), smart-context and inner-voice measurements.
+
+## 5b. Stages and stop points
+
+1. **Stage 1 (now):** R0–R4, then the POC (§4) on installed models: arm B and pack arm Q (Qwen-Image 2512 vs 2.1 at
+   40 steps), the repaired `lie_side` and `lie_rest` renders, and the plan 28 broker LI/LT. Turbo arms T and T+R only
+   after the owner approves its download. No product code except POC drivers. Stop with a report.
+2. **Stage 2:** design build (§5 D) from the POC decision.
+3. **Stage 3:** integration and the e2e journey (§5 I and A), with the folded rows above.
+
+Raters: a second model reads contact sheets, never the owner. `opencode run` with `openai/gpt-6.1-sol` is allowed for
+rating in stage 1, at most 150 calls, counted; when unavailable, the executing session rates and marks it provisional.
+
 ## 6. Decisions for the owner
 
-1. Approve the R phase now (docs and read-only, no GPU)? Recommended: yes.
+1. Approve the R phase now (docs and read-only, no GPU)? Recommended: yes. **Approved 2026-10-13, with the 3090.**
 2. Approve downloading Qwen-Image-2.1-Turbo (and a ComfyUI node update if needed) for the POC? Size quoted in R0.
 3. Reference pack contents: the six images in §3.1, or fewer? Recommended: six, author approves once.
 4. Keep SDXL for backgrounds and cast-free scenes until measured? Recommended: yes.
@@ -167,3 +195,404 @@ Phases (each its own gate record):
 - Does Turbo run on the ComfyUI version our lanes and the owner's install use, with the saved 8-step schedule?
 - Can a look reuse a live-head rig by texture edit, or is a new rig per look unavoidable?
 - Which vision rater is acceptable when the Sol harness is unavailable?
+
+Stage-1 answers: installed native ComfyUI supports Turbo's explicit schedule; Sol contact-sheet rating worked.
+Look-to-rig texture reuse remains unmeasured. Other open acceptance items are listed in the record below.
+
+## Stage-1 review and POC record — 2026-10-13
+
+### Scope and decision
+
+- Worktree `so-plan41`, branch `v2.8-plan41-poc`; POC drivers only. No product recipes, settings defaults,
+  owner installation or campaign changed. No merge, push or owner-ST staging. Stage 2 is stopped.
+- **Retain current Qwen 2.1 edit routes and SDXL illustration/background routes.** No Turbo task demonstrated
+  every predeclared floor. Turbo is useful experimental evidence, not an accepted recipe replacement.
+- A six-view pack remains a design candidate, but multi-reference head editing is rejected by this POC:
+  reference heads are repeatedly pasted/collaged into the edit. Explicit reference-role wording and reduced
+  references did not cure it. Shared identity metadata and route unification can be designed separately from
+  adopting this failed conditioning technique.
+- 2512 won aesthetic comparisons but failed reference identity and within-pack consistency. It is a candidate
+  for author-picked original art, not a validated identity pack made from existing card art.
+- The central wizard → pack → sprites → pose → live head → streamed reply → changed look → cast illustration
+  product journey does not exist yet. Scripted renders and workflow checks cannot sign that journey off.
+
+### R0 — model facts and software
+
+- Official [2.1](https://huggingface.co/Qwen/Qwen-Image-2.1) and
+  [Turbo](https://huggingface.co/Qwen/Qwen-Image-2.1-Turbo) use Qwen Research License, non-commercial;
+  [2512](https://huggingface.co/Qwen/Qwen-Image-2512) is Apache-2.0. Community repository tags do not
+  supersede the base-weight licence. The old Apache claim for 2.1 is corrected by this record.
+- A separately downloadable official Flash checkpoint was not found: the candidate HF id returned 401,
+  the Qwen organisation listing contained none, and the inspected NidAll Flash repository had no weights.
+  This establishes search results, not proof that no checkpoint can exist. No Flash arm was fabricated.
+- Native ComfyUI 0.37.4, commit `8ff6dc384ba5c410266b40e137799e049459d4f2`, supports the installed 2.1
+  INT8 model and Turbo. Python 3.12.1, torch 2.12.1+cu130, frontend 1.52.7, comfy-kitchen 0.2.35.
+  No ComfyUI or custom-node update was needed or performed.
+- Turbo uses Euler, CFG 1, explicit sigmas
+  `1,0.978453,0.95418,0.926626,0.89508,0.845148,0.704534,0.414568,0`.
+  A named ordinary scheduler is not a substitute. B uses 25 steps; the 2.1 quality arm uses 40.
+- Download approved by the owner. Tested artifact:
+  [NidAll INT8 ConvRot](https://huggingface.co/NidAll/Turbo-INT8-ConvRot-for-Qwen-Image-2.1), revision
+  `f1cff4611af588f67e482ce2a920230a8be84f87`, 7,256,828,688 B, SHA256
+  `bc77cb2f0220311a158a10e77677f0912fac72d53a66faf78a67d7946b81f5c1`.
+  Stored under `C:\dev\models`; source size and downloaded hash matched. Anonymous public download preceded
+  the product-download-path request; this is not plan 30 authenticated-download acceptance.
+- Official Turbo BF16 transformer shards total 14,230,284,408 B; encoder 17,534,340,584 B; VAE 675,508,656 B.
+  Community alternatives, inventoried but not downloaded/tested: Comfy-Org BF16 14,230,280,616 B and INT8
+  7,256,787,829 B; abenzerps FP8 7,133,546,412 B and NVFP4 4,197,574,688 B; unsloth GGUF Q4_K_M
+  4,199,565,120 B, Q5_K_M 5,390,223,168 B, Q6_K 6,271,551,296 B, Q8_0 7,640,860,480 B, F16
+  14,230,275,904 B. These conversions differ; their hashes are not interchangeable with the tested model.
+- Installed B/encoder/VAE byte sizes match Comfy-Org's 2.1 split files (7,256,783,064 / 9,350,798,360 /
+  675,509,688 B), and all three final SHA256 checks match Comfy-Org's published hashes (`cb74113c…`,
+  `8bfd0f6e…`, `bb21f747…`). Source-identifying metadata was previously absent; full hashes are in private
+  evidence. 2512 FP8/encoder/VAE sizes match the Comfy-Org split distribution.
+- Disk was 67.1 GiB free before download and 60.1 GiB immediately afterward; the last pre-report check was
+  55.4 GiB. The 30 GB minimum was maintained. No other model was downloaded by this worker.
+
+### R1 — observed role assignments
+
+- Read-only lane-38 snapshot of the installation copy; seeding changes are explicitly distinguished from owner
+  defaults. `passProfiles` unset: non-authoring roles inherit memory profile `55f61212`, local Artemis with
+  `Artemis Extraction`. Authoring resolves to Sol harness when offered, otherwise DeepSeek profile `975bc0dc`.
+  Selected main profile `beba5264` uses `Artemis v1.1 RP`; image director is DeepSeek `975bc0dc`.
+- Route-A purpose mappings: four purposes use WAI Illustrious v17, portrait uses NoobAI; ST selected workflow
+  is `JANKU_v777.json`, 832×1216 at 20 steps. Sprite overrides are empty, hence recipe defaults apply.
+  Lane image-disabled state is a seed restriction, not an owner feature-disable decision. Judge is TypeSafe.
+
+### R2 — measured task comparison
+
+- Synthetic S0 members only, seeds 1234/5678. Local first-run render evidence and independent Sol ratings;
+  floors were not retuned. Poses rate happy/angry edits; the chain also covers neutral reuse, worried, blink
+  and talk. A pose label score alone does not cover the complete expression/frame chain.
+- Historical B full-pose reference: pooled PCK 0.860; lie_side 0.510; body median 56.5 s, head 21.2 s.
+  Its old second execution was cached and is not independent repeat evidence.
+- Turbo P2 first run: pooled PCK 0.792 over 48 bodies, lie_side 0.102. Identity 48/48; labels 88/88
+  made crops, **88/96 intended** after eight skips (91.7%). Body median 24.5 s/p90 25.0 s (43.4% of
+  historical B); head median 13.8 s/p90 14.6 s (65.1%). Both latency ratios miss ≤40%. Body peaks
+  19,630/19,609 MiB. Identity, pooled PCK and intended-label floors pass first run; lie_side remains poor.
+- Initial full-resolution T+R, seed 1234: PCK 0.704, body median 64.9 s, head 49.6 s;
+  labels 7/46 made crops (15.2%), 21,353 MiB peak. Failure preserved. Later role-labelled 448 px variant:
+  pooled PCK **0.701** (supersedes the earlier scratch 0.725), body 24.5 s/p90 24.9 s, head 12.0 s/p90
+  12.6 s, labels 25/86 made crops and **25/96 intended** (26.0%), eleven extra-limb findings. Identity
+  stayed 100%, but collage heads and label misses reject this route.
+- Turbo pose vision ratings: 33/48 full matches, fifteen partial matches, nine invented-prop findings and
+  one extra-limb finding. All six one-knee samples were partial rather than full matches. Pooled PCK alone
+  does not establish complete pose intent or artifact-free output.
+- Repaired B lying poses, both seeds: lie_side P2 PCK 0.232, lie_rest P2 0.815; P3 PCK zero for both.
+  P2 identity 12/12; independent pose match 11 yes/1 partly, with two extra-limb findings. P2 labels
+  16/18 made crops but **16/24 intended** (66.7%); P3 labels 24/24 despite not following the requested
+  lying poses. DWPose misses small horizontal figures; vision agreement does not erase the PCK miss.
+- Chain B/Turbo pooled local medians in seconds: base 22.5/11.4, expression 22.0/11.1, frame 20.8/10.5,
+  look 25.8/14.7, two-member scene 55.4/22.8. Ratios 50.7%, 50.5%, 50.5%, 57.0%, 41.2% all miss
+  ≤40%. Both arms: head identity and six-label scores 100%; B look applied 5/6, Turbo 6/6. Both scene
+  members preserved; one Turbo scene adds text. Small sample, first local execution only.
+- Reduced-ref chain labels: 50.0%/27.8% by seed, fifteen artifacts each. Role-labelled full-res chain
+  seed 1234: head identity 72.2%, labels 66.7%, fifteen artifacts, edited heads ~49.3 s; scene adds text.
+  Neither reference variant is accepted.
+- Pack first-run preference over B: 2512 27/36 (75%, aesthetic floor passes), 2.1@40 13/36 (36.1%, misses).
+  Existing-card identity: 2512 0%, 2.1 text-only 25%, 2.1@40 edit and B edit both 86.1%, Turbo edit 88.9%.
+  All miss the 90% identity floor. Within-pack consistency: 2512 2/6, 2.1 text-only 0/6, edit arms 5/6.
+  Six blind grids, two retries: eight calls. There was no owner-facing author pick trial.
+- Native alpha: Turbo text-only local 25/36 (69.4%), mostly edge-touch failures; edit without explicit
+  RGBA instruction 0/36. BiRefNet edit 36/36. Explicit RGBA edit wording then passed all 72 pod images
+  across two seeds/two runs, but has no local repeat or independent quality verdict here. Keep BiRefNet
+  in accepted recipes; do not confuse alpha QA with complete identity/quality acceptance.
+- Local sampled full-batch VRAM peaks: B packs 20,848/20,856 MiB; 2.1@40 pack seed 5678 21,335 MiB;
+  2512 packs 23,975/23,938 MiB. Chain B 22,059/20,175 MiB, Turbo 20,235/20,412 MiB. Local repeated B
+  lying bodies peaked at 19,342 MiB. These are sampled windows, not isolated per-task maxima; absent
+  windows are unmeasured. 2512 is particularly tight on the 24 GiB 3090; no OOM was observed in its packs.
+
+### Independent runs and hardware boundary
+
+- Frozen pod driver handoff at `90051302fbee0f4fe45ce1133f0a6dd54d714a20`; assigned 25 batches marked DONE
+  and hash-verified in the worker output, plus six supplementary pose batches. Separate Linux RTX PRO 4500;
+  actual installed torch 2.12.1+cu130 (the container image name advertised an older version); local is Windows
+  RTX 3090, torch 2.12.1+cu130. Pod numbers are quality/portability evidence, not 3090 speed or repeatability.
+- Pod Turbo P2 extra samples: pooled PCK 0.797/48 bodies, lie_side 0.083. B lying extra seed-1234 P2:
+  lie_side 0.333, lie_rest 0.759; P3 zero. Pod chain B/Turbo expression medians ~12.1/~5.7 s;
+  full-resolution references ~25 s and reduced references ~6 s. Do not pool these with local latencies.
+- Final pod accounting: 31 batches, 813 newly timed renders, nine shared bases, sixteen skipped heads;
+  3,314 batch files rehashed with zero mismatches. Low-resolution-reference pose mean PCK 0.748/0.743 by
+  seed; side-lying 0.000/0.222. All 252 cross-hardware compared pack images differ bytewise; this is not
+  same-machine repeat evidence. No Sol calls were made by the pod worker.
+- Worker deleted its pod and verified absence at **18:02:24.699Z**, before the 18:51Z deadline; deadline
+  tasks removed. Elapsed 3h10m, estimated GPU charge $2.28 excluding storage, not provider billing.
+  Private `plan41-pod-r2` archive verified: 3,428 files, ~1.53 GB. Recorded deviations: `/opt/s0` ephemeral
+  workspace and SSH trust-on-first-use without independent host-key attestation. Model/node pins match.
+- Local uncached B lying repeat seed 1234 completed twelve bodies and its head attempts. Eleven of twelve
+  body PNGs are byte-identical to r1; body median 59.8 s/p90 60.0 s, 22 made heads median 22.5 s/p90 23.5 s.
+  Repeat P2 lie_side PCK 0.407 and lie_rest 0.815; P3 zero. This is a bounded same-machine repeat, not a full
+  repeat gate. Remaining queued broad repeats were cancelled during parent-prioritized bounded closeout
+  after quota recovery; this was not an explicit owner cancellation.
+  Full local T/T+R repeatability and both-seed B repeat acceptance remain incomplete.
+- The full-reference chain driver vanished after its third result at 13:45:53, leaving ComfyUI empty and
+  weights resident. At 14:00 no matching Node process existed. Resumed only unfinished tasks; completed
+  at 14:15:43. Cause of process disappearance is unknown; it is recorded as an execution failure, not a
+  model-quality result. Recovery preserved completed rows.
+
+### R3 — product seams and file owners for stage 2
+
+- Creation/approval: `src/copilot/agent`, `src/wizard`, `src/studio/agentHost.ts` provision cards; no
+  reference-pack asset transaction exists. Add create-only pack proposal/approval and one manifest owner.
+- Identity/cache: `src/sprites/builder`, `src/sprites/poses`, `src/image` need a shared manifest/hash contract;
+  image routes and recipe identities currently do not share the cast's reference lineage.
+- Routing: `src/image` and sprite recipes need one per-use-case settings view while preserving distinct
+  tested implementations. `src/services/stHost` owns all host access; broker/media plugins own GPU/file IO.
+- Presentation: `src/sprites/liveHead` owns rig inputs, while living look assets are replaced elsewhere.
+  A look-specific bust/rig validity contract is missing; texture-only reuse is unmeasured.
+- Lifecycle: wizard approval, cancelled generation, card deletion, recipe/pack invalidation, reload and
+  chat switch need shared ownership and cleanup proof. `scripts/debug/so-showcase.mts` must consume the
+  eventual product path rather than pilot bases. These are design tasks, not code built in stage 1.
+
+### R4 — full-cast cost estimate
+
+- Serial estimate, not an observed end-to-end prepare: per member one base, three edited expressions
+  (neutral reused), two happy frames, one look, eight poses and sixteen posed happy/angry heads; one scene
+  shared across three members. No retries, four-candidate base search, rigs, upload or broker swap included.
+- B task medians above plus historical full-pose medians give ~15.8 minutes/member; three members plus
+  scene ~48.3 minutes. A six-view B pack adds ~10.3 minutes/cast (34.4 s/image); 2.1@40 pack ~11.1 minutes
+  (37.1 s/image); 2512 pack ~33.6 minutes (112.0 s/image). Total ~58.6/~59.4/~81.9 minutes respectively.
+- Experimental Turbo equivalent ~25.2 minutes/cast before pack, ~36.3 with 2.1@40 packs; this estimate
+  does not authorize replacing recipes whose speed floors miss. Full-res reference heads erase that gain.
+- Approved pod rate $0.72/hour; verified termination and estimated charge are recorded above. Local renders
+  have no hosted-image charge. Sol subscription ratings are counted below; retries consume that budget.
+
+### Folded live checks and limitations
+
+- Plan 29 lane-39 workflow check twice: three real ComfyUI renders per run, scene on `SO_LI_A`, background
+  on `SO_LI_B`, unmapped purpose on selected workflow. Selection unchanged on disk, no leaked workflow
+  files, scenario exit 0; 80.737/76.050 s. This proves real image routing, not a real-text play journey.
+  The lane used the pre-existing staged combined-build tree; this worker did not stage the final gate build
+  or perform a final served-bundle drift comparison. Build gates and this live evidence have separate scope.
+- First attempt on offline lane 38 failed: image extension disabled, GPU-plugin status/lease 404, two test
+  workflows leaked. Failure is retained in lane evidence; fixture files were cleaned. Lane 38 was returned
+  to offline settings; successful checks used an isolated copy on lane 39, subsequently stopped.
+- Original plan-28 in-process broker runs exercised real Artemis → SDXL → Artemis and reserves, but
+  forced `<|channel>final`, bypassing thinking. Their 28.167/28.376 s timer omitted image admission/render.
+  They are discovery only. Corrected driver uses thinking-enabled chat templating and measures lease request
+  through completed reply, with post-render timing separately named. Corrected results follow in Gate record.
+- Plan 30 authenticated product download/test-key route is unrun; anonymous artifact verification is not a
+  substitute. Plan 33 product acceptance, plan 36 real streamed mouth, living-card lifecycle and product-path
+  showcase remain stage-3 work. No no-model lane result is called a text-model quality pass.
+
+## Gate record — stage 1, 2026-10-13
+
+- Status: **review/POC report available; acceptance NOT green**. Fixed floors and misses above; stop before
+  design implementation. Product route decision: retain B and SDXL.
+- POC driver commits through `90051302`, then `d5c113ef` (workflow driver lanes-root support); corrected
+  broker driver and this report are the final stage-1 changes.
+- Earlier focused verification: `npm run debug:typecheck` exit 0; `node --test scripts/debug/lib/poseS0*.test.mts`
+  24 passing; Python AST parse passed. Fresh command outputs and full gates are recorded below.
+- Rating accounting: local `ratings*.jsonl` footer sums **112 Sol calls**, plus one earlier smoke call = 113;
+  retries included. Parent's PONG transport probe is not a rating. No new rating calls after resumption.
+  Parent/pod-quality rating records must be reconciled separately against the shared 150-call cap; result-row
+  counts are not call counts. Agent-session model usage is not a rating call.
+- `npm run gates:quick`: typecheck exit 0; defect replay exit 1 (`jest --listTests failed`, no stderr), RED.
+  The failure is preserved, not replaced with a narrower green claim.
+- Final `npm run gates:quick`: exit 0, typecheck 25.1 s, defect replay 32/32 killed (29 cached), green in
+  42.1 s; baseline 42 tests green. No source change after the full-gate run; subsequent edits are this report.
+- `npm run gates`: exit 0, all eleven steps green in 406.3 s, Storybook included. Jest 698 suites/8,094 tests
+  passed (one suite/test skipped); plugin 228 passing, release 123 passing, debug 1,243 passing;
+  Storybook 130 suites/790 tests passed. The earlier quick-gate failure remains part of the record.
+- Fresh focused command `node --test scripts/debug/lib/poseS0*.test.mts scripts/local/storyWorkflowLi.test.mjs
+  scripts/local/pluginBrokerLiConfig.test.mjs`: 30 passing, zero failures. `git diff --check`: exit 0.
+- Thinking-enabled broker attempts `thinking-run1/2`: both exit 1, lease 409 `ComfyUI did not become ready`.
+  Pre-image Artemis replies were visible with 1,473 reasoning characters and 458 generated tokens each.
+  Full gates were concurrently active; startup logs stop before ComfyUI reaches readiness. This is a recorded
+  readiness failure under contention, not proof of a model failure or a passing LI/LT row.
+- Retry without the gate workload: `thinking-idle-run1` still failed readiness, so contention is not an
+  established root cause. `thinking-idle-run2` completed real thinking-enabled text → image → text:
+  admission 55.102 s, render 21.159 s, release 0.496 s, resumed reply 37.887 s; end-to-end **115.406 s**,
+  post-render 38.383 s. Both text replies visible, 1,473 reasoning characters/458 generated tokens each;
+  states text-loaded → image → text-loaded, no foreign queue jobs, min GPU free 2,941 MiB against 2,048
+  reserve, peak 21,635 MiB, after exit 839 MiB. Driver `ok:true` covers functionality, not LT acceptance.
+- Historical scene image→completed-128-token-reply median is 59.492 s; +10% is 65.441 s. Corrected thinking
+  run is above that limit, and its 458-token output/template differs from the historical final-only 128-token
+  protocol. LT is **not green**; the original short timer must not be used to claim it passes. Streaming
+  end-user Artemis RP through ST is still unexercised by this off-page broker check.
+- Corrected broker generation allows 768 tokens for thinking plus visible output; lease cost hint remains
+  128 next-text tokens. This discrepancy is another limit on using this driver for scheduler-cost acceptance.
+- Follow-up `thinking-idle-run3` exit 0, immediately after successful run2: admission 106.660 s, render
+  40.316 s, release 0.685 s, resumed reply 37.896 s; total **189.674 s**, post-render 38.581 s. Same visible
+  reasoning-enabled replies, text-loaded → image → text-loaded, zero foreign queue work, min free 2,941 MiB,
+  peak 21,635 MiB, after exit 839 MiB. Functional LI completed twice consecutively after three readiness
+  failures; readiness reliability remains unresolved. Successful-cycle median **152.540 s**, LT not green.
+- Lane evidence archive command: `SO_LANES_ROOT=C:\dev\so-build-now-lanes node scripts/debug/so-evidence.mts
+  archive --label plan41-stage1-lanes-20261013 --lanes 38,39 --since 2026-10-13T00:00:00Z`: exit 0;
+  267 files, 13,883,831 B, hash verification problems empty, private so-sessions tree.
+- POC evidence copied with the existing `copyArchive`/`verifyArchive` helpers, excluding secrets, data trees,
+  session files and model weights: private label `plan41-stage1-poc-20261013`, **3,847 files,
+  1,721,367,595 B, zero verification problems**. Includes local render graphs/results/ratings, model facts,
+  hashes, failed attempts, gates and read-only final pod summaries; full pod renders stay in `plan41-pod-r2`.
+  First helper invocation failed Windows ESM drive-path loading; corrected to `file:///`, failure log retained.
+- Private local/lanes evidence committed as `60b87e55` with explicitly scoped paths. No push. The default
+  `npm run sessions:archive` stages all evidence and pushes, so it was not used under this task's no-push and
+  ownership constraints; the separately owned pod archive was left untouched.
+- In-process broker `exit()` stopped its ComfyUI/text children after each attempt. Final controller CLI
+  unload/free-images/stop requests returned ECONNREFUSED because that separate controller was already stopped;
+  they are not counted as successful cleanup commands. Direct final verification at **18:14:42Z**:
+  no owned Node GPU jobs, ports 8000/8188/18888/18898/18899/8139 all closed, GPU **1%, 839 MiB** (desktop
+  baseline), C: **51.0 GiB free**. `final-idle.json` and cleanup errors are archived. Pod absence verified above.
+- Remaining acceptance: authenticated download LI; full both-seed same-machine repeats and the role-labelled
+  full-resolution pose variant; independently rated
+  pod quality; broker readiness reliability/LT; and the stage-3 real end-user product journey. These do not
+  authorize a recipe replacement or stage-2 implementation without the owner's next instruction.
+
+## Stage-1 parent-review corrections — 2026-10-13
+
+- Historical driver `90051302` changed generation inputs on text-to-image repetitions: Qwen 2.1 added
+  `r2` to the negative prompt, and 2512 changed flow shift from 3.1 to 3.1000002. A changed generation
+  parameter is not cache clearing, regardless of how small the change is.
+- Affected completed batches: `pack-q21t-r2-s1234/5678`, `pack-q2512-r2-s1234/5678`, and
+  `pack-turbo-t2i-native-r2-s1234/5678`. These are **variant plus cross-hardware evidence**, not frozen-input
+  repetitions. The same workaround also affected any non-r1 `bases` command; no such additional stage-1
+  batch is claimed here. Edit packs/chains/poses do not call this text-to-image variant branch.
+- The conservative keep-B/SDXL decision stands. Historical archives and driver pin remain unchanged;
+  no stage-1 images were rerendered. The bounded local B comparison is not a dedicated no-cache proof.
+- Future driver run labels are metadata only. Installed ComfyUI source (`comfy/cli_args.py:143`,
+  `main.py:337`, `execution.py:122`, `server.py:736`) confirms native `--cache-none`, with argv exposed
+  by `/system_stats`. `/free` queues asynchronous executor reset (`main.py:394–395`), without an awaited
+  reset acknowledgement; it is not used as an exact-repeat barrier. Repeated renders now refuse a server
+  whose native no-cache mode cannot be verified. No server started during stage 2.
+- `latency()` now excludes shared/copied bases and nonpositive/untimed rows from newly rendered medians,
+  preserving shared, untimed and newly timed counts separately. Earlier pod summaries that include copied
+  zero-second bases must not be treated as render-speed measurements for those groups.
+- Broker lease hint now matches its 768-token generation maximum. The stage-1 hint mismatch and outputs
+  remain recorded above; this correction has no new LI result. Rating total remains 113, stage-2 calls zero.
+
+## Stage-2 refined design — parent-directed deterministic build
+
+- Vertical slice: wizard-created/installed cast → Studio **Prepare presentation** → existing four-candidate
+  Qwen 2.1/BiRefNet base picker → explicit base/bust review → persisted accepted visual source → sprites
+  and current-look lineage → explicit cast illustration. Six generated views are optional future work;
+  neither a six-view quality pass nor automatic identity approval is invented.
+- One per-character visual manifest lives in install-wide sprite settings, through the established settings
+  save/read-back evidence path. It records installed card provenance/hash, accepted base set/file/hash/recipe,
+  a separately reviewed crop bust and its base hash, and published downstream look artifacts tied to the
+  accepted root. Candidate review state is transient and never read by runtime consumers. Replacing the root
+  clears derived looks; missing/replaced card or modified source files refuses reuse rather than guessing.
+- Existing builder controls remain the generation surface. Preparation can also explicitly review an installed
+  generated base. Bust preparation is a crop of that accepted candidate, using the author-controlled head box;
+  it does not spend a speculative quality-model call. Author can replace/review assets before acceptance.
+- Ownership: mint a RunOwnership guard for every async prepare/review operation; validate before every
+  candidate/file/settings write. Cancel, unmount, draft/chat change and a newer accepted root refuse publication.
+  Physical preview files are not accepted merely because the media plugin saved them. Persist only after the
+  author approves and the source fingerprints are rechecked. Reload reads the persisted accepted manifest.
+- Builder raw/final keys and look/pose cache keys incorporate accepted-root lineage. A published changed look
+  is a derivative of that approved source, not a new claim of human/vision quality approval. Cast illustration
+  requires the current look's verified derivative, never substitutes the original outfit while a look is pending.
+- Cast illustration is a distinct lazy Qwen 2.1 two-reference scene recipe/cache identity, through existing
+  broker/media owned jobs and image-save/place APIs. It is explicitly selected from the chat surface, accepts
+  one or two prepared non-narrator members, and refuses missing/stale current identities. Existing SDXL
+  backgrounds and cast-free workflows retain their established route and controls.
+- Live head resolves only a bust/rig matching the current accepted root/look. A changed look without a valid
+  bust/rig shows rebuild pending/static fallback. Existing rig import remains supported; the future vision-rig
+  harness invocation is a deferred seam until parent integration. No texture-only rig reuse is claimed.
+- One accurate per-use-case route/status view joins preparation, edits/poses, bust/rig, cast scene and SDXL
+  background controls. It makes no guaranteed quality/fast-tier claim. All new UI is in existing lazy chunks;
+  main bundle budget remains 1,300,000 B. No feature/thinking/inner-voice defaults are switched off.
+- Deterministic tests target cancellation/root replacement, candidate isolation, reload/sanitization, file/card
+  invalidation, current-look scene refusal/cache identity, and rig staleness. Synthetic Storybook cases cover
+  no artwork, review, progress/cancel, refusal and changed-look stale. Guide and queue records move with code.
+- Stage-2 stop: full deterministic gates including Storybook, then parent review. No GPU, browser/model
+  acceptance, rating, download, pod, owner staging, campaign adoption or harness/installer edits in this stage.
+
+### Stage-2 as-built scope and remaining gaps
+
+- Entry: Wizard **Next: prepare cast presentation** → Sprites existing four-candidate base builder.
+  Keeping a base selects its saved reference immediately. Set the head box; review and explicitly accept
+  base+bust. Installed-card path/hash, generated recipe/key/hash, crop box, bust hash and source revision
+  persist in `sprites.visualSources`. No source from transient candidate state is consumed by runtime.
+- Accepted sources also provision the runtime presentation profile for a wizard card with no old `so_sprites`
+  profile; reload uses the reviewed base set. Source acceptance reloads stage inventory and closes old look/body
+  work. Missing/modified card or root files refuses the stage inventory with a readiness finding.
+- Expression/raw/final keys, changed-look keys, pose keys and stage body stamps carry root identity.
+  Changed-look base derivatives are published only while their root remains current; pose fallback inventory
+  filters out a different accepted root. Cancellation during bust save cannot publish accepted settings;
+  cancellation during scene save deletes the unplaced image. Preview files may remain unaccepted after
+  cancellation; they are never treated as accepted presentation artifacts.
+- Chat **Illustrate prepared cast** → select at most two → **Draw current-look cast**. Distinct lazy Qwen
+  2.1 scene recipe, exact accepted/current-look hashes, native two-image node inputs, no four-reference head
+  conditioning. References are uploaded as decoded image bytes through existing owned media jobs, and
+  broker lease/reference cleanup runs on success or refusal. SDXL/cast-free route implementations are retained.
+- Live-head resolution checks the selected look's bust path/hash; changed-look bust/rig absence is shown
+  as pending/static fallback. The Sol image-capable request contract is wired and tested against adopted
+  harness types. **Automatic landmark-to-valid-rig synthesis is not built**, and no product rig call/trial was
+  made. The parent-proven synthetic vision transport is dependency evidence only.
+- **Stage 2 is a bounded vertical slice, not the finished journey.** Changed-look bust review/rebuild UI,
+  optional reference-view authoring, full wizard card artwork provisioning, independently reviewed dynamic
+  look quality and end-user Artemis streaming integration remain unproven or incomplete. A nonempty current
+  card look requires its matching published derivative; initial accepted default does not guess a match.
+  Face/decal-only look signatures may currently refuse cast illustration until a matching full-look derivative
+  is prepared. These are acceptance/next-design gaps, not alternate quality floors.
+- Harness parent commits were adopted locally, then dropped on 2026-10-14 when the branch was rebased onto
+  master (`004abc8a` merged `016a39a3`/`6e260f34`/`7537491f`). Both parent plan-40 records retained.
+- Campaign adoption deferred to RP acceptance; no private campaign material, pin bump or install.
+
+### Exact next acceptance sequence — after parent product review
+
+- Parent first reviews this bounded scope, source/persistence seams and rig-generation gap; implement the
+  missing changed-look bust/rig author workflow before calling the whole journey complete.
+- On an owned isolated lane, stage the reviewed combined build/plugins and compare served bundle hashes.
+  Start a fresh synthetic story through real Sol wizard; create its cast, prepare/review base+bust, accept,
+  reload and verify persisted hashes. Cancel another candidate and switch/delete a test card during work;
+  verify no accepted publication or cross-chat placement.
+- Configure established Qwen/BiRefNet and SDXL routes. Real Artemis with thinking/inner voice retained:
+  play a turn, stream presentation, change current look, render expression and both lying poses. Verify source
+  lineage/cache invalidation, transparent pending state and unchanged visibility/open-anchor behavior.
+- Rebuild/import a valid current-look bust/rig through the reviewed product route; verify actual live-head
+  rendering, refusal and static fallback. Request a two-member current-look scene and a cast-free SDXL
+  background; verify distinct route/cache identities and all GPU/reference ownership cleanup.
+- Repeat the complete browser/model path independently on the same machine twice, preserving failures and
+  predeclared floors; use a verified native `--cache-none` server for identical-input generation repeats.
+  Keep pod evidence separate, reconcile rating calls against 113/150, archive privately, stop/unload and prove
+  idle. No current deterministic result substitutes for those acceptance runs.
+
+## Gate record — stage 2 (deterministic), 2026-10-14
+
+- Branch `v2.8-plan41-poc`, worktree `C:\dev\so-plan41`. Uncommitted stage-2 work committed as four logical commits,
+  then rebased onto master `004abc8a`; the three duplicated harness commits dropped as already applied. No conflicts.
+- Review fixes:
+  - `drawPreparedCast`: the unplaced-image cleanup reads `imageDelete`'s WriteResult (and a rejected delete), logs a
+    failed removal, and always rethrows the original refusal. Tests: castSceneHost.test.ts (refused and threw cases).
+  - Cast scene builder config came from `selected[0]` only: a second member's missing route went unnoticed and a
+    different model triple was silently ignored. `castSceneBuilder` now requires every selected member's route, refuses
+    mismatched diffusion/encoder/VAE, and takes the larger steps/resolution (order independent). Tests: castScene.test.ts.
+  - `visualHost` commit and `publishDerivedVisual` take the caller's RunGuard and re-check `stillOwns()` immediately
+    before the settings write (onDemand, bodyRenderer and VisualPreparation pass their run). Both are synchronous, so the
+    ownership census has no new rows; ownership.guard green. Tests: visualHost.test.ts.
+  - Stray lone-LF lines fixed (stage.ts 3, StudioCopilot.tsx 1, castSceneHost.test.ts 7); StudioCopilot.tsx is now
+    unchanged against master.
+  - Feature registry: `prepared-presentation` (author, Studio `#so-prepare-presentation`) and `cast-illustration`
+    (setup, drawer `#so-cast-scene`), both experimental and on, with no setting to switch them off. README table and
+    settings reference regenerated (`npm run docs:settings`, `npm run docs:guide`).
+  - LiveHeadAuthor story still asserted the old "rig missing" copy; updated to the fallback copy.
+- Main bundle `dist/index.js` 1,261,282 B (budget 1,300,000 B). Cast scene host, Prepare presentation and cast
+  controls load lazily; the stage, keys and live-head status changes ride the main entry.
+- Gates:
+  - `npm run gates:quick`: typecheck, typecheck:test, defect replay 32/32 green; lint and codeHealth S5 red on two
+    over-long lines in imageFeatures.ts, fixed.
+  - `npm run gates` run 1: red on errorCopy.guard (new cleanup log row) and the LiveHeadAuthor story; both fixed.
+  - `npm run gates` run 2: every step green, Storybook included, except test:plugin: 2 harness deadline tests
+    (`the session deadline tears everything down…`, `a stalled OpenCode service…`) failed while CPU was pegged by a
+    parallel 3090 measurement. They passed in run 1, and a solo `npm run test:plugin` rerun exited 0 (fail 0). No
+    harness code changed on this branch.
+  - Final run `npm run gates -- --jobs=2` (throttled for the measurement window): all green in 374.6s, Storybook
+    included (test, test:replay, test-storybook:ci, test:debug, typecheck, typecheck:test, debug:typecheck, lint,
+    test:release, test:plugin, build).
+- Built in stage 2 (against §5 D and the refined design): per-character accepted visual manifest with card/base/bust
+  hashes and revision; Studio Prepare presentation (four-candidate base picker, head box, base+bust review, accept,
+  cancel); wizard "Next: prepare cast presentation" entry; accepted-root lineage in expression/raw/final, changed-look,
+  pose and body-stamp keys; derived-look publication only while the root is current; cast scene as a distinct lazy
+  Qwen 2.1 two-reference recipe with current-look refusal and owned broker/reference cleanup; live-head pending/static
+  fallback by look bust hash; per-use-case route/status view; synthetic Storybook cases.
+- NOT built or NOT proven:
+  - Automatic landmark-to-rig synthesis (vision rig) is not built; only the image-capable request contract exists.
+    No product rig call or trial.
+  - Changed-look bust review/rebuild and rig UI is missing; a changed look shows pending/static fallback only.
+  - Optional six-view reference pack authoring, a tier settings model, and full wizard card artwork provisioning
+    are not built. Face/decal-only look signatures may refuse cast illustration until a full-look derivative exists.
+  - No browser, lane, model, GPU or ComfyUI acceptance: no render, no real Sol wizard, no Artemis play, no
+    two-member scene render, no reload/chat-switch proof in a browser. Every claim here is deterministic tests and
+    Storybook only. The §5 A journey ×2 and the folded plan 28/29/33/36 rows remain owed.
+  - Campaign adoption, showcase rebuild through the product path, not staged into ST, not merged.

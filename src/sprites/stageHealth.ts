@@ -10,6 +10,7 @@ interface StoryLike {
 
 const GAP_REASON: Record<MemberGap["reason"], (gap: MemberGap) => string> = {
   "no-profile": () => "no sprite pack on the card (so_sprites)",
+  "stale-source": () => "accepted presentation artwork changed or its card was replaced; review presentation again",
   "no-default": (gap) => `no sprites in the folder "${gap.folder}"`,
   "no-face": (gap) => `no "${gap.face ?? ""}" sprite in "${gap.folder}"`,
 };

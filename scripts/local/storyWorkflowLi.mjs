@@ -25,8 +25,9 @@ async function main() {
     const [lane, label, outDir] = process.argv.slice(2);
     if (!lane || !label || !outDir) throw new Error('Usage: node scripts/local/storyWorkflowLi.mjs <lane> <label> <out dir>');
     const comfy = 'http://127.0.0.1:8188';
-    const settings = `C:/dev/so-lanes/${lane}/data/default-user/settings.json`;
-    const workflowDir = `C:/dev/so-lanes/${lane}/data/default-user/user/workflows`;
+    const lanes = process.env.SO_LANES_ROOT ?? 'C:/dev/so-lanes';
+    const settings = `${lanes}/${lane}/data/default-user/settings.json`;
+    const workflowDir = `${lanes}/${lane}/data/default-user/user/workflows`;
     const history = async () => (await fetch(`${comfy}/history`)).json();
     const report = { label, at: new Date().toISOString(), selectedDiskBefore: await selectedIn(settings), ok: false };
     const before = Object.keys(await history());

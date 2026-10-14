@@ -40,6 +40,17 @@ test("a preview built for an old draft cannot be uploaded", async () => {
   expect(deps.save).not.toHaveBeenCalled();
 });
 
+test("replacing accepted source refuses old candidates and makes identical-pixel renders distinct cache entries", async () => {
+  const f = fixture(); let root = "root:1";
+  f.deps.lineage = async () => { const captured = root; return { root: captured, current: () => root === captured }; };
+  const one = await f.builder.build(request);
+  root = "root:2";
+  await expect(f.builder.save(one)).rejects.toThrow("old accepted visual source");
+  expect(f.deps.save).not.toHaveBeenCalled();
+  const two = await f.builder.build(request);
+  expect(two.key).not.toBe(one.key); expect(two.inputs.visualRoot).toBe("root:2");
+});
+
 test("a draft switch while the render answers produces no retained preview or upload", async () => {
   const { builder, deps, lapse } = fixture();
   deps.render = async () => { lapse(); return { data: "result", format: "png" }; };

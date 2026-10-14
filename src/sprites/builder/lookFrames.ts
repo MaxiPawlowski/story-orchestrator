@@ -55,7 +55,8 @@ export const lookFrameRequest = (build: LookBuild, kind: LookFrameKind, still: {
 });
 
 export const lookKeyInput = (input: { story: string; member: string; fields: Record<string, string>; version: string; models: EditModels;
-  recipe: unknown; config: SpriteSettings["builders"][string] }): string => JSON.stringify({ contract: LOOK_CONTRACT, story: input.story, member: input.member,
+  recipe: unknown; config: SpriteSettings["builders"][string]; visualRoot?: string }): string => JSON.stringify({ contract: LOOK_CONTRACT, story: input.story, member: input.member,
+  ...(input.visualRoot ? { visualRoot: input.visualRoot } : {}),
   fields: Object.entries(input.fields).sort(([a], [b]) => a.localeCompare(b)), version: input.version, models: input.models,
   recipe: input.recipe, box: input.config.box, steps: input.config.steps,
   ...(input.config.resolution !== undefined && input.config.resolution !== RENDER_PRESETS.standard.resolution ? { resolution: input.config.resolution } : {}) });

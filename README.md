@@ -97,6 +97,8 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | World | Living stories | A story that writes its next turning point ahead of you, from what you actually pursued. | Experimental |
 | World | Branches that follow you | When you leave the prepared ways forward, the story writes a branch that follows you and later comes back. | Experimental |
 | Images | Live close-shot head | A rigged close shot breathes, blinks and talks as a reply streams. | Experimental |
+| Images | Prepared cast presentation | Review and accept each character's base and bust before sprites, poses and live heads use them. | Experimental |
+| Images | Prepared cast illustration | Draw one or two prepared characters together in their current looks. | Experimental |
 | Images | Poses and character layers | Direct a body pose and let looks change with the story. |  |
 | Images | Backgrounds | A turning point can switch the chat background. |  |
 | Images | Illustrations | Draws scenes and characters through your image service. |  |

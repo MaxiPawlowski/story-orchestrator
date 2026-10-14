@@ -32,6 +32,7 @@ export interface SpriteBuildRequest {
   pose?: PoseEntry["keypoints"];
   poseRoute?: "p2" | "p3"; poseSecondReference?: boolean;
   body?: import("../poses/bodyRenderer").BodyStamp;
+  visualRoot?: string;
 }
 
 export interface SpriteCandidate {
@@ -44,7 +45,7 @@ export interface SpriteCandidate {
   rawData?: string;
   referenceData?: string;
   inputs: { base: string; models: EditModels; kind: EditKind; value: string; seed: number; steps: number; box: HeadBox;
-    story?: string; member?: string; cutout?: AlphaRecipe; resolution?: number; frameRegion?: FrameRegion; pose?: unknown; body?: import("../poses/bodyRenderer").BodyStamp };
+    story?: string; member?: string; cutout?: AlphaRecipe; resolution?: number; frameRegion?: FrameRegion; pose?: unknown; body?: import("../poses/bodyRenderer").BodyStamp; visualRoot?: string };
 }
 
 export interface BuilderDeps {
@@ -58,12 +59,14 @@ export interface BuilderDeps {
   render(graph: Record<string, unknown>, signal: AbortSignal): Promise<{ data: string; format: string }>;
   lease(request: SpriteBuildRequest, signal: AbortSignal): Promise<{ release(): Promise<void> }>;
   save(candidate: SpriteCandidate, expectedHash?: string): Promise<{ path: string; sha256: string }>;
+  lineage?(request: SpriteBuildRequest, signal: AbortSignal): Promise<{ root: string; current(): boolean } | null>;
 }
 
 export class SpriteBuilder {
   private controller: AbortController | null = null;
   private candidates = new Map<string, RunGuard>();
   private raw = new RawEditCache();
+  private lineageChecks = new Map<string, () => boolean>();
 
   constructor(private readonly deps: BuilderDeps) {}
 
@@ -73,6 +76,7 @@ export class SpriteBuilder {
     this.cancel();
     for (const run of this.candidates.values()) run.release();
     this.candidates.clear();
+    this.lineageChecks.clear();
     this.raw.clear();
   }
 
@@ -90,6 +94,7 @@ export class SpriteBuilder {
     let skeleton: string | null = null;
     const start = performance.now();
     let candidate: SpriteCandidate | null = null;
+    let lineage: { root: string; current(): boolean } | null = null;
     const timings: BuildTimings = { prepareMs: 0, leaseMs: 0, uploadMs: 0, renderMs: 0, decodeMs: 0, compositeMs: 0,
       referenceReleaseMs: 0, leaseReleaseMs: 0, totalMs: 0, cacheHit: false };
     const timed = async <T>(field: Exclude<keyof BuildTimings, "cacheHit">, work: () => Promise<T>): Promise<T> => {
@@ -99,8 +104,11 @@ export class SpriteBuilder {
     const guard = () => {
       controller.signal.throwIfAborted();
       if (!run.stillOwns()) throw new Error("The story or draft changed. Build this sprite again for the current draft.");
+      if (lineage && !lineage.current()) throw new Error("The accepted visual source changed. Build this sprite again.");
     };
     try {
+      guard();
+      lineage = await this.deps.lineage?.(request, controller.signal) ?? null;
       guard();
       const base = await this.deps.decode(request.reference);
       const box = request.kind === "look" || request.kind === "base" || request.kind === "pose" ? { x: 0, y: 0, width: base.width, height: base.height } : request.box;
@@ -113,6 +121,7 @@ export class SpriteBuilder {
       const baseHash = base.sha256 ?? await contentHash(new Uint8Array(base.data));
       if (request.referenceHash && request.referenceHash !== baseHash) throw new Error("The reference sprite changed before the render. Read the pack again.");
       const inputs = { base: baseHash, models: request.models, kind: request.kind, value: request.value, seed: request.seed,
+        ...(lineage || request.visualRoot ? { visualRoot: lineage?.root ?? request.visualRoot } : {}),
         steps: request.steps, box, resolution, ...(region ? { frameRegion: region } : {}), story: request.story, member: request.member,
           ...(request.body ? { body: request.body } : {}), ...(request.pose ? { pose: { keypoints: request.pose, route: request.poseRoute ?? "p2" },
           poseRoute: request.poseRoute ?? "p2", poseSecondReference: request.poseSecondReference === true } : {}), ...(request.cutout ? { cutout: request.cutout } : {}) };
@@ -157,6 +166,7 @@ reference: reference as string, instruction: editInstruction(request.kind, reque
       timings.compositeMs = performance.now() - compositeStart;
       this.candidates.get(key)?.release();
       this.candidates.set(key, run);
+      this.lineageChecks.set(key, () => !lineage || lineage.current());
       retained = true;
       return candidate;
     } finally {
@@ -179,6 +189,7 @@ reference: reference as string, instruction: editInstruction(request.kind, reque
   async save(candidate: SpriteCandidate, expectedHash?: string): Promise<{ path: string; sha256: string }> {
     const run = this.candidates.get(candidate.key);
     if (!run?.stillOwns()) throw new Error("This preview belongs to an old story or draft. Generate it again before saving.");
+    if (!this.lineageChecks.get(candidate.key)?.()) throw new Error("This preview belongs to an old accepted visual source.");
     if (!candidate.qa.ok) throw new Error("A failed sprite cannot be saved.");
     return this.deps.save(candidate, expectedHash);
   }

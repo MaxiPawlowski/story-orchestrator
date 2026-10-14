@@ -17,8 +17,10 @@ import BaseSpriteBuilder from "./BaseSpriteBuilder";
 import SpriteEditRegion from "./SpriteEditRegion";
 import SpritePreview from "./SpritePreview";
 import type { FrameRegion } from "../../sprites/builder/frameRegion";
+import PresentationRoutes from "./PresentationRoutes";
 
 const PosesList = lazy(() => import("./PosesList"));
+const PreparePresentation = lazy(() => import("./PreparePresentation"));
 
 export interface SpriteBuilderHost {
   discover: typeof comfyDiscover;
@@ -149,6 +151,9 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
     }} /></label>
     <SpriteEditRegion reference={reference} size={size} box={box} changeBox={setBox} region={regions[reference]} busy={busy}
       mouth={["talk", "talk2", "rest"].includes(kind)} changeRegion={(region) => setRegions((all) => ({ ...all, [reference]: region }))} />
+    <Suspense fallback={<p role="status">Loading presentation review…</p>}><PreparePresentation key={character} character={character}
+      card={members.find((member) => member.folder === character)?.image} reference={reference} box={box} busy={busy} setBusy={setBusy} /></Suspense>
+    <PresentationRoutes />
     <button type="button" className="st-button" disabled={busy} onClick={() => void discover()}>Discover image-edit setup</button>
     {discovery && <fieldset className="flex flex-col gap-2"><legend>Installed models — {EDIT_RECIPE.id}</legend>
       {(["diffusion", "encoder", "vae"] as const).map((field) => <label key={field}>{field}<select aria-label={field} className="text_pole" disabled={busy} value={models[field]}
@@ -159,7 +164,8 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
     {discovery && <ReferencePackPicker key={`reference:${character}`} character={character} discovery={discovery} models={models}
       box={box} steps={steps} resolution={resolution} busy={busy} setBusy={setBusy} services={services} />}
     {discovery && <BaseSpriteBuilder key={`base:${character}`} character={character} image={members.find((member) => member.folder === character)?.image}
-      set={set} models={models} discovery={discovery} steps={steps} resolution={resolution} seed={seed} busy={busy} setBusy={setBusy} builder={builder} services={services} />}
+      set={set} models={models} discovery={discovery} steps={steps} resolution={resolution} seed={seed} busy={busy} setBusy={setBusy} builder={builder} services={services}
+      onSaved={(path) => { setReference(path); void services.list(character).then((rows) => { if (live.current) setSources(rows); }); }} />}
     <label>Edit<select aria-label="Edit" className="text_pole" disabled={busy} value={kind} onChange={(event) => setKind(event.target.value as EditKind)}>
       <option value="expression">Expression</option><option value="rest">Closed-mouth neutral rest</option>
       <option value="blink">Blink frame</option><option value="talk">Mouth open frame</option>

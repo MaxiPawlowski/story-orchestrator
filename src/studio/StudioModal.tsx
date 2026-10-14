@@ -264,6 +264,7 @@ const StudioTabContent = ({
   activeTab, options, copilotEnabled, runCopilotStage, runAgentTurn, wizardHost, intent, onSelect, wizardMode, onWizardMode, ask, draftTutorialStep, onShowTopic,
 }: TabContentProps) => {
   const idLocked = useDraftStore((state) => state.sourceHash !== null);
+  const hasCast = useDraftStore((state) => Boolean(state.draft.roster?.length));
   if (activeTab === "story") {
     return <StoryEditor section="setup" personaNames={options.personaNames} memberNames={options.memberNames} lorebookNames={options.lorebookNames} idLocked={idLocked} />;
   }
@@ -279,7 +280,7 @@ const StudioTabContent = ({
   if (activeTab === "diagnostics") return <DiagnosticsPanel />;
   if (activeTab === "copilot") {
     return (
-      <StudioCopilot
+      <div className="flex flex-col gap-3"><StudioCopilot
         mode={wizardMode}
         onModeChange={onWizardMode}
         enabled={copilotEnabled}
@@ -291,7 +292,8 @@ const StudioTabContent = ({
         ask={ask}
         draftTutorialStep={draftTutorialStep}
         onShowTopic={onShowTopic}
-      />
+      />{hasCast && <button id="so-wizard-prepare-presentation" type="button" className="st-button"
+        onClick={() => onSelect("sprites")}>Next: prepare cast presentation</button>}</div>
     );
   }
   return <GraphTab copilotEnabled={copilotEnabled} onSelect={onSelect} backgroundNames={options.backgroundNames} />;

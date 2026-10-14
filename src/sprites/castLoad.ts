@@ -3,6 +3,8 @@ import type { SpriteInventoryEntry } from "@runtime/spriteStageHealth";
 import { frameIndex, type AnimationFrames } from "./animation";
 import { readSpriteProfile, readSpriteSets, resolveSprite, spriteIndex, type SpriteFile, type SpriteProfile, type SpriteSetRule } from "./profile";
 import type { SpriteSettings } from "./settings";
+import type { VisualSources, VisualManifest } from "./visualManifest";
+import { log } from "@utils/log";
 
 export interface Actor {
   name: string;
@@ -27,7 +29,7 @@ export interface Actor {
   renderedStamp?: string;
 }
 
-export type MemberGap = { name: string; folder: string; muted: boolean; reason: "no-profile" | "no-default" | "no-face"; face?: string };
+export type MemberGap = { name: string; folder: string; muted: boolean; reason: "no-profile" | "no-default" | "no-face" | "stale-source"; face?: string };
 
 export interface CastLoad {
   actors: Actor[];
@@ -66,18 +68,28 @@ export interface CastLoadDeps {
   builders: SpriteSettings["builders"];
   bodies?: (folder: string) => Promise<import("@services/stHost/media").SpriteManifest[]>;
   storyId?: string;
+  sources?: VisualSources;
+  verifySource?(source: VisualManifest): Promise<void>;
 }
 
 async function loadMember(member: SpriteCastMember, deps: CastLoadDeps): Promise<Actor | MemberGap> {
-  const profile = readSpriteProfile(member.profile, member.folder);
+  const accepted = deps.sources?.[member.folder];
+  if (accepted && deps.verifySource) {
+    try { await deps.verifySource(accepted); }
+    catch (error) { log.warn("prepared cast source is stale", error); return { name: member.name, folder: member.folder, muted: member.muted, reason: "stale-source" }; }
+  }
+  const profile = readSpriteProfile(member.profile, member.folder) ?? (accepted ? {
+    folder: member.folder, default: "neutral", labels: Object.fromEntries(["neutral", "happy", "angry", "worried"].map((label) =>
+      [label, { what: label, notFor: "", examples: [], fallback: label === "neutral" ? [] : ["neutral"] }])), localMap: {},
+  } : null);
   if (!profile) return { name: member.name, folder: member.folder, muted: member.muted, reason: "no-profile" };
   const rules = readSpriteSets(member.profile);
   const generated = deps.builders[profile.folder]?.baseSet;
   if (generated && !rules.some((rule) => rule.id === generated)) rules.push({ id: generated, places: [], checkpoints: [], keywords: [] });
   const listed = await Promise.all(rules.map(async (rule) => {
     const [files, frames] = await Promise.all([
-      deps.list(rule.id === "default" ? profile.folder : `${profile.folder}/${rule.id}`),
-      deps.list(`${profile.folder}/anim-${rule.id}`),
+      deps.list(rule.id === "default" ? accepted ? `${profile.folder}/${accepted.baseSet}` : profile.folder : `${profile.folder}/${rule.id}`),
+      deps.list(`${profile.folder}/anim-${rule.id === "default" && accepted ? accepted.baseSet : rule.id}`),
     ]);
     return { rule, pack: spriteIndex(files), frames: frameIndex(frames) };
   }));

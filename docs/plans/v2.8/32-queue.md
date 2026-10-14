@@ -11,6 +11,12 @@ Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instruc
 The owner-approved no-GPU/no-authoring-model execution pass is [plan 40](40-build-now-no-gpu.md).
 It records current progress, source-plan links and deferred acceptance protocols.
 
+- Plan 41 stage 2, branch `v2.8-plan41-poc`: parent-directed deterministic vertical slice in build.
+  Wizard-to-presentation entry, explicitly accepted base/bust manifest, root-aware sprite/look/pose caches,
+  prepared-current-look cast scene and live-head fallback status. Harness dependency adopted from parent;
+  source and gate detail in [plan 41](41-product-integration-and-image-models.md). Product live acceptance
+  and complete changed-look bust/rig preparation remain owed. Campaign adoption deferred to RP acceptance.
+
 | # | Item | Source | State |
 |---|---|---|---|
 | N1 | Living story director: divergence detection, branch-on-divergence, one-checkpoint prefetch | 22, D6 | built and merged; pace2/F25 fixes included; scripted divergence/prefetch and model acceptance still owed (37 §Status 2026-10-12) |

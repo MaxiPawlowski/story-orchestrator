@@ -8,6 +8,9 @@ import { DWPOSE_FILES, NO_PERSON } from "./import";
 import { importPoseImage } from "./importHost";
 import { waitForTextPriority } from "../builder/textPriority";
 import { PoseBodies } from "./bodyRenderer";
+import { getGlobalSettings } from "@runtime/settingsStore";
+import { visualRoot } from "../visualManifest";
+import { verifyVisualSource, sourceStillCurrent, publishDerivedVisual } from "../visualHost";
 
 export const createPoseBodies = (ownership: RunOwnership): PoseBodies => {
   const measure = async (image: PixelImage, discovery: ComfyDiscovery, signal: AbortSignal, none: null | undefined) => {
@@ -20,6 +23,13 @@ export const createPoseBodies = (ownership: RunOwnership): PoseBodies => {
   };
   return new PoseBodies({
   ownership, builder: () => createSpriteBuilder(ownership), discover: comfyDiscover, pack: spriteReferencePack, manifest: spriteManifest, decode: decodeImage,
+  lineage: async (folder, signal) => {
+    const source = getGlobalSettings().sprites.visualSources[folder];
+    if (!source) return undefined;
+    await verifyVisualSource(source, signal);
+    return { root: visualRoot(source), baseSet: source.baseSet, current: () => sourceStillCurrent(source) };
+  },
+  publishLook: publishDerivedVisual,
   models: async (config, signal) => {
     const [diffusion, encoder, vae] = await Promise.all([comfyFingerprint("diffusionModels", config.models.diffusion, signal), comfyFingerprint("textEncoders",
       config.models.encoder, signal), comfyFingerprint("vaes", config.models.vae, signal)]);

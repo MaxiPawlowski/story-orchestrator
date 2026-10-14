@@ -6,6 +6,7 @@ import {
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { beginRun } from "@runtime/runToken";
 import { actorHeadRef, castHeadStatus } from "./liveHeadStage";
+import { subscribeVisualSources } from "./visualChanges";
 import { PLAYER_COPY } from "@runtime/narrative";
 import { log } from "@utils/log";
 import { classifyExpressions, NARRATION, type ExpressionRead } from "./classify";
@@ -59,31 +60,25 @@ export class SpriteStage {
   constructor(private readonly manager: RuntimeManager) {
     this.snapshot = this.compose();
   }
-
   private settings(): SpriteSettings {
     return this.manager.getEffectiveSettings().sprites;
   }
-
   view = (): StageView => this.snapshot;
   beginHeadRun = () => beginRun(this.manager.getOwnership());
-
-  headStatus(): Array<{ member: string; name: string; look: string; present: boolean }> {
-    return castHeadStatus(this.actors, spriteCast().members, this.manager.getStory()?.roster ?? [], this.settings().liveHeadRigs);
+  headStatus() {
+    const settings = this.settings();
+    return castHeadStatus(this.actors, spriteCast().members, this.manager.getStory()?.roster ?? [], settings.liveHeadRigs, settings.visualSources);
   }
-
   updateSettings(patch: Partial<SpriteSettings>): void {
     setGlobalSettings({ sprites: patch });
     this.notify();
     this.manager.notify();
   }
-
   subscribe = (listener: () => void): (() => void) => {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
   };
-
   private directs: { story: unknown; value: boolean } = { story: null, value: false };
-
   activation(): SpriteActivation {
     const story = this.manager.getStory();
     if (story !== this.directs.story) this.directs = { story, value: storyDirectsStage(story) };
@@ -106,7 +101,7 @@ export class SpriteStage {
       .map((actor) => ({ name: actor.name, avatar: actor.avatar, label: actor.label, path: actor.path, set: actor.set,
         pose: actor.pose, framing: memberDirection(direction, actor.keys).framing,
         frames: actor.frames.get(actor.set)?.get(actor.label), spotlight: isSpotlit(direction, actor.keys),
-        liveHead: actorHeadRef(actor, this.manager.getStory()?.roster ?? [], settings.liveHeadRigs) }));
+        liveHead: actorHeadRef(actor, this.manager.getStory()?.roster ?? [], settings.liveHeadRigs, settings.visualSources) }));
     return {
       visible: ready && (narrow || settings.stage === "always" || vn) && actors.length > 0,
       placement: vn ? "vn" : "strip",
@@ -175,12 +170,14 @@ export class SpriteStage {
     observer?.observe(document.body, { attributes: true, attributeFilter: ["class"] });
     const offViewport = spriteWatchViewport(this.notify);
     const offStory = this.manager.subscribe(() => this.placeChanged());
+    const offSources = subscribeVisualSources(() => { this.lists.clear(); void this.reload(); });
     const click = (event: MouseEvent) => this.clicked(event);
     document.addEventListener("click", click);
     void this.reload();
     return () => {
       off();
       offStory();
+      offSources();
       offViewport();
       observer?.disconnect();
       document.removeEventListener("click", click);
@@ -198,7 +195,6 @@ export class SpriteStage {
     }
     if (this.castChanged()) this.notify();
   }
-
   async reload(): Promise<void> {
     this.activity.stop();
     this.bodies?.close(); this.bodies = null;
@@ -217,6 +213,8 @@ export class SpriteStage {
     }
     const loaded = await loadCast(cast.members, {
       list: (folder) => this.lists.get(cast.chatId, folder), keysFor: (name) => this.keysFor(name), builders: this.settings().builders,
+      sources: this.settings().visualSources,
+      verifySource: async (source) => (await import("./visualHost")).verifyVisualSource(source, new AbortController().signal),
 ...(Object.keys(this.settings().builders).length ? { bodies: async (folder: string) => (await import("@services/stHost/media")).generatedSpriteSets(folder),
         storyId: this.manager.getCachedSnapshot().storyId ?? undefined } : {}),
     });

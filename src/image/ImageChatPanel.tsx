@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import HelpTooltip from "@components/studio/HelpTooltip";
@@ -6,6 +6,7 @@ import { imageAutomationText, PLAYER_COPY } from "@runtime/narrative";
 import { startImage } from "./start";
 import type { ImageOverride } from "./settings";
 import { log } from "@utils/log";
+const CastSceneControls = lazy(() => import("./CastSceneControls"));
 
 export default function ImageChatPanel({ manager, snapshot }: { manager: RuntimeManager; snapshot: RuntimeSnapshot }) {
   const image = startImage(manager);
@@ -56,6 +57,7 @@ export default function ImageChatPanel({ manager, snapshot }: { manager: Runtime
       {state.jobs.length > 0 && <button type="button" className="menu_button" onClick={() => image.queue.cancelAll()}>Stop images</button>}
     </div>
     <div role="status" className="text-xs opacity-80">{state.jobs.length ? state.jobs.map((job) => `${job.label}: ${job.state}`).join(" · ") : PLAYER_COPY.imageNoJobs}</div>
+    <Suspense fallback={<p>Loading cast controls…</p>}><CastSceneControls manager={manager} snapshot={snapshot} queue={image.queue} /></Suspense>
     {state.lastError && <div role="alert" data-so="image-error" className="text-xs so-error-text">{PLAYER_COPY.imageError}</div>}
   </section>;
 }

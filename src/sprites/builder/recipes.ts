@@ -74,7 +74,8 @@ export async function contentHash(bytes: Uint8Array): Promise<string> {
 }
 
 export async function editKey(input: { base: string; models: EditModels; kind: EditKind; value: string; seed: number; steps: number;
-  box: unknown; story?: string; member?: string; cutout?: AlphaRecipe; resolution?: number; frameRegion?: unknown; pose?: unknown; poseRoute?: "p2" | "p3"; body?: unknown }): Promise<string> {
+  box: unknown; story?: string; member?: string; cutout?: AlphaRecipe; resolution?: number; frameRegion?: unknown; pose?: unknown;
+  poseRoute?: "p2" | "p3"; body?: unknown; visualRoot?: string }): Promise<string> {
   const recipe = input.kind === "pose" ? (input.poseRoute === "p3" ? POSE_FALLBACK_RECIPE : POSE_RECIPE)
     : input.kind === "decal" ? DECAL_RECIPE : input.kind === "base" ? BASE_RECIPE : input.kind === "rest" ? REST_RECIPE : EDIT_RECIPE;
   return contentHash(new TextEncoder().encode(JSON.stringify({ recipe, ...input })));

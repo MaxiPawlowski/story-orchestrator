@@ -1,6 +1,22 @@
 {
   "$comment": "v2.3 plan 03. Every place in src/runtime, src/wizard, src/extraction and src/generation (V3) that writes AFTER an await — methods, function declarations, and since V3 arrow functions (named by where they live) and property assignments, and what has been done about it. Generated set, hand-classified status. The guard in src/runtime/ownership.guard.test.ts fails when this file and the code disagree, in EITHER direction: a new site nobody classified, a row whose site is gone, a \"checked\" row with no token check in its body, or a \"todo\" row that has quietly acquired one (flip it to checked). Statuses: checked (verifies a RunToken before writing) | delegate (awaits a censused site that owns the check) | local (writes nothing that outlives the call) | todo (owed work). WHAT \"checked\" MEANS, PRECISELY: the body contains a token check -- NOT that every write is preceded by one. The detector is a body-level scan, so it cannot see the interleaving, and a body that gains a fifth host step can escape the checks that guard the other four (found 2026-09-22 in EffectsApplier.applyCheckpoint: the preset sat below the Author Note await and the background below applyCastChanges per-member awaits). Per-write checking is proven by TESTS in the case files (effectsOwnership.review.test.ts pins each check with a case that reaches it), which is also the file-level rule: a check without a case is a check a mutation can delete.",
   "rows": {
+    "src/sprites/visualPreparation.ts#VisualPreparation.prepare": {
+      "status": "checked",
+      "note": "RunOwnership plus operation identity, cancellation, installed card and accepted revision checks precede candidate publication. visualPreparation.test.ts covers late crop/cancel; only transient review state changes."
+    },
+    "src/sprites/visualPreparation.ts#VisualPreparation.accept": {
+      "status": "checked",
+      "note": "Guard before save and before accepted manifest commit; rechecks card/base bytes and saved bust hash. visualPreparation.test.ts covers cancellation, chat switch, card deletion and root replacement during save."
+    },
+    "src/sprites/visualHost.ts#createVisualPreparation.crop": {
+      "status": "local",
+      "note": "Pixel buffer and encoded crop are invocation-local. Nothing is persisted; enclosing VisualPreparation.prepare guards before exposing review."
+    },
+    "src/sprites/visualHost.ts#createVisualPreparation.save": {
+      "status": "partial",
+      "note": "The combined signal is checked before preview upload, but this primitive has no independent RunOwnership. VisualPreparation.accept checks before calling and after the awaited upload; only that caller commits an accepted manifest. Cancellation may leave an unaccepted preview file, never accepted source state."
+    },
     "src/runtime/canonSynthesis.ts#CanonSynthesis.decideDraft": {
       "status": "checked",
       "note": "Checks current input hash and RunOwnership before accepting or discarding a draft. No post-save mutation. Tests canonDraft.test.ts cover drift refusal and draft isolation."

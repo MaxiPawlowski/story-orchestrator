@@ -32,7 +32,7 @@ export interface SpriteManifest {
   character: string;
   set: string;
   labels: Record<string, { key: string; sha256: string; recipe: { id: string; version: number }; qa: unknown; status: string;
-    inputs?: { base?: string; body?: { set: string; story: string; member: string; look: string; pose: string; tags: string[]; stamp?: string } } }>;
+    inputs?: { base?: string; body?: { set: string; story: string; member: string; look: string; pose: string; tags: string[]; stamp?: string; visualRoot?: string } } }>;
 }
 
 export async function spriteFileFingerprint(path: string, signal?: AbortSignal): Promise<string> {
@@ -155,9 +155,11 @@ export async function saveGeneratedSprite(input: {
   character: string; set: string; label: string; data: string; key: string;
   recipe: { id: string; version: number }; qa: unknown; expectedHash?: string;
   inputs?: unknown;
+  signal?: AbortSignal;
 }): Promise<WriteResult<{ path: string; sha256: string; manifest: SpriteManifest }>> {
   try {
-    const data = await request("/sprites/save", input);
+    const { signal, ...body } = input;
+    const data = await request("/sprites/save", body, signal);
     if (!isRecord(data) || typeof data.path !== "string" || typeof data.sha256 !== "string" || !isRecord(data.manifest)) return couldNot("The sprite upload returned incomplete evidence.");
     return wrote({ path: data.path, sha256: data.sha256, manifest: data.manifest as unknown as SpriteManifest });
   } catch (error) { return couldNot(error instanceof Error ? error.message : String(error)); }

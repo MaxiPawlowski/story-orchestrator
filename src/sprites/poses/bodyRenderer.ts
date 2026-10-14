@@ -1,4 +1,4 @@
-import { beginRun, type RunOwnership } from "@runtime/runToken";
+import { beginRun, type RunGuard, type RunOwnership } from "@runtime/runToken";
 import { stableStringify } from "@runtime/hash";
 import { publicLook } from "@engine/cardFields";
 import type { PoseEntry } from "@engine/poseSchema";
@@ -8,7 +8,7 @@ import { builderRender } from "../settings";
 import { BASE_RECIPE, EDIT_RECIPE, POSE_RECIPE, POSE_FALLBACK_RECIPE, contentHash, type EditModels } from "../builder/recipes";
 import type { SpriteBuilder, SpriteBuildRequest } from "../builder/builder";
 import type { HeadBox, PixelImage } from "../builder/pixels";
-import { poseCacheKey, poseSet, type CachedBody, type LookLayers } from "./layers";
+import { bodyStamp, poseCacheKey, poseSet, type CachedBody, type LookLayers } from "./layers";
 import type { AnimationFrames } from "../animation";
 import { completeLookFrames } from "../builder/lookFrames";
 import { retargetPose, retargetVersion, type Retarget } from "./skeleton";
@@ -33,6 +33,9 @@ export interface BodyDeps {
   wait(signal: AbortSignal, current: () => boolean): Promise<void>;
   proportions?(image: PixelImage, discovery: ComfyDiscovery, signal: AbortSignal): Promise<PoseEntry["keypoints"] | undefined>;
   head?(image: PixelImage, discovery: ComfyDiscovery, signal: AbortSignal): Promise<PoseEntry["keypoints"] | null | undefined>;
+  lineage?(folder: string, signal: AbortSignal): Promise<{ root: string; baseSet: string; current(): boolean } | undefined>;
+  publishLook?(run: Pick<RunGuard, "stillOwns">, folder: string, root: string, set: string, fields: Record<string, string>,
+    base: { path: string; sha256: string; key: string; recipe: { id: string; version: number } }): void;
 }
 
 export function alphaBox(image: PixelImage): HeadBox {
@@ -116,9 +119,11 @@ export class PoseBodies {
   async render(request: BodyRequest): Promise<BodyResult | null> {
     const run = beginRun(this.deps.ownership), builder = this.deps.builder();
     this.active = builder; this.activeRequest = request;
+    let lineage: Awaited<ReturnType<NonNullable<BodyDeps["lineage"]>>> | undefined;
     const guard = () => {
       run.signal.throwIfAborted();
       if (this.closed || !run.stillOwns() || !request.accepts()) throw new Error("The stage changed before this body was ready.");
+      if (lineage && !lineage.current()) throw new Error("The accepted source changed before this body was ready.");
     };
     const checkedPack = async (set: string, label: string) => {
       const manifest = await this.deps.manifest(request.folder, set);
@@ -133,9 +138,11 @@ export class PoseBodies {
     };
     try {
       guard();
+      lineage = await this.deps.lineage?.(request.folder, run.signal);
+      guard();
       const discovery = await this.deps.discover(run.signal);
       const models = await this.deps.models(request.config, run.signal);
-      const source = await this.deps.pack(request.folder, request.config.baseSet);
+      const source = await this.deps.pack(request.folder, lineage?.baseSet ?? request.config.baseSet);
       guard();
       const neutral = source.files.find((file) => file.label === "neutral");
       if (!neutral) throw new Error("The reference pack needs a neutral look base.");
@@ -150,7 +157,7 @@ export class PoseBodies {
         guard();
         return saved;
       };
-      const common = { character: request.folder, models, ...render, story: request.story, member: request.member };
+      const common = { character: request.folder, models, ...render, story: request.story, member: request.member, ...(lineage ? { visualRoot: lineage.root } : {}) };
       let base = neutral;
       if (Object.keys(request.layers.base).length) {
         if (!cutout) throw new Error("Install a background-removal setup before rendering a new look base.");
@@ -160,7 +167,7 @@ export class PoseBodies {
         guard();
         const sourceHash = image.sha256 ?? await contentHash(new Uint8Array(image.data));
         const key = await contentHash(new TextEncoder().encode(stableStringify({ recipe: BASE_RECIPE, story: request.story, member: request.member, fields: request.layers.base,
-          rebase: request.layers.rebase, base: sourceHash, models, render, cutout })));
+          rebase: request.layers.rebase, base: sourceHash, models, render, cutout, ...(lineage ? { visualRoot: lineage.root } : {}) })));
         const set = `look_${key.slice(0, 8)}`;
         const cached = await checkedPack(set, "neutral");
         if (cached) base = cached;
@@ -169,6 +176,9 @@ export class PoseBodies {
             box: { x: 0, y: 0, width: image.width, height: image.height }, seed: seedOf(key), cutout });
           base = { label: "neutral", ...saved, width: image.width, height: image.height };
         }
+        guard();
+        if (lineage) this.deps.publishLook?.(run, request.folder, lineage.root, set, request.layers.base,
+          { path: base.path, sha256: base.sha256, key, recipe: BASE_RECIPE });
       }
       const image = await this.deps.decode(base.path);
       guard();
@@ -180,17 +190,18 @@ export class PoseBodies {
       const target: Retarget = { canvas: [image.width, image.height], box: alphaBox(image), headToHip: member ? headToHipRatio(member) : undefined,
         member: member ? { ...member, points: member.points.map((point) => point ? [Math.round(point[0]), Math.round(point[1])] : null) } : undefined, version: retargetVersion(request.pose) };
       const keypoints = retargetPose(request.pose, target, standingReference());
-      const look = stableStringify(request.layers.base), stamp = stableStringify([request.pose, request.layers, request.config]);
+      const look = stableStringify(request.layers.base), stamp = bodyStamp(request.pose, request.layers, request.config, lineage?.root);
       const secondReference = Boolean(discovery.nodes.TextEncodeQwenImage21?.input?.required?.["images.image_2"]
         || discovery.nodes.TextEncodeQwenImage21?.input?.optional?.["images.image_2"]);
       const bodyFor = async (route: "p2" | "p3") => {
         const bodyKey = await poseCacheKey({ story: request.story, member: request.member, fields: request.layers.base, pose: request.pose, retarget: target,
           recipe: route === "p2" ? POSE_RECIPE : POSE_FALLBACK_RECIPE, models, base: base.sha256, steps: render.steps, resolution: render.resolution,
-          cutout, secondReference: route === "p2" || secondReference });
+          cutout, secondReference: route === "p2" || secondReference, ...(lineage ? { visualRoot: lineage.root } : {}) });
         const set = poseSet(bodyKey);
         const body: BodyStamp = { set, look, pose: request.pose.id, tags: request.pose.tags, version: request.pose.version, story: request.story, member: request.member,
+          ...(lineage ? { visualRoot: lineage.root } : {}),
           head: request.pose.id === "stand_relaxed" ? request.config.box : poseHead(keypoints, request.config.box),
-          stamp: stableStringify([request.pose, { ...request.layers, face: {}, decal: {}, regions: {} }, request.config]) };
+          stamp: bodyStamp(request.pose, { ...request.layers, face: {}, decal: {}, regions: {} }, request.config, lineage?.root) };
         let posed = await checkedPack(set, "neutral");
         if (!posed && request.pose.id === "stand_relaxed") posed = base;
         if (!posed) {

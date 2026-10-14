@@ -67,8 +67,9 @@ const gpuSamples = [];
 const sampler = setInterval(() => { void smi().then((sample) => { if (sample) gpuSamples.push({ at: Date.now(), ...sample }); }); }, 1000);
 const text = async (label) => {
     const began = Date.now();
-    const data = await gateway('/completion', { prompt: '<|turn>user\nDescribe a stone hall with a fireplace and its furniture in detail.<turn|>\n<|turn>model\n<|channel>final\n', n_predict: 128, temperature: 0.6, top_k: 0, top_p: 1, min_p: 0.05, seed: 17, cache_prompt: true });
-    return { label, elapsedMs: Date.now() - began, visible: Boolean(data.content?.trim()), chars: data.content?.length ?? 0, predictedPerSecond: data.timings?.predicted_per_second ?? null };
+    const data = await gateway('/v1/chat/completions', { model: local.modelAlias, messages: [{ role: 'user', content: 'Describe a stone hall with a fireplace and its furniture in one short paragraph.' }], chat_template_kwargs: { enable_thinking: true }, max_tokens: 768, temperature: 0.6, top_k: 0, top_p: 1, min_p: 0.05, seed: 17, cache_prompt: true });
+    const message = data.choices?.[0]?.message;
+    return { label, elapsedMs: Date.now() - began, thinkingEnabled: true, visible: Boolean(message?.content?.trim()), chars: message?.content?.length ?? 0, reasoningChars: message?.reasoning_content?.length ?? 0, finishReason: data.choices?.[0]?.finish_reason ?? null, usage: data.usage ?? null, predictedPerSecond: data.timings?.predicted_per_second ?? null };
 };
 
 const report = { runLabel, at: new Date().toISOString(), needGpuMiB, checkpoint: checkpoint.file, reserveMode: config.reserves ? 'pinned' : 'probe', ok: false };
@@ -84,7 +85,7 @@ try {
     const queueBefore = await fetch(`${local.comfyUrl}/queue`).then((response) => response.json()).catch(() => null);
     report.comfyQueueBefore = queueBefore ? { running: queueBefore.queue_running?.length ?? 0, pending: queueBefore.queue_pending?.length ?? 0 } : 'comfy-not-running';
     const leaseBegan = Date.now();
-    const granted = await plugin('/lease', { workflowKey: renderSignature(graph), needGpuMiB, nextTextTokens: 128, modelFiles, ...size, hires: false });
+    const granted = await plugin('/lease', { workflowKey: renderSignature(graph), needGpuMiB, nextTextTokens: 768, modelFiles, ...size, hires: false });
     lease = granted.lease;
     report.lease = { decision: granted.decision ?? null, brokered: granted.brokered ?? null, admissionMs: Date.now() - leaseBegan, warning: granted.warning ?? null };
     report.stateDuringLease = (await plugin('/status')).state;
@@ -108,7 +109,9 @@ try {
     await plugin('/release', { lease }); lease = null;
     report.releaseMs = Date.now() - releaseBegan;
     report.text2 = await text('after');
-    report.imageToReplyMs = report.releaseMs + report.text2.elapsedMs;
+    report.postRenderToReplyMs = report.releaseMs + report.text2.elapsedMs;
+    report.imageToReplyMs = Date.now() - leaseBegan;
+    report.timingDefinition = 'lease request through completed thinking-enabled reply; includes admission, render, release and text';
     report.stateEnd = (await plugin('/status')).state;
     const queueAfter = await fetch(`${local.comfyUrl}/queue`).then((response) => response.json()).catch(() => null);
     report.comfyQueueAfter = queueAfter ? { running: queueAfter.queue_running?.length ?? 0, pending: queueAfter.queue_pending?.length ?? 0 } : null;
