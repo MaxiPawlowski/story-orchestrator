@@ -226,4 +226,15 @@ Product integration and image model selection, including the Qwen fast-model POC
 - `so-evidence.mts archive --label plan41-harness-review --lanes 38 --pods none --since 2026-10-13T18:32:00Z`:
   25 files / 330,274 B; archive verification ok. Private evidence commit `a1df3e4`, not pushed. Includes failures,
   scripts and successful browser records. Full plan-41 end-user acceptance remains pending.
+- Harness review fixes (`e1ea01aa`): OpenCode text and agent setup (`ready`, `verifyAgent`, `session.create`,
+  `prompt`, MCP connect) now race the deadline armed first and the cancel signal; a stalled service frees the
+  `/complete` slot, removes a late-created session, and bounded cleanup lets bridge teardown always remove the owned
+  dir. Bridge `opencode.json` (holds the bridge secret) written 0o600. Sign-in/credential wording counts as `auth`
+  only outside routing errors and with a qualifier. Fake server gained `stall` + `release()`; 5 node:test cases added
+  (stalled create/prompt/agent read to timeout, cancel during setup, owned-dir cleanup on deadline/close/refused,
+  0o600 write, auth vs config classify). All 5 fail on the previous transport.
+- `npm run test:plugin`: 272 tests, 268 passed / 4 skipped, 0 failed.
+- `npm run gates:quick`: green in 147.8 s; Jest 698 suites / 8,098 passed, replay `--cached` ok.
+- `npm run gates`: all 11 green in 375.8 s, Storybook included (130 suites / 790 tests); Jest 8,098 passed,
+  test:debug 1,237 passed. Bundle `77b6d3e5c144` unchanged (server plugin only). No model calls, lanes or ST.
 - No master merge or owner installation yet.
