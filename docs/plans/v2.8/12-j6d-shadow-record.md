@@ -173,3 +173,68 @@ plan (v2.8 rule 9). C's numbers become its baseline.
 - Prerequisite of v2.8 13 J7.6 stated in the header.
 - Decision 3 reconciled with the no-spoiler rule (B4): a second model arbitrates, not the user.
 - References version-qualified (B12); Links cut to the plans that matter.
+
+## Gate record
+
+2026-10-14, branch `v2.8-offline-replays` (worktree off master `004abc8a`; not merged). Option C, offline only, owner
+decision via v2.8 40: deterministic reconstruction and replay built; no model, ST, lane or GPU was used.
+
+Built:
+- `src/extraction/shadowReplay.ts` (pure, not imported by the runtime, so no bundle cost): `readSessionArchive`
+  (journal.jsonl audit + boundary rows, transcripts.jsonl, chat-full-*.json, runtime-*.json), `rebuildCase` /
+  `rebuildSession` per §Design steps 1–2 and 4, `extractorSide` (production `parseSharedReadResponse`, `refusal`,
+  `screenDeltas`), `classifyKey` (step 5), `compareCases`, `summarizeReplay`, `arbitrationSample` (seeded, 20 rows).
+  `sharedRead.ts` now exports `readContract`, `refusal`, `screenDeltas`, behaviour unchanged.
+- Window: production `windowOf` over the archived transcript revisions (dated at or after the audit, then the final
+  chat-full). The audit's `{from, to}` is already the fitted window, so a trimmed window rebuilds as is; a `truncated`
+  message is refused (its cut needs the read's tokenizer). State: the latest boundary committed at or before the audit
+  per the journal's boundary rows (earliest covering state when there are none), stepping back until the residual
+  prompt matches. Facts: the archived memory facts known at that boundary, then none. Only a byte-identical residual
+  re-render is kept; the full-scope prompt (residual + answered keys, derived scope order) is rendered from the same
+  contract. Judge side: its accepted delta, else the reconstructed blackboard value.
+- Refusal codes: `window-not-covered`, `missing-snapshot`, `scope-not-rebuilt`, `prompt-mismatch` (line number and
+  section only, never prompt text), `truncated-message`. A judge failure (`fallback: "error"`) or an unjudged read is
+  skipped and counted, not refused.
+- Floors as predeclared: fewer than 20 rebuilt judge-answered keys in a run (or fewer than 2 runs) is `insufficient`,
+  no rate; no replies is `deferred`; refused extractor replies stay out of the rate. Disagreement rate = non-agree
+  classes / keys (strict rate, `disagree` only, also reported), per `read_as` kind and per confidence band
+  (<0.8, 0.8–0.9, 0.9–0.95, ≥0.95). `buildLiveShadow` = rate ≥ 10 % (decision 2).
+- Runner `scripts/debug/so-j6d-replay.mts`: `reconstruct <session-dir...> --out`, `prompts <cases> --out <dir>` (the
+  input for the deferred extractor leg), `compare <cases> [--replies] [--out]` (prints counts only; exit 2 unless
+  `rate`). It bundles the pure module with esbuild, so it runs the production render.
+- Synthetic fixture `test/fixtures/j6d/` (public; no campaign content): a 10-turn crossroads session written by the
+  production `runSharedRead` with a stubbed typed judge (4 typed keys: 2 choice, rating, stated) and stubbed residual
+  replies; recorded stub extractor replies ×2 per case; golden `test/goldens/j6d/replay-summary.json`.
+
+Tests:
+- jest `src/extraction/shadowReplay.test.ts` (12): the committed session equals what the production read writes today
+  (`SO_J6D_WRITE=1` rewrites it); 7 of 9 reads rebuilt (28 keys), 1 judge failure skipped, 1 canon with unarchived
+  facts refused `prompt-mismatch` (section Canon-lite) and rebuilt once the facts are supplied; an unchanged judge
+  answer reads the blackboard; refusals for an uncovered window, a non-identical prompt, a missing snapshot, a story
+  missing an answered key; four-way classification and bands; golden replay; insufficient / deferred / refused-reply
+  paths; evidence outside the window is not an extractor move.
+- node:test `scripts/debug/j6dReplay.test.mts` (7): the same paths through the runner on copied session dirs, the CLI
+  end to end, and the runner's summary equal to the jest golden.
+- Synthetic golden (stubbed replies; says nothing about real play): verdict rate, 28 keys ×2; run 0 26 agree / 1
+  disagree / 1 judge-moved; run 1 26 agree / 1 disagree / 1 extractor-moved; pooled 4 / 56.
+
+Gates (CPU-throttled per coordinator):
+- `npm run gates:quick`: green (typecheck, typecheck:test, lint, related jest, replay 32/32).
+- `npm run gates -- --jobs=2 --no-storybook`: all green in 213 s: jest 700 suites / 8,118 tests (1 skipped),
+  test:debug 1,245/1,245, test:replay 32/32 killed, build, typecheck, typecheck:test, debug:typecheck, lint,
+  test:release, test:plugin. **Storybook skipped**: in this worktree (under `.claude/worktrees/`) the test runner
+  matched 0 story files ("No tests found", `testMatch` over a dot-directory path), an environment limit, not a story
+  failure; no UI changed. Run with Storybook from a normal checkout before merge.
+- The first full run also caught: the `arrivalEquivalence` golden lists every in-repo story file (re-recorded, two
+  empty rows added) and `codeHealth` unknown casts (replaced by guards).
+
+Deferred legs (not claimed):
+- Step 3: the read model over the full-scope prompts, ×2 per case, on the real v2.6 plan 14/15 corpus (CL, DeepSeek
+  read profile). Runner ready: `reconstruct` → `prompts` → record replies as `{"<case id>": [{text, finish}, ...]}`
+  → `compare --replies`. No judge-vs-extractor rate exists until then.
+- Reconstruction of the real corpus (private `so-sessions`): not run here; refusal counts unknown. Sessions whose
+  journal lacks boundary rows fall back to the earliest covering state; open arcs, entities and epistemic-ledger state
+  are not archived and refuse a read that used them.
+- Second-model arbitration of the 20-row sample (decision 3 as narrowed): `arbitrationSample` selects the rows;
+  labelling deferred.
+- Option A stays unbuilt until a real rate ≥ 10 %.
