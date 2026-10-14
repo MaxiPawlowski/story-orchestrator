@@ -5,6 +5,7 @@ const ALL_ON = {
   sp6Complications: true,
   reasoningEffect: true,
   editReread: true,
+  thoughtCarry: true,
 };
 
 describe("v2.5 plan 09 rule 2: every spike flag is install-wide, on by default (owner decision 2026-10-09)", () => {

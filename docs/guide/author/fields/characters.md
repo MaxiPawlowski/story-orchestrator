@@ -6,6 +6,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 
 - [Cast](#roster)
 - [Drives and motives](#drives-motives)
+- [Inner voice](#inner-voice)
 - [Speaker direction](#talk-control)
 - [Character life](#character-life)
 - [Living cards](#living-cards)
@@ -36,6 +37,19 @@ Fields: `roster[].drive`, `checkpoints[].motives` (an object of roster id to tex
 - **Good.** Drive: `"match adventurers into parties that hold together"`. Motive at the guild hall: `"size up these strangers and find out whether they would stand their ground"`. One line each, in the character's own interest.
 - **Bad.** `"Lead the player to the ruins"` (a plan for the player), `"Be mysterious"` (a stage direction), or a motive keyed `player` or `{{user}}`.
 - **If wrong.** A motive for the player's persona is dropped (`motive-for-player`: "The player's choices are theirs, so nobody is told this motive."); a key no cast member has reaches nobody (`motive-member-unknown`). Without motives characters drift: in T3 three characters "had no motive of their own and repeated themselves" (seen in a test session).
+
+<a id="inner-voice"></a>
+
+## Inner voice
+
+Topic `inner-voice`.
+
+Settings: `memory.innerBeat`, `memory.innerFanOut`, `memory.harvestReasoning`, `spikes.thoughtCarry` (install-wide, all on by default; a story's feature policy can switch the inner voice off) (`runtime/coordinators/innerCoordinator.ts`, `runtime/spikes/thoughtCarry.ts`).
+
+- **What it does.** After a character reply the memory model writes a one-line private intent (a beat) for the likely next speaker; a member drafted without one gets a beat at draft time, waited for at most 3 s. With the reasoning harvest on, a reply's reasoning is evidence for that same character's `[intends]` rows. The carried-thought experiment (`spikes.thoughtCarry`) fills the gap when no fresh beat is ready: it takes a standing aim from that character's own reasoning on their latest reply in the current checkpoint (a "goals:" line, or "<name> wants to …"), with no model call. It drops writing instructions and stage directions, first-person lines (the model talking as the writer), lines whose subject is the player under any of their names or another character, and lines that restate a secret the character is kept from. The line reads "Your intent this turn: (carried from your last thought) …", in that character's private block only. It is rebuilt from the chat at every draft, so a swipe, edit or delete changes it and there is nothing to roll back.
+- **Good.** Drives and motives authored, so the beat has an aim; a reply model that thinks, so the carry has reasoning to read.
+- **Bad.** Counting on the carry for a character whose replies carry no reasoning, or for a narrator whose reasoning is all stage directions (it carries nothing).
+- **If wrong.** The journal says why: "Inner beat used", "Inner beat stale", "No inner beat", "Inner thought carried for …", or "No thought to carry for …" with `no-reply`, `no-reasoning` or `no-aim`. Author view only; the player never sees any of it.
 
 <a id="talk-control"></a>
 

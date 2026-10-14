@@ -21,6 +21,7 @@ interface Setup {
   boundary?: number;
   motives?: boolean;
   disabled?: string[];
+  beatFor?: (rosterId: string) => string;
 }
 
 const DEFAULT_ROSTER = [
@@ -65,7 +66,7 @@ function harness(setup: Setup = {}) {
     entries: [], conflicts: [], resolvedConflicts: [], writeLog: [], excluded: [], verifyDrops: [], derived: [] as Array<{ kind: string; messageId: number }>,
     sceneCount: 0, shortTermSummaryEnd: 0, arcs: [], epistemic: [], ledger: [], canon: null, updatedAt: "", innerBeats: setup.beats,
   };
-  const beatFor = jest.fn((rosterId: string) => setup.beats?.find((beat) => beat.memberId === rosterId)?.beat ?? "");
+  const beatFor = jest.fn(setup.beatFor ?? ((rosterId: string) => setup.beats?.find((beat) => beat.memberId === rosterId)?.beat ?? ""));
   let boundary = setup.boundary ?? 3;
   const coordinator = new MemoryCoordinator({ hosts: fakeHosts(stapi),
     getStory: () => story,
@@ -224,6 +225,33 @@ describe("the inner beat at draft time (v2.6 plan 06 C)", () => {
     coordinator.onMemberDrafted(0);
     coordinator.updateInjection();
     expect(block()).toContain("Stall Ponticius");
+  });
+});
+
+describe("v2.8 A13 L5: a carried thought rides the beat path", () => {
+  const CARRIED: Record<string, string> = {
+    arin: "(carried from your last thought) take the sword back tonight",
+    ponticius: "(carried from your last thought) learn whether she already has the vault key",
+  };
+  const carried = (rosterId: string) => CARRIED[rosterId] ?? "";
+
+  it("reaches the drafted member's private block only, and the group resting block stays empty", () => {
+    const { coordinator } = harness({ beatFor: carried });
+    coordinator.updateInjection();
+    expect(block()).not.toContain("carried from your last thought");
+    coordinator.onMemberDrafted(0);
+    expect(block()).toContain("- Your intent this turn: (carried from your last thought) take the sword back tonight");
+    coordinator.onMemberDrafted(2);
+    expect(block()).not.toContain("take the sword back tonight");
+  });
+
+  it("a carried line that restates a secret held from the drafted member is dropped like any beat", () => {
+    const { coordinator } = harness({ beatFor: carried });
+    coordinator.applyEpistemic([{ tag: "hiding", subject: "Arin", hiddenFrom: "Ponticius", content: "she already has the vault key" }], 1, [], { from: 0, to: 1 });
+    coordinator.onMemberDrafted(1);
+    expect(block()).not.toContain("vault key");
+    coordinator.onMemberDrafted(0);
+    expect(block()).toContain("take the sword back tonight");
   });
 });
 

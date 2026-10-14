@@ -122,6 +122,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Authoring | Story diagnostics | Says what each problem in a story costs it, before the technical detail. |  |
 | Authoring | Open stretches | Free play between two turning points, with no task. | Experimental |
 | Authoring | Quests, checks and panels | Side quests, visible stats, dice checks and milestones a story declares. | Experimental |
+| Setup | Carried thought | When no private intent is ready, a character keeps the aim from its own last thought. | Experimental |
 | Setup | Repair | Names the one thing missing and takes you to the setting that fixes it. |  |
 | Setup | Getting started | A short checklist: memory model first, then the optional judge and images. |  |
 | Setup | Help | This list: every feature, whether it is on, and where to find it. |  |

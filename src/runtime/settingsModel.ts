@@ -104,7 +104,7 @@ export const sanitizeHelpSettings = (value: unknown): HelpSettings => ({
 
 export const SPIKE_FLAGS = [
   "swipeBackCache", "sp6Complications",
-  "reasoningEffect", "editReread",
+  "reasoningEffect", "editReread", "thoughtCarry",
 ] as const;
 
 export type SpikeFlag = (typeof SPIKE_FLAGS)[number];

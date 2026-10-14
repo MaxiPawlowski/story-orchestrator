@@ -86,7 +86,7 @@ Where: **pod** needs the pod model (Artemis v1.1, 98K context), **3090** runs on
 |---|---|---|
 | D1 | C12 lore-select batching, C13-b digest, C11 model-driven items, R4 gate lift + Studio control | v2.8 01 |
 | D2 | Agenda proposals wired into play. **Built 2026-10-09** (`v2.8-agenda-proposals`): review mode on by default (2026-10-14: code default is `auto`, `src/runtime/agendaProposals.ts:11`), cadence on checkpoint changes and scene breaks, accepted proposals land at the next boundary; real-model check owed (M16) | v2.7 37 L3 |
-| D3 | Smart-context harvest and inner voice L5, as spikes | v2.8 21, v2.7 20 L5 |
+| D3 | Smart-context harvest and inner voice L5, as spikes. L5 built 2026-10-14 as the carried thought (`54-inner-voice-l5.md`, queue A13) | v2.8 21, v2.8 54 (v2.7 37 L5) |
 | D4 | Curator `create` op | v2.8 11 |
 | D5 | Wizard assistant, briefing drafting | v2.8 09, 10 |
 | D6 | Living story director | v2.8 22 |

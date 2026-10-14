@@ -70,6 +70,12 @@ export const GUIDE_TOPICS = {
       + "their own aim in one line: \"Keep the debt secret from her brother.\" Avoid: a plan for the player, a stage direction, or a motive for the player's persona (nobody is told it). "
       + "A motive keyed by an id no cast member has is told to nobody.",
   },
+  "inner-voice": {
+    title: "Inner voice",
+    fields: "memory.innerBeat, memory.harvestReasoning, spikes.thoughtCarry",
+    text: "A beat is a one-line private intent for the next speaker. With none fresh, the carried thought reuses that character's own stated aim "
+      + "from its last reasoning (no call, own block only). Author drives and motives; the carry needs a thinking reply model.",
+  },
   qualities: {
     title: "Qualities",
     fields: "qualities[].key, type, values, source",
@@ -404,14 +410,9 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "house-rule-compound": "house-rules",
   "checkpoint-inherits-author-note": "author-note",
   "world-info-rests-off": "world-info",
-  "motive-member-unknown": "drives-motives",
-  "motive-for-player": "drives-motives",
-  "chapter-missing": "chapters",
-  "chapter-unknown": "chapters",
-  "chapter-unreachable": "chapters",
-  "chapter-no-exit": "chapters",
-  "chapter-reentry": "chapters",
-  "story-dead-end": "chapters",
+  "motive-member-unknown": "drives-motives", "motive-for-player": "drives-motives",
+  "chapter-missing": "chapters", "chapter-unknown": "chapters", "chapter-unreachable": "chapters",
+  "chapter-no-exit": "chapters", "chapter-reentry": "chapters", "story-dead-end": "chapters",
   "requirement-member-roster-id": "requirements",
   "cast-member-no-card": "cast-changes",
   "background-missing": "background",
@@ -426,9 +427,7 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "player-spoiler-risk": "player",
   "agenda-pace-no-chapters": "character-life",
   "stage-sprite-unknown": "presentation",
-  "widget-item-never-read": "clues-and-maps",
-  "map-pin-unreachable": "clues-and-maps",
-  "map-image-missing": "clues-and-maps",
+  "widget-item-never-read": "clues-and-maps", "map-pin-unreachable": "clues-and-maps", "map-image-missing": "clues-and-maps",
   "html-widget-declared": "html-panels",
 };
 
