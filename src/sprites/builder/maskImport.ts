@@ -27,7 +27,7 @@ import { editWeights, validateBox, type HeadBox, type PixelImage } from "./pixel
 
 export const MASK_IMPORT = {
   maxShift: 3, searchShift: 6, maxOpaqueMean: 16, ring: 12, maxRingMean: 20, maxRingShare: 0.12, ringLevel: 48,
-  tintBand: 10, maxTint: 24, opaqueAlpha: 240, aspectTolerance: 0.005, encoderStep: 32, maxStepSlack: 0.035,
+  tintBand: 10, maxTint: 24, opaqueAlpha: 240, aspectTolerance: 0.005, encoderRound: 16,
 } as const;
 
 export const MASK_IMPORT_KINDS: readonly EditKind[] = ["expression", "blink", "talk", "talk2", "rest"];
@@ -58,7 +58,7 @@ export function cropPixels(image: PixelImage, box: HeadBox): PixelImage {
 export function scaleProblem(raw: Size, box: Size): string | null {
   if (raw.width === box.width && raw.height === box.height) return null;
   const error = Math.abs((raw.width * box.height) / (raw.height * box.width) - 1);
-  const tolerance = MASK_IMPORT.aspectTolerance + Math.min(MASK_IMPORT.maxStepSlack, MASK_IMPORT.encoderStep / Math.max(1, Math.min(raw.width, raw.height)));
+  const tolerance = MASK_IMPORT.aspectTolerance + MASK_IMPORT.encoderRound / Math.max(1, raw.width) + MASK_IMPORT.encoderRound / Math.max(1, raw.height);
   return error > tolerance
     ? `The edit came back at ${raw.width} × ${raw.height}, a different aspect ratio from the ${box.width} × ${box.height} head box, so it is not the same picture. Render it again.`
     : null;

@@ -8,7 +8,7 @@ import { referenceProblems } from "./referencePack";
 import { mouthRegion, validateRegion, type FrameRegion } from "./frameRegion";
 import { RawEditCache } from "./rawCache";
 import { validateBuildRequest } from "./buildRequest";
-import { alignEdit, MASK_IMPORT_KINDS } from "./maskImport";
+import { alignEdit, MASK_IMPORT_KINDS, type MaskImportReport } from "./maskImport";
 
 export interface BuildTimings { prepareMs: number; leaseMs: number; uploadMs: number; renderMs: number; decodeMs: number; compositeMs: number;
   referenceReleaseMs: number; leaseReleaseMs: number; totalMs: number; cacheHit: boolean; fingerprintMs?: number }
@@ -61,6 +61,14 @@ export interface BuilderDeps {
   lease(request: SpriteBuildRequest, signal: AbortSignal): Promise<{ release(): Promise<void> }>;
   save(candidate: SpriteCandidate, expectedHash?: string): Promise<{ path: string; sha256: string }>;
   lineage?(request: SpriteBuildRequest, signal: AbortSignal): Promise<{ root: string; current(): boolean } | null>;
+}
+
+function composeEdit(base: PixelImage, raw: PixelImage, box: HeadBox, kind: EditKind, region: FrameRegion | undefined,
+  resize: BuilderDeps["resize"]): { output: PixelImage; maskImport?: MaskImportReport } {
+  if (kind === "base" || kind === "pose") return { output: resize(raw, box) };
+  if (!MASK_IMPORT_KINDS.includes(kind)) return { output: pasteEdit(base, resize(raw, box), box, kind, region) };
+  const aligned = alignEdit(base, raw, box, kind, region, resize);
+  return { output: pasteEdit(base, aligned.edit, box, kind, region), maskImport: aligned.report };
 }
 
 export class SpriteBuilder {
@@ -154,14 +162,13 @@ reference: reference as string, instruction: editInstruction(request.kind, reque
       guard();
       const compositeStart = performance.now();
       const full = request.kind === "base" || request.kind === "pose";
-      const aligned = MASK_IMPORT_KINDS.includes(request.kind) ? alignEdit(base, raw.image, box, request.kind, region, this.deps.resize) : null;
-      const output = full ? this.deps.resize(raw.image, box) : pasteEdit(base, aligned?.edit ?? this.deps.resize(raw.image, box), box, request.kind, region);
+      const { output, maskImport } = composeEdit(base, raw.image, box, request.kind, region, this.deps.resize);
       const reasons = full ? referenceProblems(output) : [];
       const qa = full ? { ok: !reasons.length, reasons, changed: 0,
         alphaPixels: output.data.filter((value, at) => at % 4 === 3 && value <= 8).length, ringDrift: 0 }
         : checkPixels(base, output, box, ["blink", "talk", "talk2"].includes(request.kind));
       if (region) qa.reasons.push(...checkMouthCoverage(base, output, box, region, request.kind !== "rest"));
-      if (aligned) qa.maskImport = aligned.report;
+      qa.maskImport = maskImport;
       qa.ok = qa.ok && !qa.reasons.length;
       if (!qa.ok) throw new Error(qa.reasons.join(" "));
       candidate = { request: { ...request, box: { ...request.box } }, inputs, key, timings, rawData: raw.data, referenceData: crop,

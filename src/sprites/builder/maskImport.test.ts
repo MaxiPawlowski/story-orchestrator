@@ -106,7 +106,8 @@ describe("mask-only import of a generated frame (mesh-avatar-studio 26243f9 port
   it("rescales only a result with the head box's aspect ratio", () => {
     expect(scaleProblem({ width: 96, height: 96 }, box)).toBeNull();
     expect(scaleProblem({ width: 1024, height: 1088 }, { width: 300, height: 320 })).toBeNull();
-    expect(scaleProblem({ width: 96, height: 70 }, box)).toContain("a different aspect ratio from the 48 × 48 head box");
+    expect(scaleProblem({ width: 384, height: 672 }, { width: 300, height: 500 })).toBeNull();
+    expect(scaleProblem({ width: 1024, height: 768 }, box)).toContain("a different aspect ratio from the 48 × 48 head box");
     const big = flattened(source);
     const doubled: PixelImage = { width: 96, height: 96, data: new Uint8ClampedArray(96 * 96 * 4) };
     for (let y = 0; y < 96; y += 1) for (let x = 0; x < 96; x += 1) doubled.data.set(big.data.subarray(((y >> 1) * 48 + (x >> 1)) * 4, ((y >> 1) * 48 + (x >> 1)) * 4 + 4), (y * 96 + x) * 4);
@@ -120,7 +121,7 @@ describe("mask-only import of a generated frame (mesh-avatar-studio 26243f9 port
     expect(outsideMaskMatches(edit)).toBe(0);
     const frame = pasteEdit(reference, edit, box, "talk");
     expect(frame.data[((box.y + mouth.y) * SIZE + box.x + mouth.x) * 4]).toBe(20);
-    expect(() => alignEdit(reference, { width: 96, height: 60, data: new Uint8ClampedArray(96 * 60 * 4) }, box, "talk", undefined, half)).toThrow("different aspect ratio");
+    expect(() => alignEdit(reference, { width: 96, height: 40, data: new Uint8ClampedArray(96 * 40 * 4) }, box, "talk", undefined, half)).toThrow("different aspect ratio");
   });
 
   it("measures distance to the mask in pixels", () => {
