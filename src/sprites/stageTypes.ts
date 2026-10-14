@@ -2,6 +2,7 @@ import type { CapabilityState } from "@services/STAPI";
 import type { LiveHeadRef } from "./liveHeadRefs";
 import type { Framing } from "./direction";
 import type { AnimationFrames } from "./animation";
+import type { DrawnSource } from "./liveHead/drawn";
 import type { SpriteActivation, SpriteSettings } from "./settings";
 import type { Segment } from "./segment";
 import type { ExpressionRead } from "./classify";
@@ -17,6 +18,7 @@ export interface StageActor {
   framing?: Framing;
   frames?: AnimationFrames;
   liveHead?: LiveHeadRef;
+  headFrames?: DrawnSource;
 }
 
 export type StagePlacement = "vn" | "strip";

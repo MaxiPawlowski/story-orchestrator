@@ -11,7 +11,7 @@ import { isRecord } from "@utils/guards";
 
 const LABELS = [
   "Status strip", "Notes under replies", "Notes on the last … replies", "Note categories", "Stage visibility",
-  "Dim non-speakers", "Breathing", "Blinking", "Mouth movement", "Live close-shot head",
+  "Dim non-speakers", "Breathing", "Blinking", "Mouth movement", "Live close-shot head", "Drawn eyes and mouth on the live head",
 ];
 
 export const DevicePreferences = ({ manager }: { manager: RuntimeManager }) => {

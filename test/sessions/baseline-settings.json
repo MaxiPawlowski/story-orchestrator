@@ -219,6 +219,7 @@
       "focus": true,
       "breathing": true,
       "liveHead": true,
+      "liveHeadFrames": true,
       "liveHeadRigs": {},
       "visualSources": {},
       "blink": true,

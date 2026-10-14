@@ -5,7 +5,7 @@ import {
 } from "@services/stHost/sprites";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { beginRun } from "@runtime/runToken";
-import { actorHeadRef, castHeadStatus } from "./liveHeadStage";
+import { actorHead, castHeadStatus } from "./liveHeadStage";
 import { subscribeVisualSources } from "./visualChanges";
 import { PLAYER_COPY } from "@runtime/narrative";
 import { log } from "@utils/log";
@@ -101,7 +101,7 @@ export class SpriteStage {
       .map((actor) => ({ name: actor.name, avatar: actor.avatar, label: actor.label, path: actor.path, set: actor.set,
         pose: actor.pose, framing: memberDirection(direction, actor.keys).framing,
         frames: actor.frames.get(actor.set)?.get(actor.label), spotlight: isSpotlit(direction, actor.keys),
-        liveHead: actorHeadRef(actor, this.manager.getStory()?.roster ?? [], settings.liveHeadRigs, settings.visualSources) }));
+        ...actorHead(actor, this.manager.getStory()?.roster ?? [], settings) }));
     return {
       visible: ready && (narrow || settings.stage === "always" || vn) && actors.length > 0,
       placement: vn ? "vn" : "strip",

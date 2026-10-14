@@ -127,7 +127,7 @@ function Sprite({ actor, index, count, speaking, talking, focus, breathing, cros
         {liveHead && actor.liveHead && <Lazy quiet key={stage.view().headSession}><LiveHead binding={actor.liveHead}
           beginRun={stage.beginHeadRun} activity={stage.activity ?? inactiveActivity} name={actor.name} label={actor.label}
           motion={!reducedMotion && !mediaMotion} breathing={breathing} blink={stage.view().settings.blink}
-          mouth={stage.view().settings.mouth !== "off"} style={imageStyle} /></Lazy>}
+          mouth={stage.view().settings.mouth !== "off"} drawn={actor.headFrames} style={imageStyle} /></Lazy>}
       </div>
     </div>
   );

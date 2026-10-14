@@ -1,11 +1,14 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import type { RunGuard } from "@runtime/runToken";
 import { headArtHash, headAssetBytes } from "@services/stHost/liveHeadAssets";
+import { log } from "@utils/log";
 import type { LiveHeadRef } from "../liveHeadRefs";
 import type { StreamActivity } from "../animation";
-import { driveHead } from "./drivers";
+import { HeadDriver, visemeMouth } from "./headDriver";
 import { headImage } from "./load";
 import { attachHead } from "./mount";
+import type { DrawnSource } from "./drawn";
+import { decodeBytes } from "./synthesis/decode";
 
 export interface LiveHeadProps {
   binding: LiveHeadRef;
@@ -17,8 +20,11 @@ export interface LiveHeadProps {
   blink: boolean;
   mouth: boolean;
   beginRun(): RunGuard;
+  drawn?: DrawnSource;
   style?: React.CSSProperties;
 }
+
+const drawnDeps = { bytes: headAssetBytes, hash: headArtHash, pixels: (bytes: ArrayBuffer, signal: AbortSignal) => decodeBytes(new Uint8Array(bytes), signal) };
 
 export function LiveHead(props: LiveHeadProps) {
   const canvas = useRef<HTMLCanvasElement>(null);
@@ -26,8 +32,9 @@ export function LiveHead(props: LiveHeadProps) {
   latest.current = props;
   const { beginRun } = props;
   const { member, look, artHash, source, manifest } = props.binding;
+  const drawnKey = props.drawn ? JSON.stringify(props.drawn) : "";
   const revision = useRef(0);
-  const canvasKey = useMemo(() => ++revision.current, [member, look, artHash, source, manifest, beginRun]);
+  const canvasKey = useMemo(() => ++revision.current, [member, look, artHash, source, manifest, beginRun, drawnKey]);
   useEffect(() => {
     const binding = { member, look, artHash, source, manifest };
     const element = canvas.current;
@@ -43,7 +50,7 @@ export function LiveHead(props: LiveHeadProps) {
       return live && !abort.signal.aborted && owner.stillOwns() && current.member === member && current.look === look
         && current.artHash === artHash && current.source === source && current.manifest === manifest;
     } };
-    const start = performance.now();
+    const start = performance.now(), driver = new HeadDriver(binding.member);
     const visible = (ready: boolean) => {
       if (!live) return;
       element.style.visibility = ready ? "visible" : "hidden";
@@ -52,14 +59,21 @@ export function LiveHead(props: LiveHeadProps) {
     visible(false);
     void attachHead(element, binding, run, { bytes: headAssetBytes, hash: headArtHash, image: headImage }, () => {
       const current = latest.current;
-      return driveHead(binding.member, performance.now() - start, current.label, current.activity.view() === current.name, current.motion,
-        { breathing: current.breathing, blink: current.blink, mouth: current.mouth });
-    }, visible).then((stop) => {
+      const speaking = current.activity.view() === current.name, p = driver.drive(performance.now() - start, current.label, speaking, current.motion,
+        current.breathing, current.blink, current.mouth);
+      return speaking && current.motion && current.mouth ? visemeMouth(p, current.activity.mouth(current.name)) : p;
+    }, visible, undefined, drawnKey ? { source: JSON.parse(drawnKey) as DrawnSource, deps: drawnDeps, report: (set, error) => {
+      if (!live) return;
+      element.dataset.liveHeadDrawn = set?.sprites.map((sprite) => sprite.name).join(" ") || "none";
+      if (set?.refused.length || error) log.debug("Live head drawn frames partly refused", set?.refused ?? error);
+    } } : undefined).then((stop) => {
       clearTimeout(timeout);
       if (run.stillOwns()) dispose = stop;
       else stop?.();
     }).catch(() => { clearTimeout(timeout); abort.abort(); visible(false); owner.release(); });
     return () => { dispose?.(); visible(false); live = false; clearTimeout(timeout); abort.abort(); owner.signal.removeEventListener("abort", onOwnerAbort); owner.release(); };
-  }, [member, look, artHash, source, manifest, beginRun]);
+  }, [member, look, artHash, source, manifest, beginRun, drawnKey]);
+  const { activity, mouth } = props;
+  useEffect(() => { if (mouth) void activity.visemes(); }, [activity, mouth]);
   return <canvas key={canvasKey} ref={canvas} className="so-live-head" aria-hidden="true" style={{ ...props.style, visibility: "hidden" }} />;
 }

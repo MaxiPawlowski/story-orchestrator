@@ -167,15 +167,26 @@ async function main(page: Page, connection: ConnectResult) {
     record.build = served; record.fixtureHash = digest(Buffer.from(JSON.stringify({ story, rig })));
     const check = (id: string, details: any, ok: boolean) => { record.checks.push({ id, ...details, ok }); console.log(`${id}: ${ok ? 'PASS' : 'FAIL'} ${JSON.stringify(details)}`); };
     if (row === 'all' || row === 'LI1') {
+      const motion = await page.context().newCDPSession(page);
+      await motion.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'no-preference' }] });
+      await page.evaluate(() => {
+        const root = globalThis as any; root.SillyTavern.getContext().powerUserSettings.reduced_motion = false;
+        root.storyOrchestratorRuntime.getStory().display.motion = true; root.storyOrchestratorSprites.notify();
+      });
+      await page.waitForTimeout(500);
       await page.evaluate(resetLiveHeadSamples);
       await page.evaluate(() => { (globalThis as any).__lh.parameterSample = false; });
       await pause(60_000);
+      await motion.detach();
       const samples = await page.evaluate(readLiveHeadSamples);
       await writeFile(resolve(out, 'LI1-frames.json'), JSON.stringify(samples.frames));
       const sorted = [...samples.intervals].sort((a, b) => a - b), drops = sorted.filter((ms) => ms > 33.34);
+      await writeFile(resolve(out, 'LI1-spikes.json'), JSON.stringify({ spikes: samples.spikes, ticks: samples.ticks, longTasks: samples.longTasks }, null, 1));
       check('LI1', { frames: samples.frames.length, durationMs: samples.frames.at(-1)! - samples.frames[0],
-        p50Ms: sorted[Math.floor(sorted.length * .5)], p95Ms: sorted[Math.floor(sorted.length * .95)], maxMs: Math.max(...sorted), drops: drops.length },
-      samples.frames.length > 1 && samples.frames.at(-1)! - samples.frames[0] >= 59_900 && !drops.length);
+        p50Ms: sorted[Math.floor(sorted.length * .5)], p95Ms: sorted[Math.floor(sorted.length * .95)], maxMs: Math.max(...sorted), drops: drops.length,
+        uploads: samples.uploads, rafTicks: samples.ticks, tickP50Ms: samples.tickP50Ms, tickMaxMs: samples.tickMaxMs, longTasks: samples.longTasks,
+        spikes: samples.spikes.map((spike: any) => ({ atMs: Math.round(spike.atMs), intervalMs: spike.intervalMs, cause: spike.cause, tasks: spike.tasks.length })) },
+      samples.frames.length > 1 && samples.frames.at(-1)! - samples.frames[0] >= 59_900 && samples.uploads > 0 && !drops.length);
     }
     if (row === 'all' || row === 'LI3') {
       for (const failure of ['fetch', 'json', 'image', 'hash', 'webgl', 'context', 'member', 'look', 'chat']) {
@@ -262,7 +273,7 @@ async function main(page: Page, connection: ConnectResult) {
             return active;
           }, streaming);
           await writeFile(resolve(out, `LI4-${setting}-${streaming ? 'stream' : 'idle'}.json`), JSON.stringify(samples));
-          check(`LI4/${setting}/${streaming ? 'stream' : 'idle'}`, { frames: samples.frames.length, parameterVectors: samples.vectors.length, mouths: samples.mouths },
+          check(`LI4/${setting}/${streaming ? 'stream' : 'idle'}`, { frames: samples.frames.length, parameterVectors: samples.vectors.length, mouths: samples.mouths, uploads: samples.uploads },
             activeStream && samples.frames.length > 1 && samples.vectors.length === 1 && samples.mouths.length === 1 && samples.mouths[0] === 0);
         }
       }
