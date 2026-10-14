@@ -1,8 +1,8 @@
 # Implementation Overview — Story Orchestrator v2.8
 
-**Re-scoped 2026-10-07 (user):** 02, 03, 20 moved to v2.7 (38, 34, 37); 17, 18, 19 and 13 N3/N5 merged into v2.7 35 (world pressure) and v2.7 36 (quests); 04 C4/C7/C9a and 23 option A into v2.7 36; 04 C5, 13 N1/N6 (+J7.2) and 01 §C into v2.7 33. v2.8 01's owed rows run in v2.7 39 (Phase C, from zero). New: 25–30 from the user's idea list. Cuts decided 2026-10-07 (recommendations): 12 and 14 cut, 15 folded into v2.7 38 D13d, 21 → v2.9, 13 J7.3–J7.6 and N4 cut; 26 pulled into v2.7. Details: §Build order.
+**Re-scoped 2026-10-07 (user):** 02, 03, 20 moved to v2.7 (38, 34, 37); 17, 18, 19 and 13 N3/N5 merged into v2.7 35 (world pressure) and v2.7 36 (quests); 04 C4/C7/C9a and 23 option A into v2.7 36; 04 C5, 13 N1/N6 (+J7.2) and 01 §C into v2.7 33. v2.8 01's owed rows run in v2.7 39 (Phase C, from zero). New: 25–30 from the user's idea list. Cuts decided 2026-10-07 (recommendations): 12 and 14 cut, 15 folded into v2.7 38 D13d, 21 → v2.9, 13 J7.3–J7.6 and N4 cut; 26 pulled into v2.7. Details: §Build order. **Owner 2026-10-14:** 12, 13 J7.3–J7.6/N4, 15 and 21 stay in v2.8 (supersedes the 2026-10-07 cut recommendations).
 
-**Status: IN BUILD (updated 2026-10-13).** v2.8 = the rest of the defined plans: everything the user
+**Status: IN BUILD (updated 2026-10-14).** v2.8 = the rest of the defined plans: everything the user
 decided on 2026-10-03 that is not an urgent fix or a quick win with deterministic gates (those are v2.7), and not
 deferred (those are v2.9). Old → new numbers: `docs/plans/v2.7/RENUMBER.md`. Review findings applied here:
 `docs/plans/v2.7/review-2026-10-03.md` (old numbers). Part B code is on master; latest combined-build evidence is in
@@ -75,16 +75,16 @@ Numbered in dependency order: a plan never depends on a higher number except whe
 | 09 | `09-wizard-assistant.md` | 27 | knowledge base, Ask mode (projected), tutorial; §F native tool-call spike over CC profiles (v2.7 14 decision 3; decided 2026-10-03) | D | CL (DeepSeek CC profile) |
 | 10 | `10-briefing-drafting.md` | 03 decision 1 | wizard drafts a briefing (auto on the fly, Premise step) | D | CL |
 | 11 | `11-curator-create-op.md` | 12 | curator `create` op, contract B, Lore-creation role | D | CL (frozen fixtures) |
-| 12 (proposed cut (only feeds J7.6)) | `12-j6d-shadow-record.md` | 20 | offline replay judge vs extractor | D (reconstruction) | CL |
-| 13 (**N1/N6/J7.2 → v2.7 33; N3/N5 → v2.7 35; N7 replaced by v2.7 37 L6**; proposed cut J7.3–J7.6, N4) | `13-j7-judge-ideas.md` | 14 | Phase A for every J7 idea + N1–N8 | D | CL (TypeSafe) |
+| 12 (stays in v2.8, owner 2026-10-14) | `12-j6d-shadow-record.md` | 20 | offline replay judge vs extractor | D (reconstruction) | CL |
+| 13 (**N1/N6/J7.2 → v2.7 33; N3/N5 → v2.7 35; N7 replaced by v2.7 37 L6**; J7.3–J7.6, N4 stay in v2.8, owner 2026-10-14) | `13-j7-judge-ideas.md` | 14 | Phase A for every J7 idea + N1–N8 | D | CL (TypeSafe) |
 | 14 (proposed cut/defer (TypeSafe works)) | `14-open-source-jev.md` | 15 | local judge provider (systemone, then NLI), our own evals | D | LT; RP for the play-load check |
-| 15 (proposed: fold into v2.7 38 D13d) | `15-cue-scene-read-merge.md` | 21 | A/B on labelled windows | D | CL |
+| 15 (stays in v2.8, owner 2026-10-14) | `15-cue-scene-read-merge.md` | 21 | A/B on labelled windows | D | CL |
 | 16 | `16-sp5-story-scenario.md` | 16a | SP5 live legs in groups (SP5.b itself = v2.7 02 C1) | D | D (C1–C5 dry-run plumbing, no model call); real-reply acceptance = v2.8 01 O13, RP (decided 2026-10-03) |
 | 17 (**merged → v2.7 35**) | `17-sp6-complication-pool.md` | 16b | SP6 measurement | — | RP |
 | 18 (**merged → v2.7 36** (Q6 → v2.7 35)) | `18-quests-and-game-layer.md` | 19 | quests, visible qualities, checks, milestones, Journal; production complications (Q6) | D | CL (M1/M2 reads) + RP |
 | 19 (**merged → v2.7 35**) | `19-open-stretches.md` | 17 | open stub mode, pressure, encounter pool | D (engine half) | RP (A/B) |
 | 20 (**moved → v2.7 37**) | `20-character-life.md` | 18 | relationships, mood, agendas, schedules | D | CL (M1) + RP |
-| 21 (proposed → v2.9) | `21-smart-context-harvest.md` | 29 | E0 ranking evaluation + offline group witness feasibility | D | CL |
+| 21 (stays in v2.8, owner 2026-10-14) | `21-smart-context-harvest.md` | 29 | E0 ranking evaluation + offline group witness feasibility | D | CL |
 | 22 | `22-living-story-director.md` | 24 | M1 spike; then M1–M3 with UI | D | RP + CL |
 | 23 (**option A merged → v2.7 36**; rest stays) | `23-story-widgets.md` | new (user topic 2026-10-03) | story-declared widgets (board, meters, clock, clues, map) rendered by our components over a player-safe projection; sandboxed author HTML only as a seed | D | D |
 | 24 | `24-test-plan.md` | v2.6 10 / 14 as the model | the v2.8 test plan: per-plan acceptance by tier, the one final real-LLM suite (absorbs v2.7's owed rows from 01 §A), sessions, blind rating packs, budget, freeze and attestation | — | all tiers; last |
@@ -97,6 +97,11 @@ Numbered in dependency order: a plan never depends on a higher number except whe
 | 31 | `31-v27-wrap-backlog.md` | v2.7 wrap 2026-10-09 | measure / fix / develop backlog from the v2.7 wrap (B1 batch 3, lorebook review); features on, floors informational | — | per row |
 | 32 | `32-queue.md` | owner 2026-10-10 | the ordered queue of every open feature, fix and measurement | — | per row |
 | 33 | `33-pose-library-and-avatars.md` | owner 2026-10-10 | mesh-avatar-studio review; shared pose library (skeleton-guided re-posing, cached per member × look × pose); layered looks that change with the story | D | LI |
+| 34 | `34-lorebook-features.md` | backlog D11 | outlets, regex keys, NOT logic, generation triggers | D | D (provisioning roundtrip) |
+| 36 | `36-live-head.md` | owner 2026-10-10 | live close-shot head (mesh-avatar-studio) | D | LI |
+| 38 | `38-muted-cast-repair.md` | owner report 2026-10-10 | already-muted scene cast no longer blocks setup | D | D |
+| 40 | `40-build-now-no-gpu.md` | owner 2026-10-12 | build-now execution index, no GPU or authoring-model calls | D | per source plan |
+| 41 | `41-product-integration-and-image-models.md` | owner 2026-10-13 | integration review, model selection, Qwen fast-model POC | D (docs) | LI + RP |
 
 **Dependencies inside v2.8** (Sol split item 8, review F16, A2):
 - 17 → 18 → 19: the SP6 measurement (17) decides whether 18 builds the production complication component (Q6); 19's
@@ -161,17 +166,17 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 
 | Plan | State |
 |---|---|
-| 01 | v2.7 follow-up plan (split 2026-10-07, owner): measurements in v2.7 39 B1, owed rows + C4 live in 39 C5, option A built as v2.7 33 W1; remaining build work, the A/B, R4 lift, §F and the session not run or built |
+| 01 | v2.7 follow-up (split 2026-10-07): C12, C11 (F1/F2/F7), R4 lift + story level, C13-b built and merged (`a4a5c36e`, digest `0ffbdcb6`/`31dcafb4`); option A = v2.7 33 W1; thinking A/B, §F, session and CL/RP measurements owed (01 Gate record) |
 | 02 | written; decided (do every step); A4/A5 and new rows not started |
 | 03 | written; decided (review of the answers applied); not built; S30-1 not run |
-| 04 | written; decided; reduced to C4, C5, C7, C9 (a) on 2026-10-03 (the rest moved to v2.7 06); not built |
+| 04 | built: C4/C7/C9a as v2.7 36, C5 as v2.7 33, rest on `v2.8-panels-rest` (lane 52 ×2); C5 CL owed |
 | ~~05~~ | moved to v2.7 17 (2026-10-04); see `v2.7/17-self-contained-images.md` |
 | ~~06~~ | moved to v2.7 18 (2026-10-04); see `v2.7/18-sprite-generation.md` |
 | ~~07~~ | moved to v2.7 19 (2026-10-04); see `v2.7/19-talking-sprites.md` |
 | ~~08~~ | moved to v2.7 20 (2026-10-04); see `v2.7/20-living-cards.md` |
 | 09 | built and merged: knowledge base, Ask (author + player), Build a character, guide coverage and recipes. Owner default: opencode `openai/gpt-6.1-sol` tool bridge, else DeepSeek, else memory model; Ask follows it (09 §Owner decisions). Live re-scores M18–M20 owed; bridge login issue open (37 §Status 2026-10-12) |
 | 10 | briefing drafting built and merged (37 §Status 2026-10-12, Part B); scripted browser plumbing passed twice; cloud quality floors owed |
-| 11 | built on `v2.8-curator-create` 2026-10-10, on by default (owner 2026-10-09); revision 2 frozen; offline ×2 below the propose floor (0.44 / 0.69, none 1.00 ×2); ST-route run + J8 owed (31 M16, M17) |
+| 11 | built on `v2.8-curator-create` 2026-10-10, on by default (owner 2026-10-09); revision 2 frozen; offline ×2 below the propose floor (0.44 / 0.69, none 1.00 ×2); ST-route run + J8 owed (31 M16, M17). A15–A17 (near-dup, created stamp + reaper, writer census) merged; `v28-35-curator-create` PASS ×2; M17 owed |
 | 12 | written; decided (option C); not built |
 | 13 | Phase A run; consumers built and merged, on by default. J7.1 and N4 misses recorded; B4 browser consumers and N5 extractor comparison owed (13 §Gate record B4, 37 §Status 2026-10-12) |
 | 14 | local judge provider built on master; uncalibrated uses refused; calibration and play-load proof owed (14, 37 §Status 2026-10-12) |
@@ -179,14 +184,22 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | 16 | SP5.b story-scenario code promoted; `storyScenarioHost.test.ts` and `spikeFlags.test.ts` prove there is no flag and stored `sp5Scenario` is dropped. Real-reply acceptance remains deferred |
 | 17 | written; decided (run on the pod); not run |
 | 18 | written (exploration); decided; not built |
-| 19 | engine, named destination pull, Studio and wizard built and merged; curve 39/39 twice on combined build. Encounter pool, quiet trigger and open anchors approved for build-now 2026-10-12; RP acceptance owed (19 §Gate records, 35 §Combined build) |
+| 19 | engine, named destination pull, Studio and wizard built and merged; curve 39/39 twice on combined build. Encounter pool, quiet read and open anchor openings built (`254a92f2`, `2907b686`); pressure/`trigger` refused; RP + M2 owed (19 §Gate records, 35 §Combined build) |
 | 20 | written (exploration); decided; not built |
 | 21 | written (research); decided (E0 first, offline); not run |
-| 22 | built on `v2.8-living-director` 2026-10-10: M1 core + M2/M3 UI + divergence branching and one-checkpoint prefetch (owner input), on by default (owner rule); M1 spike offline on DeepSeek ×2 (0 impossible/open-on-arrival gates, critic stalls); gates green except the main-entry bundle budget (owner decision 1 in the plan); live rows owed (31 M21–M24) |
-| 23 | built on `v2.8-story-widgets` 2026-10-10: option A rest (`clues`, `map`, Studio preview, named intents) + option B sandboxed HTML panels (on by default, owner rule); gates green, no-model lane 17/17 ×2; Storybook owed |
+| 22 | built on `v2.8-living-director` 2026-10-10: M1 core + M2/M3 UI + divergence branching and one-checkpoint prefetch (owner input), on by default (owner rule); M1 spike offline on DeepSeek ×2 (0 impossible/open-on-arrival gates, critic stalls); merged; budget raised to 1,300,000 B (`a11cb81e`), main 1,257,967 B on 2026-10-14; live rows owed (31 M21–M24) |
+| 23 | built on `v2.8-story-widgets` 2026-10-10: option A rest (`clues`, `map`, Studio preview, named intents) + option B sandboxed HTML panels (on by default, owner rule); gates green, no-model lane 17/17 ×2; Storybook done (green 2026-10-14) |
 | 24 | written 2026-10-03 (test plan); runs last |
-| 25–30 | APPROVED 2026-10-07 (all recommendations; 29 = image workflows); 26 pulled into v2.7 |
+| 25 | done 2026-10-10 (`25-tunnelvision-report.md`); A15–A21 built (32 queue) |
+| 26 | pulled into v2.7 |
+| 27 | report written |
+| 28–30 | built and merged (`v2.8-media-stack`, `v2.8-media-li` `d07bf388`); LI drivers written, not run; `retainBatches` 3090 test owed (32 R14) |
 | 33 | pose library and layers built and merged; full S0 and independent rating recorded, P2 retained; lie_side repair approved, render proof and product Acceptance twice owed (33 §Gate records, 37 §Status 2026-10-12) |
+| 34 | built and merged `1cb58c18`; provisioning roundtrip scenario owed |
+| 36 | deterministic rig/runtime merged; LI1 misses by 0.06 ms, laptop check and LI2 owed (32 A23) |
+| 38 | fixed 2026-10-11 (32 X9) |
+| 40 | active execution index; harness auth built on `v2.8-build-fixes` (merge pending) |
+| 41 | planning only (2026-10-13) |
 
 ## Review 2026-10-03
 

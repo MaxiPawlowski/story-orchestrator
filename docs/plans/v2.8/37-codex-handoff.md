@@ -99,7 +99,7 @@ Work the tasks **in order**: part A (sprites, poses, live head) first, then part
 
 # Part A — sprites, poses and the live head, fully working
 
-**Status 2026-10-12:** A3 done on the 3090 and independently rated (P2 stays, plan 33 Gate records). Live head: three showcase rigs, LI2/LI3/LI4/LI6 pass, LI1 misses by 0.06 ms, laptop unmeasured. A6 deferred (synthetic art only). Owed: A4 Acceptance twice and the LLM leg (the harness login is stale), A5 LI (3090). Part B code is on master; B3 curve and the B6 scenarios pass twice on the combined build, B5 captures match themselves, B1/B2/B4 live checks need a model route.
+**Status 2026-10-12:** A3 done on the 3090 and independently rated (P2 stays, plan 33 Gate records). Live head: three showcase rigs, LI2/LI3/LI4/LI6 pass, LI1 misses by 0.06 ms, laptop unmeasured. A6 deferred (synthetic art only). Owed: A4 Acceptance twice and the LLM leg (the harness login is stale; fixed on `v2.8-build-fixes` 2026-10-14), A5 LI (3090). Part B code is on master; B3 curve and the B6 scenarios pass twice on the combined build, B5 captures match themselves, B1/B2/B4 live checks need a model route.
 
 Current state (2026-10-10, master `f81261c2`, pushed and installed): the pose library (plan 33, B1–B3) and the live
 head (plan 36) are on master and green, including the full Storybook suite. Nothing in part A has run yet on a real

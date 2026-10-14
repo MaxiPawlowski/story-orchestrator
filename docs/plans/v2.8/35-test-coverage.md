@@ -57,7 +57,8 @@ Next gaps, original risk order retained:
 8. Local judge route refused until calibrated, visible in Setup.
 9. GPU broker/downloads clean-host fail-open without plugins.
 10. Storybook execution: original global absence claim is obsolete; plans 33/36 now cite full suites.
-    Coordinator's final combined build still needs its full Storybook-inclusive gate.
+    Coordinator's final combined build still needs its full Storybook-inclusive gate. Superseded 2026-10-14:
+    full `npm run gates` with Storybook green (130 suites / 790 tests).
 
 ## Finding: A15 is advisory, not a refusal (resolved 2026-10-11)
 
@@ -130,5 +131,5 @@ Next gaps, original risk order retained:
 ## Gate record: combined build (2026-10-12)
 
 - Lane 35, `st-lanes.mts batch --lanes 35 --repeat 2 --strict` on the three B6 scenarios: living-rollback, curator-create and lore-placement all GREEN on both runs (6 of 6). Lane 33, `so-open-stretch-check.mts`: the open-stretch curve scenario `ok` on both runs, 39 of 39 steps each.
-- Payload goldens, all six cases captured twice on one served build: `payload invariance: identical`. A comparison against an older master was not made: the capture tool records the staged build, and staging an older build means overwriting the owner's install. Owed with a baseline taken before the owner's next restage.
+- Payload goldens, all six cases captured twice on one served build: `payload invariance: identical`. A comparison against an older master was not made: the capture tool records the staged build, and staging an older build means overwriting the owner's install. Owed with a baseline taken before the owner's next restage. Resolved 2026-10-13: plan 40 integration record, payload identical to predecessor.
 - Not run: B4 judge consumer scenarios (none written), B2 provisioning roundtrips and real wizard run, B1 chain voice (all need a model route).
