@@ -70,3 +70,4 @@ notes/
 /.guide-site/
 /.live-head-projects/
 /.guide-site-build-*/
+/test/sessions/adolion-stories.json
