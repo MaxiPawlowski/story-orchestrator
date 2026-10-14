@@ -28,6 +28,7 @@ export interface JudgeRuntimeDeps {
 export interface JudgeAskOptions {
   timeoutMs?: number;
   summarize?: (answers: Record<string, JudgeAnswer> | null) => Record<string, number | string>;
+  families?: string[];
 }
 
 export const JUDGE_STATUS_TTL_MS = 60_000;
@@ -184,7 +185,7 @@ export class JudgeRuntime {
     const asked = this.deps.context();
     const route = judgeRoute(settings, use, this.served);
     const provider = route.provider;
-    const routed = provider === DEFAULT_JUDGE_PROVIDER ? {} : { provider };
+    const routed = { ...(provider === DEFAULT_JUDGE_PROVIDER ? {} : { provider }), ...(options.families?.length ? { families: options.families } : {}) };
     const refuse = (fallback: JudgeFallback): JudgeResult => ({
       answers: null,
       model: null,

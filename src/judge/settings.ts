@@ -125,6 +125,8 @@ export function judgeUseActive(settings: JudgeSettings, key: JudgeUseKey): boole
   return dependency ? judgeUseActive(settings, dependency) : true;
 }
 
+export const judgeCallUse = (call: Pick<JudgeCallRecord, "use" | "families">): string => (call.families?.length ? `${call.use} (${call.families.join(", ")})` : call.use);
+
 export const emptyJudgeMeter = (): JudgeMeter => ({ calls: 0, cachedCalls: 0, inputTokens: 0, outputTokens: 0, cost: 0 });
 
 export const createJudgeRuntime = (): JudgeRuntimeState => ({ calls: [], scene: null, meter: emptyJudgeMeter() });

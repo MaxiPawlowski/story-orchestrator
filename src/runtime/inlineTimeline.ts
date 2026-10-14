@@ -2,6 +2,7 @@ import { anchorOpening, questStatus, valueReader, type ApplyQueueEntry, type Bou
 import { questMoveText } from "@features/gameCopy";
 import type { SharedReadAudit, ReconciliationEvent } from "@extraction/index";
 import type { JudgeCallRecord } from "@judge/index";
+import { judgeCallUse } from "@judge/settings";
 import type { ArcEntry, ConflictPair, DerivedRecord, MemoryEntry } from "@memory/index";
 import type { CuratorOp, CuratorOpRecord, CuratorPassAudit, CuratorProposalRecord } from "@stagecraft/index";
 import type { LoreFiredRecord } from "./loreFired";
@@ -361,7 +362,7 @@ function callItems(sources: InlineSources, newest: number): Draft[] {
     : [];
   const judge = sources.judgeCalls.map((call, index): Draft => ({
     id: `calls:judge:${call.at}:${index}`, messageId: call.messageId, category: "calls", level: 3, state: call.fallback ? "refused" : "applied",
-    text: `judge ${call.use} · ${call.latencyMs} ms`,
+    text: `judge ${judgeCallUse(call)} · ${call.latencyMs} ms`,
     detail: [
       call.model ?? "no model", `${call.questionCount} questions`,
       call.inputTokens !== undefined ? `${call.inputTokens}/${call.outputTokens ?? 0} tokens` : null,

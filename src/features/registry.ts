@@ -198,7 +198,8 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "continuity-warden", name: "Continuity warden", area: "memory", audience: "author",
     oneLine: "Catches a reply that breaks an established fact and restates the fact for the next reply.",
     what: "After each character reply, the judge checks it against the established facts. When the reply breaks one, "
-      + "the next reply's prompt restates that fact once, after your approval or on its own.",
+      + "the next reply's prompt restates that fact once, after your approval or on its own. The switch covers this continuity check only; "
+      + "the other reply checks share the warden's call under their own judge use switches.",
     where: settingsAt("#so-warden-enabled", "Memory › Continuity warden"),
     settings: ["stagecraft.wardenEnabled", "stagecraft.wardenAcceptMode", "stagecraft.agencyAcceptMode", "judge.provider.warden"],
     doc: authorGuideDoc("house-rules"), status: "shipped", needs: ["judge-plugin"],

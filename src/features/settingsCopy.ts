@@ -251,7 +251,9 @@ export const SETTING_COPY = {
   ),
   "stagecraft.wardenEnabled": copy(
     "Continuity warden",
-    "After each character reply, the judge checks it against the story's established facts; when it breaks one, the next reply's prompt restates that fact once. "
+    "After each character reply, the judge checks it against the story's established facts and scanned lore; when it breaks one, the next reply's prompt restates it once. "
+      + "This switch covers only that continuity check. The other reply checks (your part, house rules, attention, voice, ideas) share the same warden call "
+      + "under their own judge use switches, so warden calls can still appear with this off. "
       + "Needs the judge. Sends the reply, up to 40 facts and the tracked values.",
   ),
   "stagecraft.wardenAcceptMode": copy(

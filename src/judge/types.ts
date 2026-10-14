@@ -111,6 +111,7 @@ export interface JudgeCallRecord {
   cost?: number;
   cached?: boolean;
   provider?: string;
+  families?: string[];
   /** Metered, never ringed — the call was paid for but belongs to a world that moved. */
   discarded?: JudgeDiscard;
 }

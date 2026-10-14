@@ -250,6 +250,15 @@ export function buildWardenRequests(input: WardenInput, arm: WardenArm = WARDEN_
   return [parts.reduce<JudgeRequest>((request, part) => ({ state: { ...request.state, ...part.state }, questions: { ...request.questions, ...part.questions } }), base), ...own];
 }
 
+export const wardenCallFamilies = (input: WardenInput): string[] => [
+  ...(input.facts.length ? ["continuity"] : []),
+  ...(input.agency ? ["agency"] : []),
+  ...(input.attention ? ["attention"] : []),
+  ...(input.voice ? ["voice"] : []),
+  ...(keptRules(input.houseRules).length ? ["house rules"] : []),
+  ...(keptLore(input.lore).length ? ["lore"] : []),
+];
+
 export function readWarden(answers: Record<string, JudgeAnswer>, input: WardenInput): WardenFinding[] {
   const findings: WardenFinding[] = [];
   const continuity = input.facts.length ? continuityNote(answers, input.facts) : null;
