@@ -63,6 +63,19 @@ export const LeavingThePageClosesIt: Story = {
   },
 };
 
+const NAVIGATES = "<script>setTimeout(function(){location.href='data:text/html,'+encodeURIComponent('<script>setTimeout(function(){"
+  + "parent.postMessage({jsonrpc:\"2.0\",id:1,method:\"story/propose-intent\",params:{id:\"ask\"}},\"*\");},300);<'+'/script>');},50);</script>";
+
+export const ANavigatedFrameIsNotHeard: Story = {
+  args: { widget: htmlWidget(NAVIGATES) },
+  play: async ({ args }) => {
+    await waitFor(() => expect(args.onNavigatedAway).toHaveBeenCalled(), { timeout: 4000 });
+    await new Promise((resolve) => setTimeout(resolve, 900));
+    await expect(args.onIntent).not.toHaveBeenCalled();
+    await expect(audits(args.onAudit).filter((entry) => entry.method === "story/propose-intent")).toEqual([]);
+  },
+};
+
 const primary = (canvasElement: HTMLElement) => canvasElement.querySelector('[data-so="html-widget"]');
 
 export const Phone: Story = fitsAt(VIEWPORTS.phone, primary);
