@@ -232,6 +232,11 @@ Everything below is fixed in code (`src/memory/e0Ranking.ts` `E0_FLOORS`, `E0_CO
   planted inside `protect` (pool-recall misses by construction), pooled by a stub embedding (character-trigram hashing,
   256 dims, cosine). It checks the tooling end to end; it is not the E0 verdict.
 
+- **Synthetic freeze (2026-10-14, committed before `run`).** `test/measurements/v2.8/21-e0/synthetic.freeze.json`:
+  labels `174a6ce86cbe1dac2627b8a026497f3633540cb5c071716694a1bd83f9af8266`, pool
+  `338ded77de06cb6f228325c1e60f9facd069be3587ea6c6cc8cb0371a59971e1` (sha256 of the parsed JSON), 40 questions, provider
+  `stub-trigram-256`. The private freeze is owed (no labels yet).
+
 ### 6.2 Step 2 — offline group witness feasibility
 
 Uses E0's winning arm, and runs (for a verdict) only when E0 produced one; otherwise it is BLOCKED (§6.1).

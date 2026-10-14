@@ -1,0 +1,482 @@
+[
+ {
+  "id": 0,
+  "name": "Lady Vey",
+  "isUser": false,
+  "text": "The east wing stays locked. My husband's portraits do not care for visitors."
+ },
+ {
+  "id": 1,
+  "name": "Ilse",
+  "isUser": false,
+  "text": "The cellar holds nothing but apples and spiders."
+ },
+ {
+  "id": 2,
+  "name": "Brann",
+  "isUser": false,
+  "text": "I polish the silver every Tuesday, and every Tuesday one spoon is missing."
+ },
+ {
+  "id": 3,
+  "name": "Doctor Hale",
+  "isUser": false,
+  "text": "Children from the village sometimes cut across the lawn."
+ },
+ {
+  "id": 4,
+  "name": "Ilse",
+  "isUser": false,
+  "text": "I will read the cards for you at midnight, but you must not laugh, or they turn sour."
+ },
+ {
+  "id": 5,
+  "name": "Brann",
+  "isUser": false,
+  "text": "Lady Vey always wears long sleeves."
+ },
+ {
+  "id": 6,
+  "name": "Doctor Hale",
+  "isUser": false,
+  "text": "The old lord died of a weak heart. I signed the paper myself and I stand by it."
+ },
+ {
+  "id": 7,
+  "name": "Ilse",
+  "isUser": false,
+  "text": "The grey mare bites anyone who is not family."
+ },
+ {
+  "id": 8,
+  "name": "Lady Vey",
+  "isUser": false,
+  "text": "Call the gardener the Mole; he digs in places nobody asked him to dig."
+ },
+ {
+  "id": 9,
+  "name": "Doctor Hale",
+  "isUser": false,
+  "text": "That clock chimes at odd hours."
+ },
+ {
+  "id": 10,
+  "name": "Brann",
+  "isUser": false,
+  "text": "If the bell in the pantry rings by itself, you leave the room and you do not look back."
+ },
+ {
+  "id": 11,
+  "name": "Lady Vey",
+  "isUser": false,
+  "text": "The music box plays a tune nobody can name."
+ },
+ {
+  "id": 12,
+  "name": "Ilse",
+  "isUser": false,
+  "text": "My grandmother hid a letter behind the third stair, and I never had the courage to read it."
+ },
+ {
+  "id": 13,
+  "name": "Brann",
+  "isUser": false,
+  "text": "The doctor owes half the village money."
+ },
+ {
+  "id": 14,
+  "name": "Doctor Hale",
+  "isUser": false,
+  "text": "I will give you something to sleep, but only two drops. Three and you will not wake for a day."
+ },
+ {
+  "id": 15,
+  "name": "Brann",
+  "isUser": false,
+  "text": "The east wing smells of damp and old varnish."
+ },
+ {
+  "id": 16,
+  "name": "Lady Vey",
+  "isUser": false,
+  "text": "I promise the inheritance goes to whoever finds the key, not to whoever shouts loudest."
+ },
+ {
+  "id": 17,
+  "name": "Ilse",
+  "isUser": false,
+  "text": "The silver here is older than the house."
+ },
+ {
+  "id": 18,
+  "name": "Brann",
+  "isUser": false,
+  "text": "I served three masters in this house, and only the second one ever said thank you."
+ },
+ {
+  "id": 19,
+  "name": "Lady Vey",
+  "isUser": false,
+  "text": "Card reading is a peasant habit."
+ },
+ {
+  "id": 20,
+  "name": "Ilse",
+  "isUser": false,
+  "text": "The cook puts rosemary in everything to hide the taste of the well water."
+ },
+ {
+  "id": 21,
+  "name": "Brann",
+  "isUser": false,
+  "text": "The old lord climbed the tower stairs every night."
+ },
+ {
+  "id": 22,
+  "name": "Doctor Hale",
+  "isUser": false,
+  "text": "Burn my notebook if anything happens to me. Do not read it, just burn it."
+ },
+ {
+  "id": 23,
+  "name": "Ilse",
+  "isUser": false,
+  "text": "The gardener grows roses the colour of bruises."
+ },
+ {
+  "id": 24,
+  "name": "Lady Vey",
+  "isUser": false,
+  "text": "The chapel bell has been silent since the wedding, and I intend to keep it that way."
+ },
+ {
+  "id": 25,
+  "name": "Doctor Hale",
+  "isUser": false,
+  "text": "Pantry bells ring when the wind is in the flue."
+ },
+ {
+  "id": 26,
+  "name": "Brann",
+  "isUser": false,
+  "text": "Call me when the candles gutter green. That means the cellar door is open again."
+ },
+ {
+  "id": 27,
+  "name": "Brann",
+  "isUser": false,
+  "text": "The stairs creak worst near the landing."
+ },
+ {
+  "id": 28,
+  "name": "Ilse",
+  "isUser": false,
+  "text": "I swear I saw a child on the lawn at dawn, barefoot, holding a lantern without a flame."
+ },
+ {
+  "id": 29,
+  "name": "Lady Vey",
+  "isUser": false,
+  "text": "The doctor drinks more than he prescribes."
+ },
+ {
+  "id": 30,
+  "name": "Doctor Hale",
+  "isUser": false,
+  "text": "The scar on Lady Vey's wrist is older than her marriage. Ask her who gave it to her."
+ },
+ {
+  "id": 31,
+  "name": "Brann",
+  "isUser": false,
+  "text": "The family lawyer has not visited in years."
+ },
+ {
+  "id": 32,
+  "name": "Lady Vey",
+  "isUser": false,
+  "text": "You may borrow the grey mare, but if she comes back lame you will pay in blood or gold."
+ },
+ {
+  "id": 33,
+  "name": "Ilse",
+  "isUser": false,
+  "text": "Brann has been here longer than the furniture."
+ },
+ {
+  "id": 34,
+  "name": "Brann",
+  "isUser": false,
+  "text": "The clock in the hall runs eleven minutes slow, and nobody is allowed to correct it."
+ },
+ {
+  "id": 35,
+  "name": "Doctor Hale",
+  "isUser": false,
+  "text": "The well is deep and very cold."
+ },
+ {
+  "id": 36,
+  "name": "Ilse",
+  "isUser": false,
+  "text": "Wren, promise me you will open the music box only when I am in the room."
+ },
+ {
+  "id": 37,
+  "name": "Lady Vey",
+  "isUser": false,
+  "text": "The doctor writes in a cramped little hand."
+ },
+ {
+  "id": 38,
+  "name": "Doctor Hale",
+  "isUser": false,
+  "text": "The gardener paid me in seeds once. They grew into something with teeth."
+ },
+ {
+  "id": 39,
+  "name": "Brann",
+  "isUser": false,
+  "text": "The chapel roof leaks over the altar."
+ },
+ {
+  "id": 40,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Ilse ask Wren to promise about the music box?"
+ },
+ {
+  "id": 41,
+  "name": "Brann",
+  "isUser": false,
+  "text": "Give me a moment to remember."
+ },
+ {
+  "id": 42,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Doctor Hale say grew from the gardener's seeds?"
+ },
+ {
+  "id": 43,
+  "name": "Ilse",
+  "isUser": false,
+  "text": "I think I can recall that."
+ },
+ {
+  "id": 44,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Lady Vey say about the east wing?"
+ },
+ {
+  "id": 45,
+  "name": "Doctor Hale",
+  "isUser": false,
+  "text": "Let me think back on it."
+ },
+ {
+  "id": 46,
+  "name": "Wren",
+  "isUser": true,
+  "text": "How many drops did Doctor Hale say were safe?"
+ },
+ {
+  "id": 47,
+  "name": "Ilse",
+  "isUser": false,
+  "text": "That was a while ago now."
+ },
+ {
+  "id": 48,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Ilse swear she saw on the lawn?"
+ },
+ {
+  "id": 49,
+  "name": "Brann",
+  "isUser": false,
+  "text": "Ask me again later if I get it wrong."
+ },
+ {
+  "id": 50,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Doctor Hale say the old lord died of?"
+ },
+ {
+  "id": 51,
+  "name": "Ilse",
+  "isUser": false,
+  "text": "Rain drums on the roof for a while."
+ },
+ {
+  "id": 52,
+  "name": "Wren",
+  "isUser": true,
+  "text": "Why did Ilse say the cook puts rosemary in everything?"
+ },
+ {
+  "id": 53,
+  "name": "Brann",
+  "isUser": false,
+  "text": "I think I can recall that."
+ },
+ {
+  "id": 54,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Brann say about the clock in the hall?"
+ },
+ {
+  "id": 55,
+  "name": "Lady Vey",
+  "isUser": false,
+  "text": "Let me think back on it."
+ },
+ {
+  "id": 56,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Ilse say her grandmother hid?"
+ },
+ {
+  "id": 57,
+  "name": "Brann",
+  "isUser": false,
+  "text": "That was a while ago now."
+ },
+ {
+  "id": 58,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Brann say green candle flames mean?"
+ },
+ {
+  "id": 59,
+  "name": "Lady Vey",
+  "isUser": false,
+  "text": "Ask me again later if I get it wrong."
+ },
+ {
+  "id": 60,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What condition did Ilse set for reading the cards?"
+ },
+ {
+  "id": 61,
+  "name": "Brann",
+  "isUser": false,
+  "text": "Give me a moment to remember."
+ },
+ {
+  "id": 62,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Brann say about the masters he served?"
+ },
+ {
+  "id": 63,
+  "name": "Lady Vey",
+  "isUser": false,
+  "text": "A door creaks somewhere down the hall."
+ },
+ {
+  "id": 64,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What were Lady Vey's terms for borrowing the grey mare?"
+ },
+ {
+  "id": 65,
+  "name": "Doctor Hale",
+  "isUser": false,
+  "text": "Let me think back on it."
+ },
+ {
+  "id": 66,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What exactly did Brann say to do when the pantry bell rings by itself?"
+ },
+ {
+  "id": 67,
+  "name": "Lady Vey",
+  "isUser": false,
+  "text": "That was a while ago now."
+ },
+ {
+  "id": 68,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Lady Vey say about the chapel bell?"
+ },
+ {
+  "id": 69,
+  "name": "Doctor Hale",
+  "isUser": false,
+  "text": "Ask me again later if I get it wrong."
+ },
+ {
+  "id": 70,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Brann say happens every Tuesday?"
+ },
+ {
+  "id": 71,
+  "name": "Lady Vey",
+  "isUser": false,
+  "text": "Give me a moment to remember."
+ },
+ {
+  "id": 72,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Lady Vey promise about the inheritance?"
+ },
+ {
+  "id": 73,
+  "name": "Doctor Hale",
+  "isUser": false,
+  "text": "I think I can recall that."
+ },
+ {
+  "id": 74,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Doctor Hale say about the scar on Lady Vey's wrist?"
+ },
+ {
+  "id": 75,
+  "name": "Ilse",
+  "isUser": false,
+  "text": "Rain drums on the roof for a while."
+ },
+ {
+  "id": 76,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Lady Vey call the gardener?"
+ },
+ {
+  "id": 77,
+  "name": "Doctor Hale",
+  "isUser": false,
+  "text": "That was a while ago now."
+ },
+ {
+  "id": 78,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Doctor Hale ask be done with his notebook?"
+ },
+ {
+  "id": 79,
+  "name": "Ilse",
+  "isUser": false,
+  "text": "Ask me again later if I get it wrong."
+ }
+]

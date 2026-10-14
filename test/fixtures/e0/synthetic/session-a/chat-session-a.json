@@ -1,0 +1,482 @@
+[
+ {
+  "id": 0,
+  "name": "Tobin",
+  "isUser": false,
+  "text": "I swear the wagon axle will be mended before the frost moon, or you may keep my hammer."
+ },
+ {
+  "id": 1,
+  "name": "Odo",
+  "isUser": false,
+  "text": "A wolf pelt fetches good money in Brask."
+ },
+ {
+  "id": 2,
+  "name": "Kestra",
+  "isUser": false,
+  "text": "Call the north road the Widow Path; nobody who walks it comes back the same."
+ },
+ {
+  "id": 3,
+  "name": "Tobin",
+  "isUser": false,
+  "text": "That cut needs more than thread."
+ },
+ {
+  "id": 4,
+  "name": "Sela",
+  "isUser": false,
+  "text": "Bring me three sprigs of moonwort and I will brew a draught that stops the fever by dawn."
+ },
+ {
+  "id": 5,
+  "name": "Kestra",
+  "isUser": false,
+  "text": "Odo loses at dice more than he wins."
+ },
+ {
+  "id": 6,
+  "name": "Odo",
+  "isUser": false,
+  "text": "Forty silver for the mule, and I throw in the saddlebags because I like your face."
+ },
+ {
+  "id": 7,
+  "name": "Sela",
+  "isUser": false,
+  "text": "The river runs red after the rains."
+ },
+ {
+  "id": 8,
+  "name": "Tobin",
+  "isUser": false,
+  "text": "My father forged the bell at Harrowgate, and it still rings a half tone flat."
+ },
+ {
+  "id": 9,
+  "name": "Odo",
+  "isUser": false,
+  "text": "A good compass is worth a month of wages."
+ },
+ {
+  "id": 10,
+  "name": "Kestra",
+  "isUser": false,
+  "text": "If the lantern goes out twice, we turn back. No arguments, no heroics."
+ },
+ {
+  "id": 11,
+  "name": "Tobin",
+  "isUser": false,
+  "text": "The pass will be snowed in within a week."
+ },
+ {
+  "id": 12,
+  "name": "Sela",
+  "isUser": false,
+  "text": "I owe the abbess at Corven a favour, and she will collect it at the worst possible moment."
+ },
+ {
+  "id": 13,
+  "name": "Kestra",
+  "isUser": false,
+  "text": "That locket has a crack along the hinge."
+ },
+ {
+  "id": 14,
+  "name": "Odo",
+  "isUser": false,
+  "text": "I never sell maps of the marsh. The last buyer drowned and his widow still writes to me."
+ },
+ {
+  "id": 15,
+  "name": "Kestra",
+  "isUser": false,
+  "text": "That axle has cracked twice since the ford."
+ },
+ {
+  "id": 16,
+  "name": "Tobin",
+  "isUser": false,
+  "text": "Give me one quiet night and a hot forge and I will make you a blade that sings."
+ },
+ {
+  "id": 17,
+  "name": "Odo",
+  "isUser": false,
+  "text": "The north road is quicker if the bridges hold."
+ },
+ {
+  "id": 18,
+  "name": "Kestra",
+  "isUser": false,
+  "text": "The ferryman takes coin from the living and buttons from the dead. Keep a button handy."
+ },
+ {
+  "id": 19,
+  "name": "Tobin",
+  "isUser": false,
+  "text": "Fever took half the drovers last winter."
+ },
+ {
+  "id": 20,
+  "name": "Sela",
+  "isUser": false,
+  "text": "Do not eat the blue mushrooms, whatever the cook says. They taste of copper and regret."
+ },
+ {
+  "id": 21,
+  "name": "Kestra",
+  "isUser": false,
+  "text": "Never pay Odo his first price for anything."
+ },
+ {
+  "id": 22,
+  "name": "Odo",
+  "isUser": false,
+  "text": "My cousin Pell runs the toll at Brask; tell him the goose sent you and he waves you through."
+ },
+ {
+  "id": 23,
+  "name": "Sela",
+  "isUser": false,
+  "text": "The Harrowgate bell woke me every morning as a girl."
+ },
+ {
+  "id": 24,
+  "name": "Tobin",
+  "isUser": false,
+  "text": "I named my anvil Grudge, because it has outlasted every one of mine."
+ },
+ {
+  "id": 25,
+  "name": "Odo",
+  "isUser": false,
+  "text": "Lantern oil costs more out here than wine."
+ },
+ {
+  "id": 26,
+  "name": "Kestra",
+  "isUser": false,
+  "text": "Wolves in this valley hunt in threes. When you see one, look for the other two behind you."
+ },
+ {
+  "id": 27,
+  "name": "Tobin",
+  "isUser": false,
+  "text": "Corven abbey has the best cellars in the valley."
+ },
+ {
+  "id": 28,
+  "name": "Sela",
+  "isUser": false,
+  "text": "I will stitch that wound once and only once. Tear it open again and you sew it yourself."
+ },
+ {
+  "id": 29,
+  "name": "Kestra",
+  "isUser": false,
+  "text": "The marsh shifts every spring anyway."
+ },
+ {
+  "id": 30,
+  "name": "Odo",
+  "isUser": false,
+  "text": "Half my profit goes to the orphan house in Lisle, and the other half goes to dice."
+ },
+ {
+  "id": 31,
+  "name": "Sela",
+  "isUser": false,
+  "text": "Nobody gets a quiet night on this road."
+ },
+ {
+  "id": 32,
+  "name": "Tobin",
+  "isUser": false,
+  "text": "The river stones here are iron-red. Smelt enough of them and you could shoe a whole army."
+ },
+ {
+  "id": 33,
+  "name": "Odo",
+  "isUser": false,
+  "text": "I sold the ferryman a crate of nails once."
+ },
+ {
+  "id": 34,
+  "name": "Kestra",
+  "isUser": false,
+  "text": "I keep my mother's compass. It points at whatever I miss most, never at north."
+ },
+ {
+  "id": 35,
+  "name": "Tobin",
+  "isUser": false,
+  "text": "The cook makes a decent stew when he is sober."
+ },
+ {
+  "id": 36,
+  "name": "Sela",
+  "isUser": false,
+  "text": "Swear on the salt that you will not leave anyone behind at the pass, Wren."
+ },
+ {
+  "id": 37,
+  "name": "Kestra",
+  "isUser": false,
+  "text": "Brask tolls doubled after the flood."
+ },
+ {
+  "id": 38,
+  "name": "Odo",
+  "isUser": false,
+  "text": "I will buy the silver locket back from you for double, the day you decide to part with it."
+ },
+ {
+  "id": 39,
+  "name": "Sela",
+  "isUser": false,
+  "text": "Tobin talks to that anvil more than to people."
+ },
+ {
+  "id": 40,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What oath did Sela ask Wren to swear at the pass?"
+ },
+ {
+  "id": 41,
+  "name": "Kestra",
+  "isUser": false,
+  "text": "Give me a moment to remember."
+ },
+ {
+  "id": 42,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What exactly did Odo offer for the silver locket?"
+ },
+ {
+  "id": 43,
+  "name": "Sela",
+  "isUser": false,
+  "text": "I think I can recall that."
+ },
+ {
+  "id": 44,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What exactly did Tobin promise about the wagon axle?"
+ },
+ {
+  "id": 45,
+  "name": "Odo",
+  "isUser": false,
+  "text": "Let me think back on it."
+ },
+ {
+  "id": 46,
+  "name": "Wren",
+  "isUser": true,
+  "text": "Why did Odo say he never sells maps of the marsh?"
+ },
+ {
+  "id": 47,
+  "name": "Sela",
+  "isUser": false,
+  "text": "That was a while ago now."
+ },
+ {
+  "id": 48,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Sela say about stitching the wound?"
+ },
+ {
+  "id": 49,
+  "name": "Kestra",
+  "isUser": false,
+  "text": "Ask me again later if I get it wrong."
+ },
+ {
+  "id": 50,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What price did Odo name for the mule?"
+ },
+ {
+  "id": 51,
+  "name": "Sela",
+  "isUser": false,
+  "text": "Rain drums on the roof for a while."
+ },
+ {
+  "id": 52,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Sela warn about the blue mushrooms?"
+ },
+ {
+  "id": 53,
+  "name": "Kestra",
+  "isUser": false,
+  "text": "I think I can recall that."
+ },
+ {
+  "id": 54,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Kestra say her mother's compass points at?"
+ },
+ {
+  "id": 55,
+  "name": "Tobin",
+  "isUser": false,
+  "text": "Let me think back on it."
+ },
+ {
+  "id": 56,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Sela say she owes the abbess?"
+ },
+ {
+  "id": 57,
+  "name": "Kestra",
+  "isUser": false,
+  "text": "That was a while ago now."
+ },
+ {
+  "id": 58,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What exactly did Kestra say about the wolves?"
+ },
+ {
+  "id": 59,
+  "name": "Tobin",
+  "isUser": false,
+  "text": "Ask me again later if I get it wrong."
+ },
+ {
+  "id": 60,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What exactly did Sela say she would brew?"
+ },
+ {
+  "id": 61,
+  "name": "Kestra",
+  "isUser": false,
+  "text": "Give me a moment to remember."
+ },
+ {
+  "id": 62,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Kestra say the ferryman takes?"
+ },
+ {
+  "id": 63,
+  "name": "Tobin",
+  "isUser": false,
+  "text": "A door creaks somewhere down the hall."
+ },
+ {
+  "id": 64,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Tobin say about the river stones?"
+ },
+ {
+  "id": 65,
+  "name": "Odo",
+  "isUser": false,
+  "text": "Let me think back on it."
+ },
+ {
+  "id": 66,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What was Kestra's rule about the lantern going out?"
+ },
+ {
+  "id": 67,
+  "name": "Tobin",
+  "isUser": false,
+  "text": "That was a while ago now."
+ },
+ {
+  "id": 68,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Tobin name his anvil and why?"
+ },
+ {
+  "id": 69,
+  "name": "Odo",
+  "isUser": false,
+  "text": "Ask me again later if I get it wrong."
+ },
+ {
+  "id": 70,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Kestra call the north road?"
+ },
+ {
+  "id": 71,
+  "name": "Tobin",
+  "isUser": false,
+  "text": "Give me a moment to remember."
+ },
+ {
+  "id": 72,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Tobin promise he could make with one quiet night?"
+ },
+ {
+  "id": 73,
+  "name": "Odo",
+  "isUser": false,
+  "text": "I think I can recall that."
+ },
+ {
+  "id": 74,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Odo say happens to his profit?"
+ },
+ {
+  "id": 75,
+  "name": "Sela",
+  "isUser": false,
+  "text": "Rain drums on the roof for a while."
+ },
+ {
+  "id": 76,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What did Tobin say about the bell his father forged?"
+ },
+ {
+  "id": 77,
+  "name": "Odo",
+  "isUser": false,
+  "text": "That was a while ago now."
+ },
+ {
+  "id": 78,
+  "name": "Wren",
+  "isUser": true,
+  "text": "What password did Odo give for the toll at Brask?"
+ },
+ {
+  "id": 79,
+  "name": "Sela",
+  "isUser": false,
+  "text": "Ask me again later if I get it wrong."
+ }
+]
