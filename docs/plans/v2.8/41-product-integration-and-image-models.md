@@ -156,6 +156,27 @@ Phases (each its own gate record):
    rebuilt through the product path instead of scripted bases.
 5. **A — acceptance:** the journey above twice, plus the owed plan 28/29/33/36 LI rows on the same build.
 
+### Journey floors (predeclared 2026-10-14, before any real run)
+
+Driver: `scripts/debug/so-p41-journey.mts` (`floors` prints this list from `lib/pocDrivers.mts` `JOURNEY_FLOORS`). A floor
+is informational: a miss is recorded, never retuned after the run.
+
+- Every journey step completes with outcome pass: preflight, wizard, story, base, prepare, expressions, frames, rig (per
+  member), play, pose, look, look-rebuild, illustration, background, swipe, delete, reload, chat-switch, stale, gpu-idle.
+  A refusal or failure is a miss; `stub` is allowed only under `--dry`.
+- Nothing is stale after each mutation (look change, swipe, delete, reload, chat switch) or at the end. That means:
+  - every displayed sprite path exists;
+  - the displayed lineage equals the accepted root;
+  - each live-head rig matches the hash of the shown bust;
+  - no owned file is orphaned or missing;
+  - no cache key holds two hashes.
+- The GPU is idle after the run: the last three 5 s samples are at most baseline + 512 MiB and at most 10 % utilisation,
+  and no owned ComfyUI job is still queued.
+- Wall time is recorded for every step (finite ms). Model calls are counted by provider (sol, artemis, judge, comfy,
+  gpu-broker, deepseek, cm-profile, landmarks). Refusals, including mask-import refusals on edits, are counted.
+- Latency: the journey adds no latency floor of its own. The plan 33 Acceptance floor (send→reply within +10 % of the
+  no-sprites arm) is measured by `so-pose-latency.mts`.
+
 ## 5a. Folded work (owner 2026-10-13: focus on plan 41 and a full e2e POC; the 3090 may be used)
 
 Owed rows that sit on the same end-to-end path are run inside this plan, on the same frozen build, instead of
@@ -644,3 +665,84 @@ Look-to-rig texture reuse remains unmeasured. Other open acceptance items are li
   rig quality on real art (synthetic geometric bust only; the simplified CPU cut has no OpenCV inpainting and no LI5-style review);
   browser/lane acceptance of the rebuild screen with real saves; GPU/ComfyUI renders; cast illustration with layered fields on a model.
   Plan 36 LI rows and the §5 A journey remain owed.
+
+## Gate record: §5 journey driver, dry only (2026-10-14, no GPU, no model, branch `v2.8-poc-drivers`)
+
+What was added:
+- `scripts/debug/so-p41-journey.mts`. Shared parts:
+  - `lib/pocDrivers.mts`: pure logic, plus `pocDrivers.test.mts`.
+  - `lib/pocFakes.mts`: the dry media plugin, PNG and SSE fakes, plus `pocFakes.test.mts`.
+  - `lib/pocLive.mts`: in-page routes, call recorder, 5 s sampler, turn and viseme probes.
+  - `lib/pocSteps.mts`: Studio steps, settings capture and restore, preflight, step timing.
+- Each run writes into `<debug>/p41/<stamp>-<label>-<mode>-run<k>/`:
+  - per-step `steps.jsonl` and `turns.jsonl`;
+  - `calls.jsonl` with model calls by provider;
+  - 5 s GPU/RAM `samples.jsonl` (nvidia-smi in real mode, stubs in dry mode);
+  - run headers from before and after the run, and their diff;
+  - a screenshot of every step that did not pass;
+  - `record.json`.
+- Cleanup removes the `SO-P41` marked assets and scrubs builder, visual-source and rig entries. It then restores the
+  captured sprite, display, image and extraction settings.
+- `--dry`:
+  - every plugin, harness and generation call is answered in the page;
+  - every request to ComfyUI and controller ports is blocked;
+  - the wizard replays a scripted transport.
+  - The verdict is PLUMBING-OK/FAIL and never a floor result.
+
+Dry runs on offline lane 46, a slim seed with no plugins, candidate `dist/` served by route:
+- dry1 run 1: PLUMBING-OK. 28 of 30 steps passed; gpu-idle was a stub. look-rebuild was a product miss (below).
+  - Calls: 4 sol (fake), 54 comfy (fake), 70 artemis (fake stream), 0 refusals.
+  - The mouth moved on all 10 streamed turns (9–30 visemes sampled per turn).
+- dry2 run 2: PLUMBING-OK, with the same 28 passes, the same miss and the same stub.
+  - Calls: 4 sol (fake), 55 comfy (fake), 76 artemis (fake stream), 0 refusals.
+  - The first changed-look turn sampled 0 visemes; the lead had no live head (the open finding below).
+- Both runs: cleanup leaked 0. The header diff had one undeclared line, a warning ("open group is not in ctx.groups"),
+  because the owned group was deleted while it was still open.
+
+Product findings from the dry runs:
+- Fixed: visual asset paths carried ST's `?t=` cache-buster.
+  - Symptom: Prepare accept, look publication and bust rebuild all refused with "The reviewed visual manifest is
+    incomplete".
+  - Fix: `servedAsset` in `src/sprites/visualManifest.ts`, used by `visualPreparation.ts` and `lookRebuild.ts`, with
+    tests.
+- Fixed: a story started in a chat that was already open never directed its stage.
+  - Cause: actor direction keys were computed only on the stage's reload, so roster ids were missing.
+  - Fix: `src/sprites/stage.ts` reloads when the story roster changes (`rosterStamp` in `direction.ts`), with a test in
+    `stage.test.ts`. The dry runs ran on the first version of this fix. It was then compacted to stay within the
+    600-line file budget (codeHealth S3), with the same logic, and was not re-run live.
+- Open: a changed look never gets a live head while poses are on.
+  - A look with card fields always renders an `lp_` posed body, even for `stand_relaxed`.
+  - The live-head lookup then asks for the head of `lp_…`, not `look_<key>`.
+  - The journey's look-rebuild step records "close shot rig look none != look_<key>".
+- Open: the feature registry places `cast-illustration` at "Play › Illustrate prepared cast", but `#so-cast-scene`
+  renders on the workspace Author page.
+
+Gates:
+- `npm run test:replay`: 32/32 killed, exit 0.
+- `npm run test:debug`: 1,282/1,282.
+- `npm run gates:quick`: green. typecheck, typecheck:test, lint, jest related 1,371/1,371, replay `--cached`.
+- `npm run gates -- --no-storybook`: all green in 185.6s (jest 8,295 passed and 1 skipped; first run RED on codeHealth S3, with stage.ts at 606 effective lines, fixed in 21958f26). Storybook was skipped because no `.stories.tsx` or UI component
+  changed.
+
+## Ready to run: §5 journey on the 3090 (owner go-ahead, nothing else on the GPU)
+
+1. Prepare a normal seeded lane n ≥ 30:
+   - `node scripts/debug/st-lanes.mts restore-model <n>`
+   - `npm run plugins:install`
+   - Write `C:\dev\so-lanes\<n>\image-harness.json` from `scripts/debug/image-harness.example.json`, with
+     `allowComfy: true`, `editModels` and `backgroundRemoval`.
+   - Start with `node scripts/debug/st-lanes.mts start <n> --allow-local`.
+2. Choose the build: add `--candidate` to serve this worktree's `dist/`, or stage a frozen build first.
+3. Load Artemis through the controller at no more than 32,768 context: `node scripts/local/cli.mjs start`. ComfyUI is
+   warmed by preflight through the GPU plugin. The 3090 needs about 14.8 GiB of free RAM for the Qwen lease.
+4. Run the journey twice:
+   - `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-p41-journey.mts run 1 --label a`
+   - `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-p41-journey.mts run 2 --label a`
+   - If a run aborts: `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-p41-journey.mts cleanup`
+5. The wizard step calls Sol (opencode `openai/gpt-6.1-sol`) once per run. Check that no other agent is using the
+   subscription.
+6. Expected GPU time:
+   - Renders: about 17.5 min per run for 3 members (`so-p41-journey.mts quote`), about 35 min for ×2.
+   - Wall time with Artemis turns and ComfyUI warm-up: about 30 min per run, about 60 min for ×2.
+7. Archive the records under `test/journeys/records/p41/` and the evidence with
+   `node scripts/debug/so-evidence.mts archive --label p41-journey`.
