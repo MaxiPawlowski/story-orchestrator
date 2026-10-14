@@ -3,6 +3,9 @@
 **Status: WRITTEN 2026-10-14 (owner decision 2026-10-14: these roleplay mechanics go into v2.8, plans written now).
 Not decided, not built.** Pattern G20 of `v2.8/27-gamification-report.md`. Implementation tier D; acceptance CL
 (director route) and RP (final suite living row). Overview: `00-overview.md` (this folder).
+**Revised 2026-10-14 against the Astra review** ("accept A, narrowed"): §Review 2026-10-14 (Astra) records each
+finding; the shared contract lives in v2.8 52 §Review 2026-10-14 (Astra). Chaos is tension-only, the draw is seeded by
+an immutable planning event and frozen once, "altered" and "interrupt" have operational definitions.
 
 ## What it is
 
@@ -21,8 +24,11 @@ Not decided, not built.** Pattern G20 of `v2.8/27-gamification-report.md`. Imple
   writes the anchor. The director's existing checks (`checkDirectorOps`, the `narratesPlayer` guard, the critic) still
   decide whether the anchor is accepted.
 - **Author-only.** The chaos value, the odds and the outcome never reach a player surface (trap 9: odds are spoilers).
-- **Rollback ≡ replay.** The draw is keyed by chat, story, frontier and the boundary the frontier was entered at. A swipe
-  past that boundary drops the result. A replay draws the same result. Regenerating an anchor never re-rolls (trap 3).
+- **Rollback ≡ replay.** The draw is keyed by chat, story, frontier and the **planning event**: the boundary at which
+  the director first planned for that frontier (a frontier need not have been entered; with a horizon above 1 it is a
+  reachable future anchor, `src/generation/living/frontier.ts:32-41`). The sampled chaos, outcome and focus are frozen
+  in a record at that moment. A swipe past the planning boundary drops the record; a replay plans at the same boundary
+  and draws the same result. Regenerating an anchor reads the record and never re-rolls (trap 3).
 - The mechanic is described from Mythic GME's scene test. **Nothing is copied**: no table, range, odds, wording or
   term beyond the generic idea. Mythic content is Word Mill CC-BY-NC (`27-gamification-report.md` trap 10, ranked
   row 7). The probability mapping below is ours.
@@ -87,31 +93,38 @@ only through the sources below, and none of them reads what the player refused.
 
 Design of A:
 
-1. **Format.** `living.scene_test?: { chaos: <quality key> | {from: "tension"}, odds?: "default" }`.
-   - `chaos` names an authored **code int** quality with display min/max (author-only by construction: `display` on it
-     is refused, as for `rel_*`).
-   - Or `{from: "tension"}`, where chaos is the level index of the smoothed tension (calm 0 … peak 4), read from
-     `tension_current` at the frontier's entry boundary.
-   - Validator: the quality exists, is code, is an int, has a bounded range of 1 to 9 steps. Refuse `display`/`public`.
-     Unknown keys get a did-you-mean. Absent `scene_test` means off for that story.
-2. **Chaos writers.** Authored checkpoint effects that set or add to the quality (through the existing code-write path),
-   or the tension mapping. Never a player-refusal counter, never the agency recovery path, never wall-clock.
-3. **The draw (pure, `src/generation/living/sceneTest.ts`).**
-   - `u1 = unitDraw([chat, story, frontierId, enteredBoundary, "scene-test"])`.
-   - `u2 = unitDraw([..., "scene-test:kind"])`.
-   - `p = (c − min + 1) / (max − min + 3)`, where `c` is chaos clamped to [min, max]. Unexpected when `u1 < p`. Then
-     interrupt when `u2 < 0.4`, else altered. Expected otherwise.
-   - The constants are placeholders, recorded as proposed values (§Decisions 3).
-4. **Signal.** `DirectorInput.sceneTest?: "expected" | "altered" | "interrupt"` plus, for interrupt, an optional
-   `focus` (G21's pick, v2.8 49 §Design 4). The prompt adds one line:
-   - Altered: "The next turning point arrives changed: one detail of its place, people or circumstance is not what the
-     path led everyone to expect. The world changed it, not the player."
-   - Interrupt: "Before the expected turning point, something else happens in the world first[, involving <focus>].
-     It is world pressure only."
+1. **Format.** `living.scene_test?: { chaos: {from: "tension"}, min_gap?: int }` (revised 2026-10-14).
+   - Chaos is the level index of the smoothed tension (calm 0 … peak 4), read from `tension_current` at the planning
+     boundary; `min = 0`, `max = 4` are fixed by the tension scale, so no author bounds are needed.
+   - An authored chaos quality is **deferred**: no checkpoint `set`/`add` effect exists (`CheckpointEffects`,
+     `src/engine/schema.ts:128-140`), and the old format asked for "display min/max" while refusing `display`. It
+     returns only with a state-write facility and its own author-only `range` on `scene_test`.
+   - Validator: unknown keys get a did-you-mean; `min_gap` 0–5 (default 2). Absent `scene_test` means off.
+2. **Chaos writers.** The tension mapping only. Never a player-refusal counter, the agency recovery path or wall-clock.
+3. **The draw and the frozen record (pure, `src/generation/living/sceneTest.ts`).**
+   - On the director's **first** plan for a frontier: `u1 = unitDraw([chat, story, frontierId, plannedAt,
+     "scene-test"])`, `u2 = unitDraw([..., "scene-test:kind"])`, `c` = chaos then.
+   - `p = (c + 1) / 7`. Unexpected when `u1 < p`; then interrupt when `u2 < 0.4`, else altered. Placeholders
+     (§Decisions 3).
+   - **Spacing:** an interrupt drawn within `min_gap` frontiers of the last applied interrupt applies as altered.
+   - The record freezes `{frontierId, plannedAt, chaos, p, drawn, applied, focus?}`. Every later director call for
+     that frontier (regenerate, a retry after a critic refusal, a horizon recompute, changed tension or open arcs)
+     reads the record; nothing re-samples.
+4. **Signal, operationally defined.** `DirectorInput.sceneTest?: {applied, focus?}` plus the frozen **expected
+   continuation**: the frontier's destination (the anchor the path points to) and the open thread it advances.
+   - Altered: "Keep the destination and the thread. Change exactly one of: the place, who is present, the timing, or
+     an obstacle; the world changed it, not the player." The draft names which (`changed: place | cast | timing |
+     obstacle`), checked by `checkDirectorOps` (a missing or second change is refused).
+   - Interrupt: "Before the destination, a world event advances [<focus thread> | an open thread] first; then the path
+     to the destination resumes. World pressure only." The draft names the thread it advances (an existing open
+     thread, never a new compulsory detour).
    - Expected: no line, so the prompt stays byte-identical to today's.
-5. **Record.** `extras.living.sceneTests[]` `{frontierId, boundary, chaos, p, outcome, focus?}`. Textless apart from
-   `focus` (a member name or an arc that is already open). Capped at 50 and rolled back by boundary like the director's
-   ops. The draw is also announced to the author draw ring (`onChanceDraw`, a new kind `scene`).
+   - Focus is optional: an open arc through the resting view whose entities are known (v2.8 52 `knownEntities`), drawn
+     by v2.8 49's pure `focusPick` (decision 6). No member focus in v1.
+5. **Record retention.** `extras.living.sceneTests[]` keyed by frontier. Retained by boundary, not by count: a record
+   whose `plannedAt` is older than the engine's oldest retained snapshot (200, `src/engine/engine.ts:488`) is dropped,
+   since a rollback cannot reach it. Rolled back by `plannedAt`, like the director's ops. The draw is announced to the
+   author draw ring (`onChanceDraw`, kind `scene`).
 6. **Surfaces (author only).** An inline author-level chip on the boundary that drew it ("Scene test: interrupt").
    The director suggestion card shows the outcome and the chaos value. A row in Author view's living panel. Player
    projection unchanged.
@@ -124,15 +137,18 @@ Committed before any run; never retuned (00-overview rule 2).
 
 | # | Condition | Floor | Tier |
 |---|---|---|---|
-| S1 | Rollback ≡ replay of `sceneTests` and of the director input line | 0 mismatches over 4 seeds × 100 cuts (K1's shape), with a control that keys by `Date.now` and must fail | D |
+| S1 | Rollback ≡ replay of `sceneTests` and of the director input line | 0 mismatches over 4 seeds × 100 cuts (K1's shape), horizon 1 and horizon 3 (non-active frontiers), with a control that keys by `Date.now` and must fail | D |
 | S2 | Draw calibration | over 10,000 synthetic keys per chaos step, the unexpected rate is within ±0.02 of `p` and the interrupt share within ±0.02 of 0.4 | D |
-| S3 | No reroll | regenerate ×10 on one frontier gives 10 identical outcomes; a swipe past the entry boundary then a replay gives the original outcome | D |
+| S3 | No reroll, frozen | regenerate ×10, a critic-refusal retry, a tension change and a changed open-arc list after planning all give the frozen outcome and focus; a swipe past the planning boundary then a replay gives the original | D |
 | S4 | Expected = today | with outcome expected, or `scene_test` absent, the director prompt is byte-identical to the current one (golden) | D |
-| S5 | Player clean | the player projection and every player surface are byte-identical with and without `scene_test`, at each outcome; `so-ui.mts assert-player-clean` passes with the new selectors | D |
+| S5 | Player clean at fixed played state | with the same blackboard, path, canon and chat, the player projection and every player surface are byte-identical with and without `scene_test`, at each outcome (intended narrative consequences change state and are excluded by construction); `so-ui.mts assert-player-clean` passes with the new selectors | D |
 | S6 | Chaos writers | no code path writes the chaos quality from the agency recovery path, the refusal counter or wall-clock (guard test with a planted writer as the control) | D |
 | S7 | Director honours the signal | on 20 frozen frontiers × 3 forced outcomes (offline replay, director route recorded), a second model rates "the anchor is altered/interrupted as asked, world-side" ≥ 0.80 for altered and for interrupt | CL |
-| S8 | No agency cost | anchors narrating the player stay 0 (guard), and second-model agency flags on altered + interrupt ≤ the expected arm + 1 over the same 60 anchors | CL |
-| S9 | No stall cost | critic refusal rate on altered + interrupt ≤ the expected arm + 0.10 | CL |
+| S8 | No agency cost | three equal arms of 20 anchors (expected, altered, interrupt) on the same frontiers: the guard's narrated-player count stays 0 (a detector, a lower bound), and the second-model agency-flag **rate** of each changed arm ≤ the expected arm's rate + 0.05 | CL |
+| S9 | No stall cost | critic refusal **rate** of each changed arm ≤ the expected arm's rate + 0.10 (equal arms as S8) | CL |
+| S11 | Surprising but coherent | blind second-model rating on the S8 arms: altered and interrupt each rated "surprising and causally coherent with the expected continuation" ≥ 0.70; expected rated surprising ≤ 0.30 | CL |
+| S12 | Spacing | over 1,000 synthetic frontier sequences, no two applied interrupts within `min_gap` frontiers; drawn vs applied recorded | D |
+| S13 | Changed means one change | altered drafts naming 0 or ≥ 2 changes, or an interrupt naming no existing thread, are refused by `checkDirectorOps` (unit cases with planted drafts) | D |
 | S10 | Plan 22 floors hold | v2.8 22 M1's floors (0 impossible or open-on-arrival gates, 0 unreached-anchor names on player surfaces) hold with `scene_test` on | CL, RP |
 
 S7–S9 use synthetic English frontiers. Adolion frontiers, if used, are rated by a second model and never shown to the
@@ -159,9 +175,10 @@ stays on.
 - **Odds are spoilers (trap 9).** Chaos, `p`, the outcome and the focus are author-only. No player chip, no HUD value,
   no Journal row, no widget may bind the chaos quality (`display` refused; widget `bind` to it refused). A `clock`
   widget bound to chaos would show remaining pressure.
-- **Focus is spoiler-safe by construction (v2.8 49 G21):** only members on stage or arcs that are already open (both
-  through the resting filter, `livingInputs.ts:32-37`). It never names a hidden arc, an absent member, or a held secret.
-  The director prompt's existing "never name or reveal private plans" rule still applies.
+- **Focus is tested by forbidden information, not claimed safe by construction** (revised 2026-10-14): open arcs
+  through the resting filter (`livingInputs.ts:32-37`) whose entities are known (v2.8 52 SC3), checked by v2.8 49 C4
+  (0 forbidden strings in the focus line). The resting filter strips secret content, not names, so it alone is not
+  the guarantee. The director prompt's existing "never name or reveal private plans" rule still applies.
 - **Unreached anchors:** an altered/interrupt anchor is a generated anchor like any other. v2.8 22's player-copy
   projection and "Save as story" rules apply unchanged.
 - **No Adolion content** in fixtures or this plan.
@@ -170,7 +187,8 @@ stays on.
 
 - **v2.8 22** living story director: the only consumer. It builds on its `DirectorInput`, suggestion card and
   `extras.living` rollback.
-- **v2.8 49** complications and twists: shares the G21 focus pick (one pure function, owned there).
+- **v2.8 49** complications and twists: shares the G21 focus pick (one pure function, owned there, extracted now for
+  this plan per 49 decision 6).
 - **v2.8 17 / v2.7 35:** a scene test that injects into play replies (option B) is a chaos-scaled trigger and waits for
   K1–K5 and an owner decision.
 - **v2.8 50** story calendar: an interrupt may be keyed to night or a date later. Not in scope.
@@ -181,21 +199,51 @@ stays on.
 
 1. **Build option A (director signal only, author-only)?** **Recommended: yes.** It is on by default for any story that
    declares `living.scene_test` (rule 9). A story without the field is unchanged.
-2. **Chaos source:** an authored code quality, `{from: "tension"}`, or both? **Recommended: both.** The tension mapping
-   gives living stories a chaos without authoring. An authored quality lets a story raise or lower it through effects.
+2. **Chaos source:** an authored code quality, `{from: "tension"}`, or both? **Recommended: tension only** (revised
+   2026-10-14). No checkpoint `set`/`add` effect exists to move an authored one; it returns with a state-write facility.
 3. **The probability mapping and the 0.4 interrupt share** are our own placeholders. Keep them as proposed, or set
    other values before S2 is committed? **Recommended: keep as proposed.** They are recorded as placeholder values,
    like `PACE_PULL_AFTER`.
 4. **Option B (authored stories get a steering line from the same draw):** **Recommended: not now.** Revisit only
    after SP6 passes (v2.8 17), as a separate decision.
 5. **Option C (chaos moved by scene outcomes):** **Recommended: refuse the source-system form.** Chaos moves only by
-   authored effects or tension, never by what the player did or refused.
+   tension, never by what the player did or refused.
+6. **Interrupt focus in v1:** none, or an open arc via v2.8 49's pure `focusPick`? **Recommended: open arcs only, via
+   `focusPick`** (49 extracts it now for this).
+7. **Spacing (`min_gap`, default 2 frontiers between applied interrupts)?** **Recommended: yes.**
 
 ## Unresolved questions
 
-- Should `{from: "tension"}` read the smoothed value at the entry boundary or the raw last level? The proposal is the
-  smoothed value, so that one noisy read does not swing the draw.
+- Should `{from: "tension"}` read the smoothed value or the raw last level? Answered 2026-10-14: the smoothed value at
+  the planning boundary, frozen in the record.
 - Does a branch pass (`liv_b<n>_way`, v2.8 22 divergence) draw its own scene test, or inherit the frontier's? The
   proposal is that it inherits: one draw per frontier entry.
 - Does the scene test apply to the living opening (`LIVING_OPENING_ID`)? The proposal is no: the opening is the
   author's premise.
+
+## Review 2026-10-14 (Astra)
+
+Source: `review-astra-2026-10-14.md` §Plans 48-53 ("48: accept A, narrowed"), checked on master `3a716f2b`. Shared
+findings resolve through v2.8 52 §Review 2026-10-14 (Astra): SC1 (records live in `extras.living` and roll back with
+the director's ops by `plannedAt`; no blackboard write), SC2 (no engine step: the draw is director-side), SC3 (focus
+candidates through `knownEntities`), SC4 (n/a: no player surface).
+
+- **P1 A frontier need not have been entered.** Verified: `findFrontier` searches `reachableByCheckpoint` ahead of the
+  active anchor when the horizon allows (`src/generation/living/frontier.ts:32-41`). → Seed origin is the immutable
+  planning event (`plannedAt`); S1 runs horizon 3.
+- **P1 The proposed chaos writer does not exist; display min/max vs refused display.** Verified: `CheckpointEffects`
+  has no `set`/`add` (`src/engine/schema.ts:128-140`). → Tension-only chaos with fixed bounds 0–4 (decision 2); the
+  authored quality is deferred with its own author-only `range`.
+- **P1 A stable seed alone does not preserve the outcome; 50-record cap.** Accepted. → The record freezes chaos, `p`,
+  drawn and applied outcome and focus at first plan; every later call reads it (S3 now drifts tension and arcs).
+  Retention follows engine snapshot retention (`engine.ts:488`), not a count.
+- **P2 "Unexpected" not operational.** Accepted. → A frozen expected continuation (destination + thread) is supplied;
+  altered = exactly one named change keeping the destination; interrupt = a world event advancing an existing thread,
+  then resume. `checkDirectorOps` checks the named change (S13).
+- **P2 Floors measure obedience more than benefit; S5 identity; S8 arms.** Accepted. → S5 at fixed played state; S8/S9
+  compare rates over equal arms (20/20/20); the agency regex is named a detector (`src/generation/living/guard.ts:18-25`);
+  S11 adds a blind "surprising but causally coherent" rating; S12 a repeated-interruption check.
+- **Cheaper design** (one frozen tension-derived signal, focus optional, no authored-story injection). This is now A.
+  Option B stays refused until SP6 (decision 4 unchanged).
+- **Brainstorm: interruptions that advance an existing thread and keep the destination; deterministic spacing.** Both
+  adopted (item 4 interrupt wording; `min_gap`).

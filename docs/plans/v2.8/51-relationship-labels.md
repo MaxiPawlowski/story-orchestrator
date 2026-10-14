@@ -6,6 +6,8 @@ author-only; directed, not mirrored"), deferred by v2.7 37 L1 ("label only; reve
 §Gate taxonomy): implementation **D**; acceptance **D** + **CL** (label wording rated by a second model) + **RP** (holder
 replies on the main reply model). Overview: `docs/plans/v2.8/00-overview.md`. Not in `32-queue.md` yet (the owner
 queues it).
+**Revised 2026-10-14 against the Astra review**: §Review 2026-10-14 (Astra) records each finding; the shared contract
+(SC1–SC5) lives in v2.8 52 §Review 2026-10-14 (Astra). **51 now builds after 52 A, onto its person pages.**
 
 ## What it is
 
@@ -67,8 +69,8 @@ Verified on master `211d8d96`.
 
 | | Design | Cost | Risk | Notes |
 |---|---|---|---|---|
-| **A. Authored labels, gated secrets, latched reveal** | `public: [{label, when?}]` (first holding row wins) + `secret: [{id, label, revealed_when}]`; reveal latched in a code quality; player projection lists public label + revealed secrets | S–M | label `when` gates on an axis can act like a band and flicker with the extractor | G15 as written; deterministic; rolls back with the blackboard |
-| **B. Word bands over the axis number** | G6 bands on each axis (`bands: [{max, label}, …]`), the band word shown to the player | S | the player infers the number and its movement; a band change on each read is a trend leak | conflicts with "numbers author-only" in spirit |
+| **A. Authored labels, gated secrets, latched reveal** | `public: [{label, when?}]` (last holding row wins, frozen) + `secret: [{id, label, revealed_when}]`; reveal latched in a code quality; player projection lists public label + revealed secrets | S–M | label `when` gates on an axis can act like a band and flicker with the extractor | G15 as written; deterministic; rolls back with the blackboard |
+| **B. Word bands over the axis number** | G6 bands on each axis (`bands: [{max, label}, …]`), the band word shown to the player | S | the player infers the number and its movement; a band change on each read is a trend leak | an axis-gated public label is the same thing; allowed only as an explicit `follows_feeling` choice (§Review) |
 | **C. Model-written labels** | the shared read proposes a label per relationship | M | nondeterministic wording; spoils secrets the model sees; prompt cost | violates "stagecraft proposes, never writes" unless curated |
 | **D. Manual author reveal only** | a Studio/drawer button flips a secret label | S | unrollbackable viewer write (trap T7); no play reveal | monks' model; rejected by the report |
 
@@ -83,8 +85,12 @@ Verified on master `211d8d96`.
 ```
 
 - **Public label.** Rows are evaluated last-to-first; the last row whose `when` holds (or that has no `when`) wins, so
-  later rows override earlier ones. At most 6 rows; text ≤ 40 characters, plain text, no macros.
-- **Secret labels.** At most 4 per relationship. `revealed_when` is required. A derive-seam pass writes the latch
+  later rows override earlier ones (rule frozen; the options table agrees). At most 6 rows; text ≤ 40 characters,
+  plain text, no macros. Event-driven gates are the default. A row whose `when` reads a `rel_*` axis is an intentional
+  public band and needs `follows_feeling: true`, else it is refused; such a row may set `hold: n` (1–5 boundaries the
+  gate must hold before the label switches) against flicker.
+- **Secret labels.** At most 4 per relationship. `revealed_when` is required. The latch pass (shared contract SC2
+  step 5, re-run at step 7) writes the latch
   `life_reveal_<holder>_<toward>_<id> = true` (code bool, `life_` prefix, so `isLifeKey` holds,
   `src/engine/lifeSchema.ts:95`) the first boundary the gate holds; it never writes false. A rollback past that
   boundary drops it with the blackboard; replay writes it again at the same boundary.
@@ -97,9 +103,10 @@ Verified on master `211d8d96`.
   holding now or at least one revealed secret: `{holder, toward, label, revealed: string[]}` with names from
   `castNames` (`toward: "player"` shows as "you"). Unrevealed secrets are never in the view, not even as a count or
   placeholder. A relationship with no public label and no revealed secret contributes no row; with no row the section
-  is not rendered (G1).
-- **Where the player sees it.** A "People" section in the Journal panel. When plan 52 ships, each row moves to the
-  holder's codex page (52 §Recommendation) and the Journal section is dropped.
+  is not rendered (G1). A row projects only while **both** holder and target are known through v2.8 52's
+  `knownEntities` (SC3); NPC-to-NPC rows included. A revealed secret renders as history ("Learned: secretly loyal to
+  you"), never as a present-tense assertion; only the public label speaks in the present.
+- **Where the player sees it.** On the holder's person page in v2.8 52's codex. No interim Journal section.
 - **Reveal event.** The player log gains kind `reveal`, row text "{holder}: {label}" (toward someone other than the
   player: "{holder} toward {toward}: {label}"); an inline chip "Revealed" under the message whose boundary latched it;
   the session journal derives the same event by diffing `life_reveal_*` between consecutive boundary snapshots (no
@@ -126,13 +133,17 @@ Committed before any run; informational, never retuned (v2.8 00 rule 2).
 | R1 | Spoiler property: random blackboards (≥ 500 seeds) over a fixture with ≥ 6 secret labels; no unrevealed secret label text, id or count in `GameView`, the Journal DOM or the player log | 0 leaks | D |
 | R2 | Byte-identity: the player page (Journal DOM + `game` slice JSON) with and without unrevealed secret labels declared | identical, 100 % of seeds | D |
 | R3 | No number: player view and DOM contain no axis value, range or trend for any `rel_*` key | 0 hits | D |
-| R4 | Rollback ≡ replay of `life_reveal_*` over 4 seeds with swipe, edit, delete and reopen | identical state, 4/4 | D |
+| R4 | Rollback ≡ replay of `life_reveal_*` over 4 seeds with swipe, edit, delete and reopen, plus a code-only boundary (SC1) | identical state, 4/4 + 1 | D |
 | R5 | Payload invariance: a story without labels sends byte-identical member blocks (payload goldens) | 0 undeclared hunks | D |
 | R6 | Directedness: setting A → B labels never changes B → A's projected row (property test) | 0 mirrored rows | D |
 | R7 | Holder honours its labels: 10 drafted replies per arm (public "wary" vs public "warm", same scene), second-model rater picks the warmer reply blind | ≥ 8/10 correct | RP + CL |
-| R8 | Secret kept: 10 replies from a holder with an unrevealed secret label; rater flags any reply that states the secret outright | ≤ 1/10 | RP + CL |
+| R8 | Zero-leak correctness: an unrevealed secret label's text appears only in its holder's private block; 0 hits in other drafted members' requests, the resting block, shared tiers, canon, chapter and scene summaries, the WI mirror and the player view (payload goldens + property over drafted members) | 0 hits | D |
+| R9 | Secret kept in voice (quality, informational, not a secrecy claim): 10 replies from a holder with an unrevealed secret label; rater flags any reply that states the secret outright | ≤ 1/10 | RP + CL |
+| R10 | Feature-only fixture: a story whose only game feature is labels renders them (SC4) | holds | D |
+| R11 | Reveal scope: reveal and public-label gate keys are offered by the `discovery` scope source within the rotation bound (52 C9 shape); a control without the source starves | 100 %, control fails | D |
+| R12 | Unknown entities: a row whose holder or target is unknown (SC3) is absent, NPC-to-NPC included, ≥ 500 seeds | 0 leaks | D |
 
-R7/R8 use synthetic lab stories only (never Adolion), rated by a second model; the owner spot-checks synthetic rows.
+R7/R9 use synthetic lab stories only (never Adolion), rated by a second model; the owner spot-checks synthetic rows.
 
 ## Gates by tier
 
@@ -140,7 +151,7 @@ R7/R8 use synthetic lab stories only (never Adolion), rated by a second model; t
   People section, CharacterLifePanel labels, Studio label editors); `npm run test:release` unchanged; a no-model
   scenario on a lane that reveals a label, swipes it away and reveals it again (`so-scenario --sandbox`), plus
   `so-ui.mts assert-player-clean` before the reveal; payload goldens diff (R5).
-- **CL / RP:** R7, R8 batched into the final v2.8 real-LLM suite (v2.8 00 rule 8), lab story only, run header diffed
+- **CL / RP:** R7, R9 batched into the final v2.8 real-LLM suite (v2.8 00 rule 8), lab story only, run header diffed
   around the batch.
 
 ## Privacy/spoiler notes
@@ -162,7 +173,7 @@ R7/R8 use synthetic lab stories only (never Adolion), rated by a second model; t
 
 - **v2.7 37 L1** (built): relationships, `rel_*` compile, private line, author panel. This plan adds fields, not a
   new store.
-- **v2.8 52 People and Places codex**: the person page is where labels live once 52 ships; 52's `known_when` facts and
+- **v2.8 52 People and Places codex**: built first; the person page is where labels live; 52's `known_when` facts and
   51's revealed secrets share one projection rule and one spoiler property.
 - **v2.8 53 Reputation with groups**: 51 is one member's feeling toward one target; 53 is a group's standing with the
   player. A member's private block may hold both; 53 states which wins (personal feeling first). 53's band words
@@ -174,15 +185,19 @@ R7/R8 use synthetic lab stories only (never Adolion), rated by a second model; t
 ## Decisions for the owner
 
 1. **Option A (authored, gated, latched)?** **Recommended: yes.**
-2. **Where labels show before 52 ships:** a Journal "People" section, or wait for 52? **Recommended: Journal section
-   now, moved to codex pages by 52.**
+2. **Where labels show before 52 ships:** a Journal "People" section, or wait for 52? **Recommended: wait; build on
+   52's person pages** (Astra: no interim surface that is removed at once). Revised 2026-10-14.
 3. **May a label's gate read the hidden axis number?** (a) refuse; (b) allow with the warning diagnostic; (c) allow
-   silently. **Recommended: (b).** Authors get "trust ≥ 3 → warming" if they want it, and are told it leaks movement.
+   silently; (d) allow only with an explicit `follows_feeling: true`. **Recommended: (d).** A warning does not remove
+   what the label reveals; the flag makes the public band a stated choice. Revised 2026-10-14.
 4. **Do other members and the director learn a revealed secret?** **Recommended: no.** The reveal is the player's; the
    holder knows its own secret; the director keeps receiving private plans only.
 5. **Reveal chip under the message:** on by default (follows inline level 1 Story) or Journal only? **Recommended:
    chip on, at level 1, like "Quest completed".**
 6. **Can a revealed secret be un-revealed by the story** (a later gate)? **Recommended: no; only rollback removes it.**
+   It is shown as history ("Learned: …"), so a later change of heart does not make it false.
+7. **Reveal grammar:** history ("Learned: …") for secrets, present tense for the public label only? **Recommended:
+   yes.**
 
 ## Unresolved questions
 
@@ -191,3 +206,33 @@ R7/R8 use synthetic lab stories only (never Adolion), rated by a second model; t
 - Is "you" the right player-facing name for `toward: "player"`, or the persona name? Follows the existing narrative
   copy decision; confirm with the copy owner (`src/runtime/narrative.ts`).
 - Cap values (6 public rows, 4 secrets, 40 characters) are placeholders until the Studio editor is drawn.
+
+## Review 2026-10-14 (Astra)
+
+Source: `review-astra-2026-10-14.md` §Plans 48-53, checked on master `3a716f2b`. Shared findings resolve through the
+shared contract in v2.8 52 §Review 2026-10-14 (Astra): SC1 rollback detectors (R4 code-only seed), SC2 order (the
+reveal latch is step 5, re-run at step 7), SC3 disclosure and `knownEntities`, SC4 feature-only fixture (R10).
+
+- **P1 Missing extraction scope.** Verified: `SCOPE_SOURCES = [CARD_SOURCE, QUEST_SOURCE, RELATIONSHIP_SOURCE]`
+  (`src/extraction/scopeSources.ts:65`); `RELATIONSHIP_SOURCE` reads axes and mood of present members only
+  (`:53-63`), so a `revealed_when` on `saw_letter` is never asked. → Reveal and public-label gate keys join the shared
+  `discovery` source (v2.8 52), budgeted, with rotation; floor R11 with a starving control.
+- **P1 Labels can reveal unknown people.** Verified against the old projection rule (any holding public label made a
+  row with both names). → Rows project only when holder and target are known (SC3, `knownEntities`), NPC-to-NPC
+  included; floor R12.
+- **P1 "Secret kept" allows a leak.** Accepted: one disclosure in ten cannot support a secrecy claim. → R8 is now a
+  D correctness floor (0 hits) over every surface the extension builds: other members' requests, resting block,
+  shared tiers, canon, chapter/scene summaries, WI mirror, player view. The holder's in-voice behaviour is R9, a
+  quality rating, informational. What the holder says in the transcript is the model's act; R9 measures it, R8 proves
+  the extension never carries the label anywhere but the holder's block.
+- **P2 Options and implementation disagree** (first vs last match). Verified in the old options row. → Last holding
+  row wins, frozen in both places.
+- **P2 Option B's rejection is inconsistent.** Accepted: an axis-gated public label is a band. → Decision 3 (d):
+  allowed only with `follows_feeling: true`; optional `hold` hysteresis; event-driven gates are the default.
+- **P2 Learned once is not true forever.** Accepted. → Revealed secrets render as history ("Learned: …"); only the
+  public label is present tense; decision 7.
+- **Cheaper design: build into 52's pages, no interim Journal surface.** Adopted (decision 2 revised; dependency
+  reordered: 52 A, then 51).
+- **Brainstorm: labels tied to remembered interactions; several relationships at once.** Supported by the format:
+  event-driven public rows ("trusts your discretion" on the gate of the event that earned it) and several rows per
+  holder. The guide's Good example uses an event gate, not an axis.
