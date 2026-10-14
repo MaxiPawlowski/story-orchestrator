@@ -1,5 +1,6 @@
 import { fnv1a } from "@runtime/hash";
 import { blinkGap } from "../animation";
+import type { MouthSample } from "../mouthShape";
 import { expressionHead, mouthHead, restHead, type HeadParameters } from "./drivers";
 
 const CYCLE_MS = 8000;
@@ -41,4 +42,11 @@ export class HeadDriver {
     out.mouthOpen = mouthHead(elapsedMs, motion && mouth && streaming);
     return out;
   }
+}
+
+export function visemeMouth(p: HeadParameters, sample: MouthSample | null | undefined): HeadParameters {
+  if (sample === undefined) return p;
+  if (!sample) { p.mouthOpen = 0; return p; }
+  p.mouthOpen = sample.open; p.mouthForm = Math.max(-1, Math.min(1, p.mouthForm * 0.4 + sample.form * 0.6));
+  return p;
 }

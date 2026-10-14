@@ -4,7 +4,7 @@ import { headArtHash, headAssetBytes } from "@services/stHost/liveHeadAssets";
 import { log } from "@utils/log";
 import type { LiveHeadRef } from "../liveHeadRefs";
 import type { StreamActivity } from "../animation";
-import { HeadDriver } from "./headDriver";
+import { HeadDriver, visemeMouth } from "./headDriver";
 import { headImage } from "./load";
 import { attachHead } from "./mount";
 import type { DrawnSource } from "./drawn";
@@ -59,8 +59,9 @@ export function LiveHead(props: LiveHeadProps) {
     visible(false);
     void attachHead(element, binding, run, { bytes: headAssetBytes, hash: headArtHash, image: headImage }, () => {
       const current = latest.current;
-      return driver.drive(performance.now() - start, current.label, current.activity.view() === current.name, current.motion,
+      const speaking = current.activity.view() === current.name, p = driver.drive(performance.now() - start, current.label, speaking, current.motion,
         current.breathing, current.blink, current.mouth);
+      return speaking && current.motion && current.mouth ? visemeMouth(p, current.activity.mouth(current.name)) : p;
     }, visible, undefined, drawnKey ? { source: JSON.parse(drawnKey) as DrawnSource, deps: drawnDeps, report: (set, error) => {
       if (!live) return;
       element.dataset.liveHeadDrawn = set?.sprites.map((sprite) => sprite.name).join(" ") || "none";
@@ -72,5 +73,7 @@ export function LiveHead(props: LiveHeadProps) {
     }).catch(() => { clearTimeout(timeout); abort.abort(); visible(false); owner.release(); });
     return () => { dispose?.(); visible(false); live = false; clearTimeout(timeout); abort.abort(); owner.signal.removeEventListener("abort", onOwnerAbort); owner.release(); };
   }, [member, look, artHash, source, manifest, beginRun, drawnKey]);
+  const { activity, mouth } = props;
+  useEffect(() => { if (mouth) void activity.visemes(); }, [activity, mouth]);
   return <canvas key={canvasKey} ref={canvas} className="so-live-head" aria-hidden="true" style={{ ...props.style, visibility: "hidden" }} />;
 }

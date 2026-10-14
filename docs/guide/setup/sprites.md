@@ -124,7 +124,9 @@ reduced motion and the story's motion switch stop movement.
 **Drawn eyes and mouth on the live head** is on by default. When the look's neutral expression has
 blink and talk frames (the same `neutral.blink.png`, `neutral.talk.png` and `neutral.talk2.png` the
 plain sprite uses), the live head crops them to the bust with the accepted head box and swaps the
-drawn closed eyes in during a blink and the drawn open mouth in while a reply streams. They follow the
+drawn closed eyes in during a blink and the drawn open mouth in while a reply streams. On the live head
+the mouth follows the same text mouth shapes as the plain sprite: a wide shape picks the open frame, a half or rounded
+shape the half frame (narrowed for "u"). They follow the
 head's turns, tilt and breathing. A frame whose edge does not line up with the artwork, or whose size
 does not match the rig, is skipped; with no usable frames the head keeps its own eyes and mouth.
 Changing a frame file rebuilds the drawn layer on the next close shot.

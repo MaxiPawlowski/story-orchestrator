@@ -4,7 +4,9 @@ import { FakeWebGl, fakeCanvas, fakeLayerImage } from "../../../test/support/fak
 import * as hash from "@runtime/hash";
 import * as drivers from "./drivers";
 import { driveHead } from "./drivers";
-import { HeadDriver } from "./headDriver";
+import { HeadDriver, visemeMouth } from "./headDriver";
+import { withVisemeMouth, type MouthSample } from "../mouthShape";
+import { DrawnDirector } from "./drawn";
 import { frameGate } from "./mount";
 import { HeadRenderer } from "./renderer";
 import { syntheticHead } from "./synthetic";
@@ -75,6 +77,26 @@ describe("steady-state driver", () => {
     driver.drive(16_000, "anger", false, true);
     expect(expression).toHaveBeenCalledTimes(2);
     fnv.mockRestore(); expression.mockRestore();
+  });
+});
+
+describe("text visemes drive the live head mouth", () => {
+  test("visemeMouth writes withVisemeMouth's values into the reused parameters", () => {
+    const samples: Array<MouthSample | null | undefined> = [undefined, null, { open: 0.7, form: 0.9, viseme: "O" }, { open: 0.2, form: -1, viseme: "I" }];
+    for (const sample of samples) {
+      const driver = new HeadDriver("shape"), p = driver.drive(500, "joy", true, true);
+      const expected = withVisemeMouth({ ...p }, sample);
+      expect(visemeMouth(p, sample)).toBe(driver.parameters);
+      expect({ ...p }).toEqual(expected);
+    }
+  });
+  test("a rounded viseme picks the narrowed drawn mouth; a closed viseme shows none", () => {
+    const director = new DrawnDirector(new Set(["mouth_talk", "mouth_talk2"]));
+    const driver = new HeadDriver("shape");
+    const rounded = visemeMouth(driver.drive(500, "surprise", true, true), { open: 0.5, form: 1, viseme: "U" });
+    expect(director.update(rounded, 16)).toMatchObject({ mouth: "mouth_talk2", width: 0.78, shaderMouth: 0 });
+    const closed = visemeMouth(driver.drive(516, "neutral", true, true), null);
+    expect(director.update(closed, 16).mouth).toBeNull();
   });
 });
 

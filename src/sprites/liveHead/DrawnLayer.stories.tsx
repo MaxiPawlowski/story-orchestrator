@@ -67,7 +67,11 @@ function BeforeAfter() {
 
 function LiveWithFrames() {
   const [activity] = useState(() => new StreamActivity());
-  const [drawn, setDrawn] = useState<DrawnSource | null>(null);
+  const [drawn, setDrawn] = useState<DrawnSource | null>(null), [viseme, setViseme] = useState("none");
+  useEffect(() => {
+    const timer = setInterval(() => { const sample = activity.mouth("Shape"); if (sample) setViseme(`${sample.viseme} ${sample.open.toFixed(2)}`); }, 30);
+    return () => clearInterval(timer);
+  }, [activity]);
   useEffect(() => {
     let live = true;
     void syntheticArt().then(({ frames }) => {
@@ -77,7 +81,8 @@ function LiveWithFrames() {
     return () => { live = false; };
   }, []);
   return <div style={{ pointerEvents: "auto" }}>
-    <button type="button" className="menu_button" onClick={() => activity.pulse("Shape")}>Stream reply</button>
+    <button type="button" className="menu_button" onClick={() => { void activity.visemes().then(() => activity.pulse("Shape", "Hello, how are you today?")); }}>Stream reply</button>
+    <output data-so="viseme" aria-label="Viseme mouth">{viseme}</output>
     <div id="so-vn-root" style={{ position: "relative", width: "100%", maxWidth: 360, height: 420 }}>
       <div className="so-sprite" style={{ width: "100%", left: "50%" }}><div className="so-sprite-breath">
         <img src={syntheticHead.source} alt="Synthetic shape bust" />
@@ -111,6 +116,7 @@ export const LiveHeadWithFrames: Story = {
     await waitFor(() => expect(canvasElement.querySelector<HTMLCanvasElement>("canvas.so-live-head")?.dataset.liveHeadDrawn).toBe("eyes_closed_0 eyes_closed_1 mouth_talk mouth_talk2"), { timeout: 15000 });
     await waitFor(() => expect(canvasElement.querySelector<HTMLCanvasElement>("canvas.so-live-head")?.parentElement?.dataset.liveHeadReady).toBe("true"), { timeout: 15000 });
     await userEvent.click(canvas.getByRole("button", { name: "Stream reply" }));
+    await waitFor(() => expect(canvas.getByLabelText("Viseme mouth")).not.toHaveTextContent("none"), { timeout: 5000 });
     await expect(canvasElement.querySelector("canvas.so-live-head")).toHaveStyle({ visibility: "visible" });
   },
 };
