@@ -189,6 +189,49 @@ both cases P4 stays parked and **§6.2 is recorded BLOCKED (insufficient E0)**, 
 record only, a **diagnostic arm** is named (highest hit@4, ties to the cheaper arm; it is not a winner and nothing
 ships on it), and §6.2's fixture may be run once on it, labelled diagnostic, with its numbers kept beside E0's.
 
+#### E0 as built: declarations (2026-10-14, written before any arm ran)
+
+Everything below is fixed in code (`src/memory/e0Ranking.ts` `E0_FLOORS`, `E0_COST_ORDER`, `E0_LOCAL_WEIGHTS`,
+`E0_BAND_THRESHOLDS`) and committed before the first run, so no run can choose its own bar.
+
+- **Floors.** Winner: the cheapest arm with hit@4 ≥ 0.80; a costlier arm that also reaches hit@4 0.80 replaces it only
+  with MRR@4 ≥ the cheapest's + 0.10 (the costlier candidate with the highest MRR@4 wins, ties to the cheaper; float
+  slack 1e-9, nothing else). No arm at 0.80: no winner, diagnostic arm = highest hit@4 (ties to the cheaper), problem =
+  `ranking` when pool recall ≥ 0.80 else `retrieval`, §6.2 = `BLOCKED (insufficient E0)`. Fewer than 40 questions:
+  `insufficient`, no verdict. An arm without inputs (arm (d) with no recorded calls): `incomplete`; the floors are
+  applied to the scored arms as a provisional reading only, never as the verdict.
+- **Cost order (cheapest first): (e), (c), (a), (b), (d).** (e) is the pool query itself; (c) adds local arithmetic
+  only; (a) adds 2 threshold queries, (b) 4; (d) adds 4 sequential judge calls.
+- **Query.** Vector Storage's `query` 2: the message just before the asking turn, then the labelled question (standing
+  in for the player's asking turn), joined by a newline. Candidates are embedded as message text only (no speaker
+  name), as `vectors/index.js` inserts `mes`.
+- **Collection.** Messages with id < the asking turn, `isSystem` rows and empty texts skipped, then the last 5 dropped
+  (`protect`). A collection under 8 messages refuses the question (the 8-id contract cannot hold).
+- **Bands.** Recorded as membership from threshold queries (topK 8) at 0.82, 0.7, 0.55, 0.4 over the same collection
+  and query; an arm's score is the number of its thresholds a candidate passed. Since ST sorts by score, band groups are
+  prefixes of ST's order, so with the tie rule arms (a) and (b) are expected to reproduce (e)'s order exactly and differ
+  only in tie rate; a non-prefix recording (score drift between queries) is scored as recorded, not repaired.
+- **Arm (c).** `1.3 × Jaccard(query, text) + 0.5 × 1 / (1 + (ask − messageId) / 20)`: the live scorer's
+  `semanticSimilarity` and `temporalProximity` weights and distance scale (`src/memory/score.ts`), Jaccard from
+  `src/memory/similarity.ts`.
+- **Arm (d).** Recorded calls only (`{"<question id>": [{"pick": <message id|null>, "latencyMs", "inputTokens"}] × 4}`);
+  fewer than 4 recorded calls refuses the question's recording. A pick outside the remaining set picks nothing (that
+  call still counts); ranks after the picks follow ST's order. Request shape: `e0ChoiceRequest` (one Choice question,
+  options `m<message id>` = candidate text, state = the query). Calls, summed latency and input tokens are the arm's cost.
+- **Tie rate.** Fraction of questions where two of the arm's top 5 share a raw score (the tie at the cut counts), raw,
+  never rounded. Every metric is reported unrounded with its counts.
+- **Latency.** Judge latency for (d); for the vector arms only when the pool recorded query latencies (a stub pool has
+  none: `null`, never 0).
+- **Freeze.** `so-e0.mts freeze` writes sha256 of the labels and pool files plus a per-question pool hash; `run`
+  refuses a pool or label file whose hash differs from the freeze record. The freeze record is committed (synthetic:
+  this repo; private: `so-sessions`, with only its hashes copied here) before `run`.
+- **Review rule.** A `private` label set needs `review: {writer, checker, agreed}` per question with writer ≠ checker;
+  `agreed: false` drops the question (counted), never adjudicated. `synthetic` labels carry `review: null`. A private
+  pool or result is refused as `--out` inside this repo outside `test/sessions/`.
+- **Synthetic set.** Two generic sessions written for this repo (no campaign content), 20 questions each, 4 golds
+  planted inside `protect` (pool-recall misses by construction), pooled by a stub embedding (character-trigram hashing,
+  256 dims, cosine). It checks the tooling end to end; it is not the E0 verdict.
+
 ### 6.2 Step 2 — offline group witness feasibility
 
 Uses E0's winning arm, and runs (for a verdict) only when E0 produced one; otherwise it is BLOCKED (§6.1).
