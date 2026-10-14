@@ -71,8 +71,9 @@ A control picks a profile by its id; it never takes a path, a program or an argu
 
 ## Keeping a sprite batch warm
 
-Building several sprites in a row can keep the image model loaded between images. That is off by default; set
-`"retainBatches": true` and the plugin allows it only while nothing waits for text and memory stays above the reserves.
+Building several sprites in a row keeps the image model loaded between images, up to three in a row. It is on by
+default: the plugin allows it only while nothing waits for text and memory stays above the reserves, and a reply that
+arrives mid-batch gets the card after the current image. Set `"retainBatches": false` to turn it off.
 
 ## Without the plugin, or when it cannot help
 

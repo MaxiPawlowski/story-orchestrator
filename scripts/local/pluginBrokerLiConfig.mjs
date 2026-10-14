@@ -14,7 +14,7 @@ export function superviseConfigFromLocal(local, { stateDir, listenPort, textPort
         stateDir,
         text: { binary: local.binary, model: local.model, port: textPort, alias: local.modelAlias, maxContext: local.maxContext ?? 32768, defaultProfile: profile,
             profiles: { [profile]: { args, estimatedGpuMiB: local.profiles[profile].estimatedGpuMiB, estimatedRamMiB: local.profiles[profile].estimatedRamMiB } } },
-        comfy: { url: local.comfyUrl, supervise: true, python: local.comfyPython, root: local.comfyRoot, extraArgs: ['--cache-ram', '8', '--reserve-vram', '2', ...(local.comfyExtraArgs ?? [])] },
+        comfy: { url: local.comfyUrl, supervise: true, python: local.comfyPython, root: local.comfyRoot, extraArgs: ['--cache-ram', '8', '--reserve-vram', '2', ...(local.comfyExtraArgs ?? [])], startTimeoutMs: 300000 },
         reserves: local.reserves,
         modelDirs: local.modelDirs,
         modelCacheRoot: local.modelCacheRoot,

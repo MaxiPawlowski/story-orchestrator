@@ -224,7 +224,7 @@ export function createArbiter(config, deps = {}) {
             try { reading = await snapshot({ fresh }); } catch (error) { telemetryError = error.message; }
             const sched = scheduler.status();
             const state = brokerState({ scheduler: sched, backend: sched.text, crashed: arbiter.crashed() });
-            const idle = sched.activeText === 0 && sched.waitingText === 0 && !sched.imageLease;
+            const idle = sched.activeText === 0 && sched.waitingText === 0;
             const mayRetain = config.retainBatches === true && idle && Boolean(reading && config.reserves) && withinReserve(reading, config.reserves);
             return { ...sched, adapter: 'supervise', guarding: true, state, mayRetain, reserves: config.reserves ?? null, reservesFrom,
                 telemetry: reading, telemetryError, imageCache: imageCache.last, imageCacheFailure: imageCache.lastFailure, imageCacheHostTrim: imageCache.lastHostTrim ?? null,
