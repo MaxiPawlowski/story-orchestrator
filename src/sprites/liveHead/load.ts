@@ -7,7 +7,7 @@ export interface HeadAssetDeps {
   hash(bytes: ArrayBuffer): Promise<string>;
   image(url: string, signal: AbortSignal): Promise<HTMLImageElement>;
 }
-export interface PreparedHead { manifest: HeadManifest; images: HTMLImageElement[] }
+export interface PreparedHead { manifest: HeadManifest; images: HTMLImageElement[]; art: ArrayBuffer }
 
 export async function prepareHead(ref: LiveHeadRef, run: RunGuard, deps: HeadAssetDeps): Promise<PreparedHead | null> {
   if (!run.stillOwns()) return null;
@@ -21,7 +21,7 @@ export async function prepareHead(ref: LiveHeadRef, run: RunGuard, deps: HeadAss
   if (hash !== manifest.artHash) throw new Error("Artwork changed; this rig needs rebuilding.");
   const images = await Promise.all(manifest.layers.map((layer) => deps.image(layer.image, run.signal)));
   if (!run.stillOwns()) return null;
-  return { manifest, images };
+  return { manifest, images, art };
 }
 
 export function headImage(url: string, signal: AbortSignal): Promise<HTMLImageElement> {

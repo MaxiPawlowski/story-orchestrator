@@ -3,8 +3,10 @@ import type { LiveHeadRef } from "../liveHeadRefs";
 import type { HeadParameters } from "./drivers";
 import { prepareHead, type HeadAssetDeps } from "./load";
 import { HeadRenderer } from "./renderer";
+import { drawnFrames, prepareDrawn, type DrawnDeps, type DrawnSet, type DrawnSource } from "./drawn";
 
-export interface HeadSurface { add: HeadRenderer["add"]; draw: HeadRenderer["draw"]; destroy(): void }
+export interface HeadSurface { add: HeadRenderer["add"]; draw: HeadRenderer["draw"]; destroy(): void; addDrawn?: HeadRenderer["addDrawn"] }
+export interface HeadDrawn { source: DrawnSource; deps: DrawnDeps; report?(set: DrawnSet | null, error?: unknown): void }
 
 export const FRAME_MS = 1000 / 60;
 const FRAME_SLACK_MS = 2;
@@ -23,9 +25,18 @@ export function frameGate(interval = FRAME_MS, slack = FRAME_SLACK_MS): (now?: n
 export async function attachHead(canvas: HTMLCanvasElement, ref: LiveHeadRef, run: RunGuard, deps: HeadAssetDeps,
   parameters: () => HeadParameters, visible: (ready: boolean) => void,
   factory: (canvas: HTMLCanvasElement, manifest: import("./manifest").HeadManifest) => HeadSurface = (element, manifest) => new HeadRenderer(element, manifest),
+  drawn?: HeadDrawn,
 ): Promise<(() => void) | null> {
   const prepared = await prepareHead(ref, run, deps);
   if (!prepared || !run.stillOwns()) return null;
+  let sprites: DrawnSet | null = null;
+  if (drawn && drawnFrames(drawn.source).length) {
+    try {
+      sprites = await prepareDrawn(prepared.manifest.rig, prepared.manifest.artHash, prepared.art, drawn.source, run, drawn.deps);
+      drawn.report?.(sprites);
+    } catch (error) { sprites = null; drawn.report?.(null, error); }
+    if (!run.stillOwns()) return null;
+  }
   const renderer = factory(canvas, prepared.manifest);
   let frame = 0, closed = false, ready = false;
   const gate = frameGate();
@@ -38,7 +49,7 @@ export async function attachHead(canvas: HTMLCanvasElement, ref: LiveHeadRef, ru
   const draw = () => {
     if (closed) return;
     if (!run.stillOwns()) { stop(); return; }
-    try { renderer.draw(parameters()); if (!ready) { ready = true; visible(true); } }
+    try { renderer.draw(parameters(), performance.now()); if (!ready) { ready = true; visible(true); } }
     catch { stop(); }
   };
   const tick = (time?: number) => {
@@ -55,6 +66,7 @@ export async function attachHead(canvas: HTMLCanvasElement, ref: LiveHeadRef, ru
       if (!run.stillOwns()) { stop(); return null; }
       renderer.add(prepared.manifest.layers[i], prepared.images[i]);
     }
+    if (sprites?.sprites.length && renderer.addDrawn) renderer.addDrawn(sprites.sprites);
     if (!run.stillOwns()) { stop(); return null; }
     canvas.addEventListener("webglcontextlost", lost); document.addEventListener("visibilitychange", visibility);
     run.signal.addEventListener("abort", stop, { once: true });

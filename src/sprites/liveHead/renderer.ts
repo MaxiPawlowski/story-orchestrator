@@ -25,10 +25,16 @@ import type { HeadManifest, HeadLayer } from "./manifest";
 import type { HeadParameters } from "./drivers";
 import { deformInto, deformWeighted, eyeVertexY, headGrid, vertexWeights, type HeadMesh } from "./geometry";
 import { VS, FS } from "./shaders";
+import { DrawnDirector, mouthInner, squashVertex, type DrawnSprite, type DrawnState } from "./drawn";
 
 interface LayerResources {
   layer: HeadLayer; mesh: HeadMesh; vao: WebGLVertexArrayObject; position: WebGLBuffer; texture: WebGLTexture; buffers: WebGLBuffer[];
   eye: number; part: string; lidded: boolean; weights: Float64Array | null;
+}
+
+interface DrawnResources {
+  sprite: DrawnSprite; mesh: HeadMesh; vao: WebGLVertexArrayObject; position: WebGLBuffer; texture: WebGLTexture; buffers: WebGLBuffer[];
+  weights: Float64Array | null; inner: Float32Array | null; eye: number; dirty: boolean; squash: number; width: number;
 }
 
 const ERROR_CHECK_EVERY = 120;
@@ -46,6 +52,9 @@ export class HeadRenderer {
   private readonly cheeks: Float32Array;
   private readonly eyeState = new Float32Array(8);
   private readonly uploaded = new Float64Array(9).fill(Number.NaN);
+  private readonly drawn: DrawnResources[] = [];
+  private director: DrawnDirector | null = null;
+  private lastTime = Number.NaN;
 
   constructor(private readonly canvas: HTMLCanvasElement, private readonly manifest: HeadManifest) {
     const gl = canvas.getContext("webgl2", { alpha: true, premultipliedAlpha: true, antialias: true });
@@ -75,41 +84,71 @@ export class HeadRenderer {
     } catch (error) { this.destroy(); throw error; }
   }
 
-  add(layer: HeadLayer, image: HTMLImageElement): void {
-    const gl = this.gl, rig = this.manifest.rig;
-    if (image.naturalWidth !== layer.rect[2] || image.naturalHeight !== layer.rect[3]) throw new Error("Layer image dimensions differ from the rig.");
-    const cell = layer.name === "base" ? Math.min(rig.mesh.baseCell, rig.mesh.fine.cell) : layer.name.endsWith("ball") ? rig.mesh.eyeBallCell : rig.mesh.eyeCell;
-    const mesh = headGrid(layer.rect, cell), vao = gl.createVertexArray(), texture = gl.createTexture();
+  private allocate(rect: HeadLayer["rect"], cell: number) {
+    const gl = this.gl, mesh = headGrid(rect, cell), vao = gl.createVertexArray(), texture = gl.createTexture();
     const position = gl.createBuffer(), uv = gl.createBuffer(), index = gl.createBuffer();
     if (!vao || !texture || !position || !uv || !index) {
       gl.deleteVertexArray(vao); gl.deleteTexture(texture); [position, uv, index].forEach((buffer) => gl.deleteBuffer(buffer));
       throw new Error("Could not allocate mesh resources.");
     }
-    const eye = /^eye([01])_(.+)$/.exec(layer.name);
-    const part = eye?.[2] ?? "", lidded = part === "lash" || part === "low" || part === "crease";
-    this.layers.push({ layer, mesh, vao, texture, position, buffers: [position, uv, index], eye: eye ? Number(eye[1]) : -1, part,
-      lidded, weights: lidded ? null : vertexWeights(rig, mesh.rest) });
     gl.bindVertexArray(vao);
     gl.bindBuffer(gl.ARRAY_BUFFER, position); gl.bufferData(gl.ARRAY_BUFFER, mesh.pos, gl.DYNAMIC_DRAW);
     gl.enableVertexAttribArray(0); gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ARRAY_BUFFER, uv); gl.bufferData(gl.ARRAY_BUFFER, mesh.uv, gl.STATIC_DRAW);
     gl.enableVertexAttribArray(1); gl.vertexAttribPointer(1, 2, gl.FLOAT, false, 0, 0);
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, index); gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, mesh.triangles, gl.STATIC_DRAW);
-    gl.bindTexture(gl.TEXTURE_2D, texture); gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    return { mesh, vao, texture, position, buffers: [position, uv, index] };
+  }
+
+  private sampling(): void {
+    const gl = this.gl;
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     gl.bindVertexArray(null);
+  }
+
+  add(layer: HeadLayer, image: HTMLImageElement): void {
+    const gl = this.gl, rig = this.manifest.rig;
+    if (image.naturalWidth !== layer.rect[2] || image.naturalHeight !== layer.rect[3]) throw new Error("Layer image dimensions differ from the rig.");
+    const cell = layer.name === "base" ? Math.min(rig.mesh.baseCell, rig.mesh.fine.cell) : layer.name.endsWith("ball") ? rig.mesh.eyeBallCell : rig.mesh.eyeCell;
+    const resources = this.allocate(layer.rect, cell);
+    const eye = /^eye([01])_(.+)$/.exec(layer.name);
+    const part = eye?.[2] ?? "", lidded = part === "lash" || part === "low" || part === "crease";
+    this.layers.push({ layer, ...resources, eye: eye ? Number(eye[1]) : -1, part, lidded, weights: lidded ? null : vertexWeights(rig, resources.mesh.rest) });
+    gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+    this.sampling();
     if (gl.getError() !== gl.NO_ERROR) throw new Error("Layer texture upload failed.");
   }
+
+  addDrawn(sprites: readonly DrawnSprite[]): void {
+    const gl = this.gl, rig = this.manifest.rig;
+    for (const sprite of sprites) {
+      const resources = this.allocate(sprite.rect, rig.mesh.spriteCell), rest = resources.mesh.rest, mouth = sprite.name.startsWith("mouth");
+      const inner = mouth ? new Float32Array(rest.length / 2).map((_, k) => mouthInner(rig, rest[k * 2], rest[k * 2 + 1])) : null;
+      this.drawn.push({ sprite, ...resources, weights: mouth ? null : vertexWeights(rig, rest), inner, eye: sprite.name === "eyes_closed_1" ? 1 : sprite.name === "eyes_closed_0" ? 0 : -1,
+        dirty: true, squash: Number.NaN, width: Number.NaN });
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, sprite.rect[2], sprite.rect[3], 0, gl.RGBA, gl.UNSIGNED_BYTE, sprite.pixels);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+      this.sampling();
+      if (gl.getError() !== gl.NO_ERROR) throw new Error("Drawn sprite upload failed.");
+    }
+    this.director = this.drawn.length ? new DrawnDirector(new Set(this.drawn.map((entry) => entry.sprite.name))) : null;
+  }
+
+  drawnNames(): string[] { return this.drawn.map((entry) => entry.sprite.name); }
 
   private uniform(name: string): WebGLUniformLocation | null {
     if (!this.uniforms.has(name)) this.uniforms.set(name, this.gl.getUniformLocation(this.program, name));
     return this.uniforms.get(name) ?? null;
   }
 
-  draw(p: HeadParameters): void {
+  draw(p: HeadParameters, now = Number.NaN): void {
     const gl = this.gl, canvas = this.canvas, rig = this.manifest.rig;
+    const drawn = this.director?.update(p, Number.isFinite(now - this.lastTime) ? now - this.lastTime : 0) ?? null;
+    this.lastTime = now;
     if (this.closed || gl.isContextLost()) throw new Error("Live head context was lost.");
     if (canvas.parentElement?.parentElement?.classList.contains("so-framed")) canvas.style.width = `${canvas.clientHeight * rig.image.width / rig.image.height}px`;
     const dpr = Math.min(window.devicePixelRatio || 1, 1.5, 1024 / Math.max(1, canvas.clientWidth, canvas.clientHeight));
@@ -127,7 +166,7 @@ export class HeadRenderer {
     state[4] = p.eyeOpen; state[5] = p.eyeSmile; state[6] = p.gazeX * 5.95; state[7] = -p.gazeY * 4.2;
     gl.uniform4fv(this.uniform("uEyeState"), state);
     gl.uniform4f(this.uniform("uMouth"), rig.mouth.cx, rig.mouth.cy, rig.mouth.angle, rig.mouth.halfLen);
-    gl.uniform4f(this.uniform("uMouthState"), p.mouthOpen, p.mouthForm, rig.mouth.bow, Math.max(8, rig.face.jaw.cy + rig.face.jaw.ry - rig.mouth.cy));
+    gl.uniform4f(this.uniform("uMouthState"), drawn ? drawn.shaderMouth : p.mouthOpen, p.mouthForm, rig.mouth.bow, Math.max(8, rig.face.jaw.cy + rig.face.jaw.ry - rig.mouth.cy));
     gl.uniform4fv(this.uniform("uCheeks"), this.cheeks); gl.uniform1f(this.uniform("uCheek"), p.blush);
     gl.activeTexture(gl.TEXTURE0);
     const seen = this.uploaded;
@@ -152,19 +191,48 @@ export class HeadRenderer {
       gl.uniform1i(this.uniform("uFace"), part === "ball" ? 2 + resource.eye : layer.name === "base" ? 1 : 0);
       const blink = Math.min(1, Math.max(0, 1 - p.eyeOpen));
       gl.uniform1f(this.uniform("uAlpha"), part === "low" ? 1 - Math.min(1, blink * p.eyeSmile * 1.2) : part === "crease" ? 1 - 0.45 * blink : 1);
-      gl.drawElements(gl.TRIANGLES, mesh.triangles.length, gl.UNSIGNED_INT, 0);
+      if (!drawn || resource.eye < 0 || !drawn.covered[resource.eye]) gl.drawElements(gl.TRIANGLES, mesh.triangles.length, gl.UNSIGNED_INT, 0);
     }
+    if (drawn) this.drawSprites(p, drawn, deformed);
     gl.bindVertexArray(null);
     this.frames += 1;
     if ((this.frames <= 3 || this.frames % ERROR_CHECK_EVERY === 0) && gl.getError() !== gl.NO_ERROR) throw new Error("Live head draw failed.");
   }
 
+  private drawSprites(p: HeadParameters, drawn: DrawnState, deformed: boolean): void {
+    const gl = this.gl, rig = this.manifest.rig;
+    gl.uniform1i(this.uniform("uFace"), 0);
+    for (const entry of this.drawn) {
+      const alpha = entry.eye >= 0 ? drawn.eyes[entry.eye] : entry.sprite.name === drawn.mouth ? drawn.mouthAlpha : 0;
+      const reshaped = entry.inner !== null && alpha > 0 && (entry.squash !== drawn.squash || entry.width !== drawn.width);
+      if (deformed || reshaped) entry.dirty = true;
+      if (alpha <= 0.001) continue;
+      gl.bindVertexArray(entry.vao);
+      if (entry.dirty) {
+        const rest = entry.mesh.rest, pos = entry.mesh.pos;
+        if (entry.weights) deformWeighted(rig, rest, entry.weights, p, pos);
+        else if (entry.inner) {
+          for (let i = 0; i < rest.length; i += 2) {
+            squashVertex(rig, rest[i], rest[i + 1], entry.inner[i / 2], drawn.squash, drawn.width, pos, i);
+            deformInto(rig, pos[i], pos[i + 1], p, pos, i);
+          }
+          entry.squash = drawn.squash; entry.width = drawn.width;
+        }
+        gl.bindBuffer(gl.ARRAY_BUFFER, entry.position); gl.bufferSubData(gl.ARRAY_BUFFER, 0, pos);
+        entry.dirty = false;
+      }
+      gl.bindTexture(gl.TEXTURE_2D, entry.texture); gl.uniform4fv(this.uniform("uRect"), entry.sprite.rect);
+      gl.uniform1f(this.uniform("uAlpha"), alpha);
+      gl.drawElements(gl.TRIANGLES, entry.mesh.triangles.length, gl.UNSIGNED_INT, 0);
+    }
+  }
+
   destroy(): void {
     if (this.closed) return;
     this.closed = true;
-    for (const layer of this.layers) {
+    for (const layer of [...this.layers, ...this.drawn]) {
       this.gl.deleteTexture(layer.texture); this.gl.deleteVertexArray(layer.vao); layer.buffers.forEach((buffer) => this.gl.deleteBuffer(buffer));
     }
-    this.layers.length = 0; this.gl.deleteProgram(this.program); this.gl.getExtension("WEBGL_lose_context")?.loseContext();
+    this.layers.length = 0; this.drawn.length = 0; this.director = null; this.gl.deleteProgram(this.program); this.gl.getExtension("WEBGL_lose_context")?.loseContext();
   }
 }

@@ -340,6 +340,8 @@ export const SETTING_COPY = {
   "sprites.breathing": copy("Idle breathing", "A slow, small movement so sprites do not look frozen. Turn it off to save a little work on slow machines."),
   "sprites.liveHead": copy("Live close-shot head",
     "Animates a close shot when this member's look has a rig. Falls back to the static sprite. Reduced motion and the story's motion setting stop movement."),
+  "sprites.liveHeadFrames": copy("Drawn eyes and mouth on the live head",
+    "Uses this look's blink and talk frames for closed eyes and open mouths on a live close shot. Without frames the head keeps its own eyes and mouth."),
   "sprites.blink": copy("Blink", "Uses eyes-closed frames when the sprite pack has them. Reduced motion switches this off."),
   "sprites.cardOverlay": copy("Current character state in replies",
     "Adds this story’s applied public changes to the next reply prompt. Character cards and personas stay unchanged."),

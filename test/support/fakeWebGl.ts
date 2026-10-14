@@ -81,8 +81,9 @@ export class FakeWebGl {
   }
   texImage2D(...args: unknown[]) {
     this.counts.texImage2D++;
-    const source = args.at(-1) as { label?: string; data?: ArrayBufferView } | undefined;
-    if (this.texture) this.textures.set(this.texture, source?.data ? String(hashBytes(2166136261, source.data) >>> 0) : String(source?.label ?? this.texture.id));
+    const source = args.at(-1) as { label?: string; data?: ArrayBufferView } | ArrayBufferView | undefined;
+    const pixels = ArrayBuffer.isView(source) ? source : source?.data;
+    if (this.texture) this.textures.set(this.texture, pixels ? String(hashBytes(2166136261, pixels) >>> 0) : String((source as { label?: string } | undefined)?.label ?? this.texture.id));
   }
   getUniformLocation(_program: unknown, name: string) { return name; }
   private uniform(name: string | null, values: number[]) { if (name) this.uniformValues.set(name, values); }

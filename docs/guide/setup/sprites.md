@@ -113,6 +113,14 @@ a close shot adds small head turns, gaze, blinking, breathing and mouth movement
 streams. Other shots use the usual sprites. Missing or failed rigs keep the static sprite;
 reduced motion and the story's motion switch stop movement.
 
+**Drawn eyes and mouth on the live head** is on by default. When the look's neutral expression has
+blink and talk frames (the same `neutral.blink.png`, `neutral.talk.png` and `neutral.talk2.png` the
+plain sprite uses), the live head crops them to the bust with the accepted head box and swaps the
+drawn closed eyes in during a blink and the drawn open mouth in while a reply streams. They follow the
+head's turns, tilt and breathing. A frame whose edge does not line up with the artwork, or whose size
+does not match the rig, is skipped; with no usable frames the head keeps its own eyes and mouth.
+Changing a frame file rebuilds the drawn layer on the next close shot.
+
 In Author view, Images → Sprite stage lists rig present or missing per member and selected look.
 Open **Import a live head rig**, paste the rig package JSON and select **Import rig**. The package
 must match that member, look and neutral artwork. Changed artwork requires a new rig. Creating

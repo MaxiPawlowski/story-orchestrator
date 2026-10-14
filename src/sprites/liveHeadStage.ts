@@ -1,6 +1,7 @@
 import { findLiveHead, type LiveHeadRef } from "./liveHeadRefs";
 import type { Actor } from "./castLoad";
 import { visualHead, type VisualSources } from "./visualManifest";
+import type { DrawnSource } from "./liveHead/drawn";
 
 type Member = { name: string; avatar: string };
 type Roster = readonly { id: string; name?: string }[];
@@ -13,6 +14,18 @@ export function actorHeadRef(actor: Actor, roster: Roster, refs: Record<string, 
   const source = actor.packs.get(actor.set)?.get("neutral");
   return source ? findLiveHead(refs, memberId(actor, roster), actor.set, source) : undefined;
 }
+
+export function actorHeadFrames(actor: Actor, sources?: VisualSources): DrawnSource | undefined {
+  const frames = actor.frames.get(actor.set)?.get("neutral");
+  if (!frames?.blink && !frames?.talk && !frames?.talk2) return undefined;
+  const box = sources?.[actor.profile.folder]?.box;
+  return box ? { frames: { ...frames }, box: { ...box } } : { frames: { ...frames } };
+}
+
+export const actorHead = (actor: Actor, roster: Roster, settings: { liveHeadRigs: Record<string, LiveHeadRef>; liveHeadFrames: boolean; visualSources: VisualSources }) => ({
+  liveHead: actorHeadRef(actor, roster, settings.liveHeadRigs, settings.visualSources),
+  headFrames: settings.liveHeadFrames ? actorHeadFrames(actor, settings.visualSources) : undefined,
+});
 
 export function castHeadStatus(actors: readonly Actor[], members: readonly Member[], roster: Roster, refs: Record<string, LiveHeadRef>, sources?: VisualSources) {
   return members.map((member) => {

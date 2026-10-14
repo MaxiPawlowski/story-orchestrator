@@ -31,6 +31,7 @@ export interface SpriteSettings {
   cardOverlay: boolean;
   onDemand: boolean;
   liveHead: boolean;
+  liveHeadFrames: boolean;
   liveHeadRigs: Record<string, LiveHeadRef>;
   visualSources: VisualSources;
   poses: boolean;
@@ -56,6 +57,7 @@ export const defaultSpriteSettings = (): SpriteSettings => ({
   cardOverlay: true,
   onDemand: true,
   liveHead: true,
+  liveHeadFrames: true,
   liveHeadRigs: {},
   visualSources: {},
   poses: true,
@@ -85,6 +87,7 @@ export function sanitizeSpriteSettings(value: unknown): SpriteSettings {
     cardOverlay: value.cardOverlay !== false,
     onDemand: value.onDemand !== false,
     liveHead: value.liveHead !== false,
+    liveHeadFrames: value.liveHeadFrames !== false,
     liveHeadRigs: liveHeadRefs(value.liveHeadRigs),
     visualSources: visualSources(value.visualSources),
     poses: value.poses !== false,

@@ -39,7 +39,7 @@ export function renderNotices({ packages, licenceText, examples }) {
     "AGPL-3.0. Its licence is kept with the reference copy in the source repository (`vendor/smart-memory/LICENSE`).",
     "",
     "The live close-shot head adapts mesh-avatar-studio (6f6d362), https://github.com/shinshin86/mesh-avatar-studio,",
-    "MIT License, Copyright (c) 2026 Yuki Shindo. Rig types/validation, mesh deformation and WebGL shaders/renderer",
+    "MIT License, Copyright (c) 2026 Yuki Shindo. Rig types/validation, mesh deformation, WebGL shaders/renderer and the drawn eye/mouth frame selection (26243f9, sprites.js)",
     "are in src/sprites/liveHead; CPU image tools are in scripts/live-head/vendor. Full copyright and permission",
     "notices are retained in every derived file and scripts/live-head/vendor/LICENSE. No sample art or MediaPipe is shipped.",
     "",
