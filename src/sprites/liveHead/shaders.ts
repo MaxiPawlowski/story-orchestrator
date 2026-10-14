@@ -37,6 +37,7 @@ uniform vec4 uEyeBox[2];
 uniform float uEyeTop[48];
 uniform float uEyeBot[48];
 uniform vec4 uEyeState[2];
+uniform vec4 uSclera[2];
 uniform vec4 uMouth;
 uniform vec4 uMouthState;
 uniform vec4 uCheeks;
@@ -80,6 +81,19 @@ vec4 texAt(vec2 p) { return texture(uTex, (p - uRect.xy) / uRect.zw); }
 
 
 
+float irisWeight(vec4 c, vec3 tone) {
+  if (c.a < 0.004) return 0.0;
+  return smoothstep(0.1, 0.26, distance(c.rgb / c.a, tone)) * smoothstep(0.25, 0.75, c.a);
+}
+
+float interior(float y, float top, float bot) { return smoothstep(0.5, 2.5, y - top) * smoothstep(0.5, 2.5, bot - y); }
+
+vec4 slideBall(vec4 here, vec4 moved, vec3 tone, float inHere, float inMoved) {
+  vec3 h = here.rgb / max(here.a, 1e-4), m = moved.rgb / max(moved.a, 1e-4);
+  vec3 rgb = h - irisWeight(here, tone) * inHere * (h - tone) + irisWeight(moved, tone) * inMoved * (m - tone);
+  return vec4(clamp(rgb, 0.0, 1.0) * here.a, here.a);
+}
+
 vec4 eyeBall(int e, vec2 p) {
   vec4 box = uEyeBox[e]; vec4 st = uEyeState[e];
   float u = clamp((p.x - box.x) / (box.y - box.x), 0.0, 1.0);
@@ -87,7 +101,15 @@ vec4 eyeBall(int e, vec2 p) {
   vec2 lids = eyeLids(e, u, top, bot);
   float v = clamp((p.y - top) / max(bot - top, 1.0), 0.0, 1.0);
   float w = sqrt(4.0 * u * (1.0 - u)) * sqrt(4.0 * v * (1.0 - v));
-  vec4 c = texAt(p - vec2(st.z, st.w) * w);
+  vec2 off = vec2(st.z, st.w);
+  vec4 tone = uSclera[e];
+  vec4 c;
+  if (tone.w < 0.5 || (off.x == 0.0 && off.y == 0.0)) c = texAt(p - off * w);
+  else {
+    vec2 q = p - off;
+    float uq = clamp((q.x - box.x) / (box.y - box.x), 0.0, 1.0);
+    c = slideBall(texAt(p), texAt(q), tone.rgb, interior(p.y, top, bot), interior(q.y, crv(e, true, uq), crv(e, false, uq)));
+  }
 
   return c * smoothstep(lids.x - 1.0, lids.x + 0.5, p.y) * (1.0 - smoothstep(lids.y - 0.9, lids.y + 0.6, p.y));
 }
