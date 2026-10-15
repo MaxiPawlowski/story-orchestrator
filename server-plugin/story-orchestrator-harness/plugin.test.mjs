@@ -210,11 +210,9 @@ test('B5: claude reports the model that answered, not the one asked for, and a r
 
 test('rule 6 / P0-3: the deadline kills the process tree and answers timeout', async () => {
     const processes = fakeProcesses(hanging);
-    const started = Date.now();
     const run = await plugin.runProcess({ bin: 'x', argv: [], env: {}, cwd: os.tmpdir(), stdin: 'p', deadlineMs: 50, maxOutputChars: 100, spawnImpl: processes.spawnImpl, killTree: processes.killTree });
-    assert.equal(run.killed, 'deadline');
+    assert.equal(run.killed, 'deadline', 'the hanging child ends only through the deadline kill');
     assert.deepEqual(processes.killed, [processes.calls[0].pid]);
-    assert.ok(Date.now() - started < 5000);
     assert.equal(processes.calls[0].options.shell, false);
     assert.equal(processes.calls[0].stdin, 'p');
 });

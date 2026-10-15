@@ -19,6 +19,8 @@ const TOOLS = [
     { name: 'readStory', description: 'Read the draft.', inputSchema: { type: 'object', additionalProperties: false, properties: {}, required: [] } },
     { name: 'addQuality', description: 'Declare a quality.', inputSchema: { type: 'object', additionalProperties: false, properties: { quality: { type: ['object'], description: 'the quality' } }, required: ['quality'] } },
 ];
+const SESSION_MS = 300_000;
+const CALL_MS = 240_000;
 const PNG = Buffer.concat([Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), Buffer.alloc(32)]).toString('base64');
 
 const alive = (pid) => {
@@ -30,7 +32,7 @@ const alive = (pid) => {
     }
 };
 
-const until = async (check, ms = 15000) => {
+const until = async (check, ms = 60_000) => {
     const started = Date.now();
     while (Date.now() - started < ms) {
         if (await check()) return true;
@@ -39,12 +41,45 @@ const until = async (check, ms = 15000) => {
     return false;
 };
 
-function setup({ offer = true, concurrency, fsImpl, fake: fakeOptions = {} } = {}) {
+const settles = (promise, ms = 60_000) => new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(false), ms);
+    const done = () => { clearTimeout(timer); resolve(true); };
+    promise.then(done, done);
+});
+
+const deadlines = () => {
+    const armed = new Set();
+    const timers = {
+        setTimeout: (fn, ms) => {
+            const row = { fn, ms, handle: null };
+            row.handle = setTimeout(() => { armed.delete(row); fn(); }, ms);
+            row.handle.unref?.();
+            armed.add(row);
+            return row;
+        },
+        clearTimeout: (row) => {
+            if (!row) return;
+            clearTimeout(row.handle);
+            armed.delete(row);
+        },
+    };
+    const fire = (ms) => {
+        const row = [...armed].find((entry) => entry.ms === ms);
+        if (!row) return false;
+        timers.clearTimeout(row);
+        row.fn();
+        return true;
+    };
+    return { timers, fire };
+};
+
+function setup({ offer = true, concurrency, fsImpl, fake: fakeOptions = {}, connectWaitMs = SESSION_MS } = {}) {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'so-bridge-test-'));
     const bin = path.join(root, 'opencode.exe');
     fs.writeFileSync(bin, '');
     const config = plugin.sanitizeConfig({ tmpRoot: path.join(root, 'tmp'), harnesses: { opencode: { binary: bin, offer, ...(concurrency ? { concurrency } : {}) } } });
     const fake = createFakeOpencode(fakeOptions);
+    const clock = deadlines();
     const lines = [];
     const spawnImpl = () => {
         const child = new EventEmitter();
@@ -61,14 +96,15 @@ function setup({ offer = true, concurrency, fsImpl, fake: fakeOptions = {} } = {
         spawnImpl,
         ...(fsImpl ? { fsImpl } : {}),
         log: (line) => lines.push(line),
-        opencode: { loadLibs: async () => fake.libs, configWaitMs: 150 },
+        opencode: { loadLibs: async () => fake.libs, configWaitMs: 150, connectWaitMs },
+        bridge: { timers: clock.timers },
     });
-    return { root, config, service, fake, lines, calls: () => (fs.existsSync(path.join(config.tmpRoot, 'calls')) ? fs.readdirSync(path.join(config.tmpRoot, 'calls')) : []) };
+    return { root, config, service, fake, clock, lines, calls: () => (fs.existsSync(path.join(config.tmpRoot, 'calls')) ? fs.readdirSync(path.join(config.tmpRoot, 'calls')) : []) };
 }
 
 const openRequest = (script, overrides = {}) => ({
     harness: 'opencode', model: MODEL, role: 'authoring', system: 'You are the wizard agent.', prompt: `Do the plan.\nFAKE:${JSON.stringify(script)}`,
-    timeoutMs: 30_000, callTimeoutMs: 20_000, maxOutputChars: 20_000, effort: null, tools: TOOLS, ...overrides,
+    timeoutMs: SESSION_MS, callTimeoutMs: CALL_MS, maxOutputChars: 20_000, effort: null, tools: TOOLS, ...overrides,
 });
 
 const nextEvent = async (service, sessionId, user = 'default-user') => {
@@ -167,9 +203,10 @@ test('an answer reaches only its own session, once, and another user is refused'
 test('the session deadline tears everything down even when the page never polls', async () => {
     const ctx = setup();
     const { service, fake } = ctx;
-    const opened = await service.agent.open(openRequest([{ hang: true }], { timeoutMs: bridge.BRIDGE_LIMITS.minSessionMs }));
+    const opened = await service.agent.open(openRequest([{ hang: true }]));
     assert.equal(opened.ok, true);
     assert.ok(await until(() => fake.state.prompts.length === 1));
+    assert.ok(ctx.clock.fire(SESSION_MS), 'the session deadline is armed with the requested timeoutMs');
     const after = await nextEvent(service, opened.sessionId);
     assert.deepEqual([after.kind, after.errorKind], ['ended', 'timeout']);
     assert.ok(await until(() => service.agent.counts().sessions === 0), 'the session is gone');
@@ -182,10 +219,11 @@ test('the session deadline tears everything down even when the page never polls'
 test('a parked call nobody answers tears the session down at its call deadline', async () => {
     const ctx = setup();
     const { service } = ctx;
-    const opened = await service.agent.open(openRequest([{ call: 'readStory', args: {} }], { callTimeoutMs: 3000 }));
+    const opened = await service.agent.open(openRequest([{ call: 'readStory', args: {} }]));
     const session = service.agent.sessions.get(opened.sessionId);
     const call = await nextEvent(service, opened.sessionId);
     assert.equal(call.kind, 'call');
+    assert.ok(ctx.clock.fire(CALL_MS), 'the parked call armed a deadline of its callTimeoutMs');
     const ended = await nextEvent(service, opened.sessionId);
     assert.deepEqual([ended.kind, ended.errorKind], ['ended', 'timeout']);
     assert.match(ended.message, /tool call waited past its deadline/, 'the call deadline ended it, not the session deadline');
@@ -240,6 +278,7 @@ test('the parked queue is bounded: calls past the bound are refused at once', as
     }
     for (const callId of delivered) service.agent.answer(opened.sessionId, { callId, ok: true, text: `R-${callId}` });
     const done = await nextEvent(service, opened.sessionId);
+    assert.equal(done.kind, 'done', JSON.stringify(done));
     const lines = done.text.split('\n');
     assert.equal(lines.filter((line) => line.startsWith('burst:ok:R-')).length, limit);
     assert.equal(lines.filter((line) => line.includes('too many tool calls at once')).length, 2);
@@ -462,6 +501,16 @@ test('a wizard tool server that never connects ends the open as config, removes 
     assert.ok(await until(() => ctx.fake.state.evicted.length === 1 && ctx.calls().length === 0 && ctx.service.agent.counts().sessions === 0));
 });
 
+test('a wizard tool server still pending at the connect bound ends the open as timeout and evicts the location', async () => {
+    const ctx = setup({ fake: { mcpPending: true }, connectWaitMs: 300 });
+    const opened = await ctx.service.agent.open(openRequest([{ hang: true }]));
+    const ended = await nextEvent(ctx.service, opened.sessionId);
+    assert.deepEqual([ended.kind, ended.errorKind], ['ended', 'timeout']);
+    assert.match(ended.message, /did not connect the wizard's tool server before the deadline/);
+    assert.equal(ctx.fake.state.created.length, 0, 'no model session is created before its tools are connected');
+    assert.ok(await until(() => ctx.fake.state.evicted.length === 1 && ctx.calls().length === 0 && ctx.service.agent.counts().sessions === 0));
+});
+
 test('an agent whose effective permissions keep a tool on is refused before any prompt', async () => {
     const ctx = setup({ fake: { dropPermissions: true } });
     const opened = await ctx.service.agent.open(openRequest([{ hang: true }]));
@@ -512,27 +561,34 @@ test('the bridge config holding the owned secret is written owner-only', async (
 test('a stalled OpenCode service cannot keep the owned directory: deadline, close and a refused setup all remove it and free the slot', async () => {
     for (const stall of ['create', 'prompt', 'agent']) {
         const ctx = setup({ concurrency: 1, fake: { stall: [stall] } });
-        const opened = await ctx.service.agent.open(openRequest([{ say: 'never' }], { timeoutMs: 1500, callTimeoutMs: 1000 }));
+        const opened = await ctx.service.agent.open(openRequest([{ say: 'never' }]));
         assert.equal(opened.ok, true, JSON.stringify(opened));
+        const session = ctx.service.agent.sessions.get(opened.sessionId);
         assert.ok(await until(() => ctx.fake.state.held.length === 1), `${stall}: the setup call is pending`);
         assert.equal(ctx.calls().length, 1);
-        assert.ok(await until(() => ctx.calls().length === 0 && ctx.service.gate.counts('opencode').running === 0, 10000), `${stall}: the deadline removed the owned directory`);
+        assert.ok(ctx.clock.fire(SESSION_MS), `${stall}: the session deadline is armed`);
+        assert.equal((await session.closing).reason, 'timeout');
+        assert.equal(ctx.fake.state.held.length, 1, `${stall}: the service is still stalled when the teardown settles`);
+        assert.deepEqual(ctx.calls(), [], `${stall}: the deadline removed the owned directory`);
+        assert.equal(ctx.service.gate.counts('opencode').running, 0, `${stall}: the deadline freed the slot`);
         ctx.fake.release();
         assert.ok(await until(() => ctx.fake.state.sessions.size === 0), `${stall}: no OpenCode session is left`);
     }
     const closing = setup({ fake: { stall: ['create'] } });
     const opened = await closing.service.agent.open(openRequest([{ say: 'never' }]));
     assert.ok(await until(() => closing.fake.state.held.length === 1));
-    const started = Date.now();
-    await closing.service.agent.close(opened.sessionId);
-    assert.ok(Date.now() - started < 6000, 'close does not wait on the stalled service');
+    assert.ok(await settles(closing.service.agent.close(opened.sessionId)), 'close does not wait on the stalled service');
+    assert.equal(closing.fake.state.held.length, 1, 'the service was still stalled when close returned');
     assert.deepEqual(closing.calls(), []);
     assert.equal(closing.service.gate.counts('opencode').running, 0);
     closing.fake.release();
     assert.ok(await until(() => closing.fake.state.sessions.size === 0));
     const refused = setup({ fake: { dropPermissions: true } });
     const denied = await refused.service.agent.open(openRequest([{ hang: true }]));
+    const deniedSession = refused.service.agent.sessions.get(denied.sessionId);
     const ended = await nextEvent(refused.service, denied.sessionId);
     assert.equal(ended.errorKind, 'refused');
-    assert.ok(await until(() => refused.calls().length === 0 && refused.service.gate.counts('opencode').running === 0), 'a refused setup removes the owned directory');
+    await deniedSession.closing;
+    assert.deepEqual(refused.calls(), [], 'a refused setup removes the owned directory');
+    assert.equal(refused.service.gate.counts('opencode').running, 0);
 });

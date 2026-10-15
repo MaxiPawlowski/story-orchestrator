@@ -112,7 +112,7 @@ const ENDED_TEXT = {
     finished: 'the session had already finished',
 };
 
-export function createAgentBridge({ config, helpers, host, fsImpl, now = Date.now, pipeFor = defaultPipe, netImpl = net }) {
+export function createAgentBridge({ config, helpers, host, fsImpl, now = Date.now, pipeFor = defaultPipe, netImpl = net, timers = { setTimeout, clearTimeout } }) {
     const sessions = new Map();
     const owners = new Map();
     const tombstones = new Map();
@@ -136,13 +136,13 @@ export function createAgentBridge({ config, helpers, host, fsImpl, now = Date.no
         const terminal = event ?? endedEvent(reason);
         session.closed = true;
         session.release();
-        clearTimeout(session.deadlineTimer);
-        clearTimeout(session.graceTimer);
+        timers.clearTimeout(session.deadlineTimer);
+        timers.clearTimeout(session.graceTimer);
         sessions.delete(session.id);
         if (owners.get(session.ownerKey) === session.id) owners.delete(session.ownerKey);
         remember(session, terminal);
         for (const call of session.parked.values()) {
-            clearTimeout(call.timer);
+            timers.clearTimeout(call.timer);
             reply(call.socket, call.rpcId, false, 'the bridge session ended');
         }
         session.parked.clear();
@@ -175,7 +175,7 @@ export function createAgentBridge({ config, helpers, host, fsImpl, now = Date.no
         if (session.parked.size >= BRIDGE_LIMITS.maxParked) return reply(socket, message.id, false, 'too many tool calls at once: call one tool at a time and wait for its result');
         const callId = `c${session.nextCall}`;
         session.nextCall += 1;
-        const timer = setTimeout(() => { void teardown(session, 'call-timeout'); }, session.callTimeoutMs);
+        const timer = timers.setTimeout(() => { void teardown(session, 'call-timeout'); }, session.callTimeoutMs);
         session.parked.set(callId, { callId, socket, rpcId: message.id, tool: message.tool, delivered: false, timer });
         session.events.push({ kind: 'call', callId, tool: message.tool, args: message.args });
         wake(session);
@@ -226,13 +226,13 @@ export function createAgentBridge({ config, helpers, host, fsImpl, now = Date.no
         if (outcome.kind === 'quota') host.noteQuota(session.harness, outcome.retryAt ?? null);
         const event = outcome.ok ? { kind: 'done', text: outcome.text, finish: outcome.finish, usage: outcome.usage ?? null } : { kind: 'ended', errorKind: outcome.kind, message: outcome.message };
         for (const call of session.parked.values()) {
-            clearTimeout(call.timer);
+            timers.clearTimeout(call.timer);
             reply(call.socket, call.rpcId, false, 'the harness finished');
         }
         session.parked.clear();
         session.events = session.events.filter((entry) => entry.kind !== 'call');
         session.events.push(event);
-        session.graceTimer = setTimeout(() => { void teardown(session, 'finished', event); }, session.callTimeoutMs);
+        session.graceTimer = timers.setTimeout(() => { void teardown(session, 'finished', event); }, session.callTimeoutMs);
         wake(session);
     };
 
@@ -305,7 +305,7 @@ export function createAgentBridge({ config, helpers, host, fsImpl, now = Date.no
                 void teardown(session, 'refused');
             },
         }).then((outcome) => { finishRun(session, outcome); }, (error) => { finishRun(session, { ok: false, kind: 'transport', message: `the agent run failed: ${error?.message ?? 'error'}` }); });
-        session.deadlineTimer = setTimeout(() => { void teardown(session, 'timeout'); }, request.timeoutMs);
+        session.deadlineTimer = timers.setTimeout(() => { void teardown(session, 'timeout'); }, request.timeoutMs);
         return { ok: true, sessionId: id, deadlineAt: session.deadlineAt };
     };
 
@@ -364,7 +364,7 @@ export function createAgentBridge({ config, helpers, host, fsImpl, now = Date.no
         const call = typeof callId === 'string' ? session.parked.get(callId) : undefined;
         if (!call || !call.delivered) return { error: { status: 409, error: 'no delivered tool call with that id waits in this session' } };
         if (typeof text !== 'string') return { error: { status: 400, error: 'text must be a string' } };
-        clearTimeout(call.timer);
+        timers.clearTimeout(call.timer);
         session.parked.delete(callId);
         reply(call.socket, call.rpcId, ok === true, text.slice(0, BRIDGE_LIMITS.maxAnswerChars));
         return { value: { answered: true } };
