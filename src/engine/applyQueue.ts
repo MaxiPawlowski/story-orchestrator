@@ -45,6 +45,22 @@ const splitEntry = (entry: ApplyQueueEntry, keep: (delta: BlackboardDelta) => bo
   return [withLevels(entry, kept), withLevels(entry, dropped)];
 };
 
+export interface AppliedKey {
+  to: number;
+  writes: number;
+}
+
+export const appliedKeys = (queue: QueueDrainResult, lastMessageId: number): Record<string, AppliedKey> => {
+  const applied: Record<string, AppliedKey> = {};
+  queue.applied.forEach((entry) => entry.outcomes.forEach((outcome) => {
+    if (!outcome.ok) return;
+    const to = entry.turnRange?.to ?? lastMessageId;
+    const prior = applied[outcome.key];
+    applied[outcome.key] = { to: prior ? Math.max(prior.to, to) : to, writes: (prior?.writes ?? 0) + 1 };
+  }));
+  return applied;
+};
+
 export class ApplyQueue {
   private entries: ApplyQueueEntry[] = [];
 

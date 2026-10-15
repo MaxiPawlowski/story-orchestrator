@@ -1,7 +1,7 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import type { SchedulerJob } from "@extraction/index";
 import {
-  createAgendaProposals, DEFAULT_MEANWHILE_ACCEPT_MODE, hasOpenAgenda, landAcceptedProposals, meanwhileDue, recordMeanwhilePass,
+  createAgendaProposals, DEFAULT_MEANWHILE_ACCEPT_MODE, hasOpenAgenda, landAcceptedProposals, meanwhileDue, recordMeanwhilePass, storyTimeOf,
   type MeanwhileAcceptMode, type ProposalLanding,
 } from "./agendaProposals";
 import { beginRun, type RunOwnership } from "./runToken";
@@ -28,9 +28,11 @@ export const MEANWHILE_JOB_PRIORITY: SchedulerJob["priority"] = 4;
 export function createMeanwhilePort(deps: MeanwhilePortDeps) {
   let proposer: MeanwhileProposer | null = null;
   const mode = (): MeanwhileAcceptMode => deps.extras().stagecraft.settings.meanwhileAcceptMode ?? DEFAULT_MEANWHILE_ACCEPT_MODE;
-  const due = (boundary: number): boolean => {
+  const due = (boundary: number, event = true): boolean => {
     const state = deps.getState();
-    return Boolean(proposer && state) && meanwhileDue(deps.extras().agendaProposals, { mode: mode(), boundary, openAgenda: hasOpenAgenda(deps.getStory(), state?.blackboard.values ?? {}) });
+    const values = state?.blackboard.values ?? {};
+    const input = { mode: mode(), boundary, openAgenda: hasOpenAgenda(deps.getStory(), values), storyTime: storyTimeOf(values), event };
+    return Boolean(proposer && state) && meanwhileDue(deps.extras().agendaProposals, input);
   };
   return {
     attach(next: MeanwhileProposer | null) { proposer = next; },
@@ -40,7 +42,9 @@ export function createMeanwhilePort(deps: MeanwhilePortDeps) {
       const state = deps.getState();
       if (!state || !due(state.boundary)) return false;
       const extras = deps.extras();
-      extras.agendaProposals = recordMeanwhilePass(extras.agendaProposals ?? createAgendaProposals(), { boundary: state.boundary, messageId: state.lastMessageId, reason: trigger });
+      const storyTime = storyTimeOf(state.blackboard.values);
+      const pass = { boundary: state.boundary, messageId: state.lastMessageId, reason: trigger, ...(storyTime !== undefined ? { storyTime } : {}) };
+      extras.agendaProposals = recordMeanwhilePass(extras.agendaProposals ?? createAgendaProposals(), pass);
       place({
         priority: MEANWHILE_JOB_PRIORITY,
         reason: `meanwhile:${trigger}`,

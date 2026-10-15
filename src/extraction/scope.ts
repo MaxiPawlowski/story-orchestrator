@@ -1,4 +1,4 @@
-import { TENSION_CURRENT_KEY, type BlackboardSnapshot, type GateNode, type NormalizedStoryV2, type Quality } from "@engine/index";
+import { CLOCK_READ_KEY, TENSION_CURRENT_KEY, isStoryTimeKey, type BlackboardSnapshot, type GateNode, type NormalizedStoryV2, type Quality } from "@engine/index";
 import type { ExtraGateSource, ScopePull, ScopedQuality, ScopedQualityExplained } from "./types";
 import { readScopeSources, SCOPE_SOURCES, type ScopeSource, type ScopeSourceContext, type ScopeSourceResult } from "./scopeSources";
 
@@ -91,6 +91,11 @@ export function deriveScopeWithSources(
       if (source.extractionHint) addHint(key, source.extractionHint);
     });
   });
+
+  if (story.qualityByKey[CLOCK_READ_KEY] && [...keys].some(isStoryTimeKey)) {
+    keys.add(CLOCK_READ_KEY);
+    addPull(CLOCK_READ_KEY, { kind: "gate", checkpointId: activeCheckpointId, detail: "a gate on the story clock" });
+  }
 
   const admits = (key: string) => {
     const quality = story.qualityByKey[key];

@@ -320,7 +320,7 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
       story, state, boundaryLog: sources.boundaryLog, checks: extras.checks, chat: sources.chat, castNames: game.castNames, authorView: extras.ui.authorView, scopeContext: sources.scopeContext,
       threads: { open: game.openThreads, resolved: story ? resolvedThreads(extras.memory, sources.resting) : [] },
     }),
-    lifeAuthor: lifeAuthorSlice(story, state, extras.ui.authorView, extras.agendaProposals, sources.scopeContext),
+    lifeAuthor: lifeAuthorSlice(story, state, extras.ui.authorView, extras.agendaProposals, sources.scopeContext, sources.boundaryLog),
     factionsAuthor: factionAuthorSlice(story, state, extras.ui.authorView, sources.boundaryLog, extras.memory.ledger, sources.scopeContext),
     carry: carrySlice(story, extras, state?.boundary ?? 0),
     living: livingSlice({

@@ -1,9 +1,10 @@
 import {
-  AGENDA_EVERY_DEFAULT, AGENDA_PACES, CLOCK_DAY_KEY, CLOCK_SEEN_KEY, CLOCK_TIME_KEY, MOOD_DEFAULT_VALUES, RELATIONSHIP_RANGE_DEFAULT,
-  RELATIONSHIP_TOWARD_PLAYER, TURN_OOC_KEY, agendaChapterKey, agendaRepeatsKey, agendaStepKey, agendaWaitKey, moodAgeKey, moodKey,
-  moodSceneKey, moodWasKey, relationshipKey,
-  type Agenda, type AgendaStep, type GateNode, type LifeMember, type MoodDecl, type MoodLasts, type Quality, type RelationshipDecl,
-  type ScheduleEntry, type StoryClock, type StoryLife, type ValidationError,
+  AGENDA_EVERY_DEFAULT, AGENDA_PACES, CALENDAR_KEY_PREFIX, CLOCK_DAY_KEY, CLOCK_MOVED_KEY, CLOCK_NIGHT_KEY, CLOCK_PART_KEY, CLOCK_READ_KEY, CLOCK_SKIP_DAYS_DEFAULT,
+  CLOCK_STORY_TIME_KEY, CLOCK_TIME_KEY, MOOD_DEFAULT_VALUES, RELATIONSHIP_RANGE_DEFAULT,
+  RELATIONSHIP_TOWARD_PLAYER, TURN_OOC_KEY, agendaChapterKey, agendaRepeatsKey, agendaStepKey, agendaWaitKey, isStoryTimeKey, moodAgeKey, moodKey,
+  moodSceneKey, moodWasKey, relationshipKey, timeReachedKey,
+  type Agenda, type AgendaStep, type CalendarMonth, type CalendarSeason, type Checkpoint, type GateNode, type LifeMember, type MoodDecl, type MoodLasts, type Quality,
+  type RelationshipDecl, type ScheduleEntry, type StoryCalendar, type StoryClock, type StoryLife, type TimedEffects, type ValidationError,
 } from "../schema";
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, refuse, rejectUnknownKeys } from "./common";
@@ -17,7 +18,12 @@ const AGENDA_KEYS = ["id", "goal", "steps", "pace", "every"] as const;
 const STEP_KEYS = ["text", "when", "effect", "public", "repeat"] as const;
 const STEP_EFFECT_KEYS = ["world_info", "npc_replies"] as const;
 const SCHEDULE_KEYS = ["when", "at"] as const;
-const CLOCK_KEYS = ["times", "start_day"] as const;
+const CLOCK_KEYS = ["times", "start_day", "start_part", "night", "max_skip_days"] as const;
+const CALENDAR_KEYS = ["start", "months", "weekdays", "seasons", "label"] as const;
+const CALENDAR_START_KEYS = ["year", "month", "day", "weekday"] as const;
+const CALENDAR_NAME_MAX = 40;
+const CALENDAR_MONTHS_MAX = 24;
+const CLOCK_SKIP_DAYS_MAX = 365;
 const AXIS_PATTERN = /^[a-z][a-z0-9]{0,23}$/;
 export const LIFE_TEXT_MAX = 200;
 export const LIFE_MEMBER_FIELDS = ["relationships", "mood", "agenda", "schedule"] as const;
@@ -147,15 +153,95 @@ const readMember = (member: Record<string, unknown>, path: string, ids: Set<stri
   return { id, relationships, agenda, schedule: readArray(member.schedule, `${path}.schedule`, (entry, at) => readSchedule(entry, at, errors), errors), ...(mood ? { mood } : {}) };
 };
 
+const readNames = (value: unknown, path: string, min: number, errors: ValidationError[]): string[] => {
+  const names = Array.isArray(value) && value.every((entry) => typeof entry === "string" && entry.trim() && entry.trim().length <= CALENDAR_NAME_MAX)
+    ? [...new Set((value as string[]).map((entry) => entry.trim()))] : null;
+  return names && names.length >= min && names.length === (value as unknown[]).length
+    ? names : refuse(errors, path, `at least ${min} distinct names of at most ${CALENDAR_NAME_MAX} characters`, []);
+};
+
 const readClock = (value: unknown, errors: ValidationError[]): StoryClock | undefined => {
   if (value === undefined) return undefined;
-  if (!isRecord(value)) return refuse(errors, "clock", "clock is {times, start_day?}", undefined);
+  if (!isRecord(value)) return refuse(errors, "clock", "clock is {times, start_day?, start_part?, night?, max_skip_days?}", undefined);
   rejectUnknownKeys(value, CLOCK_KEYS, "clock", errors);
   const times = Array.isArray(value.times) && value.times.length >= 2 && value.times.every((entry) => typeof entry === "string" && entry.trim())
     ? [...new Set((value.times as string[]).map((entry) => entry.trim()))] : refuse(errors, "clock.times", "times are at least two names in order, such as [\"morning\", \"evening\", \"night\"]", []);
   const start = value.start_day === undefined ? undefined : isInt(value.start_day) && value.start_day >= 1
     ? value.start_day : refuse(errors, "clock.start_day", "start_day is a whole number of at least 1", undefined);
-  return times.length >= 2 ? { times, ...(start !== undefined ? { start_day: start } : {}) } : undefined;
+  const part = value.start_part === undefined ? undefined : typeof value.start_part === "string" && times.includes(value.start_part.trim())
+    ? value.start_part.trim() : refuse(errors, "clock.start_part", "start_part is one of the times", undefined);
+  const night = value.night === undefined ? undefined : Array.isArray(value.night) && value.night.every((entry) => typeof entry === "string" && times.includes(entry.trim()))
+    ? [...new Set((value.night as string[]).map((entry) => entry.trim()))] : refuse(errors, "clock.night", "night lists times of day from times", undefined);
+  const skip = value.max_skip_days === undefined ? undefined : isInt(value.max_skip_days) && value.max_skip_days >= 1 && value.max_skip_days <= CLOCK_SKIP_DAYS_MAX
+    ? value.max_skip_days : refuse(errors, "clock.max_skip_days", `max_skip_days is a whole number from 1 to ${CLOCK_SKIP_DAYS_MAX}`, undefined);
+  return times.length >= 2 ? {
+    times, ...(start !== undefined ? { start_day: start } : {}), ...(part !== undefined ? { start_part: part } : {}), ...(night?.length ? { night } : {}),
+    ...(skip !== undefined ? { max_skip_days: skip } : {}),
+  } : undefined;
+};
+
+const readMonths = (value: unknown, errors: ValidationError[]): CalendarMonth[] => {
+  const months = Array.isArray(value) && value.length >= 1 && value.length <= CALENDAR_MONTHS_MAX ? value.flatMap((entry, index): CalendarMonth[] => {
+    const name = isRecord(entry) && typeof entry.name === "string" ? entry.name.trim() : "";
+    if (isRecord(entry)) rejectUnknownKeys(entry, ["name", "days"], `calendar.months.${index}`, errors);
+    if (name && name.length <= CALENDAR_NAME_MAX && isRecord(entry) && isInt(entry.days) && entry.days >= 1 && entry.days <= 100) return [{ name, days: entry.days }];
+    return refuse(errors, `calendar.months.${index}`, `a month is {name, days}: a name of at most ${CALENDAR_NAME_MAX} characters and 1 to 100 days`, []);
+  }) : refuse(errors, "calendar.months", `months are 1 to ${CALENDAR_MONTHS_MAX} entries of {name, days}`, []);
+  months.forEach((month, index) => {
+    if (months.findIndex((other) => other.name === month.name) !== index) addError(errors, `calendar.months.${index}.name`, `a second month named '${month.name}'`);
+  });
+  return months;
+};
+
+const monthIndex = (value: unknown, months: CalendarMonth[]): number =>
+  (typeof value === "string" ? months.findIndex((month) => month.name === value.trim()) : isInt(value) && value >= 1 && value <= months.length ? value - 1 : -1);
+
+const readSeasons = (value: unknown, months: CalendarMonth[], errors: ValidationError[]): CalendarSeason[] | undefined => {
+  if (value === undefined) return undefined;
+  const seasons = Array.isArray(value) && value.length >= 1 ? value.flatMap((entry, index): CalendarSeason[] => {
+    const name = isRecord(entry) && typeof entry.name === "string" ? entry.name.trim() : "";
+    const from = isRecord(entry) ? monthIndex(entry.from_month, months) : -1;
+    if (isRecord(entry)) rejectUnknownKeys(entry, ["name", "from_month"], `calendar.seasons.${index}`, errors);
+    return name && name.length <= CALENDAR_NAME_MAX && from >= 0 ? [{ name, from_month: from }]
+      : refuse(errors, `calendar.seasons.${index}`, "a season is {name, from_month}: from_month names a month, or its number from 1", []);
+  }) : refuse(errors, "calendar.seasons", "seasons are a list of {name, from_month}", []);
+  const sorted = [...seasons].sort((left, right) => left.from_month - right.from_month);
+  sorted.forEach((season, index) => { if (index && sorted[index - 1].from_month === season.from_month) addError(errors, "calendar.seasons", "two seasons start in the same month"); });
+  return sorted.length ? sorted : undefined;
+};
+
+const readWeekday = (value: unknown, weekdays: string[] | undefined, errors: ValidationError[]): number => {
+  if (value === undefined) return 0;
+  if (!weekdays?.length) return refuse(errors, "calendar.start.weekday", "start.weekday needs weekdays", 0);
+  if (typeof value === "string" && weekdays.includes(value.trim())) return weekdays.indexOf(value.trim());
+  return isInt(value) && value >= 0 && value < weekdays.length ? value : refuse(errors, "calendar.start.weekday", "start.weekday names a weekday, or its index from 0", 0);
+};
+
+const readCalendar = (value: unknown, clock: StoryClock | undefined, errors: ValidationError[]): StoryCalendar | undefined => {
+  if (value === undefined) return undefined;
+  if (!clock) return refuse(errors, "calendar", "a calendar needs a clock: add clock {times}", undefined);
+  if (!isRecord(value)) return refuse(errors, "calendar", "calendar is {start, months, weekdays?, seasons?, label?}", undefined);
+  rejectUnknownKeys(value, CALENDAR_KEYS, "calendar", errors);
+  const months = readMonths(value.months, errors);
+  const weekdays = value.weekdays === undefined ? undefined : readNames(value.weekdays, "calendar.weekdays", 2, errors);
+  const seasons = readSeasons(value.seasons, months, errors);
+  const start = isRecord(value.start) ? value.start : refuse(errors, "calendar.start", "start is {month, day, year?, weekday?}: the date of story day 1", {} as Record<string, unknown>);
+  rejectUnknownKeys(start, CALENDAR_START_KEYS, "calendar.start", errors);
+  const month = monthIndex(start.month, months);
+  if (month < 0) addError(errors, "calendar.start.month", "start.month names a month, or its number from 1");
+  const day = isInt(start.day) && month >= 0 && start.day >= 1 && start.day <= months[month].days ? start.day : refuse(errors, "calendar.start.day", "start.day is a day of start.month", 1);
+  const year = start.year === undefined ? 1 : isInt(start.year) ? start.year : refuse(errors, "calendar.start.year", "start.year is a whole number", 1);
+  const weekday = readWeekday(start.weekday, weekdays, errors);
+  const label = value.label === undefined ? "date" : value.label === "day" || value.label === "date" ? value.label : refuse(errors, "calendar.label", "label is day or date", "date" as const);
+  if (!months.length || month < 0) return undefined;
+  return { start: { year, month, day, weekday }, months, ...(weekdays?.length ? { weekdays } : {}), ...(seasons ? { seasons } : {}), label };
+};
+
+const timelineCheckpoints = (json: Record<string, unknown>): string[] => {
+  const widgets = (Array.isArray(json.widgets) ? json.widgets : []).filter((widget): widget is Record<string, unknown> => isRecord(widget) && widget.kind === "timeline");
+  if (!widgets.length) return [];
+  const ids = (Array.isArray(json.checkpoints) ? json.checkpoints : []).flatMap((checkpoint) => (isRecord(checkpoint) && typeof checkpoint.id === "string" ? [checkpoint.id] : []));
+  return ids.filter((id) => widgets.some((widget) => !isRecord(widget.dates) || !(id in widget.dates)));
 };
 
 export const readLife = (json: Record<string, unknown>, errors: ValidationError[]): StoryLife | undefined => {
@@ -163,8 +249,12 @@ export const readLife = (json: Record<string, unknown>, errors: ValidationError[
   const ids = new Set(roster.map((member) => (typeof member.id === "string" ? member.id : "")));
   const members = roster.flatMap((member, index) => readMember(member, `roster.${index}`, ids, errors) ?? []);
   const clock = readClock(json.clock, errors);
+  const calendar = readCalendar(json.calendar, clock, errors);
+  const reached = clock ? timelineCheckpoints(json) : [];
   const names = Object.fromEntries(roster.flatMap((member) => (typeof member.id === "string" && typeof member.name === "string" && member.name.trim() ? [[member.id, member.name.trim()]] : [])));
-  return members.length || clock ? { members, ...(clock ? { clock } : {}), ...(Object.keys(names).length ? { names } : {}) } : undefined;
+  return members.length || clock ? {
+    members, ...(clock ? { clock } : {}), ...(calendar ? { calendar } : {}), ...(reached.length ? { reached } : {}), ...(Object.keys(names).length ? { names } : {}),
+  } : undefined;
 };
 
 const code = (key: string, type: Quality["type"], rubric: string, extra: Partial<Quality> = {}): Quality => ({ key, type, source: "code", rubric, ...extra });
@@ -196,23 +286,38 @@ const agendaQualities = (member: LifeMember): Quality[] => member.agenda.flatMap
   ...(agenda.steps.at(-1)?.repeat ? [code(agendaRepeatsKey(member.id, agenda.id), "int", "Times the agenda's last step happened", { monotonic: true })] : []),
 ]);
 
-const clockQualities = (clock: StoryClock): Quality[] => [
-  {
-    key: CLOCK_TIME_KEY, type: "enum", values: clock.times, source: "extractor", read_as: "choice",
-    rubric: "The time of day in the story, as the window shows it",
-    step_rule: { step: 1, cycle: true },
-  },
+const calendarQualities = (calendar: StoryCalendar): Quality[] => [
+  code(`${CALENDAR_KEY_PREFIX}year`, "int", "The calendar year"),
+  code(`${CALENDAR_KEY_PREFIX}month`, "enum", "The calendar month", { values: calendar.months.map((month) => month.name) }),
+  code(`${CALENDAR_KEY_PREFIX}day_of_month`, "int", "The day of the calendar month"),
+  ...(calendar.weekdays ? [code(`${CALENDAR_KEY_PREFIX}weekday`, "enum", "The day of the week", { values: calendar.weekdays })] : []),
+  ...(calendar.seasons ? [code(`${CALENDAR_KEY_PREFIX}season`, "enum", "The season", { values: calendar.seasons.map((season) => season.name) })] : []),
+];
+
+const clockQualities = (life: StoryLife & { clock: StoryClock }): Quality[] => [
+  { key: CLOCK_READ_KEY, type: "enum", values: life.clock.times, source: "extractor", read_as: "choice", rubric: "The time of day in the story, as the window shows it" },
+  code(CLOCK_STORY_TIME_KEY, "int", "Times of day passed since the story began", { monotonic: true }),
   code(CLOCK_DAY_KEY, "int", "The story's day count", { monotonic: true }),
-  code(CLOCK_SEEN_KEY, "string", "The time of day last seen by the clock"),
+  code(CLOCK_TIME_KEY, "enum", "The time of day in the story", { values: life.clock.times }),
+  code(CLOCK_PART_KEY, "int", "The time of day as a number, 0 for the first"),
+  code(CLOCK_NIGHT_KEY, "bool", "Whether this time of day is one of the clock's night times"),
+  code(CLOCK_MOVED_KEY, "int", "The last message at which the author or a checkpoint moved the clock"),
+  ...(life.calendar ? calendarQualities(life.calendar) : []),
+  ...(life.reached ?? []).map((id) => code(timeReachedKey(id), "int", `The story time at which ${id} was first reached`)),
 ];
 
 export const addLifeQualities = (qualities: Quality[], life: StoryLife | undefined, errors: ValidationError[]): Quality[] => {
   if (!life) return qualities;
   const ticks = life.members.some((member) => member.agenda.length) ? [code(TURN_OOC_KEY, "bool", "Whether this boundary's player line was out of character")] : [];
   const members = life.members.flatMap((member) => [...relationshipQualities(member, life), ...moodQualities(member, life), ...agendaQualities(member)]);
-  const added = [...members, ...(life.clock ? clockQualities(life.clock) : []), ...ticks];
+  const added = [...members, ...(life.clock ? clockQualities({ ...life, clock: life.clock }) : []), ...ticks];
   const existing = new Set(qualities.map((quality) => quality.key));
+  const compiled = new Set(added.map((quality) => quality.key));
   added.filter((quality) => existing.has(quality.key)).forEach((quality) => addError(errors, `qualities.${quality.key}`, "this key is kept for character life or the story clock"));
+  if (life.clock) {
+    qualities.filter((quality) => !compiled.has(quality.key) && (isStoryTimeKey(quality.key) || quality.key.startsWith("life_time_")))
+      .forEach((quality) => addError(errors, `qualities.${quality.key}`, "this key is kept for the story clock"));
+  }
   return [...qualities, ...added.filter((quality) => !existing.has(quality.key))];
 };
 
@@ -224,9 +329,45 @@ const lifeGates = (member: LifeMember): Array<[string, GateNode]> => [
 export const AGENDA_NO_CHAPTERS = "pace per_chapter needs chapters, and this story declares none, so the agenda would move once and then never again: "
   + "use per_n_boundaries with every, or add chapters";
 
+const TIME_SHAPE = "time is {advance: {days?, parts?}} or {to: {part, next_day?}}";
+
+export const timeEffectProblem = (effect: unknown, clock: StoryClock): string | null => {
+  if (!isRecord(effect) || Object.keys(effect).length !== 1) return TIME_SHAPE;
+  const parts = clock.times.length;
+  const limit = clock.max_skip_days ?? CLOCK_SKIP_DAYS_DEFAULT;
+  if (isRecord(effect.advance)) {
+    const { days = 0, parts: steps = 0, ...rest } = effect.advance;
+    if (Object.keys(rest).length) return `advance has days and parts only, not ${Object.keys(rest).join(", ")}`;
+    if (!isInt(days) || !isInt(steps) || days < 0 || steps < 0) return "time only moves forward: days and parts are whole numbers of at least 0";
+    if (days === 0 && steps === 0) return "an advance of nothing: give days or parts";
+    return days * parts + steps > limit * parts ? `an advance of at most ${limit} days (clock.max_skip_days)` : null;
+  }
+  if (isRecord(effect.to)) {
+    const { part, next_day: nextDay, ...rest } = effect.to;
+    if (Object.keys(rest).length) return `to has part and next_day only, not ${Object.keys(rest).join(", ")}`;
+    if (typeof part !== "string" || !clock.times.includes(part)) return `to.part is one of the times: ${clock.times.join(", ")}`;
+    return nextDay === undefined || typeof nextDay === "boolean" ? null : "next_day is true or false";
+  }
+  return TIME_SHAPE;
+};
+
+const checkTimeEffects = (clock: StoryClock | undefined, checkpoints: readonly Checkpoint[], startId: string, errors: ValidationError[]) => {
+  checkpoints.forEach((checkpoint, index) => {
+    const effect = (checkpoint.effects as TimedEffects | undefined)?.time;
+    if (effect === undefined) return;
+    const path = `checkpoints.${index}.effects.time`;
+    if (!clock) return addError(errors, path, "effects.time needs a clock: add clock {times}");
+    if (checkpoint.id === startId) return addError(errors, path, "the story starts at clock.start_day and clock.start_part; effects.time runs when a later checkpoint is entered");
+    const problem = timeEffectProblem(effect, clock);
+    if (problem) addError(errors, path, problem);
+  });
+};
+
 export const checkLife = (
   life: StoryLife | undefined, roster: Array<{ id: string }>, qualityByKey: Record<string, Quality>, errors: ValidationError[], hasChapters = false,
+  checkpoints: readonly Checkpoint[] = [], startId = "",
 ) => {
+  checkTimeEffects(life?.clock, checkpoints, startId, errors);
   for (const member of life?.members ?? []) {
     const path = `roster.${roster.findIndex((entry) => entry.id === member.id)}`;
     lifeGates(member).forEach(([field, gate]) => validateGate(gate, qualityByKey, `${path}.${field}`, errors));

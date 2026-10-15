@@ -26,9 +26,9 @@ type Story = StoryObj<typeof FeaturePages>;
 export const Desktop: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByRole("button", { name: /Private inner voice/ }));
-    await expect(canvas.getByText(/This chat re-enables/)).toBeInTheDocument();
-    await userEvent.click(canvas.getByRole("button", { name: "Reset to story/default" }));
+    await userEvent.click(await canvas.findByRole("button", { name: /Private inner voice/ }));
+    await expect(await canvas.findByText(/This chat re-enables/)).toBeInTheDocument();
+    await userEvent.click(await canvas.findByRole("button", { name: "Reset to story/default" }));
     expect(manager.setFeatureOverride).toHaveBeenCalledWith("inner", null);
   },
 };

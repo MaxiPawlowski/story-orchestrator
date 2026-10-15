@@ -3,6 +3,7 @@ import { CODEX_GUIDE_TOPIC } from "./guideTopicsCodex";
 import type { DIAGNOSTIC_CODES } from "../studio/diagnostics";
 import { CHARACTER_TOPICS, FACTION_DIAGNOSTIC_TOPICS } from "./guideTopicsCharacters";
 import { CARRY_TOPICS } from "./guideTopicsCarry";
+import { TIME_TOPICS } from "./guideTopicsTime";
 
 export interface GuideTopic {
   title: string;
@@ -336,6 +337,7 @@ export const GUIDE_TOPICS = {
   },
   ...CODEX_GUIDE_TOPIC,
   ...CHARACTER_TOPICS,
+  ...TIME_TOPICS,
   "living-director": {
     title: "Living stories",
     fields: "living.premise, living.tone, living.cast, living.horizon, living.chapter_size, living.ending, living.autonomy, living.authored_until, living.opening",
