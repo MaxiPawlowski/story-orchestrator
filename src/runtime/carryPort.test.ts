@@ -3,10 +3,10 @@ import { PREVIOUSLY_BOUNDARIES, type CarryState } from "@engine/carrySchema";
 import { join } from "path";
 import { parseStoryV2OrThrow } from "@engine/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
-import { carrySlice, carryStartSeed, type CarryView } from "./carryPort";
+import { carrySlice, type CarryView } from "./carryPort";
 import { carryKnownLines } from "@engine/carry";
 import { createAwayNotice } from "./awayNotice";
-import { createExtras, restartCarry, restartedExtras } from "./extras";
+import { carryStartSeed, createExtras, restartCarry, restartedExtras } from "./extras";
 import { defaultGlobalSettings } from "./settingsModel";
 
 const raw = () => JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/carry-sequel.story.json"), "utf8")) as Record<string, unknown>;
@@ -67,10 +67,11 @@ describe("v2.8 plan 45: start seed, private lines, restart", () => {
       carry_from: { ...(raw().carry_from as Record<string, unknown>), map: (raw().carry_from as { map: Array<Record<string, unknown>> }).map.filter((entry) => entry.to !== "guild_trust") } });
     const extras = extrasWith(carry());
     const journal: string[] = [];
-    expect(carryStartSeed(edited, extras, (summary, note) => journal.push(`${summary} | ${note}`))).toEqual({ heritage_coast: "lit", heritage_coins: 7 });
+    expect(carryStartSeed(edited, extras, null, { noteRecap: (summary, note) => journal.push(`${summary} | ${note}`) })).toEqual({ heritage_coast: "lit", heritage_coins: 7 });
     expect(journal).toEqual(["carried value dropped: guild_trust | 'guild_trust' is no longer carried by this story"]);
     expect((extras.carry as CarryState).values.map((value) => value.key)).toEqual(["heritage_coast", "heritage_coins"]);
-    expect(carryStartSeed(SEQUEL, extrasWith(), () => undefined)).toEqual({});
+    expect(carryStartSeed(SEQUEL, extrasWith(), null, { noteRecap: () => undefined })).toEqual({});
+    expect(carryStartSeed(SEQUEL, extrasWith(carry()), { engineState: {} }, { noteRecap: () => undefined })).toEqual({});
   });
 
   it("gives a known_by line only to the named members", () => {
