@@ -43,3 +43,19 @@ test('a recipe task passes only when the recipe was read, every required tool wa
   assert.equal(scoreRecipeTask(task, { ...good, validationErrors: 1 }).pass, false);
   assert.equal(scoreRecipeTask(task, { ...good, session: { ...good.session, status: 'stopped' } }).pass, false);
 });
+
+test('v2.8 52 C7: a recipe task with diagnosticsAbsent passes only when the agent read diagnostics after its last edit and none of the codes showed', () => {
+  const task = { id: 'codex-pages', recipe: 'codex-pages', requires: ['setCodexEntry'], diagnosticsAbsent: ['codex-gate-holds-at-start'] };
+  const base = [
+    { status: 'observed', call: { tool: 'readRecipe', args: { recipe: 'codex-pages' } }, observation: '' },
+    { status: 'accepted', call: { tool: 'setCodexEntry', args: {} }, observation: '' },
+  ];
+  const clean = { status: 'observed', call: { tool: 'readDiagnostics', args: {} }, observation: 'no diagnostics' };
+  const dirty = { status: 'observed', call: { tool: 'readDiagnostics', args: {} }, observation: 'warning codex-gate-holds-at-start on arin' };
+  const run = (steps: any[]) => scoreRecipeTask(task, { session: { status: 'done', steps }, validationErrors: 0 });
+  assert.equal(run([...base, clean]).pass, true);
+  assert.equal(run([...base, dirty]).pass, false);
+  assert.deepEqual(run([...base, dirty]).diagnostics, { verified: true, found: ['codex-gate-holds-at-start'] });
+  assert.equal(run(base).pass, false);
+  assert.equal(run([base[0], clean, base[1]]).pass, false);
+});
