@@ -19,7 +19,10 @@ export default function CastSceneControls({ manager, snapshot, queue, members, r
       if (render) await render(selected, direction);
       else await (await import("./castSceneHost")).drawPreparedCast(manager, queue, selected, direction);
     }
-    catch (reason) { log.warn("prepared cast illustration refused", reason); setError(PLAYER_COPY.imageError); }
+    catch (reason) {
+      log.warn("prepared cast illustration refused", reason);
+      setError(reason instanceof Error && reason.name === "CastSetupGap" && snapshot.ui?.authorView ? reason.message : PLAYER_COPY.imageError);
+    }
     finally { setBusy(false); }
   };
   return <details id="so-cast-scene"><summary>Illustrate prepared cast</summary><div className="flex flex-col gap-2">

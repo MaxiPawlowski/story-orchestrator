@@ -6,6 +6,9 @@ import { lookLayers } from "../sprites/poses/layers";
 import type { CardBinding } from "@engine/schema";
 
 export const CAST_SCENE_RECIPE = { id: "qwen21-current-look-cast-scene", version: 1 } as const;
+export const CAST_TWO_REFERENCE_MISSING = "Two characters need a second image input on ComfyUI's Qwen 2.1 text encoder node (TextEncodeQwenImage21, images.image_2), "
+  + "and this ComfyUI does not offer it. Update ComfyUI's Qwen nodes, or draw one character.";
+export class CastSetupGap extends Error { override name = "CastSetupGap"; }
 export interface CastSceneMember { character: string; fields: Record<string, string>; source?: VisualManifest; card?: CardBinding }
 export interface CastSceneIdentity { character: string; root: string; signature: string; look: VisualLook; layered?: string[] }
 function layeredLook(member: CastSceneMember & { source: VisualManifest }): { signature: string; look: VisualLook; layered: string[] } | null {
