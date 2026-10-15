@@ -132,8 +132,7 @@ async function recipes(page, args: string[]) {
         provision: 'reject', profileId: flag(args, '--profile'), seed: fixture.seed,
       });
     } catch (error) {
-      const message = String((error as Error)?.message ?? error).split('
-')[0].slice(0, 300);
+      const message = String((error as Error)?.message ?? error).split(String.fromCharCode(10))[0].slice(0, 300);
       console.log(`${task.id}: run failed: ${message}`);
       tasks.push({ id: task.id, recipe: task.recipe, score: { pass: false, error: message }, bridgeProblems: [`run failed: ${message}`], session: null, draft: null });
       continue;
