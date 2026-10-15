@@ -1,0 +1,52 @@
+{
+  "format": 2,
+  "id": "factions-lab",
+  "title": "Factions lab",
+  "description": "Synthetic story for v2.8 plan 53: two groups, authored moves, a reward and a hidden group.",
+  "roster": [
+    { "id": "mara", "name": "Mara", "role": "a guild clerk", "factions": ["guild"], "schedule": [{ "when": { "q": "location", "op": "==", "v": "docks" }, "at": "hall" }] },
+    { "id": "tom", "name": "Tom", "role": "a guild porter", "factions": ["guild"] },
+    { "id": "sera", "name": "Sera", "role": "a royal envoy", "factions": ["crown"] },
+    { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }
+  ],
+  "factions": [
+    {
+      "id": "guild", "name": "The Guild",
+      "bands": [{ "max": -3, "label": "Hostile" }, { "max": -1, "label": "Wary" }, { "max": 2, "label": "Neutral" }, { "label": "Trusted" }],
+      "visible_when": { "q": "met_guild", "op": "==", "v": true },
+      "moves": [
+        { "id": "saved", "when": { "q": "apprentice_saved", "op": "==", "v": true }, "add": 2, "heard_by": "faction" },
+        { "id": "stole", "when": { "q": "ledger_stolen", "op": "==", "v": true }, "add": -3 },
+        { "id": "paid", "when": { "q": "debt_paid", "op": "==", "v": true }, "add": 1 }
+      ]
+    },
+    {
+      "id": "crown", "name": "The Silver Crown", "range": [-3, 3],
+      "bands": [{ "max": -1, "label": "Distrusts you" }, { "max": 0, "label": "Watches you" }, { "label": "Favours you" }],
+      "visible_when": { "q": "met_crown", "op": "==", "v": true },
+      "moves": [{ "id": "envoy", "when": { "q": "envoy_helped", "op": "==", "v": true }, "add": 1 }]
+    }
+  ],
+  "qualities": [
+    { "key": "location", "type": "enum", "values": ["hall", "docks", "market"], "source": "extractor", "rubric": "Where the party is", "evidence_from": "party" },
+    { "key": "met_guild", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has the player met the guild?" },
+    { "key": "met_crown", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has the player met the crown's people?" },
+    { "key": "apprentice_saved", "type": "bool", "source": "extractor", "rubric": "Did the player save the apprentice?" },
+    { "key": "ledger_stolen", "type": "bool", "source": "extractor", "rubric": "Did the player steal the guild ledger?" },
+    { "key": "envoy_helped", "type": "bool", "source": "extractor", "rubric": "Did the player help the envoy?" },
+    { "key": "debt_found", "type": "bool", "source": "extractor", "rubric": "Did the player find the debt note?" },
+    { "key": "debt_paid", "type": "bool", "source": "code", "rubric": "Set by the reward when the debt quest closes" },
+    { "key": "left_hall", "type": "bool", "source": "extractor", "rubric": "Did the party leave the hall?" }
+  ],
+  "quests": [
+    { "id": "debt", "title": "The clerk's debt", "kind": "side", "done_when": { "q": "debt_found", "op": "==", "v": true }, "steps": [],
+      "reward": { "set": { "debt_paid": true, "rep_guild": { "add": 1 } } } }
+  ],
+  "checkpoints": [
+    { "id": "hall", "name": "The guild hall", "objective": "The guild clerk asks for help.", "type": "anchor", "start": true },
+    { "id": "street", "name": "The street", "objective": "Rumours follow the party outside.", "type": "anchor" }
+  ],
+  "transitions": [
+    { "from": "hall", "to": "street", "gate": { "q": "left_hall", "op": "==", "v": true }, "priority": 1 }
+  ]
+}

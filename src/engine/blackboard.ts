@@ -18,7 +18,7 @@ export interface PlayerSpan {
 }
 
 export type ApplyOutcome =
-  | { ok: true; key: string; previous: PrimitiveValue | undefined; value: PrimitiveValue; version: number }
+  | { ok: true; key: string; previous: PrimitiveValue | undefined; value: PrimitiveValue; version: number; clamped?: true }
   | { ok: false; key: string; reason: string };
 
 export interface BlackboardSnapshot {
@@ -37,6 +37,12 @@ export const qualityAccepts = (quality: Pick<Quality, "type" | "values">, value:
   if (quality.type === "enum") return typeof value === "string" && Boolean(quality.values?.includes(value));
   if (quality.type === "float") return typeof value === "number" && Number.isFinite(value);
   return typeof value === "number" && Number.isInteger(value);
+};
+
+export const withinRange = (quality: Pick<Quality, "type" | "range">, value: PrimitiveValue): PrimitiveValue => {
+  if (!quality.range || typeof value !== "number" || !Number.isFinite(value) || (quality.type !== "int" && quality.type !== "float")) return value;
+  const [low, high] = quality.type === "int" ? [Math.ceil(quality.range[0]), Math.floor(quality.range[1])] : quality.range;
+  return Math.min(high, Math.max(low, value));
 };
 
 export class Blackboard {
@@ -84,6 +90,9 @@ export class Blackboard {
     }
     if (delta.writer === "card-entry" && !this.story.cardFieldByQuality?.[delta.q]) return { ok: false, key: delta.q, reason: "writer not permitted" };
     if (delta.source && delta.source !== quality.source) return { ok: false, key: delta.q, reason: "source mismatch" };
+    const bounded = withinRange(quality, delta.v);
+    const clamped = bounded !== delta.v;
+    if (clamped) delta = { ...delta, v: bounded };
     if (!qualityAccepts(quality, delta.v)) return { ok: false, key: delta.q, reason: "type mismatch" };
 
     const previous = this.values[delta.q];
@@ -99,7 +108,7 @@ export class Blackboard {
     if (this.story.cardFieldByQuality?.[delta.q]) this.writerOf[delta.q] = { writer: delta.writer ?? "extractor", boundary: delta.boundary ?? this.writeBoundary };
     this.versions[delta.q] = (this.versions[delta.q] ?? 0) + 1;
     if (quality.latching && (quality.type !== "bool" || delta.v === true)) this.latched[delta.q] = true;
-    return { ok: true, key: delta.q, previous, value: delta.v, version: this.versions[delta.q] };
+    return { ok: true, key: delta.q, previous, value: delta.v, version: this.versions[delta.q], ...(clamped ? { clamped: true as const } : {}) };
   }
 
   readBeforeAuthor(delta: BlackboardDelta, readTo: number | undefined): boolean {

@@ -16,7 +16,7 @@ const OPTION_KEYS = ["limit", "closed"] as const;
 const CLUE_KEYS = ["id", "text", "quality", "when", "action"] as const;
 const LINK_KEYS = ["from", "to", "label"] as const;
 const PIN_KEYS = ["id", "label", "x", "y", "checkpoint", "when", "action"] as const;
-const ROW_KEYS = ["id", "label", "member", "quality", "when"] as const;
+const ROW_KEYS = ["id", "label", "member", "quality", "faction", "when"] as const;
 const ITEM_KEYS = ["clues", "links", "image", "pins", "template", "source", "rows", "dates"] as const;
 const INTENT_KEYS = ["id", "text", "open", "check"] as const;
 export const WIDGET_LIMIT_MAX = 50;
@@ -33,6 +33,7 @@ export interface WidgetRefs {
   checkpoints?: readonly Pick<Checkpoint, "checks">[];
   transitions?: readonly Pick<Transition, "check">[];
   roster?: readonly Pick<RosterMember, "id">[];
+  factions?: readonly { id: string }[];
 }
 
 const BIND_WORDS: Record<string, WidgetBind> = { quests: { quests: true }, path: { path: true }, arcs: { arcs: true } };
@@ -276,6 +277,7 @@ const readRow = (value: unknown, path: string, refs: WidgetRefs, audience: Story
   const label = readLabel(value.label, `${path}.label`, errors);
   const member = value.member === undefined ? undefined : asString(value.member)?.trim() ?? "";
   if (member !== undefined && !refs.roster?.some((entry) => entry.id === member)) return refuse(errors, `${path}.member`, `'${member}' is not a cast member`, null);
+  if (value.faction !== undefined) return readFactionRow(value, path, refs, { id, label, member }, errors);
   const key = asString(value.quality)?.trim() ?? "";
   const quality = refs.qualityByKey[key];
   if (!quality) return refuse(errors, `${path}.quality`, `unknown quality '${key}'`, null);
@@ -284,6 +286,17 @@ const readRow = (value: unknown, path: string, refs: WidgetRefs, audience: Story
   const when = value.when === undefined ? undefined : readFoundWhen({ when: value.when }, path, refs, errors);
   if (!GAME_ID_PATTERN.test(id) || (!label && !member) || (value.when !== undefined && !when)) return null;
   return { id, ...(label ? { label } : {}), ...(member ? { member } : {}), quality: key, ...(when ? { when } : {}) };
+};
+
+const readFactionRow = (
+  value: Record<string, unknown>, path: string, refs: WidgetRefs, named: { id: string; label: string | null | undefined; member: string | undefined }, errors: ValidationError[],
+): WidgetRosterRow | null => {
+  if (value.quality !== undefined) return refuse(errors, `${path}.quality`, "a row shows one of quality or faction", null);
+  const faction = asString(value.faction)?.trim() ?? "";
+  if (!refs.factions?.some((entry) => entry.id === faction)) return refuse(errors, `${path}.faction`, `unknown faction '${faction}'`, null);
+  const when = value.when === undefined ? undefined : readFoundWhen({ when: value.when }, path, refs, errors);
+  if (!GAME_ID_PATTERN.test(named.id) || (!named.label && !named.member) || (value.when !== undefined && !when)) return null;
+  return { id: named.id, ...(named.label ? { label: named.label } : {}), ...(named.member ? { member: named.member } : {}), faction, ...(when ? { when } : {}) };
 };
 
 const readRosterItems = (value: Record<string, unknown>, path: string, refs: WidgetRefs, audience: StoryWidget["audience"], errors: ValidationError[]): WidgetItems | null => {

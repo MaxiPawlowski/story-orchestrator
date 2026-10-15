@@ -185,6 +185,12 @@ describe("runDiagnostics", () => {
       ...runDiagnostics({ ...clean, checkpoints: [{ ...clean.checkpoints[0], effects: { stage: { cast: { Arin: { face: "angry" } } } } as StoryV2["checkpoints"][number]["effects"] }, clean.checkpoints[1]] },
         { spriteInventory: () => ({ arin: { sets: ["default"], faces: ["neutral"] } }) }),
       ...runDiagnostics(widgetSeeded, { backgroundNames: () => ["tavern day.jpg"] }),
+      ...runDiagnostics({ ...clean, display: { standing: false }, factions: [{ id: "guild", name: "G", range: [-5, 5], start: 0, bands: [{ max: 0, label: "Cold" }, { label: "Warm" }], moves: [] }] }),
+      ...runDiagnostics({
+        ...clean, checkpoints: [{ ...clean.checkpoints[0], state_snapshot: { rep_crown: 1 } }, ...clean.checkpoints.slice(1)],
+        factions: [{ id: "crown", name: "C", range: [-5, 5], start: 0, bands: [{ max: 0, label: "Cold" }, { label: "Warm" }],
+          moves: [{ id: "idle", when: { not: { q: "trust", op: ">=", v: 1 } }, add: -1, heard_by: "present" }] }],
+      }),
       ...runDiagnostics(codexSeeded),
     ];
     const counts = new Map<string, number>();

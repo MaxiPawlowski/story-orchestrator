@@ -87,6 +87,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Characters | Private knowledge | Tracks who knows what, so characters do not know things they never saw. |  |
 | Characters | Inner voice | Characters prepare a private intent before they speak. |  |
 | Characters | Character life | Feelings that move, a mood per scene, plans that go on off stage and places to be, for the characters a story declares. | Experimental |
+| Characters | Standing with groups | How the groups in a story regard you, shown as a word such as "Wary" or "Trusted". | Experimental |
 | Characters | Promises remembered | A promise you make to a character is remembered in your own words. |  |
 | World | Story lorebook switching | Story lorebook entries switch on and off as the story moves. |  |
 | World | Story lorebooks | A story's lorebooks load only in the chats that play it. |  |

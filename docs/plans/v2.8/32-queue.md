@@ -137,7 +137,7 @@ owner decisions pending per plan.
 | M51 | Discoverable relationship labels: event-gated public/secret rows on 52's pages | 51 | D+CL (+RP); after 52 A |
 | M52 | People and Places codex (`known_when`, `discovery` scope, `knownEntities`): option A + SC1–SC5 + harvest H16e name fold **built on `v2.8-p52-codex`** 2026-10-14 (unmerged); D floors C1–C5, C9–C13 green as jest; C7 CL and the live lane gate owed; B waits on 42 | 52 | D+CL |
 | M52e | Codex return visits (plan 52 option E, decision 8): page-side return lines on known places | 52 | D; follow-up after M52 |
-| M53 | Reputation with groups: authored moves, word bands, clamp | 53 | D+CL+RP |
+| M53 | Reputation with groups: authored moves, word bands, clamp. 2026-10-14: A built on `v2.8-p53-reputation` (not merged): D floors green in jest, full gates green (Storybook run separately), no-model lane 53 scenario green ×2 (pre- and post-merge); master merged, fitted to 52's SC1/SC2/discovery; F7/F9 owed | 53 | D+CL+RP |
 
 Plan 54 (inner voice L5 spike) is queue row A13.
 

@@ -123,7 +123,9 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const codex = layer?.codex.readCodex(json.codex, errors);
   const builtin = addBuiltinTensionQuality(addProgressQualities(baseQualities, checkpoints, errors), errors);
   const life = layer?.life.readLife(json, errors);
-  const qualities = layer ? layer.codex.addCodexQualities(layer.life.addLifeQualities(layer.addRewardQualities(builtin, quests, errors), life, errors), codex, errors) : builtin;
+  const factions = layer?.factions.readFactions(json.factions, errors);
+  const lived = layer ? layer.codex.addCodexQualities(layer.life.addLifeQualities(layer.addRewardQualities(builtin, quests, errors), life, errors), codex, errors) : builtin;
+  const qualities = layer ? layer.factions.addFactionQualities(lived, factions, (json.roster as unknown[]).filter(isRecord), errors) : lived;
   const options = readStoryOptions(json, errors);
   const features = readFeaturePolicies(json.features, (path, message) => addError(errors, path, message));
   const roster = readRoster(json.roster as StoryV2["roster"], errors);
@@ -155,7 +157,8 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   layer?.checkQuests(game, milestones, qualityByKey, new Set(roster.map((member) => member.id)), errors);
   checkRecapGates({ transitions, quests: game, milestones }, qualityByKey, errors, validateGate);
   layer?.life.checkLife(life, roster, qualityByKey, errors, Boolean(chapters?.length));
-  const widgets = layer?.readWidgets(json.widgets, { qualityByKey, qualities, checkpointIds: new Set(Object.keys(checkpointById)), checkpoints, transitions, roster }, errors);
+  layer?.factions.checkFactions({ factions, roster, qualityByKey, quests: game }, errors);
+  const widgets = layer?.readWidgets(json.widgets, { qualityByKey, qualities, checkpointIds: new Set(Object.keys(checkpointById)), checkpoints, transitions, roster, factions }, errors);
   layer?.codex.checkCodex(codex, { checkpointById, qualityByKey, roster }, errors);
   checkLiving(living, checkpointById, roster, qualityByKey, errors);
   const chapterIndex = indexChapters(chapters, checkpoints, errors);
@@ -191,6 +194,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     ...(options.kind ? { kind: options.kind } : {}),
     ...gameFields({ quests: game, milestones, widgets, codex, life }),
     ...(living ? { living } : {}),
+    ...(factions ? { factions } : {}),
     startCheckpointId,
     checkpointById,
     outgoingByCheckpoint: orderOutgoing(checkpoints, normalizedTransitions),

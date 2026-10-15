@@ -1,6 +1,7 @@
 import type { RuntimeSnapshot } from "@runtime/types";
 import { blackboardRows } from "@runtime/blackboardView";
 import { CharacterLifePanel, type MeanwhileDecide } from "../CharacterLifePanel";
+import { FactionsPanel } from "../FactionsPanel";
 
 const readerLabel = (meta: RuntimeSnapshot["blackboardMeta"][string] | undefined) => {
   if (!meta?.reader) return "";
@@ -38,6 +39,7 @@ export const BlackboardTab = ({ snapshot, onDecideMeanwhile }: { snapshot: Runti
         </div>
       )}
       {snapshot.lifeAuthor ? <CharacterLifePanel life={snapshot.lifeAuthor} onDecide={onDecideMeanwhile} /> : null}
+      {snapshot.factionsAuthor ? <FactionsPanel factions={snapshot.factionsAuthor} /> : null}
     </div>
   );
 };

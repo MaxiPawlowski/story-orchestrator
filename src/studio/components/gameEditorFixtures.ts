@@ -31,6 +31,19 @@ export const widgetStory = (): StoryDraft => ({
   ],
 });
 
+export const factionStory = (): StoryDraft => {
+  const base = sampleStory();
+  return {
+    ...base,
+    roster: base.roster.map((member, at) => (at === 0 ? { ...member, factions: ["guild"] } : member)),
+    factions: [{
+      id: "guild", name: "The Guild", range: [-5, 5], start: 0,
+      bands: [{ max: -3, label: "Hostile" }, { max: -1, label: "Wary" }, { max: 2, label: "Neutral" }, { label: "Trusted" }],
+      moves: [{ id: "helped", when: { q: "trust", op: ">=", v: 2 }, add: 2, heard_by: "present" }],
+    }],
+  };
+};
+
 export const codexStory = (): StoryDraft => ({
   ...sampleStory(),
   qualities: [...sampleStory().qualities, { key: "location", type: "enum", values: ["gate", "boathouse"], source: "extractor", rubric: "Where the party is." }],

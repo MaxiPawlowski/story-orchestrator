@@ -178,11 +178,23 @@ setPoseCard: { backedBy: "setPoseCard", doc: "Set living card fields and charact
   },
   setCharacterLife: {
     backedBy: "setCharacterLife",
-    doc: "Replace one cast member's character life (every field you leave out is cleared): feelings, mood, off-stage agenda, whereabouts. Private to that member. Read the character-life guide first.",
+    composes: ["setMemberFactions"],
+    doc: "Replace one cast member's character life (every field you leave out is cleared): feelings, mood, off-stage agenda, whereabouts, the factions it belongs to. "
+      + "Private to that member. Read the character-life guide first.",
     args: {
       id: req("string", "member id"),
       life: req("object", "{relationships?: [{toward: id|player, axes, range?, step?, start?}], mood?: {baseline, values?, lasts?}, "
-        + "agenda?: [{id, goal, steps: [{text, when?, effect?, public?, repeat?}], pace: per_n_boundaries|per_chapter, every?}], schedule?: [{when, at}]}"),
+        + "agenda?: [{id, goal, steps: [{text, when?, effect?, public?, repeat?}], pace: per_n_boundaries|per_chapter, every?}], schedule?: [{when, at}], factions?: [faction id] (at most 3)}"),
+    },
+  },
+  setFactions: {
+    backedBy: "setFactions",
+    composes: ["addFaction", "updateFaction", "removeFaction"],
+    doc: "Replace the factions (the full list): groups whose standing with the player moves only on authored moves and quest rewards; players see band words, never numbers. "
+      + "A move that lowers standing must gate on an event the player caused, never on time, absence or false. Read the factions guide first.",
+    args: {
+      factions: req("array", `[{id (slug, no underscores), name, range?: [low, high], start?, bands: [{max, label}, …, {label}], visible_when?: ${GATE}, introduce?, `
+        + `moves: [{id, when: ${GATE}, add (whole number, not 0), heard_by?: present|faction}]}]`),
     },
   },
   setCodexEntry: {
@@ -282,6 +294,7 @@ export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof Mutations, string>> 
   newQuest: "constructor; setQuests takes the full list",
   newMilestone: "constructor; setMilestones takes the full list",
   newWidget: "constructor; setWidgets takes the full list",
+  newFaction: "constructor; setFactions takes the full list",
   CHARACTER_LIFE_FIELDS: "a constant, not a mutation: the fields setCharacterLife replaces",
   setCodex: "the Studio replaces the whole codex; the agent edits one entry at a time with setCodexEntry and removeCodexEntry",
   setCodexShown: "whether the story shows People and Places is a presence choice the author makes in the Studio",

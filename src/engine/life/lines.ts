@@ -4,6 +4,7 @@ import {
   type Agenda, type AgendaStep, type LifeMember, type NormalizedStoryV2, type PrimitiveValue,
 } from "../schema";
 import { effectiveMood, isAway, whereabouts } from "./presence";
+import { factionMemberLines } from "../factions/standing";
 
 type Values = Readonly<Record<string, PrimitiveValue>>;
 type Read = Readonly<Record<string, unknown>>;
@@ -51,6 +52,7 @@ export const privateLifeLines = (story: NormalizedStoryV2, values: Values, membe
     .map((text) => `- Meanwhile, as everyone knows: ${text}`);
   const lines = [
     ...(self ? relationshipLines(story, self, values) : []),
+    ...factionMemberLines(story, values, memberId),
     ...(mood ? [`- Your mood right now: ${mood}.`] : []),
     ...own, ...accepted.map((text) => `- Meanwhile, off stage, you: ${text}`), ...shared,
   ];

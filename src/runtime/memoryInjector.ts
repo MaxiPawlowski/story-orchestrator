@@ -137,7 +137,7 @@ export class MemoryInjector {
   }
 
   private lifeLines(story: NormalizedStoryV2, id: string): string {
-    const layer = story.life ? gameLayer() : null;
+    const layer = story.life || story.factions?.length ? gameLayer() : null;
     if (!layer) return "";
     const lines = layer.life.privateLifeLines(story, this.deps.getState()?.blackboard.values ?? {}, id, this.deps.meanwhile?.(id) ?? []);
     return withoutSecretLines(lines, this.secrets(story), namesForRosterId(story, id));
@@ -182,7 +182,7 @@ export class MemoryInjector {
     const capable = this.deps.capable();
     const voiced = hasInnerVoice(this.voices(story));
     if (voiced && !innerRender()) void loadInnerRender().then(() => this.update());
-    if (capable || voiced || story.life) {
+    if (capable || voiced || story.life || story.factions?.length) {
       const knowledge = this.knowledge();
       for (const id of this.stagedIds(story)) {
         const names = namesForRosterId(story, id);

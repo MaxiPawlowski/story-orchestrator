@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import { WidgetCard } from "./WidgetCard";
 import {
-  boardWidget, clockWidget, cluesWidget, intentsWidget, mapWidget, provenanceRows, rosterWidget, sampleGame, stillWidget, timelineWidget,
+  boardWidget, clockWidget, cluesWidget, factionRosterWidget, intentsWidget, mapWidget, provenanceRows, rosterWidget, sampleGame, standingWidget, stillWidget, timelineWidget,
 } from "./gameViewFixtures";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
@@ -92,6 +92,24 @@ export const Roster: Story = {
   },
 };
 
+export const Standing: Story = {
+  args: { widget: standingWidget },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("Standing")).toBeVisible();
+    await expect(canvas.getByText("Wary")).toBeVisible();
+    await expect(canvasElement.textContent ?? "").not.toMatch(/\d/);
+  },
+};
+
+export const FactionRoster: Story = {
+  args: { widget: factionRosterWidget },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelectorAll('[data-so="roster-row"]')).toHaveLength(2);
+    await expect(canvasElement.textContent ?? "").not.toMatch(/\d|changed/);
+  },
+};
+
 export const Timeline: Story = {
   args: { widget: timelineWidget },
   play: async ({ canvasElement }) => {
@@ -147,5 +165,6 @@ export const Wide: Story = fitsAt(VIEWPORTS.wide, primary);
 export const MapPhone: Story = { args: { widget: mapWidget }, ...fitsAt(VIEWPORTS.phone, primary) };
 export const CluesPhone: Story = { args: { widget: cluesWidget }, ...fitsAt(VIEWPORTS.phone, primary) };
 export const RosterPhone: Story = { args: { widget: rosterWidget }, ...fitsAt(VIEWPORTS.phone, primary) };
+export const StandingPhone: Story = { args: { widget: standingWidget }, ...fitsAt(VIEWPORTS.phone, primary) };
 export const TimelinePhone: Story = { args: { widget: timelineWidget }, ...fitsAt(VIEWPORTS.phone, primary) };
 export const IntentsPhone: Story = { args: { widget: intentsWidget, onAction: fn(() => ({ ok: true as const })) }, ...fitsAt(VIEWPORTS.phone, primary) };

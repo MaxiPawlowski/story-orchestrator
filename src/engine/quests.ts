@@ -30,8 +30,8 @@ export const isClosed = (status: QuestStatus): boolean => status === "done" || s
 
 export const valueReader = (values: Record<string, unknown>): GateReader => ({ get: (key) => values[key] as ReturnType<GateReader["get"]> });
 
-export const hasGameLayer = (story: Pick<NormalizedStoryV2, "quests" | "milestones" | "widgets" | "qualities" | "codex"> | null | undefined): boolean =>
-  Boolean(story && (story.quests?.length || story.milestones?.length || story.widgets?.length || story.qualities.some((quality) => quality.display)
+export const hasGameLayer = (story: Pick<NormalizedStoryV2, "quests" | "milestones" | "widgets" | "qualities" | "codex" | "factions"> | null | undefined): boolean =>
+  Boolean(story && (story.quests?.length || story.milestones?.length || story.widgets?.length || story.factions?.length || story.qualities.some((quality) => quality.display)
     || hasCodex(story.codex)));
 
 const openStepKeys = (quest: Quest, reader: GateReader): string[] => quest.steps.flatMap((step) => {

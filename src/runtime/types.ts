@@ -1,4 +1,4 @@
-import type { AgencyPolicy, ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
+import type { AgencyPolicy, ArcTemplate, EngineHistory, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
 import type { JudgeCallRecord, JudgeMeterView, JudgeRuntimeState, SceneReadRecord } from "@judge/index";
 import type { ExtractionHealth, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
@@ -17,7 +17,6 @@ import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
 import type { RepetitionReport } from "@stagecraft/index";
 import type { JournalRecord } from "./journal";
-import type { EngineHistory } from "@engine/index";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
 import type { AgencyRecovery } from "./agencyRecovery";
 import type { NextTurnContributor, NextTurnCost, NextTurnForeignRow } from "./nextTurn";
