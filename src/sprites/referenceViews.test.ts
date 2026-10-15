@@ -107,6 +107,14 @@ test("a saved view with other bytes, a stale review or no accepted source refuse
   await expect(empty.session.prepare("Synthetic")).rejects.toThrow("Accept this character's base and bust");
 });
 
+test("a pack handed over with fresh-save paths is stored by served path and survives the manifest read", () => {
+  const source = visualFixture(), asset = (name: string) => ({ path: `/characters/Synthetic/p/${name}.png?t=${sha(name).slice(0, 12)}`, sha256: sha(name), key: name, recipe: { id: "qwen21-reference-view", version: 1 } });
+  const views = { full_body: source.base, front: source.bust, three_quarter_left: asset("l"), three_quarter_right: asset("r"), profile: asset("p"), back: asset("b") };
+  const next = withReferencePack(source, visualRoot(source), { hash: sha("pack"), views });
+  expect(Object.values(next.pack!.views).map((view) => view.path).filter((path) => path.includes("?"))).toEqual([]);
+  expect(visualSources(JSON.parse(JSON.stringify({ Synthetic: next }))).Synthetic?.pack?.hash).toBe(sha("pack"));
+});
+
 test("the manifest refuses a pack that does not match its base and bust, or misses a view", () => {
   const source = visualFixture(), asset = (name: string) => ({ path: `/characters/Synthetic/p/${name}.png`, sha256: sha(name), key: name, recipe: { id: "qwen21-reference-view", version: 1 } });
   const views = { full_body: source.base, front: source.bust, three_quarter_left: asset("l"), three_quarter_right: asset("r"), profile: asset("p"), back: asset("b") };

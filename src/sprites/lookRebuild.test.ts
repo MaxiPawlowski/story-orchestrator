@@ -1,6 +1,6 @@
 import { LookRebuild, changedLookRows, publishLookBust, replaceRig, type LookRebuildDeps } from "./lookRebuild";
 import { visualFixture } from "./visualFixtures";
-import { publishVisualLook, visualHead, visualRoot, type VisualManifest } from "./visualManifest";
+import { publishVisualLook, visualHead, visualRoot, visualSources, type VisualManifest } from "./visualManifest";
 import { liveHeadKey, type LiveHeadRef } from "./liveHeadRefs";
 import { manifestRef, type HeadManifest } from "./liveHead/manifest";
 import { syntheticHead } from "./liveHead/synthetic";
@@ -132,6 +132,13 @@ test("refusals: tampered look file, saved bytes differing from review, stale rev
   expect(() => publishLookBust(source, visualRoot(source), "default", source.base.sha256, savedBust)).toThrow("Prepare presentation");
   expect(() => publishLookBust(source, "other:1", "default", source.base.sha256, source.bust)).toThrow("source changed");
   expect(() => publishLookBust(source, visualRoot(source), "missing", source.base.sha256, savedBust)).toThrow("no longer published");
+});
+
+test("publishLookBust stores a fresh-save bust by its served path", () => {
+  const f = fixture();
+  const next = publishLookBust(f.source(), visualRoot(f.source()), LOOK, lookBase.sha256, { ...savedBust, path: `${savedBust.path}?t=abcdef012345` });
+  expect(next.looks[LOOK].bust?.path).toBe(savedBust.path);
+  expect(visualSources(JSON.parse(JSON.stringify({ [next.character]: next })))[next.character]?.looks[LOOK]?.bust?.path).toBe(savedBust.path);
 });
 
 test("a saved bust path with a cache-busting query is published and rigged without it", async () => {
