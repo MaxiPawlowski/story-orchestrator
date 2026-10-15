@@ -17,6 +17,7 @@ import { factionVisible, standingOf, standingView } from "@engine/factions/stand
 import { shownPlayerText } from "./stretchTurns";
 import { codexLogRows, composeCodex } from "./codexView";
 import { labelCodexSources, labelLogRows } from "./labelView";
+import { gameLayer } from "@engine/validate/gameLayer";
 
 export const LOG_LIMIT = 40;
 export const ACTION_CHARS = 140;
@@ -193,7 +194,7 @@ const timelineBody = (widget: StoryWidget, story: NormalizedStoryV2, state: Engi
     const chapterId = story.chapterByCheckpoint?.[id];
     const chapter = chapterId ? story.chapterById?.[chapterId] : undefined;
     const title = chapter ? chapter.player_title ?? chapter.title : null;
-    const date = widget.dates?.[id];
+    const date = widget.dates?.[id] ?? gameLayer()?.life.reachedLabel(story, state.blackboard.values, id) ?? undefined;
     const stop = { name: story.checkpointById[id]?.player_name ?? "", ...(date ? { date } : {}), here: id === state.activeCheckpointId, fresh: Boolean(earlier && !earlier.has(id)) };
     const last = groups.at(-1);
     if (last && last.title === title) last.stops.push(stop);

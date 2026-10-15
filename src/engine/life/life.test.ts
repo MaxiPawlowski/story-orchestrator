@@ -104,10 +104,10 @@ describe("v2.7 plan 37 L2: mood falls back to its baseline", () => {
 describe("v2.7 plan 37: the story clock and whereabouts", () => {
   it("counts a day each time the time of day wraps", () => {
     const run = play();
-    run.turn({ text: "a", deltas: { time_of_day: "evening" } });
+    run.turn({ text: "a", deltas: { life_time_read: "evening" } });
     expect(run.values()[CLOCK_DAY_KEY]).toBe(1);
-    run.turn({ text: "b", deltas: { time_of_day: "night" } });
-    run.turn({ text: "c", deltas: { time_of_day: "morning" } });
+    run.turn({ text: "b", deltas: { life_time_read: "night" } });
+    run.turn({ text: "c", deltas: { life_time_read: "morning" } });
     expect(run.values()[CLOCK_DAY_KEY]).toBe(2);
   });
 
@@ -172,7 +172,7 @@ const script = (seed: number, length: number): Turn[] => {
   return Array.from({ length }, () => {
     const deltas: Record<string, PrimitiveValue> = {};
     if (random() < 0.4) deltas.location = pick(["market", "docks", "inn"]);
-    if (random() < 0.4) deltas.time_of_day = pick(["morning", "afternoon", "evening", "night"]);
+    if (random() < 0.4) deltas.life_time_read = pick(["morning", "afternoon", "evening", "night"]);
     if (random() < 0.3) deltas[moodKey("arin")] = pick(["calm", "tense", "angry"]);
     if (random() < 0.3) deltas.rel_arin_player_trust = pick([-1, 0, 1, 2]);
     return { text: random() < 0.25 ? "((ooc aside))" : "an in-fiction line", deltas };

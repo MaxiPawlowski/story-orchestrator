@@ -93,6 +93,29 @@ describe("v2.8 agenda proposals in play: cadence", () => {
     expect(meanwhileDue(state, { ...open, boundary: 10 + MEANWHILE_MIN_GAP })).toBe(true);
   });
 
+  it("plan 50 H14a: with a clock, a pass is due when story time moved since the last pass, not every few boundaries of one evening", () => {
+    const advances = new Set([6, 14]);
+    let state = recordMeanwhilePass(createAgendaProposals(), { boundary: 1, messageId: 1, reason: "checkpoint", storyTime: 0 });
+    let time = 0;
+    const passes: number[] = [];
+    for (let boundary = 2; boundary <= 21; boundary += 1) {
+      if (advances.has(boundary)) time += 1;
+      if (!meanwhileDue(state, { ...open, boundary, storyTime: time, event: false })) continue;
+      passes.push(boundary);
+      state = recordMeanwhilePass(state, { boundary, messageId: boundary * 2, reason: "time", storyTime: time });
+    }
+    expect(passes).toEqual([6, 14]);
+    expect(meanwhileDue(state, { ...open, boundary: 14 + MEANWHILE_MIN_GAP, storyTime: time })).toBe(true);
+    expect(meanwhileDue(state, { ...open, boundary: 15, storyTime: time + 1 })).toBe(true);
+    expect(sanitizeAgendaProposals(state)?.passes.at(-1)?.storyTime).toBe(2);
+  });
+
+  it("control: without a clock a boundary that fired nothing never triggers a pass", () => {
+    const state = recordMeanwhilePass(createAgendaProposals(), { boundary: 1, messageId: 1, reason: "checkpoint" });
+    expect(meanwhileDue(state, { ...open, boundary: 40, event: false })).toBe(false);
+    expect(meanwhileDue(undefined, { ...open, event: false })).toBe(false);
+  });
+
   it("the default install proposes and accepts automatically, and a stored mode outside auto/review/off falls back to it", () => {
     expect(defaultGlobalSettings().stagecraft.meanwhileAcceptMode).toBe("auto");
     expect(sanitizeGlobalSettings({ stagecraft: { meanwhileAcceptMode: "always" } }).stagecraft.meanwhileAcceptMode).toBe("auto");

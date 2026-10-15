@@ -4,12 +4,12 @@ import { LABEL_DIAGNOSTIC_TOPICS, LABEL_TOPICS } from "./guideTopicsLabels";
 export const CHARACTER_TOPICS = {
   "character-life": {
     title: "Character life",
-    fields: "roster[].relationships, roster[].mood, roster[].agenda, roster[].schedule, clock",
+    fields: "roster[].relationships, roster[].mood, roster[].agenda, roster[].schedule",
     text: "relationships [{toward: id|player, axes, range, step, start, label}] compile to rel_<holder>_<toward>_<axis> ratings: start until read, read as up or down (never a level) while "
       + "both are present, at most step a turn, seen only by the holder and Author view. mood {baseline, values, lasts}: re-read after a scene change, else "
       + "baseline. agenda [{id, goal, steps [{text, when, effect: world_info|npc_replies, public, repeat}], pace per_n_boundaries|per_chapter (needs chapters), "
       + "every}] moves in code, never on OOC. schedule [{when, at}]: away drops a member from speakers; addressed, the narrator says they are not here. "
-      + "clock {times, start_day}: time_of_day a step a turn, story_day counts wraps.",
+      + "Time of day and day count: see story-time.",
   },
   factions: {
     title: "Factions and standing",

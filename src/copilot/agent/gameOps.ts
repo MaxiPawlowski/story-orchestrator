@@ -7,10 +7,10 @@ import { readDisplay } from "@engine/validate/display";
 import { readMilestones, readQuests } from "@engine/validate/quests";
 import { readWidgets } from "@engine/validate/widgets";
 import { readLife } from "@engine/validate/life";
-import type { StoryClock } from "@engine/lifeSchema";
+import type { CalendarInput, StoryClock } from "@engine/lifeSchema";
 import { isRecord } from "@utils/guards";
 import {
-  CHARACTER_LIFE_FIELDS, removeCodexEntry, setCharacterLife, setClock, setFactions, updateCodexEntry,
+  CHARACTER_LIFE_FIELDS, removeCodexEntry, setCalendar, setCharacterLife, setClock, setFactions, updateCodexEntry,
   setMilestones, setQualityDisplay, setQuests, setCheckpointChecks, setTransitionCheck, setWidgets, type CharacterLife,
 } from "../../studio/gameMutations";
 import type { OpDescription } from "../index";
@@ -24,13 +24,14 @@ export type GameAgentOp =
   | { kind: "setTransitionCheck"; index: number; check: StoryCheck | null }
   | { kind: "setCharacterLife"; id: string; life: CharacterLife }
   | { kind: "setClock"; clock: StoryClock | null }
+  | { kind: "setCalendar"; calendar: CalendarInput | null }
   | { kind: "setCodexEntry"; page: CodexPage; entry: CodexEntry }
   | { kind: "removeCodexEntry"; page: CodexPage; id: string }
   | { kind: "setFactions"; factions: Faction[] };
 
 export const GAME_AGENT_KINDS: ReadonlySet<string> = new Set<GameAgentOp["kind"]>([
   "setQuests", "setMilestones", "setWidgets", "setQualityDisplay", "setCheckpointChecks", "setTransitionCheck", "setCharacterLife", "setClock", "setCodexEntry", "removeCodexEntry",
-  "setFactions",
+  "setFactions", "setCalendar",
 ]);
 
 const refused = (tool: string, errors: ValidationError[]) => ({ ok: false as const, message: errors.map((error) => `${tool}.${error.path}: ${error.message}`).join("; ") });
@@ -70,6 +71,7 @@ export const readGameCall = (tool: string, args: Record<string, unknown>): GameC
   }
   if (tool === "setCodexEntry" || tool === "removeCodexEntry") return readCodexCall(tool, args);
   if (tool === "setClock") return { ok: true, op: { kind: "setClock", clock: isRecord(args.clock) ? clockOf(args.clock) : null } };
+  if (tool === "setCalendar") return { ok: true, op: { kind: "setCalendar", calendar: isRecord(args.calendar) ? args.calendar as CalendarInput : null } };
   if (tool === "setFactions") {
     const factions = readFactions(args.factions, errors) ?? [];
     return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setFactions", factions } };
@@ -92,6 +94,7 @@ export const applyGameOp = (draft: StoryV2, op: GameAgentOp): StoryV2 => {
     case "setTransitionCheck": return setTransitionCheck(draft, op.index, op.check ?? undefined);
     case "setCharacterLife": return setCharacterLife(draft, op.id, op.life);
     case "setClock": return setClock(draft, op.clock ?? undefined);
+    case "setCalendar": return setCalendar(draft, op.calendar ?? undefined);
     case "setCodexEntry": return updateCodexEntry(draft, op.page, op.entry);
     case "removeCodexEntry": return removeCodexEntry(draft, op.page, op.id);
     case "setFactions": return setFactions(draft, op.factions);
@@ -114,6 +117,10 @@ export const describeGameOp = (op: GameAgentOp): OpDescription => {
       return { action: "update", entity: `roster.${op.id}`, label: parts.length ? `${op.id}: ${parts.join(", ")}` : `Clear ${op.id}'s character life` };
     }
     case "setClock": return { action: "update", entity: "story.clock", label: op.clock ? `Clock: ${op.clock.times.join(" / ")}` : "Remove the story clock" };
+    case "setCalendar": {
+      const label = op.calendar ? `Calendar: ${(op.calendar.months ?? []).map((month) => month.name).join(" / ")}` : "Remove the calendar";
+      return { action: "update", entity: "story.calendar", label };
+    }
     case "setCodexEntry": {
       const label = `${op.page === "people" ? "Person" : "Place"} page ${op.entry.name ?? op.entry.member ?? op.entry.id}: ${op.entry.facts.length} fact(s)`;
       return { action: "update", entity: `codex.${op.page}.${op.entry.id}`, label };
@@ -149,6 +156,7 @@ export const gameOpProblem = (draft: StoryV2, op: GameAgentOp): string | null =>
     readLife({ roster: roster.map((member) => ({ ...member })), clock: draft.clock }, errors);
   }
   if (op.kind === "setClock" && op.clock) readLife({ roster: [], clock: op.clock }, errors);
+  if (op.kind === "setCalendar" && op.calendar) readLife({ roster: [], clock: draft.clock, calendar: op.calendar }, errors);
   if (op.kind === "setCodexEntry") {
     const codex = updateCodexEntry(draft, op.page, op.entry).codex;
     const qualities = addCodexQualities(draft.qualities, codex, errors);

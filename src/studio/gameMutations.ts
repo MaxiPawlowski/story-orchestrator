@@ -1,5 +1,5 @@
 import type { CodexEntry, CodexPage, Faction, Milestone, QualityDisplay, Quest, RelationshipDecl, RosterMember, StoryCheck, StoryCodex, StoryWidget } from "@engine/index";
-import type { StoryClock } from "@engine/lifeSchema";
+import type { CalendarInput, StoryClock } from "@engine/lifeSchema";
 import type { StoryDraft } from "./draft";
 import { nextId, updateCheckpoint, updateQuality, updateTransition } from "./mutations";
 
@@ -146,7 +146,9 @@ export const setMemberFactions = (draft: StoryDraft, memberId: string, factions:
   }),
 });
 
-export const setClock = (draft: StoryDraft, clock: StoryClock | undefined): StoryDraft => (clock ? { ...draft, clock } : without(draft, "clock"));
+export const setClock = (draft: StoryDraft, clock: StoryClock | undefined): StoryDraft => (clock ? { ...draft, clock } : without(without(draft, "clock"), "calendar"));
+
+export const setCalendar = (draft: StoryDraft, calendar: CalendarInput | undefined): StoryDraft => (calendar ? { ...draft, calendar } : without(draft, "calendar"));
 
 export const setCodex = (draft: StoryDraft, codex: StoryCodex | undefined): StoryDraft => {
   const kept: StoryCodex = { ...(codex?.people?.length ? { people: codex.people } : {}), ...(codex?.places?.length ? { places: codex.places } : {}) };

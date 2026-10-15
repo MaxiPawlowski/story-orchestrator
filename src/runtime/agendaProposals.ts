@@ -1,4 +1,4 @@
-import { agendaStepKey, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { CLOCK_STORY_TIME_KEY, agendaStepKey, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
 import { isRecord } from "@utils/guards";
 
 export const PROPOSAL_RING_CAP = 40;
@@ -31,6 +31,7 @@ export interface MeanwhileProposal {
 
 export interface MeanwhilePass extends ProposalLanding {
   reason: string;
+  storyTime?: number;
 }
 
 export interface AgendaProposalsState {
@@ -66,7 +67,8 @@ const readProposal = (value: unknown): MeanwhileProposal | null => {
 
 const readPass = (value: unknown): MeanwhilePass | null => {
   const landing = readLanding(value);
-  return landing && isRecord(value) && typeof value.reason === "string" ? { ...landing, reason: value.reason } : null;
+  if (!landing || !isRecord(value) || typeof value.reason !== "string") return null;
+  return { ...landing, reason: value.reason, ...(Number.isInteger(value.storyTime) ? { storyTime: value.storyTime as number } : {}) };
 };
 
 export const sanitizeAgendaProposals = (value: unknown): AgendaProposalsState | undefined => {
@@ -118,11 +120,20 @@ export interface MeanwhileDueInput {
   mode: MeanwhileAcceptMode;
   boundary: number;
   openAgenda: boolean;
+  storyTime?: number;
+  event?: boolean;
 }
+
+export const storyTimeOf = (values: Readonly<Record<string, PrimitiveValue>>): number | undefined => {
+  const time = values[CLOCK_STORY_TIME_KEY];
+  return typeof time === "number" ? time : undefined;
+};
 
 export const meanwhileDue = (state: AgendaProposalsState | undefined, input: MeanwhileDueInput): boolean => {
   if (input.mode === "off" || !input.openAgenda) return false;
   if (state?.proposals.some((proposal) => proposal.status === "proposed")) return false;
   const last = state?.passes.at(-1);
-  return !last || input.boundary - last.boundary >= MEANWHILE_MIN_GAP;
+  const timePassed = input.storyTime !== undefined && last?.storyTime !== undefined && input.storyTime > last.storyTime;
+  const event = input.event !== false;
+  return !last ? event : timePassed || (event && input.boundary - last.boundary >= MEANWHILE_MIN_GAP);
 };

@@ -1,7 +1,7 @@
 # Plan 50 — Story calendar
 
-**Status: WRITTEN 2026-10-14 (owner decision 2026-10-14: these roleplay mechanics go into v2.8, plans written now).
-Not decided, not built.** Pattern G13 of `v2.8/27-gamification-report.md`. Implementation tier D. Acceptance:
+**Status: B1a + B1b + B1c core BUILT 2026-10-15 on `v2.8-p50-time` (not merged; owner: yes to all recommendations).
+Live lane, CL, RP and B1c surfaces, B2, B3 owed (§Gate record 2026-10-15).** Pattern G13 of `v2.8/27-gamification-report.md`. Implementation tier D. Acceptance:
 
 - CL for the read changes (shared read on the memory/orchestrator route, director on the authoring route);
 - RP for the final-suite row.
@@ -337,3 +337,100 @@ From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licen
   strip shows "evening → night" on that reply; a skip shows "→ next morning". Only when the story displays time (§8, T7
   byte-identical without it); derived from the boundary log like `changedAgo`, so rollback-safe. Floor: chip present exactly
   on advancing boundaries over a 20-turn scripted run, D. The "here now" card (new plan v2.8 65) reads the same label.
+
+## Gate record 2026-10-15 (B1a, B1b, B1c core on `v2.8-p50-time`)
+
+Built on branch `v2.8-p50-time` from master `cc38c5b1`, the owner's recommended options throughout (B, B1a → B1b → B1c; scene
+breaks deferred; writer arbitration as item 9). Not merged.
+
+What landed
+
+- B1a canonical time: `story_time` (code int, monotonic) is the one truth, compiled in `validate/life.ts`; `story_day`,
+  `time_of_day`, `time_part`, `is_night` (from `clock.night`) are derived code keys, written only by the derive step and the
+  entry pass (`engine/life/clock.ts`). `life_time_seen` retired.
+- Read parity: `life_time_read` is an extractor choice over `clock.times` with no `step_rule`; the parser stores the
+  absolute part; the derive step (SC2 step 3) turns it into at most one part against the derived `time_of_day`, using
+  `DerivedQualityView.applied` (new: keys applied this boundary with their read-window end, `applyQueue.appliedKeys`).
+  Stale rule: a read whose window ends at or before `life_time_moved_at` (the message of the last author or checkpoint
+  move) moves nothing. The read is scoped while a transition gate names any story-time key (`extraction/scope.ts`).
+- Author recovery: `/cp set time_of_day|story_day|time_part|story_time` moves `story_time` forward (derive step), so
+  existing scenarios that set `time_of_day` keep working.
+- B1b entry advances: `effects.time {advance: {days?, parts?}} | {to: {part, next_day?}}` applied in the pure entry pass
+  (`GAME_LAYER.entryWriters`, SC2 step 7) in `commitBoundary` and `activateCheckpoint`, never through `EffectsApplier`;
+  clamped to `clock.max_skip_days` (default 30). Validator refuses a negative/empty advance, over-limit, unknown part, the
+  start checkpoint, no clock.
+- B1c calendar (core): `calendar {start, months, weekdays?, seasons?, label?}` with the fixed semantics of item 4
+  (`engine/life/calendar.ts`); `cal_year`, `cal_month`, `cal_day_of_month`, `cal_weekday`, `cal_season`; labels
+  "Day 4, evening" / "3rd of Thawmonth, morning"; `clock.start_part`, `clock.night`.
+- Reserved keys (`isStoryTimeKey`): authored qualities named like a time key refused when the story has a clock; a quest
+  `reward.set` on a time key refused; `TIME_KEYS` rule for offered quests extended to every story-time key (item 6); faction
+  inaction rule reads the same predicate.
+- First-visit time: `time_reached_<cp>` (entry pass) for checkpoints a `timeline` names without a date; the timeline fills
+  the missing label from it (`runtime/widgets.ts` via `life.reachedLabel`).
+- SC1: rollback detector `story-time` (story_time compared with undefined read as the start, plus `time_reached_*`); the
+  `clock` exemption is gone.
+- Author view: Character life shows the time label, `story_time` and the last move (reader, checkpoint or author, message,
+  boundary) from the boundary log (`clockMoves`, `storyTimeRow`).
+- Harvest H14a: meanwhile passes record `storyTime`; a pass is due when story time moved since the last pass, or on a
+  story event after the boundary gap; boundary work `meanwhile-proposals` now also triggers on a non-firing boundary
+  that moved time (reason `time`).
+- Docs and registry: guide §Story time (`story-time`, compact twin `copilot/guideTopicsTime.ts`), §Character life points
+  to it; feature `story-calendar`; wizard tool `setCalendar` (`gameMutations.setCalendar`; `setClock(null)` drops the
+  calendar too); `npm run docs:guide`, `npm run docs:settings`; architecture invariant line.
+
+Tests (D floors as jest)
+
+- `src/engine/life/clock.test.ts` (44): T1 rollback ≡ replay, 4 seeds × 100 cuts over reads, entry effects, author sets,
+  OOC lines, continues, reopen every 10th cut, plus a code-only boundary (author set, no read window, no transition)
+  and a control; T2 1,000 days vs an independent walker (unequal months, 5-day week, 3 seasons with wrap); T3 clamps over
+  4 seeds × 200 turns; T4 no-wall-clock guard with a planted control; T5 parity with a reference of the v2.7 37 clock,
+  4 seeds × 120 boundaries (time_of_day, story_day and schedule drops); T6 offered-quest rule on every time key and a
+  calendar key, control, runtime acceptance after the deadline, reward refusal; T13 stale read, read + entry composing,
+  author over read; T14 calendar semantics; T15 first-visit time past a truncated log and reopen; T16 entry consistency;
+  Author-view writer row; timeline label.
+- `src/extraction/clockScope.test.ts` (5): the read is asked for the time of day when a gate names a time key; control.
+- `src/runtime/meanwhilePlay.review.test.ts` (+2): H14a scripted 20-boundary run with 2 advances → passes exactly on the
+  2 advancing boundaries; no-clock control.
+- Updated: `engine/life/life.test.ts`, `engine/validate/life.test.ts` (read key), `copilot/guideCoverage.test.ts`.
+- `test/scenarios/v28-50-story-time.json` written, NOT YET RUN (no-model group scenario: author sets, schedule drop and
+  return, entry jump in the same boundary, deadline quest, time row writer, reload).
+
+Gates
+
+- `npm run gates:quick`: typecheck, typecheck:test, lint, jest related (6,847 passed) green; `defect replay --cached` red
+  because a fresh worktree has no `.build/defect-replay-cache.json`, so the changed list is every file and `jest
+  --listTests` overflows the Windows command line (tooling, not the change); the full replay below is green.
+- `npm run gates -- --jobs=2 --no-storybook`: all green in 448.2 s (test 8,730 passed / 1 skipped; build; replay 32 of 32
+  killed; typecheck; test:debug 1,296; typecheck:test; lint; debug:typecheck; test:release; test:plugin).
+- Storybook: gates hardcode port 6006, so `npm run storybook:build`, `http-server .sb-static -p 6150`,
+  `test-storybook --url http://127.0.0.1:6150 --maxWorkers 2`: 863 of 864 passed in 144 suites (1,051 s); the one failure, `WorkspaceShell` Desktop ("heading features" not found), passed on retry alone (2 of 2): a load flake.
+- Flake: `runtime/consequences.test.ts` C6 (p95 ≤ 5 ms) failed once in a full parallel jest run, passed alone and in the
+  gates run.
+- Bundle: main `dist/index.js` 1,295,374 B (was 1,293,107; +2,267; budget 1,300,000). Clock, calendar and validator ride
+  the game-layer chunk (`2070.index.js`).
+
+Deviations
+
+- First-read rule: a clock with no authored `start_part` is unanchored until its first read or move; that first read lands
+  the part it names on day 1 (more than one part), exactly as the v2.7 37 clock did. T3's one-part clamp is asserted from
+  anchoring on. With `start_part` authored, every read moves at most one part.
+- Stale read uses `window end ≤ life_time_moved_at` (the plan says "after"): a window ending on the message the jump
+  happened at describes the time before it.
+- `effects.time` is not on `CheckpointEffects` (schema.ts is at its 600-line budget); it is typed by `TimedEffects` in
+  `lifeSchema.ts`; `StoryV2.calendar` shares a line with `clock`.
+- Reserved time keys are refused only when the story declares a clock (stories without a clock may still author e.g.
+  `time_of_day`).
+- `time_part`, `is_night` and `cal_*` exist; the `clock` widget binding `time_part`, the deadline-clock author default,
+  a player `display` on time keys and the H5b time-change chips are not built (no player display path for compiled keys
+  yet); T7 holds trivially (nothing player-facing shows time except an authored timeline).
+- The read is scoped only while a transition gate names a time key (unchanged from v2.7 37); the guide says so.
+- A read drained at a manual `activateCheckpoint` does not step time (that path never runs derive).
+
+Owed
+
+- Live no-model lane: `test/scenarios/v28-50-story-time.json` ×2 on an isolated ST copy, plus the payload golden diff
+  (declared hunk: `time_of_day` → `life_time_read` in the read). Not run here: flagged NOT green, to run after merge.
+- CL T8 read parity (live suite), RP T11 (final suite).
+- B1c rest: `clock` widget on `time_part`, deadline clocks author-only, player time display, H5b chips.
+- B2 (skip read, director op, `per_days` agendas, T9/T10/T12) and B3 (scene breaks).
+- Campaign: Adolion not changed (no calendar decided); pin not bumped.

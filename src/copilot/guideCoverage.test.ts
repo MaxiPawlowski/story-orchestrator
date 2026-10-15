@@ -14,7 +14,7 @@ const STORY: Record<keyof StoryV2, Covered> = {
   scene_read: "scene-read", lore_select: "lore-select", house_rules: "house-rules",
   scaffolding: { none: "written by the road-ahead generator, never authored" },
   objective_block: "objective-agency", display: "presentation", chapters: "chapters", memory: "chapters", quests: "quests", milestones: "quests",
-  widgets: "widgets", clock: "character-life", living: "living-director", factions: "factions",
+  widgets: "widgets", clock: "story-time", calendar: "story-time", living: "living-director", factions: "factions",
   codex: "codex",
 };
 

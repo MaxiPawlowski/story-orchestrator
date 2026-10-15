@@ -11,6 +11,14 @@ export const LIFE_FEATURES: readonly Feature[] = [
     settings: [], guideTopic: "character-life", doc: authorGuideDoc("character-life"), status: "experimental", needs: ["story"],
   },
   {
+    id: "story-calendar", name: "Story time", area: "characters", audience: "author",
+    oneLine: "A time of day, a day count and an optional calendar, moved by the story, never by the wall clock.",
+    what: "The story keeps one count of the parts of a day that have passed. The reader moves it a part at a time, a checkpoint can jump it on (the next morning, three days on) "
+      + "and the author can set it; the day, the time of day, night and the calendar date follow from it. A swipe takes it back; the player sees it only on a timeline.",
+    where: { selector: "#so-character-life", label: "Story drawer › Author view › Character life", surface: "drawer" },
+    settings: [], guideTopic: "story-time", doc: authorGuideDoc("story-time"), status: "experimental", needs: ["story"],
+  },
+  {
     id: "factions", name: "Standing with groups", area: "characters", audience: "player",
     oneLine: "How the groups in a story regard you, shown as a word such as \"Wary\" or \"Trusted\".",
     what: "A story can name groups, such as a guild or a village. What you do in the story can raise or lower how each regards you, once per event and never for doing nothing. "

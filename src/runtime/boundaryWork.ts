@@ -191,9 +191,9 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
   {
     id: "meanwhile-proposals",
     order: 66,
-    when: ({ result, manager }) => Boolean(result.fired) && manager.meanwhile.due(result.boundary),
-    run: ({ manager, scheduler }) => {
-      manager.meanwhile.schedule("checkpoint", (job) => scheduler.schedule(job));
+    when: ({ result, manager }) => manager.meanwhile.due(result.boundary, Boolean(result.fired)),
+    run: ({ result, manager, scheduler }) => {
+      manager.meanwhile.schedule(result.fired ? "checkpoint" : "time", (job) => scheduler.schedule(job));
     },
   },
   {

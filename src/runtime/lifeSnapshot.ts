@@ -2,6 +2,7 @@ import type { BoundaryLogEntry, EngineState, NormalizedStoryV2 } from "@engine/i
 import type { LifeAuthorRow } from "@engine/life/lines";
 import type { LabelAuthorRow } from "@engine/life/labels";
 import type { AxisStep } from "@engine/life/beats";
+import type { StoryTimeRow } from "@engine/life/clock";
 import { gameLayer } from "@engine/validate/gameLayer";
 import { scopeDropped } from "@extraction/scope";
 import type { ScopeSourceContext } from "@extraction/scopeSources";
@@ -13,6 +14,7 @@ export interface LifeAuthorView {
   proposals: MeanwhileProposal[];
   labels?: LabelAuthorRow[];
   history?: Record<string, AxisStep[]>;
+  clock?: StoryTimeRow | null;
 }
 
 export const lifeAuthorSlice = (
@@ -27,5 +29,6 @@ export const lifeAuthorSlice = (
     proposals: proposals?.proposals ?? [],
     labels: layer.life.labelAuthorRows(story, state.blackboard.values, log),
     history: layer.life.axisHistory(story, log),
+    clock: layer.life.storyTimeRow(story, state.blackboard.values, log),
   };
 };
