@@ -445,6 +445,7 @@ const BriefingRoot = () => (
     onboardingSeen={() => getGlobalSettings().help.onboardingSeen}
     markOnboardingSeen={() => { setGlobalSettings({ help: { onboardingSeen: true } }); }}
     chooseIdentity={(request) => manager.playerSetup.choose(request)}
+    carry={manager.carry}
   /></Lazy>
 );
 

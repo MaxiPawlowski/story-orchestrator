@@ -23,7 +23,8 @@ const LIFE_FIELDS = ["relationships", "mood", "agenda", "schedule"];
 const listed = (value: unknown, key: string): boolean => Array.isArray(value) && value.some((entry) => isRecord(entry) && entry[key] !== undefined);
 
 export const usesGameLayer = (json: Record<string, unknown>): boolean =>
-  json.quests !== undefined || json.milestones !== undefined || json.widgets !== undefined || json.codex !== undefined || json.factions !== undefined || listed(json.roster, "factions")
+  json.quests !== undefined || json.milestones !== undefined || json.widgets !== undefined || json.codex !== undefined || json.factions !== undefined
+  || json.outcome !== undefined || json.carry_from !== undefined || listed(json.roster, "factions")
   || json.clock !== undefined || json.poses !== undefined || listed(json.roster, "sprites") || listed(json.checkpoints, "effects") &&
     (json.checkpoints as unknown[]).some((cp) => isRecord(cp) && isRecord(cp.effects) && cp.effects.stage !== undefined) || LIFE_FIELDS.some((field) => listed(json.roster, field))
   || ([...(Array.isArray(json.roster) ? json.roster : []), json.player].some((member) => isRecord(member) && isRecord(member.card) && isRecord(member.card.fields) &&

@@ -6,6 +6,7 @@ import { lazyRetry } from "@utils/lazyRetry";
 
 const PlayerChapters = lazyRetry(() => import("./PlayerChapters"));
 const PlayerPromises = lazyRetry(() => import("./PlayerPromises"));
+const CarryCard = lazyRetry(() => import("@components/carry/CarryCard"));
 
 export interface PlayerOverviewProps {
   snapshot: RuntimeSnapshot;
@@ -14,6 +15,7 @@ export interface PlayerOverviewProps {
   onRestart?: () => void;
   onRetry?: () => void;
   onFlagChapter?: (title: string) => void;
+  onDismissPreviously?: () => void;
 }
 
 // The default (player) surface: the narrative composition the runtime already builds, plus the
@@ -52,7 +54,7 @@ const NowSection = ({ lines }: { lines: string[] }) => (
   </div>
 );
 
-export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, onRetry, onFlagChapter }: PlayerOverviewProps) => {
+export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, onRetry, onFlagChapter, onDismissPreviously }: PlayerOverviewProps) => {
   const { narrative, pipeline } = snapshot;
   const pipelineAction = pipelineActionText(pipeline);
   const sections = narrative.sections.filter((section) => section.id !== "status");
@@ -72,6 +74,7 @@ export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, 
           )
       ))}
       {snapshot.promises?.length ? <Lazy fallback={null}><PlayerPromises promises={snapshot.promises} /></Lazy> : null}
+      {snapshot.carry?.state ? <Lazy fallback={null}><CarryCard view={snapshot.carry} onDismiss={onDismissPreviously} /></Lazy> : null}
       {snapshot.lastRollback && (
         <div id="so-rollback-notice" className="text-xs opacity-90">
           {rollbackNoticeText(snapshot.lastRollback)}

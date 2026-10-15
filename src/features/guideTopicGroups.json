@@ -84,7 +84,9 @@
    "scene-read",
    "house-rules",
    "chapters",
-   "consequences"
+   "consequences",
+   "outcome",
+   "carry-from"
   ]
  },
  {

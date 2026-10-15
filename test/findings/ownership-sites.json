@@ -1128,6 +1128,22 @@
     "src/studio/components/ReferencePackStep.tsx#ReferencePackStep.accept": {
       "status": "delegate",
       "note": "awaits ReferencePackSession.accept, which checks run.stillOwns() before the settings write; the panel then writes only its own source/review/error/busy state behind a generation check."
+    },
+    "src/runtime/carryUnit.ts#carryCandidates": {
+      "status": "checked",
+      "note": "Pushes only to its own result list, after checking the run still owns the chat following each metadata read; returns [] when it lapsed."
+    },
+    "src/runtime/carryUnit.ts#pickCarry": {
+      "status": "checked",
+      "note": "RunToken minted before the awaited blob read and checked right after it, before extras.carry, the engine reseed and persist; notify after persist is checked again. carryCandidate.test.ts covers the verified projection; the race is re-checked by the extras/boundary guard after the read."
+    },
+    "src/runtime/carryUnit.ts#declineCarry": {
+      "status": "checked",
+      "note": "Writes extras.carry before the persist await; notify only while the run still owns the chat."
+    },
+    "src/runtime/carryUnit.ts#dismissPreviously": {
+      "status": "checked",
+      "note": "Writes extras.carry before the persist await; notify only while the run still owns the chat."
     }
   }
 }

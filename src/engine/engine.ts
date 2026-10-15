@@ -136,10 +136,11 @@ export class StoryEngine {
 
   hydrateRepair: string | null = null;
 
-  loadStory(normalized: NormalizedStoryV2): void {
+  loadStory(normalized: NormalizedStoryV2, seed: Readonly<Record<string, PrimitiveValue>> = {}): void {
     this.story = normalized;
     this.hydrateRepair = null;
     this.blackboard = new Blackboard(normalized);
+    for (const [q, v] of Object.entries(seed)) this.blackboard.applyDelta({ q, v });
     this.queue = new ApplyQueue();
     this.activeCheckpointId = normalized.startCheckpointId;
     this.visitedAnchors = normalized.checkpointById[this.activeCheckpointId]?.type === "anchor" ? [this.activeCheckpointId] : [];

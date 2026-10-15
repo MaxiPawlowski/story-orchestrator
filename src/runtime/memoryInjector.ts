@@ -182,7 +182,7 @@ export class MemoryInjector {
     const capable = this.deps.capable();
     const voiced = hasInnerVoice(this.voices(story));
     if (voiced && !innerRender()) void loadInnerRender().then(() => this.update());
-    if (capable || voiced || story.life || story.factions?.length) {
+    if (capable || voiced || story.life || story.factions?.length || story.carry_from) {
       const knowledge = this.knowledge();
       for (const id of this.stagedIds(story)) {
         const names = namesForRosterId(story, id);

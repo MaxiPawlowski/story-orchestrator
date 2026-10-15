@@ -42,6 +42,7 @@ export interface PlaysPort {
   story(): NormalizedStoryV2 | null;
   storyId(): string | null;
   activeCheckpointId(): string | null;
+  ended(): boolean;
   loading(): boolean;
   notify(): void;
 }
@@ -57,7 +58,7 @@ export function syncOpenChatPlay(port: PlaysPort, now = new Date().toISOString()
   const story = port.story();
   const storyId = port.storyId();
   if (port.loadedChatId() === chatId && groupId && story && storyId) {
-    const next = upsertPlay(plays, chatId, playRow({ story, storyId, activeCheckpointId: port.activeCheckpointId(), groupId }), now);
+    const next = upsertPlay(plays, chatId, playRow({ story, storyId, activeCheckpointId: port.activeCheckpointId(), groupId, ended: port.ended() }), now);
     return next.changed && writePlays(next.plays);
   }
   if (port.loadedChatId() !== null || port.loading() || blobMismatch() !== null || getSelectedStoryId()) return false;

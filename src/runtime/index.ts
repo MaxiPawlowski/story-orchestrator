@@ -35,7 +35,7 @@ import { readGatingModeWith } from "./worldInfoMode";
 import { getGlobalSettings } from "./settingsStore";
 import { CHAT_LOADING_STATUS, loadInlineComposer } from "./snapshotBuilder";
 import { loadGameComposer } from "./gameSnapshot";
-import { loadChapterKit } from "./chapterPort";
+import { loadChapterKit, storyEnded } from "./chapterPort";
 import { DraftedBeat } from "./draftedBeat";
 
 export const FEATURE_FAILED_TEXT = (feature: string) => `${feature} could not load — reload SillyTavern.`;
@@ -131,6 +131,7 @@ const startWatches = () => {
     story: () => runtimeManager.getStory(),
     storyId: () => runtimeManager.getCachedSnapshot().storyId,
     activeCheckpointId: () => runtimeManager.getCachedSnapshot().activeCheckpointId,
+    ended: () => storyEnded(runtimeManager.getCachedSnapshot().memory?.chapters),
     loading: () => runtimeManager.getCachedSnapshot().status === CHAT_LOADING_STATUS,
     notify: () => runtimeManager.notify(),
   }));

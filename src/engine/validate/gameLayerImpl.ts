@@ -16,6 +16,8 @@ import * as poses from "./poses";
 import { validateCardLayers } from "./cardLayers";
 import { addCodexQualities, checkCodex, readCodex } from "./codex";
 import { codexLatches, codexScopeUnits, unknownCodexNames } from "../codex";
+import { checkCarryPair, readCarry } from "./carry";
+import { carryKnownLines, carrySeed, previouslyActive, publicOutcome } from "../carry";
 
 const LIFE = {
   readLife, addLifeQualities, checkLife, deriveLife, awayMembers, lifeScopeKeys, lifeScopeTiers, privateLifeLines, agendaWorldInfo, landedSteps, lifeMoved, lifeAuthorRows,
@@ -28,11 +30,13 @@ const FACTIONS = {
   readFactions, addFactionQualities, checkFactions, factionsMoved, factionMemberLines, factionDirectorLines, standingView, factionAuthorRows, factionScopeUnits,
 };
 
+const CARRY = { readCarry, checkCarryPair, publicOutcome, carrySeed, carryKnownLines, previouslyActive };
+
 const LATCH_WRITERS = [codexLatches, factionLatches] as const;
 
 const DISCOVERY_UNITS = [codexScopeUnits, factionDiscoveryUnits] as const;
 
 export const GAME_LAYER = {
   readCheck, readChecks, checkStoryChecks, checkDisplays, readDisplay, addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests, readWidgets, life: LIFE, poses, validateCardLayers,
-  codex: CODEX, factions: FACTIONS, latchWriters: LATCH_WRITERS, discoveryUnits: DISCOVERY_UNITS,
+  codex: CODEX, factions: FACTIONS, carry: CARRY, latchWriters: LATCH_WRITERS, discoveryUnits: DISCOVERY_UNITS,
 };

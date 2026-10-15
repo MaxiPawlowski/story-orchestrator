@@ -56,7 +56,7 @@ export default function Workspace({ intent, snapshot, manager, settingsHost, dra
           onDismiss={(id, dismissed) => manager.setCheckDismissed(id, dismissed)} />
         {snapshot.ready ? <>
           <PlayerOverview snapshot={snapshot} onOpenSettings={settingsHost.openDrawer} onReread={() => void manager.runExtractionNow()}
-            onRetry={() => void manager.retryExtraction()} onRestart={() => void manager.restartStory()} />
+            onRetry={() => void manager.retryExtraction()} onRestart={() => void manager.restartStory()} onDismissPreviously={() => void manager.carry.dismiss()} />
           <GameOpeners snapshot={snapshot} />
           {snapshot.presence?.shown.suggestions && <details><summary id="so-open-suggestions">What could I do?</summary>
             <Lazy><SuggestionsPanel request={() => askSuggestions(manager)} fill={fillSuggestion} /></Lazy></details>}

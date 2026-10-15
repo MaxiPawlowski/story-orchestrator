@@ -8,6 +8,7 @@ import { LIFE_FEATURES } from "./lifeFeatures";
 import { LIVING_FEATURES } from "./livingFeatures";
 import { PROMISE_FEATURES } from "./promiseFeatures";
 import { START_FEATURES } from "./startFeatures";
+import { CARRY_FEATURES } from "./carryFeatures";
 import { chatAt, drawerAt, settingsAt, studioAt } from "./where";
 import { IMAGE_FEATURES } from "./imageFeatures";
 import { authorGuideDoc } from "./guideLinks";
@@ -112,7 +113,7 @@ const CORE_FEATURES: readonly Feature[] = [
     where: settingsAt("#so-group-story-select", "Playing › New chats start with"),
     settings: [], doc: "player/playing.md", status: "shipped", needs: ["group-chat"],
   },
-  ...START_FEATURES,
+  ...START_FEATURES, ...CARRY_FEATURES,
   {
     id: "story-drawer", name: "Story drawer", area: "play", audience: "player",
     oneLine: "Where you are, what happened, and what you are remembered for.",

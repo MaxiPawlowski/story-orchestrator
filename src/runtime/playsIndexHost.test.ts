@@ -29,6 +29,7 @@ const port = (overrides: Partial<PlaysPort> = {}): PlaysPort => ({
   story: () => story,
   storyId: () => "chapters-mini",
   activeCheckpointId: () => "gate",
+  ended: () => false,
   loading: () => false,
   notify: () => undefined,
   ...overrides,
@@ -48,6 +49,14 @@ describe("v2.7 06 A: the plays index is written at the runtime's own notificatio
     expect(syncOpenChatPlay(port({ activeCheckpointId: () => "fire" }), "2026-10-03T00:02:00.000Z")).toBe(true);
     expect(readPlaysIndex()["chat-1"]).toMatchObject({ chapterTitle: "Night Camp", updatedAt: "2026-10-03T00:02:00.000Z" });
     expect(host.saved).toBe(2);
+  });
+
+  it("v2.8 45 N12: marks the row ended at the final seal and clears it when the final record goes (rollback or restart)", () => {
+    syncOpenChatPlay(port(), "2026-10-03T00:00:00.000Z");
+    expect(syncOpenChatPlay(port({ ended: () => true }), "2026-10-03T00:01:00.000Z")).toBe(true);
+    expect(readPlaysIndex()["chat-1"].ended).toBe(true);
+    expect(syncOpenChatPlay(port(), "2026-10-03T00:02:00.000Z")).toBe(true);
+    expect(readPlaysIndex()["chat-1"].ended).toBeUndefined();
   });
 
   it("writes nothing for a solo chat, or for a chat another chat's story is loaded for", () => {

@@ -29,11 +29,12 @@ export const INJECTION_REGISTRY = {
   playerRole: { key: "story_orchestrator_player_role", depth: 4, writer: "runtime/playerRoleHost", label: "Who the player is in this story" },
   checkOutcome: { key: "story_orchestrator_check_outcome", depth: 0, writer: "runtime/checkOutcomeHost", label: "Outcomes the story decided" },
   awayNotice: { key: "story_orchestrator_away_notice", depth: 0, writer: "runtime/awayNotice", label: "Who is not here" },
+  previously: { key: "story_orchestrator_previously", depth: 4, writer: "runtime/carryPort", label: "Previously, in an earlier story" },
 } as const satisfies Record<string, InjectionSpec>;
 
 export const INJECTION_DEPTH_COLLISION_ALLOWLIST: ReadonlyArray<ReadonlySet<string>> = [
   new Set([INJECTION_REGISTRY.memoryFacts.key, INJECTION_REGISTRY.memorySceneHistory.key, INJECTION_REGISTRY.epistemic.key,
-    INJECTION_REGISTRY.ledger.key, INJECTION_REGISTRY.checkpointGuidance.key, INJECTION_REGISTRY.storySoFar.key, INJECTION_REGISTRY.playerRole.key]),
+    INJECTION_REGISTRY.ledger.key, INJECTION_REGISTRY.checkpointGuidance.key, INJECTION_REGISTRY.storySoFar.key, INJECTION_REGISTRY.playerRole.key, INJECTION_REGISTRY.previously.key]),
   new Set([INJECTION_REGISTRY.memoryShortTerm.key, INJECTION_REGISTRY.pacing.key]),
   new Set([INJECTION_REGISTRY.sceneTracker.key, INJECTION_REGISTRY.chapterBridge.key, INJECTION_REGISTRY.cardOverlay.key]),
   new Set([INJECTION_REGISTRY.continuityNote.key, INJECTION_REGISTRY.checkOutcome.key, INJECTION_REGISTRY.awayNotice.key]),

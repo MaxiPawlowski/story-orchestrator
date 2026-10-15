@@ -1,4 +1,4 @@
-import type { PoseEntry, StoryPoses, MemberSprites, StageMember, CardFieldBinding, CodexEntry, CodexFact, StoryCodex } from "@engine/schema";
+import type { PoseEntry, StoryPoses, MemberSprites, StageMember, CardFieldBinding, CodexEntry, CodexFact, StoryCodex, CarryFrom, CarryMapEntry, OutcomeKey } from "@engine/schema";
 import type { Checkpoint, CheckpointEffects, Quality, RosterMember, StoryV2, Transition } from "@engine/index";
 import { GUIDE_TOPICS, type GuideTopicId } from "./guideTopics";
 import { PENDING_GUIDE_TOPICS, readGuide } from "./guideRead";
@@ -15,7 +15,7 @@ const STORY: Record<keyof StoryV2, Covered> = {
   scaffolding: { none: "written by the road-ahead generator, never authored" },
   objective_block: "objective-agency", display: "presentation", chapters: "chapters", memory: "chapters", quests: "quests", milestones: "quests",
   widgets: "widgets", clock: "character-life", living: "living-director", factions: "factions",
-  codex: "codex",
+  codex: "codex", outcome: "outcome", carry_from: "carry-from",
 };
 
 const CHECKPOINT: Record<keyof Checkpoint, Covered> = {
@@ -58,7 +58,11 @@ const REGION: Record<keyof NonNullable<CardFieldBinding["region"]>, Covered> = {
 const CODEX: Record<keyof StoryCodex, Covered> = { people: "codex", places: "codex" };
 const CODEX_ENTRY: Record<keyof CodexEntry, Covered> = { id: "codex", name: "codex", member: "codex", location: "codex", aliases: "codex", known_when: "codex", facts: "codex" };
 const CODEX_FACT: Record<keyof CodexFact, Covered> = { id: "codex", text: "codex", known_when: "codex", source: "codex", rev: "codex" };
+const OUTCOME: Record<keyof OutcomeKey, Covered> = { key: "outcome", heritage_text: "outcome" };
+const CARRY: Record<keyof CarryFrom, Covered> = { story: "carry-from", mode: "carry-from", map: "carry-from", replay_map: "carry-from", previously: "carry-from", default: "carry-from" };
+const CARRY_MAP: Record<keyof CarryMapEntry, Covered> = { from: "carry-from", to: "carry-from", as: "carry-from", known_by: "carry-from" };
 const TABLES: Array<[string, Record<string, Covered>]> = [
+  ["outcome[]", OUTCOME], ["carry_from", CARRY], ["carry_from.map[]", CARRY_MAP],
   ["codex", CODEX], ["codex.entry", CODEX_ENTRY], ["codex.fact", CODEX_FACT],
   ["poses", POSES], ["pose", POSE], ["pose.keypoints", POSE_KEYS], ["pose.when", POSE_WHEN], ["sprites", MEMBER_POSES], ["stage.member", STAGE_MEMBER], ["card.field", CARD_FIELD], ["card.region", REGION],
   ["story", STORY], ["checkpoints[]", CHECKPOINT], ["checkpoints[].effects", EFFECTS], ["transitions[]", TRANSITION], ["roster[]", ROSTER], ["qualities[]", QUALITY],

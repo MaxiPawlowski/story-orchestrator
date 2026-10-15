@@ -26,6 +26,7 @@ import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import type { MemoryRuntimeState } from "./types";
 import { sealAtState, type ChapterHost, type SealAt } from "./chapterPort";
 import { rosterMemberName } from "./roster";
+import { sagaOutcomeLines } from "@engine/carry";
 
 export type { SealAt };
 
@@ -150,7 +151,7 @@ export class ChapterSeal {
     const written = await this.write(story, target, prepared, raw, style, known, run);
     if (!written) return null;
     const sealedRecord = this.buildRecord(target, at, range, visited, written, raw, blackboardAt);
-    const epilogue = target.final ? await this.saga(story, [...records, sealedRecord], blackboardAt, run) : null;
+    const epilogue = target.final ? await this.saga(story, [...records, sealedRecord], sagaOutcomeLines(story, blackboardAt).map(this.deps.resting()).filter(Boolean), run) : null;
     if (!guard.stillOwns()) return null;
     const next = chapterOf(story, at.activeCheckpointId);
     const finished = epilogue ? { ...sealedRecord, epilogue } : sealedRecord;
@@ -303,7 +304,7 @@ export class ChapterSeal {
     this.deps.record({ kind: "chapter_seal", inputs: [...folded.folded, ...folded.resolved, ...knowledge.folded], outputId: record.id, messageId: record.sealedAt.messageId, ...range });
   }
 
-  private async saga(story: NormalizedStoryV2, sealed: ChapterRecord[], outcome: Record<string, unknown>, run: SealRun): Promise<string | null> {
+  private async saga(story: NormalizedStoryV2, sealed: ChapterRecord[], outcome: string[], run: SealRun): Promise<string | null> {
     const cast = [...this.deps.roster().map((member) => member.name), this.deps.playerName(), story.title];
     const records = restingRecords(sealed, this.deps.resting());
     let text = "";

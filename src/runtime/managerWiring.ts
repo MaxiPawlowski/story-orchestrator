@@ -36,6 +36,7 @@ import type { EffectsApplier } from "./effectsApplier";
 import { wireLiving } from "./livingWiring";
 import { createPromisePort } from "./promisePort";
 import { createRecapPort } from "./recapPort";
+import { carryKnown, createCarryActions } from "./carryPort";
 
 export const restingTexts = <T extends { text: string }>(memory: MemoryCoordinator, rows: readonly T[]): T[] => shownRows(rows, memory.injector.restingFilter());
 
@@ -119,6 +120,11 @@ export function wireCoordinators(port: ManagerPort) {
     },
   });
   const promises = wirePromises(port, memory);
+  memory.injector.addPrivateSource((rosterId) => carryKnown(port.extras(), rosterId));
+  const carry = createCarryActions({
+    loaded: port.loaded, extras: port.extras, engine, chatId: () => String(view.hosts.chat.chatId() ?? "") || null, ownership: lifecycle.ownership,
+    journal: (summary, note) => port.journal("author", summary, note), refresh: () => memory.updateInjection(), persist: lifecycle.persist, notify: lifecycle.notify,
+  });
   const inner = wireInner(port, memory, () => pacing);
   const refusing = () => {
     const loaded = port.loaded();
@@ -229,5 +235,5 @@ export function wireCoordinators(port: ManagerPort) {
     chatOpen: () => Boolean(view.hosts.chat.chatId()),
     groupOpen: hasOpenGroup,
   };
-  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, promises };
+  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, promises, carry };
 }

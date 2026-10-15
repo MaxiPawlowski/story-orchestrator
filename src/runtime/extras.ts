@@ -401,6 +401,7 @@ export const stripGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => ({
 });
 
 export interface RestartCarry {
+  carry?: RuntimeExtras["carry"];
   features?: RuntimeExtras["overrides"];
   overrides: ChatOverrides;
   journal: RuntimeExtras["journal"];
@@ -408,7 +409,7 @@ export interface RestartCarry {
 }
 
 export const restartCarry = (extras: RuntimeExtras, checkpoint: string | undefined, boundary: number): RestartCarry => ({
-  features: readFeaturePolicies(extras.overrides),
+  ...(extras.carry ? { carry: extras.carry } : {}), features: readFeaturePolicies(extras.overrides),
   overrides: readChatOverrides(extras), journal: [...extras.journal], from: `${checkpoint ?? "the story"} (boundary ${boundary})`,
 });
 
@@ -416,6 +417,7 @@ export const restartedExtras = (carry: RestartCarry, read: () => GlobalSettings)
   const extras = createExtras(read);
   extras.overrides = readFeaturePolicies(carry.features);
   extras.journal = sanitizeJournalRecords(carry.journal);
+  if (carry.carry) extras.carry = carry.carry;
   return applyGlobalSettings(extras, read(), carry.overrides);
 };
 

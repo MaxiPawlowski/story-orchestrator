@@ -2,6 +2,7 @@ import { RECAP_GUIDE_TOPIC } from "./guideTopicsRecap";
 import { CODEX_GUIDE_TOPIC } from "./guideTopicsCodex";
 import type { DIAGNOSTIC_CODES } from "../studio/diagnostics";
 import { CHARACTER_TOPICS, FACTION_DIAGNOSTIC_TOPICS } from "./guideTopicsCharacters";
+import { CARRY_TOPICS } from "./guideTopicsCarry";
 
 export interface GuideTopic {
   title: string;
@@ -286,6 +287,7 @@ export const GUIDE_TOPICS = {
       + "seal sets open_threads (carry, close, decide), keep_tail, fold_messages, record_style. Mark the last chapter final; never lead back into an earlier chapter.",
   },
   ...RECAP_GUIDE_TOPIC,
+  ...CARRY_TOPICS,
   presentation: {
     title: "Illustrations and display",
     fields: "illustrations, checkpoints[].illustrate, effects.illustrations, chapters[].illustrations, Public appearance:, display.lore_names_public, effects.stage",

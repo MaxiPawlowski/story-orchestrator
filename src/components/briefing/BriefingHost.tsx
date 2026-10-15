@@ -7,6 +7,7 @@ import type { UiSettingsPatch } from "@runtime/settingsControl";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { BriefingModal } from "./BriefingModal";
 import type { ChooseIdentity } from "./PlayerSetupPane";
+import type { CarryPaneProps } from "@components/carry/CarryPane";
 
 export interface BriefingHostProps {
   snapshot: RuntimeSnapshot;
@@ -14,6 +15,7 @@ export interface BriefingHostProps {
   onboardingSeen: () => boolean;
   markOnboardingSeen: () => void;
   chooseIdentity?: ChooseIdentity;
+  carry?: CarryPaneProps["actions"];
 }
 
 type Opened =
@@ -24,7 +26,10 @@ export const blockingLines = (snapshot: RuntimeSnapshot): string[] => beforeYouS
 
 export const identityDue = (snapshot: RuntimeSnapshot): boolean => Boolean(snapshot.playerSetup?.pending && (snapshot.playerSetup.needsPane || snapshot.playerSetup.record?.lockFailed));
 
+export const carryDue = (snapshot: RuntimeSnapshot): boolean => Boolean(snapshot.carry?.pending && snapshot.carry.canPick);
+
 export const duePaneEmpty = (snapshot: RuntimeSnapshot, canChoose: boolean): boolean => {
+  if (carryDue(snapshot)) return false;
   const state = snapshot.briefing ?? null;
   const setup = snapshot.playerSetup ?? null;
   const briefing = Boolean(state?.enabled && state.view);
@@ -33,9 +38,9 @@ export const duePaneEmpty = (snapshot: RuntimeSnapshot, canChoose: boolean): boo
 };
 
 export const paneDue = (snapshot: RuntimeSnapshot): boolean =>
-  activationOpen(snapshot.boundary) && (briefingDue(snapshot.briefing ?? null, blockingLines(snapshot).length) || identityDue(snapshot));
+  activationOpen(snapshot.boundary) && (briefingDue(snapshot.briefing ?? null, blockingLines(snapshot).length) || identityDue(snapshot) || carryDue(snapshot));
 
-export const BriefingHost = ({ snapshot, setUi, onboardingSeen, markOnboardingSeen, chooseIdentity }: BriefingHostProps) => {
+export const BriefingHost = ({ snapshot, setUi, onboardingSeen, markOnboardingSeen, chooseIdentity, carry }: BriefingHostProps) => {
   const [opened, setOpened] = useState<Opened | null>(null);
   const latest = useRef(snapshot);
   latest.current = snapshot;
@@ -94,6 +99,7 @@ export const BriefingHost = ({ snapshot, setUi, onboardingSeen, markOnboardingSe
       onboarding={opened.onboarding}
       optOut={opened.kind === "due" && showBriefing}
       identity={showIdentity && setup && chooseIdentity ? { view: setup, rechoose: opened.kind === "identity", onChoose: chooseIdentity } : null}
+      carry={opened.kind !== "identity" && carry && snapshot.carry && (snapshot.carry.pending || snapshot.carry.state) ? { view: snapshot.carry, actions: carry } : null}
       onClose={close}
     />
   );

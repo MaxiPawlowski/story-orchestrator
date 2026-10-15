@@ -25,12 +25,19 @@ import { roleDefaultFrom, setRoleDefault } from "../passProfiles";
 import { modelCallLog } from "../modelCallLog";
 import { spikeSeams } from "../spikeSeams";
 import { awayNoticeLine, createAwayNotice } from "../awayNotice";
+import { createPreviouslyNotice, previouslyBlock } from "../carryPort";
 import { residueTags, settledOnReply } from "../emptyReply";
 import type { LoreWiring } from "./lore";
 import type { Disposers, LiveParts } from "./types";
 
 const awayNotice = createAwayNotice({
   line: () => awayNoticeLine(runtimeManager.getStory(), runtimeManager.getEngineState()?.blackboard.values ?? {}, getContext().chat ?? []),
+  set: setStoryExtensionPrompt,
+  clear: clearStoryExtensionPrompt,
+});
+
+const previously = createPreviouslyNotice({
+  block: () => previouslyBlock(runtimeManager.getCachedSnapshot().carry ?? null),
   set: setStoryExtensionPrompt,
   clear: clearStoryExtensionPrompt,
 });
@@ -42,6 +49,7 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
     lore.loreWatch.opened(intent.type);
     runtimeManager.onGenerationStarted(intent.type);
     awayNotice.opened(intent.type);
+    previously.opened(intent.type);
     runtimeManager.capturePayload("generation", intent.type);
     live.talk?.onGenerationStarted(intent.params, intent.type);
   },
@@ -59,6 +67,7 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
   },
   closed: (intent: IntentOf<"closed">) => {
     awayNotice.closed();
+    previously.closed();
     if (intent.reason !== "chat-changed") {
       runtimeManager.clearPrivateInjection();
       runtimeManager.clearCopilotNudge();

@@ -1,0 +1,51 @@
+{
+  "format": 2,
+  "id": "ngp-source",
+  "title": "The Lantern Coast",
+  "description": "Synthetic source story for v2.8 plan 45: a declared outcome a sequel or replay can carry.",
+  "chapters": [
+    { "id": "coast", "title": "Act I: The Coast", "player_title": "The Dark Harbour" },
+    { "id": "light", "title": "Act II: The Light", "player_title": "The Last Lantern", "final": true }
+  ],
+  "roster": [
+    { "id": "mara", "name": "Mara", "role": "the harbourmaster", "factions": ["guild"] },
+    { "id": "tom", "name": "Tom", "role": "a lamplighter" },
+    { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }
+  ],
+  "factions": [
+    {
+      "id": "guild", "name": "The Lamplighters", "bands": [{ "max": -2, "label": "Wary" }, { "max": 1, "label": "Neutral" }, { "label": "Trusted" }],
+      "visible_when": { "q": "met_guild", "op": "==", "v": true },
+      "moves": [{ "id": "relit", "when": { "q": "lantern_relit", "op": "==", "v": true }, "add": 3, "heard_by": "faction" }]
+    }
+  ],
+  "quests": [
+    { "id": "ledger", "title": "The keeper's ledger", "kind": "side", "visible_when": { "q": "ledger_seen", "op": "==", "v": true }, "done_when": { "q": "ledger_found", "op": "==", "v": true }, "steps": [] }
+  ],
+  "qualities": [
+    { "key": "met_guild", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has the player met the lamplighters?" },
+    { "key": "lantern_relit", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player relight the lantern?" },
+    { "key": "ledger_seen", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has the player heard of the ledger?" },
+    { "key": "ledger_found", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player find the ledger?" },
+    { "key": "coast_fate", "type": "enum", "values": ["lit", "dark"], "source": "extractor", "latching": true, "rubric": "How did the coast end up?" },
+    { "key": "harbour_mood", "type": "enum", "values": ["grateful", "bitter"], "player_labels": { "grateful": "The harbour is grateful to you.", "bitter": "The harbour remembers you bitterly." }, "source": "extractor", "rubric": "How the harbour feels" },
+    { "key": "coins", "type": "int", "source": "extractor", "rubric": "Coins the player holds", "display": { "public": true, "label": "Coins", "as": "count" } },
+    { "key": "secret_pact", "type": "enum", "values": ["sworn", "refused"], "source": "extractor", "rubric": "Did the player swear the drowned pact in secret?" },
+    { "key": "pact_hidden", "type": "bool", "source": "extractor", "rubric": "Unmapped and never declared" }
+  ],
+  "outcome": [
+    { "key": "coast_fate", "heritage_text": { "lit": "You relit the Lantern Coast.", "dark": "The Lantern Coast went dark." } },
+    { "key": "harbour_mood" },
+    { "key": "coins" },
+    { "key": "quest_ledger_closed" },
+    { "key": "rep_guild" },
+    { "key": "secret_pact" }
+  ],
+  "checkpoints": [
+    { "id": "harbour", "name": "The Harbour", "objective": "Find out why the lanterns fail.", "type": "anchor", "start": true, "chapter": "coast", "player_name": "the harbour" },
+    { "id": "tower", "name": "The Tower", "objective": "Climb to the last lantern.", "type": "anchor", "chapter": "light", "player_name": "the lantern tower" }
+  ],
+  "transitions": [
+    { "from": "harbour", "to": "tower", "priority": 1, "gate": { "q": "met_guild", "op": "==", "v": true } }
+  ]
+}

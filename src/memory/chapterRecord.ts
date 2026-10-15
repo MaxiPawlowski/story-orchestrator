@@ -145,17 +145,14 @@ export function degradedChapterRecord(input: ChapterInput): ParsedChapterRecord 
   };
 }
 
-export function buildSagaPrompt(storyTitle: string, records: readonly ChapterRecord[], outcome: Readonly<Record<string, unknown>>): string {
+export function buildSagaPrompt(storyTitle: string, records: readonly ChapterRecord[], outcome: readonly string[]): string {
   return [
     "Write plain TEXT ONLY. Do NOT continue the roleplay. The story below has ended; write its epilogue.",
-    "Write 400-700 words, past tense, drawing only on the chapter records and the final state. Keep every name as written. Invent nothing.",
-    "FINAL STATE lists internal keys and values: tell what they mean as story, never quote a key, a value or a number from it.",
+    `Write 400-700 words, past tense, drawing only on the chapter records${outcome.length ? " and how it ended" : ""}. Keep every name as written. Invent nothing.`,
     "",
     `STORY: ${storyTitle}`,
     ...records.flatMap((record, index) => ["", `CHAPTER ${index + 1}: ${record.playerTitle}`, record.summary, ...record.consequences.map((item) => `- ${item.text}`)]),
-    "",
-    "FINAL STATE:",
-    ...Object.entries(outcome).map(([key, value]) => `- ${key}: ${JSON.stringify(value)}`),
+    ...(outcome.length ? ["", "HOW IT ENDED (what the player saw):", ...outcome.map((line) => `- ${line}`)] : []),
   ].join("\n");
 }
 
