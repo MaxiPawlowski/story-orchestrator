@@ -5,6 +5,7 @@ import {
 } from "../schema";
 import { effectiveMood, isAway, whereabouts } from "./presence";
 import { factionMemberLines } from "../factions/standing";
+import { labelClause } from "./labels";
 
 type Values = Readonly<Record<string, PrimitiveValue>>;
 type Read = Readonly<Record<string, unknown>>;
@@ -27,12 +28,13 @@ const doneSteps = (member: string, agenda: Agenda, values: Read): AgendaStep[] =
 const towardName = (story: NormalizedStoryV2, toward: string): string =>
   (toward === RELATIONSHIP_TOWARD_PLAYER ? PLAYER_REF : story.roster.find((member) => member.id === toward)?.name ?? toward);
 
-const relationshipLines = (story: NormalizedStoryV2, member: LifeMember, values: Values): string[] => member.relationships.flatMap((relationship) =>
-  relationship.axes.map((axis) => {
+const relationshipLines = (story: NormalizedStoryV2, member: LifeMember, values: Values, labelled = false): string[] => member.relationships.flatMap((relationship) =>
+  relationship.axes.map((axis, at) => {
     const value = values[relationshipKey(member.id, relationship.toward, axis)];
     const shown = typeof value === "number" ? value : relationship.start;
     const label = relationship.label ? ` (${relationship.label})` : "";
-    return `- Your ${axis} toward ${towardName(story, relationship.toward)}${label}: ${shown} on a scale from ${relationship.range[0]} to ${relationship.range[1]}.`;
+    const labels = labelled && at === 0 ? labelClause(member.id, relationship, values) : "";
+    return `- Your ${axis} toward ${towardName(story, relationship.toward)}${label}${labels}: ${shown} on a scale from ${relationship.range[0]} to ${relationship.range[1]}.`;
   }));
 
 export const relationshipFeelings = (story: NormalizedStoryV2, values: Values, memberId: string): string[] => {
@@ -51,7 +53,7 @@ export const privateLifeLines = (story: NormalizedStoryV2, values: Values, membe
   const shared = members.filter((member) => member.id !== memberId).flatMap((member) => meanwhileLines(member, values, true))
     .map((text) => `- Meanwhile, as everyone knows: ${text}`);
   const lines = [
-    ...(self ? relationshipLines(story, self, values) : []),
+    ...(self ? relationshipLines(story, self, values, true) : []),
     ...factionMemberLines(story, values, memberId),
     ...(mood ? [`- Your mood right now: ${mood}.`] : []),
     ...own, ...accepted.map((text) => `- Meanwhile, off stage, you: ${text}`), ...shared,

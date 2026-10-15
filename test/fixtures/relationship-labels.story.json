@@ -1,0 +1,76 @@
+{
+  "format": 2,
+  "id": "relationship-labels-lab",
+  "title": "Relationship labels lab",
+  "description": "Synthetic story for v2.8 plan 51: public labels, gated secret labels, an NPC-to-NPC row, a held band and a member known only through its People page.",
+  "roster": [
+    {
+      "id": "mara", "name": "Mara", "role": "a harbour clerk",
+      "relationships": [
+        {
+          "toward": "player", "axes": ["trust"],
+          "public": [{ "label": "wary" }, { "label": "warming to you", "when": { "q": "shared_meal", "op": "==", "v": true } }],
+          "secret": [
+            { "id": "loyal", "label": "secretly loyal to you", "revealed_when": { "q": "saw_letter", "op": "==", "v": true } },
+            { "id": "debt", "label": "owes you a debt", "revealed_when": { "q": "paid_debt", "op": "==", "v": true } }
+          ]
+        },
+        {
+          "toward": "tom", "axes": ["rivalry"],
+          "public": [{ "label": "rivals" }],
+          "secret": [{ "id": "envy", "label": "envies his post", "revealed_when": { "q": "overheard", "op": "==", "v": true } }]
+        }
+      ]
+    },
+    {
+      "id": "tom", "name": "Tom", "role": "a ferryman",
+      "relationships": [
+        {
+          "toward": "player", "axes": ["trust"],
+          "public": [{ "label": "guarded" }, { "label": "open with you", "when": { "q": "rel_tom_player_trust", "op": ">=", "v": 3 }, "follows_feeling": true, "hold": 2 }],
+          "secret": [{ "id": "thief", "label": "took the silver ring", "revealed_when": { "q": "found_ring", "op": "==", "v": true } }]
+        },
+        {
+          "toward": "sera", "axes": ["respect"],
+          "secret": [{ "id": "feud", "label": "blames her for the fire", "revealed_when": { "q": "overheard", "op": "==", "v": true } }]
+        }
+      ]
+    },
+    {
+      "id": "sera", "name": "Sera", "role": "a royal envoy",
+      "relationships": [
+        {
+          "toward": "player", "axes": ["fear"],
+          "public": [{ "label": "aloof" }],
+          "secret": [
+            { "id": "spy", "label": "reports on you to the crown", "revealed_when": { "q": "heard_rumor", "op": "==", "v": true } },
+            { "id": "kin", "label": "is your cousin", "revealed_when": { "all": [{ "q": "found_ring", "op": "==", "v": true }, { "q": "met_sera", "op": "==", "v": true }] } }
+          ]
+        }
+      ]
+    },
+    { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }
+  ],
+  "codex": {
+    "people": [
+      { "id": "envoy", "member": "sera", "known_when": { "q": "met_sera", "op": "==", "v": true }, "facts": [{ "id": "post", "text": "Carries the crown's seal.", "known_when": { "q": "met_sera", "op": "==", "v": true } }] }
+    ]
+  },
+  "qualities": [
+    { "key": "location", "type": "enum", "values": ["harbour", "docks", "inn"], "source": "extractor", "evidence_from": "world", "rubric": "Where the party is." },
+    { "key": "shared_meal", "type": "bool", "source": "extractor", "rubric": "Whether the player shared a meal with Mara." },
+    { "key": "saw_letter", "type": "bool", "source": "extractor", "rubric": "Whether the player read Mara's letter." },
+    { "key": "paid_debt", "type": "bool", "source": "extractor", "rubric": "Whether the player paid Mara's debt." },
+    { "key": "overheard", "type": "bool", "source": "extractor", "rubric": "Whether the player overheard the clerks." },
+    { "key": "found_ring", "type": "bool", "source": "extractor", "rubric": "Whether the player found the silver ring." },
+    { "key": "heard_rumor", "type": "bool", "source": "extractor", "rubric": "Whether the player heard the rumour about the envoy." },
+    { "key": "met_sera", "type": "bool", "source": "extractor", "rubric": "Whether the player met Sera." }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "The harbour", "player_name": "The harbour", "type": "anchor", "start": true, "objective": "Meet the clerks." },
+    { "id": "docks", "name": "The docks", "player_name": "The docks", "type": "anchor", "objective": "Find the ferry." }
+  ],
+  "transitions": [
+    { "from": "start", "to": "docks", "priority": 1, "gate": { "all": [{ "q": "location", "op": "==", "v": "docks" }] } }
+  ]
+}

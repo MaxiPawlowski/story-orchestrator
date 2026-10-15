@@ -25,7 +25,12 @@ const Entry = ({ entry }: { entry: CodexEntryView }) => (
     )}
     {entry.rows && entry.rows.length > 0 && (
       <ul data-so="codex-rows" className="m-0 flex list-none flex-col gap-0.5 p-0 text-xs">
-        {entry.rows.map((row, index) => <li key={index}>{row.text}</li>)}
+        {entry.rows.map((row, index) => (
+          <li key={index} data-so="codex-row" data-kind={row.kind} data-fresh={row.fresh === true}>
+            <span>{row.text}</span>
+            {row.fresh && <span className="st-pill ml-1 px-1.5 text-[10px]">{CODEX_TEXT.fresh}</span>}
+          </li>
+        ))}
       </ul>
     )}
   </li>
