@@ -320,8 +320,13 @@ Gates (2026-10-15, worktree `C:\dev\so-p51-labels`)
   story line), fixed.
 - Storybook (gates hardcode port 6006): `npm run storybook:build`, then `http-server .sb-static -p 6251` + `test-storybook --url
   http://127.0.0.1:6251 --maxWorkers 2`: 145 suites, 868 tests passed.
-- Main bundle `dist/index.js` 1,294,734 B (master 1,293,107; +1,627 B: wiring, the hasGameLayer check, journal kind, rollback detector, beat
-  field); label, beat, composer, Studio and inline code ride lazy chunks.
+- Main bundle `dist/index.js` 1,294,734 B before the plan 50 merge (master 1,293,107; +1,627 B: wiring, the hasGameLayer check, journal kind,
+  rollback detector, beat field); label, beat, composer, Studio and inline code ride lazy chunks.
+- After merging master `7a74fecc` (plan 50 story time; conflicts in the life validator, rollback registry, game layer, life snapshot, guide
+  order and queue resolved side by side, arrival golden re-recorded): `npm run gates -- --jobs=2 --no-storybook` on `0c1005aa` all green in
+  328.5 s (test 8,831 passed / 1 skipped, test:replay, build, typecheck, typecheck:test, test:debug, debug:typecheck, lint, test:release,
+  test:plugin); Storybook on port 6251: 145 suites, 870 tests passed. Main bundle 1,296,892 B (master with plan 50 1,295,374; +1,518 B),
+  3,108 B under the budget.
 
 Live
 
