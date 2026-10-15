@@ -61,7 +61,10 @@ export class LivingPort {
   }
 
   movedAfter(boundary: number): boolean {
-    return (this.deps.getLiving()?.ops ?? []).some((op) => op.boundary > boundary);
+    const living = this.deps.getLiving();
+    return (living?.ops ?? []).some((op) => op.boundary > boundary)
+      || (living?.proposals ?? []).some((proposal) => (proposal.status === "proposed" || proposal.status === "accepted") && proposal.boundary > boundary)
+      || (living?.divergence?.lastBoundary ?? -1) > boundary;
   }
 
   restoreAfterRollback(boundary: number): number {
