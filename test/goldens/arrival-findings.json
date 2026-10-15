@@ -35,10 +35,6 @@
   "test/fixtures/extractor-intents12.story.json#0": [],
   "test/fixtures/extractor-intents13.story.json#0": [],
   "test/fixtures/extractor-intents14.story.json#0": [],
-  "test/fixtures/extractor-time01.story.json#0": [],
-  "test/fixtures/extractor-time02.story.json#0": [],
-  "test/fixtures/extractor-time03.story.json#0": [],
-  "test/fixtures/extractor-time04.story.json#0": [],
   "test/fixtures/extractor.story.json#0": [],
   "test/fixtures/extractor10.story.json#0": [],
   "test/fixtures/extractor11.story.json#0": [],
@@ -84,6 +80,10 @@
   "test/fixtures/sp6-complications.story.json#0": [],
   "test/fixtures/sp7-chance.story.json#0": [],
   "test/fixtures/spike-edits.story.json#0": [],
+  "test/fixtures/timewindow01.story.json#0": [],
+  "test/fixtures/timewindow02.story.json#0": [],
+  "test/fixtures/timewindow03.story.json#0": [],
+  "test/fixtures/timewindow04.story.json#0": [],
   "test/fixtures/v15-cast.story.json#0": [
     {
       "index": 1,
