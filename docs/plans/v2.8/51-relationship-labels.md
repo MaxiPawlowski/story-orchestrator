@@ -1,6 +1,7 @@
 # Plan 51 — Discoverable relationship labels
 
-**Status (2026-10-14): DRAFT, not built.** Owner decision 2026-10-14: the roleplay mechanics of plans 51–53 go into
+**Status (2026-10-15): A built on `v2.8-p51-labels` (not merged); D floors green, live lane gate and CL/RP owed (§Gate record).**
+Previous status (2026-10-14): DRAFT, not built. Owner decision 2026-10-14: the roleplay mechanics of plans 51–53 go into
 v2.8 and are written now. Source row: v2.8 27 report G15 ("relationship public label + gated secret label; numbers
 author-only; directed, not mirrored"), deferred by v2.7 37 L1 ("label only; reveal deferred"). Gate tiers (v2.8 00
 §Gate taxonomy): implementation **D**; acceptance **D** + **CL** (label wording rated by a second model) + **RP** (holder
@@ -252,3 +253,105 @@ From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licen
   history.
 - **H5 "here now" scene card** → new plan v2.8 65, which **reopens decision 2** (no interim surface): the card is a permanent
   composition over 52's pages, not an interim Journal section. Owner call.
+
+## Gate record
+
+Built 2026-10-14/15 on branch `v2.8-p51-labels` (base master `cc38c5b1`), option A with every recommended decision (owner: "yes to all from
+your recommendations"): 1 A; 2 no interim Journal section, labels on 52's person pages; 3 (d) `follows_feeling` with optional `hold`; 4 no
+member or director learns a reveal; 5 "Revealed" chip at inline level 1; 6 never un-revealed, only rollback; 7 history grammar for secrets.
+Harvest addendum built: H11a fresh-beat guard, H11b per-axis breakdown. Commits `1039a6c9`, `b143ad7b` and this record.
+
+What was built
+
+- Format (`engine/lifeSchema.ts`, `validate/life.ts`): `public [{label, when?, follows_feeling?, hold?}]` (at most 6, 40 chars, plain text) and
+  `secret [{id, label, revealed_when}]` (at most 4) on each relationship. Refused: unknown keys, macros/markup, a public gate reading `rel_*`
+  without `follows_feeling`, `hold` without it, a secret gate true at start, a secret equal to a public label, duplicate ids, undeclared gate
+  keys.
+- Latches (SC2 step 5, again at the entry pass): `labelLatches` in `GAME_LAYER.latchWriters` writes `life_reveal_<holder>_<toward>_<id>`
+  (code int = boundary, latching, monotonic) the first boundary the gate holds; a held relationship keeps `life_label_<holder>_<toward>`
+  (+ `_next`, `_since`), idempotent on the second pass. Last holding row wins.
+- SC1: `ROLLBACK_DETECTORS` entry `relationship-labels` (every `life_reveal_*` / `life_label_*` key); the guard story carries labels.
+- SC3/SC4: rows project through `knownEntities` (holder and target known; player always); `hasGameLayer` counts labelled relationships.
+  The snapshot now passes the group's enabled members to the composer and the inline timeline (52's owed `enabled` wiring), so a member
+  without a People entry is known while enabled.
+- Player surface: `runtime/labelView.ts` fills `CodexSources.personRows` (holder's authored page) and a new `extraPeople` (a page for a
+  holder without a codex entry). Rows `{text, kind: label|learned, fresh}`: "Toward you: wary", "Learned: secretly loyal to you",
+  "Learned (toward Tom): …". Log kind `reveal`; inline chip "Revealed · Mara: …" (level 1, via `gameLayer().life.revealChips`); session
+  journal `reveal` events diffed from `life_reveal_*`. `withheldNames` adds unrevealed secret labels.
+- Holder's private line (first axis line of the relationship): "(shown as: wary; secretly: …, which others have not learned | which the
+  player now knows)". `relationshipFeelings` (warden) is unchanged, so no secret reaches the warden or any shared text.
+- Author view: `CharacterLifePanel` lists each label with its gate, which public row holds, secrets with reveal boundary + message id, and a
+  "why this number" list per axis (H11b, `engine/life/beats.ts` `axisHistory`, derived from boundary history, never stored).
+- H11a: `holdSameBeat` (game layer, called through `heldJournal.freshBeats`) holds a `rel_*` step whose evidence repeats the last step's beat
+  within 4 boundaries (normalised equality or containment ≥ 16 chars), journaled "same beat as the last step"; the accepted beat rides
+  `BlackboardDelta.beat`.
+- Studio: `RelationshipLabelsEditor` under Roster (public rows with gate, follows-the-feeling, hold; secret rows with the gate builder);
+  mutation `setRelationshipLabels` (composed by the agent's `setCharacterLife`, whose schema now names `public`/`secret`); diagnostics
+  `relationship-label-reads-axis`, `relationship-secret-in-public`, and `disclosure-names-unknown-entity` on label text.
+- Guide topic `relationship-labels` (`docs/authoring/story-guide.md`, compact twin `copilot/guideTopicsLabels.ts`, spread through
+  `guideTopicsCharacters.ts` since `guideTopics.ts` is at budget), `npm run docs:guide`, `npm run docs:settings`; feature
+  `relationship-labels` (characters, player); architecture note.
+
+Floors (D, jest)
+
+- R1 + R3: 500 random paths, 0 leaks (unrevealed text, reveal/label keys, digits in rows, learned-row count = revealed and known)
+  (`runtime/relationshipLabels.review.test.ts`).
+- R2: byte-identical view JSON + Journal markup with and without unrevealed secrets, 200 seeds.
+- R4: 60 seeds rollback-then-replay ≡ straight (swipe/edit/delete at a random message, lagged and windowed reads), reopen, code-only boundary
+  (`engine/labelRollback.property.test.ts`). Control: with the label detector disabled 20 of 63 cases fail.
+- R5: a story without labels sends the same private block; non-holders unchanged (`engine/life/labels.test.ts`). Payload goldens not
+  re-captured (lane).
+- R6: 200 configurations of A → B labels never change B → A rows.
+- R8: 120 seeds, 0 hits of an unrevealed label in other members' drafted blocks, the resting block, shared tiers + ledger, the warden's
+  feelings and the player view; withheld for suggestions; the holder carries it.
+- R10: labels-only story renders the People pages; a story with nothing stays null.
+- R11: every label gate key offered by the discovery source within ⌈9/6⌉+2 rotations; control without the source never asks.
+- R12: 500 seeds with random enabled members and an unmet People page: 0 rows for unknown holder or target, NPC-to-NPC included.
+- H11a: a 6-turn lingering-mood fixture moves the axis once; a new event moves it; the same beat passes again after the window.
+- Inline chip at level 1 for a known holder, none for an unknown one (`inlineTimeline.test.ts`).
+
+Gates (2026-10-15, worktree `C:\dev\so-p51-labels`)
+
+- `npm run gates:quick`: typecheck, typecheck:test, lint green; jest related 6,896 passed with one timing flake (`consequences.test.ts`
+  C6 p95 12.6 ms under load; re-run alone 0.40 ms, green); `defect replay (--cached)` fails in this fresh worktree exactly as in 53
+  (`jest --listTests` over every tracked file exceeds the Windows command line, no cache), tooling, not this change; the full replay is green.
+- `npm run gates -- --jobs=2 --no-storybook` on `b143ad7b`: all green in 522.5 s (test 8,780 passed / 1 skipped, test:replay, build,
+  typecheck, typecheck:test, test:debug, debug:typecheck, lint, test:release, test:plugin). The first run went red at lint (one 201-char
+  story line), fixed.
+- Storybook (gates hardcode port 6006): `npm run storybook:build`, then `http-server .sb-static -p 6251` + `test-storybook --url
+  http://127.0.0.1:6251 --maxWorkers 2`: 145 suites, 868 tests passed.
+- Main bundle `dist/index.js` 1,294,734 B before the plan 50 merge (master 1,293,107; +1,627 B: wiring, the hasGameLayer check, journal kind,
+  rollback detector, beat field); label, beat, composer, Studio and inline code ride lazy chunks.
+- After merging master `7a74fecc` (plan 50 story time; conflicts in the life validator, rollback registry, game layer, life snapshot, guide
+  order and queue resolved side by side, arrival golden re-recorded): `npm run gates -- --jobs=2 --no-storybook` on `0c1005aa` all green in
+  328.5 s (test 8,831 passed / 1 skipped, test:replay, build, typecheck, typecheck:test, test:debug, debug:typecheck, lint, test:release,
+  test:plugin); Storybook on port 6251: 145 suites, 870 tests passed. Main bundle 1,296,892 B (master with plan 50 1,295,374; +1,518 B),
+  3,108 B under the budget.
+
+Live
+
+- NOT green, owed: the branch build is not staged anywhere and no isolated ST copy was made. Scenario ready:
+  `node scripts/debug/so-scenario.mts run test/scenarios/v28-51-labels.json --sandbox --group 'Group: Arin, DM Narrator'` (no-model lane,
+  twice): public label on Arin's page, secret absent from the player view and the narrator's block, seeded reveal (log row, holder line),
+  `assert-player-clean`, reopen equal, swipe rewinds the reveal (code-only boundary), second reopen equal. R5 payload goldens ride the same
+  lane run.
+- CL/RP (R7, R9) owed to the final v2.8 real-LLM suite (lab story only).
+
+Deviations
+
+- The reveal latch is a code int holding the reveal boundary (as codex/factions), not a bool, so author view shows boundary + message id
+  without a log scan.
+- No `GameView.relations`: the rows live only on People pages (`CodexEntryView.rows`), with a synthesized page for a holder that has no
+  codex entry.
+- `playerProjection` gains no labels at all (only the withheld list), stricter than "only revealed labels".
+- Fresh-beat window counts the step's own boundary: a read up to 4 boundaries after the step is held (so the 6-turn floor moves once).
+- `hold` is allowed only with `follows_feeling`; before the first boundary a held relationship shows its last holding event row.
+- The label clause rides the first axis line of each relationship (one clause, not one per axis).
+- Label disclosure check: label text naming a codex entry not known from the start (members without entries count as known).
+- No new setup check (label gates ride the existing discovery overflow).
+
+Unresolved questions
+
+- `storyDiff` has no label case: a secret whose gate or text is rewritten keeps its latch by id (52's id + rev + gate would fit).
+- Should a member switched off in the group keep their People page labels once known? (Today: known only while enabled, unless an
+  authored People entry is latched.)

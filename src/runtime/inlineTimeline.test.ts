@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { gatedWorldInfo, parseStoryV2OrThrow, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { StoryEngine, gatedWorldInfo, parseStoryV2OrThrow, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
 import type { SharedReadAudit } from "@extraction/index";
 import { heldSecrets, provenance, withoutSecretLines, type EpistemicEntry, type MemoryEntry } from "@memory/index";
 import { composeInlineTimeline, inlineMessageIds, visibleInlineItems, type InlineSources, type InlineView } from "./inlineTimeline";
@@ -340,5 +340,22 @@ describe("inline timeline player copy and held secrets: facts and threads go thr
   it("control: with no held secret the view is identical to the unfiltered one", () => {
     const none = heldSecrets([knowledge[1]], ["Aria", "Bram"]);
     expect(composeInlineTimeline(planted((text) => withoutSecretLines(text, none, null)))).toEqual(composeInlineTimeline(planted()));
+  });
+});
+
+describe("v2.8 plan 51: a reveal chip under the message that earned it", () => {
+  const labels = parseStoryV2OrThrow(JSON.parse(readFileSync(join(ROOT, "test/fixtures/relationship-labels.story.json"), "utf8")));
+  const played = (enabled: string[]) => {
+    const engine = new StoryEngine({ now: () => 0 });
+    engine.loadStory(labels);
+    engine.enqueue({ source: "extractor", blackboardVersionSum: 0, deltas: [{ q: "saw_letter", v: true, source: "extractor" }, { q: "heard_rumor", v: true, source: "extractor" }] });
+    engine.commitBoundary({ lastMessageId: 3, chatLength: 4 });
+    return composeInlineTimeline(sources(labels, { boundaryLog: engine.stateLog, settings: { ...defaultInlineSettings(), level: 1 }, authorView: false, enabled, castNames: { mara: "Mara", sera: "Sera" } }));
+  };
+
+  it("shows 'Revealed' at level 1 for a known holder, and nothing for one the player has not met", () => {
+    const chips = (played(["mara", "sera"]).byMessage[3] ?? []).filter((item) => item.id.startsWith("progress:reveal")).map((item) => item.text);
+    expect(chips).toEqual(["Revealed · Mara: secretly loyal to you"]);
+    expect((played([]).byMessage[3] ?? []).some((item) => item.id.startsWith("progress:reveal"))).toBe(false);
   });
 });

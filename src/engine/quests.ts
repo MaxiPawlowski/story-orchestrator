@@ -1,6 +1,6 @@
 import type { Blackboard } from "./blackboard";
 import { evaluateGate, gateKeys, type GateReader } from "./gates";
-import { hasCodex, questClosedKey, questRewardKey, type GateNode, type Milestone, type NormalizedStoryV2, type Quality, type Quest, type QuestStep } from "./schema";
+import { hasCodex, hasLabels, questClosedKey, questRewardKey, type GateNode, type Milestone, type NormalizedStoryV2, type Quality, type Quest, type QuestStep } from "./schema";
 
 export type QuestStatus = "hidden" | "offered" | "active" | "done" | "failed";
 export type StepStatus = "hidden" | "open" | "done" | "failed";
@@ -30,9 +30,9 @@ export const isClosed = (status: QuestStatus): boolean => status === "done" || s
 
 export const valueReader = (values: Record<string, unknown>): GateReader => ({ get: (key) => values[key] as ReturnType<GateReader["get"]> });
 
-export const hasGameLayer = (story: Pick<NormalizedStoryV2, "quests" | "milestones" | "widgets" | "qualities" | "codex" | "factions"> | null | undefined): boolean =>
+export const hasGameLayer = (story: Pick<NormalizedStoryV2, "quests" | "milestones" | "widgets" | "qualities" | "codex" | "factions" | "life"> | null | undefined): boolean =>
   Boolean(story && (story.quests?.length || story.milestones?.length || story.widgets?.length || story.factions?.length || story.qualities.some((quality) => quality.display)
-    || hasCodex(story.codex)));
+    || hasCodex(story.codex) || story.life?.members.some((member) => member.relationships.some(hasLabels))));
 
 const openStepKeys = (quest: Quest, reader: GateReader): string[] => quest.steps.flatMap((step) => {
   const status = stepStatus(step, reader);

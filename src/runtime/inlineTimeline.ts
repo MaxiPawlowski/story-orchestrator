@@ -16,6 +16,7 @@ import { effectiveInlineLevel, PLAYER_LEVEL_CAP, type InlineCategory, type Inlin
 import type { EffectLedgerRow, EffectLedgerStatus, PayloadCapture, TalkDecisionAudit, TensionHistoryRow, VerifyDrop } from "./types";
 import type { JournalRecord } from "./journal";
 import { EMPTY_REPLY_PLAYER_TEXT } from "./emptyReply";
+import { gameLayer } from "@engine/validate/gameLayer";
 
 export type InlineState = "live" | "pending" | "applied" | "refused";
 
@@ -75,6 +76,7 @@ export interface InlineSources {
   authorMoves?: JournalRecord[];
   resting?: (text: string) => string;
   emptyReplies?: number[];
+  enabled?: readonly string[];
 }
 
 const RAW_LIMIT = 4000;
@@ -109,6 +111,15 @@ function questItems(sources: InlineSources): Draft[] {
     if (from === to || to === "hidden") return [];
     const text = questMoveText(to, quest.title, quest.labels);
     return [{ id: `progress:quest:${entry.boundary}:${quest.id}`, messageId: entry.context.lastMessageId, category: "progress", level: 1, state: "applied", text }];
+  }));
+}
+
+function revealItems(sources: InlineSources): Draft[] {
+  const { story } = sources;
+  const values = sources.boundaryLog.at(-1)?.after.blackboard.values;
+  if (!story?.life || !values) return [];
+  return (gameLayer()?.life.revealChips(story, sources.boundaryLog, values, sources.enabled ?? [], sources.castNames ?? {}) ?? []).map((chip, at) => ({
+    id: `progress:reveal:${chip.boundary}:${at}`, messageId: chip.messageId, category: "progress", level: 1, state: "applied", text: chip.text,
   }));
 }
 
@@ -411,7 +422,7 @@ export function composeInlineTimeline(sources: InlineSources): InlineView {
   const newest = sources.chatLength - 1;
   const oldest = newest - Math.max(1, sources.settings.window) + 1;
   const drafts = [
-    ...progressItems(sources), ...questItems(sources), ...memoryItems(sources), ...threadItems(sources), ...loreItems(sources),
+    ...progressItems(sources), ...questItems(sources), ...revealItems(sources), ...memoryItems(sources), ...threadItems(sources), ...loreItems(sources),
     ...castItems(sources), ...pacingItems(sources, newest), ...callItems(sources, newest), ...healthItems(sources, newest),
   ];
   const level = effectiveInlineLevel(sources.settings.level, sources.authorView);

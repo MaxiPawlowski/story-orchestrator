@@ -16,6 +16,7 @@ import { factionVisible, standingOf, standingView } from "@engine/factions/stand
 
 import { shownPlayerText } from "./stretchTurns";
 import { codexLogRows, composeCodex } from "./codexView";
+import { labelCodexSources, labelLogRows } from "./labelView";
 import { gameLayer } from "@engine/validate/gameLayer";
 
 export const LOG_LIMIT = 40;
@@ -122,7 +123,7 @@ const actionRows = (chat: readonly unknown[], from: number, log: readonly Bounda
 const composeLog = (sources: GameSources): LogRowView[] => {
   const from = sources.boundaryLog[0]?.before.lastMessageId ?? -1;
   return [...sources.boundaryLog.flatMap((entry) => statusMoves(sources.story, entry)), ...checkRows(sources.story, sources.checks), ...actionRows(sources.chat, from, sources.boundaryLog),
-    ...codexLogRows(sources.story, sources.boundaryLog, sources.castNames)]
+    ...codexLogRows(sources.story, sources.boundaryLog, sources.castNames), ...labelLogRows(sources)]
     .sort((left, right) => right.at.messageId - left.at.messageId || right.at.boundary - left.at.boundary)
     .slice(0, LOG_LIMIT);
 };
@@ -328,7 +329,7 @@ export function composeGame(sources: GameSources): GameCompose {
   const log = kinds("log").length ? kinds("log") : fallback(synthesized("journal-log", "Log", { kind: "log", rows: parts.log }, still));
   const meters = kinds("meters");
   const statSheet = meters[0] ?? (parts.sheet.length ? synthesized("stat-sheet", "Stat sheet", { kind: "meters", groups: parts.sheet }, still) : null);
-  const codex = composeCodex({ story, state, castNames: sources.castNames, enabled: sources.enabled });
+  const codex = composeCodex({ story, state, castNames: sources.castNames, enabled: sources.enabled, ...labelCodexSources(sources) });
   const provenance = sources.authorView ? provenanceFor(story.widgets ?? [], [...authored, ...(statSheet?.synthesized ? [statSheet] : [])], sources) : {};
   return {
     player: {

@@ -53,7 +53,7 @@ export interface MilestoneView {
   earned: boolean;
 }
 
-export const LOG_KINDS = ["action", "world_event", "check", "quest", "milestone", "learned"] as const;
+export const LOG_KINDS = ["action", "world_event", "check", "quest", "milestone", "learned", "reveal"] as const;
 export type LogKind = (typeof LOG_KINDS)[number];
 
 export interface LogRowView {
@@ -163,6 +163,8 @@ export interface CodexFactView {
 
 export interface CodexRowView {
   text: string;
+  kind?: "label" | "learned";
+  fresh?: boolean;
 }
 
 export interface CodexEntryView {

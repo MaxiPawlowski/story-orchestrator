@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, userEvent, within } from "@storybook/test";
 import { CodexPage } from "./CodexPage";
 import { JournalPanel } from "../panels/JournalPanel";
-import { codexGame, sampleCodex } from "./codexFixtures";
+import { codexGame, labelledPeople, sampleCodex } from "./codexFixtures";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const meta: Meta<typeof CodexPage> = {
@@ -30,6 +30,18 @@ export const Places: Story = {
   play: async ({ canvasElement }) => {
     await expect(within(canvasElement).getByText("1 place")).toBeVisible();
     await expect(within(canvasElement).getByText("The back door does not lock.")).toBeVisible();
+  },
+};
+
+export const RelationshipLabels: Story = {
+  args: { page: "people", entries: labelledPeople() },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("Toward you: wary")).toBeVisible();
+    await expect(canvas.getByText("Learned: secretly loyal to you")).toBeVisible();
+    await expect(canvas.getByText("Toward Tom: rivals")).toBeVisible();
+    await expect(canvasElement.querySelectorAll('[data-so="codex-row"][data-kind="learned"][data-fresh="true"]').length).toBe(1);
+    await expect(canvasElement.textContent ?? "").not.toMatch(/\d+ (on|of) /);
   },
 };
 

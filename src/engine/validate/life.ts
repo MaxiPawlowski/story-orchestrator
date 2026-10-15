@@ -3,16 +3,29 @@ import {
   CLOCK_STORY_TIME_KEY, CLOCK_TIME_KEY, MOOD_DEFAULT_VALUES, RELATIONSHIP_RANGE_DEFAULT,
   RELATIONSHIP_TOWARD_PLAYER, TURN_OOC_KEY, agendaChapterKey, agendaRepeatsKey, agendaStepKey, agendaWaitKey, isStoryTimeKey, moodAgeKey, moodKey,
   moodSceneKey, moodWasKey, relationshipKey, timeReachedKey,
-  type Agenda, type AgendaStep, type CalendarMonth, type CalendarSeason, type Checkpoint, type GateNode, type LifeMember, type MoodDecl, type MoodLasts, type Quality,
-  type RelationshipDecl, type ScheduleEntry, type StoryCalendar, type StoryClock, type StoryLife, type TimedEffects, type ValidationError,
+  hasLabels, labelNextKey, labelShownKey, labelSinceKey, revealKey,
+  type Agenda, type AgendaStep, type CalendarMonth, type CalendarSeason, type Checkpoint, type GateNode, type LifeMember, type MoodDecl, type MoodLasts,
+  type PrimitiveValue, type PublicLabel, type Quality,
+  type RelationshipDecl, type ScheduleEntry, type SecretLabel, type StoryCalendar, type StoryClock, type StoryLife, type TimedEffects, type ValidationError,
 } from "../schema";
 import { isRecord } from "@utils/guards";
+import { Blackboard } from "../blackboard";
+import { evaluateGate, gateKeys } from "../gates";
 import { addError, asString, isOneOf, refuse, rejectUnknownKeys } from "./common";
 import { readGate, validateGate } from "./gates";
 import { readCheckpointEffects } from "./checkpoints";
 import { GAME_ID_PATTERN } from "./checks";
 
-const REL_KEYS = ["toward", "axes", "range", "step", "start", "label"] as const;
+const REL_KEYS = ["toward", "axes", "range", "step", "start", "label", "public", "secret"] as const;
+const PUBLIC_KEYS = ["label", "when", "follows_feeling", "hold"] as const;
+const SECRET_KEYS = ["id", "label", "revealed_when"] as const;
+const SECRET_ID_PATTERN = /^[a-z0-9][a-z0-9-]{0,23}$/;
+export const LABEL_TEXT_MAX = 40;
+export const PUBLIC_LABELS_MAX = 6;
+export const SECRET_LABELS_MAX = 4;
+export const LABEL_HOLD_MAX = 5;
+export const LABEL_READS_AXIS = "this label follows the hidden feeling, so the player could read the number's movement from it: "
+  + "set follows_feeling: true to make that a stated choice, or gate it on an event";
 const MOOD_KEYS = ["values", "baseline", "lasts"] as const;
 const AGENDA_KEYS = ["id", "goal", "steps", "pace", "every"] as const;
 const STEP_KEYS = ["text", "when", "effect", "public", "repeat"] as const;
@@ -43,6 +56,54 @@ const readRange = (value: unknown, path: string, errors: ValidationError[]): [nu
   return refuse(errors, path, "range is [low, high]: whole numbers 2 to 20 apart", RELATIONSHIP_RANGE_DEFAULT);
 };
 
+const readLabelText = (value: unknown, path: string, errors: ValidationError[]): string | null => {
+  const text = asString(value)?.trim();
+  if (!text || text.length > LABEL_TEXT_MAX) return refuse(errors, path, `a label is text of at most ${LABEL_TEXT_MAX} characters`, null);
+  return /[{}<>]/.test(text) ? refuse(errors, path, "a label is plain text: no macros or markup", null) : text;
+};
+
+const readPublicLabel = (value: unknown, path: string, errors: ValidationError[]): PublicLabel | null => {
+  if (!isRecord(value)) return refuse(errors, path, "a public label is {label, when?}", null);
+  rejectUnknownKeys(value, PUBLIC_KEYS, path, errors);
+  const label = readLabelText(value.label, `${path}.label`, errors);
+  const when = value.when === undefined ? null : readGate(value.when, `${path}.when`, errors);
+  if (value.follows_feeling !== undefined && typeof value.follows_feeling !== "boolean") addError(errors, `${path}.follows_feeling`, "follows_feeling is true or false");
+  const follows = value.follows_feeling === true;
+  const hold = value.hold === undefined ? undefined : isInt(value.hold) && value.hold >= 1 && value.hold <= LABEL_HOLD_MAX
+    ? value.hold : refuse(errors, `${path}.hold`, `hold is a whole number from 1 to ${LABEL_HOLD_MAX}`, undefined);
+  if (hold !== undefined && !follows) addError(errors, `${path}.hold`, "hold is for a label that follows the feeling (follows_feeling: true)");
+  if (!label) return null;
+  return { label, ...(when ? { when } : {}), ...(follows ? { follows_feeling: true } : {}), ...(hold !== undefined && follows ? { hold } : {}) };
+};
+
+const readSecretLabel = (value: unknown, path: string, errors: ValidationError[]): SecretLabel | null => {
+  if (!isRecord(value)) return refuse(errors, path, "a secret label is {id, label, revealed_when}", null);
+  rejectUnknownKeys(value, SECRET_KEYS, path, errors);
+  const id = asString(value.id)?.trim() ?? "";
+  if (!SECRET_ID_PATTERN.test(id)) addError(errors, `${path}.id`, "a secret label id is lowercase letters, digits and -");
+  const label = readLabelText(value.label, `${path}.label`, errors);
+  const revealed = value.revealed_when === undefined ? refuse(errors, `${path}.revealed_when`, "a secret label needs revealed_when", null)
+    : readGate(value.revealed_when, `${path}.revealed_when`, errors);
+  return label && revealed && SECRET_ID_PATTERN.test(id) ? { id, label, revealed_when: revealed } : null;
+};
+
+const readLabels = <T,>(value: unknown, path: string, max: number, read: (entry: unknown, at: string) => T | null, errors: ValidationError[]): T[] => {
+  if (value === undefined) return [];
+  if (!Array.isArray(value) || value.length > max) return refuse(errors, path, `a list of at most ${max} labels`, []);
+  return value.map((entry, index) => read(entry, `${path}.${index}`)).filter((item): item is T => item !== null);
+};
+
+const relationshipLabels = (value: Record<string, unknown>, path: string, errors: ValidationError[]): Pick<RelationshipDecl, "public" | "secret"> => {
+  const shown = readLabels(value.public, `${path}.public`, PUBLIC_LABELS_MAX, (entry, at) => readPublicLabel(entry, at, errors), errors);
+  const secret = readLabels(value.secret, `${path}.secret`, SECRET_LABELS_MAX, (entry, at) => readSecretLabel(entry, at, errors), errors);
+  const words = new Set(shown.map((row) => row.label.toLowerCase()));
+  secret.forEach((row, index) => {
+    if (secret.findIndex((other) => other.id === row.id) !== index) addError(errors, `${path}.secret.${index}.id`, `duplicate secret label '${row.id}'`);
+    if (words.has(row.label.toLowerCase())) addError(errors, `${path}.secret.${index}.label`, "a secret label must differ from every public label of this relationship");
+  });
+  return { ...(shown.length ? { public: shown } : {}), ...(secret.length ? { secret } : {}) };
+};
+
 const readRelationship = (value: unknown, path: string, ids: Set<string>, holder: string, errors: ValidationError[]): RelationshipDecl | null => {
   if (!isRecord(value)) return refuse(errors, path, "a relationship is {toward, axes}", null);
   rejectUnknownKeys(value, REL_KEYS, path, errors);
@@ -59,7 +120,8 @@ const readRelationship = (value: unknown, path: string, ids: Set<string>, holder
   const start = value.start === undefined ? Math.max(range[0], Math.min(range[1], 0)) : isInt(value.start) && value.start >= range[0] && value.start <= range[1]
     ? value.start : refuse(errors, `${path}.start`, "start is a whole number inside range", range[0]);
   const label = value.label === undefined ? null : readText(value.label, `${path}.label`, errors);
-  return axes.length && toward ? { toward, axes, range, step, start, ...(label ? { label } : {}) } : null;
+  const labels = relationshipLabels(value, path, errors);
+  return axes.length && toward ? { toward, axes, range, step, start, ...(label ? { label } : {}), ...labels } : null;
 };
 
 const readLasts = (value: unknown, path: string, errors: ValidationError[]): MoodLasts => {
@@ -272,6 +334,16 @@ const relationshipQualities = (member: LifeMember, life: StoryLife): Quality[] =
   };
 }));
 
+const labelQualities = (member: LifeMember): Quality[] => member.relationships.flatMap((relationship) => [
+  ...(relationship.secret ?? []).map((secret) => code(revealKey(member.id, relationship.toward, secret.id), "int",
+    `The boundary at which the player learned ${member.id}'s secret label ${secret.id}, once ever`, { latching: true, monotonic: true })),
+  ...(relationship.public?.some((row) => row.hold) ? [
+    code(labelShownKey(member.id, relationship.toward), "int", "The public label row shown now, after its hold (-1: none)"),
+    code(labelNextKey(member.id, relationship.toward), "int", "The public label row waiting out its hold"),
+    code(labelSinceKey(member.id, relationship.toward), "int", "The boundary the waiting row began to hold"),
+  ] : []),
+]);
+
 const moodQualities = (member: LifeMember, life: StoryLife): Quality[] => (member.mood ? [
   { key: moodKey(member.id), type: "enum", values: member.mood.values, source: "extractor", rubric: `${nameOf(life, member.id)}'s mood in this scene, as the window shows it` },
   code(moodAgeKey(member.id), "int", "Boundaries since this mood was last read"),
@@ -309,7 +381,7 @@ const clockQualities = (life: StoryLife & { clock: StoryClock }): Quality[] => [
 export const addLifeQualities = (qualities: Quality[], life: StoryLife | undefined, errors: ValidationError[]): Quality[] => {
   if (!life) return qualities;
   const ticks = life.members.some((member) => member.agenda.length) ? [code(TURN_OOC_KEY, "bool", "Whether this boundary's player line was out of character")] : [];
-  const members = life.members.flatMap((member) => [...relationshipQualities(member, life), ...moodQualities(member, life), ...agendaQualities(member)]);
+  const members = life.members.flatMap((member) => [...relationshipQualities(member, life), ...labelQualities(member), ...moodQualities(member, life), ...agendaQualities(member)]);
   const added = [...members, ...(life.clock ? clockQualities({ ...life, clock: life.clock }) : []), ...ticks];
   const existing = new Set(qualities.map((quality) => quality.key));
   const compiled = new Set(added.map((quality) => quality.key));
@@ -328,6 +400,24 @@ const lifeGates = (member: LifeMember): Array<[string, GateNode]> => [
 
 export const AGENDA_NO_CHAPTERS = "pace per_chapter needs chapters, and this story declares none, so the agenda would move once and then never again: "
   + "use per_n_boundaries with every, or add chapters";
+
+const readsAxis = (gate: GateNode): boolean => gateKeys(gate).some((key) => key.startsWith("rel_"));
+
+const checkLabels = (member: LifeMember, path: string, qualityByKey: Record<string, Quality>, start: Readonly<Record<string, PrimitiveValue>>, errors: ValidationError[]) =>
+  member.relationships.forEach((relationship, at) => {
+    const base = `${path}.relationships.${at}`;
+    (relationship.public ?? []).forEach((row, index) => {
+      if (!row.when) return;
+      validateGate(row.when, qualityByKey, `${base}.public.${index}.when`, errors);
+      if (!row.follows_feeling && readsAxis(row.when)) addError(errors, `${base}.public.${index}.when`, LABEL_READS_AXIS);
+    });
+    (relationship.secret ?? []).forEach((row, index) => {
+      validateGate(row.revealed_when, qualityByKey, `${base}.secret.${index}.revealed_when`, errors);
+      if (evaluateGate(row.revealed_when, { get: (key) => start[key] })) {
+        addError(errors, `${base}.secret.${index}.revealed_when`, "this secret's gate holds before anything happens, so the player would know it from the first turn");
+      }
+    });
+  });
 
 const TIME_SHAPE = "time is {advance: {days?, parts?}} or {to: {part, next_day?}}";
 
@@ -367,10 +457,12 @@ export const checkLife = (
   life: StoryLife | undefined, roster: Array<{ id: string }>, qualityByKey: Record<string, Quality>, errors: ValidationError[], hasChapters = false,
   checkpoints: readonly Checkpoint[] = [], startId = "",
 ) => {
+  const start = life?.members.some((member) => member.relationships.some(hasLabels)) ? new Blackboard({ qualityByKey }).entries() : {};
   checkTimeEffects(life?.clock, checkpoints, startId, errors);
   for (const member of life?.members ?? []) {
     const path = `roster.${roster.findIndex((entry) => entry.id === member.id)}`;
     lifeGates(member).forEach(([field, gate]) => validateGate(gate, qualityByKey, `${path}.${field}`, errors));
+    checkLabels(member, path, qualityByKey, start, errors);
     if (!hasChapters) member.agenda.forEach((agenda, index) => { if (agenda.pace === "per_chapter") addError(errors, `${path}.agenda.${index}.pace`, AGENDA_NO_CHAPTERS); });
   }
 };

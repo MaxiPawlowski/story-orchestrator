@@ -2,7 +2,7 @@ import { progressQualityForAnchor } from "./convergence";
 import { questLatchesMoved } from "./quests";
 import {
   CLOCK_MOVED_KEY, CLOCK_STORY_TIME_KEY, TIME_REACHED_PREFIX, TURN_OOC_KEY, agendaChapterKey, agendaRepeatsKey, agendaStepKey, agendaWaitKey, clockStart, isCodexKey,
-  isStoryTimeKey, moodAgeKey, moodSceneKey, moodWasKey, isFactionKey, questClosedKey, questRewardKey, type NormalizedStoryV2,
+  isStoryTimeKey, moodAgeKey, moodSceneKey, moodWasKey, isFactionKey, isLabelKey, questClosedKey, questRewardKey, type NormalizedStoryV2,
 } from "./schema";
 import { PLAYER_TURNS_KEY } from "./stretch";
 import { gameLayer } from "./validate/gameLayer";
@@ -56,6 +56,11 @@ export const ROLLBACK_DETECTORS: readonly RollbackDetector[] = [
     id: "factions",
     keys: (story) => Object.keys(story.qualityByKey).filter(isFactionKey),
     moved: (story, before, after) => Boolean(story.factions?.length) && prefixMoved(isFactionKey, before, after),
+  },
+  {
+    id: "relationship-labels",
+    keys: (story) => Object.keys(story.qualityByKey).filter(isLabelKey),
+    moved: (story, before, after) => Boolean(story.life) && prefixMoved(isLabelKey, before, after),
   },
 ];
 

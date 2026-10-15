@@ -85,7 +85,8 @@ export const withheldNames = (
   const unreached = story.checkpoints.filter((checkpoint) => !reached.has(checkpoint.id)).flatMap((checkpoint) => [checkpoint.player_name, checkpoint.name]);
   const quests = (story.quests ?? []).map((quest) => quest.title);
   const codex = story.codex ? gameLayer()?.codex.unknownCodexNames(story, values) ?? [] : [];
-  const names = [...unreached, ...quests, ...codex].map((name) => name?.trim() ?? "").filter((name) => name.length >= WITHHELD_NAME_MIN_CHARS);
+  const secrets = story.life ? gameLayer()?.life.unrevealedSecretLabels(story, values) ?? [] : [];
+  const names = [...unreached, ...quests, ...codex, ...secrets].map((name) => name?.trim() ?? "").filter((name) => name.length >= WITHHELD_NAME_MIN_CHARS);
   return [...new Set(names)];
 };
 
