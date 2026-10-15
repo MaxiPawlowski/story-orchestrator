@@ -241,6 +241,7 @@ export function createOpencodeTransport({
     alive = () => false,
     version = (value) => /^2\./.test(String(value)),
     configWaitMs = OPENCODE_LIMITS.configMs,
+    connectWaitMs = OPENCODE_LIMITS.connectMs,
 } = {}) {
     const entry = config.harnesses.opencode;
     const providers = [...new Set(entry.models.map((model) => splitModel(model.id)?.providerID).filter(Boolean))];
@@ -728,7 +729,7 @@ export function createOpencodeTransport({
     const runAgent = async ({ request, owned, pipe, secret, toolsFile, signal, onForeign, deadlineMs }) => {
         const startedAt = now();
         const until = Date.now() + Math.max(0, deadlineMs);
-        const connectBy = Math.min(until, Date.now() + OPENCODE_LIMITS.connectMs);
+        const connectBy = Math.min(until, Date.now() + connectWaitMs);
         let checked;
         try {
             checked = await within(until - Date.now(), ready(request.model, { images: request.images }), lapse, signal);

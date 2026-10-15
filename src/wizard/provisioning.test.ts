@@ -63,8 +63,14 @@ describe("provisioning validation (create-only)", () => {
 
   it("hands the host only the shape fields a step really sets", () => {
     expect(loreEntryShape({ kind: "upsertLorebookEntry", lorebook: "L", comment: "c", keys: [], content: "x", secondaryKeys: [" ", "storm "], logic: "and-all", outlet: " map ", triggers: [] }))
-      .toEqual({ secondaryKeys: ["storm"], logic: "and-all", outlet: "map" });
+      .toEqual({ secondaryKeys: ["storm"], logic: "and-all", outlet: "map", triggers: [] });
     expect(loreEntryShape({ kind: "upsertLorebookEntry", lorebook: "L", comment: "c", keys: [], content: "x", logic: "and-all", constant: false })).toEqual({ constant: false });
+  });
+
+  it("Astra v2.8 P1: a step that names a field empty hands the host an explicit clear; a step that leaves it out hands nothing", () => {
+    expect(loreEntryShape({ kind: "upsertLorebookEntry", lorebook: "L", comment: "c", keys: ["k"], content: "x", secondaryKeys: [], outlet: " ", triggers: [] }))
+      .toEqual({ secondaryKeys: [], outlet: "", triggers: [] });
+    expect(loreEntryShape({ kind: "upsertLorebookEntry", lorebook: "L", comment: "c", keys: ["k"], content: "x" })).toEqual({});
   });
 
   it("refuses a group whose members do not exist yet", () => {

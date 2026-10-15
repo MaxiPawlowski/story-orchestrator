@@ -280,12 +280,21 @@ export interface WIEntryShape {
 
 const sameList = (a: unknown, b: readonly string[]) => Array.isArray(a) && a.length === b.length && a.every((item, index) => item === b[index]);
 
-const shapeFields = (shape: WIEntryShape): Record<string, unknown> => ({
+const WI_POSITION_DEFAULT = 0;
+
+const outletFields = (outlet: string | undefined, existing: LoreEntry | undefined): Record<string, unknown> => {
+  if (outlet === undefined) return {};
+  if (outlet.trim()) return { position: WI_POSITION_OUTLET, outletName: outlet.trim() };
+  return { outletName: "", ...(existing?.position === WI_POSITION_OUTLET ? { position: WI_POSITION_DEFAULT } : {}) };
+};
+
+const shapeFields = (shape: WIEntryShape, existing: LoreEntry | undefined): Record<string, unknown> => ({
   ...(shape.constant !== undefined ? { constant: shape.constant } : {}),
   ...(shape.secondaryKeys?.length ? { keysecondary: shape.secondaryKeys, selective: true, selectiveLogic: LORE_KEY_LOGIC_CODE[shape.logic ?? "and-any"] } : {}),
+  ...(shape.secondaryKeys && !shape.secondaryKeys.length ? { keysecondary: [] } : {}),
   ...(shape.logic ? { selectiveLogic: LORE_KEY_LOGIC_CODE[shape.logic] } : {}),
-  ...(shape.outlet?.trim() ? { position: WI_POSITION_OUTLET, outletName: shape.outlet.trim() } : {}),
-  ...(shape.triggers?.length ? { triggers: shape.triggers } : {}),
+  ...outletFields(shape.outlet, existing),
+  ...(shape.triggers ? { triggers: shape.triggers } : {}),
 });
 
 const holdsShape = (entry: LoreEntry, keys: string[], fields: Record<string, unknown>) =>
@@ -301,7 +310,7 @@ export async function upsertWIEntry(lorebook: string, comment: string, content: 
   const { name, data } = book;
   const existing = Object.values(data.entries).find((entry) => entry.comment?.trim() === comment);
   const switchedOff = options.live === true && existing?.disable === true;
-  const fields = shapeFields(options);
+  const fields = shapeFields(options, existing);
   if (existing && String(existing.content ?? "").trim() === content.trim() && holdsShape(existing, keys, fields) && !switchedOff) return "unchanged";
 
   const target = existing ?? (worldInfoModule.createWorldInfoEntry(name, data) as LoreEntry | undefined);

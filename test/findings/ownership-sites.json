@@ -527,7 +527,11 @@
     },
     "src/runtime/storyLore.ts#createStoryLore.append": {
       "status": "local",
-      "note": "Story-scoped lore (2026-10-02, T5-2-2): writes only into the per-scan ENTRIES_LOADED arrays, which are copies built for this one scan (world-info.js:4590-4604), never a lorebook file, the chat or the settings. The owner (story + the chat it was loaded into) is read before the book loads and read again after the await; when the open chat or its story changed in between, nothing is appended (storyLore.test.ts \"appends nothing when the chat moved while the book loaded\")."
+      "note": "Astra v2.8 P0 (2026-10-15): awaits the owned append, then removes created entries stamped for another chat from the same per-scan ENTRIES_LOADED arrays (copies for this one scan, never a lorebook file, the chat or the settings), using the chat read after the await (storyLore.test.ts \"a fresh run sharing the book never scans another run's created entry\")."
+    },
+    "src/runtime/storyLore.ts#createStoryLore.appendOwned": {
+      "status": "local",
+      "note": "Story-scoped lore (2026-10-02, T5-2-2): writes only into the per-scan ENTRIES_LOADED arrays, which are copies built for this one scan (world-info.js:4590-4604), never a lorebook file, the chat or the settings. The owner (story + the chat it was loaded into) is read before the book loads and read again after the await; when the open chat or its story changed in between, nothing is appended (storyLore.test.ts \"appends nothing when the chat moved while the book loaded\"). Astra v2.8 P0 (2026-10-15): the body moved into appendOwned; append then drops foreign-stamped created entries from the same per-scan arrays, keyed by the owner read after the await (storyLore.test.ts \"a fresh run sharing the book never scans another run's created entry\")."
     },
     "src/runtime/storyLoreHost.ts#startStoryLore>installStoryLoreScan": {
       "status": "local",

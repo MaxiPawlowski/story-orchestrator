@@ -64,7 +64,7 @@ export const transcriptWindow = (chat: readonly unknown[], messages = PROJECTION
   return [{ speaker: typeof shaped.name === "string" && shaped.name.trim() ? shaped.name.trim() : "Someone", text: clip(shaped.mes.trim()) }];
 }).slice(-messages);
 
-const intro = (story: NormalizedStoryV2 | null) => story?.player_intro?.trim() || story?.description?.trim() || null;
+const intro = (story: NormalizedStoryV2 | null) => story?.player_intro?.trim() || null;
 
 const reachedNames = (story: NormalizedStoryV2 | null, visitedPath: readonly string[], activeCheckpointId: string | null): string[] => {
   if (!story) return [];

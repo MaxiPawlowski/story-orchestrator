@@ -124,7 +124,8 @@ export class StoryImageDirector {
       || !beatIllustrated(story, kind === "checkpoint" ? name : snapshot.activeCheckpointId)) return;
     const key = `${chat.id}:${snapshot.storyId}:${kind}:${name}:${snapshot.boundary}`;
     if (this.pending.has(key) || current(snapshot.storyId).emitted.includes(key)) return;
-    if (!(await this.serviceReady(settings))) return;
+    const run = beginRun(this.manager.getOwnership(), at === null ? null : { from: at, to: at });
+    if (!(await this.serviceReady(settings)) || !run.stillOwns() || imageChat()?.id !== chat.id) return;
     if (messageAlreadyDrawn(chat, at)) return;
     const target = at === null ? null : `${chat.id}:${at}`;
     if (target && this.pendingTargets.has(target)) return;

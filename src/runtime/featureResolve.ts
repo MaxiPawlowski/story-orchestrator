@@ -17,8 +17,18 @@ export interface ResolvedFeature {
   declined: boolean;
   masterOff: boolean;
   reenabled: boolean;
+  automatic?: boolean;
   controls: Record<string, ResolvedControl>;
 }
+
+export const AUTOMATIC_STAGE = "Automatic: on when the story directs the stage";
+
+export const featureStateWord = (feature: ResolvedFeature | undefined): string => {
+  if (feature?.masterOff) return "Off on this install";
+  if (feature?.declined && !feature.enabled) return "Turned off by story";
+  if (feature?.automatic) return AUTOMATIC_STAGE;
+  return feature?.enabled ? "Enabled" : "Off in this chat";
+};
 export type ResolvedFeatures = Record<StoryFeatureId, ResolvedFeature>;
 
 export const readSettingPath = (root: unknown, path: string): unknown => path.split(".").reduce<unknown>((value, part) => isRecord(value) ? value[part] : undefined, root);
@@ -68,7 +78,8 @@ export const resolveFeatures = (global: GlobalSettings, story: Pick<StoryV2, "fe
     if (chat === "off") controls.enabled = { value: false, source: "chat" };
     if (masterOff) controls.enabled = { value: false, source: "install" };
     const enabled = controls.enabled.value === true;
-    return [id, { enabled, source: controls.enabled.source, declined, masterOff, reenabled: declined && enabled, controls }];
+    const automatic = id === "sprites" ? { automatic: enabled && controls.enabled.source === "install" && !global.sprites.explicit } : {};
+    return [id, { enabled, source: controls.enabled.source, declined, masterOff, reenabled: declined && enabled, ...automatic, controls }];
   })) as ResolvedFeatures;
 };
 

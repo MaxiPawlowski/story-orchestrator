@@ -78,7 +78,7 @@ install"). `allowNonAdmin: true` opens it to every SillyTavern user.
 
 When **Wizard and road ahead** is routed to opencode, `agentBridge.mjs` opens an OpenCode session whose project config
 declares exactly one MCP server, `mcpShim.mjs` (native tools, not Code Mode), which exposes the wizard's own validated
-tools (as `so_*`, at most 64) and parks each call for the page. The agent may use only `so_*`; anything else, or a
+tools (as `so_*`, at most 96) and parks each call for the page. The agent may use only `so_*`; anything else, or a
 permission request, ends the session as refused. The page long-polls `/agent/next` and answers each call through the same
 checks as a local run; a call that creates an asset still waits for the author. Sessions are per user and role, bounded
 (15 minutes, a bounded queue, call deadlines), interrupted and removed, and their location is evicted and deleted.

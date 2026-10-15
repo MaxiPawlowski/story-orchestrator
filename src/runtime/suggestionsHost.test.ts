@@ -25,6 +25,7 @@ import type { PipelineStatus } from "./pipeline";
 import { askSuggestions, fillSuggestion, projectionFor, SUGGESTION_COPY, type SuggestionManager } from "./suggestionsHost";
 import type { RuntimeSnapshot } from "./types";
 import { testOwnership } from "../../test/findings/testOwnership";
+import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./runToken";
 
 const story = parseStoryV2OrThrow({
   format: 2, id: "host", title: "Host", description: "d",
@@ -163,5 +164,32 @@ describe("v2.8 04 C5: a suggestion never names a scene the player has not reache
     const reached = { getStory: () => gated, getEngineState: () => ({ visitedPath: ["a"], activeCheckpointId: "b" }) as unknown as EngineState };
     const outcome = await askSuggestions(manager(false, reply, [], reached));
     expect(outcome.ok && outcome.suggestions).toContain("I search for the sealed vault.");
+  });
+});
+
+describe("Astra P1: a suggestion set is bound to the transcript it read", () => {
+  const editing = () => {
+    const context: RunContext = { chatId: "chat-a", storyId: "host", storyHash: "h", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+    const ownership: RunOwnership = { mint: (window) => mintToken(context, window ?? null), check: (token) => tokenMatches(context, token) };
+    const edit = (messageId: number) => { context.windowRevision += 1; context.lowestMutatedMessageId = messageId; };
+    return { ownership, edit };
+  };
+
+  it("refuses an answer when a message it read was edited while it ran", async () => {
+    const { ownership, edit } = editing();
+    const outcome = await askSuggestions(manager(false, () => { edit(0); return FOUR; }, [], { getOwnership: () => ownership }));
+    expect(outcome).toEqual({ ok: false, reason: SUGGESTION_COPY.stale });
+  });
+
+  it("refuses to fill a suggestion whose transcript was edited after it arrived, and keeps a reply appended after it", async () => {
+    const { ownership, edit } = editing();
+    const outcome = await askSuggestions(manager(false, () => FOUR, [], { getOwnership: () => ownership }));
+    if (!outcome.ok) throw new Error("no suggestions");
+    edit(2);
+    expect(fillSuggestion(outcome.ask, "I wait and listen.")).toEqual({ ok: true });
+    host.box = "";
+    edit(1);
+    expect(fillSuggestion(outcome.ask, "I look around the hall.")).toEqual({ ok: false, reason: SUGGESTION_COPY.edited });
+    expect(host.box).toBe("");
   });
 });

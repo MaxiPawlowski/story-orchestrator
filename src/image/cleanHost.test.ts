@@ -5,6 +5,7 @@ const host = {
   stReady: false,
   media: null as null | { ready: true; comfyUrl: string },
   checkpoints: [] as string[],
+  onReady: null as null | (() => void),
 };
 
 const renderStImage = jest.fn(async () => "/user/images/st.png");
@@ -25,7 +26,7 @@ jest.mock("@services/stHost/gpuBroker", () => ({
   reserveGpu: (...args: unknown[]) => reserveGpu(...(args as [])), releaseGpu: async () => ({ ok: true, released: false }), gpuBrokerStatus: async () => null,
 }));
 jest.mock("@services/stHost/stImage", () => ({
-  stImageReadiness: async () => (host.stReady ? { ready: true, reason: null, source: "comfy" } : { ready: false, reason: "Set up SillyTavern’s Image Generation extension first.", source: null }),
+  stImageReadiness: async () => (host.onReady?.(), host.stReady ? { ready: true, reason: null, source: "comfy" } : { ready: false, reason: "Set up SillyTavern’s Image Generation extension first.", source: null }),
   renderStImage: (...args: unknown[]) => renderStImage(...(args as [])),
 }));
 jest.mock("@services/stHost/media", () => ({
@@ -52,7 +53,7 @@ import { imageServiceReady } from "./service";
 
 type Boundary = (result: { fired: boolean; context: { lastMessageId: number }; activeCheckpointId: string }) => void;
 
-const harness = () => {
+const harness = (ownership: unknown = { mint: () => ({}), check: () => ({ ok: true }) }) => {
   const boundaries: Boundary[] = [];
   const replies: Array<(id: number) => void> = [];
   const snapshot = {
@@ -65,7 +66,7 @@ const harness = () => {
     getEffectiveSettings: () => ({ image: host.settings }),
     getJudge: () => null,
     getSnapshot: () => snapshot, getStory: () => story, getEngineState: () => ({ visitedPath: [] }), ownsImageChat: () => true,
-    getOwnership: () => ({ mint: () => ({}), check: () => ({ ok: true }) }), touch: () => undefined,
+    getOwnership: () => ownership, touch: () => undefined,
     subscribe: () => () => undefined, onBoundary: (callback: Boundary) => { boundaries.push(callback); return () => undefined; },
     onSceneBreakConfirmed: () => () => undefined, onRollback: () => () => undefined, onEpochChanged: () => () => undefined,
   };
@@ -81,6 +82,7 @@ beforeEach(() => {
   host.stReady = false;
   host.media = null;
   host.checkpoints = [];
+  host.onReady = null;
   jest.clearAllMocks();
   workflowHost.swaps = [];
 });
@@ -120,6 +122,19 @@ describe("plan 32 W4: a clean host never tries to render", () => {
     expect(reserveGpu).toHaveBeenCalledTimes(1);
     expect(renderStImage).toHaveBeenCalledTimes(1);
     expect(imagePlace).toHaveBeenCalledTimes(1);
+    stop();
+  });
+
+  it("Astra P1 risk: a cue whose chat changed while the service was asked draws nothing", async () => {
+    host.stReady = true;
+    const state = { ok: true };
+    host.onReady = () => { state.ok = false; };
+    const { director, fire, stop } = harness({ mint: () => ({}), check: () => (state.ok ? { ok: true } : { ok: false, reason: "chat", detail: "switched" }) });
+    fire();
+    await settle();
+    expect(renderStImage).not.toHaveBeenCalled();
+    expect(imagePlace).not.toHaveBeenCalled();
+    expect(director.status().lastPlan).toBeNull();
     stop();
   });
 

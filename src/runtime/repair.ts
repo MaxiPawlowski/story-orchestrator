@@ -72,6 +72,9 @@ export const GETTING_STARTED_TARGETS: Record<GettingStartedId, string> = {
   images: "so-image-settings",
 };
 
+export const imagesStepDone = (image: { enabled: boolean; backend: "st" | "comfy"; comfyUrl: string }, stSource: string | null): boolean =>
+  image.enabled && (image.backend === "st" ? Boolean(stSource) : Boolean(image.comfyUrl));
+
 export function gettingStartedSteps(input: GettingStartedInput): GettingStartedStep[] {
   return [
     {
@@ -83,7 +86,7 @@ export function gettingStartedSteps(input: GettingStartedInput): GettingStartedS
       consequence: "Better speaker choice and memory checks. Without it, the story uses its usual path.",
     },
     {
-      id: "images", title: "Connect ComfyUI for pictures", optional: true, done: input.imagesReady, targetId: GETTING_STARTED_TARGETS.images,
+      id: "images", title: "Set up an image service for pictures", optional: true, done: input.imagesReady, targetId: GETTING_STARTED_TARGETS.images,
       consequence: "Lets stories draw scenes and characters. Without it, there are no pictures.",
     },
   ];

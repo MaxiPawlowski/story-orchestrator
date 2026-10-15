@@ -3,7 +3,7 @@ import { join } from "path";
 import { parseStoryV2, parseStoryV2OrThrow, isValidationErrorList, type NormalizedStoryV2 } from "@engine/index";
 import { beatIllustrated, beatLabel, castForImage, cueText, isNarratorMember, lookFor } from "./cast";
 import { firedLoreKeys, visualLore } from "./lore";
-import { imageMessages, sceneForImage, type ImageScene } from "./prompt";
+import { imageMessages, sceneForImage, templateImagePrompt, type ImageScene } from "./prompt";
 import { resolveImageRoute } from "./routing";
 import { defaultImageSettings, sanitizeImageOverride } from "./settings";
 
@@ -150,6 +150,32 @@ describe("C9: a narrator or system member is never drawn from its card descripti
     expect(castForImage(subjects, parsed, lookFor(parsed, "a")).map((subject) => [subject.name, subject.appearance]))
       .toEqual([["Keeper", "never drawn; a voice"], ["Mira", "Freckles, a scar on the chin"]]);
     expect(castForImage([{ ...subjects[0], appearance: "hooded grey robe", described: false }], story(), {}).map((subject) => subject.name)).toEqual(["Keeper"]);
+  });
+
+  it("a changed look never carries a card description: narrator dropped, others get only the look", () => {
+    const looked = parseStoryV2OrThrow({
+      ...base,
+      roster: [
+        { id: "dm", name: "Keeper", role: "Narrator: describes places", card: { fields: { cloak: { quality: "dm_cloak", visual: true } } } },
+        { id: "mira", name: "Mira", role: "A smuggler", card: { fields: { coat: { quality: "mira_coat", visual: true } } } },
+      ],
+      qualities: [...base.qualities,
+        { key: "dm_cloak", type: "string", source: "extractor", rubric: "Cloak colour." },
+        { key: "mira_coat", type: "string", source: "extractor", rubric: "Coat colour." }],
+      checkpoints: [{ id: "a", name: "A", objective: "o", type: "anchor", start: true }, { id: "b", name: "B", objective: "o", type: "anchor" }],
+    });
+    const secret = [
+      { key: "k.png", name: "Keeper", appearance: "SECRET the heir is the traitor", focus: false, described: true },
+      { key: "m.png", name: "Mira", appearance: "SECRET Mira poisoned the king", focus: true, described: true },
+    ];
+    const cast = castForImage(secret, looked, {}, { dm_cloak: "grey", mira_coat: "red" });
+    expect(cast.map((subject) => subject.name)).toEqual(["Mira"]);
+    expect(cast.some((subject) => subject.appearance.includes("SECRET"))).toBe(false);
+    expect(cast[0].appearance).toContain("coat: red");
+    const prompt = templateImagePrompt({ ...emptyScene(null), subjects: cast }, "scene", "");
+    expect(prompt).not.toContain("SECRET");
+    expect(castForImage([{ ...secret[0], appearance: "hooded robe", described: false }], looked, {}, { dm_cloak: "grey" })[0].appearance)
+      .toBe("hooded robe. Current appearance overrides: cloak: grey");
   });
 
   it("marks a card subject as described only when it has no appearance field", () => {

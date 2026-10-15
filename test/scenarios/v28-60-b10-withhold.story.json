@@ -1,0 +1,23 @@
+{
+  "format": 2,
+  "id": "so-v28-60-b10",
+  "title": "SO-V28-60 B10 Withhold",
+  "description": "Plan 60 B10 no-model fixture: a checkpoint that wants critical tension (so a pacing hint is set) and a public check that rolls when the party reaches the wall (so a check outcome is set).",
+  "qualities": [
+    { "key": "at_wall", "type": "bool", "source": "extractor", "rubric": "Is the party at the wall?" },
+    { "key": "climbed", "type": "bool", "source": "code", "rubric": "Did the climb succeed?" }
+  ],
+  "checkpoints": [
+    { "id": "base", "name": "Wall foot", "type": "anchor", "start": true, "objective": "Climb the wall.", "tension_target": "critical" },
+    { "id": "top", "name": "Wall top", "type": "anchor", "objective": "Rest at the top.", "tension_target": "critical" }
+  ],
+  "transitions": [
+    {
+      "from": "base", "to": "top", "priority": 0,
+      "gate": { "all": [{ "q": "at_wall", "op": "==", "v": true }, { "q": "climbed", "op": "==", "v": true }] },
+      "check": { "id": "climb", "label": "Climb", "quality": "climbed", "roll": { "sides": 20, "target": 12 }, "narrate": "public" }
+    }
+  ],
+  "roster": [{ "id": "narrator", "name": "DM Narrator", "role": "narrator" }],
+  "requirements": { "members": ["DM Narrator"] }
+}

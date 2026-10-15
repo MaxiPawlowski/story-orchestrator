@@ -5,7 +5,7 @@ import { ASK_HOST_COPY, liveStateText } from "./askLiveState";
 import { beginRun } from "./runToken";
 import type { RuntimeManager } from "./runtimeManager";
 import { getGlobalSettings } from "./settingsStore";
-import { projectionFor, type SuggestionManager } from "./suggestionsHost";
+import { projectionFor, transcriptWindow, type SuggestionManager } from "./suggestionsHost";
 
 export type AskManager = SuggestionManager & Pick<RuntimeManager, "getProvisioningEnvironment" | "noteRecap">;
 
@@ -33,7 +33,7 @@ export const refusalJournalLine = (persona: AskPersona, step: AskStep): string =
 
 export async function askInChat(manager: AskManager, question: string, persona: AskPersona = askPersonaFor(manager)): Promise<AskOutcome> {
   if (!getGlobalSettings().copilot.ask) return { ok: false, reason: ASK_HOST_COPY.off };
-  const run = beginRun(manager.getOwnership());
+  const run = beginRun(manager.getOwnership(), transcriptWindow());
   const context = chatAskContext(manager, persona);
   const onRefused = (step: AskStep) => {
     if (!run.stillOwns()) return;

@@ -31,10 +31,11 @@ export const castForImage = (subjects: ImageScene["subjects"], story: Normalized
   return subjects.flatMap((subject) => {
     const member = story.roster.find((entry) => (entry.name ?? entry.id).toLowerCase() === subject.name.toLowerCase());
     const authored = member ? look.appearances?.[member.id] : undefined;
+    if (!authored && member && isNarratorMember(member) && subject.described) return [];
     const changed = member ? publicLook(cardValues(story, values, member.id, true)) : "";
-    if (changed) return [{ ...subject, appearance: `${authored ?? subject.appearance}. Current appearance overrides: ${changed}`, described: false }];
+    const base = authored ?? (subject.described ? "" : subject.appearance);
+    if (changed) return [{ ...subject, appearance: base ? `${base}. Current appearance overrides: ${changed}` : `Current appearance: ${changed}`, described: false }];
     if (authored) return [{ ...subject, appearance: authored, described: false }];
-    if (member && isNarratorMember(member) && subject.described) return [];
     return [subject];
   });
 };
