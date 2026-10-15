@@ -38,7 +38,9 @@ function paint(canvas: HTMLCanvasElement, image: PixelImage): void {
 function BallPane({ mode, gaze }: { mode: GazeMode; gaze: number }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const title = mode === "dome" ? "Dome warp (before)" : "Iris slide (after)";
-  useEffect(() => { if (canvas.current) paint(canvas.current, renderOpenBall(ball.image, ball.rect, rig.eyes[0], [limitGaze(gazeOffset(0, gaze, 0)[0], limits), 0], mode, tone, span)); }, [mode, gaze]);
+  useEffect(() => {
+    if (canvas.current) paint(canvas.current, renderOpenBall(ball.image, ball.rect, rig.eyes[0], [limitGaze(gazeOffset(0, gaze, 0)[0], limits), 0], mode, tone, span));
+  }, [mode, gaze]);
   return <figure style={{ margin: 0 }}>
     <canvas ref={canvas} role="img" aria-label={`${title}: gaze ${gaze}`} style={{ display: "block", imageRendering: "pixelated" }} />
     <figcaption>{title}</figcaption>
