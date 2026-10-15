@@ -7,6 +7,8 @@ const PLAYER_ACTS = [
   "kill", "kills", "killed", "kiss", "kisses", "kissed", "betray", "betrays", "betrayed", "sign", "signs", "signed", "follow", "follows", "followed",
   "leave", "leaves", "left", "answer", "answers", "answered", "reveal", "reveals", "revealed", "confess", "confesses", "confessed",
   "keep", "keeps", "kept", "break", "breaks", "broke", "broken", "fulfil", "fulfill", "fulfills", "fulfilled", "release", "releases", "released",
+  "surrender", "surrenders", "surrendered", "give", "gives", "gave", "obey", "obeys", "obeyed", "submit", "submits", "submitted", "trust", "trusts", "trusted",
+  "yield", "yields", "yielded", "swear", "swears", "swore",
 ];
 
 const ACTS = PLAYER_ACTS.join("|");
@@ -18,7 +20,8 @@ const subjects = (names: readonly string[]): string[] => [
 
 export const narratesPlayer = (text: string, playerNames: readonly string[] = []): boolean => {
   const lead = "(?:^|[.;:!?,]\\s*|\\b(?:and|then|so|until|when|after)\\s+)";
-  const modal = "(?:finally\\s+|must\\s+|will\\s+|has\\s+|have\\s+|is\\s+going\\s+to\\s+)?";
+  const adverbs = "(?:[a-z]+ly,?\\s+(?:and\\s+)?){0,3}";
+  const modal = `${adverbs}(?:must\\s+|will\\s+|has\\s+|have\\s+|is\\s+going\\s+to\\s+|can(?:'|’)?t\\s+help\\s+but\\s+|cannot\\s+help\\s+but\\s+)?${adverbs}`;
   const pattern = new RegExp(`${lead}(?:${subjects(playerNames).join("|")})\\s+${modal}(?:${ACTS})\\b`, "i");
   return pattern.test(text.trim());
 };

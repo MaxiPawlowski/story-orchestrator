@@ -194,6 +194,22 @@ describe("player-visible guard", () => {
     expect(narratesPlayer("A boat takes on water by the quay.")).toBe(false);
   });
 
+  it("Astra v2.8 P1 risk: adversarial agency phrasings are caught; world events and NPC intentions stay allowed", () => {
+    [
+      "You reluctantly agree to surrender.",
+      "The player quietly and willingly gives up the sword.",
+      "You finally, grudgingly accept the bargain.",
+      "You surrender to the guards.",
+      "The player obeys the captain.",
+      "You can't help but trust the stranger.",
+    ].forEach((text) => expect([text, narratesPlayer(text)]).toEqual([text, true]));
+    [
+      "The guards demand that you surrender before dawn.",
+      "The stranger offers a bargain and waits for an answer.",
+      "Rain floods the lower road.",
+    ].forEach((text) => expect([text, narratesPlayer(text)]).toEqual([text, false]));
+  });
+
   it("refuses a field that restates a held secret", () => {
     const issues = guardDraft(draft({}, { objective: "The innkeeper's smuggling ledger is found under the floor." }), {
       playerNames: [], restatesSecret: (text) => /smuggling ledger/.test(text),
