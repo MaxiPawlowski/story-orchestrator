@@ -1,8 +1,8 @@
 import { progressQualityForAnchor } from "./convergence";
 import { questLatchesMoved } from "./quests";
 import {
-  CLOCK_DAY_KEY, CLOCK_SEEN_KEY, TURN_OOC_KEY, agendaChapterKey, agendaRepeatsKey, agendaStepKey, agendaWaitKey, isCodexKey, moodAgeKey, moodSceneKey, moodWasKey,
-  isFactionKey, questClosedKey, questRewardKey, type NormalizedStoryV2,
+  CLOCK_MOVED_KEY, CLOCK_STORY_TIME_KEY, TIME_REACHED_PREFIX, TURN_OOC_KEY, agendaChapterKey, agendaRepeatsKey, agendaStepKey, agendaWaitKey, clockStart, isCodexKey,
+  isStoryTimeKey, moodAgeKey, moodSceneKey, moodWasKey, isFactionKey, questClosedKey, questRewardKey, type NormalizedStoryV2,
 } from "./schema";
 import { PLAYER_TURNS_KEY } from "./stretch";
 import { gameLayer } from "./validate/gameLayer";
@@ -43,6 +43,16 @@ export const ROLLBACK_DETECTORS: readonly RollbackDetector[] = [
     moved: (_story, before, after) => prefixMoved(isCodexKey, before, after),
   },
   {
+    id: "story-time",
+    keys: (story) => (story.life?.clock ? Object.keys(story.qualityByKey).filter((key) => isStoryTimeKey(key) || key === CLOCK_MOVED_KEY) : []),
+    moved: (story, before, after) => {
+      const clock = story.life?.clock;
+      if (!clock) return false;
+      const start = clockStart(clock);
+      return (before[CLOCK_STORY_TIME_KEY] ?? start) !== (after[CLOCK_STORY_TIME_KEY] ?? start) || prefixMoved((key) => key.startsWith(TIME_REACHED_PREFIX), before, after);
+    },
+  },
+  {
     id: "factions",
     keys: (story) => Object.keys(story.qualityByKey).filter(isFactionKey),
     moved: (story, before, after) => Boolean(story.factions?.length) && prefixMoved(isFactionKey, before, after),
@@ -56,8 +66,7 @@ export const ROLLBACK_EXEMPT: readonly RollbackExemption[] = [
     reason: "moves only with a fired transition, which already rolls back" },
   { id: "life-pacing", keys: (story) => [...mood(story), ...agendas(story).flatMap(({ member, agenda }) => [agendaWaitKey(member, agenda.id), agendaChapterKey(member, agenda.id)])],
     reason: "derive bookkeeping that paces the next agenda step or mood read; rewritten from the restored values at the next boundary; not a latch (pre-dates SC1)" },
-  { id: "clock", keys: (story) => (story.life?.clock ? [CLOCK_DAY_KEY, CLOCK_SEEN_KEY] : []),
-    reason: "follows the applied time-of-day read, whose read window the queue check already sees" },
+
   { id: "turn-counters", keys: (story) => [TURN_OOC_KEY, PLAYER_TURNS_KEY].filter((key) => story.qualityByKey[key]?.source === "code"),
     reason: "recounted from the chat at every boundary" },
 ];

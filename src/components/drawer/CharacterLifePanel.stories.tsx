@@ -92,3 +92,24 @@ export const ReviewMeanwhileProposals: Story = {
     await expect(canvasElement).not.toHaveTextContent("Arin forgot the debt.");
   },
 };
+
+export const StoryTime: Story = {
+  args: {
+    life: life({ clock: { time: 13, label: "3rd of Seedtide, afternoon", move: { boundary: 7, messageId: 14, from: 5, to: 13, writer: "checkpoint" } } }),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByText("Character life")).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="life-clock"]')).toHaveTextContent("Story time: 3rd of Seedtide, afternoon (story_time 13)");
+    await expect(canvasElement.querySelector('[data-so="life-clock-move"]')).toHaveTextContent("moved 5 → 13 by a checkpoint at message 14, boundary 7");
+  },
+};
+
+export const NoClock: Story = {
+  args: { life: life({ clock: null }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByText("Character life")).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="life-clock"]')).toBeNull();
+  },
+};

@@ -1,5 +1,6 @@
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { BoundaryLogEntry, EngineState, NormalizedStoryV2 } from "@engine/index";
 import type { LifeAuthorRow } from "@engine/life/lines";
+import type { StoryTimeRow } from "@engine/life/clock";
 import { gameLayer } from "@engine/validate/gameLayer";
 import { scopeDropped } from "@extraction/scope";
 import type { ScopeSourceContext } from "@extraction/scopeSources";
@@ -9,10 +10,12 @@ export interface LifeAuthorView {
   rows: LifeAuthorRow[];
   scopeOverflow: string[];
   proposals: MeanwhileProposal[];
+  clock?: StoryTimeRow | null;
 }
 
 export const lifeAuthorSlice = (
   story: NormalizedStoryV2 | null, state: EngineState | null, authorView: boolean, proposals?: AgendaProposalsState, scopeContext?: ScopeSourceContext,
+  log: readonly BoundaryLogEntry[] = [],
 ): LifeAuthorView | null => {
   const layer = story?.life && state && authorView ? gameLayer() : null;
   if (!story || !state || !layer) return null;
@@ -20,5 +23,6 @@ export const lifeAuthorSlice = (
     rows: layer.life.lifeAuthorRows(story, state.blackboard.values),
     scopeOverflow: scopeDropped(story, state, "relationship", scopeContext),
     proposals: proposals?.proposals ?? [],
+    clock: layer.life.storyTimeRow(story, state.blackboard.values, log),
   };
 };

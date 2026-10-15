@@ -16,10 +16,11 @@ import * as poses from "./poses";
 import { validateCardLayers } from "./cardLayers";
 import { addCodexQualities, checkCodex, readCodex } from "./codex";
 import { codexLatches, codexScopeUnits, unknownCodexNames } from "../codex";
+import { reachedLabel, storyTimeRow, timeEntry } from "../life/clock";
 
 const LIFE = {
   readLife, addLifeQualities, checkLife, deriveLife, awayMembers, lifeScopeKeys, lifeScopeTiers, privateLifeLines, agendaWorldInfo, landedSteps, lifeMoved, lifeAuthorRows,
-  relationshipFeelings,
+  relationshipFeelings, storyTimeRow, reachedLabel,
 };
 
 const CODEX = { readCodex, addCodexQualities, checkCodex, codexLatches, codexScopeUnits, unknownCodexNames };
@@ -32,7 +33,9 @@ const LATCH_WRITERS = [codexLatches, factionLatches] as const;
 
 const DISCOVERY_UNITS = [codexScopeUnits, factionDiscoveryUnits] as const;
 
+const ENTRY_WRITERS = [timeEntry] as const;
+
 export const GAME_LAYER = {
   readCheck, readChecks, checkStoryChecks, checkDisplays, readDisplay, addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests, readWidgets, life: LIFE, poses, validateCardLayers,
-  codex: CODEX, factions: FACTIONS, latchWriters: LATCH_WRITERS, discoveryUnits: DISCOVERY_UNITS,
+  codex: CODEX, factions: FACTIONS, latchWriters: LATCH_WRITERS, discoveryUnits: DISCOVERY_UNITS, entryWriters: ENTRY_WRITERS,
 };

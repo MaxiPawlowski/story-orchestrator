@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { parseStoryV2, parseStoryV2OrThrow } from "../validate";
 import {
-  CLOCK_DAY_KEY, CLOCK_TIME_KEY, TURN_OOC_KEY, agendaStepKey, isLifeKey, moodKey, relationshipKey, type ValidationError,
+  CLOCK_DAY_KEY, CLOCK_READ_KEY, CLOCK_TIME_KEY, TURN_OOC_KEY, agendaStepKey, isLifeKey, moodKey, relationshipKey, type ValidationError,
 } from "../schema";
 
 const FIXTURE = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")) as Record<string, unknown>;
@@ -34,7 +34,9 @@ describe("v2.7 plan 37: character life compiles to ordinary qualities", () => {
   it("compiles mood, agenda, clock and the OOC marker", () => {
     expect(story.qualityByKey[moodKey("arin")]).toMatchObject({ type: "enum", source: "extractor", values: ["calm", "tense", "angry", "afraid", "elated"] });
     expect(story.qualityByKey[agendaStepKey("arin", "debt")]).toMatchObject({ source: "code", type: "int", monotonic: true });
-    expect(story.qualityByKey[CLOCK_TIME_KEY]).toMatchObject({ source: "extractor", values: ["morning", "afternoon", "evening", "night"], step_rule: { cycle: true } });
+    expect(story.qualityByKey[CLOCK_TIME_KEY]).toMatchObject({ source: "code", values: ["morning", "afternoon", "evening", "night"] });
+    expect(story.qualityByKey[CLOCK_READ_KEY]).toMatchObject({ source: "extractor", read_as: "choice", values: ["morning", "afternoon", "evening", "night"] });
+    expect(story.qualityByKey[CLOCK_READ_KEY].step_rule).toBeUndefined();
     expect(story.qualityByKey[CLOCK_DAY_KEY]).toMatchObject({ source: "code" });
     expect(story.qualityByKey[TURN_OOC_KEY]).toMatchObject({ source: "code", type: "bool" });
     expect(story.life?.members.map((member) => member.id)).toEqual(["arin"]);

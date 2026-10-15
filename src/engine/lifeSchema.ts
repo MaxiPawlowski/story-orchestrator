@@ -8,7 +8,15 @@ export const AGENDA_EVERY_DEFAULT = 3;
 export const RELATIONSHIP_RANGE_DEFAULT: [number, number] = [-5, 5];
 export const CLOCK_DAY_KEY = "story_day";
 export const CLOCK_TIME_KEY = "time_of_day";
-export const CLOCK_SEEN_KEY = "life_time_seen";
+export const CLOCK_STORY_TIME_KEY = "story_time";
+export const CLOCK_PART_KEY = "time_part";
+export const CLOCK_NIGHT_KEY = "is_night";
+export const CLOCK_READ_KEY = "life_time_read";
+export const CLOCK_MOVED_KEY = "life_time_moved_at";
+export const CALENDAR_KEY_PREFIX = "cal_";
+export const TIME_REACHED_PREFIX = "time_reached_";
+export const CLOCK_SKIP_DAYS_DEFAULT = 30;
+export const STORY_TIME_KEYS: readonly string[] = [CLOCK_STORY_TIME_KEY, CLOCK_DAY_KEY, CLOCK_TIME_KEY, CLOCK_PART_KEY, CLOCK_NIGHT_KEY];
 export const TURN_OOC_KEY = "life_turn_ooc";
 export const LIFE_KEY_PREFIXES = ["rel_", "mood_", "agenda_", "life_"] as const;
 
@@ -58,6 +66,41 @@ export interface ScheduleEntry {
 export interface StoryClock {
   times: string[];
   start_day?: number;
+  start_part?: string;
+  night?: string[];
+  max_skip_days?: number;
+}
+
+export interface CalendarMonth {
+  name: string;
+  days: number;
+}
+
+export interface CalendarSeason {
+  name: string;
+  from_month: number;
+}
+
+export interface StoryCalendar {
+  start: { year: number; month: number; day: number; weekday: number };
+  months: CalendarMonth[];
+  weekdays?: string[];
+  seasons?: CalendarSeason[];
+  label: "day" | "date";
+}
+
+export type CalendarInput = {
+  start: { year?: number; month: string | number; day: number; weekday?: string | number };
+  months: CalendarMonth[];
+  weekdays?: string[];
+  seasons?: Array<{ name: string; from_month: string | number }>;
+  label?: "day" | "date";
+};
+
+export type TimeEffect = { advance: { days?: number; parts?: number } } | { to: { part: string; next_day?: boolean } };
+
+export interface TimedEffects {
+  time?: TimeEffect;
 }
 
 export interface LifeMember {
@@ -71,6 +114,8 @@ export interface LifeMember {
 export interface StoryLife {
   members: LifeMember[];
   clock?: StoryClock;
+  calendar?: StoryCalendar;
+  reached?: string[];
   names?: Record<string, string>;
 }
 
@@ -92,4 +137,10 @@ export const agendaWaitKey = (member: string, agenda: string): string => `agenda
 export const agendaChapterKey = (member: string, agenda: string): string => `agenda_${member}_${agenda}_chapter`;
 export const agendaRepeatsKey = (member: string, agenda: string): string => `agenda_${member}_${agenda}_repeats`;
 
-export const isLifeKey = (key: string): boolean => LIFE_KEY_PREFIXES.some((prefix) => key.startsWith(prefix)) || key === CLOCK_DAY_KEY || key === CLOCK_TIME_KEY;
+export const timeReachedKey = (checkpoint: string): string => `${TIME_REACHED_PREFIX}${checkpoint}`;
+
+export const isStoryTimeKey = (key: string): boolean => STORY_TIME_KEYS.includes(key) || key.startsWith(CALENDAR_KEY_PREFIX) || key.startsWith(TIME_REACHED_PREFIX);
+
+export const clockStart = (clock: StoryClock): number => ((clock.start_day ?? 1) - 1) * clock.times.length + Math.max(0, clock.times.indexOf(clock.start_part ?? clock.times[0]));
+
+export const isLifeKey = (key: string): boolean => LIFE_KEY_PREFIXES.some((prefix) => key.startsWith(prefix)) || isStoryTimeKey(key);
