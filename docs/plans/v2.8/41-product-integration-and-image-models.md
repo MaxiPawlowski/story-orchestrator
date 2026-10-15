@@ -906,3 +906,25 @@ From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licen
   nothing maps its tags to the model's vocabulary or drops duplicates. Recommended: **measure first** on the existing image
   goldens: share of director tags absent from the tag list, and whether canonicalising (alias → canonical, drop unknown)
   changes a blind pick. Build only if the unknown share is above 20 %. LI tier, informational.
+
+## Gate record: §5 journey x2 on the 3090, 2026-10-14/15 (LIST)
+
+- Lane 33 (seeded fresh 2026-10-14, `--allow-local --headed`, `max_context` 32768, `image-harness.json` with Qwen 2.1 int8 + `birefnet_toonout`). Build served as a candidate: worktree `9aead40b` (the live-head gap fix) plus `f858a160` (reference-pack served path). Controller `automatic` (Artemis + ComfyUI). Wizard on the default authoring route, opencode `openai/gpt-6.1-sol`. Started after 22:45 local, when the Sol quota reset. Wrapper timeout 5,400 s.
+- run 1 (`C:\dev\so-lanes\33\debug\p41\2026-10-15T01-45-12-948Z-a-real-run1`):
+  - preflight, wizard (43 s) and story pass.
+  - base x3 REFUSED. Ash: "Candidate 1: The GPU broker did not release the image lease. Candidates 2-4: An image batch already owns the local GPU". Bram and Cleo: the same in under 1 s each.
+  - Everything that needs a base then failed or was refused: prepare x3 (driver: no base), expressions x3 (3/3), frames x3 (2/2), rig x3 ("no rebuild row for accepted look"), play ("no viseme mouth"), pose (no posed body, 30 min), look (30 min), look-rebuild, illustration.
+  - Killed by my wrapper timeout (exit 124) after the illustration step, so there is no `record.json`, only `steps.jsonl` and screenshots. The journey's `cleanup` afterwards reported leaked 0. INCOMPLETE; the lease leak is the cause.
+- run 2 (`...\p41\2026-10-15T03-15-16-676Z-a-real-run2\record.json`): VERDICT NOT GREEN. Calls: gpu-broker 100, comfy 44, artemis 77, sol 4, judge 129, deepseek 1.
+  - Pass: preflight, wizard (37 s), story, base x3 (111/99/99 s), prepare x3, expressions x3 (about 88 s each), look (43 s), swipe, delete, reload, chat-switch, stale, gpu-idle.
+  - The rest are defects for the image-defects agent:
+    1. frames, 1 of 2 refused per member (mask-import) on `neutral/blink`. Ash: "The edit redrew the picture outside its mask (mean change 40.5/255, limit 16)". Bram: same, 44.8/255. Cleo: "The edit spills past its mask edge (within 12 px: mean 34.2/255, 22% over 48; limits 20 and 12%)". Evidence: `record.json` steps `frames[*]`, screenshots `13-15-frames-*.png`.
+    2. rig x3 and look-rebuild refused, "bust only, rig not prepared". The vision model was shown a placeholder, not the bust: "a featureless silhouette with a question-mark graphic" (Ash, Bram, Cleo) and "a solid-black silhouette" (look-rebuild). The bust saved fine ("Saved bust (kept)"), so the image sent to landmarks is not the saved bust. Suspect: an unserved or `?t=`-suffixed path, or a missing-image placeholder reaching the vision call. Evidence: steps `rig[*]`, `look-rebuild`, screenshots `16-18-rig-*.png`, `22-look-rebuild.png`.
+    3. play FAIL: "no viseme mouth observed on a ready live head", 570 s. Probably a consequence of 2, since no rig means no ready live head. Evidence: `turns.jsonl`, `19-play.png`.
+    4. pose FAIL: "SO-P41 Bram: sit_edge on set default (wanted a posed sit_edge body)" after the 30-min wait. Ash and Cleo got posed bodies. Evidence: step `pose`, `20-pose.png`, `samples.jsonl`.
+    5. background REFUSED: "API request failed" after 901 s. It made the run's one DeepSeek call (`/api/backends/chat-completions/generate`, step `background`), through the lane copy's image-prompt profile, which points at a DeepSeek profile. That paid route was not named by the runbook. Evidence: `calls.jsonl`.
+    6. illustration REFUSED: "The last image could not be made". Same cause as the showcase run: "This Qwen node does not offer the two-reference cast scene input" (ComfyUI capability gap).
+  - Cleanup: cards, group, library story and settings scrubbed, but "2 owned asset(s) leaked": two pose images under `SO-P41 Ash/lp_521e9e9b`. Removed afterwards with `so-assets remove --marker SO-P41`; `assert-clean --marker SO-P41` and `--marker SO-PL` exit 0 on lane 33.
+- Floors (predeclared 2026-10-14): not met. Run 1 incomplete, run 2 NOT GREEN. No floor changed.
+- Post-fix shakedown: the broker fix (`c49b7995`, cherry-picked here as `ed687cdc`) was built and the plugins reinstalled from this worktree. The shakedown journey did NOT run: the local controller (pre-fix code) was serving another lane's text suite (port 8141) and refused to stop with active work. Owed: one `so-p41-journey.mts run 1 --authoring claude --candidate` after a controller restart on the fixed code.
+- GPU minutes: run 1 about 90 (mostly waits with the GPU idle on the stuck lease), run 2 about 75.
