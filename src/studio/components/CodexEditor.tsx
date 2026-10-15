@@ -51,7 +51,7 @@ const KnownWhenField: React.FC<KnownWhenProps> = ({
 const FactRow: React.FC<{ page: CodexPage; entry: CodexEntry; fact: CodexFact; sources: string[] }> = ({ page, entry, fact, sources }) => {
   const mutate = useDraftStore((state) => state.mutate);
   const qualities = useDraftStore((state) => state.draft.qualities);
-  const checkpoints = useDraftStore((state) => state.draft.checkpoints.map((checkpoint) => checkpoint.id));
+  const checkpoints = useDraftStore((state) => state.draft.checkpoints).map((checkpoint) => checkpoint.id);
   const patch = (value: Partial<CodexFact>) => mutate((current) =>
     updateCodexEntry(current, page, { ...entry, facts: entry.facts.map((item) => (item.id === fact.id ? { ...item, ...value } : item)) }));
   const label = `${entry.id}.${fact.id}`;

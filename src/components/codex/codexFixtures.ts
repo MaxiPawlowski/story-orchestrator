@@ -12,4 +12,4 @@ export const sampleCodex = (): CodexView => ({
   places: [{ name: "The boathouse", fresh: false, facts: [{ text: "The back door does not lock.", fresh: false }] }],
 });
 
-export const codexGame = (codex: CodexView | undefined = sampleCodex()): GameView => ({ ...sampleGame(), ...(codex ? { codex } : {}) });
+export const codexGame = (codex: CodexView | null = sampleCodex()): GameView => ({ ...sampleGame(), ...(codex ? { codex } : {}) });

@@ -64,7 +64,7 @@ export const OnlyPeople: StoryObj<typeof JournalPanel> = {
 };
 
 export const NoCodexNoTabs: StoryObj<typeof JournalPanel> = {
-  render: () => <JournalPanel game={codexGame(undefined)} />,
+  render: () => <JournalPanel game={codexGame(null)} />,
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector('[data-so="journal-tabs"]')).toBeNull();
   },
