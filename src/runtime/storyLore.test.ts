@@ -7,6 +7,7 @@ import { appendStoryLore, createStoryLore, globalStoryBooks, storyLoreBooks, typ
 import type { RuntimeSnapshot } from "./types";
 import { ScanGateProvider } from "./worldInfoScan";
 import { ScanGuard } from "./worldInfoScanGuard";
+import { createdStamp } from "@stagecraft/createdStamp";
 
 const HOARD = "The Hoard of the Dead Dragon";
 const PAWN = "The Pawnbroker of Forgotten Days";
@@ -80,6 +81,33 @@ beforeEach(() => {
   play(pawn, "pawn-chat", ["the-pawnbroker-1"]);
   world.loads = [];
   world.onLoad = null;
+});
+
+describe("Astra v2.8 P0: curator-created lore stays with the run that created it", () => {
+  const stamped = (uid: number, chatId: string) => entry(PAWN, uid, `Late discovery ${uid}`, { content: `The ledger was forged.\n${createdStamp({ chatId, groupId: "g" })}`, key: ["ledger"] });
+
+  it("a fresh run sharing the book never scans another run's created entry, on the story route or an already-loaded book", async () => {
+    books[PAWN].entries.push(stamped(9, "run-a"));
+    try {
+      play(pawn, "run-b", ["the-pawnbroker-1"]);
+      const fresh = emptyScan();
+      await lore().append(fresh);
+      expect(comments(fresh)).not.toContain("Late discovery 9");
+      expect(comments(fresh)).toContain("The City of Ledgers");
+      play(pawn, "run-a", ["the-pawnbroker-1"]);
+      const own = emptyScan();
+      await lore().append(own);
+      expect(comments(own)).toContain("Late discovery 9");
+      play(null, "plain-chat");
+      const global = emptyScan();
+      global[0].push(stamped(10, "run-a"), entry("Other", 1, "Untouched"));
+      global[1].push(stamped(11, "run-a"));
+      await lore().append(global);
+      expect(comments(global)).toEqual(["Untouched"]);
+    } finally {
+      books[PAWN].entries = books[PAWN].entries.filter((row) => row.uid !== 9);
+    }
+  });
 });
 
 describe("story-scoped lore: a story's books reach only the chats that play it (T5-2-2)", () => {
