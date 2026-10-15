@@ -771,6 +771,30 @@ Re-check after merging master `2ef63034` (plans 50, 51, the live checks with the
   card (2 of 2 trials), so C7 ran in auto-draft. The coordinator owns that defect.
 - Records (private lane tree): `so-suite-lanes/c7-run1.json`, `c7-run2.json`.
 
+Text suite, 2026-10-15 (Artemis v1.1 on the 3090 via the local controller, 32K, thinking on, preset Artemis v1.1 RP;
+images and sprites off; lanes 41/42 on the isolated ST copy; authoring on Sol). Stopped by the image close-out pause
+and the RAM hold; no model job started after 10:00 UTC. Artemis play used: about 2.6 h.
+
+- AS-smoke (batch `41/debug/batch/2026-10-15T05-52-20-590Z`): 8 of 9 files green ×2 (academy, adventurer, aegis, deep,
+  east, esha, night: run1 + run2 green). saga run1 red (step 7/15 `send_generate` ok:false, an empty reply during a
+  controller restart, not a product verdict); saga run2 and war ×2 not run. Academy shakedown green
+  (`2026-10-15T01-38-46-843Z`); the first shakedown (`01-07-49-088Z`) timed out on the extraction drain.
+- GS1 (lane 42): shakedowns only, no evidence pair. Five shakedowns fixed harness defects (journey items, step order,
+  briefing wait, left-open workspace modal, scenario checkpoint pick). Last run (`2026-10-15T07-31-04-925Z`, stopped
+  at GS1.9 by the pause): GS1.1 red (start pane never opened within 180 s; the briefing draft rides the Sol transport),
+  GS1.4 red (no scenario block in the prompt ST holds at an authored scenario checkpoint: open, product or fixture
+  not yet decided), GS1.8 send after reload not posted (warning, step ok), GS1.2/1.3/1.5/1.6/1.7 green.
+- Not run (time): GS1 ×2, GS4 ×2, GS3 ×2, GS2, live-v28-47-promises ×2, T8 `so-live-suite run --set time`, other
+  targeted scenarios and measurements, campaign lab model scenarios ×2.
+- Run header diff: not taken after the last batch (lanes stopped by the hold); base captures stay in
+  `so-suite-lanes/41|42/debug/run-header-suite-base.json`.
+- Evidence: `so-evidence.mts archive --label text-suite-20261015 --lanes 41,42 --allow-incomplete` -> 2874 files,
+  127.5 MB in the private sessions tree (`test/sessions/evidence/phase-c/text-suite-20261015`); 3 interrupted GS1
+  rows recorded incomplete. Not committed to so-sessions, not pushed.
+- Product defects seen: OpenCode transport failures (C7, likely GS1.1); review-mode tools lost after the first accept
+  (coordinator); the 64-tool bridge cap (fixed on master at 96); GS1.4 scenario block (open).
+
+
 ## Appendix A — plan 24 before the 2026-10-14 rework (history)
 
 Kept verbatim (headings demoted). Superseded by the sections above; the RunPod EUR 20 cap and the per-plan index remain as history.
