@@ -21,7 +21,7 @@ import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { adoptForeignChat, adoptNewSandboxChat, assertInSandbox, cleanupForeignChats, beginSandboxSession, deleteSandboxChats, openGroup, openMostRecentGroupChat, readActiveChat, readChatOnDisk, reopenSandboxChat } from './st-navigation.mts';
 import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
 import { dumpCurrentChatState } from './so-state.mts';
-import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, branchContinue, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, getMemoryFates, getModelCallsState, getGateReplayState, getNextTurnState, getInlineState, setInlineLevel, jumpToCitation, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest, pointerClick } from './so-ui.mts';
+import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, branchContinue, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, getMemoryFates, getModelCallsState, getGateReplayState, getNextTurnState, getInlineState, setInlineLevel, jumpToCitation, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest, pointerClick, closeWorkspaceModal } from './so-ui.mts';
 import { leakCount, listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
 import { cleanupSoloChats, restoreActiveEntity, soloChat, withoutSoloChats } from './lib/soloSandbox.mts';
 import { applyExtSetting, cutCommand, emitGeneration, expectOverSteer, expectStateEquals, hostDelete, injectScript, recordState, restoreExtSettings } from './lib/interopVerbs.mts';
@@ -1099,7 +1099,10 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
   if (key === 'restart_story') return restartStory(page, value);
   if (key === 'studio_save') return saveStudioDraft(page, typeof value === 'string' ? value : value?.choice ?? null);
   if (key === 'send') return sendCompactMessage(page, value);
-  if (key === 'send_generate') return typeof value === 'string' ? sendUserMessage(page, value) : sendUserMessage(page, value.text, { idleTimeoutMs: value.timeoutMs, expectReply: value.expectReply === true });
+  if (key === 'send_generate') {
+    if (await closeWorkspaceModal(page).catch(() => false)) console.log('closed the Story Orchestrator modal an earlier ui step left open over the chat input');
+    return typeof value === 'string' ? sendUserMessage(page, value) : sendUserMessage(page, value.text, { idleTimeoutMs: value.timeoutMs, expectReply: value.expectReply === true });
+  }
   if (key === 'slash') return executeSlashCommand(page, value);
   if (key === 'extract') return extract(page, value);
   if (key === 'expand') return expand(page, value);
