@@ -23,6 +23,7 @@ export interface LivingInputSources {
   state: () => EngineState | null;
   refused: () => string | null;
   playerName: () => string;
+  promiseHooks?: () => string[];
 }
 
 const RESOLVED_SHOWN = 10;
@@ -34,7 +35,7 @@ export function livingInputs(sources: LivingInputSources): LivingInputs {
   const player = sources.playerName().trim();
   return {
     canon: sources.memory.canon.getCanon(),
-    openThreads: shown(sources.memory.getOpenArcs()),
+    openThreads: shown([...sources.memory.getOpenArcs(), ...(sources.promiseHooks?.() ?? [])]),
     resolvedThreads: shown(sources.memory.getArcs().filter((arc) => arc.status === "resolved").slice(-RESOLVED_SHOWN).map((arc) => arc.summary ?? arc.text)),
     plans: [],
     refused: sources.refused(),

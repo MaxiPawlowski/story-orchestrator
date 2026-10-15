@@ -1,0 +1,23 @@
+{
+  "format": 2,
+  "id": "so-v28-53-factions",
+  "title": "SO-V28-53 Factions",
+  "description": "v2.8 plan 53 no-model fixture: one guild whose standing moves on an authored event and shows as a band word.",
+  "roster": [{ "id": "arin", "name": "Arin", "factions": ["guild"] }, { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }],
+  "factions": [{
+    "id": "guild", "name": "The Lantern Guild",
+    "bands": [{ "max": -3, "label": "Hostile" }, { "max": -1, "label": "Wary" }, { "max": 2, "label": "Neutral" }, { "label": "Trusted" }],
+    "visible_when": { "q": "met_guild", "op": "==", "v": true },
+    "moves": [{ "id": "stole", "when": { "q": "ledger_stolen", "op": "==", "v": true }, "add": -3, "heard_by": "faction" }]
+  }],
+  "qualities": [
+    { "key": "met_guild", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has the party met the Lantern Guild?" },
+    { "key": "ledger_stolen", "type": "bool", "source": "extractor", "rubric": "Did the party steal the guild ledger?" },
+    { "key": "left_town", "type": "bool", "source": "extractor", "rubric": "Has the party left town?" }
+  ],
+  "checkpoints": [
+    { "id": "hall", "name": "The guild hall", "player_name": "The guild hall", "objective": "The guild clerk asks for help.", "type": "anchor", "start": true },
+    { "id": "road", "name": "The road", "player_name": "The road", "objective": "Travel on.", "type": "anchor" }
+  ],
+  "transitions": [{ "from": "hall", "to": "road", "priority": 0, "gate": { "q": "left_town", "op": "==", "v": true } }]
+}

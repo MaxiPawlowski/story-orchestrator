@@ -28,6 +28,7 @@ jest.mock("@services/STAPI", () => ({
   unregisterHostMacro: (key: string) => { macros.delete(key); },
   subscribeToHostEvents: () => { hostSubscriptions.open += 1; return () => { hostSubscriptions.open -= 1; }; },
   startSaveWatcherSurface: () => { surface.started += 1; return () => { surface.stopped += 1; }; },
+  watchPendingWorldSaves: () => () => {},
   judgeTransport: async () => ({ model: null, answers: null }),
   judgeStatus: async () => null,
   getPlayerName: () => "Max",

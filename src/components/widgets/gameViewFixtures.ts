@@ -78,6 +78,16 @@ export const rosterWidget: WidgetView = {
   actions: [{ id: "notes", text: "What do I know about them?", open: "memory" }],
 };
 
+export const standingWidget: WidgetView = {
+  id: "stat-sheet", title: "Stat sheet", audience: "player", synthesized: true,
+  body: { kind: "meters", groups: [{ label: "Standing", items: [{ label: "The Guild", as: "word", text: "Wary" }, { label: "The Crown", as: "word", text: "Trusted" }] }] },
+};
+
+export const factionRosterWidget: WidgetView = {
+  id: "groups", title: "Groups", audience: "player", synthesized: false, icon: "flag",
+  body: { kind: "roster", rows: [{ name: "The Guild", status: "Wary" }, { name: "The Crown", status: "Trusted" }] },
+};
+
 export const timelineWidget: WidgetView = {
   id: "road", title: "The road so far", audience: "player", synthesized: false, icon: "hourglass",
   body: {

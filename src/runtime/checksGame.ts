@@ -1,5 +1,5 @@
 import { SCOPE_EXTRA_TOKENS } from "@extraction/scopeBudget";
-import { QUEST_SCOPE_CAP, REL_AXES_PER_READ, REL_ROTATION_READS } from "@extraction/scopeSources";
+import { DISCOVERY_SCOPE_CAP, QUEST_SCOPE_CAP, REL_AXES_PER_READ, REL_ROTATION_READS } from "@extraction/scopeSources";
 import type { Check } from "./checks";
 
 export const QUEST_SCOPE_CHECK: Check = {
@@ -38,4 +38,38 @@ export const RELATIONSHIP_SCOPE_CHECK: Check = {
   },
 };
 
-export const GAME_CHECKS: readonly Check[] = [QUEST_SCOPE_CHECK, RELATIONSHIP_SCOPE_CHECK];
+export const DISCOVERY_SCOPE_CHECK: Check = {
+  id: "discovery-scope-overflow",
+  area: "quest",
+  scope: "story",
+  audience: "author",
+  severity: "degrades",
+  feature: "codex",
+  detect: (snapshot) => {
+    const dropped = snapshot.gameAuthor?.discoveryOverflow ?? [];
+    return dropped.length ? {
+      consequence: "Some People and Places lines wait an extra turn to be read, so the page can learn a little late.",
+      detail: `A read carries at most ${DISCOVERY_SCOPE_CAP} codex keys, people and places not yet known first, and the rest take turns. Left out now: ${dropped.join(", ")}. `
+        + "Gate facts on checkpoints (reached) or on keys a transition already reads, or split a crowded page.",
+    } : null;
+  },
+};
+
+export const SAME_CHARACTER_CHECK: Check = {
+  id: "same-character",
+  area: "characters",
+  scope: "chat",
+  audience: "author",
+  severity: "info",
+  feature: "memory",
+  detect: (snapshot) => {
+    const names = snapshot.sameCharacter ?? [];
+    return names.length ? {
+      consequence: "Memory keeps these names apart from every cast member, so what it learns about them is filed separately.",
+      detail: `Seen in three or more reads, matching no cast member: ${names.join(", ")}. Same character? `
+        + "Add the name to that member's roster aliases (or their People page aliases) in the Studio to merge from now on; dismiss to keep them apart. Nothing is merged on its own.",
+    } : null;
+  },
+};
+
+export const GAME_CHECKS: readonly Check[] = [QUEST_SCOPE_CHECK, RELATIONSHIP_SCOPE_CHECK, DISCOVERY_SCOPE_CHECK, SAME_CHARACTER_CHECK];

@@ -896,3 +896,13 @@ Gates:
 - Look edits: the showcase story declares no look qualities, so no product-path changed look (`look_<key>`) can be triggered on these busts. Instead I used the builder's Edit = look (reference neutral, seed 1, 25 steps), kept to set `default`: Wren "dark blue hooded travel cloak" 38 s, Garrick "dented steel helmet, open visor" 66 s, Pim "wide brimmed green hat" 68 s. These are not published looks. The product-path changed look and its live head stay covered by the §5 journey's `look`/`look-rebuild` steps.
 - Cast illustration (`#so-cast-scene`, Wren + Garrick): REFUSED in 2 s with "This Qwen node does not offer the two-reference cast scene input." The installed ComfyUI Qwen text-encode node has no second reference input. This is a host capability gap: no download or node update was made. "Cast illustration with layered fields on a model" stays unproven.
 - GPU minutes: bases about 9 (plus 30 min of timed-out waiting with the GPU idle), reference views about 20 over two rounds plus refusals, look edits about 3.
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H16f director tag canonicalisation against a Danbooru vocabulary** (`docs/plans/v2.8/extension-research-2026-10-14/booru-autocomplete.md` P1, 3/M; MIT, tag data
+  reusable with notice). The image director's prompt only forbids names, artists and quality tags (`src/image/prompt.ts:58-62`);
+  nothing maps its tags to the model's vocabulary or drops duplicates. Recommended: **measure first** on the existing image
+  goldens: share of director tags absent from the tag list, and whether canonicalising (alias → canonical, drop unknown)
+  changes a blind pick. Build only if the unknown share is above 20 %. LI tier, informational.

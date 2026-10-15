@@ -1,4 +1,4 @@
-import { gateKeys, type GateNode, type StoryV2 } from "@engine/index";
+import { CODEX_PAGES, CODEX_START, gateKeys, isReached, type GateNode, type StoryV2 } from "@engine/index";
 import { boundCardQualities } from "@engine/cardFields";
 import { clueKeys } from "./widgetKeys";
 
@@ -27,6 +27,8 @@ export const scopedKeys = (draft: StoryV2): Set<string> => {
   draft.checkpoints.forEach((checkpoint) => Object.keys(checkpoint.state_snapshot ?? {}).forEach((key) => keys.add(key)));
   (draft.quests ?? []).forEach((quest) => gateList([quest.visible_when, quest.offered_when, quest.done_when, quest.failed_when,
     ...(quest.steps ?? []).flatMap((step) => [step.visible_when, step.done_when, step.failed_when])]).forEach((key) => keys.add(key)));
+  CODEX_PAGES.flatMap((page) => draft.codex?.[page] ?? []).flatMap((entry) => [entry.known_when, ...entry.facts.map((fact) => fact.known_when)])
+    .forEach((when) => { if (when && when !== CODEX_START && !isReached(when)) gateKeys(when).forEach((key) => keys.add(key)); });
   return keys;
 };
 
@@ -34,7 +36,7 @@ const itemGates = (draft: StoryV2): Array<{ path: string; keys: string[]; what: 
   ...(widget.visible_when ? [{ path: `widgets.${index}.visible_when`, keys: gateKeys(widget.visible_when), what: `panel '${widget.id}'` }] : []),
   ...(widget.clues ?? []).map((clue, at) => ({ path: `widgets.${index}.clues.${at}`, keys: clueKeys(clue), what: `clue '${clue.id}'` })),
   ...(widget.pins ?? []).flatMap((pin, at) => (pin.when ? [{ path: `widgets.${index}.pins.${at}`, keys: gateKeys(pin.when), what: `pin '${pin.id}'` }] : [])),
-  ...(widget.rows ?? []).map((row, at) => ({ path: `widgets.${index}.rows.${at}`, keys: [row.quality, ...(row.when ? gateKeys(row.when) : [])], what: `row '${row.id}'` })),
+  ...(widget.rows ?? []).map((row, at) => ({ path: `widgets.${index}.rows.${at}`, keys: [...(row.quality ? [row.quality] : []), ...(row.when ? gateKeys(row.when) : [])], what: `row '${row.id}'` })),
 ]);
 
 export const widgetGateKeys = (draft: StoryV2): Set<string> => new Set(itemGates(draft).flatMap(({ keys }) => keys));

@@ -1,6 +1,8 @@
 # Plan 52 — People and Places codex
 
-**Status (2026-10-14): DRAFT, not built.** Owner decision 2026-10-14: plans 51–53 go into v2.8 and are written now.
+**Status (2026-10-14): option A + shared contract SC1–SC5 BUILT on `v2.8-p52-codex` (not merged); D floors green as jest;
+C7 (CL) and the live lane gate owed; B and E not built (see §Gate record).** Owner decision 2026-10-14: plans 51–53 go
+into v2.8 and are written now; owner 2026-10-14: "yes to all from your recommendations".
 Source row: v2.8 27 report G24 ("typed entity pages (people/places) with `known_when`"; target "new seed (Journal
 People/Places, v2.8 04)"). Gate tiers (v2.8 00 §Gate taxonomy): implementation **D**; acceptance **D** + **CL**
 (the wizard writes codex entries on the authoring route; optional fact route on the read model) + **RP** only if the
@@ -295,3 +297,88 @@ is that checkout. Format: finding → verification → resolution.
   `reached` checkpoint name. The latch value is the latch boundary, which orders `fresh` without new state.
 - **Brainstorm: return visits.** Folded in as option E (decision 8). **Evidence notebook** (source, correction): the
   `from` line is its first step; "heard a rumour" vs "established" waits for 44's player surface and B.
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H16e structural name fold for ledger and epistemic keys** (`docs/plans/v2.8/extension-research-2026-10-14/dooms-enhancement-suite.md` P2, 3/S–M). `ledgerKey` is
+  trim + lowercase (`src/memory/ledger.ts:23-24`), the epistemic subject key the same (`src/memory/epistemic.ts:18`), so
+  "Mara", "Mara Venn" and "the captain" are three subjects. Recommended for the shared contract: one read-only resolver
+  (roster `aliases` + card name + this plan's entity aliases → roster id) applied to ledger and epistemic subjects at write
+  time, ambiguous names left unresolved (never guessed). Floor: alias fixture 100 % resolved, 0 merges of two distinct
+  members, D. Same resolver answers the v2.4 harvest's open "same character?" idea (`docs/plans/v2.4/extension-research/SUMMARY.md`
+  theme 7, dooms/smart-memory): an unresolved name seen in ≥ 3 reads becomes an author-only "same character?" card (merge or
+  keep apart); never merged automatically.
+- **H14b "lasting identity, not scene events"** for codex facts (same rule as the v2.8 11 addendum): a discovered fact
+  describes something that stays true. Prompt rule + C7 fixture row, CL.
+
+## Gate record (2026-10-14, branch `v2.8-p52-codex`, merged with master `837d96e0`)
+
+Built: option A with the owner's recommended decisions (1 A yes, 2 B later, 3 Journal tabs, 4 no chip, 5 place
+default yes, 6 `"start"` yes, 7 text = correction / gate or rev = rediscovery, 8 E as a follow-up row), the shared
+contract SC1–SC5 and the harvest addendum (H16e name fold + "same character?" card, H14b prompt rule).
+
+What landed:
+- SC1: `engine/rollbackDetectors.ts` (`ROLLBACK_DETECTORS` quests / life steps / codex, `ROLLBACK_EXEMPT` with reasons);
+  `shouldRollbackFromMessage` asks the registry; `rollbackDetectors.guard.test.ts` fails on a compiled code key neither
+  covers (planted control `zz_new_writer_latch`), plus a code-only-boundary seed.
+- SC2: `BOUNDARY_STEPS` in `engine.ts`; latch pass after quest rewards (step 5) and again after a fired transition's entry
+  (step 7); `activateCheckpoint` runs it after entry too. `boundaryOrder.test.ts` plants one writer per step.
+- SC3: `knownEntities` (`engine/codex.ts`); latch pass writes only `codex_*` keys (test); diagnostic
+  `disclosure-names-unknown-entity`; rule written into `.claude/rules/architecture.md`.
+- SC4: `hasGameLayer` / `usesGameLayer` count the codex; C13 fixture.
+- SC5: plan 24 already carries the 48–53 rows and the corrected rule 5 (2026-10-14 rework); 32-queue M52 row updated,
+  M52e added for option E.
+- Codex: `codexSchema.ts`, `validate/codex.ts`, latches `codex_p_*` / `codex_l_*` (int = boundary, latching, monotonic;
+  ids are `[a-z0-9-]`, so keys never collide), `storyDiff` `diffCodex` (edited / replaced / removed, pruned compatibly),
+  budgeted `discovery` scope source (`DISCOVERY_SCOPE_CAP` 6, unknown entries first, rotating units; providers are
+  `GAME_LAYER.discoveryUnits` so 51/53 can add theirs), check `discovery-scope-overflow`, `GameView.codex` composed
+  projection-only (`runtime/codexView.ts`, `fresh`, "From …"/"At …" provenance, `learned` log rows), session journal
+  `learned` events, `withheldNames` adds unknown entry names/aliases, Journal tabs (`components/codex/CodexPage.tsx`),
+  `display.codex`, Studio `CodexEditor` under Story features, mutations `setCodex`/`updateCodexEntry`/`removeCodexEntry`/
+  `setCodexShown`, wizard tools `setCodexEntry`/`removeCodexEntry`, recipe `codex-pages`, Studio diagnostics
+  `codex-fact-never-read`, `codex-gate-holds-at-start`, feature `codex`, guide topic `codex`.
+- Plan 51 seam: `CodexSources.personRows` → `CodexEntryView.rows` (rendered under person facts); nothing of 51 built.
+- H16e: `memory/nameFold.ts` folds ledger character rows and epistemic subject/`hiddenFrom` to the one fitting member's
+  card name at write time (roster aliases, card name, first/last word, codex names); ambiguous stays as written; author
+  check `same-character` (info) for unresolved names seen in ≥ 3 reads; never merges on its own.
+
+Deviations:
+- Tool named `setCodexEntry` (camelCase like every other edit tool), not `set_codex_entry`; plus `removeCodexEntry`.
+- `knownEntities` takes the enabled member list as an argument; the snapshot does not carry the group's enabled
+  members yet, so "From <member>" shows only for sources that have their own codex entry (members without an entry
+  count as unknown until that list is wired).
+- `codex-fact-never-read` means: a `reached` checkpoint no path reaches, or a gate on a code quality nothing writes
+  (codex gate keys are always offered by the discovery source, so an extractor key is never "never read").
+- `guideTopics.ts` hit its file budget: the read helpers moved to `copilot/guideRead.ts`, the topic text to
+  `copilot/guideTopicsCodex.ts`; `codexSchema` is re-exported through `gameSchema.ts` (schema.ts budget).
+- B (memory-fact route) and E (return visits) not built, as decided.
+
+D floors (jest, all green):
+- C1 0 leaks over 500 random paths (view JSON, Journal markup, both pages, suggestion withhold list); C2 byte-identical
+  over 120 seeds; C3 counts = projected rows over 200 seeds (`runtime/codexView.property.test.ts`).
+- C4/C11 60 seeds rollback-then-replay ≡ straight run, detection complete; same-boundary discovery, equal People/Places
+  ids, reopen past 200 logged boundaries, code-only boundary (`engine/codexRollback.property.test.ts`,
+  `rollbackDetectors.guard.test.ts`). Control: with the codex detector disabled, 6 of 62 property cases fail.
+- C5 scope and pulls identical with and without the discovery source for a story without a codex
+  (`extraction/discoveryScope.test.ts`); payload goldens not re-captured (lane gate, below).
+- C9 every unknown entry key offered within ⌈10/6⌉+1 reads; control (facts tier only) never reads them.
+- C10 `engine/codexDiff.test.ts`; C12 and C13 `engine/codex.test.ts`; SC2 `boundaryOrder.test.ts`; H16e alias fixture
+  14/14 resolved, 0 member merges (`memory/nameFold.test.ts`).
+
+Gates:
+- `npm run gates -- --jobs=2 --no-storybook` on the merge commit `32844bac`: EXIT 0 (test 8565 passed / 1 skipped,
+  test:replay, typecheck, build, typecheck:test, test:debug, debug:typecheck, test:plugin, test:release, lint 0 errors).
+- Storybook separately on port 6207 (the npm script hardcodes 6006): `storybook:build` then test-runner
+  `--url http://127.0.0.1:6207`: 141 suites, 851 tests passed.
+- Earlier pre-merge run: `test:plugin` failed once on `agent.test.mjs` "a stalled OpenCode service…" (15 s timeout
+  under machine load, unrelated code); re-run 289/289 passed.
+- Main bundle `dist/index.js` 1,282,935 B (budget 1,300,000); codex logic rides the lazy game-layer chunk.
+
+Owed:
+- Live gate NOT green: the no-model lane scenario (reach a checkpoint → fact appears → swipe → gone → reopen →
+  identical → `so-ui.mts assert-player-clean`) was not run: lanes serve ST's staged slot and staging into the owner's
+  ST was not allowed for this task. C5 payload goldens ride the same lane run.
+- C7 (CL, wizard recipe ×10 on the authoring route, incl. the H14b "lasting truth" row) not run (no model runs).
+- C6/C8 only with B.

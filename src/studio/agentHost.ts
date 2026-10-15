@@ -61,8 +61,10 @@ const reasonFor = (harness: string, model: string, row: HarnessRow | undefined):
   if (!row) return `the harness plugin does not list ${harness}`;
   if (row.blocked) return row.blocked;
   if (row.fresh === false && row.loginProblem) return row.loginProblem;
-  if (row.agentBridge !== true) return `${harness} offers no agent tool bridge on this install (the plugin's config.json offers it, opencode only)`;
-  if (!row.models.some((entry) => entry.id === model)) return `the harness plugin does not list the model ${model}`;
+  if (row.agentBridge !== true) return `${harness} offers no agent tool bridge on this install (the plugin's config.json offers it, opencode or claude)`;
+  const listed = row.models.find((entry) => entry.id === model);
+  if (!listed) return `the harness plugin does not list the model ${model}`;
+  if (listed.agent === false) return `${harness}'s tool bridge does not run ${model} (${row.models.filter((entry) => entry.agent !== false).map((entry) => entry.id).join(" or ") || "no model"})`;
   return null;
 };
 

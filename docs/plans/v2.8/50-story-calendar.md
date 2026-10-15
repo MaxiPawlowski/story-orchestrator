@@ -323,3 +323,17 @@ covers it).
   others.** Schedules already read `time_of_day`; appointments are v2.8 47 due points and v2.8 55 commitments
   (candidate); recurring rhythms are v2.8 57 rituals (candidate). No time-based closing is added here: a deadline
   stays an authored `failed_when`.
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H14a meanwhile due on elapsed story time** (`docs/plans/v2.8/extension-research-2026-10-14/multihog-dnd-framework.md` P1, 3/S). `meanwhileDue`
+  (`src/runtime/agendaProposals.ts:123-128`) checks only a boundary gap. Recommended for B1a: record `story_time` in each
+  meanwhile pass and make a pass due when `story_time` advanced by at least one part since the last pass (or the boundary gap,
+  whichever first), so a long scene in one evening does not generate off-screen news every few boundaries and a skip read
+  does. Floor: on a scripted 20-boundary run with 2 time advances, passes = 2 (+ gap fallback), D.
+- **H5b time-change chips per reply** (`docs/plans/v2.8/extension-research-2026-10-14/rpg-companion.md` P2, 3/S). When `story_time` advanced at a boundary, the inline
+  strip shows "evening → night" on that reply; a skip shows "→ next morning". Only when the story displays time (§8, T7
+  byte-identical without it); derived from the boundary log like `changedAgo`, so rollback-safe. Floor: chip present exactly
+  on advancing boundaries over a 20-turn scripted run, D. The "here now" card (new plan v2.8 65) reads the same label.

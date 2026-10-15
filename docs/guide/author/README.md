@@ -27,7 +27,7 @@ Where the guide says "the reading model" it means the memory model that reads th
 
 ## Story fields
 
-Every field a story can carry: 50 topics on 8 pages, from the story as a whole down to the game layer.
+Every field a story can carry: 53 topics on 8 pages, from the story as a whole down to the game layer.
 
 - [The story as a whole](fields/story.md)
   - [Story feature policies](fields/story.md#feature-policies) (`feature-policies`)
@@ -42,6 +42,7 @@ Every field a story can carry: 50 topics on 8 pages, from the story as a whole d
   - [Inner voice](fields/characters.md#inner-voice) (`inner-voice`)
   - [Speaker direction](fields/characters.md#talk-control) (`talk-control`)
   - [Character life](fields/characters.md#character-life) (`character-life`)
+  - [Factions and standing](fields/characters.md#factions) (`factions`)
   - [Living cards](fields/characters.md#living-cards) (`living-cards`)
   - [Poses and character layers](fields/characters.md#poses) (`poses`)
 - [What the story tracks](fields/tracking.md)
@@ -80,6 +81,7 @@ Every field a story can carry: 50 topics on 8 pages, from the story as a whole d
   - [Scene places and times](fields/lore-and-memory.md#scene-read) (`scene-read`)
   - [House rules](fields/lore-and-memory.md#house-rules) (`house-rules`)
   - [Chapters](fields/lore-and-memory.md#chapters) (`chapters`)
+  - [Consequences recap](fields/lore-and-memory.md#consequences) (`consequences`)
 - [Game layer and display](fields/game-layer.md)
   - [Illustrations and display](fields/game-layer.md#presentation) (`presentation`)
   - [Quests and milestones](fields/game-layer.md#quests) (`quests`)
@@ -87,6 +89,7 @@ Every field a story can carry: 50 topics on 8 pages, from the story as a whole d
   - [Stats and story panels](fields/game-layer.md#widgets) (`widgets`)
   - [Clue walls and maps](fields/game-layer.md#clues-and-maps) (`clues-and-maps`)
   - [Story-made HTML panels](fields/game-layer.md#html-panels) (`html-panels`)
+  - [People and Places](fields/game-layer.md#codex) (`codex`)
 
 ## For contributors
 

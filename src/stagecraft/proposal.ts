@@ -74,6 +74,11 @@ export function previewCuratorOp(op: WiCuratorOp, entry: CuratorEntryView | unde
   return { ok: true, message: `Patch "${entry.comment}"`, content: patched.content };
 }
 
+export const staleRewriteRefusal = (record: CuratorOpRecord, liveContent: string): string | null =>
+  record.op.kind === "rewrite" && record.before && normalize(record.before.content) !== normalize(liveContent)
+    ? `"${record.op.comment}" changed after this rewrite was proposed, so it was not overwritten; ask the curator again`
+    : null;
+
 // Rewrites and patches go first, then the on/off flips: `upsertWIEntry` re-enables whatever it
 // writes, so a disable that follows a rewrite is the one order where both survive.
 const ORDER: Record<WiCuratorOp["kind"], number> = { rewrite: 0, patch: 0, enable: 1, disable: 1, create: 2 };

@@ -332,3 +332,20 @@ Source: `review-astra-2026-10-14.md` §Plans 42-47 (42). Verified on `3a716f2b`.
 - **Cross-plan:** shared audience/provenance contract added as §0; combined read-budget experiment added as RB.
 - **Stale claim:** E0 code now on master; §3 corrected.
 - Rebutted: none.
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H13c hidden messages and recall eligibility** (`docs/plans/v2.8/extension-research-2026-10-14/timeline-memory.md` P3, 3/S). `/hide` sets `is_system`; the read
+  drops hidden rows at read time only (`src/extraction/windowHygiene.ts:115`), and plans 42, 43 and 47 never say whether a
+  span hidden **after** it was read stays a witness source or recall candidate. Host fact: `is_system` is set by both `/hide`
+  and summarizers, so the two cannot be told apart. Recommended rule for §0 (the shared contract): a message hidden at query
+  time is not recall-eligible and not quotable; its witness record stays (who heard it does not change), and a later unhide
+  restores eligibility. Floor: 4 seeds (hide, unhide, summarizer-hidden, reopen) D.
+- **H16c pause ST Summarize while a secret is held** (`docs/plans/v2.8/extension-research-2026-10-14/dooms-enhancement-suite.md` P1, 3/S). The `transcript-copiers`
+  check only warns (`src/services/stHost/transcriptCopiers.ts:5`, `src/runtime/checks.ts`). Their trick holds Summarize
+  without writing the user's setting (a getter on the summary state that reads as frozen while a flag is set). Recommended
+  for §9: an opt-in, per-chat hold while a held secret exists, never an install write, released on story end; Vector Storage
+  is not covered (it cannot be held this way). Needs a verified host fact (the Summarize state shape at the ST pin) before
+  building; with C, the F2a/F2b rows measure it.

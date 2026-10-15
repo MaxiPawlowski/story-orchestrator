@@ -20,6 +20,7 @@
    "inner-voice",
    "talk-control",
    "character-life",
+   "factions",
    "living-cards",
    "poses"
   ]
@@ -82,7 +83,8 @@
     "lore-entries",
    "scene-read",
    "house-rules",
-   "chapters"
+   "chapters",
+   "consequences"
   ]
  },
  {
@@ -94,7 +96,8 @@
    "checks",
    "widgets",
    "clues-and-maps",
-   "html-panels"
+   "html-panels",
+   "codex"
   ]
  }
 ]

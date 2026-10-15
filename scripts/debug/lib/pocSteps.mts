@@ -10,7 +10,7 @@ import { comfyCleared, harnessGaps } from './imageHarnessConfig.mts';
 import { assertRuntimeOnPage } from './servedBundle.mts';
 import { saveSettingsNow } from './settingsSave.mts';
 import { snapshotAssets, listMarkedAssets, leakCount } from '../so-assets.mts';
-import { laneProblem, type Mode, type Outcome, type StepRow } from './pocDrivers.mts';
+import { laneProblem, type AuthoringRoute, type Mode, type Outcome, type StepRow } from './pocDrivers.mts';
 import { appendFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 
@@ -190,14 +190,15 @@ export async function saveSoon(page: Page, attempts = 3): Promise<{ ok: boolean;
   return { ok: false, attempts, error };
 }
 
-export interface SettingsCapture { settings: Record<string, unknown>; reducedMotion: boolean | null; extraction: ExtractionSettingsSnapshot | null }
+export interface SettingsCapture { settings: Record<string, unknown>; reducedMotion: boolean | null; extraction: ExtractionSettingsSnapshot | null; routes?: unknown }
 
 export async function captureSettings(page: Page): Promise<SettingsCapture> {
   const captured = await page.evaluate(() => {
     const ctx = (globalThis as any).SillyTavern.getContext(), home = ctx.extensionSettings['story-orchestrator'] ?? {};
     const settings = home.settings ?? {};
     return { settings: Object.fromEntries(['sprites', 'display', 'image'].map((key) => [key, settings[key] === undefined ? null : JSON.parse(JSON.stringify(settings[key]))])),
-      reducedMotion: typeof ctx.powerUserSettings?.reduced_motion === 'boolean' ? ctx.powerUserSettings.reduced_motion : null };
+      reducedMotion: typeof ctx.powerUserSettings?.reduced_motion === 'boolean' ? ctx.powerUserSettings.reduced_motion : null,
+      routes: JSON.parse(JSON.stringify((globalThis as any).storyOrchestratorRuntime?.getGlobalSettings?.()?.extraction?.routes ?? null)) };
   });
   return { ...captured, extraction: await readExtractionSettings(page) };
 }
@@ -212,8 +213,27 @@ export async function restoreSettings(page: Page, capture: SettingsCapture | nul
     (globalThis as any).storyOrchestratorRuntime?.notify?.();
   }, capture);
   const extraction = await restoreExtractionSettings(page, capture.extraction);
+  const routes = capture.routes === undefined ? 'not captured' : await page.evaluate((routes) => {
+    (globalThis as any).storyOrchestratorRuntime.setExtractionSettings({ routes: routes ?? {} });
+    return 'restored';
+  }, capture.routes);
   const saved = await saveSoon(page);
-  return { restored: true, extraction, saved };
+  return { restored: true, extraction, routes, saved };
+}
+
+export async function applyAuthoringRoute(page: Page, route: AuthoringRoute | null) {
+  if (!route) return { route: 'default' };
+  const applied = await page.evaluate((target) => {
+    const rt = (globalThis as any).storyOrchestratorRuntime;
+    const routes = { ...(rt.getGlobalSettings()?.extraction?.routes ?? {}) };
+    const options = routes.authoring?.route?.options ?? {};
+    routes.authoring = { route: { kind: 'harness', harness: target.harness, model: target.model, options } };
+    rt.setExtractionSettings({ routes });
+    return rt.getGlobalSettings()?.extraction?.routes?.authoring?.route ?? null;
+  }, route);
+  if (applied?.harness !== route.harness || applied?.model !== route.model) throw new Error(`authoring route not applied: ${JSON.stringify(applied)}`);
+  const saved = await saveSoon(page);
+  return { route: `${route.harness}:${route.model}`, saved };
 }
 
 export async function preflightCommon(env: StepEnv, marker: string) {

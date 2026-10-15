@@ -303,3 +303,18 @@ Round 3 (Sol): R3-05, R3-06, R3-19 applied.
 
 2026-10-03 (user: as recommended): the shared origin-tagged rollback is built once, by whichever of v2.8 18 / v2.8 20
 builds first (§Rewards and rollback).
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H4 public sheet to the narrator, "just happened" rows, warn bands, header clauses** → new plan v2.8 64. Q2 gains its
+  prompt side there; Q3's `CHECK_OUTCOME_HEADER` gains "do not invent other outcomes" and the anti-limbo clause
+  (`docs/plans/v2.8/extension-research-2026-10-14/filigree.md` P2: a check outcome is shown whole, a success lands and a failure costs something real; today's header
+  `src/runtime/storyCheckDraws.ts:91-92` lacks both). Q5 quest closes reach the narrator through 64's rows.
+- **H16a possession rules: "omission is not loss"** (`docs/plans/v2.8/extension-research-2026-10-14/bb-interactive-map.md` P3, 3/M). Inventory items are authored bool
+  qualities (Q2); nothing stops a read from setting an item false because a reply did not mention it. Recommended: an item
+  quality (`display.as: "item"`) leaves the player only on an evidenced transfer or use (a read line whose evidence names
+  the item being given, lost, spent or taken), never on silence; the validator offers `loss_when` for authored losses.
+  Floors: a 10-turn fixture where the item is never mentioned keeps it 10/10 (D, scripted read); a give-away line removes it
+  (CL fixture ×2). v2.8 58 keepsakes reuse the rule.

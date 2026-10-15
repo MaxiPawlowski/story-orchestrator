@@ -74,7 +74,7 @@ and CA environment variables pass through to Claude and Codex.
 Admin accounts only, because it spends the server owner's subscriptions ("harness routes are admin-only on this
 install"). `allowNonAdmin: true` opens it to every SillyTavern user.
 
-## The wizard's tool bridge (opencode only)
+## The wizard's tool bridge (opencode and claude)
 
 When **Wizard and road ahead** is routed to opencode, `agentBridge.mjs` opens an OpenCode session whose project config
 declares exactly one MCP server, `mcpShim.mjs` (native tools, not Code Mode), which exposes the wizard's own validated
@@ -82,6 +82,32 @@ tools (as `so_*`, at most 64) and parks each call for the page. The agent may us
 permission request, ends the session as refused. The page long-polls `/agent/next` and answers each call through the same
 checks as a local run; a call that creates an asset still waits for the author. Sessions are per user and role, bounded
 (15 minutes, a bounded queue, call deadlines), interrupted and removed, and their location is evicted and deleted.
+
+When it is routed to claude (`claude-sonnet-5-5` or `claude-opus-5-5` only; Haiku and the short aliases are refused for
+the wizard, and each status model row says `agent: true|false`), `claudeTransport.mjs` runs one process in an owned home
+with a copy of the login (the freshness check is the only read of its contents), from an owned, descriptively named
+working directory (`story-orchestrator-authoring`):
+
+```
+claude -p --tools "" --strict-mcp-config --mcp-config <owned>/tmp/mcp.json --setting-sources "" --no-session-persistence
+  --disable-slash-commands --permission-prompts none --allowedTools mcp__so__<tool>,... --system-prompt-file <owned>/tmp/system.txt
+  --input-format text --output-format stream-json --verbose --include-partial-messages --model <model> [--effort low|medium|high]
+```
+
+with `CLAUDE_CONFIG_DIR` in the owned home, `CLAUDE_CODE_NO_MODEL_FALLBACK=1`, `CLAUDE_CODE_DISABLE_REFUSAL_FALLBACK=1`,
+`CLAUDE_CODE_DISABLE_REFUSAL_RETRY=1`, `CLAUDE_CODE_DISABLE_LEGACY_MODEL_REMAP=1`, `DISABLE_AUTOUPDATER=1` (names checked
+against the 2.1.x binary) and `MCP_TOOL_TIMEOUT` = the call deadline + 10 s. The MCP config (owner-only: it holds the
+session secret) names only `mcpShim.mjs`. The event stream is read as it arrives and the run is stopped on:
+
+- an init listing any tool but `mcp__so__*` or any server but the shim (`refused`), or a shim that did not connect (`config`);
+- a tool use of anything else, or a permission denial in the result (`refused`);
+- a refusal (`stop_reason: "refusal"`, `model_refusal_*`): final, never retried or rerouted;
+- a served model (init, every `message_start`, every assistant message) other than the requested one (`refused`); a
+  `<synthetic>` message is a CLI-local error whose text names it (an expired login reads as `auth`);
+- the first `stop_reason: "max_tokens"`, answered as `finish: "length"` (the CLI would otherwise add hidden resume turns).
+
+`rate_limit_event` lines feed `/status` `harnesses.claude.meter` (`status`, `resetsAt`, `windows.five_hour|seven_day`
+`{utilization, resetsAt}`); a `rejected` window holds the harness until its reset. No other usage source is read.
 
 ## Pictures
 
@@ -96,11 +122,14 @@ Under `/api/plugins/story-orchestrator-harness`, `text/plain` bodies with the `x
 
 `/status` rows for opencode add `loginState` (`ok`, `expired`, `unpaired`, `unchecked`, `unavailable`), `loginAction`,
 `loginProblem` (the owner's next step), `service`, `serviceVersion`, `clientInstalled`, and per model `available` and `image`.
+Every model row carries `agent` (the wizard's tool bridge may run it); the claude row adds `meter` once a run reported one.
 
 ## Tests
 
 `npm run test:plugin` (node:test: `plugin.test.mjs` for Claude and Codex, `agent.test.mjs` and `opencode.test.mjs` against
-`fixtures/fake-opencode-server.mjs`, a fake OpenCode service with synthetic data only). `opencode.isolated.test.mjs`
+`fixtures/fake-opencode-server.mjs`, a fake OpenCode service with synthetic data only, `claude.agent.test.mjs` against
+`fixtures/fake-claude-cli.mjs`, a fake CLI that speaks MCP to the real shim; `HARNESS_LIVE=1` adds one real claude
+session). `opencode.isolated.test.mjs`
 checks the transport against a real, private, credential-free `opencode serve` with its own empty data directories (it
 never uses the owner's service, login or models and sends no model request): set `SO_OPENCODE_ISOLATED=1`, and
 `SO_OPENCODE_CLIENT_DIR` to a folder whose `node_modules` holds `@opencode/client` unless it is installed next to the plugin.

@@ -1,6 +1,8 @@
 import { FACT_ENTRY_TYPES, MEMORY_EXPIRATIONS, SESSION_ENTRY_TYPES } from "./types";
 
-export function renderArcContractSection(openArcs: string[] = []): string {
+export const PROMISE_ARC_RULE = "Promises the player makes to a cast member are tracked separately as [promised] lines: never write them as arcs.";
+
+export function renderArcContractSection(openArcs: string[] = [], promisesTracked = false): string {
   const existing = openArcs.length
     ? ["EXISTING OPEN ARCS (read-only context — do not copy or re-output these):", ...openArcs.map((arc) => `[arc] ${arc}`), ""]
     : [];
@@ -13,6 +15,7 @@ export function renderArcContractSection(openArcs: string[] = []): string {
     "[arc] <a NEW unresolved thread introduced in this window, not already listed above>",
     "[resolved] <brief description of an existing open arc that this window explicitly closed>",
     "Only mark [resolved] when the window directly closes the thread (promise kept, mystery answered, conflict ended); a related revelation is not a resolution.",
+    ...(promisesTracked ? [PROMISE_ARC_RULE] : []),
   ].join("\n");
 }
 
@@ -55,7 +58,7 @@ export function renderLedgerContractSection(entities: string[] = []): string {
   ].join("\n");
 }
 
-export function renderMemoryContractAddendum(openArcs: string[] = [], capable = false, entities: string[] = []): string {
+export function renderMemoryContractAddendum(openArcs: string[] = [], capable = false, entities: string[] = [], promises: string | null = null): string {
   return [
     "Also extract memory notes worth keeping across turns, report scene breaks, and track story arcs.",
     `Facts tier types (${FACT_ENTRY_TYPES.join(", ")}) — durable, cross-session:`,
@@ -79,7 +82,8 @@ export function renderMemoryContractAddendum(openArcs: string[] = [], capable = 
     "SCENE_BREAK at=<message index> reason=<time_skip|location|divider|cast>",
     "If no scene break occurred, output SCENE_NONE.",
     "",
-    renderArcContractSection(openArcs),
+    renderArcContractSection(openArcs, promises !== null),
+    ...(promises ? ["", promises] : []),
     ...(capable ? ["", renderEpistemicContractSection(), "", renderLedgerContractSection(entities)] : []),
   ].join("\n");
 }

@@ -34,6 +34,8 @@ import { landedMeanwhile } from "./agendaProposals";
 import { createMeanwhilePort } from "./meanwhilePort";
 import type { EffectsApplier } from "./effectsApplier";
 import { wireLiving } from "./livingWiring";
+import { createPromisePort } from "./promisePort";
+import { createRecapPort } from "./recapPort";
 
 export const restingTexts = <T extends { text: string }>(memory: MemoryCoordinator, rows: readonly T[]): T[] => shownRows(rows, memory.injector.restingFilter());
 
@@ -61,6 +63,36 @@ export interface ManagerPort {
   effects: () => EffectsApplier;
 }
 
+function wirePromises(port: ManagerPort, memory: MemoryCoordinator) {
+  const { view, engine } = port;
+  const promises = createPromisePort({
+    ...view, extras: port.extras, chatId: () => view.hosts.chat.chatId(), storyId: () => port.loaded()?.record.id,
+    chatWindow: (from, to) => view.hosts.chat.chatWindow(from, to), chatRows: () => view.hosts.chat.chatRows(),
+    historyFloor: () => (port.loaded() ? engine.historyFrom().messageId : null), playerName: () => getPlayerName(),
+    journal: (summary, note) => port.journal("author", summary, note), refresh: () => memory.updateInjection(),
+  });
+  memory.injector.addPrivateSource((rosterId) => promises.reminder(rosterId));
+  return promises;
+}
+
+function wireInner(port: ManagerPort, memory: MemoryCoordinator, pacing: () => PacingCoordinator) {
+  let innerHost: InnerBeatHost | null = null;
+  let innerLoad: Promise<InnerBeatHost> | null = null;
+  const loadInner = () => (innerLoad ??= loadInnerRender().then(() => import("./innerBeatHost"))
+    .then(({ innerBeatHostFor }) => (innerHost = innerBeatHostFor(port, memory, pacing()))));
+  const inner = {
+    due: () => port.extras().memory.settings.innerBeat === true && Boolean(port.view.getStory()),
+    run: async () => (await loadInner()).run(),
+    prepare: async (rosterId: string) => {
+      if (!inner.due()) return false;
+      await (await loadInner()).prepare(rosterId);
+      return true;
+    },
+    beatFor: (rosterId: string) => innerHost?.beatFor(rosterId) ?? "",
+  };
+  return inner;
+}
+
 export function wireCoordinators(port: ManagerPort) {
   const { view, lifecycle, engine } = port;
   const memory: MemoryCoordinator = new MemoryCoordinator({
@@ -86,20 +118,8 @@ export function wireCoordinators(port: ManagerPort) {
       journal: (summary, note) => port.journal("chapter", summary, note), playerName: () => getPlayerName(),
     },
   });
-  let innerHost: InnerBeatHost | null = null;
-  let innerLoad: Promise<InnerBeatHost> | null = null;
-  const loadInner = () => (innerLoad ??= loadInnerRender().then(() => import("./innerBeatHost"))
-    .then(({ innerBeatHostFor }) => (innerHost = innerBeatHostFor(port, memory, pacing))));
-  const inner = {
-    due: () => port.extras().memory.settings.innerBeat === true && Boolean(view.getStory()),
-    run: async () => (await loadInner()).run(),
-    prepare: async (rosterId: string) => {
-      if (!inner.due()) return false;
-      await (await loadInner()).prepare(rosterId);
-      return true;
-    },
-    beatFor: (rosterId: string) => innerHost?.beatFor(rosterId) ?? "",
-  };
+  const promises = wirePromises(port, memory);
+  const inner = wireInner(port, memory, () => pacing);
   const refusing = () => {
     const loaded = port.loaded();
     const state = loaded ? engine.serialize() : null;
@@ -133,7 +153,7 @@ export function wireCoordinators(port: ManagerPort) {
     setStatus: (status) => port.setStatus(status),
     judge: () => port.judge(),
     requestBudget: (role) => requestBudgetFor(role),
-    spikes: () => getGlobalSettings().spikes,
+    spikes: () => getGlobalSettings().spikes, promises,
     ...lifecycle,
   });
   const pacing = new PacingCoordinator({
@@ -145,6 +165,7 @@ export function wireCoordinators(port: ManagerPort) {
     setTension: (next) => { port.extras().tension = next; },
     getPacing: () => port.extras().pacing,
     ended: () => storyEnded(port.extras().memory.chapters ?? []),
+    onHoldChange: lifecycle.notify,
   });
   const stagecraft = new StagecraftCoordinator({
     ...view,
@@ -186,13 +207,14 @@ export function wireCoordinators(port: ManagerPort) {
     openChat: () => String(view.hosts.chat.chatId() ?? "") || null,
   });
   const game = createGamePort({ engine, loaded: port.loaded, extras: port.extras, effects: port.effects, ownership: lifecycle.ownership, persist: lifecycle.persist, notify: lifecycle.notify });
+  const recap = createRecapPort({ engine, loaded: port.loaded, extras: port.extras, persist: lifecycle.persist, notify: lifecycle.notify });
   const meanwhile = createMeanwhilePort({
     ...view, extras: port.extras, ownership: lifecycle.ownership, updateInjection: () => memory.updateInjection(),
     journal: (summary, note) => port.journal("author", summary, note), persist: lifecycle.persist, notify: lifecycle.notify,
   });
   const living = wireLiving({
     view, lifecycle, engine, loaded: port.loaded, extras: port.extras, memory, expansion, replaceStory: (story) => port.replaceStory(story),
-    refused: () => refusing()?.checkpointName ?? null, journal: port.journal, judge: port.judge, chatRows: () => view.hosts.chat.chatRows(),
+    refused: () => refusing()?.checkpointName ?? null, journal: port.journal, judge: port.judge, chatRows: () => view.hosts.chat.chatRows(), promiseHooks: () => promises.hooks(),
   });
   const rollbackDeps: RollbackDeps = {
     ...port.rollback, engine, memory, stagecraft, pacing, ownership: lifecycle.ownership, revalidateExpansion: () => expansion.revalidateInserted(),
@@ -207,5 +229,5 @@ export function wireCoordinators(port: ManagerPort) {
     chatOpen: () => Boolean(view.hosts.chat.chatId()),
     groupOpen: hasOpenGroup,
   };
-  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps };
+  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, promises };
 }

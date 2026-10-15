@@ -1,6 +1,7 @@
 # Plan 53 — Reputation with groups
 
-**Status (2026-10-14): DRAFT, not built; new (no gamification row).** Owner decision 2026-10-14: plans 51–53 go into
+**Status (2026-10-14): A BUILT on branch `v2.8-p53-reputation` (D floors green in jest, no-model lane scenario green ×2;
+F7/F9 RP+CL owed); see §Gate record. Was: DRAFT, new (no gamification row).** Owner decision 2026-10-14: plans 51–53 go into
 v2.8 and are written now. Gate tiers (v2.8 00 §Gate taxonomy): implementation **D**; acceptance **D** + **RP** (members
 open differently by standing, on the main reply model) + **CL** (second-model rater; living director hint uptake on
 the director's route). Overview: `docs/plans/v2.8/00-overview.md`. Not in `32-queue.md` yet (the owner queues it).
@@ -251,3 +252,134 @@ SC4 feature-only fixture (F12).
 - **Brainstorm: standing affecting access, greetings, competing invitations; a friendly individual bending an
   unfriendly institution's rule.** Access and invitations are v2.8 56 (social permissions, candidate), which can gate
   a permission on a band; F7 covers the individual-vs-institution split.
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H4 P3 one clamp for every int writer, from display bounds** (`docs/plans/v2.8/extension-research-2026-10-14/st-gamemaster.md` P3, 3/S). This plan adds `range` to
+  compiled faction qualities; extend it to every authored int quality: `range` defaults from `display.min/max`, `applyDelta`
+  and reward `{add}` clamp to it, the validator warns when display bounds exist without a range, and the display-time clamp
+  (`src/runtime/gameSheet.ts:14`) goes, so player view = blackboard. Plan 60 B16 (reward clamp against `step_rule`) is the
+  narrow fix and lands first. Floor: property over ≥ 500 delta sequences, 0 values outside range, D.
+- Cross-check (`docs/plans/v2.8/extension-research-2026-10-14/rpg-companion.md` P7): faction rows shown through a `roster` widget must omit `changedAgo`
+  (`src/runtime/widgets.ts:170-171`), as this plan's no-recency rule requires.
+
+## Gate record
+
+Built 2026-10-14/15 on branch `v2.8-p53-reputation` (base master `0c283dc6`), option A with the revised design and the
+Astra review resolutions; owner: "yes to all from your recommendations". Commits `b2db0376`, `0dbdf386`, master merges `40ae5280` and `2250d0cb` (plans 46, 60, 52 SC1–SC5, 47), `799ebb6c`, and this record.
+
+What was built
+
+- `factions[]` (`engine/factionSchema.ts`, `validate/factions.ts`) compiled to code ints `rep_<id>` (range + start, seeded),
+  `rep_<id>_seen_<member>` per member of `roster[].factions` (at most 3), `rep_<id>_move_<move>` (monotonic, the boundary
+  it fired). Faction and move ids are slugs without underscores.
+- Moves (`engine/factions/standing.ts`): an SC2 latch writer `factionLatches` in `GAME_LAYER.latchWriters` (step 5 after
+  quest rewards, again at step 8 after entry), computed by the atomic `applyFactionMoves` on a scratch blackboard; once ever, the first boundary the gate holds; the record is
+  written only when the add applied; `heard_by` present (not away by the member's schedule) or faction; seen values take
+  the move's add, clamped. Quest `reward.set {add}` still moves `rep_*`. `state_snapshot` never writes standing (Studio
+  warning `faction-snapshot-key`).
+- One clamp: `Quality.range` (from `display.min/max` on any int/float, or a faction range); `Blackboard.applyDelta` clamps
+  every write into it before the type check and reports `clamped: true`; the display-time clamp in `gameSheet.ts` is gone.
+  Compatible with B16 (reward add vs `step_rule`, branch `v2.8-harvest-defects`): `quests.ts` untouched.
+- Inaction rule (`faction-move-on-inaction`, validator error + Studio blocking diagnostic): a lowering move whose gate is a
+  top-level `not`, reads only time keys (`TIME_KEYS`, clock keys, agenda waits, mood ages), or has a leaf `== false`,
+  `!= true` or `==` the quality's start value is refused. Also refused: a move gate true at start, unknown/duplicate
+  membership, an authored `rep_*` quality (when factions are declared), `display` on `rep_*`, a reward on a seen key or a
+  move record, `|add|` over the range width.
+- Member line in the private block after the member's own relationship lines (`life/lines.ts`), band word of the member's
+  perceived standing, through `withoutSecretLines`; member blocks are staged for a factions-only story too.
+- Director: "How groups regard the player (world pressure may follow from this)" lists visible factions with their band;
+  a hidden faction only with `introduce: true`, by name alone; no list without factions.
+- Player view: `GameView.standing [{name, band}]`, a "Standing" group on the Stat sheet (word items, no value/min/max/trend/
+  changedAgo), `roster` widget rows with `faction` (band word while visible, no `changedAgo`), story toggle
+  `display.standing` (default on). `hasGameLayer` counts factions (SC4).
+- Author view: Factions panel in the Blackboard tab (number, range, band, hidden marker, members, moves with boundary and
+  message id, matching ledger `faction` rows as context, scope overflow).
+- Extraction: pending move gate keys are discovery units (`factionDiscoveryUnits` in `GAME_LAYER.discoveryUnits`, as facts),
+  so they ride 52's budgeted `discovery` source; the Factions panel lists the left-out ones.
+- Rollback: a `factions` entry in `ROLLBACK_DETECTORS` (every `rep_*` key), so the SC1 guard covers the compiled keys.
+- Studio: Factions editor under Roster (bands as JSON like the display editor, moves with the gate builder, member
+  checkboxes); mutations `setFactions`/`addFaction`/`updateFaction`/`removeFaction`/`setMemberFactions`; agent tool
+  `setFactions`; `factions` added to `setCharacterLife`. Diagnostics `faction-never-moves`, `faction-no-visible-band`,
+  `faction-snapshot-key`, `faction-move-on-inaction`.
+- Guide topic `factions` (+ widgets/Stat sheet text), `npm run docs:guide`, `npm run docs:settings`; feature `factions`
+  (area characters, audience player, on whenever a story declares factions); architecture note.
+
+Floors (D, jest)
+
+- F1 no number, 500 random blackboards (`runtime/factions.review.test.ts`, `engine/factions/factions.test.ts`): 0 hits.
+- F2 hidden faction byte-identical player view: holds.
+- F3 once ever, 200 seeds of gate flapping: 100 %.
+- F4 rollback ≡ replay, 4 seeds + reopen; code-only boundary seen by the detector (`shouldRollbackFromMessage` true):
+  4/4 + 1. Live: swipe of the move's reply rewinds standing, the record and the member line; reopen equals both states.
+- F5 payload invariance in jest: a non-member's private block, the read scope and the director prompt are unchanged
+  without factions. Payload goldens (`so-payload-golden`) not captured: owed.
+- F6 member line scope, 100 seeds: 0 strays, no digits.
+- F8 planted punitive move on an unmet request refused (+ four other inaction shapes): holds.
+- F10 clamp, 1,000 sequences (moves, direct code writes, a planted out-of-range writer): 100 %, record iff applied.
+- F11 director prompt: hidden faction absent; `introduce` sends the name only: 0 leaks.
+- F12 feature-only story renders the Standing group; a story with nothing stays null: holds.
+- F13 hearing (absent member keeps its band, faction-wide move reaches all): 100 %.
+- F14 move gates offered by the `discovery` source within ceil(moves / cap) rotations; control without it starves: holds.
+- SC2 writer ≡ atomic pass over 200 seeds (`factionLatches` deltas equal `applyFactionMoves`).
+- SC2 order: a quest reward earns a move in the same boundary (step 4 then 5); a move gated on transition progress
+  lands in the firing boundary (step 7).
+
+Gates (2026-10-14, worktree `C:\dev\so-p53-reputation`)
+
+- `npm run gates:quick`: typecheck, typecheck:test, lint, jest related (6,549 passed) green after fixes; its
+  `defect replay (--cached)` step fails in this fresh worktree with no `.build/defect-replay-cache.json`
+  (`jest --listTests --findRelatedTests` over every tracked file exceeds the Windows command line, empty stderr; tooling,
+  not this change). The full replay below is green.
+- `npm run gates -- --jobs=2 --no-storybook` on `799ebb6c` (after the master merges): all green in 265.1 s: test (8,684
+  passed, 1 skipped), build, test:debug, test:replay (32 of 32 killed), typecheck, typecheck:test, debug:typecheck, lint,
+  test:release, test:plugin. Earlier runs before the merges: green (8,436 and 8,483 tests).
+- Storybook: gates hardcode port 6006 (taken by other agents), so `npm run storybook:build`, then `http-server .sb-static
+  -p 6153` + `test-storybook --url http://127.0.0.1:6153 --maxWorkers 2`: 862 of 862 tests in 141+ suites passed on the merged build (earlier pre-merge run 846 of 846).
+- Main bundle 1,293,107 B after the merges (budget 1,300,000; this plan adds about 3.3 KB to the main entry, the rest is
+  master's growth): game-layer code rides the lazy game-layer, composer and Studio chunks. Headroom is now under 7 KB.
+
+Live (no-model lane)
+
+- Isolated ST code copy `C:\dev\st-p53` (from `st-v28-nomodel`, `node_modules` junctioned), lanes root
+  `C:\dev\so-p53-lanes`, lane 53 (port 8153, CDP 9353) seeded from the offline lane copy `so-nomodel-lanes/44`. Owner ST,
+  lane 0, port 8000 and the 3090 untouched; nothing staged into the owner's ST.
+- `ST_ROOT=C:/dev/st-p53 SO_LANES_ROOT=C:/dev/so-p53-lanes node scripts/debug/st-lanes.mts run 53 --
+  scripts/debug/so-scenario.mts run test/scenarios/v28-53-factions.json --sandbox --group 'Group: Arin, DM Narrator'`,
+  twice on the pre-merge build and twice again on the merged build `799ebb6c`: 23/23 steps every run, cleanup and residue
+  clean (evidence `so-p53-lanes/53/debug/runs/2026-10-15T01-08-50-059Z-so-scenario-run`, `…T01-09-29-969Z-…`). Covers: hidden until met,
+  band "Neutral" on the Standing group and in Arin's applied private block, move to "Hostile" once, `assert-player-clean`
+  0 findings in player mode, reopen identical, swipe rewinds standing, record and line, second reopen identical.
+- A first run failed at the post-swipe line check (the harness read the member block before the rollback's injection
+  refresh); the scenario now waits on the refreshed line. Not a product fault: rollback calls `updateInjection`.
+
+Deviations
+
+- Built first against no shared contract, then fitted after 52 landed: the interim inline detector, private latch pass
+  and own `faction` scope source were replaced by the `ROLLBACK_DETECTORS` entry, the latch writer and discovery units.
+- Factions do not project through 52's `knownEntities`: a faction is disclosed by its own `visible_when` only; no codex
+  page is added for factions.
+- Master's `runtime/types.ts` was at 601 effective lines after the 47 merge (S3 red on master); fixed here by folding a
+  duplicate `@engine/index` import; `factionsAuthor` joins `RuntimeSnapshot` by module augmentation in
+  `factionSnapshot.ts` to keep `types.ts` and `schema.ts` within budget.
+- "Present" for `heard_by` is "not away by the member's schedule" (engine-pure); a member switched off in the group still
+  hears.
+- H4: the range comes from `display.min/max` (no authored `range`), so the "display bounds without a range" warning is moot.
+- An authored `rep_*` quality is refused only when the story declares factions.
+- `guideTopics.ts` moved `character-life` + `factions` into `guideTopicsCharacters.ts` to stay under the S3 file budget.
+- No `faction-scope-overflow` setup check: the Factions panel lists the left-out keys.
+
+Owed
+
+- F7 (RP + CL) and F9 (CL) in the final v2.8 real-LLM suite.
+- Payload goldens for F5 on a lane.
+- Adolion: not changed (lab stories only); whether the campaign uses factions is the owner's call, content review by
+  another model.
+
+Unresolved questions
+
+- `storyDiff` has no faction case: a move whose gate is rewritten keeps its record by id (52's `(id, rev, gate)` identity
+  would fit).
+- Should a group-disabled member hear a `present` move?

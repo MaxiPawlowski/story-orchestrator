@@ -23,6 +23,7 @@ export const FEATURE_POLICY_FIELDS = {
   speakers: { enabled: toggle },
   voices: { enabled: toggle, max: count(1, 6) },
   inner: { enabled: toggle, fanOut: choice("next", "top2"), harvestReasoning: toggle },
+  promises: { enabled: toggle },
   meanwhile: { enabled: toggle, acceptMode: choice("auto", "review") },
   living: { enabled: toggle },
   branching: { enabled: toggle },

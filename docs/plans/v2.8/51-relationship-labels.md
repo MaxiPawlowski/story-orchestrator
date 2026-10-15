@@ -236,3 +236,19 @@ reveal latch is step 5, re-run at step 7), SC3 disclosure and `knownEntities`, S
 - **Brainstorm: labels tied to remembered interactions; several relationships at once.** Supported by the format:
   event-driven public rows ("trusts your discretion" on the gate of the event that earned it) and several rows per
   holder. The guide's Good example uses an event gate, not an axis.
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H11a fresh-beat guard on relationship steps** (`docs/plans/v2.8/extension-research-2026-10-14/bb-visual-novel-engine.md` P1, 3/S). `applyStepRule`
+  (`src/extraction/ratingGuard.ts:49-63`) caps one step's size, but a lingering mood steps an axis every read. Recommended:
+  hold a step whose evidence repeats the cause of the last accepted step on the same axis within N boundaries (N = 4; cause =
+  normalised evidence span), recorded as "held: same beat". Floor: a 6-turn lingering-mood fixture moves the axis at most
+  once, and a new event moves it (D scripted reads; CL fixture ×2).
+- **H11b per-axis breakdown (author view)** (`docs/plans/v2.8/extension-research-2026-10-14/bb-visual-novel-engine.md` P2, 3/S–M). `CharacterLifePanel` shows value and
+  range only (`src/components/drawer/CharacterLifePanel.tsx:24`). Recommended: an author-only "why this number" list derived
+  from boundary history (each accepted step with boundary, message id and evidence), never stored; next to this plan's reveal
+  history.
+- **H5 "here now" scene card** → new plan v2.8 65, which **reopens decision 2** (no interim surface): the card is a permanent
+  composition over 52's pages, not an interim Journal section. Owner call.

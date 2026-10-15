@@ -1,4 +1,7 @@
-import type { Milestone, QualityDisplay, Quest, StoryCheck, StoryV2, StoryWidget, ValidationError } from "@engine/index";
+import { CODEX_PAGES, type CodexEntry, type CodexPage, type Faction, type Milestone, type QualityDisplay, type Quest, type StoryCheck, type StoryV2, type StoryWidget,
+  type ValidationError } from "@engine/index";
+import { addCodexQualities, checkCodex, readCodex } from "@engine/validate/codex";
+import { checkFactions, factionQualities, readFactions } from "@engine/validate/factions";
 import { readCheck, readChecks } from "@engine/validate/checks";
 import { readDisplay } from "@engine/validate/display";
 import { readMilestones, readQuests } from "@engine/validate/quests";
@@ -7,7 +10,8 @@ import { readLife } from "@engine/validate/life";
 import type { StoryClock } from "@engine/lifeSchema";
 import { isRecord } from "@utils/guards";
 import {
-  CHARACTER_LIFE_FIELDS, setCharacterLife, setClock, setMilestones, setQualityDisplay, setQuests, setCheckpointChecks, setTransitionCheck, setWidgets, type CharacterLife,
+  CHARACTER_LIFE_FIELDS, removeCodexEntry, setCharacterLife, setClock, setFactions, updateCodexEntry,
+  setMilestones, setQualityDisplay, setQuests, setCheckpointChecks, setTransitionCheck, setWidgets, type CharacterLife,
 } from "../../studio/gameMutations";
 import type { OpDescription } from "../index";
 
@@ -19,10 +23,14 @@ export type GameAgentOp =
   | { kind: "setCheckpointChecks"; id: string; checks: StoryCheck[] }
   | { kind: "setTransitionCheck"; index: number; check: StoryCheck | null }
   | { kind: "setCharacterLife"; id: string; life: CharacterLife }
-  | { kind: "setClock"; clock: StoryClock | null };
+  | { kind: "setClock"; clock: StoryClock | null }
+  | { kind: "setCodexEntry"; page: CodexPage; entry: CodexEntry }
+  | { kind: "removeCodexEntry"; page: CodexPage; id: string }
+  | { kind: "setFactions"; factions: Faction[] };
 
 export const GAME_AGENT_KINDS: ReadonlySet<string> = new Set<GameAgentOp["kind"]>([
-  "setQuests", "setMilestones", "setWidgets", "setQualityDisplay", "setCheckpointChecks", "setTransitionCheck", "setCharacterLife", "setClock",
+  "setQuests", "setMilestones", "setWidgets", "setQualityDisplay", "setCheckpointChecks", "setTransitionCheck", "setCharacterLife", "setClock", "setCodexEntry", "removeCodexEntry",
+  "setFactions",
 ]);
 
 const refused = (tool: string, errors: ValidationError[]) => ({ ok: false as const, message: errors.map((error) => `${tool}.${error.path}: ${error.message}`).join("; ") });
@@ -30,6 +38,15 @@ const refused = (tool: string, errors: ValidationError[]) => ({ ok: false as con
 const clockOf = (value: Record<string, unknown>): StoryClock => ({ ...value, times: Array.isArray(value.times) ? value.times.map(String) : [] });
 
 export type GameCallCheck = { ok: true; op: GameAgentOp } | { ok: false; message: string };
+
+const readCodexCall = (tool: string, args: Record<string, unknown>): GameCallCheck => {
+  const page = String(args.page).trim() as CodexPage;
+  if (!(CODEX_PAGES as readonly string[]).includes(page)) return { ok: false, message: `${tool}.page: people or places` };
+  if (tool === "removeCodexEntry") return { ok: true, op: { kind: "removeCodexEntry", page, id: String(args.id).trim() } };
+  const errors: ValidationError[] = [];
+  const entry = readCodex({ [page]: [args.entry] }, errors)?.[page]?.[0];
+  return errors.length || !entry ? refused(tool, errors) : { ok: true, op: { kind: "setCodexEntry", page, entry } };
+};
 
 export const readGameCall = (tool: string, args: Record<string, unknown>): GameCallCheck => {
   const errors: ValidationError[] = [];
@@ -51,7 +68,12 @@ export const readGameCall = (tool: string, args: Record<string, unknown>): GameC
     if (unknown.length) return { ok: false, message: `setCharacterLife.life: unknown field ${unknown.join(", ")}; the fields are ${CHARACTER_LIFE_FIELDS.join(", ")}` };
     return { ok: true, op: { kind: "setCharacterLife", id: String(args.id).trim(), life: life as CharacterLife } };
   }
+  if (tool === "setCodexEntry" || tool === "removeCodexEntry") return readCodexCall(tool, args);
   if (tool === "setClock") return { ok: true, op: { kind: "setClock", clock: isRecord(args.clock) ? clockOf(args.clock) : null } };
+  if (tool === "setFactions") {
+    const factions = readFactions(args.factions, errors) ?? [];
+    return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setFactions", factions } };
+  }
   if (tool === "setCheckpointChecks") {
     const checks = readChecks(args.checks, "checks", errors);
     return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setCheckpointChecks", id: String(args.id).trim(), checks } };
@@ -70,6 +92,9 @@ export const applyGameOp = (draft: StoryV2, op: GameAgentOp): StoryV2 => {
     case "setTransitionCheck": return setTransitionCheck(draft, op.index, op.check ?? undefined);
     case "setCharacterLife": return setCharacterLife(draft, op.id, op.life);
     case "setClock": return setClock(draft, op.clock ?? undefined);
+    case "setCodexEntry": return updateCodexEntry(draft, op.page, op.entry);
+    case "removeCodexEntry": return removeCodexEntry(draft, op.page, op.id);
+    case "setFactions": return setFactions(draft, op.factions);
   }
 };
 
@@ -89,7 +114,21 @@ export const describeGameOp = (op: GameAgentOp): OpDescription => {
       return { action: "update", entity: `roster.${op.id}`, label: parts.length ? `${op.id}: ${parts.join(", ")}` : `Clear ${op.id}'s character life` };
     }
     case "setClock": return { action: "update", entity: "story.clock", label: op.clock ? `Clock: ${op.clock.times.join(" / ")}` : "Remove the story clock" };
+    case "setCodexEntry": {
+      const label = `${op.page === "people" ? "Person" : "Place"} page ${op.entry.name ?? op.entry.member ?? op.entry.id}: ${op.entry.facts.length} fact(s)`;
+      return { action: "update", entity: `codex.${op.page}.${op.entry.id}`, label };
+    }
+    case "removeCodexEntry": return { action: "remove", entity: `codex.${op.page}.${op.id}`, label: `Remove the ${op.page === "people" ? "person" : "place"} page ${op.id}` };
+    case "setFactions": {
+      const label = op.factions.length ? `Factions: ${op.factions.map((faction) => faction.name).join(" / ")}` : "Remove every faction";
+      return { action: "update", entity: "story.factions", label };
+    }
   }
+};
+
+const factionProblems = (draft: StoryV2, errors: ValidationError[]) => {
+  const byKey = Object.fromEntries([...draft.qualities, ...factionQualities(draft.factions ?? [], draft.roster)].map((quality) => [quality.key, quality]));
+  checkFactions({ factions: draft.factions, roster: draft.roster, qualityByKey: byKey, quests: draft.quests }, errors);
 };
 
 export const gameOpProblem = (draft: StoryV2, op: GameAgentOp): string | null => {
@@ -97,7 +136,7 @@ export const gameOpProblem = (draft: StoryV2, op: GameAgentOp): string | null =>
   const byKey = Object.fromEntries(draft.qualities.map((quality) => [quality.key, quality]));
   if (op.kind === "setWidgets") readWidgets(op.widgets, {
     qualityByKey: byKey, qualities: draft.qualities, checkpointIds: new Set(draft.checkpoints.map((checkpoint) => checkpoint.id)), checkpoints: draft.checkpoints, transitions: draft.transitions,
-    roster: draft.roster,
+    roster: draft.roster, factions: draft.factions,
   }, errors);
   if (op.kind === "setQualityDisplay") {
     const quality = byKey[op.key];
@@ -110,6 +149,14 @@ export const gameOpProblem = (draft: StoryV2, op: GameAgentOp): string | null =>
     readLife({ roster: roster.map((member) => ({ ...member })), clock: draft.clock }, errors);
   }
   if (op.kind === "setClock" && op.clock) readLife({ roster: [], clock: op.clock }, errors);
+  if (op.kind === "setCodexEntry") {
+    const codex = updateCodexEntry(draft, op.page, op.entry).codex;
+    const qualities = addCodexQualities(draft.qualities, codex, errors);
+    const checkpointById = Object.fromEntries(draft.checkpoints.map((checkpoint) => [checkpoint.id, checkpoint]));
+    checkCodex(codex, { checkpointById, qualityByKey: Object.fromEntries(qualities.map((quality) => [quality.key, quality])), roster: draft.roster }, errors);
+  }
+  if (op.kind === "removeCodexEntry" && !(draft.codex?.[op.page] ?? []).some((entry) => entry.id === op.id)) return `'${op.id}' is not on the ${op.page} page`;
+  if (op.kind === "setFactions" || (op.kind === "setCharacterLife" && op.life.factions !== undefined)) factionProblems(applyGameOp(draft, op), errors);
   if (op.kind === "setCheckpointChecks" && !draft.checkpoints.some((checkpoint) => checkpoint.id === op.id)) return `'${op.id}' is not a checkpoint`;
   if (op.kind === "setTransitionCheck" && !draft.transitions[op.index]) return `transition ${op.index} does not exist (readGraph numbers them)`;
   return errors.length ? errors.map((error) => `${error.path}: ${error.message}`).join("; ") : null;

@@ -1,9 +1,9 @@
-import type { Milestone, QualityDisplay, Quest, RosterMember, StoryCheck, StoryWidget } from "@engine/index";
+import type { CodexEntry, CodexPage, Faction, Milestone, QualityDisplay, Quest, RosterMember, StoryCheck, StoryCodex, StoryWidget } from "@engine/index";
 import type { StoryClock } from "@engine/lifeSchema";
 import type { StoryDraft } from "./draft";
 import { nextId, updateCheckpoint, updateQuality, updateTransition } from "./mutations";
 
-type ListKey = "quests" | "milestones" | "widgets";
+type ListKey = "quests" | "milestones" | "widgets" | "factions";
 
 const withList = <K extends ListKey>(draft: StoryDraft, key: K, items: NonNullable<StoryDraft[K]>): StoryDraft => {
   const rest: StoryDraft = { ...draft };
@@ -74,7 +74,7 @@ export const setTransitionCheck = (draft: StoryDraft, index: number, check: Stor
   ? updateTransition(draft, index, { check })
   : { ...draft, transitions: draft.transitions.map((transition, at) => (at === index ? without(transition, "check") : transition)) });
 
-export const CHARACTER_LIFE_FIELDS = ["relationships", "mood", "agenda", "schedule"] as const;
+export const CHARACTER_LIFE_FIELDS = ["relationships", "mood", "agenda", "schedule", "factions"] as const;
 
 export type CharacterLife = Pick<RosterMember, (typeof CHARACTER_LIFE_FIELDS)[number]>;
 
@@ -92,4 +92,63 @@ export const setCharacterLife = (draft: StoryDraft, id: string, life: CharacterL
   }),
 });
 
+export const newFaction = (id: string): Faction => ({
+  id, name: id, range: [-5, 5], start: 0, bands: [{ max: -2, label: "Hostile" }, { max: 1, label: "Neutral" }, { label: "Trusted" }], moves: [],
+});
+
+export const setFactions = (draft: StoryDraft, factions: Faction[]): StoryDraft => {
+  const ids = new Set(factions.map((faction) => faction.id));
+  const roster = draft.roster.map((member) => {
+    if (!member.factions) return member;
+    const kept = member.factions.filter((id) => ids.has(id));
+    if (kept.length === member.factions.length) return member;
+    const rest: RosterMember = { ...member };
+    delete rest.factions;
+    return kept.length ? { ...rest, factions: kept } : rest;
+  });
+  return withList({ ...draft, roster }, "factions", factions);
+};
+
+export const addFaction = (draft: StoryDraft, faction?: Faction): StoryDraft => {
+  const ids = new Set((draft.factions ?? []).map((entry) => entry.id));
+  const id = ids.has("faction") ? `faction-${Array.from({ length: ids.size + 1 }, (_, at) => at + 2).find((at) => !ids.has(`faction-${at}`))}` : "faction";
+  return setFactions(draft, [...(draft.factions ?? []), faction ?? newFaction(id)]);
+};
+
+export const updateFaction = (draft: StoryDraft, id: string, patch: Partial<Omit<Faction, "id">>): StoryDraft =>
+  setFactions(draft, (draft.factions ?? []).map((faction) => (faction.id === id ? { ...faction, ...patch } : faction)));
+
+export const removeFaction = (draft: StoryDraft, id: string): StoryDraft => setFactions(draft, (draft.factions ?? []).filter((faction) => faction.id !== id));
+
+export const setMemberFactions = (draft: StoryDraft, memberId: string, factions: string[]): StoryDraft => ({
+  ...draft,
+  roster: draft.roster.map((member) => {
+    if (member.id !== memberId) return member;
+    const rest: RosterMember = { ...member };
+    delete rest.factions;
+    return factions.length ? { ...rest, factions } : rest;
+  }),
+});
+
 export const setClock = (draft: StoryDraft, clock: StoryClock | undefined): StoryDraft => (clock ? { ...draft, clock } : without(draft, "clock"));
+
+export const setCodex = (draft: StoryDraft, codex: StoryCodex | undefined): StoryDraft => {
+  const kept: StoryCodex = { ...(codex?.people?.length ? { people: codex.people } : {}), ...(codex?.places?.length ? { places: codex.places } : {}) };
+  return kept.people || kept.places ? { ...draft, codex: kept } : without(draft, "codex");
+};
+
+export const updateCodexEntry = (draft: StoryDraft, page: CodexPage, entry: CodexEntry): StoryDraft => {
+  const entries = draft.codex?.[page] ?? [];
+  const next = entries.some((item) => item.id === entry.id) ? entries.map((item) => (item.id === entry.id ? entry : item)) : [...entries, entry];
+  return setCodex(draft, { ...draft.codex, [page]: next });
+};
+
+export const removeCodexEntry = (draft: StoryDraft, page: CodexPage, id: string): StoryDraft =>
+  setCodex(draft, { ...draft.codex, [page]: (draft.codex?.[page] ?? []).filter((item) => item.id !== id) });
+
+export const setCodexShown = (draft: StoryDraft, shown: boolean): StoryDraft => {
+  const display = { ...draft.display };
+  if (shown) delete display.codex;
+  else display.codex = false;
+  return Object.keys(display).length ? { ...draft, display } : without(draft, "display");
+};

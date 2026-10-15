@@ -40,7 +40,8 @@ export const SETTING_COPY = {
   "extraction.profiles": copy(
     "Model for this task",
     "Send this task to a different Connection Manager profile than the memory model, for example a faster model for frequent work or a stronger one for summaries. "
-      + "Left on \"Same as memory model\", it uses the memory model; the wizard's task uses opencode gpt-6.1-sol when the harness plugin offers it, else a DeepSeek profile when there is one.",
+      + "Left on \"Same as memory model\", it uses the memory model; the wizard's task uses opencode gpt-6.1-sol when the harness plugin offers it, else a DeepSeek profile when there is one."
+      + " Claude Code claude-sonnet-5-5 is the other wizard route.",
   ),
   "extraction.routes.*.route.options.effort": copy(
     "Thinking for this task",
@@ -163,6 +164,11 @@ export const SETTING_COPY = {
     "Prepare a private inner beat for the next speaker",
     "After a reply, the memory model writes a short private note of what the likely next speaker wants, handed only to that character. "
       + "At most two extra calls per turn, never while you wait for a reply. Not measured yet.",
+  ),
+  "memory.promises": copy(
+    "Remember promises you make",
+    "When you promise a character something, the story keeps your exact words and reminds only that character, when the scene touches it. "
+      + "Adds a few lines to each story read. Not measured yet.",
   ),
   "memory.innerFanOut": copy(
     "Inner beats for",

@@ -77,6 +77,7 @@ jest.mock("@services/STAPI", () => {
     // and was accepted" unless a test says otherwise, because that is the ordinary case every test
     // written before the seam existed assumed.
     settingsAreLoaded: () => true,
+    saveSettingsSoon: () => ({ ok: true, queued: true }),
     settingsReady: async () => {},
     observeNextSave: jest.fn(async () => ({ requested: true, status: 200, ok: true, timedOut: false })),
     readServerBoundary: async () => null,
@@ -375,6 +376,19 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
     }
     manager.onGenerationStarted("normal", false);
     expect(block()?.value).toContain(WANDER);
+  });
+
+  it("B10: the hold is readable by the other turn blocks and announced to subscribers on take and release", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(guided(WANDER)));
+    const seen: boolean[] = [];
+    const off = manager.subscribe(() => seen.push(manager.turnBlocksHeld()));
+    manager.onGenerationStarted("impersonate", false);
+    expect(manager.turnBlocksHeld()).toBe(true);
+    manager.clearPrivateInjection();
+    expect(manager.turnBlocksHeld()).toBe(false);
+    off();
+    expect(seen).toEqual(expect.arrayContaining([true, false]));
   });
 
   it("carries a merged generated checkpoint's guidance once the story enters it", async () => {

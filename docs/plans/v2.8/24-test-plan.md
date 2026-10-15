@@ -48,6 +48,34 @@ DeepSeek capped at EUR 15. 3090 image time about 9 h, listed apart. Old estimate
 10. **A written fixture is not a passed gate.** The golden sessions and smoke files below are validated by the loader
     and have never run; their first run on a model lane is a shakedown. A harness defect found there is fixed and the
     row re-run ×2 (39a triage).
+11. **Readiness before the suite** (owner 2026-10-14). No golden session, smoke batch or Phase C row runs until
+    all three checks below are recorded green in §Gate record (lists, counts only):
+    - **Campaign scenarios and data.** Every row whose carrier is a golden session, AS-smoke or a campaign `lab/`
+      scenario has the story structure it needs in the pinned campaign (`adolion-fresh.pin.json`): the checkpoint
+      shapes, qualities, quests, life, stretches, encounters and lab copies its checks find by structure, plus every
+      model-lane scenario it names. Check: campaign `scripts/check_all.sh` green, `lab/v28/check.py` resolves every
+      group, member, story, checkpoint and mocked delta, `adolion-fresh check <lane>` 0 problems, and a
+      row → carrier → campaign file list with no gaps. Missing data is added in the campaign repo (pin bump +
+      reinstall), never faked in a fixture. Content review goes to a second model (rule 9).
+    - **Plugin docs current.** Every built feature in the registry has its guide topic and settings page up to date:
+      `copilot/guideCoverage.test.ts` and the guide drift test green, `npm run docs:guide` and `npm run docs:settings`
+      leave no diff, and each merged plan since the last check (including 41, 52, 46, 47, 53, 60, 54) has its user
+      guide section and Gate record. A feature whose docs lag is listed, fixed, then the check re-runs.
+    - **Coverage is complete.** Every feature id in `src/features/` maps to at least one row in §Feature → validation
+      matrix, every row names a carrier that exists (journey check, scenario file, jest file or measurement row),
+      every planned test case in the plan docs' floor tables maps to a row or is listed with a reason in §Cuts and
+      merges, and every newly merged plan (42–69) moves from §Planned features into the matrix when built. A
+      generated coverage report (registry ids × matrix rows × carriers × plan floors) is attached to the record;
+      an unmapped feature or floor is a red check, not a footnote.
+12. **Image track closes first; the suite is text** (owner 2026-10-14). Image generation (LI rows, GS5, plan 33
+    pose bodies, plan 36 frames and live-head rows, plan 41 journeys, reference views, cast illustration, changed
+    looks, plan 28 broker legs) runs as its own close-out track: the 3090 block of 2026-10-14 plus at most one
+    image close-out session. Its results are recorded per row and the track is then closed; what it cannot finish
+    is listed as deferred with a reopen trigger, not carried into the suite. The real-model suite (golden sessions
+    GS1–GS4, AS-smoke, targeted scenarios, measurements) then runs with `image.enabled` and `sprites.enabled` off
+    and covers text and everything it drives: replies, thinking and inner voice, reads and memory, judge, director,
+    quests and game layer, UI and rollback. GS5 is not part of the suite. The Adolion X6 animation job (about 36 h)
+    is outside both and waits for the owner.
 
 ## Budget
 
@@ -427,6 +455,14 @@ registry, and the 109-id check above, when a plan is built. Floor ids are the pl
 | 57 shared rituals (candidate) | D | U1–U6 | U7 informational ×1 (LT or RP lab story) |
 | 58 keepsakes (candidate) | D | K1–K6 | K7 informational ×1 (LT or RP lab story) |
 | 59 reconciliation beats (candidate) | D + CL | B1–B5 | B6 CL ×2 (read route); B7 informational ×1 (LT or RP lab story) |
+| 62 quantum-ogre probe / prepared facts (candidate) | RP (probe) | Q3; with stage 2 Q5, Q6, Q8 | Q1 informational ×1 (5 cases × 4 replies, about 50 min Artemis); Q1c/Q2 CL; Q4 RP and Q7 CL only with stage 2 |
+| 63 stepped history window (candidate) | D + RP | H3–H5, H8 | H1/H2/H7 ride the deferred R2/R7 run (outside the 12 h cap); H6 CL |
+| 64 public sheet to the narrator (candidate) | D | S1–S6 | S7 informational ×1 (RP lab story, about 25 min) |
+| 65 "here now" scene card (candidate) | D | N1–N8 | none: projection only; session or owner decision for the default |
+| 66 authoring quality (candidate) | D + CL | A1–A5 | A6, A7 CL ×2 (Sol) |
+| 67 grader hygiene + adversarial fixtures (candidate) | D + CL | G1, G2, G5, G6 | G3, G4 CL ×2 (read model) |
+| 68 "your move" chip (candidate) | D | Y1–Y6 | none: derived, no model |
+| 69 harvest hardening bundle (candidate) | D | K1a, K2–K10 | K1b CL ×1 (compaction acceptance on recorded windows) |
 
 ## Measurement rows
 
@@ -572,6 +608,11 @@ recorded and the feature stays on (00-overview rule 9).
 - Candidates 55–59 (not queued; rows apply only if the owner queues and builds them): 55 M1–M6, 56 G1–G6, 57 U1–U6,
   58 K1–K6, 59 B1–B5 D; 55 M8 (with B) and 59 B6 CL ×2; 55 M7, 56 G7, 57 U7, 58 K7, 59 B7 informational ×1 on a lab
   story (LT or RP, about 25 min each), inside the 2.5 h informational cap or deferred with their reopen trigger.
+- Harvest candidates 62–69 (not queued; rows apply only if the owner queues and builds them): D rows as in the Planned features
+  table close in each plan's own gates. Artemis: 62 Q1 (about 50 min) and 64 S7 (about 25 min) join the informational list
+  after the 42–59 items, inside the 2.5 h cap or deferred with their reopen trigger; 63 H1/H2/H7 ride the deferred R2/R7
+  measurement (pod P2 or a free 3090 night), outside the cap. CL: 62 Q1c/Q2 (about 3 h lane time), 63 H6, 66 A6/A7, 67 G3/G4,
+  69 K1b. The 12 h Artemis cap is unchanged.
 
 ## Sessions and blind packs
 

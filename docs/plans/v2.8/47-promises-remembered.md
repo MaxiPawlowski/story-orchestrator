@@ -212,3 +212,98 @@ Source: `review-astra-2026-10-14.md` §Plans 42-47 (47). Verified on `3a716f2b`.
 - **Recommendation (C with evidence, stable ids, history, no deadline invention, relevance reminders; quests linked).**
   Adopted; reciprocal NPC promises folded in as option F (brainstorm).
 - Rebutted: none.
+
+## Harvest 2026-10-14 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+
+- **H13a quote lines carry the message id** (`docs/plans/v2.8/extension-research-2026-10-14/timeline-memory.md` P1, 3/S). `evidenceSources`
+  (`src/extraction/evidence.ts:88-92`) returns every message holding a quote, so a pledge said twice matches two spans and
+  the stable id (P2w) is ambiguous. Recommended: the `[promised]` line takes `m=<id>` as v2.8 42 §5.1 witness lines do
+  (`[promised] Promisee | m=<id> | "<words>"`); a line whose quote is not in message `<id>` is refused. Floor: on a fixture
+  with the same pledge in two messages, every accepted promise binds to the cited message, 100 %, D (parser) + CL (read
+  emits ids, ×2). The same applies to v2.8 55 option B `[pledged]`.
+
+## Gate record: P1 (option C) build, 2026-10-14 (no model, no GPU, LIST)
+
+Branch `v2.8-p47-promises` (base `0c283dc6`, master `837d96e0` merged in). Owner: "yes to all from your recommendations".
+Option F (NPC promises) not built.
+
+Built:
+- Contract: `[promised] Promisee | m=<id> | "<exact words>" | by "<deadline>"` and `[kept|broken|renegotiated|released] <id> | m=<id> | "<words>"`,
+  open promises listed by id; the section and the arc rule ("tracked separately") only when `memory.promises` is on
+  (`memory/promises/contract.ts`, lazily imported by `extraction/sharedRead.ts`; `memory/contract.ts` `PROMISE_ARC_RULE`).
+  The parser keeps promise lines raw on the audit (`promiseLines`); the lazy writer parses them.
+- Acceptance (`memory/promises/impl.ts`, lazy chunk with `runtime/promisePortImpl.ts`): the quote must be byte-exact in message `m`
+  (H13a), spoken by the player, not quoted from someone else, no sarcasm marker; `commitmentVerdict` (exported from the commit
+  guard: negation, hedge, double negative, question, without quality relevance) on the span; addressing = named in the sentence or
+  the speaker the player answers; unnamed groups refused; casual future tense without a commitment word or addressee refused;
+  conditional offers stored `conditional` and never listed as owed; deadline only when quoted (same message or the promisee's ask),
+  `dueDay` only against a declared story clock.
+- Source span (`memory/audience.ts`, the 42 §0 shape): chat, story, message, revision `{swipeId, fnv1a(text)}`, speaker, offsets,
+  input range; window entries gain an optional `swipeId`. Id = `p` + hash of the span fields and promisee (never content alone).
+- Store: own slice `extras.promises` (not `extras.memory.promises`: the memory coordinator is at 559/560 effective lines).
+  Events id-addressed, unknown/closed ids and quest-linked rows refuse events; `broken` needs the player's refusal or a passed agreed
+  deadline the promisee names; `released` only by the promisee; `renegotiated` needs both parties in the window and updates the shown
+  quote. Open cap 24 (25th refused, journalled); closed rows evicted only past the rollback horizon.
+- Rollback: `rollbackPromises` in `rollback.ts` quarantine (every path, also when the engine does not move): rows and events at or
+  after the message dropped, so a rolled-back closure reopens.
+- SC1/SC2 fit (shared contract built on `v2.8-p52-codex`, not here): promise rows are written when a read lands, beside arcs
+  (`ExtractionCoordinator.applyAudit`), never in `commitBoundary`; a read whose window reaches the message already counts as
+  engine-moving, and the quarantine drops promise rows on every path. Quest-linked status is read at render time from quest state
+  (after SC2 step 4). No reserved code-key prefix, so no `ROLLBACK_DETECTORS` entry is needed.
+- Reminders (`promiseReminderLines`): promisee only, through the member block's held-secret filter (`MemoryInjector.addPrivateSource`);
+  triggers = newest turn names the subject, the player asks, or (bounded window) an agreed deadline due / location match; cooldown
+  15 promisee turns after the promisee mentions it; persistent triggers surface at most 3 turns per 15; overdue never says broken;
+  kept gives one warm line until the promisee speaks. Derived from the transcript (no draft-time write).
+- Director: `promiseHooks` only for spans whose audience is `all-present`, through the resting filter in `livingInputs`; the runtime
+  passes `unknownAudience` until 42 B exists, so the director gets no promise today. Guard `PLAYER_ACTS` gains keep/break/fulfil/release.
+- No duplication: arcs restating an open promise are dropped and counted on the audit (`restates a promise`).
+- Player view: Overview `#so-player-promises` lists open, non-conditional promises as the exact quotes (`PlayerPromises.tsx` + stories).
+- Authored: `quests[].promise: true` (needs `giver`) links a matching promise; state from the quest; a second row for that quest refused.
+- Feature `promises-remembered` (registry, Features page `promises`, `memory.promises` default true), settings copy, guide (quests
+  section), `npm run docs:guide`, `npm run docs:settings`, architecture.md bullet.
+
+Deviations:
+- Slice `extras.promises` instead of `extras.memory.promises` (coordinator line budget).
+- Cooldown and per-trigger cap are derived from the transcript (promisee mentions, promisee turns) instead of a surfacing log.
+- `renegotiated` accepts one quoted span from either party when the other party speaks in the window.
+- The compact guide topic lists the `promise` field only (`guideTopics.ts` at its 600-line budget); the full text is in the guide.
+- Main bundle +7,455 B vs master `0c283dc6` (1,266,960 -> 1,274,415 measured on the pre-merge commit); writer, parser and contract text ride lazy chunks.
+
+Tests (D):
+- `memory/promises/promises.test.ts` 55: parser (m= required), 10 accepted and 11 refused shapes (negated, hedged, question, casual
+  future, quoting someone else x2, sarcasm, unnamed group, double negative), paraphrase refused (P1s parser half), NPC promise 0,
+  wrong/off-roster promisee 0, multiple recipients, H13a same pledge twice, exact span offsets, conditional, deadlines, cap, P2w,
+  closed/unknown ids, release/broken evidence, renegotiation, P2r, eviction, quest link, arc restating, reminders (no elapsed-turn
+  reminder, subject, ask, cooldown, deadline window, kept line), P4d hooks.
+- `memory/promises/rollbackReplay.property.test.ts` (P3): 6 seeds x 61 cuts over 60-message generated chats, rollback = replay (claims
+  compared without the read's input range).
+- `runtime/promisePort.review.test.ts` (P4 promisee only, held-secret filter, P5 player list identical, P4a arc drop, switch off),
+  `runtime/promiseRollback.review.test.ts` (rollback check on the no-engine-move and engine-move paths), `runtime/promiseDirector.test.ts`
+  (resting filter on hooks, guard words, quest validation), `extraction/promiseRead.test.ts` (contract on/off, hash, raw lines, audit,
+  `commitmentVerdict`).
+
+Gates (on `dfde90e8`, the merge-fix commit):
+- `npm run gates:quick` (pre-merge): typecheck, typecheck:test, lint, jest related 6834 passed; defect replay RED because the staged
+  copies hold tracked files only (new files untracked); green after commit (`test:replay` ok in the full gates).
+- `npm run gates -- --jobs=2 --skip=test-storybook:ci` (after merge): test:replay ok; test RED once on
+  `consequences.test.ts` C6 p95 <= 5 ms (plan 46 timing under load), passed alone on retry; rerun
+  `npm run gates -- --jobs=2 --skip=test-storybook:ci,test:replay`: all green in 218.4 s (build, test:debug, typecheck,
+  test 8551 passed / 1 skipped, typecheck:test, lint, debug:typecheck, test:plugin, test:release).
+- Pre-merge runs also hit two timing flakes, each green on one retry: `startupWiring.review.test.ts` (5 s timeout) and
+  `scripts/debug/lib/generationQuiesce.test.mts` H-a (test:debug).
+- Storybook outside the gates runner (its script pins 6006): `npm run storybook:build`, then `http-server .sb-static -p 6347` +
+  `test-storybook --url http://127.0.0.1:6347 --maxWorkers 2`: 140 suites, 839 stories passed.
+
+Live gate: NOT green. Lanes serve the extension from the owner's ST tree (`C:\dev\SillyTavern-MainBranch` slot), so a lane >= 40
+cannot run this branch without staging into the owner's ST; not staged, not run. Payload goldens with seeded promises owed with it.
+
+Owed:
+- CL: P1 (labelled set >= 60 + >= 60, read role), P1s CL half, P2, P2w live, P4a after 30 turns, P6 (rater), P8 (read cost, with 42 RB
+  and 15); H13a read-emits-ids x2. No model run here.
+- LT: P7, P7h on the 3090 after the owner lifts the 2026-10-12 deferral.
+- Live no-model scenario (seeded rows, rollback by edit) and payload goldens once a lane can serve the branch.
+- 42 B witness record: until it exists no promise reaches the director.
+- Possible reuse after merge: plan 46 `extraction/playerSpan.ts` (`{messageId, revision, span}` on accepted deltas) could share the
+  span helper with `memory/audience.ts`; not unified in this pass.

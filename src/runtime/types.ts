@@ -1,4 +1,4 @@
-import type { AgencyPolicy, ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
+import type { AgencyPolicy, ArcTemplate, EngineHistory, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
 import type { JudgeCallRecord, JudgeMeterView, JudgeRuntimeState, SceneReadRecord } from "@judge/index";
 import type { ExtractionHealth, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
@@ -15,9 +15,8 @@ import type { ContextOverServer } from "./replyContext";
 import type { DeferredOpener } from "./openerDeferral";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
-import type { CreatedEntry, CuratorDecline, CuratorPassAudit, CuratorProposalRecord, RepetitionReport, StagecraftAcceptMode } from "@stagecraft/index";
+import type { RepetitionReport } from "@stagecraft/index";
 import type { JournalRecord } from "./journal";
-import type { EngineHistory } from "@engine/index";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
 import type { AgencyRecovery } from "./agencyRecovery";
 import type { NextTurnContributor, NextTurnCost, NextTurnForeignRow } from "./nextTurn";
@@ -41,7 +40,6 @@ import type { ScanGateView, WiGatingStatus } from "./worldInfoMode";
 import type { MessageFingerprints } from "./fingerprints";
 import type { ChatIdentitySnapshot } from "./chatIdentity";
 import type { InjectedPromptBlock } from "@services/STAPI";
-import type { TalkDecisionSource } from "@talk/index";
 import type { BLOB_VERSION } from "./persistence";
 import type { LoreRuntimeState } from "./loreFired";
 import type { InlineView } from "./inlineTimeline";
@@ -51,7 +49,8 @@ import type { ChanceRuntimeState, RollRecord } from "./rolls";
 import type { PresenceView } from "./presence";
 import type { EffectsRuntimeState } from "./effectTypes";
 import type { ChecksRuntimeState } from "./storyCheckDraws";
-import type { AgendaProposalsState, MeanwhileAcceptMode } from "./agendaProposals";
+import type { AgendaProposalsState } from "./agendaProposals";
+import type { RecapRuntimeState } from "./recapPort";
 import type { LivingRuntimeState } from "@generation/living/types";
 import type { LivingView } from "./livingSnapshot";
 import type { GameAuthorView, GameView } from "./gameTypes";
@@ -103,52 +102,8 @@ export interface RequirementsState {
   slotConflict?: SlotConflict | null;
 }
 
-export interface TalkDecisionAudit {
-  at: string;
-  messageId: number;
-  checkpointId: string;
-  chosenRosterId: string | null;
-  chosenName: string | null;
-  source: TalkDecisionSource;
-  latencyMs: number;
-  /** Which voice in a chained turn this was; 0 or absent for the first (or only) speaker. */
-  chainStep?: number;
-  judge?: { confidence: number; via: "choice" | "composite" };
-}
-
-export interface TalkRuntimeState {
-  enabled: boolean;
-  decisions: TalkDecisionAudit[];
-}
-
-// `curatorEnabled` is the capability flag (default off until a real run earns it);
-// `acceptMode` decides what happens to a proposal: review = wait for the author, auto = apply at the
-// next boundary, off = record and journal it but never write.
-export interface StagecraftSettings {
-  curatorEnabled: boolean;
-  acceptMode: StagecraftAcceptMode;
-  wardenEnabled: boolean;
-  wardenAcceptMode: StagecraftAcceptMode;
-  agencyAcceptMode?: StagecraftAcceptMode;
-  meanwhileAcceptMode?: MeanwhileAcceptMode;
-  livingEnabled?: boolean;
-  branchingEnabled?: boolean;
-  prefetchEnabled?: boolean;
-  createEnabled: boolean;
-  createRequireMeasured: boolean;
-}
-
-export interface StagecraftRuntimeState {
-  settings: StagecraftSettings;
-  proposals: CuratorProposalRecord[];
-  declines?: CuratorDecline[];
-  lastPass: CuratorPassAudit | null;
-  lastRunBoundary: number;
-  lastError: string | null;
-  created?: CreatedEntry[];
-  lastCreatePass?: CuratorPassAudit | null;
-  lastCreateBoundary?: number;
-}
+export type { StagecraftRuntimeState, StagecraftSettings, TalkDecisionAudit, TalkRuntimeState } from "./talkStagecraftTypes";
+import type { StagecraftRuntimeState, TalkRuntimeState } from "./talkStagecraftTypes";
 
 export interface RuntimeExtras {
   overrides?: import("@engine/featurePolicy").StoryFeatures;
@@ -178,6 +133,7 @@ export interface RuntimeExtras {
   chance?: ChanceRuntimeState;
   checks?: ChecksRuntimeState;
   agendaProposals?: AgendaProposalsState;
+  recap?: RecapRuntimeState;
   living?: LivingRuntimeState;
   journal: JournalRecord[];
   modelCalls: ModelCallRecord[];
@@ -226,6 +182,7 @@ export interface MemoryRuntimeSettings {
   innerBeat?: boolean;
   innerFanOut?: InnerFanOut;
   harvestReasoning?: boolean;
+  promises?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
 
@@ -544,6 +501,7 @@ export interface RuntimeSnapshot {
   lastRollback: RollbackNotice | null;
   /** Display names keyed by avatar file, avatar stem and roster id, for player-facing cast lines. */
   castNames?: Record<string, string>;
+  sameCharacter?: string[];
   rollbackUnavailable: RollbackUnavailable | null;
   ledger: LedgerView[];
   /** Each memory row's fate and each tier's trim, from the last injection (author view, in memory only). */

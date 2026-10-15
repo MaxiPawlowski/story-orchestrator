@@ -1,4 +1,4 @@
-import { BOXES_MAX, QUALITY_DISPLAY_AS, type DisplayBand, type Quality, type QualityDisplay, type ValidationError } from "../schema";
+import { BOXES_MAX, QUALITY_DISPLAY_AS, isFactionKey, type DisplayBand, type Quality, type QualityDisplay, type ValidationError } from "../schema";
 import { gatedWorldInfo } from "../worldInfoEffects";
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, rejectUnknownKeys } from "./common";
@@ -10,7 +10,7 @@ export const RELATIONSHIP_PREFIX = "rel_";
 const numeric = (type: Quality["type"]) => type === "int" || type === "float";
 const finite = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 
-const readBands = (value: unknown, min: number | undefined, max: number | undefined, path: string, errors: ValidationError[]): DisplayBand[] | undefined => {
+export const readBands = (value: unknown, min: number | undefined, max: number | undefined, path: string, errors: ValidationError[]): DisplayBand[] | undefined => {
   if (!Array.isArray(value) || value.length < 2) {
     addError(errors, path, "bands are at least two {max, label}, ascending, the last with no max");
     return undefined;
@@ -41,7 +41,7 @@ const shapeProblem = (as: QualityDisplay["as"], quality: Pick<Quality, "type" | 
   return numeric(quality.type) && bounded && banded ? null : "a word display is an enum with player_labels, or a bounded number with bands";
 };
 
-export const readDisplay = (value: unknown, quality: Pick<Quality, "type" | "values" | "player_labels">, path: string, errors: ValidationError[]): Pick<Quality, "display"> => {
+export const readDisplay = (value: unknown, quality: Pick<Quality, "type" | "values" | "player_labels">, path: string, errors: ValidationError[]): Pick<Quality, "display" | "range"> => {
   if (value === undefined) return {};
   if (!isRecord(value)) {
     addError(errors, path, "display must be an object");
@@ -73,6 +73,7 @@ export const readDisplay = (value: unknown, quality: Pick<Quality, "type" | "val
       ...(group ? { group } : {}), ...(min !== undefined ? { min } : {}), ...(max !== undefined ? { max } : {}), ...(bands ? { bands } : {}),
       ...(typeof value.hide_when_empty === "boolean" ? { hide_when_empty: value.hide_when_empty } : {}), ...(value.trend === true ? { trend: true } : {}),
     },
+    ...(numeric(quality.type) && min !== undefined && max !== undefined && min < max ? { range: [min, max] as [number, number] } : {}),
   };
 };
 
@@ -81,6 +82,7 @@ export const checkDisplays = (qualities: Quality[], checkpoints: unknown[], erro
   qualities.forEach((quality, index) => {
     if (!quality.display) return;
     if (quality.key.startsWith(RELATIONSHIP_PREFIX)) addError(errors, `qualities.${index}.display`, "a relationship is never public");
+    else if (isFactionKey(quality.key)) addError(errors, `qualities.${index}.display`, "a faction's standing is never public as a number: the Standing group shows its band word");
     else if (gated.has(quality.key.toLowerCase())) addError(errors, `qualities.${index}.display`, "a checkpoint-gated World Info entry names this key, so showing it would spoil the entry");
   });
 };

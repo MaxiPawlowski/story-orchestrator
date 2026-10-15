@@ -200,6 +200,7 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   tierTokenBudgets: { ...DEFAULT_TIER_TOKEN_BUDGETS },
   innerBeat: true,
   harvestReasoning: true,
+  promises: true,
 });
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
@@ -227,6 +228,7 @@ const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRunti
   if (typeof memory.innerBeat !== "boolean") memory.innerBeat = defaults.innerBeat;
   if (memory.innerFanOut !== "top2") delete memory.innerFanOut;
   if (typeof memory.harvestReasoning !== "boolean") memory.harvestReasoning = defaults.harvestReasoning;
+  if (typeof memory.promises !== "boolean") memory.promises = defaults.promises;
   return memory;
 };
 

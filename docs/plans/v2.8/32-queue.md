@@ -129,14 +129,15 @@ owner decisions pending per plan.
 | M43 | Verbatim recall: exact spans on request, provenance-filtered | 43 | D+CL; gated on A12 E0 + 42 |
 | M44 | Rumors and gossip: typed hearsay, reversible hops, recipient reveals | 44 | D+CL (+RP or LT leg) |
 | M45 | New Game+: public carry projection, sequel vs replay | 45 | D; live final chapter owed |
-| M46 | Consequences recap: authored + neutral first (A), evidenced "Because you" | 46 | D |
-| M47 | Promises remembered: exact-quote promises, relevance reminders | 47 | D+CL (+LT) |
+| M46 | Consequences recap: authored + neutral first (A), evidenced "Because you". **Built** (`v2.8-p46-recap`, unmerged): C1-C10 green in jest (C1 precision 1.000, recall 0.688), full gates green; live lane gate NOT green, RP owed | 46 | D |
+| M47 | Promises remembered: exact-quote promises, relevance reminders. P1 (option C) built on `v2.8-p47-promises`, not merged: D floors green (P1s parser, P2r, P2w, P3, P4, P4d, P5), full gates green after a master merge, Storybook 839 passed; live gate NOT green (no lane can serve the branch); CL P1/P2/P6/P8 and LT P7/P7h owed; F not built (47 Gate record 2026-10-14) | 47 | D+CL (+LT) |
 | M48 | Director scene test: frozen tension signal, expected/altered/interrupt (A narrowed) | 48 | D+CL (+RP living row) |
 | M49 | Complications and twists: finish SP6 first (A); focus picker only if 48 takes it | 49 | D now; model-facing build gated on SP6 (RP) |
 | M50 | Story calendar: canonical `story_time`, exactly-once writers, built B1a → B1b → B1c → B2 | 50 | D+CL (+RP) |
 | M51 | Discoverable relationship labels: event-gated public/secret rows on 52's pages | 51 | D+CL (+RP); after 52 A |
-| M52 | People and Places codex (`known_when`, `discovery` scope, `knownEntities`) | 52 | D+CL |
-| M53 | Reputation with groups: authored moves, word bands, clamp | 53 | D+CL+RP |
+| M52 | People and Places codex (`known_when`, `discovery` scope, `knownEntities`): option A + SC1–SC5 + harvest H16e name fold **built on `v2.8-p52-codex`** 2026-10-14 (unmerged); D floors C1–C5, C9–C13 green as jest; C7 CL and the live lane gate owed; B waits on 42 | 52 | D+CL |
+| M52e | Codex return visits (plan 52 option E, decision 8): page-side return lines on known places | 52 | D; follow-up after M52 |
+| M53 | Reputation with groups: authored moves, word bands, clamp. 2026-10-14: A built on `v2.8-p53-reputation` (not merged): D floors green in jest, full gates green (Storybook run separately), no-model lane 53 scenario green ×2 (pre- and post-merge); master merged, fitted to 52's SC1/SC2/discovery; F7/F9 owed | 53 | D+CL+RP |
 
 Plan 54 (inner voice L5 spike) is queue row A13.
 
@@ -152,3 +153,23 @@ plan 52's SC1–SC5.
 | M57 | Shared rituals: authored cues, cooldown from the offer, no streaks | 57 | D+LT/RP |
 | M58 | Keepsakes tied to witnessed moments | 58 | D+LT/RP; witness = heard after 42 |
 | M59 | Reconciliation beats: three beats per rupture, no player narration | 59 | D+CL+LT/RP |
+
+### Harvest 2026-10-14 (extension pattern harvest, not queued)
+
+Triage of every idea from `extension-research-2026-10-14/SUMMARY.md` (H1–H16) and the unbuilt v2.4 harvest ideas:
+`61-harvest-triage-2026-10-14.md`. Defects B1–B19 are plan 60's. New candidate plans below; folds are "Harvest 2026-10-14
+addendum" sections in 09, 11, 18, 22, 41, 42, 43, 47, 49, 50, 51, 52, 53, 55. Owner decision pending per plan; not queued
+until the owner says so.
+
+| # | Item | Plan | Tiers |
+|---|---|---|---|
+| M60 | Harvest defects B1-B3, B5, B6, B9-B16 fixed on `v2.8-harvest-defects` (unmerged), one commit + regression test each; B4/B7/B8/B17 plausible, not built; B18/B19 refuted. Live gate owed (B14, B6, B10, B3, B5): no private ST copy | 60 | D green; L owed |
+| M61 | Harvest triage (index of every idea, verdict, destination) | 61 | docs |
+| M62 | Quantum-ogre probe; prepared world facts only on a probe miss | 62 | D + RP (probe) + CL |
+| M63 | Stepped history window; front-trim arm rides R2 first | 63 | D + RP (with R2) + CL |
+| M64 | Public sheet reaches the narrator, "just happened" rows, warn bands | 64 | D (+RP informational) |
+| M65 | "Here now" scene card (reopens 51 decision 2: owner call first) | 65 | D; session or owner decision |
+| M66 | Authoring quality: card review on agent cards, lore preview + key lint, lore templates, read-back | 66 | D + CL |
+| M67 | Grader hygiene and adversarial extractor fixtures (after plan 60 B2) | 67 | D + CL |
+| M68 | "Your move" HUD chip, derived | 68 | D; owner decision |
+| M69 | Harvest hardening bundle (small S items) | 69 | D (+CL one row) |
