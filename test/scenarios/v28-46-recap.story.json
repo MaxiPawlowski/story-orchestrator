@@ -1,0 +1,24 @@
+{
+  "format": 2,
+  "id": "so-v28-46-recap",
+  "title": "SO-V28-46 Recap",
+  "description": "Plan 46 no-model fixture: an authored recap line on a visible transition in chapter one, then a chapter crossing so the chapter two title card carries what changed in chapter one.",
+  "chapters": [
+    { "id": "arrival", "title": "Arrival at the Gate", "player_title": "Arrival" },
+    { "id": "camp", "title": "Night Camp", "player_title": "The Camp", "final": true }
+  ],
+  "qualities": [
+    { "key": "step", "type": "int", "source": "extractor", "monotonic": true, "rubric": "How far has the party come?" }
+  ],
+  "checkpoints": [
+    { "id": "road", "name": "The Road", "player_name": "The Road", "objective": "Reach the gate.", "type": "anchor", "start": true, "chapter": "arrival" },
+    { "id": "gatehouse", "name": "The Gatehouse", "player_name": "The Gatehouse", "objective": "Pass the gate.", "type": "anchor", "chapter": "arrival" },
+    { "id": "fire", "name": "Campfire", "player_name": "The Campfire", "objective": "Rest the night.", "type": "anchor", "chapter": "camp" }
+  ],
+  "transitions": [
+    { "from": "road", "to": "gatehouse", "priority": 1, "gate": { "q": "step", "op": ">=", "v": 1 }, "recap": "The garrison opened its gates for the party." },
+    { "from": "gatehouse", "to": "fire", "priority": 1, "gate": { "q": "step", "op": ">=", "v": 2 } }
+  ],
+  "roster": [{ "id": "narrator", "name": "DM Narrator", "role": "narrator" }],
+  "requirements": { "members": ["DM Narrator"] }
+}

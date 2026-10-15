@@ -229,7 +229,7 @@ test('v2.6 plan 08: the inline sweep forbids the author half and flags a leak in
 
 test('CR-U: the player-clean sweep forbids every v2.6 author surface and no longer lists the stale .so-inspect', () => {
   for (const selector of ['#so-inline-level option[value="3"]', '#so-inline-level option[value="4"]', '#so-chapter-seal', '#so-chapter-fold', '#so-chapter-story-so-far',
-    '#so-chapter-budget', '#so-chapters', '[data-so^="chapter-"]', '#so-inner-harvest-idle', '[data-so="model-call-route"]', '[data-so="model-call-result"]',
+    '#so-chapter-budget', '#so-chapters', '[data-so^="chapter-"]:not([data-so^="chapter-card"])', '#so-inner-harvest-idle', '[data-so="model-call-route"]', '[data-so="model-call-result"]',
     '[data-so="role-profile-detail"]', '#so-next-turn', '[data-so^="next-turn-"]', '[data-so="payload-folded"]', '[data-so="memory-lock"]', '[data-so^="conflict-"]',
     '[data-so="quarantined"]', '[data-so="effect-ledger"]', '#so-lore-fired', '[data-so="lore-lost"]', '[data-so="lore-constant-missed"]', '#so-scan-gate',
     '[data-so^="warden-"]', '[data-so^="driver-"]', '[data-so="expansion-regenerate"]', '[data-so="curator-diff"]', '[data-so="curator-text"]', '[data-so="curator-last-pass"]']) {
@@ -315,7 +315,7 @@ const splitTopLevel = (selector: string, separator: (char: string) => boolean) =
   return parts;
 };
 
-const COMPOUND_TOKEN = /^(?:([a-z][a-z0-9]*)|#([\w-]+)|\.([\w-]+)|\[([\w-]+)(?:(\^?=)"([^"]*)")?\])/;
+const COMPOUND_TOKEN = /^(?:([a-z][a-z0-9]*)|#([\w-]+)|\.([\w-]+)|\[([\w-]+)(?:(\^?=)"([^"]*)")?\]|:not\(([^()]+)\))/;
 
 class PlantedElement {
   tag: string; id: string; classes: Set<string>; attrs: Map<string, string>; text: string; children: PlantedElement[] = []; parent: PlantedElement | null = null;
@@ -344,7 +344,8 @@ class PlantedElement {
       tokens.push(token);
       rest = rest.slice(token[0].length);
     }
-    return tokens.every(([, tag, id, cls, attr, op, value]) => {
+    return tokens.every(([, tag, id, cls, attr, op, value, not]) => {
+      if (not) return !this.matchesCompound(not);
       if (tag) return this.tag === tag;
       if (id) return this.id === id;
       if (cls) return this.classes.has(cls);
@@ -419,6 +420,13 @@ test('planted DOM: an author roll chip under a player message is caught by the i
   const findings = await sweepPlanted({ message: [{ attrs: { 'data-so': 'roll-chips', 'data-mesid': '3' }, children: [chip('quality'), chip('check')] }] });
   assert.ok(findings.includes('[data-so="roll-chip"][data-source="quality"] reachable under a message'), findings.join(' | '));
   assert.deepEqual(findings.filter((finding) => finding.includes('"check"')), []);
+});
+
+test('v2.8 plan 46 live: a chapter title card with its recap under a message sweeps clean, an author chapter row is still caught', async () => {
+  const card = { tag: 'section', attrs: { 'data-so': 'chapter-card' }, children: [{ attrs: { 'data-so': 'chapter-card-recap' }, text: 'What changed' }, { attrs: { 'data-so': 'chapter-card-briefing' }, text: 'The camp' }] };
+  assert.deepEqual(await sweepPlanted({ message: [card] }), []);
+  const findings = await sweepPlanted({ panels: [{ attrs: { 'data-so': 'chapter-row' }, text: 'Arrival' }] });
+  assert.ok(findings.some((needle) => needle.includes('chapter-') && needle.includes('reachable in #so-panels-root')), findings.join(' | '));
 });
 
 test('planted DOM: an author page of the guide reader in player mode is caught by the sweep', async () => {

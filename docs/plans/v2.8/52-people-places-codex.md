@@ -382,3 +382,26 @@ Owed:
   ST was not allowed for this task. C5 payload goldens ride the same lane run.
 - C7 (CL, wizard recipe ×10 on the authoring route, incl. the H14b "lasting truth" row) not run (no model runs).
 - C6/C8 only with B.
+
+## Gate record addendum 2026-10-15: live no-model check (branch `v2.8-live-checks`)
+
+- Setup (shared by the 2026-10-15 addenda in plans 46, 47, 52, 60 and queue row N13): isolated ST code copy
+  `C:\dev\st-live` (tar of `st-v28-nomodel` without `node_modules`, `node_modules` junctioned to the owner's), worktree
+  `.st-root` pointed at it, this worktree's build staged with `node scripts/release/stage.mjs --st-root C:/dev/st-live`
+  (served `dist/index.js` sha256 `885c115c`, source = master `cc38c5b1`), plugins installed into `C:\dev\st-live\plugins`
+  only (judge + harness; harness `config.json` offers claude only). Lanes root `C:\dev\so-live-lanes`: lane 60 = offline
+  no-model lane (data copied from `so-nomodel-lanes/44`, server plugins off), lane 61 = the same plus
+  `st-lanes.mts pod 61 cloud` (loopback firewall, server plugins on). Run: `ST_ROOT=C:/dev/st-live
+  SO_LANES_ROOT=C:/dev/so-live-lanes node scripts/debug/st-lanes.mts run 60 -- scripts/debug/so-scenario.mts run <file>
+  --sandbox --group 'Group: Arin, DM Narrator'`. Evidence copied to `C:\dev\so-live-lanes\evidence-2026-10-15\{60,61}\`.
+  Owner ST, port 8000, lanes 0/31/33/53/54 and `C:\dev\st-p53` untouched.
+- PASS x2 (`60/2026-10-15T07-09-58-276Z`, `...07-12-59-520Z`; `test/scenarios/v28-52-codex.json`): `game.codex` is null
+  before; reaching the checkpoint shows the place fact ("At The Old Tower", fresh); reopen identical (`stateEquals` over
+  values, versions, active, path, boundary); a swipe of the reaching reply removes the fact, returns to the start
+  checkpoint and leaves no codex latch; the second reopen is identical; `assert-player-clean` 0 findings after the fact
+  and after the swipe. One earlier attempt aborted in harness setup under 100 % CPU (browser launch timeout, then a
+  judge-mode read-back), not a product fault.
+- C5 payload goldens PASS: the pre-52 build `837d96e0` (worktree `C:\dev\so-p52-base`, staged into the copy) against this
+  build, `so-payload-golden.mts diff`: 31 of 31 captures `same` over 6 cases, "payload invariance: identical"
+  (`evidence-2026-10-15/60/payload-c5/{pre52,post52}`). No `c0` baseline exists in `test/measurements/v2.7/payload`, so
+  the pair is pre-52 against post-52 (the span also holds 47 and 53; none moves a codex-free story's prompt).
