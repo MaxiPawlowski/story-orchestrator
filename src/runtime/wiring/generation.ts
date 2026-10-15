@@ -25,15 +25,15 @@ import { roleDefaultFrom, setRoleDefault } from "../passProfiles";
 import { modelCallLog } from "../modelCallLog";
 import { spikeSeams } from "../spikeSeams";
 import { awayNoticeLine, createAwayNotice } from "../awayNotice";
+import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { residueTags, settledOnReply } from "../emptyReply";
 import type { LoreWiring } from "./lore";
 import type { Disposers, LiveParts } from "./types";
 
-const awayNotice = createAwayNotice({
-  line: () => awayNoticeLine(runtimeManager.getStory(), runtimeManager.getEngineState()?.blackboard.values ?? {}, getContext().chat ?? []),
-  set: setStoryExtensionPrompt,
-  clear: clearStoryExtensionPrompt,
-});
+const notice = (line: () => string | null, spec: { key: string; depth: number } = INJECTION_REGISTRY.awayNotice) =>
+  createAwayNotice({ line, set: setStoryExtensionPrompt, clear: clearStoryExtensionPrompt }, spec);
+const awayNotice = notice(() => awayNoticeLine(runtimeManager.getStory(), runtimeManager.getEngineState()?.blackboard.values ?? {}, getContext().chat ?? []));
+const previously = notice(() => runtimeManager.getCachedSnapshot().carry?.block ?? null, INJECTION_REGISTRY.previously);
 
 type IntentOf<K extends GenerationIntent["kind"]> = Extract<GenerationIntent, { kind: K }>;
 
@@ -42,6 +42,7 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
     lore.loreWatch.opened(intent.type);
     runtimeManager.onGenerationStarted(intent.type);
     awayNotice.opened(intent.type);
+    previously.opened(intent.type);
     runtimeManager.capturePayload("generation", intent.type);
     live.talk?.onGenerationStarted(intent.params, intent.type);
   },
@@ -59,6 +60,7 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
   },
   closed: (intent: IntentOf<"closed">) => {
     awayNotice.closed();
+    previously.closed();
     if (intent.reason !== "chat-changed") {
       runtimeManager.clearPrivateInjection();
       runtimeManager.clearCopilotNudge();

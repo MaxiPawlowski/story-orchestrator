@@ -25,7 +25,7 @@ import { coordinatorHosts, featureCoordinatorHosts } from "./coordinatorHosts";
 import { wireCoordinators } from "./managerWiring";
 import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName } from "./roster";
 import { EffectsApplier } from "./effectsApplier";
-import { createExtras, hydrateExtras, restartCarry, restartedExtras, TALK_DECISION_LIMIT, type RestartCarry } from "./extras";
+import { carryStartSeed, createExtras, hydrateExtras, restartCarry, restartedExtras, TALK_DECISION_LIMIT, type RestartCarry } from "./extras";
 import { SettingsControl } from "./settingsControl";
 import { lazyPlayerSetup } from "./playerSetupPort";
 import { beginRun, type RunContext, type RunOwnership } from "./runToken";
@@ -517,7 +517,7 @@ export class RuntimeManager extends SettingsDelegates {
     this.refreshFeatureSettings();
     // Minted *after* the load names its world: a token taken before it describes the world being replaced.
     const run = beginRun(this.owner.ownership);
-    this.engine.loadStory(this.loaded.story);
+    this.engine.loadStory(this.loaded.story, carryStartSeed(this.loaded.story, this.extras, persisted, this));
     this.refreshRequirements();
     // The history travels WITH the state: `hydrate` clears the log before restoring what it is handed.
     const saved = mode === "hydrate" ? persisted?.engineState ?? null : null;

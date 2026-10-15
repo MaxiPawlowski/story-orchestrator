@@ -52,6 +52,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Playing | Story briefing | A short "Before you start" page the first time a story starts in a chat. |  |
 | Playing | Drafted briefing | A story with no briefing gets one written for this chat from its opening. |  |
 | Playing | Who you are in this story | A story that says who you play asks you once, at the start: keep your persona, choose another, or create one. |  |
+| Playing | Carry a finished story | A sequel, or a replay of the same story, can start from how a run you finished ended. | Experimental |
 | Playing | Story drawer | Where you are, what happened, and what you are remembered for. |  |
 | Playing | Status strip | One line above the chat input: where the story is and how tense it is. |  |
 | Playing | Notes under messages | Small icons under replies: where the story moved, what it remembered, which lore it used. |  |

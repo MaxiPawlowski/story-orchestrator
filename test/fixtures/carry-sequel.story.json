@@ -1,0 +1,39 @@
+{
+  "format": 2,
+  "id": "ngp-sequel",
+  "title": "After the Lanterns",
+  "description": "Synthetic sequel for v2.8 plan 45: a changed roster and heritage plus state carry.",
+  "roster": [
+    { "id": "mara", "name": "Mara", "role": "the harbourmaster, older now" },
+    { "id": "kel", "name": "Kel", "role": "a newcomer" },
+    { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }
+  ],
+  "qualities": [
+    { "key": "heritage_coast", "type": "enum", "values": ["lit", "dark"], "source": "code", "rubric": "How the Lantern Coast ended in the earlier story" },
+    { "key": "heritage_ledger", "type": "enum", "values": ["done", "failed"], "source": "code", "rubric": "The ledger quest in the earlier story" },
+    { "key": "heritage_coins", "type": "int", "source": "code", "rubric": "Coins carried over" },
+    { "key": "guild_trust", "type": "int", "source": "extractor", "rubric": "How much the lamplighters trust the player" },
+    { "key": "harbour_feeling", "type": "enum", "values": ["grateful", "bitter", "unsure"], "source": "extractor", "rubric": "How the harbour feels about the player" },
+    { "key": "pact_state", "type": "enum", "values": ["sworn", "refused"], "source": "extractor", "rubric": "The drowned pact" },
+    { "key": "arrived", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has the player arrived at the new harbour?" }
+  ],
+  "carry_from": {
+    "story": "ngp-source",
+    "mode": "sequel",
+    "map": [
+      { "from": "coast_fate", "to": "heritage_coast", "as": "heritage", "known_by": ["mara"] },
+      { "from": "quest_ledger_closed", "to": "heritage_ledger", "as": "heritage" },
+      { "from": "coins", "to": "heritage_coins", "as": "heritage", "known_by": "all" },
+      { "from": "rep_guild", "to": "guild_trust", "as": "state" },
+      { "from": "harbour_mood", "to": "harbour_feeling", "as": "state", "known_by": ["kel", "mara"] },
+      { "from": "secret_pact", "to": "pact_state", "as": "state", "known_by": "all" }
+    ]
+  },
+  "checkpoints": [
+    { "id": "pier", "name": "The New Pier", "objective": "Arrive at the new harbour.", "type": "anchor", "start": true },
+    { "id": "town", "name": "The Town", "objective": "Settle in.", "type": "anchor" }
+  ],
+  "transitions": [
+    { "from": "pier", "to": "town", "priority": 1, "gate": { "q": "arrived", "op": "==", "v": true } }
+  ]
+}

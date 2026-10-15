@@ -545,7 +545,7 @@
       "status": "local",
       "note": "v2.5 plan 08 L1 (2026-09-26): writes only the scan-time mirror copy the synchronous ENTRIES_LOADED handler reads, in memory, never persisted. A later refresh or a synchronous take() bumps the ticket, so a slower earlier load never overwrites a newer copy (mirrorScan.test.ts \"serves only the book it holds, and a slower earlier refresh never overwrites a later one\"). Which chat may READ the copy is decided per scan by mirrorBookFor (story and owned chat), not by the write, so a copy loaded for one chat is never appended to another's scan."
     },
-    "src/runtime/mirrorReaper.ts#MirrorReaper.reap": {
+    "src/runtime/mirrorReaperCore.ts#MirrorReaper.reap": {
       "status": "checked",
       "note": "v2.4 plan 02 T14 (2026-09-24): deletes a deleted chat's per-chat mirror book. Its world is not the open chat (that chat is gone, and ST opens another before it announces a solo delete), so the run is minted from `lifetimeOwnership()`, which only `stopRuntime` lapses. `run.stillOwns()` is checked after the player's confirm and immediately before `deleteLorebook`, so a reap whose runtime stopped while the popup was open deletes nothing and leaves a Repair row (mirrorReaper.review.test.ts \"deletes nothing once the runtime stopped while the confirm was open\"). The evidence guards sit before the confirm: the `so-owner` marker must name the deleted chat, and `probeChat` must read the chat file as absent (02-H11: an announce without a delete is refused). `notify` only re-renders; the orphan registry is session memory, not any chat's."
     },
@@ -1132,6 +1132,22 @@
     "src/studio/components/ReferencePackStep.tsx#ReferencePackStep.accept": {
       "status": "delegate",
       "note": "awaits ReferencePackSession.accept, which checks run.stillOwns() before the settings write; the panel then writes only its own source/review/error/busy state behind a generation check."
+    },
+    "src/runtime/carryUnit.ts#carryCandidates": {
+      "status": "checked",
+      "note": "Pushes only to its own result list, after checking the run still owns the chat following each metadata read; returns [] when it lapsed."
+    },
+    "src/runtime/carryUnit.ts#pickCarry": {
+      "status": "checked",
+      "note": "RunToken minted before the awaited blob read and checked right after it, before extras.carry, the engine reseed and persist; notify after persist is checked again. carryCandidate.test.ts covers the verified projection; the race is re-checked by the extras/boundary guard after the read."
+    },
+    "src/runtime/carryUnit.ts#declineCarry": {
+      "status": "checked",
+      "note": "Writes extras.carry before the persist await; notify only while the run still owns the chat."
+    },
+    "src/runtime/carryUnit.ts#dismissPreviously": {
+      "status": "checked",
+      "note": "Writes extras.carry before the persist await; notify only while the run still owns the chat."
     }
   }
 }

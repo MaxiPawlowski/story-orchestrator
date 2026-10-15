@@ -31,8 +31,7 @@ export interface AwayNoticeDeps {
   clear: (key: string) => unknown;
 }
 
-export const createAwayNotice = (deps: AwayNoticeDeps) => {
-  const spec = INJECTION_REGISTRY.awayNotice;
+export const createAwayNotice = (deps: AwayNoticeDeps, spec: { key: string; depth: number } = INJECTION_REGISTRY.awayNotice) => {
   let active = false;
   const clear = () => {
     if (!active) return;

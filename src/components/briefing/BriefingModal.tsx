@@ -7,8 +7,10 @@ import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import type { PlayerSetupView } from "@runtime/playerSetup";
 import type { ChooseIdentity } from "./PlayerSetupPane";
+import type { CarryPaneProps } from "@components/carry/CarryPane";
 
 const PlayerSetupPane = lazyRetry(() => import("./PlayerSetupPane"));
+const CarryPane = lazyRetry(() => import("@components/carry/CarryPane"));
 
 export interface IdentitySlot {
   view: PlayerSetupView;
@@ -23,6 +25,7 @@ export interface BriefingModalProps {
   onboarding?: boolean;
   optOut?: boolean;
   identity?: IdentitySlot | null;
+  carry?: CarryPaneProps | null;
   onClose: (result: { dontShow: boolean }) => void;
 }
 
@@ -47,7 +50,7 @@ const BriefingBody = ({ view, level }: { view: BriefingView; level: "story" | "c
   </section>
 );
 
-export const BriefingModal = ({ briefing, chapter = null, blocks = [], onboarding = false, optOut = false, identity = null, onClose }: BriefingModalProps) => {
+export const BriefingModal = ({ briefing, chapter = null, blocks = [], onboarding = false, optOut = false, identity = null, carry = null, onClose }: BriefingModalProps) => {
   const dialogRef = useRef<HTMLDialogElement | null>(null);
   const [dontShow, setDontShow] = useState(false);
   const closed = useRef(false);
@@ -91,6 +94,7 @@ export const BriefingModal = ({ briefing, chapter = null, blocks = [], onboardin
           </section>
         )}
         {identity && <Lazy fallback={null}><PlayerSetupPane view={identity.view} rechoose={identity.rechoose} onChoose={identity.onChoose} /></Lazy>}
+        {carry && <Lazy fallback={null}><CarryPane view={carry.view} actions={carry.actions} /></Lazy>}
         {briefing && <BriefingBody view={briefing} level="story" />}
         {chapter && <BriefingBody view={chapter} level={briefing ? "chapter" : "story"} />}
         {onboarding && (

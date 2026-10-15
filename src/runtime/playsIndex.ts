@@ -9,6 +9,7 @@ export interface PlayRow {
   checkpointName: string | null;
   chapterTitle?: string;
   kind: StoryKind;
+  ended?: true;
   updatedAt: string;
 }
 
@@ -26,7 +27,7 @@ const readRow = (value: unknown): PlayRow | null => {
   const chapterTitle = text(value.chapterTitle);
   return {
     storyId, title, groupId, checkpointName: text(value.checkpointName), ...(chapterTitle ? { chapterTitle } : {}),
-    kind: value.kind === "saga" ? "saga" : "story", updatedAt,
+    kind: value.kind === "saga" ? "saga" : "story", ...(value.ended === true ? { ended: true as const } : {}), updatedAt,
   };
 };
 
@@ -47,7 +48,7 @@ export const sanitizePlays = (value: unknown): PlaysIndex => {
 
 const sameRow = (left: PlayRow | undefined, right: Omit<PlayRow, "updatedAt">) => Boolean(left)
   && left?.storyId === right.storyId && left.title === right.title && left.groupId === right.groupId && left.checkpointName === right.checkpointName
-  && (left.chapterTitle ?? null) === (right.chapterTitle ?? null) && left.kind === right.kind;
+  && (left.chapterTitle ?? null) === (right.chapterTitle ?? null) && left.kind === right.kind && left.ended === right.ended;
 
 export const upsertPlay = (plays: PlaysIndex, chatId: string, row: Omit<PlayRow, "updatedAt">, now: string): { plays: PlaysIndex; changed: boolean } => {
   if (!chatId || sameRow(plays[chatId], row)) return { plays, changed: false };
@@ -67,13 +68,15 @@ export interface PlayView {
   storyId: string;
   activeCheckpointId: string | null;
   groupId: string;
+  ended?: boolean;
 }
 
-export const playRow = ({ story, storyId, activeCheckpointId, groupId }: PlayView): Omit<PlayRow, "updatedAt"> => {
+export const playRow = ({ story, storyId, activeCheckpointId, groupId, ended }: PlayView): Omit<PlayRow, "updatedAt"> => {
   const checkpoint: Checkpoint | undefined = activeCheckpointId ? story.checkpointById[activeCheckpointId] : undefined;
   const chapterTitle = playerChapterTitle(story.chapters?.find((chapter) => chapter.id === checkpoint?.chapter));
   return {
     storyId, title: story.title, groupId, checkpointName: checkpoint?.player_name ?? null, ...(chapterTitle ? { chapterTitle } : {}), kind: storyKind(story),
+    ...(ended ? { ended: true as const } : {}),
   };
 };
 
@@ -92,10 +95,12 @@ export const playRowFromBlob = (blob: unknown, chatId: string, groupId: string, 
   const chapters = listOf(pinned.chapters, isChapter);
   const active = typeof record.engineState.activeCheckpointId === "string" ? record.engineState.activeCheckpointId : null;
   const savedAt = isRecord(record.extras) ? text(record.extras.updatedAt) : null;
+  const memory = isRecord(record.extras) && isRecord(record.extras.memory) ? record.extras.memory : null;
+  const ended = Array.isArray(memory?.chapters) && memory.chapters.some((entry) => isRecord(entry) && entry.final === true);
   return {
     ...playRow({
       story: { title, chapters, kind: storyKind(pinned), checkpointById: Object.fromEntries(checkpoints.map((checkpoint) => [checkpoint.id, checkpoint])) },
-      storyId: blob.selectedStoryId, activeCheckpointId: active, groupId,
+      storyId: blob.selectedStoryId, activeCheckpointId: active, groupId, ended,
     }),
     updatedAt: savedAt && !Number.isNaN(Date.parse(savedAt)) ? savedAt : fallbackAt,
   };

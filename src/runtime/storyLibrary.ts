@@ -5,6 +5,7 @@ import { createSettingsWriteEvidence, missingFromServer, recordSettingsWrite, st
 import { SETTINGS_ROOT_KEY, settingsRoot, writableSettingsRoot } from "./settingsRoot";
 import type { LoadedStory, StoryLibraryRecord, RuntimeSnapshot } from "./types";
 import { log } from "@utils/log";
+import { gameLayer } from "@engine/validate/gameLayer";
 
 const SETTINGS_KEY = "v2Stories";
 
@@ -81,6 +82,8 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
   // slug, so re-importing it updates the same record rather than forking one.
   const id = parsed.id ?? slugifyStoryId(parsed.title);
   const records = listStoryRecords();
+  const pair = gameLayer()?.carry.importCarryErrors(parsed, id, (from) => records.find((entry) => entry.id === from)?.raw) ?? [];
+  if (pair.length) return pair;
   const existing = records.find((record) => record.id === id) ?? null;
   // Same identity, new content: the library record is *updated*, never forked. A chat tells its
   // pinned copy is behind by the content hash. A `version` key from an external story is not ours.

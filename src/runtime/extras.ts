@@ -30,6 +30,13 @@ import type {
 import { defaultTension, sanitizeTension } from "./tensionState";
 import { log } from "@utils/log";
 import { readFeaturePolicies } from "@engine/featurePolicy";
+import type { NormalizedStoryV2 } from "@engine/index";
+import { gameLayer } from "@engine/validate/gameLayer";
+import type { JournalRecordKind } from "./journal";
+
+interface CarryJournal {
+  noteRecap: (summary: string, detail: string, kind?: JournalRecordKind) => void;
+}
 import { sanitizeRecap } from "./recapPort";
 
 export const TALK_DECISION_LIMIT = 10;
@@ -401,14 +408,18 @@ export const stripGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => ({
 });
 
 export interface RestartCarry {
+  carry?: RuntimeExtras["carry"];
   features?: RuntimeExtras["overrides"];
   overrides: ChatOverrides;
   journal: RuntimeExtras["journal"];
   from: string;
 }
 
+export const carryStartSeed = (story: NormalizedStoryV2, extras: RuntimeExtras, persisted: { engineState?: unknown } | null, host: CarryJournal) =>
+  (persisted?.engineState ? {} : gameLayer()?.carry.startSeed(story, extras, (summary, note) => host.noteRecap(summary, note, "author")) ?? {});
+
 export const restartCarry = (extras: RuntimeExtras, checkpoint: string | undefined, boundary: number): RestartCarry => ({
-  features: readFeaturePolicies(extras.overrides),
+  carry: extras.carry, features: readFeaturePolicies(extras.overrides),
   overrides: readChatOverrides(extras), journal: [...extras.journal], from: `${checkpoint ?? "the story"} (boundary ${boundary})`,
 });
 
@@ -416,6 +427,7 @@ export const restartedExtras = (carry: RestartCarry, read: () => GlobalSettings)
   const extras = createExtras(read);
   extras.overrides = readFeaturePolicies(carry.features);
   extras.journal = sanitizeJournalRecords(carry.journal);
+  extras.carry = carry.carry;
   return applyGlobalSettings(extras, read(), carry.overrides);
 };
 

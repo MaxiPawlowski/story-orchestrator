@@ -1,6 +1,6 @@
 # Plan 45 — New Game+
 
-**Status: v2.8, owner 2026-10-14, not built. Revised 2026-10-14 against the Astra review (owner approved; §Review
+**Status: v2.8, owner 2026-10-14; built 2026-10-15 on `v2.8-p45-carry` (not merged; §Gate record). Revised 2026-10-14 against the Astra review (owner approved; §Review
 2026-10-14).** Moved here from `docs/plans/v2.9/03-new-game-plus.md` (owner 2026-10-14: roleplay mechanics move into
 v2.8). That plan's history and options are kept; this one restates them on master `211d8d96`. Overview:
 `00-overview.md` §Rules (this folder).
@@ -211,3 +211,157 @@ Source: `review-astra-2026-10-14.md` §Plans 42-47 (45). Verified on `3a716f2b`.
   the target's authorized opening context.
 - **Recommendation (B, then public bounded C; D only with mappings; E separate).** Adopted.
 - Rebutted: none.
+
+
+## Gate record
+
+Built 2026-10-14/15 on branch `v2.8-p45-carry` (base master `cc38c5b1`, then merged with master `7a74fecc` (plan 50) and
+`0279441d` (plans 50/51, image fixes)): B + bounded C + D with authored replay mappings, the revised design and every
+recommended decision (owner: "yes to all from your recommendations"). E (trophy shelf) is a separate queue row (M45e), as
+recommended. Not merged, not pushed.
+
+What was built
+
+- Schema (`engine/carrySchema.ts`, imported directly, not re-exported from `gameSchema.ts`, so it stays out of the main entry;
+  the fields join `StoryV2` by module augmentation because schema.ts is at its file budget): source `outcome [{key,
+  heritage_text}]`; target `carry_from {story, mode sequel|replay, map [{from, to, as heritage|state, known_by}], replay_map,
+  previously, default snapshot|require}`.
+- Validation (`engine/validate/carry.ts`, game layer, one `readCarry` call from `parseStoryV2`): every §5 class refused with a
+  consequence clause. Outcome keys are authored qualities, a quest's `quest_<id>_closed` or a faction's `rep_<id>` (plan 53's
+  real standing key), never code, tension or `liv_`. `heritage_*` qualities must be `source: "code"`, carried into, and never
+  written by a `state_snapshot` or reward. Replay ⇔ own id; a replay `state` entry needs `replay_map`; a `replay_map` key read by
+  any transition, quest or milestone gate is refused. Pair checks (`checkCarryPair`) run at library import when the source is
+  in the library (`importCarryErrors`, "…cannot carry from it until that is fixed") and at pick time against the run's pinned
+  copy ("this run is not offered").
+- Public projection (`engine/carry.ts` `publicOutcome`, `runtime/carryCandidate.ts`): mapped declared keys only, each through
+  `heritage_text`, `player_labels` or its `display` label; a quest only while visible (title + done/failed word); a faction
+  only while visible (band word); the run's chapter `short` lines through that run's held secrets (`heldSecrets` +
+  `withoutSecretLines` over the blob's epistemic rows). The stored epilogue is never read.
+- Saga input fix (`chapterSeal.saga`, `buildSagaPrompt`): the epilogue gets `sagaOutcomeLines` (declared public labels,
+  resting-filtered) under "HOW IT ENDED", and no end state for a story without `outcome`; the whole-blackboard FINAL STATE is gone.
+- Picker verified before offered (`carryUnit.carryCandidates`, lazy): plays-index rows of `carry_from.story` marked `ended`,
+  newest 20, not the open chat; each blob is read (`readGroupChatMetadata`) and verified (`carryCandidateFromBlob`: stamped
+  `BLOB_VERSION`, chat id, the story's record, a pinned copy that parses, a `final` record, pair checks, every mapped key
+  present) before it is listed. `PlayRow.ended` is derived from a final chapter record at each index sync (`PlaysPort.ended`),
+  so a rollback that unseals the final chapter or a restart clears it; `playRowFromBlob` reads it for backfilled rows.
+- Pinned snapshot: a pick writes a detached `extras.carry {fromChat, fromStory, sourceStoryHash, mode, projection, values
+  [{from, key, as, value, label, knownBy}], previously, block, createdAt, dismissed?}`; a declined start stores `{declined, at}`.
+  No `BLOB_VERSION` bump (optional extras slice). `RestartCarry.carry` keeps it; restart re-validates against the re-pinned story
+  (`startSeed`): a value that no longer fits is dropped and journaled ("carried value dropped: <key>").
+- Start: `StoryEngine.loadStory(story, seed)` applies the values before boundary 0, so they are part of the history base
+  (rollback ≡ replay); `runtimeManager.loadStory` seeds on activate (not on hydrate); a pick at boundary 0 reseeds.
+  `heritage_*` keys get a `ROLLBACK_DETECTORS` entry `heritage` (SC1). No SC2 step is occupied: nothing is written at a boundary.
+- `known_by` (default nobody): one private line per named member ("- From an earlier story, you know: <label>") through the
+  memory injector's private source, so `withoutSecretLines` applies; disclosure to the player writes no member knowledge (SC3).
+  Members are re-resolved against the current roster on every seed.
+- "Previously…": composed at pick time from the projection (ending title, heritage lines, newest chapter lines), cut at a
+  sentence to 350 tokens including its header; injected per loud generation as `INJECTION_REGISTRY.previously` (depth 4) through
+  the away-notice helper, withheld from quiet/impersonate; live until the first of: first target seal, 12 committed boundaries,
+  Dismiss. Shown in the start pane and on the drawer Overview card with Dismiss (`#so-carry-dismiss`).
+- UI (lazy): `components/carry/CarryPane.tsx` (picker `#so-carry-picker`, Start fresh unless `require`, a refusal line in player
+  words, the reason journaled), `CarryCard.tsx` (`#so-carry-legacy`: heritage lines, Previously, Dismiss); the start pane opens
+  for a pending carry at boundary 0. Stories: `CarryPane.stories.tsx` (Picker, NoRuns, Required, Replay, Refused, Picked),
+  `CarryCard.stories.tsx` (LegacyAndPreviously, PreviouslyEnded, NoLegacyLines, Phone).
+- Feature `new-game-plus` (Help → drawer Overview), guide topics `outcome` and `carry-from` (`copilot/guideTopicsCarry.ts`;
+  guideTopics.ts is at budget), doc sections, `npm run docs:guide`, `npm run docs:settings`, Studio Chapters tab guide,
+  architecture.md bullet, census rows (`ownership-sites.json`), error-copy row, arrival golden re-recorded.
+
+Floors (D, jest; all green)
+
+- N1 `engine/carryRollback.property.test.ts`: 200 generated cases, carried start ≡ the same start authored as a seed, after
+  random replay, after a reload (hydrate) and after rollback to boundary 0.
+- N2 `engine/carry.test.ts`: 11 local classes at import + 4 pair classes at both timings (import, pick) + wrong source id; 0 misses.
+- N3 `runtime/carryCandidate.test.ts`: 10 chats (5 valid, 3 index-ended but not final, 1 final missing a mapped key, 1 other
+  story): exactly the 5 offered; cap 20, the open chat and non-ended rows never listed.
+- N4 `engine/carry.test.ts`, `runtime/carryPort.test.ts`: removed / retyped / enum-narrowed keys dropped with a reason,
+  journaled, 0 writes.
+- N5 `runtime/carryPort.test.ts`, `carryCandidate.test.ts`: present at boundaries 0–11, absent at 12, after a first seal,
+  chapterless at 12, after dismiss, on quiet/impersonate; block ≤ 350 tokens. Dry-run payload on a lane: owed (below).
+- N6: picker row, card, heritage lines and Previously byte-identical with and without a live held secret in the source run; a
+  chapter line restating it is dropped.
+- N8: 400 random endings (unmapped, quiet, unlabelled, hidden quest/faction values) → 0 in projection or saga lines; blob control.
+- N9: changed roster (one member removed, one added): lines only to named present members, `all` = current roster, 0 refusals.
+- N10: replay carries heritage only; 4 planted progress/replay mappings refused; 0 progress keys written.
+- N11: source blob edited, rolled back and deleted after the pick: pinned state byte-identical.
+- N12 `carryCandidate.test.ts`, `playsIndexHost.test.ts`: `ended` set, then cleared when the final record goes; blob rows read it.
+- N13 golden: the saga prompt holds declared public labels only; the planted secret value is absent; no outcome → no end state.
+
+Gates (worktree `C:\dev\so-p45-carry`)
+
+- `npm run gates:quick` (pre-merge): typecheck, typecheck:test, lint (changed), jest related (7,087 passed) green;
+  `defect replay (--cached)` red with an empty `jest --listTests` error, the fresh-worktree tooling failure plan 53 recorded
+  (no cache, command line too long). The full replay below is green.
+- `npm run gates -- --jobs=2 --no-storybook` before the master merges: all green in 426.7 s (test 8,725 passed, 1 skipped).
+- `npm run gates -- --jobs=2 --no-storybook` on the final merged commit: all green in 419.0 s on `c7f29cd5`: test (8,893 passed, 1 skipped), build, test:debug, test:replay, typecheck, typecheck:test, lint,
+  debug:typecheck, test:release, test:plugin. An intermediate run on the merge was red on the manager line budget (702 of 700 after
+  master reached 700) and one line over 200 characters; fixed by calling the start seed through `extras.ts`.
+- Storybook (gates hardcode port 6006): `npm run storybook:build`, `http-server .sb-static -p 6245` + test-runner
+  `--url http://127.0.0.1:6245 --maxWorkers 2`: 147 suites, 882 tests passed on `c7f29cd5` (an earlier pre-merge run: 146 suites, 872 tests).
+- Main bundle `dist/index.js` 1,299,804 B on `c7f29cd5` (master 1,296,940; +2,864; budget 1,300,000; 196 B left). Main holds
+  only doors: `carryPort.ts` (snapshot slice and seed calls into the game layer, the lazy action proxy, type augmentations), the
+  plays `ended` field, the import pair-check call, the `readCarry` call, the engine seed loop, the `heritage` detector, the
+  restart carry and the injection key. Validation, projection, picker, UI, view and seed logic ride the game-layer, carry-unit,
+  chapter-seal and component chunks.
+
+Merge with master `a321491e` and main-entry diet (2026-10-15)
+
+- The first merge of this branch into master was aborted at 1,301,551 B (master had gained the 61b Astra fixes). Merged master
+  `a321491e` (1,298,705 B) into the branch: conflicts in `engine/rollbackDetectors.ts` (master's `mood`/`lifePacing` helpers and
+  `life-pacing` detector kept beside `isHeritage` / `heritage`) and `pages.generated.ts` (regenerated with `docs:guide`); arrival
+  golden re-recorded. Merged branch: 1,301,562 B (1,562 B over).
+- Diet, measured first (webpack stats of the main entry): moved existing main-entry code used only after a curator op is
+  applied or a chat is deleted into lazy chunks; behaviour unchanged, main keeps only doors.
+  - `CuratorWriter` (`curatorWriter.ts`) and `LoreCreator` (`loreCreator.ts`, with the near-duplicate scorer and created stamp
+    they pull in) are built by a new lazy `runtime/stagecraftKit.ts`; `StagecraftCoordinator` loads it once (`kit()`) on the first
+    create pass, in-turn apply, write-ahead reconcile or rollback revert. 1,301,562 -> 1,286,896 B (-14,666).
+  - Chat-delete reapers: the `MirrorReaper` class moved to `runtime/mirrorReaperCore.ts`, the host construction of both reapers
+    (`MirrorReaper` + `CreatedEntryReaper`, their lorebook readers and confirms) to `runtime/mirrorReaperUnit.ts`
+    (`buildReapers`). `mirrorReaperHost.ts` still subscribes at startup, synchronously, and loads the unit on the first deleted
+    chat (one load, queued in order; a load failure is logged). `mirrorReaper.ts` keeps markers, registries, `ReapLog`,
+    `lifetimeOwnership`. Census keys renamed (`lorebook-writers.json`, `ownership-sites.json`). 1,286,896 -> 1,280,683 B (-6,213).
+- Result: `dist/index.js` 1,280,743 B on `e0b6097b` (budget 1,300,000; 19,257 B left, master was 1,298,705). Budget unchanged.
+- `npm run gates -- --jobs=2 --no-storybook` on `e0b6097b`: all green in 252.9 s (test, test:replay, build, test:debug,
+  typecheck, typecheck:test, lint, debug:typecheck, test:release, test:plugin). Storybook (gates hardcode port 6006):
+  `npm run storybook:build`, `http-server .sb-static -p 6245` + test-runner `--url http://127.0.0.1:6245 --maxWorkers 2`: 147
+  suites, 882 tests passed.
+- Live gate for the moved reaper and curator paths is owed with the carry lane gate (delete a chat with a mirror book and with a
+  curator-created entry: reap prompt appears; accept a curator op in review mode: entry written).
+
+Deviations
+
+- `legacy` is renamed `heritage` (`as: "heritage"`, `heritage_` keys, `heritage_text`): `legacyFree.guard.test.ts` refuses the
+  word anywhere in `src/` (closed baseline, v2.5 plan 11).
+- No `carry-required` check (built, then removed for the main bundle): with `default: "require"` the start pane offers no
+  "Start fresh"; a story started without a run plays from its own start.
+- N1's comparison is the engine's own start seed with the values authored directly: master never applies `state_snapshot` at
+  start (confirmed by the review), so "authored in `state_snapshot`" has no runtime meaning to compare with.
+- Heritage values are authored target qualities (`source: "code"`), not compiled: the target needs the type at validation and
+  the source may be absent at import.
+- Codex facts (52) do not carry: `codex_*` latches are refused as outcome keys (a latch boundary means nothing in another
+  chat). Standing (53) carries through its real key `rep_<id>` as its band word, into a heritage key or an ordinary target
+  quality, never into the target's `rep_*` (code). Story time (50) is not carried: `story_time` is code-written and owned by the
+  target's own clock; left out of v1.
+- A value whose ending was not shown to the player is skipped (the run is still offered); a missing mapped key hides the run.
+- No Studio editor or wizard tool for `outcome` / `carry_from` (JSON + guide only).
+- Restart keeps the pinned run; picking a different run needs a new chat.
+
+Owed
+
+- Live gate NOT green: no isolated ST copy was staged from this branch. Coordinator to run after the merge on a no-model lane:
+  finish a short fixture story with a `final` chapter (`debugResponse` seal is plumbing only), open a new group chat on its
+  sequel with a changed roster, pick the run in the start pane, assert the `heritage_*` and state keys on the start blackboard,
+  the `known_by` line in the named member's applied private block only, the Previously block in the dry-run payload; swipe,
+  reopen, `so-ui.mts assert-player-clean`; payload goldens. Fixtures to reuse: `test/fixtures/carry-source.story.json`,
+  `carry-sequel.story.json`.
+- N7 (CL rater, LT replies): not runnable until two finished runs of a source story exist; recorded, not red.
+- One real final seal on the 3090 (epilogue passes `verifySaga` and N13 live).
+- Spoiler checklist rows for picker, heritage card and Previously card; plan 24 matrix row.
+- Adolion: not changed; whether the campaign declares `outcome`/`carry_from` is the owner's call (content review by another model).
+- E (trophy shelf) → M45e.
+
+Unresolved questions
+
+- Should a sequel be able to seed its own faction standing (`rep_*` start) or story time from a carried value? Not in v1.
+- Carry from one of several source stories (branching campaigns)? v1: one.
+- Live-director stories with a generated `final`: carry works on authored keys only.
+- Are 20 verified candidates enough on large installs (paging later)?

@@ -23,6 +23,8 @@ export interface RollbackExemption {
 
 const agendas = (story: NormalizedStoryV2) => (story.life?.members ?? []).flatMap((member) => member.agenda.map((agenda) => ({ member: member.id, agenda })));
 
+const isHeritage = (key: string): boolean => key.startsWith("heritage_");
+
 const mood = (story: NormalizedStoryV2) => (story.life?.members ?? []).filter((member) => member.mood).flatMap((member) => [moodAgeKey(member.id), moodSceneKey(member.id), moodWasKey(member.id)]);
 
 const lifePacing = (story: NormalizedStoryV2) => [...mood(story), ...agendas(story).flatMap(({ member, agenda }) => [agendaWaitKey(member, agenda.id), agendaChapterKey(member, agenda.id)])];
@@ -71,6 +73,7 @@ export const ROLLBACK_DETECTORS: readonly RollbackDetector[] = [
     keys: (story) => Object.keys(story.qualityByKey).filter(isLabelKey),
     moved: (story, before, after) => Boolean(story.life) && prefixMoved(isLabelKey, before, after),
   },
+  { id: "heritage", keys: (story) => Object.keys(story.qualityByKey).filter(isHeritage), moved: (_story, before, after) => prefixMoved(isHeritage, before, after) },
 ];
 
 export const ROLLBACK_EXEMPT: readonly RollbackExemption[] = [
