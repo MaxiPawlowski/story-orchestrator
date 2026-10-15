@@ -1195,7 +1195,7 @@ export async function askInHelp(page, question: string, timeoutMs = 120000) {
 }
 
 export async function assertPlayerClean(page) {
-  await openStoryDrawer(page);
+  const { alreadyOpen } = await openStoryDrawer(page);
   const authorView = await evaluateInST(page, () => globalThis.storyOrchestratorRuntime?.getSnapshot?.().ui?.authorView ?? null);
   if (authorView !== false) throw new Error(`assert-player-clean requires player mode (authorView=${authorView}). Turn Author view off first.`);
   const tabs = await page.locator('#so-workspace-modal nav button').allTextContents();
@@ -1264,7 +1264,8 @@ export async function assertPlayerClean(page) {
   findings.push(...playerSurfaceFindings(records, tokens));
   findings.push(...await inlinePlayerSweep(page, tokens));
   if (tabs.includes('Overview')) await switchDrawerTab(page, 'Overview');
-  return { ok: findings.length === 0, tabs, ask, surfaces: PLAYER_TEXT_SURFACES, selectorSurfaces: PLAYER_SELECTOR_SURFACES, selectorsChecked: PLAYER_FORBIDDEN_SELECTORS.length, findings, sweep, recoveryControls, records, tokens };
+  const closedWorkspace = alreadyOpen ? false : await closeWorkspaceModal(page);
+  return { ok: findings.length === 0, closedWorkspace, tabs, ask, surfaces: PLAYER_TEXT_SURFACES, selectorSurfaces: PLAYER_SELECTOR_SURFACES, selectorsChecked: PLAYER_FORBIDDEN_SELECTORS.length, findings, sweep, recoveryControls, records, tokens };
 }
 
 export async function takeAnnotatedScreenshot(page, label = 'ui-state') {
@@ -1275,6 +1276,14 @@ export async function takeAnnotatedScreenshot(page, label = 'ui-state') {
 
   const path = await writeScreenshot(page, label);
   return { path, drawerVisible };
+}
+
+export async function closeWorkspaceModal(page) {
+  const workspace = page.locator('#so-workspace-modal[open]');
+  if (!(await workspace.count())) return false;
+  await workspace.getByRole('button', { name: 'Close Story Orchestrator' }).click();
+  await page.waitForFunction(() => !(document.querySelector('#so-workspace-modal') as HTMLDialogElement | null)?.open, null, { timeout: 10000 });
+  return true;
 }
 
 export async function openStoryDrawer(page) {
