@@ -322,7 +322,8 @@ async function assignPod(n: number, pod: number | null, podId: string | null) {
 }
 
 // v2.5 plan 01 G3/G4: `--wi-gating` reaches journeys only; a scenario that needs a mode switches it itself.
-export const itemArgs = (item: string, strict: boolean, group: string | null, wiGating: string | null = null) => (/^J\d+$/i.test(item)
+export const isJourneyItem = (item: string) => /^(J|GS)\d+$/i.test(item);
+export const itemArgs = (item: string, strict: boolean, group: string | null, wiGating: string | null = null) => (isJourneyItem(item)
   ? ['scripts/debug/so-journey.mts', 'run', item.toUpperCase(), ...(strict ? ['--strict'] : []), ...(wiGating ? ['--wi-gating', wiGating] : [])]
   : ['scripts/debug/so-scenario.mts', 'run', item, '--sandbox', ...(group ? ['--group', group] : [])]);
 
@@ -361,7 +362,7 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
           cleanup: output.match(/^cleanup: .*$/m)?.[0] ?? null,
           record: evidence.copied.record ? resolve(rowDir, ROW_FILES.record) : paths.record,
           notRunnable,
-          failures: [...output.matchAll(/^(FAIL|BLOCKED)\s+(\S+)/gm)].map((match) => `${match[1]} ${match[2]}`).concat(/^J/i.test(item) ? [] : [...output.matchAll(/^\S+ \d+\/\d+ \S+ FAIL (.{0,160})/gm)].map((match) => match[1])),
+          failures: [...output.matchAll(/^(FAIL|BLOCKED)\s+(\S+)/gm)].map((match) => `${match[1]} ${match[2]}`).concat(isJourneyItem(item) ? [] : [...output.matchAll(/^\S+ \d+\/\d+ \S+ FAIL (.{0,160})/gm)].map((match) => match[1])),
         };
         results.push(result);
         console.log(`lane ${n} ${item} run ${run}: ${result.status} code ${code}${result.automated ? ` · ${result.automated}` : ''}${result.notRunnable ? ` · NOT RUNNABLE: ${result.notRunnable}` : ''} (${Math.round(result.ms / 1000)} s)`);
