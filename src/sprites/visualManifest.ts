@@ -83,7 +83,8 @@ export function publishVisualLook(source: VisualManifest, root: string, set: str
 
 export function withReferencePack(source: VisualManifest, root: string, pack: ReferencePack): VisualManifest {
   if (visualRoot(source) !== root) throw new Error("The accepted visual source changed. Prepare the reference views again.");
-  const next = { ...source, revision: source.revision + 1, pack };
+  const views = Object.fromEntries(REFERENCE_VIEWS.map((view) => [view, servedAsset(pack.views[view])])) as Record<ReferenceView, VisualAsset>;
+  const next = { ...source, revision: source.revision + 1, pack: { hash: pack.hash, views } };
   return { ...next, looks: { default: { ...source.looks.default, root: visualRoot(next) } } };
 }
 

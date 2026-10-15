@@ -887,3 +887,20 @@ From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licen
   nothing maps its tags to the model's vocabulary or drops duplicates. Recommended: **measure first** on the existing image
   goldens: share of director tags absent from the tag list, and whether canonicalising (alias → canonical, drop unknown)
   changes a blind pick. Build only if the unknown share is above 20 %. LI tier, informational.
+
+## Gate record 2026-10-15 (image defects; p41 run 2 review)
+
+- Reference views: `f858a160` cherry-picked (`db29a6bf`). Audit of every fresh-save path into a manifest: `publishVisualLook`, `visualPreparation` and `lookRebuild` already used `servedAsset`; `publishLookBust` and `withReferencePack` now normalise at the manifest edge (`19d99be7`); the tests fail on the old code.
+- p41 run 2 defects, checked against the evidence:
+  - b) rig "featureless silhouette with a question mark": the wizard's cards had no art, so the bases were built from SillyTavern's default picture (`img/ai4.png`, written pixel for pixel into the card). Fix `e587197f`: a base or rebase from that picture is refused with a clear reason (story `DefaultCardPicture`, `cardArt.test.ts`, `bodyRenderer.test.ts`). The journey needs real card art per member.
+  - a) blink frames refused for mask spill, and c) no viseme (turns show `liveHeads: 0, ready: 0`, so no rig was ready): both follow from the silhouette art. No product change; re-check with real art.
+  - d) one body on the set default: lease contention (see the plan 33 record), fixed in `22c46437`.
+  - e) background "API request failed": no plan was stored (`lastPlan: null`), so the director model call failed before any render. The run's server log was not captured, so the cause is open.
+  - f) cleanup leaked 2: the record holds only the count; the lane keeps three empty `SO-P41 *` sprite folders. Open until the leak list is recorded.
+  - Cast scene: not a ComfyUI gap. v0.37.4 lists `TextEncodeQwenImage21.images` as one Autogrow input (`COMFY_AUTOGROW_V3`, `template.names` image_1..16); the old check read only the flat `images.image_2` key. Fix `4fccd124` (`qwenImageInput`, also used for the p2 pose second reference); prompt keys stay `images.image_N` (`finalize_prefix`). A real gap is a named `CastSetupGap` shown to the author (`4ac3f37d`). Recorded `object_info` fragment: `test/fixtures/comfy-qwen21-autogrow.object_info.json`.
+- Gates on branch `v2.8-image-defects` (base `6e77c14a`), no GPU, ComfyUI or model use:
+  - `npm run gates:quick` green after each fix.
+  - `npm run gates -- --jobs=2 --skip=test-storybook:ci`: every step green across runs. Timing flakes, each retried once: `consequences.test.ts` C6 (p95 <= 5 ms under parallel load; green alone and in an earlier full run), harness `agent.test.mjs` "stalled OpenCode service" (15 s deadline under load; `npm run test:plugin` alone 311/311).
+  - Storybook by hand (the `test-storybook:ci` script pins port 6006): `storybook:build`, `http-server .sb-static -p 6371`, test runner 854/855; the one miss `Workspace/Shell > Mobile` (unrelated, heading not found) passed on re-run together with the Gaze, BaseSpriteBuilder and PreparedCast stories.
+  - Main bundle 1,290,510 B (budget 1,300,000).
+- Needs a GPU re-check: the p41 journey with art-bearing cards; the two-member cast scene and the p2 pose second reference on the installed ComfyUI.

@@ -23,9 +23,10 @@ SOFTWARE.
 */
 import type { HeadManifest, HeadLayer } from "./manifest";
 import type { HeadParameters } from "./drivers";
+import type { Eye } from "./types";
 import { deformInto, deformWeighted, eyeVertexY, headGrid, vertexWeights, type HeadMesh } from "./geometry";
 import { VS, FS } from "./shaders";
-import { GAZE_TRAVEL, scleraTone, type Tone } from "./gaze";
+import { GAZE_TRAVEL, gazeLimits, irisSpan, limitGaze, scleraTone, type IrisSpan, type Tone } from "./gaze";
 import { DrawnDirector, mouthInner, squashVertex, type DrawnSprite, type DrawnState } from "./drawn";
 import { MeshMouth, meshMouthMode, mouthRegionProblem, type MeshMouthMode } from "./meshMouth";
 import { DEFAULT_MOUTH_CONFIG, type MouthConfig } from "../mouthConfig";
@@ -42,13 +43,15 @@ interface DrawnResources {
 
 const ERROR_CHECK_EVERY = 120;
 
-function imageTone(image: HTMLImageElement): Tone | null {
+function readBall(image: HTMLImageElement, rect: HeadLayer["rect"], eye: Eye | undefined): { tone: Tone; span: IrisSpan | null } | null {
   if (typeof OffscreenCanvas === "undefined") return null;
   try {
     const canvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight), context = canvas.getContext("2d", { willReadFrequently: true });
     if (!context) return null;
     context.drawImage(image, 0, 0);
-    return scleraTone(context.getImageData(0, 0, image.naturalWidth, image.naturalHeight).data);
+    const data = context.getImageData(0, 0, image.naturalWidth, image.naturalHeight).data, tone = scleraTone(data);
+    if (!tone) return null;
+    return { tone, span: eye ? irisSpan({ width: image.naturalWidth, height: image.naturalHeight, data }, rect, eye, tone) : null };
   } catch { return null; }
 }
 
@@ -65,6 +68,8 @@ export class HeadRenderer {
   private readonly cheeks: Float32Array;
   private readonly eyeState = new Float32Array(8);
   private readonly sclera = new Float32Array(8);
+  private readonly iris = new Float32Array(8);
+  private readonly limits: Array<[number, number] | null> = [null, null];
   private toned = false;
   private readonly uploaded = new Float64Array(9).fill(Number.NaN);
   private readonly drawn: DrawnResources[] = [];
@@ -135,8 +140,11 @@ export class HeadRenderer {
     const eye = /^eye([01])_(.+)$/.exec(layer.name);
     const part = eye?.[2] ?? "", lidded = part === "lash" || part === "low" || part === "crease";
     this.layers.push({ layer, ...resources, eye: eye ? Number(eye[1]) : -1, part, lidded, weights: lidded ? null : vertexWeights(rig, resources.mesh.rest) });
-    const tone = part === "ball" ? imageTone(image) : null;
-    if (tone) { this.sclera.set([...tone, 1], Number(eye?.[1]) * 4); this.toned = true; }
+    const index = Number(eye?.[1]), ball = part === "ball" ? readBall(image, layer.rect, rig.eyes[index]) : null;
+    if (ball) {
+      this.sclera.set([...ball.tone, 1], index * 4); this.toned = true;
+      if (ball.span) { this.iris.set([ball.span[0], ball.span[1], 1, 0], index * 4); this.limits[index] = gazeLimits(rig.eyes[index], ball.span); }
+    }
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
     this.sampling();
@@ -187,10 +195,10 @@ export class HeadRenderer {
     gl.uniform4fv(this.uniform("uEyeBox"), this.eyeBox);
     gl.uniform1fv(this.uniform("uEyeTop"), this.eyeTop); gl.uniform1fv(this.uniform("uEyeBot"), this.eyeBot);
     const state = this.eyeState;
-    state[0] = p.eyeOpen; state[1] = p.eyeSmile; state[2] = p.gazeX * GAZE_TRAVEL.x[0]; state[3] = -p.gazeY * GAZE_TRAVEL.y;
-    state[4] = p.eyeOpen; state[5] = p.eyeSmile; state[6] = p.gazeX * GAZE_TRAVEL.x[1]; state[7] = -p.gazeY * GAZE_TRAVEL.y;
+    state[0] = p.eyeOpen; state[1] = p.eyeSmile; state[2] = limitGaze(p.gazeX * GAZE_TRAVEL.x[0], this.limits[0]); state[3] = -p.gazeY * GAZE_TRAVEL.y;
+    state[4] = p.eyeOpen; state[5] = p.eyeSmile; state[6] = limitGaze(p.gazeX * GAZE_TRAVEL.x[1], this.limits[1]); state[7] = -p.gazeY * GAZE_TRAVEL.y;
     gl.uniform4fv(this.uniform("uEyeState"), state);
-    if (this.toned) gl.uniform4fv(this.uniform("uSclera"), this.sclera);
+    if (this.toned) { gl.uniform4fv(this.uniform("uSclera"), this.sclera); gl.uniform4fv(this.uniform("uIris"), this.iris); }
     gl.uniform4f(this.uniform("uMouth"), rig.mouth.cx, rig.mouth.cy, rig.mouth.angle, rig.mouth.halfLen);
     gl.uniform4f(this.uniform("uMouthState"), this.director?.hasMouth() ? 0 : p.mouthOpen, p.mouthForm, rig.mouth.bow, Math.max(8, rig.face.jaw.cy + rig.face.jaw.ry - rig.mouth.cy));
     gl.uniform4fv(this.uniform("uCheeks"), this.cheeks); gl.uniform1f(this.uniform("uCheek"), p.blush);

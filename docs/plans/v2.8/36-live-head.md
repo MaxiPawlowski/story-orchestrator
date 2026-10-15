@@ -638,3 +638,22 @@ Gates:
   the sclera tone; gaze 0 keeps the shipped path byte for byte. Upstream `26243f9` keeps the same dome warp (only a 7 px travel), so nothing
   was ported. Measurements, goldens and the Storybook before/after (`Sprites/LiveHeadGaze`) are in plan 41 §Gate record — extras.
 - Not run: LI rows or a browser check on real or amber/slate/ember rigs; listed under plan 41 Ready to run. Floors LI1-LI6 unchanged.
+
+## Gate record 2026-10-15 (gaze iris on real art)
+
+- Reproduced headless on the showcase rigs (Garrick, Wren, Pim; sol and plan36 manifests): CPU `renderOpenBall` composite of base, ball and lid layers, 8x crops, not committed.
+- Root causes:
+  - `scleraTone` averaged the brightest 30 % of ball pixels; on Garrick's small eye that was mostly skin (tone 0.92/0.81/0.74), so the white itself read as iris and skin was painted pale.
+  - Anything not sclera-coloured inside the opening (drawn outline, corner skin, crease) was treated as iris: erased to the tone and dragged along with the iris.
+  - A fixed 7 px travel pushed small irises into the eye corner.
+  - Wren's rectangle: the base hole fill reached the ROI border while the lash/low layers kept hair pixels there (mean difference 103-127 levels), so any partial coverage showed the rect edge.
+- Fix `ca016b3c`: tone from near-white low-chroma pixels; a per-ball iris span (column histogram of deep-interior iris pixels) gates erase and arrival; lid-band pixels fill from the band beside the iris at the same lid distance (the outline continues) and keep their own outline or skin against an arriving iris; travel is limited so the iris stays where the eye is at least half open (`gazeLimits`, renderer `uIris`); the shader mirrors the CPU model; the base keeps its own pixels on the eye-region border.
+- Tests: `gazeRealArt.test.ts` (real-rig-like procedural eye: small, outline inside the opening, skin corners, under 30 % sclera; fails on the old code); the renderer uploads span and limits; `synthesis.test.ts` strand across the ROI border (fails on the old code).
+- Golden `test/goldens/liveHead/gaze-iris.json` regenerated. Reason: the product path now passes the iris span, so lid-band rows at gaze +-1 take the outline beside the iris. Gaze 0 hashes are unchanged and the synthetic behaviour tests (round iris, nothing left behind, sclera fill) still pass. `synthetic-rig.json` unchanged.
+- Existing rigs keep their old base (the border fix applies at synthesis): re-cut the showcase rigs to drop Wren's rectangle.
+- Needs a browser re-check (no GPU): the showcase gaze page on the shipped renderer.
+- Gates on branch `v2.8-image-defects` (base `6e77c14a`), no GPU, ComfyUI or model use:
+  - `npm run gates:quick` green after each fix.
+  - `npm run gates -- --jobs=2 --skip=test-storybook:ci`: every step green across runs. Timing flakes, each retried once: `consequences.test.ts` C6 (p95 <= 5 ms under parallel load; green alone and in an earlier full run), harness `agent.test.mjs` "stalled OpenCode service" (15 s deadline under load; `npm run test:plugin` alone 311/311).
+  - Storybook by hand (the `test-storybook:ci` script pins port 6006): `storybook:build`, `http-server .sb-static -p 6371`, test runner 854/855; the one miss `Workspace/Shell > Mobile` (unrelated, heading not found) passed on re-run together with the Gaze, BaseSpriteBuilder and PreparedCast stories.
+  - Main bundle 1,290,510 B (budget 1,300,000).
