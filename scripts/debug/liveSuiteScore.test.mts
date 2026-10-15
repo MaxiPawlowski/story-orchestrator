@@ -24,6 +24,13 @@ test('facts are scored on count and content', () => {
   assert.match(scoreContains('facts', { mustNotContain: ['brass'] }, live).detail, /must not contain "brass"/);
 });
 
+test('B2: a needle matches at a word start, never inside another word', () => {
+  const live = [{ text: 'The harm was done; Tomas charted it' }];
+  assert.equal(scoreContains('facts', { mustNotContain: ['arm'] }, live).pass, true);
+  assert.equal(scoreContains('facts', { mustContain: ['art'] }, live).pass, false);
+  assert.equal(scoreContains('facts', { mustContain: ['toma', 'harm'] }, live).pass, true);
+});
+
 test('an empty needle is reported as vacuous, not honoured as a pass', () => {
   // Several shipped fixtures carry `mustContain: [""]`, which matches any output at all.
   const outcome = scoreContains('facts', { mustContain: [''], mustNotContain: ['zzz'] }, [{ text: 'anything' }]);

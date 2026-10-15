@@ -3,6 +3,7 @@ const saves = { count: 0 };
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
+  saveSettingsSoon: () => { saves.count += 1; return { ok: true, queued: true }; },
   settingsReady: async () => {},
   observeNextSettingsSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false, failed: false }),
   readServerExtensionSettings: async () => null,

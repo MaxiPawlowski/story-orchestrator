@@ -121,6 +121,12 @@ describe("runModelSelfTest grades meaning, not presence", () => {
     expect(report.results.find((result) => result.tier === "ledger")?.status).toBe("pass");
   });
 
+  it("B2: a word inside another word does not pass, so harm=wounded is not the arm wound", async () => {
+    const harm = ["[hiding] Corin from Bel | the letter in his coat", "[state:Corin:character] harm=wounded"].join("\n");
+    const report = await runModelSelfTest({ profileId: "p1", debugResponses: [CORE_GOOD, harm] });
+    expect(report.results.find((result) => result.tier === "ledger")?.status).toBe("fail");
+  });
+
   it("accepts either ordering of the ledger pair", async () => {
     const flipped = ["[hiding] Corin from Bel | the letter in his coat", "[state:Corin:character] arm=wounded"].join("\n");
     const report = await runModelSelfTest({ profileId: "p1", debugResponses: [CORE_GOOD, flipped] });

@@ -3,7 +3,8 @@ import net from 'node:net';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const BRIDGE_HARNESSES = Object.freeze(['opencode']);
+export const BRIDGE_HARNESSES = Object.freeze(['opencode', 'claude']);
+export const BRIDGE_MODELS = Object.freeze({ claude: Object.freeze(['claude-sonnet-5-5', 'claude-opus-5-5']) });
 export const BRIDGE_SERVER = 'so';
 export const BRIDGE_AGENT = 'so-agent';
 export const BRIDGE_LIMITS = Object.freeze({
@@ -83,6 +84,7 @@ export function validateOpen(body, config, limits) {
     if (!BRIDGE_HARNESSES.includes(harness)) return { issue: `the tool bridge runs on ${BRIDGE_HARNESSES.join(', ')} only`, kind: 'config' };
     if (typeof role !== 'string' || !ROLE_PATTERN.test(role)) return { issue: 'role must be a role id', kind: 'config' };
     if (typeof model !== 'string' || !config.harnesses[harness].models.some((entry) => entry.id === model)) return { issue: `model not permitted for ${harness}: ${String(model).slice(0, 80)}`, kind: 'config' };
+    if (BRIDGE_MODELS[harness] && !BRIDGE_MODELS[harness].includes(model)) return { issue: `the ${harness} tool bridge runs ${BRIDGE_MODELS[harness].join(' or ')} only, not ${model.slice(0, 80)}`, kind: 'config' };
     if (typeof system !== 'string' || typeof prompt !== 'string' || !prompt.trim()) return { issue: 'system and a non-empty prompt must be strings', kind: 'config' };
     if (prompt.length > limits.maxPromptChars) return { issue: `prompt is over ${limits.maxPromptChars} chars`, kind: 'refused' };
     if (system.length > limits.maxSystemChars) return { issue: `system is over ${limits.maxSystemChars} chars`, kind: 'refused' };
@@ -90,6 +92,7 @@ export function validateOpen(body, config, limits) {
     if (callTimeoutMs !== undefined && !intIn(callTimeoutMs, BRIDGE_LIMITS.minCallMs, BRIDGE_LIMITS.maxCallMs)) return { issue: `callTimeoutMs must be ${BRIDGE_LIMITS.minCallMs}-${BRIDGE_LIMITS.maxCallMs}`, kind: 'config' };
     if (!intIn(maxOutputChars, 1, limits.maxOutputChars)) return { issue: `maxOutputChars must be 1-${limits.maxOutputChars}`, kind: 'config' };
     if (effort !== undefined && effort !== null && !EFFORTS.includes(effort)) return { issue: `effort must be one of ${EFFORTS.join(', ')}`, kind: 'config' };
+    if (images !== undefined && harness !== 'opencode') return { issue: 'pictures ride the opencode tool bridge only', kind: 'config' };
     if (images !== undefined && (!Array.isArray(images) || images.length > BRIDGE_LIMITS.maxImages)) return { issue: `images must be a list of at most ${BRIDGE_LIMITS.maxImages}`, kind: 'refused' };
     const checked = validateTools(tools);
     if (checked.issue) return { issue: checked.issue, kind: 'refused' };
@@ -103,7 +106,7 @@ const ENDED_TEXT = {
     closed: 'the session was closed',
     replaced: 'a newer session for this user and role replaced it',
     shutdown: 'the plugin shut down',
-    timeout: 'the session reached its deadline; its OpenCode session was interrupted and removed',
+    timeout: 'the session reached its deadline; its harness run was stopped and removed',
     'call-timeout': 'a tool call waited past its deadline for the page; the session was stopped',
     refused: 'the harness used a tool or permission that is not the bridge\'s; the session was stopped and its answer discarded',
     finished: 'the session had already finished',
@@ -257,7 +260,7 @@ export function createAgentBridge({ config, helpers, host, fsImpl, now = Date.no
                 return { ok: false, ...blocked };
             }
             await replacing;
-            owned = helpers.openOwnedHome(request.harness, { tmpRoot: config.tmpRoot, loginFile: null, fsImpl });
+            owned = helpers.openOwnedHome(request.harness, { tmpRoot: config.tmpRoot, loginFile: host.loginFile?.(request.harness) ?? null, fsImpl });
             owned.harness = request.harness;
             owned.label = `${user}/${request.role}`;
             fsImpl.writeFileSync(path.join(owned.tmp, 'tools.json'), JSON.stringify(request.tools), 'utf-8');

@@ -52,6 +52,7 @@ import { chapterKit, storyEnded } from "./chapterPort";
 import { composeRolls, createChance, reconstructQualityRolls } from "./rolls";
 import { checkRolls } from "./storyCheckDraws";
 import { gameSlices } from "./gameSnapshot";
+import { recapCardSections, recapSection } from "./recapPort";
 import { lifeAuthorSlice } from "./lifeSnapshot";
 import { livingSlice } from "./livingSnapshot";
 import { graphEpoch } from "@generation/living/fold";
@@ -327,6 +328,7 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
     ...(extras.ui.authorView && story ? { sameCharacter: sameCharacterCandidates(nameIndexOf(story), memorySightings(extras.memory), [extras.playerSetup?.name ?? "", "player", "you", "user"]) } : {}),
     presence: buildPresence({
       story, settings: sources.extras.ui.presence, boundaryLog: sources.boundaryLog, plays: sources.plays ?? {}, library: listStoryRecords(),
+      cardRecaps: recapCardSections({ story, state, recap: extras.recap, chat: sources.chat }),
     }),
   };
 };
@@ -399,6 +401,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     saveNotice: playerSaveNotice(extras.saveHealth),
     agencyNotice: agencyRecovery ? REFUSAL_PLAYER_TEXT : null,
     objectiveKind: agency.objective_kind, ...questNarrative(story, blackboard, chapters.epilogue),
+    consequences: recapSection({ story, state, recap: extras.recap, chat: sources.chat }),
   });
   const castNames = buildCastNames(story, sources.characters ?? []), inline = inlineView(sources, story, { tension, pipeline, agencyRecovery: Boolean(agencyRecovery) }, castNames);
   const mismatch = loaded ? null : blobMismatch();

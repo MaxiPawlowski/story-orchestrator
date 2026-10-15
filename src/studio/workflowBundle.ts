@@ -1,11 +1,11 @@
 import type { BundledWorkflow, WorkflowMap } from "@engine/schema";
+import { sha256Hex } from "@utils/sha256";
 import { listComfyWorkflows, readComfyWorkflow, saveNewComfyWorkflow } from "@services/stHost/comfyWorkflows";
 import { canonicalWorkflowText, checkWorkflowGraph, planBundleInstall, type GraphCheck } from "../image/workflows";
 
 export const graphDigest = async (graph: Record<string, unknown>): Promise<string> => {
   const bytes = new TextEncoder().encode(JSON.stringify(graph));
-  const hash = await crypto.subtle.digest("SHA-256", bytes);
-  return [...new Uint8Array(hash)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
+  return sha256Hex(bytes);
 };
 
 export async function bundleMapped(names: readonly string[]): Promise<{ bundle: Record<string, BundledWorkflow>; skipped: string[] }> {

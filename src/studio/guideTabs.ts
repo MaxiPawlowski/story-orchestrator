@@ -7,7 +7,7 @@ export const STUDIO_TAB_GUIDE: Partial<Record<StudioTab, readonly GuideTopicId[]
   world: ["stagecraft", "lore-select", "lore-entries"],
   presentation: ["presentation", "background"],
   rules: ["arc-bridges", "scene-read", "house-rules"],
-  chapters: ["chapters"],
+  chapters: ["chapters", "consequences"],
   qualities: ["qualities", "quality-rubric", "latching", "quality-reads", "chance-roll"],
   checkpoints: [
     "checkpoints", "objective-agency", "open-stretches", "tension", "guidance", "drives-motives", "author-note", "world-info", "preset", "background", "scenario", "cast-changes",

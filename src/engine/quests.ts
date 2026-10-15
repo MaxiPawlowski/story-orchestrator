@@ -1,6 +1,6 @@
 import type { Blackboard } from "./blackboard";
 import { evaluateGate, gateKeys, type GateReader } from "./gates";
-import { hasCodex, questClosedKey, questRewardKey, type GateNode, type Milestone, type NormalizedStoryV2, type Quest, type QuestStep } from "./schema";
+import { hasCodex, questClosedKey, questRewardKey, type GateNode, type Milestone, type NormalizedStoryV2, type Quality, type Quest, type QuestStep } from "./schema";
 
 export type QuestStatus = "hidden" | "offered" | "active" | "done" | "failed";
 export type StepStatus = "hidden" | "open" | "done" | "failed";
@@ -66,6 +66,11 @@ export const activeQuestScopeKeys = (quests: readonly Quest[] | undefined, reade
 export const visibleQuestTitles = (quests: readonly Quest[] | undefined, reader: GateReader): string[] =>
   (quests ?? []).filter((quest) => questStatus(quest, reader) === "active").map((quest) => quest.title);
 
+const withinStepRule = (quality: Quality | undefined, value: number): number => {
+  const rule = quality?.type === "int" ? quality.step_rule : undefined;
+  return rule ? Math.max(rule.min ?? value, Math.min(rule.max ?? value, value)) : value;
+};
+
 export const applyQuestRewards = (story: Pick<NormalizedStoryV2, "quests" | "qualityByKey">, blackboard: Blackboard): string[] => {
   const landed: string[] = [];
   for (const quest of story.quests ?? []) {
@@ -77,8 +82,9 @@ export const applyQuestRewards = (story: Pick<NormalizedStoryV2, "quests" | "qua
     if (!quest.reward || blackboard.get(key) === true || questStatus(quest, blackboard) !== "done") continue;
     for (const [target, write] of Object.entries(quest.reward.set ?? {})) {
       const current = blackboard.get(target);
-      const value = typeof write === "object" ? (typeof current === "number" ? current : 0) + write.add : write;
-      blackboard.applyDelta({ q: target, v: story.qualityByKey[target]?.type === "int" && typeof value === "number" ? Math.round(value) : value, source: "code" });
+      const quality = story.qualityByKey[target];
+      const value = typeof write === "object" ? withinStepRule(quality, (typeof current === "number" ? current : 0) + write.add) : write;
+      blackboard.applyDelta({ q: target, v: quality?.type === "int" && typeof value === "number" ? Math.round(value) : value, source: "code" });
     }
     blackboard.applyDelta({ q: key, v: true, source: "code" });
     landed.push(quest.id);

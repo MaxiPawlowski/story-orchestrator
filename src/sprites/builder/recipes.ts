@@ -1,4 +1,5 @@
 import type { AlphaRecipe, ComfyDiscovery, ModelFingerprint } from "@services/stHost/media";
+import { sha256Hex } from "@utils/sha256";
 import type { FrameKey } from "../frameKeys";
 
 export type EditKind = "expression" | FrameKey | "look" | "base" | "rest" | "pose" | "decal";
@@ -73,9 +74,7 @@ vae: ["5", 0], resolution: params.resolution ?? 1024, "images.image_1": ["1", 0]
 }
 
 export async function contentHash(bytes: Uint8Array): Promise<string> {
-  if (!globalThis.crypto?.subtle) throw new Error("Open SillyTavern on localhost or HTTPS to use the sprite builder’s image fingerprints.");
-  const hash = await crypto.subtle.digest("SHA-256", new Uint8Array(bytes));
-  return Array.from(new Uint8Array(hash), (value) => value.toString(16).padStart(2, "0")).join("");
+  return sha256Hex(bytes, "Open SillyTavern on localhost or HTTPS to use the sprite builder’s image fingerprints.");
 }
 
 export async function editKey(input: { base: string; models: EditModels; kind: EditKind; value: string; seed: number; steps: number;

@@ -91,6 +91,7 @@ export interface Quality {
   roll?: QualityRoll;
   display?: QualityDisplay;
   step_rule?: QualityStepRule;
+  player_action?: Record<string, string>;
 }
 
 export type EvidenceFrom = typeof EVIDENCE_FROM[number];
@@ -121,9 +122,6 @@ export interface GateAny {
 export interface GateNot {
   not: GateNode;
 }
-
-export * from "./codexSchema";
-import type { StoryCodex } from "./codexSchema";
 
 export type { PoseEntry, PoseTag, PosePoint, StoryPoses, MemberSprites, StageMember, StoryStage, CardLayer, CardFieldBinding, CardBinding } from "./poseSchema";
 import type { StoryPoses, MemberSprites, StoryStage, CardFieldBinding, CardBinding } from "./poseSchema";
@@ -318,6 +316,8 @@ export interface Transition {
   extractor_trigger?: string;
   extraction_hint?: string;
   check?: StoryCheck;
+  recap?: import("./gameSchema").RecapText;
+  recap_when?: GateNode;
 }
 
 export const ROSTER_VIEWS = ["own", "omniscient"] as const;
@@ -499,7 +499,7 @@ export interface StoryV2 {
   quests?: Quest[];
   milestones?: Milestone[];
   widgets?: StoryWidget[];
-  codex?: StoryCodex;
+  codex?: import("./codexSchema").StoryCodex;
   clock?: StoryClock;
   living?: StoryLiving;
 }

@@ -1,6 +1,6 @@
 # Plan 46 — Consequences recap
 
-**Status: v2.8, owner 2026-10-14, not built. Revised 2026-10-14 against the Astra review (owner approved; recommendation
+**Status: v2.8, owner 2026-10-14, built 2026-10-14 on `v2.8-p46-recap` (A + B; §Gate record), not merged. Revised 2026-10-14 against the Astra review (owner approved; recommendation
 reversed to A first; §Review 2026-10-14).** New. Overview: `00-overview.md` §Rules (this folder).
 **Gate tiers** (v2.8 rule 7): implementation **D**; acceptance **D** (deterministic composer). No model pass.
 
@@ -184,3 +184,84 @@ Source: `review-astra-2026-10-14.md` §Plans 42-47 (46). Verified on `3a716f2b`.
 - **Recommendation (A first; "Because you…" only with evidence; abstain, not LLM).** Adopted; C7 and the C fallback
   dropped.
 - Rebutted: none.
+
+## Gate record 2026-10-14 (branch `v2.8-p46-recap`, base `0c283dc6`)
+
+Built: option A plus the cautious B (owner: yes to all recommendations). Not merged, not pushed.
+
+What landed:
+
+- Fields: `recap` (line or `{text, because}`) and `recap_when` on transitions, milestones and quests (`recap: {done, failed}`);
+  `player_action` on enum/bool qualities with `commit_evidence` (`validate/recap.ts`; errors: `recap_when` without `recap`,
+  unknown recap key, line over 240, `player_action` on a value without a commit pattern or not a value).
+- Commit guard keeps the accepting player line: accepted `commit_evidence` deltas carry `playerSpan {messageId, revision, span}`
+  (`extraction/playerSpan.ts`).
+- Effect refs (`runtime/consequences.ts`, lazy chunk, loaded at startup): transition (fired, gate source), quest status move,
+  earned milestone, check record, landed agenda step; each with `visible`, `authored` (`recap_when` at that boundary) and at
+  most one deciding `CauseRef`. Attribution per §Recommendation 3: single leaf or flat `all` with exactly one key turning,
+  gate false before, last ok write to the key from an extractor read with a span, no flip-flop in the boundary, value still
+  standing; transitions also abstain on any other eligible exit and on `liv_`; `any`/`not` shapes abstain.
+- Per-boundary order: boundary work `recap` (order 7, after `game` records checks) reads the finished `BoundaryLogEntry`
+  (transitions against `evaluated`, the rest against `after`), so it sits after the whole SC2 order once 52 lands it.
+- Retention `extras.recap.refs` (cap 600), rollback `rollbackRecap(state, engine boundary)` in `quarantine`; chapter scope from
+  each ref's `chapterId` (chapter at the boundary's start).
+- Surfaces: section `consequences` in the narrative (Overview, `/story recap`, away recap, player projection), the chapter
+  title card's "What changed" for the chapter that ended, "recently" (last 20 boundaries) for chapterless stories. Copy in
+  `narrative.ts`. Max 5 lines, authored, then evidenced, then neutral, newest first, deduped. Withheld names (unreached
+  places, hidden quests, unearned secret milestones) drop a line, then its fallback.
+- Registry `consequences-recap` (experimental, on), guide topic `consequences` (doc, compact twin, Studio Chapters tab),
+  player guide paragraph, `npm run docs:guide` and `npm run docs:settings` run; stories `ChapterCard` WithRecap/RecapPhone,
+  `PlayerOverview` WithConsequences/NoConsequencesSection; architecture.md bullet.
+- Main bundle 1,272,397 B (master 1,266,950; +5.4 KB; budget 1,300,000).
+
+Floors (jest, all D):
+
+- C1 `consequences.test.ts`: 50 labelled cases x 2 player lines = 100 rows, 3 stories, 16 adversarial classes, 68 negatives:
+  precision 1.000, negative accuracy 1.000, recall 0.688 (22 of 32; misses are abstentions on reversal, `any`, `not`, and
+  authored text winning). Floor 0.95 met, so B stays built.
+- C1n: 100/100 cases render a neutral line with no cause; B adds 22 because-lines.
+- C2 property (120 random runs) plus planted controls (withheld authored text, unearned secret milestone, hidden check,
+  private agenda step): 0 leaks. C10: an invisible effect with an authored line shows nothing.
+- C3 `recapSecret.review.test.ts`: player output byte-identical with and without held secrets.
+- C4 `recapRollback.review.test.ts`: property over 80 random histories, edit points and replacements, chapter crossings in
+  more than 5: rollback equals replay (refs, Overview section, card sections); `runRollback` wiring drops undone boundaries,
+  control keeps all. Code-only boundary row: the recap keeps exactly what the engine keeps (SC1 detectors decide; no own
+  detector needed, the recap writes no engine key).
+- C5: every because line has one recorded span; an empty recap leaves no section.
+- C6: p95 0.37-0.40 ms per compose over 120 refs (40 batches of 10). Single-call timing on the loaded box (CPU 100 %) gave
+  80 ms outliers, so it measures batches; listed in `codeHealth.json` q1t.
+- C8: 260-boundary chapter, engine log at 200, every visible effect retained.
+- C9 property: every because line's span is the current revision of a player message; an edit removes it.
+
+Gates:
+
+- `npm run gates:quick`: green on the final tree (earlier runs red on my own lint and guard misses, fixed; one defect-replay
+  `--listTests` failure with empty stderr under load passed on rerun).
+- `npm run gates -- --jobs=2 --no-storybook` on `dfad1520`: all green in 412.6 s (jest 735 suites, 8436 passed, 1 skipped;
+  test:debug 1294/0; replay, build, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release).
+- Storybook separately on port 6247 (not 6006): `storybook:build` then test-runner `--maxWorkers 2`: 138/139 suites,
+  836/837; the one failure `Workspace/Shell > Desktop` (heading not yet rendered, timing) passed on rerun together with
+  ChapterCard and PlayerOverview (3 suites, 26/26). Timing flake, retried once.
+- Live gate: NOT green. A lane serves the one staged `dist/` in the owner's ST, and staging into the owner's ST is not allowed
+  for this task; no lane check ran.
+
+Deviations:
+
+- Refs are not moved into `ChapterRecord.recapRefs` at the seal; they stay in `extras.recap` and the chapter slice comes from
+  each ref's `chapterId`. Same effect (no dependence on the 200 ring, unfold needs nothing), no change to the seal path.
+- Rollback drops refs of boundaries the engine undid (engine boundary), not `messageId >= m`: keeps rollback equal to replay
+  when the engine keeps state, and inherits SC1.
+- Cap 600 refs in total instead of 120 per chapter.
+- `revision` is FNV-1a of the cleaned message text (the guard does not see `swipe_id`); the span is the whole message.
+- No install switch or story toggle; the card recap hides with "Chapter title cards".
+- Evidenced wording "<effect>, because you <player_action>."; authored `text` wins over a generated because-line.
+- The guide topic object lives in `src/copilot/guideTopicsRecap.ts` (guideTopics.ts is at its 600-line budget); two existing
+  compact lines were shortened by a few characters to stay at 600. Plans 47, 52 and 53 hit the same budget.
+- `validate/recap.ts` takes `readGate`/`validateGate` as parameters to avoid an import cycle with `validate/gates.ts`.
+
+Owed:
+
+- RP rating of the recap's value.
+- Live no-model lane check (card text plus `so-ui.mts assert-player-clean`) once a lane can serve this build.
+- Adolion: not changed; whether the campaign adds `recap` lines or `player_action` is for the owner or another model.
+- SC1-SC5 come from `v2.8-p52-codex`; the recap needs no edit when they land.

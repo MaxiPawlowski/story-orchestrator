@@ -1,4 +1,4 @@
-import { askText, parseSharedReadResponse, profileRoute, routedModel, type ModelCall, type ParsedSharedRead } from "@extraction/index";
+import { askText, maxTokensCap, parseSharedReadResponse, profileRoute, routedModel, type ModelCall, type ParsedSharedRead } from "@extraction/index";
 import { buildFixtureRun, type ExtractionFixtureSpec } from "@extraction/fixtureRun";
 
 export const SELF_TEST_TIERS = ["deltas", "memory", "arcs", "epistemic", "ledger"] as const;
@@ -80,7 +80,9 @@ const CAPABILITY_FIXTURE: ExtractionFixtureSpec = {
 // mis-graded. Each tier now checks that the answer is about the fixture, whose right answer is
 // unambiguous by construction.
 
-const has = (haystack: string, needle: string) => haystack.toLowerCase().includes(needle.toLowerCase());
+const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const has = (haystack: string, needle: string) =>
+  new RegExp(`${/^[\p{L}\p{N}]/u.test(needle) ? "(?<![\\p{L}\\p{N}])" : ""}${escapeRegExp(needle)}`, "iu").test(haystack);
 const someHas = (values: string[], needle: string) => values.some((value) => has(value, needle));
 
 const gradeCore = (parsed: ParsedSharedRead): SelfTestTierResult[] => {
@@ -172,7 +174,8 @@ export async function runModelSelfTest(options: SelfTestOptions): Promise<SelfTe
     const { story, prompt } = buildFixtureRun(pass.spec);
     try {
       const planted = options.debugResponses ?? globalThis.storyOrchestratorDebugSelfTestResponses ?? null;
-      const raw = await askText(options.model ?? routedModel(profileRoute(profileId)), prompt, { role: "read", pass: "read", maxTokens: 512, debugResponse: planted?.[index] ?? null });
+      const ask = { role: "read", pass: "read", maxTokens: maxTokensCap("sharedRead"), debugResponse: planted?.[index] ?? null } as const;
+      const raw = await askText(options.model ?? routedModel(profileRoute(profileId)), prompt, ask);
       if (options.cancelled?.()) return { ranAt, profileId, results, error: "Cancelled." };
       results.push(...pass.grade(parseSharedReadResponse(raw, story)));
     } catch (error) {
