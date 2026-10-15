@@ -47,13 +47,21 @@ export const LabelsAndWhyThisNumber: Story = {
     life: life({
       labels: [{
         member: "arin", toward: "player", shown: "wary",
-        public: [{ label: "wary", gate: null, holds: true, follows: false, hold: null }, { label: "warming to you", gate: "shared_meal == true", holds: false, follows: false, hold: null }],
+        public: [
+          { label: "wary", gate: null, holds: true, follows: false, hold: null },
+          { label: "warming to you", gate: "shared_meal == true", holds: false, follows: false, hold: null },
+        ],
         secrets: [
           { id: "loyal", label: "secretly loyal to you", gate: "saw_letter == true", boundary: 4, messageId: 9 },
           { id: "debt", label: "owes you a debt", gate: "paid_debt == true", boundary: null, messageId: null },
         ],
       }],
-      history: { rel_arin_player_trust: [{ boundary: 2, messageId: 5, from: 0, to: 1, evidence: "Arin smiles as you share the bread" }, { boundary: 4, messageId: 9, from: 1, to: 2, evidence: null }] },
+      history: {
+        rel_arin_player_trust: [
+          { boundary: 2, messageId: 5, from: 0, to: 1, evidence: "Arin smiles as you share the bread" },
+          { boundary: 4, messageId: 9, from: 1, to: 2, evidence: null },
+        ],
+      },
     }),
   },
   play: async ({ canvasElement }) => {
