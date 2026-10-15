@@ -217,7 +217,7 @@ describe("parseProposal", () => {
     }));
     expect(proposal.ops).toEqual([
       { kind: "upsertLorebookEntry", lorebook: "L", comment: "Map", content: "The map.", keys: ["/maps?/i"], secondaryKeys: ["storm", "fog"], logic: "not-any", outlet: "map", triggers: ["normal"] },
-      { kind: "upsertLorebookEntry", lorebook: "L", comment: "Plain", content: "y", keys: ["x"] },
+      { kind: "upsertLorebookEntry", lorebook: "L", comment: "Plain", content: "y", keys: ["x"], secondaryKeys: [], outlet: "" },
     ]);
     expect(issues.some((issue) => issue.includes("ops.1.logic"))).toBe(true);
   });

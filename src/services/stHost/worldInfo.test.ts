@@ -376,6 +376,23 @@ describe("upsertWIEntry entry shape (v2.8 34)", () => {
     expect(written.triggers ?? []).toEqual([]);
   });
 
+  it("Astra v2.8 P1: create, restrict, clear, reread: an explicit empty clears secondary keys, the outlet and the triggers", async () => {
+    putOnDisk("Lore", []);
+    st.worldNames = ["Lore"];
+    expect(await upsertWIEntry("Lore", "Map", "The map.", ["map"])).toBe("created");
+    expect(await upsertWIEntry("Lore", "Map", "The map.", ["map"], { secondaryKeys: ["storm"], logic: "not-any", outlet: "map", triggers: ["normal"] })).toBe("updated");
+    expect(st.disk.get("Lore")!.entries[0]).toMatchObject({ keysecondary: ["storm"], position: 7, outletName: "map", triggers: ["normal"] });
+    expect(await upsertWIEntry("Lore", "Map", "The map.", ["map"], { secondaryKeys: [], outlet: "", triggers: [] })).toBe("updated");
+    const cleared = st.disk.get("Lore")!.entries[0];
+    expect(cleared.keysecondary).toEqual([]);
+    expect(cleared.position).not.toBe(7);
+    expect(cleared.outletName).toBe("");
+    expect(cleared.triggers).toEqual([]);
+    expect(cleared.key).toEqual(["map"]);
+    expect(await upsertWIEntry("Lore", "Map", "The map.", ["map"], { secondaryKeys: [], outlet: "", triggers: [] })).toBe("unchanged");
+    expect(await upsertWIEntry("Lore", "Map", "The map.", ["map"])).toBe("unchanged");
+  });
+
   it("secondary keys without a logic restore AND_ANY rather than retaining a previous NOT filter (world-info.js:4939-4957)", async () => {
     putOnDisk("Lore", [{ ...entry(0, "Map", "The map."), keysecondary: ["storm"], selective: true, selectiveLogic: 2 }]);
     st.worldNames = ["Lore"];

@@ -186,10 +186,10 @@ const readUpsertLorebookEntry: OpReader = (value, path, issues) => {
   return {
     kind: "upsertLorebookEntry", lorebook, comment, content, keys: readStringList(value.keys),
     ...(typeof value.constant === "boolean" ? { constant: value.constant } : {}),
-    ...(secondaryKeys.length ? { secondaryKeys } : {}),
+    ...(value.secondaryKeys !== undefined ? { secondaryKeys } : {}),
     ...(isLoreKeyLogic(value.logic) ? { logic: value.logic } : {}),
-    ...(outlet ? { outlet } : {}),
-    ...(triggers.length ? { triggers } : {}),
+    ...(typeof value.outlet === "string" ? { outlet } : {}),
+    ...(value.triggers !== undefined ? { triggers } : {}),
   };
 };
 
