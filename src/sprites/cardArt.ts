@@ -1,4 +1,16 @@
+import type { PixelImage } from "./builder/pixels";
 import type { VisualSources } from "./visualManifest";
+
+export const ST_DEFAULT_AVATAR = "/img/ai4.png";
+export const PLACEHOLDER_ART = "This card still shows SillyTavern's default picture. Give the card its own art before building a base from it.";
+
+export function placeholderArt(image: PixelImage, placeholder: PixelImage): boolean {
+  if (image.width !== placeholder.width || image.height !== placeholder.height) return false;
+  for (let k = 0; k < image.width * image.height; k += 37) {
+    for (let c = 0; c < 3; c++) if (Math.abs(image.data[k * 4 + c] - placeholder.data[k * 4 + c]) > 2) return false;
+  }
+  return true;
+}
 
 export type CardArt =
   | { state: "accepted"; folder: string; base: string; bust: string; revision: number; pack: boolean }

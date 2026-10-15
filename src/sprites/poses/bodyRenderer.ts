@@ -1,3 +1,4 @@
+import { PLACEHOLDER_ART, placeholderArt, ST_DEFAULT_AVATAR } from "../cardArt";
 import { beginRun, type RunGuard, type RunOwnership } from "@runtime/runToken";
 import { stableStringify } from "@runtime/hash";
 import { publicLook } from "@engine/cardFields";
@@ -165,6 +166,11 @@ export class PoseBodies {
         if (!reference) throw new Error("A rebase needs the character card art.");
         const image = await this.deps.decode(reference);
         guard();
+        if (request.layers.rebase) {
+          const placeholder = await this.deps.decode(ST_DEFAULT_AVATAR).catch(() => null);
+          guard();
+          if (placeholder && placeholderArt(image, placeholder)) throw new Error(PLACEHOLDER_ART);
+        }
         const sourceHash = image.sha256 ?? await contentHash(new Uint8Array(image.data));
         const key = await contentHash(new TextEncoder().encode(stableStringify({ recipe: BASE_RECIPE, story: request.story, member: request.member, fields: request.layers.base,
           rebase: request.layers.rebase, base: sourceHash, models, render, cutout, ...(lineage ? { visualRoot: lineage.root } : {}) })));
