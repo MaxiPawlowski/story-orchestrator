@@ -134,7 +134,7 @@ owner decisions pending per plan.
 | M48 | Director scene test: frozen tension signal, expected/altered/interrupt (A narrowed) | 48 | D+CL (+RP living row) |
 | M49 | Complications and twists: finish SP6 first (A); focus picker only if 48 takes it | 49 | D now; model-facing build gated on SP6 (RP) |
 | M50 | Story calendar: canonical `story_time`, exactly-once writers, built B1a → B1b → B1c → B2 | 50 | D+CL (+RP) |
-| M51 | Discoverable relationship labels: event-gated public/secret rows on 52's pages | 51 | D+CL (+RP); after 52 A |
+| M51 | Discoverable relationship labels: event-gated public/secret rows on 52's pages. 2026-10-15: A + H11a/H11b built on `v2.8-p51-labels` (not merged): D floors R1–R6, R8, R10–R12 green in jest, full gates green (Storybook run separately), main 1,294,734 B; no-model lane scenario `v28-51-labels` and R7/R9 owed | 51 | D+CL (+RP); after 52 A |
 | M52 | People and Places codex (`known_when`, `discovery` scope, `knownEntities`): option A + SC1–SC5 + harvest H16e name fold **built on `v2.8-p52-codex`** 2026-10-14 (unmerged); D floors C1–C5, C9–C13 green as jest; C7 CL and the live lane gate owed; B waits on 42 | 52 | D+CL |
 | M52e | Codex return visits (plan 52 option E, decision 8): page-side return lines on known places | 52 | D; follow-up after M52 |
 | M53 | Reputation with groups: authored moves, word bands, clamp. 2026-10-14: A built on `v2.8-p53-reputation` (not merged): D floors green in jest, full gates green (Storybook run separately), no-model lane 53 scenario green ×2 (pre- and post-merge); master merged, fitted to 52's SC1/SC2/discovery; F7/F9 owed | 53 | D+CL+RP |
