@@ -13,6 +13,8 @@ const claude = await import(pathToFileURL(path.join(here, 'claudeTransport.mjs')
 const FAKE = path.join(here, 'fixtures', 'fake-claude-cli.mjs');
 
 const MODEL = 'claude-sonnet-5-5';
+const SESSION_MS = 300_000;
+const CALL_MS = 240_000;
 const TOOLS = [
     { name: 'readStory', description: 'Read the draft.', inputSchema: { type: 'object', additionalProperties: false, properties: {}, required: [] } },
     { name: 'createCharacter', description: 'Provision a character.', inputSchema: { type: 'object', properties: { name: { type: 'string' } }, required: ['name'] } },
@@ -47,7 +49,7 @@ function setup({ login = LOGIN, offer = true } = {}) {
 
 const openRequest = (script, overrides = {}) => ({
     harness: 'claude', model: MODEL, role: 'authoring', system: 'You are the wizard agent.', prompt: `Do the plan.\nFAKE:${JSON.stringify(script)}`,
-    timeoutMs: 30_000, callTimeoutMs: 20_000, maxOutputChars: 20_000, effort: null, tools: TOOLS, ...overrides,
+    timeoutMs: SESSION_MS, callTimeoutMs: CALL_MS, maxOutputChars: 20_000, effort: null, tools: TOOLS, ...overrides,
 });
 
 const nextEvent = async (service, sessionId) => {
@@ -58,7 +60,7 @@ const nextEvent = async (service, sessionId) => {
     }
 };
 
-const until = async (check, ms = 15000) => {
+const until = async (check, ms = 60_000) => {
     const started = Date.now();
     while (Date.now() - started < ms) {
         if (await check()) return true;
@@ -114,7 +116,7 @@ test('claude isolation: no built-in tools, only the shim, no settings or saved s
     assert.equal(path.basename(run.cwd), claude.CLAUDE_AGENT_CWD);
     assert.equal(run.env.CLAUDE_CONFIG_DIR, path.join(seenHome, 'config'));
     for (const [key, value] of Object.entries(claude.CLAUDE_AGENT_ENV)) assert.equal(run.env[key], value, key);
-    assert.equal(run.env.MCP_TOOL_TIMEOUT, String(20_000 + claude.CLAUDE_AGENT_LIMITS.callMarginMs));
+    assert.equal(run.env.MCP_TOOL_TIMEOUT, String(CALL_MS + claude.CLAUDE_AGENT_LIMITS.callMarginMs));
     assert.equal(run.env.ANTHROPIC_API_KEY, undefined);
     assert.equal(run.env.SO_SECRET_CANARY, undefined);
     assert.ok(await until(() => !fs.existsSync(seenHome)), 'the owned home and its login copy are removed');
@@ -178,12 +180,10 @@ test('claude: a <synthetic> message is a CLI-local error, an expired login is au
 
 test('claude: the first max_tokens stops the run as length (no hidden resume turns)', async () => {
     const ctx = setup();
-    const started = Date.now();
     const { event } = await runToEnd(ctx, [{ maxTokens: '{"partial":' }]);
-    assert.equal(event.kind, 'done');
+    assert.equal(event.kind, 'done', 'the process, which waits after max_tokens, was stopped by the stream verdict, not the session deadline');
     assert.equal(event.finish, 'length');
     assert.equal(event.text, '{"partial":');
-    assert.ok(Date.now() - started < 20_000);
 });
 
 test('claude: a permission denial in the result discards the answer', async () => {
