@@ -1,4 +1,4 @@
-import { PLACEHOLDER_ART, placeholderArt, ST_DEFAULT_AVATAR } from "../cardArt";
+import { refuseDefaultCardArt } from "../cardArt";
 import { beginRun, type RunGuard, type RunOwnership } from "@runtime/runToken";
 import { stableStringify } from "@runtime/hash";
 import { publicLook } from "@engine/cardFields";
@@ -6,7 +6,7 @@ import type { PoseEntry } from "@engine/poseSchema";
 import type { AlphaRecipe, ComfyDiscovery, SpriteManifest, SpriteReferencePack } from "@services/stHost/media";
 import type { SpriteSettings } from "../settings";
 import { builderRender } from "../settings";
-import { BASE_RECIPE, EDIT_RECIPE, POSE_RECIPE, POSE_FALLBACK_RECIPE, contentHash, type EditModels } from "../builder/recipes";
+import { BASE_RECIPE, EDIT_RECIPE, POSE_RECIPE, POSE_FALLBACK_RECIPE, contentHash, qwenImageInput, type EditModels } from "../builder/recipes";
 import type { SpriteBuilder, SpriteBuildRequest } from "../builder/builder";
 import type { HeadBox, PixelImage } from "../builder/pixels";
 import { bodyStamp, poseCacheKey, poseSet, type CachedBody, type LookLayers } from "./layers";
@@ -166,11 +166,8 @@ export class PoseBodies {
         if (!reference) throw new Error("A rebase needs the character card art.");
         const image = await this.deps.decode(reference);
         guard();
-        if (request.layers.rebase) {
-          const placeholder = await this.deps.decode(ST_DEFAULT_AVATAR).catch(() => null);
-          guard();
-          if (placeholder && placeholderArt(image, placeholder)) throw new Error(PLACEHOLDER_ART);
-        }
+        await refuseDefaultCardArt(image, this.deps.decode, request.layers.rebase);
+        guard();
         const sourceHash = image.sha256 ?? await contentHash(new Uint8Array(image.data));
         const key = await contentHash(new TextEncoder().encode(stableStringify({ recipe: BASE_RECIPE, story: request.story, member: request.member, fields: request.layers.base,
           rebase: request.layers.rebase, base: sourceHash, models, render, cutout, ...(lineage ? { visualRoot: lineage.root } : {}) })));
@@ -197,8 +194,7 @@ export class PoseBodies {
         member: member ? { ...member, points: member.points.map((point) => point ? [Math.round(point[0]), Math.round(point[1])] : null) } : undefined, version: retargetVersion(request.pose) };
       const keypoints = retargetPose(request.pose, target, standingReference());
       const look = stableStringify(request.layers.base), stamp = bodyStamp(request.pose, request.layers, request.config, lineage?.root);
-      const secondReference = Boolean(discovery.nodes.TextEncodeQwenImage21?.input?.required?.["images.image_2"]
-        || discovery.nodes.TextEncodeQwenImage21?.input?.optional?.["images.image_2"]);
+      const secondReference = qwenImageInput(discovery, "image_2");
       const bodyFor = async (route: "p2" | "p3") => {
         const bodyKey = await poseCacheKey({ story: request.story, member: request.member, fields: request.layers.base, pose: request.pose, retarget: target,
           recipe: route === "p2" ? POSE_RECIPE : POSE_FALLBACK_RECIPE, models, base: base.sha256, steps: render.steps, resolution: render.resolution,

@@ -1,0 +1,16 @@
+{
+  "$comment": "TextEncodeQwenImage21 as ComfyUI v0.37.4 /object_info shows it (comfy_extras/nodes_qwen.py:111, Autogrow.TemplateNames; comfy_api/latest/_io.py add_to_dict_v1 + Autogrow.Input.as_dict). The prompt key for a slot is images.image_N (_expand_schema_for_dynamic, finalize_prefix).",
+  "TextEncodeQwenImage21": {
+    "input": {
+      "required": {
+        "clip": ["CLIP", {}],
+        "prompt": ["STRING", { "multiline": true, "dynamicPrompts": true }],
+        "negative_prompt": ["STRING", { "multiline": true, "dynamicPrompts": true }],
+        "resolution": ["INT", { "default": 1024, "min": 0, "max": 4096, "step": 32 }],
+        "images": ["COMFY_AUTOGROW_V3", { "template": { "input": { "required": { "image": ["IMAGE", {}] } },
+          "names": ["image_1", "image_2", "image_3", "image_4", "image_5", "image_6", "image_7", "image_8", "image_9", "image_10", "image_11", "image_12", "image_13", "image_14", "image_15", "image_16"], "min": 0 } }]
+      },
+      "optional": { "vae": ["VAE", {}] }
+    }
+  }
+}
