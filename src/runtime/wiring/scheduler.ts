@@ -24,6 +24,7 @@ const schedulerHost = (live: LiveParts): SchedulerHost => ({
   getExpansionGateSources: () => runtimeManager.getExpansionGateSources(),
   cardScope: () => runtimeManager.getCardReadScope(),
   getOpenArcs: () => runtimeManager.getOpenArcs(),
+  getOpenPromises: () => runtimeManager.promises.open(),
   getEpistemicLedgerCapable: () => runtimeManager.getEpistemicLedgerCapable(),
   getEntities: () => runtimeManager.getEntities(),
   applyExtractionAudit: (audit, facts, memory, arcs, epistemic, ledger, read) => runtimeManager.applyExtractionAudit(audit, facts, memory, arcs, epistemic, ledger, read),

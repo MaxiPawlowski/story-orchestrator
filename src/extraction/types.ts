@@ -2,6 +2,9 @@ import type { BlackboardDelta, EngineState, GateNode, NormalizedStoryV2, Quality
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine, SceneBreakSignal } from "@memory/index";
 import type { ContextLimit } from "./inputBudget";
 import type { WindowForm } from "./windowHygiene";
+import type { OpenPromiseRef } from "@memory/promises/types";
+
+export type { OpenPromiseRef };
 
 export interface ScopedQuality {
   key: string;
@@ -31,6 +34,7 @@ export interface ChatMessageWindowEntry {
   speaker: string;
   text: string;
   isUser: boolean;
+  swipeId?: number;
 }
 
 export type ChatWindowReader = (from: number, to?: number) => SharedReadWindow;
@@ -50,6 +54,8 @@ export interface SharedReadContract {
   window: SharedReadWindow;
   canon: string;
   openArcs?: string[];
+  openPromises?: OpenPromiseRef[] | null;
+  promiseSection?: string;
   epistemicLedgerCapable?: boolean;
   entities?: string[];
   checkpoint?: { name: string; objective: string };
@@ -104,6 +110,7 @@ export interface ParsedSharedRead {
   ledger: ParsedLedgerSignal[];
   sceneBreak?: SceneBreakSignal;
   rejected: Array<{ line: string; reason: string }>;
+  promises?: string[];
 }
 
 export interface SharedReadAudit {
@@ -126,6 +133,7 @@ export interface SharedReadAudit {
   outOfCharacter?: number[];
   windowForm?: WindowForm;
   reask?: { keys: string[]; rawResponse: string; accepted: string[] };
+  promiseLines?: string[];
 }
 
 export interface ReadBudgetRecord {

@@ -329,3 +329,10 @@ export const DERIVED_PLAYER_COPY: Record<string, string> = {
   arc_summary: "A thread was summarized",
   canon: "The story so far was updated",
 };
+
+export const PROMISE_COPY = {
+  heading: "Your promises",
+  to: (name: string) => `To ${name}`,
+  by: (deadline: string) => `agreed: "${deadline}"`,
+  quest: (title: string) => `followed by ${title}`,
+};

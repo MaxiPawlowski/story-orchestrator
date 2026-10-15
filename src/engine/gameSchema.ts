@@ -71,6 +71,7 @@ export interface Quest {
   giver?: string;
   author_note?: string;
   reward?: QuestReward;
+  promise?: boolean;
   recap?: QuestRecap;
   recap_when?: GateNode;
 }

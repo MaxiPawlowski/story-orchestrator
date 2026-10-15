@@ -86,6 +86,8 @@ const renderPlayer = (contract: SharedReadContract) => {
   return names.length ? [`Player character: ${names.join(", ")}.`] : [];
 };
 
+const promiseSection = (contract: SharedReadContract): string | null => (contract.openPromises ? contract.promiseSection ?? "" : null);
+
 export function renderSharedReadPrompt(contract: SharedReadContract): string {
   const deltasOnly = contract.deltasOnly === true;
   return [
@@ -106,7 +108,7 @@ export function renderSharedReadPrompt(contract: SharedReadContract): string {
     "value is a JSON literal: true, 3 or \"a listed value\". evidence is copied word for word from one transcript line, without its [index] Speaker: prefix.",
     READ_OUTPUT_RULE,
     "",
-    ...(deltasOnly ? [] : [renderMemoryContractAddendum(contract.openArcs ?? [], contract.epistemicLedgerCapable ?? false, contract.entities ?? []), ""]),
+    ...(deltasOnly ? [] : [renderMemoryContractAddendum(contract.openArcs ?? [], contract.epistemicLedgerCapable ?? false, contract.entities ?? [], promiseSection(contract)), ""]),
     "Quality questions:",
     renderType(contract) || "(no in-scope qualities)",
     "",
@@ -137,5 +139,6 @@ export function hashContract(contract: SharedReadContract): string {
     ...(marksPlayerLines(contract) ? { playerLines: true } : {}),
     ...(contract.deltasOnly ? { deltasOnly: true } : {}),
     ...(contract.counted && Object.keys(contract.counted).length ? { counted: contract.counted } : {}),
+    ...(contract.openPromises ? { promises: contract.openPromises.map((ref) => ref.id) } : {}),
   }));
 }

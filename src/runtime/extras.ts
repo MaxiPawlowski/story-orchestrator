@@ -13,6 +13,7 @@ import { createLore, sanitizeLore } from "./loreFired";
 import { createChance, sanitizeChance } from "./rolls";
 import { sanitizeChecks } from "./storyCheckDraws";
 import { sanitizeAgendaProposals } from "./agendaProposals";
+import { sanitizePromises } from "@memory/promises/state";
 import { sanitizeLivingState } from "@generation/living/sanitize";
 import { JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
 import { trimLedger } from "./effectLedger";
@@ -438,6 +439,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.chance = sanitizeChance(extras.chance);
   if (extras.checks) extras.checks = sanitizeChecks(extras.checks);
   if (extras.agendaProposals) extras.agendaProposals = sanitizeAgendaProposals(extras.agendaProposals);
+  if (extras.promises) extras.promises = sanitizePromises(extras.promises);
   const recap = sanitizeRecap(extras.recap);
   if (recap) extras.recap = recap; else delete extras.recap;
   const living = sanitizeLivingState(extras.living);

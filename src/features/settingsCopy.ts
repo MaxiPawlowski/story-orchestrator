@@ -165,6 +165,11 @@ export const SETTING_COPY = {
     "After a reply, the memory model writes a short private note of what the likely next speaker wants, handed only to that character. "
       + "At most two extra calls per turn, never while you wait for a reply. Not measured yet.",
   ),
+  "memory.promises": copy(
+    "Remember promises you make",
+    "When you promise a character something, the story keeps your exact words and reminds only that character, when the scene touches it. "
+      + "Adds a few lines to each story read. Not measured yet.",
+  ),
   "memory.innerFanOut": copy(
     "Inner beats for",
     "Prepare the beat for the likeliest speaker only, or for the two likeliest. Two costs one more call per turn.",

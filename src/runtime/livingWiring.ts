@@ -24,6 +24,7 @@ export interface LivingWiring {
   journal: (kind: JournalRecordKind, summary: string, note?: string) => void;
   judge: () => JudgeRuntime | null;
   chatRows: () => unknown[];
+  promiseHooks?: () => string[];
 }
 
 const rebuildFailure = (parsed: ReturnType<typeof parseStoryV2> | null): string => (parsed && isValidationErrorList(parsed) ? parsed[0]?.message ?? "" : "");
@@ -73,7 +74,7 @@ export function wireLiving(wiring: LivingWiring): LivingPort {
     },
     authorView: () => wiring.extras().ui.authorView,
     sealsOn: () => wiring.extras().memory.settings.chapters?.seal !== false,
-    inputs: () => livingInputs({ memory: wiring.memory, state: wiring.view.getState, refused: wiring.refused, playerName: () => getPlayerName() }),
+    inputs: () => livingInputs({ memory: wiring.memory, state: wiring.view.getState, refused: wiring.refused, playerName: () => getPlayerName(), promiseHooks: wiring.promiseHooks }),
     saveRecord: (raw) => {
       const saved = saveStoryRecord(raw);
       if (isValidationErrorList(saved)) return { ok: false, reason: saved[0]?.message ?? "the story did not validate" };
