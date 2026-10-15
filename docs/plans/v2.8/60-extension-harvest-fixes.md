@@ -116,3 +116,52 @@ regression test that fails on the parent tree (checked by stashing the source ch
   `.disabled` and one `GROUP_UPDATED`; (B10) `/impersonate` with a drifting tension and a fresh check outcome and reads
   ST's prompt for `story_orchestrator_pacing` / `story_orchestrator_check_outcome` absent; (B3) toggles a setting and reloads within 1 s; (B5)
   one harness call per vendor with the plugin reinstalled (`npm run plugins:install`).
+
+## Gate record addendum 2026-10-15: live no-model checks (branch `v2.8-live-checks`)
+
+- Setup (shared by the 2026-10-15 addenda in plans 46, 47, 52, 60 and queue row N13): isolated ST code copy
+  `C:\dev\st-live` (tar of `st-v28-nomodel` without `node_modules`, `node_modules` junctioned to the owner's), worktree
+  `.st-root` pointed at it, this worktree's build staged with `node scripts/release/stage.mjs --st-root C:/dev/st-live`
+  (served `dist/index.js` sha256 `885c115c`, source = master `cc38c5b1`), plugins installed into `C:\dev\st-live\plugins`
+  only (judge + harness; harness `config.json` offers claude only). Lanes root `C:\dev\so-live-lanes`: lane 60 = offline
+  no-model lane (data copied from `so-nomodel-lanes/44`, server plugins off), lane 61 = the same plus
+  `st-lanes.mts pod 61 cloud` (loopback firewall, server plugins on). Run: `ST_ROOT=C:/dev/st-live
+  SO_LANES_ROOT=C:/dev/so-live-lanes node scripts/debug/st-lanes.mts run 60 -- scripts/debug/so-scenario.mts run <file>
+  --sandbox --group 'Group: Arin, DM Narrator'`. Evidence copied to `C:\dev\so-live-lanes\evidence-2026-10-15\{60,61}\`.
+  Owner ST, port 8000, lanes 0/31/33/53/54 and `C:\dev\st-p53` untouched.
+- B10 PASS x2 (`60/2026-10-15T06-01-26-049Z`, `...06-03-14-598Z`; `test/scenarios/v28-60-b10-withhold.json`). PLUMBING
+  level: the generation request is answered by an in-page fetch stub and ST's online status is set to a stub label for
+  the call. A real `generate('impersonate')` and `generate('quiet')` send a body without the pacing hint and without the
+  check-outcome header, `turnBlocksHeld()` is true while the request is assembled, and both blocks are back once the run
+  ends (a normal dry run carries both). A dry run never takes the hold (`generationLifecycle` ignores dry runs by design),
+  so the control is a normal dry run.
+- B10 finding (not fixed, queue candidate): a quiet or impersonate run whose `Generate` returns before sending (ST
+  disconnected, no GENERATION_ENDED) leaves the hold on, so the hint and outcome stay withheld in the snapshot and the
+  next-turn preview until the next loud generation opens, across a chat switch too (the fixture's first runs found
+  `staleHold: true` left by an earlier run in the page). The next loud request is not affected: an opened loud run releases
+  the hold first.
+- B14 PASS x2 (`...06-05-36-065Z`, `...06-08-01-510Z`; `v28-60-b14-wi-pending.json`). Control: ST's own immediate save of
+  book B 10-13 ms after a debounced edit of book A loses A's edit on the server (hazard reproduced). Treatment: the
+  story's file-mode checkpoint `world_info` write to B lands 11-24 ms after A's edit, A is saved right after it (at 22 and
+  39 ms) and the server holds the edit; the gated entry is enabled on the server. Gating mode restored, books removed.
+- B6 PASS x2 (`...06-13-42-175Z`, `...06-14-30-712Z`; `v28-60-b6-cast-announce.json`). `cast_changes` disabling Arin: the
+  group holds Arin as disabled, ST's member row `.group_member[data-chid]` gets `.disabled`, exactly one GROUP_UPDATED
+  naming the group; the re-enabling checkpoint reverts row and group with one more GROUP_UPDATED.
+- B3 PASS x2 (`...06-16-54-528Z`, `...06-19-45-435Z`; `v28-60-b3-settings-reload.json`). A settings-store write
+  (`stagecraft.meanwhileAcceptMode`) leaves in its own `/api/settings/save` 49-59 ms after the write (200 at 198-258 ms)
+  and survives a reload; restored and re-read after a second reload. The reload follows the finished save (step latency),
+  so this proves the immediate save, not a save in flight at unload.
+- B5 claude PASS x2 (lane 61 `...07-38-18-950Z`, `...07-39-07-186Z`; `v28-60-b5-harness-model.json`): `/complete` asked
+  for `haiku` answers ok with `requested: "haiku"` and `model: "claude-haiku-4-5-20251001"`. codex and opencode OWED (not
+  offered on the copy); the page half (`readHarnessAnswer` keeps `model`) is unit-tested only. The Claude login had
+  expired; one `claude -p` (haiku) refreshed it before the run.
+- `assert-player-clean`: 0 findings in every B10, B14, B6 and B3 run (B5 has no UI step).
+- Gates for this branch's code changes (harness bridge cap 96 + jest guard, player-clean chapter-card selector + planted
+  test, arrival golden re-recorded for the new scenario stories): `npm run gates:quick` green (first run red at the known
+  replay `--listTests` flake with empty stderr; one plain `node scripts/suite/defect-replay.mjs`, 32 of 32 killed, seeded
+  the cache). `npm run gates -- --jobs=2 --skip=test-storybook:ci`: first run red at `test` (`arrivalEquivalence` golden
+  lacked the new scenario stories; re-recorded with `SO_RECORD_ARRIVAL_GOLDEN=1`, 6 added rows), rerun all green in
+  445.6 s (test, test:replay, build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin,
+  test:release). Storybook skipped in the runner (it pins 6006) and run separately: `npm run storybook:build`,
+  `http-server .sb-static -p 6261`, `test-storybook --url http://127.0.0.1:6261 --maxWorkers 2`: 144 suites, 862 tests
+  green.
