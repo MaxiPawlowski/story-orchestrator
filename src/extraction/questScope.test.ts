@@ -29,6 +29,18 @@ describe("quest scope sources", () => {
     expect(scopeOverflow(story, "a", empty)).toEqual([{ kind: "quest", dropped: ["k5"] }]);
   });
 
+  test("five active quests never starve a hidden quest's discovery key", () => {
+    const raw = withQuests();
+    raw.qualities = [...raw.qualities, { key: "met_smuggler", type: "bool", source: "extractor", rubric: "Met the smuggler." }];
+    raw.quests = [...raw.quests!.slice(0, 5), { ...raw.quests![5], visible_when: { q: "met_smuggler", op: "==", v: true } }];
+    const story = parseStoryV2OrThrow(raw);
+    const reads = Array.from({ length: 20 }, (_, rotation) => deriveScopeExplained(story, "a", empty, [], { rotation }).map((entry) => entry.key));
+    expect(reads.filter((keys) => keys.includes("met_smuggler")).length).toBeGreaterThan(0);
+    reads.forEach((keys) => expect(keys.filter((key) => /^k\d$|^met_smuggler$/.test(key)).length).toBeLessThanOrEqual(QUEST_SCOPE_CAP));
+    const seen = new Set(reads.flat());
+    ["k0", "k1", "k2", "k3", "k4"].forEach((key) => expect(seen.has(key)).toBe(true));
+  });
+
   test("a closed quest frees its slot for the next one", () => {
     const story = parseStoryV2OrThrow(withQuests());
     const closed = { ...empty, values: { [questClosedKey("q0")]: "done" } };
