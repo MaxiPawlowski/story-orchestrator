@@ -130,14 +130,15 @@ function fillHoles(image: PixelImage, holes: Array<{ rect: Rect; mask: Uint8Arra
   const data = new Uint8ClampedArray(image.data);
   for (const { rect: [rx, ry, rw, rh], mask, skin } of holes) {
     const rgb = new Float32Array(rw * rh * 3);
+    const inner = mask.map((on, k) => (on && k % rw > 0 && k % rw < rw - 1 && k >= rw && k < rw * (rh - 1) ? 1 : 0));
     for (let y = 0; y < rh; y++) for (let x = 0; x < rw; x++) {
       const k = y * rw + x, i = ((ry + y) * image.width + rx + x) * 4;
-      for (let c = 0; c < 3; c++) rgb[k * 3 + c] = mask[k] ? skin[c] : data[i + c];
+      for (let c = 0; c < 3; c++) rgb[k * 3 + c] = inner[k] ? skin[c] : data[i + c];
     }
-    for (let pass = 0; pass < 40; pass++) diffuse(rgb, mask, rw, rh);
+    for (let pass = 0; pass < 40; pass++) diffuse(rgb, inner, rw, rh);
     for (let y = 0; y < rh; y++) for (let x = 0; x < rw; x++) {
       const k = y * rw + x;
-      if (!mask[k]) continue;
+      if (!inner[k]) continue;
       const i = ((ry + y) * image.width + rx + x) * 4;
       for (let c = 0; c < 3; c++) data[i + c] = Math.round(rgb[k * 3 + c]);
       data[i + 3] = 255;

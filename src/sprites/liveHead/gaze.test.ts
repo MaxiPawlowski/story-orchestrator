@@ -7,7 +7,7 @@ import { restHead } from "./drivers";
 import { syntheticBust } from "./synthesis/syntheticBust";
 import { synthesizeRig } from "./synthesis/rigGeometry";
 import { cutHeadLayers } from "./synthesis/layers";
-import { gazeOffset, interior, irisWeight, renderOpenBall, scleraTone, slideBall, type GazeMode, type Rgba, type Tone } from "./gaze";
+import { gazeLimits, gazeOffset, interior, irisSpan, irisWeight, renderOpenBall, scleraTone, slideBall, type GazeMode, type Rgba, type Tone } from "./gaze";
 import { FS } from "./shaders";
 import { HeadRenderer } from "./renderer";
 import { syntheticHead } from "./synthetic";
@@ -20,7 +20,8 @@ function fixture() {
   const bust = syntheticBust(2), rig = synthesizeRig(bust.landmarks), layers = cutHeadLayers(bust.image, rig);
   return rig.eyes.map((eye, index) => {
     const layer = layers.find((entry) => entry.name === `eye${index}_ball`)!;
-    return { eye, index, rect: layer.rect, image: layer.image, tone: scleraTone(layer.image.data) };
+    const tone = scleraTone(layer.image.data);
+    return { eye, index, rect: layer.rect, image: layer.image, tone, span: irisSpan(layer.image, layer.rect, eye, tone) };
   });
 }
 
@@ -68,7 +69,7 @@ describe("live head gaze keeps the iris round", () => {
   beforeAll(() => { Object.assign(globalThis, { window: { devicePixelRatio: 1 } }); });
   const eyes = fixture();
   const render = (entry: (typeof eyes)[number], gaze: number, mode: GazeMode) =>
-    renderOpenBall(entry.image, entry.rect, entry.eye, gazeOffset(entry.index, gaze, 0), mode, entry.tone);
+    renderOpenBall(entry.image, entry.rect, entry.eye, gazeOffset(entry.index, gaze, 0), mode, entry.tone, entry.span);
 
   test("sclera tone reads the white, not the iris", () => {
     for (const entry of eyes) {
@@ -152,9 +153,41 @@ describe("live head gaze keeps the iris round", () => {
     expect(FS).toContain("uniform vec4 uSclera[2];");
     expect(FS).toContain("smoothstep(0.1, 0.26, distance(c.rgb / c.a, tone)) * smoothstep(0.25, 0.75, c.a)");
     expect(FS).toContain("if (tone.w < 0.5 || (off.x == 0.0 && off.y == 0.0)) c = texAt(p - off * w);");
-    expect(FS).toContain("c = slideBall(texAt(p), texAt(q), tone.rgb, trust(p, top, bot, tone.rgb), trust(q, crv(e, true, uq), crv(e, false, uq), tone.rgb));");
+    expect(FS).toContain("uniform vec4 uIris[2];");
+    expect(FS).toContain("return 1.0 - smoothstep(s.y + 1.0, s.y + 2.5, abs(x - s.x));");
+    expect(FS).toContain("float xe = openAt(e, xf) > openAt(e, xn) ? xf : xn;");
+    expect(FS).toContain("vec3 fill = mix(tone.rgb, bandFill(e, p, top, bot, tone.rgb), held);");
+    expect(FS).toContain("float kept = min(1.0, (1.0 - held) * irisWeight(here, tone.rgb) + held * irisWeight(vec4(fill, 1.0), tone.rgb));");
+    expect(FS).toContain("float inMoved = trust(q, crv(e, true, uq), crv(e, false, uq), tone.rgb) * spanWeight(e, q.x) * (1.0 - kept);");
+    expect(FS).toContain("c = slideBall(here, texAt(q), tone.rgb, trust(p, top, bot, tone.rgb) * held, inMoved, fill);");
+    expect(FS).toContain("vec3 rgb = h - irisWeight(here, tone) * inHere * (h - fill) + irisWeight(moved, tone) * inMoved * (m - fill);");
     expect(FS).toContain("return max(inside, irisWeight(texAt(vec2(q.x, inward)), tone) * interior(inward, top, bot));");
     expect(FS).toContain("smoothstep(0.5, 2.5, y - top) * smoothstep(0.5, 2.5, bot - y)");
+  });
+
+  test("the renderer uploads each ball's iris span and keeps a wide gaze inside the eye", () => {
+    const saved = (globalThis as { OffscreenCanvas?: unknown }).OffscreenCanvas;
+    class Iris {
+      constructor(private readonly width: number, private readonly height: number) {}
+      getContext() {
+        const { width, height } = this, data = new Uint8ClampedArray(width * height * 4).fill(250);
+        for (let k = 0; k < width * height; k++) if (Math.hypot(k % width - width / 2, Math.floor(k / width) - height / 2) < Math.min(width, height) / 4) data.set([40, 60, 120, 255], k * 4);
+        return { drawImage: () => undefined, getImageData: () => ({ data }) };
+      }
+    }
+    (globalThis as { OffscreenCanvas?: unknown }).OffscreenCanvas = Iris;
+    try {
+      const gl = new FakeWebGl(), set = jest.spyOn(gl, "uniform4fv"), head = new HeadRenderer(fakeCanvas(gl), syntheticHead);
+      syntheticHead.layers.forEach((layer) => head.add(layer, fakeLayerImage(layer.rect[2], layer.rect[3], layer.name)));
+      head.draw({ ...restHead(), gazeX: 1 });
+      const last = (name: string) => Array.from(set.mock.calls.filter(([key]) => key === name).at(-1)![1] as ArrayLike<number>);
+      const iris = last("uIris"), state = last("uEyeState");
+      expect(iris[2]).toBe(1); expect(iris[6]).toBe(1);
+      syntheticHead.rig.eyes.forEach((eye, index) => {
+        const [lo, hi] = gazeLimits(eye, [iris[index * 4], iris[index * 4 + 1]])!;
+        expect(state[index * 4 + 2]).toBeCloseTo(Math.min(hi, Math.max(lo, gazeOffset(index, 1, 0)[0])), 5);
+      });
+    } finally { (globalThis as { OffscreenCanvas?: unknown }).OffscreenCanvas = saved; }
   });
 
   test("the renderer passes a sclera tone only when it can read the ball pixels", () => {

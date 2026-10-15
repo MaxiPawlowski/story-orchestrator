@@ -87,6 +87,25 @@ describe("landmark rig synthesis", () => {
     expect(at(lash.image, 62 - lash.rect[0], 78 - lash.rect[1])[3]).toBe(0);
   });
 
+  test("a strand crossing the eye region keeps its own pixels in the base on the region border, so no rectangle shows around the eye", () => {
+    const { image, landmarks } = syntheticBust(2), rig = synthesizeRig(landmarks);
+    const hair = { width: image.width, height: image.height, data: new Uint8ClampedArray(image.data) };
+    for (let y = 0; y < hair.height; y++) for (let x = 0; x < hair.width; x++) if (Math.abs(x - (y - 40)) <= 2) hair.data.set([150, 40, 30, 255], (y * hair.width + x) * 4);
+    const layers = cutHeadLayers(hair, rig), base = layers[0].image;
+    let border = 0;
+    for (const layer of layers.slice(1)) {
+      const [rx, ry, rw, rh] = layer.rect;
+      for (let y = 0; y < rh; y++) for (let x = 0; x < rw; x++) {
+        if (x > 0 && y > 0 && x < rw - 1 && y < rh - 1) continue;
+        const k = (y * rw + x) * 4;
+        if (layer.image.data[k + 3] === 0) continue;
+        border++;
+        expect(at(base, rx + x, ry + y)).toEqual(Array.from(layer.image.data.subarray(k, k + 4)));
+      }
+    }
+    expect(border).toBeGreaterThan(0);
+  });
+
   test("mesh cells keep every layer under the vertex limit, also for a 2048 px bust", () => {
     for (const [w, h] of [[160, 224], [1024, 1280], [2048, 2048]]) expect(layerVertices(w, h, fitCell(w, h, 2))).toBeLessThanOrEqual(MAX_LAYER_VERTICES);
     const small = syntheticBust(1).landmarks, k = 9, scale = (p: [number, number]): [number, number] => [p[0] * k, p[1] * k];
