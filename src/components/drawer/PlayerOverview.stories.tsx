@@ -71,7 +71,14 @@ export default meta;
 type Story = StoryObj<typeof PlayerOverview>;
 
 export const WithConsequences: Story = {
-  args: { snapshot: snapshot({ consequences: { label: "Because of you", lines: ["The wardens let you through the first arch.", "Reached The Ruined Gate, because you took the sun-key.", "Quest complete: The Ferryman's Price"] } }) },
+  args: {
+    snapshot: snapshot({
+      consequences: {
+        label: "Because of you",
+        lines: ["The wardens let you through the first arch.", "Reached The Ruined Gate, because you took the sun-key.", "Quest complete: The Ferryman's Price"],
+      },
+    }),
+  },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText("Because of you")).toBeInTheDocument();
