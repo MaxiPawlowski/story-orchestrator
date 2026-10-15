@@ -404,3 +404,24 @@ Ready to run (3090 block 2026-10-14):
   `node scripts/debug/so-evidence.mts archive --label m3090-tuning-20261014 --lanes 38 --since <block start>`.
 - After: `nvidia-smi` with no compute process of ours; nothing left on 8188/18897-18899; `C:\dev\tray\status.txt` OK.
 - Total: about 30 min of GPU time, 35-40 min with setup and archive. Without the A/B: about 17 min.
+
+## Gate record: 3090 block 2026-10-14 (broker re-checks, LIST)
+
+- Worktree `C:\dev\so-gpu-block`, branch `v2.8-gpu-block-2026-10-14` at master `35a9267e` (drivers load the plugin from the repo). Block start `2026-10-14T19:36:41Z`. Controller stopped and nothing on 8188/18897-18899 before each driver run. Owner ST on :8000 was not running (precondition says "left as they are"). Output root `C:/dev/so-lanes/m3090-tuning-2026-10-14` was new.
+- RAM: the desktop had 11-14 GB available at first. The first two plan 28 attempts failed on the physical-RAM reserve before any measurement. Run1 got `/lease 409` with "RAM available 11037 MiB; workload 9059 + reserve 4096". Run2 got the text reload refused with `409 Not enough free GPU/physical RAM`. The owner then closed apps, which brought it to 14-19 GB. The two failures are kept as `run1.json`/`run2.json`; the valid pair is `run3`/`run4`.
+- Plan 28 text -> image -> text x2 (valid pair):
+  - run3: exit 0, `swap-text` "Text must unload: Insufficient GPU headroom.", `shortBy.gpuMiB` 8,058, reloadMs 48,673, imageToReplyMs 94,214.
+  - run4: exit 0, `swap-text`, `shortBy.gpuMiB` 8,019, reloadMs 23,418, imageToReplyMs 62,391.
+  - Functional floors met x2. LT floor (median imageToReplyMs <= 65,441 ms): median 78.3 s, MISS (as expected; floor unchanged).
+  - Deviation from expectation: `shortBy.gpuMiB` is about 8,000, not about 4,500.
+- R14 Qwen warm batch x2 under the 8,139 MiB row:
+  - run1: exit 1. Lease refused "RAM available 8978 MiB; workload 8139 + reserve 4096". Below 12,235 MiB, so it is a genuine short per the runbook and does not fail the estimate. 1 lease, minRamAvailableMiB 9,386. Every lease had `ramSource` `measured:qwen-image-2.1-int8-sprites`, `needRamMiB` 8139.
+  - run2: exit 0, every floor true (batchAWarm, batchAImages, midTextAnswered, midTextBeforeNextLease, batchBImages, gpuReserveHeld, ramReserveHeld). 3 leases, all `measured:qwen-image-2.1-int8-sprites` / 8139. minRamAvailableMiB 7,812 (the 4,096 floor is held), minFreeGpuMiB 3,163.
+- Lane plugin path: the owner approved `npm run plugins:install` mid-block (gpu/media/harness updated). Lane servers were restarted after it.
+- Seen in the same block (plan 36 frames on lane 31 through the controller): Wren's neutral frame edits fall back to `loader-estimate` 10,746 MiB, because her edit size misses the 8,139 row's `maxPixels` (1024x1024) or model set. Garrick's and Pim's fit the row. That needs 14,842 MiB available; it was refused 3 times at 10.3-14.6 GB and passed when RAM allowed.
+- Reload mode A/B (informational, floors unchanged; 21:46-21:55 local, after the image jobs):
+  - mmap, run1 and run2: exit 1. The text reload was refused with "The loaded profile violates the measured memory reserve" (409). This matches the README note that the `mmap` arm breaks the physical-RAM floor on this host.
+  - dio, run1 and run2: exit 0, `swap-text`. reloadMs 23,436 / 23,324, imageToReplyMs 89,558 / 59,572, median 74.6 s (LT floor 65.4 s: MISS).
+  - Against `none` (run3/run4: reloadMs 48,673 / 23,418, median 78.3 s): dio's reload is steadier (23.3-23.4 s both runs, where `none` gave 48.7 s on its first cold run), and its median is 3.7 s better. A candidate for `text.loadMode` on this machine; the owner decides.
+  - Precondition miss: ComfyUI was still on 8188 when the A/B started, because `cli.mjs stop` left the owned ComfyUI up this time. The drivers ran anyway, and it was gone afterwards.
+- GPU minutes: plan 28 about 13 (4 attempts), R14 about 8, A/B about 9.

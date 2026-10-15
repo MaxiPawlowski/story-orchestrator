@@ -583,3 +583,25 @@ Real runs (3090, owner go-ahead):
    - Artemis is shared during both arms.
    - About 30 min of wall time per run, about 60 min for ×2.
 4. No Sol call is made; the cards come from provisioning ops.
+
+## Gate record: acceptance latency pair on the 3090, 2026-10-14 (LIST)
+
+- Worktree `C:\dev\so-gpu-block` at `9aead40b` (master with the plan 41 live-head gap fix), served with `--candidate` (bundle `080054b70410`). Lane 33 was seeded fresh, `image-harness.json` was written (Qwen 2.1 int8 edit models, `birefnet_toonout`), and it was started `--allow-local --headed`. ST `max_context` was set to 32768 in the lane copy before start. Artemis and ComfyUI went through the controller (`automatic`). Main and extraction were on the local Artemis profiles; no DeepSeek or Sol call. No jest or gates run of mine during the arms. CPU load was 19 % (run 1) and 15 % (run 2) at start, but other agents' work raised it to 92-100 % during run 2.
+- Run 1 (`pose-latency/2026-10-14T20-35-55-111Z-a-real-run1`, order off -> on):
+  - Steps: preflight, provision, setup-chat, base x3 (299/153/176 s), prepare x3 and both arms passed.
+  - Latency: off median 43,807 ms, on median 87,068 ms, ratio **1.99** against the 1.10 floor: MISS. on p90 is driven by 149/194 s turns that waited behind pose renders.
+  - Pose renders: NOT SCORED. My wrapper's `timeout 3000` killed the driver 17 min into the up-to-20-min settle (exit 124). That is a harness error, not a product result. At the kill, posed sets on disk were Ivy 2, Nell 1, Oren 0. The `cleanup` command then reported leaked 0, but did not remove the 13 `SO-PL` assets; `so-assets remove --marker SO-PL` did, and `assert-clean` passed.
+- Run 2 (`pose-latency/2026-10-14T21-28-33-212Z-a-real-run2`, order on -> off, timeout 5,400 s):
+  - base[Nell] REFUSED: "Candidate 1: The GPU broker did not release the image lease. Candidates 2-4: An image batch already owns the local GPU." Then prepare[Nell] failed (driver: no base to select).
+  - arm-on: 1,810 s for 8 turns. arm-off: 716 s.
+  - Latency: on median 142,092 ms, off median 64,249 ms, ratio **2.21**: MISS. on p90 568 s; one turn waited 216 s for its first token while the controller reloaded text under low RAM (7.9 GB free).
+  - Pose renders: **1 of 12** directed (member, pose) got a body within the 20-min settle: FAIL. Calls in the whole run: comfy 10, gpu-broker 33, artemis 131, judge 137. So almost no pose render was even attempted after the failed lease release. Server log: "start-comfy 404, release 409, lease 409" on the lane GPU plugin.
+  - Cleanup: 3 cards, 1 group and the library story removed, settings restored, leaked 0.
+- Verdict: NOT ACCEPTED. Latency misses both runs (1.99, 2.21). Pose coverage was unscored in run 1 (harness) and failed in run 2 (1/12). Floors unchanged.
+- Findings to fix (product):
+  - A batch or image lease that the broker did not release blocks every later render on the lane ("An image batch already owns the local GPU") until something resets it. This is the likely cause of the 1/12.
+  - The lane GPU plugin answers `POST /control/start-comfy` with 404 in managed mode.
+- Findings to fix (harness):
+  - The `cleanup` command misses leftovers from an aborted run (leaked 0 while 13 assets remained).
+  - Callers need a wrapper timeout of at least 90 min per run.
+- GPU minutes: run 1 about 50 (killed), run 2 about 75.
