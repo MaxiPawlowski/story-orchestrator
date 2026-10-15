@@ -130,7 +130,7 @@ owner decisions pending per plan.
 | M44 | Rumors and gossip: typed hearsay, reversible hops, recipient reveals | 44 | D+CL (+RP or LT leg) |
 | M45 | New Game+: public carry projection, sequel vs replay | 45 | D; live final chapter owed |
 | M46 | Consequences recap: authored + neutral first (A), evidenced "Because you". **Built** (`v2.8-p46-recap`, unmerged): C1-C10 green in jest (C1 precision 1.000, recall 0.688), full gates green; live lane gate NOT green, RP owed | 46 | D |
-| M47 | Promises remembered: exact-quote promises, relevance reminders | 47 | D+CL (+LT) |
+| M47 | Promises remembered: exact-quote promises, relevance reminders. P1 (option C) built on `v2.8-p47-promises`, not merged: D floors green (P1s parser, P2r, P2w, P3, P4, P4d, P5), full gates green after a master merge, Storybook 839 passed; live gate NOT green (no lane can serve the branch); CL P1/P2/P6/P8 and LT P7/P7h owed; F not built (47 Gate record 2026-10-14) | 47 | D+CL (+LT) |
 | M48 | Director scene test: frozen tension signal, expected/altered/interrupt (A narrowed) | 48 | D+CL (+RP living row) |
 | M49 | Complications and twists: finish SP6 first (A); focus picker only if 48 takes it | 49 | D now; model-facing build gated on SP6 (RP) |
 | M50 | Story calendar: canonical `story_time`, exactly-once writers, built B1a → B1b → B1c → B2 | 50 | D+CL (+RP) |
