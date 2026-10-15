@@ -1,7 +1,21 @@
 import { defaultGlobalSettings } from "./settingsModel";
-import { featureSettings, resolveFeatures } from "./featureResolve";
+import { AUTOMATIC_STAGE, featureSettings, featureStateWord, resolveFeatures } from "./featureResolve";
 import { readFeaturePolicies } from "@engine/featurePolicy";
 import { applyDeviceSettings, deviceSettingsStore } from "./deviceSettings";
+
+describe("Astra P2: the sprite stage's default says it waits for the story", () => {
+  it("untouched settings and no stage directions read as automatic, not as enabled", () => {
+    const global = defaultGlobalSettings();
+    const resolved = resolveFeatures(global, { features: undefined });
+    expect(resolved.sprites).toMatchObject({ enabled: true, automatic: true });
+    expect(featureStateWord(resolved.sprites)).toBe(AUTOMATIC_STAGE);
+    global.sprites = { ...global.sprites, enabled: true, explicit: true };
+    expect(resolveFeatures(global, null).sprites.automatic).toBe(false);
+    expect(featureStateWord(resolveFeatures(global, null).sprites)).toBe("Enabled");
+    expect(featureStateWord(resolveFeatures(defaultGlobalSettings(), null, { sprites: { enabled: true } }).sprites)).toBe("Enabled");
+    expect(featureStateWord(resolveFeatures(defaultGlobalSettings(), null).inner)).toBe("Enabled");
+  });
+});
 
 describe("story feature resolution", () => {
   it("inherits, tunes, declines, re-enables and respects the install master switch", () => {
