@@ -2,6 +2,7 @@ import { isRecord } from "@utils/guards";
 import type { HostScannableEntry } from "@services/STAPI";
 import { isMemoryMirrorBook } from "./worldInfoGates";
 import { bookKey } from "./worldInfoMatch";
+import { readCreatedStamps, stampedFor } from "@stagecraft/createdStamp";
 
 const GLOBAL_LORE = 0;
 
@@ -68,34 +69,55 @@ export function appendStoryLore(arrays: HostScannableEntry[][], books: StoryLore
   return appended;
 }
 
+export function withoutForeignCreated(arrays: HostScannableEntry[][], chatId: string | null): number {
+  let removed = 0;
+  for (const list of arrays) {
+    if (!Array.isArray(list)) continue;
+    for (let at = list.length - 1; at >= 0; at -= 1) {
+      const content = typeof list[at]?.content === "string" ? list[at].content : "";
+      const stamps = content.includes("so:created") ? readCreatedStamps(content) : [];
+      if (stamps.length && !(chatId && stampedFor(content, chatId))) {
+        list.splice(at, 1);
+        removed += 1;
+      }
+    }
+  }
+  return removed;
+}
+
 export function createStoryLore(sources: StoryLoreSources) {
   let last: StoryLoreScan | null = null;
+  const appendOwned = async (arrays: HostScannableEntry[][]): Promise<StoryLoreScan> => {
+    const owner = sources.owner();
+    const chat = ownedChatOf(owner);
+    const wanted = storyLoreFor(owner);
+    if (chat === null || !wanted.length) {
+      last = { owner: chat === null ? "no-story" : "story", appended: 0, books: [], skipped: [], missing: [] };
+      return last;
+    }
+    const scanned = scannedBooks(arrays);
+    const skipped = wanted.filter((book) => scanned.has(bookKey(book)));
+    const loaded = await Promise.all(wanted.filter((book) => !scanned.has(bookKey(book))).map(async (book) => ({ book, found: await sources.load(book) })));
+    const now = sources.owner();
+    if (ownedChatOf(now) !== chat || now.story !== owner.story) {
+      last = { owner: "no-story", appended: 0, books: [], skipped: [], missing: [] };
+      return last;
+    }
+    const found = loaded.flatMap((row) => (row.found ? [row.found] : []));
+    last = {
+      owner: "story",
+      appended: appendStoryLore(arrays, found),
+      books: found.map((book) => book.name),
+      skipped,
+      missing: loaded.filter((row) => !row.found).map((row) => row.book),
+    };
+    return last;
+  };
   return {
     async append(arrays: HostScannableEntry[][]): Promise<StoryLoreScan> {
-      const owner = sources.owner();
-      const chat = ownedChatOf(owner);
-      const wanted = storyLoreFor(owner);
-      if (chat === null || !wanted.length) {
-        last = { owner: chat === null ? "no-story" : "story", appended: 0, books: [], skipped: [], missing: [] };
-        return last;
-      }
-      const scanned = scannedBooks(arrays);
-      const skipped = wanted.filter((book) => scanned.has(bookKey(book)));
-      const loaded = await Promise.all(wanted.filter((book) => !scanned.has(bookKey(book))).map(async (book) => ({ book, found: await sources.load(book) })));
-      const now = sources.owner();
-      if (ownedChatOf(now) !== chat || now.story !== owner.story) {
-        last = { owner: "no-story", appended: 0, books: [], skipped: [], missing: [] };
-        return last;
-      }
-      const found = loaded.flatMap((row) => (row.found ? [row.found] : []));
-      last = {
-        owner: "story",
-        appended: appendStoryLore(arrays, found),
-        books: found.map((book) => book.name),
-        skipped,
-        missing: loaded.filter((row) => !row.found).map((row) => row.book),
-      };
-      return last;
+      const result = await appendOwned(arrays);
+      withoutForeignCreated(arrays, sources.owner().chatId);
+      return result;
     },
     last: (): StoryLoreScan | null => last,
   };

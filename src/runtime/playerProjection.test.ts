@@ -124,6 +124,18 @@ describe("v2.7 33 W4: the player projection", () => {
     expect(withheldNames(null, [], null)).toEqual([]);
   });
 
+  it("Astra v2.8 P0: the author's description never stands in for a missing player_intro", () => {
+    const authorOnly = (description: string) => parseStoryV2OrThrow({ format: 2, id: "gated", title: "The Ferry", description,
+      qualities: story.qualities.filter((quality) => quality.source === "extractor"), checkpoints: story.checkpoints, transitions: story.transitions, roster: [] });
+    const secret = authorOnly("Corvin the ferryman is secretly the traitor who sank the boats.");
+    const plain = authorOnly("A crossing at night.");
+    const text = (subject: typeof story) => projectionText(playedProjection(input({ story: subject })));
+    expect(text(secret)).not.toContain("traitor");
+    expect(text(secret)).toBe(text(plain));
+    expect(JSON.stringify(startProjection(secret, "Max", []))).not.toContain("traitor");
+    expect(playedProjection(input({ story: secret })).intro).toBeNull();
+  });
+
   it("the start projection holds the title, intro, start scene and cast, nothing else", () => {
     expect(startProjection(story, "Max", ["Ferryman"])).toEqual({
       title: "The Ferry", intro: "You need to cross the river before dawn.", player: "Max", start: { name: "The Dock", text: "Fog lies on the water." }, cast: ["Ferryman"],

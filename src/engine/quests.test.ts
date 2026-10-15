@@ -131,6 +131,31 @@ describe("quest lifecycle", () => {
   });
 });
 
+describe("quest requires", () => {
+  const chained = () => parseStoryV2OrThrow({
+    ...raw(),
+    quests: [
+      { id: "map", title: "The map", kind: "side", steps: [], done_when: { all: [{ q: "found_map", op: "==", v: true }] }, failed_when: { all: [{ q: "lost", op: "==", v: true }] } },
+      { id: "voyage", title: "The voyage", kind: "side", requires: ["map"], steps: [], done_when: { all: [{ q: "paid", op: "==", v: true }] } },
+    ],
+  });
+  const statuses = (story: ReturnType<typeof chained>, values: Record<string, unknown>) => story.quests!.map((quest) => questStatus(quest, valueReader(values)));
+
+  test("a done prerequisite keeps its dependant visible after its raw condition turns false", () => {
+    const play = playing(chained());
+    play.turn({ found_map: true });
+    expect(statuses(play.story, play.values())).toEqual(["done", "active"]);
+    play.turn({ found_map: false });
+    expect(statuses(play.story, play.values())).toEqual(["done", "active"]);
+  });
+
+  test("a failed prerequisite whose raw done condition holds does not open its dependant", () => {
+    const play = playing(chained());
+    play.turn({ found_map: true, lost: true });
+    expect(statuses(play.story, play.values())).toEqual(["failed", "hidden"]);
+  });
+});
+
 describe("quest scope", () => {
   const many = () => ({
     ...raw(),

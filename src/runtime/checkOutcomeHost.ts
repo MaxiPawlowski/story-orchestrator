@@ -5,7 +5,9 @@ import type { RuntimeManager } from "./runtimeManager";
 export function startCheckOutcome(manager: RuntimeManager): () => void {
   const spec = INJECTION_REGISTRY.checkOutcome;
   const update = () => {
-    const text = manager.getLoadedChatId() && !manager.turnBlocksHeld() ? manager.game.outcomeBlock() : null;
+    const block = manager.getLoadedChatId() && !manager.turnBlocksHeld() ? manager.game.outcomeBlock() : null;
+    const shown = block ? manager.memoryActions.restingText(block) : null;
+    const text = shown && (shown === block || shown.split("\n").some((line) => line.startsWith("- "))) ? shown : null;
     if (text) setStoryExtensionPrompt(spec.key, text, spec.depth);
     else clearStoryExtensionPrompt(spec.key);
   };

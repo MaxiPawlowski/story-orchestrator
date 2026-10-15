@@ -172,10 +172,17 @@ export const readScopeSources = (
     const lead = leadOf(read);
     const all = [...read.keys, ...read.dropped];
     const active = all.filter((key) => lead.has(key));
-    const room = read.cap ?? active.length;
+    const waiting = all.filter((key) => !lead.has(key));
+    const reserve = waiting.length && read.cap !== null && read.cap > 1 && active.length >= read.cap ? 1 : 0;
+    const room = (read.cap ?? active.length) - reserve;
     const start = active.length > room && room > 0 ? (rotation * room) % active.length : 0;
+    const turned = rotated(active, start);
+    const aged = reserve ? rotated(waiting, rotation % waiting.length) : waiting;
     const group = capped(read, `quest:${at}`);
-    return { active: { read, tier: { units: single(rotated(active, start)), ...group } }, rest: { read, tier: { units: single(all.filter((key) => !lead.has(key))), ...group } } };
+    return {
+      active: { read, tier: { units: single(turned.slice(0, room)), ...group } },
+      rest: { read, tier: { units: single([...aged.slice(0, reserve), ...turned.slice(room), ...aged.slice(reserve)]), ...group } },
+    };
   });
   const cardShare = ofKind("card").map((read, at) => {
     caps[`card-share:${at}`] = CARD_MIN_SHARE;

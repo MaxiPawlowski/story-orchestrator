@@ -39,10 +39,10 @@ export const loreEntryShape = (op: Extract<ProvisioningOp, { kind: "upsertLorebo
   const outlet = op.outlet?.trim() ?? "";
   return {
     ...(op.constant !== undefined ? { constant: op.constant } : {}),
-    ...(secondaryKeys.length ? { secondaryKeys } : {}),
+    ...(op.secondaryKeys !== undefined ? { secondaryKeys } : {}),
     ...(secondaryKeys.length && op.logic ? { logic: op.logic } : {}),
-    ...(outlet ? { outlet } : {}),
-    ...(op.triggers?.length ? { triggers: op.triggers } : {}),
+    ...(op.outlet !== undefined ? { outlet } : {}),
+    ...(op.triggers !== undefined ? { triggers: op.triggers } : {}),
   };
 };
 

@@ -1,7 +1,10 @@
 import { parseStoryV2OrThrow } from "./validate";
 import { ROLLBACK_DETECTORS, ROLLBACK_EXEMPT, rollbackMoved, uncoveredCodeKeys } from "./rollbackDetectors";
 import { StoryEngine } from "./engine";
-import { codexFactKey, type NormalizedStoryV2, type Quality } from "./schema";
+import { agendaStepKey, agendaWaitKey, codexFactKey, moodAgeKey, moodKey, type NormalizedStoryV2, type Quality } from "./schema";
+import { deriveLife } from "./life/derive";
+import { readFileSync } from "fs";
+import { join } from "path";
 import { labRaw } from "../../test/support/codexLab";
 
 const is = (key: string) => ({ q: key, op: "==", v: true });
@@ -66,6 +69,33 @@ describe("SC1: every compiled code key has a rollback check", () => {
     const restored = engine.rollbackTo(engine.boundaryBeforeMessage(2) ?? 0);
     expect(restored).toEqual({ ok: true, result: "applied" });
     expect(engine.serialize().blackboard.values[codexFactKey("places", "boathouse", "door")]).toBeUndefined();
+  });
+
+  test("code-only boundary: an agenda wait or mood age that moved without a step rolls back, so a swipe replays clean", () => {
+    const raw = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8"));
+    raw.roster[0].agenda[0].every = 5;
+    const life = parseStoryV2OrThrow(raw);
+    const chat: Array<{ is_user: boolean; mes: string; name: string }> = [];
+    const engine = new StoryEngine({ now: () => 0, derive: (view) => deriveLife(life, view, chat) });
+    engine.loadStory(life);
+    engine.enqueue({ source: "extractor", blackboardVersionSum: 0, deltas: [{ q: moodKey("arin"), v: "angry", source: "extractor" }] });
+    engine.commitBoundary({ lastMessageId: -1, chatLength: 0 });
+    chat.push({ is_user: true, mes: "hello", name: "You" }, { is_user: false, mes: "first", name: "Arin" });
+    engine.commitBoundary({ lastMessageId: 1, chatLength: 2 });
+    const entry = engine.stateLog.at(-1)!;
+    expect(entry.fired).toBeNull();
+    expect(entry.queue.applied).toEqual([]);
+    expect(entry.after.blackboard.values[agendaStepKey("arin", "debt")] ?? 0).toBe(0);
+    expect(entry.after.blackboard.values[agendaWaitKey("arin", "debt")]).toBe(2);
+    expect(entry.after.blackboard.values[moodAgeKey("arin")]).toBe(1);
+    expect(engine.shouldRollbackFromMessage(1)).toBe(true);
+    expect(engine.rollbackTo(engine.boundaryBeforeMessage(1) ?? 0)).toEqual({ ok: true, result: "applied" });
+    chat[1] = { is_user: false, mes: "swiped", name: "Arin" };
+    engine.commitBoundary({ lastMessageId: 1, chatLength: 2 });
+    const values = engine.serialize().blackboard.values;
+    expect(values[agendaWaitKey("arin", "debt")]).toBe(2);
+    expect(values[agendaStepKey("arin", "debt")] ?? 0).toBe(0);
+    expect(values[moodAgeKey("arin")]).toBe(1);
   });
 
   test("control: a boundary with no derived write and no read window does not ask for a rollback", () => {

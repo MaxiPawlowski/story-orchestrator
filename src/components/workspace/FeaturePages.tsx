@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { STORY_FEATURE_IDS, type FeaturePolicyValue, type StoryFeatureId } from "@engine/featurePolicy";
 import { FEATURE_CONTROLS } from "@runtime/featureControls";
-import { resolveFeatures, writeSettingPath } from "@runtime/featureResolve";
+import { AUTOMATIC_STAGE, featureStateWord, resolveFeatures, writeSettingPath } from "@runtime/featureResolve";
 import { getGlobalSettings, setGlobalSettings, type GlobalSettings } from "@runtime/settingsStore";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import type { RuntimeSnapshot } from "@runtime/types";
@@ -33,7 +33,7 @@ const featureStatus = (feature: ResolvedFeature, snapshot: RuntimeSnapshot, sele
   if (waiting) return `Waiting for review: ${waiting} changes`;
   if (selected === "reading" && snapshot.extraction.scheduler.inFlight) return "Working";
   if (role && ["not-answering", "quota", "failed", "reasoning-exhausted"].includes(role.state)) return "Fallback: model route unavailable";
-  return "Ready";
+  return feature.automatic ? AUTOMATIC_STAGE : "Ready";
 };
 
 const FeatureIndex = ({ install, resolved, onSelect }: {
@@ -55,8 +55,7 @@ const FeatureIndex = ({ install, resolved, onSelect }: {
       return !ids.length ? null : <section key={area}><h3>{area}</h3><div className="so-feature-grid">
         {ids.map((id) => <button key={id} className="so-feature-card" onClick={() => onSelect(id)} data-feature={id}>
           <strong>{FEATURE_CONTROLS[id].name}</strong><span>{FEATURE_CONTROLS[id].description}</span>
-          <span className="so-feature-state">{resolved?.[id].masterOff ? "Off on this install"
-            : resolved?.[id].declined && !resolved[id].enabled ? "Turned off by story" : resolved?.[id].enabled ? "Enabled" : "Off in this chat"}</span>
+          <span className="so-feature-state">{featureStateWord(resolved?.[id])}</span>
         </button>)}
       </div></section>;
     })}

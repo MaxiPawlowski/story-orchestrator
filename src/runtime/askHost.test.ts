@@ -15,7 +15,7 @@ import { emptyEnvironment } from "@wizard/index";
 import { PLAYER_REFUSAL } from "@copilot/agent/ask";
 import { buildNarrativeStatus } from "./narrative";
 import type { PipelineStatus } from "./pipeline";
-import { mintToken, type RunOwnership } from "./runToken";
+import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./runToken";
 import { answerText, ASK_HOST_COPY, askInChat, chatAskContext, type AskManager } from "./askHost";
 import { liveStateText } from "./askLiveState";
 import type { RuntimeSnapshot } from "./types";
@@ -112,5 +112,15 @@ describe("v2.8 09 B: Ask in a chat", () => {
     expect(text).toContain("Values: secret_known=false");
     expect(text).toContain("What the story is doing: idle: Waiting for your move.");
     expect(liveStateText({ ...snapshot(true), storyId: null })).toMatch(/^No story plays/);
+  });
+});
+
+describe("Astra P1: an Ask answer is bound to the transcript it read", () => {
+  it("refuses an answer when a message it read was edited while it ran", async () => {
+    const context: RunContext = { chatId: "chat-a", storyId: "host", storyHash: "h", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+    const ownership: RunOwnership = { mint: (window) => mintToken(context, window ?? null), check: (token) => tokenMatches(context, token) };
+    const edit = () => { context.windowRevision += 1; context.lowestMutatedMessageId = 0; };
+    const { value } = manager(false, ['{"answer":"the vault","topics":[]}'], { state: { ok: true }, ownership }, edit);
+    expect(await askInChat(value, "where next?")).toEqual({ ok: false, reason: ASK_HOST_COPY.stale });
   });
 });

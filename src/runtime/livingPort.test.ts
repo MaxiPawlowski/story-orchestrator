@@ -1,6 +1,6 @@
 import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
 import type { LivingRuntimeState } from "@generation/living/types";
-import { createLivingState } from "@generation/living/types";
+import { createDivergenceState, createLivingState, type DirectorProposal } from "@generation/living/types";
 import type { LivingCoordinatorDeps } from "./coordinators/livingCoordinator";
 import { LIVING_NOT_LOADED, LivingPort } from "./livingPort";
 
@@ -71,5 +71,20 @@ describe("v2.8 22 living port: the main entry holds a door, the director loads o
     await Promise.resolve();
     expect(calls).toEqual(["restore:5"]);
     expect(port.restoreAfterRollback(4)).toBe(2);
+  });
+});
+
+describe("Astra v2.8 P1: transcript-derived living work counts as movement for a rollback", () => {
+  const waiting = (status: string, boundary: number) => ({ id: `p${boundary}`, status, boundary }) as unknown as DirectorProposal;
+
+  it("a waiting proposal or a divergence reading after the restored boundary asks for the rollback; a settled one does not", () => {
+    const pending = { ...createLivingState(), proposals: [waiting("proposed", 2)] } as LivingRuntimeState;
+    expect(harness({ state: pending }).port.movedAfter(1)).toBe(true);
+    expect(harness({ state: pending }).port.movedAfter(2)).toBe(false);
+    const settled = { ...createLivingState(), proposals: [waiting("rejected", 2)] } as LivingRuntimeState;
+    expect(harness({ state: settled }).port.movedAfter(1)).toBe(false);
+    const read = { ...createLivingState(), divergence: { ...createDivergenceState(), lastBoundary: 3, streak: 1 } } as LivingRuntimeState;
+    expect(harness({ state: read }).port.movedAfter(2)).toBe(true);
+    expect(harness({ state: read }).port.movedAfter(3)).toBe(false);
   });
 });

@@ -56,7 +56,7 @@ export class PlayerSetupControl {
     if (!run.stillOwns()) return couldNot(LAPSED);
     this.deps.journal(`Switched back to ${record.name ?? "the story's persona"}`, locked.ok ? "locked to this chat again" : locked.reason);
     this.deps.notify();
-    return selected;
+    return locked.ok ? selected : couldNot(`switched back to ${record.name ?? "the story's persona"}, but could not lock it to this chat: ${locked.reason}`);
   }
 
   private async avatarFor(request: PlayerSetupRequest, previous: PlayerSetupRecord | undefined, title: string, run: RunGuard): Promise<WriteResult<{ avatarId: string | null; createdHash?: string }>> {

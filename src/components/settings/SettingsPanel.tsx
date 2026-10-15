@@ -2,12 +2,12 @@ import { useCallback, useEffect, useState, type MouseEvent } from "react";
 import { askHost } from "@runtime/askEntry";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
-import { capabilityReport, hostFacts, judgeStatus, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
+import { capabilityReport, hostFacts, judgeStatus, stImageSource, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
 import type { JudgeSelfTestReport } from "@judge/selfTest";
 import { getGlobalSettings, setGlobalSettings, setJudgeSettings } from "@runtime/settingsStore";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
-import { gettingStartedSteps, installFindings, type OneClickFix } from "@runtime/repair";
+import { gettingStartedSteps, imagesStepDone, installFindings, type OneClickFix } from "@runtime/repair";
 import { guideUrl } from "@features/guideLinks";
 import type { FeatureArea, FeatureWhere } from "@features/registry";
 import { requestGuide } from "@guide/request";
@@ -160,7 +160,7 @@ const SettingsPanel = ({ snapshot, manager, host, workspaceSection }: SettingsPa
   const steps = gettingStartedSteps({
     memoryModel: extraction.enabled && Boolean(extraction.profileId),
     judgeReady: judge.judge.enabled && typeof judge.status === "object" && judge.status !== null && judge.status.configured,
-    imagesReady: image.enabled && Boolean(image.comfyUrl) && Boolean(image.directorProfileId),
+    imagesReady: imagesStepDone(image, stImageSource()),
   });
   const toggleHelp = (event: MouseEvent<HTMLButtonElement>) => {
     const content = event.currentTarget.closest(".inline-drawer")?.querySelector<HTMLElement>(".inline-drawer-content");
