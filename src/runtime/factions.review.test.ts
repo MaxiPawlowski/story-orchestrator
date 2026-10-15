@@ -3,7 +3,7 @@ import { join } from "path";
 import { StoryEngine, parseStoryV2OrThrow, standingKey, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
 import { privateLifeLines } from "@engine/life/lines";
 import { deriveScopeWithSources } from "@extraction/scope";
-import { FACTION_SCOPE_CAP, FACTION_SOURCE, SCOPE_SOURCES } from "@extraction/scopeSources";
+import { DISCOVERY_SCOPE_CAP as FACTION_SCOPE_CAP, DISCOVERY_SOURCE as FACTION_SOURCE, SCOPE_SOURCES } from "@extraction/scopeSources";
 import { DIRECTOR_STANDING_TITLE, renderDirectorPrompt } from "@generation/living/prompt";
 import { composeGame, type GameSources } from "./widgets";
 import { gameSlices, loadGameComposer, storyHasGame } from "./gameSnapshot";
@@ -135,7 +135,7 @@ describe("v2.8 plan 53 F14: move gates are offered by the scope, in rotation", (
     const story = parseStoryV2OrThrow(FACTIONS);
     const before = run(story, [{}]).serialize();
     const keys = (state: typeof before, list = SCOPE_SOURCES) => deriveScopeWithSources(story, state.activeCheckpointId, state.blackboard, [], { rotation: 0 }, list)
-      .scope.filter((entry) => entry.pulledBy.some((pull) => pull.kind === "faction")).map((entry) => entry.key);
+      .scope.filter((entry) => entry.pulledBy.some((pull) => pull.kind === "discovery")).map((entry) => entry.key);
     expect(keys(before)).toEqual(expect.arrayContaining(["apprentice_saved", "ledger_stolen", "envoy_helped"]));
     const control = deriveScopeWithSources(story, before.activeCheckpointId, before.blackboard, [], { rotation: 0 }, SCOPE_SOURCES.filter((source) => source !== FACTION_SOURCE)).scope.map((entry) => entry.key);
     expect(control).not.toContain("apprentice_saved");
@@ -149,7 +149,7 @@ describe("v2.8 plan 53 F14: move gates are offered by the scope, in rotation", (
     const asked = new Set<string>();
     for (let rotation = 0; rotation < Math.ceil(6 / FACTION_SCOPE_CAP); rotation += 1) {
       const scope = deriveScopeWithSources(story, state.activeCheckpointId, state.blackboard, [], { rotation }, SCOPE_SOURCES).scope;
-      scope.filter((entry) => entry.pulledBy.some((pull) => pull.kind === "faction")).forEach((entry) => asked.add(entry.key));
+      scope.filter((entry) => entry.pulledBy.some((pull) => pull.kind === "discovery")).forEach((entry) => asked.add(entry.key));
     }
     expect([...asked].filter((key) => key.startsWith("deed_")).sort()).toEqual([1, 2, 3, 4, 5, 6].map((at) => `deed_${at}`));
   });

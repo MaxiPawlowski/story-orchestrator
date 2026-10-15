@@ -71,7 +71,7 @@ export const gamePanels = (snapshot: RuntimeSnapshot) => {
   const game = snapshot.ready ? snapshot.game ?? null : null;
   const shown = snapshot.presence?.shown;
   return {
-    game, journal: Boolean(game && shown?.journal && (game.journal.length || game.milestones.length)), statSheet: Boolean(game?.statSheet && shown?.statSheet),
+    game, journal: Boolean(game && shown?.journal && (game.journal.length || game.milestones.length || game.codex)), statSheet: Boolean(game?.statSheet && shown?.statSheet),
     widgets: game && shown?.widgets ? game.widgets : [],
   };
 };

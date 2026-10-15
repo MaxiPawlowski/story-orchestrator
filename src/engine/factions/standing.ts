@@ -1,4 +1,4 @@
-import type { Blackboard } from "../blackboard";
+import { Blackboard } from "../blackboard";
 import { evaluateGate, gateKeys, type GateReader } from "../gates";
 import {
   factionBand, factionMoveKey, isFactionKey, seenStandingKey, standingKey,
@@ -57,10 +57,23 @@ export const applyFactionMoves = (story: Pick<NormalizedStoryV2, "factions" | "r
   return fired;
 };
 
+export interface FactionLatchView {
+  boundary: number;
+  values: Readonly<Record<string, PrimitiveValue>>;
+}
+
+export const factionLatches = (story: NormalizedStoryV2, view: FactionLatchView): Array<{ q: string; v: PrimitiveValue }> => {
+  if (!story.factions?.length) return [];
+  const scratch = new Blackboard(story, { values: { ...view.values }, versions: {}, latched: {} });
+  applyFactionMoves(story, scratch, view.boundary);
+  return Object.entries(scratch.entries()).filter(([key, value]) => isFactionKey(key) && view.values[key] !== value).map(([q, v]) => ({ q, v }));
+};
+
+export const factionDiscoveryUnits = (story: Pick<NormalizedStoryV2, "factions">, values: Read): { entries: string[][]; facts: string[][] } =>
+  ({ entries: [], facts: factionScopeUnits(story, values) });
+
 export const factionsMoved = (story: Pick<NormalizedStoryV2, "factions"> | null | undefined, before: Read, after: Read): boolean =>
   Boolean(story?.factions?.length) && [...new Set([...Object.keys(before), ...Object.keys(after)])].some((key) => isFactionKey(key) && before[key] !== after[key]);
-
-export const FACTION_ROLLBACK_DETECTOR = { id: "factions", moved: factionsMoved } as const;
 
 export const factionVisible = (faction: Faction, values: Read): boolean => !faction.visible_when || evaluateGate(faction.visible_when, reader(values));
 

@@ -5,8 +5,9 @@ import { gateKeys } from "./gates";
 import { GENERATED_CHECKPOINT_PREFIX, type Checkpoint, type CheckpointEffects, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue } from "./schema";
 import { selectFiring } from "./transitions";
 import { applyCardEntry } from "./cardFields";
-import { applyQuestRewards, questLatchesMoved } from "./quests";
+import { applyQuestRewards } from "./quests";
 import { gameLayer } from "./validate/gameLayer";
+import { rollbackMoved } from "./rollbackDetectors";
 
 export interface DerivedQualityView {
   boundary: number;
@@ -86,6 +87,8 @@ export type RollbackOutcome =
   | { ok: false; reason: "history-unavailable"; oldest: { boundary: number; messageId: number } };
 
 export const ROLLBACK_HORIZON = 200;
+
+export const BOUNDARY_STEPS = ["drain", "counters", "derive", "quests", "latch", "select", "entry", "latch-after-entry"] as const;
 
 const DEFAULT_HOST: EngineHost = { now: () => Date.now() };
 
@@ -251,6 +254,7 @@ export class StoryEngine {
     blackboard.setWriteBoundary(this.boundary + 1, normalizedContext.lastMessageId);
     const queue = this.queue.drainAtBoundary(blackboard);
     this.refreshMechanicalQualities();
+    this.latchPass(this.boundary + 1);
 
     const outgoing = story.outgoingByCheckpoint[this.activeCheckpointId] ?? [];
     const evaluated = blackboard.snapshot().values;
@@ -268,7 +272,7 @@ export class StoryEngine {
       this.visitedPath.push(fired.to);
       effects = checkpoint?.effects ?? null;
       applyCardEntry(story, this.activeCheckpointId, blackboard, this.boundary + 1);
-      this.latchPass();
+      this.latchPass(this.boundary + 1);
       this.advanceCallbacks.forEach((callback) => callback(fired));
     }
 
@@ -320,6 +324,7 @@ export class StoryEngine {
     this.visitedPath.push(id);
     this.stagedFrom = this.visitedPath.length - 1;
     applyCardEntry(story, id, this.requireBlackboard(), this.boundary + 1);
+    this.latchPass(this.boundary + 1);
     this.boundary += 1;
     const after = this.serialize();
     this.boundaryLog.push({ at: this.host.now(), boundary: this.boundary, before, after, fired: null, source: "manual", context: normalizedContext, queue, evaluated: null });
@@ -381,9 +386,7 @@ export class StoryEngine {
     return this.boundaryLog.some((entry) => {
       if (entry.context.lastMessageId < normalized) return false;
       if (entry.fired) return true;
-      if (questLatchesMoved(this.story, entry.before.blackboard.values, entry.after.blackboard.values)) return true;
-      if (this.story?.life && gameLayer()?.life.lifeMoved(this.story, entry.before.blackboard.values, entry.after.blackboard.values)) return true;
-      if (this.story?.factions && gameLayer()?.factions.factionsMoved(this.story, entry.before.blackboard.values, entry.after.blackboard.values)) return true;
+      if (rollbackMoved(this.story, entry.before.blackboard.values, entry.after.blackboard.values)) return true;
       return entry.queue.applied.some((applied) => applied.turnRange && applied.turnRange.to >= normalized);
     });
   }
@@ -483,12 +486,15 @@ export class StoryEngine {
     };
     for (const delta of this.host.derive?.(view) ?? []) blackboard.applyDelta({ q: delta.q, v: delta.v, source: "code" });
     applyQuestRewards(story, blackboard);
-    this.latchPass();
   }
 
-  private latchPass(): void {
+  private latchPass(boundary: number): void {
+    const writers = gameLayer()?.latchWriters;
+    if (!writers?.length) return;
     const story = this.requireStory();
-    if (story.factions?.length) gameLayer()?.factions.applyFactionMoves(story, this.requireBlackboard(), this.boundary + 1);
+    const blackboard = this.requireBlackboard();
+    const view = { boundary, values: blackboard.entries(), visitedPath: this.visitedPath, activeCheckpointId: this.activeCheckpointId };
+    for (const writer of writers) for (const delta of writer(story, view)) blackboard.applyDelta({ q: delta.q, v: delta.v, source: "code" });
   }
 
   private recordSnapshot(): void {

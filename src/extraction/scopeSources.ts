@@ -10,7 +10,7 @@ export const QUEST_SCOPE_CAP = 5;
 export const REL_AXES_PER_READ = 12;
 export const REL_ROTATION_READS = 4;
 export const CARD_MIN_SHARE = 1;
-export const FACTION_SCOPE_CAP = 4;
+export const DISCOVERY_SCOPE_CAP = 6;
 
 export interface ScopeSourceContext {
   owners?: string[];
@@ -26,7 +26,7 @@ export interface ScopeSourceRead {
 }
 
 export interface ScopeSource {
-  kind: Extract<ScopePull["kind"], "card" | "quest" | "relationship" | "faction">;
+  kind: Extract<ScopePull["kind"], "card" | "quest" | "relationship" | "discovery">;
   detail: string;
   cap: number | null;
   keys: (story: NormalizedStoryV2, blackboard: BlackboardSnapshot, context: ScopeSourceContext) => string[];
@@ -63,20 +63,37 @@ export const RELATIONSHIP_SOURCE: ScopeSource = {
     : []),
 };
 
-export const factionUnits = (story: NormalizedStoryV2, blackboard: BlackboardSnapshot, rotation: number): string[][] => {
-  const units = (story.factions?.length ? gameLayer()?.factions.factionScopeUnits(story, blackboard.values) ?? [] : [])
-    .map((keys) => keys.filter(readable(story, blackboard))).filter((keys) => keys.length);
-  return rotated(units, units.length ? (Math.max(0, Math.floor(rotation)) * FACTION_SCOPE_CAP) % units.length : 0);
+export interface DiscoveryRotation {
+  entries: string[][];
+  facts: string[][];
+}
+
+const chunkKeys = (keys: string[], size: number): string[][] =>
+  Array.from({ length: Math.ceil(keys.length / size) }, (_, at) => keys.slice(at * size, (at + 1) * size));
+
+export const discoveryRotation = (
+  story: NormalizedStoryV2, blackboard: BlackboardSnapshot, rotation: number, admits: (key: string) => boolean = readable(story, blackboard), cap = DISCOVERY_SCOPE_CAP,
+): DiscoveryRotation => {
+  const found = (gameLayer()?.discoveryUnits ?? []).map((units) => units(story, blackboard.values));
+  const usable = (units: string[][]) => units.map((unit) => unit.filter(admits)).filter((unit) => unit.length).flatMap((unit) => chunkKeys(unit, Math.max(1, cap)));
+  const entries = usable(found.flatMap((units) => units.entries));
+  const facts = usable(found.flatMap((units) => units.facts));
+  const stride = Math.max(1, Math.floor(cap / Math.max(1, ...[...entries, ...facts].map((unit) => unit.length))));
+  const turn = (units: string[][]) => rotated(units, units.length ? (Math.max(0, Math.floor(rotation)) * stride) % units.length : 0);
+  return { entries: turn(entries), facts: turn(facts) };
 };
 
-export const FACTION_SOURCE: ScopeSource = {
-  kind: "faction",
-  detail: "an event that would move a group's standing",
-  cap: FACTION_SCOPE_CAP,
-  keys: (story, blackboard, context) => [...new Set(factionUnits(story, blackboard, context.rotation ?? context.cursor ?? 0).flat())],
+export const DISCOVERY_SOURCE: ScopeSource = {
+  kind: "discovery",
+  detail: "a person or place the player has not learned yet",
+  cap: DISCOVERY_SCOPE_CAP,
+  keys: (story, blackboard, context) => {
+    const turn = discoveryRotation(story, blackboard, context.rotation ?? context.cursor ?? 0);
+    return [...new Set([...turn.entries, ...turn.facts].flat())];
+  },
 };
 
-export const SCOPE_SOURCES: readonly ScopeSource[] = [CARD_SOURCE, QUEST_SOURCE, RELATIONSHIP_SOURCE, FACTION_SOURCE];
+export const SCOPE_SOURCES: readonly ScopeSource[] = [CARD_SOURCE, QUEST_SOURCE, RELATIONSHIP_SOURCE, DISCOVERY_SOURCE];
 
 export const readScopeSource = (
   source: ScopeSource, story: NormalizedStoryV2, blackboard: BlackboardSnapshot, context: ScopeSourceContext, admits: (key: string) => boolean = () => true,
@@ -90,7 +107,7 @@ export interface ScopeSourceResult extends ScopeSourceRead {
   cap: number | null;
 }
 
-const BUDGETED: ReadonlySet<ScopeSource["kind"]> = new Set(["quest", "relationship", "faction"]);
+const BUDGETED: ReadonlySet<ScopeSource["kind"]> = new Set(["quest", "relationship", "discovery"]);
 
 export interface LifeUnit {
   keys: string[];
@@ -169,10 +186,11 @@ export const readScopeSources = (
     const group = capped(read, `relationship:${at}`);
     return { drafted: { read, tier: { units: split.drafted, ...group } }, due: { read, tier: { units: split.due, ...group } }, rest: { read, tier: { units: split.rest, ...group } } };
   });
-  const factions = ofKind("faction").map((read, at) => {
+  const discovery = ofKind("discovery").map((read, at) => {
     const offered = new Set([...read.keys, ...read.dropped]);
-    const units = factionUnits(story, blackboard, rotation).map((keys) => keys.filter((key) => offered.has(key))).filter((keys) => keys.length);
-    return { read, tier: { units, ...capped(read, `faction:${at}`) } };
+    const turn = discoveryRotation(story, blackboard, rotation, (key) => offered.has(key), read.cap ?? DISCOVERY_SCOPE_CAP);
+    const group = capped(read, `discovery:${at}`);
+    return { entries: { read, tier: { units: turn.entries, ...group } }, facts: { read, tier: { units: turn.facts, ...group } } };
   });
   const ordered: Array<{ read: Read; tier: BudgetTier }> = [
     ...quests.map((quest) => quest.active),
@@ -180,7 +198,8 @@ export const readScopeSources = (
     ...relationships.map((relationship) => relationship.due),
     ...cardShare,
     ...quests.map((quest) => quest.rest),
-    ...factions,
+    ...discovery.map((entry) => entry.entries),
+    ...discovery.map((entry) => entry.facts),
     ...ofKind("card").map((read) => ({ read, tier: { units: single(rotated(read.keys, rotation)) } })),
     ...relationships.map((relationship) => relationship.rest),
   ];

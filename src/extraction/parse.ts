@@ -196,6 +196,11 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
       continue;
     }
 
+    if (/^\[(promised|kept|broken|renegotiated|released)\]/i.test(line)) {
+      (result.promises ??= []).push(line);
+      continue;
+    }
+
     if (/^\[state:/i.test(line)) {
       const signals = parseLedgerLine(line);
       if (signals.length) result.ledger.push(...signals);

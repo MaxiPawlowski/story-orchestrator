@@ -43,3 +43,17 @@ export const factionStory = (): StoryDraft => {
     }],
   };
 };
+
+export const codexStory = (): StoryDraft => ({
+  ...sampleStory(),
+  qualities: [...sampleStory().qualities, { key: "location", type: "enum", values: ["gate", "boathouse"], source: "extractor", rubric: "Where the party is." }],
+  codex: {
+    people: [{
+      id: "ferryman", member: "guide", facts: [
+        { id: "job", text: "Runs the night crossing.", known_when: { reached: "infiltrate" } },
+        { id: "debt", text: "Owes money upriver.", known_when: { q: "trust", op: ">=", v: 2 }, source: "boathouse" },
+      ],
+    }],
+    places: [{ id: "boathouse", name: "The boathouse", location: "boathouse", facts: [{ id: "door", text: "The back door does not lock.", known_when: { q: "alarm", op: "==", v: false } }] }],
+  },
+});

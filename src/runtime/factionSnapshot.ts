@@ -41,6 +41,12 @@ export const factionAuthorSlice = (
       moves: row.moves.map((move) => ({ ...move, messageId: messageAt(move.boundary) })),
       ledger: ledgerLines(ledger, row.name),
     })),
-    scopeOverflow: scopeDropped(story, state, "faction", scopeContext),
+    scopeOverflow: scopeDropped(story, state, "discovery", scopeContext).filter((key) => layer.factions.factionScopeUnits(story, state.blackboard.values).some((unit) => unit.includes(key))),
   };
 };
+
+declare module "./types" {
+  interface RuntimeSnapshot {
+    factionsAuthor?: FactionAuthorView | null;
+  }
+}

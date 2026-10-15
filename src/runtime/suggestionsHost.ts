@@ -60,7 +60,7 @@ export async function askSuggestions(manager: SuggestionManager): Promise<Sugges
   });
   if (!run.stillOwns() || openChatId() !== ask.chatId) return { ok: false, reason: SUGGESTION_COPY.stale };
   const state = manager.getEngineState();
-  const suggestions = parseSuggestions(text, projection, withheldNames(manager.getStory(), state?.visitedPath ?? [], state?.activeCheckpointId ?? null));
+  const suggestions = parseSuggestions(text, projection, withheldNames(manager.getStory(), state?.visitedPath ?? [], state?.activeCheckpointId ?? null, state?.blackboard?.values));
   return suggestionsUsable(suggestions) ? { ok: true, suggestions, ask } : { ok: false, reason: SUGGESTION_COPY.failed };
 }
 

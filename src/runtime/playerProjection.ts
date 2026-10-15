@@ -1,5 +1,6 @@
 import { openPhase, type Checkpoint, type NormalizedStoryV2 } from "@engine/index";
 import { PLAYER_COPY, type NarrativeSectionId, type NarrativeStatus } from "./narrative";
+import { gameLayer } from "@engine/validate/gameLayer";
 
 export const PROJECTION_TRANSCRIPT_MESSAGES = 12;
 export const PROJECTION_MESSAGE_CHARS = 600;
@@ -76,12 +77,15 @@ const reachedNames = (story: NormalizedStoryV2 | null, visitedPath: readonly str
   return [...new Set(names)];
 };
 
-export const withheldNames = (story: NormalizedStoryV2 | null, visitedPath: readonly string[], activeCheckpointId: string | null): string[] => {
+export const withheldNames = (
+  story: NormalizedStoryV2 | null, visitedPath: readonly string[], activeCheckpointId: string | null, values: Readonly<Record<string, unknown>> = {},
+): string[] => {
   if (!story) return [];
   const reached = new Set([...visitedPath, ...(activeCheckpointId ? [activeCheckpointId] : [])]);
   const unreached = story.checkpoints.filter((checkpoint) => !reached.has(checkpoint.id)).flatMap((checkpoint) => [checkpoint.player_name, checkpoint.name]);
   const quests = (story.quests ?? []).map((quest) => quest.title);
-  const names = [...unreached, ...quests].map((name) => name?.trim() ?? "").filter((name) => name.length >= WITHHELD_NAME_MIN_CHARS);
+  const codex = story.codex ? gameLayer()?.codex.unknownCodexNames(story, values) ?? [] : [];
+  const names = [...unreached, ...quests, ...codex].map((name) => name?.trim() ?? "").filter((name) => name.length >= WITHHELD_NAME_MIN_CHARS);
   return [...new Set(names)];
 };
 

@@ -1,7 +1,6 @@
-import { nearestKey } from "@utils/levenshtein";
 import { RECAP_GUIDE_TOPIC } from "./guideTopicsRecap";
+import { CODEX_GUIDE_TOPIC } from "./guideTopicsCodex";
 import type { DIAGNOSTIC_CODES } from "../studio/diagnostics";
-import type { CopilotStage } from "./types";
 import { CHARACTER_TOPICS, FACTION_DIAGNOSTIC_TOPICS } from "./guideTopicsCharacters";
 
 export interface GuideTopic {
@@ -298,7 +297,7 @@ export const GUIDE_TOPICS = {
   },
   quests: {
     title: "Quests and milestones",
-    fields: "quests[], visible_when, offered_when, done_when, failed_when, steps[], requires, progress, labels, giver, reward, milestones[]",
+    fields: "quests[], visible_when, offered_when, done_when, failed_when, steps[], requires, progress, labels, giver, reward, promise, milestones[]",
     text: "Status is computed every turn: hidden until visible_when (the acceptance), offered (never fails) while offered_when holds, then active, done or failed (failed wins); the end latches. "
       + "done_when defaults to every step done or progress {quality, of} reached; requires adds another quest's done gate. reward lands once: set writes code qualities, "
       + "effects switch world_info, cast_changes, npc_replies (onEnter); a swipe takes it back. Milestones {id, title, when, secret}; a secret one is unlisted until earned.",
@@ -333,6 +332,7 @@ export const GUIDE_TOPICS = {
       + "Runs in a sandboxed frame with no network and no access to SillyTavern; "
       + "window.storyWidget.onData(f) gets the source widget's player view, ready() starts it, propose(id) puts that action's text in the box. Off for the player = the source panel shows.",
   },
+  ...CODEX_GUIDE_TOPIC,
   ...CHARACTER_TOPICS,
   "living-director": {
     title: "Living stories",
@@ -425,34 +425,6 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "stage-sprite-unknown": "presentation",
   "widget-item-never-read": "clues-and-maps", "map-pin-unreachable": "clues-and-maps", "map-image-missing": "clues-and-maps",
   "html-widget-declared": "html-panels",
+  "codex-fact-never-read": "codex", "codex-gate-holds-at-start": "codex", "disclosure-names-unknown-entity": "codex",
 };
 
-export const STAGE_GUIDE_TOPICS: Record<CopilotStage, readonly GuideTopicId[]> = {
-  qualities: ["quality-rubric", "latching", "chance-roll", "briefing"],
-  checkpoints: ["checkpoints", "objective-agency"],
-  transitions: ["gates", "transitions"],
-  effects: ["opening-scene", "drives-motives", "requirements", "briefing"],
-  provisioning: ["opening-scene", "requirements"],
-};
-
-export const renderGuideTopic = (id: GuideTopicId): string => {
-  const topic = GUIDE_TOPICS[id];
-  return `${topic.title} (${topic.fields})\n${topic.text}`;
-};
-
-export const renderStageGuide = (stage: CopilotStage): string =>
-  `Author's guide, for this stage:\n${STAGE_GUIDE_TOPICS[stage].map((id) => `- ${GUIDE_TOPICS[id].title}: ${GUIDE_TOPICS[id].text}`).join("\n")}`;
-
-const isTopic = (value: string): value is GuideTopicId => Object.hasOwn(GUIDE_TOPICS, value);
-
-export const PENDING_GUIDE_TOPICS: Readonly<Record<string, string>> = {};
-
-export const readGuide = (topic: unknown): string => {
-  const typed = typeof topic === "string" ? topic.trim().toLowerCase() : "";
-  if (isTopic(typed)) return renderGuideTopic(typed);
-  if (Object.hasOwn(PENDING_GUIDE_TOPICS, typed)) return `Guide topic "${typed}" is kept for ${PENDING_GUIDE_TOPICS[typed]}, which is not in this build yet. Do not author it.`;
-  const near = typed ? nearestKey(typed, GUIDE_TOPIC_IDS) : null;
-  const known = `Topics: ${GUIDE_TOPIC_IDS.join(", ")}.`;
-  if (!typed) return `Name a topic. ${known}`;
-  return `No guide topic "${typed}"${near ? ` (did you mean "${near}"?)` : ""}. ${known}`;
-};

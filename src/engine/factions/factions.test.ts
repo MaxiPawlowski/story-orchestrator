@@ -4,7 +4,8 @@ import { StoryEngine } from "../engine";
 import { Blackboard } from "../blackboard";
 import { parseStoryV2, parseStoryV2OrThrow } from "../validate";
 import { factionMoveKey, seenStandingKey, standingKey, type NormalizedStoryV2, type PrimitiveValue, type ValidationError } from "../schema";
-import { applyFactionMoves, factionDirectorLines, factionMemberLines, factionsMoved, standingView, DIRECTOR_INTRODUCE, FACTION_ROLLBACK_DETECTOR } from "./standing";
+import { applyFactionMoves, factionDirectorLines, factionMemberLines, factionsMoved, standingView, DIRECTOR_INTRODUCE, factionLatches } from "./standing";
+import { ROLLBACK_DETECTORS } from "../rollbackDetectors";
 import { privateLifeLines } from "../life/lines";
 import { FACTION_MOVE_ON_INACTION } from "../validate/factions";
 
@@ -141,6 +142,19 @@ describe("v2.8 plan 53: standing moves on authored events only", () => {
     }
   });
 
+  it("the SC2 latch writer (factionLatches) writes exactly what the atomic pass writes (200 seeds)", () => {
+    for (let seed = 1; seed <= 200; seed += 1) {
+      const random = rng(seed * 13);
+      const values: Record<string, PrimitiveValue> = { ...new Blackboard(STORY).entries(), [standingKey("guild")]: Math.round(random() * 10 - 5) + 0, location: ["hall", "docks"][Math.floor(random() * 2)] };
+      for (const key of ["apprentice_saved", "ledger_stolen", "envoy_helped", "debt_paid"]) if (random() < 0.5) values[key] = true;
+      const direct = new Blackboard(STORY, { values: { ...values }, versions: {}, latched: {} });
+      applyFactionMoves(STORY, direct, 3);
+      const viaWriter = new Blackboard(STORY, { values: { ...values }, versions: {}, latched: {} });
+      factionLatches(STORY, { boundary: 3, values }).forEach((delta) => viaWriter.applyDelta({ ...delta, source: "code" }));
+      expect(viaWriter.entries()).toEqual(direct.entries());
+    }
+  });
+
   it("a quest reward {add} lands before the latch pass, so a reward can earn a move in the same boundary (SC2 step 4 then 5)", () => {
     const run = play();
     run.turn({ debt_found: true });
@@ -242,7 +256,7 @@ describe("v2.8 plan 53 F4 (SC1): standing rolls back with the boundary and repla
     run.engine.commitBoundary({ lastMessageId: 5, chatLength: 6 });
     const entry = run.engine.stateLog.at(-1);
     expect(entry && factionsMoved(STORY, entry.before.blackboard.values, entry.after.blackboard.values)).toBe(true);
-    expect(FACTION_ROLLBACK_DETECTOR.moved(STORY, { rep_guild: 0 }, { rep_guild: -3 })).toBe(true);
+    expect(ROLLBACK_DETECTORS.find((detector) => detector.id === "factions")?.moved(STORY, { rep_guild: 0 }, { rep_guild: -3 })).toBe(true);
     expect(run.engine.shouldRollbackFromMessage(4)).toBe(true);
     const story = parseStoryV2OrThrow({ ...clone(), factions: undefined, roster: (clone().roster as Array<Record<string, unknown>>).map(({ factions: _f, ...member }) => member), quests: [] });
     expect(factionsMoved(story, { rep_guild: 0 }, { rep_guild: 1 })).toBe(false);

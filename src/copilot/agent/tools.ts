@@ -197,6 +197,21 @@ setPoseCard: { backedBy: "setPoseCard", doc: "Set living card fields and charact
         + `moves: [{id, when: ${GATE}, add (whole number, not 0), heard_by?: present|faction}]}]`),
     },
   },
+  setCodexEntry: {
+    backedBy: "updateCodexEntry",
+    doc: "Create or replace one People or Places page entry. Facts show to the player only once known_when holds; "
+      + "write each as a lasting truth the player may read the moment it is known. Read the codex guide first.",
+    args: {
+      page: req("string", "people | places"),
+      entry: req("object", `{id, name? | member? (roster id), location? (places: a location value), aliases?, known_when?, `
+        + `facts: [{id, text, known_when: ${GATE} | {reached: checkpoint id} | "start", source?, rev?}]}`),
+    },
+  },
+  removeCodexEntry: {
+    backedBy: "removeCodexEntry",
+    doc: "Remove one People or Places page entry.",
+    args: { page: req("string", "people | places"), id: req("string", "entry id") },
+  },
   setClock: {
     backedBy: "setClock",
     doc: "Give the story a time of day and a day count, or null to remove it.",
@@ -281,6 +296,8 @@ export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof Mutations, string>> 
   newWidget: "constructor; setWidgets takes the full list",
   newFaction: "constructor; setFactions takes the full list",
   CHARACTER_LIFE_FIELDS: "a constant, not a mutation: the fields setCharacterLife replaces",
+  setCodex: "the Studio replaces the whole codex; the agent edits one entry at a time with setCodexEntry and removeCodexEntry",
+  setCodexShown: "whether the story shows People and Places is a presence choice the author makes in the Studio",
 };
 
 export const renderArg = (name: string, spec: AgentArgSpec): string => `${name}${spec.required ? "" : "?"}: ${spec.type}${spec.doc ? ` (${spec.doc})` : ""}`;

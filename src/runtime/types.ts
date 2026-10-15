@@ -1,4 +1,4 @@
-import type { AgencyPolicy, ArcTemplate, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
+import type { AgencyPolicy, ArcTemplate, EngineHistory, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
 import type { JudgeCallRecord, JudgeMeterView, JudgeRuntimeState, SceneReadRecord } from "@judge/index";
 import type { ExtractionHealth, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
@@ -17,7 +17,6 @@ import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
 import type { CreatedEntry, CuratorDecline, CuratorPassAudit, CuratorProposalRecord, RepetitionReport, StagecraftAcceptMode } from "@stagecraft/index";
 import type { JournalRecord } from "./journal";
-import type { EngineHistory } from "@engine/index";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
 import type { AgencyRecovery } from "./agencyRecovery";
 import type { NextTurnContributor, NextTurnCost, NextTurnForeignRow } from "./nextTurn";
@@ -228,6 +227,7 @@ export interface MemoryRuntimeSettings {
   innerBeat?: boolean;
   innerFanOut?: InnerFanOut;
   harvestReasoning?: boolean;
+  promises?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
 
@@ -546,6 +546,7 @@ export interface RuntimeSnapshot {
   lastRollback: RollbackNotice | null;
   /** Display names keyed by avatar file, avatar stem and roster id, for player-facing cast lines. */
   castNames?: Record<string, string>;
+  sameCharacter?: string[];
   rollbackUnavailable: RollbackUnavailable | null;
   ledger: LedgerView[];
   /** Each memory row's fate and each tier's trim, from the last injection (author view, in memory only). */
@@ -581,7 +582,6 @@ export interface RuntimeSnapshot {
   game?: GameView | null;
   gameAuthor?: GameAuthorView | null;
   lifeAuthor?: LifeAuthorView | null;
-  factionsAuthor?: import("./factionSnapshot").FactionAuthorView | null;
   living?: LivingView | null;
 }
 

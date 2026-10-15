@@ -10,21 +10,29 @@ import { agendaWorldInfo, landedSteps, lifeAuthorRows, lifeMoved, privateLifeLin
 
 import { addFactionQualities, checkFactions, readFactions } from "./factions";
 import {
-  applyFactionMoves, factionAuthorRows, factionDirectorLines, factionMemberLines, factionScopeUnits, factionsMoved, standingView,
+  factionAuthorRows, factionDirectorLines, factionDiscoveryUnits, factionLatches, factionMemberLines, factionScopeUnits, factionsMoved, standingView,
 } from "../factions/standing";
 import * as poses from "./poses";
 import { validateCardLayers } from "./cardLayers";
+import { addCodexQualities, checkCodex, readCodex } from "./codex";
+import { codexLatches, codexScopeUnits, unknownCodexNames } from "../codex";
 
 const LIFE = {
   readLife, addLifeQualities, checkLife, deriveLife, awayMembers, lifeScopeKeys, lifeScopeTiers, privateLifeLines, agendaWorldInfo, landedSteps, lifeMoved, lifeAuthorRows,
   relationshipFeelings,
 };
 
+const CODEX = { readCodex, addCodexQualities, checkCodex, codexLatches, codexScopeUnits, unknownCodexNames };
+
 const FACTIONS = {
-  readFactions, addFactionQualities, checkFactions, applyFactionMoves, factionsMoved, factionMemberLines, factionDirectorLines, standingView, factionAuthorRows, factionScopeUnits,
+  readFactions, addFactionQualities, checkFactions, factionsMoved, factionMemberLines, factionDirectorLines, standingView, factionAuthorRows, factionScopeUnits,
 };
 
+const LATCH_WRITERS = [codexLatches, factionLatches] as const;
+
+const DISCOVERY_UNITS = [codexScopeUnits, factionDiscoveryUnits] as const;
+
 export const GAME_LAYER = {
-  readCheck, readChecks, checkStoryChecks, checkDisplays, readDisplay, addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests, readWidgets, life: LIFE, factions: FACTIONS,
-  poses, validateCardLayers,
+  readCheck, readChecks, checkStoryChecks, checkDisplays, readDisplay, addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests, readWidgets, life: LIFE, poses, validateCardLayers,
+  codex: CODEX, factions: FACTIONS, latchWriters: LATCH_WRITERS, discoveryUnits: DISCOVERY_UNITS,
 };

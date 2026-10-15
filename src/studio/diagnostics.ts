@@ -16,6 +16,7 @@ import { factionQualities } from "@engine/validate/factions";
 import { DIAGNOSTIC_CODES } from "./diagnosticCodes";
 import { STAGE_CONSEQUENCES, checkStageSprites, type StageInventory } from "./stageDiagnostics";
 import { WIDGET_CONSEQUENCES, checkWidgets, scopedKeys, widgetGateKeys } from "./widgetDiagnostics";
+import { CODEX_CONSEQUENCES, checkCodexDraft } from "./codexDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -79,6 +80,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   ...FACTION_CONSEQUENCES,
   ...STAGE_CONSEQUENCES,
   ...WIDGET_CONSEQUENCES,
+  ...CODEX_CONSEQUENCES,
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -502,6 +504,7 @@ const DIAGNOSTIC_CHECKS = [
   checkFactionDiagnostics,
   checkStageSprites,
   checkWidgets,
+  checkCodexDraft,
 ];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {

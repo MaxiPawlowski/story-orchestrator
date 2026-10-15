@@ -33,6 +33,7 @@ export abstract class CoordinatorDelegates {
   get recap() { return this.co.recap; }
   get meanwhile() { return this.co.meanwhile; }
   get living() { return this.co.living; }
+  get promises() { return this.co.promises; }
   async livingStory(input: Omit<LivingStartInput, "members">): Promise<StoryV2> {
     const { buildLivingStory } = await import("@generation/living/start");
     return buildLivingStory({ ...input, members: listGroupMemberNames() });

@@ -1,3 +1,4 @@
+import { memorySightings, nameIndexOf, sameCharacterCandidates } from "@memory/nameFold";
 import {
   agencyFor, gateKeys, milestoneEarned, valueReader, visibleQuestTitles,
   type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type StoryEngine, type ValidationError,
@@ -55,6 +56,7 @@ import { recapCardSections, recapSection } from "./recapPort";
 import { lifeAuthorSlice } from "./lifeSnapshot";
 import { factionAuthorSlice } from "./factionSnapshot";
 import { livingSlice } from "./livingSnapshot";
+import { promisesSlice } from "./promiseSnapshot";
 import { graphEpoch } from "@generation/living/fold";
 import { buildPresence } from "./presence";
 import { readPlaysIndex } from "./playsIndexHost";
@@ -326,6 +328,7 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
     }),
     rolls: composeRolls(quality, sources.extras.chance ?? createChance(), checkRolls(story, extras.checks)),
     repetition: sources.loaded && sources.extras.ui.authorView ? mineRepetition(replyTexts(sources.chat)) : null,
+    ...(extras.ui.authorView && story ? { sameCharacter: sameCharacterCandidates(nameIndexOf(story), memorySightings(extras.memory), [extras.playerSetup?.name ?? "", "player", "you", "user"]) } : {}),
     presence: buildPresence({
       story, settings: sources.extras.ui.presence, boundaryLog: sources.boundaryLog, plays: sources.plays ?? {}, library: listStoryRecords(),
       cardRecaps: recapCardSections({ story, state, recap: extras.recap, chat: sources.chat }),
@@ -447,6 +450,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     expansion: extras.expansion,
     memory: extras.memory, memoryShown: shownRows(extras.memory.entries, sources.resting ?? ((text: string) => text)),
     chapters,
+    promises: promisesSlice(story, extras, blackboard),
     pacing: extras.pacing,
     copilot: extras.copilot,
     ui: extras.ui,
