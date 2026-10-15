@@ -303,6 +303,30 @@ Gates (worktree `C:\dev\so-p45-carry`)
   restart carry and the injection key. Validation, projection, picker, UI, view and seed logic ride the game-layer, carry-unit,
   chapter-seal and component chunks.
 
+Merge with master `a321491e` and main-entry diet (2026-10-15)
+
+- The first merge of this branch into master was aborted at 1,301,551 B (master had gained the 61b Astra fixes). Merged master
+  `a321491e` (1,298,705 B) into the branch: conflicts in `engine/rollbackDetectors.ts` (master's `mood`/`lifePacing` helpers and
+  `life-pacing` detector kept beside `isHeritage` / `heritage`) and `pages.generated.ts` (regenerated with `docs:guide`); arrival
+  golden re-recorded. Merged branch: 1,301,562 B (1,562 B over).
+- Diet, measured first (webpack stats of the main entry): moved existing main-entry code used only after a curator op is
+  applied or a chat is deleted into lazy chunks; behaviour unchanged, main keeps only doors.
+  - `CuratorWriter` (`curatorWriter.ts`) and `LoreCreator` (`loreCreator.ts`, with the near-duplicate scorer and created stamp
+    they pull in) are built by a new lazy `runtime/stagecraftKit.ts`; `StagecraftCoordinator` loads it once (`kit()`) on the first
+    create pass, in-turn apply, write-ahead reconcile or rollback revert. 1,301,562 -> 1,286,896 B (-14,666).
+  - Chat-delete reapers: the `MirrorReaper` class moved to `runtime/mirrorReaperCore.ts`, the host construction of both reapers
+    (`MirrorReaper` + `CreatedEntryReaper`, their lorebook readers and confirms) to `runtime/mirrorReaperUnit.ts`
+    (`buildReapers`). `mirrorReaperHost.ts` still subscribes at startup, synchronously, and loads the unit on the first deleted
+    chat (one load, queued in order; a load failure is logged). `mirrorReaper.ts` keeps markers, registries, `ReapLog`,
+    `lifetimeOwnership`. Census keys renamed (`lorebook-writers.json`, `ownership-sites.json`). 1,286,896 -> 1,280,683 B (-6,213).
+- Result: `dist/index.js` 1,280,743 B on `e0b6097b` (budget 1,300,000; 19,257 B left, master was 1,298,705). Budget unchanged.
+- `npm run gates -- --jobs=2 --no-storybook` on `e0b6097b`: all green in 252.9 s (test, test:replay, build, test:debug,
+  typecheck, typecheck:test, lint, debug:typecheck, test:release, test:plugin). Storybook (gates hardcode port 6006):
+  `npm run storybook:build`, `http-server .sb-static -p 6245` + test-runner `--url http://127.0.0.1:6245 --maxWorkers 2`: 147
+  suites, 882 tests passed.
+- Live gate for the moved reaper and curator paths is owed with the carry lane gate (delete a chat with a mirror book and with a
+  curator-created entry: reap prompt appears; accept a curator op in review mode: entry written).
+
 Deviations
 
 - `legacy` is renamed `heritage` (`as: "heritage"`, `heritage_` keys, `heritage_text`): `legacyFree.guard.test.ts` refuses the
@@ -334,7 +358,6 @@ Owed
 - Spoiler checklist rows for picker, heritage card and Previously card; plan 24 matrix row.
 - Adolion: not changed; whether the campaign declares `outcome`/`carry_from` is the owner's call (content review by another model).
 - E (trophy shelf) → M45e.
-- Main-entry headroom is 196 B after this plan: the next plan that touches the main entry needs a trim first.
 
 Unresolved questions
 
