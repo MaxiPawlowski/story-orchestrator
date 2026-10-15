@@ -125,6 +125,8 @@ Path aliases (tsconfig + webpack): `@components @services @utils @constants @eng
 - If a write changes injected state, the write refreshes the injection (not the caller).
 - Derived memory artifacts record `inputs`/`range` and `removed` (`memory/derived.ts`); `reverseMemoryState` composes the rollback; `rollback ≡ replay` is a property test.
 - Character life is ordinary story state compiled to qualities; agendas never call a model; life lines reach only the drafted member's private block. Meanwhile proposals are text only, propose only (`stagecraft.meanwhileAcceptMode` `auto` default | `review` | `off`), land at a boundary, roll back by message.
+- **Faction standing is ordinary story state** (v2.8 53): `rep_<faction>`, `rep_<faction>_seen_<member>`, `rep_<faction>_move_<move>` code ints compiled in `validate/factions.ts`; moves apply in the latch pass after quest rewards (and again after a fired transition), once ever, the record written only when the add applied; `factionsMoved` is the rollback detector (SC1 registry entry `FACTION_ROLLBACK_DETECTOR`). Never written by `state_snapshot`; a lowering move needs an evidenced event (`faction-move-on-inaction`). Players get band words of visible factions only; the director gets visible bands and `introduce` names, never a hidden faction's band, members or lore.
+- **One range clamp**: `Blackboard.applyDelta` clamps every int/float write into `Quality.range` (compiled from `display.min/max` or a faction range) before the type check; player view = blackboard (no display-time clamp).
 - Epistemic data is never written to World Info.
 
 ### Model routes and context
