@@ -30,20 +30,9 @@ import { residueTags, settledOnReply } from "../emptyReply";
 import type { LoreWiring } from "./lore";
 import type { Disposers, LiveParts } from "./types";
 
-const awayNotice = createAwayNotice({
-  line: () => awayNoticeLine(runtimeManager.getStory(), runtimeManager.getEngineState()?.blackboard.values ?? {}, getContext().chat ?? []),
-  set: setStoryExtensionPrompt,
-  clear: clearStoryExtensionPrompt,
-});
-
-const previously = createAwayNotice({
-  line: () => {
-    const carry = runtimeManager.getCachedSnapshot().carry;
-    return carry?.active ? carry.state?.block ?? null : null;
-  },
-  set: setStoryExtensionPrompt,
-  clear: clearStoryExtensionPrompt,
-}, INJECTION_REGISTRY.previously);
+const notice = (line: () => string | null, spec: { key: string; depth: number } = INJECTION_REGISTRY.awayNotice) => createAwayNotice({ line, set: setStoryExtensionPrompt, clear: clearStoryExtensionPrompt }, spec);
+const awayNotice = notice(() => awayNoticeLine(runtimeManager.getStory(), runtimeManager.getEngineState()?.blackboard.values ?? {}, getContext().chat ?? []));
+const previously = notice(() => runtimeManager.getCachedSnapshot().carry?.block ?? null, INJECTION_REGISTRY.previously);
 
 type IntentOf<K extends GenerationIntent["kind"]> = Extract<GenerationIntent, { kind: K }>;
 

@@ -79,6 +79,7 @@ export interface CarryView {
   canPick: boolean;
   state: CarryState | null;
   active: boolean;
+  block: string | null;
 }
 
 export interface CarryDeclined {

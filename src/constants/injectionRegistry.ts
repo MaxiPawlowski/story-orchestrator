@@ -29,7 +29,7 @@ export const INJECTION_REGISTRY = {
   playerRole: { key: "story_orchestrator_player_role", depth: 4, writer: "runtime/playerRoleHost", label: "Who the player is in this story" },
   checkOutcome: { key: "story_orchestrator_check_outcome", depth: 0, writer: "runtime/checkOutcomeHost", label: "Outcomes the story decided" },
   awayNotice: { key: "story_orchestrator_away_notice", depth: 0, writer: "runtime/awayNotice", label: "Who is not here" },
-  previously: { key: "story_orchestrator_previously", depth: 4, writer: "runtime/carryPort", label: "Previously, in an earlier story" },
+  previously: { key: "story_orchestrator_previously", depth: 4, writer: "runtime/carryPort", label: "Previously" },
 } as const satisfies Record<string, InjectionSpec>;
 
 export const INJECTION_DEPTH_COLLISION_ALLOWLIST: ReadonlyArray<ReadonlySet<string>> = [

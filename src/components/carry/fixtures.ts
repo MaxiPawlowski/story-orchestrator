@@ -15,5 +15,5 @@ export const carryState = (patch: Partial<CarryState> = {}): CarryState => ({
 });
 
 export const carryView = (patch: Partial<CarryView> = {}): CarryView => ({
-  story: "ngp-source", mode: "sequel", required: false, pending: false, canPick: true, state: carryState(), active: true, ...patch,
+  story: "ngp-source", mode: "sequel", required: false, pending: false, canPick: true, state: carryState(), active: true, block: "Previously: The Lantern Coast ended.", ...patch,
 });

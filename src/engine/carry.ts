@@ -105,10 +105,13 @@ export const carrySeed = (story: TargetStory, carry: CarryState): { seed: Record
   return { seed: Object.fromEntries(kept.map((value) => [value.key, value.value])), kept, dropped };
 };
 
-export const startSeed = (story: TargetStory, slice: CarrySlice | undefined) => {
-  if (!isCarryState(slice)) return null;
-  const result = carrySeed(story, slice);
-  return { ...result, carry: result.dropped.length ? { ...slice, values: result.kept } : slice };
+export const startSeed = (story: TargetStory, holder: { carry?: CarrySlice }, journal: (summary: string, note: string) => void): Record<string, PrimitiveValue> => {
+  const slice = holder.carry;
+  if (!isCarryState(slice)) return {};
+  const { seed, kept, dropped } = carrySeed(story, slice);
+  if (dropped.length) holder.carry = { ...slice, values: kept };
+  dropped.forEach((skip) => journal(`carried value dropped: ${skip.key}`, skip.reason));
+  return seed;
 };
 
 export const importCarryErrors = (parsed: NormalizedStoryV2, id: string, rawOf: (storyId: string) => unknown): ValidationError[] => {
@@ -121,13 +124,16 @@ export const importCarryErrors = (parsed: NormalizedStoryV2, id: string, rawOf: 
 export const carryKnownLines = (carry: CarrySlice | null | undefined, rosterId: string): string[] =>
   (isCarryState(carry) ? carry.values : []).filter((value) => value.knownBy.includes(rosterId)).map((value) => `- From an earlier story, you know: ${value.label}`);
 
-export const carryView = (story: TargetStory, slice: CarrySlice | undefined, boundary: number, sealed: number): CarryView | null => {
+export const carryView = (story: TargetStory, holder: { carry?: CarrySlice; memory: { chapters?: unknown[] } }, boundary: number): CarryView | null => {
   const from = story.carry_from;
   if (!from) return null;
+  const slice = holder.carry;
+  const sealed = holder.memory.chapters?.length ?? 0;
   const state = isCarryState(slice) ? slice : null;
   return {
     story: from.story, mode: from.mode, required: from.default === "require", pending: !slice, canPick: boundary === 0, state,
     active: previouslyActive(state, boundary, sealed),
+    block: previouslyActive(state, boundary, sealed) ? state?.block ?? null : null,
   };
 };
 

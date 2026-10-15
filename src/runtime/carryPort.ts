@@ -16,15 +16,10 @@ export interface CarryCandidateRow {
 export type CarryOutcome = { ok: true } | { ok: false; reason: string };
 
 export const carrySlice = (story: NormalizedStoryV2 | null, extras: RuntimeExtras, boundary: number): CarryView | null =>
-  (story?.carry_from && gameLayer()?.carry.carryView(story, extras.carry, boundary, extras.memory.chapters?.length ?? 0)) || null;
+  (story && gameLayer()?.carry.carryView(story, extras, boundary)) || null;
 
-export const carryStartSeed = (story: NormalizedStoryV2, extras: RuntimeExtras, journal: (summary: string, note: string) => void): Record<string, PrimitiveValue> => {
-  const start = gameLayer()?.carry.startSeed(story, extras.carry);
-  if (!start) return {};
-  extras.carry = start.carry;
-  start.dropped.forEach((skip) => journal(`carried value dropped: ${skip.key}`, skip.reason));
-  return start.seed;
-};
+export const carryStartSeed = (story: NormalizedStoryV2, extras: RuntimeExtras, journal: (summary: string, note: string) => void): Record<string, PrimitiveValue> =>
+  gameLayer()?.carry.startSeed(story, extras, journal) ?? {};
 
 type CarryUnit = typeof import("./carryUnit");
 
