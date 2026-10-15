@@ -583,3 +583,17 @@ Real runs (3090, owner go-ahead):
    - Artemis is shared during both arms.
    - About 30 min of wall time per run, about 60 min for ×2.
 4. No Sol call is made; the cards come from provisioning ops.
+
+## Gate record 2026-10-15 (image defects from the 3090 run)
+
+- Root cause of the latency run's "GPU broker did not release the image lease" and the 1/12 pose coverage: `ResidencyScheduler.releaseOwned` threw on any cleanup error after the queue drained (cache reclamation other than an admission refusal, snapshot, footprint write), so `lease` stayed set. Every later `/lease` got 409 "already owns", and the 120 s backstop re-ran the same throwing path, so the lease was never freed. The page batch also kept the dead lease and failed every next image.
+- Fix `c49b7995`: after the drain the lease is always cleared (errors go to `lastError`); an unreadable queue no longer blocks a release; the backstop frees an unrenewed lease (`leaseIdleMs`, 120 s) and any lease past `leaseMaxMs` (30 min) once ComfyUI is idle; `SpriteBatchLease` drops a lease whose release or renew failed; `released:false` (already gone) is not a failure; the cast scene releases its lease even when a reference release throws.
+- Fix `22c46437`: a page lease request that meets another render's lease waits (bounded 15 min, cancellable) instead of failing. The p41 run 2 pose step showed paired lease calls 0.2 s apart and one body left on the set default, consistent with this.
+- Tests: `broker/scheduler.test.mjs` (4 new), `batchLease.test.ts`, `castSceneHost.test.ts`, `utils/leaseWait.test.ts`, `stHost/gpuLeaseAnswer.test.ts`; each new test fails on the old code.
+- Floors unchanged (`lie_side` and the rest stay as declared).
+- Needs a GPU re-check: the latency run x2 with the controller restarted on the fixed `scheduler.mjs` (the managed controller imports it from the checkout it runs from).
+- Gates on branch `v2.8-image-defects` (base `6e77c14a`), no GPU, ComfyUI or model use:
+  - `npm run gates:quick` green after each fix.
+  - `npm run gates -- --jobs=2 --skip=test-storybook:ci`: every step green across runs. Timing flakes, each retried once: `consequences.test.ts` C6 (p95 <= 5 ms under parallel load; green alone and in an earlier full run), harness `agent.test.mjs` "stalled OpenCode service" (15 s deadline under load; `npm run test:plugin` alone 311/311).
+  - Storybook by hand (the `test-storybook:ci` script pins port 6006): `storybook:build`, `http-server .sb-static -p 6371`, test runner 854/855; the one miss `Workspace/Shell > Mobile` (unrelated, heading not found) passed on re-run together with the Gaze, BaseSpriteBuilder and PreparedCast stories.
+  - Main bundle 1,290,510 B (budget 1,300,000).
