@@ -53,7 +53,7 @@ export interface MilestoneView {
   earned: boolean;
 }
 
-export const LOG_KINDS = ["action", "world_event", "check", "quest", "milestone"] as const;
+export const LOG_KINDS = ["action", "world_event", "check", "quest", "milestone", "learned"] as const;
 export type LogKind = (typeof LOG_KINDS)[number];
 
 export interface LogRowView {
@@ -155,6 +155,28 @@ export interface ProvenanceView {
   messageId?: number;
 }
 
+export interface CodexFactView {
+  text: string;
+  fresh: boolean;
+  from?: string;
+}
+
+export interface CodexRowView {
+  text: string;
+}
+
+export interface CodexEntryView {
+  name: string;
+  fresh: boolean;
+  facts: CodexFactView[];
+  rows?: CodexRowView[];
+}
+
+export interface CodexView {
+  people: CodexEntryView[];
+  places: CodexEntryView[];
+}
+
 export interface GameView {
   quests: QuestView[];
   mainLine: MainLineView;
@@ -164,11 +186,13 @@ export interface GameView {
   journal: WidgetView[];
   statSheet: WidgetView | null;
   widgets: WidgetView[];
+  codex?: CodexView;
 }
 
 export interface GameAuthorView {
   quests: Array<{ id: string; title: string; status: QuestStatus }>;
   scopeOverflow: string[];
+  discoveryOverflow?: string[];
   widgets: WidgetView[];
   provenance?: Record<string, ProvenanceView[]>;
 }

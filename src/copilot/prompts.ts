@@ -1,6 +1,6 @@
 import { ARC_TEMPLATE_NAMES, GATE_OPERATORS, QUALITY_SOURCES, QUALITY_TYPES, TENSION_LEVELS, type StoryV2 } from "@engine/index";
 import type { ProvisioningEnvironment } from "@wizard/index";
-import { renderStageGuide } from "./guideTopics";
+import { renderStageGuide } from "./guideRead";
 import { stageOnlyEmitLine } from "./stages";
 import type { CopilotMessage, CopilotStage, DriverContext } from "./types";
 

@@ -13,6 +13,7 @@ import { checkLabel, type CheckRecord } from "./storyCheckDraws";
 import { questMoveText } from "@features/gameCopy";
 
 import { shownPlayerText } from "./stretchTurns";
+import { codexLogRows, composeCodex } from "./codexView";
 
 export const LOG_LIMIT = 40;
 export const ACTION_CHARS = 140;
@@ -27,6 +28,7 @@ export interface GameSources {
   chat: readonly unknown[];
   castNames: Record<string, string>;
   authorView?: boolean;
+  enabled?: readonly string[];
 }
 
 export interface GameCompose {
@@ -116,7 +118,8 @@ const actionRows = (chat: readonly unknown[], from: number, log: readonly Bounda
 
 const composeLog = (sources: GameSources): LogRowView[] => {
   const from = sources.boundaryLog[0]?.before.lastMessageId ?? -1;
-  return [...sources.boundaryLog.flatMap((entry) => statusMoves(sources.story, entry)), ...checkRows(sources.story, sources.checks), ...actionRows(sources.chat, from, sources.boundaryLog)]
+  return [...sources.boundaryLog.flatMap((entry) => statusMoves(sources.story, entry)), ...checkRows(sources.story, sources.checks), ...actionRows(sources.chat, from, sources.boundaryLog),
+    ...codexLogRows(sources.story, sources.boundaryLog, sources.castNames)]
     .sort((left, right) => right.at.messageId - left.at.messageId || right.at.boundary - left.at.boundary)
     .slice(0, LOG_LIMIT);
 };
@@ -312,11 +315,13 @@ export function composeGame(sources: GameSources): GameCompose {
   const log = kinds("log").length ? kinds("log") : fallback(synthesized("journal-log", "Log", { kind: "log", rows: parts.log }, still));
   const meters = kinds("meters");
   const statSheet = meters[0] ?? (parts.sheet.length ? synthesized("stat-sheet", "Stat sheet", { kind: "meters", groups: parts.sheet }, still) : null);
+  const codex = composeCodex({ story, state, castNames: sources.castNames, enabled: sources.enabled });
   const provenance = sources.authorView ? provenanceFor(story.widgets ?? [], [...authored, ...(statSheet?.synthesized ? [statSheet] : [])], sources) : {};
   return {
     player: {
       quests: parts.quests, mainLine: parts.main, sheet: parts.sheet, milestones: milestones(story, reader), log: parts.log, journal: [...track, ...log], statSheet,
       widgets: player.filter((widget) => !backing.has(widget.id) && (!["meters", "track", "log"].includes(widget.body.kind) || (widget.body.kind === "meters" && widget !== meters[0]))),
+      ...(codex ? { codex } : {}),
     },
     authorWidgets: authored.filter((widget) => widget.audience === "author" && !backing.has(widget.id)),
     provenance,

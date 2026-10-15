@@ -1,5 +1,7 @@
 import type { GateNode, NpcReplyEffect, PrimitiveValue } from "./schema";
 
+export * from "./codexSchema";
+
 export const QUALITY_DISPLAY_AS = ["meter", "count", "word", "item", "boxes"] as const;
 export type QualityDisplayAs = (typeof QUALITY_DISPLAY_AS)[number];
 export const BOXES_MAX = 12;

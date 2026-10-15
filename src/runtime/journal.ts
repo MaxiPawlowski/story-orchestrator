@@ -1,4 +1,4 @@
-import type { ApplyQueueEntry, BoundaryLogEntry } from "@engine/index";
+import { isCodexKey, type ApplyQueueEntry, type BoundaryLogEntry } from "@engine/index";
 import type { ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { JudgeCallRecord } from "@judge/index";
 import { judgeCallUse } from "@judge/settings";
@@ -10,7 +10,7 @@ export const JOURNAL_LIMIT = 200;
 export const PAYLOAD_CAPTURE_LIMIT = 5;
 
 export type JournalEventKind = "status" | "flag" | "story" | "boundary" | "transition" | "extraction" | "delta" | "reconciliation" | "payload" | "talk" | "stagecraft"
-  | "judge" | "lore" | "chapter" | "model-call" | "author";
+  | "judge" | "lore" | "chapter" | "model-call" | "author" | "learned";
 
 // The persisted half of the journal: things nothing else records. Additive kinds read back fine
 // from older chats — `sanitizeJournalRecords` keeps any record that carries a kind and a summary.
@@ -55,7 +55,7 @@ export interface JournalSources {
 }
 
 const KIND_ORDER: JournalEventKind[] = [
-  "flag", "author", "story", "boundary", "transition", "extraction", "delta", "reconciliation", "talk", "judge", "model-call", "stagecraft", "lore", "chapter", "payload", "status",
+  "flag", "author", "story", "boundary", "transition", "extraction", "delta", "reconciliation", "talk", "judge", "model-call", "stagecraft", "lore", "chapter", "payload", "status", "learned",
 ];
 
 const rank = (kind: JournalEventKind) => KIND_ORDER.indexOf(kind);
@@ -95,6 +95,9 @@ const boundaryEvents = (log: BoundaryLogEntry[]): JournalEvent[] => log.flatMap(
   if (entry.fired) {
     events.push({ ...base, kind: "transition", summary: `${entry.before.activeCheckpointId} → ${entry.after.activeCheckpointId}`, detail: { gate: entry.fired.gate, source: entry.source } });
   }
+  const after = entry.after?.blackboard?.values ?? {};
+  const learned = Object.keys(after).filter((key) => isCodexKey(key) && entry.before?.blackboard?.values?.[key] === undefined);
+  if (learned.length) events.push({ ...base, kind: "learned", summary: `learned ${learned.join(", ")}`, detail: { keys: learned } });
   return events;
 });
 

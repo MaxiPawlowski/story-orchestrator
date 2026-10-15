@@ -1,3 +1,4 @@
+import { memorySightings, nameIndexOf, sameCharacterCandidates } from "@memory/nameFold";
 import {
   agencyFor, gateKeys, milestoneEarned, valueReader, visibleQuestTitles,
   type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type StoryEngine, type ValidationError,
@@ -324,6 +325,7 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
     }),
     rolls: composeRolls(quality, sources.extras.chance ?? createChance(), checkRolls(story, extras.checks)),
     repetition: sources.loaded && sources.extras.ui.authorView ? mineRepetition(replyTexts(sources.chat)) : null,
+    ...(extras.ui.authorView && story ? { sameCharacter: sameCharacterCandidates(nameIndexOf(story), memorySightings(extras.memory), [extras.playerSetup?.name ?? "", "player", "you", "user"]) } : {}),
     presence: buildPresence({
       story, settings: sources.extras.ui.presence, boundaryLog: sources.boundaryLog, plays: sources.plays ?? {}, library: listStoryRecords(),
       cardRecaps: recapCardSections({ story, state, recap: extras.recap, chat: sources.chat }),

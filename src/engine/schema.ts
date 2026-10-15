@@ -499,6 +499,7 @@ export interface StoryV2 {
   quests?: Quest[];
   milestones?: Milestone[];
   widgets?: StoryWidget[];
+  codex?: import("./codexSchema").StoryCodex;
   clock?: StoryClock;
   living?: StoryLiving;
 }
@@ -536,7 +537,7 @@ export const isLivingId = (id: string): boolean => id.startsWith(LIVING_PREFIX);
 export const STORY_KINDS = ["saga", "story"] as const;
 export type StoryKind = typeof STORY_KINDS[number];
 
-export const STORY_DISPLAY_TOGGLES = ["continue_list", "group_card", "chapter_card", "wand", "roll_chips", "suggestions", "journal", "stat_sheet", "widgets", "motion"] as const;
+export const STORY_DISPLAY_TOGGLES = ["continue_list", "group_card", "chapter_card", "wand", "roll_chips", "suggestions", "journal", "stat_sheet", "widgets", "motion", "codex"] as const;
 export type StoryDisplayToggle = typeof STORY_DISPLAY_TOGGLES[number];
 
 export interface StoryDisplay extends Partial<Record<StoryDisplayToggle, boolean>> {

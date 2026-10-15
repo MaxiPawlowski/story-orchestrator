@@ -10,6 +10,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 - [Stats and story panels](#widgets)
 - [Clue walls and maps](#clues-and-maps)
 - [Story-made HTML panels](#html-panels)
+- [People and Places](#codex)
 
 <a id="presentation"></a>
 
@@ -91,6 +92,20 @@ Fields: `widgets[].template`, `widgets[].source`, `widgets[].actions[]` (`id`, `
 - **Good.** `{ "id": "wall-page", "kind": "html", "title": "Case board", "source": "wall", "actions": [{ "id": "ask", "text": "I ask the ferryman about the ledger." }], "template": "<div id=b></div><script>storyWidget.onData(function(w){document.getElementById('b').replaceChildren(w.body.clues.map(function(c){return c.text}).join(' / '))});storyWidget.ready();</script>" }`.
 - **Bad.** A template that loads a script, a font or a picture from a link (blocked, so it renders without it); a `source` that is another HTML panel or shown to a different audience (refused); a template that hides spoilers in its own text and waits to reveal them (the text ships with the story, so anyone can read it; reveal only what the view says).
 - **If wrong.** With "Story-made panels" off, or on a browser that blocks the frame, the player gets the `source` panel, so the story never depends on the page.
+
+<a id="codex"></a>
+
+## People and Places
+
+Topic `codex`.
+
+Fields: `codex` (`people[]`, `places[]`; each entry `id`, `name`, `member`, `location`, `aliases`, `known_when`, `facts[]` with `id`, `text`, `known_when`, `source`, `rev`), `display.codex` (`engine/codexSchema.ts`, `engine/codex.ts`, `validate/codex.ts`, `runtime/codexView.ts`, `components/codex/CodexPage.tsx`).
+
+- **What it does.** The Journal gains a People page and a Places page that fill in as the player learns. A person names a roster `member` (shown by the card name) or a free `name` for someone who never appears; a place has a `name` and may name a `location` value of the story's `location` enum, and is then known once the party has been there. Each fact's `known_when` is a gate, `{"reached": "<checkpoint id>"}` (the chat has reached that checkpoint) or `"start"` (the player knows it from the opening: their background, the first place). An entry's own `known_when` makes it appear before any fact does (a person met, a place visited). A line latches the first turn its condition holds and stays, so a later change never takes it away; only a swipe, edit or delete of the reply that earned it does. Until then nothing about it is sent to the page, not even a hidden row, and the page counts only what shows: an entry with nothing known is absent, and a page with no entry has no tab. A fact may name a `source` (an entry or roster id); "From <name>" shows under it once that source is itself known, and a `reached` fact says "At <place>" from the checkpoint's player name. A fact learned at the last turn is marked new, and the log says "Learned about <name>". `aliases` are other names for the entry, used to keep an unmet name out of suggestions. The story reads every key a codex gate names while the entry or fact is unknown (people and places not yet known first, `DISCOVERY_SCOPE_CAP` keys a read, the rest taking turns), so a codex gate needs no transition to be read. Telling the player a fact gives no character that knowledge. `display.codex: false` hides both pages for this story. Ids are lowercase letters, digits and `-`; at most 12 facts an entry, text up to 200 characters, plain (no macros).
+- **Good.** `"codex": { "people": [{ "id": "ferryman", "member": "tom", "facts": [{ "id": "job", "text": "Runs the night crossing.", "known_when": { "reached": "landing" } }, { "id": "debt", "text": "Owes money to someone upriver.", "known_when": { "q": "heard_debt", "op": "==", "v": true }, "source": "innkeeper" }] }], "places": [{ "id": "boathouse", "name": "The boathouse", "location": "boathouse", "facts": [{ "id": "door", "text": "The back door does not lock.", "known_when": { "q": "searched_dock", "op": "==", "v": true } }] }] }`. Facts describe something that stays true ("Owes money upriver"), not a scene event ("Shouted at you on the pier").
+- **Bad.** A fact under an early gate that names the twist, or names a person the player has not met yet (`disclosure-names-unknown-entity`: the text shows the moment the fact is known); a fact that waits for a checkpoint no path reaches or a value nothing writes (`codex-fact-never-read`); a gate that already holds at the start (`codex-gate-holds-at-start`: mark it `"start"` instead); a `reached` checkpoint that does not exist, two entries with one id, or two person pages for one member (refused).
+- **Story updates.** Rewording a fact's `text` (same `known_when`, same `rev`) is a correction: a chat that knows it sees the new words at once. Changing its `known_when`, or raising its `rev`, makes it a new discovery: a chat that knew the old one loses it and learns the new one when its condition holds. Removing an entry or a fact drops what a chat learned of it.
+- **If wrong.** A fact read in a reply shows at the next reply, like every reading. When the read is crowded, Author view's setup list says which codex keys wait a turn (`discovery-scope-overflow`).
 
 ---
 

@@ -14,6 +14,7 @@ import { LIFE_CONSEQUENCES, checkAgendaPace } from "./lifeDiagnostics";
 import { DIAGNOSTIC_CODES } from "./diagnosticCodes";
 import { STAGE_CONSEQUENCES, checkStageSprites, type StageInventory } from "./stageDiagnostics";
 import { WIDGET_CONSEQUENCES, checkWidgets, scopedKeys, widgetGateKeys } from "./widgetDiagnostics";
+import { CODEX_CONSEQUENCES, checkCodexDraft } from "./codexDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -76,6 +77,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   ...LIFE_CONSEQUENCES,
   ...STAGE_CONSEQUENCES,
   ...WIDGET_CONSEQUENCES,
+  ...CODEX_CONSEQUENCES,
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -497,6 +499,7 @@ const DIAGNOSTIC_CHECKS = [
   checkAgendaPace,
   checkStageSprites,
   checkWidgets,
+  checkCodexDraft,
 ];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {

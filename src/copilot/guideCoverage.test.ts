@@ -1,6 +1,7 @@
-import type { PoseEntry, StoryPoses, MemberSprites, StageMember, CardFieldBinding } from "@engine/schema";
+import type { PoseEntry, StoryPoses, MemberSprites, StageMember, CardFieldBinding, CodexEntry, CodexFact, StoryCodex } from "@engine/schema";
 import type { Checkpoint, CheckpointEffects, Quality, RosterMember, StoryV2, Transition } from "@engine/index";
-import { GUIDE_TOPICS, PENDING_GUIDE_TOPICS, readGuide, type GuideTopicId } from "./guideTopics";
+import { GUIDE_TOPICS, type GuideTopicId } from "./guideTopics";
+import { PENDING_GUIDE_TOPICS, readGuide } from "./guideRead";
 
 type Covered = GuideTopicId | { none: string };
 
@@ -14,6 +15,7 @@ const STORY: Record<keyof StoryV2, Covered> = {
   scaffolding: { none: "written by the road-ahead generator, never authored" },
   objective_block: "objective-agency", display: "presentation", chapters: "chapters", memory: "chapters", quests: "quests", milestones: "quests",
   widgets: "widgets", clock: "character-life", living: "living-director",
+  codex: "codex",
 };
 
 const CHECKPOINT: Record<keyof Checkpoint, Covered> = {
@@ -52,7 +54,11 @@ const MEMBER_POSES: Record<keyof MemberSprites, Covered> = { pose: "poses", pose
 const STAGE_MEMBER: Record<keyof StageMember, Covered> = { pose: "poses", set: "poses", face: "poses", hidden: "poses", framing: "poses" };
 const CARD_FIELD: Record<keyof CardFieldBinding, Covered> = { quality: "living-cards", visual: "living-cards", layer: "poses", rebase: "poses", region: "poses" };
 const REGION: Record<keyof NonNullable<CardFieldBinding["region"]>, Covered> = { x: "poses", y: "poses", width: "poses", height: "poses" };
+const CODEX: Record<keyof StoryCodex, Covered> = { people: "codex", places: "codex" };
+const CODEX_ENTRY: Record<keyof CodexEntry, Covered> = { id: "codex", name: "codex", member: "codex", location: "codex", aliases: "codex", known_when: "codex", facts: "codex" };
+const CODEX_FACT: Record<keyof CodexFact, Covered> = { id: "codex", text: "codex", known_when: "codex", source: "codex", rev: "codex" };
 const TABLES: Array<[string, Record<string, Covered>]> = [
+  ["codex", CODEX], ["codex.entry", CODEX_ENTRY], ["codex.fact", CODEX_FACT],
   ["poses", POSES], ["pose", POSE], ["pose.keypoints", POSE_KEYS], ["pose.when", POSE_WHEN], ["sprites", MEMBER_POSES], ["stage.member", STAGE_MEMBER], ["card.field", CARD_FIELD], ["card.region", REGION],
   ["story", STORY], ["checkpoints[]", CHECKPOINT], ["checkpoints[].effects", EFFECTS], ["transitions[]", TRANSITION], ["roster[]", ROSTER], ["qualities[]", QUALITY],
 ];
@@ -70,7 +76,7 @@ describe("v2.8 09 owner 2026-10-10: every authorable field has a readGuide topic
   });
 
   it("covers the newer authorable features by their own topic", () => {
-    for (const id of ["quests", "checks", "widgets", "clues-and-maps", "html-panels", "chapters", "character-life", "living-cards", "living-director", "branching"]) expect(Object.hasOwn(GUIDE_TOPICS, id)).toBe(true);
+    for (const id of ["quests", "checks", "widgets", "clues-and-maps", "html-panels", "chapters", "character-life", "living-cards", "living-director", "branching", "codex"]) expect(Object.hasOwn(GUIDE_TOPICS, id)).toBe(true);
   });
 
   it("keeps a pending topic name reserved until its feature lands, then it must leave the pending list", () => {

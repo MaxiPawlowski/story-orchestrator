@@ -4,7 +4,7 @@ import { storyCoverage, renderCoverage } from "../../studio/coverage";
 import { runDiagnostics } from "../../studio/diagnostics";
 import { defaultValueForOp, opsForType } from "../../studio/gateOptions";
 import { findQualityUsages } from "../../studio/qualityUsage";
-import { readGuide } from "../guideTopics";
+import { readGuide } from "../guideRead";
 import { readRecipe } from "./recipes";
 import type { ReadToolName } from "./tools";
 import type { AgentLookup } from "./types";
