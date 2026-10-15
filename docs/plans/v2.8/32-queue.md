@@ -129,7 +129,7 @@ owner decisions pending per plan.
 | M43 | Verbatim recall: exact spans on request, provenance-filtered | 43 | D+CL; gated on A12 E0 + 42 |
 | M44 | Rumors and gossip: typed hearsay, reversible hops, recipient reveals | 44 | D+CL (+RP or LT leg) |
 | M45 | New Game+: public carry projection, sequel vs replay | 45 | D; live final chapter owed |
-| M46 | Consequences recap: authored + neutral first (A), evidenced "Because you" | 46 | D |
+| M46 | Consequences recap: authored + neutral first (A), evidenced "Because you". **Built** (`v2.8-p46-recap`, unmerged): C1-C10 green in jest (C1 precision 1.000, recall 0.688), full gates green; live lane gate NOT green, RP owed | 46 | D |
 | M47 | Promises remembered: exact-quote promises, relevance reminders | 47 | D+CL (+LT) |
 | M48 | Director scene test: frozen tension signal, expected/altered/interrupt (A narrowed) | 48 | D+CL (+RP living row) |
 | M49 | Complications and twists: finish SP6 first (A); focus picker only if 48 takes it | 49 | D now; model-facing build gated on SP6 (RP) |
@@ -162,6 +162,7 @@ until the owner says so.
 
 | # | Item | Plan | Tiers |
 |---|---|---|---|
+| M60 | Harvest defects B1-B3, B5, B6, B9-B16 fixed on `v2.8-harvest-defects` (unmerged), one commit + regression test each; B4/B7/B8/B17 plausible, not built; B18/B19 refuted. Live gate owed (B14, B6, B10, B3, B5): no private ST copy | 60 | D green; L owed |
 | M61 | Harvest triage (index of every idea, verdict, destination) | 61 | docs |
 | M62 | Quantum-ogre probe; prepared world facts only on a probe miss | 62 | D + RP (probe) + CL |
 | M63 | Stepped history window; front-trim arm rides R2 first | 63 | D + RP (with R2) + CL |

@@ -22,7 +22,7 @@ Topic `guidance`.
 
 Field: `checkpoints[].guidance`: text, or `{ "all": text, "members": { <roster id or name>: text } }` (`schema.ts` `MemberGuidance`, `engine/checkpointGuidance.ts`).
 
-- **What it does.** Private direction for how the beat plays. Plain text and `all` reach every generation in the beat. A member's entry is staged only while that member is drafted to speak, never at rest and never for quiet or impersonate runs.
+- **What it does.** Private direction for how the beat plays. Plain text and `all` reach every reply generation in the beat. A member's entry is staged only while that member is drafted to speak, never at rest. Quiet and impersonate runs get no guidance at all, and no pacing hint or check outcome either.
 - **Good.** `"Two days of road. Let {{story_role_companion_a}} and {{story_role_companion_b}} take initiative beside {{story_player_name}}."` Three to six sentences of pressure and intent. Secrets in the member's own entry: `"members": { "bartender": "Rydel has noticed Tatiana's crush…" }`.
 - **Bad.** `"At dawn the fog withdraws and reveals the spirit."` (an ending, which a reply paraphrased as a spoiler; `14-findings.md`, T0); a secret in shared guidance; calling the player "the player" (characters then called them "the player" in 10 of 16 replies; `14-findings.md`, T1).
 - **If wrong.** A member key no cast member has reaches nobody (`guidance-member-unknown`). Openings and guidance that end on "What do you do?" teach the narrator to end every reply on a question.

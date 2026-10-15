@@ -10,6 +10,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 - [Scene places and times](#scene-read)
 - [House rules](#house-rules)
 - [Chapters](#chapters)
+- [Consequences recap](#consequences)
 
 <a id="stagecraft"></a>
 
@@ -97,6 +98,21 @@ Fields: `chapters[]` (`id`, `title`, `player_title`, `kind`, `final`, `seal` wit
 - **Good.** `[{ "id": "wendhope", "title": "Act I: Wendhope", "player_title": "The Silent Village" }, { "id": "driftmere", "title": "Act II: Driftmere", "player_title": "The Mining Town", "final": true }]`.
 - **Bad.** A `player_title` that names only the act's first place ("The Adventurer's Guild" titled an act about Driftmere; `14-findings.md`); a transition back into an earlier chapter.
 - **If wrong.** A beat without a chapter, or naming an unknown one, stops the story loading (`chapter-missing`, `chapter-unknown`). An unreachable chapter is never written up (`chapter-unreachable`); a non-final chapter with no way out is never closed (`chapter-no-exit`); going back reopens a closed record (`chapter-reentry`); a beat with no way on outside a final chapter means the last chapter is never written up (`story-dead-end`).
+
+<a id="consequences"></a>
+
+## Consequences recap
+
+Topic `consequences`.
+
+Fields: `recap` and `recap_when` on `transitions[]`, `quests[]` (`recap: {done?, failed?}`) and `milestones[]`; `qualities[].player_action` (`schema.ts` `Transition`, `RecapText`, `Quality`; `gameSchema.ts` `Quest`, `Milestone`; `validate/recap.ts`).
+
+- **What it does.** At a chapter's end the chapter title card lists what changed in the chapter that ended, and the Overview and `/story recap` list what changed in this chapter (a story without chapters lists the last 20 turns, labelled recent). At most five lines, authored first. Three kinds of line, strictest first: your own `recap` line, shown only when its effect is one the player can see (a reached place with a `player_name`, a visible quest, an earned milestone; `recap_when` narrows it further, read when the effect happens); a "because you" line, only when the player's own committed line decided the effect; otherwise a neutral line in the Journal's words ("Reached The Gatehouse", "Quest complete: …", "Milestone: …", a public check, a public agenda step). The section is titled "Because of you" only when an authored or because-you line is in it, else "What changed". No model writes any of it.
+- **`recap`.** A line, or `{text, because}`. `text` is shown whenever the effect is visible. `because` is shown instead only when the player's committed line decided the effect: a single-condition gate (or the last condition of an `all`) on a quality with `commit_evidence`, false the turn before, written by that player line and not overwritten, with no other way out open at the same turn. An `any` gate, a gate that already held, two conditions turning together, an NPC's or a code write never earn it, so most effects read neutral; that is by design. On a quest, `recap` is `{done, failed}`.
+- **`player_action`.** On an enum or bool quality with `commit_evidence`, a map from value to an action clause ("took the posting"). When the evidence holds and there is no authored `because`, the line reads "Reached The Gatehouse, because you took the posting." It is not `player_labels`: a label names a state, a player action says what the player did. A value without a commit pattern cannot carry one.
+- **Good.** `{"from": "board", "to": "gate", "gate": {"q": "posting", "op": "==", "v": "taken"}, "priority": 1, "recap": {"text": "The garrison opened its gates.", "because": "Because you took the posting, the garrison opened its gates."}}` with `"player_action": {"taken": "took the posting"}` on `posting`.
+- **Bad.** A recap line that names a place the player has not reached or a quest still hidden: the line is dropped (and the neutral line with it if that also names it). A `because` written as plain `text`: it would be shown even when an NPC caused the change.
+- **If wrong.** `recap_when` without `recap`, a `player_action` on a value with no `commit_evidence`, or a line over 240 characters stops the story loading.
 
 ---
 

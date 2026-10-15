@@ -2,8 +2,7 @@ import type { Milestone, QualityDisplay, Quest, StoryCheck, StoryWidget } from "
 import type { Agenda, MoodDecl, QualityStepRule, RelationshipDecl, ScheduleEntry, StoryClock, StoryLife } from "./lifeSchema";
 
 export * from "./gameSchema";
-export * from "./lifeSchema";
-export * from "./factionSchema";
+export * from "./lifeSchema"; export * from "./factionSchema";
 
 export const QUALITY_TYPES = ["int", "float", "bool", "enum", "string"] as const;
 export const QUALITY_SOURCES = ["code", "extractor"] as const;
@@ -91,8 +90,8 @@ export interface Quality {
   commit_evidence?: string | Record<string, string>;
   roll?: QualityRoll;
   display?: QualityDisplay;
-  step_rule?: QualityStepRule;
-  range?: [number, number];
+  step_rule?: QualityStepRule; range?: [number, number];
+  player_action?: Record<string, string>;
 }
 
 export type EvidenceFrom = typeof EVIDENCE_FROM[number];
@@ -317,6 +316,8 @@ export interface Transition {
   extractor_trigger?: string;
   extraction_hint?: string;
   check?: StoryCheck;
+  recap?: import("./gameSchema").RecapText;
+  recap_when?: GateNode;
 }
 
 export const ROSTER_VIEWS = ["own", "omniscient"] as const;
@@ -337,7 +338,6 @@ export interface RosterMember {
   schedule?: ScheduleEntry[];
   factions?: string[];
 }
-
 
 export { PLAYER_NAME_MODES, PLAYER_ROLE_MAX_CHARS, PLAYER_SUMMARY_MAX_CHARS, PLAYER_ASSUMES_MAX, PLAYER_ASSUME_MAX_CHARS,
   PLAYER_DESCRIPTION_MAX_CHARS, PLAYER_NAME_MAX_CHARS } from "./playerSchema";

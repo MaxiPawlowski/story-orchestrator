@@ -5,6 +5,7 @@ import { saveOpenChat } from "./persistence";
 import type { HostWorldInfoSettings } from "./hostTypes";
 import { worldInfoModule } from "./modules";
 import { executeSlashCommands } from "./slashCommands";
+import { flushPendingWorldSaves } from "./worldInfoPending";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { log } from "@utils/log";
 import { LORE_KEY_LOGIC_CODE, WI_POSITION_OUTLET, type LoreKeyLogic } from "@utils/wiKeys";
@@ -77,11 +78,10 @@ export async function readServerLorebook(name: string): Promise<Lorebook | null>
 
 async function saveLorebook(name: string, data: Lorebook): Promise<void> {
   const context = getContext() as unknown as { saveWorldInfo?: (name: string, data: unknown, immediately?: boolean) => Promise<unknown> };
-  if (typeof context.saveWorldInfo === "function") {
-    await context.saveWorldInfo(name, data, true);
-    return;
-  }
-  await worldInfoModule.saveWorldInfo(name, data, true);
+  if (typeof context.saveWorldInfo === "function") await context.saveWorldInfo(name, data, true);
+  else await worldInfoModule.saveWorldInfo(name, data, true);
+  const flushed = await flushPendingWorldSaves(name);
+  if (!flushed.ok) log.warn("world info: an edit waiting in ST's save debounce could not be saved", { name, reason: flushed.reason });
 }
 
 function findMatchedLoreEntries(lorebook: Lorebook, comments: string[]) {
@@ -178,6 +178,8 @@ export async function ensureLorebook(name: string): Promise<{ name: string; crea
     return { name: listed, created: false };
   }
   if (!await worldInfoModule.createNewWorldInfo(fileId, { interactive: false })) return null;
+  const flushed = await flushPendingWorldSaves(fileId);
+  if (!flushed.ok) log.warn("world info: an edit waiting in ST's save debounce could not be saved", { name: fileId, reason: flushed.reason });
   const created = findLorebook(fileId);
   return created ? { name: created, created: true } : null;
 }

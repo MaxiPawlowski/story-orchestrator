@@ -1,4 +1,4 @@
-import { getContext, observeNextSettingsSave, readServerExtensionSettings } from "@services/STAPI";
+import { observeNextSettingsSave, readServerExtensionSettings, saveSettingsSoon } from "@services/STAPI";
 import type { JudgeProviderId, JudgeProviderRoutes, JudgeSettings, JudgeUses } from "@judge/index";
 import { createSettingsWriteEvidence, recordSettingsWrite } from "./librarySave";
 import { SETTINGS_ROOT_KEY, settingsRoot, writableSettingsRoot } from "./settingsRoot";
@@ -34,7 +34,7 @@ const writeSettings = (settings: GlobalSettings, label: string) => {
   recentWrites.push({ ...write, json: JSON.stringify(readGlobalSettings(delta)) });
   if (recentWrites.length > WRITE_RING) recentWrites.shift();
   recordSettingsWrite("settings save not confirmed", label, () => confirmSettingsWrite(write));
-  getContext().saveSettingsDebounced();
+  saveSettingsSoon();
 };
 
 /** Defaults merged with the stored delta. A read never writes, so a changed default reaches every install that never set the key. */

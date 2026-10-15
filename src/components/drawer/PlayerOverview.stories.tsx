@@ -25,6 +25,7 @@ const snapshot = (options: {
   canon?: string;
   health?: ExtractionHealth;
   sceneLocation?: string | null;
+  consequences?: { label: string; lines: string[] } | null;
 } = {}): RuntimeSnapshot => {
   const pipeline = derivePipelineStatus(options.extraction ?? extraction(), undefined, options.health ?? null);
   return {
@@ -41,6 +42,7 @@ const snapshot = (options: {
       pendingCount: options.pending ?? 0,
       pipeline,
       sceneLocation: options.sceneLocation ?? null,
+      consequences: options.consequences ?? null,
     }),
   } as unknown as RuntimeSnapshot;
 };
@@ -67,6 +69,30 @@ const meta: Meta<typeof PlayerOverview> = {
 export default meta;
 
 type Story = StoryObj<typeof PlayerOverview>;
+
+export const WithConsequences: Story = {
+  args: {
+    snapshot: snapshot({
+      consequences: {
+        label: "Because of you",
+        lines: ["The wardens let you through the first arch.", "Reached The Ruined Gate, because you took the sun-key.", "Quest complete: The Ferryman's Price"],
+      },
+    }),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("Because of you")).toBeInTheDocument();
+    await expect(canvas.getByText(/because you took the sun-key/)).toBeInTheDocument();
+    await expect(canvasElement.textContent).not.toContain("sun_key");
+  },
+};
+
+export const NoConsequencesSection: Story = {
+  args: { snapshot: snapshot({ consequences: { label: "What changed", lines: [] } }) },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).queryByText("What changed")).toBeNull();
+  },
+};
 
 export const Playing: Story = {
   args: { snapshot: snapshot({ pending: 2 }) },

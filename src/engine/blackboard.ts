@@ -8,6 +8,13 @@ export interface BlackboardDelta {
   writer?: "card-entry" | "extractor" | "manual";
   boundary?: number;
   evidenceAt?: number;
+  playerSpan?: PlayerSpan;
+}
+
+export interface PlayerSpan {
+  messageId: number;
+  revision: string;
+  span: [number, number];
 }
 
 export type ApplyOutcome =

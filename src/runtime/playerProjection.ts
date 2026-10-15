@@ -4,7 +4,7 @@ import { PLAYER_COPY, type NarrativeSectionId, type NarrativeStatus } from "./na
 export const PROJECTION_TRANSCRIPT_MESSAGES = 12;
 export const PROJECTION_MESSAGE_CHARS = 600;
 
-const PLAYER_SECTIONS: readonly NarrativeSectionId[] = ["now", "about", "recently", "threads", "quests", "chapters", "story", "end"];
+const PLAYER_SECTIONS: readonly NarrativeSectionId[] = ["now", "about", "recently", "consequences", "threads", "quests", "chapters", "story", "end"];
 
 export const WITHHELD_NAME_MIN_CHARS = 4;
 

@@ -1,6 +1,7 @@
 import { getContext } from "./context";
 import { isRecord } from "@utils/guards";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
+import { sha256Hex } from "@utils/sha256";
 import { randomId } from "@utils/uuid";
 
 const ROOT = "/api/plugins/story-orchestrator-media";
@@ -40,8 +41,7 @@ export async function spriteFileFingerprint(path: string, signal?: AbortSignal):
   const response = await fetch(path, { signal, cache: "no-store" });
   if (!response.ok) throw new Error("The saved sprite could not be read.");
   const bytes = await response.arrayBuffer();
-  const hash = await crypto.subtle.digest("SHA-256", bytes);
-  return [...new Uint8Array(hash)].map((value) => value.toString(16).padStart(2, "0")).join("");
+  return sha256Hex(bytes);
 }
 
 async function request(route: string, body?: unknown, signal?: AbortSignal): Promise<unknown> {

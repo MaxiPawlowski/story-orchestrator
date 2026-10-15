@@ -1,3 +1,4 @@
+import { sha256Hex } from "@utils/sha256";
 import { localHeadAsset } from "../../sprites/liveHeadRefs";
 
 export async function headAssetBytes(url: string, signal: AbortSignal): Promise<ArrayBuffer> {
@@ -25,7 +26,4 @@ export async function headAssetBytes(url: string, signal: AbortSignal): Promise<
   return bytes.buffer;
 }
 
-export async function headArtHash(bytes: ArrayBuffer): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", bytes);
-  return [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("");
-}
+export const headArtHash = (bytes: ArrayBuffer): Promise<string> => sha256Hex(bytes);

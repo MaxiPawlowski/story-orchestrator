@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { harnessListed, listConnectionProfiles, profileExists, refreshHarnessStatus, type HarnessStatus } from "@services/STAPI";
+import { harnessListed, listConnectionProfiles, profileExists, refreshHarnessStatus, type HarnessMeter, type HarnessStatus } from "@services/STAPI";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { SelfTestReport, SelfTestTier } from "@runtime/selfTest";
@@ -22,12 +22,22 @@ import { log } from "@utils/log";
 
 type Settings = RuntimeSnapshot["extraction"]["settings"];
 
+const METER_WINDOWS: Record<string, string> = { five_hour: "5h", seven_day: "7d" };
+
+export const meterHint = (meter: HarnessMeter | undefined): string => {
+  const used = Object.entries(meter?.windows ?? {}).filter(([, window]) => typeof window.utilization === "number")
+    .map(([name, window]) => `${METER_WINDOWS[name] ?? name} ${Math.round((window.utilization as number) * 100)}%`);
+  if (meter?.status === "rejected") return " (usage limit reached)";
+  return used.length ? ` (used: ${used.join(", ")})` : "";
+};
+
 export const harnessOptions = (status: HarnessStatus | null): HarnessOption[] => HARNESS_IDS.flatMap((harness) => {
   const row = status?.harnesses[harness];
   if (!row?.installed || !row.offered) return [];
   return row.models.map((model) => ({
     key: harnessKey(harness, model.id),
-    label: `${HARNESS_LABELS[harness]} · ${model.id}${row.fresh ? "" : ` (${loginHint(row, "log in first")})`}`,
+    label: `${HARNESS_LABELS[harness]} · ${model.id}${row.agentBridge && model.agent === false ? " (no wizard tools)" : ""}`
+      + (row.fresh ? meterHint(row.meter) : ` (${loginHint(row, "log in first")})`),
     vendor: harnessVendor(harness, model.id),
   }));
 });
@@ -141,7 +151,7 @@ export const MemoryModelGroup = ({ snapshot, manager, connectionsOnly = false }:
     setTestingRole(role);
     try {
       const { runRoleSelfTest } = await import("@runtime/roleSelfTest");
-      roleHealth.record(await runRoleSelfTest(role, { profileId: route.ok ? resolvedProfileId(route) : null }));
+      roleHealth.record(await runRoleSelfTest(role, { profileId: route.ok ? resolvedProfileId(route) : null, route: route.ok ? route.route : null }));
     } catch (error) {
       log.warn("role test failed", error);
     } finally {

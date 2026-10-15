@@ -93,6 +93,16 @@ describe("quest lifecycle", () => {
     expect(rewardedQuestIds(play.story, play.values())).toEqual(["debt"]);
   });
 
+  test("B16: a reward add on a stepped int stays inside its step_rule min and max", () => {
+    for (const [add, expected] of [[9, 3], [-9, -3]] as const) {
+      const story = parseStoryV2OrThrow(raw({ reward: { set: { coins: { add } } } }));
+      story.qualityByKey.coins = { ...story.qualityByKey.coins, step_rule: { step: 1, min: -3, max: 3, start: 0 } };
+      const play = playing(story);
+      play.turn({ offered: true, accepted: true, ledger: true, paid: true });
+      expect(play.values().coins).toBe(expected);
+    }
+  });
+
   test("failure wins when done and failed hold at the same boundary, and stays", () => {
     const play = playing();
     play.turn({ accepted: true, ledger: true, paid: true, lost: true });

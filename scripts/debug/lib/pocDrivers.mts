@@ -70,6 +70,24 @@ export function plumbingProblems(rows: StepRow[], required: readonly string[], c
   return out;
 }
 
+export interface AuthoringRoute { harness: 'claude' | 'opencode'; model: string }
+
+export const AUTHORING_ROUTES: Record<string, AuthoringRoute> = {
+  claude: { harness: 'claude', model: 'claude-sonnet-5-5' },
+  'claude-opus': { harness: 'claude', model: 'claude-opus-5-5' },
+  opencode: { harness: 'opencode', model: 'openai/gpt-6.1-sol' },
+};
+
+export function parseAuthoringRoute(spec: string | null | undefined): AuthoringRoute | null {
+  if (!spec || spec === 'default') return null;
+  const named = AUTHORING_ROUTES[spec];
+  if (named) return named;
+  const [harness, ...rest] = spec.split(':');
+  const model = rest.join(':');
+  if ((harness === 'claude' || harness === 'opencode') && model) return { harness, model };
+  throw new Error(`--authoring takes default, ${Object.keys(AUTHORING_ROUTES).join(', ')} or <claude|opencode>:<model> (got ${spec})`);
+}
+
 export type Provider = 'sol' | 'artemis' | 'judge' | 'comfy' | 'gpu-broker' | 'deepseek' | 'cm-profile' | 'landmarks';
 
 export function classifyCall(url: string, postData: string | null = null): Provider | null {

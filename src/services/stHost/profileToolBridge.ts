@@ -33,6 +33,14 @@ const errorKind = (message: string): string => {
   return "transport";
 };
 
+const textOf = (value: unknown): string => (value instanceof Error ? value.message : typeof value === "string" ? value : "");
+
+const failureText = (error: unknown): string => {
+  const message = error instanceof Error ? error.message : String(error);
+  const cause = error instanceof Error ? textOf(error.cause) : "";
+  return cause && cause !== message ? `${message}: ${cause}` : message;
+};
+
 const replyMessage = (reply: unknown): Record<string, unknown> | null => {
   const choices = isRecord(reply) && Array.isArray(reply.choices) ? reply.choices : [];
   const first: unknown = choices[0];
@@ -63,7 +71,7 @@ export const createProfileToolBridge = (send: ToolSend, now: () => number = Date
       try {
         reply = await send(state.messages, state.tools);
       } catch (error) {
-        const message = error instanceof Error ? error.message : String(error);
+        const message = failureText(error);
         return ended(errorKind(message), message);
       }
       const message = replyMessage(reply);

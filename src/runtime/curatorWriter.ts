@@ -1,7 +1,7 @@
 import type { NormalizedStoryV2 } from "@engine/index";
 import {
   CURATOR_OP_REVERTED, hiddenTitleRefusal, keepStamps, stampCreated, titleOnlyEditRefusal, type CreatedStampOwner,
-  isCreateOp, newEntriesText, isCuratorWritable, isNoteOp, noWriteAheads, pendingWriteAheads, previewCuratorOp, protectedRefusal, settleWriteAheads,
+  isCreateOp, newEntriesText, isCuratorWritable, isNoteOp, noWriteAheads, pendingWriteAheads, previewCuratorOp, protectedRefusal, settleWriteAheads, staleRewriteRefusal,
   type CreatedEntry, type CuratorOpRecord, type CuratorProposalRecord, type WiCuratorOp, type WriteAheadCounts, type WriteAheadLive,
 } from "@stagecraft/index";
 import { lorebookFileId } from "@utils/string";
@@ -82,6 +82,8 @@ export class CuratorWriter {
     if (!isCuratorWritable(story, op.lorebook, comment)) return { ok: false, record: { ...entry, status: "failed", message: `"${op.comment}" is now "${comment}", which the curator may not write` } };
     const preview = previewCuratorOp(op, { lorebook: op.lorebook, comment: op.comment, keys: live.keys, content: live.content, disabled: live.disabled, uid });
     if (!preview.ok) return { ok: false, record: { ...entry, status: "failed", message: preview.message } };
+    const stale = staleRewriteRefusal(entry, live.content);
+    if (stale) return { ok: false, record: { ...entry, status: "failed", message: stale } };
     const refused = protectedRefusal(op, live.content);
     if (refused) return { ok: false, record: { ...entry, status: "failed", message: refused } };
     const before = { content: live.content, disabled: live.disabled, uid };

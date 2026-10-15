@@ -83,7 +83,7 @@ export const createBridgeRoute = (bridge: AgentToolBridge, target: HarnessTarget
   };
 };
 
-export const HARNESS_ROUTE_REFUSAL = "The harness offers no agent tool bridge for this route. Route \"Wizard and road ahead\" to opencode under Models per task, " +
+export const HARNESS_ROUTE_REFUSAL = "The harness offers no agent tool bridge for this route. Route \"Wizard and road ahead\" to opencode or Claude Code under Models per task, " +
   "with the harness plugin offering it; otherwise the agent runs through its text route on that role's model. The wizard does not fall back to the local profile.";
 
 export const harnessRoute = (transport: HarnessTransport | null, tools: Array<Record<string, unknown>>): AgentRoute => {

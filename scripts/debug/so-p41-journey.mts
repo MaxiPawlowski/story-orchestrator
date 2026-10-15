@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import type { Page } from 'playwright';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { DEBUG_DIR, PROJECT_ROOT } from './lib/connection.mts';
-import { activate, captureSettings, freshPage, preflightCommon, restoreSettings, saveSoon, settleSaves, step, stepBase, stepPrepare, stepEdits, stepRig, chooseCharacter, type SettingsCapture, type StepEnv, type StepResult } from './lib/pocSteps.mts';
+import { activate, applyAuthoringRoute, captureSettings, freshPage, preflightCommon, restoreSettings, saveSoon, settleSaves, step, stepBase, stepPrepare, stepEdits, stepRig, chooseCharacter, type SettingsCapture, type StepEnv, type StepResult } from './lib/pocSteps.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
 import { assertRuntimeOnPage } from './lib/servedBundle.mts';
@@ -21,7 +21,7 @@ import { dismissBriefing } from './lib/briefingHarness.mts';
 import { removeStory } from './so-library.mts';
 import {
   FLOORS_DATE, JOURNEY_FLOORS, JOURNEY_STEPS, P41_MARKER, PLAYER_LINES, countCalls, evidenceDirName, gpuIdleProblems, journeyCast, journeyGpuMinutes, journeyGroupName,
-  journeyStory, laneProblem, plumbingProblems, sampleSummary, skeletonProblems, staleFindings, staleInputFrom, stepVerdict, wizardGoal, wizardScript,
+  journeyStory, laneProblem, parseAuthoringRoute, plumbingProblems, sampleSummary, skeletonProblems, staleFindings, staleInputFrom, stepVerdict, wizardGoal, wizardScript,
   type CastMember, type Mode, type Outcome, type StepRow,
 } from './lib/pocDrivers.mts';
 import {
@@ -30,7 +30,7 @@ import {
 } from './lib/pocLive.mts';
 
 const USAGE = `Usage (always through a lane >= 30):
-  node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-p41-journey.mts run <k> [--dry] [--turns 10] [--label <x>] [--keep] [--only a,b]
+  node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-p41-journey.mts run <k> [--dry] [--turns 10] [--authoring claude] [--label <x>] [--keep] [--only a,b]
   node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-p41-journey.mts cleanup [--dry]
   node scripts/debug/so-p41-journey.mts floors | steps | quote [--members 3] [--runs 2]
 
@@ -39,6 +39,8 @@ run <k>   one plan 41 §5 journey (k = 1|2); evidence in <debug dir>/p41/<stamp>
           fakes (lib/pocFakes.mts), every request to ComfyUI/controller ports is blocked, the wizard runs a scripted
           transport. Plumbing only; never a floor result.
 --only    run a subset of steps (record marked partial; never a gate)
+--authoring default | claude | claude-opus | opencode | <claude|opencode>:<model>: route "Wizard and road ahead" for the run (restored at cleanup;
+          default keeps the install's route, opencode Sol when offered)
 --keep    leave the owned cards, group, sprites and chats (cleanup later with the cleanup command)`;
 
 const args = process.argv.slice(2);
@@ -89,11 +91,12 @@ async function stepPreflight(ctx: Ctx): Promise<StepResult> {
   const common = await preflightCommon(ctx, P41_MARKER);
   ctx.baseline = common.baseline;
   ctx.settings = await captureSettings(ctx.page);
+  const authoring = await applyAuthoringRoute(ctx.page, parseAuthoringRoute(value('--authoring', 'default')));
   const header = await captureHeader(ctx.page, `p41-before-run${ctx.run}`);
   await writeRecord(ctx.dir, 'run-header-before.json', header);
   const gpu = await sampleNow(ctx.mode);
   ctx.gpuBaseline = gpu.gpuUsedMiB;
-  return { data: { bundle: common.served, baselineTrusted: true, gpuBaselineMiB: ctx.gpuBaseline, warm: common.warm, models: ctx.models, alpha: ctx.alpha } };
+  return { data: { bundle: common.served, authoring, baselineTrusted: true, gpuBaselineMiB: ctx.gpuBaseline, warm: common.warm, models: ctx.models, alpha: ctx.alpha } };
 }
 
 async function stepWizard(ctx: Ctx): Promise<StepResult> {

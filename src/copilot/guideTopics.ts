@@ -1,4 +1,5 @@
 import { nearestKey } from "@utils/levenshtein";
+import { RECAP_GUIDE_TOPIC } from "./guideTopicsRecap";
 import type { DIAGNOSTIC_CODES } from "../studio/diagnostics";
 import type { CopilotStage } from "./types";
 import { CHARACTER_TOPICS, FACTION_DIAGNOSTIC_TOPICS } from "./guideTopicsCharacters";
@@ -23,7 +24,7 @@ export const GUIDE_TOPICS = {
     fields: "title, description, id, player_intro, kind",
     text: "The title and description tell the model and the author what the story is; player_intro is what a player reads before the first beat. The id is the story's identity "
       + "(a lowercase slug the library keys by); stories carry no version number. kind is saga or story (default): only the player's badges read it, never the model; "
-      + "chapters do not make a saga. Good: \"The Pawnbroker's Debt\" with a two-sentence premise. Avoid: renaming the id "
+      + "chapters do not make a saga. Good: \"The Pawnbroker's Debt\" with a short premise. Avoid: renaming the id "
       + "after chats play it; a chat keeps the copy it pinned and the renamed story becomes a different story.",
   },
   briefing: {
@@ -144,7 +145,7 @@ export const GUIDE_TOPICS = {
   guidance: {
     title: "Narrator guidance",
     fields: "checkpoints[].guidance",
-    text: "Private direction for how the beat plays: text, or {all, members: {id: text}}. all reaches every generation; a member's text only while that member is drafted. "
+    text: "Private direction for how the beat plays: text, or {all, members: {id: text}}. all reaches every reply, never quiet/impersonate; a member's text only while drafted. "
       + "A secret never goes in shared guidance, which every character reads; put it in that member's entry. Write pressure and intent, never the ending, and call the "
       + "player {{user}}. A member key no cast member has reaches nobody.",
   },
@@ -192,7 +193,7 @@ export const GUIDE_TOPICS = {
     fields: "first_mes, new_chat_only, cast_changes",
     text: "In a group every card with a first message greets at once. Give a first message only to characters present in the start beat, for that scene only: no secret, twist "
       + "or later reveal. Everyone else gets none, and enters through cast_changes. A story-owned opener is a scripted onEnter npc_reply with new_chat_only, which posts only into an empty chat. "
-      + "A greeting that addresses the player (\"you are the pawnbroker\") makes that role the player's: no card plays it.",
+      + "A greeting addressing the player (\"you are the pawnbroker\") makes that role the player's: no card plays it.",
   },
   "npc-replies": {
     title: "NPC replies",
@@ -285,6 +286,7 @@ export const GUIDE_TOPICS = {
     text: "Optional acts: {id, title, player_title, kind (chapter or interlude), final, seal}. Once one exists every beat names one. A sealed chapter is written up as a record; "
       + "seal sets open_threads (carry, close, decide), keep_tail, fold_messages, record_style. Mark the last chapter final; never lead back into an earlier chapter.",
   },
+  ...RECAP_GUIDE_TOPIC,
   presentation: {
     title: "Illustrations and display",
     fields: "illustrations, checkpoints[].illustrate, effects.illustrations, chapters[].illustrations, Public appearance:, display.lore_names_public, effects.stage",
