@@ -131,13 +131,13 @@ const meterQualities = (widget: StoryWidget | null, story: NormalizedStoryV2): Q
   if (!bind || !("quality" in bind || "qualities" in bind || "group" in bind)) return story.qualities.filter((quality) => quality.display);
   const grouped = (group: string) => story.qualities.filter((quality) => quality.display?.group === group).map((quality) => quality.key);
   const keys = "quality" in bind ? [bind.quality] : "qualities" in bind ? bind.qualities : grouped(bind.group);
-  return keys.map((key) => story.qualityByKey[key]).filter((quality) => quality?.display);
+  return keys.map((key) => story.qualityByKey[key]).filter((quality) => quality && (quality.display || widget?.audience === "author"));
 };
 
 const agoOf = (sources: GameSources) => (quality: Quality) => changedAgo(sources.boundaryLog, sources.chat, shownItem(quality));
 
-const sheetOf = (qualities: Quality[], sources: GameSources): SheetGroupView[] =>
-  sheetGroups(qualities, sources.state.blackboard.values, previousValues(sources.boundaryLog), agoOf(sources));
+const sheetOf = (qualities: Quality[], sources: GameSources, author = false): SheetGroupView[] =>
+  sheetGroups(qualities, sources.state.blackboard.values, previousValues(sources.boundaryLog), agoOf(sources), author);
 
 const boardLanes = (widget: StoryWidget, quests: QuestView[], threads: GameSources["threads"]): BoardLane[] => {
   if (widget.bind && "arcs" in widget.bind) return [{ label: "Open", cards: threads.open }, { label: "Resolved", cards: threads.resolved }].filter((lane) => lane.cards.length);
@@ -257,7 +257,7 @@ const widgetBody = (widget: StoryWidget, sources: GameSources, parts: { quests: 
   if (widget.kind === "map") return mapBody(widget, sources.state, before);
   if (widget.kind === "roster") return rosterBody(widget, sources);
   if (widget.kind === "timeline") return timelineBody(widget, sources.story, sources.state, before);
-  if (widget.kind === "meters") return { kind: "meters", groups: widget.bind ? sheetOf(meterQualities(widget, sources.story), sources) : parts.sheet };
+  if (widget.kind === "meters") return { kind: "meters", groups: widget.bind ? sheetOf(meterQualities(widget, sources.story), sources, widget.audience === "author") : parts.sheet };
   if (widget.kind === "track") return widget.bind && "quests" in widget.bind ? { kind: "track", main: null, quests: parts.quests } : { kind: "track", main: parts.main, quests: [] };
   if (widget.kind === "log") return { kind: "log", rows: limit ? parts.log.slice(0, limit) : parts.log };
   if (widget.kind === "board") return { kind: "board", lanes: boardLanes(widget, parts.quests, sources.threads) };

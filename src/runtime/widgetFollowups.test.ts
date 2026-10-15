@@ -84,6 +84,19 @@ const walkable = (patch: Partial<Record<string, unknown>> = {}) => {
   });
 };
 
+describe("Astra v2.8 P2: an author meter over a non-public quality draws", () => {
+  test("it validates, renders the raw values in Author view, and never reaches a player surface", () => {
+    const story = raw({ widgets: [...WIDGETS, { id: "diag", kind: "meters", title: "Diagnostics", audience: "author", bind: { qualities: ["secret_status", "deep"] } }] });
+    expect(isValidationErrorList(parseStoryV2(story))).toBe(false);
+    const game = composeGame(sources(story, [{ secret_status: "plotting", deep: true }], { authorView: true }));
+    const diag = find(game.authorWidgets, "diag");
+    expect(diag?.body.kind).toBe("meters");
+    const items = diag?.body.kind === "meters" ? diag.body.groups.flatMap((group) => group.items) : [];
+    expect(items.map((item) => [item.label, item.text])).toEqual([["secret_status", "plotting"], ["deep", "true"]]);
+    expect(JSON.stringify(game.player)).not.toContain("plotting");
+  });
+});
+
 describe("widget follow-ups validation (v2.8 23 A4)", () => {
   const errorsOf = (patch: Partial<Record<string, unknown>>) => {
     const parsed = parseStoryV2(raw(patch));

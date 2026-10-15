@@ -42,17 +42,23 @@ export function sheetItem(quality: Quality, values: Readonly<Record<string, Prim
   return { label: display.label, as: display.as, ...itemText(quality, display, value as PrimitiveValue), ...(trend ? { trend } : {}) };
 }
 
+const authorItem = (quality: Quality, values: Readonly<Record<string, PrimitiveValue>>): SheetItemView => {
+  const value = values[quality.key];
+  return { label: quality.key, as: "word", text: value === undefined ? "—" : String(value) };
+};
+
 export const groupOf = (display: QualityDisplay): string => display.group ?? (display.as === "item" ? INVENTORY_GROUP : STATUS_GROUP);
 
 export function sheetGroups(
   qualities: readonly Quality[], values: Readonly<Record<string, PrimitiveValue>>, previous: Readonly<Record<string, PrimitiveValue>> | null,
   ago?: (quality: Quality) => number | undefined,
+  author = false,
 ): SheetGroupView[] {
   const groups = new Map<string, SheetItemView[]>();
   for (const quality of qualities) {
-    const item = quality.display ? sheetItem(quality, values, previous) : null;
-    if (!item || !quality.display) continue;
-    const label = groupOf(quality.display);
+    const item = quality.display ? sheetItem(quality, values, previous) : author ? authorItem(quality, values) : null;
+    if (!item) continue;
+    const label = quality.display ? groupOf(quality.display) : STATUS_GROUP;
     const changedAgo = ago?.(quality);
     groups.set(label, [...(groups.get(label) ?? []), changedAgo === undefined ? item : { ...item, changedAgo }]);
   }
