@@ -396,8 +396,8 @@ real-model carrier, or why none is needed.
 | stat-sheet | RP | 36-P-live | GS1.3 |
 | story-panels | RP | v28-23-widgets ×2 | GS1.3 |
 | consequences-recap | D | consequences jest, recapRollback review test, recapSecret review test | none: no model pass (46 A) |
-| promises-remembered | D + CL | promises jest, promiseRead jest, promiseRollback review test | P1, P1s, P2, P2w, P6, P8 CL ×2: owed, no live fixture yet; P7/P7h informational (LT) |
-| codex | D + CL | codex jest, codexView property test, codexRollback | C7 CL ×2 (wizard recipe on Sol): owed, no live fixture yet |
+| promises-remembered | D + CL | promises jest, promiseRead jest, promiseRollback review test | live-v28-47-promises (P1s CL half, P2w live, ids, rollback reopens) ×2; P1/P2 labelled-set rates, P6 rater, P8 cost owed (measurement fixtures); P7/P7h informational (LT) |
+| codex | D + CL | codex jest, codexView property test, codexRollback | C7: codex-pages task in `test/measurements/v2.8/09/recipes.json`, `so-wizard-agent.mts recipes --task codex-pages --repeat 10 --mode auto-draft --route harness` (Sol) |
 | factions | D + RP | factions jest, v28-53-factions (no-model ×2) | F7 informational (RP lab story), deferred: no lab story yet; F9 CL informational |
 | story-made-panels | D | html widget tests, Storybook | none: no model |
 | quests | RP | 36-Q5-scn, S-16 | GS1.3, GS3.1 |

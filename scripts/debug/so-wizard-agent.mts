@@ -125,10 +125,19 @@ async function recipes(page, args: string[]) {
   const tasks = [];
   const repeat = Math.max(1, Number(flag(args, '--repeat') ?? 1));
   for (const task of fixture.tasks.filter((entry) => !only || entry.id === only).flatMap((entry) => Array.from({ length: repeat }, () => entry))) {
-    const result = await driveChecked(page, {
-      goal: task.goal, title: `${fixture.marker} ${task.id}`, mode: flag(args, '--mode') ?? 'review', route, maxSteps: Number(flag(args, '--max-steps') ?? 36),
-      provision: 'reject', profileId: flag(args, '--profile'), seed: fixture.seed,
-    });
+    let result;
+    try {
+      result = await driveChecked(page, {
+        goal: task.goal, title: `${fixture.marker} ${task.id}`, mode: flag(args, '--mode') ?? 'review', route, maxSteps: Number(flag(args, '--max-steps') ?? 36),
+        provision: 'reject', profileId: flag(args, '--profile'), seed: fixture.seed,
+      });
+    } catch (error) {
+      const message = String((error as Error)?.message ?? error).split('
+')[0].slice(0, 300);
+      console.log(`${task.id}: run failed: ${message}`);
+      tasks.push({ id: task.id, recipe: task.recipe, score: { pass: false, error: message }, bridgeProblems: [`run failed: ${message}`], session: null, draft: null });
+      continue;
+    }
     tasks.push({ id: task.id, recipe: task.recipe, score: scoreRecipeTask(task, result), bridgeProblems: result.bridgeProblems, session: result.session, draft: result.draft });
   }
   const transport = tasks.flatMap((entry) => entry.bridgeProblems.map((problem) => `${entry.id}: ${problem}`));

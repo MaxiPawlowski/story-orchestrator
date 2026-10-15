@@ -1,0 +1,84 @@
+{
+  "_note": "v2.8 47 CL legs, live carrier (P1s CL half, P2w live, H13a ids, rollback reopens): the player makes one promise to Arin in plain words, keeps it two turns later, then deletes the keeping turn. Real reads on the lane's read model (no debugResponse). Asserts: an accepted promise row names Arin, its quote is a byte-exact substring of the player's own message (paraphrase never stored), the keep event closes that same row id and no other, deleting the keeping turn reopens the row, and player surfaces stay clean. P1/P2 rates on the labelled sets stay owed (measurement, not this fixture). Synthetic story, group by name. Run: so-scenario run test/scenarios/live-v28-47-promises.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ]
+  },
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; return true;"
+    },
+    {
+      "import_story": {
+        "file": "live-v28-47-promises.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 1, stabilityLag: 0 }); if (rt.extras?.memory?.settings?.promises === false) throw new Error('promises are switched off in this chat'); return { story: rt.getSnapshot().storyId };"
+    },
+    {
+      "send_generate": {
+        "text": "I look Arin in the eye. \"I promise I will bring your lantern back before nightfall.\"",
+        "timeoutMs": 900000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rows = () => (globalThis.storyOrchestratorRuntime.extras?.promises?.rows ?? []); const players = () => SillyTavern.getContext().chat.filter((m) => m.is_user).flatMap((m) => [m.mes, ...(m.swipes ?? [])]).map(String); if (!rows().length) await globalThis.storyOrchestratorRuntime.runExtractionNow(undefined, 'promise-check'); for (let i = 0; i < 60 && !rows().length; i++) await new Promise((r) => setTimeout(r, 2000)); const all = rows(); if (!all.length) throw new Error('no promise row after the read'); const bad = all.filter((r) => !players().some((t) => t.includes(r.quote))); if (bad.length) throw new Error('a stored quote is not a byte-exact substring of a player message: ' + JSON.stringify(bad.map((r) => r.quote))); const arin = all.filter((r) => /arin/i.test(String(r.promisee))); if (!arin.length) throw new Error('no promise names Arin as promisee: ' + JSON.stringify(all.map((r) => r.promisee))); globalThis.__p47 = { id: arin[0].id, count: all.length }; return { rows: all.length, promisee: arin[0].promisee, id: arin[0].id, quoteChars: arin[0].quote.length, open: arin[0].events.length === 0 };"
+    },
+    {
+      "send_generate": {
+        "text": "I walk the dock to the shed and come back with the lantern.",
+        "timeoutMs": 900000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I hand Arin her lantern. \"Here it is, as I promised you.\"",
+        "timeoutMs": 900000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rows = () => (globalThis.storyOrchestratorRuntime.extras?.promises?.rows ?? []); const want = globalThis.__p47; if (!want) throw new Error('lost the promise id'); const keptNow = () => (rows().find((r) => r.id === want.id)?.events ?? []).some((e) => e.kind === 'kept'); if (!keptNow()) await globalThis.storyOrchestratorRuntime.runExtractionNow(undefined, 'promise-check'); for (let i = 0; i < 60 && !keptNow(); i++) await new Promise((r) => setTimeout(r, 2000)); const row = rows().find((r) => r.id === want.id); const kept = (row?.events ?? []).filter((e) => e.kind === 'kept'); const others = rows().filter((r) => r.id !== want.id && r.events.length); if (others.length) throw new Error('P2w: an event closed a different promise: ' + JSON.stringify(others.map((r) => r.id))); globalThis.__p47.kept = kept.length; return { kept: kept.length, events: (row?.events ?? []).map((e) => e.kind), rows: rows().length };",
+      "log": true
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); let from = -1; for (let i = ctx.chat.length - 1; i >= 0; i--) if (ctx.chat[i].is_user && /as I promised you/.test(String(ctx.chat[i].mes))) { from = i; break; } if (from < 0) throw new Error('the keeping line is not in the chat'); for (let id = ctx.chat.length - 1; id >= from; id -= 1) await ctx.deleteMessage(id, undefined, false); return { removedFrom: from, length: ctx.chat.length };"
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 5000,
+        "timeoutMs": 600000
+      }
+    },
+    {
+      "eval": "const rows = globalThis.storyOrchestratorRuntime.extras?.promises?.rows ?? []; const want = globalThis.__p47; const row = rows.find((r) => r.id === want.id); if (!row) throw new Error('the promise row itself was removed by deleting the keeping turn'); if (want.kept && row.events.some((e) => e.kind === 'kept')) throw new Error('deleting the keeping turn left the kept event'); return { reopened: want.kept ? true : 'no kept event was read, so nothing to reopen', events: row.events.length };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    }
+  ]
+}

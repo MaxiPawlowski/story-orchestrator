@@ -107,6 +107,7 @@ const NAMED = {
   'every GS': (ix) => ['GS1', 'GS2', 'GS3', 'GS4'].every((id) => ix.journeys.has(id)) && 'test/journeys/gs1..gs4',
   'Storybook': (ix) => ix.stories > 0 && `${ix.stories} .stories.tsx`,
   'assert-player-clean': () => existsSync(join(ROOT, 'scripts', 'debug', 'so-ui.mts')) && 'so-ui.mts assert-player-clean',
+  'codex-pages': () => { const file = join(ROOT, 'test', 'measurements', 'v2.8', '09', 'recipes.json'); return existsSync(file) && JSON.parse(readFileSync(file, 'utf-8')).tasks.some((task) => task.id === 'codex-pages') && 'recipes.json task codex-pages (so-wizard-agent recipes)'; },
   'run header': () => existsSync(join(ROOT, 'scripts', 'debug', 'so-run-header.mts')) && 'so-run-header.mts capture/diff',
 };
 
