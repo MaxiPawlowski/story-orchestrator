@@ -95,8 +95,8 @@ export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueu
         return saved;
       } finally {
         clearInterval(heartbeat);
-        await Promise.all(refs.splice(0).map((ref) => comfyReleaseReference(ref)));
-        await releaseGpu(lease.lease);
+        try { await Promise.all(refs.splice(0).map((ref) => comfyReleaseReference(ref))); }
+        finally { await releaseGpu(lease.lease); }
       }
     });
     guard();
