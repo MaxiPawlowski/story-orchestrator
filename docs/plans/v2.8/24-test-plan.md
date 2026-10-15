@@ -299,8 +299,8 @@ CL (cloud reply unless noted; ×2 each unless informational):
 - Plan 13 shipped J7 consumers on TypeSafe ×2 plus the judge-off arm (canonVerify, canonDraft, idle/tone/adversity).
 - Plan 34 lore-select character eligibility, real TypeSafe leg.
 - Plan 22 L1/L5 leg (the pod-round fixture `l1-l5.json`, cloud reply): Save as story lands with unreached checkpoints
-  left out; delete-4 graph rollback and reopen equal the fold. The fixture lives in the private lane tree: a synthetic
-  copy goes into `test/scenarios/` before the run (owed).
+  left out; delete-4 graph rollback and reopen equal the fold. Its synthetic copy is
+  `test/scenarios/live-v28-22-l1-l5.json` (2026-10-14).
 - M16, M17, M20 only if Q2 rejects carrying their pod-round evidence.
 - Informational ×1: M18 Ask Q&A re-score and M19 wizard recipes at 60/36 (Sol), plan 10 briefing 30 drafts (spoilers
   0/30, preference ≥ 70 % by a second model), O15 campaign copy review, C14-b, 33-W3-N1, 33-W3-combined, 37-M1-C5,
@@ -401,7 +401,7 @@ real-model carrier, or why none is needed.
 | meanwhile-proposals | CL | agenda proposal tests | GS2.7; M16 carried |
 | living-story | CL + RP | v28-35-living-rollback ×2 | GS2.1–GS2.4, GS3.5 |
 | story-branching | CL | v28-40-living-divergence-prefetch ×2 (S) | GS2.3 |
-| save-run-as-story | CL | living tests | L5 leg (CL) |
+| save-run-as-story | CL | living tests | L5 leg `live-v28-22-l1-l5` (CL) |
 | judge-use-director | CL + RP | judge director tests | GS2.7, GS3.1 |
 | judge-use-memory-verify | RP | — | GS3.6 |
 | judge-use-memory-pairs | RP | — | GS3.6 |
@@ -722,8 +722,9 @@ Coverage (`node scripts/suite/coverage.mjs --campaign <pinned campaign>`, report
   (plan 41). Vague D cells now name their test files (live-head, prepared-presentation, changed-look-rebuild,
   cast-illustration, pose-library, backgrounds, model-downloads, sprite-edit-resolution, capabilities).
 - Result: 108 green, 2 image track (rule 12: judge-use-expressions, judge-use-picture-cue, carried by GS5 only),
-  **1 red: save-run-as-story** (its CL carrier, the L5 leg fixture, is still owed: the synthetic copy of the private
-  `l1-l5.json` is not in `test/scenarios/`). This blocks that row only.
+  1 red on the first pass, save-run-as-story: its CL carrier, the L5 leg fixture, was owed. The synthetic pod-round
+  fixture (a made-up premise, campaign group by name only) is now `test/scenarios/live-v28-22-l1-l5.json`, without its
+  DeepSeek role pin; the report then reads 0 red. Written, not run.
 - Plan floor tables: 30 plans, 300 floors; 21 were unmapped, now 0: v2.8 01 §F M1–M5, v2.8 17 K1–K5, v2.8 21 VR1–VR5,
   plan 36 LI3/LI4/LI6 (measurement rows added) and 43 R-Gate1–3, VR9 (named in §Plans 42–59).
 - Harness defects found by reading the fixtures before their shakedown (rule 10) and fixed with tests: a numeric
