@@ -752,6 +752,25 @@ the agent bridge; pin unchanged at `03441dc3`, so the campaign checks stand):
   their CL legs have no live fixture yet. Listed, not authored in this pass; they block only those rows. Floors: 300,
   0 unmapped.
 
+Re-check after merging master `2ef63034` (plans 50, 51, the live checks with the bridge cap at 96; pin unchanged):
+
+- Docs: 8 suites, 75 tests pass; `docs:guide` / `docs:settings` no content diff.
+- Coverage: 117 registry ids, 113 green, 2 image track, **0 red** after matrix rows for story-calendar (50) and
+  relationship-labels (51). Still owed, listed in their rows: 47 P1/P2 labelled-set rates, P6 rater and P8 cost;
+  50 T8–T10 (no live fixture yet).
+- New carriers (written 2026-10-15): `test/scenarios/live-v28-47-promises.json` (47 P1s CL half, P2w live, ids, rollback
+  reopens; not run, needs the model lane); the `codex-pages` task in `test/measurements/v2.8/09/recipes.json` with a
+  check that the agent read diagnostics after its last edit (52 C7).
+
+52 C7 (CL, Sol on the harness route, no GPU, lane 41 on the isolated ST copy, auto-draft):
+
+- Run 1: 5/10. Run 2: 5/10. Floor ≥ 9/10: **missed** (recorded, not retuned). Every run whose tools reached the
+  agent passed (10 of 10); every failed run was transport: 7 runs where no tool call reached the page, 3 where OpenCode
+  did not connect the tool server or load the owned config before the deadline.
+- Review mode is blocked: on the Sol route the agent reports "no story tools available" after the first accepted
+  card (2 of 2 trials), so C7 ran in auto-draft. The coordinator owns that defect.
+- Records (private lane tree): `so-suite-lanes/c7-run1.json`, `c7-run2.json`.
+
 ## Appendix A — plan 24 before the 2026-10-14 rework (history)
 
 Kept verbatim (headings demoted). Superseded by the sections above; the RunPod EUR 20 cap and the per-plan index remain as history.
