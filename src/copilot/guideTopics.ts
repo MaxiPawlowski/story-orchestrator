@@ -299,7 +299,7 @@ export const GUIDE_TOPICS = {
     title: "Quests and milestones",
     fields: "quests[], visible_when, offered_when, done_when, failed_when, steps[], requires, progress, labels, giver, reward, promise, milestones[]",
     text: "Status is computed every turn: hidden until visible_when (the acceptance), offered (never fails) while offered_when holds, then active, done or failed (failed wins); the end latches. "
-      + "done_when defaults to every step done or progress {quality, of} reached; requires adds another quest's done gate. reward lands once: set writes code qualities, "
+      + "done_when defaults to every step done or progress {quality, of} reached; requires waits for another quest to be done (its closed latch). reward lands once: set writes code qualities, "
       + "effects switch world_info, cast_changes, npc_replies (onEnter); a swipe takes it back. Milestones {id, title, when, secret}; a secret one is unlisted until earned.",
   },
   checks: {

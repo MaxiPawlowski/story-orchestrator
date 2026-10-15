@@ -207,10 +207,7 @@ export const expandRequires = (quests: Quest[], errors: ValidationError[]): Ques
   const cycle = cycleThrough(quests);
   if (cycle) return refuse(errors, "quests", `quest '${cycle}' requires itself through its chain`, quests);
   return quests.map((quest) => {
-    const required = (quest.requires ?? []).flatMap((id) => {
-      const target = byId.get(id);
-      return target ? [target.done_when] : [];
-    });
+    const required = (quest.requires ?? []).flatMap((id): GateNode[] => (byId.has(id) ? [{ q: questClosedKey(id), op: "==", v: "done" }] : []));
     if (!required.length) return quest;
     const visible = withRequirements(quest.visible_when, required);
     const offered = quest.offered_when ? withRequirements(quest.offered_when, required) : undefined;
