@@ -23,6 +23,10 @@ export interface RollbackExemption {
 
 const agendas = (story: NormalizedStoryV2) => (story.life?.members ?? []).flatMap((member) => member.agenda.map((agenda) => ({ member: member.id, agenda })));
 
+const mood = (story: NormalizedStoryV2) => (story.life?.members ?? []).filter((member) => member.mood).flatMap((member) => [moodAgeKey(member.id), moodSceneKey(member.id), moodWasKey(member.id)]);
+
+const lifePacing = (story: NormalizedStoryV2) => [...mood(story), ...agendas(story).flatMap(({ member, agenda }) => [agendaWaitKey(member, agenda.id), agendaChapterKey(member, agenda.id)])];
+
 const prefixMoved = (match: (key: string) => boolean, before: Values, after: Values): boolean =>
   [...new Set([...Object.keys(before), ...Object.keys(after)])].some((key) => match(key) && before[key] !== after[key]);
 
@@ -38,6 +42,11 @@ export const ROLLBACK_DETECTORS: readonly RollbackDetector[] = [
     moved: (story, before, after) => Boolean(story.life && gameLayer()?.life.lifeMoved(story, before, after)),
   },
   {
+    id: "life-pacing",
+    keys: lifePacing,
+    moved: (story, before, after) => lifePacing(story).some((key) => before[key] !== after[key]),
+  },
+  {
     id: "codex",
     keys: (story) => Object.keys(story.qualityByKey).filter(isCodexKey),
     moved: (_story, before, after) => prefixMoved(isCodexKey, before, after),
@@ -49,13 +58,9 @@ export const ROLLBACK_DETECTORS: readonly RollbackDetector[] = [
   },
 ];
 
-const mood = (story: NormalizedStoryV2) => (story.life?.members ?? []).filter((member) => member.mood).flatMap((member) => [moodAgeKey(member.id), moodSceneKey(member.id), moodWasKey(member.id)]);
-
 export const ROLLBACK_EXEMPT: readonly RollbackExemption[] = [
   { id: "convergence", keys: (story) => story.checkpoints.filter((checkpoint) => checkpoint.type === "anchor").map((checkpoint) => progressQualityForAnchor(checkpoint.id)),
     reason: "moves only with a fired transition, which already rolls back" },
-  { id: "life-pacing", keys: (story) => [...mood(story), ...agendas(story).flatMap(({ member, agenda }) => [agendaWaitKey(member, agenda.id), agendaChapterKey(member, agenda.id)])],
-    reason: "derive bookkeeping that paces the next agenda step or mood read; rewritten from the restored values at the next boundary; not a latch (pre-dates SC1)" },
   { id: "clock", keys: (story) => (story.life?.clock ? [CLOCK_DAY_KEY, CLOCK_SEEN_KEY] : []),
     reason: "follows the applied time-of-day read, whose read window the queue check already sees" },
   { id: "turn-counters", keys: (story) => [TURN_OOC_KEY, PLAYER_TURNS_KEY].filter((key) => story.qualityByKey[key]?.source === "code"),
