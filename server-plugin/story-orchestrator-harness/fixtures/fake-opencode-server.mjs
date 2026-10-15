@@ -71,7 +71,7 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
     const state = {
         up, login, version, models: [...models],
         refuseAuth: false, unreachable: false, eventsDisabled: false, eventsBreakAfter: null, noMessages: false,
-        mcpPids: [], mcpDelayMs, toolsRegisterMs, mcpFail: false, serviceStartFails, ignoreProjectConfig: false, dropPermissions: false,
+        mcpPids: [], mcpDelayMs, toolsRegisterMs, mcpFail: false, mcpPending: false, serviceStartFails, ignoreProjectConfig: false, dropPermissions: false,
         discoverCalls: 0, ensureCalls: [], created: [], prompts: [], removed: [], interrupts: [], evicted: [], replies: [], listCalls: 0,
         running: 0, peak: 0, removeFails: false,
         sessions: new Map(), locations: new Map(), subscribers: new Set(), nextId: 1,
@@ -120,6 +120,7 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
             void (async () => {
                 if (state.mcpDelayMs) await sleep(state.mcpDelayMs);
                 if (state.mcpFail) { row.status = { status: 'failed', error: 'the stdio server exited' }; return; }
+                if (state.mcpPending) return;
                 try {
                     row.client = startMcp(server);
                     state.mcpPids.push(row.client.child.pid);

@@ -1,7 +1,7 @@
 """Story Orchestrator local judge server (v2.8 plan 14, A1).
 
 Serves a System One decision model on 127.0.0.1 with TypeSafe's wire:
-  GET  /health        -> {"ok", "model", "modelPath", "backend", "device", "loaded"}
+  GET  /health        -> {"ok", "model", "modelPath", "backend", "device", "loaded", "waiting", "shed"}
   POST /v1/systemone  -> {"model", "answers", "usage"}
 
 Backends:
@@ -215,6 +215,7 @@ def make_handler(state):
                 "loaded": state["backend"] is not None,
                 "loadSeconds": state["load_seconds"],
                 "queueTimeoutSeconds": state["queue_timeout"],
+                "waiting": state["waiting"],
                 "shed": dict(state["shed"]),
             })
 
@@ -232,7 +233,12 @@ def make_handler(state):
             if issues:
                 return self.reply(400, {"error": "invalid request", "issues": issues})
             started = time.perf_counter()
-            if not state["lock"].acquire(timeout=state["queue_timeout"]):
+            with state["counts"]:
+                state["waiting"] += 1
+            acquired = state["lock"].acquire(timeout=state["queue_timeout"])
+            with state["counts"]:
+                state["waiting"] -= 1
+            if not acquired:
                 state["shed"]["busy"] += 1
                 return self.reply(503, {"error": "the local judge is busy", "busy": True})
             try:
@@ -327,12 +333,14 @@ def main(argv=None):
         "model_id": args.model_id,
         "model_path": os.path.abspath(args.model_path) if args.model_path else None,
         "lock": threading.Lock(),
+        "counts": threading.Lock(),
+        "waiting": 0,
         "load_seconds": round(time.perf_counter() - started, 1),
         "queue_timeout": args.queue_timeout,
         "shed": {"busy": 0, "gone": 0},
     }
     server = ThreadingHTTPServer((args.host, args.port), make_handler(state))
-    print(f"[local-judge] {args.model_id} ({backend.name}, {getattr(backend, 'device', '?')}) on http://{args.host}:{args.port}, loaded in {state['load_seconds']} s", flush=True)
+    print(f"[local-judge] {args.model_id} ({backend.name}, {getattr(backend, 'device', '?')}) on http://{args.host}:{server.server_address[1]}, loaded in {state['load_seconds']} s", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:
