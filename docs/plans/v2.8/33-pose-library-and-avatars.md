@@ -619,3 +619,20 @@ Real runs (3090, owner go-ahead):
   - The `cleanup` command misses leftovers from an aborted run (leaked 0 while 13 assets remained).
   - Callers need a wrapper timeout of at least 90 min per run.
 - GPU minutes: run 1 about 50 (killed), run 2 about 75.
+
+## Gate record: acceptance latency pair, 2026-10-15 (LIST, INCOMPLETE: stopped by the owner's pause)
+
+- Same build, lane, controller and harness as the plan 41 close-out record of 2026-10-15: served bundle `97156ce986f2`, controller on the fixed `scheduler.mjs`, cards given showcase art by the `card-art` step, no DeepSeek.
+- Two starts voided (dirs renamed `VOID-...`), and neither counts:
+  - Run 1 at 08:11Z: I killed it, but its node child survived the shell kill and kept driving the page while a second start ran on it (two drivers on one page).
+  - The 08:25Z start: all four of Ivy's base candidates were refused on RAM while other agents' gates held host RAM under 12.2 GB.
+- Run 1 (`pose-latency\2026-10-15T10-16-33-198Z-b-real-run1`, order off -> on): preflight, provision, card-art, setup-chat, base x3 (164/129/143 s), prepare x3, arm-off and arm-on passed.
+  - Latency from `turns.jsonl`: off median 41,087 ms, on median 110,657 ms, ratio **2.69** against the 1.10 floor: MISS. On-arm turns took 72-152 s, off-arm turns 16-70 s.
+  - Pose renders: NOT SCORED. The owner paused the 3090 3 min into the 20-min settle, and the driver was killed, so there is no `record.json`.
+    - At the kill, 1 of 12 directed poses had a body (Ivy `stand_arms_crossed`, route p2, second reference true).
+    - The run made 15 `comfy` calls, 12 of them bases, so almost no pose render ran during the arm-on turns.
+    - RAM stayed >= 12.2 GB during the arms, so admission was not the cause this time. The text work, turn after turn, left the image queue no window.
+  - Cleanup by the `cleanup` command: 3 cards, 1 group and the library story removed, leaked 0. `so-assets assert-clean --marker SO-PL` and `--marker SO-P41` both exit 0 on lane 33. The lane's captured sprite and display settings were lost with the killed driver (lane copy only).
+- Run 2: NOT RUN (pause).
+- Verdict: NOT ACCEPTED. Latency missed again (2.69; earlier runs 1.99 and 2.21). Floors unchanged.
+- Finding (harness): on Windows, stopping the shell that wraps `st-lanes run` does not stop its node children. Kill the process tree: `Stop-Process` on every PID whose command line holds the driver.

@@ -11,6 +11,7 @@ import { captureHeader } from './so-run-header.mts';
 import { closeCheckpointStudio } from './so-ui.mts';
 import { removeStory } from './so-library.mts';
 import { dismissBriefing } from './lib/briefingHarness.mts';
+import { CARD_ART_DEVIATION, cardArtPlan, cardArtProblems, giveCardArt, leakNames, markServerLog, takeServerLog } from './lib/pocCardArt.mts';
 import {
   FLOORS_DATE, POSE_FLOORS, POSE_MARKER, PLAYER_LINES, armOrder, checkpointForTurn, countCalls, directedPoses, evidenceDirName, latencyVerdict, poseCast, poseStory,
   sampleSummary, type Mode, type PoseMember, type StepRow,
@@ -123,9 +124,10 @@ async function poseCoverage(ctx: Ctx) {
     return out;
   }, ctx.cast.map((member) => member.name));
   const bodies = Object.entries(manifests).flatMap(([character, sets]) => (sets ?? []).flatMap((set: any) => Object.values(set.labels ?? {})
-    .map((label: any) => ({ character, set: set.set, pose: label?.inputs?.body?.pose ?? null })).filter((row) => row.pose)));
+    .map((label: any) => ({ character, set: set.set, pose: label?.inputs?.body?.pose ?? null, route: label?.inputs?.poseRoute ?? label?.inputs?.pose?.route ?? null, secondReference: label?.inputs?.poseSecondReference ?? null })).filter((row) => row.pose)));
   const missing = wanted.filter((row) => !bodies.some((body) => body.character === row.member && body.pose === row.pose));
-  return { wanted: wanted.length, rendered: wanted.length - missing.length, missing, bodies: bodies.length };
+  const routes = bodies.reduce<Record<string, number>>((out, body) => { const key = `${body.route ?? 'none'}${body.secondReference ? '+ref2' : ''}`; out[key] = (out[key] ?? 0) + 1; return out; }, {});
+  return { wanted: wanted.length, rendered: wanted.length - missing.length, missing, bodies: bodies.length, routes };
 }
 
 async function settlePoses(ctx: Ctx): Promise<StepResult> {
@@ -158,9 +160,10 @@ async function cleanup(page: Page, ctx: { baseline: Ctx['baseline']; spriteBasel
   const after = await snapshotSpriteAssets(page);
   const sprites = ctx.spriteBaseline?.trusted && after.trusted ? scopedSprites(after, POSE_MARKER, ctx.spriteBaseline).length : null;
   const inventory = ctx.spriteBaseline?.trusted && after.trusted ? { before: ctx.spriteBaseline.rows.length, after: after.rows.length } : null;
-  const leaked = leakCount(await listMarkedAssets(page, POSE_MARKER, { baseline: ctx.baseline }));
+  const found = await listMarkedAssets(page, POSE_MARKER, { baseline: ctx.baseline });
+  const leaked = leakCount(found);
   return { removed: { characters: removed.removed.characters.length, groups: removed.removed.groups.length, errors: removed.removed.errors }, library, restored,
-    ownedSpritesLeft: sprites, inventory, inventoryUnchanged: inventory ? inventory.before === inventory.after && sprites === 0 : null, leaked };
+    ownedSpritesLeft: sprites, inventory, inventoryUnchanged: inventory ? inventory.before === inventory.after && sprites === 0 : null, leaked, leakedAssets: leakNames(found) };
 }
 
 async function runPose(page: Page) {
@@ -182,6 +185,7 @@ async function runPose(page: Page) {
   else if (distDir) candidate = await installCandidateRoute(page, distDir);
   const sampler = startSampler(mode, resolve(dir, 'samples.jsonl'));
   const calls = attachCallRecorder(page, () => ctx.current, resolve(dir, 'calls.jsonl'));
+  const serverLog = markServerLog(process.env, DEBUG_DIR);
   let cleaned: unknown = 'kept (--keep)';
   let gpuBaseline: number | null = null;
   try {
@@ -198,6 +202,11 @@ async function runPose(page: Page) {
     if (pre.outcome === 'fail') throw new Error(`preflight: ${pre.detail}`);
     const prov = await step(ctx, 'provision', null, () => provision(ctx));
     if (prov.outcome === 'fail') throw new Error(`provision: ${prov.detail}`);
+    await step(ctx, 'card-art', null, async () => {
+      const rows = await giveCardArt(page, cardArtPlan(cast));
+      const problems = cardArtProblems(rows);
+      return { outcome: problems.length ? 'fail' : 'pass', detail: problems.join('; ') || undefined, data: { deviation: CARD_ART_DEVIATION, rows } };
+    });
     const setup = await step(ctx, 'setup-chat', null, async () => ({ data: { chatId: await openArmChat(ctx, 'setup') } }));
     if (setup.outcome === 'fail') throw new Error(`setup-chat: ${setup.detail}`);
     for (const member of cast) await step(ctx, 'base', member.name, () => stepBase(ctx, member));
@@ -218,6 +227,7 @@ async function runPose(page: Page) {
     else if (!flag('--keep')) cleaned = await cleanup(page, { baseline: ctx.baseline, spriteBaseline: ctx.spriteBaseline, settings: ctx.settings, storyId: ctx.story.id }).catch((error) => ({ error: String(error) }));
     if (ctx.dry) await ctx.dry.stop();
     if (candidate) await candidate.stop();
+    const serverSlice = takeServerLog(serverLog, dir);
     const ms = (arm: string) => (ctx.arms[arm]?.turns ?? []).map((row) => row.ms).filter((row): row is number => typeof row === 'number');
     const latency = latencyVerdict(ms('on'), ms('off'));
     const poses = ctx.rows.find((row) => row.id === 'pose-renders');
@@ -238,7 +248,7 @@ async function runPose(page: Page) {
       kind: 'pose-latency', mode, run, order, turns, startedAt: stamp, finishedAt: new Date().toISOString(), floorsDate: FLOORS_DATE, floors: POSE_FLOORS,
       verdict: mode === 'dry' ? (plumbing.length ? 'PLUMBING-FAIL' : 'PLUMBING-OK (dry: no floor result)') : (misses.length ? 'NOT GREEN' : 'GREEN'),
       plumbing, misses, latency, poses: poses?.data ?? null, steps: ctx.rows, arms: ctx.arms, modelCalls: countCalls(calls.rows), refusals: ctx.refusals,
-      samples: sampleSummary(sampler.samples), gpuBaselineMiB: gpuBaseline, cleanup: cleaned,
+      samples: sampleSummary(sampler.samples), gpuBaselineMiB: gpuBaseline, cleanup: cleaned, serverLog: serverSlice,
       dry: ctx.dry ? { fakeCalls: ctx.dry.fake.calls.length, renders: ctx.dry.fake.jobs.size, blocked: ctx.dry.blocked, textReplies: ctx.dry.replies } : null,
     };
     const path = await writeRecord(dir, 'record.json', record);
@@ -252,7 +262,7 @@ async function runPose(page: Page) {
 async function cleanupCommand(page: Page) {
   const dry = flag('--dry') ? await installDryRoutes(page, owned) : null;
   try {
-    const result = await cleanup(page, { baseline: await snapshotAssets(page), spriteBaseline: null, settings: null, storyId: poseStory(poseCast()).id });
+    const result = await cleanup(page, { baseline: null, spriteBaseline: null, settings: null, storyId: poseStory(poseCast()).id });
     console.log(JSON.stringify(result, null, 2));
     if (result.leaked) process.exitCode = 1;
   } finally { await dry?.stop(); }
