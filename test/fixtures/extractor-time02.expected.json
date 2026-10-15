@@ -1,0 +1,13 @@
+{
+  "deltas": [
+    {
+      "q": "life_time_read",
+      "v": "afternoon",
+      "evidence": "begins its slow slide west"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "none": "time window: the story clock's read only"
+  }
+}

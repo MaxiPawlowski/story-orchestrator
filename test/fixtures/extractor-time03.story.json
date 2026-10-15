@@ -1,0 +1,64 @@
+{
+  "format": 2,
+  "title": "Story time read 03",
+  "description": "v2.8 50 T8 live-suite time window: the clock's read key (life_time_read) on a story with a clock; the window starts in the morning. A gate waits on time_of_day, so the read asks for the clock (plan 50 B1a scope rule).",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    }
+  ],
+  "clock": {
+    "times": [
+      "morning",
+      "afternoon",
+      "evening",
+      "night"
+    ],
+    "night": [
+      "night"
+    ]
+  },
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Open the scene.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Advance the scene.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "time_of_day",
+        "op": "==",
+        "v": "night"
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "arin",
+      "name": "Arin",
+      "role": "a boat keeper at the harbor"
+    },
+    {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator"
+    }
+  ]
+}

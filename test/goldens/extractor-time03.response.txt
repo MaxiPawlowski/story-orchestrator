@@ -1,0 +1,1 @@
+DELTA q=life_time_read value=evening evidence="The bells ring for the evening prayer"

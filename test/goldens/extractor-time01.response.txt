@@ -1,0 +1,1 @@
+DELTA q=life_time_read value=night evidence="the whole town is asleep under a black, starless night"

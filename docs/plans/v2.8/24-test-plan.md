@@ -401,7 +401,7 @@ real-model carrier, or why none is needed.
 | consequences-recap | D | consequences jest, recapRollback review test, recapSecret review test | none: no model pass (46 A) |
 | promises-remembered | D + CL | promises jest, promiseRead jest, promiseRollback review test | live-v28-47-promises (P1s CL half, P2w live, ids, rollback reopens) ×2; P1/P2 labelled-set rates, P6 rater, P8 cost owed (measurement fixtures); P7/P7h informational (LT) |
 | codex | D + CL | codex jest, codexView property test, codexRollback | C7: codex-pages task in `test/measurements/v2.8/09/recipes.json`, `so-wizard-agent.mts recipes --task codex-pages --repeat 10 --mode auto-draft --route harness` (Sol) |
-| story-calendar | D + CL | clock jest, clockScope jest, v28-50-story-time (no-model) | T8–T10 CL ×2 owed (no live fixture yet); T11 read in GS3.3 |
+| story-calendar | D + CL | clock jest, clockScope jest, v28-50-story-time (no-model) | T8: live suite windows `extractor-time01..04` (`so-live-suite.mts run --filter extractor-time`, CL, read model); T9/T10 wait for B2 (not built); T11 read in GS3.3 |
 | relationship-labels | D | labels jest, labelRollback property test, relationshipLabels review test, v28-51-labels (no-model) | R7/R9 informational ×1 (RP lab story), deferred: no lab story |
 | factions | D + RP | factions jest, v28-53-factions (no-model ×2) | F7 informational (RP lab story), deferred: no lab story yet; F9 CL informational |
 | story-made-panels | D | html widget tests, Storybook | none: no model |
@@ -757,7 +757,7 @@ Re-check after merging master `2ef63034` (plans 50, 51, the live checks with the
 - Docs: 8 suites, 75 tests pass; `docs:guide` / `docs:settings` no content diff.
 - Coverage: 117 registry ids, 113 green, 2 image track, **0 red** after matrix rows for story-calendar (50) and
   relationship-labels (51). Still owed, listed in their rows: 47 P1/P2 labelled-set rates, P6 rater and P8 cost;
-  50 T8–T10 (no live fixture yet).
+  50 T9/T10 (B2 not built; T8 now has four live-suite time windows).
 - New carriers (written 2026-10-15): `test/scenarios/live-v28-47-promises.json` (47 P1s CL half, P2w live, ids, rollback
   reopens; not run, needs the model lane); the `codex-pages` task in `test/measurements/v2.8/09/recipes.json` with a
   check that the agent read diagnostics after its last edit (52 C7).
