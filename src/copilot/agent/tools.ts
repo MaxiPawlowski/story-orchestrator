@@ -214,8 +214,13 @@ setPoseCard: { backedBy: "setPoseCard", doc: "Set living card fields and charact
   },
   setClock: {
     backedBy: "setClock",
-    doc: "Give the story a time of day and a day count, or null to remove it.",
-    args: { clock: req("value", "{times: [\"morning\", \"evening\", \"night\"], start_day?} or null") },
+    doc: "Give the story a time of day and a day count, or null to remove it (and its calendar).",
+    args: { clock: req("value", "{times: [\"morning\", \"evening\", \"night\"], start_day?, start_part?, night?: [names], max_skip_days?} or null") },
+  },
+  setCalendar: {
+    backedBy: "setCalendar",
+    doc: "Give a story with a clock a calendar (the date of story day 1, months, weekdays, seasons), or null to remove it.",
+    args: { calendar: req("value", "{start: {year?, month, day, weekday?}, months: [{name, days}], weekdays?, seasons?: [{name, from_month}], label?: date|day} or null") },
   },
 } satisfies Record<DraftOpKind | AgentOnlyOp["kind"], EditSpec>;
 

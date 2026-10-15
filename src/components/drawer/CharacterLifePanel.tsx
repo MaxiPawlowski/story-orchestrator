@@ -2,6 +2,8 @@ import type { LifeAuthorView } from "@runtime/lifeSnapshot";
 
 const towardLabel = (toward: string, names: Record<string, string>) => (toward === "player" ? "the player" : names[toward] ?? toward);
 
+const WRITER_LABEL = { read: "the reader", checkpoint: "a checkpoint", author: "you" } as const;
+
 export type MeanwhileDecide = (id: string, status: "accepted" | "rejected") => void;
 
 export const CharacterLifePanel = ({ life, onDecide }: { life: LifeAuthorView; onDecide?: MeanwhileDecide }) => {
@@ -11,6 +13,16 @@ export const CharacterLifePanel = ({ life, onDecide }: { life: LifeAuthorView; o
   return (
     <section id="so-character-life" aria-label="Character life" className="mt-3 text-xs">
       <div className="font-medium mb-1">Character life</div>
+      {life.clock ? (
+        <div data-so="life-clock" className="mb-2">
+          Story time: {life.clock.label} <span className="opacity-70">(story_time {life.clock.time})</span>
+          {life.clock.move ? (
+            <span data-so="life-clock-move" className="opacity-70">
+              {" "}· moved {life.clock.move.from} → {life.clock.move.to} by {WRITER_LABEL[life.clock.move.writer]} at message {life.clock.move.messageId}, boundary {life.clock.move.boundary}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
       {life.rows.map((row) => (
         <div key={row.id} data-so="life-member" data-member={row.id} className="mb-2">
           <div className="font-medium">

@@ -1,6 +1,6 @@
 import {
-  CLOCK_DAY_KEY, CLOCK_SEEN_KEY, CLOCK_TIME_KEY, FACTION_HEARD_BY, FACTION_KEY_PREFIX, FACTION_MOVES_MAX, FACTION_NAME_MAX, FACTION_RANGE_DEFAULT, FACTIONS_MAX,
-  FACTIONS_PER_MEMBER_MAX, factionMoveKey, isFactionDerivedKey, seenStandingKey, standingKey,
+  FACTION_HEARD_BY, FACTION_KEY_PREFIX, FACTION_MOVES_MAX, FACTION_NAME_MAX, FACTION_RANGE_DEFAULT, FACTIONS_MAX,
+  FACTIONS_PER_MEMBER_MAX, factionMoveKey, isFactionDerivedKey, isStoryTimeKey, seenStandingKey, standingKey,
   type Faction, type FactionMove, type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type Quest, type RosterMember, type ValidationError,
 } from "../schema";
 import { isRecord } from "@utils/guards";
@@ -99,9 +99,9 @@ export const addFactionQualities = (
   return [...qualities, ...factionQualities(factions, roster).filter((quality) => !existing.has(quality.key))];
 };
 
-const INACTION_KEYS: ReadonlySet<string> = new Set([...TIME_KEYS, CLOCK_DAY_KEY, CLOCK_TIME_KEY, CLOCK_SEEN_KEY]);
+const INACTION_KEYS: ReadonlySet<string> = new Set(TIME_KEYS);
 
-export const isTimeKey = (key: string): boolean => INACTION_KEYS.has(key) || /^agenda_.+_wait$/.test(key) || /^life_mood_.+_age$/.test(key);
+export const isTimeKey = (key: string): boolean => INACTION_KEYS.has(key) || isStoryTimeKey(key) || /^agenda_.+_wait$/.test(key) || /^life_mood_.+_age$/.test(key);
 
 const comparesToAbsence = (leaf: GateLeaf, start: Readonly<Record<string, PrimitiveValue>>): boolean =>
   (leaf.op === "==" && (leaf.v === false || (start[leaf.q] !== undefined && leaf.v === start[leaf.q]))) || (leaf.op === "!=" && leaf.v === true);
