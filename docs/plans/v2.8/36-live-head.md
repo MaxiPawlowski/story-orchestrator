@@ -639,6 +639,7 @@ Gates:
   was ported. Measurements, goldens and the Storybook before/after (`Sprites/LiveHeadGaze`) are in plan 41 §Gate record — extras.
 - Not run: LI rows or a browser check on real or amber/slate/ember rigs; listed under plan 41 Ready to run. Floors LI1-LI6 unchanged.
 
+<<<<<<< HEAD
 ## Gate record 2026-10-15 (gaze iris on real art)
 
 - Reproduced headless on the showcase rigs (Garrick, Wren, Pim; sol and plan36 manifests): CPU `renderOpenBall` composite of base, ball and lid layers, 8x crops, not committed.
@@ -657,3 +658,27 @@ Gates:
   - `npm run gates -- --jobs=2 --skip=test-storybook:ci`: every step green across runs. Timing flakes, each retried once: `consequences.test.ts` C6 (p95 <= 5 ms under parallel load; green alone and in an earlier full run), harness `agent.test.mjs` "stalled OpenCode service" (15 s deadline under load; `npm run test:plugin` alone 311/311).
   - Storybook by hand (the `test-storybook:ci` script pins port 6006): `storybook:build`, `http-server .sb-static -p 6371`, test runner 854/855; the one miss `Workspace/Shell > Mobile` (unrelated, heading not found) passed on re-run together with the Gaze, BaseSpriteBuilder and PreparedCast stories.
   - Main bundle 1,290,510 B (budget 1,300,000).
+=======
+## Gate record: 3090 block 2026-10-14, neutral drawn frames and LI1 (LIST)
+
+- Worktree `C:\dev\so-gpu-block`, branch `v2.8-gpu-block-2026-10-14` (master `35a9267e`, later fast-forwarded to `9aead40b`). Build served to the lane page as a candidate: a scratch Playwright holder kept a context route on the worktree `dist/` for the whole run. Nothing was staged into the owner's ST. Plugins were installed by the coordinator with the owner's OK, and lanes were restarted after it. Lanes: 31 (showcase) and 30 (LI rows, which the driver pins). No model, Sol or DeepSeek call.
+- Frames, lane 31, ComfyUI through the controller (`start-comfy`, text unloaded, `--cache-ram 8 --fast-disk`):
+  - `so-showcase prepare --restore-cache --no-render --candidate`, then `so-sprite-builder frames --set default --label neutral --kinds blink,talk,talk2,mouth_o,mouth_wide` per bust.
+  - Result: 15/15 Qwen edits kept, 0 refused (the floor is 15 at most, minus existing rows; none existed).
+  - Wall per edit, from the save records: Wren 145/39/36/51/68 s, Garrick 44/28/30/31/46 s, Pim 41/35/39/48/37 s (blink/talk/talk2/mouth_o/mouth_wide). The first edit per lease carries the model load. About 16 GPU-min, against the runbook's estimate of about 10.
+  - Check: `so-showcase shot` per speaker (`/sendas` to move the speaker). Every bust's canvas has `data-live-head-drawn="eyes_closed_0 eyes_closed_1 mouth_talk mouth_talk2 mouth_o mouth_wide"` and `data-live-head-mouth="full"`. No "partly refused" log. The risk that Pim would be refused did not happen.
+  - Outputs: lane `C:\dev\so-lanes\31\data\default-user\characters\SO-Show <Name>\anim-default\neutral.<kind>.png`, copied into `C:\dev\so-showcase-art\cache\SO-Show <Name>\anim-default\`.
+- Deviations and driver defects found (not fixed here):
+  - `so-sprite-builder` clicks `#so-studio-tab-sprites`, which is only rendered while the "Characters" task is active. The click times out. Worked around by selecting Characters › Sprites in the page first. `lib/pocSteps.openSprites` uses `switchStudioTab` and is fine.
+  - `so-ui openCheckpointStudio` needs Author view: `#so-open-studio` is absent in player mode. Turned on with `rt.setUiSettings({authorView:true})`.
+  - `so-showcase cache save` crashes with ENOTDIR: it walks every `SO-Show*` entry in `characters/`, including the avatar `.png` files. The cache was copied by hand with the same semantics (sub-folders only).
+  - `--candidate` on `so-showcase` only routes during that one script. Later scripts and lazy chunks would load the staged (96 commits older) build, hence the holder.
+  - RAM: Wren's edit size uses `loader-estimate` 10,746 MiB, not the 8,139 row, and needs 14,842 MiB available. It was refused 4 times (10.3-14.6 GB available) until the owner closed apps. Garrick and Pim fit the row.
+- LI1 (lane 30, headed, `ST_DEBUG_VIEWPORT=1440x844`, `so-live-head-check --row all --candidate`). Desktop with the RTX 3090, not the named mid laptop, so this does not count as acceptance:
+  - run `gpublock1`: LI1 FAIL. 3,594 frames over 60.0 s, p95 16.8 ms, max 45.9 ms, 5 intervals over 33.34 ms (all `no-tick`, 0 long tasks). The machine was not quiet (lane 31 had just shut down).
+  - run `gpublock2`: aborted by the harness (`#so-briefing-start` click timed out); no LI result.
+  - run `gpublock2b`: LI1 PASS. 3,600 frames, max 33.3 ms, 0 drops.
+  - run `gpublock3` (`--row LI1`, 21:45 local, CPU about 31 %, no GPU job running): LI1 PASS. 3,622 frames, max 25.1 ms, 0 drops.
+  - LI1 tally on this desktop: 2 PASS, 1 FAIL. The FAIL came on a busy machine. Still not LI1 acceptance: that needs the named mid laptop.
+  - LI3 (9/9), LI4 (6/6) and LI6 (6/6) PASS in both completed `--row all` runs.
+>>>>>>> v2.8-gpu-block-2026-10-14
