@@ -76,6 +76,9 @@ DeepSeek capped at EUR 15. 3090 image time about 9 h, listed apart. Old estimate
     and covers text and everything it drives: replies, thinking and inner voice, reads and memory, judge, director,
     quests and game layer, UI and rollback. GS5 is not part of the suite. The Adolion X6 animation job (about 36 h)
     is outside both and waits for the owner.
+    **On hold (owner 2026-10-15):** all Adolion campaign image generation (X6 animation job, campaign sprite renders,
+    pose conversion). The image close-out covers the POC only (showcase characters; plans 33, 36, 41 rows), run
+    once the image-defect fixes are merged.
 
 ## Budget
 
