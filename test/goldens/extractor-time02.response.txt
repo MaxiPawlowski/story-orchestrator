@@ -1,1 +1,0 @@
-DELTA q=life_time_read value=afternoon evidence="begins its slow slide west"
