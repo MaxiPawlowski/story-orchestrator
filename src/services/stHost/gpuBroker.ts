@@ -2,7 +2,7 @@ import { getContext } from "./context";
 import { isRecord } from "@utils/guards";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { log } from "@utils/log";
-import { releaseAnswer } from "./gpuLeaseAnswer";
+import { abortableSleep, releaseAnswer, waitWhileBusy } from "./gpuLeaseAnswer";
 
 const URL = "/api/plugins/story-orchestrator-gpu";
 
@@ -62,7 +62,10 @@ export async function gpuBrokerStatus(): Promise<GpuBrokerStatus | null> {
     ...(typeof data.listenPort === "number" ? { listenPort: data.listenPort } : {}) };
 }
 
-export async function reserveGpu(request: GpuRequest = {}): Promise<GpuReservation> {
+export const reserveGpu = (request: GpuRequest = {}): Promise<GpuReservation> =>
+  waitWhileBusy(() => reserveOnce(request), { signal: request.signal, now: Date.now, sleep: abortableSleep });
+
+async function reserveOnce(request: GpuRequest): Promise<GpuReservation> {
   let response: Response;
   try {
     response = await post("lease", { workflowKey: request.workflowKey, modelFiles: request.modelFiles,
