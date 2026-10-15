@@ -70,6 +70,7 @@ export const readServerExtensionSettings = async (key: string): Promise<Record<s
 export const capabilityReport = async (_options: { refresh?: boolean } = {}) => [];
 export const hostFacts = async () => ({ stVersion: "1.13.0", stCommit: null, macroEngine: "new" as const });
 export const judgeStatus = async () => null;
+export const stImageSource = (): string | null => null;
 export const writeJudgeSecret = async (_value: string) => ({ ok: true as const });
 export const harnessListed = () => false;
 export const refreshHarnessStatus = async () => null;

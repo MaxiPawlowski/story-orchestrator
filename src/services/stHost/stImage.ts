@@ -4,6 +4,11 @@ import { quoteSlashArg } from "@utils/string";
 
 export interface ImageReadiness { ready: boolean; reason: string | null; source: string | null }
 
+export const stImageSource = (): string | null => {
+  const sd = getContext().extensionSettings.sd;
+  return isRecord(sd) && typeof sd.source === "string" && sd.source ? sd.source : null;
+};
+
 export async function stImageReadiness(): Promise<ImageReadiness> {
   const sd = getContext().extensionSettings.sd;
   if (!isRecord(sd) || typeof sd.source !== "string" || !document.getElementById("sd_source")) return { ready: false, reason: "Set up SillyTavern’s Image Generation extension first.", source: null };

@@ -1,4 +1,4 @@
-import { nextRepairStep, REPAIR_TARGET_IDS, viewerRepairStep, WI_GATING_TARGET_ID, type RepairStep } from "./repair";
+import { imagesStepDone, nextRepairStep, REPAIR_TARGET_IDS, viewerRepairStep, WI_GATING_TARGET_ID, type RepairStep } from "./repair";
 import { createSaveHealth } from "./saveHealth";
 import type { RuntimeSnapshot } from "./types";
 import type { WiGatingStatus } from "./worldInfoMode";
@@ -274,5 +274,15 @@ describe("CR-U: Repair per viewer", () => {
     const lore = viewerRepairStep(snapshotWith({ ui: { authorView: false }, requirements: { ready: false, missingPersonas: [], missingMembers: [], missingLorebooks: ["Wendhope"] } } as unknown as Partial<RuntimeSnapshot>));
     expect(lore?.consequence).not.toMatch(author);
     expect(lore?.consequence).not.toContain("Wendhope");
+  });
+});
+
+describe("Astra P2: the pictures step follows the route the defaults use", () => {
+  it("SillyTavern's image service with template prompts is done without a ComfyUI URL or a director", () => {
+    expect(imagesStepDone({ enabled: true, backend: "st", comfyUrl: "" }, "comfy")).toBe(true);
+    expect(imagesStepDone({ enabled: true, backend: "st", comfyUrl: "" }, null)).toBe(false);
+    expect(imagesStepDone({ enabled: true, backend: "comfy", comfyUrl: "" }, "comfy")).toBe(false);
+    expect(imagesStepDone({ enabled: true, backend: "comfy", comfyUrl: "http://127.0.0.1:8188" }, null)).toBe(true);
+    expect(imagesStepDone({ enabled: false, backend: "st", comfyUrl: "" }, "comfy")).toBe(false);
   });
 });
