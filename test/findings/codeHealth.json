@@ -42,5 +42,7 @@
   "t3": {},
   "e1": {},
   "d1": [],
-  "q1t": {}
+  "q1t": {
+    "src/runtime/consequences.test.ts#performance.now": 2
+  }
 }

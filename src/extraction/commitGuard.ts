@@ -2,6 +2,7 @@ import { gateLeaves, type NormalizedStoryV2, type PrimitiveValue, type Quality }
 import { log } from "@utils/log";
 import type { EvidenceMessage } from "./evidence";
 import { evidenceCut, type EvidenceCut } from "./evidenceCut";
+import { playerSpanOf } from "./playerSpan";
 import type { ParsedDelta } from "./types";
 
 // A quality whose value only means something when the player COMMITTED to it can declare a
@@ -219,6 +220,7 @@ const lineVerdict = (line: string, matcher: RegExp, relevance: Relevance, window
 
 interface PlayerReading {
   commits: boolean;
+  message?: EvidenceMessage;
   playerLine?: string;
   reason?: HoldReason;
 }
@@ -227,8 +229,9 @@ const playerReading = (matcher: RegExp, relevance: Relevance, messages: readonly
   const windowIsAbout = messages.some((message) => isAbout(normalizeLine(message.text), relevance));
   const named = messages.filter((message) => !message.isUser).flatMap((message) => normalizeLine(message.text).match(PROPER_NOUN) ?? []);
   const read = { ...relevance, topics: new Set([...relevance.topics, ...named.map((name) => name.toLowerCase())]) };
-  const verdicts = messages.filter((message) => message.isUser).map((message) => ({ line: message.text, reason: lineVerdict(message.text, matcher, read, windowIsAbout) }));
-  if (verdicts.some((verdict) => verdict.reason === null)) return { commits: true };
+  const verdicts = messages.filter((message) => message.isUser).map((message) => ({ message, line: message.text, reason: lineVerdict(message.text, matcher, read, windowIsAbout) }));
+  const committing = [...verdicts].reverse().find((verdict) => verdict.reason === null);
+  if (committing) return { commits: true, message: committing.message };
   const closest = [...verdicts].reverse().find((verdict) => verdict.reason !== HOLD_REASONS.noMatch) ?? verdicts[verdicts.length - 1];
   return closest ? { commits: false, playerLine: closest.line, reason: closest.reason ?? HOLD_REASONS.noMatch } : { commits: false, reason: HOLD_REASONS.noPlayerLine };
 };
@@ -265,6 +268,10 @@ export const applyCommitEvidence = (
           key: delta.delta.q, value: String(delta.delta.v), evidence: delta.evidence ?? "", ...evidenceCut(delta),
           ...(reading.reason ? { reason: reading.reason } : {}), ...(reading.playerLine !== undefined ? { playerLine: reading.playerLine } : {}),
         });
+        continue;
+      }
+      if (reading.message) {
+        accepted.push({ ...delta, delta: { ...delta.delta, playerSpan: playerSpanOf(reading.message) } });
         continue;
       }
     }

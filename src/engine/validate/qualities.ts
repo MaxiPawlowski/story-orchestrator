@@ -9,6 +9,7 @@ import { isRecord } from "@utils/guards";
 import { log } from "@utils/log";
 import { addError, asString, isOneOf } from "./common";
 import { gameLayer } from "./gameLayer";
+import { readPlayerAction } from "./recap";
 
 const readCriterion = (value: unknown): string | QualityCriterion | null => {
   if (typeof value === "string") return value.trim() || null;
@@ -211,6 +212,7 @@ export const readQuality = (value: unknown, path: string, errors: ValidationErro
     : undefined;
 
   const labels = readPlayerLabels(value, type === "enum" ? values : undefined, path, errors);
+  const commit = readCommitEvidence(value, type, values, source, path, errors);
   return {
     key,
     type,
@@ -225,7 +227,8 @@ export const readQuality = (value: unknown, path: string, errors: ValidationErro
     ...(ledgerBinding ? { ledger_binding: ledgerBinding } : {}),
     ...readQualityRead(value, type, source, rubric, values, path, errors),
     ...readEvidenceFrom(value, source, path, errors),
-    ...readCommitEvidence(value, type, values, source, path, errors),
+    ...commit,
+    ...readPlayerAction(value, { type, values, commit_evidence: commit.commit_evidence }, path, errors),
     ...readRoll(value, type, source, path, errors),
   };
 };

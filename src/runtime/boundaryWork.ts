@@ -40,6 +40,12 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     run: ({ result, manager }) => manager.game.onBoundary(result, manager.getLoadedChatId()),
   },
   {
+    id: "recap",
+    order: 7,
+    afterEnd: true,
+    run: ({ result, manager }) => manager.recap.onBoundary(result),
+  },
+  {
     id: "meanwhile-land",
     order: 6,
     run: ({ result, manager }) => {

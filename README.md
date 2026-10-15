@@ -73,6 +73,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Playing | Story panels | Extra panels a story adds, such as a clock that fills, a board of quests, a wall of clues or a map. |  |
 | Playing | Story-made panels | A panel page a story brings, run shut off from SillyTavern. |  |
 | Playing | Save this run as a story | Keep a living story's run as a story you can play again or edit. | Experimental |
+| Playing | What changed | Up to five lines on what changed this chapter: on the chapter card, in the Overview and in /story recap. | Experimental |
 | Memory | Story memory | Remembers what happened so characters stay consistent. |  |
 | Memory | Memory tab | See, search, pin or remove what the story remembers. |  |
 | Memory | Chapters | Long stories write up each finished chapter and recap it when you return. |  |

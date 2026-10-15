@@ -6,7 +6,7 @@ import type { LatestScene } from "./recapCurrent";
 // The one "where am I" composition (finding). The player Overview renders it, the away-recap
 // popup renders the same thing modally, and /story recap prints its text — three surfaces, one
 // source. Player voice only: checkpoint names, thread texts, no ids, no counters, no gates.
-export type NarrativeSectionId = "now" | "about" | "recently" | "threads" | "quests" | "story" | "chapters" | "end" | "pending" | "status";
+export type NarrativeSectionId = "now" | "about" | "recently" | "consequences" | "threads" | "quests" | "story" | "chapters" | "end" | "pending" | "status";
 
 export interface NarrativeSection {
   id: NarrativeSectionId;
@@ -113,6 +113,7 @@ export interface NarrativeInput {
   epilogue?: string | null;
   quests?: string[];
   milestones?: string[];
+  consequences?: { label: string; lines: string[] } | null;
 }
 
 export interface NarrativeStatus {
@@ -162,6 +163,7 @@ export function buildNarrativeStatus(input: NarrativeInput): NarrativeStatus {
     ...(input.latestScene ? [input.latestScene.text] : []),
   ];
   if (recently.length) sections.push({ id: "recently", label: "Recently", lines: recently });
+  if (input.consequences?.lines.length) sections.push({ id: "consequences", label: input.consequences.label, lines: [...input.consequences.lines] });
 
   if (input.openThreads.length) {
     sections.push({ id: "threads", label: "Open threads", lines: input.openThreads });
@@ -246,6 +248,19 @@ const REQUIREMENT_LABELS: Record<RequirementKind, string> = { persona: "Your cha
 export const requirementNotReadyText = (kind: RequirementKind): string => `${REQUIREMENT_LABELS[kind]} is not ready in this chat.`;
 
 export const chapterNowText = (title: string): string => `Now: ${title}`;
+
+export const recapReachedText = (name: string): string => `Reached ${name}`;
+
+export const recapMilestoneText = (title: string): string => `Milestone: ${title}`;
+
+export const recapCheckText = (label: string, outcome: string): string => `${label}: ${outcome}`;
+
+export const recapBecauseText = (effect: string, clause: string): string => `${effect.replace(/[.!]+$/, "")}, because you ${clause.replace(/[.!]+$/, "")}.`;
+
+export const recapSectionLabel = (personal: boolean, recent: boolean): string => {
+  if (personal) return recent ? "Because of you, recently" : "Because of you";
+  return recent ? "What changed recently" : "What changed";
+};
 
 export const chapterFlagLabel = (title: string): string => `Flag the summary of ${title}`;
 

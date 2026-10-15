@@ -32,6 +32,9 @@ The story drawer is the route icon in SillyTavern's top bar. In player mode it h
   "Everything is at breaking point."). "What happens next is yours to decide." means the story is waiting on you.
 - **About this story**: the story's introduction.
 - **Recently**: the scene you just left and the one you are in.
+- **What changed** (or **Because of you**): up to five lines on what changed this chapter, such as a place you
+  reached, a quest that moved or a milestone. "Because you…" appears only when your own words decided it. A story
+  without chapters shows the last 20 turns. `/story recap` shows the same lines.
 - **Open threads**: things that are not settled yet.
 - **Your story**: chapters that have ended, each with its summary. Click one to read it.
 - **The story so far** (or **This chapter**): a short summary.
@@ -94,7 +97,8 @@ Small icons under each message show what the story did at that point. Click an i
 | chip | What the memory model noticed. |
 | warning triangle | The story stepped back, or had trouble. |
 
-When the story enters a new chapter, a title card with the chapter's name appears under that message. When the
+When the story enters a new chapter, a title card with the chapter's name appears under that message, headed by
+what changed in the chapter that just ended. When the
 story rolls a check it chose to show you, the roll sits under the reply it decided, for example "Climb: 15 + 4 vs
 12, success"; a swipe or a reopened chat shows the same roll. In Author view at Behind the scenes or higher, every
 other dice roll and background draw also shows as a chip under its message. **Dice chips under messages** in the
