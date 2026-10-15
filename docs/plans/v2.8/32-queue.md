@@ -165,6 +165,7 @@ until the owner says so.
 |---|---|---|---|
 | M60 | Harvest defects B1-B3, B5, B6, B9-B16 fixed on `v2.8-harvest-defects` (unmerged), one commit + regression test each; B4/B7/B8/B17 plausible, not built; B18/B19 refuted. Live gate owed (B14, B6, B10, B3, B5): no private ST copy | 60 | D green; L owed |
 | M61 | Harvest triage (index of every idea, verdict, destination) | 61 | docs |
+| M61b | Astra closed-feature reviews (v2.7 + v2.8): 20 correctness findings re-confirmed (all reproduced), 18 fixed in 17 commits on `v2.8-astra-closed-fixes` (unmerged), one commit + regression test each; living scene labels and open-stretch offer receipts queued as design work; live checks owed after merge | 61b | D green; L owed |
 | M62 | Quantum-ogre probe; prepared world facts only on a probe miss | 62 | D + RP (probe) + CL |
 | M63 | Stepped history window; front-trim arm rides R2 first | 63 | D + RP (with R2) + CL |
 | M64 | Public sheet reaches the narrator, "just happened" rows, warn bands | 64 | D (+RP informational) |
