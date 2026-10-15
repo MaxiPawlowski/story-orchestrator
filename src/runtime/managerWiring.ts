@@ -75,6 +75,24 @@ function wirePromises(port: ManagerPort, memory: MemoryCoordinator) {
   return promises;
 }
 
+function wireInner(port: ManagerPort, memory: MemoryCoordinator, pacing: () => PacingCoordinator) {
+  let innerHost: InnerBeatHost | null = null;
+  let innerLoad: Promise<InnerBeatHost> | null = null;
+  const loadInner = () => (innerLoad ??= loadInnerRender().then(() => import("./innerBeatHost"))
+    .then(({ innerBeatHostFor }) => (innerHost = innerBeatHostFor(port, memory, pacing()))));
+  const inner = {
+    due: () => port.extras().memory.settings.innerBeat === true && Boolean(port.view.getStory()),
+    run: async () => (await loadInner()).run(),
+    prepare: async (rosterId: string) => {
+      if (!inner.due()) return false;
+      await (await loadInner()).prepare(rosterId);
+      return true;
+    },
+    beatFor: (rosterId: string) => innerHost?.beatFor(rosterId) ?? "",
+  };
+  return inner;
+}
+
 export function wireCoordinators(port: ManagerPort) {
   const { view, lifecycle, engine } = port;
   const memory: MemoryCoordinator = new MemoryCoordinator({
@@ -101,20 +119,7 @@ export function wireCoordinators(port: ManagerPort) {
     },
   });
   const promises = wirePromises(port, memory);
-  let innerHost: InnerBeatHost | null = null;
-  let innerLoad: Promise<InnerBeatHost> | null = null;
-  const loadInner = () => (innerLoad ??= loadInnerRender().then(() => import("./innerBeatHost"))
-    .then(({ innerBeatHostFor }) => (innerHost = innerBeatHostFor(port, memory, pacing))));
-  const inner = {
-    due: () => port.extras().memory.settings.innerBeat === true && Boolean(view.getStory()),
-    run: async () => (await loadInner()).run(),
-    prepare: async (rosterId: string) => {
-      if (!inner.due()) return false;
-      await (await loadInner()).prepare(rosterId);
-      return true;
-    },
-    beatFor: (rosterId: string) => innerHost?.beatFor(rosterId) ?? "",
-  };
+  const inner = wireInner(port, memory, () => pacing);
   const refusing = () => {
     const loaded = port.loaded();
     const state = loaded ? engine.serialize() : null;

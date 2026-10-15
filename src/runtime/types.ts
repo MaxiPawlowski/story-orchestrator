@@ -179,7 +179,6 @@ export interface RuntimeExtras {
   chance?: ChanceRuntimeState;
   checks?: ChecksRuntimeState;
   agendaProposals?: AgendaProposalsState;
-  promises?: import("@memory/promises/types").PromisesState;
   recap?: RecapRuntimeState;
   living?: LivingRuntimeState;
   journal: JournalRecord[];
@@ -489,7 +488,6 @@ export interface RuntimeSnapshot {
   memory: MemoryRuntimeState;
   memoryShown?: MemoryEntry[];
   chapters?: ChapterView;
-  promises?: import("@memory/promises/types").PlayerPromise[];
   pacing: PacingSettings;
   copilot: CopilotRuntimeSettings;
   ui: UiRuntimeSettings;

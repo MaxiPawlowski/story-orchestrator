@@ -1,8 +1,17 @@
 import { questStatus, valueReader, type NormalizedStoryV2 } from "@engine/index";
 import { playerPromises } from "@memory/promises/state";
-import type { PlayerPromise } from "@memory/promises/types";
+import type { PlayerPromise, PromisesState } from "@memory/promises/types";
 import { nameForRosterId } from "./roster";
 import type { RuntimeExtras } from "./types";
+
+declare module "./types" {
+  interface RuntimeExtras {
+    promises?: PromisesState;
+  }
+  interface RuntimeSnapshot {
+    promises?: PlayerPromise[];
+  }
+}
 
 export const promisesSlice = (story: NormalizedStoryV2 | null, extras: Pick<RuntimeExtras, "promises" | "memory">, values: Record<string, unknown>): PlayerPromise[] => {
   if (!story || !extras.promises?.rows.length || extras.memory.settings.promises === false) return [];
