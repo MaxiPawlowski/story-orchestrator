@@ -54,7 +54,8 @@
         },
         {
           "ui": {
-            "action": "briefing-dismiss"
+            "action": "briefing-dismiss",
+            "openWithinMs": 180000
           }
         },
         {

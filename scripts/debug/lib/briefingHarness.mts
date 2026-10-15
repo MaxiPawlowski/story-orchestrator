@@ -85,9 +85,14 @@ export async function dismissBlocksPane(page): Promise<BriefingModalState | null
   return state;
 }
 
-export async function dismissBriefing(page, { dontShow = false, timeoutMs = 5000 } = {}) {
-  const before = await readBriefingModal(page);
-  if (!before.open) throw new Error('no briefing is open (dialog#so-briefing)');
+export async function dismissBriefing(page, { dontShow = false, timeoutMs = 5000, openWithinMs = 0 } = {}) {
+  const deadline = Date.now() + openWithinMs;
+  let before = await readBriefingModal(page);
+  while (!before.open && Date.now() < deadline) {
+    await page.waitForTimeout(250);
+    before = await readBriefingModal(page);
+  }
+  if (!before.open) throw new Error(`no briefing is open (dialog#so-briefing)${openWithinMs ? ` after ${openWithinMs} ms` : ''}`);
   if (dontShow) {
     if (!before.optOut) throw new Error('this briefing offers no "Don\'t show briefings" box');
     await page.locator('#so-briefing-optout').check();

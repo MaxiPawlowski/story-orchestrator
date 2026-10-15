@@ -806,7 +806,7 @@ async function uiStep(page, spec) {
   if (action === 'screenshot') return takeAnnotatedScreenshot(page, label ?? 'so-scenario');
   if (action === 'pipeline') return getPipelineState(page);
   if (action === 'briefing') return readBriefingModal(page);
-  if (action === 'briefing-dismiss') return dismissBriefing(page, { dontShow: spec?.dontShow === true });
+  if (action === 'briefing-dismiss') return dismissBriefing(page, { dontShow: spec?.dontShow === true, openWithinMs: Number(spec?.openWithinMs ?? 0) || 0 });
   if (action === 'next-turn') return getNextTurnState(page);
   if (action === 'memory-fates') return getMemoryFates(page);
   if (action === 'model-calls') return getModelCallsState(page);
