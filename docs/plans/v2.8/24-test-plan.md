@@ -395,6 +395,10 @@ real-model carrier, or why none is needed.
 | journal | RP | 36-Q5-scn, campaign panels | GS1.3 |
 | stat-sheet | RP | 36-P-live | GS1.3 |
 | story-panels | RP | v28-23-widgets ×2 | GS1.3 |
+| consequences-recap | D | consequences jest, recapRollback review test, recapSecret review test | none: no model pass (46 A) |
+| promises-remembered | D + CL | promises jest, promiseRead jest, promiseRollback review test | P1, P1s, P2, P2w, P6, P8 CL ×2: owed, no live fixture yet; P7/P7h informational (LT) |
+| codex | D + CL | codex jest, codexView property test, codexRollback | C7 CL ×2 (wizard recipe on Sol): owed, no live fixture yet |
+| factions | D + RP | factions jest, v28-53-factions (no-model ×2) | F7 informational (RP lab story), deferred: no lab story yet; F9 CL informational |
 | story-made-panels | D | html widget tests, Storybook | none: no model |
 | quests | RP | 36-Q5-scn, S-16 | GS1.3, GS3.1 |
 | character-life | RP + CL | 37-D1..D3 | GS1.5, GS3.3, GS2.7 |
@@ -731,6 +735,17 @@ Coverage (`node scripts/suite/coverage.mjs --campaign <pinned campaign>`, report
   `swipe` on a single-swipe reply always threw, so GS1.6, GS2.3 and the nine AS-smoke files now use `swipeId: "new"`
   (a real generation on the last reply, `st-actions.swipeNew.test.mts`); AS-smoke's post-reload check read a global
   the reload had cleared.
+
+Re-check after merging master `cc38c5b1` (coordinator, 2026-10-15; adds plans 46, 47, 52, 53, the plan 60 fixes and
+the agent bridge; pin unchanged at `03441dc3`, so the campaign checks stand):
+
+- Docs: the same 8 suites, 75 tests pass; `docs:guide` and `docs:settings` leave no content diff. Plans 46, 47, 52 and
+  53 each carry a Gate record and their story-guide sections (What changed, Promises remembered, People and Places,
+  Standing with groups).
+- Coverage: 115 registry ids; 4 new ids had no matrix row and now do (consequences-recap, promises-remembered, codex,
+  factions). Result 111 green, 2 image track, **2 red: promises-remembered (47 P1/P1s/P2/P2w/P6/P8) and codex (52 C7)**:
+  their CL legs have no live fixture yet. Listed, not authored in this pass; they block only those rows. Floors: 300,
+  0 unmapped.
 
 ## Appendix A — plan 24 before the 2026-10-14 rework (history)
 
