@@ -4,6 +4,12 @@ import type { VisualSources } from "./visualManifest";
 export const ST_DEFAULT_AVATAR = "/img/ai4.png";
 export const PLACEHOLDER_ART = "This card still shows SillyTavern's default picture. Give the card its own art before building a base from it.";
 
+export async function refuseDefaultCardArt(image: PixelImage, decode: (path: string) => Promise<PixelImage>, check = true): Promise<void> {
+  if (!check) return;
+  const placeholder = await decode(ST_DEFAULT_AVATAR).catch(() => null);
+  if (placeholder && placeholderArt(image, placeholder)) throw new Error(PLACEHOLDER_ART);
+}
+
 export function placeholderArt(image: PixelImage, placeholder: PixelImage): boolean {
   if (image.width !== placeholder.width || image.height !== placeholder.height) return false;
   for (let k = 0; k < image.width * image.height; k += 37) {

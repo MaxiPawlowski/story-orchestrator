@@ -2,7 +2,8 @@ import { getContext } from "./context";
 import { isRecord } from "@utils/guards";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { log } from "@utils/log";
-import { abortableSleep, releaseAnswer, waitWhileBusy } from "./gpuLeaseAnswer";
+import { releaseAnswer } from "./gpuLeaseAnswer";
+import { abortableSleep, waitWhileBusy } from "@utils/leaseWait";
 
 const URL = "/api/plugins/story-orchestrator-gpu";
 
