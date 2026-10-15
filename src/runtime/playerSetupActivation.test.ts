@@ -250,6 +250,23 @@ describe("v2.7 34 activation: readiness, identity, briefing, opener", () => {
     expect(manager.getSnapshot().playerSetup?.switched).toBe(false);
   });
 
+  it("Switch back reports the lock failure, not the selection's success", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson({ player: PLAYER }));
+    await manager.playerSetup.choose({ choice: "keep" });
+    mockPersonas.avatarId = "mara.png";
+    mockContext.name1 = "Mara";
+    const lock = host.lock;
+    host.lock = async () => ({ ok: false, reason: "the chat lock was refused" });
+    try {
+      const outcome = await manager.playerSetup.switchBack();
+      expect(outcome.ok).toBe(false);
+      expect(!outcome.ok && outcome.reason).toContain("the chat lock was refused");
+    } finally {
+      host.lock = lock;
+    }
+  });
+
   it("control: a one-on-one chat loads no story, so no pane and no lock", async () => {
     (getActiveGroup as jest.Mock).mockReturnValue(null);
     mockContext.groupId = null;
