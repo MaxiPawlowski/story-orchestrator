@@ -11,8 +11,6 @@ const bandLabel = (display: QualityDisplay, value: number): string | null => {
   return band?.label ?? null;
 };
 
-const clamp = (value: number, display: QualityDisplay) => Math.min(display.max ?? value, Math.max(display.min ?? value, value));
-
 const numberText = (value: number) => (Number.isInteger(value) ? String(value) : value.toFixed(1));
 
 const empty = (display: QualityDisplay, value: PrimitiveValue | undefined) =>
@@ -28,7 +26,7 @@ const itemText = (quality: Quality, display: QualityDisplay, value: PrimitiveVal
   if (display.as === "item") return { text: "" };
   if (display.as === "word" && quality.type === "enum") return { text: quality.player_labels?.[String(value)] ?? "" };
   if (typeof value !== "number") return { text: "" };
-  const shown = clamp(value, display);
+  const shown = value;
   const bounds = { value: shown, ...(display.min !== undefined ? { min: display.min } : {}), ...(display.max !== undefined ? { max: display.max } : {}) };
   if (display.as === "word") return { text: bandLabel(display, shown) ?? "", ...bounds };
   if (display.as === "count") return { text: numberText(shown), value: shown };

@@ -100,6 +100,9 @@ jest.mock("./slashCommands", () => ({
   executeSlashCommands: (command: string) => executeSlashCommands(command),
 }));
 
+const flushPendingWorldSaves = jest.fn(async (_written: string) => ({ ok: true, flushed: [] as string[] }));
+jest.mock("./worldInfoPending", () => ({ flushPendingWorldSaves: (written: string) => flushPendingWorldSaves(written) }));
+
 import { bindChatLorebook, createLorebook, createWIEntry, deactivateGlobalLorebook, deleteLorebook, deleteWIEntryAt, disableWIEntry, enableWIEntry, ensureLorebook, listSelectedLorebooks, loadLorebook, lorebookExists, setWIEntriesState, unbindChatLorebook, updateWIEntryByUid, upsertWIEntry } from "./worldInfo";
 
 const putOnDisk = (name: string, entries: Entry[] = []) => st.disk.set(name, { entries: Object.fromEntries(entries.map((entry) => [entry.uid, entry])) });
@@ -186,6 +189,17 @@ describe("ensureLorebook", () => {
     createNewWorldInfo.mockResolvedValueOnce(false);
     expect(await ensureLorebook("Refused")).toBeNull();
     expect(st.disk.has("Refused")).toBe(false);
+  });
+});
+
+describe("B14: every immediate save of ours rescues an edit waiting in ST's shared save debounce", () => {
+  it("flushes pending saves of other books after writing its own", async () => {
+    putOnDisk("Lore", [entry(0, "The bridge")]);
+    st.worldNames = ["Lore"];
+    flushPendingWorldSaves.mockClear();
+    await disableWIEntry("Lore", "The bridge");
+    expect(flushPendingWorldSaves).toHaveBeenCalledWith("Lore");
+    expect(saveWorldInfo.mock.invocationCallOrder.at(-1)!).toBeLessThan(flushPendingWorldSaves.mock.invocationCallOrder.at(-1)!);
   });
 });
 

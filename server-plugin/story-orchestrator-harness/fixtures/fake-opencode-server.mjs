@@ -163,7 +163,7 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
         emit('session.execution.started', { sessionID: session.id });
         const location = bootLocation(session.location.directory);
         const rules = agentRules(location, session.agent) ?? [];
-        const assistant = { id: `msg_${state.nextId++}`, type: 'assistant', time: { created: Date.now() }, agent: session.agent, model: session.model, content: [], finish: 'stop', cost: 0.01, tokens: { input: 100, output: 10, reasoning: 0, cache: { read: 0, write: 0 } } };
+        const assistant = { id: `msg_${state.nextId++}`, type: 'assistant', time: { created: Date.now() }, agent: session.agent, model: state.servedModel ?? session.model, content: [], finish: 'stop', cost: 0.01, tokens: { input: 100, output: 10, reasoning: 0, cache: { read: 0, write: 0 } } };
         session.messages.push(assistant);
         const said = [];
         const hung = new Promise((resolve) => { session.interrupt = resolve; });

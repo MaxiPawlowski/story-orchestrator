@@ -480,8 +480,10 @@ export function createOpencodeTransport({
         const last = assistants[assistants.length - 1];
         const tokens = assistants.map((message) => message.tokens).filter(isRecord);
         const costs = assistants.map((message) => message.cost).filter((cost) => typeof cost === 'number');
+        const served = isRecord(last?.model) && typeof last.model.providerID === 'string' && typeof last.model.id === 'string' ? `${last.model.providerID}/${last.model.id}` : null;
         return {
             text,
+            model: served,
             foreign,
             outcome: idle?.outcome ?? null,
             error: idle?.error ?? assistants.map((message) => message.error).filter(isRecord).pop() ?? null,
@@ -658,7 +660,7 @@ export function createOpencodeTransport({
             if (summary.finish === 'content-filter') return { ok: false, kind: 'refused', message: 'the model\'s content filter stopped the answer' };
             if (!summary.text.trim()) return { ok: false, kind: 'malformed', message: messages.length ? 'opencode answered with no text' : 'opencode answered without readable messages' };
             const cut = spec.maxOutputChars && summary.text.length > spec.maxOutputChars;
-            return { ok: true, text: cut ? summary.text.slice(0, spec.maxOutputChars) : summary.text, finish: cut ? 'length' : (FINISH[summary.finish] ?? 'unknown'), usage: summary.usage, admittedMs };
+            return { ok: true, text: cut ? summary.text.slice(0, spec.maxOutputChars) : summary.text, finish: cut ? 'length' : (FINISH[summary.finish] ?? 'unknown'), usage: summary.usage, model: summary.model, admittedMs };
         } catch (error) {
             const refused = refusedFrom(error);
             if (refused.forget || refused.state === 'unpaired') forget();

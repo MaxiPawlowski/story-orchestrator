@@ -110,6 +110,6 @@ describe("v2.8 01 C11-F1: both guards read the whole source message, not the 160
     const deltas = await judgedRank(long);
     const window = () => [{ messageId: 6, text: pledge, isUser: true }, { messageId: 7, text: long, isUser: false }];
     expect(pledge.indexOf("accept")).toBeGreaterThan(TYPED_EVIDENCE_CHARS);
-    expect(applyCommitEvidence(commitStory, deltas, window)).toEqual({ accepted: deltas, held: [] });
+    expect(applyCommitEvidence(commitStory, deltas, window)).toEqual({ accepted: [{ ...deltas[0], delta: { ...deltas[0].delta, playerSpan: expect.objectContaining({ messageId: 6 }) } }], held: [] });
   });
 });

@@ -40,6 +40,14 @@ export const GAME_FEATURES: readonly Feature[] = [
     isOn: (settings) => settings.display.presence.htmlWidgets,
   },
   {
+    id: "codex", name: "People and Places", area: "play", audience: "player",
+    oneLine: "Journal pages that fill in with the people and places you have learned about.",
+    what: "A person or a place shows only once you have learned something about it, and each line appears the moment the story says you learned it. "
+      + "Nothing you have not learned is sent to the page, and the counts are only of what shows. A swipe of the reply that taught it takes it back. A story can switch the pages off.",
+    where: drawerAt("#so-open-journal", "Journal › People / Places"),
+    settings: [], guideTopic: "codex", doc: authorGuideDoc("codex"), status: "shipped", needs: ["story"],
+  },
+  {
     id: "quests", name: "Quests, checks and panels", area: "authoring", audience: "author",
     oneLine: "Side quests, visible stats, dice checks and milestones a story declares.",
     what: "A quest's status comes from the story's own state, never from a stored list, so a swipe or a reopened chat shows the same quests. "

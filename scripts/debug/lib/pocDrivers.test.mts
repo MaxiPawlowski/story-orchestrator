@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  JOURNEY_FLOORS, JOURNEY_STEPS, POSE_FLOORS, armOrder, checkpointForTurn, classifyCall, countCalls, directedPoses, evidenceDirName, gpuIdleProblems, journeyCast,
+  JOURNEY_FLOORS, JOURNEY_STEPS, POSE_FLOORS, armOrder, checkpointForTurn, classifyCall, parseAuthoringRoute, countCalls, directedPoses, evidenceDirName, gpuIdleProblems, journeyCast,
   journeyGpuMinutes, journeyStory, laneProblem, latencyVerdict, median, p90, parseSmi, plumbingProblems, poseCast, poseStory, skeletonProblems, staleFindings,
   stepVerdict, wizardScript, type Sample, type StaleInput, type StepRow,
 } from './pocDrivers.mts';
@@ -132,4 +132,15 @@ test('laneProblem refuses the owner ST and lanes below 30', () => {
   assert.equal(laneProblem('http://127.0.0.1:8146', 'C:\\so-lanes\\46\\debug'), null);
   assert.match(laneProblem('http://127.0.0.1:8146', 'C:\\so-lanes\\0\\debug')!, /lane 0/);
   assert.equal(evidenceDirName('my label', 2, 'dry', '2026-10-14T10:00:00.000Z'), '2026-10-14T10-00-00-000Z-my_label-dry-run2');
+});
+
+test('parseAuthoringRoute names the wizard route a journey asks for', () => {
+  assert.equal(parseAuthoringRoute(undefined), null);
+  assert.equal(parseAuthoringRoute('default'), null);
+  assert.deepEqual(parseAuthoringRoute('claude'), { harness: 'claude', model: 'claude-sonnet-5-5' });
+  assert.deepEqual(parseAuthoringRoute('claude-opus'), { harness: 'claude', model: 'claude-opus-5-5' });
+  assert.deepEqual(parseAuthoringRoute('opencode'), { harness: 'opencode', model: 'openai/gpt-6.1-sol' });
+  assert.deepEqual(parseAuthoringRoute('claude:claude-opus-5-5'), { harness: 'claude', model: 'claude-opus-5-5' });
+  assert.throws(() => parseAuthoringRoute('codex:default'), /--authoring takes/);
+  assert.throws(() => parseAuthoringRoute('claude:'), /--authoring takes/);
 });

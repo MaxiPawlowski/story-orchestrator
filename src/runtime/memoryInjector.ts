@@ -57,6 +57,7 @@ export class MemoryInjector {
   private withheld = false;
   private lastInjection: MemoryInjectionView | null = null;
   private readonly highWater: Partial<Record<MemoryTier, number>> = {};
+  private privateSources: Array<(rosterId: string) => string[]> = [];
 
   constructor(private readonly deps: MemoryInjectorDeps) {}
 
@@ -123,11 +124,20 @@ export class MemoryInjector {
       ? render.narratorScope(story, this.deps.getState()?.activeCheckpointId ?? null, enabledCharacterIds(story, this.hosts.roster), this.hosts.chat.chatRows())
       : undefined;
     const block = render ? render.memberAimsBlock(voices, id, beat, known, privateBlock, scope) : privateBlock;
-    return [block, this.lifeLines(story, id)].filter(Boolean).join("\n\n");
+    return [block, this.lifeLines(story, id), this.sourcedLines(story, id)].filter(Boolean).join("\n\n");
+  }
+
+  addPrivateSource(source: (rosterId: string) => string[]): void {
+    this.privateSources = [...this.privateSources, source];
+  }
+
+  private sourcedLines(story: NormalizedStoryV2, id: string): string {
+    const lines = this.privateSources.flatMap((source) => source(id));
+    return lines.length ? withoutSecretLines(lines.join("\n"), this.secrets(story), namesForRosterId(story, id)) : "";
   }
 
   private lifeLines(story: NormalizedStoryV2, id: string): string {
-    const layer = story.life ? gameLayer() : null;
+    const layer = story.life || story.factions?.length ? gameLayer() : null;
     if (!layer) return "";
     const lines = layer.life.privateLifeLines(story, this.deps.getState()?.blackboard.values ?? {}, id, this.deps.meanwhile?.(id) ?? []);
     return withoutSecretLines(lines, this.secrets(story), namesForRosterId(story, id));
@@ -172,7 +182,7 @@ export class MemoryInjector {
     const capable = this.deps.capable();
     const voiced = hasInnerVoice(this.voices(story));
     if (voiced && !innerRender()) void loadInnerRender().then(() => this.update());
-    if (capable || voiced || story.life) {
+    if (capable || voiced || story.life || story.factions?.length) {
       const knowledge = this.knowledge();
       for (const id of this.stagedIds(story)) {
         const names = namesForRosterId(story, id);

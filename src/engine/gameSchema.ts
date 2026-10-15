@@ -1,5 +1,7 @@
 import type { GateNode, NpcReplyEffect, PrimitiveValue } from "./schema";
 
+export * from "./codexSchema";
+
 export const QUALITY_DISPLAY_AS = ["meter", "count", "word", "item", "boxes"] as const;
 export type QualityDisplayAs = (typeof QUALITY_DISPLAY_AS)[number];
 export const BOXES_MAX = 12;
@@ -69,6 +71,19 @@ export interface Quest {
   giver?: string;
   author_note?: string;
   reward?: QuestReward;
+  promise?: boolean;
+  recap?: QuestRecap;
+  recap_when?: GateNode;
+}
+
+export interface RecapText {
+  text?: string;
+  because?: string;
+}
+
+export interface QuestRecap {
+  done?: RecapText;
+  failed?: RecapText;
 }
 
 export const CHECK_NARRATE = ["public", "hidden"] as const;
@@ -112,6 +127,8 @@ export interface Milestone {
   title: string;
   when: GateNode;
   secret?: boolean;
+  recap?: RecapText;
+  recap_when?: GateNode;
 }
 
 export const WIDGET_KINDS = ["meters", "track", "log", "clock", "board", "clues", "map", "html", "roster", "timeline"] as const;
@@ -164,7 +181,8 @@ export interface WidgetRosterRow {
   id: string;
   label?: string;
   member?: string;
-  quality: string;
+  quality?: string;
+  faction?: string;
   when?: GateNode;
 }
 

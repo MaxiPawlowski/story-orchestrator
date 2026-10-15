@@ -145,6 +145,19 @@ const chaptered: StoryV2 = {
   transitions: [hop("a1", "a2"), hop("a1", "b1"), hop("b1", "b2"), hop("b2", "b1"), hop("a1", "c1"), hop("c1", "a1"), hop("a1", "m"), hop("a1", "g")],
 };
 
+const codexSeeded: StoryV2 = {
+  ...clean,
+  codex: {
+    people: [
+      { id: "ferryman", name: "The ferryman", facts: [
+        { id: "job", text: "Works for the Widow.", known_when: { reached: "cache" } },
+        { id: "boat", text: "Keeps a boat.", known_when: { reached: "nowhere" } },
+      ] },
+      { id: "widow", name: "The Widow", facts: [{ id: "rich", text: "Owns the river.", known_when: { not: { q: "trust", op: ">=", v: 5 } } }] },
+    ],
+  },
+};
+
 const widgetSeeded: StoryV2 = {
   ...clean,
   qualities: [...clean.qualities, { key: "orphan_clue", type: "bool", source: "extractor", rubric: "Found the orphan clue?" }],
@@ -172,6 +185,13 @@ describe("runDiagnostics", () => {
       ...runDiagnostics({ ...clean, checkpoints: [{ ...clean.checkpoints[0], effects: { stage: { cast: { Arin: { face: "angry" } } } } as StoryV2["checkpoints"][number]["effects"] }, clean.checkpoints[1]] },
         { spriteInventory: () => ({ arin: { sets: ["default"], faces: ["neutral"] } }) }),
       ...runDiagnostics(widgetSeeded, { backgroundNames: () => ["tavern day.jpg"] }),
+      ...runDiagnostics({ ...clean, display: { standing: false }, factions: [{ id: "guild", name: "G", range: [-5, 5], start: 0, bands: [{ max: 0, label: "Cold" }, { label: "Warm" }], moves: [] }] }),
+      ...runDiagnostics({
+        ...clean, checkpoints: [{ ...clean.checkpoints[0], state_snapshot: { rep_crown: 1 } }, ...clean.checkpoints.slice(1)],
+        factions: [{ id: "crown", name: "C", range: [-5, 5], start: 0, bands: [{ max: 0, label: "Cold" }, { label: "Warm" }],
+          moves: [{ id: "idle", when: { not: { q: "trust", op: ">=", v: 1 } }, add: -1, heard_by: "present" }] }],
+      }),
+      ...runDiagnostics(codexSeeded),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

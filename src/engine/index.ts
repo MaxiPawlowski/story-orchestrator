@@ -16,4 +16,5 @@ export * from "./stretch";
 export * from "./ooc";
 export * from "./player";
 export * from "./quests";
+export * from "./rollbackDetectors";
 export * from "./storyChecks";

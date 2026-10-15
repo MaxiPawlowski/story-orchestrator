@@ -1,5 +1,8 @@
 import { keptStagedFrom, type EngineHistory, type EngineState } from "./engine";
-import { questClosedKey, questRewardKey, STORY_DISPLAY_TOGGLES, type NormalizedStoryV2, type PrimitiveValue, type Transition } from "./schema";
+import {
+  CODEX_PAGES, codexEntryKey, codexFactKey, isCodexKey, questClosedKey, questRewardKey, STORY_DISPLAY_TOGGLES,
+  type CodexEntry, type CodexPage, type NormalizedStoryV2, type PrimitiveValue, type Transition,
+} from "./schema";
 import { qualityAccepts } from "./blackboard";
 import { gateLeaves } from "./gates";
 
@@ -55,6 +58,12 @@ export type StoryDiffCode =
   | "quest-removed-closed"
   | "quest-reward-changed-earned"
   | "check-changed"
+  | "codex-changed"
+  | "codex-entry-removed"
+  | "codex-entry-replaced"
+  | "codex-fact-removed"
+  | "codex-fact-replaced"
+  | "codex-fact-edited"
   | "text-changed";
 
 export interface StoryDiffEntry {
@@ -155,7 +164,7 @@ const diffContext = (previous: NormalizedStoryV2, next: NormalizedStoryV2, state
 
 const diffQualities = (ctx: DiffContext) => {
   const { previous, next, push } = ctx;
-  Object.values(previous.qualityByKey).forEach((quality) => {
+  Object.values(previous.qualityByKey).filter((quality) => !isCodexKey(quality.key)).forEach((quality) => {
     const after = next.qualityByKey[quality.key];
     const path = `qualities.${quality.key}`;
     if (!after) {
@@ -197,7 +206,7 @@ const diffQualities = (ctx: DiffContext) => {
     }
   });
 
-  Object.keys(next.qualityByKey).filter((key) => !previous.qualityByKey[key]).forEach((key) => {
+  Object.keys(next.qualityByKey).filter((key) => !previous.qualityByKey[key] && !isCodexKey(key)).forEach((key) => {
     push("compatible", "quality-added", `qualities.${key}`, `New quality “${key}”.`);
   });
 };
@@ -336,6 +345,53 @@ const diffQuests = ({ previous, next, values, push }: DiffContext) => {
   }
 };
 
+const conditionOf = (entry: CodexEntry) => entry.known_when ?? (entry.location ? { location: entry.location } : null);
+
+const dropLive = (ctx: DiffContext, key: string): boolean => {
+  if (!ctx.live(key)) return false;
+  ctx.drop(key);
+  return true;
+};
+
+const diffCodexEntry = (ctx: DiffContext, page: CodexPage, entry: CodexEntry, kept: CodexEntry | undefined) => {
+  const path = `codex.${page}.${entry.id}`;
+  const label = entry.name ?? entry.member ?? entry.id;
+  if (!kept) {
+    const dropped = [codexEntryKey(page, entry.id), ...entry.facts.map((fact) => codexFactKey(page, entry.id, fact.id))].filter((key) => dropLive(ctx, key));
+    ctx.push("compatible", "codex-entry-removed", path, dropped.length ? `“${label}” left the codex; what this chat learned about it is dropped.` : `“${label}” left the codex.`);
+    return;
+  }
+  if (!sameValue(conditionOf(entry), conditionOf(kept)) && dropLive(ctx, codexEntryKey(page, entry.id))) {
+    ctx.push("compatible", "codex-entry-replaced", path, `When the player learns of “${label}” changed; this chat must learn of it again.`);
+  }
+  const facts = new Map(kept.facts.map((fact) => [fact.id, fact]));
+  entry.facts.forEach((fact) => {
+    const after = facts.get(fact.id);
+    const key = codexFactKey(page, entry.id, fact.id);
+    if (!after) {
+      dropLive(ctx, key);
+      ctx.push("compatible", "codex-fact-removed", `${path}.${fact.id}`, `A fact about “${label}” was removed.`);
+    } else if ((fact.rev ?? 1) !== (after.rev ?? 1) || !sameValue(fact.known_when, after.known_when)) {
+      const earned = dropLive(ctx, key);
+      ctx.push("compatible", "codex-fact-replaced", `${path}.${fact.id}`, earned
+        ? `A fact about “${label}” became a new discovery; this chat must earn it again.` : `When a fact about “${label}” is learned changed.`);
+    } else if (fact.text !== after.text) {
+      ctx.push("compatible", "codex-fact-edited", `${path}.${fact.id}`, `A fact about “${label}” was reworded; a chat that knows it sees the new wording.`);
+    }
+  });
+};
+
+const diffCodex = (ctx: DiffContext) => {
+  const { previous, next } = ctx;
+  if (sameValue(previous.codex, next.codex)) return;
+  const before = ctx.entries.length;
+  CODEX_PAGES.forEach((page) => {
+    const after = new Map((next.codex?.[page] ?? []).map((entry) => [entry.id, entry]));
+    (previous.codex?.[page] ?? []).forEach((entry) => diffCodexEntry(ctx, page, entry, after.get(entry.id)));
+  });
+  if (ctx.entries.length === before) ctx.push("compatible", "codex-changed", "codex", "The People and Places pages changed; what this chat already learned stays.");
+};
+
 const diffStoryFields = (ctx: DiffContext) => {
   const { previous, next, push } = ctx;
   if (!sameValue(previous.requirements, next.requirements)) push("compatible", "requirements-changed", "requirements", "What the story needs from your setup changed.");
@@ -364,6 +420,7 @@ const diffStoryFields = (ctx: DiffContext) => {
     push("compatible", "game-changed", "quests", "The story's quests, milestones or panels changed; what this chat already reached stays.");
   }
   diffQuests(ctx);
+  diffCodex(ctx);
   if (previous.title !== next.title || previous.description !== next.description) push("compatible", "text-changed", "story", "Title or description changed.");
 };
 

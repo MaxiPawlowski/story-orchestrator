@@ -43,7 +43,22 @@ async function readServerGroup(groupId: string): Promise<{ disabled_members?: un
   }
 }
 
-async function saveGroupFlags(group: { id: string; disabled_members?: string[] }): Promise<WriteResult<{ confirmed: boolean }>> {
+async function announceGroupFlags(group: { id: string; members?: string[]; disabled_members?: string[] }): Promise<void> {
+  const context = getContext();
+  if (trim(context.groupId) === trim(group.id) && typeof document !== "undefined") {
+    const disabled = new Set(group.disabled_members ?? []);
+    const characters = context.characters ?? [];
+    for (const member of group.members ?? []) {
+      const chid = characters.findIndex((character) => character.avatar === member);
+      if (chid < 0) continue;
+      document.querySelectorAll(`.rm_group_members .group_member[data-chid="${String(chid)}"]`).forEach((row) => row.classList.toggle("disabled", disabled.has(member)));
+    }
+  }
+  const updated = context.eventTypes.GROUP_UPDATED;
+  if (updated) await context.eventSource.emit(updated);
+}
+
+async function saveGroupFlags(group: { id: string; members?: string[]; disabled_members?: string[] }): Promise<WriteResult<{ confirmed: boolean }>> {
   const wanted = [...(group.disabled_members ?? [])].sort();
   try {
     await groupChatsModule.editGroup(group.id, true, false);
@@ -51,9 +66,13 @@ async function saveGroupFlags(group: { id: string; disabled_members?: string[] }
     return couldNot(`group ${group.id} could not be saved: ${error instanceof Error ? error.message : "the host refused the write"}`);
   }
   const saved = await readServerGroup(group.id);
-  if (!saved) return wrote({ confirmed: false });
+  if (!saved) {
+    await announceGroupFlags(group);
+    return wrote({ confirmed: false });
+  }
   const held = (Array.isArray(saved.disabled_members) ? saved.disabled_members.map(String) : []).sort();
   if (JSON.stringify(held) !== JSON.stringify(wanted)) return couldNot(`group ${group.id} was saved, but the server holds disabled ${JSON.stringify(held)}, so the change was lost`);
+  await announceGroupFlags(group);
   return wrote({ confirmed: true });
 }
 

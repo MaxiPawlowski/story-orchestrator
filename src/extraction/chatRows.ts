@@ -4,7 +4,10 @@ import { CLEANED_FORM, cleanWindowMessage } from "./windowHygiene";
 
 const readMessage = (entry: unknown, index: number): ChatMessageWindowEntry | null => {
   const cleaned = cleanWindowMessage(entry);
-  return cleaned.keep ? { index, messageId: index, speaker: cleaned.speaker, text: cleaned.text, isUser: cleaned.isUser } : null;
+  const swipe = cleaned.keep && entry && typeof entry === "object" ? (entry as { swipe_id?: unknown }).swipe_id : undefined;
+  return cleaned.keep
+    ? { index, messageId: index, speaker: cleaned.speaker, text: cleaned.text, isUser: cleaned.isUser, ...(Number.isSafeInteger(swipe) ? { swipeId: swipe as number } : {}) }
+    : null;
 };
 
 export const onlyOutOfCharacter = (window: SharedReadWindow): boolean => !window.messages.length && Boolean(window.ooc?.length);

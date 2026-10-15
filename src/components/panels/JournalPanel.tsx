@@ -1,6 +1,9 @@
 import type { GameAuthorView, GameView } from "@runtime/gameTypes";
 import { GAME_TEXT } from "@features/gameCopy";
 import { WidgetCard } from "../widgets/WidgetCard";
+import { useState } from "react";
+import { CODEX_TEXT } from "@features/codexCopy";
+import { CodexPage } from "../codex/CodexPage";
 
 export interface JournalPanelProps {
   game: GameView;
@@ -20,11 +23,40 @@ const AuthorQuests = ({ author }: { author: GameAuthorView }) => {
   );
 };
 
+type JournalTab = "journal" | "people" | "places";
+
+const CodexTabs = ({ game, tab, onTab }: { game: GameView; tab: JournalTab; onTab: (tab: JournalTab) => void }) => {
+  const tabs: Array<{ id: JournalTab; label: string }> = [
+    { id: "journal", label: CODEX_TEXT.journalTab },
+    ...(game.codex?.people.length ? [{ id: "people" as const, label: `${CODEX_TEXT.people} · ${game.codex.people.length}` }] : []),
+    ...(game.codex?.places.length ? [{ id: "places" as const, label: `${CODEX_TEXT.places} · ${game.codex.places.length}` }] : []),
+  ];
+  return (
+    <div role="tablist" aria-label={CODEX_TEXT.tabsLabel} data-so="journal-tabs" className="flex flex-wrap gap-1">
+      {tabs.map((entry) => (
+        <button key={entry.id} type="button" role="tab" id={`so-journal-tab-${entry.id}`} aria-selected={tab === entry.id}
+          className={`st-button ${tab === entry.id ? "" : "secondary"} text-xs`} onClick={() => onTab(entry.id)}>{entry.label}</button>
+      ))}
+    </div>
+  );
+};
+
 export function JournalPanel({ game, author }: JournalPanelProps) {
+  const [picked, setTab] = useState<JournalTab>("journal");
+  const tab: JournalTab = picked !== "journal" && !game.codex?.[picked].length ? "journal" : picked;
   const empty = !game.journal.length && !game.milestones.length;
+  if (game.codex && tab !== "journal") {
+    return (
+      <div id="so-journal" data-so="journal" className="flex flex-col gap-3 text-sm">
+        <CodexTabs game={game} tab={tab} onTab={setTab} />
+        <CodexPage page={tab} entries={game.codex[tab]} />
+      </div>
+    );
+  }
   return (
     <div id="so-journal" data-so="journal" className="flex flex-col gap-3 text-sm">
-      {empty && <div data-so="journal-empty" className="text-xs st-muted">{GAME_TEXT.journalEmpty}</div>}
+      {game.codex && <CodexTabs game={game} tab={tab} onTab={setTab} />}
+      {empty && !game.codex && <div data-so="journal-empty" className="text-xs st-muted">{GAME_TEXT.journalEmpty}</div>}
       {game.journal.map((widget) => <WidgetCard key={widget.id} widget={widget} />)}
       {game.milestones.length > 0 && (
         <section data-so="milestones" aria-label={GAME_TEXT.milestones} className="flex flex-col gap-1">

@@ -1,3 +1,4 @@
+import { memorySightings, nameIndexOf, sameCharacterCandidates } from "@memory/nameFold";
 import {
   agencyFor, gateKeys, milestoneEarned, valueReader, visibleQuestTitles,
   type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type StoryEngine, type ValidationError,
@@ -51,8 +52,11 @@ import { chapterKit, storyEnded } from "./chapterPort";
 import { composeRolls, createChance, reconstructQualityRolls } from "./rolls";
 import { checkRolls } from "./storyCheckDraws";
 import { gameSlices } from "./gameSnapshot";
+import { recapCardSections, recapSection } from "./recapPort";
 import { lifeAuthorSlice } from "./lifeSnapshot";
+import { factionAuthorSlice } from "./factionSnapshot";
 import { livingSlice } from "./livingSnapshot";
+import { promisesSlice } from "./promiseSnapshot";
 import { graphEpoch } from "@generation/living/fold";
 import { buildPresence } from "./presence";
 import { readPlaysIndex } from "./playsIndexHost";
@@ -316,6 +320,7 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
       threads: { open: game.openThreads, resolved: story ? resolvedThreads(extras.memory, sources.resting) : [] },
     }),
     lifeAuthor: lifeAuthorSlice(story, state, extras.ui.authorView, extras.agendaProposals, sources.scopeContext),
+    factionsAuthor: factionAuthorSlice(story, state, extras.ui.authorView, sources.boundaryLog, extras.memory.ledger, sources.scopeContext),
     living: livingSlice({
       story, state, living: extras.living, authorView: extras.ui.authorView, enabled: extras.stagecraft.settings.livingEnabled !== false,
       branching: extras.stagecraft.settings.branchingEnabled !== false,
@@ -323,8 +328,10 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
     }),
     rolls: composeRolls(quality, sources.extras.chance ?? createChance(), checkRolls(story, extras.checks)),
     repetition: sources.loaded && sources.extras.ui.authorView ? mineRepetition(replyTexts(sources.chat)) : null,
+    ...(extras.ui.authorView && story ? { sameCharacter: sameCharacterCandidates(nameIndexOf(story), memorySightings(extras.memory), [extras.playerSetup?.name ?? "", "player", "you", "user"]) } : {}),
     presence: buildPresence({
       story, settings: sources.extras.ui.presence, boundaryLog: sources.boundaryLog, plays: sources.plays ?? {}, library: listStoryRecords(),
+      cardRecaps: recapCardSections({ story, state, recap: extras.recap, chat: sources.chat }),
     }),
   };
 };
@@ -397,6 +404,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     saveNotice: playerSaveNotice(extras.saveHealth),
     agencyNotice: agencyRecovery ? REFUSAL_PLAYER_TEXT : null,
     objectiveKind: agency.objective_kind, ...questNarrative(story, blackboard, chapters.epilogue),
+    consequences: recapSection({ story, state, recap: extras.recap, chat: sources.chat }),
   });
   const castNames = buildCastNames(story, sources.characters ?? []), inline = inlineView(sources, story, { tension, pipeline, agencyRecovery: Boolean(agencyRecovery) }, castNames);
   const mismatch = loaded ? null : blobMismatch();
@@ -442,6 +450,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     expansion: extras.expansion,
     memory: extras.memory, memoryShown: shownRows(extras.memory.entries, sources.resting ?? ((text: string) => text)),
     chapters,
+    promises: promisesSlice(story, extras, blackboard),
     pacing: extras.pacing,
     copilot: extras.copilot,
     ui: extras.ui,

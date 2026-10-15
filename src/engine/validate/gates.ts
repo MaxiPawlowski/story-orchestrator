@@ -5,6 +5,7 @@ import {
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, isPrimitive } from "./common";
 import { gameLayer } from "./gameLayer";
+import { readRecapFields } from "./recap";
 
 export const readGate = (value: unknown, path: string, errors: ValidationError[]): GateNode | null => {
   if (!isRecord(value)) {
@@ -56,7 +57,7 @@ export const readTransition = (value: unknown, path: string, errors: ValidationE
   if (priority === null) addError(errors, `${path}.priority`, "transition priority is required");
   if (!from || !to || priority === null || !gate) return null;
 
-  const transition: Transition = { from, to, priority, gate };
+  const transition: Transition = { from, to, priority, gate, ...readRecapFields(value, path, errors, readGate) };
   if (isRecord(value.effects)) transition.effects = value.effects as Transition["effects"];
   if (typeof value.extractor_trigger === "string") transition.extractor_trigger = value.extractor_trigger;
   if (typeof value.extraction_hint === "string") transition.extraction_hint = value.extraction_hint;

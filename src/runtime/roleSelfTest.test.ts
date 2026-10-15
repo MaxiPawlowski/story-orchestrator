@@ -63,6 +63,17 @@ describe("per-role self-test (v2.4 plan 08 T18)", () => {
     expect(result.detail).toContain("API request failed");
   });
 
+  it("B1: the read test asks with the read budget and the role's resolved effort, as live reads do", async () => {
+    send.mockResolvedValue({ ok: true, text: "NO_DELTA", finish: "stop" });
+    await runRoleSelfTest("read", { profileId: "m", route: { kind: "profile", profileId: "m", effort: "low" } });
+    expect(send).toHaveBeenCalledTimes(2);
+    for (const call of send.mock.calls) {
+      expect(call[0]).toBe("m");
+      expect(call[2]).toBe(2048);
+      expect(call[3]).toMatchObject({ effort: "low" });
+    }
+  });
+
   it("no profile means nothing is sent", async () => {
     const result = await runRoleSelfTest("curator", { profileId: null });
     expect(result.status).toBe("fail");

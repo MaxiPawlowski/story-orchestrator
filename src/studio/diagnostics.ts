@@ -11,9 +11,12 @@ import { BRIEFING_CONSEQUENCES, checkBriefingSpoilers } from "./briefingDiagnost
 import { KIND_CONSEQUENCES, checkStoryKind } from "./kindDiagnostics";
 import { PLAYER_CONSEQUENCES, checkPlayerProfile } from "./playerDiagnostics";
 import { LIFE_CONSEQUENCES, checkAgendaPace } from "./lifeDiagnostics";
+import { FACTION_CONSEQUENCES, checkFactionDiagnostics } from "./factionDiagnostics";
+import { factionQualities } from "@engine/validate/factions";
 import { DIAGNOSTIC_CODES } from "./diagnosticCodes";
 import { STAGE_CONSEQUENCES, checkStageSprites, type StageInventory } from "./stageDiagnostics";
 import { WIDGET_CONSEQUENCES, checkWidgets, scopedKeys, widgetGateKeys } from "./widgetDiagnostics";
+import { CODEX_CONSEQUENCES, checkCodexDraft } from "./codexDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -74,8 +77,10 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   ...KIND_CONSEQUENCES,
   ...PLAYER_CONSEQUENCES,
   ...LIFE_CONSEQUENCES,
+  ...FACTION_CONSEQUENCES,
   ...STAGE_CONSEQUENCES,
   ...WIDGET_CONSEQUENCES,
+  ...CODEX_CONSEQUENCES,
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -104,6 +109,7 @@ const buildQualityMap = (draft: StoryV2): Map<string, Quality> => {
     if (!map.has(key)) map.set(key, { key, type: "float", source: "code", monotonic: true, rubric: "" });
   });
   if (!map.has(TENSION_CURRENT_KEY)) map.set(TENSION_CURRENT_KEY, { key: TENSION_CURRENT_KEY, type: "float", source: "extractor", rubric: "" });
+  factionQualities(draft.factions ?? [], draft.roster).forEach((quality) => { if (!map.has(quality.key)) map.set(quality.key, quality); });
   return map;
 };
 
@@ -495,8 +501,10 @@ const DIAGNOSTIC_CHECKS = [
   checkStoryKind,
   checkPlayerProfile,
   checkAgendaPace,
+  checkFactionDiagnostics,
   checkStageSprites,
   checkWidgets,
+  checkCodexDraft,
 ];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {

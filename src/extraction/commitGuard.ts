@@ -2,6 +2,7 @@ import { gateLeaves, type NormalizedStoryV2, type PrimitiveValue, type Quality }
 import { log } from "@utils/log";
 import type { EvidenceMessage } from "./evidence";
 import { evidenceCut, type EvidenceCut } from "./evidenceCut";
+import { playerSpanOf } from "./playerSpan";
 import type { ParsedDelta } from "./types";
 
 // A quality whose value only means something when the player COMMITTED to it can declare a
@@ -196,19 +197,41 @@ export const HOLD_REASONS = {
 
 export type HoldReason = (typeof HOLD_REASONS)[keyof typeof HOLD_REASONS];
 
+const screenHit = (text: string, index: number, matched: string): HoldReason | null => {
+  const before = clauseBefore(text, index);
+  if (NEGATOR.test(before)) return HOLD_REASONS.negated;
+  if (HEDGE.test(before)) return HOLD_REASONS.hedged;
+  if (restOfSentence(text, index + matched.length).end === "?") return HOLD_REASONS.question;
+  return isBareToken(text, index, matched) && !pointsBack(text, index, matched) ? HOLD_REASONS.unpointed : null;
+};
+
+const globalMatcher = (matcher: RegExp): RegExp => new RegExp(matcher.source, `${matcher.flags.replace("g", "")}g`);
+
+export type CommitmentVerdict = { commits: true; index: number; matched: string } | { commits: false; reason: HoldReason };
+
+export const commitmentVerdict = (line: string, matcher: RegExp, within: readonly [number, number] = [0, line.length]): CommitmentVerdict => {
+  const text = normalizeLine(line);
+  let first: HoldReason | null = null;
+  for (const match of text.matchAll(globalMatcher(matcher))) {
+    const index = match.index ?? 0;
+    if (index < within[0] || index + match[0].length > within[1]) continue;
+    const reason = screenHit(text, index, match[0]);
+    if (!reason) return { commits: true, index, matched: match[0] };
+    first ??= reason;
+  }
+  return { commits: false, reason: first ?? HOLD_REASONS.noMatch };
+};
+
 const lineVerdict = (line: string, matcher: RegExp, relevance: Relevance, windowIsAbout: boolean): HoldReason | null => {
   const text = normalizeLine(line);
   const unbound = !relevance.words && !relevance.intents.length;
   let first: HoldReason | null = null;
   const miss = (reason: HoldReason) => { first ??= reason; };
-  for (const match of text.matchAll(new RegExp(matcher.source, `${matcher.flags.replace("g", "")}g`))) {
+  for (const match of text.matchAll(globalMatcher(matcher))) {
     const index = match.index ?? 0;
-    const before = clauseBefore(text, index);
-    if (NEGATOR.test(before)) { miss(HOLD_REASONS.negated); continue; }
-    if (HEDGE.test(before)) { miss(HOLD_REASONS.hedged); continue; }
-    if (restOfSentence(text, index + match[0].length).end === "?") { miss(HOLD_REASONS.question); continue; }
+    const screened = screenHit(text, index, match[0]);
+    if (screened) { miss(screened); continue; }
     const bare = isBareToken(text, index, match[0]);
-    if (bare && !pointsBack(text, index, match[0])) { miss(HOLD_REASONS.unpointed); continue; }
     if (unbound) return null;
     if (!bare && sentenceIsAbout(text, index, match[0].length, relevance, windowIsAbout)) return null;
     if (windowIsAbout && pointsBack(text, index, match[0])) return null;
@@ -219,6 +242,7 @@ const lineVerdict = (line: string, matcher: RegExp, relevance: Relevance, window
 
 interface PlayerReading {
   commits: boolean;
+  message?: EvidenceMessage;
   playerLine?: string;
   reason?: HoldReason;
 }
@@ -227,8 +251,9 @@ const playerReading = (matcher: RegExp, relevance: Relevance, messages: readonly
   const windowIsAbout = messages.some((message) => isAbout(normalizeLine(message.text), relevance));
   const named = messages.filter((message) => !message.isUser).flatMap((message) => normalizeLine(message.text).match(PROPER_NOUN) ?? []);
   const read = { ...relevance, topics: new Set([...relevance.topics, ...named.map((name) => name.toLowerCase())]) };
-  const verdicts = messages.filter((message) => message.isUser).map((message) => ({ line: message.text, reason: lineVerdict(message.text, matcher, read, windowIsAbout) }));
-  if (verdicts.some((verdict) => verdict.reason === null)) return { commits: true };
+  const verdicts = messages.filter((message) => message.isUser).map((message) => ({ message, line: message.text, reason: lineVerdict(message.text, matcher, read, windowIsAbout) }));
+  const committing = [...verdicts].reverse().find((verdict) => verdict.reason === null);
+  if (committing) return { commits: true, message: committing.message };
   const closest = [...verdicts].reverse().find((verdict) => verdict.reason !== HOLD_REASONS.noMatch) ?? verdicts[verdicts.length - 1];
   return closest ? { commits: false, playerLine: closest.line, reason: closest.reason ?? HOLD_REASONS.noMatch } : { commits: false, reason: HOLD_REASONS.noPlayerLine };
 };
@@ -265,6 +290,10 @@ export const applyCommitEvidence = (
           key: delta.delta.q, value: String(delta.delta.v), evidence: delta.evidence ?? "", ...evidenceCut(delta),
           ...(reading.reason ? { reason: reading.reason } : {}), ...(reading.playerLine !== undefined ? { playerLine: reading.playerLine } : {}),
         });
+        continue;
+      }
+      if (reading.message) {
+        accepted.push({ ...delta, delta: { ...delta.delta, playerSpan: playerSpanOf(reading.message) } });
         continue;
       }
     }

@@ -1,3 +1,4 @@
+import { runsAsCommand } from "@utils/string";
 import { projectionText, type PlayedProjection } from "./playerProjection";
 
 export const SUGGESTION_COUNT = 4;
@@ -43,7 +44,7 @@ export function parseSuggestions(text: string, projection: PlayedProjection, wit
   return text.split("\n")
     .map((line) => line.trim().replace(/^(?:[-*•]|\d+[.)])\s*/, "").replace(/^["“]|["”]$/g, "").trim())
     .filter((line) => line.length > 0 && line.length <= SUGGESTION_MAX_CHARS && !/^(?:here are|sure|suggestions?:)/i.test(line))
-    .filter((line) => !namesIn(line, unseen))
+    .filter((line) => !runsAsCommand(line) && !namesIn(line, unseen))
     .filter((line) => {
       const key = line.toLowerCase();
       if (key === last || seen.has(key)) return false;

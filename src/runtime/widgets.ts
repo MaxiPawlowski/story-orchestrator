@@ -11,8 +11,11 @@ import { previousValues, sheetGroups } from "./gameSheet";
 import { changedAgo, provenanceOf, shownItem } from "./widgetHistory";
 import { checkLabel, type CheckRecord } from "./storyCheckDraws";
 import { questMoveText } from "@features/gameCopy";
+import { FACTION_STANDING_GROUP, factionBand, standingKey } from "@engine/factionSchema";
+import { factionVisible, standingOf, standingView } from "@engine/factions/standing";
 
 import { shownPlayerText } from "./stretchTurns";
+import { codexLogRows, composeCodex } from "./codexView";
 
 export const LOG_LIMIT = 40;
 export const ACTION_CHARS = 140;
@@ -27,6 +30,7 @@ export interface GameSources {
   chat: readonly unknown[];
   castNames: Record<string, string>;
   authorView?: boolean;
+  enabled?: readonly string[];
 }
 
 export interface GameCompose {
@@ -116,7 +120,8 @@ const actionRows = (chat: readonly unknown[], from: number, log: readonly Bounda
 
 const composeLog = (sources: GameSources): LogRowView[] => {
   const from = sources.boundaryLog[0]?.before.lastMessageId ?? -1;
-  return [...sources.boundaryLog.flatMap((entry) => statusMoves(sources.story, entry)), ...checkRows(sources.story, sources.checks), ...actionRows(sources.chat, from, sources.boundaryLog)]
+  return [...sources.boundaryLog.flatMap((entry) => statusMoves(sources.story, entry)), ...checkRows(sources.story, sources.checks), ...actionRows(sources.chat, from, sources.boundaryLog),
+    ...codexLogRows(sources.story, sources.boundaryLog, sources.castNames)]
     .sort((left, right) => right.at.messageId - left.at.messageId || right.at.boundary - left.at.boundary)
     .slice(0, LOG_LIMIT);
 };
@@ -163,10 +168,17 @@ const statusText = (quality: Quality, value: PrimitiveValue | undefined, author:
 const rosterBody = (widget: StoryWidget, sources: GameSources): WidgetBody => {
   const reader = valueReader(sources.state.blackboard.values);
   const author = widget.audience === "author";
+  const values = sources.state.blackboard.values;
+  const factions = new Map((sources.story.factions ?? []).filter((faction) => factionVisible(faction, values)).map((faction) => [faction.id, factionBand(faction, standingOf(faction, values))]));
   const rows = (widget.rows ?? []).flatMap((row): RosterRowView[] => {
-    const quality = sources.story.qualityByKey[row.quality];
     const name = row.label ?? (row.member ? sources.castNames[row.member] : undefined);
-    if (!quality || !name || (row.when && !evaluateGate(row.when, reader))) return [];
+    if (!name || (row.when && !evaluateGate(row.when, reader))) return [];
+    if (row.faction) {
+      const band = factions.get(row.faction);
+      return band ? [{ name, status: band }] : [];
+    }
+    const quality = row.quality ? sources.story.qualityByKey[row.quality] : undefined;
+    if (!quality) return [];
     const ago = changedAgo(sources.boundaryLog, sources.chat, (values) => statusText(quality, values[quality.key], author));
     return [{ name, status: statusText(quality, sources.state.blackboard.values[quality.key], author), ...(ago !== undefined ? { changedAgo: ago } : {}) }];
   });
@@ -269,7 +281,7 @@ const synthesized = (id: string, title: string, body: WidgetBody, still: boolean
 const valueKeys = (widget: StoryWidget, story: NormalizedStoryV2, body: WidgetBody): Array<{ label: string; key: string }> => {
   if (body.kind === "meters") return meterQualities(widget, story).map((quality) => ({ label: quality.display?.label ?? quality.key, key: quality.key }));
   if (body.kind === "clock" && widget.bind && "quality" in widget.bind) return [{ label: body.label, key: widget.bind.quality }];
-  if (body.kind === "roster") return (widget.rows ?? []).map((row) => ({ label: row.label ?? row.member ?? row.id, key: row.quality }));
+  if (body.kind === "roster") return (widget.rows ?? []).map((row) => ({ label: row.label ?? row.member ?? row.id, key: row.quality ?? standingKey(row.faction ?? "") }));
   return [];
 };
 
@@ -289,8 +301,11 @@ export function composeGame(sources: GameSources): GameCompose {
   const values = state.blackboard.values;
   const reader = valueReader(values);
   const still = story.display?.motion === false;
+  const standing = standingView(story, values);
+  const standingGroup: SheetGroupView[] = standing.length
+    ? [{ label: FACTION_STANDING_GROUP, items: standing.map((view) => ({ label: view.name, as: "word" as const, text: view.band })) }] : [];
   const parts = {
-    quests: visibleQuests(story, reader, values, sources.castNames), sheet: sheetOf(story.qualities, sources),
+    quests: visibleQuests(story, reader, values, sources.castNames), sheet: [...sheetOf(story.qualities, sources), ...standingGroup],
     main: mainLine(story, state, sources.chat), log: composeLog(sources),
   };
   const visible = (story.widgets ?? []).filter((widget) => !widget.visible_when || evaluateGate(widget.visible_when, reader));
@@ -312,11 +327,14 @@ export function composeGame(sources: GameSources): GameCompose {
   const log = kinds("log").length ? kinds("log") : fallback(synthesized("journal-log", "Log", { kind: "log", rows: parts.log }, still));
   const meters = kinds("meters");
   const statSheet = meters[0] ?? (parts.sheet.length ? synthesized("stat-sheet", "Stat sheet", { kind: "meters", groups: parts.sheet }, still) : null);
+  const codex = composeCodex({ story, state, castNames: sources.castNames, enabled: sources.enabled });
   const provenance = sources.authorView ? provenanceFor(story.widgets ?? [], [...authored, ...(statSheet?.synthesized ? [statSheet] : [])], sources) : {};
   return {
     player: {
       quests: parts.quests, mainLine: parts.main, sheet: parts.sheet, milestones: milestones(story, reader), log: parts.log, journal: [...track, ...log], statSheet,
+      ...(standing.length ? { standing } : {}),
       widgets: player.filter((widget) => !backing.has(widget.id) && (!["meters", "track", "log"].includes(widget.body.kind) || (widget.body.kind === "meters" && widget !== meters[0]))),
+      ...(codex ? { codex } : {}),
     },
     authorWidgets: authored.filter((widget) => widget.audience === "author" && !backing.has(widget.id)),
     provenance,

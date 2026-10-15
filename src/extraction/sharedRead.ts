@@ -4,6 +4,7 @@ import type { ExtractionReply, ModelAsk, ModelCall } from "./modelRoute";
 import { getCanonLite } from "./canonLite";
 import { hashContract, PLAYER_MARK, readContext, renderPlayerOnlyReask, renderSharedReadPrompt, runningTotals } from "./contract";
 import type { ParsedMemoryLine } from "@memory/index";
+import type { OpenPromiseRef } from "@memory/promises/types";
 import { onlyOutOfCharacter } from "./chatRows";
 import { detectDegenerate } from "./degenerate";
 import { evidenceSources } from "./evidence";
@@ -112,6 +113,7 @@ export interface RunSharedReadOptions {
   scope?: ScopedQuality[];
   cardScope?: ScopeSourceContext;
   openArcs?: string[];
+  openPromises?: OpenPromiseRef[] | null;
   epistemicLedgerCapable?: boolean;
   entities?: string[];
   judgeTyped?: TypedJudge | null;
@@ -133,7 +135,7 @@ export function sharedReadWindow(options: Pick<RunSharedReadOptions, "state" | "
 const scopeOf = (options: RunSharedReadOptions): ScopedQuality[] =>
   options.scope ?? deriveScope(options.story, options.state.activeCheckpointId, options.state.blackboard, options.extraGateSources ?? [], options.cardScope);
 
-export type ReadContractOptions = Pick<RunSharedReadOptions, "story" | "state" | "firedTransitions" | "facts" | "openArcs" | "epistemicLedgerCapable" | "entities" | "deltasOnly">;
+export type ReadContractOptions = Pick<RunSharedReadOptions, "story" | "state" | "firedTransitions" | "facts" | "openArcs" | "openPromises" | "epistemicLedgerCapable" | "entities" | "deltasOnly">;
 
 export const readContract = (options: ReadContractOptions, window: SharedReadWindow, qualities: ScopedQuality[]): SharedReadContract => ({
   storyTitle: options.story.title,
@@ -142,6 +144,7 @@ export const readContract = (options: ReadContractOptions, window: SharedReadWin
   window,
   canon: getCanonLite(options.story, options.state.visitedAnchors, options.firedTransitions ?? [], options.facts ?? []),
   openArcs: options.openArcs ?? [],
+  ...(options.openPromises ? { openPromises: options.openPromises } : {}),
   epistemicLedgerCapable: options.epistemicLedgerCapable ?? false,
   entities: options.entities ?? [],
   ...readContext(options.story, options.state.activeCheckpointId),
@@ -239,7 +242,8 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     : null;
   const answered = new Set(judged?.answered ?? []);
   const residual = scope.filter((entry) => !answered.has(entry.key));
-  const contract = readContract(options, window, residual);
+  const promiseSection = options.openPromises ? (await import("@memory/promises/contract")).renderPromiseContractSection(options.openPromises) : undefined;
+  const contract = { ...readContract(options, window, residual), ...(promiseSection ? { promiseSection } : {}) };
   const prompt = renderSharedReadPrompt(contract);
   const ask = (maxTokens: number): Promise<ExtractionReply> => (scope.length && !silent
     ? options.model(prompt, { ...options.ask, maxTokens })
@@ -283,6 +287,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     ...(window.ooc ? { outOfCharacter: window.ooc } : {}),
     ...(window.form ? { windowForm: window.form } : {}),
     ...(reask ? { reask: { keys: reask.keys, rawResponse: reask.rawResponse, accepted: reask.accepted.map((entry) => entry.delta.q) } } : {}),
+    ...(!refused && options.openPromises && parsed.promises?.length ? { promiseLines: parsed.promises } : {}),
   };
   // A refused response is refused whole: the lines that survived a truncation are not more
   // trustworthy than the ones that did not, and the fact/memory/arc lines have no bound of their own.

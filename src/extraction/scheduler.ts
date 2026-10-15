@@ -14,7 +14,7 @@ import { runSharedRead, sharedReadWindow } from "./sharedRead";
 import { ROLLBACK_REREAD_PREFIX, rollbackRereadReason } from "./rereadReason";
 import { CADENCE_WINDOW_FALLBACK, CADENCE_WINDOW_MAX, cadenceWindowFrom } from "./cadenceWindow";
 import type { RequestBudget } from "./tokenMeter";
-import type { ParsedFact, SharedReadAudit, SharedReadWindow } from "./types";
+import type { OpenPromiseRef, ParsedFact, SharedReadAudit, SharedReadWindow } from "./types";
 
 export interface SchedulerSettings {
   enabled: boolean;
@@ -65,6 +65,7 @@ export interface SchedulerHost {
   getExpansionGateSources(): ExtraGateSource[];
   cardScope?(): ScopeSourceContext;
   getOpenArcs(): string[];
+  getOpenPromises?(): OpenPromiseRef[] | null;
   getEpistemicLedgerCapable?(): boolean;
   getEntities?(): string[];
   judgeTyped?(): TypedJudge | null;
@@ -509,6 +510,7 @@ export class ExtractionScheduler {
           extraGateSources: this.host.getExpansionGateSources(),
           cardScope: this.host.cardScope?.(),
           openArcs: this.host.getOpenArcs(),
+          openPromises: this.host.getOpenPromises?.() ?? null,
           epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false,
           entities: this.host.getEntities?.() ?? [],
           judgeTyped: this.host.judgeTyped?.() ?? null,

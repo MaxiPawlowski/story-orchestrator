@@ -2,7 +2,8 @@ import { FEATURES, NEED_LABELS, type Feature } from "@features/registry";
 import { GUIDE_PAGES } from "@guide/pages.generated";
 import { plainText } from "@guide/markdown";
 import type { GuidePage } from "@guide/types";
-import { GUIDE_TOPIC_IDS, renderGuideTopic, GUIDE_TOPICS } from "../guideTopics";
+import { GUIDE_TOPIC_IDS, GUIDE_TOPICS } from "../guideTopics";
+import { renderGuideTopic } from "../guideRead";
 import { ST_PINNED_VERSION, ST_TOPICS } from "./sillytavern";
 import type { KnowledgeTopic } from "./types";
 

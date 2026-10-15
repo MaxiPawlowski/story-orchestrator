@@ -6,6 +6,7 @@ const PLAYER_ACTS = [
   "realize", "realizes", "realise", "realises", "join", "joins", "joined", "promise", "promises", "promised", "attack", "attacks", "attacked",
   "kill", "kills", "killed", "kiss", "kisses", "kissed", "betray", "betrays", "betrayed", "sign", "signs", "signed", "follow", "follows", "followed",
   "leave", "leaves", "left", "answer", "answers", "answered", "reveal", "reveals", "revealed", "confess", "confesses", "confessed",
+  "keep", "keeps", "kept", "break", "breaks", "broke", "broken", "fulfil", "fulfill", "fulfills", "fulfilled", "release", "releases", "released",
 ];
 
 const ACTS = PLAYER_ACTS.join("|");

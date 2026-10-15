@@ -1,5 +1,6 @@
 import { LIVING_OPENING_ID, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { livingChapterSize } from "@engine/validate/living";
+import { gameLayer } from "@engine/validate/gameLayer";
 import type { ModelCall } from "@extraction/modelRoute";
 import { runBranch, runDirector, type BranchOutcome, type DirectorOutcome } from "@generation/living/direct";
 import { exitDescriptions } from "@generation/living/divergence";
@@ -42,6 +43,7 @@ export function directorInput(input: DirectNextInput): DirectorInput {
       ...(state.blackboard.values[quality.key] !== undefined ? { value: state.blackboard.values[quality.key] } : {}),
       ...(latched[quality.key] ? { latched: true } : {}),
     }));
+  const standing = story.factions?.length ? gameLayer()?.factions.factionDirectorLines(story, state.blackboard.values) ?? [] : [];
   const path = state.visitedPath.filter((id) => story.checkpointById[id]?.type === "anchor" || id === LIVING_OPENING_ID).map((id) => story.checkpointById[id]?.name ?? id);
   return {
     title: story.title,
@@ -55,6 +57,7 @@ export function directorInput(input: DirectNextInput): DirectorInput {
     openThreads: inputs.openThreads,
     resolvedThreads: inputs.resolvedThreads,
     plans: [...plans, ...inputs.plans].slice(0, MAX_PLANS),
+    ...(standing.length ? { standing } : {}),
     refused: inputs.refused,
     qualities,
     tension: { suggested: suggestedTension(story, plan.anchorsInChapter), current: inputs.tension },

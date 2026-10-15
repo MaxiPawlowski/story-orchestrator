@@ -46,6 +46,8 @@ export {
   observeNextSave, observeNextSettingsSave, onGroupEdited, saveOpenChat, installSaveWatcher, startSaveWatcherSurface, readServerBoundary,
   readServerExtensionSettings, saveWatcherStats, boundaryInBlob, SAVE_OBSERVE_MS, type SaveObservation,
 } from "@services/stHost/persistence";
+export { saveSettingsSoon } from "@services/stHost/settingsSave";
+export { watchPendingWorldSaves } from "@services/stHost/worldInfoPending";
 export { applyCharacterAN, clearCharacterAN } from "@services/stHost/authorNotes";
 export { setStoryExtensionPrompt, clearStoryExtensionPrompt } from "@services/stHost/extensionPrompts";
 export {
@@ -93,7 +95,7 @@ export {
 export type { ModelFailureKind, ModelFinish, ModelReply, ModelRequestOptions, ModelSamplers, ModelUsage, ReasoningMeter } from "@services/stHost/modelReply";
 export { harnessAcceptsImages, harnessContextLimit, harnessListed, harnessOffersAgent, harnessStatusCached } from "@services/stHost/harnessCache";
 export { openAgentBridge, refreshHarnessStatus, rowOffersAgent, sendHarness } from "@services/stHost/harnessCache";
-export type { HarnessImage, HarnessLoginState, HarnessModel, HarnessRequest, HarnessRow, HarnessStatus } from "@services/stHost/harness";
+export type { HarnessImage, HarnessLoginState, HarnessMeter, HarnessModel, HarnessRequest, HarnessRow, HarnessStatus } from "@services/stHost/harness";
 export type { ConnectionProfileSummary } from "@services/stHost/connectionProfiles";
 export { countTokens, countTokensBatch, tokenizerIdentity } from "@services/stHost/tokenizer";
 export { readProfileContextLimit, readProfilePresetName } from "@services/stHost/contextLimit";

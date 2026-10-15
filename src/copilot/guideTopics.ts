@@ -1,6 +1,7 @@
-import { nearestKey } from "@utils/levenshtein";
+import { RECAP_GUIDE_TOPIC } from "./guideTopicsRecap";
+import { CODEX_GUIDE_TOPIC } from "./guideTopicsCodex";
 import type { DIAGNOSTIC_CODES } from "../studio/diagnostics";
-import type { CopilotStage } from "./types";
+import { CHARACTER_TOPICS, FACTION_DIAGNOSTIC_TOPICS } from "./guideTopicsCharacters";
 
 export interface GuideTopic {
   title: string;
@@ -22,7 +23,7 @@ export const GUIDE_TOPICS = {
     fields: "title, description, id, player_intro, kind",
     text: "The title and description tell the model and the author what the story is; player_intro is what a player reads before the first beat. The id is the story's identity "
       + "(a lowercase slug the library keys by); stories carry no version number. kind is saga or story (default): only the player's badges read it, never the model; "
-      + "chapters do not make a saga. Good: \"The Pawnbroker's Debt\" with a two-sentence premise. Avoid: renaming the id "
+      + "chapters do not make a saga. Good: \"The Pawnbroker's Debt\" with a short premise. Avoid: renaming the id "
       + "after chats play it; a chat keeps the copy it pinned and the renamed story becomes a different story.",
   },
   briefing: {
@@ -143,7 +144,7 @@ export const GUIDE_TOPICS = {
   guidance: {
     title: "Narrator guidance",
     fields: "checkpoints[].guidance",
-    text: "Private direction for how the beat plays: text, or {all, members: {id: text}}. all reaches every generation; a member's text only while that member is drafted. "
+    text: "Private direction for how the beat plays: text, or {all, members: {id: text}}. all reaches every reply, never quiet/impersonate; a member's text only while drafted. "
       + "A secret never goes in shared guidance, which every character reads; put it in that member's entry. Write pressure and intent, never the ending, and call the "
       + "player {{user}}. A member key no cast member has reaches nobody.",
   },
@@ -191,7 +192,7 @@ export const GUIDE_TOPICS = {
     fields: "first_mes, new_chat_only, cast_changes",
     text: "In a group every card with a first message greets at once. Give a first message only to characters present in the start beat, for that scene only: no secret, twist "
       + "or later reveal. Everyone else gets none, and enters through cast_changes. A story-owned opener is a scripted onEnter npc_reply with new_chat_only, which posts only into an empty chat. "
-      + "A greeting that addresses the player (\"you are the pawnbroker\") makes that role the player's: no card plays it.",
+      + "A greeting addressing the player (\"you are the pawnbroker\") makes that role the player's: no card plays it.",
   },
   "npc-replies": {
     title: "NPC replies",
@@ -284,6 +285,7 @@ export const GUIDE_TOPICS = {
     text: "Optional acts: {id, title, player_title, kind (chapter or interlude), final, seal}. Once one exists every beat names one. A sealed chapter is written up as a record; "
       + "seal sets open_threads (carry, close, decide), keep_tail, fold_messages, record_style. Mark the last chapter final; never lead back into an earlier chapter.",
   },
+  ...RECAP_GUIDE_TOPIC,
   presentation: {
     title: "Illustrations and display",
     fields: "illustrations, checkpoints[].illustrate, effects.illustrations, chapters[].illustrations, Public appearance:, display.lore_names_public, effects.stage",
@@ -295,7 +297,7 @@ export const GUIDE_TOPICS = {
   },
   quests: {
     title: "Quests and milestones",
-    fields: "quests[], visible_when, offered_when, done_when, failed_when, steps[], requires, progress, labels, giver, reward, milestones[]",
+    fields: "quests[], visible_when, offered_when, done_when, failed_when, steps[], requires, progress, labels, giver, reward, promise, milestones[]",
     text: "Status is computed every turn: hidden until visible_when (the acceptance), offered (never fails) while offered_when holds, then active, done or failed (failed wins); the end latches. "
       + "done_when defaults to every step done or progress {quality, of} reached; requires adds another quest's done gate. reward lands once: set writes code qualities, "
       + "effects switch world_info, cast_changes, npc_replies (onEnter); a swipe takes it back. Milestones {id, title, when, secret}; a secret one is unlisted until earned.",
@@ -309,7 +311,7 @@ export const GUIDE_TOPICS = {
   },
   widgets: {
     title: "Stats and story panels",
-    fields: "qualities[].display, widgets[], bind, audience, rows[], dates, actions[], display.journal, display.stat_sheet, display.widgets, display.motion",
+    fields: "qualities[].display, widgets[], bind, audience, rows[], dates, actions[], display.journal, display.stat_sheet, display.widgets, display.motion, display.standing",
     text: "display {public, label, as: item|count|meter|boxes|word, group, min, max, bands, trend} puts a quality on the Stat sheet (never rel_* or gated lore keys). "
       + "widgets [{id, kind: meters|track|log|clock|board|clues|map|html|roster|timeline, title, bind, audience}]; player widgets show public qualities only. "
       + "roster rows [{id, member|label, quality: enum, when?}]; timeline: reached named checkpoints by chapter, dates {checkpointId: label}. "
@@ -330,15 +332,8 @@ export const GUIDE_TOPICS = {
       + "Runs in a sandboxed frame with no network and no access to SillyTavern; "
       + "window.storyWidget.onData(f) gets the source widget's player view, ready() starts it, propose(id) puts that action's text in the box. Off for the player = the source panel shows.",
   },
-  "character-life": {
-    title: "Character life",
-    fields: "roster[].relationships, roster[].mood, roster[].agenda, roster[].schedule, clock",
-    text: "relationships [{toward: id|player, axes, range, step, start, label}] compile to rel_<holder>_<toward>_<axis> ratings: start until read, read as up or down (never a level) while "
-      + "both are present, at most step a turn, seen only by the holder and Author view. mood {baseline, values, lasts}: re-read after a scene change, else "
-      + "baseline. agenda [{id, goal, steps [{text, when, effect: world_info|npc_replies, public, repeat}], pace per_n_boundaries|per_chapter (needs chapters), "
-      + "every}] moves in code, never on OOC. schedule [{when, at}]: away drops a member from speakers; addressed, the narrator says they are not here. "
-      + "clock {times, start_day}: time_of_day a step a turn, story_day counts wraps.",
-  },
+  ...CODEX_GUIDE_TOPIC,
+  ...CHARACTER_TOPICS,
   "living-director": {
     title: "Living stories",
     fields: "living.premise, living.tone, living.cast, living.horizon, living.chapter_size, living.ending, living.autonomy, living.authored_until, living.opening",
@@ -426,37 +421,10 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "opener-uses-player-name": "player",
   "player-spoiler-risk": "player",
   "agenda-pace-no-chapters": "character-life",
+  ...FACTION_DIAGNOSTIC_TOPICS,
   "stage-sprite-unknown": "presentation",
   "widget-item-never-read": "clues-and-maps", "map-pin-unreachable": "clues-and-maps", "map-image-missing": "clues-and-maps",
   "html-widget-declared": "html-panels",
+  "codex-fact-never-read": "codex", "codex-gate-holds-at-start": "codex", "disclosure-names-unknown-entity": "codex",
 };
 
-export const STAGE_GUIDE_TOPICS: Record<CopilotStage, readonly GuideTopicId[]> = {
-  qualities: ["quality-rubric", "latching", "chance-roll", "briefing"],
-  checkpoints: ["checkpoints", "objective-agency"],
-  transitions: ["gates", "transitions"],
-  effects: ["opening-scene", "drives-motives", "requirements", "briefing"],
-  provisioning: ["opening-scene", "requirements"],
-};
-
-export const renderGuideTopic = (id: GuideTopicId): string => {
-  const topic = GUIDE_TOPICS[id];
-  return `${topic.title} (${topic.fields})\n${topic.text}`;
-};
-
-export const renderStageGuide = (stage: CopilotStage): string =>
-  `Author's guide, for this stage:\n${STAGE_GUIDE_TOPICS[stage].map((id) => `- ${GUIDE_TOPICS[id].title}: ${GUIDE_TOPICS[id].text}`).join("\n")}`;
-
-const isTopic = (value: string): value is GuideTopicId => Object.hasOwn(GUIDE_TOPICS, value);
-
-export const PENDING_GUIDE_TOPICS: Readonly<Record<string, string>> = {};
-
-export const readGuide = (topic: unknown): string => {
-  const typed = typeof topic === "string" ? topic.trim().toLowerCase() : "";
-  if (isTopic(typed)) return renderGuideTopic(typed);
-  if (Object.hasOwn(PENDING_GUIDE_TOPICS, typed)) return `Guide topic "${typed}" is kept for ${PENDING_GUIDE_TOPICS[typed]}, which is not in this build yet. Do not author it.`;
-  const near = typed ? nearestKey(typed, GUIDE_TOPIC_IDS) : null;
-  const known = `Topics: ${GUIDE_TOPIC_IDS.join(", ")}.`;
-  if (!typed) return `Name a topic. ${known}`;
-  return `No guide topic "${typed}"${near ? ` (did you mean "${near}"?)` : ""}. ${known}`;
-};

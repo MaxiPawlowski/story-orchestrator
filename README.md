@@ -72,7 +72,9 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Playing | Stat sheet | A movable panel with what you carry and the meters the story shows in the open. |  |
 | Playing | Story panels | Extra panels a story adds, such as a clock that fills, a board of quests, a wall of clues or a map. |  |
 | Playing | Story-made panels | A panel page a story brings, run shut off from SillyTavern. |  |
+| Playing | People and Places | Journal pages that fill in with the people and places you have learned about. |  |
 | Playing | Save this run as a story | Keep a living story's run as a story you can play again or edit. | Experimental |
+| Playing | What changed | Up to five lines on what changed this chapter: on the chapter card, in the Overview and in /story recap. | Experimental |
 | Memory | Story memory | Remembers what happened so characters stay consistent. |  |
 | Memory | Memory tab | See, search, pin or remove what the story remembers. |  |
 | Memory | Chapters | Long stories write up each finished chapter and recap it when you return. |  |
@@ -85,6 +87,8 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Characters | Private knowledge | Tracks who knows what, so characters do not know things they never saw. |  |
 | Characters | Inner voice | Characters prepare a private intent before they speak. |  |
 | Characters | Character life | Feelings that move, a mood per scene, plans that go on off stage and places to be, for the characters a story declares. | Experimental |
+| Characters | Standing with groups | How the groups in a story regard you, shown as a word such as "Wary" or "Trusted". | Experimental |
+| Characters | Promises remembered | A promise you make to a character is remembered in your own words. |  |
 | World | Story lorebook switching | Story lorebook entries switch on and off as the story moves. |  |
 | World | Story lorebooks | A story's lorebooks load only in the chats that play it. |  |
 | World | Memory can trigger lore | Established facts and scene history can activate lorebook entries. |  |

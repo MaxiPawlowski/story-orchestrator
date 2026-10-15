@@ -38,6 +38,6 @@ export const harnessAcceptsImages = (harness: HarnessId, model: string): boolean
 };
 
 export const rowOffersAgent = (row: HarnessRow | undefined, model: string): boolean =>
-  Boolean(row && row.installed && row.offered && !row.blocked && row.loggedIn !== false && row.agentBridge === true && row.models.some((entry) => entry.id === model));
+  Boolean(row && row.installed && row.offered && !row.blocked && row.loggedIn !== false && row.agentBridge === true && row.models.some((entry) => entry.id === model && entry.agent !== false));
 
 export const harnessOffersAgent = (harness: HarnessId, model: string): boolean => rowOffersAgent(last?.harnesses[harness], model);
