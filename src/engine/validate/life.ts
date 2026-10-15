@@ -4,7 +4,8 @@ import {
   RELATIONSHIP_TOWARD_PLAYER, TURN_OOC_KEY, agendaChapterKey, agendaRepeatsKey, agendaStepKey, agendaWaitKey, isStoryTimeKey, moodAgeKey, moodKey,
   moodSceneKey, moodWasKey, relationshipKey, timeReachedKey,
   hasLabels, labelNextKey, labelShownKey, labelSinceKey, revealKey,
-  type Agenda, type AgendaStep, type CalendarMonth, type CalendarSeason, type Checkpoint, type GateNode, type LifeMember, type MoodDecl, type MoodLasts, type PrimitiveValue, type PublicLabel, type Quality,
+  type Agenda, type AgendaStep, type CalendarMonth, type CalendarSeason, type Checkpoint, type GateNode, type LifeMember, type MoodDecl, type MoodLasts,
+  type PrimitiveValue, type PublicLabel, type Quality,
   type RelationshipDecl, type ScheduleEntry, type SecretLabel, type StoryCalendar, type StoryClock, type StoryLife, type TimedEffects, type ValidationError,
 } from "../schema";
 import { isRecord } from "@utils/guards";
