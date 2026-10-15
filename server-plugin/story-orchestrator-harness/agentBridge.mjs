@@ -8,7 +8,7 @@ export const BRIDGE_MODELS = Object.freeze({ claude: Object.freeze(['claude-sonn
 export const BRIDGE_SERVER = 'so';
 export const BRIDGE_AGENT = 'so-agent';
 export const BRIDGE_LIMITS = Object.freeze({
-    maxTools: 128,
+    maxTools: 96,
     maxToolBytes: 200_000,
     maxDescriptionChars: 2_000,
     maxSchemaDepth: 8,

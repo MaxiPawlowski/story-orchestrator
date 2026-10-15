@@ -1,3 +1,5 @@
+import { readFileSync } from "fs";
+import { join } from "path";
 import type { StoryV2 } from "@engine/index";
 import { emptyEnvironment } from "@wizard/index";
 import { BRIDGE_ROLE, BRIDGE_SYSTEM, bridgeAnswerText, createBridgeRoute, harnessRoute, HARNESS_ROUTE_REFUSAL } from "./bridge";
@@ -219,5 +221,16 @@ describe("agent tool bridge route (v2.6 plan 04 H, option 2)", () => {
     expect(turn.session.plan).toEqual(["bridged"]);
     await runner(turn.session, story()).catch(() => undefined);
     expect(resolved).toBe(2);
+  });
+});
+
+describe("bridge limits (v2.8 live 2026-10-15: 66 tools against a 64 cap refused every bridged wizard run)", () => {
+  const plugin = readFileSync(join(__dirname, "../../../server-plugin/story-orchestrator-harness/agentBridge.mjs"), "utf8");
+  const limit = (name: string) => Number(new RegExp(`${name}: ([0-9_]+),`).exec(plugin)?.[1].replace(/_/g, ""));
+  it("sends no more tools, and no more tool bytes, than the harness plugin accepts", () => {
+    const schemas = agentToolSchemas();
+    expect(limit("maxTools")).toBeGreaterThan(0);
+    expect(schemas.length).toBeLessThanOrEqual(limit("maxTools"));
+    expect(Buffer.byteLength(JSON.stringify(schemas))).toBeLessThanOrEqual(limit("maxToolBytes"));
   });
 });

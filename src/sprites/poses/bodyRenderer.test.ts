@@ -1,3 +1,4 @@
+import { PLACEHOLDER_ART, ST_DEFAULT_AVATAR } from "../cardArt";
 import { webcrypto } from "node:crypto";
 import type { RunOwnership } from "@runtime/runToken";
 import { PoseBodies, poseHead, type BodyDeps, type BodyRequest } from "./bodyRenderer";
@@ -24,7 +25,7 @@ function setup() {
     alpha: [{ id: "alpha", node: "RMBG", model: "b", files: [fingerprint] }] }), models: async () => ({ diffusion: fingerprint, encoder: fingerprint, vae: fingerprint }),
     pack: async (character, set) => ({ character, set, sha256: fingerprint.sha256, files: set === "base" ? [file] : [...(cache.get(set) ?? [])].map(([label, item]) => ({ ...file, ...item, label })) }),
     manifest: async (character, set) => ({ owner: "story-orchestrator", version: 1, character, set, labels: Object.fromEntries([...(cache.get(set) ?? [])].map(([label, file]) => [label, { key: "k", sha256: file.sha256, recipe: { id: "r", version: 1 }, qa: {}, status: "complete" }])) }),
-    decode: async () => pixel, wait: async () => {} };
+    decode: async (path: string) => { if (path === ST_DEFAULT_AVATAR) throw new Error("no placeholder"); return pixel; }, wait: async () => {} };
   const request: BodyRequest = { story: "s", member: "a", folder: "a", label: "neutral", pose, layers: lookLayers(undefined, {}), frames: false,
     config: { baseSet: "base", box: { x: 40, y: 10, width: 30, height: 35 }, models: { diffusion: "m", encoder: "m", vae: "m" }, steps: 25 },
     accepts: () => true, apply: jest.fn(), failed: jest.fn() };
@@ -53,6 +54,16 @@ test("face and decal changes reuse the body; a rebase uses card art", async () =
   expect(calls.at(-1)?.box).toEqual({ x: 26, y: 38, width: 13, height: 19 });
   await renderer.render({ ...request, cardArt: "card-art", layers: { ...request.layers, base: { age: "old" }, rebase: true } });
   expect(calls.find((call) => call.kind === "base")?.reference).toBe("card-art");
+  renderer.close();
+});
+
+test("a rebase from SillyTavern's default card picture is refused before any render", async () => {
+  const { deps, request, calls } = setup();
+  deps.decode = async () => ({ width: 8, height: 8, data: new Uint8ClampedArray(256).fill(200) });
+  const renderer = new PoseBodies(deps);
+  await renderer.render({ ...request, cardArt: "card-art", layers: { ...request.layers, base: { age: "old" }, rebase: true } });
+  expect(request.failed).toHaveBeenCalledWith(PLACEHOLDER_ART);
+  expect(calls.some((call) => call.kind === "base")).toBe(false);
   renderer.close();
 });
 

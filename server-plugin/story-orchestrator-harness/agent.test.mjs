@@ -256,7 +256,7 @@ test('tool schemas, images and the harness are validated on open', () => {
         [{ tools: [{ ...TOOLS[0], exec: 'x' }] }, /unknown tool key/],
         [{ tools: [{ ...TOOLS[0], inputSchema: { type: 'string' } }] }, /object schema/],
         [{ tools: [{ ...TOOLS[0], inputSchema: { type: 'object', properties: { a: { $ref: 'https://evil/x' } } } }] }, /reference/],
-        [{ tools: Array.from({ length: 129 }, (_, index) => ({ ...TOOLS[0], name: `t${index}` })) }, /at most/],
+        [{ tools: Array.from({ length: 97 }, (_, index) => ({ ...TOOLS[0], name: `t${index}` })) }, /at most/],
         [{ harness: 'codex' }, /runs on opencode, claude only/],
         [{ model: 'openai/gpt-9' }, /not permitted/],
         [{ timeoutMs: 10 }, /timeoutMs/],

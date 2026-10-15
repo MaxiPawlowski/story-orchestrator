@@ -307,3 +307,22 @@ Owed:
 - 42 B witness record: until it exists no promise reaches the director.
 - Possible reuse after merge: plan 46 `extraction/playerSpan.ts` (`{messageId, revision, span}` on accepted deltas) could share the
   span helper with `memory/audience.ts`; not unified in this pass.
+
+## Gate record addendum 2026-10-15: live no-model check (branch `v2.8-live-checks`)
+
+- Setup (shared by the 2026-10-15 addenda in plans 46, 47, 52, 60 and queue row N13): isolated ST code copy
+  `C:\dev\st-live` (tar of `st-v28-nomodel` without `node_modules`, `node_modules` junctioned to the owner's), worktree
+  `.st-root` pointed at it, this worktree's build staged with `node scripts/release/stage.mjs --st-root C:/dev/st-live`
+  (served `dist/index.js` sha256 `885c115c`, source = master `cc38c5b1`), plugins installed into `C:\dev\st-live\plugins`
+  only (judge + harness; harness `config.json` offers claude only). Lanes root `C:\dev\so-live-lanes`: lane 60 = offline
+  no-model lane (data copied from `so-nomodel-lanes/44`, server plugins off), lane 61 = the same plus
+  `st-lanes.mts pod 61 cloud` (loopback firewall, server plugins on). Run: `ST_ROOT=C:/dev/st-live
+  SO_LANES_ROOT=C:/dev/so-live-lanes node scripts/debug/st-lanes.mts run 60 -- scripts/debug/so-scenario.mts run <file>
+  --sandbox --group 'Group: Arin, DM Narrator'`. Evidence copied to `C:\dev\so-live-lanes\evidence-2026-10-15\{60,61}\`.
+  Owner ST, port 8000, lanes 0/31/33/53/54 and `C:\dev\st-p53` untouched.
+- PASS x2 (`60/2026-10-15T06-50-30-610Z`, `...06-54-29-046Z`; `test/scenarios/v28-47-promises.json`). Seeded: the two
+  reads are debug responses (`[promised] Arin | m=0 | "..."`, `[kept] <id> | m=1 | "..."`); acceptance, store, projection
+  and rollback run for real. The promise shows on the Overview (`#so-player-promises`: "To Arin" and the exact quote, no
+  id); kept on Arin's reply it leaves the list; a swipe of that reply reopens the same id on the Overview; a chat reopen
+  keeps it open. `assert-player-clean` 0 findings with the promise open and again after the reopen.
+- Still owed: payload goldens with seeded promises, and every CL/LT row above.

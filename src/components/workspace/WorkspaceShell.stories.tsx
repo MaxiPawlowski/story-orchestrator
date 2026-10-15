@@ -17,11 +17,11 @@ export const Desktop: Story = {
   play: async ({ canvasElement }) => {
     const page = within(canvasElement.ownerDocument.body);
     await expect(await page.findByRole("dialog", { name: "Test story" })).toHaveAttribute("open");
-    await userEvent.click(page.getByRole("button", { name: "Features" }));
-    await userEvent.click(page.getByRole("button", { name: "Open inner voice" }));
-    await expect(page.getByRole("heading", { name: "inner" })).toBeInTheDocument();
-    await userEvent.click(page.getByRole("button", { name: "All features" }));
-    await expect(page.getByRole("heading", { name: "features" })).toBeInTheDocument();
+    await userEvent.click(await page.findByRole("button", { name: "Features" }));
+    await userEvent.click(await page.findByRole("button", { name: "Open inner voice" }));
+    await expect(await page.findByRole("heading", { name: "inner" })).toBeInTheDocument();
+    await userEvent.click(await page.findByRole("button", { name: "All features" }));
+    await expect(await page.findByRole("heading", { name: "features" })).toBeInTheDocument();
   },
 };
 export const Mobile: Story = { ...Desktop, parameters: { viewport: { defaultViewport: "mobile1" } } };

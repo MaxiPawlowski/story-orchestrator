@@ -1,0 +1,85 @@
+{
+  "format": 2,
+  "id": "so-v28-51-labels",
+  "title": "SO-V28-51 Labels",
+  "description": "v2.8 plan 51 no-model fixture: one public label and one secret label that a seeded gate reveals.",
+  "roster": [
+    {
+      "id": "arin",
+      "name": "Arin",
+      "relationships": [
+        {
+          "toward": "player",
+          "axes": [
+            "trust"
+          ],
+          "public": [
+            {
+              "label": "wary"
+            }
+          ],
+          "secret": [
+            {
+              "id": "loyal",
+              "label": "secretly loyal to you",
+              "revealed_when": {
+                "q": "saw_letter",
+                "op": "==",
+                "v": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "narrator",
+      "name": "DM Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+    }
+  ],
+  "qualities": [
+    {
+      "key": "saw_letter",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Did the player read Arin's letter?"
+    },
+    {
+      "key": "left_town",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the party left town?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "hall",
+      "name": "The guild hall",
+      "player_name": "The guild hall",
+      "objective": "Arin watches the newcomer.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "road",
+      "name": "The road",
+      "player_name": "The road",
+      "objective": "Travel on.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "hall",
+      "to": "road",
+      "priority": 0,
+      "gate": {
+        "q": "left_town",
+        "op": "==",
+        "v": true
+      }
+    }
+  ]
+}

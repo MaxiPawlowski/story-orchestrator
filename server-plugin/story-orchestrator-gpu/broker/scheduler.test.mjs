@@ -339,6 +339,69 @@ test('a physical-RAM refusal while releasing an image frees the lease so text is
     assert.match(scheduler.status().lastError, /admission refused/);
 });
 
+test('a release whose cache reclamation fails still frees the lease, so the next render is admitted', async () => {
+    let fail = false;
+    const { scheduler } = setup({ freeImages: async () => { if (fail) throw new Error('ComfyUI accepted free but its model memory has not been released; text will not race the release.'); } });
+    const first = await scheduler.reserve({ workflowKey: 'base', needGpuMiB: 9000 });
+    fail = true;
+    assert.equal(await scheduler.release(first.lease), true);
+    assert.equal(scheduler.status().imageLease, false);
+    assert.match(scheduler.status().lastError, /not been released/);
+    fail = false;
+    const next = await scheduler.reserve({ workflowKey: 'pose', needGpuMiB: 9000 });
+    assert.equal(typeof next.lease, 'string');
+    await scheduler.release(next.lease);
+});
+
+test('a release survives an unreadable ComfyUI queue, a failed snapshot and a failed footprint write', async () => {
+    let broken = false;
+    const { scheduler } = setup({ config: { queueTimeoutMs: 0 },
+        queue: async () => { if (broken) throw new Error('ComfyUI /queue answered 500'); return { queue_running: [], queue_pending: [] }; },
+        snapshot: async () => { if (broken) throw new Error('telemetry down'); return free(22000); },
+        saveFootprints: async () => { throw new Error('disk full'); } });
+    const lease = await scheduler.reserve({ workflowKey: 'base', needGpuMiB: 9000 });
+    scheduler.lease.seenJob = true;
+    broken = true;
+    assert.equal(await scheduler.release(lease.lease), true);
+    assert.equal(scheduler.status().imageLease, false);
+    broken = false;
+    await scheduler.release((await scheduler.reserve({ workflowKey: 'pose', needGpuMiB: 9000 })).lease);
+});
+
+test('image work still running at the deadline keeps the lease; the backstop frees it once ComfyUI is idle', async () => {
+    let busy = false;
+    const { scheduler } = setup({ config: { queueTimeoutMs: 0 }, queue: async () => ({ queue_running: busy ? [[1, 'owned']] : [], queue_pending: [] }) });
+    const lease = await scheduler.reserve({ workflowKey: 'base', needGpuMiB: 9000 });
+    busy = true;
+    await assert.rejects(scheduler.release(lease.lease), /still running/);
+    assert.equal(scheduler.status().imageLease, true);
+    await scheduler.sampleLease(Date.now() + 10 * 60000);
+    assert.equal(scheduler.status().imageLease, true);
+    busy = false;
+    await scheduler.sampleLease(Date.now() + 10 * 60000);
+    assert.equal(scheduler.status().imageLease, false);
+    await scheduler.release((await scheduler.reserve({ workflowKey: 'pose', needGpuMiB: 9000 })).lease);
+});
+
+test('an abandoned lease is freed after it goes unrenewed, and a renewed one after its lifetime cap', async () => {
+    const { scheduler } = setup({ config: { leaseIdleMs: 1000, leaseMaxMs: 5000 } });
+    const idle = await scheduler.reserve({ workflowKey: 'base', needGpuMiB: 9000 });
+    await scheduler.sampleLease(Date.now() + 500);
+    assert.equal(scheduler.status().imageLease, true);
+    await scheduler.sampleLease(Date.now() + 1500);
+    assert.equal(scheduler.status().imageLease, false);
+    assert.equal(await scheduler.release(idle.lease), false);
+    const renewed = await scheduler.reserve({ workflowKey: 'pose', needGpuMiB: 9000 });
+    const born = scheduler.lease.at;
+    scheduler.lease.touched = born + 4900;
+    await scheduler.sampleLease(born + 4950);
+    assert.equal(scheduler.status().imageLease, true);
+    await scheduler.sampleLease(born + 5100);
+    assert.equal(scheduler.status().imageLease, false);
+    assert.equal(scheduler.renew(renewed.lease), false);
+    await scheduler.release((await scheduler.reserve({ workflowKey: 'next', needGpuMiB: 9000 })).lease);
+});
+
 const fakeCheckpoint = async (mib) => {
     const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'so-stream-'));
     const header = Buffer.from(JSON.stringify({ w: { dtype: 'F16', shape: [1], data_offsets: [0, mib * 1048576] } }));

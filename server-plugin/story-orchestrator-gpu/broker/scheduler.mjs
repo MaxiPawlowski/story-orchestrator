@@ -225,16 +225,23 @@ export class ResidencyScheduler {
         await this.saveTimings(this.timings);
     }
 
-    async sampleLease() {
+    leaseExpired(lease, now = Date.now()) {
+        return now - lease.touched > (this.config.leaseIdleMs ?? 120000) || now - lease.at > (this.config.leaseMaxMs ?? 1800000);
+    }
+
+    async sampleLease(now = Date.now()) {
         const lease = this.lease;
         if (!lease) return;
+        let busy = null;
         try {
             const [snapshot, queue] = await Promise.all([this.snapshot({ fresh: true }), this.queue()]);
             if (this.lease !== lease) return;
             this.observe(snapshot);
-            lease.seenJob ||= Boolean(queue.queue_running?.length || queue.queue_pending?.length);
-            if (Date.now() - lease.touched > 120000 && !queue.queue_running?.length && !queue.queue_pending?.length) await this.release(lease.id);
+            busy = Boolean(queue.queue_running?.length || queue.queue_pending?.length);
+            lease.seenJob ||= busy;
         } catch (error) { this.lastError = error.message; }
+        if (this.lease !== lease || busy === true || !this.leaseExpired(lease, now)) return;
+        try { await this.release(lease.id); } catch (error) { this.lastError = error.message; }
     }
 
     observe(snapshot) {
@@ -258,35 +265,46 @@ export class ResidencyScheduler {
         finally { this.releasing = null; }
     }
 
-    async releaseOwned(lease) {
+    async drainImages() {
         const deadline = Date.now() + this.config.queueTimeoutMs;
         while (true) {
-            const queue = await this.queue();
-            if (!queue.queue_running?.length && !queue.queue_pending?.length) break;
-            if (Date.now() > deadline) throw new Error('Image work is still running; text remains queued.');
+            let busy = false;
+            try {
+                const queue = await this.queue();
+                busy = Boolean(queue.queue_running?.length || queue.queue_pending?.length);
+                if (!busy) return;
+            } catch (error) { this.lastError = error.message; }
+            if (Date.now() > deadline) {
+                if (busy) throw new Error('Image work is still running; text remains queued.');
+                return;
+            }
             await new Promise((resolve) => setTimeout(resolve, 500));
         }
+    }
+
+    async releaseOwned(lease) {
+        await this.drainImages();
         const profile = this.config.profiles?.[this.backend.desiredProfile ?? this.config.defaultProfile];
         let cache = null;
         try {
-            cache = await this.freeImages({ ramRequiredMiB: this.backend.status().pid ? 0 : profile?.estimatedRamMiB ?? 6500,
-                maxUsedGpuMiB: lease.before.gpus[0].usedMiB + 512 });
-        } catch (error) {
-            if (!/admission refused/.test(error.message)) throw error;
-            this.lastError = error.message;
+            try {
+                cache = await this.freeImages({ ramRequiredMiB: this.backend.status().pid ? 0 : profile?.estimatedRamMiB ?? 6500,
+                    maxUsedGpuMiB: lease.before.gpus[0].usedMiB + 512 });
+            } catch (error) { this.lastError = error.message; }
+            try { this.observe(await this.snapshot({ fresh: true })); } catch (error) { this.lastError = error.message; }
+            this.lastWorkflow = lease.workflowKey;
+            this.lastCacheMode = cache?.mode ?? null;
+            if (lease.key && lease.seenJob) {
+                this.footprints[lease.key] = observedFootprint(lease, this.footprints[lease.key], this.config.reserves);
+                try { await this.saveFootprints(this.footprints); } catch (error) { this.lastError = error.message; }
+            }
+            this.lastMeasurement = { key: lease.key, workflowKey: lease.workflowKey, identity: lease.identity, lowRamMiB: lease.lowRam,
+                lowGpuMiB: lease.lowGpu, lowCommitMiB: lease.lowCommit, highCadence: lease.highCadence, seenJob: lease.seenJob, trace: lease.trace };
+        } finally {
+            if (this.lease === lease) this.lease = null;
+            this.lastLeaseAt = Date.now();
+            void this.pump();
         }
-        this.observe(await this.snapshot({ fresh: true }));
-        this.lastWorkflow = lease.workflowKey;
-        this.lastCacheMode = cache?.mode ?? null;
-        if (lease.key && lease.seenJob) {
-            this.footprints[lease.key] = observedFootprint(lease, this.footprints[lease.key], this.config.reserves);
-            await this.saveFootprints(this.footprints);
-        }
-        this.lastMeasurement = { key: lease.key, workflowKey: lease.workflowKey, identity: lease.identity, lowRamMiB: lease.lowRam,
-            lowGpuMiB: lease.lowGpu, lowCommitMiB: lease.lowCommit, highCadence: lease.highCadence, seenJob: lease.seenJob, trace: lease.trace };
-        this.lease = null;
-        this.lastLeaseAt = Date.now();
-        void this.pump();
         return true;
     }
 

@@ -57,6 +57,14 @@ test("accept stores six views, puts the pack hash in the root, keeps the default
   expect(f.deps.save).toHaveBeenCalledTimes(4);
 });
 
+test("a fresh save answered with a cache-busting path is stored by its served path", async () => {
+  const f = fixture(), save = f.deps.save;
+  f.deps.save = jest.fn(async (...args: Parameters<typeof save>) => { const asset = await save(...args); return { ...asset, path: `${asset.path}?t=${asset.sha256.slice(0, 12)}` }; });
+  const next = await f.session.accept(await f.session.prepare("Synthetic"));
+  expect(Object.values(next.pack!.views).every((view) => !view.path.includes("?"))).toBe(true);
+  expect(visualSources(JSON.parse(JSON.stringify({ Synthetic: next }))).Synthetic?.pack?.hash).toBe(next.pack!.hash);
+});
+
 test.each(["cancel", "chat", "delete", "replacement"])("%s during a render or a save never publishes a pack", async (event) => {
   const act = (f: ReturnType<typeof fixture>) => {
     if (event === "cancel") f.session.cancel(); if (event === "chat") f.lapse(); if (event === "delete") f.remove(); if (event === "replacement") f.replace();
@@ -97,6 +105,14 @@ test("a saved view with other bytes, a stale review or no accepted source refuse
   const empty = fixture();
   empty.deps.read = () => undefined;
   await expect(empty.session.prepare("Synthetic")).rejects.toThrow("Accept this character's base and bust");
+});
+
+test("a pack handed over with fresh-save paths is stored by served path and survives the manifest read", () => {
+  const source = visualFixture(), asset = (name: string) => ({ path: `/characters/Synthetic/p/${name}.png?t=${sha(name).slice(0, 12)}`, sha256: sha(name), key: name, recipe: { id: "qwen21-reference-view", version: 1 } });
+  const views = { full_body: source.base, front: source.bust, three_quarter_left: asset("l"), three_quarter_right: asset("r"), profile: asset("p"), back: asset("b") };
+  const next = withReferencePack(source, visualRoot(source), { hash: sha("pack"), views });
+  expect(Object.values(next.pack!.views).map((view) => view.path).filter((path) => path.includes("?"))).toEqual([]);
+  expect(visualSources(JSON.parse(JSON.stringify({ Synthetic: next }))).Synthetic?.pack?.hash).toBe(sha("pack"));
 });
 
 test("the manifest refuses a pack that does not match its base and bust, or misses a view", () => {

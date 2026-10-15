@@ -1,4 +1,4 @@
-import { ApplyQueue, type ApplyQueueEntry, type QueueDrainResult } from "./applyQueue";
+import { ApplyQueue, appliedKeys, type AppliedKey, type ApplyQueueEntry, type QueueDrainResult } from "./applyQueue";
 import { Blackboard, type BlackboardSnapshot } from "./blackboard";
 import { applyTransitionProgress, progressQualityForAnchor } from "./convergence";
 import { gateKeys } from "./gates";
@@ -17,6 +17,14 @@ export interface DerivedQualityView {
   lastMessageId: number;
   values: Readonly<Record<string, PrimitiveValue>>;
   versions?: Readonly<Record<string, number>>;
+  applied?: Readonly<Record<string, AppliedKey>>;
+}
+
+export interface EntryView {
+  boundary: number;
+  lastMessageId: number;
+  activeCheckpointId: string;
+  values: Readonly<Record<string, PrimitiveValue>>;
 }
 
 export interface EngineHost {
@@ -253,7 +261,7 @@ export class StoryEngine {
     this.chatLength = normalizedContext.chatLength;
     blackboard.setWriteBoundary(this.boundary + 1, normalizedContext.lastMessageId);
     const queue = this.queue.drainAtBoundary(blackboard);
-    this.refreshMechanicalQualities();
+    this.refreshMechanicalQualities(appliedKeys(queue, normalizedContext.lastMessageId));
     this.latchPass(this.boundary + 1);
 
     const outgoing = story.outgoingByCheckpoint[this.activeCheckpointId] ?? [];
@@ -272,6 +280,7 @@ export class StoryEngine {
       this.visitedPath.push(fired.to);
       effects = checkpoint?.effects ?? null;
       applyCardEntry(story, this.activeCheckpointId, blackboard, this.boundary + 1);
+      this.entryPass(this.boundary + 1, normalizedContext.lastMessageId);
       this.latchPass(this.boundary + 1);
       this.advanceCallbacks.forEach((callback) => callback(fired));
     }
@@ -324,6 +333,7 @@ export class StoryEngine {
     this.visitedPath.push(id);
     this.stagedFrom = this.visitedPath.length - 1;
     applyCardEntry(story, id, this.requireBlackboard(), this.boundary + 1);
+    this.entryPass(this.boundary + 1, normalizedContext.lastMessageId);
     this.latchPass(this.boundary + 1);
     this.boundary += 1;
     const after = this.serialize();
@@ -467,7 +477,7 @@ export class StoryEngine {
     return () => this.advanceCallbacks.delete(callback);
   }
 
-  private refreshMechanicalQualities(): void {
+  private refreshMechanicalQualities(applied: DerivedQualityView["applied"]): void {
     const story = this.requireStory();
     const blackboard = this.requireBlackboard();
     if (story.qualityByKey.message_count?.source === "code") {
@@ -482,10 +492,19 @@ export class StoryEngine {
     const view = {
       boundary: this.boundary, activeCheckpointId: this.activeCheckpointId, checkpointStartedBoundary: this.checkpointStartedBoundary,
       checkpointStartedMessageId: this.checkpointStartedMessageId, lastMessageId: this.lastMessageId, values: blackboard.entries(),
-      versions: blackboard.snapshot().versions,
+      versions: blackboard.snapshot().versions, applied,
     };
     for (const delta of this.host.derive?.(view) ?? []) blackboard.applyDelta({ q: delta.q, v: delta.v, source: "code" });
     applyQuestRewards(story, blackboard);
+  }
+
+  private entryPass(boundary: number, lastMessageId: number): void {
+    const writers = gameLayer()?.entryWriters;
+    if (!writers?.length) return;
+    const story = this.requireStory();
+    const blackboard = this.requireBlackboard();
+    const view: EntryView = { boundary, lastMessageId, activeCheckpointId: this.activeCheckpointId, values: blackboard.entries() };
+    for (const writer of writers) for (const delta of writer(story, view)) blackboard.applyDelta({ q: delta.q, v: delta.v, source: "code" });
   }
 
   private latchPass(boundary: number): void {

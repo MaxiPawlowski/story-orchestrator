@@ -16,6 +16,25 @@ export const REST_RECIPE = { id: "qwen21-neutral-rest", version: 1 } as const;
 export const EDIT_NODES = ["LoadImage", "UNETLoader", "QwenImage21Cache", "CLIPLoader", "VAELoader", "TextEncodeQwenImage21", "KSampler", "VAEDecode", "SaveImage"];
 export const EXPRESSIONS = ["neutral", "happy", "angry", "worried"];
 
+const isObject = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null && !Array.isArray(value);
+
+export function qwenImageInput(discovery: Pick<ComfyDiscovery, "nodes">, name: string): boolean {
+  const input = discovery.nodes.TextEncodeQwenImage21?.input;
+  if (!input) return false;
+  for (const group of [input.required, input.optional]) {
+    if (!group) continue;
+    if (group[`images.${name}`]) return true;
+    const spec = group.images, template = Array.isArray(spec) && isObject(spec[1]) && isObject(spec[1].template) ? spec[1].template : null;
+    if (!template) continue;
+    if (Array.isArray(template.names) && template.names.includes(name)) return true;
+    if (typeof template.prefix === "string" && typeof template.max === "number" && name.startsWith(template.prefix)) {
+      const index = Number(name.slice(template.prefix.length));
+      if (Number.isInteger(index) && index >= 0 && index < template.max) return true;
+    }
+  }
+  return false;
+}
+
 export function recipeProblems(discovery: ComfyDiscovery, models: { diffusion: string; encoder: string; vae: string }): string[] {
   return [
     ...EDIT_NODES.filter((node) => !discovery.nodes[node]).map((node) => `Missing ComfyUI node: ${node}.`),

@@ -3,7 +3,7 @@ import { stableStringify } from "@runtime/hash";
 import { anySignal } from "@utils/signals";
 import type { AlphaRecipe } from "@services/stHost/media";
 import type { EditModels } from "./builder/recipes";
-import { REFERENCE_VIEWS, visualRoot, visualSources, withReferencePack, type ReferencePack, type ReferenceView, type VisualAsset, type VisualManifest } from "./visualManifest";
+import { REFERENCE_VIEWS, servedAsset, visualRoot, visualSources, withReferencePack, type ReferencePack, type ReferenceView, type VisualAsset, type VisualManifest } from "./visualManifest";
 
 export const REFERENCE_VIEW_RECIPE = { id: "qwen21-reference-view", version: 1 } as const;
 export const REFERENCE_VIEW_SEED = 1234;
@@ -120,7 +120,7 @@ export class ReferencePackSession {
     this.guard(run, character, root);
     const saved: Partial<Record<ReferenceView, VisualAsset>> = { full_body: source.base, front: source.bust };
     for (const candidate of value.views) {
-      const asset = await this.deps.save(character, `refpack_${candidate.key.slice(0, 16)}`, candidate, signal);
+      const asset = servedAsset(await this.deps.save(character, `refpack_${candidate.key.slice(0, 16)}`, candidate, signal));
       this.guard(run, character, root);
       if (asset.sha256 !== candidate.sha256) throw new Error(`The saved ${VIEW_LABELS[candidate.view].toLowerCase()} view does not match the reviewed image.`);
       saved[candidate.view] = asset;

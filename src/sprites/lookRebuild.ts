@@ -37,7 +37,8 @@ export function changedLookRows(source: VisualManifest | undefined, member: stri
   });
 }
 
-export function publishLookBust(source: VisualManifest, root: string, look: string, baseSha256: string, bust: VisualAsset): VisualManifest {
+export function publishLookBust(source: VisualManifest, root: string, look: string, baseSha256: string, saved: VisualAsset): VisualManifest {
+  const bust = servedAsset(saved);
   if (visualRoot(source) !== root) throw new Error("The accepted visual source changed. Rebuild this look again.");
   const current = source.looks[look];
   if (!current || current.root !== root) throw new Error("This look is no longer published for the accepted source.");

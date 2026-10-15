@@ -965,7 +965,7 @@ export const PLAYER_FORBIDDEN_SELECTORS = [
   // CR-U (v2.6 plan 15): the author half of every v2.6 surface.
   '#so-inline-level option[value="3"]', '#so-inline-level option[value="4"]',
   '#so-chapter-seal', '#so-chapter-fold', '#so-chapter-story-so-far', '#so-chapter-budget', '#so-chapters',
-  '[data-so="chapters"]', '[data-so^="chapter-"]',
+  '[data-so="chapters"]', '[data-so^="chapter-"]:not([data-so^="chapter-card"])',
   '[data-so="model-call-route"]', '[data-so="model-call-result"]',
   '[data-so="role-profile-detail"]', '[data-so="role-egress"]', '[data-so="role-meter"]', '[data-so="role-reasoning-note"]',
   '#so-next-turn', '[data-so^="next-turn-"]', '[data-so="payload-folded"]',

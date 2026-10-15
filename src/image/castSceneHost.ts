@@ -8,8 +8,8 @@ import { imageChat, imageSave, imagePlace, imageDelete } from "@services/stHost/
 import { reserveGpu, releaseGpu, renewGpu } from "@services/stHost/gpuBroker";
 import { anySignal } from "@utils/signals";
 import { verifyVisualSource, sourceStillCurrent } from "../sprites/visualHost";
-import { contentHash, recipeProblems } from "../sprites/builder/recipes";
-import { castSceneBuilder, castSceneGraph, castSceneIdentities, castSceneKey, CAST_SCENE_RECIPE } from "./castScene";
+import { contentHash, qwenImageInput, recipeProblems } from "../sprites/builder/recipes";
+import { castSceneBuilder, castSceneGraph, castSceneIdentities, castSceneKey, CastSetupGap, CAST_SCENE_RECIPE, CAST_TWO_REFERENCE_MISSING } from "./castScene";
 import { isNarratorMember } from "./cast";
 import type { ImageQueue } from "./queue";
 import { decodeImage, encodeImage } from "../sprites/builder/images";
@@ -64,8 +64,7 @@ export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueu
       }
       const discovery = await comfyDiscover(signal), problems = recipeProblems(discovery, config.models);
       if (problems.length) throw new Error(problems.join(" "));
-      if (identities.length === 2 && !discovery.nodes.TextEncodeQwenImage21?.input?.optional?.["images.image_2"]
-        && !discovery.nodes.TextEncodeQwenImage21?.input?.required?.["images.image_2"]) throw new Error("This Qwen node does not offer the two-reference cast scene input.");
+      if (identities.length === 2 && !qwenImageInput(discovery, "image_2")) throw new CastSetupGap(CAST_TWO_REFERENCE_MISSING);
       const [diffusion, encoder, vae] = await Promise.all([comfyFingerprint("diffusionModels", config.models.diffusion, signal),
         comfyFingerprint("textEncoders", config.models.encoder, signal), comfyFingerprint("vaes", config.models.vae, signal)]);
       const render = { steps: config.steps, resolution: config.resolution };
@@ -95,8 +94,8 @@ export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueu
         return saved;
       } finally {
         clearInterval(heartbeat);
-        await Promise.all(refs.splice(0).map((ref) => comfyReleaseReference(ref)));
-        await releaseGpu(lease.lease);
+        try { await Promise.all(refs.splice(0).map((ref) => comfyReleaseReference(ref))); }
+        finally { await releaseGpu(lease.lease); }
       }
     });
     guard();

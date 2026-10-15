@@ -84,6 +84,24 @@ describe("bounded warm sprite batch", () => {
     expect(f.lease.release).toHaveBeenCalledTimes(1);
   });
 
+  it("a release the broker refused does not wedge the batch: the next image takes a fresh lease", async () => {
+    const f = fixture();
+    f.lease.release.mockRejectedValueOnce(new Error("The GPU broker did not release the image lease."));
+    f.state.retain = false;
+    await expect((await f.batch.acquire("same", f.create)).release()).rejects.toThrow("did not release");
+    await (await f.batch.acquire("same", f.create)).release();
+    expect(f.create).toHaveBeenCalledTimes(2);
+  });
+
+  it("a retained lease the broker already freed is replaced instead of failing every later image", async () => {
+    const f = fixture();
+    await (await f.batch.acquire("same", f.create)).release();
+    f.lease.renew.mockRejectedValueOnce(new Error("The GPU broker lease expired."));
+    await (await f.batch.acquire("same", f.create)).release();
+    expect(f.create).toHaveBeenCalledTimes(2);
+    expect(f.lease.release).toHaveBeenCalledTimes(1);
+  });
+
   it("a chat switch during reservation releases the late grant rather than using it", async () => {
     const f = fixture();
     await expect(f.batch.acquire("same", async () => { f.state.owns = false; return f.lease; })).rejects.toThrow("no longer owns");

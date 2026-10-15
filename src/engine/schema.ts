@@ -499,7 +499,7 @@ export interface StoryV2 {
   milestones?: Milestone[];
   widgets?: StoryWidget[];
   codex?: import("./codexSchema").StoryCodex;
-  clock?: StoryClock;
+  clock?: StoryClock; calendar?: import("./lifeSchema").CalendarInput;
   living?: StoryLiving; factions?: import("./factionSchema").Faction[];
 }
 

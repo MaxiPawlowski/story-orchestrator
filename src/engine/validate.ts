@@ -156,7 +156,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const game = quests ? layer?.expandRequires(quests, errors) : undefined;
   layer?.checkQuests(game, milestones, qualityByKey, new Set(roster.map((member) => member.id)), errors);
   checkRecapGates({ transitions, quests: game, milestones }, qualityByKey, errors, validateGate);
-  layer?.life.checkLife(life, roster, qualityByKey, errors, Boolean(chapters?.length));
+  layer?.life.checkLife(life, roster, qualityByKey, errors, Boolean(chapters?.length), checkpoints, startCheckpointId);
   layer?.factions.checkFactions({ factions, roster, qualityByKey, quests: game }, errors);
   const widgets = layer?.readWidgets(json.widgets, { qualityByKey, qualities, checkpointIds: new Set(Object.keys(checkpointById)), checkpoints, transitions, roster, factions }, errors);
   layer?.codex.checkCodex(codex, { checkpointById, qualityByKey, roster }, errors);

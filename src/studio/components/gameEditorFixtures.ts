@@ -44,6 +44,21 @@ export const factionStory = (): StoryDraft => {
   };
 };
 
+export const labelStory = (): StoryDraft => {
+  const base = sampleStory();
+  return {
+    ...base,
+    qualities: [...base.qualities, { key: "saw_letter", type: "bool", source: "extractor", rubric: "Whether the player read the letter." }],
+    roster: base.roster.map((member, at) => (at === 0 ? {
+      ...member,
+      relationships: [{
+        toward: "player", axes: ["trust"], range: [-5, 5], step: 1, start: 0,
+        public: [{ label: "wary" }], secret: [{ id: "loyal", label: "secretly loyal to you", revealed_when: { q: "saw_letter", op: "==", v: true } }],
+      }],
+    } : member)),
+  };
+};
+
 export const codexStory = (): StoryDraft => ({
   ...sampleStory(),
   qualities: [...sampleStory().qualities, { key: "location", type: "enum", values: ["gate", "boathouse"], source: "extractor", rubric: "Where the party is." }],

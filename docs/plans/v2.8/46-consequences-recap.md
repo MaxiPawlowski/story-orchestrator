@@ -265,3 +265,27 @@ Owed:
 - Live no-model lane check (card text plus `so-ui.mts assert-player-clean`) once a lane can serve this build.
 - Adolion: not changed; whether the campaign adds `recap` lines or `player_action` is for the owner or another model.
 - SC1-SC5 come from `v2.8-p52-codex`; the recap needs no edit when they land.
+
+## Gate record addendum 2026-10-15: live no-model check (branch `v2.8-live-checks`)
+
+- Setup (shared by the 2026-10-15 addenda in plans 46, 47, 52, 60 and queue row N13): isolated ST code copy
+  `C:\dev\st-live` (tar of `st-v28-nomodel` without `node_modules`, `node_modules` junctioned to the owner's), worktree
+  `.st-root` pointed at it, this worktree's build staged with `node scripts/release/stage.mjs --st-root C:/dev/st-live`
+  (served `dist/index.js` sha256 `885c115c`, source = master `cc38c5b1`), plugins installed into `C:\dev\st-live\plugins`
+  only (judge + harness; harness `config.json` offers claude only). Lanes root `C:\dev\so-live-lanes`: lane 60 = offline
+  no-model lane (data copied from `so-nomodel-lanes/44`, server plugins off), lane 61 = the same plus
+  `st-lanes.mts pod 61 cloud` (loopback firewall, server plugins on). Run: `ST_ROOT=C:/dev/st-live
+  SO_LANES_ROOT=C:/dev/so-live-lanes node scripts/debug/st-lanes.mts run 60 -- scripts/debug/so-scenario.mts run <file>
+  --sandbox --group 'Group: Arin, DM Narrator'`. Evidence copied to `C:\dev\so-live-lanes\evidence-2026-10-15\{60,61}\`.
+  Owner ST, port 8000, lanes 0/31/33/53/54 and `C:\dev\st-p53` untouched.
+- PASS x2 (`60/2026-10-15T06-44-55-862Z`, `...06-46-12-624Z`; `test/scenarios/v28-46-recap.json`): an authored `recap` on
+  a visible transition shows on the player Overview (workspace Play page) under "Because of you" and in the narrative's
+  `consequences` section; after the chapter crossing the chapter two title card ("The Camp") carries "Because of you",
+  the authored line and "Reached The Campfire". The seal summary is a debug response (plumbing); the recap calls no model.
+- Observation for the owner: the crossing transition ("Reached The Campfire") is listed in the ENDED chapter's card,
+  because a ref's chapter is the chapter at the boundary's start (as built).
+- First run RED at `assert-player-clean` (`...06-33-17-402Z`): a harness false positive, the CR-U forbidden prefix
+  `[data-so^="chapter-"]` matched the player chapter card in `#chat`. Fixed in `scripts/debug/so-ui.mts`
+  (`[data-so^="chapter-"]:not([data-so^="chapter-card"])`); the planted DOM in `so-ui.test.mts` reads `:not(...)`; new
+  test "v2.8 plan 46 live: a chapter title card with its recap under a message sweeps clean, an author chapter row is
+  still caught" (fails on the parent). Both green runs used the fix.

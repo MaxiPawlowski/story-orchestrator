@@ -1,8 +1,46 @@
 import type { LifeAuthorView } from "@runtime/lifeSnapshot";
+import type { LabelAuthorRow } from "@engine/life/labels";
+import type { AxisStep } from "@engine/life/beats";
 
 const towardLabel = (toward: string, names: Record<string, string>) => (toward === "player" ? "the player" : names[toward] ?? toward);
 
+const WRITER_LABEL = { read: "the reader", checkpoint: "a checkpoint", author: "you" } as const;
+
 export type MeanwhileDecide = (id: string, status: "accepted" | "rejected") => void;
+
+const AxisWhy = ({ steps }: { steps: AxisStep[] | undefined }) => (steps?.length ? (
+  <details data-so="life-axis-why" className="ml-2">
+    <summary className="opacity-70">why this number</summary>
+    <ul className="list-none p-0 m-0">
+      {steps.map((step) => (
+        <li key={step.boundary} data-so="life-axis-step">
+          {step.from ?? "start"} → {step.to} <span className="opacity-70">(boundary {step.boundary}, message {step.messageId})</span>
+          {step.evidence ? <span> “{step.evidence}”</span> : null}
+        </li>
+      ))}
+    </ul>
+  </details>
+) : null);
+
+const Labels = ({ rows, names }: { rows: LabelAuthorRow[]; names: Record<string, string> }) => (rows.length ? (
+  <ul data-so="life-labels" className="list-none p-0 m-0">
+    {rows.map((row) => (
+      <li key={row.toward} data-so="life-label" data-toward={row.toward}>
+        <div>labels toward {towardLabel(row.toward, names)}: {row.shown ? <span>shown “{row.shown}”</span> : <span className="opacity-70">no public label holds</span>}</div>
+        {row.public.map((label, at) => (
+          <div key={at} data-so="life-label-public" data-holds={label.holds} className="ml-2 opacity-80">
+            public “{label.label}” {label.gate ? `when ${label.gate}` : "always"}{label.follows ? " · follows the feeling" : ""}{label.hold ? ` · hold ${label.hold}` : ""}
+          </div>
+        ))}
+        {row.secrets.map((secret) => (
+          <div key={secret.id} data-so="life-label-secret" data-revealed={secret.boundary !== null} className="ml-2 opacity-80">
+            secret “{secret.label}” when {secret.gate} · {secret.boundary === null ? "not revealed" : `revealed at boundary ${secret.boundary}, message ${secret.messageId ?? "?"}`}
+          </div>
+        ))}
+      </li>
+    ))}
+  </ul>
+) : null);
 
 export const CharacterLifePanel = ({ life, onDecide }: { life: LifeAuthorView; onDecide?: MeanwhileDecide }) => {
   const names = Object.fromEntries(life.rows.map((row) => [row.id, row.name]));
@@ -11,6 +49,16 @@ export const CharacterLifePanel = ({ life, onDecide }: { life: LifeAuthorView; o
   return (
     <section id="so-character-life" aria-label="Character life" className="mt-3 text-xs">
       <div className="font-medium mb-1">Character life</div>
+      {life.clock ? (
+        <div data-so="life-clock" className="mb-2">
+          Story time: {life.clock.label} <span className="opacity-70">(story_time {life.clock.time})</span>
+          {life.clock.move ? (
+            <span data-so="life-clock-move" className="opacity-70">
+              {" "}· moved {life.clock.move.from} → {life.clock.move.to} by {WRITER_LABEL[life.clock.move.writer]} at message {life.clock.move.messageId}, boundary {life.clock.move.boundary}
+            </span>
+          ) : null}
+        </div>
+      ) : null}
       {life.rows.map((row) => (
         <div key={row.id} data-so="life-member" data-member={row.id} className="mb-2">
           <div className="font-medium">
@@ -23,10 +71,12 @@ export const CharacterLifePanel = ({ life, onDecide }: { life: LifeAuthorView; o
               {row.relationships.map((axis) => (
                 <li key={axis.key} data-so="life-axis" data-key={axis.key}>
                   {axis.axis} toward {towardLabel(axis.toward, names)}: {axis.value} <span className="opacity-70">({axis.range[0]} to {axis.range[1]})</span>
+                  <AxisWhy steps={life.history?.[axis.key]} />
                 </li>
               ))}
             </ul>
           )}
+          <Labels rows={(life.labels ?? []).filter((label) => label.member === row.id)} names={names} />
           {row.agendas.map((agenda) => (
             <div key={agenda.id} data-so="life-agenda" data-agenda={agenda.id}>
               {agenda.goal}: {agenda.done} of {agenda.of}

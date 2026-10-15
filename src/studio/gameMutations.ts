@@ -1,5 +1,5 @@
-import type { CodexEntry, CodexPage, Faction, Milestone, QualityDisplay, Quest, RosterMember, StoryCheck, StoryCodex, StoryWidget } from "@engine/index";
-import type { StoryClock } from "@engine/lifeSchema";
+import type { CodexEntry, CodexPage, Faction, Milestone, QualityDisplay, Quest, RelationshipDecl, RosterMember, StoryCheck, StoryCodex, StoryWidget } from "@engine/index";
+import type { CalendarInput, StoryClock } from "@engine/lifeSchema";
 import type { StoryDraft } from "./draft";
 import { nextId, updateCheckpoint, updateQuality, updateTransition } from "./mutations";
 
@@ -92,6 +92,22 @@ export const setCharacterLife = (draft: StoryDraft, id: string, life: CharacterL
   }),
 });
 
+type RelationshipLabels = Pick<RelationshipDecl, "public" | "secret">;
+
+const withLabels = (relationship: RelationshipDecl, labels: RelationshipLabels): RelationshipDecl => {
+  const rest: RelationshipDecl = { ...relationship };
+  delete rest.public;
+  delete rest.secret;
+  return { ...rest, ...(labels.public?.length ? { public: labels.public } : {}), ...(labels.secret?.length ? { secret: labels.secret } : {}) };
+};
+
+export const setRelationshipLabels = (draft: StoryDraft, id: string, toward: string, labels: RelationshipLabels): StoryDraft => ({
+  ...draft,
+  roster: draft.roster.map((member) => (member.id !== id ? member : {
+    ...member, relationships: (member.relationships ?? []).map((relationship) => (relationship.toward === toward ? withLabels(relationship, labels) : relationship)),
+  })),
+});
+
 export const newFaction = (id: string): Faction => ({
   id, name: id, range: [-5, 5], start: 0, bands: [{ max: -2, label: "Hostile" }, { max: 1, label: "Neutral" }, { label: "Trusted" }], moves: [],
 });
@@ -130,7 +146,9 @@ export const setMemberFactions = (draft: StoryDraft, memberId: string, factions:
   }),
 });
 
-export const setClock = (draft: StoryDraft, clock: StoryClock | undefined): StoryDraft => (clock ? { ...draft, clock } : without(draft, "clock"));
+export const setClock = (draft: StoryDraft, clock: StoryClock | undefined): StoryDraft => (clock ? { ...draft, clock } : without(without(draft, "clock"), "calendar"));
+
+export const setCalendar = (draft: StoryDraft, calendar: CalendarInput | undefined): StoryDraft => (calendar ? { ...draft, calendar } : without(draft, "calendar"));
 
 export const setCodex = (draft: StoryDraft, codex: StoryCodex | undefined): StoryDraft => {
   const kept: StoryCodex = { ...(codex?.people?.length ? { people: codex.people } : {}), ...(codex?.places?.length ? { places: codex.places } : {}) };

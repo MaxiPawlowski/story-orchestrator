@@ -16,6 +16,8 @@ import { factionVisible, standingOf, standingView } from "@engine/factions/stand
 
 import { shownPlayerText } from "./stretchTurns";
 import { codexLogRows, composeCodex } from "./codexView";
+import { labelCodexSources, labelLogRows } from "./labelView";
+import { gameLayer } from "@engine/validate/gameLayer";
 
 export const LOG_LIMIT = 40;
 export const ACTION_CHARS = 140;
@@ -121,7 +123,7 @@ const actionRows = (chat: readonly unknown[], from: number, log: readonly Bounda
 const composeLog = (sources: GameSources): LogRowView[] => {
   const from = sources.boundaryLog[0]?.before.lastMessageId ?? -1;
   return [...sources.boundaryLog.flatMap((entry) => statusMoves(sources.story, entry)), ...checkRows(sources.story, sources.checks), ...actionRows(sources.chat, from, sources.boundaryLog),
-    ...codexLogRows(sources.story, sources.boundaryLog, sources.castNames)]
+    ...codexLogRows(sources.story, sources.boundaryLog, sources.castNames), ...labelLogRows(sources)]
     .sort((left, right) => right.at.messageId - left.at.messageId || right.at.boundary - left.at.boundary)
     .slice(0, LOG_LIMIT);
 };
@@ -192,7 +194,7 @@ const timelineBody = (widget: StoryWidget, story: NormalizedStoryV2, state: Engi
     const chapterId = story.chapterByCheckpoint?.[id];
     const chapter = chapterId ? story.chapterById?.[chapterId] : undefined;
     const title = chapter ? chapter.player_title ?? chapter.title : null;
-    const date = widget.dates?.[id];
+    const date = widget.dates?.[id] ?? gameLayer()?.life.reachedLabel(story, state.blackboard.values, id) ?? undefined;
     const stop = { name: story.checkpointById[id]?.player_name ?? "", ...(date ? { date } : {}), here: id === state.activeCheckpointId, fresh: Boolean(earlier && !earlier.has(id)) };
     const last = groups.at(-1);
     if (last && last.title === title) last.stops.push(stop);
@@ -327,7 +329,7 @@ export function composeGame(sources: GameSources): GameCompose {
   const log = kinds("log").length ? kinds("log") : fallback(synthesized("journal-log", "Log", { kind: "log", rows: parts.log }, still));
   const meters = kinds("meters");
   const statSheet = meters[0] ?? (parts.sheet.length ? synthesized("stat-sheet", "Stat sheet", { kind: "meters", groups: parts.sheet }, still) : null);
-  const codex = composeCodex({ story, state, castNames: sources.castNames, enabled: sources.enabled });
+  const codex = composeCodex({ story, state, castNames: sources.castNames, enabled: sources.enabled, ...labelCodexSources(sources) });
   const provenance = sources.authorView ? provenanceFor(story.widgets ?? [], [...authored, ...(statSheet?.synthesized ? [statSheet] : [])], sources) : {};
   return {
     player: {

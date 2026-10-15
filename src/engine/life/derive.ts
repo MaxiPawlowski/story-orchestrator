@@ -1,11 +1,12 @@
 import { evaluateGate } from "../gates";
 import {
-  CLOCK_DAY_KEY, CLOCK_SEEN_KEY, CLOCK_TIME_KEY, PARTY_LOCATION_KEY, TURN_OOC_KEY, agendaChapterKey, agendaRepeatsKey, agendaStepKey, agendaWaitKey,
+  CLOCK_TIME_KEY, PARTY_LOCATION_KEY, TURN_OOC_KEY, agendaChapterKey, agendaRepeatsKey, agendaStepKey, agendaWaitKey,
   moodAgeKey, moodKey, moodSceneKey, moodWasKey,
-  type Agenda, type AgendaStep, type LifeMember, type NormalizedStoryV2, type PrimitiveValue, type StoryClock,
+  type Agenda, type AgendaStep, type LifeMember, type NormalizedStoryV2, type PrimitiveValue,
 } from "../schema";
 import type { DerivedQualityView } from "../engine";
 import { latestPlayerLineIsOoc } from "../ooc";
+import { clockWrites } from "./clock";
 
 type Write = { q: string; v: PrimitiveValue };
 type Values = Readonly<Record<string, PrimitiveValue>>;
@@ -44,15 +45,6 @@ const moodWrites = (member: LifeMember, values: Values, versions: Values): Write
   return [{ q: moodAgeKey(member.id), v: num(values[moodAgeKey(member.id)]) + 1 }];
 };
 
-const clockWrites = (clock: StoryClock, values: Values): Write[] => {
-  const day = values[CLOCK_DAY_KEY] === undefined ? [{ q: CLOCK_DAY_KEY, v: clock.start_day ?? 1 }] : [];
-  const time = values[CLOCK_TIME_KEY];
-  const seen = values[CLOCK_SEEN_KEY];
-  if (typeof time !== "string" || time === seen) return day;
-  const wrapped = typeof seen === "string" && clock.times.indexOf(time) <= clock.times.indexOf(seen);
-  const today = num(values[CLOCK_DAY_KEY] ?? clock.start_day ?? 1);
-  return [{ q: CLOCK_SEEN_KEY, v: time }, { q: CLOCK_DAY_KEY, v: wrapped ? today + 1 : today }];
-};
 
 export const deriveLife = (story: NormalizedStoryV2, view: DerivedQualityView, chat: readonly unknown[]): Write[] => {
   const life = story.life;
@@ -67,6 +59,6 @@ export const deriveLife = (story: NormalizedStoryV2, view: DerivedQualityView, c
       ...member.agenda.flatMap((agenda) => agendaWrites(member.id, agenda, values, chapter, ooc)),
       ...moodWrites(member, values, versions),
     ]),
-    ...(life.clock ? clockWrites(life.clock, values) : []),
+    ...(life.clock ? clockWrites(life.clock, life.calendar, view) : []),
   ];
 };

@@ -12,7 +12,8 @@ const everyCompiler = (): Record<string, unknown> => {
     ...raw,
     clock: { times: ["morning", "evening", "night"] },
     roster: [
-      { id: "tom", name: "Tom", mood: { baseline: "calm", values: ["calm", "angry"] }, relationships: [{ toward: "player", axes: ["trust"] }],
+      { id: "tom", name: "Tom", mood: { baseline: "calm", values: ["calm", "angry"] }, relationships: [{ toward: "player", axes: ["trust"], public: [{ label: "wary" }, { label: "open", when: { q: "rel_tom_player_trust", op: ">=", v: 2 }, follows_feeling: true, hold: 2 }],
+          secret: [{ id: "loyal", label: "secretly loyal", revealed_when: is("saw_mill") }] }],
         agenda: [{ id: "plan", goal: "Leave", pace: "per_n_boundaries", every: 2, steps: [{ text: "packs" }, { text: "waits", repeat: true }] }] },
       { id: "ada", name: "Ada" },
     ],
@@ -32,6 +33,8 @@ describe("SC1: every compiled code key has a rollback check", () => {
     expect(compiled.some((key) => key.startsWith("codex_"))).toBe(true);
     expect(compiled.some((key) => key.startsWith("quest_"))).toBe(true);
     expect(compiled.some((key) => key.startsWith("agenda_"))).toBe(true);
+    expect(compiled.some((key) => key.startsWith("life_reveal_"))).toBe(true);
+    expect(compiled.some((key) => key.startsWith("life_label_"))).toBe(true);
     expect(uncoveredCodeKeys(story, authoredKeys(raw))).toEqual([]);
   });
 

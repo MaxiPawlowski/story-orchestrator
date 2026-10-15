@@ -1,5 +1,5 @@
 import {
-  QUEST_CLOSED_VALUES, questClosedKey, questRewardKey,
+  QUEST_CLOSED_VALUES, isStoryTimeKey, questClosedKey, questRewardKey,
   type GateNode, type Milestone, type Quality, type Quest, type QuestProgress, type QuestReward, type QuestStep, type ValidationError,
 } from "../schema";
 import { evaluateGate, gateKeys } from "../gates";
@@ -236,6 +236,7 @@ const checkRewardSet = (quest: Quest, path: string, qualityByKey: Record<string,
     const quality = qualityByKey[key];
     const at = `${path}.reward.set.${key}`;
     if (!quality || quality.source !== "code") return addError(errors, at, "a reward writes only a declared code quality");
+    if (isStoryTimeKey(key)) return addError(errors, at, "a reward never moves the story clock: give a checkpoint effects.time");
     if (typeof write !== "object") validateLiteral(quality, write, at, errors);
     else if (quality.type !== "int" && quality.type !== "float") addError(errors, at, "add needs an int or float");
   });
@@ -251,7 +252,7 @@ const checkQuest = (quest: Quest, index: number, qualityByKey: Record<string, Qu
   }
   if (quest.reward && evaluateGate(quest.done_when, EMPTY)) addError(errors, `${path}.reward`, "this quest is done before anything happens, so its reward would land at once");
   if (quest.offered_when && !quest.visible_when) addError(errors, `${path}.visible_when`, "an offered quest needs visible_when: the moment the player takes it on");
-  if (quest.offered_when && quest.failed_when && gateKeys(quest.failed_when).every((key) => TIME_KEYS.includes(key))) {
+  if (quest.offered_when && quest.failed_when && gateKeys(quest.failed_when).every((key) => TIME_KEYS.includes(key) || isStoryTimeKey(key))) {
     addError(errors, `${path}.failed_when`, "an offered quest never fails on time alone");
   }
   if (quest.giver && !rosterIds.has(quest.giver)) addError(errors, `${path}.giver`, `'${quest.giver}' is not a roster id`);
