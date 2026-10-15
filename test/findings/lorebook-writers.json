@@ -37,9 +37,9 @@
     "src/runtime/memoryMirror.ts#ensureLorebook": { "guard": "mirror-ownership", "evidence": [{ "text": "mirrorLorebookName(input.title, chatId)" }] },
     "src/runtime/memoryMirror.ts#unbindChatLorebook": { "guard": "mirror-ownership", "evidence": [{ "text": "ensured.name" }] },
     "src/runtime/memoryMirror.ts#upsertWIEntry": { "guard": "mirror-ownership", "evidence": [{ "text": "ensured.name" }, { "text": "owner?.chatId === chatId" }] },
-    "src/runtime/mirrorReaper.ts#deleteLorebook": { "guard": "reaper-confirm", "evidence": [{ "text": "parseOwnerMarker(" }, { "text": "presence !== \"absent\"" }, { "text": "answer !== \"confirmed\"" }] },
-    "src/runtime/mirrorReaperHost.ts#deleteLorebook": { "guard": "host-port", "evidence": [{ "text": "new MirrorReaper(" }], "note": "consumer: mirrorReaper.ts" },
-    "src/runtime/mirrorReaperHost.ts#deleteWIEntryAt": { "guard": "created-stamp", "evidence": [{ "text": "new CreatedEntryReaper(" }, { "file": "src/runtime/createdReaper.ts", "text": "stampedFor(live.content, id)" }, { "file": "src/runtime/createdReaper.ts", "text": "answer !== \"confirmed\"" }] },
+    "src/runtime/mirrorReaperCore.ts#deleteLorebook": { "guard": "reaper-confirm", "evidence": [{ "text": "parseOwnerMarker(" }, { "text": "presence !== \"absent\"" }, { "text": "answer !== \"confirmed\"" }] },
+    "src/runtime/mirrorReaperUnit.ts#deleteLorebook": { "guard": "host-port", "evidence": [{ "text": "new MirrorReaper(" }], "note": "consumer: mirrorReaperCore.ts" },
+    "src/runtime/mirrorReaperUnit.ts#deleteWIEntryAt": { "guard": "created-stamp", "evidence": [{ "text": "new CreatedEntryReaper(" }, { "file": "src/runtime/createdReaper.ts", "text": "stampedFor(live.content, id)" }, { "file": "src/runtime/createdReaper.ts", "text": "answer !== \"confirmed\"" }] },
     "src/runtime/storyLoreHost.ts#deactivateGlobalLorebook": { "guard": "selection-confirm", "evidence": [{ "text": "showConfirmPopup(" }, { "text": "globalStoryLore()" }] },
     "src/runtime/wiring/lore.ts#forceActivateEntries": { "guard": "scan-only", "evidence": [{ "text": "new LoreSelector(" }] },
     "src/runtime/worldInfoScanHost.ts#setLorebookEntriesDisabled": { "guard": "normaliser", "evidence": [{ "text": "createWiGating(" }, { "file": "src/runtime/worldInfoGating.ts", "text": "normalized" }] }

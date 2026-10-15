@@ -18,8 +18,8 @@ import { beginRun, type RunGuard, type RunOwnership, type RunToken } from "../ru
 import type { ChatHost, CuratorWiHost, PlayerHost, PromptHost } from "../hostPorts";
 import type { StagecraftRuntimeState } from "../types";
 import type { EstablishedFact } from "../continuity";
-import { CuratorWriter, createdEntryOf } from "../curatorWriter";
-import { LoreCreator, type LoreCreateOutcome, type LoreCreatorDeps } from "../loreCreator";
+import type { LoreCreateOutcome, LoreCreatorDeps } from "../loreCreator";
+import type { StagecraftKit } from "../stagecraftKit";
 import { withholds } from "../generationLifecycle";
 import { log } from "@utils/log";
 
@@ -105,20 +105,15 @@ export class StagecraftCoordinator {
   private noteActive = false;
   private carriedNote: { recordId: string; indices: number[] } | null = null;
   private applying: Promise<unknown> = Promise.resolve();
-  private readonly writer: CuratorWriter;
-  private readonly creator: LoreCreator;
+  private kitLoad: Promise<StagecraftKit> | null = null;
 
-  constructor(private readonly deps: StagecraftCoordinatorDeps) {
-    this.writer = new CuratorWriter({
-      getStory: () => deps.getStory(), state: () => this.state, patch: (next) => this.patch(next), updateOps: (id, update) => this.updateOps(id, update),
-      save: () => this.save(), journal: (summary) => deps.journal(summary), ownership: () => deps.ownership, host: () => deps.hosts.curator,
-      ...(deps.chatOwner ? { owner: deps.chatOwner } : {}),
-    });
-    this.creator = new LoreCreator({
-      getStory: deps.getStory, getState: deps.getState, state: () => this.state, patch: (next) => this.patch(next), save: () => this.save(),
-      journal: deps.journal, ownership: () => deps.ownership, model: deps.model, getCanon: deps.getCanon, getOpenArcs: deps.getOpenArcs,
-      host: () => deps.hosts.curator, uniqueId: (base) => uniqueRecordId(base, this.state.proposals), ...(deps.lore ? { lore: deps.lore } : {}),
-    });
+  constructor(private readonly deps: StagecraftCoordinatorDeps) {}
+
+  private kit(): Promise<StagecraftKit> {
+    return (this.kitLoad ??= import("../stagecraftKit").then(({ stagecraftKit }) => stagecraftKit(this.deps, {
+      state: () => this.state, patch: (next) => this.patch(next), updateOps: (id, update) => this.updateOps(id, update), save: () => this.save(),
+      uniqueId: (base) => uniqueRecordId(base, this.state.proposals),
+    })));
   }
 
   /** A pass holds the coordinator only while its own world is still open — a slow pass started
@@ -260,7 +255,7 @@ export class StagecraftCoordinator {
   }
 
   runCreatePass(reason = "curator", debugResponse?: string): Promise<LoreCreateOutcome> {
-    return this.creator.run(reason, debugResponse);
+    return this.kit().then((kit) => kit.creator.run(reason, debugResponse));
   }
 
   getProposals(): CuratorProposalRecord[] {
@@ -314,6 +309,7 @@ export class StagecraftCoordinator {
   private async applyInTurn(run: RunGuard): Promise<number> {
     const story = this.deps.getStory();
     if (!story || !this.state.proposals.some((record) => acceptedOps(record).length)) return 0;
+    const kit = await this.kit();
     if (run.lapsed()) return 0;
     const messageId = this.deps.getState()?.lastMessageId ?? -1;
     const cap = createCapFor(story);
@@ -333,10 +329,10 @@ export class StagecraftCoordinator {
           ops.push({ ...entry, status: "failed", message: capRefusal(cap) });
           continue;
         }
-        const result = await this.writer.writeOp(story, entry, run, messageId, async (pending) => this.writer.markWriteAhead(record.id, index, pending));
+        const result = await kit.writer.writeOp(story, entry, run, messageId, async (pending) => kit.writer.markWriteAhead(record.id, index, pending));
         if (result.lapsed) return applied;
         if (result.ok) applied += 1;
-        const row = result.ok ? createdEntryOf(record, result.record, new Date().toISOString()) : null;
+        const row = result.ok ? kit.createdEntryOf(record, result.record, new Date().toISOString()) : null;
         if (row) created.push(row);
         ops.push(result.record);
       }
@@ -351,10 +347,11 @@ export class StagecraftCoordinator {
     return applied;
   }
 
-  reconcileWriteAhead(): Promise<WriteAheadCounts> { return this.writer.reconcileWriteAhead(); }
+  reconcileWriteAhead(): Promise<WriteAheadCounts> { return this.kit().then((kit) => kit.writer.reconcileWriteAhead()); }
 
   revertAppliedSince(messageId: number): Promise<number> {
-    return this.writer.revertAppliedSince(messageId, this.settleNotes((op) => op.replyMessageId >= messageId, "reverted"));
+    const withdrawn = this.settleNotes((op) => op.replyMessageId >= messageId, "reverted");
+    return this.kit().then((kit) => kit.writer.revertAppliedSince(messageId, withdrawn));
   }
 
   // Fire-and-forget after a committed character reply, never a scheduler job. The judge

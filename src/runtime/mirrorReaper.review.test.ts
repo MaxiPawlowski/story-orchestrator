@@ -3,9 +3,10 @@ import { join } from "path";
 import type { ChatOwner, ChatPresence, ConfirmAnswer } from "@services/STAPI";
 import { couldNot, wrote } from "@utils/writeResult";
 import {
-  deletedChatLabel, lifetimeOwnership, MirrorReaper, OrphanRegistry, ownerMarkerContent, parseOwnerMarker, reapCandidates, reapDecisions, reapQuestion, ReapLog, type MirrorReaperDeps,
+  deletedChatLabel, lifetimeOwnership, OrphanRegistry, ownerMarkerContent, parseOwnerMarker, reapCandidates, reapDecisions, reapQuestion, ReapLog,
 } from "./mirrorReaper";
 import { mirrorLorebookName } from "./memoryMirror";
+import { MirrorReaper, type MirrorReaperDeps } from "./mirrorReaperCore";
 import { beginRun } from "./runToken";
 import { testOwnership } from "../../test/findings/testOwnership";
 
