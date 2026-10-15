@@ -639,7 +639,6 @@ Gates:
   was ported. Measurements, goldens and the Storybook before/after (`Sprites/LiveHeadGaze`) are in plan 41 §Gate record — extras.
 - Not run: LI rows or a browser check on real or amber/slate/ember rigs; listed under plan 41 Ready to run. Floors LI1-LI6 unchanged.
 
-<<<<<<< HEAD
 ## Gate record 2026-10-15 (gaze iris on real art)
 
 - Reproduced headless on the showcase rigs (Garrick, Wren, Pim; sol and plan36 manifests): CPU `renderOpenBall` composite of base, ball and lid layers, 8x crops, not committed.
@@ -658,7 +657,7 @@ Gates:
   - `npm run gates -- --jobs=2 --skip=test-storybook:ci`: every step green across runs. Timing flakes, each retried once: `consequences.test.ts` C6 (p95 <= 5 ms under parallel load; green alone and in an earlier full run), harness `agent.test.mjs` "stalled OpenCode service" (15 s deadline under load; `npm run test:plugin` alone 311/311).
   - Storybook by hand (the `test-storybook:ci` script pins port 6006): `storybook:build`, `http-server .sb-static -p 6371`, test runner 854/855; the one miss `Workspace/Shell > Mobile` (unrelated, heading not found) passed on re-run together with the Gaze, BaseSpriteBuilder and PreparedCast stories.
   - Main bundle 1,290,510 B (budget 1,300,000).
-=======
+
 ## Gate record: 3090 block 2026-10-14, neutral drawn frames and LI1 (LIST)
 
 - Worktree `C:\dev\so-gpu-block`, branch `v2.8-gpu-block-2026-10-14` (master `35a9267e`, later fast-forwarded to `9aead40b`). Build served to the lane page as a candidate: a scratch Playwright holder kept a context route on the worktree `dist/` for the whole run. Nothing was staged into the owner's ST. Plugins were installed by the coordinator with the owner's OK, and lanes were restarted after it. Lanes: 31 (showcase) and 30 (LI rows, which the driver pins). No model, Sol or DeepSeek call.
@@ -681,4 +680,3 @@ Gates:
   - run `gpublock3` (`--row LI1`, 21:45 local, CPU about 31 %, no GPU job running): LI1 PASS. 3,622 frames, max 25.1 ms, 0 drops.
   - LI1 tally on this desktop: 2 PASS, 1 FAIL. The FAIL came on a busy machine. Still not LI1 acceptance: that needs the named mid laptop.
   - LI3 (9/9), LI4 (6/6) and LI6 (6/6) PASS in both completed `--row all` runs.
->>>>>>> v2.8-gpu-block-2026-10-14

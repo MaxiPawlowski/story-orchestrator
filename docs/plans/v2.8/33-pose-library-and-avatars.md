@@ -584,7 +584,6 @@ Real runs (3090, owner go-ahead):
    - About 30 min of wall time per run, about 60 min for ×2.
 4. No Sol call is made; the cards come from provisioning ops.
 
-<<<<<<< HEAD
 ## Gate record 2026-10-15 (image defects from the 3090 run)
 
 - Root cause of the latency run's "GPU broker did not release the image lease" and the 1/12 pose coverage: `ResidencyScheduler.releaseOwned` threw on any cleanup error after the queue drained (cache reclamation other than an admission refusal, snapshot, footprint write), so `lease` stayed set. Every later `/lease` got 409 "already owns", and the 120 s backstop re-ran the same throwing path, so the lease was never freed. The page batch also kept the dead lease and failed every next image.
@@ -598,7 +597,7 @@ Real runs (3090, owner go-ahead):
   - `npm run gates -- --jobs=2 --skip=test-storybook:ci`: every step green across runs. Timing flakes, each retried once: `consequences.test.ts` C6 (p95 <= 5 ms under parallel load; green alone and in an earlier full run), harness `agent.test.mjs` "stalled OpenCode service" (15 s deadline under load; `npm run test:plugin` alone 311/311).
   - Storybook by hand (the `test-storybook:ci` script pins port 6006): `storybook:build`, `http-server .sb-static -p 6371`, test runner 854/855; the one miss `Workspace/Shell > Mobile` (unrelated, heading not found) passed on re-run together with the Gaze, BaseSpriteBuilder and PreparedCast stories.
   - Main bundle 1,290,510 B (budget 1,300,000).
-=======
+
 ## Gate record: acceptance latency pair on the 3090, 2026-10-14 (LIST)
 
 - Worktree `C:\dev\so-gpu-block` at `9aead40b` (master with the plan 41 live-head gap fix), served with `--candidate` (bundle `080054b70410`). Lane 33 was seeded fresh, `image-harness.json` was written (Qwen 2.1 int8 edit models, `birefnet_toonout`), and it was started `--allow-local --headed`. ST `max_context` was set to 32768 in the lane copy before start. Artemis and ComfyUI went through the controller (`automatic`). Main and extraction were on the local Artemis profiles; no DeepSeek or Sol call. No jest or gates run of mine during the arms. CPU load was 19 % (run 1) and 15 % (run 2) at start, but other agents' work raised it to 92-100 % during run 2.
@@ -620,4 +619,3 @@ Real runs (3090, owner go-ahead):
   - The `cleanup` command misses leftovers from an aborted run (leaked 0 while 13 assets remained).
   - Callers need a wrapper timeout of at least 90 min per run.
 - GPU minutes: run 1 about 50 (killed), run 2 about 75.
->>>>>>> v2.8-gpu-block-2026-10-14

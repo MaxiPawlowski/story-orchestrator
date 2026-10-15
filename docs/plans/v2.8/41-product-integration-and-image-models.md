@@ -907,7 +907,6 @@ From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licen
   goldens: share of director tags absent from the tag list, and whether canonicalising (alias → canonical, drop unknown)
   changes a blind pick. Build only if the unknown share is above 20 %. LI tier, informational.
 
-<<<<<<< HEAD
 ## Gate record 2026-10-15 (image defects; p41 run 2 review)
 
 - Reference views: `f858a160` cherry-picked (`db29a6bf`). Audit of every fresh-save path into a manifest: `publishVisualLook`, `visualPreparation` and `lookRebuild` already used `servedAsset`; `publishLookBust` and `withReferencePack` now normalise at the manifest edge (`19d99be7`); the tests fail on the old code.
@@ -924,7 +923,7 @@ From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licen
   - Storybook by hand (the `test-storybook:ci` script pins port 6006): `storybook:build`, `http-server .sb-static -p 6371`, test runner 854/855; the one miss `Workspace/Shell > Mobile` (unrelated, heading not found) passed on re-run together with the Gaze, BaseSpriteBuilder and PreparedCast stories.
   - Main bundle 1,290,510 B (budget 1,300,000).
 - Needs a GPU re-check: the p41 journey with art-bearing cards; the two-member cast scene and the p2 pose second reference on the installed ComfyUI.
-=======
+
 ## Gate record: §5 journey x2 on the 3090, 2026-10-14/15 (LIST)
 
 - Lane 33 (seeded fresh 2026-10-14, `--allow-local --headed`, `max_context` 32768, `image-harness.json` with Qwen 2.1 int8 + `birefnet_toonout`). Build served as a candidate: worktree `9aead40b` (the live-head gap fix) plus `f858a160` (reference-pack served path). Controller `automatic` (Artemis + ComfyUI). Wizard on the default authoring route, opencode `openai/gpt-6.1-sol`. Started after 22:45 local, when the Sol quota reset. Wrapper timeout 5,400 s.
@@ -946,4 +945,3 @@ From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licen
 - Floors (predeclared 2026-10-14): not met. Run 1 incomplete, run 2 NOT GREEN. No floor changed.
 - Post-fix shakedown: the broker fix (`c49b7995`, cherry-picked here as `ed687cdc`) was built and the plugins reinstalled from this worktree. The shakedown journey did NOT run: the local controller (pre-fix code) was serving another lane's text suite (port 8141) and refused to stop with active work. Owed: one `so-p41-journey.mts run 1 --authoring claude --candidate` after a controller restart on the fixed code.
 - GPU minutes: run 1 about 90 (mostly waits with the GPU idle on the stuck lease), run 2 about 75.
->>>>>>> v2.8-gpu-block-2026-10-14
