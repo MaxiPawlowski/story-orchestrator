@@ -1,4 +1,4 @@
-import type { CarryState } from "@engine/index";
+import type { CarryState } from "@engine/carrySchema";
 import type { CarryView } from "@runtime/carryPort";
 
 export const carryState = (patch: Partial<CarryState> = {}): CarryState => ({
@@ -10,6 +10,7 @@ export const carryState = (patch: Partial<CarryState> = {}): CarryState => ({
     { from: "rep_guild", key: "guild_trust", as: "state", value: 3, label: "The Lamplighters: Trusted", knownBy: [] },
   ],
   previously: "\"The Lantern Coast\" ended with \"The Last Lantern\". You relit the Lantern Coast. The last lantern burned over the water.",
+  block: "Previously: The Lantern Coast ended.",
   ...patch,
 });
 

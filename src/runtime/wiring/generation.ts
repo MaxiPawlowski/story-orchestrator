@@ -25,7 +25,7 @@ import { roleDefaultFrom, setRoleDefault } from "../passProfiles";
 import { modelCallLog } from "../modelCallLog";
 import { spikeSeams } from "../spikeSeams";
 import { awayNoticeLine, createAwayNotice } from "../awayNotice";
-import { createPreviouslyNotice, previouslyBlock } from "../carryPort";
+import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { residueTags, settledOnReply } from "../emptyReply";
 import type { LoreWiring } from "./lore";
 import type { Disposers, LiveParts } from "./types";
@@ -36,11 +36,14 @@ const awayNotice = createAwayNotice({
   clear: clearStoryExtensionPrompt,
 });
 
-const previously = createPreviouslyNotice({
-  block: () => previouslyBlock(runtimeManager.getCachedSnapshot().carry ?? null),
+const previously = createAwayNotice({
+  line: () => {
+    const carry = runtimeManager.getCachedSnapshot().carry;
+    return carry?.active ? carry.state?.block ?? null : null;
+  },
   set: setStoryExtensionPrompt,
   clear: clearStoryExtensionPrompt,
-});
+}, INJECTION_REGISTRY.previously);
 
 type IntentOf<K extends GenerationIntent["kind"]> = Extract<GenerationIntent, { kind: K }>;
 

@@ -1,11 +1,13 @@
+import { factionBand, questClosedKey, standingKey, type ValidationError, type NormalizedStoryV2, type PrimitiveValue } from "./schema";
 import {
-  PREVIOUSLY_BOUNDARIES, factionBand, isHeritageKey, questClosedKey, standingKey,
-  type CarryMapEntry, type CarryOutcomeLine, type CarryProjection, type CarryState, type CarryValue, type NormalizedStoryV2, type OutcomeKey, type PrimitiveValue,
-} from "./schema";
+  PREVIOUSLY_BOUNDARIES, isCarryState, isHeritageKey, type CarrySlice, type CarryView, type CarryMapEntry, type CarryOutcomeLine, type CarryProjection, type CarryState,
+  type CarryValue, type OutcomeKey,
+} from "./carrySchema";
 import { qualityAccepts } from "./blackboard";
 import { evaluateGate } from "./gates";
 import { valueReader } from "./quests";
-import { outcomeKind, progressKeys } from "./validate/carry";
+import { checkCarryPair, outcomeKind, progressKeys } from "./validate/carry";
+import { parseStoryV2 } from "./validate";
 
 type Values = Readonly<Record<string, unknown>>;
 type OutcomeStory = Pick<NormalizedStoryV2, "qualityByKey" | "quests" | "factions" | "outcome">;
@@ -103,8 +105,31 @@ export const carrySeed = (story: TargetStory, carry: CarryState): { seed: Record
   return { seed: Object.fromEntries(kept.map((value) => [value.key, value.value])), kept, dropped };
 };
 
-export const carryKnownLines = (carry: CarryState | null | undefined, rosterId: string): string[] =>
-  (carry?.values ?? []).filter((value) => value.knownBy.includes(rosterId)).map((value) => `- From an earlier story, you know: ${value.label}`);
+export const startSeed = (story: TargetStory, slice: CarrySlice | undefined) => {
+  if (!isCarryState(slice)) return null;
+  const result = carrySeed(story, slice);
+  return { ...result, carry: result.dropped.length ? { ...slice, values: result.kept } : slice };
+};
+
+export const importCarryErrors = (parsed: NormalizedStoryV2, id: string, rawOf: (storyId: string) => unknown): ValidationError[] => {
+  const from = parsed.carry_from?.story;
+  const raw = from && from !== id ? rawOf(from) : undefined;
+  const source = from === id ? { ...parsed, id } : raw === undefined ? null : parseStoryV2(raw);
+  return source && !Array.isArray(source) ? checkCarryPair(source, parsed, "import") : [];
+};
+
+export const carryKnownLines = (carry: CarrySlice | null | undefined, rosterId: string): string[] =>
+  (isCarryState(carry) ? carry.values : []).filter((value) => value.knownBy.includes(rosterId)).map((value) => `- From an earlier story, you know: ${value.label}`);
+
+export const carryView = (story: TargetStory, slice: CarrySlice | undefined, boundary: number, sealed: number): CarryView | null => {
+  const from = story.carry_from;
+  if (!from) return null;
+  const state = isCarryState(slice) ? slice : null;
+  return {
+    story: from.story, mode: from.mode, required: from.default === "require", pending: !slice, canPick: boundary === 0, state,
+    active: previouslyActive(state, boundary, sealed),
+  };
+};
 
 export const previouslyActive = (carry: CarryState | null | undefined, boundary: number, sealedChapters: number): boolean =>
   Boolean(carry?.previously && !carry.dismissed && boundary < PREVIOUSLY_BOUNDARIES && sealedChapters === 0);

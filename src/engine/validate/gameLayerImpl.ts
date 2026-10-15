@@ -16,8 +16,8 @@ import * as poses from "./poses";
 import { validateCardLayers } from "./cardLayers";
 import { addCodexQualities, checkCodex, readCodex } from "./codex";
 import { codexLatches, codexScopeUnits, unknownCodexNames } from "../codex";
-import { checkCarryPair, readCarry } from "./carry";
-import { carryKnownLines, carrySeed, previouslyActive, publicOutcome } from "../carry";
+import { readCarry } from "./carry";
+import { carryKnownLines, carryView, importCarryErrors, startSeed } from "../carry";
 import { reachedLabel, storyTimeRow, timeEntry } from "../life/clock";
 
 const LIFE = {
@@ -31,7 +31,7 @@ const FACTIONS = {
   readFactions, addFactionQualities, checkFactions, factionsMoved, factionMemberLines, factionDirectorLines, standingView, factionAuthorRows, factionScopeUnits,
 };
 
-const CARRY = { readCarry, checkCarryPair, publicOutcome, carrySeed, carryKnownLines, previouslyActive };
+const CARRY = { readCarry, importCarryErrors, startSeed, carryKnownLines, carryView };
 
 const LATCH_WRITERS = [codexLatches, factionLatches] as const;
 

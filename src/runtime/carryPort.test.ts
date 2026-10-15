@@ -1,12 +1,13 @@
 import { readFileSync } from "fs";
+import { PREVIOUSLY_BOUNDARIES, type CarryState } from "@engine/carrySchema";
 import { join } from "path";
-import { parseStoryV2OrThrow, PREVIOUSLY_BOUNDARIES, type CarryState } from "@engine/index";
+import { parseStoryV2OrThrow } from "@engine/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
-import { carryKnown, carrySlice, carryStartSeed, createPreviouslyNotice, previouslyBlock, PREVIOUSLY_HEADER } from "./carryPort";
+import { carrySlice, carryStartSeed, type CarryView } from "./carryPort";
+import { carryKnownLines } from "@engine/carry";
+import { createAwayNotice } from "./awayNotice";
 import { createExtras, restartCarry, restartedExtras } from "./extras";
 import { defaultGlobalSettings } from "./settingsModel";
-import { CARRY_REQUIRED_CHECK } from "./checksGame";
-import type { RuntimeSnapshot } from "./types";
 
 const raw = () => JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/carry-sequel.story.json"), "utf8")) as Record<string, unknown>;
 const SEQUEL = parseStoryV2OrThrow(raw());
@@ -14,6 +15,7 @@ const settings = () => defaultGlobalSettings();
 
 const carry = (patch: Partial<CarryState> = {}): CarryState => ({
   fromChat: "a", fromStory: "ngp-source", sourceStoryHash: "h", mode: "sequel", createdAt: "t", previously: "\"The Lantern Coast\" ended with \"The Last Lantern\".",
+  block: "Previously: \"The Lantern Coast\" ended with \"The Last Lantern\".",
   projection: { storyTitle: "The Lantern Coast", endingTitle: "The Last Lantern", outcome: [], lines: [] },
   values: [
     { from: "coast_fate", key: "heritage_coast", as: "heritage", value: "lit", label: "You relit the Lantern Coast.", knownBy: ["mara"] },
@@ -30,23 +32,25 @@ const extrasWith = (slice?: CarryState, chapters = 0) => {
   return extras;
 };
 
+const previouslyBlock = (view: CarryView | null): string | null => (view?.active ? view.state?.block ?? null : null);
+
 describe("v2.8 plan 45 N5: the Previously block has a bounded life", () => {
   it("is present until the first of: the first seal, 12 boundaries, or dismiss", () => {
     const at = (boundary: number, slice = carry(), chapters = 0) => previouslyBlock(carrySlice(SEQUEL, extrasWith(slice, chapters), boundary));
-    for (let boundary = 0; boundary < PREVIOUSLY_BOUNDARIES; boundary += 1) expect(at(boundary)).toBe(`${PREVIOUSLY_HEADER}\n${carry().previously}`);
+    for (let boundary = 0; boundary < PREVIOUSLY_BOUNDARIES; boundary += 1) expect(at(boundary)).toBe(carry().block);
     expect(at(PREVIOUSLY_BOUNDARIES)).toBeNull();
     expect(at(3, carry(), 1)).toBeNull();
     expect(at(3, carry({ dismissed: true }))).toBeNull();
-    expect(at(0, carry({ previously: null }))).toBeNull();
+    expect(at(0, carry({ previously: null, block: null }))).toBeNull();
     const chapterless = parseStoryV2OrThrow({ ...raw(), chapters: undefined });
     expect(previouslyBlock(carrySlice(chapterless, extrasWith(carry()), 12))).toBeNull();
   });
 
   it("is injected for a loud generation and withheld from quiet and impersonate; closing clears it", () => {
     const writes: string[] = [];
-    const notice = createPreviouslyNotice({
-      block: () => "Previously: x", set: (key, text, depth) => writes.push(`set ${key} ${depth} ${text}`), clear: (key) => writes.push(`clear ${key}`),
-    });
+    const notice = createAwayNotice({
+      line: () => "Previously: x", set: (key, text, depth) => writes.push(`set ${key} ${depth} ${text}`), clear: (key) => writes.push(`clear ${key}`),
+    }, INJECTION_REGISTRY.previously);
     notice.opened("normal");
     notice.closed();
     notice.opened("quiet");
@@ -71,8 +75,8 @@ describe("v2.8 plan 45: start seed, private lines, restart", () => {
 
   it("gives a known_by line only to the named members", () => {
     const extras = extrasWith(carry());
-    expect(carryKnown(extras, "kel")).toEqual(["- From an earlier story, you know: Coins: 7"]);
-    expect(carryKnown(extras, "tom")).toEqual([]);
+    expect(carryKnownLines(extras.carry, "kel")).toEqual(["- From an earlier story, you know: Coins: 7"]);
+    expect(carryKnownLines(extras.carry, "tom")).toEqual([]);
   });
 
   it("Restart keeps the pinned carry, and a declined start stays declined", () => {
@@ -82,14 +86,5 @@ describe("v2.8 plan 45: start seed, private lines, restart", () => {
     declined.carry = { declined: true, at: "t" };
     expect(restartedExtras(restartCarry(declined, "pier", 0), settings).carry).toEqual({ declined: true, at: "t" });
     expect(restartedExtras(restartCarry(createExtras(settings), "pier", 0), settings).carry).toBeUndefined();
-  });
-
-  it("carry-required blocks while a required story has no run picked", () => {
-    const required = parseStoryV2OrThrow({ ...raw(), carry_from: { ...(raw().carry_from as Record<string, unknown>), default: "require" } });
-    const snapshotOf = (slice?: CarryState, boundary = 0) => ({ carry: carrySlice(required, extrasWith(slice), boundary) }) as unknown as RuntimeSnapshot;
-    expect(CARRY_REQUIRED_CHECK.detect(snapshotOf())?.player).toMatch(/pick that run in the start pane/);
-    expect(CARRY_REQUIRED_CHECK.detect(snapshotOf(undefined, 2))?.player).toMatch(/Restart it to pick one/);
-    expect(CARRY_REQUIRED_CHECK.detect(snapshotOf(carry()))).toBeNull();
-    expect(CARRY_REQUIRED_CHECK.detect({ carry: carrySlice(SEQUEL, extrasWith(), 0) } as unknown as RuntimeSnapshot)).toBeNull();
   });
 });

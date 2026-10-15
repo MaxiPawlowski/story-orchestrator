@@ -82,10 +82,7 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
   // slug, so re-importing it updates the same record rather than forking one.
   const id = parsed.id ?? slugifyStoryId(parsed.title);
   const records = listStoryRecords();
-  const from = parsed.carry_from?.story;
-  const source = from === id ? { ...parsed, id } : records.find((entry) => entry.id === from);
-  const sourceStory = source && "raw" in source ? parseStoryV2(source.raw) : source;
-  const pair = sourceStory && !isValidationErrorList(sourceStory) ? gameLayer()?.carry.checkCarryPair(sourceStory, parsed, "import") ?? [] : [];
+  const pair = gameLayer()?.carry.importCarryErrors(parsed, id, (from) => records.find((entry) => entry.id === from)?.raw) ?? [];
   if (pair.length) return pair;
   const existing = records.find((record) => record.id === id) ?? null;
   // Same identity, new content: the library record is *updated*, never forked. A chat tells its

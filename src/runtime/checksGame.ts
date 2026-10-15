@@ -72,19 +72,4 @@ export const SAME_CHARACTER_CHECK: Check = {
   },
 };
 
-export const CARRY_REQUIRED_CHECK: Check = {
-  id: "carry-required",
-  area: "chapter",
-  scope: "chat",
-  audience: "player",
-  severity: "blocks",
-  feature: "new-game-plus",
-  detect: (snapshot) => {
-    const carry = snapshot.carry;
-    if (!carry?.required || carry.state) return null;
-    const player = carry.canPick ? "This story continues one you finished: pick that run in the start pane." : "This story continues one you finished, and no run was picked: Restart it to pick one.";
-    return { consequence: "It plays from its own start, without anything from the earlier run.", detail: `carry_from.default is require; story '${carry.story}'.`, player };
-  },
-};
-
-export const GAME_CHECKS: readonly Check[] = [QUEST_SCOPE_CHECK, RELATIONSHIP_SCOPE_CHECK, DISCOVERY_SCOPE_CHECK, SAME_CHARACTER_CHECK, CARRY_REQUIRED_CHECK];
+export const GAME_CHECKS: readonly Check[] = [QUEST_SCOPE_CHECK, RELATIONSHIP_SCOPE_CHECK, DISCOVERY_SCOPE_CHECK, SAME_CHARACTER_CHECK];

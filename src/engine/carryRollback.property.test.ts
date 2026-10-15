@@ -1,8 +1,9 @@
 import { readFileSync } from "fs";
+import type { CarryProjection, CarryState } from "./carrySchema";
 import { join } from "path";
 import { StoryEngine } from "./engine";
 import { parseStoryV2OrThrow } from "./validate";
-import { questClosedKey, standingKey, type CarryProjection, type CarryState, type PrimitiveValue } from "./schema";
+import { questClosedKey, standingKey, type PrimitiveValue } from "./schema";
 import { carrySeed, carryValues, publicOutcome } from "./carry";
 import { ROLLBACK_DETECTORS, rollbackMoved } from "./rollbackDetectors";
 
@@ -25,7 +26,7 @@ const carried = (random: () => number): CarryState => {
     [questClosedKey("ledger")]: pick(["done", "failed"]), [standingKey("guild")]: Math.floor(random() * 11) - 5, secret_pact: pick(["sworn", "refused"]),
   };
   const projection: CarryProjection = { storyTitle: SOURCE.title, endingTitle: "The Last Lantern", outcome: publicOutcome(SOURCE, values, new Set(SEQUEL.carry_from?.map.map((entry) => entry.from))), lines: [] };
-  return { fromChat: "a", fromStory: "ngp-source", sourceStoryHash: "h", mode: "sequel", projection, values: carryValues(SEQUEL, projection).values, previously: null, createdAt: "t" };
+  return { fromChat: "a", fromStory: "ngp-source", sourceStoryHash: "h", mode: "sequel", projection, values: carryValues(SEQUEL, projection).values, previously: null, block: null, createdAt: "t" };
 };
 
 const drive = (engine: StoryEngine, random: () => number, turns: number) => {
@@ -80,6 +81,6 @@ describe("v2.8 plan 45 N1: a carried start equals the same start authored", () =
     expect(detector?.keys(SEQUEL).sort()).toEqual(["heritage_coast", "heritage_coins", "heritage_ledger"]);
     expect(rollbackMoved(SEQUEL, { heritage_coins: 3 }, { heritage_coins: 4 })).toBe(true);
     expect(rollbackMoved(SEQUEL, { heritage_coins: 3, guild_trust: 1 }, { heritage_coins: 3, guild_trust: 1 })).toBe(false);
-    expect(rollbackMoved(SOURCE, { heritage_coins: 3 }, { heritage_coins: 4 })).toBe(false);
+    expect(detector?.keys(SOURCE)).toEqual([]);
   });
 });

@@ -1,7 +1,8 @@
 import { readFileSync } from "fs";
+import type { CarryProjection, CarryState } from "./carrySchema";
 import { join } from "path";
 import { parseStoryV2, parseStoryV2OrThrow } from "./validate";
-import { questClosedKey, standingKey, type CarryProjection, type CarryState, type NormalizedStoryV2, type PrimitiveValue, type ValidationError } from "./schema";
+import { questClosedKey, standingKey, type NormalizedStoryV2, type PrimitiveValue, type ValidationError } from "./schema";
 import { carryKnownLines, carrySeed, carryValues, outcomeLine, publicOutcome, sagaOutcomeLines } from "./carry";
 import { checkCarryPair, progressKeys } from "./validate/carry";
 
@@ -31,7 +32,7 @@ const projectionOf = (values: Record<string, unknown>, source: NormalizedStoryV2
 });
 
 const stateOf = (projection: CarryProjection, target: NormalizedStoryV2 = SEQUEL): CarryState => ({
-  fromChat: "chat-a", fromStory: "ngp-source", sourceStoryHash: "h", mode: "sequel", projection, values: carryValues(target, projection).values, previously: null, createdAt: "t",
+  fromChat: "chat-a", fromStory: "ngp-source", sourceStoryHash: "h", mode: "sequel", projection, values: carryValues(target, projection).values, previously: null, block: null, createdAt: "t",
 });
 
 const rng = (seed: number) => {

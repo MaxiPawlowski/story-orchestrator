@@ -2,7 +2,7 @@ import { progressQualityForAnchor } from "./convergence";
 import { questLatchesMoved } from "./quests";
 import {
   CLOCK_MOVED_KEY, CLOCK_STORY_TIME_KEY, TIME_REACHED_PREFIX, TURN_OOC_KEY, agendaChapterKey, agendaRepeatsKey, agendaStepKey, agendaWaitKey, clockStart, isCodexKey,
-  isStoryTimeKey, moodAgeKey, moodSceneKey, moodWasKey, isFactionKey, isHeritageKey, questClosedKey, questRewardKey, type NormalizedStoryV2,
+  isStoryTimeKey, moodAgeKey, moodSceneKey, moodWasKey, isFactionKey, questClosedKey, questRewardKey, type NormalizedStoryV2,
 } from "./schema";
 import { PLAYER_TURNS_KEY } from "./stretch";
 import { gameLayer } from "./validate/gameLayer";
@@ -22,6 +22,8 @@ export interface RollbackExemption {
 }
 
 const agendas = (story: NormalizedStoryV2) => (story.life?.members ?? []).flatMap((member) => member.agenda.map((agenda) => ({ member: member.id, agenda })));
+
+const isHeritage = (key: string): boolean => key.startsWith("heritage_");
 
 const prefixMoved = (match: (key: string) => boolean, before: Values, after: Values): boolean =>
   [...new Set([...Object.keys(before), ...Object.keys(after)])].some((key) => match(key) && before[key] !== after[key]);
@@ -57,11 +59,7 @@ export const ROLLBACK_DETECTORS: readonly RollbackDetector[] = [
     keys: (story) => Object.keys(story.qualityByKey).filter(isFactionKey),
     moved: (story, before, after) => Boolean(story.factions?.length) && prefixMoved(isFactionKey, before, after),
   },
-  {
-    id: "heritage",
-    keys: (story) => Object.keys(story.qualityByKey).filter(isHeritageKey),
-    moved: (story, before, after) => Boolean(story.carry_from) && prefixMoved(isHeritageKey, before, after),
-  },
+  { id: "heritage", keys: (story) => Object.keys(story.qualityByKey).filter(isHeritage), moved: (_story, before, after) => prefixMoved(isHeritage, before, after) },
 ];
 
 const mood = (story: NormalizedStoryV2) => (story.life?.members ?? []).filter((member) => member.mood).flatMap((member) => [moodAgeKey(member.id), moodSceneKey(member.id), moodWasKey(member.id)]);

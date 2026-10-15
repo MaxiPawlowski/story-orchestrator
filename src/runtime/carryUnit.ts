@@ -1,12 +1,22 @@
-import { isCarryState, parseStoryV2, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryV2, type NormalizedStoryV2 } from "@engine/index";
+import { isCarryState } from "@engine/carrySchema";
 import { readGroupChatMetadata } from "@services/STAPI";
 import { buildCarryState, candidateChats, carryCandidateFromBlob, type CandidateResult } from "./carryCandidate";
-import type { CarryCandidateRow, CarryDeps, CarryOutcome } from "./carryPort";
+import type { CarryCandidateRow, CarryOutcome } from "./carryPort";
+import type { ManagerPort } from "./managerWiring";
 import { BLOB_VERSION } from "./persistence";
 import { readPlaysIndex } from "./playsIndexHost";
 import { beginRun } from "./runToken";
 
 const refuse = (reason: string): CarryOutcome => ({ ok: false, reason });
+
+export const carryDeps = (port: ManagerPort, refresh: () => void) => ({
+  loaded: port.loaded, extras: port.extras, engine: port.engine, chatId: () => String(port.view.hosts.chat.chatId() ?? "") || null,
+  ownership: port.lifecycle.ownership, journal: (summary: string, note: string) => port.journal("author", summary, note), refresh,
+  persist: port.lifecycle.persist, notify: port.lifecycle.notify,
+});
+
+export type CarryDeps = ReturnType<typeof carryDeps>;
 
 const verify = async (target: NormalizedStoryV2, chatId: string): Promise<CandidateResult> => {
   const metadata = await readGroupChatMetadata(chatId).catch(() => null);

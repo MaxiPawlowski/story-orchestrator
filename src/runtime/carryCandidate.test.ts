@@ -7,8 +7,7 @@ import { sagaOutcomeLines } from "@engine/carry";
 import { buildSagaPrompt } from "@memory/chapterRecord";
 import { estimateTokens } from "@memory/budget";
 import type { ChapterRecord } from "@memory/types";
-import { buildCarryState, candidateChats, carryCandidateFromBlob, previouslyText } from "./carryCandidate";
-import { PREVIOUSLY_HEADER } from "./carryPort";
+import { buildCarryState, candidateChats, carryCandidateFromBlob, previouslyText, PREVIOUSLY_HEADER } from "./carryCandidate";
 import { BLOB_VERSION } from "./persistence";
 import { playRow, playRowFromBlob, upsertPlay, type PlaysIndex } from "./playsIndex";
 
@@ -141,8 +140,8 @@ describe("v2.8 plan 45: the public projection and the pinned copy", () => {
     const result = carryCandidateFromBlob(blob({ chatId: "a", shorts: [long, long] }), "a", SEQUEL, OPTIONS);
     if (!result.ok) throw new Error(result.reason);
     const { state } = buildCarryState(SEQUEL, result.candidate, "t");
-    const block = `${PREVIOUSLY_HEADER}\n${state.previously ?? ""}`;
-    expect(estimateTokens(block)).toBeLessThanOrEqual(350);
+    expect(state.block).toBe(`${PREVIOUSLY_HEADER}\n${state.previously ?? ""}`);
+    expect(estimateTokens(state.block ?? "")).toBeLessThanOrEqual(350);
     expect(state.previously).toMatch(/^"The Lantern Coast" ended with "The Last Lantern"\. You relit the Lantern Coast\. The keeper's ledger: done\. Coins: 4\./);
     expect(state.previously?.endsWith(".")).toBe(true);
     expect(previouslyText({ storyTitle: "T", endingTitle: "", outcome: [], lines: [] }, [])).toBe("\"T\" has ended.");

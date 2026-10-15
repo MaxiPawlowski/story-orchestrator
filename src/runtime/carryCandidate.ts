@@ -1,6 +1,5 @@
-import {
-  CARRY_CANDIDATES_MAX, PREVIOUSLY_TOKENS, type CarryProjection, type CarryState, type CarryValue, type NormalizedStoryV2, type ValidationError,
-} from "@engine/index";
+import { type NormalizedStoryV2, type ValidationError } from "@engine/index";
+import { CARRY_CANDIDATES_MAX, PREVIOUSLY_TOKENS, type CarryProjection, type CarryState, type CarryValue } from "@engine/carrySchema";
 import { carryValues, publicOutcome, type CarrySkip } from "@engine/carry";
 import { checkCarryPair } from "@engine/validate/carry";
 import { estimateTokens } from "@memory/budget";
@@ -9,7 +8,8 @@ import type { EpistemicEntry } from "@memory/types";
 import { isRecord } from "@utils/guards";
 import { rosterMemberName } from "./roster";
 import type { PlaysIndex } from "./playsIndex";
-import { PREVIOUSLY_HEADER } from "./carryPort";
+
+export const PREVIOUSLY_HEADER = "Previously, in an earlier story this player finished (background for the narrator; a character knows a part of it only if their own notes say so):";
 
 export const candidateChats = (plays: PlaysIndex, story: string, openChat: string | null): string[] => Object.entries(plays)
   .filter(([chatId, row]) => row.storyId === story && row.ended === true && chatId !== openChat)
@@ -123,7 +123,7 @@ export const buildCarryState = (target: NormalizedStoryV2, candidate: CarryCandi
   return {
     state: {
       fromChat: candidate.chatId, fromStory: carry?.story ?? "", sourceStoryHash: candidate.sourceStoryHash, mode: carry?.mode ?? "sequel",
-      projection: JSON.parse(JSON.stringify(candidate.projection)) as CarryProjection, values, previously, createdAt: now,
+      projection: JSON.parse(JSON.stringify(candidate.projection)) as CarryProjection, values, previously, block: previously ? `${PREVIOUSLY_HEADER}\n${previously}` : null, createdAt: now,
     },
     skipped,
   };

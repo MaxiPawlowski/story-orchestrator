@@ -66,8 +66,19 @@ export interface CarryState {
   projection: CarryProjection;
   values: CarryValue[];
   previously: string | null;
+  block: string | null;
   createdAt: string;
   dismissed?: true;
+}
+
+export interface CarryView {
+  story: string;
+  mode: CarryMode;
+  required: boolean;
+  pending: boolean;
+  canPick: boolean;
+  state: CarryState | null;
+  active: boolean;
 }
 
 export interface CarryDeclined {

@@ -1,4 +1,5 @@
-import type { PoseEntry, StoryPoses, MemberSprites, StageMember, CardFieldBinding, CodexEntry, CodexFact, StoryCodex, CarryFrom, CarryMapEntry, OutcomeKey } from "@engine/schema";
+import type { PoseEntry, StoryPoses, MemberSprites, StageMember, CardFieldBinding, CodexEntry, CodexFact, StoryCodex } from "@engine/schema";
+import type { CarryFrom, CarryMapEntry, OutcomeKey } from "@engine/carrySchema";
 import type { Checkpoint, CheckpointEffects, Quality, RosterMember, StoryV2, Transition } from "@engine/index";
 import { GUIDE_TOPICS, type GuideTopicId } from "./guideTopics";
 import { PENDING_GUIDE_TOPICS, readGuide } from "./guideRead";

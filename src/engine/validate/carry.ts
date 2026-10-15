@@ -1,9 +1,12 @@
 import {
-  CARRY_AS, CARRY_DEFAULTS, CARRY_MODES, HERITAGE_TEXT_MAX, OUTCOME_MAX, STORY_ID_PATTERN, TENSION_CURRENT_KEY, isFactionDerivedKey, isFactionKey, isHeritageKey, isLifeKey, isLivingId,
-  questClosedKey, standingKey,
-  type CarryFrom, type CarryKnownBy, type CarryMapEntry, type Checkpoint, type Faction, type GateNode, type Milestone, type NormalizedStoryV2, type OutcomeKey, type Quality,
-  type Quest, type RosterMember, type Transition, type ValidationError,
+  STORY_ID_PATTERN, TENSION_CURRENT_KEY, isFactionDerivedKey, isFactionKey, isLifeKey, isLivingId, questClosedKey, standingKey, type Checkpoint,
+  type Faction, type GateNode, type Milestone, type NormalizedStoryV2, type Quality, type Quest, type RosterMember, type Transition,
+  type ValidationError,
 } from "../schema";
+import {
+  CARRY_AS, CARRY_DEFAULTS, CARRY_MODES, HERITAGE_TEXT_MAX, OUTCOME_MAX, isHeritageKey, type CarryFrom, type CarryKnownBy, type CarryMapEntry,
+  type OutcomeKey,
+} from "../carrySchema";
 import { isRecord } from "@utils/guards";
 import { gateKeys } from "../gates";
 import { addError, asString, isOneOf, refuse, rejectUnknownKeys } from "./common";

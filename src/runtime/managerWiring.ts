@@ -36,7 +36,8 @@ import type { EffectsApplier } from "./effectsApplier";
 import { wireLiving } from "./livingWiring";
 import { createPromisePort } from "./promisePort";
 import { createRecapPort } from "./recapPort";
-import { carryKnown, createCarryActions } from "./carryPort";
+import { createCarryActions } from "./carryPort";
+import { gameLayer } from "@engine/validate/gameLayer";
 
 export const restingTexts = <T extends { text: string }>(memory: MemoryCoordinator, rows: readonly T[]): T[] => shownRows(rows, memory.injector.restingFilter());
 
@@ -120,11 +121,8 @@ export function wireCoordinators(port: ManagerPort) {
     },
   });
   const promises = wirePromises(port, memory);
-  memory.injector.addPrivateSource((rosterId) => carryKnown(port.extras(), rosterId));
-  const carry = createCarryActions({
-    loaded: port.loaded, extras: port.extras, engine, chatId: () => String(view.hosts.chat.chatId() ?? "") || null, ownership: lifecycle.ownership,
-    journal: (summary, note) => port.journal("author", summary, note), refresh: () => memory.updateInjection(), persist: lifecycle.persist, notify: lifecycle.notify,
-  });
+  memory.injector.addPrivateSource((rosterId) => gameLayer()?.carry.carryKnownLines(port.extras().carry, rosterId) ?? []);
+  const carry = createCarryActions(port, () => memory.updateInjection());
   const inner = wireInner(port, memory, () => pacing);
   const refusing = () => {
     const loaded = port.loaded();
