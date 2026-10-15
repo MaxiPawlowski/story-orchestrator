@@ -57,6 +57,14 @@ test("accept stores six views, puts the pack hash in the root, keeps the default
   expect(f.deps.save).toHaveBeenCalledTimes(4);
 });
 
+test("a fresh save answered with a cache-busting path is stored by its served path", async () => {
+  const f = fixture(), save = f.deps.save;
+  f.deps.save = jest.fn(async (...args: Parameters<typeof save>) => { const asset = await save(...args); return { ...asset, path: `${asset.path}?t=${asset.sha256.slice(0, 12)}` }; });
+  const next = await f.session.accept(await f.session.prepare("Synthetic"));
+  expect(Object.values(next.pack!.views).every((view) => !view.path.includes("?"))).toBe(true);
+  expect(visualSources(JSON.parse(JSON.stringify({ Synthetic: next }))).Synthetic?.pack?.hash).toBe(next.pack!.hash);
+});
+
 test.each(["cancel", "chat", "delete", "replacement"])("%s during a render or a save never publishes a pack", async (event) => {
   const act = (f: ReturnType<typeof fixture>) => {
     if (event === "cancel") f.session.cancel(); if (event === "chat") f.lapse(); if (event === "delete") f.remove(); if (event === "replacement") f.replace();
