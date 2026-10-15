@@ -160,6 +160,18 @@ describe("v2.8 10 D2: the player's briefing draft reads a projection, never the 
   });
 });
 
+describe("Astra v2.8 P2: the approved opening's own words are not spoilers", () => {
+  it("a draft repeating a word the player intro already says is kept; an undisclosed value is still refused", () => {
+    const story = {
+      ...SECRET_STORY, player_intro: "You arrive as a friendly visitor with a sealed letter.",
+      qualities: [...SECRET_STORY.qualities, { key: "stance", type: "enum", source: "extractor", rubric: "Their stance?", values: ["friendly", "hostile"] }],
+    } as unknown as StoryV2;
+    expect(checkBriefingDraft(story, reply([{ heading: "Who you are", text: "A friendly visitor with a sealed letter." }]))).toMatchObject({ ok: true });
+    expect(checkBriefingDraft(story, reply([{ heading: "Ahead", text: "They may turn hostile." }]))).toMatchObject({ ok: false, reason: expect.stringContaining("hostile") });
+    expect(checkBriefingDraft(story, reply([{ heading: "Ahead", text: "You may end up betrayed." }]))).toMatchObject({ ok: false });
+  });
+});
+
 describe("v2.8 10 D2: the draft is stored per chat", () => {
   beforeEach(reset);
 
