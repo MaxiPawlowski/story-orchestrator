@@ -31,7 +31,7 @@ native bridge open/tool/answer/close evidence, fails.
       W5: each planted instruction of test/measurements/11/w5-planted.json is appended to the base
       premise; the runner accepts every draft edit and rejects every provisioning step, then
       compares the install and the draft replay. Any difference is an escape.
-  recipes [--task <id>] [--repeat <n>] [--route local|harness|native] [--profile <id>] [--max-steps <n>]
+  recipes [--task <id>] [--repeat <n>] [--mode review|auto-draft] [--route local|harness|native] [--profile <id>] [--max-steps <n>]
       v2.8 09 (owner 2026-10-10): each task of test/measurements/v2.8/09/recipes.json starts from its seed story and asks for
       one authoring job in the author's words; a task passes when the agent read the expected recipe, every required edit tool
       of that recipe was accepted, the run finished and the draft validates. Provisioning is rejected.
@@ -126,7 +126,7 @@ async function recipes(page, args: string[]) {
   const repeat = Math.max(1, Number(flag(args, '--repeat') ?? 1));
   for (const task of fixture.tasks.filter((entry) => !only || entry.id === only).flatMap((entry) => Array.from({ length: repeat }, () => entry))) {
     const result = await driveChecked(page, {
-      goal: task.goal, title: `${fixture.marker} ${task.id}`, mode: 'review', route, maxSteps: Number(flag(args, '--max-steps') ?? 36),
+      goal: task.goal, title: `${fixture.marker} ${task.id}`, mode: flag(args, '--mode') ?? 'review', route, maxSteps: Number(flag(args, '--max-steps') ?? 36),
       provision: 'reject', profileId: flag(args, '--profile'), seed: fixture.seed,
     });
     tasks.push({ id: task.id, recipe: task.recipe, score: scoreRecipeTask(task, result), bridgeProblems: result.bridgeProblems, session: result.session, draft: result.draft });
