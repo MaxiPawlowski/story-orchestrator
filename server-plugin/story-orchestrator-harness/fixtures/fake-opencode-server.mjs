@@ -67,11 +67,11 @@ const startMcp = (server) => {
     return { request, notify, child, alive: () => !exited };
 };
 
-export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6', models = FAKE_MODELS, mcpDelayMs = 0, serviceStartFails = false, ...flags } = {}) {
+export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6', models = FAKE_MODELS, mcpDelayMs = 0, toolsRegisterMs = 100, serviceStartFails = false, ...flags } = {}) {
     const state = {
         up, login, version, models: [...models],
         refuseAuth: false, unreachable: false, eventsDisabled: false, eventsBreakAfter: null, noMessages: false,
-        mcpPids: [], mcpDelayMs, mcpFail: false, serviceStartFails, ignoreProjectConfig: false, dropPermissions: false,
+        mcpPids: [], mcpDelayMs, toolsRegisterMs, mcpFail: false, serviceStartFails, ignoreProjectConfig: false, dropPermissions: false,
         discoverCalls: 0, ensureCalls: [], created: [], prompts: [], removed: [], interrupts: [], evicted: [], replies: [], listCalls: 0,
         running: 0, peak: 0, removeFails: false,
         sessions: new Map(), locations: new Map(), subscribers: new Set(), nextId: 1,
@@ -128,6 +128,7 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
                     row.client.notify('notifications/initialized');
                     row.tools = (await row.client.request('tools/list', {})).result?.tools ?? [];
                     row.codemode = server.codemode;
+                    row.connectedAt = Date.now();
                     row.status = { status: 'connected' };
                 } catch (error) {
                     row.status = { status: 'failed', error: String(error?.message ?? error) };
@@ -135,6 +136,14 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
             })();
         }
         return location;
+    };
+
+    const booting = new Map();
+    const boot = async (directory) => {
+        const key = path.resolve(directory);
+        if (!state.bootDelayMs || state.locations.has(key)) return bootLocation(directory);
+        if (!booting.has(key)) booting.set(key, sleep(state.bootDelayMs).then(() => { booting.delete(key); return bootLocation(directory); }));
+        return booting.get(key);
     };
 
     const agentRules = (location, agentId) => {
@@ -169,7 +178,8 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
         const hung = new Promise((resolve) => { session.interrupt = resolve; });
         const ended = (outcome, error) => { assistant.content = said.length ? [{ type: 'text', text: said.join('\n') }, ...assistant.content] : assistant.content; finishSession(session, outcome, error); };
         const server = [...location.servers.values()][0];
-        const exposed = server ? server.tools.map((tool) => `${[...location.servers.keys()][0]}_${tool.name}`).filter((name) => effectOf(rules, name) === 'allow') : [];
+        const registered = server && server.connectedAt !== undefined && Date.now() - server.connectedAt >= state.toolsRegisterMs;
+        const exposed = registered ? server.tools.map((tool) => `${[...location.servers.keys()][0]}_${tool.name}`).filter((name) => effectOf(rules, name) === 'allow') : [];
         const toolCall = async (tool, args) => {
             const name = `so_${tool}`;
             emit('session.tool.input.started', { sessionID: session.id, assistantMessageID: assistant.id, id: `call_${state.nextId++}`, name });
@@ -284,7 +294,7 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
             get: async ({ agentID, location }) => {
                 check();
                 await hold('agent');
-                const booted = bootLocation(location.directory);
+                const booted = await boot(location.directory);
                 const rules = agentRules(booted, agentID);
                 if (!rules || Date.now() - booted.bootedAt < (state.configDelayMs ?? 0)) throw failure('AgentNotFoundError', `Agent not found: ${agentID}`);
                 return { location, data: { id: agentID, system: booted.config.agents[agentID].system, mode: 'primary', permissions: rules } };
@@ -293,7 +303,7 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
         mcp: {
             list: async ({ location }) => {
                 check();
-                const booted = bootLocation(location.directory);
+                const booted = await boot(location.directory);
                 return { location, data: [...booted.servers.values()].map((row) => ({ name: row.name, status: row.status })) };
             },
         },

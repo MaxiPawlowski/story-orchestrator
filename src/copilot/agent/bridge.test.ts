@@ -4,11 +4,13 @@ import type { StoryV2 } from "@engine/index";
 import { emptyEnvironment } from "@wizard/index";
 import { BRIDGE_ROLE, BRIDGE_SYSTEM, bridgeAnswerText, createBridgeRoute, harnessRoute, HARNESS_ROUTE_REFUSAL } from "./bridge";
 import { createAgentRunner } from "./turn";
-import { advanceAgent, approvePlan, decideStep, newAgentSession, pendingStep, type AgentTurn } from "./loop";
+import { advanceAgent, applyAgentOp, approvePlan, decideStep, newAgentSession, pendingStep, type AgentTurn } from "./loop";
+import { driveAgent } from "./drive";
+import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "@runtime/runToken";
 import { AgentRouteUnavailable, type AgentBridgeEvent, type AgentToolBridge } from "./route";
 import { agentContext } from "./testing";
 import { agentToolSchemas } from "./turn";
-import type { AgentMode } from "./types";
+import type { AgentMode, AgentOp } from "./types";
 
 const AT = "2026-09-30T00:00:00.000Z";
 const TARGET = { harness: "opencode", model: "openai/gpt-6-astra-fast", timeoutMs: 600_000 };
@@ -164,6 +166,37 @@ describe("agent tool bridge route (v2.6 plan 04 H, option 2)", () => {
     const planned = await advanceAgent(newAgentSession("bridge", "review", {}, AT), agentContext(story()), text, AT);
     expect(planned.session.plan).toEqual(["x"]);
     await expect(harnessRoute({}, []).ask("p", "plan")).rejects.toThrow(HARNESS_ROUTE_REFUSAL);
+  });
+
+  it("review mode: after the author accepts the first card, the next drive reopens the bridge with the full tool set", async () => {
+    const bridge = fakeBridge([
+      call("c1", "updateCheckpoint", { id: "start", patch: { objective: "Begin at the harbour." } }),
+      call("c2", "readStory"),
+      { kind: "done", text: "{\"done\": \"set the objective\"}" },
+    ]);
+    const runner = createAgentRunner({
+      model: async () => ({ text: "", finish: "stop" }),
+      environment: () => emptyEnvironment(),
+      harness: async () => ({ bridge, target: TARGET }),
+    });
+    const context = (): RunContext => ({ chatId: null, storyId: null, storyHash: null, sessionEpoch: 0, windowRevision: 0 });
+    const ownership: RunOwnership = { mint: () => mintToken(context()), check: (token) => tokenMatches(context(), token) };
+    let draft = story();
+    const deps = { runner, ownership, draft: () => draft, applyOp: (op: AgentOp) => { draft = applyAgentOp(draft, op); }, commit: () => undefined, stopRequested: () => false };
+    const parked = await driveAgent(running(), deps);
+    expect(parked.session.status).toBe("awaiting-author");
+    expect(bridge.closed).toEqual(["s1"]);
+    const pending = pendingStep(parked.session);
+    if (!pending) throw new Error("no pending card");
+    const decided = decideStep(parked.session, pending.id, { kind: "accept" }, draft);
+    if (decided.apply) deps.applyOp(decided.apply);
+    const resumed = await driveAgent(decided.session, deps);
+    expect(resumed.session.status).toBe("done");
+    expect(bridge.opened).toHaveLength(2);
+    const names = agentToolSchemas().map((tool) => tool.name);
+    expect(bridge.opened.map((open) => open.tools.map((tool) => tool.name))).toEqual([names, names]);
+    expect(bridge.answers.map((entry) => [entry.sessionId, entry.callId])).toEqual([["s1", "c1"], ["s2", "c2"]]);
+    expect(draft.checkpoints[0].objective).toBe("Begin at the harbour.");
   });
 
   it("bridgeAnswerText reports status, observation and the check", () => {
