@@ -35,6 +35,7 @@ import { createMeanwhilePort } from "./meanwhilePort";
 import type { EffectsApplier } from "./effectsApplier";
 import { wireLiving } from "./livingWiring";
 import { createPromisePort } from "./promisePort";
+import { createRecapPort } from "./recapPort";
 
 export const restingTexts = <T extends { text: string }>(memory: MemoryCoordinator, rows: readonly T[]): T[] => shownRows(rows, memory.injector.restingFilter());
 
@@ -159,6 +160,7 @@ export function wireCoordinators(port: ManagerPort) {
     setTension: (next) => { port.extras().tension = next; },
     getPacing: () => port.extras().pacing,
     ended: () => storyEnded(port.extras().memory.chapters ?? []),
+    onHoldChange: lifecycle.notify,
   });
   const stagecraft = new StagecraftCoordinator({
     ...view,
@@ -200,6 +202,7 @@ export function wireCoordinators(port: ManagerPort) {
     openChat: () => String(view.hosts.chat.chatId() ?? "") || null,
   });
   const game = createGamePort({ engine, loaded: port.loaded, extras: port.extras, effects: port.effects, ownership: lifecycle.ownership, persist: lifecycle.persist, notify: lifecycle.notify });
+  const recap = createRecapPort({ engine, loaded: port.loaded, extras: port.extras, persist: lifecycle.persist, notify: lifecycle.notify });
   const meanwhile = createMeanwhilePort({
     ...view, extras: port.extras, ownership: lifecycle.ownership, updateInjection: () => memory.updateInjection(),
     journal: (summary, note) => port.journal("author", summary, note), persist: lifecycle.persist, notify: lifecycle.notify,
@@ -221,5 +224,5 @@ export function wireCoordinators(port: ManagerPort) {
     chatOpen: () => Boolean(view.hosts.chat.chatId()),
     groupOpen: hasOpenGroup,
   };
-  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, promises, rollbackDeps, storyUpdateDeps };
+  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, promises };
 }

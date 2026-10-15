@@ -196,7 +196,7 @@ export const StoppedOnARepeatSaysWhy: Story = {
 };
 
 const harnessRefused: AgentTurnRunner = async () => {
-  throw new AgentRouteUnavailable("harness", "opencode offers no agent tool bridge on this install (the plugin's config.json offers it, opencode only)");
+  throw new AgentRouteUnavailable("harness", "opencode offers no agent tool bridge on this install (the plugin's config.json offers it, opencode or claude)");
 };
 
 export const SetupFailureShowsItsReason: Story = {

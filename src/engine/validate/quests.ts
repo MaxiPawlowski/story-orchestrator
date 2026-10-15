@@ -8,12 +8,16 @@ import { addError, asString, isPrimitive, refuse, rejectUnknownKeys } from "./co
 import { readGate, validateGate, validateLiteral } from "./gates";
 import { GAME_ID_PATTERN, readLabel } from "./checks";
 import { readCheckpointEffects } from "./checkpoints";
+import { readQuestRecapFields, readRecapFields } from "./recap";
 
-const QUEST_KEYS = ["id", "title", "kind", "visible_when", "offered_when", "done_when", "failed_when", "steps", "requires", "progress", "labels", "giver", "author_note", "reward", "promise"] as const;
+const QUEST_KEYS = [
+  "id", "title", "kind", "visible_when", "offered_when", "done_when", "failed_when", "steps", "requires", "progress", "labels", "giver", "author_note", "reward",
+  "recap", "recap_when", "promise",
+] as const;
 const STEP_KEYS = ["text", "done_when", "failed_when", "visible_when", "progress"] as const;
 const REWARD_KEYS = ["set", "effects", "label", "visible_when"] as const;
 const REWARD_EFFECT_KEYS = ["world_info", "cast_changes", "npc_replies"] as const;
-const MILESTONE_KEYS = ["id", "title", "when", "secret"] as const;
+const MILESTONE_KEYS = ["id", "title", "when", "secret", "recap", "recap_when"] as const;
 export const QUEST_TEXT_MAX = 160;
 export const AUTHOR_NOTE_MAX = 600;
 export const TIME_KEYS: readonly string[] = ["message_count", "messages_in_checkpoint", "elapsed", "player_turns_in_checkpoint"];
@@ -137,7 +141,7 @@ const readQuest = (value: unknown, path: string, errors: ValidationError[]): Que
   if (!done) addError(errors, `${path}.done_when`, "a quest needs done_when, steps or progress");
   const options = questOptions(value, path, errors);
   if (!GAME_ID_PATTERN.test(id) || !title || !done) return null;
-  return { id, title, kind: "side", done_when: done, steps, ...(progress ? { progress } : {}), ...options };
+  return { id, title, kind: "side", done_when: done, steps, ...(progress ? { progress } : {}), ...options, ...readQuestRecapFields(value, path, errors, readGate) };
 };
 
 const readList = <T,>(value: unknown, path: string, read: (entry: unknown, at: string, errors: ValidationError[]) => T | null, errors: ValidationError[]): T[] | undefined => {
@@ -158,7 +162,7 @@ const readMilestone = (value: unknown, path: string, errors: ValidationError[]):
   const when = value.when === undefined ? refuse(errors, `${path}.when`, "a milestone needs when", null) : readGate(value.when, `${path}.when`, errors);
   if (value.secret !== undefined && typeof value.secret !== "boolean") addError(errors, `${path}.secret`, "secret is true or false");
   if (!GAME_ID_PATTERN.test(id) || !title || !when) return null;
-  return { id, title, when, ...(value.secret === true ? { secret: true } : {}) };
+  return { id, title, when, ...(value.secret === true ? { secret: true } : {}), ...readRecapFields(value, path, errors, readGate) };
 };
 
 export const readMilestones = (value: unknown, errors: ValidationError[]): Milestone[] | undefined => readList(value, "milestones", readMilestone, errors);

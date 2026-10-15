@@ -70,6 +70,18 @@ export interface Quest {
   author_note?: string;
   reward?: QuestReward;
   promise?: boolean;
+  recap?: QuestRecap;
+  recap_when?: GateNode;
+}
+
+export interface RecapText {
+  text?: string;
+  because?: string;
+}
+
+export interface QuestRecap {
+  done?: RecapText;
+  failed?: RecapText;
 }
 
 export const CHECK_NARRATE = ["public", "hidden"] as const;
@@ -113,6 +125,8 @@ export interface Milestone {
   title: string;
   when: GateNode;
   secret?: boolean;
+  recap?: RecapText;
+  recap_when?: GateNode;
 }
 
 export const WIDGET_KINDS = ["meters", "track", "log", "clock", "board", "clues", "map", "html", "roster", "timeline"] as const;

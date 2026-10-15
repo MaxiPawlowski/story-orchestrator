@@ -22,6 +22,8 @@
       "surface": "author", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Author-only bust/rig save refusal; neither bust nor rig is published on failure." },
     { "site": "src/image/castSceneHost.ts#discardUnplaced>callback", "kind": 2, "template": "reason instanceof Error ? reason.message : String(reason)",
       "surface": "console", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "A failed removal of an unplaced cast image is logged to the console; the original refusal still surfaces to the caller." },
+    { "site": "src/services/stHost/worldInfoPending.ts#flushPendingWorldSaves", "kind": 2, "template": "`\"${name}\" had an edit waiting to save and could not be saved: ${error instanceof Error ? error.message : String(error)}`",
+      "surface": "console", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "A failed rescue save of another book's debounced edit is returned as a refusal and logged to the console by the write that triggered it; that write itself already landed." },
     { "site": "src/sprites/visualManifest.ts#visualPath", "kind": 3, "template": "catch {} #1",
       "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Malformed URL encoding is rejected as an invalid local asset path; no host write or hidden success." },
     { "site": "src/studio/components/PreparePresentation.tsx#prepare", "kind": 2, "template": "reason instanceof Error ? reason.message : String(reason)",
@@ -1411,9 +1413,29 @@
       "reason": "author or console surface: raw error kept for diagnosis"
     },
     {
-      "site": "src/services/stHost/profileToolBridge.ts#nextCall",
+      "site": "src/services/stHost/profileToolBridge.ts#failureText",
+      "kind": 2,
+      "template": "`${message}: ${cause}`",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author surface: the profile's own failure, named auth/quota/transport, ends the agent session and the runner falls back to the text route"
+    },
+    {
+      "site": "src/services/stHost/profileToolBridge.ts#failureText",
       "kind": 2,
       "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author surface: the profile's own failure, named auth/quota/transport, ends the agent session and the runner falls back to the text route"
+    },
+    {
+      "site": "src/services/stHost/profileToolBridge.ts#textOf",
+      "kind": 2,
+      "template": "value instanceof Error ? value.message : typeof value === \"string\" ? value : \"\"",
       "surface": "author",
       "rawError": true,
       "silentCatch": null,

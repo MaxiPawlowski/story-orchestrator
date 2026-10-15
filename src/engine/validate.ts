@@ -16,6 +16,7 @@ import { checkStretches } from "./validate/stretch";
 import { readPlayer } from "./validate/player";
 import { GAME_LAYER_LOADING, gameLayer, usesGameLayer } from "./validate/gameLayer";
 import { addLivingQualities, checkLiving, livingOpening, needsLivingOpening, readLiving } from "./validate/living";
+import { checkRecapGates } from "./validate/recap";
 
 export { readChapters };
 
@@ -144,6 +145,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   layer?.checkStoryChecks(checkpoints, transitions, qualityByKey, errors);
   const game = quests ? layer?.expandRequires(quests, errors) : undefined;
   layer?.checkQuests(game, milestones, qualityByKey, new Set(roster.map((member) => member.id)), errors);
+  checkRecapGates({ transitions, quests: game, milestones }, qualityByKey, errors, validateGate);
   layer?.life.checkLife(life, roster, qualityByKey, errors, Boolean(chapters?.length));
   const widgets = layer?.readWidgets(json.widgets, { qualityByKey, qualities, checkpointIds: new Set(Object.keys(checkpointById)), checkpoints, transitions, roster }, errors);
   checkLiving(living, checkpointById, roster, qualityByKey, errors);

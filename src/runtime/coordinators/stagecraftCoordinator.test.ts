@@ -302,6 +302,27 @@ describe("StagecraftCoordinator", () => {
     expect(book.current.entries[1].content).toBe("The bridge is gone.");
   });
 
+  it("B15: a rewrite accepted after the entry was edited by hand is refused at the write edge, never overwriting the edit", async () => {
+    const { coordinator } = harness();
+    respond("[rewrite] The bridge || The bridge is gone.");
+    const { record } = await coordinator.runCuratorPass();
+    book.current.entries[1].content = "The bridge stands; the author added a toll keeper.";
+    await coordinator.setOpDecision(record!.id, 0, "accepted");
+    expect(await coordinator.applyAccepted()).toBe(0);
+    expect(book.current.entries[1].content).toBe("The bridge stands; the author added a toll keeper.");
+    expect(updateWIEntryByUid).not.toHaveBeenCalled();
+  });
+
+  it("B15 control: a patch on an edited entry still applies while its anchor matches", async () => {
+    const { coordinator } = harness();
+    respond("[patch] The bridge || ropes new || ropes frayed");
+    const { record } = await coordinator.runCuratorPass();
+    book.current.entries[1].content = "The bridge stands, its ropes new and taut. A toll keeper waits.";
+    await coordinator.setOpDecision(record!.id, 0, "accepted");
+    expect(await coordinator.applyAccepted()).toBe(1);
+    expect(book.current.entries[1].content).toContain("ropes frayed");
+  });
+
   it("applies the author's edited text, not the model's", async () => {
     const { coordinator } = harness();
     respond("[rewrite] The bridge || The bridge is gone.");

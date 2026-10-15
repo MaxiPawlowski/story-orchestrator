@@ -52,6 +52,7 @@ import type { PresenceView } from "./presence";
 import type { EffectsRuntimeState } from "./effectTypes";
 import type { ChecksRuntimeState } from "./storyCheckDraws";
 import type { AgendaProposalsState, MeanwhileAcceptMode } from "./agendaProposals";
+import type { RecapRuntimeState } from "./recapPort";
 import type { LivingRuntimeState } from "@generation/living/types";
 import type { LivingView } from "./livingSnapshot";
 import type { GameAuthorView, GameView } from "./gameTypes";
@@ -179,6 +180,7 @@ export interface RuntimeExtras {
   checks?: ChecksRuntimeState;
   agendaProposals?: AgendaProposalsState;
   promises?: import("@memory/promises/types").PromisesState;
+  recap?: RecapRuntimeState;
   living?: LivingRuntimeState;
   journal: JournalRecord[];
   modelCalls: ModelCallRecord[];

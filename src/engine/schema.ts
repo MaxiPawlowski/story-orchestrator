@@ -91,6 +91,7 @@ export interface Quality {
   roll?: QualityRoll;
   display?: QualityDisplay;
   step_rule?: QualityStepRule;
+  player_action?: Record<string, string>;
 }
 
 export type EvidenceFrom = typeof EVIDENCE_FROM[number];
@@ -315,6 +316,8 @@ export interface Transition {
   extractor_trigger?: string;
   extraction_hint?: string;
   check?: StoryCheck;
+  recap?: import("./gameSchema").RecapText;
+  recap_when?: GateNode;
 }
 
 export const ROSTER_VIEWS = ["own", "omniscient"] as const;

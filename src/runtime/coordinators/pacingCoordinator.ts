@@ -29,6 +29,7 @@ export interface PacingCoordinatorDeps {
   getPacing: () => PacingSettings;
   hosts: { prompt: PromptHost; chat?: Pick<ChatHost, "chatRows"> };
   ended?: () => boolean;
+  onHoldChange?: () => void;
 }
 
 // Tension is written twice: optimistically while extractor deltas are queued (so the smoothed
@@ -122,7 +123,7 @@ export class PacingCoordinator {
   updateSteering() {
     const story = this.deps.getStory();
     const prompt = this.deps.hosts.prompt;
-    if (!story || this.deps.ended?.()) {
+    if (!story || this.deps.ended?.() || this.withheld) {
       prompt.clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
       this.clearGuidance();
       return;
@@ -162,21 +163,30 @@ export class PacingCoordinator {
     this.updateSteering();
   }
 
+  get holding(): boolean { return this.withheld; }
+
   releaseDraftGuidance() {
     this.drafted = null;
-    this.withheld = false;
+    this.setHold(false);
     this.updateSteering();
   }
 
   releaseStaleGuidanceHold() {
     if (!this.withheld) return;
-    this.withheld = false;
+    this.setHold(false);
     this.updateSteering();
   }
 
   withholdGuidance() {
-    this.withheld = true;
+    this.setHold(true);
+    this.deps.hosts.prompt.clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
     this.clearGuidance();
+  }
+
+  private setHold(held: boolean) {
+    if (this.withheld === held) return;
+    this.withheld = held;
+    this.deps.onHoldChange?.();
   }
 
   private clearGuidance() {

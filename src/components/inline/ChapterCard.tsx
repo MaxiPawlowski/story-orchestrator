@@ -1,4 +1,4 @@
-import type { ChapterCard as ChapterCardView } from "@runtime/chapterCards";
+import type { ChapterCard as ChapterCardView, ChapterCardRecap } from "@runtime/chapterCards";
 import { briefingParagraphs, type BriefingView } from "@engine/index";
 import { PRESENCE_TEXT } from "@features/presenceCopy";
 
@@ -24,8 +24,18 @@ const CardBriefing = ({ view }: { view: BriefingView }) => (
   </div>
 );
 
+const CardRecap = ({ recap }: { recap: ChapterCardRecap }) => (
+  <div data-so="chapter-card-recap" className="so-chapter-card-recap">
+    <div className="so-chapter-card-briefing-heading">{recap.label}</div>
+    <ul>
+      {recap.lines.map((line, index) => <li key={index}>{line}</li>)}
+    </ul>
+  </div>
+);
+
 export const ChapterCard = ({ card }: ChapterCardProps) => (
   <section data-so="chapter-card" data-chapter-kind={card.interlude ? "interlude" : "chapter"} className="so-chapter-card" aria-label={`${eyebrow(card)}: ${card.title}`}>
+    {card.recap && <CardRecap recap={card.recap} />}
     <div className="so-chapter-card-eyebrow">{eyebrow(card)}</div>
     <div className="so-chapter-card-title">{card.title}</div>
     {card.briefing && <CardBriefing view={card.briefing} />}

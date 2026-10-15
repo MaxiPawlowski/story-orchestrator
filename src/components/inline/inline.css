@@ -135,6 +135,18 @@
   opacity: 0.8;
 }
 
+#chat .so-inline-host .so-chapter-card-recap {
+  margin: 0 0 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid color-mix(in srgb, var(--st-border) 40%, transparent);
+  text-align: left;
+}
+
+#chat .so-inline-host .so-chapter-card-recap ul {
+  margin: 2px 0 0;
+  padding-left: 1.2em;
+}
+
 #chat .so-inline-host .so-roll-chip {
   cursor: default;
   opacity: 0.85;

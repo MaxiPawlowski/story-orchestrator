@@ -2,6 +2,7 @@ import { parseStoryV2, type Quality } from "@engine/index";
 import { applyCommitEvidence, commitPattern, type CommitStory } from "./commitGuard";
 import type { EvidenceMessage } from "./evidence";
 import type { ParsedDelta } from "./types";
+import { textRevision } from "./playerSpan";
 
 const escape: Quality = {
   key: "escape",
@@ -39,7 +40,9 @@ describe("v2.8 01 C11-F2: commit_evidence per value", () => {
 
   it("the oath commits the sworn value", () => {
     const deltas = [delta("sworn", "I swear it.")];
-    expect(applyCommitEvidence(story(escape), deltas, () => [player("I swear it: from tonight I am sworn to the keep.")]).accepted).toEqual(deltas);
+    const line = "I swear it: from tonight I am sworn to the keep.";
+    expect(applyCommitEvidence(story(escape), deltas, () => [player(line)]).accepted)
+      .toEqual([{ ...deltas[0], delta: { ...deltas[0].delta, playerSpan: { messageId: 3, revision: textRevision(line), span: [0, line.length] } } }]);
   });
 
   it("an action value it leaves out is set by any reading, as an unguarded quality is", () => {

@@ -8,6 +8,12 @@ export interface ChapterCard {
   interlude: boolean;
   final: boolean;
   briefing?: BriefingView;
+  recap?: ChapterCardRecap;
+}
+
+export interface ChapterCardRecap {
+  label: string;
+  lines: string[];
 }
 
 const chapterOfCheckpoint = (story: NormalizedStoryV2, checkpointId: string): Chapter | null => {

@@ -14,6 +14,19 @@ export interface HarnessModel {
   context: number;
   image?: boolean;
   available?: boolean;
+  agent?: boolean;
+}
+
+export interface HarnessMeterWindow {
+  utilization: number | null;
+  resetsAt: number | null;
+}
+
+export interface HarnessMeter {
+  status: string | null;
+  resetsAt: number | null;
+  windows: Record<string, HarnessMeterWindow>;
+  observedAt: number | null;
 }
 
 export type HarnessLoginState = "ok" | "expired" | "unpaired" | "unchecked" | "unavailable";
@@ -43,6 +56,7 @@ export interface HarnessRow {
   serviceVersion?: string | null;
   clientInstalled?: boolean | null;
   agentBridge?: boolean;
+  meter?: HarnessMeter;
 }
 
 export interface HarnessStatus {
@@ -73,6 +87,13 @@ const LOGIN_STATES: ReadonlySet<string> = new Set(["ok", "expired", "unpaired", 
 
 const num = (value: unknown): number | null => (typeof value === "number" && Number.isFinite(value) ? value : null);
 
+const readMeter = (value: unknown): HarnessMeter | null => {
+  if (!isRecord(value)) return null;
+  const windows = isRecord(value.windows) ? Object.fromEntries(Object.entries(value.windows).filter((entry): entry is [string, Record<string, unknown>] => isRecord(entry[1]))
+    .map(([name, row]) => [name, { utilization: num(row.utilization), resetsAt: num(row.resetsAt) }])) : {};
+  return { status: text(value.status), resetsAt: num(value.resetsAt), windows, observedAt: num(value.observedAt) };
+};
+
 const readRow = (row: Record<string, unknown>): HarnessRow => ({
   installed: row.installed === true,
   version: text(row.version),
@@ -87,6 +108,7 @@ const readRow = (row: Record<string, unknown>): HarnessRow => ({
     ? [{
       id: model.id, context: num(model.context) ?? 0,
       ...(typeof model.image === "boolean" ? { image: model.image } : {}), ...(typeof model.available === "boolean" ? { available: model.available } : {}),
+      ...(typeof model.agent === "boolean" ? { agent: model.agent } : {}),
     }]
     : [])) : [],
   quotaUntil: num(row.quotaUntil),
@@ -97,6 +119,7 @@ const readRow = (row: Record<string, unknown>): HarnessRow => ({
   ...(text(row.serviceVersion) ? { serviceVersion: text(row.serviceVersion) } : {}),
   ...(typeof row.clientInstalled === "boolean" ? { clientInstalled: row.clientInstalled } : {}),
   ...(row.agentBridge === true ? { agentBridge: true } : {}),
+  ...(readMeter(row.meter) ? { meter: readMeter(row.meter) as HarnessMeter } : {}),
 });
 
 export async function harnessCapability(): Promise<{ state: "present" | "absent"; detail: string }> {
@@ -146,6 +169,7 @@ export const readHarnessAnswer = (data: unknown, effort: ReasoningEffort): Model
       collapsed: false, unsupported: applied || effort === "default" ? null : "this harness takes low, medium or high only", budget: 0, chars: 0, tokens: null,
     },
     usage: usage ?? { input: null, output: null, costUsd: null },
+    model: text(data.model),
     spawnMs: num(data.spawnMs),
   };
 };
