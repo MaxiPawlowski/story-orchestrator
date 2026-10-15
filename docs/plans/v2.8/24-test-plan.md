@@ -677,6 +677,60 @@ Addendum 2026-10-14 (branch `v2.8-docs-index-55-59`, docs only): plans 42–59 r
 planned features; §Plans 42–59 refreshed to the revised floor ids); Appendix A rule 5 (dark launch) annotated as
 superseded; plan 52 SC5 resolved.
 
+## Gate record (2026-10-14/15, rule 11 readiness, branch `v2.8-suite-readiness`)
+
+Base master `6616f2e4`; build bundle `080054b70410` staged into the ST slot, server plugins unchanged. Counts only.
+
+Campaign scenarios and data:
+
+- Pin `03441dc3` = campaign master. Checks ran in a clean detached worktree at the pin (the main checkout has
+  uncommitted edits by another agent); the gitignored source archive extraction was junctioned in for `build_all`.
+- `scripts/check_all.sh` (`SO_PLUGIN` = this worktree): ALL GREEN, 16 steps, 135 s; 9 stories, 307 checkpoints
+  through player copy, 146 cards, 13 labs 0 failing.
+- `lab/v28/check.py`: OK, 7 scenarios (5 no-model, 2 model) on 5 groups; every group, member, story, checkpoint and
+  mocked delta resolves.
+- `adolion-fresh seed 41` (needed `--resume` once: two lane starts failed under host load, first the ST frontend
+  compile past 300 s, then the browser spawn; fixed in this branch with one start retry and `--resume`), then
+  `adolion-fresh check 41`: 0 problems, drift 0; 16 books, 9 groups, 9 stories, 201 sprite folders, 2,889 sprites.
+- Row → carrier → campaign file (story structure counted in `build/story/<id>.story.json` at the pin):
+  - GS1.1–GS1.10 → `gs1-first-hour` → adolion-academy: 12 checkpoints, 15 cast, 6 quests, 5 widgets, 2 chapters,
+    1 scenario effect, relationships on 7 members, briefing and player profile present.
+  - GS2.1–GS2.8 → `gs2-living-hub` → adolion-aegis: living on, 40 cast, 1 curator book, 3 required books,
+    relationships on 8 members, scene read present.
+  - GS3.1–GS3.7 → `gs3-long-road` → adolion-saga: 157 checkpoints, 125 cast, 12 chapters, 110 NPC-reply and
+    111 cast-change effects, 2 preset effects, a schedule, a clock, living on.
+  - GS4.1–GS4.6 → `gs4-stubborn-player` → adolion-esha: 7 cast, agency on 7 checkpoints, 3 complication sets, a
+    schedule.
+  - AS-smoke ×9 → `live-v28-24-smoke-<act>` → the nine stories and nine groups, all installed by the seed.
+  - C11-F2 model leg, 19 RP acceptance, M2 arm → campaign `lab/v28/v28-adolion-commit-model.json`,
+    `v28-adolion-encounters-model.json`: resolved by `check.py`.
+  - No gaps; no campaign data added in this pass.
+
+Plugin docs current:
+
+- `npx jest` guideCoverage, guideTopics, `src/guide`, `src/features`: 8 suites, 75 tests, all pass.
+- `npm run docs:guide` and `npm run docs:settings`: no content diff (git shows line endings only; reverted).
+- Merged plans since the last check: 41 (9 Gate record sections; guide: sprites setup page and story guide carry
+  prepared presentation, reference views, cast illustration, changed looks) and 54 (Gate record; guide topic
+  inner-voice carries Carried thought). Plans 46, 47, 52, 53 are not merged on `6616f2e4` (built on other branches),
+  so they are not owed here; there is no plan 60.
+
+Coverage (`node scripts/suite/coverage.mjs --campaign <pinned campaign>`, report `24-coverage-2026-10-14.md`, guarded by
+`scripts/release/suiteCoverage.test.mjs`):
+
+- Registry: 111 ids. Two were missing from the matrix and are added: thought-carry (plan 54), reference-pack
+  (plan 41). Vague D cells now name their test files (live-head, prepared-presentation, changed-look-rebuild,
+  cast-illustration, pose-library, backgrounds, model-downloads, sprite-edit-resolution, capabilities).
+- Result: 108 green, 2 image track (rule 12: judge-use-expressions, judge-use-picture-cue, carried by GS5 only),
+  **1 red: save-run-as-story** (its CL carrier, the L5 leg fixture, is still owed: the synthetic copy of the private
+  `l1-l5.json` is not in `test/scenarios/`). This blocks that row only.
+- Plan floor tables: 30 plans, 300 floors; 21 were unmapped, now 0: v2.8 01 §F M1–M5, v2.8 17 K1–K5, v2.8 21 VR1–VR5,
+  plan 36 LI3/LI4/LI6 (measurement rows added) and 43 R-Gate1–3, VR9 (named in §Plans 42–59).
+- Harness defects found by reading the fixtures before their shakedown (rule 10) and fixed with tests: a numeric
+  `swipe` on a single-swipe reply always threw, so GS1.6, GS2.3 and the nine AS-smoke files now use `swipeId: "new"`
+  (a real generation on the last reply, `st-actions.swipeNew.test.mts`); AS-smoke's post-reload check read a global
+  the reload had cleared.
+
 ## Appendix A — plan 24 before the 2026-10-14 rework (history)
 
 Kept verbatim (headings demoted). Superseded by the sections above; the RunPod EUR 20 cap and the per-plan index remain as history.
