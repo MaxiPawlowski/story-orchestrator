@@ -34,8 +34,12 @@
       "surface": "author", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Author-only reference-view render refusal in Studio; nothing is saved before accept." },
     { "site": "src/studio/components/ReferencePackStep.tsx#accept", "kind": 2, "template": "reason instanceof Error ? reason.message : String(reason)",
       "surface": "author", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Author-only reference-view save refusal; no pack is committed on failure." },
-    { "site": "src/sprites/liveHead/renderer.ts#imageTone", "kind": 3, "template": "catch {} #1",
+    { "site": "src/sprites/liveHead/renderer.ts#readBall", "kind": 3, "template": "catch {} #1",
       "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A ball layer whose pixels cannot be read (no OffscreenCanvas, tainted image) has no sclera tone, so the shipped dome gaze path stays; no host write or hidden success." },
+    { "site": "src/sprites/builder/batchLease.ts#SpriteBatchLease.prepare", "kind": 3, "template": "catch {} #1",
+      "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A retained batch lease the broker no longer renews is dropped (its release failure is logged through failed) and a fresh lease is taken; nothing is reported as success." },
+    { "site": "src/sprites/cardArt.ts#refuseDefaultCardArt", "kind": 3, "template": ".catch(() => null)",
+      "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "SillyTavern's default card picture is only a comparison probe: when it cannot be read the card is not judged a placeholder and the build proceeds." },
     { "site": "src/services/stHost/servedContext.ts#probe", "kind": 3, "template": "catch {} #1",
       "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A llama.cpp server that does not answer /props leaves the served context unknown (null), so the preset's context stands and no setup row is raised on a guess." },
     { "site": "src/services/stHost/servedContext.ts#readReplyContext", "kind": 3, "template": "catch {} #1",
@@ -993,7 +997,7 @@
       "reason": "a non-JSON broker answer is a typed lease-release refusal"
     },
     {
-      "site": "src/services/stHost/gpuBroker.ts#reserveGpu",
+      "site": "src/services/stHost/gpuBroker.ts#reserveOnce",
       "kind": 3,
       "template": ".catch(() => null)",
       "surface": "author",

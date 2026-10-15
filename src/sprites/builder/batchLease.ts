@@ -34,8 +34,8 @@ export class SpriteBatchLease {
     const lease = this.lease;
     if (!lease) return;
     this.pending = lease.release();
-    try { await this.pending; this.lease = null; this.images = 0; }
-    finally { this.pending = null; }
+    try { await this.pending; }
+    finally { this.pending = null; this.lease = null; this.images = 0; }
   }
 
   async acquire(key: string, create: () => Promise<BatchLeaseHandle>): Promise<{ release(): Promise<void> }> {
@@ -55,12 +55,17 @@ export class SpriteBatchLease {
     if (this.lease && (this.key !== key || this.images >= this.limit || !await this.deps.mayRetain())) await this.drop();
     await this.deps.waitForText();
     this.guard();
+    if (this.lease) {
+      try { await this.lease.renew(); }
+      catch { await this.drop().catch(this.deps.failed); }
+      this.guard();
+    }
     if (!this.lease) {
       const lease = await create();
       if (this.closed || !this.deps.current()) { await lease.release(); this.guard(); }
       this.lease = lease;
       this.key = key;
-    } else await this.lease.renew();
+    }
     this.guard();
   }
 

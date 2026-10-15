@@ -64,7 +64,7 @@ const checkReads = ({ draft, reachableFrom, startId, push }: CodexRun) => {
 
 const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-const mentions = (text: string, name: string): boolean => name.length >= 3 && new RegExp(`(^|[^\\p{L}\\p{N}])${escape(name)}($|[^\\p{L}\\p{N}])`, "iu").test(text);
+export const mentions = (text: string, name: string): boolean => name.length >= 3 && new RegExp(`(^|[^\\p{L}\\p{N}])${escape(name)}($|[^\\p{L}\\p{N}])`, "iu").test(text);
 
 const sameWhen = (left: CodexKnownWhen | undefined, right: CodexKnownWhen | undefined) => JSON.stringify(left ?? null) === JSON.stringify(right ?? null);
 

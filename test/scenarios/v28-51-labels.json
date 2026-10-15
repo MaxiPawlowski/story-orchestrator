@@ -1,0 +1,114 @@
+{
+  "_note": "v2.8 plan 51 (no-model lane): Arin's public label shows on her People page, the secret stays out of the player view and other members' blocks; a seeded gate reveals it (log row, holder line says the player knows), assert-player-clean, a reopen equals the state, a swipe of the revealing reply takes it back (code-only boundary), a second reopen equals the replay. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-51-labels.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off",
+    "authorView": true
+  },
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return true;"
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds ' + ctx.chat.length + ' message(s)'); return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "file": "v28-51-labels.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const rows = () => (rt.getSnapshot().game?.codex?.people ?? []).find((entry) => entry.name === 'Arin')?.rows ?? []; const texts = () => rows().map((row) => row.text); const values = () => rt.getEngineState().blackboard.values; const line = (name) => { const ctx = SillyTavern.getContext(); const chid = ctx.characters.findIndex((character) => character.name === name); rt.onMemberDrafted(chid); return String(rt.getAppliedEpistemicBlock() ?? ''); }; const clean = () => { const game = JSON.stringify(rt.getSnapshot().game ?? {}); if (/life_reveal|rel_arin/.test(game)) throw new Error('a label key reached the player view'); if (rows().some((row) => /[0-9]/.test(row.text))) throw new Error('a number reached a label row'); }; const saved = async () => { for (let i = 0; i < 100 && rt.getSnapshot().saveHealth?.pendingBoundary != null; i += 1) await pause(100); if (rt.getSnapshot().saveHealth?.pendingBoundary != null) throw new Error('the last boundary is not saved'); }; const reopen = async () => { const chatId = SillyTavern.getContext().chatId; await SillyTavern.getContext().reloadCurrentChat(); await until(() => rt.getSnapshot().storyId === 'so-v28-51-labels', 10000, 'the story to hydrate after the reopen'); if (SillyTavern.getContext().chatId !== chatId) throw new Error('the reopen moved the page'); rt.setUiSettings({ authorView: true }); await pause(1500); }; globalThis.__l51 = { pause, until, rows, texts, values, line, clean, saved, reopen }; await until(() => texts().length > 0, 10000, 'the People page of Arin'); if (JSON.stringify(texts()) !== JSON.stringify(['Toward you: wary'])) throw new Error('expected only the public label, got ' + JSON.stringify(texts())); if (JSON.stringify(rt.getSnapshot().game).includes('secretly loyal')) throw new Error('the unrevealed secret reached the player view'); clean(); return { rows: texts() };",
+      "log": true
+    },
+    {
+      "eval": "const f = globalThis.__l51; await f.until(() => f.line('Arin').includes('shown as: wary; secretly: secretly loyal to you, which others have not learned'), 10000, 'the label clause in the private line of Arin'); if (f.line('DM Narrator').includes('secretly loyal')) throw new Error('the secret reached another member'); return { holder: true };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=Arin I leave a folded letter on the counter."
+    },
+    {
+      "slash": "/cp set saw_letter true"
+    },
+    {
+      "eval": "const f = globalThis.__l51; await f.until(() => f.texts().includes('Learned: secretly loyal to you'), 10000, 'the reveal to reach the People page'); const at = f.values().life_reveal_arin_player_loyal; if (typeof at !== 'number') throw new Error('no reveal latch: ' + at); const log = (globalThis.storyOrchestratorRuntime.getSnapshot().game?.log ?? []).filter((row) => row.kind === 'reveal').map((row) => row.text); if (JSON.stringify(log) !== JSON.stringify(['Arin: secretly loyal to you'])) throw new Error('reveal log rows: ' + JSON.stringify(log)); await f.until(() => f.line('Arin').includes('which the player now knows'), 10000, 'the private line to say the player knows'); if (f.line('DM Narrator').includes('secretly loyal')) throw new Error('a reveal to the player reached another member'); f.clean(); globalThis.__l51.revealedAt = globalThis.storyOrchestratorRuntime.getEngineState().lastMessageId; await f.saved(); return { rows: f.texts(), at };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await globalThis.__l51.pause(800); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); await globalThis.__l51.pause(800); return { authorView: true };"
+    },
+    {
+      "record_state": {
+        "as": "l51-revealed"
+      }
+    },
+    {
+      "eval": "const f = globalThis.__l51; await f.reopen(); if (!f.texts().includes('Learned: secretly loyal to you')) throw new Error('the reopen lost the reveal'); return { rows: f.texts() };",
+      "log": true
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "l51-revealed",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const last = ctx.chat.length - 1; if (last !== globalThis.__l51.revealedAt) throw new Error('a message landed after the revealing reply'); const reply = ctx.chat[last]; if (reply.is_user) throw new Error('the revealing message is not a reply'); reply.swipes = [reply.mes, 'I keep the letter in my pocket.']; reply.swipe_id = 0; reply.swipe_info = [{}, {}]; await ctx.saveChat(); return { swipeable: last };"
+    },
+    {
+      "swipe": {
+        "messageId": "last",
+        "swipeId": 1
+      }
+    },
+    {
+      "eval": "const f = globalThis.__l51; await f.until(() => !f.texts().includes('Learned: secretly loyal to you'), 15000, 'the swipe to take the reveal back'); const values = f.values(); if (values.life_reveal_arin_player_loyal !== undefined || values.saw_letter === true) throw new Error('the swipe did not rewind the reveal'); await f.until(() => f.line('Arin').includes('which others have not learned'), 10000, 'the rollback to refresh the private line'); f.clean(); await f.saved(); return { rows: f.texts() };",
+      "log": true
+    },
+    {
+      "record_state": {
+        "as": "l51-replayed"
+      }
+    },
+    {
+      "eval": "const f = globalThis.__l51; await f.reopen(); if (f.texts().includes('Learned: secretly loyal to you')) throw new Error('the reopen re-applied the reveal'); return { rows: f.texts() };",
+      "log": true
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "l51-replayed",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary"
+          ]
+        }
+      }
+    }
+  ]
+}

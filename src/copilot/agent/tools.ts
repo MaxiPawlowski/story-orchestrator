@@ -178,12 +178,13 @@ setPoseCard: { backedBy: "setPoseCard", doc: "Set living card fields and charact
   },
   setCharacterLife: {
     backedBy: "setCharacterLife",
-    composes: ["setMemberFactions"],
+    composes: ["setMemberFactions", "setRelationshipLabels"],
     doc: "Replace one cast member's character life (every field you leave out is cleared): feelings, mood, off-stage agenda, whereabouts, the factions it belongs to. "
       + "Private to that member. Read the character-life guide first.",
     args: {
       id: req("string", "member id"),
-      life: req("object", "{relationships?: [{toward: id|player, axes, range?, step?, start?}], mood?: {baseline, values?, lasts?}, "
+      life: req("object", "{relationships?: [{toward: id|player, axes, range?, step?, start?, public?: [{label, when?, follows_feeling?, hold?}], "
+        + "secret?: [{id, label, revealed_when}]}], mood?: {baseline, values?, lasts?}, "
         + "agenda?: [{id, goal, steps: [{text, when?, effect?, public?, repeat?}], pace: per_n_boundaries|per_chapter, every?}], schedule?: [{when, at}], factions?: [faction id] (at most 3)}"),
     },
   },

@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, userEvent, waitFor, within } from "@storybook/test";
 import type { PixelImage } from "../builder/pixels";
 import { restHead } from "./drivers";
-import { gazeOffset, renderOpenBall, scleraTone, type GazeMode } from "./gaze";
+import { gazeLimits, gazeOffset, irisSpan, limitGaze, renderOpenBall, scleraTone, type GazeMode } from "./gaze";
 import { headImage } from "./load";
 import { HeadRenderer } from "./renderer";
 import { syntheticHead } from "./synthetic";
@@ -16,7 +16,7 @@ const bust = syntheticBust(2), rig = synthesizeRig(bust.landmarks), layers = cut
 const found = layers.find((layer) => layer.name === "eye0_ball");
 if (!found) throw new Error("The synthetic bust has no eye ball layer.");
 const ball = found;
-const tone = scleraTone(ball.image.data);
+const tone = scleraTone(ball.image.data), span = irisSpan(ball.image, ball.rect, rig.eyes[0], tone), limits = gazeLimits(rig.eyes[0], span);
 
 function paint(canvas: HTMLCanvasElement, image: PixelImage): void {
   canvas.width = image.width * ZOOM; canvas.height = image.height * ZOOM;
@@ -38,7 +38,9 @@ function paint(canvas: HTMLCanvasElement, image: PixelImage): void {
 function BallPane({ mode, gaze }: { mode: GazeMode; gaze: number }) {
   const canvas = useRef<HTMLCanvasElement>(null);
   const title = mode === "dome" ? "Dome warp (before)" : "Iris slide (after)";
-  useEffect(() => { if (canvas.current) paint(canvas.current, renderOpenBall(ball.image, ball.rect, rig.eyes[0], gazeOffset(0, gaze, 0), mode, tone)); }, [mode, gaze]);
+  useEffect(() => {
+    if (canvas.current) paint(canvas.current, renderOpenBall(ball.image, ball.rect, rig.eyes[0], [limitGaze(gazeOffset(0, gaze, 0)[0], limits), 0], mode, tone, span));
+  }, [mode, gaze]);
   return <figure style={{ margin: 0 }}>
     <canvas ref={canvas} role="img" aria-label={`${title}: gaze ${gaze}`} style={{ display: "block", imageRendering: "pixelated" }} />
     <figcaption>{title}</figcaption>

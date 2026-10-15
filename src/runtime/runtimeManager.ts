@@ -10,7 +10,7 @@ import {
   type ExtractionScheduler, type ParsedDelta, type SchedulerJob, type SharedReadAudit,
 } from "@extraction/index";
 import { applyCommitEvidence } from "@extraction/commitGuard";
-import { heldNote, type HeldReading } from "./heldJournal";
+import { freshBeats, heldNote, type HeldReading } from "./heldJournal";
 import { applyRatingGrounding } from "@extraction/ratingGuard";
 import { readCursorSeed } from "@extraction/readCursor";
 import { clearAllMemoryInjection } from "@memory/index";
@@ -442,8 +442,10 @@ export class RuntimeManager extends SettingsDelegates {
     const guarded = story ? applyRatingGrounding(story.qualityByKey, this.engine.serialize().blackboard.values, committed.accepted,
         (messageId) => windowMessages().find((message) => message.messageId === messageId)?.text ?? null) : committed;
     this.journalHeld(`${guarded.held.length} rating reading(s) held: the evidence did not ground the level`, guarded.held);
-    if (!guarded.accepted.length) return;
-    const { accepted, levels: tensionLevels } = this.pacing.applyExtractorTension(guarded.accepted, window.to);
+    const fresh = freshBeats(story, this.engine, guarded.accepted);
+    this.journalHeld(`${fresh.held.length} feeling reading(s) held: same beat as the last step`, fresh.held);
+    if (!fresh.accepted.length) return;
+    const { accepted, levels: tensionLevels } = this.pacing.applyExtractorTension(fresh.accepted, window.to);
     if (!accepted.length) return;
     const versions = this.engine.serialize().blackboard.versions;
     const deltas = accepted.map((entry) => (typeof entry.messageId === "number" ? { ...entry.delta, evidenceAt: entry.messageId } : entry.delta));
@@ -486,6 +488,7 @@ export class RuntimeManager extends SettingsDelegates {
       notices: this.notices, payloadCaptures: this.journal.getCaptures(), extractionHealth: this.scheduler?.health() ?? null,
       promptBlocks: readExtensionPromptBlocks(), chat: getContext().chat ?? [], fingerprints: this.chatSave.fingerprints.current,
       characters: getContext().characters ?? [], chatId: this.loadedChatId, scopeContext: this.extras.ui.authorView ? this.extraction.scopeContext() : undefined,
+      enabled: this.getEnabledCharacterIds(),
     }));
   }
 

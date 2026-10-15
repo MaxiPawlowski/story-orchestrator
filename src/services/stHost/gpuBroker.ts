@@ -2,6 +2,8 @@ import { getContext } from "./context";
 import { isRecord } from "@utils/guards";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { log } from "@utils/log";
+import { releaseAnswer } from "./gpuLeaseAnswer";
+import { abortableSleep, waitWhileBusy } from "@utils/leaseWait";
 
 const URL = "/api/plugins/story-orchestrator-gpu";
 
@@ -61,7 +63,10 @@ export async function gpuBrokerStatus(): Promise<GpuBrokerStatus | null> {
     ...(typeof data.listenPort === "number" ? { listenPort: data.listenPort } : {}) };
 }
 
-export async function reserveGpu(request: GpuRequest = {}): Promise<GpuReservation> {
+export const reserveGpu = (request: GpuRequest = {}): Promise<GpuReservation> =>
+  waitWhileBusy(() => reserveOnce(request), { signal: request.signal, now: Date.now, sleep: abortableSleep });
+
+async function reserveOnce(request: GpuRequest): Promise<GpuReservation> {
   let response: Response;
   try {
     response = await post("lease", { workflowKey: request.workflowKey, modelFiles: request.modelFiles,
@@ -84,8 +89,7 @@ export async function reserveGpu(request: GpuRequest = {}): Promise<GpuReservati
 export async function releaseGpu(lease: string | null): Promise<WriteResult<{ released: boolean }>> {
   if (!lease) return wrote({ released: false });
   const response = await post("release", { lease });
-  const data: unknown = await response.json().catch(() => null);
-  return response.ok && isRecord(data) && data.released === true ? wrote({ released: true }) : couldNot("The GPU broker did not release the image lease.");
+  return releaseAnswer(response.ok, await response.json().catch(() => null));
 }
 
 export async function renewGpu(lease: string | null): Promise<WriteResult<{ renewed: boolean }>> {

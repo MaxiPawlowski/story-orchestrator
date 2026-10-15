@@ -23,6 +23,7 @@ export interface GameSliceInput {
   castNames: Record<string, string>;
   authorView: boolean;
   scopeContext?: ScopeSourceContext;
+  enabled?: readonly string[];
 }
 
 export const storyHasGame = (story: NormalizedStoryV2 | null): boolean => hasGameLayer(story) || hasChecks(story);
@@ -32,6 +33,7 @@ export function gameSlices(input: GameSliceInput): { game: GameView | null; game
   if (!story || !state || !storyHasGame(story)) return { game: null, gameAuthor: null };
   const composed = composer?.({
     story, state, boundaryLog: input.boundaryLog, checks: input.checks?.records ?? [], threads: input.threads, chat: input.chat, castNames: input.castNames, authorView: input.authorView,
+    enabled: input.enabled,
   }) ?? null;
   const reader = valueReader(state.blackboard.values);
   const gameAuthor: GameAuthorView | null = input.authorView ? {

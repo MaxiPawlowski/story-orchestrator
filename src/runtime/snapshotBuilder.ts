@@ -119,6 +119,7 @@ export interface SnapshotSources {
   plays?: PlaysIndex;
   resting?: (text: string) => string;
   scopeContext?: ScopeSourceContext;
+  enabled?: readonly string[];
 }
 
 export interface SnapshotPort {
@@ -139,6 +140,7 @@ export interface SnapshotPort {
   characters?: ReadonlyArray<{ avatar?: string; name?: string }>;
   chatId?: string | null;
   scopeContext?: ScopeSourceContext;
+  enabled?: readonly string[];
 }
 
 export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
@@ -169,6 +171,7 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   chatId: port.loaded ? port.chatId ?? null : null,
   plays: readPlaysIndex(),
   scopeContext: port.scopeContext,
+  enabled: port.enabled,
 });
 
 const routeGaps = () => {
@@ -247,7 +250,7 @@ const inlineView = (sources: SnapshotSources, story: NormalizedStoryV2 | null, l
     tension: { expected: live.tension.expected, hint: live.tension.hint?.text ?? null }, payloadCaptures: sources.payloadCaptures, pipeline: live.pipeline,
     agencyRecovery: live.agencyRecovery, lastRollback: sources.lastRollback, saveNotice: playerSaveNotice(extras.saveHealth), castNames,
     firstLines: firstLines(sources.chat), authorMoves: authorMoves(extras), resting: sources.resting,
-    emptyReplies: recentEmptyReplies(sources.chat, settings.window),
+    emptyReplies: recentEmptyReplies(sources.chat, settings.window), enabled: sources.enabled,
   });
 };
 
@@ -318,7 +321,7 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
   return {
     ...gameSlices({
       story, state, boundaryLog: sources.boundaryLog, checks: extras.checks, chat: sources.chat, castNames: game.castNames, authorView: extras.ui.authorView, scopeContext: sources.scopeContext,
-      threads: { open: game.openThreads, resolved: story ? resolvedThreads(extras.memory, sources.resting) : [] },
+      enabled: sources.enabled, threads: { open: game.openThreads, resolved: story ? resolvedThreads(extras.memory, sources.resting) : [] },
     }),
     lifeAuthor: lifeAuthorSlice(story, state, extras.ui.authorView, extras.agendaProposals, sources.scopeContext, sources.boundaryLog),
     factionsAuthor: factionAuthorSlice(story, state, extras.ui.authorView, sources.boundaryLog, extras.memory.ledger, sources.scopeContext),

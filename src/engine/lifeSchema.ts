@@ -20,6 +20,19 @@ export const STORY_TIME_KEYS: readonly string[] = [CLOCK_STORY_TIME_KEY, CLOCK_D
 export const TURN_OOC_KEY = "life_turn_ooc";
 export const LIFE_KEY_PREFIXES = ["rel_", "mood_", "agenda_", "life_"] as const;
 
+export interface PublicLabel {
+  label: string;
+  when?: GateNode;
+  follows_feeling?: boolean;
+  hold?: number;
+}
+
+export interface SecretLabel {
+  id: string;
+  label: string;
+  revealed_when: GateNode;
+}
+
 export interface RelationshipDecl {
   toward: string;
   axes: string[];
@@ -27,6 +40,8 @@ export interface RelationshipDecl {
   step: number;
   start: number;
   label?: string;
+  public?: PublicLabel[];
+  secret?: SecretLabel[];
 }
 
 export type MoodLasts = { boundaries: number } | { until: "scene_break" };
@@ -137,6 +152,15 @@ export const agendaWaitKey = (member: string, agenda: string): string => `agenda
 export const agendaChapterKey = (member: string, agenda: string): string => `agenda_${member}_${agenda}_chapter`;
 export const agendaRepeatsKey = (member: string, agenda: string): string => `agenda_${member}_${agenda}_repeats`;
 
+export const LABEL_REVEAL_PREFIX = "life_reveal_";
+export const LABEL_SHOWN_PREFIX = "life_label_";
+export const revealKey = (holder: string, toward: string, id: string): string => `${LABEL_REVEAL_PREFIX}${holder}_${toward}_${id}`;
+export const labelShownKey = (holder: string, toward: string): string => `${LABEL_SHOWN_PREFIX}${holder}_${toward}`;
+export const labelNextKey = (holder: string, toward: string): string => `${labelShownKey(holder, toward)}_next`;
+export const labelSinceKey = (holder: string, toward: string): string => `${labelShownKey(holder, toward)}_since`;
+export const isLabelKey = (key: string): boolean => key.startsWith(LABEL_REVEAL_PREFIX) || key.startsWith(LABEL_SHOWN_PREFIX);
+export const isRevealKey = (key: string): boolean => key.startsWith(LABEL_REVEAL_PREFIX);
+export const hasLabels = (relationship: Pick<RelationshipDecl, "public" | "secret">): boolean => Boolean(relationship.public?.length || relationship.secret?.length);
 export const timeReachedKey = (checkpoint: string): string => `${TIME_REACHED_PREFIX}${checkpoint}`;
 
 export const isStoryTimeKey = (key: string): boolean => STORY_TIME_KEYS.includes(key) || key.startsWith(CALENDAR_KEY_PREFIX) || key.startsWith(TIME_REACHED_PREFIX);

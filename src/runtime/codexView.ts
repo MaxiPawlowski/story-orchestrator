@@ -11,7 +11,8 @@ export interface CodexSources {
   state: EngineState;
   castNames: Record<string, string>;
   enabled?: readonly string[];
-  personRows?: (entry: CodexEntry, known: KnownEntities) => CodexRowView[];
+  personRows?: (member: string, known: KnownEntities) => CodexRowView[];
+  extraPeople?: (known: KnownEntities, paged: ReadonlySet<string>) => CodexEntryView[];
 }
 
 export const codexShown = (story: NormalizedStoryV2): boolean => hasCodex(story.codex) && story.display?.codex !== false;
@@ -37,7 +38,7 @@ const entryView = (sources: CodexSources, page: CodexPage, entry: CodexEntry, kn
   const firsts = [latchedAt(codexEntryKey(page, entry.id), values), ...shown.map((fact) => latchedAt(codexFactKey(page, entry.id, fact.id), values))];
   const startKnown = entry.known_when === "start" || shown.some((fact) => fact.known_when === "start");
   const learned = firsts.filter((at): at is number => at !== null);
-  const rows = page === "people" ? sources.personRows?.(entry, known) ?? [] : [];
+  const rows = page === "people" && entry.member ? sources.personRows?.(entry.member, known) ?? [] : [];
   return [{
     name: entryName(story, entry, castNames), fresh: !startKnown && learned.length > 0 && freshAt(Math.min(...learned), state.boundary), facts,
     ...(rows.length ? { rows } : {}),
@@ -46,10 +47,12 @@ const entryView = (sources: CodexSources, page: CodexPage, entry: CodexEntry, kn
 
 export const composeCodex = (sources: CodexSources): CodexView | undefined => {
   const { story, state } = sources;
-  if (!codexShown(story)) return undefined;
+  const shown = codexShown(story);
+  if (!shown && !sources.extraPeople) return undefined;
   const known = knownEntities(story, state.blackboard.values, sources.enabled);
-  const page = (name: CodexPage) => (story.codex?.[name] ?? []).flatMap((entry) => entryView(sources, name, entry, known));
-  const view = { people: page("people"), places: page("places") };
+  const page = (name: CodexPage) => (shown ? story.codex?.[name] ?? [] : []).flatMap((entry) => entryView(sources, name, entry, known));
+  const paged = new Set((shown ? story.codex?.people ?? [] : []).flatMap((entry) => (entry.member ? [entry.member] : [])));
+  const view = { people: [...page("people"), ...(sources.extraPeople?.(known, paged) ?? [])], places: page("places") };
   return view.people.length || view.places.length ? view : undefined;
 };
 

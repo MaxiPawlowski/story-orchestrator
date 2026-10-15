@@ -7,6 +7,8 @@ import { addLifeQualities, checkLife, readLife } from "./life";
 import { deriveLife } from "../life/derive";
 import { awayMembers, lifeScopeKeys, lifeScopeTiers } from "../life/presence";
 import { agendaWorldInfo, landedSteps, lifeAuthorRows, lifeMoved, privateLifeLines, relationshipFeelings } from "../life/lines";
+import { labelAuthorRows, labelDiscoveryUnits, labelLatches, revealChips, unrevealedSecretLabels } from "../life/labels";
+import { axisHistory, holdSameBeat } from "../life/beats";
 
 import { addFactionQualities, checkFactions, readFactions } from "./factions";
 import {
@@ -22,7 +24,7 @@ import { reachedLabel, storyTimeRow, timeEntry } from "../life/clock";
 
 const LIFE = {
   readLife, addLifeQualities, checkLife, deriveLife, awayMembers, lifeScopeKeys, lifeScopeTiers, privateLifeLines, agendaWorldInfo, landedSteps, lifeMoved, lifeAuthorRows,
-  relationshipFeelings, storyTimeRow, reachedLabel,
+  relationshipFeelings, storyTimeRow, reachedLabel, labelAuthorRows, revealChips, unrevealedSecretLabels, axisHistory, holdSameBeat,
 };
 
 const CODEX = { readCodex, addCodexQualities, checkCodex, codexLatches, codexScopeUnits, unknownCodexNames };
@@ -33,9 +35,9 @@ const FACTIONS = {
 
 const CARRY = { readCarry, importCarryErrors, startSeed, carryKnownLines, carryView };
 
-const LATCH_WRITERS = [codexLatches, factionLatches] as const;
+const LATCH_WRITERS = [codexLatches, factionLatches, labelLatches] as const;
 
-const DISCOVERY_UNITS = [codexScopeUnits, factionDiscoveryUnits] as const;
+const DISCOVERY_UNITS = [codexScopeUnits, factionDiscoveryUnits, labelDiscoveryUnits] as const;
 
 const ENTRY_WRITERS = [timeEntry] as const;
 

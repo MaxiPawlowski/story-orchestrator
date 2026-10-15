@@ -61,4 +61,6 @@ export const DIAGNOSTIC_CODES = [
   "codex-fact-never-read",
   "codex-gate-holds-at-start",
   "disclosure-names-unknown-entity",
+  "relationship-label-reads-axis",
+  "relationship-secret-in-public",
 ] as const;

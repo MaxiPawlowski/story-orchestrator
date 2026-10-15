@@ -12,4 +12,12 @@ export const sampleCodex = (): CodexView => ({
   places: [{ name: "The boathouse", fresh: false, facts: [{ text: "The back door does not lock.", fresh: false }] }],
 });
 
+export const labelledPeople = (): CodexView["people"] => [
+  { name: "The ferryman", fresh: true, facts: [{ text: "Runs the night crossing.", fresh: false }], rows: [
+    { text: "Toward you: wary", kind: "label" },
+    { text: "Learned: secretly loyal to you", kind: "learned", fresh: true },
+  ] },
+  { name: "Mara", fresh: false, facts: [], rows: [{ text: "Toward Tom: rivals", kind: "label" }] },
+];
+
 export const codexGame = (codex: CodexView | null = sampleCodex()): GameView => ({ ...sampleGame(), ...(codex ? { codex } : {}) });

@@ -1,4 +1,5 @@
 import type { GuideTopic } from "./guideTopics";
+import { LABEL_DIAGNOSTIC_TOPICS, LABEL_TOPICS } from "./guideTopicsLabels";
 
 export const CHARACTER_TOPICS = {
   "character-life": {
@@ -18,8 +19,10 @@ export const CHARACTER_TOPICS = {
       + "A lowering move needs an event the player caused (never not, time or == false). roster[].factions: members hear moves when present and get a private band line. "
       + "Players see band words of visible factions; the director gets visible bands, hidden ones only with introduce, by name.",
   },
+  ...LABEL_TOPICS,
 } as const satisfies Record<string, GuideTopic>;
 
 export const FACTION_DIAGNOSTIC_TOPICS = {
   "faction-move-on-inaction": "factions", "faction-never-moves": "factions", "faction-no-visible-band": "factions", "faction-snapshot-key": "factions",
+  ...LABEL_DIAGNOSTIC_TOPICS,
 } as const;

@@ -878,6 +878,25 @@ Gates:
 - An earlier full-gates run before the merge was red on the `gaze-iris` golden. That golden was already stale on `35a9267e` and master `4b21fe8e` regenerated it. After the merge it passes unchanged, so this branch did not regenerate it.
 - Worktree setup: `.build/` has no replay cache, so the first `gates:quick` replay `--cached` failed with E2BIG on the `--listTests` arguments; it passed once a full run had written the cache. `test:debug` needs the gitignored `test/sessions/adolion-stories.json`, which was copied from the main checkout.
 
+## Gate record: 3090 block 2026-10-14, reference views, look edits, cast illustration (LIST)
+
+- Worktree `C:\dev\so-gpu-block` at `9aead40b` plus the fix below. Lane 31 holds the plan 36 showcase (the three synthetic busts, not campaign content). The build was served as a candidate through a Playwright context route on the worktree `dist/`. Plugins were installed with the owner's OK; lanes were restarted after it. ComfyUI ran through the controller (`--cache-ram 8 --fast-disk`), not the runbook's native `--cache-none`: changing the controller's ComfyUI arguments means editing the owner's controller config, so that was not done. Text was unloaded (manual hold). No Sol call: the Sol identity rating (step 5) is deferred because the subscription was exhausted.
+- Driver: none exists for these Studio steps. A scratch Playwright driver (not committed) reused `lib/pocSteps` (`chooseCharacter`, `stepBase`) and clicked the shipped controls: `#so-sprite-base` "Build four base candidates" / "Keep base 1", `#so-prepare-presentation` "Review selected base and bust" / "Accept base and bust identity", and `#so-reference-pack` "Draw reference views" / "Accept all six views". Records are in `C:\dev\so-lanes\31\debug\showcase-images\`. Outputs are copied to `C:\dev\so-showcase-art\gpu-block-20261014\`, with `visualSources.json`.
+- Prepare needs a generated base set. The legacy root art is refused ("This generated set has no complete neutral base."). So each bust first got a four-candidate base in set `pres`, seed 1234, BiRefNet toonout: Wren 4 candidates passed QA (201 s), Garrick 1 (163 s; 3 refused on RAM), Pim 3 (194 s; 1 refused on RAM). The first attempt at all three timed out at 600 s. Cause: the media plugin's cold sha256 of `qwen3vl_8b_int8_convrot` took **672 s** under 92-100 % CPU from other agents' work, and the client gives up at 600 s. The hash is cached per server process, so the second attempt was quick.
+- Prepare accepted for all three (source revision 1).
+- Reference views, round 1:
+  - First accept REFUSED for every bust: "The reviewed reference pack is incomplete."
+  - Cause (product bug): the media plugin answers a fresh save with `.../<label>.png?t=<sha12>`, and `visualPath` refuses `?`. So `ReferencePackSession.accept` built a pack the manifest parser rejects. The look rebuild already strips this with `servedAsset`; the reference pack did not.
+  - Fix in this branch: `src/sprites/referenceViews.ts` stores `servedAsset(save(...))`. New test in `referenceViews.test.ts` ("a fresh save answered with a cache-busting path is stored by its served path"); it fails on the old code (1 failed, 9 passed) and passes with the fix (10/10).
+  - A second issue: retrying after the failed accept is refused ("Confirm replacing this generated sprite after reviewing it."), because the orphaned `refpack_<key16>` sets from the failed accept hold different bytes from the re-render. Not fixed. The four orphan sets on the lane copy were moved aside by hand.
+  - After the fix, all three accepted: Wren `f2bbe945d093`, Garrick `059ef6b84b39`, Pim `70765f18e3ca`, each at revision 2. Draw time per pack of 4 renders: 199 / 169 / 136 s, about 34-50 s per view. Several attempts were refused on RAM first ("RAM available 9.4-10.9 GB; workload 8139 + reserve 4096") and retried.
+  - Reload read-back: after a page reload, `visualSources[<folder>].pack` reads the same hash, 6 views, revision 2 for all three.
+- Reference views, round 2 (same server): all three accepted again at revision 3: Wren `d48f9f7968c2` (150 s), Garrick `60c3da76ba8c` (127 s), Pim `cb7528738e1c` (136 s).
+- Not measured: per-view seconds (only per pack) and peak VRAM against the 22 GB floor (no per-view sampler). The changed `visualRoot` in an expression key is proven by the unit test only. Sol contact-sheet identity rating (floor >= 90 %): DEFERRED.
+- Look edits: the showcase story declares no look qualities, so no product-path changed look (`look_<key>`) can be triggered on these busts. Instead I used the builder's Edit = look (reference neutral, seed 1, 25 steps), kept to set `default`: Wren "dark blue hooded travel cloak" 38 s, Garrick "dented steel helmet, open visor" 66 s, Pim "wide brimmed green hat" 68 s. These are not published looks. The product-path changed look and its live head stay covered by the §5 journey's `look`/`look-rebuild` steps.
+- Cast illustration (`#so-cast-scene`, Wren + Garrick): REFUSED in 2 s with "This Qwen node does not offer the two-reference cast scene input." The installed ComfyUI Qwen text-encode node has no second reference input. This is a host capability gap: no download or node update was made. "Cast illustration with layered fields on a model" stays unproven.
+- GPU minutes: bases about 9 (plus 30 min of timed-out waiting with the GPU idle), reference views about 20 over two rounds plus refusals, look edits about 3.
+
 ## Harvest 2026-10-14 addendum
 
 From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
@@ -887,3 +906,42 @@ From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licen
   nothing maps its tags to the model's vocabulary or drops duplicates. Recommended: **measure first** on the existing image
   goldens: share of director tags absent from the tag list, and whether canonicalising (alias → canonical, drop unknown)
   changes a blind pick. Build only if the unknown share is above 20 %. LI tier, informational.
+
+## Gate record 2026-10-15 (image defects; p41 run 2 review)
+
+- Reference views: `f858a160` cherry-picked (`db29a6bf`). Audit of every fresh-save path into a manifest: `publishVisualLook`, `visualPreparation` and `lookRebuild` already used `servedAsset`; `publishLookBust` and `withReferencePack` now normalise at the manifest edge (`19d99be7`); the tests fail on the old code.
+- p41 run 2 defects, checked against the evidence:
+  - b) rig "featureless silhouette with a question mark": the wizard's cards had no art, so the bases were built from SillyTavern's default picture (`img/ai4.png`, written pixel for pixel into the card). Fix `e587197f`: a base or rebase from that picture is refused with a clear reason (story `DefaultCardPicture`, `cardArt.test.ts`, `bodyRenderer.test.ts`). The journey needs real card art per member.
+  - a) blink frames refused for mask spill, and c) no viseme (turns show `liveHeads: 0, ready: 0`, so no rig was ready): both follow from the silhouette art. No product change; re-check with real art.
+  - d) one body on the set default: lease contention (see the plan 33 record), fixed in `22c46437`.
+  - e) background "API request failed": no plan was stored (`lastPlan: null`), so the director model call failed before any render. The run's server log was not captured, so the cause is open.
+  - f) cleanup leaked 2: the record holds only the count; the lane keeps three empty `SO-P41 *` sprite folders. Open until the leak list is recorded.
+  - Cast scene: not a ComfyUI gap. v0.37.4 lists `TextEncodeQwenImage21.images` as one Autogrow input (`COMFY_AUTOGROW_V3`, `template.names` image_1..16); the old check read only the flat `images.image_2` key. Fix `4fccd124` (`qwenImageInput`, also used for the p2 pose second reference); prompt keys stay `images.image_N` (`finalize_prefix`). A real gap is a named `CastSetupGap` shown to the author (`4ac3f37d`). Recorded `object_info` fragment: `test/fixtures/comfy-qwen21-autogrow.object_info.json`.
+- Gates on branch `v2.8-image-defects` (base `6e77c14a`), no GPU, ComfyUI or model use:
+  - `npm run gates:quick` green after each fix.
+  - `npm run gates -- --jobs=2 --skip=test-storybook:ci`: every step green across runs. Timing flakes, each retried once: `consequences.test.ts` C6 (p95 <= 5 ms under parallel load; green alone and in an earlier full run), harness `agent.test.mjs` "stalled OpenCode service" (15 s deadline under load; `npm run test:plugin` alone 311/311).
+  - Storybook by hand (the `test-storybook:ci` script pins port 6006): `storybook:build`, `http-server .sb-static -p 6371`, test runner 854/855; the one miss `Workspace/Shell > Mobile` (unrelated, heading not found) passed on re-run together with the Gaze, BaseSpriteBuilder and PreparedCast stories.
+  - Main bundle 1,290,510 B (budget 1,300,000).
+- Needs a GPU re-check: the p41 journey with art-bearing cards; the two-member cast scene and the p2 pose second reference on the installed ComfyUI.
+
+## Gate record: §5 journey x2 on the 3090, 2026-10-14/15 (LIST)
+
+- Lane 33 (seeded fresh 2026-10-14, `--allow-local --headed`, `max_context` 32768, `image-harness.json` with Qwen 2.1 int8 + `birefnet_toonout`). Build served as a candidate: worktree `9aead40b` (the live-head gap fix) plus `f858a160` (reference-pack served path). Controller `automatic` (Artemis + ComfyUI). Wizard on the default authoring route, opencode `openai/gpt-6.1-sol`. Started after 22:45 local, when the Sol quota reset. Wrapper timeout 5,400 s.
+- run 1 (`C:\dev\so-lanes\33\debug\p41\2026-10-15T01-45-12-948Z-a-real-run1`):
+  - preflight, wizard (43 s) and story pass.
+  - base x3 REFUSED. Ash: "Candidate 1: The GPU broker did not release the image lease. Candidates 2-4: An image batch already owns the local GPU". Bram and Cleo: the same in under 1 s each.
+  - Everything that needs a base then failed or was refused: prepare x3 (driver: no base), expressions x3 (3/3), frames x3 (2/2), rig x3 ("no rebuild row for accepted look"), play ("no viseme mouth"), pose (no posed body, 30 min), look (30 min), look-rebuild, illustration.
+  - Killed by my wrapper timeout (exit 124) after the illustration step, so there is no `record.json`, only `steps.jsonl` and screenshots. The journey's `cleanup` afterwards reported leaked 0. INCOMPLETE; the lease leak is the cause.
+- run 2 (`...\p41\2026-10-15T03-15-16-676Z-a-real-run2\record.json`): VERDICT NOT GREEN. Calls: gpu-broker 100, comfy 44, artemis 77, sol 4, judge 129, deepseek 1.
+  - Pass: preflight, wizard (37 s), story, base x3 (111/99/99 s), prepare x3, expressions x3 (about 88 s each), look (43 s), swipe, delete, reload, chat-switch, stale, gpu-idle.
+  - The rest are defects for the image-defects agent:
+    1. frames, 1 of 2 refused per member (mask-import) on `neutral/blink`. Ash: "The edit redrew the picture outside its mask (mean change 40.5/255, limit 16)". Bram: same, 44.8/255. Cleo: "The edit spills past its mask edge (within 12 px: mean 34.2/255, 22% over 48; limits 20 and 12%)". Evidence: `record.json` steps `frames[*]`, screenshots `13-15-frames-*.png`.
+    2. rig x3 and look-rebuild refused, "bust only, rig not prepared". The vision model was shown a placeholder, not the bust: "a featureless silhouette with a question-mark graphic" (Ash, Bram, Cleo) and "a solid-black silhouette" (look-rebuild). The bust saved fine ("Saved bust (kept)"), so the image sent to landmarks is not the saved bust. Suspect: an unserved or `?t=`-suffixed path, or a missing-image placeholder reaching the vision call. Evidence: steps `rig[*]`, `look-rebuild`, screenshots `16-18-rig-*.png`, `22-look-rebuild.png`.
+    3. play FAIL: "no viseme mouth observed on a ready live head", 570 s. Probably a consequence of 2, since no rig means no ready live head. Evidence: `turns.jsonl`, `19-play.png`.
+    4. pose FAIL: "SO-P41 Bram: sit_edge on set default (wanted a posed sit_edge body)" after the 30-min wait. Ash and Cleo got posed bodies. Evidence: step `pose`, `20-pose.png`, `samples.jsonl`.
+    5. background REFUSED: "API request failed" after 901 s. It made the run's one DeepSeek call (`/api/backends/chat-completions/generate`, step `background`), through the lane copy's image-prompt profile, which points at a DeepSeek profile. That paid route was not named by the runbook. Evidence: `calls.jsonl`.
+    6. illustration REFUSED: "The last image could not be made". Same cause as the showcase run: "This Qwen node does not offer the two-reference cast scene input" (ComfyUI capability gap).
+  - Cleanup: cards, group, library story and settings scrubbed, but "2 owned asset(s) leaked": two pose images under `SO-P41 Ash/lp_521e9e9b`. Removed afterwards with `so-assets remove --marker SO-P41`; `assert-clean --marker SO-P41` and `--marker SO-PL` exit 0 on lane 33.
+- Floors (predeclared 2026-10-14): not met. Run 1 incomplete, run 2 NOT GREEN. No floor changed.
+- Post-fix shakedown: the broker fix (`c49b7995`, cherry-picked here as `ed687cdc`) was built and the plugins reinstalled from this worktree. The shakedown journey did NOT run: the local controller (pre-fix code) was serving another lane's text suite (port 8141) and refused to stop with active work. Owed: one `so-p41-journey.mts run 1 --authoring claude --candidate` after a controller restart on the fixed code.
+- GPU minutes: run 1 about 90 (mostly waits with the GPU idle on the stuck lease), run 2 about 75.

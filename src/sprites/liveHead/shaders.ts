@@ -38,6 +38,7 @@ uniform float uEyeTop[48];
 uniform float uEyeBot[48];
 uniform vec4 uEyeState[2];
 uniform vec4 uSclera[2];
+uniform vec4 uIris[2];
 uniform vec4 uMouth;
 uniform vec4 uMouthState;
 uniform vec4 uCheeks;
@@ -95,9 +96,32 @@ float trust(vec2 q, float top, float bot, vec3 tone) {
   return max(inside, irisWeight(texAt(vec2(q.x, inward)), tone) * interior(inward, top, bot));
 }
 
-vec4 slideBall(vec4 here, vec4 moved, vec3 tone, float inHere, float inMoved) {
+float spanWeight(int e, float x) {
+  vec4 s = uIris[e];
+  if (s.z < 0.5) return 1.0;
+  return 1.0 - smoothstep(s.y + 1.0, s.y + 2.5, abs(x - s.x));
+}
+
+float openAt(int e, float x) {
+  vec4 box = uEyeBox[e];
+  float u = clamp((x - box.x) / (box.y - box.x), 0.0, 1.0);
+  return crv(e, false, u) - crv(e, true, u);
+}
+
+vec3 bandFill(int e, vec2 p, float top, float bot, vec3 tone) {
+  vec4 s = uIris[e]; vec4 box = uEyeBox[e];
+  if (s.z < 0.5 || interior(p.y, top, bot) >= 1.0) return tone;
+  float near = p.x < s.x ? -1.0 : 1.0;
+  float xn = s.x + near * (s.y + 3.0), xf = s.x - near * (s.y + 3.0);
+  float xe = openAt(e, xf) > openAt(e, xn) ? xf : xn;
+  float ue = clamp((xe - box.x) / (box.y - box.x), 0.0, 1.0);
+  vec4 edge = texAt(vec2(xe, p.y - top < bot - p.y ? crv(e, true, ue) + (p.y - top) : crv(e, false, ue) - (bot - p.y)));
+  return edge.a < 0.5 ? tone : edge.rgb / edge.a;
+}
+
+vec4 slideBall(vec4 here, vec4 moved, vec3 tone, float inHere, float inMoved, vec3 fill) {
   vec3 h = here.rgb / max(here.a, 1e-4), m = moved.rgb / max(moved.a, 1e-4);
-  vec3 rgb = h - irisWeight(here, tone) * inHere * (h - tone) + irisWeight(moved, tone) * inMoved * (m - tone);
+  vec3 rgb = h - irisWeight(here, tone) * inHere * (h - fill) + irisWeight(moved, tone) * inMoved * (m - fill);
   return vec4(clamp(rgb, 0.0, 1.0) * here.a, here.a);
 }
 
@@ -115,7 +139,12 @@ vec4 eyeBall(int e, vec2 p) {
   else {
     vec2 q = p - off;
     float uq = clamp((q.x - box.x) / (box.y - box.x), 0.0, 1.0);
-    c = slideBall(texAt(p), texAt(q), tone.rgb, trust(p, top, bot, tone.rgb), trust(q, crv(e, true, uq), crv(e, false, uq), tone.rgb));
+    vec4 here = texAt(p);
+    float held = spanWeight(e, p.x);
+    vec3 fill = mix(tone.rgb, bandFill(e, p, top, bot, tone.rgb), held);
+    float kept = min(1.0, (1.0 - held) * irisWeight(here, tone.rgb) + held * irisWeight(vec4(fill, 1.0), tone.rgb));
+    float inMoved = trust(q, crv(e, true, uq), crv(e, false, uq), tone.rgb) * spanWeight(e, q.x) * (1.0 - kept);
+    c = slideBall(here, texAt(q), tone.rgb, trust(p, top, bot, tone.rgb) * held, inMoved, fill);
   }
 
   return c * smoothstep(lids.x - 1.0, lids.x + 0.5, p.y) * (1.0 - smoothstep(lids.y - 0.9, lids.y + 0.6, p.y));

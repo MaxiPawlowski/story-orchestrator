@@ -1,5 +1,8 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { webcrypto } from "node:crypto";
 import { drawPreparedCast } from "./castSceneHost";
+import { CAST_TWO_REFERENCE_MISSING } from "./castScene";
 import { ImageQueue } from "./queue";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { visualFixture } from "../sprites/visualFixtures";
@@ -53,6 +56,30 @@ const setup = () => {
 };
 beforeEach(() => jest.clearAllMocks());
 
+test("two characters on a ComfyUI without the second Qwen image input are refused with the setup gap named, before any GPU lease", async () => {
+  const f = setup(), source = visualFixture(), defaults = defaultGlobalSettings(), builder = { baseSet: "base", box: source.box, models: { diffusion: "qwen", encoder: "encoder", vae: "vae" }, steps: 25 };
+  jest.mocked(getGlobalSettings).mockReturnValue({ ...defaults, sprites: { ...defaults.sprites, visualSources: { Synthetic: source, Second: { ...visualFixture(), character: "Second" } }, builders: { Synthetic: builder, Second: builder } } });
+  jest.mocked(spriteCast).mockReturnValue({ chatId: "chat", groupId: "group", members: ["Synthetic", "Second"].map((name) => ({ name, folder: name, avatar: `${name}.png`, profile: {}, muted: false })) });
+  const manager = { ...f.manager, getStory: () => ({ roster: [{ id: "synthetic", name: "Synthetic" }, { id: "second", name: "Second" }], cardFieldByQuality: {} }) } as unknown as RuntimeManager;
+  const refusal = drawPreparedCast(manager, f.queue, ["Synthetic", "Second"], "");
+  await expect(refusal).rejects.toThrow(CAST_TWO_REFERENCE_MISSING);
+  await expect(refusal).rejects.toMatchObject({ name: "CastSetupGap" });
+  expect(reserveGpu).not.toHaveBeenCalled();
+});
+
+test("two characters on ComfyUI's Autogrow Qwen node pass the second-image check and render", async () => {
+  const f = setup(), source = visualFixture(), defaults = defaultGlobalSettings(), builder = { baseSet: "base", box: source.box, models: { diffusion: "qwen", encoder: "encoder", vae: "vae" }, steps: 25 };
+  jest.mocked(getGlobalSettings).mockReturnValue({ ...defaults, sprites: { ...defaults.sprites, visualSources: { Synthetic: source, Second: { ...visualFixture(), character: "Second" } }, builders: { Synthetic: builder, Second: builder } } });
+  jest.mocked(spriteCast).mockReturnValue({ chatId: "chat", groupId: "group", members: ["Synthetic", "Second"].map((name) => ({ name, folder: name, avatar: `${name}.png`, profile: {}, muted: false })) });
+  const recorded = JSON.parse(readFileSync(join(__dirname, "../../test/fixtures/comfy-qwen21-autogrow.object_info.json"), "utf8"));
+  jest.mocked(comfyDiscover).mockResolvedValue({ nodes: { ...Object.fromEntries(EDIT_NODES.map((node) => [node, {}])), TextEncodeQwenImage21: recorded.TextEncodeQwenImage21 },
+    checkpoints: [], embeddings: [], loras: [], upscalers: [], diffusionModels: ["qwen"], textEncoders: ["encoder"], vaes: ["vae"] });
+  const manager = { ...f.manager, getStory: () => ({ roster: [{ id: "synthetic", name: "Synthetic" }, { id: "second", name: "Second" }], cardFieldByQuality: {} }) } as unknown as RuntimeManager;
+  await expect(drawPreparedCast(manager, f.queue, ["Synthetic", "Second"], "")).resolves.toBe("/images/synthetic.png");
+  const graph = jest.mocked(comfyRenderOwned).mock.calls[0][0] as Record<string, { class_type: string; inputs: Record<string, unknown> }>;
+  expect(Object.keys(Object.values(graph).find((node) => node.class_type === "TextEncodeQwenImage21")!.inputs).filter((key) => key.startsWith("images."))).toEqual(["images.image_1", "images.image_2"]);
+});
+
 test("cast pipeline uploads image bytes, places accepted-lineage metadata and releases owned resources", async () => {
   const f = setup(); await expect(drawPreparedCast(f.manager, f.queue, ["Synthetic"], "A fountain")).resolves.toBe("/images/synthetic.png");
   expect(comfyReference).toHaveBeenCalledWith("encoded-reference-bytes", expect.any(AbortSignal));
@@ -68,6 +95,12 @@ test.each(["chat", "source", "cancel"])("%s during render discards the result be
   await expect(drawPreparedCast(f.manager, f.queue, ["Synthetic"], "")).rejects.toThrow();
   expect(imageSave).not.toHaveBeenCalled(); expect(imagePlace).not.toHaveBeenCalled(); expect(releaseGpu).toHaveBeenCalledWith("owned-lease");
   expect(comfyReleaseReference).toHaveBeenCalledWith("owned-ref.png");
+});
+
+test("a reference release that throws still releases the GPU lease", async () => {
+  const f = setup(); jest.mocked(comfyReleaseReference).mockRejectedValue(new Error("network"));
+  await expect(drawPreparedCast(f.manager, f.queue, ["Synthetic"], "")).rejects.toThrow("network");
+  expect(releaseGpu).toHaveBeenCalledWith("owned-lease");
 });
 
 test("cancel during media save removes the unplaced image", async () => {

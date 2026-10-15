@@ -6,6 +6,7 @@ import type { SpriteBuilder as Builder, SpriteCandidate } from "../../sprites/bu
 import type { SpriteBuilderHost } from "./SpriteBuilder";
 import { draftOwnership } from "../agentHost";
 import { builderRender, RENDER_PRESETS } from "../../sprites/settings";
+import { refuseDefaultCardArt } from "../../sprites/cardArt";
 
 export default function BaseSpriteBuilder({ character, image, set, models, discovery, steps, resolution = RENDER_PRESETS.standard.resolution, seed, busy, setBusy, builder, services, onSaved }: {
   character: string; image?: string; set: string; models: { diffusion: string; encoder: string; vae: string };
@@ -29,6 +30,7 @@ export default function BaseSpriteBuilder({ character, image, set, models, disco
     try {
       const problems = recipeProblems(discovery, models);
       if (problems.length) throw new Error(problems.join(" "));
+      await refuseDefaultCardArt(await services.decode(image), services.decode);
       const [diffusion, encoder, vae] = await Promise.all([
         services.fingerprint("diffusionModels", models.diffusion, AbortSignal.timeout(600_000)),
         services.fingerprint("textEncoders", models.encoder, AbortSignal.timeout(600_000)),

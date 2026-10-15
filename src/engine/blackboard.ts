@@ -9,6 +9,7 @@ export interface BlackboardDelta {
   boundary?: number;
   evidenceAt?: number;
   playerSpan?: PlayerSpan;
+  beat?: string;
 }
 
 export interface PlayerSpan {
