@@ -2,6 +2,7 @@ import { getContext } from "./context";
 import { isRecord } from "@utils/guards";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { log } from "@utils/log";
+import { releaseAnswer } from "./gpuLeaseAnswer";
 
 const URL = "/api/plugins/story-orchestrator-gpu";
 
@@ -84,8 +85,7 @@ export async function reserveGpu(request: GpuRequest = {}): Promise<GpuReservati
 export async function releaseGpu(lease: string | null): Promise<WriteResult<{ released: boolean }>> {
   if (!lease) return wrote({ released: false });
   const response = await post("release", { lease });
-  const data: unknown = await response.json().catch(() => null);
-  return response.ok && isRecord(data) && data.released === true ? wrote({ released: true }) : couldNot("The GPU broker did not release the image lease.");
+  return releaseAnswer(response.ok, await response.json().catch(() => null));
 }
 
 export async function renewGpu(lease: string | null): Promise<WriteResult<{ renewed: boolean }>> {

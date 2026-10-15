@@ -70,6 +70,12 @@ test.each(["chat", "source", "cancel"])("%s during render discards the result be
   expect(comfyReleaseReference).toHaveBeenCalledWith("owned-ref.png");
 });
 
+test("a reference release that throws still releases the GPU lease", async () => {
+  const f = setup(); jest.mocked(comfyReleaseReference).mockRejectedValue(new Error("network"));
+  await expect(drawPreparedCast(f.manager, f.queue, ["Synthetic"], "")).rejects.toThrow("network");
+  expect(releaseGpu).toHaveBeenCalledWith("owned-lease");
+});
+
 test("cancel during media save removes the unplaced image", async () => {
   const f = setup(); jest.mocked(imageSave).mockImplementation(async () => { f.queue.cancelAll(); return "/images/late.png"; });
   await expect(drawPreparedCast(f.manager, f.queue, ["Synthetic"], "")).rejects.toThrow();
