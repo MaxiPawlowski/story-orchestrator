@@ -321,6 +321,9 @@
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); for (let i = 0; i < 60 && rt.getSnapshot().storyId !== 'adolion-academy'; i++) await new Promise((r) => setTimeout(r, 500)); const snap = rt.getSnapshot(); if (snap.storyId !== 'adolion-academy') throw new Error('the story did not come back after reload'); if (snap.playerSetup?.pending) throw new Error('the identity step was offered again on reopen'); if (!ctx.chatMetadata?.persona) throw new Error('the persona lock did not survive the reload'); return { boundary: snap.boundary };"
         },
         {
+          "eval": "let popup = null; for (let i = 0; i < 60 && !popup; i++) { popup = [...document.querySelectorAll('dialog.popup[open]')].find((d) => /^Previously/.test((d.querySelector('.popup-content')?.innerText ?? '').trim())) ?? null; if (!popup) await new Promise((r) => setTimeout(r, 500)); } if (!popup) throw new Error('no welcome-back recap after reopening a chat with a sealed chapter'); const ok = popup.querySelector('.popup-button-ok'); if (!ok) throw new Error('the recap has no Continue button'); ok.click(); for (let i = 0; i < 20 && popup.open; i++) await new Promise((r) => setTimeout(r, 250)); if (popup.open) throw new Error('the recap did not close on Continue'); return { recap: true };"
+        },
+        {
           "send_generate": {
             "text": "I pick up where we left off.",
             "timeoutMs": 900000
