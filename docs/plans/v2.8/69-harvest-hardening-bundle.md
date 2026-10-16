@@ -331,7 +331,7 @@ K17, K1 (bounded). One commit per item, test first. No GPU, no model.
   - Live, lane 60 (no-model, `C:\dev\st-live`), `test/scenarios/v28-69-k9-early-return.json` (plan 60 B10's setup) ×2, PASS:
     control `generate('impersonate')` on the disconnected lane emits no GENERATION_ENDED and leaves the hold on; the next
     `generate('normal')` releases it, pacing hint and check outcome back, chat unchanged; `assert-player-clean` ok. Evidence
-    `C:\dev\so-live-lanes\evidence-2026-10-160\` (`2026-10-16T17-20-02-220Z`, `…17-20-35-148Z`).
+    `C:\dev\so-live-lanes\evidence-2026-10-16\60\` (`2026-10-16T17-20-02-220Z`, `…17-20-35-148Z`).
 - **K10 info check built** (`cb586d36`), no code guard. Host path verified: `oai_settings.send_if_empty` is the context's
   `chatCompletionSettings` (ST `st-context.js:227`), the API is `main_api` "openai" (`:200`), and `openai.js:930-931` appends
   it as a user message when the last prompt message is the assistant's. `stHost/extensionConflicts.ts` reports
