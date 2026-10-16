@@ -192,7 +192,7 @@
           }
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.capturePayload('gs1-scenario'); const blocks = (rt.getSnapshot().payloadCaptures ?? []).find((c) => c.reason === 'gs1-scenario')?.blocks ?? []; const scen = blocks.filter((b) => /scenario/i.test(String(b.key ?? b.id ?? ''))); if (!scen.length) throw new Error('no scenario block in the prompt ST holds at an authored scenario checkpoint'); const ledger = rt.getSnapshot().effects?.ledger ?? []; return { scenarioBlocks: scen.length, ledgerRows: ledger.length };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const st = rt.loaded?.story; const authored = st.checkpoints.map((c) => c.effects?.scenario).filter((v) => typeof v === 'string' && v.trim()).map((v) => v.trim()); const held = String(SillyTavern.getContext().chatMetadata?.scenario ?? ''); if (!held) throw new Error('ST holds no chat scenario override at an authored scenario checkpoint'); if (!authored.includes(held)) throw new Error('the chat scenario override ST holds is not an authored scenario'); const ledger = rt.getSnapshot().effects?.ledger ?? []; const rows = ledger.filter((r) => r.target?.kind === 'extension' && r.target?.name === 'scenario' && r.status === 'applied'); if (!rows.length) throw new Error('no applied scenario row in the effect ledger'); return { heldChars: held.length, appliedScenarioRows: rows.length };"
         }
       ]
     },
