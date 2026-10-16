@@ -1,5 +1,5 @@
 import { INJECTION_REGISTRY, type InjectionSpec } from "@constants/injectionRegistry";
-import { isSceneStale, type SceneReadRecord } from "@judge/index";
+import { isSceneStale, type SceneReadRecord } from "@judge/scene";
 
 // The author's one place to see what the next
 // reply will receive, composed from the SAME registry the injections are registered in and the blocks

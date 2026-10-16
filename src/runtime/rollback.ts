@@ -9,7 +9,7 @@ import type { JournalContext, SessionJournal } from "./journal";
 import type { DecodeJournal } from "./messageIdentity";
 
 export type { DecodeJournal };
-import { dropJudgeCallsAfter } from "@judge/index";
+import { dropJudgeCallsAfter } from "@judge/settings";
 import { rewindNpcReplies, rewindOnEnterPosts } from "./npcReplyRewind";
 import { rollbackLoreFired } from "./loreFired";
 import { rollbackChanceDraws } from "./rolls";

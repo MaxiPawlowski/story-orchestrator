@@ -9,7 +9,8 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 import { buildJaccardMatchSets, conflictWindow, DEFAULT_DEDUP_THRESHOLDS, heldContradictions, heldGroup, isEstablished, isLive, jaccardSimilarity, provenance, unionMatchSets, withOverride, type MatchSets, type MemoryEntry } from "@memory/index";
-import { detectMemoryConflicts, dismissMemoryConflict, findHeldContradictions, holdMemoryContradictions, settleUncertain, type MemoryQueueDeps } from "./memoryQueue";
+import { detectMemoryConflicts, findHeldContradictions, holdMemoryContradictions, settleUncertain, type MemoryQueueDeps } from "./memoryQueue";
+import { dismissMemoryConflict } from "./memoryDecisions";
 import type { MemoryRuntimeState } from "./types";
 
 // v2.4 plan 07 (J8.5): the queue's half of holding a claim that contradicts an established row.

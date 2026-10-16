@@ -6,7 +6,9 @@ import {
 import type { DriverContext } from "@copilot/index";
 import { castVoices, sceneFieldsInConflict, shownRows, withoutExcludedThreads, type LedgerView, type MemoryInjectionView } from "@memory/index";
 import { curatorLorebooks, mineRepetition, replyTexts } from "@stagecraft/index";
-import { confirmedSceneFacts, isSceneStale, judgeMeterView, judgeRouteGaps } from "@judge/index";
+import { judgeRouteGaps } from "@judge/readiness";
+import { confirmedSceneFacts, isSceneStale } from "@judge/scene";
+import { judgeMeterView } from "@judge/settings";
 import { buildConvergenceReadout, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot, playerLastTransition } from "./snapshot";
 import { currentThreads, latestScene } from "./recapCurrent";
 import { buildNarrativeStatus, PLAYER_COPY, playerLocation, type NarrativeTransition, type RollbackNotice, type RollbackUnavailable } from "./narrative";

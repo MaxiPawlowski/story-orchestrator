@@ -32,13 +32,12 @@ import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership, type RunToken } from "../runToken";
 import type { ChatHost, RosterHost } from "../hostPorts";
 import type { SpikeSettings } from "../settingsModel";
-import { MemorizeBacklog } from "../memorizeBacklog";
+import { lazyBacklog, type BacklogPort } from "../memorizeBacklogPort";
 import type { PromisePort } from "../promisePort";
 import type { WitnessPort } from "../witnessPort";
-import {
-  buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, STALL_TIMEOUT_MS, verifyVerdict,
-  VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS,
-} from "@judge/index";
+import { buildStallRequest, stallVerdict } from "@judge/extraction";
+import { buildVerifyRequest, readVerify, verifyVerdict } from "@judge/memory";
+import { STALL_TIMEOUT_MS, VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS } from "@judge/policy";
 import { log } from "@utils/log";
 
 export const TYPED_READ_WINDOW = 3;
@@ -80,11 +79,11 @@ export interface ExtractionCoordinatorDeps {
 // are delegated to the memory coordinator — this class never touches extras.memory directly.
 export class ExtractionCoordinator {
   private sceneDetectCursor: { location: string | null; cast: string | null; world: RunToken | null } | null = null;
-  readonly backlog: MemorizeBacklog;
+  readonly backlog: BacklogPort;
   private readonly compactions = new CompactionAttempts();
 
   constructor(private readonly deps: ExtractionCoordinatorDeps) {
-    this.backlog = new MemorizeBacklog({
+    this.backlog = lazyBacklog({
       getStory: () => deps.getStory(), getState: () => deps.getState(), memory: () => deps.memory, model: () => deps.model,
       ownership: () => deps.ownership, chat: () => deps.hosts.chat, judge: () => deps.judge?.() ?? null,
       firedTransitions: () => deps.getFiredTransitions(), applyAudit: (...args) => this.applyAudit(...args),

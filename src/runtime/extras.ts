@@ -5,7 +5,7 @@ import {
 import type { SealSkip } from "@memory/reverse";
 import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
 import { capProposalRing, sanitizeCreated, sanitizeDeclines } from "@stagecraft/index";
-import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
+import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/settings";
 import { sanitizeModelCalls } from "./modelCallLog";
 import { sanitizeJournalRecords } from "./journal";
 import { defaultExtractionSettings, defaultInlineSettings, defaultMemorySettings, defaultStagecraftSettings, type ChatOverrides, type GlobalSettings } from "./settingsModel";
