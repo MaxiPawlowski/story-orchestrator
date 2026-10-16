@@ -425,17 +425,18 @@ export class LivingCoordinator {
     if (next !== this.state) this.write(next);
   }
 
-  restoreAfterRollback(boundary: number): number {
-    if (!this.tracks()) return 0;
+  restoreAfterRollback(boundary: number, run: RunGuard = beginRun(this.deps.ownership)): number {
+    if (!this.tracks() || !run.stillOwns()) return 0;
     const { state, dropped } = dropOpsAfter(this.state, boundary);
     const droppedBranches = state.proposals.filter((proposal) => proposal.kind === "branch" && dropped.some((op) => op.proposalId === proposal.id)).map((proposal) => proposal.frontierId);
     const divergence = { ...unmarkBranched(this.divergence, droppedBranches), streak: 0, lastTurn: -1 };
     const sceneTests = state.sceneTests ? { sceneTests: dropSceneTestsAfter(state.sceneTests, boundary) } : {};
     this.write({ ...state, ...sceneTests, divergence, epochBumps: state.epochBumps + (dropped.length ? 0 : 1) });
+    if (!run.stillOwns()) return 0;
     this.withdraw("a rollback changed the story's future");
     if (!dropped.length) return 0;
     const raw = livingRaw(this.state);
-    if (!raw) return 0;
+    if (!raw || !run.stillOwns()) return 0;
     this.deps.setPlayedRaw(raw);
     const story = this.deps.getStory();
     const pruned = story ? this.deps.pruneExpansion(story) : 0;

@@ -1,5 +1,5 @@
 import { chapterKit, loadChapterKit } from "./chapterPort";
-import { beginRun, type RunOwnership } from "./runToken";
+import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { rollbackModelCalls } from "./modelCallLog";
 import type { RollbackOutcome, StoryEngine } from "@engine/index";
 import type { SharedReadWindow } from "@extraction/index";
@@ -36,7 +36,7 @@ export interface RollbackDeps {
   /** The expansion cache is built from the blackboard, which the rollback just restored. */
   revalidateExpansion: () => unknown;
   restoreExpansion: (boundary: number) => unknown;
-  restoreLiving?: (boundary: number) => unknown;
+  restoreLiving?: (boundary: number, run: RunGuard) => unknown;
   livingMovedAfter?: (boundary: number) => boolean;
   extras: () => RuntimeExtras;
   refreshRequirements: () => void;
@@ -154,7 +154,8 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
   const outcome = engine.rollbackTo(boundary);
   if (!outcome.ok) return unavailable(outcome.oldest);
   if (outcome.result !== "applied") return outcome;
-  deps.restoreLiving?.(engine.serialize().boundary);
+  await deps.restoreLiving?.(engine.serialize().boundary, run);
+  if (!run.stillOwns()) return lapsed;
   deps.notices.rollbackUnavailable = null;
   const current = deps.context();
   const window = getChatWindow(engine.serialize().checkpointStartedMessageId, current.lastMessageId);
