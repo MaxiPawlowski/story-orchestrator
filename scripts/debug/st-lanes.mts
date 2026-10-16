@@ -322,6 +322,12 @@ async function assignPod(n: number, pod: number | null, podId: string | null) {
 }
 
 // v2.5 plan 01 G3/G4: `--wi-gating` reaches journeys only; a scenario that needs a mode switches it itself.
+export function runRowName(stamp: string, script: string[]): string {
+  const name = basename(script[0] ?? 'script').replace(/\.m?[tj]s$/, '');
+  const verb = script[1] && !script[1].startsWith('-') ? `-${script[1].replace(/[^A-Za-z0-9_-]+/g, '_').slice(0, 40)}` : '';
+  return `${stamp}-${name}${verb}`;
+}
+
 export const isJourneyItem = (item: string) => /^(J|GS)\d+$/i.test(item);
 export const itemArgs = (item: string, strict: boolean, group: string | null, wiGating: string | null = null) => (isJourneyItem(item)
   ? ['scripts/debug/so-journey.mts', 'run', item.toUpperCase(), ...(strict ? ['--strict'] : []), ...(wiGating ? ['--wi-gating', wiGating] : [])]
@@ -436,7 +442,7 @@ async function main() {
     const load = (isIntegrationPlay(script) || isB1ModelRun(script)) && !rest.slice(0, at).includes('--allow-load') ? laneLoadProblem(await status(), Number(process.env.SO_MAX_LLM_LANES ?? DEFAULT_MAX_LLM_LANES)) : null;
     if (load) throw new Error(`run refused: ${load}`);
     const stamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const rowDir = resolve(lanePaths(n).debug, 'runs', `${stamp}-${basename(script[0] ?? 'script').replace(/\.m?[tj]s$/, '')}${script[1] && !script[1].startsWith('-') ? `-${script[1]}` : ''}`);
+    const rowDir = resolve(lanePaths(n).debug, 'runs', runRowName(stamp, script));
     await mkdir(rowDir, { recursive: true });
     const serverOffset = fileSize(lanePaths(n).log);
     const began = Date.now();
