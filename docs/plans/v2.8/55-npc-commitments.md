@@ -133,7 +133,15 @@ Synthetic English lab stories only; the owner spot-checks synthetic rows (rule 1
 
 ## Harvest 2026-10-14 addendum
 
-From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted). First verified against master `9e96871d`; revised 2026-10-16 on `e8b9dd6d` after `review-astra-harvest-2026-10-16.md`. The owner decides with the rest of this plan.
 
-- **H13a message ids on pledge lines**: option B's `[pledged]` line carries `m=<id>` like v2.8 47's `[promised]` (addendum
-  there; `docs/plans/v2.8/extension-research-2026-10-14/timeline-memory.md` P1).
+- **H13a message ids on pledge lines**: option B's `[pledged]` line carries `m=<id>` like v2.8 47's `[promised]` (built there,
+  `src/memory/promises/contract.ts:7,15`), resolved to a source span with its **revision** (`src/memory/audience.ts:10`); a
+  quote not in the cited message is refused (`docs/plans/v2.8/extension-research-2026-10-14/timeline-memory.md` P1). Not built (55 is a candidate).
+
+## Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Verified on `e8b9dd6d`.
+
+- **43/47/55 — message ids need revisions.** Accepted. → the pledge line binds to a span with revision, as 47 does.
+- Rebutted: none.

@@ -899,13 +899,16 @@ Gates:
 
 ## Harvest 2026-10-14 addendum
 
-From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted). First verified against master `9e96871d`; revised 2026-10-16 on `e8b9dd6d` after `review-astra-harvest-2026-10-16.md`. The owner decides with the rest of this plan.
 
-- **H16f director tag canonicalisation against a Danbooru vocabulary** (`docs/plans/v2.8/extension-research-2026-10-14/booru-autocomplete.md` P1, 3/M; MIT, tag data
-  reusable with notice). The image director's prompt only forbids names, artists and quality tags (`src/image/prompt.ts:58-62`);
-  nothing maps its tags to the model's vocabulary or drops duplicates. Recommended: **measure first** on the existing image
-  goldens: share of director tags absent from the tag list, and whether canonicalising (alias → canonical, drop unknown)
-  changes a blind pick. Build only if the unknown share is above 20 %. LI tier, informational.
+- **H16i director tag canonicalisation against a Danbooru vocabulary** (`docs/plans/v2.8/extension-research-2026-10-14/booru-autocomplete.md` P1, 3/M; MIT, tag
+  data reusable with notice). (Relabelled from H16f to match plan 61.) The image director's prompt only forbids names, artists
+  and quality tags (`src/image/prompt.ts`); nothing maps its tags to the model's vocabulary. Recommended, in order: (1) measure
+  on the existing image goldens the share of director tags absent from the tag list (recorded, informational); (2)
+  canonicalise **known aliases** to their canonical tag (no tag dropped); (3) dropping unknown tags only on a blinded image
+  measurement: paired renders (aliases-only vs aliases + drop) on the same seeds, picked blind by the owner or a second-model
+  rater, with the preference margin predeclared before the run. A high unknown share alone does not show that dropping helps.
+  LI tier, informational.
 
 ## Gate record 2026-10-15 (image defects; p41 run 2 review)
 
@@ -975,3 +978,12 @@ From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licen
 - GPU minutes this session: journey shakedown about 37 busy, latency run 1 about 27 busy, two voided latency starts about 8 (bases).
 - Evidence archive: `lib/evidenceArchive.mts` now also copies the lanes' `debug/p41`, `debug/pose-latency` and `debug/showcase-images` folders (the image drivers' records were not archived before), with a test.
 - Gates on branch `v2.8-image-closeout` (harness and docs only, no `src/` change): `npm run gates:quick` first RED on replay `--cached` (fresh worktree without the replay cache: `jest --listTests` failed), green after a full run wrote the cache. `npm run gates -- --jobs=2 --no-storybook` run 1 RED on `debug:typecheck` (a quote in a new test title, fixed); run 2 all green in 164.8 s: jest 766 suites / 8,853 passed (1 skipped), replay 32/32 killed, test:debug 1,301, test:release 123, test:plugin 311. Storybook skipped: no story or component changed.
+
+## Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Verified on `e8b9dd6d`.
+
+- **P2 — more than 20 % unknown tags does not establish that deleting them improves images.** Accepted. → aliases first, no
+  drop; dropping unknowns gated on a blinded paired-image measurement with a predeclared margin.
+- Label drift: the addendum used H16f; plan 61 calls this H16i. → relabelled.
+- Rebutted: none.

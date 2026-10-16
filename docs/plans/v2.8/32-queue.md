@@ -158,21 +158,24 @@ plan 52's SC1–SC5.
 
 ### Harvest 2026-10-14 (extension pattern harvest, not queued)
 
-Triage of every idea from `extension-research-2026-10-14/SUMMARY.md` (H1–H16) and the unbuilt v2.4 harvest ideas:
-`61-harvest-triage-2026-10-14.md`. Defects B1–B19 are plan 60's. New candidate plans below; folds are "Harvest 2026-10-14
-addendum" sections in 09, 11, 18, 22, 41, 42, 43, 47, 49, 50, 51, 52, 53, 55. Owner decision pending per plan; not queued
-until the owner says so.
+Triage of every idea from `extension-research-2026-10-14/SUMMARY.md` (H1–H16), every other report item (R1–R82, added
+2026-10-16) and the unbuilt v2.4 harvest ideas: `61-harvest-triage-2026-10-14.md`, revised 2026-10-16 after
+`review-astra-harvest-2026-10-16.md`. Plan 60 fixed B1–B3, B5, B6, B9–B16; B4, B7, B8, B17 stay open (B7 is 69 K17, B8 gates
+69 K4). Folds are sections in 09, 11, 18, 22, 34, 35, 41, 42, 43, 46, 47, 49, 50, 51, 52, 53, 55, 58 (64 → 18 + 46, 66 → 09 + 34,
+67 → 35 + 24). Owner decision pending per plan; not queued until the owner says so. Build order (61 §Build order): M69 K11/K12,
+then M67 and the M69 evidence items, M66, M64, M65/M68, M63, M62. Real-model rows of these plans are deferred beyond plan 24's
+12 h cap unless the owner displaces a named item.
 
 | # | Item | Plan | Tiers |
 |---|---|---|---|
 | M60 | Harvest defects B1-B3, B5, B6, B9-B16 fixed on `v2.8-harvest-defects` (unmerged), one commit + regression test each; B4/B7/B8/B17 plausible, not built; B18/B19 refuted. Live gate owed (B14, B6, B10, B3, B5): no private ST copy | 60 | D green; L owed |
-| M61 | Harvest triage (index of every idea, verdict, destination) | 61 | docs |
+| M61 | Harvest triage (index of every idea, verdict, destination), revised 2026-10-16: folds, R1–R82, build order | 61 | docs |
 | M61b | Astra closed-feature reviews (v2.7 + v2.8): 20 correctness findings re-confirmed (all reproduced), 18 fixed in 17 commits on `v2.8-astra-closed-fixes` (unmerged), one commit + regression test each; living scene labels and open-stretch offer receipts queued as design work; live checks owed after merge | 61b | D green; L owed |
-| M62 | Quantum-ogre probe; prepared world facts only on a probe miss | 62 | D + RP (probe) + CL |
-| M63 | Stepped history window; front-trim arm rides R2 first | 63 | D + RP (with R2) + CL |
-| M64 | Public sheet reaches the narrator, "just happened" rows, warn bands | 64 | D (+RP informational) |
-| M65 | "Here now" scene card (reopens 51 decision 2: owner call first) | 65 | D; session or owner decision |
-| M66 | Authoring quality: card review on agent cards, lore preview + key lint, lore templates, read-back | 66 | D + CL |
-| M67 | Grader hygiene and adversarial extractor fixtures (after plan 60 B2) | 67 | D + CL |
-| M68 | "Your move" HUD chip, derived | 68 | D; owner decision |
-| M69 | Harvest hardening bundle (small S items) | 69 | D (+CL one row) |
+| M62 | Continuity probe (contradiction, persistence, disclosure); authored prepared facts and model-filled facts are separate owner decisions | 62 | D + CL (probe) + RP informational (deferred) |
+| M63 | Front-trim latency arms on R2 first; stateless stepped window over durable coverage only on the owner's call | 63 | D + RP (with R2, deferred) + CL |
+| M64 | Public sheet to the narrator with an audience contract, "just happened" from 46's refs, warn bands (folded) | 18 §Phase Q7 | D + CL (+RP informational, deferred) |
+| M65 | "Here now" scene card v1 (location, time, known members; reopens 51 decision 2: owner call first) | 65 | D; session or owner decision |
+| M66 | Agent card checks with a bounded revision step, read-back "may exist" (09); key-match preview, lint, lore guidance (34) (folded) | 09, 34 §Harvest phase | D + CL |
+| M67 | Matcher (prefix inventory first), attribution-aware fixtures, compare, untouched proof, shipped-block and fingerprint rows (folded) | 35 §Harvest phase | D + CL |
+| M68 | "Your move" HUD chip, revision-bound explicit hand-backs | 68 | D; owner decision |
+| M69 | Harvest hardening bundle (17 items; K11 stale proposals and K12 stale whole-book writes are P1, first) | 69 | D (+CL one row) |

@@ -288,10 +288,13 @@ const guideReread = (session: AgentSession, call: AgentStep["call"]): string | n
   return earlier ? `"${topic}" was already read at step #${earlier.id}; its text is in your earlier steps. Act on it instead of reading it again.` : null;
 };
 
+const wroteSince = (session: AgentSession, id: number): boolean =>
+  session.steps.some((step) => step.id > id && (step.status === "accepted" || step.status === "applied"));
+
 const unchangedRead = (session: AgentSession, call: AgentStep["call"], observation: string): string | null => {
   const key = callKey(call);
   const earlier = [...session.steps].reverse().find((step) => step.status === "observed" && callKey(step.call) === key);
-  return earlier && earlier.observation === clip(observation)
+  return earlier && earlier.observation === clip(observation) && !wroteSince(session, earlier.id)
     ? `nothing changed since step #${earlier.id}: ${call.tool} answers exactly what it answered then. Use that answer and move on.`
     : null;
 };

@@ -94,3 +94,73 @@ npx concurrently -k -s first "node node_modules/http-server/bin/http-server .sb-
 - `npm run gates:quick`: green, 489 related suites / 6,193 tests passed, 1 skipped; replay `--cached` ok. Storybook beside the change not run by quick gates; the targeted `lore-features` play passed in the first pass and the card was not touched since.
 - Not run: full `npm run gates`, build (no non-test source changed since the first pass's 1,296,595 B build), Storybook, any lane, GPU, model or judge call, staging, install.
 - Owed: unchanged from the first pass (no-model lane 32 provisioning-card read-back and NOT_ANY dry run; real-model lore-select/wizard run; coordinator full gates).
+
+## Harvest phase: key-match preview, key lint, per-kind lore guidance (ex-plan 66, folded 2026-10-16)
+
+Was half of `66-authoring-quality-cards-and-lore.md` (written 2026-10-14, H6b, H7); folded after Astra's review
+(`review-astra-harvest-2026-10-16.md` §1, §2 (66)). The card half is `09-wizard-assistant.md` §Harvest phase. Not built,
+not queued. Implementation **D**; acceptance **D** + **CL**. Sources:
+`docs/plans/v2.8/extension-research-2026-10-14/creative-studio.md` P2 (activation preview + key lint, 3/S–M),
+`writers-workbench.md` P1 (per-kind templates, 4/S).
+
+### Current state in code (verified on `e8b9dd6d`)
+
+- Wizard lore checks are shape-only (`loreEntryShapeProblem`, `src/wizard/provisioning.ts:15`). The wizard prompt covers key
+  syntax only.
+- `matchKey` (`src/runtime/loreKeyMatch.ts:35`) answers "does this key match this text". `keywordWillActivate` (`:61`) answers a
+  narrower question and **deliberately returns false for uncertain entries** (`certain`, `:51-59`: probability, groups,
+  triggers, character filters, delay/cooldown, `@@` content, `{{` keys, scan depth 0). Real activation also depends on
+  checkpoint gating, scan sources and depth, secondary logic, recursion and budgets (this plan's §What ST does).
+- Guide topic `lore-entries` (`docs/authoring/story-guide.md:392`, twin `src/copilot/guideTopics.ts:264`) covers fields and
+  mechanics; `{{// so:protect}}` is documented; no per-kind content guidance.
+
+### Design
+
+1. **Key-match preview, honestly labelled.** `previewKeyMatches(op, texts)` (pure, over `matchKey`) lists which of the
+   draft's own texts (checkpoint objectives, briefing, opening messages, card descriptions) a primary key matches. Card line:
+   **"key matches these draft texts: …"** or "no draft text contains any key". It never says "fires on". Where
+   `keywordWillActivate` would call the entry uncertain, the card adds the reason ("may not fire: probability 40", "gated:
+   only on checkpoints …" from the gated set). Actual activation is tested separately (below), not claimed by the preview.
+2. **Key lint, warnings only**, each with an operational rule: a key under 3 characters; a key shared by more than two entries
+   in the book; a secondary `and-any` key that is also one of the entry's primary keys or whose first 5 letters equal a primary
+   key's (labelled "secondary repeats a primary key; it narrows nothing"); `sticky` on a constant entry.
+3. **Per-kind lore guidance.** A guide topic `lore-content` (story guide + compact twin + coverage test), one short
+   paragraph per kind in our own wording: place (ways in and out, travel distance), item (limits, who wants it), faction (size,
+   reach), history (what happened vs what people say; the truth kept out of shared lore), concept (limits). A short patchable
+   "Current state" paragraph for the curator; the stable text under `{{// so:protect}}`. A one-line rule appended to the
+   wizard's lore op grammar; `references/patterns.md` §content in `st-lorebook-authoring`.
+
+### Predeclared floors
+
+| # | Condition | Floor | Tier |
+|---|---|---|---|
+| A3 | Preview: on a 20-entry fixture with known matches, every listed text equals `matchKey` over the same texts, and every entry `keywordWillActivate` calls uncertain carries its reason | 20/20 | D |
+| A3a | Activation, separately: on a no-model lane, 6 fixture entries (certain, probability, gated, secondary NOT, group, scan depth 0) are checked against ST's own activation evidence (`WORLD_INFO_ACTIVATED`); the preview never claims an entry fires | recorded per entry; 0 "fires" claims | D |
+| A4 | Key lint planted controls (short key, shared key, secondary repeating a primary, sticky on constant) flagged; 0 on 10 clean entries | 4/4, 0/10 | D |
+| A7 | Guidance effect: 10 wizard lore entries per arm (rule on/off), arms blinded; two raters score each entry 1–5 on "a model could play this entry without inventing its basics" (rubric in the fixture); arm score = median of the per-entry mean | recorded; on − off reported with both raters' medians | CL |
+
+Floors are informational and never retuned (rule 2).
+
+### Gates by tier
+
+- **D:** `npm run gates`; A3, A3a (no-model lane), A4; Storybook for the provisioning card preview line; guide coverage.
+- **CL:** A7 on Sol, ×2.
+
+### Decisions for the owner
+
+1. **Preview labelled "key matches these draft texts", with uncertainty reasons, never "fires on"?** **Recommended: yes.**
+2. **Lore guidance as guide topic + prompt rule (no structured editor)?** **Recommended: yes.**
+3. **Build after 09's card checks and read-back (lower priority)?** **Recommended: yes.**
+
+### Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §2 (66), §1 (fold advice). Verified on `e8b9dd6d`.
+
+- **P2 — "fires on" overclaims; `keywordWillActivate` excludes uncertain cases.** Accepted (`src/runtime/loreKeyMatch.ts:51-61`).
+  → relabelled "key matches these draft texts", reasons for uncertain entries, A3 rewritten against `matchKey`, actual
+  activation tested separately (A3a).
+- **P2 — "synonym-like" needs an operational definition; A7 needs a scale, aggregation and blind rubric.** Accepted. → lint
+  rule defined (secondary repeats a primary or shares its first 5 letters); A7 1–5 scale, two blind raters, median of means.
+- **Preview sophistication can wait.** Adopted (decision 3).
+- **Fold 66 → 09 + 34.** Adopted; `66-authoring-quality-cards-and-lore.md` is a pointer.
+- Rebutted: none.

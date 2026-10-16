@@ -442,13 +442,111 @@ its quota runs out.
   check that a fresh install with opencode offered shows "Default: opencode · openai/gpt-6.1-sol" and runs the wizard on
   the bridge; `so-ui.mts assert-player-clean` with a cloud task assigned (F23).
 
+
 ## Harvest 2026-10-14 addendum
 
-From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted). First
+verified against master `9e96871d`; revised 2026-10-16 on `e8b9dd6d`. The owner decides with the rest of this plan.
 
-- **H12c harness quota meter from in-stream events** (`docs/plans/v2.8/extension-research-2026-10-14/sillytavern-subscriptions.md` P2, 3/M). The harness learns of a
-  quota only when a call fails; it never reads usage events in the stream (grep `rate_limit_event` = 0 under
-  `server-plugin/story-orchestrator-harness/`). Their plugin reads CLI login files: an anti-pattern for us (never read a login
-  file). Recommended: only if the opencode route's own stream carries usage or limit events (a host fact to verify on the
-  pinned opencode), surface them as a route-health line in Connections; otherwise skip. H12a/H12b (status-code
-  classification, served model, refusal is final) are plan 60's B4/B5.
+- **H12c harness quota meter from in-stream events** (`docs/plans/v2.8/extension-research-2026-10-14/sillytavern-subscriptions.md`
+  P2, 3/M). **Claude route built since the first pass**: the bridge reads `rate_limit_event` lines into `/status`
+  `harnesses.claude.meter` (`server-plugin/story-orchestrator-harness/claudeTransport.mjs:80`, README §rate limits) and
+  Connections shows the hint (`meterHint`, `src/components/settings/MemoryModelGroup.tsx:27`). **Opencode** reports a limit
+  only on a failed call (`server-plugin/story-orchestrator-harness/opencodeTransport.mjs:198`); its stream carries token usage,
+  no limit event (`:495`). Recommended: nothing more for opencode unless its stream gains a limit event (a host fact to
+  re-check at a pin bump). Restrictions kept: never read a login file; no private story input in a status line. H12a is
+  plan 60's B4 (open), H12b its B5 (fixed).
+- **H6, H7b, H16j, R25** (card review on every agent card, behaviour prompts, read-back, craft lines): were plan 66; folded
+  here as **§Harvest phase: agent card quality and read-back** on 2026-10-16. The lore half (H6b, H7) is
+  `34-lorebook-features.md` §Harvest phase.
+
+## Harvest phase: agent card quality and read-back (ex-plan 66, folded 2026-10-16)
+
+Was half of `66-authoring-quality-cards-and-lore.md` (written 2026-10-14); folded after Astra's review
+(`review-astra-harvest-2026-10-16.md` §1, §2 (66)). Not built, not queued. Implementation **D**; acceptance **D** + **CL**
+(the wizard on Sol). Sources: `docs/plans/v2.8/extension-research-2026-10-14/creative-studio.md` P1 (card review on agent
+cards, 4/S), P6 (read-back, 2/S), P7 (craft lines, 2/S); `writers-workbench.md` P2 (behaviour prompts, 3/S);
+`nemo-plotlight.md` P1, `tavernary.md` P1 (read-back; unconfirmed outcome).
+
+### Current state in code (verified on `e8b9dd6d`)
+
+- **Tutorial-only review.** `reviewTutorialCard` (`src/copilot/characterTutorial.ts:126`). Its only `blocks` findings are
+  name missing, name taken and empty description; everything else (greeting speaks for the player `:144`, adjective list
+  `:140`, budget, examples without `{{char}}:`, everyday-word name) is `warns`.
+- **Agent cards.** `validateProvisioningOp` for `createCharacterCard` (`src/wizard/provisioning.ts:93`) checks name, non-empty
+  description, duplicates (the same three blocks). The agent loop adds only `greetingClash` (`src/copilot/agent/loop.ts:341`)
+  and puts the step `pending` (`:342`); any pending step sets the session `awaiting-author` (`:226`), so the agent never sees
+  a note before the author does.
+- **Provisioning resolution is boolean.** `resolveProvisioning(session, id, { ok, message }, draftAfter)` (`loop.ts:399-403`);
+  `createCharacterCard` returns the requested name (`name: body.ch_name`, `src/services/stHost/provisioning.ts:67`), and
+  `/api/characters/create` coerces fields (gotchas). A second create of the same card is refused only by the created-asset
+  ledger (`createdRefusal`, `loop.ts:337`).
+
+### Design
+
+1. **Shared card checks.** `cardFindings(op, draft, env)` in `src/wizard/` reuses the tutorial checks (one source: the
+   tutorial switches to it). Severity is preserved: the three blocks (already refused by `validateProvisioningOp`) stay
+   blocks; agency, adjective, budget, greeting and example checks stay **warnings**, never refusals. "Opening cast" comes from
+   the draft's start checkpoint cast.
+2. **Bounded revision before the author sees the card.** A provisioning call with warn findings is recorded with status
+   `review` (a new step status, not `pending`), so the session stays `running`; the observation carries the notes ("Card
+   notes: the first message says what the player does; …"). The agent may answer with **one** replacement call naming the
+   step (`replaces: <step id>`); the replacement (or, if the agent declines or sends the same op, the original) then becomes
+   `pending` and waits for the author as today. One replacement per step; a replacement is a changed op, so it is not a
+   repeat under `REPEAT_LIMIT`. Actual asset creation still needs the author's confirmation.
+3. **Behaviour guidance and craft lines.** The voice step's `why` text and the wizard character prompt gain the trigger form
+   ("When X, they do Y"), a side-cast "why scenes include them" line, no `{{system}}` macro in examples, never the player's
+   actions in greetings. A warn finding "a trait with no behaviour" joins `cardFindings`.
+4. **Read-back.** `createCharacterCard` answers `WriteResult` (`stHost/typedResults` rule) with `stored | unconfirmed |
+   mismatch(lossy: string[])` after `/api/characters/get` on the **returned avatar**. `unconfirmed` and `mismatch` both mean
+   "the asset may already exist": the step resolves `applied` with that state, the created-asset ledger records the returned
+   avatar and the stored (or requested) name, a later read-back retry (author action or next open) may upgrade it to
+   `stored`, and a duplicate create of that card is refused by the ledger. A mismatch is shown to the author, never
+   re-created automatically.
+
+### Predeclared floors
+
+| # | Condition | Floor | Tier |
+|---|---|---|---|
+| A1 | Parity: `cardFindings` and the tutorial return identical findings (ids and severities) on the tutorial's fixture set | identical | D |
+| A2 | Planted controls: 12 planted card mistakes each flagged with the tutorial's severity; 0 findings on 6 clean cards; 0 warn findings refuse an op | 12/12, 0/6, 0 | D |
+| A5 | Read-back: stored, unconfirmed and mismatch each reached by a stubbed host; in the last two the ledger holds the returned avatar and a second create of the card is refused | 3/3, 2/2 | D |
+| A6 | Agent revision: on 10 frozen wizard tasks seeded to produce a flagged card, the replacement clears the flagged finding | recorded (expected ≥ 7/10), ×2 | CL |
+| A8 | Bounded loop: a `review` step never sets `awaiting-author`; at most one replacement per step; the author always confirms creation (property over scripted sessions) | holds | D |
+
+Floors are informational and never retuned (rule 2).
+
+### Gates by tier
+
+- **D:** `npm run gates`; A1, A2, A5, A8; Storybook for `ProvisioningCard` with notes and a read-back state; guide coverage.
+- **CL:** A6 on Sol (the owner's subscription), ×2.
+
+### Decisions for the owner
+
+1. **Warn findings return to the agent for one bounded replacement before the author sees the card?** **Recommended: yes.**
+2. **Card checks keep the tutorial's severities (only the three existing blocks refuse)?** **Recommended: yes.**
+3. **`unconfirmed`/`mismatch` recorded as "may exist" (ledger entry, no duplicate create, retry read-back)?** **Recommended:
+   yes.**
+
+### Review 2026-10-16 (Astra), Harvest phase
+
+Source: `review-astra-harvest-2026-10-16.md` §2 (66), §1 (fold advice). Verified on `e8b9dd6d`.
+
+- **P1 — warnings on a pending card cannot feed back before the author sees it.** Accepted: pending → `awaiting-author`
+  (`src/copilot/agent/loop.ts:226,342`). → `review` status, one bounded replacement, then pending; A8.
+- **P1 — `unconfirmed`/`mismatch` must mean "may exist"; resolution is boolean.** Accepted (`loop.ts:399-403`,
+  `src/services/stHost/provisioning.ts:67`). → returned avatar recorded, retry read-back, duplicate create refused; A5.
+- **Preserve severity.** Accepted (`src/copilot/characterTutorial.ts:126-155`: three blocks, the rest warns). → design 1, A2.
+- **Prioritise shared checks, guidance and read-back.** Adopted; the lore preview is in 34 and comes after.
+- **Fold 66 → 09 + 34.** Adopted; `66-authoring-quality-cards-and-lore.md` is a pointer.
+- Rebutted: none.
+
+## Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §Addenda (09/22), §1. Verified on `e8b9dd6d`.
+
+- **09: the conditional quota probe is reasonable; keep the no-login-file and private-input restrictions.** Accepted. → H12c
+  updated: claude meter built (`server-plugin/story-orchestrator-harness/claudeTransport.mjs:80`,
+  `src/components/settings/MemoryModelGroup.tsx:27`), opencode stays failure-only; restrictions restated.
+- **Fold half of 66 here.** Adopted as §Harvest phase (its own review subsection above).
+- Rebutted: none.

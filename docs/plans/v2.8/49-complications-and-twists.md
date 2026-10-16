@@ -299,9 +299,18 @@ get detectors), SC2 (all complication writes are step 3), SC3 (focus candidates 
 
 ## Harvest 2026-10-14 addendum
 
-From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted). First verified against master `9e96871d`; revised 2026-10-16 on `e8b9dd6d` after `review-astra-harvest-2026-10-16.md`. The owner decides with the rest of this plan.
 
-- **H16d chance-ramp pressure trigger** (`docs/plans/v2.8/extension-research-2026-10-14/filigree.md` P1, 3/M). G17 fires at a deterministic meter threshold. Their
-  variant raises a per-boundary chance as pressure builds (seeded, so rollback ≡ replay holds through `runtime/chance.ts`).
-  Recommended: a `trigger: { ramp: { from, to, per } }` variant of G17 behind the same SP6 gate, only if the SP6 run shows
-  threshold firing feels mechanical; no player copy (decision 4 stands). Floor: seeded replay identical over 4 seeds, D.
+- **H16f chance-ramp pressure trigger** (`docs/plans/v2.8/extension-research-2026-10-14/filigree.md` P1, 3/M). (Relabelled from H16d to match plan 61.) G17 fires at a
+  deterministic meter threshold. Their variant raises a per-boundary chance as pressure builds (seeded, so rollback ≡ replay
+  holds through `src/runtime/chance.ts`). Recommended: a `trigger: { ramp: { from, to, per } }` variant of G17 behind the same
+  SP6 gate, only if the SP6 run shows threshold firing feels mechanical; no player copy (decision 4 stands). Floor: seeded
+  replay identical over 4 seeds, D.
+
+## Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Verified on `e8b9dd6d`.
+
+- No finding on this addendum. Label drift found while revising: the addendum used H16d; plan 61 calls this H16f. →
+  relabelled.
+- Rebutted: none.

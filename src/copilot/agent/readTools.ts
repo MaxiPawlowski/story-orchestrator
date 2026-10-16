@@ -1,4 +1,4 @@
-import { evaluateGate, isValidationErrorList, parseStoryV2, renderGateText, type PrimitiveValue, type StoryV2 } from "@engine/index";
+import { CODEX_PAGES, evaluateGate, isValidationErrorList, parseStoryV2, renderGateText, type PrimitiveValue, type StoryV2 } from "@engine/index";
 import { isRecord } from "@utils/guards";
 import { storyCoverage, renderCoverage } from "../../studio/coverage";
 import { runDiagnostics } from "../../studio/diagnostics";
@@ -22,6 +22,8 @@ const summarizeStory = (draft: StoryV2): string => json({
   checkpoints: draft.checkpoints.map(({ id, name, type, start, objective }) => ({ id, name, type, ...(start ? { start: true } : {}), objective })),
   transitions: draft.transitions.map((transition) => ({ from: transition.from, to: transition.to, priority: transition.priority, gate: renderGateText(transition.gate) })),
   roster: draft.roster,
+  ...(draft.codex ? { codex: Object.fromEntries(CODEX_PAGES.filter((page) => draft.codex?.[page]?.length).map((page) => [page, draft.codex?.[page]?.map((entry) => entry.id)])) } : {}),
+  ...(draft.quests?.length ? { quests: draft.quests.map((quest) => quest.id) } : {}),
   blocks: Object.fromEntries(BLOCKS.filter((key) => draft[key] !== undefined).map((key) => [key, draft[key]])),
 });
 

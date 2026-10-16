@@ -215,14 +215,13 @@ Source: `review-astra-2026-10-14.md` §Plans 42-47 (47). Verified on `3a716f2b`.
 
 ## Harvest 2026-10-14 addendum
 
-From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted). First verified against master `9e96871d`; revised 2026-10-16 on `e8b9dd6d` after `review-astra-harvest-2026-10-16.md`. The owner decides with the rest of this plan.
 
-- **H13a quote lines carry the message id** (`docs/plans/v2.8/extension-research-2026-10-14/timeline-memory.md` P1, 3/S). `evidenceSources`
-  (`src/extraction/evidence.ts:88-92`) returns every message holding a quote, so a pledge said twice matches two spans and
-  the stable id (P2w) is ambiguous. Recommended: the `[promised]` line takes `m=<id>` as v2.8 42 §5.1 witness lines do
-  (`[promised] Promisee | m=<id> | "<words>"`); a line whose quote is not in message `<id>` is refused. Floor: on a fixture
-  with the same pledge in two messages, every accepted promise binds to the cited message, 100 %, D (parser) + CL (read
-  emits ids, ×2). The same applies to v2.8 55 option B `[pledged]`.
+- **H13a quote lines carry the message id** (`docs/plans/v2.8/extension-research-2026-10-14/timeline-memory.md` P1, 3/S). **Built with P1 (option C)**: the read's
+  `[promised]` and event lines carry `m=<message index>` and the player's exact words (`src/memory/promises/contract.ts:7,15`),
+  resolved to a source span with chat, message, **revision**, speaker and offsets (`src/memory/audience.ts:10`); a quote not
+  found word for word in the cited message is refused (`src/memory/promises/impl.ts:147-150`). Nothing more to build here. v2.8 55 option B's `[pledged]` line owes the same (55
+  addendum).
 
 ## Gate record: P1 (option C) build, 2026-10-14 (no model, no GPU, LIST)
 
@@ -326,3 +325,11 @@ Owed:
   id); kept on Arin's reply it leaves the list; a swipe of that reply reopens the same id on the Overview; a chat reopen
   keeps it open. `assert-player-clean` 0 findings with the promise open and again after the reopen.
 - Still owed: payload goldens with seeded promises, and every CL/LT row above.
+
+## Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Verified on `e8b9dd6d`.
+
+- **43/47/55 — good provenance additions, but message ids need revisions.** Accepted; already true here: spans carry a
+  revision (`src/memory/audience.ts:10`) and lines carry `m=` (`src/memory/promises/contract.ts:7,15`). → addendum marked built.
+- Rebutted: none.
