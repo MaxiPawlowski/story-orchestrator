@@ -1,4 +1,6 @@
-import { buildCuratorFilterRequest, curatorFilterKeep, CURATOR_FILTER_MIN_ENTRIES, CURATOR_FILTER_TIMEOUT_MS, noulAnswer } from "@judge/index";
+import { buildCuratorFilterRequest, curatorFilterKeep } from "@judge/curatorFilter";
+import { CURATOR_FILTER_MIN_ENTRIES, CURATOR_FILTER_TIMEOUT_MS } from "@judge/policy";
+import { noulAnswer } from "@judge/questions";
 import type { CuratorEntryView } from "@stagecraft/index";
 import type { JudgeRuntime } from "./judge";
 

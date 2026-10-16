@@ -1,9 +1,10 @@
 import type { CodexEntry, CodexPage, Faction, Milestone, QualityDisplay, Quest, RelationshipDecl, RosterMember, StoryCheck, StoryCodex, StoryWidget } from "@engine/index";
 import type { CalendarInput, StoryClock } from "@engine/lifeSchema";
+import type { Rumor } from "@engine/rumorSchema";
 import type { StoryDraft } from "./draft";
 import { nextId, updateCheckpoint, updateQuality, updateTransition } from "./mutations";
 
-type ListKey = "quests" | "milestones" | "widgets" | "factions";
+type ListKey = "quests" | "milestones" | "widgets" | "factions" | "rumors";
 
 const withList = <K extends ListKey>(draft: StoryDraft, key: K, items: NonNullable<StoryDraft[K]>): StoryDraft => {
   const rest: StoryDraft = { ...draft };
@@ -143,6 +144,33 @@ export const setMemberFactions = (draft: StoryDraft, memberId: string, factions:
     const rest: RosterMember = { ...member };
     delete rest.factions;
     return factions.length ? { ...rest, factions } : rest;
+  }),
+});
+
+export const newRumor = (id: string, from: string): Rumor => ({ id, from, claim: "news worth passing on" });
+
+export const setRumors = (draft: StoryDraft, rumors: Rumor[]): StoryDraft => withList(draft, "rumors", rumors);
+
+export const addRumor = (draft: StoryDraft): StoryDraft =>
+  setRumors(draft, [...(draft.rumors ?? []), newRumor(nextId((draft.rumors ?? []).map((rumor) => rumor.id), "rumor"), draft.roster[0]?.id ?? "")]);
+
+const compactRumor = ({ id, from, claim, about, versions, starts_when, leaks_to }: Rumor): Rumor => ({
+  id, from, claim, ...(about?.length ? { about } : {}), ...(versions?.length ? { versions } : {}), ...(starts_when ? { starts_when } : {}),
+  ...(leaks_to?.length ? { leaks_to } : {}),
+});
+
+export const updateRumor = (draft: StoryDraft, id: string, patch: Partial<Omit<Rumor, "id">>): StoryDraft =>
+  setRumors(draft, (draft.rumors ?? []).map((rumor) => (rumor.id !== id ? rumor : compactRumor({ ...rumor, ...patch }))));
+
+export const removeRumor = (draft: StoryDraft, id: string): StoryDraft => setRumors(draft, (draft.rumors ?? []).filter((rumor) => rumor.id !== id));
+
+export const setMemberGossip = (draft: StoryDraft, memberId: string, gossip: Record<string, unknown> | undefined): StoryDraft => ({
+  ...draft,
+  roster: draft.roster.map((member) => {
+    if (member.id !== memberId) return member;
+    const rest: RosterMember = { ...member };
+    delete rest.gossip;
+    return gossip ? { ...rest, gossip } : rest;
   }),
 });
 

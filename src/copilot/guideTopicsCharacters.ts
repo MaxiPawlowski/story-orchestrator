@@ -1,5 +1,6 @@
 import type { GuideTopic } from "./guideTopics";
 import { LABEL_DIAGNOSTIC_TOPICS, LABEL_TOPICS } from "./guideTopicsLabels";
+import { RUMOR_TOPICS } from "./guideTopicsRumors";
 
 export const CHARACTER_TOPICS = {
   "character-life": {
@@ -19,6 +20,7 @@ export const CHARACTER_TOPICS = {
       + "A lowering move needs an event the player caused (never not, time or == false). roster[].factions: members hear moves when present and get a private band line. "
       + "Players see band words of visible factions; the director gets visible bands, hidden ones only with introduce, by name.",
   },
+  ...RUMOR_TOPICS,
   ...LABEL_TOPICS,
 } as const satisfies Record<string, GuideTopic>;
 

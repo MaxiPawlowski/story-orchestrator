@@ -3,6 +3,7 @@ import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, Parsed
 import type { ContextLimit } from "./inputBudget";
 import type { WindowForm } from "./windowHygiene";
 import type { OpenPromiseRef } from "@memory/promises/types";
+import type { WitnessAudit } from "@memory/witness/types";
 
 export type { OpenPromiseRef };
 
@@ -56,6 +57,8 @@ export interface SharedReadContract {
   openArcs?: string[];
   openPromises?: OpenPromiseRef[] | null;
   promiseSection?: string;
+  witnessSection?: string;
+  hearsay?: boolean;
   epistemicLedgerCapable?: boolean;
   entities?: string[];
   checkpoint?: { name: string; objective: string };
@@ -111,6 +114,7 @@ export interface ParsedSharedRead {
   sceneBreak?: SceneBreakSignal;
   rejected: Array<{ line: string; reason: string }>;
   promises?: string[];
+  witness?: string[];
 }
 
 export interface SharedReadAudit {
@@ -134,6 +138,7 @@ export interface SharedReadAudit {
   windowForm?: WindowForm;
   reask?: { keys: string[]; rawResponse: string; accepted: string[] };
   promiseLines?: string[];
+  witness?: WitnessAudit;
 }
 
 export interface ReadBudgetRecord {

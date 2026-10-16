@@ -12,7 +12,7 @@ import { requestBudgetFor, routedProfileId } from "./requestBudget";
 import { sceneArmRunner, type SceneArmResult } from "./sceneArmRunner";
 import { profileExists } from "@services/STAPI";
 import { createModelCall } from "./modelCall";
-import { buildTypedPlan, readTypedDeltas } from "@judge/index";
+import { buildTypedPlan, readTypedDeltas } from "@judge/extraction";
 import { buildCreateCandidatePrompt, caseContext, caseScope, scoreCreateSample, type CreateCase, type CreateCaseSample } from "@stagecraft/createCandidate";
 import type { RuntimeManager } from "./runtimeManager";
 import {

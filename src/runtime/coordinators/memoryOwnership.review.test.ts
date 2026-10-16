@@ -124,7 +124,7 @@ function harness(arcCount: number, presummarised = 0) {
     markCanonStale: () => { if (memoryState.canon) memoryState.canon = { ...memoryState.canon, stale: true }; },
     switchChat: () => { current = { ...current, chatId: "chat-b", sessionEpoch: 2 }; },
     mutateAt: (messageId: number) => { current = { ...current, windowRevision: current.windowRevision + 1, lowestMutatedMessageId: messageId }; },
-    inFlight: () => (coordinator.canon as unknown as { inFlight: boolean }).inFlight,
+    inFlight: async () => (await (coordinator.canon as unknown as { loading: Promise<{ inFlight: boolean }> }).loading).inFlight,
     entries: () => (memoryState.entries as Array<{ text: string }>).map((entry) => entry.text),
     shortTerm: () => (memoryState.entries as Array<{ tier: string; text: string }>).find((entry) => entry.tier === "short_term")?.text,
     shortTermEnd: () => memoryState.shortTermSummaryEnd,
@@ -289,7 +289,7 @@ control("the in-flight flag is released even when the world moved", async () => 
   const h = harness(1, 1);
   modelGate.onCall = () => h.switchChat();
   await h.coordinator.canon.regenerateCanon(true);
-  expect(h.inFlight()).toBe(false);
+  expect(await h.inFlight()).toBe(false);
 });
 
 // --- runConsolidation: the destructive pass ---

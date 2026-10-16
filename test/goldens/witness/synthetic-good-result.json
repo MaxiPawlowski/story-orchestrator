@@ -1,0 +1,153 @@
+{
+ "plan": "v2.8 42 B",
+ "labels": "witness-synthetic",
+ "reads": "witness-synthetic-good",
+ "synthetic": true,
+ "floors": {
+  "exactSet": 0.9,
+  "falseInclusion": 0.02,
+  "falseExclusion": 0.1,
+  "coverage": 0.85,
+  "mixedDetection": 0.8,
+  "spanFalseInclusion": 0.02,
+  "asideExactSet": 0.8,
+  "nullControlMargin": 0.3,
+  "minMessages": 40
+ },
+ "counts": {
+  "labels": 44,
+  "kept": 44,
+  "dropped": 0,
+  "messages": 44,
+  "reads": {
+   "outage": 1,
+   "accepted": 6
+  },
+  "claims": 44,
+  "rejectedLines": 1
+ },
+ "rejected": {
+  "message not in the read's window": 1
+ },
+ "witness": {
+  "set": "witness-synthetic",
+  "messages": 44,
+  "dropped": 0,
+  "exactSet": {
+   "hits": 38,
+   "of": 39,
+   "rate": 0.9743589743589743
+  },
+  "falseInclusion": {
+   "hits": 0,
+   "of": 46,
+   "rate": 0
+  },
+  "asideKeptOutIncluded": 0,
+  "falseExclusion": {
+   "hits": 1,
+   "of": 118,
+   "rate": 0.00847457627118644
+  },
+  "coverage": {
+   "hits": 42,
+   "of": 44,
+   "rate": 0.9545454545454546
+  },
+  "states": {
+   "classified": 42,
+   "unknown": 2
+  },
+  "ambiguous": {
+   "pairs": 8,
+   "predictedHeard": 0
+  },
+  "mixedDetection": {
+   "hits": 3,
+   "of": 3,
+   "rate": 1
+  },
+  "spanFalseInclusion": {
+   "hits": 0,
+   "of": 7,
+   "rate": 0
+  },
+  "asideExactSet": {
+   "hits": 10,
+   "of": 11,
+   "rate": 0.9090909090909091
+  },
+  "floors": {
+   "exactSet": true,
+   "falseInclusion": true,
+   "asideKeptOut": true,
+   "falseExclusion": true,
+   "coverage": true,
+   "mixedDetection": true,
+   "spanFalseInclusion": true,
+   "asideExactSet": true
+  },
+  "verdict": "pass"
+ },
+ "nullControl": {
+  "set": "witness-synthetic",
+  "messages": 44,
+  "dropped": 0,
+  "exactSet": {
+   "hits": 28,
+   "of": 39,
+   "rate": 0.717948717948718
+  },
+  "falseInclusion": {
+   "hits": 25,
+   "of": 46,
+   "rate": 0.5434782608695652
+  },
+  "asideKeptOutIncluded": 18,
+  "falseExclusion": {
+   "hits": 0,
+   "of": 118,
+   "rate": 0
+  },
+  "coverage": {
+   "hits": 41,
+   "of": 44,
+   "rate": 0.9318181818181818
+  },
+  "states": {
+   "classified": 44
+  },
+  "ambiguous": {
+   "pairs": 8,
+   "predictedHeard": 7
+  },
+  "mixedDetection": {
+   "hits": 0,
+   "of": 3,
+   "rate": 0
+  },
+  "spanFalseInclusion": {
+   "hits": 5,
+   "of": 7,
+   "rate": 0.7142857142857143
+  },
+  "asideExactSet": {
+   "hits": 0,
+   "of": 11,
+   "rate": 0
+  },
+  "floors": {
+   "exactSet": false,
+   "falseInclusion": false,
+   "asideKeptOut": false,
+   "falseExclusion": true,
+   "coverage": true,
+   "mixedDetection": false,
+   "spanFalseInclusion": false,
+   "asideExactSet": false
+  },
+  "verdict": "fail"
+ },
+ "nullControlBeaten": true,
+ "verdict": "pass"
+}

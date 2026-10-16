@@ -24,7 +24,7 @@ const listed = (value: unknown, key: string): boolean => Array.isArray(value) &&
 
 export const usesGameLayer = (json: Record<string, unknown>): boolean =>
   json.quests !== undefined || json.milestones !== undefined || json.widgets !== undefined || json.codex !== undefined || json.factions !== undefined
-  || json.outcome !== undefined || json.carry_from !== undefined || listed(json.roster, "factions")
+  || json.outcome !== undefined || json.carry_from !== undefined || listed(json.roster, "factions") || json.rumors !== undefined || listed(json.roster, "gossip")
   || json.clock !== undefined || json.poses !== undefined || listed(json.roster, "sprites") || listed(json.checkpoints, "effects") &&
     (json.checkpoints as unknown[]).some((cp) => isRecord(cp) && isRecord(cp.effects) && (cp.effects.stage !== undefined || cp.effects.time !== undefined))
   || json.calendar !== undefined || LIFE_FIELDS.some((field) => listed(json.roster, field))

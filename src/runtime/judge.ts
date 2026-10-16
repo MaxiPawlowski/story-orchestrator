@@ -1,9 +1,11 @@
-import {
-  askJudge, createJudgeGate, modelVerdict, buildDirectorRequest, decideDirector, directorJudgeEligible,
-  directorRecordP, judgeRoute, judgeUseActive, providerCleared, routedProvider, DEFAULT_JUDGE_PROVIDER, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord,
-  type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeGate, type JudgeProviderId, type JudgeRequest, type JudgeResponse,
-  type JudgeResult, type JudgeServedModels, type JudgeSettings, type JudgeTransport, type JudgeUseKey,
-} from "@judge/index";
+import { askJudge } from "@judge/client";
+import { buildDirectorRequest, decideDirector, directorJudgeEligible, directorRecordP, type JudgeDirectorDecision, type JudgeDirectorInput } from "@judge/director";
+import { createJudgeGate, type JudgeGate } from "@judge/gate";
+import { modelVerdict, DIRECTOR_TIMEOUT_MS } from "@judge/policy";
+import { DEFAULT_JUDGE_PROVIDER, type JudgeProviderId } from "@judge/providers";
+import { judgeRoute, providerCleared, type JudgeServedModels } from "@judge/readiness";
+import { judgeUseActive, routedProvider, type JudgeSettings, type JudgeUseKey } from "@judge/settings";
+import type { JudgeAnswer, JudgeCallRecord, JudgeFallback, JudgeRequest, JudgeResponse, JudgeResult, JudgeTransport } from "@judge/types";
 import type { RunOwnership } from "./runToken";
 
 export interface JudgeStatusLike {

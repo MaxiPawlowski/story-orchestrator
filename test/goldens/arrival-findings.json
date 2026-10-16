@@ -274,6 +274,7 @@
   "test/scenarios/v28-40-mobile-touch-longpress.json#0": [],
   "test/scenarios/v28-40-provisioning-roundtrip.json#0": [],
   "test/scenarios/v28-40-workflow-findings.json#0": [],
+  "test/scenarios/v28-44-rumors.story.json#0": [],
   "test/scenarios/v28-45-carry-sequel.story.json#0": [],
   "test/scenarios/v28-45-carry-source.story.json#0": [],
   "test/scenarios/v28-46-recap.story.json#0": [],

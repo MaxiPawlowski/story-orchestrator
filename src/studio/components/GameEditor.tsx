@@ -3,6 +3,7 @@ import QuestsEditor from "./QuestsEditor";
 import MilestonesEditor from "./MilestonesEditor";
 import WidgetsEditor from "./WidgetsEditor";
 import { ChecksEditor, QualityDisplayEditor } from "./ChecksEditor";
+import RumorsEditor from "./RumorsEditor";
 
 const GameEditor: React.FC = () => (
   <div data-so="game-editor" className="flex flex-col gap-3">
@@ -11,6 +12,7 @@ const GameEditor: React.FC = () => (
     <ChecksEditor />
     <QualityDisplayEditor />
     <WidgetsEditor />
+    <RumorsEditor />
   </div>
 );
 
