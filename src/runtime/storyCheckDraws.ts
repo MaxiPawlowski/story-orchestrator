@@ -89,7 +89,8 @@ const OUTCOME_PROSE: Record<CheckOutcomeWord, string> = {
 };
 
 export const CHECK_OUTCOME_HEADER = "The story has already decided these outcomes. "
-  + "Show each one happening in this reply, as it fell: never change it, never skip it, and never mention dice or numbers.";
+  + "Show each one happening in this reply, as it fell: never change it, never skip it, and never mention dice or numbers. "
+  + "Narrate only the outcomes and consequences listed. A failure means the attempt did not succeed; do not add costs the list does not name.";
 
 export function checkOutcomeBlock(story: NormalizedStoryV2 | null, records: readonly CheckRecord[], lastMessageId: number): string | null {
   if (!story) return null;

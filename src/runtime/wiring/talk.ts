@@ -11,6 +11,7 @@ import { DIRECTOR_MAX_TOKENS, TalkController, type TalkControlHost } from "../ta
 import { promptCost } from "../promptCost";
 import type { LiveParts, WindowAccess } from "./types";
 import { presentRosterIds } from "../whereabouts";
+import { messageRevision } from "../yourMove";
 
 const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, recentTurns }: WindowAccess): TalkControlHost => ({
   isGroupChat: () => Boolean(getActiveGroup()),
@@ -33,6 +34,7 @@ const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, rec
   breakerOpen: () => live.scheduler?.breakerOpen(routedProfileId("director")) ?? false,
   triggerMember: startGroupVoice,
   recordDecision: (audit) => runtimeManager.recordTalkDecision(audit),
+  getLastMessageRevision: () => messageRevision((getContext().chat ?? []).at(-1)),
   judgeDirector: (input) => judgeRuntime.director(input),
   getPlayerName,
   random: () => runtimeManager.chance.talkRandom(),
@@ -56,6 +58,7 @@ const holdForLoad = async () => {
 export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: WindowAccess, onLoreIntercept: (type: string, aborted: boolean) => Promise<void>) => {
   live.talk = new TalkController(talkHost(live, judgeRuntime, window));
   globalThis.talkControlInterceptor = gatedInterceptor(live.loudGate, () => Boolean(getActiveGroup()), async (chat, contextSize, abort, type) => {
+    live.interceptEntry?.(type);
     promptCost.noteGenerationBudget(contextSize);
     let aborted = false;
     await live.talk?.intercept((immediate) => { aborted = true; abort(immediate); }, type);

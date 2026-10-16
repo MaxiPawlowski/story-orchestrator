@@ -6,6 +6,7 @@ export const LENGTH_LIMITS = `- Length limits, each one enforced (an answer over
   + `objective at most ${LIVING_MAX_OBJECTIVE_CHARS} characters (about ${wordsFor(LIVING_MAX_OBJECTIVE_CHARS)} words, one or two sentences); `
   + `each rubric at most ${LIVING_MAX_RUBRIC_CHARS} characters (one short question). Count before you answer; shorter is better.`;
 import { LIVING_MAX_NEW_QUALITIES } from "./types";
+import { sceneSignalLine, type SceneSignal } from "./sceneTest";
 
 export interface DirectorQualityLine {
   key: string;
@@ -35,6 +36,7 @@ export interface DirectorInput {
   chapter: { number: number; anchorsIn: number; size: [number, number]; mayClose: boolean };
   ending: { finalAllowed: boolean; finalRequired: boolean };
   retry?: string[];
+  sceneTest?: SceneSignal;
 }
 
 const PATH_SHOWN = 8;
@@ -77,6 +79,7 @@ export function renderDirectorPrompt(input: DirectorInput): string {
     ...(input.refused ? [`The player refused the prepared route at "${input.refused}". Do not bring it back; let the world answer the refusal instead.`] : []),
     list("Story values (reuse these before declaring new ones)", input.qualities.map(qualityLine)),
     `Tension: now ${input.tension.current ?? "unknown"}; the story's shape asks for about ${input.tension.suggested} next.`,
+    ...(input.sceneTest ? [sceneSignalLine(input.sceneTest)] : []),
     chapterLine,
     ending,
     `Rules:`,

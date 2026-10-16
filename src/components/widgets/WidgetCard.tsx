@@ -1,11 +1,12 @@
 import { useState } from "react";
 import type { WidgetDrawerTab } from "@engine/index";
 import type {
-  BoardLane, ClueLinkView, ClueView, IntentView, LogRowView, MainLineView, PinView, ProvenanceView, QuestView, RosterRowView, SheetGroupView, SheetItemView, TimelineChapterView,
+  BoardLane, ClueLinkView, ClueView, IntentView, LogRowView, MainLineView, PinView, ProvenanceView, QuestView, RosterRowView, SceneView, SheetGroupView, SheetItemView, TimelineChapterView,
   WidgetBody, WidgetView,
 } from "@runtime/gameTypes";
 import type { WriteResult } from "@utils/writeResult";
-import { requestDrawerTab } from "@runtime/drawerTab";
+import { requestDrawerTab, requestJournalPage } from "@runtime/drawerTab";
+import { PLAYER_COPY } from "@runtime/narrative";
 import { GAME_TEXT } from "@features/gameCopy";
 import { WIDGET_TEXT, changedAgoText, provenanceText, rollHintText } from "@features/widgetCopy";
 
@@ -38,6 +39,7 @@ const SheetItem = ({ item }: { item: SheetItemView }) => {
         <span>{item.label}</span>
         <span className="st-muted text-xs">{item.text}{item.trend ? ` ${TREND[item.trend]}` : ""}</span>
       </div>
+      {item.warn && <span data-so="sheet-warn" role="status" className="st-pill self-start px-1.5 text-[10px]">{item.warn}</span>}
       <Ago replies={item.changedAgo} />
       {bounded && item.as === "meter" && <Bar value={item.value ?? 0} min={item.min} max={item.max ?? 0} />}
       {bounded && item.as === "boxes" && <Boxes filled={(item.value ?? 0) - (item.min ?? 0)} total={(item.max ?? 0) - (item.min ?? 0)} />}
@@ -130,6 +132,35 @@ const Roster = ({ rows }: { rows: RosterRowView[] }) => (
       </li>
     ))}
   </ul>
+);
+
+const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((word) => word[0]?.toUpperCase() ?? "").join("");
+
+const SceneCard = ({ location, time, present }: SceneView) => (
+  <div data-so="scene-card" className="flex flex-col gap-1 text-xs">
+    {location && <div data-so="scene-where" className="flex gap-1"><span className="st-muted">{PLAYER_COPY.sceneWhere}</span><span>{location}</span></div>}
+    {time && <div data-so="scene-when" className="flex gap-1"><span className="st-muted">{PLAYER_COPY.sceneWhen}</span><span>{time}</span></div>}
+    {present.length > 0 && (
+      <section aria-label={PLAYER_COPY.sceneWithYou} className="flex flex-col gap-1">
+        <div className="st-muted">{PLAYER_COPY.sceneWithYou}</div>
+        <ul data-so="scene-present" className="m-0 flex list-none flex-wrap gap-2 p-0">
+          {present.map((member) => (
+            <li key={member.name} data-so="scene-member" className="flex min-w-0 items-center gap-1">
+              {member.portrait
+                ? <img className="so-scene-portrait" src={member.portrait} alt="" />
+                : <span className="so-scene-portrait so-scene-initials" aria-hidden="true">{initials(member.name)}</span>}
+              {member.page
+                ? (
+                  <button type="button" className="truncate cursor-pointer border-0 bg-transparent p-0 text-left text-inherit underline" data-so="scene-page"
+                    onClick={() => requestJournalPage({ page: "people", name: member.page ?? member.name })}>{member.name}</button>
+                )
+                : <span className="truncate">{member.name}</span>}
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </div>
 );
 
 const Timeline = ({ chapters }: { chapters: TimelineChapterView[] }) => (
@@ -272,6 +303,7 @@ export const WidgetBodyView = ({ body, onAction }: { body: WidgetBody; onAction?
   if (body.kind === "clock") return <Clock {...body} />;
   if (body.kind === "roster") return <Roster rows={body.rows} />;
   if (body.kind === "timeline") return <Timeline chapters={body.chapters} />;
+  if (body.kind === "scene") return <SceneCard location={body.location} time={body.time} present={body.present} />;
   return <Board lanes={body.lanes} />;
 };
 

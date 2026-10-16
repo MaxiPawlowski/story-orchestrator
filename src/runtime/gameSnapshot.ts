@@ -24,7 +24,16 @@ export interface GameSliceInput {
   authorView: boolean;
   scopeContext?: ScopeSourceContext;
   enabled?: readonly string[];
+  location?: string | null;
+  characters?: ReadonlyArray<{ avatar?: string; name?: string }>;
 }
+
+export const portraitsOf = (story: NormalizedStoryV2, characters: ReadonlyArray<{ avatar?: string; name?: string }>, castNames: Record<string, string>): Record<string, string> =>
+  Object.fromEntries(story.roster.flatMap((member) => {
+    const name = (castNames[member.id] ?? member.name ?? member.id).toLowerCase();
+    const avatar = characters.find((card) => card.name?.toLowerCase() === name)?.avatar;
+    return avatar && avatar !== "none" ? [[member.id, `/characters/${encodeURIComponent(avatar)}`]] : [];
+  }));
 
 export const storyHasGame = (story: NormalizedStoryV2 | null): boolean => hasGameLayer(story) || hasChecks(story);
 
@@ -33,7 +42,8 @@ export function gameSlices(input: GameSliceInput): { game: GameView | null; game
   if (!story || !state || !storyHasGame(story)) return { game: null, gameAuthor: null };
   const composed = composer?.({
     story, state, boundaryLog: input.boundaryLog, checks: input.checks?.records ?? [], threads: input.threads, chat: input.chat, castNames: input.castNames, authorView: input.authorView,
-    enabled: input.enabled,
+    enabled: input.enabled, location: input.location ?? null,
+    ...((story.widgets ?? []).some((widget) => widget.kind === "scene") ? { portraits: portraitsOf(story, input.characters ?? [], input.castNames) } : {}),
   }) ?? null;
   const reader = valueReader(state.blackboard.values);
   const gameAuthor: GameAuthorView | null = input.authorView ? {

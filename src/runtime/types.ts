@@ -158,6 +158,7 @@ export interface UiRuntimeSettings {
   authorView: boolean;
   announceTransitions: boolean;
   hudEnabled: boolean;
+  yourMove?: boolean;
   briefing?: boolean;
   briefingDraft?: boolean;
   playerSetup?: boolean;
@@ -514,6 +515,7 @@ export interface RuntimeSnapshot {
   payloadCaptures: PayloadCapture[];
   /** What the next reply will receive, one row per injected block. */
   nextTurn: NextTurnContributor[];
+  turn?: import("./yourMove").TurnView;
   authorMoves?: JournalRecord[];
   /** Other extensions' blocks beside ours, read-only and never persisted. */
   nextTurnForeign: NextTurnForeignRow[];

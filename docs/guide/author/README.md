@@ -27,7 +27,7 @@ Where the guide says "the reading model" it means the memory model that reads th
 
 ## Story fields
 
-Every field a story can carry: 58 topics on 8 pages, from the story as a whole down to the game layer.
+Every field a story can carry: 62 topics on 8 pages, from the story as a whole down to the game layer.
 
 - [The story as a whole](fields/story.md)
   - [Story feature policies](fields/story.md#feature-policies) (`feature-policies`)
@@ -77,6 +77,7 @@ Every field a story can carry: 58 topics on 8 pages, from the story as a whole d
   - [Thread bridges](fields/moving-on.md#arc-bridges) (`arc-bridges`)
   - [Branches that follow the player](fields/moving-on.md#branching) (`branching`)
   - [Living stories](fields/moving-on.md#living-director) (`living-director`)
+  - [Scene test](fields/moving-on.md#scene-test) (`scene-test`)
 - [Lore and memory](fields/lore-and-memory.md)
   - [Curator scope](fields/lore-and-memory.md#stagecraft) (`stagecraft`)
   - [Lore select](fields/lore-and-memory.md#lore-select) (`lore-select`)
@@ -94,6 +95,9 @@ Every field a story can carry: 58 topics on 8 pages, from the story as a whole d
   - [Stats and story panels](fields/game-layer.md#widgets) (`widgets`)
   - [Clue walls and maps](fields/game-layer.md#clues-and-maps) (`clues-and-maps`)
   - [Story-made HTML panels](fields/game-layer.md#html-panels) (`html-panels`)
+  - [Scene card](fields/game-layer.md#widget-scene) (`widget-scene`)
+  - [The sheet reaches the narrator](fields/game-layer.md#display-narrate) (`display-narrate`)
+  - [Warning bands](fields/game-layer.md#display-warn) (`display-warn`)
   - [People and Places](fields/game-layer.md#codex) (`codex`)
 
 ## For contributors

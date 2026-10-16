@@ -5,6 +5,7 @@ import {
 import { expectedTension, numericToLevel } from "@pacing/index";
 import { livingChapterSize } from "@engine/validate/living";
 import { foldOps } from "./fold";
+import { sceneAnswerIssues, type SceneAnswer, type SceneSignal } from "./sceneTest";
 import { livingChapters } from "./frontier";
 import {
   LIVING_CHAPTER_CAP_WITHOUT_SEALS, LIVING_CHAPTER_PREFIX, LIVING_MAX_NEW_QUALITIES, LIVING_PACE_TURNS, LIVING_STUB_SUFFIX, LIVING_STUB_TURNS,
@@ -137,6 +138,7 @@ export interface DirectorCheckInput {
   values: Record<string, PrimitiveValue>;
   latched: Record<string, boolean>;
   convergeTo?: string;
+  scene?: { signal?: SceneSignal; answer: SceneAnswer; threads: readonly string[] };
 }
 
 const reader = (values: Record<string, PrimitiveValue>) => ({ get: (key: string) => values[key] });
@@ -185,6 +187,7 @@ export function checkDirectorOps(input: DirectorCheckInput): { story: Normalized
     if (!added.has(to) && !converges) issues.push(`a transition into '${to}' would point at a checkpoint the director did not write`);
   });
   if (qualities > LIVING_MAX_NEW_QUALITIES) issues.push(`at most ${LIVING_MAX_NEW_QUALITIES} new qualities per checkpoint`);
+  if (input.scene) issues.push(...sceneAnswerIssues(input.scene.signal, input.scene.answer, input.scene.threads));
   if (!input.convergeTo && (input.story.outgoingByCheckpoint[input.frontierId] ?? []).length) issues.push(`'${input.frontierId}' already has exits`);
   if (input.convergeTo && input.story.checkpointById[input.convergeTo]?.type !== "anchor") issues.push(`'${input.convergeTo}' is not an anchor to converge on`);
   const parsed = parseStoryV2(foldOps(input.raw, input.ops));

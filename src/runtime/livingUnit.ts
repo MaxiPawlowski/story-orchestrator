@@ -7,6 +7,7 @@ import { exitDescriptions } from "@generation/living/divergence";
 import { livingChapters } from "@generation/living/frontier";
 import { planChapter, suggestedTension, usesLivingChapters } from "@generation/living/plan";
 import type { DirectorInput } from "@generation/living/prompt";
+import { sceneSignal, type SceneTestRecord } from "@generation/living/sceneTest";
 import type { LivingInputs } from "./livingInputs";
 
 export { livingExportId, projectLivingExport } from "@generation/living/export";
@@ -21,6 +22,7 @@ export interface DirectNextInput {
   model: ModelCall;
   signal?: AbortSignal;
   debugResponse: string | null;
+  sceneTest?: SceneTestRecord | null;
 }
 
 const MAX_PLANS = 8;
@@ -44,6 +46,7 @@ export function directorInput(input: DirectNextInput): DirectorInput {
       ...(latched[quality.key] ? { latched: true } : {}),
     }));
   const standing = story.factions?.length ? gameLayer()?.factions.factionDirectorLines(story, state.blackboard.values) ?? [] : [];
+  const scene = sceneSignal(input.sceneTest ?? null);
   const path = state.visitedPath.filter((id) => story.checkpointById[id]?.type === "anchor" || id === LIVING_OPENING_ID).map((id) => story.checkpointById[id]?.name ?? id);
   return {
     title: story.title,
@@ -63,6 +66,7 @@ export function directorInput(input: DirectNextInput): DirectorInput {
     tension: { suggested: suggestedTension(story, plan.anchorsInChapter), current: inputs.tension },
     chapter: { number: chapterNumber, anchorsIn: plan.anchorsInChapter, size, mayClose: plan.anchorsInChapter >= size[0] && usesLivingChapters(story) },
     ending: { finalAllowed: false, finalRequired: false },
+    ...(scene ? { sceneTest: scene } : {}),
   };
 }
 

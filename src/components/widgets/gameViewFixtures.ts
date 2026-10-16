@@ -136,3 +136,16 @@ export const sampleAuthor = (): GameAuthorView => ({
   scopeOverflow: ["quest_smuggler_found"],
   widgets: [],
 });
+
+export const sceneWidget: WidgetView = {
+  id: "here", title: "Here now", audience: "player", synthesized: false, icon: "compass",
+  body: {
+    kind: "scene", location: "Kessel boathouse", time: "Day 3, evening",
+    present: [
+      { name: "Marla the innkeeper of the long river crossing", portrait: null, page: "Marla the innkeeper of the long river crossing" },
+      { name: "Ada", portrait: null, page: null },
+    ],
+  },
+};
+
+export const sceneWidgetEmpty: WidgetView = { ...sceneWidget, id: "here-empty", body: { kind: "scene", location: null, time: null, present: [] } };

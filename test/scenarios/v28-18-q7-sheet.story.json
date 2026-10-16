@@ -1,0 +1,139 @@
+{
+  "format": 2,
+  "id": "so-v28-18-q7-sheet",
+  "title": "SO-V28-18 Q7 Sheet",
+  "description": "v2.8 plan 18 Q7 no-model fixture: public sheet lines reach only the omniscient narrator.",
+  "roster": [
+    {
+      "id": "arin",
+      "name": "Arin"
+    },
+    {
+      "id": "narrator",
+      "name": "DM Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+    }
+  ],
+  "qualities": [
+    {
+      "key": "lantern",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Does the player carry the lantern?",
+      "display": {
+        "public": true,
+        "label": "Lantern",
+        "as": "item"
+      }
+    },
+    {
+      "key": "secret_plan",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the player made a secret plan?"
+    },
+    {
+      "key": "heard_rumour",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the player heard the rumour?"
+    },
+    {
+      "key": "left_town",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the party left town?"
+    },
+    {
+      "key": "health",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "The player's health, 0 to 10.",
+      "display": {
+        "public": true,
+        "label": "Health",
+        "as": "meter",
+        "min": 0,
+        "max": 10,
+        "bands": [
+          {
+            "max": 2,
+            "label": "Dying",
+            "warn": "One more wound could kill you."
+          },
+          {
+            "max": 6,
+            "label": "Hurt"
+          },
+          {
+            "label": "Fine"
+          }
+        ]
+      }
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "hall",
+      "name": "The guild hall",
+      "player_name": "The guild hall",
+      "objective": "Wait in the hall.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "road",
+      "name": "The road",
+      "player_name": "The road",
+      "objective": "Travel on.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "hall",
+      "to": "road",
+      "priority": 0,
+      "gate": {
+        "q": "left_town",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "quests": [
+    {
+      "id": "debt",
+      "title": "The ferryman's debt",
+      "kind": "side",
+      "visible_when": {
+        "q": "heard_rumour",
+        "op": "==",
+        "v": true
+      },
+      "done_when": {
+        "q": "left_town",
+        "op": "==",
+        "v": true
+      },
+      "steps": []
+    },
+    {
+      "id": "quiet-job",
+      "title": "The silent contract",
+      "kind": "side",
+      "visible_when": {
+        "q": "secret_plan",
+        "op": "==",
+        "v": true
+      },
+      "done_when": {
+        "q": "left_town",
+        "op": "==",
+        "v": true
+      },
+      "steps": []
+    }
+  ]
+}

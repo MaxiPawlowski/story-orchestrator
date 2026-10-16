@@ -179,7 +179,7 @@ export function deriveRefs(story: NormalizedStoryV2, entry: BoundaryLogEntry, re
     .map((ref): EffectRef => ({ ...ref, ...at }));
 }
 
-const recapWithheld = (story: NormalizedStoryV2, state: EngineState): string[] => {
+export const recapWithheld = (story: NormalizedStoryV2, state: EngineState): string[] => {
   const reader = valueReader(state.blackboard.values);
   const shownQuests = new Set((story.quests ?? []).filter((quest) => questStatus(quest, reader) !== "hidden").map((quest) => quest.title.trim()));
   const secret = (story.milestones ?? []).filter((milestone) => milestone.secret && !milestoneEarned(milestone, reader)).map((milestone) => milestone.title.trim());

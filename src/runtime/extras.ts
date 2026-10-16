@@ -208,7 +208,9 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
 };
 
 export const createCopilot = (): CopilotRuntimeSettings => ({ enabled: true, ask: true });
-export const createUi = (): UiRuntimeSettings => ({ authorView: false, announceTransitions: false, hudEnabled: true, briefing: true, playerSetup: true, inline: defaultInlineSettings() });
+export const createUi = (): UiRuntimeSettings => ({
+  authorView: false, announceTransitions: false, hudEnabled: true, yourMove: true, briefing: true, playerSetup: true, inline: defaultInlineSettings(),
+});
 export const createStagecraft = (): StagecraftRuntimeState => ({
   settings: defaultStagecraftSettings(), proposals: [], declines: [], lastPass: null, lastRunBoundary: -1, lastError: null, created: [], lastCreatePass: null, lastCreateBoundary: -1,
 });
@@ -368,8 +370,8 @@ export const applyGlobalSettings = (extras: RuntimeExtras, global: GlobalSetting
   extras.extraction = { ...extras.extraction, settings: { ...global.extraction } };
   extras.pacing = { alpha: DEFAULT_TENSION_EMA_ALPHA, hintEnabled: global.pacing.hintEnabled, shapeOverride: overrides.shapeOverride };
   extras.copilot = { ...global.copilot };
-  const { announceTransitions, hudEnabled, briefing, briefingDraft, playerSetup, inline, presence } = global.display;
-  extras.ui = { authorView: overrides.authorView, announceTransitions, hudEnabled, briefing, briefingDraft, playerSetup, inline, presence };
+  const { announceTransitions, hudEnabled, yourMove, briefing, briefingDraft, playerSetup, inline, presence } = global.display;
+  extras.ui = { authorView: overrides.authorView, announceTransitions, hudEnabled, yourMove, briefing, briefingDraft, playerSetup, inline, presence };
   extras.memory = { ...extras.memory, settings: { ...global.memory } };
   extras.talk = { ...extras.talk, enabled: overrides.talkEnabled ?? global.talk.enabled };
   extras.stagecraft = { ...extras.stagecraft, settings: { ...global.stagecraft } };

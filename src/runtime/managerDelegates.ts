@@ -37,6 +37,13 @@ export abstract class CoordinatorDelegates {
   get witness() { return this.co.witness; }
   get rumors() { return this.co.rumors; }
   get carry() { return this.co.carry; }
+  protected generationOpen = false;
+  setGenerationOpen(open: boolean) {
+    if (open) this.co.narrator.requested();
+    if (this.generationOpen === open) return;
+    this.generationOpen = open;
+    this.notify();
+  }
   async livingStory(input: Omit<LivingStartInput, "members">): Promise<StoryV2> {
     const { buildLivingStory } = await import("@generation/living/start");
     return buildLivingStory({ ...input, members: listGroupMemberNames() });

@@ -131,6 +131,15 @@ const CORE_FEATURES: readonly Feature[] = [
     isOn: (settings) => settings.display.hudEnabled,
   },
   {
+    id: "your-move-chip", name: "Your move", area: "play", audience: "player",
+    oneLine: "A chip in the status strip when the characters hand the turn back to you.",
+    what: "When the characters have finished and the story hands the turn to you, the status strip says \"Your move.\" It shows only for the reply now on screen: "
+      + "a swipe, an edit or your own next line takes it away. A pause where nobody answers is not a hand-back.",
+    where: settingsAt("#so-your-move-enabled", "Playing › Your move"),
+    settings: ["display.yourMove"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story", "group-chat"],
+    isOn: (settings) => settings.display.hudEnabled && settings.display.yourMove,
+  },
+  {
     id: "inline-notes", name: "Notes under messages", area: "play", audience: "player",
     oneLine: "Small icons under replies: where the story moved, what it remembered, which lore it used.",
     what: "Each reply can carry a row of icons. Click one to read what happened behind that reply. The legend button explains each icon. Story and Behind the scenes never show spoilers.",

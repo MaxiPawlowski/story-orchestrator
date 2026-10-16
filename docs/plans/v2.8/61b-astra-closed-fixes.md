@@ -130,3 +130,39 @@ before the fix; every fix is one commit whose regression test fails on the old c
 - Live gate: not run (branch not staged; owner's ST holds master). Owed after merge, list above. Not green until then.
 - Worktree setup: copied `.build/defect-replay-cache.json` from the main checkout; without it `defect-replay --cached`
   passes every file to `jest --listTests` and dies on the Windows command-line length.
+
+## Live gate 2026-10-16 (no-model lane, branch `v2.8-owed-live-fixes`)
+
+- Setup: no-model offline lane 61 (`SO_LANES_ROOT=C:/dev/so-live-lanes`, `SO_LANE_OFFLINE=1`, no server plugins, no GPU,
+  images and sprites off). Main build: master `7b3ef38b` (bundle `1d806c43b088`) staged into a private ST copy
+  `C:/dev/st-live-owed`, because `C:/dev/st-live` was restaged by a parallel agent mid-batch (two runs died on
+  `Loading chunk ... failed`; those runs are discarded). Served `dist/index.js` hash checked before and after every batch.
+- Each item `st-lanes.mts batch --lanes 61 --repeat 2 --strict`; batch dirs under `C:/dev/so-live-lanes/61/debug/batch/<stamp>/`,
+  archived with `so-evidence.mts archive --label owed-nomodel-2026-10-16`.
+- Features page sprite state on an untouched install (56d12750): green x2 on `d1f9ede2` and x2 on `7b3ef38b` (no model
+  involved). Defaults page reads `sprites: Automatic: on when the story directs the stage` with `sprites` absent from the store.
+  Evidence `61/debug/runs/2026-10-16-astra-ui-run{1,2}`, `...-astra-ui-master7b3-run{1,2}`.
+- Pictures checklist on a default install (570ff4d3): green x2 + x2 (no model involved). With the image settings at
+  defaults (`enabled`, backend `st`, no ComfyUI URL, no director) and ST `sd.source` set, the step reads done; restored after.
+  Same evidence dirs.
+- Two chats sharing a curator book (3e77c79f): new `test/scenarios/v28-61b-created-scope.json`, plumbing green x2
+  (batch `2026-10-16T18-34-44-462Z`). The accepted create scans in its own chat; in a second chat playing the same story it
+  does not, on the story route and on a global selection, while a plain entry of the same book scans in both.
+  Curator proposal is `runLoreCreatePass` with fixed text: real-LLM curator owed.
+- Wizard lore edit clearing secondary keys / outlet / triggers (f734defe): new `test/scenarios/v28-61b-lore-clear.json`,
+  green x2 (same batch) on the provisioning write path against a real book: set, kept by a step that leaves them out,
+  cleared (outlet position back to 0) by a step that names them empty. The wizard card UI and a real wizard turn are owed.
+- Suggestions fill after an edit (85cb5b0c): new `test/scenarios/v28-61b-suggest-edit.json`. RED x2 on master
+  (batch `2026-10-16T18-51-35-152Z`): the Story workspace Play panel asked the model again on every re-render
+  (`Workspace.tsx` passed a fresh `request` arrow; `SuggestionsPanel` re-asks when `request` changes), so each snapshot
+  notify spent a suggestions call and the edit refusal could not be seen there. Fix: `request` memoized with `useCallback`.
+  Plumbing green x2 on the branch build (batch `2026-10-16T19-03-06-550Z`): one ask while open, control fill reaches
+  the box, a fill after an edit inside the read window is refused with the edited notice. Fixture fix: wait for the
+  second ask before editing (the first version clicked a button the re-ask had replaced). `debugResponse` suggestions:
+  real-LLM owed. Ask's "edit while running" half not exercised (a debug answer returns before an edit can land).
+- `v28-09-ask-player-clean.json` regression on the branch build: green x2 (batch `2026-10-16T18-55-51-761Z`).
+- Not run: image prompt for a narrator with a changed look (7c5a7c7f) needs the image director and ComfyUI (GPU in use,
+  images off on this lane): owed.
+- Gates on the branch: `npm run gates:quick` green; `npm run gates -- --jobs=1 --no-storybook` all green in 359.7 s
+  (Storybook skipped: the only UI change is a memoized callback). First full run went red on
+  `arrivalEquivalence.test.ts` (new scenario stories enter the corpus); golden re-recorded with `SO_RECORD_ARRIVAL_GOLDEN=1`, additions only.
