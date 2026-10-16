@@ -4,7 +4,7 @@ import type { StudioTab } from "./StudioModal";
 export const STUDIO_TAB_GUIDE: Partial<Record<StudioTab, readonly GuideTopicId[]>> = {
   features: ["feature-policies", "codex"],
   story: ["story-basics", "briefing", "player", "requirements", "arc-template", "living-director", "scene-test", "branching"],
-  world: ["stagecraft", "lore-select", "lore-entries"],
+  world: ["stagecraft", "lore-select", "lore-entries", "lore-content"],
   presentation: ["presentation", "background"],
   rules: ["arc-bridges", "scene-read", "house-rules"],
   chapters: ["chapters", "consequences", "outcome", "carry-from"],

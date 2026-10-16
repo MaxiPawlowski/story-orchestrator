@@ -1,0 +1,22 @@
+{
+  "chat": "We tie up at the harbor at dusk and walk past the customs shed.",
+  "entries": [
+    { "uid": 0, "comment": "A3a certain", "key": ["harbor"], "keysecondary": [], "selective": false, "content": "SO-A3a certain harbor lore.", "constant": false, "disable": false, "position": 1, "order": 100, "probability": 100, "useProbability": true },
+    { "uid": 1, "comment": "A3a probability", "key": ["harbor"], "keysecondary": [], "selective": false, "content": "SO-A3a probability lore.", "constant": false, "disable": false, "position": 1, "order": 99, "probability": 40, "useProbability": true },
+    { "uid": 2, "comment": "A3a gated", "key": ["harbor"], "keysecondary": [], "selective": false, "content": "SO-A3a gated lore.", "constant": false, "disable": false, "position": 1, "order": 98, "probability": 100, "useProbability": true },
+    { "uid": 3, "comment": "A3a secondary NOT", "key": ["harbor"], "keysecondary": ["storm"], "selective": true, "selectiveLogic": 2, "content": "SO-A3a calm harbor lore.", "constant": false, "disable": false, "position": 1, "order": 97, "probability": 100, "useProbability": true },
+    { "uid": 4, "comment": "A3a group", "key": ["customs"], "keysecondary": [], "selective": false, "content": "SO-A3a customs lore one.", "constant": false, "disable": false, "position": 1, "order": 96, "probability": 100, "useProbability": true, "group": "so-a3a", "groupWeight": 100 },
+    { "uid": 5, "comment": "A3a scan depth 0", "key": ["harbor"], "keysecondary": [], "selective": false, "content": "SO-A3a depth zero lore.", "constant": false, "disable": false, "position": 1, "order": 95, "probability": 100, "useProbability": true, "scanDepth": 0 },
+    { "uid": 6, "comment": "A3a group rival", "key": ["customs"], "keysecondary": [], "selective": false, "content": "SO-A3a customs lore two.", "constant": false, "disable": false, "position": 1, "order": 94, "probability": 100, "useProbability": true, "group": "so-a3a", "groupWeight": 100 }
+  ],
+  "gated": { "comment": "A3a gated", "checkpoint": "The Vault" },
+  "expectedReasons": {
+    "A3a certain": [],
+    "A3a probability": ["probability 40"],
+    "A3a gated": ["gated: on only from The Vault"],
+    "A3a secondary NOT": ["not-any depends on every text SillyTavern scans, not only the chat"],
+    "A3a group": ["inclusion group so-a3a"],
+    "A3a scan depth 0": ["scan depth 0 matches nothing"],
+    "A3a group rival": ["inclusion group so-a3a"]
+  }
+}

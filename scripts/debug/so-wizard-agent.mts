@@ -5,7 +5,7 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
-import { scoreAgentRuns, scoreRecipeTask, w5Escapes, type AgentRunRecord } from './lib/wizardAgentScore.mts';
+import { scoreAgentRuns, scoreCardRevision, scoreRecipeTask, w5Escapes, type AgentRunRecord } from './lib/wizardAgentScore.mts';
 import { bridgeEvidenceProblems, driveWizardAgent, type BridgeEvidenceOptions, type WizardDriveInput, type WizardRoute } from './lib/wizardAgentDrive.mts';
 
 const USAGE = `Usage: node scripts/debug/so-wizard-agent.mts <command> [options]
@@ -35,6 +35,10 @@ native bridge open/tool/answer/close evidence, fails.
       v2.8 09 (owner 2026-10-10): each task of test/measurements/v2.8/09/recipes.json starts from its seed story and asks for
       one authoring job in the author's words; a task passes when the agent read the expected recipe, every required edit tool
       of that recipe was accepted, the run finished and the draft validates. Provisioning is rejected.
+  card-revision [--fixture <file>] [--task <id>] [--repeat <n>] [--route local|harness|native] [--profile <id>] [--max-steps <n>]
+      v2.8 09 harvest A6: each task of test/measurements/v2.8/09/card-revision-v2.json (default) asks for one card with a planted
+      mistake; the card comes back with notes once, and a task passes when the agent's replacement clears every note
+      it was shown. Provisioning is rejected, so nothing is created.
   bridge-check [--premise <id>] [--max-steps <n>]
       Opt-in real-opencode compatibility check (plan 04 H): one short run on the harness route,
       provisioning rejected, that passes only on native bridge evidence. It calls the real CLI and
@@ -144,6 +148,33 @@ async function recipes(page, args: string[]) {
   return { ok: transport.length === 0, route, repeat, passed, of: tasks.length, pass: passed === tasks.length && tasks.length >= 2, transport, tasks: tasks.map(({ session, draft, ...rest }) => rest), detail: tasks };
 }
 
+async function cardRevision(page, args: string[]) {
+  const fixture = JSON.parse(await readFile(resolve(PROJECT_ROOT, 'test/measurements/v2.8/09', flag(args, '--fixture') ?? 'card-revision-v2.json'), 'utf-8'));
+  const only = flag(args, '--task');
+  const route = routeOf(args);
+  const repeat = Math.max(1, Number(flag(args, '--repeat') ?? 1));
+  const tasks = [];
+  for (const task of fixture.tasks.filter((entry) => !only || entry.id === only).flatMap((entry) => Array.from({ length: repeat }, () => entry))) {
+    let result;
+    try {
+      result = await driveChecked(page, {
+        goal: task.goal, title: `${fixture.marker} ${task.id}`, mode: 'review', route, maxSteps: Number(flag(args, '--max-steps') ?? 8),
+        provision: 'reject', profileId: flag(args, '--profile'), seed: fixture.seed, recordArgs: true,
+      });
+    } catch (error) {
+      const message = String((error as Error)?.message ?? error).split(String.fromCharCode(10))[0].slice(0, 300);
+      console.log(`${task.id}: run failed: ${message}`);
+      tasks.push({ id: task.id, score: { id: task.id, plants: task.plants, pass: false, error: message }, bridgeProblems: [`run failed: ${message}`], steps: [] });
+      continue;
+    }
+    const steps = result.session.steps.map((step) => ({ id: step.id, status: step.status, call: { tool: step.call.tool, args: step.call.args }, notes: step.notes, replaces: step.replaces, observation: step.observation }));
+    tasks.push({ id: task.id, score: scoreCardRevision(task, steps), bridgeProblems: result.bridgeProblems, steps, bridge: result.bridge?.events ?? [] });
+  }
+  const transport = tasks.flatMap((entry) => entry.bridgeProblems.map((problem) => `${entry.id}: ${problem}`));
+  const passed = tasks.filter((entry) => entry.score.pass).length;
+  return { ok: transport.length === 0, route, repeat, passed, of: tasks.length, floor: fixture.floor, transport, tasks: tasks.map(({ steps, ...rest }) => rest), detail: tasks };
+}
+
 async function bridgeCheck(page, args: string[]) {
   const fixture = await readFixture('premises.json');
   const premise = fixture.premises.find((candidate) => candidate.id === (flag(args, '--premise') ?? fixture.premises[0].id)) ?? fixture.premises[0];
@@ -154,14 +185,14 @@ async function bridgeCheck(page, args: string[]) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
-  if (hasHelpFlag() || !['run', 'safety', 'recipes', 'bridge-check'].includes(args[0])) {
+  if (hasHelpFlag() || !['run', 'safety', 'recipes', 'card-revision', 'bridge-check'].includes(args[0])) {
     console.log(USAGE);
     process.exit(hasHelpFlag() ? 0 : 1);
   }
   runCli(async (page) => {
-    const commands = { run, safety, recipes, 'bridge-check': bridgeCheck } as const;
+    const commands = { run, safety, recipes, 'card-revision': cardRevision, 'bridge-check': bridgeCheck } as const;
     const output = await commands[args[0] as keyof typeof commands](page, args);
-    const shown = args[0] === 'run' ? { score: (output as any).score, transport: (output as any).transport } : ['safety', 'recipes'].includes(args[0]) ? { ...output, detail: undefined } : output;
+    const shown = args[0] === 'run' ? { score: (output as any).score, transport: (output as any).transport } : ['safety', 'recipes', 'card-revision'].includes(args[0]) ? { ...output, detail: undefined } : output;
     console.log(JSON.stringify(shown, null, 2));
     await writeJSON(output, `so-wizard-agent-${args[0]}`);
     return { ok: (output as { ok: boolean }).ok };

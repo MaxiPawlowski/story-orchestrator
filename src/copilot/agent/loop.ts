@@ -1,27 +1,26 @@
 import { isValidationErrorList, parseStoryV2, type StoryV2 } from "@engine/index";
 import { validateProvisioningOp, type ProvisioningEnvironment } from "@wizard/index";
+import { cardFindings, cardWarnings, renderCardNotes, type CardFinding } from "@wizard/cardChecks";
+import { describeReadBack, type CardReadBackRecord } from "@utils/cardReadBack";
 import { isRecord } from "@utils/guards";
 import { truncate } from "@utils/string";
 import { runDiagnostics, type DiagnosticsContext } from "../../studio/diagnostics";
 import { briefingSpoilerNames } from "../../studio/briefingDiagnostics";
 import type { ProvisioningOp } from "@wizard/index";
-import { setAppearance, setChapters, setHouseRules, setPlayer, setFeatures } from "../../studio/mutations";
-import { setCheckpointMotive, setRosterDrive, setRosterView } from "../../studio/innerVoiceMutations";
 import { applyOp, applyOps, applyOpsChecked, BRIEFING_SPOILER_REFUSAL, diffProposal, isProvisioningOp, provisioningFollowUpOps, type OpAction, type OpDescription } from "../index";
 import { renderPlanPrompt, renderStepPrompt } from "./prompt";
 import { runReadTool } from "./readTools";
 import type { AgentAudit, AgentRoute, RouteAnswer } from "./route";
 import { checkRequirementsOp, resolveCastOp } from "./requirements";
 import { checkToolCall, type ReadToolName } from "./tools";
-import { applyPoseOp, describePoseOp, POSE_AGENT_KINDS, poseOpProblem, type PoseAgentOp } from "./poseOps";
-import { applyGameOp, describeGameOp, GAME_AGENT_KINDS, gameOpProblem, type GameAgentOp } from "./gameOps";
+import { agentOnlyProblem, applyAgentOnly, describeAgentOnly, isAgentOnly } from "./agentOnly";
 import { doneSummary, missingAtDone, refusedDoneLast } from "./finish";
 import { greetingClash, playerCastProblem } from "./playerCast";
 import { callKey, createdRefusal, rejectedRefusal } from "./rejected";
 import { draftCastNames } from "@wizard/index";
 import { stableStringify } from "@runtime/hash";
 import { changedSinceProposed, proposalBase } from "./staleProposal";
-import type { AgentBudget, AgentOnlyOp, AgentOp, AgentLookup, AgentMode, AgentReply, AgentSession, AgentStep, AgentStepStatus } from "./types";
+import type { AgentBudget, AgentOp, AgentLookup, AgentMode, AgentReply, AgentSession, AgentStep, AgentStepStatus } from "./types";
 
 export const AGENT_SESSION_VERSION = 1;
 export const DEFAULT_AGENT_BUDGET: Omit<AgentBudget, "usedTokens"> = { maxSteps: 60, maxTokens: 240_000 };
@@ -29,74 +28,6 @@ const OBSERVATION_LIMIT = 1500;
 const CHECK_LINES = 12;
 
 const now = () => new Date().toISOString();
-
-const AGENT_ONLY_KINDS: ReadonlySet<string> = new Set<AgentOnlyOp["kind"]>(
-  ["setFeatures", "setHouseRules", "setPlayer", "setChapters", "setRosterDrive", "setRosterView", "setCheckpointMotive", "setAppearance",
-    ...GAME_AGENT_KINDS, ...POSE_AGENT_KINDS] as AgentOnlyOp["kind"][],
-);
-
-const isPoseOp = (op: AgentOnlyOp): op is PoseAgentOp => POSE_AGENT_KINDS.has(op.kind);
-
-const isGameOp = (op: AgentOnlyOp): op is GameAgentOp => GAME_AGENT_KINDS.has(op.kind);
-
-const isAgentOnly = (op: AgentOp): op is AgentOnlyOp => AGENT_ONLY_KINDS.has(op.kind);
-
-const applyAgentOnly = (draft: StoryV2, op: AgentOnlyOp): StoryV2 => {
-  if (isPoseOp(op)) return applyPoseOp(draft, op);
-  if (isGameOp(op)) return applyGameOp(draft, op);
-  switch (op.kind) {
-    case "setHouseRules": return setHouseRules(draft, op.rules);
-    case "setPlayer": return setPlayer(draft, op.player);
-    case "setChapters": return setChapters(draft, op.chapters, op.assign);
-    case "setRosterDrive": return setRosterDrive(draft, op.id, op.drive);
-    case "setRosterView": return setRosterView(draft, op.id, op.view);
-    case "setCheckpointMotive": return setCheckpointMotive(draft, op.id, op.member, op.motive);
-    case "setAppearance": return setAppearance(draft, op.id, op.appearance);
-    case "setFeatures": return setFeatures(draft, op.features);
-  }
-};
-
-const describeAgentOnly = (op: AgentOnlyOp): OpDescription => {
-  if (isPoseOp(op)) return describePoseOp(op);
-  if (isGameOp(op)) return describeGameOp(op);
-  switch (op.kind) {
-    case "setHouseRules": return { action: "update", entity: "story.house_rules", label: op.rules.length ? `Set ${op.rules.length} house rule(s)` : "Clear the house rules" };
-    case "setPlayer": return { action: "update", entity: "story.player", label: op.player.role ? `The player plays ${op.player.role}` : "Set who the player is" };
-    case "setChapters": {
-      const assigned = Object.keys(op.assign).length;
-      const label = op.chapters.length ? `Chapters: ${op.chapters.map((chapter) => chapter.title).join(" / ")}${assigned ? ` (${assigned} checkpoint(s) assigned)` : ""}` : "Remove every chapter";
-      return { action: "update", entity: "story.chapters", label };
-    }
-    case "setRosterDrive": return { action: "update", entity: `roster.${op.id}.drive`, label: op.drive ? `Drive for ${op.id}: ${op.drive}` : `Clear ${op.id}'s drive` };
-    case "setRosterView": return { action: "update", entity: `roster.${op.id}.view`, label: `${op.id} sees ${op.view === "omniscient" ? "every character's private rows" : "only their own"}` };
-    case "setCheckpointMotive": {
-      const label = op.motive ? `${op.member} wants at ${op.id}: ${op.motive}` : `Clear ${op.member}'s motive at ${op.id}`;
-      return { action: "update", entity: `checkpoints.${op.id}.motives.${op.member}`, label };
-    }
-    case "setAppearance": return { action: "update", entity: "story.illustrations", label: op.appearance ? `Look of ${op.id}: ${op.appearance}` : `Clear ${op.id}'s look` };
-    case "setFeatures": return { action: "update", entity: "story.features", label: "Replace story feature policies" };
-  }
-};
-
-const chaptersProblem = (draft: StoryV2, op: Extract<AgentOnlyOp, { kind: "setChapters" }>): string | null => {
-  const chapters = new Set(op.chapters.map((chapter) => chapter.id));
-  const problems = Object.entries(op.assign).flatMap(([checkpoint, chapter]) => [
-    ...(draft.checkpoints.some((entry) => entry.id === checkpoint) ? [] : [`'${checkpoint}' is not a checkpoint`]),
-    ...(chapter && !chapters.has(chapter) ? [`'${chapter}' is not one of the chapters sent`] : []),
-  ]);
-  return problems.length ? problems.join("; ") : null;
-};
-
-const agentOnlyProblem = (draft: StoryV2, op: AgentOnlyOp): string | null => {
-  if (isPoseOp(op)) return poseOpProblem(draft, op);
-  if (isGameOp(op)) return gameOpProblem(draft, op);
-  if (op.kind === "setHouseRules" || op.kind === "setPlayer" || op.kind === "setFeatures") return null;
-  if (op.kind === "setChapters") return chaptersProblem(draft, op);
-  const member = op.kind === "setCheckpointMotive" ? op.member : op.id;
-  if (!draft.roster.some((entry) => entry.id === member)) return `'${member}' is not a roster id`;
-  if (op.kind === "setCheckpointMotive" && !draft.checkpoints.some((entry) => entry.id === op.id)) return `'${op.id}' is not a checkpoint`;
-  return null;
-};
 
 export const isProvisionOp = (op: AgentOp): op is ProvisioningOp => !isAgentOnly(op) && isProvisioningOp(op);
 
@@ -130,6 +61,20 @@ export const budgetSpent = (session: AgentSession): boolean =>
 
 export const pendingStep = (session: AgentSession): AgentStep | null => session.steps.find((step) => step.status === "pending") ?? null;
 
+export const reviewStep = (session: AgentSession): AgentStep | null => session.steps.find((step) => step.status === "review") ?? null;
+
+export const KEPT_CARD = "The agent kept this card as it is, so it waits for the author.";
+export const KEPT_ON_STOP = "The run stopped before a revision, so it waits for the author.";
+export const REVISION_REFUSED = "Its revision was refused, so this card waits for the author as it is.";
+
+const promoteReview = (session: AgentSession, why: string): AgentSession => {
+  const held = reviewStep(session);
+  if (!held) return session;
+  const steps = session.steps.map((step) => (step.id === held.id ? { ...step, status: "pending" as const, observation: clip(`${step.observation} ${why}`) } : step));
+  const status = session.status === "running" || session.status === "planning" || session.status === "budget" ? nextStatus(session, steps) : session.status;
+  return { ...session, steps, status };
+};
+
 export const approvePlan = (session: AgentSession, plan: string[], at = now()): AgentSession => {
   const kept = plan.map((step) => step.trim()).filter(Boolean);
   if (!kept.length) return session;
@@ -144,7 +89,7 @@ export const approvePlan = (session: AgentSession, plan: string[], at = now()): 
 
 export const setAgentMode = (session: AgentSession, mode: AgentMode): AgentSession => ({ ...session, mode });
 
-export const stopAgent = (session: AgentSession): AgentSession => ({ ...session, status: "stopped" });
+export const stopAgent = (session: AgentSession): AgentSession => ({ ...promoteReview(session, KEPT_ON_STOP), status: "stopped" });
 
 export const grantBudget = (session: AgentSession): AgentSession => {
   if (!budgetSpent(session)) return session;
@@ -231,7 +176,8 @@ const nextStatus = (session: AgentSession, steps: AgentStep[]): AgentSession["st
 
 const withStep = (session: AgentSession, step: Omit<AgentStep, "id">): AgentSession => {
   const steps = [...session.steps, { ...step, id: session.steps.length + 1, observation: clip(step.observation) }];
-  return { ...session, steps, status: nextStatus(session, steps) };
+  const next = { ...session, steps, status: nextStatus(session, steps) };
+  return next.status === "budget" ? promoteReview(next, KEPT_ON_STOP) : next;
 };
 
 const baseStep = (meta: StepMeta, reply: Extract<AgentReply, { kind: "call" }>) => ({
@@ -310,7 +256,40 @@ const groupGap = (draft: StoryV2, op: AgentOp): string | null => {
     : null;
 };
 
+const cardName = (value: unknown) => String(value ?? "").trim().toLowerCase();
+
+const replacesId = (reply: AgentReply, held: AgentStep | null): number | null => {
+  if (reply.kind !== "call" || reply.call.tool !== "createCharacterCard") return null;
+  const named = reply.call.args.replaces;
+  const id = typeof named === "number" ? named : typeof named === "string" && /^\s*#?\d+\s*$/.test(named) ? Number(named.replace("#", "")) : null;
+  if (id !== null) return id;
+  const sameCard = held?.op?.kind === "createCharacterCard" && cardName(held.op.name) === cardName(reply.call.args.name);
+  return sameCard && held ? held.id : null;
+};
+
+const withoutReplaces = (reply: AgentReply): AgentReply => {
+  if (reply.kind !== "call" || !("replaces" in reply.call.args)) return reply;
+  const { replaces: _named, ...args } = reply.call.args;
+  return { ...reply, call: { ...reply.call, args } };
+};
+
+const markReplaced = (session: AgentSession, held: AgentStep, by: number): AgentSession => ({
+  ...session,
+  steps: session.steps.map((step) => (step.id === held.id ? { ...step, status: "replaced" as const, observation: clip(`${step.observation} Replaced by step #${by}.`) } : step)),
+});
+
+const reviewNote = (notes: CardFinding[], id: number) =>
+  `Card notes: ${renderCardNotes(notes)} Revise it once: send createCharacterCard with replaces: ${id} and the changed card, or send the same card to keep it.`;
+
 export const executeReply = (session: AgentSession, reply: AgentReply, context: AgentContext, meta: StepMeta): AgentTurn => {
+  const held = reviewStep(session);
+  const target = replacesId(reply, held);
+  if (held && target !== held.id) return { session: promoteReview(session, KEPT_CARD), apply: null };
+  const turn = runReply(session, held, target, withoutReplaces(reply), context, meta);
+  return held && reviewStep(turn.session)?.id === held.id ? { ...turn, session: promoteReview(turn.session, REVISION_REFUSED) } : turn;
+};
+
+const runReply = (session: AgentSession, held: AgentStep | null, target: number | null, reply: AgentReply, context: AgentContext, meta: StepMeta): AgentTurn => {
   const at = meta.at ?? now();
   if (reply.kind === "plan") {
     const notes = [...session.notes, { role: "agent" as const, text: `Plan: ${reply.plan.join(" / ")}`, at }];
@@ -318,10 +297,11 @@ export const executeReply = (session: AgentSession, reply: AgentReply, context: 
   }
   if (reply.kind === "done") return finish(session, reply.summary, context, meta);
   const base = baseStep(meta, reply);
-  const record = (step: Pick<AgentStep, "family" | "status" | "observation"> & Partial<AgentStep>, apply: AgentOp | null = null): AgentTurn => ({
-    session: repeatedRefusal(withStep(session, { ...base, firstTryValid: step.status === "refused" ? false : meta.firstTryValid, ...step })),
+  const recordOn = (from: AgentSession, step: Pick<AgentStep, "family" | "status" | "observation"> & Partial<AgentStep>, apply: AgentOp | null = null): AgentTurn => ({
+    session: repeatedRefusal(withStep(from, { ...base, firstTryValid: step.status === "refused" ? false : meta.firstTryValid, ...step })),
     apply,
   });
+  const record = (step: Pick<AgentStep, "family" | "status" | "observation"> & Partial<AgentStep>, apply: AgentOp | null = null): AgentTurn => recordOn(session, step, apply);
   const check = checkToolCall(reply.call);
   if (!check.ok) return record({ family: null, status: "refused", observation: `Refused: ${check.message}` });
   const { spec, op } = check;
@@ -338,12 +318,27 @@ export const executeReply = (session: AgentSession, reply: AgentReply, context: 
   if (player) return record({ family: spec.family === "provision" ? "provision" : "edit", op, status: "refused", observation: `Refused: ${player}` });
   if (spec.family === "provision") {
     if (!isProvisionOp(op)) return record({ family: null, status: "refused", observation: `Refused: ${spec.name} is not a provisioning step` });
-    const rejected = rejectedRefusal(session, op) ?? createdRefusal(session, op) ?? groupGap(context.draft, op);
-    if (rejected) return record({ family: "provision", op, status: "refused", observation: `Refused: ${rejected}` });
+    const replacing = held && target === held.id ? held : null;
+    if (target !== null && !replacing) {
+      return record({ family: "provision", op, status: "refused", observation: `Refused: replaces names step #${target}, which is not a card waiting for revision; leave replaces out` });
+    }
+    if (replacing && stableStringify(op) === stableStringify(replacing.op)) return { session: promoteReview(session, KEPT_CARD), apply: null };
     const validation = validateProvisioningOp(op, context.environment);
-    if (!validation.ok) return record({ family: "provision", op, status: "refused", observation: `Refused: ${validation.message}` });
+    const refusal = rejectedRefusal(session, op) ?? createdRefusal(session, op) ?? groupGap(context.draft, op) ?? (validation.ok ? null : validation.message);
+    if (refusal) return record({ family: "provision", op, status: "refused", observation: `Refused: ${refusal}` });
     const clash = greetingClash(context.draft, op);
-    return record({ family: "provision", op, status: "pending", observation: `Waiting for the author to confirm this asset.${clash ? ` ${clash}` : ""}` });
+    const clashed = clash ? ` ${clash}` : "";
+    const notes = op.kind === "createCharacterCard" ? cardWarnings(cardFindings(op, context.draft, context.environment)) : [];
+    const id = session.steps.length + 1;
+    if (replacing) {
+      const left = notes.length ? ` Notes left for the author: ${renderCardNotes(notes)}` : "";
+      return recordOn(markReplaced(session, replacing, id), {
+        family: "provision", op, status: "pending", replaces: replacing.id, notes: notes.map((note) => note.id),
+        observation: `Waiting for the author to confirm this asset (the revision of step #${replacing.id}).${clashed}${left}`,
+      });
+    }
+    if (notes.length) return record({ family: "provision", op, status: "review", notes: notes.map((note) => note.id), observation: `${reviewNote(notes, id)}${clashed}` });
+    return record({ family: "provision", op, status: "pending", observation: `Waiting for the author to confirm this asset.${clashed}` });
   }
   const requirements = op.kind === "setRequirements" ? checkRequirementsOp(session, context.draft, op, context.environment) : null;
   if (requirements?.problem) return record({ family: "edit", op, status: "refused", observation: `Refused: ${requirements.problem}` });
@@ -413,10 +408,27 @@ export const decideStep = (session: AgentSession, id: number, decision: AgentDec
   return { session: updateStep(session, id, { status: "accepted", op, base: undefined, observation, check: checkDraft(applyAgentOp(draft, op)) }), apply: op };
 };
 
-export const resolveProvisioning = (session: AgentSession, id: number, outcome: { ok: boolean; message: string }, draftAfter: StoryV2): AgentSession => {
+export interface ProvisioningOutcome {
+  ok: boolean;
+  message: string;
+  readBack?: CardReadBackRecord;
+}
+
+export const resolveProvisioning = (session: AgentSession, id: number, outcome: ProvisioningOutcome, draftAfter: StoryV2): AgentSession => {
   const step = session.steps.find((entry) => entry.id === id);
   if (!step || step.status !== "pending" || step.family !== "provision") return session;
-  return updateStep(session, id, { status: outcome.ok ? "applied" : "failed", observation: outcome.message, ...(outcome.ok ? { check: checkDraft(draftAfter) } : {}) });
+  const readBack = outcome.ok && outcome.readBack ? { readBack: outcome.readBack } : {};
+  return updateStep(session, id, { status: outcome.ok ? "applied" : "failed", observation: outcome.message, ...readBack, ...(outcome.ok ? { check: checkDraft(draftAfter) } : {}) });
+};
+
+export const unsettledReadBacks = (session: AgentSession): Array<AgentStep & { readBack: CardReadBackRecord }> =>
+  session.steps.filter((step): step is AgentStep & { readBack: CardReadBackRecord } => step.status === "applied" && step.readBack !== undefined && step.readBack.state !== "stored");
+
+export const recheckReadBack = (session: AgentSession, id: number, readBack: CardReadBackRecord, name: string): AgentSession => {
+  const step = session.steps.find((entry) => entry.id === id);
+  if (!step?.readBack || step.status !== "applied") return session;
+  if (step.readBack.state === readBack.state && step.readBack.lossy.join() === readBack.lossy.join()) return session;
+  return updateStep(session, id, { readBack, observation: describeReadBack(name, readBack) });
 };
 
 const replyProblems = (reply: AgentReply): string[] => {

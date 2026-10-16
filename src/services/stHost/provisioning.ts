@@ -1,10 +1,15 @@
 import { getContext } from "./context";
 import type { HostCharacter } from "./hostTypes";
+import { cardReadBack, type CardReadBack, type CardReadBackState, type ReadBackAnswer, type SentCard } from "@utils/cardReadBack";
+import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 
 // Provisioning writes to the user's real install, so every call here goes through an endpoint ST
 // itself uses, with ST's own request headers, and finishes by reloading ST's caches. Verified host
 // facts (see docs/plans 00-implementation-overview.md §Verified ST host facts):
 //   - POST /api/characters/create, JSON body, returns the avatar filename as text
+//   - POST /api/characters/get {avatar_url}, 404 when the file is missing, else the card JSON with top-level
+//     name/description/personality/scenario/first_mes/mes_example (src/endpoints/characters.js:1480, :580-585;
+//     public/script.js:1224 getOneCharacter); a card that cannot be parsed answers 200 without a name (:432)
 //     (public/scripts/slash-commands.js:5237, public/scripts/welcome-screen.js:869;
 //      server: src/endpoints/characters.js:1024 — `if (!request.file)` writes the default avatar)
 //   - POST /api/groups/create, JSON body, returns the created group object
@@ -37,7 +42,33 @@ const reloadHostLists = async () => {
 
 const chatStamp = (): string => getContext().humanizedDateTime?.() ?? new Date().toISOString().replace(/[:.]/g, "-");
 
-export async function createCharacterCard(input: CharacterCardInput): Promise<{ avatar: string; name: string }> {
+export interface CreatedCharacterCard {
+  avatar: string;
+  name: string;
+  readBack: CardReadBackState;
+  lossy: string[];
+}
+
+const sentCard = (input: CharacterCardInput): SentCard => ({
+  name: input.name.trim(), description: input.description ?? "", personality: input.personality ?? "", scenario: input.scenario ?? "",
+  first_mes: input.first_mes ?? "", mes_example: input.mes_example ?? "",
+});
+
+const askCard = async (avatar: string): Promise<ReadBackAnswer | null> => {
+  try {
+    const response = await fetch("/api/characters/get", { method: "POST", headers: requestHeaders(), body: JSON.stringify({ avatar_url: avatar }) });
+    return { ok: response.ok, body: response.ok ? await response.json() : null };
+  } catch {
+    return null;
+  }
+};
+
+export async function readBackCharacterCard(avatar: string, input: CharacterCardInput): Promise<CardReadBack> {
+  if (!avatar) return cardReadBack(sentCard(input), null);
+  return cardReadBack(sentCard(input), await askCard(avatar));
+}
+
+export async function createCharacterCard(input: CharacterCardInput): Promise<WriteResult<CreatedCharacterCard>> {
   const body = {
     ch_name: input.name.trim(),
     description: input.description ?? "",
@@ -61,10 +92,11 @@ export async function createCharacterCard(input: CharacterCardInput): Promise<{ 
     extensions: "{}",
   };
   const response = await fetch("/api/characters/create", { method: "POST", headers: requestHeaders(), body: JSON.stringify(body) });
-  if (!response.ok) throw new Error(`Creating "${input.name}" failed: ${response.status} ${await response.text()}`);
+  if (!response.ok) return couldNot(`creating "${input.name}" failed: ${response.status} ${await response.text()}`);
   const avatar = (await response.text()).trim();
+  const readBack = await readBackCharacterCard(avatar, input);
   await reloadHostLists();
-  return { avatar, name: body.ch_name };
+  return wrote({ avatar, name: readBack.name ?? body.ch_name, readBack: readBack.state, lossy: readBack.lossy });
 }
 
 export function listGroupNames(): string[] {

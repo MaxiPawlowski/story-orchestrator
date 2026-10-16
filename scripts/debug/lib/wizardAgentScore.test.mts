@@ -59,3 +59,14 @@ test('v2.8 52 C7: a recipe task with diagnosticsAbsent passes only when the agen
   assert.equal(run(base).pass, false);
   assert.equal(run([base[0], clean, base[1]]).pass, false);
 });
+
+test('v2.8 09 A6: a task passes when the replacement clears every flagged note', async () => {
+  const { scoreCardRevision } = await import('./wizardAgentScore.mts');
+  const card = (id: number, status: string, notes: string[], replaces?: number) => ({ id, status, call: { tool: 'createCharacterCard' }, notes, ...(replaces ? { replaces } : {}) });
+  const task = { id: 't', plants: 'description-thin' };
+  assert.equal(scoreCardRevision(task, [card(1, 'replaced', ['description-thin']), card(2, 'rejected', [], 1)]).pass, true);
+  assert.deepEqual(scoreCardRevision(task, [card(1, 'replaced', ['description-thin']), card(2, 'rejected', ['description-thin'], 1)]).left, ['description-thin']);
+  assert.equal(scoreCardRevision(task, [card(1, 'rejected', ['description-thin'])]).revised, false);
+  assert.equal(scoreCardRevision(task, [card(1, 'rejected', [])]).seeded, false);
+  assert.equal(scoreCardRevision(task, [{ id: 1, status: 'observed', call: { tool: 'readGraph' } }]).seeded, false);
+});

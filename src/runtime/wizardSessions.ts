@@ -1,5 +1,5 @@
 import { getContext, observeNextSettingsSave, readServerExtensionSettings } from "@services/STAPI";
-import type { WizardSessionState, WizardSessionUpdate } from "@wizard/index";
+import type { WizardCreatedCard, WizardSessionState, WizardSessionUpdate } from "@wizard/index";
 import { createSettingsWriteEvidence, type LibrarySaveEvidence } from "./librarySave";
 import { SETTINGS_ROOT_KEY, settingsRoot, writableSettingsRoot } from "./settingsRoot";
 
@@ -73,6 +73,7 @@ export function saveWizardSession(session: WizardSessionUpdate): Promise<Library
   const merged: WizardSessionState = {
     ...session,
     ...(session.grants === undefined && previous?.grants ? { grants: previous.grants } : {}),
+    ...(session.createdCards === undefined && previous?.createdCards ? { createdCards: previous.createdCards } : {}),
     createdLorebooks: session.createdLorebooks ?? previous?.createdLorebooks ?? [],
     updatedAt: new Date().toISOString(),
   };
@@ -85,12 +86,15 @@ export function saveWizardSession(session: WizardSessionUpdate): Promise<Library
 
 const union = (left: string[], right: string[]) => [...new Set([...left, ...right])];
 
+const unionCards = (kept: WizardCreatedCard[], more: WizardCreatedCard[]) => [...kept, ...more.filter((card) => !kept.some((entry) => entry.avatar === card.avatar))];
+
 const mergeSessions = (from: WizardSessionState, onto: WizardSessionState | undefined, key: string): WizardSessionState => (onto ? {
   ...onto,
   history: onto.history.length ? onto.history : from.history,
   applied: union(onto.applied, from.applied),
   createdLorebooks: union(onto.createdLorebooks, from.createdLorebooks),
   ...(onto.grants || from.grants ? { grants: onto.grants ?? from.grants } : {}),
+  ...(onto.createdCards || from.createdCards ? { createdCards: unionCards(onto.createdCards ?? [], from.createdCards ?? []) } : {}),
   ...(from.agent ?? onto.agent ? { agent: from.agent ?? onto.agent } : {}),
   updatedAt: new Date().toISOString(),
 } : { ...from, key, updatedAt: new Date().toISOString() });

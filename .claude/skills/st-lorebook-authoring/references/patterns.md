@@ -198,3 +198,17 @@ Always-on text that still obeys probability, groups and budget.
 The scan buffer puts `\x01` before each message (`world-info.js:295-297`). So
 `/\x01{{user}}:[^\x01]*?hello/` fires only when the *user* says "hello". The official doc covers
 this. It needs Include Names on.
+
+## 14. Content by kind (project rule, v2.8 34)
+
+An entry answers the questions a scene asks about its kind, or the narrator guesses them:
+
+- **Place:** ways in and out; distance to the nearby places.
+- **Item:** what it cannot do; who wants it.
+- **Faction:** size; reach.
+- **History:** what happened, kept apart from what people say; the hidden truth stays out of shared lore (a member's private knowledge or a gated entry).
+- **Concept** (power, law, ritual): limits; cost.
+
+End with a short "Current state" paragraph the curator may patch, and wrap the stable text above it in
+`{{// so:protect}}` … `{{// so:end}}`. The wizard's lore grammar carries the same rule (`LORE_CONTENT_RULE`), and the
+author's guide topic is `lore-content`.

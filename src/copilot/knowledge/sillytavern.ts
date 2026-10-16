@@ -43,7 +43,9 @@ export const ST_TOPICS: readonly StTopic[] = [
     text: "A good card: a non-empty description of about 200 to 2000 tokens (keep about half the context for the chat itself); a few core traits, each shown by behaviour "
       + "rather than adjectives; goals of their own that do not revolve around the player; abilities with a cost or a limit; one formatting convention; no line that "
       + "narrates the player; no instruction phrased as \"never X\" (it plants X). Long lists of places or spells belong in a lorebook entry, not the card. "
-      + "The name is short, unique on the install, and not a famous one the model already knows.",
+      + "The name is short, unique on the install, and not a famous one the model already knows. Write traits in the trigger form (\"When X, they do Y\"). "
+      + "The wizard checks every card it proposes this way: a card with notes goes back to the agent once for a revision, and only a missing name, a taken name or "
+      + "an empty description refuse it.",
     sources: [{ file: SCRIPT, anchor: "depth_prompt" }],
   },
   {

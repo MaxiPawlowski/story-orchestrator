@@ -69,10 +69,12 @@ export const RejectSendsTheReasonBack: Story = {
 };
 
 const PROVISION = { thought: "the guide needs a card", tool: "createCharacterCard", args: { name: "The Guide", description: "Knows the ruins." } };
+const GUIDE = "The Guide has walked the ruins for twenty years. When a stranger asks the way, she names a price first and the route second.";
+const REVISED = { thought: "fuller card", tool: "createCharacterCard", args: { name: "The Guide", replaces: 2, description: GUIDE } };
 
 export const AutoDraftWritesButAssetsWait: Story = {
   args: {
-    runTurn: scripted([PLAN, OBJECTIVE, PROVISION, DONE]),
+    runTurn: scripted([PLAN, OBJECTIVE, PROVISION, REVISED, DONE]),
     onPersist: fn(),
     host: {
       environment: () => emptyEnvironment(),
@@ -89,6 +91,7 @@ export const AutoDraftWritesButAssetsWait: Story = {
     await expect(await canvas.findByLabelText("Agent asset")).toBeInTheDocument();
     await expect(useDraftStore.getState().draft.checkpoints[0].objective).toBe("Reach the ruins gate before the patrol turns.");
     await expect(args.host?.applyProvisioning).not.toHaveBeenCalled();
+    await expect(canvasElement.querySelector('[data-so="agent-step"][data-status="replaced"]')).not.toBeNull();
     await userEvent.click(canvas.getByRole("button", { name: "Create it" }));
     await canvas.findByText(/Sharpened the opening beat\./);
     await expect(args.host?.applyProvisioning).toHaveBeenCalledTimes(1);

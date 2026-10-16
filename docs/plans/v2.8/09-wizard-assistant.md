@@ -550,3 +550,100 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda (09/22), §1. Verified on
   `src/components/settings/MemoryModelGroup.tsx:27`), opencode stays failure-only; restrictions restated.
 - **Fold half of 66 here.** Adopted as §Harvest phase (its own review subsection above).
 - Rebutted: none.
+
+## Gate record (2026-10-16, harvest phase, branch `v2.8-harvest-09-34`, worktree `../so-h0934`, from master `d1f9ede2`)
+
+Owner decisions 2026-10-16 (`61-harvest-triage-2026-10-14.md`): one bounded revision, tutorial severities, an
+unconfirmed read-back means "may exist". All built as designed; deviations listed.
+
+- **Design 1, shared card checks: built.** `src/wizard/cardChecks.ts` `reviewCard` is the one source; the tutorial calls it
+  (`reviewTutorialCard`), agent and staged cards call `cardFindings(op, draft, env)`. Severities kept: only name missing,
+  name taken, empty description block (and `validateProvisioningOp` still refuses exactly those). Deviation: "opening cast"
+  is tri-state for agent cards (start checkpoint `cast_changes.enable` lists the card: opening; `disable` lists it: not
+  opening; otherwise unknown, so neither `greeting-missing` nor `greeting-not-opening` fires and a story without cast
+  changes does not push a greeting onto every card); the tutorial keeps its explicit checkbox. The agent copy of
+  `greeting-not-opening` says the greeting would fire, since the agent card is not trimmed.
+- **Design 2, bounded revision: built** (`src/copilot/agent/loop.ts`). A card with warn findings is recorded `review` (new
+  step status) with "Card notes: … Revise it once: send createCharacterCard with replaces: <id>…"; the session stays
+  `running`, and the step prompt shows a CARD WITH NOTES section. A replacement (`replaces` as a number or numeric text, or
+  a createCharacterCard for the same card name) is validated like any card; it goes `pending` with any notes left, and the
+  original becomes `replaced`. The same card sent back, any other reply, a refused revision, a stop or an empty budget make
+  the original `pending` (a non-replacement reply is not executed; the agent gets its next turn after the author decides).
+  Creation still needs the author's confirmation.
+- **Design 3, behaviour guidance: built.** `CARD_CRAFT_RULE` (trigger form "When X, they do Y", side-cast "why scenes include
+  them", no `{{system}}` in examples, greetings never narrate the player) in the agent rules and the staged provisioning
+  grammar; tutorial voice/examples `why` and draft asks updated; knowledge topic `st/card-review` updated. New warn finding
+  `trait-no-behaviour`: the personality is a list of 2+ short traits and no description sentence has a trigger word (when,
+  whenever, if, every time, each time, as soon as, the moment).
+- **Design 4, read-back: built.** `stHost/provisioning.ts` `createCharacterCard` answers `WriteResult` (a failed create is
+  `{ok:false}`, no throw) after `POST /api/characters/get` on the returned avatar (`src/endpoints/characters.js:1480`;
+  a card the server cannot parse answers 200 without a name, `:432`); `utils/cardReadBack.ts` decides `stored |
+  unconfirmed | mismatch(lossy fields)`. The coordinator records `createdCards` {name, requested, avatar, readBack, lossy} in
+  the wizard session (kept across UI saves and re-keys), adds those names to the create-only environment, and offers
+  `recheckCreatedCard`; the agent step keeps `readBack`, the Agent wizard lists unsettled cards with "Check again" and
+  re-checks unconfirmed ones once when a saved session opens; `ProvisioningCard` shows the read-back line.
+- **A1: identical (met).** `src/wizard/cardChecks.test.ts`: 16 tutorial fixtures, ids and severities equal between
+  `cardFindings` (draft with the matching start cast) and the tutorial review.
+- **A2: 12/12, 0/6, 0 (met).** 12 planted mistakes (12 distinct ids) each at the tutorial severity; 6 clean cards with no
+  finding; no warn-only card is refused by `validateProvisioningOp`.
+- **A5: 3/3, 2/2 (met).** `src/runtime/coordinators/copilotReadBack.test.ts` (stubbed host): stored, unconfirmed and mismatch
+  each reach the step result and the ledger with the returned avatar; for unconfirmed and mismatch a second create is
+  refused although the host list missed the card; a later check upgrades to stored; a failed create writes no row.
+  `utils/cardReadBack.test.ts` covers 404, network error, nameless 200, CRLF, lossy fields. Live plumbing x2 on no-model
+  lane 65 (`test/scenarios/v28-09-card-readback.json`, private copy `C:\dev\st-live-h0934`, served bundle `60a064dd1a39`,
+  source `7a25a7c47e98` before and after each run): real create read back `stored`, ledger row with the avatar, second
+  create refused, re-check `stored`, a missing avatar `unconfirmed`, card deleted in cleanup, residue clean. Evidence
+  `C:\dev\so-live-lanes\65\debug\runs\2026-10-16T19-41-31-553Z-so-scenario-run`, `…19-41-53-108Z…`.
+- **A8: holds (met).** `src/copilot/agent/cardReview.test.ts`: 300 seeded scripted sessions x 40 turns (flagged and clean
+  cards, replacements, same card, wrong id, reads, done, author create/reject): no `review` step sets awaiting-author, no
+  step is replaced twice or a replacement replaced, no card is applied without the author; plus targeted cases.
+- **A6: recorded, below the expected 7/10; not a pass.** Sol (opencode `openai/gpt-6.1-sol`) through the harness bridge on lane
+  66 (`so-wizard-agent.mts card-revision --route harness`; the lane's authoring role routed to opencode; opencode offered
+  in the private copy's harness config). Fixture v1 `test/measurements/v2.8/09/card-revision.json` (declared before any run):
+  - counted run on the private copy (hash `60a064dd1a39`/`7a25a7c47e98` before and after): 0/10. All 10 seeded (first card held
+    with its notes); in all 10 Sol sent the identical card back as its revision, i.e. kept it, because each task told it to
+    use the text "exactly". Evidence `C:\dev\so-live-lanes\66\debug\2026-10-16T19-46-34-428Z_so-wizard-agent-card-revision.json`.
+  - second counted run: transport/quota, not scored: opencode stopped listing `openai/gpt-6.1-sol` as available after 2 tasks
+    (`config: OpenCode does not list the model …`); Sol use stopped there. The x2 is owed.
+  - uncounted runs on the shared `C:\dev\st-live` (dist overwritten by other agents during the session): v1 0/10 twice
+    (same behaviour), and fixture v2 `card-revision-v2.json` (the planted text as a "rough draft"): 0/10, 9 not seeded (Sol's
+    first card already had no note: the craft rules took), 1 kept (name "The Fence").
+  - Finding: the bounded loop behaves as designed on Sol (a review answer reaches the agent, the agent answers with
+    `replaces`), but A6 as written cannot be met: a task that names exact text makes keeping correct, and a task without
+    it is not seeded. Decision for the owner below. No floor moved.
+- Harness: `so-wizard-agent.mts card-revision [--fixture] …`, scorer `scoreCardRevision` (node test), bridge events record
+  call args and done text for this command.
+- Storybook: `ProvisioningCard` `CardNotes`, `ReadBackUnconfirmed`, `ReadBackMismatch`, `LoreKeyPreview`; `AgentWizard`
+  `AutoDraftWritesButAssetsWait` now scripts the one revision (asserts a `replaced` step).
+- Lanes: 65 (offline, no-model) and 66 (no-model keys, server plugins on, for the harness) both serve from the private copy
+  `C:\dev\st-live-h0934` (st-live code without data, `node_modules` junctioned to the main ST like `st-live-owed`); the shared
+  `C:\dev\st-live` harness config was changed for one run and restored to its claude-only original.
+
+Gates (34 harvest included):
+
+- `npm run gates -- --jobs=1 --no-storybook` on `63d8198e`: all green in 636 s (jest 785 suites / 9,107 tests passed, 1
+  skipped; replay 32/32 killed; build; test:debug; typecheck; typecheck:test; lint 0 errors, 2 inherited warnings;
+  debug:typecheck; test:plugin; test:release). Storybook skipped there and run separately.
+- Storybook static build + test-runner on port 6281, `--maxWorkers 1`, on `319f76d6`: 147 suites / 886 tests passed (the
+  first run found 2 story defects, fixed in `319f76d6`).
+- Final: `npm run gates -- --jobs=1 --no-storybook` on `1dfdcc5f`: all green in 370 s (jest 785 suites / 9,108 tests passed, 1 skipped;
+  replay 32/32 killed). Storybook rebuilt on `1dfdcc5f`, test-runner port 6281 `--maxWorkers 1`: 147 suites / 886 tests passed.
+- Main bundle 1,288,820 B (budget 1,300,000; +1.6 KB for the read-back in the host and coordinator; checks, preview and
+  revision ride the Studio/copilot lazy chunks).
+- `arrivalEquivalence` re-recorded in its own commit (`63d8198e`) for the A3a scenario story.
+- Commits: `c90d9635`, `63d8198e`, `022abf02`, `f737e402`, `319f76d6`, `9f51a894`, `1dfdcc5f`, plus the docs commit. Not merged.
+
+### Decisions for the owner (harvest phase, 2026-10-16)
+
+1. **A6 cannot be met as written.** Recommended: replace A6 with two informational rows: (a) the revision effect on a card the
+   author wrote with a planted mistake, the task saying "the author's draft; fix what the card check flags" (does the
+   replacement clear the note, x2 on Sol); (b) the first-card note rate on rough-draft tasks (fixture v2; lower is better; one
+   run: 1/10). Alternative: keep A6 and score only tasks the agent chose to revise.
+2. **A non-replacement reply while a card is held is dropped** (the agent gets a fresh turn after the author decides).
+   Recommended: keep; executing it would put a second pending card or a "done" in front of the held one.
+
+### Owner decisions 2026-10-16 (via "go with your recommendations")
+
+- A6 stays as recorded: 0/10, a miss (floors are never retuned after a run). Two informational rows are added for a later run: A6a, revision clears the note on an author-written card when the task asks to fix what the check flags, x2 on Sol; A6b, share of first cards with notes on rough-draft tasks (lower is better).
+- A non-revision reply while a card is held stays dropped.
+- A7 waits for a lore-rule-off measurement switch and a blind two-rater command.
