@@ -19,7 +19,7 @@ export const chanceContext = (loaded: Pick<LoadedStory, "story" | "record"> | nu
   return loaded && storyId && chatId ? { chatId, storyId, boundary, qualities: loaded.story.qualities, story: loaded.story } : null;
 };
 
-export type ChanceDrawKind = "npc" | "talk";
+export type ChanceDrawKind = "npc" | "talk" | "scene";
 
 export interface ChanceDraw extends ChanceIds {
   kind: ChanceDrawKind;
@@ -56,6 +56,8 @@ export const onChanceDraw = (listener: (draw: ChanceDraw) => void): (() => void)
 };
 
 const announce = (draw: ChanceDraw) => drawListeners.forEach((listener) => listener(draw));
+
+export const announceChanceDraw = announce;
 
 export const createChanceSeams = (read: () => ChanceContext | null, record: (draw: ChanceDraw) => void = announce): ChanceSeams => ({
   derive: (view) => {

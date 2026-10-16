@@ -5,6 +5,7 @@ import type { DIAGNOSTIC_CODES } from "../studio/diagnostics";
 import { CHARACTER_TOPICS, FACTION_DIAGNOSTIC_TOPICS } from "./guideTopicsCharacters";
 import { CARRY_TOPICS } from "./guideTopicsCarry";
 import { TIME_TOPICS } from "./guideTopicsTime";
+import { LIVING_TOPICS } from "./guideTopicsLiving";
 
 export interface GuideTopic {
   title: string;
@@ -348,6 +349,7 @@ export const GUIDE_TOPICS = {
       + "reuse first) at a boundary; never behind the player, never memory. With no checkpoints, liv_open is the opening. suggest waits in Author view; a player gets auto. "
       + "Limits: name 60 chars, objective 400. Save as story keeps reached turning points. Pace: a way in also opens after 3 player turns, a beat after 2.",
   },
+  ...LIVING_TOPICS,
   branching: {
     title: "Branches that follow the player",
     fields: "stagecraft.branchingEnabled, stagecraft.prefetchEnabled, judge.uses.divergence",

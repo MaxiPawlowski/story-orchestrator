@@ -112,6 +112,8 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
       settings: context.extensionSettings,
       manifest: context.getExtensionManifest,
       storage: (key) => globalThis.localStorage?.getItem(key) ?? null,
+      mainApi: context.mainApi,
+      chatCompletion: context.chatCompletionSettings,
     });
   }));
   disposers.push(readTunnelVisionWith(() => {

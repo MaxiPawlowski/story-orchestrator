@@ -1,0 +1,22 @@
+{
+  "format": 2,
+  "id": "so-v28-48-scene-test",
+  "title": "SO-V28-48 Scene Test",
+  "description": "v2.8 plan 48 no-model fixture: a premise-only living story that declares a scene test; the director answer is planted.",
+  "player": { "role": "a traveller who stopped at the stair town for the night" },
+  "living": {
+    "premise": "In a hill town built around one long stair, the lanterns on the stair go dark one landing at a time each evening, and the lamplighter will not say why.",
+    "tone": "quiet, a little uncanny",
+    "cast": ["arin", "narrator"],
+    "autonomy": "suggest",
+    "scene_test": { "chaos": { "from": "tension" }, "min_gap": 0 }
+  },
+  "qualities": [],
+  "checkpoints": [],
+  "transitions": [],
+  "roster": [
+    { "id": "arin", "name": "Arin", "role": "lamplighter", "drive": "keep the stair lit" },
+    { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }
+  ],
+  "requirements": { "members": ["Arin", "DM Narrator"] }
+}

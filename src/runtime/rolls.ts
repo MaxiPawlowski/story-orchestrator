@@ -38,7 +38,7 @@ export interface RollRecord {
 
 export const createChance = (): ChanceRuntimeState => ({ draws: [] });
 
-const KINDS: readonly ChanceDrawKind[] = ["npc", "talk"];
+const KINDS: readonly ChanceDrawKind[] = ["npc", "talk", "scene"];
 const finite = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 
 const isDrawRecord = (value: unknown): value is ChanceDrawRecord => isRecord(value) && KINDS.includes(value.kind as ChanceDrawKind) && typeof value.key === "string"

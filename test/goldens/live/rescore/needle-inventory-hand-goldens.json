@@ -14,7 +14,7 @@
     },
     "prefixDependent": 2,
     "substringOnly": 0,
-    "undeclaredPrefix": 2
+    "undeclaredPrefix": 1
   },
   "prefixDependent": [
     {
@@ -25,7 +25,7 @@
       "subject": "Doran",
       "class": "prefix",
       "mode": "prefix",
-      "declared": null
+      "declared": "prefix"
     },
     {
       "fixture": "extractor24",
@@ -125,7 +125,7 @@
       "subject": "Doran",
       "class": "prefix",
       "mode": "prefix",
-      "declared": null
+      "declared": "prefix"
     },
     {
       "fixture": "extractor-intents03",

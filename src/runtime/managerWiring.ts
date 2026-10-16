@@ -225,6 +225,7 @@ export function wireCoordinators(port: ManagerPort) {
   const living = wireLiving({
     view, lifecycle, engine, loaded: port.loaded, extras: port.extras, memory, expansion, replaceStory: (story) => port.replaceStory(story),
     refused: () => refusing()?.checkpointName ?? null, journal: port.journal, judge: port.judge, chatRows: () => view.hosts.chat.chatRows(), promiseHooks: () => promises.hooks(),
+    chatId: () => (view.hosts.chat.chatId() ? String(view.hosts.chat.chatId()) : null), enabledIds: () => enabledCharacterIds(view.getStory(), view.hosts.roster),
   });
   const rollbackDeps: RollbackDeps = {
     ...port.rollback, engine, memory, stagecraft, pacing, ownership: lifecycle.ownership, revalidateExpansion: () => expansion.revalidateInserted(),

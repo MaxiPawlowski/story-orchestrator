@@ -414,6 +414,25 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
     expect(manager.turnBlocksHeld()).toBe(false);
   });
 
+  it("v2.8 69 K9: a withholding run that returns before sending is released by the next loud run (no stale hold)", async () => {
+    for (const type of ["quiet", "impersonate"]) {
+      const manager = new RuntimeManager();
+      await manager.importStory(JSON.stringify(guided(WANDER)));
+      const lifecycle = new GenerationLifecycle(() => true);
+      const drive = (intents: ReturnType<GenerationLifecycle["started"]>) => intents.forEach((intent) => {
+        if (intent.kind === "opened" || (intent.kind === "nested" && intent.withholds)) manager.onGenerationStarted(intent.type, false);
+        if (intent.kind === "reapply" || intent.kind === "closed") manager.clearPrivateInjection();
+      });
+      drive(lifecycle.started([type, {}, false], 4, 1000));
+      expect(block()).toBeUndefined();
+      expect(manager.turnBlocksHeld()).toBe(true);
+      drive(lifecycle.started(["normal", {}, false], 4, 1500));
+      expect(manager.turnBlocksHeld()).toBe(false);
+      expect(block()?.value).toContain(WANDER);
+      expect(lifecycle.snapshot().outermost?.type).toBe("normal");
+    }
+  });
+
   it("v2.8 69 K9: a raw generation emits no lifecycle event, so nothing is withheld or released", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(guided(WANDER)));
