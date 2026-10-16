@@ -67,16 +67,29 @@ const startMcp = (server) => {
     return { request, notify, child, alive: () => !exited };
 };
 
-export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6', models = FAKE_MODELS, mcpDelayMs = 0, toolsRegisterMs = 100, serviceStartFails = false, ...flags } = {}) {
+export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6', models = FAKE_MODELS, toolsRegisterMs = 100, serviceStartFails = false, ...flags } = {}) {
     const state = {
         up, login, version, models: [...models],
         refuseAuth: false, unreachable: false, eventsDisabled: false, eventsBreakAfter: null, noMessages: false,
-        mcpPids: [], mcpDelayMs, toolsRegisterMs, mcpFail: false, mcpPending: false, serviceStartFails, ignoreProjectConfig: false, dropPermissions: false,
+        mcpPids: [], toolsRegisterMs, mcpFail: false, mcpPending: false, serviceStartFails, ignoreProjectConfig: false, dropPermissions: false,
+        agentMisses: 0, mcpLists: 0,
         discoverCalls: 0, ensureCalls: [], created: [], prompts: [], removed: [], interrupts: [], evicted: [], replies: [], listCalls: 0,
         running: 0, peak: 0, removeFails: false,
         sessions: new Map(), locations: new Map(), subscribers: new Set(), nextId: 1,
         ...flags,
         stall: new Set(flags.stall ?? []), held: [],
+        closed: new Set(flags.gates ?? []), waiting: [],
+    };
+
+    const gate = async (name) => {
+        if (state.closed.has(name)) await new Promise((resolve) => state.waiting.push({ name, resolve }));
+    };
+    const open = (name) => {
+        state.closed.delete(name);
+        for (const row of state.waiting.filter((entry) => entry.name === name)) {
+            state.waiting.splice(state.waiting.indexOf(row), 1);
+            row.resolve();
+        }
     };
 
     const hold = async (name) => {
@@ -118,7 +131,7 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
             const row = { name, status: { status: 'pending' }, tools: [], client: null };
             location.servers.set(name, row);
             void (async () => {
-                if (state.mcpDelayMs) await sleep(state.mcpDelayMs);
+                await gate('mcp');
                 if (state.mcpFail) { row.status = { status: 'failed', error: 'the stdio server exited' }; return; }
                 if (state.mcpPending) return;
                 try {
@@ -142,8 +155,8 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
     const booting = new Map();
     const boot = async (directory) => {
         const key = path.resolve(directory);
-        if (!state.bootDelayMs || state.locations.has(key)) return bootLocation(directory);
-        if (!booting.has(key)) booting.set(key, sleep(state.bootDelayMs).then(() => { booting.delete(key); return bootLocation(directory); }));
+        if (!state.closed.has('boot') || state.locations.has(key)) return bootLocation(directory);
+        if (!booting.has(key)) booting.set(key, gate('boot').then(() => { booting.delete(key); return bootLocation(directory); }));
         return booting.get(key);
     };
 
@@ -297,13 +310,17 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
                 await hold('agent');
                 const booted = await boot(location.directory);
                 const rules = agentRules(booted, agentID);
-                if (!rules || Date.now() - booted.bootedAt < (state.configDelayMs ?? 0)) throw failure('AgentNotFoundError', `Agent not found: ${agentID}`);
+                if (!rules || state.closed.has('config') || Date.now() - booted.bootedAt < (state.configDelayMs ?? 0)) {
+                    state.agentMisses += 1;
+                    throw failure('AgentNotFoundError', `Agent not found: ${agentID}`);
+                }
                 return { location, data: { id: agentID, system: booted.config.agents[agentID].system, mode: 'primary', permissions: rules } };
             },
         },
         mcp: {
             list: async ({ location }) => {
                 check();
+                state.mcpLists += 1;
                 const booted = await boot(location.directory);
                 return { location, data: [...booted.servers.values()].map((row) => ({ name: row.name, status: row.status })) };
             },
@@ -399,5 +416,5 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
         state.locations.clear();
     };
 
-    return { libs, state, close, release };
+    return { libs, state, close, release, open };
 }
