@@ -1,0 +1,32 @@
+{
+  "plan": "v2.8 09 harvest A6: the agent's one bounded revision clears the card note it was shown",
+  "declared": "2026-10-16, before any run; informational floor, never retuned (rule 2)",
+  "marker": "SO-W09C",
+  "route": "the authoring role on opencode openai/gpt-6.1-sol through the harness tool bridge (owner's subscription)",
+  "floor": "recorded (expected >= 7/10 tasks whose replacement clears every flagged finding), x2",
+  "scoring": "a task counts when its first createCharacterCard step was held for review; it passes when a replacement step (replaces = that step) exists and none of the held step's note ids remain on the replacement. A task whose first card had no note is 'not seeded' and counts as a miss; provisioning is rejected after the revision, so nothing is created",
+  "seed": {
+    "format": 2,
+    "id": "so-w09c-harbour",
+    "title": "SO-W09C Harbour",
+    "description": "A smuggler's port at night; a synthetic story for the v2.8 09 card revision runs.",
+    "qualities": [],
+    "checkpoints": [
+      { "id": "quay", "name": "The Quay", "objective": "The player lands with a sealed letter and looks for a buyer.", "type": "anchor", "start": true }
+    ],
+    "transitions": [],
+    "roster": []
+  },
+  "tasks": [
+    { "id": "thin-1", "plants": "description-thin", "goal": "Create one character card and nothing else: the harbour fence Ilsa Crane, description exactly \"Buys stolen goods.\". Do not edit the story." },
+    { "id": "thin-2", "plants": "description-thin", "goal": "Create one character card and nothing else: the ferry captain Rhosyn Dale, description exactly \"Runs the night ferry.\". Do not edit the story." },
+    { "id": "adjectives-1", "plants": "voice-adjectives", "goal": "Create one character card and nothing else: the customs officer Teodor Quill, description exactly \"Strict, tired, honest, bitter, slow, careful, proud and lonely, the last honest officer of the old harbour customs house.\". Do not edit the story." },
+    { "id": "adjectives-2", "plants": "voice-adjectives", "goal": "Create one character card and nothing else: the dock physician Corvin Ashby, description exactly \"Kind, drunk, clever, nervous, shabby, quick, gentle and sad, the only physician who still treats sailors on the docks.\". Do not edit the story." },
+    { "id": "greeting-1", "plants": "greeting-speaks-for-player", "goal": "Create one character card and nothing else: the tide clerk Wenna Tregear, who knows every boat by its creak and asks strangers questions back, with the first message exactly \"You step off the boat and feel the cold. Wenna looks up from her ledger.\". Do not edit the story." },
+    { "id": "greeting-2", "plants": "greeting-speaks-for-player", "goal": "Create one character card and nothing else: the dock boss Bram Harrow, who runs the night crews and settles debts with a look, with the first message exactly \"{{user}} nods and follows Bram into the warehouse.\". Do not edit the story." },
+    { "id": "traits-1", "plants": "trait-no-behaviour", "goal": "Create one character card and nothing else: the smuggler Kestrel Vane. Description exactly \"Kestrel has run brandy past the customs house for ten years. She owns a narrow black boat and rents a room above the chandler's shop on the quay.\" Personality exactly \"reckless, loyal, superstitious\". Do not edit the story." },
+    { "id": "traits-2", "plants": "trait-no-behaviour", "goal": "Create one character card and nothing else: the lamplighter Oswin Pell. Description exactly \"Oswin lights the harbour lamps at dusk and puts them out at dawn. He has done it since he was a boy, and his father did it before him.\" Personality exactly \"patient, gossipy, fearful\". Do not edit the story." },
+    { "id": "examples-1", "plants": "examples-no-char-line", "goal": "Create one character card and nothing else: the net mender Morwen Tull, who mends nets on the quay and hears every rumour first; when a stranger lingers she starts singing loudly to drive them off. Example dialogue exactly \"<START>\nShe hums and keeps mending.\". Do not edit the story." },
+    { "id": "name-1", "plants": "name-mention-trap", "goal": "Create one character card and nothing else, named exactly \"The Fence\": a broker who buys anything that fell off a ship; when a seller haggles, he lowers his offer by a coin each time, and he keeps his shop dark so nobody sees his hands shake. Do not edit the story." }
+  ]
+}

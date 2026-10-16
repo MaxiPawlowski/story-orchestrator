@@ -7,6 +7,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 - [Curator scope](#stagecraft)
 - [Lore select](#lore-select)
 - [Lorebook entry features](#lore-entries)
+- [Lore content by kind](#lore-content)
 - [Scene places and times](#scene-read)
 - [House rules](#house-rules)
 - [Chapters](#chapters)
@@ -55,6 +56,20 @@ Fields (on the wizard's `upsertLorebookEntry` step, written into SillyTavern's o
 - **Good.** A tavern entry keyed `tavern` with `secondaryKeys: ["fight", "brawl"]`, `logic: "not-any"`, so its calm description stays out of a brawl; `/\bsilver (key|lock)s?\b/i` for one entry that covers every form; a map summary with `outlet: "map"` read by an Author's Note or card field that writes `{{outlet::map}}`; a recap entry with `triggers: ["quiet"]` for summaries only.
 - **Bad.** A regex with an unescaped `/` inside it, which SillyTavern silently reads as plain text; secondary keys on an always-in-context entry, which skips every key check; an outlet nothing writes `{{outlet::name}}` for.
 - **If wrong.** The wizard refuses these before you see them: a pattern key that would be read as plain text, a `logic` with no secondary keys, secondary keys on a constant entry or with no keyword, an outlet name holding `{` or `}`, an unknown trigger. An outlet with no `{{outlet::name}}` anywhere fires and lands nowhere; nothing warns about it, so check the prompt with SillyTavern's prompt inspector.
+- **On the wizard's card.** Each entry step shows "Key matches these draft texts: …" (the checkpoint objectives, the briefing, and the descriptions and opening messages of the cards the wizard is proposing), or "No draft text contains any key". That line says where a key appears, not that the entry fires: real activation also depends on scan depth, what else is scanned, recursion and the budget. When the entry is one that may not fire even on a match, the card says why ("May not fire: only on quiet generations", "gated: on only from The Vault", "not-any depends on every text SillyTavern scans"). Key lint adds warnings, never refusals: a key under 3 characters; a key more than two entries in the book share; an `and-any` secondary key that repeats a primary key or shares its first 5 letters ("it narrows nothing"); sticky on an always-in-context entry (`copilot/lorePreview.ts`).
+
+<a id="lore-content"></a>
+
+## Lore content by kind
+
+Topic `lore-content`.
+
+Field: an entry's `content`, by what the entry describes (`copilot/prompts.ts` `LORE_CONTENT_RULE`).
+
+- **What it does.** An entry is what the narrator knows when its key comes up, so it has to answer the questions a scene asks about that kind of thing. A place: the ways in and out, and how far it is from the places around it. An item: what it cannot do, and who wants it. A faction: how many they are and how far their reach goes. History: what happened, kept apart from what people say happened; the hidden truth stays out of shared lore (put it in a member's private knowledge or a gated entry). A concept (a power, a law, a ritual): its limits and its cost. Put a short "Current state" paragraph last, which the curator may patch as the story moves, and wrap the stable text above it in `{{// so:protect}}` … `{{// so:end}}` so the curator never rewrites it.
+- **Good.** "The Old Lighthouse. Reached by the causeway at low tide, or by boat from the quay (half an hour's row). The keeper's stair is the only way to the lamp room. Current state: the lamp is dark."
+- **Bad.** "The Old Lighthouse is mysterious and ancient." The narrator then invents the way in, the distance and who lives there, and invents them differently each time.
+- **If wrong.** The narrator fills every unanswered basic with a guess, and two scenes contradict each other. The wizard writes entries by this rule.
 
 <a id="scene-read"></a>
 

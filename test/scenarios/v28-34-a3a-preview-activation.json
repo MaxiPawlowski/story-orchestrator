@@ -1,0 +1,97 @@
+{
+  "name": "v28-34-a3a-preview-activation",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "judge": "off",
+    "briefingDraft": "off",
+    "innerBeat": "off",
+    "why": "v2.8 34 harvest A3a: ST's own activation (WORLD_INFO_ACTIVATED) for the six preview fixture entries; no model."
+  },
+  "steps": [
+    {
+      "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const wi = await import('/scripts/world-info.js'); const book = 'SO-A3a-Preview'; if (wi.world_names.includes(book)) throw new Error('fixture book already exists'); const ENTRIES = [{\"uid\":0,\"comment\":\"A3a certain\",\"key\":[\"harbor\"],\"keysecondary\":[],\"selective\":false,\"content\":\"SO-A3a certain harbor lore.\",\"constant\":false,\"disable\":false,\"position\":1,\"order\":100,\"probability\":100,\"useProbability\":true},{\"uid\":1,\"comment\":\"A3a probability\",\"key\":[\"harbor\"],\"keysecondary\":[],\"selective\":false,\"content\":\"SO-A3a probability lore.\",\"constant\":false,\"disable\":false,\"position\":1,\"order\":99,\"probability\":40,\"useProbability\":true},{\"uid\":2,\"comment\":\"A3a gated\",\"key\":[\"harbor\"],\"keysecondary\":[],\"selective\":false,\"content\":\"SO-A3a gated lore.\",\"constant\":false,\"disable\":false,\"position\":1,\"order\":98,\"probability\":100,\"useProbability\":true},{\"uid\":3,\"comment\":\"A3a secondary NOT\",\"key\":[\"harbor\"],\"keysecondary\":[\"storm\"],\"selective\":true,\"selectiveLogic\":2,\"content\":\"SO-A3a calm harbor lore.\",\"constant\":false,\"disable\":false,\"position\":1,\"order\":97,\"probability\":100,\"useProbability\":true},{\"uid\":4,\"comment\":\"A3a group\",\"key\":[\"customs\"],\"keysecondary\":[],\"selective\":false,\"content\":\"SO-A3a customs lore one.\",\"constant\":false,\"disable\":false,\"position\":1,\"order\":96,\"probability\":100,\"useProbability\":true,\"group\":\"so-a3a\",\"groupWeight\":100},{\"uid\":5,\"comment\":\"A3a scan depth 0\",\"key\":[\"harbor\"],\"keysecondary\":[],\"selective\":false,\"content\":\"SO-A3a depth zero lore.\",\"constant\":false,\"disable\":false,\"position\":1,\"order\":95,\"probability\":100,\"useProbability\":true,\"scanDepth\":0},{\"uid\":6,\"comment\":\"A3a group rival\",\"key\":[\"customs\"],\"keysecondary\":[],\"selective\":false,\"content\":\"SO-A3a customs lore two.\",\"constant\":false,\"disable\":false,\"position\":1,\"order\":94,\"probability\":100,\"useProbability\":true,\"group\":\"so-a3a\",\"groupWeight\":100}]; await wi.createNewWorldInfo(book, { interactive: false }); await wi.saveWorldInfo(book, { entries: Object.fromEntries(ENTRIES.map((e) => [e.uid, e])) }, true); wi.worldInfoCache.delete(book); globalThis.__a3a = { wi, book, entries: ENTRIES }; return { entries: ENTRIES.length };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-a3a-preview",
+        "title": "SO-A3a-Preview",
+        "description": "Synthetic key-match preview against ST activation.",
+        "requirements": {
+          "lorebooks": [
+            "SO-A3a-Preview"
+          ]
+        },
+        "qualities": [],
+        "checkpoints": [
+          {
+            "id": "quay",
+            "name": "The Quay",
+            "type": "anchor",
+            "start": true,
+            "objective": "Walk the harbor."
+          },
+          {
+            "id": "vault",
+            "name": "The Vault",
+            "type": "anchor",
+            "objective": "Open the vault.",
+            "effects": {
+              "world_info": {
+                "enable": {
+                  "lorebook": "SO-A3a-Preview",
+                  "comments": [
+                    "A3a gated"
+                  ]
+                }
+              }
+            }
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          }
+        ]
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500
+      }
+    },
+    {
+      "eval": "const b = globalThis.__a3a; const ctx = SillyTavern.getContext(); const CHAT = \"We tie up at the harbor at dusk and walk past the customs shed.\"; const runs = []; const listener = (entries) => { runs.at(-1).push(...entries.filter((e) => e.world === b.book).map((e) => e.comment)); }; ctx.eventSource.on(ctx.eventTypes.WORLD_INFO_ACTIVATED, listener); try { for (let i = 0; i < 20; i += 1) { runs.push([]); await b.wi.getWorldInfoPrompt([CHAT], 8192, false); } } finally { ctx.eventSource.removeListener(ctx.eventTypes.WORLD_INFO_ACTIVATED, listener); } const count = (comment) => runs.filter((run) => run.includes(comment)).length; const record = Object.fromEntries(b.entries.map((e) => [e.comment, count(e.comment)])); const groupBoth = runs.filter((run) => run.includes('A3a group') && run.includes('A3a group rival')).length; const groupNone = runs.filter((run) => !run.includes('A3a group') && !run.includes('A3a group rival')).length; const problems = []; if (record['A3a certain'] !== 20) problems.push('certain fired ' + record['A3a certain'] + '/20'); if (record['A3a gated'] !== 0) problems.push('gated fired off its checkpoint'); if (record['A3a scan depth 0'] !== 0) problems.push('scan depth 0 fired'); if (groupBoth || groupNone) problems.push('inclusion group: both ' + groupBoth + ', none ' + groupNone); if (problems.length) throw new Error(problems.join('; ') + ' ' + JSON.stringify(record)); globalThis.__a3a.record = record; return { scans: 20, activations: record };"
+    },
+    {
+      "slash": "/cp activate vault"
+    },
+    {
+      "wait": {
+        "checkpointIn": [
+          "vault"
+        ]
+      }
+    },
+    {
+      "eval": "const b = globalThis.__a3a; const ctx = SillyTavern.getContext(); const CHAT = \"We tie up at the harbor at dusk and walk past the customs shed.\"; let seen = []; const listener = (entries) => { seen = entries.filter((e) => e.world === b.book).map((e) => e.comment); }; ctx.eventSource.on(ctx.eventTypes.WORLD_INFO_ACTIVATED, listener); try { await b.wi.getWorldInfoPrompt([CHAT], 8192, false); } finally { ctx.eventSource.removeListener(ctx.eventTypes.WORLD_INFO_ACTIVATED, listener); } if (!seen.includes('A3a gated')) throw new Error('gated entry did not fire at its checkpoint: ' + JSON.stringify(seen)); return { atVault: seen };"
+    }
+  ],
+  "cleanup": {
+    "steps": [
+      {
+        "eval": "delete globalThis.__a3a; delete globalThis.storyOrchestratorDebugExtractionResponse; return true;"
+      },
+      {
+        "assets": {
+          "action": "remove",
+          "marker": "SO-A3a-Preview"
+        }
+      }
+    ]
+  }
+}

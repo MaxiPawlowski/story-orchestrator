@@ -5,9 +5,9 @@ import {
   AGENT_MODES, addAuthorNote, addUndoNote,
   agentStats, applyAgentOp, applyProvisioningFollowUps, approvePlan, budgetSliceText, isProvisionOp, checkToolCall, confirmProvisioning, decideStep, driveAgent,
   newAgentSession,
-  opPreview, pendingStep, continueAgent, setAgentMode, type AgentMode, type AgentOp, type AgentRunner, type AgentSession, type AgentStep,
+  opPreview, pendingStep, continueAgent, recheckReadBack, setAgentMode, unsettledReadBacks, type AgentMode, type AgentOp, type AgentRunner, type AgentSession, type AgentStep,
 } from "@copilot/agent/index";
-import { emptyEnvironment } from "@wizard/index";
+import { emptyEnvironment, type ProvisioningOp } from "@wizard/index";
 import { draftOwnership } from "../agentHost";
 import { coverageGaps, storyCoverage } from "../coverage";
 import { useDraftStore } from "../draft";
@@ -94,6 +94,7 @@ interface CardProps {
   step: AgentStep;
   busy: boolean;
   host?: WizardHost;
+  ops: readonly ProvisioningOp[];
   onAccept: (op?: AgentOp) => void;
   onReject: (reason: string) => void;
   onProvision: (op: AgentOp) => void;
@@ -152,20 +153,75 @@ const EditCard = ({ step, busy, onAccept, onReject }: CardProps) => {
   );
 };
 
-const ProvisionCard = ({ step, busy, host, onReject, onProvision }: CardProps) => {
+const ProvisionCard = ({ step, busy, host, ops, onReject, onProvision }: CardProps) => {
   const [reason, setReason] = useState("");
   const draft = useDraftStore((state) => state.draft);
   if (!step.op || !isProvisionOp(step.op)) return null;
   return (
     <section data-so="agent-card" data-kind="provision" className="flex flex-col gap-2" aria-label="Agent asset">
       {step.thought ? <div className="text-xs st-muted">{step.thought}</div> : null}
-      <ProvisioningCard op={step.op} environment={host?.environment(draft) ?? emptyEnvironment()} busy={busy} onApply={(op) => onProvision(op)} />
+      <ProvisioningCard op={step.op} environment={host?.environment(draft) ?? emptyEnvironment()} busy={busy} context={{ draft, ops }} onApply={(op) => onProvision(op)} />
       <div className="flex items-center gap-2">
         <ReasonInput reason={reason} onChange={setReason} />
         <button type="button" data-so="agent-reject" className="st-button secondary" disabled={busy} onClick={() => onReject(reason)}>Reject</button>
       </div>
     </section>
   );
+};
+
+const KEPT_STEPS: ReadonlySet<AgentStep["status"]> = new Set(["review", "pending", "applied"]);
+
+const sessionOps = (session: AgentSession): ProvisioningOp[] =>
+  session.steps.flatMap((step) => (step.op && KEPT_STEPS.has(step.status) && isProvisionOp(step.op) ? [step.op] : []));
+
+const ReadBacks = ({ session, busy, onRecheck }: { session: AgentSession; busy: boolean; onRecheck: (step: AgentStep) => void }) => {
+  const steps = unsettledReadBacks(session);
+  if (!steps.length) return null;
+  return (
+    <ul data-so="agent-readbacks" className="flex flex-col gap-1 text-[11px]" aria-label="Cards to check">
+      {steps.map((step) => (
+        <li key={step.id} data-so="agent-readback" data-state={step.readBack.state} className="st-alert-warning flex flex-wrap items-center gap-2 rounded px-2 py-1">
+          <span className="flex-1">#{step.id} {step.observation}</span>
+          <button type="button" data-so="agent-recheck" className="st-button secondary" disabled={busy} onClick={() => onRecheck(step)}>Check again</button>
+        </li>
+      ))}
+    </ul>
+  );
+};
+
+const recheckCard = async (host: WizardHost | undefined, step: AgentStep, from: AgentSession): Promise<AgentSession> => {
+  if (!host?.recheckCard || !step.readBack || step.op?.kind !== "createCharacterCard") return from;
+  const readBack = await host.recheckCard(step.op, step.readBack.avatar, useDraftStore.getState().draft);
+  return recheckReadBack(from, step.id, readBack, step.op.name);
+};
+
+const recheckAll = (host: WizardHost, initial: AgentSession) => unsettledReadBacks(initial)
+  .filter((step) => step.readBack.state === "unconfirmed")
+  .reduce<Promise<AgentSession>>(async (from, step) => recheckCard(host, step, await from), Promise.resolve(initial));
+
+type ReadBackChecks = {
+  session: AgentSession | null;
+  initial: AgentSession | null;
+  host?: WizardHost;
+  commit: (session: AgentSession) => AgentSession;
+  setError: (error: string | null) => void;
+};
+
+const useReadBackChecks = ({ session, initial, host, commit, setError }: ReadBackChecks) => {
+  const opened = useRef<{ initial: AgentSession | null; commit: ReadBackChecks["commit"] }>({ initial, commit });
+  useEffect(() => {
+    const { initial: first, commit: save } = opened.current;
+    if (!first || !host?.recheckCard) return;
+    void recheckAll(host, first).then((next) => { if (next !== first) save(next); }, () => undefined);
+  }, [host]);
+  return async (step: AgentStep) => {
+    if (!session) return;
+    try {
+      commit(await recheckCard(host, step, session));
+    } catch (caught) {
+      setError(studioFailure("Checking that card failed", caught));
+    }
+  };
 };
 
 const PendingCard = (props: CardProps) => (props.step.family === "provision" ? <ProvisionCard {...props} /> : <EditCard {...props} />);
@@ -204,6 +260,8 @@ const PlanEditor = ({ session, busy, onGo }: { session: AgentSession; busy: bool
   );
 };
 
+const lapsedCopy = (lapsed: string) => `The agent stopped: the draft changed under it (${lapsed}). Nothing more was written.`;
+
 const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist }) => {
   const mutate = useDraftStore((state) => state.mutate);
   const [session, setSession] = useState<AgentSession | null>(initial);
@@ -221,8 +279,6 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
     useDraftStore.getState().endRuns();
     void runTurn?.close?.();
   }, [runTurn]);
-
-  const lapsedCopy = (lapsed: string) => `The agent stopped: the draft changed under it (${lapsed}). Nothing more was written.`;
 
   const drive = async (resumed: AgentSession) => {
     if (!runTurn) return;
@@ -278,6 +334,7 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
     }
   };
 
+  const recheckOne = useReadBackChecks({ session, initial, host, commit, setError });
   const newGoal = () => {
     useDraftStore.getState().endRuns();
     void runTurn?.close?.();
@@ -330,6 +387,7 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
               step={pending}
               busy={busy}
               host={host}
+              ops={sessionOps(session)}
               onAccept={(op) => decide(pending, { kind: "accept", op })}
               onReject={(reason) => decide(pending, { kind: "reject", reason })}
               onProvision={(op) => void provision(pending, op)}
@@ -343,6 +401,7 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
               {session.summary || "The agent finished its plan."} Review the changes, then Save — nothing reaches the library until you do.
             </div>
           ) : null}
+          <ReadBacks session={session} busy={busy} onRecheck={(step) => void recheckOne(step)} />
           <StepLog steps={session.steps} />
           <AuthorNote busy={busy} onSend={(text) => commit(addAuthorNote(session, text))} />
         </>

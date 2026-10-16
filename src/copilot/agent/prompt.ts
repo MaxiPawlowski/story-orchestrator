@@ -2,7 +2,7 @@ import type { StoryV2 } from "@engine/index";
 import type { ProvisioningEnvironment } from "@wizard/index";
 import { isRecord } from "@utils/guards";
 import { truncate } from "@utils/string";
-import { FIRST_MESSAGE_RULE, OPENING_CAST_RULE } from "../prompts";
+import { CARD_CRAFT_RULE, FIRST_MESSAGE_RULE, LORE_CONTENT_RULE, OPENING_CAST_RULE } from "../prompts";
 import { GUIDE_TOPIC_IDS } from "../guideTopics";
 import { renderCoverage, storyCoverage } from "../../studio/coverage";
 import { runReadTool } from "./readTools";
@@ -41,7 +41,9 @@ const RULES = [
   [
     "Provisioning tools create NEW SillyTavern assets and the author confirms each one.",
     "You never edit an existing card or lorebook, never touch personas, and never save the story: saving is the author's click.",
+    "A card with notes comes back once before the author sees it: send one revised createCharacterCard with replaces set to that step's id, or the same card to keep it.",
   ].join(" "),
+  `${CARD_CRAFT_RULE} ${LORE_CONTENT_RULE}`,
   `Consult readGuide(topic) before authoring a field you have not used yet in this session. Topics: ${GUIDE_TOPIC_IDS.join(", ")}.`,
   `For a whole task, readRecipe(recipe) first and follow its steps in order. Recipes: ${recipeIndex()}.`,
   "After each accepted write you are shown the validation and diagnostics. Fix blocking problems before adding more.",
@@ -91,6 +93,13 @@ const alreadyCreated = (session: AgentSession): string[] => {
   return rows.length ? [`ALREADY CREATED THIS SESSION (these exist on the install now; never create them again)\n${rows.join("\n")}`] : [];
 };
 
+const cardWithNotes = (session: AgentSession): string[] => {
+  const held = session.steps.find((step) => step.status === "review");
+  if (!held) return [];
+  return [`CARD WITH NOTES (step #${held.id}: one revision before the author sees it)\n${held.observation}\n`
+    + `Reply with createCharacterCard holding the changed card and "replaces": ${held.id}, or the same card to keep it. Any other reply keeps it as it is.`];
+};
+
 const BACKGROUND_LIMIT = 40;
 
 const renderBackgrounds = (backgrounds: readonly string[]): string => {
@@ -138,6 +147,7 @@ export const renderStepPrompt = (session: AgentSession, draft: StoryV2, environm
   ...earlierSteps(session),
   ...rejectedByAuthor(session),
   ...alreadyCreated(session),
+  ...cardWithNotes(session),
   `RECENT STEPS (newest last)\n${session.steps.slice(-RECENT_STEPS).map(renderStep).join("\n") || "(none yet)"}`,
   `Budget: step ${session.steps.length + 1} of ${session.budget.maxSteps}.`,
   native

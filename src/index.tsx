@@ -148,6 +148,7 @@ const launch = (open: () => Promise<unknown>) => () => void open().catch(studioF
 const wizardHost: WizardHost = {
   environment: (draft) => manager.getProvisioningEnvironment(draft),
   applyProvisioning: (op, draft) => manager.applyProvisioning(op, draft),
+  recheckCard: (op, avatar, draft) => manager.recheckCreatedCard(op, avatar, draft),
   readEntry: (lorebook, comment) => manager.readProvisioningEntry(lorebook, comment),
   loadSession: (key) => manager.getWizardSession(key),
   saveSession: (session) => manager.saveWizardSession(session),
