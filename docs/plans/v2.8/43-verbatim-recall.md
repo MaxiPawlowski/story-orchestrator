@@ -239,3 +239,19 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
   the source message's boundary; spans addressed by id and revision (`src/memory/audience.ts:10`).
 - **Timeline P4 (query rewrite) → 43's experiment.** Adopted as R19, an informational arm after R-Gate1.
 - Rebutted: none.
+
+## Gate record: R-Gate1 from v2.8 21 E0 (2026-10-16, branch `v2.8-e0-run`)
+
+- **R-Gate1: met.** E0 private frozen set (84 questions, labels Sol-written and Claude-checked blind, 0 disagreed): winning
+  arm (d), TypeSafe Choice with removal, hit@4 0.9048 (76/84; pool recall is also 0.9048), MRR@4 0.8988. Not the
+  diagnostic arm: a winner under unchanged floors. Detail: `21-smart-context-harvest.md` §Gate record: E0 private run.
+- R-Gate2 (§6.2) not run; it now uses arm (d) as the ranker. R-Gate3 unchanged (42 B record built on
+  `v2.8-audience-42-44`, W4/W4fi not scored on real labels).
+- **Conflict to decide before the runtime build:** arm (d) adds 4 sequential judge calls, p50 893 ms and p95 999 ms
+  measured, on top of the pool query. VR6r (reply-path latency p95 ≤ 300 ms) cannot hold with (d) on the reply path. The
+  ST-order arm (e) is cheap but misses R-Gate1 (hit@4 0.75). Options: run (d) off the reply path (pre-computed on the
+  player's request turn before generation starts, as option D only fires on an explicit request), cut (d) to 1 call
+  (rank 1 only: hit@1 0.8929 here), or amend VR6r. The floor is not retuned here; the owner decides.
+- Pool recall 0.9048: 8 of 84 golds never reach the 8-candidate pool, so the R-Gate1 ceiling with topK 8 is 0.9048. §5's
+  wider pool (32) would raise it; not measured.
+- Nothing built at runtime.
