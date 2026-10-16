@@ -157,7 +157,7 @@ export function wireCoordinators(port: ManagerPort) {
     setStatus: (status) => port.setStatus(status),
     judge: () => port.judge(),
     requestBudget: (role) => requestBudgetFor(role),
-    spikes: () => getGlobalSettings().spikes, promises,
+    spikes: () => getGlobalSettings().spikes, promises, journal: (summary, note) => port.journal("story", summary, note),
     ...lifecycle,
   });
   const pacing = new PacingCoordinator({

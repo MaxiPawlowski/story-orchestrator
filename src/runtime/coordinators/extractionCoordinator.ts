@@ -1,5 +1,6 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
 import { maxTokensFor, maxTokensForInput } from "@extraction/callBudget";
+import { acceptCompaction, CompactionAttempts, compactionKey } from "@memory/compactionGate";
 import { defaultContextLimit } from "@extraction/inputBudget";
 import { isLapse } from "@extraction/modelError";
 import { askText } from "@extraction/modelRoute";
@@ -69,6 +70,7 @@ export interface ExtractionCoordinatorDeps {
   ownership: RunOwnership;
   hosts: { chat: ChatHost; roster: RosterHost };
   promises?: Pick<PromisePort, "open" | "ready" | "apply">;
+  journal?: (summary: string, note: string) => void;
 }
 
 // Owns extras.extraction and every off-path read: the shared-read audit pipeline, the
@@ -77,6 +79,7 @@ export interface ExtractionCoordinatorDeps {
 export class ExtractionCoordinator {
   private sceneDetectCursor: { location: string | null; cast: string | null; world: RunToken | null } | null = null;
   readonly backlog: MemorizeBacklog;
+  private readonly compactions = new CompactionAttempts();
 
   constructor(private readonly deps: ExtractionCoordinatorDeps) {
     this.backlog = new MemorizeBacklog({
@@ -424,12 +427,19 @@ export class ExtractionCoordinator {
     // — it overwrites the live summary with one describing another chat or an edited window.
     const run = beginRun(this.deps.ownership, { from: window.from, to: window.to });
     const fit = await fitShortTerm(window.messages, previous?.text ?? null, this.budget("synthesis"));
+    const key = compactionKey(window, previous?.id ?? null, fit.text);
+    if (!run.stillOwns() || !this.compactions.admits(key)) return;
     const prompt = buildShortTermSummaryPrompt(previous?.text ?? null, fit.text);
-    const summary = stripChannelNoise(await askText(this.deps.model, prompt, {
-      role: "synthesis", pass: "shortTerm", maxTokens: maxTokensFor("shortTerm", fit.tokens), signal: run.signal, refuseIncomplete: true,
-    }));
-    if (!summary || !run.stillOwns()) return;
+    const maxTokens = maxTokensFor("shortTerm", fit.tokens);
+    const summary = stripChannelNoise(await askText(this.deps.model, prompt, { role: "synthesis", pass: "shortTerm", maxTokens, signal: run.signal, refuseIncomplete: true }));
+    if (!run.stillOwns()) return;
     const span = { from: fit.from, to: window.to };
+    const verdict = acceptCompaction({ summary, previous: previous?.text ?? null, window: fit.text, budgetTokens: maxTokens, count: (text) => this.budget("synthesis").meter.count(text) });
+    if (!verdict.ok) {
+      this.compactions.refused(key);
+      return this.deps.journal?.("compaction-refused", `messages ${span.from}-${span.to}: the summary was ${verdict.reason}; the previous short-term entry is kept`);
+    }
+    this.compactions.accepted(key);
     const entry = this.newEntry({ provenance: this.provenanceFor(span, "short-term-compaction"), tier: "short_term",
         text: summary, type: "scene", importance: 2, expiration: "session", entities: [], evidence: fit.text,
         messageId: span.to });

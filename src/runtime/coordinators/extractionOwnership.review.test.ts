@@ -201,7 +201,7 @@ control("the rolling short-term summary is still replaced in the ordinary case",
   const h = harness();
   armModel();
   const pending = h.coordinator.runShortTermCompaction();
-  modelGate.release("They reached the gate and climbed it.");
+  modelGate.release("They reached the gate.");
   await pending;
   expect(h.writes).toContain("replaceShortTerm");
 });

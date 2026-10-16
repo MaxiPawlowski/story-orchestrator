@@ -203,7 +203,7 @@
     },
     "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.runShortTermCompaction": {
       "status": "checked",
-      "note": "v2.3 plan 03: beginRun with the compaction window. This one REPLACES the rolling entry, so a stale result destroyed the live summary rather than adding noise. v2.4 plan 03 D5 wiring (2026-09-24): the run is minted before the tail-fit's token count (an await), so the count cannot hide a switch."
+      "note": "v2.3 plan 03: beginRun with the compaction window. This one REPLACES the rolling entry, so a stale result destroyed the live summary rather than adding noise. v2.4 plan 03 D5 wiring (2026-09-24): the run is minted before the tail-fit's token count (an await), so the count cannot hide a switch. v2.8 69 K1 (2026-10-16): the attempt check sits after a token check, and a refused summary (empty, longer than its inputs, over the answer budget) records its attempt and journals compaction-refused only after the token check that follows the model call; nothing is replaced (compactionRefusal.review.test.ts)."
     },
     "src/runtime/coordinators/extractionCoordinator.ts#ExtractionCoordinator.runStallPrecheck": {
       "status": "checked",
