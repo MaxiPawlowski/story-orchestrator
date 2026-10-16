@@ -490,6 +490,32 @@ describe("v2.8 48 C6 history compaction keeps what a frontier still needs", () =
   }, 120_000);
 });
 
+describe("v2.8 48 C7 the director's open threads drop arcs naming an unmet person (SC3)", () => {
+  const OPEN_BLOCK = /Threads the player has opened and is still pursuing[^\n]*\n((?:- [^\n]+\n?)+)/;
+  const openThreadsIn = async (enabled: string[]) => {
+    const rigged = rig();
+    rigged.deps.enabledIds = () => enabled;
+    rigged.deps.inputs = () => ({
+      canon: "", openThreads: ["Ysolde keeps the lamp dark", "the dark lanterns", "Q waits at the gate"], resolvedThreads: [], plans: [], refused: null,
+      playerNames: ["Max"], tension: "stirring", restatesSecret: () => false, scrub: (text) => text,
+    });
+    await rigged.coordinator.propose();
+    return OPEN_BLOCK.exec(rigged.prompts[0] ?? "")?.[1] ?? "";
+  };
+
+  it("a member the player has not met is dropped from the open threads; a known thread stays", async () => {
+    const block = await openThreadsIn(["harbourmaster", "innkeeper", "narrator"]);
+    expect(block).toContain("the dark lanterns");
+    expect(block).not.toContain("Ysolde keeps the lamp dark");
+  });
+
+  it("control: with the member known the same thread reaches the director", async () => {
+    const block = await openThreadsIn(["harbourmaster", "innkeeper", "keeper", "narrator"]);
+    expect(block).toContain("Ysolde keeps the lamp dark");
+    expect(block).toContain("Q waits at the gate");
+  });
+});
+
 describe("v2.8 48 S6 chaos writers", () => {
   const FORBIDDEN = /Date\.now|new Date|Math\.random|agencyRecovery|refus|performance\.now/;
   const sources = ["src/generation/living/sceneTest.ts", "src/pacing/focus.ts"];

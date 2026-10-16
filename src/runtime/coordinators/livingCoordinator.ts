@@ -1,6 +1,6 @@
 import { isValidationErrorList, parseStoryV2, type ApplyQueueEntry, type EngineState, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
 import { knownEntities, unknownEntityNames } from "@engine/codex";
-import { focusCandidates, focusSafe } from "@pacing/focus";
+import { focusCandidates, focusSafe, namesAny } from "@pacing/focus";
 import type { ModelCall, SchedulerJob } from "@extraction/index";
 import type { BranchOutcome, DirectorOutcome } from "@generation/living/direct";
 import { refusalLine, refusalOf } from "@generation/living/refusal";
@@ -215,8 +215,8 @@ export class LivingCoordinator {
     if (!story?.living || !state || !loaded || !frontierId || this.inFlight) return null;
     const run = placed ?? beginRun(this.deps.ownership);
     const base = this.baseFor(story, state, frontierId);
-    const inputs = this.deps.inputs();
-    const unknownNames = unknownEntityNames(story, knownEntities(story, state.blackboard.values, this.deps.enabledIds?.() ?? []));
+    const unknownNames = this.unknownNames(story, state);
+    const inputs = this.disclosed(unknownNames);
     const sceneTest = this.safeScene(this.sceneTest(story, state, frontierId, inputs, unknownNames), inputs, unknownNames);
     this.inFlight = true;
     try {
@@ -229,6 +229,15 @@ export class LivingCoordinator {
     } finally {
       this.inFlight = false;
     }
+  }
+
+  private unknownNames(story: NormalizedStoryV2, state: EngineState): string[] {
+    return unknownEntityNames(story, knownEntities(story, state.blackboard.values, this.deps.enabledIds?.() ?? []));
+  }
+
+  private disclosed(unknownNames: readonly string[]): LivingInputs {
+    const inputs = this.deps.inputs();
+    return { ...inputs, openThreads: inputs.openThreads.filter((thread) => !namesAny(thread, unknownNames)) };
   }
 
   private safeScene(record: SceneTestRecord | null, inputs: LivingInputs, unknownNames: readonly string[]): SceneTestRecord | null {
@@ -307,7 +316,7 @@ export class LivingCoordinator {
       const unit = await loadUnit();
       const outcome = await unit.branchNext({
         story, raw: loaded.raw, sourceId, targetId, branchId: nextBranchId(story), state, why, ...(prepared ? { prepared: true } : {}),
-        recent: await this.deps.recentTurns(), inputs: this.deps.inputs(),
+        recent: await this.deps.recentTurns(), inputs: this.disclosed(this.unknownNames(story, state)),
         model: this.deps.model, signal: run.signal, debugResponse: debugResponse ?? this.deps.model.planted?.("living") ?? null,
       });
       return await this.record(outcome, base, run);
