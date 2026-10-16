@@ -250,7 +250,7 @@ const inlineView = (sources: SnapshotSources, story: NormalizedStoryV2 | null, l
     tension: { expected: live.tension.expected, hint: live.tension.hint?.text ?? null }, payloadCaptures: sources.payloadCaptures, pipeline: live.pipeline,
     agencyRecovery: live.agencyRecovery, lastRollback: sources.lastRollback, saveNotice: playerSaveNotice(extras.saveHealth), castNames,
     firstLines: firstLines(sources.chat), authorMoves: authorMoves(extras), resting: sources.resting,
-    emptyReplies: recentEmptyReplies(sources.chat, settings.window), enabled: sources.enabled,
+    emptyReplies: recentEmptyReplies(sources.chat, settings.window), enabled: sources.enabled, sceneTests: authorView ? extras.living?.sceneTests : undefined,
   });
 };
 

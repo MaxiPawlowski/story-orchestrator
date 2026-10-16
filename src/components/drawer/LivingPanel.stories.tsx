@@ -122,3 +122,26 @@ export const AuthorSaveKeepsUnreached: Story = {
     await expect(await canvas.findByText("Saved “Lantern Coast (played)” to the library.", { exact: false })).toBeInTheDocument();
   },
 };
+
+const scene = { frontierId: "liv_1", fromName: "The Cold Quay", plannedAt: 4, chaos: 2, odds: 3 / 7, drawn: "interrupt", applied: "interrupt", focus: "who is cutting the lantern wicks" };
+
+export const SceneTestOnCardAndList: Story = {
+  args: {
+    view: view({
+      sceneTest: true,
+      sceneTests: [scene, { ...scene, frontierId: "liv_open", fromName: "The opening", plannedAt: 1, chaos: 0, odds: 1 / 7, drawn: "interrupt", applied: "altered", focus: undefined }],
+      proposals: [row({ scene: { ...scene, advances: "who is cutting the lantern wicks" } })],
+    }),
+    canSave: false,
+    actions: actions(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvasElement.querySelector('[data-so="living-scene"]')).toHaveTextContent("Scene test: interrupt · chaos 2 of 4 · odds 0.43");
+    await expect(canvasElement.querySelector('[data-so="living-scene"]')).toHaveTextContent("advances: who is cutting the lantern wicks");
+    await userEvent.click(await canvas.findByText("Scene tests (2)"));
+    const rows = canvasElement.querySelectorAll('[data-so="living-scene-test"]');
+    await expect(rows).toHaveLength(2);
+    await expect(rows[1]).toHaveTextContent("Scene test: altered (drawn interrupt, spaced)");
+  },
+};

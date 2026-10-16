@@ -10,6 +10,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 - [Thread bridges](#arc-bridges)
 - [Branches that follow the player](#branching)
 - [Living stories](#living-director)
+- [Scene test](#scene-test)
 
 <a id="gates"></a>
 
@@ -89,6 +90,22 @@ Fields: `living.premise`, `living.tone`, `living.cast`, `living.horizon`, `livin
 - **Good.** `{ "living": { "premise": "On a fishing coast the harbour lanterns go out one by one each night.", "tone": "quiet, a little uncanny", "cast": ["harbourmaster", "keeper"], "chapter_size": [2, 3], "ending": "director-proposes" }, "checkpoints": [], "transitions": [] }`, played in a group with those members.
 - **Bad.** A `liv_` id in an authored checkpoint (reserved); `authored_until` naming an intermediate (refused) or a checkpoint that does not exist (refused); an `authored_until` anchor with transitions out of it, or in a `final` chapter (the director never writes past either; exitless in a non-final chapter, `chapter-no-exit` and `story-dead-end` stay quiet for it); a `cast` id the roster does not hold (refused); a premise that names what the player decides (the director writes world pressure, not the player's choices).
 - **If wrong.** A turning point the director could not write is listed in Author view with its reasons (also kept as a structured `refusal {stage, reasons [{code, field}]}` on the proposal, e.g. `parse` / `too-long` / `objective`), and the story waits on the last written anchor; Regenerate asks again.
+
+<a id="scene-test"></a>
+
+## Scene test
+
+Topic `scene-test`.
+
+Fields: `living.scene_test`, with `chaos` and `min_gap` (`engine/schema.ts`, `validate/living.ts`, `generation/living/sceneTest.ts`).
+
+- **What it does.** In a living story that declares `scene_test`, each time the story director first plans a turning point it makes one seeded draw that says how the coming scene relates to what the story set up: **expected** (the director writes as usual), **altered** (the scene the story points to arrives changed: exactly one of the place, who is present, the timing or an obstacle differs, and the director names which) or **interrupt** (a world event first advances one of the threads the player opened, then the way on resumes; the director names the thread, and it must be one that is already open). The draw is one more line in the director's prompt; the director's usual checks still decide whether what it writes is kept, and an altered answer naming no change or two, or an interrupt naming no open thread, is refused and asked for again. With the outcome expected the prompt is exactly what it was without the field.
+- **Odds.** `chaos` is the story's smoothed tension when the turning point is planned, from calm 0 to peak 4; the chance of an unexpected scene is (chaos + 1) / 7, and 40% of unexpected scenes are interrupts. These are our own placeholder numbers. `chaos: {from: "tension"}` is the only source: nothing the player does or refuses moves it. `min_gap` (0 to 5, default 2) spaces interrupts: an interrupt drawn within that many turning points of the last one applies as altered.
+- **Seeded and frozen.** The draw is keyed by the chat, the story, the turning point and the turn at which it was first planned, and its outcome, odds and focus are kept with the chat. "Write it again", a refusal and retry, a changed tension or new threads all reuse it; only a swipe or delete back past the planning turn takes it away, and the same play draws the same result again. It never applies to `liv_open`, the opening, and a branch does not draw one.
+- **Who sees it.** Only the author: Author view's living panel lists each scene test, the director's card shows the outcome, the chaos and the odds, and an author-level chip marks the turn it was drawn on. No player chip, HUD value or journal line shows it. The interrupt's focus is an open thread through the same filter as the rest of the director's input, and never one that names a person or place the player has not met.
+- **Good.** `{ "living": { "premise": "On a fishing coast the harbour lanterns go out one by one each night.", "scene_test": { "chaos": { "from": "tension" }, "min_gap": 2 } } }`.
+- **Bad.** `"scene_test": { "chaos": 3 }` or `{ "chaos": { "from": "quality" } }` (refused: tension is the only source until a state-write facility exists); `"min_gap": 9` (refused, 0 to 5); `"scene_test": { "chaos": { "from": "tension" }, "odds": 0.5 }` (unknown key, with a did-you-mean).
+- **If wrong.** A director answer that ignores the signal is refused at the same stage as any other unusable answer and listed with its reasons; the story waits on the last written anchor until "Write it again" succeeds, with the same outcome.
 
 ---
 

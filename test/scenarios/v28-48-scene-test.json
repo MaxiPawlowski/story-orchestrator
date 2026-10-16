@@ -1,0 +1,110 @@
+{
+  "_note": "v2.8 plan 48 (no-model lane): a premise-only living story with scene_test and a planted director answer. Tension is set to peak first, so most runs draw an unexpected scene (altered: the fixture has no open threads). The opening draws nothing; arriving at liv_1 plans one frozen scene test (one scene draw in the ring); three regenerates keep it; an author chip and the card row show it; the player view and assert-player-clean carry nothing of it; a reopen keeps it; a swipe past the planning reply steps the living story back and the replay draws the identical record (messageId aside). The director pass is started with rt.living.propose() because a no-model lane's scheduler does not place model jobs. Plumbing only: S7-S9/S11 need the real director. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-48-scene-test.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off",
+    "authorView": true
+  },
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugLivingResponse = \"{\\\"name\\\": \\\"The Lantern Stair\\\", \\\"objective\\\": \\\"On the next landing a lantern gutters out while the lamplighter watches from below.\\\", \\\"tension\\\": \\\"stirring\\\", \\\"snapshot\\\": {}, \\\"opens_when\\\": {\\\"new\\\": {\\\"key\\\": \\\"stair_seen\\\", \\\"rubric\\\": \\\"Has the darkened landing been seen?\\\"}}, \\\"new_qualities\\\": [], \\\"builds_on\\\": null, \\\"new_chapter\\\": false, \\\"chapter_title\\\": null, \\\"final\\\": false, \\\"reason\\\": \\\"planted no-model answer\\\", \\\"changed\\\": \\\"place\\\"}\"; return true;"
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds ' + ctx.chat.length + ' message(s)'); return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "file": "v28-48-scene-test.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const living = () => rt.extras.living ?? {}; const tests = () => living().sceneTests ?? []; const proposals = () => living().proposals ?? []; const frozen = (record) => record ? JSON.stringify({ ...record, messageId: undefined }) : null; const active = () => rt.getEngineState().activeCheckpointId; const boundary = () => rt.getEngineState().boundary; const saved = async () => { for (let i = 0; i < 100 && rt.getSnapshot().saveHealth?.pendingBoundary != null; i += 1) await pause(100); if (rt.getSnapshot().saveHealth?.pendingBoundary != null) throw new Error('the last boundary is not saved'); }; const reopen = async () => { const chatId = SillyTavern.getContext().chatId; await SillyTavern.getContext().reloadCurrentChat(); await until(() => rt.getSnapshot().storyId === 'so-v28-48-scene-test', 10000, 'the story to hydrate after the reopen'); if (SillyTavern.getContext().chatId !== chatId) throw new Error('the reopen moved the page'); rt.setUiSettings({ authorView: true }); await pause(1500); }; const playerClean = () => { const text = JSON.stringify(rt.getSnapshot()); for (const needle of ['Scene test', 'sceneTests', 'Scene signal', '\\\"drawn\\\":']) if (text.includes(needle)) throw new Error('player snapshot carries ' + needle); if (/\\\"chaos\\\":\\s*[0-9]/.test(text)) throw new Error('player snapshot carries a chaos value'); if (document.body.innerText.includes('Scene test')) throw new Error('the page shows a scene test to the player'); }; globalThis.__s48 = { rt, pause, until, living, tests, proposals, frozen, active, boundary, saved, reopen, playerClean }; await until(() => active() === 'liv_open', 10000, 'the opening to activate'); return { active: active(), boundary: boundary() };",
+      "log": true
+    },
+    {
+      "eval": "const f = globalThis.__s48; const first = await f.rt.living.propose(); if (!first || first.status !== 'proposed') throw new Error('the opening pass did not wait for the author: ' + JSON.stringify(first?.status)); if (f.tests().length) throw new Error('the opening drew a scene test'); await f.rt.living.decide(first.id, 'accepted'); return { proposal: first.id };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=Arin The lanterns gutter along the stair as evening comes."
+    },
+    {
+      "eval": "const f = globalThis.__s48; await f.until(() => f.rt.getStory()?.checkpointById?.liv_1, 10000, 'liv_1 to be applied'); await f.rt.setQuality('tension_current', '1'); await f.rt.setQuality('liv_1_stair_seen', 'true'); await f.until(() => f.active() === 'liv_1_way', 10000, 'the way into liv_1'); return { active: f.active(), boundary: f.boundary(), tension: f.rt.getEngineState().blackboard.values.tension_current };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=Arin A second landing goes dark above us."
+    },
+    {
+      "eval": "const f = globalThis.__s48; await f.until(() => f.active() === 'liv_1', 10000, 'arrival at liv_1'); await f.until(async () => { if (!f.proposals().some((p) => p.frontierId === 'liv_1')) await f.rt.living.propose(); return true; }, 5000, 'a director pass'); await f.until(() => f.tests().length === 1 && f.proposals().some((p) => p.frontierId === 'liv_1' && p.status === 'proposed'), 30000, 'the director to plan liv_1 with a scene test'); const record = f.tests()[0]; if (record.frontierId !== 'liv_1' || record.plannedAt !== f.boundary()) throw new Error('unexpected record ' + JSON.stringify(record)); if (!['expected', 'altered', 'interrupt'].includes(record.applied) || Math.abs(record.p - (record.chaos + 1) / 7) > 1e-9) throw new Error('bad outcome ' + JSON.stringify(record)); globalThis.__s48.original = f.frozen(record); globalThis.__s48.planMessage = record.messageId; const draws = (f.rt.extras.chance?.draws ?? []).filter((d) => d.kind === 'scene'); if (draws.length !== 1) throw new Error('scene draws in the ring: ' + draws.length); return { record };",
+      "log": true
+    },
+    {
+      "eval": "const f = globalThis.__s48; for (let i = 0; i < 3; i += 1) { const waiting = f.proposals().filter((p) => p.frontierId === 'liv_1' && (p.status === 'proposed' || p.status === 'failed')).at(-1); if (!waiting) throw new Error('nothing to regenerate'); const again = await f.rt.living.regenerate(waiting.id); if (!again) throw new Error('regenerate returned nothing'); } if (f.tests().length !== 1 || f.frozen(f.tests()[0]) !== f.original) throw new Error('regenerate re-rolled: ' + JSON.stringify(f.tests())); const draws = (f.rt.extras.chance?.draws ?? []).filter((d) => d.kind === 'scene'); if (draws.length !== 1) throw new Error('regenerate announced another draw'); const view = f.rt.getSnapshot(); const chip = Object.values(view.inline?.byMessage ?? {}).flat().find((item) => String(item.text).startsWith('Scene test: ')); if (!chip || chip.persona !== 'author' || chip.level !== 3) throw new Error('no author chip: ' + JSON.stringify(chip)); const card = (view.living?.author?.proposals ?? []).find((row) => row.frontierId === 'liv_1'); if (!card?.scene || card.scene.applied !== f.tests()[0].applied) throw new Error('no scene row on the card: ' + JSON.stringify(card)); if ((view.living?.author?.sceneTests ?? []).length !== 1) throw new Error('living panel list'); await f.saved(); return { chip: chip.text, card: card.scene };",
+      "log": true
+    },
+    {
+      "eval": "const f = globalThis.__s48; f.rt.setUiSettings({ authorView: false }); await f.pause(800); f.playerClean(); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "eval": "const f = globalThis.__s48; f.rt.setUiSettings({ authorView: true }); await f.pause(800); return { authorView: true };"
+    },
+    {
+      "record_state": {
+        "as": "s48-planned"
+      }
+    },
+    {
+      "eval": "const f = globalThis.__s48; await f.reopen(); if (f.tests().length !== 1 || f.frozen(f.tests()[0]) !== f.original) throw new Error('the reopen changed the scene test: ' + JSON.stringify(f.tests())); return { kept: true };",
+      "log": true
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "s48-planned",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const last = ctx.chat.length - 1; if (last !== globalThis.__s48.planMessage) throw new Error('a message landed after the planning reply: ' + last + ' vs ' + globalThis.__s48.planMessage); const reply = ctx.chat[last]; reply.swipes = [reply.mes, 'Only the lowest landing stays lit.']; reply.swipe_id = 0; reply.swipe_info = [{}, {}]; await ctx.saveChat(); return { swipeable: last };"
+    },
+    {
+      "swipe": {
+        "messageId": "last",
+        "swipeId": 1
+      }
+    },
+    {
+      "eval": "const f = globalThis.__s48; await f.until(() => f.proposals().some((p) => p.frontierId === 'liv_1' && p.status === 'withdrawn' && /rollback/.test(p.reason)), 15000, 'the swipe to step the living story back'); await f.pause(1500); if (!f.tests().length) { await SillyTavern.getContext().executeSlashCommandsWithOptions('/sendas name=Arin A second landing goes dark above us.'); } await f.until(() => f.active() === 'liv_1', 15000, 'the replay to reach liv_1'); if (!f.tests().length) await f.rt.living.propose(); await f.until(() => f.tests().length === 1, 30000, 'the replay to plan liv_1 again'); const replayed = f.frozen(f.tests()[0]); if (replayed !== f.original) throw new Error('the replay drew differently: ' + replayed + ' vs ' + f.original); await f.saved(); return { replayed: true, boundary: f.boundary() };",
+      "log": true
+    },
+    {
+      "eval": "const f = globalThis.__s48; f.rt.setUiSettings({ authorView: false }); await f.pause(800); f.playerClean(); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "eval": "const f = globalThis.__s48; f.rt.setUiSettings({ authorView: true }); delete globalThis.storyOrchestratorDebugLivingResponse; return { done: true };"
+    }
+  ]
+}

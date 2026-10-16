@@ -91,3 +91,23 @@ export const OffRendersNothing: Story = {
     await expect(canvasElement.querySelector('[data-so="inline-strip"]')).toBeNull();
   },
 };
+
+const SCENE_TEST = item({
+  id: "progress:scene-test:liv_1:4", category: "progress", level: 3, text: "Scene test: interrupt",
+  detail: "chaos 2 of 4, odds 0.43; drawn interrupt; focus: who is cutting the lantern wicks; after The Cold Quay",
+});
+
+const SceneHarness = ({ level }: { level: InlineLevel }) => {
+  const [expanded, setExpanded] = useState<InlineCategory | null>("progress");
+  const items = [ITEMS[0], SCENE_TEST].filter((entry) => entry.level <= level);
+  return <InlineStrip messageId={4} items={items} level={level} expanded={expanded} onToggle={(category) => setExpanded((current) => (current === category ? null : category))} />;
+};
+
+export const SceneTestChipIsAuthorOnly: Story = {
+  render: () => <div><div data-level="2"><SceneHarness level={2} /></div><div data-level="3"><SceneHarness level={3} /></div></div>,
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-level="2"]')?.textContent).not.toContain("Scene test");
+    await expect(canvasElement.querySelector('[data-level="3"]')).toHaveTextContent("Scene test: interrupt");
+    await expect(canvasElement.querySelector('[data-level="3"]')).toHaveTextContent("chaos 2 of 4");
+  },
+};
