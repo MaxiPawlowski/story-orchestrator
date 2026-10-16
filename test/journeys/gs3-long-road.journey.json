@@ -95,7 +95,7 @@
           }
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__gs3Audits = rt.getSnapshot().extraction?.audits?.length ?? 0; globalThis.__gs3Calls = (rt.getSnapshot().modelCallRing ?? []).length; globalThis.__gs3Boundary = rt.getSnapshot().boundary; return { audits: globalThis.__gs3Audits, calls: globalThis.__gs3Calls };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.runExtractionNow(undefined, 'gs3-catch-up'); for (let i = 0; i < 120 && (rt.getSnapshot().extraction?.inFlight || rt.getSnapshot().scheduler?.inFlight); i++) await new Promise((r) => setTimeout(r, 500)); await new Promise((r) => setTimeout(r, 3000)); globalThis.__gs3Audits = rt.getSnapshot().extraction?.audits?.length ?? 0; globalThis.__gs3Calls = (rt.getSnapshot().modelCallRing ?? []).length; globalThis.__gs3Boundary = rt.getSnapshot().boundary; return { audits: globalThis.__gs3Audits, calls: globalThis.__gs3Calls };"
         },
         {
           "send": "((OOC: quick question for the table, how long have we been playing tonight?))"
