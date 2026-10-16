@@ -211,3 +211,30 @@ const crowded = { args: { snapshot: baseSnapshot({ ...playing, thinkingSilent: t
 export const Phone: Story = { ...crowded, ...fitsAt(VIEWPORTS.phone, hudButton) };
 export const Tablet: Story = { ...crowded, ...fitsAt(VIEWPORTS.tablet, hudButton) };
 export const Wide: Story = { ...crowded, ...fitsAt(VIEWPORTS.wide, hudButton) };
+
+export const YourMove: Story = {
+  args: { snapshot: baseSnapshot({ turn: { yours: true, source: "judge" } }) },
+  play: async ({ canvasElement }) => {
+    const chip = canvasElement.querySelector("#so-hud-turn");
+    await expect(chip?.textContent).toBe("Your move.");
+    await expect(chip?.getAttribute("title")).not.toMatch(/judge|director|source|decided/i);
+  },
+};
+
+export const YourMoveAuthor: Story = {
+  args: { snapshot: baseSnapshot({ turn: { yours: true, source: "director" }, ui: { authorView: true, announceTransitions: true, hudEnabled: true } }) },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-hud-turn")?.getAttribute("title")).toMatch(/director/);
+  },
+};
+
+export const NotYourMove: Story = {
+  args: { snapshot: baseSnapshot({ turn: { yours: false, source: null } }) },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-hud-turn")).toBeNull();
+  },
+};
+
+const crowdedTurn = { args: { snapshot: baseSnapshot({ ...playing, thinkingSilent: true, turn: { yours: true, source: "judge" }, pendingDeltas: [{ quality: "luke_decision", value: "accepted", source: "extractor" }] }) } };
+
+export const YourMovePhone: Story = { ...crowdedTurn, ...fitsAt(VIEWPORTS.phone, hudButton) };

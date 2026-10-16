@@ -425,6 +425,36 @@ describe("chained multi-speaker turns", () => {
     return { host, calls, setDrafted: (id: string) => { drafted = id; } };
   };
 
+  const runToHandBack = async (answers: JudgeAnswer[], control: TalkControl) => {
+    const revision = { swipeId: 0, hash: "rev-a" };
+    const { host, calls } = makeChainHost(answers, { getActiveTalkControl: () => control, getLastMessageRevision: () => revision });
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.intercept(makeAbort().abort, "normal");
+    await controller.onWrapperFinished();
+    controller.onWrapperStarted({ type: "normal" });
+    controller.onGenerationStarted({ force_chid: 1 });
+    await controller.onWrapperFinished();
+    return calls.decisions;
+  };
+  const MEMBERS: JudgeAnswer[] = [
+    { kind: "member", rosterId: "guard", name: "Mara", confidence: 0.9, via: "choice" },
+    { kind: "member", rosterId: "sage", name: "Finn", confidence: 0.8, via: "choice" },
+  ];
+
+  it("68 Y4: a chain end records kind player with the reply's revision only when a hand-back was offered", async () => {
+    const decisions = await runToHandBack([...MEMBERS, { kind: "player", confidence: 0.7, via: "choice" }], { director: true, no_repeat: false });
+    expect(decisions.slice(0, 2).map((decision) => decision.kind)).toEqual(["member", "member"]);
+    expect(decisions.at(-1)).toMatchObject({ kind: "player", revision: { swipeId: 0, hash: "rev-a" }, chosenRosterId: null });
+  });
+
+  it("68 Y4: stop_on_player off makes a player answer a silence, and a silence stays a silence", async () => {
+    const off = await runToHandBack([...MEMBERS, { kind: "player", confidence: 0.7, via: "choice" }], { director: true, no_repeat: false, chain: { stop_on_player: false } });
+    expect(off.at(-1)?.kind).toBe("silence");
+    const silent = await runToHandBack([...MEMBERS, { kind: "silence", confidence: 0.7, via: "choice" }], { director: true, no_repeat: false, allow_silence: true });
+    expect(silent.at(-1)?.kind).toBe("silence");
+  });
+
   it("asks the judge again after each voice and stops when it hands back to the player", async () => {
     const { host, calls } = makeChainHost([
       { kind: "member", rosterId: "guard", name: "Mara", confidence: 0.9, via: "choice" },

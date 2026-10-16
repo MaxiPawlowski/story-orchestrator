@@ -9,7 +9,8 @@ import { addWidget, removeWidget, updateWidget } from "../gameMutations";
 import { JsonField, OptionalGate, TextField, optionalText } from "./GameFields";
 import WidgetPreview from "./WidgetPreview";
 
-const HELP = "A story panel shows qualities, quests, the path, a clock, a wall of clues, a map with pins, a roster of statuses or a timeline. A player panel may bind only public qualities; "
+const HELP = "A story panel shows qualities, quests, the path, a clock, a wall of clues, a map with pins, a roster of statuses, a timeline "
+  + "or a scene card (where, when and who is with you). A player panel may bind only public qualities; "
   + "clues and pins stay hidden until found; an author panel shows only in Author view. Buttons put the player's line in the box, open a drawer tab or ask for a public check.";
 
 interface ChoiceProps<T extends string> {
@@ -48,7 +49,8 @@ const WidgetRow = ({ widget }: { widget: StoryWidget }) => {
       </div>
       <JsonField label={`${name} bind`} hint='{"quality"}, {"qualities": []}, {"group"}, {"quests": true}, {"path": true}, {"arcs": true}' value={widget.bind}
         onChange={(bind) => patch({ bind: bind as WidgetBind | undefined })} />
-      <JsonField label={`${name} options`} hint='{"limit"?, "closed"?}' value={widget.options} onChange={(options) => patch({ options: options as WidgetOptions | undefined })} />
+      <JsonField label={`${name} options`} hint='{"limit"?, "closed"?, "time"?: a scene panel shows the story time}' value={widget.options}
+        onChange={(options) => patch({ options: options as WidgetOptions | undefined })} />
       {widget.kind === "clues" && (
         <>
           <JsonField label={`${name} clues`} hint='[{"id", "text", "quality"} or {"id", "text", "when"}, "action"?]' value={widget.clues}

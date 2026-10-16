@@ -41,6 +41,7 @@ export interface SheetItemView {
   max?: number;
   trend?: Trend;
   changedAgo?: number;
+  warn?: string;
 }
 
 export interface SheetGroupView {
@@ -121,6 +122,18 @@ export interface TimelineChapterView {
   stops: TimelineStopView[];
 }
 
+export interface ScenePresent {
+  name: string;
+  portrait: string | null;
+  page: string | null;
+}
+
+export interface SceneView {
+  location: string | null;
+  time: string | null;
+  present: ScenePresent[];
+}
+
 export type WidgetBody =
   | { kind: "html"; template: string; actions: IntentView[]; source: WidgetView }
   | { kind: "clues"; clues: ClueView[]; links: ClueLinkView[] }
@@ -131,7 +144,8 @@ export type WidgetBody =
   | { kind: "clock"; label: string; filled: number; segments: number; full: boolean; changedAgo?: number }
   | { kind: "board"; lanes: BoardLane[] }
   | { kind: "roster"; rows: RosterRowView[] }
-  | { kind: "timeline"; chapters: TimelineChapterView[] };
+  | { kind: "timeline"; chapters: TimelineChapterView[] }
+  | ({ kind: "scene" } & SceneView);
 
 export interface WidgetView {
   id: string;
@@ -190,6 +204,7 @@ export interface GameView {
   widgets: WidgetView[];
   standing?: Array<{ name: string; band: string }>;
   codex?: CodexView;
+  scene?: SceneView;
 }
 
 export interface GameAuthorView {

@@ -1,5 +1,6 @@
 import { RECAP_GUIDE_TOPIC } from "./guideTopicsRecap";
 import { CODEX_GUIDE_TOPIC } from "./guideTopicsCodex";
+import { SHEET_GUIDE_TOPICS } from "./guideTopicsSheet";
 import type { DIAGNOSTIC_CODES } from "../studio/diagnostics";
 import { CHARACTER_TOPICS, FACTION_DIAGNOSTIC_TOPICS } from "./guideTopicsCharacters";
 import { CARRY_TOPICS } from "./guideTopicsCarry";
@@ -335,6 +336,7 @@ export const GUIDE_TOPICS = {
       + "Runs in a sandboxed frame with no network and no access to SillyTavern; "
       + "window.storyWidget.onData(f) gets the source widget's player view, ready() starts it, propose(id) puts that action's text in the box. Off for the player = the source panel shows.",
   },
+  ...SHEET_GUIDE_TOPICS,
   ...CODEX_GUIDE_TOPIC,
   ...CHARACTER_TOPICS,
   ...TIME_TOPICS,

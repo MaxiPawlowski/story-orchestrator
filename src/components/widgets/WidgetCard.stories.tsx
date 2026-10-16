@@ -2,9 +2,13 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import { WidgetCard } from "./WidgetCard";
 import {
-  boardWidget, clockWidget, cluesWidget, factionRosterWidget, intentsWidget, mapWidget, provenanceRows, rosterWidget, sampleGame, standingWidget, stillWidget, timelineWidget,
+  boardWidget, clockWidget, cluesWidget, factionRosterWidget, intentsWidget, mapWidget, provenanceRows, rosterWidget, sampleGame, sceneWidget, sceneWidgetEmpty, standingWidget, stillWidget, timelineWidget,
 } from "./gameViewFixtures";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
+import { composeGame } from "@runtime/widgets";
+import { StoryEngine } from "@engine/index";
+import { parseStoryV2OrThrow } from "@engine/validate";
+import { labRaw } from "../../../test/support/codexLab";
 
 const meta: Meta<typeof WidgetCard> = {
   title: "Panels/WidgetCard",
@@ -168,3 +172,44 @@ export const RosterPhone: Story = { args: { widget: rosterWidget }, ...fitsAt(VI
 export const StandingPhone: Story = { args: { widget: standingWidget }, ...fitsAt(VIEWPORTS.phone, primary) };
 export const TimelinePhone: Story = { args: { widget: timelineWidget }, ...fitsAt(VIEWPORTS.phone, primary) };
 export const IntentsPhone: Story = { args: { widget: intentsWidget, onAction: fn(() => ({ ok: true as const })) }, ...fitsAt(VIEWPORTS.phone, primary) };
+
+export const Scene: Story = {
+  args: { widget: sceneWidget },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("Kessel boathouse")).toBeVisible();
+    await expect(canvas.getByText("Day 3, evening")).toBeVisible();
+    await expect(canvasElement.querySelectorAll('[data-so="scene-member"]')).toHaveLength(2);
+    await expect(canvasElement.querySelectorAll('[data-so="scene-page"]')).toHaveLength(1);
+  },
+};
+
+export const SceneEmpty: Story = {
+  args: { widget: sceneWidgetEmpty },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-so="scene-present"]')).toBeNull();
+    await expect(canvasElement.querySelector('[data-so="scene-where"]')).toBeNull();
+  },
+};
+
+const plantedScene = () => {
+  const story = parseStoryV2OrThrow(labRaw({ widgets: [{ id: "here", kind: "scene", title: "Here now" }] }));
+  const engine = new StoryEngine({ now: () => 0 });
+  engine.loadStory(story);
+  const game = composeGame({
+    story, state: engine.serialize(), boundaryLog: engine.stateLog, checks: [], threads: { open: [], resolved: [] }, chat: [], castNames: { tom: "Tom", ada: "Ada" },
+    enabled: ["tom", "ada"], location: "Kessel boathouse", portraits: { tom: "/characters/tom.png", ada: "/characters/ada.png" },
+  }).player;
+  return game.widgets.find((widget) => widget.body.kind === "scene") ?? sceneWidgetEmpty;
+};
+
+export const ScenePlantedUnknown: Story = {
+  args: { widget: plantedScene() },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.textContent).not.toMatch(/Tom/);
+    await expect(canvasElement.querySelector('img[src*="tom"]')).toBeNull();
+    await expect(canvasElement.querySelectorAll('[data-so="scene-member"]')).toHaveLength(1);
+  },
+};
+
+export const ScenePhone: Story = { args: { widget: sceneWidget }, ...fitsAt(VIEWPORTS.phone, primary) };

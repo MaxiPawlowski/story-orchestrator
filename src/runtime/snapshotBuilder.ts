@@ -60,6 +60,7 @@ import { livingSlice } from "./livingSnapshot";
 import { promisesSlice } from "./promiseSnapshot";
 import { graphEpoch } from "@generation/living/fold";
 import { buildPresence } from "./presence";
+import { deriveTurn } from "./yourMove";
 import { readPlaysIndex } from "./playsIndexHost";
 import { imageHealth } from "./imageHealth";
 import { cardSurface } from "./cardLedger";
@@ -120,6 +121,7 @@ export interface SnapshotSources {
   resting?: (text: string) => string;
   scopeContext?: ScopeSourceContext;
   enabled?: readonly string[];
+  generating?: boolean;
 }
 
 export interface SnapshotPort {
@@ -141,6 +143,7 @@ export interface SnapshotPort {
   chatId?: string | null;
   scopeContext?: ScopeSourceContext;
   enabled?: readonly string[];
+  generating?: boolean;
 }
 
 export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
@@ -172,6 +175,7 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   plays: readPlaysIndex(),
   scopeContext: port.scopeContext,
   enabled: port.enabled,
+  generating: port.generating,
 });
 
 const routeGaps = () => {
@@ -313,7 +317,9 @@ const questNarrative = (story: NormalizedStoryV2 | null, values: Record<string, 
 export const resolvedThreads = (memory: RuntimeExtras["memory"], resting: (text: string) => string = (text) => text) =>
   withoutExcludedThreads(memory.arcs, memory.derived).filter((arc) => arc.status === "resolved" && !arc.foldedInto).map((arc) => resting(arc.text)).filter(Boolean);
 
-const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | null, state: EngineState | null, game: { castNames: Record<string, string>; openThreads: string[] }) => {
+type PresenceGame = { castNames: Record<string, string>; openThreads: string[] };
+
+const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | null, state: EngineState | null, game: PresenceGame) => {
   const storyId = sources.loaded?.record.id;
   const ids = storyId && sources.chatId ? { chatId: sources.chatId, storyId } : null;
   const quality = reconstructQualityRolls(story, ids, sources.boundaryLog, state);
@@ -322,6 +328,7 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
     ...gameSlices({
       story, state, boundaryLog: sources.boundaryLog, checks: extras.checks, chat: sources.chat, castNames: game.castNames, authorView: extras.ui.authorView, scopeContext: sources.scopeContext,
       enabled: sources.enabled, threads: { open: game.openThreads, resolved: story ? resolvedThreads(extras.memory, sources.resting) : [] },
+      location: sceneLocationOf(story, extras), characters: sources.characters,
     }),
     lifeAuthor: lifeAuthorSlice(story, state, extras.ui.authorView, extras.agendaProposals, sources.scopeContext, sources.boundaryLog),
     factionsAuthor: factionAuthorSlice(story, state, extras.ui.authorView, sources.boundaryLog, extras.memory.ledger, sources.scopeContext),
@@ -340,6 +347,13 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | nul
     }),
   };
 };
+
+const turnOf = (sources: SnapshotSources, checkpointId: string | null) => deriveTurn({
+  enabled: Boolean(sources.loaded) && sources.extras.ui.yourMove !== false, generating: sources.generating === true, chat: sources.chat, checkpointId, decisions: sources.extras.talk.decisions,
+});
+
+const sceneLocationOf = (story: NormalizedStoryV2 | null, extras: RuntimeExtras) =>
+  playerLocation(story, confirmedSceneFacts(extras.judge.scene, sceneFieldsInConflict(extras.memory.conflicts))?.location ?? null);
 
 const readingEvidence = (extras: RuntimeExtras) => {
   const evidenceByKey = new Map<string, string>();
@@ -401,7 +415,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     tensionLevel: tension.level,
     pendingCount: playerPendingCount(pendingDeltas),
     pipeline,
-    sceneLocation: playerLocation(story, confirmedSceneFacts(extras.judge.scene, sceneFieldsInConflict(extras.memory.conflicts))?.location ?? null),
+    sceneLocation: sceneLocationOf(story, extras),
     // Only when a place WAS known: a tracker that has never answered has nothing to be unsure of.
     sceneUnconfirmed: isSceneStale(extras.judge.scene) && Boolean(extras.judge.scene?.facts.location),
     // A write this chat believes it made and the server has not confirmed. Player
@@ -488,7 +502,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     driver: sources.driver,
     activeNudge: sources.activeNudge,
     payloadCaptures: sources.payloadCaptures,
-    nextTurn, authorMoves: authorMoves(extras).slice(-8).reverse(),
+    nextTurn, authorMoves: authorMoves(extras).slice(-8).reverse(), turn: turnOf(sources, active?.id ?? null),
     chatJump: jumpIndex(sources.chat, sources.fingerprints),
     nextTurnForeign,
     nextTurnCost,

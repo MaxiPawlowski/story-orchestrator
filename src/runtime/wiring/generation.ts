@@ -41,6 +41,7 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
   opened: (intent: IntentOf<"opened">) => {
     lore.loreWatch.opened(intent.type);
     runtimeManager.onGenerationStarted(intent.type);
+    runtimeManager.setGenerationOpen(!withholds(intent.type));
     awayNotice.opened(intent.type);
     previously.opened(intent.type);
     runtimeManager.capturePayload("generation", intent.type);
@@ -59,6 +60,7 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
     if (intent.chid !== null) runtimeManager.onMemberDrafted(intent.chid);
   },
   closed: (intent: IntentOf<"closed">) => {
+    runtimeManager.setGenerationOpen(false);
     awayNotice.closed();
     previously.closed();
     if (intent.reason !== "chat-changed") {
