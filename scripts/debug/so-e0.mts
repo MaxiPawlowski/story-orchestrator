@@ -12,6 +12,7 @@ const USAGE = `Usage:
   node scripts/debug/so-e0.mts choices --pool <pool.json> --out <calls.json>
   node scripts/debug/so-e0.mts freeze --labels <labels.json> --pool <pool.json> --out <freeze.json>
   node scripts/debug/so-e0.mts run --labels <labels.json> --pool <pool.json> --freeze <freeze.json> [--choices <calls.json>] [--out <result.json>]
+  node scripts/debug/so-e0.mts golden --labels <labels.json> --pool <pool.json> --freeze <freeze.json> --choices <calls.json> --out <golden.json>
 
 v2.8 plan 21 E0: ranking within the retrieved set.
 sessions     lists the session chats under <root>/T*/T*-*/ the private set may use (40+ spoken messages; a copy sharing
@@ -34,6 +35,9 @@ freeze       hashes the labels and pool files (sha256) and every pooled question
 run          ranks every pool with arms e, c, a, b, d (cost order) and scores hit@1, hit@4, MRR@4, pool recall, tie rate,
              calls, latency, input tokens and $ per question against the floors fixed in src/memory/e0Ranking.ts.
              Refuses an unfrozen pool.
+golden       the public replay of a frozen run (so-e0-golden/1): message ids become pool slots (ST order), no text, no
+             query, no question; bands, arm c's local scores, latencies and arm d's picks as slots, plus the run's
+             result. src/memory/e0Golden.test.ts replays it in jest.
 Private labels (source "private") write only under test/sessions/e0/ or outside this repo; output is counts and scores.`;
 
 const option = (args: string[], name: string) => {
@@ -166,6 +170,26 @@ export async function main(argv: string[]): Promise<number> {
     }
     console.log(JSON.stringify(result, null, 2));
     return result.verdict.status === 'winner' || result.verdict.status === 'no-winner' ? 0 : 2;
+  }
+  if (command === 'golden') {
+    const labelsFile = need(args, '--labels');
+    const pool = need(args, '--pool');
+    const freezeFile = need(args, '--freeze');
+    const refused = await checkFrozen(freezeFile, labelsFile, pool);
+    if (refused) {
+      console.error(refused);
+      return 3;
+    }
+    const choices = need(args, '--choices');
+    const result = await runE0(labelsFile, pool, choices);
+    const e0 = await loadE0() as unknown as { e0GoldenFrom(questions: unknown[], recorded: unknown, provider: string, freeze: { labels: string; pool: string }): { questions: unknown[] } };
+    const frozen = await readJson(freezeFile);
+    const pooled = await readJson(pool);
+    const golden = e0.e0GoldenFrom(pooled.questions, await readJson(choices), pooled.provider, { labels: frozen.labels, pool: frozen.pool });
+    const { source: _source, ...publicResult } = result;
+    await write(need(args, '--out'), { ...golden, result: publicResult });
+    console.log(JSON.stringify({ questions: golden.questions.length, verdict: result.verdict }));
+    return 0;
   }
   throw new Error(`unknown command ${command}\n${USAGE}`);
 }

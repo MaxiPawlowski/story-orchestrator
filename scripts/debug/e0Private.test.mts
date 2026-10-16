@@ -149,3 +149,30 @@ test('labels end to end: write, blind check, merge into a private set the review
   assert.equal(read.dropped.disagreed, 1);
   assert.equal(JSON.parse(await readFile(join(out, 'written', 'T1__T1-1-1.json'), 'utf-8')).questions.length, 3);
 });
+
+test('E0 CLI golden: a frozen run becomes a public replay with no text that jest can replay to the same result', async () => {
+  const work = await mkdtemp(join(tmpdir(), 'so-e0-golden-'));
+  const root = process.cwd();
+  const labelsFile = join(root, 'test/fixtures/e0/synthetic/labels.json');
+  const poolFile = join(root, 'test/measurements/v2.8/21-e0/synthetic.pool.json');
+  const freezeFile = join(root, 'test/measurements/v2.8/21-e0/synthetic.freeze.json');
+  const pool = JSON.parse(await readFile(poolFile, 'utf-8')) as { questions: Array<{ id: string; candidates: Array<{ messageId: number }> }> };
+  const calls = Object.fromEntries(pool.questions.map((question) => [question.id, [0, 1, 2, 3].map((index) => ({ pick: question.candidates[index].messageId, latencyMs: 250, inputTokens: 600 }))]));
+  await writeFile(join(work, 'calls.json'), JSON.stringify(calls));
+  const { main } = await import('./so-e0.mts');
+  const log = console.log;
+  console.log = () => {};
+  try {
+    assert.equal(await main(['golden', '--labels', labelsFile, '--pool', poolFile, '--freeze', freezeFile, '--choices', join(work, 'calls.json'), '--out', join(work, 'golden.json')]), 0);
+  } finally {
+    console.log = log;
+  }
+  const text = await readFile(join(work, 'golden.json'), 'utf-8');
+  assert.doesNotMatch(text, /"text"|"query"|"messageId"|"source"/);
+  const golden = JSON.parse(text);
+  const e0 = await loadE0() as unknown as { replayE0Golden(golden: unknown): { arms: Array<{ arm: string; metrics: unknown }>; verdict: unknown } };
+  const replayed = e0.replayE0Golden(golden);
+  assert.deepEqual(replayed.arms.map((arm) => [arm.arm, arm.metrics]), golden.result.arms.map((arm: { arm: string; metrics: unknown }) => [arm.arm, arm.metrics]));
+  assert.deepEqual(replayed.verdict, golden.result.verdict);
+  assert.equal(golden.result.cost.usdPerQuestion.d, (2400 / 1_000_000) * 0.042);
+});
