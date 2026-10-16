@@ -273,6 +273,11 @@ Fixed in `src/memory/e0Labels.ts` (`E0_LABEL_RULES`), `scripts/debug/lib/e0StVec
 - **Cost.** Arm (d): input tokens × $0.042 per million (`JEV_USD_PER_MTOK_INPUT`). Vector arms: $0 (local CPU).
 - **Freeze order.** Labels → pool → `freeze` (hashes copied here and committed) → `choices` → `run`. The freeze covers
   labels and pool; the recorded calls are scored as recorded.
+- **Private freeze (2026-10-16, committed before `choices` or `run`).** `so-sessions` `test/sessions/e0/freeze.json`:
+  labels `cd3f5a274ea42c9040302c033e11e04d2dfd53c040df7cc359890e381fc7fb0b`, pool
+  `e00d001724f53a191cd56d1c64a250eb6b3cb297aa22bf6664abac16da7f560f` (sha256 of the parsed JSON), 84 questions, provider
+  `st-vectors:transformers:Xenova/all-mpnet-base-v2`. Labels: 85 written, 1 invalid, 84 agreed, 0 disagreed (no top-up).
+  The pool build was stopped once by a machine-load hold and resumed over its complete collections (`fd3a9a68`).
 
 ### 6.2 Step 2 — offline group witness feasibility
 
