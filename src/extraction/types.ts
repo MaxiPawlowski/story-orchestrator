@@ -58,6 +58,7 @@ export interface SharedReadContract {
   openPromises?: OpenPromiseRef[] | null;
   promiseSection?: string;
   witnessSection?: string;
+  hearsay?: boolean;
   epistemicLedgerCapable?: boolean;
   entities?: string[];
   checkpoint?: { name: string; objective: string };

@@ -1,0 +1,20 @@
+{
+  "format": 2,
+  "id": "so-v28-44-rumors",
+  "title": "SO-V28-44 Rumors",
+  "description": "v2.8 plan 44 no-model fixture: one open rumor that starts with the narrator on an authored event and reaches Arin as hearsay a turn later.",
+  "roster": [
+    { "id": "arin", "name": "Arin" },
+    { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient", "gossip": { "talks_to": ["arin"], "contact": "any", "delay": { "boundaries": [1, 1] } } }
+  ],
+  "rumors": [{ "id": "bell-tower", "from": "narrator", "claim": "the old bell tower cracked in the night", "starts_when": { "q": "bell_rang", "op": "==", "v": true } }],
+  "qualities": [
+    { "key": "bell_rang", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has the town bell rung?" },
+    { "key": "left_town", "type": "bool", "source": "extractor", "rubric": "Has the party left town?" }
+  ],
+  "checkpoints": [
+    { "id": "square", "name": "The square", "player_name": "The square", "objective": "Wait for news.", "type": "anchor", "start": true },
+    { "id": "road", "name": "The road", "player_name": "The road", "objective": "Travel on.", "type": "anchor" }
+  ],
+  "transitions": [{ "from": "square", "to": "road", "priority": 0, "gate": { "q": "left_town", "op": "==", "v": true } }]
+}

@@ -25,6 +25,7 @@ export const FEATURE_POLICY_FIELDS = {
   inner: { enabled: toggle, fanOut: choice("next", "top2"), harvestReasoning: toggle },
   promises: { enabled: toggle },
   witness: { enabled: toggle },
+  rumors: { enabled: toggle },
   meanwhile: { enabled: toggle, acceptMode: choice("auto", "review") },
   living: { enabled: toggle },
   branching: { enabled: toggle },

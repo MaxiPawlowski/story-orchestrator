@@ -1,4 +1,5 @@
 import type { Feature } from "./registry";
+import { authorGuideDoc } from "./guideLinks";
 import { drawerAt } from "./where";
 
 export const AUDIENCE_FEATURES: readonly Feature[] = [
@@ -11,5 +12,15 @@ export const AUDIENCE_FEATURES: readonly Feature[] = [
     where: drawerAt("#so-feature-witness-enabled", "Features › Who heard what"),
     settings: ["memory.witness"], doc: "player/memory.md", status: "shipped", needs: ["story", "group-chat", "memory-profile"],
     isOn: (settings) => settings.memory.witness !== false,
+  },
+  {
+    id: "rumors", name: "Rumors and gossip", area: "characters", audience: "author",
+    oneLine: "News a story declares travels between characters along the channels it authors, and may change on the way.",
+    what: "A story can declare rumors and who passes news to whom. After a delay a character hears another's version as hearsay: the character is told who said it and "
+      + "whether they believe it, never whether it is true. You meet a rumor only when a character repeats it. A rumor never carries a secret kept from someone, "
+      + "except to the one person a story's leak names. A swipe or edit takes a landed rumor back to pending.",
+    where: drawerAt("#so-rumors", "Memory › Rumors"),
+    settings: ["memory.rumors"], guideTopic: "rumors", doc: authorGuideDoc("rumors"), status: "shipped", needs: ["story", "group-chat"],
+    isOn: (settings) => settings.memory.rumors !== false,
   },
 ];

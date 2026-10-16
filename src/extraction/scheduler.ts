@@ -66,20 +66,12 @@ export interface SchedulerHost {
   cardScope?(): ScopeSourceContext;
   getOpenArcs(): string[];
   getOpenPromises?(): OpenPromiseRef[] | null;
-  getWitnessPresent?(): string[] | null;
-  noteReadOutage?(window: { from: number; to: number }): void;
+  witness?: { present(): string[] | null; outage(window: { from: number; to: number }): void };
   getEpistemicLedgerCapable?(): boolean;
   getEntities?(): string[];
   judgeTyped?(): TypedJudge | null;
-  applyExtractionAudit(
-    audit: SharedReadAudit,
-    facts: ParsedFact[],
-    memory: ParsedMemoryLine[],
-    arcs: ParsedArcSignal[],
-    epistemic?: ParsedEpistemicSignal[],
-    ledger?: ParsedLedgerSignal[],
-    read?: ReadOwnership | null,
-  ): Promise<void>;
+  applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memory: ParsedMemoryLine[], arcs: ParsedArcSignal[],
+    epistemic?: ParsedEpistemicSignal[], ledger?: ParsedLedgerSignal[], read?: ReadOwnership | null): Promise<void>;
   beginRead?(window: { from: number; to: number }): ReadOwnership;
   readsOpenChat?(): boolean;
   onSchedulerChange(): void;
@@ -379,12 +371,12 @@ export class ExtractionScheduler {
     void this.pumpHeavy();
   }
 
-  private noteFailure(error: unknown, job: SchedulerJob, startedEpoch: number, heavy: boolean, read: LapsedRead | null = null, readWindow: { from: number; to: number } | null = null) {
+  private noteFailure(error: unknown, job: SchedulerJob, startedEpoch: number, heavy: boolean, read: LapsedRead | null = null) {
     const profileId = failedProfile(error) ?? this.readProfile();
     const failure = failureClass(error);
     const message = errorText(error, heavy ? "Background generation failed" : "Extraction failed");
     if (failure !== "transport" || !profileId) this.rewindCursor(job, startedEpoch);
-    if (readWindow && !heavy && failure !== "lapsed" && this.sameWorld(startedEpoch)) this.host.noteReadOutage?.(readWindow);
+    if (read && !heavy && failure !== "lapsed" && this.sameWorld(startedEpoch)) this.host.witness?.outage(read.window);
     if (failure === "lapsed") {
       if (this.sameWorld(startedEpoch)) this.noteLapse(job, error);
       if (read) this.rereadIfMutated(read, startedEpoch);
@@ -492,15 +484,13 @@ export class ExtractionScheduler {
     this.running = job;
     this.host.onSchedulerChange();
     let read: LapsedRead | null = null;
-    let readWindow: { from: number; to: number } | null = null;
     try {
       if (job.run) {
         await this.runWithRetries(job.run);
       } else {
         const priority = job.priority === 0 ? 0 : 1;
         const window = sharedReadWindow({ state, priority, window: job.window && getChatWindow(job.window.from, job.window.to), stabilityLag: settings.stabilityLag, readWindow: getChatWindow });
-        readWindow = { from: window.from, to: window.to };
-        const ownership = this.host.beginRead?.(readWindow) ?? null;
+        const ownership = this.host.beginRead?.({ from: window.from, to: window.to }) ?? null;
         read = ownership ? { ownership, window: { from: window.from, to: window.to } } : null;
         const ask = { role: "read" as const, pass: "read" as const, ...(settings.budget ? { budget: settings.budget } : {}), ...(ownership?.signal ? { signal: ownership.signal } : {}) };
         const result = await this.runWithRetries(() => runSharedRead({
@@ -516,7 +506,7 @@ export class ExtractionScheduler {
           cardScope: this.host.cardScope?.(),
           openArcs: this.host.getOpenArcs(),
           openPromises: this.host.getOpenPromises?.() ?? null,
-          witnessPresent: this.host.getWitnessPresent?.() ?? null,
+          witnessPresent: this.host.witness?.present() ?? null,
           epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false,
           entities: this.host.getEntities?.() ?? [],
           judgeTyped: this.host.judgeTyped?.() ?? null,
@@ -529,7 +519,7 @@ export class ExtractionScheduler {
       if (this.sameWorld(startedEpoch)) this.lastError = null;
       this.configProblem = null;
     } catch (error) {
-      this.noteFailure(error, job, startedEpoch, false, read, readWindow);
+      this.noteFailure(error, job, startedEpoch, false, read);
     } finally {
       read?.ownership.release?.();
       this.inFlight = false;

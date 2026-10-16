@@ -184,6 +184,7 @@ export interface MemoryRuntimeSettings {
   harvestReasoning?: boolean;
   promises?: boolean;
   witness?: boolean;
+  rumors?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
 

@@ -35,6 +35,7 @@ export abstract class CoordinatorDelegates {
   get living() { return this.co.living; }
   get promises() { return this.co.promises; }
   get witness() { return this.co.witness; }
+  get rumors() { return this.co.rumors; }
   get carry() { return this.co.carry; }
   async livingStory(input: Omit<LivingStartInput, "members">): Promise<StoryV2> {
     const { buildLivingStory } = await import("@generation/living/start");

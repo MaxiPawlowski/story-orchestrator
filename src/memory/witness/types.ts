@@ -2,7 +2,6 @@ import type { SourceRevision } from "../audience";
 
 export const WITNESS_READ_CAP = 200;
 export const WITNESS_TOMBSTONE_CAP = 50;
-export const WITNESS_ANCHOR_WORDS: [number, number] = [4, 8];
 
 export type HeardList =
   | { kind: "members"; members: string[] }

@@ -175,6 +175,11 @@ export const SETTING_COPY = {
     "Each story read also names the characters who heard or saw each message, and says unknown when it cannot tell. Nothing uses the record until it is measured. "
       + "Adds a few lines to each story read. Not measured yet.",
   ),
+  "memory.rumors": copy(
+    "Let rumors travel between characters",
+    "In a story that declares rumors, news passes between characters along the channels it authors, after a delay, as hearsay the receiver may doubt. "
+      + "No model call. A secret travels only to the one person a story's leak names.",
+  ),
   "memory.innerFanOut": copy(
     "Inner beats for",
     "Prepare the beat for the likeliest speaker only, or for the two likeliest. Two costs one more call per turn.",

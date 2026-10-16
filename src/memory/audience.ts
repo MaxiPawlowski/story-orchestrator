@@ -28,9 +28,6 @@ export const isSourceSpan = (value: unknown): value is SourceSpan => {
     && Boolean(span.revision) && typeof span.revision?.hash === "string" && (span.revision.swipeId === null || Number.isSafeInteger(span.revision.swipeId));
 };
 
-export const AUDIENCE_RELATIONS = ["witnessed", "told", "believed", "player-visible", "authorized-disclosure"] as const;
-export type AudienceRelation = (typeof AUDIENCE_RELATIONS)[number];
-
 export type RelationValue = "yes" | "no" | "unknown";
 
 export const WITNESS_STATES = ["classified", "pending", "no-read", "outage", "invalidated", "unknown"] as const;

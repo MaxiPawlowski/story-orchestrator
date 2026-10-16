@@ -202,6 +202,7 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   harvestReasoning: true,
   promises: true,
   witness: true,
+  rumors: true,
 });
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
@@ -231,6 +232,7 @@ const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRunti
   if (typeof memory.harvestReasoning !== "boolean") memory.harvestReasoning = defaults.harvestReasoning;
   if (typeof memory.promises !== "boolean") memory.promises = defaults.promises;
   if (typeof memory.witness !== "boolean") memory.witness = defaults.witness;
+  if (typeof memory.rumors !== "boolean") memory.rumors = defaults.rumors;
   return memory;
 };
 

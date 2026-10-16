@@ -58,6 +58,7 @@ import { factionAuthorSlice } from "./factionSnapshot";
 import { carrySlice } from "./carryPort";
 import { livingSlice } from "./livingSnapshot";
 import { promisesSlice } from "./promiseSnapshot";
+import { rumorAuthorSlice } from "./rumorPort";
 import { graphEpoch } from "@generation/living/fold";
 import { buildPresence } from "./presence";
 import { readPlaysIndex } from "./playsIndexHost";
@@ -456,6 +457,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     memory: extras.memory, memoryShown: shownRows(extras.memory.entries, sources.resting ?? ((text: string) => text)),
     chapters,
     promises: promisesSlice(story, extras, blackboard),
+    rumorsAuthor: rumorAuthorSlice(story, extras),
     pacing: extras.pacing,
     copilot: extras.copilot,
     ui: extras.ui,

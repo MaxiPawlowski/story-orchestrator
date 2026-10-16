@@ -15,6 +15,7 @@ import { sanitizeChecks } from "./storyCheckDraws";
 import { sanitizeAgendaProposals } from "./agendaProposals";
 import { sanitizePromises } from "@memory/promises/state";
 import { sanitizeWitness } from "@memory/witness/state";
+import { sanitizeRumors } from "@memory/rumors/state";
 import { sanitizeLivingState } from "@generation/living/sanitize";
 import { JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
 import { trimLedger } from "./effectLedger";
@@ -454,6 +455,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   if (extras.agendaProposals) extras.agendaProposals = sanitizeAgendaProposals(extras.agendaProposals);
   if (extras.promises) extras.promises = sanitizePromises(extras.promises);
   if (extras.witness) extras.witness = sanitizeWitness(extras.witness);
+  if (extras.rumors) extras.rumors = sanitizeRumors(extras.rumors);
   const recap = sanitizeRecap(extras.recap);
   if (recap) extras.recap = recap; else delete extras.recap;
   const living = sanitizeLivingState(extras.living);

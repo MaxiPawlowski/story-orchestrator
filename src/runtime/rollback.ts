@@ -17,6 +17,7 @@ import { rollbackChecks } from "./storyCheckDraws";
 import { rollbackAgendaProposals } from "./agendaProposals";
 import { rollbackPromises } from "@memory/promises/state";
 import { rollbackWitness } from "@memory/witness/state";
+import { rollbackRumors } from "@memory/rumors/state";
 import { rollbackRecap } from "./recapPort";
 import { rollbackTensionHistory } from "./tensionState";
 import type { RuntimeExtras } from "./types";
@@ -111,6 +112,7 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     if (extras.agendaProposals) extras.agendaProposals = rollbackAgendaProposals(extras.agendaProposals, messageId);
     if (extras.promises) extras.promises = rollbackPromises(extras.promises, messageId);
     if (extras.witness) extras.witness = rollbackWitness(extras.witness, messageId);
+    if (extras.rumors) extras.rumors = rollbackRumors(extras.rumors, messageId);
     if (extras.recap) extras.recap = rollbackRecap(extras.recap, engine.serialize().boundary);
     extras.tension = { ...extras.tension, history: rollbackTensionHistory(extras.tension.history, messageId) };
     engine.clampToChat(deps.context().chatLength);

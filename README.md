@@ -93,6 +93,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Characters | Standing with groups | How the groups in a story regard you, shown as a word such as "Wary" or "Trusted". | Experimental |
 | Characters | Relationship labels | Words for how a character treats you, and secrets about them you can learn, on their People page. | Experimental |
 | Characters | Promises remembered | A promise you make to a character is remembered in your own words. |  |
+| Characters | Rumors and gossip | News a story declares travels between characters along the channels it authors, and may change on the way. |  |
 | World | Story lorebook switching | Story lorebook entries switch on and off as the story moves. |  |
 | World | Story lorebooks | A story's lorebooks load only in the chats that play it. |  |
 | World | Memory can trigger lore | Established facts and scene history can activate lorebook entries. |  |

@@ -36,8 +36,6 @@ const WITNESS = /^WITNESS\s+m\s*=\s*(\d+)\s+(?:heard\s*=\s*(.*?)|(mixed))\s*$/i;
 const SPAN = /^SPAN\s+m\s*=\s*(\d+)\s+from\s*=\s*["“](.+?)["”]\s+heard\s*=\s*(.*?)\s*$/i;
 const NOBODY = /^(?:none|nobody|no one|-)$/i;
 
-export const isWitnessLine = (line: string): boolean => /^(?:WITNESS|SPAN)\s/i.test(line);
-
 export const revisionOf = (message: WitnessWindowMessage): SourceRevision => ({ swipeId: message.swipeId ?? null, hash: fnv1a(message.text) });
 
 const parseHeard = (raw: string, ctx: WitnessResolveContext): { heard: HeardList; unknownMember?: string } => {
