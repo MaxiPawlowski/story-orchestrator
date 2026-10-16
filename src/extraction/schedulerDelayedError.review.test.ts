@@ -49,7 +49,7 @@ function harness() {
     onSchedulerChange: () => undefined,
     noteHealth: (summary, detail) => { health.push([summary, detail]); },
     witness: { present: () => null, outage: (window) => { outages.push(window); } },
-    beginRead: () => ({ stillOwns: () => true, release: () => undefined }),
+    beginRead: () => ({ stillOwns: () => true, lapsedDetail: () => null, release: () => undefined }),
     probeModel: async () => ({ ok: true }),
     profileExists: () => true,
     epoch: () => epoch,
