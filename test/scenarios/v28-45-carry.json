@@ -1,0 +1,166 @@
+{
+  "_note": "v2.8 plan 45 (no-model lane, plumbing): finish a source story with a final chapter (debugResponse seal), open a new chat on its sequel with a changed roster, pick the run, assert heritage and state keys, known_by lines only in the named members' applied blocks, the Previously block, player-clean, reopen and swipe keep the seed.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "Luke",
+      "Ponticius",
+      "DM Narrator"
+    ],
+    "judge": "off",
+    "authorView": true,
+    "briefingDraft": "off",
+    "innerBeat": "off"
+  },
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; delete globalThis.__c45; const s = globalThis.storyOrchestratorRuntime.getGlobalSettings(); if (s.image.enabled || s.sprites.enabled) throw new Error('media must be off'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugSceneSummaryResponse = 'The player climbed the tower with the lamplighters.'; const NL = String.fromCharCode(10); globalThis.storyOrchestratorDebugChapterSealResponse = ['SUMMARY:', 'The player relit the last lantern and the coast came back to light.', 'SHORT:', 'The coast was relit.'].join(NL); const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds messages'); return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "file": "v28-45-carry-source.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const values = () => rt.getEngineState().blackboard.values; const line = (name) => { const ctx = SillyTavern.getContext(); const chid = ctx.characters.findIndex((character) => character.name === name); rt.onMemberDrafted(chid); return String(rt.getAppliedEpistemicBlock() ?? ''); }; const saved = async () => { for (let i = 0; i < 100 && rt.getSnapshot().saveHealth?.pendingBoundary != null; i += 1) await pause(100); if (rt.getSnapshot().saveHealth?.pendingBoundary != null) throw new Error('the last boundary is not saved'); const ctx = SillyTavern.getContext(); for (let i = 0; i < 100 && ctx.isChatSaving; i += 1) await pause(100); await pause(2000); }; const previously = () => String(SillyTavern.getContext().extensionPrompts?.story_orchestrator_previously?.value ?? ''); const reopen = async (storyId) => { const chatId = SillyTavern.getContext().chatId; await SillyTavern.getContext().reloadCurrentChat(); await until(() => rt.getSnapshot().storyId === storyId, 10000, 'the story to hydrate after the reopen'); if (SillyTavern.getContext().chatId !== chatId) throw new Error('the reopen moved the page'); rt.setUiSettings({ authorView: true }); await pause(1500); }; globalThis.__c45 = Object.assign(globalThis.__c45 ?? {}, { pause, until, values, line, saved, previously, reopen }); return { at: rt.getSnapshot().activeCheckpointId };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The harbour lanterns gutter in the wind."
+    },
+    {
+      "slash": "/cp set met_guild true"
+    },
+    {
+      "slash": "/cp set lantern_relit true"
+    },
+    {
+      "slash": "/cp set ledger_seen true"
+    },
+    {
+      "slash": "/cp set ledger_found true"
+    },
+    {
+      "slash": "/cp set coast_fate lit"
+    },
+    {
+      "slash": "/cp set harbour_mood grateful"
+    },
+    {
+      "slash": "/cp set coins 7"
+    },
+    {
+      "slash": "/cp set secret_pact sworn"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The lamplighters lead the way up the tower."
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__c45; const rt = globalThis.storyOrchestratorRuntime; await c.until(() => rt.getSnapshot().activeCheckpointId === 'tower', 15000, 'the tower transition'); const v = c.values(); return { at: 'tower', coast: v.coast_fate, coins: v.coins, rep: v.rep_guild, ledger: v.quest_ledger_closed, pact: v.secret_pact, mood: v.harbour_mood };"
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__c45; const rt = globalThis.storyOrchestratorRuntime; const record = await rt.chapters.sealNow(); if (!record || record.final !== true) throw new Error('the final chapter did not seal: ' + JSON.stringify(record)?.slice(0, 300)); await c.saved(); c.sourceChat = SillyTavern.getContext().chatId; c.group = SillyTavern.getContext().groupId; return { final: true, title: record.playerTitle, status: record.status, ended: rt.getSnapshot().ended ?? null };"
+    },
+    {
+      "slash": "/newchat",
+      "adoptsNewChat": true
+    },
+    {
+      "eval": "const c = globalThis.__c45; const ctx = SillyTavern.getContext(); if (ctx.chatId === c.sourceChat || ctx.groupId !== c.group) throw new Error('the new chat did not stay in the pinned group'); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); return { newChat: true };"
+    },
+    {
+      "import_story": {
+        "file": "v28-45-carry-sequel.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const values = () => rt.getEngineState().blackboard.values; const line = (name) => { const ctx = SillyTavern.getContext(); const chid = ctx.characters.findIndex((character) => character.name === name); rt.onMemberDrafted(chid); return String(rt.getAppliedEpistemicBlock() ?? ''); }; const saved = async () => { for (let i = 0; i < 100 && rt.getSnapshot().saveHealth?.pendingBoundary != null; i += 1) await pause(100); if (rt.getSnapshot().saveHealth?.pendingBoundary != null) throw new Error('the last boundary is not saved'); const ctx = SillyTavern.getContext(); for (let i = 0; i < 100 && ctx.isChatSaving; i += 1) await pause(100); await pause(2000); }; const previously = () => String(SillyTavern.getContext().extensionPrompts?.story_orchestrator_previously?.value ?? ''); const reopen = async (storyId) => { const chatId = SillyTavern.getContext().chatId; await SillyTavern.getContext().reloadCurrentChat(); await until(() => rt.getSnapshot().storyId === storyId, 10000, 'the story to hydrate after the reopen'); if (SillyTavern.getContext().chatId !== chatId) throw new Error('the reopen moved the page'); rt.setUiSettings({ authorView: true }); await pause(1500); }; globalThis.__c45 = Object.assign(globalThis.__c45 ?? {}, { pause, until, values, line, saved, previously, reopen }); return { at: rt.getSnapshot().activeCheckpointId };"
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__c45; const rt = globalThis.storyOrchestratorRuntime; const rows = await rt.carry.candidates(); const row = rows.find((r) => r.chatId === c.sourceChat); if (!row) throw new Error('the finished run is not offered: ' + JSON.stringify(rows)); const picked = await rt.carry.pick(c.sourceChat); if (!picked.ok) throw new Error('pick refused: ' + picked.reason); await c.pause(1500); const v = c.values(); return { row, values: { heritage_coast: v.heritage_coast, heritage_ledger: v.heritage_ledger, heritage_coins: v.heritage_coins, guild_trust: v.guild_trust, harbour_feeling: v.harbour_feeling, pact_state: v.pact_state }, boundary: rt.getEngineState().boundary };"
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__c45; const v = c.values(); const want = { heritage_coast: 'lit', heritage_ledger: 'done', heritage_coins: 7, guild_trust: 3, harbour_feeling: 'grateful' }; for (const [k, x] of Object.entries(want)) if (v[k] !== x) throw new Error(k + ' = ' + JSON.stringify(v[k]) + ', expected ' + JSON.stringify(x)); if (v.pact_state !== undefined) throw new Error('a value whose ending was never shown carried: pact_state = ' + v.pact_state); const coast = 'You relit the Lantern Coast.'; const mood = 'The harbour is grateful to you.'; const coins = 'Coins: 7'; const arin = c.line('Arin'); const pon = c.line('Ponticius'); const nar = c.line('DM Narrator'); if (![coast, mood, coins].every((t) => arin.includes(t))) throw new Error('Arin (known_by coast, mood, all) misses a line: ' + arin); if (pon.includes(coast) || !pon.includes(mood) || !pon.includes(coins)) throw new Error('Ponticius (known_by mood, all) lines wrong: ' + pon); if (nar.includes(coast) || nar.includes(mood) || !nar.includes(coins)) throw new Error('the narrator (known_by all only) lines wrong: ' + nar); if (/sworn|drowned pact/i.test(arin + pon + nar)) throw new Error('an unshown value reached a private block'); return { lines: true };"
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; rt.clearPrivateInjection(); const KEY = 'story_orchestrator_previously'; const HEAD = 'Previously, in an earlier story this player finished'; if (String(ctx.extensionPrompts?.[KEY]?.value ?? '').includes(HEAD)) throw new Error('the Previously block was set outside a generation'); let prompt = null; const text = (data) => { if (data?.dryRun && typeof data.prompt === 'string') prompt = data.prompt; }; const chat = (data) => { if (data?.dryRun && Array.isArray(data.chat)) prompt = data.chat.map((m) => typeof m?.content === 'string' ? m.content : JSON.stringify(m?.content ?? null)).join(String.fromCharCode(10)); }; await ctx.eventSource.emit(ctx.eventTypes.GENERATION_STARTED, 'normal', {}, false); let held; try { held = String(ctx.extensionPrompts?.[KEY]?.value ?? ''); ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_COMBINE_PROMPTS, text); ctx.eventSource.on(ctx.eventTypes.CHAT_COMPLETION_PROMPT_READY, chat); try { await ctx.generate('normal', {}, true); } finally { ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_COMBINE_PROMPTS, text); ctx.eventSource.removeListener(ctx.eventTypes.CHAT_COMPLETION_PROMPT_READY, chat); } } finally { await ctx.eventSource.emit(ctx.eventTypes.GENERATION_ENDED, ctx.chat.length); } if (!held.includes(HEAD)) throw new Error('an opened loud generation did not set the Previously block; snapshot block: ' + JSON.stringify(rt.getSnapshot().carry?.block ?? null)); if (typeof prompt !== 'string') throw new Error('the assembled prompt was not captured (main API ' + ctx.mainApi + ')'); const at = prompt.indexOf(HEAD); if (at < 0) throw new Error('the assembled prompt holds no Previously block'); const block = prompt.slice(at, at + 1200); if (/sworn|drowned pact/i.test(block)) throw new Error('an unshown value reached the Previously block'); await globalThis.__c45.pause(300); if (String(ctx.extensionPrompts?.[KEY]?.value ?? '').includes(HEAD)) throw new Error('the Previously block outlived its generation'); return { previously: block.slice(0, 400), mainApi: ctx.mainApi };"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await globalThis.__c45.pause(800); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); await globalThis.__c45.pause(800); const game = JSON.stringify(rt.getSnapshot().game ?? {}) + JSON.stringify(rt.getSnapshot().narrative ?? {}); if (/heritage_|sworn|drowned pact/.test(game)) throw new Error('a carry key or an unshown value reached the player view'); return { authorView: true };"
+    },
+    {
+      "record_state": {
+        "as": "c45-seeded"
+      }
+    },
+    {
+      "eval": "const c = globalThis.__c45; await c.saved(); await c.reopen('so-v28-45-sequel'); if (c.values().heritage_coast !== 'lit' || c.values().heritage_coins !== 7) throw new Error('the reopen lost the carried seed'); if (!globalThis.storyOrchestratorRuntime.getSnapshot().carry?.block) throw new Error('the reopen lost the Previously block'); return { reopened: true };"
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "c45-seeded",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary"
+          ]
+        }
+      }
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" Gulls circle the new pier."
+    },
+    {
+      "eval": "const c = globalThis.__c45; const rt = globalThis.storyOrchestratorRuntime; await c.until(() => rt.getEngineState().boundary >= 1, 10000, 'the first boundary'); const ctx = SillyTavern.getContext(); const last = ctx.chat.length - 1; const reply = ctx.chat[last]; if (reply.is_user) throw new Error('the last message is not a reply'); reply.swipes = [reply.mes, 'Rain falls on the new pier.']; reply.swipe_id = 0; reply.swipe_info = [{}, {}]; await ctx.saveChat(); c.boundaryBefore = rt.getEngineState().boundary; return { swipeable: last, boundary: c.boundaryBefore };"
+    },
+    {
+      "swipe": {
+        "messageId": "last",
+        "swipeId": 1
+      }
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__c45; const rt = globalThis.storyOrchestratorRuntime; await c.pause(2500); const v = c.values(); if (v.heritage_coast !== 'lit' || v.heritage_ledger !== 'done' || v.heritage_coins !== 7 || v.guild_trust !== 3 || v.harbour_feeling !== 'grateful') throw new Error('the swipe changed the carried seed: ' + JSON.stringify(v)); if (!c.line('Arin').includes('You relit the Lantern Coast.')) throw new Error('the swipe lost the known_by line'); await c.saved(); return { boundary: rt.getEngineState().boundary, before: c.boundaryBefore };"
+    },
+    {
+      "record_state": {
+        "as": "c45-swiped"
+      }
+    },
+    {
+      "eval": "const c = globalThis.__c45; await c.reopen('so-v28-45-sequel'); if (c.values().heritage_coast !== 'lit') throw new Error('the second reopen lost the seed'); return { reopened: true };"
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "c45-swiped",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary"
+          ]
+        }
+      }
+    }
+  ]
+}

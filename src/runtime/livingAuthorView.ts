@@ -1,6 +1,7 @@
 import { isLivingId, LIVING_OPENING_ID, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { findFrontier, livingAutonomy, livingChapters, livingHorizon } from "@generation/living/frontier";
-import type { LivingAuthorView, LivingProposalRow, LivingSliceInput } from "./livingSnapshot";
+import { sceneTestFor, type SceneTestRecord } from "@generation/living/sceneTest";
+import type { LivingAuthorView, LivingProposalRow, LivingSceneRow, LivingSliceInput } from "./livingSnapshot";
 
 const LIVING_PROPOSALS_SHOWN = 8;
 
@@ -11,6 +12,10 @@ export function livingAuthorView(input: LivingSliceInput): LivingAuthorView {
   const nameOf = (id: string | null | undefined) => (id ? story.checkpointById[id]?.name ?? id : "");
   const generated = story.checkpoints.filter((checkpoint) => checkpoint.type === "anchor" && isLivingId(checkpoint.id) && checkpoint.id !== LIVING_OPENING_ID);
   const reached = new Set([...state.visitedPath, state.activeCheckpointId]);
+  const sceneRow = (record: SceneTestRecord | null, draft?: { changed?: string[]; advances?: string } | null): LivingSceneRow | null => (record ? {
+    frontierId: record.frontierId, fromName: nameOf(record.frontierId), plannedAt: record.plannedAt, chaos: record.chaos, odds: record.p, drawn: record.drawn, applied: record.applied,
+    ...(record.focus ? { focus: record.focus } : {}), ...(draft?.changed?.length ? { changed: draft.changed.join(", ") } : {}), ...(draft?.advances ? { advances: draft.advances } : {}),
+  } : null);
   const proposals = (living?.proposals ?? []).slice(-LIVING_PROPOSALS_SHOWN).reverse().map((proposal): LivingProposalRow => ({
     id: proposal.id, status: proposal.status, name: proposal.draft?.anchor.name ?? "", objective: proposal.draft?.anchor.objective ?? "",
     reason: proposal.reason, issues: proposal.issues, frontierId: proposal.frontierId, anchorId: proposal.anchorId, buildsOn: proposal.draft?.buildsOn ?? null,
@@ -18,6 +23,7 @@ export function livingAuthorView(input: LivingSliceInput): LivingAuthorView {
     branch: proposal.kind === "branch"
       ? { why: proposal.why ?? "", prepared: proposal.prepared === true, convergeTo: proposal.convergeTo ?? null, fromName: nameOf(proposal.frontierId), toName: nameOf(proposal.convergeTo) }
       : null,
+    scene: proposal.kind === "branch" ? null : sceneRow(sceneTestFor(living?.sceneTests, proposal.frontierId), proposal.draft),
   }));
   return {
     living: Boolean(story.living),
@@ -33,5 +39,7 @@ export function livingAuthorView(input: LivingSliceInput): LivingAuthorView {
     folded: living?.folded.length ?? 0,
     passes: living?.passes ?? 0,
     proposals,
+    sceneTest: Boolean(story.living?.scene_test),
+    sceneTests: (living?.sceneTests ?? []).slice(-LIVING_PROPOSALS_SHOWN).reverse().flatMap((record) => sceneRow(record) ?? []),
   };
 }

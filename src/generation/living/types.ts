@@ -1,4 +1,5 @@
 import type { Chapter, Checkpoint, GateNode, LivingAutonomy, PrimitiveValue, Quality, TensionLevel, Transition } from "@engine/index";
+import type { SceneTestRecord } from "./sceneTest";
 
 export const LIVING_MAX_NEW_QUALITIES = 2;
 export const LIVING_CHAPTER_CAP_WITHOUT_SEALS = 3;
@@ -71,6 +72,8 @@ export interface DirectorDraft {
   chapterTitle?: string;
   reason: string;
   repaired?: string[];
+  changed?: string[];
+  advances?: string;
 }
 
 export type RefusalStage = "parse" | "ops" | "guard" | "critic" | "capped";
@@ -119,6 +122,7 @@ export interface LivingRuntimeState {
   passes: number;
   lastPass: { boundary: number; frontierId: string; at: string } | null;
   divergence?: DivergenceState;
+  sceneTests?: SceneTestRecord[];
 }
 
 export const createLivingState = (): LivingRuntimeState => ({ authored: null, folded: [], ops: [], proposals: [], epochBumps: 0, passes: 0, lastPass: null });

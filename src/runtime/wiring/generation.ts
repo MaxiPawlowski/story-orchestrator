@@ -16,7 +16,7 @@ import {
   type HostSubscriptionEntry,
 } from "@services/STAPI";
 import { runtimeManager } from "../runtimeManager";
-import { withholds, type GenerationIntent, type GenerationLifecycle } from "../generationLifecycle";
+import { WITHHOLD_CAP_MS, withholds, type GenerationIntent, type GenerationLifecycle } from "../generationLifecycle";
 import { generationWatch } from "../generationWatch";
 import { promptCost } from "../promptCost";
 import { attachPromptBuckets } from "../promptBucketsHost";
@@ -41,6 +41,7 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
   opened: (intent: IntentOf<"opened">) => {
     lore.loreWatch.opened(intent.type);
     runtimeManager.onGenerationStarted(intent.type);
+    runtimeManager.setGenerationOpen(!withholds(intent.type));
     awayNotice.opened(intent.type);
     previously.opened(intent.type);
     runtimeManager.capturePayload("generation", intent.type);
@@ -59,6 +60,7 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
     if (intent.chid !== null) runtimeManager.onMemberDrafted(intent.chid);
   },
   closed: (intent: IntentOf<"closed">) => {
+    runtimeManager.setGenerationOpen(false);
     awayNotice.closed();
     previously.closed();
     if (intent.reason !== "chat-changed") {
@@ -106,10 +108,15 @@ export const attachGenerationObservers = (live: LiveParts, disposers: Disposers,
 
 export const subscribeGenerationEvents = (live: LiveParts, generation: GenerationLifecycle, lore: LoreWiring, chatLastId: () => number, startupLoad: () => void) => {
   const handlers = intentHandlers(live, lore);
+  let capTimer: ReturnType<typeof setTimeout> | null = null;
   const apply = (intents: GenerationIntent[]) => intents.forEach((intent) => {
     spikeSeams.generation?.(intent);
     dispatch(handlers, intent);
+    if (intent.kind !== "opened" || !withholds(intent.type)) return;
+    if (capTimer !== null) clearTimeout(capTimer);
+    capTimer = setTimeout(() => { capTimer = null; apply(generation.expire()); }, WITHHOLD_CAP_MS);
   });
+  live.interceptEntry = (type) => apply(generation.intercepted(type));
   const onStarted = async (...args: unknown[]) => {
     lore.loreWatch.reassert();
     lore.scanGating.reassert();
@@ -146,5 +153,11 @@ export const subscribeGenerationEvents = (live: LiveParts, generation: Generatio
     },
     { eventName: EXTENSION_SETTINGS_LOADED_EVENT, handler: () => { noteHostSettingsLoaded(); startupLoad(); } },
   ];
-  return subscribeToHostEvents(entries);
+  const off = subscribeToHostEvents(entries);
+  return () => {
+    off();
+    if (capTimer !== null) clearTimeout(capTimer);
+    capTimer = null;
+    live.interceptEntry = undefined;
+  };
 };

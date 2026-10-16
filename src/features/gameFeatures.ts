@@ -48,6 +48,22 @@ export const GAME_FEATURES: readonly Feature[] = [
     settings: [], guideTopic: "codex", doc: authorGuideDoc("codex"), status: "shipped", needs: ["story"],
   },
   {
+    id: "scene-card", name: "Here now", area: "play", audience: "player",
+    oneLine: "A small card a story can place: where you are, when, and who you have met is with you.",
+    what: "The card shows the place, the time when the story shows it, and the cast members with you whom you have already met, each with a link to their page. "
+      + "Someone you have not met is not on it at all. It shows only in stories that place it.",
+    where: drawerAt("#so-open-widgets", "Story panels"),
+    settings: [], guideTopic: "widget-scene", doc: authorGuideDoc("widget-scene"), status: "shipped", needs: ["story"],
+  },
+  {
+    id: "public-sheet-narration", name: "The narrator sees your sheet", area: "play", audience: "author",
+    oneLine: "What your stat sheet shows also reaches the narrator, so it does not deny an item you carry.",
+    what: "Only narrator-type characters hear it, on their own turns, in the same words the sheet shows, with a short list of what just happened. "
+      + "Other characters never get it. A story can keep any line out.",
+    where: { selector: "#so-studio-modal", label: "Studio › Game", surface: "studio" },
+    settings: [], guideTopic: "display-narrate", doc: authorGuideDoc("display-narrate"), status: "shipped", needs: ["story"],
+  },
+  {
     id: "quests", name: "Quests, checks and panels", area: "authoring", audience: "author",
     oneLine: "Side quests, visible stats, dice checks and milestones a story declares.",
     what: "A quest's status comes from the story's own state, never from a stored list, so a swipe or a reopened chat shows the same quests. "

@@ -410,8 +410,12 @@ real-model carrier, or why none is needed.
 | story-calendar | D + CL | clock jest, clockScope jest, v28-50-story-time (no-model) | T8: live suite time windows `timewindow01..04` (`so-live-suite.mts run --set time`, CL, read model); T9/T10 wait for B2 (not built); T11 read in GS3.3 |
 | relationship-labels | D | labels jest, labelRollback property test, relationshipLabels review test, v28-51-labels (no-model) | R7/R9 informational ×1 (RP lab story), deferred: no lab story |
 | factions | D + RP | factions jest, v28-53-factions (no-model ×2) | F7 informational (RP lab story), deferred: no lab story yet; F9 CL informational |
-| new-game-plus | D | carry jest (N1–N6, N8–N13), carry fixtures carry-source/carry-sequel (no-model live owed) | N7 informational (CL rater + local replies), deferred: needs two finished source runs; one real final seal on the 3090 |
+| scene-test | D + CL | sceneTest jest, livingSceneTest review test, focus jest, v28-48-scene-test (no-model) | S7–S9, S11 CL offline ×2 (director route), deferred: no frozen frontier set yet; S10 read in GS2 and GS3 |
+| new-game-plus | D | carry jest (N1–N6, N8–N13), carry fixtures carry-source/carry-sequel, v28-45-carry (no-model plumbing green x2 2026-10-16; real generation owed) | N7 informational (CL rater + local replies), deferred: needs two finished source runs; one real final seal on the 3090 |
 | story-made-panels | D | html widget tests, Storybook | none: no model |
+| scene-card | D | sceneCard jest, WidgetCard Storybook, v28-65-scene-card (no-model) | none: no model (65 N1–N8; N3/N4 with A+ only) |
+| public-sheet-narration | D + CL | narratorSheet jest, v28-18-q7-sheet (no-model) | deferred: S8 header clause (CL rater, cloud model) owed; S7 informational (RP, Artemis) past the 12 h cap |
+| your-move-chip | D | yourMove jest, talkControl jest, HudStrip Storybook, v28-68-your-move (no-model) | none: no model (68 Y1–Y6) |
 | quests | RP | 36-Q5-scn, S-16 | GS1.3, GS3.1 |
 | character-life | RP + CL | 37-D1..D3 | GS1.5, GS3.3, GS2.7 |
 | meanwhile-proposals | CL | agenda proposal tests | GS2.7; M16 carried |

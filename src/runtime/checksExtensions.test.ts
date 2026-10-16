@@ -22,6 +22,7 @@ const CASES = [
   { id: "presence-hides-chat", conflict: "presence", severity: "degrades" },
   { id: "prompt-inspector-on", conflict: "prompt-inspector", severity: "degrades" },
   { id: "vectors-world-info", conflict: "vectors-world-info", severity: "info" },
+  { id: "cc-filler-after-reply", conflict: "cc-send-if-empty", severity: "info" },
 ] as const;
 
 const story = (exclusive: boolean, lorebooks = ["Ruins"]) => ({ lore_select: { lorebooks, exclusive } }) as unknown as NormalizedStoryV2;
@@ -50,6 +51,8 @@ describe("extension conflict checks", () => {
     for (const { id, conflict } of CASES) {
       const player = runCheck(check(id), quiet({ extensionConflicts: [conflict] }))?.player;
       if (id === "vectors-world-info") expect(player).toBeNull();
+      else if (id === "cc-filler-after-reply") expect(player).toBe("SillyTavern adds a filler line after a character's reply, in the prompt only: you will not see it in the chat.");
+      if (id === "cc-filler-after-reply") expect(jargonIn(player ?? "")).toEqual([]);
       else expect(jargonIn(player ?? "")).toEqual([]);
     }
   });
@@ -70,6 +73,13 @@ describe("extensionConflicts: the snapshot slice", () => {
     expect(extensionConflictsFor(story(false), found)).toEqual(["presence"]);
     expect(extensionConflictsFor(story(true, []), found)).toEqual(["presence"]);
     expect(extensionConflictsFor(null, found)).toEqual([]);
+  });
+
+  it("v2.8 69 K10: keeps the Chat Completion filler row only for a story with NPC replies", () => {
+    const withReplies = { checkpoints: [{ id: "a", effects: { npc_replies: [{ trigger: "onEnter", member: "Arin", kind: "llm" }] } }] } as unknown as NormalizedStoryV2;
+    const without = { checkpoints: [{ id: "a", effects: { npc_replies: [] } }, { id: "b" }] } as unknown as NormalizedStoryV2;
+    expect(extensionConflictsFor(withReplies, ["cc-send-if-empty"])).toEqual(["cc-send-if-empty"]);
+    expect(extensionConflictsFor(without, ["cc-send-if-empty", "presence"])).toEqual(["presence"]);
   });
 
   it("reads through the registered reader, and none once it is released", () => {

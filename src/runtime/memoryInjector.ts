@@ -15,6 +15,7 @@ import { buildScoreContext } from "./scoreContext";
 import { activeSpeakerId, enabledCharacterIds, nameForRosterId, namesForRosterId, rosterIdForName, rosterMemberName } from "./roster";
 import type { MemoryRuntimeState } from "./types";
 import type { InjectorHosts } from "./hostPorts";
+import { hasNarratedSheet } from "./narratorSheetPort";
 
 const storyKey = (story: NormalizedStoryV2): string => story.id ?? story.title;
 
@@ -182,7 +183,7 @@ export class MemoryInjector {
     const capable = this.deps.capable();
     const voiced = hasInnerVoice(this.voices(story));
     if (voiced && !innerRender()) void loadInnerRender().then(() => this.update());
-    if (capable || voiced || story.life || story.factions?.length || story.carry_from) {
+    if (capable || voiced || story.life || story.factions?.length || story.carry_from || hasNarratedSheet(story)) {
       const knowledge = this.knowledge();
       for (const id of this.stagedIds(story)) {
         const names = namesForRosterId(story, id);

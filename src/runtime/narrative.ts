@@ -212,6 +212,11 @@ export function renderNarrativeNode(status: NarrativeStatus, doc: Document, head
 
 export const PLAYER_COPY = {
   currentScene: "Current scene",
+  yourMove: "Your move.",
+  yourMoveTitle: "The characters have handed the turn to you.",
+  sceneWithYou: "With you",
+  sceneWhere: "Where",
+  sceneWhen: "When",
   openDrawer: "Open the story",
   requirementsHeading: "This story still needs",
   rereadButton: "Re-read from the current scene",
@@ -261,6 +266,8 @@ export const recapSectionLabel = (personal: boolean, recent: boolean): string =>
   if (personal) return recent ? "Because of you, recently" : "Because of you";
   return recent ? "What changed recently" : "What changed";
 };
+
+export const yourMoveAuthorTitle = (source: string): string => `${PLAYER_COPY.yourMoveTitle} Decided by: ${source}.`;
 
 export const chapterFlagLabel = (title: string): string => `Flag the summary of ${title}`;
 

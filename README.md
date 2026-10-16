@@ -55,6 +55,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Playing | Carry a finished story | A sequel, or a replay of the same story, can start from how a run you finished ended. | Experimental |
 | Playing | Story drawer | Where you are, what happened, and what you are remembered for. |  |
 | Playing | Status strip | One line above the chat input: where the story is and how tense it is. |  |
+| Playing | Your move | A chip in the status strip when the characters hand the turn back to you. |  |
 | Playing | Notes under messages | Small icons under replies: where the story moved, what it remembered, which lore it used. |  |
 | Playing | Chat note when the story moves on | Optionally post a short chat note at each new turning point. | Off by default |
 | Playing | Recap and welcome back | Coming back after a break shows where you left off; /story recap asks any time. |  |
@@ -74,6 +75,8 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Playing | Story panels | Extra panels a story adds, such as a clock that fills, a board of quests, a wall of clues or a map. |  |
 | Playing | Story-made panels | A panel page a story brings, run shut off from SillyTavern. |  |
 | Playing | People and Places | Journal pages that fill in with the people and places you have learned about. |  |
+| Playing | Here now | A small card a story can place: where you are, when, and who you have met is with you. |  |
+| Playing | The narrator sees your sheet | What your stat sheet shows also reaches the narrator, so it does not deny an item you carry. |  |
 | Playing | Save this run as a story | Keep a living story's run as a story you can play again or edit. | Experimental |
 | Playing | What changed | Up to five lines on what changed this chapter: on the chapter card, in the Overview and in /story recap. | Experimental |
 | Memory | Story memory | Remembers what happened so characters stay consistent. |  |
@@ -103,6 +106,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | World | Off-stage events | Proposes what a character did off stage toward their plan, for you to accept. | Experimental |
 | World | Living stories | A story that writes its next turning point ahead of you, from what you actually pursued. | Experimental |
 | World | Branches that follow you | When you leave the prepared ways forward, the story writes a branch that follows you and later comes back. | Experimental |
+| World | Scene test | Before the living director writes a turning point, a seeded draw may tell it the scene arrives changed or that the world acts first. | Experimental |
 | Images | Live close-shot head | A rigged close shot breathes, blinks and talks as a reply streams. | Experimental |
 | Images | Prepared cast presentation | Review and accept each character's base and bust before sprites, poses and live heads use them. | Experimental |
 | Images | Reference views | Draw an accepted character three-quarter left and right, in profile and from behind, then accept or cancel all six views. | Experimental |

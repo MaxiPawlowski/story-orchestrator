@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { LivingAuthorView, LivingProposalRow } from "@runtime/livingSnapshot";
+import type { LivingAuthorView, LivingProposalRow, LivingSceneRow } from "@runtime/livingSnapshot";
 import { savedLine, type LivingSaveResult } from "./LivingSave";
 
 export interface LivingActions {
@@ -18,6 +18,10 @@ const STATUS_COPY: Record<LivingProposalRow["status"], string> = {
   failed: "nothing usable",
 };
 
+const sceneLine = (scene: LivingSceneRow): string => `Scene test: ${scene.applied}${scene.applied === scene.drawn ? "" : ` (drawn ${scene.drawn}, spaced)`}`
+  + ` · chaos ${scene.chaos} of 4 · odds ${scene.odds.toFixed(2)}${scene.focus ? ` · focus: ${scene.focus}` : ""}`
+  + `${scene.changed ? ` · changed: ${scene.changed}` : ""}${scene.advances ? ` · advances: ${scene.advances}` : ""}`;
+
 const ProposalCard = ({ row, actions }: { row: LivingProposalRow; actions?: LivingActions }) => {
   const [editing, setEditing] = useState(false);
   const [name, setName] = useState(row.name);
@@ -35,6 +39,7 @@ const ProposalCard = ({ row, actions }: { row: LivingProposalRow; actions?: Livi
           {row.branch.toName ? <span className="opacity-70"> · rejoins at {row.branch.toName}</span> : null}
         </div>
       )}
+      {row.scene && <div data-so="living-scene" data-applied={row.scene.applied} className="opacity-70">{sceneLine(row.scene)}</div>}
       {row.objective && !editing && <div className="opacity-80">{row.objective}</div>}
       {row.reason && row.status !== "failed" && <div className="opacity-70">Why: {row.reason}</div>}
       {row.issues.length > 0 && <div data-so="living-issues" className="so-warning-text">{row.issues.join("; ")}</div>}
@@ -101,6 +106,18 @@ export const LivingPanel = ({ view, canSave, actions }: { view: LivingAuthorView
         <div className="flex flex-wrap items-center gap-1 mt-1">
           <button id="so-living-run" type="button" className="menu_button" disabled={!view.enabled || !view.frontierId} onClick={() => void actions.runNow()}>Write the next turning point now</button>
         </div>
+      )}
+      {view.sceneTest && (
+        <details id="so-living-scene-tests" className="mt-1">
+          <summary>Scene tests ({view.sceneTests?.length ?? 0})</summary>
+          {(view.sceneTests ?? []).length === 0
+            ? <div className="opacity-70">No scene test drawn yet.</div>
+            : (view.sceneTests ?? []).map((scene) => (
+              <div key={`${scene.frontierId}:${scene.plannedAt}`} data-so="living-scene-test" data-applied={scene.applied} className="opacity-80">
+                After {scene.fromName} (turn {scene.plannedAt}): {sceneLine(scene)}
+              </div>
+            ))}
+        </details>
       )}
       {view.proposals.length === 0
         ? <div className="opacity-70 mt-1">Nothing written yet.</div>

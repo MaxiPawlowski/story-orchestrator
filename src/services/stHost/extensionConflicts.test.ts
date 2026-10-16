@@ -48,6 +48,16 @@ describe("stHost extensionConflicts: which known extensions work against a story
     expect(extensionConflictsWith({ settings: null })).toEqual([]);
   });
 
+  it("v2.8 69 K10: Chat Completion with send_if_empty set is reported; Text Completion, an empty or blank filler is not", () => {
+    const quietSettings = { Presence: { enabled: false } };
+    const cc = (filler: unknown, mainApi = "openai") => ({ ...host(quietSettings), mainApi, chatCompletion: { send_if_empty: filler } });
+    expect(extensionConflictsWith(cc("[Continue.]"))).toEqual(["cc-send-if-empty"]);
+    expect(extensionConflictsWith(cc("[Continue.]", "textgenerationwebui"))).toEqual([]);
+    expect(extensionConflictsWith(cc(""))).toEqual([]);
+    expect(extensionConflictsWith(cc("   "))).toEqual([]);
+    expect(extensionConflictsWith(cc(undefined))).toEqual([]);
+  });
+
   it("Vector Storage World Info is read from its setting alone, the way exclusive lore select reads it", () => {
     expect(vectorsWorldInfoOn({ vectors: { enabled_world_info: true } })).toBe(true);
     expect(vectorsWorldInfoOn({ vectors: { enabled_world_info: false } })).toBe(false);

@@ -24,6 +24,17 @@ export const LIVING_FEATURES: readonly Feature[] = [
     isOn: (settings) => settings.stagecraft.branchingEnabled !== false,
   },
   {
+    id: "scene-test", name: "Scene test", area: "world", audience: "author",
+    oneLine: "Before the living director writes a turning point, a seeded draw may tell it the scene arrives changed or that the world acts first.",
+    what: "A living story that declares living.scene_test draws once for each turning point the director plans: expected, altered (one detail of place, cast, timing "
+      + "or an obstacle changes) or interrupt (a world event advances an open thread first). The odds rise with the story's smoothed tension. The draw is keyed by "
+      + "the chat, the story and the turning point, frozen when first planned, never re-rolled by Write it again, and taken back only by a swipe past it. "
+      + "It changes what the world does, never what the player does, and only the author sees it.",
+    where: { selector: "#so-living-scene-tests", label: "Story drawer › Author view › Living story", surface: "drawer" },
+    settings: [], guideTopic: "scene-test", doc: authorGuideDoc("scene-test"), status: "experimental",
+    needs: ["story", "group-chat", "memory-profile"],
+  },
+  {
     id: "save-run-as-story", name: "Save this run as a story", area: "play", audience: "player",
     oneLine: "Keep a living story's run as a story you can play again or edit.",
     what: "The drawer's Overview offers to save what you played as a new story in your library. Only the turning points you reached are kept; what the story had written "

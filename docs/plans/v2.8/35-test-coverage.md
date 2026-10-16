@@ -271,3 +271,13 @@ Source: `review-astra-harvest-2026-10-16.md` §2 (67), §1 (V33, V47, V1/V60, Co
 - Not built from this phase: G3–G10 (fixtures, compare, untouched proof, shipped blocks, fingerprints, compatibility rows).
 - Gates: `npm run gates:quick` green; `npm run test:debug` 1318/1318 before commit.
 - Full gates with the plan 69 items on the same branch: all green (plan 69 §Gate record 2026-10-16), Storybook 147/882.
+
+### Gate record addendum 2026-10-16, owner decision on the two hand-golden needles (branch `v2.8-harvest-followup`, unmerged)
+
+- `bandit` declared `prefix` in `test/fixtures/extractor-intents02.expected.json` (`modes`, Doran's claim; commit `619ffb6c`):
+  that fixture is not hash-frozen. The hand-golden inventory now reads it as declared.
+- `poison` left as a term in `extractor24.expected.json`: extractor23–29's expected files are hash-frozen by
+  `scripts/debug/liveSuiteScore.test.mts` ("frozen as written before any live answer", v2.5 plan 05 F2), and adding a mode
+  after seeing an answer would break that freeze. A miss on `poisoned` in a future live run is a scorer miss to record, not a
+  reason to re-freeze.
+- Gates: `npm run gates:quick` green; full gates green with the plan 69 addendum (plan 69 §Gate record addendum 2026-10-16).

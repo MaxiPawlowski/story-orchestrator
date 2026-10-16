@@ -1,0 +1,57 @@
+{
+  "_note": "v2.8 plan 69 K9 early return (no-model lane). Host fact: Generate emits GENERATION_STARTED (script.js:4299) before its connection checks return early (script.js:4315-4335) with no GENERATION_ENDED, so an impersonate run on a disconnected lane takes the hold and never closes (the plan 60 B10 finding). Expected: the next loud run's GENERATION_STARTED closes the stale impersonate run (generationLifecycle staleWithhold) and the turn blocks come back. Setup steps are plan 60 B10's (v28-60-b10-withhold.json). Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-69-k9-early-return.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off",
+    "authorView": true
+  },
+  "steps": [
+    {
+      "log": true,
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds messages'); return { cleared: true, staleHoldBeforeImport: globalThis.storyOrchestratorRuntime.turnBlocksHeld() };"
+    },
+    {
+      "import_story": {
+        "file": "v28-60-b10-withhold.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const staleHold = rt.turnBlocksHeld(); if (staleHold) rt.clearPrivateInjection(); if (rt.turnBlocksHeld()) throw new Error('a stale hold from an earlier page run could not be released'); rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const PACING = 'story_orchestrator_pacing'; const OUTCOME = 'story_orchestrator_check_outcome'; const HINT = 'Pacing: '; const DECIDED = 'The story has already decided these outcomes.'; const NL = String.fromCharCode(10); const live = () => { const ext = SillyTavern.getContext().extensionPrompts; return { pacingBlock: String(ext[PACING]?.value ?? '') !== '', outcomeBlock: String(ext[OUTCOME]?.value ?? '') !== '' }; }; const textOf = (body) => typeof body?.prompt === 'string' ? body.prompt : Array.isArray(body?.messages) ? body.messages.map((m) => (typeof m?.content === 'string' ? m.content : JSON.stringify(m?.content ?? ''))).join(NL) : JSON.stringify(body ?? null); const dry = async () => { const ctx = SillyTavern.getContext(); let prompt = null; const tc = (data) => { if (data?.dryRun && typeof data.prompt === 'string') prompt = data.prompt; }; const cc = (data) => { if (data?.dryRun && Array.isArray(data.chat)) prompt = data.chat.map((m) => (typeof m?.content === 'string' ? m.content : JSON.stringify(m?.content ?? ''))).join(NL); }; ctx.eventSource.on(ctx.eventTypes.GENERATE_AFTER_COMBINE_PROMPTS, tc); ctx.eventSource.on(ctx.eventTypes.CHAT_COMPLETION_PROMPT_READY, cc); try { await ctx.generate('normal', {}, true); } finally { ctx.eventSource.removeListener(ctx.eventTypes.GENERATE_AFTER_COMBINE_PROMPTS, tc); ctx.eventSource.removeListener(ctx.eventTypes.CHAT_COMPLETION_PROMPT_READY, cc); } if (typeof prompt !== 'string') throw new Error('the dry-run prompt was not captured (main API ' + ctx.mainApi + ')'); return { type: 'normal-dry', held: rt.turnBlocksHeld(), pacingInPrompt: prompt.includes(HINT), outcomeInPrompt: prompt.includes(DECIDED), ...live() }; }; const real = async (type) => { const ctx = SillyTavern.getContext(); const tg = await import('/scripts/textgen-settings.js'); const host = await import('/script.js'); const status = host.online_status; host.setOnlineStatus('SO-B10 stub'); const streaming = tg.textgenerationwebui_settings.streaming; tg.textgenerationwebui_settings.streaming = false; const seen = []; const original = globalThis.fetch; globalThis.fetch = async (input, init) => { const url = String(typeof input === 'string' ? input : input?.url ?? ''); if (url.includes('/api/backends/') && url.endsWith('/generate')) { let body = null; try { body = JSON.parse(String(init?.body ?? 'null')); } catch {} seen.push({ url, held: rt.turnBlocksHeld(), text: textOf(body), ...live() }); const reply = 'SO-B10 stub reply.'; return new Response(JSON.stringify({ choices: [{ text: reply, message: { content: reply } }], results: [{ text: reply }], content: reply }), { status: 200, headers: { 'Content-Type': 'application/json' } }); } return original(input, init); }; let error = null; try { await ctx.generate(type, type === 'quiet' ? { quiet_prompt: 'SO-B10 quiet probe: answer with one word.' } : {}); } catch (e) { error = String(e?.message ?? e); } finally { globalThis.fetch = original; tg.textgenerationwebui_settings.streaming = streaming; host.setOnlineStatus(status); } const box = document.querySelector('#send_textarea'); if (box) { box.value = ''; box.dispatchEvent(new Event('input', { bubbles: true })); } await new Promise((resolve) => setTimeout(resolve, 600)); if (!seen.length) throw new Error(type + ': no generation request reached the stub' + (error ? ' (' + error + ')' : '')); return { type, requests: seen.length, heldAtRequest: seen.map((s) => s.held), pacingInRequest: seen.some((s) => s.text.includes(HINT)), outcomeInRequest: seen.some((s) => s.text.includes(DECIDED)), blocksAtRequest: seen.map((s) => ({ pacing: s.pacingBlock, outcome: s.outcomeBlock })), heldAfter: rt.turnBlocksHeld(), after: live(), error }; }; globalThis.__b10 = { dry, real, live }; return { ready: true, staleHold, mainApi: SillyTavern.getContext().mainApi };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The wall rises ahead, slick with rain."
+    },
+    {
+      "slash": "/cp set tension_current 0.1"
+    },
+    {
+      "slash": "/cp set at_wall true"
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); const now = globalThis.__b10.live(); if (!now.pacingBlock) throw new Error('no pacing hint is set: ' + JSON.stringify(snap.tension)); if (!now.outcomeBlock) throw new Error('no check outcome is set'); globalThis.__b10.chatLength = SillyTavern.getContext().chat.length; return { hint: snap.tension?.hint?.direction, checkpoint: snap.activeCheckpointId, ...now };",
+      "log": true
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const ended = []; const onEnd = () => ended.push(Date.now()); ctx.eventSource.on(ctx.eventTypes.GENERATION_ENDED, onEnd); const before = ctx.chat.length; try { await ctx.generate('impersonate'); await new Promise((r) => setTimeout(r, 800)); } finally { ctx.eventSource.removeListener(ctx.eventTypes.GENERATION_ENDED, onEnd); } if (ended.length) throw new Error('the impersonate run ended normally, so this is not the early-return case'); if (!rt.turnBlocksHeld()) throw new Error('control: an impersonate run that returned before sending took no hold'); if (ctx.chat.length !== before) throw new Error('the early return changed the chat'); return { heldAfterEarlyReturn: true, ended: ended.length };"
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const before = ctx.chat.length; await ctx.generate('normal'); await new Promise((r) => setTimeout(r, 1500)); const now = globalThis.__b10.live(); if (rt.turnBlocksHeld()) throw new Error('the next loud run left the stale impersonate hold on'); if (!now.pacingBlock) throw new Error('the pacing hint did not come back after the loud run started'); return { held: false, pacingBack: Boolean(now.pacingBlock), outcomeBack: Boolean(now.outcomeBlock), chatGrew: ctx.chat.length - before };"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await new Promise((resolve) => setTimeout(resolve, 800)); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    }
+  ]
+}

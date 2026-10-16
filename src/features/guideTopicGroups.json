@@ -73,7 +73,8 @@
    "convergence",
    "arc-bridges",
    "branching",
-   "living-director"
+   "living-director",
+   "scene-test"
   ]
  },
  {
@@ -102,6 +103,9 @@
    "widgets",
    "clues-and-maps",
    "html-panels",
+   "widget-scene",
+   "display-narrate",
+   "display-warn",
    "codex"
   ]
  }
