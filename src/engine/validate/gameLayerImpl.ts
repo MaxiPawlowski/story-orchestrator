@@ -1,5 +1,5 @@
 import { readCheck, readChecks } from "./checks";
-import { checkStoryChecks } from "./checkRefs";
+import { addCheckQualities, checkStoryChecks } from "./checkRefs";
 import { checkDisplays, readDisplay } from "./display";
 import { addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests } from "./quests";
 import { readWidgets } from "./widgets";
@@ -42,6 +42,7 @@ const DISCOVERY_UNITS = [codexScopeUnits, factionDiscoveryUnits, labelDiscoveryU
 const ENTRY_WRITERS = [timeEntry] as const;
 
 export const GAME_LAYER = {
-  readCheck, readChecks, checkStoryChecks, checkDisplays, readDisplay, addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests, readWidgets, life: LIFE, poses, validateCardLayers,
+  readCheck, readChecks, checkStoryChecks, addCheckQualities,
+  checkDisplays, readDisplay, addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests, readWidgets, life: LIFE, poses, validateCardLayers,
   codex: CODEX, factions: FACTIONS, carry: CARRY, latchWriters: LATCH_WRITERS, discoveryUnits: DISCOVERY_UNITS, entryWriters: ENTRY_WRITERS,
 };

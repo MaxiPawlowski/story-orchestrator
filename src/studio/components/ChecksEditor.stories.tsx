@@ -28,6 +28,16 @@ export const SetsACheckpointCheck: Story = {
   },
 };
 
+export const CheckpointCheckWithWhen: Story = {
+  ...seeded,
+  play: async ({ canvasElement }) => {
+    const field = within(canvasElement).getByLabelText("Checks at Infiltrate");
+    await userEvent.type(field, '[[{{"id": "climb", "quality": "alarm", "roll": {{"sides": 20, "target": 12}, "when": {{"q": "trust", "op": ">=", "v": 1}}]');
+    await userEvent.tab();
+    await expect(useDraftStore.getState().draft.checkpoints[1].checks?.[0].when).toEqual({ q: "trust", op: ">=", v: 1 });
+  },
+};
+
 export const PublicQualities: Story = {
   ...seeded,
   render: () => <QualityDisplayEditor />,

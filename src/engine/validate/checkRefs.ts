@@ -1,6 +1,8 @@
-import { CHECK_DEGREES, GENERATED_CHECKPOINT_PREFIX, type Checkpoint, type Quality, type StoryCheck, type Transition, type ValidationError } from "../schema";
+import { CHECK_DEGREES, GENERATED_CHECKPOINT_PREFIX, checkRolledKey, type Checkpoint, type Quality, type StoryCheck, type Transition, type ValidationError } from "../schema";
+import { gateKeys } from "../gates";
+import { nearestKey } from "@utils/levenshtein";
 import { addError } from "./common";
-import { validateLiteral } from "./gates";
+import { validateGate, validateLiteral } from "./gates";
 
 const written = (check: StoryCheck): Array<[string, "bool" | "outcome", string]> => [
   [check.quality, "bool", "quality"],
@@ -36,6 +38,34 @@ const checkModifiers = (placed: PlacedCheck, qualityByKey: Record<string, Qualit
   });
 };
 
+export const addCheckQualities = (qualities: Quality[], checkpoints: Checkpoint[], errors: ValidationError[]): Quality[] => {
+  const kept = checkpoints.flatMap((checkpoint) => (checkpoint.checks ?? []).filter((check) => check.when)).map((check): Quality => ({
+    key: checkRolledKey(check.id), type: "int", source: "code", rubric: "Set by the story to the boundary this check rolled at, once its when held",
+  }));
+  const existing = new Set(qualities.map((quality) => quality.key));
+  kept.filter((quality) => existing.has(quality.key)).forEach((quality) => addError(errors, `qualities.${quality.key}`, "this key is kept for a check's attempt"));
+  return [...qualities, ...kept.filter((quality) => !existing.has(quality.key))];
+};
+
+const checkWhen = (placed: PlacedCheck, transition: boolean, qualityByKey: Record<string, Quality>, errors: ValidationError[]) => {
+  const { check, path } = placed;
+  if (!check.when) return;
+  if (transition) {
+    addError(errors, `${path}.when`, "a transition check is attempted when the rest of its gate holds; when is for checkpoint checks");
+    return;
+  }
+  const own = new Set([...written(check).map(([key]) => key), checkRolledKey(check.id)]);
+  const keys = gateKeys(check.when);
+  const unknown = keys.filter((key) => !qualityByKey[key]);
+  const known = Object.keys(qualityByKey);
+  unknown.forEach((key) => {
+    const hint = nearestKey(key, known);
+    addError(errors, `${path}.when`, hint ? `unknown quality '${key}' (did you mean "${hint}"?)` : `unknown quality '${key}'`);
+  });
+  keys.filter((key) => own.has(key)).forEach((key) => addError(errors, `${path}.when`, `when reads '${key}', which this check writes; gate it on the attempt`));
+  if (!unknown.length) validateGate(check.when, qualityByKey, `${path}.when`, errors);
+};
+
 export const checkStoryChecks = (checkpoints: Checkpoint[], transitions: Transition[], qualityByKey: Record<string, Quality>, errors: ValidationError[]) => {
   const ids = new Set<string>();
   const writers = new Map<string, string>();
@@ -52,5 +82,6 @@ export const checkStoryChecks = (checkpoints: Checkpoint[], transitions: Transit
       writers.set(key, check.id);
     }
     checkModifiers(placed, qualityByKey, errors);
+    checkWhen(placed, path.startsWith("transitions."), qualityByKey, errors);
   }
 };

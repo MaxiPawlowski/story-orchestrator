@@ -124,6 +124,7 @@ export interface StoryCheck {
   narrate: CheckNarrate;
   outcome?: CheckOutcomeBands;
   twist?: { quality: string };
+  when?: GateNode;
 }
 
 export interface Milestone {
@@ -225,5 +226,7 @@ export interface WidgetIntent {
 export const questRewardKey = (questId: string): string => `quest_${questId}_rewarded`;
 
 export const questClosedKey = (questId: string): string => `quest_${questId}_closed`;
+
+export const checkRolledKey = (checkId: string): string => `check_${checkId}_rolled`;
 
 export const QUEST_CLOSED_VALUES = ["done", "failed"] as const;

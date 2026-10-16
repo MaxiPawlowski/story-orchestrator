@@ -1,6 +1,7 @@
 import { unitDraw } from "@engine/chance";
 import {
-  checkAttempted, checkDice, checksById, checkWrites, checksAt, resolveCheck, valueReader, type BoundaryLogEntry, type CheckDegree, type DerivedQualityView,
+  checkAttempted, checkDice, checkRolledAt, checkRolledKey, checkRollsNow, checksById, checkWrites, checksAt, resolveCheck, valueReader, type BoundaryLogEntry, type CheckDegree,
+  type DerivedQualityView,
   type NormalizedStoryV2, type PrimitiveValue, type StoryCheck,
 } from "@engine/index";
 import { isRecord } from "@utils/guards";
@@ -33,8 +34,14 @@ export const createChecks = (): ChecksRuntimeState => ({ records: [] });
 export const checkUnits = (ids: ChanceIds, visit: number, check: StoryCheck): number[] =>
   Array.from({ length: checkDice(check) }, (_, index) => unitDraw([ids.chatId, ids.storyId, visit, `check:${check.id}:${index}`]));
 
+const rollWrites = (check: StoryCheck, ids: ChanceIds, view: DerivedQualityView): Array<{ q: string; v: PrimitiveValue }> => {
+  if (!checkRollsNow(check, view.values, view.checkpointStartedBoundary)) return [];
+  const writes = checkWrites(check, resolveCheck(check, checkUnits(ids, view.checkpointStartedBoundary, check), view.values));
+  return check.when ? [...writes, { q: checkRolledKey(check.id), v: view.boundary + 1 }] : writes;
+};
+
 export const checkGateValues = (story: NormalizedStoryV2 | undefined, ids: ChanceIds, view: DerivedQualityView): Array<{ q: string; v: PrimitiveValue }> =>
-  (story ? checksAt(story, view.activeCheckpointId).flatMap(({ check }) => checkWrites(check, resolveCheck(check, checkUnits(ids, view.checkpointStartedBoundary, check), view.values))) : []);
+  (story ? checksAt(story, view.activeCheckpointId).flatMap(({ check }) => rollWrites(check, ids, view)) : []);
 
 const publicLabel = (story: NormalizedStoryV2, key: string): string | undefined => story.qualityByKey[key]?.display?.label;
 
@@ -44,7 +51,7 @@ export function checkRecordsAt(story: NormalizedStoryV2 | null, ids: ChanceIds |
   if (!story || !ids || !entry.evaluated) return [];
   const values = entry.evaluated;
   const visit = entry.before.checkpointStartedBoundary;
-  return checksAt(story, entry.before.activeCheckpointId).filter((active) => checkAttempted(active, valueReader(values))).map(({ check }) => {
+  return checksAt(story, entry.before.activeCheckpointId).filter((active) => checkAttempted(active, valueReader(values)) && checkRolledAt(active.check, values, entry.boundary)).map(({ check }) => {
     const result = resolveCheck(check, checkUnits(ids, visit, check), values);
     return {
       checkId: check.id, boundary: entry.boundary, messageId: entry.context.lastMessageId, visit, draws: result.faces,

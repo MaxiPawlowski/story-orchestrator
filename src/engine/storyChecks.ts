@@ -1,6 +1,7 @@
 import { dieFace } from "./chance";
 import { evaluateGate, type GateReader } from "./gates";
-import type { CheckDegree, GateNode, NormalizedStoryV2, NormalizedTransition, PrimitiveValue, StoryCheck } from "./schema";
+import { checkRolledKey, type CheckDegree, type GateNode, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type StoryCheck } from "./schema";
+import { valueReader } from "./quests";
 
 export interface ActiveCheck {
   check: StoryCheck;
@@ -59,3 +60,18 @@ const assuming = (gate: GateNode, reader: GateReader, keys: ReadonlySet<string>)
 
 export const checkAttempted = (active: ActiveCheck, reader: GateReader): boolean =>
   !active.transition || assuming(active.transition.gate, reader, new Set(checkWrittenKeys(active.check)));
+
+type Values = Readonly<Record<string, PrimitiveValue>>;
+
+const rolledThisVisit = (check: StoryCheck, values: Values, visit: number): boolean => {
+  const at = values[checkRolledKey(check.id)];
+  return typeof at === "number" && at > visit;
+};
+
+export const checkRollsNow = (check: StoryCheck, values: Values, visit: number): boolean =>
+  !check.when || (!rolledThisVisit(check, values, visit) && evaluateGate(check.when, valueReader(values)));
+
+export const checkRolledAt = (check: StoryCheck, values: Values, boundary: number): boolean => !check.when || values[checkRolledKey(check.id)] === boundary;
+
+export const checkRolledKeys = (story: Pick<NormalizedStoryV2, "checkpoints">): string[] =>
+  story.checkpoints.flatMap((checkpoint) => (checkpoint.checks ?? []).filter((check) => check.when).map((check) => checkRolledKey(check.id)));
