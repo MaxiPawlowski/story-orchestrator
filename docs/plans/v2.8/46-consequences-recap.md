@@ -289,3 +289,23 @@ Owed:
   (`[data-so^="chapter-"]:not([data-so^="chapter-card"])`); the planted DOM in `so-ui.test.mts` reads `:not(...)`; new
   test "v2.8 plan 46 live: a chapter title card with its recap under a message sweeps clean, an author chapter row is
   still caught" (fails on the parent). Both green runs used the fix.
+
+## Harvest 2026-10-16: a second reader of the effect refs
+
+From `61-harvest-triage-2026-10-14.md` (H4b) and `review-astra-harvest-2026-10-16.md` §2 (64): plan 64 was folded into
+`18-quests-and-game-layer.md` §Phase Q7, whose "just happened" rows are this plan's refs, not a second boundary-change model.
+Not built; nothing in this plan changes.
+
+- Reader contract: 18 §Phase Q7 takes `deriveRefs` output (`src/runtime/consequences.ts:175`) for the last committed boundary,
+  `visible` refs only, and the same rollback (`rollbackRecap` in `quarantine`). It never reads `because` or `CauseRef`
+  attribution (the recap's player-facing claim) and adds no ref kinds.
+- Any change to `EffectRef` or its retention must keep 18 Q7's floors S4 and S5 green; both plans' tests share the fixtures.
+
+## Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §1 (64 → 18 + 46), §2 (64). Verified on `e8b9dd6d`.
+
+- **P1 — reuse `deriveRefs` and the recap lifecycle rather than a competing boundary-change model.** Accepted
+  (`src/runtime/consequences.ts:175`, boundary work `recap` in `src/runtime/boundaryWork.ts:43-46`). → 18 §Phase Q7 is a
+  second reader of the refs (§Harvest 2026-10-16 above); this plan gains no field and no floor.
+- Rebutted: none.

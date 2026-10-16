@@ -300,18 +300,17 @@ is that checkout. Format: finding → verification → resolution.
 
 ## Harvest 2026-10-14 addendum
 
-From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted). First verified against master `9e96871d`; revised 2026-10-16 on `e8b9dd6d` after `review-astra-harvest-2026-10-16.md`. The owner decides with the rest of this plan.
 
-- **H16e structural name fold for ledger and epistemic keys** (`docs/plans/v2.8/extension-research-2026-10-14/dooms-enhancement-suite.md` P2, 3/S–M). `ledgerKey` is
-  trim + lowercase (`src/memory/ledger.ts:23-24`), the epistemic subject key the same (`src/memory/epistemic.ts:18`), so
-  "Mara", "Mara Venn" and "the captain" are three subjects. Recommended for the shared contract: one read-only resolver
-  (roster `aliases` + card name + this plan's entity aliases → roster id) applied to ledger and epistemic subjects at write
-  time, ambiguous names left unresolved (never guessed). Floor: alias fixture 100 % resolved, 0 merges of two distinct
-  members, D. Same resolver answers the v2.4 harvest's open "same character?" idea (`docs/plans/v2.4/extension-research/SUMMARY.md`
-  theme 7, dooms/smart-memory): an unresolved name seen in ≥ 3 reads becomes an author-only "same character?" card (merge or
-  keep apart); never merged automatically.
-- **H14b "lasting identity, not scene events"** for codex facts (same rule as the v2.8 11 addendum): a discovered fact
-  describes something that stays true. Prompt rule + C7 fixture row, CL.
+- **H16d structural name fold for ledger and epistemic keys** (`docs/plans/v2.8/extension-research-2026-10-14/dooms-enhancement-suite.md` P2, 3/S–M). (Relabelled
+  from H16e to match plan 61.) **Built** with this plan: `memory/nameFold.ts` folds ledger character rows and epistemic
+  subjects/`hiddenFrom` to the one fitting member (`resolveName`, `src/memory/nameFold.ts:40-47`: exact fold first, then a
+  structural match, only when exactly one member fits); ambiguous names stay as written; a name seen in three reads that fits
+  nobody is the author-only `same-character` check. Alias fixture 14/14, 0 member merges (gate record).
+- **H14b "lasting identity, not passing scene moments"** for codex facts. The prompt rule is built ("a lasting truth, not a
+  scene event", `src/copilot/guideTopicsCodex.ts:6`, `src/copilot/agent/tools.ts:204`); the C7 recipe row is owed. Wording
+  owed: allow settled past events explicitly ("fought in the river war" stays true), so the rule is not read as banning
+  history; same wording as the 11 addendum. A guide and prompt change, with a C7 fixture row for a historical fact.
 
 ## Gate record (2026-10-14, branch `v2.8-p52-codex`, merged with master `837d96e0`)
 
@@ -405,3 +404,13 @@ Owed:
   build, `so-payload-golden.mts diff`: 31 of 31 captures `same` over 6 cases, "payload invariance: identical"
   (`evidence-2026-10-15/60/payload-c5/{pre52,post52}`). No `c0` baseline exists in `test/measurements/v2.7/payload`, so
   the pair is pre-52 against post-52 (the span also holds 47 and 53; none moves a codex-free story's prompt).
+
+## Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Verified on `e8b9dd6d`.
+
+- **P2 — reconcile with the built implementation; "lasting identity" should not prohibit durable historical facts.** Accepted.
+  → H16d marked built (`src/memory/nameFold.ts:40-47`); H14b wording change owed (settled past events allowed) with a C7
+  fixture row.
+- Label drift: the addendum used H16e; plan 61 calls this H16d. → relabelled.
+- Rebutted: none.

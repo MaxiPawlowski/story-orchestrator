@@ -218,10 +218,24 @@ Source: `review-astra-2026-10-14.md` §Plans 42-47 (43). Verified on `3a716f2b`.
 
 ## Harvest 2026-10-14 addendum
 
-From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted). First verified against master `9e96871d`; revised 2026-10-16 on `e8b9dd6d` after `review-astra-harvest-2026-10-16.md`. The owner decides with the rest of this plan.
 
-- **H13b time anchor on recalled spans** (`docs/plans/v2.8/extension-research-2026-10-14/timeline-memory.md` P2, 3/S). The render is `Name said: "…"` with no time
-  (§5); `src/memory/archiveRecall.ts:42` holds `playerTitle` but never renders it. Recommended: once v2.8 50 B1 lands, a
-  recalled span carries its story-time label ("on the second evening, Name said: …"); before 50, the chapter title. Floor:
-  every rendered span has a label when 50 is built, D.
+- **H13b time anchor on recalled spans** (`docs/plans/v2.8/extension-research-2026-10-14/timeline-memory.md` P2, 3/S). The render is `Name said: "…"` with no time.
+  Recommended: once v2.8 50's player time display exists, a recalled span carries the story-time label **of its source
+  message** (the `story_time` at the boundary that message committed in, read from the boundary log), never the time of
+  recall; before that, its chapter title. Spans are addressed by message id and revision (`src/memory/audience.ts:10`), so an
+  edited source is a different span and loses the old label. Floor: every rendered span's label equals its source boundary's
+  time label on a scripted run with 3 time advances and a recall after each, D.
 - **H13c hidden spans** are not recall-eligible: the rule lives in v2.8 42 §0 (addendum there).
+- **R19 self-contained query rewrite** (`docs/plans/v2.8/extension-research-2026-10-14/timeline-memory.md` P4, 2/M): an arm in this plan's retrieval experiment (E0 /
+  option F), CL offline, only after R-Gate1: rewrite the recall query into a standalone question before retrieval and compare
+  hit rate with the raw query. Informational; no floor moves.
+
+## Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Verified on `e8b9dd6d`.
+
+- **P2 — message ids need revisions; time labels must describe the source event, not recall time.** Accepted. → labels from
+  the source message's boundary; spans addressed by id and revision (`src/memory/audience.ts:10`).
+- **Timeline P4 (query rewrite) → 43's experiment.** Adopted as R19, an informational arm after R-Gate1.
+- Rebutted: none.

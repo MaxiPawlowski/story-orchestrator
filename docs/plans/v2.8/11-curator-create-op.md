@@ -315,24 +315,47 @@ duplicates. The vector path is not measured here (needs ST's embedding source); 
 
 ## Harvest 2026-10-14 addendum
 
-From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted). First verified against master `9e96871d`; revised 2026-10-16 on `e8b9dd6d` after `review-astra-harvest-2026-10-16.md`. The owner decides with the rest of this plan.
 
-- **H9b destructive-rewrite guard in `auto` mode** (`docs/plans/v2.8/extension-research-2026-10-14/worldinfo-workspace.md` P3, value 3, S). `routeByTier`
-  (`src/stagecraft/curatorTiers.ts:101-106`) accepts any op on an `auto` entry with no size check. Recommended: a pure
+- **H9b destructive-rewrite guard in `auto` mode** (`docs/plans/v2.8/extension-research-2026-10-14/worldinfo-workspace.md` P3, value 3, S). Not built:
+  `routeByTier` (`src/stagecraft/curatorTiers.ts:101`) accepts any op on an `auto` entry with no size check. Recommended: a pure
   `isDestructiveRewrite(before, after)` (word diff, more than 50 % of the entry's words removed) sends the op to review even
-  for `auto` entries. Floor: planted controls (60 % removal → review; 10 % → auto), 100 %, D. Shares one test file with
-  plan 60's B15 fix (the `rewrite` content baseline, `seenHash` at proposal), which is the same harvest item H9a and is not
-  re-planned here.
-- **H9c idempotency receipt on created entries** (`docs/plans/v2.8/extension-research-2026-10-14/st-memory-books.md` P2, 3/M). The created stamp holds chat and group
-  but no op id (`src/stagecraft/createdStamp.ts:6,12`); the effect ledger decides pending rows by value
-  (`src/runtime/effectLedger.ts:110-150`), so two identical creates both read "applied". Recommended: add the op id to the
-  `{{// so:created …}}` stamp; reconcile counts entries carrying it and more than one is a conflict row. Floor: a resumed
-  write after a lost save lands once on 4 seeds, D.
-- **H14b "lasting identity, not scene events" rule** (`docs/plans/v2.8/extension-research-2026-10-14/multihog-dnd-framework.md` P3, 2/S). `createCandidate`
-  (`src/stagecraft/createCandidate.ts:7,98`) gates only on `CREATE_MIN_FACTS`. Recommended: one prompt rule for `create`
-  ("an entry describes something that stays true: a person, place, thing or group, never a scene event") plus a near-dup
-  fixture row; the M16/M17 offline frozen fixtures re-run ×2 (CL). Same rule for v2.8 52 codex facts (addendum there).
-- **H16b accepted-uncertainty memo keyed by identity** (`docs/plans/v2.8/extension-research-2026-10-14/bb-interactive-map.md` P2, 3/S–M). Declined proposals are
-  remembered by op wording, so a reworded proposal for the same entry and field comes back. Recommended: key the decline
-  memory by (entry uid, field, normalised target) and refuse a re-proposal with the same key for N boundaries. Floor: a
-  reworded re-proposal of a declined op is refused on 5/5 planted cases, D.
+  for `auto` entries. Floor: planted controls (60 % removal → review; 10 % → auto), 100 %, D. Shares a test file with plan
+  60's B15 fix (rewrite content baseline).
+- **H9c idempotency receipt on created entries** (`docs/plans/v2.8/extension-research-2026-10-14/st-memory-books.md` P2, 3/M). Not built. The created stamp holds chat
+  and group but no op identity (`src/stagecraft/createdStamp.ts`); the effect ledger decides pending rows by value, so two
+  identical creates both read "applied". Recommended: a **durable operation identity** minted at proposal time,
+  `op = hash(chat id, proposal record id, op index)`, written into the write-ahead ledger row before the host call
+  (`EffectsApplier.withLedger` persists the pending row first) and into the stamp (`{{// so:created <chat> | <group> | op=<id>}}`).
+  After a lost acknowledgement, reconcile finds the entry carrying that op id and marks the row applied instead of writing
+  again; the id is derived from the record, so a replay after a rollback that removed the entry writes it once more, exactly
+  once. Floors: a resumed write after a lost save lands once on 4 seeds; replay after rollback lands once on 4 seeds; two
+  entries with one op id raise a conflict row (planted), D.
+- **H14b "lasting identity, not passing scene moments"** (`docs/plans/v2.8/extension-research-2026-10-14/multihog-dnd-framework.md` P3, 2/S). Not built for `create`:
+  `createCandidate` gates only on `CREATE_MIN_FACTS`. Recommended prompt rule: "an entry describes something that stays
+  true: a person, place, thing, group, or a settled past event; never a passing moment of the current scene". A settled past
+  event ("fought in the river war") is allowed. Near-dup fixture row; the M16/M17 offline frozen fixtures re-run ×2 (CL).
+  52's built rule gets the same wording (addendum there).
+- **H16b accepted-uncertainty memo keyed by identity** (`docs/plans/v2.8/extension-research-2026-10-14/bb-interactive-map.md` P2, 3/S–M). Partly built: a decline is
+  remembered with a target revision (the entry's content signature, `src/stagecraft/declines.ts:15-16,36-40`) and a declared
+  expiry (`DECLINE_MEMORY_BOUNDARIES = 32`, `:5,18-19`), but its key includes the op's normalised text (`declineKey`,
+  `src/stagecraft/proposal.ts:88`; target `book::comment`, `:50`), so a reworded proposal for the same entry escapes it.
+  Recommended: key the standing decline by (book file id, entry uid when the entry exists, else its comment, op kind),
+  dropping the op text; keep the signature and the expiry. Floors: a reworded re-proposal of a declined op is refused on
+  5/5 planted cases; an entry changed since (signature differs) lifts the decline 1/1; expiry lifts it after 32 boundaries
+  1/1, D.
+
+## Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Verified on `e8b9dd6d`.
+
+- **P1 — idempotency needs a durable operation identity across lost acknowledgements and rollback/replay.** Accepted. → op id
+  derived from (chat, proposal record, op index), persisted in the write-ahead row and the stamp; floors cover lost ack and
+  replay.
+- **P1 — decline keys need book + uid, target revision and a declared expiry; uid alone is not global.** Accepted in part:
+  the revision (entry signature, `src/stagecraft/declines.ts:15-16,36-40`) and the expiry (32 boundaries, `:5,18-19`) already
+  exist; the gap is the op text in the key (`src/stagecraft/proposal.ts:88`). → key by book file id + uid (or comment) + op
+  kind.
+- **52/53 — "lasting identity" should not prohibit durable historical facts.** Accepted. → H14b reworded to allow settled past
+  events.
+- Rebutted: only the implication that a target revision and an expiry are missing (both exist, cited above).

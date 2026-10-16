@@ -119,6 +119,12 @@ reopen trigger):
 4. When built: 51 R7/R9 (about 25 min), 53 F7 (25), 43 VR7/VR7p (30), 47 P7/P7h (60, LT). Candidates 55 M7,
    56 G7, 57 U7, 58 K7, 59 B7 (about 25 min each, LT or RP, lab story) only if the owner queues and builds them.
 
+Allocation (2026-10-16, after `review-astra-harvest-2026-10-16.md` §3): items 1–3 alone are 25 + 21 + 120 = 166 min against
+the 150 min share, so the list is already 16 min over before item 4. Nothing below item 3 fits without displacing a named
+item; the over-steer card (120 min) is the only item large enough to make room. Harvest RP rows (62 Q1r about 50 min, 63 H6r,
+18 Q7 S7 about 50 min) are therefore deferred beyond the cap with their reopen triggers; R2/R7 being "outside the cap" means
+deferred, not funded. Displacing an item is the owner's call; no floor moves after a result.
+
 CL (cloud reply and memory, Sol authoring, TypeSafe judge; no GPU), lane-hours with ×2 included:
 
 - GS2 living hub ×2: 70 min. AS-smoke, nine stories ×2: 190 min.
@@ -467,14 +473,15 @@ registry, and the 109-id check above, when a plan is built. Floor ids are the pl
 | 57 shared rituals (candidate) | D | U1–U6 | U7 informational ×1 (LT or RP lab story) |
 | 58 keepsakes (candidate) | D | K1–K6 | K7 informational ×1 (LT or RP lab story) |
 | 59 reconciliation beats (candidate) | D + CL | B1–B5 | B6 CL ×2 (read route); B7 informational ×1 (LT or RP lab story) |
-| 62 quantum-ogre probe / prepared facts (candidate) | RP (probe) | Q3; with stage 2 Q5, Q6, Q8 | Q1 informational ×1 (5 cases × 4 replies, about 50 min Artemis); Q1c/Q2 CL; Q4 RP and Q7 CL only with stage 2 |
-| 63 stepped history window (candidate) | D + RP | H3–H5, H8 | H1/H2/H7 ride the deferred R2/R7 run (outside the 12 h cap); H6 CL |
-| 64 public sheet to the narrator (candidate) | D | S1–S6 | S7 informational ×1 (RP lab story, about 25 min) |
-| 65 "here now" scene card (candidate) | D | N1–N8 | none: projection only; session or owner decision for the default |
-| 66 authoring quality (candidate) | D + CL | A1–A5 | A6, A7 CL ×2 (Sol) |
-| 67 grader hygiene + adversarial fixtures (candidate) | D + CL | G1, G2, G5, G6 | G3, G4 CL ×2 (read model) |
-| 68 "your move" chip (candidate) | D | Y1–Y6 | none: derived, no model |
-| 69 harvest hardening bundle (candidate) | D | K1a, K2–K10 | K1b CL ×1 (compaction acceptance on recorded windows) |
+| 62 continuity probe / prepared facts (candidate, revised 2026-10-16) | D + CL | Q3 (browser leg); with stage 2 Q5–Q9; with stage 3 Q10 | Q1, Q2, Q2d, Q2a CL; Q4 CL with stage 2; Q1r informational ×1 (Artemis, about 50 min), deferred beyond the cap |
+| 63 stepped history window (candidate, revised 2026-10-16) | D + RP | H3, H4, H5, H7, H8, H9 | H1, H2, H6r ride the deferred R2/R7 run (deferred work, not funded by the 12 h cap); H6 CL |
+| 18 public sheet narration (§Phase Q7, ex-64, candidate) | D + CL | S1, S1a, S2, S3, S4, S5, S6 | S8 CL; S7 informational ×1 (RP lab story, 20 replies, about 50 min), deferred beyond the cap |
+| 65 "here now" scene card (candidate, revised 2026-10-16) | D | N1, N2, N2p, N5, N6, N7, N8; N3, N4 with A+ | none: projection only; session or owner decision for the surface |
+| v2.8 09 agent card quality and read-back (§Harvest phase, ex-66, candidate) | D + CL | A1, A2, A5, A8 | A6 CL ×2 (Sol) |
+| 34 key-match preview, key lint, lore guidance (§Harvest phase, ex-66, candidate) | D + CL | A3, A3a, A4 | A7 CL ×2 (Sol, blind raters) |
+| 35 grader hygiene, adversarial fixtures, provenance (§Harvest phase, ex-67, candidate) | D + CL | G1, G2, G5, G6, G7, G8 | G3, G4 CL ×2 (read model); G4r CL in the final suite; G9 CL only when the extension or setting is active; G10 CL in role calibration |
+| 68 "your move" chip (candidate, revised 2026-10-16) | D | Y1, Y2, Y3, Y4, Y5, Y6 | none: derived, no model |
+| 69 harvest hardening bundle (candidate, revised 2026-10-16) | D | K1a, K2, K3, K4, K5, K6, K6b, K7, K8, K9, K10, K11, K12, K13, K14, K15, K16, K17 | K1b CL ×1 (compaction acceptance and retained facts on recorded windows) |
 
 ## Measurement rows
 
@@ -626,11 +633,15 @@ recorded and the feature stays on (00-overview rule 9).
 - Candidates 55–59 (not queued; rows apply only if the owner queues and builds them): 55 M1–M6, 56 G1–G6, 57 U1–U6,
   58 K1–K6, 59 B1–B5 D; 55 M8 (with B) and 59 B6 CL ×2; 55 M7, 56 G7, 57 U7, 58 K7, 59 B7 informational ×1 on a lab
   story (LT or RP, about 25 min each), inside the 2.5 h informational cap or deferred with their reopen trigger.
-- Harvest candidates 62–69 (not queued; rows apply only if the owner queues and builds them): D rows as in the Planned features
-  table close in each plan's own gates. Artemis: 62 Q1 (about 50 min) and 64 S7 (about 25 min) join the informational list
-  after the 42–59 items, inside the 2.5 h cap or deferred with their reopen trigger; 63 H1/H2/H7 ride the deferred R2/R7
-  measurement (pod P2 or a free 3090 night), outside the cap. CL: 62 Q1c/Q2 (about 3 h lane time), 63 H6, 66 A6/A7, 67 G3/G4,
-  69 K1b. The 12 h Artemis cap is unchanged.
+- Harvest candidates (plan 61, revised 2026-10-16; not queued; rows apply only if the owner queues and builds them): D rows as
+  in the Planned features table close in each plan's own gates (62, 63, 65, 68, 69, and the folds 18 §Phase Q7, 09 and 34
+  §Harvest phase, 35 §Harvest phase). Artemis: 62 Q1r, 63 H6r and 18 Q7 S7 are deferred beyond the cap (allocation note
+  above); 63 H1/H2 ride the deferred R2/R7 measurement (pod P2 or a free 3090 night). CL: 62 Q1, Q2, Q2d, Q2a (about 3 h lane
+  time), 63 H6, 18 Q7 S8, 09 A6, 34 A7, 35 G3, G4, G4r, G9 (conditional), G10, 69 K1b. The 12 h Artemis cap is unchanged.
+- Measurement records (35 §Harvest phase G8): every measurement written after that change records the prompt fingerprint,
+  scorer version, model id and run-header config hash; a comparison across differing fingerprints is labelled "not
+  comparable" unless declared. Arm comparisons use `so-live-suite compare` (G5): "regressed" only on stable-pass →
+  stable-fail over two runs; two runs support "observed stable / flaky", nothing stronger.
 
 ## Sessions and blind packs
 

@@ -139,3 +139,110 @@ Next gaps, original risk order retained:
 - Seven new deterministic browser rows, each PASS ×2 on lane 44 (isolated ST copy, offline), bundle `9f637c0be010`; full record in plan 40 §Gate record: §3 deterministic browser scenarios.
 - Gaps closed from the list above: 4 (story-workflow-missing fires, checkpoint override, selection untouched: `v28-40-workflow-findings`), 7 (context-over-server player copy: `v28-40-context-over-server`), 8 (local judge refused until calibrated: `v28-40-local-judge-uncalibrated`, visible in Connections > Judge, not in Setup), 9 (plugin-less fail-open: broker null, media absence reported, no download probe exists). Also plan 34 provisioning/NOT_ANY dry run (`v28-40-provisioning-roundtrip`), living divergence/prefetch plumbing (`v28-40-living-divergence-prefetch`), B4 judge consumers scripted (`v28-40-judge-consumers`; pictureCue not runnable no-model) and the mobile long-press (`v28-40-mobile-touch-longpress`).
 - Two product fixes with jest (lore-select cache key, long-press release tap). Real-model and TypeSafe legs remain owed; scripted rows are plumbing only.
+
+## Harvest phase: grader hygiene, adversarial fixtures, evidence provenance (ex-plan 67, folded 2026-10-16)
+
+Was `67-grader-hygiene-and-adversarial-fixtures.md` (written 2026-10-14, H8); folded here after Astra's review
+(`review-astra-harvest-2026-10-16.md` §1, §2 (67)), with the triage rows V1, V33, V37, V47, V60, R13 and R14
+(`61-harvest-triage-2026-10-14.md`). Not built, not queued. Implementation **D** (harness and fixtures); acceptance **CL** (read
+model; one reply leg). Plan 24 §Measurement rows carries the compare and fingerprint rules. Synthetic fixtures only.
+
+### Current state in code (verified on `e8b9dd6d`)
+
+- **Matching is word-start, not whole-term.** Plan 60's B2 fix: `containsWordStart` (`scripts/debug/lib/liveSuiteScore.mts:46-47`)
+  requires a needle starting with a letter or digit to start a word, so `wound` matches `wounded` and **`bel` still matches
+  `below`**. The self-test keeps its own copy (`has`, `src/runtime/selfTest.ts:84-85`). No quote or dash normalisation.
+  Three scorers: `scoreContains`, `scoreRejected`, `scoreIntents` (`liveSuiteScore.mts:49,83,118`).
+- **Player-claim guard scope.** `CLAIM_RULE` (`src/memory/contract.ts:31`) speaks of "a character's claim"; whether the read
+  applies it to the player's own lines is untested. `evidence_from` rules are per quality and opt-in.
+- No extractor fixture plants a false-memory claim or a persona-pressure line.
+- No cross-arm fixture diff (`so-live-suite`, `so-role-calibration verdict`, `so-run-header diff`, `so-payload-golden diff`
+  each answer a different question). Recorded results carry no prompt or scorer fingerprint.
+- Payload goldens are dry runs, and **dry runs skip interceptors** (ST `script.js:4562-4564`); only a captured actual request
+  (`st-payload.mts arm --persist`) shows what was sent.
+
+### Design
+
+1. **Matcher, inventory first.** Before changing semantics, inventory every needle in `test/fixtures` and `test/goldens/live`
+   that relies on prefix matching (a needle that matches only as a word prefix in its recorded live text). Then one pure
+   `termPresent(haystack, needle, mode)`: NFKC, ’ → ', “” → ", en/em dash → -, then `mode: "term"` (whole term: no letter or
+   digit on either side) or `mode: "prefix"` (today's word start), chosen per needle and recorded in the fixture; the default
+   for new needles is `term`. One helper for the self-test and all three scorers.
+2. **Re-score with versions.** `so-live-suite.mts rescore test/goldens/live/` writes old vs new verdict per fixture, each
+   result stamped with a scorer version; old records are kept untouched, the re-score is a new record beside them.
+3. **Adversarial fixtures, attribution-aware.**
+   - False memory (`extractorNN-false-memory`): the player asserts a shared past the transcript never shows. Expected: no
+     stored fact, ledger row or canon line **asserts the event**; an **attributed** row ("the player says …") is allowed. The
+     assertion checks a structured field (asserted vs attributed), not `mustNotContain` words, because the attributed form
+     contains the same words. Negative controls: a legitimate player action ("I hand her the key") must still be stored.
+   - Persona pressure (`extractorNN-persona-pressure`): a line asking a member to talk like a customer-service bot. Reader leg
+     (scripted reply): no memory row quotes the line, the warden `voice` family stays clean. This tests the reader and warden
+     only. A **reply leg** (G4r) on the cloud reply model checks whether generated replies resist the pressure; only that leg
+     supports a claim about reply behaviour.
+4. **Noise-aware compare.** `so-live-suite compare <a-r1> <a-r2> <b-r1> <b-r2>` (pure `lib/armCompare.mts`): stable-pass,
+   stable-fail, flaky (r1 ≠ r2), new, removed; "regressed" only on stable-pass → stable-fail. Two repetitions support
+   "observed stable / observed flaky", nothing stronger.
+5. **Chat untouched, defined.** `lib/chatUntouched.mts` hashes, per message: `name`, `is_user`, `is_system`, `mes`, `swipe_id`,
+   every swipe's text, `extra.reasoning`; and the SO blob minus audit bookkeeping that off-chat runs legitimately write
+   (`extras.extraction.audits`, `extras.judge.calls`, the self-test record). A difference fails the run and names the first
+   changed field.
+6. **Shipped-block verification (R13, R14).** A no-model scenario captures the actual outgoing request for a normal turn,
+   a swipe and an impersonate, and asserts which `story_*` blocks it holds; the swipe case also checks that a pre-generation
+   read on a swipe does not read the reply being replaced.
+7. **Fingerprints with results (V33).** Every measurement record (live suite, role calibration, arm runs) stores the prompt
+   fingerprint (hash of the assembled template), scorer version, model id and the run-header config hash; a compare across
+   different fingerprints is labelled "not comparable" unless declared.
+8. **Compatibility measurements (V1, V60).** Conditional rows, run only when the setting or extension is active on a lane:
+   prompt-only regex scripts (V1) and Presence (V60); each runs a read fixture with and without it and records whether reads
+   stay correct. A warning alone is not evidence.
+9. **Side-model reasoning template (V47).** A role-calibration fixture where the extraction profile's reasoning template
+   differs from the main reply's; record whether `stripReasoningBlocks` leaves reasoning in the parsed read. Implement the
+   profile-template path only on a recorded failure.
+10. Optional (V37): an author-flagged read (`/story flag`) exported as an extractor triple skeleton, lab text only.
+
+### Predeclared floors
+
+| # | Condition | Floor | Tier |
+|---|---|---|---|
+| G1 | Prefix inventory complete (every prefix-dependent needle listed with its mode); planted controls in `term` mode: "bel" not in "below", "arm" not in "harm", "don't" equals "don’t", "—" equals "-"; `prefix` mode keeps "wound" in "wounded" | inventory complete; 5/5 | D |
+| G2 | Offline re-score of every recorded live golden completes with a scorer version; each changed verdict listed with its fixture; old records unchanged | complete, 0 unlisted | D |
+| G3 | False memory: 0 rows asserting the fabricated event (attributed rows allowed); the legitimate-action control stored | 0 asserted, control 1/1, ×2 | CL |
+| G4 | Persona pressure, reader leg: 0 memory rows quoting the line; warden `voice` finds nothing (scripted reply) | 0, ×2 | CL |
+| G4r | Persona pressure, reply leg: 10 generated replies on the cloud reply model, second-model rater | recorded (final suite) | CL |
+| G5 | Compare classifier on a synthetic 4-report set with known classes | 100 % | D |
+| G6 | Untouched proof: a planted write to any hashed field fails the run; a clean run with audit bookkeeping passes | 1/1, 1/1 | D |
+| G7 | Shipped blocks: the actual requests of a normal turn, a swipe and an impersonate hold exactly the expected `story_*` blocks; the swipe's pre-generation read excludes the replaced reply | 3/3, 1/1 | D (no-model lane) |
+| G8 | Fingerprints: every measurement record written after the change carries prompt, scorer, model and config fingerprints; a compare across differing fingerprints is labelled | holds | D |
+| G9 | Compatibility (conditional): read fixture with prompt-only regex active (V1) and with Presence active (V60) | recorded per extension when active | CL |
+| G10 | Side-model reasoning template fixture (V47) | recorded | CL |
+
+Floors are informational and never retuned (rule 2). G3/G4 misses are product findings for the memory reader.
+
+### Gates by tier
+
+- **D:** `npm run gates`, `npm run test:debug`; G1, G2, G5, G6, G8; G7 on a no-model lane.
+- **CL:** G3, G4 ×2 inside plan 24's CL budget; G4r in the final suite; G9 only when the extension or setting is active; G10
+  in role calibration.
+
+### Decisions for the owner
+
+1. **Inventory prefix needles before changing the default to whole-term matching?** **Recommended: yes.**
+2. **Re-score recorded goldens as new, versioned records (old ones kept)?** **Recommended: yes.**
+3. **A failed G3 opens a memory-reader fix as its own queue row?** **Recommended: yes.**
+
+### Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §2 (67), §1 (V33, V47, V1/V60, Copilot P4, fold advice). Verified on `e8b9dd6d`.
+
+- **P1 — B2 is word-start, not a shared whole-term helper; `bel` still matches `below`.** Accepted
+  (`scripts/debug/lib/liveSuiteScore.mts:46-47`; separate copy `src/runtime/selfTest.ts:84-85`). → inventory first, per-needle
+  mode, one helper; G1.
+- **P1 — G3 must distinguish asserted from attributed; `mustNotContain` rejects the allowed form.** Accepted. → structured
+  asserted/attributed check plus a legitimate-action negative control.
+- **P1 — G4's scripted reply tests only the reader/warden.** Accepted. → G4 scoped to reader; G4r reply leg.
+- **P2 — `mes + swipe_id` misses fields; audit bookkeeping should not fail the blob hash.** Accepted. → hashed field list and
+  exclusions defined (design 5).
+- **Preserve old results, version re-scores; two repetitions justify only stable/flaky.** Accepted (design 2, 4).
+- **V33, V47, V1/V60, Copilot P4 folds.** Adopted (G8, G10, G9, G7).
+- **Fold 67 → 24 + 35.** Adopted; `67-grader-hygiene-and-adversarial-fixtures.md` is a pointer.
+- Rebutted: none.

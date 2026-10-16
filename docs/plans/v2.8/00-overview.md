@@ -260,18 +260,20 @@ same review's brainstorm: written, not queued, owner decision pending.
 
 ## Extension harvest 2026-10-14 (candidates)
 
-Source: `extension-research-2026-10-14/` (SUMMARY H1–H16, `_verification.md` B1–B19). Defects B1–B19 are plan 60 (another
-agent). Every idea and every unbuilt v2.4 harvest idea is triaged in plan 61; plans 62–69 are candidates (written, not
-queued, owner decision pending); folds are "Harvest 2026-10-14 addendum" sections in the named plans.
+Source: `extension-research-2026-10-14/` (SUMMARY H1–H16, `_verification.md` B1–B19). Plan 60 fixed B1–B3, B5, B6, B9–B16;
+B4, B7, B8, B17 are open, B18/B19 refuted. Every idea and every unbuilt v2.4 harvest idea is triaged in plan 61 (revised
+2026-10-16 after `review-astra-harvest-2026-10-16.md`, with every previously untriaged report item added as R1–R82). Plans 62,
+63, 65, 68, 69 are candidates (written, not queued, owner decision pending); 64, 66 and 67 were folded into home plans and stay
+as pointers; folds are sections in the named plans. Build order: plan 61 §Build order (69 K11/K12 first).
 
 | Plan | Title | Implementation / acceptance |
 |---|---|---|
-| 61 | [Harvest triage 2026-10-14](61-harvest-triage-2026-10-14.md) | docs |
-| 62 | [Quantum-ogre probe, then prepared world facts](62-quantum-ogre-and-prepared-facts.md) (candidate) | D; RP probe gates stage 2; CL |
-| 63 | [Stepped history window and the front-trim cache A/B](63-stepped-history-window.md) (candidate) | D; RP with R2; CL |
-| 64 | [The public sheet reaches the narrator](64-public-sheet-to-narrator.md) (candidate) | D (+RP informational) |
-| 65 | ["Here now" scene card](65-here-now-scene-card.md) (candidate; reopens 51 decision 2) | D; session or owner decision |
-| 66 | [Authoring quality: cards and lore](66-authoring-quality-cards-and-lore.md) (candidate) | D + CL |
-| 67 | [Grader hygiene and adversarial fixtures](67-grader-hygiene-and-adversarial-fixtures.md) (candidate) | D + CL |
-| 68 | ["Your move" HUD chip](68-your-move-chip.md) (candidate) | D; owner decision |
-| 69 | [Harvest hardening bundle](69-harvest-hardening-bundle.md) (candidate) | D (+CL one row) |
+| 61 | [Harvest triage 2026-10-14](61-harvest-triage-2026-10-14.md) (revised 2026-10-16) | docs |
+| 62 | [Quantum-ogre probe, then prepared world facts](62-quantum-ogre-and-prepared-facts.md) (candidate; probe informs, never authorises, a build) | D; CL probe; RP informational, deferred |
+| 63 | [Stepped history window and the front-trim cache A/B](63-stepped-history-window.md) (candidate; latency measurement first) | D; RP with R2 (deferred); CL |
+| 64 | [Public sheet to the narrator](64-public-sheet-to-narrator.md) (folded → 18 §Phase Q7 + 46) | see 18 |
+| 65 | ["Here now" scene card](65-here-now-scene-card.md) (candidate; reopens 51 decision 2; v1 small) | D; session or owner decision |
+| 66 | [Authoring quality](66-authoring-quality-cards-and-lore.md) (folded → 09 + 34 §Harvest phase) | see 09, 34 |
+| 67 | [Grader hygiene](67-grader-hygiene-and-adversarial-fixtures.md) (folded → 35 §Harvest phase + 24) | see 35 |
+| 68 | ["Your move" HUD chip](68-your-move-chip.md) (candidate; revision-bound explicit hand-backs) | D; owner decision |
+| 69 | [Harvest hardening bundle](69-harvest-hardening-bundle.md) (candidate; 17 items, K11/K12 P1 first) | D (+CL one row) |
