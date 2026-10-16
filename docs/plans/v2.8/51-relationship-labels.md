@@ -252,7 +252,7 @@ From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licen
 - **H11b per-axis breakdown (author view)** (`docs/plans/v2.8/extension-research-2026-10-14/bb-visual-novel-engine.md` P2, 3/S–M). **Built**: `axisHistory`, derived
   from boundary history, never stored (51 gate record).
 - **H5 "here now" scene card** → v2.8 65 (revised 2026-10-16: unknown members omitted entirely; v1 = location, time, known
-  present members, links; labels later), which **reopens decision 2**. Owner call.
+  present members, links; labels later), which **reopens decision 2**. Owner call. **Owner 2026-10-16: reopened** for 65 only: a permanent, author-placed `scene` widget (not interim, not a default); labels stay on 52's person pages until 65's A+ line is built.
 
 ## Gate record
 
