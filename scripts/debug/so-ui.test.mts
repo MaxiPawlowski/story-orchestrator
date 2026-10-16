@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { PLAYER_TEXT_SURFACES, assertPlayerClean } from './so-ui.mts';
+import { PLAYER_TEXT_SURFACES, assertPlayerClean, messageTextFindings, SO_IN_MESSAGE_TEXT } from './so-ui.mts';
 import { attributeFindings, surfaceTextFindings, assignedRoleProfiles, branchContinue, closeCharacterPanel, switchDrawerTab, gateReplayHistoryFrom, INLINE_PLAYER_FORBIDDEN_SELECTORS, inlineTextFindings, jumpToCitation, memoryQueueSelector, PLAYER_FORBIDDEN_SELECTORS, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings, errorStateFindings } from './so-ui.mts';
 
 test('keep and lock address the side row inside the named pair', () => {
@@ -329,6 +329,9 @@ class PlantedElement {
     for (const child of spec.children ?? []) { const node = new PlantedElement(child); node.parent = this; this.children.push(node); }
   }
   get classList() { return { contains: (name: string) => this.classes.has(name) }; }
+  get tagName() { return this.tag.toUpperCase(); }
+  get className() { return [...this.classes].join(' '); }
+  closest(selector: string): PlantedElement | null { for (let node: PlantedElement | null = this; node; node = node.parent) if (node.matches(selector)) return node; return null; }
   get offsetParent() { return this.parent; }
   get innerText(): string { return [this.text, ...this.children.map((child) => child.innerText)].filter(Boolean).join('\n'); }
   get textContent() { return this.innerText; }
@@ -435,4 +438,19 @@ test('planted DOM: an author page of the guide reader in player mode is caught b
     { attrs: { 'data-so': 'guide-page', 'data-doc': 'author/README.md' }, text: 'Writing a story for Story Orchestrator' },
   ] }] });
   assert.ok(findings.some((needle) => /guide|data-audience="author"/.test(needle) && needle.includes('reachable in #so-panels-root')), findings.join(' | '));
+});
+
+test('v2.8 69 K5: an SO node inside a message text is a player-clean finding; one beside it is not', () => {
+  assert.deepEqual(messageTextFindings([]), []);
+  const findings = messageTextFindings([{ mesid: '4', node: 'div#so-inline-4.so-inline-host' }]);
+  assert.equal(findings.length, 1);
+  assert.match(findings[0].needle, /message 4 \.mes_text holds an SO node div#so-inline-4/);
+  assert.match(SO_IN_MESSAGE_TEXT, /\.mes_text \[data-so\]/);
+});
+
+test('v2.8 69 K5 planted DOM: an inline host planted inside .mes_text is caught by the sweep, one beside .mes_text is not', async () => {
+  const inside = await sweepPlanted({ message: [{ class: 'mes_text', text: 'The road bends east.', children: [{ id: 'so-inline-3', class: 'so-inline-host' }] }] });
+  assert.ok(inside.some((needle) => /message 3 \.mes_text holds an SO node div#so-inline-3/.test(needle)), inside.join(' | '));
+  const beside = await sweepPlanted({ message: [{ class: 'mes_text', text: 'The road bends east.' }, { id: 'so-inline-3', class: 'so-inline-host' }] });
+  assert.equal(beside.filter((needle) => needle.includes('.mes_text holds')).length, 0);
 });

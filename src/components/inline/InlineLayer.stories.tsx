@@ -3,6 +3,7 @@ import { expect, fn, userEvent, within } from "@storybook/test";
 import type { InlineItem, InlineView } from "@runtime/inlineTimeline";
 import type { InlineLevel } from "@runtime/settingsModel";
 import { InlineLayer, type InlineHostPort } from "./InlineLayer";
+import { SO_IN_MESSAGE_TEXT } from "@utils/messageText";
 
 const item = (fields: Partial<InlineItem> & Pick<InlineItem, "id" | "category" | "level" | "text">): InlineItem => ({
   persona: fields.level <= 2 ? "player" : "author",
@@ -68,6 +69,7 @@ export const PlayerChipsLandUnderTheirMessage: Story = {
     await expect(canvasElement.textContent).not.toContain("Sun Ruins");
     await userEvent.click(within(canvasElement.querySelector("#so-story-mes-5") as HTMLElement).getByRole("button", { name: "Memory: 1" }));
     await expect(canvas.getByText("Remembered: The map points east.")).toBeInTheDocument();
+    await expect(canvasElement.querySelectorAll(SO_IN_MESSAGE_TEXT)).toHaveLength(0);
   },
 };
 
@@ -76,6 +78,7 @@ export const AuthorLevelAddsChipsAndSkipsMissingHosts: Story = {
   play: async ({ canvasElement }) => {
     await expect(hostChips(canvasElement, 5)).toEqual(["progress", "memory"]);
     await expect(canvasElement.querySelectorAll('[data-so="inline-chip"][data-category="lore"]')).toHaveLength(0);
+    await expect(canvasElement.querySelectorAll(SO_IN_MESSAGE_TEXT)).toHaveLength(0);
   },
 };
 

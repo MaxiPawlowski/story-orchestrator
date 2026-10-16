@@ -105,6 +105,18 @@ describe("architecture guards", () => {
     expect(MESSAGE_DOM.test('document.querySelector(`.mes[mesid="3"] .mes_text`)')).toBe(true);
   });
 
+  it("never writes inside ST's .mes_text: only reads name it, and the shared selector is the one other mention (v2.8 69 K5)", () => {
+    const relative = (path: string) => path.slice(SRC.length + 1).replace(/\\/g, "/");
+    const live = (path: string) => !/\.(test|stories)\.tsx?$/.test(path);
+    const mentions = walk(SRC).filter((path) => live(path) && /mes_text/.test(readFileSync(path, "utf8"))).map(relative).sort();
+    expect(mentions).toEqual(["sprites/stage.ts", "utils/messageText.ts"]);
+    const WRITES_INTO = /mes_text[^\n]*\.(append|appendChild|prepend|insertBefore|insertAdjacent\w*|after|before|replaceWith|innerHTML|outerHTML)\b/;
+    const uses = (path: string) => [...readFileSync(path, "utf8").matchAll(/[^\n]*mes_text[^\n]*/g)].map((match) => match[0].trim());
+    expect(uses(join(SRC, "sprites/stage.ts")).every((line) => /closest\("\.mes_text"\)/.test(line) && !WRITES_INTO.test(line))).toBe(true);
+    expect(WRITES_INTO.test('block.querySelector(".mes_text").appendChild(host)')).toBe(true);
+    expect(WRITES_INTO.test('const text = target?.closest(".mes_text");')).toBe(false);
+  });
+
   it("lets only the badge module touch ST's character, recent-chat and past-chat lists (v2.7 06 B)", () => {
     const relative = (path: string) => path.slice(SRC.length + 1).replace(/\\/g, "/");
     const LIST_DOM = /\.group_select\b|\.recentChat[.[]|\.select_chat_block\b|rm_print_characters_block|select_chat_div/;
