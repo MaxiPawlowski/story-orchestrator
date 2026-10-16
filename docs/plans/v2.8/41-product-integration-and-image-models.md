@@ -975,3 +975,24 @@ From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licen
 - GPU minutes this session: journey shakedown about 37 busy, latency run 1 about 27 busy, two voided latency starts about 8 (bases).
 - Evidence archive: `lib/evidenceArchive.mts` now also copies the lanes' `debug/p41`, `debug/pose-latency` and `debug/showcase-images` folders (the image drivers' records were not archived before), with a test.
 - Gates on branch `v2.8-image-closeout` (harness and docs only, no `src/` change): `npm run gates:quick` first RED on replay `--cached` (fresh worktree without the replay cache: `jest --listTests` failed), green after a full run wrote the cache. `npm run gates -- --jobs=2 --no-storybook` run 1 RED on `debug:typecheck` (a quote in a new test title, fixed); run 2 all green in 164.8 s: jest 766 suites / 8,853 passed (1 skipped), replay 32/32 killed, test:debug 1,301, test:release 123, test:plugin 311. Storybook skipped: no story or component changed.
+
+## Gate record: POC image close-out defects, 2026-10-16 (LIST, CPU only)
+
+- Source: the 2026-10-15 shakedown misses above. Each defect was re-confirmed by a failing test first.
+- Look-rebuild ("close shot rig look none != look_39e5bf69"):
+  - Root cause: with poses on, the stage only uses `lp_` bodies. When the lead's look changed, no body for the new look existed yet (the render chain was refused or starved). `fallbackBodies` then fell to `default`, the old outfit, and `actorLook` gave `default`, which had no rig. The published `look_<key>` base (stand_relaxed, the new outfit) and its saved rig were never candidates.
+  - Fix: `publishedLook(source, fields)` (`visualManifest.ts`). `StagePoses.choose` adds that base as a stand-in pack and ranks it after the same-look bodies, before other-look bodies and `default`. `actorLook` then names the look key, so the look's rig is found.
+  - Test: `stageBodies.test.ts` "a changed look with its base published stands in on stage…".
+  - Design note: until a body lands, the stand-in shows the neutral face of the new look (that set has only `neutral`).
+- Sol offer flapping: see the plan 36 record.
+- Bust crop cuts the chin on hatted art: see the plan 36 record.
+- Pose renders starved during text turns (3 of 15) and RAM refusals: see the plan 33 record.
+- Harness, a killed wrapper shell leaving node children: see the plan 33 record.
+- Gates on branch `v2.8-image-defects-2` (base `167892d9`), CPU only (no GPU, ComfyUI or model call; the 3090 ran the text suite):
+  - `npm run gates:quick` green after each fix.
+  - `npm run gates -- --jobs=2 --no-storybook` run 1 RED on `test`: `legacyFree.guard` (the name `legacyHeadBox`) and `errorCopy.guard` (the new detector `.catch(() => null)` not in the inventory). Fixed: renamed to `fractionHeadBox`, inventory row added.
+  - Run 2 all green in 189.4 s: jest 772 suites / 8,924 passed (1 skipped), replay 32/32 killed, test:debug 1,316, test:plugin 324 (319 pass, 5 skipped), gpu plugin 127, test:release, lint, typecheck, typecheck:test, debug:typecheck.
+  - Storybook separately on port 6187 (the gates script pins 6006): `storybook:build` then test-runner `--maxWorkers 2`: 147 suites / 882 tests passed.
+  - Main bundle 1,280,994 B (was 1,280,736; budget 1,300,000).
+  - Host RAM was about 11.5 GB free at the start; the suite was not stopped.
+- Live checks: NONE (CPU-only task). Every fix below is unit-proved only; the browser and GPU re-runs are owed.
