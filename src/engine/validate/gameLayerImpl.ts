@@ -19,6 +19,9 @@ import { validateCardLayers } from "./cardLayers";
 import { addCodexQualities, checkCodex, readCodex } from "./codex";
 import { codexLatches, codexScopeUnits, unknownCodexNames } from "../codex";
 import { readCarry } from "./carry";
+import { checkRumors, readRumors } from "./rumors";
+import { spreadRumors } from "../../memory/rumors/spread";
+import { hearsayLines, rumorAuthorRows } from "../../memory/rumors/lines";
 import { carryKnownLines, carryView, importCarryErrors, startSeed } from "../carry";
 import { reachedLabel, storyTimeRow, timeEntry } from "../life/clock";
 
@@ -35,6 +38,8 @@ const FACTIONS = {
 
 const CARRY = { readCarry, importCarryErrors, startSeed, carryKnownLines, carryView };
 
+const RUMORS = { readRumors, checkRumors, spreadRumors, hearsayLines, rumorAuthorRows };
+
 const LATCH_WRITERS = [codexLatches, factionLatches, labelLatches] as const;
 
 const DISCOVERY_UNITS = [codexScopeUnits, factionDiscoveryUnits, labelDiscoveryUnits] as const;
@@ -44,5 +49,5 @@ const ENTRY_WRITERS = [timeEntry] as const;
 export const GAME_LAYER = {
   readCheck, readChecks, checkStoryChecks, addCheckQualities,
   checkDisplays, readDisplay, addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests, readWidgets, life: LIFE, poses, validateCardLayers,
-  codex: CODEX, factions: FACTIONS, carry: CARRY, latchWriters: LATCH_WRITERS, discoveryUnits: DISCOVERY_UNITS, entryWriters: ENTRY_WRITERS,
+  codex: CODEX, factions: FACTIONS, carry: CARRY, rumors: RUMORS, latchWriters: LATCH_WRITERS, discoveryUnits: DISCOVERY_UNITS, entryWriters: ENTRY_WRITERS,
 };

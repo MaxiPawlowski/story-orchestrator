@@ -35,6 +35,8 @@ export abstract class CoordinatorDelegates {
   get meanwhile() { return this.co.meanwhile; }
   get living() { return this.co.living; }
   get promises() { return this.co.promises; }
+  get witness() { return this.co.witness; }
+  get rumors() { return this.co.rumors; }
   get carry() { return this.co.carry; }
   protected generationOpen = false;
   setGenerationOpen(open: boolean) {

@@ -3,6 +3,7 @@ import type { EpistemicEntry, LedgerView, MemoryEntry } from "./types";
 import { contentWords, restatesWords, RESTATE_MIN_SHARED_WORDS } from "./words";
 
 export interface HeldSecret {
+  entryId?: string;
   phrasings: Set<string>[];
   knowers: Set<string>;
   onlyFrom: Set<string> | null;
@@ -18,20 +19,27 @@ const people = (names: string): string[] => names.split(/,|\band\b/i).map(normal
 
 const targets = (entry: EpistemicEntry): string[] => people(entry.hiddenFrom ?? "");
 
-export function heldSecrets(epistemic: readonly EpistemicEntry[], names: readonly string[]): HeldSecret[] {
+export interface SecretDisclosure {
+  entryId: string;
+  names: readonly string[];
+}
+
+export function heldSecrets(epistemic: readonly EpistemicEntry[], names: readonly string[], disclosures: readonly SecretDisclosure[] = []): HeldSecret[] {
   const active = activeEpistemic([...epistemic]);
   const protecting = epistemic.filter(protectsSecret);
   const named = new Set([...names, ...active.map((entry) => entry.subject), ...protecting.map((entry) => entry.subject)].flatMap((name) => [...contentWords(name)]));
   return protecting.flatMap((secret) => {
     const words = stripNames(secret.content, named);
     if (words.size < RESTATE_MIN_SHARED_WORDS) return [];
+    const disclosed = disclosures.filter((entry) => entry.entryId === secret.id).flatMap((entry) => entry.names.map(normalize));
     const barred = new Set(secret.tag === "hiding" ? targets(secret) : [normalize(secret.subject)]);
     const echoes = active.filter((entry) => entry !== secret && entry.tag !== "unaware" && !barred.has(normalize(entry.subject))
       && restatesWords(words, stripNames(entry.content, named)));
     const knowers = new Set(echoes.map((entry) => normalize(entry.subject)));
-    if (secret.tag === "hiding") [normalize(secret.subject), ...people(secret.subject)].forEach((name) => knowers.add(name));
+    if (secret.tag === "hiding") [normalize(secret.subject), ...people(secret.subject), ...disclosed].forEach((name) => knowers.add(name));
     const phrasings = [words, ...echoes.map((entry) => stripNames(entry.content, named)).filter((echo) => echo.size >= RESTATE_MIN_SHARED_WORDS)];
-    return [{ phrasings, knowers, onlyFrom: secret.tag === "unaware" ? barred : null }];
+    const onlyFrom = secret.tag === "unaware" ? new Set([...barred].filter((name) => !disclosed.includes(name))) : null;
+    return [{ entryId: secret.id, phrasings, knowers, onlyFrom }];
   });
 }
 

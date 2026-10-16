@@ -1,5 +1,6 @@
 import { buildJaccardMatchSets, candidatePairs, DEFAULT_DEDUP_THRESHOLDS, type DedupThresholds, type MatchSets, type MemoryEntry, type RelationLookup } from "@memory/index";
-import { buildPairRequest, pairDecision, PAIR_CONCURRENCY, PAIR_MAX_PER_PASS, PAIR_TIMEOUT_MS, readPair, type JudgePairRelation } from "@judge/index";
+import { buildPairRequest, pairDecision, readPair, type JudgePairRelation } from "@judge/memory";
+import { PAIR_CONCURRENCY, PAIR_MAX_PER_PASS, PAIR_TIMEOUT_MS } from "@judge/policy";
 import type { JudgeRuntime } from "./judge";
 import type { VectorHost } from "./hostPorts";
 import { log } from "@utils/log";

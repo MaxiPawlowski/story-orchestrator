@@ -18,7 +18,7 @@ const SRC = join(__dirname, "..");
 // edge into delegated units, so both budgets come down to the design values with headroom below them.
 const MANAGER_LINE_BUDGET = 700;
 const COORDINATOR_LINE_BUDGET = 560;
-const DELEGATED_UNITS = ["runtime/memoryQueue.ts", "runtime/canonSynthesis.ts", "runtime/memorizeBacklog.ts", "runtime/curatorWriter.ts", "runtime/loreCreator.ts"];
+const DELEGATED_UNITS = ["runtime/memoryQueue.ts", "runtime/memoryDecisions.ts", "runtime/canonSynthesis.ts", "runtime/memorizeBacklog.ts", "runtime/curatorWriter.ts", "runtime/loreCreator.ts"];
 const COORDINATOR_SPECIFIER = /(^|\/)coordinators\/|^\.\/\w+Coordinator$/;
 const valueImportsOf = (source: string) => [...source.matchAll(/^import\s+(?!type\s)([\s\S]+?)\s+from\s+"([^"]+)"/gm)]
   .filter((match) => !/^\{[^}]*\}$/.test(match[1].trim()) || match[1].replace(/\btype\s+\w+(\s+as\s+\w+)?/g, "").replace(/[{},\s]/g, "") !== "")

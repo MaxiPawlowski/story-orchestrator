@@ -1,5 +1,5 @@
 import { MEMORY_TIERS, sceneFieldsInConflict } from "@memory/index";
-import { confirmedSceneFacts } from "@judge/index";
+import { confirmedSceneFacts } from "@judge/scene";
 import { getPlayerName, registerHostMacro, unregisterHostMacro } from "@services/STAPI";
 import { renderBlackboardMemo } from "./blackboardMemo";
 import { currentCheckpointText } from "./stretchTurns";

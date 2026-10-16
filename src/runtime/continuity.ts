@@ -1,8 +1,6 @@
 import { agencyForCheckpoint, type EngineState, type NormalizedStoryV2 } from "@engine/index";
-import {
-  buildWardenRequests, CONTINUITY_MAX_FACTS, CONTINUITY_TIMEOUT_MS, houseRulesDecidedInCode, readWarden, readWardenLore, wardenCallFamilies, wardenRecordP,
-  type HouseRuleScene, type WardenInput, type WardenLore,
-} from "@judge/index";
+import type { HouseRuleScene, WardenInput, WardenLore } from "@judge/index";
+import { CONTINUITY_MAX_FACTS } from "@judge/policy";
 import type { WardenCheckFinding } from "@stagecraft/index";
 import { isLive, type ConflictPair, type LedgerView, type MemoryEntry } from "@memory/index";
 import type { Provenance } from "@memory/provenance";
@@ -61,27 +59,7 @@ export function establishedFacts(
 // The warden's own switch is `stagecraft.wardenEnabled`; the judge's master switch still gates
 // every call, so nothing is sent while the judgment model is off. one call asks every
 // family that is on (WARDEN_ARM), and no facts no longer skips it when another family is on.
-export const createWardenCheck = (judge: () => JudgeRuntime | null): WardenCheck => async (input) => {
-  const runtime = judge();
-  const today = { ...input, lore: [] };
-  const lore: WardenInput = { reply: input.reply, facts: [], agency: null, houseRules: [], lore: input.lore ?? [] };
-  const requests = buildWardenRequests(today);
-  const loreRequests = buildWardenRequests(lore);
-  if (!runtime?.enabled()) return null;
-  const ideas = input.ideaScope ? await (await import("./judgeIdeasWarden")).checkIdeaWarden(runtime, input) : [];
-  if (!requests.length && !loreRequests.length && !houseRulesDecidedInCode(today)) return ideas.length ? ideas : null;
-  const ask = async (use: string, list: typeof requests, asked: WardenInput) => {
-    if (!list.length) return null;
-    const families = wardenCallFamilies(asked);
-    const results = await Promise.all(list.map((request) => runtime.ask(use, request, { timeoutMs: CONTINUITY_TIMEOUT_MS, summarize: (answers) => wardenRecordP(answers, asked), families })));
-    return results.some((result) => !result.answers) ? null : Object.assign({}, ...results.map((result) => result.answers));
-  };
-  const [asked, loreAnswers] = await Promise.all([ask("warden", requests, today), ask("wardenLore", loreRequests, lore)]);
-  const answers = asked ?? (!requests.length && houseRulesDecidedInCode(today) ? {} : null);
-  if (!answers && !loreAnswers) return ideas.length ? ideas : null;
-  const contradicted = loreAnswers ? readWardenLore(loreAnswers, lore) : null;
-  return [...ideas, ...(answers ? readWarden(answers, today) : []), ...(contradicted ? [{ ...contradicted, facts: [] }] : [])];
-};
+export const createWardenCheck = (judge: () => JudgeRuntime | null): WardenCheck => async (input) => (await import("./wardenCheck")).checkWarden(judge, input);
 
 // Are their own judge.uses opt-ins. The agency check stands down where the checkpoint lets
 // narration write the player (never_narrate_player_action false): the author allowed it.

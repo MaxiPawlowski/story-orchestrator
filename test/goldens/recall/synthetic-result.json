@@ -1,0 +1,1771 @@
+{
+ "plan": "v2.8 43 (offline replay, no model, no vectors)",
+ "set": "recall-synthetic",
+ "synthetic": true,
+ "pool": "stub: the generator records each case pool in a fixed order (no embeddings); a tooling check, not R-Gate evidence",
+ "rank": "pool order (the E0 winner plugs in later)",
+ "limits": {
+  "poolSize": 32,
+  "topK": 4,
+  "tokenCap": 250,
+  "tokenEstimate": "ceil(chars / 4)"
+ },
+ "thresholds": {
+  "vr1": 0.7,
+  "vr2": 0,
+  "vr2s": 0,
+  "vr2t": 0,
+  "vr2kEligible": 4,
+  "vr2kForbidden": 0,
+  "vr3Max": 250,
+  "vr8WrongSpeaker": 0,
+  "vr8ByteEqual": 1
+ },
+ "minimumShape": {
+  "positives": 20,
+  "exclusions": 20,
+  "askers": 3,
+  "secretScenes": 2,
+  "sessions": 2
+ },
+ "counts": {
+  "sessions": 2,
+  "cases": 62,
+  "positives": 23,
+  "exclusions": 23,
+  "askers": 4,
+  "secretScenes": 4,
+  "rejectedWitnessLines": 0
+ },
+ "vr1": {
+  "hits": 23,
+  "of": 23,
+  "rate": 1
+ },
+ "vr2": {
+  "nonceLines": 0,
+  "unwitnessedLines": 0,
+  "exclusionCases": 23
+ },
+ "vr2s": {
+  "cases": 7,
+  "secretCandidates": 7,
+  "leaks": 0,
+  "provenanceRefusals": 7,
+  "keptFromOnlyRefusals": 0,
+  "attributionRefusals": 0
+ },
+ "vr2t": {
+  "cases": 3,
+  "originLines": 0,
+  "tellingLines": 2,
+  "originRefused": 2
+ },
+ "vr2k": {
+  "cases": 1,
+  "forbiddenInPool": 8,
+  "eligibleInPool": 5,
+  "eligibleReturnedMin": 4,
+  "forbiddenReturned": 0
+ },
+ "vr3": {
+  "maxTokens": 91,
+  "cap": 250,
+  "blocks": 59
+ },
+ "vr8": {
+  "lines": 154,
+  "wrongSpeaker": 0,
+  "byteEqual": {
+   "hits": 154,
+   "of": 154,
+   "rate": 1
+  },
+  "bait": 7,
+  "baitRefused": 7,
+  "baitReasons": {
+   "attribution: multi-speaker": 2,
+   "attribution: narration": 2,
+   "attribution: tagged to another speaker": 1,
+   "attribution: altered quote": 1,
+   "attribution: spans quote marks": 1
+  }
+ },
+ "withheld": {
+  "cases": 3,
+  "fired": 0
+ },
+ "minimums": {
+  "positives": true,
+  "exclusions": true,
+  "askers": true,
+  "secretScenes": true,
+  "sessions": true
+ },
+ "floors": {
+  "vr1": true,
+  "vr2": true,
+  "vr2s": true,
+  "vr2t": true,
+  "vr2k": true,
+  "vr3": true,
+  "vr8": true,
+  "withheld": true
+ },
+ "verdict": "pass",
+ "cases": [
+  {
+   "session": "session-a",
+   "id": "a-pos-01",
+   "kind": "positive",
+   "member": "tamsin",
+   "cue": "exactly",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 0,
+     "role": "gold",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 87,
+   "refused": {}
+  },
+  {
+   "session": "session-a",
+   "id": "a-pos-02",
+   "kind": "positive",
+   "member": "hollis",
+   "cue": "what did name say",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 1,
+     "role": "gold",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    },
+    {
+     "messageId": 4,
+     "role": "filler",
+     "speaker": "Corvin"
+    }
+   ],
+   "tokens": 85,
+   "refused": {}
+  },
+  {
+   "session": "session-a",
+   "id": "a-pos-03",
+   "kind": "positive",
+   "member": "orrin",
+   "cue": "word for word",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 2,
+     "role": "gold",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    },
+    {
+     "messageId": 4,
+     "role": "filler",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 5,
+     "role": "filler",
+     "speaker": "Marlo"
+    }
+   ],
+   "tokens": 87,
+   "refused": {}
+  },
+  {
+   "session": "session-a",
+   "id": "a-pos-04",
+   "kind": "positive",
+   "member": "corvin",
+   "cue": "quote",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 0,
+     "role": "filler",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 3,
+     "role": "gold",
+     "speaker": "Orrin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    }
+   ],
+   "tokens": 87,
+   "refused": {}
+  },
+  {
+   "session": "session-a",
+   "id": "a-pos-05",
+   "kind": "positive",
+   "member": "tamsin",
+   "cue": "exactly",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 4,
+     "role": "gold",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 85,
+   "refused": {}
+  },
+  {
+   "session": "session-a",
+   "id": "a-pos-06",
+   "kind": "positive",
+   "member": "hollis",
+   "cue": "exactly",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 5,
+     "role": "gold",
+     "speaker": "Marlo"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    },
+    {
+     "messageId": 4,
+     "role": "filler",
+     "speaker": "Corvin"
+    }
+   ],
+   "tokens": 87,
+   "refused": {}
+  },
+  {
+   "session": "session-a",
+   "id": "a-pos-07",
+   "kind": "positive",
+   "member": "orrin",
+   "cue": "word for word",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 6,
+     "role": "gold",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 0,
+     "role": "filler",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    }
+   ],
+   "tokens": 91,
+   "refused": {}
+  },
+  {
+   "session": "session-a",
+   "id": "a-pos-08",
+   "kind": "positive",
+   "member": "corvin",
+   "cue": "quote",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 7,
+     "role": "gold",
+     "speaker": "Orrin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 85,
+   "refused": {}
+  },
+  {
+   "session": "session-a",
+   "id": "a-pos-09",
+   "kind": "positive",
+   "member": "tamsin",
+   "cue": "exactly",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 8,
+     "role": "gold",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    },
+    {
+     "messageId": 4,
+     "role": "filler",
+     "speaker": "Corvin"
+    }
+   ],
+   "tokens": 86,
+   "refused": {}
+  },
+  {
+   "session": "session-a",
+   "id": "a-pos-10",
+   "kind": "positive",
+   "member": "hollis",
+   "cue": "what did name say",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 0,
+     "role": "filler",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 9,
+     "role": "gold",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    }
+   ],
+   "tokens": 91,
+   "refused": {}
+  },
+  {
+   "session": "session-a",
+   "id": "a-pos-11",
+   "kind": "positive",
+   "member": "orrin",
+   "cue": "word for word",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 10,
+     "role": "gold",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 82,
+   "refused": {}
+  },
+  {
+   "session": "session-a",
+   "id": "a-exc-01",
+   "kind": "exclusion",
+   "member": "hollis",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 0,
+     "role": "filler",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    }
+   ],
+   "tokens": 46,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-exc-02",
+   "kind": "exclusion",
+   "member": "orrin",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    }
+   ],
+   "tokens": 45,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-exc-03",
+   "kind": "exclusion",
+   "member": "corvin",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 41,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-exc-04",
+   "kind": "exclusion",
+   "member": "hollis",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    },
+    {
+     "messageId": 4,
+     "role": "filler",
+     "speaker": "Corvin"
+    }
+   ],
+   "tokens": 40,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-exc-05",
+   "kind": "exclusion",
+   "member": "corvin",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 0,
+     "role": "filler",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    }
+   ],
+   "tokens": 46,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-exc-06",
+   "kind": "exclusion",
+   "member": "tamsin",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    }
+   ],
+   "tokens": 45,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-exc-07",
+   "kind": "exclusion",
+   "member": "hollis",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 41,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-exc-08",
+   "kind": "exclusion",
+   "member": "orrin",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    },
+    {
+     "messageId": 4,
+     "role": "filler",
+     "speaker": "Corvin"
+    }
+   ],
+   "tokens": 40,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-exc-09",
+   "kind": "exclusion",
+   "member": "corvin",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 0,
+     "role": "filler",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    }
+   ],
+   "tokens": 46,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-exc-10",
+   "kind": "exclusion",
+   "member": "hollis",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    }
+   ],
+   "tokens": 45,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-exc-11",
+   "kind": "exclusion",
+   "member": "corvin",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 41,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-exc-mixed",
+   "kind": "exclusion",
+   "member": "tamsin",
+   "cue": "exactly",
+   "considered": 2,
+   "quotable": 1,
+   "lines": [
+    {
+     "messageId": 0,
+     "role": "filler",
+     "speaker": "Corvin"
+    }
+   ],
+   "tokens": 24,
+   "refused": {
+    "eligibility: mixed message": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-pos-mixed",
+   "kind": "positive",
+   "member": "orrin",
+   "cue": "exactly",
+   "considered": 2,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 24,
+     "role": "gold",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    }
+   ],
+   "tokens": 34,
+   "refused": {}
+  },
+  {
+   "session": "session-a",
+   "id": "a-told-01",
+   "kind": "told",
+   "member": "tamsin",
+   "cue": "what did name say",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 26,
+     "role": "telling",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    }
+   ],
+   "tokens": 45,
+   "refused": {
+    "eligibility: origin of a telling": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-told-02",
+   "kind": "told",
+   "member": "tamsin",
+   "cue": "exactly",
+   "considered": 2,
+   "quotable": 1,
+   "lines": [
+    {
+     "messageId": 28,
+     "role": "telling",
+     "speaker": "Hollis"
+    }
+   ],
+   "tokens": 18,
+   "refused": {
+    "eligibility: origin of a telling": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-told-03",
+   "kind": "told",
+   "member": "orrin",
+   "cue": "what did name say",
+   "considered": 3,
+   "quotable": 1,
+   "lines": [
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 18,
+   "refused": {
+    "eligibility: not witnessed": 2
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-secret-01",
+   "kind": "secret",
+   "member": "tamsin",
+   "cue": "exactly",
+   "considered": 2,
+   "quotable": 1,
+   "lines": [
+    {
+     "messageId": 0,
+     "role": "filler",
+     "speaker": "Corvin"
+    }
+   ],
+   "tokens": 24,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-secret-02",
+   "kind": "secret",
+   "member": "orrin",
+   "cue": "quote",
+   "considered": 2,
+   "quotable": 1,
+   "lines": [
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    }
+   ],
+   "tokens": 22,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-secret-03",
+   "kind": "secret",
+   "member": "tamsin",
+   "cue": "exactly",
+   "considered": 2,
+   "quotable": 1,
+   "lines": [
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    }
+   ],
+   "tokens": 24,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-secret-04",
+   "kind": "secret",
+   "member": "hollis",
+   "cue": "what did name say",
+   "considered": 2,
+   "quotable": 1,
+   "lines": [
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 18,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-vr2k-01",
+   "kind": "vr2k",
+   "member": "orrin",
+   "cue": "exactly",
+   "considered": 13,
+   "quotable": 5,
+   "lines": [
+    {
+     "messageId": 0,
+     "role": "filler",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 87,
+   "refused": {
+    "eligibility: not witnessed": 4,
+    "eligibility: message hidden": 1,
+    "eligibility: message changed": 1,
+    "eligibility: message removed": 1,
+    "eligibility: witness unknown": 1
+   }
+  },
+  {
+   "session": "session-a",
+   "id": "a-withheld-quiet",
+   "kind": "withheld",
+   "member": "corvin",
+   "cue": null,
+   "considered": 0,
+   "quotable": 0,
+   "lines": [],
+   "tokens": 0,
+   "refused": {}
+  },
+  {
+   "session": "session-a",
+   "id": "a-withheld-impersonate",
+   "kind": "withheld",
+   "member": "corvin",
+   "cue": null,
+   "considered": 0,
+   "quotable": 0,
+   "lines": [],
+   "tokens": 0,
+   "refused": {}
+  },
+  {
+   "session": "session-a",
+   "id": "a-withheld-nocue",
+   "kind": "withheld",
+   "member": "hollis",
+   "cue": null,
+   "considered": 0,
+   "quotable": 0,
+   "lines": [],
+   "tokens": 0,
+   "refused": {}
+  },
+  {
+   "session": "session-b",
+   "id": "b-pos-01",
+   "kind": "positive",
+   "member": "tamsin",
+   "cue": "exactly",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 0,
+     "role": "gold",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 84,
+   "refused": {}
+  },
+  {
+   "session": "session-b",
+   "id": "b-pos-02",
+   "kind": "positive",
+   "member": "hollis",
+   "cue": "what did name say",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 1,
+     "role": "gold",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    },
+    {
+     "messageId": 4,
+     "role": "filler",
+     "speaker": "Corvin"
+    }
+   ],
+   "tokens": 89,
+   "refused": {}
+  },
+  {
+   "session": "session-b",
+   "id": "b-pos-03",
+   "kind": "positive",
+   "member": "orrin",
+   "cue": "word for word",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 2,
+     "role": "gold",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    },
+    {
+     "messageId": 4,
+     "role": "filler",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 5,
+     "role": "filler",
+     "speaker": "Marlo"
+    }
+   ],
+   "tokens": 88,
+   "refused": {}
+  },
+  {
+   "session": "session-b",
+   "id": "b-pos-04",
+   "kind": "positive",
+   "member": "corvin",
+   "cue": "quote",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 0,
+     "role": "filler",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 3,
+     "role": "gold",
+     "speaker": "Orrin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    }
+   ],
+   "tokens": 84,
+   "refused": {}
+  },
+  {
+   "session": "session-b",
+   "id": "b-pos-05",
+   "kind": "positive",
+   "member": "tamsin",
+   "cue": "exactly",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 4,
+     "role": "gold",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 89,
+   "refused": {}
+  },
+  {
+   "session": "session-b",
+   "id": "b-pos-06",
+   "kind": "positive",
+   "member": "hollis",
+   "cue": "exactly",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 5,
+     "role": "gold",
+     "speaker": "Marlo"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    },
+    {
+     "messageId": 4,
+     "role": "filler",
+     "speaker": "Corvin"
+    }
+   ],
+   "tokens": 88,
+   "refused": {}
+  },
+  {
+   "session": "session-b",
+   "id": "b-pos-07",
+   "kind": "positive",
+   "member": "orrin",
+   "cue": "word for word",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 6,
+     "role": "gold",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 0,
+     "role": "filler",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    }
+   ],
+   "tokens": 83,
+   "refused": {}
+  },
+  {
+   "session": "session-b",
+   "id": "b-pos-08",
+   "kind": "positive",
+   "member": "corvin",
+   "cue": "quote",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 7,
+     "role": "gold",
+     "speaker": "Orrin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 86,
+   "refused": {}
+  },
+  {
+   "session": "session-b",
+   "id": "b-pos-09",
+   "kind": "positive",
+   "member": "tamsin",
+   "cue": "exactly",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 8,
+     "role": "gold",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    },
+    {
+     "messageId": 4,
+     "role": "filler",
+     "speaker": "Corvin"
+    }
+   ],
+   "tokens": 88,
+   "refused": {}
+  },
+  {
+   "session": "session-b",
+   "id": "b-pos-10",
+   "kind": "positive",
+   "member": "hollis",
+   "cue": "what did name say",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 0,
+     "role": "filler",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 9,
+     "role": "gold",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    }
+   ],
+   "tokens": 86,
+   "refused": {}
+  },
+  {
+   "session": "session-b",
+   "id": "b-pos-11",
+   "kind": "positive",
+   "member": "orrin",
+   "cue": "word for word",
+   "considered": 4,
+   "quotable": 4,
+   "lines": [
+    {
+     "messageId": 10,
+     "role": "gold",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 86,
+   "refused": {}
+  },
+  {
+   "session": "session-b",
+   "id": "b-exc-01",
+   "kind": "exclusion",
+   "member": "hollis",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 0,
+     "role": "filler",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    }
+   ],
+   "tokens": 42,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-b",
+   "id": "b-exc-02",
+   "kind": "exclusion",
+   "member": "orrin",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    }
+   ],
+   "tokens": 44,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-b",
+   "id": "b-exc-03",
+   "kind": "exclusion",
+   "member": "corvin",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 43,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-b",
+   "id": "b-exc-04",
+   "kind": "exclusion",
+   "member": "hollis",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    },
+    {
+     "messageId": 4,
+     "role": "filler",
+     "speaker": "Corvin"
+    }
+   ],
+   "tokens": 45,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-b",
+   "id": "b-exc-05",
+   "kind": "exclusion",
+   "member": "corvin",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 0,
+     "role": "filler",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    }
+   ],
+   "tokens": 42,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-b",
+   "id": "b-exc-06",
+   "kind": "exclusion",
+   "member": "tamsin",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    }
+   ],
+   "tokens": 44,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-b",
+   "id": "b-exc-07",
+   "kind": "exclusion",
+   "member": "hollis",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 43,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-b",
+   "id": "b-exc-08",
+   "kind": "exclusion",
+   "member": "orrin",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    },
+    {
+     "messageId": 4,
+     "role": "filler",
+     "speaker": "Corvin"
+    }
+   ],
+   "tokens": 45,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-b",
+   "id": "b-exc-09",
+   "kind": "exclusion",
+   "member": "corvin",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 0,
+     "role": "filler",
+     "speaker": "Corvin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    }
+   ],
+   "tokens": 42,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-b",
+   "id": "b-exc-10",
+   "kind": "exclusion",
+   "member": "hollis",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    }
+   ],
+   "tokens": 44,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-b",
+   "id": "b-exc-11",
+   "kind": "exclusion",
+   "member": "corvin",
+   "cue": "exactly",
+   "considered": 3,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 43,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-b",
+   "id": "b-secret-01",
+   "kind": "secret",
+   "member": "hollis",
+   "cue": "exactly",
+   "considered": 2,
+   "quotable": 1,
+   "lines": [
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    }
+   ],
+   "tokens": 22,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-b",
+   "id": "b-secret-02",
+   "kind": "secret",
+   "member": "hollis",
+   "cue": "what did name say",
+   "considered": 2,
+   "quotable": 1,
+   "lines": [
+    {
+     "messageId": 2,
+     "role": "filler",
+     "speaker": "Hollis"
+    }
+   ],
+   "tokens": 22,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-b",
+   "id": "b-secret-03",
+   "kind": "secret",
+   "member": "tamsin",
+   "cue": "quote",
+   "considered": 2,
+   "quotable": 1,
+   "lines": [
+    {
+     "messageId": 3,
+     "role": "filler",
+     "speaker": "Orrin"
+    }
+   ],
+   "tokens": 21,
+   "refused": {
+    "eligibility: not witnessed": 1
+   }
+  },
+  {
+   "session": "session-b",
+   "id": "b-vr8-01",
+   "kind": "vr8",
+   "member": "corvin",
+   "cue": "exactly",
+   "considered": 7,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 27,
+     "role": "filler",
+     "speaker": "Hollis"
+    },
+    {
+     "messageId": 30,
+     "role": "filler",
+     "speaker": "Marlo"
+    }
+   ],
+   "tokens": 26,
+   "refused": {
+    "attribution: multi-speaker": 2,
+    "attribution: narration": 1,
+    "attribution: tagged to another speaker": 1,
+    "attribution: altered quote": 1
+   }
+  },
+  {
+   "session": "session-b",
+   "id": "b-vr8-02",
+   "kind": "vr8",
+   "member": "hollis",
+   "cue": "what did name say",
+   "considered": 4,
+   "quotable": 2,
+   "lines": [
+    {
+     "messageId": 29,
+     "role": "filler",
+     "speaker": "Tamsin"
+    },
+    {
+     "messageId": 1,
+     "role": "filler",
+     "speaker": "Tamsin"
+    }
+   ],
+   "tokens": 34,
+   "refused": {
+    "attribution: narration": 1,
+    "attribution: spans quote marks": 1
+   }
+  }
+ ]
+}

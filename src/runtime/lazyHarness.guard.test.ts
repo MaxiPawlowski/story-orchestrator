@@ -115,8 +115,8 @@ export { startLiveReplyEffort } from "./runtime/replyEffortLive";
     expect(staticReach(files, read).filter(isHarness)).toEqual(expect.arrayContaining(["src/runtime/spikes/index.ts", "src/runtime/spikes/swipeBack.ts", "src/runtime/spikes/swipeCache.ts"]));
   });
 
-  it("control: re-exporting the calibrations from the judge barrel again fails", () => {
-    const barrel = join(SRC, "judge", "index.ts");
+  it("control: re-exporting the calibrations from a judge module the runtime imports fails", () => {
+    const barrel = join(SRC, "judge", "scene.ts");
     const fs = require("fs") as typeof import("fs");
     const read = (path: string) => (path === barrel ? `${fs.readFileSync(path, "utf8")}\nexport * from "./sceneCalibration";\n` : fs.readFileSync(path, "utf8"));
     expect(staticReach(files, read).filter(isHarness)).toContain("src/judge/sceneCalibration.ts");

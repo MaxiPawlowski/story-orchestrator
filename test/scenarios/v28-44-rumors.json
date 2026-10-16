@@ -1,0 +1,124 @@
+{
+  "_note": "v2.8 plan 44 (no-model lane): an open rumor starts with the narrator when its gate holds, lands as hearsay in Arin's private block one turn later, never reaches a player surface, shows in Author view, and a swipe of the landing reply takes the hop back to pending (hearsay and private line gone) and the next turn re-lands it at the same due point (G13); a reopen equals the replayed state. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-44-rumors.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off",
+    "authorView": true
+  },
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return true;"
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds ' + ctx.chat.length + ' message(s)'); return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "file": "v28-44-rumors.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); if (rt.getGlobalSettings().memory.rumors === false) throw new Error('rumors are switched off'); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const rumors = () => rt.getSnapshot().rumorsAuthor ?? []; const events = () => rt.rumors.state().events; const line = () => { const ctx = SillyTavern.getContext(); const chid = ctx.characters.findIndex((character) => character.name === 'Arin'); rt.onMemberDrafted(chid); return String(rt.getAppliedEpistemicBlock() ?? ''); }; const saved = async () => { for (let i = 0; i < 100 && rt.getSnapshot().saveHealth?.pendingBoundary != null; i += 1) await pause(100); if (rt.getSnapshot().saveHealth?.pendingBoundary != null) throw new Error('the last boundary is not saved'); }; const reopen = async () => { const chatId = SillyTavern.getContext().chatId; await SillyTavern.getContext().reloadCurrentChat(); await until(() => rt.getSnapshot().storyId === 'so-v28-44-rumors', 10000, 'the story to hydrate after the reopen'); if (SillyTavern.getContext().chatId !== chatId) throw new Error('the reopen moved the page'); rt.setUiSettings({ authorView: true }); await pause(1500); }; globalThis.__r44 = { pause, until, rumors, events, line, saved, reopen }; if (events().length) throw new Error('a rumor moved before its gate: ' + JSON.stringify(events())); return { events: 0 };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The town bell rings once, cracked and flat."
+    },
+    {
+      "slash": "/cp set bell_rang true"
+    },
+    {
+      "eval": "const r = globalThis.__r44; await r.until(() => r.events().length === 2, 10000, 'the origin and the scheduled hop'); const [origin, hop] = r.events(); if (origin.hop !== 0 || !origin.landedAt || hop.to !== 'arin' || hop.landedAt) throw new Error('expected a landed origin and a pending hop: ' + JSON.stringify(r.events())); if (r.line().includes('told you')) throw new Error('the hop landed before its delay'); r.hop = hop; return { origin: origin.occurrenceId, hop: hop.occurrenceId, due: hop.due };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" Arin, the miller's boy runs past shouting about the tower."
+    },
+    {
+      "eval": "const r = globalThis.__r44; await r.until(() => r.events().find((event) => event.to === 'arin')?.landedAt, 10000, 'the hop to land'); const landed = r.events().find((event) => event.to === 'arin'); if (landed.occurrenceId !== r.hop.occurrenceId || JSON.stringify(landed.due) !== JSON.stringify(r.hop.due)) throw new Error('the hop changed identity or due point'); await r.until(() => r.line().includes('DM Narrator told you: the old bell tower cracked in the night'), 10000, 'the hearsay line in the private block of Arin'); const panel = r.rumors(); if (!panel.some((row) => row.status === 'landed' && row.to === 'Arin')) throw new Error('Author view has no landed rumor row: ' + JSON.stringify(panel)); r.landed = landed; r.landedAt = SillyTavern.getContext().chat.length - 1; await r.saved(); return { landedAt: landed.landedAt, panel: panel.length };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await globalThis.__r44.pause(800); const snap = globalThis.storyOrchestratorRuntime.getSnapshot(); if (snap.rumorsAuthor) throw new Error('the rumor list reached player mode'); if (JSON.stringify(snap.game ?? {}).includes('bell tower')) throw new Error('a rumor reached the player view'); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); await globalThis.__r44.pause(800); return { authorView: true };"
+    },
+    {
+      "record_state": {
+        "as": "r44-landed"
+      }
+    },
+    {
+      "eval": "const r = globalThis.__r44; await r.reopen(); const landed = r.events().find((event) => event.to === 'arin'); if (JSON.stringify(landed) !== JSON.stringify(r.landed)) throw new Error('the reopen changed the hop: ' + JSON.stringify(landed)); return { kept: true };",
+      "log": true
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "r44-landed",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const last = ctx.chat.length - 1; if (last !== globalThis.__r44.landedAt) throw new Error('a message landed after the landing reply'); const reply = ctx.chat[last]; reply.swipes = [reply.mes, 'Arin, a cart rattles past and nobody says a word.']; reply.swipe_id = 0; reply.swipe_info = [{}, {}]; await ctx.saveChat(); return { swipeable: last };"
+    },
+    {
+      "swipe": {
+        "messageId": "last",
+        "swipeId": 1
+      }
+    },
+    {
+      "eval": "const r = globalThis.__r44; await r.until(() => { const hop = r.events().find((event) => event.to === 'arin'); return hop && !hop.landedAt; }, 15000, 'the swipe to take the landed hop back to pending'); const hop = r.events().find((event) => event.to === 'arin'); if (hop.occurrenceId !== r.landed.occurrenceId || JSON.stringify(hop.due) !== JSON.stringify(r.landed.due)) throw new Error('the pending hop changed identity or due point'); if (globalThis.storyOrchestratorRuntime.rumors.state().hearsay.some((row) => row.receiver === 'arin')) throw new Error('the hearsay row survived the swipe'); await r.until(() => !r.line().includes('told you'), 10000, 'the hearsay line to leave the private block of Arin'); return { pending: hop.occurrenceId };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" Arin, the miller's boy runs past again, out of breath."
+    },
+    {
+      "eval": "const r = globalThis.__r44; await r.until(() => r.events().find((event) => event.to === 'arin')?.landedAt, 15000, 'the hop to land again on the next turn'); const again = r.events().find((event) => event.to === 'arin'); if (again.occurrenceId !== r.landed.occurrenceId || JSON.stringify(again.due) !== JSON.stringify(r.landed.due) || again.landedAt.boundary < again.due.boundary || again.landedAt.messageId !== SillyTavern.getContext().chat.length - 1) throw new Error('the hop did not re-land at the same due point: ' + JSON.stringify({ again, before: r.landed })); const rows = globalThis.storyOrchestratorRuntime.rumors.state().hearsay.filter((row) => row.receiver === 'arin'); if (rows.length !== 1) throw new Error('expected one hearsay row after the swipe, got ' + rows.length); await r.saved(); return { relanded: again.landedAt };",
+      "log": true
+    },
+    {
+      "record_state": {
+        "as": "r44-replayed"
+      }
+    },
+    {
+      "eval": "const r = globalThis.__r44; await r.reopen(); if (r.events().length !== 2) throw new Error('the reopen changed the rumor log'); return { events: r.events().length };",
+      "log": true
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "r44-replayed",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary"
+          ]
+        }
+      }
+    }
+  ]
+}

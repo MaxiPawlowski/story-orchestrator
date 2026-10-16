@@ -9,9 +9,10 @@ import {
   type StallCase, runCriticCalibration, type CriticCase, runVariantCalibration, type VariantStub, type MemoryPairCase,
   type MemoryVerifyCase, type JudgeSelfTestCase, type JudgeSelfTestReport,
 } from "@judge/calibration";
-import {
-  runCuratorFilterCalibration, DEFAULT_JUDGE_PROVIDER, type CuratorFilterCase, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeProviderId, type JudgeRequest, type JudgeResult,
-} from "@judge/index";
+import { runCuratorFilterCalibration, type CuratorFilterCase } from "@judge/curatorFilter";
+import type { JudgeDirectorDecision, JudgeDirectorInput } from "@judge/director";
+import { DEFAULT_JUDGE_PROVIDER, type JudgeProviderId } from "@judge/providers";
+import type { JudgeRequest, JudgeResult } from "@judge/types";
 import {
   runContradictionReleaseCalibration, scoreReleasePhaseA, type ContradictionReleaseCase, type ReleasePhaseAVerdict,
 } from "@judge/contradictionCalibration";

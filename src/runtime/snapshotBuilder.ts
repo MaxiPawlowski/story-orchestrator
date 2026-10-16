@@ -6,7 +6,9 @@ import {
 import type { DriverContext } from "@copilot/index";
 import { castVoices, sceneFieldsInConflict, shownRows, withoutExcludedThreads, type LedgerView, type MemoryInjectionView } from "@memory/index";
 import { curatorLorebooks, mineRepetition, replyTexts } from "@stagecraft/index";
-import { confirmedSceneFacts, isSceneStale, judgeMeterView, judgeRouteGaps } from "@judge/index";
+import { judgeRouteGaps } from "@judge/readiness";
+import { confirmedSceneFacts, isSceneStale } from "@judge/scene";
+import { judgeMeterView } from "@judge/settings";
 import { buildConvergenceReadout, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot, playerLastTransition } from "./snapshot";
 import { currentThreads, latestScene } from "./recapCurrent";
 import { buildNarrativeStatus, PLAYER_COPY, playerLocation, type NarrativeTransition, type RollbackNotice, type RollbackUnavailable } from "./narrative";
@@ -58,6 +60,7 @@ import { factionAuthorSlice } from "./factionSnapshot";
 import { carrySlice } from "./carryPort";
 import { livingSlice } from "./livingSnapshot";
 import { promisesSlice } from "./promiseSnapshot";
+import { rumorAuthorSlice } from "./rumorPort";
 import { graphEpoch } from "@generation/living/fold";
 import { buildPresence } from "./presence";
 import { deriveTurn } from "./yourMove";
@@ -470,6 +473,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     memory: extras.memory, memoryShown: shownRows(extras.memory.entries, sources.resting ?? ((text: string) => text)),
     chapters,
     promises: promisesSlice(story, extras, blackboard),
+    rumorsAuthor: rumorAuthorSlice(story, extras),
     pacing: extras.pacing,
     copilot: extras.copilot,
     ui: extras.ui,

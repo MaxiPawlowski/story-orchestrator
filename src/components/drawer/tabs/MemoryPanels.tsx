@@ -1,6 +1,7 @@
 import type { EffectTarget, RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 import { MessageCitation } from "../MessageCitation";
+import { RumorsPanel } from "../RumorsPanel";
 
 const EPISTEMIC_TAG_LABELS: Record<string, string> = { knows: "knows", suspects: "suspects", believes: "believes (false)", unaware: "unaware", hiding: "hiding" };
 
@@ -150,6 +151,7 @@ const AuthorMemoryPanels = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; 
     <EpistemicPanel snapshot={snapshot} manager={manager} />
     <LedgerPanel snapshot={snapshot} manager={manager} />
     <EffectLedgerPanel snapshot={snapshot} />
+    {snapshot.rumorsAuthor ? <RumorsPanel rows={snapshot.rumorsAuthor} /> : null}
   </>
 );
 

@@ -11,6 +11,7 @@ import { getCanonLite } from "@extraction/canonLite";
 import type { ModelAsk } from "@extraction/modelRoute";
 import { canonHistory, heldSecrets, withoutSecretLines, type ArcEntry, type EpistemicEntry, type MemoryEntry } from "@memory/index";
 import { CanonSynthesis } from "./canonSynthesis";
+import type { CanonView } from "./canonView";
 import { MemoryCoordinator } from "./coordinators/memoryCoordinator";
 import { storySoFar } from "./chapterKit";
 import type { ChapterHost } from "./chapterPort";
@@ -145,7 +146,7 @@ describe("canon and held secrets: the synthesis input is the resting view, so th
 });
 
 describe("canon and held secrets: every reader of the stored text goes through the resting view, line by line", () => {
-  const cases: Array<[string, (synthesis: CanonSynthesis) => string]> = [
+  const cases: Array<[string, (synthesis: CanonView) => string]> = [
     ["getCanon (story_canon macro, curator, expansion)", (synthesis) => synthesis.getCanon()],
     ["getCanonAt (driver)", (synthesis) => synthesis.getCanonAt("b")],
     ["getCanonProse (drawer Overview, away recap, /story recap)", (synthesis) => synthesis.getCanonProse()],
