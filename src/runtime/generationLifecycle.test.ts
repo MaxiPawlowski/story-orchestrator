@@ -1,4 +1,5 @@
-import { GenerationLifecycle, isHostEndedShape, isHostStartedShape, type GenerationIntent } from "./generationLifecycle";
+import { GenerationLifecycle, isHostEndedShape, isHostStartedShape, WITHHOLD_CAP_MS, type GenerationIntent } from "./generationLifecycle";
+import { callTimeoutMs, MAX_TOKENS_TABLE } from "@extraction/callBudget";
 
 const NON_TURN = new Set(["first_message", "extension"]);
 const lifecycle = () => new GenerationLifecycle((type) => typeof type !== "string" || !NON_TURN.has(type));
@@ -145,5 +146,54 @@ describe("GenerationLifecycle (v2.4 plan 01 T6)", () => {
     expect(g.snapshot().openedCount).toBe(1);
     g.started(["normal", {}, false], 0);
     expect(g.snapshot().openedCount).toBe(2);
+  });
+});
+
+describe("v2.8 69 K9: a withholding run that never ended is closed by the next run that is not it", () => {
+  it("a quiet run returns before sending (no ENDED), then a loud run starts: the quiet hold closes and the loud run opens", () => {
+    for (const type of ["quiet", "impersonate"]) {
+      const g = lifecycle();
+      expect(kinds(g.started([type, {}, false], 3, 1000))).toEqual(["opened"]);
+      expect(kinds(g.started(["normal", {}, false], 3, 1200))).toEqual(["closed:ended", "settled:false", "opened"]);
+      expect(g.snapshot().outermost).toEqual({ type: "normal", watermark: 3 });
+      expect(g.snapshot().nested).toEqual([]);
+    }
+  });
+
+  it("our own generate interceptor entry of a loud run closes a stale withholding run; the carrying run's own entry does not", () => {
+    const g = lifecycle();
+    g.started(["quiet", {}, false], 3, 1000);
+    expect(g.intercepted("quiet", 1100)).toEqual([]);
+    expect(kinds(g.intercepted("normal", 1200))).toEqual(["closed:ended", "settled:false"]);
+    expect(g.snapshot().outermost).toBeNull();
+    expect(g.intercepted("normal", 1300)).toEqual([]);
+  });
+
+  it("a legitimate nested quiet keeps its carry: inside a loud run, and a group quiet's member start inside its wrapper", () => {
+    const loud = lifecycle();
+    loud.started(["normal", {}, false], 4, 1000);
+    expect(loud.started(["quiet", {}, false], 4, 1000 + 2 * WITHHOLD_CAP_MS)).toEqual([{ kind: "nested", type: "quiet", params: {}, withholds: true }]);
+    expect(loud.expire(1000 + 3 * WITHHOLD_CAP_MS)).toEqual([]);
+    expect(loud.intercepted("quiet", 1000)).toEqual([]);
+    const group = lifecycle();
+    group.started(["quiet", { quiet_prompt: "sum" }, false], 20, 1000);
+    expect(kinds(group.started(["quiet", { quiet_prompt: "sum" }, false], 20, 1500))).toEqual(["nested"]);
+  });
+
+  it("a withholding run still open after the cap is closed by the timer, and only then", () => {
+    const g = lifecycle();
+    g.started(["impersonate", {}, false], 3, 1000);
+    expect(g.expire(1000 + WITHHOLD_CAP_MS - 1)).toEqual([]);
+    expect(kinds(g.expire(1000 + WITHHOLD_CAP_MS))).toEqual(["closed:ended", "settled:false"]);
+    expect(g.expire(1000 + 2 * WITHHOLD_CAP_MS)).toEqual([]);
+    const nested = lifecycle();
+    nested.started(["quiet", {}, false], 3, 1000);
+    expect(kinds(nested.started(["quiet", {}, false], 3, 1000 + WITHHOLD_CAP_MS))).toEqual(["closed:ended", "settled:false", "opened"]);
+  });
+
+  it("the cap is the longest single model call our own timeouts allow: the largest answer at a 32,768-token context", () => {
+    const largest = Math.max(...Object.values(MAX_TOKENS_TABLE).map((budget) => ("fixed" in budget ? budget.fixed : budget.cap)));
+    expect(WITHHOLD_CAP_MS).toBe(callTimeoutMs(largest, 32768));
+    expect(WITHHOLD_CAP_MS).toBe(300336);
   });
 });
