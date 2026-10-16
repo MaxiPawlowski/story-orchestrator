@@ -641,3 +641,9 @@ Gates (34 harvest included):
    run: 1/10). Alternative: keep A6 and score only tasks the agent chose to revise.
 2. **A non-replacement reply while a card is held is dropped** (the agent gets a fresh turn after the author decides).
    Recommended: keep; executing it would put a second pending card or a "done" in front of the held one.
+
+### Owner decisions 2026-10-16 (via "go with your recommendations")
+
+- A6 stays as recorded: 0/10, a miss (floors are never retuned after a run). Two informational rows are added for a later run: A6a, revision clears the note on an author-written card when the task asks to fix what the check flags, x2 on Sol; A6b, share of first cards with notes on rough-draft tasks (lower is better).
+- A non-revision reply while a card is held stays dropped.
+- A7 waits for a lore-rule-off measurement switch and a blind two-rater command.
