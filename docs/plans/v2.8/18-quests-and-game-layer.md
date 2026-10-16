@@ -140,6 +140,7 @@ source:
   `runtime/settingsModel.ts:37`).
 - Prior art: the Multihog "DC before the roll" and Gamemaster "code rolls the outcome" ideas (`SUMMARY.md` §8,
   ideas 5 and 7).
+- **Attempt gate `when` (owner 2026-10-16), checkpoint checks only.** See §Gate record addendum 2026-10-16: check `when`.
 
 ### Q4. Achievements / milestones
 
@@ -450,6 +451,47 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda (18), §1. Verified on `e
   controls; `loss_when` dropped in favour of existing effects and quest `set`.
 - **Fold 64 here.** Adopted as §Phase Q7 (its own review subsection above).
 - Rebutted: none.
+
+## Gate record addendum 2026-10-16: check `when` (branch `v2.8-check-when`, unmerged)
+
+- Owner 2026-10-16: optional attempt gate `when` on `checkpoints[].checks[]`; the roll never chooses a route by itself.
+- Built (`d62b2277`, docs `7cfe1708`):
+  - `StoryCheck.when` (ordinary gate). Pending while the checkpoint is active until `when` holds; rolls at the first boundary
+    where it holds, in the derive step (`BOUNDARY_STEPS` "derive", where checks already roll), once per visit. Dice stay
+    visit-seeded (`[chat, story, checkpointStartedBoundary, check:<id>:<die>]`, as today), modifiers read at the roll; the
+    outcome is kept for the rest of the visit (later modifier changes and `when` turning false change nothing). A pending
+    check writes nothing, so its qualities keep their last value; routes still pair with the attempt (guide "If wrong").
+  - Compiled code key `check_<id>_rolled` (int, the roll's boundary; only for checks with `when`); rolled this visit iff
+    value > `checkpointStartedBoundary`, so a re-entry (self-loop too) is pending again. ROLLBACK_DETECTORS `check-attempts`;
+    SC1 guard story gains a `when` check (`check_ford_rolled` covered).
+  - Records: a `when` check records only at its roll boundary (`evaluated[key] === boundary`).
+  - Validator (`validate/checkRefs.ts`): unknown `when` key refused with did-you-mean (`nearestKey`); literal/op checks via
+    `validateGate`; reading the check's own written keys or its attempt key refused; `when` on a transition check refused;
+    an authored quality named `check_<id>_rolled` refused.
+  - Extraction scope: the active checkpoint's `when` keys are pulled (`gate`, "check <id> when"); Studio's in-scope set too
+    (no `quality-never-in-scope` for a when-only quality).
+  - Docs: guide topic `checks` + compact twin, `npm run docs:guide`; Studio check editor hint/help + story
+    `CheckpointCheckWithWhen`; plan 24 `quests` row.
+- Tests (`src/runtime/storyCheckWhen.test.ts`, 17): golden no-`when` (parsed-story sha256 and a five-turn run sha256 and
+  records recorded on master before the change: identical); pending until `when`; rolls once (modifier and `when` flips
+  ignored); visit-seeded draws equal the no-`when` draws; swipe of the rolling reply rolls back, replay rolls the same
+  dice once; swiped reply without the attempt stays pending; rollback across the roll ≡ replay; seeded property, 40 runs,
+  rollback ≡ replay; revisit pending then fresh roll; detector covers the key; scope pulls `when` keys only while active;
+  6 validator errors. Plus `rollbackDetectors.guard.test.ts` and `studio/diagnostics.test.ts` additions.
+- Floors (D): no-`when` byte-identical: met. Rollback ≡ replay: met (fixed cases + 40-run property, ≥ 6 swiped runs).
+  Validator errors: met.
+- Gates (load limit, owner busy): `npx tsc --noEmit` ok; `tsc -p tsconfig.test.json` ok; eslint on changed src ok;
+  jest `--maxWorkers=1` on 40 related suites (engine rollback/quests/codex/carry/labels/storyDiff/boundaryOrder,
+  runtime checks/chance/widgets/rolls/consequences/architecture/arrival, extraction scope, studio diagnostics, copilot
+  guide/tools): 598/598. `node scripts/suite/coverage.mjs`: `quests` green with the new test. Full `npm run gates`,
+  Storybook and live lanes NOT run (owner load limit); owed before merge.
+- Merge note: conflicts with `v2.8-audience-42-44` in `validate.ts` and `gameLayerImpl.ts` (the quality-compile chain and
+  `GAME_LAYER`); resolved in the scratch merge used for the campaign (master + this branch + 42-44, `b51a60d9`).
+- Campaign (adolion-adopt `v2.8-adopt-features`, `411f4d4`, on `d3aab6c`): both public checks gated on `when` (2 acts,
+  Saga 2); one existing attempt read reused, one minimal latching attempt read added in `scripts/campaign/world.py`, read
+  by no route; transitions and quests identical in every build and lab copy (2 lab sets rebuilt). `scripts/check_all.sh
+  --serial` (GATE_JOBS=1) with `SO_PLUGIN` = the scratch merge: ALL GREEN, 13/13 labs. Pin and `adolion-campaign` not
+  touched; real-LLM play of the gated checks owed (RP).
 
 ## Gate record 2026-10-16: Phase Q7 (branch `v2.8-harvest-18-65-68`, unmerged)
 
