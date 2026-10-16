@@ -39,7 +39,8 @@ describe("E0 public golden (no text, slots for ids)", () => {
   });
 
   const privateGolden = "goldens/e0/private-result.json";
-  (existsSync(join(root, privateGolden)) ? it : it.skip)("private run 2026-10-16: the recorded golden replays to its recorded verdict and metrics", () => {
+  it("private run 2026-10-16: the recorded golden replays to its recorded verdict and metrics", () => {
+    if (!existsSync(join(root, privateGolden))) throw new Error(`Missing E0 private golden: ${privateGolden}`);
     const golden = read(privateGolden) as E0Golden & { result: { arms: Array<{ arm: string; metrics: unknown }>; verdict: unknown } };
     const replayed = replayE0Golden(golden);
     expect(replayed.arms.map((arm) => [arm.arm, arm.metrics])).toEqual(golden.result.arms.map((arm) => [arm.arm, arm.metrics]));
