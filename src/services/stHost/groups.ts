@@ -25,6 +25,24 @@ export function resolveGroupMemberId(identifier: string): string | null {
   return found ?? null;
 }
 
+// ST's /trigger reads a numeric argument as a group position and anything else through a fuzzy name
+// search (group-chats.js findGroupMemberId, :353-417), so a member named "2" was member 2 and a
+// missing name still generated whoever ST picked. The member is resolved here, exactly, to its position.
+export function groupMemberPosition(name: string): WriteResult<{ position: number }> {
+  const group = getActiveGroup();
+  const wanted = trim(name).toLowerCase();
+  if (!group || !wanted) return couldNot(group ? "no member was named" : "no group is open");
+  const characters = getContext().characters ?? [];
+  const positions = group.members.flatMap((member, position) => {
+    const card = characters.find((entry) => entry.avatar === member);
+    const names = [trim(card?.name).toLowerCase(), member.toLowerCase(), member.replace(/\.[a-z0-9]+$/i, "").toLowerCase()];
+    return names.includes(wanted) ? [position] : [];
+  });
+  if (!positions.length) return couldNot(`"${trim(name)}" is not a member of this group`);
+  if (positions.length > 1) return couldNot(`${positions.length} members of this group are called "${trim(name)}"`);
+  return wrote({ position: positions[0] });
+}
+
 // The group is SHARED: `disabled_members` outlives the chat that wrote it, so the
 // result has to say whether ST accepted the change rather than whether we meant it.
 // `editGroup(id, false)` only schedules ST's 1 s debounced save, and `_save` never reads the

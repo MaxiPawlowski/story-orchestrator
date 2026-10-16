@@ -1,6 +1,7 @@
 const host = { chatId: "chat-parent", group: { id: "1790919206079", disabled_members: [] as string[] }, calls: [] as string[], speakingAtSlash: [] as boolean[], speaking: () => false };
 
 jest.mock("@services/STAPI", () => ({
+  groupMemberPosition: () => ({ ok: true, position: 0 }),
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),

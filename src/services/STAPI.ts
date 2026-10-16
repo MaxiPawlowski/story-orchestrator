@@ -79,7 +79,7 @@ export {
 } from "@services/stHost/selectors";
 export type { HostLoreBindings, HostSlashCommandMeta } from "@services/stHost/selectors";
 export {
-  addGroupMembers, getActiveGroup, openGroupById, resolveGroupMemberId, setGroupMembersDisabled, setGroupMemberDisabled, setGroupMemberFlags, readGroupMemberDisabled,
+  addGroupMembers, getActiveGroup, groupMemberPosition, openGroupById, resolveGroupMemberId, setGroupMembersDisabled, setGroupMemberDisabled, setGroupMemberFlags, readGroupMemberDisabled,
 } from "@services/stHost/groups";
 export { fillChatInput, guardHostStream, readChatInput, watchHostChatMove, hostSystemUserName, isHostGenerating, stopHostGeneration, willAddUserMessage } from "@services/stHost/generation";
 export { startGroupVoice } from "@services/stHost/generation";

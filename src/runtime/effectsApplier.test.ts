@@ -27,7 +27,12 @@ jest.mock("@services/STAPI", () => ({
   lorebookExists: jest.fn((name: string) => name !== "Missing Book"),
   applyBackground: jest.fn(async () => ({ ok: true, changed: true, from: "old.jpg", to: "tavern day.jpg" })),
   getActiveGroup: jest.fn(() => ({ id: "g1", disabled_members: [] })),
+  watchHostChatMove: () => () => undefined,
+  guardHostStream: () => ({ halt: () => false, release: () => undefined }),
+  isHostGenerating: () => false,
+  stopHostGeneration: () => undefined,
   resolveGroupMemberId: jest.fn((name: string) => (name === "Mara" ? "mara-chid" : null)),
+  groupMemberPosition: jest.fn((name: string) => (name === "2" ? { ok: true, position: 0 } : name === "Mara" ? { ok: true, position: 3 } : { ok: false, reason: `"${name}" is not a member of this group` })),
 }));
 
 const makeExtras = (): RuntimeExtras => ({
@@ -43,6 +48,27 @@ const checkpointWith = (replies: unknown[]): Checkpoint => ({
   type: "anchor",
   effects: { npc_replies: replies },
 }) as unknown as Checkpoint;
+
+describe("v2.8 69 K10: an llm NPC reply triggers its member by group position", () => {
+  beforeEach(() => {
+    (executeSlashCommands as jest.Mock).mockClear();
+    mockContext.chat = [{ mes: "one" }, { mes: "two" }];
+  });
+
+  it("triggers the position the member resolves to, so a member named \"2\" gets its own reply", async () => {
+    const applier = new EffectsApplier(testOwnership());
+    await applier.fireNpcReplies(checkpointWith([{ trigger: "afterSpeak", member: "2", kind: "llm", instruction: "Answer." }]), makeExtras(), "afterSpeak");
+    expect((executeSlashCommands as jest.Mock).mock.calls.map((call) => call[0])).toEqual(["/trigger await=true 0"]);
+  });
+
+  it("a member the group does not hold is refused with a journal line and nothing is generated", async () => {
+    const lines: string[] = [];
+    const applier = new EffectsApplier(testOwnership(), { journal: (summary, note) => { lines.push(`${summary}: ${note ?? ""}`); } });
+    await applier.fireNpcReplies(checkpointWith([{ trigger: "afterSpeak", member: "Zed", kind: "llm", instruction: "Answer." }]), makeExtras(), "afterSpeak");
+    expect(executeSlashCommands).not.toHaveBeenCalled();
+    expect(lines).toEqual([expect.stringContaining("\"Zed\" is not a member of this group")]);
+  });
+});
 
 describe("fireNpcReplies v1 parity", () => {
   beforeEach(() => {

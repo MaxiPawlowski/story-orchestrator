@@ -54,6 +54,7 @@ jest.mock("@services/STAPI", () => {
     readLoreBindings: () => ({ global: [], chat: null, persona: null, characters: [] }),
     watchHostChatMove: () => () => undefined,
     guardHostStream: () => ({ halt: () => false, release: () => undefined }),
+    groupMemberPosition: () => ({ ok: true, position: 0 }),
     saveOpenChat: async () => { await (mockContext).saveMetadata?.(); return { ok: true as const, chatId: "" }; },
     setStoryExtensionPrompt: (key: string, text: string, depth: number) => { mockExtensionPrompts[key] = { value: text, depth }; },
     clearStoryExtensionPrompt: (key: string) => { delete mockExtensionPrompts[key]; },

@@ -407,7 +407,8 @@ export class EffectsApplier {
     lapse?.addEventListener("abort", stopIfOurs, { once: true });
     const unwatch = watchHostChatMove(chatId, stopIfOurs);
     try {
-      await fireReply(reply);
+      const fired = await fireReply(reply);
+      if (!fired.ok) this.deps.journal?.(`${reply.member}'s reply was not triggered`, fired.reason);
     } finally {
       unwatch();
       lapse?.removeEventListener("abort", stopIfOurs);
