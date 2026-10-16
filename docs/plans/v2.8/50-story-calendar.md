@@ -326,17 +326,23 @@ covers it).
 
 ## Harvest 2026-10-14 addendum
 
-From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted). First verified against master `9e96871d`; revised 2026-10-16 on `e8b9dd6d` after `review-astra-harvest-2026-10-16.md`. The owner decides with the rest of this plan.
 
-- **H14a meanwhile due on elapsed story time** (`docs/plans/v2.8/extension-research-2026-10-14/multihog-dnd-framework.md` P1, 3/S). `meanwhileDue`
-  (`src/runtime/agendaProposals.ts:123-128`) checks only a boundary gap. Recommended for B1a: record `story_time` in each
-  meanwhile pass and make a pass due when `story_time` advanced by at least one part since the last pass (or the boundary gap,
-  whichever first), so a long scene in one evening does not generate off-screen news every few boundaries and a skip read
-  does. Floor: on a scripted 20-boundary run with 2 time advances, passes = 2 (+ gap fallback), D.
-- **H5b time-change chips per reply** (`docs/plans/v2.8/extension-research-2026-10-14/rpg-companion.md` P2, 3/S). When `story_time` advanced at a boundary, the inline
-  strip shows "evening → night" on that reply; a skip shows "→ next morning". Only when the story displays time (§8, T7
-  byte-identical without it); derived from the boundary log like `changedAgo`, so rollback-safe. Floor: chip present exactly
-  on advancing boundaries over a 20-turn scripted run, D. The "here now" card (new plan v2.8 65) reads the same label.
+- **H14a meanwhile due on elapsed story time** (`docs/plans/v2.8/extension-research-2026-10-14/multihog-dnd-framework.md` P1, 3/S). **Built with B1a**:
+  `meanwhileDue` (`src/runtime/agendaProposals.ts:132-139`) makes a pass due when story time moved since the last pass, or on a
+  story event once `MEANWHILE_MIN_GAP` (8, `:6`) boundaries have passed. The event fallback is **intentional**: a long scene in
+  one time part may still get off-screen news, at most once per 8 boundaries. Exact floors: (a) 20 boundaries, 2 time
+  advances, no events: exactly 2 passes, on the advancing boundaries (built, `src/runtime/meanwhilePlay.review.test.ts`); (b)
+  20 boundaries in one time part with an event at every boundary, an open agenda and no proposal left waiting
+  (`meanwhileDue` skips while one waits, `:134`): passes exactly at boundaries 0, 8 and 16 (3); (c) a time
+  advance inside the gap: a pass on that boundary and the gap counted from it, D.
+- **H5b time-change chips per reply** (`docs/plans/v2.8/extension-research-2026-10-14/rpg-companion.md` P2, 3/S). Not built (B1c rest). When `story_time` advanced at a
+  boundary, the inline strip shows "evening → night" on that reply; a skip shows "→ next morning". Only when the story displays
+  time (§8, T7 identical without it); derived from the boundary log, so rollback-safe. Floor: chip present exactly on advancing
+  boundaries over a 20-turn scripted run, D. The "here now" card (v2.8 65) reads the same label.
+- **R15 realization status for landed meanwhile notes** (`docs/plans/v2.8/extension-research-2026-10-14/multihog-dnd-framework.md` P2, 2/M). Deferred note: a landed
+  note could be marked realized when a later read evidences its event, or lapsed after N boundaries. Not planned until a
+  session shows unrealized notes contradicting play.
 
 ## Gate record 2026-10-15 (B1a, B1b, B1c core on `v2.8-p50-time`)
 
@@ -434,3 +440,13 @@ Owed
 - B1c rest: `clock` widget on `time_part`, deadline clocks author-only, player time display, H5b chips.
 - B2 (skip read, director op, `per_days` agendas, T9/T10/T12) and B3 (scene breaks).
 - Campaign: Adolion not changed (no calendar decided); pin not bumped.
+
+## Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Verified on `e8b9dd6d`.
+
+- **P1 — "time advanced or boundary gap" does not prevent frequent same-evening news; is the event fallback intentional; make the
+  floor exact.** Accepted. → the fallback is intentional and bounded (one pass per `MEANWHILE_MIN_GAP` = 8 boundaries,
+  `src/runtime/agendaProposals.ts:6,138`); three exact floors (no events, event every boundary, advance inside the gap).
+- **Multihog P2 → 50.** Adopted as a deferred note (R15).
+- Rebutted: none.

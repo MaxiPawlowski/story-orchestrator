@@ -240,19 +240,19 @@ reveal latch is step 5, re-run at step 7), SC3 disclosure and `knownEntities`, S
 
 ## Harvest 2026-10-14 addendum
 
-From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted). First verified against master `9e96871d`; revised 2026-10-16 on `e8b9dd6d` after `review-astra-harvest-2026-10-16.md`. The owner decides with the rest of this plan.
 
-- **H11a fresh-beat guard on relationship steps** (`docs/plans/v2.8/extension-research-2026-10-14/bb-visual-novel-engine.md` P1, 3/S). `applyStepRule`
-  (`src/extraction/ratingGuard.ts:49-63`) caps one step's size, but a lingering mood steps an axis every read. Recommended:
-  hold a step whose evidence repeats the cause of the last accepted step on the same axis within N boundaries (N = 4; cause =
-  normalised evidence span), recorded as "held: same beat". Floor: a 6-turn lingering-mood fixture moves the axis at most
-  once, and a new event moves it (D scripted reads; CL fixture ×2).
-- **H11b per-axis breakdown (author view)** (`docs/plans/v2.8/extension-research-2026-10-14/bb-visual-novel-engine.md` P2, 3/S–M). `CharacterLifePanel` shows value and
-  range only (`src/components/drawer/CharacterLifePanel.tsx:24`). Recommended: an author-only "why this number" list derived
-  from boundary history (each accepted step with boundary, message id and evidence), never stored; next to this plan's reveal
-  history.
-- **H5 "here now" scene card** → new plan v2.8 65, which **reopens decision 2** (no interim surface): the card is a permanent
-  composition over 52's pages, not an interim Journal section. Owner call.
+- **H11a fresh-beat guard on relationship steps** (`docs/plans/v2.8/extension-research-2026-10-14/bb-visual-novel-engine.md` P1, 3/S). **Built** (51 gate record):
+  `holdSameBeat` (`src/engine/life/beats.ts:51-60`) holds a `rel_*` step whose evidence repeats the last accepted step's beat
+  on that axis within `SAME_BEAT_BOUNDARIES` (4, `:6`; beat = first 160 characters of the evidence, `:8`). The contract is
+  **temporary repetition suppression**: the same beat cannot move an axis twice within 4 boundaries. It is not source-event
+  identity: after the window the same lingering evidence can move the axis again, so the earlier "at most once across six
+  turns" was not a general guarantee (the built fixture passes because its repeats fall inside the window, and it checks that
+  the beat passes again after it). Source-event identity (a beat id carried by the read) is a later option, not planned.
+- **H11b per-axis breakdown (author view)** (`docs/plans/v2.8/extension-research-2026-10-14/bb-visual-novel-engine.md` P2, 3/S–M). **Built**: `axisHistory`, derived
+  from boundary history, never stored (51 gate record).
+- **H5 "here now" scene card** → v2.8 65 (revised 2026-10-16: unknown members omitted entirely; v1 = location, time, known
+  present members, links; labels later), which **reopens decision 2**. Owner call.
 
 ## Gate record
 
@@ -355,3 +355,13 @@ Unresolved questions
 - `storyDiff` has no label case: a secret whose gate or text is rewritten keeps its latch by id (52's id + rev + gate would fit).
 - Should a member switched off in the group keep their People page labels once known? (Today: known only while enabled, unless an
   authored People entry is latched.)
+
+## Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Verified on `e8b9dd6d`.
+
+- **P1 — a four-boundary window cannot guarantee "at most once across six turns"; source-event identity and temporary
+  suppression are different contracts.** Accepted (`src/engine/life/beats.ts:6,46-60`). → contract restated as temporary
+  repetition suppression; source-event identity recorded as a later option.
+- **Reconcile with the built implementation.** Accepted. → H11a/H11b marked built with file:line.
+- Rebutted: none.

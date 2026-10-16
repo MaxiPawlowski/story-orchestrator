@@ -255,15 +255,18 @@ SC4 feature-only fixture (F12).
 
 ## Harvest 2026-10-14 addendum
 
-From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted). First verified against master `9e96871d`; revised 2026-10-16 on `e8b9dd6d` after `review-astra-harvest-2026-10-16.md`. The owner decides with the rest of this plan.
 
-- **H4 P3 one clamp for every int writer, from display bounds** (`docs/plans/v2.8/extension-research-2026-10-14/st-gamemaster.md` P3, 3/S). This plan adds `range` to
-  compiled faction qualities; extend it to every authored int quality: `range` defaults from `display.min/max`, `applyDelta`
-  and reward `{add}` clamp to it, the validator warns when display bounds exist without a range, and the display-time clamp
-  (`src/runtime/gameSheet.ts:14`) goes, so player view = blackboard. Plan 60 B16 (reward clamp against `step_rule`) is the
-  narrow fix and lands first. Floor: property over ≥ 500 delta sequences, 0 values outside range, D.
-- Cross-check (`docs/plans/v2.8/extension-research-2026-10-14/rpg-companion.md` P7): faction rows shown through a `roster` widget must omit `changedAgo`
-  (`src/runtime/widgets.ts:170-171`), as this plan's no-recency rule requires.
+- **H4 P3 one clamp for every int writer, from display bounds** (`docs/plans/v2.8/extension-research-2026-10-14/st-gamemaster.md` P3, 3/S). **Built** with this plan:
+  `Quality.range` from `display.min/max` on authored int/float qualities (`src/engine/validate/display.ts:76`, the only
+  display-to-range path, called from `src/engine/validate/qualities.ts:223`) or the compiled faction or relationship range
+  (`src/engine/validate/factions.ts:83`, `src/engine/validate/life.ts:117`); `Blackboard.applyDelta` clamps every write before
+  the type check (`src/engine/blackboard.ts:94`); the display-time clamp is gone (`src/runtime/gameSheet.ts:29`). Owed tests:
+  (a) **range precedence** pinned: a compiled quality never takes a display range, and an authored quality has no second range
+  source (today the sources cannot overlap; the test keeps it so); (b) **initialization**: an initial or start value outside
+  the range is refused at validation or clamped at seed, and the test pins which.
+- Cross-check (`docs/plans/v2.8/extension-research-2026-10-14/rpg-companion.md` P7): faction rows through a `roster` widget omit `changedAgo` (built: band word while
+  visible, no `changedAgo`; plan 60 B18 refuted as drift).
 
 ## Gate record
 
@@ -383,3 +386,11 @@ Unresolved questions
 - `storyDiff` has no faction case: a move whose gate is rewritten keeps its record by id (52's `(id, rev, gate)` identity
   would fit).
 - Should a group-disabled member hear a `present` move?
+
+## Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Verified on `e8b9dd6d`.
+
+- **P2 — reconcile with the built implementation; keep explicit range precedence and initialization tests.** Accepted. →
+  addendum marked built with file:line; precedence and initialization tests listed as owed.
+- Rebutted: none.

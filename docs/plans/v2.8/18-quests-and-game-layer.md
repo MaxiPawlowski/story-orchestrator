@@ -304,17 +304,149 @@ Round 3 (Sol): R3-05, R3-06, R3-19 applied.
 2026-10-03 (user: as recommended): the shared origin-tagged rollback is built once, by whichever of v2.8 18 / v2.8 20
 builds first (§Rewards and rollback).
 
+
 ## Harvest 2026-10-14 addendum
 
-From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted). First
+verified against master `9e96871d`; revised 2026-10-16 on `e8b9dd6d` (§Review 2026-10-16). Not built; the owner decides with
+the rest of this plan.
 
-- **H4 public sheet to the narrator, "just happened" rows, warn bands, header clauses** → new plan v2.8 64. Q2 gains its
-  prompt side there; Q3's `CHECK_OUTCOME_HEADER` gains "do not invent other outcomes" and the anti-limbo clause
-  (`docs/plans/v2.8/extension-research-2026-10-14/filigree.md` P2: a check outcome is shown whole, a success lands and a failure costs something real; today's header
-  `src/runtime/storyCheckDraws.ts:91-92` lacks both). Q5 quest closes reach the narrator through 64's rows.
-- **H16a possession rules: "omission is not loss"** (`docs/plans/v2.8/extension-research-2026-10-14/bb-interactive-map.md` P3, 3/M). Inventory items are authored bool
-  qualities (Q2); nothing stops a read from setting an item false because a reply did not mention it. Recommended: an item
-  quality (`display.as: "item"`) leaves the player only on an evidenced transfer or use (a read line whose evidence names
-  the item being given, lost, spent or taken), never on silence; the validator offers `loss_when` for authored losses.
-  Floors: a 10-turn fixture where the item is never mentioned keeps it 10/10 (D, scripted read); a give-away line removes it
-  (CL fixture ×2). v2.8 58 keepsakes reuse the rule.
+- **H4, H4b, H4c, H16e** (public sheet to the narrator, "just happened" rows, warn bands, check-outcome header clause): were
+  plan 64; folded here as **§Phase Q7** on 2026-10-16. Q2 gains its prompt side, Q3's header its clause, Q5's quest closes
+  reach the narrator through 46's effect refs.
+- **H16a possession rules: "omission is not loss"** (`docs/plans/v2.8/extension-research-2026-10-14/bb-interactive-map.md`
+  P3, 3/M). Inventory items are authored bool qualities (Q2); nothing stops a read from setting an item false because a reply
+  did not mention it. Recommended: an item quality (`display.as: "item"`) leaves the player only on an **evidenced transfer or
+  use**, never on silence. Three readings are kept apart: *no line* (omission: the item stays), *an explicit false reading
+  with qualifying evidence* (the item leaves), *an explicit false reading without it* (refused, journaled). Qualifying
+  evidence: a window span where world narration or the player's committed action has the item given, lost, spent, broken or
+  taken. Not qualifying: negations ("did not give"), quoted or reported claims ("he says she lost it"), a character's
+  assertion about the player's belongings, and a player-only line for a world-evidence quality (`evidence_from` rules
+  apply). Authored losses use what exists (checkpoint effects, quest reward `set`); no new `loss_when` field. Floors: a
+  10-turn fixture where the item is never mentioned keeps it 10/10 (D, scripted read); negation, quoted-claim and
+  assertion controls keep it 3/3 (D); a give-away line removes it (CL fixture ×2). v2.8 58 keepsakes reuse the rule.
+
+## Phase Q7: the public sheet reaches the narrator (ex-plan 64, folded 2026-10-16)
+
+Was `64-public-sheet-to-narrator.md` (written 2026-10-14, H4); folded here after Astra's review
+(`review-astra-harvest-2026-10-16.md` §1, §2 (64)). Not built, not queued. Implementation **D**; acceptance **D** (request
+captures) + **CL** (header clause) + **RP** informational. Sources: `docs/plans/v2.8/extension-research-2026-10-14/st-gamemaster.md`
+P1 (public sheet, 4/S), P2 ("just happened", 3/S), P4 (warn bands, 3/S), P5 (narrator honours the sheet); `filigree.md` P2
+(anti-limbo, 3/S).
+
+### What it is
+
+- A quality with `display.public` is shown to the player on the sheet and in widgets, but never told to the story model, so
+  the narrator can deny an item the sheet shows or invent one it does not.
+- **Player-visible does not mean known to every character.** An item acquired in private, a permission, a quest result can
+  be on the player's sheet and still be unknown to a member who was not there. So the sheet reaches the model through an
+  explicit audience, not through the shared block by default.
+- Four additions, all deterministic: (1) sheet lines, (2) "just happened" rows from 46's effect refs, (3) warn bands, (4) one
+  header clause.
+
+### Current state in code (verified on `e8b9dd6d`)
+
+- `INJECTION_REGISTRY` has `cardOverlay` (depth 1, card-look fields) and `checkOutcome` (depth 0)
+  (`src/constants/injectionRegistry.ts:28,30`); nothing for the sheet.
+- The sheet is player-side only (`src/runtime/gameSheet.ts`, `sheetItem` filters on `display.public`); it shows the stored
+  value, no display clamp (`gameSheet.ts:29`), because 53's one clamp (`src/engine/blackboard.ts:94`) keeps values in range.
+- The outcome block names check records of the last message (`checkOutcomeBlock`, `src/runtime/storyCheckDraws.ts:94-101`,
+  header `:91`) and is written through the held-secret filter and the quiet/impersonate hold
+  (`src/runtime/checkOutcomeHost.ts:8-10`).
+- 46 already derives structured effect refs per boundary (`deriveRefs`, `src/runtime/consequences.ts:175`; boundary work
+  `recap`, `src/runtime/boundaryWork.ts:43-46`) with `visible` and rollback (`rollbackRecap`).
+- Omniscient members exist (`view: "omniscient"`, used by `isNarratorMember`, `src/image/cast.ts:8-9`); per-member private
+  blocks exist (`MemoryInjector`).
+- `DisplayBand` has `max` and `label` (`src/engine/gameSchema.ts:9`), no `warn`.
+
+### Design
+
+- **Audience.** Each public quality has `display.narrate: "omniscient" | "everyone" | false`.
+  - `omniscient` (**default**): the line goes only into the private block of omniscient members on their own drafted turns.
+  - `everyone`: the line goes into a shared block `INJECTION_REGISTRY.publicSheet`, written through the same resting filter
+    as the outcome block (`restingText`, as in `checkOutcomeHost.ts:9`), so a held secret never reaches a kept-out member.
+    For perceptible state ("wounded", "carrying a lantern").
+  - `false`: never narrated.
+  - Until v2.8 42's witness record exists there is no per-member "who saw it" rule; when it lands, `everyone` lines become
+    witness-scoped. The validator warns when an item quality is `everyone` and a quest reward the player earned alone writes
+    it.
+- **Sheet lines** render from `sheetGroups` (byte for byte the player view's values; band word, never a number, when bands
+  exist). Text changes only when a shown value changes (cache stability). No narrated public qualities → no block → identical
+  request.
+- **"Just happened" rows** come from 46's refs for the last committed boundary, `visible` refs only (quest status moves, earned
+  milestones, public band changes), rendered as plain lines. No second boundary-change model.
+  - **Delivery**: rows attach to the boundary that produced them and ride every loud request from that boundary's commit until
+    the next boundary commits, so every member drafted in the following chain sees them; a no-generation (code-only) boundary
+    carries its rows to the next request; rows of two boundaries committed before any request are joined (oldest first, at
+    most 6 lines); a swipe or continue of the reply after the boundary keeps them (same boundary); a rollback removes them with
+    the boundary (46's `rollbackRecap`).
+  - Same audience rule: a ref whose quality is `omniscient` goes to omniscient members' private blocks only.
+- **Header clause** appended to `CHECK_OUTCOME_HEADER`: "Narrate only the outcomes and consequences listed. A failure means
+  the attempt did not succeed; do not add costs the list does not name." (wording ours; payload golden declared). This
+  replaces the earlier "a failure costs something real", which invited invented consequences.
+- **Warn bands.** `DisplayBand.warn?: string` (≤ 80 characters), only on `display.public` meters; the validator refuses `warn`
+  on relationship qualities and on v2.8 49 pressure meters. While the value sits in the band: one line (same audience as its
+  quality) and a sheet/HUD chip.
+- Withheld on quiet/impersonate like every per-turn block (plan 60 B10; 69 K9 declares it in the registry).
+- Guide topics `display-narrate`, `display-warn`; registry feature `public-sheet-narration`, on by default once built
+  (rule 9), with the conservative audience default above.
+
+### Predeclared floors
+
+| # | Condition | Floor | Tier |
+|---|---|---|---|
+| S1 | Disclosure: every narrated line equals a value the player view shows; ≥ 500 generated stories, 0 lines from a non-public quality, a hidden quest or a secret milestone | 0 leaks | D |
+| S1a | Audience: an `omniscient` line appears only in omniscient members' actual requests; an `everyone` line never carries a held-secret line to a kept-out member (planted private acquisition + held secret, request capture) | 0 leaks | D |
+| S2 | No narrated public qualities → identical actual request | identical | D |
+| S3 | Stability: over a 20-turn scripted run with no shown-value change, the block text is identical every turn | 20/20 | D |
+| S4 | "Just happened" delivery: a quest close, a milestone and a band change each reach every request of the next chain, a code-only boundary carries to the next request, and none survive the following boundary (scripted multi-member chain, continue, swipe) | 3/3 rows, 4/4 delivery cases | D |
+| S5 | Rollback ≡ replay for rows and warn lines over 4 seeds | 4/4 | D |
+| S6 | Withheld on impersonate and quiet: no sheet or outcome block in those requests | 0 | D |
+| S7 | Narrator honours the sheet: 10 paired lab openings inviting denial of a held public item (with vs without the block), second-model rater | recorded: contradictions per arm and paired differences | RP |
+| S8 | Header clause: on 10 scripted failure outcomes the narrated reply adds no unlisted consequence (second-model rater) | recorded | CL |
+
+Floors are informational and never retuned (rule 2).
+
+### Gates by tier
+
+- **D:** `npm run gates`; S1–S6 (request capture on a no-model lane for S1a, S2, S6); payload golden with the declared header
+  hunk; Storybook for the warn chip; validator and guide coverage.
+- **CL:** S8 on the cloud reply model.
+- **RP:** S7 is 20 replies (about 50 min Artemis). Plan 24's informational share is already over, so S7 is deferred with its
+  reopen trigger (Q7 built and adopted by a story) unless the owner displaces an item; combine with 56/58 acceptance if
+  those are built.
+
+### Decisions for the owner
+
+1. **Audience default `omniscient` (only the narrator-type member hears the sheet), `everyone` by the author's choice?**
+   **Recommended: yes.**
+2. **Warn bands on public meters only?** **Recommended: yes.**
+3. **"Just happened" from 46's refs, no second derivation?** **Recommended: yes.**
+
+### Review 2026-10-16 (Astra), Phase Q7
+
+Source: `review-astra-harvest-2026-10-16.md` §2 (64), §1 (fold advice). Verified on `e8b9dd6d`.
+
+- **P0 — player-visible is not known to every character.** Accepted. → `display.narrate` audience, default `omniscient`;
+  `everyone` goes through the resting filter (`src/runtime/checkOutcomeHost.ts:9`); witness scoping when 42 lands; S1a.
+- **P1 — "a failure costs something real" invites invented consequences.** Accepted. → clause rewritten (narrate only
+  listed consequences); S8.
+- **P1 — S4 asked for narration on a reply that already exists.** Accepted. → delivery to the next requests after commit,
+  multi-member chains, continue/swipe, code-only boundaries specified; S4 rewritten.
+- **P1 — reuse `deriveRefs` and the recap lifecycle.** Accepted (`src/runtime/consequences.ts:175`). → rows are 46's visible
+  refs; 46 §Harvest 2026-10-16 points here.
+- **P2 — S7 impossible when the control has fewer than four contradictions; budget wrong.** Accepted. → S7 recorded as per-arm
+  counts and paired differences, 10 pairs (20 replies), deferred beyond the cap.
+- **Display-clamp claim stale.** Accepted (`src/runtime/gameSheet.ts:29`). → current state corrected.
+- **Fold 64 → 18 + 46.** Adopted; `64-public-sheet-to-narrator.md` is a pointer.
+- Rebutted: none.
+
+## Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §Addenda (18), §1. Verified on `e8b9dd6d`.
+
+- **P1 — keep omission distinct from an explicit false reading; define qualifying evidence (negation, quoted claims, world vs
+  player); `loss_when` unexplained.** Accepted. → H16a rewritten with three readings, qualifying and non-qualifying evidence,
+  controls; `loss_when` dropped in favour of existing effects and quest `set`.
+- **Fold 64 here.** Adopted as §Phase Q7 (its own review subsection above).
+- Rebutted: none.

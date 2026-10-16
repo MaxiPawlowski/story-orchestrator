@@ -581,9 +581,20 @@ Stories to re-run on the pod (adolion-fresh lane, Artemis reply, DeepSeek author
 
 ## Harvest 2026-10-14 addendum
 
-From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted). First verified against master `9e96871d`; revised 2026-10-16 on `e8b9dd6d` after `review-astra-harvest-2026-10-16.md`. The owner decides with the rest of this plan.
 
-- **H1 prepared world facts** (`docs/plans/v2.8/extension-research-2026-10-14/simulation-blackboard.md` P1). The director prepares the graph ahead (frontier, prefetch);
-  nothing prepares world facts (contents, who knows what). That is new plan v2.8 62, **gated on its quantum-ogre probe
-  (H2)**. If 62 stage 2 is built, the director's prefetch becomes a natural trigger for "checkpoint within one step", and the
-  director never sees held prepared rows (resting filter, as for arcs).
+- **H1 prepared world facts** (`docs/plans/v2.8/extension-research-2026-10-14/simulation-blackboard.md` P1). The director prepares the graph ahead (frontier,
+  prefetch); nothing prepares world facts. That is v2.8 62, revised 2026-10-16: stage 1 measures contradiction, persistence and
+  disclosure (no automatic build gate); stage 2 is **authored** facts or authored alternatives with a seeded pick (no model);
+  stage 3 (model-filled) is a separate decision. If stage 2 is built, "one step away" is `outgoingByCheckpoint`
+  (`src/engine/schema.ts:554`), not `reachableByCheckpoint` (transitive, `src/engine/validate/gates.ts:122-134`); the director's
+  prefetch may name that checkpoint as a trigger. The director never sees held prepared rows (resting filter, as for arcs),
+  and gets no private input it does not already receive.
+
+## Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Verified on `e8b9dd6d`.
+
+- **09/22 — the director pointer is reasonable; keep the private-input restriction.** Accepted. → pointer updated to 62's
+  revised stages; distance one from `outgoingByCheckpoint` (`src/engine/schema.ts:554`); no new private input to the director.
+- Rebutted: none.

@@ -335,17 +335,30 @@ Source: `review-astra-2026-10-14.md` §Plans 42-47 (42). Verified on `3a716f2b`.
 
 ## Harvest 2026-10-14 addendum
 
-From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted); verified against master `9e96871d`. Not built; the owner decides with the rest of this plan.
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licences: AGPL/GPL/none unless noted). First verified against master `9e96871d`; revised 2026-10-16 on `e8b9dd6d` after `review-astra-harvest-2026-10-16.md`. The owner decides with the rest of this plan.
 
 - **H13c hidden messages and recall eligibility** (`docs/plans/v2.8/extension-research-2026-10-14/timeline-memory.md` P3, 3/S). `/hide` sets `is_system`; the read
-  drops hidden rows at read time only (`src/extraction/windowHygiene.ts:115`), and plans 42, 43 and 47 never say whether a
-  span hidden **after** it was read stays a witness source or recall candidate. Host fact: `is_system` is set by both `/hide`
-  and summarizers, so the two cannot be told apart. Recommended rule for §0 (the shared contract): a message hidden at query
-  time is not recall-eligible and not quotable; its witness record stays (who heard it does not change), and a later unhide
-  restores eligibility. Floor: 4 seeds (hide, unhide, summarizer-hidden, reopen) D.
-- **H16c pause ST Summarize while a secret is held** (`docs/plans/v2.8/extension-research-2026-10-14/dooms-enhancement-suite.md` P1, 3/S). The `transcript-copiers`
-  check only warns (`src/services/stHost/transcriptCopiers.ts:5`, `src/runtime/checks.ts`). Their trick holds Summarize
-  without writing the user's setting (a getter on the summary state that reads as frozen while a flag is set). Recommended
-  for §9: an opt-in, per-chat hold while a held secret exists, never an install write, released on story end; Vector Storage
-  is not covered (it cannot be held this way). Needs a verified host fact (the Summarize state shape at the ST pin) before
-  building; with C, the F2a/F2b rows measure it.
+  drops hidden rows at read time only (`src/extraction/windowHygiene.ts`), and plans 42, 43 and 47 never say whether a span
+  hidden **after** it was read stays a witness source or recall candidate. Host fact: `is_system` is set by both `/hide` and
+  summarizers, so the two cannot be told apart. Recommended rule for §0 (the shared contract): a message hidden at query time
+  is not recall-eligible and not quotable; its witness record stays (who heard it does not change); a later unhide restores
+  eligibility. Spans are addressed by message id **and revision** (as 47's `SourceRevision`, `src/memory/audience.ts:10`), so
+  an edited message is a different span. Floor: 4 seeds (hide, unhide, summarizer-hidden, reopen) D.
+- **H16c hold ST Summarize while a secret is held** (`docs/plans/v2.8/extension-research-2026-10-14/dooms-enhancement-suite.md` P1, 3/S). The `transcript-copiers` check
+  only warns (`src/services/stHost/transcriptCopiers.ts`, `src/runtime/checks.ts`). Their trick holds Summarize without writing
+  the user's setting (a getter on the summary state that reads as frozen while a flag is set). Two separate owner decisions:
+  (a) **whether to build** a host interposition over another extension's state at all; (b) its default once built, which
+  follows rule 9 (on by default) unless the owner says otherwise. The earlier "opt-in" wording conflicted with rule 9 and is
+  withdrawn. Scope stated plainly: the hold stops **future** summaries only; existing summaries and Vector Storage are
+  untouched, and `transcript-copiers` keeps naming both. Released on story end; never an install write. Needs a verified host
+  fact (the Summarize state shape at the ST pin) before building; with C, the F2a/F2b rows measure it.
+
+## Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Verified on `e8b9dd6d`.
+
+- **P1 — the Summarize hold was opt-in, contrary to the default-on rule; holding future summaries leaves existing summaries
+  and Vector Storage untouched.** Accepted. → build approval separated from the default (rule 9 once built); scope stated;
+  `transcript-copiers` keeps naming both.
+- **43/47/55 — message ids need revisions.** Accepted here too. → spans addressed by id and revision (`src/memory/audience.ts:10`).
+- Rebutted: none.

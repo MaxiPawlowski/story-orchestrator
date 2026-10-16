@@ -116,3 +116,24 @@ message (a mixed-audience message counts as not witnessed, per 42's P0).
   follow-up.
 - Whether a keepsake can be a sprite/stage prop (v2.8 33/41 own the stage): out of scope.
 - Cap values are placeholders until the editor is drawn.
+
+## Harvest 2026-10-16 addendum
+
+From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md` (V19, reopened after `review-astra-harvest-2026-10-16.md`). Ideas only.
+Verified on `e8b9dd6d`. Not built; the owner decides with the rest of this plan.
+
+- **V19 presence-filtered ledger injection** (v2.4 harvest theme 7). The ledger reaches each drafted member through its own
+  private block (`src/runtime/memoryInjector.ts`), filtered by who may know, not by what is near. Presence is a different
+  filter: which holders and objects matter **now** (a keepsake whose holder is on stage, an item in the current place).
+  Recommended, if ledger budget pressure appears in a session: rank ledger rows by presence (holder present, place current)
+  before the budget cut. Audience stays a separate, earlier check: presence never admits a row the witness rule (42) or the
+  held-secret filter excludes. Floors when built: 0 rows admitted by presence that the audience filter excludes (property),
+  D; budget-cut rows recorded with and without presence ranking, informational.
+
+## Review 2026-10-16 (Astra)
+
+Source: `review-astra-harvest-2026-10-16.md` §1 (V19). Verified on `e8b9dd6d`.
+
+- **V19 — witness filtering answers "who knows this", presence "which nearby holders matter now"; fold into 58/ledger work,
+  audience checks separate.** Accepted. → addendum above; presence ranks, audience still gates.
+- Rebutted: none.
