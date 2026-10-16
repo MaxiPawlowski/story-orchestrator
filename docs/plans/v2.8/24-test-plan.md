@@ -302,8 +302,8 @@ CL (cloud reply unless noted; ×2 each unless informational):
 - Plan 13 shipped J7 consumers on TypeSafe ×2 plus the judge-off arm (canonVerify, canonDraft, idle/tone/adversity).
 - Plan 34 lore-select character eligibility, real TypeSafe leg.
 - Plan 22 L1/L5 leg (the pod-round fixture `l1-l5.json`, cloud reply): Save as story lands with unreached checkpoints
-  left out; delete-4 graph rollback and reopen equal the fold. The fixture lives in the private lane tree: a synthetic
-  copy goes into `test/scenarios/` before the run (owed).
+  left out; delete-4 graph rollback and reopen equal the fold. Its synthetic copy is
+  `test/scenarios/live-v28-22-l1-l5.json` (2026-10-14).
 - M16, M17, M20 only if Q2 rejects carrying their pod-round evidence.
 - Informational ×1: M18 Ask Q&A re-score and M19 wizard recipes at 60/36 (Sol), plan 10 briefing 30 drafts (spoilers
   0/30, preference ≥ 70 % by a second model), O15 campaign copy review, C14-b, 33-W3-N1, 33-W3-combined, 37-M1-C5,
@@ -338,6 +338,7 @@ real-model carrier, or why none is needed.
 | talk-chain | RP | voiceStart, talkChainYield | GS1.2, GS3.1 |
 | private-knowledge | RP + CL | PC-privacy, secret reviews | GS1.5; S-07/08/11/12/13 (CL) |
 | inner-voice | RP | inner jest | GS1.2, GS1.5 |
+| thought-carry | D + CL + RP | thoughtCarry review test, v28-a13-thought-carry (no-model, live run owed) | GS1.5 player-clean with the spike on (L5-RP3 half); L5-RP1 coverage read owed (informational) |
 | lorebook-switching | CL | scanGate scenarios | GS2.6 |
 | story-lorebooks | CL | storyLore scenarios | GS2.6 |
 | memory-lore | CL | v28-40-provisioning-roundtrip | GS2.6 |
@@ -360,27 +361,28 @@ real-model carrier, or why none is needed.
 | memory-test | CL | settings tests | C8b-stranger |
 | reply-thinking | RP | replyEffort jest, 16-08 | T-R4, GS1.2 |
 | models-per-task | D + CL | 16-02-C14 | routes recorded in every run header |
-| capabilities | D | capability tests | none: no model |
+| capabilities | D | capabilities jest | none: no model |
 | experiments | D + RP | spike tests, K3 sim | GS4.5; SP6 measurements deferred |
 | story-briefing | RP | 16-05 | GS1.1 |
 | briefing-draft | CL | v28-10-briefing-draft (S) | GS1.1; 30-draft floors (informational) |
 | player-setup | RP | 34-L-* | GS1.1, GS1.8 |
-| live-head | LI | plan 36 A1 rows ×2 | N3 (LI2, LI5 campaign rigs); LI1 laptop deferred |
-| prepared-presentation | LI | plan 41 D slice | N3 |
-| changed-look-rebuild | LI | plan 41 D slice | N3 |
+| live-head | LI | plan 36 A1 rows ×2, liveHead jest | N3 (LI2, LI5 campaign rigs); LI1 laptop deferred |
+| prepared-presentation | LI | plan 41 D slice: visualPreparation jest | N3 |
+| reference-pack | LI | referenceViews jest | N3 (image track, rule 12) |
+| changed-look-rebuild | LI | plan 41 D slice: lookRebuild jest | N3 |
 | landmark-cross-check | D + CL | rig tooling node:test | Sol calibration ×6 carried (N12) |
-| cast-illustration | LI | plan 41 D slice | N3 |
-| pose-library | LI | plan 33 suites | N3 product Acceptance ×2; rater 40/40 ×2 carried |
-| backgrounds | D | effects.background idempotence | none: no model |
+| cast-illustration | LI | plan 41 D slice: castScene jest | N3 |
+| pose-library | LI | plan 33 suites: poses jest, stageBodies | N3 product Acceptance ×2; rater 40/40 ×2 carried |
+| backgrounds | D | backgrounds jest (effects.background idempotence) | none: no model |
 | story-scenario | RP | 16-02-C1, PC payloads | GS1.4 |
 | images | LI | 32-W4-scenario, C1-clean-host | GS5 (O3–O6) |
 | gpu-sharing | LI | broker node:test | plan 28 LI ×2 carried; LT latency informational |
 | story-workflows | D + LI | v28-40-workflow-findings ×2 | plan 29 brokered ×2 carried |
-| model-downloads | D | fake providers | real download deferred (needs a token and the owner's OK) |
+| model-downloads | D | downloads node:test (fake providers), downloadCopy jest | real download deferred (needs a token and the owner's OK) |
 | sprites | LI | VnStage tests | GS5 (C6-stage) |
 | sprite-builder | LI | builder contract tests | N3 (32-W5) |
 | sprite-mouth-region | LI | mask import tests | N3 (32-W6-frames) |
-| sprite-edit-resolution | LI | tests | N3 |
+| sprite-edit-resolution | LI | SpriteRenderControls Storybook | N3 |
 | sprite-animation | LI + RP | lipsync jest | GS5 (32-W6-stream) |
 | story-badges | D | 16-06 | none: no model |
 | story-card | D | 16-06 | none: no model |
@@ -396,13 +398,19 @@ real-model carrier, or why none is needed.
 | journal | RP | 36-Q5-scn, campaign panels | GS1.3 |
 | stat-sheet | RP | 36-P-live | GS1.3 |
 | story-panels | RP | v28-23-widgets ×2 | GS1.3 |
+| consequences-recap | D | consequences jest, recapRollback review test, recapSecret review test | none: no model pass (46 A) |
+| promises-remembered | D + CL | promises jest, promiseRead jest, promiseRollback review test | live-v28-47-promises (P1s CL half, P2w live, ids, rollback reopens) ×2; P1/P2 labelled-set rates, P6 rater, P8 cost owed (measurement fixtures); P7/P7h informational (LT) |
+| codex | D + CL | codex jest, codexView property test, codexRollback | C7: codex-pages task in `test/measurements/v2.8/09/recipes.json`, `so-wizard-agent.mts recipes --task codex-pages --repeat 10 --mode auto-draft --route harness` (Sol) |
+| story-calendar | D + CL | clock jest, clockScope jest, v28-50-story-time (no-model) | T8: live suite time windows `timewindow01..04` (`so-live-suite.mts run --set time`, CL, read model); T9/T10 wait for B2 (not built); T11 read in GS3.3 |
+| relationship-labels | D | labels jest, labelRollback property test, relationshipLabels review test, v28-51-labels (no-model) | R7/R9 informational ×1 (RP lab story), deferred: no lab story |
+| factions | D + RP | factions jest, v28-53-factions (no-model ×2) | F7 informational (RP lab story), deferred: no lab story yet; F9 CL informational |
 | story-made-panels | D | html widget tests, Storybook | none: no model |
 | quests | RP | 36-Q5-scn, S-16 | GS1.3, GS3.1 |
 | character-life | RP + CL | 37-D1..D3 | GS1.5, GS3.3, GS2.7 |
 | meanwhile-proposals | CL | agenda proposal tests | GS2.7; M16 carried |
 | living-story | CL + RP | v28-35-living-rollback ×2 | GS2.1–GS2.4, GS3.5 |
 | story-branching | CL | v28-40-living-divergence-prefetch ×2 (S) | GS2.3 |
-| save-run-as-story | CL | living tests | L5 leg (CL) |
+| save-run-as-story | CL | living tests | L5 leg `live-v28-22-l1-l5` (CL) |
 | judge-use-director | CL + RP | judge director tests | GS2.7, GS3.1 |
 | judge-use-memory-verify | RP | — | GS3.6 |
 | judge-use-memory-pairs | RP | — | GS3.6 |
@@ -519,6 +527,11 @@ registry, and the 109-id check above, when a plan is built. Floor ids are the pl
 | plan 33 product Acceptance | acceptance | LI | N2 spill ×2 |
 | plan 36 LI1 laptop / LI5 rigs | deferred / acceptance | LI | laptop when available; LI5 in N3 |
 | v2.7 20 L5 inner voice spike (A13) | informational | RP | deferred unless the informational cap has room |
+| v2.8 01 §F M1–M5 (Q-M5/P3, inner voice B2, inner voice C, W6, Part B packs) | deferred | RP + CL | as M15/R8: packs from GS replies where the arm is the shipped default; other arms deferred |
+| v2.8 17 K1, K2 (SP6 release, one block) | carried | D + RP | K1 complication jest replay; K2 = 35-K2 (live-v25-09-sp6-k2, carried); GS4.5 re-reads the release |
+| v2.8 17 K3–K5 (SP6 agency, over-steer, tension) | deferred | RP | = 35-K3/K4/K5, with plan 49 C8 (§Cuts 8) |
+| v2.8 21 §6.2 VR1–VR5 | superseded | CL | measured as plan 43 VR1–VR4 (CL offline ×2 when 43 is built); VR5 report only, v2.9 05 |
+| plan 36 LI3, LI4, LI6 (fault, reduced motion, mobile) | image track (rule 12) | D + LI | owed no-model lane / Storybook rows of plan 36, closed with the image track |
 
 ## Cuts and merges
 
@@ -591,6 +604,7 @@ recorded and the feature stays on (00-overview rule 9).
   runs when C is built (+0.2 h).
 - 43 verbatim recall: VR1, VR2, VR2s, VR2t, VR2k, VR3, VR8 CL offline ×2; VR4, VR4c, VR4x D; VR6r latency read in
   GS1/GS3 (no extra turns); VR7/VR7p informational ×1 (20 labelled turns on vs off, 30 min Artemis); VR9 only with F.
+  R-Gate1, R-Gate2, R-Gate3 are 43's build gates (21 E0, 21 §6.2, 42 witness record), decided before any VR row runs.
 - 44 rumors: G1–G6, G9–G14 D (G6 live read in GS3 if the campaign adopts rumors, else a CL fixture of 30 turns);
   G7/G8 CL ×2 on a 20-case fixture with second-model labels; G15 CL with stage 2 only.
 - 45 New Game+: N1–N6, N8–N13 D; N7 deferred (needs two finished source runs; informational).
@@ -671,6 +685,115 @@ recorded and the feature stays on (00-overview rule 9).
 Addendum 2026-10-14 (branch `v2.8-docs-index-55-59`, docs only): plans 42–59 rows added (§Feature → validation matrix,
 planned features; §Plans 42–59 refreshed to the revised floor ids); Appendix A rule 5 (dark launch) annotated as
 superseded; plan 52 SC5 resolved.
+
+## Gate record (2026-10-14/15, rule 11 readiness, branch `v2.8-suite-readiness`)
+
+Base master `6616f2e4`; build bundle `080054b70410` staged into the ST slot, server plugins unchanged. Counts only.
+
+Campaign scenarios and data:
+
+- Pin `03441dc3` = campaign master. Checks ran in a clean detached worktree at the pin (the main checkout has
+  uncommitted edits by another agent); the gitignored source archive extraction was junctioned in for `build_all`.
+- `scripts/check_all.sh` (`SO_PLUGIN` = this worktree): ALL GREEN, 16 steps, 135 s; 9 stories, 307 checkpoints
+  through player copy, 146 cards, 13 labs 0 failing.
+- `lab/v28/check.py`: OK, 7 scenarios (5 no-model, 2 model) on 5 groups; every group, member, story, checkpoint and
+  mocked delta resolves.
+- `adolion-fresh seed 41` (needed `--resume` once: two lane starts failed under host load, first the ST frontend
+  compile past 300 s, then the browser spawn; fixed in this branch with one start retry and `--resume`), then
+  `adolion-fresh check 41`: 0 problems, drift 0; 16 books, 9 groups, 9 stories, 201 sprite folders, 2,889 sprites.
+- Row → carrier → campaign file (story structure counted in `build/story/<id>.story.json` at the pin):
+  - GS1.1–GS1.10 → `gs1-first-hour` → adolion-academy: 12 checkpoints, 15 cast, 6 quests, 5 widgets, 2 chapters,
+    1 scenario effect, relationships on 7 members, briefing and player profile present.
+  - GS2.1–GS2.8 → `gs2-living-hub` → adolion-aegis: living on, 40 cast, 1 curator book, 3 required books,
+    relationships on 8 members, scene read present.
+  - GS3.1–GS3.7 → `gs3-long-road` → adolion-saga: 157 checkpoints, 125 cast, 12 chapters, 110 NPC-reply and
+    111 cast-change effects, 2 preset effects, a schedule, a clock, living on.
+  - GS4.1–GS4.6 → `gs4-stubborn-player` → adolion-esha: 7 cast, agency on 7 checkpoints, 3 complication sets, a
+    schedule.
+  - AS-smoke ×9 → `live-v28-24-smoke-<act>` → the nine stories and nine groups, all installed by the seed.
+  - C11-F2 model leg, 19 RP acceptance, M2 arm → campaign `lab/v28/v28-adolion-commit-model.json`,
+    `v28-adolion-encounters-model.json`: resolved by `check.py`.
+  - No gaps; no campaign data added in this pass.
+
+Plugin docs current:
+
+- `npx jest` guideCoverage, guideTopics, `src/guide`, `src/features`: 8 suites, 75 tests, all pass.
+- `npm run docs:guide` and `npm run docs:settings`: no content diff (git shows line endings only; reverted).
+- Merged plans since the last check: 41 (9 Gate record sections; guide: sprites setup page and story guide carry
+  prepared presentation, reference views, cast illustration, changed looks) and 54 (Gate record; guide topic
+  inner-voice carries Carried thought). Plans 46, 47, 52, 53 are not merged on `6616f2e4` (built on other branches),
+  so they are not owed here; there is no plan 60.
+
+Coverage (`node scripts/suite/coverage.mjs --campaign <pinned campaign>`, report `24-coverage-2026-10-14.md`, guarded by
+`scripts/release/suiteCoverage.test.mjs`):
+
+- Registry: 111 ids. Two were missing from the matrix and are added: thought-carry (plan 54), reference-pack
+  (plan 41). Vague D cells now name their test files (live-head, prepared-presentation, changed-look-rebuild,
+  cast-illustration, pose-library, backgrounds, model-downloads, sprite-edit-resolution, capabilities).
+- Result: 108 green, 2 image track (rule 12: judge-use-expressions, judge-use-picture-cue, carried by GS5 only),
+  1 red on the first pass, save-run-as-story: its CL carrier, the L5 leg fixture, was owed. The synthetic pod-round
+  fixture (a made-up premise, campaign group by name only) is now `test/scenarios/live-v28-22-l1-l5.json`, without its
+  DeepSeek role pin; the report then reads 0 red. Written, not run.
+- Plan floor tables: 30 plans, 300 floors; 21 were unmapped, now 0: v2.8 01 §F M1–M5, v2.8 17 K1–K5, v2.8 21 VR1–VR5,
+  plan 36 LI3/LI4/LI6 (measurement rows added) and 43 R-Gate1–3, VR9 (named in §Plans 42–59).
+- Harness defects found by reading the fixtures before their shakedown (rule 10) and fixed with tests: a numeric
+  `swipe` on a single-swipe reply always threw, so GS1.6, GS2.3 and the nine AS-smoke files now use `swipeId: "new"`
+  (a real generation on the last reply, `st-actions.swipeNew.test.mts`); AS-smoke's post-reload check read a global
+  the reload had cleared.
+
+Re-check after merging master `cc38c5b1` (coordinator, 2026-10-15; adds plans 46, 47, 52, 53, the plan 60 fixes and
+the agent bridge; pin unchanged at `03441dc3`, so the campaign checks stand):
+
+- Docs: the same 8 suites, 75 tests pass; `docs:guide` and `docs:settings` leave no content diff. Plans 46, 47, 52 and
+  53 each carry a Gate record and their story-guide sections (What changed, Promises remembered, People and Places,
+  Standing with groups).
+- Coverage: 115 registry ids; 4 new ids had no matrix row and now do (consequences-recap, promises-remembered, codex,
+  factions). Result 111 green, 2 image track, **2 red: promises-remembered (47 P1/P1s/P2/P2w/P6/P8) and codex (52 C7)**:
+  their CL legs have no live fixture yet. Listed, not authored in this pass; they block only those rows. Floors: 300,
+  0 unmapped.
+
+Re-check after merging master `2ef63034` (plans 50, 51, the live checks with the bridge cap at 96; pin unchanged):
+
+- Docs: 8 suites, 75 tests pass; `docs:guide` / `docs:settings` no content diff.
+- Coverage: 117 registry ids, 113 green, 2 image track, **0 red** after matrix rows for story-calendar (50) and
+  relationship-labels (51). Still owed, listed in their rows: 47 P1/P2 labelled-set rates, P6 rater and P8 cost;
+  50 T9/T10 (B2 not built; T8 now has four live-suite time windows).
+- New carriers (written 2026-10-15): `test/scenarios/live-v28-47-promises.json` (47 P1s CL half, P2w live, ids, rollback
+  reopens; not run, needs the model lane); the `codex-pages` task in `test/measurements/v2.8/09/recipes.json` with a
+  check that the agent read diagnostics after its last edit (52 C7).
+
+52 C7 (CL, Sol on the harness route, no GPU, lane 41 on the isolated ST copy, auto-draft):
+
+- Run 1: 5/10. Run 2: 5/10. Floor ≥ 9/10: **missed** (recorded, not retuned). Every run whose tools reached the
+  agent passed (10 of 10); every failed run was transport: 7 runs where no tool call reached the page, 3 where OpenCode
+  did not connect the tool server or load the owned config before the deadline.
+- Review mode is blocked: on the Sol route the agent reports "no story tools available" after the first accepted
+  card (2 of 2 trials), so C7 ran in auto-draft. The coordinator owns that defect.
+- Records (private lane tree): `so-suite-lanes/c7-run1.json`, `c7-run2.json`.
+
+Text suite, 2026-10-15 (Artemis v1.1 on the 3090 via the local controller, 32K, thinking on, preset Artemis v1.1 RP;
+images and sprites off; lanes 41/42 on the isolated ST copy; authoring on Sol). Stopped by the image close-out pause
+and the RAM hold; no model job started after 10:00 UTC. Artemis play used: about 2.6 h.
+
+- AS-smoke (batch `41/debug/batch/2026-10-15T05-52-20-590Z`): 8 of 9 files green ×2 (academy, adventurer, aegis, deep,
+  east, esha, night: run1 + run2 green). saga run1 red (step 7/15 `send_generate` ok:false, an empty reply during a
+  controller restart, not a product verdict); saga run2 and war ×2 not run. Academy shakedown green
+  (`2026-10-15T01-38-46-843Z`); the first shakedown (`01-07-49-088Z`) timed out on the extraction drain.
+- GS1 (lane 42): shakedowns only, no evidence pair. Five shakedowns fixed harness defects (journey items, step order,
+  briefing wait, left-open workspace modal, scenario checkpoint pick). Last run (`2026-10-15T07-31-04-925Z`, stopped
+  at GS1.9 by the pause): GS1.1 red (start pane never opened within 180 s; the briefing draft rides the Sol transport),
+  GS1.4 red (no scenario block in the prompt ST holds at an authored scenario checkpoint: open, product or fixture
+  not yet decided), GS1.8 send after reload not posted (warning, step ok), GS1.2/1.3/1.5/1.6/1.7 green.
+- Not run (time): GS1 ×2, GS4 ×2, GS3 ×2, GS2, live-v28-47-promises ×2, T8 `so-live-suite run --set time`, other
+  targeted scenarios and measurements, campaign lab model scenarios ×2.
+- Run header diff: not taken after the last batch (lanes stopped by the hold); base captures stay in
+  `so-suite-lanes/41|42/debug/run-header-suite-base.json`.
+- Evidence: `so-evidence.mts archive --label text-suite-20261015 --lanes 41,42 --allow-incomplete` -> 2874 files,
+  127.5 MB in the private sessions tree (`test/sessions/evidence/phase-c/text-suite-20261015`); 3 interrupted GS1
+  rows recorded incomplete. Not committed to so-sessions, not pushed.
+- Product defects seen: OpenCode transport failures (C7, likely GS1.1); review-mode tools lost after the first accept
+  (coordinator); the 64-tool bridge cap (fixed on master at 96); GS1.4 scenario block (open).
+
 
 ## Appendix A — plan 24 before the 2026-10-14 rework (history)
 

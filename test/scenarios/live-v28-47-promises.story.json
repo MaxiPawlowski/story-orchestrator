@@ -1,0 +1,75 @@
+{
+  "format": 2,
+  "id": "so-live-v28-47-promises",
+  "title": "SO-LIVE-V28-47 Promises",
+  "description": "A night crossing; a synthetic story for the v2.8 09 recipe runs.",
+  "qualities": [
+    {
+      "key": "ferry_paid",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the player paid the ferryman?"
+    },
+    {
+      "key": "crossed",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the ferry reached the far bank?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "dock",
+      "name": "The Dock",
+      "objective": "The ferryman names his price.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "river",
+      "name": "The River",
+      "objective": "The crossing turns dangerous in the fog.",
+      "type": "intermediate"
+    },
+    {
+      "id": "far_bank",
+      "name": "The Far Bank",
+      "objective": "The player lands and the smuggler is waiting.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "dock",
+      "to": "river",
+      "priority": 0,
+      "gate": {
+        "q": "ferry_paid",
+        "op": "==",
+        "v": true
+      }
+    },
+    {
+      "from": "river",
+      "to": "far_bank",
+      "priority": 0,
+      "gate": {
+        "q": "crossed",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "arin",
+      "name": "Arin",
+      "role": "the ferryman's daughter"
+    },
+    {
+      "id": "narrator",
+      "name": "DM Narrator",
+      "role": "narrator"
+    }
+  ]
+}

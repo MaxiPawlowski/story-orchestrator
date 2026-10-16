@@ -28,7 +28,9 @@
       "mode": "auto",
       "findings": [],
       "goal": "Lane guard, start, and the living director opening a way in from play. Closes: living-story (code pace fallback after 3 player turns, a liv_ checkpoint in the played graph), road-ahead; row M21 functional half (L1 premise start), queue N1.",
-      "requires": ["living"],
+      "requires": [
+        "living"
+      ],
       "steps": [
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); if (!ctx.groupId) throw new Error('needs the story group open'); if (!(rt.getSnapshot().library ?? []).some((r) => r.id === 'adolion-aegis')) throw new Error('adolion-aegis is not in the library: seed the lane with adolion-fresh first'); const s = rt.getGlobalSettings(); if (!s.stagecraft.livingEnabled || !s.stagecraft.branchingEnabled || !s.stagecraft.prefetchEnabled) throw new Error('living, branching or prefetch is off; the suite runs on shipped defaults'); if (!s.memory.innerBeat || !s.judge.enabled) throw new Error('inner voice or judge is off'); return { ok: true };"
@@ -150,7 +152,7 @@
         {
           "swipe": {
             "messageId": "last",
-            "swipeId": 1
+            "swipeId": "new"
           }
         },
         {
@@ -206,7 +208,9 @@
       "mode": "auto",
       "findings": [],
       "goal": "Curator in real play. Closes: curator, curator-create, curator-markers, judge-use-curator-filter; rows O7 (one real curator pass), O14 (promoted tiers hold), M17 functional half (proposal waits in review, written only at the next boundary). Assets the curator writes are removed by the journey's asset cleanup (baseline).",
-      "requires": ["curator"],
+      "requires": [
+        "curator"
+      ],
       "steps": [
         {
           "stagecraft": {

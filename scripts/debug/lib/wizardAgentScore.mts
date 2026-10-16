@@ -72,12 +72,24 @@ export interface RecipeTask {
   id: string;
   recipe: string;
   requires: string[];
+  diagnosticsAbsent?: string[];
 }
 
-export function scoreRecipeTask(task: RecipeTask, result: { session: { status: string; steps: Array<{ status: string; call: { tool: string; args: Record<string, unknown> } }> }; validationErrors: number }) {
+type RecipeStep = { status: string; call: { tool: string; args: Record<string, unknown> }; observation?: string };
+
+export function diagnosticsAfterEdits(steps: RecipeStep[], codes: string[]) {
+  const lastEdit = steps.map((step, index) => (KEPT.has(step.status) ? index : -1)).reduce((a, b) => Math.max(a, b), -1);
+  const check = steps.slice(lastEdit + 1).filter((step) => step.call.tool === 'readDiagnostics' && step.status === 'observed').pop();
+  if (!check) return { verified: false, found: [] as string[] };
+  return { verified: true, found: codes.filter((code) => String(check.observation ?? '').includes(code)) };
+}
+
+export function scoreRecipeTask(task: RecipeTask, result: { session: { status: string; steps: RecipeStep[] }; validationErrors: number }) {
   const steps = result.session.steps;
   const readRecipe = steps.some((step) => step.call.tool === 'readRecipe' && String(step.call.args.recipe ?? '').trim().toLowerCase() === task.recipe && step.status === 'observed');
   const missing = task.requires.filter((tool) => !steps.some((step) => step.call.tool === tool && KEPT.has(step.status)));
   const finished = result.session.status === 'done';
-  return { readRecipe, missing, finished, validationErrors: result.validationErrors, pass: readRecipe && !missing.length && finished && result.validationErrors === 0 };
+  const diagnostics = task.diagnosticsAbsent?.length ? diagnosticsAfterEdits(steps, task.diagnosticsAbsent) : null;
+  const diagnosticsOk = !diagnostics || (diagnostics.verified && !diagnostics.found.length);
+  return { readRecipe, missing, finished, validationErrors: result.validationErrors, ...(diagnostics ? { diagnostics } : {}), pass: readRecipe && !missing.length && finished && result.validationErrors === 0 && diagnosticsOk };
 }

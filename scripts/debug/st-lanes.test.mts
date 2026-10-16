@@ -46,6 +46,8 @@ test('an all-green batch exits 0; an empty batch is not green', () => {
 test('v2.5 plan 01: --wi-gating reaches a journey and never a scenario', () => {
   assert.deepEqual(itemArgs('j7', true, null, 'scan'), ['scripts/debug/so-journey.mts', 'run', 'J7', '--strict', '--wi-gating', 'scan']);
   assert.deepEqual(itemArgs('J3', false, null), ['scripts/debug/so-journey.mts', 'run', 'J3']);
+  assert.deepEqual(itemArgs('gs1', true, null), ['scripts/debug/so-journey.mts', 'run', 'GS1', '--strict']);
+  assert.deepEqual(itemArgs('test/scenarios/gs1.json', false, null).slice(0, 2), ['scripts/debug/so-scenario.mts', 'run']);
   assert.deepEqual(itemArgs('test/scenarios/x.json', true, 'g1', 'scan'), ['scripts/debug/so-scenario.mts', 'run', 'test/scenarios/x.json', '--sandbox', '--group', 'g1']);
 });
 

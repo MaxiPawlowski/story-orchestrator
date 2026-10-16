@@ -1,0 +1,13 @@
+{
+  "deltas": [
+    {
+      "q": "life_time_read",
+      "v": "evening",
+      "evidence": "The bells ring for the evening prayer"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "none": "time window: the story clock's read only"
+  }
+}

@@ -28,18 +28,15 @@
       "mode": "auto",
       "findings": [],
       "goal": "Lane guard and start. Closes: features stories, group-binding, story-briefing, briefing-draft (real draft on the authoring route), player-setup; rows 34-RP (start setup, persona in the first prompt), 34-L-flow/34-L-fixed live, S-06 (role line once), O1 start half. Briefing and identity step are switched back on for this check (so-journey suppresses them by default) and restored by cleanup.",
-      "requires": ["player-setup"],
+      "requires": [
+        "player-setup"
+      ],
       "steps": [
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); if (!ctx.groupId) throw new Error('needs the story group open'); const lib = rt.getSnapshot().library ?? []; if (!lib.some((r) => r.id === 'adolion-academy')) throw new Error('adolion-academy is not in the library: seed the lane with adolion-fresh first'); const s = rt.getGlobalSettings(); if (!s.memory.innerBeat) throw new Error('inner voice is off; the suite runs with it on'); if (!s.judge.enabled) throw new Error('judge is off; golden sessions run on shipped defaults'); if (s.image?.enabled || s.sprites?.enabled) throw new Error('images or sprites are on; only GS5 runs with media'); rt.setUiSettings({ briefing: true, playerSetup: true }); return { stories: lib.length };"
         },
         {
           "select_story": "adolion-academy"
-        },
-        {
-          "ui": {
-            "action": "select-profile"
-          }
         },
         {
           "expect": {
@@ -57,11 +54,17 @@
         },
         {
           "ui": {
-            "action": "briefing-dismiss"
+            "action": "briefing-dismiss",
+            "openWithinMs": 180000
           }
         },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); for (let i = 0; i < 120 && rt.getSnapshot().playerSetup?.pending; i++) await new Promise((r) => setTimeout(r, 500)); const ps = rt.getSnapshot().playerSetup; if (ps?.pending) throw new Error('identity step still pending after 60 s'); if (!ctx.chatMetadata?.persona) throw new Error('no persona locked to the chat after the identity step'); return { locked: true };"
+        },
+        {
+          "ui": {
+            "action": "select-profile"
+          }
         },
         {
           "wait": {
@@ -129,7 +132,9 @@
       "mode": "auto",
       "findings": [],
       "goal": "Reads drive the game layer in real play. Closes: quests, journal, stat-sheet, story-panels (player views fill from real reads), recap; rows 36-pilot-academy (counts only), 38-C7-quest, 36-P-live with a real read. A quest that no read opened in 6 turns is recorded (count), and the check then opens one through an author write so the panels still get exercised; the record says which path ran.",
-      "requires": ["game-view"],
+      "requires": [
+        "game-view"
+      ],
       "steps": [
         {
           "send_generate": {
@@ -172,7 +177,7 @@
       "goal": "Story scenario in real replies. Closes: story-scenario (SP5), effects; rows O13, queue R11 (SP5 live legs), 16-02-C1 live. Jumps by author write to the first checkpoint whose effects carry a scenario (chosen by structure), plays two real turns, and asserts the scenario block in the drafted request and the effect ledger row.",
       "steps": [
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const st = rt.loaded?.story; if (!st) throw new Error('no story loaded'); const here = rt.getSnapshot().activeCheckpointId; const cp = st.checkpoints.find((c) => c.id !== here && c.effects?.scenario); if (!cp) throw new Error('the story has no checkpoint with a scenario effect'); const pending = rt.activateCheckpoint(cp.id); for (let i = 0; i < 40; i++) { await new Promise((r) => setTimeout(r, 250)); const b = [...document.querySelectorAll('.popup button, .popup .menu_button')].find((n) => /Jump without sealing/.test(n.textContent ?? '')); if (b) { b.click(); break; } if (rt.getSnapshot().activeCheckpointId === cp.id) break; } if (!(await pending) || rt.getSnapshot().activeCheckpointId !== cp.id) throw new Error('the jump did not take'); return { jumped: true };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const st = rt.loaded?.story; if (!st) throw new Error('no story loaded'); const here = rt.getSnapshot().activeCheckpointId; const cp = st.checkpoints.find((c) => c.id !== here && c.effects?.scenario); if (!cp) { if (st.checkpoints.some((c) => c.id === here && c.effects?.scenario)) return { jumped: false, scenarioHere: true }; throw new Error('the story has no checkpoint with a scenario effect'); } const pending = rt.activateCheckpoint(cp.id); for (let i = 0; i < 40; i++) { await new Promise((r) => setTimeout(r, 250)); const b = [...document.querySelectorAll('.popup button, .popup .menu_button')].find((n) => /Jump without sealing/.test(n.textContent ?? '')); if (b) { b.click(); break; } if (rt.getSnapshot().activeCheckpointId === cp.id) break; } if (!(await pending) || rt.getSnapshot().activeCheckpointId !== cp.id) throw new Error('the jump did not take'); return { jumped: true };"
         },
         {
           "send_generate": {
@@ -240,7 +245,7 @@
         {
           "swipe": {
             "messageId": "last",
-            "swipeId": 1
+            "swipeId": "new"
           }
         },
         {

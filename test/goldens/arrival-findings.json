@@ -82,6 +82,10 @@
   "test/fixtures/sp6-complications.story.json#0": [],
   "test/fixtures/sp7-chance.story.json#0": [],
   "test/fixtures/spike-edits.story.json#0": [],
+  "test/fixtures/timewindow01.story.json#0": [],
+  "test/fixtures/timewindow02.story.json#0": [],
+  "test/fixtures/timewindow03.story.json#0": [],
+  "test/fixtures/timewindow04.story.json#0": [],
   "test/fixtures/v15-cast.story.json#0": [
     {
       "index": 1,
@@ -186,6 +190,7 @@
   "test/scenarios/live-v25-11-a7-idless-import.json#0": [],
   "test/scenarios/live-v28-09-ask-player-play.json#0": [],
   "test/scenarios/live-v28-11-create.story.json#0": [],
+  "test/scenarios/live-v28-47-promises.story.json#0": [],
   "test/scenarios/live-v28-meanwhile.story.json#0": [],
   "test/scenarios/live-v4-turn-types-real.json#0": [],
   "test/scenarios/live-v5-foreign-blob.json#0": [],

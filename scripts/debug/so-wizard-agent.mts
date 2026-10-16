@@ -31,7 +31,7 @@ native bridge open/tool/answer/close evidence, fails.
       W5: each planted instruction of test/measurements/11/w5-planted.json is appended to the base
       premise; the runner accepts every draft edit and rejects every provisioning step, then
       compares the install and the draft replay. Any difference is an escape.
-  recipes [--task <id>] [--route local|harness|native] [--profile <id>] [--max-steps <n>]
+  recipes [--task <id>] [--repeat <n>] [--mode review|auto-draft] [--route local|harness|native] [--profile <id>] [--max-steps <n>]
       v2.8 09 (owner 2026-10-10): each task of test/measurements/v2.8/09/recipes.json starts from its seed story and asks for
       one authoring job in the author's words; a task passes when the agent read the expected recipe, every required edit tool
       of that recipe was accepted, the run finished and the draft validates. Provisioning is rejected.
@@ -123,16 +123,25 @@ async function recipes(page, args: string[]) {
   const only = flag(args, '--task');
   const route = routeOf(args);
   const tasks = [];
-  for (const task of fixture.tasks.filter((entry) => !only || entry.id === only)) {
-    const result = await driveChecked(page, {
-      goal: task.goal, title: `${fixture.marker} ${task.id}`, mode: 'review', route, maxSteps: Number(flag(args, '--max-steps') ?? 36),
-      provision: 'reject', profileId: flag(args, '--profile'), seed: fixture.seed,
-    });
+  const repeat = Math.max(1, Number(flag(args, '--repeat') ?? 1));
+  for (const task of fixture.tasks.filter((entry) => !only || entry.id === only).flatMap((entry) => Array.from({ length: repeat }, () => entry))) {
+    let result;
+    try {
+      result = await driveChecked(page, {
+        goal: task.goal, title: `${fixture.marker} ${task.id}`, mode: flag(args, '--mode') ?? 'review', route, maxSteps: Number(flag(args, '--max-steps') ?? 36),
+        provision: 'reject', profileId: flag(args, '--profile'), seed: fixture.seed,
+      });
+    } catch (error) {
+      const message = String((error as Error)?.message ?? error).split(String.fromCharCode(10))[0].slice(0, 300);
+      console.log(`${task.id}: run failed: ${message}`);
+      tasks.push({ id: task.id, recipe: task.recipe, score: { pass: false, error: message }, bridgeProblems: [`run failed: ${message}`], session: null, draft: null });
+      continue;
+    }
     tasks.push({ id: task.id, recipe: task.recipe, score: scoreRecipeTask(task, result), bridgeProblems: result.bridgeProblems, session: result.session, draft: result.draft });
   }
   const transport = tasks.flatMap((entry) => entry.bridgeProblems.map((problem) => `${entry.id}: ${problem}`));
   const passed = tasks.filter((entry) => entry.score.pass).length;
-  return { ok: transport.length === 0, route, passed, of: tasks.length, pass: passed === tasks.length && tasks.length >= 2, transport, tasks: tasks.map(({ session, draft, ...rest }) => rest), detail: tasks };
+  return { ok: transport.length === 0, route, repeat, passed, of: tasks.length, pass: passed === tasks.length && tasks.length >= 2, transport, tasks: tasks.map(({ session, draft, ...rest }) => rest), detail: tasks };
 }
 
 async function bridgeCheck(page, args: string[]) {

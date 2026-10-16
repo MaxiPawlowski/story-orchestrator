@@ -1,0 +1,151 @@
+{
+  "_note": "v2.8 24 save-run-as-story L5 leg (22 L1 premise start, 12 turns, Save this run as a story; L5 cut 4 messages, reopen). Synthetic premise, campaign group by name only. Copied from the pod-round fixture (v2.8 31 M21) without its DeepSeek role pin: roles keep the lane's routes (reply and reads on the lane model, authoring on the default route). Curator off, judge on, Author view off for play.",
+  "requires": {
+    "lane": "model",
+    "group": "Adolion - The Adventurer's Road"
+  },
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 1, stabilityLag: 0 }); globalThis.__dir = { notes: [], t0: Date.now() }; globalThis.__dirJ = () => rt.getSessionJournal().map((e) => ({ at: e.at, summary: String(e.summary ?? ''), detail: JSON.stringify(e.detail ?? e.note ?? '').slice(0, 300), messageId: e.messageId ?? null })); globalThis.__dirCalls = (use) => (rt.extras?.judge?.calls ?? []).filter((c) => c.use === use); rt.setStagecraftSettings({\"curatorEnabled\": false}); rt.setUiSettings({ authorView: false }); const g = rt.getGlobalSettings(); return { authoring: g.extraction.profiles?.authoring, stagecraft: g.stagecraft, judgeOn: g.judge.enabled, divergence: g.judge.uses?.divergence ?? 'default', story: rt.getSnapshot().storyId, cp: rt.getActiveCheckpointInfo()?.id };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const story = await rt.livingStory({\"title\": \"SO-LIVE-V28-22 Lantern Shop\", \"premise\": \"A lantern-maker's shop in a river town was robbed in the night, and the town watch asks the newcomers to look into it before the morning market opens.\", \"tone\": \"\", \"playerRole\": \"\"}); const r = await rt.importStory(JSON.stringify(story)); for (let i = 0; i < 40 && rt.getActiveCheckpointInfo()?.id !== 'liv_open'; i += 1) await new Promise((res) => setTimeout(res, 250)); const cp = rt.getActiveCheckpointInfo()?.id; if (cp !== 'liv_open') throw new Error('the opening liv_open did not activate: ' + cp + ' ' + JSON.stringify(r).slice(0, 300)); globalThis.__dir.storyId = rt.getSnapshot().storyId; return { storyId: globalThis.__dir.storyId, cp, roster: (story.roster ?? []).length };",
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I step into the lantern-maker's shop and look at the broken lock on the back door.",
+        "timeoutMs": 420000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I ask who was the last person to see the shop locked last night.",
+        "timeoutMs": 420000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I kneel to look at the scuff marks on the floor near the empty shelves.",
+        "timeoutMs": 420000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I follow the marks out into the alley behind the shop.",
+        "timeoutMs": 420000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I ask the people in the alley whether they heard anything in the night.",
+        "timeoutMs": 420000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I head to the river docks to see whether anyone is selling lanterns cheap this morning.",
+        "timeoutMs": 420000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I talk to the boatman who is loading crates at the dock.",
+        "timeoutMs": 420000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I ask the boatman where the crates came from.",
+        "timeoutMs": 420000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I go back to tell the lantern-maker what we found.",
+        "timeoutMs": 420000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I suggest we wait near the market stalls and watch who comes to sell.",
+        "timeoutMs": 420000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I watch the stalls as the morning market opens.",
+        "timeoutMs": 420000,
+        "expectReply": true
+      }
+    },
+    {
+      "send_generate": {
+        "text": "I step forward and ask the seller where he got his lanterns.",
+        "timeoutMs": 420000,
+        "expectReply": true
+      }
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 8000,
+        "timeoutMs": 420000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const j = globalThis.__dirJ(); const wrote = j.filter((e) => /living director wrote the next turning point/.test(e.summary)); const grew = j.filter((e) => /the story grew: \\d+ director change/.test(e.summary)); const nothing = j.filter((e) => /living director wrote nothing/.test(e.summary)); const visited = rt.getEngineState().visitedPath ?? []; const liv = [...new Set(visited.filter((id) => /^liv_\\d+/.test(id)))]; const ways = Object.keys(rt.getStory()?.checkpointById ?? {}).filter((id) => /^liv_b\\d+_way$/.test(id)); const jobs = j.filter((e) => /living director wrote (a branch|another way forward)/.test(e.summary)).map((e) => e.summary); globalThis.__dir.l1 = { wrote: wrote.length, grew: grew.length, nothing: nothing.length, nothingWhy: nothing.map((e) => e.detail).slice(0, 6), livReached: liv, ways, branchLines: jobs, cp: rt.getActiveCheckpointInfo()?.id, visited, divergence: (rt.extras?.judge?.calls ?? []).filter((c) => c.use === 'divergence').length, mergeFailed: j.filter((e) => /merge failed/i.test(e.summary + ' ' + (e.detail ?? ''))).map((e) => e.summary + ' ' + String(e.detail ?? '').slice(0, 160)) }; if (ways.length || jobs.length) globalThis.__dir.notes.push('L1 FAIL: branch or prefetch on a living story: ' + JSON.stringify({ ways, jobs })); if (!wrote.length) throw new Error('no \"living director wrote the next turning point\" line: ' + JSON.stringify(globalThis.__dir.l1)); if (!grew.length) throw new Error('no \"the story grew\" line: ' + JSON.stringify(globalThis.__dir.l1)); if (liv.length < 2) globalThis.__dir.notes.push('L1 FAIL: fewer than 2 liv_<n> anchors reached (' + liv.length + '); visited ' + JSON.stringify(visited)); return globalThis.__dir.l1;",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "eval": "for (let i = 0; i < 30 && !document.querySelector('#so-living-save'); i += 1) await new Promise((r) => setTimeout(r, 200)); const b = document.querySelector('#so-living-save'); if (!b) throw new Error('#so-living-save not in the drawer Overview'); b.click(); let line = null; for (let i = 0; i < 60 && !line; i += 1) { await new Promise((r) => setTimeout(r, 500)); line = globalThis.__dirJ().find((e) => /^saved the run as/.test(e.summary)) ?? null; } const toasts = [...document.querySelectorAll('#toast-container .toast')].map((t) => t.innerText); const lib = SillyTavern.getContext().extensionSettings['story-orchestrator']?.v2Stories; const titles = (Array.isArray(lib) ? lib : Object.values(lib ?? {})).map((s) => s.title ?? s.story?.title).filter((t) => /\\(played\\)/.test(String(t))); if (!line) throw new Error('no save journal line; toasts ' + JSON.stringify(toasts) + ' panel ' + JSON.stringify(document.querySelector('[data-so=living-save]')?.innerText ?? null) + ' refused ' + JSON.stringify(globalThis.__dirJ().filter((e) => /refused|not saved/i.test(e.summary)).map((e) => [e.summary, e.detail]).slice(-3))); globalThis.__dir.saved = { line, toasts, titles }; if (!toasts.some((t) => /Saved “.*\\(played\\)” to the library|Saved \".*\\(played\\)\" to the library/.test(t))) globalThis.__dir.notes.push('save toast not matched: ' + JSON.stringify(toasts)); return globalThis.__dir.saved;",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const before = { cp: rt.getActiveCheckpointInfo()?.id, boundary: rt.getEngineState().boundary, len: ctx.chat.length }; const from = ctx.chat.length - 4; await ctx.executeSlashCommandsWithOptions('/cut ' + from + '-' + (ctx.chat.length - 1)); await new Promise((r) => setTimeout(r, 6000)); const j = globalThis.__dirJ().filter((e) => /living story stepped back/.test(e.summary)); globalThis.__dir.l5 = { before, after: { cp: rt.getActiveCheckpointInfo()?.id, boundary: rt.getEngineState().boundary, len: ctx.chat.length }, steppedBack: j.map((e) => e.detail), chatId: ctx.chatId, groupId: ctx.groupId, t: Date.now() }; try { localStorage.setItem('so-dir-l5', JSON.stringify(globalThis.__dir.l5)); localStorage.setItem('so-dir-notes', JSON.stringify(globalThis.__dir.notes)); localStorage.setItem('so-dir-l1', JSON.stringify(globalThis.__dir.l1)); } catch {} return globalThis.__dir.l5;",
+      "log": true
+    },
+    {
+      "reload": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; let saved = null; try { saved = JSON.parse(localStorage.getItem('so-dir-l5')); } catch {} if (!saved) throw new Error('lost the L5 record across the reload'); const gc = await import('/scripts/group-chats.js'); await gc.openGroupChat(saved.groupId, saved.chatId); for (let i = 0; i < 80 && (SillyTavern.getContext().chatId !== saved.chatId || rt.getSnapshot().storyId == null); i += 1) await new Promise((r) => setTimeout(r, 250)); await new Promise((r) => setTimeout(r, 4000)); const rebuilt = rt.getSessionJournal().filter((e) => /living story rebuilt from its history/.test(String(e.summary)) && Date.parse(e.at) > saved.t); const cp = rt.getActiveCheckpointInfo()?.id; const out = { chat: SillyTavern.getContext().chatId, cp, expected: saved.after.cp, rebuilt: rebuilt.length }; if (out.chat !== saved.chatId) throw new Error('did not reopen the chat: ' + JSON.stringify(out)); if (cp !== saved.after.cp) throw new Error('active checkpoint changed across the reopen: ' + JSON.stringify(out)); if (rebuilt.length) throw new Error('the pinned copy was rebuilt from its history on reopen: ' + JSON.stringify(out)); return out;",
+      "log": true
+    },
+    {
+      "eval": "let n = []; try { n = JSON.parse(localStorage.getItem('so-dir-notes') ?? '[]'); } catch {} return { carried: n };",
+      "log": true
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await new Promise((r) => setTimeout(r, 800)); return { notes: globalThis.__dir?.notes ?? [] };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      },
+      "log": 1500
+    }
+  ]
+}

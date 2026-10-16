@@ -10,6 +10,7 @@ import {
   type AdolionManifest, type Inventory, type LaneDisk, type RuntimeReadiness, type SpriteFolder, type SpritePackSource,
 } from './lib/adolionFresh.mts';
 import { comfyCalls } from './lib/sessionArtifacts.mts';
+import { startWithRetry } from './lib/laneStartRetry.mts';
 import { applyPresetOverlay, editLabel, PRESET_OVERLAY_RECORD, type OverlayRecord } from './lib/presetOverlay.mts';
 import { findReclaimable, gib, lastSeededLaneBytes, removeStaleSpriteWorktrees, seedSpaceNeed, seedSpaceRefusal, type SpaceFs } from './lib/seedSpace.mts';
 
@@ -19,7 +20,8 @@ v2.6 overview rule 14: a clean Adolion install on a freshly seeded lane, checked
 campaign build. Lanes 1+ only; lane 0 is the user's.
 
   seed <lane> [--commit <sha>] [--headed] [--stop] [--for <charterId>] [--break-lease]
-       [--preset-overlay <variant>] [--no-preset-overlay]
+       [--preset-overlay <variant>] [--no-preset-overlay] [--resume]
+      --resume keeps the lane copy of an interrupted seed (no st-lanes seed --fresh) and redoes everything after it;
       refused while the lane's lease.json (written by so-session stop) names a chat a later charter
       still continues, unless that charter is the one --for names or --break-lease is given;
       refused below max(5 GB, 2.5 x the last seeded lane) free on the lanes drive, naming old-pin sprite
@@ -279,23 +281,23 @@ async function presetOverlay(n: number, disabled: boolean, variant: string | nul
   return record;
 }
 
-async function seed(n: number, commitArg: string | null, headed: boolean, stopAfter: boolean, noPresetOverlay = false, overlayVariant: string | null = null) {
+async function seed(n: number, commitArg: string | null, headed: boolean, stopAfter: boolean, noPresetOverlay = false, overlayVariant: string | null = null, resume = false) {
   const { lanePreflight } = await import('./st-lanes.mts');
   const refused = lanePreflight();
   if (refused) throw new Error(`adolion-fresh needs the dev bundle: ${refused}`);
   const pin = await readPin(commitArg);
   const paths = lane(n);
   console.log(`[0/7] disk space on ${LANES_ROOT}`);
-  const space = await spacePreflight(n, pin.repo, pin.commit);
+  const space = resume ? null : await spacePreflight(n, pin.repo, pin.commit);
   const exportDir = join(paths.work, `campaign-${pin.commit.slice(0, 12)}`);
   console.log(`[1/7] export campaign ${pin.commit} from ${pin.repo}, and its sprite packs (LFS worktree)`);
   await exportCampaign(pin.repo, pin.commit, exportDir);
   const spriteDir = await prepareSpriteCheckout(pin.repo, pin.commit, spriteCheckoutDir(paths.work, pin.commit));
   const manifest = await manifestFromExport(exportDir, pin.commit, spriteDir);
   console.log(`      ${manifest.sprites.length} sprite folder(s), ${manifest.sprites.reduce((total, entry) => total + entry.labels.length, 0)} file(s)`);
-  console.log(`[2/7] re-seed lane ${n}`);
+  console.log(resume ? `[2/7] resume lane ${n}: the copy from the last seed is kept, strip and overlay re-applied` : `[2/7] re-seed lane ${n}`);
   await lanes('stop', String(n));
-  await lanes('seed', String(n), '--fresh');
+  if (!resume) await lanes('seed', String(n), '--fresh');
   const stripped = await strip(manifest, paths.user);
   console.log(`      stripped ${JSON.stringify(stripped)}`);
   const presets = await presetOverlay(n, noPresetOverlay, overlayVariant);
@@ -304,7 +306,7 @@ async function seed(n: number, commitArg: string | null, headed: boolean, stopAf
   console.log(`      Image Generation extension (stable-diffusion) disabled in the lane copy, read back (was ${stripped.imageExtension.was ? 'enabled' : 'already disabled'})`);
   const logFrom = await logSize(paths.root);
   console.log(`[3/7] start lane ${n}`);
-  await lanes('start', String(n), ...(headed ? ['--headed'] : []));
+  await startWithRetry(n, headed, lanes);
   console.log(`[4/7] campaign installer -> ${paths.url}`);
   const install = await run('python', [join(exportDir, 'scripts', 'install_st.py')], { env: { ADOLION_ST_URL: paths.url.replace(/\/$/, ''), PYTHONIOENCODING: 'utf-8' } });
   const refusedLines = installerProblems(install.output);
@@ -647,7 +649,7 @@ async function main() {
       if (refused) throw new Error(`refusing to re-seed: ${refused}`);
     }
     if (rest.includes('--no-preset-overlay') && argValue(rest, '--preset-overlay')) throw new Error('--preset-overlay and --no-preset-overlay exclude each other');
-    report = await seed(n, argValue(rest, '--commit'), rest.includes('--headed'), rest.includes('--stop'), rest.includes('--no-preset-overlay'), argValue(rest, '--preset-overlay'));
+    report = await seed(n, argValue(rest, '--commit'), rest.includes('--headed'), rest.includes('--stop'), rest.includes('--no-preset-overlay'), argValue(rest, '--preset-overlay'), rest.includes('--resume'));
   }
   else if (command === 'badges') report = await badges(laneArg(rest[0]));
   else if (command === 'check') report = await check(laneArg(rest[0]), argValue(rest, '--drop-book'));

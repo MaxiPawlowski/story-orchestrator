@@ -1,0 +1,13 @@
+{
+  "deltas": [
+    {
+      "q": "life_time_read",
+      "v": "night",
+      "evidence": "the whole town is asleep under a black, starless night"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "none": "time window: the story clock's read only"
+  }
+}

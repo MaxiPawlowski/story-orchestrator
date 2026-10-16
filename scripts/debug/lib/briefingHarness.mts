@@ -85,9 +85,20 @@ export async function dismissBlocksPane(page): Promise<BriefingModalState | null
   return state;
 }
 
-export async function dismissBriefing(page, { dontShow = false, timeoutMs = 5000 } = {}) {
-  const before = await readBriefingModal(page);
-  if (!before.open) throw new Error('no briefing is open (dialog#so-briefing)');
+export async function dismissBriefing(page, { dontShow = false, timeoutMs = 5000, openWithinMs = 0 } = {}) {
+  const deadline = Date.now() + openWithinMs;
+  let before = await readBriefingModal(page);
+  while (!before.open && Date.now() < deadline) {
+    await page.waitForTimeout(250);
+    before = await readBriefingModal(page);
+  }
+  if (!before.open) {
+    const why = openWithinMs ? await page.evaluate(() => {
+      const snap = (globalThis as any).storyOrchestratorRuntime?.getSnapshot?.();
+      return JSON.stringify({ boundary: snap?.boundary ?? null, briefing: snap?.briefing ? { enabled: snap.briefing.enabled ?? null, view: Boolean(snap.briefing.view), pending: snap.briefing.pending ?? null, draft: snap.briefing.draft?.status ?? null } : null, playerSetup: snap?.playerSetup ? { pending: snap.playerSetup.pending ?? null, needsPane: snap.playerSetup.needsPane ?? null } : null });
+    }).catch(() => 'state unreadable') : '';
+    throw new Error(`no briefing is open (dialog#so-briefing)${openWithinMs ? ` after ${openWithinMs} ms; state ${why}` : ''}`);
+  }
   if (dontShow) {
     if (!before.optOut) throw new Error('this briefing offers no "Don\'t show briefings" box');
     await page.locator('#so-briefing-optout').check();

@@ -8,7 +8,7 @@ import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { latencyPercentiles, parseEffortArm, pinRoleEffort, pinRoleProfile, readRoleReasoning, restoreRoleEfforts, restoreRoleProfiles, type EffortArm } from './lib/roleEffort.mts';
 import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreContains, scoreIntents, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
 
-const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high] [--profile <name|id>] [--arm <label>]
+const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high] [--profile <name|id>] [--arm <label>] [--set extractor|time]
 
 Runs every test/fixtures/extractor*.{story,transcript,expected}.json triple through the live
 extraction model (globalThis.storyOrchestratorLiveSuite.runFixture) and scores exact-match on
@@ -67,10 +67,12 @@ function argValue(name, fallback) {
   return index >= 0 && process.argv[index + 1] ? process.argv[index + 1] : fallback;
 }
 
-async function discoverFixtures(filter) {
+export const FIXTURE_SETS = { extractor: /^extractor.*\.story\.json$/, time: /^timewindow.*\.story\.json$/ } as const;
+
+async function discoverFixtures(filter, set: keyof typeof FIXTURE_SETS = 'extractor') {
   const files = await readdir(FIX_DIR);
   const names = files
-    .filter((file) => /^extractor.*\.story\.json$/.test(file))
+    .filter((file) => FIXTURE_SETS[set].test(file))
     .map((file) => file.replace(/\.story\.json$/, ''))
     .filter((name) => !filter || name.includes(filter))
     .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
@@ -89,10 +91,10 @@ async function discoverFixtures(filter) {
   return fixtures;
 }
 
-async function runSuite(page, { min, filter, record, judge = false, floors = DEFAULT_TIER_FLOORS as Partial<Record<string, number>>, floorsGiven = [] as string[], expectCount = null, effort = null as EffortArm | null, profile = null as string | null, arm = null as string | null }) {
+async function runSuite(page, { min, filter, record, judge = false, floors = DEFAULT_TIER_FLOORS as Partial<Record<string, number>>, floorsGiven = [] as string[], expectCount = null, effort = null as EffortArm | null, profile = null as string | null, arm = null as string | null, set = 'extractor' as keyof typeof FIXTURE_SETS }) {
   if (effort && record) throw new Error('--effort is a measurement arm; it never records over the live goldens');
   if (profile && record) throw new Error('--profile is a measurement arm; it never records over the live goldens');
-  const fixtures = await discoverFixtures(filter);
+  const fixtures = await discoverFixtures(filter, set);
   if (!fixtures.length) throw new Error(`No fixtures found in ${FIX_DIR}`);
   if (record) await mkdir(judge ? JUDGE_GOLDEN_DIR : LIVE_GOLDEN_DIR, { recursive: true });
   const routed = profile ? await pinRoleProfile(page, 'read', profile) : null;
@@ -195,5 +197,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(1);
   }
   const expectCountRaw = argValue('--expect-count', '');
-  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, floorsGiven: given, expectCount: expectCountRaw ? Number(expectCountRaw) : null, effort: parseEffortArm(argValue('--effort', '')), profile: argValue('--profile', '') || null, arm: argValue('--arm', '') || null }));
+  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, floorsGiven: given, expectCount: expectCountRaw ? Number(expectCountRaw) : null, effort: parseEffortArm(argValue('--effort', '')), profile: argValue('--profile', '') || null, arm: argValue('--arm', '') || null, set: argValue('--set', 'extractor') === 'time' ? 'time' : 'extractor' }));
 }

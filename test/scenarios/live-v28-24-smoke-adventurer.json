@@ -59,12 +59,12 @@
       }
     },
     {
-      "eval": "const rt = globalThis.storyOrchestratorRuntime; for (let i = 0; i < 60 && rt.getSnapshot().storyId !== globalThis.__asStory; i++) await new Promise((r) => setTimeout(r, 500)); if (rt.getSnapshot().storyId !== globalThis.__asStory) throw new Error('the story did not come back after reload'); return { reopened: true, boundary: rt.getSnapshot().boundary };"
+      "eval": "for (let i = 0; i < 60 && !globalThis.storyOrchestratorRuntime; i++) await new Promise((r) => setTimeout(r, 500)); const rt = globalThis.storyOrchestratorRuntime; for (let i = 0; i < 60 && rt.getSnapshot().storyId !== 'adolion-adventurer'; i++) await new Promise((r) => setTimeout(r, 500)); if (rt.getSnapshot().storyId !== 'adolion-adventurer') throw new Error('the story did not come back after reload'); return { reopened: true, boundary: rt.getSnapshot().boundary };"
     },
     {
       "swipe": {
         "messageId": "last",
-        "swipeId": 1
+        "swipeId": "new"
       }
     },
     {

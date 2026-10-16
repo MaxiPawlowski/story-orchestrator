@@ -321,11 +321,21 @@ export async function swipeMessage(page, messageId, targetSwipeId = null) {
     const message = ctx.chat?.[id];
     if (!Number.isInteger(id) || !message) throw new Error(`Message ${rawId} not found.`);
     const current = Number(message.swipe_id ?? 0);
+    if (rawSwipeId === 'new') {
+      const swipesBefore = Array.isArray(message.swipes) ? message.swipes.length : 1;
+      if (id !== ctx.chat.length - 1) throw new Error(`Message ${id} is not the last message: only the last reply can swipe into a new generation.`);
+      if (message.is_user || message.is_system) throw new Error(`Message ${id} is not a character reply: a new swipe needs a character reply last.`);
+      await ctx.swipe.to(null, 'right', { source: 'swipe_picker', forceMesId: id, forceSwipeId: swipesBefore, forceDuration: 0 });
+      const after = ctx.chat[id];
+      const swipesAfter = Array.isArray(after?.swipes) ? after.swipes.length : 1;
+      if (swipesAfter <= swipesBefore) throw new Error(`Message ${id}: no new swipe was generated (swipes ${swipesBefore} -> ${swipesAfter}).`);
+      return { messageId: id, previousSwipeId: current, swipeId: after?.swipe_id ?? null, generated: true, swipesBefore, swipesAfter };
+    }
     const target = rawSwipeId === null || rawSwipeId === undefined
       ? current + 1
       : Number(rawSwipeId);
     if (!Array.isArray(message.swipes) || target >= message.swipes.length) {
-      throw new Error(`Message ${id} has no deterministic swipe ${target}. Create a multi-swipe message or pass an existing swipe id.`);
+      throw new Error(`Message ${id} has no deterministic swipe ${target}. Create a multi-swipe message, pass an existing swipe id, or swipeId "new" for a real generation on the last reply.`);
     }
     const seen = [];
     const handler = (value) => seen.push(value);
