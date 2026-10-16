@@ -232,7 +232,7 @@ export const PROVISION_TOOLS = {
       name: req("string", "card name"), description: req("string", "card description"), role: opt("string", "role in this story"), personality: opt("string", ""),
       scenario: opt("string", ""), first_mes: opt("string", "only for the opening scene's cast, for that scene only; leave it out for anyone who enters later"),
       mes_example: opt("string", ""), tags: opt("array", "string[]"),
-      replaces: opt("number", "only to revise a card that came back with notes: that step's id (one revision per card)"),
+      replaces: opt("value", "only to revise a card that came back with notes: that step's id, a number (one revision per card)"),
     },
   },
   createStoryLorebook: { doc: "Create this story's own NEW lorebook. Always reviewed by the author.", args: { name: req("string", "lorebook name") } },

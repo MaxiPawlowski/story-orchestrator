@@ -168,7 +168,7 @@ async function cardRevision(page, args: string[]) {
       continue;
     }
     const steps = result.session.steps.map((step) => ({ id: step.id, status: step.status, call: { tool: step.call.tool, args: step.call.args }, notes: step.notes, replaces: step.replaces, observation: step.observation }));
-    tasks.push({ id: task.id, score: scoreCardRevision(task, steps), bridgeProblems: result.bridgeProblems, steps });
+    tasks.push({ id: task.id, score: scoreCardRevision(task, steps), bridgeProblems: result.bridgeProblems, steps, bridge: result.bridge?.events ?? [] });
   }
   const transport = tasks.flatMap((entry) => entry.bridgeProblems.map((problem) => `${entry.id}: ${problem}`));
   const passed = tasks.filter((entry) => entry.score.pass).length;

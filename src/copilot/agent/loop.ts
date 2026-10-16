@@ -256,8 +256,22 @@ const groupGap = (draft: StoryV2, op: AgentOp): string | null => {
     : null;
 };
 
-const replacesId = (reply: AgentReply): number | null =>
-  (reply.kind === "call" && reply.call.tool === "createCharacterCard" && typeof reply.call.args.replaces === "number" ? reply.call.args.replaces : null);
+const cardName = (value: unknown) => String(value ?? "").trim().toLowerCase();
+
+const replacesId = (reply: AgentReply, held: AgentStep | null): number | null => {
+  if (reply.kind !== "call" || reply.call.tool !== "createCharacterCard") return null;
+  const named = reply.call.args.replaces;
+  const id = typeof named === "number" ? named : typeof named === "string" && /^\s*#?\d+\s*$/.test(named) ? Number(named.replace("#", "")) : null;
+  if (id !== null) return id;
+  const sameCard = held?.op?.kind === "createCharacterCard" && cardName(held.op.name) === cardName(reply.call.args.name);
+  return sameCard && held ? held.id : null;
+};
+
+const withoutReplaces = (reply: AgentReply): AgentReply => {
+  if (reply.kind !== "call" || !("replaces" in reply.call.args)) return reply;
+  const { replaces: _named, ...args } = reply.call.args;
+  return { ...reply, call: { ...reply.call, args } };
+};
 
 const markReplaced = (session: AgentSession, held: AgentStep, by: number): AgentSession => ({
   ...session,
@@ -269,12 +283,13 @@ const reviewNote = (notes: CardFinding[], id: number) =>
 
 export const executeReply = (session: AgentSession, reply: AgentReply, context: AgentContext, meta: StepMeta): AgentTurn => {
   const held = reviewStep(session);
-  if (held && replacesId(reply) !== held.id) return { session: promoteReview(session, KEPT_CARD), apply: null };
-  const turn = runReply(session, held, reply, context, meta);
+  const target = replacesId(reply, held);
+  if (held && target !== held.id) return { session: promoteReview(session, KEPT_CARD), apply: null };
+  const turn = runReply(session, held, target, withoutReplaces(reply), context, meta);
   return held && reviewStep(turn.session)?.id === held.id ? { ...turn, session: promoteReview(turn.session, REVISION_REFUSED) } : turn;
 };
 
-const runReply = (session: AgentSession, held: AgentStep | null, reply: AgentReply, context: AgentContext, meta: StepMeta): AgentTurn => {
+const runReply = (session: AgentSession, held: AgentStep | null, target: number | null, reply: AgentReply, context: AgentContext, meta: StepMeta): AgentTurn => {
   const at = meta.at ?? now();
   if (reply.kind === "plan") {
     const notes = [...session.notes, { role: "agent" as const, text: `Plan: ${reply.plan.join(" / ")}`, at }];
@@ -303,7 +318,6 @@ const runReply = (session: AgentSession, held: AgentStep | null, reply: AgentRep
   if (player) return record({ family: spec.family === "provision" ? "provision" : "edit", op, status: "refused", observation: `Refused: ${player}` });
   if (spec.family === "provision") {
     if (!isProvisionOp(op)) return record({ family: null, status: "refused", observation: `Refused: ${spec.name} is not a provisioning step` });
-    const target = replacesId(reply);
     const replacing = held && target === held.id ? held : null;
     if (target !== null && !replacing) {
       return record({ family: "provision", op, status: "refused", observation: `Refused: replaces names step #${target}, which is not a card waiting for revision; leave replaces out` });

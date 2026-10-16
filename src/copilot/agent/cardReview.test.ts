@@ -78,6 +78,16 @@ describe("v2.8 09 harvest: one bounded revision before the author sees a card", 
     expect(capped.status).toBe("awaiting-author");
   });
 
+  it("a revision naming the step as text, or the same card name without replaces, is the one revision", () => {
+    const held = step(running(), card("Ilsa Crane", "Buys stolen goods."));
+    const texted = step(held, card("Ilsa Crane", FULL, { replaces: "1" }));
+    expect(texted.steps.map((entry) => entry.status)).toEqual(["replaced", "pending"]);
+    expect(texted.steps[1].op).not.toHaveProperty("replaces");
+    const named = step(held, card("ilsa crane", FULL));
+    expect(named.steps.map((entry) => entry.status)).toEqual(["replaced", "pending"]);
+    expect(named.steps[1].replaces).toBe(1);
+  });
+
   it("a clean card goes straight to the author", () => {
     const clean = step(running(), card("Ilsa Crane", FULL));
     expect(clean.steps[0].status).toBe("pending");
