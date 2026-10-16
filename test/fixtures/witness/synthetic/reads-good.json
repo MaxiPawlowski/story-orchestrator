@@ -1,0 +1,340 @@
+{
+ "format": "so-witness-reads/1",
+ "set": "witness-synthetic-good",
+ "synthetic": true,
+ "members": [
+  {
+   "id": "brannock",
+   "name": "Brannock"
+  },
+  {
+   "id": "odessa",
+   "name": "Odessa"
+  },
+  {
+   "id": "perrin",
+   "name": "Perrin"
+  },
+  {
+   "id": "teodor",
+   "name": "Teodor"
+  }
+ ],
+ "messages": [
+  {
+   "messageId": 0,
+   "speaker": "Bexley",
+   "text": "\"Everyone, gather round the fire. We cross the ridge at first light.\""
+  },
+  {
+   "messageId": 1,
+   "speaker": "Brannock",
+   "text": "Brannock stamps snow off his boots. \"The ridge path is iced over past the second cairn.\""
+  },
+  {
+   "messageId": 2,
+   "speaker": "Odessa",
+   "text": "\"Then we rope up at the cairn and go slow,\" Odessa says to the group."
+  },
+  {
+   "messageId": 3,
+   "speaker": "Perrin",
+   "text": "Perrin leans toward Teodor and whispers, \"I left the spare rope at the last camp.\""
+  },
+  {
+   "messageId": 4,
+   "speaker": "Teodor",
+   "text": "\"Then we share mine,\" Teodor answers aloud, patting the coil on his pack.",
+   "swipeId": 1
+  },
+  {
+   "messageId": 5,
+   "speaker": "Bexley",
+   "text": "\"How many days of food do we have left?\""
+  },
+  {
+   "messageId": 6,
+   "speaker": "Odessa",
+   "text": "Odessa counts the sacks. \"Four days if nobody gets greedy.\""
+  },
+  {
+   "messageId": 7,
+   "speaker": "Brannock",
+   "text": "Brannock murmurs to Odessa alone, \"Make it three. I saw tracks near the stores last night.\""
+  },
+  {
+   "messageId": 8,
+   "speaker": "Odessa",
+   "text": "Odessa nods once and says nothing to the others."
+  },
+  {
+   "messageId": 9,
+   "speaker": "Teodor",
+   "text": "Teodor raises his voice for everyone: \"The weather turns by noon tomorrow.\" Then, lower, only to Perrin: \"And my knee will not last the descent.\""
+  },
+  {
+   "messageId": 10,
+   "speaker": "Perrin",
+   "text": "\"We could wait a day at the hut,\" Perrin offers."
+  },
+  {
+   "messageId": 11,
+   "speaker": "Bexley",
+   "text": "\"No waiting. The pass closes when the snow comes.\""
+  },
+  {
+   "messageId": 12,
+   "speaker": "Brannock",
+   "text": "Brannock hands over a folded map. \"Mark the hut on this, just in case.\""
+  },
+  {
+   "messageId": 13,
+   "speaker": "Odessa",
+   "text": "Odessa catches Brannock by the sleeve and whispers, \"The tracks were boots, not wolves.\"",
+   "swipeId": 1
+  },
+  {
+   "messageId": 14,
+   "speaker": "Teodor",
+   "text": "Teodor mutters something into his scarf."
+  },
+  {
+   "messageId": 15,
+   "speaker": "Perrin",
+   "text": "Perrin stirs the pot. \"Supper is ready, such as it is.\""
+  },
+  {
+   "messageId": 16,
+   "speaker": "Brannock",
+   "text": "Brannock signs to Teodor with two fingers: watch the north tree line."
+  },
+  {
+   "messageId": 17,
+   "speaker": "Teodor",
+   "text": "\"Understood,\" Teodor says, loud enough for all, and moves to the edge of camp."
+  },
+  {
+   "messageId": 18,
+   "speaker": "Bexley",
+   "text": "\"Who takes first watch?\""
+  },
+  {
+   "messageId": 19,
+   "speaker": "Odessa",
+   "text": "\"I will. Wake Perrin at midnight.\""
+  },
+  {
+   "messageId": 20,
+   "speaker": "Perrin",
+   "text": "Perrin yawns. \"Fine by me, I am exhausted.\" He slips Odessa a note that reads: the stores were opened from inside."
+  },
+  {
+   "messageId": 21,
+   "speaker": "Teodor",
+   "text": "Teodor tells Brannock quietly, \"I counted the sacks myself. One is missing.\""
+  },
+  {
+   "messageId": 22,
+   "speaker": "Bexley",
+   "text": "\"Teodor has gone ahead to scout. The three of you, with me.\"",
+   "swipeId": 1
+  },
+  {
+   "messageId": 23,
+   "speaker": "Brannock",
+   "text": "\"The wind is picking up from the west,\" Brannock calls out."
+  },
+  {
+   "messageId": 24,
+   "speaker": "Odessa",
+   "text": "Odessa leans in to Perrin: \"Do you trust Teodor with the map?\""
+  },
+  {
+   "messageId": 25,
+   "speaker": "Perrin",
+   "text": "Perrin answers her under his breath, \"Less than I did yesterday.\""
+  },
+  {
+   "messageId": 26,
+   "speaker": "Bexley",
+   "text": "\"Keep moving. We talk at the hut.\""
+  },
+  {
+   "messageId": 27,
+   "speaker": "Brannock",
+   "text": "Brannock points at the slope ahead. \"Avalanche scar. Single file from here.\""
+  },
+  {
+   "messageId": 28,
+   "speaker": "Odessa",
+   "text": "Odessa whispers to Brannock so Perrin cannot hear, \"If he took the sack, he is hiding it in his bedroll.\""
+  },
+  {
+   "messageId": 29,
+   "speaker": "Perrin",
+   "text": "\"I can hear you two muttering,\" Perrin says with a crooked smile."
+  },
+  {
+   "messageId": 30,
+   "speaker": "Bexley",
+   "text": "\"Enough. Eyes on the trail.\""
+  },
+  {
+   "messageId": 31,
+   "speaker": "Brannock",
+   "text": "Brannock laughs it off. \"Just the cold talking.\" He mouths a single word to Odessa: later.",
+   "swipeId": 1
+  },
+  {
+   "messageId": 32,
+   "speaker": "Perrin",
+   "text": "Perrin slips on the ice and catches himself on an outstretched arm."
+  },
+  {
+   "messageId": 33,
+   "speaker": "Odessa",
+   "text": "\"Careful. One broken leg and we are finished,\" Odessa warns everyone."
+  },
+  {
+   "messageId": 34,
+   "speaker": "Bexley",
+   "text": "Bexley murmurs to Perrin, \"Stay close to me on the descent.\""
+  },
+  {
+   "messageId": 35,
+   "speaker": "Perrin",
+   "text": "\"Hut in sight!\" Perrin shouts."
+  },
+  {
+   "messageId": 36,
+   "speaker": "Brannock",
+   "text": "Brannock kicks the hut door open and checks inside. \"Empty. Dry wood, too.\""
+  },
+  {
+   "messageId": 37,
+   "speaker": "Odessa",
+   "text": "Odessa says something by the door that the wind carries off."
+  },
+  {
+   "messageId": 38,
+   "speaker": "Bexley",
+   "text": "\"Fire first, then food, then we talk.\""
+  },
+  {
+   "messageId": 39,
+   "speaker": "Perrin",
+   "text": "Perrin builds the fire while the others unpack."
+  },
+  {
+   "messageId": 40,
+   "speaker": "Odessa",
+   "text": "Odessa tells Bexley alone by the woodpile, \"I think Teodor is honest. Someone wants us to doubt him.\"",
+   "swipeId": 1
+  },
+  {
+   "messageId": 41,
+   "speaker": "Brannock",
+   "text": "\"Teodor should be back before dark,\" Brannock says to everyone."
+  },
+  {
+   "messageId": 42,
+   "speaker": "Perrin",
+   "text": "Perrin pulls Brannock aside: \"If he is not back by dark, we go without him.\""
+  },
+  {
+   "messageId": 43,
+   "speaker": "Bexley",
+   "text": "\"Nobody goes anywhere without everyone. That is final.\""
+  }
+ ],
+ "reads": [
+  {
+   "readId": "r0",
+   "from": 0,
+   "to": 7,
+   "status": "outage",
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "response": ""
+  },
+  {
+   "readId": "r1",
+   "from": 0,
+   "to": 7,
+   "status": "accepted",
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "response": "DELTA none\nWITNESS m=0 heard=all-present\nWITNESS m=1 heard=all-present\nWITNESS m=2 heard=all-present\nWITNESS m=3 heard=Perrin,teodor\nWITNESS m=4 heard=all-present\nWITNESS m=5 heard=all-present\nWITNESS m=6 heard=all-present\nWITNESS m=7 heard=Brannock,odessa"
+  },
+  {
+   "readId": "r2",
+   "from": 8,
+   "to": 15,
+   "status": "accepted",
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "response": "DELTA none\nWITNESS m=8 heard=all-present\nWITNESS m=9 mixed\nSPAN m=9 from=\"Teodor raises his voice for everyone:\" heard=all-present\nSPAN m=9 from=\"Then, lower, only to Perrin: \"And\" heard=Teodor,Perrin\nWITNESS m=10 heard=all-present\nWITNESS m=11 heard=all-present\nWITNESS m=12 heard=all-present\nWITNESS m=13 heard=Odessa,brannock\nWITNESS m=14 heard=unknown\nWITNESS m=15 heard=all-present"
+  },
+  {
+   "readId": "r3",
+   "from": 16,
+   "to": 21,
+   "status": "accepted",
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "response": "DELTA none\nWITNESS m=16 heard=Brannock,teodor\nWITNESS m=17 heard=all-present\nWITNESS m=18 heard=all-present\nWITNESS m=19 heard=all-present\nWITNESS m=20 mixed\nSPAN m=20 from=\"Perrin yawns. \"Fine by me, I\" heard=all-present\nSPAN m=20 from=\"He slips Odessa a note that\" heard=Perrin,Odessa\nWITNESS m=21 heard=Teodor,brannock\nWITNESS m=99 heard=all-present"
+  },
+  {
+   "readId": "r4",
+   "from": 22,
+   "to": 29,
+   "status": "accepted",
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "response": "DELTA none\nWITNESS m=22 heard=all-present\nWITNESS m=23 heard=all-present\nWITNESS m=24 heard=Odessa,perrin\nWITNESS m=25 heard=Perrin\nWITNESS m=26 heard=all-present\nWITNESS m=27 heard=all-present\nWITNESS m=28 heard=Odessa,brannock\nWITNESS m=29 heard=all-present"
+  },
+  {
+   "readId": "r5",
+   "from": 30,
+   "to": 37,
+   "status": "accepted",
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "response": "DELTA none\nWITNESS m=30 heard=all-present\nWITNESS m=31 mixed\nSPAN m=31 from=\"Brannock laughs it off. \"Just the\" heard=all-present\nSPAN m=31 from=\"He mouths a single word to\" heard=Brannock,Odessa\nWITNESS m=32 heard=all-present\nWITNESS m=33 heard=all-present\nWITNESS m=34 heard=Perrin\nWITNESS m=35 heard=all-present\nWITNESS m=36 heard=all-present\nWITNESS m=37 heard=unknown"
+  },
+  {
+   "readId": "r6",
+   "from": 38,
+   "to": 43,
+   "status": "accepted",
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "response": "DELTA none\nWITNESS m=38 heard=all-present\nWITNESS m=39 heard=all-present\nWITNESS m=40 heard=Odessa\nWITNESS m=41 heard=all-present\nWITNESS m=42 heard=Perrin,brannock\nWITNESS m=43 heard=all-present"
+  }
+ ]
+}

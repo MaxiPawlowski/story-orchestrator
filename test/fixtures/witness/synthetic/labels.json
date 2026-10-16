@@ -1,0 +1,717 @@
+{
+ "format": "so-witness-labels/1",
+ "set": "witness-synthetic",
+ "synthetic": true,
+ "members": [
+  "brannock",
+  "odessa",
+  "perrin",
+  "teodor"
+ ],
+ "labels": [
+  {
+   "messageId": 0,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 1,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 2,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 3,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "perrin",
+    "teodor"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 4,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 5,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 6,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 7,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 8,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 9,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "spans": [
+    {
+     "span": [
+      0,
+      76
+     ],
+     "heard": [
+      "brannock",
+      "odessa",
+      "perrin",
+      "teodor"
+     ]
+    },
+    {
+     "span": [
+      76,
+      145
+     ],
+     "heard": [
+      "teodor",
+      "perrin"
+     ]
+    }
+   ],
+   "review": null
+  },
+  {
+   "messageId": 10,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 11,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 12,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 13,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "odessa",
+    "brannock"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 14,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": "unknown",
+   "review": null
+  },
+  {
+   "messageId": 15,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 16,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "teodor"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 17,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 18,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 19,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 20,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "spans": [
+    {
+     "span": [
+      0,
+      44
+     ],
+     "heard": [
+      "brannock",
+      "odessa",
+      "perrin",
+      "teodor"
+     ]
+    },
+    {
+     "span": [
+      44,
+      114
+     ],
+     "heard": [
+      "perrin",
+      "odessa"
+     ]
+    }
+   ],
+   "review": null
+  },
+  {
+   "messageId": 21,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin",
+    "teodor"
+   ],
+   "heard": [
+    "teodor",
+    "brannock"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 22,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 23,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 24,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "odessa",
+    "perrin"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 25,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "perrin",
+    "odessa"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 26,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 27,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 28,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "odessa",
+    "brannock"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 29,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 30,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 31,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "spans": [
+    {
+     "span": [
+      0,
+      49
+     ],
+     "heard": [
+      "brannock",
+      "odessa",
+      "perrin"
+     ]
+    },
+    {
+     "span": [
+      49,
+      90
+     ],
+     "heard": [
+      "brannock",
+      "odessa"
+     ]
+    }
+   ],
+   "review": null
+  },
+  {
+   "messageId": 32,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 33,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 34,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "perrin"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 35,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 36,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 37,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": "unknown",
+   "review": null
+  },
+  {
+   "messageId": 38,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 39,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 40,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "odessa"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 41,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 42,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "perrin",
+    "brannock"
+   ],
+   "review": null
+  },
+  {
+   "messageId": 43,
+   "present": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "heard": [
+    "brannock",
+    "odessa",
+    "perrin"
+   ],
+   "review": null
+  }
+ ]
+}
