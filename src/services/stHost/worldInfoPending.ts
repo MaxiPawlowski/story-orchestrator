@@ -28,10 +28,11 @@ export function watchPendingWorldSaves(now: () => number = Date.now): () => void
   return installed;
 }
 
-export async function flushPendingWorldSaves(written: string, now: number = Date.now()): Promise<WriteResult<{ flushed: string[] }>> {
+export async function flushPendingWorldSaves(written: string, now: number = Date.now(), only?: string): Promise<WriteResult<{ flushed: string[] }>> {
   const cache: HostCache = worldInfoModule.worldInfoCache;
   const flushed: string[] = [];
   for (const [name, at] of [...marks]) {
+    if (only !== undefined && name !== only) continue;
     marks.delete(name);
     if (name === written || now - at > PENDING_WORLD_SAVE_MS) continue;
     const data = cache.get?.(name);
@@ -44,4 +45,9 @@ export async function flushPendingWorldSaves(written: string, now: number = Date
     }
   }
   return wrote({ flushed });
+}
+
+export async function flushPendingWorldSave(name: string, now: number = Date.now()): Promise<WriteResult<{ flushed: boolean }>> {
+  const result = await flushPendingWorldSaves("", now, name);
+  return result.ok ? wrote({ flushed: result.flushed.includes(name) }) : result;
 }

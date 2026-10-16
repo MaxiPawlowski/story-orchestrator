@@ -101,7 +101,11 @@ jest.mock("./slashCommands", () => ({
 }));
 
 const flushPendingWorldSaves = jest.fn(async (_written: string) => ({ ok: true, flushed: [] as string[] }));
-jest.mock("./worldInfoPending", () => ({ flushPendingWorldSaves: (written: string) => flushPendingWorldSaves(written) }));
+const flushPendingWorldSave = jest.fn(async (_name: string) => ({ ok: true, flushed: false }));
+jest.mock("./worldInfoPending", () => ({
+  flushPendingWorldSaves: (written: string) => flushPendingWorldSaves(written),
+  flushPendingWorldSave: (name: string) => flushPendingWorldSave(name),
+}));
 
 import { bindChatLorebook, createLorebook, createWIEntry, deactivateGlobalLorebook, deleteLorebook, deleteWIEntryAt, disableWIEntry, enableWIEntry, ensureLorebook, listSelectedLorebooks, loadLorebook, lorebookExists, setWIEntriesState, unbindChatLorebook, updateWIEntryByUid, upsertWIEntry } from "./worldInfo";
 
@@ -271,11 +275,11 @@ describe("setWIEntriesState: one write per book (R13)", () => {
     saveWorldInfo.mockClear();
   });
 
-  it("applies a book's enables and disables in one save and one read-back", async () => {
+  it("applies a book's enables and disables in one save, one conflict read (K12) and one read-back", async () => {
     (globalThis.fetch as jest.Mock).mockClear();
     expect(await setWIEntriesState("Lore", { enable: ["Two"], disable: ["One"] })).toEqual({ ok: true, changed: true, confirmed: true });
     expect(saveWorldInfo).toHaveBeenCalledTimes(1);
-    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
     expect({ one: book()[0].disable, two: book()[1].disable, three: book()[2].disable }).toEqual({ one: true, two: false, three: false });
   });
 
@@ -621,5 +625,87 @@ describe("createWIEntry / deleteWIEntryAt (v2.8 11, curator create op)", () => {
   it("reports a delete the server lost", async () => {
     server.lose = true;
     await expect(deleteWIEntryAt({ lorebookFileId: "Story Lore", uid: 3 })).resolves.toMatchObject({ ok: false });
+  });
+});
+
+describe("K12: a whole-book write never overwrites another page's change to the same book", () => {
+  const BOOK = "Shared Lore";
+  const seeded = async () => {
+    putOnDisk(BOOK, [entry(3, "The bridge", "The bridge stands."), { ...entry(5, "The ferry", "Gone."), disable: true }]);
+    st.worldNames = [BOOK];
+    await loadLorebook(BOOK);
+    st.disk.get(BOOK)!.entries[5] = { ...st.disk.get(BOOK)!.entries[5], content: "The other page rewrote the ferry." };
+    saveWorldInfo.mockClear();
+  };
+  const survived = () => {
+    expect(st.disk.get(BOOK)!.entries[5].content).toBe("The other page rewrote the ferry.");
+    expect(saveWorldInfo).not.toHaveBeenCalled();
+    expect(st.cache.has(BOOK)).toBe(false);
+  };
+  const CONFLICT = expect.stringContaining("another page changed");
+
+  it("setWIEntriesState refuses and names the conflict", async () => {
+    await seeded();
+    await expect(setWIEntriesState(BOOK, { disable: "The bridge" })).resolves.toEqual({ ok: false, reason: CONFLICT });
+    survived();
+  });
+
+  it("upsertWIEntry fails instead of saving", async () => {
+    await seeded();
+    expect(await upsertWIEntry(BOOK, "The bridge", "The bridge fell.")).toBe("failed");
+    survived();
+  });
+
+  it("updateWIEntryByUid refuses and names the conflict", async () => {
+    await seeded();
+    await expect(updateWIEntryByUid({ lorebookFileId: BOOK, uid: 3 }, { content: "The bridge fell." })).resolves.toEqual({ ok: false, reason: CONFLICT });
+    survived();
+  });
+
+  it("createWIEntry refuses and names the conflict", async () => {
+    await seeded();
+    await expect(createWIEntry(BOOK, { comment: "Old Marn", keys: ["Marn"], content: "x" })).resolves.toEqual({ ok: false, reason: CONFLICT });
+    survived();
+  });
+
+  it("deleteWIEntryAt refuses and names the conflict", async () => {
+    await seeded();
+    await expect(deleteWIEntryAt({ lorebookFileId: BOOK, uid: 3 })).resolves.toEqual({ ok: false, reason: CONFLICT });
+    survived();
+    expect(st.disk.get(BOOK)!.entries[3]).toBeDefined();
+  });
+
+  it("the refusal evicts the stale copy, so the next write starts from the server and keeps the other page's change", async () => {
+    await seeded();
+    await setWIEntriesState(BOOK, { disable: "The bridge" });
+    await expect(setWIEntriesState(BOOK, { disable: "The bridge" })).resolves.toEqual({ ok: true, changed: true, confirmed: true });
+    expect(st.disk.get(BOOK)!.entries[5].content).toBe("The other page rewrote the ferry.");
+    expect(st.disk.get(BOOK)!.entries[3].disable).toBe(true);
+  });
+
+  it("this page's own edit waiting in ST's debounce is saved first and is not a conflict (B14)", async () => {
+    putOnDisk(BOOK, [entry(3, "The bridge", "The bridge stands."), entry(5, "The ferry", "Gone.")]);
+    st.worldNames = [BOOK];
+    await loadLorebook(BOOK);
+    st.cache.get(BOOK)!.entries[5].content = "Edited in this page's WI editor.";
+    flushPendingWorldSave.mockImplementationOnce(async (name: string) => {
+      st.disk.set(fileId(name), clone(st.cache.get(name)!));
+      return { ok: true, flushed: true };
+    });
+    await expect(setWIEntriesState(BOOK, { disable: "The bridge" })).resolves.toEqual({ ok: true, changed: true, confirmed: true });
+    expect(flushPendingWorldSave).toHaveBeenCalledWith(BOOK);
+    expect(st.disk.get(BOOK)!.entries[5].content).toBe("Edited in this page's WI editor.");
+    expect(st.disk.get(BOOK)!.entries[3].disable).toBe(true);
+  });
+
+  it("a server read that cannot answer is not evidence of a conflict: the write proceeds unconfirmed", async () => {
+    putOnDisk(BOOK, [entry(3, "The bridge", "The bridge stands.")]);
+    st.worldNames = [BOOK];
+    server.blind = true;
+    try {
+      await expect(setWIEntriesState(BOOK, { disable: "The bridge" })).resolves.toEqual({ ok: true, changed: true, confirmed: false });
+    } finally {
+      server.blind = false;
+    }
   });
 });

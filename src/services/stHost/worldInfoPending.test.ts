@@ -17,7 +17,7 @@ jest.mock("./events", () => ({
 }));
 
 import { worldInfoModule } from "./modules";
-import { flushPendingWorldSaves, PENDING_WORLD_SAVE_MS, watchPendingWorldSaves } from "./worldInfoPending";
+import { flushPendingWorldSave, flushPendingWorldSaves, PENDING_WORLD_SAVE_MS, watchPendingWorldSaves } from "./worldInfoPending";
 
 const editorEdit = (name: string) => worldInfoModule.worldInfoCache.set?.(name, { entries: { 0: { content: `edited ${name}` } } });
 
@@ -42,6 +42,15 @@ describe("an edit waiting in ST's one shared WI save debounce survives our immed
     clock += PENDING_WORLD_SAVE_MS + 1;
     expect(await flushPendingWorldSaves("Story Memory", clock)).toEqual({ ok: true, flushed: [] });
     expect(hostSave).not.toHaveBeenCalled();
+  });
+
+  it("flushes one named book's waiting edit and leaves the other marks for the shared flush (K12)", async () => {
+    editorEdit("Author Book");
+    editorEdit("Story Memory");
+    expect(await flushPendingWorldSave("Story Memory", clock)).toEqual({ ok: true, flushed: true });
+    expect(hostSave).toHaveBeenCalledTimes(1);
+    expect(await flushPendingWorldSave("Story Memory", clock)).toEqual({ ok: true, flushed: false });
+    expect(await flushPendingWorldSaves("Other", clock)).toEqual({ ok: true, flushed: ["Author Book"] });
   });
 
   it("a failed flush is reported, not swallowed", async () => {

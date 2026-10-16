@@ -5,7 +5,7 @@ import { saveOpenChat } from "./persistence";
 import type { HostWorldInfoSettings } from "./hostTypes";
 import { worldInfoModule } from "./modules";
 import { executeSlashCommands } from "./slashCommands";
-import { flushPendingWorldSaves } from "./worldInfoPending";
+import { flushPendingWorldSave, flushPendingWorldSaves } from "./worldInfoPending";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { log } from "@utils/log";
 import { LORE_KEY_LOGIC_CODE, WI_POSITION_OUTLET, type LoreKeyLogic } from "@utils/wiKeys";
@@ -84,6 +84,42 @@ async function saveLorebook(name: string, data: Lorebook): Promise<void> {
   if (!flushed.ok) log.warn("world info: an edit waiting in ST's save debounce could not be saved", { name, reason: flushed.reason });
 }
 
+const canonical = (value: unknown): string => JSON.stringify(value, (_key, inner: unknown) =>
+  (inner && typeof inner === "object" && !Array.isArray(inner) ? Object.fromEntries(Object.entries(inner).sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) : inner));
+
+type BookImage = Map<string, string>;
+
+const imageOf = (book: Lorebook): BookImage => new Map(Object.entries(book.entries).map(([uid, entry]) => [uid, canonical(entry)]));
+
+const differingEntries = (base: BookImage, server: Lorebook): string[] => {
+  const current = imageOf(server);
+  const uids = new Set([...base.keys(), ...current.keys()]);
+  return [...uids].filter((uid) => base.get(uid) !== current.get(uid)).map((uid) => {
+    const comment = String(server.entries[Number(uid)]?.comment ?? "").trim();
+    return comment ? `"${comment}"` : `entry ${uid}`;
+  });
+};
+
+// K12: every write here saves the whole book from this page's copy, so another page's change to any
+// entry of the same book would be overwritten while the write reports success. Before saving, the
+// server's copy must equal the copy the write started from; a difference refuses the write and evicts
+// the stale copy. This page's own edit waiting in ST's debounce explains a difference only after it is
+// saved (B14), so it is saved and the server read again. A read that cannot answer is not evidence.
+async function staleBookRefusal(name: string, base: BookImage): Promise<string | null> {
+  const first = await readServerLorebook(name);
+  if (!first || !differingEntries(base, first).length) return null;
+  const pending = await flushPendingWorldSave(name);
+  if (!pending.ok) log.warn("world info: an edit waiting in ST's save debounce could not be saved", { name, reason: pending.reason });
+  const server = pending.ok && pending.flushed ? await readServerLorebook(name) : first;
+  if (!server) return null;
+  const changed = differingEntries(base, server);
+  if (!changed.length) return null;
+  worldInfoModule.worldInfoCache.delete(name);
+  log.warn("world info: another page changed the book, write refused", { name, changed });
+  const named = `${changed.slice(0, 3).join(", ")}${changed.length > 3 ? ` and ${changed.length - 3} more` : ""}`;
+  return `another page changed "${name}" since this page loaded it (${named}), so nothing was written; the next write starts from the server's copy`;
+}
+
 function findMatchedLoreEntries(lorebook: Lorebook, comments: string[]) {
   const entries = Object.values(lorebook.entries);
   const matched: Array<{ comment: string; uid: number }> = [];
@@ -117,6 +153,7 @@ export async function setWIEntriesState(lorebook: string, switches: WIEntrySwitc
     log.warn("world info: lorebook does not exist", { lorebook });
     return couldNot(`there is no lorebook "${lorebook}"`);
   }
+  const base = imageOf(book.data);
 
   const target = new Map<number, { comment: string; disabled: boolean }>();
   const unmatched: string[] = [];
@@ -137,6 +174,8 @@ export async function setWIEntriesState(lorebook: string, switches: WIEntrySwitc
     changed = true;
   }
   if (!changed) return wrote({ changed: false });
+  const stale = await staleBookRefusal(book.name, base);
+  if (stale) return couldNot(stale);
   try {
     await saveLorebook(book.name, book.data);
   } catch (error) {
@@ -308,11 +347,13 @@ export async function upsertWIEntry(lorebook: string, comment: string, content: 
     return "failed";
   }
   const { name, data } = book;
+  const base = imageOf(data);
   const existing = Object.values(data.entries).find((entry) => entry.comment?.trim() === comment);
   const switchedOff = options.live === true && existing?.disable === true;
   const fields = shapeFields(options, existing);
   if (existing && String(existing.content ?? "").trim() === content.trim() && holdsShape(existing, keys, fields) && !switchedOff) return "unchanged";
 
+  if (await staleBookRefusal(name, base)) return "failed";
   const target = existing ?? (worldInfoModule.createWorldInfoEntry(name, data) as LoreEntry | undefined);
   if (!target) return "failed";
   target.comment = comment;
@@ -373,6 +414,8 @@ export async function updateWIEntryByUid(target: WIEntryTarget, patch: { content
   if (!book) return couldNot(`there is no lorebook "${target.lorebookFileId}"`);
   const entry = book.data.entries[target.uid];
   if (!entry) return couldNot(`entry ${target.uid} is no longer in "${book.name}"`);
+  const stale = await staleBookRefusal(book.name, imageOf(book.data));
+  if (stale) return couldNot(stale);
   if (patch.content !== undefined) entry.content = patch.content;
   if (patch.disabled !== undefined) entry.disable = patch.disabled;
   try {
@@ -415,6 +458,8 @@ export async function createWIEntry(lorebook: string, entry: WINewEntry): Promis
   if (Object.values(book.data.entries).some((existing) => String(existing.comment ?? "").trim().toLowerCase() === comment.toLowerCase())) {
     return couldNot(`"${comment}" already exists in "${book.name}"`);
   }
+  const stale = await staleBookRefusal(book.name, imageOf(book.data));
+  if (stale) return couldNot(stale);
   const target = worldInfoModule.createWorldInfoEntry(book.name, book.data) as LoreEntry | undefined;
   if (!target || typeof target.uid !== "number") return couldNot(`"${book.name}" could not assign the new entry an id`);
   target.comment = comment;
@@ -437,6 +482,8 @@ export async function deleteWIEntryAt(target: WIEntryTarget): Promise<WriteResul
   const book = await loadExisting(target.lorebookFileId);
   if (!book) return couldNot(`there is no lorebook "${target.lorebookFileId}"`);
   if (!book.data.entries[target.uid]) return couldNot(`entry ${target.uid} is no longer in "${book.name}"`);
+  const stale = await staleBookRefusal(book.name, imageOf(book.data));
+  if (stale) return couldNot(stale);
   delete book.data.entries[target.uid];
   const original = (book.data as { originalData?: { entries?: Array<{ uid?: unknown }> } }).originalData;
   if (original && Array.isArray(original.entries)) original.entries = original.entries.filter((row) => row.uid !== target.uid);
