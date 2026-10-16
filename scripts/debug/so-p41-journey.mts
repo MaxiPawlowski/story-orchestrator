@@ -19,6 +19,7 @@ import { captureHeader, diffHeaders, describe } from './so-run-header.mts';
 import { executeSlashCommand, waitForIdle, deleteMessage } from './st-actions.mts';
 import { dismissBriefing } from './lib/briefingHarness.mts';
 import { removeStory } from './so-library.mts';
+import { CARD_ART_DEVIATION, cardArtPlan, cardArtProblems, giveCardArt, leakNames, markServerLog, takeServerLog } from './lib/pocCardArt.mts';
 import {
   FLOORS_DATE, JOURNEY_FLOORS, JOURNEY_STEPS, P41_MARKER, PLAYER_LINES, countCalls, evidenceDirName, gpuIdleProblems, journeyCast, journeyGpuMinutes, journeyGroupName,
   journeyStory, laneProblem, parseAuthoringRoute, plumbingProblems, sampleSummary, skeletonProblems, staleFindings, staleInputFrom, stepVerdict, wizardGoal, wizardScript,
@@ -162,6 +163,12 @@ async function stepStory(ctx: Ctx): Promise<StepResult> {
   if (await ctx.page.locator('dialog#so-briefing[open]').count()) await dismissBriefing(ctx.page);
   if (imported.storyId !== ctx.story.id) throw new Error(`story not active: ${JSON.stringify(imported.result).slice(0, 200)}`);
   return { data: { chatId: ctx.chatId, storyId: imported.storyId } };
+}
+
+async function stepCardArt(ctx: Ctx): Promise<StepResult> {
+  const rows = await giveCardArt(ctx.page, cardArtPlan(ctx.cast));
+  const problems = cardArtProblems(rows);
+  return { outcome: problems.length ? 'fail' : 'pass', detail: problems.join('; ') || undefined, data: { deviation: CARD_ART_DEVIATION, rows } };
 }
 
 async function playBlock(ctx: Ctx, from: number, count: number, label: string) {
@@ -397,8 +404,8 @@ async function cleanup(page: Page, baseline: Awaited<ReturnType<typeof snapshotA
   await saveSoon(page);
   const library = await removeStory(page, journeyStory(journeyCast()).id).catch((error) => ({ error: String(error) }));
   const restored = await restoreSettings(page, settings).catch((error) => ({ error: String(error) }));
-  const left = leakCount(await listMarkedAssets(page, P41_MARKER, { baseline }));
-  return { removed: { characters: removed.removed.characters.length, groups: removed.removed.groups.length, errors: removed.removed.errors }, scrub, library, restored, leaked: left };
+  const found = await listMarkedAssets(page, P41_MARKER, { baseline });
+  return { removed: { characters: removed.removed.characters.length, groups: removed.removed.groups.length, errors: removed.removed.errors }, scrub, library, restored, leaked: leakCount(found), leakedAssets: leakNames(found) };
 }
 
 async function runJourney(page: Page) {
@@ -420,6 +427,7 @@ async function runJourney(page: Page) {
   const sampler = startSampler(mode, resolve(dir, 'samples.jsonl'));
   const calls = attachCallRecorder(page, () => ctx.current, resolve(dir, 'calls.jsonl'));
   const turns = Number(value('--turns', '10'));
+  const serverLog = markServerLog(process.env, DEBUG_DIR);
   let cleaned: unknown = 'kept (--keep)';
   try {
     if (distDir) await freshPage(page);
@@ -429,6 +437,7 @@ async function runJourney(page: Page) {
     if (!ctx.groupId) throw new Error(`wizard made no group: ${wizard.detail}`);
     const story = await step(ctx, 'story', null, () => stepStory(ctx));
     if (story.outcome === 'fail') throw new Error(`story: ${story.detail}`);
+    await step(ctx, 'card-art', null, () => stepCardArt(ctx));
     for (const member of cast) await step(ctx, 'base', member.name, () => stepBase(ctx, member));
     for (const member of cast) await step(ctx, 'prepare', member.name, () => stepPrepare(ctx, member));
     for (const member of cast) await step(ctx, 'expressions', member.name, () => stepEdits(ctx, member, ['happy', 'angry', 'worried'].map((label) => ({ label, kind: 'expression', reference: `${slug(member)}/neutral` }))));
@@ -461,6 +470,7 @@ async function runJourney(page: Page) {
     const diff = before && afterClean ? diffHeaders(before, afterClean, ['chatId', 'chat', 'story', 'group', 'inventory.journal'], { ownedChats: ctx.chatId ? [ctx.chatId] : [], servedIdentity: true }).map(describe) : ['header diff not run'];
     if (ctx.dry) { await ctx.dry.stop(); }
     if (candidate) await candidate.stop();
+    const serverSlice = takeServerLog(serverLog, dir);
     const misses = stepVerdict(ctx.rows.filter((row) => row.id !== 'abort'), mode, ctx.only ? [...ctx.only] : JOURNEY_STEPS);
     if (ctx.rows.some((row) => row.id === 'abort')) misses.unshift(`aborted: ${ctx.rows.find((row) => row.id === 'abort')?.detail}`);
     const plumbing = plumbingProblems(ctx.rows, ctx.only ? [...ctx.only] : JOURNEY_STEPS, cleaned);
@@ -468,7 +478,7 @@ async function runJourney(page: Page) {
       kind: 'p41-journey', mode, run, startedAt: stamp, finishedAt: new Date().toISOString(), partial: Boolean(ctx.only), floorsDate: FLOORS_DATE, floors: JOURNEY_FLOORS,
       verdict: mode === 'dry' ? (plumbing.length ? 'PLUMBING-FAIL' : 'PLUMBING-OK (dry: no floor result)') : (misses.length || ctx.only ? 'NOT GREEN' : 'GREEN'),
       plumbing, misses, steps: ctx.rows, stale: ctx.staleChecks, turns: ctx.turns, modelCalls: countCalls(calls.rows), refusals: ctx.refusals,
-      samples: sampleSummary(sampler.samples), gpuBaselineMiB: ctx.gpuBaseline, cleanup: cleaned, headerDiff: diff,
+      samples: sampleSummary(sampler.samples), gpuBaselineMiB: ctx.gpuBaseline, cleanup: cleaned, headerDiff: diff, serverLog: serverSlice,
       dry: ctx.dry ? { fakeCalls: ctx.dry.fake.calls.length, renders: ctx.dry.fake.jobs.size, blocked: ctx.dry.blocked, textReplies: ctx.dry.replies } : null,
     };
     const path = await writeRecord(dir, 'record.json', record);
@@ -482,7 +492,7 @@ async function runJourney(page: Page) {
 async function cleanupCommand(page: Page) {
   const dry = flag('--dry') ? await installDryRoutes(page, owned) : null;
   try {
-    const result = await cleanup(page, await snapshotAssets(page));
+    const result = await cleanup(page, null);
     console.log(JSON.stringify(result, null, 2));
     if (result.leaked) process.exitCode = 1;
   } finally { await dry?.stop(); }

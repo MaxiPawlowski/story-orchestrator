@@ -53,6 +53,17 @@ test('the archive plan takes run evidence and never data/, the browser profile, 
   }
 });
 
+test('the archive plan takes the image driver run folders (p41 journey, pose latency, showcase images)', () => {
+  const root = mkdtempSync(join(tmpdir(), 'so-arch-img-'));
+  try {
+    for (const path of ['33/debug/p41/r1/record.json', '33/debug/pose-latency/r1/turns.jsonl', '31/debug/showcase-images/s/results.jsonl', '33/debug/other/x.json']) {
+      mkdirSync(join(root, path, '..'), { recursive: true }); writeFileSync(join(root, path), '{}');
+    }
+    const to = planArchive(root, { lanes: [31, 33], pods: [] }).items.map((item) => item.to).sort();
+    assert.deepEqual(to, ['lane-31/debug/showcase-images/s/results.jsonl', 'lane-33/debug/p41/r1/record.json', 'lane-33/debug/pose-latency/r1/turns.jsonl']);
+  } finally { rmSync(root, { recursive: true, force: true }); }
+});
+
 test('copy writes ARCHIVE.json with sha256 per file; verify catches a file changed or lost afterwards', () => {
   const root = mkdtempSync(join(tmpdir(), 'so-arch-copy-'));
   try {

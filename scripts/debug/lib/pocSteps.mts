@@ -49,6 +49,10 @@ export async function chooseCharacter(ctx: StepEnv, member: Member) {
       return el?.querySelector('[aria-label="diffusion"]') || el?.querySelector(':scope > [role="alert"]');
     }, undefined, { polling: 250, timeout: 60000 });
   }
+  await ctx.page.waitForFunction((models: Record<string, string>) => Object.entries(models).every(([key, file]) => {
+    const select = document.querySelector(`#so-sprite-builder [aria-label="${key}"]`) as HTMLSelectElement | null;
+    return Boolean(select && !select.disabled && [...select.options].some((option) => option.value === file));
+  }), ctx.models, { polling: 500, timeout: 300000 });
   for (const key of ['diffusion', 'encoder', 'vae'] as const) await root.getByLabel(key, { exact: true }).selectOption(ctx.models[key]);
   return root;
 }

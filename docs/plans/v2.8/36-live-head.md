@@ -680,3 +680,17 @@ Gates:
   - run `gpublock3` (`--row LI1`, 21:45 local, CPU about 31 %, no GPU job running): LI1 PASS. 3,622 frames, max 25.1 ms, 0 drops.
   - LI1 tally on this desktop: 2 PASS, 1 FAIL. The FAIL came on a busy machine. Still not LI1 acceptance: that needs the named mid laptop.
   - LI3 (9/9), LI4 (6/6) and LI6 (6/6) PASS in both completed `--row all` runs.
+
+## Gate record: showcase rigs re-cut, 2026-10-15 (LIST, CPU only)
+
+- The `ca016b3c` border fix applies at synthesis, so the six showcase rigs were re-cut: plan 36 manifests on `neutral.png` and Sol manifests on `bust.png`, for Wren, Garrick and Pim.
+  - Method: the shipped `cutHeadLayers` over each rig's own geometry and source art, then packaged with `loadHeadManifest` (layer PNGs stored uncompressed). No landmark or model call, no GPU.
+  - Tooling: a scratch esbuild bundle of `src/` code, not committed. A copy of the entry and the measuring script is in `C:\dev\so-lanes\31\debug\showcase-images\rig-recut-20261015\`.
+- Outputs: `C:\dev\so-showcase-art\recut-20261015\{wren,garrick,pim}.rig.json` and `.sol.rig.json`. Art hashes match the source files (for example Wren bust `0c75f3218596`, Wren neutral `8e593281ce37`). Not installed into any lane; lane 31 still holds the old plan 36 rigs.
+- Measure: mean |base - source| on each eye ROI border, old -> new:
+  - Wren: plan 36 9.8/21.4 -> 0/0; Sol 62.4/58.8 -> 0/0.
+  - Garrick: plan 36 17.0/13.7 -> 0/0; Sol 26.3/21.0 -> 0/0.
+  - Pim: plan 36 33.1/59.9 -> 0/0; Sol 15.9/11.4 -> 0/0.
+  - The rectangle edge is gone from the base layer.
+- Owed: install the re-cut rigs on lane 31, then the browser re-check of the showcase gaze page on the shipped renderer (no GPU).
+- Live head in play (from the plan 41 shakedown): a viseme mouth on a ready rig moved on 1 of 8 Artemis turns (Bram's Sol rig). The changed-look close shot did not follow; see the plan 41 record.

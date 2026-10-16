@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, isAbsolute, relative, resolve } from 'node:path';
 
-export const LANE_DEBUG_DIRS = ['batch', 'runs', 'b1', 'screenshots', 'payload'];
+export const LANE_DEBUG_DIRS = ['batch', 'runs', 'b1', 'screenshots', 'payload', 'p41', 'pose-latency', 'showcase-images'];
 export const LANE_DEBUG_FILE = /^(?:run-header-.*\.json|journey-.*\.(?:json|md)|.*_journey-.*\.json|journal-.*|engine-history-.*|.*so-scenario-(?:result|failure)\.json|.*\.jsonl|so-journey-(?:config-snapshot|asset-baseline)\.json|adolion-fresh-asset-baseline\.json)$/;
 export const LANE_ROOT_FILES = ['server.log', 'pod.json', 'lease.json'];
 export const NEVER = /(?:^|[\\/])(?:chromium-profile|data|node_modules)(?:[\\/]|$)|secrets|\.env$|session\.json$/i;
