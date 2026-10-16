@@ -47,10 +47,12 @@
         {
           "ui": {
             "action": "briefing"
-          }
+          },
+          "log": 600
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); const b = snap.briefing; if (!b) throw new Error('no briefing state after the story started in a new chat'); const ps = snap.playerSetup; if (!ps) throw new Error('no identity step state'); return { briefing: Boolean(b.view ?? b), setupPending: ps.pending ?? null, setupChoice: ps.record?.choice ?? null, displayPlayerSetup: rt.getGlobalSettings().display?.playerSetup ?? null, uiPlayerSetup: rt.getSnapshot().ui?.playerSetup ?? null, boundary: snap.boundary ?? null };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); const b = snap.briefing; if (!b) throw new Error('no briefing state after the story started in a new chat'); const ps = snap.playerSetup; if (!ps) throw new Error('no identity step state'); return { briefing: Boolean(b.view ?? b), setupPending: ps.pending ?? null, setupChoice: ps.record?.choice ?? null, displayPlayerSetup: rt.getGlobalSettings().display?.playerSetup ?? null, uiPlayerSetup: rt.getSnapshot().ui?.playerSetup ?? null, boundary: snap.boundary ?? null };",
+          "log": 600
         },
         {
           "ui": {
