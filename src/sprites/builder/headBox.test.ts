@@ -1,4 +1,4 @@
-import { headBox, faceAnchor, legacyHeadBox } from "./headBox";
+import { headBox, faceAnchor, fractionHeadBox } from "./headBox";
 import { mouthRegion } from "./frameRegion";
 import { validateBox, type PixelImage } from "./pixels";
 
@@ -22,7 +22,7 @@ const mouthBand = (box: { y: number; width: number; height: number }) => {
 };
 
 test("the old fraction box cuts the chin of hatted art", () => {
-  expect(legacyHeadBox(hatted()).y + legacyHeadBox(hatted()).height).toBeLessThan(CHIN);
+  expect(fractionHeadBox(hatted()).y + fractionHeadBox(hatted()).height).toBeLessThan(CHIN);
 });
 
 test("on hatted art the detector's face and chin anchor the head box: chin and some neck inside, mouth in the mouth region", () => {
@@ -42,7 +42,7 @@ test("on hatted art the detector's face and chin anchor the head box: chin and s
 });
 
 test("without a detector answer the head box stays the old fraction box", () => {
-  expect(headBox(hatted(), null)).toEqual(legacyHeadBox(hatted()));
+  expect(headBox(hatted(), null)).toEqual(fractionHeadBox(hatted()));
 });
 
 function image(): Pick<PixelImage, "width" | "height"> { return { width: W, height: H }; }

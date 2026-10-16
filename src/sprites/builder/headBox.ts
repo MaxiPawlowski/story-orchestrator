@@ -7,7 +7,7 @@ const ABOVE_FACE = 0.46;
 const BOX_FACES = 2;
 const BOX_ASPECT = 1.2;
 
-export const legacyHeadBox = (image: Pick<PixelImage, "width" | "height">): HeadBox => {
+export const fractionHeadBox = (image: Pick<PixelImage, "width" | "height">): HeadBox => {
   const width = Math.max(8, Math.round(image.width * 0.45)), height = Math.max(8, Math.round(image.height * 0.25));
   return { x: Math.round((image.width - width) / 2), y: 0, width, height };
 };
@@ -28,7 +28,7 @@ export function faceAnchor(result: unknown, image: Pick<PixelImage, "width" | "h
 }
 
 export function headBox(image: Pick<PixelImage, "width" | "height">, face?: FaceAnchor | null): HeadBox {
-  if (!face) return legacyHeadBox(image);
+  if (!face) return fractionHeadBox(image);
   const faceHeight = Math.max(8, face.chin - face.top);
   const height = Math.min(image.height, Math.round(faceHeight * BOX_FACES)), width = Math.min(image.width, Math.round(height * BOX_ASPECT));
   const clamp = (value: number, most: number) => Math.min(Math.max(0, Math.round(value)), most);
