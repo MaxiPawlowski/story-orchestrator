@@ -5,7 +5,7 @@ export const READS_FORMAT = 'so-witness-reads/1';
 
 type Lookup = { state: string; heard: string; mixed: boolean; insideHeardSpan: boolean };
 type Ratio = { hits: number; of: number; rate: number | null };
-type Score = { verdict: 'pass' | 'fail' | 'insufficient'; messages: number; dropped: number; asideExactSet: Ratio } & Record<string, unknown>;
+type Score = { verdict: 'pass' | 'fail' | 'insufficient'; messages: number; dropped: number; asideExactSet: Ratio; floors: Record<string, boolean | null> } & Record<string, unknown>;
 type Member = { id: string; name: string; aliases?: string[] };
 type Message = { messageId: number; speaker: string; text: string; swipeId?: number };
 type Read = { readId: string; from: number; to: number; status: 'accepted' | 'no-read' | 'outage'; present?: string[]; response: string };
