@@ -132,4 +132,7 @@ export function sceneAnswerIssues(signal: SceneSignal | undefined, answer: Scene
 
 export const dropSceneTestsAfter = (records: readonly SceneTestRecord[], boundary: number): SceneTestRecord[] => records.filter((record) => record.plannedAt <= boundary);
 
-export const retainSceneTests = (records: readonly SceneTestRecord[], floor: number): SceneTestRecord[] => records.filter((record) => record.plannedAt >= floor);
+export function retainSceneTests(records: readonly SceneTestRecord[], floor: number, replannable: (frontierId: string) => boolean, minGap: number): SceneTestRecord[] {
+  const spacing = new Set(minGap > 0 ? [...records].sort((left, right) => left.plannedAt - right.plannedAt).slice(-minGap) : []);
+  return records.filter((record) => record.plannedAt >= floor || spacing.has(record) || replannable(record.frontierId));
+}

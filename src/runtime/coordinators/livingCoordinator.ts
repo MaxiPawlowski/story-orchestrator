@@ -9,9 +9,9 @@ import {
   type DivergenceAnswer,
 } from "@generation/living/divergence";
 import { compactOps, dropOpsAfter, graphEpoch, livingRaw } from "@generation/living/fold";
-import { findFrontier, livingAutonomy } from "@generation/living/frontier";
+import { findFrontier, isEligibleFrontier, livingAutonomy } from "@generation/living/frontier";
 import { checkDirectorOps } from "@generation/living/plan";
-import { dropSceneTestsAfter, planSceneTest, retainSceneTests, sceneTestFor, sceneTextsSafe, type SceneIds, type SceneTestRecord } from "@generation/living/sceneTest";
+import { dropSceneTestsAfter, planSceneTest, retainSceneTests, sceneMinGap, sceneTestFor, sceneTextsSafe, type SceneIds, type SceneTestRecord } from "@generation/living/sceneTest";
 import {
   createDivergenceState, createLivingState, LIVING_OP_CAP, LIVING_PREFETCH_WHY, LIVING_PROPOSAL_LIMIT,
   type DirectorProposal, type DivergenceReading, type DivergenceState, type LivingRuntimeState,
@@ -418,11 +418,16 @@ export class LivingCoordinator {
 
   compact() {
     const floor = this.deps.historyFloor();
-    const tests = this.state.sceneTests;
-    if (floor !== null && tests?.length && retainSceneTests(tests, floor).length !== tests.length) this.write({ ...this.state, sceneTests: retainSceneTests(tests, floor) });
-    if (floor === null || !this.state.ops.length) return;
-    const next = compactOps(this.state, floor);
+    if (floor === null) return;
+    const next = this.state.ops.length ? compactOps(this.state, floor) : this.state;
     if (next !== this.state) this.write(next);
+    const tests = this.state.sceneTests;
+    const story = this.deps.getStory();
+    if (!tests?.length || !story) return;
+    const from = new Map(this.state.proposals.map((proposal) => [proposal.id, proposal.frontierId]));
+    const replannable = (frontierId: string) => isEligibleFrontier(story, frontierId) || this.state.ops.some((op) => (from.get(op.proposalId) ?? frontierId) === frontierId);
+    const kept = retainSceneTests(tests, floor, replannable, sceneMinGap(story));
+    if (kept.length !== tests.length) this.write({ ...this.state, sceneTests: kept });
   }
 
   restoreAfterRollback(boundary: number, run: RunGuard = beginRun(this.deps.ownership)): number {
