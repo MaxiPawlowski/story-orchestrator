@@ -1,6 +1,6 @@
 import { isValidationErrorList, parseStoryV2, type ApplyQueueEntry, type EngineState, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
-import { knownEntities, unknownEntityNames } from "@engine/codex";
-import { focusCandidates, focusSafe, namesAny } from "@pacing/focus";
+import { focusCandidates } from "@pacing/focus";
+import { directorDisclosure } from "@generation/living/disclosure";
 import type { ModelCall, SchedulerJob } from "@extraction/index";
 import type { BranchOutcome, DirectorOutcome } from "@generation/living/direct";
 import { refusalLine, refusalOf } from "@generation/living/refusal";
@@ -9,9 +9,9 @@ import {
   type DivergenceAnswer,
 } from "@generation/living/divergence";
 import { compactOps, dropOpsAfter, graphEpoch, livingRaw } from "@generation/living/fold";
-import { findFrontier, isEligibleFrontier, livingAutonomy } from "@generation/living/frontier";
+import { findFrontier, livingAutonomy } from "@generation/living/frontier";
 import { checkDirectorOps } from "@generation/living/plan";
-import { dropSceneTestsAfter, planSceneTest, retainSceneTests, sceneMinGap, sceneTestFor, sceneTextsSafe, type SceneIds, type SceneTestRecord } from "@generation/living/sceneTest";
+import { dropSceneTestsAfter, planSceneTest, retainSceneTests, sceneTestFor, sceneTextsSafe, type SceneIds, type SceneTestRecord } from "@generation/living/sceneTest";
 import {
   createDivergenceState, createLivingState, LIVING_OP_CAP, LIVING_PREFETCH_WHY, LIVING_PROPOSAL_LIMIT,
   type DirectorProposal, type DivergenceReading, type DivergenceState, type LivingRuntimeState,
@@ -215,8 +215,7 @@ export class LivingCoordinator {
     if (!story?.living || !state || !loaded || !frontierId || this.inFlight) return null;
     const run = placed ?? beginRun(this.deps.ownership);
     const base = this.baseFor(story, state, frontierId);
-    const unknownNames = this.unknownNames(story, state);
-    const inputs = this.disclosed(unknownNames);
+    const { inputs, unknownNames } = this.disclosed(story, state);
     const sceneTest = this.safeScene(this.sceneTest(story, state, frontierId, inputs, unknownNames), inputs, unknownNames);
     this.inFlight = true;
     try {
@@ -231,17 +230,12 @@ export class LivingCoordinator {
     }
   }
 
-  private unknownNames(story: NormalizedStoryV2, state: EngineState): string[] {
-    return unknownEntityNames(story, knownEntities(story, state.blackboard.values, this.deps.enabledIds?.() ?? []));
-  }
-
-  private disclosed(unknownNames: readonly string[]): LivingInputs {
-    const inputs = this.deps.inputs();
-    return { ...inputs, openThreads: inputs.openThreads.filter((thread) => !namesAny(thread, unknownNames)) };
+  private disclosed(story: NormalizedStoryV2, state: EngineState): { inputs: LivingInputs; unknownNames: string[] } {
+    return directorDisclosure(story, state.blackboard.values, this.deps.enabledIds?.() ?? [], this.deps.inputs());
   }
 
   private safeScene(record: SceneTestRecord | null, inputs: LivingInputs, unknownNames: readonly string[]): SceneTestRecord | null {
-    if (!record || sceneTextsSafe(record, (text) => focusSafe(text, unknownNames, inputs.scrub))) return record;
+    if (!record || sceneTextsSafe(record, unknownNames, inputs.scrub)) return record;
     this.deps.journal("scene signal withheld", `the frozen thread for ${record.frontierId} is no longer safe to show the director; the draw stands and its line is left out`);
     return null;
   }
@@ -316,7 +310,7 @@ export class LivingCoordinator {
       const unit = await loadUnit();
       const outcome = await unit.branchNext({
         story, raw: loaded.raw, sourceId, targetId, branchId: nextBranchId(story), state, why, ...(prepared ? { prepared: true } : {}),
-        recent: await this.deps.recentTurns(), inputs: this.disclosed(this.unknownNames(story, state)),
+        recent: await this.deps.recentTurns(), inputs: this.disclosed(story, state).inputs,
         model: this.deps.model, signal: run.signal, debugResponse: debugResponse ?? this.deps.model.planted?.("living") ?? null,
       });
       return await this.record(outcome, base, run);
@@ -430,13 +424,9 @@ export class LivingCoordinator {
     if (floor === null) return;
     const next = this.state.ops.length ? compactOps(this.state, floor) : this.state;
     if (next !== this.state) this.write(next);
-    const tests = this.state.sceneTests;
     const story = this.deps.getStory();
-    if (!tests?.length || !story) return;
-    const from = new Map(this.state.proposals.map((proposal) => [proposal.id, proposal.frontierId]));
-    const replannable = (frontierId: string) => isEligibleFrontier(story, frontierId) || this.state.ops.some((op) => (from.get(op.proposalId) ?? frontierId) === frontierId);
-    const kept = retainSceneTests(tests, floor, replannable, sceneMinGap(story));
-    if (kept.length !== tests.length) this.write({ ...this.state, sceneTests: kept });
+    const kept = story && this.state.sceneTests?.length ? retainSceneTests(this.state, story, floor) : null;
+    if (kept && kept.length !== this.state.sceneTests?.length) this.write({ ...this.state, sceneTests: kept });
   }
 
   restoreAfterRollback(boundary: number, run: RunGuard = beginRun(this.deps.ownership)): number {
