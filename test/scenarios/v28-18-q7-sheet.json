@@ -1,0 +1,64 @@
+{
+  "_note": "v2.8 plan 18 Q7 (no-model lane; request captures are PLUMBING level: generation requests are answered by an in-page fetch stub, no model is called). Public sheet lines (item, band word, warn band) reach only the omniscient narrator's private block, never Arin's; a drafted narrator's actual request carries them and Arin's does not (S1a); impersonate and quiet requests carry none (S6); a hidden quest and a hidden quality never appear (S1). Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-18-q7-sheet.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off",
+    "authorView": true
+  },
+  "steps": [
+    {
+      "log": true,
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds messages'); return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "file": "v28-18-q7-sheet.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const NL = String.fromCharCode(10); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const chid = (name) => SillyTavern.getContext().characters.findIndex((character) => character.name === name); const line = (name) => { rt.onMemberDrafted(chid(name)); return String(rt.getAppliedEpistemicBlock() ?? ''); }; const textOf = (body) => typeof body?.prompt === 'string' ? body.prompt : Array.isArray(body?.messages) ? body.messages.map((m) => (typeof m?.content === 'string' ? m.content : JSON.stringify(m?.content ?? ''))).join(NL) : JSON.stringify(body ?? null); const stub = async (run, reply = 'SO stub reply.') => { const tg = await import('/scripts/textgen-settings.js'); const host = await import('/script.js'); const status = host.online_status; host.setOnlineStatus('SO stub'); const streaming = tg.textgenerationwebui_settings.streaming; tg.textgenerationwebui_settings.streaming = false; const seen = []; const original = globalThis.fetch; globalThis.fetch = async (input, init) => { const url = String(typeof input === 'string' ? input : input?.url ?? ''); if (url.includes('/api/backends/') && url.endsWith('/generate')) { let body = null; try { body = JSON.parse(String(init?.body ?? 'null')); } catch {} seen.push(textOf(body)); return new Response(JSON.stringify({ choices: [{ text: reply, message: { content: reply } }], results: [{ text: reply }], content: reply }), { status: 200, headers: { 'Content-Type': 'application/json' } }); } return original(input, init); }; let error = null; try { await run(); } catch (e) { error = String(e?.message ?? e); } finally { globalThis.fetch = original; tg.textgenerationwebui_settings.streaming = streaming; host.setOnlineStatus(status); } const box = document.querySelector('#send_textarea'); if (box) { box.value = ''; box.dispatchEvent(new Event('input', { bubbles: true })); } await pause(600); return { seen, error }; }; const HEAD = \"What the player's sheet shows right now\"; globalThis.__q7 = { rt, pause, until, line, stub, chid, HEAD }; return { ready: true, mainApi: SillyTavern.getContext().mainApi };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=Arin A lantern hangs by the door, and the ferryman's name is on every tongue."
+    },
+    {
+      "slash": "/cp set lantern true"
+    },
+    {
+      "slash": "/cp set health 1"
+    },
+    {
+      "slash": "/cp set heard_rumour true"
+    },
+    {
+      "log": true,
+      "eval": "const f = globalThis.__q7; const narrator = await f.until(() => { const text = f.line('DM Narrator'); return text.includes('Inventory: Lantern') && text.includes('Health: Dying') && text.includes('One more wound could kill you.') ? text : null; }, 15000, 'the sheet lines in the narrator block'); const arin = f.line('Arin'); if (arin.includes(f.HEAD) || arin.includes('Lantern')) throw new Error('a sheet line reached Arin: ' + arin); if (/silent contract|secret_plan/.test(narrator)) throw new Error('a hidden quest or quality reached the narrator'); const at = narrator.indexOf(f.HEAD); return { narratorSheet: narrator.slice(at, at + 400), arinClean: true };"
+    },
+    {
+      "log": true,
+      "eval": "const f = globalThis.__q7; const ctx = SillyTavern.getContext(); const before = ctx.chat.length; const narrator = await f.stub(() => ctx.generate('normal', { force_chid: f.chid('DM Narrator') })); await f.until(() => SillyTavern.getContext().chat.length > before, 15000, 'the narrator stub reply'); const arin = await f.stub(() => ctx.generate('normal', { force_chid: f.chid('Arin') })); if (!narrator.seen.length || !arin.seen.length) throw new Error('a drafted request did not reach the stub: ' + JSON.stringify({ narrator: narrator.error, arin: arin.error })); const inNarrator = narrator.seen.some((text) => text.includes(f.HEAD) && text.includes('Inventory: Lantern')); const inArin = arin.seen.some((text) => text.includes(f.HEAD) || text.includes('One more wound')); if (!inNarrator || inArin) throw new Error('S1a: ' + JSON.stringify({ inNarrator, inArin })); return { narratorRequests: narrator.seen.length, arinRequests: arin.seen.length, inNarrator, inArin };"
+    },
+    {
+      "log": true,
+      "eval": "const f = globalThis.__q7; const ctx = SillyTavern.getContext(); const imp = await f.stub(() => ctx.generate('impersonate')); const quiet = await f.stub(() => ctx.generate('quiet', { quiet_prompt: 'SO probe: answer with one word.' })); if (!imp.seen.length || !quiet.seen.length) throw new Error('a withheld run did not reach the stub: ' + JSON.stringify({ imp: imp.error, quiet: quiet.error })); const leaked = [...imp.seen, ...quiet.seen].filter((text) => text.includes(f.HEAD) || text.includes('One more wound')); if (leaked.length) throw new Error('S6: the sheet rode a withheld request'); return { impersonate: imp.seen.length, quiet: quiet.seen.length, leaked: 0 };"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await globalThis.__q7.pause(800); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "log": true,
+      "eval": "const sheet = JSON.stringify(globalThis.storyOrchestratorRuntime.getSnapshot().game?.statSheet ?? null); if (!sheet.includes('One more wound could kill you.')) throw new Error('the warn chip is not on the player sheet'); if (/secret_plan|silent contract/.test(sheet)) throw new Error('a hidden value reached the sheet'); return { warnOnSheet: true };"
+    }
+  ]
+}

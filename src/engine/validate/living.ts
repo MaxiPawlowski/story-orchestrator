@@ -9,7 +9,7 @@ import { readText } from "./briefing";
 import { readGate, validateGate } from "./gates";
 import { PLAYER_TURNS_KEY } from "../stretch";
 
-const LIVING_KEYS = ["premise", "tone", "cast", "horizon", "chapter_size", "ending", "autonomy", "authored_until", "opening"] as const;
+const LIVING_KEYS = ["premise", "tone", "cast", "horizon", "chapter_size", "ending", "autonomy", "authored_until", "opening", "scene_test"] as const;
 
 const wholeIn = (value: unknown, min: number, max: number): value is number => typeof value === "number" && Number.isInteger(value) && value >= min && value <= max;
 
@@ -40,6 +40,24 @@ const readCast = (value: unknown, errors: ValidationError[]): string[] | undefin
   return [...new Set((value as string[]).map((entry) => entry.trim()))];
 };
 
+const SCENE_TEST_MIN_GAP_MAX = 5;
+
+const readSceneTest = (value: unknown, errors: ValidationError[]): StoryLiving["scene_test"] => {
+  if (value === undefined) return undefined;
+  if (!isRecord(value)) return void addError(errors, "living.scene_test", "scene_test must be an object: { chaos: { from: \"tension\" }, min_gap? }");
+  rejectUnknownKeys(value, ["chaos", "min_gap"], "living.scene_test", errors);
+  const chaos = isRecord(value.chaos) ? value.chaos : null;
+  if (chaos) rejectUnknownKeys(chaos, ["from"], "living.scene_test.chaos", errors);
+  if (chaos?.from !== "tension") {
+    addError(errors, "living.scene_test.chaos", "chaos must be { from: \"tension\" } (an authored chaos value needs a state-write facility that does not exist yet)");
+  }
+  if (value.min_gap !== undefined && !wholeIn(value.min_gap, 0, SCENE_TEST_MIN_GAP_MAX)) {
+    addError(errors, "living.scene_test.min_gap", `min_gap must be a whole number from 0 to ${SCENE_TEST_MIN_GAP_MAX}`);
+  }
+  if (chaos?.from !== "tension") return undefined;
+  return { chaos: { from: "tension" }, ...(wholeIn(value.min_gap, 0, SCENE_TEST_MIN_GAP_MAX) ? { min_gap: value.min_gap } : {}) };
+};
+
 export const readLiving = (value: unknown, errors: ValidationError[]): StoryLiving | undefined => {
   if (value === undefined) return undefined;
   if (!isRecord(value)) return void addError(errors, "living", "living must be an object");
@@ -54,6 +72,7 @@ export const readLiving = (value: unknown, errors: ValidationError[]): StoryLivi
   const cast = readCast(value.cast, errors);
   const chapterSize = readChapterSize(value.chapter_size, errors);
   const ending = readEnding(value.ending, errors);
+  const sceneTest = readSceneTest(value.scene_test, errors);
   if (!premise) return undefined;
   return {
     premise,
@@ -65,6 +84,7 @@ export const readLiving = (value: unknown, errors: ValidationError[]): StoryLivi
     ...(isOneOf(value.autonomy, LIVING_AUTONOMY) ? { autonomy: value.autonomy } : {}),
     ...(authoredUntil ? { authored_until: authoredUntil } : {}),
     ...(opening ? { opening } : {}),
+    ...(sceneTest ? { scene_test: sceneTest } : {}),
   };
 };
 

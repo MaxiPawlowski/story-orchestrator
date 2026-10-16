@@ -90,6 +90,13 @@ export const knownEntities = (story: CodexStory, values: Values, enabled: readon
   return { entries, members };
 };
 
+export const unknownEntityNames = (story: CodexStory, known: KnownEntities): string[] => {
+  const entries = codexItems(story).filter(({ page, entry }) => !known.entries.has(entityRef(page, entry.id)))
+    .flatMap(({ entry }) => [entryName(story, entry), ...(entry.aliases ?? [])]);
+  const members = story.roster.filter((member) => !known.members.has(member.id)).flatMap((member) => [member.name ?? member.id, ...(member.aliases ?? [])]);
+  return [...new Set([...entries, ...members].map((name) => name.trim()).filter(Boolean))];
+};
+
 export const findEntry = (story: Pick<CodexStory, "codex">, id: string): CodexItem | null =>
   codexItems(story).find(({ entry }) => entry.id === id) ?? null;
 

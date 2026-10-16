@@ -81,6 +81,11 @@ export const describeBody = (body: WidgetBody): string[] => {
     ];
     case "log": return body.rows.map((row) => `Log: ${row.text}`);
     case "roster": return body.rows.map((row) => `${row.name}: ${row.status}`);
+    case "scene": return [
+      ...(body.location ? [`Where: ${body.location}`] : []),
+      ...(body.time ? [`When: ${body.time}`] : []),
+      ...body.present.map((member) => `With you: ${member.name}${member.page ? " (has a People page)" : ""}`),
+    ];
     case "timeline": return body.chapters.flatMap((chapter) => chapter.stops.map((stop) =>
       `${chapter.title ? `${chapter.title}: ` : ""}${stop.name}${stop.date ? ` (${stop.date})` : ""}${stop.here ? " (you are here)" : ""}`));
     case "html": return [

@@ -6,10 +6,12 @@ export const STATUS_GROUP = "Status";
 
 const hidesWhenEmpty = (display: QualityDisplay) => display.hide_when_empty ?? (display.as === "item" || display.as === "count");
 
-const bandLabel = (display: QualityDisplay, value: number): string | null => {
-  const band = display.bands?.find((entry) => entry.max === undefined || value <= entry.max);
-  return band?.label ?? null;
-};
+const bandAt = (display: QualityDisplay, value: number) => display.bands?.find((entry) => entry.max === undefined || value <= entry.max);
+
+const bandLabel = (display: QualityDisplay, value: number): string | null => bandAt(display, value)?.label ?? null;
+
+export const bandWarn = (display: QualityDisplay, value: PrimitiveValue | undefined): string | null =>
+  (typeof value === "number" ? bandAt(display, value)?.warn ?? null : null);
 
 const numberText = (value: number) => (Number.isInteger(value) ? String(value) : value.toFixed(1));
 
@@ -39,7 +41,8 @@ export function sheetItem(quality: Quality, values: Readonly<Record<string, Prim
   const value = values[quality.key];
   if (empty(display, value)) return hidesWhenEmpty(display) ? null : { label: display.label, as: display.as, text: "—" };
   const trend = trendOf(quality, value, previous?.[quality.key]);
-  return { label: display.label, as: display.as, ...itemText(quality, display, value as PrimitiveValue), ...(trend ? { trend } : {}) };
+  const warn = bandWarn(display, value);
+  return { label: display.label, as: display.as, ...itemText(quality, display, value as PrimitiveValue), ...(trend ? { trend } : {}), ...(warn ? { warn } : {}) };
 }
 
 const authorItem = (quality: Quality, values: Readonly<Record<string, PrimitiveValue>>): SheetItemView => {

@@ -11,6 +11,7 @@ const ICON: Record<RollRecord["source"], string> = {
   npc: "fa-solid fa-comment-dots",
   talk: "fa-solid fa-users",
   check: "fa-solid fa-dice",
+  scene: "fa-solid fa-shuffle",
 };
 
 export const RollChips = ({ messageId, rolls }: RollChipsProps) => {

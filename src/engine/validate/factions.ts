@@ -54,6 +54,7 @@ const readFaction = (value: unknown, path: string, errors: ValidationError[]): F
   const start = value.start === undefined ? Math.max(range[0], Math.min(range[1], 0)) : isInt(value.start) && value.start >= range[0] && value.start <= range[1]
     ? value.start : refuse(errors, `${path}.start`, "start is a whole number inside range", range[0]);
   const bands = readBands(value.bands, range[0], range[1], `${path}.bands`, errors);
+  if (bands?.some((band) => band.warn)) addError(errors, `${path}.bands`, "a faction band has no warn: warnings are for public meters on the sheet");
   const visible = value.visible_when === undefined ? null : readGate(value.visible_when, `${path}.visible_when`, errors);
   if (value.introduce !== undefined && typeof value.introduce !== "boolean") addError(errors, `${path}.introduce`, "introduce is true or false");
   const moves = value.moves === undefined ? [] : Array.isArray(value.moves) && value.moves.length <= FACTION_MOVES_MAX

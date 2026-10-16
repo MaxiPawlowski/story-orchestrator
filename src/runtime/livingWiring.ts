@@ -1,6 +1,7 @@
 import { isValidationErrorList, parseStoryV2, type EngineState, type NormalizedStoryV2, type StoryEngine } from "@engine/index";
 import type { ModelCall } from "@extraction/index";
 import { getPlayerName } from "@services/STAPI";
+import { announceChanceDraw } from "./chance";
 import { LivingPort } from "./livingPort";
 import type { ExpansionCoordinator } from "./coordinators/expansionCoordinator";
 import type { MemoryCoordinator } from "./coordinators/memoryCoordinator";
@@ -25,6 +26,8 @@ export interface LivingWiring {
   judge: () => JudgeRuntime | null;
   chatRows: () => unknown[];
   promiseHooks?: () => string[];
+  chatId?: () => string | null;
+  enabledIds?: () => string[];
 }
 
 const rebuildFailure = (parsed: ReturnType<typeof parseStoryV2> | null): string => (parsed && isValidationErrorList(parsed) ? parsed[0]?.message ?? "" : "");
@@ -82,5 +85,15 @@ export function wireLiving(wiring: LivingWiring): LivingPort {
     },
     storyIdTaken: (id) => Boolean(findStoryRecord(id)),
     journal: (summary, note) => wiring.journal("story", summary, note),
+    sceneIds: () => {
+      const chatId = wiring.chatId?.();
+      const storyId = wiring.loaded()?.record.id;
+      return chatId && storyId ? { chatId, storyId } : null;
+    },
+    enabledIds: () => wiring.enabledIds?.() ?? [],
+    sceneDrawn: (record) => {
+      const ids = { chatId: wiring.chatId?.() ?? "", storyId: wiring.loaded()?.record.id ?? "" };
+      announceChanceDraw({ kind: "scene", key: `scene:${record.frontierId}:${record.applied}`, boundary: record.plannedAt, unit: record.unit, ...ids });
+    },
   });
 }

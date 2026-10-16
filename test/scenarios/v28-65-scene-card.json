@@ -1,0 +1,66 @@
+{
+  "_note": "v2.8 plan 65 v1 (no-model lane): before Arin is met the card is absent and no Arin name, portrait or initials reach the player view or the DOM (N2/N2p); once met she is listed with her portrait and a People page link, the narrator never (N1); four scripted cast changes (N5); the page link opens the Journal on People; assert-player-clean. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-65-scene-card.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off",
+    "authorView": true
+  },
+  "steps": [
+    {
+      "log": true,
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds messages'); return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "file": "v28-65-scene-card.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const NL = String.fromCharCode(10); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const chid = (name) => SillyTavern.getContext().characters.findIndex((character) => character.name === name); const line = (name) => { rt.onMemberDrafted(chid(name)); return String(rt.getAppliedEpistemicBlock() ?? ''); }; const textOf = (body) => typeof body?.prompt === 'string' ? body.prompt : Array.isArray(body?.messages) ? body.messages.map((m) => (typeof m?.content === 'string' ? m.content : JSON.stringify(m?.content ?? ''))).join(NL) : JSON.stringify(body ?? null); const stub = async (run, reply = 'SO stub reply.') => { const tg = await import('/scripts/textgen-settings.js'); const host = await import('/script.js'); const status = host.online_status; host.setOnlineStatus('SO stub'); const streaming = tg.textgenerationwebui_settings.streaming; tg.textgenerationwebui_settings.streaming = false; const seen = []; const original = globalThis.fetch; globalThis.fetch = async (input, init) => { const url = String(typeof input === 'string' ? input : input?.url ?? ''); if (url.includes('/api/backends/') && url.endsWith('/generate')) { let body = null; try { body = JSON.parse(String(init?.body ?? 'null')); } catch {} seen.push(textOf(body)); return new Response(JSON.stringify({ choices: [{ text: reply, message: { content: reply } }], results: [{ text: reply }], content: reply }), { status: 200, headers: { 'Content-Type': 'application/json' } }); } return original(input, init); }; let error = null; try { await run(); } catch (e) { error = String(e?.message ?? e); } finally { globalThis.fetch = original; tg.textgenerationwebui_settings.streaming = streaming; host.setOnlineStatus(status); } const box = document.querySelector('#send_textarea'); if (box) { box.value = ''; box.dispatchEvent(new Event('input', { bubbles: true })); } await pause(600); return { seen, error }; }; const scene = () => rt.getSnapshot().game?.scene ?? null; const names = () => (scene()?.present ?? []).map((member) => member.name); const panel = async () => { const open = document.querySelector('#so-widget-here'); if (open) return open; const opener = document.querySelector('#so-open-widgets'); if (opener && opener.getAttribute('aria-expanded') !== 'true') opener.click(); await pause(600); return document.querySelector('#so-widget-here'); }; const cast = async (command, expected) => { await SillyTavern.getContext().executeSlashCommandsWithOptions(command); await until(() => { rt.notify(); return JSON.stringify(names()) === JSON.stringify(expected); }, 10000, command + ' -> ' + JSON.stringify(expected)); return names(); }; globalThis.__s65 = { rt, pause, until, scene, names, panel, cast }; return { ready: true };",
+      "log": true
+    },
+    {
+      "log": true,
+      "eval": "const f = globalThis.__s65; f.rt.notify(); await f.pause(500); const game = JSON.stringify(f.rt.getSnapshot().game ?? null); if (f.scene()) throw new Error('N2: a card with nobody met: ' + JSON.stringify(f.scene())); if (/Arin/.test(game)) throw new Error('N2: an unmet name reached the player view'); const el = await f.panel(); const dom = el ? el.outerHTML : ''; if (/Arin/.test(dom) || /<img/.test(dom)) throw new Error('N2p: an unmet trace in the DOM'); return { before: 'absent', panel: Boolean(el) };"
+    },
+    {
+      "slash": "/sendas name=Arin I am Arin. I keep the ledger here."
+    },
+    {
+      "slash": "/cp set met_arin true"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await globalThis.__s65.pause(800); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "log": true,
+      "eval": "const f = globalThis.__s65; const view = await f.until(() => { f.rt.notify(); const s = f.scene(); return s && s.present.length ? s : null; }, 15000, 'Arin on the card'); if (JSON.stringify(view.present.map((m) => m.name)) !== JSON.stringify(['Arin'])) throw new Error('N1: ' + JSON.stringify(view)); if (!view.present[0].portrait || !view.present[0].portrait.startsWith('/characters/')) throw new Error('portrait: ' + view.present[0].portrait); if (view.present[0].page !== 'Arin') throw new Error('page link: ' + view.present[0].page); if (JSON.stringify(view).includes('Narrator')) throw new Error('the narrator is on the card'); const el = await f.until(async () => { const panel = await f.panel(); return panel && panel.querySelectorAll('[data-so=\"scene-member\"]').length === 1 ? panel : null; }, 15000, 'one scene member in the DOM: ' + JSON.stringify({ opener: Boolean(document.querySelector('#so-open-widgets')), shown: f.rt.getSnapshot().presence?.shown ?? null, widgets: (f.rt.getSnapshot().game?.widgets ?? []).map((w) => w.id), root: Boolean(document.querySelector('#so-panels-root')), expanded: document.querySelector('#so-open-widgets')?.getAttribute('aria-expanded') ?? null, rootHtml: (document.querySelector('#so-panels-root')?.innerHTML ?? '').slice(300, 2000), panels: [...document.querySelectorAll('[id^=so-panel-]')].map((e) => e.id) })); return { present: view.present, members: el.querySelectorAll('[data-so=\"scene-member\"]').length, img: Boolean(el.querySelector('img.so-scene-portrait')) };"
+    },
+    {
+      "log": true,
+      "eval": "const f = globalThis.__s65; const steps = [['/disable Arin', []], ['/enable Arin', ['Arin']], ['/disable \"DM Narrator\"', ['Arin']], ['/enable \"DM Narrator\"', ['Arin']]]; const seen = []; for (const [command, expected] of steps) seen.push({ command, names: await f.cast(command, expected) }); return { castChanges: seen.length, seen };"
+    },
+    {
+      "log": true,
+      "eval": "const f = globalThis.__s65; const el = await f.panel(); const link = el?.querySelector('[data-so=\"scene-page\"]'); if (!link) throw new Error('no People page link'); link.click(); await f.until(() => document.querySelector('#so-journal-tab-people')?.getAttribute('aria-selected') === 'true', 8000, 'the Journal open on People'); return { journalPeople: true };"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await globalThis.__s65.pause(800); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    }
+  ]
+}

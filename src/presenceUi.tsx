@@ -18,6 +18,7 @@ import { PRESENCE_TEXT } from "@features/presenceCopy";
 import { GAME_TEXT } from "@features/gameCopy";
 import { BRIEFING_COPY, GUIDE_COPY, HELP_COPY } from "@features/helpCopy";
 import { requestBriefing } from "@runtime/briefingRequest";
+import { JOURNAL_PAGE_EVENT } from "@runtime/drawerTab";
 import type { SuggestionAsk } from "@runtime/suggestionsHost";
 import type { WriteResult } from "@utils/writeResult";
 import { PanelFrame } from "./components/panels/PanelFrame";
@@ -176,6 +177,9 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
       guideTarget = target;
       setPanel("guide", true);
     }));
+    const openJournal = () => setPanel("journal", true);
+    window.addEventListener(JOURNAL_PAGE_EVENT, openJournal);
+    ui.add(() => window.removeEventListener(JOURNAL_PAGE_EVENT, openJournal));
     const root = ui.element(document.createElement("div"));
     root.id = "so-panels-root";
     document.body.appendChild(root);

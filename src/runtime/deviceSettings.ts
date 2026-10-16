@@ -6,6 +6,7 @@ import { log } from "@utils/log";
 export const DEVICE_SETTING_PATHS = [
   "display.hudEnabled", "display.inline.level", "display.inline.window", "display.inline.categories",
   "sprites.stage", "sprites.focus", "sprites.breathing", "sprites.blink", "sprites.mouth", "sprites.liveHead", "sprites.liveHeadFrames",
+  "display.yourMove",
 ] as const;
 export type DeviceSettingPath = typeof DEVICE_SETTING_PATHS[number];
 export type DeviceSettings = Partial<Record<DeviceSettingPath, unknown>>;

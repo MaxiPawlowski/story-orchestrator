@@ -1,4 +1,4 @@
-import { branchNoticeText, rollbackNoticeText } from "@runtime/narrative";
+import { branchNoticeText, PLAYER_COPY, rollbackNoticeText, yourMoveAuthorTitle } from "@runtime/narrative";
 import { HUD_COPY, hudChipLabel, hudPendingText, hudSetupText, hudSetupTitle, hudTensionText, playerPendingCount } from "@runtime/pipeline";
 import { setupAlert, setupCounts } from "@runtime/repair";
 import type { RuntimeSnapshot } from "@runtime/types";
@@ -30,6 +30,10 @@ export const HudStrip = ({ snapshot, onOpenDrawer, onOpenSettings }: HudStripPro
         <span className="so-hud-name">◈ {snapshot.narrative?.sections.find((section) => section.id === "now")?.lines[0] ?? HUD_COPY.fallbackScene}</span>
         {snapshot.tension.level ? <span className="so-hud-dim">{hudTensionText(snapshot.tension.level)}</span> : null}
       </button>
+      {snapshot.turn?.yours ? (
+        <span id="so-hud-turn" className="so-hud-chip" role="status"
+          title={snapshot.ui.authorView && snapshot.turn.source ? yourMoveAuthorTitle(snapshot.turn.source) : PLAYER_COPY.yourMoveTitle}>{PLAYER_COPY.yourMove}</span>
+      ) : null}
       {chip ? (
         <button
           id="so-hud-pipeline"

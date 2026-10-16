@@ -1,6 +1,6 @@
 # Plan 65 — "Here now" scene card
 
-**Status: candidate, owner decision required first. Revised 2026-10-16 after Astra's review (§Review 2026-10-16).** Written
+**Status: v1 built 2026-10-16 on `v2.8-harvest-18-65-68` (unmerged; §Gate record); owner decided 2026-10-16. Was: candidate, owner decision required first. Revised 2026-10-16 after Astra's review (§Review 2026-10-16).** Written
 2026-10-14 from the extension harvest (`61-harvest-triage-2026-10-14.md` H5). Not built, not queued. It **reopens v2.8 51
 decision 2** ("no interim surface"), so the owner decides before anything else. Implementation tier **D**; acceptance **D**
 (projection properties, Storybook) + a session or an explicit owner decision (00-overview rule 4: player-visible surface).
@@ -133,3 +133,30 @@ Source: `review-astra-harvest-2026-10-16.md` §2 (65). Verified on `e8b9dd6d`.
 - **"Portrait needs a new host module" overstated.** Accepted (`src/services/stHost/sprites.ts:83`). → reuse the existing URL;
   a thumbnail helper is optional.
 - Rebutted: none.
+
+## Gate record 2026-10-16: v1 (branch `v2.8-harvest-18-65-68`, unmerged)
+
+- Owner decisions 2026-10-16: reopens 51 decision 2 (recorded in 51), author-placed, small v1. Built A v1 (commit `6d09ce0a`):
+  `scene` widget kind, `options.time` (scene only; refused elsewhere), projection `runtime/sceneCard.ts` in the lazy game-layer
+  chunk: `presentRosterIds ∩ knownEntities(...).members`, narrator-type members (`isNarratorMember`) never listed, name = own
+  People entry name else card name, portrait `/characters/<avatar>` only for listed members (`avatar === "none"` → none,
+  initials in the card), page link only when a People page of that name is shown. Location = the Overview's location word;
+  time only with `options.time` and a clock (`storyTimeRow` label). `GameView.scene` mirrors the first player scene widget.
+  Copy in `narrative.ts` ("Where", "When", "With you"). Page link opens the Journal on People (`requestJournalPage`).
+  Studio preview line, guide topic `widget-scene`, registry feature `scene-card` (under the Story panels switch), matrix row.
+- Not built: A+ lines (labels, standing, keepsakes; N3/N4 wait for them), thumbnail helper, Overview default (B).
+- Floors (D): N1 500 generated runs, 0 extra strings in the rendered card: met. N2/N2p unmet member leaves no name, portrait,
+  initials, link or count (unit, Storybook `ScenePlantedUnknown`, live DOM): met. N5 4/4 disabled-member cast changes (unit and
+  live); away-by-schedule not separately exercised here (covered by `presentRosterIds`' own tests). N6: met. N7 Storybook
+  `ScenePhone` fits 390 px: met (`so-responsive` live not run). N8 rollback ≡ replay 4/4: met.
+- Live: `test/scenarios/v28-65-scene-card.json` PASS ×2 (`2026-10-16T18-45-52-279Z`, `…18-46-56-419Z`): absent before Arin is
+  met (no `Arin` in the player view or the panel DOM); then exactly Arin with `/characters/Arin.png` and a People link, narrator
+  never; 4 cast changes; the link opens the Journal on People; `assert-player-clean` ok.
+- Live, lane 67 (no-model offline lane copied from lane 60's data, `C:\dev\st-live`, lanes root `C:\dev\so-live-lanes`), this
+  branch's build staged with `node scripts/release/stage.mjs --st-root C:/dev/st-live`, served `dist/index.js` sha256 `1e16872978fe`
+  (checked before and after each counted run; st-live is shared, and two diagnostic 65 runs whose staged hash changed under them
+  were discarded and re-run). Run: `ST_ROOT=C:/dev/st-live SO_LANES_ROOT=C:/dev/so-live-lanes node scripts/debug/st-lanes.mts run 67
+  -- scripts/debug/so-scenario.mts run <file> --sandbox --group 'Group: Arin, DM Narrator'`. Evidence copied to
+  `C:\dev\so-live-lanes\evidence-2026-10-16\67\`.
+- Session or explicit owner decision before the campaign adopts it (rule 4): Adolion not changed.
+- Gates (one run for 18 Q7, 65 and 68): 18 §Gate record 2026-10-16 (Phase Q7).

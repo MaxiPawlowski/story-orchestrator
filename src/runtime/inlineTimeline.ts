@@ -17,6 +17,7 @@ import type { EffectLedgerRow, EffectLedgerStatus, PayloadCapture, TalkDecisionA
 import type { JournalRecord } from "./journal";
 import { EMPTY_REPLY_PLAYER_TEXT } from "./emptyReply";
 import { gameLayer } from "@engine/validate/gameLayer";
+import type { SceneTestRecord } from "@generation/living/sceneTest";
 
 export type InlineState = "live" | "pending" | "applied" | "refused";
 
@@ -77,6 +78,7 @@ export interface InlineSources {
   resting?: (text: string) => string;
   emptyReplies?: number[];
   enabled?: readonly string[];
+  sceneTests?: readonly SceneTestRecord[];
 }
 
 const RAW_LIMIT = 4000;
@@ -120,6 +122,17 @@ function revealItems(sources: InlineSources): Draft[] {
   if (!story?.life || !values) return [];
   return (gameLayer()?.life.revealChips(story, sources.boundaryLog, values, sources.enabled ?? [], sources.castNames ?? {}) ?? []).map((chip, at) => ({
     id: `progress:reveal:${chip.boundary}:${at}`, messageId: chip.messageId, category: "progress", level: 1, state: "applied", text: chip.text,
+  }));
+}
+
+export const sceneTestDetail = (record: SceneTestRecord): string =>
+  `chaos ${record.chaos} of 4, odds ${record.p.toFixed(2)}; drawn ${record.drawn}${record.applied === record.drawn ? "" : `, applied ${record.applied}`}`
+  + `${record.focus ? `; focus: ${record.focus}` : ""}; after ${record.expected.from}`;
+
+function sceneTestItems(sources: InlineSources): Draft[] {
+  return (sources.sceneTests ?? []).map((record) => ({
+    id: `progress:scene-test:${record.frontierId}:${record.plannedAt}`, messageId: record.messageId, category: "progress", level: 3, state: "applied",
+    text: `Scene test: ${record.applied}`, detail: sceneTestDetail(record),
   }));
 }
 
@@ -422,7 +435,7 @@ export function composeInlineTimeline(sources: InlineSources): InlineView {
   const newest = sources.chatLength - 1;
   const oldest = newest - Math.max(1, sources.settings.window) + 1;
   const drafts = [
-    ...progressItems(sources), ...questItems(sources), ...revealItems(sources), ...memoryItems(sources), ...threadItems(sources), ...loreItems(sources),
+    ...progressItems(sources), ...sceneTestItems(sources), ...questItems(sources), ...revealItems(sources), ...memoryItems(sources), ...threadItems(sources), ...loreItems(sources),
     ...castItems(sources), ...pacingItems(sources, newest), ...callItems(sources, newest), ...healthItems(sources, newest),
   ];
   const level = effectiveInlineLevel(sources.settings.level, sources.authorView);

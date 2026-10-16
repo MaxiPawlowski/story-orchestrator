@@ -63,7 +63,8 @@ export async function runDirector(run: DirectorRun, model: ModelCall, ask: Model
     const plan = planChapter(run.story, run.frontierId, { sealsOn: run.sealsOn, final: draft.anchor.final, newChapter: draft.newChapter, title: draft.chapterTitle });
     if (plan.capped) return { status: "capped", reason: "the chapter cap for an install without chapter seals is reached" };
     const built = buildDirectorOps(run.story, run.frontierId, draft, plan);
-    const checked = checkDirectorOps({ raw: run.raw, story: run.story, frontierId: run.frontierId, ops: built.ops, values: run.values, latched: run.latched });
+    const scene = { signal: run.input.sceneTest, answer: { changed: draft.changed, advances: draft.advances }, threads: run.input.openThreads };
+    const checked = checkDirectorOps({ raw: run.raw, story: run.story, frontierId: run.frontierId, ops: built.ops, values: run.values, latched: run.latched, scene });
     const guarded = guardDraft(draft, run.guard);
     const issues = [...built.issues, ...checked.issues, ...guarded];
     if (issues.length) {

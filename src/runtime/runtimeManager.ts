@@ -487,7 +487,7 @@ export class RuntimeManager extends SettingsDelegates {
       notices: this.notices, payloadCaptures: this.journal.getCaptures(), extractionHealth: this.scheduler?.health() ?? null,
       promptBlocks: readExtensionPromptBlocks(), chat: getContext().chat ?? [], fingerprints: this.chatSave.fingerprints.current,
       characters: getContext().characters ?? [], chatId: this.loadedChatId, scopeContext: this.extras.ui.authorView ? this.extraction.scopeContext() : undefined,
-      enabled: this.getEnabledCharacterIds(),
+      enabled: this.getEnabledCharacterIds(), generating: this.generationOpen,
     }));
   }
 

@@ -32,6 +32,7 @@
     "display": {
       "announceTransitions": false,
       "hudEnabled": true,
+      "yourMove": true,
       "briefing": false,
       "briefingDraft": false,
       "playerSetup": false,

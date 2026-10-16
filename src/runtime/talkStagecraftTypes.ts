@@ -1,4 +1,5 @@
 import type { TalkDecisionSource } from "@talk/index";
+import type { SourceRevision } from "@memory/audience";
 import type { CreatedEntry, CuratorDecline, CuratorPassAudit, CuratorProposalRecord, StagecraftAcceptMode } from "@stagecraft/index";
 import type { MeanwhileAcceptMode } from "./agendaProposals";
 
@@ -13,7 +14,11 @@ export interface TalkDecisionAudit {
   /** Which voice in a chained turn this was; 0 or absent for the first (or only) speaker. */
   chainStep?: number;
   judge?: { confidence: number; via: "choice" | "composite" };
+  kind?: TalkDecisionKind;
+  revision?: SourceRevision | null;
 }
+
+export type TalkDecisionKind = "member" | "player" | "silence";
 
 export interface TalkRuntimeState {
   enabled: boolean;

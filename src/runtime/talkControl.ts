@@ -7,6 +7,8 @@ import {
 import { timeoutAbortReason } from "@utils/signals";
 import { beginRun, type MessageWindow, type RunGuard, type RunOwnership } from "./runToken";
 import type { TalkDecisionAudit } from "./types";
+import type { TalkDecisionKind } from "./talkStagecraftTypes";
+import type { SourceRevision } from "@memory/audience";
 import { WITHHOLDING_TYPES } from "./generationLifecycle";
 import { log } from "@utils/log";
 import type { WriteResult } from "@utils/writeResult";
@@ -74,6 +76,7 @@ export interface TalkControlHost {
   getPlayerName?(): string;
   triggerMember(name: string): Promise<WriteResult | void>;
   recordDecision(audit: TalkDecisionAudit): void;
+  getLastMessageRevision?(): SourceRevision | null;
   random?(): (() => number) | null;
   /** Install-wide chain defaults, read at each turn. */
   getChainConfig?(): { enabled: boolean; max: number; stopOnTransition: boolean; holdExtraction: boolean };
@@ -321,11 +324,12 @@ export class TalkController {
     const pending = members.filter((member) => fresh(member) && !answered.has(member.name.trim().toLowerCase()));
     const messageId = this.host.getLastMessageId();
     const checkpointId = this.host.getCheckpointInfo()?.id ?? chain.checkpointId;
+    const revision = this.host.getLastMessageRevision?.() ?? null;
     if (pending.length === 1) {
       const [next] = pending;
       this.host.recordDecision({
         at: new Date().toISOString(), messageId, checkpointId, chosenRosterId: next.rosterId, chosenName: next.name,
-        source: "mention", latencyMs: 0, chainStep: chain.spokeCount,
+        source: "mention", latencyMs: 0, chainStep: chain.spokeCount, ...this.stamp("member"),
       });
       return next.name;
     }
@@ -340,16 +344,20 @@ export class TalkController {
       this.host.recordDecision({
         at: new Date().toISOString(), messageId, checkpointId, chosenRosterId: null, chosenName: null,
         source: decision.source, latencyMs: Date.now() - startedAt, chainStep: chain.spokeCount,
-        ...(decision.judge ? { judge: decision.judge } : {}),
+        ...(decision.judge ? { judge: decision.judge } : {}), ...this.stamp(handBack && decision.kind === "player" ? "player" : "silence", revision),
       });
       return null;
     }
     this.host.recordDecision({
       at: new Date().toISOString(), messageId, checkpointId, chosenRosterId: decision.rosterId, chosenName: decision.name,
       source: decision.source, latencyMs: Date.now() - startedAt, chainStep: chain.spokeCount,
-      ...(decision.judge ? { judge: decision.judge } : {}),
+      ...(decision.judge ? { judge: decision.judge } : {}), ...this.stamp("member"),
     });
     return decision.name;
+  }
+
+  private stamp(kind: TalkDecisionKind, revision = this.host.getLastMessageRevision?.() ?? null): { kind: TalkDecisionKind; revision: SourceRevision | null } {
+    return { kind, revision };
   }
 
   private decisionKey(): string {
@@ -401,6 +409,7 @@ export class TalkController {
         source: decision.source,
         latencyMs: Date.now() - startedAt,
         ...(decision.judge ? { judge: decision.judge } : {}),
+        ...this.stamp(decision.kind === "member" ? "member" : "silence"),
       });
     }
     return decision;
