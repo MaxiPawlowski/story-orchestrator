@@ -313,3 +313,34 @@ K17, K1 (bounded). One commit per item, test first. No GPU, no model.
   `test-storybook --url http://127.0.0.1:6271 --maxWorkers 2`: 147 suites, 882 tests green.
 - Owed: K9 early-return design decision; K10 CC protection decision and a live CC fixture; K8 conditional case; K1b CL;
   merge, then the live rows re-run on master.
+
+## Gate record addendum 2026-10-16: owner decisions on K9/K10 (branch `v2.8-harvest-followup` from `d1f9ede2`, unmerged)
+
+- Owner decisions 2026-10-16: K9 releases a carried hold at the next generation start that is not the carrying run, plus a
+  time cap; K10 gets no code guard, an info check instead; 35's `bandit` marked prefix, `poison` left (35 gate record).
+- **K9 early return fixed** (`b6ca763f`). `GenerationLifecycle` closes an open quiet/impersonate outermost run (closed +
+  settled, so the hold is released) when a start arrives that is not it: a non-withholding `GENERATION_STARTED`, or our own
+  generate interceptor's entry for a non-withholding type (`live.interceptEntry`, first line of `talkControlInterceptor`).
+  A withholding start under a withholding run stays nested (group quiet: wrapper start then member start) unless the cap has
+  passed. Cap `WITHHOLD_CAP_MS` = `callTimeoutMs(largest MAX_TOKENS_TABLE answer 4096, 32,768 input tokens)` = 300,336 ms:
+  the longest single model call our own timeouts allow at the context the owner's model serves, so no live request can still
+  be assembling its prompt past it; a timer armed on every withholding open applies `expire()`. Tests
+  (`generationLifecycle.test.ts`, `runtimeManager.test.ts`): early return then a loud start closes the hold and the guidance
+  block is back (fails on the previous lifecycle), interceptor entry, cap boundary, a legitimate nested quiet inside a loud
+  run keeps its carry past the cap, group quiet stays nested, the cap value pinned to its formula. Floor K9 now 4/4.
+  - Live, lane 60 (no-model, `C:\dev\st-live`), `test/scenarios/v28-69-k9-early-return.json` (plan 60 B10's setup) ×2, PASS:
+    control `generate('impersonate')` on the disconnected lane emits no GENERATION_ENDED and leaves the hold on; the next
+    `generate('normal')` releases it, pacing hint and check outcome back, chat unchanged; `assert-player-clean` ok. Evidence
+    `C:\dev\so-live-lanes\evidence-2026-10-160\` (`2026-10-16T17-20-02-220Z`, `…17-20-35-148Z`).
+- **K10 info check built** (`cb586d36`), no code guard. Host path verified: `oai_settings.send_if_empty` is the context's
+  `chatCompletionSettings` (ST `st-context.js:227`), the API is `main_api` "openai" (`:200`), and `openai.js:930-931` appends
+  it as a user message when the last prompt message is the assistant's. `stHost/extensionConflicts.ts` reports
+  `cc-send-if-empty` only for Chat Completion with a non-blank value; the runtime slice keeps it only for a story with NPC
+  replies; check `cc-filler-after-reply` (info, player audience, feature `stories`) says SillyTavern adds a filler line after a
+  character's reply, in the prompt only. Firing fixture in `checksRegistry.test.ts`; detection, slice and copy (no jargon)
+  tests. Not run live: lane 60 has no Chat Completion profile.
+- Gates: `npm run gates:quick` green per item (K9's first run red at the known replay `--listTests` flake with empty stderr;
+  one plain `node scripts/suite/defect-replay.mjs`, 32 of 32 killed, then green; K10's first run red on one 201-character
+  line, split). Full `npm run gates -- --jobs=2 --no-storybook` **all green in 213.1 s** (test 9007 passed, 1 skipped;
+  test:debug 1322; build main `dist/index.js` 1,287,226 B of 1,300,000; lint, typechecks, test:plugin, test:release green).
+  Storybook not run: no `.stories` file or component changed. Arrival golden did not trip.
