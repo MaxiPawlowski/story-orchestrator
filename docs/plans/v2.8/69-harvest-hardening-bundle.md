@@ -1,6 +1,6 @@
 # Plan 69 — Harvest hardening bundle
 
-**Status: candidate, owner decision pending. Revised 2026-10-16 after Astra's review (§Review 2026-10-16).** Written
+**Status: owner accepted 2026-10-16 (61 §Owner decisions). Built in part 2026-10-16 on `v2.8-harvest-k11-k12` (unmerged): K11, K12, K5, K6, K8, K9 (3/4), K10, K17, K1a; see §Gate record 2026-10-16. Revised 2026-10-16 after Astra's review (§Review 2026-10-16).** Written
 2026-10-14 from the extension harvest (`61-harvest-triage-2026-10-14.md`). Not built, not queued. One plan for the small
 hardening items that are not built defects and that no feature plan owns. Each item is S, independent, one commit, and closes
 on its own D floor. Two items (K11, K12) are **P1 correctness guards** and come first. Implementation and acceptance **D**,
@@ -219,3 +219,97 @@ Source: `review-astra-harvest-2026-10-16.md` §2 (69), §1 (omissions, V58, V61,
 - **V61 suppression fixture.** Adopted as K8's conditional case.
 - **B7 open.** Accepted. → K17.
 - Rebutted: none.
+
+## Gate record 2026-10-16 (branch `v2.8-harvest-k11-k12`, base master `22eb50ce`, unmerged)
+
+Owner decisions 2026-10-16 applied: K12 refuses on conflict; build order K11, K12, then 35 matcher, then K5, K6, K8, K9, K10,
+K17, K1 (bounded). One commit per item, test first. No GPU, no model.
+
+- **K11 built** (`b1490976`). A pending edit step records a proposal base: a hash of every unit of the proposal-time draft
+  (top-level fields, keyed entities by `id`/`key`/`from->to`, one level of entity fields) and the units its op touched.
+  `decideStep` refuses (`failed`, "… changed since proposed") when a touched unit changed since, and also when applying the op
+  to the current draft would overwrite any unit the author changed since. Deviation from the design: the second check is new;
+  without it a whole-block op (`setPlayer`, `removeCheckpoint` dropping an edited transition) silently drops an author edit
+  to a field the op never touched at proposal. The base is dropped once the step is decided. Test
+  `src/copilot/agent/staleProposal.review.test.ts`: touched-path author edits refused 10/10, unrelated edits refused 0/10
+  (floor 10/10, 0/10: met), plus an author-edited op, the overwrite cases and a decided step dropping its base.
+- **K12 built** (`1451f01c`, live fixture `f6af6de3`). All five whole-book writers (`setWIEntriesState`, `upsertWIEntry`,
+  `updateWIEntryByUid`, `createWIEntry`, `deleteWIEntryAt`) compare the server's book with the copy the write started from
+  just before saving; any differing entry refuses the write (`couldNot` "another page changed …", `upsertWIEntry` answers
+  `failed` and logs), nothing is saved and the cached copy is evicted, so the next write starts from the server copy. This is
+  the design's fallback (cached load + pre-save server read). The primary variant (load from the server, apply, compare
+  after) was not used: applying onto the server copy merges another page's change silently, which is not the owner's
+  "refuse". B14 kept: a difference first saves this page's own edit waiting in ST's debounce (`flushPendingWorldSave`, the
+  named book only) and reads again, so the page's own pending edit is never a conflict and no extra save happens when the
+  copies agree. A server read that cannot answer is not evidence (write proceeds, unconfirmed). Tests
+  (`worldInfo.test.ts`, `worldInfoPending.test.ts`): 5 writers × planted change refused with the conflict named, other page's
+  entry kept 5/5 (floor 5/5: met), evict-then-rebase, own debounced edit, blind read. Census: no call site changed (the
+  check sits inside `stHost/worldInfo.ts`, outside the lorebook-writers and ownership censuses).
+  - Live, lane 60 (no-model, `C:\dev\st-live`, lanes root `C:\dev\so-live-lanes`), `test/scenarios/v28-69-k12-stale-book.json`,
+    4 runs (2 on the K12 build, 2 on the final build), all PASS. Control: ST's own immediate save of the stale cached book
+    loses the other page's edit (hazard reproduced). Treatment: the story's file-mode checkpoint write refuses, posts no
+    `/api/worldinfo/edit`, the other page's edit survives, the gated entry stays off, the cache is evicted; re-entering the
+    checkpoint lands the write from the server copy with the edit kept. Cost: the extra server read was 3–6 ms per write
+    (n = 4 per run), so the boundary path keeps it. Evidence `C:\dev\so-live-lanes\evidence-2026-10-16\60\`
+    (`2026-10-16T15-40-49-946Z`, `…15-41-37-795Z`, `…16-40-04-008Z`, `…16-40-38-811Z`).
+- **K5 built** (`93c8176d`). Guard in `architecture.test.ts`: only `sprites/stage.ts` (a `closest(".mes_text")` read) and the
+  shared selector `utils/messageText.ts` name `.mes_text`, no write into it (planted control). Inline Storybook plays assert
+  0 SO nodes inside `.mes_text`. `assert-player-clean` now sweeps `#chat .mes_text` for SO nodes (planted-DOM test: inside
+  caught, beside not). Live: K8 synthetic-player and swipe-append ×2 each: 0 inside, `assert-player-clean` ok; the lane
+  rendered no inline hosts in those chats, so the live half proves absence only; the rendered-host case is the Storybook half.
+- **K6: floor held on measurement, test only** (`66d11ab3`, option A). `src/runtime/thoughtLeakReceipt.review.test.ts` on the
+  real manager + TurnBridge + `rewriteReplyText`: repair before/after TurnBridge's `MESSAGE_RECEIVED` × render in the same tick
+  /after the boundary: 0 rollbacks, 0 eventless-change journals, identity = the repaired key, swipe left and back keeps the
+  repaired text: 4/4; a genuine later rewrite rolls back once: 1/1. Finding (not a defect today): a repair that lands after
+  its boundary was saved reads as an eventless change (a noop rollback and journal). Unreachable now because the repair runs
+  synchronously inside `MESSAGE_RECEIVED` and ST's `emit` awaits listeners in order, before the boundary's save.
+- **K8 built** (`4f826c4a`), 4 no-model fixtures, each ×2 on lane 60, all PASS (floor 4/4 ×2: met), cleanup clean:
+  - `v28-69-k8-silent-rewrite.json`: no event, no rollback until the next boundary; then one applied rollback from the
+    rewritten reply and the boundary commits message 2; the rewritten line's fact is gone.
+  - `v28-69-k8-swipe-append.json`: no boundary, no rollback, before and after the next boundary.
+  - `v28-69-k8-synthetic-player.json`: one boundary consuming the synthetic message, no rollback.
+  - `v28-69-k8-delayed-rewrite.json`: the rewrite after the reply's boundary is re-read once (editReread recommits +1) and the
+    values equal the recording before the reply (the reply's fact gone, the earlier one kept).
+  - Conditional foreign scan-suppression case: NOT RUN (no scan-filtering extension installed on lane 60).
+  - Evidence `C:\dev\so-live-lanes\evidence-2026-10-16\60\` (`2026-10-16T16-45-56-431Z` … `…16-49-34-706Z`).
+- **K9 built in part** (`c7f4d89d`). `InjectionSpec.carry: {quiet, impersonate}` is required (type) and checked by
+  `findInjectionRegistryProblems` (planted entry without it, and one with an unknown value, fail). Declared withhold: pacing,
+  epistemic, continuity note, checkpoint guidance, chapter bridge, check outcome, away notice, previously; everything else
+  keeps. The away notice, previously, chapter bridge and continuity note gates read the declaration (`carriesInto`); the
+  pacing/guidance/epistemic hold keeps its coordinator path and a manager test pins that a withholding run clears exactly the
+  set blocks declared withhold. Behaviour: nested quiet withholds and the loud blocks return, restoration, raw generation
+  (no lifecycle event, nothing held): 3/4. **Early return (B10 stale hold): NOT fixed, design question**: no host event marks
+  a quiet/impersonate `Generate` that returned before sending, so the hold stays until the next loud run (snapshot and
+  next-turn preview only; the next loud request is unaffected). Options: release on the wrapper/generation idle signal, or
+  report the hold only while a withholding run is open. Floor 3/4: below.
+- **K10 built** (`1bbc119e`). `stHost/groups.ts` `groupMemberPosition`: exact name/avatar match among the open group's members
+  to the member's group position; `fireReply` sends `/trigger await=true <position>` (ST reads a number as a position and a
+  name through Fuse, `group-chats.js:353-417`). Missing and duplicate names refused with a journal line, nothing generated.
+  Tests: member "2" gets its own position, reordered members, missing, duplicate: 4/4. CC `send_if_empty` fixture: NOT RUN
+  live (no Chat Completion profile on lane 60); host source recorded instead: `openai.js:930-931` appends `send_if_empty` as a
+  user message when the last prompt message is the assistant's, so a `/trigger` right after another reply on CC carries the
+  filler. Protection (strip it for our triggers, or leave the owner's setting alone) is a design question: recorded, not built.
+- **K17 built** (`7524d34f`). Reply-effort repair observes through `onReplyReceived` (`hostMessageId`); null, empty, NaN and
+  non-numeric ids are ignored, never message 0 (`replyReceived.test.ts`: holds).
+- **K1 bounded, K1a built** (`1cab5f02`). `memory/compactionGate.ts`: a summary is accepted only if non-empty, shorter than
+  previous + window text, and within the short-term answer cap (`maxTokensFor("shortTerm")`, metered); a refusal keeps the
+  previous entry and journals `compaction-refused`; attempts keyed by window range + previous entry id + input hash, one
+  retry, then skipped until the input changes (in memory, reset by a reload). Deviation: the budget is the answer cap, not the
+  tier token budget, because tier overflow is already trimmed by `fitEntryToBlock` (the plan 03 short-term budget fix) and
+  refusing there would undo that decision. Tests (`compactionGate.test.ts`, `compactionRefusal.review.test.ts`): 5/5 (floor
+  5/5: met). `extractionOwnership.review.test.ts`'s ordinary-case control used a one-line window and a longer summary; its
+  summary was shortened to stay a real summary. Ownership census row updated. **K1b (CL) not run.**
+- Not built: K2, K3, K4 (waits on B8), K6b, K7, K13, K14, K15, K16.
+- Gates: `npm run gates:quick` green after every item (two reds fixed before commit: the error-copy census on a duplicated
+  template, and the code-health withholding ratchet on a second quiet/impersonate literal; K10's first run red on six STAPI
+  mocks lacking `groupMemberPosition`, added).
+- Full gates on the branch tip (`npm run gates -- --jobs=2 --skip=test-storybook:ci`; Storybook skipped in the runner because
+  it pins port 6006, run separately below): first run RED at `test` (`arrivalEquivalence` golden lacked the five new scenario
+  stories, the same miss as plan 60's addendum); re-recorded with `SO_RECORD_ARRIVAL_GOLDEN=1` (5 rows, all `[]`), rerun
+  **all green in 171.9 s**: test:replay, test (8991 passed, 1 skipped), build (main `dist/index.js` 1,284,578 B, budget
+  1,300,000), test:debug (1320 pass), typecheck, typecheck:test, debug:typecheck, lint (0 errors, 2 existing warnings),
+  test:plugin, test:release. The 3090 text suite was running alongside; no timing flake seen.
+- Storybook outside the runner: `npm run storybook:build`, `http-server .sb-static -p 6271`,
+  `test-storybook --url http://127.0.0.1:6271 --maxWorkers 2`: 147 suites, 882 tests green.
+- Owed: K9 early-return design decision; K10 CC protection decision and a live CC fixture; K8 conditional case; K1b CL;
+  merge, then the live rows re-run on master.

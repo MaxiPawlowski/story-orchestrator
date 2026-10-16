@@ -246,3 +246,28 @@ Source: `review-astra-harvest-2026-10-16.md` §2 (67), §1 (V33, V47, V1/V60, Co
 - **V33, V47, V1/V60, Copilot P4 folds.** Adopted (G8, G10, G9, G7).
 - **Fold 67 → 24 + 35.** Adopted; `67-grader-hygiene-and-adversarial-fixtures.md` is a pointer.
 - Rebutted: none.
+
+### Gate record 2026-10-16, harvest phase G1/G2 (branch `v2.8-harvest-k11-k12`, commit `b8701973`, unmerged)
+
+- **Matcher.** `src/utils/termPresent.ts`: NFKC, curly quotes and dashes folded, `term` (default: no letter or digit on either
+  side) or `prefix` (the B2 word start). One helper for the self-test (`selfTest.ts`: names `bel`/`corin` are terms, topic
+  stems `lantern`/`tunnel`/`debt`/`arm`/`wound` stay prefix) and all three live-suite scorers (`scoreContains`,
+  `scoreRejected`, `scoreIntents`, which were word start, substring and substring). Per-needle mode in the fixture:
+  `modes: {needle: "prefix"}` on a tier spec or intents claim, `mode` on a rejected entry; absent = term. G1 controls
+  (`termPresent.test.ts`, `liveSuiteScore.test.mts`): `bel`/`below`, `arm`/`harm`, `don't`/`don’t`, `—`/`-` in term mode,
+  `wound` in `wounded` in prefix mode: 5/5.
+- **Inventory first** (`node scripts/debug/so-live-suite.mts inventory`, offline): 43 fixtures, 22 with a recorded live answer,
+  84 needles: 11 term, 0 prefix-dependent, 0 substring-only, 10 absent, 63 unrecorded (the 14 intents fixtures and
+  extractor23–29 have no recorded live answer). So no fixture needed a `prefix` mode and no fixture changed (the hash-frozen
+  extractor23–29 untouched). Record `test/goldens/live/rescore/needle-inventory.json`. G1 inventory: complete.
+- Advisory run over the hand-written goldens (`inventory test/goldens`, `needle-inventory-hand-goldens.json`): 2 needles are
+  prefix-dependent there, `bandit` (extractor-intents02 intents) and `poison` (extractor24 epistemic, hash-frozen). Not
+  changed: the plan's rule is the recorded live text, and extractor24 is frozen. **Design question**: declare both `prefix`
+  before the next live run (and re-freeze extractor24's hash), or let the next live run's inventory decide.
+- **Re-score with versions** (`node scripts/debug/so-live-suite.mts rescore`): 22 recorded fixtures re-scored under scorer v1
+  and v2 (`SCORER_VERSION` 2), 0 changed verdicts, 21 unrecorded listed; written as a new record
+  `test/goldens/live/rescore/scorer-v2.json` (the CLI refuses to overwrite a record); raw responses untouched. G2: complete,
+  0 unlisted.
+- Not built from this phase: G3–G10 (fixtures, compare, untouched proof, shipped blocks, fingerprints, compatibility rows).
+- Gates: `npm run gates:quick` green; `npm run test:debug` 1318/1318 before commit.
+- Full gates with the plan 69 items on the same branch: all green (plan 69 §Gate record 2026-10-16), Storybook 147/882.
