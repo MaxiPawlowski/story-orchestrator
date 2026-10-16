@@ -58,6 +58,12 @@ Each lease needs `need + reserve` free on both the GPU and host RAM (and commit)
 - `/status` `lastResidency` says what was decided and why: `decision`, `reason`, `textResident`, `needGpuMiB`,
   `needRamMiB`, `ramSource`, `reserves`, `readings` (before), `admittedReadings` (after a swap), `shortBy`. Each decision
   is also logged as `[story-orchestrator-gpu] lease <decision>: …`.
+- Host RAM short (physical or commit) is a retryable state, never a lowered reserve: the lease answers
+  `Image admission refused: … Host RAM is short for this image …`, `lastResidency.decision` is `ram-short`, and the
+  broker is free for text at once. The page retries that answer every 20 s within its 15-minute lease patience and
+  stops on cancel. For 10 minutes after a shortfall the broker remembers how much RAM unloading text freed, and refuses
+  straight away (text kept loaded) while the live reading plus that amount still falls short, so retries do not
+  unload and reload text each time.
 - Host RAM on Windows is `FreePhysicalMemory` (standby cache not counted), so readings and the measured row are both on
   the conservative side.
 

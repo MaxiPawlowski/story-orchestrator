@@ -493,3 +493,30 @@ test('a second image while one waits is told the GPU is owned, and a cancelled w
     assert.equal(scheduler.status().imageWaiting, false);
     gate.resolve(); await text;
 });
+
+test('host RAM short for an image is a retryable refusal that frees the broker for text and does not unload text again while RAM stays short', async () => {
+    let available = 9000, textModel = null;
+    const snapshot = async () => ({ ...free(textModel?.profile ? 3000 : 22000), host: { availableMiB: available, commitFreeMiB: 80000 } });
+    const { scheduler, calls, backend } = setup({ snapshot, freeImages: async ({ ramRequiredMiB }) => {
+        calls.push('free');
+        if (ramRequiredMiB && available + 1500 < ramRequiredMiB + 4096) throw new Error(`Image memory admission refused after GPU release. Insufficient physical RAM headroom. RAM available ${available + 1500} MiB; workload ${ramRequiredMiB} + reserve 4096 MiB.`);
+    } });
+    textModel = backend;
+    const first = await scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 17000, needRamMiB: 8139 }).catch((error) => error);
+    assert.match(first.message, /Host RAM is short/);
+    assert.equal(first.retryable, true);
+    assert.deepEqual(calls, ['unload', 'free']);
+    assert.equal(scheduler.status().phase, 'text');
+    assert.equal(scheduler.status().lastResidency.decision, 'ram-short');
+    await scheduler.text(async () => { calls.push('text'); });
+    assert.equal(calls.at(-1), 'text');
+    await scheduler.backend.load('fast');
+    calls.length = 0;
+    const again = await scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 17000, needRamMiB: 8139 }).catch((error) => error);
+    assert.match(again.message, /Host RAM is short/);
+    assert.deepEqual(calls, [], 'no second text unload while RAM is still short');
+    available = 14000;
+    const lease = await scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 17000, needRamMiB: 8139 });
+    assert.equal(lease.decision, 'swap-text');
+    await scheduler.release(lease.lease);
+});
