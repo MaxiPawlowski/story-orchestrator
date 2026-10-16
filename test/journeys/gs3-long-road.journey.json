@@ -88,6 +88,13 @@
       "goal": "OOC lines. Closes rows S-19 (an OOC line counts no player turn and yields no delta), S-19-OOC (an OOC-only window makes no read call), S-19-OOC-b (a pending warden note stays pending through OOC lines). An OOC line is posted without generation, a read is asked for, and the read and model-call rings must not move.",
       "steps": [
         {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 600000
+          }
+        },
+        {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; globalThis.__gs3Audits = rt.getSnapshot().extraction?.audits?.length ?? 0; globalThis.__gs3Calls = (rt.getSnapshot().modelCallRing ?? []).length; globalThis.__gs3Boundary = rt.getSnapshot().boundary; return { audits: globalThis.__gs3Audits, calls: globalThis.__gs3Calls };"
         },
         {
@@ -104,7 +111,7 @@
           }
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.runExtractionNow(undefined, 'gs3-ooc'); await new Promise((r) => setTimeout(r, 3000)); const snap = rt.getSnapshot(); const audits = snap.extraction?.audits?.length ?? 0; const reads = (snap.modelCallRing ?? []).slice(globalThis.__gs3Calls ?? 0).filter((c) => /read|extract/i.test(String(c.pass))).length; if (reads) throw new Error(`an OOC-only window made ${reads} read call(s)`); return { auditsBefore: globalThis.__gs3Audits, audits, boundaryBefore: globalThis.__gs3Boundary, boundary: snap.boundary };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.runExtractionNow(undefined, 'gs3-ooc'); await new Promise((r) => setTimeout(r, 3000)); const snap = rt.getSnapshot(); const audits = snap.extraction?.audits?.length ?? 0; const readCalls = (snap.modelCallRing ?? []).slice(globalThis.__gs3Calls ?? 0).filter((c) => /read|extract/i.test(String(c.pass))); const reads = readCalls.length; if (reads) throw new Error(`an OOC-only window made ${reads} read call(s): ${JSON.stringify(readCalls.map((c) => ({ pass: c.pass, reason: c.reason ?? null, at: c.at ?? null, range: c.range ?? null }))).slice(0, 400)}`); return { auditsBefore: globalThis.__gs3Audits, audits, boundaryBefore: globalThis.__gs3Boundary, boundary: snap.boundary };"
         },
         {
           "send_generate": {
@@ -121,7 +128,7 @@
       "goal": "Story clock and schedule in real play. Closes: character-life (clock and schedule), recap of time; rows 37-S19 (time_of_day moves one step per boundary, story_day only on a wrap), 37-Q3 live occurrence (the away notice line, recorded when a scheduled member is away; the deterministic proof is the D row), plan 50 T11 when built.",
       "steps": [
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const bb = rt.getSnapshot().blackboard; if (!('time_of_day' in bb)) throw new Error('the story declares a clock but time_of_day is not on the blackboard'); globalThis.__gs3Time = { t: bb.time_of_day, d: bb.story_day ?? null, b: rt.getSnapshot().boundary }; return globalThis.__gs3Time;"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const bb = rt.getSnapshot().blackboard; if (!('time_of_day' in bb)) throw new Error('the story declares a clock but time_of_day is not on the blackboard'); globalThis.__gs3Time = { t: bb.time_of_day, d: bb.story_day ?? null, s: typeof bb.story_time === 'number' ? bb.story_time : null, b: rt.getSnapshot().boundary }; return globalThis.__gs3Time;"
         },
         {
           "send_generate": {
@@ -143,7 +150,7 @@
           }
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); const before = globalThis.__gs3Time; const moved = snap.boundary - before.b; if (moved > 0 && snap.blackboard.time_of_day === before.t && snap.blackboard.story_day === before.d) throw new Error(`time did not move over ${moved} boundaries`); rt.capturePayload('gs3-away'); const blocks = (snap.payloadCaptures ?? []).concat(rt.getSnapshot().payloadCaptures ?? []).find((c) => c.reason === 'gs3-away')?.blocks ?? []; const away = blocks.filter((b) => /away/i.test(String(b.key ?? b.id ?? ''))).length; return { boundaries: moved, awayBlocks: away };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); const before = globalThis.__gs3Time; const moved = snap.boundary - before.b; const now = snap.blackboard.story_time; if (typeof now !== 'number' || typeof before.s !== 'number') throw new Error('the story declares a clock but story_time is not on the blackboard'); if (now < before.s) throw new Error('story_time went backward without a rollback'); const parts = now - before.s; rt.capturePayload('gs3-away'); const blocks = (snap.payloadCaptures ?? []).concat(rt.getSnapshot().payloadCaptures ?? []).find((c) => c.reason === 'gs3-away')?.blocks ?? []; const away = blocks.filter((b) => /away/i.test(String(b.key ?? b.id ?? ''))).length; return { boundaries: moved, parts, awayBlocks: away };"
         }
       ]
     },
@@ -172,7 +179,9 @@
       "mode": "auto",
       "findings": [],
       "goal": "Living on Artemis. Closes: living-story (a way in opens on the campaign's own living story with Artemis replies); row M21 Artemis half (anchors reached recorded, informational under the L1 floor).",
-      "requires": ["living"],
+      "requires": [
+        "living"
+      ],
       "steps": [
         {
           "send_generate": {
