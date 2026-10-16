@@ -15,7 +15,7 @@ export interface FocusSources {
 const escape = (text: string): string => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export const namesAny = (text: string, names: readonly string[]): boolean =>
-  names.map((name) => name.trim()).filter((name) => name.length > 1).some((name) => new RegExp(`(^|[^\\p{L}\\p{N}])${escape(name)}($|[^\\p{L}\\p{N}])`, "iu").test(text));
+  names.map((name) => name.trim()).filter(Boolean).some((name) => new RegExp(`(^|[^\\p{L}\\p{N}])${escape(name)}($|[^\\p{L}\\p{N}])`, "iu").test(text));
 
 export function focusCandidates(sources: FocusSources): FocusCandidate[] {
   const resting = sources.resting ?? ((text: string) => text);
