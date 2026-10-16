@@ -5,10 +5,8 @@ import {
   boardWidget, clockWidget, cluesWidget, factionRosterWidget, intentsWidget, mapWidget, provenanceRows, rosterWidget, sampleGame, sceneWidget, sceneWidgetEmpty, standingWidget, stillWidget, timelineWidget,
 } from "./gameViewFixtures";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
-import { composeGame } from "@runtime/widgets";
-import { StoryEngine } from "@engine/index";
-import { parseStoryV2OrThrow } from "@engine/validate";
-import { labRaw } from "../../../test/support/codexLab";
+import { sceneView } from "@runtime/sceneCard";
+import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 
 const meta: Meta<typeof WidgetCard> = {
   title: "Panels/WidgetCard",
@@ -192,15 +190,15 @@ export const SceneEmpty: Story = {
   },
 };
 
-const plantedScene = () => {
-  const story = parseStoryV2OrThrow(labRaw({ widgets: [{ id: "here", kind: "scene", title: "Here now" }] }));
-  const engine = new StoryEngine({ now: () => 0 });
-  engine.loadStory(story);
-  const game = composeGame({
-    story, state: engine.serialize(), boundaryLog: engine.stateLog, checks: [], threads: { open: [], resolved: [] }, chat: [], castNames: { tom: "Tom", ada: "Ada" },
-    enabled: ["tom", "ada"], location: "Kessel boathouse", portraits: { tom: "/characters/tom.png", ada: "/characters/ada.png" },
-  }).player;
-  return game.widgets.find((widget) => widget.body.kind === "scene") ?? sceneWidgetEmpty;
+const plantedScene = (): typeof sceneWidget => {
+  const story = {
+    roster: [{ id: "tom", name: "Tom" }, { id: "ada", name: "Ada" }],
+    codex: { people: [{ id: "ferryman", member: "tom", known_when: { q: "met_tom", op: "==", v: true }, facts: [] }], places: [] },
+  } as unknown as NormalizedStoryV2;
+  const state = { boundary: 0, blackboard: { values: {} } } as unknown as EngineState;
+  const view = sceneView({ story, state, boundaryLog: [], castNames: { tom: "Tom", ada: "Ada" }, enabled: ["tom", "ada"], location: "Kessel boathouse",
+    portraits: { tom: "/characters/tom.png", ada: "/characters/ada.png" } }, false);
+  return { ...sceneWidget, id: "here-planted", body: { kind: "scene", ...view } };
 };
 
 export const ScenePlantedUnknown: Story = {
