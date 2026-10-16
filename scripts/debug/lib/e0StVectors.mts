@@ -5,7 +5,7 @@ import { join } from 'node:path';
 export type VectorItem = { id: number; text: string };
 export type VectorAnswer = { status: number; json: unknown; ms: number };
 export type VectorPost = (path: string, body: Record<string, unknown>) => Promise<VectorAnswer>;
-export type InsertRecord = { collectionId: string; items: number; ms: number };
+export type InsertRecord = { collectionId: string; items: number; ms: number; reused: boolean };
 
 export const E0_COLLECTION_PREFIX = 'so-e0';
 export const HASH_OFFSET = 1;
@@ -32,12 +32,18 @@ export function createStVectorsProvider({ post, source = 'transformers', model, 
   const inserts: InsertRecord[] = [];
   const insert = async (collection: readonly VectorItem[]): Promise<string> => {
     const collectionId = `${prefix}-${sha(JSON.stringify(collection.map((item) => [item.id, item.text]))).slice(0, 20)}`;
+    const items = collection.map((item) => ({ hash: item.id + HASH_OFFSET, text: item.text, index: item.id }));
+    const listed = await post('/api/vector/list', { collectionId, source });
+    const saved = listed.status === 200 && Array.isArray(listed.json) ? new Set((listed.json as unknown[]).map(Number)) : new Set<number>();
+    if (saved.size === items.length && items.every((item) => saved.has(item.hash))) {
+      inserts.push({ collectionId, items: items.length, ms: 0, reused: true });
+      return collectionId;
+    }
     const purged = await post('/api/vector/purge', { collectionId });
     if (purged.status !== 200) throw new Error(`vector purge ${collectionId}: HTTP ${purged.status}`);
-    const items = collection.map((item) => ({ hash: item.id + HASH_OFFSET, text: item.text, index: item.id }));
     const done = await post('/api/vector/insert', { collectionId, source, items });
     if (done.status !== 200) throw new Error(`vector insert ${collectionId}: HTTP ${done.status}`);
-    inserts.push({ collectionId, items: items.length, ms: done.ms });
+    inserts.push({ collectionId, items: items.length, ms: done.ms, reused: false });
     return collectionId;
   };
   const collectionFor = (collection: readonly VectorItem[]) => {
@@ -67,10 +73,11 @@ export function createStVectorsProvider({ post, source = 'transformers', model, 
   };
 }
 
-export function insertSummary(inserts: readonly InsertRecord[]) {
+export function insertSummary(all: readonly InsertRecord[]) {
+  const inserts = all.filter((row) => !row.reused);
   const sorted = inserts.map((row) => row.ms).sort((left, right) => left - right);
   const at = (q: number) => (sorted.length ? sorted[Math.min(sorted.length - 1, Math.ceil(q * sorted.length) - 1)] : null);
-  return { collections: inserts.length, items: inserts.reduce((sum, row) => sum + row.items, 0), insertMsTotal: inserts.reduce((sum, row) => sum + row.ms, 0), insertMsP50: at(0.5), insertMsP95: at(0.95) };
+  return { reused: all.length - inserts.length, collections: inserts.length, items: inserts.reduce((sum, row) => sum + row.items, 0), insertMsTotal: inserts.reduce((sum, row) => sum + row.ms, 0), insertMsP50: at(0.5), insertMsP95: at(0.95) };
 }
 
 type PageLike = { evaluate: (fn: (arg: { path: string; body: Record<string, unknown> }) => Promise<VectorAnswer>, arg: { path: string; body: Record<string, unknown> }) => Promise<VectorAnswer> };
@@ -79,6 +86,6 @@ export const pageVectorPost = (page: PageLike): VectorPost => (path, body) => pa
   const headers = (globalThis as unknown as { SillyTavern: { getContext(): { getRequestHeaders(): Record<string, string> } } }).SillyTavern.getContext().getRequestHeaders();
   const started = performance.now();
   const response = await fetch(target, { method: 'POST', headers, body: JSON.stringify(payload) });
-  const json = target.endsWith('/query') && response.ok ? await response.json() : null;
+  const json = (target.endsWith('/query') || target.endsWith('/list')) && response.ok ? await response.json() : null;
   return { status: response.status, json, ms: performance.now() - started };
 }, { path, body });

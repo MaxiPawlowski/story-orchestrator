@@ -17,6 +17,7 @@ const fakeVectors = () => {
     const id = String(body.collectionId);
     if (path.endsWith('/purge')) stores.delete(id);
     if (path.endsWith('/insert')) stores.set(id, body.items as Array<{ hash: number; text: string }>);
+    if (path.endsWith('/list')) return { status: 200, json: (stores.get(id) ?? []).map((item) => item.hash), ms: 1 };
     if (!path.endsWith('/query')) return { status: 200, json: null, ms: 5 };
     const items = [...(stores.get(id) ?? [])].sort((left, right) => right.hash - left.hash).slice(0, Number(body.topK));
     const threshold = Number(body.threshold);
@@ -33,8 +34,18 @@ test('st-vectors provider: one purge + insert per collection, hash offset round 
   const collection = Array.from({ length: 10 }, (_, id) => ({ id, text: `line ${id}` }));
   assert.deepEqual(await provider.query(collection, 'q', 8, 0), { ids: [9, 8, 7, 6, 5, 4, 3, 2], latencyMs: 12.5 });
   assert.deepEqual((await provider.query(collection, 'q', 8, 0.82)).ids, [7, 3]);
-  assert.deepEqual(log, ['/api/vector/purge', '/api/vector/insert', '/api/vector/query', '/api/vector/query']);
-  assert.deepEqual(insertSummary(provider.inserts()), { collections: 1, items: 10, insertMsTotal: 5, insertMsP50: 5, insertMsP95: 5 });
+  assert.deepEqual(log, ['/api/vector/list', '/api/vector/purge', '/api/vector/insert', '/api/vector/query', '/api/vector/query']);
+  assert.deepEqual(insertSummary(provider.inserts()), { reused: 0, collections: 1, items: 10, insertMsTotal: 5, insertMsP50: 5, insertMsP95: 5 });
+  const resumed = createStVectorsProvider({ post, model: 'Xenova/test' });
+  log.length = 0;
+  assert.deepEqual((await resumed.query(collection, 'q', 8, 0)).ids, [9, 8, 7, 6, 5, 4, 3, 2]);
+  assert.deepEqual(log, ['/api/vector/list', '/api/vector/query']);
+  assert.deepEqual(insertSummary(resumed.inserts()), { reused: 1, collections: 0, items: 0, insertMsTotal: 0, insertMsP50: null, insertMsP95: null });
+  const changed = createStVectorsProvider({ post, model: 'Xenova/test' });
+  stores.set([...stores.keys()][0], stores.get([...stores.keys()][0])!.slice(0, 9));
+  log.length = 0;
+  await changed.query(collection, 'q', 8, 0);
+  assert.deepEqual(log, ['/api/vector/list', '/api/vector/purge', '/api/vector/insert', '/api/vector/query']);
   assert.equal(await provider.purgeAll(), 1);
   assert.equal(stores.size, 0);
 });
