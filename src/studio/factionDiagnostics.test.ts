@@ -25,6 +25,13 @@ describe("v2.8 plan 53: faction diagnostics and the wizard tool", () => {
     expect(codes(draft({ transitions: [{ from: "start", to: "start", gate: { q: "rep_guild", op: ">=", v: 2 }, priority: 1 }] }))).not.toContain("undeclared-quality");
   });
 
+  it("a draft faction that leaves out range and start is diagnosed with the parser's defaults, not a crash", () => {
+    const { range: _range, start: _start, ...bare } = draft().factions![0];
+    const story = draft({ factions: [bare as NonNullable<StoryV2["factions"]>[number]] });
+    expect(() => runDiagnostics(story)).not.toThrow();
+    expect(codes(story)).toContain("faction-never-moves");
+  });
+
   it("setFactions refuses a punitive move and an unknown member faction; setCharacterLife carries membership", () => {
     const refused = readGameCall("setFactions", { factions: [{ id: "guild", name: "G", bands: [{ max: 0, label: "Cold" }, { label: "Warm" }], moves: [{ id: "m", when: { not: { q: "helped", op: "==", v: true } }, add: -2 }] }] });
     expect(refused.ok).toBe(true);
