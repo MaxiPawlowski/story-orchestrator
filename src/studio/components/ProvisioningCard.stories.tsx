@@ -199,6 +199,6 @@ export const LoreKeyPreview: Story = {
     await expect(canvas.getByText("Key matches these draft texts: objective of The Quay.")).toBeVisible();
     await expect(canvas.getByText(/May not fire: only on quiet generations; gated: on only from The Vault\./)).toBeVisible();
     await expect(canvas.getByRole("list", { name: "Key lint" })).toHaveTextContent("under 3 characters");
-    await expect(canvasElement.textContent ?? "").not.toMatch(/fires on/i);
+    await expect(canvasElement.querySelector('[data-so="lore-preview"]')?.textContent ?? "").not.toMatch(/fires/i);
   },
 };
