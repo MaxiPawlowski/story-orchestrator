@@ -16,3 +16,10 @@ test("a superseded look and an overdue text queue cannot start an edit", async (
   controller.abort();
   await expect(waitForTextPriority(deps)).rejects.toThrow();
 });
+
+test("a broker that schedules images fairly gets the request at once: it gives queued text its window and then the image its own", async () => {
+  let time = 0;
+  const sleep = jest.fn(async () => { time += 500; });
+  await waitForTextPriority({ status: async () => ({ activeText: 1, waitingText: 4, fairImages: true }), current: () => true, now: () => time, sleep, signal: new AbortController().signal });
+  expect(sleep).not.toHaveBeenCalled();
+});

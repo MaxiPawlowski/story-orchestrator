@@ -24,10 +24,12 @@ export class ResidencyScheduler {
         this.lastCacheMode = null;
         this.reloadFailures = 0;
         this.reloadRetryAt = null;
+        this.servedText = 0;
+        this.imageQueued = null;
     }
 
     async keepResident(now = Date.now()) {
-        if (this.config.keepTextResident === false || this.restoring || this.lease || this.imagePending || this.activeText || this.manualHold || this.pending.length) return;
+        if (this.config.keepTextResident === false || this.restoring || this.lease || this.imagePending || this.imageQueued || this.activeText || this.manualHold || this.pending.length) return;
         const state = this.backend.status();
         if (state.pid || state.loading) return;
         if (this.lastLeaseAt && now - this.lastLeaseAt < (this.config.textReloadGraceMs ?? 5000)) return;
@@ -64,7 +66,7 @@ export class ResidencyScheduler {
     cleanup(entry) { clearTimeout(entry.timer); entry.signal?.removeEventListener('abort', entry.abort); }
 
     async pump() {
-        if (this.activeText || this.imagePending || this.lease || this.manualHold || this.restoring) return;
+        if (this.activeText || this.imagePending || this.lease || this.manualHold || this.restoring || (this.imageQueued && this.imageTurn())) return;
         const entry = this.pending.shift();
         if (!entry) return;
         this.cleanup(entry);
@@ -79,7 +81,7 @@ export class ResidencyScheduler {
             entry.resolve(await entry.run());
         }
         catch (error) { this.lastError = error.message; entry.reject(error); }
-        finally { this.activeText = false; void this.pump(); }
+        finally { this.activeText = false; this.servedText += 1; void this.pump(); }
     }
 
     async needFor(body, key) {
@@ -97,11 +99,24 @@ export class ResidencyScheduler {
         return Math.ceil(this.config.defaultImageMiB ?? 12000);
     }
 
+    imageTurn() {
+        const queued = this.imageQueued;
+        if (!queued) return true;
+        return this.servedText - queued.served >= (this.config.imageFairTextRequests ?? 3) || Date.now() - queued.at >= (this.config.imageFairWaitMs ?? 45000);
+    }
+
     async reserve(body = {}) {
-        if (this.lease || this.imagePending) throw new Error('An image batch already owns the local GPU.');
+        if (this.lease || this.imagePending || this.imageQueued) throw new Error('An image batch already owns the local GPU.');
+        const deadline = Date.now() + this.config.queueTimeoutMs;
+        this.imageQueued = { at: Date.now(), served: this.servedText };
+        try {
+            while (this.restoring || ((this.activeText || (this.pending.length && !this.manualHold)) && !this.imageTurn())) {
+                if (Date.now() > deadline) throw new Error('The text generation did not finish before the image deadline.');
+                await new Promise((resolve) => setTimeout(resolve, 25));
+            }
+        } finally { this.imageQueued = null; }
         this.imagePending = true;
         try {
-            const deadline = Date.now() + this.config.queueTimeoutMs;
             while (this.activeText || this.restoring) {
                 if (Date.now() > deadline) throw new Error('The text generation did not finish before the image deadline.');
                 await new Promise((resolve) => setTimeout(resolve, 100));
@@ -311,7 +326,7 @@ export class ResidencyScheduler {
     async restoreIfIdle() {
         const idleMs = this.config.idleRestoreMs ?? 0;
         if (!idleMs || this.restoring) return;
-        if (this.lease || this.imagePending || this.activeText || this.manualHold || this.pending.length) return;
+        if (this.lease || this.imagePending || this.imageQueued || this.activeText || this.manualHold || this.pending.length) return;
         if (this.backend.status().fitTargetMiB === null) return;
         if (!this.lastLeaseAt || Date.now() - this.lastLeaseAt < idleMs) return;
         this.restoring = true;
@@ -333,7 +348,7 @@ export class ResidencyScheduler {
     }
 
     async exclusive(run) {
-        if (this.activeText || this.lease || this.imagePending || this.restoring) throw new Error('Wait for the active work before changing text residency.');
+        if (this.activeText || this.lease || this.imagePending || this.imageQueued || this.restoring) throw new Error('Wait for the active work before changing text residency.');
         this.restoring = true;
         try { return await run(); }
         finally { this.restoring = false; void this.pump(); }
@@ -368,6 +383,7 @@ export class ResidencyScheduler {
     status() {
         return { phase: this.imagePending ? 'reserving' : this.lease ? 'image' : this.restoring ? 'restoring' : this.manualHold ? 'manual-hold' : 'text',
             activeText: this.activeText ? 1 : 0, waitingText: this.pending.length, imageLease: Boolean(this.lease),
+            imageWaiting: Boolean(this.imageQueued), servedText: this.servedText, fairImages: true,
             text: this.backend.status(), objective: this.config.residencyObjective ?? 'total-wait', timings: this.timings, lastTextDecision: this.lastTextDecision,
             lastDecision: this.lastDecision, lastResidency: this.lastResidency, lastNeedGpuMiB: this.lastNeedGpuMiB, measurement: this.lastMeasurement ? { ...this.lastMeasurement, trace: undefined } : null,
             lastError: this.lastError };
