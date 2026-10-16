@@ -47,25 +47,43 @@ const triggeredFor = (entry: HostScannableEntry, trigger: string | null | undefi
 export const excludedByTrigger = (entry: HostScannableEntry, trigger: string | null | undefined): boolean =>
   typeof trigger === "string" && filled(entry.triggers) && !triggeredFor(entry, trigger);
 
-const certain = (entry: HostScannableEntry, buffer: ScanBufferView): boolean => {
-  if (entry.disable === true || entry.constant === true) return false;
-  if (entry.useProbability !== false && typeof entry.probability === "number" && entry.probability < 100) return false;
-  if (filled(entry.group) || !triggeredFor(entry, buffer.trigger) || entry.delayUntilRecursion) return false;
-  const filter = entry.characterFilter as { names?: unknown; tags?: unknown } | undefined;
-  if (filter && (filled(filter.names) || filled(filter.tags))) return false;
-  if (positive(entry.delay) || positive(entry.cooldown)) return false;
-  if (typeof entry.content === "string" && entry.content.trimStart().startsWith("@@")) return false;
-  return true;
-};
+const LOGIC_NAMES: Record<number, string> = { [NOT_ALL]: "not-all", [NOT_ANY]: "not-any" };
 
-export function keywordWillActivate(entry: HostScannableEntry, buffer: ScanBufferView): boolean {
-  if (!certain(entry, buffer)) return false;
+export function activationUncertainty(entry: HostScannableEntry, buffer: Pick<ScanBufferView, "depth" | "trigger" | "injected">): string[] {
+  const reasons: string[] = [];
+  if (entry.disable === true) reasons.push("switched off");
+  if (entry.constant === true) reasons.push("always in context, so its keys are never checked");
+  if (entry.useProbability !== false && typeof entry.probability === "number" && entry.probability < 100) reasons.push(`probability ${entry.probability}`);
+  if (filled(entry.group)) reasons.push(`inclusion group ${String(entry.group)}`);
+  if (!triggeredFor(entry, buffer.trigger)) reasons.push(`only on ${keysOf(entry.triggers).join(", ")} generations`);
+  if (entry.delayUntilRecursion) reasons.push("only on recursion");
+  const filter = entry.characterFilter as { names?: unknown; tags?: unknown } | undefined;
+  if (filter && (filled(filter.names) || filled(filter.tags))) reasons.push("only for some characters");
+  if (positive(entry.delay)) reasons.push(`delayed until message ${String(entry.delay)}`);
+  if (positive(entry.cooldown)) reasons.push(`cooldown ${String(entry.cooldown)}`);
+  if (typeof entry.content === "string" && entry.content.trimStart().startsWith("@@")) reasons.push("content starts with an @@ decorator");
   const primary = keysOf(entry.key);
   const selective = entry.selective === true && keysOf(entry.keysecondary).length > 0;
   const secondary = selective ? keysOf(entry.keysecondary) : [];
-  if (!primary.length || [...primary, ...secondary].some((key) => key.includes("{{"))) return false;
+  if (!primary.length) reasons.push("no keywords");
+  if ([...primary, ...secondary].some((key) => key.includes("{{"))) reasons.push("a key holds a macro");
   const depth = Math.min(typeof entry.scanDepth === "number" ? entry.scanDepth : buffer.depth, MAX_SCAN_DEPTH);
-  if (!(depth > 0)) return false;
+  if (!(depth > 0)) reasons.push("scan depth 0 matches nothing");
+  if (!selective) return reasons;
+  const logic = typeof entry.selectiveLogic === "number" ? entry.selectiveLogic : AND_ANY;
+  if ((logic === NOT_ALL || logic === NOT_ANY) && (buffer.injected !== false || MATCH_SOURCES.some((source) => entry[source] === true))) {
+    reasons.push(`${LOGIC_NAMES[logic]} depends on every text SillyTavern scans, not only the chat`);
+  }
+  if (![AND_ANY, NOT_ALL, NOT_ANY, AND_ALL].includes(logic)) reasons.push(`unknown secondary logic ${logic}`);
+  return reasons;
+}
+
+export function keywordWillActivate(entry: HostScannableEntry, buffer: ScanBufferView): boolean {
+  if (activationUncertainty(entry, buffer).length) return false;
+  const primary = keysOf(entry.key);
+  const selective = entry.selective === true && keysOf(entry.keysecondary).length > 0;
+  const secondary = selective ? keysOf(entry.keysecondary) : [];
+  const depth = Math.min(typeof entry.scanDepth === "number" ? entry.scanDepth : buffer.depth, MAX_SCAN_DEPTH);
   const haystack = MATCHER + buffer.messages.slice(0, depth).join(`\n${MATCHER}`);
   const options = {
     caseSensitive: typeof entry.caseSensitive === "boolean" ? entry.caseSensitive : buffer.caseSensitive,
@@ -75,7 +93,6 @@ export function keywordWillActivate(entry: HostScannableEntry, buffer: ScanBuffe
   if (!selective) return true;
   const hits = secondary.map((key) => matchKey(haystack, key, options));
   const logic = typeof entry.selectiveLogic === "number" ? entry.selectiveLogic : AND_ANY;
-  if ((logic === NOT_ALL || logic === NOT_ANY) && (buffer.injected !== false || MATCH_SOURCES.some((source) => entry[source] === true))) return false;
   if (logic === AND_ANY) return hits.some(Boolean);
   if (logic === NOT_ALL) return hits.some((hit) => !hit);
   if (logic === NOT_ANY) return hits.every((hit) => !hit);

@@ -64,7 +64,7 @@ export { mountStoryWand, type WandEntry, type WandHandle } from "@services/stHos
 export type { ChatOwner, ChatPresence } from "@services/stHost/chatFiles";
 export { applyBackground, backgroundExists, getCurrentBackground, listBackgrounds } from "@services/stHost/backgrounds";
 export type { CurrentBackground } from "@services/stHost/backgrounds";
-export { createCharacterCard, createGroup, listGroupCasts, listGroupNames } from "@services/stHost/provisioning";
+export { createCharacterCard, createGroup, listGroupCasts, listGroupNames, readBackCharacterCard } from "@services/stHost/provisioning";
 export type { CharacterCardInput } from "@services/stHost/provisioning";
 export {
   listActiveWorldInfoComments,

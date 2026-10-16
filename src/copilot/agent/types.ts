@@ -1,4 +1,5 @@
 import type { ProposalBase } from "./staleProposal";
+import type { CardReadBackRecord } from "@utils/cardReadBack";
 import type { Chapter, RosterView, StoryPlayer } from "@engine/index";
 import type { ProposalOp } from "../types";
 import type { PoseAgentOp } from "./poseOps";
@@ -31,7 +32,7 @@ export interface AgentToolCall {
   argsError?: string;
 }
 
-export type AgentStepStatus = "observed" | "pending" | "accepted" | "rejected" | "applied" | "failed" | "refused";
+export type AgentStepStatus = "observed" | "review" | "replaced" | "pending" | "accepted" | "rejected" | "applied" | "failed" | "refused";
 
 export interface AgentStep {
   id: number;
@@ -46,6 +47,9 @@ export interface AgentStep {
   observation: string;
   reason?: string;
   check?: string;
+  replaces?: number;
+  notes?: string[];
+  readBack?: CardReadBackRecord;
   firstTryValid: boolean;
   repaired: boolean;
 }

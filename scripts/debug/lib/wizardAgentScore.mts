@@ -93,3 +93,21 @@ export function scoreRecipeTask(task: RecipeTask, result: { session: { status: s
   const diagnosticsOk = !diagnostics || (diagnostics.verified && !diagnostics.found.length);
   return { readRecipe, missing, finished, validationErrors: result.validationErrors, ...(diagnostics ? { diagnostics } : {}), pass: readRecipe && !missing.length && finished && result.validationErrors === 0 && diagnosticsOk };
 }
+
+export interface CardRevisionStep {
+  id: number;
+  status: string;
+  call: { tool: string };
+  notes?: string[];
+  replaces?: number;
+}
+
+export function scoreCardRevision(task: { id: string; plants: string }, steps: CardRevisionStep[]) {
+  const first = steps.find((step) => step.call.tool === 'createCharacterCard' && step.status !== 'refused');
+  const flagged = first && first.replaces === undefined ? first.notes ?? [] : [];
+  if (!first || !flagged.length) return { id: task.id, plants: task.plants, seeded: false, plantedFlagged: false, revised: false, cleared: false, pass: false, flagged, left: flagged };
+  const replacement = steps.find((step) => step.replaces === first.id);
+  const left = replacement ? flagged.filter((id) => (replacement.notes ?? []).includes(id)) : flagged;
+  const cleared = Boolean(replacement) && left.length === 0;
+  return { id: task.id, plants: task.plants, seeded: true, plantedFlagged: flagged.includes(task.plants), revised: Boolean(replacement), cleared, pass: cleared, flagged, left };
+}

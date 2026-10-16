@@ -4,7 +4,7 @@ import type { AgentOp, AgentSession } from "./types";
 
 const greetings = (session: AgentSession): string[] => session.steps.flatMap((step) => {
   const op = step.op;
-  const kept = step.family === "provision" && step.status !== "rejected" && step.status !== "refused";
+  const kept = step.family === "provision" && step.status !== "rejected" && step.status !== "refused" && step.status !== "replaced";
   return kept && op?.kind === "createCharacterCard" && op.first_mes ? [op.first_mes] : [];
 });
 

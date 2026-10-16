@@ -142,7 +142,7 @@ describe("agent loop (v2.6 plan 11 A2)", () => {
   });
 
   it("confirms a provisioning step only through the install's outcome", async () => {
-    const { route } = scriptedRoute([{ tool: "createCharacterCard", args: { name: "Mara", description: "A harbour clerk." } }]);
+    const { route } = scriptedRoute([{ tool: "createCharacterCard", args: { name: "Mara", description: "A harbour clerk who counts every crate twice. When a captain lies to her, she smiles, writes the lie down in the margin of the ledger, and charges the ship double at the next tide." } }]);
     const step = await advanceAgent(running("auto-draft"), agentContext(story()), route, AT);
     expect(step.apply).toBeNull();
     expect(pendingStep(step.session)).toMatchObject({ family: "provision", status: "pending" });

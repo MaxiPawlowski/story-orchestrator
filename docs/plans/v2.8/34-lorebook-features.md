@@ -164,3 +164,50 @@ Source: `review-astra-harvest-2026-10-16.md` §2 (66), §1 (fold advice). Verifi
 - **Preview sophistication can wait.** Adopted (decision 3).
 - **Fold 66 → 09 + 34.** Adopted; `66-authoring-quality-cards-and-lore.md` is a pointer.
 - Rebutted: none.
+
+## Gate record — Harvest phase 2026-10-16 (branch `v2.8-harvest-09-34`, worktree `../so-h0934`, from master `d1f9ede2`)
+
+Owner decisions 2026-10-16 (`61-harvest-triage-2026-10-14.md`): all three recommended options taken (preview labelled
+"key matches these draft texts" with reasons, never "fires on"; guidance as a guide topic + prompt rule; built after 09's
+card checks and read-back).
+
+- **Design 1, preview: built.** `src/copilot/lorePreview.ts` `previewKeyMatches(entry, texts, gated)` over `matchKey`; draft
+  texts = story description, checkpoint objectives, briefing sections, and the descriptions and first messages of the cards
+  among the wizard's own provisioning ops (`draftLoreTexts`, `opCards`). Uncertainty reasons come from
+  `activationUncertainty` (`src/runtime/loreKeyMatch.ts`), now the one source `keywordWillActivate` also uses (refactor,
+  behaviour unchanged: the 63 existing loreKeyMatch/loreSelect tests pass unchanged), plus "gated: on only from <checkpoint
+  names>" from the draft's `world_info.enable`. Card lines: "Key matches these draft texts: …" / "No draft text contains any
+  key." / "May not fire: …" (`ProvisioningCard` `LorePreview`, shown when the card has a `context`: Agent wizard and staged
+  proposal review).
+- **Design 2, key lint: built**, warnings only (`loreKeyLint`): a non-regex key under 3 characters; a primary key shared by
+  more than 2 entries in the book (siblings = the wizard's own entry ops for that book; the host book is not read, stated
+  as a limit); an `and-any` secondary key equal to a primary or sharing its first 5 letters (both at least 5 long), "it
+  narrows nothing"; sticky on an always-in-context entry (the wizard op cannot set sticky, so this row fires only for host
+  entry shapes).
+- **Design 3, per-kind guidance: built.** Guide topic `lore-content` (story guide, compact twin, Studio World tab, Lore and
+  memory page), `LORE_CONTENT_RULE` in the staged provisioning grammar and the agent rules, `lore-entries` gains "On the
+  wizard's card", `st-lorebook-authoring` `references/patterns.md` §14. `npm run docs:guide && npm run docs:settings`: 32 pages.
+- **A3: 20/20 (floor 20/20, met).** `src/copilot/lorePreview.test.ts`: 20 fixture entries; every listed text equals
+  `matchKey` over the same texts and the expected labels; 12 uncertain entries each carry a reason and
+  `keywordWillActivate` is false for them; 8 certain entries carry none (and activate where a key matches); no card line
+  contains "fire".
+- **A3a: recorded, 0 "fires" claims (met).** No-model lane 65, `test/scenarios/v28-34-a3a-preview-activation.json`, the six
+  entries of `test/fixtures/lore-preview-a3a.json` (+ a group rival), 20 real ST scans per run through `getWorldInfoPrompt`,
+  activations read from `WORLD_INFO_ACTIVATED`. Preview reasons for the same entries (jest, parity with the scenario's
+  entries asserted): certain none; probability "probability 40"; gated "gated: on only from The Vault"; secondary NOT
+  "not-any depends on every text SillyTavern scans"; group "inclusion group so-a3a"; scan depth 0 "scan depth 0 matches
+  nothing". ST, per run of 20 (counted runs on the private copy `C:\dev\st-live-h0934`, served bundle `60a064dd1a39`, source
+  `7a25a7c47e98` before and after each run):
+  - run 1: certain 20, probability 8, gated 0 (fires at The Vault after `/cp activate vault`), secondary NOT 20, group 9 +
+    rival 11 (exactly one per scan), scan depth 0 0;
+  - run 2: certain 20, probability 5, gated 0 (fires at The Vault), secondary NOT 20, group 12 + rival 8, scan depth 0 0.
+  - Two earlier runs on the shared `C:\dev\st-live` (11/9 probability, same pattern) are not counted: that copy's dist was
+    overwritten by other agents during the session.
+  - Evidence `C:\dev\so-live-lanes\65\debug\runs\2026-10-16T19-40-32-380Z-so-scenario-run`, `…19-41-03-052Z…`.
+- **A4: 4/4 and 0/10 (met).** Planted short key, shared key (3 entries), secondary repeat (prefix and exact), sticky on
+  constant each flagged alone; 10 clean entries read as one book: 0. A NOT secondary repeating a primary and regex keys are
+  never lint.
+- **A7: not run, owed (CL).** Needs a measurement arm with `LORE_CONTENT_RULE` off and a blind two-rater scoring run (no
+  harness command or rubric fixture exists yet); nothing model-facing was tuned against it.
+- Storybook: `ProvisioningCard` `LoreKeyPreview` play (match line, reasons, lint, no "fires" in the preview).
+- Gates and commits: see `09-wizard-assistant.md` §Gate record (2026-10-16, harvest phase), same branch: final `npm run gates -- --jobs=1 --no-storybook` green on `1dfdcc5f`, Storybook 147 suites / 886 tests green.
