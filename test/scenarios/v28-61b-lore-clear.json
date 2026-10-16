@@ -1,0 +1,45 @@
+{
+  "_note": "v2.8 61b (f734defe, no-model lane): the wizard provisioning write path on a real book: secondary keys, outlet and triggers set, kept by a step that leaves them out, cleared by a step that names them empty.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "judge": "off"
+  },
+  "steps": [
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": "settings",
+        "value": {
+          "image": {
+            "enabled": false
+          },
+          "sprites": {
+            "enabled": false
+          }
+        }
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const s = rt.getGlobalSettings(); if (s.image.enabled || s.sprites.enabled) throw new Error('media must be off'); const created = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: 'SO-V28-61B Lore Clear' }, { requirements: { lorebooks: [] } }); if (!created.ok) throw new Error('fixture book create failed: ' + created.message); return { bookCreated: true };"
+    },
+    {
+      "log": true,
+      "eval": "const read = async () => { const ctx = SillyTavern.getContext(); const r = await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-V28-61B Lore Clear' }), cache: 'no-cache' }); if (!r.ok) throw new Error('book read failed: ' + r.status); return Object.values((await r.json()).entries ?? {}).find((e) => e.comment === 'Harbour gate'); }; const rt = globalThis.storyOrchestratorRuntime; const r = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-V28-61B Lore Clear', comment: 'Harbour gate', keys: ['harbour gate'], content: 'The harbour gate is iron and old.', secondaryKeys: ['storm'], logic: 'and-all', outlet: 'map', triggers: ['normal'] }, { requirements: { lorebooks: ['SO-V28-61B Lore Clear'] } }); if (!r.ok) throw new Error('first upsert refused: ' + r.message); const e = await read(); if (!e) throw new Error('entry missing'); if (JSON.stringify(e.keysecondary) !== JSON.stringify(['storm']) || e.outletName !== 'map' || JSON.stringify(e.triggers) !== JSON.stringify(['normal'])) throw new Error('shaped fields not written: ' + JSON.stringify({ k: e.keysecondary, o: e.outletName, p: e.position, t: e.triggers })); globalThis.__l61b = { outletPosition: e.position }; return { keysecondary: e.keysecondary, outletName: e.outletName, position: e.position, triggers: e.triggers };"
+    },
+    {
+      "log": true,
+      "eval": "const read = async () => { const ctx = SillyTavern.getContext(); const r = await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-V28-61B Lore Clear' }), cache: 'no-cache' }); if (!r.ok) throw new Error('book read failed: ' + r.status); return Object.values((await r.json()).entries ?? {}).find((e) => e.comment === 'Harbour gate'); }; const rt = globalThis.storyOrchestratorRuntime; const r = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-V28-61B Lore Clear', comment: 'Harbour gate', keys: ['harbour gate'], content: 'The harbour gate is iron and old.', content: 'The harbour gate is iron, old and freshly painted.' }, { requirements: { lorebooks: ['SO-V28-61B Lore Clear'] } }); if (!r.ok) throw new Error('omitting upsert refused: ' + r.message); const e = await read(); if (!e.content.includes('freshly painted')) throw new Error('content not updated'); if (JSON.stringify(e.keysecondary) !== JSON.stringify(['storm']) || e.outletName !== 'map' || JSON.stringify(e.triggers) !== JSON.stringify(['normal']) || e.position !== globalThis.__l61b.outletPosition) throw new Error('a step that left the fields out changed them: ' + JSON.stringify({ k: e.keysecondary, o: e.outletName, p: e.position, t: e.triggers })); return { kept: true };"
+    },
+    {
+      "log": true,
+      "eval": "const read = async () => { const ctx = SillyTavern.getContext(); const r = await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-V28-61B Lore Clear' }), cache: 'no-cache' }); if (!r.ok) throw new Error('book read failed: ' + r.status); return Object.values((await r.json()).entries ?? {}).find((e) => e.comment === 'Harbour gate'); }; const rt = globalThis.storyOrchestratorRuntime; const r = await rt.applyProvisioning({ kind: 'upsertLorebookEntry', lorebook: 'SO-V28-61B Lore Clear', comment: 'Harbour gate', keys: ['harbour gate'], content: 'The harbour gate is iron and old.', secondaryKeys: [], outlet: '', triggers: [] }, { requirements: { lorebooks: ['SO-V28-61B Lore Clear'] } }); if (!r.ok) throw new Error('clearing upsert refused: ' + r.message); const e = await read(); if ((e.keysecondary ?? []).length || e.outletName || (e.triggers ?? []).length || e.position === globalThis.__l61b.outletPosition) throw new Error('a step naming the fields empty did not clear them: ' + JSON.stringify({ k: e.keysecondary, o: e.outletName, p: e.position, t: e.triggers })); return { cleared: { keysecondary: e.keysecondary, outletName: e.outletName, position: e.position, triggers: e.triggers } };"
+    },
+    {
+      "assets": {
+        "action": "remove",
+        "marker": "SO-V28-61B Lore"
+      }
+    }
+  ]
+}

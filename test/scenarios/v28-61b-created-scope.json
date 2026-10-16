@@ -1,0 +1,180 @@
+{
+  "_note": "v2.8 61b (3e77c79f, no-model lane, plumbing): two chats play one story with one curator book; the entry the curator created in chat A (stamped) scans only in chat A, on the story route and on a global selection, while a plain entry of the same book scans in both.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off",
+    "authorView": true
+  },
+  "steps": [
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": "settings",
+        "value": {
+          "image": {
+            "enabled": false
+          },
+          "sprites": {
+            "enabled": false
+          },
+          "extraction": {
+            "cadence": 0
+          },
+          "stagecraft": {
+            "curatorEnabled": false,
+            "wardenEnabled": false,
+            "livingEnabled": false,
+            "branchingEnabled": false,
+            "prefetchEnabled": false,
+            "createEnabled": true,
+            "createRequireMeasured": false,
+            "acceptMode": "review"
+          }
+        }
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const s = rt.getGlobalSettings(); if (s.image.enabled || s.sprites.enabled) throw new Error('media must be off'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; globalThis.__s61b = { book: 'SO-V28-61B Scope Lore', sleep: (ms) => new Promise((r) => setTimeout(r, ms)), read: async () => { const ctx = SillyTavern.getContext(); const response = await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-V28-61B Scope Lore' }), cache: 'no-cache' }); if (!response.ok) throw new Error('book read failed: ' + response.status); return Object.values((await response.json()).entries ?? {}); } }; const created = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: globalThis.__s61b.book }, { requirements: { lorebooks: [] } }); if (!created.ok) throw new Error('fixture book create failed: ' + created.message); return { mediaOff: true, bookCreated: true };"
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const r = await ctx.executeSlashCommandsWithOptions('/createentry file=\"SO-V28-61B Scope Lore\" key=\"brass bell\" The brass bell hangs over the gate and only rings for weddings.'); if (r?.isError) throw new Error('control entry not created: ' + r.pipe); return { control: true };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v28-61b-scope",
+        "title": "SO-V28-61B Scope",
+        "description": "Synthetic curator creation coverage.",
+        "qualities": [],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "Test square",
+            "type": "anchor",
+            "start": true,
+            "objective": "Read the public notice."
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "DM Narrator"
+          ],
+          "lorebooks": [
+            "SO-V28-61B Scope Lore"
+          ]
+        },
+        "stagecraft": {
+          "lorebooks": [
+            "SO-V28-61B Scope Lore"
+          ],
+          "createCap": 4
+        }
+      }
+    },
+    {
+      "send": "The copper beacon stands in the square. The copper beacon rings at noon."
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false The two public facts are confirmed."
+    },
+    {
+      "extract": {
+        "debugResponse": "FACT importance=2 text=\"The copper beacon stands in the square.\" evidence=\"The copper beacon stands in the square.\"\nFACT importance=2 text=\"The copper beacon rings at noon.\" evidence=\"The copper beacon rings at noon.\""
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const b = globalThis.__s61b; if (rt.getExtractionFacts().filter((f) => f.text.includes('copper beacon')).length < 2) throw new Error('two established facts missing'); rt.setStagecraftSettings({ curatorEnabled: true }); const out = await rt.runLoreCreatePass('s61b-create', '[create] SO-V28-61B Scope Lore || Copper beacon || copper beacon || The copper beacon stands in the square and rings at noon.'); const op = out.record?.ops.find((e) => e.op.kind === 'create'); if (!op || op.status !== 'pending') throw new Error('create did not wait for review: ' + JSON.stringify(out)); b.card = { id: out.record.id, index: out.record.ops.indexOf(op) }; if ((await b.read()).some((e) => e.comment === 'Copper beacon')) throw new Error('proposal wrote before acceptance'); await rt.setCuratorOpDecision(b.card.id, b.card.index, 'accepted'); if ((await b.read()).some((e) => e.comment === 'Copper beacon')) throw new Error('acceptance wrote before boundary'); return { pendingBeforeAcceptance: true, acceptedBeforeBoundary: true };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false The notice is copied into the record."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const b = globalThis.__s61b; const rt = globalThis.storyOrchestratorRuntime; let entry; for (let i = 0; i < 100; i += 1) { entry = (await b.read()).find((e) => e.comment === 'Copper beacon'); if (entry) break; await b.sleep(100); } if (!entry || entry.disable) throw new Error('accepted create did not write at boundary'); const ctx = SillyTavern.getContext(); const stamp = '{{// so:created ' + ctx.chatId + ' | ' + ctx.groupId + '}}'; if (!entry.content.includes(stamp)) throw new Error('created stamp missing: ' + entry.content); if ((rt.getStagecraftState().created ?? []).length !== 1) throw new Error('created ledger not exactly one'); b.written = JSON.stringify(entry); return { boundaryWrite: true, stampPresent: true };"
+    },
+    {
+      "log": true,
+      "eval": "const scan = async () => { const wi = await import('/scripts/world-info.js'); const out = await wi.getWorldInfoPrompt(['User: the copper beacon and the brass bell'], 8192, true); return JSON.stringify(out); }; const b = globalThis.__s61b; const own = await scan(); if (!own.includes('rings at noon')) throw new Error('the created entry did not scan in the chat its stamp names: ' + own.slice(0, 400)); if (!own.includes('only rings for weddings')) throw new Error('the control entry did not scan: ' + own.slice(0, 400)); b.scan = scan; const ctx = SillyTavern.getContext(); b.chat = ctx.chatId; b.group = ctx.groupId; await b.sleep(3000); return { ownChat: { created: true, control: true } };"
+    },
+    {
+      "slash": "/newchat",
+      "adoptsNewChat": true
+    },
+    {
+      "eval": "const b = globalThis.__s61b; const ctx = SillyTavern.getContext(); if (ctx.chatId === b.chat || ctx.groupId !== b.group) throw new Error('the new chat did not stay in the pinned group'); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); return { newChat: true };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v28-61b-scope",
+        "title": "SO-V28-61B Scope",
+        "description": "Synthetic curator creation coverage.",
+        "qualities": [],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "Test square",
+            "type": "anchor",
+            "start": true,
+            "objective": "Read the public notice."
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "DM Narrator"
+          ],
+          "lorebooks": [
+            "SO-V28-61B Scope Lore"
+          ]
+        },
+        "stagecraft": {
+          "lorebooks": [
+            "SO-V28-61B Scope Lore"
+          ],
+          "createCap": 4
+        }
+      }
+    },
+    {
+      "log": true,
+      "eval": "const b = globalThis.__s61b; const rt = globalThis.storyOrchestratorRuntime; for (let i = 0; i < 50 && rt.getSnapshot().storyId !== 'so-v28-61b-scope'; i += 1) await b.sleep(200); const other = await b.scan(); if (!other.includes('only rings for weddings')) throw new Error('the shared book did not scan in the second chat (control): ' + other.slice(0, 400)); if (other.includes('rings at noon')) throw new Error('the created entry scanned in another chat playing the same story'); return { storyRoute: { created: false, control: true } };"
+    },
+    {
+      "log": true,
+      "eval": "const b = globalThis.__s61b; const ctx = SillyTavern.getContext(); const wi = await import('/scripts/world-info.js'); const was = [...wi.selected_world_info]; await ctx.executeSlashCommandsWithOptions('/world silent=true SO-V28-61B Scope Lore'); await b.sleep(500); if (!wi.selected_world_info.includes('SO-V28-61B Scope Lore')) throw new Error('the book was not selected globally'); let other; try { other = await b.scan(); } finally { await ctx.executeSlashCommandsWithOptions('/world silent=true state=off SO-V28-61B Scope Lore'); await b.sleep(500); } if (wi.selected_world_info.includes('SO-V28-61B Scope Lore')) throw new Error('the book stayed globally selected'); if (JSON.stringify([...wi.selected_world_info].sort()) !== JSON.stringify(was.sort())) throw new Error('global selection changed'); if (!other.includes('only rings for weddings')) throw new Error('global route control did not scan'); if (other.includes('rings at noon')) throw new Error('the created entry scanned in another chat through the global selection'); return { globalRoute: { created: false, control: true } };"
+    },
+    {
+      "assets": {
+        "action": "remove",
+        "marker": "SO-V28-61B Scope"
+      }
+    }
+  ]
+}

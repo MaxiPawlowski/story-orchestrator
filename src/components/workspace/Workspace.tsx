@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import type { RuntimeManager } from "@runtime/runtimeManager";
@@ -38,6 +39,7 @@ export interface WorkspaceProps {
 }
 
 export default function Workspace({ intent, snapshot, manager, settingsHost, drawerProps, onClose, onContinueBranch }: WorkspaceProps) {
+  const requestSuggestions = useCallback(() => askSuggestions(manager), [manager]);
   const global = getGlobalSettings();
   const installSnapshot = { ...snapshot, extraction: { ...snapshot.extraction, settings: global.extraction },
     memory: { ...snapshot.memory, settings: global.memory }, stagecraft: { ...snapshot.stagecraft, settings: global.stagecraft } };
@@ -59,7 +61,7 @@ export default function Workspace({ intent, snapshot, manager, settingsHost, dra
             onRetry={() => void manager.retryExtraction()} onRestart={() => void manager.restartStory()} onDismissPreviously={() => void manager.carry.dismiss()} />
           <GameOpeners snapshot={snapshot} />
           {snapshot.presence?.shown.suggestions && <details><summary id="so-open-suggestions">What could I do?</summary>
-            <Lazy><SuggestionsPanel request={() => askSuggestions(manager)} fill={fillSuggestion} /></Lazy></details>}
+            <Lazy><SuggestionsPanel request={requestSuggestions} fill={fillSuggestion} /></Lazy></details>}
           <details><summary>What the story remembers</summary><Lazy><MemoryTab snapshot={snapshot} manager={manager} authorView={false} /></Lazy></details>
           <button className="st-button secondary" onClick={() => void manager.restartStory()}>Restart story</button>
           {snapshot.briefing?.view && <button id="so-story-briefing" className="st-button secondary" onClick={() => requestBriefing()}>Story briefing</button>}
