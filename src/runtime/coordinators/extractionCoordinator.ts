@@ -32,12 +32,12 @@ import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership, type RunToken } from "../runToken";
 import type { ChatHost, RosterHost } from "../hostPorts";
 import type { SpikeSettings } from "../settingsModel";
-import { MemorizeBacklog } from "../memorizeBacklog";
+import { lazyBacklog, type BacklogPort } from "../memorizeBacklogPort";
 import type { PromisePort } from "../promisePort";
-import {
-  buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, STALL_TIMEOUT_MS, verifyVerdict,
-  VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS,
-} from "@judge/index";
+import type { WitnessPort } from "../witnessPort";
+import { buildStallRequest, stallVerdict } from "@judge/extraction";
+import { buildVerifyRequest, readVerify, verifyVerdict } from "@judge/memory";
+import { STALL_TIMEOUT_MS, VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS } from "@judge/policy";
 import { log } from "@utils/log";
 
 export const TYPED_READ_WINDOW = 3;
@@ -70,6 +70,7 @@ export interface ExtractionCoordinatorDeps {
   ownership: RunOwnership;
   hosts: { chat: ChatHost; roster: RosterHost };
   promises?: Pick<PromisePort, "open" | "ready" | "apply">;
+  witness?: Pick<WitnessPort, "present" | "ready" | "apply">;
   journal?: (summary: string, note: string) => void;
 }
 
@@ -78,11 +79,11 @@ export interface ExtractionCoordinatorDeps {
 // are delegated to the memory coordinator — this class never touches extras.memory directly.
 export class ExtractionCoordinator {
   private sceneDetectCursor: { location: string | null; cast: string | null; world: RunToken | null } | null = null;
-  readonly backlog: MemorizeBacklog;
+  readonly backlog: BacklogPort;
   private readonly compactions = new CompactionAttempts();
 
   constructor(private readonly deps: ExtractionCoordinatorDeps) {
-    this.backlog = new MemorizeBacklog({
+    this.backlog = lazyBacklog({
       getStory: () => deps.getStory(), getState: () => deps.getState(), memory: () => deps.memory, model: () => deps.model,
       ownership: () => deps.ownership, chat: () => deps.hosts.chat, judge: () => deps.judge?.() ?? null,
       firedTransitions: () => deps.getFiredTransitions(), applyAudit: (...args) => this.applyAudit(...args),
@@ -269,7 +270,9 @@ export class ExtractionCoordinator {
     const verified = await this.verifyEntries(newMemoryEntries, audit.window);
     if (intents) await intents;
     if (this.deps.promises) await this.deps.promises.ready(audit);
+    await this.deps.witness?.ready(audit);
     if (!run.stillOwns()) return;
+    this.deps.witness?.apply(audit);
     if (memory.capable && epistemicSignals.length) memory.applyEpistemic(epistemicSignals, audit.window.to, [], audit.window);
     await memory.applyEntries(verified.kept, audit.window);
     if (!run.stillOwns()) return;
@@ -340,6 +343,7 @@ export class ExtractionCoordinator {
       cardScope: this.cardScope(),
       openArcs: memory.getOpenArcs(),
       openPromises: this.deps.promises?.open() ?? null,
+      witnessPresent: this.deps.witness?.present() ?? null,
       epistemicLedgerCapable: memory.capable,
       entities: memory.getEntities(),
       model: this.deps.model,

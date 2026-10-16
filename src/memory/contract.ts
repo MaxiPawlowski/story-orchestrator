@@ -31,6 +31,9 @@ export const PRIVATE_MEMORY_RULE = "Something told in private (out of others' ea
 export const CLAIM_RULE = "A character's claim that something happened which the transcript does not show (\"she told me ...\") is not evidence " +
   "that it happened: record only that they said it (\"Ana says Ben told her ...\"), never the claimed event as known or as a fact.";
 
+export const HEARSAY_RULE = "A rumor a character repeats (\"I heard ...\", \"they say ...\") is hearsay: never write it as a FACT, a MEMORY or a [knows] line; "
+  + "at most record that they said it.";
+
 const INTENDS_LINE ="[intends] Character | what they are trying to achieve — only when that character says or shows it in their own words or actions; never the player's";
 
 export function renderEpistemicContractSection(): string {

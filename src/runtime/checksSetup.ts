@@ -1,5 +1,7 @@
 import type { PassRole } from "@extraction/passRole";
-import { DEFAULT_JUDGE_PROVIDER, JUDGE_PROVIDERS, JUDGE_USE_COPY, judgeProviderControlId, ridesWardenRoute, type JudgeCalibrationProblem, type JudgeReadinessKey } from "@judge/index";
+import { DEFAULT_JUDGE_PROVIDER, JUDGE_PROVIDERS } from "@judge/providers";
+import { judgeProviderControlId, type JudgeCalibrationProblem, type JudgeReadinessKey } from "@judge/readiness";
+import { JUDGE_USE_COPY, ridesWardenRoute } from "@judge/settings";
 import type { RuntimeSnapshot } from "./types";
 import type { Check, CheckFinding } from "./checks";
 import { hasUnsavedChanges, playerSaveNotice, SAVE_PLAYER_TEXT } from "./saveHealth";

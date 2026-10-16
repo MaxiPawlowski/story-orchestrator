@@ -1,7 +1,8 @@
 import { castCardName, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { fnv1a, storyRevision } from "./hash";
-import { buildLoreRequests, loreCandidates, loreKey, LORE_RETRY_FALLBACKS, LORE_RETRY_WAIT_MS, LORE_TIMEOUT_MS, pickLore, readLore, type LoreEntry, type LorePick } from "@judge/index";
+import { buildLoreRequests, loreCandidates, loreKey, pickLore, readLore, type LoreEntry, type LorePick } from "@judge/lore";
+import { LORE_RETRY_FALLBACKS, LORE_RETRY_WAIT_MS, LORE_TIMEOUT_MS } from "@judge/policy";
 import type { HostScannableEntry } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";
 import type { JudgeRuntime } from "./judge";

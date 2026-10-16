@@ -87,6 +87,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Memory | Memory model test | Runs fixed scenes through the memory model and reports what it can do. |  |
 | Memory | Reply thinking | Limits how long the chat model thinks before each reply. |  |
 | Memory | Models per task | Send each kind of background work to its own model. |  |
+| Memory | Who heard what | Each story read also notes which characters heard each message. |  |
 | Characters | Speaker direction | In a group, the story picks who should speak next. |  |
 | Characters | Several voices per turn | More than one character can answer one of your messages. |  |
 | Characters | Private knowledge | Tracks who knows what, so characters do not know things they never saw. |  |
@@ -96,6 +97,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Characters | Standing with groups | How the groups in a story regard you, shown as a word such as "Wary" or "Trusted". | Experimental |
 | Characters | Relationship labels | Words for how a character treats you, and secrets about them you can learn, on their People page. | Experimental |
 | Characters | Promises remembered | A promise you make to a character is remembered in your own words. |  |
+| Characters | Rumors and gossip | News a story declares travels between characters along the channels it authors, and may change on the way. |  |
 | World | Story lorebook switching | Story lorebook entries switch on and off as the story moves. |  |
 | World | Story lorebooks | A story's lorebooks load only in the chats that play it. |  |
 | World | Memory can trigger lore | Established facts and scene history can activate lorebook entries. |  |

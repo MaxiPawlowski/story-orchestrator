@@ -59,6 +59,7 @@ export class MemoryInjector {
   private lastInjection: MemoryInjectionView | null = null;
   private readonly highWater: Partial<Record<MemoryTier, number>> = {};
   private privateSources: Array<(rosterId: string) => string[]> = [];
+  private disclosureSources: Array<() => ReadonlyArray<{ entryId: string; member: string }>> = [];
 
   constructor(private readonly deps: MemoryInjectorDeps) {}
 
@@ -126,6 +127,10 @@ export class MemoryInjector {
       : undefined;
     const block = render ? render.memberAimsBlock(voices, id, beat, known, privateBlock, scope) : privateBlock;
     return [block, this.lifeLines(story, id), this.sourcedLines(story, id)].filter(Boolean).join("\n\n");
+  }
+
+  addDisclosureSource(source: () => ReadonlyArray<{ entryId: string; member: string }>): void {
+    this.disclosureSources = [...this.disclosureSources, source];
   }
 
   addPrivateSource(source: (rosterId: string) => string[]): void {
@@ -215,7 +220,8 @@ export class MemoryInjector {
 
   private secrets(story: NormalizedStoryV2): HeldSecret[] {
     if (!this.deps.capable()) return [];
-    return heldSecrets(this.knowledge(), story.roster.flatMap((member) => namesForRosterId(story, member.id)));
+    const disclosures = this.disclosureSources.flatMap((source) => source()).map((entry) => ({ entryId: entry.entryId, names: namesForRosterId(story, entry.member) }));
+    return heldSecrets(this.knowledge(), story.roster.flatMap((member) => namesForRosterId(story, member.id)), disclosures);
   }
 
   private writeShared(shared: SharedBlocks | null) {

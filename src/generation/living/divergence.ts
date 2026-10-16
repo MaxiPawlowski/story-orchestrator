@@ -1,12 +1,11 @@
 import { gateLeaves, isLivingId, isOocText, isPlayerLine, type NormalizedStoryV2 } from "@engine/index";
-import {
-  choice, choiceAnswer, DIVERGENCE_COMMIT_P, DIVERGENCE_NONE_P, DIVERGENCE_STREAK, DIVERGENCE_SURE_P, noul, noulAnswer,
-  type JudgeAnswer, type JudgeRequest,
-} from "@judge/index";
+import { DIVERGENCE_COMMIT_P, DIVERGENCE_NONE_P, DIVERGENCE_STREAK, DIVERGENCE_SURE_P } from "@judge/policy";
+import { choice, choiceAnswer, noul, noulAnswer } from "@judge/questions";
+import type { JudgeAnswer, JudgeRequest } from "@judge/types";
 import { isRecord } from "@utils/guards";
 import { LIVING_BRANCH_PREFIX, LIVING_STUB_SUFFIX, type DivergenceReading, type DivergenceState } from "./types";
 
-export { DIVERGENCE_COMMIT_P, DIVERGENCE_NONE_P, DIVERGENCE_STREAK, DIVERGENCE_SURE_P, DIVERGENCE_TIMEOUT_MS } from "@judge/index";
+export { DIVERGENCE_COMMIT_P, DIVERGENCE_NONE_P, DIVERGENCE_STREAK, DIVERGENCE_SURE_P, DIVERGENCE_TIMEOUT_MS } from "@judge/policy";
 export const DIVERGENCE_WINDOW = 6;
 export const DIVERGENCE_NONE = "none";
 

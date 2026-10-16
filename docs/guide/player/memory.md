@@ -34,6 +34,11 @@ In a group, each character knows only what they saw or were told. A secret one c
 others' replies. A memory that would give such a secret away is left out of the Memory tab, or shown without the
 sentence that does. You do not need to do anything for this.
 
+Each story read also notes **who heard what**: for every message, which characters heard or saw it, part by part when a
+message mixes open speech with an aside, and "unknown" when the read cannot tell. Nothing uses this record yet; it is
+measured first. A swipe or edit takes the affected notes back. Switch it off under **This story › Features › Who heard
+what**.
+
 ## Chapters
 
 Some stories end chapters as they go. When one ends, a **Previously** card shows its summary, and the chapter

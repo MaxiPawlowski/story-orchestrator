@@ -17,12 +17,12 @@ import {
   type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type UncertainPair,
   consolidateTierJudged, clearContradicted, sceneRangeFrom, rollingShortTerm, type ShortTermPlacement, innerRender,
 } from "@memory/index";
-import { PAIR_JACCARD_FLOOR, type SceneReadRecord } from "@judge/index";
+import { PAIR_JACCARD_FLOOR } from "@judge/policy";
 import type { Provenance } from "@memory/provenance";
 import { sceneConflictValues } from "@memory/conflicts";
 import { MirrorSync, type MemoryMirrorSummary } from "../memoryMirror";
 import { MemoryInjector } from "../memoryInjector";
-import { CanonSynthesis } from "../canonSynthesis";
+import { CanonPort } from "../canonView";
 import { ChapterPort, chapterKit } from "../chapterPort";
 import { buildConsolidationMatches, buildMatchSets, judgePairRelations } from "../consolidationMatches";
 import { boundProvenance, boundValuesFor, MemoryQueue } from "../memoryQueue";
@@ -54,7 +54,7 @@ export interface MemoryCoordinatorDeps {
   ownership: RunOwnership;
   historyFloor?: () => number | null;
   /** The stored scene read, whose claims the ledger and the blackboard can contradict. */
-  getScene?: () => SceneReadRecord | null;
+  getScene?: () => import("@judge/scene").SceneReadRecord | null;
   /** Read a named span again, rather than whatever the transcript now ends with. */
   rereadWindow?: (window: { from: number; to: number }, reason: string) => Promise<unknown>;
   hosts: MemoryHosts;
@@ -91,7 +91,7 @@ export class MemoryCoordinator {
     ledgerFocus: () => this.ledgerFocus(),
     meanwhile: (rosterId) => this.deps.meanwhile?.(rosterId) ?? [],
   });
-  readonly canon = new CanonSynthesis({
+  readonly canon = new CanonPort({
     getStory: () => this.deps.getStory(), getState: () => this.deps.getState(), memory: () => this.state,
     patch: (next) => this.patch(next), record: (input) => this.record(input), save: () => this.save(),
     model: () => this.deps.model, ownership: () => this.deps.ownership, enabled: () => this.enabled,

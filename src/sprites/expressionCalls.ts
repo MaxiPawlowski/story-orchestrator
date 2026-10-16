@@ -1,5 +1,5 @@
 import { stripReasoningBlocks } from "@extraction/parse";
-import { judgeUseActive } from "@judge/index";
+import { judgeUseActive } from "@judge/settings";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { spriteClassifyLocal, spriteExpressionModel } from "@services/stHost/sprites";
 import { log } from "@utils/log";

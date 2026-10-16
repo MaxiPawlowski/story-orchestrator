@@ -72,3 +72,13 @@ export const codexStory = (): StoryDraft => ({
     places: [{ id: "boathouse", name: "The boathouse", location: "boathouse", facts: [{ id: "door", text: "The back door does not lock.", known_when: { q: "alarm", op: "==", v: false } }] }],
   },
 });
+
+export const rumorStory = (): StoryDraft => {
+  const base = sampleStory();
+  const [first] = base.roster;
+  return {
+    ...base,
+    roster: [{ ...first, gossip: { talks_to: ["keeper"], contact: "any", delay: { boundaries: [1, 2] } } }, ...base.roster.slice(1), { id: "keeper", name: "The Keeper" }],
+    rumors: [{ id: "flood", from: first.id, claim: "the lower road flooded", versions: [{ text: "the lower road flooded", truth: "true", weight: 2 }] }],
+  };
+};
