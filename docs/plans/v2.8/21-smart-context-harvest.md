@@ -237,6 +237,43 @@ Everything below is fixed in code (`src/memory/e0Ranking.ts` `E0_FLOORS`, `E0_CO
   `338ded77de06cb6f228325c1e60f9facd069be3587ea6c6cc8cb0371a59971e1` (sha256 of the parsed JSON), 40 questions, provider
   `stub-trigram-256`. The private freeze is owed (no labels yet).
 
+#### E0 private run: declarations (2026-10-16, branch `v2.8-e0-run`, written before any label or arm)
+
+Fixed in `src/memory/e0Labels.ts` (`E0_LABEL_RULES`), `scripts/debug/lib/e0StVectors.mts`, `scripts/debug/lib/e0Choices.mts`;
+`E0_FLOORS`, cost order, bands and arm (c) weights are unchanged from 2026-10-14.
+
+- **Sessions.** The private `so-sessions` work tree, `T*/T*-*/` chats (`chat-full-*` first): at least 40 spoken messages;
+  a chat sharing over half its message texts with a longer kept chat is a copy and is dropped. 48 chats → 17 kept
+  (24 short, 7 copies). Session ids and counts only here.
+- **Writer.** Sol, `openai/gpt-6.1-sol` (never `-fast`, never DeepSeek; the tool refuses both), `opencode run --standalone`,
+  tools off, one call per kept session over its whole transcript, 5 questions per session (`--per 5`).
+- **Rules (tool-enforced; a breach is dropped and counted as invalid, never repaired).** The asking turn is a player
+  message; 1–2 gold ids, each inside the question's collection (before the asking turn and outside `protect`); the
+  collection holds at least 8 messages; the question repeats no 5 consecutive words of a gold message.
+- **Checker.** `claude -p` on the owner's login (tools off, no session persistence, model recorded from its own output),
+  one call per written session, **blind**: it sees each question and the transcript, never the gold, and names the
+  ids holding the exact words, considering only messages before that question's asking turn. Agreement = the checker
+  calls it answerable and every id it names is a gold id. Anything else is a disagreement: dropped and counted, never
+  adjudicated.
+- **Top-up.** If fewer than 40 questions survive, one top-up pass (3 more per kept session, same writer, checker and
+  rules) may run before any pool exists; the count alone decides it. Still under 40: `insufficient`, reported as such.
+- **Pool (`st-vectors`).** Lane 74 (offline seed, firewalled: loopback only to itself, no model server, no GPU plugin),
+  served from the private ST code copy `C:\dev\st-live-e0` (ST 1.19.0). Source `transformers` on CPU, model from the
+  copy's `config.yaml` (`Xenova/all-mpnet-base-v2`, ST loads `onnx/model_quantized.onnx`), cached in the lane's
+  `data/_cache`. One collection per question (purged before insert and after the run), item hash = message id + 1.
+  Pool = the `hashes` of one `/api/vector/query` at threshold 0 (ST's score order); band membership = the `metadata`
+  of the query at each threshold (the server filters `metadata`, not `hashes`, by threshold). Latency = each query's
+  in-page fetch time (pool + the arm's bands); insert time is the index build, reported separately, never in an
+  arm's latency. A warm-up query runs first so no question pays the model load.
+- **Arm (d) recorder.** Four sequential Choice calls per question through the page's judge harness probe
+  (`storyOrchestratorJudge.probe` → judge plugin → TypeSafe, the plugin's default model): the path `so-judge calibrate`
+  measures through. No `e0` use, setting or calibration row is added and the per-use refusal is untouched. A busy
+  refusal waits 61 s and retries (3 times, then the recording refuses); a cache hit refuses; a pick outside the
+  remaining set is recorded as given and picks nothing.
+- **Cost.** Arm (d): input tokens × $0.042 per million (`JEV_USD_PER_MTOK_INPUT`). Vector arms: $0 (local CPU).
+- **Freeze order.** Labels → pool → `freeze` (hashes copied here and committed) → `choices` → `run`. The freeze covers
+  labels and pool; the recorded calls are scored as recorded.
+
 ### 6.2 Step 2 — offline group witness feasibility
 
 Uses E0's winning arm, and runs (for a verdict) only when E0 produced one; otherwise it is BLOCKED (§6.1).

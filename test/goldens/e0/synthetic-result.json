@@ -112,6 +112,16 @@
    "refused": 0
   }
  ],
+ "cost": {
+  "jevUsdPerMTokInput": 0.042,
+  "usdPerQuestion": {
+   "e": 0,
+   "c": 0,
+   "a": 0,
+   "b": 0,
+   "d": null
+  }
+ },
  "verdict": {
   "questions": 40,
   "winner": null,
