@@ -1,0 +1,2530 @@
+{
+ "format": "so-recall-fixture/1",
+ "set": "recall-synthetic",
+ "synthetic": true,
+ "pool": "stub: the generator records each case pool in a fixed order (no embeddings); a tooling check, not R-Gate evidence",
+ "sessions": [
+  {
+   "id": "session-a",
+   "chatId": "chat-recall-a",
+   "storyId": "recall-synthetic",
+   "storyHash": "v2-recall-a",
+   "player": "Marlo",
+   "roster": [
+    {
+     "id": "corvin",
+     "name": "Corvin"
+    },
+    {
+     "id": "tamsin",
+     "name": "Tamsin"
+    },
+    {
+     "id": "hollis",
+     "name": "Hollis"
+    },
+    {
+     "id": "orrin",
+     "name": "Orrin"
+    }
+   ],
+   "messages": [
+    {
+     "messageId": 0,
+     "speaker": "Corvin",
+     "isUser": false,
+     "text": "Corvin rubs a sore shoulder. \"The ferry leaves at the second bell, and the pilot will not wait for stragglers.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 1,
+     "speaker": "Tamsin",
+     "isUser": false,
+     "text": "Tamsin glances at the sky. \"Keep the green lantern lit at the bow so the lock keeper knows we paid.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 2,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis tightens a strap. \"The grey mule bites if you stand on her left side, so load her from the right.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 3,
+     "speaker": "Orrin",
+     "isUser": false,
+     "text": "Orrin pokes at the fire. \"The old bridge holds two riders at a time, never three.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 4,
+     "speaker": "Corvin",
+     "isUser": false,
+     "text": "Corvin shakes out a cloak. \"Draw water from the east well only; the west one went brackish in spring.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 5,
+     "speaker": "Marlo",
+     "isUser": true,
+     "text": "\"The inn at the crossroads charges double after dark, so we arrive before sunset.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 6,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis rubs a sore shoulder. \"Oil your boots tonight or the marsh will rot the stitching by Thursday.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 7,
+     "speaker": "Orrin",
+     "isUser": false,
+     "text": "Orrin glances at the sky. \"I lost the bone dice to a tinker in the last village, so no games tonight.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 8,
+     "speaker": "Corvin",
+     "isUser": false,
+     "text": "Corvin tightens a strap. \"If you hear the chapel bell ring three times, head straight back to camp.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 9,
+     "speaker": "Tamsin",
+     "isUser": false,
+     "text": "Tamsin pokes at the fire. \"Coil the rope over your shoulder, not around your waist, when we climb.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 10,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis shakes out a cloak. \"Ration the salt pork; the next market is six days downriver.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 11,
+     "speaker": "Marlo",
+     "isUser": true,
+     "text": "\"My grandmother sang that song to keep wolves away from the sheep pens.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 12,
+     "speaker": "Corvin",
+     "isUser": false,
+     "text": "Corvin leans close to Tamsin and murmurs, \"The strongbox code is NX-VF7F8V; tell no one else.\"",
+     "heard": [
+      "corvin",
+      "tamsin"
+     ],
+     "nonce": "NX-VF7F8V"
+    },
+    {
+     "messageId": 13,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis leans close to Corvin and murmurs, \"Leave the signal NX-Q9LLDM chalked on the mill door if you need me.\"",
+     "heard": [
+      "hollis",
+      "corvin"
+     ],
+     "nonce": "NX-Q9LLDM"
+    },
+    {
+     "messageId": 14,
+     "speaker": "Tamsin",
+     "isUser": false,
+     "text": "Tamsin leans close to Hollis and murmurs, \"My real name is on the ledger under NX-6C7ZV7, not the one I gave the reeve.\"",
+     "heard": [
+      "tamsin",
+      "hollis"
+     ],
+     "nonce": "NX-6C7ZV7"
+    },
+    {
+     "messageId": 15,
+     "speaker": "Orrin",
+     "isUser": false,
+     "text": "Orrin leans close to Corvin and murmurs, \"The password at the dock is NX-SVVCWA.\"",
+     "heard": [
+      "orrin",
+      "corvin"
+     ],
+     "nonce": "NX-SVVCWA"
+    },
+    {
+     "messageId": 16,
+     "speaker": "Tamsin",
+     "isUser": false,
+     "text": "Tamsin leans close to Orrin and murmurs, \"I hid the spare purse behind the stone marked NX-C4WHG8.\"",
+     "heard": [
+      "tamsin",
+      "orrin"
+     ],
+     "nonce": "NX-C4WHG8"
+    },
+    {
+     "messageId": 17,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis leans close to Orrin and murmurs, \"If I am taken, burn the letter numbered NX-MZSW9U.\"",
+     "heard": [
+      "hollis",
+      "orrin"
+     ],
+     "nonce": "NX-MZSW9U"
+    },
+    {
+     "messageId": 18,
+     "speaker": "Corvin",
+     "isUser": false,
+     "text": "Corvin leans close to Tamsin and murmurs, \"The cellar lock answers to the word NX-4X24TC.\"",
+     "heard": [
+      "corvin",
+      "tamsin"
+     ],
+     "nonce": "NX-4X24TC"
+    },
+    {
+     "messageId": 19,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis leans close to Corvin and murmurs, \"Ask the ferryman for passage NX-WVFKSC; he will know who sent you.\"",
+     "heard": [
+      "hollis",
+      "corvin"
+     ],
+     "nonce": "NX-WVFKSC"
+    },
+    {
+     "messageId": 20,
+     "speaker": "Tamsin",
+     "isUser": false,
+     "text": "Tamsin leans close to Hollis and murmurs, \"The debt I owe is written in the book as NX-NBLH3Y.\"",
+     "heard": [
+      "tamsin",
+      "hollis"
+     ],
+     "nonce": "NX-NBLH3Y"
+    },
+    {
+     "messageId": 21,
+     "speaker": "Orrin",
+     "isUser": false,
+     "text": "Orrin leans close to Corvin and murmurs, \"Meet me at the stall with the sign NX-5QWP8B at noon.\"",
+     "heard": [
+      "orrin",
+      "corvin"
+     ],
+     "nonce": "NX-5QWP8B"
+    },
+    {
+     "messageId": 22,
+     "speaker": "Tamsin",
+     "isUser": false,
+     "text": "Tamsin leans close to Orrin and murmurs, \"The token that opens the north gate reads NX-ZWFB9C.\"",
+     "heard": [
+      "tamsin",
+      "orrin"
+     ],
+     "nonce": "NX-ZWFB9C"
+    },
+    {
+     "messageId": 23,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis leans close to Orrin and murmurs, \"The message from my brother was signed NX-Y2ZHBA.\"",
+     "heard": [
+      "hollis",
+      "orrin"
+     ],
+     "nonce": "NX-Y2ZHBA"
+    },
+    {
+     "messageId": 24,
+     "speaker": "Corvin",
+     "isUser": false,
+     "text": "Corvin calls to the whole camp, \"Supper at dusk, everyone.\" Then, quietly to Orrin: \"Bring the knife marked NX-S7BERR.\"",
+     "heard": [
+      "corvin",
+      "orrin"
+     ],
+     "nonce": "NX-S7BERR"
+    },
+    {
+     "messageId": 25,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis lowers her voice to Corvin, \"The reeve has doubled the bridge toll since the flood.\"",
+     "heard": [
+      "hollis",
+      "corvin"
+     ]
+    },
+    {
+     "messageId": 26,
+     "speaker": "Corvin",
+     "isUser": false,
+     "text": "Corvin turns to Tamsin at the cart. \"Hollis told me the reeve has doubled the bridge toll since the flood.\"",
+     "heard": [
+      "corvin",
+      "tamsin"
+     ]
+    },
+    {
+     "messageId": 27,
+     "speaker": "Orrin",
+     "isUser": false,
+     "text": "Orrin leans close to Hollis and murmurs, \"The ferryman takes bribes in salt, not silver.\"",
+     "heard": [
+      "orrin",
+      "hollis"
+     ]
+    },
+    {
+     "messageId": 28,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis catches Tamsin by the fire. \"Orrin says the ferryman takes bribes in salt, not silver.\"",
+     "heard": [
+      "hollis",
+      "tamsin"
+     ]
+    },
+    {
+     "messageId": 29,
+     "speaker": "Corvin",
+     "isUser": false,
+     "text": "Corvin leans close to Hollis and murmurs, \"I sold the family map to the toll keeper for passage money.\"",
+     "heard": [
+      "corvin",
+      "hollis"
+     ]
+    },
+    {
+     "messageId": 30,
+     "speaker": "Orrin",
+     "isUser": false,
+     "text": "Orrin whispers to no one but himself, \"A pinch in her cup was all it took.\"",
+     "heard": [
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 31,
+     "speaker": "Tamsin",
+     "isUser": false,
+     "text": "Tamsin raises her mug. \"We split the reward four ways, no matter who finds it.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ],
+     "hidden": true
+    },
+    {
+     "messageId": 32,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis studies the water. \"The ford is passable until the new moon, not after.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ],
+     "swipeId": 1
+    },
+    {
+     "messageId": 33,
+     "speaker": "Orrin",
+     "isUser": false,
+     "text": "Orrin squints into the grey. \"Something moved in the fog by the reeds.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    }
+   ],
+   "reads": [
+    {
+     "readId": "chat-recall-a-r1",
+     "from": 0,
+     "to": 7,
+     "status": "accepted",
+     "present": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ],
+     "response": "DELTA none\nWITNESS m=0 heard=all-present\nWITNESS m=1 heard=all-present\nWITNESS m=2 heard=all-present\nWITNESS m=3 heard=all-present\nWITNESS m=4 heard=all-present\nWITNESS m=5 heard=all-present\nWITNESS m=6 heard=all-present\nWITNESS m=7 heard=all-present"
+    },
+    {
+     "readId": "chat-recall-a-r2",
+     "from": 8,
+     "to": 15,
+     "status": "accepted",
+     "present": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ],
+     "response": "DELTA none\nWITNESS m=8 heard=all-present\nWITNESS m=9 heard=all-present\nWITNESS m=10 heard=all-present\nWITNESS m=11 heard=all-present\nWITNESS m=12 heard=Corvin,tamsin\nWITNESS m=13 heard=Hollis,corvin\nWITNESS m=14 heard=Tamsin,hollis\nWITNESS m=15 heard=Orrin,corvin"
+    },
+    {
+     "readId": "chat-recall-a-r3",
+     "from": 16,
+     "to": 23,
+     "status": "accepted",
+     "present": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ],
+     "response": "DELTA none\nWITNESS m=16 heard=Tamsin,orrin\nWITNESS m=17 heard=Hollis,orrin\nWITNESS m=18 heard=Corvin,tamsin\nWITNESS m=19 heard=Hollis,corvin\nWITNESS m=20 heard=Tamsin,hollis\nWITNESS m=21 heard=Orrin,corvin\nWITNESS m=22 heard=Tamsin,orrin\nWITNESS m=23 heard=Hollis,orrin"
+    },
+    {
+     "readId": "chat-recall-a-r4",
+     "from": 24,
+     "to": 31,
+     "status": "accepted",
+     "present": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ],
+     "response": "DELTA none\nWITNESS m=24 mixed\nSPAN m=24 from=\"Corvin calls to the\" heard=all-present\nSPAN m=24 from=\"Then, quietly to Orrin:\" heard=Corvin,orrin\nWITNESS m=25 heard=Hollis,corvin\nWITNESS m=26 heard=Corvin,tamsin\nWITNESS m=27 heard=Orrin,hollis\nWITNESS m=28 heard=unknown\nWITNESS m=29 heard=Corvin,hollis\nWITNESS m=30 heard=Orrin\nWITNESS m=31 heard=all-present"
+    },
+    {
+     "readId": "chat-recall-a-r5",
+     "from": 32,
+     "to": 33,
+     "status": "accepted",
+     "present": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ],
+     "response": "DELTA none\nWITNESS m=32 heard=all-present\nWITNESS m=33 heard=unknown"
+    }
+   ],
+   "tellings": [
+    {
+     "receiver": "tamsin",
+     "telling": {
+      "messageId": 26,
+      "quote": "Hollis told me the reeve has doubled the bridge toll since the flood."
+     },
+     "origin": {
+      "messageId": 25,
+      "quote": "The reeve has doubled the bridge toll since the flood."
+     }
+    },
+    {
+     "receiver": "tamsin",
+     "telling": {
+      "messageId": 28,
+      "quote": "Orrin says the ferryman takes bribes in salt, not silver."
+     },
+     "origin": {
+      "messageId": 27,
+      "quote": "The ferryman takes bribes in salt, not silver."
+     }
+    }
+   ],
+   "epistemic": [
+    {
+     "id": "ep-a1",
+     "subject": "Corvin",
+     "tag": "hiding",
+     "content": "Corvin is hiding that he sold the family map to the toll keeper",
+     "hiddenFrom": "Tamsin",
+     "scene": "camp"
+    },
+    {
+     "id": "ep-a2",
+     "subject": "Orrin",
+     "tag": "hiding",
+     "content": "poisoned Hollis",
+     "hiddenFrom": "Tamsin, Hollis, Corvin",
+     "scene": "cups"
+    }
+   ],
+   "cases": [
+    {
+     "id": "a-pos-01",
+     "kind": "positive",
+     "member": "tamsin",
+     "query": "What exactly did Corvin say about the ferry?",
+     "pool": [
+      {
+       "messageId": 0,
+       "quote": "The ferry leaves at the second bell, and the pilot will not wait for stragglers.",
+       "role": "gold"
+      },
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-pos-02",
+     "kind": "positive",
+     "member": "hollis",
+     "query": "What did Tamsin say about the lantern?",
+     "pool": [
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      },
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "gold"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "filler"
+      },
+      {
+       "messageId": 4,
+       "quote": "Draw water from the east well only; the west one went brackish in spring.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-pos-03",
+     "kind": "positive",
+     "member": "orrin",
+     "query": "Tell me word for word what Hollis told us about the mule.",
+     "pool": [
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "gold"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "filler"
+      },
+      {
+       "messageId": 4,
+       "quote": "Draw water from the east well only; the west one went brackish in spring.",
+       "role": "filler"
+      },
+      {
+       "messageId": 5,
+       "quote": "The inn at the crossroads charges double after dark, so we arrive before sunset.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-pos-04",
+     "kind": "positive",
+     "member": "corvin",
+     "query": "Can you quote Orrin on the bridge?",
+     "pool": [
+      {
+       "messageId": 0,
+       "quote": "The ferry leaves at the second bell, and the pilot will not wait for stragglers.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "gold"
+      },
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-pos-05",
+     "kind": "positive",
+     "member": "tamsin",
+     "query": "What exactly did Corvin say about the well?",
+     "pool": [
+      {
+       "messageId": 4,
+       "quote": "Draw water from the east well only; the west one went brackish in spring.",
+       "role": "gold"
+      },
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-pos-06",
+     "kind": "positive",
+     "member": "hollis",
+     "query": "What did I say about the inn? Quote me exactly.",
+     "pool": [
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      },
+      {
+       "messageId": 5,
+       "quote": "The inn at the crossroads charges double after dark, so we arrive before sunset.",
+       "role": "gold"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "filler"
+      },
+      {
+       "messageId": 4,
+       "quote": "Draw water from the east well only; the west one went brackish in spring.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-pos-07",
+     "kind": "positive",
+     "member": "orrin",
+     "query": "Tell me word for word what Hollis told us about the boots.",
+     "pool": [
+      {
+       "messageId": 6,
+       "quote": "Oil your boots tonight or the marsh will rot the stitching by Thursday.",
+       "role": "gold"
+      },
+      {
+       "messageId": 0,
+       "quote": "The ferry leaves at the second bell, and the pilot will not wait for stragglers.",
+       "role": "filler"
+      },
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-pos-08",
+     "kind": "positive",
+     "member": "corvin",
+     "query": "Can you quote Orrin on the dice?",
+     "pool": [
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      },
+      {
+       "messageId": 7,
+       "quote": "I lost the bone dice to a tinker in the last village, so no games tonight.",
+       "role": "gold"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-pos-09",
+     "kind": "positive",
+     "member": "tamsin",
+     "query": "What exactly did Corvin say about the bell?",
+     "pool": [
+      {
+       "messageId": 8,
+       "quote": "If you hear the chapel bell ring three times, head straight back to camp.",
+       "role": "gold"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "filler"
+      },
+      {
+       "messageId": 4,
+       "quote": "Draw water from the east well only; the west one went brackish in spring.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-pos-10",
+     "kind": "positive",
+     "member": "hollis",
+     "query": "What did Tamsin say about the rope?",
+     "pool": [
+      {
+       "messageId": 0,
+       "quote": "The ferry leaves at the second bell, and the pilot will not wait for stragglers.",
+       "role": "filler"
+      },
+      {
+       "messageId": 9,
+       "quote": "Coil the rope over your shoulder, not around your waist, when we climb.",
+       "role": "gold"
+      },
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-pos-11",
+     "kind": "positive",
+     "member": "orrin",
+     "query": "Tell me word for word what Hollis told us about the salt.",
+     "pool": [
+      {
+       "messageId": 10,
+       "quote": "Ration the salt pork; the next market is six days downriver.",
+       "role": "gold"
+      },
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-exc-01",
+     "kind": "exclusion",
+     "member": "hollis",
+     "query": "What exactly did Corvin whisper about the strongbox?",
+     "pool": [
+      {
+       "messageId": 12,
+       "quote": "The strongbox code is NX-VF7F8V; tell no one else.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 0,
+       "quote": "The ferry leaves at the second bell, and the pilot will not wait for stragglers.",
+       "role": "filler"
+      },
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-exc-02",
+     "kind": "exclusion",
+     "member": "orrin",
+     "query": "What exactly did Hollis whisper about the signal?",
+     "pool": [
+      {
+       "messageId": 13,
+       "quote": "Leave the signal NX-Q9LLDM chalked on the mill door if you need me.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-exc-03",
+     "kind": "exclusion",
+     "member": "corvin",
+     "query": "What exactly did Tamsin whisper about the ledger?",
+     "pool": [
+      {
+       "messageId": 14,
+       "quote": "My real name is on the ledger under NX-6C7ZV7, not the one I gave the reeve.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-exc-04",
+     "kind": "exclusion",
+     "member": "hollis",
+     "query": "What exactly did Orrin whisper about the password?",
+     "pool": [
+      {
+       "messageId": 15,
+       "quote": "The password at the dock is NX-SVVCWA.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "filler"
+      },
+      {
+       "messageId": 4,
+       "quote": "Draw water from the east well only; the west one went brackish in spring.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-exc-05",
+     "kind": "exclusion",
+     "member": "corvin",
+     "query": "What exactly did Tamsin whisper about the purse?",
+     "pool": [
+      {
+       "messageId": 16,
+       "quote": "I hid the spare purse behind the stone marked NX-C4WHG8.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 0,
+       "quote": "The ferry leaves at the second bell, and the pilot will not wait for stragglers.",
+       "role": "filler"
+      },
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-exc-06",
+     "kind": "exclusion",
+     "member": "tamsin",
+     "query": "What exactly did Hollis whisper about the burn?",
+     "pool": [
+      {
+       "messageId": 17,
+       "quote": "If I am taken, burn the letter numbered NX-MZSW9U.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-exc-07",
+     "kind": "exclusion",
+     "member": "hollis",
+     "query": "What exactly did Corvin whisper about the cellar?",
+     "pool": [
+      {
+       "messageId": 18,
+       "quote": "The cellar lock answers to the word NX-4X24TC.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-exc-08",
+     "kind": "exclusion",
+     "member": "orrin",
+     "query": "What exactly did Hollis whisper about the passage?",
+     "pool": [
+      {
+       "messageId": 19,
+       "quote": "Ask the ferryman for passage NX-WVFKSC; he will know who sent you.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "filler"
+      },
+      {
+       "messageId": 4,
+       "quote": "Draw water from the east well only; the west one went brackish in spring.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-exc-09",
+     "kind": "exclusion",
+     "member": "corvin",
+     "query": "What exactly did Tamsin whisper about the debt?",
+     "pool": [
+      {
+       "messageId": 20,
+       "quote": "The debt I owe is written in the book as NX-NBLH3Y.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 0,
+       "quote": "The ferry leaves at the second bell, and the pilot will not wait for stragglers.",
+       "role": "filler"
+      },
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-exc-10",
+     "kind": "exclusion",
+     "member": "hollis",
+     "query": "What exactly did Orrin whisper about the stall?",
+     "pool": [
+      {
+       "messageId": 21,
+       "quote": "Meet me at the stall with the sign NX-5QWP8B at noon.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-exc-11",
+     "kind": "exclusion",
+     "member": "corvin",
+     "query": "What exactly did Tamsin whisper about the token?",
+     "pool": [
+      {
+       "messageId": 22,
+       "quote": "The token that opens the north gate reads NX-ZWFB9C.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-exc-mixed",
+     "kind": "exclusion",
+     "member": "tamsin",
+     "query": "What exactly did Corvin tell Orrin about the knife?",
+     "pool": [
+      {
+       "messageId": 24,
+       "quote": "Bring the knife marked NX-S7BERR.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 0,
+       "quote": "The ferry leaves at the second bell, and the pilot will not wait for stragglers.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-pos-mixed",
+     "kind": "positive",
+     "member": "orrin",
+     "query": "Orrin, what exactly did Corvin ask you to bring?",
+     "pool": [
+      {
+       "messageId": 24,
+       "quote": "Bring the knife marked NX-S7BERR.",
+       "role": "gold"
+      },
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-told-01",
+     "kind": "told",
+     "member": "tamsin",
+     "query": "Tamsin, what did Hollis say about the toll? Word for word.",
+     "pool": [
+      {
+       "messageId": 25,
+       "quote": "The reeve has doubled the bridge toll since the flood.",
+       "role": "origin"
+      },
+      {
+       "messageId": 26,
+       "quote": "Hollis told me the reeve has doubled the bridge toll since the flood.",
+       "role": "telling"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-told-02",
+     "kind": "told",
+     "member": "tamsin",
+     "query": "What exactly did Orrin say about the ferryman?",
+     "pool": [
+      {
+       "messageId": 27,
+       "quote": "The ferryman takes bribes in salt, not silver.",
+       "role": "origin"
+      },
+      {
+       "messageId": 28,
+       "quote": "Orrin says the ferryman takes bribes in salt, not silver.",
+       "role": "telling"
+      }
+     ]
+    },
+    {
+     "id": "a-told-03",
+     "kind": "told",
+     "member": "orrin",
+     "query": "What did Hollis say about the toll? Exactly, please.",
+     "pool": [
+      {
+       "messageId": 25,
+       "quote": "The reeve has doubled the bridge toll since the flood.",
+       "role": "origin"
+      },
+      {
+       "messageId": 26,
+       "quote": "Hollis told me the reeve has doubled the bridge toll since the flood.",
+       "role": "forbidden"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-secret-01",
+     "kind": "secret",
+     "member": "tamsin",
+     "query": "What exactly did Corvin say about the family map?",
+     "pool": [
+      {
+       "messageId": 29,
+       "quote": "I sold the family map to the toll keeper for passage money.",
+       "role": "secret"
+      },
+      {
+       "messageId": 0,
+       "quote": "The ferry leaves at the second bell, and the pilot will not wait for stragglers.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-secret-02",
+     "kind": "secret",
+     "member": "orrin",
+     "query": "Quote what Corvin said about the map.",
+     "pool": [
+      {
+       "messageId": 29,
+       "quote": "I sold the family map to the toll keeper for passage money.",
+       "role": "secret"
+      },
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-secret-03",
+     "kind": "secret",
+     "member": "tamsin",
+     "query": "What exactly did Orrin say over the cups?",
+     "pool": [
+      {
+       "messageId": 30,
+       "quote": "A pinch in her cup was all it took.",
+       "role": "secret"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-secret-04",
+     "kind": "secret",
+     "member": "hollis",
+     "query": "Hollis, what did Orrin say about her cup? Word for word.",
+     "pool": [
+      {
+       "messageId": 30,
+       "quote": "A pinch in her cup was all it took.",
+       "role": "secret"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-vr2k-01",
+     "kind": "vr2k",
+     "member": "orrin",
+     "query": "Orrin, what exactly has everyone said about the road so far?",
+     "pool": [
+      {
+       "messageId": 12,
+       "quote": "The strongbox code is NX-VF7F8V; tell no one else.",
+       "role": "forbidden"
+      },
+      {
+       "messageId": 13,
+       "quote": "Leave the signal NX-Q9LLDM chalked on the mill door if you need me.",
+       "role": "forbidden"
+      },
+      {
+       "messageId": 14,
+       "quote": "My real name is on the ledger under NX-6C7ZV7, not the one I gave the reeve.",
+       "role": "forbidden"
+      },
+      {
+       "messageId": 18,
+       "quote": "The cellar lock answers to the word NX-4X24TC.",
+       "role": "forbidden"
+      },
+      {
+       "messageId": 31,
+       "quote": "We split the reward four ways, no matter who finds it.",
+       "role": "forbidden"
+      },
+      {
+       "messageId": 32,
+       "quote": "The ford is passable until the full moon.",
+       "indexedMessage": "Hollis studies the water. \"The ford is passable until the full moon.\"",
+       "role": "forbidden"
+      },
+      {
+       "messageId": 900,
+       "quote": "The old shrine pays a silver for every wolf pelt.",
+       "indexedMessage": "Tamsin shrugs. \"The old shrine pays a silver for every wolf pelt.\"",
+       "speaker": "Tamsin",
+       "role": "forbidden"
+      },
+      {
+       "messageId": 33,
+       "quote": "Something moved in the fog by the reeds.",
+       "role": "forbidden"
+      },
+      {
+       "messageId": 0,
+       "quote": "The ferry leaves at the second bell, and the pilot will not wait for stragglers.",
+       "role": "filler"
+      },
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The old bridge holds two riders at a time, never three.",
+       "role": "filler"
+      },
+      {
+       "messageId": 4,
+       "quote": "Draw water from the east well only; the west one went brackish in spring.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-withheld-quiet",
+     "kind": "withheld",
+     "member": "corvin",
+     "query": "What exactly did Tamsin say about the lantern?",
+     "generationType": "quiet",
+     "pool": [
+      {
+       "messageId": 1,
+       "quote": "Keep the green lantern lit at the bow so the lock keeper knows we paid.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-withheld-impersonate",
+     "kind": "withheld",
+     "member": "corvin",
+     "query": "Quote Hollis on the mule.",
+     "generationType": "impersonate",
+     "pool": [
+      {
+       "messageId": 2,
+       "quote": "The grey mule bites if you stand on her left side, so load her from the right.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "a-withheld-nocue",
+     "kind": "withheld",
+     "member": "hollis",
+     "query": "Hollis, let us head down to the mill before the rain.",
+     "pool": [
+      {
+       "messageId": 0,
+       "quote": "The ferry leaves at the second bell, and the pilot will not wait for stragglers.",
+       "role": "filler"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "session-b",
+   "chatId": "chat-recall-b",
+   "storyId": "recall-synthetic",
+   "storyHash": "v2-recall-b",
+   "player": "Marlo",
+   "roster": [
+    {
+     "id": "corvin",
+     "name": "Corvin"
+    },
+    {
+     "id": "tamsin",
+     "name": "Tamsin"
+    },
+    {
+     "id": "hollis",
+     "name": "Hollis"
+    },
+    {
+     "id": "orrin",
+     "name": "Orrin"
+    }
+   ],
+   "messages": [
+    {
+     "messageId": 0,
+     "speaker": "Corvin",
+     "isUser": false,
+     "text": "Corvin rubs a sore shoulder. \"The map is wrong past the mill; the road bends north, not south.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 1,
+     "speaker": "Tamsin",
+     "isUser": false,
+     "text": "Tamsin glances at the sky. \"Boil the willow bark for the fever and give it to him at dawn and dusk.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 2,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis tightens a strap. \"The toll at the gate is four copper a head, and the guard counts twice.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 3,
+     "speaker": "Orrin",
+     "isUser": false,
+     "text": "Orrin pokes at the fire. \"The bay horse threw a shoe near the ford, so walk her the last mile.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 4,
+     "speaker": "Corvin",
+     "isUser": false,
+     "text": "Corvin shakes out a cloak. \"Never lend your knife to a stranger at the fair; it is bad luck and worse manners.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 5,
+     "speaker": "Marlo",
+     "isUser": true,
+     "text": "\"The lake ice is safe only near the reeds where the water runs shallow.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 6,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis rubs a sore shoulder. \"Deliver the sealed letter to the reeve himself and to no clerk.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 7,
+     "speaker": "Orrin",
+     "isUser": false,
+     "text": "Orrin glances at the sky. \"Bank the fire with ash before we sleep so the embers last until morning.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 8,
+     "speaker": "Corvin",
+     "isUser": false,
+     "text": "Corvin tightens a strap. \"An owl calling in daylight means weather is coming over the hills.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 9,
+     "speaker": "Tamsin",
+     "isUser": false,
+     "text": "Tamsin pokes at the fire. \"The cart axle squeals because the pin is bent; I will fix it at the smithy.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 10,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis shakes out a cloak. \"Pick only the red apples from the low branches; the high ones are wormy.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 11,
+     "speaker": "Marlo",
+     "isUser": true,
+     "text": "\"The river rises fast after rain upstream, so camp above the willow line.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 12,
+     "speaker": "Corvin",
+     "isUser": false,
+     "text": "Corvin leans close to Tamsin and murmurs, \"The horse we sold was branded NX-499MPE under the mane.\"",
+     "heard": [
+      "corvin",
+      "tamsin"
+     ],
+     "nonce": "NX-499MPE"
+    },
+    {
+     "messageId": 13,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis leans close to Corvin and murmurs, \"The tally stick for the grain store is notched NX-4E3T3P.\"",
+     "heard": [
+      "hollis",
+      "corvin"
+     ],
+     "nonce": "NX-4E3T3P"
+    },
+    {
+     "messageId": 14,
+     "speaker": "Tamsin",
+     "isUser": false,
+     "text": "Tamsin leans close to Hollis and murmurs, \"My cousin in the city answers letters addressed to NX-R69SGE.\"",
+     "heard": [
+      "tamsin",
+      "hollis"
+     ],
+     "nonce": "NX-R69SGE"
+    },
+    {
+     "messageId": 15,
+     "speaker": "Orrin",
+     "isUser": false,
+     "text": "Orrin leans close to Corvin and murmurs, \"The safe crossing tonight is marked NX-9VXEER on the beacon.\"",
+     "heard": [
+      "orrin",
+      "corvin"
+     ],
+     "nonce": "NX-9VXEER"
+    },
+    {
+     "messageId": 16,
+     "speaker": "Tamsin",
+     "isUser": false,
+     "text": "Tamsin leans close to Orrin and murmurs, \"Pay the guard with the coin stamped NX-6WZ4BS, not the others.\"",
+     "heard": [
+      "tamsin",
+      "orrin"
+     ],
+     "nonce": "NX-6WZ4BS"
+    },
+    {
+     "messageId": 17,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis leans close to Orrin and murmurs, \"The ring I pawned carries the mark NX-VVML3Y.\"",
+     "heard": [
+      "hollis",
+      "orrin"
+     ],
+     "nonce": "NX-VVML3Y"
+    },
+    {
+     "messageId": 18,
+     "speaker": "Corvin",
+     "isUser": false,
+     "text": "Corvin leans close to Tamsin and murmurs, \"The healer opens only to the knock pattern NX-XN5MMJ.\"",
+     "heard": [
+      "corvin",
+      "tamsin"
+     ],
+     "nonce": "NX-XN5MMJ"
+    },
+    {
+     "messageId": 19,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis leans close to Corvin and murmurs, \"The river pilot logged our crates as NX-6ERW5X.\"",
+     "heard": [
+      "hollis",
+      "corvin"
+     ],
+     "nonce": "NX-6ERW5X"
+    },
+    {
+     "messageId": 20,
+     "speaker": "Tamsin",
+     "isUser": false,
+     "text": "Tamsin leans close to Hollis and murmurs, \"Burn the map once you have learned the route NX-H6GTU7.\"",
+     "heard": [
+      "tamsin",
+      "hollis"
+     ],
+     "nonce": "NX-H6GTU7"
+    },
+    {
+     "messageId": 21,
+     "speaker": "Orrin",
+     "isUser": false,
+     "text": "Orrin leans close to Corvin and murmurs, \"The innkeeper keeps our deposit under the name NX-RPRFCB.\"",
+     "heard": [
+      "orrin",
+      "corvin"
+     ],
+     "nonce": "NX-RPRFCB"
+    },
+    {
+     "messageId": 22,
+     "speaker": "Tamsin",
+     "isUser": false,
+     "text": "Tamsin leans close to Orrin and murmurs, \"The bargeman owes me a favor; say the word NX-GZXPPB to him.\"",
+     "heard": [
+      "tamsin",
+      "orrin"
+     ],
+     "nonce": "NX-GZXPPB"
+    },
+    {
+     "messageId": 23,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis leans close to Orrin and murmurs, \"The tower key is filed under NX-UDCK5W at the reeve hall.\"",
+     "heard": [
+      "hollis",
+      "orrin"
+     ],
+     "nonce": "NX-UDCK5W"
+    },
+    {
+     "messageId": 24,
+     "speaker": "Tamsin",
+     "isUser": false,
+     "text": "Tamsin leans close to Corvin and murmurs, \"That stamp on our papers? I pressed it myself with wax and a borrowed ring.\"",
+     "heard": [
+      "tamsin",
+      "corvin"
+     ]
+    },
+    {
+     "messageId": 25,
+     "speaker": "Orrin",
+     "isUser": false,
+     "text": "Orrin leans close to Corvin and murmurs, \"I walked away from the border garrison the night before the muster.\"",
+     "heard": [
+      "orrin",
+      "corvin"
+     ]
+    },
+    {
+     "messageId": 26,
+     "speaker": "Corvin",
+     "isUser": false,
+     "text": "\"Hold the rope,\" Tamsin shouted. \"I have it,\" Corvin answered.",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 27,
+     "speaker": "Hollis",
+     "isUser": false,
+     "text": "Hollis counts the coins twice and frowns. \"We are short by three silver.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 28,
+     "speaker": "Orrin",
+     "isUser": false,
+     "text": "\"Fine,\" Tamsin said, and Orrin only shrugged.",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 29,
+     "speaker": "Tamsin",
+     "isUser": false,
+     "text": "*Tamsin rolls her eyes* Nobody asked you, and nobody will.",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    },
+    {
+     "messageId": 30,
+     "speaker": "Marlo",
+     "isUser": true,
+     "text": "\"I never agreed to cross the river at night.\"",
+     "heard": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ]
+    }
+   ],
+   "reads": [
+    {
+     "readId": "chat-recall-b-r1",
+     "from": 0,
+     "to": 7,
+     "status": "accepted",
+     "present": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ],
+     "response": "DELTA none\nWITNESS m=0 heard=all-present\nWITNESS m=1 heard=all-present\nWITNESS m=2 heard=all-present\nWITNESS m=3 heard=all-present\nWITNESS m=4 heard=all-present\nWITNESS m=5 heard=all-present\nWITNESS m=6 heard=all-present\nWITNESS m=7 heard=all-present"
+    },
+    {
+     "readId": "chat-recall-b-r2",
+     "from": 8,
+     "to": 15,
+     "status": "accepted",
+     "present": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ],
+     "response": "DELTA none\nWITNESS m=8 heard=all-present\nWITNESS m=9 heard=all-present\nWITNESS m=10 heard=all-present\nWITNESS m=11 heard=all-present\nWITNESS m=12 heard=Corvin,tamsin\nWITNESS m=13 heard=Hollis,corvin\nWITNESS m=14 heard=Tamsin,hollis\nWITNESS m=15 heard=Orrin,corvin"
+    },
+    {
+     "readId": "chat-recall-b-r3",
+     "from": 16,
+     "to": 23,
+     "status": "accepted",
+     "present": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ],
+     "response": "DELTA none\nWITNESS m=16 heard=Tamsin,orrin\nWITNESS m=17 heard=Hollis,orrin\nWITNESS m=18 heard=Corvin,tamsin\nWITNESS m=19 heard=Hollis,corvin\nWITNESS m=20 heard=Tamsin,hollis\nWITNESS m=21 heard=Orrin,corvin\nWITNESS m=22 heard=Tamsin,orrin\nWITNESS m=23 heard=Hollis,orrin"
+    },
+    {
+     "readId": "chat-recall-b-r4",
+     "from": 24,
+     "to": 30,
+     "status": "accepted",
+     "present": [
+      "corvin",
+      "tamsin",
+      "hollis",
+      "orrin"
+     ],
+     "response": "DELTA none\nWITNESS m=24 heard=Tamsin,corvin\nWITNESS m=25 heard=Orrin,corvin\nWITNESS m=26 heard=all-present\nWITNESS m=27 heard=all-present\nWITNESS m=28 heard=all-present\nWITNESS m=29 heard=all-present\nWITNESS m=30 heard=all-present"
+    }
+   ],
+   "tellings": [],
+   "epistemic": [
+    {
+     "id": "ep-b1",
+     "subject": "Hollis",
+     "tag": "unaware",
+     "content": "Hollis is unaware that Tamsin forged the reeve seal on the travel writ",
+     "scene": "mill"
+    },
+    {
+     "id": "ep-b2",
+     "subject": "Orrin",
+     "tag": "hiding",
+     "content": "Orrin is hiding that he deserted the border garrison",
+     "hiddenFrom": "Hollis, Tamsin",
+     "scene": "garrison"
+    }
+   ],
+   "cases": [
+    {
+     "id": "b-pos-01",
+     "kind": "positive",
+     "member": "tamsin",
+     "query": "What exactly did Corvin say about the map?",
+     "pool": [
+      {
+       "messageId": 0,
+       "quote": "The map is wrong past the mill; the road bends north, not south.",
+       "role": "gold"
+      },
+      {
+       "messageId": 1,
+       "quote": "Boil the willow bark for the fever and give it to him at dawn and dusk.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The bay horse threw a shoe near the ford, so walk her the last mile.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-pos-02",
+     "kind": "positive",
+     "member": "hollis",
+     "query": "What did Tamsin say about the fever?",
+     "pool": [
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      },
+      {
+       "messageId": 1,
+       "quote": "Boil the willow bark for the fever and give it to him at dawn and dusk.",
+       "role": "gold"
+      },
+      {
+       "messageId": 3,
+       "quote": "The bay horse threw a shoe near the ford, so walk her the last mile.",
+       "role": "filler"
+      },
+      {
+       "messageId": 4,
+       "quote": "Never lend your knife to a stranger at the fair; it is bad luck and worse manners.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-pos-03",
+     "kind": "positive",
+     "member": "orrin",
+     "query": "Tell me word for word what Hollis told us about the toll.",
+     "pool": [
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "gold"
+      },
+      {
+       "messageId": 3,
+       "quote": "The bay horse threw a shoe near the ford, so walk her the last mile.",
+       "role": "filler"
+      },
+      {
+       "messageId": 4,
+       "quote": "Never lend your knife to a stranger at the fair; it is bad luck and worse manners.",
+       "role": "filler"
+      },
+      {
+       "messageId": 5,
+       "quote": "The lake ice is safe only near the reeds where the water runs shallow.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-pos-04",
+     "kind": "positive",
+     "member": "corvin",
+     "query": "Can you quote Orrin on the horse?",
+     "pool": [
+      {
+       "messageId": 0,
+       "quote": "The map is wrong past the mill; the road bends north, not south.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The bay horse threw a shoe near the ford, so walk her the last mile.",
+       "role": "gold"
+      },
+      {
+       "messageId": 1,
+       "quote": "Boil the willow bark for the fever and give it to him at dawn and dusk.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-pos-05",
+     "kind": "positive",
+     "member": "tamsin",
+     "query": "What exactly did Corvin say about the knife?",
+     "pool": [
+      {
+       "messageId": 4,
+       "quote": "Never lend your knife to a stranger at the fair; it is bad luck and worse manners.",
+       "role": "gold"
+      },
+      {
+       "messageId": 1,
+       "quote": "Boil the willow bark for the fever and give it to him at dawn and dusk.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The bay horse threw a shoe near the ford, so walk her the last mile.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-pos-06",
+     "kind": "positive",
+     "member": "hollis",
+     "query": "What did I say about the ice? Quote me exactly.",
+     "pool": [
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      },
+      {
+       "messageId": 5,
+       "quote": "The lake ice is safe only near the reeds where the water runs shallow.",
+       "role": "gold"
+      },
+      {
+       "messageId": 3,
+       "quote": "The bay horse threw a shoe near the ford, so walk her the last mile.",
+       "role": "filler"
+      },
+      {
+       "messageId": 4,
+       "quote": "Never lend your knife to a stranger at the fair; it is bad luck and worse manners.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-pos-07",
+     "kind": "positive",
+     "member": "orrin",
+     "query": "Tell me word for word what Hollis told us about the letter.",
+     "pool": [
+      {
+       "messageId": 6,
+       "quote": "Deliver the sealed letter to the reeve himself and to no clerk.",
+       "role": "gold"
+      },
+      {
+       "messageId": 0,
+       "quote": "The map is wrong past the mill; the road bends north, not south.",
+       "role": "filler"
+      },
+      {
+       "messageId": 1,
+       "quote": "Boil the willow bark for the fever and give it to him at dawn and dusk.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-pos-08",
+     "kind": "positive",
+     "member": "corvin",
+     "query": "Can you quote Orrin on the fire?",
+     "pool": [
+      {
+       "messageId": 1,
+       "quote": "Boil the willow bark for the fever and give it to him at dawn and dusk.",
+       "role": "filler"
+      },
+      {
+       "messageId": 7,
+       "quote": "Bank the fire with ash before we sleep so the embers last until morning.",
+       "role": "gold"
+      },
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The bay horse threw a shoe near the ford, so walk her the last mile.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-pos-09",
+     "kind": "positive",
+     "member": "tamsin",
+     "query": "What exactly did Corvin say about the owl?",
+     "pool": [
+      {
+       "messageId": 8,
+       "quote": "An owl calling in daylight means weather is coming over the hills.",
+       "role": "gold"
+      },
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The bay horse threw a shoe near the ford, so walk her the last mile.",
+       "role": "filler"
+      },
+      {
+       "messageId": 4,
+       "quote": "Never lend your knife to a stranger at the fair; it is bad luck and worse manners.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-pos-10",
+     "kind": "positive",
+     "member": "hollis",
+     "query": "What did Tamsin say about the cart?",
+     "pool": [
+      {
+       "messageId": 0,
+       "quote": "The map is wrong past the mill; the road bends north, not south.",
+       "role": "filler"
+      },
+      {
+       "messageId": 9,
+       "quote": "The cart axle squeals because the pin is bent; I will fix it at the smithy.",
+       "role": "gold"
+      },
+      {
+       "messageId": 1,
+       "quote": "Boil the willow bark for the fever and give it to him at dawn and dusk.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-pos-11",
+     "kind": "positive",
+     "member": "orrin",
+     "query": "Tell me word for word what Hollis told us about the apples.",
+     "pool": [
+      {
+       "messageId": 10,
+       "quote": "Pick only the red apples from the low branches; the high ones are wormy.",
+       "role": "gold"
+      },
+      {
+       "messageId": 1,
+       "quote": "Boil the willow bark for the fever and give it to him at dawn and dusk.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The bay horse threw a shoe near the ford, so walk her the last mile.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-exc-01",
+     "kind": "exclusion",
+     "member": "hollis",
+     "query": "What exactly did Corvin whisper about the brand?",
+     "pool": [
+      {
+       "messageId": 12,
+       "quote": "The horse we sold was branded NX-499MPE under the mane.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 0,
+       "quote": "The map is wrong past the mill; the road bends north, not south.",
+       "role": "filler"
+      },
+      {
+       "messageId": 1,
+       "quote": "Boil the willow bark for the fever and give it to him at dawn and dusk.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-exc-02",
+     "kind": "exclusion",
+     "member": "orrin",
+     "query": "What exactly did Hollis whisper about the tally?",
+     "pool": [
+      {
+       "messageId": 13,
+       "quote": "The tally stick for the grain store is notched NX-4E3T3P.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 1,
+       "quote": "Boil the willow bark for the fever and give it to him at dawn and dusk.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-exc-03",
+     "kind": "exclusion",
+     "member": "corvin",
+     "query": "What exactly did Tamsin whisper about the cousin?",
+     "pool": [
+      {
+       "messageId": 14,
+       "quote": "My cousin in the city answers letters addressed to NX-R69SGE.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The bay horse threw a shoe near the ford, so walk her the last mile.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-exc-04",
+     "kind": "exclusion",
+     "member": "hollis",
+     "query": "What exactly did Orrin whisper about the beacon?",
+     "pool": [
+      {
+       "messageId": 15,
+       "quote": "The safe crossing tonight is marked NX-9VXEER on the beacon.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 3,
+       "quote": "The bay horse threw a shoe near the ford, so walk her the last mile.",
+       "role": "filler"
+      },
+      {
+       "messageId": 4,
+       "quote": "Never lend your knife to a stranger at the fair; it is bad luck and worse manners.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-exc-05",
+     "kind": "exclusion",
+     "member": "corvin",
+     "query": "What exactly did Tamsin whisper about the coin?",
+     "pool": [
+      {
+       "messageId": 16,
+       "quote": "Pay the guard with the coin stamped NX-6WZ4BS, not the others.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 0,
+       "quote": "The map is wrong past the mill; the road bends north, not south.",
+       "role": "filler"
+      },
+      {
+       "messageId": 1,
+       "quote": "Boil the willow bark for the fever and give it to him at dawn and dusk.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-exc-06",
+     "kind": "exclusion",
+     "member": "tamsin",
+     "query": "What exactly did Hollis whisper about the ring?",
+     "pool": [
+      {
+       "messageId": 17,
+       "quote": "The ring I pawned carries the mark NX-VVML3Y.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 1,
+       "quote": "Boil the willow bark for the fever and give it to him at dawn and dusk.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-exc-07",
+     "kind": "exclusion",
+     "member": "hollis",
+     "query": "What exactly did Corvin whisper about the knock?",
+     "pool": [
+      {
+       "messageId": 18,
+       "quote": "The healer opens only to the knock pattern NX-XN5MMJ.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The bay horse threw a shoe near the ford, so walk her the last mile.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-exc-08",
+     "kind": "exclusion",
+     "member": "orrin",
+     "query": "What exactly did Hollis whisper about the crates?",
+     "pool": [
+      {
+       "messageId": 19,
+       "quote": "The river pilot logged our crates as NX-6ERW5X.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 3,
+       "quote": "The bay horse threw a shoe near the ford, so walk her the last mile.",
+       "role": "filler"
+      },
+      {
+       "messageId": 4,
+       "quote": "Never lend your knife to a stranger at the fair; it is bad luck and worse manners.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-exc-09",
+     "kind": "exclusion",
+     "member": "corvin",
+     "query": "What exactly did Tamsin whisper about the route?",
+     "pool": [
+      {
+       "messageId": 20,
+       "quote": "Burn the map once you have learned the route NX-H6GTU7.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 0,
+       "quote": "The map is wrong past the mill; the road bends north, not south.",
+       "role": "filler"
+      },
+      {
+       "messageId": 1,
+       "quote": "Boil the willow bark for the fever and give it to him at dawn and dusk.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-exc-10",
+     "kind": "exclusion",
+     "member": "hollis",
+     "query": "What exactly did Orrin whisper about the deposit?",
+     "pool": [
+      {
+       "messageId": 21,
+       "quote": "The innkeeper keeps our deposit under the name NX-RPRFCB.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 1,
+       "quote": "Boil the willow bark for the fever and give it to him at dawn and dusk.",
+       "role": "filler"
+      },
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-exc-11",
+     "kind": "exclusion",
+     "member": "corvin",
+     "query": "What exactly did Tamsin whisper about the favor?",
+     "pool": [
+      {
+       "messageId": 22,
+       "quote": "The bargeman owes me a favor; say the word NX-GZXPPB to him.",
+       "role": "nonce"
+      },
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      },
+      {
+       "messageId": 3,
+       "quote": "The bay horse threw a shoe near the ford, so walk her the last mile.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-secret-01",
+     "kind": "secret",
+     "member": "hollis",
+     "query": "Hollis, what exactly did Tamsin say about the papers?",
+     "pool": [
+      {
+       "messageId": 24,
+       "quote": "That stamp on our papers? I pressed it myself with wax and a borrowed ring.",
+       "role": "secret"
+      },
+      {
+       "messageId": 1,
+       "quote": "Boil the willow bark for the fever and give it to him at dawn and dusk.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-secret-02",
+     "kind": "secret",
+     "member": "hollis",
+     "query": "What did Orrin say about the garrison? Word for word.",
+     "pool": [
+      {
+       "messageId": 25,
+       "quote": "I walked away from the border garrison the night before the muster.",
+       "role": "secret"
+      },
+      {
+       "messageId": 2,
+       "quote": "The toll at the gate is four copper a head, and the guard counts twice.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-secret-03",
+     "kind": "secret",
+     "member": "tamsin",
+     "query": "Quote Orrin on the border garrison.",
+     "pool": [
+      {
+       "messageId": 25,
+       "quote": "I walked away from the border garrison the night before the muster.",
+       "role": "secret"
+      },
+      {
+       "messageId": 3,
+       "quote": "The bay horse threw a shoe near the ford, so walk her the last mile.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-vr8-01",
+     "kind": "vr8",
+     "member": "corvin",
+     "query": "Corvin, what exactly was said at the river?",
+     "pool": [
+      {
+       "messageId": 26,
+       "quote": "Hold the rope,",
+       "role": "bait",
+       "trueSpeaker": "Tamsin"
+      },
+      {
+       "messageId": 26,
+       "quote": "I have it,",
+       "role": "bait",
+       "trueSpeaker": null
+      },
+      {
+       "messageId": 27,
+       "quote": "Hollis counts the coins twice and frowns.",
+       "role": "bait",
+       "trueSpeaker": null
+      },
+      {
+       "messageId": 28,
+       "quote": "Fine,",
+       "role": "bait",
+       "trueSpeaker": "Tamsin"
+      },
+      {
+       "messageId": 0,
+       "quote": "The map is wrong past the mill; the road bends north, not south.",
+       "indexed": "This map is wrong past the mill; the road bends north, not south.",
+       "role": "bait"
+      },
+      {
+       "messageId": 27,
+       "quote": "We are short by three silver.",
+       "role": "filler"
+      },
+      {
+       "messageId": 30,
+       "quote": "I never agreed to cross the river at night.",
+       "role": "filler"
+      }
+     ]
+    },
+    {
+     "id": "b-vr8-02",
+     "kind": "vr8",
+     "member": "hollis",
+     "query": "Hollis, what did Tamsin say, exactly?",
+     "pool": [
+      {
+       "messageId": 29,
+       "quote": "Tamsin rolls her eyes",
+       "role": "bait",
+       "trueSpeaker": null
+      },
+      {
+       "messageId": 29,
+       "quote": "Nobody asked you, and nobody will.",
+       "role": "filler"
+      },
+      {
+       "messageId": 28,
+       "quote": "\"Fine,\" Tamsin said",
+       "role": "bait",
+       "trueSpeaker": null
+      },
+      {
+       "messageId": 1,
+       "quote": "Boil the willow bark for the fever and give it to him at dawn and dusk.",
+       "role": "filler"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}
