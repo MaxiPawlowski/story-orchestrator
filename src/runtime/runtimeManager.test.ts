@@ -74,7 +74,7 @@ jest.mock("@services/STAPI", () => {
     vectorQuery: jest.fn(async () => []),
     vectorPurge: jest.fn(async () => undefined),
     DEFAULT_VECTOR_SOURCE: "transformers",
-    executeSlashCommands: jest.fn(async () => undefined),
+    executeSlashCommands: jest.fn(async () => true),
     setGroupMembersDisabled: jest.fn(async () => ({ ok: true, group: "g1" })),
     // v2.3 plan 06: the settings gate and the save evidence. The observation answers "a save went out
     // and was accepted" unless a test says otherwise, because that is the ordinary case every test

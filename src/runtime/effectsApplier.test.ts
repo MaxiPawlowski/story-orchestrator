@@ -17,7 +17,7 @@ jest.mock("@services/STAPI", () => ({
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
   getContext: () => mockContext,
-  executeSlashCommands: jest.fn(async () => undefined),
+  executeSlashCommands: jest.fn(async () => true),
   setGroupMembersDisabled: jest.fn(async () => undefined),
   applyCharacterAN: jest.fn(async (text: string) => ({ ok: true, text })),
   clearCharacterAN: jest.fn(async () => ({ ok: true, text: "" })),
@@ -138,6 +138,7 @@ describe("fireNpcReplies v1 parity", () => {
     (executeSlashCommands as jest.Mock).mockImplementationOnce(async () => {
       mockContext.chat = [{ mes: "Welcome." }];
       await applier.fireNpcReplies(checkpoint, extras, "afterSpeak");
+      return true;
     });
     await applier.fireNpcReplies(checkpoint, extras, "onEnter");
     expect(executeSlashCommands).toHaveBeenCalledTimes(1);
@@ -184,7 +185,7 @@ describe("fireNpcReplies v1 parity", () => {
 
 describe("sceneBreak replies (T1-1 runaway)", () => {
   const dusk = { trigger: "sceneBreak", member: "Adolion Narrator", kind: "scripted", text: "The light is going.", maxTriggers: 2 };
-  const postsOnSend = () => (executeSlashCommands as jest.Mock).mockImplementation(async () => { mockContext.chat = [...mockContext.chat, { mes: "The light is going." }]; });
+  const postsOnSend = () => (executeSlashCommands as jest.Mock).mockImplementation(async () => { mockContext.chat = [...mockContext.chat, { mes: "The light is going." }]; return true; });
   const chatUpTo = (last: number) => { mockContext.chat = Array.from({ length: last + 1 }, (_, index) => ({ mes: `m${index}` })); };
 
   beforeEach(() => {
@@ -192,7 +193,7 @@ describe("sceneBreak replies (T1-1 runaway)", () => {
     postsOnSend();
   });
 
-  afterAll(() => (executeSlashCommands as jest.Mock).mockImplementation(async () => undefined));
+  afterAll(() => (executeSlashCommands as jest.Mock).mockImplementation(async () => true));
 
   it("caps a sceneBreak reply at maxTriggers across the checkpoint's breaks, and a break on its own post never fires it", async () => {
     const applier = new EffectsApplier(testOwnership());
