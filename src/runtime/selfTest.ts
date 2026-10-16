@@ -1,5 +1,6 @@
 import { askText, maxTokensCap, parseSharedReadResponse, profileRoute, routedModel, type ModelCall, type ParsedSharedRead } from "@extraction/index";
 import { buildFixtureRun, type ExtractionFixtureSpec } from "@extraction/fixtureRun";
+import { termPresent, type TermMode } from "@utils/termPresent";
 
 export const SELF_TEST_TIERS = ["deltas", "memory", "arcs", "epistemic", "ledger"] as const;
 export type SelfTestTier = typeof SELF_TEST_TIERS[number];
@@ -80,9 +81,7 @@ const CAPABILITY_FIXTURE: ExtractionFixtureSpec = {
 // mis-graded. Each tier now checks that the answer is about the fixture, whose right answer is
 // unambiguous by construction.
 
-const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const has = (haystack: string, needle: string) =>
-  new RegExp(`${/^[\p{L}\p{N}]/u.test(needle) ? "(?<![\\p{L}\\p{N}])" : ""}${escapeRegExp(needle)}`, "iu").test(haystack);
+const has = (haystack: string, needle: string, mode: TermMode = "term") => termPresent(haystack, needle, mode);
 const someHas = (values: string[], needle: string) => values.some((value) => has(value, needle));
 
 const gradeCore = (parsed: ParsedSharedRead): SelfTestTierResult[] => {
@@ -98,10 +97,10 @@ const gradeCore = (parsed: ParsedSharedRead): SelfTestTierResult[] => {
 
   // Across all lines, not per line: a model may reasonably split the scene into two memories.
   const memoryText = memory.join(" — ");
-  const memoryOnTopic = has(memoryText, "lantern") && has(memoryText, "tunnel");
+  const memoryOnTopic = has(memoryText, "lantern", "prefix") && has(memoryText, "tunnel", "prefix");
 
   const arcText = arcs.join(" — ");
-  const arcOnTopic = has(arcText, "debt") && has(arcText, "bel");
+  const arcOnTopic = has(arcText, "debt", "prefix") && has(arcText, "bel");
 
   return [
     {
@@ -138,8 +137,8 @@ const gradeCapability = (parsed: ParsedSharedRead): SelfTestTierResult[] => {
   // Corin's left arm is wounded. Which side of the pair carries which word is the model's choice
   // (`wound=left arm` and `arm=wounded` are both fine), so the pair is checked as one string.
   const tracksWound = parsed.ledger.some((entry) => has(entry.entity, "corin")
-    && has(`${entry.field}=${entry.value}`, "arm")
-    && has(`${entry.field}=${entry.value}`, "wound"));
+    && has(`${entry.field}=${entry.value}`, "arm", "prefix")
+    && has(`${entry.field}=${entry.value}`, "wound", "prefix"));
 
   return [
     {

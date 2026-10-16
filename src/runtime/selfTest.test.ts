@@ -127,6 +127,15 @@ describe("runModelSelfTest grades meaning, not presence", () => {
     expect(report.results.find((result) => result.tier === "ledger")?.status).toBe("fail");
   });
 
+  it("v2.8 35 G1: a name is a whole term, so 'below' is not Bel; curly quotes fold", async () => {
+    const below = CORE_GOOD.replace("[arc] The debt owed to Bel for the ferry crossing", "[arc] A debt owed below the ferry crossing");
+    const report = await runModelSelfTest({ profileId: "p1", debugResponses: [below, CAPABILITY_GOOD] });
+    expect(report.results.find((result) => result.tier === "arcs")?.status).toBe("fail");
+    const curly = CORE_GOOD.replace("[arc] The debt owed to Bel for the ferry crossing", "[arc] Bel’s debts for the ferry crossing");
+    const kept = await runModelSelfTest({ profileId: "p1", debugResponses: [curly, CAPABILITY_GOOD] });
+    expect(kept.results.find((result) => result.tier === "arcs")?.status).toBe("pass");
+  });
+
   it("accepts either ordering of the ledger pair", async () => {
     const flipped = ["[hiding] Corin from Bel | the letter in his coat", "[state:Corin:character] arm=wounded"].join("\n");
     const report = await runModelSelfTest({ profileId: "p1", debugResponses: [CORE_GOOD, flipped] });

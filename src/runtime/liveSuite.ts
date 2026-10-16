@@ -1,6 +1,7 @@
 import { askText, parseSharedReadResponse, type ExtractionReply, type ModelCall, type ModelPass, type PassRole } from "@extraction/index";
 import { buildFixtureRun, type ExtractionFixtureSpec, type FixtureSourceRead } from "@extraction/fixtureRun";
 import { applyRatingGrounding } from "@extraction/ratingGuard";
+import { liveReadTiers } from "@extraction/liveTiers";
 import { agendaStepKey, parseStoryV2OrThrow, type PrimitiveValue } from "@engine/index";
 import { loadGameLayer } from "@engine/validate/gameLayer";
 import { buildMeanwhilePrompt, parseMeanwhile, type MeanwhileParse } from "./meanwhilePrompt";
@@ -91,16 +92,7 @@ const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
   return { ...raw, qualities: (raw.qualities ?? []).map((quality) => ({ ...quality, ...(hints[String(quality.key)] ?? {}) })) };
 };
 
-type LiveReadTiers = Pick<LiveFixtureResult, "facts" | "rejected" | "memory" | "arcs" | "epistemic" | "ledger">;
-
-export const liveReadTiers = (parsed: ReturnType<typeof parseSharedReadResponse>): LiveReadTiers => ({
-  facts: parsed.facts.map((entry) => ({ text: entry.text, importance: entry.importance })),
-  rejected: parsed.rejected,
-  memory: parsed.memory.map((entry) => ({ tier: entry.tier, text: entry.text })),
-  arcs: parsed.arcs.map((entry) => ({ kind: entry.kind, text: entry.text })),
-  epistemic: parsed.epistemic.map((entry) => ({ tag: entry.tag, subject: entry.subject, ...(entry.hiddenFrom ? { hiddenFrom: entry.hiddenFrom } : {}), content: entry.content })),
-  ledger: parsed.ledger.map((entry) => ({ entity: entry.entity, entityType: entry.entityType, field: entry.field, value: entry.value })),
-});
+export { liveReadTiers };
 
 const ROLE_PASS: Record<PassRole, ModelPass> = { read: "read", synthesis: "sceneSummary", authoring: "copilot", director: "director", curator: "curator", inner: "inner", lore: "loreCreate" };
 

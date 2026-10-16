@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { createHash } from 'node:crypto';
 import path from 'node:path';
-import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreContains, scoreRejected, suiteVerdict, tierTotals, type FixtureScore } from './lib/liveSuiteScore.mts';
+import { DEFAULT_TIER_FLOORS, matchV1, parseTierFloors, scoreContains, scoreIntents, scoreRejected, SCORER_VERSION, suiteVerdict, tierTotals, type FixtureScore } from './lib/liveSuiteScore.mts';
 
 test('a tier the fixture says nothing about is not scored, and never counted as passed', () => {
   const outcome = scoreContains('facts', undefined, []);
@@ -28,7 +28,24 @@ test('B2: a needle matches at a word start, never inside another word', () => {
   const live = [{ text: 'The harm was done; Tomas charted it' }];
   assert.equal(scoreContains('facts', { mustNotContain: ['arm'] }, live).pass, true);
   assert.equal(scoreContains('facts', { mustContain: ['art'] }, live).pass, false);
-  assert.equal(scoreContains('facts', { mustContain: ['toma', 'harm'] }, live).pass, true);
+  assert.equal(scoreContains('facts', { mustContain: ['toma', 'harm'], modes: { toma: 'prefix' } }, live).pass, true);
+  assert.equal(scoreContains('facts', { mustContain: ['toma'] }, live, matchV1).pass, true, 'v1 kept word-start matching');
+});
+
+test('v2.8 35 G1: needles are whole terms unless the fixture lists them as prefix, one matcher for all three scorers', () => {
+  const live = [{ text: 'Bel stands below. Corin’s wounded arm — don’t ask' }];
+  assert.equal(scoreContains('facts', { mustNotContain: ['belo'] }, live).pass, true);
+  assert.equal(scoreContains('facts', { mustContain: ['wound'] }, live).pass, false);
+  assert.equal(scoreContains('facts', { mustContain: ['wound'], modes: { wound: 'prefix' } }, live).pass, true);
+  assert.equal(scoreContains('facts', { mustContain: ["don't", '-', "corin's"] }, live).pass, true);
+  assert.equal(scoreRejected([{ reason: 'speculat' }], [{ reason: 'speculation' }]).pass, false);
+  assert.equal(scoreRejected([{ reason: 'speculat', mode: 'prefix' }], [{ reason: 'speculation' }]).pass, true);
+  assert.equal(scoreRejected([{ reason: 'culat' }], [{ reason: 'speculation' }], matchV1).pass, true, 'v1 reasons were substrings');
+  const rows = [{ tag: 'intends', subject: 'Mara', content: 'to bargain below deck' }];
+  assert.equal(scoreIntents({ expect: [{ subject: 'Mara', anyOf: ['bargain'] }] }, rows).pass, true);
+  assert.equal(scoreIntents({ expect: [{ subject: 'Mara', anyOf: ['barg'] }] }, rows).pass, false);
+  assert.equal(scoreIntents({ expect: [{ subject: 'Mara', anyOf: ['barg'], modes: { barg: 'prefix' } }] }, rows).pass, true);
+  assert.equal(SCORER_VERSION, 2);
 });
 
 test('an empty needle is reported as vacuous, not honoured as a pass', () => {

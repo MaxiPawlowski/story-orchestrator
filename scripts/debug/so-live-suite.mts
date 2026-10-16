@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,6 +10,7 @@ import { latencyPercentiles, parseEffortArm, pinRoleEffort, pinRoleProfile, read
 import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreContains, scoreIntents, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
 
 const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high] [--profile <name|id>] [--arm <label>] [--set extractor|time]
+       node scripts/debug/so-live-suite.mts inventory|rescore [dir] [--out <file>] [--check]   (offline, v2.8 35: see so-live-rescore.mts)
 
 Runs every test/fixtures/extractor*.{story,transcript,expected}.json triple through the live
 extraction model (globalThis.storyOrchestratorLiveSuite.runFixture) and scores exact-match on
@@ -182,6 +184,11 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
 }
 
 export { runSuite };
+
+if (process.argv[1] === fileURLToPath(import.meta.url) && (process.argv[2] === 'rescore' || process.argv[2] === 'inventory')) {
+  const offline = spawnSync(process.execPath, ['--experimental-transform-types', '--no-warnings', join(PROJECT_ROOT, 'scripts/debug/so-live-rescore.mts'), ...process.argv.slice(2)], { stdio: 'inherit' });
+  process.exit(offline.status ?? 1);
+}
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (process.argv[2] !== 'run' || hasHelpFlag()) {
