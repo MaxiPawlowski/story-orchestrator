@@ -1,5 +1,7 @@
 export const LEASE_BUSY = /already owns the local GPU/;
+export const LEASE_RAM_SHORT = /Host RAM is short/;
 export const LEASE_PATIENCE_MS = 15 * 60_000;
+export const RAM_SHORT_STEP_MS = 20_000;
 
 export interface BusyWait { signal?: AbortSignal; now(): number; sleep(ms: number, signal?: AbortSignal): Promise<void>; patienceMs?: number; stepMs?: number }
 
@@ -8,9 +10,10 @@ export async function waitWhileBusy<T>(attempt: () => Promise<T>, wait: BusyWait
   for (;;) {
     try { return await attempt(); }
     catch (error) {
-      if (!(error instanceof Error) || !LEASE_BUSY.test(error.message) || wait.now() >= deadline) throw error;
+      const ramShort = error instanceof Error && LEASE_RAM_SHORT.test(error.message);
+      if (!(error instanceof Error) || !(ramShort || LEASE_BUSY.test(error.message)) || wait.now() >= deadline) throw error;
       wait.signal?.throwIfAborted();
-      await wait.sleep(wait.stepMs ?? 1500, wait.signal);
+      await wait.sleep(ramShort ? RAM_SHORT_STEP_MS : wait.stepMs ?? 1500, wait.signal);
       wait.signal?.throwIfAborted();
     }
   }

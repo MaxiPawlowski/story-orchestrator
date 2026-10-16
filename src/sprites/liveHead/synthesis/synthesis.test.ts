@@ -9,8 +9,9 @@ import { synthesizeRig, eyeCurves, fitCell, layerVertices, MAX_LAYER_VERTICES, L
 import { cutHeadLayers } from "./layers";
 import { encodePngStored, base64 } from "./png";
 import { synthesizeHead, rehomeHead, type RigSynthesisDeps } from "./synthesize";
-import { readLandmarkAnswer, visionLandmarkProvider } from "./visionLandmarks";
-import { visionRigRequest } from "../visionRequest";
+import { readLandmarkAnswer, visionLandmarkProvider, visionTarget } from "./visionLandmarks";
+import { visionRigRequest, VISION_RIG_MODEL } from "../visionRequest";
+import type { HarnessModel } from "@services/stHost/harness";
 import { loadHeadManifest, manifestRef, HEAD_LAYERS } from "../manifest";
 import { prepareHead } from "../load";
 import { validateRig } from "../validate";
@@ -185,5 +186,18 @@ describe("vision landmark provider (wired, never called for real here)", () => {
     const failing = visionLandmarkProvider({ target: async () => ({ id: "openai/gpt-6.1-sol", context: 1, image: true }),
       send: async () => ({ ok: false as const, kind: "auth" as const, message: "sign in" }) });
     await expect(failing(request, new AbortController().signal)).rejects.toThrow("sign in");
+  });
+  test("the Sol offer holds while OpenCode's service is stopped and its image capability is not yet listed", () => {
+    const row = (models: HarnessModel[], offered = true) => ({ pluginVersion: "1", harnesses: { opencode: { installed: true, version: "2", problem: null, loggedIn: null, fresh: false,
+      loginProblem: null, blocked: null, offered, isolation: "", models, quotaUntil: null, spawns: 0, service: "stopped" } } });
+    const sol = { id: VISION_RIG_MODEL, context: 200000 };
+    expect(visionTarget(row([sol]))).toEqual(sol);
+    expect(visionTarget(row([{ ...sol, image: true, available: true }]))).toEqual({ ...sol, image: true, available: true });
+    expect(visionTarget(row([{ ...sol, image: false }]))).toBeUndefined();
+    expect(visionTarget(row([{ ...sol, available: false }]))).toBeUndefined();
+    expect(visionTarget(row([sol], false))).toBeUndefined();
+    expect(visionTarget(null)).toBeUndefined();
+    expect(visionRigRequest({ sha256: "b".repeat(64) }, "cG5n", sol, new AbortController().signal).model).toBe(VISION_RIG_MODEL);
+    expect(() => visionRigRequest({ sha256: "b".repeat(64) }, "cG5n", { ...sol, image: false }, new AbortController().signal)).toThrow("Choose the offered Sol");
   });
 });

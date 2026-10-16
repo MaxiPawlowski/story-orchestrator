@@ -25,8 +25,8 @@ function setup(overrides = {}) {
     return { scheduler, calls, backend };
 }
 
-test('lease waits for the active text reply, keeps text resident when it fits, and resumes FIFO after release', async () => {
-    const { scheduler, calls } = setup();
+test('with a one-reply fair allowance a lease waits only for the active text reply, keeps text resident when it fits, and resumes FIFO after release', async () => {
+    const { scheduler, calls } = setup({ config: { imageFairTextRequests: 1 } });
     const gate = deferred();
     const first = scheduler.text(async () => { calls.push('first'); await gate.promise; });
     const next = scheduler.text(async () => { calls.push('next'); });
@@ -157,7 +157,7 @@ test('an inconsistent observation blocks verification', async () => {
 
 test('an idle restore owns the lifecycle until it settles; queued text and an image wait', async () => {
     const gate = deferred();
-    const { scheduler, backend, calls } = setup({ config: { idleRestoreMs: 1 } });
+    const { scheduler, backend, calls } = setup({ config: { idleRestoreMs: 1, imageFairTextRequests: 0 } });
     backend.fitTarget = 11048;
     scheduler.lastLeaseAt = Date.now() - 10;
     backend.load = async () => { calls.push('restore'); await gate.promise; backend.fitTarget = null; };
@@ -437,4 +437,86 @@ test('streaming is off unless enabled, needs a streaming runtime, a small checkp
     const lowRam = { highCadence: true, gpus: [{ usedMiB: 21876, freeMiB: 2700 }], host: { availableMiB: 5000, commitFreeMiB: 80000 } };
     let n = 0;
     assert.notEqual(await decide({ streamImages: policy }, { snapshot: async () => (n++ === 0 ? lowRam : free(22000)) }), 'stream-image');
+});
+
+test('a queued image gets a fair window after a bounded number of text replies instead of waiting for an idle text queue', async () => {
+    const { scheduler, calls } = setup({ config: { maxQueue: 8, imageFairTextRequests: 2, imageFairWaitMs: 60000 } });
+    const gate = deferred();
+    const texts = [scheduler.text(async () => { calls.push('t0'); await gate.promise; })];
+    for (let n = 1; n <= 5; n += 1) texts.push(scheduler.text(async () => { calls.push(`t${n}`); await tick(); }));
+    const reserving = scheduler.reserve().then((lease) => { calls.push('image'); return lease; });
+    await tick();
+    assert.equal(scheduler.status().imageWaiting, true);
+    gate.resolve();
+    const lease = await reserving;
+    assert.deepEqual(calls, ['t0', 't1', 'image']);
+    await scheduler.release(lease.lease);
+    await Promise.all(texts);
+    assert.deepEqual(calls.filter((row) => row !== 'free'), ['t0', 't1', 'image', 't2', 't3', 't4', 't5']);
+    assert.equal(scheduler.status().servedText, 6);
+});
+
+test('a queued image takes the GPU between turns, or once it has waited the fair window under continuous text', async () => {
+    const between = setup({ config: { imageFairTextRequests: 50, imageFairWaitMs: 60000 } });
+    const gate = deferred();
+    const turn = between.scheduler.text(async () => { between.calls.push('turn'); await gate.promise; });
+    const reserving = between.scheduler.reserve().then((lease) => { between.calls.push('image'); return lease; });
+    await tick(); gate.resolve(); await turn;
+    await between.scheduler.release((await reserving).lease);
+    assert.deepEqual(between.calls.filter((row) => row !== 'free'), ['turn', 'image']);
+
+    const busy = setup({ config: { maxQueue: 64, queueTimeoutMs: 5000, imageFairTextRequests: 1000, imageFairWaitMs: 80 } });
+    let stop = false; const order = [];
+    const feed = async () => { while (!stop) await busy.scheduler.text(async () => { order.push('text'); await new Promise((resolve) => setTimeout(resolve, 5)); }); };
+    const feeders = [feed(), feed()];
+    await tick();
+    const started = Date.now();
+    const lease = await busy.scheduler.reserve();
+    order.push('image');
+    assert.ok(Date.now() - started >= 70, 'the image waited its fair window');
+    assert.ok(order.filter((row) => row === 'text').length > 1, 'text kept flowing while the image waited');
+    stop = true;
+    await busy.scheduler.release(lease.lease);
+    await Promise.all(feeders);
+    assert.equal(busy.scheduler.status().imageWaiting, false);
+});
+
+test('a second image while one waits is told the GPU is owned, and a cancelled wait frees the queue', async () => {
+    const { scheduler } = setup({ config: { imageFairTextRequests: 50, imageFairWaitMs: 60000, queueTimeoutMs: 100 } });
+    const gate = deferred();
+    const text = scheduler.text(() => gate.promise);
+    scheduler.text(async () => {}).catch(() => {});
+    const first = scheduler.reserve();
+    await tick();
+    await assert.rejects(scheduler.reserve(), /already owns the local GPU/);
+    await assert.rejects(first, /deadline/);
+    assert.equal(scheduler.status().imageWaiting, false);
+    gate.resolve(); await text;
+});
+
+test('host RAM short for an image is a retryable refusal that frees the broker for text and does not unload text again while RAM stays short', async () => {
+    let available = 9000, textModel = null;
+    const snapshot = async () => ({ ...free(textModel?.profile ? 3000 : 22000), host: { availableMiB: available, commitFreeMiB: 80000 } });
+    const { scheduler, calls, backend } = setup({ snapshot, freeImages: async ({ ramRequiredMiB }) => {
+        calls.push('free');
+        if (ramRequiredMiB && available + 1500 < ramRequiredMiB + 4096) throw new Error(`Image memory admission refused after GPU release. Insufficient physical RAM headroom. RAM available ${available + 1500} MiB; workload ${ramRequiredMiB} + reserve 4096 MiB.`);
+    } });
+    textModel = backend;
+    const first = await scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 17000, needRamMiB: 8139 }).catch((error) => error);
+    assert.match(first.message, /Host RAM is short/);
+    assert.equal(first.retryable, true);
+    assert.deepEqual(calls, ['unload', 'free']);
+    assert.equal(scheduler.status().phase, 'text');
+    assert.equal(scheduler.status().lastResidency.decision, 'ram-short');
+    await scheduler.text(async () => { calls.push('text'); });
+    assert.equal(calls.at(-1), 'text');
+    await scheduler.backend.load('fast');
+    calls.length = 0;
+    const again = await scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 17000, needRamMiB: 8139 }).catch((error) => error);
+    assert.match(again.message, /Host RAM is short/);
+    assert.deepEqual(calls, [], 'no second text unload while RAM is still short');
+    available = 14000;
+    const lease = await scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 17000, needRamMiB: 8139 });
+    assert.equal(lease.decision, 'swap-text');
+    await scheduler.release(lease.lease);
 });

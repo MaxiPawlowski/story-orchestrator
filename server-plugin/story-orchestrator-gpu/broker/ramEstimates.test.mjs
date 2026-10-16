@@ -109,13 +109,13 @@ test('recorded readings: the old estimate refuses the Qwen batch under desktop l
     }
 });
 
-test('recorded readings: genuinely short RAM still refuses, and the reserve is never traded for the smaller estimate', async () => {
+test('recorded readings: genuinely short RAM still refuses (retryable), and the reserve is never traded for the smaller estimate', async () => {
     const modelDirs = await qwenDirs();
     for (const availableMiB of [RECORDED.r14RefusedRamMiB, 8139 + 4096 - 1]) {
         const { scheduler } = qwenScheduler({ availableMiB, modelDirs });
-        await assert.rejects(scheduler.reserve(qwenLease), /admission refused: Insufficient physical RAM/);
+        await assert.rejects(scheduler.reserve(qwenLease), (error) => /admission refused: Insufficient physical RAM/.test(error.message) && error.retryable === true);
         assert.equal(scheduler.lease, null);
-        assert.equal(scheduler.status().lastResidency.decision, 'refused');
+        assert.equal(scheduler.status().lastResidency.decision, 'ram-short');
     }
     const { scheduler } = qwenScheduler({ availableMiB: 8139 + 4096, modelDirs });
     assert.equal((await scheduler.reserve(qwenLease)).decision, 'retain-text');

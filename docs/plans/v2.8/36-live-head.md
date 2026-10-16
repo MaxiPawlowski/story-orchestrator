@@ -694,3 +694,25 @@ Gates:
   - The rectangle edge is gone from the base layer.
 - Owed: install the re-cut rigs on lane 31, then the browser re-check of the showcase gaze page on the shipped renderer (no GPU).
 - Live head in play (from the plan 41 shakedown): a viseme mouth on a ready rig moved on 1 of 8 Artemis turns (Bram's Sol rig). The changed-look close shot did not follow; see the plan 41 record.
+
+## Gate record: live-head defects from the 2026-10-15 shakedown, 2026-10-16 (LIST, CPU only)
+
+- Sol offer flapping ("The Sol vision model is not offered", then Sol answered a minute later):
+  - Root cause: the harness `/status` lists OpenCode models from the running service. While the service is stopped (it starts on the first call), a model row has no `image` field. The page needed `model.image` truthy (`synthesis/host.ts`, and `visionRigRequest` checked `!target.image`), so the offer depended on whether something had already started the service. The server log shows no OpenCode call for Ash's refused rig.
+  - Fix: `visionTarget(status)` (`visionLandmarks.ts`) offers Sol unless the image capability is known to be false or the model unavailable. `visionRigRequest` refuses only `image === false`. The status is re-read once with `refresh` when it comes back null. The harness call (`ready`, ensure on) is still the real check.
+  - Test: `synthesis.test.ts` "the Sol offer holds while OpenCode's service is stopped…".
+- Bust crop cuts the chin on hatted art (Sol refused Cleo's bust):
+  - Root cause: the head box (bust crop and edit box) was a fixed fraction of the canvas (centred, top 0, 45 % x 25 %; `BaseSpriteBuilder`). Tall headwear pushes the chin below 25 %.
+  - Fix: `builder/headBox.ts`. When the base is kept, the face detector (media `/landmarks`) is asked. `faceAnchor` takes the largest scored face and its chin point (point 2), and `headBox` builds a 2-face-high box (aspect 1.2), 0.46 face above the face top. That keeps the chin, some neck and the mouth inside the `mouthRegion` band.
+  - Without a detector answer the old fraction box stays.
+  - A silhouette-only neck heuristic was tried on 15 real bases (showcase plus lane art) and dropped: long hair and hat crowns fooled it.
+  - Test: `headBox.test.ts` with a hatted-silhouette fixture (the old box ends above the chin; the detector-anchored box keeps chin and mouth).
+  - Queued: bases kept earlier keep their old box until they are re-kept. A detector-less fallback for hats is a design decision.
+- Gates on branch `v2.8-image-defects-2` (base `167892d9`), CPU only (no GPU, ComfyUI or model call; the 3090 ran the text suite):
+  - `npm run gates:quick` green after each fix.
+  - `npm run gates -- --jobs=2 --no-storybook` run 1 RED on `test`: `legacyFree.guard` (the name `legacyHeadBox`) and `errorCopy.guard` (the new detector `.catch(() => null)` not in the inventory). Fixed: renamed to `fractionHeadBox`, inventory row added.
+  - Run 2 all green in 189.4 s: jest 772 suites / 8,924 passed (1 skipped), replay 32/32 killed, test:debug 1,316, test:plugin 324 (319 pass, 5 skipped), gpu plugin 127, test:release, lint, typecheck, typecheck:test, debug:typecheck.
+  - Storybook separately on port 6187 (the gates script pins 6006): `storybook:build` then test-runner `--maxWorkers 2`: 147 suites / 882 tests passed.
+  - Main bundle 1,280,994 B (was 1,280,736; budget 1,300,000).
+  - Host RAM was about 11.5 GB free at the start; the suite was not stopped.
+- Live checks: NONE (CPU-only task). Every fix below is unit-proved only; the browser and GPU re-runs are owed.

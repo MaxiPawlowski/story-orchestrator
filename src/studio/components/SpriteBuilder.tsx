@@ -36,11 +36,17 @@ export interface SpriteBuilderHost {
   delete: typeof deleteGeneratedSprite;
   referenceSets: typeof spriteReferenceSets;
   referencePack: typeof spriteReferencePack;
+  detect?(png: string): Promise<unknown>;
 }
+
+const detectFace = async (png: string): Promise<unknown> => {
+  const reply = await (await import("@services/stHost/landmarkDetector")).detectFaceLandmarks(png, AbortSignal.timeout(30_000));
+  return reply.ok ? reply.result : null;
+};
 
 const host: SpriteBuilderHost = { discover: comfyDiscover, fingerprint: comfyFingerprint, manifest: spriteManifest,
   members: spriteBuilderMembers, list: spriteReferences, decode: decodeImage, builder: () => createSpriteBuilder(draftOwnership),
-  sets: generatedSpriteSets, delete: deleteGeneratedSprite, referenceSets: spriteReferenceSets, referencePack: spriteReferencePack };
+  sets: generatedSpriteSets, delete: deleteGeneratedSprite, referenceSets: spriteReferenceSets, referencePack: spriteReferencePack, detect: detectFace };
 
 const rosterIdOf = (roster: readonly { id: string; name?: string }[], members: readonly { folder: string; name: string }[], folder: string): string => {
   const name = members.find((member) => member.folder === folder)?.name ?? folder;
