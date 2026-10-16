@@ -3,6 +3,7 @@ import { join } from "path";
 import { unitDraw } from "@engine/chance";
 import { parseStoryV2, parseStoryV2OrThrow, TENSION_LEVELS, type NormalizedStoryV2 } from "@engine/index";
 import { parseDirectorDraft } from "./parse";
+import { sanitizeLivingState } from "./sanitize";
 import { buildDirectorOps, checkDirectorOps, planChapter } from "./plan";
 import {
   drawSceneOutcome, planSceneTest, sceneAnswerIssues, sceneChaos, sceneDrawParts, sceneProbability, sceneSignal, sceneSignalLine, spacedOutcome,
@@ -110,6 +111,15 @@ describe("v2.8 48 S12 spacing", () => {
     const base = { ids, frontierName: "F", plannedAt: 1, messageId: 1, tension: "peak" as const, candidates: [], prior: [] };
     expect(planSceneTest({ ...base, story, frontierId: "liv_open" })).toBeNull();
     expect(planSceneTest({ ...base, story: { living: { premise: "p" } }, frontierId: "liv_1" })).toBeNull();
+  });
+});
+
+describe("v2.8 48 scene tests survive a reload", () => {
+  it("the living sanitizer keeps well-formed records and drops broken ones", () => {
+    const kept = record();
+    const state = sanitizeLivingState({ ops: [], proposals: [], sceneTests: [kept, { ...kept, applied: "maybe" }, { ...kept, expected: null }, "x"] });
+    expect(state?.sceneTests).toEqual([kept]);
+    expect(sanitizeLivingState({ ops: [] })?.sceneTests).toBeUndefined();
   });
 });
 

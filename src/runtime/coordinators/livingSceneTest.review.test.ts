@@ -7,6 +7,7 @@ import { renderDirectorPrompt } from "@generation/living/prompt";
 import { planSceneTest, sceneSignal, sceneSignalLine, type SceneIds, type SceneTestRecord } from "@generation/living/sceneTest";
 import { focusCandidates } from "@pacing/focus";
 import type { LivingRuntimeState } from "@generation/living/types";
+import { sanitizeLivingState } from "@generation/living/sanitize";
 import { mintToken, tokenMatches, type RunContext } from "../runToken";
 import { livingInputs, type LivingInputs } from "../livingInputs";
 import { directorInput } from "../livingUnit";
@@ -115,7 +116,7 @@ const rig = (options: RigOptions = {}) => {
     engine.rollbackTo(boundary);
     coordinator.restoreAfterRollback(engine.serialize().boundary);
   };
-  const reopen = () => { extras.living = JSON.parse(JSON.stringify(extras.living)) as LivingRuntimeState; };
+  const reopen = () => { extras.living = sanitizeLivingState(JSON.parse(JSON.stringify(extras.living))); };
   const toFirstTurn = async () => {
     await coordinator.propose();
     const first = extras.living?.proposals.at(-1);
