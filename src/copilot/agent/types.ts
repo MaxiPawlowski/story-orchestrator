@@ -1,3 +1,4 @@
+import type { ProposalBase } from "./staleProposal";
 import type { Chapter, RosterView, StoryPlayer } from "@engine/index";
 import type { ProposalOp } from "../types";
 import type { PoseAgentOp } from "./poseOps";
@@ -41,6 +42,7 @@ export interface AgentStep {
   family: AgentToolFamily | null;
   status: AgentStepStatus;
   op?: AgentOp;
+  base?: ProposalBase;
   observation: string;
   reason?: string;
   check?: string;

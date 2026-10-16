@@ -20,6 +20,7 @@ import { greetingClash, playerCastProblem } from "./playerCast";
 import { callKey, createdRefusal, rejectedRefusal } from "./rejected";
 import { draftCastNames } from "@wizard/index";
 import { stableStringify } from "@runtime/hash";
+import { changedSinceProposed, proposalBase } from "./staleProposal";
 import type { AgentBudget, AgentOnlyOp, AgentOp, AgentLookup, AgentMode, AgentReply, AgentSession, AgentStep, AgentStepStatus } from "./types";
 
 export const AGENT_SESSION_VERSION = 1;
@@ -358,7 +359,7 @@ export const executeReply = (session: AgentSession, reply: AgentReply, context: 
     const check = checkDraft(applyAgentOp(context.draft, edit), installOf(context));
     return record({ family: "edit", op: edit, status: "applied", observation: noted("Applied to the draft (auto-draft)."), check }, edit);
   }
-  return record({ family: "edit", op: edit, status: "pending", observation: noted("Waiting for the author.") });
+  return record({ family: "edit", op: edit, status: "pending", observation: noted("Waiting for the author."), base: proposalBase(context.draft, applyAgentOp(context.draft, edit)) });
 };
 
 const finish = (session: AgentSession, claim: string, context: AgentContext, meta: StepMeta): AgentTurn => {
@@ -380,6 +381,15 @@ const updateStep = (session: AgentSession, id: number, patch: Partial<AgentStep>
   return { ...session, steps, status: session.status === "awaiting-author" ? nextStatus(session, steps) : session.status };
 };
 
+export const STALE_PROPOSAL = "changed since proposed";
+
+const staleRefusal = (session: AgentSession, id: number, op: AgentOp, changed: string[]): AgentTurn | null => {
+  if (!changed.length) return null;
+  const more = changed.length > 6 ? ` and ${changed.length - 6} more` : "";
+  const observation = `Not applied: ${changed.slice(0, 6).join(", ")}${more} ${STALE_PROPOSAL}. Ask the agent again if you still want this change.`;
+  return { session: updateStep(session, id, { status: "failed", op, base: undefined, observation }), apply: null };
+};
+
 export type AgentDecision = { kind: "accept"; op?: AgentOp } | { kind: "reject"; reason: string };
 
 export const decideStep = (session: AgentSession, id: number, decision: AgentDecision, draft: StoryV2): AgentTurn => {
@@ -387,16 +397,20 @@ export const decideStep = (session: AgentSession, id: number, decision: AgentDec
   if (!step || step.status !== "pending") return { session, apply: null };
   if (decision.kind === "reject") {
     const reason = decision.reason.trim() || "no reason given";
-    return { session: updateStep(session, id, { status: "rejected", reason, observation: `Rejected by the author: ${reason}` }), apply: null };
+    return { session: updateStep(session, id, { status: "rejected", reason, base: undefined, observation: `Rejected by the author: ${reason}` }), apply: null };
   }
   if (step.family !== "edit" || !step.op) return { session, apply: null };
   const op = decision.op ?? step.op;
   if (isProvisionOp(op)) return { session, apply: null };
+  const stale = staleRefusal(session, id, op, changedSinceProposed(step.base, draft));
+  if (stale) return stale;
   const problem = editProblem(draft, op);
-  if (problem) return { session: updateStep(session, id, { status: "failed", op, observation: `The accepted change no longer applies: ${problem}` }), apply: null };
+  if (problem) return { session: updateStep(session, id, { status: "failed", op, base: undefined, observation: `The accepted change no longer applies: ${problem}` }), apply: null };
+  const overwritten = staleRefusal(session, id, op, changedSinceProposed(step.base, draft, applyAgentOp(draft, op)));
+  if (overwritten) return overwritten;
   const edited = decision.op !== undefined && JSON.stringify(decision.op) !== JSON.stringify(step.op);
   const observation = edited ? `Accepted after the author edited it: ${JSON.stringify(op)}` : "Accepted by the author.";
-  return { session: updateStep(session, id, { status: "accepted", op, observation, check: checkDraft(applyAgentOp(draft, op)) }), apply: op };
+  return { session: updateStep(session, id, { status: "accepted", op, base: undefined, observation, check: checkDraft(applyAgentOp(draft, op)) }), apply: op };
 };
 
 export const resolveProvisioning = (session: AgentSession, id: number, outcome: { ok: boolean; message: string }, draftAfter: StoryV2): AgentSession => {
