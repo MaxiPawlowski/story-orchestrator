@@ -39,6 +39,18 @@ describe("findQualityUsages", () => {
     const usages = findQualityUsages(draft(), "route");
     expect(usages.map((entry) => entry.kind).sort()).toEqual(["gate", "snapshot"]);
   });
+  it("reports quest and codex gates, but not codex reached or start", () => {
+    const withGames: StoryDraft = {
+      ...draft(),
+      quests: [{ id: "cache", title: "Cache", kind: "side", done_when: { q: "trust", op: ">=", v: 3 }, steps: [{ text: "s", done_when: { q: "unused", op: "==", v: true } }] }],
+      codex: {
+        people: [{ id: "mara", name: "Mara", known_when: { q: "unused", op: "==", v: true }, facts: [{ id: "one", text: "t", known_when: { q: "unused", op: "==", v: true } }] }],
+        places: [{ id: "dock", name: "Dock", known_when: "start", facts: [{ id: "two", text: "t", known_when: { reached: "cache" } }] }],
+      },
+    };
+    expect(findQualityUsages(withGames, "unused").map((entry) => entry.location)).toEqual(["quest cache step 1", "codex people mara", "codex people mara fact one"]);
+    expect(findQualityUsages(withGames, "trust").map((entry) => entry.location)).toEqual(["start → cache (transition 1)", "quest cache"]);
+  });
   it("returns empty for unused qualities", () => {
     expect(findQualityUsages(draft(), "unused")).toHaveLength(0);
   });

@@ -256,7 +256,7 @@ export const READ_TOOLS = {
   readGraph: { family: "read", doc: "Every transition as an edge, with its gate in words.", args: {} },
   readDiagnostics: { family: "read", doc: "The Studio diagnostics for the draft.", args: {} },
   readValidation: { family: "read", doc: "The story validator's errors for the draft.", args: {} },
-  readQualityUsage: { family: "read", doc: "Where a quality is read: gates and snapshots.", args: { key: req("string", "quality key") } },
+  readQualityUsage: { family: "read", doc: "Where a quality is read: transition, quest and codex gates, snapshots and card bindings.", args: { key: req("string", "quality key") } },
   readGateOptions: { family: "read", doc: "The operators and a sample value a gate on this quality may use.", args: { key: req("string", "quality key") } },
   readCoverage: { family: "read", doc: "Fields this story does not use yet, and what each would add.", args: {} },
   readGuide: { family: "read", doc: "The author's guide on one topic: what the fields do, a good example, the trap.", args: { topic: req("string", "a guide topic") } },
