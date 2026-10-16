@@ -7,7 +7,7 @@ import { ARC_OPEN_INJECT_LIMIT, DEFAULT_DEDUP_THRESHOLDS, labelMemoryBlock, memo
 import { buildChapterView, chapterNumber, chapterOf, chapterSettings, eraTarget, isEraId, jumpSeal, liveSkip, playerTitleOf, sealTarget, type ChapterSettings, type SealSkip } from "./chapters";
 import { sealAtState, type ChapterHost, type ChapterPort } from "./chapterPort";
 import { withholds } from "./generationLifecycle";
-import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
+import { carriesInto, INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import type { PromptHost, VectorHost } from "./hostPorts";
 import { commitRecordBridge, markRecapSeen, pendingBridge, pushSealSkip, unfoldAt } from "@memory/chapterUnfold";
 import { restingRecord, restingRecords, type Resting } from "@memory/chapterInput";
@@ -207,7 +207,7 @@ export function inject(port: ChapterPort, prompt: PromptHost, on: boolean): Map<
 
 export function carryBridge(port: ChapterPort, type: unknown) {
   const memory = port.host.memory();
-  const bridge = !withholds(type) && memory.settings.enabled ? pendingBridge(memory.chapters ?? []) : null;
+  const bridge = carriesInto(INJECTION_REGISTRY.chapterBridge, type) && memory.settings.enabled ? pendingBridge(memory.chapters ?? []) : null;
   port.carried = bridge?.recordId ?? null;
   const text = bridge ? port.host.coordinator.injector.restingFilter()(bridge.text) : "";
   if (text) port.host.deps.hosts.prompt.setStoryExtensionPrompt(INJECTION_REGISTRY.chapterBridge.key, text, INJECTION_REGISTRY.chapterBridge.depth);

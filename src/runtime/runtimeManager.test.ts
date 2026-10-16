@@ -9,6 +9,8 @@ import { BLOB_VERSION } from "./persistence";
 import { defaultInlineSettings } from "./settingsModel";
 import { defaultPresenceSettings } from "./displayToggles";
 import { control } from "../../test/findings/ledger";
+import { carriesInto, INJECTION_REGISTRY, type InjectionSpec } from "@constants/injectionRegistry";
+import { GenerationLifecycle } from "./generationLifecycle";
 
 const mockExtensionPrompts: Record<string, { value: string; depth: number }> = {};
 const mockLorebooks: Record<string, Record<string, boolean>> = {};
@@ -376,6 +378,50 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
     }
     manager.onGenerationStarted("normal", false);
     expect(block()?.value).toContain(WANDER);
+  });
+
+  it("v2.8 69 K9: a withholding run clears exactly the set blocks its registry entry declares withhold, and keeps the rest", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(guided(WANDER)));
+    const specOf = (key: string) => (Object.values(INJECTION_REGISTRY) as InjectionSpec[]).find((spec) => spec.key === key);
+    for (const type of ["quiet", "impersonate"]) {
+      manager.onGenerationStarted("normal", false);
+      const before = Object.keys(mockExtensionPrompts).filter((key) => specOf(key));
+      expect(before).toContain(INJECTION_REGISTRY.checkpointGuidance.key);
+      manager.onGenerationStarted(type, false);
+      const kept = before.filter((key) => key in mockExtensionPrompts);
+      expect(kept).toEqual(before.filter((key) => carriesInto(specOf(key)!, type)));
+      manager.clearPrivateInjection();
+    }
+  });
+
+  it("v2.8 69 K9: a quiet run nested inside a loud one withholds while it runs and the loud run's blocks come back when it ends", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(guided(WANDER)));
+    const lifecycle = new GenerationLifecycle(() => true);
+    const drive = (intents: ReturnType<GenerationLifecycle["started"]>) => intents.forEach((intent) => {
+      if (intent.kind === "opened" || (intent.kind === "nested" && intent.withholds)) manager.onGenerationStarted(intent.type, false);
+      if (intent.kind === "reapply" || intent.kind === "closed") manager.clearPrivateInjection();
+    });
+    drive(lifecycle.started(["normal", {}, false], 4));
+    expect(block()?.value).toContain(WANDER);
+    drive(lifecycle.started(["quiet", {}, false], 4));
+    expect(block()).toBeUndefined();
+    expect(manager.turnBlocksHeld()).toBe(true);
+    drive(lifecycle.ended([]));
+    expect(block()?.value).toContain(WANDER);
+    expect(manager.turnBlocksHeld()).toBe(false);
+  });
+
+  it("v2.8 69 K9: a raw generation emits no lifecycle event, so nothing is withheld or released", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(guided(WANDER)));
+    const lifecycle = new GenerationLifecycle(() => true);
+    const before = JSON.stringify(mockExtensionPrompts);
+    expect(lifecycle.snapshot().outermost).toBeNull();
+    expect(lifecycle.ended([])).toEqual([]);
+    expect(JSON.stringify(mockExtensionPrompts)).toBe(before);
+    expect(manager.turnBlocksHeld()).toBe(false);
   });
 
   it("B10: the hold is readable by the other turn blocks and announced to subscribers on take and release", async () => {

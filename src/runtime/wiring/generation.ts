@@ -25,12 +25,12 @@ import { roleDefaultFrom, setRoleDefault } from "../passProfiles";
 import { modelCallLog } from "../modelCallLog";
 import { spikeSeams } from "../spikeSeams";
 import { awayNoticeLine, createAwayNotice } from "../awayNotice";
-import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
+import { INJECTION_REGISTRY, type InjectionCarry } from "@constants/injectionRegistry";
 import { residueTags, settledOnReply } from "../emptyReply";
 import type { LoreWiring } from "./lore";
 import type { Disposers, LiveParts } from "./types";
 
-const notice = (line: () => string | null, spec: { key: string; depth: number } = INJECTION_REGISTRY.awayNotice) =>
+const notice = (line: () => string | null, spec: { key: string; depth: number; carry: InjectionCarry } = INJECTION_REGISTRY.awayNotice) =>
   createAwayNotice({ line, set: setStoryExtensionPrompt, clear: clearStoryExtensionPrompt }, spec);
 const awayNotice = notice(() => awayNoticeLine(runtimeManager.getStory(), runtimeManager.getEngineState()?.blackboard.values ?? {}, getContext().chat ?? []));
 const previously = notice(() => runtimeManager.getCachedSnapshot().carry?.block ?? null, INJECTION_REGISTRY.previously);

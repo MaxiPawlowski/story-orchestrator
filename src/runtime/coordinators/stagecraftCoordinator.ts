@@ -13,14 +13,13 @@ import {
   type WardenFamiliesActive, type WriteAheadCounts,
   capRefusal, createCapFor, isCreateOp, newEntriesText, type CreatedEntry, type CreatedStampOwner,
 } from "@stagecraft/index";
-import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
+import { carriesInto, INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { beginRun, type RunGuard, type RunOwnership, type RunToken } from "../runToken";
 import type { ChatHost, CuratorWiHost, PlayerHost, PromptHost } from "../hostPorts";
 import type { StagecraftRuntimeState } from "../types";
 import type { EstablishedFact } from "../continuity";
 import type { LoreCreateOutcome, LoreCreatorDeps } from "../loreCreator";
 import type { StagecraftKit } from "../stagecraftKit";
-import { withholds } from "../generationLifecycle";
 import { log } from "@utils/log";
 
 // One curator pass every few boundaries at most: the reply path never waits for it, and a story that
@@ -484,7 +483,7 @@ export class StagecraftCoordinator {
   // and the note waits for the next one.
   onGenerationStarted(type: unknown, dryRun: unknown) {
     const settings = this.state.settings;
-    if (dryRun === true || withholds(type) || settings.wardenAcceptMode === "off" || this.deps.warden?.nudgeActive()) return;
+    if (dryRun === true || !carriesInto(INJECTION_REGISTRY.continuityNote, type) || settings.wardenAcceptMode === "off" || this.deps.warden?.nudgeActive()) return;
     this.withdrawRemovedRules();
     const active = this.activeFamilies();
     const carried = newestCarriedNote(this.state.proposals, active);
