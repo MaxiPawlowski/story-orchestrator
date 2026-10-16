@@ -19,13 +19,15 @@ const st = {
   worldNames: [] as string[],
   posts: [] as Array<{ url: string; name: string; data?: Book }>,
   debounced: null as null | { name: string; data: Book },
-  holdGet: null as null | ((name: string) => Promise<void>),
+  holdGet: null as null | ((name: string, count: number) => Promise<void>),
+  gets: 0,
 };
 
 globalThis.fetch = jest.fn(async (url: unknown, init?: { body?: string }) => {
   const body = JSON.parse(init?.body ?? "{}") as { name: string; data?: Book };
   if (url === "/api/worldinfo/get") {
-    if (st.holdGet) await st.holdGet(body.name);
+    st.gets += 1;
+    if (st.holdGet) await st.holdGet(body.name, st.gets);
     const book = st.disk.get(body.name);
     return { ok: true, status: 200, json: async () => clone(book ?? { entries: {} }) } as unknown as Response;
   }
@@ -114,6 +116,7 @@ beforeEach(() => {
   st.posts = [];
   st.debounced = null;
   st.holdGet = null;
+  st.gets = 0;
   listeners.clear();
   stop = watchPendingWorldSaves();
 });
@@ -155,5 +158,30 @@ describe("review 2026-10-16 #1: conflict detection never saves over the conflict
     expect(st.disk.get(BOOK)!.entries[3].disable).toBe(true);
     await runDebounce();
     expect(st.disk.get(BOOK)!.entries[3].disable).toBe(true);
+  });
+});
+
+describe("review 2026-10-16 #4: each write is built on a detached candidate, never on ST's cached book", () => {
+  it("while the preflight read is suspended, ST's own load still sees the book without the uncommitted flag; on refusal neither server nor cache holds it", async () => {
+    seed();
+    let seenDuringPreflight: Book | undefined;
+    st.holdGet = async (_name, count) => {
+      if (count !== 2) return;
+      seenDuringPreflight = await loadWorldInfo(BOOK);
+      otherPageEdits();
+    };
+    const result = await setWIEntriesState(BOOK, { disable: "Gate" });
+    expect(seenDuringPreflight?.entries[3].disable).toBe(false);
+    expect(result).toEqual({ ok: false, reason: expect.stringContaining("another page changed") });
+    expect(ourPosts()).toEqual([]);
+    expect(st.disk.get(BOOK)!.entries[3].disable).toBe(false);
+    expect(st.disk.get(BOOK)!.entries[5].content).toBe("OTHER PAGE EDIT");
+    expect(st.cache.has(BOOK) ? st.cache.get(BOOK)!.entries[3].disable : false).toBe(false);
+  });
+
+  it("a write that lands updates the cache to exactly what the server holds", async () => {
+    seed();
+    expect(await setWIEntriesState(BOOK, { disable: "Gate" })).toEqual({ ok: true, changed: true, confirmed: true });
+    expect(st.cache.get(BOOK)).toEqual(st.disk.get(BOOK));
   });
 });

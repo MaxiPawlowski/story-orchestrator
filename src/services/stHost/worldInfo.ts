@@ -45,6 +45,11 @@ async function loadExisting(name: string): Promise<{ name: string; data: Loreboo
   return data?.entries ? { name: lorebook, data } : null;
 }
 
+const loadDraft = async (name: string): Promise<{ name: string; data: Lorebook } | null> => {
+  const book = await loadExisting(name);
+  return book ? { name: book.name, data: structuredClone(book.data) } : null;
+};
+
 export async function loadScanLorebook(name: string): Promise<{ name: string; entries: Array<LoreEntry & { world: string; content: string }> } | null> {
   const book = await loadExisting(name);
   if (!book) return null;
@@ -133,7 +138,7 @@ export async function setWIEntriesState(lorebook: string, switches: WIEntrySwitc
   ];
   if (!wanted.length) return couldNot("no entry was named");
 
-  const book = await loadExisting(lorebook);
+  const book = await loadDraft(lorebook);
   if (!book) {
     log.warn("world info: lorebook does not exist", { lorebook });
     return couldNot(`there is no lorebook "${lorebook}"`);
@@ -326,7 +331,7 @@ const holdsShape = (entry: LoreEntry, keys: string[], fields: Record<string, unk
 
 export async function upsertWIEntry(lorebook: string, comment: string, content: string, keys: string[] = [], options: WIEntryShape & { live?: boolean } = {}): Promise<WIUpsertResult> {
   if (!comment) return "failed";
-  const book = await loadExisting(lorebook);
+  const book = await loadDraft(lorebook);
   if (!book) {
     log.warn("world info: lorebook does not exist", { lorebook });
     return "failed";
@@ -395,7 +400,7 @@ export async function readWIEntryAt(target: WIEntryTarget): Promise<(WIEntrySnap
 }
 
 export async function updateWIEntryByUid(target: WIEntryTarget, patch: { content?: string; disabled?: boolean }): Promise<WriteResult<{ confirmed: boolean }>> {
-  const book = await loadExisting(target.lorebookFileId);
+  const book = await loadDraft(target.lorebookFileId);
   if (!book) return couldNot(`there is no lorebook "${target.lorebookFileId}"`);
   const entry = book.data.entries[target.uid];
   if (!entry) return couldNot(`entry ${target.uid} is no longer in "${book.name}"`);
@@ -438,7 +443,7 @@ const saveRefused = (name: string, error: unknown) =>
 export async function createWIEntry(lorebook: string, entry: WINewEntry): Promise<WriteResult<{ uid: number; lorebookFileId: string; confirmed: boolean }>> {
   const comment = entry.comment.trim();
   if (!comment) return couldNot("a new entry needs a title");
-  const book = await loadExisting(lorebook);
+  const book = await loadDraft(lorebook);
   if (!book) return couldNot(`there is no lorebook "${lorebook}"`);
   if (Object.values(book.data.entries).some((existing) => String(existing.comment ?? "").trim().toLowerCase() === comment.toLowerCase())) {
     return couldNot(`"${comment}" already exists in "${book.name}"`);
@@ -464,7 +469,7 @@ export async function createWIEntry(lorebook: string, entry: WINewEntry): Promis
 }
 
 export async function deleteWIEntryAt(target: WIEntryTarget): Promise<WriteResult<{ confirmed: boolean }>> {
-  const book = await loadExisting(target.lorebookFileId);
+  const book = await loadDraft(target.lorebookFileId);
   if (!book) return couldNot(`there is no lorebook "${target.lorebookFileId}"`);
   if (!book.data.entries[target.uid]) return couldNot(`entry ${target.uid} is no longer in "${book.name}"`);
   const stale = await staleBookRefusal(book.name, imageOf(book.data));
