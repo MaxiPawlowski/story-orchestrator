@@ -35,6 +35,7 @@ function harness() {
   let epoch = 1;
   const applied: number[] = [];
   const health: Array<[string, string]> = [];
+  const outages: Array<{ from: number; to: number }> = [];
   const host: SchedulerHost = {
     getStory: () => ({}) as unknown as NormalizedStoryV2,
     getEngineState: () => ({ lastMessageId: 9 }) as unknown as EngineState,
@@ -47,11 +48,12 @@ function harness() {
     applyExtractionAudit: async (audit) => { applied.push(audit.window.to); },
     onSchedulerChange: () => undefined,
     noteHealth: (summary, detail) => { health.push([summary, detail]); },
+    noteReadOutage: (window) => { outages.push(window); },
     probeModel: async () => ({ ok: true }),
     profileExists: () => true,
     epoch: () => epoch,
   };
-  return { scheduler: new ExtractionScheduler(host), settings, applied, health, endTheWorld: () => { epoch += 1; } };
+  return { scheduler: new ExtractionScheduler(host), settings, applied, health, outages, endTheWorld: () => { epoch += 1; } };
 }
 
 const cadenceRead = (from: number, to: number) => ({ priority: 1 as const, reason: "cadence", window: { from, to, messages: [] } });
@@ -97,6 +99,7 @@ describe("AE-04 extraction|delayedError: a read whose model call fails after a w
 
     expect(h.scheduler.getSnapshot()).toMatchObject({ inFlight: false, queueDepth: 0, lastError: "the memory model answered 500" });
     expect(h.health).toEqual([["extraction failed: cadence", "the memory model answered 500"]]);
+    expect(h.outages).toEqual([{ from: 0, to: 4 }]);
     expect(h.applied).toEqual([]);
     expect(h.scheduler.breakerOpen()).toBe(false);
     expect(h.scheduler.health()).toBeNull();
@@ -135,6 +138,7 @@ describe("AE-04 extraction|delayedError: a read whose model call fails after a w
     expect(held).toHaveLength(3);
     expect(h.scheduler.getSnapshot()).toMatchObject({ inFlight: false, lastError: null });
     expect(h.health).toEqual([]);
+    expect(h.outages).toEqual([]);
     expect(h.applied).toEqual([]);
   });
 

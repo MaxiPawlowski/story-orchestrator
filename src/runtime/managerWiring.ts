@@ -35,6 +35,7 @@ import { createMeanwhilePort } from "./meanwhilePort";
 import type { EffectsApplier } from "./effectsApplier";
 import { wireLiving } from "./livingWiring";
 import { createPromisePort } from "./promisePort";
+import { createWitnessPort } from "./witnessPort";
 import { createRecapPort } from "./recapPort";
 import { createCarryActions } from "./carryPort";
 import { gameLayer } from "@engine/validate/gameLayer";
@@ -121,6 +122,7 @@ export function wireCoordinators(port: ManagerPort) {
     },
   });
   const promises = wirePromises(port, memory);
+  const witness = createWitnessPort({ getStory: view.getStory, extras: port.extras, enabledIds: () => enabledCharacterIds(view.getStory(), view.hosts.roster) });
   memory.injector.addPrivateSource((rosterId) => gameLayer()?.carry.carryKnownLines(port.extras().carry, rosterId) ?? []);
   const carry = createCarryActions(port, () => memory.updateInjection());
   const inner = wireInner(port, memory, () => pacing);
@@ -157,7 +159,7 @@ export function wireCoordinators(port: ManagerPort) {
     setStatus: (status) => port.setStatus(status),
     judge: () => port.judge(),
     requestBudget: (role) => requestBudgetFor(role),
-    spikes: () => getGlobalSettings().spikes, promises, journal: (summary, note) => port.journal("story", summary, note),
+    spikes: () => getGlobalSettings().spikes, promises, witness, journal: (summary, note) => port.journal("story", summary, note),
     ...lifecycle,
   });
   const pacing = new PacingCoordinator({
@@ -233,5 +235,5 @@ export function wireCoordinators(port: ManagerPort) {
     chatOpen: () => Boolean(view.hosts.chat.chatId()),
     groupOpen: hasOpenGroup,
   };
-  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, promises, carry };
+  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, promises, witness, carry };
 }

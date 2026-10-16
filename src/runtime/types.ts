@@ -183,6 +183,7 @@ export interface MemoryRuntimeSettings {
   innerFanOut?: InnerFanOut;
   harvestReasoning?: boolean;
   promises?: boolean;
+  witness?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
 

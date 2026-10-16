@@ -170,6 +170,11 @@ export const SETTING_COPY = {
     "When you promise a character something, the story keeps your exact words and reminds only that character, when the scene touches it. "
       + "Adds a few lines to each story read. Not measured yet.",
   ),
+  "memory.witness": copy(
+    "Note who heard each message",
+    "Each story read also names the characters who heard or saw each message, and says unknown when it cannot tell. Nothing uses the record until it is measured. "
+      + "Adds a few lines to each story read. Not measured yet.",
+  ),
   "memory.innerFanOut": copy(
     "Inner beats for",
     "Prepare the beat for the likeliest speaker only, or for the two likeliest. Two costs one more call per turn.",

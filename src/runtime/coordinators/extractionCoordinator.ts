@@ -34,6 +34,7 @@ import type { ChatHost, RosterHost } from "../hostPorts";
 import type { SpikeSettings } from "../settingsModel";
 import { MemorizeBacklog } from "../memorizeBacklog";
 import type { PromisePort } from "../promisePort";
+import type { WitnessPort } from "../witnessPort";
 import {
   buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, STALL_TIMEOUT_MS, verifyVerdict,
   VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS,
@@ -70,6 +71,7 @@ export interface ExtractionCoordinatorDeps {
   ownership: RunOwnership;
   hosts: { chat: ChatHost; roster: RosterHost };
   promises?: Pick<PromisePort, "open" | "ready" | "apply">;
+  witness?: Pick<WitnessPort, "present" | "ready" | "apply">;
   journal?: (summary: string, note: string) => void;
 }
 
@@ -269,7 +271,9 @@ export class ExtractionCoordinator {
     const verified = await this.verifyEntries(newMemoryEntries, audit.window);
     if (intents) await intents;
     if (this.deps.promises) await this.deps.promises.ready(audit);
+    await this.deps.witness?.ready(audit);
     if (!run.stillOwns()) return;
+    this.deps.witness?.apply(audit);
     if (memory.capable && epistemicSignals.length) memory.applyEpistemic(epistemicSignals, audit.window.to, [], audit.window);
     await memory.applyEntries(verified.kept, audit.window);
     if (!run.stillOwns()) return;
@@ -340,6 +344,7 @@ export class ExtractionCoordinator {
       cardScope: this.cardScope(),
       openArcs: memory.getOpenArcs(),
       openPromises: this.deps.promises?.open() ?? null,
+      witnessPresent: this.deps.witness?.present() ?? null,
       epistemicLedgerCapable: memory.capable,
       entities: memory.getEntities(),
       model: this.deps.model,

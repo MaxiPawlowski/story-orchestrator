@@ -64,6 +64,7 @@
       "harvestReasoning": true,
       "innerBeat": true,
       "promises": true,
+      "witness": true,
       "injectionDepths": {
         "facts": 4,
         "session_details": 3,
