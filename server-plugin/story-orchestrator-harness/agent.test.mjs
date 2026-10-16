@@ -73,7 +73,7 @@ const deadlines = () => {
     return { timers, fire };
 };
 
-function setup({ offer = true, concurrency, fsImpl, fake: fakeOptions = {}, connectWaitMs = SESSION_MS } = {}) {
+function setup({ offer = true, concurrency, fsImpl, fake: fakeOptions = {}, connectWaitMs = SESSION_MS, toolsSettleMs = 300 } = {}) {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'so-bridge-test-'));
     const bin = path.join(root, 'opencode.exe');
     fs.writeFileSync(bin, '');
@@ -96,7 +96,7 @@ function setup({ offer = true, concurrency, fsImpl, fake: fakeOptions = {}, conn
         spawnImpl,
         ...(fsImpl ? { fsImpl } : {}),
         log: (line) => lines.push(line),
-        opencode: { loadLibs: async () => fake.libs, configWaitMs: 150, connectWaitMs },
+        opencode: { loadLibs: async () => fake.libs, configWaitMs: 150, connectWaitMs, toolsSettleMs },
         bridge: { timers: clock.timers },
     });
     return { root, config, service, fake, clock, lines, calls: () => (fs.existsSync(path.join(config.tmpRoot, 'calls')) ? fs.readdirSync(path.join(config.tmpRoot, 'calls')) : []) };
@@ -134,6 +134,47 @@ test('a tool call is parked, long-polled by next, answered to the shim, and the 
     assert.equal(lines.length, 1);
     assert.deepEqual(Object.keys(JSON.parse(lines[0].replace(/^agent /, ''))), ['harness', 'model', 'ms', 'calls', 'kind']);
     assert.ok(!lines[0].includes('STORY TEXT') && !lines[0].includes('Do the plan'), 'the log carries no prompt or answer text');
+});
+
+test('a slow OpenCode location boot does not eat the setup windows: the config wait starts once the location answers, the tool server wait once the config is loaded', async () => {
+    const ctx = setup({ fake: { bootDelayMs: 400, configDelayMs: 100, mcpDelayMs: 250 }, connectWaitMs: 500 });
+    const { service } = ctx;
+    const opened = await service.agent.open(openRequest([{ list: true }]));
+    assert.equal(opened.ok, true, JSON.stringify(opened));
+    const done = await nextEvent(service, opened.sessionId);
+    assert.equal(done.kind, 'done', JSON.stringify(done));
+    assert.deepEqual(JSON.parse(done.text).exposed, ['so_readStory', 'so_addQuality']);
+    assert.ok(await cleaned(ctx));
+});
+
+test('a tool server OpenCode never connects ends the session with a timeout that says whether its process reached the bridge', async () => {
+    const ctx = setup({ fake: { mcpPending: true }, connectWaitMs: 300 });
+    const { service, fake } = ctx;
+    const opened = await service.agent.open(openRequest([{ say: 'never' }]));
+    assert.equal(opened.ok, true, JSON.stringify(opened));
+    const ended = await nextEvent(service, opened.sessionId);
+    assert.equal(ended.kind, 'ended', JSON.stringify(ended));
+    assert.equal(ended.errorKind, 'timeout');
+    assert.match(ended.message, /did not connect the wizard's tool server before the deadline \(its process never reached the bridge/);
+    assert.equal(fake.state.created.length, 0, 'no session was created');
+    assert.ok(await until(() => ctx.service.agent.counts().sessions === 0 && ctx.calls().length === 0));
+});
+
+test('OpenCode registers a connected server\'s tools after a short debounce: every session\'s first turn sees every bridge tool, also the one opened after an accepted card', async () => {
+    const ctx = setup({ fake: { toolsRegisterMs: 250 } });
+    const { service } = ctx;
+    const first = await service.agent.open(openRequest([{ call: 'addQuality', args: { quality: { key: 'x' } } }, { say: 'after' }]));
+    assert.equal(first.ok, true, JSON.stringify(first));
+    const parked = await nextEvent(service, first.sessionId);
+    assert.deepEqual(parked, { kind: 'call', callId: 'c1', tool: 'addQuality', args: { quality: { key: 'x' } } }, 'the first turn of a fresh session reaches the page through the bridge');
+    assert.deepEqual(service.agent.answer(first.sessionId, { callId: 'c1', ok: true, text: 'pending: Waiting for the author.' }), { value: { answered: true } });
+    assert.deepEqual(await service.agent.close(first.sessionId), { value: { closed: true } });
+    const second = await service.agent.open(openRequest([{ list: true }]));
+    assert.equal(second.ok, true, JSON.stringify(second));
+    const done = await nextEvent(service, second.sessionId);
+    assert.equal(done.kind, 'done', JSON.stringify(done));
+    assert.deepEqual(JSON.parse(done.text).exposed, ['so_readStory', 'so_addQuality'], 'the session after the accept has the full tool set');
+    assert.ok(await cleaned(ctx, 2));
 });
 
 test('isolation: an owned project directory, the denied-by-default agent, no login read, and exactly the shim\'s tools', async () => {

@@ -21,6 +21,7 @@ export const OPENCODE_LIMITS = Object.freeze({
     stopMs: 4_000,
     maxRetries: 3,
     configMs: 8_000,
+    toolsSettleMs: 750,
     locationStaleMs: 7 * 24 * 3_600_000,
     maxMessagePages: 20,
     pageSize: 100,
@@ -241,6 +242,7 @@ export function createOpencodeTransport({
     alive = () => false,
     version = (value) => /^2\./.test(String(value)),
     configWaitMs = OPENCODE_LIMITS.configMs,
+    toolsSettleMs = OPENCODE_LIMITS.toolsSettleMs,
     connectWaitMs = OPENCODE_LIMITS.connectMs,
 } = {}) {
     const entry = config.harnesses.opencode;
@@ -393,12 +395,13 @@ export function createOpencodeTransport({
 
     const verifyAgent = async (client, directory, agentId, check) => {
         let agent;
-        const until = Date.now() + configWaitMs;
+        let until = null;
         for (;;) {
             try {
                 agent = unwrap(await client.agent.get({ agentID: agentId, location: locationFor(directory) }));
                 break;
             } catch (error) {
+                until ??= Date.now() + configWaitMs;
                 if (error?._tag !== 'AgentNotFoundError' || Date.now() >= until) throw refusedFrom(error);
                 await sleep(100);
             }
@@ -409,7 +412,7 @@ export function createOpencodeTransport({
         return agent;
     };
 
-    const mcpConnected = async (client, directory, deadline, signal) => {
+    const mcpConnected = async (client, directory, deadline, signal, shimSeen = null) => {
         const location = locationFor(directory);
         for (;;) {
             let listed = [];
@@ -425,7 +428,7 @@ export function createOpencodeTransport({
                 throw new Refused('config', `OpenCode could not connect the wizard's tool server (${status}${server.status.error ? `: ${clip(server.status.error, 200)}` : ''})`, { state: 'unavailable' });
             }
             if (signal?.aborted) throw new Refused('lapsed', 'the request was cancelled');
-            if (Date.now() >= deadline) throw new Refused('timeout', 'OpenCode did not connect the wizard\'s tool server before the deadline', { state: 'unavailable' });
+            if (Date.now() >= deadline) throw new Refused('timeout', `OpenCode did not connect the wizard's tool server before the deadline${shimSeen ? (shimSeen() ? ' (its process reached the bridge, so OpenCode never reported the connection)' : ' (its process never reached the bridge: OpenCode did not start it in time)') : ''}`, { state: 'unavailable' });
             await sleep(100);
         }
     };
@@ -726,10 +729,9 @@ export function createOpencodeTransport({
         return { ...rest, effortApplied: effort.applied, spawnMs: setupMs };
     };
 
-    const runAgent = async ({ request, owned, pipe, secret, toolsFile, signal, onForeign, deadlineMs }) => {
+    const runAgent = async ({ request, owned, pipe, secret, toolsFile, signal, onForeign, deadlineMs, shimConnected = null }) => {
         const startedAt = now();
         const until = Date.now() + Math.max(0, deadlineMs);
-        const connectBy = Math.min(until, Date.now() + connectWaitMs);
         let checked;
         try {
             checked = await within(until - Date.now(), ready(request.model, { images: request.images }), lapse, signal);
@@ -743,7 +745,9 @@ export function createOpencodeTransport({
         try {
             writePrivate(path.join(owned.cwd, 'opencode.json'), bridgeConfig({ system: request.system, nodePath, pipe, secret, toolsFile, callTimeoutMs: request.callTimeoutMs }));
             await within(until - Date.now(), verifyAgent(checked.client, owned.cwd, BRIDGE_AGENT, (rules) => bridgeOnly(rules, request.tools.map((tool) => tool.name))), lapse, signal);
-            await within(until - Date.now(), mcpConnected(checked.client, owned.cwd, connectBy, signal), lapse, signal);
+            const connectBy = Math.min(until, Date.now() + connectWaitMs);
+            await within(until - Date.now(), mcpConnected(checked.client, owned.cwd, connectBy, signal, shimConnected), lapse, signal);
+            await within(until - Date.now(), sleep(toolsSettleMs), lapse, signal);
         } catch (error) {
             await evict(checked.client, owned.cwd);
             const refused = error instanceof Refused ? error : new Refused('config', `the plugin could not prepare the wizard's session (${error?.code ?? error?.message ?? 'error'})`);

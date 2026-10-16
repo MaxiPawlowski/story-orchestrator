@@ -300,6 +300,7 @@ export function createAgentBridge({ config, helpers, host, fsImpl, now = Date.no
             toolsFile,
             signal: session.controller.signal,
             deadlineMs: request.timeoutMs,
+            shimConnected: () => session.shimConnected,
             onForeign: () => {
                 session.foreign += 1;
                 void teardown(session, 'refused');

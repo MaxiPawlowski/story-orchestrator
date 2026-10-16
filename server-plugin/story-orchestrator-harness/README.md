@@ -82,6 +82,11 @@ tools (as `so_*`, at most 96) and parks each call for the page. The agent may us
 permission request, ends the session as refused. The page long-polls `/agent/next` and answers each call through the same
 checks as a local run; a call that creates an asset still waits for the author. Sessions are per user and role, bounded
 (15 minutes, a bounded queue, call deadlines), interrupted and removed, and their location is evicted and deleted.
+Setup waits are counted from OpenCode's own progress, not from the open: the agent read gets 8 s once the new location
+answers (its boot can take seconds under load), the tool server 20 s once the config is loaded, and the prompt goes in
+750 ms after the server reports connected, because OpenCode adds a connected server's tools to the session only after a
+100 ms debounce (a prompt sent sooner reached the model with no `so_*` tool, and the model answered "no story tools
+available"). A tool server that never connects ends as a timeout saying whether the shim process reached the bridge.
 
 When it is routed to claude (`claude-sonnet-5-5` or `claude-opus-5-5` only; Haiku and the short aliases are refused for
 the wizard, and each status model row says `agent: true|false`), `claudeTransport.mjs` runs one process in an owned home
