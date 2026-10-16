@@ -95,6 +95,9 @@ export function planSceneTest(input: ScenePlanInput): SceneTestRecord | null {
 export const sceneTestFor = (records: readonly SceneTestRecord[] | undefined, frontierId: string): SceneTestRecord | null =>
   records?.find((record) => record.frontierId === frontierId) ?? null;
 
+export const sceneTextsSafe = (record: SceneTestRecord, safe: (text: string) => boolean): boolean =>
+  record.applied === "expected" || [record.focus, record.expected.thread].every((text) => !text || safe(text));
+
 export const sceneSignal = (record: SceneTestRecord | null): SceneSignal | undefined =>
   (record && record.applied !== "expected" ? { applied: record.applied, ...(record.focus ? { focus: record.focus } : {}), expected: record.expected } : undefined);
 

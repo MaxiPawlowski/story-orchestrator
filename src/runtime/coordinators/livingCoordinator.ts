@@ -1,6 +1,6 @@
 import { isValidationErrorList, parseStoryV2, type ApplyQueueEntry, type EngineState, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
 import { knownEntities, unknownEntityNames } from "@engine/codex";
-import { focusCandidates } from "@pacing/focus";
+import { focusCandidates, focusSafe } from "@pacing/focus";
 import type { ModelCall, SchedulerJob } from "@extraction/index";
 import type { BranchOutcome, DirectorOutcome } from "@generation/living/direct";
 import { refusalLine, refusalOf } from "@generation/living/refusal";
@@ -11,7 +11,7 @@ import {
 import { compactOps, dropOpsAfter, graphEpoch, livingRaw } from "@generation/living/fold";
 import { findFrontier, livingAutonomy } from "@generation/living/frontier";
 import { checkDirectorOps } from "@generation/living/plan";
-import { dropSceneTestsAfter, planSceneTest, retainSceneTests, sceneTestFor, type SceneIds, type SceneTestRecord } from "@generation/living/sceneTest";
+import { dropSceneTestsAfter, planSceneTest, retainSceneTests, sceneTestFor, sceneTextsSafe, type SceneIds, type SceneTestRecord } from "@generation/living/sceneTest";
 import {
   createDivergenceState, createLivingState, LIVING_OP_CAP, LIVING_PREFETCH_WHY, LIVING_PROPOSAL_LIMIT,
   type DirectorProposal, type DivergenceReading, type DivergenceState, type LivingRuntimeState,
@@ -216,7 +216,8 @@ export class LivingCoordinator {
     const run = placed ?? beginRun(this.deps.ownership);
     const base = this.baseFor(story, state, frontierId);
     const inputs = this.deps.inputs();
-    const sceneTest = this.sceneTest(story, state, frontierId, inputs);
+    const unknownNames = unknownEntityNames(story, knownEntities(story, state.blackboard.values, this.deps.enabledIds?.() ?? []));
+    const sceneTest = this.safeScene(this.sceneTest(story, state, frontierId, inputs, unknownNames), inputs, unknownNames);
     this.inFlight = true;
     try {
       const unit = await loadUnit();
@@ -230,11 +231,16 @@ export class LivingCoordinator {
     }
   }
 
-  private sceneTest(story: NormalizedStoryV2, state: EngineState, frontierId: string, inputs: LivingInputs): SceneTestRecord | null {
+  private safeScene(record: SceneTestRecord | null, inputs: LivingInputs, unknownNames: readonly string[]): SceneTestRecord | null {
+    if (!record || sceneTextsSafe(record, (text) => focusSafe(text, unknownNames, inputs.scrub))) return record;
+    this.deps.journal("scene signal withheld", `the frozen thread for ${record.frontierId} is no longer safe to show the director; the draw stands and its line is left out`);
+    return null;
+  }
+
+  private sceneTest(story: NormalizedStoryV2, state: EngineState, frontierId: string, inputs: LivingInputs, unknownNames: readonly string[]): SceneTestRecord | null {
     const frozen = sceneTestFor(this.state.sceneTests, frontierId);
     const ids = this.deps.sceneIds?.();
     if (frozen || !ids || !story.living?.scene_test) return frozen;
-    const unknownNames = unknownEntityNames(story, knownEntities(story, state.blackboard.values, this.deps.enabledIds?.() ?? []));
     const record = planSceneTest({
       story, ids, frontierId, frontierName: story.checkpointById[frontierId]?.name ?? frontierId, plannedAt: state.boundary, messageId: state.lastMessageId,
       tension: inputs.tension, candidates: focusCandidates({ arcs: inputs.openThreads, unknownNames }), prior: this.state.sceneTests ?? [],

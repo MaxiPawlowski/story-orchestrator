@@ -32,5 +32,8 @@ export function focusCandidates(sources: FocusSources): FocusCandidate[] {
   ];
 }
 
+export const focusSafe = (text: string, unknownNames: readonly string[], resting?: (text: string) => string): boolean =>
+  focusCandidates({ arcs: [text], unknownNames, ...(resting ? { resting } : {}) })[0]?.text === text.trim();
+
 export const focusPick = (candidates: readonly FocusCandidate[], unit: number): FocusCandidate | null =>
   (candidates.length ? candidates[Math.min(candidates.length - 1, Math.floor(Math.max(0, unit) * candidates.length))] : null);
