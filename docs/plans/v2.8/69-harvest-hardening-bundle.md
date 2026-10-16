@@ -25,7 +25,7 @@ B8; K17 is B7.
 | K9 | Declarative withhold policy on `INJECTION_REGISTRY`, tested on nested quiet, restoration, early returns and raw generation | v2.4 theme 5 (V56) | S |
 | K10 | NPC replies trigger by host character index through the existing member resolution; a CC `send_if_empty` fixture | v2.4 theme 5 (V57, V58) | S |
 | K11 | **P1** Stale draft proposals: an author accepting an old agent proposal never overwrites a manual edit made since | `creative-studio.md` P4 (R1) | S |
-| K12 | **P1** Stale whole-book WI writes: a write never overwrites another page's changes to other entries of the same book | `worldinfo-workspace.md` P4 (R2) | S |
+| K12 | **P1** Stale whole-book WI writes: our writers never overwrite each other or a change the server already has; ST's editor saving in the same instant remains best-effort detection (wording revised 2026-10-16 after review #3) | `worldinfo-workspace.md` P4 (R2) | S |
 | K13 | Per-generation derived state bound to the rendered message revision | `st-memory-books.md` P3, `rpg-companion.md` P5 (R9, R10) | S |
 | K14 | Size budget for the chat blob and the story library (measure, then a `degrades` check) | `multihog-dnd-framework.md` P4 (R16) | S |
 | K15 | Active-persona guard around persona writes (tests) | `nemo-plotlight.md` P3 (R17) | S |

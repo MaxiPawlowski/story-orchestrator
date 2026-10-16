@@ -34,11 +34,12 @@ Their source, tests and READMEs live in [`server-plugin/`](server-plugin/). They
 | Plugin | Provides |
 |---|---|
 | [Judge](server-plugin/story-orchestrator-judge/README.md) | Server-side judgment-provider requests and credentials. |
+| [Lore](server-plugin/story-orchestrator-lore/README.md) | Conditional lorebook saves: a write lands only while the file still holds what it started from. |
 | [Harness](server-plugin/story-orchestrator-harness/README.md) | Model tasks through coding-agent CLIs and the wizard's opencode tool bridge. |
 | [GPU](server-plugin/story-orchestrator-gpu/README.md) | Coordination of local text generation and ComfyUI sharing a GPU. |
 | [Media](server-plugin/story-orchestrator-media/README.md) | Owned ComfyUI jobs, reference edits, model fingerprints and generated sprite files. |
 
-All four are optional. Install them with `npm run plugin:install` (add `-- --with gpu,media,harness` for the others),
+All five are optional. `npm run plugin:install` installs judge and lore (add `-- --with gpu,media,harness` for the others),
 set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart SillyTavern:
 [Server plugins](https://maxipawlowski.github.io/story-orchestrator/setup/index.html#so-guide-h-server-plugins).
 

@@ -24,3 +24,16 @@ export async function readServerLorebook(name: string): Promise<Lorebook | null>
     return null;
   }
 }
+
+export const LORE_COMMIT_ROUTE = "/api/plugins/story-orchestrator-lore/commit";
+
+export type LoreCommit = { kind: "committed" } | { kind: "conflict" } | { kind: "absent" } | { kind: "failed"; reason: string };
+
+export async function commitLorebook(name: string, expected: string, data: Lorebook): Promise<LoreCommit> {
+  const headers = getContext().getRequestHeaders?.() ?? {};
+  const response = await fetch(LORE_COMMIT_ROUTE, { method: "POST", headers, body: JSON.stringify({ name, expected, data }) }).catch(() => null);
+  if (!response) return { kind: "failed", reason: "the lorebook commit could not reach the server" };
+  if (response.status === 404) return { kind: "absent" };
+  if (response.status === 409) return { kind: "conflict" };
+  return response.ok ? { kind: "committed" } : { kind: "failed", reason: `the lorebook commit answered ${response.status}` };
+}

@@ -21,6 +21,8 @@ const st = {
   debounced: null as null | { name: string; data: Book },
   holdGet: null as null | ((name: string, count: number) => Promise<void>),
   gets: 0,
+  plugin: false,
+  beforeWrite: null as null | (() => void),
 };
 
 globalThis.fetch = jest.fn(async (url: unknown, init?: { body?: string }) => {
@@ -32,6 +34,16 @@ globalThis.fetch = jest.fn(async (url: unknown, init?: { body?: string }) => {
     return { ok: true, status: 200, json: async () => clone(book ?? { entries: {} }) } as unknown as Response;
   }
   if (url === "/api/worldinfo/edit") {
+    st.beforeWrite?.();
+    st.posts.push({ url, name: body.name, data: clone(body.data) });
+    st.disk.set(body.name, clone(body.data!));
+    return { ok: true, status: 200, json: async () => ({ ok: true }) } as unknown as Response;
+  }
+  if (url === "/api/plugins/story-orchestrator-lore/commit" && st.plugin) {
+    st.beforeWrite?.();
+    const { expected } = JSON.parse(init?.body ?? "{}") as { expected: string };
+    const current = st.disk.get(body.name);
+    if (!current || lorebookRevision(entriesImage(current)) !== expected) return { ok: false, status: 409, json: async () => ({ conflict: true }) } as unknown as Response;
     st.posts.push({ url, name: body.name, data: clone(body.data) });
     st.disk.set(body.name, clone(body.data!));
     return { ok: true, status: 200, json: async () => ({ ok: true }) } as unknown as Response;
@@ -70,6 +82,8 @@ jest.mock("./context", () => ({
     loadWorldInfo: (name: string) => loadWorldInfo(name),
     saveWorldInfo: (name: string, data: Book, immediately?: boolean) => saveWorldInfo(name, data, immediately),
     getWorldInfoNames: () => st.worldNames,
+    eventTypes: { WORLDINFO_UPDATED: "WORLDINFO_UPDATED" },
+    eventSource: { emit: (event: string, ...args: unknown[]) => emit(event, ...args) },
   }),
 }));
 
@@ -94,6 +108,7 @@ jest.mock("./events", () => ({
 
 import { createWIEntry, deleteWIEntryAt, disableWIEntry, restoreWIEntryAt, setWIEntriesState, updateWIEntryByUid, upsertWIEntry } from "./worldInfo";
 import { watchPendingWorldSaves } from "./worldInfoPending";
+import { entriesImage, lorebookRevision } from "./lorebookImage";
 
 const BOOK = "Shared Lore";
 const entry = (uid: number, comment: string, content: string, disable = false): Entry => ({ uid, comment, content, key: [], disable });
@@ -117,6 +132,8 @@ beforeEach(() => {
   st.debounced = null;
   st.holdGet = null;
   st.gets = 0;
+  st.plugin = false;
+  st.beforeWrite = null;
   listeners.clear();
   stop = watchPendingWorldSaves();
 });
@@ -238,5 +255,63 @@ describe("review 2026-10-16 #2: a write whose run lapses during a suspended read
     seed();
     expect(await setWIEntriesState(BOOK, { disable: "Gate" }, owner().guard)).toEqual({ ok: true, changed: true, confirmed: true });
     expect(st.disk.get(BOOK)!.entries[3].disable).toBe(true);
+  });
+});
+
+describe("review 2026-10-16 #3: the save itself is conditional on the server still holding the write's base", () => {
+  const bWrites = () => {
+    const book = clone(st.disk.get(BOOK)!);
+    book.entries[5].content = "B WROTE BETWEEN A's READ AND A's SAVE";
+    st.disk.set(BOOK, book);
+  };
+
+  it("B's write lands between A's preflight read and A's save: A is refused by the plugin and B survives", async () => {
+    seed();
+    st.plugin = true;
+    st.beforeWrite = () => { st.beforeWrite = null; bWrites(); };
+    const result = await setWIEntriesState(BOOK, { disable: "Gate" });
+    expect(result).toEqual({ ok: false, reason: expect.stringContaining("another page changed") });
+    expect(result).toEqual({ ok: false, reason: expect.stringContaining('"Ferry"') });
+    expect(ourPosts()).toEqual([]);
+    expect(st.disk.get(BOOK)!.entries[5].content).toBe("B WROTE BETWEEN A's READ AND A's SAVE");
+    expect(st.disk.get(BOOK)!.entries[3].disable).toBe(false);
+    expect(st.cache.has(BOOK)).toBe(false);
+  });
+
+  it("two of our writers built on the same copy: the second is refused, the first's change is kept", async () => {
+    seed();
+    st.plugin = true;
+    let second: Promise<unknown> | null = null;
+    st.holdGet = async (_name, count) => {
+      if (count !== 2) return;
+      second = updateWIEntryByUid({ lorebookFileId: BOOK, uid: 5 }, { content: "SECOND WRITER" });
+    };
+    const first = await setWIEntriesState(BOOK, { disable: "Gate" });
+    const late = await second;
+    const outcomes = [first, late].map((result) => (result as { ok: boolean }).ok).sort();
+    expect(outcomes).toEqual([false, true]);
+    const disk = st.disk.get(BOOK)!;
+    expect([disk.entries[3].disable, disk.entries[5].content === "SECOND WRITER"].filter(Boolean)).toHaveLength(1);
+  });
+
+  it("a committed write updates ST's cache and announces WORLDINFO_UPDATED like ST's own save", async () => {
+    seed();
+    st.plugin = true;
+    const announced: unknown[] = [];
+    listeners.set("WORLDINFO_UPDATED", [...(listeners.get("WORLDINFO_UPDATED") ?? []), (name: unknown) => announced.push(name)]);
+    expect(await setWIEntriesState(BOOK, { disable: "Gate" })).toEqual({ ok: true, changed: true, confirmed: true });
+    expect(ourPosts().map((post) => post.url)).toEqual(["/api/plugins/story-orchestrator-lore/commit"]);
+    expect(st.cache.get(BOOK)).toEqual(st.disk.get(BOOK));
+    expect(announced).toEqual([BOOK]);
+  });
+
+  it("without the plugin the write falls back to ST's save after the preflight comparison", async () => {
+    seed();
+    expect(await setWIEntriesState(BOOK, { disable: "Gate" })).toEqual({ ok: true, changed: true, confirmed: true });
+    expect(ourPosts().map((post) => post.url)).toEqual(["/api/worldinfo/edit"]);
+  });
+
+  it("the page and the plugin compute the same revision (vector pinned in server-plugin/story-orchestrator-lore/plugin.test.mjs)", () => {
+    expect(lorebookRevision(entriesImage({ entries: { 3: { uid: 3, comment: "Gate", content: "The gate." } } }))).toBe("36-61763caa6860bd84");
   });
 });

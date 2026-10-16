@@ -60,7 +60,8 @@ const executeSlashCommands = jest.fn(async (command: string) => {
 // The server's own copy, read back after a save: `lose` drops the next save on the floor (ST's `_save`
 // never reads the answer, so a refused save resolves like a kept one), `blind` makes the read fail.
 const server = { lose: false, blind: false };
-globalThis.fetch = jest.fn(async (_url: unknown, init?: { body?: string }) => {
+globalThis.fetch = jest.fn(async (url: unknown, init?: { body?: string }) => {
+  if (url === "/api/plugins/story-orchestrator-lore/commit") return { ok: false, status: 404, json: async () => null } as unknown as Response;
   if (server.blind) return { ok: false, status: 500, json: async () => null } as unknown as Response;
   const { name } = JSON.parse(init?.body ?? "{}") as { name: string };
   return { ok: true, status: 200, json: async () => clone(st.disk.get(fileId(name)) ?? { entries: {} }) } as unknown as Response;
@@ -279,11 +280,11 @@ describe("setWIEntriesState: one write per book (R13)", () => {
     saveWorldInfo.mockClear();
   });
 
-  it("applies a book's enables and disables in one save, one conflict read (K12) and one read-back", async () => {
+  it("applies a book's enables and disables in one save, one conflict read (K12), one conditional commit attempt and one read-back", async () => {
     (globalThis.fetch as jest.Mock).mockClear();
     expect(await setWIEntriesState("Lore", { enable: ["Two"], disable: ["One"] })).toEqual({ ok: true, changed: true, confirmed: true });
     expect(saveWorldInfo).toHaveBeenCalledTimes(1);
-    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+    expect((globalThis.fetch as jest.Mock).mock.calls.map(([url]) => url)).toEqual(["/api/worldinfo/get", "/api/plugins/story-orchestrator-lore/commit", "/api/worldinfo/get"]);
     expect({ one: book()[0].disable, two: book()[1].disable, three: book()[2].disable }).toEqual({ one: true, two: false, three: false });
   });
 

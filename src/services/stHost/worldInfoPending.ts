@@ -20,6 +20,7 @@ const edits = new Map<string, PendingWorldEdit>();
 let handedOut = new WeakSet<object>();
 let clock: () => number = Date.now;
 let installed: (() => void) | null = null;
+let rawSet: ((name: string, data: unknown) => unknown) | null = null;
 
 const isObject = (value: unknown): value is object => typeof value === "object" && value !== null;
 
@@ -34,6 +35,7 @@ export function watchPendingWorldSaves(now: () => number = Date.now): () => void
   const originalGet = cache.get;
   if (typeof originalSet !== "function") return () => undefined;
   clock = now;
+  rawSet = (name, data) => originalSet.call(cache, name, data);
   cache.set = function (this: unknown, name: string, data: unknown) {
     if (isObject(data) && handedOut.has(data)) {
       edits.set(name, { at: now(), baseline: edits.get(name)?.baseline ?? baselines.get(name) ?? null });
@@ -62,9 +64,19 @@ export function watchPendingWorldSaves(now: () => number = Date.now): () => void
     baselines.clear();
     handedOut = new WeakSet<object>();
     clock = Date.now;
+    rawSet = null;
     installed = null;
   };
   return installed;
+}
+
+export function markWorldCommitted(name: string, data: object): WriteResult<{ cached: boolean }> {
+  baselines.set(name, entriesImage(data));
+  edits.delete(name);
+  const set = rawSet ?? (worldInfoModule.worldInfoCache as HostCache).set?.bind(worldInfoModule.worldInfoCache);
+  if (!set) return couldNot("ST's lorebook cache cannot be written");
+  set(name, data);
+  return wrote({ cached: true });
 }
 
 export function pendingWorldEdit(name: string, now: number = clock()): PendingWorldEdit | null {

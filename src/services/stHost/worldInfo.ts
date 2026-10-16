@@ -5,10 +5,10 @@ import { saveOpenChat } from "./persistence";
 import type { HostWorldInfoSettings } from "./hostTypes";
 import { worldInfoModule } from "./modules";
 import { executeSlashCommands } from "./slashCommands";
-import { flushPendingWorldSave, flushPendingWorldSaves, pendingWorldEdit } from "./worldInfoPending";
-import { readServerLorebook, type Lorebook, type LoreEntry } from "./worldInfoServer";
+import { flushPendingWorldSave, flushPendingWorldSaves, markWorldCommitted, pendingWorldEdit } from "./worldInfoPending";
+import { commitLorebook, readServerLorebook, type Lorebook, type LoreEntry } from "./worldInfoServer";
 import { lapsed, RUN_LAPSED, type WriteGuard } from "./writeGuard";
-import { entriesImage } from "./lorebookImage";
+import { entriesImage, lorebookRevision } from "./lorebookImage";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { log } from "@utils/log";
 import { LORE_KEY_LOGIC_CODE, WI_POSITION_OUTLET, type LoreKeyLogic } from "@utils/wiKeys";
@@ -47,9 +47,9 @@ async function loadExisting(name: string): Promise<{ name: string; data: Loreboo
   return data?.entries ? { name: lorebook, data } : null;
 }
 
-const loadDraft = async (name: string): Promise<{ name: string; data: Lorebook } | null> => {
+const loadDraft = async (name: string): Promise<{ name: string; data: Lorebook; base: string } | null> => {
   const book = await loadExisting(name);
-  return book ? { name: book.name, data: structuredClone(book.data) } : null;
+  return book ? { name: book.name, data: structuredClone(book.data), base: entriesImage(book.data) } : null;
 };
 
 export async function loadScanLorebook(name: string): Promise<{ name: string; entries: Array<LoreEntry & { world: string; content: string }> } | null> {
@@ -63,13 +63,29 @@ export async function loadLorebook(name: string): Promise<Lorebook | null> {
   return (await loadExisting(name))?.data ?? null;
 }
 
-async function saveLorebook(name: string, data: Lorebook, guard?: WriteGuard): Promise<void> {
+async function announceLorebookSaved(name: string, data: Lorebook): Promise<void> {
+  const context = getContext();
+  const event = context.eventTypes?.WORLDINFO_UPDATED;
+  if (event) await context.eventSource.emit(event, name, data);
+}
+
+async function saveLorebook(name: string, data: Lorebook, base: string, guard?: WriteGuard): Promise<string | null> {
+  const committed = await commitLorebook(name, lorebookRevision(base), data);
+  if (committed.kind === "failed") throw new Error(committed.reason);
+  if (committed.kind === "conflict") return conflictRefusal(name, base);
+  if (committed.kind === "committed") {
+    if (!markWorldCommitted(name, data).ok) worldInfoModule.worldInfoCache.delete(name);
+    await announceLorebookSaved(name, data);
+    return null;
+  }
+  if (lapsed(guard)) return RUN_LAPSED;
   const context = getContext() as unknown as { saveWorldInfo?: (name: string, data: unknown, immediately?: boolean) => Promise<unknown> };
   if (typeof context.saveWorldInfo === "function") await context.saveWorldInfo(name, data, true);
   else await worldInfoModule.saveWorldInfo(name, data, true);
-  if (lapsed(guard)) return;
+  if (lapsed(guard)) return null;
   const flushed = await flushPendingWorldSaves(name, undefined, guard);
   if (!flushed.ok) log.warn("world info: an edit waiting in ST's save debounce could not be saved", { name, reason: flushed.reason });
+  return null;
 }
 
 const canonical = (value: unknown): string => JSON.stringify(value, (_key, inner: unknown) =>
@@ -109,11 +125,20 @@ async function staleBookRefusal(name: string, base: BookImage, guard?: WriteGuar
     if (!server) return null;
   }
   const changed = differingEntries(base, server);
-  if (!changed.length) return null;
+  return changed.length ? refuseChanged(name, changed) : null;
+}
+
+function refuseChanged(name: string, changed: string[]): string {
   if (!pendingWorldEdit(name)) worldInfoModule.worldInfoCache.delete(name);
   log.warn("world info: another page changed the book, write refused", { name, changed });
-  const named = `${changed.slice(0, 3).join(", ")}${changed.length > 3 ? ` and ${changed.length - 3} more` : ""}`;
-  return `another page changed "${name}" since this page loaded it (${named}), so nothing was written; the next write starts from the server's copy`;
+  const named = changed.length ? ` (${changed.slice(0, 3).join(", ")}${changed.length > 3 ? ` and ${changed.length - 3} more` : ""})` : "";
+  return `another page changed "${name}" since this page loaded it${named}, so nothing was written; the next write starts from the server's copy`;
+}
+
+async function conflictRefusal(name: string, base: string): Promise<string> {
+  const server = await readServerLorebook(name);
+  const before = new Map(Object.entries(JSON.parse(base) as Record<string, unknown>).map(([uid, entry]) => [uid, canonical(entry)]));
+  return refuseChanged(name, server ? differingEntries(before, server) : []);
 }
 
 function findMatchedLoreEntries(lorebook: Lorebook, comments: string[]) {
@@ -176,7 +201,8 @@ export async function setWIEntriesState(lorebook: string, switches: WIEntrySwitc
   if (stale) return couldNot(stale);
   if (lapsed(guard)) return couldNot(RUN_LAPSED);
   try {
-    await saveLorebook(book.name, book.data, guard);
+    const refused = await saveLorebook(book.name, book.data, book.base, guard);
+    if (refused) return couldNot(refused);
   } catch (error) {
     return couldNot(`"${lorebook}" could not be saved: ${error instanceof Error ? error.message : "the host refused the write"}`);
   }
@@ -350,7 +376,7 @@ export async function upsertWIEntry(lorebook: string, comment: string, content: 
     log.warn("world info: lorebook does not exist", { lorebook });
     return "failed";
   }
-  const { name, data } = book;
+  const { name, data, base: image } = book;
   const base = imageOf(data);
   const existing = Object.values(data.entries).find((entry) => entry.comment?.trim() === comment);
   const switchedOff = options.live === true && existing?.disable === true;
@@ -365,7 +391,7 @@ export async function upsertWIEntry(lorebook: string, comment: string, content: 
   if (keys.length) target.key = keys;
   Object.assign(target, fields);
   target.disable = false;
-  await saveLorebook(name, data, options.guard);
+  if (await saveLorebook(name, data, image, options.guard)) return "failed";
   return existing ? "updated" : "created";
 }
 
@@ -426,7 +452,8 @@ export async function updateWIEntryByUid(target: WIEntryTarget, patch: { content
   if (patch.content !== undefined) entry.content = patch.content;
   if (patch.disabled !== undefined) entry.disable = patch.disabled;
   try {
-    await saveLorebook(book.name, book.data, guard);
+    const refused = await saveLorebook(book.name, book.data, book.base, guard);
+    if (refused) return couldNot(refused);
   } catch (error) {
     return couldNot(`"${book.name}" could not be saved: ${error instanceof Error ? error.message : "the host refused the write"}`);
   }
@@ -478,7 +505,8 @@ export async function createWIEntry(lorebook: string, entry: WINewEntry, guard?:
   target.key = [...entry.keys];
   target.disable = false;
   try {
-    await saveLorebook(book.name, book.data, guard);
+    const refused = await saveLorebook(book.name, book.data, book.base, guard);
+    if (refused) return couldNot(refused);
   } catch (error) {
     return saveRefused(book.name, error);
   }
@@ -502,7 +530,8 @@ export async function deleteWIEntryAt(target: WIEntryTarget, guard?: WriteGuard)
   const original = (book.data as { originalData?: { entries?: Array<{ uid?: unknown }> } }).originalData;
   if (original && Array.isArray(original.entries)) original.entries = original.entries.filter((row) => row.uid !== target.uid);
   try {
-    await saveLorebook(book.name, book.data, guard);
+    const refused = await saveLorebook(book.name, book.data, book.base, guard);
+    if (refused) return couldNot(refused);
   } catch (error) {
     return saveRefused(book.name, error);
   }

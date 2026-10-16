@@ -780,6 +780,7 @@
       "verdict": "pass",
       "reason": "host read probe answers a neutral value the caller reads"
     },
+    { "site": "src/services/stHost/worldInfoServer.ts#commitLorebook", "kind": 3, "template": ".catch(() => null)", "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A commit request that cannot reach the server becomes a typed failure that the writer reports as could-not-save; nothing is written and nothing falls back to the unconditional save." },
     {
       "site": "src/services/stHost/worldInfoServer.ts#readServerLorebook",
       "kind": 3,
