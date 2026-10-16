@@ -5,22 +5,17 @@ import { saveOpenChat } from "./persistence";
 import type { HostWorldInfoSettings } from "./hostTypes";
 import { worldInfoModule } from "./modules";
 import { executeSlashCommands } from "./slashCommands";
-import { flushPendingWorldSave, flushPendingWorldSaves } from "./worldInfoPending";
+import { flushPendingWorldSave, flushPendingWorldSaves, pendingWorldEdit } from "./worldInfoPending";
+import { readServerLorebook, type Lorebook, type LoreEntry } from "./worldInfoServer";
+import { entriesImage } from "./lorebookImage";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { log } from "@utils/log";
 import { LORE_KEY_LOGIC_CODE, WI_POSITION_OUTLET, type LoreKeyLogic } from "@utils/wiKeys";
 
 export { lorebookFileId };
 
-export interface Lorebook {
-  entries: Record<number, LoreEntry>;
-}
-
-export interface LoreEntry {
-  uid: number;
-  comment: string;
-  [key: string]: unknown;
-}
+export type { Lorebook, LoreEntry } from "./worldInfoServer";
+export { readServerLorebook } from "./worldInfoServer";
 
 export const getWorldInfoSettings: () => HostWorldInfoSettings = worldInfoModule.getWorldInfoSettings;
 
@@ -61,21 +56,6 @@ export async function loadLorebook(name: string): Promise<Lorebook | null> {
   return (await loadExisting(name))?.data ?? null;
 }
 
-// ST's `_save` posts `/api/worldinfo/edit` and never reads the answer (world-info.js:4151), so a
-// refused save resolves exactly like a kept one. The server's own copy is the evidence; `null` means
-// the read itself could not answer, which is not evidence of a lost write.
-export async function readServerLorebook(name: string): Promise<Lorebook | null> {
-  try {
-    const headers = getContext().getRequestHeaders?.() ?? {};
-    const response = await fetch("/api/worldinfo/get", { method: "POST", headers, body: JSON.stringify({ name }), cache: "no-cache" });
-    if (!response.ok) return null;
-    const data = await response.json() as Lorebook | null;
-    return data?.entries ? data : null;
-  } catch {
-    return null;
-  }
-}
-
 async function saveLorebook(name: string, data: Lorebook): Promise<void> {
   const context = getContext() as unknown as { saveWorldInfo?: (name: string, data: unknown, immediately?: boolean) => Promise<unknown> };
   if (typeof context.saveWorldInfo === "function") await context.saveWorldInfo(name, data, true);
@@ -102,19 +82,24 @@ const differingEntries = (base: BookImage, server: Lorebook): string[] => {
 
 // K12: every write here saves the whole book from this page's copy, so another page's change to any
 // entry of the same book would be overwritten while the write reports success. Before saving, the
-// server's copy must equal the copy the write started from; a difference refuses the write and evicts
-// the stale copy. This page's own edit waiting in ST's debounce explains a difference only after it is
-// saved (B14), so it is saved and the server read again. A read that cannot answer is not evidence.
+// server's copy must equal the copy the write started from; a difference refuses the write. A
+// difference is never saved over: only this page's own edit waiting in ST's debounce is saved first
+// (B14), and only while the server still holds the copy that edit was made from. A read that cannot
+// answer is not evidence.
 async function staleBookRefusal(name: string, base: BookImage): Promise<string | null> {
   const first = await readServerLorebook(name);
-  if (!first || !differingEntries(base, first).length) return null;
-  const pending = await flushPendingWorldSave(name);
-  if (!pending.ok) log.warn("world info: an edit waiting in ST's save debounce could not be saved", { name, reason: pending.reason });
-  const server = pending.ok && pending.flushed ? await readServerLorebook(name) : first;
-  if (!server) return null;
+  if (!first) return null;
+  const pending = pendingWorldEdit(name);
+  let server: Lorebook | null = first;
+  if (pending && pending.baseline === entriesImage(first)) {
+    const flushed = await flushPendingWorldSave(name);
+    if (!flushed.ok) log.warn("world info: an edit waiting in ST's save debounce could not be saved", { name, reason: flushed.reason });
+    server = flushed.ok && flushed.flushed ? await readServerLorebook(name) : first;
+    if (!server) return null;
+  }
   const changed = differingEntries(base, server);
   if (!changed.length) return null;
-  worldInfoModule.worldInfoCache.delete(name);
+  if (!pendingWorldEdit(name)) worldInfoModule.worldInfoCache.delete(name);
   log.warn("world info: another page changed the book, write refused", { name, changed });
   const named = `${changed.slice(0, 3).join(", ")}${changed.length > 3 ? ` and ${changed.length - 3} more` : ""}`;
   return `another page changed "${name}" since this page loaded it (${named}), so nothing was written; the next write starts from the server's copy`;

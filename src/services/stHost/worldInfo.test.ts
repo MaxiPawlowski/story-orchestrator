@@ -102,11 +102,14 @@ jest.mock("./slashCommands", () => ({
 
 const flushPendingWorldSaves = jest.fn(async (_written: string) => ({ ok: true, flushed: [] as string[] }));
 const flushPendingWorldSave = jest.fn(async (_name: string) => ({ ok: true, flushed: false }));
+const pendingWorldEdit = jest.fn((_name: string): { at: number; baseline: string | null } | null => null);
 jest.mock("./worldInfoPending", () => ({
   flushPendingWorldSaves: (written: string) => flushPendingWorldSaves(written),
   flushPendingWorldSave: (name: string) => flushPendingWorldSave(name),
+  pendingWorldEdit: (name: string) => pendingWorldEdit(name),
 }));
 
+import { entriesImage } from "./lorebookImage";
 import { bindChatLorebook, createLorebook, createWIEntry, deactivateGlobalLorebook, deleteLorebook, deleteWIEntryAt, disableWIEntry, enableWIEntry, ensureLorebook, listSelectedLorebooks, loadLorebook, lorebookExists, setWIEntriesState, unbindChatLorebook, updateWIEntryByUid, upsertWIEntry } from "./worldInfo";
 
 const putOnDisk = (name: string, entries: Entry[] = []) => st.disk.set(name, { entries: Object.fromEntries(entries.map((entry) => [entry.uid, entry])) });
@@ -121,6 +124,7 @@ beforeEach(() => {
   st.stuck = false;
   for (const key of Object.keys(st.chatMetadata)) delete st.chatMetadata[key];
   st.chatId = "chat-1";
+  pendingWorldEdit.mockImplementation(() => null);
   jest.spyOn(console, "warn").mockImplementation(() => undefined);
 });
 
@@ -688,6 +692,7 @@ describe("K12: a whole-book write never overwrites another page's change to the 
     st.worldNames = [BOOK];
     await loadLorebook(BOOK);
     st.cache.get(BOOK)!.entries[5].content = "Edited in this page's WI editor.";
+    pendingWorldEdit.mockImplementation(() => ({ at: 0, baseline: entriesImage(st.disk.get(BOOK)) }));
     flushPendingWorldSave.mockImplementationOnce(async (name: string) => {
       st.disk.set(fileId(name), clone(st.cache.get(name)!));
       return { ok: true, flushed: true };
