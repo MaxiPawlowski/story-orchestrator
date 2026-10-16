@@ -19,7 +19,7 @@ export interface NormalizePreviewBook {
   entries: number;
 }
 
-type EntryWrite = (lorebook: string, comments: string[]) => Promise<WriteResult<{ changed: boolean; confirmed?: boolean }>>;
+type EntryWrite = (lorebook: string, comments: string[], guard?: { stillOwns(): boolean }) => Promise<WriteResult<{ changed: boolean; confirmed?: boolean }>>;
 
 export interface WiGatingDeps {
   settings: () => WorldInfoSettings;
@@ -269,7 +269,7 @@ class WiGatingRuntime implements WiGating {
     const outcome = { restored: [] as GatedEntryRef[], refused: [] as string[] };
     for (const book of this.restorable(removed)) {
       if (!run.stillOwns()) break;
-      const result = await this.deps.enable(book.lorebook, book.comments);
+      const result = await this.deps.enable(book.lorebook, book.comments, run);
       if (!result.ok) {
         outcome.refused.push(result.reason);
         continue;

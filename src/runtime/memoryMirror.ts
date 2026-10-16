@@ -10,10 +10,10 @@ import { log } from "@utils/log";
 
 export interface MemoryMirrorHost {
   getChatId: () => string | null;
-  ensureLorebook: (name: string) => Promise<{ name: string; created: boolean } | null>;
+  ensureLorebook: (name: string, guard?: RunGuard) => Promise<{ name: string; created: boolean } | null>;
   loadLorebook: (name: string) => Promise<Lorebook | null>;
-  upsertWIEntry: (lorebook: string, comment: string, content: string, keys?: string[], options?: { live?: boolean }) => Promise<WIUpsertResult>;
-  disableWIEntry: (lorebook: string, comments: string | string[]) => Promise<WriteResult<{ changed: boolean }>>;
+  upsertWIEntry: (lorebook: string, comment: string, content: string, keys?: string[], options?: { live?: boolean; guard?: RunGuard }) => Promise<WIUpsertResult>;
+  disableWIEntry: (lorebook: string, comments: string | string[], guard?: RunGuard) => Promise<WriteResult<{ changed: boolean }>>;
   bindChatLorebook: (name: string, replaceable?: string[]) => ChatLorebookBinding;
   scanActive?: () => boolean;
   unbindChatLorebook?: (name: string) => Promise<WriteResult<{ name: string }>>;
@@ -103,7 +103,7 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   const owned = input.book?.chatId === chatId ? input.book : null;
   if (!owned && !live.length) return skippedSync(idle, "nothing-live");
 
-  const ensured = await host.ensureLorebook(owned?.name ?? mirrorLorebookName(input.title, chatId));
+  const ensured = await host.ensureLorebook(owned?.name ?? mirrorLorebookName(input.title, chatId), run);
   if (!ensured) return skippedSync(idle, "no-book");
   summary.ran = true;
   summary.lorebook = ensured.name;
@@ -120,7 +120,7 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   if (stale.length) {
     // A stale entry is forgotten only once the host has switched it off, so a refused disable
     // is retried on the next sync instead of leaving the entry live and untracked.
-    const disabled = await host.disableWIEntry(ensured.name, stale);
+    const disabled = await host.disableWIEntry(ensured.name, stale, run);
     if (disabled.ok) {
       for (const comment of stale) delete writes[comment];
       summary.disabled = stale.length;
@@ -135,7 +135,7 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
       continue;
     }
     if (lapsed()) return null;
-    const result = await host.upsertWIEntry(ensured.name, comment, entry.text, entry.entities, { live: true });
+    const result = await host.upsertWIEntry(ensured.name, comment, entry.text, entry.entities, { live: true, guard: run });
     if (result === "failed") continue;
     writes[comment] = hash;
     if (result === "created") summary.created += 1;
@@ -150,9 +150,9 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   if (lapsed()) return null;
   const candidate = host.owner?.();
   const owner = adopting && candidate?.chatId === chatId ? candidate : null;
-  if (owner?.chatId === chatId && await host.upsertWIEntry(ensured.name, OWNER_COMMENT, ownerMarkerContent(owner, new Date().toISOString(), input.title)) !== "failed") {
+  if (owner?.chatId === chatId && await host.upsertWIEntry(ensured.name, OWNER_COMMENT, ownerMarkerContent(owner, new Date().toISOString(), input.title), [], { guard: run }) !== "failed") {
     if (lapsed()) return null;
-    await host.disableWIEntry(ensured.name, OWNER_COMMENT);
+    await host.disableWIEntry(ensured.name, OWNER_COMMENT, run);
   }
   // Checked before EACH host write above, not once after them — a story swap mid-sync used to
   // let the departing story's rows land in the chat's shared book, and its stale sweep disable the

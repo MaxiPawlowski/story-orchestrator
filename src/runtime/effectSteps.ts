@@ -48,7 +48,7 @@ export const applyWorldInfo = async (plans: WorldInfoBookPlan[], run?: RunGuard)
   for (const plan of plans) {
     if (!lorebookExists(plan.lorebook) || (!plan.enable.length && !plan.disable.length)) continue;
     if (run && !run.stillOwns()) return refused;
-    const result = await setWIEntriesState(plan.lorebook, { enable: plan.enable, disable: plan.disable });
+    const result = await setWIEntriesState(plan.lorebook, { enable: plan.enable, disable: plan.disable }, run);
     if (!result.ok) refused.push(result.reason);
   }
   return refused;

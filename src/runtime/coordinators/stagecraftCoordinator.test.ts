@@ -220,7 +220,7 @@ describe("StagecraftCoordinator", () => {
     expect(await coordinator.applyAccepted()).toBe(0);
     await coordinator.setOpDecision(record!.id, 0, "accepted");
     expect(await coordinator.applyAccepted()).toBe(1);
-    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "The bridge stands, its ropes cut.", disabled: false });
+    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "The bridge stands, its ropes cut.", disabled: false }, expect.anything());
     expect(upsertWIEntry).not.toHaveBeenCalled();
     expect(read().proposals[0].ops[0].status).toBe("applied");
     expect(journal.some((entry) => entry.includes("applied 1 change(s)"))).toBe(true);
@@ -233,7 +233,7 @@ describe("StagecraftCoordinator", () => {
     const { record } = await coordinator.runCuratorPass();
     expect(record?.ops[0].status).toBe("accepted");
     expect(await coordinator.applyAccepted()).toBe(1);
-    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "{{// so:auto}}The bridge stands, its ropes new and taut.", disabled: true });
+    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "{{// so:auto}}The bridge stands, its ropes new and taut.", disabled: true }, expect.anything());
   });
 
   it("v2.7 02 C13 control: in auto mode an op on an unmarked entry waits for the author and is not written", async () => {
@@ -329,7 +329,7 @@ describe("StagecraftCoordinator", () => {
     const { record } = await coordinator.runCuratorPass();
     await coordinator.setOpDecision(record!.id, 0, "accepted", { kind: "rewrite", lorebook: "Story Lore", comment: "The bridge", text: "The bridge is rubble.", uid: 1 });
     await coordinator.applyAccepted();
-    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "The bridge is rubble.", disabled: false });
+    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "The bridge is rubble.", disabled: false }, expect.anything());
   });
 
   it("T17.3: an op the author declined at this checkpoint is not proposed again, and the prompt says so", async () => {
@@ -527,7 +527,7 @@ describe("StagecraftCoordinator", () => {
     await coordinator.runCuratorPass();
     await authorAcceptsPending(coordinator);
     await coordinator.applyAccepted();
-    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 2 }, { content: "The ferryman is back.", disabled: true });
+    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 2 }, { content: "The ferryman is back.", disabled: true }, expect.anything());
     expect(book.current.entries[2]).toMatchObject({ content: "The ferryman is back.", disable: true });
     expect(disableWIEntry).not.toHaveBeenCalled();
   });
@@ -600,7 +600,7 @@ describe("StagecraftCoordinator", () => {
     (upsertWIEntry as jest.Mock).mockClear();
     expect(await coordinator.revertAppliedSince(15)).toBe(1);
     expect(upsertWIEntry).not.toHaveBeenCalled();
-    expect(restoreWIEntryAt).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, expect.objectContaining({ content: "The bridge stands, its ropes new and taut.", disabled: false }));
+    expect(restoreWIEntryAt).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, expect.objectContaining({ content: "The bridge stands, its ropes new and taut.", disabled: false }), expect.anything());
     expect(entryOf("The bridge")?.content).toBe("The bridge stands, its ropes new and taut.");
     expect(read().proposals).toEqual([]);
     expect(journal.some((entry) => entry.includes("rolled back"))).toBe(true);
@@ -648,7 +648,7 @@ describe("ownership: a curator batch belongs to one chat", () => {
       await coordinator.runCuratorPass();
       await authorAcceptsPending(coordinator);
       await coordinator.applyAccepted();
-      expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, expect.objectContaining({ disabled: true }));
+      expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, expect.objectContaining({ disabled: true }), expect.anything());
     });
 
     it("stops the ops behind it when the world changes mid-batch", async () => {

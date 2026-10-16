@@ -435,7 +435,7 @@ describe("world_info effect", () => {
   const other = { checkpoints: [{ effects: { world_info: { enable: [{ lorebook: "Other", comments: ["Theirs"] }, { lorebook: "Checkpoints", comments: ["Two"] }] } } }] };
   const snapshot = {} as unknown as RuntimeSnapshot;
   const extras = (ready: boolean) => ({ ...makeExtras(), requirements: { ready } } as unknown as RuntimeExtras);
-  const switches = () => (setWIEntriesState as jest.Mock).mock.calls as Array<[string, { enable: string[]; disable: string[] }]>;
+  const switches = () => ((setWIEntriesState as jest.Mock).mock.calls as Array<[string, { enable: string[]; disable: string[] }]>).map(([book, change]) => [book, change] as [string, { enable: string[]; disable: string[] }]);
   const off = () => switches().filter(([, plan]) => plan.disable.length).map(([book, plan]) => [book, plan.disable]);
   const on = () => switches().filter(([, plan]) => plan.enable.length).map(([book, plan]) => [book, plan.enable]);
 

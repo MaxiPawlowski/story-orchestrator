@@ -92,7 +92,7 @@ jest.mock("./events", () => ({
   },
 }));
 
-import { setWIEntriesState } from "./worldInfo";
+import { createWIEntry, deleteWIEntryAt, disableWIEntry, restoreWIEntryAt, setWIEntriesState, updateWIEntryByUid, upsertWIEntry } from "./worldInfo";
 import { watchPendingWorldSaves } from "./worldInfoPending";
 
 const BOOK = "Shared Lore";
@@ -183,5 +183,60 @@ describe("review 2026-10-16 #4: each write is built on a detached candidate, nev
     seed();
     expect(await setWIEntriesState(BOOK, { disable: "Gate" })).toEqual({ ok: true, changed: true, confirmed: true });
     expect(st.cache.get(BOOK)).toEqual(st.disk.get(BOOK));
+  });
+});
+
+describe("review 2026-10-16 #2: a write whose run lapses during a suspended read writes nothing", () => {
+  const owner = () => {
+    let owned = true;
+    return { guard: { stillOwns: () => owned }, lapse: () => { owned = false; } };
+  };
+  const writers: Array<[string, (guard: { stillOwns(): boolean }) => Promise<unknown>]> = [
+    ["setWIEntriesState", (guard) => setWIEntriesState(BOOK, { disable: "Gate" }, guard)],
+    ["disableWIEntry", (guard) => disableWIEntry(BOOK, "Gate", guard)],
+    ["upsertWIEntry", (guard) => upsertWIEntry(BOOK, "Gate", "The gate fell.", [], { guard })],
+    ["updateWIEntryByUid", (guard) => updateWIEntryByUid({ lorebookFileId: BOOK, uid: 3 }, { content: "The gate fell." }, guard)],
+    ["restoreWIEntryAt", (guard) => restoreWIEntryAt({ lorebookFileId: BOOK, uid: 3 }, { content: "The gate fell.", disabled: true }, guard)],
+    ["createWIEntry", (guard) => createWIEntry(BOOK, { comment: "Marn", keys: ["Marn"], content: "Sells maps." }, guard)],
+    ["deleteWIEntryAt", (guard) => deleteWIEntryAt({ lorebookFileId: BOOK, uid: 3 }, guard)],
+  ];
+  const untouched = () => {
+    expect(ourPosts()).toEqual([]);
+    expect(st.disk.get(BOOK)).toEqual({ entries: { 3: entry(3, "Gate", "The gate."), 5: entry(5, "Ferry", "The ferry.") } });
+  };
+
+  it.each(writers)("%s: lapse while the book's first load is suspended", async (_name, write) => {
+    seed();
+    const run = owner();
+    st.holdGet = async (_book, count) => { if (count === 1) run.lapse(); };
+    const result = await write(run.guard);
+    expect(result === "failed" || (result as { ok?: boolean }).ok === false).toBe(true);
+    untouched();
+  });
+
+  it.each(writers)("%s: lapse while the preflight comparison read is suspended", async (_name, write) => {
+    seed();
+    const run = owner();
+    st.holdGet = async (_book, count) => { if (count === 2) run.lapse(); };
+    const result = await write(run.guard);
+    expect(result === "failed" || (result as { ok?: boolean }).ok === false).toBe(true);
+    untouched();
+  });
+
+  it("this page's waiting edit is not flushed by a write whose run lapsed during the preflight read", async () => {
+    seed();
+    const editor = await loadWorldInfo(BOOK) as Book;
+    editor.entries[5].content = "LOCAL EDIT";
+    await saveWorldInfo(BOOK, editor);
+    const run = owner();
+    st.holdGet = async (_book, count) => { if (count === 2) run.lapse(); };
+    expect(await setWIEntriesState(BOOK, { disable: "Gate" }, run.guard)).toMatchObject({ ok: false });
+    untouched();
+  });
+
+  it("control: an owned run writes", async () => {
+    seed();
+    expect(await setWIEntriesState(BOOK, { disable: "Gate" }, owner().guard)).toEqual({ ok: true, changed: true, confirmed: true });
+    expect(st.disk.get(BOOK)!.entries[3].disable).toBe(true);
   });
 });

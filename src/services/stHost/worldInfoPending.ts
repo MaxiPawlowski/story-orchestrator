@@ -4,6 +4,7 @@ import { subscribeToHostEvent } from "./events";
 import { entriesImage } from "./lorebookImage";
 import { worldInfoModule } from "./modules";
 import { readServerLorebook } from "./worldInfoServer";
+import { lapsed, type WriteGuard } from "./writeGuard";
 
 export const PENDING_WORLD_SAVE_MS = 1500;
 
@@ -86,18 +87,20 @@ async function saveCached(name: string): Promise<WriteResult<{ flushed: boolean 
   }
 }
 
-export async function flushPendingWorldSave(name: string, now: number = clock()): Promise<WriteResult<{ flushed: boolean }>> {
-  return pendingWorldEdit(name, now) ? saveCached(name) : wrote({ flushed: false });
+export async function flushPendingWorldSave(name: string, now: number = clock(), guard?: WriteGuard): Promise<WriteResult<{ flushed: boolean }>> {
+  return pendingWorldEdit(name, now) && !lapsed(guard) ? saveCached(name) : wrote({ flushed: false });
 }
 
 // Our immediate save cancels ST's one shared save debounce (world-info.js:4151), so another book's
 // waiting edit is saved here, but only while the server still holds the copy that edit was made from.
-export async function flushPendingWorldSaves(written: string, now: number = clock()): Promise<WriteResult<{ flushed: string[] }>> {
+export async function flushPendingWorldSaves(written: string, now: number = clock(), guard?: WriteGuard): Promise<WriteResult<{ flushed: string[] }>> {
   const flushed: string[] = [];
   for (const name of [...edits.keys()]) {
+    if (lapsed(guard)) break;
     const edit = name === written ? null : pendingWorldEdit(name, now);
     if (!edit) continue;
     const server = edit.baseline === null ? null : await readServerLorebook(name);
+    if (lapsed(guard)) break;
     if (!server || entriesImage(server) !== edit.baseline) {
       edits.delete(name);
       log.warn("world info: an edit waiting in ST's save debounce was not saved, because the server copy it was made from could not be confirmed", { name });
