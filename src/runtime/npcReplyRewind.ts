@@ -7,6 +7,15 @@ export const recordNpcReplyFire = (counts: Record<string, number>, at: Record<st
   at[key] = [...(at[key] ?? []), messageId];
 };
 
+export const releaseNpcReplyFire = (counts: Record<string, number>, at: Record<string, number[]>, key: string): void => {
+  const count = (counts[key] ?? 0) - 1;
+  if (count > 0) counts[key] = count;
+  else delete counts[key];
+  const rows = (at[key] ?? []).slice(0, -1);
+  if (rows.length) at[key] = rows;
+  else delete at[key];
+};
+
 export const NPC_REPLY_SPACING = 8;
 
 export type ActiveTrigger = "afterSpeak" | "sceneBreak";

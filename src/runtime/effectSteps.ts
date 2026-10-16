@@ -2,7 +2,7 @@ import { type CheckpointEffects, type NormalizedStoryV2, type NpcReplyEffect } f
 import { applyCharacterAN, clearCharacterAN, executeSlashCommands, groupMemberPosition, lorebookExists, readSamplerPreset, setWIEntriesState } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
 import type { SamplerApi } from "@utils/samplerKeys";
-import { wrote, type WriteResult } from "@utils/writeResult";
+import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { isRecord } from "@utils/guards";
 import { renderBlackboardMemo } from "./blackboardMemo";
 import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoGates";
@@ -68,7 +68,9 @@ export const fireReply = async (reply: NpcReplyEffect): Promise<WriteResult> => 
   if (reply.kind !== "scripted") {
     const member = groupMemberPosition(reply.member);
     if (!member.ok) return member;
-    await executeSlashCommands(`/trigger await=true ${member.position}`, { silent: false });
-  } else if (text.trim()) await executeSlashCommands(`/sendas name=${quoteSlashArg(reply.member)} raw=false ${quoteSlashArg(text)}`, { silent: false });
+    if (!await executeSlashCommands(`/trigger await=true ${member.position}`, { silent: false })) return couldNot(`the /trigger for ${reply.member} was refused`);
+  } else if (text.trim() && !await executeSlashCommands(`/sendas name=${quoteSlashArg(reply.member)} raw=false ${quoteSlashArg(text)}`, { silent: false })) {
+    return couldNot(`the /sendas for ${reply.member} was refused`);
+  }
   return wrote();
 };
