@@ -235,6 +235,8 @@ export const NotYourMove: Story = {
   },
 };
 
-const crowdedTurn = { args: { snapshot: baseSnapshot({ ...playing, thinkingSilent: true, turn: { yours: true, source: "judge" }, pendingDeltas: [{ quality: "luke_decision", value: "accepted", source: "extractor" }] }) } };
+const crowdedTurn = { args: { snapshot: baseSnapshot({
+  ...playing, thinkingSilent: true, turn: { yours: true, source: "judge" }, pendingDeltas: [{ quality: "luke_decision", value: "accepted", source: "extractor" }],
+}) } };
 
 export const YourMovePhone: Story = { ...crowdedTurn, ...fitsAt(VIEWPORTS.phone, hudButton) };

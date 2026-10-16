@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import { WidgetCard } from "./WidgetCard";
 import {
-  boardWidget, clockWidget, cluesWidget, factionRosterWidget, intentsWidget, mapWidget, provenanceRows, rosterWidget, sampleGame, sceneWidget, sceneWidgetEmpty, standingWidget, stillWidget, timelineWidget,
+  boardWidget, clockWidget, cluesWidget, factionRosterWidget, intentsWidget, mapWidget, provenanceRows, rosterWidget, sampleGame, sceneWidget, sceneWidgetEmpty, standingWidget,
+  stillWidget, timelineWidget,
 } from "./gameViewFixtures";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 import { sceneView } from "@runtime/sceneCard";
