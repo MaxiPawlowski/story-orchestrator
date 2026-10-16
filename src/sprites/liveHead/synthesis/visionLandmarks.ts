@@ -1,12 +1,17 @@
-import type { HarnessModel, HarnessRequest } from "@services/stHost/harness";
+import type { HarnessModel, HarnessRequest, HarnessStatus } from "@services/stHost/harness";
 import type { ModelReply } from "@services/stHost/modelReply";
 import { isRecord } from "@utils/guards";
-import { visionRigRequest } from "../visionRequest";
+import { visionRigRequest, VISION_RIG_MODEL } from "../visionRequest";
 import type { LandmarkProvider } from "./synthesize";
 
 export interface VisionLandmarkDeps {
   target(signal: AbortSignal): Promise<HarnessModel | undefined>;
   send(request: HarnessRequest): Promise<ModelReply>;
+}
+
+export function visionTarget(status: HarnessStatus | null): HarnessModel | undefined {
+  const row = status?.harnesses.opencode;
+  return row?.offered ? row.models.find((model) => model.id === VISION_RIG_MODEL && model.image !== false && model.available !== false) : undefined;
 }
 
 export function readLandmarkAnswer(text: string): unknown {
