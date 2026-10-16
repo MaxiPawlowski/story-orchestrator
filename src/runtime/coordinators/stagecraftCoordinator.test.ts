@@ -937,6 +937,22 @@ describe("continuity warden (v2.2 plan 05)", () => {
     expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(1);
   });
 
+  it("review 2026-10-16 #5: a quiet run nested in the loud one withholds the note, the loud run gets it back, and its render spends it", async () => {
+    const env = harness({ settings: wardenOn("auto"), warden: warden() });
+    await env.coordinator.runWardenPass(1);
+    env.coordinator.onGenerationStarted("normal", false);
+    expect(setStoryExtensionPrompt).toHaveBeenLastCalledWith(KEY, note.text, 0);
+    env.coordinator.onGenerationStarted("quiet", false);
+    expect(clearStoryExtensionPrompt).toHaveBeenLastCalledWith(KEY);
+    env.coordinator.restoreNote();
+    expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(2);
+    expect(setStoryExtensionPrompt).toHaveBeenLastCalledWith(KEY, note.text, 0);
+    env.coordinator.commitNote(true);
+    expect(env.read().proposals.at(-1)?.ops[0].status).toBe("applied");
+    env.coordinator.restoreNote();
+    expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(2);
+  });
+
   it("v2.4 X6: a reply-less close keeps the note accepted for the next loud generation; only a render spends it", async () => {
     const env = harness({ settings: wardenOn("auto"), warden: warden() });
     await env.coordinator.runWardenPass(1);

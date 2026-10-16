@@ -396,6 +396,21 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
     }
   });
 
+  it("review 2026-10-16 #5: every declared block seeded, a withholding start clears every manager-owned withhold block and keeps every keep block", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(guided(WANDER)));
+    const wiringOwned = new Set<string>([INJECTION_REGISTRY.awayNotice.key, INJECTION_REGISTRY.previously.key, INJECTION_REGISTRY.checkOutcome.key]);
+    const specs = Object.values(INJECTION_REGISTRY) as InjectionSpec[];
+    for (const type of ["quiet", "impersonate"]) {
+      manager.onGenerationStarted("normal", false);
+      for (const spec of specs) mockExtensionPrompts[spec.key] ??= { value: `seeded ${spec.key}`, depth: spec.depth };
+      manager.onGenerationStarted(type, false);
+      const present = specs.filter((spec) => !wiringOwned.has(spec.key) && spec.key in mockExtensionPrompts).map((spec) => spec.key).sort();
+      expect(present).toEqual(specs.filter((spec) => !wiringOwned.has(spec.key) && carriesInto(spec, type)).map((spec) => spec.key).sort());
+      manager.clearPrivateInjection();
+    }
+  });
+
   it("v2.8 69 K9: a quiet run nested inside a loud one withholds while it runs and the loud run's blocks come back when it ends", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(guided(WANDER)));
