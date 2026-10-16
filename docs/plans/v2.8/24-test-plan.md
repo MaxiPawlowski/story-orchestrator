@@ -806,6 +806,35 @@ and the RAM hold; no model job started after 10:00 UTC. Artemis play used: about
 - Product defects seen: OpenCode transport failures (C7, likely GS1.1); review-mode tools lost after the first accept
   (coordinator); the 64-tool bridge cap (fixed on master at 96); GS1.4 scenario block (open).
 
+Text suite, round 2, 2026-10-16 (master 167892d9 merged, st-suite restaged with plugins; Artemis via the controller from
+11:20 local; lanes 41/42 adolion-fresh with --allow-local; C7 on lane 43 without the model). Paused 17:31Z for the
+owner's 3090 (drivers stopped with taskkill /T /F, restore-config on both lanes, model stopped, GPU verified free).
+Artemis used: about 5.8 h in total (3.2 h this round).
+
+- AS-smoke: saga ×2 and war ×2 green (`41/debug/batch/2026-10-16T14-24-02-757Z`); with round 1, all 9 files green ×2.
+- 52 C7, Sol, auto-draft: 10/10 and 10/10, 0 transport failures (`43/debug/2026-10-16T14-34-29-917Z_…`,
+  `…14-41-29-064Z_…`); floor met. Review mode on 167892d9: 0/1 (reads after an accepted edit refused as unchanged);
+  after master cb50cff3 (guard reset, quality usage sees codex/quest gates), served from a separate code copy
+  `C:\dev\st-c7` so the play lanes kept one build: 2/2 (`…15-17-41-314Z_…`, `…15-19-01-377Z_…`). Header diffs 0.
+- GS1 (lane 42), three runs: 7/9, 7/9, 6/9 (`42/debug/batch/2026-10-16T14-22-29-697Z`, `…15-31-28-678Z`). Fixture
+  defects fixed: GS1.4 asserted a story_* block, the scenario effect is ST's chat scenario override (4411e00a);
+  GS1.8/GS1.9: the welcome-back recap popup (product, by design) blocked the send and the drawer; GS1.8 now asserts and
+  answers it (68ffa39b). GS1.1 intermittent (1 of 3): the start pane closes with choice `skip` and the opener commits
+  boundary 1; cause open, evidence logging added (57268cd6, 84093e4a, 88f1bd1b). No pair yet.
+- GS4 (lane 41): 5/6 then 6/6 (`41/debug/batch/2026-10-16T14-56-18-468Z`). GS4.5 searched the normalized story for
+  complications; SP6 reads the raw story (9289c2e3). A third run is owed for a pair on the fixed fixture.
+- GS2: 8/8 (`41/debug/batch/2026-10-16T15-36-09-837Z`). One run, as planned.
+- GS3 run 1: 5/7, shakedown (`42/debug/batch/2026-10-16T16-10-31-635Z`). GS3.2 counted a read for a window that was
+  not OOC-only (the read had not caught up); GS3.3 asserted one clock step per boundary, but plan 50 moves the clock by
+  the read (3c5dae87, dc8577c2). Run 2 interrupted at GS3.7.
+- Campaign lab commit-model ×2 green (`41/debug/batch/2026-10-16T16-15-36-089Z`); encounters-model run 1 interrupted
+  at step 20/31.
+- Harness fixes with tests: a send that never reaches the chat fails and names open popups (8cc0b8c5); GS journey
+  records land in their rows (`journey-GS…`, earlier rows backfilled); `st-lanes run` row names keep path-safe
+  characters (3f29cec4).
+- Interrupted rows carry `interrupted.json`. Resume list: lane 41 encounters-model ×2, GS4 ×1, GS1 ×2; lane 42 GS3 ×2,
+  47 promises ×2, T8 `--set time` ×2.
+
 
 ## Appendix A — plan 24 before the 2026-10-14 rework (history)
 
