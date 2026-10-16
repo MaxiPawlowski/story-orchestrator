@@ -35,8 +35,8 @@ native bridge open/tool/answer/close evidence, fails.
       v2.8 09 (owner 2026-10-10): each task of test/measurements/v2.8/09/recipes.json starts from its seed story and asks for
       one authoring job in the author's words; a task passes when the agent read the expected recipe, every required edit tool
       of that recipe was accepted, the run finished and the draft validates. Provisioning is rejected.
-  card-revision [--task <id>] [--repeat <n>] [--route local|harness|native] [--profile <id>] [--max-steps <n>]
-      v2.8 09 harvest A6: each task of test/measurements/v2.8/09/card-revision.json asks for one card with a planted
+  card-revision [--fixture <file>] [--task <id>] [--repeat <n>] [--route local|harness|native] [--profile <id>] [--max-steps <n>]
+      v2.8 09 harvest A6: each task of test/measurements/v2.8/09/card-revision-v2.json (default) asks for one card with a planted
       mistake; the card comes back with notes once, and a task passes when the agent's replacement clears every note
       it was shown. Provisioning is rejected, so nothing is created.
   bridge-check [--premise <id>] [--max-steps <n>]
@@ -149,7 +149,7 @@ async function recipes(page, args: string[]) {
 }
 
 async function cardRevision(page, args: string[]) {
-  const fixture = JSON.parse(await readFile(resolve(PROJECT_ROOT, 'test/measurements/v2.8/09/card-revision.json'), 'utf-8'));
+  const fixture = JSON.parse(await readFile(resolve(PROJECT_ROOT, 'test/measurements/v2.8/09', flag(args, '--fixture') ?? 'card-revision-v2.json'), 'utf-8'));
   const only = flag(args, '--task');
   const route = routeOf(args);
   const repeat = Math.max(1, Number(flag(args, '--repeat') ?? 1));
@@ -159,7 +159,7 @@ async function cardRevision(page, args: string[]) {
     try {
       result = await driveChecked(page, {
         goal: task.goal, title: `${fixture.marker} ${task.id}`, mode: 'review', route, maxSteps: Number(flag(args, '--max-steps') ?? 8),
-        provision: 'reject', profileId: flag(args, '--profile'), seed: fixture.seed,
+        provision: 'reject', profileId: flag(args, '--profile'), seed: fixture.seed, recordArgs: true,
       });
     } catch (error) {
       const message = String((error as Error)?.message ?? error).split(String.fromCharCode(10))[0].slice(0, 300);

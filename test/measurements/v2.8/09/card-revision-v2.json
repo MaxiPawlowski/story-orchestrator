@@ -1,0 +1,78 @@
+{
+  "plan": "v2.8 09 harvest A6, fixture v2: the agent's one bounded revision clears the card note it was shown",
+  "declared": "2026-10-16 after the v1 run (card-revision.json): v1 told the agent to use the text \"exactly\", so Sol sent the same card back as its revision (kept it, as the author asked) on every task; v2 gives the planted text as the author's rough draft. Floor unchanged, informational, never retuned",
+  "marker": "SO-W09C2",
+  "route": "the authoring role on opencode openai/gpt-6.1-sol through the harness tool bridge (owner's subscription)",
+  "floor": "recorded (expected >= 7/10 tasks whose replacement clears every flagged finding), x2",
+  "scoring": "a task counts when its first createCharacterCard step was held for review; it passes when a replacement step (replaces = that step) exists and none of the held step's note ids remain on the replacement. A task whose first card had no note is 'not seeded' and counts as a miss; provisioning is rejected after the revision, so nothing is created",
+  "seed": {
+    "format": 2,
+    "id": "so-w09c-harbour",
+    "title": "SO-W09C Harbour",
+    "description": "A smuggler's port at night; a synthetic story for the v2.8 09 card revision runs.",
+    "qualities": [],
+    "checkpoints": [
+      {
+        "id": "quay",
+        "name": "The Quay",
+        "objective": "The player lands with a sealed letter and looks for a buyer.",
+        "type": "anchor",
+        "start": true
+      }
+    ],
+    "transitions": [],
+    "roster": []
+  },
+  "tasks": [
+    {
+      "id": "thin-1",
+      "plants": "description-thin",
+      "goal": "Create one character card and nothing else: the harbour fence Ilsa Crane, rough draft of the description \"Buys stolen goods.\". The draft is the author's first attempt. Do not edit the story."
+    },
+    {
+      "id": "thin-2",
+      "plants": "description-thin",
+      "goal": "Create one character card and nothing else: the ferry captain Rhosyn Dale, rough draft of the description \"Runs the night ferry.\". The draft is the author's first attempt. Do not edit the story."
+    },
+    {
+      "id": "adjectives-1",
+      "plants": "voice-adjectives",
+      "goal": "Create one character card and nothing else: the customs officer Teodor Quill, rough draft of the description \"Strict, tired, honest, bitter, slow, careful, proud and lonely, the last honest officer of the old harbour customs house.\". The draft is the author's first attempt. Do not edit the story."
+    },
+    {
+      "id": "adjectives-2",
+      "plants": "voice-adjectives",
+      "goal": "Create one character card and nothing else: the dock physician Corvin Ashby, rough draft of the description \"Kind, drunk, clever, nervous, shabby, quick, gentle and sad, the only physician who still treats sailors on the docks.\". The draft is the author's first attempt. Do not edit the story."
+    },
+    {
+      "id": "greeting-1",
+      "plants": "greeting-speaks-for-player",
+      "goal": "Create one character card and nothing else: the tide clerk Wenna Tregear, who knows every boat by its creak and asks strangers questions back, with this rough draft of the first message: \"You step off the boat and feel the cold. Wenna looks up from her ledger.\". The draft is the author's first attempt. Do not edit the story."
+    },
+    {
+      "id": "greeting-2",
+      "plants": "greeting-speaks-for-player",
+      "goal": "Create one character card and nothing else: the dock boss Bram Harrow, who runs the night crews and settles debts with a look, with this rough draft of the first message: \"{{user}} nods and follows Bram into the warehouse.\". The draft is the author's first attempt. Do not edit the story."
+    },
+    {
+      "id": "traits-1",
+      "plants": "trait-no-behaviour",
+      "goal": "Create one character card and nothing else: the smuggler Kestrel Vane. Rough draft of the description \"Kestrel has run brandy past the customs house for ten years. She owns a narrow black boat and rents a room above the chandler's shop on the quay.\" personality \"reckless, loyal, superstitious\". The draft is the author's first attempt. Do not edit the story."
+    },
+    {
+      "id": "traits-2",
+      "plants": "trait-no-behaviour",
+      "goal": "Create one character card and nothing else: the lamplighter Oswin Pell. Rough draft of the description \"Oswin lights the harbour lamps at dusk and puts them out at dawn. He has done it since he was a boy, and his father did it before him.\" personality \"patient, gossipy, fearful\". The draft is the author's first attempt. Do not edit the story."
+    },
+    {
+      "id": "examples-1",
+      "plants": "examples-no-char-line",
+      "goal": "Create one character card and nothing else: the net mender Morwen Tull, who mends nets on the quay and hears every rumour first; when a stranger lingers she starts singing loudly to drive them off. Rough draft of the example dialogue: \"<START>\nShe hums and keeps mending.\". The draft is the author's first attempt. Do not edit the story."
+    },
+    {
+      "id": "name-1",
+      "plants": "name-mention-trap",
+      "goal": "Create one character card and nothing else, named \"The Fence\": a broker who buys anything that fell off a ship; when a seller haggles, he lowers his offer by a coin each time, and he keeps his shop dark so nobody sees his hands shake. The draft is the author's first attempt. Do not edit the story."
+    }
+  ]
+}
