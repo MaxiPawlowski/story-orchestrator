@@ -7,6 +7,7 @@ import type { SpriteBuilderHost } from "./SpriteBuilder";
 import { draftOwnership } from "../agentHost";
 import { builderRender, RENDER_PRESETS } from "../../sprites/settings";
 import { refuseDefaultCardArt } from "../../sprites/cardArt";
+import { faceAnchor, headBox } from "../../sprites/builder/headBox";
 
 export default function BaseSpriteBuilder({ character, image, set, models, discovery, steps, resolution = RENDER_PRESETS.standard.resolution, seed, busy, setBusy, builder, services, onSaved }: {
   character: string; image?: string; set: string; models: { diffusion: string; encoder: string; vae: string };
@@ -58,11 +59,11 @@ export default function BaseSpriteBuilder({ character, image, set, models, disco
       if (!live.current) return;
       const input = candidate.request;
       const neutral = await services.decode(`data:image/png;base64,${candidate.data}`);
-      const width = Math.max(8, Math.round(neutral.width * 0.45)), height = Math.max(8, Math.round(neutral.height * 0.25));
+      const face = services.detect ? faceAnchor(await services.detect(candidate.data).catch(() => null), neutral) : null;
       if (!live.current || !draftOwnership.check(run).ok) return;
       const settings = getGlobalSettings().sprites;
       setGlobalSettings({ sprites: { builders: { ...settings.builders, [input.character]: { baseSet: input.set,
-        box: { x: Math.round((neutral.width - width) / 2), y: 0, width, height },
+        box: headBox(neutral, face),
         models: { diffusion: input.models.diffusion.name, encoder: input.models.encoder.name, vae: input.models.vae.name }, ...builderRender(input) } } } });
       setSaved(result.path);
       onSaved?.(result.path);

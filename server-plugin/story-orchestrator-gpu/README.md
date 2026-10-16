@@ -35,6 +35,7 @@ binary/model paths, a profile argument that sets the host, port or a path, and a
 | `modelDirs` | `{ kind: [absolute folders] }` for model-size estimates. |
 | `telemetryPython` | Optional Python with `pynvml`/`psutil` for high-cadence telemetry (`broker/memory-probe.py`); without it `nvidia-smi` is sampled. |
 | `ramEstimates` | `[{ id, models: ["kind:file", …], ramMiB, maxPixels?, streaming? }]`: this host's measured RAM need for a model set; overrides the shipped table (`broker/ramEstimates.mjs`). |
+| `imageFairTextRequests`, `imageFairWaitMs` | Fair image window (defaults 3 and 45000): a lease asked while text runs or waits lets that many more text replies through, or waits that long, then takes the GPU before the rest of the text queue; with no text waiting it goes after the reply in progress. `/status` answers `fairImages: true`, `imageWaiting`, `servedText`, and the page then asks for its lease at once instead of waiting for an idle text queue. `0` restores image-first. |
 | `retainBatches` | On by default: `/status` answers `mayRetain` so a sprite batch keeps its image lease for up to three images while no text waits and memory stays above the reserves. `false` turns it off. |
 
 `exit()` stops only children the broker started (tree kill), never a server it did not start.
@@ -57,6 +58,12 @@ Each lease needs `need + reserve` free on both the GPU and host RAM (and commit)
 - `/status` `lastResidency` says what was decided and why: `decision`, `reason`, `textResident`, `needGpuMiB`,
   `needRamMiB`, `ramSource`, `reserves`, `readings` (before), `admittedReadings` (after a swap), `shortBy`. Each decision
   is also logged as `[story-orchestrator-gpu] lease <decision>: …`.
+- Host RAM short (physical or commit) is a retryable state, never a lowered reserve: the lease answers
+  `Image admission refused: … Host RAM is short for this image …`, `lastResidency.decision` is `ram-short`, and the
+  broker is free for text at once. The page retries that answer every 20 s within its 15-minute lease patience and
+  stops on cancel. For 10 minutes after a shortfall the broker remembers how much RAM unloading text freed, and refuses
+  straight away (text kept loaded) while the live reading plus that amount still falls short, so retries do not
+  unload and reload text each time.
 - Host RAM on Windows is `FreePhysicalMemory` (standby cache not counted), so readings and the measured row are both on
   the conservative side.
 

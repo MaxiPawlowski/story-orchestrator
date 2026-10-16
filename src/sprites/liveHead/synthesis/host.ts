@@ -1,8 +1,7 @@
 import { headAssetBytes } from "@services/stHost/liveHeadAssets";
 import { contentHash } from "../../builder/recipes";
 import { encodeImage } from "../../builder/images";
-import { VISION_RIG_MODEL } from "../visionRequest";
-import { visionLandmarkProvider } from "./visionLandmarks";
+import { visionLandmarkProvider, visionTarget } from "./visionLandmarks";
 import { decodeBytes } from "./decode";
 import { detectorChecker, type LandmarkChecker } from "./detectorCheck";
 import type { LandmarkProvider, RigSynthesisDeps } from "./synthesize";
@@ -10,10 +9,9 @@ import type { LandmarkProvider, RigSynthesisDeps } from "./synthesize";
 export const solLandmarks: LandmarkProvider = visionLandmarkProvider({
   target: async (signal) => {
     const { fetchHarnessStatus } = await import("@services/stHost/harness");
-    const status = await fetchHarnessStatus();
+    const status = await fetchHarnessStatus() ?? await fetchHarnessStatus(true);
     signal.throwIfAborted();
-    const row = status?.harnesses.opencode;
-    return row?.offered ? row.models.find((model) => model.id === VISION_RIG_MODEL && model.image && model.available !== false) : undefined;
+    return visionTarget(status);
   },
   send: async (request) => (await import("@services/stHost/harness")).sendHarnessRequest(request),
 });

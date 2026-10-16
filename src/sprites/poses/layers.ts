@@ -31,9 +31,9 @@ export const poseSet = (key: string): string => `lp_${key.slice(0, 8)}`;
 export interface CachedBody { set: string; look: string; pose: string; tags: readonly string[]; stamp?: string; visualRoot?: string }
 export const bodyStamp = (pose: unknown, layers: unknown, config: unknown, root?: string): string =>
   stableStringify(root ? [pose, layers, config, root] : [pose, layers, config]);
-export function fallbackBodies(wanted: CachedBody, cached: readonly CachedBody[], current: string): string[] {
+export function fallbackBodies(wanted: CachedBody, cached: readonly CachedBody[], current: string, standIn?: string): string[] {
   return [...new Set([wanted.set, ...cached.filter((body) => body.look === wanted.look && body.tags.some((tag) => wanted.tags.includes(tag))).map((body) => body.set),
-    ...cached.filter((body) => body.look === wanted.look && body.pose === "stand_relaxed").map((body) => body.set),
+    ...cached.filter((body) => body.look === wanted.look && body.pose === "stand_relaxed").map((body) => body.set), ...(standIn ? [standIn] : []),
     ...cached.filter((body) => body.pose === wanted.pose).map((body) => body.set), "default", current])];
 }
 

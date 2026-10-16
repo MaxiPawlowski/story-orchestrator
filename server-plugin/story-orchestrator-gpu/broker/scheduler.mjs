@@ -4,6 +4,8 @@ import { measuredRamMiB } from './ramEstimates.mjs';
 import { estimateNeedMiB, modelIdentities, estimateRamMiB } from './models.mjs';
 import { footprintKey, observedFootprint, FOOTPRINT_REVISION } from './footprints.mjs';
 
+export const RAM_REFUSAL = /Insufficient (physical RAM|commit) headroom/;
+
 export class ResidencyScheduler {
     constructor({ config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints = {}, timings = {}, saveTimings = async () => {}, runtime = async () => ({ id: 'unknown', streaming: false }), log = () => {} }) {
         Object.assign(this, { config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints, timings, saveTimings, runtime, log });
@@ -24,10 +26,13 @@ export class ResidencyScheduler {
         this.lastCacheMode = null;
         this.reloadFailures = 0;
         this.reloadRetryAt = null;
+        this.servedText = 0;
+        this.imageQueued = null;
+        this.ramShort = null;
     }
 
     async keepResident(now = Date.now()) {
-        if (this.config.keepTextResident === false || this.restoring || this.lease || this.imagePending || this.activeText || this.manualHold || this.pending.length) return;
+        if (this.config.keepTextResident === false || this.restoring || this.lease || this.imagePending || this.imageQueued || this.activeText || this.manualHold || this.pending.length) return;
         const state = this.backend.status();
         if (state.pid || state.loading) return;
         if (this.lastLeaseAt && now - this.lastLeaseAt < (this.config.textReloadGraceMs ?? 5000)) return;
@@ -64,7 +69,7 @@ export class ResidencyScheduler {
     cleanup(entry) { clearTimeout(entry.timer); entry.signal?.removeEventListener('abort', entry.abort); }
 
     async pump() {
-        if (this.activeText || this.imagePending || this.lease || this.manualHold || this.restoring) return;
+        if (this.activeText || this.imagePending || this.lease || this.manualHold || this.restoring || (this.imageQueued && this.imageTurn())) return;
         const entry = this.pending.shift();
         if (!entry) return;
         this.cleanup(entry);
@@ -79,7 +84,7 @@ export class ResidencyScheduler {
             entry.resolve(await entry.run());
         }
         catch (error) { this.lastError = error.message; entry.reject(error); }
-        finally { this.activeText = false; void this.pump(); }
+        finally { this.activeText = false; this.servedText += 1; void this.pump(); }
     }
 
     async needFor(body, key) {
@@ -97,11 +102,38 @@ export class ResidencyScheduler {
         return Math.ceil(this.config.defaultImageMiB ?? 12000);
     }
 
+    imageTurn() {
+        const queued = this.imageQueued;
+        if (!queued) return true;
+        return this.servedText - queued.served >= (this.config.imageFairTextRequests ?? 3) || Date.now() - queued.at >= (this.config.imageFairWaitMs ?? 45000);
+    }
+
+    ramShortError(detail) {
+        const error = new Error(`Image admission refused: ${detail} Host RAM is short for this image; the render waits and retries when RAM frees up, and the reserve is kept.`);
+        error.retryable = true;
+        return error;
+    }
+
+    async noteRamShort(before, detail) {
+        let after = null;
+        try { after = (await this.snapshot({ fresh: true }))?.host?.availableMiB ?? null; } catch (error) { this.lastError = error.message; }
+        this.ramShort = { at: Date.now(), freedMiB: Number.isFinite(after) && Number.isFinite(before) ? Math.max(0, after - before) : 0, detail };
+        this.recordResidency({ decision: 'ram-short', reason: `Host RAM is short: ${detail}`, admittedReadings: { gpuFreeMiB: null, ramAvailableMiB: after } });
+        return this.ramShortError(detail);
+    }
+
     async reserve(body = {}) {
-        if (this.lease || this.imagePending) throw new Error('An image batch already owns the local GPU.');
+        if (this.lease || this.imagePending || this.imageQueued) throw new Error('An image batch already owns the local GPU.');
+        const deadline = Date.now() + this.config.queueTimeoutMs;
+        this.imageQueued = { at: Date.now(), served: this.servedText };
+        try {
+            while (this.restoring || ((this.activeText || (this.pending.length && !this.manualHold)) && !this.imageTurn())) {
+                if (Date.now() > deadline) throw new Error('The text generation did not finish before the image deadline.');
+                await new Promise((resolve) => setTimeout(resolve, 25));
+            }
+        } finally { this.imageQueued = null; }
         this.imagePending = true;
         try {
-            const deadline = Date.now() + this.config.queueTimeoutMs;
             while (this.activeText || this.restoring) {
                 if (Date.now() > deadline) throw new Error('The text generation did not finish before the image deadline.');
                 await new Promise((resolve) => setTimeout(resolve, 100));
@@ -130,11 +162,21 @@ export class ResidencyScheduler {
             this.lastResidency = { decision: 'deciding', reason, textResident, textProfile: textState.profile ?? null, needGpuMiB, needRamMiB, ramSource,
                 reserves: { ...this.config.reserves }, readings: choice.readings, shortBy: choice.shortBy, at: new Date().toISOString() };
             const fits = () => admission(snapshot, { gpuMiB: needGpuMiB, ramMiB: needRamMiB }, this.config.reserves);
+            const ramMemory = this.ramShort && Date.now() - this.ramShort.at < (this.config.ramShortMemoryMs ?? 600000) ? this.ramShort : null;
+            const ramBefore = choice.readings?.ramAvailableMiB ?? null;
+            const freeFor = async (ramRequiredMiB) => {
+                try { await this.freeImages({ ramRequiredMiB }); }
+                catch (error) { throw RAM_REFUSAL.test(error.message) ? await this.noteRamShort(ramBefore, error.message.replace(/^Image memory admission refused after GPU release\.\s*/, '')) : error; }
+            };
             if (choice.keep && benchmarkMode !== 'swap') {
                 decision = 'retain-text';
             } else if (benchmarkMode !== 'swap' && this.streams({ snapshot, runtime, models, needRamMiB })) {
                 decision = 'stream-image';
                 reason = `${choice.reason} Streaming the image beside text instead.`;
+            } else if (ramMemory && textResident && Number.isFinite(ramBefore) && ramBefore + ramMemory.freedMiB < needRamMiB + this.config.reserves.ramMiB) {
+                const detail = `Insufficient physical RAM headroom. RAM available ${Math.round(ramBefore)} MiB, about ${Math.round(ramMemory.freedMiB)} MiB more after unloading text; workload ${needRamMiB} + reserve ${this.config.reserves.ramMiB} MiB.`;
+                this.recordResidency({ decision: 'ram-short', reason: `Host RAM is short; text kept loaded: ${detail}`, admittedReadings: { gpuFreeMiB: snapshot?.gpus?.[0]?.freeMiB ?? null, ramAvailableMiB: ramBefore } });
+                throw this.ramShortError(detail);
             } else if (benchmarkMode !== 'swap' && textResident && room <= (this.config.shedCeilingMiB ?? 13000) && (benchmarkMode === 'shed' || this.shouldShed(room, body.nextTextTokens))) {
                 try {
                     await this.backend.load(this.backend.desiredProfile ?? this.config.defaultProfile, { fitTarget: room });
@@ -145,12 +187,12 @@ export class ResidencyScheduler {
                     this.lastError = error.message;
                 }
                 if (!decision) {
-                    await this.backend.unload(); await this.freeImages({ ramRequiredMiB: needRamMiB });
+                    await this.backend.unload(); await freeFor(needRamMiB);
                     snapshot = await this.snapshot({ fresh: true }); decision = 'swap-text';
                 }
             } else {
                 await this.backend.unload();
-                await this.freeImages({ ramRequiredMiB: needRamMiB });
+                await freeFor(needRamMiB);
                 snapshot = await this.snapshot({ fresh: true });
                 decision = 'swap-text';
                 if (benchmarkMode === 'swap') reason = 'Benchmark forced a swap.';
@@ -158,10 +200,12 @@ export class ResidencyScheduler {
             if (decision === 'swap-text' && textResident && benchmarkMode !== 'swap') reason = `Swapped text out. ${choice.reason}`;
             const admitted = decision === 'stream-image' ? { allowed: this.streams({ snapshot, runtime, models, needRamMiB }), reason: 'Streaming headroom changed.' } : fits();
             const admittedReadings = { gpuFreeMiB: snapshot?.gpus?.[0]?.freeMiB ?? null, ramAvailableMiB: snapshot?.host?.availableMiB ?? null };
+            if (!admitted.allowed && RAM_REFUSAL.test(admitted.reason)) throw await this.noteRamShort(ramBefore, `${admitted.reason} RAM available ${Math.round(admittedReadings.ramAvailableMiB ?? -1)} MiB; workload ${needRamMiB} + reserve ${this.config.reserves.ramMiB} MiB.`);
             if (!admitted.allowed) {
                 this.recordResidency({ decision: 'refused', reason: `Image admission refused: ${admitted.reason}`, admittedReadings });
                 throw new Error(`Image admission refused: ${admitted.reason}`);
             }
+            this.ramShort = null;
             this.recordResidency({ decision, reason, admittedReadings });
             this.lastDecision = decision;
             this.lastError = null;
@@ -174,7 +218,7 @@ export class ResidencyScheduler {
             return { lease: this.lease.id, brokered: true, decision };
         } catch (error) {
             this.lastError = error.message;
-            if (this.lastResidency?.decision === 'deciding') this.lastResidency = { ...this.lastResidency, decision: 'error', reason: error.message };
+            if (this.lastResidency?.decision === 'deciding') this.lastResidency = { ...this.lastResidency, decision: error.retryable ? 'ram-short' : 'error', reason: error.message };
             throw error;
         }
         finally { this.imagePending = false; if (!this.lease) void this.pump(); }
@@ -311,7 +355,7 @@ export class ResidencyScheduler {
     async restoreIfIdle() {
         const idleMs = this.config.idleRestoreMs ?? 0;
         if (!idleMs || this.restoring) return;
-        if (this.lease || this.imagePending || this.activeText || this.manualHold || this.pending.length) return;
+        if (this.lease || this.imagePending || this.imageQueued || this.activeText || this.manualHold || this.pending.length) return;
         if (this.backend.status().fitTargetMiB === null) return;
         if (!this.lastLeaseAt || Date.now() - this.lastLeaseAt < idleMs) return;
         this.restoring = true;
@@ -333,7 +377,7 @@ export class ResidencyScheduler {
     }
 
     async exclusive(run) {
-        if (this.activeText || this.lease || this.imagePending || this.restoring) throw new Error('Wait for the active work before changing text residency.');
+        if (this.activeText || this.lease || this.imagePending || this.imageQueued || this.restoring) throw new Error('Wait for the active work before changing text residency.');
         this.restoring = true;
         try { return await run(); }
         finally { this.restoring = false; void this.pump(); }
@@ -368,6 +412,7 @@ export class ResidencyScheduler {
     status() {
         return { phase: this.imagePending ? 'reserving' : this.lease ? 'image' : this.restoring ? 'restoring' : this.manualHold ? 'manual-hold' : 'text',
             activeText: this.activeText ? 1 : 0, waitingText: this.pending.length, imageLease: Boolean(this.lease),
+            imageWaiting: Boolean(this.imageQueued), servedText: this.servedText, fairImages: true, ramShort: this.ramShort,
             text: this.backend.status(), objective: this.config.residencyObjective ?? 'total-wait', timings: this.timings, lastTextDecision: this.lastTextDecision,
             lastDecision: this.lastDecision, lastResidency: this.lastResidency, lastNeedGpuMiB: this.lastNeedGpuMiB, measurement: this.lastMeasurement ? { ...this.lastMeasurement, trace: undefined } : null,
             lastError: this.lastError };

@@ -636,3 +636,31 @@ Real runs (3090, owner go-ahead):
 - Run 2: NOT RUN (pause).
 - Verdict: NOT ACCEPTED. Latency missed again (2.69; earlier runs 1.99 and 2.21). Floors unchanged.
 - Finding (harness): on Windows, stopping the shell that wraps `st-lanes run` does not stop its node children. Kill the process tree: `Stop-Process` on every PID whose command line holds the driver.
+
+## Gate record: broker scheduling, RAM refusals and harness tree kill, 2026-10-16 (LIST, CPU only)
+
+- Pose renders starved during back-to-back text turns (3 of 15):
+  - Root cause: every image path waited page-side for `activeText == 0 && waitingText == 0` (`waitForTextPriority`, 500 ms polls, 10 min, then "deferred"). Under continuous turns and judge calls the broker was never seen idle. The broker itself already let an image in after the reply in progress.
+  - Fix in the broker: a fair window (`scheduler.mjs`). A lease asked while text runs or waits queues (`imageWaiting`). Text keeps flowing until `imageFairTextRequests` (default 3) more replies are served or `imageFairWaitMs` (default 45 s) passes. Then `pump` holds new text and the image takes the GPU after the reply in progress. With no text waiting it goes at once ("between turns"). A second image is told the GPU is owned (the page retries). Lifecycle guards also respect a queued image.
+  - Status adds `fairImages`, `imageWaiting` and `servedText`. Config pass-through is in `config.mjs`; README row added.
+  - Fix on the page: `waitForTextPriority` returns at once when the broker answers `fairImages`. Older brokers keep the old wait.
+  - Tests: `scheduler.test.mjs` (fair window after N replies; between turns; time bound under continuous text; second image busy and a timed-out wait frees the queue) and `textPriority.test.ts`. Two older tests now set `imageFairTextRequests` 1 or 0 for the old image-first order.
+  - Design defaults (3 replies, 45 s) are unmeasured. A live latency and coverage re-run is owed on the GPU.
+  - Not cancellable at the broker: a client that drops a queued lease is granted, then released by the plugin.
+- Broker RAM refusals (8,139 + 4,096 MiB) while dev gates run:
+  - Fix: RAM or commit short is a retryable `ram-short` state, and the reserve is unchanged. The lease answers `Image admission refused: … Host RAM is short for this image …`, `lastResidency.decision` is `ram-short`, and the broker is free for text at once.
+  - For 10 min after a shortfall the broker remembers how much RAM unloading text freed. While the live reading plus that amount is still short, it refuses without unloading text again, so retries do not churn text.
+  - The page (`leaseWait.ts`) retries that answer every 20 s within the 15-min lease patience and stops on cancel.
+  - Tests: `scheduler.test.mjs` "host RAM short … retryable …", `leaseWait.test.ts` (retry step, bound, cancel). `ramEstimates.test.mjs` now expects `ram-short` and `retryable`.
+- Harness: a killed wrapper shell left the driver's node children alive.
+  - Root cause: Windows does not kill a dead process's children. Node children of a node parent die with it (libuv's kill-on-close job), but not children of bash or cmd.
+  - Fix: `lib/childTree.mts` (`killTree` with `taskkill /T /F`, `guardChildren`: stop signals, exit, and a parent-gone check every 2 s). `st-lanes run|batch` guard their node children. `SO_DETACHED_RUN=1` turns the parent check off. The safe-stop rule is in `.claude/rules/debug-scripts.md`.
+  - Test: `childTree.test.mts` spawns a real cmd (or sh) wrapper over a driver fixture and kills the wrapper. Unguarded, the driver's child survives (the defect); guarded, it is gone within 6 s.
+- Gates on branch `v2.8-image-defects-2` (base `167892d9`), CPU only (no GPU, ComfyUI or model call; the 3090 ran the text suite):
+  - `npm run gates:quick` green after each fix.
+  - `npm run gates -- --jobs=2 --no-storybook` run 1 RED on `test`: `legacyFree.guard` (the name `legacyHeadBox`) and `errorCopy.guard` (the new detector `.catch(() => null)` not in the inventory). Fixed: renamed to `fractionHeadBox`, inventory row added.
+  - Run 2 all green in 189.4 s: jest 772 suites / 8,924 passed (1 skipped), replay 32/32 killed, test:debug 1,316, test:plugin 324 (319 pass, 5 skipped), gpu plugin 127, test:release, lint, typecheck, typecheck:test, debug:typecheck.
+  - Storybook separately on port 6187 (the gates script pins 6006): `storybook:build` then test-runner `--maxWorkers 2`: 147 suites / 882 tests passed.
+  - Main bundle 1,280,994 B (was 1,280,736; budget 1,300,000).
+  - Host RAM was about 11.5 GB free at the start; the suite was not stopped.
+- Live checks: NONE (CPU-only task). Every fix below is unit-proved only; the browser and GPU re-runs are owed.
