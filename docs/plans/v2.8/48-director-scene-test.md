@@ -383,6 +383,11 @@ old code (checked by reverting the source files only).
   unresolved frontier, regenerate keeps the record, one draw, same line; frontiers 207 boundaries apart with
   `min_gap: 2`: the second draws interrupt and applies altered.
 - The deviation "Retention drops records below the snapshot floor" above is withdrawn by this fix.
+- Follow-up, owner call via coordinator (`7c3e1a66`): the director's open threads (direct and branch passes) drop any
+  arc naming a name `unknownEntityNames` returns, with the same word-boundary matcher (`namesAny`). Before, only focus
+  candidates were filtered. Test `C7`: with the keeper not met, the prompt's open-thread block keeps "the dark lanterns"
+  and drops the keeper's thread (red on the old code); control with the keeper known keeps it. Withholding the whole
+  signal line on unsafe frozen text is kept (owner call). gates:quick green.
 - S1 (rollback ≡ replay) and S5 (player clean) green in the same file run.
 - P2 one-character names: see plan 49 addendum (`23af055d`).
 - `npm run gates:quick` green on `13faf622` (13 changed files; lint, related jest 54 suites / 583 tests, typecheck,
