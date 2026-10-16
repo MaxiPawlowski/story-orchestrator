@@ -19,7 +19,16 @@ export interface GenerationLifecycleSnapshot {
   openedCount: number;
 }
 
+import { callTimeoutMs, MAX_TOKENS_TABLE } from "@extraction/callBudget";
+
 export const WITHHOLDING_TYPES: ReadonlySet<string> = new Set(["quiet", "impersonate"]);
+
+// A quiet or impersonate run that returns before sending emits no ENDED, so its hold would last until
+// the next loud run. The cap is the longest single model call our own timeouts allow: the largest
+// answer in MAX_TOKENS_TABLE at the 32,768-token context the owner's model serves. No live request can
+// still be assembling its prompt past it.
+const SERVED_CONTEXT_TOKENS = 32768;
+export const WITHHOLD_CAP_MS = callTimeoutMs(Math.max(...Object.values(MAX_TOKENS_TABLE).map((budget) => ("fixed" in budget ? budget.fixed : budget.cap))), SERVED_CONTEXT_TOKENS);
 const REWRITES_LAST_MESSAGE: ReadonlySet<string> = new Set(["swipe", "continue", "regenerate"]);
 
 const isParams = (value: unknown): value is Record<string, unknown> | undefined =>
@@ -48,6 +57,7 @@ const draftedIndex = (value: unknown): number | null => {
 
 export class GenerationLifecycle {
   private outermost: { type: string | null; watermark: number } | null = null;
+  private openedAt = 0;
   private nested: Array<string | null> = [];
   private awaitingRender: number | null = null;
   private draftedChid: number | null = null;
@@ -55,17 +65,41 @@ export class GenerationLifecycle {
 
   constructor(private readonly isTurn: (type: unknown) => boolean) {}
 
-  started(args: readonly unknown[], chatLength: number): GenerationIntent[] {
+  started(args: readonly unknown[], chatLength: number, now: number = Date.now()): GenerationIntent[] {
     if (!isHostStartedShape(args) || args[2] === true) return [];
     const type = typeof args[0] === "string" ? args[0] : null;
     const params = args[1] as Record<string, unknown> | undefined;
+    const stale = this.staleWithhold(type, now);
+    if (stale.length) return [...stale, ...this.open(type, params, chatLength, now)];
     if (this.outermost) {
       this.nested.push(type);
       return [{ kind: "nested", type, params, withholds: withholds(type) }];
     }
+    return this.open(type, params, chatLength, now);
+  }
+
+  intercepted(type: unknown, now: number = Date.now()): GenerationIntent[] {
+    return this.staleWithhold(typeof type === "string" ? type : null, now);
+  }
+
+  expire(now: number = Date.now()): GenerationIntent[] {
+    if (!this.outermost || !withholds(this.outermost.type) || now - this.openedAt < WITHHOLD_CAP_MS) return [];
+    this.reset();
+    return [{ kind: "closed", reason: "ended" }, { kind: "settled", rendered: false }];
+  }
+
+  private staleWithhold(type: string | null, now: number): GenerationIntent[] {
+    if (!this.outermost || !withholds(this.outermost.type)) return [];
+    if (withholds(type) && now - this.openedAt < WITHHOLD_CAP_MS) return [];
+    this.reset();
+    return [{ kind: "closed", reason: "ended" }, { kind: "settled", rendered: false }];
+  }
+
+  private open(type: string | null, params: Record<string, unknown> | undefined, chatLength: number, now: number): GenerationIntent[] {
     const stale: GenerationIntent[] = this.awaitingRender === null ? [] : [{ kind: "settled", rendered: false }];
     this.awaitingRender = null;
     this.outermost = { type, watermark: type !== null && REWRITES_LAST_MESSAGE.has(type) ? chatLength - 1 : chatLength };
+    this.openedAt = now;
     this.openedCount += 1;
     return [...stale, { kind: "opened", type, params }];
   }
