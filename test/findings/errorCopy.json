@@ -2,6 +2,10 @@
   "$comment": "v2.5 plan 03 E2. Rows are extracted by test/support/codeHealth.ts errorCopySites (kinds: 1 toast/popup literal, 2 template interpolating an error, 3 bare catch or constant .catch). Reviewed by hand: surface, rawError, silentCatch, verdict, reason. Pass = no rawError on a player surface; every kind-3 row logs or is a probe. 'closed' flips true when no row fails.",
   "closed": true,
   "rows": [
+    { "site": "src/services/stHost/userFiles.ts#readUserJson", "kind": 2, "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "console", "rawError": false, "silentCatch": null, "verdict": "pass", "reason": "v2.8 69 K3 library index: the reason reaches only the debug log (libraryIndexPort warns); the player sees only the library-lost check, which never carries it." },
+    { "site": "src/services/stHost/userFiles.ts#writeUserJson", "kind": 2, "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "console", "rawError": false, "silentCatch": null, "verdict": "pass", "reason": "v2.8 69 K3 library index: the reason reaches only the debug log (libraryIndexPort warns); the player sees only the library-lost check, which never carries it." },
     { "site": "src/services/stHost/provisioning.ts#askCard", "kind": 3, "template": "catch {} #1",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A card read-back request that cannot reach the server is the typed unconfirmed read-back: the card may exist, is never created again, and the author can check again." },
     { "site": "src/services/stHost/landmarkDetector.ts#detectFaceLandmarks", "kind": 3, "template": "catch {} #1",
