@@ -32,7 +32,7 @@ export const valueReader = (values: Record<string, unknown>): GateReader => ({ g
 
 export const hasGameLayer = (story: Pick<NormalizedStoryV2, "quests" | "milestones" | "widgets" | "qualities" | "codex" | "factions" | "life"> | null | undefined): boolean =>
   Boolean(story && (story.quests?.length || story.milestones?.length || story.widgets?.length || story.factions?.length || story.qualities.some((quality) => quality.display)
-    || hasCodex(story.codex) || story.life?.members.some((member) => member.relationships.some(hasLabels))));
+    || hasCodex(story.codex) || story.life?.members.some((member) => member.relationships.some(hasLabels) || member.commitments?.length)));
 
 const openStepKeys = (quest: Quest, reader: GateReader): string[] => quest.steps.flatMap((step) => {
   const status = stepStatus(step, reader);

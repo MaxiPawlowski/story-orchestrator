@@ -414,3 +414,61 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
   fixture row.
 - Label drift: the addendum used H16e; plan 61 calls this H16d. → relabelled.
 - Rebutted: none.
+
+## Gate record addendum 2026-10-17: option E, return visits (M52e, branch `v2.8-queue-55-45e-52e`)
+
+Built decision 8, page-side only. Not merged, not pushed.
+
+What landed
+
+- Format: `places[].returns[] {id, text, when, rev}` (`engine/codexSchema.ts` `CodexReturn`): at most 6 a place, text up to
+  200 characters, plain; `when` a gate or `{reached}`, never `"start"`; refused on a person or on a place without
+  `location` (the party coming back there is what shows it).
+- Latches (code ints, latching, monotonic; the latch pass, SC2 step 5 and 7): `codex_a_<place>_<id>` (waiting) is written
+  the first pass that the place was already known, `when` holds and the party is elsewhere; `codex_r_<place>_<id>`
+  (shown) the first later pass the party's `location` is the place. A first visit is never a return; an event while the
+  party is still there shows only after it leaves and comes back. Both keys sit under the codex prefixes, so the codex
+  rollback detector (SC1), the storyDiff codex exclusions and the reserved-key check cover them.
+- View: shown returns become rows (kind `return`, `fresh` on the boundary they showed) on the place's page, after its
+  facts, in authored order; unshown returns are never projected (T5). No log row and no chip; nothing reaches a model.
+- Discovery: a known place's waiting returns offer their `when` keys in the facts tier of the plan 52 rotation.
+- Story edits (`storyDiff`): `codex-return-edited` (text only, stays shown), `codex-return-replaced` (gate or `rev`: both
+  latches pruned, the chat comes back for it again), `codex-return-removed`; a removed place drops its return latches.
+- Authoring: Studio diagnostics `disclosure-names-unknown-entity` and `codex-fact-never-read` read return text and gates;
+  CodexEditor return rows (`+ Return` on a place with a location, no "From the start" option); wizard tool `setCodexEntry`
+  documents `returns`; guide topic `codex-returns` (doc section "Return visits"), coverage table.
+
+Floors (E had none predeclared; written for this build, D, all green)
+
+- E1 latch semantics (`runtime/codexReturns.test.ts`): known → away with the event → back shows once, fresh then not; an
+  event while still there waits for leave and return; an event before the place is known waits, and the first visit is
+  not a return; a `reached` gate counts; authored row order; a story without returns writes no return key.
+- E2 projection-only: 500 random paths, 0 unshown return text in the view or the Journal markup (shown on 20+ paths);
+  150 seeds byte-identical place pages with and without unshown returns declared.
+- E3 rollback ≡ replay: 60 seeds with complete detection; a code-only boundary (the shown latch the only change) swiped
+  away and replayed, the waiting latch kept.
+- E4 validation: 8 refusal classes (person, no location, `"start"`, unknown checkpoint, duplicate id, more than 6, no
+  `when`, an authored `codex_r_` quality); two latch ints compiled per return.
+- E5 story edits: reworded keeps; gate change and `rev` bump drop both latches; removal prunes.
+- E6 diagnostics (`studio/codexReturnsDiagnostics.test.ts`): a return naming an unmet person warns at its text path; an
+  unreachable `reached` is never read.
+- C1–C13 unchanged and green (codex jest, codexView property, codexRollback, storyDiff, discoveryScope).
+
+Live (no-model lane 81, plumbing; setup in plan 55's 2026-10-17 record)
+
+- `test/scenarios/v28-52e-returns.json` green ×2 (batch `81/debug/batch/2026-10-17T06-50-54-569Z`; a first single run
+  `2026-10-17T06-47-31-262Z`): no line before; none while still at the dock after the fight; waiting latch away; the line
+  on coming back, a fresh `return` row; `assert-player-clean`; reopen identical; a swipe of the returning reply removes it
+  and keeps the waiting latch; second reopen identical. Served `48986980ead4`.
+
+Gates: see plan 55's 2026-10-17 record (one gates run for the three queue items).
+
+Deviations
+
+- `when` is the remembered event and the party must leave and come back after it; the plan's sketch did not say how a
+  "return" is detected, so the waiting latch is the reading taken.
+- No journal log row for a return ("page-side only").
+
+Design question
+
+- Should a shown return also add a log row ("Back at The Dock")? Recommended: no, decision 8 keeps it on the page.

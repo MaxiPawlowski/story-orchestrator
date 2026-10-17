@@ -180,6 +180,7 @@ test('the runner output names the record and the failure dump', () => {
   const output = 'Wrote JSON: C:\\lanes\\3\\debug\\2026_so-scenario-failure.json\nstuff\nWrote JSON: C:\\lanes\\3\\debug\\2026_so-scenario-result.json\n';
   assert.deepEqual(recordPathsIn(output), { record: 'C:\\lanes\\3\\debug\\2026_so-scenario-result.json', failure: 'C:\\lanes\\3\\debug\\2026_so-scenario-failure.json' });
   assert.equal(recordPathsIn('Wrote JSON: /x/2026_journey-J3.json\n').record, '/x/2026_journey-J3.json');
+  assert.equal(recordPathsIn('Wrote JSON: /x/2026_journey-GS4.json' + String.fromCharCode(10)).record, '/x/2026_journey-GS4.json');
   assert.deepEqual(recordPathsIn('nothing'), { record: null, failure: null });
 });
 

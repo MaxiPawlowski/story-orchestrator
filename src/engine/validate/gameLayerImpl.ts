@@ -9,6 +9,9 @@ import { awayMembers, lifeScopeKeys, lifeScopeTiers } from "../life/presence";
 import { agendaWorldInfo, landedSteps, lifeAuthorRows, lifeMoved, privateLifeLines, relationshipFeelings } from "../life/lines";
 import { labelAuthorRows, labelDiscoveryUnits, labelLatches, revealChips, unrevealedSecretLabels } from "../life/labels";
 import { axisHistory, holdSameBeat } from "../life/beats";
+import {
+  commitmentAuthorRows, commitmentDiscoveryUnits, commitmentHooks, commitmentLatches, commitmentWorldInfo, heardCommitmentRows, keptCommitments,
+} from "../life/commitments";
 
 import { addFactionQualities, checkFactions, readFactions } from "./factions";
 import {
@@ -28,6 +31,8 @@ import { reachedLabel, storyTimeRow, timeEntry } from "../life/clock";
 const LIFE = {
   readLife, addLifeQualities, checkLife, deriveLife, awayMembers, lifeScopeKeys, lifeScopeTiers, privateLifeLines, agendaWorldInfo, landedSteps, lifeMoved, lifeAuthorRows,
   relationshipFeelings, storyTimeRow, reachedLabel, labelAuthorRows, revealChips, unrevealedSecretLabels, axisHistory, holdSameBeat,
+  commitmentAuthorRows, commitmentHooks, heardCommitmentRows, keptCommitments,
+  lifeWorldInfo: (story: Parameters<typeof agendaWorldInfo>[0], values: Parameters<typeof agendaWorldInfo>[1]) => [...agendaWorldInfo(story, values), ...commitmentWorldInfo(story, values)],
 };
 
 const CODEX = { readCodex, addCodexQualities, checkCodex, codexLatches, codexScopeUnits, unknownCodexNames };
@@ -40,9 +45,9 @@ const CARRY = { readCarry, importCarryErrors, startSeed, carryKnownLines, carryV
 
 const RUMORS = { readRumors, checkRumors, spreadRumors, hearsayLines, rumorAuthorRows };
 
-const LATCH_WRITERS = [codexLatches, factionLatches, labelLatches] as const;
+const LATCH_WRITERS = [codexLatches, factionLatches, labelLatches, commitmentLatches] as const;
 
-const DISCOVERY_UNITS = [codexScopeUnits, factionDiscoveryUnits, labelDiscoveryUnits] as const;
+const DISCOVERY_UNITS = [codexScopeUnits, factionDiscoveryUnits, labelDiscoveryUnits, commitmentDiscoveryUnits] as const;
 
 const ENTRY_WRITERS = [timeEntry] as const;
 

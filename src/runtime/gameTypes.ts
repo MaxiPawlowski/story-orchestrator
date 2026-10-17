@@ -126,6 +126,8 @@ export interface ScenePresent {
   name: string;
   portrait: string | null;
   page: string | null;
+  labels?: string[];
+  standing?: string[];
 }
 
 export interface SceneView {
@@ -177,7 +179,7 @@ export interface CodexFactView {
 
 export interface CodexRowView {
   text: string;
-  kind?: "label" | "learned";
+  kind?: "label" | "learned" | "return" | "promised";
   fresh?: boolean;
 }
 

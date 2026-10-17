@@ -35,6 +35,21 @@ export const EditsPages: Story = {
   },
 };
 
+export const ReturnVisits: Story = {
+  ...seeded,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "+ Return" }));
+    const place = () => useDraftStore.getState().draft.codex?.places?.[0];
+    await expect(place()?.returns).toHaveLength(1);
+    await expect(canvas.getByLabelText("boathouse return return after")).not.toHaveTextContent("From the start");
+    await userEvent.type(canvas.getByLabelText("boathouse return return text"), "The door still hangs open.");
+    await expect(place()?.returns?.[0].text).toBe("The door still hangs open.");
+    await userEvent.click(canvas.getByRole("button", { name: "Remove boathouse return return" }));
+    await expect(place()?.returns ?? []).toHaveLength(0);
+  },
+};
+
 export const Empty: Story = {
   beforeEach: () => { seedDraft({ ...codexStory(), codex: undefined }); },
   play: async ({ canvasElement }) => {

@@ -18,7 +18,7 @@ export const loadGameLayer = async (): Promise<GameLayer> => {
   return layer as GameLayer;
 };
 
-const LIFE_FIELDS = ["relationships", "mood", "agenda", "schedule"];
+const LIFE_FIELDS = ["relationships", "mood", "agenda", "schedule", "commitments"];
 
 const listed = (value: unknown, key: string): boolean => Array.isArray(value) && value.some((entry) => isRecord(entry) && entry[key] !== undefined);
 

@@ -1,0 +1,7 @@
+exit 0
+served claude-sonnet-5-5
+--- text ---
+{"score": 4, "why": "It concretely covers what the guild is, its size, work process, weather constraints, tally and weighing procedure, and the limits of its authority, but it names no leaders or contacts, gives no pricing, and does not say how people join or who they answer to."}
+--- stderr ---
+[claude-code:unrecognized_model] {"model":"claude-sonnet-5-5","query_source":"sdk"}
+

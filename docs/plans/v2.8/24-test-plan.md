@@ -406,16 +406,17 @@ real-model carrier, or why none is needed.
 | story-panels | RP | v28-23-widgets ×2 | GS1.3 |
 | consequences-recap | D | consequences jest, recapRollback review test, recapSecret review test | none: no model pass (46 A) |
 | promises-remembered | D + CL | promises jest, promiseRead jest, promiseRollback review test | live-v28-47-promises (P1s CL half, P2w live, ids, rollback reopens) ×2; P1/P2 labelled-set rates, P6 rater, P8 cost owed (measurement fixtures); P7/P7h informational (LT) |
-| codex | D + CL | codex jest, codexView property test, codexRollback | C7: codex-pages task in `test/measurements/v2.8/09/recipes.json`, `so-wizard-agent.mts recipes --task codex-pages --repeat 10 --mode auto-draft --route harness` (Sol) |
+| codex | D + CL | codex jest, codexView property test, codexRollback; return visits (52 E): codexReturns jest (E1–E5), codexReturnsDiagnostics jest (E6), v28-52e-returns (no-model ×2) | C7: codex-pages task in `test/measurements/v2.8/09/recipes.json`, `so-wizard-agent.mts recipes --task codex-pages --repeat 10 --mode auto-draft --route harness` (Sol) |
 | witness-record | D + CL | witness jest, score jest | W4/W4fi/W4fe/W4cov/W4u/W4m/W4a/W4n offline on the lab 40 + >= 40 real-session labels (second-model labels, private), Wc and RB via `so-live-suite.mts run` (CL, read model), deferred: private labels and a read-model run owed |
 | rumors | D + CL | rumors jest, rumorSecret review test, v28-44-rumors (no-model ×2) | G7/G8 voicing (20 cases, on/off arms, second-model labels) and G14 30-turn fixture, deferred: voicing fixture and labels owed; G6 live in v28-44-rumors |
 | story-calendar | D + CL | clock jest, clockScope jest, v28-50-story-time (no-model) | T8: live suite time windows `timewindow01..04` (`so-live-suite.mts run --set time`, CL, read model); T9/T10 wait for B2 (not built); T11 read in GS3.3 |
 | relationship-labels | D | labels jest, labelRollback property test, relationshipLabels review test, v28-51-labels (no-model) | R7/R9 informational ×1 (RP lab story), deferred: no lab story |
+| npc-commitments | D + LT/RP | npcCommitments review test (M1–M6), diagnostics jest, npc-commitments fixture, v28-55-commitments (no-model ×2), payload goldens identical for stories without commitments | M7 informational ×1 (LT or RP lab story), deferred: Artemis owed, GPU busy; M8 only with option B (CL, labelled member-line set) |
 | factions | D + RP | factions jest, v28-53-factions (no-model ×2) | F7 informational (RP lab story), deferred: no lab story yet; F9 CL informational |
 | scene-test | D + CL | sceneTest jest, livingSceneTest review test, focus jest, v28-48-scene-test (no-model) | S7–S9, S11 CL offline ×2 (director route), deferred: no frozen frontier set yet; S10 read in GS2 and GS3 |
-| new-game-plus | D | carry jest (N1–N6, N8–N13), carry fixtures carry-source/carry-sequel, v28-45-carry (no-model plumbing green x2 2026-10-16; real generation owed) | N7 informational (CL rater + local replies), deferred: needs two finished source runs; one real final seal on the 3090 |
+| new-game-plus | D | carry jest (N1–N6, N8–N13), carry fixtures carry-source/carry-sequel, v28-45-carry (no-model plumbing green x2 2026-10-16; real generation owed); trophy shelf (45 E): trophyShelf jest (T1–T4), TrophyShelf Storybook, v28-45e-shelf (no-model ×2) | N7 informational (CL rater + local replies), deferred: needs two finished source runs; one real final seal on the 3090 |
 | story-made-panels | D | html widget tests, Storybook | none: no model |
-| scene-card | D | sceneCard jest, WidgetCard Storybook, v28-65-scene-card (no-model) | none: no model (65 N1–N8; N3/N4 with A+ only) |
+| scene-card | D | sceneCard + sceneCardLines jest, WidgetCard Storybook (Scene*, SceneLines, ScenePlantedSecret, SceneLinesPhone), v28-65-scene-card + v28-65-scene-lines (no-model) | none: no model (65 N1–N8, A+ N3/N4) |
 | public-sheet-narration | D + CL | narratorSheet jest, v28-18-q7-sheet (no-model) | deferred: S8 header clause (CL rater, cloud model) owed; S7 informational (RP, Artemis) past the 12 h cap |
 | your-move-chip | D | yourMove jest, talkControl jest, HudStrip Storybook, v28-68-your-move (no-model) | none: no model (68 Y1–Y6) |
 | quests | RP | 36-Q5-scn, S-16, storyCheckWhen jest (checkpoint check `when`, 2026-10-16) | GS1.3, GS3.1 |
@@ -464,17 +465,17 @@ registry, and the 109-id check above, when a plan is built. Floor ids are the pl
 | 42 witness record (B) / message filter (C) | CL (B), D + CL (C) | C: F1, F5–F7 payload goldens | B: W4 family + RB1–RB4 CL offline ×2; C: F3 (J5 + J6 cloud), F2a/F2b folded into GS1, GS3 |
 | 43 verbatim recall | CL | VR4, VR4c, VR4x | VR1–VR3, VR8 CL offline ×2; VR6r read in GS1/GS3; VR7/VR7p informational ×1 (RP) |
 | 44 rumors | D + CL | G1–G6, G9–G14 | G7/G8 CL ×2 (20-case fixture); G6 live read in GS3 if the campaign adopts rumors; G15 CL (stage 2) |
-| 45 New Game+ | D | N1–N6, N8–N13 | N7 deferred (needs two finished source runs; LT replies, CL rater) |
+| 45 New Game+ | D | N1–N6, N8–N13; E: T1–T4 | N7 deferred (needs two finished source runs; LT replies, CL rater) |
 | 46 consequences recap | D | C1–C6, C8–C10 | none: no model pass (A) |
 | 47 promises | D + CL | P2r, P3–P5, P4a, P4d | P1, P1s, P2, P2w, P6, P8 CL ×2; P7/P7h informational ×1 (LT) |
 | 48 director scene test | D + CL | S1–S6, S12, S13 | S7–S9, S11 CL offline ×2 (director route); S10 read in GS2 and GS3 |
 | 49 complications (production) | D; RP gated on SP6 | C1–C7, C11 | C8–C10 deferred with SP6 (RP, informational); GS4.5 keeps the spike's functional row |
 | 50 story calendar | D + CL | T1–T7, T12–T16 | T8–T10 CL ×2; T11 read in GS3.3 |
 | 51 relationship labels | D | R1–R6, R8, R10–R12 | R7/R9 informational ×1 (RP lab story, second-model rater) |
-| 52 codex | D + CL | C1–C5, C9–C13 | C7 CL ×2 (wizard recipe on Sol); C6, C8 only with B |
+| 52 codex | D + CL | C1–C5, C9–C13; E: E1–E6 | C7 CL ×2 (wizard recipe on Sol); C6, C8 only with B |
 | 53 factions | D | F1–F6, F8, F10–F14 | F7 informational ×1 (RP); F9 CL informational |
 | 54 inner voice L5 (`spikes.thoughtCarry`) | D + CL + RP | plan 54 D gates; no-model scenario (live run owed) | L5-CL1..4 CL (FAIL ×2, picker fix, informational re-score); L5-RP1/RP3 read in GS1.2/GS1.5; L5-RP2 blind pack, informational |
-| 55 NPC commitments (candidate) | D | M1–M6 | M7 informational ×1 (LT or RP lab story); M8 CL with B |
+| 55 NPC commitments (A built, branch `v2.8-queue-55-45e-52e`) | D | M1–M6 | M7 informational ×1 (LT or RP lab story); M8 CL with B |
 | 56 social permissions (candidate) | D | G1–G6 | G7 informational ×1 (LT or RP lab story) |
 | 57 shared rituals (candidate) | D | U1–U6 | U7 informational ×1 (LT or RP lab story) |
 | 58 keepsakes (candidate) | D | K1–K6 | K7 informational ×1 (LT or RP lab story) |
@@ -811,6 +812,72 @@ and the RAM hold; no model job started after 10:00 UTC. Artemis play used: about
   rows recorded incomplete. Not committed to so-sessions, not pushed.
 - Product defects seen: OpenCode transport failures (C7, likely GS1.1); review-mode tools lost after the first accept
   (coordinator); the 64-tool bridge cap (fixed on master at 96); GS1.4 scenario block (open).
+
+Text suite, round 2, 2026-10-16 (master 167892d9 merged, st-suite restaged with plugins; Artemis via the controller from
+11:20 local; lanes 41/42 adolion-fresh with --allow-local; C7 on lane 43 without the model). Paused 17:31Z for the
+owner's 3090 (drivers stopped with taskkill /T /F, restore-config on both lanes, model stopped, GPU verified free).
+Artemis used: about 5.8 h in total (3.2 h this round).
+
+- AS-smoke: saga ×2 and war ×2 green (`41/debug/batch/2026-10-16T14-24-02-757Z`); with round 1, all 9 files green ×2.
+- 52 C7, Sol, auto-draft: 10/10 and 10/10, 0 transport failures (`43/debug/2026-10-16T14-34-29-917Z_…`,
+  `…14-41-29-064Z_…`); floor met. Review mode on 167892d9: 0/1 (reads after an accepted edit refused as unchanged);
+  after master cb50cff3 (guard reset, quality usage sees codex/quest gates), served from a separate code copy
+  `C:\dev\st-c7` so the play lanes kept one build: 2/2 (`…15-17-41-314Z_…`, `…15-19-01-377Z_…`). Header diffs 0.
+- GS1 (lane 42), three runs: 7/9, 7/9, 6/9 (`42/debug/batch/2026-10-16T14-22-29-697Z`, `…15-31-28-678Z`). Fixture
+  defects fixed: GS1.4 asserted a story_* block, the scenario effect is ST's chat scenario override (4411e00a);
+  GS1.8/GS1.9: the welcome-back recap popup (product, by design) blocked the send and the drawer; GS1.8 now asserts and
+  answers it (68ffa39b). GS1.1 intermittent (1 of 3): the start pane closes with choice `skip` and the opener commits
+  boundary 1; cause open, evidence logging added (57268cd6, 84093e4a, 88f1bd1b). No pair yet.
+- GS4 (lane 41): 5/6 then 6/6 (`41/debug/batch/2026-10-16T14-56-18-468Z`). GS4.5 searched the normalized story for
+  complications; SP6 reads the raw story (9289c2e3). A third run is owed for a pair on the fixed fixture.
+- GS2: 8/8 (`41/debug/batch/2026-10-16T15-36-09-837Z`). One run, as planned.
+- GS3 run 1: 5/7, shakedown (`42/debug/batch/2026-10-16T16-10-31-635Z`). GS3.2 counted a read for a window that was
+  not OOC-only (the read had not caught up); GS3.3 asserted one clock step per boundary, but plan 50 moves the clock by
+  the read (3c5dae87, dc8577c2). Run 2 interrupted at GS3.7.
+- Campaign lab commit-model ×2 green (`41/debug/batch/2026-10-16T16-15-36-089Z`); encounters-model run 1 interrupted
+  at step 20/31.
+- Harness fixes with tests: a send that never reaches the chat fails and names open popups (8cc0b8c5); GS journey
+  records land in their rows (`journey-GS…`, earlier rows backfilled); `st-lanes run` row names keep path-safe
+  characters (3f29cec4).
+- Interrupted rows carry `interrupted.json`. Resume list: lane 41 encounters-model ×2, GS4 ×1, GS1 ×2; lane 42 GS3 ×2,
+  47 promises ×2, T8 `--set time` ×2.
+
+Text suite, round 3, 2026-10-17 00:00–03:08 local (st-suite kept on 167892d9, bundle e01edce8; fixtures from this
+branch; Artemis via the controller; lanes 41/42). Artemis used: about 8.9 h in total (3.1 h this round). GPU released
+at 03:08 (controller stopped, no llama-server).
+
+Final suite rows:
+
+- AS-smoke: all 9 files green ×2 (round 1 and round 2).
+- GS1: green ×2 on the final fixture (`42/debug/batch/2026-10-17T05-27-54-936Z`, 9/9 and 9/9). Lane 41 the same night:
+  9/9, then 8/9 (GS1.6 swipe refused: the turn fired a transition and ended on the transition note, which a player
+  cannot swipe; 360b9cf2 re-plays the turn, attempts 3). GS1.1 fix (16c8adfe) held in all four runs.
+- GS2: 8/8 (one run, as planned; `41/debug/batch/2026-10-16T15-36-09-837Z`).
+- GS3: green ×2 on the final fixture (7/7, 7/7). The round 3 shakedown was 6/7: GS3.2's manual read reads from the last
+  boundary, so its window held in-character lines; 22d53659 now requires the OOC lines kept out of character and no
+  call only for an OOC-only window. One run stopped on purpose (stale fixture), one run interrupted by the pause.
+- GS4: pair on the fixed fixture, 6/6 and 6/6 (round 2 run 2, round 3).
+- Campaign lab: commit-model green ×2; encounters-model run 1 all 31 steps passed but cleanup failed (the library
+  restore's settings save got no answer in 15 s, host load), run 2 green.
+- 52 C7: 10/10 ×2 auto-draft; review mode 2/2 on cb50cff3 (round 2).
+- T8 (`so-live-suite run --set time`) ×2: plotDeltaAccuracy 0.75 both, floor 0.9 missed (recorded, not retuned).
+  timewindow01–03 pass; timewindow04 expects no time read and the model reads "morning" both times.
+- live-v28-47-promises: on the suite build RED ×2, a product defect: the read wrote `[promised] Arin | 1 | "…"`
+  without `m=`, and the parser rejected it, so the promise was lost. Fixed in 6e8d782e (a bare index in the m= slot
+  is read; unit test; gates:quick green except the known defect-replay `--listTests` flake). On that fix, served from
+  the separate copy `C:\dev\st-c7` so st-suite kept its build: the promise row and the kept event land 3/3; the
+  rollback leg ("deleting the keeping turn left the kept event") failed 2 of 3 (both failing runs read again after the
+  delete; the green run did not). Triaged on no-model lane 43 with scripted reads (no GPU): rollback drops the kept
+  event; a re-read citing the deleted message is refused; a re-read citing the earlier surviving player line
+  (step 7, "come back with the lantern") is accepted, which the contract allows. Fixture defect, not product: step 7
+  now does not keep the promise, and the check asserts the rollback contract (12b65a5f). Not re-run live. One earlier run is void (two runners on one page,
+  an operator error).
+- Header diffs after each lane: no settings drift; differences are the open group and chat, the persona lock and
+  the worktree build fields (the served bundle is unchanged). Lane 41 also gained the 47 test story in its library
+  from a no-model probe (lane copy only).
+- Evidence: `so-evidence.mts archive --label text-suite-20261017 --lanes 41,42,43 --allow-incomplete` -> 556 files,
+  273 MB in the private sessions tree (`test/sessions/evidence/phase-c/text-suite-20261017`); round 1 is
+  `text-suite-20261015`. Not committed to so-sessions, not pushed.
 
 
 ## Appendix A — plan 24 before the 2026-10-14 rework (history)

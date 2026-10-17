@@ -1,8 +1,8 @@
 import { evaluateGate, gateKeys } from "./gates";
 import { castMemberName } from "./castNames";
 import {
-  CODEX_PAGES, CODEX_START, PARTY_LOCATION_KEY, codexEntryKey, codexFactKey, isReached,
-  type CodexEntry, type CodexFact, type CodexKnownWhen, type CodexPage, type PrimitiveValue, type RosterMember, type StoryCodex,
+  CODEX_PAGES, CODEX_START, PARTY_LOCATION_KEY, codexArmedKey, codexEntryKey, codexFactKey, codexReturnKey, isReached,
+  type CodexEntry, type CodexFact, type CodexKnownWhen, type CodexPage, type CodexReturn, type PrimitiveValue, type RosterMember, type StoryCodex,
 } from "./schema";
 
 type Values = Readonly<Record<string, unknown>>;
@@ -72,10 +72,26 @@ export const latchedAt = (key: string, values: Values): number | null => {
 const due = (key: string, when: CodexKnownWhen | undefined, view: CodexLatchView): Array<{ q: string; v: number }> =>
   (when && when !== CODEX_START && view.values[key] === undefined && knownWhenHolds(when, view.values, view) ? [{ q: key, v: view.boundary }] : []);
 
+export const returnShownAt = (place: CodexEntry, back: CodexReturn, values: Values): number | null => latchedAt(codexReturnKey(place.id, back.id), values);
+
+export const atPlace = (place: CodexEntry, values: Values): boolean => Boolean(place.location) && values[PARTY_LOCATION_KEY] === place.location;
+
+const returnWrites = (place: CodexEntry, view: CodexLatchView): Array<{ q: string; v: number }> => {
+  if (!place.returns?.length || !place.location || !entryKnown("places", place, view.values)) return [];
+  const here = atPlace(place, view.values);
+  return place.returns.flatMap((back) => {
+    if (returnShownAt(place, back, view.values) !== null) return [];
+    const armed = view.values[codexArmedKey(place.id, back.id)] !== undefined;
+    if (armed) return here ? [{ q: codexReturnKey(place.id, back.id), v: view.boundary }] : [];
+    return !here && knownWhenHolds(back.when, view.values, view) ? [{ q: codexArmedKey(place.id, back.id), v: view.boundary }] : [];
+  });
+};
+
 export const codexLatches = (story: Pick<CodexStory, "codex">, view: CodexLatchView): Array<{ q: string; v: number }> =>
   codexItems(story).flatMap(({ page, entry }) => [
     ...due(codexEntryKey(page, entry.id), entryCondition(entry), view),
     ...entry.facts.flatMap((fact) => due(codexFactKey(page, entry.id, fact.id), fact.known_when, view)),
+    ...(page === "places" ? returnWrites(entry, view) : []),
   ]);
 
 export const knownEntities = (story: CodexStory, values: Values, enabled: readonly string[] = []): KnownEntities => {
@@ -128,6 +144,10 @@ export const codexScopeUnits = (story: Pick<CodexStory, "codex">, values: Values
     }
     open.forEach((fact) => {
       const keys = knownWhenKeys(fact.known_when);
+      if (keys.length) facts.push(keys);
+    });
+    (entry.returns ?? []).filter((back) => values[codexArmedKey(entry.id, back.id)] === undefined).forEach((back) => {
+      const keys = knownWhenKeys(back.when);
       if (keys.length) facts.push(keys);
     });
   });

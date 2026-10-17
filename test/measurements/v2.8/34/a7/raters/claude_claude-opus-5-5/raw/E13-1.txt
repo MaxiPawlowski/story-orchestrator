@@ -1,0 +1,8 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+```json
+{"score": 4, "why": "The entry concretely covers the lantern's construction, use, upkeep, failure conditions, limits, social standing and identifying marks, and it notes that no specific lamp is established, but it never says where one is obtained or what it costs, even though it mentions travelers seeking one."}
+```
+--- stderr ---
+

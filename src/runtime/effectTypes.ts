@@ -15,7 +15,7 @@ export type EffectTarget =
   | { kind: "preset"; name: string; api: string }
   | { kind: "extension"; name: string };
 
-const EFFECT_ORIGIN_KINDS = ["quest", "agenda", "complication"] as const;
+const EFFECT_ORIGIN_KINDS = ["quest", "agenda", "complication", "commitment"] as const;
 export type EffectOriginKind = (typeof EFFECT_ORIGIN_KINDS)[number];
 
 export interface EffectOrigin {

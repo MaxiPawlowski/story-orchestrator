@@ -1,6 +1,7 @@
 import type { LifeAuthorView } from "@runtime/lifeSnapshot";
 import type { LabelAuthorRow } from "@engine/life/labels";
 import type { AxisStep } from "@engine/life/beats";
+import type { CommitmentAuthorRow } from "@engine/life/commitments";
 
 const towardLabel = (toward: string, names: Record<string, string>) => (toward === "player" ? "the player" : names[toward] ?? toward);
 
@@ -42,6 +43,17 @@ const Labels = ({ rows, names }: { rows: LabelAuthorRow[]; names: Record<string,
   </ul>
 ) : null);
 
+const Commitments = ({ rows }: { rows: CommitmentAuthorRow[] }) => (rows.length ? (
+  <ul data-so="life-commitments" className="list-none p-0 m-0">
+    {rows.map((row) => (
+      <li key={row.id} data-so="life-commitment" data-state={row.state} data-overdue={row.overdue}>
+        promised the player: {row.what} · {row.state === "waiting" ? "not made yet" : `${row.state} at boundary ${row.at}`}
+        {row.overdue ? " · overdue" : ""}{row.heard ? "" : " · out of the player's hearing"}
+      </li>
+    ))}
+  </ul>
+) : null);
+
 export const CharacterLifePanel = ({ life, onDecide }: { life: LifeAuthorView; onDecide?: MeanwhileDecide }) => {
   const names = Object.fromEntries(life.rows.map((row) => [row.id, row.name]));
   const waiting = life.proposals.filter((proposal) => proposal.status === "proposed");
@@ -77,6 +89,7 @@ export const CharacterLifePanel = ({ life, onDecide }: { life: LifeAuthorView; o
             </ul>
           )}
           <Labels rows={(life.labels ?? []).filter((label) => label.member === row.id)} names={names} />
+          <Commitments rows={(life.commitments ?? []).filter((commitment) => commitment.member === row.id)} />
           {row.agendas.map((agenda) => (
             <div key={agenda.id} data-so="life-agenda" data-agenda={agenda.id}>
               {agenda.goal}: {agenda.done} of {agenda.of}

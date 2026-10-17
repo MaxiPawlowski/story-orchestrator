@@ -1,0 +1,6 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+{"score": 4, "why": "The entry concretely and consistently covers the guild's size, crew structure, work, territory, powers and limits, and current aims, but it never says who leads or speaks for the guild or how its decisions are made, so a narrator would have to invent the leadership a negotiation or confrontation scene would need."}
+--- stderr ---
+

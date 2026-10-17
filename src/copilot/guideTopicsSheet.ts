@@ -1,10 +1,11 @@
 export const SHEET_GUIDE_TOPICS = {
   "widget-scene": {
     title: "Scene card",
-    fields: "kind scene, options.time",
-    text: "kind scene: a player card with where (the location the Overview shows), when (only with options.time true and a clock) and \"With you\": enabled members not away, "
-      + "only those the player has met (a member with its own People entry is listed once that entry is known), never the narrator. Each name links to its People page and shows the card's "
-      + "portrait or initials. An unmet member is not on the card at all: no name, picture or count. \"With you\" means in the scene's cast, not seen in the room. The author places it.",
+    fields: "kind scene, options.time, options.standing",
+    text: "kind scene: a player card: where (the Overview's location), when (options.time true and a clock), \"With you\": enabled members not away whom the player has met "
+      + "(own People entry known), never the narrator; each with portrait or initials and a People link. An unmet member is not on it at all. Under a name: its People-page "
+      + "labels toward you or someone on the card (a secret only once revealed, as \"Learned\"); options.standing true adds the band of each visible group it belongs to "
+      + "(this tells who belongs where). No trend or change mark. The author places it.",
   },
   "display-narrate": {
     title: "The sheet reaches the narrator",

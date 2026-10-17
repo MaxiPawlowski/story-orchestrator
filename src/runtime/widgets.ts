@@ -16,7 +16,8 @@ import { factionVisible, standingOf, standingView } from "@engine/factions/stand
 
 import { shownPlayerText } from "./stretchTurns";
 import { codexLogRows, composeCodex } from "./codexView";
-import { labelCodexSources, labelLogRows } from "./labelView";
+import { labelLogRows } from "./labelView";
+import { peopleSources } from "./commitmentView";
 import { gameLayer } from "@engine/validate/gameLayer";
 import { sceneEmpty, sceneView } from "./sceneCard";
 
@@ -259,7 +260,7 @@ type WidgetParts = { quests: QuestView[]; sheet: SheetGroupView[]; main: MainLin
 
 const widgetBody = (widget: StoryWidget, sources: GameSources, parts: WidgetParts): WidgetBody | null => {
   const limit = widget.options?.limit;
-  if (widget.kind === "scene") return { kind: "scene", ...sceneView({ ...sources, codex: parts.codex }, widget.options?.time === true) };
+  if (widget.kind === "scene") return { kind: "scene", ...sceneView({ ...sources, codex: parts.codex }, { time: widget.options?.time === true, standing: widget.options?.standing === true }) };
   const before = sources.boundaryLog.at(-1)?.before ?? null;
   if (widget.kind === "clues") return cluesBody(widget, sources.state, before);
   if (widget.kind === "map") return mapBody(widget, sources.state, before);
@@ -312,7 +313,7 @@ export function composeGame(sources: GameSources): GameCompose {
   const standing = standingView(story, values);
   const standingGroup: SheetGroupView[] = standing.length
     ? [{ label: FACTION_STANDING_GROUP, items: standing.map((view) => ({ label: view.name, as: "word" as const, text: view.band })) }] : [];
-  const codex = composeCodex({ story, state, castNames: sources.castNames, enabled: sources.enabled, ...labelCodexSources(sources) });
+  const codex = composeCodex({ story, state, castNames: sources.castNames, enabled: sources.enabled, ...peopleSources(sources) });
   const parts = {
     quests: visibleQuests(story, reader, values, sources.castNames), sheet: [...sheetOf(story.qualities, sources), ...standingGroup],
     main: mainLine(story, state, sources.chat), log: composeLog(sources), codex,

@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, userEvent, within } from "@storybook/test";
 import { CodexPage } from "./CodexPage";
 import { JournalPanel } from "../panels/JournalPanel";
-import { codexGame, labelledPeople, sampleCodex } from "./codexFixtures";
+import { codexGame, labelledPeople, promisedPeople, returnPlaces, sampleCodex } from "./codexFixtures";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const meta: Meta<typeof CodexPage> = {
@@ -42,6 +42,28 @@ export const RelationshipLabels: Story = {
     await expect(canvas.getByText("Toward Tom: rivals")).toBeVisible();
     await expect(canvasElement.querySelectorAll('[data-so="codex-row"][data-kind="learned"][data-fresh="true"]').length).toBe(1);
     await expect(canvasElement.textContent ?? "").not.toMatch(/\d+ (on|of) /);
+  },
+};
+
+export const PromisesToYou: Story = {
+  args: { page: "people", entries: promisedPeople() },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("Promised you: get past the north gate together (open)")).toBeVisible();
+    await expect(canvas.getByText("Promised you: repay the debt from the river (kept)")).toBeVisible();
+    await expect(canvasElement.querySelectorAll('[data-so="codex-row"][data-kind="promised"]').length).toBe(2);
+    await expect(canvasElement.textContent ?? "").not.toMatch(/overdue|you owe/i);
+  },
+};
+
+export const ReturnVisits: Story = {
+  args: { page: "places", entries: returnPlaces() },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("The back door still hangs off one hinge.")).toBeVisible();
+    await expect(canvas.getByText("Someone has mended the cut nets.")).toBeVisible();
+    await expect(canvasElement.querySelectorAll('[data-so="codex-row"][data-kind="return"]').length).toBe(2);
+    await expect(canvasElement.querySelectorAll('[data-so="codex-row"][data-kind="return"][data-fresh="true"]').length).toBe(1);
   },
 };
 

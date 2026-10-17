@@ -22,8 +22,8 @@ export function renderPromiseContractSection(open: readonly OpenPromiseRef[] = [
 const QUOTE_OPEN = "[\"“]";
 const QUOTE_CLOSE = "[\"”]";
 const BY = `(?:\\|\\s*(?:by\\s*${QUOTE_OPEN}(.+?)${QUOTE_CLOSE}|by\\s+none|none)\\s*)?`;
-const PROMISED = new RegExp(`^\\[promised\\]\\s*([^|]+?)\\s*\\|\\s*m\\s*=\\s*(\\d+)\\s*\\|\\s*${QUOTE_OPEN}(.+?)${QUOTE_CLOSE}\\s*${BY}$`, "i");
-const EVENT = new RegExp(`^\\[(${PROMISE_EVENT_KINDS.join("|")})\\]\\s*([a-z0-9]+)\\s*\\|\\s*m\\s*=\\s*(\\d+)\\s*\\|\\s*${QUOTE_OPEN}(.+?)${QUOTE_CLOSE}\\s*$`, "i");
+const PROMISED = new RegExp(`^\\[promised\\]\\s*([^|]+?)\\s*\\|\\s*(?:m\\s*=\\s*)?(\\d+)\\s*\\|\\s*${QUOTE_OPEN}(.+?)${QUOTE_CLOSE}\\s*${BY}$`, "i");
+const EVENT = new RegExp(`^\\[(${PROMISE_EVENT_KINDS.join("|")})\\]\\s*([a-z0-9]+)\\s*\\|\\s*(?:m\\s*=\\s*)?(\\d+)\\s*\\|\\s*${QUOTE_OPEN}(.+?)${QUOTE_CLOSE}\\s*$`, "i");
 const NO_MESSAGE = /^\[(promised|kept|broken|renegotiated|released)\]\s*[^|]+\|\s*[“"]/i;
 
 export type PromiseLineParse = { line: ParsedPromiseLine } | { reason: string };

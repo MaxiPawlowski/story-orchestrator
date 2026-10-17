@@ -117,8 +117,8 @@ const visible = (known: ReadonlySet<string>, member: string, toward: string): bo
   known.has(member) && (toward === RELATIONSHIP_TOWARD_PLAYER || known.has(toward));
 
 export const holderLabelRows = (
-  story: Pick<NormalizedStoryV2, "life" | "roster">, values: Read, holder: string, known: ReadonlySet<string>, names: Names,
-): LabelRow[] => labelledRelationships(story).filter(({ member, relationship }) => member === holder && visible(known, member, relationship.toward))
+  story: Pick<NormalizedStoryV2, "life" | "roster">, values: Read, holder: string, known: ReadonlySet<string>, names: Names, toward: (id: string) => boolean = () => true,
+): LabelRow[] => labelledRelationships(story).filter(({ member, relationship }) => member === holder && visible(known, member, relationship.toward) && toward(relationship.toward))
   .flatMap(({ member, relationship }) => {
     const label = shownLabel(member, relationship, values);
     const toward = towardName(story, names, relationship.toward);

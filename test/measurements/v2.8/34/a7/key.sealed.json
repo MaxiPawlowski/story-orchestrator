@@ -1,0 +1,206 @@
+{
+  "format": 1,
+  "seed": "9f8d89bf38abbaab",
+  "entries": {
+    "E01": {
+      "arm": "on",
+      "task": "place-1",
+      "run": "run1"
+    },
+    "E02": {
+      "arm": "off",
+      "task": "item-2",
+      "run": "run2"
+    },
+    "E03": {
+      "arm": "on",
+      "task": "concept-2",
+      "run": "run2"
+    },
+    "E04": {
+      "arm": "off",
+      "task": "place-1",
+      "run": "run2"
+    },
+    "E05": {
+      "arm": "off",
+      "task": "history-1",
+      "run": "run2"
+    },
+    "E06": {
+      "arm": "on",
+      "task": "place-2",
+      "run": "run2"
+    },
+    "E07": {
+      "arm": "off",
+      "task": "concept-1",
+      "run": "run2"
+    },
+    "E08": {
+      "arm": "on",
+      "task": "faction-1",
+      "run": "run1"
+    },
+    "E09": {
+      "arm": "off",
+      "task": "concept-2",
+      "run": "run1"
+    },
+    "E10": {
+      "arm": "off",
+      "task": "concept-2",
+      "run": "run2"
+    },
+    "E11": {
+      "arm": "off",
+      "task": "faction-2",
+      "run": "run1"
+    },
+    "E12": {
+      "arm": "on",
+      "task": "item-2",
+      "run": "run2"
+    },
+    "E13": {
+      "arm": "off",
+      "task": "item-1",
+      "run": "run2"
+    },
+    "E14": {
+      "arm": "on",
+      "task": "place-2",
+      "run": "run1"
+    },
+    "E15": {
+      "arm": "off",
+      "task": "item-1",
+      "run": "run1"
+    },
+    "E16": {
+      "arm": "on",
+      "task": "history-2",
+      "run": "run1"
+    },
+    "E17": {
+      "arm": "off",
+      "task": "faction-1",
+      "run": "run1"
+    },
+    "E18": {
+      "arm": "off",
+      "task": "place-1",
+      "run": "run1"
+    },
+    "E19": {
+      "arm": "on",
+      "task": "faction-2",
+      "run": "run2"
+    },
+    "E20": {
+      "arm": "on",
+      "task": "concept-2",
+      "run": "run1"
+    },
+    "E21": {
+      "arm": "off",
+      "task": "history-1",
+      "run": "run1"
+    },
+    "E22": {
+      "arm": "off",
+      "task": "concept-1",
+      "run": "run1"
+    },
+    "E23": {
+      "arm": "on",
+      "task": "item-2",
+      "run": "run1"
+    },
+    "E24": {
+      "arm": "on",
+      "task": "faction-1",
+      "run": "run2"
+    },
+    "E25": {
+      "arm": "off",
+      "task": "place-2",
+      "run": "run1"
+    },
+    "E26": {
+      "arm": "on",
+      "task": "item-1",
+      "run": "run1"
+    },
+    "E27": {
+      "arm": "on",
+      "task": "item-1",
+      "run": "run2"
+    },
+    "E28": {
+      "arm": "on",
+      "task": "concept-1",
+      "run": "run2"
+    },
+    "E29": {
+      "arm": "off",
+      "task": "history-2",
+      "run": "run2"
+    },
+    "E30": {
+      "arm": "off",
+      "task": "place-2",
+      "run": "run2"
+    },
+    "E31": {
+      "arm": "on",
+      "task": "history-2",
+      "run": "run2"
+    },
+    "E32": {
+      "arm": "off",
+      "task": "faction-1",
+      "run": "run2"
+    },
+    "E33": {
+      "arm": "off",
+      "task": "faction-2",
+      "run": "run2"
+    },
+    "E34": {
+      "arm": "on",
+      "task": "faction-2",
+      "run": "run1"
+    },
+    "E35": {
+      "arm": "off",
+      "task": "item-2",
+      "run": "run1"
+    },
+    "E36": {
+      "arm": "off",
+      "task": "history-2",
+      "run": "run1"
+    },
+    "E37": {
+      "arm": "on",
+      "task": "history-1",
+      "run": "run1"
+    },
+    "E38": {
+      "arm": "on",
+      "task": "concept-1",
+      "run": "run1"
+    },
+    "E39": {
+      "arm": "on",
+      "task": "history-1",
+      "run": "run2"
+    },
+    "E40": {
+      "arm": "on",
+      "task": "place-1",
+      "run": "run2"
+    }
+  }
+}

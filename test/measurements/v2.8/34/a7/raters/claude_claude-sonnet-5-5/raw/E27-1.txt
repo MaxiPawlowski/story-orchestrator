@@ -1,0 +1,7 @@
+exit 0
+served claude-sonnet-5-5
+--- text ---
+{"score": 5, "why": "The entry covers appearance, function (narrow beam and broad glow), burn time, fuel, limits (water, fog, tide, unsafe crossings), signaling constraints, who wants it, what possessing it does not prove, and where supplies come from, so a narrator would have little to invent."}
+--- stderr ---
+[claude-code:unrecognized_model] {"model":"claude-sonnet-5-5","query_source":"sdk"}
+

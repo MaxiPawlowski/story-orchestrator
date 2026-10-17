@@ -76,6 +76,24 @@ export const LabelsAndWhyThisNumber: Story = {
   },
 };
 
+export const PromisesToThePlayer: Story = {
+  args: {
+    life: life({
+      commitments: [
+        { member: "arin", id: "gate", what: "get past the north gate together", state: "made", at: 2, overdue: true, heard: true },
+        { member: "arin", id: "debt", what: "repay the debt from the river", state: "kept", at: 5, overdue: false, heard: true },
+        { member: "arin", id: "ledger", what: "hide the ledger until the fair", state: "waiting", at: null, overdue: false, heard: false },
+      ],
+    }),
+  },
+  play: async ({ canvasElement }) => {
+    await expect(await within(canvasElement).findByText("Character life")).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="life-commitment"][data-state="made"]')).toHaveTextContent("made at boundary 2 · overdue");
+    await expect(canvasElement.querySelector('[data-so="life-commitment"][data-state="kept"]')).toHaveTextContent("kept at boundary 5");
+    await expect(canvasElement.querySelector('[data-so="life-commitment"][data-state="waiting"]')).toHaveTextContent("not made yet · out of the player's hearing");
+  },
+};
+
 export const AwayOverflowAndProposals: Story = {
   args: {
     life: life({

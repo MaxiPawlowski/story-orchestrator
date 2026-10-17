@@ -35,6 +35,14 @@ export const LIFE_FEATURES: readonly Feature[] = [
     settings: [], guideTopic: "relationship-labels", doc: authorGuideDoc("relationship-labels"), status: "experimental", needs: ["story"],
   },
   {
+    id: "npc-commitments", name: "Promises to you", area: "characters", audience: "player",
+    oneLine: "Things a character has promised you, which the character remembers and may keep, raise or break.",
+    what: "A story can let a character promise you something, such as getting you past a gate. The character remembers it and can bring it up; it is kept or broken only "
+      + "by what happens, never because time passed. You see \"Promised you\" on the character's People page if you heard it said, and you owe nothing back. A swipe takes it back.",
+    where: { selector: "#so-journal", label: "Story drawer › Journal › People", surface: "drawer" },
+    settings: [], guideTopic: "commitments", doc: authorGuideDoc("commitments"), status: "experimental", needs: ["story"],
+  },
+  {
     id: "meanwhile-proposals", name: "Off-stage events", area: "world", audience: "author",
     oneLine: "Proposes what a character did off stage toward their plan, for you to accept.",
     what: "When the story moves on or a scene ends, the memory model suggests one short off-stage event per character, kept inside that character's plan. "

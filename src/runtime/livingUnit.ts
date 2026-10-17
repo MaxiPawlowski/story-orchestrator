@@ -33,7 +33,8 @@ export function directorInput(input: DirectNextInput): DirectorInput {
   const frontier = story.checkpointById[frontierId];
   const cast = (living?.cast?.length ? story.roster.filter((member) => living.cast?.includes(member.id)) : story.roster)
     .map((member) => ({ name: member.name ?? member.id, ...(member.role ? { role: member.role } : {}), ...(member.drive ? { drive: member.drive } : {}) }));
-  const plans = story.roster.flatMap((member) => (member.agenda ?? []).map((agenda) => `${member.name ?? member.id}: ${agenda.goal}`)).slice(0, MAX_PLANS);
+  const promised = story.life ? gameLayer()?.life.commitmentHooks(story, state.blackboard.values) ?? [] : [];
+  const plans = [...promised, ...story.roster.flatMap((member) => (member.agenda ?? []).map((agenda) => `${member.name ?? member.id}: ${agenda.goal}`))].slice(0, MAX_PLANS);
   const plan = planChapter(story, frontierId, { sealsOn: input.sealsOn, final: false, newChapter: false });
   const size = living ? livingChapterSize(living) : [3, 5] as [number, number];
   const chapterNumber = usesLivingChapters(story) ? Math.max(1, livingChapters(story).length) : 1;

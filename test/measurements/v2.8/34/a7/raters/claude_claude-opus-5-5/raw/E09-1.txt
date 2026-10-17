@@ -1,0 +1,6 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+{"score": 4, "why": "The entry covers what Marsh Sight is, the signs readers use, how it is learned, its limits, failure conditions, fatigue cost, and current use, but leaves one minor basic vague: its effective range and how long a reading takes, given only as 'a short distance ahead' and 'prolonged concentration'."}
+--- stderr ---
+

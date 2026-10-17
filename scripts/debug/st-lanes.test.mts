@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { batchExitCode, createLineStamper, itemArgs, lanePreflight, rowStatus, runEvidenceRequired } from './st-lanes.mts';
+import { batchExitCode, createLineStamper, itemArgs, lanePreflight, rowStatus, runEvidenceRequired, runRowName } from './st-lanes.mts';
 
 test('A29: each child line is stamped when it arrives, a split line once it completes', () => {
   const lines: string[] = [];
@@ -89,4 +89,11 @@ test('B1b H6: batch reloads the lane page before every repeat after the first (r
   assert.equal(betweenRunsArgs(1), null);
   assert.deepEqual(betweenRunsArgs(2), ['scripts/debug/st-session.mts', 'reload']);
   assert.deepEqual(betweenRunsArgs(3), ['scripts/debug/st-session.mts', 'reload']);
+});
+
+test('a run row name keeps only path-safe characters of its verb, so an in-page eval can name its row', () => {
+  assert.equal(runRowName('S', ['scripts/debug/st-eval.mts', 'a?.b(\'x\') || c']), 'S-st-eval-a_b_x_c');
+  assert.equal(runRowName('S', ['scripts/debug/so-scenario.mts', 'run', 'x.json']), 'S-so-scenario-run');
+  assert.equal(runRowName('S', ['scripts/debug/st-session.mts', '--x']), 'S-st-session');
+  assert.equal(runRowName('S', ['scripts/debug/st-eval.mts', 'x'.repeat(90)]).length, 'S-st-eval-'.length + 40);
 });

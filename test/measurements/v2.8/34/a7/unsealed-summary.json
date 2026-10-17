@@ -1,0 +1,66 @@
+{
+  "raters": [
+    "claude:claude-opus-5-5",
+    "claude:claude-sonnet-5-5"
+  ],
+  "complete": true,
+  "unrated": [],
+  "runs": [
+    {
+      "run": "run1",
+      "arms": [
+        {
+          "arm": "on",
+          "entries": 10,
+          "median": 4.25,
+          "raters": {
+            "claude:claude-opus-5-5": 4,
+            "claude:claude-sonnet-5-5": 4.5
+          }
+        },
+        {
+          "arm": "off",
+          "entries": 10,
+          "median": 4,
+          "raters": {
+            "claude:claude-opus-5-5": 4,
+            "claude:claude-sonnet-5-5": 4
+          }
+        }
+      ],
+      "delta": 0.25,
+      "raterDelta": {
+        "claude:claude-opus-5-5": 0,
+        "claude:claude-sonnet-5-5": 0.5
+      }
+    },
+    {
+      "run": "run2",
+      "arms": [
+        {
+          "arm": "on",
+          "entries": 10,
+          "median": 4,
+          "raters": {
+            "claude:claude-opus-5-5": 4,
+            "claude:claude-sonnet-5-5": 4
+          }
+        },
+        {
+          "arm": "off",
+          "entries": 10,
+          "median": 4,
+          "raters": {
+            "claude:claude-opus-5-5": 4,
+            "claude:claude-sonnet-5-5": 4
+          }
+        }
+      ],
+      "delta": 0,
+      "raterDelta": {
+        "claude:claude-opus-5-5": 0,
+        "claude:claude-sonnet-5-5": 0
+      }
+    }
+  ]
+}

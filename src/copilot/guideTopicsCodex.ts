@@ -6,4 +6,11 @@ export const CODEX_GUIDE_TOPIC = {
       + "facts (12 at most) {id, text (200 characters, plain, a lasting truth, not a scene event), known_when: gate | {reached: checkpoint} | \"start\", source (entry or roster id), rev}. "
       + "A line latches the first turn it holds; a swipe takes it back. Nothing unknown is sent. Gate keys are read for you. Reworded text shows at once; a new gate or rev is learned again.",
   },
+  "codex-returns": {
+    title: "Return visits",
+    fields: "places[].returns[], id, text, when, rev",
+    text: "On a place with a location, returns (6 at most) {id, text (200 characters, plain), when: gate | {reached: checkpoint}, rev}. A return waits until the place is known and "
+      + "when holds while the party is elsewhere; the next time the party is back there, the line shows on the place page (\"The back door still hangs off one hinge.\"). "
+      + "The first visit is never a return. Page only: nothing is sent to a model. A swipe takes it back. \"start\", a person, or a place without location is refused.",
+  },
 } as const;

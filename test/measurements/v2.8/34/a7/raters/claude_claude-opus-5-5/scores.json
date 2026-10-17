@@ -1,0 +1,162 @@
+{
+  "E39": {
+    "score": 4,
+    "why": "The entry concretely covers the flood's cause, damage, aftermath, evidence, disputed warning accounts, folklore, and current state, but never says when the drowning happened, so a narrator would have to invent how long ago it was (and the town and river are also unnamed)."
+  },
+  "E29": {
+    "score": 4,
+    "why": "The entry concretely covers who struck, their demands, what the stoppage looked like, how it ended, its lasting debts, and its present significance, but it never says how long ago it happened, so a narrator would have to invent that."
+  },
+  "E21": {
+    "score": 4,
+    "why": "The entry concretely covers the flood's cause, its destruction, the relocation of the landing, the ruin's present state and hazards, and the contested 'punishment' interpretation, but it never says when the flood happened or how long ago, so a narrator would have to invent that."
+  },
+  "E12": {
+    "score": 4,
+    "why": "The entry concretely covers what the tally is, how it is split, notched, matched and cancelled, what it can and cannot prove, who wants it, and its current unassigned state, but it never says what a notch is worth or what currency it counts in, so a narrator would have to invent the value in any settlement scene."
+  },
+  "E30": {
+    "score": 4,
+    "why": "The entry gives the market's purpose, trade practice, location, layout, entrances and current state concretely and consistently, but it never says who runs or polices the market or who is typically present, so a narrator would have to invent the people a scene needs."
+  },
+  "E38": {
+    "score": 5,
+    "why": "The entry concretely and consistently covers who swears the oath, the ritual and its exact words, what it binds the swearer to, how unavoidable failure is handled, what witnesses can attest, the non-magical social consequences, and its limits, leaving at most trivial details such as the required number of witnesses unstated."
+  },
+  "E20": {
+    "score": 4,
+    "why": "The entry concretely covers what Marsh Sight is, which signs readers use, what it can and cannot reveal, what defeats it, how it is learned, its risks and the current state, but it leaves one minor basic vague: how long a careful reading takes."
+  },
+  "E16": {
+    "score": 4,
+    "why": "The entry concretely covers the strike's cause, duration, effects, resolution, lasting consequences, competing accounts and current relevance, but never says how long ago it happened, which a scene recalling it would likely need."
+  },
+  "E02": {
+    "score": 4,
+    "why": "The entry concretely covers how the tally records, splits, settles, and limits debts, and who wants what, but one minor basic is left vague: how later debts are added to a stick that has already been split."
+  },
+  "E11": {
+    "score": 4,
+    "why": "The entry concretely covers the Wardens' purpose, size, pairing, gear, powers and limits, how to reach them, search procedure, needs, and current state, but it never says who leads them, which is one minor basic a scene could ask about."
+  },
+  "E35": {
+    "score": 4,
+    "why": "The entry concretely and consistently covers the tally's purpose, how it is made, split, settled and marked, its limits, the procedure for a lost half, each party's motives and its current status, but it never says what one notch is worth or what form payment takes, so a narrator would have to invent the value of a debt."
+  },
+  "E17": {
+    "score": 4,
+    "why": "The entry concretely covers the guild's work, size, crew structure, roles, goals, limits of authority, how deals and receipts work, and its current activity, but it names no individuals (such as the tally keeper or a foreman) and does not name the town, so a narrator would have to invent these."
+  },
+  "E19": {
+    "score": 4,
+    "why": "The entry concretely and consistently covers the Wardens' size, organization, territory, duties, legal powers and limits, source of authority, and current status, but it never says how a warden looks or is recognized (uniform, badge, equipment), so a narrator would have to invent that minor basic."
+  },
+  "E05": {
+    "score": 4,
+    "why": "The entry concretely covers the flood's cause, how the harbour was destroyed, its aftermath, the ruin's location and hazards, and folklore versus fact, but it never says when the flood happened, and it only implies the death toll through 'surviving townspeople'."
+  },
+  "E06": {
+    "score": 4,
+    "why": "The entry concretely and consistently covers the market's purpose, goods, sellers and buyers, layout, gates, distances, transport and how trade is arranged, but it never says when the market trades (days or hours), which a narrator would have to invent."
+  },
+  "E14": {
+    "score": 4,
+    "why": "The entry concretely covers purpose, goods, physical layout, all four approaches with distances, tidal and weather constraints, and current state, but it never says who oversees the market or settles disputes, so a narrator would have to invent that minor basic."
+  },
+  "E10": {
+    "score": 4,
+    "why": "The entry concretely covers what Marsh Sight reads, how it works, its limits, failure modes, cost, how it is learned and who has it, but it leaves one minor basic vague: how long a reading takes in a scene."
+  },
+  "E27": {
+    "score": 4,
+    "why": "The entry concretely covers the lantern's appearance, shutter function, fuel and burn time, limits, users, current state and where to get oil and wick, but it never says where a lantern itself is made or bought, or what one costs."
+  },
+  "E07": {
+    "score": 4,
+    "why": "The entry concretely covers who swears the oath, when and how, the exact words, its scope, the witness's role, the tide timing rule, its non-magical communal force, and the remedy for breach, but it never says who judges whether a breach occurred or how much restitution is owed."
+  },
+  "E09": {
+    "score": 4,
+    "why": "The entry covers what Marsh Sight is, the signs readers use, how it is learned, its limits, failure conditions, fatigue cost, and current use, but leaves one minor basic vague: its effective range and how long a reading takes, given only as 'a short distance ahead' and 'prolonged concentration'."
+  },
+  "E36": {
+    "score": 4,
+    "why": "The entry concretely covers the strike's cause, demands, method, economic effects, settlement terms, contested claims and present-day significance, but it never says how long ago it happened, leaving a scene to invent that one basic."
+  },
+  "E24": {
+    "score": 4,
+    "why": "The entry concretely and consistently covers the guild's size, crew structure, work, territory, powers and limits, and current aims, but it never says who leads or speaks for the guild or how its decisions are made, so a narrator would have to invent the leadership a negotiation or confrontation scene would need."
+  },
+  "E33": {
+    "score": 4,
+    "why": "The entry concretely covers the Wardens' role, size, patrol pattern, reach, equipment, limits of authority and current state, but it never says who leads them or answers to whom, a minor basic a scene could ask about."
+  },
+  "E37": {
+    "score": 4,
+    "why": "The entry gives a narrator the cause, sequence, aftermath, current state of the site, and the contested local accounts concretely and consistently, but it never says when the flood happened or how long ago, so a narrator would have to invent the timeframe."
+  },
+  "E28": {
+    "score": 5,
+    "why": "The entry concretely and consistently covers who swears, when, before whom, the exact words, what binds and what doesn't, how to change or release an oath, the oath's lack of magical power, and the social consequences of breaking it, so a narrator would not need to invent any basics."
+  },
+  "E13": {
+    "score": 4,
+    "why": "The entry concretely covers the lantern's construction, use, upkeep, failure conditions, limits, social standing and identifying marks, and it notes that no specific lamp is established, but it never says where one is obtained or what it costs, even though it mentions travelers seeking one."
+  },
+  "E31": {
+    "score": 4,
+    "why": "The entry concretely and consistently covers the strike's cause, what it involved, its effects, how it was settled, the rival public memories and its current relevance, but it never says how long ago it happened, so a narrator would have to invent the timing (and possibly who led each side)."
+  },
+  "E34": {
+    "score": 4,
+    "why": "The entry concretely covers the Wardens' size, leadership, territory, duties, legal powers and limits, weaknesses, and current posture, but beyond a passing mention of a badge it never says how a warden looks, dresses, or is armed, so a narrator would have to invent that minor basic."
+  },
+  "E08": {
+    "score": 4,
+    "why": "The entry concretely and consistently covers the guild's size, work, territory, powers and limits, economic dependencies and current state, but it never says who leads the guild or how it makes decisions, so a narrator would have to invent whoever a scene needs to deal with."
+  },
+  "E26": {
+    "score": 4,
+    "why": "The entry concretely covers the lamp's construction, use, range, limits, failure modes, burn time, fuel, who wants it and its current state, but it leaves out its price or trade value, which a scene where travelers try to buy or borrow one would need."
+  },
+  "E04": {
+    "score": 5,
+    "why": "The entry concretely and consistently covers location and distance from town, layout, both approaches, the foot crossing and lack of a road bridge, mooring and gate-working procedure, vessel limits, the spillway and tidal hazards, and current condition and staffing, so a narrator would only add incidental color."
+  },
+  "E18": {
+    "score": 4,
+    "why": "The entry concretely and consistently covers location, access, layout, how the locks work, hazards and current state, but never says who works the gates or who is usually present, so a narrator would have to invent the lock-keeper or crew."
+  },
+  "E22": {
+    "score": 5,
+    "why": "The entry gives a narrator every basic a scene would need: who swears, where and when, the exact words, the witness requirement, what the oath binds and does not bind, refusal, reputational enforcement, how breaches are settled, and how terms can be changed."
+  },
+  "E15": {
+    "score": 4,
+    "why": "The entry concretely covers the lantern's appearance, mechanics, fuel and relighting needs, failure modes, explicit limits, who uses and seeks it, and how it changes hands, but it leaves one minor basic unanswered: its cost or rarity (and loosely its burn time or signal range), which a scene involving buying or bartering for one would need."
+  },
+  "E03": {
+    "score": 5,
+    "why": "The entry concretely covers what Marsh Sight is, who has it, how a reading works, what it can and cannot reveal, which conditions help or spoil it, its costs in time and fatigue, and its current role in the town, so a narrator would have little to invent."
+  },
+  "E32": {
+    "score": 4,
+    "why": "The entry concretely covers the guild's size, work, hazards, record-keeping, buyer procedures, limits of authority and current activity, but it never says who leads the guild or how decisions are made, so a narrator would have to invent its leadership."
+  },
+  "E23": {
+    "score": 4,
+    "why": "The entry concretely covers the tally's form, how notches are made and settled, its limits, what each party wants, and its current state, but it never says how many notches are outstanding or what the barge haul is worth, so a narrator would have to invent the size of the debt."
+  },
+  "E25": {
+    "score": 4,
+    "why": "The entry concretely covers the market's purpose, goods, pricing basis, location, layout, entrances, access, weather protection and current state, but it gives no actual prices or named traders, so a narrator would have to invent who is behind the stalls and what salt costs."
+  },
+  "E01": {
+    "score": 4,
+    "why": "The entry concretely and consistently covers location, approaches, layout, routes, and lock mechanics, but never says who operates the gates or is present (no lockkeeper or crew) and leaves the time to fill or drain a chamber vague."
+  },
+  "E40": {
+    "score": 4,
+    "why": "The entry concretely and consistently covers location, layout, foot access, and how boats pass through the locks, but it never says who tends or operates the gates, so a narrator would have to invent who is present and how a lock passage actually gets worked."
+  }
+}

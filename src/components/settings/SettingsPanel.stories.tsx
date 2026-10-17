@@ -56,6 +56,7 @@ const fakeManager = (): RuntimeManager =>
     setTalkChainSettings: fn(),
     setPacingSettings: fn(),
     setScanMemory: fn(),
+    carry: { shelf: fn(async () => []) },
   }) as unknown as RuntimeManager;
 
 const host = (): SettingsHost => ({

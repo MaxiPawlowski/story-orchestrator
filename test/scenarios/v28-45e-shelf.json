@@ -1,0 +1,195 @@
+{
+  "_note": "v2.8 plan 45 option E (no-model lane, plumbing): finish a short story with a final chapter (debugResponse seal), then the Continue shelf verifies the run and shows its ending title and the earned non-secret milestone only; the settings Library page renders it after the player opens it; player-clean. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v28-45e-shelf.json --sandbox --group 'Group: Arin, DM Narrator'.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off",
+    "authorView": true,
+    "briefingDraft": "off",
+    "innerBeat": "off"
+  },
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const s = globalThis.storyOrchestratorRuntime.getGlobalSettings(); if (s.image.enabled || s.sprites.enabled) throw new Error('media must be off'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds messages'); globalThis.storyOrchestratorDebugSceneSummaryResponse = 'The player climbed the tower with the lamplighters.'; const NL = String.fromCharCode(10); globalThis.storyOrchestratorDebugChapterSealResponse = ['SUMMARY:', 'The player relit the last lantern and the coast came back to light.', 'SHORT:', 'The coast was relit.'].join(NL); return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v28-45e-shelf",
+        "title": "SO-V28-45e Shelf",
+        "description": "Plan 45 E no-model fixture: a short story with a final chapter and milestones.",
+        "qualities": [
+          {
+            "key": "met_guild",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Has the player met the lamplighters?"
+          },
+          {
+            "key": "coast_fate",
+            "type": "enum",
+            "values": [
+              "lit",
+              "dark"
+            ],
+            "source": "extractor",
+            "latching": true,
+            "rubric": "How did the coast end up?"
+          },
+          {
+            "key": "secret_pact",
+            "type": "enum",
+            "values": [
+              "sworn",
+              "refused"
+            ],
+            "source": "extractor",
+            "rubric": "Did the player swear the drowned pact in secret?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "harbour",
+            "name": "The Harbour",
+            "objective": "Find out why the lanterns fail.",
+            "type": "anchor",
+            "start": true,
+            "chapter": "coast",
+            "player_name": "the harbour"
+          },
+          {
+            "id": "tower",
+            "name": "The Tower",
+            "objective": "Climb to the last lantern.",
+            "type": "anchor",
+            "chapter": "light",
+            "player_name": "the lantern tower"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "harbour",
+            "to": "tower",
+            "priority": 1,
+            "gate": {
+              "q": "met_guild",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "chapters": [
+          {
+            "id": "coast",
+            "title": "Act I: The Coast",
+            "player_title": "The Dark Harbour"
+          },
+          {
+            "id": "light",
+            "title": "Act II: The Light",
+            "player_title": "The Last Lantern",
+            "final": true
+          }
+        ],
+        "milestones": [
+          {
+            "id": "lit",
+            "title": "Relit the harbour light",
+            "when": {
+              "q": "coast_fate",
+              "op": "==",
+              "v": "lit"
+            }
+          },
+          {
+            "id": "dark",
+            "title": "Let the coast go dark",
+            "when": {
+              "q": "coast_fate",
+              "op": "==",
+              "v": "dark"
+            }
+          },
+          {
+            "id": "pact",
+            "title": "Swore the drowned pact",
+            "when": {
+              "q": "secret_pact",
+              "op": "==",
+              "v": "sworn"
+            },
+            "secret": true
+          }
+        ],
+        "roster": [
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator",
+            "view": "omniscient"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "DM Narrator"
+          ]
+        }
+      }
+    },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const values = () => rt.getEngineState().blackboard.values; const line = (name) => { const ctx = SillyTavern.getContext(); const chid = ctx.characters.findIndex((character) => character.name === name); rt.onMemberDrafted(chid); return String(rt.getAppliedEpistemicBlock() ?? ''); }; const saved = async () => { for (let i = 0; i < 100 && rt.getSnapshot().saveHealth?.pendingBoundary != null; i += 1) await pause(100); if (rt.getSnapshot().saveHealth?.pendingBoundary != null) throw new Error('the last boundary is not saved'); const ctx = SillyTavern.getContext(); for (let i = 0; i < 100 && ctx.isChatSaving; i += 1) await pause(100); await pause(1500); }; const reopen = async (storyId) => { const chatId = SillyTavern.getContext().chatId; await SillyTavern.getContext().reloadCurrentChat(); await until(() => rt.getSnapshot().storyId === storyId, 10000, 'the story to hydrate after the reopen'); if (SillyTavern.getContext().chatId !== chatId) throw new Error('the reopen moved the page'); rt.setUiSettings({ authorView: true }); await pause(1500); }; const people = () => JSON.stringify(rt.getSnapshot().game?.codex?.people ?? []); const places = () => JSON.stringify(rt.getSnapshot().game?.codex?.places ?? []); const swipeable = async (text) => { const ctx = SillyTavern.getContext(); const last = ctx.chat.length - 1; const reply = ctx.chat[last]; if (reply.is_user) throw new Error('the last message is not a reply'); reply.swipes = [reply.mes, text]; reply.swipe_id = 0; reply.swipe_info = [{}, {}]; await ctx.saveChat(); return last; }; globalThis.__s45 = { pause, until, values, saved }; return { at: rt.getSnapshot().activeCheckpointId };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The harbour lanterns gutter in the wind."
+    },
+    {
+      "slash": "/cp set coast_fate lit"
+    },
+    {
+      "slash": "/cp set secret_pact sworn"
+    },
+    {
+      "slash": "/cp set met_guild true"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The lamplighters lead the way up the tower."
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__s45; const rt = globalThis.storyOrchestratorRuntime; await c.until(() => rt.getSnapshot().activeCheckpointId === 'tower', 15000, 'the tower transition'); const record = await rt.chapters.sealNow(); if (!record || record.final !== true) throw new Error('the final chapter did not seal: ' + JSON.stringify(record)?.slice(0, 300)); await c.saved(); c.chatId = SillyTavern.getContext().chatId; return { final: true, title: record.playerTitle };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The last lantern burns over the water."
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__s45; const rt = globalThis.storyOrchestratorRuntime; await c.saved(); const rows = await c.until(() => { const found = rt.getSnapshot().presence?.continueRows ?? []; return found.some((row) => row.chatId === c.chatId && row.ended === true) ? found : null; }, 15000, 'the plays index to mark the run ended'); const shelf = await rt.carry.shelf(rows); const mine = shelf.find((row) => row.chatId === c.chatId); if (!mine) throw new Error('the ended run is not on the shelf: ' + JSON.stringify(shelf)); if (mine.endingTitle !== 'The Last Lantern') throw new Error('ending title ' + mine.endingTitle); if (JSON.stringify(mine.milestones) !== JSON.stringify(['Relit the harbour light'])) throw new Error('milestones ' + JSON.stringify(mine.milestones)); if (/Swore|drowned|sworn/.test(JSON.stringify(shelf))) throw new Error('a secret reached the shelf'); return { shelf: shelf.length, mine };"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await globalThis.__s45.pause(800); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "open-settings"
+      }
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__s45; document.querySelector('#so-workspace-page-library')?.click(); const summary = await c.until(() => document.querySelector('#so-trophy-shelf summary'), 10000, 'the Finished stories shelf'); summary.click(); const rows = await c.until(() => { const found = [...document.querySelectorAll('#so-trophy-shelf [data-so=\"trophy-row\"]')]; return found.length ? found : null; }, 15000, 'the verified shelf rows'); const text = document.querySelector('#so-trophy-shelf').textContent; if (!text.includes('The Last Lantern') || !text.includes('Relit the harbour light')) throw new Error('the shelf row lacks its ending or milestone: ' + text); if (/Swore|drowned/.test(text)) throw new Error('a secret milestone reached the shelf'); return { rows: rows.length };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "eval": "document.querySelector('#so-workspace-modal')?.close(); globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); await globalThis.__s45.pause(800); return { closed: true };"
+    }
+  ]
+}

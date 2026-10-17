@@ -7,6 +7,7 @@ export const CODEX_ENTRIES_MAX = 40;
 export const CODEX_TEXT_MAX = 200;
 export const CODEX_NAME_MAX = 80;
 export const CODEX_ALIASES_MAX = 8;
+export const CODEX_RETURNS_MAX = 6;
 export const CODEX_ID_PATTERN = /^[a-z0-9][a-z0-9-]{0,47}$/;
 export const CODEX_START = "start";
 
@@ -24,6 +25,13 @@ export interface CodexFact {
   rev?: number;
 }
 
+export interface CodexReturn {
+  id: string;
+  text: string;
+  when: GateNode | CodexReached;
+  rev?: number;
+}
+
 export interface CodexEntry {
   id: string;
   name?: string;
@@ -32,6 +40,7 @@ export interface CodexEntry {
   aliases?: string[];
   known_when?: CodexKnownWhen;
   facts: CodexFact[];
+  returns?: CodexReturn[];
 }
 
 export interface StoryCodex {
@@ -41,11 +50,15 @@ export interface StoryCodex {
 
 const PAGE_LETTER: Record<CodexPage, string> = { people: "p", places: "l" };
 
-export const CODEX_KEY_PREFIXES = ["codex_p_", "codex_l_"] as const;
+export const CODEX_KEY_PREFIXES = ["codex_p_", "codex_l_", "codex_a_", "codex_r_"] as const;
 
 export const codexEntryKey = (page: CodexPage, entry: string): string => `codex_${PAGE_LETTER[page]}_${entry}`;
 
 export const codexFactKey = (page: CodexPage, entry: string, fact: string): string => `${codexEntryKey(page, entry)}_${fact}`;
+
+export const codexReturnKey = (place: string, id: string): string => `codex_r_${place}_${id}`;
+
+export const codexArmedKey = (place: string, id: string): string => `codex_a_${place}_${id}`;
 
 export const isCodexKey = (key: string): boolean => CODEX_KEY_PREFIXES.some((prefix) => key.startsWith(prefix));
 

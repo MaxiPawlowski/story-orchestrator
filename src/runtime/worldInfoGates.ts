@@ -48,7 +48,7 @@ export function releasePlan(owners: unknown[], keep: unknown | null): WorldInfoB
 }
 
 export const earnedWorldInfo = (story: NormalizedStoryV2, values: Readonly<Record<string, unknown>>): unknown[] =>
-  (story.life ? gameLayer()?.life.agendaWorldInfo(story, values) ?? [] : []);
+  (story.life ? gameLayer()?.life.lifeWorldInfo(story, values) ?? [] : []);
 
 export interface EarnedSwitches {
   rewarded: string[];
