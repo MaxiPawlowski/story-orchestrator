@@ -39,7 +39,7 @@
               "world_info": {
                 "enable": [
                   {
-                    "lorebook": "SO-V28-69 K12RR Book",
+                    "lorebook": "SO-V28-69 K12R Book",
                     "comments": [
                       "Gate entry"
                     ]
@@ -62,7 +62,7 @@
             "DM Narrator"
           ],
           "lorebooks": [
-            "SO-V28-69 K12RR Book"
+            "SO-V28-69 K12R Book"
           ]
         }
       }
