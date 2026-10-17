@@ -387,3 +387,8 @@ No GPU, no model; no-model lane 85 (lanes root `C:\dev\so-live-lanes`) on the pr
   test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release). Storybook skipped: no component
   or story touched. Two gate fixes on the way: census rows for the 47 probe (model-call role, ownership `local`) and a
   CRLF-checkout assumption in the 47 freeze test.
+- Master `6dfc1ee1` (55, 45 E, 52 E, 65 A+, 09 A7, pin bump to `411f4d4`) merged as `de242fb4`: plan 24 matrix rows resolved
+  row by row (both sides' carriers kept); docs:guide / docs:settings no content change; arrival golden not tripped;
+  `coverage.mjs` 125 ids, 123 green, 2 image track, 0 red, 324 floors, 0 unmapped. `npm run gates -- --jobs=1
+  --no-storybook` all green in 438 s (9,682 jest tests); Storybook static build + test-runner on port 6292, `--maxWorkers 1`:
+  151 suites, 919 tests passed. Main bundle 1,285,188 B.
