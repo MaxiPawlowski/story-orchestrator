@@ -1,6 +1,7 @@
 import { onlyOutOfCharacter } from "@extraction/chatRows";
 import type { ParsedDelta, TypedJudge } from "@extraction/types";
-import { buildTypedPlan, readTypedDeltas, TYPED_TIMEOUT_MS } from "@judge/index";
+import { buildTypedPlan, readTypedDeltas } from "@judge/extraction";
+import { TYPED_TIMEOUT_MS } from "@judge/policy";
 import type { JudgeRuntime } from "./judge";
 
 // The judged typed read shared by the cadence read (inside runSharedRead) and the

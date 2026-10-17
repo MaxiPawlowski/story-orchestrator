@@ -27,7 +27,7 @@ Where the guide says "the reading model" it means the memory model that reads th
 
 ## Story fields
 
-Every field a story can carry: 61 topics on 8 pages, from the story as a whole down to the game layer.
+Every field a story can carry: 63 topics on 8 pages, from the story as a whole down to the game layer.
 
 - [The story as a whole](fields/story.md)
   - [Story feature policies](fields/story.md#feature-policies) (`feature-policies`)
@@ -43,6 +43,7 @@ Every field a story can carry: 61 topics on 8 pages, from the story as a whole d
   - [Speaker direction](fields/characters.md#talk-control) (`talk-control`)
   - [Character life](fields/characters.md#character-life) (`character-life`)
   - [Factions and standing](fields/characters.md#factions) (`factions`)
+  - [Rumors and gossip](fields/characters.md#rumors) (`rumors`)
   - [Relationship labels](fields/characters.md#relationship-labels) (`relationship-labels`)
   - [Story time](fields/characters.md#story-time) (`story-time`)
   - [Living cards](fields/characters.md#living-cards) (`living-cards`)
@@ -81,6 +82,7 @@ Every field a story can carry: 61 topics on 8 pages, from the story as a whole d
   - [Curator scope](fields/lore-and-memory.md#stagecraft) (`stagecraft`)
   - [Lore select](fields/lore-and-memory.md#lore-select) (`lore-select`)
   - [Lorebook entry features](fields/lore-and-memory.md#lore-entries) (`lore-entries`)
+  - [Lore content by kind](fields/lore-and-memory.md#lore-content) (`lore-content`)
   - [Scene places and times](fields/lore-and-memory.md#scene-read) (`scene-read`)
   - [House rules](fields/lore-and-memory.md#house-rules) (`house-rules`)
   - [Chapters](fields/lore-and-memory.md#chapters) (`chapters`)

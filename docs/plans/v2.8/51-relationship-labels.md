@@ -365,3 +365,15 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
   repetition suppression; source-event identity recorded as a later option.
 - **Reconcile with the built implementation.** Accepted. → H11a/H11b marked built with file:line.
 - Rebutted: none.
+
+## Live gate 2026-10-16 (no-model lane, branch `v2.8-owed-live-fixes`)
+
+- Setup: no-model offline lane 61 (`SO_LANES_ROOT=C:/dev/so-live-lanes`, `SO_LANE_OFFLINE=1`, no server plugins, no GPU,
+  images and sprites off). Main build: master `7b3ef38b` (bundle `1d806c43b088`) staged into a private ST copy
+  `C:/dev/st-live-owed`, because `C:/dev/st-live` was restaged by a parallel agent mid-batch (two runs died on
+  `Loading chunk ... failed`; those runs are discarded). Served `dist/index.js` hash checked before and after every batch.
+- Each item `st-lanes.mts batch --lanes 61 --repeat 2 --strict`; batch dirs under `C:/dev/so-live-lanes/61/debug/batch/<stamp>/`,
+  archived with `so-evidence.mts archive --label owed-nomodel-2026-10-16`.
+- `test/scenarios/v28-51-labels.json`: green x2 on `d1f9ede2` (batch `2026-10-16T17-40-07-788Z`) and x2 on `7b3ef38b`
+  (batch `2026-10-16T18-34-44-462Z`). Seeded reveal, no model: plumbing.
+- Still owed: R5 payload goldens (no c0 baseline captured); CL/RP R7, R9 in the final real-LLM suite.

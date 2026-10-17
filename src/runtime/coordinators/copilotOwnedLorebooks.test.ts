@@ -67,7 +67,7 @@ describe("V18: lorebook ownership is recorded by kind", () => {
   });
 
   it("creating a card records no book, and creating a book records it as one", async () => {
-    (createCharacterCard as jest.Mock).mockResolvedValue({ name: "Tavern Lore" });
+    (createCharacterCard as jest.Mock).mockResolvedValue({ ok: true, name: "Tavern Lore", avatar: "Tavern Lore.png", readBack: "stored", lossy: [] });
     (createLorebook as jest.Mock).mockResolvedValue({ ok: true, name: "Harbour Two", created: true });
     const h = harness(base({ createdLorebooks: [] }));
     await h.coordinator.applyProvisioning({ kind: "createCharacterCard", name: "Tavern Lore", description: "A barkeep." } as ProvisioningOp, draft);

@@ -62,6 +62,11 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     },
   },
   {
+    id: "rumor-spread",
+    order: 9,
+    run: ({ result, manager }) => manager.rumors.onBoundary(result),
+  },
+  {
     id: "scheduler-tick",
     order: 10,
     run: ({ result, scheduler }) => {

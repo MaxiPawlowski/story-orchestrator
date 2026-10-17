@@ -9,6 +9,7 @@ export interface WizardDriveInput {
   route: WizardRoute;
   maxSteps: number;
   provision: 'reject' | 'apply';
+  recordArgs?: boolean;
   profileId?: string;
   seed?: Record<string, unknown>;
 }
@@ -16,7 +17,7 @@ export interface WizardDriveInput {
 export const NATIVE_TIMEOUT_MS = 180000;
 export const NATIVE_MAX_TOKENS = 1536;
 
-export interface BridgeEvent { op: 'open' | 'next' | 'answer' | 'close'; sessionId: string | null; ok?: boolean; kind?: string | null; tool?: string | null; callId?: string | null; delivered?: boolean; tools?: number }
+export interface BridgeEvent { op: 'open' | 'next' | 'answer' | 'close'; sessionId: string | null; ok?: boolean; kind?: string | null; tool?: string | null; callId?: string | null; delivered?: boolean; tools?: number; args?: unknown; text?: string }
 export interface BridgeEvidence { transport: 'none' | 'refusal' | 'bridge' | 'text'; refusal: string | null; events: BridgeEvent[] }
 
 export const UI_RUNNER_HANDLES = ['newAgentSession', 'approvePlan', 'pendingStep', 'decideStep', 'resolveProvisioning', 'applyDraftOp', 'applyProvisioningFollowUps', 'validationErrorCount', 'createAgentRunner', 'driveAgent', 'resolveAgentHarness'] as const;
@@ -38,7 +39,7 @@ export function driveWizardAgent(page: any, input: WizardDriveInput) {
       },
       nextCall: async (sessionId: string, deadlineAt: number) => {
         const event = await inner.nextCall(sessionId, deadlineAt);
-        bridge.events.push({ op: 'next', sessionId, kind: event?.kind ?? null, tool: event?.kind === 'call' ? event.tool : null, callId: event?.callId ?? null });
+        bridge.events.push({ op: 'next', sessionId, kind: event?.kind ?? null, tool: event?.kind === 'call' ? event.tool : null, callId: event?.callId ?? null, ...(input.recordArgs && event?.kind === 'call' ? { args: event.args } : {}), ...(input.recordArgs && event?.kind === 'done' ? { text: String(event.text ?? '').slice(0, 400) } : {}) });
         return event;
       },
       answer: async (sessionId: string, callId: string, answer: any) => {

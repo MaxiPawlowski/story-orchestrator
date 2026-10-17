@@ -198,6 +198,17 @@ setPoseCard: { backedBy: "setPoseCard", doc: "Set living card fields and charact
         + `moves: [{id, when: ${GATE}, add (whole number, not 0), heard_by?: present|faction}]}]`),
     },
   },
+  setRumors: {
+    backedBy: "setRumors",
+    composes: ["addRumor", "updateRumor", "removeRumor", "setMemberGossip"],
+    doc: "Replace the story's rumors (the full list) and, optionally, members' gossip channels: news that travels between characters as hearsay, in code, after a delay. "
+      + "A rumor never carries a secret except to the one member a leak names. Read the rumors guide first.",
+    args: {
+      rumors: req("array", `[{id (slug), from (member id), claim, versions?: [{text, truth: true|false|unknown, weight?}], starts_when?: ${GATE}, `
+        + `leaks_to?: [{member, when: ${GATE}}]}]`),
+      gossip: opt("object", `{<member id>: {talks_to: [member id], contact?: together|any|${GATE}, when?: ${GATE}, delay?: {boundaries|days: [min, max]}, hops?: 1-3} | null}`),
+    },
+  },
   setCodexEntry: {
     backedBy: "updateCodexEntry",
     doc: "Create or replace one People or Places page entry. Facts show to the player only once known_when holds; "
@@ -232,6 +243,7 @@ export const PROVISION_TOOLS = {
       name: req("string", "card name"), description: req("string", "card description"), role: opt("string", "role in this story"), personality: opt("string", ""),
       scenario: opt("string", ""), first_mes: opt("string", "only for the opening scene's cast, for that scene only; leave it out for anyone who enters later"),
       mes_example: opt("string", ""), tags: opt("array", "string[]"),
+      replaces: opt("value", "only to revise a card that came back with notes: that step's id, a number (one revision per card)"),
     },
   },
   createStoryLorebook: { doc: "Create this story's own NEW lorebook. Always reviewed by the author.", args: { name: req("string", "lorebook name") } },
@@ -301,6 +313,7 @@ export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof Mutations, string>> 
   newMilestone: "constructor; setMilestones takes the full list",
   newWidget: "constructor; setWidgets takes the full list",
   newFaction: "constructor; setFactions takes the full list",
+  newRumor: "constructor; setRumors takes the full list",
   CHARACTER_LIFE_FIELDS: "a constant, not a mutation: the fields setCharacterLife replaces",
   setCodex: "the Studio replaces the whole codex; the agent edits one entry at a time with setCodexEntry and removeCodexEntry",
   setCodexShown: "whether the story shows People and Places is a presence choice the author makes in the Studio",

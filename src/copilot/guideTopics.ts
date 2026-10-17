@@ -271,6 +271,13 @@ export const GUIDE_TOPICS = {
       + "(normal, continue, impersonate, swipe, regenerate, quiet). Good: tavern + secondaryKeys [fight] with not-any. Avoid: secondary keys on a constant entry "
       + "(skips every key check), an outlet nothing writes, a trigger-only entry for lore select (never picked outside its types).",
   },
+  "lore-content": {
+    title: "Lore content by kind",
+    fields: "content",
+    text: "Write an entry for the questions a scene asks about its kind. Place: ways in and out, distance to what is near. Item: what it cannot do, who wants it. "
+      + "Faction: size, reach. History: what happened apart from what people say; the hidden truth stays out of shared lore. Concept: limits and cost. End with a short "
+      + "\"Current state\" paragraph the curator may patch; wrap the stable text in {{// so:protect}} ... {{// so:end}}. Avoid: \"mysterious and ancient\" (the narrator invents the rest).",
+  },
   "scene-read": {
     title: "Scene places and times",
     fields: "scene_read.locations, times, inject",

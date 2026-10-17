@@ -2,7 +2,7 @@ import { MEMORY_TIER_INJECTION_DEPTHS } from "@constants/defaults";
 import { DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS } from "@memory/index";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
 import { TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT } from "@engine/index";
-import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings } from "@judge/index";
+import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings } from "@judge/settings";
 import { sanitizePassProfiles, sanitizeRoleRoutes } from "./passProfiles";
 import { isReplyEffort, sanitizeReasoningBudget } from "@utils/reasoningEffort";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, StagecraftSettings } from "./types";
@@ -203,6 +203,8 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   innerBeat: true,
   harvestReasoning: true,
   promises: true,
+  witness: true,
+  rumors: true,
 });
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
@@ -233,6 +235,8 @@ const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRunti
   if (memory.innerFanOut !== "top2") delete memory.innerFanOut;
   if (typeof memory.harvestReasoning !== "boolean") memory.harvestReasoning = defaults.harvestReasoning;
   if (typeof memory.promises !== "boolean") memory.promises = defaults.promises;
+  if (typeof memory.witness !== "boolean") memory.witness = defaults.witness;
+  if (typeof memory.rumors !== "boolean") memory.rumors = defaults.rumors;
   return memory;
 };
 

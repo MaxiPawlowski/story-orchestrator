@@ -11,6 +11,7 @@ import { isAgentSession, type AgentSession } from "@copilot/agent/index";
 import { fellBackText, type FellBack } from "@extraction/modelRoute";
 import { draftOwnership } from "../agentHost";
 import { useDraftStore } from "../draft";
+import type { CardReadBackRecord } from "@utils/cardReadBack";
 import { lapsedProvisioningCopy, provisionOwned } from "./ownedProvisioning";
 import { lapsedStageCopy } from "./ownedBundle";
 import { describeMismatch } from "@runtime/runToken";
@@ -66,6 +67,7 @@ export const stepForStage = (stage: CopilotStage): WizardStep => WIZARD_STEPS.fi
 export interface WizardHost {
   environment: (draft?: StoryV2) => ProvisioningEnvironment;
   applyProvisioning: (op: ProvisioningOp, draft: StoryV2) => Promise<ProvisioningResult>;
+  recheckCard?: (op: Extract<ProvisioningOp, { kind: "createCharacterCard" }>, avatar: string, draft: StoryV2) => Promise<CardReadBackRecord>;
   readEntry?: (lorebook: string, comment: string) => Promise<ExistingEntry | null>;
   loadSession?: (key: string) => WizardSessionState | null;
   saveSession?: (session: WizardSessionUpdate) => void;
@@ -298,6 +300,7 @@ const StagedWizard: React.FC<Props & { modeSwitch?: React.ReactNode }> = ({ enab
   const mutate = useDraftStore((state) => state.mutate);
   const draftId = useDraftStore((state) => state.draft.id);
   const draftTitle = useDraftStore((state) => state.draft.title);
+  const draftNow = useDraftStore((state) => state.draft);
   const [stage, setStage] = useState<CopilotStage>(initialStage ?? "qualities");
   const [message, setMessage] = useState(seedMissing ? provisioningSeed(seedMissing) : "");
   const [history, setHistory] = useState<CopilotMessage[]>([]);
@@ -433,6 +436,7 @@ const StagedWizard: React.FC<Props & { modeSwitch?: React.ReactNode }> = ({ enab
           provisioningResults={provisioning.results}
           entryPreviews={entryPreviews}
           onProvision={(index, op) => void provisioning.provision(index, op)}
+          draft={draftNow}
         />
       ) : null}
       <LorebookGrantCards environment={environment} results={provisioning.results} busy={provisioning.busy !== null} onProvision={(index, op) => void provisioning.provision(index, op)} />

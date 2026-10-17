@@ -1,5 +1,16 @@
 import React, { lazy, Suspense, useState } from "react";
 import { describeProvisioningOp, validateProvisioningOp, type ExistingEntry, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
+import { cardFindings, cardWarnings } from "@wizard/cardChecks";
+import type { StoryV2 } from "@engine/index";
+import type { CardReadBackRecord } from "@utils/cardReadBack";
+import {
+  bookSiblings, draftLoreTexts, gatedAt, loreKeyLint, loreOpEntry, loreOpLintEntry, opCards, previewKeyMatches, renderKeyMatchLine,
+} from "@copilot/lorePreview";
+
+export interface ProvisioningContext {
+  draft: StoryV2;
+  ops: readonly ProvisioningOp[];
+}
 
 export interface ProvisioningCardProps {
   op: ProvisioningOp;
@@ -11,6 +22,8 @@ export interface ProvisioningCardProps {
   // Undefined until the runtime has read the entry: "not asked yet" and "nothing there" are
   // different answers and only one of them is safe to show as "new entry".
   existing?: ExistingEntry | null;
+  context?: ProvisioningContext;
+  readBack?: CardReadBackRecord;
   onApply: (op: ProvisioningOp) => void;
 }
 
@@ -74,6 +87,39 @@ const asText = (value: unknown, kind: FieldSpec["kind"]): string => {
 
 // Every provisioning step is editable before it runs (ST-Copilot's edit-before-apply pattern): the
 // model drafts, the author corrects, and only then does anything touch the install.
+const READ_BACK_TEXT: Record<CardReadBackRecord["state"], string> = {
+  stored: "Read back: SillyTavern stored the card as sent.",
+  unconfirmed: "Read back: could not read the card back, so it may exist. It is never created again.",
+  mismatch: "Read back: SillyTavern stored some fields differently",
+};
+
+const CardNotes = ({ op, context, environment }: { op: Extract<ProvisioningOp, { kind: "createCharacterCard" }>; context: ProvisioningContext; environment: ProvisioningEnvironment }) => {
+  const notes = cardWarnings(cardFindings(op, context.draft, environment));
+  if (!notes.length) return null;
+  return (
+    <div data-so="card-notes" className="st-alert-warning flex flex-col gap-1 rounded px-2 py-1 text-[11px]" aria-label="Card notes">
+      <span>Card notes (you can still create it):</span>
+      <ul className="flex flex-col gap-0.5">{notes.map((note) => <li key={note.id} data-note={note.id}>{note.text}</li>)}</ul>
+    </div>
+  );
+};
+
+const LorePreview = ({ op, context }: { op: Extract<ProvisioningOp, { kind: "upsertLorebookEntry" }>; context: ProvisioningContext }) => {
+  const preview = previewKeyMatches(loreOpEntry(op), draftLoreTexts(context.draft, opCards(context.ops)), gatedAt(context.draft, op.lorebook, op.comment));
+  const lint = loreKeyLint(loreOpLintEntry(op), bookSiblings(context.ops, op.lorebook));
+  return (
+    <div data-so="lore-preview" className="flex flex-col gap-1 text-[11px]" aria-label="Key preview">
+      <span data-so="key-matches" className="st-muted">{renderKeyMatchLine(preview)}</span>
+      {preview.reasons.length ? <span data-so="key-uncertain" className="st-muted">May not fire: {preview.reasons.join("; ")}.</span> : null}
+      {lint.length ? (
+        <ul data-so="key-lint" className="st-alert-warning flex flex-col gap-0.5 rounded px-2 py-1" aria-label="Key lint">
+          {lint.map((entry) => <li key={entry.id} data-lint={entry.id}>{entry.text}</li>)}
+        </ul>
+      ) : null}
+    </div>
+  );
+};
+
 const applyLabel = (draft: ProvisioningOp, applied: boolean, busy: boolean) => {
   if (applied) return draft.kind === "grantLorebook" ? "Confirmed" : "Created";
   if (busy) return "Working…";
@@ -81,7 +127,7 @@ const applyLabel = (draft: ProvisioningOp, applied: boolean, busy: boolean) => {
   return "Create it";
 };
 
-const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, applied = false, result = null, failed = false, busy = false, existing, onApply }) => {
+const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, applied = false, result = null, failed = false, busy = false, existing, context, readBack, onApply }) => {
   const [draft, setDraft] = useState<ProvisioningOp>(op);
   const [listText, setListText] = useState<Record<string, string>>({});
   const fields = FIELDS[draft.kind];
@@ -133,6 +179,13 @@ const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, ap
         </div>
       ) : null}
       {!validation.ok && !applied ? <div className="st-alert-error rounded px-2 py-1 text-[11px]" role="alert">{validation.message}</div> : null}
+      {context && !applied && draft.kind === "createCharacterCard" ? <CardNotes op={draft} context={context} environment={environment} /> : null}
+      {context && draft.kind === "upsertLorebookEntry" ? <LorePreview op={draft} context={context} /> : null}
+      {readBack ? (
+        <div data-so="card-readback" data-state={readBack.state} className={`${readBack.state === "stored" ? "st-muted" : "st-alert-warning"} rounded px-2 py-1 text-[11px]`} role="status">
+          {READ_BACK_TEXT[readBack.state]}{readBack.state === "mismatch" ? `: ${readBack.lossy.join(", ")}.` : ""}
+        </div>
+      ) : null}
       {/* R8: replacing an entry is a visible decision. Nothing exists under this title yet is a
           different claim from this overwrites what is there, and only the host can say which. */}
       {draft.kind === "upsertLorebookEntry" && existing !== undefined ? (

@@ -1,6 +1,7 @@
-import {
-  budgetTimer, JUDGE_PROVIDER_IDS, JudgeBusyError, JudgePluginError, type JudgeProviderId, type JudgeProviderStatus, type JudgeRequest, type JudgeResponse, type JudgeTransport,
-} from "@judge/index";
+import { budgetTimer } from "@judge/client";
+import { JudgeBusyError, JudgePluginError } from "@judge/gate";
+import { JUDGE_PROVIDER_IDS, type JudgeProviderId, type JudgeProviderStatus } from "@judge/providers";
+import type { JudgeRequest, JudgeResponse, JudgeTransport } from "@judge/types";
 import type { LlamaComplete } from "@judge/llamaLogprob";
 import { getContext } from "./context";
 import { importSTModule } from "./modules";

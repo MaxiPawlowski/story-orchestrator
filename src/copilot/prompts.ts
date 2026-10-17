@@ -56,6 +56,14 @@ export const OPENING_CAST_RULE =
   "Only the opening cast should be present at the start: give the start checkpoint cast_changes { \"disable\": [card names of everyone who enters later] }, and enable each " +
   "of them (cast_changes { \"enable\": [...] }) at the checkpoint where they enter.";
 
+export const CARD_CRAFT_RULE =
+  "Write a card's description as behaviour in the trigger form (\"When X, they do Y\"), not a list of adjectives, and give a side character one line on why scenes " +
+  "include them. Example dialogue uses {{char}}: and {{user}}: lines, never the {{system}} macro. A greeting never says what the player does, says or feels.";
+
+export const LORE_CONTENT_RULE =
+  "Write each lore entry for its kind: a place says the ways in and out and how far it is from what; an item, its limits and who wants it; a faction, its size and " +
+  "reach; history, what happened apart from what people say, with the hidden truth kept out of shared lore; a concept, its limits.";
+
 const PROVISIONING_GRAMMAR = [
   "Provisioning ops create the SillyTavern assets this story needs. They never modify anything that already exists:",
   '  { "kind": "createCharacterCard", "name": string, "description": string, "role"?: string, "personality"?: string, "scenario"?: string, "first_mes"?: string, ' +
@@ -66,6 +74,8 @@ const PROVISIONING_GRAMMAR = [
   '  { "kind": "createGroup", "name": string, "members": string[] }',
   "Order matters: create a card before a group that lists it, and the story lorebook before its entries.",
   FIRST_MESSAGE_RULE,
+  CARD_CRAFT_RULE,
+  LORE_CONTENT_RULE,
   "Never name an existing character, an existing lorebook or an existing group — those ops are rejected.",
   "upsertLorebookEntry may only target the story's own lorebook, never one of the user's other books.",
   "In upsertLorebookEntry a key written /pattern/i is a regular expression (escape any / inside it as \\/); secondaryKeys narrow a keyword match by logic (not-any: only when none of them appears); " +

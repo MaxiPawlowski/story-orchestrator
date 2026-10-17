@@ -4,7 +4,7 @@ import type { MemoryMirrorHost } from "./memoryMirror";
 
 export type ProvisioningHost = Pick<typeof Stapi,
   "createCharacterCard" | "createGroup" | "createLorebook" | "getAllCharacterNames" | "listAllLorebooks" |
-  "listGlobalLorebooks" | "listGroupNames" | "listPersonas" | "readWIEntry" | "upsertWIEntry"> & Partial<Pick<typeof Stapi, "listGroupCasts">>;
+  "listGlobalLorebooks" | "listGroupNames" | "listPersonas" | "readWIEntry" | "upsertWIEntry"> & Partial<Pick<typeof Stapi, "listGroupCasts" | "readBackCharacterCard">>;
 
 export type CuratorWiHost = Pick<typeof Stapi,
   "readWIEntry" | "readWIEntryAt" | "restoreWIEntryAt" | "updateWIEntryByUid" | "loadLorebook" | "createWIEntry" | "deleteWIEntryAt">;

@@ -362,3 +362,76 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
   `transcript-copiers` keeps naming both.
 - **43/47/55 — message ids need revisions.** Accepted here too. → spans addressed by id and revision (`src/memory/audience.ts:10`).
 - Rebutted: none.
+
+## Gate record: §0 + B build, 2026-10-16 (no model, no GPU, LIST)
+
+Branch `v2.8-audience-42-44` (base master `d1f9ede2`; offline harness merged from `v2.8-audience-43-offline`). Not merged, not pushed.
+
+Built:
+- §0 contract: `memory/audience.ts` (source span, revision, `RelationValue` with explicit unknown, six `WITNESS_STATES`, `WitnessLookup`,
+  `sameRevision`); `memory/audienceRules.ts` `mayAdd` (order: message removed, revision changed, hidden at query time (H13c), positive
+  relation witnessed/told/disclosure, then `keptFrom` backstop) and `mayRemove` (only every part classified "not heard"). The five
+  relations live as `AddBasis` kinds plus `RelationValue`; no separate relation enum (it had no consumer and failed the dead-export guard).
+- B lines (§5.1): `WITNESS m=<id> heard=<ids|all-present|unknown>`, `WITNESS m=<id> mixed` + `SPAN m=<id> from="…" heard=…`, ~110 input
+  tokens of contract text (`memory/witness/contract.ts`, lazy). Names, ids and aliases resolve to roster ids; an unknown member, conflicting
+  lines or an unresolved/ambiguous/overlapping anchor degrade to unknown; anchors by exact unique substring on the revision the read saw;
+  spans run anchor to anchor, text before the first anchor stays unknown; `all-present` resolves to the enabled group members at read time.
+- §5.2 states: accepted reads keyed by `{from, to, revisions[]}`; empty scope or out-of-character-only window = `no-read`; refused/truncated
+  read and a failed read (scheduler `witness.outage`) = `outage`; a covered message with no line = `unknown`; newer than the newest
+  accepted read = `pending`; tombstones = `invalidated`; a live revision mismatch = `invalidated`.
+- §5.3 rollback: own slice `extras.witness` (deviation: not `extras.memory.witness`, memory coordinator at its line budget, as 47 did);
+  `rollbackWitness` in quarantine drops every read whose range reaches the message, so claims about earlier surviving messages go too;
+  precedence = newest accepted read that has a line for the message; losing claims kept (before-images); reads past 200 fold to one
+  claim per message; no re-run.
+- On by default (`memory.witness`, story policy `witness`, feature `witness-record`, Features page, guide player/memory.md). No consumer
+  reads the record (43 and 44 do not use it yet).
+- Offline scorer `memory/witness/score.ts` (W4, W4fi incl. W4u ambiguous-as-inclusion, W4fe, W4cov with states, W4m, span W4fi, W4a,
+  W4n null control, review rule writer ≠ checker) and `scripts/debug/so-witness.mts score` replaying recorded reads (`so-witness-reads/1`)
+  through parser + record; synthetic fixture `test/fixtures/witness/synthetic/` (44 messages, 11 asides, 3 mixed, 2 unknown).
+
+Floors (D, jest/node; the synthetic set is a tooling check, not the W4 verdict):
+- Wf: 4 seeds × 30 random reads/cuts, every message id in one of six states; planted no-read/outage/truncated/invalidated cases. Green.
+- Wr: 4 seeds × 12 rounds, rollback ≡ replay of kept reads (read ids equal; classified lookups equal per member, whole message and span;
+  non-classified states compared as one unknown family, since tombstones are rollback history); planted inside-range edit invalidates an
+  earlier message's claim and restores the older read's claim; folding keeps winners. Green.
+- Scorer: planted all-present control fails W4a and W4fi (`score.test.ts`, `witness.test.mts`).
+- Synthetic replay golden (`test/goldens/witness/synthetic-good-result.json`): exact set 38/39, W4fi 0/46, W4fe 1/118, W4cov 42/44,
+  W4m 3/3, span W4fi 0/7, W4a 10/11; null control W4a 0/11, W4fi 25/46, beaten. Planted all-present reads: fail (W4a 0/11, W4fi 25/46).
+
+Live (no-model lane 69, `C:\dev\so-live-lanes`, private code copy `C:\dev\st-live-aud`, served `dist/index.js` sha256 `03ae0c12ab8f`
+before and after every run): `test/scenarios/v28-42-witness.json` PASS ×2 (planted read: section in the prompt, mixed message with 2 spans,
+read keyed 0–1; `assert-player-clean` 0; swipe inside the range drops the read, message 0 `invalidated`). Plumbing green, real-LLM owed.
+Evidence `C:\dev\so-live-lanes\evidence-2026-10-16\69\2026-10-16T19-35-29-674Z-so-scenario-run`, `…19-36-04-237Z…`.
+(Two earlier PASS runs on `C:\dev\st-live` are not counted: other agents restaged that tree mid-batch.)
+
+Gates (on `9b0992e1`): `npm run gates -- --jobs=1 --no-storybook` all green in 417.9 s (test 9,166 passed / 1 skipped; first run red only
+on `arrivalEquivalence`, re-recorded in its own commit). Storybook static build + `test-storybook --url http://127.0.0.1:6283 --maxWorkers 1`:
+149 suites, 888 stories passed. Main bundle 1,294,853 B (budget 1,300,000; +7,635 B over master's 1,287,218 for 42 + 44 together).
+
+Owed (CL, not run): W4 rows on the lab 40 (private campaign `lab/witness/`) and ≥ 40 real-session messages with second-model labels and a
+third-model check, through the extraction route (Sol via the harness); Wc; RB with 47 and 15 before merge (47's lines are on master, so
+this branch on by default puts both line families in every read). C not built (separate owner decision).
+
+## Gate record addendum: after the main-entry diet, 2026-10-16 (no model, no GPU, LIST)
+
+Build: master `4f2b53a2` (42 + 44 + the main-entry diet + master). Main bundle 1,282,779 B (budget 1,300,000). The diet moved the
+memorize backlog, canon regenerate, the author memory decisions and the warden check into lazy chunks, and judge imports name their module
+instead of the barrel. Full gates and Storybook green on `4f2b53a2` (coordinator run, Storybook 149 suites / 902 stories).
+
+Live: no-model lane 69 (`C:\dev\so-live-lanes`), private code copy `C:\dev\st-live-aud` staged from a detached worktree at `4f2b53a2`,
+images and sprites off, served `dist/index.js` sha256 `59bf6ba2c385` before and after every run. Each scenario run twice, back to back,
+`--sandbox --group "Group: Arin, DM Narrator"`; every run `ok`, no failed step, no reap prompt or mirror book leaked:
+- `v28-42-witness`: PASS ×2 (13 steps).
+- `v28-44-rumors`: PASS ×2 (24 steps).
+- `plan05-decision-write` (author memory decisions: resolve, reconfirm, refusal): PASS ×2 (6 steps).
+- `live-v8-memory-decisions` (memory queue and quarantine): PASS ×2 (13 steps).
+- `v27-s11d-held-secret-canon` (canon regenerate through the lazy unit): PASS ×2 (19 steps).
+- `v28-40-judge-consumers` (warden notes through the lazy check, canon regenerate with canonVerify): PASS ×2 (8 steps).
+- `v24-02-chat-delete-reap` (smoke): PASS ×2 (13 steps).
+
+Verdict: plumbing green, real-LLM owed (no model or GPU on this run; every model and judge answer above is scripted).
+
+Evidence `C:\dev\so-live-lanes\evidence-2026-10-16\69\`, run folders in the order above: `2026-10-16T23-48-24-313Z`, `…23-48-57-291Z`,
+`…23-49-26-588Z`, `…23-50-02-540Z`, `…23-50-38-518Z`, `…23-50-59-254Z`, `…23-51-21-736Z`, `…23-51-52-275Z`, `…23-52-23-766Z`,
+`…23-52-56-570Z`, `…23-53-44-404Z`, `…23-54-46-976Z`, `…23-55-24-309Z`, `…23-56-06-880Z` (each `-so-scenario-run`), with their
+`so-scenario-result.json` files beside them.

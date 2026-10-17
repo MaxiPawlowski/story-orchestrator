@@ -11,7 +11,8 @@ jest.mock("@services/STAPI", () => ({
 
 import { activeEpistemic, createMemoryState, dropByMessageId, provenance, sceneConflictValues, type LedgerEntry, type MemoryEntry } from "@memory/index";
 import type { SceneReadRecord } from "@judge/index";
-import { ABSENT, boundValuesFor, detectMemoryConflicts, diffStore, discardMemoryRow, dismissMemoryConflict, getConflicts, reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, storeDroppedEntry, type DecisionRefusal, type MemoryQueueDeps } from "./memoryQueue";
+import { boundValuesFor, detectMemoryConflicts, getConflicts, type MemoryQueueDeps } from "./memoryQueue";
+import { ABSENT, diffStore, discardMemoryRow, dismissMemoryConflict, reconfirmMemoryEntry, rereadConflictWindow, resolveMemoryConflict, storeDroppedEntry, type DecisionRefusal } from "./memoryDecisions";
 import type { MemoryRuntimeState } from "./types";
 import type { RunGuard } from "./runToken";
 

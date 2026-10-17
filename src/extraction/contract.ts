@@ -1,5 +1,5 @@
 import { readsByStep, readsWorldEvidence, TENSION_CURRENT_KEY, TENSION_FRESH_MESSAGES, TENSION_LEVELS, type NormalizedStoryV2, type Quality, type TensionLevel } from "@engine/index";
-import { renderMemoryContractAddendum } from "@memory/contract";
+import { HEARSAY_RULE, renderMemoryContractAddendum } from "@memory/contract";
 import { fnv1a, stableStringify } from "@runtime/hash";
 import { STEP_READ_REMINDER, STEP_READ_RULE } from "./stepRead";
 import type { ScopedQuality, SharedReadContract } from "./types";
@@ -109,6 +109,8 @@ export function renderSharedReadPrompt(contract: SharedReadContract): string {
     READ_OUTPUT_RULE,
     "",
     ...(deltasOnly ? [] : [renderMemoryContractAddendum(contract.openArcs ?? [], contract.epistemicLedgerCapable ?? false, contract.entities ?? [], promiseSection(contract)), ""]),
+    ...(!deltasOnly && contract.hearsay ? [HEARSAY_RULE, ""] : []),
+    ...(!deltasOnly && contract.witnessSection ? [contract.witnessSection, ""] : []),
     "Quality questions:",
     renderType(contract) || "(no in-scope qualities)",
     "",
@@ -140,5 +142,7 @@ export function hashContract(contract: SharedReadContract): string {
     ...(contract.deltasOnly ? { deltasOnly: true } : {}),
     ...(contract.counted && Object.keys(contract.counted).length ? { counted: contract.counted } : {}),
     ...(contract.openPromises ? { promises: contract.openPromises.map((ref) => ref.id) } : {}),
+    ...(contract.witnessSection ? { witness: true } : {}),
+    ...(contract.hearsay ? { hearsay: true } : {}),
   }));
 }

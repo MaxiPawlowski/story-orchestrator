@@ -2,7 +2,7 @@ import {
   bindChatLorebook, capabilityState, clearStoryExtensionPrompt, countTokens,
   createCharacterCard, createGroup, createLorebook, currentChatOwner, DEFAULT_VECTOR_SOURCE, disableWIEntry,
   ensureLorebook, getActiveGroup, getAllCharacterNames, getCharacterNameById, getContext, getPlayerName,
-  hostSystemUserName, listAllLorebooks, listGlobalLorebooks, listGroupCasts, listGroupNames, listPersonas, loadLorebook, readInjectedPromptBlocks,
+  hostSystemUserName, listAllLorebooks, listGlobalLorebooks, listGroupCasts, listGroupNames, listPersonas, loadLorebook, readBackCharacterCard, readInjectedPromptBlocks,
   readWIEntry, readWIEntryAt, resolveGroupMemberId, restoreWIEntryAt, setStoryExtensionPrompt, unbindChatLorebook, updateWIEntryByUid, createWIEntry, deleteWIEntryAt,
   upsertWIEntry, vectorInsert, vectorPurge, vectorQuery,
 } from "@services/STAPI";
@@ -34,7 +34,7 @@ const curatorHost: CuratorWiHost = { readWIEntry, readWIEntryAt, restoreWIEntryA
 
 const provisioningHost: ProvisioningHost = {
   createCharacterCard, createGroup, createLorebook, getAllCharacterNames, listAllLorebooks, listGlobalLorebooks,
-  listGroupCasts, listGroupNames, listPersonas, readWIEntry, upsertWIEntry,
+  listGroupCasts, listGroupNames, listPersonas, readBackCharacterCard, readWIEntry, upsertWIEntry,
 };
 
 const injectionHost: InjectionHost = { readInjectedPromptBlocks, getCharacterNameById };

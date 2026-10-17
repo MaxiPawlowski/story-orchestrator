@@ -196,6 +196,11 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
       continue;
     }
 
+    if (/^(?:WITNESS|SPAN)\s/i.test(line)) {
+      (result.witness ??= []).push(line);
+      continue;
+    }
+
     if (/^\[(promised|kept|broken|renegotiated|released)\]/i.test(line)) {
       (result.promises ??= []).push(line);
       continue;

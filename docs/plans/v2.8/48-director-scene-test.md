@@ -358,3 +358,49 @@ Unresolved questions
   signal is frozen.
 - Member focus for interrupts: recommended later, with 49 Phase 3 (needs present-member whereabouts in the director
   inputs).
+
+## Gate record addendum 2026-10-16 (review fixes on `v2.8-features-review-fixes`, not merged)
+
+Fixes for `review-astra-features-code-2026-10-16.md`, one commit and one regression test each, every test red on the
+old code (checked by reverting the source files only).
+
+- P1 frozen scene text (`99931d7d`): the draw and focus stay frozen. Before every director request `propose()` checks
+  the record's focus and expected thread against the current resting filter (`inputs.scrub`) and the current
+  `knownEntities` names (`focusSafe`, `sceneTextsSafe`). Unsafe: the signal line is withheld for that request and the
+  journal says `scene signal withheld`; no reroll, no new focus. Test `C5` in
+  `runtime/coordinators/livingSceneTest.review.test.ts`: a late held-secret read and a member becoming unknown between
+  the first plan and a regenerate, for altered and interrupt, read the assembled director prompt (no frozen text, no
+  signal line, record byte-identical, one draw); control keeps the line when privacy did not change.
+- P1 cold living rollback (`d03b37ca`): `runRollback` passes its `RunGuard` (minted before any lazy load) to
+  `restoreLiving`; `LivingPort.restoreAfterRollback` is async, awaits the chunk, checks the guard after the load and
+  hands it to the coordinator, which checks it before each restore write. Rollback awaits the restore before it rebuilds
+  injections and persists. Tests `runtime/livingColdRollback.review.test.ts`: delayed import plus a chat switch leaves
+  chat B's records untouched (run lapses, noop); same-chat cold restore writes living state before the injection
+  rebuild and before persist (persisted records `[]`); warm control.
+- P2 compaction (`13faf622`): `compact()` folds ops first, then keeps a scene record when it is at or above the
+  floor, when its frontier is still an eligible frontier, when an unfolded op came from a proposal for it (rollback can
+  reopen it), or when it is one of the last `min_gap` records (spacing state). Test `C6`: 205 boundaries on one
+  unresolved frontier, regenerate keeps the record, one draw, same line; frontiers 207 boundaries apart with
+  `min_gap: 2`: the second draws interrupt and applies altered.
+- The deviation "Retention drops records below the snapshot floor" above is withdrawn by this fix.
+- Follow-up, owner call via coordinator (`7c3e1a66`): the director's open threads (direct and branch passes) drop any
+  arc naming a name `unknownEntityNames` returns, with the same word-boundary matcher (`namesAny`). Before, only focus
+  candidates were filtered. Test `C7`: with the keeper not met, the prompt's open-thread block keeps "the dark lanterns"
+  and drops the keeper's thread (red on the old code); control with the keeper known keeps it. Withholding the whole
+  signal line on unsafe frozen text is kept (owner call). gates:quick green.
+- S1 (rollback ≡ replay) and S5 (player clean) green in the same file run.
+- P2 one-character names: see plan 49 addendum (`23af055d`).
+- `npm run gates:quick` green on `13faf622` (13 changed files; lint, related jest 54 suites / 583 tests, typecheck,
+  typecheck:test, defect replay 32 of 32 killed).
+- Master `4f2b53a2` (plans 42–44) merged in (`f3f6f641`, no conflicts). The merge pushed the coordinator to 567
+  effective lines (budget 560): retention and the director disclosure moved into pure lazy helpers
+  (`generation/living/sceneTest.ts` `retainSceneTests`, new `generation/living/disclosure.ts`), `7c2f1d0c`. No
+  generated file or arrival golden changed.
+- `npm run gates -- --jobs=1 --no-storybook` on `7c2f1d0c`: all green in 320.1 s (test 9,355 passed / 1 skipped,
+  806 suites; test:replay, build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin,
+  test:release). Storybook skipped (no component or story touched). Main `dist/index.js` 1,282,975 B.
+- Live: no-model offline lane 77 (`C:/dev/so-live-lanes`, data copied from lane 71, images and sprites off), branch
+  staged into the private ST copy `C:/dev/st-live-ffix`; served `dist/index.js` sha256 `7f815f180e8b` before and after.
+  `st-lanes.mts batch --lanes 77 --repeat 2 --strict test/scenarios/v28-48-scene-test.json`: GREEN ×2 (batch
+  `2026-10-17T00-00-35-274Z`, rows under `77/debug/batch/`). Only failed requests are the offline backend's
+  `/api/backends/text-completions/props` 500. Plumbing green, real-LLM owed (S7–S11 as before).

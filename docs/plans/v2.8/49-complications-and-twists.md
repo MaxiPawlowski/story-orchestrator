@@ -352,3 +352,10 @@ What SP6 must deliver before anything else here is built
   `meter` earned origin and replay (decision 3); `fires.set` waits for a state-write facility.
 - On FAIL or INCOMPLETE ×2: recorded and taken to the owner (decision 7); `focusPick` stays for 48.
 - H16f ramp variant: same SP6 gate; only if the run shows threshold firing feels mechanical.
+
+## Gate record addendum 2026-10-16 (review fixes on `v2.8-features-review-fixes`, not merged)
+
+- P2 one-character names (`23af055d`): `namesAny` matches every non-empty name or alias with the same Unicode word
+  boundaries (the `length > 1` exemption is gone). Test in `pacing/focus.test.ts`: `Q` drops "Q waits at the gate" and
+  matches "q." at a sentence end; control: `Q` keeps "the quay at dusk", "Queen Ash's banner" and "Quiet and quick".
+- C4 stays green. The frozen-focus privacy re-check that uses this matcher is in plan 48's addendum (`99931d7d`).

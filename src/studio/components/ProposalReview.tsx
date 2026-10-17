@@ -1,6 +1,7 @@
 import React from "react";
 import { diffProposal, type ProposalResult } from "@copilot/index";
 import { emptyEnvironment, entryKey, type ExistingEntry, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
+import type { StoryV2 } from "@engine/index";
 import ProvisioningCard from "./ProvisioningCard";
 
 interface Props {
@@ -15,6 +16,7 @@ interface Props {
   // Keyed by `entryKey(lorebook, comment)`. A missing key reads as "not resolved yet".
   entryPreviews?: Record<string, ExistingEntry | null>;
   onProvision?: (index: string | number, op: ProvisioningOp) => void;
+  draft?: StoryV2;
 }
 
 const ACTION_LABEL: Record<string, string> = { add: "add", update: "change", remove: "remove" };
@@ -30,6 +32,7 @@ const ProposalReview: React.FC<Props> = ({
   provisioningResults = {},
   entryPreviews = {},
   onProvision,
+  draft,
 }) => {
   if (result.status === "failed") {
     return (
@@ -88,6 +91,7 @@ const ProposalReview: React.FC<Props> = ({
                 failed={provisioningResults[item.index]?.ok === false}
                 busy={provisioningBusy === item.index}
                 existing={op.kind === "upsertLorebookEntry" ? entryPreviews[entryKey(op.lorebook, op.comment)] : undefined}
+                context={draft ? { draft, ops: diff.provisioning.map((entry) => entry.op as ProvisioningOp) } : undefined}
                 onApply={(next) => onProvision?.(item.index, next)}
               />
             );

@@ -240,6 +240,50 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
 - **Timeline P4 (query rewrite) → 43's experiment.** Adopted as R19, an informational arm after R-Gate1.
 - Rebutted: none.
 
+## Gate record: gate check + offline harness, 2026-10-16 (no model, no GPU, LIST)
+
+Branch `v2.8-audience-42-44` (offline harness built on `v2.8-audience-43-offline`, merged). Not merged, not pushed.
+
+Gate status: **closed, no runtime code built.**
+- R-Gate1 (E0 winner): none. `v2.8-a12-e0` is fully merged into master (no commits ahead); plan 21's record holds only the synthetic
+  freeze and a provisional `incomplete` verdict (diagnostic (e), problem `retrieval`, §6.2 BLOCKED). The private `so-sessions` repo has no
+  `test/sessions/e0/` labels, pool or freeze.
+- R-Gate2: §6.2 not run (blocked by R-Gate1). R-Gate3: the 42 B record exists (this branch) but W4/W4fi are not scored on real labels.
+
+Built (allowed now: fixtures and an offline harness; modules reachable only from scripts and tests, like `e0Ranking.ts`; no injection key,
+registry entry, setting or feature; main bundle unchanged by them):
+- `src/memory/recall/`: `eligibility.ts` (provenance first via 42 §0 `mayAdd`: witnessed basis from the witness record with span offsets
+  and the live revision, else a told basis only for a span inside the telling, origin refused; `keptFrom` backstop), `select.ts` (pool 32,
+  eligibility and attribution over the whole pool, then a pluggable ranker, top 4 within 250 tokens estimated as ceil(chars/4), no refill),
+  `attribution.ts` (`Name said: "…"` only inside one quoted segment of a message stored under that speaker, byte-equal; narration,
+  multi-speaker, other-speaker tags and altered quotes rejected), `cues.ts` (§5 cue set, never quiet/impersonate), `cacheKey.ts` (chat,
+  story hash, member, query hash, `witnessRevision`, held-secrets key, each candidate's revision), `live.ts`, `fixture.ts`, `score.ts`.
+- `scripts/debug/so-recall.mts replay --fixture <dir>`; synthetic fixture `test/fixtures/recall/synthetic/` (2 sessions, 23 positives,
+  23 nonce exclusions, 4 askers, 4 secret scenes incl. a one-content-word secret and a paraphrase, 3 told cases, a VR2k case, VR8 bait);
+  pools are a recorded stub order (tooling check, not R-Gate evidence).
+
+Results (synthetic, module-level replay, golden `test/goldens/recall/synthetic-result.json`): VR1 23/23; VR2 0 nonce lines over 23
+exclusions; VR2s 7 secret candidates, 0 leaks, 7 refused by provenance, 0 by `keptFrom` alone; VR2t 0 origin lines, 2 telling lines;
+VR2k 8 forbidden ahead of 5 eligible: 4 returned, 0 forbidden; VR3 max 91 tokens; VR8 154 lines, 0 wrong speaker, 154/154 byte-equal,
+7/7 bait refused. jest: eligibility, select, attribution, cues, cacheKey (VR4c per key), `vr4.property.test.ts` (4 seeds; a re-revised span
+is never returned; recall after `rollbackWitness` equals recall over replayed reads), score with an everyone-heard negative control (fails
+VR2/VR2s). node: `scripts/debug/recall.test.mts`. Full gates as in the 42 record.
+
+What E0 needs (not run):
+- No GPU. Embeddings come from a lane's ST server with the `transformers` source on CPU; arm (d) is TypeSafe (cloud); labels are
+  written and checked by two different cloud models (Sol via the harness plus a second model; DeepSeek is excluded by the current rules).
+- Code owed: an `st-vectors` provider for `so-e0.mts pool` (it refuses anything but `stub`); an arm (d) recorder (the judge plugin
+  refuses an uncalibrated `e0` use, so either a calibration row or a direct recording path); the private label set (at least 40
+  questions, `review` per question) committed and frozen in `so-sessions`.
+- One-time: ST downloads its local embedding model on first use (owner OK and a disk check per the downloads rule).
+- Estimate: provider + recorder about half a day; labels 1–2 h wall on Sol; pool on CPU about 3,000 embeddings over 40 questions
+  (5–15 min) plus 5 threshold queries each; arm (d) 160 calls at 0.25–0.65 s (about 2 min). The E0 run itself is under 30 min once its
+  inputs exist.
+
+Still owed after E0: §6.2 (R-Gate2) on the private fixture, then the runtime build (VR4x clear events, injection key, per-member swap,
+refresh, `RunOwnership`, payload golden, feature/Help/setting), VR5, VR6r, VR7, VR7p, VR8 live, VR9 (F only), 47 pledge-span references,
+H13b time labels, R19.
+
 ## Gate record: R-Gate1 from v2.8 21 E0 (2026-10-16, branch `v2.8-e0-run`)
 
 - **R-Gate1: met.** E0 private frozen set (84 questions, labels Sol-written and Claude-checked blind, 0 disagreed): winning

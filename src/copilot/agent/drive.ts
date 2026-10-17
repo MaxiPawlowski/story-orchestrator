@@ -1,7 +1,7 @@
 import type { StoryV2 } from "@engine/index";
 import type { ProvisioningOp } from "@wizard/index";
 import { describeMismatch, type RunOwnership } from "@runtime/runToken";
-import { resolveProvisioning, stopAgent, type AgentTurn } from "./loop";
+import { resolveProvisioning, stopAgent, type AgentTurn, type ProvisioningOutcome } from "./loop";
 import type { AgentOp, AgentSession, AgentStep } from "./types";
 
 export interface AgentRunner {
@@ -57,7 +57,7 @@ export async function driveAgent(start: AgentSession, deps: DriveDeps): Promise<
 export interface ProvisionDeps {
   ownership: RunOwnership;
   draft: () => StoryV2;
-  provision: (op: ProvisioningOp, draft: StoryV2) => Promise<{ ok: boolean; message: string }>;
+  provision: (op: ProvisioningOp, draft: StoryV2) => Promise<ProvisioningOutcome>;
   applyFollowUps: (op: ProvisioningOp) => void;
 }
 

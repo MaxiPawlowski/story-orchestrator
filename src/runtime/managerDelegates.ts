@@ -13,6 +13,7 @@ import type { LivingStartInput } from "@generation/living/start";
 import type { JudgedExtractionWork } from "./coordinators/extractionCoordinator";
 import type { wireCoordinators } from "./managerWiring";
 import type { MemoryMirrorSummary } from "./memoryMirror";
+import type { CardReadBackRecord } from "@utils/cardReadBack";
 import { clearWizardSession, loadWizardSession, saveWizardSession } from "./wizardSessions";
 import { confirmPreflight } from "./requestBudget";
 import type { StagecraftRuntimeState } from "./types";
@@ -34,6 +35,8 @@ export abstract class CoordinatorDelegates {
   get meanwhile() { return this.co.meanwhile; }
   get living() { return this.co.living; }
   get promises() { return this.co.promises; }
+  get witness() { return this.co.witness; }
+  get rumors() { return this.co.rumors; }
   get carry() { return this.co.carry; }
   protected generationOpen = false;
   setGenerationOpen(open: boolean) {
@@ -55,6 +58,9 @@ export abstract class CoordinatorDelegates {
   ): Promise<ProposalResult> { return this.co.copilot.runStage(input, debugResponse); }
   getProvisioningEnvironment(draft?: StoryV2): ProvisioningEnvironment { return this.co.copilot.getProvisioningEnvironment(draft); }
   async applyProvisioning(op: ProvisioningOp, draft?: StoryV2): Promise<ProvisioningResult> { return this.co.copilot.applyProvisioning(op, draft); }
+  async recheckCreatedCard(op: Extract<ProvisioningOp, { kind: "createCharacterCard" }>, avatar: string, draft?: StoryV2): Promise<CardReadBackRecord> {
+    return this.co.copilot.recheckCreatedCard(op, avatar, draft);
+  }
   async readProvisioningEntry(lorebook: string, comment: string): Promise<WIEntrySnapshot | null> { return this.co.copilot.readProvisioningEntry(lorebook, comment); }
   getWizardSession(key: string): WizardSessionState | null { return loadWizardSession(key); }
   saveWizardSession(session: WizardSessionUpdate) { saveWizardSession(session); }

@@ -3,6 +3,7 @@ import type { SchedulerJob } from "@extraction/index";
 import type { DirectorProposal } from "@generation/living/types";
 import type { LivingCoordinator, LivingCoordinatorDeps, LivingDecision, LivingSaveOutcome } from "./coordinators/livingCoordinator";
 import { installLivingAuthorView } from "./livingSnapshot";
+import { beginRun, type RunGuard } from "./runToken";
 
 type LivingCoordinatorModule = typeof import("./coordinators/livingCoordinator");
 
@@ -68,10 +69,11 @@ export class LivingPort {
       || (living?.sceneTests ?? []).some((record) => record.plannedAt > boundary);
   }
 
-  restoreAfterRollback(boundary: number): number {
-    if (this.impl) return this.impl.restoreAfterRollback(boundary);
-    if (this.tracks()) void this.load().then((coordinator) => coordinator.restoreAfterRollback(boundary));
-    return 0;
+  async restoreAfterRollback(boundary: number, run: RunGuard = beginRun(this.deps.ownership)): Promise<number> {
+    if (this.impl) return this.impl.restoreAfterRollback(boundary, run);
+    if (!this.tracks()) return 0;
+    const coordinator = await this.load();
+    return run.stillOwns() ? coordinator.restoreAfterRollback(boundary, run) : 0;
   }
 
   refold(authored: { raw: Record<string, unknown>; hash: string }): ReturnType<LivingCoordinator["refold"]> {
