@@ -216,7 +216,8 @@ setPoseCard: { backedBy: "setPoseCard", doc: "Set living card fields and charact
     args: {
       page: req("string", "people | places"),
       entry: req("object", `{id, name? | member? (roster id), location? (places: a location value), aliases?, known_when?, `
-        + `facts: [{id, text, known_when: ${GATE} | {reached: checkpoint id} | "start", source?, rev?}]}`),
+        + `facts: [{id, text, known_when: ${GATE} | {reached: checkpoint id} | "start", source?, rev?}], `
+        + `returns? (places with a location): [{id, text, when: ${GATE} | {reached: checkpoint id}, rev?}]}`),
     },
   },
   removeCodexEntry: {

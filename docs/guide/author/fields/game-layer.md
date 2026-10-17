@@ -14,6 +14,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 - [The sheet reaches the narrator](#display-narrate)
 - [Warning bands](#display-warn)
 - [People and Places](#codex)
+- [Return visits](#codex-returns)
 
 <a id="presentation"></a>
 
@@ -149,6 +150,19 @@ Fields: `codex` (`people[]`, `places[]`; each entry `id`, `name`, `member`, `loc
 - **Bad.** A fact under an early gate that names the twist, or names a person the player has not met yet (`disclosure-names-unknown-entity`: the text shows the moment the fact is known); a fact that waits for a checkpoint no path reaches or a value nothing writes (`codex-fact-never-read`); a gate that already holds at the start (`codex-gate-holds-at-start`: mark it `"start"` instead); a `reached` checkpoint that does not exist, two entries with one id, or two person pages for one member (refused).
 - **Story updates.** Rewording a fact's `text` (same `known_when`, same `rev`) is a correction: a chat that knows it sees the new words at once. Changing its `known_when`, or raising its `rev`, makes it a new discovery: a chat that knew the old one loses it and learns the new one when its condition holds. Removing an entry or a fact drops what a chat learned of it.
 - **If wrong.** A fact read in a reply shows at the next reply, like every reading. When the read is crowded, Author view's setup list says which codex keys wait a turn (`discovery-scope-overflow`).
+
+<a id="codex-returns"></a>
+
+## Return visits
+
+Topic `codex-returns`.
+
+Fields: `places[].returns[]` (`id`, `text`, `when`, `rev`) (`engine/codexSchema.ts`, `engine/codex.ts`, `validate/codex.ts`, `runtime/codexView.ts`).
+
+- **What it does.** A place with a `location` may carry up to 6 `returns`: lines that acknowledge something that happened there, shown when the party comes back. A return waits until the place is known and its `when` (a gate or `{"reached": "<checkpoint id>"}`, never `"start"`) holds while the party is somewhere else; the next time the party's `location` is that place, the line shows on the place page, marked new for that turn. An event that happens while the party is still there shows nothing until the party leaves and comes back, and a first visit is never a return. Return lines are page-side only: nothing is sent to a model (an in-world reminder for the narrator stays authored checkpoint `world_info`). A swipe of the reply that brought the party back takes the line away, and the return shows again on the replayed turn.
+- **Good.** `"returns": [{ "id": "door", "text": "The back door still hangs off one hinge.", "when": { "q": "dock_fight", "op": "==", "v": true } }]`.
+- **Bad.** A return on a person, on a place without `location`, or with `"start"` is refused; its text follows the fact rules (`disclosure-names-unknown-entity`, `codex-fact-never-read`).
+- **Story updates.** Rewording a return keeps it shown; changing its `when` or raising its `rev` makes the chat come back for it again.
 
 ---
 

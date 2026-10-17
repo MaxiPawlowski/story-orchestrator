@@ -1,14 +1,16 @@
 import {
-  CODEX_ALIASES_MAX, CODEX_ENTRIES_MAX, CODEX_FACTS_MAX, CODEX_ID_PATTERN, CODEX_NAME_MAX, CODEX_PAGES, CODEX_START, CODEX_TEXT_MAX, PARTY_LOCATION_KEY,
-  codexEntryKey, codexFactKey, isCodexKey, isReached,
-  type Checkpoint, type CodexEntry, type CodexFact, type CodexKnownWhen, type CodexPage, type Quality, type RosterMember, type StoryCodex, type ValidationError,
+  CODEX_ALIASES_MAX, CODEX_ENTRIES_MAX, CODEX_FACTS_MAX, CODEX_ID_PATTERN, CODEX_NAME_MAX, CODEX_PAGES, CODEX_RETURNS_MAX, CODEX_START, CODEX_TEXT_MAX, PARTY_LOCATION_KEY,
+  codexArmedKey, codexEntryKey, codexFactKey, codexReturnKey, isCodexKey, isReached,
+  type Checkpoint, type CodexEntry, type CodexFact, type CodexKnownWhen, type CodexPage, type CodexReturn, type Quality, type RosterMember, type StoryCodex,
+  type ValidationError,
 } from "../schema";
 import { isRecord } from "@utils/guards";
 import { addError, asString, refuse, rejectUnknownKeys } from "./common";
 import { readGate, validateGate } from "./gates";
 
 const CODEX_KEYS = ["people", "places"] as const;
-const ENTRY_KEYS = ["id", "name", "member", "location", "aliases", "known_when", "facts"] as const;
+const ENTRY_KEYS = ["id", "name", "member", "location", "aliases", "known_when", "facts", "returns"] as const;
+const RETURN_KEYS = ["id", "text", "when", "rev"] as const;
 const FACT_KEYS = ["id", "text", "known_when", "source", "rev"] as const;
 const MACRO = /\{\{|\}\}/;
 
@@ -57,6 +59,29 @@ const readFact = (value: unknown, path: string, errors: ValidationError[]): Code
   return { id, text, known_when: known, ...(source ? { source } : {}), ...(rev !== undefined && rev > 1 ? { rev } : {}) };
 };
 
+const readRev = (value: unknown, path: string, errors: ValidationError[]): number | undefined =>
+  (value === undefined ? undefined : Number.isInteger(value) && (value as number) >= 1 ? value as number : refuse(errors, path, "rev is a whole number of at least 1", undefined));
+
+const readReturn = (value: unknown, path: string, errors: ValidationError[]): CodexReturn | null => {
+  if (!isRecord(value)) return refuse(errors, path, "a return is {id, text, when}", null);
+  rejectUnknownKeys(value, RETURN_KEYS, path, errors);
+  const id = readId(value.id, `${path}.id`, errors);
+  const text = readPlain(value.text, CODEX_TEXT_MAX, `${path}.text`, errors);
+  if (value.when === CODEX_START) return refuse(errors, `${path}.when`, "a return follows something that happened: give a gate or {reached}, never \"start\"", null);
+  const when = value.when === undefined ? refuse(errors, `${path}.when`, "a return needs when: the event the place remembers", null) : readKnownWhen(value.when, `${path}.when`, errors);
+  const rev = readRev(value.rev, `${path}.rev`, errors);
+  if (!id || !text || !when || when === CODEX_START) return null;
+  return { id, text, when, ...(rev !== undefined && rev > 1 ? { rev } : {}) };
+};
+
+const readReturns = (value: unknown, page: CodexPage, path: string, errors: ValidationError[]): CodexReturn[] => {
+  if (value === undefined) return [];
+  if (page === "people") return refuse(errors, path, "returns belong to a place", []);
+  if (!Array.isArray(value)) return refuse(errors, path, "returns are a list", []);
+  if (value.length > CODEX_RETURNS_MAX) addError(errors, path, `a place holds at most ${CODEX_RETURNS_MAX} returns`);
+  return value.map((entry, index) => readReturn(entry, `${path}.${index}`, errors)).filter((entry): entry is CodexReturn => entry !== null);
+};
+
 const readFacts = (value: unknown, path: string, errors: ValidationError[]): CodexFact[] => {
   if (value === undefined) return [];
   if (!Array.isArray(value)) return refuse(errors, path, "facts are a list", []);
@@ -78,10 +103,12 @@ const readEntry = (page: CodexPage) => (value: unknown, path: string, errors: Va
   const aliases = readAliases(value.aliases, `${path}.aliases`, errors);
   const known = value.known_when === undefined ? undefined : readKnownWhen(value.known_when, `${path}.known_when`, errors) ?? undefined;
   const facts = readFacts(value.facts, `${path}.facts`, errors);
+  const returns = readReturns(value.returns, page, `${path}.returns`, errors);
+  if (returns.length && !location) addError(errors, `${path}.returns`, "a return needs the place's location: the party coming back there is what shows it");
   if (!id) return null;
   return {
     id, ...(name ? { name } : {}), ...(member ? { member } : {}), ...(location ? { location } : {}), ...(aliases ? { aliases } : {}),
-    ...(known ? { known_when: known } : {}), facts,
+    ...(known ? { known_when: known } : {}), facts, ...(returns.length ? { returns } : {}),
   };
 };
 
@@ -138,6 +165,8 @@ const checkEntry = (entry: CodexEntry, path: string, refs: CodexRefs, ids: Set<s
     checkWhen(fact.known_when, `${path}.facts.${index}.known_when`, refs, errors);
     if (fact.source && !ids.has(fact.source) && !roster.has(fact.source)) addError(errors, `${path}.facts.${index}.source`, `'${fact.source}' is neither a codex entry nor a roster id`);
   });
+  duplicates((entry.returns ?? []).map((back) => back.id), "return", (index) => `${path}.returns.${index}.id`, errors);
+  (entry.returns ?? []).forEach((back, index) => checkWhen(back.when, `${path}.returns.${index}.when`, refs, errors));
 };
 
 export const checkCodex = (codex: StoryCodex | undefined, refs: CodexRefs, errors: ValidationError[]) => {
@@ -155,16 +184,21 @@ export const checkCodex = (codex: StoryCodex | undefined, refs: CodexRefs, error
   });
 };
 
-const latchQuality = (key: string, what: string): Quality => ({
-  key, type: "int", source: "code", latching: true, monotonic: true, rubric: `Set once by the story: the boundary at which the player learned ${what}`,
+const latchQuality = (key: string, what: string, rubric = `the boundary at which the player learned ${what}`): Quality => ({
+  key, type: "int", source: "code", latching: true, monotonic: true, rubric: `Set once by the story: ${rubric}`,
 });
 
 export const addCodexQualities = (qualities: Quality[], codex: StoryCodex | undefined, errors: ValidationError[]): Quality[] => {
-  qualities.filter((quality) => isCodexKey(quality.key)).forEach((quality) => addError(errors, `qualities.${quality.key}`, "keys starting codex_p_ or codex_l_ are kept for the codex"));
+  qualities.filter((quality) => isCodexKey(quality.key))
+    .forEach((quality) => addError(errors, `qualities.${quality.key}`, "keys starting codex_p_, codex_l_, codex_a_ or codex_r_ are kept for the codex"));
   if (!codex) return qualities;
   const added = CODEX_PAGES.flatMap((page) => (codex[page] ?? []).flatMap((entry) => [
     ...(entry.known_when !== CODEX_START && (entry.known_when || entry.location) ? [latchQuality(codexEntryKey(page, entry.id), `of ${page === "people" ? "this person" : "this place"}`)] : []),
     ...entry.facts.filter((fact) => fact.known_when !== CODEX_START).map((fact) => latchQuality(codexFactKey(page, entry.id, fact.id), "this fact")),
+    ...(entry.returns ?? []).flatMap((back) => [
+      latchQuality(codexArmedKey(entry.id, back.id), "", "the boundary at which this place's return line began waiting for the party to come back"),
+      latchQuality(codexReturnKey(entry.id, back.id), "", "the boundary at which the party came back and this place's return line showed"),
+    ]),
   ]));
   const existing = new Set(qualities.map((quality) => quality.key));
   return [...qualities, ...added.filter((quality) => !existing.has(quality.key))];

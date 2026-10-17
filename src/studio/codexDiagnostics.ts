@@ -40,6 +40,7 @@ const whens = ({ page, index, entry }: Item): Array<{ path: string; when: CodexK
   return [
     ...(condition ? [{ path: `codex.${page}.${index}.known_when`, when: condition, what: `entry '${entry.id}'` }] : []),
     ...entry.facts.map((fact, at) => ({ path: `codex.${page}.${index}.facts.${at}`, when: fact.known_when, text: fact.text, what: `fact '${entry.id}.${fact.id}'` })),
+    ...(entry.returns ?? []).map((back, at) => ({ path: `codex.${page}.${index}.returns.${at}`, when: back.when, text: back.text, what: `return '${entry.id}.${back.id}'` })),
   ];
 };
 
@@ -77,12 +78,11 @@ const knownAlongside = (named: Item, when: CodexKnownWhen): boolean => {
 const checkDisclosure = ({ draft, push }: CodexRun) => {
   const all = items(draft);
   const named = all.map((item) => ({ item, names: entityNames({ codex: draft.codex, roster: draft.roster }, item.entry) }));
-  all.forEach((item) => item.entry.facts.forEach((fact, at) => {
-    if (fact.known_when === CODEX_START) return;
-    named.filter((other) => other.item.entry.id !== item.entry.id && !knownAlongside(other.item, fact.known_when)).forEach((other) => {
-      const hit = other.names.find((name) => mentions(fact.text, name));
-      if (hit) push("disclosure-names-unknown-entity", "warning", `codex.${item.page}.${item.index}.facts.${at}.text`,
-        `fact '${item.entry.id}.${fact.id}' names '${hit}', who may not be known when this fact is; gate them together or reword`);
+  all.forEach((item) => whens(item).forEach(({ path, when, text, what }) => {
+    if (text === undefined || when === CODEX_START) return;
+    named.filter((other) => other.item.entry.id !== item.entry.id && !knownAlongside(other.item, when)).forEach((other) => {
+      const hit = other.names.find((name) => mentions(text, name));
+      if (hit) push("disclosure-names-unknown-entity", "warning", `${path}.text`, `${what} names '${hit}', who may not be known when this ${what.split(" ")[0]} is; gate them together or reword`);
     });
   }));
 };

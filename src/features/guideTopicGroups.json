@@ -107,7 +107,8 @@
    "widget-scene",
    "display-narrate",
    "display-warn",
-   "codex"
+   "codex",
+   "codex-returns"
   ]
  }
 ]

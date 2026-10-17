@@ -1,7 +1,7 @@
 import {
   codexEntryKey, codexFactKey, hasCodex, isReached, type BoundaryLogEntry, type CodexEntry, type CodexFact, type CodexPage, type EngineState, type NormalizedStoryV2,
 } from "@engine/index";
-import { entryKnown, entryName, factKnown, knownEntities, latchedAt, sourceKnown, sourceName, type KnownEntities } from "@engine/codex";
+import { entryKnown, entryName, factKnown, knownEntities, latchedAt, returnShownAt, sourceKnown, sourceName, type KnownEntities } from "@engine/codex";
 import type { CodexEntryView, CodexFactView, CodexRowView, CodexView, LogRowView } from "./gameTypes";
 
 type Values = Readonly<Record<string, unknown>>;
@@ -26,6 +26,11 @@ const provenance = (story: NormalizedStoryV2, fact: CodexFact, known: KnownEntit
   return place ? `At ${place}` : undefined;
 };
 
+const returnRows = (place: CodexEntry, values: Values, boundary: number): CodexRowView[] => (place.returns ?? []).flatMap((back) => {
+  const at = returnShownAt(place, back, values);
+  return at === null ? [] : [{ text: back.text, kind: "return" as const, ...(freshAt(at, boundary) ? { fresh: true } : {}) }];
+});
+
 const entryView = (sources: CodexSources, page: CodexPage, entry: CodexEntry, known: KnownEntities): CodexEntryView[] => {
   const { story, state, castNames } = sources;
   const values: Values = state.blackboard.values;
@@ -38,7 +43,7 @@ const entryView = (sources: CodexSources, page: CodexPage, entry: CodexEntry, kn
   const firsts = [latchedAt(codexEntryKey(page, entry.id), values), ...shown.map((fact) => latchedAt(codexFactKey(page, entry.id, fact.id), values))];
   const startKnown = entry.known_when === "start" || shown.some((fact) => fact.known_when === "start");
   const learned = firsts.filter((at): at is number => at !== null);
-  const rows = page === "people" && entry.member ? sources.personRows?.(entry.member, known) ?? [] : [];
+  const rows = page === "people" && entry.member ? sources.personRows?.(entry.member, known) ?? [] : returnRows(entry, values, state.boundary);
   return [{
     name: entryName(story, entry, castNames), fresh: !startKnown && learned.length > 0 && freshAt(Math.min(...learned), state.boundary), facts,
     ...(rows.length ? { rows } : {}),
