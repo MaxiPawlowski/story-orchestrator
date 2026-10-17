@@ -504,3 +504,36 @@ root `C:\dev\so-live-lanes`.
     that tombstones the reported ids (a small follow-up), rather than a time limit.
   - K6b: render hashes live in memory only, so a rewrite after a reload goes undetected for replies rendered before it.
     Recommended: keep it in memory unless a live session shows that case.
+
+### Gate record 2026-10-17, follow-ups (branch `v2.8-harvest-rest-2`, unmerged)
+
+- **Bundle diet built** (`40f1a7bf`). Story update (`runtime/storyUpdate.ts`), the judge director (`judge/director.ts`) and
+  wizard provisioning (`wizard/provisioning.ts`) load through lazy doors, following the `a2d16ec0` pattern; the director's
+  eligibility check stays static (`judge/directorEligible.ts`), so the no-roles fallback is still synchronous and records
+  before any await. Main `dist/index.js` 1,297,627 -> 1,282,481 B; 1,284,184 B with the items below (target 1,285,000;
+  budget unchanged at 1,300,000). Test: `lazyHarness.guard.test.ts` "bundle diet 2026-10-17" (the three modules are
+  statically unreachable from the entry and dynamically reachable); fails on the old code.
+- **Swipe re-carries the decided check outcome, built** (`313f04ca`). Cause, two parts:
+  - Order: `MESSAGE_SWIPED` was `void`ed, so ST's `Generate('swipe')` (script.js:10315-10319 awaits the emit) could run
+    before the rollback landed. The handler now returns the rollback promise.
+  - Anchor: the rollback is a noop when the engine did not move, and the engine's `lastMessageId` stays at the swiped reply,
+    so the outcome block (records at `lastMessageId`) was empty on the regenerating request. Order alone was not enough
+    (live ×2 red). `runtime/regeneration.ts` records the engine's `lastMessageId` when each reply renders; while a swipe
+    regenerates, `gamePort.outcomeBlock` anchors at the state that reply rendered against (fallback: the boundary that
+    consumed it). Cleared on the next render, player send or chat change.
+  - Tests: `swipeRollbackOrder.review.test.ts` (handler resolves only after the rollback; fails on the old code),
+    `regeneration.test.ts` (one-reply, one-boundary round, two-boundary round with render anchor, control).
+  - Live: G7 shipped blocks with the new swipe assertion, lane 80, bundle `43f34f1d38df`, ×2 green (`02-32-34`, `02-33-07`):
+    normal, swipe and impersonate legs; the swipe request carries `story_orchestrator_check_outcome`.
+- **K3 acknowledge built** (`f4dcce3d`). `library-lost-to-tab` offers one action (`acknowledge-library-lost`, label in
+  `narrative.ts` `PLAYER_COPY.libraryLostAcknowledge`) carrying the reported ids. It tombstones missing stories and sessions,
+  writes the held hash for a story reported older, never tombstones an id back in the library, and clears only the reported
+  ids, only after the index write landed (else one player reason). Test: `libraryAcknowledge.test.ts` (registry fixture,
+  delta, control, port; fails on the old code). Live, lane 80, bundle `2e168d854b4f`: planted phantom story + session ids,
+  reload raised the check, the drawer's setup button tombstoned both (and one residual lost id the lane already held),
+  the row cleared, a reload stayed quiet; lane index restored afterwards. Storybook not run: no component or story changed
+  (the setup row renders any action by its label).
+- Gates: `npm run gates:quick` green per item. Full `npm run gates -- --jobs=1 --no-storybook` on `f4dcce3d`: **all green in
+  261.4 s** (test:replay 32/32, test 827 suites / 9,499 passed / 1 skipped, build, test:debug, typecheck, typecheck:test,
+  lint, debug:typecheck, test:plugin, test:release). arrivalEquivalence did not trip.
+- Evidence: `C:\dev\so-live-lanes\evidence-2026-10-17\80\` (G7 `02-32-34`, `02-33-07`; `k3-ack\`; `gates-harvest-rest-2.log`).

@@ -330,3 +330,9 @@ Same branch, lane and gates as plan 69 §Gate record 2026-10-17. One commit per 
   recorded, so the profile-template path is not built. The role-calibration run with a side model whose template differs
   from the main reply's is owed.
 - Gates: plan 69 §Gate record 2026-10-17 (full gates green on `9a61a610`; `npm run test:debug` 1,359 pass).
+
+### Gate record addendum 2026-10-17, G7 swipe case (branch `v2.8-harvest-rest-2`, unmerged)
+
+- G7's swipe leg now fails when no request regenerating the reply carries the decided check outcome. Red ×2 on the old
+  code (lane 80), green ×2 after the fix in plan 69 §Gate record 2026-10-17, follow-ups (bundle `43f34f1d38df`, runs
+  `02-32-34`, `02-33-07`).
