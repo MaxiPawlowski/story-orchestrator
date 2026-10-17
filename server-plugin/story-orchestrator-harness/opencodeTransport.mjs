@@ -361,16 +361,22 @@ export function createOpencodeTransport({
 
     const forget = () => { state.view = null; };
 
+    const listed = (view, split) => {
+        const row = view.models.get(`${split.providerID}/${split.id}`);
+        return row && row.available ? row : null;
+    };
+
     const ready = async (model, { ensure = true, images } = {}) => {
-        const view = await inspect({ ensure });
+        const first = await inspect({ ensure });
+        const split = splitModel(model);
+        const view = first.service === 'running' && !first.problem && split && !listed(first, split) ? await inspect({ ensure, force: true }) : first;
         if (view.problem) return { ok: false, kind: view.problemKind ?? 'transport', message: view.problem };
         if (view.service !== 'running') return { ok: false, kind: 'transport', message: 'OpenCode\'s background service is not running' };
-        const split = splitModel(model);
         if (!split) return { ok: false, kind: 'config', message: `the model ${clip(model, 60)} is not provider/model` };
         const login = view.logins[split.providerID];
         if (login && login.state !== 'ok') return { ok: false, kind: 'auth', message: login.message, loginState: login.state };
-        const row = view.models.get(`${split.providerID}/${split.id}`);
-        if (!row || !row.available) return { ok: false, kind: 'config', message: `OpenCode does not list the model ${model} as available on this machine` };
+        const row = listed(view, split);
+        if (!row) return { ok: false, kind: 'config', message: `OpenCode does not list the model ${model} as available on this machine` };
         const imaged = prepareImages(images, { image: row.image !== false });
         if (imaged.issue) return { ok: false, kind: imaged.issue.includes('no image input') ? 'config' : 'refused', message: imaged.issue };
         return { ok: true, view, client: view.handle, split, row };

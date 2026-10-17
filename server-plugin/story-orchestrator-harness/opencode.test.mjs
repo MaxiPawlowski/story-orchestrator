@@ -337,6 +337,23 @@ test('status lists each model with its image input, availability and the smaller
     assert.equal(gone.fake.state.created.length, 0);
 });
 
+test('a model one stale list read dropped is re-checked once, bypassing the cache, before the harness refuses it', async () => {
+    const ctx = setup({ fake: { dropModelOnce: MODEL } });
+    await ctx.service.status({ refresh: true });
+    assert.equal(ctx.fake.state.modelListCalls, 1);
+    const answer = await ctx.service.complete(request());
+    assert.equal(answer.ok, true, JSON.stringify(answer));
+    assert.equal(ctx.fake.state.modelListCalls, 2, 'exactly one fresh read of the model list');
+    await ctx.service.complete(request());
+    assert.equal(ctx.fake.state.modelListCalls, 2, 'a listed model is served from the cached view');
+    const gone = setup({ fake: { models: FAKE_MODELS.filter((model) => model.modelID !== 'gpt-6-luna') } });
+    await gone.service.status({ refresh: true });
+    const before = gone.fake.state.modelListCalls;
+    const missing = await gone.service.complete(request({ model: 'openai/gpt-6-luna' }));
+    assert.match(missing.message, /does not list the model openai\/gpt-6-luna/);
+    assert.equal(gone.fake.state.modelListCalls - before, 1, 'a model that stays unlisted is re-read once, then refused');
+});
+
 test('a non-offered opencode is never contacted, even for status', async () => {
     const ctx = setup();
     ctx.config.harnesses.opencode.offer = false;
