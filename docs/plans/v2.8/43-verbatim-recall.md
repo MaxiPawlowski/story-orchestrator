@@ -299,3 +299,8 @@ H13b time labels, R19.
 - Pool recall 0.9048: 8 of 84 golds never reach the 8-candidate pool, so the R-Gate1 ceiling with topK 8 is 0.9048. §5's
   wider pool (32) would raise it; not measured.
 - Nothing built at runtime.
+
+### Owner decision 2026-10-16: recall latency
+
+- Arm (d) (judge re-rank, E0 winner) runs only on explicit quotation-request turns (option D, first scope), before generation starts; every other turn is untouched.
+- On those turns VR6r (reply-path p95 <= 300 ms) is expected to miss by about 1 s; the miss is recorded as informational, the floor is not retuned.
