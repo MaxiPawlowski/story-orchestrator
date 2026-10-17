@@ -860,7 +860,10 @@ Final suite rows:
   is read; unit test; gates:quick green except the known defect-replay `--listTests` flake). On that fix, served from
   the separate copy `C:\dev\st-c7` so st-suite kept its build: the promise row and the kept event land 3/3; the
   rollback leg ("deleting the keeping turn left the kept event") failed 2 of 3 (both failing runs read again after the
-  delete; the green run did not). Open, triaged next without the GPU. One earlier run is void (two runners on one page,
+  delete; the green run did not). Triaged on no-model lane 43 with scripted reads (no GPU): rollback drops the kept
+  event; a re-read citing the deleted message is refused; a re-read citing the earlier surviving player line
+  (step 7, "come back with the lantern") is accepted, which the contract allows. Fixture defect, not product: step 7
+  now does not keep the promise, and the check asserts the rollback contract (12b65a5f). Not re-run live. One earlier run is void (two runners on one page,
   an operator error).
 - Header diffs after each lane: no settings drift; differences are the open group and chat, the persona lock and
   the worktree build fields (the served bundle is unchanged). Lane 41 also gained the 47 test story in its library
