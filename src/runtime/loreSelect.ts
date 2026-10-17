@@ -89,7 +89,7 @@ export class LoreSelector {
     const member = memberNames(story, this.deps.getDrafted?.() ?? null);
     const eligibility = this.deps.getMember?.() ?? { filename: null, tags: null };
     const memberKey = JSON.stringify(eligibility);
-    const window = this.deps.getWindow();
+    const window = generationType === "swipe" ? this.deps.getWindow().slice(0, -1) : this.deps.getWindow();
     // Names four surfaces and this is one of them. force() pushes entries into the NEXT
     // generation, so a selection that outlives its chat seeds another chat prompt with this story
     // lore. Minted before the cache check, because the cached path forces too.
