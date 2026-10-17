@@ -77,6 +77,15 @@ export const EXTENSION_INFO_CHECKS: readonly Check[] = [
     } : null),
   },
   {
+    id: "nemo-lorebook-keys", area: "extension", scope: "story", audience: "author", severity: "info", feature: "story-lorebooks",
+    detect: (snapshot) => (has(snapshot, "nemo-lorebook-spacing") ? {
+      consequence: "NemoPresetExt rewrites lorebook keys of more than one word while SillyTavern scans, so key previews and the story's own key matching may differ from what fires.",
+      detail: "NemoPresetExt turns every key of two or more words into a pattern that also matches its own word separator, on SillyTavern's scan copies only: "
+        + "the saved lorebooks are unchanged. A multiword key that names a character may stop counting as that character's own entry in lore select. "
+        + "Use single-word keys for names, or disable NemoPresetExt while this story plays.",
+    } : null),
+  },
+  {
     id: "vectors-world-info", area: "extension", scope: "story", audience: "author", severity: "info", feature: "judge-use-lore-exclusive",
     detect: (snapshot) => (has(snapshot, "vectors-world-info") ? {
       consequence: "Vector Storage can switch on lorebook entries by itself, so this story's exclusive lore choice stays off and every matching entry still reaches the prompt.",

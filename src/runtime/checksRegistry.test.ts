@@ -52,7 +52,7 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   orphanedLorebooks: [{ name: "Story Orchestrator - Old - c0", detail: "4 memories", label: "the old chat" }],
   stylesMissing: true,
   judgeRouteGaps: [{ key: "canonDraft", provider: "systemone-local", problem: "unmeasured" }],
-  extensionConflicts: ["stepped-thinking-separated", "presence", "prompt-inspector", "vectors-world-info", "cc-send-if-empty"],
+  extensionConflicts: ["stepped-thinking-separated", "presence", "prompt-inspector", "vectors-world-info", "cc-send-if-empty", "nemo-lorebook-spacing"],
   tunnelVisionBooks: [{ name: "Ruins Lore", suppressesScan: true, canWrite: true }],
   playerSetup: {
     storyId: "s", pending: false, needsPane: true, switched: true, record: { pending: false, avatarId: "mara.png", name: "Mara", lockFailed: "the chat did not take the persona lock" }, lockedName: "Mara",
