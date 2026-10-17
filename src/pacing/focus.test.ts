@@ -21,6 +21,13 @@ describe("v2.8 49 focusPick (pure, shared with 48)", () => {
     expect(namesAny("anything", [" ", "a"])).toBe(false);
   });
 
+  it("a one-character name or alias is a whole token too: Q filters its arc, never an unrelated word", () => {
+    expect(focusCandidates({ arcs: ["Q waits at the gate", "the quay at dusk", "Queen Ash's banner"], unknownNames: ["Q"] }))
+      .toEqual([{ kind: "arc", text: "the quay at dusk" }, { kind: "arc", text: "Queen Ash's banner" }]);
+    expect(namesAny("the note from q.", ["Q"])).toBe(true);
+    expect(namesAny("Quiet and quick", ["Q"])).toBe(false);
+  });
+
   it("picks each candidate at its share over 10,000 draws, and nothing from an empty list", () => {
     const candidates = ["a", "b", "c"].map((text) => ({ kind: "arc" as const, text }));
     const counts = new Map<string, number>();

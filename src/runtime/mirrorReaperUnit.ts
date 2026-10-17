@@ -61,7 +61,7 @@ export const buildReapers = (notify: () => void, lifetime: { ownership: RunOwner
     readEntryAt: async (book, uid) => entryRead(await readWIEntryAt({ lorebookFileId: lorebookFileId(book), uid })),
     probeChat: probeChatFile,
     confirm: (chatId, entries) => askConfirm(createdContent(chatId, entries), { okButton: "Delete entries", cancelButton: "Keep them", safeDefault: true }),
-    deleteEntry: (book, uid) => deleteWIEntryAt({ lorebookFileId: lorebookFileId(book), uid }),
+    deleteEntry: (book, uid, guard) => deleteWIEntryAt({ lorebookFileId: lorebookFileId(book), uid }, guard),
     notify,
     record: (decision) => reapLog.note(decision),
     ownership: lifetime.ownership,

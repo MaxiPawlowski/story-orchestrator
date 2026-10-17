@@ -7,7 +7,7 @@ import { applyInstall, planInstall, selectedPlugins } from './lib/pluginInstall.
 const USAGE = `Usage: node scripts/plugin-install.mjs [--st-root <path>] [--with gpu,media,harness] [--check] [--skip-deps]
        npm run plugins:install -- [--with gpu,media,harness] [--check]
 
-Copies the judge plugin into <ST root>/plugins/. Add --with gpu,media,harness for the optional plugins.
+Copies the judge and lore plugins into <ST root>/plugins/. Add --with gpu,media,harness for the optional plugins.
 An optional plugin already installed in <ST root>/plugins/ is always checked and kept in sync.
 The ST root is ST_ROOT or the gitignored .st-root file. ST loads plugins only with
 enableServerPlugins: true in config.yaml, after a restart.

@@ -3,7 +3,7 @@ import { stampedFor } from "@stagecraft/index";
 import type { WriteResult } from "@utils/writeResult";
 import { deletedChatLabel, reapLog, type ReapDecision } from "./mirrorReaper";
 import { serialQueue } from "./serialQueue";
-import { beginRun, type RunOwnership } from "./runToken";
+import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 
 export interface StampedEntry {
   book: string;
@@ -25,7 +25,7 @@ export interface CreatedReaperDeps {
   readEntryAt: (book: string, uid: number) => Promise<LoreEntryRead | null>;
   probeChat: (owner: { chatId: string; groupId: string | null; avatar: null }) => Promise<ChatPresence>;
   confirm: (chatId: string, entries: StampedEntry[]) => Promise<ConfirmAnswer>;
-  deleteEntry: (book: string, uid: number) => Promise<WriteResult<{ confirmed: boolean }>>;
+  deleteEntry: (book: string, uid: number, guard?: RunGuard) => Promise<WriteResult<{ confirmed: boolean }>>;
   notify: () => void;
   record?: (decision: ReapDecision) => void;
   now?: () => string;
@@ -110,7 +110,7 @@ export class CreatedEntryReaper {
         kept.push(entry);
         continue;
       }
-      const removed = await this.deps.deleteEntry(entry.book, entry.uid);
+      const removed = await this.deps.deleteEntry(entry.book, entry.uid, run);
       (removed.ok ? deleted : kept).push(entry);
     }
     const result = deleted.length ? "deleted" as const : "delete-failed" as const;

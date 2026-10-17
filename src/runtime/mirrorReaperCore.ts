@@ -12,7 +12,7 @@ export interface MirrorReaperDeps {
   readMarker: (book: string) => Promise<string | null>;
   probeChat: (owner: Pick<ChatOwner, "chatId" | "groupId" | "avatar">) => Promise<ChatPresence>;
   confirm: (book: string, chatId: string, title: string | null) => Promise<ConfirmAnswer>;
-  deleteLorebook: (name: string) => Promise<WriteResult<{ name: string }>>;
+  deleteLorebook: (name: string, guard?: RunGuard) => Promise<WriteResult<{ name: string }>>;
   notify: () => void;
   record?: (decision: ReapDecision) => void;
   now?: () => string;
@@ -92,7 +92,7 @@ export class MirrorReaper {
     if (goneAfterConfirm) return goneAfterConfirm;
     if (answer !== "confirmed") return this.kept(book, chatId, answer, marker.title);
     if (!run.stillOwns()) return this.orphan(book, chatId, "lapsed", "the extension stopped before it could be deleted", marker.title);
-    const deleted = await this.deps.deleteLorebook(book);
+    const deleted = await this.deps.deleteLorebook(book, run);
     if (!deleted.ok) return this.orphan(book, chatId, "delete-failed", deleted.reason, marker.title);
     this.registry.forget(book);
     this.journal(`Deleted the story-memory lorebook of ${deletedChatLabel(book, chatId, marker.title)}.`, book, chatId, "deleted");

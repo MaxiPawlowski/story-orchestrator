@@ -23,6 +23,7 @@ const NOT_FUNCTIONS = new Set(["EXTENSION_SETTINGS_LOADED_EVENT"]);
 const READS: Record<string, string> = {
   backgroundExists: "a question about the install's backgrounds",
   lorebookExists: "a question about the install's lorebooks",
+  lapsed: "a question about whether a write guard's run is still current",
   isHostGenerating: "a question about ST's generating flag",
   isHostGeneratingFlag: "a question about ST's own body[data-generating] flag",
   willAddUserMessage: "a question about what ST will do with this generation",

@@ -14,6 +14,7 @@ import {
   capRefusal, createCapFor, isCreateOp, newEntriesText, type CreatedEntry, type CreatedStampOwner,
 } from "@stagecraft/index";
 import { carriesInto, INJECTION_REGISTRY } from "@constants/injectionRegistry";
+import { heldPrompt } from "../heldPrompt";
 import { beginRun, type RunGuard, type RunOwnership, type RunToken } from "../runToken";
 import type { ChatHost, CuratorWiHost, PlayerHost, PromptHost } from "../hostPorts";
 import type { StagecraftRuntimeState } from "../types";
@@ -101,7 +102,10 @@ interface PassHold {
 export class StagecraftCoordinator {
   private curatorHold: PassHold | null = null;
   private wardenHold: PassHold | null = null;
-  private noteActive = false;
+  private readonly note = heldPrompt(() => ({
+    setStoryExtensionPrompt: (key: string, text: string, depth: number) => this.deps.hosts.prompt.setStoryExtensionPrompt(key, text, depth),
+    clearStoryExtensionPrompt: (key: string) => this.deps.hosts.prompt.clearStoryExtensionPrompt(key),
+  }), INJECTION_REGISTRY.continuityNote);
   private carriedNote: { recordId: string; indices: number[] } | null = null;
   private applying: Promise<unknown> = Promise.resolve();
   private kitLoad: Promise<StagecraftKit> | null = null;
@@ -483,14 +487,14 @@ export class StagecraftCoordinator {
   // and the note waits for the next one.
   onGenerationStarted(type: unknown, dryRun: unknown) {
     const settings = this.state.settings;
-    if (dryRun === true || !carriesInto(INJECTION_REGISTRY.continuityNote, type) || settings.wardenAcceptMode === "off" || this.deps.warden?.nudgeActive()) return;
+    if (dryRun !== true && !carriesInto(INJECTION_REGISTRY.continuityNote, type)) return this.note.hold();
+    if (dryRun === true || settings.wardenAcceptMode === "off" || this.deps.warden?.nudgeActive()) return;
     this.withdrawRemovedRules();
     const active = this.activeFamilies();
     const carried = newestCarriedNote(this.state.proposals, active);
     if (!carried) return;
     const ops = carried.indices.map((index) => carried.record.ops[index].op).filter(isNoteOp);
-    this.deps.hosts.prompt.setStoryExtensionPrompt(INJECTION_REGISTRY.continuityNote.key, composeWardenNote(ops), INJECTION_REGISTRY.continuityNote.depth);
-    this.noteActive = true;
+    this.note.show(composeWardenNote(ops));
     this.carriedNote = { recordId: carried.record.id, indices: carried.indices };
     this.deps.journal(...wardenNoteJournal(ops));
   }
@@ -508,10 +512,12 @@ export class StagecraftCoordinator {
     void this.save();
   }
 
+  restoreNote() {
+    if (this.carriedNote) this.note.restore();
+  }
+
   clearContinuityNote() {
     this.carriedNote = null;
-    if (!this.noteActive) return;
-    this.deps.hosts.prompt.clearStoryExtensionPrompt(INJECTION_REGISTRY.continuityNote.key);
-    this.noteActive = false;
+    this.note.clear();
   }
 }

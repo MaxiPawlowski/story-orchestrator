@@ -21,7 +21,7 @@ import { chronicleMarkdown } from "@memory/chronicle";
 import type { DerivedRecord } from "@memory/derived";
 import type { ArcEntry, ChapterRecord, MemoryEntry } from "@memory/types";
 import { runBoundaryWork } from "./boundaryWork";
-import { bridgeText, carryBridge, commitBridge, dossiers, fold, inject, returningLines, storySoFarText, type FoldRow } from "./chapterKit";
+import { bridgeText, carryBridge, commitBridge, dossiers, fold, inject, restoreBridge, returningLines, storySoFarText, type FoldRow } from "./chapterKit";
 import type { ChapterHost, ChapterPort } from "./chapterPort";
 import { ChapterSeal, type ChapterSealDeps } from "./chapterSeal";
 import { buildChapterView, chapterSettings, sealTarget, type SealTarget } from "./chapters";
@@ -210,6 +210,23 @@ describe("the chapter bridge (v2.6 plan 07 task 13)", () => {
     expect(pendingBridge(memory().chapters ?? [])).toBeNull();
     expect(memory().chapters?.[0].bridge?.committedAt).toBe(29);
     expect(host.save).toHaveBeenCalled();
+  });
+
+  it("review 2026-10-16 #5: a quiet run nested in the loud one withholds the bridge, the loud run gets it back, and its render spends it", () => {
+    const { port, prompt, memory } = kitPort({ chapters: sealed() } as Partial<MemoryRuntimeState>);
+    const shown = new Map<string, string>();
+    prompt.setStoryExtensionPrompt.mockImplementation((key: string, text: string) => { shown.set(key, text); });
+    prompt.clearStoryExtensionPrompt.mockImplementation((key: string) => { shown.delete(key); });
+    const KEY = INJECTION_REGISTRY.chapterBridge.key;
+    carryBridge(port, "normal");
+    expect(shown.get(KEY)).toBe(bridge.text);
+    carryBridge(port, "quiet");
+    expect(shown.has(KEY)).toBe(false);
+    restoreBridge(port);
+    expect(shown.get(KEY)).toBe(bridge.text);
+    commitBridge(port, true);
+    expect(shown.has(KEY)).toBe(false);
+    expect(pendingBridge(memory().chapters ?? [])).toBeNull();
   });
 
   it("is withheld from quiet and impersonate generations", () => {

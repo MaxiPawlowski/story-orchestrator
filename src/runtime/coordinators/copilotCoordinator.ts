@@ -189,7 +189,7 @@ export class CopilotCoordinator {
           return { ok: false, message: `"${op.lorebook}" is not this story's to write into any more.` };
         }
         if (!run.stillOwns()) return lapsed();
-        const result = await host.upsertWIEntry(op.lorebook, op.comment, op.content, op.keys, loreEntryShape(op));
+        const result = await host.upsertWIEntry(op.lorebook, op.comment, op.content, op.keys, { ...loreEntryShape(op), guard: run });
         if (result === "failed") return { ok: false, message: `Could not write "${op.comment}" into "${op.lorebook}".` };
         return { ok: true, message: `${result === "created" ? "Added" : "Updated"} "${op.comment}" in "${op.lorebook}".`, created: `${op.lorebook}/${op.comment}` };
       }

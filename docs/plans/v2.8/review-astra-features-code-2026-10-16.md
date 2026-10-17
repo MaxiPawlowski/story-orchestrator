@@ -5,6 +5,10 @@ Reviewed at `4e151382b388c0bfd22e99da59fd1a9626251e31`. Scope: `db9bcbec`, `6eb5
 Read the repository instructions, architecture/privacy invariants, plan 52 SC1–SC4, scoped designs and gate records.
 No P0 found. Two P1 and two P2 findings follow. Examples are synthetic; no campaign or credential files were read.
 
+**Addressed 2026-10-16** on `v2.8-features-review-fixes` (not merged): P1 frozen scene text `99931d7d`; P1 cold living
+rollback `d03b37ca`; P2 compaction `13faf622`; P2 one-character names `23af055d`. Each has a regression test red on the
+old code; records in plan 48 and 49 gate record addenda.
+
 ## Findings
 
 ### P1 — Frozen scene text bypasses subsequent privacy filtering

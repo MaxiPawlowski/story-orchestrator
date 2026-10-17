@@ -74,7 +74,7 @@ jest.mock("@services/STAPI", () => {
     vectorQuery: jest.fn(async () => []),
     vectorPurge: jest.fn(async () => undefined),
     DEFAULT_VECTOR_SOURCE: "transformers",
-    executeSlashCommands: jest.fn(async () => undefined),
+    executeSlashCommands: jest.fn(async () => true),
     setGroupMembersDisabled: jest.fn(async () => ({ ok: true, group: "g1" })),
     // v2.3 plan 06: the settings gate and the save evidence. The observation answers "a save went out
     // and was accepted" unless a test says otherwise, because that is the ordinary case every test
@@ -392,6 +392,21 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
       manager.onGenerationStarted(type, false);
       const kept = before.filter((key) => key in mockExtensionPrompts);
       expect(kept).toEqual(before.filter((key) => carriesInto(specOf(key)!, type)));
+      manager.clearPrivateInjection();
+    }
+  });
+
+  it("review 2026-10-16 #5: every declared block seeded, a withholding start clears every manager-owned withhold block and keeps every keep block", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(guided(WANDER)));
+    const wiringOwned = new Set<string>([INJECTION_REGISTRY.awayNotice.key, INJECTION_REGISTRY.previously.key, INJECTION_REGISTRY.checkOutcome.key]);
+    const specs = Object.values(INJECTION_REGISTRY) as InjectionSpec[];
+    for (const type of ["quiet", "impersonate"]) {
+      manager.onGenerationStarted("normal", false);
+      for (const spec of specs) mockExtensionPrompts[spec.key] ??= { value: `seeded ${spec.key}`, depth: spec.depth };
+      manager.onGenerationStarted(type, false);
+      const present = specs.filter((spec) => !wiringOwned.has(spec.key) && spec.key in mockExtensionPrompts).map((spec) => spec.key).sort();
+      expect(present).toEqual(specs.filter((spec) => !wiringOwned.has(spec.key) && carriesInto(spec, type)).map((spec) => spec.key).sort());
       manager.clearPrivateInjection();
     }
   });
