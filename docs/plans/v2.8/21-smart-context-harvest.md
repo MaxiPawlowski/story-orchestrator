@@ -494,4 +494,10 @@ Read with:
 - Sol wrote questions that name the speaker and topic, with single-message golds; the set may be easier than real player
   phrasing. Recorded, not retuned.
 
-Gates: see the end of this record's commit series (`npm run gates -- --jobs=1 --no-storybook`, reported in 32 A12).
+Gates (on `1bea881a`):
+- `npm run gates:quick`: green on `d8849e96`.
+- `npm run gates -- --jobs=1 --no-storybook`: all green in 467.7 s (test 9,073 passed + 1 skipped, test:replay, build,
+  test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release). Storybook skipped: no UI change.
+  The first full run failed `errorCopy.guard` on the new silent catch in `e0JsonObject`; listed in
+  `test/findings/errorCopy.json` (`1bea881a`), then green.
+- No product code changed: E0 modules stay scripts/tests only; no judge use, setting or calibration row added.
