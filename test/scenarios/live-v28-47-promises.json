@@ -63,7 +63,7 @@
       "log": true
     },
     {
-      "eval": "const ctx = SillyTavern.getContext(); let from = -1; for (let i = ctx.chat.length - 1; i >= 0; i--) if (ctx.chat[i].is_user && /as I promised you/.test(String(ctx.chat[i].mes))) { from = i; break; } if (from < 0) throw new Error('the keeping line is not in the chat'); for (let id = ctx.chat.length - 1; id >= from; id -= 1) await ctx.deleteMessage(id, undefined, false); return { removedFrom: from, length: ctx.chat.length };"
+      "eval": "const ctx = SillyTavern.getContext(); let from = -1; for (let i = ctx.chat.length - 1; i >= 0; i--) if (ctx.chat[i].is_user && /as I promised you/.test(String(ctx.chat[i].mes))) { from = i; break; } if (from < 0) throw new Error('the keeping line is not in the chat'); for (let id = ctx.chat.length - 1; id >= from; id -= 1) await ctx.deleteMessage(id, undefined, false); globalThis.__p47from = from; return { removedFrom: from, length: ctx.chat.length };"
     },
     {
       "wait": {
@@ -73,7 +73,7 @@
       }
     },
     {
-      "eval": "const rows = globalThis.storyOrchestratorRuntime.extras?.promises?.rows ?? []; const want = globalThis.__p47; const row = rows.find((r) => r.id === want.id); if (!row) throw new Error('the promise row itself was removed by deleting the keeping turn'); if (want.kept && row.events.some((e) => e.kind === 'kept')) throw new Error('deleting the keeping turn left the kept event'); return { reopened: want.kept ? true : 'no kept event was read, so nothing to reopen', events: row.events.length };"
+      "eval": "const rows = globalThis.storyOrchestratorRuntime.extras?.promises?.rows ?? []; const want = globalThis.__p47; const row = rows.find((r) => r.id === want.id); if (!row) throw new Error('the promise row itself was removed by deleting the keeping turn'); if (want.kept && row.events.some((e) => e.kind === 'kept')) throw new Error('deleting the keeping turn left the kept event: deletedFrom=' + globalThis.__p47from + ' events=' + JSON.stringify(row.events.map((e) => ({ kind: e.kind, source: e.source }))).slice(0, 300)); return { reopened: want.kept ? true : 'no kept event was read, so nothing to reopen', events: row.events.length };"
     },
     {
       "ui": {
