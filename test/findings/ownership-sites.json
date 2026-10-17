@@ -33,6 +33,14 @@
       "status": "local",
       "note": "Dev live-suite probe (v2.8 42 W4 recorder): pushes each model call's finish and latency into the probe's own local array; nothing reaches a chat, a store or the host. Tests: scripts/debug/witnessRecord.test.mts."
     },
+    "src/runtime/promiseReadCase.ts#runPromiseReadCase": {
+      "status": "local",
+      "note": "Dev live-suite probe (v2.8 47 P1/P2 harness): applyReadLines folds the read's promise lines into a case-local promise state seeded from the spec; nothing reaches a chat, a store or the host. Tests: runtime/promiseReadCase.test.ts."
+    },
+    "src/runtime/promiseReadCase.ts#runPromiseReadCase.tracked": {
+      "status": "local",
+      "note": "Dev live-suite probe (v2.8 47 P8 cost): pushes each model call's finish and latency into the probe's own local array; nothing reaches a chat, a store or the host. Tests: runtime/promiseReadCase.test.ts."
+    },
     "src/runtime/liveSuite.ts#registerLiveSuite.handle.runFixture": {
       "status": "local",
       "note": "Dev live-suite probe (v2.7 39 B1 runners): applyRatingGrounding is pure over the probe's own parsed deltas and the spec's blackboard values; nothing reaches a chat, a store or the host. Tests: extraction/fixtureRunArms.test.ts."

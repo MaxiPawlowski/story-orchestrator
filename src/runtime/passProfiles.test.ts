@@ -65,6 +65,7 @@ const CALL_SITE_ROLES: Record<string, string[]> = {
   "runtime/liveSuite.ts": ["read", "curator"],
   "runtime/loreCreator.ts": ["lore"],
   "runtime/memorizeBacklog.ts": ["read"],
+  "runtime/promiseReadCase.ts": ["read"],
   "runtime/roleCalibration.ts": ["authoring", "curator", "director", "synthesis"],
   "runtime/roleSelfTest.ts": ["authoring", "curator", "director", "synthesis", "inner", "lore"],
   "runtime/sceneArmRunner.ts": ["read"],
