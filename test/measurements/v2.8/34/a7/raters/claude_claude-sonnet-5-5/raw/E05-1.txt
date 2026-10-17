@@ -1,0 +1,7 @@
+exit 0
+served claude-sonnet-5-5
+--- text ---
+{"score": 4, "why": "It concretely covers the cause, the physical mechanics, the aftermath, the ruin's present location and condition, the hazards of landing there, and the folklore versus fact, but it leaves out when the flood happened, the casualties, and the town's name, so a narrator would have to invent a few minor details."}
+--- stderr ---
+[claude-code:unrecognized_model] {"model":"claude-sonnet-5-5","query_source":"sdk"}
+

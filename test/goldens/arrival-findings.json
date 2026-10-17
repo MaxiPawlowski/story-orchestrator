@@ -297,6 +297,7 @@
   "test/scenarios/v28-61b-created-scope.json#1": [],
   "test/scenarios/v28-61b-suggest-edit.json#0": [],
   "test/scenarios/v28-65-scene-card.story.json#0": [],
+  "test/scenarios/v28-65-scene-lines.story.json#0": [],
   "test/scenarios/v28-68-your-move.story.json#0": [],
   "test/scenarios/v28-69-k12-commit-race.json#0": [],
   "test/scenarios/v28-69-k12-stale-book.json#0": [],

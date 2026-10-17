@@ -1,0 +1,90 @@
+{
+  "plan": "v2.8 34 harvest A7 (folded from 66): guidance effect of LORE_CONTENT_RULE on the wizard's lore entries",
+  "declared": "2026-10-17, before any run. Floor informational and never retuned (rule 2). Arms: on = shipped prompts; off = the measurement-only switch storyOrchestratorDebugLoreRuleOff (the guide topic lore-content stays readable in both arms; reads are recorded)",
+  "marker": "SO-A7",
+  "route": "the authoring role on opencode openai/gpt-6.1-sol through the harness tool bridge (owner's subscription); raters Claude claude-opus-5-5 and claude-sonnet-5-5 through the claude CLI, blind to the arm",
+  "floor": "recorded; 10 entries per arm, on - off reported with both raters' medians, x2",
+  "scoring": "one entry per task: the first upsertLorebookEntry the agent sent whose title or keys name the task's subject, else its first entry; a task with no entry is 'missing' and unrated. Each entry is rated 1-5 by two raters on the rubric below, blind (entries of both arms shuffled together under neutral ids, the key sealed). Entry score = mean of the two raters; arm score = median of its entry scores; each rater's own arm median is reported too",
+  "rubric": "Could a narrator model play a scene in which this entry comes up without having to invent its basics? 5: every basic a scene would ask about it is answered, concretely and consistently. 4: one minor basic is missing. 3: some basics answered, several a scene would need are missing or vague. 2: mostly mood or description, a narrator would invent most of what a scene needs. 1: a name and an atmosphere only.",
+  "needle": "Write each lore entry for its kind",
+  "seed": {
+    "format": 2,
+    "id": "so-a7-saltmarsh",
+    "title": "SO-A7 Saltmarsh",
+    "description": "A river trading town on the edge of a salt marsh; a synthetic story for the v2.8 34 A7 lore guidance runs.",
+    "qualities": [],
+    "checkpoints": [
+      {
+        "id": "landing",
+        "name": "The Landing",
+        "objective": "The player arrives by barge with a crate nobody will sign for and has to find out who it belongs to.",
+        "type": "anchor",
+        "start": true
+      }
+    ],
+    "transitions": [],
+    "roster": []
+  },
+  "tasks": [
+    {
+      "id": "place-1",
+      "kind": "place",
+      "subject": "Gullwater Locks",
+      "goal": "This story needs one lorebook entry: Gullwater Locks, the old river locks above the town. Create the story's own lorebook and write that one entry into it. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "place-2",
+      "kind": "place",
+      "subject": "Brine Market",
+      "goal": "This story needs one lorebook entry: the Brine Market, where the marsh salt is sold. Create the story's own lorebook and write that one entry into it. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "item-1",
+      "kind": "item",
+      "subject": "Tidewarden's Lantern",
+      "goal": "This story needs one lorebook entry: the Tidewarden's Lantern, a lamp the marsh guides carry. Create the story's own lorebook and write that one entry into it. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "item-2",
+      "kind": "item",
+      "subject": "Ferryman's Tally",
+      "goal": "This story needs one lorebook entry: the Ferryman's Tally, a notched stick that settles river debts. Create the story's own lorebook and write that one entry into it. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "faction-1",
+      "kind": "faction",
+      "subject": "Saltmen's Guild",
+      "goal": "This story needs one lorebook entry: the Saltmen's Guild, who cut and carry the marsh salt. Create the story's own lorebook and write that one entry into it. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "faction-2",
+      "kind": "faction",
+      "subject": "Reed Wardens",
+      "goal": "This story needs one lorebook entry: the Reed Wardens, the town's watch on the marsh paths. Create the story's own lorebook and write that one entry into it. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "history-1",
+      "kind": "history",
+      "subject": "Drowning of Old Quay",
+      "goal": "This story needs one lorebook entry: the Drowning of Old Quay, the flood that took the first harbour. Create the story's own lorebook and write that one entry into it. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "history-2",
+      "kind": "history",
+      "subject": "Barge Strike",
+      "goal": "This story needs one lorebook entry: the Barge Strike, when the bargemen stopped the river for a season. Create the story's own lorebook and write that one entry into it. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "concept-1",
+      "kind": "concept",
+      "subject": "Tide Oath",
+      "goal": "This story needs one lorebook entry: the Tide Oath, the promise river traders swear on the incoming tide. Create the story's own lorebook and write that one entry into it. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "concept-2",
+      "kind": "concept",
+      "subject": "Marsh Sight",
+      "goal": "This story needs one lorebook entry: Marsh Sight, the knack some locals have for reading the fog. Create the story's own lorebook and write that one entry into it. Create nothing else and do not edit the story."
+    }
+  ]
+}

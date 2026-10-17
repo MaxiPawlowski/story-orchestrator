@@ -64,7 +64,11 @@ export const LORE_CONTENT_RULE =
   "Write each lore entry for its kind: a place says the ways in and out and how far it is from what; an item, its limits and who wants it; a faction, its size and " +
   "reach; history, what happened apart from what people say, with the hidden truth kept out of shared lore; a concept, its limits.";
 
-const PROVISIONING_GRAMMAR = [
+export const LORE_RULE_OFF_GLOBAL = "storyOrchestratorDebugLoreRuleOff";
+
+export const loreContentRule = (): string => (Reflect.get(globalThis, LORE_RULE_OFF_GLOBAL) === true ? "" : LORE_CONTENT_RULE);
+
+const provisioningGrammar = (): string => [
   "Provisioning ops create the SillyTavern assets this story needs. They never modify anything that already exists:",
   '  { "kind": "createCharacterCard", "name": string, "description": string, "role"?: string, "personality"?: string, "scenario"?: string, "first_mes"?: string, ' +
     '"mes_example"?: string, "tags"?: string[] }',
@@ -75,13 +79,13 @@ const PROVISIONING_GRAMMAR = [
   "Order matters: create a card before a group that lists it, and the story lorebook before its entries.",
   FIRST_MESSAGE_RULE,
   CARD_CRAFT_RULE,
-  LORE_CONTENT_RULE,
+  loreContentRule(),
   "Never name an existing character, an existing lorebook or an existing group — those ops are rejected.",
   "upsertLorebookEntry may only target the story's own lorebook, never one of the user's other books.",
   "In upsertLorebookEntry a key written /pattern/i is a regular expression (escape any / inside it as \\/); secondaryKeys narrow a keyword match by logic (not-any: only when none of them appears); " +
     "outlet places the text only where {{outlet::name}} is written; triggers limit the generation types it fires on. Leave them all out for an ordinary keyed entry.",
   "Never propose creating or changing a persona: personas are the author's own.",
-].join("\n");
+].filter(Boolean).join("\n");
 
 // The interview (spec addendum §Story wizard). The failure mode this fixes is inventing specifics on
 // a thin premise, so asking is only allowed when the answer actually changes the proposal.
@@ -144,7 +148,7 @@ export const renderStagePrompt = (stage: CopilotStage, draft: StoryV2, message: 
   [
     "You are a story-setup wizard building a format-2 interactive story with the author, from premise to playable.",
     stage === "provisioning" ? "" : SCHEMA_SUMMARY,
-    stage === "provisioning" ? PROVISIONING_GRAMMAR : OP_GRAMMAR,
+    stage === "provisioning" ? provisioningGrammar() : OP_GRAMMAR,
     stage === "provisioning" ? 'Return exact JSON only: { "summary": string, "ops": Op[] }. No prose outside the JSON.' : "",
     INTERVIEW_PROTOCOL,
     STAGE_INSTRUCTIONS[stage],

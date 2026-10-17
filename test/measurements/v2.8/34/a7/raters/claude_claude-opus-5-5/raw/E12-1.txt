@@ -1,0 +1,6 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+{"score": 4, "why": "The entry concretely covers what the tally is, how it is split, notched, matched and cancelled, what it can and cannot prove, who wants it, and its current unassigned state, but it never says what a notch is worth or what currency it counts in, so a narrator would have to invent the value in any settlement scene."}
+--- stderr ---
+

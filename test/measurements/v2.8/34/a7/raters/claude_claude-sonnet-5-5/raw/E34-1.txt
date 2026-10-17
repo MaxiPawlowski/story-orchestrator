@@ -1,0 +1,7 @@
+exit 0
+served claude-sonnet-5-5
+--- text ---
+{"score": 5, "why": "The entry gives size, structure, jurisdiction, duties, powers, explicit limits (no sentencing, no debt collection, no cargo seizure without evidence), and operational weaknesses, plus the current state clarifies the unclaimed crate case, so a narrator needs to invent almost nothing basic."}
+--- stderr ---
+[claude-code:unrecognized_model] {"model":"claude-sonnet-5-5","query_source":"sdk"}
+

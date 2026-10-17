@@ -1,0 +1,8 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+```json
+{"score": 4, "why": "The entry concretely covers who swears the oath, when and how, the exact words, its scope, the witness's role, the tide timing rule, its non-magical communal force, and the remedy for breach, but it never says who judges whether a breach occurred or how much restitution is owed."}
+```
+--- stderr ---
+

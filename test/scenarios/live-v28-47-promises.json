@@ -35,11 +35,11 @@
       }
     },
     {
-      "eval": "const rows = () => (globalThis.storyOrchestratorRuntime.extras?.promises?.rows ?? []); const players = () => SillyTavern.getContext().chat.filter((m) => m.is_user).flatMap((m) => [m.mes, ...(m.swipes ?? [])]).map(String); if (!rows().length) await globalThis.storyOrchestratorRuntime.runExtractionNow(undefined, 'promise-check'); for (let i = 0; i < 60 && !rows().length; i++) await new Promise((r) => setTimeout(r, 2000)); const all = rows(); if (!all.length) throw new Error('no promise row after the read'); const bad = all.filter((r) => !players().some((t) => t.includes(r.quote))); if (bad.length) throw new Error('a stored quote is not a byte-exact substring of a player message: ' + JSON.stringify(bad.map((r) => r.quote))); const arin = all.filter((r) => /arin/i.test(String(r.promisee))); if (!arin.length) throw new Error('no promise names Arin as promisee: ' + JSON.stringify(all.map((r) => r.promisee))); globalThis.__p47 = { id: arin[0].id, count: all.length }; return { rows: all.length, promisee: arin[0].promisee, id: arin[0].id, quoteChars: arin[0].quote.length, open: arin[0].events.length === 0 };"
+      "eval": "const rows = () => (globalThis.storyOrchestratorRuntime.extras?.promises?.rows ?? []); const players = () => SillyTavern.getContext().chat.filter((m) => m.is_user).flatMap((m) => [m.mes, ...(m.swipes ?? [])]).map(String); if (!rows().length) await globalThis.storyOrchestratorRuntime.runExtractionNow(undefined, 'promise-check'); for (let i = 0; i < 60 && !rows().length; i++) await new Promise((r) => setTimeout(r, 2000)); const all = rows(); if (!all.length) { const audits = globalThis.storyOrchestratorRuntime.getSnapshot().extraction?.audits ?? []; const last = audits[audits.length - 1] ?? null; throw new Error('no promise row after the read; reads=' + audits.length + ' lastPromiseLines=' + JSON.stringify(last?.promiseLines ?? null) + ' promiseRejects=' + JSON.stringify((last?.rejected ?? []).filter((r) => /promis/i.test(String(r.line))).slice(0, 3)).slice(0, 400)); } const bad = all.filter((r) => !players().some((t) => t.includes(r.quote))); if (bad.length) throw new Error('a stored quote is not a byte-exact substring of a player message: ' + JSON.stringify(bad.map((r) => r.quote))); const arin = all.filter((r) => /arin/i.test(String(r.promisee))); if (!arin.length) throw new Error('no promise names Arin as promisee: ' + JSON.stringify(all.map((r) => r.promisee))); globalThis.__p47 = { id: arin[0].id, count: all.length }; return { rows: all.length, promisee: arin[0].promisee, id: arin[0].id, quoteChars: arin[0].quote.length, open: arin[0].events.length === 0 };"
     },
     {
       "send_generate": {
-        "text": "I walk the dock to the shed and come back with the lantern.",
+        "text": "I walk the dock toward the shed, looking for the lantern.",
         "timeoutMs": 900000,
         "expectReply": true
       }
@@ -63,7 +63,7 @@
       "log": true
     },
     {
-      "eval": "const ctx = SillyTavern.getContext(); let from = -1; for (let i = ctx.chat.length - 1; i >= 0; i--) if (ctx.chat[i].is_user && /as I promised you/.test(String(ctx.chat[i].mes))) { from = i; break; } if (from < 0) throw new Error('the keeping line is not in the chat'); for (let id = ctx.chat.length - 1; id >= from; id -= 1) await ctx.deleteMessage(id, undefined, false); return { removedFrom: from, length: ctx.chat.length };"
+      "eval": "const ctx = SillyTavern.getContext(); let from = -1; for (let i = ctx.chat.length - 1; i >= 0; i--) if (ctx.chat[i].is_user && /as I promised you/.test(String(ctx.chat[i].mes))) { from = i; break; } if (from < 0) throw new Error('the keeping line is not in the chat'); for (let id = ctx.chat.length - 1; id >= from; id -= 1) await ctx.deleteMessage(id, undefined, false); globalThis.__p47from = from; return { removedFrom: from, length: ctx.chat.length };"
     },
     {
       "wait": {
@@ -73,12 +73,13 @@
       }
     },
     {
-      "eval": "const rows = globalThis.storyOrchestratorRuntime.extras?.promises?.rows ?? []; const want = globalThis.__p47; const row = rows.find((r) => r.id === want.id); if (!row) throw new Error('the promise row itself was removed by deleting the keeping turn'); if (want.kept && row.events.some((e) => e.kind === 'kept')) throw new Error('deleting the keeping turn left the kept event'); return { reopened: want.kept ? true : 'no kept event was read, so nothing to reopen', events: row.events.length };"
+      "eval": "const rows = globalThis.storyOrchestratorRuntime.extras?.promises?.rows ?? []; const want = globalThis.__p47; const row = rows.find((r) => r.id === want.id); if (!row) throw new Error('the promise row itself was removed by deleting the keeping turn'); const from = globalThis.__p47from; const earlier = row.events.filter((e) => e.kind === 'kept' && e.source.messageId < from).map((e) => e.source.messageId); if (want.kept && row.events.some((e) => e.kind === 'kept' && e.source.messageId >= from)) throw new Error('deleting the keeping turn left the kept event: deletedFrom=' + globalThis.__p47from + ' events=' + JSON.stringify(row.events.map((e) => ({ kind: e.kind, source: e.source }))).slice(0, 300)); return { reopened: want.kept ? earlier.length === 0 : 'no kept event was read, so nothing to reopen', events: row.events.length, keptFromEarlierMessages: earlier };"
     },
     {
       "ui": {
         "action": "assert-player-clean"
       }
     }
-  ]
+  ],
+  "goal": ""
 }

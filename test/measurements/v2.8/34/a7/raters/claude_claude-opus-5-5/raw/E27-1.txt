@@ -1,0 +1,6 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+{"score": 4, "why": "The entry concretely covers the lantern's appearance, shutter function, fuel and burn time, limits, users, current state and where to get oil and wick, but it never says where a lantern itself is made or bought, or what one costs."}
+--- stderr ---
+

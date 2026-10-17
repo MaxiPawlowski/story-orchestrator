@@ -1,0 +1,165 @@
+{
+  "format": 2,
+  "id": "so-v28-65-scene-lines",
+  "title": "SO-V28-65 Scene lines",
+  "description": "v2.8 plan 65 A+ no-model fixture: the scene card shows a met member's relationship labels (a secret only after its reveal) and, with options.standing, the band of a visible group.",
+  "roster": [
+    {
+      "id": "arin",
+      "name": "Arin",
+      "factions": [
+        "guild"
+      ],
+      "relationships": [
+        {
+          "toward": "player",
+          "axes": [
+            "trust"
+          ],
+          "public": [
+            {
+              "label": "wary"
+            },
+            {
+              "label": "warming to you",
+              "when": {
+                "q": "shared_meal",
+                "op": "==",
+                "v": true
+              }
+            }
+          ],
+          "secret": [
+            {
+              "id": "ledger",
+              "label": "keeps a second ledger",
+              "revealed_when": {
+                "q": "found_ledger",
+                "op": "==",
+                "v": true
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "narrator",
+      "name": "DM Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+    }
+  ],
+  "qualities": [
+    {
+      "key": "met_arin",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the player met Arin?"
+    },
+    {
+      "key": "met_guild",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the player dealt with the guild?"
+    },
+    {
+      "key": "shared_meal",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the player shared a meal with Arin?"
+    },
+    {
+      "key": "found_ledger",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the player found Arin's second ledger?"
+    },
+    {
+      "key": "helped_guild",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the player helped the guild?"
+    }
+  ],
+  "factions": [
+    {
+      "id": "guild",
+      "name": "The Guild",
+      "bands": [
+        {
+          "max": -1,
+          "label": "Wary"
+        },
+        {
+          "max": 1,
+          "label": "Neutral"
+        },
+        {
+          "label": "Trusted"
+        }
+      ],
+      "visible_when": {
+        "q": "met_guild",
+        "op": "==",
+        "v": true
+      },
+      "moves": [
+        {
+          "id": "helped",
+          "when": {
+            "q": "helped_guild",
+            "op": "==",
+            "v": true
+          },
+          "add": 3
+        }
+      ]
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "hall",
+      "name": "The guild hall",
+      "player_name": "The guild hall",
+      "objective": "Wait in the hall.",
+      "type": "anchor",
+      "start": true
+    }
+  ],
+  "transitions": [],
+  "codex": {
+    "people": [
+      {
+        "id": "arin-page",
+        "member": "arin",
+        "known_when": {
+          "q": "met_arin",
+          "op": "==",
+          "v": true
+        },
+        "facts": [
+          {
+            "id": "clerk",
+            "text": "Clerks for the guild.",
+            "known_when": {
+              "q": "met_arin",
+              "op": "==",
+              "v": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "widgets": [
+    {
+      "id": "here",
+      "kind": "scene",
+      "title": "Here now",
+      "options": {
+        "standing": true
+      }
+    }
+  ]
+}

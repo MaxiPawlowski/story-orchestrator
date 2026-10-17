@@ -2,7 +2,7 @@ import type { StoryV2 } from "@engine/index";
 import type { ProvisioningEnvironment } from "@wizard/index";
 import { isRecord } from "@utils/guards";
 import { truncate } from "@utils/string";
-import { CARD_CRAFT_RULE, FIRST_MESSAGE_RULE, LORE_CONTENT_RULE, OPENING_CAST_RULE } from "../prompts";
+import { CARD_CRAFT_RULE, FIRST_MESSAGE_RULE, OPENING_CAST_RULE, loreContentRule } from "../prompts";
 import { GUIDE_TOPIC_IDS } from "../guideTopics";
 import { renderCoverage, storyCoverage } from "../../studio/coverage";
 import { runReadTool } from "./readTools";
@@ -16,7 +16,7 @@ const RECENT_OBSERVATION = 600;
 const EARLIER_STEPS = 60;
 const TARGET_KEYS = ["id", "key", "name", "field", "lorebook", "comment", "member"];
 
-const RULES = [
+const rules = (): string[] => [
   "You are the agent inside the Story Orchestrator wizard. You change the story draft ONLY through the tools listed below, one tool call per reply, and the author reviews every change.",
   "Reply with exactly one JSON object and nothing else.",
   [
@@ -43,7 +43,7 @@ const RULES = [
     "You never edit an existing card or lorebook, never touch personas, and never save the story: saving is the author's click.",
     "A card with notes comes back once before the author sees it: send one revised createCharacterCard with replaces set to that step's id, or the same card to keep it.",
   ].join(" "),
-  `${CARD_CRAFT_RULE} ${LORE_CONTENT_RULE}`,
+  [CARD_CRAFT_RULE, loreContentRule()].filter(Boolean).join(" "),
   `Consult readGuide(topic) before authoring a field you have not used yet in this session. Topics: ${GUIDE_TOPIC_IDS.join(", ")}.`,
   `For a whole task, readRecipe(recipe) first and follow its steps in order. Recipes: ${recipeIndex()}.`,
   "After each accepted write you are shown the validation and diagnostics. Fix blocking problems before adding more.",
@@ -127,7 +127,7 @@ const authorNotes = (session: AgentSession): string[] => session.notes.slice(1)
   .map((note) => `- ${note.text}`);
 
 const header = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment, native = false, backgrounds: readonly string[] = []): string[] => [
-  (native ? [...NATIVE_RULES, ...RULES.slice(2)] : RULES).join("\n"),
+  (native ? [...NATIVE_RULES, ...rules().slice(2)] : rules()).join("\n"),
   ...(native ? [] : [`TOOLS\n${renderToolSchema()}`]),
   `GOAL\n${session.goal}`,
   `DRAFT\n${runReadTool("readStory", {}, draft, emptyLookup())}`,

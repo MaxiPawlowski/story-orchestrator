@@ -1,0 +1,6 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+{"score": 4, "why": "The entry concretely covers the lantern's appearance, mechanics, fuel and relighting needs, failure modes, explicit limits, who uses and seeks it, and how it changes hands, but it leaves one minor basic unanswered: its cost or rarity (and loosely its burn time or signal range), which a scene involving buying or bartering for one would need."}
+--- stderr ---
+

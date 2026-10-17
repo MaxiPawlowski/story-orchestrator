@@ -1,0 +1,7 @@
+exit 0
+served claude-sonnet-5-5
+--- text ---
+{"score": 5, "why": "The entry concretely covers who swears it, the ritual wording and setting, the witness requirement, what it does and doesn't bind, the lack of magical enforcement, consequences and remedies for breaking it, refusal, and how terms can be changed, leaving a narrator little to invent."}
+--- stderr ---
+[claude-code:unrecognized_model] {"model":"claude-sonnet-5-5","query_source":"sdk"}
+

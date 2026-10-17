@@ -1,0 +1,6 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+{"score": 4, "why": "The entry concretely and consistently covers the guild's size, work, territory, powers and limits, economic dependencies and current state, but it never says who leads the guild or how it makes decisions, so a narrator would have to invent whoever a scene needs to deal with."}
+--- stderr ---
+
