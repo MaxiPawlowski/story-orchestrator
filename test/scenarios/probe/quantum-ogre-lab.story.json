@@ -1,0 +1,57 @@
+{
+  "format": 2,
+  "id": "so-qo-lab",
+  "title": "SO-QO Lab",
+  "description": "v2.8 62 stage 1 lab: a synthetic harbour town where each probe case hands one committed fact to its holder through a member-filtered lore entry (or a world entry for a closed container).",
+  "qualities": [
+    {
+      "key": "location",
+      "type": "enum",
+      "values": [
+        "town",
+        "elsewhere"
+      ],
+      "source": "extractor",
+      "rubric": "Where is the party now?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "town",
+      "name": "Saltgate",
+      "objective": "Look into the small mysteries of Saltgate.",
+      "type": "anchor",
+      "start": true
+    }
+  ],
+  "transitions": [],
+  "roster": [
+    {
+      "id": "narrator",
+      "name": "DM Narrator"
+    },
+    {
+      "id": "arin",
+      "name": "Arin"
+    },
+    {
+      "id": "ponticius",
+      "name": "Ponticius"
+    },
+    {
+      "id": "luke",
+      "name": "Luke"
+    }
+  ],
+  "requirements": {
+    "members": [
+      "Arin",
+      "Ponticius",
+      "Luke",
+      "DM Narrator"
+    ],
+    "lorebooks": [
+      "SO-QO Lab"
+    ]
+  }
+}
