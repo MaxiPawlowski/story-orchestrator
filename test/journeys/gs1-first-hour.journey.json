@@ -228,7 +228,7 @@
       "id": "GS1.6",
       "mode": "auto",
       "findings": [],
-      "goal": "Rollback in real play. Closes: branches (swipe), memory rollback; rows S-10 (requests during a swipe equal the chat with the reply deleted, rule 12: captured inputs), 16-10-catch-up live half, 38-C7 rollback half. A real swipe regenerates the newest reply; then a delete; the engine replays to the same checkpoint and boundary log.",
+      "goal": "Rollback in real play. Closes: branches (swipe), memory rollback; rows S-10 (requests during a swipe equal the chat with the reply deleted, rule 12: captured inputs), 16-10-catch-up live half, 38-C7 rollback half. A real swipe regenerates the newest reply; then a delete; the engine replays to the same checkpoint and boundary log. A turn that fires a transition ends on the transition note, which a player cannot swipe; the swipe then re-plays the turn (attempts 3, recorded as retries).",
       "steps": [
         {
           "send_generate": {
@@ -252,7 +252,9 @@
           "swipe": {
             "messageId": "last",
             "swipeId": "new"
-          }
+          },
+          "attempts": 3,
+          "retryBack": 3
         },
         {
           "wait": {
