@@ -3,8 +3,10 @@ import type { CarrySlice, CarryView } from "@engine/carrySchema";
 import { gameLayer } from "@engine/validate/gameLayer";
 import type { ManagerPort } from "./managerWiring";
 import type { RuntimeExtras } from "./types";
+import type { ContinueRow } from "./playsIndex";
+import type { TrophyRow } from "./trophyShelf";
 
-export type { CarryView };
+export type { CarryView, TrophyRow };
 
 export interface CarryCandidateRow {
   chatId: string;
@@ -28,6 +30,7 @@ export const createCarryActions = (port: ManagerPort, refresh: () => void) => {
     pick: (chatId: string): Promise<CarryOutcome> => run((unit, deps) => unit.pickCarry(deps, chatId)),
     decline: (): Promise<CarryOutcome> => run((unit, deps) => unit.declineCarry(deps)),
     dismiss: (): Promise<CarryOutcome> => run((unit, deps) => unit.dismissPreviously(deps)),
+    shelf: (rows: readonly ContinueRow[]): Promise<TrophyRow[]> => run((unit, deps) => unit.trophyShelf(deps, rows)),
   };
 };
 

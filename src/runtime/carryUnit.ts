@@ -1,5 +1,6 @@
 import { parseStoryV2, type NormalizedStoryV2 } from "@engine/index";
 import { isCarryState } from "@engine/carrySchema";
+import { loadGameLayer } from "@engine/validate/gameLayer";
 import { readGroupChatMetadata } from "@services/STAPI";
 import { buildCarryState, candidateChats, carryCandidateFromBlob, type CandidateResult } from "./carryCandidate";
 import type { CarryCandidateRow, CarryOutcome } from "./carryPort";
@@ -7,6 +8,8 @@ import type { ManagerPort } from "./managerWiring";
 import { BLOB_VERSION } from "./persistence";
 import { readPlaysIndex } from "./playsIndexHost";
 import { beginRun } from "./runToken";
+import { shelfCandidates, trophyFromBlob, type TrophyRow } from "./trophyShelf";
+import type { ContinueRow } from "./playsIndex";
 
 const refuse = (reason: string): CarryOutcome => ({ ok: false, reason });
 
@@ -34,6 +37,19 @@ export async function carryCandidates(deps: CarryDeps): Promise<CarryCandidateRo
     if (result.ok) rows.push({ chatId, title: result.candidate.projection.storyTitle, endingTitle: result.candidate.projection.endingTitle, endedAt: result.candidate.endedAt });
   }
   return rows;
+}
+
+export async function trophyShelf(deps: CarryDeps, rows: readonly ContinueRow[]): Promise<TrophyRow[]> {
+  await loadGameLayer();
+  const run = beginRun(deps.ownership);
+  const shelf: TrophyRow[] = [];
+  for (const chatId of shelfCandidates(rows)) {
+    const metadata = await readGroupChatMetadata(chatId).catch(() => null);
+    if (!run.stillOwns()) return [];
+    const result = trophyFromBlob(metadata?.story_orchestrator, chatId, { version: BLOB_VERSION, parse: parseStoryV2 });
+    if (result.ok) shelf.push(result.row);
+  }
+  return shelf;
 }
 
 export async function pickCarry(deps: CarryDeps, chatId: string): Promise<CarryOutcome> {
