@@ -226,7 +226,8 @@ export const SceneLines: Story = {
 const plantedSecretScene = (): typeof sceneWidget => {
   const story = {
     roster: [{ id: "mara", name: "Mara" }, { id: "sera", name: "Sera" }],
-    life: { members: [{ id: "mara", relationships: [{ toward: "player", axes: ["trust"], public: [{ label: "wary" }], secret: [{ id: "loyal", label: "secretly loyal to you", revealed_when: { q: "saw_letter", op: "==", v: true } }] },
+    life: { members: [{ id: "mara", relationships: [{ toward: "player", axes: ["trust"], public: [{ label: "wary" }],
+      secret: [{ id: "loyal", label: "secretly loyal to you", revealed_when: { q: "saw_letter", op: "==", v: true } }] },
       { toward: "sera", axes: ["fear"], public: [{ label: "fears her" }] }] }] },
     codex: { people: [{ id: "envoy", member: "sera", known_when: { q: "met_sera", op: "==", v: true }, facts: [] }], places: [] },
   } as unknown as NormalizedStoryV2;
