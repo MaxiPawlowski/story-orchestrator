@@ -347,3 +347,70 @@ Evidence `C:\dev\so-live-lanes\evidence-2026-10-16\69\`, run folders in the orde
 `…23-49-26-588Z`, `…23-50-02-540Z`, `…23-50-38-518Z`, `…23-50-59-254Z`, `…23-51-21-736Z`, `…23-51-52-275Z`, `…23-52-23-766Z`,
 `…23-52-56-570Z`, `…23-53-44-404Z`, `…23-54-46-976Z`, `…23-55-24-309Z`, `…23-56-06-880Z` (each `-so-scenario-run`), with their
 `so-scenario-result.json` files beside them.
+
+## Gate record 2026-10-17: G7/G8/G14 harness (pre-freeze, no model)
+
+- Branch `v2.8-prefreeze-44` (from `v2.8-prefreeze` `c909b40a`), harness commit `4b8fd49b`. No ST, lane, model or GPU: fixtures and
+  harness only, nothing measured.
+- Files:
+  - Fixtures (synthetic, invented names): `test/measurements/v2.8/44-voicing/cases.json` (20 cases), `g14-fixture.json` (30 turns, four
+    rumors: two with a false version only, one true only, one true and false), `freeze.json`. Canonical sha256 (of `JSON.stringify` of the
+    parsed file, so line endings do not matter): `cases.json` `ff684a25454755c9fbb49eac9adc63a58bf09b82bfc550adc7dad1eadf78c779`,
+    `g14-fixture.json` `da7ac50f7e16117480656b06b76ff946f0e881eab4194405a58781a8efe25774`. `record`, `score` and `g14-record` refuse a
+    fixture off the freeze.
+  - `scripts/debug/so-rumor-voicing.mts` (CLI), `lib/rumorVoicing.mts` (cases, scenario builder, blind pack, prompt, G7/G8 scorer),
+    `lib/g14Promotion.mts` (G14 scenario, offline checker), shared `lib/replyCapture.mts` (scenario steps, in-page capture, resumable
+    record loop), `lib/blindRater.mts` (seeded blind pack, key apart, `askClaude` loop), `lib/fixtureSim.mts` + `lib/fixtureStoryEntry.ts`
+    (fixtures through the shipped parser and spread core via an esbuild entry). Tests `scripts/debug/rumorVoicing.test.mts`,
+    `scripts/debug/g14Promotion.test.mts`. No src change; main bundle untouched.
+- Design:
+  - Seam: one generated sandbox scenario per case and arm, run through `so-scenario` `runScenario` (group pin, cleanup and residue sweep
+    reused). Case story: the receiver plus the narrator as teller, one-way `any` channel, delay 1 boundary, one rumor (claim = the
+    origin's version, its one version = the received version). Transcript: narrator line saying the origin's version, player line,
+    narrator line (the hop lands), then the invite. The receiver is drafted through ST's own `Generate` (`ctx.generate('normal',
+    { force_chid })`); the drafted request is captured from `GENERATE_AFTER_DATA` and stored with the reply and the receiver's applied
+    private block.
+  - Off arm: the rumors feature switched off for the sandbox chat (`setFeatureOverride('rumors', 'off')`, read back through
+    `getEffectiveSettings`), same story and transcript. The on arm waits for "<teller> told you: <received>" in the receiver's private
+    block before the invite. Extraction pinned `SCENE_NONE` in both arms so only the hearsay line differs; judge off.
+  - Scorer INCOMPLETE when the on request lacks the hearsay line, the off request carries it, a request lacks the origin's version, a
+    reply is empty, a label or record is missing or the fixture is off the freeze; PLUMBING when any record or label is canned.
+  - Rater: blind pack, both arms shuffled with a seed, versions A/B shuffled per item, opaque ids, key kept in `<dir>/key/key.json`;
+    `claude -p` (tools off, empty temp working dir) labels `uses` (A, B, both, neither) and `framing` (heard, fact, none). G7 = items that
+    used the received version (its letter or both) over on-arm items; off baseline the same over off-arm items; lift = on minus off. G8 =
+    heard over on-arm replies that used the received version; off baseline = heard over off-arm replies that spoke of the news.
+    Unrounded with counts; floors informational (exit 0 PASS or PLUMBING, 1 FAIL, 2 INCOMPLETE).
+  - G14: 30 scripted turns (player `send`, character `/sendas`, rumor start flags by `/cp set`), real reads; the market to coast
+    transition seals chapter 1, the runner seals one if none is sealed and regenerates the canon, waits for the scheduler and stashes the
+    chat's `chat_metadata.story_orchestrator`. Checker (offline): needles per claim and version over active facts and session-detail rows,
+    active `[knows]` rows, canon sentences and chapter consequences; a row with attribution words (heard, said, rumor, they say, ...) is
+    listed, not counted (the read contract allows recording that someone said it); promoted rows are counted distinct. INCOMPLETE when
+    fewer than 4 hearsay rows landed, no audit, no canon text or no chapter record. Raw read lines, other tiers and chapter summaries are
+    scanned as an informational count.
+  - G14 artifacts the checker needs: the chat's story blob after the 30 turns (BLOB_VERSION 7), from `records/g14.json` (`capture.blob`),
+    the chat `.jsonl` (first line, `chat_metadata.story_orchestrator`) or a saved blob; inside it
+    `stories["so-v44-g14"].extras.memory.{entries, epistemic, canon, chapters}`, `extras.rumors.hearsay` and `extras.extraction.audits`.
+- Tests (no model):
+  - `node --test scripts/debug/rumorVoicing.test.mts scripts/debug/g14Promotion.test.mts scripts/debug/q7Failure.test.mts`: 29/29 pass.
+    Planted controls: G7 13/20 FAIL; lift 0.25 FAIL while G7 passes; G8 15/20 FAIL; a missing label, an on request without the hearsay
+    line, an off request with it, a missing record, hash drift: INCOMPLETE; canned records: PLUMBING; G14 promoted fact, `[knows]` row,
+    canon sentence and chapter consequence each FAIL, a retired row is ignored, an attributed row is listed only, missing hearsay, audit,
+    canon or chapter: INCOMPLETE. Fixture faults named (received needle in the transcript, invite not last, 19 cases, unsafe slash text,
+    unset start flag, all-false versions). The shipped spread core lands every case's hearsay line before the invite, and a planted
+    one-line transcript does not. Every generated scenario passes `validateFixture` and compiles.
+  - With `servedDebugDir`, `legacyFree`, `scenarioSchema` and `eventNames` tests: 56/56. `npx tsc -p scripts/debug/tsconfig.json`: 0
+    errors. `npm run typecheck`: ok. `node scripts/debug/so-rumor-voicing.mts verify`: 0 problems; the G14 simulation lands 4/4 hearsay
+    rows (boundaries 4, 10, 14, 20 of the scripted run).
+  - Live: none (no lane on this task). The in-page steps reuse patterns proven live in `v28-44-rumors` (hearsay through `onMemberDrafted`
+    and `getAppliedEpistemicBlock`) and `v28-18-q7-sheet` (`ctx.generate` with `force_chid`, the canned fetch stub), but this harness has
+    not run on a lane yet: plumbing first.
+- Real-run commands (`ST_ROOT`/`SO_LANES_ROOT` per plan 70; defaults `--group "Group: Arin, DM Narrator"`, receiver Arin, teller DM
+  Narrator):
+  - Plumbing, no-model lane, never a measurement: `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-rumor-voicing.mts record --out <dir>/plumbing --arm both --plumbing`.
+  - G7/G8 ×2, Artemis lane: `node scripts/debug/st-lanes.mts run 41 -- scripts/debug/so-rumor-voicing.mts record --out <dir>/run1 --arm both`
+    (40 replies), then `node scripts/debug/so-rumor-voicing.mts pack --out <dir>/run1 --seed v44-run1`, `rate --out <dir>/run1`,
+    `score --out <dir>/run1 --json <dir>/run1/score.json`; run 2 the same with `<dir>/run2` and seed `v44-run2`.
+  - G14: `node scripts/debug/st-lanes.mts run 41 -- scripts/debug/so-rumor-voicing.mts g14-record --out <dir>/g14`, then
+    `node scripts/debug/so-rumor-voicing.mts g14-check --state <dir>/g14/records/g14.json --json <dir>/g14/check.json`.
+- Still owed: the plumbing lane run, G7/G8 ×2 on Artemis with second-model labels, the G14 run (read model Artemis per plan 70 D2);
+  G9 paraphrased-spoiler subset, G10 p95 and the RP/LT leg as in the 2026-10-16 record.
