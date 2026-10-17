@@ -53,12 +53,12 @@ test('E0 refusal: run without a freeze, or with a pool edited after the freeze',
   assert.equal(await quiet(() => main(['run', '--labels', LABELS, '--pool', POOL])), 3);
 });
 
-test('E0 refusal: private output inside the public repo, a non-stub provider', async () => {
+test('E0 refusal: private output inside the public repo, a provider name buildPool does not run', async () => {
   assert.throws(() => refusePublicPrivate('private', join(REPO_ROOT, 'test/measurements/x.json')), /private E0 output/);
   assert.doesNotThrow(() => refusePublicPrivate('private', join(PRIVATE_DIR, 'pool.json')));
   assert.doesNotThrow(() => refusePublicPrivate('private', join(tmpdir(), 'pool.json')));
   assert.doesNotThrow(() => refusePublicPrivate('synthetic', join(REPO_ROOT, 'test/measurements/x.json')));
-  await assert.rejects(() => buildPool(LABELS, SYNTHETIC, 'st-vectors'), /owed/);
+  await assert.rejects(() => buildPool(LABELS, SYNTHETIC, 'st-vectors' as 'stub'), /unknown here/);
 });
 
 test('E0 CLI: recorded Choice calls score arm d and count four calls per question', async () => {

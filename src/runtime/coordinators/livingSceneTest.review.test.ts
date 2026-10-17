@@ -375,6 +375,147 @@ describe("v2.8 49 C4 focus is spoiler-safe by information (through the director'
   });
 });
 
+const chatDrawing = (outcome: "altered" | "interrupt", threads: readonly string[], plannedAt = 3): string => {
+  const story = { living: { premise: "p", scene_test: { chaos: { from: "tension" as const } } } };
+  const candidates = focusCandidates({ arcs: threads, unknownNames: [] });
+  for (let index = 0; index < 500; index += 1) {
+    const record = planSceneTest({ story, ids: { chatId: `p${index}`, storyId: "s1" }, frontierId: "liv_1", frontierName: "Turn 1", plannedAt, messageId: 6, tension: "peak", candidates, prior: [] });
+    if (record?.applied === outcome) return `p${index}`;
+  }
+  return "none";
+};
+
+describe("v2.8 48 C5 frozen scene text is re-checked against today's privacy before every director request", () => {
+  const fixed = (openThreads: string[], scrub: (text: string) => string = (text) => text): LivingInputs => ({
+    canon: "", openThreads, resolvedThreads: [], plans: [], refused: null, playerNames: ["Max"], tension: "peak",
+    restatesSecret: (text) => scrub(text).trim() !== text.trim(), scrub,
+  });
+  const frozenThenRegenerate = async (outcome: "altered" | "interrupt", thread: string, tighten: (rigged: ReturnType<typeof rig>) => void) => {
+    const rigged = rig({ authorView: true, living: { autonomy: "suggest" }, ids: () => ({ chatId: chatDrawing(outcome, [thread]), storyId: "s1" }) });
+    const notes: string[] = [];
+    rigged.deps.journal = (summary) => { notes.push(summary); };
+    expect(await rigged.toFirstTurn()).toBe("liv_1");
+    rigged.deps.inputs = () => fixed([thread]);
+    await rigged.coordinator.propose();
+    const original = frozen(rigged);
+    expect(rigged.extras.living?.sceneTests?.[0]).toMatchObject({ frontierId: "liv_1", applied: outcome, expected: { thread } });
+    expect(rigged.prompts.at(-1)).toContain(`Scene signal: ${outcome}`);
+    expect(rigged.prompts.at(-1)).toContain(thread);
+    tighten(rigged);
+    const waiting = rigged.extras.living?.proposals.filter((proposal) => proposal.status === "proposed" || proposal.status === "failed").at(-1);
+    expect(await rigged.coordinator.regenerate(waiting?.id ?? "")).not.toBeNull();
+    const prompt = rigged.prompts.at(-1) ?? "";
+    return { prompt, original, after: frozen(rigged), drawn: rigged.drawn.length, notes };
+  };
+
+  it.each(["altered", "interrupt"] as const)("a late held-secret read: the %s line is withheld, the draw is kept, no reroll", async (outcome) => {
+    const thread = "the keeper's ledger of the drowned";
+    const run = await frozenThenRegenerate(outcome, thread, (rigged) => {
+      const scrub = (text: string) => text.replace(/\s*ledger of the drowned/, "");
+      rigged.deps.inputs = () => fixed([], scrub);
+    });
+    expect(run.prompt).not.toContain("ledger of the drowned");
+    expect(SIGNAL.test(run.prompt)).toBe(false);
+    expect(run.after).toBe(run.original);
+    expect(run.drawn).toBe(1);
+    expect(run.notes).toContain("scene signal withheld");
+  });
+
+  it.each(["altered", "interrupt"] as const)("a disclosure change (a member becomes unknown): the %s line is withheld, the draw is kept, no reroll", async (outcome) => {
+    const thread = "Ysolde keeps the lamp dark";
+    const run = await frozenThenRegenerate(outcome, thread, (rigged) => {
+      rigged.deps.enabledIds = () => ["harbourmaster", "innkeeper", "narrator"];
+      rigged.deps.inputs = () => fixed([]);
+    });
+    expect(run.prompt).not.toContain(thread);
+    expect(SIGNAL.test(run.prompt)).toBe(false);
+    expect(run.after).toBe(run.original);
+    expect(run.drawn).toBe(1);
+  });
+
+  it("control: privacy unchanged keeps the frozen line byte-identical on regenerate", async () => {
+    const thread = "Ysolde keeps the lamp dark";
+    const run = await frozenThenRegenerate("interrupt", thread, () => undefined);
+    expect(run.prompt).toContain(`advances the open thread "${thread}"`);
+    expect(run.notes).not.toContain("scene signal withheld");
+  });
+});
+
+describe("v2.8 48 C6 history compaction keeps what a frontier still needs", () => {
+  const steady = (): LivingInputs => ({
+    canon: "", openThreads: ["the dark lanterns"], resolvedThreads: [], plans: [], refused: null, playerNames: ["Max"], tension: "peak",
+    restatesSecret: () => false, scrub: (text) => text,
+  });
+  const LONG = 205;
+
+  it("more than 200 boundaries on one unresolved frontier: regenerate keeps the frozen draw, nothing redraws", async () => {
+    const rigged = rig({ authorView: true, living: { autonomy: "suggest" }, ids: () => ({ chatId: chatDrawing("interrupt", ["the dark lanterns"]), storyId: "s1" }) });
+    rigged.deps.inputs = steady;
+    expect(await rigged.toFirstTurn()).toBe("liv_1");
+    await rigged.coordinator.propose();
+    const original = frozen(rigged);
+    expect(rigged.extras.living?.sceneTests?.[0]).toMatchObject({ frontierId: "liv_1", plannedAt: 3, applied: "interrupt" });
+    const line = SIGNAL.exec(rigged.prompts.at(-1) ?? "")?.[0];
+    for (let index = 0; index < LONG; index += 1) await rigged.commit();
+    expect(rigged.engine.historyFrom().boundary).toBeGreaterThan(3);
+    expect(frozen(rigged)).toBe(original);
+    const waiting = rigged.extras.living?.proposals.filter((proposal) => proposal.status === "proposed" || proposal.status === "failed").at(-1);
+    expect(await rigged.coordinator.regenerate(waiting?.id ?? "")).not.toBeNull();
+    expect(frozen(rigged)).toBe(original);
+    expect(rigged.drawn).toHaveLength(1);
+    expect(SIGNAL.exec(rigged.prompts.at(-1) ?? "")?.[0]).toBe(line);
+  }, 120_000);
+
+  it("widely spaced frontiers with min_gap 2: the earlier interrupt still spaces the next one after compaction", async () => {
+    const SECOND = 3 + 2 + LONG;
+    const story = { living: { premise: "p", scene_test: { chaos: { from: "tension" as const }, min_gap: 2 } } };
+    const candidates = focusCandidates({ arcs: ["the dark lanterns"], unknownNames: [] });
+    const draw = (chatId: string, frontierId: string, plannedAt: number) =>
+      planSceneTest({ story, ids: { chatId, storyId: "s1" }, frontierId, frontierName: "F", plannedAt, messageId: 0, tension: "peak", candidates, prior: [] });
+    const chatId = Array.from({ length: 2000 }, (_, index) => `w${index}`)
+      .find((id) => draw(id, "liv_1", 3)?.applied === "interrupt" && draw(id, "liv_2", SECOND)?.drawn === "interrupt") ?? "none";
+    const rigged = rig({ living: { scene_test: { chaos: { from: "tension" }, min_gap: 2 } }, ids: () => ({ chatId, storyId: "s1" }) });
+    rigged.deps.inputs = steady;
+    expect(await rigged.toFirstTurn()).toBe("liv_1");
+    await rigged.coordinator.propose();
+    await rigged.commit();
+    await rigged.commit(["liv_2_sign_2"]);
+    for (let index = 0; index < LONG; index += 1) await rigged.commit();
+    expect(rigged.engine.historyFrom().boundary).toBeGreaterThan(3);
+    expect(rigged.coordinator.frontier()).toBe("liv_2");
+    await rigged.coordinator.propose();
+    const records = rigged.extras.living?.sceneTests ?? [];
+    expect(records.map((record) => [record.frontierId, record.plannedAt, record.drawn, record.applied]))
+      .toEqual([["liv_1", 3, "interrupt", "interrupt"], ["liv_2", SECOND, "interrupt", "altered"]]);
+  }, 120_000);
+});
+
+describe("v2.8 48 C7 the director's open threads drop arcs naming an unmet person (SC3)", () => {
+  const OPEN_BLOCK = /Threads the player has opened and is still pursuing[^\n]*\n((?:- [^\n]+\n?)+)/;
+  const openThreadsIn = async (enabled: string[]) => {
+    const rigged = rig();
+    rigged.deps.enabledIds = () => enabled;
+    rigged.deps.inputs = () => ({
+      canon: "", openThreads: ["Ysolde keeps the lamp dark", "the dark lanterns", "Q waits at the gate"], resolvedThreads: [], plans: [], refused: null,
+      playerNames: ["Max"], tension: "stirring", restatesSecret: () => false, scrub: (text) => text,
+    });
+    await rigged.coordinator.propose();
+    return OPEN_BLOCK.exec(rigged.prompts[0] ?? "")?.[1] ?? "";
+  };
+
+  it("a member the player has not met is dropped from the open threads; a known thread stays", async () => {
+    const block = await openThreadsIn(["harbourmaster", "innkeeper", "narrator"]);
+    expect(block).toContain("the dark lanterns");
+    expect(block).not.toContain("Ysolde keeps the lamp dark");
+  });
+
+  it("control: with the member known the same thread reaches the director", async () => {
+    const block = await openThreadsIn(["harbourmaster", "innkeeper", "keeper", "narrator"]);
+    expect(block).toContain("Ysolde keeps the lamp dark");
+    expect(block).toContain("Q waits at the gate");
+  });
+});
+
 describe("v2.8 48 S6 chaos writers", () => {
   const FORBIDDEN = /Date\.now|new Date|Math\.random|agencyRecovery|refus|performance\.now/;
   const sources = ["src/generation/living/sceneTest.ts", "src/pacing/focus.ts"];

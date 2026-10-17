@@ -1,7 +1,7 @@
 # Plan 21 — Smart Context and Chat Vectorization: what to harvest (E0 + offline group evaluation)
 
-**Status (2026-10-14): v2.8 plan 21 (was v2.7 plan 29). E0 tooling built on `v2.8-a12-e0` (arms, scorer, runner, synthetic
-run; Gate record at the end); E0 CL run owed (private labels, lane pool, arm (d)). §6.2 not started.** Runtime verbatim recall is deferred, v2.9 05.
+**Status (2026-10-16): v2.8 plan 21 (was v2.7 plan 29). E0 private run done on `v2.8-e0-run`: winner (d), judge
+re-rank, hit@4 0.9048 on 84 frozen questions (Gate record at the end). §6.2 not started (may run after v2.8 01 M1).** Runtime verbatim recall is deferred, v2.9 05.
 Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D (fixture tooling, offline runner, scorer); acceptance CL
 (TypeSafe Choice arm, second-model labels). Embeddings run in a lane's ST server (`transformers`, CPU); no pod.
@@ -237,6 +237,48 @@ Everything below is fixed in code (`src/memory/e0Ranking.ts` `E0_FLOORS`, `E0_CO
   `338ded77de06cb6f228325c1e60f9facd069be3587ea6c6cc8cb0371a59971e1` (sha256 of the parsed JSON), 40 questions, provider
   `stub-trigram-256`. The private freeze is owed (no labels yet).
 
+#### E0 private run: declarations (2026-10-16, branch `v2.8-e0-run`, written before any label or arm)
+
+Fixed in `src/memory/e0Labels.ts` (`E0_LABEL_RULES`), `scripts/debug/lib/e0StVectors.mts`, `scripts/debug/lib/e0Choices.mts`;
+`E0_FLOORS`, cost order, bands and arm (c) weights are unchanged from 2026-10-14.
+
+- **Sessions.** The private `so-sessions` work tree, `T*/T*-*/` chats (`chat-full-*` first): at least 40 spoken messages;
+  a chat sharing over half its message texts with a longer kept chat is a copy and is dropped. 48 chats → 17 kept
+  (24 short, 7 copies). Session ids and counts only here.
+- **Writer.** Sol, `openai/gpt-6.1-sol` (never `-fast`, never DeepSeek; the tool refuses both), `opencode run --standalone`,
+  tools off, one call per kept session over its whole transcript, 5 questions per session (`--per 5`).
+- **Rules (tool-enforced; a breach is dropped and counted as invalid, never repaired).** The asking turn is a player
+  message; 1–2 gold ids, each inside the question's collection (before the asking turn and outside `protect`); the
+  collection holds at least 8 messages; the question repeats no 5 consecutive words of a gold message.
+- **Checker.** `claude -p` on the owner's login (tools off, no session persistence, model recorded from its own output),
+  one call per written session, **blind**: it sees each question and the transcript, never the gold, and names the
+  ids holding the exact words, considering only messages before that question's asking turn. Agreement = the checker
+  calls it answerable and every id it names is a gold id. Anything else is a disagreement: dropped and counted, never
+  adjudicated.
+- **Top-up.** If fewer than 40 questions survive, one top-up pass (3 more per kept session, same writer, checker and
+  rules) may run before any pool exists; the count alone decides it. Still under 40: `insufficient`, reported as such.
+- **Pool (`st-vectors`).** Lane 74 (offline seed, firewalled: loopback only to itself, no model server, no GPU plugin),
+  served from the private ST code copy `C:\dev\st-live-e0` (ST 1.19.0). Source `transformers` on CPU, model from the
+  copy's `config.yaml` (`Xenova/all-mpnet-base-v2`, ST loads `onnx/model_quantized.onnx`), cached in the lane's
+  `data/_cache`. One collection per question (purged before insert and after the run), item hash = message id + 1.
+  Pool = the `hashes` of one `/api/vector/query` at threshold 0 (ST's score order); band membership = the `metadata`
+  of the query at each threshold (the server filters `metadata`, not `hashes`, by threshold). Latency = each query's
+  in-page fetch time (pool + the arm's bands); insert time is the index build, reported separately, never in an
+  arm's latency. A warm-up query runs first so no question pays the model load.
+- **Arm (d) recorder.** Four sequential Choice calls per question through the page's judge harness probe
+  (`storyOrchestratorJudge.probe` → judge plugin → TypeSafe, the plugin's default model): the path `so-judge calibrate`
+  measures through. No `e0` use, setting or calibration row is added and the per-use refusal is untouched. A busy
+  refusal waits 61 s and retries (3 times, then the recording refuses); a cache hit refuses; a pick outside the
+  remaining set is recorded as given and picks nothing.
+- **Cost.** Arm (d): input tokens × $0.042 per million (`JEV_USD_PER_MTOK_INPUT`). Vector arms: $0 (local CPU).
+- **Freeze order.** Labels → pool → `freeze` (hashes copied here and committed) → `choices` → `run`. The freeze covers
+  labels and pool; the recorded calls are scored as recorded.
+- **Private freeze (2026-10-16, committed before `choices` or `run`).** `so-sessions` `test/sessions/e0/freeze.json`:
+  labels `cd3f5a274ea42c9040302c033e11e04d2dfd53c040df7cc359890e381fc7fb0b`, pool
+  `e00d001724f53a191cd56d1c64a250eb6b3cb297aa22bf6664abac16da7f560f` (sha256 of the parsed JSON), 84 questions, provider
+  `st-vectors:transformers:Xenova/all-mpnet-base-v2`. Labels: 85 written, 1 invalid, 84 agreed, 0 disagreed (no top-up).
+  The pool build was stopped once by a machine-load hold and resumed over its complete collections (`fd3a9a68`).
+
 ### 6.2 Step 2 — offline group witness feasibility
 
 Uses E0's winning arm, and runs (for a verdict) only when E0 produced one; otherwise it is BLOCKED (§6.1).
@@ -413,3 +455,49 @@ Owed (E0 CL acceptance):
 - Arm (d): 4 TypeSafe Choice calls per question through the judge plugin (no `e0` use or calibration row exists; the
   plugin refuses uncalibrated uses), recorded in the `--choices` format; 160+ calls for 40 questions.
 - Private freeze committed in `so-sessions`, its hashes copied here, then `run`.
+
+## Gate record: E0 private run (2026-10-16, branch `v2.8-e0-run`, queue A12)
+
+Verdict: **winner (d), judge re-rank by repeated Choice with removal.** Floors unchanged (`E0_FLOORS`); declarations
+committed before any label (`3f1520ef`), freeze hashes committed before any arm (`afc70f2e`).
+
+Setup:
+- Labels: 17 sessions (48 chats; 24 short, 7 copies); Sol (`openai/gpt-6.1-sol`, opencode) wrote 85; blind check by
+  `claude -p` (claude-opus-5-5): 84 agreed, 0 disagreed, 1 invalid (question copied 5+ words of its gold), no top-up.
+  Every checker pick equalled its gold id; every gold is one message.
+- Pool: lane 74 (offline seed, firewalled, judge plugin on), ST copy `C:\dev\st-live-e0` (ST 1.19.0), transformers on CPU,
+  `Xenova/all-mpnet-base-v2` quantized, downloaded once into `C:\dev\so-live-lanes\74\data\_cache` (110,798,014 B;
+  C: 105 GB free before, 101 GB after). 84 of 84 pooled, 0 refused. Stopped once by a machine-load hold at 58 collections
+  and resumed over complete collections (`fd3a9a68`): 64 reused, 17 inserted (571 items).
+- Arm (d): 336 TypeSafe calls through `storyOrchestratorJudge.probe` (judge plugin, key from the plugin's own source,
+  never read), all answered by jev-1.13.0, 0 fallbacks, 0 busy, 0 cached.
+- Freeze: labels `cd3f5a27…7fb0b`, pool `e00d0017…f560f` (§6.1 private freeze). Private files in `so-sessions`
+  `test/sessions/e0/` (not archived by this run).
+
+Results (84 questions, pool recall 0.9048 = 76/84 for every arm):
+- (e) ST order: hit@1 0.3929 (33), hit@4 0.75 (63), MRR@4 0.5308, tie 0; latency p50 771 ms, p95 2,065 ms; $0.
+- (c) Jaccard + recency: hit@1 0.1667 (14), hit@4 0.7381 (62), MRR@4 0.3720, tie 0; latency as (e); $0.
+- (a) bands 0.82/0.55: = (e) on every rank metric, tie rate 1.0; latency p50 2,395 ms, p95 6,289 ms; $0.
+- (b) bands ×4: = (e) on every rank metric, tie rate 1.0; latency p50 3,919 ms, p95 9,933 ms; $0.
+- (d) judge Choice: hit@1 0.8929 (75), hit@4 0.9048 (76), MRR@4 0.8988, tie 0; 4 calls, 6,427.7 input tokens and
+  $0.00027 per question (run total 539,926 tokens, about $0.023); latency (the 4 sequential calls only) p50 893 ms,
+  p95 999 ms.
+- Decision: (d) is the only arm at hit@4 ≥ 0.80, so cheapest passing = winner = (d). Every in-pool gold reached (d)'s top 4.
+  Problem field null (a winner exists); §6.2 status `may run after v2.8 01 M1`.
+- Public golden `test/goldens/e0/private-result.json` (`so-e0-golden/1`: pool slots, no text), replayed by
+  `src/memory/e0Golden.test.ts`.
+
+Read with:
+- Vector latencies were measured while other heavy jobs shared the machine; they are pessimistic. Index build (fresh
+  inserts only) p50 22.5 s, p95 83.5 s per collection under that load; the synthetic plumbing run on a quieter box had p50 7.5 s.
+- (d)'s latency excludes the pool query it also needs (declared); its reply-path cost is (e)'s query plus about 0.9–1.0 s.
+- Sol wrote questions that name the speaker and topic, with single-message golds; the set may be easier than real player
+  phrasing. Recorded, not retuned.
+
+Gates (on `1bea881a`):
+- `npm run gates:quick`: green on `d8849e96`.
+- `npm run gates -- --jobs=1 --no-storybook`: all green in 467.7 s (test 9,073 passed + 1 skipped, test:replay, build,
+  test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release). Storybook skipped: no UI change.
+  The first full run failed `errorCopy.guard` on the new silent catch in `e0JsonObject`; listed in
+  `test/findings/errorCopy.json` (`1bea881a`), then green.
+- No product code changed: E0 modules stay scripts/tests only; no judge use, setting or calibration row added.
