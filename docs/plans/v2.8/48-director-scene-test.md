@@ -415,7 +415,7 @@ Files
   names, no campaign content). Each is a complete director input: a hybrid living story (2–3 authored anchors,
   `authored_until` = the frontier, `scene_test` on), visited path and blackboard values, canon, 2 open threads, resolved
   threads, cast plans, smoothed tension, player name, scene ids and a planning boundary.
-- `test/measurements/v2.8/48-scene-test/frontiers.lock.json`: sha256 of the parsed set (`d9cd9f81…efaf7`, 20 frontiers);
+- `test/measurements/v2.8/48-scene-test/frontiers.lock.json`: sha256 of the parsed set (`1f72dddb71cdff5e2d219dc9c26572d48207014a25f8323b73b0e58080c94850…efaf7`, 20 frontiers);
   every command refuses a drifted set (line endings do not matter: the hash is over the parsed JSON).
 - `scripts/debug/so-scene-test-replay.mts` (`check | freeze | replay | pack | rate | score`), `lib/sceneReplay.mts`,
   `lib/sceneRate.mts`, `lib/sceneScore.mts`, `lib/sceneReplayEntry.ts` (shipped code through `bundleEntry.loadEntry`).
@@ -469,3 +469,4 @@ Real run (owed; in the final suite)
 - The set is synthetic, so `<dir>` may be archived under `test/measurements/v2.8/48-scene-test/`.
 
 Still owed: the Sol replay ×2 and the rater run (S7, S8, S9, S11 CL); S10 stays with the living row of the final suite.
+- Re-frozen 2026-10-17 by the coordinator after two invented names that also occur in the private campaign were renamed (public repo rule); 20 frontiers, tests 13/13.

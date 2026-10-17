@@ -1702,7 +1702,7 @@
     "roster": [
      {
       "id": "director",
-      "name": "Julian Thorne",
+      "name": "Julian Marsh",
       "role": "director",
       "drive": "save the tour"
      },
@@ -2552,7 +2552,7 @@
     ],
     "refused": null,
     "playerNames": [
-     "Tobias"
+     "Tomas"
     ],
     "tension": "tense"
    },
