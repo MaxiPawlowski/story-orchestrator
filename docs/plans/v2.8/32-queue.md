@@ -115,7 +115,7 @@ It records current progress, source-plan links and deferred acceptance protocols
 | R10 | Cue + scene read merge A/B; stays in v2.8 (owner 2026-10-14) | 15 |
 | R11 | SP5 story scenario live legs | 16 |
 | R12 | SP6 complication pool; stays in v2.8 (owner 2026-10-14) | 17 |
-| R13 | Phase C ×2 from zero on one build | M14 |
+| R13 | Phase C ×2 from zero on one build. **Prep 2026-10-17** on `v2.8-prefreeze` (unmerged): GS6 journey (plumbing 11/12 ×2 lane 85, GS6.8 needs the model), D7 harnesses 47/44/18 S8/48 built (lane plumbing green for 47/44/S8), lane range 1..99; 70 §Pre-freeze prep 2026-10-17 | M14 |
 | R14 | GPU broker `retainBatches` on the 3090 (LI); owner 2026-10-14: turn on by default if it works. 2026-10-14: as built never retained (`mayRetain` false for the lease holder), fixed; SDXL warm batch PASS ×2 (1 lease per 3 images, mid-batch text gets the card, reserves held), 3 more runs refused at admission by host RAM; Qwen sprite batch blocked by RAM; **default on** (`v2.8-3090-li`). 3090 re-run 2026-10-14 (`v2.8-3090-rerun`, idle box): real Qwen sprite batch PASS ×2 (1 lease per 3 images, mid-batch text answered before the next lease, min GPU free 2,991 MiB, min RAM 12.6/13.9 GiB, peak 21,585 MiB); admitted with ~5 MiB to spare at one lease, RAM estimate (10,673 MiB) ~2× the measured drop. **Done** | 28 |
 
 ## Roleplay mechanics (owner 2026-10-14)

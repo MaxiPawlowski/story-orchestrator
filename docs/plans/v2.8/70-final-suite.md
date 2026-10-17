@@ -66,7 +66,7 @@ else deferred with that trigger), X = deferred (owner decision or v2.9).
 | GS1 first hour | `gs1-first-hour.journey.json`, adolion-academy | RP | A | every check green (24 §GS1); L5-RP1/RP3 read in GS1.2/GS1.5 (54), 34-copy I |
 | GS3 long road | `gs3-long-road.journey.json`, adolion-saga | RP | A | every check green (24 §GS3); 50 T11 in GS3.3; 48 S10 + 68 hand-back read with living on |
 | GS4 stubborn player | `gs4-stubborn-player.journey.json`, adolion-esha | RP | A | every check green (24 §GS4); C4-R6 rubric I |
-| GS6 adoption play (new) | `gs6-adoption.journey.json`, to write before freeze, adopted stories found by structure | RP | A | every check green: codex fact after its gate and gone on swipe (52), label reveal (51), faction band (53), `story_time` moves and never goes back (50), scene card (65), recap "What changed" (46), rumor stays private (44), public check waits for its attempt (18 `when`), promise row (47), `assert-player-clean` at each stop |
+| GS6 adoption play (new) | `gs6-adoption.journey.json` (written 2026-10-17; carrier adolion-saga, the one adopted story with every world-layer feature; features found by structure, author fallbacks recorded) | RP | A | every check green: codex fact after its gate and gone on swipe (52), label reveal (51), faction band (53), `story_time` moves and never goes back (50), scene card (65), recap "What changed" (46), rumor stays private (44), public check waits for its attempt (18 `when`), promise row (47), `assert-player-clean` at each stop |
 | T-R4 reply effort | `live-v28-24-reply-effort.json` | RP | A | R4-live predeclared assertion (24 §Targeted) |
 | J13 reply effect | `j13-reply-effect.journey.json` | RP | A | journey checks (preset overlay is TC only) |
 | Commit-model | campaign `lab/v28/v28-adolion-commit-model.json` | RP | A | C11-F2 model leg (01; 24 §Targeted) |
@@ -115,11 +115,15 @@ else deferred with that trigger), X = deferred (owner decision or v2.9).
 
 Conditional (C), each deferred with its trigger if missing at freeze:
 
-- 47 P1, P2 (labelled sets ≥ 60/60, ≥ 30), P6 (20 director proposals), P8 (with RB): labelled sets and scorer owed.
-- 44 G7/G8 voicing (20 cases, on/off), G14 (30 turns): fixture and labels owed.
-- 48 S7–S9, S11: 20 frozen frontiers × 3 outcomes, replay runner on the Sol route, rater pack owed.
-- 62 Q1, Q2, Q2d, Q2a: probe harness not built and stage 1 awaits the owner (62 status).
-- 34 A7: arm switch and blind two-rater command owed. 18 Q7 S8: 10 scripted failure outcomes fixture owed.
+- 47 P1, P2 (labelled sets ≥ 60/60, ≥ 30), P6 (20 director proposals), P8 (with RB): **built 2026-10-17** (`so-promises.mts`,
+  `test/measurements/v2.8/47-promises/`); runs at freeze (P1/P2 RP-read ×2, P6 Sol + claude -p rater ×2, P8 tokens).
+- 44 G7/G8 voicing (20 cases, on/off), G14 (30 turns): **built 2026-10-17** (`so-rumor-voicing.mts`,
+  `test/measurements/v2.8/44-voicing/`); runs at freeze (RP replies, claude -p blind labels, ×2; G14 ×1 then offline check).
+- 48 S7–S9, S11: **built 2026-10-17** (`so-scene-test-replay.mts`, `test/measurements/v2.8/48-scene-test/`, 20 frozen
+  frontiers × 3 forced outcomes, Sol replay, blind claude -p pack); runs at freeze (CL, no GPU, ×2).
+- 62 Q1, Q2, Q2d, Q2a: probe harness not built and stage 1 awaits the owner (62 status); other agent, branch `v2.8-62-63`.
+- 34 A7: arm switch and blind two-rater command owed (other agent, branch `v2.8-65aplus-09a7`). 18 Q7 S8: **built
+  2026-10-17** (`so-q7-failure.mts`, `test/measurements/v2.8/18-s8/`, 10 cases; reply on Artemis per D2, blind rater).
 - 69 K1b: windows keep no fitted text; checklist must be written outside this repo by another model.
 - 35 G9: only on a lane with a prompt-only regex or Presence active.
 - 43 (all VR rows): only if W4/W4fi pass on the recorder run; then R-Gate2 re-runs on the witness record (CL,
@@ -337,3 +341,46 @@ Counts only for campaign rows; no checkpoint, character or place names.
 - D5/D6: SP6, R2/R7, B1-HIST and the 63 latency arms run on a RunPod pod, when the owner says so.
 - D3 moot (no cloud reply lane); D4 carry empty-diff pairs: yes; D7 build missing harnesses before freeze; D8 GS6 as a new journey; D9 re-run 43 R-Gate2 automatically if W4 passes; D10 Claude runs the over-steer card (via go-with-recommendations).
 - The run starts only on the owner's go.
+
+## Pre-freeze prep 2026-10-17 (branch `v2.8-prefreeze`, unmerged)
+
+No GPU, no model; no-model lane 85 (lanes root `C:\dev\so-live-lanes`) on the private ST copy `C:\dev\st-live-prefreeze`.
+
+- **GS6 (D8): written.** `test/journeys/gs6-adoption.journey.json`, 12 checks, 12 real turns, group `Adolion - The Saga`.
+  - Carrier by structure: adolion-saga is the only adopted story at `411f4d4` holding every world-layer feature (census in
+    GS6.1: 37 reached-gated codex facts, 1 secret label, 8 factions / 19 moves, clock, 2 `when` checks, 9 rumors, 11 recap
+    quests, 13 narrated public qualities + 1 omniscient narrator, a scene widget, `scene_test`). Carry targets live in other
+    stories, so GS6.11 is a carry declarations census (4 targets, 7 sources); the real carry stays the 45 seal row.
+  - Where 12 turns cannot reach a gate the check takes the shortest author write and records the path (`read` | `author`):
+    codex route (5 hops on the Saga), label reveal, faction move, rumor start, recap quest, time step, the `when` attempt.
+    The codex swipe is deterministic (a canned swipe on the route's reply; GS1.6 keeps the real regeneration).
+  - GS6.8 (promise row) needs the read model: it fails on a no-model lane by construction.
+  - Plumbing shakedown, lane 85 seeded `ADOLION_CAMPAIGN=C:/dev/adolion-adopt adolion-fresh.mts seed 85 --commit 411f4d4`
+    (`SO_LANE_OFFLINE=1`, then `st-lanes no-model 85`; one expected problem: not the pinned commit), served bundle
+    `47510e42370c`: `so-journey.mts run <GS6-plumbing copy>` **11/12 ×2 consecutive** (07:03 and 07:14 UTC), only GS6.8 red
+    (read refused, no model); cleanup clean both. Plumbing green, real-model shakedown owed (night 1, lane 41). Evidence
+    `C:\dev\so-live-lanes\evidence-2026-10-17\85\`. Two earlier iterations fixed the guard (judge is off on a no-model
+    lane; the run header pins shipped defaults) and the rumor source (`rumorNet`).
+  - New: `scripts/debug/so-journey-plumbing.mts` writes a PLUMBING copy of any journey (send_generate becomes a posted
+    line plus a canned `/sendas` reply), since ST hides Send on a no-model lane; never evidence.
+- **Lane range:** `adolion-fresh` and `so-session` capped lanes at 50 (the lane-73 throwaway copy); one range 1..99
+  (`scripts/debug/lib/laneRange.mts`) now serves st-lanes, adolion-fresh and so-session.
+- **D7 harnesses built** (no model; each plan's Gate record 2026-10-17 has files, hashes and the real-run commands):
+  - 48 S7–S9, S11: `so-scene-test-replay.mts`, 20 frozen synthetic frontiers × 3 forced outcomes on the shipped director
+    code, Sol replay, blind claude -p pack, scorer. Unit tests 13/13. Two invented names that collide with private campaign
+    names renamed and the set re-frozen (`1f72dddb…`).
+  - 47 P1/P1s/P2/P2w/P6/P8: `so-promises.mts`, 126 P1 cases (66 promises), 32 P2 events + 6 controls, 20 P6 inputs, lazy
+    `runPromiseRead` seam. Lane 85 plumbing (`--plumbing gold`): p1 and p2 ran clean (misses 0, marked never a
+    measurement). Agent note: on bait lines the shipped acceptor alone takes 11 (P1 precision then rests on the read
+    model) and 5 wrong-id events; hardening to decide after the real numbers.
+  - 44 G7/G8/G14: `so-rumor-voicing.mts`, 20 voicing cases on/off, 30-turn G14 fixture, offline G14 checker. Lane 85
+    plumbing: 40/40 recorded (hearsay line present in all 20 on-arm requests, absent in all 20 off), pack built, score
+    PLUMBING.
+  - 18 Q7 S8: `so-q7-failure.mts`, 10 always-failing public checks (5 with a quest fail). Lane 85 plumbing 10/10
+    recorded, pack built.
+  - Not built here: 34 A7 and 62 (other agents, branches `v2.8-65aplus-09a7`, `v2.8-62-63`); 69 K1b (needs a
+    checklist written outside this repo by another model); 35 G9, 43, 50 T9/T10, 63 H6 are lane or feature conditions,
+    not harnesses.
+- Plan 24 matrix: GS6 checks and the new harnesses added as carriers; `coverage.mjs` 124 ids, 122 green, 2 image
+  track, 0 red; 324 floors, 0 unmapped.
+- Gates: see the record line below.

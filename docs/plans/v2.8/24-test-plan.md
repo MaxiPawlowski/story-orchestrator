@@ -404,21 +404,21 @@ real-model carrier, or why none is needed.
 | journal | RP | 36-Q5-scn, campaign panels | GS1.3 |
 | stat-sheet | RP | 36-P-live | GS1.3 |
 | story-panels | RP | v28-23-widgets ×2 | GS1.3 |
-| consequences-recap | D | consequences jest, recapRollback review test, recapSecret review test | none: no model pass (46 A) |
-| promises-remembered | D + CL | promises jest, promiseRead jest, promiseRollback review test | live-v28-47-promises (P1s CL half, P2w live, ids, rollback reopens) ×2; P1/P2 labelled-set rates, P6 rater, P8 cost owed (measurement fixtures); P7/P7h informational (LT) |
-| codex | D + CL | codex jest, codexView property test, codexRollback | C7: codex-pages task in `test/measurements/v2.8/09/recipes.json`, `so-wizard-agent.mts recipes --task codex-pages --repeat 10 --mode auto-draft --route harness` (Sol) |
+| consequences-recap | D | consequences jest, recapRollback review test, recapSecret review test | no model pass (46 A); GS6.7 reads the What changed line on the adopted Saga (RP) |
+| promises-remembered | D + CL | promises jest, promiseRead jest, promiseRollback review test | live-v28-47-promises (P1s CL half, P2w live, ids, rollback reopens) ×2; P1/P2 labelled-set rates, P6 rater, P8 cost via `so-promises.mts` (frozen sets in `test/measurements/v2.8/47-promises/`, 47 Gate record 2026-10-17); GS6.8 promise row (RP); P7/P7h informational (LT) |
+| codex | D + CL | codex jest, codexView property test, codexRollback | C7: codex-pages task in `test/measurements/v2.8/09/recipes.json`, `so-wizard-agent.mts recipes --task codex-pages --repeat 10 --mode auto-draft --route harness` (Sol); GS6.3 fact after its gate, gone on swipe (RP) |
 | witness-record | D + CL | witness jest, score jest | W4/W4fi/W4fe/W4cov/W4u/W4m/W4a/W4n offline on the lab 40 + >= 40 real-session labels (second-model labels, private), Wc and RB via `so-live-suite.mts run` (CL, read model), deferred: private labels and a read-model run owed |
-| rumors | D + CL | rumors jest, rumorSecret review test, v28-44-rumors (no-model ×2) | G7/G8 voicing (20 cases, on/off arms, second-model labels) and G14 30-turn fixture, deferred: voicing fixture and labels owed; G6 live in v28-44-rumors |
-| story-calendar | D + CL | clock jest, clockScope jest, v28-50-story-time (no-model) | T8: live suite time windows `timewindow01..04` (`so-live-suite.mts run --set time`, CL, read model); T9/T10 wait for B2 (not built); T11 read in GS3.3 |
-| relationship-labels | D | labels jest, labelRollback property test, relationshipLabels review test, v28-51-labels (no-model) | R7/R9 informational ×1 (RP lab story), deferred: no lab story |
-| factions | D + RP | factions jest, v28-53-factions (no-model ×2) | F7 informational (RP lab story), deferred: no lab story yet; F9 CL informational |
-| scene-test | D + CL | sceneTest jest, livingSceneTest review test, focus jest, v28-48-scene-test (no-model) | S7–S9, S11 CL offline ×2 (director route), deferred: no frozen frontier set yet; S10 read in GS2 and GS3 |
-| new-game-plus | D | carry jest (N1–N6, N8–N13), carry fixtures carry-source/carry-sequel, v28-45-carry (no-model plumbing green x2 2026-10-16; real generation owed) | N7 informational (CL rater + local replies), deferred: needs two finished source runs; one real final seal on the 3090 |
+| rumors | D + CL | rumors jest, rumorSecret review test, v28-44-rumors (no-model ×2) | G7/G8 voicing (20 cases, on/off arms, second-model labels) and G14 30-turn fixture via `so-rumor-voicing.mts` (`test/measurements/v2.8/44-voicing/`, 44 Gate record 2026-10-17); G6 live in v28-44-rumors; GS6.6 rumor stays private (RP) |
+| story-calendar | D + CL | clock jest, clockScope jest, v28-50-story-time (no-model) | T8: live suite time windows `timewindow01..04` (`so-live-suite.mts run --set time`, CL, read model); T9/T10 wait for B2 (not built); T11 read in GS3.3; GS6.9 story time never goes back (RP) |
+| relationship-labels | D | labels jest, labelRollback property test, relationshipLabels review test, v28-51-labels (no-model) | R7/R9 informational ×1 (RP lab story), deferred: no lab story; GS6.4 reveal latch on the adopted Saga (RP) |
+| factions | D + RP | factions jest, v28-53-factions (no-model ×2) | F7 informational (RP lab story), deferred: no lab story yet; F9 CL informational; GS6.5 band on the adopted Saga (RP) |
+| scene-test | D + CL | sceneTest jest, livingSceneTest review test, focus jest, v28-48-scene-test (no-model) | S7–S9, S11 CL offline ×2 (director route) via `so-scene-test-replay.mts` (`test/measurements/v2.8/48-scene-test/`, 48 Gate record 2026-10-17); S10 read in GS2 and GS3; GS6.11 records census |
+| new-game-plus | D | carry jest (N1–N6, N8–N13), carry fixtures carry-source/carry-sequel, v28-45-carry (no-model plumbing green x2 2026-10-16; real generation owed) | N7 informational (CL rater + local replies), deferred: needs two finished source runs; one real final seal on the 3090; GS6.11 carry declarations census |
 | story-made-panels | D | html widget tests, Storybook | none: no model |
-| scene-card | D | sceneCard jest, WidgetCard Storybook, v28-65-scene-card (no-model) | none: no model (65 N1–N8; N3/N4 with A+ only) |
-| public-sheet-narration | D + CL | narratorSheet jest, v28-18-q7-sheet (no-model) | deferred: S8 header clause (CL rater, cloud model) owed; S7 informational (RP, Artemis) past the 12 h cap |
+| scene-card | D | sceneCard jest, WidgetCard Storybook, v28-65-scene-card (no-model) | no model (65 N1–N8; N3/N4 with A+ only); GS6.2 card on the adopted Saga (RP) |
+| public-sheet-narration | D + CL | narratorSheet jest, v28-18-q7-sheet (no-model) | S8 header clause via `so-q7-failure.mts` (`test/measurements/v2.8/18-s8/`, reply on Artemis per 70 D2, blind rater); GS6.2 narrator-only sheet (RP); S7 informational (RP, Artemis) |
 | your-move-chip | D | yourMove jest, talkControl jest, HudStrip Storybook, v28-68-your-move (no-model) | none: no model (68 Y1–Y6) |
-| quests | RP | 36-Q5-scn, S-16, storyCheckWhen jest (checkpoint check `when`, 2026-10-16) | GS1.3, GS3.1 |
+| quests | RP | 36-Q5-scn, S-16, storyCheckWhen jest (checkpoint check `when`, 2026-10-16) | GS1.3, GS3.1, GS6.10 (check `when`) |
 | character-life | RP + CL | 37-D1..D3 | GS1.5, GS3.3, GS2.7 |
 | meanwhile-proposals | CL | agenda proposal tests | GS2.7; M16 carried |
 | living-story | CL + RP | v28-35-living-rollback ×2 | GS2.1–GS2.4, GS3.5 |
