@@ -1,6 +1,6 @@
 # Plan 62 — Quantum-ogre probe, then prepared world facts
 
-**Status: candidate, owner decision pending. Revised 2026-10-16 after Astra's review (§Review 2026-10-16).** Written
+**Status: stage 1 run 2026-10-17 (§Gate record 2026-10-17); stage 2 and 3 owner decisions pending. Revised 2026-10-16 after Astra's review (§Review 2026-10-16).** Written
 2026-10-14 from the extension harvest (`61-harvest-triage-2026-10-14.md` H1, H2). Not built, not queued. Three stages, each
 its own owner decision: **stage 1** a continuity measurement; **stage 2** authored prepared facts (deterministic, no model
 call); **stage 3** model-filled facts (only after stage 2 has a session, with its late-result contract). A stage 1 result
@@ -194,3 +194,89 @@ Source: `review-astra-harvest-2026-10-16.md` §2 (62). Verified on `e8b9dd6d`.
 - **Cheaper design: authored facts or seeded choices first.** Adopted as stage 2.
 - **Cap.** Accepted: the informational list is already over. → Q1r deferred beyond the cap unless displaced.
 - Rebutted: none.
+
+## Stage 1 as built 2026-10-17 (branch `v2.8-62-63`)
+
+Owner decision 2026-10-16 (61 §Owner decisions): the probe runs on the cloud model; stage 2 only on the owner's call.
+Nothing model-facing is built for stage 2 or 3. No product code changed (`src/` untouched).
+
+### What exists
+
+- `scripts/debug/so-qogre.mts` (`scenarios [--check] | run | rate | score | swipe-aba`), libs
+  `scripts/debug/lib/quantumOgre.mts` (cases, lab story and book, scenario builder, rater, scoring),
+  `scripts/debug/lib/replyRelay.mts` (Playwright route that serves every streamed reply from Sol and refuses side calls),
+  `scripts/debug/lib/solCall.mts` (opencode `run --standalone`, `openai/gpt-6.1-sol`, tools off, own agent per role;
+  `-fast` and DeepSeek refused).
+- Probe family `test/scenarios/probe/quantum-ogre-*.json` (generated, `scenarios --check` in `qogre.test.mts`): 10 case
+  scenarios, the lab story `quantum-ogre-lab.story.json`, the lab lorebook `quantum-ogre-lab.book.json` (`SO-QO Lab`, created
+  by the driver before the cases and deleted after), and the Q3 leg `quantum-ogre-swipe-aba.json` + its story. The family
+  lives in a subfolder, so the suite inventory and the top-level schema sweep do not pick it up; `qogre.test.mts` runs the
+  closed-vocabulary check and an eval parse on it.
+- Synthetic English lab ("Saltgate", the public test group "Group: Arin, DM Narrator": Arin, Ponticius, Luke, DM Narrator).
+  No campaign content.
+
+### Protocol (fixed in code before run 1 was scored)
+
+- **Cases.** 4 closed containers (holder: the narrator; the contents are a world entry keyed on the container), 3 NPC
+  knowledge, 3 trace authors (holder: Arin or Ponticius; a member-filtered entry, `characterFilter` = the holder, keyed on
+  the topic word). Each entry states one fact.
+- **Turns per case, one sandbox chat each** (14 replies): `probe` (a non-holder, or the narrator before the container is
+  opened, asked about the thing), `ask-0` + 5 swipes (`ask-1..5`, ST's own swipe), 3 fillers, `reask-later`, `leave`,
+  `return`, `reask-revisit`. Every player line that should fire the entry carries its key.
+- **Reply model (CL).** Sol through the relay: ST assembles the real prompt (cards, story injections, the member-filtered
+  entry only on the holder's turn) on a no-model lane; the relay sends the raw prompt to Sol with "write the next message as
+  <speaker>" and returns it as a streamed text-completion reply. Side calls (extraction, memory model) get 503; extraction is
+  off for the case chats. Deviation from the plan text: CL here is Sol, not DeepSeek (owner rule for this run: no DeepSeek).
+- **Rater.** A separate blind Sol call per reply (agent `so-qo-rater`): the committed fact, the unstated-detail question,
+  the player's line and the reply; never the transcript. Output `states_fact`, `contradicts` (for a closed container any
+  added item counts), `conflicting[]`, `detail`. Plus a deterministic needle pass (the fact's name or place) on the knowledge
+  and trace cases, reported as agreement with the rater. Same model family as the reply model: a self-rating risk, mitigated by
+  blind, isolated calls and the needle pass.
+- **Scoring.** Q1 = replies among `ask-0..5` with `contradicts` (of 60); Q2 = the same over the two re-asks (of 20);
+  Q2d = `states_fact` among disclosure-eligible replies: the `probe` reply, plus, for knowledge and trace cases whose
+  visible ask reply did not state the fact, every later non-holder reply; Q2a = one Sol agreement call per case over the six
+  ask details (largest agreeing group), information only. A rating error is retried by a re-run of `rate`.
+- **Q3.** `so-qogre.mts swipe-aba` on a no-model lane: scripted relay replies (no model), per-swipe extraction mocks
+  (DELTA + MEMORY with evidence only in the reply), a poison mock before each swipe-back; floor: the engine state, pending
+  writes and live memory equal the first visit of each swipe, 2 legs per run, x2.
+
+### GPU queue (optional, deferred beyond the cap per the owner's 2026-10-16 decision)
+
+- Q1r (Artemis, informational): on a model lane, `node scripts/debug/st-lanes.mts run <n> --allow-load -- scripts/debug/so-qogre.mts run --relay none --cases c1-strongbox,c3-sea-chest,k1-bell,k2-seal,t1-lock --out test/sessions/qogre/q1r`, then `rate` and `score --asks 4` (Sol, no GPU): the cases record 6 ask replies and
+  Q1r reads the first 4 per case (`ask-0..3`, 20 replies). About 25 GPU-minutes (5 cases x 14 replies at ~20 s on the 3090).
+
+## Gate record 2026-10-17 (stage 1, branch `v2.8-62-63`)
+
+Lane 84 (offline, no-model, private ST code copy `C:\dev\st-live-6263`, ST 1.19.0), served `dist/index.js` sha256
+`557d5bc013d9` on every case file of both runs and on both Q3 runs (no `src/` change on the branch). Reply model and rater:
+Sol (`openai/gpt-6.1-sol`) through opencode, tools off; no DeepSeek, no `-fast`. Private evidence (transcripts, ratings)
+under `test/sessions/qogre/` (gitignored); lane evidence `C:\dev\so-live-lanes\84\debug\runs\2026-10-17T*-so-qogre-*`.
+
+- Q1 contradictions, cloud reply model, 10 cases x 6 replies: **run 1 0 of 60, run 2 0 of 60** (0 conflicting items; the
+  committed fact was stated in 60 of 60 in both runs). Recorded.
+- Q2 persistence, 10 cases x 2 re-asks (3 turns later, after leave and return): **run 1 0 of 20, run 2 0 of 20** (fact
+  restated 20 of 20). Recorded.
+- Q2d disclosure: **0 of 10 eligible, both runs** (every visible holder reply stated the fact, so only the 10 probe replies
+  were eligible: 4 pre-contact narrator replies, 6 non-holder replies before the holder was asked). Recorded (0 expected).
+- Q2a cross-swipe agreement on the unstated detail (largest agreeing group of the answered asks), information only:
+  run 1 c1 1/6, c2 5/6, c3 3/6, c4 2/6, k1 1/2, k2 0/0, k3 6/6, t1 0/0, t2 6/6, t3 1/1; run 2 c1 1/6, c2 6/6, c3 2/6, c4 4/6,
+  k1 4/4, k2 0/0, k3 0/0, t1 0/0, t2 5/5, t3 0/0. The containers invent their unstated detail freshly on most swipes (the
+  quantum ogre on what nobody fixed); the knowledge and trace holders mostly decline the unstated half ("I don't know why").
+- Rater vs needle pass (knowledge and trace cases): 78 of 84 and 79 of 84 agree. Every disagreement is a non-holder filler,
+  leave or return reply naming the person after the holder had said it aloud (needle yes, rater "not stating the answer to
+  this question"); none is disclosure-eligible.
+- Q3 swipe A->B->A, browser, no-model lane: **2/2 legs, x2** (run folders `test/sessions/qogre/aba-run1`, `aba-run2`; lane
+  runs `…T06-09-47-747Z-so-qogre-swipe-aba`, `…T06-11-20-152Z-so-qogre-swipe-aba`). Each swipe's read landed (pending
+  `location` vault / hall and one memory row each) before the swipe-backs, and a poison mock was armed for every swipe-back.
+- Run 1 stopped after 5 cases on a harness fault (`no /api/settings/save answer within 15000 ms` during a sandbox restore while
+  the full gates ran beside it); `run` resumed the remaining 5 cases into the same folder after run 2. Mean Sol reply latency
+  15.8 s (run 1), 12.7 s (run 2), 140 relay calls each; 14 side calls per case refused (503) as designed.
+- Reading for the owner (not a gate): with the fact handed to its holder through a member-filtered entry, the cloud model
+  neither contradicted, dropped nor leaked it, in 160 scored replies and 20 disclosure chances. Stage 2's case on this record
+  rests on what the probe could not show: Artemis (Q1r, deferred), facts nobody authored (Q2a shows those drift), and longer
+  distances than 3 turns.
+- Gates: `npm run gates -- --jobs=1 --no-storybook` green (10 steps, all exit 0: test:replay, test, build, test:debug,
+  typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release); Storybook skipped (no component touched). The
+  first full run was red only on `arrivalEquivalence` (the two probe stories joined the corpus); golden re-recorded in its own
+  commit. `node --test scripts/debug/qogre.test.mts` 8/8.
+- Not built: stage 2 (owner call), stage 3. Owed: Q1r (Artemis, deferred beyond the cap; command above).

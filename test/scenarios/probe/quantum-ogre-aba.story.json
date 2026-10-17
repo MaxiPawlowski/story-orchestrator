@@ -1,0 +1,63 @@
+{
+  "format": 2,
+  "id": "so-qo-aba",
+  "title": "SO-QO Swipe ABA",
+  "description": "v2.8 62 Q3: one extractor quality that each swipe reads differently.",
+  "qualities": [
+    {
+      "key": "location",
+      "type": "enum",
+      "values": [
+        "square",
+        "vault",
+        "hall",
+        "cellar"
+      ],
+      "source": "extractor",
+      "rubric": "Where is the party now?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "gate",
+      "name": "The Gate",
+      "objective": "Get through the vault.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "square",
+      "name": "The Square",
+      "objective": "Back in the square.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "gate",
+      "to": "square",
+      "priority": 1,
+      "gate": {
+        "q": "location",
+        "op": "==",
+        "v": "square"
+      }
+    }
+  ],
+  "roster": [
+    {
+      "id": "narrator",
+      "name": "DM Narrator"
+    },
+    {
+      "id": "arin",
+      "name": "Arin"
+    }
+  ],
+  "requirements": {
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ]
+  }
+}

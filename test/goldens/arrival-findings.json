@@ -217,6 +217,8 @@
   "test/scenarios/plan12-copilot.json#0": [],
   "test/scenarios/plan12-copilot.json#1": [],
   "test/scenarios/plan13-surfacing.json#0": [],
+  "test/scenarios/probe/quantum-ogre-aba.story.json#0": [],
+  "test/scenarios/probe/quantum-ogre-lab.story.json#0": [],
   "test/scenarios/slash-quoting.story.json#0": [],
   "test/scenarios/v24-01-delete.story.json#0": [],
   "test/scenarios/v24-05-ring-nested-quiet.json#0": [],
