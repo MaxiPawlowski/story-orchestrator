@@ -215,6 +215,17 @@ export interface CuratorProposalRecord {
    *  or boundary, at what confidence. */
   provenance?: CuratorProvenance;
   appliedAt?: string;
+  noteAppliedTo?: NoteAppliedTo;
+}
+
+export interface NoteRevision {
+  swipeId: number | null;
+  hash: string;
+}
+
+export interface NoteAppliedTo {
+  messageId: number;
+  revision: NoteRevision;
 }
 
 // Each curator keeps its own last few, so a chatty warden never evicts a lorebook change that is

@@ -15,6 +15,7 @@ import {
 } from "@stagecraft/index";
 import { carriesInto, INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { heldPrompt } from "../heldPrompt";
+import { appliedToLast, rearmNotesFor } from "../noteRevision";
 import { beginRun, type RunGuard, type RunOwnership, type RunToken } from "../runToken";
 import type { ChatHost, CuratorWiHost, PlayerHost, PromptHost } from "../hostPorts";
 import type { StagecraftRuntimeState } from "../types";
@@ -490,6 +491,8 @@ export class StagecraftCoordinator {
     if (dryRun !== true && !carriesInto(INJECTION_REGISTRY.continuityNote, type)) return this.note.hold();
     if (dryRun === true || settings.wardenAcceptMode === "off" || this.deps.warden?.nudgeActive()) return;
     this.withdrawRemovedRules();
+    const rearmed = rearmNotesFor(this.state.proposals, this.deps.hosts.chat.chatRows());
+    if (rearmed) this.patch({ proposals: rearmed });
     const active = this.activeFamilies();
     const carried = newestCarriedNote(this.state.proposals, active);
     if (!carried) return;
@@ -506,7 +509,7 @@ export class StagecraftCoordinator {
     if (!rendered || !carried) return;
     this.updateOps(carried.recordId, (current) => ({
       ...current,
-      appliedAt: new Date().toISOString(),
+      appliedAt: new Date().toISOString(), ...appliedToLast(this.deps.hosts.chat.chatRows()),
       ops: current.ops.map((candidate, index) => (carried.indices.includes(index) && candidate.status === "accepted" ? { ...candidate, status: "applied" as const } : candidate)),
     }));
     void this.save();

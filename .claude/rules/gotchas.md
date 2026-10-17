@@ -73,7 +73,7 @@ Product and host traps, each with the symptom that identifies it and where the g
 
 ## Product traps
 
-- **Speaker direction**: `globalThis.talkControlInterceptor` is set inside `startRuntime()`; never re-assign it after startup (a re-stub silently disabled the feature). Decision key is `chatId:checkpointId:lastMessageId`; without the chat id a new chat at the same index reused a cached decision. A `lead` outside `speakers` is still a candidate (weight 1).
+- **Speaker direction**: `globalThis.talkControlInterceptor` is set inside `startRuntime()`; never re-assign it after startup (a re-stub silently disabled the feature). Decision key is `chatId:checkpointId:lastMessageId:revision`; without the chat id a new chat at the same index reused a cached decision. A `lead` outside `speakers` is still a candidate (weight 1).
 - **Scene-break heuristic needs a prior location**: the first location is never a break. Seed with a value the enum declares and assert it landed (`setQuality` rejects out-of-enum values silently), then pin cadence so the scene read does not fold into a cadence read.
 - **Curator writes land only at a boundary**: `applyCuratorProposals()` writes accepted ops only, called by the boundary, so a mid-turn proposal does nothing until the next commit.
 - **Canon shown to a player is `getCanonProse()`** (WHAT HAS HAPPENED only); `getCanon()` falls back to canon-lite scaffolding. The canon input hash includes the active checkpoint.
