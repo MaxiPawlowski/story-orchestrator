@@ -8,6 +8,8 @@ import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { latencyPercentiles, parseEffortArm, pinRoleEffort, pinRoleProfile, readRoleReasoning, restoreRoleEfforts, restoreRoleProfiles, type EffortArm } from './lib/roleEffort.mts';
 import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreContains, scoreIntents, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
+import { fingerprintsOf, readRoleModel, type MeasurementFingerprints } from './lib/measurementFingerprint.mts';
+import { captureHeader } from './so-run-header.mts';
 
 const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high] [--profile <name|id>] [--arm <label>] [--set extractor|time]
        node scripts/debug/so-live-suite.mts inventory|rescore [dir] [--out <file>] [--check]   (offline, v2.8 35: see so-live-rescore.mts)
@@ -106,6 +108,8 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
   let profilesRestored = null;
 
   const results = [];
+  const prompts: string[] = [];
+  let fingerprints: MeasurementFingerprints | null = null;
   try {
     for (const fixture of fixtures) {
       const startedAt = Date.now();
@@ -116,6 +120,7 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
           return suite.runFixture({ story: spec.story, transcript: spec.transcript, ...(spec.overrides ?? {}) }, spec.judge ? { judge: true, hints: spec.hints ?? {} } : {});
         }, { story: fixture.story, transcript: fixture.transcript, overrides: fixture.expected?.spec ?? {}, judge, hints: fixture.hints });
 
+        if (typeof live.prompt === 'string') prompts.push(live.prompt);
         const { pass, expectedNorm, liveNorm } = scoreFixture(fixture.expected.deltas ?? [], live.deltas ?? []);
         // §F: score every tier the fixture states, not only the plot deltas. `facts` and `rejected`
         // expectations have been in these files all along with nothing reading them.
@@ -142,6 +147,7 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
       }
     }
     if (pinned) reasoning = await readRoleReasoning(page, 'read');
+    fingerprints = fingerprintsOf({ prompts, model: await readRoleModel(page, 'read').catch(() => null), header: await captureHeader(page, 'fingerprints').catch(() => null) });
   } finally {
     if (pinned) effortsRestored = await restoreRoleEfforts(page, pinned.before);
     if (routed) profilesRestored = await restoreRoleProfiles(page, routed.before);
@@ -167,6 +173,7 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
     ok: verdict.ok,
     recorded: record,
     judge,
+    fingerprints,
     ...(arm ? { arm } : {}),
     ...(routed ? { profile: routed.profile, profilesRestored } : {}),
     ...(effort ? { effort, reasoning, effortsRestored } : {}),

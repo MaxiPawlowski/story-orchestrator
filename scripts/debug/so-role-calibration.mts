@@ -5,6 +5,8 @@ import { fileURLToPath } from 'node:url';
 import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
+import { fingerprintsOf, readRoleModel } from './lib/measurementFingerprint.mts';
+import { captureHeader } from './so-run-header.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
 import { roleVerdict, summarizeHoldout, type RoleRun } from './lib/roleVerdict.mts';
@@ -217,11 +219,13 @@ async function runRole(page, { role, profile, effort = null, arm, filter, record
   let run = { records: [], incomplete: [] };
   let held = { records: [], incomplete: [] };
   let restored = null;
+  let fingerprints = null;
   try {
     await evaluateInST(page, () => { for (const key of Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; return true; });
     run = await runCases(page, role, cases);
     if (holdoutCases) held = await runCases(page, role, holdoutCases);
     reasoning = await readRoleReasoning(page, role);
+    fingerprints = fingerprintsOf({ prompts: [...run.records, ...held.records].map((entry) => String(entry.promptHash ?? '')).filter(Boolean), model: await readRoleModel(page, role).catch(() => null), header: await captureHeader(page, 'fingerprints').catch(() => null) });
   } finally {
     restored = await restoreRoute(page, route.before);
     if (pinned) effortsRestored = await restoreRoleEfforts(page, pinned.before);
@@ -247,6 +251,7 @@ async function runRole(page, { role, profile, effort = null, arm, filter, record
     roleMapRestored: restored,
     fixtureFrozenAt: loaded.frozenAt,
     bundle: String(manifest.bundle?.sha256 ?? '').slice(0, 12),
+    fingerprints,
     runAt: new Date().toISOString(),
     cases: records.length,
     summary,
