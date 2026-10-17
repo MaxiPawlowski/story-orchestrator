@@ -32,6 +32,7 @@ import { samplerOverlay } from "./samplerOverlay";
 import { scanGateView, wiGatingStatus } from "./worldInfoMode";
 import { globalStoryLore } from "./storyLore";
 import { stylesheetMissing } from "./stylesheet";
+import { stateSize } from "./stateSize";
 import { extensionConflicts } from "./extensionConflicts";
 import { tunnelVision } from "./tunnelVision";
 import { copierWarning, switchedOnCopiers } from "./transcriptCopiers";
@@ -438,7 +439,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     storyHash: loaded?.record.hash ?? null,
     storyIdentity: buildStoryIdentity(loaded?.record ?? null, loaded ? findStoryRecord(loaded.record.id) : null, Boolean(loaded && hasPersistedRuntime(loaded.record.id))),
     blobUnreadable: unreadable ? { foundVersion: unreadable.foundVersion, notice: UNREADABLE_NOTICE } : null,
-    orphanedLorebooks: orphanedLorebooks(), reapDecisions: reapDecisions(), globalStoryLore: globalStoryLore(), stylesMissing: stylesheetMissing(),
+    orphanedLorebooks: orphanedLorebooks(), reapDecisions: reapDecisions(), globalStoryLore: globalStoryLore(), stylesMissing: stylesheetMissing(), stateSize: stateSize(),
     ...setupWarnings(sources),
     chatIdentity: loaded ? null : readChatIdentity(), storyTitle: story?.title ?? null,
     storyDescription: story?.description ?? null,

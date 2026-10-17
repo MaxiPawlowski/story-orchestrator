@@ -464,6 +464,7 @@ export interface RuntimeSnapshot {
   wiGating?: WiGatingStatus | null;
   globalStoryLore?: string[];
   stylesMissing?: boolean;
+  stateSize?: import("./stateSizeCore").StateSize | null;
   /** Other extensions switched on in a way that works against the playing story (empty with no story). */
   extensionConflicts?: ExtensionConflict[];
   tunnelVisionBooks?: import("./tunnelVision").TunnelVisionBook[];
