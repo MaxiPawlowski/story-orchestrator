@@ -22,12 +22,12 @@ export const TrophyShelf = ({ rows, load, onOpen }: TrophyShelfProps) => {
   };
   const play = (chatId: string) => rows.find((row) => row.chatId === chatId);
   return (
-    <details id="so-trophy-shelf" data-so="trophy-shelf" className="flex flex-col gap-1" onToggle={open}>
+    <details id="so-trophy-shelf" data-so="trophy-shelf" onToggle={open}>
       <summary className="text-xs font-medium cursor-pointer">{CARRY_COPY.shelfHeading}</summary>
-      {asked && shelf === null && <div className="text-xs opacity-70">{CARRY_COPY.shelfLoading}</div>}
+      {asked && shelf === null && <div className="text-xs opacity-70 mt-1">{CARRY_COPY.shelfLoading}</div>}
       {shelf?.length === 0 && <div data-so="trophy-empty" className="text-xs opacity-70">{CARRY_COPY.shelfEmpty}</div>}
       {shelf && shelf.length > 0 && (
-        <ul className="flex flex-col gap-1">
+        <ul className="flex flex-col gap-1 mt-1">
           {shelf.map((trophy) => {
             const row = play(trophy.chatId);
             return (

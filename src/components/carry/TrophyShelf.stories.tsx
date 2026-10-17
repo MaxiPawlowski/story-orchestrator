@@ -53,7 +53,7 @@ export const NothingEnded: Story = {
   },
 };
 
-const primary = (canvasElement: HTMLElement) => canvasElement.querySelector('[data-so="trophy-shelf"]');
+const primary = (canvasElement: HTMLElement) => canvasElement.querySelector('[data-so="trophy-shelf"] summary');
 
 export const Phone: Story = fitsAt(VIEWPORTS.phone, primary);
 export const Wide: Story = fitsAt(VIEWPORTS.wide, primary);
