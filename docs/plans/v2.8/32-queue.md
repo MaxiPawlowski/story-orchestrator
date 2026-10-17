@@ -150,7 +150,8 @@ plan 52's SC1–SC5.
 
 | # | Item | Plan | Tiers |
 |---|---|---|---|
-| M55 | NPC commitments to the player (A authored; B after 47's read). **A built 2026-10-17** on `v2.8-queue-55-45e-52e` (unmerged): M1–M6 green, payload goldens identical (31/31), lane 81 no-model ×2; M7 (LT/RP, Artemis) owed; B not built (its M8 is a CL labelled-set run) | 55 | D green; L plumbing green; LT/RP owed (+CL with B) |
+| M55 | NPC commitments to the player (A authored; B after 47's read). **A built 2026-10-17** on `v2.8-queue-55-45e-52e` (unmerged): M1–M6 green, payload goldens identical (31/31), lane 81 no-model ×2; M7 (LT/RP, Artemis) owed; B not built (its M8 is a CL labelled-set run) | 55 | D green; L plumbing green; LT/RP owed (+CL with B). 2026-10-17 follow-up on `v2.8-q55-followup` (unmerged): broken holder line (owner Q1) + payload case group-commitments ×2 |
+| M55w | Commitments: derive `heard` from plan 42's witness record (player present at the made boundary's messages), the author flag kept as an override (owner Q2 2026-10-17, not now) | 55 | D; after 42 B gains player presence |
 | M56 | Social permissions: event-granted, event-revoked, `known_to` scoped | 56 | D+LT/RP |
 | M57 | Shared rituals: authored cues, cooldown from the offer, no streaks | 57 | D+LT/RP |
 | M58 | Keepsakes tied to witnessed moments | 58 | D+LT/RP; witness = heard after 42 |
