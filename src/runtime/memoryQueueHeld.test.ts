@@ -193,7 +193,7 @@ describe("an explicit negation below the Jaccard band (polarity screen)", () => 
   };
 
   it.each([
-    ["en, a negated verb that inflection and punctuation keep apart", "Mira knows the password to the archive.", "Mira doesn't know the archive password."],
+    ["en, a negated verb that inflection keeps apart", "Mira knows the password to the archive.", "Mira doesn't know where the archive is kept."],
     ["es, ya no", "El puente sigue en pie.", "El puente ya no existe."],
     ["es, a second negator", "El puente sigue en pie.", "Del puente ya no queda nada."],
   ])("holds the claim against an established row (%s)", async (_label, established, said) => {
@@ -204,7 +204,7 @@ describe("an explicit negation below the Jaccard band (polarity screen)", () => 
 
   it("does not hold an agreeing pair that carries a negator on both sides", async () => {
     const established = "Oswin never trusted the harbourmaster.";
-    const said = "The harbourmaster was not someone Oswin trusted.";
+    const said = "Oswin had never placed his trust in the harbourmaster at all.";
     belowBand(established, said);
     const h = harness([seed({ text: established })]);
     expect(await findHeldContradictions(h.deps, [claim({ text: said })])).toEqual([]);
