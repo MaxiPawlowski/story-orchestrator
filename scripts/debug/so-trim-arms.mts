@@ -78,8 +78,9 @@ async function setMaxContext(page: Page, value: number) {
     el.max = String(Math.max(Number(el.max), target));
     el.value = String(target);
     el.dispatchEvent(new Event('input', { bubbles: true }));
-    await new Promise((done) => setTimeout(done, 1500));
-    return { maxContext: ctx.maxContext, amountGen: Number((document.querySelector('#amount_gen') as HTMLInputElement | null)?.value ?? 0), chat: ctx.chatId, length: ctx.chat.length };
+    const read = () => (globalThis as any).SillyTavern.getContext().maxContext;
+    for (let waited = 0; waited < 15000 && read() !== target; waited += 250) await new Promise((done) => setTimeout(done, 250));
+    return { maxContext: read(), amountGen: Number((document.querySelector('#amount_gen') as HTMLInputElement | null)?.value ?? 0), chat: ctx.chatId, length: ctx.chat.length };
   }, value);
 }
 
