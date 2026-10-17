@@ -9,10 +9,14 @@ import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { latencyPercentiles, parseEffortArm, pinRoleEffort, pinRoleProfile, readRoleReasoning, restoreRoleEfforts, restoreRoleProfiles, type EffortArm } from './lib/roleEffort.mts';
 import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreContains, scoreIntents, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
 import { fingerprintsOf, readRoleModel, type MeasurementFingerprints } from './lib/measurementFingerprint.mts';
+import { compareArms } from './lib/armCompare.mts';
 import { captureHeader } from './so-run-header.mts';
 
 const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high] [--profile <name|id>] [--arm <label>] [--set extractor|time]
        node scripts/debug/so-live-suite.mts inventory|rescore [dir] [--out <file>] [--check]   (offline, v2.8 35: see so-live-rescore.mts)
+       node scripts/debug/so-live-suite.mts compare <a-r1> <a-r2> <b-r1> <b-r2> [--declare prompt,scorer,model,config] [--out <file>]
+                  (offline, v2.8 35 G5/G8: stable-pass, stable-fail, flaky, new, removed; regressed only on stable-pass to stable-fail;
+                  reports whose fingerprints differ are labelled not comparable unless the differing field is declared)
 
 Runs every test/fixtures/extractor*.{story,transcript,expected}.json triple through the live
 extraction model (globalThis.storyOrchestratorLiveSuite.runFixture) and scores exact-match on
@@ -195,6 +199,21 @@ export { runSuite };
 if (process.argv[1] === fileURLToPath(import.meta.url) && (process.argv[2] === 'rescore' || process.argv[2] === 'inventory')) {
   const offline = spawnSync(process.execPath, ['--experimental-transform-types', '--no-warnings', join(PROJECT_ROOT, 'scripts/debug/so-live-rescore.mts'), ...process.argv.slice(2)], { stdio: 'inherit' });
   process.exit(offline.status ?? 1);
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv[2] === 'compare') {
+  const files = process.argv.slice(3).filter((arg, index, args) => !arg.startsWith('--') && !['--declare', '--out'].includes(args[index - 1] ?? ''));
+  if (files.length !== 4) {
+    console.log(USAGE);
+    process.exit(1);
+  }
+  const declared = argValue('--declare', '').split(',').map((field) => field.trim()).filter(Boolean);
+  const [a1, a2, b1, b2] = await Promise.all(files.map(readJson));
+  const compared = { files, ...compareArms(a1, a2, b1, b2, declared) };
+  const out = argValue('--out', '');
+  if (out) await writeFile(out, `${JSON.stringify(compared, null, 2)}\n`);
+  console.log(JSON.stringify({ label: compared.label, counts: compared.counts, regressed: compared.rows.filter((row) => row.change === 'regressed').map((row) => row.key) }, null, 2));
+  process.exit(0);
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
