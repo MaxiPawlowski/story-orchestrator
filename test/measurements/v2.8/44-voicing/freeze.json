@@ -1,0 +1,8 @@
+{
+ "format": "so-v44-voicing-freeze/1",
+ "hash": "sha256 of JSON.stringify(JSON.parse(file))",
+ "files": {
+  "cases.json": "ff684a25454755c9fbb49eac9adc63a58bf09b82bfc550adc7dad1eadf78c779",
+  "g14-fixture.json": "da7ac50f7e16117480656b06b76ff946f0e881eab4194405a58781a8efe25774"
+ }
+}

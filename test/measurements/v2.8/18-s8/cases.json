@@ -1,0 +1,57 @@
+{
+ "format": "so-v18-s8/1",
+ "synthetic": true,
+ "plan": "v2.8 18 Q7 S8: 10 scripted failure outcomes. Each case is a public checkpoint check that cannot succeed (target above the highest roll), attempted by the player; five cases also fail a quest on the same boundary, so its row is listed in the narrator's just-happened block. The narrator's reply is rated for consequences the request does not list. Invented names only; {receiver} is the companion's card name, filled at run time.",
+ "cases": [
+  {
+   "id": "s01", "check": { "id": "climb", "label": "Climb the wall" }, "quest": { "id": "old-quarter", "title": "Into the old quarter" },
+   "place": "The town wall", "scene": "The town wall rises ahead, slick with rain, ivy clinging to its stones.",
+   "attempt": "I grab the ivy and try to climb over the wall while {receiver} keeps watch."
+  },
+  {
+   "id": "s02", "check": { "id": "picklock", "label": "Pick the cellar lock" },
+   "place": "The cellar door", "scene": "A heavy oak door with an iron lock blocks the way into the cellar.",
+   "attempt": "I kneel and work the lock with my picks."
+  },
+  {
+   "id": "s03", "check": { "id": "persuade", "label": "Talk the gate guard round" }, "quest": { "id": "past-gate", "title": "Past the night gate" },
+   "place": "The night gate", "scene": "A bored guard leans on his spear beside the shut night gate.",
+   "attempt": "I tell the guard we are expected at the temple and ask him to open the gate."
+  },
+  {
+   "id": "s04", "check": { "id": "swim", "label": "Swim the river" },
+   "place": "The river bank", "scene": "The river runs fast and cold between the reeds, the far bank a stone's throw away.",
+   "attempt": "I wade in and try to swim across to the far bank."
+  },
+  {
+   "id": "s05", "check": { "id": "lift", "label": "Lift the stable bar" }, "quest": { "id": "free-horses", "title": "Free the stable horses" },
+   "place": "The burning stable", "scene": "Smoke drifts from the stable roof, and a thick oak bar holds the doors shut.",
+   "attempt": "I set my shoulder under the bar and heave to lift it."
+  },
+  {
+   "id": "s06", "check": { "id": "calm", "label": "Calm the frightened horse" },
+   "place": "The muddy lane", "scene": "A tethered horse rears and stamps in the muddy lane, eyes white.",
+   "attempt": "I speak softly and reach for the horse's bridle to calm it."
+  },
+  {
+   "id": "s07", "check": { "id": "readmap", "label": "Read the faded map" }, "quest": { "id": "lost-shrine", "title": "The lost shrine" },
+   "place": "The ruined chapel", "scene": "On the chapel altar lies a faded map, its ink nearly gone.",
+   "attempt": "I hold the map up to the light and try to make out the route to the shrine."
+  },
+  {
+   "id": "s08", "check": { "id": "haggle", "label": "Haggle with the merchant" },
+   "place": "The spice stall", "scene": "A spice merchant named Corvel guards a sack of saffron behind his stall.",
+   "attempt": "I offer Corvel half his asking price for the saffron."
+  },
+  {
+   "id": "s09", "check": { "id": "jump", "label": "Jump the rooftop gap" }, "quest": { "id": "rooftops", "title": "Across the rooftops" },
+   "place": "The rooftops", "scene": "Two rooftops stand an arm's length too far apart over a dark alley.",
+   "attempt": "I take a running start and leap for the far roof."
+  },
+  {
+   "id": "s10", "check": { "id": "track", "label": "Follow the tracks" },
+   "place": "The forest edge", "scene": "Faint hoof tracks lead from the road into the wet forest.",
+   "attempt": "I crouch and try to follow the tracks into the trees."
+  }
+ ]
+}
