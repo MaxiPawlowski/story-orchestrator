@@ -1,0 +1,3191 @@
+{
+ "format": "so-p47-p1/1",
+ "synthetic": true,
+ "player": "Rowan",
+ "story": "story.json",
+ "cases": [
+  {
+   "id": "p1-pos-001",
+   "category": "plain",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "My brother went north with the caravan and never wrote back.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise I'll find your brother before the snows come.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll find your brother before the snows come"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-002",
+   "category": "plain",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "The guild wants this hammer back, and I can't leave the forge.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise I will carry the hammer to the guild hall myself.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise I will carry the hammer to the guild hall myself"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-003",
+   "category": "plain",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Nobody ever comes back to the watchtower once they leave.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I promise you, Edda, I'll come back to the watchtower.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I promise you, Edda, I'll come back to the watchtower"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-004",
+   "category": "plain",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "My ledger was stolen off the dock. Everything I own is written in it.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I promise to get your ledger back from whoever took it.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I promise to get your ledger back from whoever took it"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-005",
+   "category": "plain",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "The orphans haven't eaten properly in days.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I promise, Mira, the orphans will have bread on their table tomorrow.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise, Mira, the orphans will have bread on their table tomorrow"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-006",
+   "category": "plain",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Keep my daughter out of the fighting, that's all I ask.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise I'll keep your daughter away from the fighting.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise I'll keep your daughter away from the fighting"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-007",
+   "category": "plain",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "You're going to tell the captain I fell asleep on watch, aren't you?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I promise I'll never tell the captain about last night.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I promise I'll never tell the captain about last night"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-008",
+   "category": "plain",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "The bridge toll is ruining me.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I promise I'll speak to the reeve about the bridge toll for you, Corvin.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I promise I'll speak to the reeve about the bridge toll for you"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-009",
+   "category": "plain",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "These herbs only grow on the far bank.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise I will bring you a basket of marsh herbs from the far bank.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I will bring you a basket of marsh herbs from the far bank"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-010",
+   "category": "plain",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "My old anvil sank in the river when the ferry tipped.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise I'll pull your anvil out of the river.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise I'll pull your anvil out of the river"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-011",
+   "category": "answering",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Will you look after my cat while I'm at the shrine?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I promise I'll feed her every morning.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll feed her every morning"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-012",
+   "category": "answering",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Don't let the apprentice touch the bellows while I'm gone.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I promise I won't let him near the bellows.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise I won't let him near the bellows"
+    }
+   ],
+   "note": "negation after the commitment word is part of the promise"
+  },
+  {
+   "id": "p1-pos-013",
+   "category": "answering",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Swear you'll stay on the path past the old mill.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I swear I'll stay on the path.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I swear I'll stay on the path"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-014",
+   "category": "answering",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "I need the spice crates counted before the barge leaves.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I promise they'll be counted before the barge leaves.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I promise they'll be counted before the barge leaves"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-015",
+   "category": "answering",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Promise me you'll rest tonight. Your wound needs it.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I promise. I'll rest tonight.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise. I'll rest tonight"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-016",
+   "category": "answering",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "The sword is for my son's naming day. It cannot be late.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "You have my word it will be there for the naming day.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "You have my word it will be there for the naming day"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-017",
+   "category": "answering",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "If the bells ring, someone has to warn the farms.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I'll warn the farms for you myself.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I'll warn the farms for you myself"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-018",
+   "category": "answering",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Keep this letter sealed until you reach my sister.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I promise I won't open it until I reach your sister.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I promise I won't open it until I reach your sister"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-019",
+   "category": "oath",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "They burned my garden once. I can't watch it happen again.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I swear on my mother's grave that nobody will burn your garden again.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I swear on my mother's grave that nobody will burn your garden again"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-020",
+   "category": "oath",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "I need someone I can trust with the forge keys.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I give you my word I'll guard the forge keys.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I give you my word I'll guard the forge keys"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-021",
+   "category": "oath",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "The scouts take an oath. Will you take it with me?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I vow to stand watch beside you until the winter ends.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I vow to stand watch beside you until the winter ends"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-022",
+   "category": "oath",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Words are cheap at the market.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Then take mine, Corvin: on my word, I'll pay you back every coin by the next fair.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "on my word, I'll pay you back every coin by the next fair"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-023",
+   "category": "oath",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "You keep saying you'll stay.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, you have my word I'm not leaving the town without you.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "you have my word I'm not leaving the town without you"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-024",
+   "category": "oath",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "My father's blade was stolen by the ferryman's crew.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I swear to you, Tobin, I'll get your father's blade back.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I swear to you, Tobin, I'll get your father's blade back"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-025",
+   "category": "oath",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Promise me something real for once.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I swear I'll teach you to read before the spring.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I swear I'll teach you to read before the spring"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-026",
+   "category": "oath",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Can I count on you at the auction?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I vow I'll be at the auction to bid for you.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I vow I'll be at the auction to bid for you"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-027",
+   "category": "deadline",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "The fever breaks in three days or not at all.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise I'll bring the willow bark within three days.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll bring the willow bark within three days"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-028",
+   "category": "deadline",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "The shipment of iron has to be paid by the new moon.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise you'll have the money by the new moon.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise you'll have the money by the new moon"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-029",
+   "category": "deadline",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "The pass closes at sundown.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I promise I'll be through the pass before sundown.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I promise I'll be through the pass before sundown"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-030",
+   "category": "deadline",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Bring the map before the fair ends, or the buyer walks.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I promise the map will be in your hands before the fair ends.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I promise the map will be in your hands before the fair ends"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-031",
+   "category": "deadline",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "The midwife leaves at dawn.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I promise I'll fetch the midwife back here by dawn, Mira.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll fetch the midwife back here by dawn"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-032",
+   "category": "deadline",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "The festival is in a week and the bell is still cracked.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise to find a bell-founder within the week.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise to find a bell-founder within the week"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-033",
+   "category": "deadline",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "The scouts report to the captain tomorrow.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I swear the report will be finished by tomorrow morning.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I swear the report will be finished by tomorrow morning"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-034",
+   "category": "deadline",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Rent is due at the end of the month.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, you'll get the rent from me by the end of the month, I promise.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "you'll get the rent from me by the end of the month, I promise"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-035",
+   "category": "future-commitment",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "I can't carry all of these jars alone.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I'll carry every jar up the hill for you.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I'll carry every jar up the hill for you"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-036",
+   "category": "future-commitment",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Somebody keeps stealing coal from my yard.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I will stand guard over your coal yard tonight.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I will stand guard over your coal yard tonight"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-037",
+   "category": "future-commitment",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "I need someone to cover my watch on the east wall.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I'll cover your watch on the east wall, Edda.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I'll cover your watch on the east wall"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-038",
+   "category": "future-commitment",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "My cart wheel snapped on the road.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I shall mend your cart wheel before you set out.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I shall mend your cart wheel before you set out"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-039",
+   "category": "future-commitment",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Nobody visits my mother anymore.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I will visit your mother every week, Mira.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I will visit your mother every week"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-040",
+   "category": "future-commitment",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Will you stand with me when the guild comes?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I'll stand with you when the guild comes, Tobin.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I'll stand with you when the guild comes"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-041",
+   "category": "multiple-recipients",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "We can't hold the clinic alone.",
+     "user": false
+    },
+    {
+     "speaker": "Tobin",
+     "text": "And I can't leave the forge.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, Tobin, I promise I'll come back with help for you.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 2,
+     "quote": "I promise I'll come back with help for you"
+    },
+    {
+     "promisee": "tobin",
+     "messageId": 2,
+     "quote": "I promise I'll come back with help for you"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-042",
+   "category": "multiple-recipients",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "The tower needs supplies.",
+     "user": false
+    },
+    {
+     "speaker": "Corvin",
+     "text": "And somebody has to pay for them.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda and Corvin, I swear I'll get the supplies to the tower and pay for them myself.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "edda",
+     "messageId": 2,
+     "quote": "I swear I'll get the supplies to the tower and pay for them myself"
+    },
+    {
+     "promisee": "corvin",
+     "messageId": 2,
+     "quote": "I swear I'll get the supplies to the tower and pay for them myself"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-043",
+   "category": "multiple-recipients",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "The children are frightened of the storm.",
+     "user": false
+    },
+    {
+     "speaker": "Edda",
+     "text": "So are the scouts, honestly.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, Edda, I promise I'll keep the lamps burning all night for you.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 2,
+     "quote": "I promise I'll keep the lamps burning all night for you"
+    },
+    {
+     "promisee": "edda",
+     "messageId": 2,
+     "quote": "I promise I'll keep the lamps burning all night for you"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-044",
+   "category": "multiple-recipients",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "The mayor wants our heads for the broken gate.",
+     "user": false
+    },
+    {
+     "speaker": "Corvin",
+     "text": "Mine especially.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin and Corvin, you have my word I'll speak for you before the mayor.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "tobin",
+     "messageId": 2,
+     "quote": "you have my word I'll speak for you before the mayor"
+    },
+    {
+     "promisee": "corvin",
+     "messageId": 2,
+     "quote": "you have my word I'll speak for you before the mayor"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-045",
+   "category": "multiple-recipients",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Who will look after the sick when you go?",
+     "user": false
+    },
+    {
+     "speaker": "Tobin",
+     "text": "And the forge fire?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise to find another healer. Tobin, I promise to find you an apprentice.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 2,
+     "quote": "I promise to find another healer"
+    },
+    {
+     "promisee": "tobin",
+     "messageId": 2,
+     "quote": "I promise to find you an apprentice"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-046",
+   "category": "multiple-recipients",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "You keep disappearing at night.",
+     "user": false
+    },
+    {
+     "speaker": "Mira",
+     "text": "We worry about you.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, Mira, I swear I'll tell you where I go from now on.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "edda",
+     "messageId": 2,
+     "quote": "I swear I'll tell you where I go from now on"
+    },
+    {
+     "promisee": "mira",
+     "messageId": 2,
+     "quote": "I swear I'll tell you where I go from now on"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-047",
+   "category": "embedded",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "You look like you've seen a ghost.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I sit down on the crate and rub my eyes. It's been a long night. Corvin, I promise I'll explain everything once we're inside.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I promise I'll explain everything once we're inside"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-048",
+   "category": "embedded",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Hold still, this will sting.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I wince and grip the table. Mira, I promise I'll come back and pay you for the bandages.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll come back and pay you for the bandages"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-049",
+   "category": "embedded",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "So you lost the commission.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I stare at the floor for a while. Tobin, I swear I'll make this right with the guild.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I swear I'll make this right with the guild"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-050",
+   "category": "embedded",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "The fog's rolling in fast.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I pull my cloak tighter and look at the ridge. Edda, I promise I'll stay close to you in the fog.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I promise I'll stay close to you in the fog"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-051",
+   "category": "embedded",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "My daughter thinks you're a hero.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I laugh and shake my head. Tell her I said hello. Corvin, I promise I'll take her to see the river boats.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I promise I'll take her to see the river boats"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-052",
+   "category": "embedded",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "The well water tastes of rust.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I sniff the bucket and frown. Mira, I'll clean the well for you this week, I promise.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I'll clean the well for you this week, I promise"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-053",
+   "category": "negative-promise",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Don't ever tell anyone what you saw in the cellar.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise I'll never tell a soul about the cellar.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise I'll never tell a soul about the cellar"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-054",
+   "category": "negative-promise",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Don't leave me at the crossroads again.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I swear I will never leave you behind again.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I swear I will never leave you behind again"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-055",
+   "category": "negative-promise",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Keep your hands off my strongbox.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I promise I won't touch your strongbox.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I promise I won't touch your strongbox"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-056",
+   "category": "negative-promise",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Don't drink from the black spring.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, you have my word I won't drink from the black spring.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "you have my word I won't drink from the black spring"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-057",
+   "category": "asked-then-given",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Promise me you'll bring the boy home.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise. I'll bring him home.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise. I'll bring him home"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-058",
+   "category": "asked-then-given",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Will you give me your word on the bridge plan?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "You have my word, Edda.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "You have my word"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-059",
+   "category": "asked-then-given",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Swear you'll tell no one the price.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I swear it, Corvin. Nobody hears the price from me.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I swear it, Corvin"
+    }
+   ]
+  },
+  {
+   "id": "p1-pos-060",
+   "category": "asked-then-given",
+   "label": "promise",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Promise you'll eat something today.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Fine, Mira. I promise I'll eat something today.",
+     "user": true
+    }
+   ],
+   "gold": [
+    {
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll eat something today"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-001",
+   "category": "hedge",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Can you fix the roof before the rain?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Maybe I'll help you with the roof, Tobin.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 1,
+     "quote": "Maybe I'll help you with the roof"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-002",
+   "category": "hedge",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "The ring fell down the well.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I might be able to bring your ring back.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Edda",
+     "messageId": 1,
+     "quote": "I might be able to bring your ring back"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-003",
+   "category": "hedge",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Could you find more bandages?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, perhaps I could promise that, but I need to see the market first.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 1,
+     "quote": "perhaps I could promise that"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-004",
+   "category": "hedge",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "I need my coin back from the toll-keeper.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I'll try to get your coin back, Corvin, but no guarantees.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Corvin",
+     "messageId": 1,
+     "quote": "I'll try to get your coin back, Corvin, but no guarantees"
+    }
+   ],
+   "note": "a try with no guarantee is not a commitment"
+  },
+  {
+   "id": "p1-neg-005",
+   "category": "hedge",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Will you have the charcoal by morning?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I should be able to have the charcoal by morning.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 1,
+     "quote": "I should be able to have the charcoal by morning"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-006",
+   "category": "hedge",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Will you sit with me at the vigil?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I'd probably come to the vigil, Mira, if I'm not too tired.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 1,
+     "quote": "I'd probably come to the vigil"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-007",
+   "category": "hedge",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "The captain wants the map redrawn.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I could maybe redraw the map, I'm not sure yet.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Edda",
+     "messageId": 1,
+     "quote": "I could maybe redraw the map"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-008",
+   "category": "hedge",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Will you guard the wagon tonight?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I'm thinking I'll guard the wagon, but let me sleep on it.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Corvin",
+     "messageId": 1,
+     "quote": "I'm thinking I'll guard the wagon"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-009",
+   "category": "refusal",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Promise me you'll stay away from the guild.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "No, Tobin. I won't promise you that.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 1,
+     "quote": "I won't promise you that"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-010",
+   "category": "refusal",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Swear you'll come back.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I can't swear to anything right now.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 1,
+     "quote": "I can't swear to anything right now"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-011",
+   "category": "refusal",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Take the scouts' vow with me.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I will not take that vow.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Edda",
+     "messageId": 1,
+     "quote": "I will not take that vow"
+    }
+   ],
+   "note": "a refusal phrased with 'I will not'"
+  },
+  {
+   "id": "p1-neg-012",
+   "category": "refusal",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Promise to buy the whole crate.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I refuse to promise something I can't pay for.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Corvin",
+     "messageId": 1,
+     "quote": "I refuse to promise something I can't pay for"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-013",
+   "category": "refusal",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Promise me you'll stop fighting.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I'm not going to promise that, Mira.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 1,
+     "quote": "I'm not going to promise that"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-014",
+   "category": "refusal",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Give me your word on the hammer.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I never give my word on things I can't control.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 1,
+     "quote": "I never give my word on things I can't control"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-015",
+   "category": "refusal",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Will you swear to guard the tower?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "No. I don't swear oaths anymore, Edda.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Edda",
+     "messageId": 1,
+     "quote": "I don't swear oaths anymore"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-016",
+   "category": "refusal",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "You'll pay me back by the fair, yes?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I won't be paying you back by the fair. I'm sorry.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Corvin",
+     "messageId": 1,
+     "quote": "I won't be paying you back by the fair"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-017",
+   "category": "double-negative",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "You're not coming back, are you?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I won't not come back for you.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 1,
+     "quote": "I won't not come back for you"
+    }
+   ],
+   "note": "held by design (v2.7 09 fail-safe)"
+  },
+  {
+   "id": "p1-neg-018",
+   "category": "double-negative",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "So you promise or not?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, it's not that I won't promise, it's that I can't.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 1,
+     "quote": "it's not that I won't promise"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-019",
+   "category": "double-negative",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "You said you'd never swear to it.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I never said I wouldn't swear to it.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Edda",
+     "messageId": 1,
+     "quote": "I never said I wouldn't swear to it"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-020",
+   "category": "double-negative",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Can I count on you or not?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I can't say I won't let you down.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Corvin",
+     "messageId": 1,
+     "quote": "I can't say I won't let you down"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-021",
+   "category": "double-negative",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Will you be at the shrine?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, it isn't impossible that I won't be at the shrine.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 1,
+     "quote": "it isn't impossible that I won't be at the shrine"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-022",
+   "category": "double-negative",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Tell me you'll help.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I'm not saying I won't help, but don't count on it.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 1,
+     "quote": "I'm not saying I won't help"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-023",
+   "category": "npc-promise",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "I promise I'll have the salve ready by dusk, Rowan.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Thank you, Mira.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 0,
+     "quote": "I promise I'll have the salve ready by dusk"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-024",
+   "category": "npc-promise",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "You have my word, Rowan, the blade will be sharp by morning.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Good. I'll come by early.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 0,
+     "quote": "You have my word, Rowan, the blade will be sharp by morning"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-025",
+   "category": "npc-promise",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "I swear I'll guide you through the marsh.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Then let's go, Edda.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Edda",
+     "messageId": 0,
+     "quote": "I swear I'll guide you through the marsh"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-026",
+   "category": "npc-promise",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "I promise to hold the room for you until the fair.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "That's kind of you.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Corvin",
+     "messageId": 0,
+     "quote": "I promise to hold the room for you until the fair"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-027",
+   "category": "npc-promise",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Rowan",
+     "text": "Can you watch my horse?",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "I promise I'll watch your horse until you're back.",
+     "user": false
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 1,
+     "quote": "I promise I'll watch your horse until you're back"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-028",
+   "category": "npc-promise",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Rowan",
+     "text": "Will the gate be fixed?",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "I'll fix the gate before nightfall, I promise you.",
+     "user": false
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 1,
+     "quote": "I'll fix the gate before nightfall, I promise you"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-029",
+   "category": "npc-promise",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "I vow to keep your secret, Rowan.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I appreciate that.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Edda",
+     "messageId": 0,
+     "quote": "I vow to keep your secret"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-030",
+   "category": "npc-promise",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Rowan",
+     "text": "Do you trust me with the ledger?",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "I do. And I promise I'll never doubt you again.",
+     "user": false
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Corvin",
+     "messageId": 1,
+     "quote": "I promise I'll never doubt you again"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-031",
+   "category": "quoting",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "What did the smith tell you?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin told me, \"I promise I'll fix your blade by morning.\"",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 1,
+     "quote": "I promise I'll fix your blade by morning"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-032",
+   "category": "quoting",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "And Edda?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "\"I swear I'll return before dark,\" Edda said to me.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Edda",
+     "messageId": 1,
+     "quote": "I swear I'll return before dark"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-033",
+   "category": "quoting",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Why do you hate promises?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "My father always said \"I promise I'll come home\" and he never did.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Edda",
+     "messageId": 1,
+     "quote": "I promise I'll come home"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-034",
+   "category": "quoting",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Did Corvin pay you?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin promised he'd pay me back, but nothing yet.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Corvin",
+     "messageId": 1,
+     "quote": "Corvin promised he'd pay me back"
+    }
+   ],
+   "note": "reported speech without quote marks"
+  },
+  {
+   "id": "p1-neg-035",
+   "category": "quoting",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "What did the captain want?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "She told the guards, \"I will hang the next thief myself.\"",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Corvin",
+     "messageId": 1,
+     "quote": "I will hang the next thief myself"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-036",
+   "category": "quoting",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "What's written on the old sign?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "It says \"I promise to protect this town\" in faded red paint.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 1,
+     "quote": "I promise to protect this town"
+    }
+   ],
+   "note": "reading a sign aloud"
+  },
+  {
+   "id": "p1-neg-037",
+   "category": "quoting",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "What did Mira say?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira said she'd promise to bring the herbs, if she found any.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 1,
+     "quote": "she'd promise to bring the herbs"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-038",
+   "category": "sarcasm",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "You'll scrub all the pots, right?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Oh sure, Tobin, I promise I'll scrub every pot in the keep. Yeah, right.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 1,
+     "quote": "I promise I'll scrub every pot in the keep"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-039",
+   "category": "sarcasm",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Give me your whole purse as a deposit.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I'll hand you my whole purse, I swear. As if.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Corvin",
+     "messageId": 1,
+     "quote": "I'll hand you my whole purse, I swear"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-040",
+   "category": "sarcasm",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "You'll be up at dawn to help me?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I roll my eyes. Mira, I promise I'll leap out of bed at dawn, singing.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 1,
+     "quote": "I promise I'll leap out of bed at dawn, singing"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-041",
+   "category": "sarcasm",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Promise to love the marsh like I do.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I swear I'll adore every mosquito in that marsh. /s",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Edda",
+     "messageId": 1,
+     "quote": "I swear I'll adore every mosquito in that marsh"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-042",
+   "category": "sarcasm",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "You'll carry the anvil up the tower?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Absolutely, Tobin, I'll carry the anvil up all four hundred steps with one hand, I swear, right after the river runs uphill.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 1,
+     "quote": "I'll carry the anvil up all four hundred steps with one hand, I swear"
+    }
+   ],
+   "note": "sarcasm carried by context, no marker word"
+  },
+  {
+   "id": "p1-neg-043",
+   "category": "sarcasm",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "So you'll lend me the boat for free?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Of course, Corvin, I promise to lend you the boat for free forever, and the moon too.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Corvin",
+     "messageId": 1,
+     "quote": "I promise to lend you the boat for free forever"
+    }
+   ],
+   "note": "sarcasm carried by context, no marker word"
+  },
+  {
+   "id": "p1-neg-044",
+   "category": "conditional",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "The crate costs thirty silver.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, if you lower the price, I'll buy the whole crate.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Corvin",
+     "messageId": 1,
+     "quote": "if you lower the price, I'll buy the whole crate"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-045",
+   "category": "conditional",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "The clinic needs a new roof.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, if the council pays for the timber, I promise I'll build it.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 1,
+     "quote": "I promise I'll build it"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-046",
+   "category": "conditional",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "I need an extra pair of hands.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I'll help you at the forge, as long as you teach me to weld.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 1,
+     "quote": "I'll help you at the forge, as long as you teach me to weld"
+    }
+   ],
+   "note": "condition after the verb"
+  },
+  {
+   "id": "p1-neg-047",
+   "category": "conditional",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Come scouting with me.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, unless the captain forbids it, I'll come scouting with you.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Edda",
+     "messageId": 1,
+     "quote": "I'll come scouting with you"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-048",
+   "category": "conditional",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Guard my stall tomorrow.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, provided you pay me first, I swear I'll guard your stall.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Corvin",
+     "messageId": 1,
+     "quote": "I swear I'll guard your stall"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-049",
+   "category": "conditional",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Will you carry the medicine to the farms?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Only when the road dries out, Mira. Then I'll carry it for you.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 1,
+     "quote": "Then I'll carry it for you"
+    }
+   ],
+   "note": "condition in the previous sentence"
+  },
+  {
+   "id": "p1-neg-050",
+   "category": "conditional",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Help me move the bellows.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, once you finish the commission, I promise I'll help with the bellows.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 1,
+     "quote": "I promise I'll help with the bellows"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-051",
+   "category": "casual-future",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Where are you off to?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I'll check the stables.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Edda",
+     "messageId": 1,
+     "quote": "I'll check the stables"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-052",
+   "category": "casual-future",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Are you hungry?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I'll grab some bread on the way.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 1,
+     "quote": "I'll grab some bread on the way"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-053",
+   "category": "casual-future",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Busy day tomorrow?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I will look around the market tomorrow.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 1,
+     "quote": "I will look around the market tomorrow"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-054",
+   "category": "casual-future",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Staying for supper?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "No, I'll eat at the inn tonight.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Corvin",
+     "messageId": 1,
+     "quote": "I'll eat at the inn tonight"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-055",
+   "category": "casual-future",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Where will you be?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I'll be at the tavern if anyone asks.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Edda",
+     "messageId": 1,
+     "quote": "I'll be at the tavern if anyone asks"
+    }
+   ],
+   "note": "named addressee, plain plan"
+  },
+  {
+   "id": "p1-neg-056",
+   "category": "casual-future",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "It's late.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I'll head to bed soon.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 1,
+     "quote": "I'll head to bed soon"
+    }
+   ],
+   "note": "named addressee, plain plan"
+  },
+  {
+   "id": "p1-neg-057",
+   "category": "casual-future",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Rain's coming.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I'll take the long road home then.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 1,
+     "quote": "I'll take the long road home then"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-058",
+   "category": "casual-future",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Seen the new barge?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Not yet. I'll walk down to the docks later.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Corvin",
+     "messageId": 1,
+     "quote": "I'll walk down to the docks later"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-059",
+   "category": "question",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "You have to be careful out there.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, will you promise me that you'll be careful too?",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 1,
+     "quote": "will you promise me that you'll be careful too"
+    }
+   ],
+   "note": "the player asks the cast member for a promise"
+  },
+  {
+   "id": "p1-neg-060",
+   "category": "question",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "I need a guarantee.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Should I swear it on the anvil, Tobin?",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 1,
+     "quote": "Should I swear it on the anvil"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-061",
+   "category": "question",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "You keep leaving.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Do you want me to promise I'll stay, Edda?",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Edda",
+     "messageId": 1,
+     "quote": "Do you want me to promise I'll stay"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-062",
+   "category": "question",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "I want this in writing.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, would my word be enough for you?",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Corvin",
+     "messageId": 1,
+     "quote": "would my word be enough for you"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-063",
+   "category": "group",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "We're trapped in here.",
+     "user": false
+    },
+    {
+     "speaker": "Tobin",
+     "text": "The door won't budge.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I promise I'll get you all out of here.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 2,
+     "quote": "I promise I'll get you all out of here"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-064",
+   "category": "group",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Nobody believes we'll make it.",
+     "user": false
+    },
+    {
+     "speaker": "Corvin",
+     "text": "Least of all me.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Everyone, I swear we'll make it to the coast.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Edda",
+     "messageId": 2,
+     "quote": "I swear we'll make it to the coast"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-065",
+   "category": "group",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Where are you going?",
+     "user": false
+    },
+    {
+     "speaker": "Edda",
+     "text": "And when are you back?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "You two, I promise I'll be back by nightfall.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Mira",
+     "messageId": 2,
+     "quote": "I promise I'll be back by nightfall"
+    }
+   ]
+  },
+  {
+   "id": "p1-neg-066",
+   "category": "group",
+   "label": "none",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Can we rely on you?",
+     "user": false
+    },
+    {
+     "speaker": "Corvin",
+     "text": "Well?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Both of you have my word.",
+     "user": true
+    }
+   ],
+   "gold": [],
+   "bait": [
+    {
+     "target": "Tobin",
+     "messageId": 2,
+     "quote": "Both of you have my word"
+    }
+   ]
+  }
+ ]
+}

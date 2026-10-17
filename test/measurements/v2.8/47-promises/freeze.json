@@ -1,0 +1,10 @@
+{
+ "plan": "v2.8 47",
+ "hash": "sha256 over LF-normalised UTF-8",
+ "sha256": {
+  "story.json": "408f6ffa5e685fe3fc23504d8d19f53ff6da1bc372316f174220b37598b8173b",
+  "p1-cases.json": "6e411cef77715b359b1815c0c8da95cf4deb48e8a80db0a85a39d0ebe8706c31",
+  "p2-cases.json": "5789268f5035ebb8958d0bb18214ec711616ce33ac049a04dc4aae982749a1a9",
+  "p6-director.json": "86671cbb25c614bb7aa19632833fd3d78e6b96f44dee202b3e03a533164903f7"
+ }
+}

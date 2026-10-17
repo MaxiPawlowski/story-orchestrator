@@ -333,3 +333,60 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
 - **43/47/55 — good provenance additions, but message ids need revisions.** Accepted; already true here: spans carry a
   revision (`src/memory/audience.ts:10`) and lines carry `m=` (`src/memory/promises/contract.ts:7,15`). → addendum marked built.
 - Rebutted: none.
+
+## Gate record 2026-10-17: P1/P2/P6/P8 harness (pre-freeze, no model)
+
+Branch `v2.8-prefreeze-47` (base `v2.8-prefreeze` `c909b40a`). Build and unit tests only: no lane, no ST, no GPU, no model call.
+
+- Files:
+  - Sets (synthetic, English, invented names, no campaign content): `test/measurements/v2.8/47-promises/` `story.json` (river town, roster
+    Mira/Tobin/Edda/Corvin, one read-scoped enum so the shared read runs), `p1-cases.json`, `p2-cases.json`, `p6-director.json`,
+    `freeze.json`, `generate.py` (provenance only; the JSON is what is frozen).
+  - Seam: `src/memory/promises/readCase.ts` (pure: seed open promises by key through the shipped acceptor, apply one read's lines, return rows,
+    events and each line's outcome), `src/runtime/promiseReadCase.ts` (lazy, harness list in `lazyHarness.guard.test.ts`): runs the shipped
+    `runSharedRead` with the promise contract section (`openPromises` from the seeded rows, `null` for the off arm), then `applyReadLines`.
+    In-page handle `storyOrchestratorLiveSuite.runPromiseRead(spec)` (`src/runtime/liveSuite.ts`). Main bundle 1,284,221 B (budget 1,300,000).
+  - Harness: `scripts/debug/so-promises.mts` (`check | freeze | run | score | cost | director`), `scripts/debug/lib/promiseScore.mts` (scorers,
+    floors), `lib/promiseRun.mts` (specs, plumbing replies, offline replay, freeze), `lib/promiseDirector.mts` (P6 prompts, Sol run, guard,
+    claude -p rater), `lib/promiseEntry.ts` (esbuild entry over the shipped modules).
+- Counts:
+  - P1: 126 cases, 66 labelled promises in 60 promise cases, 66 non-promise cases. Promise categories: plain 10, answering 8, oath 8,
+    deadline 8, future-commitment 6, multiple-recipients 6 (12 rows), embedded 6, negative-promise 4, asked-then-given 4. Non-promise:
+    hedge 8, refusal 8, double-negative 6 (labelled not a promise, the v2.7 09 fail-safe), npc-promise 8, quoting 7, sarcasm 6 (2 without a
+    marker word), conditional 7 (a stored `conditional` row is not counted as a promise), casual-future 8, question 4, unnamed group 4. Each
+    non-promise case carries a bait line (what a careless read would write).
+  - P2: 38 cases, 32 labelled events (kept 10, broken 7, renegotiated 8, released 7) + 6 controls (the promise discussed, nothing closes);
+    14 cases seed two open promises (distractor for P2w). Seeds pass the shipped acceptor (checked by `check`).
+  - P6: 20 director inputs, each with one open public promise (hook from the shipped `promiseHooks`, audience `all-present`).
+- Frozen sha256 (LF-normalised UTF-8; `run` refuses a drifted set): `story.json` `408f6ffa5e685fe3fc23504d8d19f53ff6da1bc372316f174220b37598b8173b`,
+  `p1-cases.json` `6e411cef77715b359b1815c0c8da95cf4deb48e8a80db0a85a39d0ebe8706c31`, `p2-cases.json`
+  `5789268f5035ebb8958d0bb18214ec711616ce33ac049a04dc4aae982749a1a9`, `p6-director.json`
+  `86671cbb25c614bb7aa19632833fd3d78e6b96f44dee202b3e03a533164903f7`.
+- Acceptor only (`node scripts/debug/so-promises.mts check`, canned replies, no model; not a CL measurement):
+  - gold: P1 precision 66/66, recall 66/66, NPC 0, wrong promisee 0, P1s exact 66/66; P2 agreement 32/32, P2w 0.
+  - greedy (gold + every bait line): P1 precision 66/77 = 0.857; NPC 0, wrong promisee 0, 5 bait rows stored `conditional`; 11 bait rows
+    the acceptor accepts: neg-004 (try, no guarantee), 011 ("I will not take that vow"), 034 and 037 (reported speech without quote marks),
+    040/042/043 (sarcasm; 040's "I roll my eyes" marker sits in the previous sentence, outside the window the check reads), 046 and 049 (condition after the verb or in the previous
+    sentence), 055 and 056 (named addressee, plain plan). P1 precision therefore rests on the read not writing these lines.
+  - greedy P2 (event line also pointed at the other open id): 5 wrong-id events accepted (kept/broken on player-spoken evidence carry no
+    id check), agreement 27/32. P2w rests on the read naming the right id.
+  - paraphrase: 66/66 paraphrased promise quotes refused, 0 rows; P2 paraphrased evidence 0 events.
+- Tests: `node --test scripts/debug/promises.test.mts` 14/14 pass (set rules, freeze drift and CRLF, planted bad labels, P1 scorer perfect and
+  planted NPC/wrong-promisee/missed/paraphrase/inexact failures, conditional and incomplete, P2 agreement/P2w/kind mismatch/seed refused, P8
+  overrun, P6 guard/rater/unrated, acceptor replay, plumbing replies, P6 run/rate/score with fake models incl. a planted narration and resume,
+  CLI). `npx jest --maxWorkers=2 src/memory/promises/readCase.test.ts src/runtime/promiseReadCase.test.ts src/runtime/lazyHarness.guard.test.ts`
+  3 suites, 29 tests pass. `npm run typecheck`, `npm run typecheck:test`, `npm run debug:typecheck`, eslint on the touched src files: clean.
+  `npm run build` ok. Full `npm run gates` not run here (coordinator runs it once).
+- Real-run commands (lane page, read role = Artemis; CL acceptance ×2, consecutive on one lane; plumbing first on a no-model lane):
+  - plumbing: `node scripts/debug/st-lanes.mts run <lane> -- scripts/debug/so-promises.mts run --set p1 --out <dir> --plumbing gold`, then
+    `--plumbing greedy`, `--plumbing paraphrase`, and the same three for `--set p2` (exit 0 on gold; greedy must reproduce the numbers above).
+  - P1/P1s: `node scripts/debug/st-lanes.mts run <lane> -- scripts/debug/so-promises.mts run --set p1 --out <dir> --label r1`, then `--label r2`.
+  - P2/P2w: the same with `--set p2` (`--label r1`, `--label r2`). A run resumes with `--resume`; `score --set p1|p2 --records <file>` rescores.
+  - P8 (joins 42 RB): `node scripts/debug/st-lanes.mts run <lane> -- scripts/debug/so-promises.mts cost --out <dir>/p8.json` (no model call,
+    debugResponse NO_DELTA; counted by `measureBudget` on the read role, so run it on the Artemis lane for the real tokenizer). The suite story is
+    minimal, so the ratio is an upper bound; `--story <file>` measures the same windows over a real story for RB.
+  - P6: `node scripts/debug/so-promises.mts director run --out <dir>` (Sol, opencode `openai/gpt-6.1-sol`), `director rate --out <dir>`
+    (claude -p), `director score --out <dir>`; twice in separate dirs. Standalone: prompts from the shipped `renderDirectorPrompt`, no resting
+    filter (no held secrets in the fixture); the live director gets no promise until 42 B exists, so this is the prompt-level check only.
+- Still owed: every real run above (P1, P1s CL half, P2, P2w, P6, P8 with 42 RB), no-model plumbing runs on a lane serving this branch,
+  archiving real-run records next to the sets; P4a, P7/P7h unchanged. Floors stay informational: record the miss, never retune.

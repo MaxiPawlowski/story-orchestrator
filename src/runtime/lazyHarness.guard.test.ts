@@ -3,6 +3,7 @@ import { SRC, buildGraph, prodFiles, reachableFrom, rel } from "../../test/suppo
 
 const HARNESS = [
   "src/runtime/liveSuite.ts",
+  "src/runtime/promiseReadCase.ts",
   "src/runtime/judgeHarness.ts",
   "src/runtime/roleCalibration.ts",
   "src/judge/calibration.ts",
