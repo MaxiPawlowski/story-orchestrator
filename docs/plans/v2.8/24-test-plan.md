@@ -418,7 +418,7 @@ real-model carrier, or why none is needed.
 | scene-card | D | sceneCard jest, WidgetCard Storybook, v28-65-scene-card (no-model) | none: no model (65 N1–N8; N3/N4 with A+ only) |
 | public-sheet-narration | D + CL | narratorSheet jest, v28-18-q7-sheet (no-model) | deferred: S8 header clause (CL rater, cloud model) owed; S7 informational (RP, Artemis) past the 12 h cap |
 | your-move-chip | D | yourMove jest, talkControl jest, HudStrip Storybook, v28-68-your-move (no-model) | none: no model (68 Y1–Y6) |
-| quests | RP | 36-Q5-scn, S-16 | GS1.3, GS3.1 |
+| quests | RP | 36-Q5-scn, S-16, storyCheckWhen jest (checkpoint check `when`, 2026-10-16) | GS1.3, GS3.1 |
 | character-life | RP + CL | 37-D1..D3 | GS1.5, GS3.3, GS2.7 |
 | meanwhile-proposals | CL | agenda proposal tests | GS2.7; M16 carried |
 | living-story | CL + RP | v28-35-living-rollback ×2 | GS2.1–GS2.4, GS3.5 |

@@ -24,7 +24,7 @@
       "surface": "author", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Author-only bust/rig save refusal; neither bust nor rig is published on failure." },
     { "site": "src/image/castSceneHost.ts#discardUnplaced>callback", "kind": 2, "template": "reason instanceof Error ? reason.message : String(reason)",
       "surface": "console", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "A failed removal of an unplaced cast image is logged to the console; the original refusal still surfaces to the caller." },
-    { "site": "src/services/stHost/worldInfoPending.ts#flushPendingWorldSaves", "kind": 2, "template": "`\"${name}\" had an edit waiting to save and could not be saved: ${error instanceof Error ? error.message : String(error)}`",
+    { "site": "src/services/stHost/worldInfoPending.ts#saveCached", "kind": 2, "template": "`\"${name}\" had an edit waiting to save and could not be saved: ${error instanceof Error ? error.message : String(error)}`",
       "surface": "console", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "A failed rescue save of another book's debounced edit is returned as a refusal and logged to the console by the write that triggered it; that write itself already landed." },
     { "site": "src/sprites/visualManifest.ts#visualPath", "kind": 3, "template": "catch {} #1",
       "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Malformed URL encoding is rejected as an invalid local asset path; no host write or hidden success." },
@@ -782,8 +782,9 @@
       "verdict": "pass",
       "reason": "host read probe answers a neutral value the caller reads"
     },
+    { "site": "src/services/stHost/worldInfoServer.ts#commitLorebook", "kind": 3, "template": ".catch(() => null)", "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A commit request that cannot reach the server becomes a typed failure that the writer reports as could-not-save; nothing is written and nothing falls back to the unconditional save." },
     {
-      "site": "src/services/stHost/worldInfo.ts#readServerLorebook",
+      "site": "src/services/stHost/worldInfoServer.ts#readServerLorebook",
       "kind": 3,
       "template": "catch {} #1",
       "surface": "console",

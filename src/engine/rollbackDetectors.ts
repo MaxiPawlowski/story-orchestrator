@@ -5,6 +5,7 @@ import {
   isStoryTimeKey, moodAgeKey, moodSceneKey, moodWasKey, isFactionKey, isLabelKey, questClosedKey, questRewardKey, type NormalizedStoryV2,
 } from "./schema";
 import { PLAYER_TURNS_KEY } from "./stretch";
+import { checkRolledKeys } from "./storyChecks";
 import { gameLayer } from "./validate/gameLayer";
 
 type Values = Readonly<Record<string, unknown>>;
@@ -74,6 +75,7 @@ export const ROLLBACK_DETECTORS: readonly RollbackDetector[] = [
     moved: (story, before, after) => Boolean(story.life) && prefixMoved(isLabelKey, before, after),
   },
   { id: "heritage", keys: (story) => Object.keys(story.qualityByKey).filter(isHeritage), moved: (_story, before, after) => prefixMoved(isHeritage, before, after) },
+  { id: "check-attempts", keys: checkRolledKeys, moved: (story, before, after) => checkRolledKeys(story).some((key) => before[key] !== after[key]) },
 ];
 
 export const ROLLBACK_EXEMPT: readonly RollbackExemption[] = [

@@ -316,10 +316,11 @@ export const GUIDE_TOPICS = {
   },
   checks: {
     title: "Checks",
-    fields: "checkpoints[].checks[], transitions[].check, roll, modifiers[], narrate, outcome, twist",
+    fields: "checkpoints[].checks[], transitions[].check, roll, modifiers[], narrate, outcome, twist, when",
     text: "A seeded roll once per visit: {id, label, quality (code bool), roll {sides, target, dice}, modifiers [{q, v, add, label}], narrate public|hidden}. "
       + "Total = dice + modifiers that hold, read each turn; quality is total >= target. outcome {quality, bands: margin, partial_margin} writes miss|weak|strong; "
-      + "twist {quality} marks matching dice. A transition check is attempted when the rest of its gate holds. The next reply is told the outcome; public adds a chip.",
+      + "twist {quality} marks matching dice. A transition check is attempted when the rest of its gate holds. A checkpoint check with when (a gate, declared keys, "
+      + "not its own) stays pending until when holds, then rolls once that visit and keeps the outcome; a swipe of that reply takes it back. The next reply is told the outcome; public adds a chip.",
   },
   widgets: {
     title: "Stats and story panels",

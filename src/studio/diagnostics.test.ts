@@ -261,6 +261,16 @@ describe("runDiagnostics", () => {
     expect(runDiagnostics(story).filter((entry) => entry.code === "quality-never-in-scope")).toHaveLength(0);
   });
 
+  it("does not warn for a quality read only by a checkpoint check's when", () => {
+    const story: StoryV2 = {
+      ...clean,
+      qualities: [...clean.qualities, { key: "tried", type: "bool", source: "extractor", rubric: "r" }, { key: "ok", type: "bool", source: "code", rubric: "r" }],
+      checkpoints: clean.checkpoints.map((checkpoint, index) => index === 0
+        ? { ...checkpoint, checks: [{ id: "try", quality: "ok", roll: { sides: 6, target: 4 }, narrate: "hidden", when: { q: "tried", op: "==", v: true } }] } : checkpoint),
+    };
+    expect(runDiagnostics(story).filter((entry) => entry.code === "quality-never-in-scope" && entry.message.includes("'tried'"))).toHaveLength(0);
+  });
+
   it("recognizes the runtime's card scope without hiding an unbound orphan", () => {
     const story: StoryV2 = { ...clean,
       qualities: [...clean.qualities, { key: "hair", type: "string", source: "extractor", rubric: "confirmed hair" },

@@ -25,6 +25,7 @@ export const scopedKeys = (draft: StoryV2): Set<string> => {
   const keys = boundCardQualities(draft.roster ?? [], draft.player);
   draft.transitions.forEach((transition) => gateKeys(transition.gate).forEach((key) => keys.add(key)));
   draft.checkpoints.forEach((checkpoint) => Object.keys(checkpoint.state_snapshot ?? {}).forEach((key) => keys.add(key)));
+  draft.checkpoints.forEach((checkpoint) => (checkpoint.checks ?? []).forEach((check) => (check.when ? gateKeys(check.when) : []).forEach((key) => keys.add(key))));
   (draft.quests ?? []).forEach((quest) => gateList([quest.visible_when, quest.offered_when, quest.done_when, quest.failed_when,
     ...(quest.steps ?? []).flatMap((step) => [step.visible_when, step.done_when, step.failed_when])]).forEach((key) => keys.add(key)));
   CODEX_PAGES.flatMap((page) => draft.codex?.[page] ?? []).flatMap((entry) => [entry.known_when, ...entry.facts.map((fact) => fact.known_when)])

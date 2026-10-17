@@ -206,6 +206,12 @@ export function inject(port: ChapterPort, prompt: PromptHost, on: boolean): Map<
 }
 
 export function carryBridge(port: ChapterPort, type: unknown) {
+  if (!carriesInto(INJECTION_REGISTRY.chapterBridge, type)) {
+    port.host.deps.hosts.prompt.clearStoryExtensionPrompt(INJECTION_REGISTRY.chapterBridge.key);
+    port.bridgeHeld = port.carried !== null;
+    return;
+  }
+  port.bridgeHeld = false;
   const memory = port.host.memory();
   const bridge = carriesInto(INJECTION_REGISTRY.chapterBridge, type) && memory.settings.enabled ? pendingBridge(memory.chapters ?? []) : null;
   port.carried = bridge?.recordId ?? null;
@@ -213,7 +219,12 @@ export function carryBridge(port: ChapterPort, type: unknown) {
   if (text) port.host.deps.hosts.prompt.setStoryExtensionPrompt(INJECTION_REGISTRY.chapterBridge.key, text, INJECTION_REGISTRY.chapterBridge.depth);
 }
 
+export function restoreBridge(port: ChapterPort) {
+  if (port.bridgeHeld) carryBridge(port, undefined);
+}
+
 export function commitBridge(port: ChapterPort, rendered: boolean) {
+  port.bridgeHeld = false;
   releaseRecall(port);
   const carried = port.carried;
   port.carried = null;

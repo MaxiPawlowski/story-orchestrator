@@ -125,7 +125,8 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const life = layer?.life.readLife(json, errors);
   const factions = layer?.factions.readFactions(json.factions, errors);
   const rumorNet = layer?.rumors.readRumors(json, errors);
-  const lived = layer ? layer.codex.addCodexQualities(layer.life.addLifeQualities(layer.addRewardQualities(builtin, quests, errors), life, errors), codex, errors) : builtin;
+  const coded = layer ? layer.codex.addCodexQualities(layer.life.addLifeQualities(layer.addRewardQualities(builtin, quests, errors), life, errors), codex, errors) : builtin;
+  const lived = layer ? layer.addCheckQualities(coded, checkpoints, errors) : coded;
   const qualities = layer ? layer.factions.addFactionQualities(lived, factions, (json.roster as unknown[]).filter(isRecord), errors) : lived;
   const options = readStoryOptions(json, errors);
   const features = readFeaturePolicies(json.features, (path, message) => addError(errors, path, message));

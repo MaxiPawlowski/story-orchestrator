@@ -174,8 +174,8 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     },
     library,
     read: readLorebookEntries,
-    disable: (lorebook, comments) => setLorebookEntriesDisabled(lorebook, comments, true),
-    enable: (lorebook, comments) => setLorebookEntriesDisabled(lorebook, comments, false),
+    disable: (lorebook, comments, guard) => setLorebookEntriesDisabled(lorebook, comments, true, guard),
+    enable: (lorebook, comments, guard) => setLorebookEntriesDisabled(lorebook, comments, false, guard),
     handler: {
       install: () => {
         handle = installScanGating(apply);

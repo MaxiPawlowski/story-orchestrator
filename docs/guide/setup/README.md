@@ -53,10 +53,15 @@ SillyTavern's `public/scripts/extensions/third-party/`.
 
 ## Server plugins
 
-Four server plugins ship in `server-plugin/`: judge, and the optional GPU, media and harness plugins. SillyTavern loads
-server plugins only when `config.yaml` has `enableServerPlugins: true`, and only after a restart.
+Five server plugins ship in `server-plugin/`: judge and lore, and the optional GPU, media and harness plugins. SillyTavern
+loads server plugins only when `config.yaml` has `enableServerPlugins: true`, and only after a restart.
 
-- **From a source checkout**: `npm run plugin:install -- --st-root <SillyTavern>` installs the judge plugin, and
+The lore plugin makes the story's lorebook writes conditional: a write is saved only while the book file still holds
+what the write started from, so the story never overwrites a change another page already saved. Without it the story
+compares with the server just before saving, which narrows that window but cannot close it. SillyTavern's own lorebook
+editor saves without that check, so its save landing in the same instant is detected afterwards, not prevented.
+
+- **From a source checkout**: `npm run plugin:install -- --st-root <SillyTavern>` installs the judge and lore plugins, and
   `--with gpu,media,harness` adds the others. A plugin already installed is kept in sync. Files are compared by
   content, never by version, and a local `config.json` is never touched; `--check` lists the files that differ without
   writing. It warns when `enableServerPlugins` is off.

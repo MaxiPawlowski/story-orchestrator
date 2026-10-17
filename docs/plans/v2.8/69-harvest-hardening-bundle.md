@@ -25,7 +25,7 @@ B8; K17 is B7.
 | K9 | Declarative withhold policy on `INJECTION_REGISTRY`, tested on nested quiet, restoration, early returns and raw generation | v2.4 theme 5 (V56) | S |
 | K10 | NPC replies trigger by host character index through the existing member resolution; a CC `send_if_empty` fixture | v2.4 theme 5 (V57, V58) | S |
 | K11 | **P1** Stale draft proposals: an author accepting an old agent proposal never overwrites a manual edit made since | `creative-studio.md` P4 (R1) | S |
-| K12 | **P1** Stale whole-book WI writes: a write never overwrites another page's changes to other entries of the same book | `worldinfo-workspace.md` P4 (R2) | S |
+| K12 | **P1** Stale whole-book WI writes: our writers never overwrite each other or a change the server already has; ST's editor saving in the same instant remains best-effort detection (wording revised 2026-10-16 after review #3) | `worldinfo-workspace.md` P4 (R2) | S |
 | K13 | Per-generation derived state bound to the rendered message revision | `st-memory-books.md` P3, `rpg-companion.md` P5 (R9, R10) | S |
 | K14 | Size budget for the chat blob and the story library (measure, then a `degrades` check) | `multihog-dnd-framework.md` P4 (R16) | S |
 | K15 | Active-persona guard around persona writes (tests) | `nemo-plotlight.md` P3 (R17) | S |
@@ -344,3 +344,81 @@ K17, K1 (bounded). One commit per item, test first. No GPU, no model.
   line, split). Full `npm run gates -- --jobs=2 --no-storybook` **all green in 213.1 s** (test 9007 passed, 1 skipped;
   test:debug 1322; build main `dist/index.js` 1,287,226 B of 1,300,000; lint, typechecks, test:plugin, test:release green).
   Storybook not run: no `.stories` file or component changed. Arrival golden did not trip.
+
+## Gate record addendum 2026-10-16/17: review fixes (branch `v2.8-harvest-review-fixes`, master `41717773` + merge of `f8bc217b`, unmerged)
+
+Fixes every finding of `review-astra-harvest-code-2026-10-16.md`: one commit and one regression test per finding, each
+test run against the code before its fix and failing there.
+
+- **#1 P1, WI conflict check flushed the conflicting book** (`2d569834`). `worldInfoPending.ts` now tells a load from a save:
+  a load sets an object nobody has seen, a save sets one the cache handed out (the fetched reference on a miss, a clone
+  through `get`). Each load and each `WORLDINFO_UPDATED` records the server copy as the edit's baseline. The preflight
+  flushes this page's waiting edit only while the server still equals that baseline; any other difference refuses and is
+  never saved over. The debounce rescue applies the same check. Test `stHost/worldInfoConflict.review.test.ts` (ST-faithful
+  cache: clone on get, reference on miss; real tracker): a recent load plus another page's edit refuses with zero posts;
+  a local pending edit plus a remote edit refuses without flushing; B14 kept (own edit over an unchanged server lands).
+  The first two fail on master.
+- **#4 P2, writes mutated ST's cached book** (`bef63587`). Correction to the review: `world-info.js:2041-2042` returns a
+  clone (`cloneOnGet: true`). The reference is returned on a miss (`:2054-2055`), so a write loaded on a miss mutated the
+  shared cache, and a flush or an ST scan saw an uncommitted flag. The five writers now build on a `structuredClone`. Test:
+  an ST load during the suspended preflight read sees no uncommitted flag; on refusal neither server nor cache holds it.
+  Fails on master and on `2d569834`.
+- **#2 P1, no ownership check inside the host writer** (`851dff9f`). Every stHost lorebook writer
+  (`setWIEntriesState`, enable/disable, `upsertWIEntry`, `updateWIEntryByUid`, `restoreWIEntryAt`, `createWIEntry`,
+  `deleteWIEntryAt`, `ensureLorebook`, `deleteLorebook`, `setLorebookEntriesDisabled`) and both pending flushes take a
+  `WriteGuard` (`stHost/writeGuard.ts`; `RunGuard` fits). Each one checks it after the load, after the preflight read,
+  around the pending-edit flush, before the save, and inside the rescue loop. Callers pass their run: checkpoint WI
+  replay, normaliser and restore, memory mirror, curator write, create and revert, created and mirror reapers, wizard
+  provisioning. Ownership census notes updated for 11 rows. Tests: 7 writers × a lapse during the load GET and during
+  the preflight GET give zero posts (14 cases, all fail on `bef63587`); a lapsed write does not flush a waiting edit;
+  `runtime/wiWriterRun.review.test.ts` shows the replay hands each host write its run.
+- **#3 P1, GET-then-save could still overwrite** (`5c086027`). New server plugin `server-plugin/story-orchestrator-lore`,
+  built on the judge pattern and installed by default with judge. `POST /commit {name, expected, data}` reads the file,
+  compares its entries revision and replaces it in one synchronous step, so on Node's thread no other request, ST's
+  `/api/worldinfo/edit` included, can land in between. It answers 409 on a mismatch and never creates a book. All five
+  writers commit through it with the revision of the entries they started from. A 404 (plugin absent) falls back to
+  the previous preflight plus ST save. A commit updates ST's cache and announces `WORLDINFO_UPDATED`. The revision is
+  pinned to the same vector in jest and in the plugin's node test.
+  - Claim reworded in the K12 row: our writers never overwrite each other or a change the server already has; ST's
+    editor saving in the same instant remains best-effort detection.
+  - Test: B's write lands between A's GET and A's POST; A is refused and B survives. Fails on `851dff9f`.
+  - Plugin tests: B between A's read and A's commit, missing book, bad names and bodies, the router.
+  - `plugin-install` defaults, README and setup guide updated.
+- **#5 P2, nested withholding runs kept blocks declared withhold** (`e33f6bbd`). The nested withholding entry now
+  withholds the wiring-owned away notice and Previously block, and the reapply restores them.
+  - Seeding every declared block in the manager test found two more leaks on the same path. The continuity note stayed
+    injected (stagecraft returned early). The chapter bridge stayed, and the outer run's carried record was dropped.
+    Both are now held and restored through `restoreTurnNotes` on reapply (`runtime/heldPrompt.ts`).
+  - Check outcome is held by `checkOutcomeHost` and covered by that host's own test.
+  - Tests: the real `subscribeGenerationEvents` wiring with non-empty away and Previously blocks, under a nested quiet
+    and a nested impersonate, plus a loud control (`wiring/generationNotices.review.test.ts`); the manager test seeding
+    every registry block; note and bridge hold, restore and spend. 5 of 6 fail on master; the loud control passes there,
+    as a control should.
+- **#6 P2, refused NPC replies consumed their allowance** (`dccdd24e`). The fire is reserved while the reply is pending.
+  It is committed (spoken, `lastSelfInjectionMessageId`) only on success and released on a refusal or a throw.
+  `fireReply` now returns the `/trigger` and `/sendas` slash result. Test `runtime/npcReplyRefusal.review.test.ts`:
+  ambiguous member, then the corrected turn fires; refused `/sendas`; landed-reply control. The first two fail on master.
+- Follow-ups: `dcc2536b` (dead-export ratchet), `b951d3f1` (slash mocks answer `true` like the host), `fac94671` and
+  `183aa470` (live commit-race scenario), `e141a1c3` (arrival golden: one new `[]` row). Master merged at `ef025237`
+  without conflicts; the generated guide and settings files regenerated with no change.
+- Gates:
+  - `npm run gates:quick` green after each fix. Reds fixed before commit: errorCopy sites, the typedResults allowlist,
+    max-len, the coordinator line budget, and the continuity-writer guard.
+  - The known replay `--listTests` flake was cleared by a plain `node scripts/suite/defect-replay.mjs` (32 of 32 killed).
+  - Full `npm run gates -- --jobs=1 --no-storybook` on `e141a1c3`: all green in 362.1 s. test:replay, test (809
+    suites, 9,381 passed, 1 skipped), build (main `dist/index.js` 1,288,326 B of 1,300,000), test:debug, typecheck,
+    typecheck:test, lint, debug:typecheck, test:plugin and test:release all green.
+  - Storybook skipped: no component or story touched.
+- Live, served bundle `fb0fcfb52bc8` (staged from `e141a1c3`; the later commit changes only a scenario file), staged
+  into the private ST copy `C:/dev/st-live-hrfix` (st-live code, no data, `node_modules` junctioned to the main ST).
+  Lanes root `C:/dev/so-live-lanes`, no GPU.
+  - Lane 75 (offline, no server plugins, so the fallback path), copied from lane 61's data. K12 stale-book and the four
+    K8 fixtures, each ×2: 10/10 GREEN (batch `2026-10-17T00-15-57-129Z`).
+  - Lane 76 (no-model keys, server plugins on, lore plugin loaded), copied from lane 66's data. K12 stale-book ×2
+    GREEN (batch `2026-10-17T00-15-57-147Z`). New `test/scenarios/v28-69-k12-commit-race.json` ×2 GREEN (batch
+    `2026-10-17T00-19-09-548Z`): commit 409, server keeps the other page's edit, no ST save, retry lands. The first
+    commit-race attempt in batch `…00-15-57-147Z` was RED on a fixture defect (book name doubled, fixed in `183aa470`).
+  - Evidence: `C:/dev/so-live-lanes/evidence-2026-10-16/75/` and `/76/`. Plumbing green; real-LLM not applicable
+    (no model-consuming path touched).
+- Open: ST's own editor can still overwrite in the same instant, because its save is unconditional; the only fix would
+  touch ST's source, which this plan does not do.

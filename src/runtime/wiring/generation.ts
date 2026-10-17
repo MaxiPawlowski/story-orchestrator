@@ -50,12 +50,17 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
   nested: (intent: IntentOf<"nested">) => {
     if (intent.withholds) {
       runtimeManager.onGenerationStarted(intent.type);
+      awayNotice.withhold(intent.type);
+      previously.withhold(intent.type);
       return;
     }
     runtimeManager.capturePayload();
     live.talk?.onGenerationStarted(intent.params, intent.type);
   },
   reapply: (intent: IntentOf<"reapply">) => {
+    awayNotice.restore();
+    previously.restore();
+    runtimeManager.restoreTurnNotes();
     runtimeManager.clearPrivateInjection();
     if (intent.chid !== null) runtimeManager.onMemberDrafted(intent.chid);
   },

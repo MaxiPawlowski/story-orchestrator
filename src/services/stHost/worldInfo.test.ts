@@ -60,7 +60,8 @@ const executeSlashCommands = jest.fn(async (command: string) => {
 // The server's own copy, read back after a save: `lose` drops the next save on the floor (ST's `_save`
 // never reads the answer, so a refused save resolves like a kept one), `blind` makes the read fail.
 const server = { lose: false, blind: false };
-globalThis.fetch = jest.fn(async (_url: unknown, init?: { body?: string }) => {
+globalThis.fetch = jest.fn(async (url: unknown, init?: { body?: string }) => {
+  if (url === "/api/plugins/story-orchestrator-lore/commit") return { ok: false, status: 404, json: async () => null } as unknown as Response;
   if (server.blind) return { ok: false, status: 500, json: async () => null } as unknown as Response;
   const { name } = JSON.parse(init?.body ?? "{}") as { name: string };
   return { ok: true, status: 200, json: async () => clone(st.disk.get(fileId(name)) ?? { entries: {} }) } as unknown as Response;
@@ -102,11 +103,14 @@ jest.mock("./slashCommands", () => ({
 
 const flushPendingWorldSaves = jest.fn(async (_written: string) => ({ ok: true, flushed: [] as string[] }));
 const flushPendingWorldSave = jest.fn(async (_name: string) => ({ ok: true, flushed: false }));
+const pendingWorldEdit = jest.fn((_name: string): { at: number; baseline: string | null } | null => null);
 jest.mock("./worldInfoPending", () => ({
   flushPendingWorldSaves: (written: string) => flushPendingWorldSaves(written),
   flushPendingWorldSave: (name: string) => flushPendingWorldSave(name),
+  pendingWorldEdit: (name: string) => pendingWorldEdit(name),
 }));
 
+import { entriesImage } from "./lorebookImage";
 import { bindChatLorebook, createLorebook, createWIEntry, deactivateGlobalLorebook, deleteLorebook, deleteWIEntryAt, disableWIEntry, enableWIEntry, ensureLorebook, listSelectedLorebooks, loadLorebook, lorebookExists, setWIEntriesState, unbindChatLorebook, updateWIEntryByUid, upsertWIEntry } from "./worldInfo";
 
 const putOnDisk = (name: string, entries: Entry[] = []) => st.disk.set(name, { entries: Object.fromEntries(entries.map((entry) => [entry.uid, entry])) });
@@ -121,6 +125,7 @@ beforeEach(() => {
   st.stuck = false;
   for (const key of Object.keys(st.chatMetadata)) delete st.chatMetadata[key];
   st.chatId = "chat-1";
+  pendingWorldEdit.mockImplementation(() => null);
   jest.spyOn(console, "warn").mockImplementation(() => undefined);
 });
 
@@ -275,11 +280,11 @@ describe("setWIEntriesState: one write per book (R13)", () => {
     saveWorldInfo.mockClear();
   });
 
-  it("applies a book's enables and disables in one save, one conflict read (K12) and one read-back", async () => {
+  it("applies a book's enables and disables in one save, one conflict read (K12), one conditional commit attempt and one read-back", async () => {
     (globalThis.fetch as jest.Mock).mockClear();
     expect(await setWIEntriesState("Lore", { enable: ["Two"], disable: ["One"] })).toEqual({ ok: true, changed: true, confirmed: true });
     expect(saveWorldInfo).toHaveBeenCalledTimes(1);
-    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+    expect((globalThis.fetch as jest.Mock).mock.calls.map(([url]) => url)).toEqual(["/api/worldinfo/get", "/api/plugins/story-orchestrator-lore/commit", "/api/worldinfo/get"]);
     expect({ one: book()[0].disable, two: book()[1].disable, three: book()[2].disable }).toEqual({ one: true, two: false, three: false });
   });
 
@@ -688,6 +693,7 @@ describe("K12: a whole-book write never overwrites another page's change to the 
     st.worldNames = [BOOK];
     await loadLorebook(BOOK);
     st.cache.get(BOOK)!.entries[5].content = "Edited in this page's WI editor.";
+    pendingWorldEdit.mockImplementation(() => ({ at: 0, baseline: entriesImage(st.disk.get(BOOK)) }));
     flushPendingWorldSave.mockImplementationOnce(async (name: string) => {
       st.disk.set(fileId(name), clone(st.cache.get(name)!));
       return { ok: true, flushed: true };

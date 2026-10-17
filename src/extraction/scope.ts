@@ -81,6 +81,16 @@ export function deriveScopeWithSources(
     }
   });
 
+  for (const check of story.checkpointById[activeCheckpointId]?.checks ?? []) {
+    if (!check.when) continue;
+    const gateKeys = new Set<string>();
+    collectGateKeys(check.when, gateKeys);
+    gateKeys.forEach((key) => {
+      keys.add(key);
+      addPull(key, { kind: "gate", checkpointId: activeCheckpointId, detail: `check ${check.id} when` });
+    });
+  }
+
   extraGateSources.forEach((source) => {
     if (!checkpointIds.has(source.checkpointId)) return;
     const gateKeys = new Set<string>();

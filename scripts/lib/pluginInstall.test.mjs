@@ -124,12 +124,12 @@ test('the harness plugin pins the OpenCode client library exactly', () => {
     assert.match(manifest.dependencies['@opencode/client'], /^\d+\.\d+\.\d+$/);
 });
 
-test('judge by default; an optional plugin joins when asked or already installed', () => {
+test('judge and lore by default; an optional plugin joins when asked or already installed', () => {
     const { stRoot } = fixture();
-    assert.deepEqual(selectedPlugins([], { stRoot }), ['story-orchestrator-judge']);
-    assert.deepEqual(selectedPlugins(['media'], { stRoot }), ['story-orchestrator-judge', 'story-orchestrator-media']);
+    assert.deepEqual(selectedPlugins([], { stRoot }), ['story-orchestrator-judge', 'story-orchestrator-lore']);
+    assert.deepEqual(selectedPlugins(['media'], { stRoot }), ['story-orchestrator-judge', 'story-orchestrator-lore', 'story-orchestrator-media']);
     fs.mkdirSync(path.join(stRoot, 'plugins', 'story-orchestrator-gpu'));
-    assert.deepEqual(selectedPlugins([], { stRoot }), ['story-orchestrator-judge', 'story-orchestrator-gpu']);
+    assert.deepEqual(selectedPlugins([], { stRoot }), ['story-orchestrator-judge', 'story-orchestrator-lore', 'story-orchestrator-gpu']);
     assert.throws(() => selectedPlugins(['nope']), /Unknown plugin/);
 });
 
