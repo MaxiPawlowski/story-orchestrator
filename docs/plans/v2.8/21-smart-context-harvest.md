@@ -550,3 +550,36 @@ Gates (on `1bea881a`):
   The first full run failed `errorCopy.guard` on the new silent catch in `e0JsonObject`; listed in
   `test/findings/errorCopy.json` (`1bea881a`), then green.
 - No product code changed: E0 modules stay scripts/tests only; no judge use, setting or calibration row added.
+
+## Gate record: §6.2 private run (2026-10-17, branch `v2.8-witness-real`, R-Gate2 of plan 43)
+
+Verdict: **fail. R-Gate2 not met.** VR1 0.7083 (34/48) passes, but VR2 = 4 nonces in 46 exclusion blocks (floor 0). VR1
+and VR2 pass only together. Floors, minimums and declarations unchanged (declarations `cc5f9d6e`, tooling `8a519f64`,
+freeze `fc8b74f2`, all committed before any scene read, choice or score).
+
+Setup (counts only; private files in `so-sessions` `test/sessions/vr62/`, not archived by this run):
+- Labels: Sol wrote 96 questions, `claude -p` (claude-opus-5-5) checked them blind: 94 agreed, 1 disagreed, 1 invalid. Minimums
+  met: 48 positives, 46 exclusions, 46 asking members, 34 secret scenes, 16 sessions.
+- Pool: lane 79 (offline, firewalled, judge plugin on), private ST copy `C:\dev\st-live-witreal`, served bundle `12b9a9a2e5c1`
+  = built. transformers on CPU, `Xenova/all-mpnet-base-v2` from the lane's cache (no download). 94 of 94 pooled, topK 32.
+- Presence: 749 TypeSafe scene reads (jev-1.13.0), 1 timeout (fail closed), 0 cached, 1,547,428 input tokens.
+- Arm (d): 65 of 94 questions kept 5 or more candidates; 260 Choice calls, 0 fallbacks, 420,995 input tokens.
+
+Results (R1, presence proxy, ranked by arm (d)):
+- VR1 0.7083 (34/48). Pool recall 1.0. All 14 misses are presence dropping the gold (the drafted member read as absent where it
+  had heard); every gold presence kept reached the top 4.
+- VR2: 4 nonces (4 of 46 exclusions). In each, presence read the member as present for a message the labels say it did not
+  perceive, and the gold ranked into the top 4 of 8 candidates. Presence dropped 42 of 46 unwitnessed golds (0.913).
+- Diagnostic, unfiltered ST order: VR1 0.6875 (33/48), 34 of 46 exclusions leaked. The filter removes most leaks but not all:
+  presence is not hearing (v2.9 02 measured 4/40), here at a better rate and still not 0.
+- VR3: p95 1,274 tokens, max 1,673 (cap 250): whole messages are far over the budget; a span picker is needed. Fails.
+- Cost: arm (d) latency p95 1,040 ms on ranked questions.
+- VR4: the jest property cases stay green (`src/memory/recall/vr4.property.test.ts`). VR5: index build per collection
+  p50 14.4 s, p95 45.5 s (82 collections, 2,861 items, CPU), report only.
+- R0 and R2 not scored (declared); plan 43 decision 2 stays open.
+
+Means: P1 on the presence proxy does not clear privacy. Per §6.2 the result is recorded and P1 waits for a witness source that
+beats presence (plan 42 B). Tests: `src/memory/vr62.test.ts` (planted return-nothing filter fails VR1; everyone-present filter
+fails VR2; under-minimum fixture refused).
+
+Gates (branch `v2.8-witness-real`): `npm run gates -- --jobs=1 --no-storybook` all green in 270.6 s (test 9,440+ passed, test:replay, build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release). Storybook skipped: no UI change. First run red on `codeHealth.guard` (a dead export in `vr62.ts`, removed) and then `typecheck:test` (a test fixture field), both fixed before the green run. No product code changed: the new modules are reached only from scripts and tests.

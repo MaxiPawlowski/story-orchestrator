@@ -73,7 +73,7 @@ describe("v2.8 21 §6.2 rules", () => {
 const scene = (present: Record<string, number> | null): Vr62SceneRecord => ({ present, fallback: present ? null : "error", model: "jev", latencyMs: 1, inputTokens: 10, cached: false });
 
 const poolQuestion = (id: string, member: string, kind: "positive" | "exclusion", gold: number, ids: number[], session = "T9/T9-1"): Vr62PoolQuestion => ({
-  id, session, askMessageId: 39, member, kind, gold: [gold], query: "q",
+  id, session, askMessageId: 39, member, kind, gold: [gold], query: "q", latencyMs: null,
   candidates: ids.map((messageId, stRank) => ({ messageId, speaker: rows[messageId].isUser ? "" : rows[messageId].name, textHash: "h", text: rows[messageId].text, stRank })),
 });
 

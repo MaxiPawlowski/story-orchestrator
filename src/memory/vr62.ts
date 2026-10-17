@@ -3,7 +3,7 @@ import { buildSceneReadRequest, readScene, type SceneReadInput } from "@judge/sc
 import type { JudgeAnswer, JudgeRequest } from "@judge/types";
 import { fnv1a } from "@runtime/hash";
 import { isRecord } from "@utils/guards";
-import { armD, E0_CHOICE_CALLS, E0_PROTECT, type E0Candidate, type E0ChoiceCall } from "./e0Ranking";
+import { armD, E0_PROTECT, type E0Candidate, type E0ChoiceCall } from "./e0Ranking";
 import { e0WrittenProblem, E0_LABEL_RULES } from "./e0Labels";
 import { e0Collection, e0Query, type E0ChatRow, type E0LabelQuestion, type E0VectorProvider } from "./e0Pool";
 import { RECALL_MINIMUMS } from "./recall/score";
@@ -459,5 +459,3 @@ export const choiceQuestions = (pool: Vr62Pool, filter: Vr62Filter) => pool.ques
   const candidates = filteredCandidates(question, filter);
   return needsChoice(candidates) ? [{ id: question.id, query: question.query, candidates: candidates.map((candidate) => ({ messageId: candidate.messageId, text: candidate.text })) }] : [];
 });
-
-export const VR62_CHOICE_CALLS = E0_CHOICE_CALLS;

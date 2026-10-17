@@ -469,3 +469,40 @@ Evidence `C:\dev\so-live-lanes\evidence-2026-10-16\69\`, run folders in the orde
 `…23-49-26-588Z`, `…23-50-02-540Z`, `…23-50-38-518Z`, `…23-50-59-254Z`, `…23-51-21-736Z`, `…23-51-52-275Z`, `…23-52-23-766Z`,
 `…23-52-56-570Z`, `…23-53-44-404Z`, `…23-54-46-976Z`, `…23-55-24-309Z`, `…23-56-06-880Z` (each `-so-scenario-run`), with their
 `so-scenario-result.json` files beside them.
+
+## Gate record: W4 real labels, 2026-10-17 (branch `v2.8-witness-real`, no model reads, no GPU)
+
+Verdict: **W4/W4fi/W4fe/W4cov/W4m/W4a not scored: no recorded witness reads exist.** Labels written, checked and frozen
+(`d22ae086`) before any score. Archived sessions predate the witness lines, so no recorded read carries a `WITNESS` line; the
+only `so-witness-reads/1` files are the synthetic fixture and lane 69's scripted plumbing reads. Real reads need the read model
+(Artemis on the 3090); not run (no GPU).
+
+Labels (counts only; private files in `so-sessions` `test/sessions/witness-real/`, not archived by this run):
+- Real: 16 sessions, 192 window messages. Sol wrote, `claude -p` (claude-opus-5-5) checked blind: 132 agreed, 60 disagreed,
+  0 invalid. Disagreements by kind: present set differs 43, checker heard more members 30, a mixed label on either side 16,
+  `unknown` on one side 5, other 2 (a message can count twice).
+- Lab: 40 authored labels, 10 agreed, 30 disagreed (the checker's heard set a strict subset of the authored one in 29). Lab
+  set `insufficient` as declared.
+- **The kept real set holds 0 asides and 0 mixed messages.** The hard strata are exactly where writer and checker disagreed,
+  so dropping disagreements leaves W4a and W4m with no denominator (the scorer reports them `null`, which would not fail a
+  floor). Recorded, not repaired.
+
+W4n (presence null control, labelled `present` as witness; labels only):
+- Real (132): exact set 0.8931 (117/131), false inclusion 0 (0/317), false exclusion 0.0327 (14/428), coverage 1.0, asides 0,
+  mixed 0. Lab (10 kept): exact 0.5 (5/10), false inclusion 0.0957 (9/94), aside exact 0/5, 9 aside kept-out members included.
+- The real set sits near presence's ceiling, so "B beats presence on W4a by >= 0.3" cannot be evaluated on it.
+
+Owed to score W4 (needs the GPU and an owner OK):
+- A recorder (not built; building it needs no GPU) that runs the shared read with the witness section on Artemis over windows
+  covering each labelled message and saves `so-witness-reads/1`: about 2 reads per real session (32) plus about 5 over the lab
+  transcript, about 37 reads, roughly 15-40 min of 3090 time; Wc needs the same windows with witness lines off as baseline.
+- A labelling decision for the hard strata (recommended: an aside/mixed stratum adjudicated by a third model or labelled
+  `unknown`, §5.4's rule before 2026-10-17); otherwise W4a/W4m stay unmeasurable on real data.
+
+Ship 42 B as is: yes, as a record nobody reads (on by default, no consumer). No consumer (43 recall, 44 overhearing, 58) may
+read it before W4 and W4fi are scored on real reads.
+
+Tooling: `so-witness.mts label-write | label-check | label-merge | lab | freeze | presence`, `src/memory/witnessLabels.ts`,
+`combineWitnessScores` in `memory/witness/score.ts`; tests `src/memory/witnessLabels.test.ts`.
+
+Gates (branch `v2.8-witness-real`): `npm run gates -- --jobs=1 --no-storybook` all green in 270.6 s (test 9,440+ passed, test:replay, build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release). Storybook skipped: no UI change. First run red on `codeHealth.guard` (a dead export in `vr62.ts`, removed) and then `typecheck:test` (a test fixture field), both fixed before the green run. No product code changed: the new modules are reached only from scripts and tests.
