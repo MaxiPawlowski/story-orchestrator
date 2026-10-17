@@ -105,7 +105,9 @@ export const adjudicationOrder = (key: string, first: WitnessDraft, second: Witn
 
 const showDraft = (draft: WitnessDraft) => JSON.stringify({ present: draft.present, ...(draft.spans?.length ? { mixed: true, spans: draft.spans } : { heard: draft.heard }) });
 
-export function adjudicationPrompt(rows: readonly E0ChatRow[], members: readonly string[], window: readonly number[], items: readonly AdjudicationItem[], scenes?: ReadonlyMap<number, string>): string {
+export function adjudicationPrompt(
+  rows: readonly E0ChatRow[], members: readonly string[], window: readonly number[], items: readonly AdjudicationItem[], scenes?: ReadonlyMap<number, string>,
+): string {
   return [
     opening(scenes),
     `The characters (members) are: ${members.join(", ")}. Two labellers disagreed about which members perceived some messages first-hand.`

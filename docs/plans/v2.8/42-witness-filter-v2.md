@@ -542,3 +542,38 @@ Owner rule "go with recommendations" (coordinator, 2026-10-17): the disagreement
   unresolved anchors), lab 30 (29 decided, 1 `unknown`); 0 failed calls. Deviation: the freeze file was written before the
   W4n re-score, but this commit landed just after it; W4n reads labels only, and the score checked the labels against this
   digest.
+
+## Gate record: adjudication and W4 recorder, 2026-10-17 (branch `v2.8-witness-real-2`, no GPU)
+
+Declarations `91821786` (before any adjudication), adjudication code `b98a0fb6`, adjudicated freeze `83710424`. W4 still not
+scored: the read-model run is queued for the 3090 (coordinator).
+
+Adjudication (Astra, `codex exec -m gpt-6-astra`, blind A/B; private files `so-sessions` `test/sessions/witness-real/adjudicated/`):
+- Real: 60 disagreements, 51 decided, 9 `unknown`, 0 unresolved anchors, 0 failed calls. Lab: 30, 29 decided, 1 `unknown`.
+- Strata after adjudication: real 192 labels (11 mixed, 10 `unknown`, **0 single-audience asides**: the real asides land as
+  mixed messages); lab 40 (32 asides, 2 mixed, 1 `unknown`). W4m now has a real denominator (11); W4a has one only on the lab.
+- W4n re-scored on the adjudicated sets (labels only): real 192 kept, exact set 0.8421 (144/171), false inclusion 0.0382
+  (18/471, ambiguous pairs counted), false exclusion 0.0470 (27/574), mixed detection 0/11, span false inclusion 0.1772
+  (14/79). Lab 40 kept: exact 0.1351 (5/37), false inclusion 0.1944 (83/427), aside exact 0/32, 78 aside kept-out members
+  included. Presence as witness fails W4 on both sets, as v2.6 measured; B must beat lab W4a 0 by >= 0.3.
+
+Recorder (built, plumbing green, real-LLM owed):
+- `storyOrchestratorLiveSuite.runWitnessRead` (lazy live-suite chunk) runs the shipped `runSharedRead` over a chat built in ST's
+  shape (`windowOf`), with the pinned story, the boundary-log engine state (lab: the scene's checkpoint), `witnessPresent` on or
+  off, and records each model call's `finish` and latency plus input/output tokens from the read meter.
+- `so-witness.mts record | reads | wc | score-real` (`scripts/debug/lib/witnessRecord.mts`): 32 real reads + 5 lab reads per arm,
+  resumable; `--plumbing` answers with a canned all-present reply and marks the records, which `reads`, `wc` and `score-real`
+  refuse to treat as a measurement. Tests `scripts/debug/witnessRecord.test.mts`, `src/memory/witnessLabels.test.ts`.
+- Plumbing on lane 79 (offline, private copy `C:\dev\st-live-witreal`, served bundle `706a3166995e` = built): 1 real session
+  + the lab, both arms, 7 reads each; every on-arm read `accepted`, replay through parser and record classified 12/12 labelled
+  messages (canned answers, so the score means nothing); `score-real` and `wc` refused the plumbing records. Lane stopped.
+- Early warning, not a verdict: the witness section added 167 input tokens per read on the lane's read meter (no model behind
+  it, so the count may be an estimate), against Wc's added-input p95 <= 120. If Artemis's tokenizer agrees, Wc's input row
+  misses whatever the model answers.
+
+Run for the coordinator's GPU queue (lane with the Artemis read profile; images and sprites off):
+`node scripts/debug/so-witness.mts record --sessions C:/dev/story-orchestrator/test/sessions --out C:/dev/story-orchestrator/test/sessions/witness-real --arm both --lab-rows C:/dev/story-orchestrator/test/sessions/witness-real/lab-rows.json --lab-story C:/dev/adolion-campaign/build/story/adolion-academy.story.json`,
+then `reads` (same set arguments), `wc --out …`, `score-real --out … --freeze …/freeze-adjudicated.json --adjudicated`.
+74 reads in all (37 per arm), roughly 30-60 min of 3090 time. The live-suite row of Wc and RB stay separate.
+
+Gates (branch `v2.8-witness-real-2`): `npm run gates -- --jobs=1 --no-storybook` all green in 270.6 s. Storybook skipped: no UI change. The first run was red on `ownership.guard` (the recorder's local call log, now classified `local` in `test/findings/ownership-sites.json`) and `codeHealth.guard` S5 (two lines over 200 characters, wrapped). The recorder hook is in the lazy live-suite chunk.

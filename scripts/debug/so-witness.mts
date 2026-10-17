@@ -10,6 +10,10 @@ const USAGE = `Usage:
   node scripts/debug/so-witness.mts label-merge --sessions <root> --out <dir>
   node scripts/debug/so-witness.mts lab --source <lab-rows.json> --out <dir>
   node scripts/debug/so-witness.mts adjudicate --sessions <root> --out <dir> [--width 2]
+  node scripts/debug/so-witness.mts record --sessions <root> --out <dir> --arm on|off|both [--lab-rows <f> --lab-story <f>] [--only <key,...>] [--plumbing]
+  node scripts/debug/so-witness.mts reads --sessions <root> --out <dir> [--lab-rows <f> --lab-story <f>]
+  node scripts/debug/so-witness.mts wc --out <dir>
+  node scripts/debug/so-witness.mts score-real --out <dir> --freeze <freeze.json> [--adjudicated]
   node scripts/debug/so-witness.mts freeze --out <dir> --record <freeze.json> [--adjudicated]
   node scripts/debug/so-witness.mts presence --out <dir> --freeze <freeze.json> [--adjudicated]
 
@@ -28,7 +32,12 @@ scorer drops and counts them), one so-witness-labels/1 file per session under <d
 file; presence scores the presence null control (W4n, labelled present as witness) on the frozen sets.
 adjudicate (2026-10-17 declarations): Astra (codex exec -m gpt-6-astra) decides every disagreed label, blind to who wrote
 which; its verdict wins, undecided or unparsed answers become heard "unknown"; writes <dir>/adjudicated/. --adjudicated makes
-freeze and presence use that set.`;
+freeze and presence use that set.
+record (GPU, the read model): on the lane page st-lanes env names, runs the shipped shared read through
+storyOrchestratorLiveSuite.runWitnessRead over each labelled window (real: first and last 8 of 12; lab: 5 x 8), witness lines on
+and/or off; resumes; writes <dir>/reads/<arm>/. reads turns the on arm into so-witness-reads/1 files (<dir>/reads/files/);
+--plumbing answers every read with a canned all-present witness reply (no model call) and marks the records; plumbing output is
+never a measurement. wc computes Wc against the off arm; score-real scores W4 per set against the frozen labels (real combined, lab apart).`;
 
 const option = (args: string[], name: string) => {
   const index = args.indexOf(name);
@@ -53,7 +62,37 @@ async function labelCommand(command: string, args: string[]): Promise<number> {
   else if (command === 'label-check') result = await lib.checkWitnessLabels({ root: need(args, '--sessions'), out, width });
   else if (command === 'label-merge') result = await lib.mergeWitnessLabels({ root: need(args, '--sessions'), out });
   else if (command === 'lab') result = await lib.labWitness({ source: need(args, '--source'), out });
-  else if (command === 'adjudicate') result = await lib.adjudicateWitness({ root: need(args, '--sessions'), out, width: Number(option(args, '--width') ?? 2) });
+  else if (command === 'record' || command === 'reads') {
+    const rec = await import('./lib/witnessRecord.mts');
+    const sets = (await rec.planAll(need(args, '--sessions'), option(args, '--lab-rows'), option(args, '--lab-story')))
+      .filter((set) => !option(args, '--only') || (option(args, '--only') as string).split(',').includes(set.key));
+    if (command === 'reads') result = await rec.writeReadsFiles(sets, out, args.includes('--plumbing'));
+    else {
+      const arm = need(args, '--arm');
+      const arms = (arm === 'both' ? ['off', 'on'] : [arm]) as Array<'on' | 'off'>;
+      const { withST } = await import('./lib/cli.mts');
+      result = await withST(async (page) => {
+        const run: import('./lib/witnessRecord.mts').Runner = (spec) => page.evaluate(async (payload) => {
+          const suite = (globalThis as unknown as { storyOrchestratorLiveSuite?: { runWitnessRead(spec: unknown): Promise<unknown> } }).storyOrchestratorLiveSuite;
+          if (!suite) throw new Error('storyOrchestratorLiveSuite not registered (extension not loaded?)');
+          return suite.runWitnessRead(payload);
+        }, spec) as ReturnType<import('./lib/witnessRecord.mts').Runner>;
+        const counts: Record<string, number> = {};
+        const plumbing = args.includes('--plumbing') ? rec.plumbingReply : undefined;
+        for (const set of sets) for (const one of arms) counts[`${one}`] = (counts[`${one}`] ?? 0) + (await rec.recordSet(set, one, run, out, console.log, plumbing)).length;
+        return { sets: sets.length, records: counts };
+      });
+    }
+  } else if (command === 'wc') result = await (await import('./lib/witnessRecord.mts')).wcAll(out);
+  else if (command === 'score-real') {
+    const adjudicated = args.includes('--adjudicated');
+    const refused = await lib.checkWitnessFreeze(out, need(args, '--freeze'), adjudicated);
+    if (refused) {
+      console.error(refused);
+      return 3;
+    }
+    result = await lib.scoreRealReads(out, adjudicated);
+  } else if (command === 'adjudicate') result = await lib.adjudicateWitness({ root: need(args, '--sessions'), out, width: Number(option(args, '--width') ?? 2) });
   else if (command === 'freeze') {
     const record = await lib.freezeWitnessLabels(out, args.includes('--adjudicated'));
     await writeFile(need(args, '--record'), `${JSON.stringify(record, null, 1)}

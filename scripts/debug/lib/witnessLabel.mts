@@ -205,3 +205,33 @@ export async function adjudicateWitness({ root, out, ask = askAstra, width = 2, 
   await writeJson(join(base, 'report.json'), report);
   return report;
 }
+
+export async function scoreRealReads(out: string, adjudicated = false) {
+  const witness = await kit();
+  const { scoreReads } = await import('./witness.mts');
+  const files = await labelFiles(out, adjudicated);
+  const real: Score[] = [];
+  const realControl: Score[] = [];
+  let lab: unknown = null;
+  const missing: string[] = [];
+  for (const file of files) {
+    const set = await readJson<LabelSet>(file);
+    const reads = join(out, 'reads', 'files', fileOf(set.set));
+    if (!existsSync(reads)) {
+      missing.push(set.set);
+      continue;
+    }
+    if ((await readJson<{ plumbing?: boolean }>(reads)).plumbing) throw new Error(`refused: ${reads} holds plumbing reads (never scored)`);
+    const scored = await scoreReads(file, reads) as unknown as { witness: Score; nullControl: Score };
+    if (set.set.startsWith('lab/')) lab = scored;
+    else {
+      real.push(scored.witness);
+      realControl.push(scored.nullControl);
+    }
+  }
+  const combined = witness.combineWitnessScores('real-sessions', real);
+  const control = witness.combineWitnessScores('real-sessions-presence', realControl);
+  const rate = (score: Score) => (score.asideExactSet as { rate: number | null }).rate;
+  const margin = rate(combined) === null || rate(control) === null ? null : (rate(combined) as number) - (rate(control) as number) >= 0.3 - 1e-9;
+  return { adjudicated, missing, real: combined, realNullControl: control, realNullControlBeaten: margin, lab };
+}
