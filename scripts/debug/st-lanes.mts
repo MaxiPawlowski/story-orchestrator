@@ -7,6 +7,7 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { diskBuildIssue } from './lib/servedBundle.mts';
 import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
 import { swipesOn } from './lib/adolionFresh.mts';
+import { isLaneNumber } from './lib/laneRange.mts';
 import { firewalledServerEnv, laneExtraPorts, judgeEnabledIn, NO_MODEL_BACKUP, OFFLINE_ENV, offlineProblems, offlineSettings, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
 import { judgeShareEnv, LANE_POD_FILE, parsePodArg, podLoadProblem, podPortsIn, podTunnelPort, readLanePod, retargetPodUrls, retargetProfiles } from './lib/lanePods.mts';
 import { ROW_DIR_ENV } from './lib/pageCapture.mts';
@@ -85,7 +86,7 @@ export const laneEnv = (n: number): Record<string, string> => {
   return { ST_URL: `http://127.0.0.1:${lane.port}/`, ST_DEBUG_CDP_PORT: String(lane.cdp), SO_DEBUG_DIR: lane.debug, SO_LANE: String(n) };
 };
 
-const laneNumbers = (args: string[]) => args.filter((arg) => /^\d+$/.test(arg)).map(Number).filter((n) => n >= 1 && n <= 99);
+const laneNumbers = (args: string[]) => args.filter((arg) => /^\d+$/.test(arg)).map(Number).filter(isLaneNumber);
 
 function argValue(name: string, fallback: string | null = null) {
   const index = process.argv.indexOf(name);

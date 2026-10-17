@@ -4,6 +4,7 @@ import { appendFile, lstat, mkdir, readdir, readFile, rm, statfs, writeFile } fr
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lanesRootFor, REPO_ROOT } from '../lib/stRoot.mjs';
+import { laneRangeIssue } from './lib/laneRange.mts';
 import { TOY_GROUP_NAME, toyGroupCreateBody, toyGroupProblems } from '../lib/toyGroup.mjs';
 import {
   acceptBaseline, badgeReport, buildInventory, buildManifest, castResetPlan, checkInventory, diffInventories, expectedStartDisabled, imageExtensionProblems, lastGoodSeed, seedDrift, installerProblems, isInstalledBook, isLfsPointer, spriteFolders, stripPlan,
@@ -623,9 +624,9 @@ const argValue = (args: string[], name: string) => {
 };
 
 const laneArg = (value: string | undefined) => {
-  const n = Number(value);
-  if (!Number.isInteger(n) || n < 1 || n > 50) throw new Error(`lane must be 1..50 (lane 0 is the user's), got ${value}`);
-  return n;
+  const issue = laneRangeIssue(value);
+  if (issue) throw new Error(issue);
+  return Number(value);
 };
 
 async function main() {

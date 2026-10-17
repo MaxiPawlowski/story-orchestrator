@@ -29,6 +29,7 @@ import { DEFAULT_MAIN_PROFILE, DEFAULT_ORCHESTRATOR, judgeExpectation, pinVerdic
 import { scoreRow } from './lib/sessionRubric.mts';
 import { meterSession, updateBudgetDocument, type BudgetRow } from './lib/sessionSpend.mts';
 import { renderRunbook } from './lib/sessionRunbook.mts';
+import { laneRangeIssue } from './lib/laneRange.mts';
 
 const USAGE = `Usage: node scripts/debug/so-session.mts <command> [...]
 
@@ -251,7 +252,7 @@ export function planStart(doc: CardDoc, index: StoryIndex, card: Card, options: 
   if (missingData.length) return { refused: `${card.id} cannot run on this pin: the story lacks the data the card exercises.\n- ${missingData.join('\n- ')}` } as const;
   if (options.age !== null && options.age !== undefined && !continuing) return { refused: `--age backdates the chat a card continues; ${card.id} plays a fresh chat.` } as const;
   const lane = options.lane ?? (continuing ? Number(previous!.session.lane) : options.planned ?? 1);
-  if (!Number.isInteger(lane) || lane < 1 || lane > 50) return { refused: `lane must be 1..50 (lane 0 is the user's), got ${String(options.lane)}` } as const;
+  if (laneRangeIssue(lane)) return { refused: laneRangeIssue(lane) as string } as const;
   if (continuing && previous && Number(previous.session.lane) !== lane) return { refused: `${card.id} continues the ${card.setup.continues} chat on lane ${previous.session.lane}; start it there (or drop --lane).` } as const;
   const seed = options.seed && !continuing;
   const reseed = seed ? reseedRefusal(doc, lane, sessions, card.id) : null;
