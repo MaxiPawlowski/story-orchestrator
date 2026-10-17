@@ -1,0 +1,2691 @@
+{
+ "format": "so-scene-frontiers/1",
+ "plan": "v2.8 48 S7-S9, S11",
+ "synthetic": true,
+ "frontiers": [
+  {
+   "id": "f01",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f01",
+    "title": "The Salt Ferry",
+    "description": "A river ferry company is losing cargo between the two banks. The ferrymaster, a dock warden and a toll keeper each guard part of the answer.",
+    "player": {
+     "role": "a clerk sent to audit the ferry company"
+    },
+    "living": {
+     "premise": "A river ferry company is losing cargo between the two banks. The ferrymaster, a dock warden and a toll keeper each guard part of the answer.",
+     "tone": "grey, damp, quietly tense",
+     "authored_until": "night_crossing",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "ledger_seen",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player seen the toll ledger?"
+     },
+     {
+      "key": "night_run_known",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Does the player know about the unlit night crossings?"
+     },
+     {
+      "key": "warden_trust",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "How far does the dock warden trust the player, from 0 to 3?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "ferry_dock",
+      "name": "The Ferry Dock",
+      "objective": "The ferrymaster demands the audit be finished before the spring flood.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "toll_house",
+      "name": "The Toll House",
+      "objective": "The toll keeper keeps a second ledger that does not match the first.",
+      "type": "anchor"
+     },
+     {
+      "id": "night_crossing",
+      "name": "The Night Crossing",
+      "objective": "A crossing runs after dark with no lantern and no manifest.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "ferry_dock",
+      "to": "toll_house",
+      "priority": 1,
+      "gate": {
+       "q": "ledger_seen",
+       "op": "==",
+       "v": true
+      }
+     },
+     {
+      "from": "toll_house",
+      "to": "night_crossing",
+      "priority": 1,
+      "gate": {
+       "q": "night_run_known",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "ferrymaster",
+      "name": "Odo Brask",
+      "role": "ferrymaster",
+      "drive": "keep the crossings running"
+     },
+     {
+      "id": "warden",
+      "name": "Lisel Marr",
+      "role": "dock warden",
+      "drive": "keep her post"
+     },
+     {
+      "id": "toll",
+      "name": "Pim Hollis",
+      "role": "toll keeper",
+      "drive": "pay off an old debt"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "night_crossing",
+   "state": {
+    "visitedPath": [
+     "ferry_dock",
+     "toll_house",
+     "night_crossing"
+    ],
+    "values": {
+     "ledger_seen": true,
+     "night_run_known": true,
+     "warden_trust": 1
+    }
+   },
+   "inputs": {
+    "canon": "- The toll ledger lists eleven crates that never reached the far bank.\n- Lisel Marr saw a barge without a lantern two nights ago.",
+    "openThreads": [
+     "who unloads the missing crates",
+     "why the toll keeper keeps two ledgers"
+    ],
+    "resolvedThreads": [
+     "the ferrymaster agreed to open the company books"
+    ],
+    "plans": [
+     "Pim Hollis: sell the second ledger to whoever pays first"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Wren"
+    ],
+    "tension": "stirring"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f01",
+    "storyId": "scene-test-f01"
+   },
+   "plannedAt": 4
+  },
+  {
+   "id": "f02",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f02",
+    "title": "Glasshouse Winter",
+    "description": "In a manor glasshouse the rare orchids are dying one bed at a time. The head gardener, the manor steward and a young apprentice each blame someone else.",
+    "player": {
+     "role": "a botanist hired to save a dying glasshouse"
+    },
+    "living": {
+     "premise": "In a manor glasshouse the rare orchids are dying one bed at a time. The head gardener, the manor steward and a young apprentice each blame someone else.",
+     "tone": "cold outside, humid inside, hushed",
+     "authored_until": "boiler_room",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "boiler_found",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player found the cold boiler?"
+     },
+     {
+      "key": "orchids_saved",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "How many orchid beds are still alive, from 0 to 6?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "glasshouse",
+      "name": "The Glasshouse",
+      "objective": "The steward wants a cause named before the owner returns.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "boiler_room",
+      "name": "The Boiler Room",
+      "objective": "The boiler that heats the beds has been run cold at night.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "glasshouse",
+      "to": "boiler_room",
+      "priority": 1,
+      "gate": {
+       "q": "boiler_found",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "gardener",
+      "name": "Hal Verity",
+      "role": "head gardener",
+      "drive": "keep his reputation"
+     },
+     {
+      "id": "steward",
+      "name": "Margit Sorn",
+      "role": "manor steward",
+      "drive": "cut the manor costs"
+     },
+     {
+      "id": "apprentice",
+      "name": "Teo Lark",
+      "role": "apprentice",
+      "drive": "be taken seriously"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "boiler_room",
+   "state": {
+    "visitedPath": [
+     "glasshouse",
+     "boiler_room"
+    ],
+    "values": {
+     "boiler_found": true,
+     "orchids_saved": 4
+    }
+   },
+   "inputs": {
+    "canon": "- Two beds died in one week.\n- The boiler log has pages torn out from the coldest nights.",
+    "openThreads": [
+     "who turns the boiler down at night",
+     "what the torn log pages showed"
+    ],
+    "resolvedThreads": [],
+    "plans": [
+     "Margit Sorn: sell the glasshouse to a timber buyer"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Ines"
+    ],
+    "tension": "calm"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f02",
+    "storyId": "scene-test-f02"
+   },
+   "plannedAt": 5
+  },
+  {
+   "id": "f03",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f03",
+    "title": "Signal Hill",
+    "description": "A mountain radio relay picks up a voice on a dead frequency every night at the same minute. The station chief, a supply driver and a retired operator each hear it differently.",
+    "player": {
+     "role": "a relief operator at a mountain radio station"
+    },
+    "living": {
+     "premise": "A mountain radio relay picks up a voice on a dead frequency every night at the same minute. The station chief, a supply driver and a retired operator each hear it differently.",
+     "tone": "windblown, lonely, static-filled",
+     "authored_until": "snow_road",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "voice_recorded",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the voice been recorded?"
+     },
+     {
+      "key": "mast_visited",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player been to the old mast?"
+     },
+     {
+      "key": "snow_depth",
+      "type": "enum",
+      "values": [
+       "clear",
+       "drifting",
+       "closed"
+      ],
+      "source": "extractor",
+      "rubric": "How deep is the snow on the road?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "relay_room",
+      "name": "The Relay Room",
+      "objective": "The chief orders the log kept clean for the inspectors.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "old_mast",
+      "name": "The Old Mast",
+      "objective": "The decommissioned mast hums though no cable feeds it.",
+      "type": "anchor"
+     },
+     {
+      "id": "snow_road",
+      "name": "The Snow Road",
+      "objective": "The only road down closes with the first heavy snow.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "relay_room",
+      "to": "old_mast",
+      "priority": 1,
+      "gate": {
+       "q": "voice_recorded",
+       "op": "==",
+       "v": true
+      }
+     },
+     {
+      "from": "old_mast",
+      "to": "snow_road",
+      "priority": 1,
+      "gate": {
+       "q": "mast_visited",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "chief",
+      "name": "Bram Okafor",
+      "role": "station chief",
+      "drive": "keep the relay certified"
+     },
+     {
+      "id": "driver",
+      "name": "Sela Nunn",
+      "role": "supply driver",
+      "drive": "finish her route before snow"
+     },
+     {
+      "id": "retired",
+      "name": "Ezra Vale",
+      "role": "retired operator",
+      "drive": "be listened to again"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "snow_road",
+   "state": {
+    "visitedPath": [
+     "relay_room",
+     "old_mast",
+     "snow_road"
+    ],
+    "values": {
+     "voice_recorded": true,
+     "mast_visited": true,
+     "snow_depth": "drifting"
+    }
+   },
+   "inputs": {
+    "canon": "- The voice repeats a call sign retired thirty years ago.\n- Ezra Vale knew the operator who held that call sign.",
+    "openThreads": [
+     "who still transmits on the dead frequency",
+     "what the old call sign belonged to"
+    ],
+    "resolvedThreads": [
+     "the voice was recorded on tape"
+    ],
+    "plans": [
+     "Bram Okafor: erase the tape before the inspection"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Corin"
+    ],
+    "tension": "tense"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f03",
+    "storyId": "scene-test-f03"
+   },
+   "plannedAt": 6
+  },
+  {
+   "id": "f04",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f04",
+    "title": "The Copper Market",
+    "description": "In a city market the copper scales give false weights, and the guild that certifies them looks away. A spice seller, a guild assessor and a scale smith are tangled in it.",
+    "player": {
+     "role": "a newly licensed market inspector"
+    },
+    "living": {
+     "premise": "In a city market the copper scales give false weights, and the guild that certifies them looks away. A spice seller, a guild assessor and a scale smith are tangled in it.",
+     "tone": "loud, bright, crowded",
+     "authored_until": "smithy",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "false_weight_proven",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has a false weight been proven?"
+     },
+     {
+      "key": "guild_suspicion",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "How suspicious is the guild of the player, from 0 to 3?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "market_square",
+      "name": "The Market Square",
+      "objective": "The guild assessor insists every scale was certified this season.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "smithy",
+      "name": "The Scale Smithy",
+      "objective": "The smith files counterweights that sit a hair too light.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "market_square",
+      "to": "smithy",
+      "priority": 1,
+      "gate": {
+       "q": "false_weight_proven",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "spice",
+      "name": "Amara Quist",
+      "role": "spice seller",
+      "drive": "keep her stall"
+     },
+     {
+      "id": "assessor",
+      "name": "Gideon Pell",
+      "role": "guild assessor",
+      "drive": "rise in the guild"
+     },
+     {
+      "id": "smith",
+      "name": "Nell Haddon",
+      "role": "scale smith",
+      "drive": "protect her apprentice"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "smithy",
+   "state": {
+    "visitedPath": [
+     "market_square",
+     "smithy"
+    ],
+    "values": {
+     "false_weight_proven": true,
+     "guild_suspicion": 2
+    }
+   },
+   "inputs": {
+    "canon": "- A sack of saffron weighed light on three separate scales.\n- Nell Haddon made every counterweight in the east row.",
+    "openThreads": [
+     "who ordered the light counterweights",
+     "why the assessor signed the certificates"
+    ],
+    "resolvedThreads": [
+     "a false weight was proven at the spice stall"
+    ],
+    "plans": [
+     "Gideon Pell: blame the smith before the inspector reports"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Dov"
+    ],
+    "tension": "stirring"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f04",
+    "storyId": "scene-test-f04"
+   },
+   "plannedAt": 7
+  },
+  {
+   "id": "f05",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f05",
+    "title": "Ashfall Abbey",
+    "description": "After a small eruption covers the valley in ash, an abbey on the slope finds its oldest charter missing. The prior, a lay brother and a pilgrim each had the key that night.",
+    "player": {
+     "role": "a visiting archivist at a mountain abbey"
+    },
+    "living": {
+     "premise": "After a small eruption covers the valley in ash, an abbey on the slope finds its oldest charter missing. The prior, a lay brother and a pilgrim each had the key that night.",
+     "tone": "solemn, smoky, candlelit",
+     "authored_until": "bell_tower",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "prints_followed",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has anyone followed the footprints in the ash?"
+     },
+     {
+      "key": "tower_reached",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player reached the bell tower?"
+     },
+     {
+      "key": "ash_falling",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Is ash still falling on the abbey?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "scriptorium",
+      "name": "The Scriptorium",
+      "objective": "The prior asks for the charter to be found before the bishop arrives.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "ash_cloister",
+      "name": "The Ash Cloister",
+      "objective": "Footprints in the ash cross the cloister toward the bell tower.",
+      "type": "anchor"
+     },
+     {
+      "id": "bell_tower",
+      "name": "The Bell Tower",
+      "objective": "The bell tower door is barred from the inside.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "scriptorium",
+      "to": "ash_cloister",
+      "priority": 1,
+      "gate": {
+       "q": "prints_followed",
+       "op": "==",
+       "v": true
+      }
+     },
+     {
+      "from": "ash_cloister",
+      "to": "bell_tower",
+      "priority": 1,
+      "gate": {
+       "q": "tower_reached",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "prior",
+      "name": "Prior Anselm",
+      "role": "prior",
+      "drive": "keep the abbey lands"
+     },
+     {
+      "id": "brother",
+      "name": "Brother Coll",
+      "role": "lay brother",
+      "drive": "atone for an old theft"
+     },
+     {
+      "id": "pilgrim",
+      "name": "Yara Fenn",
+      "role": "pilgrim",
+      "drive": "reach the shrine above the abbey"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "bell_tower",
+   "state": {
+    "visitedPath": [
+     "scriptorium",
+     "ash_cloister",
+     "bell_tower"
+    ],
+    "values": {
+     "prints_followed": true,
+     "tower_reached": true,
+     "ash_falling": true
+    }
+   },
+   "inputs": {
+    "canon": "- The charter grants the abbey the whole valley.\n- Brother Coll was seen near the tower before dawn.",
+    "openThreads": [
+     "who barred the bell tower",
+     "what the pilgrim carries in her satchel"
+    ],
+    "resolvedThreads": [
+     "the footprints led to the bell tower"
+    ],
+    "plans": [
+     "Brother Coll: return the charter without being seen"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Sister Maud"
+    ],
+    "tension": "tense"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f05",
+    "storyId": "scene-test-f05"
+   },
+   "plannedAt": 8
+  },
+  {
+   "id": "f06",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f06",
+    "title": "Night Shift at Kessler Yard",
+    "description": "At a rail freight yard containers are being moved overnight without any shift logged. The yard foreman, a crane operator and a customs officer all sign the same night sheets.",
+    "player": {
+     "role": "a night security guard at a rail freight yard"
+    },
+    "living": {
+     "premise": "At a rail freight yard containers are being moved overnight without any shift logged. The yard foreman, a crane operator and a customs officer all sign the same night sheets.",
+     "tone": "sodium-lit, mechanical, uneasy",
+     "authored_until": "crane_cab",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "meter_checked",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player checked the crane's hour meter?"
+     },
+     {
+      "key": "container_count",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "How many unlogged container moves has the player counted?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "gatehouse",
+      "name": "The Gatehouse",
+      "objective": "The foreman wants the night sheets signed without questions.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "crane_cab",
+      "name": "The Crane Cab",
+      "objective": "The crane's hour meter shows hours nobody worked.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "gatehouse",
+      "to": "crane_cab",
+      "priority": 1,
+      "gate": {
+       "q": "meter_checked",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "foreman",
+      "name": "Rudi Kessler",
+      "role": "yard foreman",
+      "drive": "keep the yard contract"
+     },
+     {
+      "id": "crane",
+      "name": "Tamsin Oyelaran",
+      "role": "crane operator",
+      "drive": "pay for her mother's care"
+     },
+     {
+      "id": "customs",
+      "name": "Felix Draper",
+      "role": "customs officer",
+      "drive": "retire without trouble"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "crane_cab",
+   "state": {
+    "visitedPath": [
+     "gatehouse",
+     "crane_cab"
+    ],
+    "values": {
+     "meter_checked": true,
+     "container_count": 3
+    }
+   },
+   "inputs": {
+    "canon": "- Three containers changed rows between midnight and four.\n- Felix Draper stamped the seals that morning without opening them.",
+    "openThreads": [
+     "where the moved containers go",
+     "who runs the crane at night"
+    ],
+    "resolvedThreads": [],
+    "plans": [
+     "Felix Draper: lose the seal records"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Juno"
+    ],
+    "tension": "stirring"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f06",
+    "storyId": "scene-test-f06"
+   },
+   "plannedAt": 9
+  },
+  {
+   "id": "f07",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f07",
+    "title": "The Drowned Bell",
+    "description": "A town hears a bell ringing under the bay where the old chapel sank. A fisher, the town reeve and a salvage captain each want the sound explained differently.",
+    "player": {
+     "role": "a diver hired by the harbour town"
+    },
+    "living": {
+     "premise": "A town hears a bell ringing under the bay where the old chapel sank. A fisher, the town reeve and a salvage captain each want the sound explained differently.",
+     "tone": "briny, superstitious, grey-green",
+     "authored_until": "sunken_chapel",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "first_dive_done",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player dived to the chapel?"
+     },
+     {
+      "key": "weather",
+      "type": "enum",
+      "values": [
+       "calm",
+       "choppy",
+       "storm"
+      ],
+      "source": "extractor",
+      "rubric": "What is the weather on the bay?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "quay",
+      "name": "The Quay",
+      "objective": "The reeve wants the dive done before the market day.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "sunken_chapel",
+      "name": "The Sunken Chapel",
+      "objective": "The chapel roof lies open on the seabed, and its bell is gone.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "quay",
+      "to": "sunken_chapel",
+      "priority": 1,
+      "gate": {
+       "q": "first_dive_done",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "fisher",
+      "name": "Agnar Holt",
+      "role": "fisher",
+      "drive": "keep the fishing grounds open"
+     },
+     {
+      "id": "reeve",
+      "name": "Dagny Rhee",
+      "role": "town reeve",
+      "drive": "calm the town"
+     },
+     {
+      "id": "captain",
+      "name": "Lorne Vasquez",
+      "role": "salvage captain",
+      "drive": "raise anything worth selling"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "sunken_chapel",
+   "state": {
+    "visitedPath": [
+     "quay",
+     "sunken_chapel"
+    ],
+    "values": {
+     "first_dive_done": true,
+     "weather": "choppy"
+    }
+   },
+   "inputs": {
+    "canon": "- The bell rope was cut, not rotted.\n- Lorne Vasquez anchored over the chapel a week ago.",
+    "openThreads": [
+     "where the chapel bell went",
+     "what still rings under the bay"
+    ],
+    "resolvedThreads": [
+     "the player dived to the chapel"
+    ],
+    "plans": [
+     "Lorne Vasquez: sell the bell to a collector inland"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Ottilie"
+    ],
+    "tension": "calm"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f07",
+    "storyId": "scene-test-f07"
+   },
+   "plannedAt": 10
+  },
+  {
+   "id": "f08",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f08",
+    "title": "Paper Kites",
+    "description": "In a hill village children fly paper kites carrying messages to someone across the valley. The schoolmaster, a shepherd and the postmistress each know where the kites land.",
+    "player": {
+     "role": "a substitute teacher at a village school"
+    },
+    "living": {
+     "premise": "In a hill village children fly paper kites carrying messages to someone across the valley. The schoolmaster, a shepherd and the postmistress each know where the kites land.",
+     "tone": "warm, small, a little sad",
+     "authored_until": "far_pasture",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "kite_read",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player read a kite message?"
+     },
+     {
+      "key": "children_trust",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "How far do the children trust the player, from 0 to 3?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "schoolroom",
+      "name": "The Schoolroom",
+      "objective": "The schoolmaster asks that the kites not be mentioned to the parents.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "far_pasture",
+      "name": "The Far Pasture",
+      "objective": "Torn kites hang on the fence of the shepherd's far pasture.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "schoolroom",
+      "to": "far_pasture",
+      "priority": 1,
+      "gate": {
+       "q": "kite_read",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "schoolmaster",
+      "name": "Aurel Pine",
+      "role": "schoolmaster",
+      "drive": "protect the children"
+     },
+     {
+      "id": "shepherd",
+      "name": "Kit Garroway",
+      "role": "shepherd",
+      "drive": "be left alone"
+     },
+     {
+      "id": "postmistress",
+      "name": "Hedda Small",
+      "role": "postmistress",
+      "drive": "know everyone's business"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "far_pasture",
+   "state": {
+    "visitedPath": [
+     "schoolroom",
+     "far_pasture"
+    ],
+    "values": {
+     "kite_read": true,
+     "children_trust": 2
+    }
+   },
+   "inputs": {
+    "canon": "- Every kite message is addressed to the same name.\n- Kit Garroway keeps the torn kites in his hut.",
+    "openThreads": [
+     "who the kite messages are written to",
+     "why the shepherd keeps the torn kites"
+    ],
+    "resolvedThreads": [],
+    "plans": [
+     "Hedda Small: tell the parents before the teacher does"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Mira"
+    ],
+    "tension": "calm"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f08",
+    "storyId": "scene-test-f08"
+   },
+   "plannedAt": 11
+  },
+  {
+   "id": "f09",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f09",
+    "title": "The Ninth Floor",
+    "description": "An insurance firm's ninth floor is locked after hours, yet its lights stay on. A senior partner, an IT contractor and the night cleaner each have a reason to be there.",
+    "player": {
+     "role": "a junior auditor at an insurance firm"
+    },
+    "living": {
+     "premise": "An insurance firm's ninth floor is locked after hours, yet its lights stay on. A senior partner, an IT contractor and the night cleaner each have a reason to be there.",
+     "tone": "fluorescent, polite, paranoid",
+     "authored_until": "ninth_floor",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "copies_found",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player found the copied claims files?"
+     },
+     {
+      "key": "badge_traced",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the revoked badge been traced?"
+     },
+     {
+      "key": "partner_suspicion",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "How suspicious is the partner of the player, from 0 to 3?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "open_plan",
+      "name": "The Open Plan",
+      "objective": "The partner asks for the audit sample to be chosen by her office.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "server_room",
+      "name": "The Server Room",
+      "objective": "A server logs claims files copied at three in the morning.",
+      "type": "anchor"
+     },
+     {
+      "id": "ninth_floor",
+      "name": "The Ninth Floor",
+      "objective": "The ninth floor door opens to a badge that was revoked last year.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "open_plan",
+      "to": "server_room",
+      "priority": 1,
+      "gate": {
+       "q": "copies_found",
+       "op": "==",
+       "v": true
+      }
+     },
+     {
+      "from": "server_room",
+      "to": "ninth_floor",
+      "priority": 1,
+      "gate": {
+       "q": "badge_traced",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "partner",
+      "name": "Celia Wren-Ashby",
+      "role": "senior partner",
+      "drive": "make the merger close"
+     },
+     {
+      "id": "contractor",
+      "name": "Dmitri Lund",
+      "role": "IT contractor",
+      "drive": "get paid and leave"
+     },
+     {
+      "id": "cleaner",
+      "name": "Rosa Ilunga",
+      "role": "night cleaner",
+      "drive": "keep her job"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "ninth_floor",
+   "state": {
+    "visitedPath": [
+     "open_plan",
+     "server_room",
+     "ninth_floor"
+    ],
+    "values": {
+     "copies_found": true,
+     "badge_traced": true,
+     "partner_suspicion": 1
+    }
+   },
+   "inputs": {
+    "canon": "- The revoked badge belonged to an actuary who left in a hurry.\n- Rosa Ilunga cleans the ninth floor every night.",
+    "openThreads": [
+     "who still uses the revoked badge",
+     "why claims files are copied at night"
+    ],
+    "resolvedThreads": [
+     "the copied files were found on the server"
+    ],
+    "plans": [
+     "Celia Wren-Ashby: delay the audit until the merger closes"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Ravi"
+    ],
+    "tension": "tense"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f09",
+    "storyId": "scene-test-f09"
+   },
+   "plannedAt": 12
+  },
+  {
+   "id": "f10",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f10",
+    "title": "Ember Road",
+    "description": "A courier road between two hill forts has had three couriers vanish this season. A waystation keeper, a fort captain and a travelling tinker all see who passes.",
+    "player": {
+     "role": "a courier carrying sealed letters between two hill forts"
+    },
+    "living": {
+     "premise": "A courier road between two hill forts has had three couriers vanish this season. A waystation keeper, a fort captain and a travelling tinker all see who passes.",
+     "tone": "dusty, sun-hard, watchful",
+     "authored_until": "burnt_bridge",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "bridge_seen",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player seen the burnt bridge?"
+     },
+     {
+      "key": "letters_safe",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Are the sealed letters still unopened?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "waystation",
+      "name": "The Waystation",
+      "objective": "The keeper warns that the next stretch is watched.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "burnt_bridge",
+      "name": "The Burnt Bridge",
+      "objective": "The only bridge on the road has been burnt from the far side.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "waystation",
+      "to": "burnt_bridge",
+      "priority": 1,
+      "gate": {
+       "q": "bridge_seen",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "keeper",
+      "name": "Ma Tolliver",
+      "role": "waystation keeper",
+      "drive": "keep the road busy"
+     },
+     {
+      "id": "captain",
+      "name": "Captain Idris Moore",
+      "role": "fort captain",
+      "drive": "keep the forts allied"
+     },
+     {
+      "id": "tinker",
+      "name": "Jory Blake",
+      "role": "tinker",
+      "drive": "trade where nobody asks questions"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "burnt_bridge",
+   "state": {
+    "visitedPath": [
+     "waystation",
+     "burnt_bridge"
+    ],
+    "values": {
+     "bridge_seen": true,
+     "letters_safe": true
+    }
+   },
+   "inputs": {
+    "canon": "- Each missing courier carried letters for the same fort.\n- Jory Blake sold oil to a stranger the day the bridge burned.",
+    "openThreads": [
+     "who burned the bridge",
+     "which fort the missing letters were for"
+    ],
+    "resolvedThreads": [],
+    "plans": [
+     "Captain Idris Moore: read the letters before they arrive"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Tamsin"
+    ],
+    "tension": "stirring"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f10",
+    "storyId": "scene-test-f10"
+   },
+   "plannedAt": 13
+  },
+  {
+   "id": "f11",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f11",
+    "title": "The Clockmaker's Lease",
+    "description": "Every clock in a small clock shop stops at the same minute each evening. The clockmaker, her landlord and a regular customer each insist it means something else.",
+    "player": {
+     "role": "a lodger renting the room above a clock shop"
+    },
+    "living": {
+     "premise": "Every clock in a small clock shop stops at the same minute each evening. The clockmaker, her landlord and a regular customer each insist it means something else.",
+     "tone": "ticking, cosy, slightly off",
+     "authored_until": "workshop",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "running_clock_found",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player found the clock that keeps running?"
+     },
+     {
+      "key": "lease_days_left",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "How many days are left on the lease?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "shopfront",
+      "name": "The Shopfront",
+      "objective": "The landlord wants the lease ended by the end of the month.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "workshop",
+      "name": "The Back Workshop",
+      "objective": "One clock in the workshop runs while all the others stop.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "shopfront",
+      "to": "workshop",
+      "priority": 1,
+      "gate": {
+       "q": "running_clock_found",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "clockmaker",
+      "name": "Greta Holm",
+      "role": "clockmaker",
+      "drive": "keep her shop"
+     },
+     {
+      "id": "landlord",
+      "name": "Silas Crane",
+      "role": "landlord",
+      "drive": "sell the building"
+     },
+     {
+      "id": "customer",
+      "name": "Benedikt Roe",
+      "role": "regular customer",
+      "drive": "buy one particular clock"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "workshop",
+   "state": {
+    "visitedPath": [
+     "shopfront",
+     "workshop"
+    ],
+    "values": {
+     "running_clock_found": true,
+     "lease_days_left": 12
+    }
+   },
+   "inputs": {
+    "canon": "- The clocks stop at seven minutes past six.\n- Benedikt Roe has asked to buy the running clock three times.",
+    "openThreads": [
+     "why the clocks stop at the same minute",
+     "what the regular customer wants with the running clock"
+    ],
+    "resolvedThreads": [
+     "the running clock was found in the workshop"
+    ],
+    "plans": [
+     "Silas Crane: frighten the clockmaker into leaving early"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Pell"
+    ],
+    "tension": "calm"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f11",
+    "storyId": "scene-test-f11"
+   },
+   "plannedAt": 14
+  },
+  {
+   "id": "f12",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f12",
+    "title": "Low Tide at Merrow Flats",
+    "description": "A causeway survey across tidal flats keeps finding stakes moved overnight. A cockle picker, the council engineer and a birdwatcher each walk the flats at low tide.",
+    "player": {
+     "role": "a surveyor mapping a tidal flat for a new causeway"
+    },
+    "living": {
+     "premise": "A causeway survey across tidal flats keeps finding stakes moved overnight. A cockle picker, the council engineer and a birdwatcher each walk the flats at low tide.",
+     "tone": "open, muddy, gull-loud",
+     "authored_until": "stake_line",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "stakes_moved_seen",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player seen the moved stakes?"
+     },
+     {
+      "key": "tide",
+      "type": "enum",
+      "values": [
+       "low",
+       "turning",
+       "high"
+      ],
+      "source": "extractor",
+      "rubric": "What is the tide doing?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "survey_hut",
+      "name": "The Survey Hut",
+      "objective": "The engineer wants the line finished before the council vote.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "stake_line",
+      "name": "The Stake Line",
+      "objective": "Half the stakes have walked twenty paces east overnight.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "survey_hut",
+      "to": "stake_line",
+      "priority": 1,
+      "gate": {
+       "q": "stakes_moved_seen",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "picker",
+      "name": "Nan Shellby",
+      "role": "cockle picker",
+      "drive": "keep her picking grounds"
+     },
+     {
+      "id": "engineer",
+      "name": "Victor Amadi",
+      "role": "council engineer",
+      "drive": "get the causeway approved"
+     },
+     {
+      "id": "birder",
+      "name": "Elspeth Kaur",
+      "role": "birdwatcher",
+      "drive": "protect the nesting ground"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "stake_line",
+   "state": {
+    "visitedPath": [
+     "survey_hut",
+     "stake_line"
+    ],
+    "values": {
+     "stakes_moved_seen": true,
+     "tide": "turning"
+    }
+   },
+   "inputs": {
+    "canon": "- The moved stakes now run around the nesting ground.\n- Nan Shellby walks the flats every low tide before dawn.",
+    "openThreads": [
+     "who moves the survey stakes",
+     "whether the causeway line crosses the nesting ground"
+    ],
+    "resolvedThreads": [],
+    "plans": [
+     "Victor Amadi: falsify the line if the vote is close"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Hollis"
+    ],
+    "tension": "stirring"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f12",
+    "storyId": "scene-test-f12"
+   },
+   "plannedAt": 15
+  },
+  {
+   "id": "f13",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f13",
+    "title": "The Understudy",
+    "description": "A touring company's lead actor keeps losing props that turn up in the understudy's dressing room. The director, the understudy and the wardrobe mistress all deny it.",
+    "player": {
+     "role": "a stage manager at a touring theatre company"
+    },
+    "living": {
+     "premise": "A touring company's lead actor keeps losing props that turn up in the understudy's dressing room. The director, the understudy and the wardrobe mistress all deny it.",
+     "tone": "backstage, hurried, velvet and dust",
+     "authored_until": "opening_night",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "dagger_found",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the missing dagger been found?"
+     },
+     {
+      "key": "lead_warned",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the lead actor been warned?"
+     },
+     {
+      "key": "company_mood",
+      "type": "enum",
+      "values": [
+       "steady",
+       "fraying",
+       "breaking"
+      ],
+      "source": "extractor",
+      "rubric": "How is the company holding up?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "green_room",
+      "name": "The Green Room",
+      "objective": "The director orders the props locked away before each show.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "dressing_room",
+      "name": "The Understudy's Dressing Room",
+      "objective": "The missing dagger lies on the understudy's table.",
+      "type": "anchor"
+     },
+     {
+      "id": "opening_night",
+      "name": "Opening Night",
+      "objective": "The curtain rises in an hour with the lead still missing his props.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "green_room",
+      "to": "dressing_room",
+      "priority": 1,
+      "gate": {
+       "q": "dagger_found",
+       "op": "==",
+       "v": true
+      }
+     },
+     {
+      "from": "dressing_room",
+      "to": "opening_night",
+      "priority": 1,
+      "gate": {
+       "q": "lead_warned",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "director",
+      "name": "Julian Thorne",
+      "role": "director",
+      "drive": "save the tour"
+     },
+     {
+      "id": "understudy",
+      "name": "Kasia Brel",
+      "role": "understudy",
+      "drive": "finally go on stage"
+     },
+     {
+      "id": "wardrobe",
+      "name": "Mabel Okoro",
+      "role": "wardrobe mistress",
+      "drive": "keep the company together"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "opening_night",
+   "state": {
+    "visitedPath": [
+     "green_room",
+     "dressing_room",
+     "opening_night"
+    ],
+    "values": {
+     "dagger_found": true,
+     "lead_warned": true,
+     "company_mood": "fraying"
+    }
+   },
+   "inputs": {
+    "canon": "- The dagger was found in the understudy's dressing room.\n- Mabel Okoro has a key to every dressing room.",
+    "openThreads": [
+     "who plants the props in the understudy's room",
+     "whether the lead will go on tonight"
+    ],
+    "resolvedThreads": [
+     "the lead actor was warned"
+    ],
+    "plans": [
+     "Kasia Brel: be ready to go on if the lead falters"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Noor"
+    ],
+    "tension": "tense"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f13",
+    "storyId": "scene-test-f13"
+   },
+   "plannedAt": 16
+  },
+  {
+   "id": "f14",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f14",
+    "title": "Fenwick Orchard",
+    "description": "An orchard's best trees are being girdled one by one in the night. The orchard owner, her estranged son and a neighbouring farmer each want the land.",
+    "player": {
+     "role": "a seasonal picker at a family orchard"
+    },
+    "living": {
+     "premise": "An orchard's best trees are being girdled one by one in the night. The orchard owner, her estranged son and a neighbouring farmer each want the land.",
+     "tone": "golden, sweet-rotten, late summer",
+     "authored_until": "old_rows",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "girdled_tree_seen",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player seen a freshly girdled tree?"
+     },
+     {
+      "key": "trees_lost",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "How many trees have been girdled?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "packing_shed",
+      "name": "The Packing Shed",
+      "objective": "The owner asks the pickers to watch the rows at night.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "old_rows",
+      "name": "The Old Rows",
+      "objective": "A fresh girdled tree stands in the oldest row at dawn.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "packing_shed",
+      "to": "old_rows",
+      "priority": 1,
+      "gate": {
+       "q": "girdled_tree_seen",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "owner",
+      "name": "Dorothea Fenwick",
+      "role": "orchard owner",
+      "drive": "pass the orchard to someone worthy"
+     },
+     {
+      "id": "son",
+      "name": "Ambrose Fenwick",
+      "role": "estranged son",
+      "drive": "be forgiven"
+     },
+     {
+      "id": "neighbour",
+      "name": "Garth Ellery",
+      "role": "neighbouring farmer",
+      "drive": "buy the orchard cheap"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "old_rows",
+   "state": {
+    "visitedPath": [
+     "packing_shed",
+     "old_rows"
+    ],
+    "values": {
+     "girdled_tree_seen": true,
+     "trees_lost": 5
+    }
+   },
+   "inputs": {
+    "canon": "- The cuts were made with a pruning hook, not an axe.\n- Ambrose Fenwick came back to the valley a month ago.",
+    "openThreads": [
+     "who girdles the old trees",
+     "why the son came back now"
+    ],
+    "resolvedThreads": [],
+    "plans": [
+     "Garth Ellery: offer to buy the orchard after the harvest fails"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Bea"
+    ],
+    "tension": "calm"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f14",
+    "storyId": "scene-test-f14"
+   },
+   "plannedAt": 17
+  },
+  {
+   "id": "f15",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f15",
+    "title": "The Quiet Carriage",
+    "description": "On an overnight sleeper train a sealed diplomatic pouch goes missing between two stations. The conductor, a courier and a retired judge share the quiet carriage.",
+    "player": {
+     "role": "a passenger on an overnight sleeper train"
+    },
+    "living": {
+     "premise": "On an overnight sleeper train a sealed diplomatic pouch goes missing between two stations. The conductor, a courier and a retired judge share the quiet carriage.",
+     "tone": "rocking, dim, intimate",
+     "authored_until": "baggage_van",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "seal_inspected",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player inspected the baggage van seal?"
+     },
+     {
+      "key": "stations_left",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "How many stations are left before the border?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "dining_car",
+      "name": "The Dining Car",
+      "objective": "The courier asks that nobody leave the carriage before the border.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "baggage_van",
+      "name": "The Baggage Van",
+      "objective": "The baggage van seal has been cut and resealed.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "dining_car",
+      "to": "baggage_van",
+      "priority": 1,
+      "gate": {
+       "q": "seal_inspected",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "conductor",
+      "name": "Arno Szabo",
+      "role": "conductor",
+      "drive": "keep the train on schedule"
+     },
+     {
+      "id": "courier",
+      "name": "Leni Voss",
+      "role": "diplomatic courier",
+      "drive": "deliver the pouch or lose her post"
+     },
+     {
+      "id": "judge",
+      "name": "Judge Harriet Cole",
+      "role": "retired judge",
+      "drive": "travel unnoticed"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "baggage_van",
+   "state": {
+    "visitedPath": [
+     "dining_car",
+     "baggage_van"
+    ],
+    "values": {
+     "seal_inspected": true,
+     "stations_left": 2
+    }
+   },
+   "inputs": {
+    "canon": "- The pouch was last seen in the courier's compartment at the second station.\n- Judge Harriet Cole boarded under another name.",
+    "openThreads": [
+     "who cut the baggage van seal",
+     "why the judge travels under another name"
+    ],
+    "resolvedThreads": [
+     "the baggage van seal was inspected"
+    ],
+    "plans": [
+     "Arno Szabo: keep the police off the train until the border"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Ellis"
+    ],
+    "tension": "stirring"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f15",
+    "storyId": "scene-test-f15"
+   },
+   "plannedAt": 18
+  },
+  {
+   "id": "f16",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f16",
+    "title": "Hollowmere Mill",
+    "description": "A mill town floods every spring because the old sluice gates will not open. The mill owner, the lock keeper and a union organiser each control a piece of the mechanism.",
+    "player": {
+     "role": "an engineer sent to restart a flooded mill"
+    },
+    "living": {
+     "premise": "A mill town floods every spring because the old sluice gates will not open. The mill owner, the lock keeper and a union organiser each control a piece of the mechanism.",
+     "tone": "wet stone, rust, stubborn",
+     "authored_until": "lock_house",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "chain_found",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the chain on the sluice wheel been found?"
+     },
+     {
+      "key": "key_known",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Does the player know who holds the chain key?"
+     },
+     {
+      "key": "water_level",
+      "type": "enum",
+      "values": [
+       "low",
+       "rising",
+       "flooding"
+      ],
+      "source": "extractor",
+      "rubric": "How high is the river?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "mill_floor",
+      "name": "The Mill Floor",
+      "objective": "The owner wants the wheel turning by the end of the week.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "sluice_gate",
+      "name": "The Sluice Gate",
+      "objective": "The sluice gate wheel has been chained shut.",
+      "type": "anchor"
+     },
+     {
+      "id": "lock_house",
+      "name": "The Lock House",
+      "objective": "The lock keeper holds the only key to the chain.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "mill_floor",
+      "to": "sluice_gate",
+      "priority": 1,
+      "gate": {
+       "q": "chain_found",
+       "op": "==",
+       "v": true
+      }
+     },
+     {
+      "from": "sluice_gate",
+      "to": "lock_house",
+      "priority": 1,
+      "gate": {
+       "q": "key_known",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "owner",
+      "name": "Constance Hale",
+      "role": "mill owner",
+      "drive": "restart the mill"
+     },
+     {
+      "id": "lockkeeper",
+      "name": "Wendel Strom",
+      "role": "lock keeper",
+      "drive": "keep the old ways"
+     },
+     {
+      "id": "organiser",
+      "name": "Priya Dunmore",
+      "role": "union organiser",
+      "drive": "win the workers a share"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "lock_house",
+   "state": {
+    "visitedPath": [
+     "mill_floor",
+     "sluice_gate",
+     "lock_house"
+    ],
+    "values": {
+     "chain_found": true,
+     "key_known": true,
+     "water_level": "rising"
+    }
+   },
+   "inputs": {
+    "canon": "- The chain on the sluice wheel is new.\n- Priya Dunmore met the lock keeper the night it was fitted.",
+    "openThreads": [
+     "who chained the sluice gate",
+     "what the workers want before the mill restarts"
+    ],
+    "resolvedThreads": [
+     "the player learned the lock keeper holds the key"
+    ],
+    "plans": [
+     "Priya Dunmore: keep the gate shut until the owner signs"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Garrick"
+    ],
+    "tension": "tense"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f16",
+    "storyId": "scene-test-f16"
+   },
+   "plannedAt": 19
+  },
+  {
+   "id": "f17",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f17",
+    "title": "The Cartographer's Error",
+    "description": "A royal map shows a village that does not exist, and three expeditions have gone looking for it. The survey master, a returned explorer and an engraver know how it got there.",
+    "player": {
+     "role": "a junior mapmaker at a royal survey office"
+    },
+    "living": {
+     "premise": "A royal map shows a village that does not exist, and three expeditions have gone looking for it. The survey master, a returned explorer and an engraver know how it got there.",
+     "tone": "ink, parchment, polite menace",
+     "authored_until": "engraving_room",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "plate_examined",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player examined the copper plate?"
+     },
+     {
+      "key": "master_patience",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "How much patience does the survey master have left, from 0 to 3?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "survey_office",
+      "name": "The Survey Office",
+      "objective": "The survey master wants the error found before the king's audience.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "engraving_room",
+      "name": "The Engraving Room",
+      "objective": "The copper plate shows the village was added after the first printing.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "survey_office",
+      "to": "engraving_room",
+      "priority": 1,
+      "gate": {
+       "q": "plate_examined",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "master",
+      "name": "Master Corvin Hale",
+      "role": "survey master",
+      "drive": "protect the office's name"
+     },
+     {
+      "id": "explorer",
+      "name": "Ilse Marrow",
+      "role": "returned explorer",
+      "drive": "be believed"
+     },
+     {
+      "id": "engraver",
+      "name": "Tobiah Finch",
+      "role": "engraver",
+      "drive": "hide a forgery"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "engraving_room",
+   "state": {
+    "visitedPath": [
+     "survey_office",
+     "engraving_room"
+    ],
+    "values": {
+     "plate_examined": true,
+     "master_patience": 2
+    }
+   },
+   "inputs": {
+    "canon": "- The village appears only on the second printing.\n- Ilse Marrow came back from the last expedition alone.",
+    "openThreads": [
+     "who added the village to the plate",
+     "what the last expedition found"
+    ],
+    "resolvedThreads": [],
+    "plans": [
+     "Tobiah Finch: melt the plate before anyone compares printings"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Saffi"
+    ],
+    "tension": "stirring"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f17",
+    "storyId": "scene-test-f17"
+   },
+   "plannedAt": 20
+  },
+  {
+   "id": "f18",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f18",
+    "title": "Static in the Valley",
+    "description": "Every recording made in a remote valley picks up a low choir under the music. A farmer, the village singer and a power company surveyor each explain it their own way.",
+    "player": {
+     "role": "a sound engineer recording folk songs in a remote valley"
+    },
+    "living": {
+     "premise": "Every recording made in a remote valley picks up a low choir under the music. A farmer, the village singer and a power company surveyor each explain it their own way.",
+     "tone": "green, misty, a hum under everything",
+     "authored_until": "ridge_pylon",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "pylon_found",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player found the humming pylon?"
+     },
+     {
+      "key": "tapes_kept",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "How many usable tapes has the player kept?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "chapel_hall",
+      "name": "The Chapel Hall",
+      "objective": "The singer agrees to be recorded only in the chapel hall.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "ridge_pylon",
+      "name": "The Ridge Pylon",
+      "objective": "A survey pylon on the ridge hums at the same pitch as the choir.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "chapel_hall",
+      "to": "ridge_pylon",
+      "priority": 1,
+      "gate": {
+       "q": "pylon_found",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "farmer",
+      "name": "Owain Pryce",
+      "role": "farmer",
+      "drive": "keep the valley as it is"
+     },
+     {
+      "id": "singer",
+      "name": "Mairead Quill",
+      "role": "village singer",
+      "drive": "keep the old songs alive"
+     },
+     {
+      "id": "surveyor",
+      "name": "Hugo Stent",
+      "role": "power company surveyor",
+      "drive": "route a power line through the valley"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "ridge_pylon",
+   "state": {
+    "visitedPath": [
+     "chapel_hall",
+     "ridge_pylon"
+    ],
+    "values": {
+     "pylon_found": true,
+     "tapes_kept": 3
+    }
+   },
+   "inputs": {
+    "canon": "- The choir sounds louder on tapes made near the ridge.\n- Hugo Stent put up the pylon without the farmers' consent.",
+    "openThreads": [
+     "where the choir under the recordings comes from",
+     "whether the power line will cross the valley"
+    ],
+    "resolvedThreads": [],
+    "plans": [
+     "Hugo Stent: get the recordings dismissed as tape faults"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Lux"
+    ],
+    "tension": "calm"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f18",
+    "storyId": "scene-test-f18"
+   },
+   "plannedAt": 21
+  },
+  {
+   "id": "f19",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f19",
+    "title": "Saltmarsh Inquest",
+    "description": "A marsh village asks for an inquest into a drowning that the villagers swear was no accident. The village elder, the eel trapper and the drowned man's sister each saw part of that night.",
+    "player": {
+     "role": "a coroner's clerk sent to a marsh village"
+    },
+    "living": {
+     "premise": "A marsh village asks for an inquest into a drowning that the villagers swear was no accident. The village elder, the eel trapper and the drowned man's sister each saw part of that night.",
+     "tone": "flat, reedy, close-mouthed",
+     "authored_until": "reed_bank",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "trap_line_seen",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player seen the pulled trap line?"
+     },
+     {
+      "key": "lantern_found",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the lantern in the reeds been found?"
+     },
+     {
+      "key": "village_hostility",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "How hostile is the village to the player, from 0 to 3?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "inquest_room",
+      "name": "The Inquest Room",
+      "objective": "The elder wants the inquest closed by the end of the day.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "eel_traps",
+      "name": "The Eel Traps",
+      "objective": "One trap line was pulled the night of the drowning.",
+      "type": "anchor"
+     },
+     {
+      "id": "reed_bank",
+      "name": "The Reed Bank",
+      "objective": "A lantern lies half buried in the reeds where the body was found.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "inquest_room",
+      "to": "eel_traps",
+      "priority": 1,
+      "gate": {
+       "q": "trap_line_seen",
+       "op": "==",
+       "v": true
+      }
+     },
+     {
+      "from": "eel_traps",
+      "to": "reed_bank",
+      "priority": 1,
+      "gate": {
+       "q": "lantern_found",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "elder",
+      "name": "Elder Bryn Cotter",
+      "role": "village elder",
+      "drive": "keep outsiders out"
+     },
+     {
+      "id": "trapper",
+      "name": "Seth Ruddock",
+      "role": "eel trapper",
+      "drive": "keep his traps secret"
+     },
+     {
+      "id": "sister",
+      "name": "Lottie Marsh",
+      "role": "drowned man's sister",
+      "drive": "learn the truth"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "reed_bank",
+   "state": {
+    "visitedPath": [
+     "inquest_room",
+     "eel_traps",
+     "reed_bank"
+    ],
+    "values": {
+     "trap_line_seen": true,
+     "lantern_found": true,
+     "village_hostility": 2
+    }
+   },
+   "inputs": {
+    "canon": "- The drowned man could swim.\n- Seth Ruddock pulled a trap line that night against the village rule.",
+    "openThreads": [
+     "who carried the lantern to the reed bank",
+     "why the trapper broke the village rule"
+    ],
+    "resolvedThreads": [
+     "the lantern was found in the reeds"
+    ],
+    "plans": [
+     "Elder Bryn Cotter: have the death recorded as an accident"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Tobias"
+    ],
+    "tension": "tense"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f19",
+    "storyId": "scene-test-f19"
+   },
+   "plannedAt": 22
+  },
+  {
+   "id": "f20",
+   "story": {
+    "format": 2,
+    "id": "scene-test-f20",
+    "title": "The Last Lighthouse Tour",
+    "description": "On the last season of a lighthouse tour, the lamp begins flashing a pattern it has never used. The tour owner, the retired keeper and a coastguard officer each read it differently.",
+    "player": {
+     "role": "a tour guide on the final season of a lighthouse tour"
+    },
+    "living": {
+     "premise": "On the last season of a lighthouse tour, the lamp begins flashing a pattern it has never used. The tour owner, the retired keeper and a coastguard officer each read it differently.",
+     "tone": "bright, windy, nostalgic",
+     "authored_until": "lamp_room",
+     "autonomy": "suggest",
+     "scene_test": {
+      "chaos": {
+       "from": "tension"
+      }
+     }
+    },
+    "qualities": [
+     {
+      "key": "pattern_logged",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the player logged the new lamp pattern?"
+     },
+     {
+      "key": "tours_left",
+      "type": "int",
+      "source": "extractor",
+      "rubric": "How many tours are left this season?"
+     }
+    ],
+    "checkpoints": [
+     {
+      "id": "tour_boat",
+      "name": "The Tour Boat",
+      "objective": "The owner wants the last tours to run without fuss.",
+      "type": "anchor",
+      "start": true
+     },
+     {
+      "id": "lamp_room",
+      "name": "The Lamp Room",
+      "objective": "The lamp's pattern is set by hand, not by the old clockwork.",
+      "type": "anchor"
+     }
+    ],
+    "transitions": [
+     {
+      "from": "tour_boat",
+      "to": "lamp_room",
+      "priority": 1,
+      "gate": {
+       "q": "pattern_logged",
+       "op": "==",
+       "v": true
+      }
+     }
+    ],
+    "roster": [
+     {
+      "id": "owner",
+      "name": "Fergus Lyle",
+      "role": "tour owner",
+      "drive": "sell the tour company"
+     },
+     {
+      "id": "keeper",
+      "name": "Agnes Rowe",
+      "role": "retired keeper",
+      "drive": "see the light honoured"
+     },
+     {
+      "id": "coastguard",
+      "name": "Officer Dana Kwame",
+      "role": "coastguard officer",
+      "drive": "keep the shipping lane safe"
+     },
+     {
+      "id": "narrator",
+      "name": "Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+     }
+    ]
+   },
+   "frontierId": "lamp_room",
+   "state": {
+    "visitedPath": [
+     "tour_boat",
+     "lamp_room"
+    ],
+    "values": {
+     "pattern_logged": true,
+     "tours_left": 6
+    }
+   },
+   "inputs": {
+    "canon": "- The new pattern repeats every four minutes.\n- Agnes Rowe still has a key to the lamp room.",
+    "openThreads": [
+     "who changed the lamp pattern",
+     "what the new pattern signals to ships"
+    ],
+    "resolvedThreads": [
+     "the player logged the new pattern"
+    ],
+    "plans": [
+     "Fergus Lyle: close the tour early and sell the boat"
+    ],
+    "refused": null,
+    "playerNames": [
+     "Ada"
+    ],
+    "tension": "stirring"
+   },
+   "ids": {
+    "chatId": "scene-test-chat-f20",
+    "storyId": "scene-test-f20"
+   },
+   "plannedAt": 23
+  }
+ ]
+}

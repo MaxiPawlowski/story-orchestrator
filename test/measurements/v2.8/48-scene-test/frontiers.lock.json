@@ -1,0 +1,6 @@
+{
+ "format": "so-scene-frontiers-lock/1",
+ "file": "test/measurements/v2.8/48-scene-test/frontiers.json",
+ "frontiers": 20,
+ "sha256": "d9cd9f81526fac1e05c3a72df774f13ddcc02cc2a3241cc5ab600f2da67efaf7"
+}

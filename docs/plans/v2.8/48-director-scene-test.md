@@ -404,3 +404,68 @@ old code (checked by reverting the source files only).
   `st-lanes.mts batch --lanes 77 --repeat 2 --strict test/scenarios/v28-48-scene-test.json`: GREEN ×2 (batch
   `2026-10-17T00-00-35-274Z`, rows under `77/debug/batch/`). Only failed requests are the offline backend's
   `/api/backends/text-completions/props` 500. Plumbing green, real-LLM owed (S7–S11 as before).
+
+## Gate record 2026-10-17: S7–S11 harness (pre-freeze, no model)
+
+Branch `v2.8-prefreeze-48` from `v2.8-prefreeze` `c909b40a`. No ST, no lane, no GPU, no model call. No `src/` change.
+
+Files
+
+- `test/measurements/v2.8/48-scene-test/frontiers.json`: 20 synthetic English frontiers (`so-scene-frontiers/1`, invented
+  names, no campaign content). Each is a complete director input: a hybrid living story (2–3 authored anchors,
+  `authored_until` = the frontier, `scene_test` on), visited path and blackboard values, canon, 2 open threads, resolved
+  threads, cast plans, smoothed tension, player name, scene ids and a planning boundary.
+- `test/measurements/v2.8/48-scene-test/frontiers.lock.json`: sha256 of the parsed set (`d9cd9f81…efaf7`, 20 frontiers);
+  every command refuses a drifted set (line endings do not matter: the hash is over the parsed JSON).
+- `scripts/debug/so-scene-test-replay.mts` (`check | freeze | replay | pack | rate | score`), `lib/sceneReplay.mts`,
+  `lib/sceneRate.mts`, `lib/sceneScore.mts`, `lib/sceneReplayEntry.ts` (shipped code through `bundleEntry.loadEntry`).
+- Tests `scripts/debug/sceneTestReplay.test.mts`, `scripts/debug/sceneTestScore.test.mts`.
+
+How it measures
+
+- Replay: per frontier × forced outcome (expected, altered, interrupt) the input is built by the shipped
+  `livingUnit.directorInput` with a forced scene record, and the shipped `runDirector` runs it unchanged (parse, ops and
+  scene check through `checkDirectorOps`, `guardDraft`, critic, one retry). The forced record mirrors `planSceneTest`
+  (focus by `focusPick` on the `scene-test:focus` draw, expected = frontier name + newest open thread); a test proves it
+  equals `planSceneTest`'s record wherever the natural draw lands on that outcome. Expected outcome = byte-identical to the
+  prompt without a signal (test, all 20).
+- Route: director and critic on opencode `openai/gpt-6.1-sol` through `askSol` (`opencode run --standalone`, tools off;
+  refuses `-fast` and DeepSeek). Deviation: not the harness tool bridge, and `askSol`'s own one-line system prompt; same
+  model, same prompts.
+- Per draft (`<out>/run<k>/drafts/<frontier>-<outcome>.json`): every raw answer and prompt, per attempt the parse, ops,
+  scene-answer, guard and critic refusals with the stage, the `narratesPlayer` detector on name and objective, the changed
+  kind (`changed` / `advances`), final status and the delivered anchor (accepted draft, else the last parsed attempt).
+  Resumable; `--plumbing` answers with canned drafts and verdicts, marked, never a measurement; modes never mix in one out.
+- Packs (seeded shuffle, keys in separate files): blind pack for S8 agency flag and S11 surprising + coherent (name and
+  objective only; a leak check refuses arm fields, `changed`/`advances` or the signal text; the same anchor gives the same
+  prompt in every arm); honour pack for S7 (shows the signal, as the floor asks). Rater `claude -p` (`askClaude`).
+- Scorer, per run, unrounded with counts: S7 honours-and-world-side rate per changed arm ≥ 0.80 (denominator 20,
+  undelivered = not honoured); S8 narrated-detector count = 0 over every parsed attempt and agency-flag rate of each changed
+  arm ≤ expected + 0.05; S9 critic refusal rate (drafts with ≥ 1 critic refusal) of each changed arm ≤ expected + 0.10, with
+  parse, ops, guard, scene-answer and final-refused rates and changed kinds informational; S11 surprising-and-coherent of
+  altered and interrupt each ≥ 0.70, expected surprising ≤ 0.30. Insufficient: fewer than 20 drafts in an arm, a delivered
+  draft unrated, fewer than 15 rated in an arm, plumbing, or fewer than 2 runs. Exit 0 pass, 1 fail, 2 insufficient.
+  Floors informational (rule 9).
+
+Tests (2026-10-17)
+
+- `node --test scripts/debug/sceneTestReplay.test.mts scripts/debug/sceneTestScore.test.mts`: 13 tests, 13 pass (frozen
+  hash and drift refusal; all 20 parse and are frontiers; prompt per outcome; forced = shipped record; refusal stages
+  parse/ops-scene/guard-narrated/critic; plumbing resume and mode refusal; blind shuffle, leak control, unblind refusal;
+  rating retry; scorer at every bar passes, one step past each bar fails only that floor, insufficient cases).
+- `npm run debug:typecheck` green, `npm run typecheck` green. ESLint: the repo config parses `src` only (scripts are not in
+  its tsconfig project), so the new `.mts` files are covered by `debug:typecheck`, as the other harnesses.
+- Plumbing CLI end to end (outside the repo): replay 60/60 ok, pack 60 blind + 40 honour, rate 100, score exit 2
+  (insufficient: plumbing).
+
+Real run (owed; in the final suite)
+
+- `node scripts/debug/so-scene-test-replay.mts check`
+- `node scripts/debug/so-scene-test-replay.mts replay --out <dir> --run 1`, then `--run 2` (each 60 draws, about 120–240
+  Sol calls; rerun the same command to resume)
+- `node scripts/debug/so-scene-test-replay.mts pack --out <dir> --run 1` and `--run 2`
+- `node scripts/debug/so-scene-test-replay.mts rate --out <dir> --run 1` and `--run 2` (100 `claude -p` calls per run)
+- `node scripts/debug/so-scene-test-replay.mts score --out <dir> --runs 1,2 --result <dir>/score.json`
+- The set is synthetic, so `<dir>` may be archived under `test/measurements/v2.8/48-scene-test/`.
+
+Still owed: the Sol replay ×2 and the rater run (S7, S8, S9, S11 CL); S10 stays with the living row of the final suite.
