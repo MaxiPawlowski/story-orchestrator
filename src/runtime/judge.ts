@@ -1,5 +1,6 @@
 import { askJudge } from "@judge/client";
-import { buildDirectorRequest, decideDirector, directorJudgeEligible, directorRecordP, type JudgeDirectorDecision, type JudgeDirectorInput } from "@judge/director";
+import type { JudgeDirectorDecision, JudgeDirectorInput } from "@judge/director";
+import { directorJudgeEligible } from "@judge/directorEligible";
 import { createJudgeGate, type JudgeGate } from "@judge/gate";
 import { modelVerdict, DIRECTOR_TIMEOUT_MS } from "@judge/policy";
 import { DEFAULT_JUDGE_PROVIDER, type JudgeProviderId } from "@judge/providers";
@@ -283,6 +284,7 @@ export class JudgeRuntime {
       this.recordFallback("director", "no-roles");
       return null;
     }
+    const { buildDirectorRequest, decideDirector, directorRecordP } = await import("@judge/director");
     const result = await this.ask("director", buildDirectorRequest(input), {
       timeoutMs: Math.min(this.deps.getSettings().timeoutMs, DIRECTOR_TIMEOUT_MS),
       summarize: (answers) => directorRecordP(answers, answers ? decideDirector(answers, input) : null),

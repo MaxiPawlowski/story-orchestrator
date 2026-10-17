@@ -30,6 +30,8 @@ const LAZY_SHIPPED = ["src/runtime/replyEffort.ts", "src/runtime/replyEffortHost
 
 const LAZY_MEANWHILE = ["src/runtime/agendaProposalsHost.ts", "src/runtime/coordinators/agendaProposalCoordinator.ts", "src/runtime/meanwhilePrompt.ts"];
 
+const LAZY_DIET = ["src/runtime/storyUpdate.ts", "src/judge/director.ts", "src/wizard/provisioning.ts"];
+
 const WARM_BATCH = ["src/sprites/builder/batchHost.ts", "src/sprites/builder/batchLease.ts"];
 
 const isHarness = (path: string) => HARNESS.includes(path) || CALIBRATION_PATTERN.test(path) || SPIKE_PATTERN.test(path);
@@ -180,6 +182,13 @@ import "./runtime/spikes/toolTurnSummary";
     const fs = require("fs") as typeof import("fs");
     const read = (path: string) => (path === sprites ? `import { beginSpriteBatch } from "./builder/batchHost";\nvoid beginSpriteBatch;\n${fs.readFileSync(path, "utf8")}` : fs.readFileSync(path, "utf8"));
     expect([...reachableFrom(buildGraph(files, { includeDynamic: false }, read), sprites, read)].map(rel)).toEqual(expect.arrayContaining(WARM_BATCH));
+  });
+
+  it("bundle diet 2026-10-17: the story update, the judge director and wizard provisioning load as their own chunks, never with the entry", () => {
+    const present = new Set(files.map(rel));
+    expect(LAZY_DIET.filter((path) => !present.has(path))).toEqual([]);
+    expect(staticReach(files).filter((path) => LAZY_DIET.includes(path))).toEqual([]);
+    expect([...reachableFrom(buildGraph(files, { includeDynamic: true }), ENTRY)].map(rel)).toEqual(expect.arrayContaining(LAZY_DIET));
   });
 
   it("SP7.b: the seeded chance seam ships in the prod entry graph, and its spike module is gone", () => {

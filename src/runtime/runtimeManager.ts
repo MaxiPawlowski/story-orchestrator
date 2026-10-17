@@ -36,7 +36,7 @@ import { getGlobalSettings, setGlobalSettings, TALK_CHAIN_FIXED, type SpikeSetti
 import { buildPossibleTransitions } from "./snapshot";
 import { buildRuntimeSnapshot, CHAT_LOADING_STATUS, snapshotSources } from "./snapshotBuilder";
 import { SnapshotCache } from "./snapshotCache";
-import { applyStoryUpdate, type StoryUpdateOutcome } from "./storyUpdate";
+import type { StoryUpdateOutcome } from "./storyUpdate";
 import { parseQualityValue } from "./values";
 import { SessionJournal, type JournalEvent, type JournalRecordKind } from "./journal";
 import { evaluateRequirements, requirementsOptions } from "./requirements";
@@ -545,7 +545,7 @@ export class RuntimeManager extends SettingsDelegates {
 
   // The author edited this story from this chat: take the saved version without losing the run.
   // Every other chat keeps its pinned copy (spec addendum §Story identity).
-  async applyStoryUpdate(record?: StoryLibraryRecord): Promise<StoryUpdateOutcome> { return applyStoryUpdate(this.co.storyUpdateDeps, record); }
+  async applyStoryUpdate(record?: StoryLibraryRecord): Promise<StoryUpdateOutcome> { return (await import("./storyUpdate")).applyStoryUpdate(this.co.storyUpdateDeps, record); }
   getLastStoryUpdate(): StoryUpdateOutcome | null { return this.lastStoryUpdate; }
 
   private async swapStory(loaded: LoadedStory, state: EngineState | null, reanchored: boolean, history: EngineHistory | null = null) {

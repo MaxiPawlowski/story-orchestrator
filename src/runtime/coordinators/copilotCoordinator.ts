@@ -5,10 +5,9 @@ import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Sugge
 
 const authoring = () => import("@copilot/index");
 import type { ModelAsk, ModelCall } from "@extraction/index";
-import {
-  draftCastNames, loreEntryShape, newWizardSession, recordGrant, validateProvisioningOp, wizardSessionKey, type ProvisioningEnvironment,
-  type ProvisioningOp, type ProvisioningResult, type WizardCreatedCard, type WizardSessionState,
-} from "@wizard/index";
+import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardCreatedCard, WizardSessionState } from "@wizard/types";
+import { newWizardSession, recordGrant, wizardSessionKey } from "@wizard/interview";
+import { draftCastNames } from "@wizard/castNames";
 import { describeReadBack, type CardReadBackRecord } from "@utils/cardReadBack";
 import type { WIEntrySnapshot } from "@services/STAPI";
 import { lorebookFileId } from "@utils/string";
@@ -148,6 +147,7 @@ export class CopilotCoordinator {
     const run = beginRun(this.deps.ownership);
     const lapsed = (): ProvisioningResult => ({ ok: false, message: "The story changed before this provisioning step could finish." });
     const host = this.deps.hosts.provisioning;
+    const { validateProvisioningOp, loreEntryShape } = await import("@wizard/provisioning");
     const validation = validateProvisioningOp(op, this.getProvisioningEnvironment(draft));
     if (!validation.ok) return { ok: false, message: validation.message };
     try {
