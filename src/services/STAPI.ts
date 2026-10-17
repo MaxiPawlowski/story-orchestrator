@@ -11,6 +11,7 @@ export { readPromptBudget } from "@services/stHost/contextBudget";
 export { stImageSource } from "@services/stHost/stImage";
 export { loadPersonasModule, readPersonas, type HostPersonaRead } from "@services/stHost/personas";
 export const loadPersonaWrites = () => import("@services/stHost/personaWrites");
+export const loadUserFiles = () => import("@services/stHost/userFiles");
 export { sendChatJump } from "@services/stHost/chatJump";
 export type { PromptBudget, PromptBudgetRead } from "@services/stHost/contextBudget";
 export { readPromptBuckets } from "@services/stHost/promptBuckets";

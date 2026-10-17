@@ -2,6 +2,7 @@ import { getContext, observeNextSettingsSave, readServerExtensionSettings } from
 import type { WizardCreatedCard, WizardSessionState, WizardSessionUpdate } from "@wizard/index";
 import { createSettingsWriteEvidence, type LibrarySaveEvidence } from "./librarySave";
 import { SETTINGS_ROOT_KEY, settingsRoot, writableSettingsRoot } from "./settingsRoot";
+import { noteLibraryIndex } from "./libraryIndexPort";
 
 const SETTINGS_KEY = "wizardSessions";
 const SESSION_LIMIT = 8;
@@ -40,9 +41,12 @@ export function onWizardSessionSave(listener: (save: WizardSessionSave) => void)
 }
 
 const writeSessions = (sessions: WizardSessionState[], write: SessionWrite): Promise<LibrarySaveEvidence> => {
+  const kept = new Set(sessions.map((session) => session.key));
+  const delta = Object.fromEntries([...listSessions().filter((session) => !kept.has(session.key)).map((session) => [session.key, null] as const), ...[...kept].map((key) => [key, true] as const)]);
   writableSettingsRoot()[SETTINGS_KEY] = sessions;
   const evidence = confirmSessionWrite(write);
   getContext().saveSettingsDebounced();
+  noteLibraryIndex({ sessions: delta });
   sessionSaveListener?.({ summary: `wizard session ${write.updatedAt === null ? "clear" : "save"} not confirmed`, label: `wizard session ${write.key}`, evidence });
   return evidence;
 };

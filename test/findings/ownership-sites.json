@@ -1156,6 +1156,14 @@
     "src/runtime/carryUnit.ts#dismissPreviously": {
       "status": "checked",
       "note": "Writes extras.carry before the persist await; notify only while the run still owns the chat."
+    },
+    "src/runtime/libraryIndexUnit.ts#applyDelta": {
+      "status": "local",
+      "note": "v2.8 69 K3 (2026-10-17): the library index (user/files/so-library-index.json) is install-wide, keyed by story id and wizard session key, never by chat; after the awaited read it writes the union of the server's index and this page's own delta (a deletion only as a tombstone), so a lapsed chat run has nothing chat-scoped to protect and a stale page cannot remove another page's ids. Tests: runtime/libraryIndex.test.ts."
+    },
+    "src/runtime/libraryIndexUnit.ts#checkIndex": {
+      "status": "local",
+      "note": "v2.8 69 K3 (2026-10-17): the library index (user/files/so-library-index.json) is install-wide, keyed by story id and wizard session key, never by chat; after the awaited read it seeds only ids the index has never seen (never over a tombstone or a newer hash), so a lapsed chat run has nothing chat-scoped to protect and a stale page cannot remove another page's ids. Tests: runtime/libraryIndex.test.ts."
     }
   }
 }

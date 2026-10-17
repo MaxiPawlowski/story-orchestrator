@@ -52,6 +52,7 @@ const everything = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
   orphanedLorebooks: [{ name: "Story Orchestrator - Old - c0", detail: "4 memories", label: "the old chat" }],
   stylesMissing: true,
   stateSize: { blobChars: 9 * 1024 * 1024, libraryChars: 0 },
+  libraryLost: { stories: ["ruins"], sessions: [], changed: [] },
   judgeRouteGaps: [{ key: "canonDraft", provider: "systemone-local", problem: "unmeasured" }],
   extensionConflicts: ["stepped-thinking-separated", "presence", "prompt-inspector", "vectors-world-info", "cc-send-if-empty", "nemo-lorebook-spacing"],
   tunnelVisionBooks: [{ name: "Ruins Lore", suppressesScan: true, canWrite: true }],
@@ -71,7 +72,7 @@ const fired = (check: Check) => runCheck(check, everything(EXCLUSIVE_VARIANTS[ch
 const REPAIR_ORDER = [
   "memory-model", "model-role", "story-needs-group",
   "cast-absent", "cast-unbound", "cast-muted", "lore-absent", "lore-unscanned", "lore-hidden", "persona-absent", "persona-unselected", "memory-slot-taken", "save-unconfirmed", "persona-fit", "persona-lock",
-  "model-role-outage", "context-over-server", "transcript-copiers", "model-not-thinking", "tunnelvision-story-lore", "stepped-thinking-separated", "presence-hides-chat", "prompt-inspector-on", "persona-switch", "persona-fit-cast", "state-size-large", "chapter-unsummarized", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing",
+  "model-role-outage", "context-over-server", "transcript-copiers", "model-not-thinking", "tunnelvision-story-lore", "stepped-thinking-separated", "presence-hides-chat", "prompt-inspector-on", "persona-switch", "persona-fit-cast", "library-lost-to-tab", "state-size-large", "chapter-unsummarized", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing",
   "images-on-no-service", "image-model-missing", "image-model-retired", "story-workflow-missing", "stage-pack-missing", "quest-scope-overflow", "relationship-scope-overflow",
   "discovery-scope-overflow",
 ];
@@ -159,7 +160,7 @@ describe("v2.7 plan 04 B: Repair is the registry's ordering (F33)", () => {
 
   it("with no story only install checks and the engine-free one run, and an ordinary chat is quiet", () => {
     expect(repairSteps(everything({ storyId: null })).map((step) => step.check))
-      .toEqual(["story-needs-group", "context-over-server", "state-size-large", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing", "images-on-no-service", "image-model-missing", "image-model-retired"]);
+      .toEqual(["story-needs-group", "context-over-server", "library-lost-to-tab", "state-size-large", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing", "images-on-no-service", "image-model-missing", "image-model-retired"]);
     expect(repairSteps(quiet({ storyId: null }))).toEqual([]);
   });
 
@@ -214,8 +215,8 @@ describe("v2.7 plan 04 C: one surface", () => {
 
   it("Getting started reads the install checks", () => {
     expect(installFindings(everything({ ui: { authorView: true } })).map((step) => step.check))
-      .toEqual(["context-over-server", "state-size-large", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing", "images-on-no-service", "image-model-missing", "image-model-retired", "gpu-broker-no-text-model", "sprites-builtin-expressions"]);
-    expect(installFindings(everything()).map((step) => step.check)).toEqual(["context-over-server", "state-size-large", "styles-missing", "sprites-builtin-expressions"]);
+      .toEqual(["context-over-server", "library-lost-to-tab", "state-size-large", "wi-gating-drift", "story-lore-global", "orphaned-lorebooks", "judge-route-uncalibrated", "styles-missing", "images-on-no-service", "image-model-missing", "image-model-retired", "gpu-broker-no-text-model", "sprites-builtin-expressions"]);
+    expect(installFindings(everything()).map((step) => step.check)).toEqual(["context-over-server", "library-lost-to-tab", "state-size-large", "styles-missing", "sprites-builtin-expressions"]);
   });
 
   it("the story-needs-group finding carries the make-a-group fix", () => {

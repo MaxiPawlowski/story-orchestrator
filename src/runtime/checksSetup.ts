@@ -6,6 +6,7 @@ import type { RuntimeSnapshot } from "./types";
 import type { Check, CheckFinding } from "./checks";
 import { hasUnsavedChanges, playerSaveNotice, SAVE_PLAYER_TEXT } from "./saveHealth";
 import { overLimit, STATE_SIZE_LIMITS } from "./stateSizeCore";
+import { anyLost } from "./libraryIndexCore";
 import { ROLE_OUTAGE_STATES, ROLE_PROBLEM_STATES } from "./roleHealth";
 import { mutedMembersText, REPAIR_PLAYER_COPY, TRANSPORT_PLAYER_TEXT } from "./pipeline";
 
@@ -321,6 +322,24 @@ export const INFO_SETUP_CHECKS: readonly Check[] = [
 const megabytes = (chars: number) => `${(chars / (1024 * 1024)).toFixed(1)} MB`;
 
 export const DEGRADING_SETUP_CHECKS: readonly Check[] = [
+  degrades({
+    id: "library-lost-to-tab", area: "save", scope: "install", audience: "player", engineFree: true, feature: "stories",
+    detect: (snapshot) => {
+      const lost = snapshot.libraryLost;
+      if (!anyLost(lost)) return null;
+      return {
+        consequence: "Another SillyTavern tab saved older settings over this install, so a story or wizard session saved here is gone from the library or holds an older version.",
+        detail: [
+          ...(lost.stories.length ? [`Missing from the library: ${lost.stories.join(", ")}.`] : []),
+          ...(lost.sessions.length ? [`Missing wizard sessions: ${lost.sessions.length}.`] : []),
+          ...(lost.changed.length ? [`Older than its last save: ${lost.changed.join(", ")}.`] : []),
+          "SillyTavern copies its settings at each server start into the user's backups folder (settings_<user>_<time>.json); "
+            + "a lost story can be copied back from there or imported again. Keep one SillyTavern tab open while you edit stories.",
+        ].join(" "),
+        player: "A story or story setup saved in another SillyTavern tab was overwritten by an older tab. Import it again, and keep one SillyTavern tab open.",
+      };
+    },
+  }),
   degrades({
     id: "state-size-large", area: "save", scope: "install", audience: "player", engineFree: true, feature: "stories",
     detect: (snapshot) => {
