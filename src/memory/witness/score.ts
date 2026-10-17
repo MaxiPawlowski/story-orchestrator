@@ -24,7 +24,7 @@ export interface WitnessLabel {
   present: string[];
   heard: string[] | "unknown";
   spans?: WitnessLabelSpan[];
-  review?: { writer: string; checker: string; agreed: boolean } | null;
+  review?: { writer: string; checker: string; agreed: boolean; adjudicator?: string; adjudicated?: boolean } | null;
 }
 
 export interface WitnessLabelSet {
@@ -78,8 +78,14 @@ const predictedSet = (members: readonly string[], lookups: ReadonlyMap<string, W
 
 const sameSet = (left: readonly string[], right: readonly string[]): boolean => left.length === right.length && left.every((member) => right.includes(member));
 
+export const reviewedLabel = (label: WitnessLabel): boolean => {
+  const review = label.review;
+  if (!review || review.writer === review.checker) return false;
+  return review.agreed || (review.adjudicated === true && Boolean(review.adjudicator) && review.adjudicator !== review.writer && review.adjudicator !== review.checker);
+};
+
 export function scoreWitness(set: WitnessLabelSet, predict: WitnessPredict): WitnessScore {
-  const kept = set.labels.filter((label) => set.synthetic || (label.review && label.review.writer !== label.review.checker && label.review.agreed));
+  const kept = set.labels.filter((label) => set.synthetic || reviewedLabel(label));
   const counts = { exact: 0, classified: 0, fi: 0, notHeard: 0, fe: 0, heard: 0, covered: 0, ambiguousPairs: 0, ambiguousHeard: 0,
     mixedLabelled: 0, mixedFlagged: 0, spanFi: 0, spanNotHeard: 0, asides: 0, asideExact: 0, asideKeptOut: 0 };
   const states: Partial<Record<WitnessState, number>> = {};
