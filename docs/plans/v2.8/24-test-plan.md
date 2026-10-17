@@ -835,6 +835,40 @@ Artemis used: about 5.8 h in total (3.2 h this round).
 - Interrupted rows carry `interrupted.json`. Resume list: lane 41 encounters-model ×2, GS4 ×1, GS1 ×2; lane 42 GS3 ×2,
   47 promises ×2, T8 `--set time` ×2.
 
+Text suite, round 3, 2026-10-17 00:00–03:08 local (st-suite kept on 167892d9, bundle e01edce8; fixtures from this
+branch; Artemis via the controller; lanes 41/42). Artemis used: about 8.9 h in total (3.1 h this round). GPU released
+at 03:08 (controller stopped, no llama-server).
+
+Final suite rows:
+
+- AS-smoke: all 9 files green ×2 (round 1 and round 2).
+- GS1: green ×2 on the final fixture (`42/debug/batch/2026-10-17T05-27-54-936Z`, 9/9 and 9/9). Lane 41 the same night:
+  9/9, then 8/9 (GS1.6 swipe refused: the turn fired a transition and ended on the transition note, which a player
+  cannot swipe; 360b9cf2 re-plays the turn, attempts 3). GS1.1 fix (16c8adfe) held in all four runs.
+- GS2: 8/8 (one run, as planned; `41/debug/batch/2026-10-16T15-36-09-837Z`).
+- GS3: green ×2 on the final fixture (7/7, 7/7). The round 3 shakedown was 6/7: GS3.2's manual read reads from the last
+  boundary, so its window held in-character lines; 22d53659 now requires the OOC lines kept out of character and no
+  call only for an OOC-only window. One run stopped on purpose (stale fixture), one run interrupted by the pause.
+- GS4: pair on the fixed fixture, 6/6 and 6/6 (round 2 run 2, round 3).
+- Campaign lab: commit-model green ×2; encounters-model run 1 all 31 steps passed but cleanup failed (the library
+  restore's settings save got no answer in 15 s, host load), run 2 green.
+- 52 C7: 10/10 ×2 auto-draft; review mode 2/2 on cb50cff3 (round 2).
+- T8 (`so-live-suite run --set time`) ×2: plotDeltaAccuracy 0.75 both, floor 0.9 missed (recorded, not retuned).
+  timewindow01–03 pass; timewindow04 expects no time read and the model reads "morning" both times.
+- live-v28-47-promises: on the suite build RED ×2, a product defect: the read wrote `[promised] Arin | 1 | "…"`
+  without `m=`, and the parser rejected it, so the promise was lost. Fixed in 6e8d782e (a bare index in the m= slot
+  is read; unit test; gates:quick green except the known defect-replay `--listTests` flake). On that fix, served from
+  the separate copy `C:\dev\st-c7` so st-suite kept its build: the promise row and the kept event land 3/3; the
+  rollback leg ("deleting the keeping turn left the kept event") failed 2 of 3 (both failing runs read again after the
+  delete; the green run did not). Open, triaged next without the GPU. One earlier run is void (two runners on one page,
+  an operator error).
+- Header diffs after each lane: no settings drift; differences are the open group and chat, the persona lock and
+  the worktree build fields (the served bundle is unchanged). Lane 41 also gained the 47 test story in its library
+  from a no-model probe (lane copy only).
+- Evidence: `so-evidence.mts archive --label text-suite-20261017 --lanes 41,42,43 --allow-incomplete` -> 556 files,
+  273 MB in the private sessions tree (`test/sessions/evidence/phase-c/text-suite-20261017`); round 1 is
+  `text-suite-20261015`. Not committed to so-sessions, not pushed.
+
 
 ## Appendix A — plan 24 before the 2026-10-14 rework (history)
 
