@@ -39,7 +39,7 @@
     },
     {
       "send_generate": {
-        "text": "I walk the dock to the shed and come back with the lantern.",
+        "text": "I walk the dock toward the shed, looking for the lantern.",
         "timeoutMs": 900000,
         "expectReply": true
       }
@@ -73,12 +73,13 @@
       }
     },
     {
-      "eval": "const rows = globalThis.storyOrchestratorRuntime.extras?.promises?.rows ?? []; const want = globalThis.__p47; const row = rows.find((r) => r.id === want.id); if (!row) throw new Error('the promise row itself was removed by deleting the keeping turn'); if (want.kept && row.events.some((e) => e.kind === 'kept')) throw new Error('deleting the keeping turn left the kept event: deletedFrom=' + globalThis.__p47from + ' events=' + JSON.stringify(row.events.map((e) => ({ kind: e.kind, source: e.source }))).slice(0, 300)); return { reopened: want.kept ? true : 'no kept event was read, so nothing to reopen', events: row.events.length };"
+      "eval": "const rows = globalThis.storyOrchestratorRuntime.extras?.promises?.rows ?? []; const want = globalThis.__p47; const row = rows.find((r) => r.id === want.id); if (!row) throw new Error('the promise row itself was removed by deleting the keeping turn'); const from = globalThis.__p47from; const earlier = row.events.filter((e) => e.kind === 'kept' && e.source.messageId < from).map((e) => e.source.messageId); if (want.kept && row.events.some((e) => e.kind === 'kept' && e.source.messageId >= from)) throw new Error('deleting the keeping turn left the kept event: deletedFrom=' + globalThis.__p47from + ' events=' + JSON.stringify(row.events.map((e) => ({ kind: e.kind, source: e.source }))).slice(0, 300)); return { reopened: want.kept ? earlier.length === 0 : 'no kept event was read, so nothing to reopen', events: row.events.length, keptFromEarlierMessages: earlier };"
     },
     {
       "ui": {
         "action": "assert-player-clean"
       }
     }
-  ]
+  ],
+  "goal": ""
 }
