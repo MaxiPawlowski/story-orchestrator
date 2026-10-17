@@ -66,7 +66,7 @@ test('p47 freeze: an edited set file is refused', async () => {
   const text = await readFile(join(dir, 'p1-cases.json'), 'utf-8');
   await writeFile(join(dir, 'p1-cases.json'), text.replace('"label": "promise"', '"label": "none"'), 'utf-8');
   assert.match((await checkFreeze(dir))[0], /^p1-cases\.json: sha256/);
-  await writeFile(join(dir, 'p1-cases.json'), text.replace(/\n/g, '\r\n'), 'utf-8');
+  await writeFile(join(dir, 'p1-cases.json'), text.replace(/\r\n/g, '\n').replace(/\n/g, '\r\n'), 'utf-8');
   assert.deepEqual(await checkFreeze(dir), []);
 });
 
