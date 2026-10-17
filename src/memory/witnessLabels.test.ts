@@ -1,6 +1,6 @@
 import type { E0ChatRow } from "./e0Pool";
-import { labWitnessSession, mergeWitnessSession, readWitnessDrafts, resolveDraftSpans, sameAudience, sessionMembers, witnessLabelPrompt, witnessWindow, type WitnessDraft } from "./witnessLabels";
-import { combineWitnessScores, presencePredict, scoreWitness } from "./witness/score";
+import { adjudicationOrder, adjudicationPrompt, applyAdjudication, labWitnessSession, mergeWitnessSession, readAdjudication, readWitnessDrafts, resolveDraftSpans, sameAudience, sessionMembers, witnessLabelPrompt, witnessWindow, type WitnessDraft } from "./witnessLabels";
+import { combineWitnessScores, presencePredict, reviewedLabel, scoreWitness } from "./witness/score";
 
 const rows: E0ChatRow[] = Array.from({ length: 30 }, (_, id) => ({
   id, name: id % 3 === 0 ? "Rin" : id % 3 === 1 ? "Mara" : "Ben", isUser: id % 3 === 0, text: id === 7 ? "Mara waves to all. She leans to Ben and whispers: the key is under the anvil." : `line ${id}`,
@@ -93,5 +93,35 @@ describe("witness label rules", () => {
     expect(combined.falseInclusion).toEqual({ hits: 45, of: 45, rate: 1 });
     expect(combined.asideExactSet).toEqual({ hits: 0, of: 45, rate: 0 });
     expect(combined.verdict).toBe("fail");
+  });
+
+  it("adjudication shows both labels without identities and its verdict wins; undecided becomes unknown", () => {
+    const a: WitnessDraft = { messageId: 5, present: ["Ben", "Mara"], heard: ["Ben", "Mara"] };
+    const b: WitnessDraft = { messageId: 5, present: ["Ben", "Mara"], heard: ["Mara"] };
+    const [first, second] = adjudicationOrder("T9/T9-1#5", a, b);
+    expect(new Set([first, second])).toEqual(new Set([a, b]));
+    const prompt = adjudicationPrompt(rows, members, [5, 6, 7], [{ messageId: 5, a: first, b: second }]);
+    expect(prompt).toContain("Label A");
+    expect(prompt).not.toMatch(/sol|claude|writer|checker/i);
+    const verdicts = readAdjudication({ verdicts: [
+      { messageId: 5, present: ["Mara", "Ben"], heard: ["Mara"] }, { messageId: 6, undecided: true }, { messageId: 7, present: ["Mara"], mixed: true, spans: [{ from: "nowhere", heard: ["Mara"] }] },
+    ] }, members);
+    expect(verdicts.get(6)).toBe("undecided");
+    const review = { writer: "sol", checker: "claude", agreed: false };
+    const set = { format: "so-witness-labels/1" as const, set: "T9/T9-1", synthetic: false, members, labels: [
+      { messageId: 4, present: ["Mara"], heard: ["Mara"], review: { ...review, agreed: true } },
+      { messageId: 5, present: ["Ben", "Mara"], heard: ["Ben", "Mara"], review },
+      { messageId: 6, present: ["Ben", "Mara"], heard: ["Ben"], review },
+      { messageId: 7, present: ["Ben", "Mara"], heard: ["Ben"], review },
+      { messageId: 8, present: ["Ben"], heard: ["Ben"], review },
+    ] };
+    const applied = applyAdjudication(set, rows, verdicts, "codex:astra");
+    expect(applied.counts).toEqual({ adjudicated: 4, decided: 1, unknown: 3, unresolved: 1 });
+    expect(applied.set.labels.map((label) => label.heard)).toEqual([["Mara"], ["Mara"], "unknown", "unknown", "unknown"]);
+    expect(applied.set.labels.every(reviewedLabel)).toBe(true);
+    expect(reviewedLabel({ ...applied.set.labels[1], review: { ...review, adjudicator: "sol", adjudicated: true } })).toBe(false);
+    expect(reviewedLabel(set.labels[1])).toBe(false);
+    const lab = applyAdjudication(set, rows, verdicts, "codex:astra", new Map([[5, ["Ula", "Mara"]]]));
+    expect(lab.set.labels[1].present).toEqual(["Mara", "Ula"]);
   });
 });

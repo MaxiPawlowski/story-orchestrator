@@ -1,3 +1,4 @@
+import { fnv1a } from "@runtime/hash";
 import { isRecord } from "@utils/guards";
 import type { E0ChatRow } from "./e0Pool";
 import { WITNESS_LABELS_FORMAT, type WitnessLabel, type WitnessLabelSet, type WitnessLabelSpan } from "./witness/score";
@@ -56,32 +57,111 @@ export function witnessWindow(rows: readonly E0ChatRow[], size: number = WITNESS
 
 const speakerOf = (row: E0ChatRow) => `${row.name || "?"}${row.isUser ? " (player)" : ""}`;
 
+const RUBRIC = [
+  "Rules:",
+  "- present: the members physically in the scene when the message happens.",
+  "- A member in the scene hears ordinary speech and sees visible action, whether addressed or not.",
+  "- Whispers, asides, private notes and inner thought reach only the members the text says they reach.",
+  "- A member not in the scene perceives nothing. The speaker always perceives their own message.",
+  "- heard: the members who perceived the whole message first-hand, or \"unknown\" when the text cannot tell.",
+  "- If parts of one message reach different audiences (for example dialogue to the room plus a whispered aside, or speech plus private thought),"
+    + " set \"mixed\": true and give spans instead of heard: each span starts with its exact first 4-8 words copied from the message (\"from\") and has its own heard.",
+  "- Use member names exactly as listed. The player is not a member.",
+];
+
+const LABEL_SHAPE = "{\"messageId\": <id>, \"present\": [<names>], \"heard\": [<names>] | \"unknown\"}, "
+  + "{\"messageId\": <id>, \"present\": [<names>], \"mixed\": true, \"spans\": [{\"from\": \"<exact first words>\", \"heard\": [<names>] | \"unknown\"}]}";
+
+const transcriptTo = (rows: readonly E0ChatRow[], last: number, scenes?: ReadonlyMap<number, string>) => spoken(rows).filter((row) => row.id <= last)
+  .map((row) => `[${row.id}]${scenes?.get(row.id) ? ` {scene ${scenes.get(row.id)}}` : ""} ${speakerOf(row)}: ${row.text.trim()}`).join("\n\n");
+
+const opening = (scenes?: ReadonlyMap<number, string>) =>
+  "Below is a group roleplay chat transcript. Every message starts with its message id in brackets, then the speaker; \"(player)\" marks the human player's turns."
+    + (scenes ? " {scene X} marks which scene the message belongs to." : "");
+
 export function witnessLabelPrompt(rows: readonly E0ChatRow[], members: readonly string[], window: readonly number[], scenes?: ReadonlyMap<number, string>): string {
-  const last = Math.max(...window);
-  const transcript = spoken(rows).filter((row) => row.id <= last)
-    .map((row) => `[${row.id}]${scenes?.get(row.id) ? ` {scene ${scenes.get(row.id)}}` : ""} ${speakerOf(row)}: ${row.text.trim()}`).join("\n\n");
   return [
-    "Below is a group roleplay chat transcript. Every message starts with its message id in brackets, then the speaker; \"(player)\" marks the human player's turns."
-      + (scenes ? " {scene X} marks which scene the message belongs to." : ""),
+    opening(scenes),
     `The characters (members) are: ${members.join(", ")}. For each message listed under LABEL, decide which members perceived it first-hand.`,
-    "Rules:",
-    "- present: the members physically in the scene when the message happens.",
-    "- A member in the scene hears ordinary speech and sees visible action, whether addressed or not.",
-    "- Whispers, asides, private notes and inner thought reach only the members the text says they reach.",
-    "- A member not in the scene perceives nothing. The speaker always perceives their own message.",
-    "- heard: the members who perceived the whole message first-hand, or \"unknown\" when the text cannot tell.",
-    "- If parts of one message reach different audiences (for example dialogue to the room plus a whispered aside, or speech plus private thought),"
-      + " set \"mixed\": true and give spans instead of heard: each span starts with its exact first 4-8 words copied from the message (\"from\") and has its own heard.",
-    "- Use member names exactly as listed. The player is not a member.",
+    ...RUBRIC,
     "Answer with exactly one JSON object and nothing else:",
-    "{\"labels\": [{\"messageId\": <id>, \"present\": [<names>], \"heard\": [<names>] | \"unknown\"}, "
-      + "{\"messageId\": <id>, \"present\": [<names>], \"mixed\": true, \"spans\": [{\"from\": \"<exact first words>\", \"heard\": [<names>] | \"unknown\"}]}]}",
+    `{"labels": [${LABEL_SHAPE}]}`,
     "",
     `LABEL: ${window.join(", ")}`,
     "",
     "TRANSCRIPT",
-    transcript,
+    transcriptTo(rows, Math.max(...window), scenes),
   ].join("\n");
+}
+
+export interface AdjudicationItem {
+  messageId: number;
+  a: WitnessDraft;
+  b: WitnessDraft;
+}
+
+export const adjudicationOrder = (key: string, first: WitnessDraft, second: WitnessDraft): [WitnessDraft, WitnessDraft] =>
+  (parseInt(fnv1a(key), 16) % 2 === 0 ? [first, second] : [second, first]);
+
+const showDraft = (draft: WitnessDraft) => JSON.stringify({ present: draft.present, ...(draft.spans?.length ? { mixed: true, spans: draft.spans } : { heard: draft.heard }) });
+
+export function adjudicationPrompt(rows: readonly E0ChatRow[], members: readonly string[], window: readonly number[], items: readonly AdjudicationItem[], scenes?: ReadonlyMap<number, string>): string {
+  return [
+    opening(scenes),
+    `The characters (members) are: ${members.join(", ")}. Two labellers disagreed about which members perceived some messages first-hand.`
+      + " For each message under DISPUTED, read the transcript and give your own label under the rules below. You may agree with Label A, Label B, or neither."
+      + " If the transcript does not let you decide, answer {\"messageId\": <id>, \"undecided\": true}.",
+    ...RUBRIC,
+    "Answer with exactly one JSON object and nothing else:",
+    `{"verdicts": [${LABEL_SHAPE}, {"messageId": <id>, "undecided": true}]}`,
+    "",
+    "DISPUTED",
+    ...items.map((item) => `- message ${item.messageId}: Label A ${showDraft(item.a)}; Label B ${showDraft(item.b)}`),
+    "",
+    "TRANSCRIPT",
+    transcriptTo(rows, Math.max(...window), scenes),
+  ].join("\n");
+}
+
+export function readAdjudication(raw: Record<string, unknown> | null, members: readonly string[]): Map<number, WitnessDraft | "undecided"> {
+  const rows = raw && Array.isArray(raw.verdicts) ? raw.verdicts : [];
+  const out = new Map<number, WitnessDraft | "undecided">();
+  const decided = rows.filter((row) => isRecord(row) && Number.isInteger(row.messageId) && row.undecided !== true);
+  rows.forEach((row) => {
+    if (isRecord(row) && Number.isInteger(row.messageId) && row.undecided === true) out.set(row.messageId as number, "undecided");
+  });
+  readWitnessDrafts({ labels: decided }, members).drafts.forEach((draft) => out.set(draft.messageId, draft));
+  return out;
+}
+
+export function applyAdjudication(
+  set: WitnessLabelSet, rows: readonly E0ChatRow[], verdicts: ReadonlyMap<number, WitnessDraft | "undecided">, adjudicator: string, structuralPresence?: ReadonlyMap<number, readonly string[]>,
+): { set: WitnessLabelSet; counts: { adjudicated: number; decided: number; unknown: number; unresolved: number } } {
+  const byId = new Map(rows.map((row) => [row.id, row]));
+  const counts = { adjudicated: 0, decided: 0, unknown: 0, unresolved: 0 };
+  const labels = set.labels.map((label): WitnessLabel => {
+    if (!label.review || label.review.agreed) return label;
+    counts.adjudicated += 1;
+    const review = { ...label.review, adjudicator, adjudicated: true };
+    const verdict = verdicts.get(label.messageId);
+    const row = byId.get(label.messageId);
+    const presentOf = (draft: WitnessDraft | null): string[] => {
+      if (!structuralPresence) return draft ? draft.present : label.present;
+      const heard = draft && !draft.spans?.length && draft.heard !== "unknown" ? draft.heard : [];
+      return [...new Set([...(structuralPresence.get(label.messageId) ?? []).filter((name) => set.members.includes(name)), ...heard])].sort();
+    };
+    if (verdict && verdict !== "undecided" && row) {
+      const built = labelFromDraft({ ...verdict, present: presentOf(verdict) }, row, review);
+      if (typeof built !== "string") {
+        counts[built.heard === "unknown" && !built.spans?.length ? "unknown" : "decided"] += 1;
+        return built;
+      }
+      counts.unresolved += 1;
+    }
+    counts.unknown += 1;
+    return { messageId: label.messageId, present: verdict && verdict !== "undecided" ? presentOf(verdict) : presentOf(null), heard: "unknown", review };
+  });
+  return { set: { ...set, labels }, counts };
 }
 
 const names = (value: unknown, members: readonly string[]): string[] | null => {

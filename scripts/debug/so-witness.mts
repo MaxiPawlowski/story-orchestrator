@@ -9,8 +9,9 @@ const USAGE = `Usage:
   node scripts/debug/so-witness.mts label-check --sessions <root> --out <dir> [--width 3]
   node scripts/debug/so-witness.mts label-merge --sessions <root> --out <dir>
   node scripts/debug/so-witness.mts lab --source <lab-rows.json> --out <dir>
-  node scripts/debug/so-witness.mts freeze --out <dir> --record <freeze.json>
-  node scripts/debug/so-witness.mts presence --out <dir> --freeze <freeze.json>
+  node scripts/debug/so-witness.mts adjudicate --sessions <root> --out <dir> [--width 2]
+  node scripts/debug/so-witness.mts freeze --out <dir> --record <freeze.json> [--adjudicated]
+  node scripts/debug/so-witness.mts presence --out <dir> --freeze <freeze.json> [--adjudicated]
 
 v2.8 plan 42 B, offline: replays recorded witness read responses (format so-witness-reads/1) through the witness
 contract parser and record (no model, no ST), scores them against labels (format so-witness-labels/1; a private set
@@ -24,7 +25,10 @@ one 12-message window per real session (plan 21 §6.2 session rule) per (message
 the same prompt blind; label-merge keeps the writer's labels with review {agreed} (disagreements stay agreed:false so the
 scorer drops and counts them), one so-witness-labels/1 file per session under <dir>/labels/. lab converts the campaign lab's
 40 authored labels (rows extracted privately) and has claude -p check them blind (heard only). freeze hashes every label
-file; presence scores the presence null control (W4n, labelled present as witness) on the frozen sets.`;
+file; presence scores the presence null control (W4n, labelled present as witness) on the frozen sets.
+adjudicate (2026-10-17 declarations): Astra (codex exec -m gpt-6-astra) decides every disagreed label, blind to who wrote
+which; its verdict wins, undecided or unparsed answers become heard "unknown"; writes <dir>/adjudicated/. --adjudicated makes
+freeze and presence use that set.`;
 
 const option = (args: string[], name: string) => {
   const index = args.indexOf(name);
@@ -49,18 +53,19 @@ async function labelCommand(command: string, args: string[]): Promise<number> {
   else if (command === 'label-check') result = await lib.checkWitnessLabels({ root: need(args, '--sessions'), out, width });
   else if (command === 'label-merge') result = await lib.mergeWitnessLabels({ root: need(args, '--sessions'), out });
   else if (command === 'lab') result = await lib.labWitness({ source: need(args, '--source'), out });
+  else if (command === 'adjudicate') result = await lib.adjudicateWitness({ root: need(args, '--sessions'), out, width: Number(option(args, '--width') ?? 2) });
   else if (command === 'freeze') {
-    const record = await lib.freezeWitnessLabels(out);
+    const record = await lib.freezeWitnessLabels(out, args.includes('--adjudicated'));
     await writeFile(need(args, '--record'), `${JSON.stringify(record, null, 1)}
 `, 'utf-8');
     result = record;
   } else if (command === 'presence') {
-    const refused = await lib.checkWitnessFreeze(out, need(args, '--freeze'));
+    const refused = await lib.checkWitnessFreeze(out, need(args, '--freeze'), args.includes('--adjudicated'));
     if (refused) {
       console.error(refused);
       return 3;
     }
-    result = await lib.presenceControl(out);
+    result = await lib.presenceControl(out, args.includes('--adjudicated'));
   } else throw new Error(`unknown command ${command}
 ${USAGE}`);
   console.log(JSON.stringify(result, null, 1));
