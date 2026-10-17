@@ -350,6 +350,12 @@ Floors, minimums and the VR1+VR2 rule above are unchanged. E0's winner (d) ranks
   report only.
 - **Verdict.** Minimums unmet: `insufficient` (refused, not scored). Else pass only with VR1 >= 0.70 and VR2 = 0.
 - **Freeze order.** Labels → pool → `freeze` (hashes committed here) → scene reads → choices → `run`.
+- **Private freeze (2026-10-17, committed before scene reads, choices or `run`).** `so-sessions` `test/sessions/vr62/freeze.json`:
+  labels `025363789a2b4e64397c8bab85f7dcdd54c4a55546c9041f010296e0915e8bcb`, pool
+  `7f8b0384ee611b14f058209fd51dc6c6b5143402ef8d2f09f2eebfb9acd1c6e7` (sha256 of the parsed JSON), 94 questions, provider
+  `st-vectors:transformers:Xenova/all-mpnet-base-v2`. 16 sessions kept (48 chats, 17 by E0's selector, 1 without a held
+  secret). Labels: 96 written, 1 invalid (5+ copied words), 94 agreed, 1 disagreed, no top-up; 48 positives, 46 exclusions,
+  46 asking members, 34 secret scenes, 16 sessions (minimums met). Pool: 94 of 94, 82 collections, 2,861 items.
 
 ## 7. Decisions for the user
 
