@@ -406,14 +406,15 @@ real-model carrier, or why none is needed.
 | story-panels | RP | v28-23-widgets ×2 | GS1.3 |
 | consequences-recap | D | consequences jest, recapRollback review test, recapSecret review test | none: no model pass (46 A) |
 | promises-remembered | D + CL | promises jest, promiseRead jest, promiseRollback review test | live-v28-47-promises (P1s CL half, P2w live, ids, rollback reopens) ×2; P1/P2 labelled-set rates, P6 rater, P8 cost owed (measurement fixtures); P7/P7h informational (LT) |
-| codex | D + CL | codex jest, codexView property test, codexRollback | C7: codex-pages task in `test/measurements/v2.8/09/recipes.json`, `so-wizard-agent.mts recipes --task codex-pages --repeat 10 --mode auto-draft --route harness` (Sol) |
+| codex | D + CL | codex jest, codexView property test, codexRollback; return visits (52 E): codexReturns jest (E1–E5), codexReturnsDiagnostics jest (E6), v28-52e-returns (no-model ×2) | C7: codex-pages task in `test/measurements/v2.8/09/recipes.json`, `so-wizard-agent.mts recipes --task codex-pages --repeat 10 --mode auto-draft --route harness` (Sol) |
 | witness-record | D + CL | witness jest, score jest | W4/W4fi/W4fe/W4cov/W4u/W4m/W4a/W4n offline on the lab 40 + >= 40 real-session labels (second-model labels, private), Wc and RB via `so-live-suite.mts run` (CL, read model), deferred: private labels and a read-model run owed |
 | rumors | D + CL | rumors jest, rumorSecret review test, v28-44-rumors (no-model ×2) | G7/G8 voicing (20 cases, on/off arms, second-model labels) and G14 30-turn fixture, deferred: voicing fixture and labels owed; G6 live in v28-44-rumors |
 | story-calendar | D + CL | clock jest, clockScope jest, v28-50-story-time (no-model) | T8: live suite time windows `timewindow01..04` (`so-live-suite.mts run --set time`, CL, read model); T9/T10 wait for B2 (not built); T11 read in GS3.3 |
 | relationship-labels | D | labels jest, labelRollback property test, relationshipLabels review test, v28-51-labels (no-model) | R7/R9 informational ×1 (RP lab story), deferred: no lab story |
+| npc-commitments | D + LT/RP | npcCommitments review test (M1–M6), diagnostics jest, npc-commitments fixture, v28-55-commitments (no-model ×2), payload goldens identical for stories without commitments | M7 informational ×1 (LT or RP lab story), deferred: Artemis owed, GPU busy; M8 only with option B (CL, labelled member-line set) |
 | factions | D + RP | factions jest, v28-53-factions (no-model ×2) | F7 informational (RP lab story), deferred: no lab story yet; F9 CL informational |
 | scene-test | D + CL | sceneTest jest, livingSceneTest review test, focus jest, v28-48-scene-test (no-model) | S7–S9, S11 CL offline ×2 (director route), deferred: no frozen frontier set yet; S10 read in GS2 and GS3 |
-| new-game-plus | D | carry jest (N1–N6, N8–N13), carry fixtures carry-source/carry-sequel, v28-45-carry (no-model plumbing green x2 2026-10-16; real generation owed) | N7 informational (CL rater + local replies), deferred: needs two finished source runs; one real final seal on the 3090 |
+| new-game-plus | D | carry jest (N1–N6, N8–N13), carry fixtures carry-source/carry-sequel, v28-45-carry (no-model plumbing green x2 2026-10-16; real generation owed); trophy shelf (45 E): trophyShelf jest (T1–T4), TrophyShelf Storybook, v28-45e-shelf (no-model ×2) | N7 informational (CL rater + local replies), deferred: needs two finished source runs; one real final seal on the 3090 |
 | story-made-panels | D | html widget tests, Storybook | none: no model |
 | scene-card | D | sceneCard jest, WidgetCard Storybook, v28-65-scene-card (no-model) | none: no model (65 N1–N8; N3/N4 with A+ only) |
 | public-sheet-narration | D + CL | narratorSheet jest, v28-18-q7-sheet (no-model) | deferred: S8 header clause (CL rater, cloud model) owed; S7 informational (RP, Artemis) past the 12 h cap |
@@ -464,17 +465,17 @@ registry, and the 109-id check above, when a plan is built. Floor ids are the pl
 | 42 witness record (B) / message filter (C) | CL (B), D + CL (C) | C: F1, F5–F7 payload goldens | B: W4 family + RB1–RB4 CL offline ×2; C: F3 (J5 + J6 cloud), F2a/F2b folded into GS1, GS3 |
 | 43 verbatim recall | CL | VR4, VR4c, VR4x | VR1–VR3, VR8 CL offline ×2; VR6r read in GS1/GS3; VR7/VR7p informational ×1 (RP) |
 | 44 rumors | D + CL | G1–G6, G9–G14 | G7/G8 CL ×2 (20-case fixture); G6 live read in GS3 if the campaign adopts rumors; G15 CL (stage 2) |
-| 45 New Game+ | D | N1–N6, N8–N13 | N7 deferred (needs two finished source runs; LT replies, CL rater) |
+| 45 New Game+ | D | N1–N6, N8–N13; E: T1–T4 | N7 deferred (needs two finished source runs; LT replies, CL rater) |
 | 46 consequences recap | D | C1–C6, C8–C10 | none: no model pass (A) |
 | 47 promises | D + CL | P2r, P3–P5, P4a, P4d | P1, P1s, P2, P2w, P6, P8 CL ×2; P7/P7h informational ×1 (LT) |
 | 48 director scene test | D + CL | S1–S6, S12, S13 | S7–S9, S11 CL offline ×2 (director route); S10 read in GS2 and GS3 |
 | 49 complications (production) | D; RP gated on SP6 | C1–C7, C11 | C8–C10 deferred with SP6 (RP, informational); GS4.5 keeps the spike's functional row |
 | 50 story calendar | D + CL | T1–T7, T12–T16 | T8–T10 CL ×2; T11 read in GS3.3 |
 | 51 relationship labels | D | R1–R6, R8, R10–R12 | R7/R9 informational ×1 (RP lab story, second-model rater) |
-| 52 codex | D + CL | C1–C5, C9–C13 | C7 CL ×2 (wizard recipe on Sol); C6, C8 only with B |
+| 52 codex | D + CL | C1–C5, C9–C13; E: E1–E6 | C7 CL ×2 (wizard recipe on Sol); C6, C8 only with B |
 | 53 factions | D | F1–F6, F8, F10–F14 | F7 informational ×1 (RP); F9 CL informational |
 | 54 inner voice L5 (`spikes.thoughtCarry`) | D + CL + RP | plan 54 D gates; no-model scenario (live run owed) | L5-CL1..4 CL (FAIL ×2, picker fix, informational re-score); L5-RP1/RP3 read in GS1.2/GS1.5; L5-RP2 blind pack, informational |
-| 55 NPC commitments (candidate) | D | M1–M6 | M7 informational ×1 (LT or RP lab story); M8 CL with B |
+| 55 NPC commitments (A built, branch `v2.8-queue-55-45e-52e`) | D | M1–M6 | M7 informational ×1 (LT or RP lab story); M8 CL with B |
 | 56 social permissions (candidate) | D | G1–G6 | G7 informational ×1 (LT or RP lab story) |
 | 57 shared rituals (candidate) | D | U1–U6 | U7 informational ×1 (LT or RP lab story) |
 | 58 keepsakes (candidate) | D | K1–K6 | K7 informational ×1 (LT or RP lab story) |

@@ -393,3 +393,53 @@ Unresolved questions
   writes at the boundary with its stamp; created-entry reap prompt on chat delete, decline keeps, accept deletes),
   `v28-25-curator-constant-review.json` (review-mode accept). Plumbing (fixed curator text); one `v28-35` run 2 died on
   `page navigated away` mid-`extract` and was re-run x2 green; cause not found (machine under load from other lanes).
+
+## Gate record addendum 2026-10-17: option E, trophy shelf (M45e, branch `v2.8-queue-55-45e-52e`)
+
+Built as recommended (decision 6). Not merged, not pushed.
+
+What landed
+
+- Continue gains "Finished stories" (`components/carry/TrophyShelf.tsx`, lazy, `#so-trophy-shelf`) under the Continue
+  list of the entry points (Library page), shown only when the plays index marks a row ended and the install's Continue
+  list is on. Nothing is read until the player opens it.
+- Opening it calls `carry.shelf(rows)` (`carryPort` door, lazy `carryUnit.trophyShelf`, pure `runtime/trophyShelf.ts`): the
+  newest 20 rows the index marks ended (from the snapshot's Continue rows, so a story's `display.continue_list: false`
+  hides it too) are each read and verified before they are listed: a stamped `BLOB_VERSION` blob for that chat id, the
+  selected story's record with its content hash and a pinned copy that parses, and a `final` chapter record with a player
+  title and seal time (the carry picker's checks without the pair checks). A row shows the story title, the final
+  chapter's player title, the end date and the story's non-secret milestones earned at the final record's `blackboardAt`,
+  title and milestones through that run's held secrets (`withoutSecretLines`). No value, epilogue or secret milestone is
+  read into a row. Open opens the chat.
+- Folded into feature `new-game-plus` (Help text) and the `outcome` guide topic ("Finished stories"); `docs:guide`,
+  `docs:settings`; census row `carryUnit.ts#trophyShelf` (checked).
+
+Floors (E had none predeclared; written for this build, D, all green, `runtime/trophyShelf.test.ts`)
+
+- T1 verified before shown: of 10 index-ended chats (5 valid, 2 not final, 1 old blob version, 1 pinned copy that does not
+  parse, 1 chat-id mismatch) exactly the 5 are shown; a row the index does not mark ended is never read; at most 20,
+  newest first.
+- T2 a row holds the ending title and only earned, non-secret milestones; no value, no epilogue; property over 300 endings:
+  0 secret or unearned titles.
+- T3 an ending title restating a held secret is dropped; byte-identical rows with and without an unrelated held secret.
+- T4 renders nothing without an ended row; closed, it reads nothing. Storybook `Settings/TrophyShelf` (VerifiedRuns,
+  NoneReadable, NothingEnded, Phone, Wide).
+
+Live (no-model lane 81, plumbing; setup in plan 55's 2026-10-17 record)
+
+- `test/scenarios/v28-45e-shelf.json` green ×2 (batch `81/debug/batch/2026-10-17T06-50-54-569Z`; a first single run
+  `2026-10-17T06-48-43-110Z`): a short story played to its final chapter (`debugResponse` seal, plumbing), the index marks
+  it ended, `carry.shelf` returns it with "The Last Lantern" and exactly the earned non-secret milestone; the Library page
+  shelf, opened, shows the row and its milestone and no secret one; `assert-player-clean`. Served `48986980ead4`.
+
+Gates: see plan 55's 2026-10-17 record.
+
+Deviations
+
+- The shelf lists every story that ended, not only stories another story carries from.
+- A milestone gated on a quiet key reads false (the final record's `blackboardAt` leaves quiet keys out), so it is not
+  shown.
+
+Design question
+
+- Own registry feature and switch for the shelf? Recommended: no; it rides the Continue list's switch and `new-game-plus`.
