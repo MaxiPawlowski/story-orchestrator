@@ -363,6 +363,34 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
 - **43/47/55 — message ids need revisions.** Accepted here too. → spans addressed by id and revision (`src/memory/audience.ts:10`).
 - Rebutted: none.
 
+## W4 real-label run: declarations (2026-10-17, branch `v2.8-witness-real`, written before any label)
+
+Floors (§7) unchanged; the scorer is `memory/witness/score.ts` as built. Fixed in code (`src/memory/witnessLabels.ts`,
+`so-witness.mts label-*`) before the first label.
+
+- **Review rule (owner 2026-10-17, replaces §5.4's "adjudicated or `unknown`"):** one writer, a different blind checker;
+  a disagreement is dropped and counted, never adjudicated. Writer Sol (`openai/gpt-6.1-sol`, opencode, tools off;
+  never `-fast`, never DeepSeek), checker `claude -p`. Labels and transcripts stay in private `so-sessions`.
+- **Real set.** Sessions as plan 21's §6.2 private run (E0 selector, a held secret, 3+ non-player speakers); members =
+  the non-player speakers. Per session one window: the 12 spoken messages starting at spoken index floor((n − 12) / 2).
+  The writer sees the transcript up to the window's end and labels each window message: `present`, then `heard` (a
+  member list or `unknown`) or `mixed` with spans (anchor = the span's first 4-8 words, exactly). The checker gets the
+  same prompt without the writer's answer. Agreement = equal `present` and equal audience (both one set and equal, both
+  `unknown`, or both mixed with the same span count and equal sets in order). Spans resolve by exact unique substring
+  on the message, each running to the next anchor; an unresolved anchor makes the label invalid (dropped, counted).
+- **Rubric (answers §12's muted-onlooker question).** A member in the scene hears ordinary speech and sees visible
+  action whether addressed or not; whispers, asides, private notes and inner thought reach only whom the text says;
+  a member not in the scene perceives nothing; the speaker always perceives their own message; `unknown` when the text
+  cannot tell.
+- **Lab set.** The 40 authored labels of the campaign's `lab/witness/` (written before the SP9 run): `heard` as authored,
+  `present` = the cast replay's presence plus the authored listeners, members = the group's members. Claude checks
+  blind with the same prompt (the lab transcript with its scene ids); agreement = equal `heard` (`present` is structural
+  there). Disagreements dropped and counted; the scorer's 40-label minimum is applied unchanged, so a lab set that loses
+  any label reads `insufficient`.
+- **Freeze.** sha256 of both label files committed here before any score. W4n (presence null control, labelled
+  `present` as witness) needs labels only and is scored after the freeze; W4/W4fi/W4fe/W4cov/W4m/W4a need recorded
+  witness reads (`so-witness-reads/1`) on these messages.
+
 ## Gate record: §0 + B build, 2026-10-16 (no model, no GPU, LIST)
 
 Branch `v2.8-audience-42-44` (base master `d1f9ede2`; offline harness merged from `v2.8-audience-43-offline`). Not merged, not pushed.
