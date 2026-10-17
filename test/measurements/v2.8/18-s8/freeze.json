@@ -1,0 +1,7 @@
+{
+ "format": "so-v18-s8-freeze/1",
+ "hash": "sha256 of JSON.stringify(JSON.parse(file))",
+ "files": {
+  "cases.json": "eaaecf5195e32e5a5ae89075b4213e5bf44e96ba841ad1189bab2519b4ac8a05"
+ }
+}

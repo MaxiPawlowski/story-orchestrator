@@ -559,3 +559,38 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda (18), §1. Verified on `e
     + HudStrip: 40/40 suites, 256/256 tests.
   - `node scripts/suite/coverage.mjs`: the three new features green (scene-card, public-sheet-narration, your-move-chip).
   - Main bundle 1,289,224 B (budget 1,300,000); projection, sheet composer and scene card ride lazy chunks.
+
+## Gate record 2026-10-17: Q7 S8 fixture (pre-freeze, no model)
+
+- Branch `v2.8-prefreeze-44` (from `v2.8-prefreeze` `c909b40a`), harness commit `4b8fd49b`. No ST, lane, model or GPU: fixture and
+  harness only, nothing measured.
+- Files: `test/measurements/v2.8/18-s8/cases.json` (10 synthetic cases, invented names; five also fail a quest on the same boundary),
+  `freeze.json` (canonical sha256 `eaaecf5195e32e5a5ae89075b4213e5bf44e96ba841ad1189bab2519b4ac8a05`); `scripts/debug/so-q7-failure.mts`,
+  `scripts/debug/lib/q7Failure.mts`, shared `lib/replyCapture.mts`, `lib/blindRater.mts`, `lib/fixtureSim.mts`; test
+  `scripts/debug/q7Failure.test.mts`. No src change.
+- Design:
+  - Case story: companion plus omniscient narrator; a public checkpoint check `roll {sides: 20, target: 21}` (cannot succeed) with
+    `when: tried == true`; a narrated public item so the narrator's private block is staged; quest cases carry `failed_when` (tried and
+    not ok), so "Quest failed: <title>" is listed in the narrator's just-happened rows.
+  - Generated sandbox scenario per case (`so-scenario` `runScenario`): narrator scene line, `/cp set lantern true`, the player's attempt
+    (`send`), `/cp set tried true`; waits until the outcome block reads "<label>: fails." under the header clause (and the quest row is in
+    the narrator's block); drafts the narrator through ST's `Generate` (`force_chid`); stores the drafted request, the outcome block, the
+    narrator's private block and the reply. Extraction `SCENE_NONE`, curator `NONE`, judge off.
+  - Listed for the rater = the outcome lines plus the just-happened rows the narrator was given. `claude -p` blind (seeded order, opaque
+    ids, key apart, tools off, empty temp working dir): `added` (an unlisted consequence: injury, loss, cost, alarm, new danger) yes/no
+    with the quote, `failureShown` yes/no.
+  - Score: unlisted-consequence rate unrounded with counts, split bare / with a listed quest failure, plus the failure-shown rate;
+    verdict RECORDED (floor "recorded"); INCOMPLETE when a request lacks the clause or the outcome, a quest row was not listed, a reply is
+    empty, a label or record is missing or the fixture is off the freeze; PLUMBING on canned records or labels.
+- Tests (no model): `node --test scripts/debug/q7Failure.test.mts`: 9/9 (planted: clause missing, quest row missing, missing label,
+  missing record, empty reply, hash drift: INCOMPLETE; 3 added of 10: rate 0.3, with quest 1/5, bare 2/5; canned: PLUMBING; fixture
+  faults named; a header without the clause is caught by `verify`). `node scripts/debug/so-q7-failure.mts verify`: 0 problems (all 10
+  stories parse with the shipped parser, every check cannot succeed, the shipped `checkOutcomeBlock` reads "<label>: fails." and
+  `CHECK_OUTCOME_HEADER` carries the clause). `npx tsc -p scripts/debug/tsconfig.json`: 0 errors. Live: none (no lane on this task).
+- Real-run commands (`ST_ROOT`/`SO_LANES_ROOT` per plan 70; defaults `--group "Group: Arin, DM Narrator"`, narrator DM Narrator):
+  - Plumbing, no-model lane, never a measurement: `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-q7-failure.mts record --out <dir>/plumbing --plumbing`.
+  - Real: `node scripts/debug/st-lanes.mts run 41 -- scripts/debug/so-q7-failure.mts record --out <dir>/run1`, then
+    `node scripts/debug/so-q7-failure.mts pack --out <dir>/run1 --seed s8-run1`, `rate --out <dir>/run1`,
+    `score --out <dir>/run1 --json <dir>/run1/score.json`.
+- Deviation: §Gates by tier says S8 runs on the cloud reply model; per plan 70 owner decision D2 (2026-10-17) the reply model is Artemis.
+- Still owed: the plumbing lane run, the real S8 run with second-model labels; S7 (RP) stays deferred.

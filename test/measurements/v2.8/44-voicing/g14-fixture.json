@@ -1,0 +1,76 @@
+{
+ "format": "so-v44-g14/1",
+ "synthetic": true,
+ "plan": "v2.8 44 G14: 30 scripted turns over a story with four rumors (true and false versions) that reach the receiver as hearsay; characters repeat them aloud as hearsay, nothing in the transcript ever witnesses one. After the run no rumor claim or version may stand as a fact, a [knows] row, canon or a chapter consequence. Invented names only; {receiver} and {narrator} are card names filled at run time.",
+ "story": {
+  "format": 2,
+  "id": "so-v44-g14",
+  "title": "SO-V44 G14 No Promotion",
+  "description": "v2.8 plan 44 G14 fixture: four rumors reach the receiver as hearsay over 30 turns; two chapters so a seal runs.",
+  "chapters": [
+   { "id": "town", "title": "The Rainy Market Town", "player_title": "The Town" },
+   { "id": "road", "title": "The Coast Road", "player_title": "The Road", "final": true }
+  ],
+  "roster": [
+   { "id": "receiver", "name": "{receiver}" },
+   { "id": "teller", "name": "{narrator}", "role": "narrator", "view": "omniscient", "gossip": { "talks_to": ["receiver"], "contact": "any", "delay": { "boundaries": [1, 2] } } }
+  ],
+  "rumors": [
+   { "id": "ferry", "from": "teller", "claim": "the ferry sank in the night", "versions": [{ "text": "the ferry sank and the ferryman drowned", "truth": "false", "weight": 1 }], "starts_when": { "q": "news_ferry", "op": "==", "v": true } },
+   { "id": "granary", "from": "teller", "claim": "the granary roof is leaking", "versions": [{ "text": "rats have eaten half the winter grain in the granary", "truth": "true", "weight": 1 }], "starts_when": { "q": "news_granary", "op": "==", "v": true } },
+   { "id": "heir", "from": "teller", "claim": "the lord's son is coming home", "versions": [{ "text": "the lord's son died at the border fort", "truth": "false", "weight": 1 }, { "text": "the lord's son was knighted at the border fort", "truth": "true", "weight": 1 }], "starts_when": { "q": "news_heir", "op": "==", "v": true } },
+   { "id": "mine", "from": "teller", "claim": "the old mine on the hill is haunted", "versions": [{ "text": "the old mine on the hill is full of silver nobody has found", "truth": "false", "weight": 1 }], "starts_when": { "q": "news_mine", "op": "==", "v": true } }
+  ],
+  "qualities": [
+   { "key": "news_ferry", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has talk of the ferry started in town?" },
+   { "key": "news_granary", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has talk of the granary started in town?" },
+   { "key": "news_heir", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has talk of the lord's son started in town?" },
+   { "key": "news_mine", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has talk of the old mine started in town?" },
+   { "key": "left_town", "type": "bool", "source": "extractor", "latching": true, "rubric": "Has the party left the town on the coast road?" }
+  ],
+  "checkpoints": [
+   { "id": "market", "name": "The market town", "player_name": "The market town", "objective": "Gather supplies and news before the journey.", "type": "anchor", "start": true, "chapter": "town" },
+   { "id": "coast", "name": "The coast road", "player_name": "The coast road", "objective": "Travel the coast road.", "type": "anchor", "chapter": "road" }
+  ],
+  "transitions": [{ "from": "market", "to": "coast", "priority": 0, "gate": { "q": "left_town", "op": "==", "v": true } }]
+ },
+ "claims": {
+  "ferry": { "claim": ["ferry", "sank"], "versions": [["ferryman", "drown"]] },
+  "granary": { "claim": ["granary", "leak"], "versions": [["rats", "grain"]] },
+  "heir": { "claim": ["son", "coming home"], "versions": [["son", "died"], ["son", "knighted"]] },
+  "mine": { "claim": ["mine", "haunted"], "versions": [["mine", "silver"]] }
+ },
+ "expectHearsay": 4,
+ "turns": [
+  { "player": "I step off the coach into the rain and look for {receiver}.", "speaker": "receiver", "text": "{receiver} waves from under the inn's awning and takes your bag." },
+  { "player": "I ask {receiver} where we can buy rope and lamp oil.", "speaker": "narrator", "text": "The chandler's shop across the square is still open, its window fogged with lamp light.", "cp": ["news_ferry true"] },
+  { "player": "I buy a coil of rope and a flask of lamp oil.", "speaker": "receiver", "text": "{receiver} counts out the coins for the oil and tucks the flask into a satchel." },
+  { "player": "I suggest we get a hot meal at the inn.", "speaker": "narrator", "text": "The common room is crowded and loud, smelling of stew and wet wool." },
+  { "player": "I find us a table near the fire.", "speaker": "receiver", "text": "{receiver} leans close. I heard the ferry sank and the ferryman drowned, though nobody here saw it happen." },
+  { "player": "I eat my stew and watch the room.", "speaker": "narrator", "text": "A fiddler starts a slow tune in the corner, and a few patrons hum along.", "cp": ["news_granary true"] },
+  { "player": "I ask the innkeeper about a room for the night.", "speaker": "narrator", "text": "The innkeeper, a broad man named Fenwick, hands over a brass key for the room at the top of the stairs." },
+  { "player": "I thank Fenwick and carry our bags upstairs.", "speaker": "receiver", "text": "{receiver} drops onto the narrow bed and pulls off a muddy boot." },
+  { "player": "I open the shutters to look at the rain.", "speaker": "narrator", "text": "Below the window, two porters argue that, they say, rats have eaten half the winter grain in the granary." },
+  { "player": "I close the shutters and blow out the candle.", "speaker": "narrator", "text": "The night passes with rain on the roof and the creak of the old inn.", "cp": ["news_heir true"] },
+  { "player": "In the morning I go down for breakfast.", "speaker": "receiver", "text": "{receiver} is already at the table, tearing a loaf of bread in half." },
+  { "player": "I ask {receiver} what the town is talking about today.", "speaker": "receiver", "text": "{receiver} shrugs. Someone told me the lord's son died at the border fort, and someone else says he was knighted there. Pick your story." },
+  { "player": "I finish my tea and stand.", "speaker": "narrator", "text": "Outside, the rain has eased to a drizzle and the market stalls are opening." },
+  { "player": "I walk to the market with {receiver}.", "speaker": "narrator", "text": "A fishmonger named Petra calls out prices for eel and herring.", "cp": ["news_mine true"] },
+  { "player": "I buy dried fish for the road.", "speaker": "receiver", "text": "{receiver} haggles the fishmonger down by two coppers and grins." },
+  { "player": "I look for a map seller.", "speaker": "narrator", "text": "A map seller named Quillon unrolls a chart of the coast road on his stall." },
+  { "player": "I buy the coast road map from Quillon.", "speaker": "receiver", "text": "{receiver} traces the road on the map with a finger and stops at a bend marked with a cliff." },
+  { "player": "I ask Quillon whether the coast road is safe.", "speaker": "narrator", "text": "Quillon says the road is safe in daylight, and that people claim the old mine on the hill is full of silver nobody has found, which is why fools wander off the road." },
+  { "player": "I roll the map up and put it in my coat.", "speaker": "receiver", "text": "{receiver} snorts. Silver in the old mine, they say. Gossip like that gets people lost." },
+  { "player": "I check the horses at the stable.", "speaker": "narrator", "text": "The stable boy has brushed both horses, and the grey one nickers at you." },
+  { "player": "I pay the stable boy and give the grey an apple.", "speaker": "receiver", "text": "{receiver} tightens the girths and checks each hoof for stones." },
+  { "player": "I ask {receiver} whether we have everything.", "speaker": "receiver", "text": "{receiver} lists rope, oil, fish, bread, the map, and nods." },
+  { "player": "I go back to the inn to settle the bill.", "speaker": "narrator", "text": "Fenwick takes your coins and wishes you a dry road." },
+  { "player": "I thank Fenwick and step outside.", "speaker": "narrator", "text": "The bell of the town hall rings ten, and the drizzle stops." },
+  { "player": "I mount the grey horse.", "speaker": "receiver", "text": "{receiver} swings up onto the brown horse and settles the satchel." },
+  { "player": "I ride with {receiver} toward the town gate.", "speaker": "narrator", "text": "The gate guards wave you through without a second look." },
+  { "player": "I look back at the town once.", "speaker": "receiver", "text": "{receiver} looks back too. Rumors and rain, that town. I will not miss either." },
+  { "player": "I turn onto the coast road.", "speaker": "narrator", "text": "The coast road opens ahead, the sea grey and wide on your left.", "cp": ["left_town true"] },
+  { "player": "I ride on in silence for a while.", "speaker": "narrator", "text": "Gulls wheel over the cliffs, and the road climbs gently." },
+  { "player": "I ask {receiver} how far the next village is.", "speaker": "receiver", "text": "{receiver} squints at the map. Half a day, if the road stays dry." }
+ ]
+}

@@ -1,0 +1,227 @@
+{
+ "format": "so-v44-voicing/1",
+ "synthetic": true,
+ "plan": "v2.8 44 G7/G8: 20 cases; the origin's version is said in the transcript, the receiver holds a different received version as hearsay, and the last player line invites the receiver to speak of it. Invented names only. {receiver} is the receiver's card name, filled at run time.",
+ "cases": [
+  {
+   "id": "v01", "subject": "the north bridge", "truth": "false",
+   "origin": "the north bridge washed out in the storm", "originNeedles": ["washed out"],
+   "received": "soldiers pulled down the north bridge to trap deserters", "receivedNeedles": ["soldier"],
+   "transcript": [
+    { "speaker": "narrator", "text": "At the well, the miller Hobb tells anyone who will listen that the north bridge washed out in the storm." },
+    { "speaker": "player", "text": "I fill my waterskin and nod to {receiver}." },
+    { "speaker": "narrator", "text": "The square empties as the noon bell rings, and {receiver} lingers by the trough." },
+    { "speaker": "player", "text": "{receiver}, you hear everything in this town. What do you know about the north bridge?" }
+   ]
+  },
+  {
+   "id": "v02", "subject": "the old well", "truth": "false",
+   "origin": "the old well in the square has gone dry", "originNeedles": ["dry"],
+   "received": "someone poisoned the old well in the square", "receivedNeedles": ["poison"],
+   "transcript": [
+    { "speaker": "narrator", "text": "A washerwoman named Bessa grumbles at the market that the old well in the square has gone dry." },
+    { "speaker": "player", "text": "I buy two apples and toss one to {receiver}." },
+    { "speaker": "narrator", "text": "Pigeons scatter from the eaves as a cart rolls past the stalls." },
+    { "speaker": "player", "text": "{receiver}, should we fill our skins at the old well before we go?" }
+   ]
+  },
+  {
+   "id": "v03", "subject": "the mayor", "truth": "unknown",
+   "origin": "the mayor left for the capital on business", "originNeedles": ["business"],
+   "received": "the mayor fled the town owing the guild money", "receivedNeedles": ["fled"],
+   "transcript": [
+    { "speaker": "narrator", "text": "The clerk Odran announces from the hall steps that the mayor left for the capital on business." },
+    { "speaker": "player", "text": "I lean on the railing beside {receiver} and watch the crowd." },
+    { "speaker": "narrator", "text": "The crowd drifts back to the stalls, muttering." },
+    { "speaker": "player", "text": "{receiver}, where has the mayor gone, really?" }
+   ]
+  },
+  {
+   "id": "v04", "subject": "the lighthouse keeper", "truth": "true",
+   "origin": "the lighthouse keeper fell ill with a fever", "originNeedles": ["fever"],
+   "received": "the lighthouse keeper was seen rowing out to a smugglers' ship at night", "receivedNeedles": ["smuggl"],
+   "transcript": [
+    { "speaker": "narrator", "text": "On the quay, the net-mender Pell says the lighthouse keeper fell ill with a fever." },
+    { "speaker": "player", "text": "I watch the gulls circle the harbor with {receiver}." },
+    { "speaker": "narrator", "text": "The tide turns, and the boats knock against the posts." },
+    { "speaker": "player", "text": "{receiver}, the lamp was dark last night. What is going on with the lighthouse keeper?" }
+   ]
+  },
+  {
+   "id": "v05", "subject": "the barley harvest", "truth": "false",
+   "origin": "the barley harvest came in early this year", "originNeedles": ["early"],
+   "received": "a blight has rotted half the barley fields", "receivedNeedles": ["blight"],
+   "transcript": [
+    { "speaker": "narrator", "text": "A farmhand called Tobin boasts in the tavern that the barley harvest came in early this year." },
+    { "speaker": "player", "text": "I order two mugs of ale and slide one to {receiver}." },
+    { "speaker": "narrator", "text": "The fire pops, and a dog stretches out under a bench." },
+    { "speaker": "player", "text": "{receiver}, how is the barley harvest looking out on the farms?" }
+   ]
+  },
+  {
+   "id": "v06", "subject": "the baker", "truth": "unknown",
+   "origin": "the baker is closing his shop for the winter", "originNeedles": ["winter"],
+   "received": "the baker was arrested for cutting his flour with chalk", "receivedNeedles": ["arrest"],
+   "transcript": [
+    { "speaker": "narrator", "text": "The cobbler Wenna remarks to a customer that the baker is closing his shop for the winter." },
+    { "speaker": "player", "text": "I wait for {receiver} outside the cobbler's door." },
+    { "speaker": "narrator", "text": "Smoke curls from the chimneys along the lane." },
+    { "speaker": "player", "text": "{receiver}, the bakery shutters are down. What happened to the baker?" }
+   ]
+  },
+  {
+   "id": "v07", "subject": "the spice caravan", "truth": "false",
+   "origin": "the spice caravan is three days late because of mud on the pass", "originNeedles": ["mud"],
+   "received": "bandits took the spice caravan on the pass", "receivedNeedles": ["bandit"],
+   "transcript": [
+    { "speaker": "narrator", "text": "At the gate, the toll-keeper Brannoc tells the waiting traders that the spice caravan is three days late because of mud on the pass." },
+    { "speaker": "player", "text": "I count my coins while {receiver} checks the horses." },
+    { "speaker": "narrator", "text": "A cold wind comes down from the hills, flapping the awnings." },
+    { "speaker": "player", "text": "{receiver}, any word on the spice caravan?" }
+   ]
+  },
+  {
+   "id": "v08", "subject": "the temple bell", "truth": "false",
+   "origin": "the temple bell cracked when the frost came", "originNeedles": ["frost"],
+   "received": "the priests sold the temple bell to pay a debt", "receivedNeedles": ["sold"],
+   "transcript": [
+    { "speaker": "narrator", "text": "An old sexton named Garrow sighs to the passersby that the temple bell cracked when the frost came." },
+    { "speaker": "player", "text": "I brush the snow off my cloak and walk on with {receiver}." },
+    { "speaker": "narrator", "text": "The temple steps are quiet, and no bell marks the hour." },
+    { "speaker": "player", "text": "{receiver}, why has the temple bell gone silent?" }
+   ]
+  },
+  {
+   "id": "v09", "subject": "the wolf", "truth": "unknown",
+   "origin": "a lone wolf was seen near the sheep pens", "originNeedles": ["lone"],
+   "received": "a pack of wolves killed four sheep and a dog", "receivedNeedles": ["dog"],
+   "transcript": [
+    { "speaker": "narrator", "text": "A shepherd boy named Kip tells the village that a lone wolf was seen near the sheep pens." },
+    { "speaker": "player", "text": "I tighten my boot laces and look up at {receiver}." },
+    { "speaker": "narrator", "text": "Mist hangs low over the pasture as evening comes." },
+    { "speaker": "player", "text": "{receiver}, should we worry about the wolf by the sheep pens?" }
+   ]
+  },
+  {
+   "id": "v10", "subject": "the ferry", "truth": "false",
+   "origin": "the ferry stopped running because the river is too high", "originNeedles": ["too high"],
+   "received": "the ferryman drowned when the ferry overturned", "receivedNeedles": ["drown"],
+   "transcript": [
+    { "speaker": "narrator", "text": "At the landing, the rope-maker Ilsa tells travelers that the ferry stopped running because the river is too high." },
+    { "speaker": "player", "text": "I set my pack down on the landing next to {receiver}." },
+    { "speaker": "narrator", "text": "Brown water rushes past the empty posts of the landing." },
+    { "speaker": "player", "text": "{receiver}, what do you know about the ferry?" }
+   ]
+  },
+  {
+   "id": "v11", "subject": "the copper mine", "truth": "false",
+   "origin": "the copper mine shut a tunnel after a small collapse", "originNeedles": ["collapse"],
+   "received": "the copper mine struck silver in the deep tunnel", "receivedNeedles": ["silver"],
+   "transcript": [
+    { "speaker": "narrator", "text": "The foreman Dorrin tells the tavern that the copper mine shut a tunnel after a small collapse." },
+    { "speaker": "player", "text": "I trade a joke with {receiver} over the noise of the room." },
+    { "speaker": "narrator", "text": "Miners crowd the bar, their hands black with dust." },
+    { "speaker": "player", "text": "{receiver}, what is the news from the copper mine?" }
+   ]
+  },
+  {
+   "id": "v12", "subject": "the smith's daughter", "truth": "true",
+   "origin": "the smith's daughter is to marry a cooper from the valley", "originNeedles": ["cooper"],
+   "received": "the smith's daughter ran off with a traveling actor", "receivedNeedles": ["actor"],
+   "transcript": [
+    { "speaker": "narrator", "text": "The weaver Annis tells her neighbors that the smith's daughter is to marry a cooper from the valley." },
+    { "speaker": "player", "text": "I stop at the forge with {receiver}, but the fire is cold." },
+    { "speaker": "narrator", "text": "The smith hammers nothing today; he sits on the step, staring at the road." },
+    { "speaker": "player", "text": "{receiver}, what is the matter with the smith's daughter?" }
+   ]
+  },
+  {
+   "id": "v13", "subject": "the tax", "truth": "false",
+   "origin": "the new tax collector arrives at midsummer", "originNeedles": ["midsummer"],
+   "received": "the duke has doubled the salt tax", "receivedNeedles": ["doubled"],
+   "transcript": [
+    { "speaker": "narrator", "text": "A notary named Flint reads from a scroll that the new tax collector arrives at midsummer." },
+    { "speaker": "player", "text": "I shoulder through the crowd to stand by {receiver}." },
+    { "speaker": "narrator", "text": "The merchants frown and return to their counting." },
+    { "speaker": "player", "text": "{receiver}, what is all this talk of taxes about?" }
+   ]
+  },
+  {
+   "id": "v14", "subject": "the tannery", "truth": "false",
+   "origin": "a lamp tipped over in the tannery and scorched a wall", "originNeedles": ["scorched"],
+   "received": "the tannery burned down with the winter hides inside", "receivedNeedles": ["burned down"],
+   "transcript": [
+    { "speaker": "narrator", "text": "The tanner's apprentice Rook tells the street that a lamp tipped over in the tannery and scorched a wall." },
+    { "speaker": "player", "text": "I wrinkle my nose at the smell of smoke and glance at {receiver}." },
+    { "speaker": "narrator", "text": "A thin haze still hangs over the east end of town." },
+    { "speaker": "player", "text": "{receiver}, what happened at the tannery?" }
+   ]
+  },
+  {
+   "id": "v15", "subject": "the healer", "truth": "unknown",
+   "origin": "the healer is gathering herbs in the hills this week", "originNeedles": ["herbs"],
+   "received": "the healer was chased out of the village for witchcraft", "receivedNeedles": ["witchcraft"],
+   "transcript": [
+    { "speaker": "narrator", "text": "The healer's neighbor Sorrel tells a visitor at the door that the healer is gathering herbs in the hills this week." },
+    { "speaker": "player", "text": "I rub my sore shoulder and sit down beside {receiver}." },
+    { "speaker": "narrator", "text": "The healer's garden gate swings on one hinge in the wind." },
+    { "speaker": "player", "text": "{receiver}, my shoulder needs looking at. Where is the healer?" }
+   ]
+  },
+  {
+   "id": "v16", "subject": "the merchant ship", "truth": "false",
+   "origin": "a merchant ship put into the harbor with a torn sail", "originNeedles": ["torn sail"],
+   "received": "a merchant ship came in flying a plague flag", "receivedNeedles": ["plague"],
+   "transcript": [
+    { "speaker": "narrator", "text": "A dockhand named Mabry calls out to the fish sellers that a merchant ship put into the harbor with a torn sail." },
+    { "speaker": "player", "text": "I buy a paper of fried fish and share it with {receiver}." },
+    { "speaker": "narrator", "text": "The harbor master's boat rows out toward the far mooring." },
+    { "speaker": "player", "text": "{receiver}, what is the story with that merchant ship out there?" }
+   ]
+  },
+  {
+   "id": "v17", "subject": "the widow's orchard", "truth": "true",
+   "origin": "the widow Marl is selling her apple orchard", "originNeedles": ["selling"],
+   "received": "the widow Marl found a buried chest of coins under her apple trees", "receivedNeedles": ["chest"],
+   "transcript": [
+    { "speaker": "narrator", "text": "The carter Hesketh mentions to the inn that the widow Marl is selling her apple orchard." },
+    { "speaker": "player", "text": "I warm my hands at the inn fire next to {receiver}." },
+    { "speaker": "narrator", "text": "Rain taps at the shutters as the evening wears on." },
+    { "speaker": "player", "text": "{receiver}, what is going on with the widow Marl and her orchard?" }
+   ]
+  },
+  {
+   "id": "v18", "subject": "the guard captain", "truth": "false",
+   "origin": "the guard captain broke his leg falling from his horse", "originNeedles": ["horse"],
+   "received": "the guard captain was stabbed in a tavern brawl", "receivedNeedles": ["stab"],
+   "transcript": [
+    { "speaker": "narrator", "text": "A young guard named Corwin tells the gatehouse that the guard captain broke his leg falling from his horse." },
+    { "speaker": "player", "text": "I show my pass at the gate and wait for {receiver}." },
+    { "speaker": "narrator", "text": "The gatehouse is short of men tonight, and the torches burn low." },
+    { "speaker": "player", "text": "{receiver}, why is the guard captain not at his post?" }
+   ]
+  },
+  {
+   "id": "v19", "subject": "the autumn fair", "truth": "unknown",
+   "origin": "the autumn fair is moving to the east meadow", "originNeedles": ["east meadow"],
+   "received": "the autumn fair is cancelled because of the fever in the south", "receivedNeedles": ["cancel"],
+   "transcript": [
+    { "speaker": "narrator", "text": "The crier Ambrose shouts from the fountain that the autumn fair is moving to the east meadow." },
+    { "speaker": "player", "text": "I hand {receiver} a ribbon I bought for the fair." },
+    { "speaker": "narrator", "text": "Children run circles around the fountain, singing." },
+    { "speaker": "player", "text": "{receiver}, are we still going to the autumn fair?" }
+   ]
+  },
+  {
+   "id": "v20", "subject": "the stranger in the grey cloak", "truth": "true",
+   "origin": "a stranger in a grey cloak has taken the room above the stables", "originNeedles": ["stables"],
+   "received": "a stranger in a grey cloak paid the innkeeper with old royal gold", "receivedNeedles": ["royal"],
+   "transcript": [
+    { "speaker": "narrator", "text": "The stable girl Linnet whispers to the grooms that a stranger in a grey cloak has taken the room above the stables." },
+    { "speaker": "player", "text": "I hang my wet cloak by the door and sit across from {receiver}." },
+    { "speaker": "narrator", "text": "Footsteps creak on the boards overhead and then fall quiet." },
+    { "speaker": "player", "text": "{receiver}, who is the stranger in the grey cloak?" }
+   ]
+  }
+ ]
+}
