@@ -270,3 +270,29 @@ Design questions (recommendation first)
   and keep the flag as an override. Recommended: yes, as a follow-up row.
 - One `what` serves both sides ("You told the player you would …" / "Promised you: …"); a warning flags you/I/me.
   Recommended: keep one field; add a `player_text` only if authors hit the warning often.
+
+## Follow-up 2026-10-17 (branch `v2.8-q55-followup`, from `6dfc1ee1`)
+
+Owner decisions on the 2026-10-17 design questions (go-with-recommendations rule, relayed by the coordinator): Q1 yes,
+built here; Q2 yes, as queue row M55w, not now; Q3 keep one `what` with the warning; (52e: no log row; 45e: no own feature).
+
+- Q1 built: on the boundary a commitment breaks, its holder's private block carries "You did not keep your word to the
+  player: <what>." once, through the same holder-only path as the kept line (`engine/life/commitments.ts`
+  `COMMITMENT_COPY.broken`, `commitmentLines`); the next boundary it is gone. Guide doc and compact topic updated,
+  `docs:guide`. The 2026-10-17 deviation "no holder line for a broken commitment" no longer holds.
+- Test (`runtime/npcCommitments.review.test.ts`, "Q1"): through the real memory injector the broken line is in Mara's
+  drafted block on the breaking boundary and not the open line; 0 in other members' blocks, the resting block, shared
+  tiers and the player view; gone a boundary later; a swipe of the breaking reply restores the open line. 81 of 81 green.
+- Payload case carrying commitments (M2 on the commitment's own prompt, owed in the first record):
+  `test/scenarios/payload/group-commitments.json`, 7 captures (open-rest, open-arin, open-dm, kept-arin, kept-dm,
+  broken-arin, broken-dm) with in-case assertions: Arin's block carries both open promises and the out-of-hearing one
+  (holder only), then the kept line once, then the broken line once; the resting payload and the narrator's carry none of
+  them. Captured twice on no-model lane 81 (private copy `C:/dev/st-live-q55`, served `98b5845bbee1`), every assertion
+  green, `so-payload-golden.mts diff` r1 against r2: 7 of 7 same, "payload invariance: identical"
+  (`C:/dev/so-live-lanes/81/payload-q55b/{r1,r2}`). No committed baseline is added (none of the payload cases has one in
+  `test/measurements/v2.7/payload/`).
+- Main bundle 1,285,163 B (ceiling 1,288,000).
+- Gates: `npm run gates -- --jobs=1 --no-storybook` on `089bfbbc`: all green in 446.9 s (test 9,677 passed, 1 skipped; replay,
+  build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release). The first run on `30b26053`'s
+  working tree was red only on the arrival golden (the new payload case), re-recorded alone in `089bfbbc`. Storybook not
+  run: no component or story changed.

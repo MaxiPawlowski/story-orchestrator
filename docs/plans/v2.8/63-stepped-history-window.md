@@ -1,6 +1,6 @@
 # Plan 63 — Stepped history window and the front-trim cache A/B
 
-**Status: candidate, owner decision pending. Revised 2026-10-16 after Astra's review (§Review 2026-10-16).** Written
+**Status: measurement tooling built 2026-10-17 (§Tooling, §GPU queue); H1/H6r owed on the 3090, H6 owed on CL; B the owner's call. Revised 2026-10-16 after Astra's review (§Review 2026-10-16).** Written
 2026-10-14 from the extension harvest (`61-harvest-triage-2026-10-14.md` H3, V10, V12). Not built, not queued. A performance
 experiment: **measure first** (latency, not only reuse), then a window only if the measured gain justifies the recall risk.
 Implementation tier **D**; acceptance **RP** (llama-server timings with Artemis, the 3090 or a pod; rides the deferred R2 run,
@@ -163,3 +163,100 @@ Source: `review-astra-harvest-2026-10-16.md` §2 (63), §1 (V12). Verified on `e
 - **Cheaper design: measure first, reuse chapter coverage and summaries.** Adopted; the recap (C) stays deferred.
 - **"Outside the cap" identifies deferred work, it does not fund a run.** Accepted. → gates text says so.
 - Rebutted: none.
+
+## Tooling 2026-10-17 (branch `v2.8-62-63`)
+
+Owner decision 2026-10-16 (61 §Owner decisions): decide on latency and recall; coverage from summaries and chapters only.
+The window (B) is not built: nothing in `src/` changed. What is built is measurement tooling, gated without the GPU.
+
+- `scripts/debug/lib/historyWindow.mts`: the plan's cut as a harness function (`cutFor`: steps of (high − low) x budget,
+  high 0.90, low 0.65, the smallest k whose kept rows fit under high x budget, snapped forward to a player message, clamped to
+  `coveredTo = max(shortTermSummaryEnd, last sealed chapter end)`; `stepTurns` for where a step would land; `coveredToOf`
+  reads the chat blob's memory). B's product module would mirror it; H3/H5 parity is owed with B.
+- `scripts/debug/so-trim-arms.mts` (H1): `seed-saga` (private saga chat into a stopped lane, cast ledger, story binding,
+  profile by name, response length, every side model call and images off), `prep --arm front-trim|fits`, `drive` (one arm-run:
+  optional cold command before turn 0, one player line + one drafted member per turn, same or alternating speakers, an in-page
+  recorder of llama-server `timings` and first-token time per streamed request, history tokens per turn, the run's turns deleted
+  after), `score` (per arm x pattern, warm and cold: sent tokens, reuse, prefill ms, first-token ms p50/p95, decode; the
+  would-be step turns and their cost; overhead measured from the fits arm; trimmed turns in fits flagged). `--plumbing` serves
+  scripted replies with made-up timings (a harness check, never a measurement).
+- `scripts/debug/so-history-recall.mts` (H6/H6r): `plan`, `draft` (Sol drafts candidate probes from the rows below the cut
+  into a private file), `ask --arm on|off` (one probe per turn, the pair deleted after, so every probe sees the same history;
+  `--relay sol` for H6 on CL, `none` for H6r on Artemis), `rate` (blind Sol rater), `floors` (H6: on ≥ 16/20, ≥ 9/10
+  critical, on ≥ off − 1 per stratum; H6r recorded). Window "on" is simulated: a wrapper around the extension's generate
+  interceptor marks rows below the cut ignored on ST's copies (the chapter-fold `IGNORE` mechanism, loud generations only);
+  the live chat is never written. Probe files and runs are refused outside `test/sessions/` (gitignored `test/sessions/hist63/`).
+- Unresolved question answered (read, 2026-10-17): the reply thinking budget adds only `TEXTGEN_BUDGET_KEYS`
+  (`src/runtime/replyEffort.ts:14`) and never changes `amount_gen`; `readPromptBudget`'s reserve is unchanged and the thought
+  spends from it.
+
+### GPU queue (owner's 3090): H6r then H1, about 125 GPU-minutes
+
+Git Bash in the worktree (or master after merge). The saga chat is the private B1 copy; probe files stay private and are
+picked by a second model, never the owner.
+
+```bash
+export SO_LANES_ROOT=C:/dev/so-live-lanes ST_ROOT=C:/dev/st-live-6263 ST_DEBUG_TIMEOUT_MS=900000
+L=84; O=test/sessions/hist63; R="node scripts/debug/st-lanes.mts run $L --allow-load --"
+npm run build && npm run stage
+node scripts/debug/st-lanes.mts stop $L
+ST_ROOT=C:/dev/SillyTavern-MainBranch node scripts/debug/st-lanes.mts seed $L --fresh --slim
+node scripts/debug/so-trim-arms.mts seed-saga --lane $L --chat C:/dev/so-lanes/b1c-2026-10-08/private/saga-247.jsonl --group "Adolion - The Saga" --story adolion-saga --profile "Artemis RunPod RP" --amount-gen 300
+node scripts/local/cli.mjs start
+node scripts/debug/st-lanes.mts start $L --allow-local
+$R scripts/debug/st-navigation.mts open-group "Adolion - The Saga"
+$R scripts/debug/so-run-header.mts capture --label h63 --out $O/header.json
+# H6r (about 15 GPU-minutes): 10 critical probes, window off then on, ST context 32,768
+$R scripts/debug/so-trim-arms.mts prep --arm front-trim --max-context 32768
+$R scripts/debug/so-history-recall.mts draft --out $O/h6r-draft.json --count 30
+#   pick 10 critical candidates into $O/h6r-probes.json ({chat, group, responder, probes[{id, stratum, question, answer, source}]})
+$R scripts/debug/so-history-recall.mts plan --probes $O/h6r-probes.json --kind H6r
+$R scripts/debug/so-history-recall.mts ask --probes $O/h6r-probes.json --kind H6r --arm off --relay none --out $O/h6r
+$R scripts/debug/so-history-recall.mts ask --probes $O/h6r-probes.json --kind H6r --arm on --relay none --out $O/h6r
+# H1 (about 110 GPU-minutes): 4 arm-runs of 50 turns, each starting cold
+C="node scripts/local/cli.mjs unload && node scripts/local/cli.mjs load"
+$R scripts/debug/so-trim-arms.mts prep --arm front-trim
+$R scripts/debug/so-trim-arms.mts drive --arm front-trim --pattern same --turns 50 --out $O/h1 --cold-cmd "$C"
+$R scripts/debug/so-trim-arms.mts drive --arm front-trim --pattern alternating --turns 50 --out $O/h1 --cold-cmd "$C"
+$R scripts/debug/so-trim-arms.mts prep --arm fits
+$R scripts/debug/so-trim-arms.mts drive --arm fits --pattern same --turns 50 --out $O/h1 --cold-cmd "$C"
+$R scripts/debug/so-trim-arms.mts drive --arm fits --pattern alternating --turns 50 --out $O/h1 --cold-cmd "$C"
+$R scripts/debug/so-run-header.mts diff $O/header.json
+node scripts/debug/st-lanes.mts stop $L
+# no GPU from here
+node scripts/debug/so-history-recall.mts rate --run $O/h6r --probes $O/h6r-probes.json
+node scripts/debug/so-history-recall.mts floors --run $O/h6r --probes $O/h6r-probes.json --kind H6r
+node scripts/debug/so-trim-arms.mts score $O/h1 --out $O/h1/score.json
+```
+
+Estimate (3090, Artemis 31B Q4, 300-token replies, side calls off): front-trim ~40 s a turn (a ~21K-token prompt
+re-prefilled each turn) x 100 = 67 min; fits ~14 s a turn (only the tail prefilled) x 100 = 23 min; 4 cold reloads ~6 min;
+ST overhead ~4 s a turn x 200 = 13 min; H6r 20 replies at ~30 s plus two cold prefills = 12 min; first load ~3 min. About
+125 GPU-minutes. Order matters: H6r and front-trim before `prep --arm fits`, which cuts the chat to 60 rows (re-run
+`seed-saga` on the stopped lane to restore it). 50 turns add about 16K tokens, three steps of (0.90 − 0.65) x ~21K; `score`
+reports `stepsSpanned` (fewer than 3 = add turns). Deviation: the arms run at ST `max_context` 24576 (front-trim) and 32768
+(fits) against the 3090's 32,768 server context, not `LLM_CTX` 24576 on a pod; ST's trim is what the arm measures.
+
+### CL owed (no GPU)
+
+- H6: 20 probes (10 critical, 10 detail) on the same saga chat on an offline lane with `--relay sol --kind H6`, both arms,
+  then `rate` and `floors`. Needs the private probe pick first (`draft`, then a second model picks).
+
+## Gate record 2026-10-17 (tooling, branch `v2.8-62-63`)
+
+- No product change; B, C and H2–H5/H7–H9 not built (B is the owner's call on H1/H2 + H6).
+- `node --test scripts/debug/historyWindow.test.mts` 10/10: cut formula (k x S, kept under high x budget), H3 shape over 600
+  generated chats (never past `coveredTo + 1`, pure), snap and clamp, step turns, coverage from summary and sealed chapters
+  only, H1 scoring (reuse, prefill, first token, warm/cold, step turns, overhead from fits, trimmed-turn flag), H6 probe-file
+  checks and verdict per the predeclared floors, the simulated window marks copies only (live chat byte-identical, quiet
+  untouched), `seed-saga`.
+- Plumbing on lane 84 (offline, served `557d5bc013d9`), no model, no GPU: `so-trim-arms prep` both arms (max_context read back
+  24576 / 32768 after a readback fix), `drive --plumbing` 4 arm-runs x 4 turns with a cold command, turns deleted after each,
+  `score` over the 4 files (`test/sessions/hist63/plumb-trim`). Plumbing green; the numbers are scripted, never a measurement.
+- Recall plumbing, CL (Sol relay), synthetic 61-row chat in the lab group, 20 synthetic probes (10 critical, 10 detail), the
+  cut forced at row 41 (`--cut`, no durable coverage on that chat): off 20/20 correct; on 3/20 correct, 15 contradictions,
+  41 rows marked ignored on every loud request. This is the harness control (with nothing covering the cut, recall collapses;
+  the wrapper really removes the rows), not H6: H6 needs the saga chat, whose coverage (`shortTermSummaryEnd` 224 of 247 rows)
+  is what B would rely on. Evidence `test/sessions/hist63/plumb/` (gitignored).
+- Gates: as plan 62's gate record (same branch, same runs).
+- Owed: H1 and H6r on the 3090 (GPU queue above, about 125 GPU-minutes); H6 on CL (private probe pick, then `ask --relay sol`).

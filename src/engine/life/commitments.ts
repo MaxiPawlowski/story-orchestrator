@@ -30,6 +30,7 @@ export const COMMITMENT_COPY = {
   open: (what: string) => `You told the player you would ${what}. It is not done yet; it is yours to keep, raise or explain.`,
   overdue: "It is overdue.",
   kept: (what: string) => `You kept your word to the player: ${what}.`,
+  broken: (what: string) => `You did not keep your word to the player: ${what}.`,
   promised: (what: string, state: CommitmentState) => `Promised you: ${what} (${state === "made" ? "open" : state})`,
   hook: (name: string, what: string) => `${name} has promised the player to ${what}`,
 };
@@ -86,7 +87,8 @@ export const commitmentLines = (story: Pick<NormalizedStoryV2, "life">, values: 
   heldCommitments(story).filter(({ member }) => member === memberId).flatMap(({ member, commitment }) => {
     const state = commitmentState(member, commitment, values);
     if (state?.state === "made") return [`- ${COMMITMENT_COPY.open(commitment.what)}${commitmentOverdue(member, commitment, values, boundary) ? ` ${COMMITMENT_COPY.overdue}` : ""}`];
-    return state?.state === "kept" && state.at === boundary ? [`- ${COMMITMENT_COPY.kept(commitment.what)}`] : [];
+    if (state?.at !== boundary) return [];
+    return state.state === "kept" ? [`- ${COMMITMENT_COPY.kept(commitment.what)}`] : state.state === "broken" ? [`- ${COMMITMENT_COPY.broken(commitment.what)}`] : [];
   });
 
 export const heardCommitmentRows = (story: Pick<NormalizedStoryV2, "life">, values: Read, holder: string): CommitmentRow[] =>

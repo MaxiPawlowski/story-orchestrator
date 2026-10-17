@@ -170,6 +170,32 @@ describe("v2.8 plan 55 M2: the holder alone is reminded", () => {
   });
 });
 
+describe("v2.8 plan 55 Q1 (owner 2026-10-17): a broken commitment tells its holder once, and no one else", () => {
+  it("the broken line is in the holder's drafted block on the boundary it broke, then gone; 0 in other members, the resting block, shared tiers or the player view", () => {
+    const gate = heldCommitments(STORY)[0].commitment;
+    const line = COMMITMENT_COPY.broken(gate.what);
+    const engine = play(fresh(), [{ offered_help: true }, { mara_betrayed: true }]);
+    const state = engine.serialize();
+    expect(commitmentState("mara", gate, state.blackboard.values)).toEqual({ state: "broken", at: 2 });
+    const now = injector(state.blackboard.values, 2);
+    const blocks = Object.fromEntries((Object.keys(CAST) as Array<keyof typeof CAST>).map((id) => [id, now.draft(id)]));
+    expect(blocks.mara).toContain(line);
+    expect(blocks.mara).not.toContain(COMMITMENT_COPY.open(gate.what));
+    expect(Object.entries(blocks).filter(([id, block]) => id !== "mara" && block.includes(gate.what))).toEqual([]);
+    expect([now.resting, JSON.stringify(now.shared), surfaces(compose(STORY, engine))].some((text) => text.includes(line))).toBe(false);
+    expect(injector(state.blackboard.values, 3).draft("mara")).not.toContain(gate.what);
+    expect(commitmentLines(STORY, state.blackboard.values, "mara", 3).some((entry) => entry.includes(gate.what))).toBe(false);
+  });
+
+  it("a swipe of the breaking reply takes the line back to the open one", () => {
+    const gate = heldCommitments(STORY)[0].commitment;
+    const engine = play(fresh(), [{ offered_help: true }, { mara_betrayed: true }]);
+    expect(engine.rollbackTo(engine.boundaryBeforeMessage(4) as number).ok).toBe(true);
+    const values = engine.serialize().blackboard.values;
+    expect(commitmentLines(STORY, values, "mara", 1)[0]).toBe(`- ${COMMITMENT_COPY.open(gate.what)}`);
+  });
+});
+
 describe("v2.8 plan 55 M3: never broken by time", () => {
   const cases: Array<[string, unknown]> = [
     ["a top-level not", { not: { q: "past_gate", op: "==", v: true } }],
