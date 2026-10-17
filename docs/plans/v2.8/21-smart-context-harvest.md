@@ -308,6 +308,55 @@ presence agreement at message level), the result is recorded and P1 waits with v
 Retired runtime questions (D11), now v2.9 05's: answer accuracy of a real reply, reply-path latency, the
 dev-flag rollout and a live mutation run.
 
+#### §6.2 private run: declarations (2026-10-17, branch `v2.8-witness-real`, written before any label or pool)
+
+Floors, minimums and the VR1+VR2 rule above are unchanged. E0's winner (d) ranks (owner 2026-10-16). Fixed in code
+(`src/memory/vr62.ts`, `scripts/debug/so-vr62.mts`) before the first label.
+
+- **Arms scored.** R1 only (message index, presence-filtered). R0 returns summaries, so "gold in the top 4" has no
+  message-level meaning for it; R2 needs a row → span picker that is not built. Both recorded as not scored; plan 43
+  decision 2 (R1 vs R2) stays open. M1 (Q-M5) is not a prerequisite for R1.
+- **Sessions.** E0's selector over the private `so-sessions` tree (40+ spoken messages, copies dropped), then kept only
+  when the session's runtime state holds at least one `hiding`/`unaware` epistemic row and its chat has at least 3
+  distinct non-player speakers. Members of a session = those speakers.
+- **Questions.** Sol (`openai/gpt-6.1-sol`, opencode, tools off) writes per session 3 positives (the drafted member
+  heard the gold first-hand) and 3 exclusions (the drafted member did not: absent, or outside an aside), each with a
+  player asking turn, the drafted member, 1-2 gold ids and `witnessed`. E0's rules hold (player asking turn, gold in
+  the collection, collection >= 8, no 5 copied words); the member must be a session member, and for an exclusion no
+  gold may be the member's own message. **Checker** `claude -p`, blind (never the gold or `witnessed`): finds the ids and
+  says whether the member perceived them first-hand. Agreement = answerable, ids non-empty and inside the gold, and the
+  same `witnessed`. Anything else is dropped and counted. One top-up pass (2 + 2 more per session) only if the
+  minimums fail after the merge, before any pool exists.
+- **Secret scenes.** Distinct (session, checkpoint at the row's `messageId`) of `hiding`/`unaware` rows written at or
+  before the session's last asking turn.
+- **Pool.** E0's collection (before the asking turn, `protect` 5) and query; st-vectors (transformers, CPU) on lane 79
+  from the private ST copy `C:\dev\st-live-witreal`; `topK` 32, threshold 0, ST order.
+- **Presence (the proxy).** One judge scene read per pooled candidate message through the page's judge harness probe
+  (TypeSafe, the plugin's default model): `buildSceneReadRequest` with the tracker family only, cast = the session's
+  members (roster role when the name matches), window = the 8 spoken messages ending at that message, checkpoint = the
+  active checkpoint at that message from the boundary log. A member is present when `present:<member>` >= `PRESENT_P`
+  (0.7); the message's own speaker always is. A read without an answer (fallback, refused, too large) makes every other
+  member absent for that message (fail closed); counted.
+- **Filter and rank.** Candidates = pooled messages whose presence holds the drafted member, ST order, first 8. Arm (d)
+  over them: 4 Choice calls with removal (E0's request and recorder) when 5 or more remain; with 4 or fewer, no call
+  runs (each is in the top 4 whatever the order). Top 4 = the block.
+- **Nonce.** Every exclusion's gold message gets a random 12-hex nonce at fixture build (private), carried on its block
+  line at render, never embedded or shown to the judge (offline the model writes nothing, so render-time detection is
+  equivalent). VR2 = nonces found in the rendered blocks.
+- **Metrics.** VR1 = positives with a gold id in the top 4; VR2 = nonce count; VR3 = ceil(chars / 4) of the rendered
+  block (`Name said: "…"` per message) p95; pool recall, presence keeping positives' gold and dropping exclusions' gold,
+  scene-read failures; diagnostic (not a verdict): the unfiltered ST-order top 4 for both halves. VR4 stays the jest
+  property cases (`src/memory/recall/vr4.property.test.ts`). VR5: index build time per collection from the inserts,
+  report only.
+- **Verdict.** Minimums unmet: `insufficient` (refused, not scored). Else pass only with VR1 >= 0.70 and VR2 = 0.
+- **Freeze order.** Labels → pool → `freeze` (hashes committed here) → scene reads → choices → `run`.
+- **Private freeze (2026-10-17, committed before scene reads, choices or `run`).** `so-sessions` `test/sessions/vr62/freeze.json`:
+  labels `025363789a2b4e64397c8bab85f7dcdd54c4a55546c9041f010296e0915e8bcb`, pool
+  `7f8b0384ee611b14f058209fd51dc6c6b5143402ef8d2f09f2eebfb9acd1c6e7` (sha256 of the parsed JSON), 94 questions, provider
+  `st-vectors:transformers:Xenova/all-mpnet-base-v2`. 16 sessions kept (48 chats, 17 by E0's selector, 1 without a held
+  secret). Labels: 96 written, 1 invalid (5+ copied words), 94 agreed, 1 disagreed, no top-up; 48 positives, 46 exclusions,
+  46 asking members, 34 secret scenes, 16 sessions (minimums met). Pool: 94 of 94, 82 collections, 2,861 items.
+
 ## 7. Decisions for the user
 
 1. Build order: C2 first, Q-M5 (with P3 as an arm) next, this spike only after? Recommended: yes.
@@ -501,3 +550,36 @@ Gates (on `1bea881a`):
   The first full run failed `errorCopy.guard` on the new silent catch in `e0JsonObject`; listed in
   `test/findings/errorCopy.json` (`1bea881a`), then green.
 - No product code changed: E0 modules stay scripts/tests only; no judge use, setting or calibration row added.
+
+## Gate record: §6.2 private run (2026-10-17, branch `v2.8-witness-real`, R-Gate2 of plan 43)
+
+Verdict: **fail. R-Gate2 not met.** VR1 0.7083 (34/48) passes, but VR2 = 4 nonces in 46 exclusion blocks (floor 0). VR1
+and VR2 pass only together. Floors, minimums and declarations unchanged (declarations `cc5f9d6e`, tooling `8a519f64`,
+freeze `fc8b74f2`, all committed before any scene read, choice or score).
+
+Setup (counts only; private files in `so-sessions` `test/sessions/vr62/`, not archived by this run):
+- Labels: Sol wrote 96 questions, `claude -p` (claude-opus-5-5) checked them blind: 94 agreed, 1 disagreed, 1 invalid. Minimums
+  met: 48 positives, 46 exclusions, 46 asking members, 34 secret scenes, 16 sessions.
+- Pool: lane 79 (offline, firewalled, judge plugin on), private ST copy `C:\dev\st-live-witreal`, served bundle `12b9a9a2e5c1`
+  = built. transformers on CPU, `Xenova/all-mpnet-base-v2` from the lane's cache (no download). 94 of 94 pooled, topK 32.
+- Presence: 749 TypeSafe scene reads (jev-1.13.0), 1 timeout (fail closed), 0 cached, 1,547,428 input tokens.
+- Arm (d): 65 of 94 questions kept 5 or more candidates; 260 Choice calls, 0 fallbacks, 420,995 input tokens.
+
+Results (R1, presence proxy, ranked by arm (d)):
+- VR1 0.7083 (34/48). Pool recall 1.0. All 14 misses are presence dropping the gold (the drafted member read as absent where it
+  had heard); every gold presence kept reached the top 4.
+- VR2: 4 nonces (4 of 46 exclusions). In each, presence read the member as present for a message the labels say it did not
+  perceive, and the gold ranked into the top 4 of 8 candidates. Presence dropped 42 of 46 unwitnessed golds (0.913).
+- Diagnostic, unfiltered ST order: VR1 0.6875 (33/48), 34 of 46 exclusions leaked. The filter removes most leaks but not all:
+  presence is not hearing (v2.9 02 measured 4/40), here at a better rate and still not 0.
+- VR3: p95 1,274 tokens, max 1,673 (cap 250): whole messages are far over the budget; a span picker is needed. Fails.
+- Cost: arm (d) latency p95 1,040 ms on ranked questions.
+- VR4: the jest property cases stay green (`src/memory/recall/vr4.property.test.ts`). VR5: index build per collection
+  p50 14.4 s, p95 45.5 s (82 collections, 2,861 items, CPU), report only.
+- R0 and R2 not scored (declared); plan 43 decision 2 stays open.
+
+Means: P1 on the presence proxy does not clear privacy. Per §6.2 the result is recorded and P1 waits for a witness source that
+beats presence (plan 42 B). Tests: `src/memory/vr62.test.ts` (planted return-nothing filter fails VR1; everyone-present filter
+fails VR2; under-minimum fixture refused).
+
+Gates (branch `v2.8-witness-real`): `npm run gates -- --jobs=1 --no-storybook` all green in 270.6 s (test 9,440+ passed, test:replay, build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release). Storybook skipped: no UI change. First run red on `codeHealth.guard` (a dead export in `vr62.ts`, removed) and then `typecheck:test` (a test fixture field), both fixed before the green run. No product code changed: the new modules are reached only from scripts and tests.

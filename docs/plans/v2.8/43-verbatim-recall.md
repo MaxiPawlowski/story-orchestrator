@@ -304,3 +304,13 @@ H13b time labels, R19.
 
 - Arm (d) (judge re-rank, E0 winner) runs only on explicit quotation-request turns (option D, first scope), before generation starts; every other turn is untouched.
 - On those turns VR6r (reply-path p95 <= 300 ms) is expected to miss by about 1 s; the miss is recorded as informational, the floor is not retuned.
+
+## Gate record: R-Gate2 from v2.8 21 §6.2 (2026-10-17, branch `v2.8-witness-real`)
+
+- **R-Gate2: not met.** §6.2 private run, fixture over its minimums (48 positives, 46 exclusions, 46 asking members, 34 secret
+  scenes, 16 sessions), R1 on the presence proxy ranked by arm (d): VR1 0.7083 passes, VR2 = 4 (floor 0) fails. Detail:
+  `21-smart-context-harvest.md` §Gate record: §6.2 private run.
+- **R-Gate3: not met.** 42 W4/W4fi not scored (no recorded witness reads; Artemis owed), and R-Gate2 failed on the presence
+  proxy, so neither branch holds. Labels are frozen for when reads exist (42 §Gate record: W4 real labels).
+- Also measured: VR3 (whole-message block) p95 1,274 tokens, far over 250; the runtime needs spans, as §5 already says.
+- Gate stays closed; nothing built at runtime.

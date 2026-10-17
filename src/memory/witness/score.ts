@@ -136,21 +136,52 @@ export function scoreWitness(set: WitnessLabelSet, predict: WitnessPredict): Wit
   const mixedDetection = ratio(counts.mixedFlagged, counts.mixedLabelled);
   const spanFalseInclusion = ratio(counts.spanFi, counts.spanNotHeard);
   const asideExactSet = ratio(counts.asideExact, counts.asides);
-  const floors = {
-    exactSet: atLeast(exactSet, WITNESS_FLOORS.exactSet),
-    falseInclusion: atMost(falseInclusion, WITNESS_FLOORS.falseInclusion),
-    asideKeptOut: counts.asideKeptOut === 0,
-    falseExclusion: atMost(falseExclusion, WITNESS_FLOORS.falseExclusion),
-    coverage: atLeast(coverage, WITNESS_FLOORS.coverage),
-    mixedDetection: atLeast(mixedDetection, WITNESS_FLOORS.mixedDetection),
-    spanFalseInclusion: atMost(spanFalseInclusion, WITNESS_FLOORS.spanFalseInclusion),
-    asideExactSet: atLeast(asideExactSet, WITNESS_FLOORS.asideExactSet),
-  };
-  const verdict = kept.length < WITNESS_FLOORS.minMessages ? "insufficient" : Object.values(floors).every((value) => value !== false) ? "pass" : "fail";
-  return {
+  return withFloors({
     set: set.set, messages: kept.length, dropped: set.labels.length - kept.length, exactSet, falseInclusion, asideKeptOutIncluded: counts.asideKeptOut, falseExclusion,
-    coverage, states, ambiguous: { pairs: counts.ambiguousPairs, predictedHeard: counts.ambiguousHeard }, mixedDetection, spanFalseInclusion, asideExactSet, floors, verdict,
+    coverage, states, ambiguous: { pairs: counts.ambiguousPairs, predictedHeard: counts.ambiguousHeard }, mixedDetection, spanFalseInclusion, asideExactSet,
+  });
+}
+
+type Measured = Omit<WitnessScore, "floors" | "verdict">;
+
+function withFloors(score: Measured): WitnessScore {
+  const floors = {
+    exactSet: atLeast(score.exactSet, WITNESS_FLOORS.exactSet),
+    falseInclusion: atMost(score.falseInclusion, WITNESS_FLOORS.falseInclusion),
+    asideKeptOut: score.asideKeptOutIncluded === 0,
+    falseExclusion: atMost(score.falseExclusion, WITNESS_FLOORS.falseExclusion),
+    coverage: atLeast(score.coverage, WITNESS_FLOORS.coverage),
+    mixedDetection: atLeast(score.mixedDetection, WITNESS_FLOORS.mixedDetection),
+    spanFalseInclusion: atMost(score.spanFalseInclusion, WITNESS_FLOORS.spanFalseInclusion),
+    asideExactSet: atLeast(score.asideExactSet, WITNESS_FLOORS.asideExactSet),
   };
+  const verdict = score.messages < WITNESS_FLOORS.minMessages ? "insufficient" : Object.values(floors).every((value) => value !== false) ? "pass" : "fail";
+  return { ...score, floors, verdict };
+}
+
+const sum = (scores: readonly WitnessScore[], pick: (score: WitnessScore) => Ratio): Ratio =>
+  ratio(scores.reduce((total, score) => total + pick(score).hits, 0), scores.reduce((total, score) => total + pick(score).of, 0));
+
+export function combineWitnessScores(set: string, scores: readonly WitnessScore[]): WitnessScore {
+  const states: Partial<Record<WitnessState, number>> = {};
+  scores.forEach((score) => Object.entries(score.states).forEach(([state, count]) => {
+    states[state as WitnessState] = (states[state as WitnessState] ?? 0) + (count ?? 0);
+  }));
+  return withFloors({
+    set,
+    messages: scores.reduce((total, score) => total + score.messages, 0),
+    dropped: scores.reduce((total, score) => total + score.dropped, 0),
+    exactSet: sum(scores, (score) => score.exactSet),
+    falseInclusion: sum(scores, (score) => score.falseInclusion),
+    asideKeptOutIncluded: scores.reduce((total, score) => total + score.asideKeptOutIncluded, 0),
+    falseExclusion: sum(scores, (score) => score.falseExclusion),
+    coverage: sum(scores, (score) => score.coverage),
+    states,
+    ambiguous: { pairs: scores.reduce((total, score) => total + score.ambiguous.pairs, 0), predictedHeard: scores.reduce((total, score) => total + score.ambiguous.predictedHeard, 0) },
+    mixedDetection: sum(scores, (score) => score.mixedDetection),
+    spanFalseInclusion: sum(scores, (score) => score.spanFalseInclusion),
+    asideExactSet: sum(scores, (score) => score.asideExactSet),
+  });
 }
 
 export const presencePredict = (set: WitnessLabelSet): WitnessPredict => {
