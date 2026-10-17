@@ -85,7 +85,7 @@
       "id": "GS3.2",
       "mode": "auto",
       "findings": [],
-      "goal": "OOC lines. Closes rows S-19 (an OOC line counts no player turn and yields no delta), S-19-OOC (an OOC-only window makes no read call), S-19-OOC-b (a pending warden note stays pending through OOC lines). An OOC line is posted without generation, a read is asked for, and the read and model-call rings must not move.",
+      "goal": "OOC lines. Closes rows S-19 (an OOC line counts no player turn and yields no delta), S-19-OOC (an OOC-only window makes no read call), S-19-OOC-b (a pending warden note stays pending through OOC lines). An OOC line is posted without generation, a read is asked for, and the read and model-call rings must not move. A manual read reads from the last boundary, so its window can hold in-character lines; the check then requires the OOC lines to be kept out of character, and no call only when the window is OOC-only.",
       "steps": [
         {
           "wait": {
@@ -111,7 +111,7 @@
           }
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.runExtractionNow(undefined, 'gs3-ooc'); await new Promise((r) => setTimeout(r, 3000)); const snap = rt.getSnapshot(); const audits = snap.extraction?.audits?.length ?? 0; const readCalls = (snap.modelCallRing ?? []).slice(globalThis.__gs3Calls ?? 0).filter((c) => /read|extract/i.test(String(c.pass))); const reads = readCalls.length; if (reads) throw new Error(`an OOC-only window made ${reads} read call(s): ${JSON.stringify(readCalls.map((c) => ({ pass: c.pass, reason: c.reason ?? null, at: c.at ?? null, range: c.range ?? null }))).slice(0, 400)}`); return { auditsBefore: globalThis.__gs3Audits, audits, boundaryBefore: globalThis.__gs3Boundary, boundary: snap.boundary };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.runExtractionNow(undefined, 'gs3-ooc'); await new Promise((r) => setTimeout(r, 3000)); const snap = rt.getSnapshot(); const chat = SillyTavern.getContext().chat; const oocIds = chat.map((m, i) => (m.is_user && String(m.mes ?? '').trim().startsWith('((OOC:') ? i : -1)).filter((i) => i >= 0).slice(-2); if (oocIds.length !== 2) throw new Error(`expected the two OOC lines in the chat, found ${oocIds.length}`); const audit = [...(snap.extraction?.audits ?? [])].reverse().find((a) => a.reason === 'gs3-ooc') ?? null; const readCalls = (snap.modelCallRing ?? []).slice(globalThis.__gs3Calls ?? 0).filter((c) => /read|extract/i.test(String(c.pass))); if (!audit) { if (readCalls.length) throw new Error(`a read call ran but no gs3-ooc audit was recorded`); return { audit: null, readCalls: 0 }; } const inCharacter = chat.slice(audit.window.from, audit.window.to + 1).filter((m, k) => !m.is_system && !oocIds.includes(audit.window.from + k)).length; if (!inCharacter && readCalls.length) throw new Error(`an OOC-only window made ${readCalls.length} read call(s)`); const marked = audit.outOfCharacter ?? []; const inWindow = oocIds.filter((id) => id >= audit.window.from && id <= audit.window.to); const unmarked = inWindow.filter((id) => !marked.includes(id)); if (unmarked.length) throw new Error(`${unmarked.length} OOC line(s) in the read window were not kept out of character`); return { window: audit.window, inCharacter, oocInWindow: inWindow.length, readCalls: readCalls.length, boundaryBefore: globalThis.__gs3Boundary, boundary: snap.boundary };"
         },
         {
           "send_generate": {
