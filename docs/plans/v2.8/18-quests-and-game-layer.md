@@ -487,6 +487,14 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda (18), §1. Verified on `e
   Storybook and live lanes NOT run (owner load limit); owed before merge.
 - Merge note: conflicts with `v2.8-audience-42-44` in `validate.ts` and `gameLayerImpl.ts` (the quality-compile chain and
   `GAME_LAYER`); resolved in the scratch merge used for the campaign (master + this branch + 42-44, `b51a60d9`).
+- Full gates after "load ok": master `f8bc217b` (42-44 merged) merged into this branch as `3ea0e3fb` with the `b51a60d9`
+  resolution (keep `rumorNet`, add `addCheckQualities`, keep `rumors: RUMORS`); `docs:guide` and `docs:settings` regenerated,
+  no content drift; arrival golden did not trip, not re-recorded.
+  - `npm run gates -- --jobs=1 --no-storybook` on `3ea0e3fb`: all green in 605 s (test:replay, test 806 suites / 9360
+    passed, 1 skipped; build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release).
+    Storybook skipped in that run, run separately below. Main bundle 1,283,699 B (budget 1,300,000).
+  - Storybook: `npm run storybook:build`, http-server on port 6288, test-runner `--maxWorkers 1` on
+    `ChecksEditor.stories.tsx`: 6/6 (including `CheckpointCheckWithWhen`). Other story files not touched, not re-run.
 - Campaign (adolion-adopt `v2.8-adopt-features`, `411f4d4`, on `d3aab6c`): both public checks gated on `when` (2 acts,
   Saga 2); one existing attempt read reused, one minimal latching attempt read added in `scripts/campaign/world.py`, read
   by no route; transitions and quests identical in every build and lab copy (2 lab sets rebuilt). `scripts/check_all.sh
