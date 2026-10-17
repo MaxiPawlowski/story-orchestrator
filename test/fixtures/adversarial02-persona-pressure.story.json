@@ -1,0 +1,37 @@
+{
+  "format": 2,
+  "title": "Persona Pressure",
+  "description": "v2.8 35 harvest adversarial fixture: Persona Pressure.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "door_opened",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Is the archive door open?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Open the scene.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Advance the scene.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [],
+  "roster": []
+}

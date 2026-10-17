@@ -7,13 +7,13 @@ import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { latencyPercentiles, parseEffortArm, pinRoleEffort, pinRoleProfile, readRoleReasoning, restoreRoleEfforts, restoreRoleProfiles, type EffortArm } from './lib/roleEffort.mts';
-import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreContains, scoreIntents, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
+import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreClaims, scoreContains, scoreIntents, scoreQuoted, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
 import { fingerprintsOf, readRoleModel, type MeasurementFingerprints } from './lib/measurementFingerprint.mts';
 import { compareArms } from './lib/armCompare.mts';
 import { captureChatFingerprint, firstChange } from './lib/chatUntouched.mts';
 import { captureHeader } from './so-run-header.mts';
 
-const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high] [--profile <name|id>] [--arm <label>] [--set extractor|time]
+const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high] [--profile <name|id>] [--arm <label>] [--set extractor|time|adversarial]
        node scripts/debug/so-live-suite.mts inventory|rescore [dir] [--out <file>] [--check]   (offline, v2.8 35: see so-live-rescore.mts)
        node scripts/debug/so-live-suite.mts compare <a-r1> <a-r2> <b-r1> <b-r2> [--declare prompt,scorer,model,config] [--out <file>]
                   (offline, v2.8 35 G5/G8: stable-pass, stable-fail, flaky, new, removed; regressed only on stable-pass to stable-fail;
@@ -76,7 +76,7 @@ function argValue(name, fallback) {
   return index >= 0 && process.argv[index + 1] ? process.argv[index + 1] : fallback;
 }
 
-export const FIXTURE_SETS = { extractor: /^extractor.*\.story\.json$/, time: /^timewindow.*\.story\.json$/ } as const;
+export const FIXTURE_SETS = { extractor: /^extractor.*\.story\.json$/, time: /^timewindow.*\.story\.json$/, adversarial: /^adversarial.*\.story\.json$/ } as const;
 
 async function discoverFixtures(filter, set: keyof typeof FIXTURE_SETS = 'extractor') {
   const files = await readdir(FIX_DIR);
@@ -139,6 +139,8 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
           scoreContains('epistemic', fixture.expected.epistemic, live.epistemic ?? []),
           scoreContains('ledger', fixture.expected.ledger, live.ledger ?? []),
           scoreIntents(fixture.expected.intents, live.epistemic ?? [], fixture.transcript.filter((entry) => entry.is_user === true).map((entry) => entry.speaker)),
+          scoreClaims(fixture.expected.claims, [...(live.facts ?? []), ...(live.memory ?? []), ...(live.arcs ?? []), ...(live.epistemic ?? []), ...(live.ledger ?? [])]),
+          scoreQuoted(fixture.expected.quoted, [...(live.facts ?? []), ...(live.memory ?? []), ...(live.arcs ?? []), ...(live.epistemic ?? []), ...(live.ledger ?? [])]),
         ].filter((row) => row.scored);
         const tierFailures = tiers.filter((row) => !row.pass);
         const sources = (live.deltas ?? []).map((d) => `${d.q}:${d.judge === undefined ? 'llm' : `judge@${d.judge}`}`);
@@ -234,5 +236,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(1);
   }
   const expectCountRaw = argValue('--expect-count', '');
-  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, floorsGiven: given, expectCount: expectCountRaw ? Number(expectCountRaw) : null, effort: parseEffortArm(argValue('--effort', '')), profile: argValue('--profile', '') || null, arm: argValue('--arm', '') || null, set: argValue('--set', 'extractor') === 'time' ? 'time' : 'extractor' }));
+  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, floorsGiven: given, expectCount: expectCountRaw ? Number(expectCountRaw) : null, effort: parseEffortArm(argValue('--effort', '')), profile: argValue('--profile', '') || null, arm: argValue('--arm', '') || null, set: (['time', 'adversarial'] as const).find((name) => name === argValue('--set', 'extractor')) ?? 'extractor' }));
 }
