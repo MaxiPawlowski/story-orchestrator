@@ -411,3 +411,27 @@ on `arrivalEquivalence`, re-recorded in its own commit). Storybook static build 
 Owed (CL, not run): W4 rows on the lab 40 (private campaign `lab/witness/`) and ≥ 40 real-session messages with second-model labels and a
 third-model check, through the extraction route (Sol via the harness); Wc; RB with 47 and 15 before merge (47's lines are on master, so
 this branch on by default puts both line families in every read). C not built (separate owner decision).
+
+## Gate record addendum: after the main-entry diet, 2026-10-16 (no model, no GPU, LIST)
+
+Build: master `4f2b53a2` (42 + 44 + the main-entry diet + master). Main bundle 1,282,779 B (budget 1,300,000). The diet moved the
+memorize backlog, canon regenerate, the author memory decisions and the warden check into lazy chunks, and judge imports name their module
+instead of the barrel. Full gates and Storybook green on `4f2b53a2` (coordinator run, Storybook 149 suites / 902 stories).
+
+Live: no-model lane 69 (`C:\dev\so-live-lanes`), private code copy `C:\dev\st-live-aud` staged from a detached worktree at `4f2b53a2`,
+images and sprites off, served `dist/index.js` sha256 `59bf6ba2c385` before and after every run. Each scenario run twice, back to back,
+`--sandbox --group "Group: Arin, DM Narrator"`; every run `ok`, no failed step, no reap prompt or mirror book leaked:
+- `v28-42-witness`: PASS ×2 (13 steps).
+- `v28-44-rumors`: PASS ×2 (24 steps).
+- `plan05-decision-write` (author memory decisions: resolve, reconfirm, refusal): PASS ×2 (6 steps).
+- `live-v8-memory-decisions` (memory queue and quarantine): PASS ×2 (13 steps).
+- `v27-s11d-held-secret-canon` (canon regenerate through the lazy unit): PASS ×2 (19 steps).
+- `v28-40-judge-consumers` (warden notes through the lazy check, canon regenerate with canonVerify): PASS ×2 (8 steps).
+- `v24-02-chat-delete-reap` (smoke): PASS ×2 (13 steps).
+
+Verdict: plumbing green, real-LLM owed (no model or GPU on this run; every model and judge answer above is scripted).
+
+Evidence `C:\dev\so-live-lanes\evidence-2026-10-16\69\`, run folders in the order above: `2026-10-16T23-48-24-313Z`, `…23-48-57-291Z`,
+`…23-49-26-588Z`, `…23-50-02-540Z`, `…23-50-38-518Z`, `…23-50-59-254Z`, `…23-51-21-736Z`, `…23-51-52-275Z`, `…23-52-23-766Z`,
+`…23-52-56-570Z`, `…23-53-44-404Z`, `…23-54-46-976Z`, `…23-55-24-309Z`, `…23-56-06-880Z` (each `-so-scenario-run`), with their
+`so-scenario-result.json` files beside them.
