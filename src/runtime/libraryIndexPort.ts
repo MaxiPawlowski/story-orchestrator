@@ -1,5 +1,6 @@
 import { log } from "@utils/log";
-import type { LibraryIndexDelta, LibraryLost } from "./libraryIndexCore";
+import { withoutReported, type LibraryIndexDelta, type LibraryLost } from "./libraryIndexCore";
+import type { WriteResult } from "@utils/writeResult";
 
 let lost: LibraryLost | null = null;
 let queue: Promise<unknown> = Promise.resolve();
@@ -19,5 +20,15 @@ export const checkLibraryIndex = (notify: () => void): Promise<void> => later((u
   lost = found;
   notify();
 });
+
+export const acknowledgeLibraryLost = (reported: LibraryLost, notify: () => void): Promise<WriteResult<object>> =>
+  later((unit) => unit.acknowledge(reported)).then((written) => {
+    if (!written) return { ok: false as const, reason: LIBRARY_ACK_FAILED };
+    lost = withoutReported(lost, reported);
+    notify();
+    return { ok: true as const };
+  });
+
+export const LIBRARY_ACK_FAILED = "The notice could not be cleared because SillyTavern's user files did not save. Try again.";
 
 export const libraryLost = (): LibraryLost | null => lost;

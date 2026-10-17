@@ -7,6 +7,7 @@ import type { Check, CheckFinding } from "./checks";
 import { hasUnsavedChanges, playerSaveNotice, SAVE_PLAYER_TEXT } from "./saveHealth";
 import { overLimit, STATE_SIZE_LIMITS } from "./stateSizeCore";
 import { anyLost } from "./libraryIndexCore";
+import { PLAYER_COPY } from "./narrative";
 import { ROLE_OUTAGE_STATES, ROLE_PROBLEM_STATES } from "./roleHealth";
 import { mutedMembersText, REPAIR_PLAYER_COPY, TRANSPORT_PLAYER_TEXT } from "./pipeline";
 
@@ -337,6 +338,7 @@ export const DEGRADING_SETUP_CHECKS: readonly Check[] = [
             + "a lost story can be copied back from there or imported again. Keep one SillyTavern tab open while you edit stories.",
         ].join(" "),
         player: "A story or story setup saved in another SillyTavern tab was overwritten by an older tab. Import it again, and keep one SillyTavern tab open.",
+        action: { kind: "acknowledge-library-lost", stories: [...lost.stories], sessions: [...lost.sessions], changed: [...lost.changed], label: PLAYER_COPY.libraryLostAcknowledge },
       };
     },
   }),

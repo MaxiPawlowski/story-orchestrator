@@ -244,6 +244,7 @@ export const PLAYER_COPY = {
   sceneChanged: "The scene changed",
   storyMovedOn: "The story moved on",
   nothingNoted: "Nothing new noted",
+  libraryLostAcknowledge: "I have dealt with it, stop reporting these",
 } as const;
 
 export type RequirementKind = "persona" | "cast" | "lore";

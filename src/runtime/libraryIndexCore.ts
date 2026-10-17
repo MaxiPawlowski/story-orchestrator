@@ -69,4 +69,23 @@ export const seedDelta = (index: LibraryIndex, held: LibraryHeld): LibraryIndexD
   return Object.keys(stories).length || Object.keys(sessions).length ? { stories, sessions } : null;
 };
 
+export const acknowledgeDelta = (reported: LibraryLost, held: LibraryHeld): LibraryIndexDelta => {
+  const hashes = new Map(held.stories.map((story) => [story.id, story.hash]));
+  const heldSessions = new Set(held.sessions);
+  return {
+    stories: Object.fromEntries([
+      ...reported.stories.filter((id) => !hashes.has(id)).map((id) => [id, null] as const),
+      ...reported.changed.flatMap((id) => { const hash = hashes.get(id); return hash === undefined ? [] : [[id, hash] as const]; }),
+    ]),
+    sessions: Object.fromEntries(reported.sessions.filter((key) => !heldSessions.has(key)).map((key) => [key, null] as const)),
+  };
+};
+
+export const withoutReported = (lost: LibraryLost | null, reported: LibraryLost): LibraryLost | null => {
+  if (!lost) return null;
+  const left = (ids: string[], gone: string[]) => ids.filter((id) => !gone.includes(id));
+  const next = { stories: left(lost.stories, reported.stories), sessions: left(lost.sessions, reported.sessions), changed: left(lost.changed, reported.changed) };
+  return anyLost(next) ? next : null;
+};
+
 export const anyLost = (lost: LibraryLost | null | undefined): lost is LibraryLost => Boolean(lost && (lost.stories.length || lost.sessions.length || lost.changed.length));

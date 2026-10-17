@@ -1,5 +1,5 @@
 import { loadUserFiles } from "@services/STAPI";
-import { anyLost, findLost, LIBRARY_INDEX_FILE, mergeIndex, parseIndex, seedDelta, type LibraryHeld, type LibraryIndexDelta, type LibraryLost } from "./libraryIndexCore";
+import { acknowledgeDelta, anyLost, findLost, LIBRARY_INDEX_FILE, mergeIndex, parseIndex, seedDelta, type LibraryHeld, type LibraryIndexDelta, type LibraryLost } from "./libraryIndexCore";
 import { settingsRoot } from "./settingsRoot";
 
 const listed = (value: unknown): Array<Record<string, unknown>> => (Array.isArray(value) ? value.filter((entry): entry is Record<string, unknown> => Boolean(entry) && typeof entry === "object") : []);
@@ -18,6 +18,8 @@ export async function applyDelta(delta: LibraryIndexDelta, at = new Date().toISO
   if (!read.ok) return false;
   return (await files.writeUserJson(LIBRARY_INDEX_FILE, mergeIndex(parseIndex(read.value), delta, at))).ok;
 }
+
+export const acknowledge = (reported: LibraryLost, held: LibraryHeld = heldNow()): Promise<boolean> => applyDelta(acknowledgeDelta(reported, held));
 
 export async function checkIndex(held: LibraryHeld = heldNow()): Promise<LibraryLost | null> {
   const files = await loadUserFiles();
