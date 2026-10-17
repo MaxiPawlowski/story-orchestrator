@@ -27,13 +27,17 @@
       "id": "GS1.1",
       "mode": "auto",
       "findings": [],
-      "goal": "Lane guard and start. Closes: features stories, group-binding, story-briefing, briefing-draft (real draft on the authoring route), player-setup; rows 34-RP (start setup, persona in the first prompt), 34-L-flow/34-L-fixed live, S-06 (role line once), O1 start half. Briefing and identity step are switched back on for this check (so-journey suppresses them by default) and restored by cleanup.",
+      "goal": "Lane guard and start. Closes: features stories, group-binding, story-briefing, briefing-draft (real draft on the authoring route), player-setup; rows 34-RP (start setup, persona in the first prompt), 34-L-flow/34-L-fixed live, S-06 (role line once), O1 start half. Briefing and identity step are switched back on for this check (so-journey suppresses them by default) and restored by cleanup. Setup starts its chat with the start pane suppressed, and the group-bound story starts in it at once; the check switches the pane back on and opens a fresh chat, so the story starts with the start pane as a player gets it.",
       "requires": [
         "player-setup"
       ],
       "steps": [
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); if (!ctx.groupId) throw new Error('needs the story group open'); const lib = rt.getSnapshot().library ?? []; if (!lib.some((r) => r.id === 'adolion-academy')) throw new Error('adolion-academy is not in the library: seed the lane with adolion-fresh first'); const s = rt.getGlobalSettings(); if (!s.memory.innerBeat) throw new Error('inner voice is off; the suite runs with it on'); if (!s.judge.enabled) throw new Error('judge is off; golden sessions run on shipped defaults'); if (s.image?.enabled || s.sprites?.enabled) throw new Error('images or sprites are on; only GS5 runs with media'); rt.setUiSettings({ briefing: true, playerSetup: true }); return { stories: lib.length };"
+        },
+        {
+          "eval": "await SillyTavern.getContext().executeSlashCommandsWithOptions('/newchat'); await new Promise((done) => setTimeout(done, 2500)); return { chatId: SillyTavern.getContext().chatId };",
+          "adoptsNewChat": true
         },
         {
           "select_story": "adolion-academy"
@@ -47,10 +51,12 @@
         {
           "ui": {
             "action": "briefing"
-          }
+          },
+          "log": 600
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); const b = snap.briefing; if (!b) throw new Error('no briefing state after the story started in a new chat'); const ps = snap.playerSetup; if (!ps) throw new Error('no identity step state'); return { briefing: Boolean(b.view ?? b), setupPending: ps.pending ?? null };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); const b = snap.briefing; if (!b) throw new Error('no briefing state after the story started in a new chat'); const ps = snap.playerSetup; if (!ps) throw new Error('no identity step state'); return { briefing: Boolean(b.view ?? b), setupPending: ps.pending ?? null, setupChoice: ps.record?.choice ?? null, displayPlayerSetup: rt.getGlobalSettings().display?.playerSetup ?? null, uiPlayerSetup: rt.getSnapshot().ui?.playerSetup ?? null, boundary: snap.boundary ?? null };",
+          "log": 600
         },
         {
           "ui": {
@@ -192,7 +198,7 @@
           }
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.capturePayload('gs1-scenario'); const blocks = (rt.getSnapshot().payloadCaptures ?? []).find((c) => c.reason === 'gs1-scenario')?.blocks ?? []; const scen = blocks.filter((b) => /scenario/i.test(String(b.key ?? b.id ?? ''))); if (!scen.length) throw new Error('no scenario block in the prompt ST holds at an authored scenario checkpoint'); const ledger = rt.getSnapshot().effects?.ledger ?? []; return { scenarioBlocks: scen.length, ledgerRows: ledger.length };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const st = rt.loaded?.story; const authored = st.checkpoints.map((c) => c.effects?.scenario).filter((v) => typeof v === 'string' && v.trim()).map((v) => v.trim()); const held = String(SillyTavern.getContext().chatMetadata?.scenario ?? ''); if (!held) throw new Error('ST holds no chat scenario override at an authored scenario checkpoint'); if (!authored.includes(held)) throw new Error('the chat scenario override ST holds is not an authored scenario'); const ledger = rt.getSnapshot().effects?.ledger ?? []; const rows = ledger.filter((r) => r.target?.kind === 'extension' && r.target?.name === 'scenario' && r.status === 'applied'); if (!rows.length) throw new Error('no applied scenario row in the effect ledger'); return { heldChars: held.length, appliedScenarioRows: rows.length };"
         }
       ]
     },
@@ -222,7 +228,7 @@
       "id": "GS1.6",
       "mode": "auto",
       "findings": [],
-      "goal": "Rollback in real play. Closes: branches (swipe), memory rollback; rows S-10 (requests during a swipe equal the chat with the reply deleted, rule 12: captured inputs), 16-10-catch-up live half, 38-C7 rollback half. A real swipe regenerates the newest reply; then a delete; the engine replays to the same checkpoint and boundary log.",
+      "goal": "Rollback in real play. Closes: branches (swipe), memory rollback; rows S-10 (requests during a swipe equal the chat with the reply deleted, rule 12: captured inputs), 16-10-catch-up live half, 38-C7 rollback half. A real swipe regenerates the newest reply; then a delete; the engine replays to the same checkpoint and boundary log. A turn that fires a transition ends on the transition note, which a player cannot swipe; the swipe then re-plays the turn (attempts 3, recorded as retries).",
       "steps": [
         {
           "send_generate": {
@@ -246,7 +252,9 @@
           "swipe": {
             "messageId": "last",
             "swipeId": "new"
-          }
+          },
+          "attempts": 3,
+          "retryBack": 3
         },
         {
           "wait": {
@@ -317,6 +325,9 @@
         },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); for (let i = 0; i < 60 && rt.getSnapshot().storyId !== 'adolion-academy'; i++) await new Promise((r) => setTimeout(r, 500)); const snap = rt.getSnapshot(); if (snap.storyId !== 'adolion-academy') throw new Error('the story did not come back after reload'); if (snap.playerSetup?.pending) throw new Error('the identity step was offered again on reopen'); if (!ctx.chatMetadata?.persona) throw new Error('the persona lock did not survive the reload'); return { boundary: snap.boundary };"
+        },
+        {
+          "eval": "let popup = null; for (let i = 0; i < 60 && !popup; i++) { popup = [...document.querySelectorAll('dialog.popup[open]')].find((d) => /^Previously/.test((d.querySelector('.popup-content')?.innerText ?? '').trim())) ?? null; if (!popup) await new Promise((r) => setTimeout(r, 500)); } if (!popup) throw new Error('no welcome-back recap after reopening a chat with a sealed chapter'); const ok = popup.querySelector('.popup-button-ok'); if (!ok) throw new Error('the recap has no Continue button'); ok.click(); for (let i = 0; i < 20 && popup.open; i++) await new Promise((r) => setTimeout(r, 250)); if (popup.open) throw new Error('the recap did not close on Continue'); return { recap: true };"
         },
         {
           "send_generate": {

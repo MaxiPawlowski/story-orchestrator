@@ -95,7 +95,7 @@ export async function dismissBriefing(page, { dontShow = false, timeoutMs = 5000
   if (!before.open) {
     const why = openWithinMs ? await page.evaluate(() => {
       const snap = (globalThis as any).storyOrchestratorRuntime?.getSnapshot?.();
-      return JSON.stringify({ boundary: snap?.boundary ?? null, briefing: snap?.briefing ? { enabled: snap.briefing.enabled ?? null, view: Boolean(snap.briefing.view), pending: snap.briefing.pending ?? null, draft: snap.briefing.draft?.status ?? null } : null, playerSetup: snap?.playerSetup ? { pending: snap.playerSetup.pending ?? null, needsPane: snap.playerSetup.needsPane ?? null } : null });
+      return JSON.stringify({ boundary: snap?.boundary ?? null, briefing: snap?.briefing ? { enabled: snap.briefing.enabled ?? null, view: Boolean(snap.briefing.view), pending: snap.briefing.pending ?? null, draft: snap.briefing.draft?.status ?? null } : null, playerSetup: snap?.playerSetup ? { pending: snap.playerSetup.pending ?? null, needsPane: snap.playerSetup.needsPane ?? null, choice: snap.playerSetup.record?.choice ?? null, locked: snap.playerSetup.record?.locked ?? null } : null, chatLength: (globalThis as any).SillyTavern?.getContext?.().chat?.length ?? null, onEnterPosts: (globalThis as any).storyOrchestratorRuntime?.getSnapshot?.().onEnterPosts?.length ?? null });
     }).catch(() => 'state unreadable') : '';
     throw new Error(`no briefing is open (dialog#so-briefing)${openWithinMs ? ` after ${openWithinMs} ms; state ${why}` : ''}`);
   }

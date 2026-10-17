@@ -37,6 +37,11 @@ describe("plan 47 contract: promise lines quote exact words and carry the messag
     expect(parsePromiseLine('[released] pabc123 | m=9 | "You owe me nothing"')).toMatchObject({ line: { kind: "released", target: "pabc123", messageId: 9 } });
   });
 
+  it("reads a bare message index in the m= slot (a live read dropped the m=)", () => {
+    expect(parsePromiseLine('[promised] Arin | 1 | "I promise I will bring your lantern back before nightfall." | by "nightfall"')).toMatchObject({ line: { kind: "promised", target: "Arin", messageId: 1, deadline: "nightfall" } });
+    expect(parsePromiseLine('[kept] pabc123 | 7 | "Here is your lantern"')).toMatchObject({ line: { kind: "kept", target: "pabc123", messageId: 7 } });
+  });
+
   it("refuses a line without m=<id>", () => {
     expect(parsePromiseLine('[promised] Mara | "I swear it"')).toEqual({ reason: "promise line without m=<message index>" });
     expect(parsePromiseLine('[kept] pabc | "done"')).toEqual({ reason: "promise line without m=<message index>" });

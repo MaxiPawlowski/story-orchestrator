@@ -176,7 +176,7 @@ export const rowDirName = (item: string, run: number) => `${basename(item).repla
 
 export function recordPathsIn(output: string): { record: string | null; failure: string | null } {
   const wrote = [...output.matchAll(/Wrote JSON: (.+\.json)\s*$/gm)].map((match) => match[1].trim());
-  const record = [...wrote].reverse().find((path) => /journey-J\d+[^/\\]*\.json$|so-scenario-result\.json$/.test(path)) ?? null;
+  const record = [...wrote].reverse().find((path) => /journey-(?:J|GS)\d+[^/\\]*\.json$|so-scenario-result\.json$/.test(path)) ?? null;
   const failure = [...wrote].reverse().find((path) => /so-scenario-failure\.json$/.test(path)) ?? null;
   return { record, failure };
 }
