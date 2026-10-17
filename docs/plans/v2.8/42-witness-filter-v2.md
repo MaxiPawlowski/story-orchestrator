@@ -390,6 +390,12 @@ Floors (§7) unchanged; the scorer is `memory/witness/score.ts` as built. Fixed 
 - **Freeze.** sha256 of both label files committed here before any score. W4n (presence null control, labelled
   `present` as witness) needs labels only and is scored after the freeze; W4/W4fi/W4fe/W4cov/W4m/W4a need recorded
   witness reads (`so-witness-reads/1`) on these messages.
+- **Label freeze (2026-10-17, committed before any score).** `so-sessions` `test/sessions/witness-real/freeze.json`:
+  17 label files (16 real sessions + lab), digest `b9428ba3748fd9857d5b24bd2321ca93ae2fb14903928a763b8ba32fd292448b`
+  (sha256 over the per-file sha256 of the parsed JSON); lab `labels.json`
+  `5f5f0db3adf1f4f1feb487c2f275078f51e8b1b317a7345d616a6fb15cc4a9b6`. Real: 192 written, 132 agreed, 60 disagreed,
+  0 invalid. Lab: 40 written, 10 agreed, 30 disagreed (the checker's heard set was a strict subset of the authored one
+  in 29), so the lab set reads `insufficient` as declared.
 
 ## Gate record: §0 + B build, 2026-10-16 (no model, no GPU, LIST)
 

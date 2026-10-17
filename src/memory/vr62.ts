@@ -146,7 +146,10 @@ export interface Vr62Draft {
   check: Vr62Check | null;
 }
 
-export function mergeVr62Labels(drafts: readonly Vr62Draft[], chats: ReadonlyMap<string, { rows: readonly E0ChatRow[]; members: readonly string[] }>, nonce: () => string, writer: string = VR62_RULES.writer, checker: string = VR62_RULES.checker) {
+export function mergeVr62Labels(
+  drafts: readonly Vr62Draft[], chats: ReadonlyMap<string, { rows: readonly E0ChatRow[]; members: readonly string[] }>, nonce: () => string,
+  writer: string = VR62_RULES.writer, checker: string = VR62_RULES.checker,
+) {
   const questions: Vr62Question[] = [];
   const invalid: Array<{ id: string; reason: string }> = [];
   const counts = { written: drafts.length, invalid: 0, unchecked: 0, agreed: 0, disagreed: 0 };
@@ -257,14 +260,26 @@ export interface Vr62SceneRecord {
   cached: boolean;
 }
 
-export function sceneRecordFrom(context: Vr62SessionContext, rows: readonly E0ChatRow[], messageId: number, answer: { answers: Record<string, JudgeAnswer> | null; fallback?: string | null; model?: string | null; latencyMs: number; usage?: { input_tokens?: number }; cached?: boolean }): Vr62SceneRecord {
+export interface Vr62JudgeAnswer {
+  answers: Record<string, JudgeAnswer> | null;
+  fallback?: string | null;
+  model?: string | null;
+  latencyMs: number;
+  usage?: { input_tokens?: number };
+  cached?: boolean;
+}
+
+export function sceneRecordFrom(context: Vr62SessionContext, rows: readonly E0ChatRow[], messageId: number, answer: Vr62JudgeAnswer): Vr62SceneRecord {
   const input = sceneInputAt(context, rows, messageId);
   const read = answer.answers ? readScene(answer.answers, input) : null;
   const present = read?.present ? Object.fromEntries(context.members.flatMap((name) => {
     const p = read.present?.[memberKey(context.members, name)];
     return typeof p === "number" ? [[name, p] as const] : [];
   })) : null;
-  return { present: present && Object.keys(present).length ? present : null, fallback: answer.fallback ?? (answer.answers ? null : "no-answer"), model: answer.model ?? null, latencyMs: answer.latencyMs, inputTokens: answer.usage?.input_tokens ?? 0, cached: answer.cached === true };
+  return {
+    present: present && Object.keys(present).length ? present : null, fallback: answer.fallback ?? (answer.answers ? null : "no-answer"), model: answer.model ?? null,
+    latencyMs: answer.latencyMs, inputTokens: answer.usage?.input_tokens ?? 0, cached: answer.cached === true,
+  };
 }
 
 export const sceneKey = (session: string, messageId: number) => `${session}#${messageId}`;
@@ -322,7 +337,8 @@ export async function buildVr62Pool(labels: ReturnType<typeof readVr62Labels>, c
       const row = byId.get(id);
       return { messageId: id, speaker: row ? (row.isUser ? "" : row.name) : "", textHash: fnv1a(row?.text ?? ""), text: row?.text ?? "", stRank };
     });
-    questions.push({ id: question.id, session: question.session, askMessageId: question.askMessageId, member: question.member, kind: question.kind, gold: question.gold, query, candidates, latencyMs: Array.isArray(answer) ? null : answer.latencyMs });
+    const { id, session, askMessageId, member, kind, gold } = question;
+    questions.push({ id, session, askMessageId, member, kind, gold, query, candidates, latencyMs: Array.isArray(answer) ? null : answer.latencyMs });
   }
   return { format: VR62_POOL_FORMAT, source: labels.source, provider: provider.id, topK: VR62_RULES.poolSize, protect: E0_PROTECT, questions, refused };
 }
@@ -341,7 +357,9 @@ export const needsChoice = (candidates: readonly Vr62Candidate[]) => candidates.
 
 const asE0Candidate = (candidate: Vr62Candidate, stRank: number): E0Candidate => ({ messageId: candidate.messageId, textHash: candidate.textHash, text: candidate.text, stRank, bands: [] });
 
-export function vr62Top(question: Vr62PoolQuestion, candidates: readonly Vr62Candidate[], calls: readonly E0ChoiceCall[] | undefined): { top: number[]; calls: number; latencyMs: number; inputTokens: number } | { refused: string } {
+export type Vr62Ranked = { top: number[]; calls: number; latencyMs: number; inputTokens: number } | { refused: string };
+
+export function vr62Top(question: Vr62PoolQuestion, candidates: readonly Vr62Candidate[], calls: readonly E0ChoiceCall[] | undefined): Vr62Ranked {
   if (!needsChoice(candidates)) return { top: candidates.map((candidate) => candidate.messageId), calls: 0, latencyMs: 0, inputTokens: 0 };
   const ranked = armD({ id: question.id, askMessageId: question.askMessageId, query: question.query, gold: question.gold, candidates: candidates.map(asE0Candidate) }, calls);
   if ("refused" in ranked) return ranked;
@@ -366,7 +384,10 @@ const p95 = (values: readonly number[]): number | null => {
   return sorted.length ? sorted[Math.min(sorted.length - 1, Math.ceil(0.95 * sorted.length) - 1)] : null;
 };
 
-export function scoreVr62(labels: ReturnType<typeof readVr62Labels>, pool: Vr62Pool, scenes: Readonly<Record<string, Vr62SceneRecord>>, recorded: Readonly<Record<string, E0ChoiceCall[]>>, scenesOk: readonly string[], filter: Vr62Filter = presenceFilter(scenes)) {
+export function scoreVr62(
+  labels: ReturnType<typeof readVr62Labels>, pool: Vr62Pool, scenes: Readonly<Record<string, Vr62SceneRecord>>, recorded: Readonly<Record<string, E0ChoiceCall[]>>,
+  scenesOk: readonly string[], filter: Vr62Filter = presenceFilter(scenes),
+) {
   const byId = new Map(labels.questions.map((question) => [question.id, question]));
   const pooled = pool.questions.filter((question) => byId.has(question.id));
   const minimums = vr62Minimums(pooled.map((question) => byId.get(question.id) as Vr62Question), scenesOk);

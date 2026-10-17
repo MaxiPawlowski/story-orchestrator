@@ -73,7 +73,7 @@ export async function main(argv: string[]): Promise<number> {
     console.log(USAGE);
     return command ? 0 : 1;
   }
-  if (command !== 'score') throw new Error(`unknown command ${command}\n${USAGE}`);
+  if (command !== 'score') return labelCommand(command, args);
   const result = await scoreReads(need(args, '--labels'), need(args, '--reads'));
   const out = option(args, '--out');
   if (out) {

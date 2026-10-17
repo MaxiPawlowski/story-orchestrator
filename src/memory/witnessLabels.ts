@@ -74,7 +74,8 @@ export function witnessLabelPrompt(rows: readonly E0ChatRow[], members: readonly
       + " set \"mixed\": true and give spans instead of heard: each span starts with its exact first 4-8 words copied from the message (\"from\") and has its own heard.",
     "- Use member names exactly as listed. The player is not a member.",
     "Answer with exactly one JSON object and nothing else:",
-    "{\"labels\": [{\"messageId\": <id>, \"present\": [<names>], \"heard\": [<names>] | \"unknown\"}, {\"messageId\": <id>, \"present\": [<names>], \"mixed\": true, \"spans\": [{\"from\": \"<exact first words>\", \"heard\": [<names>] | \"unknown\"}]}]}",
+    "{\"labels\": [{\"messageId\": <id>, \"present\": [<names>], \"heard\": [<names>] | \"unknown\"}, "
+      + "{\"messageId\": <id>, \"present\": [<names>], \"mixed\": true, \"spans\": [{\"from\": \"<exact first words>\", \"heard\": [<names>] | \"unknown\"}]}]}",
     "",
     `LABEL: ${window.join(", ")}`,
     "",
@@ -198,7 +199,13 @@ export interface LabWitnessRow {
   presence: string[];
 }
 
-export function labWitnessSession(rows: readonly LabWitnessRow[], members: readonly string[]): { session: Omit<WitnessLabelSession, "written" | "checked">; written: WitnessDraft[]; scenes: Map<number, string> } {
+export interface LabWitness {
+  session: Omit<WitnessLabelSession, "written" | "checked">;
+  written: WitnessDraft[];
+  scenes: Map<number, string>;
+}
+
+export function labWitnessSession(rows: readonly LabWitnessRow[], members: readonly string[]): LabWitness {
   const chat: E0ChatRow[] = rows.map((row) => ({ id: row.index, name: row.speaker === "player" ? "Player" : row.speaker, isUser: row.speaker === "player", text: row.text }));
   const written = rows.map((row) => {
     const heard = row.heard.filter((name) => members.includes(name)).sort();
