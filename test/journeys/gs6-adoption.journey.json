@@ -1,0 +1,468 @@
+{
+  "id": "GS6",
+  "title": "golden session 6: the adoption play (adolion-saga, Artemis)",
+  "objective": "v2.8 70 D8 golden session GS6. One adolion-fresh lane at the bumped campaign pin with Artemis v1.1, shipped defaults: thinking and inner voice on, judge on TypeSafe, authoring on Sol, images and sprites off. The carrier is adolion-saga in its own group, picked by id because it is the one adopted story holding every world-layer feature; every feature is found by structure at run time, and where 12 turns cannot reach a gate the check uses the shortest author write and records which path it took. Player lines are generic and name nothing from the campaign; eval results are counts only. 12 real player turns. Run twice back to back on one lane, run 2 from the seeded snapshot. A no-model lane runs the plumbing only (GS6.8 fails there by construction).",
+  "expensive": true,
+  "setup": {
+    "newChat": true,
+    "resetChatState": true,
+    "snapshotGlobalConfig": true,
+    "group": "Adolion - The Saga",
+    "extraction": {
+      "cadence": 3,
+      "stabilityLag": 0,
+      "profile": "inherit"
+    }
+  },
+  "cleanup": {
+    "restoreConfig": true,
+    "deleteChat": true
+  },
+  "capabilities": {
+    "game-view": "typeof globalThis.storyOrchestratorRuntime?.getSnapshot?.().game !== 'undefined'"
+  },
+  "checks": [
+    {
+      "id": "GS6.1",
+      "goal": "Lane guard, start and structure census. Closes: stories (the adopted carrier starts, picked by id, features found by structure). Fails before any turn when the pinned carrier lacks adopted data (codex facts behind a reached gate, a secret label, factions with moves, a clock, public checks with when, rumors, recap quests, narrated public qualities with an omniscient narrator, a scene widget, scene_test). Two real turns.",
+      "steps": [
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(250); } }; const story = () => rt.getStory(); const values = () => rt.getEngineState().blackboard.values; const active = () => rt.getEngineState().activeCheckpointId; const quality = (key) => story()?.qualityByKey?.[key]; const leafValue = (gate) => { const q = quality(gate.q); if (!q || q.source === 'code') return undefined; const v = gate.v; if (gate.op === '==' || gate.op === '>=' || gate.op === '<=') return Array.isArray(v) ? undefined : v; if (gate.op === '>') return Number(v) + 1; if (gate.op === '<') return Number(v) - 1; if (gate.op === 'in') return Array.isArray(v) ? v[0] : undefined; if (gate.op === '!=') { if (q.type === 'bool') return !v; if (q.type === 'enum') return (q.values ?? []).find((x) => x !== v); if (q.type === 'int' || q.type === 'float') return Number(v) + 1; return String(v) + ' else'; } return undefined; }; const writesFor = (gate) => { if (!gate) return []; if ('q' in gate) { const v = leafValue(gate); return v === undefined ? null : [[gate.q, v]]; } if (Array.isArray(gate.all)) { const parts = gate.all.map(writesFor); return parts.some((p) => p === null) ? null : parts.flat(); } if (Array.isArray(gate.any)) { for (const x of gate.any) { const p = writesFor(x); if (p) return p; } return null; } return null; }; const write = async (writes, why) => { for (const [key, value] of writes) { const ok = await rt.setQuality(key, String(value)); if (!ok) throw new Error('author write refused (' + why + ', ' + (quality(key)?.type ?? 'unknown') + ')'); await pause(150); } return writes.length; }; const pathTo = (targets, maxDepth = 6) => { const st = story(); const from = active(); const queue = [[from, []]]; const seen = new Set([from]); while (queue.length) { const [id, path] = queue.shift(); if (path.length && targets.has(id)) return path; if (path.length >= maxDepth) continue; for (const t of st.outgoingByCheckpoint?.[id] ?? []) { if (seen.has(t.to)) continue; const w = writesFor(t.gate); if (!w) continue; seen.add(t.to); queue.push([t.to, [...path, { to: t.to, writes: w }]]); } } return null; }; const facts = () => { const out = []; for (const page of ['people', 'places']) for (const e of story()?.codex?.[page] ?? []) for (const f of e.facts ?? []) out.push({ page, entry: e.id, fact: f.id, text: f.text, when: f.known_when, entryWhen: e.known_when }); return out; }; const factKey = (f) => 'codex_' + (f.page === 'people' ? 'p' : 'l') + '_' + f.entry + '_' + f.fact; const latched = (key) => { const v = values()[key]; return typeof v === 'number' && v > 0; }; const game = () => rt.getSnapshot().game ?? null; const shown = (text) => JSON.stringify(game()?.codex ?? null).includes(text); const names = () => rt.getSnapshot().castNames ?? {}; const chid = (name) => SillyTavern.getContext().characters.findIndex((c) => c.name === name); const enabledMembers = () => { const ctx = SillyTavern.getContext(); const group = ctx.groups.find((x) => String(x.id) === String(ctx.groupId)); const off = new Set(group?.disabled_members ?? []); return (group?.members ?? []).filter((avatar) => !off.has(avatar)).map((avatar) => ctx.characters.find((c) => c.avatar === avatar)?.name).filter(Boolean); }; const line = async (name) => { const id = chid(name); if (id < 0) return ''; await rt.onMemberDrafted(id); await pause(150); return String(rt.getAppliedEpistemicBlock() ?? ''); }; const saved = async () => { for (let i = 0; i < 100 && rt.getSnapshot().saveHealth?.pendingBoundary != null; i += 1) await pause(100); if (rt.getSnapshot().saveHealth?.pendingBoundary != null) throw new Error('the last boundary is not saved'); }; const time = { series: [], back: 0 }; const sampleTime = (label) => { const v = values().story_time; const prev = time.series.at(-1); if (prev && typeof v === 'number' && typeof prev.t === 'number' && v < prev.t) time.back += 1; time.series.push({ label, t: v, b: rt.getEngineState().boundary }); return v; }; const resetTime = (label) => { time.series.push({ label: 'rollback:' + label, t: values().story_time, b: rt.getEngineState().boundary, rollback: true }); }; const playerScan = () => { const snap = rt.getSnapshot(); const text = JSON.stringify({ game: snap.game ?? null, narrative: snap.narrative ?? null }); if (/\\b(rep|codex_[pl]|life_reveal|life_label|check)_[a-z0-9_]+/.test(text)) throw new Error('an internal key reached a player view'); if (snap.rumorsAuthor) throw new Error('the rumor list reached player mode'); if (snap.sceneTests) throw new Error('scene-test records reached player mode'); return true; }; const swipeable = async (at, text) => { const ctx = SillyTavern.getContext(); if (ctx.chat.length - 1 !== at) throw new Error('the swipe target is not the last message'); const reply = ctx.chat[at]; if (reply.is_user || reply.is_system) throw new Error('the swipe target is not a character reply'); const original = reply.swipes?.[reply.swipe_id ?? 0] ?? reply.mes; reply.swipes = [original, text]; reply.swipe_id = 0; reply.swipe_info = [reply.swipe_info?.[0] ?? {}, {}]; await ctx.saveChat(); return at; }; const trimAfter = async (at) => { const ctx = SillyTavern.getContext(); let removed = 0; for (let id = ctx.chat.length - 1; id > at; id -= 1) { await ctx.deleteMessage(id, undefined, false); removed += 1; } return removed; }; const lastReply = () => { const chat = SillyTavern.getContext().chat; for (let i = chat.length - 1; i >= 0; i -= 1) if (!chat[i].is_user && !chat[i].is_system) return i; return -1; }; globalThis.__gs6 = { rt, pause, until, story, values, active, quality, writesFor, write, pathTo, facts, factKey, latched, game, shown, names, chid, enabledMembers, line, saved, time, sampleTime, resetTime, playerScan, swipeable, trimAfter, lastReply, paths: {} };"
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); if (!ctx.groupId) throw new Error('needs the story group open'); if (!(rt.getSnapshot().library ?? []).some((r) => r.id === 'adolion-saga')) throw new Error('adolion-saga is not in the library: seed the lane with adolion-fresh first'); const s = rt.getGlobalSettings(); if (s.image?.enabled || s.sprites?.enabled) throw new Error('images or sprites are on; only GS5 runs with media'); if (s.memory?.rumors === false) throw new Error('rumors are switched off; GS6 runs on shipped defaults'); return { innerVoice: Boolean(s.memory?.innerBeat), judge: Boolean(s.judge?.enabled), note: 'shipped defaults are pinned by the run header diff; a no-model lane runs with the judge off' };",
+          "log": true
+        },
+        {
+          "select_story": "adolion-saga"
+        },
+        {
+          "ui": {
+            "action": "select-profile"
+          }
+        },
+        {
+          "expect": {
+            "storyId": "adolion-saga",
+            "requirementsReady": true
+          }
+        },
+        {
+          "eval": "const g = globalThis.__gs6; const st = g.story(); if (!st) throw new Error('no story loaded'); const factRows = g.facts(); const reachedFacts = factRows.filter((f) => f.when && typeof f.when === 'object' && 'reached' in f.when).length; const secrets = st.roster.flatMap((m) => (m.relationships ?? []).flatMap((r) => (r.secret ?? []).map((s) => ({ holder: m.id, toward: r.toward, s })))); const factions = st.factions ?? []; const moves = factions.reduce((n, f) => n + (f.moves ?? []).length, 0); const whenChecks = st.checkpoints.flatMap((c) => (c.checks ?? []).filter((k) => k.when).map((k) => ({ cp: c.id, id: k.id }))); const rumors = st.rumorNet?.rumors ?? st.rumors ?? []; const recapQuests = (st.quests ?? []).filter((q) => q.recap).length; const promiseQuests = (st.quests ?? []).filter((q) => q.promise).length; const narrated = st.qualities.filter((q) => q.display?.public === true && q.display.narrate !== false).length; const omniscient = st.roster.filter((m) => m.view === 'omniscient').length; const sceneWidget = (st.widgets ?? []).filter((w) => w.kind === 'scene').length; const census = { cps: st.checkpoints.length, codexEntries: (st.codex?.people?.length ?? 0) + (st.codex?.places?.length ?? 0), reachedFacts, secretLabels: secrets.length, factions: factions.length, moves, clock: Boolean(st.clock), whenChecks: whenChecks.length, rumors: rumors.length, recapQuests, promiseQuests, narrated, omniscient, sceneWidget, sceneTest: Boolean(st.living?.scene_test) }; const missing = Object.entries({ reachedFacts, secretLabels: secrets.length, factions: factions.length, moves, clock: census.clock ? 1 : 0, whenChecks: whenChecks.length, rumors: rumors.length, recapQuests, narrated, omniscient, sceneWidget, sceneTest: census.sceneTest ? 1 : 0 }).filter(([, n]) => !n).map(([k]) => k); if (missing.length) throw new Error('the carrier story lacks adopted data: ' + missing.join(', ') + ' (missing data goes into the campaign, never into this journey)'); g.sampleTime('start'); return census;",
+          "log": true
+        },
+        {
+          "send_generate": {
+            "text": "I take in my surroundings and the people around me before I say anything.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I ask whoever is closest what is happening here, and listen carefully.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const g = globalThis.__gs6; g.sampleTime('t2'); return { boundary: g.rt.getEngineState().boundary };"
+        }
+      ],
+      "mode": "auto",
+      "findings": []
+    },
+    {
+      "id": "GS6.2",
+      "goal": "Narrator sheet and scene card in real play. Closes: 18 Q7 (the public sheet reaches only the omniscient narrator's block, never another member's), 65 scene card (present members known to the player, no narrator, no unmet name). Player-clean.",
+      "steps": [
+        {
+          "eval": "const g = globalThis.__gs6; const st = g.story(); const names = g.names(); const HEAD = \"What the player's sheet shows right now\"; const narrator = st.roster.find((m) => m.view === 'omniscient'); const narratorName = names[narrator.id] ?? narrator.name; const enabled = new Set(g.enabledMembers()); const other = st.roster.map((m) => names[m.id] ?? m.name).find((n) => n !== narratorName && enabled.has(n)); const items = (g.game()?.statSheet?.body?.groups ?? []).reduce((n, grp) => n + (grp.items ?? []).length, 0); const nText = await g.line(narratorName); const oText = other ? await g.line(other) : ''; if (items && !nText.includes(HEAD)) throw new Error('the player sheet shows ' + items + ' item(s) but the narrator block has no sheet'); if (oText.includes(HEAD)) throw new Error('the sheet reached a non-narrator member'); return { sheetItems: items, narratorSheet: nText.includes(HEAD), otherChecked: Boolean(other), otherClean: !oText.includes(HEAD) };",
+          "log": true
+        },
+        {
+          "eval": "const g = globalThis.__gs6; const view = g.game()?.scene ?? null; if (!view) throw new Error('the story places a scene widget but the player view has no scene card'); const people = new Set((g.game()?.codex?.people ?? []).map((p) => p.name)); const st = g.story(); const names = g.names(); const withEntry = new Set((st.codex?.people ?? []).map((e) => e.member).filter(Boolean).map((id) => names[id] ?? id)); const present = (view.present ?? []).map((m) => m.name); const unknown = present.filter((n) => withEntry.has(n) && !people.has(n)).length; if (unknown) throw new Error(unknown + ' present member(s) on the card are not known to the player'); const narrator = st.roster.find((m) => m.view === 'omniscient'); if (narrator && present.includes(names[narrator.id] ?? narrator.name)) throw new Error('the narrator is on the scene card'); return { present: present.length, hasLocation: Boolean(view.location), hasTime: Boolean(view.time) };",
+          "log": true
+        },
+        {
+          "eval": "const g = globalThis.__gs6; g.rt.setUiSettings({ authorView: false }); await g.pause(800); g.playerScan(); return { authorView: false };"
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ],
+      "mode": "auto",
+      "findings": []
+    },
+    {
+      "id": "GS6.3",
+      "goal": "Codex fact after its gate, gone on swipe. Closes: 52 (a People or Places fact latches when its reached checkpoint is entered, and a swipe of the message that carried the route takes the latch, the fact and the route back; story time rewinds with it). One real turn, then the shortest author-settable route to a checkpoint that reveals a fact (author writes, recorded), then a deterministic swipe of that reply. Player-clean before and after.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I nod and follow along, keeping my eyes open.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const g = globalThis.__gs6; const rows = g.facts().filter((f) => f.when && typeof f.when === 'object' && 'reached' in f.when && !g.latched(g.factKey(f))); const targets = new Set(rows.map((f) => f.when.reached)); const natural = g.facts().filter((f) => g.latched(g.factKey(f)) && f.when !== 'start').length; g.codex = { from: g.active(), at: g.lastReply(), boundary: g.rt.getEngineState().boundary, time: g.values().story_time }; if (g.codex.at !== SillyTavern.getContext().chat.length - 1) throw new Error('the last message is not a reply before the author writes'); const path = g.pathTo(targets); if (!path) throw new Error('no author-settable route to a checkpoint that reveals a codex fact'); let writes = 0; for (const hop of path) { writes += await g.write(hop.writes, 'codex route'); await g.until(() => g.active() === hop.to, 15000, 'the route hop ' + (path.indexOf(hop) + 1) + ' of ' + path.length); } const hit = rows.filter((f) => f.when.reached === path.at(-1).to); await g.until(() => hit.some((f) => g.latched(g.factKey(f))), 15000, 'the codex latch of the reached checkpoint'); g.codex.hit = hit; g.codex.shownBefore = hit.filter((f) => g.shown(f.text)).length; g.sampleTime('codex'); await g.saved(); return { hops: path.length, writes, factsLatched: hit.filter((f) => g.latched(g.factKey(f))).length, factsShown: g.codex.shownBefore, naturalBefore: natural };",
+          "log": true
+        },
+        {
+          "eval": "const g = globalThis.__gs6; g.rt.setUiSettings({ authorView: false }); await g.pause(800); g.playerScan(); return { authorView: false };"
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        },
+        {
+          "eval": "const g = globalThis.__gs6; const removed = await g.trimAfter(g.codex.at); await g.pause(2500); await g.swipeable(g.codex.at, 'The moment passes and nothing more comes of it.'); return { trimmed: removed, swipeAt: g.codex.at };",
+          "log": true
+        },
+        {
+          "swipe": {
+            "messageId": "last",
+            "swipeId": 1
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const g = globalThis.__gs6; await g.until(() => g.active() === g.codex.from, 20000, 'the swipe to rewind the route'); const kept = g.codex.hit.filter((f) => g.latched(g.factKey(f))).length; if (kept) throw new Error(kept + ' codex latch(es) survived the swipe'); const shown = g.codex.hit.filter((f) => g.shown(f.text)).length; if (shown) throw new Error(shown + ' codex fact(s) still shown after the swipe'); g.resetTime('codex-swipe'); if (g.values().story_time !== g.codex.time) throw new Error('story time did not rewind with the route'); await g.saved(); return { rewound: true, boundary: g.rt.getEngineState().boundary };",
+          "log": true
+        },
+        {
+          "eval": "const g = globalThis.__gs6; g.rt.setUiSettings({ authorView: false }); await g.pause(800); g.playerScan(); return { authorView: false };"
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ],
+      "mode": "auto",
+      "findings": []
+    },
+    {
+      "id": "GS6.4",
+      "goal": "Relationship label reveal. Closes: 51 (the secret label's reveal latch life_reveal_* is set by its gate, by the read when it fires, else an author write, recorded; the reveal log row lands when holder and target are known). One real turn. Player-clean.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I tell them plainly what I want to do next and ask for their help.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const g = globalThis.__gs6; const st = g.story(); const rows = st.roster.flatMap((m) => (m.relationships ?? []).flatMap((r) => (r.secret ?? []).map((s) => ({ holder: m.id, toward: r.toward, s })))); const pick = rows.find((r) => g.writesFor(r.s.revealed_when)); if (!pick) throw new Error('no secret label with an author-settable reveal'); const key = 'life_reveal_' + pick.holder + '_' + pick.toward + '_' + pick.s.id; const before = g.latched(key); const path = before ? 'read' : 'author'; const logBefore = (g.game()?.log ?? []).filter((row) => row.kind === 'reveal').length; if (!before) await g.write(g.writesFor(pick.s.revealed_when), 'label reveal'); await g.until(() => g.latched(key), 15000, 'the reveal latch'); await g.saved(); g.sampleTime('label'); const logAfter = (g.game()?.log ?? []).filter((row) => row.kind === 'reveal').length; const learned = JSON.stringify(g.game()?.codex?.people ?? []).includes('Learned:'); g.paths.label = path; return { path, revealLog: logAfter - logBefore, learnedRow: learned };",
+          "log": true
+        },
+        {
+          "eval": "const g = globalThis.__gs6; g.rt.setUiSettings({ authorView: false }); await g.pause(800); g.playerScan(); return { authorView: false };"
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ],
+      "mode": "auto",
+      "findings": []
+    },
+    {
+      "id": "GS6.5",
+      "goal": "Faction band. Closes: 53 (a visible faction's move applies once, rep_* moves, and the player Standing view shows a band word with no number). One real turn, author writes for visibility and the move. Player-clean.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I greet everyone here and ask how things have been.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const g = globalThis.__gs6; const st = g.story(); const before = g.values(); const pick = (st.factions ?? []).map((f) => ({ f, vis: f.visible_when ? g.writesFor(f.visible_when) : [], move: (f.moves ?? []).find((m) => g.writesFor(m.when) && typeof before['rep_' + f.id + '_move_' + m.id] !== 'number') })).find((x) => x.vis && x.move); if (!pick) throw new Error('no faction with an author-settable visibility and move'); const moveKey = 'rep_' + pick.f.id + '_move_' + pick.move.id; const repKey = 'rep_' + pick.f.id; const rep0 = before[repKey]; await g.write([...pick.vis, ...g.writesFor(pick.move.when)], 'faction move'); await g.until(() => typeof g.values()[moveKey] === 'number', 15000, 'the faction move latch'); const rep1 = g.values()[repKey]; const shownRow = (g.game()?.standing ?? []).find((row) => row.name === pick.f.name); if (!shownRow) throw new Error('a visible faction is not on the player Standing view'); if (/\\d/.test(JSON.stringify(shownRow))) throw new Error('a number reached the Standing row'); await g.saved(); g.sampleTime('faction'); return { moved: rep1 !== rep0, direction: Math.sign(Number(rep1) - Number(rep0)), band: Boolean(shownRow.band), standingRows: (g.game()?.standing ?? []).length };",
+          "log": true
+        },
+        {
+          "eval": "const g = globalThis.__gs6; g.rt.setUiSettings({ authorView: false }); await g.pause(800); g.playerScan(); return { authorView: false };"
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ],
+      "mode": "auto",
+      "findings": []
+    },
+    {
+      "id": "GS6.6",
+      "goal": "Rumor stays private. Closes: 44 (a started rumor lands at its origin and travels only along its channels; no claim text reaches a member who never heard it or any player view). One real turn, the rumor's start by author write, one more real turn for hops. Player-clean.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I listen to whoever wants to speak.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const g = globalThis.__gs6; const st = g.story(); g.rt.setUiSettings({ authorView: true }); await g.pause(500); const pick = (st.rumorNet?.rumors ?? st.rumors ?? []).find((r) => r.starts_when && g.writesFor(r.starts_when)); if (!pick) throw new Error('no rumor with an author-settable start'); const events = () => (g.rt.rumors?.state?.().events ?? []).filter((e) => e.rumorId === pick.id || e.rumor === pick.id); await g.write(g.writesFor(pick.starts_when), 'rumor start'); await g.until(() => events().some((e) => e.landedAt), 15000, 'the rumor origin to land'); g.rumor = { pick, events }; await g.saved(); return { events: events().length, landed: events().filter((e) => e.landedAt).length };",
+          "log": true
+        },
+        {
+          "send_generate": {
+            "text": "I ask if anyone has heard any news lately.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const g = globalThis.__gs6; const { pick, events } = g.rumor; g.rt.setUiSettings({ authorView: true }); await g.pause(500); const names = g.names(); const claims = (pick.versions ?? []).map((v) => v.text).filter((t) => t && t.length > 12).concat(pick.claim ? [pick.claim] : []); const holders = new Set([pick.from, ...events().filter((e) => e.landedAt && e.to).map((e) => e.to)].map((id) => names[id] ?? id)); const others = g.enabledMembers().filter((n) => !holders.has(n)).slice(0, 4); let leaks = 0; for (const n of others) { const text = await g.line(n); if (claims.some((c) => text.includes(c))) leaks += 1; } g.rt.setUiSettings({ authorView: false }); await g.pause(800); const view = JSON.stringify({ game: g.game(), narrative: g.rt.getSnapshot().narrative ?? null }); if (claims.some((c) => view.includes(c))) throw new Error('a rumor claim reached the player view'); if (leaks) throw new Error('a rumor claim reached ' + leaks + ' member(s) who never heard it'); return { holders: holders.size, checkedOthers: others.length, leaks, events: events().length, hops: events().filter((e) => (e.hop ?? 0) > 0).length };",
+          "log": true
+        },
+        {
+          "eval": "const g = globalThis.__gs6; g.rt.setUiSettings({ authorView: false }); await g.pause(800); g.playerScan(); return { authorView: false };"
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ],
+      "mode": "auto",
+      "findings": []
+    },
+    {
+      "id": "GS6.7",
+      "goal": "Recap What changed. Closes: 46 (a recap quest closed by author writes adds a consequences line under its recap heading on the player Overview narrative). Player-clean.",
+      "steps": [
+        {
+          "eval": "const g = globalThis.__gs6; const st = g.story(); const v = g.values(); const pick = (st.quests ?? []).find((q) => q.recap && (!q.visible_when || g.writesFor(q.visible_when)) && g.writesFor(q.done_when) && !v['quest_' + q.id + '_closed']); if (!pick) throw new Error('no recap quest with author-settable visibility and close'); const before = ((g.rt.getSnapshot().narrative?.sections ?? []).find((s) => s.id === 'consequences')?.lines ?? []).length; await g.write([...(pick.visible_when ? g.writesFor(pick.visible_when) : []), ...(pick.steps ?? []).flatMap((s) => g.writesFor(s.done_when) ?? []), ...g.writesFor(pick.done_when)], 'recap quest'); await g.until(() => g.values()['quest_' + pick.id + '_closed'], 15000, 'the quest to close'); const section = await g.until(() => { const s = (g.rt.getSnapshot().narrative?.sections ?? []).find((x) => x.id === 'consequences'); return s && s.lines.length > before ? s : null; }, 20000, 'a new consequences line'); if (!/What changed|Because of you/.test(section.label)) throw new Error('the consequences section has no recap heading'); await g.saved(); g.sampleTime('recap'); return { closed: String(g.values()['quest_' + pick.id + '_closed']), lines: section.lines.length - before, label: section.label };",
+          "log": true
+        },
+        {
+          "eval": "const g = globalThis.__gs6; g.rt.setUiSettings({ authorView: false }); await g.pause(800); g.playerScan(); return { authorView: false };"
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ],
+      "mode": "auto",
+      "findings": []
+    },
+    {
+      "id": "GS6.8",
+      "goal": "Promise row. Closes: 47 (the player's promise to one member lands as a row whose quote is a byte-exact substring of the player's message, one promisee). Two real turns, then a read if none landed. Real-model only: a no-model lane cannot make the read, so this check fails there by construction.",
+      "steps": [
+        {
+          "send_generate": {
+            "text": "I turn to whoever spoke last. \"I promise you I will come back for you before nightfall.\"",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "send_generate": {
+            "text": "I think it over for a moment, then press on.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const g = globalThis.__gs6; const rows = () => g.rt.extras?.promises?.rows ?? []; const players = () => SillyTavern.getContext().chat.filter((m) => m.is_user).flatMap((m) => [m.mes, ...(m.swipes ?? [])]).map(String); let readError = null; if (!rows().length) { try { await g.rt.runExtractionNow(undefined, 'gs6-promise'); } catch (e) { readError = String(e?.message ?? e); } } for (let i = 0; i < 90 && !rows().length; i += 1) await g.pause(2000); const all = rows(); if (!all.length) throw new Error('no promise row after the promise turn and a read' + (readError ? ' (the read failed: ' + readError + ')' : '')); const bad = all.filter((r) => !players().some((t) => t.includes(r.quote))).length; if (bad) throw new Error(bad + ' stored quote(s) are not byte-exact substrings of a player message'); const one = all.filter((r) => typeof r.promisee === 'string' && r.promisee).length; if (one !== all.length) throw new Error('a promise row has no single promisee'); return { rows: all.length, byteExact: all.length - bad };",
+          "log": true
+        }
+      ],
+      "mode": "auto",
+      "findings": []
+    },
+    {
+      "id": "GS6.9",
+      "goal": "Story time moves and never goes back. Closes: 50 (story_time sampled at every forward stop is non-decreasing, rollbacks recorded apart, and it moved over the session by play, else one author time step, recorded).",
+      "steps": [
+        {
+          "eval": "const g = globalThis.__gs6; g.sampleTime('time-check'); const forward = g.time.series.filter((s) => !s.rollback); const first = forward[0]?.t; const last = forward.at(-1)?.t; let path = 'play'; if (!(typeof last === 'number' && typeof first === 'number' && last > first)) { const v = g.values(); const q = g.quality('time_of_day'); const parts = q?.values ?? []; const at = parts.indexOf(v.time_of_day); const next = parts[(at + 1) % parts.length]; if (!next) throw new Error('story time never moved and no time part to step to'); const before = v.story_time; const ok = await g.rt.setQuality('time_of_day', String(next)); if (!ok) throw new Error('the author time step was refused'); await g.until(() => g.values().story_time > before, 15000, 'the author time step'); path = 'author'; g.sampleTime('time-author'); } if (g.time.back) throw new Error('story time went back ' + g.time.back + ' time(s) during forward play'); g.paths.time = path; return { path, samples: g.time.series.length, rollbacks: g.time.series.filter((s) => s.rollback).length, series: g.time.series.map((s) => (s.rollback ? 'r' : '') + s.t) };",
+          "log": true
+        }
+      ],
+      "mode": "auto",
+      "findings": []
+    },
+    {
+      "id": "GS6.10",
+      "goal": "A public check waits for its attempt. Closes: 18 check when (after a jump to a checkpoint with a when-gated public check, the check is pending on arrival and after an idle turn, and rolls once its attempt holds: by the read when it fires, else an author write, recorded). Two real turns. Player-clean.",
+      "steps": [
+        {
+          "eval": "const g = globalThis.__gs6; const st = g.story(); const rows = st.checkpoints.flatMap((c) => (c.checks ?? []).filter((k) => k.when && g.writesFor(k.when)).map((k) => ({ cp: c.id, k }))); if (!rows.length) throw new Error('no public check with an author-settable when'); const pick = rows[0]; const pending = g.rt.activateCheckpoint(pick.cp); for (let i = 0; i < 80; i += 1) { await g.pause(250); const b = [...document.querySelectorAll('.popup button, .popup .menu_button')].find((n) => /Jump without sealing/.test(n.textContent ?? '')); if (b) { b.click(); break; } if (g.active() === pick.cp) break; } if (!(await pending)) throw new Error('the jump to the check did not take'); await g.saved(); const key = 'check_' + pick.k.id + '_rolled'; const start = g.rt.getEngineState().checkpointStartedBoundary; const rolled = () => typeof g.values()[key] === 'number' && g.values()[key] > start; if (rolled()) throw new Error('the check rolled on arrival, before any attempt'); g.when = { pick, key, start, rolled }; g.sampleTime('when-jump'); return { pendingOnArrival: true };",
+          "log": true
+        },
+        {
+          "send_generate": {
+            "text": "I take a moment to look around before doing anything.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const g = globalThis.__gs6; const w = g.when; const attemptHeld = w.pick.k.when && JSON.stringify(w.pick.k.when); if (w.rolled()) { g.paths.when = 'read-early'; return { pendingAfterIdleTurn: false, note: 'the read decided the attempt on the idle turn' }; } return { pendingAfterIdleTurn: true, gate: Boolean(attemptHeld) };",
+          "log": true
+        },
+        {
+          "send_generate": {
+            "text": "I give it everything I have and make the attempt.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const g = globalThis.__gs6; const w = g.when; let path = g.paths.when ?? 'read'; if (!w.rolled()) { try { await g.rt.runExtractionNow(undefined, 'gs6-when'); } catch (e) { g.paths.whenReadError = String(e?.message ?? e).slice(0, 80); } for (let i = 0; i < 30 && !w.rolled(); i += 1) await g.pause(2000); } if (!w.rolled()) { await g.write(g.writesFor(w.pick.k.when), 'check attempt'); path = 'author'; } await g.until(() => w.rolled(), 15000, 'the check to roll once its attempt holds'); const at = g.values()[w.key]; g.paths.when = path; await g.saved(); g.sampleTime('when-rolled'); return { path, rolledAfterStart: at - w.start > 0 };",
+          "log": true
+        },
+        {
+          "eval": "const g = globalThis.__gs6; g.rt.setUiSettings({ authorView: false }); await g.pause(800); g.playerScan(); return { authorView: false };"
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ],
+      "mode": "auto",
+      "findings": []
+    },
+    {
+      "id": "GS6.11",
+      "goal": "Scene test and carry census (informational). Closes: 48 plumbing on the carrier (every scene-test record well formed and author-only; counts of living checkpoints), 45 declarations (every carry target names a library source with an outcome). The real carry is the 45 seal row; S10 is read in the living row.",
+      "steps": [
+        {
+          "eval": "const g = globalThis.__gs6; g.rt.setUiSettings({ authorView: true }); await g.pause(500); const tests = g.rt.extras?.living?.sceneTests ?? []; const bad = tests.filter((r) => !['expected', 'altered', 'interrupt'].includes(r.applied) || Math.abs(r.p - (r.chaos + 1) / 7) > 1e-9).length; if (bad) throw new Error(bad + ' scene-test record(s) malformed'); const lib = g.rt.getSnapshot().library ?? []; const raws = Object.values(SillyTavern.getContext().extensionSettings['story-orchestrator']?.v2Stories ?? {}).map((r) => r.raw ?? r.story ?? {}); const carriers = raws.filter((r) => r.carry_from); const sources = new Set(raws.filter((r) => Array.isArray(r.outcome) && r.outcome.length).map((r) => r.id)); const unpaired = carriers.filter((r) => r.carry_from.mode !== 'replay' && !sources.has(r.carry_from.story)).length; if (unpaired) throw new Error(unpaired + ' carry target(s) name a source without an outcome'); g.rt.setUiSettings({ authorView: false }); await g.pause(800); return { sceneTests: tests.length, livingCheckpoints: g.story().checkpoints.filter((c) => c.id.startsWith('liv_')).length, carryTargets: carriers.length, carrySources: sources.size, library: lib.length };",
+          "log": true
+        },
+        {
+          "eval": "const g = globalThis.__gs6; g.rt.setUiSettings({ authorView: false }); await g.pause(800); g.playerScan(); return { authorView: false };"
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ],
+      "mode": "auto",
+      "findings": []
+    },
+    {
+      "id": "GS6.12",
+      "goal": "Reopen and close-out. Closes: recap and world-layer state across a reload (story back, blob readable, story time not back), one more real turn, final player-clean sweep.",
+      "steps": [
+        {
+          "eval": "const g = globalThis.__gs6; sessionStorage.setItem('so-gs6-prior', JSON.stringify({ t: g.values().story_time, paths: g.paths })); return { kept: true };"
+        },
+        {
+          "reload": {
+            "timeoutMs": 90000
+          }
+        },
+        {
+          "eval": "const g = globalThis.__gs6; const rt = globalThis.storyOrchestratorRuntime; for (let i = 0; i < 60 && rt.getSnapshot().storyId !== 'adolion-saga'; i += 1) await new Promise((r) => setTimeout(r, 500)); const snap = rt.getSnapshot(); if (snap.storyId !== 'adolion-saga') throw new Error('the story did not come back after reload'); if (snap.blobUnreadable) throw new Error('the stored blob reads as unreadable'); return { boundary: snap.boundary };",
+          "log": true
+        },
+        {
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(250); } }; const story = () => rt.getStory(); const values = () => rt.getEngineState().blackboard.values; const active = () => rt.getEngineState().activeCheckpointId; const quality = (key) => story()?.qualityByKey?.[key]; const leafValue = (gate) => { const q = quality(gate.q); if (!q || q.source === 'code') return undefined; const v = gate.v; if (gate.op === '==' || gate.op === '>=' || gate.op === '<=') return Array.isArray(v) ? undefined : v; if (gate.op === '>') return Number(v) + 1; if (gate.op === '<') return Number(v) - 1; if (gate.op === 'in') return Array.isArray(v) ? v[0] : undefined; if (gate.op === '!=') { if (q.type === 'bool') return !v; if (q.type === 'enum') return (q.values ?? []).find((x) => x !== v); if (q.type === 'int' || q.type === 'float') return Number(v) + 1; return String(v) + ' else'; } return undefined; }; const writesFor = (gate) => { if (!gate) return []; if ('q' in gate) { const v = leafValue(gate); return v === undefined ? null : [[gate.q, v]]; } if (Array.isArray(gate.all)) { const parts = gate.all.map(writesFor); return parts.some((p) => p === null) ? null : parts.flat(); } if (Array.isArray(gate.any)) { for (const x of gate.any) { const p = writesFor(x); if (p) return p; } return null; } return null; }; const write = async (writes, why) => { for (const [key, value] of writes) { const ok = await rt.setQuality(key, String(value)); if (!ok) throw new Error('author write refused (' + why + ', ' + (quality(key)?.type ?? 'unknown') + ')'); await pause(150); } return writes.length; }; const pathTo = (targets, maxDepth = 6) => { const st = story(); const from = active(); const queue = [[from, []]]; const seen = new Set([from]); while (queue.length) { const [id, path] = queue.shift(); if (path.length && targets.has(id)) return path; if (path.length >= maxDepth) continue; for (const t of st.outgoingByCheckpoint?.[id] ?? []) { if (seen.has(t.to)) continue; const w = writesFor(t.gate); if (!w) continue; seen.add(t.to); queue.push([t.to, [...path, { to: t.to, writes: w }]]); } } return null; }; const facts = () => { const out = []; for (const page of ['people', 'places']) for (const e of story()?.codex?.[page] ?? []) for (const f of e.facts ?? []) out.push({ page, entry: e.id, fact: f.id, text: f.text, when: f.known_when, entryWhen: e.known_when }); return out; }; const factKey = (f) => 'codex_' + (f.page === 'people' ? 'p' : 'l') + '_' + f.entry + '_' + f.fact; const latched = (key) => { const v = values()[key]; return typeof v === 'number' && v > 0; }; const game = () => rt.getSnapshot().game ?? null; const shown = (text) => JSON.stringify(game()?.codex ?? null).includes(text); const names = () => rt.getSnapshot().castNames ?? {}; const chid = (name) => SillyTavern.getContext().characters.findIndex((c) => c.name === name); const enabledMembers = () => { const ctx = SillyTavern.getContext(); const group = ctx.groups.find((x) => String(x.id) === String(ctx.groupId)); const off = new Set(group?.disabled_members ?? []); return (group?.members ?? []).filter((avatar) => !off.has(avatar)).map((avatar) => ctx.characters.find((c) => c.avatar === avatar)?.name).filter(Boolean); }; const line = async (name) => { const id = chid(name); if (id < 0) return ''; await rt.onMemberDrafted(id); await pause(150); return String(rt.getAppliedEpistemicBlock() ?? ''); }; const saved = async () => { for (let i = 0; i < 100 && rt.getSnapshot().saveHealth?.pendingBoundary != null; i += 1) await pause(100); if (rt.getSnapshot().saveHealth?.pendingBoundary != null) throw new Error('the last boundary is not saved'); }; const time = { series: [], back: 0 }; const sampleTime = (label) => { const v = values().story_time; const prev = time.series.at(-1); if (prev && typeof v === 'number' && typeof prev.t === 'number' && v < prev.t) time.back += 1; time.series.push({ label, t: v, b: rt.getEngineState().boundary }); return v; }; const resetTime = (label) => { time.series.push({ label: 'rollback:' + label, t: values().story_time, b: rt.getEngineState().boundary, rollback: true }); }; const playerScan = () => { const snap = rt.getSnapshot(); const text = JSON.stringify({ game: snap.game ?? null, narrative: snap.narrative ?? null }); if (/\\b(rep|codex_[pl]|life_reveal|life_label|check)_[a-z0-9_]+/.test(text)) throw new Error('an internal key reached a player view'); if (snap.rumorsAuthor) throw new Error('the rumor list reached player mode'); if (snap.sceneTests) throw new Error('scene-test records reached player mode'); return true; }; const swipeable = async (at, text) => { const ctx = SillyTavern.getContext(); if (ctx.chat.length - 1 !== at) throw new Error('the swipe target is not the last message'); const reply = ctx.chat[at]; if (reply.is_user || reply.is_system) throw new Error('the swipe target is not a character reply'); const original = reply.swipes?.[reply.swipe_id ?? 0] ?? reply.mes; reply.swipes = [original, text]; reply.swipe_id = 0; reply.swipe_info = [reply.swipe_info?.[0] ?? {}, {}]; await ctx.saveChat(); return at; }; const trimAfter = async (at) => { const ctx = SillyTavern.getContext(); let removed = 0; for (let id = ctx.chat.length - 1; id > at; id -= 1) { await ctx.deleteMessage(id, undefined, false); removed += 1; } return removed; }; const lastReply = () => { const chat = SillyTavern.getContext().chat; for (let i = chat.length - 1; i >= 0; i -= 1) if (!chat[i].is_user && !chat[i].is_system) return i; return -1; }; globalThis.__gs6 = { rt, pause, until, story, values, active, quality, writesFor, write, pathTo, facts, factKey, latched, game, shown, names, chid, enabledMembers, line, saved, time, sampleTime, resetTime, playerScan, swipeable, trimAfter, lastReply, paths: {} };"
+        },
+        {
+          "eval": "const g = globalThis.__gs6; let prior = null; try { prior = JSON.parse(sessionStorage.getItem('so-gs6-prior') ?? 'null'); } catch { prior = null; } if (!prior) throw new Error('the pre-reload sample is missing'); const t = g.values().story_time; if (typeof prior.t === 'number' && typeof t === 'number' && t < prior.t) throw new Error('story time went back over the reopen'); sessionStorage.removeItem('so-gs6-prior'); return { paths: prior.paths, storyTimeKept: true };",
+          "log": true
+        },
+        {
+          "send_generate": {
+            "text": "I pick up where we left off.",
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "wait": {
+            "schedulerIdle": true,
+            "quietMs": 5000,
+            "timeoutMs": 900000
+          }
+        },
+        {
+          "eval": "const g = globalThis.__gs6; g.rt.setUiSettings({ authorView: false }); await g.pause(800); g.playerScan(); return { authorView: false };"
+        },
+        {
+          "ui": {
+            "action": "assert-player-clean"
+          }
+        }
+      ],
+      "mode": "auto",
+      "findings": []
+    }
+  ]
+}
