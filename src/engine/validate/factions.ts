@@ -54,6 +54,7 @@ const readFaction = (value: unknown, path: string, errors: ValidationError[]): F
   const start = value.start === undefined ? Math.max(range[0], Math.min(range[1], 0)) : isInt(value.start) && value.start >= range[0] && value.start <= range[1]
     ? value.start : refuse(errors, `${path}.start`, "start is a whole number inside range", range[0]);
   const bands = readBands(value.bands, range[0], range[1], `${path}.bands`, errors);
+  if (bands?.some((band) => band.warn)) addError(errors, `${path}.bands`, "a faction band has no warn: warnings are for public meters on the sheet");
   const visible = value.visible_when === undefined ? null : readGate(value.visible_when, `${path}.visible_when`, errors);
   if (value.introduce !== undefined && typeof value.introduce !== "boolean") addError(errors, `${path}.introduce`, "introduce is true or false");
   const moves = value.moves === undefined ? [] : Array.isArray(value.moves) && value.moves.length <= FACTION_MOVES_MAX
@@ -80,7 +81,9 @@ export const factionMembers = (roster: ReadonlyArray<RosterEntry>, faction: stri
 const code = (key: string, rubric: string, extra: Partial<Quality>): Quality => ({ key, type: "int", source: "code", rubric, ...extra });
 
 export const factionQualities = (factions: readonly Faction[], roster: ReadonlyArray<RosterEntry>): Quality[] => factions.flatMap((faction) => {
-  const bounds = { range: faction.range, step_rule: { step: 1, min: faction.range[0], max: faction.range[1], start: faction.start } };
+  const range: [number, number] = Array.isArray(faction.range) && faction.range.length === 2 ? faction.range : FACTION_RANGE_DEFAULT;
+  const start = Number.isInteger(faction.start) ? faction.start : Math.max(range[0], Math.min(range[1], 0));
+  const bounds = { range, step_rule: { step: 1, min: range[0], max: range[1], start } };
   return [
     code(standingKey(faction.id), `How ${faction.name} regards the player, moved only by the story's authored moves and rewards`, bounds),
     ...factionMembers(roster, faction.id).map((member) => code(seenStandingKey(faction.id, member), `How ${faction.name} regards the player, as far as ${member} has heard`, bounds)),

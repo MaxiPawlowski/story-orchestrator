@@ -1,0 +1,836 @@
+{
+  "kind": "live-suite-needle-inventory",
+  "source": "test/goldens",
+  "summary": {
+    "fixtures": 43,
+    "recorded": 43,
+    "needles": 84,
+    "byClass": {
+      "term": 45,
+      "prefix": 2,
+      "substring-only": 0,
+      "absent": 37,
+      "unrecorded": 0
+    },
+    "prefixDependent": 2,
+    "substringOnly": 0,
+    "undeclaredPrefix": 1
+  },
+  "prefixDependent": [
+    {
+      "fixture": "extractor-intents02",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "bandit",
+      "subject": "Doran",
+      "class": "prefix",
+      "mode": "prefix",
+      "declared": "prefix"
+    },
+    {
+      "fixture": "extractor24",
+      "tier": "epistemic",
+      "kind": "mustContain",
+      "needle": "poison",
+      "class": "prefix",
+      "mode": "prefix",
+      "declared": null
+    }
+  ],
+  "substringOnly": [],
+  "rows": [
+    {
+      "fixture": "extractor",
+      "tier": "facts",
+      "kind": "mustContain",
+      "needle": "brass key",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor",
+      "tier": "facts",
+      "kind": "mustNotContain",
+      "needle": "dragon",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents01",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "burn",
+      "subject": "Kael",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents01",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "grain",
+      "subject": "Kael",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents01",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "fire",
+      "subject": "Kael",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents02",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "brother",
+      "subject": "Mira",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents02",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "bounty",
+      "subject": "Doran",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents02",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "reward",
+      "subject": "Doran",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents02",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "bandit",
+      "subject": "Doran",
+      "class": "prefix",
+      "mode": "prefix",
+      "declared": "prefix"
+    },
+    {
+      "fixture": "extractor-intents03",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "coast",
+      "subject": "Sela",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents03",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "leave",
+      "subject": "Sela",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents03",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "escape",
+      "subject": "Sela",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents03",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "flee",
+      "subject": "Sela",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents03",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "run away",
+      "subject": "Sela",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents03",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "gone",
+      "subject": "Sela",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents04",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "guard",
+      "subject": "Corvin",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents04",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "cut",
+      "subject": "Corvin",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents04",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "share",
+      "subject": "Corvin",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents04",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "paid",
+      "subject": "Corvin",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents04",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "payment",
+      "subject": "Corvin",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents05",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "tourney",
+      "subject": "Bryn",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents05",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "spear",
+      "subject": "Bryn",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents05",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "win",
+      "subject": "Bryn",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents06",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "gate",
+      "subject": "Vesk",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents06",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "army",
+      "subject": "Vesk",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents07",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "village",
+      "subject": "Nell",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents07",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "medicine",
+      "subject": "Nell",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents07",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "plague",
+      "subject": "Nell",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents08",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "teach",
+      "subject": "Tamsin",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents08",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "read",
+      "subject": "Tamsin",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents11",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "map",
+      "subject": "Ilse",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents11",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "library",
+      "subject": "Ilse",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents12",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "daughter",
+      "subject": "Orrin",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents12",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "harbor",
+      "subject": "Orrin",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents12",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "harbour",
+      "subject": "Orrin",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents14",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "paid",
+      "subject": "Petra",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents14",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "pay",
+      "subject": "Petra",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents14",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "coin",
+      "subject": "Petra",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor-intents14",
+      "tier": "intents",
+      "kind": "anyOf",
+      "needle": "money",
+      "subject": "Petra",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor2",
+      "tier": "facts",
+      "kind": "mustContain",
+      "needle": "docks",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor2",
+      "tier": "facts",
+      "kind": "mustNotContain",
+      "needle": "dragon",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor3",
+      "tier": "facts",
+      "kind": "mustContain",
+      "needle": "torch",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor3",
+      "tier": "facts",
+      "kind": "mustNotContain",
+      "needle": "dragon",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor4",
+      "tier": "facts",
+      "kind": "mustContain",
+      "needle": "beacon",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor4",
+      "tier": "facts",
+      "kind": "mustNotContain",
+      "needle": "dragon",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor5",
+      "tier": "facts",
+      "kind": "mustContain",
+      "needle": "torch",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor5",
+      "tier": "facts",
+      "kind": "mustNotContain",
+      "needle": "dragon",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor12",
+      "tier": "facts",
+      "kind": "mustContain",
+      "needle": "pact",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor13",
+      "tier": "facts",
+      "kind": "mustNotContain",
+      "needle": "chest",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor15",
+      "tier": "facts",
+      "kind": "mustContain",
+      "needle": "gate",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor15",
+      "tier": "facts",
+      "kind": "mustNotContain",
+      "needle": "zzz",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor17",
+      "tier": "facts",
+      "kind": "mustContain",
+      "needle": "nightingale",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor18",
+      "tier": "facts",
+      "kind": "mustContain",
+      "needle": "toma",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor19",
+      "tier": "facts",
+      "kind": "mustContain",
+      "needle": "official",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor21",
+      "tier": "facts",
+      "kind": "mustContain",
+      "needle": "gate",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor21",
+      "tier": "facts",
+      "kind": "mustNotContain",
+      "needle": "gold",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor22",
+      "tier": "facts",
+      "kind": "mustContain",
+      "needle": "seal",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor22",
+      "tier": "facts",
+      "kind": "mustNotContain",
+      "needle": "oath",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor23",
+      "tier": "facts",
+      "kind": "mustNotContain",
+      "needle": "Tomas took",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor23",
+      "tier": "epistemic",
+      "kind": "mustContain",
+      "needle": "hiding",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor23",
+      "tier": "epistemic",
+      "kind": "mustContain",
+      "needle": "Vera",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor23",
+      "tier": "epistemic",
+      "kind": "mustContain",
+      "needle": "ledger",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor24",
+      "tier": "facts",
+      "kind": "mustNotContain",
+      "needle": "Selene knows",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor24",
+      "tier": "epistemic",
+      "kind": "mustContain",
+      "needle": "Orin",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor24",
+      "tier": "epistemic",
+      "kind": "mustContain",
+      "needle": "Selene",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor24",
+      "tier": "epistemic",
+      "kind": "mustContain",
+      "needle": "poison",
+      "class": "prefix",
+      "mode": "prefix",
+      "declared": null
+    },
+    {
+      "fixture": "extractor25",
+      "tier": "facts",
+      "kind": "mustNotContain",
+      "needle": "true map to the drowned vault is",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor25",
+      "tier": "epistemic",
+      "kind": "mustContain",
+      "needle": "believes",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor25",
+      "tier": "epistemic",
+      "kind": "mustContain",
+      "needle": "Pell",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor25",
+      "tier": "epistemic",
+      "kind": "mustContain",
+      "needle": "map",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor26",
+      "tier": "facts",
+      "kind": "mustNotContain",
+      "needle": "Brann is dead",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor26",
+      "tier": "ledger",
+      "kind": "mustContain",
+      "needle": "Brann",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor26",
+      "tier": "ledger",
+      "kind": "mustContain",
+      "needle": "cellar",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor26",
+      "tier": "ledger",
+      "kind": "mustNotContain",
+      "needle": "unknown",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor27",
+      "tier": "facts",
+      "kind": "mustNotContain",
+      "needle": "Kade broke",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor27",
+      "tier": "ledger",
+      "kind": "mustContain",
+      "needle": "lantern",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor27",
+      "tier": "ledger",
+      "kind": "mustContain",
+      "needle": "object",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor27",
+      "tier": "ledger",
+      "kind": "mustNotContain",
+      "needle": "unknown",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor28",
+      "tier": "facts",
+      "kind": "mustNotContain",
+      "needle": "courier is dead",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor28",
+      "tier": "arcs",
+      "kind": "mustContain",
+      "needle": "courier",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor28",
+      "tier": "arcs",
+      "kind": "mustNotContain",
+      "needle": "resolved",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor29",
+      "tier": "facts",
+      "kind": "mustNotContain",
+      "needle": "treaty was lost",
+      "class": "absent",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor29",
+      "tier": "arcs",
+      "kind": "mustContain",
+      "needle": "resolved",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    },
+    {
+      "fixture": "extractor29",
+      "tier": "arcs",
+      "kind": "mustContain",
+      "needle": "courier",
+      "class": "term",
+      "mode": "term",
+      "declared": null
+    }
+  ]
+}

@@ -3,6 +3,7 @@ import type { GenerationLifecycle } from "./generationLifecycle";
 import { startReplyEffort } from "./replyEffortHost";
 import { runtimeManager } from "./runtimeManager";
 import { getGlobalSettings } from "./settingsStore";
+import { onReplyReceived } from "./replyReceived";
 import { isReplyEffort } from "@utils/reasoningEffort";
 
 export const startLiveReplyEffort = (generation: GenerationLifecycle): (() => void) => startReplyEffort({
@@ -23,7 +24,7 @@ export const startLiveReplyEffort = (generation: GenerationLifecycle): (() => vo
   generation: () => generation.snapshot(),
   journal: (summary, note) => runtimeManager.noteRecap(summary, note),
   replies: {
-    observe: (handler) => subscribeToHostEvents([{ eventName: "MESSAGE_RECEIVED", handler: (messageId) => handler(Number(messageId)) }]),
+    observe: (handler) => subscribeToHostEvents([{ eventName: "MESSAGE_RECEIVED", handler: onReplyReceived(handler) }]),
     read: (messageId) => readReplyText(messageId),
     write: (messageId, text) => rewriteReplyText(messageId, text),
   },

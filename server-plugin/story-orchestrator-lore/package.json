@@ -1,0 +1,8 @@
+{
+  "name": "story-orchestrator-lore",
+  "version": "1.0.0",
+  "description": "SillyTavern server plugin: conditional whole-book lorebook save for Story Orchestrator, refused when the file no longer holds the entries the write started from.",
+  "type": "module",
+  "main": "index.mjs",
+  "private": true
+}

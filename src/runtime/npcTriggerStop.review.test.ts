@@ -11,6 +11,7 @@ const host = {
 };
 
 jest.mock("@services/STAPI", () => ({
+  groupMemberPosition: () => ({ ok: true, position: 0 }),
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   getContext: () => ({ chat: [{ mes: "hello" }], chatId: "chat-a", extensionSettings: {}, chatMetadata: {} }),

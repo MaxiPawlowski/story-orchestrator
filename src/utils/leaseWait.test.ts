@@ -18,4 +18,16 @@ describe("a render that meets another render's lease waits for it instead of fai
     e.sleep.mockImplementation(async () => { abort.abort(new Error("cancelled")); });
     await expect(waitWhileBusy(busy, { ...e, signal: abort.signal })).rejects.toThrow("cancelled");
   });
+  test("host RAM short for an image is retried on a slower step until it frees, within the patience, and a cancel stops it", async () => {
+    const short = new Error("Image admission refused: Insufficient physical RAM headroom. RAM available 10175 MiB; workload 8139 + reserve 4096 MiB. Host RAM is short for this image; the render waits and retries when RAM frees up, and the reserve is kept.");
+    const c = clock(), attempt = jest.fn().mockRejectedValueOnce(short).mockRejectedValueOnce(short).mockResolvedValue({ lease: "l", brokered: true });
+    await expect(waitWhileBusy(attempt, c)).resolves.toEqual({ lease: "l", brokered: true });
+    expect(c.sleep.mock.calls.map((call) => call[0])).toEqual([20000, 20000]);
+    const d = clock(), always = jest.fn().mockRejectedValue(short);
+    await expect(waitWhileBusy(always, { ...d, patienceMs: 60000 })).rejects.toThrow("Host RAM is short");
+    expect(always).toHaveBeenCalledTimes(4);
+    const abort = new AbortController(), e = clock();
+    e.sleep.mockImplementation(async () => { abort.abort(new Error("cancelled")); });
+    await expect(waitWhileBusy(always, { ...e, signal: abort.signal })).rejects.toThrow("cancelled");
+  });
 });

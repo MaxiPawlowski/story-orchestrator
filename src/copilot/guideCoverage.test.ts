@@ -16,7 +16,7 @@ const STORY: Record<keyof StoryV2, Covered> = {
   scaffolding: { none: "written by the road-ahead generator, never authored" },
   objective_block: "objective-agency", display: "presentation", chapters: "chapters", memory: "chapters", quests: "quests", milestones: "quests",
   widgets: "widgets", clock: "story-time", calendar: "story-time", living: "living-director", factions: "factions",
-  codex: "codex", outcome: "outcome", carry_from: "carry-from",
+  codex: "codex", outcome: "outcome", carry_from: "carry-from", rumors: "rumors",
 };
 
 const CHECKPOINT: Record<keyof Checkpoint, Covered> = {
@@ -38,7 +38,7 @@ const TRANSITION: Record<keyof Transition, Covered> = {
 
 const ROSTER: Record<keyof RosterMember, Covered> = {
   id: "roster", name: "roster", role: "roster", drive: "drives-motives", view: "roster", aliases: "roster", card: "living-cards", sprites: "poses",
-  relationships: "character-life", mood: "character-life", agenda: "character-life", schedule: "character-life", factions: "factions",
+  relationships: "character-life", mood: "character-life", agenda: "character-life", schedule: "character-life", factions: "factions", gossip: "rumors",
 };
 
 const QUALITY: Record<keyof Quality, Covered> = {

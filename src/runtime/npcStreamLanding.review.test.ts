@@ -98,6 +98,7 @@ const streamReply = async () => {
 };
 
 jest.mock("@services/STAPI", () => ({
+  groupMemberPosition: () => ({ ok: true, position: 0 }),
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   getContext: () => ({ chat: st.chat, chatId: st.chatId, extensionSettings: {}, chatMetadata: {} }),

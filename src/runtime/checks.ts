@@ -27,7 +27,15 @@ export interface MakeGroupFix {
 
 export type PersonaFix = { kind: "switch-persona"; avatarId: string; label: string } | { kind: "open-player-setup"; label: string };
 
-export type OneClickFix = RepairAction | MakeGroupFix | PersonaFix;
+export interface LibraryLostFix {
+  kind: "acknowledge-library-lost";
+  stories: string[];
+  sessions: string[];
+  changed: string[];
+  label: string;
+}
+
+export type OneClickFix = RepairAction | MakeGroupFix | PersonaFix | LibraryLostFix;
 
 export type ShowMe = { kind: "setting"; id: string } | { kind: "group-members" } | { kind: "st-extensions"; selector: string };
 

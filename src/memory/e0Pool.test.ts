@@ -1,3 +1,4 @@
+import { armB, armE } from "./e0Ranking";
 import { buildE0Pool, e0Collection, e0Query, e0StubProvider, e0StubSimilarity, readE0Chat, readE0Labels, type E0ChatRow, type E0VectorProvider } from "./e0Pool";
 
 const chat = (count: number): E0ChatRow[] => Array.from({ length: count }, (_, id) => ({ id, name: id % 2 ? "Tobin" : "Wren", isUser: id % 2 === 0, text: `message number ${id}` }));
@@ -60,6 +61,24 @@ describe("E0 pool", () => {
     expect(built.candidates.map((entry) => entry.messageId)).toEqual([14, 13, 12, 11, 10, 9, 8, 7]);
     expect(built.candidates.map((entry) => entry.bands)).toEqual([[0.82, 0.7, 0.55, 0.4], [0.55, 0.4], [0.55, 0.4], [], [], [], [], []]);
     expect(calls).toEqual([[8, 0], [8, 0.82], [8, 0.7], [8, 0.55], [8, 0.4]]);
+  });
+
+  it("records query latencies only when the provider times every query", async () => {
+    const timedProvider = (untimed: number | null): E0VectorProvider => ({
+      id: "timed",
+      query: async (collection, _text, topK, threshold) => {
+        const ids = [...collection].reverse().map((item) => item.id).slice(0, threshold > 0 ? 2 : topK);
+        return threshold === untimed ? ids : { ids, latencyMs: 10 + Math.round(threshold * 100) };
+      },
+    });
+    const read = readE0Labels(labels("synthetic", [label()]));
+    const [full] = (await buildE0Pool(read, new Map([["s1", chat(30)]]), timedProvider(null))).questions;
+    expect(full.latencyMs).toEqual({ pool: 10, bands: { "0.82": 92, "0.7": 80, "0.55": 65, "0.4": 50 } });
+    expect(armB(full).latencyMs).toBe(10 + 92 + 80 + 65 + 50);
+    expect(armE(full).latencyMs).toBe(10);
+    const [partial] = (await buildE0Pool(read, new Map([["s1", chat(30)]]), timedProvider(0.55))).questions;
+    expect(partial.latencyMs).toBeUndefined();
+    expect(armE(partial).latencyMs).toBeNull();
   });
 
   it("stub provider: deterministic trigram cosine, threshold filter, score then id order", async () => {

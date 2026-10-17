@@ -1,4 +1,5 @@
 import { getChatWindow } from "@extraction/index";
+import { checkLibraryIndex } from "./libraryIndexPort";
 import {
   clearStoryExtensionPrompt, getContext, loadPersonasModule, loadPersonaWrites, noteHostSettingsLoaded, readPersonas,
   onGroupEdited, onLorebookListChanged, setStoryExtensionPrompt, settingsReady, startSaveWatcherSurface, subscribeToHostEvents, watchPendingWorldSaves,
@@ -202,6 +203,7 @@ export function startRuntime() {
     void Promise.all([import("./pluginVersionCheck"), import("./pluginVersionCheckHost")]).then(([check, host]) => (started
       ? check.checkPluginVersions(host.pluginVersionHostDeps((summary, detail) => runtimeManager.noteRecap(summary, detail, "status")))
       : [])).then(() => { if (started) runtimeManager.notify(); }).catch((error: unknown) => log.warn("plugin version check failed", error));
+    void checkLibraryIndex(() => { if (started) runtimeManager.notify(); });
     if (runtimeManager.getSnapshot().ready) return;
     noteHostSettingsLoaded?.();
     void startupLoad();

@@ -14,7 +14,7 @@ export type NormalizedProvenance = Record<string, NormalizedFrom[]>;
 
 export interface NormalizeDeps {
   read: (lorebook: string) => Promise<BookEntries | null>;
-  disable: (lorebook: string, comments: string[]) => Promise<WriteResult<{ changed: boolean; confirmed?: boolean }>>;
+  disable: (lorebook: string, comments: string[], guard?: { stillOwns(): boolean }) => Promise<WriteResult<{ changed: boolean; confirmed?: boolean }>>;
   ownership: RunOwnership;
   recheck?: (lorebook: string, comment: string) => boolean;
 }
@@ -65,7 +65,7 @@ export async function normalizeGatedEntries(stories: unknown[], state: { ledger:
         outcome.lapsed = true;
         break;
       }
-      const result = await deps.disable(lorebook, flip);
+      const result = await deps.disable(lorebook, flip, run);
       if (!result.ok) outcome.refused.push(result.reason);
       else if (result.confirmed !== false) {
         if (result.changed) {

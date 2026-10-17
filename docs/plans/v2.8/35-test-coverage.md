@@ -246,3 +246,93 @@ Source: `review-astra-harvest-2026-10-16.md` §2 (67), §1 (V33, V47, V1/V60, Co
 - **V33, V47, V1/V60, Copilot P4 folds.** Adopted (G8, G10, G9, G7).
 - **Fold 67 → 24 + 35.** Adopted; `67-grader-hygiene-and-adversarial-fixtures.md` is a pointer.
 - Rebutted: none.
+
+### Gate record 2026-10-16, harvest phase G1/G2 (branch `v2.8-harvest-k11-k12`, commit `b8701973`, unmerged)
+
+- **Matcher.** `src/utils/termPresent.ts`: NFKC, curly quotes and dashes folded, `term` (default: no letter or digit on either
+  side) or `prefix` (the B2 word start). One helper for the self-test (`selfTest.ts`: names `bel`/`corin` are terms, topic
+  stems `lantern`/`tunnel`/`debt`/`arm`/`wound` stay prefix) and all three live-suite scorers (`scoreContains`,
+  `scoreRejected`, `scoreIntents`, which were word start, substring and substring). Per-needle mode in the fixture:
+  `modes: {needle: "prefix"}` on a tier spec or intents claim, `mode` on a rejected entry; absent = term. G1 controls
+  (`termPresent.test.ts`, `liveSuiteScore.test.mts`): `bel`/`below`, `arm`/`harm`, `don't`/`don’t`, `—`/`-` in term mode,
+  `wound` in `wounded` in prefix mode: 5/5.
+- **Inventory first** (`node scripts/debug/so-live-suite.mts inventory`, offline): 43 fixtures, 22 with a recorded live answer,
+  84 needles: 11 term, 0 prefix-dependent, 0 substring-only, 10 absent, 63 unrecorded (the 14 intents fixtures and
+  extractor23–29 have no recorded live answer). So no fixture needed a `prefix` mode and no fixture changed (the hash-frozen
+  extractor23–29 untouched). Record `test/goldens/live/rescore/needle-inventory.json`. G1 inventory: complete.
+- Advisory run over the hand-written goldens (`inventory test/goldens`, `needle-inventory-hand-goldens.json`): 2 needles are
+  prefix-dependent there, `bandit` (extractor-intents02 intents) and `poison` (extractor24 epistemic, hash-frozen). Not
+  changed: the plan's rule is the recorded live text, and extractor24 is frozen. **Design question**: declare both `prefix`
+  before the next live run (and re-freeze extractor24's hash), or let the next live run's inventory decide.
+- **Re-score with versions** (`node scripts/debug/so-live-suite.mts rescore`): 22 recorded fixtures re-scored under scorer v1
+  and v2 (`SCORER_VERSION` 2), 0 changed verdicts, 21 unrecorded listed; written as a new record
+  `test/goldens/live/rescore/scorer-v2.json` (the CLI refuses to overwrite a record); raw responses untouched. G2: complete,
+  0 unlisted.
+- Not built from this phase: G3–G10 (fixtures, compare, untouched proof, shipped blocks, fingerprints, compatibility rows).
+- Gates: `npm run gates:quick` green; `npm run test:debug` 1318/1318 before commit.
+- Full gates with the plan 69 items on the same branch: all green (plan 69 §Gate record 2026-10-16), Storybook 147/882.
+
+### Gate record addendum 2026-10-16, owner decision on the two hand-golden needles (branch `v2.8-harvest-followup`, unmerged)
+
+- `bandit` declared `prefix` in `test/fixtures/extractor-intents02.expected.json` (`modes`, Doran's claim; commit `619ffb6c`):
+  that fixture is not hash-frozen. The hand-golden inventory now reads it as declared.
+- `poison` left as a term in `extractor24.expected.json`: extractor23–29's expected files are hash-frozen by
+  `scripts/debug/liveSuiteScore.test.mts` ("frozen as written before any live answer", v2.5 plan 05 F2), and adding a mode
+  after seeing an answer would break that freeze. A miss on `poisoned` in a future live run is a scorer miss to record, not a
+  reason to re-freeze.
+- Gates: `npm run gates:quick` green; full gates green with the plan 69 addendum (plan 69 §Gate record addendum 2026-10-16).
+
+### Gate record 2026-10-17, harvest phase G3–G10 (branch `v2.8-harvest-rest`, unmerged)
+
+Same branch, lane and gates as plan 69 §Gate record 2026-10-17. One commit per item except G3/G4, which share one commit
+(the two tiers and fixtures edit the same scorer and runner lines).
+
+- **G8 built** (`625d2ee0`). `lib/measurementFingerprint.mts`: prompt (sha256 over the sorted per-prompt hashes, so fixture
+  order does not count), scorer (`TERM_SCORER_VERSION`), model (the read role's harness route or Connection Manager model) and
+  config (hash of the run header's model-facing fields: main API, profiles, judge, stagecraft, extraction, spikes, sampler,
+  prompt setup). `so-live-suite` and `so-role-calibration` reports carry `fingerprints`; role cases record a hash of every
+  prompt sent (`promptHash`). Floor holds (`measurementFingerprint.test.mts`, including a source guard on both writers).
+- **G5 built** (`539f92c8`). `so-live-suite compare <a-r1> <a-r2> <b-r1> <b-r2> [--declare …]` over `lib/armCompare.mts`:
+  per fixture and per tier, stable-pass / stable-fail / flaky / missing per arm; changes regressed (only stable-pass →
+  stable-fail), improved, unchanged, flaky, new, removed; labelled "not comparable" when an arm's two runs, or the two arms,
+  differ in fingerprints, unless the field is declared. Synthetic 4-report set with known classes: 100 % (`armCompare.test.mts`).
+- **G6 built** (`0d44bb43`). `lib/chatUntouched.mts`: per message `name`, `is_user`, `is_system`, `mes`, `swipe_id`, every
+  swipe's text and `extra.reasoning`; the story blob by path minus `extras.extraction.audits`, `extras.judge.calls`,
+  `extras.modelCalls`, `extras.updatedAt`, `extras.lastSessionAt`, `extras.saveHealth`. `so-live-suite` and
+  `so-role-calibration` capture it around the run and fail naming the first changed field. Planted writes to every hashed
+  field fail 1/1 each; a run writing only audit bookkeeping passes 1/1 (`chatUntouched.test.mts`).
+- **G7 built** (`de961ef0`). `test/scenarios/v28-35-g7-shipped-blocks.json` (no-model, fetch stub on `/generate` as plan 60
+  B10): every `story_*` block set at send time is in the actual request body, compared after macro substitution and
+  whitespace folding. Normal turn: all blocks, pacing hint and check outcome; swipe (a real `swipe.to` on the round's last
+  reply, so `MESSAGE_SWIPED` and the rollback run): all set blocks and the pacing hint; impersonate: neither declared-withhold
+  block. Lane 80, bundle `bbea74a8f4e9`, ×2 PASS (`01-38-57`, `01-39-30`): 3/3. The swipe's pre-generation read (R14):
+  lore select built its judge window from the whole chat on a swipe, so it read the reply being replaced (the scan buffer
+  already dropped it). Fixed: a swipe drops that row from the window. `loreSelect.test.ts` R14 case: 1/1, fails on the old code.
+  - Finding, not fixed: in run 1 the round had one reply, and the swipe of that reply carried no check outcome, so the
+    regenerated reply was not told the decided outcome (run `01-38-57`; run 2's round had two replies, where the swipe
+    replaces the second reply and the outcome correctly belongs to the first). The first scenario version asserted the outcome
+    on the swipe and was red for this reason (`01-38-10`). Recommended: a queue row to make a swipe of the outcome's own reply
+    carry the outcome again (check whether the swipe rollback lands before the request is sent).
+- **G3, G4 built in part** (`3fa06bf3`, golden `ad26eb38`). Fixtures `adversarial01-false-memory` (the player claims a voyage
+  the transcript never shows, then hands over a key: the delta is the control) and `adversarial02-persona-pressure` (a line
+  pressing a member to speak as a helpdesk bot; the door opening is the control), in their own `--set adversarial` so the
+  pinned 43-fixture records stay valid; expectations hash-frozen before any live answer. New tiers, floor 1.0 by default:
+  `claims` (a row naming the claimed event passes only when attributed to the claimant: "Max says…", "according to…") and
+  `quoted` (no row holds 4 consecutive words of the line). Scorer controls in `liveSuiteAdversarial.test.mts`.
+  **CL runs owed** (G3 ×2, G4 reader leg ×2): they need a read model on a lane with server plugins (the harness route to
+  opencode Sol or another profile); lane 80 is offline. G4's warden `voice` half needs the TypeSafe judge key, which no-model
+  lanes strip. G4r stays in the final suite.
+- **G9 not run.** Conditional: lane 80 has no prompt-only regex script (1 regex script, 0 prompt-only) and Presence is not
+  installed. CL when either is active on a lane.
+- **G10 recorded offline, CL owed** (`a105e24e`). ST ships four reasoning templates (`default/content/presets/reasoning`:
+  DeepSeek, Gemma 4, OpenAI Harmony, Think XML). A thought wrapped in each, followed by a read answer: `stripReasoningBlocks`
+  and `stripChannelNoise` leave the answer and no thought in all four (`extraction/reasoningTemplates.test.ts`). No failure
+  recorded, so the profile-template path is not built. The role-calibration run with a side model whose template differs
+  from the main reply's is owed.
+- Gates: plan 69 §Gate record 2026-10-17 (full gates green on `9a61a610`; `npm run test:debug` 1,359 pass).
+
+### Gate record addendum 2026-10-17, G7 swipe case (branch `v2.8-harvest-rest-2`, unmerged)
+
+- G7's swipe leg now fails when no request regenerating the reply carries the decided check outcome. Red ×2 on the old
+  code (lane 80), green ×2 after the fix in plan 69 §Gate record 2026-10-17, follow-ups (bundle `43f34f1d38df`, runs
+  `02-32-34`, `02-33-07`).

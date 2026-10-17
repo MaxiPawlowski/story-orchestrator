@@ -64,6 +64,7 @@ export function validateConfig(raw = {}) {
         if (comfy.extraArgs !== undefined && (!Array.isArray(comfy.extraArgs) || comfy.extraArgs.some((arg) => typeof arg !== 'string' || ARG_REFUSED.test(arg)))) fail('comfy.extraArgs must be strings and may not set the host or port.');
         if (comfy.startTimeoutMs !== undefined && (!Number.isInteger(comfy.startTimeoutMs) || comfy.startTimeoutMs < 1000)) fail('comfy.startTimeoutMs must be a whole number of milliseconds, at least 1000.');
         if (raw.telemetryPython !== undefined) absolute(raw.telemetryPython, 'telemetryPython');
+        for (const key of ['imageFairTextRequests', 'imageFairWaitMs']) if (raw[key] !== undefined && (!Number.isInteger(raw[key]) || raw[key] < 0)) fail(`${key} must be a whole number, 0 or more.`);
         if (raw.modelDirs !== undefined) {
             if (!isRecord(raw.modelDirs)) fail('modelDirs maps a kind to folders.');
             for (const [kind, dirs] of Object.entries(raw.modelDirs)) if (!Array.isArray(dirs) || dirs.some((dir) => typeof dir !== 'string' || !path.isAbsolute(dir))) fail(`modelDirs.${kind} must list absolute folders.`);
@@ -76,7 +77,7 @@ export function validateConfig(raw = {}) {
             stateDir: raw.stateDir, modelDirs: raw.modelDirs, modelCacheRoot: raw.modelCacheRoot, telemetryPython: raw.telemetryPython,
             maxQueue: raw.maxQueue ?? 16, queueTimeoutMs: raw.queueTimeoutMs ?? 600000, keepTextResident: text.keepResident === true,
             retainBatches: raw.retainBatches !== false, imageCacheMode: raw.imageCacheMode ?? 'warm', defaultImageMiB: raw.defaultImageMiB, defaultImageRamMiB: raw.defaultImageRamMiB,
-            ramEstimates: raw.ramEstimates ?? [],
+            ramEstimates: raw.ramEstimates ?? [], imageFairTextRequests: raw.imageFairTextRequests, imageFairWaitMs: raw.imageFairWaitMs,
         };
     }
     return config;

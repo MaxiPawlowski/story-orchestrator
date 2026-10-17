@@ -52,10 +52,18 @@ export interface E0VectorItem {
   text: string;
 }
 
+export interface E0Timed {
+  ids: number[];
+  latencyMs: number;
+}
+
 export interface E0VectorProvider {
   id: string;
-  query(collection: readonly E0VectorItem[], text: string, topK: number, threshold: number): Promise<number[]>;
+  query(collection: readonly E0VectorItem[], text: string, topK: number, threshold: number): Promise<number[] | E0Timed>;
 }
+
+const timed = (answer: number[] | E0Timed): { ids: number[]; latencyMs: number | null } =>
+  (Array.isArray(answer) ? { ids: answer, latencyMs: null } : { ids: answer.ids, latencyMs: answer.latencyMs });
 
 export interface E0LabelRead {
   source: E0LabelSet["source"];
@@ -126,10 +134,18 @@ async function poolQuestion(question: E0LabelQuestion, rows: readonly E0ChatRow[
   const collection = e0Collection(rows, question.askMessageId);
   if (collection.length < E0_POOL_SIZE) return `collection holds ${collection.length} messages, under ${E0_POOL_SIZE}`;
   const query = e0Query(rows, question);
-  const ids = await provider.query(collection, query, E0_POOL_SIZE, 0);
+  const pooled = timed(await provider.query(collection, query, E0_POOL_SIZE, 0));
+  const ids = pooled.ids;
   if (ids.length !== E0_POOL_SIZE) return `pool query returned ${ids.length} ids`;
   const bands = new Map<number, Set<number>>();
-  for (const band of E0_BAND_THRESHOLDS) bands.set(band, new Set(await provider.query(collection, query, E0_POOL_SIZE, band)));
+  const bandLatency: Record<string, number> = {};
+  let latencyKnown = pooled.latencyMs !== null;
+  for (const band of E0_BAND_THRESHOLDS) {
+    const answer = timed(await provider.query(collection, query, E0_POOL_SIZE, band));
+    bands.set(band, new Set(answer.ids));
+    if (answer.latencyMs === null) latencyKnown = false;
+    else bandLatency[String(band)] = answer.latencyMs;
+  }
   const text = new Map(collection.map((item) => [item.id, item.text]));
   const candidates: E0Candidate[] = ids.map((id, stRank) => ({
     messageId: id,
@@ -138,7 +154,8 @@ async function poolQuestion(question: E0LabelQuestion, rows: readonly E0ChatRow[
     stRank,
     bands: E0_BAND_THRESHOLDS.filter((band) => bands.get(band)?.has(id)),
   }));
-  return { id: question.id, askMessageId: question.askMessageId, query, gold: question.gold, candidates };
+  const latencyMs = latencyKnown && pooled.latencyMs !== null ? { latencyMs: { pool: pooled.latencyMs, bands: bandLatency } } : {};
+  return { id: question.id, askMessageId: question.askMessageId, query, gold: question.gold, candidates, ...latencyMs };
 }
 
 export async function buildE0Pool(labels: E0LabelRead, chats: ReadonlyMap<string, readonly E0ChatRow[]>, provider: E0VectorProvider): Promise<E0Pool> {

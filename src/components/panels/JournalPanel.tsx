@@ -1,7 +1,8 @@
 import type { GameAuthorView, GameView } from "@runtime/gameTypes";
 import { GAME_TEXT } from "@features/gameCopy";
 import { WidgetCard } from "../widgets/WidgetCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { JOURNAL_PAGE_EVENT, takeJournalPage } from "@runtime/drawerTab";
 import { CODEX_TEXT } from "@features/codexCopy";
 import { CodexPage } from "../codex/CodexPage";
 
@@ -42,7 +43,12 @@ const CodexTabs = ({ game, tab, onTab }: { game: GameView; tab: JournalTab; onTa
 };
 
 export function JournalPanel({ game, author }: JournalPanelProps) {
-  const [picked, setTab] = useState<JournalTab>("journal");
+  const [picked, setTab] = useState<JournalTab>(() => takeJournalPage()?.page ?? "journal");
+  useEffect(() => {
+    const follow = () => { const request = takeJournalPage(); if (request) setTab(request.page); };
+    window.addEventListener(JOURNAL_PAGE_EVENT, follow);
+    return () => window.removeEventListener(JOURNAL_PAGE_EVENT, follow);
+  }, []);
   const tab: JournalTab = picked !== "journal" && !game.codex?.[picked].length ? "journal" : picked;
   const empty = !game.journal.length && !game.milestones.length;
   if (game.codex && tab !== "journal") {

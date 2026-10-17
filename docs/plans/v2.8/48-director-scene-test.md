@@ -1,7 +1,7 @@
 # Plan 48 — Director scene test
 
-**Status: WRITTEN 2026-10-14 (owner decision 2026-10-14: these roleplay mechanics go into v2.8, plans written now).
-Not decided, not built.** Pattern G20 of `v2.8/27-gamification-report.md`. Implementation tier D; acceptance CL
+**Status (2026-10-16): option A built on `v2.8-director-48-49` (not merged); D floors S1–S6, S12, S13 green, no-model lane
+scenario green ×2 (plumbing); S7–S9, S11 CL and S10 owed (§Gate record 2026-10-16). Was: WRITTEN 2026-10-14, not decided.** Pattern G20 of `v2.8/27-gamification-report.md`. Implementation tier D; acceptance CL
 (director route) and RP (final suite living row). Overview: `00-overview.md` (this folder).
 **Revised 2026-10-14 against the Astra review** ("accept A, narrowed"): §Review 2026-10-14 (Astra) records each
 finding; the shared contract lives in v2.8 52 §Review 2026-10-14 (Astra). Chaos is tension-only, the draw is seeded by
@@ -247,3 +247,160 @@ candidates through `knownEntities`), SC4 (n/a: no player surface).
   Option B stays refused until SP6 (decision 4 unchanged).
 - **Brainstorm: interruptions that advance an existing thread and keep the destination; deterministic spacing.** Both
   adopted (item 4 interrupt wording; `min_gap`).
+
+## Gate record 2026-10-16 (option A on `v2.8-director-48-49`, not merged)
+
+Built option A with every recommended decision (1 A; 2 tension only; 3 placeholders kept; 4 no B; 5 C refused; 6 focus
+from open arcs via 49's `focusPick`; 7 `min_gap` default 2). Unresolved questions taken as proposed: a branch pass draws
+nothing (inherits), the opening `liv_open` draws nothing. Commits `db9bcbec` (build), `6eb51188` (sanitizer keeps records), `3029d1ad` (arrival golden re-recorded, own commit) and this record.
+
+What was built
+
+- Format: `living.scene_test {chaos: {from: "tension"}, min_gap 0-5}` (`engine/schema.ts`, `validate/living.ts`);
+  unknown keys with did-you-mean; any other chaos source refused with the state-write reason.
+- Pure core `generation/living/sceneTest.ts`: chaos = smoothed tension level index (calm 0 … peak 4) read from the
+  director inputs at the planning boundary; `p = (chaos + 1) / 7`; `u1`, `u2` = `unitDraw([chat, story, frontierId,
+  plannedAt, "scene-test" | "scene-test:kind"])`; interrupt share 0.4; spacing against the last `min_gap` records; an
+  interrupt with no safe open thread applies as altered; focus = `focusPick` over the safe arcs (`scene-test:focus` key).
+  Record `{frontierId, plannedAt, messageId, chaos, p, unit, drawn, applied, focus?, expected {from, thread}}`.
+- Coordinator: `propose()` reads the frozen record for the frontier or plans it once, before any await (so no new
+  ownership census row), writes `extras.living.sceneTests`, announces one draw (ring kind `scene`); regenerate, retries,
+  horizon recomputes all read it. `restoreAfterRollback` drops records with `plannedAt` > the kept boundary;
+  `LivingPort.movedAfter` counts them (a plan-only boundary still rolls back); `compact` drops records below the engine's
+  snapshot floor; the living sanitizer keeps well-formed records across a reload.
+- Signal: `DirectorInput.sceneTest` adds one `Scene signal: …` line after the tension line (expected adds nothing).
+  Altered asks for `"changed"` (exactly one of place, cast, timing, obstacle); interrupt asks for `"advances"` (an
+  existing open thread). `checkDirectorOps` takes an optional `scene` and refuses 0 or 2+ changes, an unknown change or
+  a thread that is not open (stage `ops`, retried like any refusal).
+- Surfaces, author only: inline chip `Scene test: <applied>` (progress, level 3, only fed in Author view), living panel
+  `#so-living-scene-tests` list, scene row on each director card (`[data-so="living-scene"]`, with `changed`/`advances`),
+  roll ring row (Author tools activity). Player projection, player inline view and player living slice unchanged.
+- Registry feature `scene-test` (world, author, Help entry), guide topic `scene-test` (story-guide + compact twin
+  `copilot/guideTopicsLiving.ts`), `docs:guide`, `docs:settings`; plan 24 matrix row `scene-test`; architecture note.
+- SC1: no compiled code key is added (the record lives in `extras.living`), so no `ROLLBACK_DETECTORS` or
+  `ROLLBACK_EXEMPT` entry; the code-only seed is the plan-only boundary case below. SC2: no engine step (director-side).
+  SC3: focus candidates exclude arcs naming a person or place `knownEntities` does not know (`unknownEntityNames`,
+  `engine/codex.ts`). SC4 n/a. `boundaryOrder.test.ts` untouched and green.
+
+Floors (D, jest)
+
+- S1: 0 mismatches over 4 seeds × 100 cuts at horizon 1 and at horizon 3 (sceneTests JSON and the per-frontier signal
+  line), cuts include reopen through the sanitizer; > 50 records dropped and re-planned across the cuts; control keyed by
+  the wall clock mismatches > 10 of 20 (`runtime/coordinators/livingSceneTest.review.test.ts`).
+- Code-only seed: a plan with nothing applied makes `movedAfter` true at the boundary before it, and the rollback drops the
+  record.
+- S2: 10,000 keys per chaos step, unexpected rate within ±0.02 of p and interrupt share within ±0.02 of 0.4, all 5 steps
+  (`generation/living/sceneTest.test.ts`).
+- S3: regenerate ×10 with drifting tension and arcs, a critic refusal retry and a broken (signal-ignoring) answer keep the
+  record and the one line; one draw announced; a rollback past the planning boundary drops it and the replay plans the
+  identical record.
+- S4: absent `scene_test`, an expected record and a null record give the byte-identical prompt, equal to the golden
+  `test/goldens/living-scene-test/director-prompt-premise.txt`; a changed outcome adds exactly one line.
+- S5: player inline view at levels 1–4 byte-identical with and without records at each outcome; author view shows them as
+  author items; player living slice identical. Live `assert-player-clean` below.
+- S6: `sceneTest.ts`, `focus.ts` and the coordinator's planning method contain no wall clock, `Math.random`, refusal or
+  agency read; planted writers are caught.
+- S12: 1,000 sequences (min_gap 0–5), 0 applied interrupts within min_gap; drawn ≠ applied recorded.
+- S13: unit cases through `checkDirectorOps`: altered with 0 or 2 changes or a bad change refused; interrupt with no
+  `advances` or a new detour refused; matching thread (case-insensitive) passes.
+
+Gates
+
+- `npm run gates -- --jobs=1 --no-storybook` on `3029d1ad`: all green in 411.6 s (test 9,032 passed / 1 skipped,
+  test:replay, build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release). Two earlier
+  runs went red and were fixed: code-health ratchets (schema.ts over the 600-line budget, one 205-char line, two dead
+  exports) and `arrivalEquivalence` (the new scenario story, re-recorded with `SO_RECORD_ARRIVAL_GOLDEN=1`).
+- Storybook (touched `LivingPanel`, `InlineStrip` stories, `RollChips`): `npm run storybook:build`, `http-server .sb-static
+  -p 6284`, `test-storybook --url http://127.0.0.1:6284 --maxWorkers 1`: 147 suites, 884 tests passed (new stories
+  `Drawer/LivingPanel › SceneTestOnCardAndList`, `Inline/InlineStrip › SceneTestChipIsAuthorOnly`).
+- `node scripts/suite/coverage.mjs`: 0 red features; `scene-test` green.
+
+Live (no-model lane 71, `C:\dev\so-live-lanes`, ST copy `C:\dev\st-live`)
+
+- Lane 71 seeded from lane 60's data (no-model, server plugins off), images and sprites off. Branch build staged with
+  `node scripts/release/stage.mjs --st-root C:/dev/st-live`, page reloaded; run header `s48-before` served
+  `dist/index.js` sha256 `77a37d3e` (final build `3029d1ad`; `e119ccb5` for the `db9bcbec` runs). The shared staged dist was
+  replaced by another worktree during both pairs (header after: `1e168729`); the lane page was not reloaded inside a pair
+  (identical bundle stack offsets in both runs of each pair) and the scene test exists only on this branch.
+- `test/scenarios/v28-48-scene-test.json` PASS ×2 consecutive (`71/2026-10-16T18-44-45-327Z`, `71/2026-10-16T18-45-58-182Z` on the final build; earlier passes on `db9bcbec`:
+  `18-23-24-096Z`, `18-24-12-863Z`): opening draws nothing; arriving at
+  `liv_1` plans one record (tension seeded to peak, chaos 4, p 5/7), one ring draw; regenerate ×3 keeps it; author chip
+  and card row present; player snapshot/page carry no outcome and `assert-player-clean` passes (twice); reopen keeps it
+  (`stateEquals`); a swipe of the planning reply withdraws the waiting card ("a rollback…") and the replay plans the
+  identical record. Plumbing green; the director pass is started with `rt.living.propose()` (a no-model lane's
+  scheduler does not place model jobs). Evidence copied to `C:\dev\so-live-lanes\evidence-2026-10-16\71\`.
+- Real-LLM owed: S7–S9, S11 (CL offline replay, director route Sol, ×2) and S10 (living row of the final suite).
+
+Main bundle
+
+- `dist/index.js` 1,286,942 B vs master `d1f9ede2` 1,284,829 B (+2,113 B: the living port check, wiring deps, ring kind,
+  validator, sanitizer); the draw, focus, signal text and panel rows ride the lazy living chunk.
+
+Owed and why
+
+- S7, S8, S9, S11 (CL): need a frozen set of 20 synthetic English frontiers × 3 forced outcomes, a replay runner on the
+  authoring route (opencode `openai/gpt-6.1-sol` through the harness), and a blind second-model rater pack (honours
+  signal, agency flag rate, critic refusal rate, surprising-and-coherent). None exists yet; not built in this pass.
+- S10 (CL, RP): read in the living row of the v2.8 final suite with `scene_test` on.
+
+Deviations
+
+- The planning boundary is `state.boundary` when the director job runs (the scheduled job may run a boundary later than
+  the boundary that made it due); replay matches because both runs plan at the same boundary.
+- The scene check is `sceneAnswerIssues`, called from `checkDirectorOps` through an optional `scene` input (applied
+  proposals are not re-checked against the signal at `applyAccepted`).
+- No member focus (v1); the expected thread is the newest safe open thread.
+- Retention drops records below the snapshot floor; spacing then looks only at retained records (≥ 200 boundaries back).
+
+Unresolved questions
+
+- Should `applyAccepted` re-check the scene answer? Recommended: no, the draft was checked when written and the
+  signal is frozen.
+- Member focus for interrupts: recommended later, with 49 Phase 3 (needs present-member whereabouts in the director
+  inputs).
+
+## Gate record addendum 2026-10-16 (review fixes on `v2.8-features-review-fixes`, not merged)
+
+Fixes for `review-astra-features-code-2026-10-16.md`, one commit and one regression test each, every test red on the
+old code (checked by reverting the source files only).
+
+- P1 frozen scene text (`99931d7d`): the draw and focus stay frozen. Before every director request `propose()` checks
+  the record's focus and expected thread against the current resting filter (`inputs.scrub`) and the current
+  `knownEntities` names (`focusSafe`, `sceneTextsSafe`). Unsafe: the signal line is withheld for that request and the
+  journal says `scene signal withheld`; no reroll, no new focus. Test `C5` in
+  `runtime/coordinators/livingSceneTest.review.test.ts`: a late held-secret read and a member becoming unknown between
+  the first plan and a regenerate, for altered and interrupt, read the assembled director prompt (no frozen text, no
+  signal line, record byte-identical, one draw); control keeps the line when privacy did not change.
+- P1 cold living rollback (`d03b37ca`): `runRollback` passes its `RunGuard` (minted before any lazy load) to
+  `restoreLiving`; `LivingPort.restoreAfterRollback` is async, awaits the chunk, checks the guard after the load and
+  hands it to the coordinator, which checks it before each restore write. Rollback awaits the restore before it rebuilds
+  injections and persists. Tests `runtime/livingColdRollback.review.test.ts`: delayed import plus a chat switch leaves
+  chat B's records untouched (run lapses, noop); same-chat cold restore writes living state before the injection
+  rebuild and before persist (persisted records `[]`); warm control.
+- P2 compaction (`13faf622`): `compact()` folds ops first, then keeps a scene record when it is at or above the
+  floor, when its frontier is still an eligible frontier, when an unfolded op came from a proposal for it (rollback can
+  reopen it), or when it is one of the last `min_gap` records (spacing state). Test `C6`: 205 boundaries on one
+  unresolved frontier, regenerate keeps the record, one draw, same line; frontiers 207 boundaries apart with
+  `min_gap: 2`: the second draws interrupt and applies altered.
+- The deviation "Retention drops records below the snapshot floor" above is withdrawn by this fix.
+- Follow-up, owner call via coordinator (`7c3e1a66`): the director's open threads (direct and branch passes) drop any
+  arc naming a name `unknownEntityNames` returns, with the same word-boundary matcher (`namesAny`). Before, only focus
+  candidates were filtered. Test `C7`: with the keeper not met, the prompt's open-thread block keeps "the dark lanterns"
+  and drops the keeper's thread (red on the old code); control with the keeper known keeps it. Withholding the whole
+  signal line on unsafe frozen text is kept (owner call). gates:quick green.
+- S1 (rollback ≡ replay) and S5 (player clean) green in the same file run.
+- P2 one-character names: see plan 49 addendum (`23af055d`).
+- `npm run gates:quick` green on `13faf622` (13 changed files; lint, related jest 54 suites / 583 tests, typecheck,
+  typecheck:test, defect replay 32 of 32 killed).
+- Master `4f2b53a2` (plans 42–44) merged in (`f3f6f641`, no conflicts). The merge pushed the coordinator to 567
+  effective lines (budget 560): retention and the director disclosure moved into pure lazy helpers
+  (`generation/living/sceneTest.ts` `retainSceneTests`, new `generation/living/disclosure.ts`), `7c2f1d0c`. No
+  generated file or arrival golden changed.
+- `npm run gates -- --jobs=1 --no-storybook` on `7c2f1d0c`: all green in 320.1 s (test 9,355 passed / 1 skipped,
+  806 suites; test:replay, build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin,
+  test:release). Storybook skipped (no component or story touched). Main `dist/index.js` 1,282,975 B.
+- Live: no-model offline lane 77 (`C:/dev/so-live-lanes`, data copied from lane 71, images and sprites off), branch
+  staged into the private ST copy `C:/dev/st-live-ffix`; served `dist/index.js` sha256 `7f815f180e8b` before and after.
+  `st-lanes.mts batch --lanes 77 --repeat 2 --strict test/scenarios/v28-48-scene-test.json`: GREEN ×2 (batch
+  `2026-10-17T00-00-35-274Z`, rows under `77/debug/batch/`). Only failed requests are the offline backend's
+  `/api/backends/text-completions/props` 500. Plumbing green, real-LLM owed (S7–S11 as before).

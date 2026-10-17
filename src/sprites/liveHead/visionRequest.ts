@@ -7,7 +7,7 @@ export const LANDMARK_SCHEMA = "{\"refused\":false,\"reason\":\"\",\"occlusions\
   + "\"mouth\":{\"left\":[x,y],\"right\":[x,y],\"top\":[x,y],\"bottom\":[x,y]},\"chin\":[x,y],\"neck\":[x,y],\"shoulders\":[[x,y],[x,y]],\"ears\":[[x,y],[x,y]]}}";
 
 export function visionRigRequest(bust: Pick<VisualAsset, "sha256">, image: string, target: HarnessModel, signal: AbortSignal, size?: { width: number; height: number }): HarnessRequest {
-  if (target.id !== VISION_RIG_MODEL || !target.image || target.available === false) throw new Error("Choose the offered Sol vision model before preparing a rig.");
+  if (target.id !== VISION_RIG_MODEL || target.image === false || target.available === false) throw new Error("Choose the offered Sol vision model before preparing a rig.");
   if (!image || image.length > 24_000_000) throw new Error("The accepted bust image is missing or too large.");
   return { harness: "opencode", model: target.id, role: "visual-rig", effort: "high", signal,
     images: [{ data: image, mime: "image/png", description: `Accepted bust SHA256 ${bust.sha256}` }],

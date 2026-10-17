@@ -1,7 +1,6 @@
-import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
+import { carriesInto, INJECTION_REGISTRY, type InjectionCarry } from "@constants/injectionRegistry";
 import { isInCharacterPlayerLine, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
 import { addressedAmong } from "@talk/index";
-import { withholds } from "./generationLifecycle";
 import { awayRosterIds } from "./whereabouts";
 
 const latestTurnText = (chat: readonly unknown[]): string | null => {
@@ -31,8 +30,10 @@ export interface AwayNoticeDeps {
   clear: (key: string) => unknown;
 }
 
-export const createAwayNotice = (deps: AwayNoticeDeps, spec: { key: string; depth: number } = INJECTION_REGISTRY.awayNotice) => {
+export const createAwayNotice = (deps: AwayNoticeDeps, spec: { key: string; depth: number; carry: InjectionCarry } = INJECTION_REGISTRY.awayNotice) => {
   let active = false;
+  let text: string | null = null;
+  let held = false;
   const clear = () => {
     if (!active) return;
     active = false;
@@ -40,11 +41,27 @@ export const createAwayNotice = (deps: AwayNoticeDeps, spec: { key: string; dept
   };
   return {
     opened(type: unknown) {
-      const text = withholds(type) ? null : deps.line();
+      held = false;
+      text = carriesInto(spec, type) ? deps.line() : null;
       if (!text) return clear();
       deps.set(spec.key, text, spec.depth);
       active = true;
     },
-    closed: clear,
+    withhold(type: unknown) {
+      if (!active || carriesInto(spec, type)) return;
+      clear();
+      held = true;
+    },
+    restore() {
+      if (!held || !text) return;
+      held = false;
+      deps.set(spec.key, text, spec.depth);
+      active = true;
+    },
+    closed() {
+      held = false;
+      text = null;
+      clear();
+    },
   };
 };

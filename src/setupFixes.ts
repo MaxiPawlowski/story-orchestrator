@@ -5,6 +5,7 @@ import { withoutPersonas, type OneClickFix, type RepairAction } from "@runtime/r
 import { saveStoryRecord } from "@runtime/storyLibrary";
 import { makeGroupFor } from "@runtime/makeGroupHost";
 import { requestBriefing } from "@runtime/briefingRequest";
+import { acknowledgeLibraryLost } from "@runtime/libraryIndexPort";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import type { WriteResult } from "@utils/writeResult";
 
@@ -41,6 +42,11 @@ export const createSetupFixes = (manager: RuntimeManager) => {
 
   const fixSetup = async (action: OneClickFix) => {
     if (action.kind === "open-player-setup") return void requestBriefing({ kind: "identity" });
+    if (action.kind === "acknowledge-library-lost") {
+      const acknowledged = await acknowledgeLibraryLost(action, () => manager.notify());
+      if (!acknowledged.ok) notice(acknowledged.reason);
+      return;
+    }
     if (action.kind === "switch-persona") {
       const switched = await manager.playerSetup.switchBack();
       if (!switched.ok) notice(switched.reason);

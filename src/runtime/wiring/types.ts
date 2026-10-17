@@ -12,6 +12,7 @@ export interface LiveParts {
   typedJudge: ReturnType<typeof createTypedJudge> | null;
   loudGate: LoudGenerationGate;
   draftedBeat: DraftedBeat;
+  interceptEntry?: (type: string) => void;
 }
 
 export type Disposers = Array<() => void>;

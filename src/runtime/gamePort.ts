@@ -4,6 +4,7 @@ import type { EarnedEffects, EffectsApplier } from "./effectsApplier";
 import { beginRun, type RunOwnership } from "./runToken";
 import { checkOutcomeBlock, checkRecordsAt, createChecks, recordChecks } from "./storyCheckDraws";
 import { stagedPath } from "./worldInfoGates";
+import { outcomeAnchor, regeneratingMessage } from "./regeneration";
 import type { LoadedStory, RuntimeExtras } from "./types";
 
 export interface GamePortDeps {
@@ -59,7 +60,9 @@ export function createGamePort(deps: GamePortDeps) {
     },
     outcomeBlock: (): string | null => {
       const loaded = deps.loaded();
-      return loaded ? checkOutcomeBlock(loaded.story, deps.extras().checks?.records ?? [], deps.engine.serialize().lastMessageId) : null;
+      if (!loaded) return null;
+      const anchor = outcomeAnchor(deps.engine.stateLog, regeneratingMessage(), deps.engine.serialize().lastMessageId);
+      return checkOutcomeBlock(loaded.story, deps.extras().checks?.records ?? [], anchor);
     },
   };
 }

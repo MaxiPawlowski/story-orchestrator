@@ -17,7 +17,7 @@ jest.mock("@services/STAPI", () => ({
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
   getContext: () => mockContext,
-  executeSlashCommands: jest.fn(async () => undefined),
+  executeSlashCommands: jest.fn(async () => true),
   setGroupMembersDisabled: jest.fn(async () => undefined),
   applyCharacterAN: jest.fn(async (text: string) => ({ ok: true, text })),
   clearCharacterAN: jest.fn(async () => ({ ok: true, text: "" })),
@@ -27,7 +27,12 @@ jest.mock("@services/STAPI", () => ({
   lorebookExists: jest.fn((name: string) => name !== "Missing Book"),
   applyBackground: jest.fn(async () => ({ ok: true, changed: true, from: "old.jpg", to: "tavern day.jpg" })),
   getActiveGroup: jest.fn(() => ({ id: "g1", disabled_members: [] })),
+  watchHostChatMove: () => () => undefined,
+  guardHostStream: () => ({ halt: () => false, release: () => undefined }),
+  isHostGenerating: () => false,
+  stopHostGeneration: () => undefined,
   resolveGroupMemberId: jest.fn((name: string) => (name === "Mara" ? "mara-chid" : null)),
+  groupMemberPosition: jest.fn((name: string) => (name === "2" ? { ok: true, position: 0 } : name === "Mara" ? { ok: true, position: 3 } : { ok: false, reason: `"${name}" is not a member of this group` })),
 }));
 
 const makeExtras = (): RuntimeExtras => ({
@@ -43,6 +48,27 @@ const checkpointWith = (replies: unknown[]): Checkpoint => ({
   type: "anchor",
   effects: { npc_replies: replies },
 }) as unknown as Checkpoint;
+
+describe("v2.8 69 K10: an llm NPC reply triggers its member by group position", () => {
+  beforeEach(() => {
+    (executeSlashCommands as jest.Mock).mockClear();
+    mockContext.chat = [{ mes: "one" }, { mes: "two" }];
+  });
+
+  it("triggers the position the member resolves to, so a member named \"2\" gets its own reply", async () => {
+    const applier = new EffectsApplier(testOwnership());
+    await applier.fireNpcReplies(checkpointWith([{ trigger: "afterSpeak", member: "2", kind: "llm", instruction: "Answer." }]), makeExtras(), "afterSpeak");
+    expect((executeSlashCommands as jest.Mock).mock.calls.map((call) => call[0])).toEqual(["/trigger await=true 0"]);
+  });
+
+  it("a member the group does not hold is refused with a journal line and nothing is generated", async () => {
+    const lines: string[] = [];
+    const applier = new EffectsApplier(testOwnership(), { journal: (summary, note) => { lines.push(`${summary}: ${note ?? ""}`); } });
+    await applier.fireNpcReplies(checkpointWith([{ trigger: "afterSpeak", member: "Zed", kind: "llm", instruction: "Answer." }]), makeExtras(), "afterSpeak");
+    expect(executeSlashCommands).not.toHaveBeenCalled();
+    expect(lines).toEqual([expect.stringContaining("\"Zed\" is not a member of this group")]);
+  });
+});
 
 describe("fireNpcReplies v1 parity", () => {
   beforeEach(() => {
@@ -112,6 +138,7 @@ describe("fireNpcReplies v1 parity", () => {
     (executeSlashCommands as jest.Mock).mockImplementationOnce(async () => {
       mockContext.chat = [{ mes: "Welcome." }];
       await applier.fireNpcReplies(checkpoint, extras, "afterSpeak");
+      return true;
     });
     await applier.fireNpcReplies(checkpoint, extras, "onEnter");
     expect(executeSlashCommands).toHaveBeenCalledTimes(1);
@@ -158,7 +185,7 @@ describe("fireNpcReplies v1 parity", () => {
 
 describe("sceneBreak replies (T1-1 runaway)", () => {
   const dusk = { trigger: "sceneBreak", member: "Adolion Narrator", kind: "scripted", text: "The light is going.", maxTriggers: 2 };
-  const postsOnSend = () => (executeSlashCommands as jest.Mock).mockImplementation(async () => { mockContext.chat = [...mockContext.chat, { mes: "The light is going." }]; });
+  const postsOnSend = () => (executeSlashCommands as jest.Mock).mockImplementation(async () => { mockContext.chat = [...mockContext.chat, { mes: "The light is going." }]; return true; });
   const chatUpTo = (last: number) => { mockContext.chat = Array.from({ length: last + 1 }, (_, index) => ({ mes: `m${index}` })); };
 
   beforeEach(() => {
@@ -166,7 +193,7 @@ describe("sceneBreak replies (T1-1 runaway)", () => {
     postsOnSend();
   });
 
-  afterAll(() => (executeSlashCommands as jest.Mock).mockImplementation(async () => undefined));
+  afterAll(() => (executeSlashCommands as jest.Mock).mockImplementation(async () => true));
 
   it("caps a sceneBreak reply at maxTriggers across the checkpoint's breaks, and a break on its own post never fires it", async () => {
     const applier = new EffectsApplier(testOwnership());
@@ -408,7 +435,7 @@ describe("world_info effect", () => {
   const other = { checkpoints: [{ effects: { world_info: { enable: [{ lorebook: "Other", comments: ["Theirs"] }, { lorebook: "Checkpoints", comments: ["Two"] }] } } }] };
   const snapshot = {} as unknown as RuntimeSnapshot;
   const extras = (ready: boolean) => ({ ...makeExtras(), requirements: { ready } } as unknown as RuntimeExtras);
-  const switches = () => (setWIEntriesState as jest.Mock).mock.calls as Array<[string, { enable: string[]; disable: string[] }]>;
+  const switches = () => ((setWIEntriesState as jest.Mock).mock.calls as Array<[string, { enable: string[]; disable: string[] }]>).map(([book, change]) => [book, change] as [string, { enable: string[]; disable: string[] }]);
   const off = () => switches().filter(([, plan]) => plan.disable.length).map(([book, plan]) => [book, plan.disable]);
   const on = () => switches().filter(([, plan]) => plan.enable.length).map(([book, plan]) => [book, plan.enable]);
 

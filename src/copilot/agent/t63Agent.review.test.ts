@@ -56,11 +56,11 @@ describe("T6-3 HIGH: the agent stops re-reading and re-creating", () => {
   });
 
   it("refuses re-creating an asset this session already created, naming the step", () => {
-    const card: ProvisioningOp = { kind: "createCharacterCard", name: "Lady Ysolde", description: "Varn's heir." };
-    const proposed = run(running(), "createCharacterCard", { name: "Lady Ysolde", description: "Varn's heir." }, map(), install({ characterNames: [] }));
+    const card: ProvisioningOp = { kind: "createCharacterCard", name: "Ysolde Varn", description: "Varn's heir, raised to rule and bored by it. When her father's men bow, she asks them about their families, remembers every answer, and uses it later when she needs a favour." };
+    const proposed = run(running(), "createCharacterCard", { name: "Ysolde Varn", description: "Varn's heir, raised to rule and bored by it. When her father's men bow, she asks them about their families, remembers every answer, and uses it later when she needs a favour." }, map(), install({ characterNames: [] }));
     const created = resolveProvisioning(proposed, 1, { ok: true, message: "Created" }, map());
     expect(created.steps[0].op).toEqual(card);
-    const again = run(created, "createCharacterCard", { name: "Lady Ysolde", description: "Another try." }, map(), install({ characterNames: ["Lady Ysolde"] }));
+    const again = run(created, "createCharacterCard", { name: "Ysolde Varn", description: "Another try." }, map(), install({ characterNames: ["Ysolde Varn"] }));
     expect(again.steps[1].status).toBe("refused");
     expect(again.steps[1].observation).toContain("already created at step #1");
     expect(renderStepPrompt(again, map(), install())).toContain("ALREADY CREATED THIS SESSION");

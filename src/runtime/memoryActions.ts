@@ -1,6 +1,6 @@
 import type { ConflictPair } from "@memory/index";
 import type { MemoryCoordinator } from "./coordinators/memoryCoordinator";
-import type { DecisionRefusal } from "./memoryQueue";
+import type { DecisionRefusal } from "./memoryDecisions";
 
 // The memory actions the author view drives: the reconciliation queue, locks,
 // and reconfirmation. They stay in one object because they are one conversation

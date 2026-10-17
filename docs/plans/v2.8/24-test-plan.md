@@ -407,12 +407,18 @@ real-model carrier, or why none is needed.
 | consequences-recap | D | consequences jest, recapRollback review test, recapSecret review test | none: no model pass (46 A) |
 | promises-remembered | D + CL | promises jest, promiseRead jest, promiseRollback review test | live-v28-47-promises (P1s CL half, P2w live, ids, rollback reopens) ×2; P1/P2 labelled-set rates, P6 rater, P8 cost owed (measurement fixtures); P7/P7h informational (LT) |
 | codex | D + CL | codex jest, codexView property test, codexRollback | C7: codex-pages task in `test/measurements/v2.8/09/recipes.json`, `so-wizard-agent.mts recipes --task codex-pages --repeat 10 --mode auto-draft --route harness` (Sol) |
+| witness-record | D + CL | witness jest, score jest | W4/W4fi/W4fe/W4cov/W4u/W4m/W4a/W4n offline on the lab 40 + >= 40 real-session labels (second-model labels, private), Wc and RB via `so-live-suite.mts run` (CL, read model), deferred: private labels and a read-model run owed |
+| rumors | D + CL | rumors jest, rumorSecret review test, v28-44-rumors (no-model ×2) | G7/G8 voicing (20 cases, on/off arms, second-model labels) and G14 30-turn fixture, deferred: voicing fixture and labels owed; G6 live in v28-44-rumors |
 | story-calendar | D + CL | clock jest, clockScope jest, v28-50-story-time (no-model) | T8: live suite time windows `timewindow01..04` (`so-live-suite.mts run --set time`, CL, read model); T9/T10 wait for B2 (not built); T11 read in GS3.3 |
 | relationship-labels | D | labels jest, labelRollback property test, relationshipLabels review test, v28-51-labels (no-model) | R7/R9 informational ×1 (RP lab story), deferred: no lab story |
 | factions | D + RP | factions jest, v28-53-factions (no-model ×2) | F7 informational (RP lab story), deferred: no lab story yet; F9 CL informational |
-| new-game-plus | D | carry jest (N1–N6, N8–N13), carry fixtures carry-source/carry-sequel (no-model live owed) | N7 informational (CL rater + local replies), deferred: needs two finished source runs; one real final seal on the 3090 |
+| scene-test | D + CL | sceneTest jest, livingSceneTest review test, focus jest, v28-48-scene-test (no-model) | S7–S9, S11 CL offline ×2 (director route), deferred: no frozen frontier set yet; S10 read in GS2 and GS3 |
+| new-game-plus | D | carry jest (N1–N6, N8–N13), carry fixtures carry-source/carry-sequel, v28-45-carry (no-model plumbing green x2 2026-10-16; real generation owed) | N7 informational (CL rater + local replies), deferred: needs two finished source runs; one real final seal on the 3090 |
 | story-made-panels | D | html widget tests, Storybook | none: no model |
-| quests | RP | 36-Q5-scn, S-16 | GS1.3, GS3.1 |
+| scene-card | D | sceneCard jest, WidgetCard Storybook, v28-65-scene-card (no-model) | none: no model (65 N1–N8; N3/N4 with A+ only) |
+| public-sheet-narration | D + CL | narratorSheet jest, v28-18-q7-sheet (no-model) | deferred: S8 header clause (CL rater, cloud model) owed; S7 informational (RP, Artemis) past the 12 h cap |
+| your-move-chip | D | yourMove jest, talkControl jest, HudStrip Storybook, v28-68-your-move (no-model) | none: no model (68 Y1–Y6) |
+| quests | RP | 36-Q5-scn, S-16, storyCheckWhen jest (checkpoint check `when`, 2026-10-16) | GS1.3, GS3.1 |
 | character-life | RP + CL | 37-D1..D3 | GS1.5, GS3.3, GS2.7 |
 | meanwhile-proposals | CL | agenda proposal tests | GS2.7; M16 carried |
 | living-story | CL + RP | v28-35-living-rollback ×2 | GS2.1–GS2.4, GS3.5 |
@@ -477,8 +483,8 @@ registry, and the 109-id check above, when a plan is built. Floor ids are the pl
 | 63 stepped history window (candidate, revised 2026-10-16) | D + RP | H3, H4, H5, H7, H8, H9 | H1, H2, H6r ride the deferred R2/R7 run (deferred work, not funded by the 12 h cap); H6 CL |
 | 18 public sheet narration (§Phase Q7, ex-64, candidate) | D + CL | S1, S1a, S2, S3, S4, S5, S6 | S8 CL; S7 informational ×1 (RP lab story, 20 replies, about 50 min), deferred beyond the cap |
 | 65 "here now" scene card (candidate, revised 2026-10-16) | D | N1, N2, N2p, N5, N6, N7, N8; N3, N4 with A+ | none: projection only; session or owner decision for the surface |
-| v2.8 09 agent card quality and read-back (§Harvest phase, ex-66, candidate) | D + CL | A1, A2, A5, A8 | A6 CL ×2 (Sol) |
-| 34 key-match preview, key lint, lore guidance (§Harvest phase, ex-66, candidate) | D + CL | A3, A3a, A4 | A7 CL ×2 (Sol, blind raters) |
+| v2.8 09 agent card quality and read-back (§Harvest phase, ex-66, built 2026-10-16 on `v2.8-harvest-09-34`, unmerged) | D + CL | A1, A2, A5, A8 (`wizard/cardChecks.test.ts`, `copilotReadBack.test.ts`, `cardReview.test.ts`; live `v28-09-card-readback.json`) | A6 CL ×2 (Sol, `so-wizard-agent.mts card-revision`): 0/10 ×1, not meetable as written (owner decision in 09 §Gate record); second run owed |
+| 34 key-match preview, key lint, lore guidance (§Harvest phase, ex-66, built 2026-10-16 on `v2.8-harvest-09-34`, unmerged) | D + CL | A3, A4 (`copilot/lorePreview.test.ts`); A3a no-model ×2 (`v28-34-a3a-preview-activation.json`) | A7 CL ×2 (Sol, blind raters): owed, no arm switch or rater command yet |
 | 35 grader hygiene, adversarial fixtures, provenance (§Harvest phase, ex-67, candidate) | D + CL | G1, G2, G5, G6, G7, G8 | G3, G4 CL ×2 (read model); G4r CL in the final suite; G9 CL only when the extension or setting is active; G10 CL in role calibration |
 | 68 "your move" chip (candidate, revised 2026-10-16) | D | Y1, Y2, Y3, Y4, Y5, Y6 | none: derived, no model |
 | 69 harvest hardening bundle (candidate, revised 2026-10-16) | D | K1a, K2, K3, K4, K5, K6, K6b, K7, K8, K9, K10, K11, K12, K13, K14, K15, K16, K17 | K1b CL ×1 (compaction acceptance and retained facts on recorded windows) |

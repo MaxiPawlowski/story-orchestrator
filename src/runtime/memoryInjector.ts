@@ -15,6 +15,7 @@ import { buildScoreContext } from "./scoreContext";
 import { activeSpeakerId, enabledCharacterIds, nameForRosterId, namesForRosterId, rosterIdForName, rosterMemberName } from "./roster";
 import type { MemoryRuntimeState } from "./types";
 import type { InjectorHosts } from "./hostPorts";
+import { hasNarratedSheet } from "./narratorSheetPort";
 
 const storyKey = (story: NormalizedStoryV2): string => story.id ?? story.title;
 
@@ -58,6 +59,7 @@ export class MemoryInjector {
   private lastInjection: MemoryInjectionView | null = null;
   private readonly highWater: Partial<Record<MemoryTier, number>> = {};
   private privateSources: Array<(rosterId: string) => string[]> = [];
+  private disclosureSources: Array<() => ReadonlyArray<{ entryId: string; member: string }>> = [];
 
   constructor(private readonly deps: MemoryInjectorDeps) {}
 
@@ -127,6 +129,10 @@ export class MemoryInjector {
     return [block, this.lifeLines(story, id), this.sourcedLines(story, id)].filter(Boolean).join("\n\n");
   }
 
+  addDisclosureSource(source: () => ReadonlyArray<{ entryId: string; member: string }>): void {
+    this.disclosureSources = [...this.disclosureSources, source];
+  }
+
   addPrivateSource(source: (rosterId: string) => string[]): void {
     this.privateSources = [...this.privateSources, source];
   }
@@ -182,7 +188,7 @@ export class MemoryInjector {
     const capable = this.deps.capable();
     const voiced = hasInnerVoice(this.voices(story));
     if (voiced && !innerRender()) void loadInnerRender().then(() => this.update());
-    if (capable || voiced || story.life || story.factions?.length || story.carry_from) {
+    if (capable || voiced || story.life || story.factions?.length || story.carry_from || hasNarratedSheet(story)) {
       const knowledge = this.knowledge();
       for (const id of this.stagedIds(story)) {
         const names = namesForRosterId(story, id);
@@ -214,7 +220,8 @@ export class MemoryInjector {
 
   private secrets(story: NormalizedStoryV2): HeldSecret[] {
     if (!this.deps.capable()) return [];
-    return heldSecrets(this.knowledge(), story.roster.flatMap((member) => namesForRosterId(story, member.id)));
+    const disclosures = this.disclosureSources.flatMap((source) => source()).map((entry) => ({ entryId: entry.entryId, names: namesForRosterId(story, entry.member) }));
+    return heldSecrets(this.knowledge(), story.roster.flatMap((member) => namesForRosterId(story, member.id)), disclosures);
   }
 
   private writeShared(shared: SharedBlocks | null) {

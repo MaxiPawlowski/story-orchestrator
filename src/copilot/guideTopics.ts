@@ -1,9 +1,11 @@
 import { RECAP_GUIDE_TOPIC } from "./guideTopicsRecap";
 import { CODEX_GUIDE_TOPIC } from "./guideTopicsCodex";
+import { SHEET_GUIDE_TOPICS } from "./guideTopicsSheet";
 import type { DIAGNOSTIC_CODES } from "../studio/diagnostics";
 import { CHARACTER_TOPICS, FACTION_DIAGNOSTIC_TOPICS } from "./guideTopicsCharacters";
 import { CARRY_TOPICS } from "./guideTopicsCarry";
 import { TIME_TOPICS } from "./guideTopicsTime";
+import { LIVING_TOPICS } from "./guideTopicsLiving";
 
 export interface GuideTopic {
   title: string;
@@ -269,6 +271,13 @@ export const GUIDE_TOPICS = {
       + "(normal, continue, impersonate, swipe, regenerate, quiet). Good: tavern + secondaryKeys [fight] with not-any. Avoid: secondary keys on a constant entry "
       + "(skips every key check), an outlet nothing writes, a trigger-only entry for lore select (never picked outside its types).",
   },
+  "lore-content": {
+    title: "Lore content by kind",
+    fields: "content",
+    text: "Write an entry for the questions a scene asks about its kind. Place: ways in and out, distance to what is near. Item: what it cannot do, who wants it. "
+      + "Faction: size, reach. History: what happened apart from what people say; the hidden truth stays out of shared lore. Concept: limits and cost. End with a short "
+      + "\"Current state\" paragraph the curator may patch; wrap the stable text in {{// so:protect}} ... {{// so:end}}. Avoid: \"mysterious and ancient\" (the narrator invents the rest).",
+  },
   "scene-read": {
     title: "Scene places and times",
     fields: "scene_read.locations, times, inject",
@@ -307,10 +316,11 @@ export const GUIDE_TOPICS = {
   },
   checks: {
     title: "Checks",
-    fields: "checkpoints[].checks[], transitions[].check, roll, modifiers[], narrate, outcome, twist",
+    fields: "checkpoints[].checks[], transitions[].check, roll, modifiers[], narrate, outcome, twist, when",
     text: "A seeded roll once per visit: {id, label, quality (code bool), roll {sides, target, dice}, modifiers [{q, v, add, label}], narrate public|hidden}. "
       + "Total = dice + modifiers that hold, read each turn; quality is total >= target. outcome {quality, bands: margin, partial_margin} writes miss|weak|strong; "
-      + "twist {quality} marks matching dice. A transition check is attempted when the rest of its gate holds. The next reply is told the outcome; public adds a chip.",
+      + "twist {quality} marks matching dice. A transition check is attempted when the rest of its gate holds. A checkpoint check with when (a gate, declared keys, "
+      + "not its own) stays pending until when holds, then rolls once that visit and keeps the outcome; a swipe of that reply takes it back. The next reply is told the outcome; public adds a chip.",
   },
   widgets: {
     title: "Stats and story panels",
@@ -335,6 +345,7 @@ export const GUIDE_TOPICS = {
       + "Runs in a sandboxed frame with no network and no access to SillyTavern; "
       + "window.storyWidget.onData(f) gets the source widget's player view, ready() starts it, propose(id) puts that action's text in the box. Off for the player = the source panel shows.",
   },
+  ...SHEET_GUIDE_TOPICS,
   ...CODEX_GUIDE_TOPIC,
   ...CHARACTER_TOPICS,
   ...TIME_TOPICS,
@@ -346,6 +357,7 @@ export const GUIDE_TOPICS = {
       + "reuse first) at a boundary; never behind the player, never memory. With no checkpoints, liv_open is the opening. suggest waits in Author view; a player gets auto. "
       + "Limits: name 60 chars, objective 400. Save as story keeps reached turning points. Pace: a way in also opens after 3 player turns, a beat after 2.",
   },
+  ...LIVING_TOPICS,
   branching: {
     title: "Branches that follow the player",
     fields: "stagecraft.branchingEnabled, stagecraft.prefetchEnabled, judge.uses.divergence",

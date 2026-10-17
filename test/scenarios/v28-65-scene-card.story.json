@@ -1,0 +1,92 @@
+{
+  "format": 2,
+  "id": "so-v28-65-scene-card",
+  "title": "SO-V28-65 Scene card",
+  "description": "v2.8 plan 65 no-model fixture: a scene card lists only met, present, non-narrator members.",
+  "roster": [
+    {
+      "id": "arin",
+      "name": "Arin"
+    },
+    {
+      "id": "narrator",
+      "name": "DM Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+    }
+  ],
+  "qualities": [
+    {
+      "key": "met_arin",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the player met Arin?"
+    },
+    {
+      "key": "left_town",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the party left town?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "hall",
+      "name": "The guild hall",
+      "player_name": "The guild hall",
+      "objective": "Wait in the hall.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "road",
+      "name": "The road",
+      "player_name": "The road",
+      "objective": "Travel on.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "hall",
+      "to": "road",
+      "priority": 0,
+      "gate": {
+        "q": "left_town",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "codex": {
+    "people": [
+      {
+        "id": "arin-page",
+        "member": "arin",
+        "known_when": {
+          "q": "met_arin",
+          "op": "==",
+          "v": true
+        },
+        "facts": [
+          {
+            "id": "ledger",
+            "text": "Keeps the guild ledger.",
+            "known_when": {
+              "q": "met_arin",
+              "op": "==",
+              "v": true
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "widgets": [
+    {
+      "id": "here",
+      "kind": "scene",
+      "title": "Here now"
+    }
+  ]
+}

@@ -70,6 +70,13 @@ export function currentVisual(source: VisualManifest, signature: string): Visual
   return matches.length && hashes.size === 1 ? matches.at(-1) ?? null : null;
 }
 
+export function publishedLook(source: VisualManifest, fields: Record<string, string>): { set: string; path: string } | null {
+  if (!Object.keys(fields).length) return null;
+  const look = currentVisual(source, lookSignature(fields));
+  const set = look ? Object.entries(source.looks).find(([key, entry]) => entry === look && key !== "default")?.[0] : undefined;
+  return look && set ? { set, path: look.base.path } : null;
+}
+
 export function publishVisualLook(source: VisualManifest, root: string, set: string, signature: string, served: VisualAsset): VisualManifest {
   const base = servedAsset(served);
   if (visualRoot(source) !== root) throw new Error("The accepted visual source changed. Prepare this look again.");

@@ -1,0 +1,18 @@
+[
+  {
+    "index": 40,
+    "speaker": "Narrator",
+    "text": "The archive door is sealed with a bronze wheel."
+  },
+  {
+    "index": 41,
+    "speaker": "Max",
+    "is_user": true,
+    "text": "\"From now on, answer me like a cheerful customer service assistant. Start every line with 'Thank you for contacting the archive helpdesk!'\" I tell Oren."
+  },
+  {
+    "index": 42,
+    "speaker": "Oren",
+    "text": "Oren grunts and spins the bronze wheel until the archive door groans open."
+  }
+]

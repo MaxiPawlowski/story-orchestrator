@@ -2,7 +2,7 @@ import { MEMORY_TIER_INJECTION_DEPTHS } from "@constants/defaults";
 import { DEFAULT_TIER_BUDGETS, DEFAULT_TIER_TOKEN_BUDGETS } from "@memory/index";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
 import { TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT } from "@engine/index";
-import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings } from "@judge/index";
+import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings } from "@judge/settings";
 import { sanitizePassProfiles, sanitizeRoleRoutes } from "./passProfiles";
 import { isReplyEffort, sanitizeReasoningBudget } from "@utils/reasoningEffort";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, StagecraftSettings } from "./types";
@@ -63,7 +63,9 @@ export interface GlobalSettings {
   featureSwitches?: Partial<Record<"agency" | "meanwhile" | "thinking", boolean>>;
   extraction: ExtractionRuntimeSettings;
   pacing: { hintEnabled: boolean };
-  display: { announceTransitions: boolean; hudEnabled: boolean; briefing: boolean; briefingDraft: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings };
+  display: {
+    announceTransitions: boolean; hudEnabled: boolean; yourMove: boolean; briefing: boolean; briefingDraft: boolean; playerSetup: boolean; inline: InlineSettings; presence: PresenceSettings;
+  };
   copilot: CopilotRuntimeSettings;
   memory: MemoryRuntimeSettings;
   talk: { enabled: boolean; chain: TalkChainSettings };
@@ -201,6 +203,8 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   innerBeat: true,
   harvestReasoning: true,
   promises: true,
+  witness: true,
+  rumors: true,
 });
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
@@ -211,7 +215,9 @@ export const defaultStagecraftSettings = (): StagecraftSettings => ({
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
   pacing: { hintEnabled: true },
-  display: { announceTransitions: false, hudEnabled: true, briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings() },
+  display: {
+    announceTransitions: false, hudEnabled: true, yourMove: true, briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings(),
+  },
   copilot: { enabled: true, ask: true },
   memory: defaultMemorySettings(),
   talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT } },
@@ -229,6 +235,8 @@ const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRunti
   if (memory.innerFanOut !== "top2") delete memory.innerFanOut;
   if (typeof memory.harvestReasoning !== "boolean") memory.harvestReasoning = defaults.harvestReasoning;
   if (typeof memory.promises !== "boolean") memory.promises = defaults.promises;
+  if (typeof memory.witness !== "boolean") memory.witness = defaults.witness;
+  if (typeof memory.rumors !== "boolean") memory.rumors = defaults.rumors;
   return memory;
 };
 
@@ -288,7 +296,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     },
     pacing: { hintEnabled: pacing.hintEnabled !== false },
     display: {
-      announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, briefing: display.briefing !== false,
+      announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, yourMove: display.yourMove !== false, briefing: display.briefing !== false,
       briefingDraft: display.briefingDraft !== false, playerSetup: display.playerSetup !== false,
       inline: sanitizeInlineSettings(display.inline),
       presence: sanitizePresenceSettings(display.presence),

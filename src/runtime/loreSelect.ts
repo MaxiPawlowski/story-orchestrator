@@ -1,7 +1,8 @@
 import { castCardName, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { fnv1a, storyRevision } from "./hash";
-import { buildLoreRequests, loreCandidates, loreKey, LORE_RETRY_FALLBACKS, LORE_RETRY_WAIT_MS, LORE_TIMEOUT_MS, pickLore, readLore, type LoreEntry, type LorePick } from "@judge/index";
+import { buildLoreRequests, loreCandidates, loreKey, pickLore, readLore, type LoreEntry, type LorePick } from "@judge/lore";
+import { LORE_RETRY_FALLBACKS, LORE_RETRY_WAIT_MS, LORE_TIMEOUT_MS } from "@judge/policy";
 import type { HostScannableEntry } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";
 import type { JudgeRuntime } from "./judge";
@@ -88,7 +89,7 @@ export class LoreSelector {
     const member = memberNames(story, this.deps.getDrafted?.() ?? null);
     const eligibility = this.deps.getMember?.() ?? { filename: null, tags: null };
     const memberKey = JSON.stringify(eligibility);
-    const window = this.deps.getWindow();
+    const window = generationType === "swipe" ? this.deps.getWindow().slice(0, -1) : this.deps.getWindow();
     // Names four surfaces and this is one of them. force() pushes entries into the NEXT
     // generation, so a selection that outlives its chat seeds another chat prompt with this story
     // lore. Minted before the cache check, because the cached path forces too.

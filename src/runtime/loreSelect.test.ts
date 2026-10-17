@@ -491,3 +491,21 @@ describe("v2.8 01 C12: one ask per entry per scene, shared by every generation a
     expect(env.requests).toHaveLength(2);
   });
 });
+
+describe("v2.8 35 G7 (R14): a swipe's lore pick never reads the reply being replaced", () => {
+  const window = () => [{ speaker: "Max", text: "Who runs this place?" }, { speaker: "Arin", text: "REPLACED-REPLY: the old guildmaster does." }];
+
+  it("swipe: the judge request holds the player's line and not the reply the swipe replaces", async () => {
+    const env = setup({ window });
+    await env.selector.select("GENERATION_STARTED", "swipe");
+    expect(env.requests).toHaveLength(1);
+    expect(JSON.stringify(env.requests)).toContain("Who runs this place?");
+    expect(JSON.stringify(env.requests)).not.toContain("REPLACED-REPLY");
+  });
+
+  it("control: a normal generation reads the whole window", async () => {
+    const env = setup({ window });
+    await env.selector.select("GENERATION_STARTED", "normal");
+    expect(JSON.stringify(env.requests)).toContain("REPLACED-REPLY");
+  });
+});

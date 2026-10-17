@@ -36,7 +36,7 @@ jest.mock("@services/STAPI", () => ({
   vectorQuery: jest.fn(async () => []),
   vectorPurge: jest.fn(async () => undefined),
   DEFAULT_VECTOR_SOURCE: "transformers",
-  executeSlashCommands: jest.fn(async () => undefined),
+  executeSlashCommands: jest.fn(async () => true),
   setGroupMembersDisabled: jest.fn(async () => undefined),
   getActiveGroup: jest.fn(() => null),
   resolveGroupMemberId: jest.fn(() => null),

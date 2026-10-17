@@ -1,4 +1,7 @@
-import { WARDEN_NOTE_FAMILIES, type CuratorOpRecord, type CuratorProposalRecord, type StagecraftAcceptMode, type WardenFactSource, type WardenNoteFamily, type WardenNoteOp } from "./types";
+import {
+  WARDEN_NOTE_FAMILIES, type CuratorOpRecord, type CuratorProposalRecord, type NoteRevision, type StagecraftAcceptMode, type WardenFactSource,
+  type WardenNoteFamily, type WardenNoteOp,
+} from "./types";
 
 export const WARDEN_NOTE_MAX_LINES = 4;
 
@@ -142,3 +145,18 @@ export const newestCarriedNote = (proposals: CuratorProposalRecord[], active: Wa
   .map((record) => ({ record, indices: record.ops.flatMap((entry, index) => (entry.status === "accepted" && entry.op.kind === "note" && wardenFamilyActive(entry.op, active) ? [index] : [])) }))
   .filter((candidate) => candidate.indices.length)
   .sort((left, right) => right.record.messageId - left.record.messageId)[0];
+
+const sameNoteRevision = (left: NoteRevision, right: NoteRevision | null): boolean => Boolean(right && left.hash === right.hash && left.swipeId === right.swipeId);
+
+export const rearmMovedNotes = (proposals: CuratorProposalRecord[], live: (messageId: number) => NoteRevision | null): CuratorProposalRecord[] | null => {
+  let moved = false;
+  const next = proposals.map((record) => {
+    const at = record.noteAppliedTo;
+    if (record.curator !== "warden" || !at || sameNoteRevision(at.revision, live(at.messageId))) return record;
+    moved = true;
+    const rearmed: CuratorProposalRecord = { ...record, ops: record.ops.map((entry) => (entry.status === "applied" && entry.op.kind === "note" ? { ...entry, status: "accepted" as const } : entry)) };
+    delete rearmed.noteAppliedTo;
+    return rearmed;
+  });
+  return moved ? next : null;
+};

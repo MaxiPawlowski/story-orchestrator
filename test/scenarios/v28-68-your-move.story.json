@@ -1,0 +1,58 @@
+{
+  "format": 2,
+  "id": "so-v28-68-your-move",
+  "title": "SO-V28-68 Your move",
+  "description": "v2.8 plan 68 no-model fixture: a director hand-back shows Your move for the reply on screen.",
+  "roster": [
+    {
+      "id": "arin",
+      "name": "Arin"
+    },
+    {
+      "id": "narrator",
+      "name": "DM Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+    }
+  ],
+  "qualities": [
+    {
+      "key": "left_town",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has the party left town?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "hall",
+      "name": "The guild hall",
+      "player_name": "The guild hall",
+      "objective": "Wait in the hall.",
+      "type": "anchor",
+      "start": true,
+      "talk_control": {
+        "director": true
+      }
+    },
+    {
+      "id": "road",
+      "name": "The road",
+      "player_name": "The road",
+      "objective": "Travel on.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "hall",
+      "to": "road",
+      "priority": 0,
+      "gate": {
+        "q": "left_town",
+        "op": "==",
+        "v": true
+      }
+    }
+  ]
+}

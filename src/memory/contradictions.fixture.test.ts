@@ -29,8 +29,8 @@ describe("K0 contradiction fixture", () => {
     expect(fixture.rows).toHaveLength(21);
   });
 
-  it("records every row's Jaccard band as the held-group bands compute it", () => {
-    expect(fixture.rows.filter((row) => jaccardBand(row) !== row.band.jaccard).map((row) => row.id)).toEqual([]);
+  it("records every row's Jaccard band as the held-group bands compute it, except the rows edge punctuation kept apart (plan 69 K7)", () => {
+    expect(fixture.rows.filter((row) => jaccardBand(row) !== row.band.jaccard).map((row) => row.id)).toEqual(["K21", "K22", "K23"]);
   });
 
   it("fixes the Jaccard-mode class counts, with 4 in-band agreeing rows", () => {

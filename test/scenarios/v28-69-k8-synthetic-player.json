@@ -1,0 +1,163 @@
+{
+  "_note": "v2.8 plan 69 K8 (no-model lane). Host fact: TurnBridge commits a boundary for every MESSAGE_RECEIVED type except first_message and extension (NON_TURN_MESSAGE_TYPES, runtime/turnBridge.ts, a denylist on purpose); ST's event carries (messageId, type) and an extension that posts a message through addOneMessage and emits MESSAGE_RECEIVED with no type is an untyped emitter. Expected outcome: the synthetic player-like message commits a boundary as an ordinary message, and no rollback. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-69-k8-synthetic-player.json --sandbox --group 'Group: Arin, DM Narrator', twice. Also v2.8 69 K5: inline hosts sit beside .mes_text and assert-player-clean (which now sweeps .mes_text for SO nodes) finds nothing.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "judge": "off"
+  },
+  "steps": [
+    {
+      "log": true,
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds ' + ctx.chat.length + ' message(s)'); return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "title": "SO-V28-69 K8",
+        "description": "Plan 69 K8 no-model fixture: four facts, one per player line.",
+        "qualities": [
+          {
+            "key": "took_key",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player take the brass key?"
+          },
+          {
+            "key": "lit_lamp",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player light the oil lamp?"
+          },
+          {
+            "key": "found_map",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player unroll the map?"
+          },
+          {
+            "key": "opened_chest",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player open the iron chest?"
+          },
+          {
+            "key": "vault_unsealed",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Never set by these fixtures: it keeps the vault transition (and its Note row) out of the chats the delete checks index."
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "Start",
+            "objective": "Get ready to open the vault.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "vault",
+            "name": "Vault",
+            "objective": "Open the vault.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "start",
+            "to": "vault",
+            "priority": 1,
+            "gate": {
+              "all": [
+                {
+                  "q": "took_key",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "lit_lamp",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "found_map",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "opened_chest",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "vault_unsealed",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            }
+          }
+        ],
+        "roster": [],
+        "id": "so-v28-69-k8"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const state = rt.getEngineState(); if (!state || state.activeCheckpointId !== 'start') throw new Error('the story did not load at start'); return { boundary: state.boundary };"
+    },
+    {
+      "send": "I take the brass key from the hook."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=took_key value=true evidence=\"I take the brass key\"",
+        "reason": "v28-69-k8:line-0"
+      }
+    },
+    {
+      "log": true,
+      "eval": "const markRt = globalThis.storyOrchestratorRuntime; const ms = markRt.getEngineState(); globalThis.__k8 = { boundary: ms.boundary, last: ms.lastMessageId, length: SillyTavern.getContext().chat.length, recommits: globalThis.storyOrchestratorSpikes?.editReread?.stats().recommits ?? null }; return globalThis.__k8;"
+    },
+    {
+      "record_state": {
+        "as": "before-synthetic"
+      }
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const message = { name: ctx.name1, is_user: true, is_system: false, send_date: new Date().toISOString(), mes: 'I knock twice on the cellar door.', extra: {} }; ctx.chat.push(message); const id = ctx.chat.length - 1; ctx.addOneMessage(message); await ctx.eventSource.emit(ctx.eventTypes.MESSAGE_RECEIVED, id); await ctx.saveChat(); return { id };"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "log": true,
+      "eval": "const s = globalThis.storyOrchestratorRuntime.getEngineState(); const k = globalThis.__k8; const id = SillyTavern.getContext().chat.length - 1; if (s.boundary !== k.boundary + 1) throw new Error('expected exactly one boundary for the synthetic message: ' + k.boundary + ' -> ' + s.boundary); if (s.lastMessageId !== id) throw new Error('the boundary did not consume the synthetic message: last=' + s.lastMessageId + ' id=' + id); return { boundary: s.boundary, last: s.lastMessageId };"
+    },
+    {
+      "expect": {
+        "rollbackOutcome": {
+          "result": "none",
+          "since": "before-synthetic"
+        }
+      },
+      "log": true
+    },
+    {
+      "log": true,
+      "eval": "const hosts = document.querySelectorAll('#chat .mes_block > .so-inline-host').length; const inside = document.querySelectorAll('#chat .mes_text [id^=\"so-\"], #chat .mes_text [class^=\"so-\"], #chat .mes_text [data-so]').length; if (inside) throw new Error(inside + ' SO node(s) inside .mes_text'); return { inlineHosts: hosts, insideMesText: inside };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    }
+  ]
+}

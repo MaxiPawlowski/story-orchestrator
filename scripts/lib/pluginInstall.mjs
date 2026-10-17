@@ -5,6 +5,7 @@ import path from 'node:path';
 
 export const SERVER_PLUGINS = Object.freeze({
     'story-orchestrator-judge': Object.freeze({ optional: false }),
+    'story-orchestrator-lore': Object.freeze({ optional: false }),
     'story-orchestrator-gpu': Object.freeze({ optional: true }),
     'story-orchestrator-harness': Object.freeze({ optional: true }),
     'story-orchestrator-media': Object.freeze({ optional: true }),
@@ -24,7 +25,7 @@ export function shippedFiles(dir, fsImpl = fs, prefix = '') {
 }
 
 export function selectedPlugins(withPlugins = [], { stRoot = null, fsImpl = fs } = {}) {
-    const names = ['story-orchestrator-judge', ...withPlugins.map((name) => `story-orchestrator-${name}`)];
+    const names = [...Object.keys(SERVER_PLUGINS).filter((name) => !SERVER_PLUGINS[name].optional), ...withPlugins.map((name) => `story-orchestrator-${name}`)];
     for (const name of names) if (!SERVER_PLUGINS[name]) throw new Error(`Unknown plugin ${name}. Choose gpu, harness or media.`);
     const installed = stRoot ? Object.keys(SERVER_PLUGINS).filter((name) => fsImpl.existsSync(path.join(stRoot, 'plugins', name))) : [];
     return Object.keys(SERVER_PLUGINS).filter((name) => names.includes(name) || installed.includes(name));

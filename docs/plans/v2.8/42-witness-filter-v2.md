@@ -362,3 +362,218 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
   `transcript-copiers` keeps naming both.
 - **43/47/55 — message ids need revisions.** Accepted here too. → spans addressed by id and revision (`src/memory/audience.ts:10`).
 - Rebutted: none.
+
+## W4 real-label run: declarations (2026-10-17, branch `v2.8-witness-real`, written before any label)
+
+Floors (§7) unchanged; the scorer is `memory/witness/score.ts` as built. Fixed in code (`src/memory/witnessLabels.ts`,
+`so-witness.mts label-*`) before the first label.
+
+- **Review rule (owner 2026-10-17, replaces §5.4's "adjudicated or `unknown`"):** one writer, a different blind checker;
+  a disagreement is dropped and counted, never adjudicated. Writer Sol (`openai/gpt-6.1-sol`, opencode, tools off;
+  never `-fast`, never DeepSeek), checker `claude -p`. Labels and transcripts stay in private `so-sessions`.
+- **Real set.** Sessions as plan 21's §6.2 private run (E0 selector, a held secret, 3+ non-player speakers); members =
+  the non-player speakers. Per session one window: the 12 spoken messages starting at spoken index floor((n − 12) / 2).
+  The writer sees the transcript up to the window's end and labels each window message: `present`, then `heard` (a
+  member list or `unknown`) or `mixed` with spans (anchor = the span's first 4-8 words, exactly). The checker gets the
+  same prompt without the writer's answer. Agreement = equal `present` and equal audience (both one set and equal, both
+  `unknown`, or both mixed with the same span count and equal sets in order). Spans resolve by exact unique substring
+  on the message, each running to the next anchor; an unresolved anchor makes the label invalid (dropped, counted).
+- **Rubric (answers §12's muted-onlooker question).** A member in the scene hears ordinary speech and sees visible
+  action whether addressed or not; whispers, asides, private notes and inner thought reach only whom the text says;
+  a member not in the scene perceives nothing; the speaker always perceives their own message; `unknown` when the text
+  cannot tell.
+- **Lab set.** The 40 authored labels of the campaign's `lab/witness/` (written before the SP9 run): `heard` as authored,
+  `present` = the cast replay's presence plus the authored listeners, members = the group's members. Claude checks
+  blind with the same prompt (the lab transcript with its scene ids); agreement = equal `heard` (`present` is structural
+  there). Disagreements dropped and counted; the scorer's 40-label minimum is applied unchanged, so a lab set that loses
+  any label reads `insufficient`.
+- **Freeze.** sha256 of both label files committed here before any score. W4n (presence null control, labelled
+  `present` as witness) needs labels only and is scored after the freeze; W4/W4fi/W4fe/W4cov/W4m/W4a need recorded
+  witness reads (`so-witness-reads/1`) on these messages.
+- **Label freeze (2026-10-17, committed before any score).** `so-sessions` `test/sessions/witness-real/freeze.json`:
+  17 label files (16 real sessions + lab), digest `b9428ba3748fd9857d5b24bd2321ca93ae2fb14903928a763b8ba32fd292448b`
+  (sha256 over the per-file sha256 of the parsed JSON); lab `labels.json`
+  `5f5f0db3adf1f4f1feb487c2f275078f51e8b1b317a7345d616a6fb15cc4a9b6`. Real: 192 written, 132 agreed, 60 disagreed,
+  0 invalid. Lab: 40 written, 10 agreed, 30 disagreed (the checker's heard set was a strict subset of the authored one
+  in 29), so the lab set reads `insufficient` as declared.
+
+## Gate record: §0 + B build, 2026-10-16 (no model, no GPU, LIST)
+
+Branch `v2.8-audience-42-44` (base master `d1f9ede2`; offline harness merged from `v2.8-audience-43-offline`). Not merged, not pushed.
+
+Built:
+- §0 contract: `memory/audience.ts` (source span, revision, `RelationValue` with explicit unknown, six `WITNESS_STATES`, `WitnessLookup`,
+  `sameRevision`); `memory/audienceRules.ts` `mayAdd` (order: message removed, revision changed, hidden at query time (H13c), positive
+  relation witnessed/told/disclosure, then `keptFrom` backstop) and `mayRemove` (only every part classified "not heard"). The five
+  relations live as `AddBasis` kinds plus `RelationValue`; no separate relation enum (it had no consumer and failed the dead-export guard).
+- B lines (§5.1): `WITNESS m=<id> heard=<ids|all-present|unknown>`, `WITNESS m=<id> mixed` + `SPAN m=<id> from="…" heard=…`, ~110 input
+  tokens of contract text (`memory/witness/contract.ts`, lazy). Names, ids and aliases resolve to roster ids; an unknown member, conflicting
+  lines or an unresolved/ambiguous/overlapping anchor degrade to unknown; anchors by exact unique substring on the revision the read saw;
+  spans run anchor to anchor, text before the first anchor stays unknown; `all-present` resolves to the enabled group members at read time.
+- §5.2 states: accepted reads keyed by `{from, to, revisions[]}`; empty scope or out-of-character-only window = `no-read`; refused/truncated
+  read and a failed read (scheduler `witness.outage`) = `outage`; a covered message with no line = `unknown`; newer than the newest
+  accepted read = `pending`; tombstones = `invalidated`; a live revision mismatch = `invalidated`.
+- §5.3 rollback: own slice `extras.witness` (deviation: not `extras.memory.witness`, memory coordinator at its line budget, as 47 did);
+  `rollbackWitness` in quarantine drops every read whose range reaches the message, so claims about earlier surviving messages go too;
+  precedence = newest accepted read that has a line for the message; losing claims kept (before-images); reads past 200 fold to one
+  claim per message; no re-run.
+- On by default (`memory.witness`, story policy `witness`, feature `witness-record`, Features page, guide player/memory.md). No consumer
+  reads the record (43 and 44 do not use it yet).
+- Offline scorer `memory/witness/score.ts` (W4, W4fi incl. W4u ambiguous-as-inclusion, W4fe, W4cov with states, W4m, span W4fi, W4a,
+  W4n null control, review rule writer ≠ checker) and `scripts/debug/so-witness.mts score` replaying recorded reads (`so-witness-reads/1`)
+  through parser + record; synthetic fixture `test/fixtures/witness/synthetic/` (44 messages, 11 asides, 3 mixed, 2 unknown).
+
+Floors (D, jest/node; the synthetic set is a tooling check, not the W4 verdict):
+- Wf: 4 seeds × 30 random reads/cuts, every message id in one of six states; planted no-read/outage/truncated/invalidated cases. Green.
+- Wr: 4 seeds × 12 rounds, rollback ≡ replay of kept reads (read ids equal; classified lookups equal per member, whole message and span;
+  non-classified states compared as one unknown family, since tombstones are rollback history); planted inside-range edit invalidates an
+  earlier message's claim and restores the older read's claim; folding keeps winners. Green.
+- Scorer: planted all-present control fails W4a and W4fi (`score.test.ts`, `witness.test.mts`).
+- Synthetic replay golden (`test/goldens/witness/synthetic-good-result.json`): exact set 38/39, W4fi 0/46, W4fe 1/118, W4cov 42/44,
+  W4m 3/3, span W4fi 0/7, W4a 10/11; null control W4a 0/11, W4fi 25/46, beaten. Planted all-present reads: fail (W4a 0/11, W4fi 25/46).
+
+Live (no-model lane 69, `C:\dev\so-live-lanes`, private code copy `C:\dev\st-live-aud`, served `dist/index.js` sha256 `03ae0c12ab8f`
+before and after every run): `test/scenarios/v28-42-witness.json` PASS ×2 (planted read: section in the prompt, mixed message with 2 spans,
+read keyed 0–1; `assert-player-clean` 0; swipe inside the range drops the read, message 0 `invalidated`). Plumbing green, real-LLM owed.
+Evidence `C:\dev\so-live-lanes\evidence-2026-10-16\69\2026-10-16T19-35-29-674Z-so-scenario-run`, `…19-36-04-237Z…`.
+(Two earlier PASS runs on `C:\dev\st-live` are not counted: other agents restaged that tree mid-batch.)
+
+Gates (on `9b0992e1`): `npm run gates -- --jobs=1 --no-storybook` all green in 417.9 s (test 9,166 passed / 1 skipped; first run red only
+on `arrivalEquivalence`, re-recorded in its own commit). Storybook static build + `test-storybook --url http://127.0.0.1:6283 --maxWorkers 1`:
+149 suites, 888 stories passed. Main bundle 1,294,853 B (budget 1,300,000; +7,635 B over master's 1,287,218 for 42 + 44 together).
+
+Owed (CL, not run): W4 rows on the lab 40 (private campaign `lab/witness/`) and ≥ 40 real-session messages with second-model labels and a
+third-model check, through the extraction route (Sol via the harness); Wc; RB with 47 and 15 before merge (47's lines are on master, so
+this branch on by default puts both line families in every read). C not built (separate owner decision).
+
+## Gate record addendum: after the main-entry diet, 2026-10-16 (no model, no GPU, LIST)
+
+Build: master `4f2b53a2` (42 + 44 + the main-entry diet + master). Main bundle 1,282,779 B (budget 1,300,000). The diet moved the
+memorize backlog, canon regenerate, the author memory decisions and the warden check into lazy chunks, and judge imports name their module
+instead of the barrel. Full gates and Storybook green on `4f2b53a2` (coordinator run, Storybook 149 suites / 902 stories).
+
+Live: no-model lane 69 (`C:\dev\so-live-lanes`), private code copy `C:\dev\st-live-aud` staged from a detached worktree at `4f2b53a2`,
+images and sprites off, served `dist/index.js` sha256 `59bf6ba2c385` before and after every run. Each scenario run twice, back to back,
+`--sandbox --group "Group: Arin, DM Narrator"`; every run `ok`, no failed step, no reap prompt or mirror book leaked:
+- `v28-42-witness`: PASS ×2 (13 steps).
+- `v28-44-rumors`: PASS ×2 (24 steps).
+- `plan05-decision-write` (author memory decisions: resolve, reconfirm, refusal): PASS ×2 (6 steps).
+- `live-v8-memory-decisions` (memory queue and quarantine): PASS ×2 (13 steps).
+- `v27-s11d-held-secret-canon` (canon regenerate through the lazy unit): PASS ×2 (19 steps).
+- `v28-40-judge-consumers` (warden notes through the lazy check, canon regenerate with canonVerify): PASS ×2 (8 steps).
+- `v24-02-chat-delete-reap` (smoke): PASS ×2 (13 steps).
+
+Verdict: plumbing green, real-LLM owed (no model or GPU on this run; every model and judge answer above is scripted).
+
+Evidence `C:\dev\so-live-lanes\evidence-2026-10-16\69\`, run folders in the order above: `2026-10-16T23-48-24-313Z`, `…23-48-57-291Z`,
+`…23-49-26-588Z`, `…23-50-02-540Z`, `…23-50-38-518Z`, `…23-50-59-254Z`, `…23-51-21-736Z`, `…23-51-52-275Z`, `…23-52-23-766Z`,
+`…23-52-56-570Z`, `…23-53-44-404Z`, `…23-54-46-976Z`, `…23-55-24-309Z`, `…23-56-06-880Z` (each `-so-scenario-run`), with their
+`so-scenario-result.json` files beside them.
+
+## Gate record: W4 real labels, 2026-10-17 (branch `v2.8-witness-real`, no model reads, no GPU)
+
+Verdict: **W4/W4fi/W4fe/W4cov/W4m/W4a not scored: no recorded witness reads exist.** Labels written, checked and frozen
+(`d22ae086`) before any score. Archived sessions predate the witness lines, so no recorded read carries a `WITNESS` line; the
+only `so-witness-reads/1` files are the synthetic fixture and lane 69's scripted plumbing reads. Real reads need the read model
+(Artemis on the 3090); not run (no GPU).
+
+Labels (counts only; private files in `so-sessions` `test/sessions/witness-real/`, not archived by this run):
+- Real: 16 sessions, 192 window messages. Sol wrote, `claude -p` (claude-opus-5-5) checked blind: 132 agreed, 60 disagreed,
+  0 invalid. Disagreements by kind: present set differs 43, checker heard more members 30, a mixed label on either side 16,
+  `unknown` on one side 5, other 2 (a message can count twice).
+- Lab: 40 authored labels, 10 agreed, 30 disagreed (the checker's heard set a strict subset of the authored one in 29). Lab
+  set `insufficient` as declared.
+- **The kept real set holds 0 asides and 0 mixed messages.** The hard strata are exactly where writer and checker disagreed,
+  so dropping disagreements leaves W4a and W4m with no denominator (the scorer reports them `null`, which would not fail a
+  floor). Recorded, not repaired.
+
+W4n (presence null control, labelled `present` as witness; labels only):
+- Real (132): exact set 0.8931 (117/131), false inclusion 0 (0/317), false exclusion 0.0327 (14/428), coverage 1.0, asides 0,
+  mixed 0. Lab (10 kept): exact 0.5 (5/10), false inclusion 0.0957 (9/94), aside exact 0/5, 9 aside kept-out members included.
+- The real set sits near presence's ceiling, so "B beats presence on W4a by >= 0.3" cannot be evaluated on it.
+
+Owed to score W4 (needs the GPU and an owner OK):
+- A recorder (not built; building it needs no GPU) that runs the shared read with the witness section on Artemis over windows
+  covering each labelled message and saves `so-witness-reads/1`: about 2 reads per real session (32) plus about 5 over the lab
+  transcript, about 37 reads, roughly 15-40 min of 3090 time; Wc needs the same windows with witness lines off as baseline.
+- A labelling decision for the hard strata (recommended: an aside/mixed stratum adjudicated by a third model or labelled
+  `unknown`, §5.4's rule before 2026-10-17); otherwise W4a/W4m stay unmeasurable on real data.
+
+Ship 42 B as is: yes, as a record nobody reads (on by default, no consumer). No consumer (43 recall, 44 overhearing, 58) may
+read it before W4 and W4fi are scored on real reads.
+
+Tooling: `so-witness.mts label-write | label-check | label-merge | lab | freeze | presence`, `src/memory/witnessLabels.ts`,
+`combineWitnessScores` in `memory/witness/score.ts`; tests `src/memory/witnessLabels.test.ts`.
+
+Gates (branch `v2.8-witness-real`): `npm run gates -- --jobs=1 --no-storybook` all green in 270.6 s (test 9,440+ passed, test:replay, build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release). Storybook skipped: no UI change. First run red on `codeHealth.guard` (a dead export in `vr62.ts`, removed) and then `typecheck:test` (a test fixture field), both fixed before the green run. No product code changed: the new modules are reached only from scripts and tests.
+
+## W4 adjudication and recorder: declarations (2026-10-17, branch `v2.8-witness-real-2`, written before any adjudication)
+
+Owner rule "go with recommendations" (coordinator, 2026-10-17): the disagreement stratum is adjudicated, not dropped. Floors
+(§7) unchanged.
+
+- **Adjudicator.** Astra, `codex exec -m gpt-6-astra` (read-only sandbox, ephemeral, stdin closed), a third model distinct
+  from writer (Sol) and checker (Claude). Every frozen label with `agreed: false` goes to it: 60 real, 30 lab.
+- **Blind to identities.** One call per session (lab: one call) over that session's disagreed messages. Astra sees the
+  labelling prompt the writer and checker saw (transcript to the window's end, members, the same rubric) and, per message,
+  the two earlier labels as "Label A" and "Label B" in an order fixed by the hash of the message key, never which model
+  wrote either. It answers each message with its own label (`present`, then `heard` or `mixed` spans) or `undecided`.
+- **Its verdict wins.** The label becomes Astra's (`review.adjudicator`, `review.adjudicated: true`); an `undecided`
+  message, a missing answer, a malformed one or an unresolved span anchor becomes `heard: "unknown"` (the W4u ambiguous
+  stratum, where a predicted heard counts as a false inclusion) with Astra's `present` if given, else the writer's. Lab:
+  `present` stays structural (cast presence plus the verdict's listeners); Astra decides `heard` only.
+- **Scorer.** Keeps a label when writer and checker agreed, or when an adjudicator distinct from both decided it.
+- **Freeze.** New sha256 of every label file committed before any score; the 2026-10-17 freeze stays as the
+  pre-adjudication record. W4n is re-scored after that freeze.
+- **Recorder (built now, run later on the 3090 by the coordinator).** `so-witness.mts record` runs, on a lane page with the
+  read profile, the shipped `runSharedRead` (same contract, scope, retry on `length`) through
+  `storyOrchestratorLiveSuite.runWitnessRead`, twice per window: witness lines on (`witnessPresent` set) and off (baseline,
+  for Wc). Story = the session's pinned story, checkpoint and blackboard from the boundary log at the window's last
+  message. Real sessions: 2 reads per labelled window, the first 8 and the last 8 of its 12 messages; present = the
+  session's members (group enable history is not recorded). Lab: 5 reads of 8 consecutive messages on the lab's story;
+  present = the cast presence at the read's last message. On-arm responses are saved as `so-witness-reads/1` (members keyed
+  by name, roster ids and aliases as aliases); both arms record input and output tokens, `finish`, and latency.
+  `so-witness.mts wc` computes Wc (input p95, output p95, `finish: length` rate, latency p95 against the off arm);
+  `so-witness.mts score-real` scores W4 rows per set against the frozen labels. The live-suite row of Wc and RB stay
+  separate runs.
+- **Adjudicated freeze (2026-10-17).** `so-sessions` `test/sessions/witness-real/freeze-adjudicated.json`: 17 label files,
+  digest `2258f223bd31cbb0df10beaf16e2cc24c5abe6f478ee5dae2bf6684d0f661729`; lab `adjudicated/lab.json`
+  `35b492756cf46d167d631d9b4802f7a5c647704fca3d71e83190ee0581b9c422`. Astra: real 60 adjudicated (51 decided, 9 `unknown`, 0
+  unresolved anchors), lab 30 (29 decided, 1 `unknown`); 0 failed calls. Deviation: the freeze file was written before the
+  W4n re-score, but this commit landed just after it; W4n reads labels only, and the score checked the labels against this
+  digest.
+
+## Gate record: adjudication and W4 recorder, 2026-10-17 (branch `v2.8-witness-real-2`, no GPU)
+
+Declarations `91821786` (before any adjudication), adjudication code `b98a0fb6`, adjudicated freeze `83710424`. W4 still not
+scored: the read-model run is queued for the 3090 (coordinator).
+
+Adjudication (Astra, `codex exec -m gpt-6-astra`, blind A/B; private files `so-sessions` `test/sessions/witness-real/adjudicated/`):
+- Real: 60 disagreements, 51 decided, 9 `unknown`, 0 unresolved anchors, 0 failed calls. Lab: 30, 29 decided, 1 `unknown`.
+- Strata after adjudication: real 192 labels (11 mixed, 10 `unknown`, **0 single-audience asides**: the real asides land as
+  mixed messages); lab 40 (32 asides, 2 mixed, 1 `unknown`). W4m now has a real denominator (11); W4a has one only on the lab.
+- W4n re-scored on the adjudicated sets (labels only): real 192 kept, exact set 0.8421 (144/171), false inclusion 0.0382
+  (18/471, ambiguous pairs counted), false exclusion 0.0470 (27/574), mixed detection 0/11, span false inclusion 0.1772
+  (14/79). Lab 40 kept: exact 0.1351 (5/37), false inclusion 0.1944 (83/427), aside exact 0/32, 78 aside kept-out members
+  included. Presence as witness fails W4 on both sets, as v2.6 measured; B must beat lab W4a 0 by >= 0.3.
+
+Recorder (built, plumbing green, real-LLM owed):
+- `storyOrchestratorLiveSuite.runWitnessRead` (lazy live-suite chunk) runs the shipped `runSharedRead` over a chat built in ST's
+  shape (`windowOf`), with the pinned story, the boundary-log engine state (lab: the scene's checkpoint), `witnessPresent` on or
+  off, and records each model call's `finish` and latency plus input/output tokens from the read meter.
+- `so-witness.mts record | reads | wc | score-real` (`scripts/debug/lib/witnessRecord.mts`): 32 real reads + 5 lab reads per arm,
+  resumable; `--plumbing` answers with a canned all-present reply and marks the records, which `reads`, `wc` and `score-real`
+  refuse to treat as a measurement. Tests `scripts/debug/witnessRecord.test.mts`, `src/memory/witnessLabels.test.ts`.
+- Plumbing on lane 79 (offline, private copy `C:\dev\st-live-witreal`, served bundle `706a3166995e` = built): 1 real session
+  + the lab, both arms, 7 reads each; every on-arm read `accepted`, replay through parser and record classified 12/12 labelled
+  messages (canned answers, so the score means nothing); `score-real` and `wc` refused the plumbing records. Lane stopped.
+- Early warning, not a verdict: the witness section added 167 input tokens per read on the lane's read meter (no model behind
+  it, so the count may be an estimate), against Wc's added-input p95 <= 120. If Artemis's tokenizer agrees, Wc's input row
+  misses whatever the model answers.
+
+Run for the coordinator's GPU queue (lane with the Artemis read profile; images and sprites off):
+`node scripts/debug/so-witness.mts record --sessions C:/dev/story-orchestrator/test/sessions --out C:/dev/story-orchestrator/test/sessions/witness-real --arm both --lab-rows C:/dev/story-orchestrator/test/sessions/witness-real/lab-rows.json --lab-story C:/dev/adolion-campaign/build/story/adolion-academy.story.json`,
+then `reads` (same set arguments), `wc --out …`, `score-real --out … --freeze …/freeze-adjudicated.json --adjudicated`.
+74 reads in all (37 per arm), roughly 30-60 min of 3090 time. The live-suite row of Wc and RB stay separate.
+
+Gates (branch `v2.8-witness-real-2`): `npm run gates -- --jobs=1 --no-storybook` all green in 270.6 s. Storybook skipped: no UI change. The first run was red on `ownership.guard` (the recorder's local call log, now classified `local` in `test/findings/ownership-sites.json`) and `codeHealth.guard` S5 (two lines over 200 characters, wrapped). The recorder hook is in the lazy live-suite chunk.

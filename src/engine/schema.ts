@@ -338,8 +338,8 @@ export interface RosterMember {
   schedule?: ScheduleEntry[]; factions?: string[];
 }
 
-export { PLAYER_NAME_MODES, PLAYER_ROLE_MAX_CHARS, PLAYER_SUMMARY_MAX_CHARS, PLAYER_ASSUMES_MAX, PLAYER_ASSUME_MAX_CHARS,
-  PLAYER_DESCRIPTION_MAX_CHARS, PLAYER_NAME_MAX_CHARS } from "./playerSchema";
+export { PLAYER_NAME_MODES, PLAYER_ROLE_MAX_CHARS, PLAYER_SUMMARY_MAX_CHARS, PLAYER_ASSUMES_MAX,
+  PLAYER_ASSUME_MAX_CHARS, PLAYER_DESCRIPTION_MAX_CHARS, PLAYER_NAME_MAX_CHARS } from "./playerSchema";
 export type { PlayerNameMode, PlayerName, StoryPlayer } from "./playerSchema";
 import type { StoryPlayer } from "./playerSchema";
 
@@ -529,6 +529,7 @@ export interface StoryLiving {
   autonomy?: LivingAutonomy;
   authored_until?: string;
   opening?: string;
+  scene_test?: { chaos: { from: "tension" }; min_gap?: number };
 }
 
 export const isLivingId = (id: string): boolean => id.startsWith(LIVING_PREFIX);

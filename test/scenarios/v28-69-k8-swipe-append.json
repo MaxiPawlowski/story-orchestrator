@@ -1,0 +1,194 @@
+{
+  "_note": "v2.8 plan 69 K8 (no-model lane). Host fact: a swipe added out of band (another extension pushing to chat[n].swipes and swipe_info without changing swipe_id or mes, then saveChat) emits no event and leaves the shown text alone; fingerprints hash mes, not swipes (runtime/fingerprints.ts). Expected outcome: no boundary and no rollback, before or after the next boundary. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-69-k8-swipe-append.json --sandbox --group 'Group: Arin, DM Narrator', twice. Also v2.8 69 K5: inline hosts sit beside .mes_text and assert-player-clean (which now sweeps .mes_text for SO nodes) finds nothing.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "judge": "off"
+  },
+  "steps": [
+    {
+      "log": true,
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds ' + ctx.chat.length + ' message(s)'); return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "title": "SO-V28-69 K8",
+        "description": "Plan 69 K8 no-model fixture: four facts, one per player line.",
+        "qualities": [
+          {
+            "key": "took_key",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player take the brass key?"
+          },
+          {
+            "key": "lit_lamp",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player light the oil lamp?"
+          },
+          {
+            "key": "found_map",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player unroll the map?"
+          },
+          {
+            "key": "opened_chest",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player open the iron chest?"
+          },
+          {
+            "key": "vault_unsealed",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Never set by these fixtures: it keeps the vault transition (and its Note row) out of the chats the delete checks index."
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "Start",
+            "objective": "Get ready to open the vault.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "vault",
+            "name": "Vault",
+            "objective": "Open the vault.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "start",
+            "to": "vault",
+            "priority": 1,
+            "gate": {
+              "all": [
+                {
+                  "q": "took_key",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "lit_lamp",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "found_map",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "opened_chest",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "vault_unsealed",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            }
+          }
+        ],
+        "roster": [],
+        "id": "so-v28-69-k8"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const state = rt.getEngineState(); if (!state || state.activeCheckpointId !== 'start') throw new Error('the story did not load at start'); return { boundary: state.boundary };"
+    },
+    {
+      "send": "I take the brass key from the hook."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=took_key value=true evidence=\"I take the brass key\"",
+        "reason": "v28-69-k8:line-0"
+      }
+    },
+    {
+      "slash": "/sendas name=Arin raw=false \"The hook is empty now.\""
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const last = ctx.chat.length - 1; if (ctx.chat[last]?.is_user !== false) throw new Error('setup: the last message is not Arin\\'s reply'); const markRt = globalThis.storyOrchestratorRuntime; const ms = markRt.getEngineState(); globalThis.__k8 = { boundary: ms.boundary, last: ms.lastMessageId, length: SillyTavern.getContext().chat.length, recommits: globalThis.storyOrchestratorSpikes?.editReread?.stats().recommits ?? null }; return globalThis.__k8;"
+    },
+    {
+      "record_state": {
+        "as": "before-append"
+      }
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const id = ctx.chat.length - 1; const row = ctx.chat[id]; const shown = row.mes; row.swipes = Array.isArray(row.swipes) ? row.swipes : [row.mes]; row.swipe_info = Array.isArray(row.swipe_info) ? row.swipe_info : [{}]; row.swipe_id = typeof row.swipe_id === 'number' ? row.swipe_id : 0; row.swipes.push('An out-of-band alternative nobody shows.'); row.swipe_info.push({ send_date: row.send_date, extra: {} }); await ctx.saveChat(); await new Promise((r) => setTimeout(r, 1500)); if (row.mes !== shown) throw new Error('the shown text changed'); return { swipes: row.swipes.length, swipeId: row.swipe_id };"
+    },
+    {
+      "log": true,
+      "eval": "const s = globalThis.storyOrchestratorRuntime.getEngineState(); const k = globalThis.__k8; if (s.boundary !== k.boundary) throw new Error('the out-of-band swipe committed a boundary: ' + k.boundary + ' -> ' + s.boundary); return { boundary: s.boundary };"
+    },
+    {
+      "expect": {
+        "rollbackOutcome": {
+          "result": "none",
+          "since": "before-append"
+        }
+      },
+      "log": true
+    },
+    {
+      "send": "I check the hook again."
+    },
+    {
+      "extract": {
+        "debugResponse": "SCENE_NONE",
+        "reason": "v28-69-k8:after-append"
+      }
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "expect": {
+        "rollbackOutcome": {
+          "result": "none",
+          "since": "before-append"
+        }
+      },
+      "log": true
+    },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const s = rt.getEngineState(); return { boundary: s.boundary, last: s.lastMessageId, values: s.blackboard.values, length: SillyTavern.getContext().chat.length, recommits: globalThis.storyOrchestratorSpikes?.editReread?.stats().recommits ?? null, mark: globalThis.__k8 };"
+    },
+    {
+      "log": true,
+      "eval": "const hosts = document.querySelectorAll('#chat .mes_block > .so-inline-host').length; const inside = document.querySelectorAll('#chat .mes_text [id^=\"so-\"], #chat .mes_text [class^=\"so-\"], #chat .mes_text [data-so]').length; if (inside) throw new Error(inside + ' SO node(s) inside .mes_text'); return { inlineHosts: hosts, insideMesText: inside };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    }
+  ]
+}

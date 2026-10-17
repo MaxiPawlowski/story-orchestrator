@@ -131,6 +131,10 @@ export const SETTING_COPY = {
     "Show story status above the chat input",
     "A one-line strip above where you type: where the story is and how tense things are. Click it to open the story drawer.",
   ),
+  "display.yourMove": copy(
+    "Show \"Your move.\" when the story hands the turn back",
+    "A small chip in the status strip when the characters have finished and handed the turn to you, for the reply now on screen. A swipe or an edit of that reply takes it away.",
+  ),
   "memory.chapters.recap": copy(
     "Show \"Previously…\" when a chat opens after a chapter ended",
     "When you come back to a chat whose story finished a chapter, a short recap of that chapter is shown first.",
@@ -169,6 +173,16 @@ export const SETTING_COPY = {
     "Remember promises you make",
     "When you promise a character something, the story keeps your exact words and reminds only that character, when the scene touches it. "
       + "Adds a few lines to each story read. Not measured yet.",
+  ),
+  "memory.witness": copy(
+    "Note who heard each message",
+    "Each story read also names the characters who heard or saw each message, and says unknown when it cannot tell. Nothing uses the record until it is measured. "
+      + "Adds a few lines to each story read. Not measured yet.",
+  ),
+  "memory.rumors": copy(
+    "Let rumors travel between characters",
+    "In a story that declares rumors, news passes between characters along the channels it authors, after a delay, as hearsay the receiver may doubt. "
+      + "No model call. A secret travels only to the one person a story's leak names.",
   ),
   "memory.innerFanOut": copy(
     "Inner beats for",

@@ -276,7 +276,7 @@ describe("a new claim that contradicts an established fact is held, not stored l
 
 describe("the polarity screen holds an explicit negation below the Jaccard band, on established rows only", () => {
   const KNOWS = "Mira knows the password to the archive.";
-  const DOES_NOT = "Mira doesn't know the archive password.";
+  const DOES_NOT = "Mira doesn't know where the archive is kept.";
   const fact = (text: string) => `FACT importance=3 text="${text}" evidence="${COURIER_QUOTE}"`;
   const fillers = ["Arin carries two curved daggers.", "Ponticius keeps the guild ledger locked.", "Rain fell on the eastern hills all week.", "The market sells dried figs cheaply.", "A grey mare waits tied near the inn.", "Wolves were heard beyond the northern ridge."];
 

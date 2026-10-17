@@ -1,3 +1,4 @@
+import type { CardReadBackRecord, CardReadBackState } from "@utils/cardReadBack";
 import type { AgentSession } from "../copilot/agent/types";
 import type { LoreKeyLogic } from "@utils/wiKeys";
 
@@ -59,6 +60,15 @@ export interface ProvisioningResult {
   ok: boolean;
   message: string;
   created?: string;
+  readBack?: CardReadBackRecord;
+}
+
+export interface WizardCreatedCard {
+  name: string;
+  requested: string;
+  avatar: string;
+  readBack: CardReadBackState;
+  lossy: string[];
 }
 
 // What an entry holds right now, so a write can show a before/after instead of asking the author to
@@ -93,6 +103,7 @@ export interface WizardSessionState {
   createdLorebooks: string[];
   /** Author-confirmed write authority over existing lorebooks; never authored story content. */
   grants?: WizardLorebookGrant[];
+  createdCards?: WizardCreatedCard[];
   agent?: AgentSession;
   seed: string;
   updatedAt: string;

@@ -5,7 +5,7 @@ import {
 import type { SealSkip } from "@memory/reverse";
 import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
 import { capProposalRing, sanitizeCreated, sanitizeDeclines } from "@stagecraft/index";
-import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
+import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/settings";
 import { sanitizeModelCalls } from "./modelCallLog";
 import { sanitizeJournalRecords } from "./journal";
 import { defaultExtractionSettings, defaultInlineSettings, defaultMemorySettings, defaultStagecraftSettings, type ChatOverrides, type GlobalSettings } from "./settingsModel";
@@ -14,6 +14,8 @@ import { createChance, sanitizeChance } from "./rolls";
 import { sanitizeChecks } from "./storyCheckDraws";
 import { sanitizeAgendaProposals } from "./agendaProposals";
 import { sanitizePromises } from "@memory/promises/state";
+import { sanitizeWitness } from "@memory/witness/state";
+import { sanitizeRumors } from "@memory/rumors/state";
 import { sanitizeLivingState } from "@generation/living/sanitize";
 import { JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
 import { trimLedger } from "./effectLedger";
@@ -206,7 +208,9 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
 };
 
 export const createCopilot = (): CopilotRuntimeSettings => ({ enabled: true, ask: true });
-export const createUi = (): UiRuntimeSettings => ({ authorView: false, announceTransitions: false, hudEnabled: true, briefing: true, playerSetup: true, inline: defaultInlineSettings() });
+export const createUi = (): UiRuntimeSettings => ({
+  authorView: false, announceTransitions: false, hudEnabled: true, yourMove: true, briefing: true, playerSetup: true, inline: defaultInlineSettings(),
+});
 export const createStagecraft = (): StagecraftRuntimeState => ({
   settings: defaultStagecraftSettings(), proposals: [], declines: [], lastPass: null, lastRunBoundary: -1, lastError: null, created: [], lastCreatePass: null, lastCreateBoundary: -1,
 });
@@ -366,8 +370,8 @@ export const applyGlobalSettings = (extras: RuntimeExtras, global: GlobalSetting
   extras.extraction = { ...extras.extraction, settings: { ...global.extraction } };
   extras.pacing = { alpha: DEFAULT_TENSION_EMA_ALPHA, hintEnabled: global.pacing.hintEnabled, shapeOverride: overrides.shapeOverride };
   extras.copilot = { ...global.copilot };
-  const { announceTransitions, hudEnabled, briefing, briefingDraft, playerSetup, inline, presence } = global.display;
-  extras.ui = { authorView: overrides.authorView, announceTransitions, hudEnabled, briefing, briefingDraft, playerSetup, inline, presence };
+  const { announceTransitions, hudEnabled, yourMove, briefing, briefingDraft, playerSetup, inline, presence } = global.display;
+  extras.ui = { authorView: overrides.authorView, announceTransitions, hudEnabled, yourMove, briefing, briefingDraft, playerSetup, inline, presence };
   extras.memory = { ...extras.memory, settings: { ...global.memory } };
   extras.talk = { ...extras.talk, enabled: overrides.talkEnabled ?? global.talk.enabled };
   extras.stagecraft = { ...extras.stagecraft, settings: { ...global.stagecraft } };
@@ -452,6 +456,8 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   if (extras.checks) extras.checks = sanitizeChecks(extras.checks);
   if (extras.agendaProposals) extras.agendaProposals = sanitizeAgendaProposals(extras.agendaProposals);
   if (extras.promises) extras.promises = sanitizePromises(extras.promises);
+  if (extras.witness) extras.witness = sanitizeWitness(extras.witness);
+  if (extras.rumors) extras.rumors = sanitizeRumors(extras.rumors);
   const recap = sanitizeRecap(extras.recap);
   if (recap) extras.recap = recap; else delete extras.recap;
   const living = sanitizeLivingState(extras.living);

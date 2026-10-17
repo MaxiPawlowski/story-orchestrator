@@ -6,6 +6,7 @@ import { SETTINGS_ROOT_KEY, settingsRoot, writableSettingsRoot } from "./setting
 import type { LoadedStory, StoryLibraryRecord, RuntimeSnapshot } from "./types";
 import { log } from "@utils/log";
 import { gameLayer } from "@engine/validate/gameLayer";
+import { noteLibraryIndex } from "./libraryIndexPort";
 
 const SETTINGS_KEY = "v2Stories";
 
@@ -102,6 +103,7 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
   const evidence = recordSettingsWrite("library save not confirmed", `“${record.title}”`, () => confirmRecord(record));
   if (evidence) armedSaves.set(record, evidence);
   getContext().saveSettingsDebounced();
+  noteLibraryIndex({ stories: { [record.id]: record.hash } });
   return { record, story: { ...parsed, id } };
 }
 
@@ -116,6 +118,7 @@ export function removeStoryRecord(id: string): boolean {
   const removal = { id: target.id, at: new Date().toISOString() };
   recordSettingsWrite("library removal not confirmed", `“${target.title}”`, () => confirmRemoval(removal));
   getContext().saveSettingsDebounced();
+  noteLibraryIndex({ stories: { [target.id]: null } });
   return true;
 }
 

@@ -1,9 +1,12 @@
-import {
-  askJudge, createJudgeGate, modelVerdict, buildDirectorRequest, decideDirector, directorJudgeEligible,
-  directorRecordP, judgeRoute, judgeUseActive, providerCleared, routedProvider, DEFAULT_JUDGE_PROVIDER, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord,
-  type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeGate, type JudgeProviderId, type JudgeRequest, type JudgeResponse,
-  type JudgeResult, type JudgeServedModels, type JudgeSettings, type JudgeTransport, type JudgeUseKey,
-} from "@judge/index";
+import { askJudge } from "@judge/client";
+import type { JudgeDirectorDecision, JudgeDirectorInput } from "@judge/director";
+import { directorJudgeEligible } from "@judge/directorEligible";
+import { createJudgeGate, type JudgeGate } from "@judge/gate";
+import { modelVerdict, DIRECTOR_TIMEOUT_MS } from "@judge/policy";
+import { DEFAULT_JUDGE_PROVIDER, type JudgeProviderId } from "@judge/providers";
+import { judgeRoute, providerCleared, type JudgeServedModels } from "@judge/readiness";
+import { judgeUseActive, routedProvider, type JudgeSettings, type JudgeUseKey } from "@judge/settings";
+import type { JudgeAnswer, JudgeCallRecord, JudgeFallback, JudgeRequest, JudgeResponse, JudgeResult, JudgeTransport } from "@judge/types";
 import type { RunOwnership } from "./runToken";
 
 export interface JudgeStatusLike {
@@ -281,6 +284,7 @@ export class JudgeRuntime {
       this.recordFallback("director", "no-roles");
       return null;
     }
+    const { buildDirectorRequest, decideDirector, directorRecordP } = await import("@judge/director");
     const result = await this.ask("director", buildDirectorRequest(input), {
       timeoutMs: Math.min(this.deps.getSettings().timeoutMs, DIRECTOR_TIMEOUT_MS),
       summarize: (answers) => directorRecordP(answers, answers ? decideDirector(answers, input) : null),

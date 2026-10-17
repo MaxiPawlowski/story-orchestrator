@@ -7,6 +7,7 @@ import { buildSceneSummaryPrompt } from "@memory/contract";
 import { draftCastNames, emptyEnvironment, type ProvisioningEnvironment } from "@wizard/index";
 import { DIRECTOR_MAX_TOKENS, DIRECTOR_TIMEOUT_MS } from "./talkControl";
 import { curatorIndexArm, refuseIndexEdits } from "./curatorIndexArm";
+import { fnv1a } from "./hash";
 
 export type CalibrationRole = Exclude<PassRole, "read" | "inner" | "lore">;
 
@@ -80,6 +81,7 @@ export interface RoleCaseRecord<R extends CalibrationRole = CalibrationRole> {
   finishes: string[];
   latencyMs: number;
   score: CalibrationScoreMap[R];
+  promptHash?: string;
 }
 
 export interface RoleCaseOptions {
@@ -202,8 +204,11 @@ const RUNNERS: { [R in CalibrationRole]: Runner<R> } = { director: runDirector, 
 
 export async function runRoleCase<R extends CalibrationRole>(role: R, entry: CalibrationCaseMap[R], options: RoleCaseOptions): Promise<RoleCaseRecord<R>> {
   const clock = options.now ?? (() => Date.now());
-  const outcome = await (RUNNERS[role] as Runner<R>)(entry, options, clock);
-  return { role, id: entry.id, lang: entry.lang ?? "en", ...outcome };
+  const base = modelOf(options);
+  const prompts: string[] = [];
+  const recorded: ModelCall = Object.assign((prompt: string, ask: Parameters<ModelCall>[1]) => { prompts.push(prompt); return base(prompt, ask); }, base.planted ? { planted: base.planted } : {});
+  const outcome = await (RUNNERS[role] as Runner<R>)(entry, { ...options, model: recorded }, clock);
+  return { role, id: entry.id, lang: entry.lang ?? "en", ...outcome, promptHash: fnv1a(prompts.join("\n")) };
 }
 
 export interface MetricResult { passed: number; total: number; rate: number | null; floor: number | null; ok: boolean | null }

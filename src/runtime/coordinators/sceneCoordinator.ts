@@ -1,8 +1,10 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import { SCENE_TIMEOUT_MS } from "@judge/policy";
 import {
-  buildSceneReadRequest, confirmedSceneFacts, readScene, SCENE_MAX_REACHABLE, SCENE_TIMEOUT_MS, isSceneStale,
-  sceneTrackerText, toSceneRecord, type JudgeRequest, type JudgeResult, type SceneFamilies, type SceneReadInput, type SceneReadRecord,
-} from "@judge/index";
+  buildSceneReadRequest, confirmedSceneFacts, readScene, SCENE_MAX_REACHABLE, isSceneStale, sceneTrackerText, toSceneRecord,
+  type SceneFamilies, type SceneReadInput, type SceneReadRecord,
+} from "@judge/scene";
+import type { JudgeRequest, JudgeResult } from "@judge/types";
 import type { WriteResult } from "@utils/writeResult";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunGuard, type RunOwnership } from "../runToken";

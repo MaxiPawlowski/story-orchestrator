@@ -1,5 +1,6 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
 import { maxTokensFor, maxTokensForInput } from "@extraction/callBudget";
+import { acceptCompaction, CompactionAttempts, compactionKey } from "@memory/compactionGate";
 import { defaultContextLimit } from "@extraction/inputBudget";
 import { isLapse } from "@extraction/modelError";
 import { askText } from "@extraction/modelRoute";
@@ -31,13 +32,14 @@ import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership, type RunToken } from "../runToken";
 import type { ChatHost, RosterHost } from "../hostPorts";
 import type { SpikeSettings } from "../settingsModel";
-import { MemorizeBacklog } from "../memorizeBacklog";
+import { lazyBacklog, type BacklogPort } from "../memorizeBacklogPort";
 import type { PromisePort } from "../promisePort";
-import {
-  buildStallRequest, buildVerifyRequest, readVerify, stallVerdict, STALL_TIMEOUT_MS, verifyVerdict,
-  VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS,
-} from "@judge/index";
+import type { WitnessPort } from "../witnessPort";
+import { buildStallRequest, stallVerdict } from "@judge/extraction";
+import { buildVerifyRequest, readVerify, verifyVerdict } from "@judge/memory";
+import { STALL_TIMEOUT_MS, VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS } from "@judge/policy";
 import { log } from "@utils/log";
+import { withoutStaleReasoning } from "../reasoningRevision";
 
 export const TYPED_READ_WINDOW = 3;
 
@@ -69,6 +71,8 @@ export interface ExtractionCoordinatorDeps {
   ownership: RunOwnership;
   hosts: { chat: ChatHost; roster: RosterHost };
   promises?: Pick<PromisePort, "open" | "ready" | "apply">;
+  witness?: Pick<WitnessPort, "present" | "ready" | "apply">;
+  journal?: (summary: string, note: string) => void;
 }
 
 // Owns extras.extraction and every off-path read: the shared-read audit pipeline, the
@@ -76,10 +80,11 @@ export interface ExtractionCoordinatorDeps {
 // are delegated to the memory coordinator — this class never touches extras.memory directly.
 export class ExtractionCoordinator {
   private sceneDetectCursor: { location: string | null; cast: string | null; world: RunToken | null } | null = null;
-  readonly backlog: MemorizeBacklog;
+  readonly backlog: BacklogPort;
+  private readonly compactions = new CompactionAttempts();
 
   constructor(private readonly deps: ExtractionCoordinatorDeps) {
-    this.backlog = new MemorizeBacklog({
+    this.backlog = lazyBacklog({
       getStory: () => deps.getStory(), getState: () => deps.getState(), memory: () => deps.memory, model: () => deps.model,
       ownership: () => deps.ownership, chat: () => deps.hosts.chat, judge: () => deps.judge?.() ?? null,
       firedTransitions: () => deps.getFiredTransitions(), applyAudit: (...args) => this.applyAudit(...args),
@@ -266,7 +271,9 @@ export class ExtractionCoordinator {
     const verified = await this.verifyEntries(newMemoryEntries, audit.window);
     if (intents) await intents;
     if (this.deps.promises) await this.deps.promises.ready(audit);
+    await this.deps.witness?.ready(audit);
     if (!run.stillOwns()) return;
+    this.deps.witness?.apply(audit);
     if (memory.capable && epistemicSignals.length) memory.applyEpistemic(epistemicSignals, audit.window.to, [], audit.window);
     await memory.applyEntries(verified.kept, audit.window);
     if (!run.stillOwns()) return;
@@ -337,6 +344,7 @@ export class ExtractionCoordinator {
       cardScope: this.cardScope(),
       openArcs: memory.getOpenArcs(),
       openPromises: this.deps.promises?.open() ?? null,
+      witnessPresent: this.deps.witness?.present() ?? null,
       epistemicLedgerCapable: memory.capable,
       entities: memory.getEntities(),
       model: this.deps.model,
@@ -424,12 +432,19 @@ export class ExtractionCoordinator {
     // — it overwrites the live summary with one describing another chat or an edited window.
     const run = beginRun(this.deps.ownership, { from: window.from, to: window.to });
     const fit = await fitShortTerm(window.messages, previous?.text ?? null, this.budget("synthesis"));
+    const key = compactionKey(window, previous?.id ?? null, fit.text);
+    if (!run.stillOwns() || !this.compactions.admits(key)) return;
     const prompt = buildShortTermSummaryPrompt(previous?.text ?? null, fit.text);
-    const summary = stripChannelNoise(await askText(this.deps.model, prompt, {
-      role: "synthesis", pass: "shortTerm", maxTokens: maxTokensFor("shortTerm", fit.tokens), signal: run.signal, refuseIncomplete: true,
-    }));
-    if (!summary || !run.stillOwns()) return;
+    const maxTokens = maxTokensFor("shortTerm", fit.tokens);
+    const summary = stripChannelNoise(await askText(this.deps.model, prompt, { role: "synthesis", pass: "shortTerm", maxTokens, signal: run.signal, refuseIncomplete: true }));
+    if (!run.stillOwns()) return;
     const span = { from: fit.from, to: window.to };
+    const verdict = acceptCompaction({ summary, previous: previous?.text ?? null, window: fit.text, budgetTokens: maxTokens, count: (text) => this.budget("synthesis").meter.count(text) });
+    if (!verdict.ok) {
+      this.compactions.refused(key);
+      return this.deps.journal?.("compaction-refused", `messages ${span.from}-${span.to}: the summary was ${verdict.reason}; the previous short-term entry is kept`);
+    }
+    this.compactions.accepted(key);
     const entry = this.newEntry({ provenance: this.provenanceFor(span, "short-term-compaction"), tier: "short_term",
         text: summary, type: "scene", importance: 2, expiration: "session", entities: [], evidence: fit.text,
         messageId: span.to });
@@ -453,7 +468,7 @@ export class ExtractionCoordinator {
     const existing = memory.activeEpistemic();
     const epistemicPrompt = buildEpistemicPassPrompt(sceneText, enabledCharacterNames(story, this.deps.hosts.roster),
         existing.map((entry) => ({ tag: entry.tag, subject: entry.subject, content: entry.content,
-        hiddenFrom: entry.hiddenFrom })), memory.harvestsReasoning ? inner.harvestReasoning(this.deps.hosts.chat.chatRows(), audit.window) : "");
+        hiddenFrom: entry.hiddenFrom })), memory.harvestsReasoning ? inner.harvestReasoning(withoutStaleReasoning(this.deps.hosts.chat.chatRows()), audit.window) : "");
     const epistemicResponse = await askText(this.deps.model, epistemicPrompt, { role: "read", pass: "epistemic", maxTokens: maxTokensForInput("epistemic", sceneText), signal: run.signal });
     if (!run.stillOwns()) return false;
     const epistemicSignals: ParsedEpistemicSignal[] = [];

@@ -1,7 +1,9 @@
-import { askText, parseSharedReadResponse, type ExtractionReply, type ModelCall, type ModelPass, type PassRole } from "@extraction/index";
+import { askText, parseSharedReadResponse, runSharedRead, type ExtractionReply, type ModelCall, type ModelPass, type PassRole } from "@extraction/index";
+import { windowOf } from "@extraction/chatRows";
 import { buildFixtureRun, type ExtractionFixtureSpec, type FixtureSourceRead } from "@extraction/fixtureRun";
 import { applyRatingGrounding } from "@extraction/ratingGuard";
-import { agendaStepKey, parseStoryV2OrThrow, type PrimitiveValue } from "@engine/index";
+import { liveReadTiers } from "@extraction/liveTiers";
+import { agendaStepKey, parseStoryV2OrThrow, StoryEngine, type EngineState, type PrimitiveValue } from "@engine/index";
 import { loadGameLayer } from "@engine/validate/gameLayer";
 import { buildMeanwhilePrompt, parseMeanwhile, type MeanwhileParse } from "./meanwhilePrompt";
 import { MEANWHILE_MAX_TOKENS } from "./coordinators/agendaProposalCoordinator";
@@ -11,7 +13,7 @@ import { requestBudgetFor, routedProfileId } from "./requestBudget";
 import { sceneArmRunner, type SceneArmResult } from "./sceneArmRunner";
 import { profileExists } from "@services/STAPI";
 import { createModelCall } from "./modelCall";
-import { buildTypedPlan, readTypedDeltas } from "@judge/index";
+import { buildTypedPlan, readTypedDeltas } from "@judge/extraction";
 import { buildCreateCandidatePrompt, caseContext, caseScope, scoreCreateSample, type CreateCase, type CreateCaseSample } from "@stagecraft/createCandidate";
 import type { RuntimeManager } from "./runtimeManager";
 import {
@@ -53,6 +55,36 @@ export interface MeanwhileCaseResult {
   refused: MeanwhileParse["refused"];
 }
 
+export interface WitnessReadSpec {
+  story: unknown;
+  chat: Array<{ name: string; mes: string; is_user?: boolean; is_system?: boolean }>;
+  from: number;
+  to: number;
+  state?: EngineState | null;
+  activeCheckpointId?: string;
+  present: string[] | null;
+  debugResponse?: string;
+}
+
+export interface WitnessReadCall {
+  finish: string;
+  ms: number;
+  maxTokens: number | null;
+  model: string | null;
+}
+
+export interface WitnessReadResult {
+  prompt: string;
+  rawResponse: string;
+  inputTokens: number;
+  outputTokens: number;
+  calls: WitnessReadCall[];
+  window: { from: number; to: number };
+  scope: number;
+  rejected: number;
+  witness: unknown;
+}
+
 export interface LifeBlockReading {
   text: string;
   tokens: number;
@@ -83,6 +115,7 @@ export interface LiveSuiteHandle {
   askModel: (prompt: string, maxTokens: number, role: PassRole) => Promise<ExtractionReply>;
   runMeanwhileCase: (spec: MeanwhileCaseSpec) => Promise<MeanwhileCaseResult>;
   lifeBlock: (story: unknown, values: Record<string, PrimitiveValue>, memberId: string) => Promise<LifeBlockReading>;
+  runWitnessRead: (spec: WitnessReadSpec) => Promise<WitnessReadResult>;
 }
 
 const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
@@ -91,16 +124,7 @@ const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
   return { ...raw, qualities: (raw.qualities ?? []).map((quality) => ({ ...quality, ...(hints[String(quality.key)] ?? {}) })) };
 };
 
-type LiveReadTiers = Pick<LiveFixtureResult, "facts" | "rejected" | "memory" | "arcs" | "epistemic" | "ledger">;
-
-export const liveReadTiers = (parsed: ReturnType<typeof parseSharedReadResponse>): LiveReadTiers => ({
-  facts: parsed.facts.map((entry) => ({ text: entry.text, importance: entry.importance })),
-  rejected: parsed.rejected,
-  memory: parsed.memory.map((entry) => ({ tier: entry.tier, text: entry.text })),
-  arcs: parsed.arcs.map((entry) => ({ kind: entry.kind, text: entry.text })),
-  epistemic: parsed.epistemic.map((entry) => ({ tag: entry.tag, subject: entry.subject, ...(entry.hiddenFrom ? { hiddenFrom: entry.hiddenFrom } : {}), content: entry.content })),
-  ledger: parsed.ledger.map((entry) => ({ entity: entry.entity, entityType: entry.entityType, field: entry.field, value: entry.value })),
-});
+export { liveReadTiers };
 
 const ROLE_PASS: Record<PassRole, ModelPass> = { read: "read", synthesis: "sceneSummary", authoring: "copilot", director: "director", curator: "curator", inner: "inner", lore: "loreCreate" };
 
@@ -132,6 +156,31 @@ export function registerLiveSuite(manager: RuntimeManager) {
       const budget = requestBudgetFor("read");
       await budget.meter.prime([text]);
       return { text, tokens: text ? budget.meter.count(text) : 0 };
+    },
+    runWitnessRead: async (spec) => {
+      await loadGameLayer();
+      const story = parseStoryV2OrThrow(spec.story);
+      const engine = new StoryEngine();
+      engine.loadStory(story);
+      const state = { ...(spec.state ?? engine.serialize()), ...(spec.activeCheckpointId ? { activeCheckpointId: spec.activeCheckpointId } : {}) };
+      const calls: WitnessReadCall[] = [];
+      const tracked: ModelCall = async (prompt, ask) => {
+        const started = performance.now();
+        const reply = await model(prompt, ask);
+        calls.push({ finish: reply.finish, ms: performance.now() - started, maxTokens: ask.maxTokens ?? null, model: reply.model ?? null });
+        return reply;
+      };
+      const budget = requestBudgetFor("read");
+      const result = await runSharedRead({
+        story, state, priority: 0, reason: "p42-w4", window: windowOf(spec.chat, spec.from, spec.to), witnessPresent: spec.present, model: tracked,
+        ask: { role: "read", pass: "read", budget, ...(spec.debugResponse ? { debugResponse: spec.debugResponse } : {}) },
+      });
+      const { audit } = result;
+      await budget.meter.prime([audit.prompt, audit.rawResponse]);
+      return {
+        prompt: audit.prompt, rawResponse: audit.rawResponse, inputTokens: budget.meter.count(audit.prompt), outputTokens: budget.meter.count(audit.rawResponse), calls,
+        window: audit.window, scope: audit.scope.length, rejected: audit.rejected.length, witness: audit.witness ?? null,
+      };
     },
     runFixture: async (spec, options = {}) => {
       await loadGameLayer();

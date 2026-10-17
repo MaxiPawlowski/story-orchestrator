@@ -25,6 +25,7 @@ const harness = (options: { living?: boolean; branching?: boolean; state?: Livin
   };
   let loads = 0;
   const deps = {
+    ownership: { mint: () => ({}), check: () => ({ ok: true }) },
     getStory: () => story(options.living ?? true),
     getLiving: () => options.state,
     branching: () => options.branching ?? true,
@@ -63,14 +64,12 @@ describe("v2.8 22 living port: the main entry holds a door, the director loads o
     expect(busy.calls).toEqual(["apply"]);
   });
 
-  it("a rollback before the chunk loaded is replayed once it has, when the chat tracks a history", async () => {
+  it("a rollback before the chunk loaded waits for it and restores, when the chat tracks a history", async () => {
     const tracked = { ...createLivingState(), authored: { raw: {}, hash: "h" } } as LivingRuntimeState;
     const { port, calls } = harness({ state: tracked });
-    expect(port.restoreAfterRollback(5)).toBe(0);
-    await Promise.resolve();
-    await Promise.resolve();
+    expect(await port.restoreAfterRollback(5)).toBe(2);
     expect(calls).toEqual(["restore:5"]);
-    expect(port.restoreAfterRollback(4)).toBe(2);
+    expect(await port.restoreAfterRollback(4)).toBe(2);
   });
 });
 

@@ -7,6 +7,7 @@ import { RECAP_FEATURES } from "./recapFeatures";
 import { LIFE_FEATURES } from "./lifeFeatures";
 import { LIVING_FEATURES } from "./livingFeatures";
 import { PROMISE_FEATURES } from "./promiseFeatures";
+import { AUDIENCE_FEATURES } from "./audienceFeatures";
 import { START_FEATURES } from "./startFeatures";
 import { CARRY_FEATURES } from "./carryFeatures";
 import { chatAt, drawerAt, settingsAt, studioAt } from "./where";
@@ -128,6 +129,15 @@ const CORE_FEATURES: readonly Feature[] = [
     where: settingsAt("#so-hud-enabled", "Playing › Show story status"),
     settings: ["display.hudEnabled"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
     isOn: (settings) => settings.display.hudEnabled,
+  },
+  {
+    id: "your-move-chip", name: "Your move", area: "play", audience: "player",
+    oneLine: "A chip in the status strip when the characters hand the turn back to you.",
+    what: "When the characters have finished and the story hands the turn to you, the status strip says \"Your move.\" It shows only for the reply now on screen: "
+      + "a swipe, an edit or your own next line takes it away. A pause where nobody answers is not a hand-back.",
+    where: settingsAt("#so-your-move-enabled", "Playing › Your move"),
+    settings: ["display.yourMove"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story", "group-chat"],
+    isOn: (settings) => settings.display.hudEnabled && settings.display.yourMove,
   },
   {
     id: "inline-notes", name: "Notes under messages", area: "play", audience: "player",
@@ -449,11 +459,12 @@ const POLICY_TARGETS: Record<string, [import("@engine/featurePolicy").StoryFeatu
   "memory-lore": ["memoryLore", "enabled"], "late-lore": ["lateLore", "enabled"], curator: ["curator", "enabled"],
   "curator-create": ["curator", "create"], "curator-markers": ["curator", "acceptMode"], sprites: ["sprites", "enabled"],
   "meanwhile-proposals": ["meanwhile", "acceptMode"], "living-story": ["living", "enabled"], "story-branching": ["branching", "enabled"],
+  "witness-record": ["witness", "enabled"], rumors: ["rumors", "enabled"],
 };
 
 export const FEATURES: readonly Feature[] = [
   ...CORE_FEATURES, ...PRESENCE_FEATURES, ...GAME_FEATURES, ...LIFE_FEATURES, ...LIVING_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature),
-  ...RECAP_FEATURES, ...PROMISE_FEATURES,
+  ...RECAP_FEATURES, ...PROMISE_FEATURES, ...AUDIENCE_FEATURES,
 ].map((feature) => {
   const target = POLICY_TARGETS[feature.id];
   if (!target) return feature;

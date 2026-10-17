@@ -31,6 +31,7 @@ function hostWrite(name: string) {
 }
 
 jest.mock("@services/STAPI", () => ({
+  groupMemberPosition: () => ({ ok: true, position: 0 }),
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),

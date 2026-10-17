@@ -66,18 +66,12 @@ export interface SchedulerHost {
   cardScope?(): ScopeSourceContext;
   getOpenArcs(): string[];
   getOpenPromises?(): OpenPromiseRef[] | null;
+  witness?: { present(): string[] | null; outage(window: { from: number; to: number }): void };
   getEpistemicLedgerCapable?(): boolean;
   getEntities?(): string[];
   judgeTyped?(): TypedJudge | null;
-  applyExtractionAudit(
-    audit: SharedReadAudit,
-    facts: ParsedFact[],
-    memory: ParsedMemoryLine[],
-    arcs: ParsedArcSignal[],
-    epistemic?: ParsedEpistemicSignal[],
-    ledger?: ParsedLedgerSignal[],
-    read?: ReadOwnership | null,
-  ): Promise<void>;
+  applyExtractionAudit(audit: SharedReadAudit, facts: ParsedFact[], memory: ParsedMemoryLine[], arcs: ParsedArcSignal[],
+    epistemic?: ParsedEpistemicSignal[], ledger?: ParsedLedgerSignal[], read?: ReadOwnership | null): Promise<void>;
   beginRead?(window: { from: number; to: number }): ReadOwnership;
   readsOpenChat?(): boolean;
   onSchedulerChange(): void;
@@ -382,6 +376,7 @@ export class ExtractionScheduler {
     const failure = failureClass(error);
     const message = errorText(error, heavy ? "Background generation failed" : "Extraction failed");
     if (failure !== "transport" || !profileId) this.rewindCursor(job, startedEpoch);
+    if (read && !heavy && failure !== "lapsed" && this.sameWorld(startedEpoch)) this.host.witness?.outage(read.window);
     if (failure === "lapsed") {
       if (this.sameWorld(startedEpoch)) this.noteLapse(job, error);
       if (read) this.rereadIfMutated(read, startedEpoch);
@@ -511,6 +506,7 @@ export class ExtractionScheduler {
           cardScope: this.host.cardScope?.(),
           openArcs: this.host.getOpenArcs(),
           openPromises: this.host.getOpenPromises?.() ?? null,
+          witnessPresent: this.host.witness?.present() ?? null,
           epistemicLedgerCapable: this.host.getEpistemicLedgerCapable?.() ?? false,
           entities: this.host.getEntities?.() ?? [],
           judgeTyped: this.host.judgeTyped?.() ?? null,

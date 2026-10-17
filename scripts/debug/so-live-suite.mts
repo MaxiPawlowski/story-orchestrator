@@ -1,3 +1,4 @@
+import { spawnSync } from 'node:child_process';
 import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -6,9 +7,17 @@ import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { latencyPercentiles, parseEffortArm, pinRoleEffort, pinRoleProfile, readRoleReasoning, restoreRoleEfforts, restoreRoleProfiles, type EffortArm } from './lib/roleEffort.mts';
-import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreContains, scoreIntents, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
+import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreClaims, scoreContains, scoreIntents, scoreQuoted, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
+import { fingerprintsOf, readRoleModel, type MeasurementFingerprints } from './lib/measurementFingerprint.mts';
+import { compareArms } from './lib/armCompare.mts';
+import { captureChatFingerprint, firstChange } from './lib/chatUntouched.mts';
+import { captureHeader } from './so-run-header.mts';
 
-const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high] [--profile <name|id>] [--arm <label>] [--set extractor|time]
+const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high] [--profile <name|id>] [--arm <label>] [--set extractor|time|adversarial]
+       node scripts/debug/so-live-suite.mts inventory|rescore [dir] [--out <file>] [--check]   (offline, v2.8 35: see so-live-rescore.mts)
+       node scripts/debug/so-live-suite.mts compare <a-r1> <a-r2> <b-r1> <b-r2> [--declare prompt,scorer,model,config] [--out <file>]
+                  (offline, v2.8 35 G5/G8: stable-pass, stable-fail, flaky, new, removed; regressed only on stable-pass to stable-fail;
+                  reports whose fingerprints differ are labelled not comparable unless the differing field is declared)
 
 Runs every test/fixtures/extractor*.{story,transcript,expected}.json triple through the live
 extraction model (globalThis.storyOrchestratorLiveSuite.runFixture) and scores exact-match on
@@ -67,7 +76,7 @@ function argValue(name, fallback) {
   return index >= 0 && process.argv[index + 1] ? process.argv[index + 1] : fallback;
 }
 
-export const FIXTURE_SETS = { extractor: /^extractor.*\.story\.json$/, time: /^timewindow.*\.story\.json$/ } as const;
+export const FIXTURE_SETS = { extractor: /^extractor.*\.story\.json$/, time: /^timewindow.*\.story\.json$/, adversarial: /^adversarial.*\.story\.json$/ } as const;
 
 async function discoverFixtures(filter, set: keyof typeof FIXTURE_SETS = 'extractor') {
   const files = await readdir(FIX_DIR);
@@ -103,7 +112,10 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
   let effortsRestored = null;
   let profilesRestored = null;
 
+  const untouchedBefore = await captureChatFingerprint(page).catch(() => null);
   const results = [];
+  const prompts: string[] = [];
+  let fingerprints: MeasurementFingerprints | null = null;
   try {
     for (const fixture of fixtures) {
       const startedAt = Date.now();
@@ -114,6 +126,7 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
           return suite.runFixture({ story: spec.story, transcript: spec.transcript, ...(spec.overrides ?? {}) }, spec.judge ? { judge: true, hints: spec.hints ?? {} } : {});
         }, { story: fixture.story, transcript: fixture.transcript, overrides: fixture.expected?.spec ?? {}, judge, hints: fixture.hints });
 
+        if (typeof live.prompt === 'string') prompts.push(live.prompt);
         const { pass, expectedNorm, liveNorm } = scoreFixture(fixture.expected.deltas ?? [], live.deltas ?? []);
         // §F: score every tier the fixture states, not only the plot deltas. `facts` and `rejected`
         // expectations have been in these files all along with nothing reading them.
@@ -126,6 +139,8 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
           scoreContains('epistemic', fixture.expected.epistemic, live.epistemic ?? []),
           scoreContains('ledger', fixture.expected.ledger, live.ledger ?? []),
           scoreIntents(fixture.expected.intents, live.epistemic ?? [], fixture.transcript.filter((entry) => entry.is_user === true).map((entry) => entry.speaker)),
+          scoreClaims(fixture.expected.claims, [...(live.facts ?? []), ...(live.memory ?? []), ...(live.arcs ?? []), ...(live.epistemic ?? []), ...(live.ledger ?? [])]),
+          scoreQuoted(fixture.expected.quoted, [...(live.facts ?? []), ...(live.memory ?? []), ...(live.arcs ?? []), ...(live.epistemic ?? []), ...(live.ledger ?? [])]),
         ].filter((row) => row.scored);
         const tierFailures = tiers.filter((row) => !row.pass);
         const sources = (live.deltas ?? []).map((d) => `${d.q}:${d.judge === undefined ? 'llm' : `judge@${d.judge}`}`);
@@ -140,11 +155,13 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
       }
     }
     if (pinned) reasoning = await readRoleReasoning(page, 'read');
+    fingerprints = fingerprintsOf({ prompts, model: await readRoleModel(page, 'read').catch(() => null), header: await captureHeader(page, 'fingerprints').catch(() => null) });
   } finally {
     if (pinned) effortsRestored = await restoreRoleEfforts(page, pinned.before);
     if (routed) profilesRestored = await restoreRoleProfiles(page, routed.before);
   }
 
+  const touched = untouchedBefore ? firstChange(untouchedBefore, await captureChatFingerprint(page)) : 'the chat fingerprint was not read before the run';
   const passed = results.filter((entry) => entry.pass).length;
   const accuracy = passed / results.length;
   const totals = tierTotals(results.map((entry) => ({ name: entry.name, pass: entry.pass, tiers: entry.tiers ?? [] })), floors);
@@ -161,10 +178,12 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
     floors: Object.fromEntries(Object.entries(floors).map(([tier, floor]) => [tier, { floor, from: floorsGiven.includes(tier) ? 'given' : 'default' }])),
     expectCount: expectCount ?? null,
     incomplete,
-    notGreen: verdict.reasons,
-    ok: verdict.ok,
+    notGreen: [...verdict.reasons, ...(touched ? [`chat touched: ${touched}`] : [])],
+    ok: verdict.ok && !touched,
+    chatUntouched: { ok: !touched, firstChange: touched },
     recorded: record,
     judge,
+    fingerprints,
     ...(arm ? { arm } : {}),
     ...(routed ? { profile: routed.profile, profilesRestored } : {}),
     ...(effort ? { effort, reasoning, effortsRestored } : {}),
@@ -176,12 +195,32 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
     const intents = total.intents ? ` precision ${total.intents.precision} recall ${total.intents.recall} playerAttributed ${total.intents.playerAttributed}` : '';
     console.log(`${total.ok ? 'ok  ' : 'FAIL'} ${tier.padEnd(10)} ${total.passed}/${total.scored}${intents}${total.floor === undefined ? '' : ` floor ${total.floor}`}${total.vacuous.length ? `  [vacuous expectations: ${total.vacuous.join(', ')}]` : ''}`);
   }
-  for (const reason of verdict.reasons) console.log(`NOT GREEN: ${reason}`);
+  for (const reason of report.notGreen) console.log(`NOT GREEN: ${reason}`);
   console.log(JSON.stringify({ total: report.total, passed, plotDeltaAccuracy: report.plotDeltaAccuracy, min, tiers: totals, ok: report.ok }, null, 2));
   return { ok: report.ok };
 }
 
 export { runSuite };
+
+if (process.argv[1] === fileURLToPath(import.meta.url) && (process.argv[2] === 'rescore' || process.argv[2] === 'inventory')) {
+  const offline = spawnSync(process.execPath, ['--experimental-transform-types', '--no-warnings', join(PROJECT_ROOT, 'scripts/debug/so-live-rescore.mts'), ...process.argv.slice(2)], { stdio: 'inherit' });
+  process.exit(offline.status ?? 1);
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv[2] === 'compare') {
+  const files = process.argv.slice(3).filter((arg, index, args) => !arg.startsWith('--') && !['--declare', '--out'].includes(args[index - 1] ?? ''));
+  if (files.length !== 4) {
+    console.log(USAGE);
+    process.exit(1);
+  }
+  const declared = argValue('--declare', '').split(',').map((field) => field.trim()).filter(Boolean);
+  const [a1, a2, b1, b2] = await Promise.all(files.map(readJson));
+  const compared = { files, ...compareArms(a1, a2, b1, b2, declared) };
+  const out = argValue('--out', '');
+  if (out) await writeFile(out, `${JSON.stringify(compared, null, 2)}\n`);
+  console.log(JSON.stringify({ label: compared.label, counts: compared.counts, regressed: compared.rows.filter((row) => row.change === 'regressed').map((row) => row.key) }, null, 2));
+  process.exit(0);
+}
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (process.argv[2] !== 'run' || hasHelpFlag()) {
@@ -197,5 +236,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(1);
   }
   const expectCountRaw = argValue('--expect-count', '');
-  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, floorsGiven: given, expectCount: expectCountRaw ? Number(expectCountRaw) : null, effort: parseEffortArm(argValue('--effort', '')), profile: argValue('--profile', '') || null, arm: argValue('--arm', '') || null, set: argValue('--set', 'extractor') === 'time' ? 'time' : 'extractor' }));
+  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, floorsGiven: given, expectCount: expectCountRaw ? Number(expectCountRaw) : null, effort: parseEffortArm(argValue('--effort', '')), profile: argValue('--profile', '') || null, arm: argValue('--arm', '') || null, set: (['time', 'adversarial'] as const).find((name) => name === argValue('--set', 'extractor')) ?? 'extractor' }));
 }

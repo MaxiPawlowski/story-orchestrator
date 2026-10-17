@@ -1,0 +1,388 @@
+{
+  "kind": "live-suite-rescore",
+  "scorerVersion": 2,
+  "fromScorerVersion": 1,
+  "source": "test/goldens/live",
+  "recordedAt": "2026-10-16T15:49:12.981Z",
+  "fixtures": [
+    {
+      "name": "extractor",
+      "tiers": [
+        {
+          "tier": "facts",
+          "v1": true,
+          "v2": true,
+          "changed": false,
+          "v1Detail": "1 line(s) matched the fixture",
+          "v2Detail": "1 line(s) matched the fixture"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor2",
+      "tiers": [
+        {
+          "tier": "facts",
+          "v1": true,
+          "v2": true,
+          "changed": false,
+          "v1Detail": "1 line(s) matched the fixture",
+          "v2Detail": "1 line(s) matched the fixture"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor3",
+      "tiers": [
+        {
+          "tier": "facts",
+          "v1": true,
+          "v2": true,
+          "changed": false,
+          "v1Detail": "1 line(s) matched the fixture",
+          "v2Detail": "1 line(s) matched the fixture"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor4",
+      "tiers": [
+        {
+          "tier": "facts",
+          "v1": true,
+          "v2": true,
+          "changed": false,
+          "v1Detail": "1 line(s) matched the fixture",
+          "v2Detail": "1 line(s) matched the fixture"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor5",
+      "tiers": [
+        {
+          "tier": "facts",
+          "v1": true,
+          "v2": true,
+          "changed": false,
+          "v1Detail": "1 line(s) matched the fixture",
+          "v2Detail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "v1": false,
+          "v2": false,
+          "changed": false,
+          "v1Detail": "expected no rejections, got unrecognized line",
+          "v2Detail": "expected no rejections, got unrecognized line"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor6",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "v1": false,
+          "v2": false,
+          "changed": false,
+          "v1Detail": "expected no rejections, got unrecognized line",
+          "v2Detail": "expected no rejections, got unrecognized line"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor7",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "v1": false,
+          "v2": false,
+          "changed": false,
+          "v1Detail": "expected no rejections, got unrecognized line",
+          "v2Detail": "expected no rejections, got unrecognized line"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor8",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "v1": false,
+          "v2": false,
+          "changed": false,
+          "v1Detail": "expected no rejections, got unrecognized line",
+          "v2Detail": "expected no rejections, got unrecognized line"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor9",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "v1": false,
+          "v2": false,
+          "changed": false,
+          "v1Detail": "expected no rejections, got unrecognized line",
+          "v2Detail": "expected no rejections, got unrecognized line"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor10",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "v1": false,
+          "v2": false,
+          "changed": false,
+          "v1Detail": "expected no rejections, got unrecognized line",
+          "v2Detail": "expected no rejections, got unrecognized line"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor11",
+      "tiers": [],
+      "changed": false
+    },
+    {
+      "name": "extractor12",
+      "tiers": [
+        {
+          "tier": "facts",
+          "v1": true,
+          "v2": true,
+          "changed": false,
+          "v1Detail": "1 line(s) matched the fixture",
+          "v2Detail": "1 line(s) matched the fixture"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor13",
+      "tiers": [
+        {
+          "tier": "facts",
+          "v1": true,
+          "v2": true,
+          "changed": false,
+          "v1Detail": "1 line(s) matched the fixture",
+          "v2Detail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "v1": false,
+          "v2": false,
+          "changed": false,
+          "v1Detail": "expected no rejections, got unrecognized line",
+          "v2Detail": "expected no rejections, got unrecognized line"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor14",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "v1": false,
+          "v2": false,
+          "changed": false,
+          "v1Detail": "expected no rejections, got unrecognized line",
+          "v2Detail": "expected no rejections, got unrecognized line"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor15",
+      "tiers": [
+        {
+          "tier": "facts",
+          "v1": true,
+          "v2": true,
+          "changed": false,
+          "v1Detail": "1 line(s) matched the fixture",
+          "v2Detail": "1 line(s) matched the fixture"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor16",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "v1": false,
+          "v2": false,
+          "changed": false,
+          "v1Detail": "expected no rejections, got unrecognized line",
+          "v2Detail": "expected no rejections, got unrecognized line"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor17",
+      "tiers": [
+        {
+          "tier": "facts",
+          "v1": true,
+          "v2": true,
+          "changed": false,
+          "v1Detail": "1 line(s) matched the fixture",
+          "v2Detail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "v1": false,
+          "v2": false,
+          "changed": false,
+          "v1Detail": "expected no rejections, got unrecognized line",
+          "v2Detail": "expected no rejections, got unrecognized line"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor18",
+      "tiers": [
+        {
+          "tier": "facts",
+          "v1": true,
+          "v2": true,
+          "changed": false,
+          "v1Detail": "1 line(s) matched the fixture",
+          "v2Detail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "v1": false,
+          "v2": false,
+          "changed": false,
+          "v1Detail": "expected no rejections, got unrecognized line",
+          "v2Detail": "expected no rejections, got unrecognized line"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor19",
+      "tiers": [
+        {
+          "tier": "facts",
+          "v1": true,
+          "v2": true,
+          "changed": false,
+          "v1Detail": "1 line(s) matched the fixture",
+          "v2Detail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "v1": false,
+          "v2": false,
+          "changed": false,
+          "v1Detail": "expected no rejections, got unrecognized line",
+          "v2Detail": "expected no rejections, got unrecognized line"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor20",
+      "tiers": [
+        {
+          "tier": "rejected",
+          "v1": false,
+          "v2": false,
+          "changed": false,
+          "v1Detail": "expected no rejections, got unrecognized line",
+          "v2Detail": "expected no rejections, got unrecognized line"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor21",
+      "tiers": [
+        {
+          "tier": "facts",
+          "v1": false,
+          "v2": false,
+          "changed": false,
+          "v1Detail": "missing \"gate\"",
+          "v2Detail": "missing \"gate\""
+        },
+        {
+          "tier": "rejected",
+          "v1": false,
+          "v2": false,
+          "changed": false,
+          "v1Detail": "expected no rejections, got unrecognized line",
+          "v2Detail": "expected no rejections, got unrecognized line"
+        }
+      ],
+      "changed": false
+    },
+    {
+      "name": "extractor22",
+      "tiers": [
+        {
+          "tier": "facts",
+          "v1": true,
+          "v2": true,
+          "changed": false,
+          "v1Detail": "1 line(s) matched the fixture",
+          "v2Detail": "1 line(s) matched the fixture"
+        },
+        {
+          "tier": "rejected",
+          "v1": false,
+          "v2": false,
+          "changed": false,
+          "v1Detail": "expected no rejections, got unrecognized line",
+          "v2Detail": "expected no rejections, got unrecognized line"
+        }
+      ],
+      "changed": false
+    }
+  ],
+  "changed": [],
+  "unrecorded": [
+    "extractor-intents01",
+    "extractor-intents02",
+    "extractor-intents03",
+    "extractor-intents04",
+    "extractor-intents05",
+    "extractor-intents06",
+    "extractor-intents07",
+    "extractor-intents08",
+    "extractor-intents09",
+    "extractor-intents10",
+    "extractor-intents11",
+    "extractor-intents12",
+    "extractor-intents13",
+    "extractor-intents14",
+    "extractor23",
+    "extractor24",
+    "extractor25",
+    "extractor26",
+    "extractor27",
+    "extractor28",
+    "extractor29"
+  ]
+}

@@ -27,3 +27,20 @@ export const isSourceSpan = (value: unknown): value is SourceSpan => {
     && Array.isArray(span.span) && span.span.length === 2 && span.span.every((at) => Number.isSafeInteger(at))
     && Boolean(span.revision) && typeof span.revision?.hash === "string" && (span.revision.swipeId === null || Number.isSafeInteger(span.revision.swipeId));
 };
+
+export type RelationValue = "yes" | "no" | "unknown";
+
+export const WITNESS_STATES = ["classified", "pending", "no-read", "outage", "invalidated", "unknown"] as const;
+export type WitnessState = (typeof WITNESS_STATES)[number];
+
+export interface WitnessLookup {
+  state: WitnessState;
+  heard: RelationValue;
+  mixed: boolean;
+  insideHeardSpan: boolean;
+}
+
+export const unknownWitness = (state: WitnessState = "unknown"): WitnessLookup => ({ state, heard: "unknown", mixed: false, insideHeardSpan: false });
+
+export const sameRevision = (left: SourceRevision, right: SourceRevision | null | undefined): boolean =>
+  Boolean(right) && left.hash === right?.hash && left.swipeId === right?.swipeId;

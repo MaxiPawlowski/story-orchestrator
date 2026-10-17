@@ -365,3 +365,31 @@ Unresolved questions
 - Carry from one of several source stories (branching campaigns)? v1: one.
 - Live-director stories with a generated `final`: carry works on authored keys only.
 - Are 20 verified candidates enough on large installs (paging later)?
+
+## Live gate 2026-10-16 (no-model lane, branch `v2.8-owed-live-fixes`)
+
+- Setup: no-model offline lane 61 (`SO_LANES_ROOT=C:/dev/so-live-lanes`, `SO_LANE_OFFLINE=1`, no server plugins, no GPU,
+  images and sprites off). Main build: master `7b3ef38b` (bundle `1d806c43b088`) staged into a private ST copy
+  `C:/dev/st-live-owed`, because `C:/dev/st-live` was restaged by a parallel agent mid-batch (two runs died on
+  `Loading chunk ... failed`; those runs are discarded). Served `dist/index.js` hash checked before and after every batch.
+- Each item `st-lanes.mts batch --lanes 61 --repeat 2 --strict`; batch dirs under `C:/dev/so-live-lanes/61/debug/batch/<stamp>/`,
+  archived with `so-evidence.mts archive --label owed-nomodel-2026-10-16`.
+- New `test/scenarios/v28-45-carry.json` with scenario copies of the carry fixtures (`v28-45-carry-source.story.json`,
+  `v28-45-carry-sequel.story.json`, roster mapped onto the toy group's cards). Plumbing green x2 on `7b3ef38b` (batch
+  `2026-10-16T18-34-44-462Z`; also x2 earlier on `d1f9ede2`'s scripts, one run lost to the st-live restage).
+- Covered: source played to its final chapter, `chapters.sealNow()` seals it final (`debugResponse` seal and saga fallback,
+  plumbing only); a new chat on the sequel lists the run; pick seeds `heritage_coast`, `heritage_ledger`, `heritage_coins`,
+  `guild_trust` (from `rep_guild`), `harbour_feeling` at boundary 0; `pact_state` absent (its ending was never shown);
+  `known_by` lines only in the named members' applied private blocks (narrator gets only the `all` line); Previously
+  block set by an opened loud generation and present in the assembled prompt, cleared after; player-clean; reopen equal;
+  swipe keeps the seed; second reopen equal.
+- Deviation: a dry run never opens a generation (`GenerationLifecycle.started` ignores `dryRun`), so the Previously block
+  (like the away notice) is never in a plain dry-run payload. The scenario opens a synthetic `GENERATION_STARTED`, then
+  dry-runs, then ends it. Real-generation sign-off owed.
+- Still owed: one real final seal on the 3090 (epilogue through `verifySaga`); real-LLM play of the sequel; payload goldens
+  (no c0 baseline is captured in `test/measurements/v2.7/payload/`); N7.
+- Moved bundle-diet paths (e0b6097b), green x2 on `7b3ef38b` (batches `2026-10-16T18-34-44-462Z`, `2026-10-16T18-51-35-152Z`):
+  `v24-02-chat-delete-reap.json` (mirror reap prompt after chat delete), `v28-35-curator-create.json` (review-mode accept
+  writes at the boundary with its stamp; created-entry reap prompt on chat delete, decline keeps, accept deletes),
+  `v28-25-curator-constant-review.json` (review-mode accept). Plumbing (fixed curator text); one `v28-35` run 2 died on
+  `page navigated away` mid-`extract` and was re-run x2 green; cause not found (machine under load from other lanes).

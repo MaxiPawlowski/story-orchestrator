@@ -21,7 +21,10 @@ const everyCompiler = (): Record<string, unknown> => {
       { id: "ada", name: "Ada" },
     ],
     living: { premise: "A river town.", authored_until: "end" },
-    checkpoints: (raw.checkpoints as Array<Record<string, unknown>>).map((checkpoint) => (checkpoint.id === "river" ? { ...checkpoint, stretch: { mode: "open", arrive_when: is("saw_mill") } } : checkpoint)),
+    qualities: [...(raw.qualities as Quality[]), { key: "ford_ok", type: "bool", source: "code", rubric: "Did the ford hold?" }],
+    checkpoints: (raw.checkpoints as Array<Record<string, unknown>>).map((checkpoint) => (checkpoint.id === "river" ? {
+      ...checkpoint, stretch: { mode: "open", arrive_when: is("saw_mill") }, checks: [{ id: "ford", quality: "ford_ok", roll: { sides: 6, target: 4 }, when: is("searched_dock") }],
+    } : checkpoint)),
   };
 };
 
@@ -38,6 +41,7 @@ describe("SC1: every compiled code key has a rollback check", () => {
     expect(compiled.some((key) => key.startsWith("agenda_"))).toBe(true);
     expect(compiled.some((key) => key.startsWith("life_reveal_"))).toBe(true);
     expect(compiled.some((key) => key.startsWith("life_label_"))).toBe(true);
+    expect(compiled).toContain("check_ford_rolled");
     expect(uncoveredCodeKeys(story, authoredKeys(raw))).toEqual([]);
   });
 

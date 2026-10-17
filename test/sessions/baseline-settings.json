@@ -32,6 +32,7 @@
     "display": {
       "announceTransitions": false,
       "hudEnabled": true,
+      "yourMove": true,
       "briefing": false,
       "briefingDraft": false,
       "playerSetup": false,
@@ -64,6 +65,8 @@
       "harvestReasoning": true,
       "innerBeat": true,
       "promises": true,
+      "witness": true,
+      "rumors": true,
       "injectionDepths": {
         "facts": 4,
         "session_details": 3,

@@ -6,9 +6,13 @@
 // expectations that nothing looked at. Per-tier accuracy is reported separately and each tier
 // carries its own floor, because one aggregate lets a strong tier carry a weak one.
 
-export type TierName = 'deltas' | 'facts' | 'rejected' | 'memory' | 'arcs' | 'epistemic' | 'ledger' | 'intents';
+import { foldTerm, termPresent, TERM_SCORER_VERSION, type TermMode } from '../../../src/utils/termPresent.ts';
 
-export const TIERS: TierName[] = ['deltas', 'facts', 'rejected', 'memory', 'arcs', 'epistemic', 'ledger', 'intents'];
+export type { TermMode };
+
+export type TierName = 'deltas' | 'facts' | 'rejected' | 'memory' | 'arcs' | 'epistemic' | 'ledger' | 'intents' | 'claims' | 'quoted';
+
+export const TIERS: TierName[] = ['deltas', 'facts', 'rejected', 'memory', 'arcs', 'epistemic', 'ledger', 'intents', 'claims', 'quoted'];
 
 export interface IntentCounts { expected: number; matched: number; spurious: number; playerAttributed: number }
 
@@ -29,7 +33,7 @@ const text = (value: unknown): string => {
   return String(value ?? '');
 };
 
-const joined = (values: unknown[]): string => values.map(text).join(' — ').toLowerCase();
+export const joined = (values: unknown[]): string => values.map(text).join(' — ').toLowerCase();
 
 export interface ContainsSpec {
   minCount?: number;
@@ -39,6 +43,8 @@ export interface ContainsSpec {
   none?: string;
   /** `golden`: describes the hand-written golden only (jest); `live`: the model's answer only (this suite). */
   scope?: 'golden' | 'live';
+  /** v2.8 35: a needle is a whole term unless listed here as `prefix` (word start, today's v1 contains rule). */
+  modes?: Record<string, TermMode>;
 }
 
 /** Shared shape for the free-text tiers: a floor on how many lines, and words that must (not) appear. */
@@ -46,7 +52,17 @@ const escapeRegExp = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&
 export const containsWordStart = (haystack: string, needle: string): boolean =>
   new RegExp(`${/^[\p{L}\p{N}]/u.test(needle) ? '(?<![\\p{L}\\p{N}])' : ''}${escapeRegExp(needle)}`, 'iu').test(haystack);
 
-export function scoreContains(tier: TierName, spec: ContainsSpec | undefined, live: unknown[]): TierOutcome {
+export type NeedleScope = 'contains' | 'rejected' | 'intents';
+export type NeedleMatch = (haystack: string, needle: string, mode: TermMode, scope: NeedleScope) => boolean;
+
+/** v2.8 35 G2: the scorer version stamped on every re-scored record. v1 = word start for free text, substring for reasons and intents. */
+export const SCORER_VERSION = TERM_SCORER_VERSION;
+export const matchV1: NeedleMatch = (haystack, needle, _mode, scope) => (scope === 'contains' ? containsWordStart(haystack, needle) : haystack.toLowerCase().includes(needle.toLowerCase()));
+export const matchV2: NeedleMatch = (haystack, needle, mode) => termPresent(haystack, needle, mode);
+
+const modeOf = (modes: Record<string, TermMode> | undefined, needle: string): TermMode => (modes?.[needle] === 'prefix' ? 'prefix' : 'term');
+
+export function scoreContains(tier: TierName, spec: ContainsSpec | undefined, live: unknown[], match: NeedleMatch = matchV2): TierOutcome {
   if (!spec) return { tier, scored: false, pass: false, detail: 'the fixture states no expectation for this tier' };
   if (typeof spec.none === 'string') return { tier, scored: false, pass: false, detail: `the fixture declares no ${tier} expectation: ${spec.none || '(no reason given)'}` };
   if (spec.scope === 'golden') return { tier, scored: false, pass: false, detail: `the ${tier} expectation is golden-scoped: it describes the hand-written golden, which jest asserts` };
@@ -61,11 +77,11 @@ export function scoreContains(tier: TierName, spec: ContainsSpec | undefined, li
     // `mustContain: [""]` matches everything, so it is an expectation that cannot fail. Several
     // shipped fixtures carry one; they are named rather than counted as evidence.
     if (!needle.trim()) { vacuous.push('mustContain: ""'); continue; }
-    if (!containsWordStart(haystack, needle)) problems.push(`missing "${needle}"`);
+    if (!match(haystack, needle, modeOf(spec.modes, needle), 'contains')) problems.push(`missing "${needle}"`);
   }
   for (const needle of spec.mustNotContain ?? []) {
     if (!needle.trim()) { vacuous.push('mustNotContain: ""'); continue; }
-    if (containsWordStart(haystack, needle)) problems.push(`must not contain "${needle}"`);
+    if (match(haystack, needle, modeOf(spec.modes, needle), 'contains')) problems.push(`must not contain "${needle}"`);
   }
   const claims = (spec.minCount ?? 0) > 0 || [...(spec.mustContain ?? []), ...(spec.mustNotContain ?? [])].some((needle) => needle.trim());
   if (!claims) vacuous.push('no assertion');
@@ -80,13 +96,14 @@ export function scoreContains(tier: TierName, spec: ContainsSpec | undefined, li
 }
 
 /** Rejections are scored by REASON: the audit has to say why a line was thrown away, not just that it was. */
-export function scoreRejected(stated: Array<{ reason?: string; scope?: string }> | undefined, live: Array<{ reason?: string }> | undefined): TierOutcome {
+export function scoreRejected(stated: Array<{ reason?: string; scope?: string; mode?: TermMode }> | undefined, live: Array<{ reason?: string }> | undefined, match: NeedleMatch = matchV2): TierOutcome {
   if (!stated) return { tier: 'rejected', scored: false, pass: false, detail: 'the fixture states no expectation for this tier' };
   const expected = stated.filter((entry) => entry.scope !== 'golden');
   if (stated.length && !expected.length) return { tier: 'rejected', scored: false, pass: false, detail: 'every expected rejection is golden-scoped: it describes the hand-written golden, which jest asserts' };
   const liveReasons = (live ?? []).map((entry) => String(entry.reason ?? '').toLowerCase());
   const wanted = expected.map((entry) => String(entry.reason ?? '').toLowerCase()).filter(Boolean);
-  const missing = wanted.filter((reason) => !liveReasons.some((actual) => actual.includes(reason)));
+  const modes = Object.fromEntries(expected.map((entry) => [String(entry.reason ?? '').toLowerCase(), entry.mode === 'prefix' ? 'prefix' as const : 'term' as const]));
+  const missing = wanted.filter((reason) => !liveReasons.some((actual) => match(actual, reason, modes[reason] ?? 'term', 'rejected')));
   // An empty expectation means "nothing should have been rejected", which is a real claim.
   if (!wanted.length) {
     const pass = (live ?? []).length === 0;
@@ -100,7 +117,52 @@ export function scoreRejected(stated: Array<{ reason?: string; scope?: string }>
   };
 }
 
-export interface IntentClaim { subject: string; anyOf: string[] }
+/** v2.8 35 G3: a claimed event the transcript never shows. A row naming it is allowed only as the claimant's words. */
+export interface ClaimsSpec { event: string[]; claimant: string[]; modes?: Record<string, TermMode> }
+
+const SAYING = '(?:says|said|claims|claimed|insists|insisted|tells|told|recalls|recalled|asserts|asserted|mentions|mentioned|suggests|suggested|reminds|reminded|speaks of|spoke of|talks about|talked about)';
+
+export const attributedTo = (row: string, claimant: readonly string[]): boolean =>
+  /according to/i.test(row) || claimant.some((name) => new RegExp(`(?<![\\p{L}\\p{N}])${escapeRegExp(name)}(?![\\p{L}\\p{N}])[^.;]{0,60}?\\b${SAYING}\\b`, 'iu').test(row));
+
+export function scoreClaims(spec: ClaimsSpec | undefined, rows: unknown[], match: NeedleMatch = matchV2): TierOutcome {
+  if (!spec) return { tier: 'claims', scored: false, pass: false, detail: 'the fixture states no expectation for this tier' };
+  if (!spec.event?.length || !spec.claimant?.length) return { tier: 'claims', scored: true, pass: false, detail: 'no assertion', vacuous: ['claims: an event and a claimant are both needed'] };
+  const lines = (rows ?? []).map(text);
+  const naming = lines.filter((line) => spec.event.some((needle) => match(line, needle, modeOf(spec.modes, needle), 'contains')));
+  const asserted = naming.filter((line) => !attributedTo(line, spec.claimant));
+  return {
+    tier: 'claims',
+    scored: true,
+    pass: asserted.length === 0,
+    detail: asserted.length ? `${asserted.length} row(s) assert the claimed event: ${asserted.join(' | ')}` : `${naming.length} row(s) name the claimed event, all attributed`,
+  };
+}
+
+/** v2.8 35 G4: no memory row may quote a line it should not keep (a run of `words` consecutive words from it). */
+export interface QuotedSpec { line: string; words?: number }
+
+const wordsOf = (value: string): string[] => foldTerm(value).toLowerCase().split(/[^\p{L}\p{N}']+/u).filter(Boolean);
+
+export function scoreQuoted(spec: QuotedSpec | undefined, rows: unknown[]): TierOutcome {
+  if (!spec) return { tier: 'quoted', scored: false, pass: false, detail: 'the fixture states no expectation for this tier' };
+  const size = Math.max(2, spec.words ?? 4);
+  const source = wordsOf(spec.line);
+  if (source.length < size) return { tier: 'quoted', scored: true, pass: false, detail: 'no assertion', vacuous: [`quoted: the line is shorter than ${size} words`] };
+  const grams = new Set(source.slice(0, source.length - size + 1).map((_, at) => source.slice(at, at + size).join(' ')));
+  const quoting = (rows ?? []).map(text).filter((row) => {
+    const words = wordsOf(row);
+    return words.some((_, at) => at + size <= words.length && grams.has(words.slice(at, at + size).join(' ')));
+  });
+  return {
+    tier: 'quoted',
+    scored: true,
+    pass: quoting.length === 0,
+    detail: quoting.length ? `${quoting.length} row(s) quote the line: ${quoting.join(' | ')}` : `no row quotes ${size} words of the line`,
+  };
+}
+
+export interface IntentClaim { subject: string; anyOf: string[]; modes?: Record<string, TermMode> }
 
 export interface IntentsSpec {
   expect?: IntentClaim[];
@@ -115,7 +177,7 @@ export const INTENTS_FLOORS = { precision: 0.8, recall: 0.5, playerAttributed: 0
 
 const norm = (value: unknown) => String(value ?? '').trim().toLowerCase();
 
-export function scoreIntents(spec: IntentsSpec | undefined, live: LiveEpistemicRow[] | undefined, players: string[] = []): TierOutcome {
+export function scoreIntents(spec: IntentsSpec | undefined, live: LiveEpistemicRow[] | undefined, players: string[] = [], match: NeedleMatch = matchV2): TierOutcome {
   const tier = 'intents' as const;
   if (!spec) return { tier, scored: false, pass: false, detail: 'the fixture states no expectation for this tier' };
   if (typeof spec.none === 'string') return { tier, scored: false, pass: false, detail: `the fixture declares no intents expectation: ${spec.none || '(no reason given)'}` };
@@ -130,7 +192,7 @@ export function scoreIntents(spec: IntentsSpec | undefined, live: LiveEpistemicR
   });
   const playerSet = new Set([...(spec.players ?? []), ...players].map(norm).filter(Boolean));
   const rows = (live ?? []).filter((row) => norm(row.tag) === 'intends');
-  const open = claims.map((claim) => ({ subject: norm(claim.subject), anyOf: claim.anyOf.map(norm), label: claim.subject, taken: false }));
+  const open = claims.map((claim) => ({ subject: norm(claim.subject), anyOf: claim.anyOf.map((needle) => ({ text: norm(needle), mode: modeOf(claim.modes, needle) })), label: claim.subject, taken: false }));
   const problems: string[] = [];
   let matched = 0;
   let spurious = 0;
@@ -144,12 +206,12 @@ export function scoreIntents(spec: IntentsSpec | undefined, live: LiveEpistemicR
       problems.push(`player-attributed intent: ${row.subject} | ${row.content}`);
       continue;
     }
-    const claim = open.find((entry) => !entry.taken && entry.subject === subject && entry.anyOf.some((needle) => content.includes(needle)));
+    const claim = open.find((entry) => !entry.taken && entry.subject === subject && entry.anyOf.some((needle) => match(content, needle.text, needle.mode, 'intents')));
     if (claim) { claim.taken = true; matched += 1; continue; }
     spurious += 1;
     problems.push(`unclaimed intent: ${row.subject} | ${row.content}`);
   }
-  for (const claim of open.filter((entry) => !entry.taken)) problems.push(`missing intent for ${claim.label} (${claim.anyOf.join(' | ')})`);
+  for (const claim of open.filter((entry) => !entry.taken)) problems.push(`missing intent for ${claim.label} (${claim.anyOf.map((needle) => needle.text).join(' | ')})`);
   const counts: IntentCounts = { expected: open.length, matched, spurious, playerAttributed };
   return {
     tier,
@@ -224,7 +286,7 @@ export function tierTotals(scores: FixtureScore[], floors: Partial<Record<TierNa
  * says so rather than having its floors lowered to meet it. `--min-tier tier=x` overrides one, and
  * `tier=0` switches one off in a way the report shows.
  */
-export const DEFAULT_TIER_FLOORS: Readonly<Partial<Record<TierName, number>>> = { facts: 0.85, rejected: 0.9, epistemic: 0.8, ledger: 0.8, arcs: 0.8, intents: INTENTS_FLOORS.precision };
+export const DEFAULT_TIER_FLOORS: Readonly<Partial<Record<TierName, number>>> = { facts: 0.85, rejected: 0.9, epistemic: 0.8, ledger: 0.8, arcs: 0.8, intents: INTENTS_FLOORS.precision, claims: 1, quoted: 1 };
 
 /** `--min-tier facts=0.85,rejected=0.9`, applied over `DEFAULT_TIER_FLOORS`. */
 export function parseTierFloors(value: string | null | undefined, defaults: Partial<Record<TierName, number>> = DEFAULT_TIER_FLOORS): { floors: Partial<Record<TierName, number>>; given: TierName[]; errors: string[] } {

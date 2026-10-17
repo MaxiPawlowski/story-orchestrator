@@ -1,22 +1,19 @@
 import { boundaryContextAt } from "./playerTurn";
-import { appendJudgeCall, type JudgeCallRecord, type SceneReadRecord } from "@judge/index";
+import { appendJudgeCall } from "@judge/settings";
+import type { JudgeCallRecord, SceneReadRecord } from "@judge/index";
 import type { JudgeRuntime } from "./judge";
 import { acceptModelCall, type ModelCallRecord } from "./modelCallLog";
 import {
   StoryEngine, type RollbackOutcome, type ApplyQueueEntry, type BoundaryContext, type BoundaryLogEntry, type BoundaryResult, type EngineHistory, type EngineState,
   type NormalizedStoryV2, type NormalizedTransition, type TalkControl, type ValidationError,
 } from "@engine/index";
-import {
-  type ExtractionScheduler, type ParsedDelta, type SchedulerJob, type SharedReadAudit,
-} from "@extraction/index";
+import { type ExtractionScheduler, type ParsedDelta, type SchedulerJob, type SharedReadAudit } from "@extraction/index";
 import { applyCommitEvidence } from "@extraction/commitGuard";
 import { freshBeats, heldNote, type HeldReading } from "./heldJournal";
 import { applyRatingGrounding } from "@extraction/ratingGuard";
 import { readCursorSeed } from "@extraction/readCursor";
 import { clearAllMemoryInjection } from "@memory/index";
-import {
-  getContext, profileExists, readExtensionPromptBlocks, readInjectedPromptBlocks, showTextPopup,
-} from "@services/STAPI";
+import { getContext, profileExists, readExtensionPromptBlocks, readInjectedPromptBlocks, showTextPopup } from "@services/STAPI";
 import { createModelCall } from "./modelCall";
 import { loadChapterKit } from "./chapterPort";
 import { AwayRecapController, type AwayRecap } from "./awayRecap";
@@ -39,7 +36,7 @@ import { getGlobalSettings, setGlobalSettings, TALK_CHAIN_FIXED, type SpikeSetti
 import { buildPossibleTransitions } from "./snapshot";
 import { buildRuntimeSnapshot, CHAT_LOADING_STATUS, snapshotSources } from "./snapshotBuilder";
 import { SnapshotCache } from "./snapshotCache";
-import { applyStoryUpdate, type StoryUpdateOutcome } from "./storyUpdate";
+import type { StoryUpdateOutcome } from "./storyUpdate";
 import { parseQualityValue } from "./values";
 import { SessionJournal, type JournalEvent, type JournalRecordKind } from "./journal";
 import { evaluateRequirements, requirementsOptions } from "./requirements";
@@ -487,7 +484,7 @@ export class RuntimeManager extends SettingsDelegates {
       notices: this.notices, payloadCaptures: this.journal.getCaptures(), extractionHealth: this.scheduler?.health() ?? null,
       promptBlocks: readExtensionPromptBlocks(), chat: getContext().chat ?? [], fingerprints: this.chatSave.fingerprints.current,
       characters: getContext().characters ?? [], chatId: this.loadedChatId, scopeContext: this.extras.ui.authorView ? this.extraction.scopeContext() : undefined,
-      enabled: this.getEnabledCharacterIds(),
+      enabled: this.getEnabledCharacterIds(), generating: this.generationOpen,
     }));
   }
 
@@ -548,7 +545,7 @@ export class RuntimeManager extends SettingsDelegates {
 
   // The author edited this story from this chat: take the saved version without losing the run.
   // Every other chat keeps its pinned copy (spec addendum §Story identity).
-  async applyStoryUpdate(record?: StoryLibraryRecord): Promise<StoryUpdateOutcome> { return applyStoryUpdate(this.co.storyUpdateDeps, record); }
+  async applyStoryUpdate(record?: StoryLibraryRecord): Promise<StoryUpdateOutcome> { return (await import("./storyUpdate")).applyStoryUpdate(this.co.storyUpdateDeps, record); }
   getLastStoryUpdate(): StoryUpdateOutcome | null { return this.lastStoryUpdate; }
 
   private async swapStory(loaded: LoadedStory, state: EngineState | null, reanchored: boolean, history: EngineHistory | null = null) {

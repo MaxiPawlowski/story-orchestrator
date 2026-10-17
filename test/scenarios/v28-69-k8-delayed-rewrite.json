@@ -1,0 +1,182 @@
+{
+  "_note": "v2.8 plan 69 K8 (no-model lane). Host fact: Recast's accept mutates chat[n].mes without touching swipes, calls updateMessageBlock, emits MESSAGE_EDITED and saves (recast R/index.js:1086-1097, docs/plans/v2.8/extension-research-2026-10-14/recast.md P2). TurnBridge routes an edit of the newest reply through the edit re-read seam (spikes/editReread.ts) after rollbackOnEnter. Expected outcome: the delayed rewrite (after the reply's boundary) is re-read once, the story steps back from the reply at most once, and the state then equals a replay of the rewritten text (here: the rewritten reply supports no lamp, so lit_lamp is gone and took_key stays). Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-69-k8-delayed-rewrite.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "judge": "off"
+  },
+  "steps": [
+    {
+      "log": true,
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds ' + ctx.chat.length + ' message(s)'); return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "title": "SO-V28-69 K8",
+        "description": "Plan 69 K8 no-model fixture: four facts, one per player line.",
+        "qualities": [
+          {
+            "key": "took_key",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player take the brass key?"
+          },
+          {
+            "key": "lit_lamp",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player light the oil lamp?"
+          },
+          {
+            "key": "found_map",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player unroll the map?"
+          },
+          {
+            "key": "opened_chest",
+            "type": "bool",
+            "source": "extractor",
+            "latching": true,
+            "rubric": "Did the player open the iron chest?"
+          },
+          {
+            "key": "vault_unsealed",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Never set by these fixtures: it keeps the vault transition (and its Note row) out of the chats the delete checks index."
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "Start",
+            "objective": "Get ready to open the vault.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "vault",
+            "name": "Vault",
+            "objective": "Open the vault.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "start",
+            "to": "vault",
+            "priority": 1,
+            "gate": {
+              "all": [
+                {
+                  "q": "took_key",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "lit_lamp",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "found_map",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "opened_chest",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "vault_unsealed",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            }
+          }
+        ],
+        "roster": [],
+        "id": "so-v28-69-k8"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const state = rt.getEngineState(); if (!state || state.activeCheckpointId !== 'start') throw new Error('the story did not load at start'); return { boundary: state.boundary };"
+    },
+    {
+      "send": "I take the brass key from the hook."
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=took_key value=true evidence=\"I take the brass key\"",
+        "reason": "v28-69-k8:line-0"
+      }
+    },
+    {
+      "record_state": {
+        "as": "before-reply"
+      }
+    },
+    {
+      "slash": "/sendas name=Arin raw=false \"Arin lights the oil lamp by the door.\""
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "extract": {
+        "debugResponse": "DELTA q=lit_lamp value=true evidence=\"Arin lights the oil lamp\"",
+        "reason": "v28-69-k8:reply"
+      }
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "log": true,
+      "eval": "const s = globalThis.storyOrchestratorRuntime.getEngineState(); if (s.blackboard.values.lit_lamp !== true) throw new Error('setup: lit_lamp did not land from the reply'); const markRt = globalThis.storyOrchestratorRuntime; const ms = markRt.getEngineState(); globalThis.__k8 = { boundary: ms.boundary, last: ms.lastMessageId, length: SillyTavern.getContext().chat.length, recommits: globalThis.storyOrchestratorSpikes?.editReread?.stats().recommits ?? null }; return globalThis.__k8;"
+    },
+    {
+      "record_state": {
+        "as": "before-rewrite"
+      }
+    },
+    {
+      "log": true,
+      "eval": "await new Promise((r) => setTimeout(r, 2000)); const ctx = SillyTavern.getContext(); const id = ctx.chat.length - 1; ctx.chat[id].mes = 'Arin leaves the oil lamp dark and waits.'; ctx.updateMessageBlock(id, ctx.chat[id]); await ctx.eventSource.emit(ctx.eventTypes.MESSAGE_EDITED, id); await ctx.saveChat(); return { id };"
+    },
+    {
+      "wait": {
+        "idle": true,
+        "timeoutMs": 30000,
+        "quietMs": 2000
+      }
+    },
+    {
+      "log": true,
+      "eval": "const out = (() => { const rt = globalThis.storyOrchestratorRuntime; const s = rt.getEngineState(); return { boundary: s.boundary, last: s.lastMessageId, values: s.blackboard.values, length: SillyTavern.getContext().chat.length, recommits: globalThis.storyOrchestratorSpikes?.editReread?.stats().recommits ?? null, mark: globalThis.__k8 }; })(); const k = globalThis.__k8; const rerereads = out.recommits === null || k.recommits === null ? null : out.recommits - k.recommits; if (out.values.lit_lamp === true) throw new Error('lit_lamp, read from the reply before its rewrite, survived'); if (out.values.took_key !== true) throw new Error('took_key, read before the reply, was lost'); if (rerereads !== null && rerereads !== 1) throw new Error('expected one re-read of the rewritten reply, got ' + rerereads); return { ...out, rereads: rerereads };"
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "before-reply",
+          "scope": [
+            "values"
+          ]
+        }
+      }
+    }
+  ]
+}

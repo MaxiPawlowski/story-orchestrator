@@ -9,7 +9,10 @@ export const BOXES_MAX = 12;
 export interface DisplayBand {
   max?: number;
   label: string;
+  warn?: string;
 }
+
+export type DisplayNarrate = "omniscient" | false;
 
 export interface QualityDisplay {
   public: true;
@@ -21,6 +24,7 @@ export interface QualityDisplay {
   bands?: DisplayBand[];
   hide_when_empty?: boolean;
   trend?: boolean;
+  narrate?: DisplayNarrate;
 }
 
 export interface QuestProgress {
@@ -120,6 +124,7 @@ export interface StoryCheck {
   narrate: CheckNarrate;
   outcome?: CheckOutcomeBands;
   twist?: { quality: string };
+  when?: GateNode;
 }
 
 export interface Milestone {
@@ -131,7 +136,7 @@ export interface Milestone {
   recap_when?: GateNode;
 }
 
-export const WIDGET_KINDS = ["meters", "track", "log", "clock", "board", "clues", "map", "html", "roster", "timeline"] as const;
+export const WIDGET_KINDS = ["meters", "track", "log", "clock", "board", "clues", "map", "html", "roster", "timeline", "scene"] as const;
 export type WidgetKind = (typeof WIDGET_KINDS)[number];
 export const WIDGET_AUDIENCES = ["player", "author"] as const;
 export type WidgetAudience = (typeof WIDGET_AUDIENCES)[number];
@@ -152,6 +157,7 @@ export type WidgetBind =
 export interface WidgetOptions {
   limit?: number;
   closed?: boolean;
+  time?: boolean;
 }
 
 export interface WidgetClue {
@@ -220,5 +226,7 @@ export interface WidgetIntent {
 export const questRewardKey = (questId: string): string => `quest_${questId}_rewarded`;
 
 export const questClosedKey = (questId: string): string => `quest_${questId}_closed`;
+
+export const checkRolledKey = (checkId: string): string => `check_${checkId}_rolled`;
 
 export const QUEST_CLOSED_VALUES = ["done", "failed"] as const;

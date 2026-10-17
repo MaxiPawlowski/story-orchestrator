@@ -1,7 +1,7 @@
 # Plan 49 — Complications and twists
 
-**Status: WRITTEN 2026-10-14 (owner decision 2026-10-14: these roleplay mechanics go into v2.8, plans written now).
-Not decided, not built.** Patterns G17, G19 and G21 of `v2.8/27-gamification-report.md`.
+**Status (2026-10-16): only `focusPick` built (`src/pacing/focus.ts`, on `v2.8-director-48-49`, not merged; C4 green), for
+v2.8 48. Everything model-facing waits for SP6 (§Gate record 2026-10-16). Was: WRITTEN 2026-10-14, not decided.** Patterns G17, G19 and G21 of `v2.8/27-gamification-report.md`.
 
 - **The model-facing build is gated on SP6, per the existing decision:** the production complication component is
   built only on SP6 PASS (v2.8 17 decisions 1–3, v2.7 35 Phase 3).
@@ -314,3 +314,48 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
 - No finding on this addendum. Label drift found while revising: the addendum used H16d; plan 61 calls this H16f. →
   relabelled.
 - Rebutted: none.
+
+## Gate record 2026-10-16 (focusPick only, on `v2.8-director-48-49`, not merged)
+
+Recommendation A held: SP6 has not run, so nothing model-facing is built. Decision 6 applies (v2.8 48 takes interrupt
+focus), so only the pure picker is extracted. Commits `db9bcbec`, `6eb51188` and this record.
+
+Built
+
+- `src/pacing/focus.ts`: `focusCandidates({arcs, members?, unknownNames, resting?})` (resting filter applied, an arc or
+  member whose text names a `knownEntities`-unknown person or place dropped by word boundary, duplicates dropped) and
+  `focusPick(candidates, unit)` (equal share, `null` on an empty list). No registry row (no feature of its own), as the
+  plan says. `unknownEntityNames(story, known)` added to `engine/codex.ts` for the caller.
+- The only caller is 48's scene test (arcs only, no member focus in v1). The SP6 spike
+  (`runtime/spikes/sp6Complications.ts`) is untouched: C5 holds by construction (no file of the spike changed).
+
+Floors
+
+- C4 (D): 10,000 draws through the director's real inputs (`livingInputs` with its resting filter → `focusCandidates`
+  → 48's signal line): 0 lines with planted held-secret content, hidden-arc text or an unmet person's name; the known
+  secret-holder's arc is picked at its share (±0.02 of 0.5); control with the filters off emits all three
+  (`runtime/coordinators/livingSceneTest.review.test.ts`). Pure picker shares over 10,000 draws within ±0.02
+  (`pacing/focus.test.ts`).
+- C1–C3, C5–C11: not applicable until Phase 3.
+
+Gates: see plan 48 §Gate record 2026-10-16 (one branch, one run).
+
+What SP6 must deliver before anything else here is built
+
+- v2.8 17 K2 re-measured live after `76d93f02`, K3/K4 completed and K5 run (pooled per arm, `scripts/debug/lib/sp6Score.mts`),
+  ×2, on Artemis (3090 lane while the owner is not playing, or the pod), CL reads recorded, run header diff, records to
+  `so-sessions`. RP is owed and was not runnable here (no GPU this pass).
+- On PASS (owner reads it): Phase 3 builds the typed `complications` format (weights, `focus`), `pacing/complications.ts`
+  (release rule ported with C5 parity, player-turn counting unit C11, spent-ness and phase as code keys `cmp_*` with a
+  `ROLLBACK_DETECTORS` entry and a code-only rollback seed, C1–C3), the registered injection and the focus line; C9 re-runs
+  K2–K5 with weights and focus on. The meter (G17) waits for a concrete authored use case plus an occurrence latch, a
+  `meter` earned origin and replay (decision 3); `fires.set` waits for a state-write facility.
+- On FAIL or INCOMPLETE ×2: recorded and taken to the owner (decision 7); `focusPick` stays for 48.
+- H16f ramp variant: same SP6 gate; only if the run shows threshold firing feels mechanical.
+
+## Gate record addendum 2026-10-16 (review fixes on `v2.8-features-review-fixes`, not merged)
+
+- P2 one-character names (`23af055d`): `namesAny` matches every non-empty name or alias with the same Unicode word
+  boundaries (the `length > 1` exemption is gone). Test in `pacing/focus.test.ts`: `Q` drops "Q waits at the gate" and
+  matches "q." at a sentence end; control: `Q` keeps "the quay at dusk", "Queen Ash's banner" and "Quiet and quick".
+- C4 stays green. The frozen-focus privacy re-check that uses this matcher is in plan 48's addendum (`99931d7d`).

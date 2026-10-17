@@ -16,7 +16,7 @@ import {
   type HostSubscriptionEntry,
 } from "@services/STAPI";
 import { runtimeManager } from "../runtimeManager";
-import { withholds, type GenerationIntent, type GenerationLifecycle } from "../generationLifecycle";
+import { WITHHOLD_CAP_MS, withholds, type GenerationIntent, type GenerationLifecycle } from "../generationLifecycle";
 import { generationWatch } from "../generationWatch";
 import { promptCost } from "../promptCost";
 import { attachPromptBuckets } from "../promptBucketsHost";
@@ -25,12 +25,14 @@ import { roleDefaultFrom, setRoleDefault } from "../passProfiles";
 import { modelCallLog } from "../modelCallLog";
 import { spikeSeams } from "../spikeSeams";
 import { awayNoticeLine, createAwayNotice } from "../awayNotice";
-import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
+import { INJECTION_REGISTRY, type InjectionCarry } from "@constants/injectionRegistry";
 import { residueTags, settledOnReply } from "../emptyReply";
+import { observeRenderedReasoning } from "../reasoningRevision";
+import { hostMessageId } from "../turnBridge";
 import type { LoreWiring } from "./lore";
 import type { Disposers, LiveParts } from "./types";
 
-const notice = (line: () => string | null, spec: { key: string; depth: number } = INJECTION_REGISTRY.awayNotice) =>
+const notice = (line: () => string | null, spec: { key: string; depth: number; carry: InjectionCarry } = INJECTION_REGISTRY.awayNotice) =>
   createAwayNotice({ line, set: setStoryExtensionPrompt, clear: clearStoryExtensionPrompt }, spec);
 const awayNotice = notice(() => awayNoticeLine(runtimeManager.getStory(), runtimeManager.getEngineState()?.blackboard.values ?? {}, getContext().chat ?? []));
 const previously = notice(() => runtimeManager.getCachedSnapshot().carry?.block ?? null, INJECTION_REGISTRY.previously);
@@ -41,6 +43,7 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
   opened: (intent: IntentOf<"opened">) => {
     lore.loreWatch.opened(intent.type);
     runtimeManager.onGenerationStarted(intent.type);
+    runtimeManager.setGenerationOpen(!withholds(intent.type));
     awayNotice.opened(intent.type);
     previously.opened(intent.type);
     runtimeManager.capturePayload("generation", intent.type);
@@ -49,16 +52,22 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
   nested: (intent: IntentOf<"nested">) => {
     if (intent.withholds) {
       runtimeManager.onGenerationStarted(intent.type);
+      awayNotice.withhold(intent.type);
+      previously.withhold(intent.type);
       return;
     }
     runtimeManager.capturePayload();
     live.talk?.onGenerationStarted(intent.params, intent.type);
   },
   reapply: (intent: IntentOf<"reapply">) => {
+    awayNotice.restore();
+    previously.restore();
+    runtimeManager.restoreTurnNotes();
     runtimeManager.clearPrivateInjection();
     if (intent.chid !== null) runtimeManager.onMemberDrafted(intent.chid);
   },
   closed: (intent: IntentOf<"closed">) => {
+    runtimeManager.setGenerationOpen(false);
     awayNotice.closed();
     previously.closed();
     if (intent.reason !== "chat-changed") {
@@ -106,10 +115,15 @@ export const attachGenerationObservers = (live: LiveParts, disposers: Disposers,
 
 export const subscribeGenerationEvents = (live: LiveParts, generation: GenerationLifecycle, lore: LoreWiring, chatLastId: () => number, startupLoad: () => void) => {
   const handlers = intentHandlers(live, lore);
+  let capTimer: ReturnType<typeof setTimeout> | null = null;
   const apply = (intents: GenerationIntent[]) => intents.forEach((intent) => {
     spikeSeams.generation?.(intent);
     dispatch(handlers, intent);
+    if (intent.kind !== "opened" || !withholds(intent.type)) return;
+    if (capTimer !== null) clearTimeout(capTimer);
+    capTimer = setTimeout(() => { capTimer = null; apply(generation.expire()); }, WITHHOLD_CAP_MS);
   });
+  live.interceptEntry = (type) => apply(generation.intercepted(type));
   const onStarted = async (...args: unknown[]) => {
     lore.loreWatch.reassert();
     lore.scanGating.reassert();
@@ -131,7 +145,12 @@ export const subscribeGenerationEvents = (live: LiveParts, generation: Generatio
     { eventName: "GENERATION_ENDED", handler: (...args: unknown[]) => { live.loudGate.release(); apply(generation.ended(args)); } },
     { eventName: "GENERATION_STOPPED", handler: (...args: unknown[]) => { live.loudGate.release(); live.talk?.onGenerationStopped(); apply(generation.stopped(args)); } },
     { eventName: "MESSAGE_RECEIVED", handler: (messageId, type) => { live.loudGate.release(); apply(generation.rendered(messageId, type)); } },
-    { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (messageId, type) => { live.loudGate.release(); apply(generation.rendered(messageId, type)); } },
+    { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (messageId, type) => {
+      live.loudGate.release();
+      const id = hostMessageId(messageId);
+      if (id !== null) observeRenderedReasoning((getContext().chat ?? [])[id]);
+      apply(generation.rendered(messageId, type));
+    } },
     { eventName: "CHAT_CHANGED", handler: () => { live.loudGate.release(); apply(generation.chatChanged()); } },
     {
       eventName: "GROUP_WRAPPER_STARTED",
@@ -146,5 +165,11 @@ export const subscribeGenerationEvents = (live: LiveParts, generation: Generatio
     },
     { eventName: EXTENSION_SETTINGS_LOADED_EVENT, handler: () => { noteHostSettingsLoaded(); startupLoad(); } },
   ];
-  return subscribeToHostEvents(entries);
+  const off = subscribeToHostEvents(entries);
+  return () => {
+    off();
+    if (capTimer !== null) clearTimeout(capTimer);
+    capTimer = null;
+    live.interceptEntry = undefined;
+  };
 };

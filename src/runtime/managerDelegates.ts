@@ -13,6 +13,7 @@ import type { LivingStartInput } from "@generation/living/start";
 import type { JudgedExtractionWork } from "./coordinators/extractionCoordinator";
 import type { wireCoordinators } from "./managerWiring";
 import type { MemoryMirrorSummary } from "./memoryMirror";
+import type { CardReadBackRecord } from "@utils/cardReadBack";
 import { clearWizardSession, loadWizardSession, saveWizardSession } from "./wizardSessions";
 import { confirmPreflight } from "./requestBudget";
 import type { StagecraftRuntimeState } from "./types";
@@ -34,7 +35,16 @@ export abstract class CoordinatorDelegates {
   get meanwhile() { return this.co.meanwhile; }
   get living() { return this.co.living; }
   get promises() { return this.co.promises; }
+  get witness() { return this.co.witness; }
+  get rumors() { return this.co.rumors; }
   get carry() { return this.co.carry; }
+  protected generationOpen = false;
+  setGenerationOpen(open: boolean) {
+    if (open) this.co.narrator.requested();
+    if (this.generationOpen === open) return;
+    this.generationOpen = open;
+    this.notify();
+  }
   async livingStory(input: Omit<LivingStartInput, "members">): Promise<StoryV2> {
     const { buildLivingStory } = await import("@generation/living/start");
     return buildLivingStory({ ...input, members: listGroupMemberNames() });
@@ -48,6 +58,9 @@ export abstract class CoordinatorDelegates {
   ): Promise<ProposalResult> { return this.co.copilot.runStage(input, debugResponse); }
   getProvisioningEnvironment(draft?: StoryV2): ProvisioningEnvironment { return this.co.copilot.getProvisioningEnvironment(draft); }
   async applyProvisioning(op: ProvisioningOp, draft?: StoryV2): Promise<ProvisioningResult> { return this.co.copilot.applyProvisioning(op, draft); }
+  async recheckCreatedCard(op: Extract<ProvisioningOp, { kind: "createCharacterCard" }>, avatar: string, draft?: StoryV2): Promise<CardReadBackRecord> {
+    return this.co.copilot.recheckCreatedCard(op, avatar, draft);
+  }
   async readProvisioningEntry(lorebook: string, comment: string): Promise<WIEntrySnapshot | null> { return this.co.copilot.readProvisioningEntry(lorebook, comment); }
   getWizardSession(key: string): WizardSessionState | null { return loadWizardSession(key); }
   saveWizardSession(session: WizardSessionUpdate) { saveWizardSession(session); }
@@ -137,6 +150,7 @@ export abstract class CoordinatorDelegates {
   commitContinuityNote(rendered: boolean) { this.co.stagecraft.commitNote(rendered); this.co.memory.chapters.commitBridge(rendered); }
   runWardenPass(replyMessageId: number) { return this.co.stagecraft.runWardenPass(replyMessageId); }
   withholdTurnBlocks() { this.co.memory.withholdPrivateKnowledge(); this.co.pacing.withholdGuidance(); }
+  restoreTurnNotes() { this.co.stagecraft.restoreNote(); this.co.memory.chapters.restoreBridge(); }
   turnBlocksHeld(): boolean { return this.co.pacing.holding; }
   getEpistemic(): EpistemicEntry[] { return this.co.memory.getEpistemic(); }
   getLedger(): LedgerView[] { return this.co.memory.getLedger(); }

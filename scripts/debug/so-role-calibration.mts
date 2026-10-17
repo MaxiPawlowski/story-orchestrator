@@ -5,6 +5,9 @@ import { fileURLToPath } from 'node:url';
 import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
+import { fingerprintsOf, readRoleModel } from './lib/measurementFingerprint.mts';
+import { captureHeader } from './so-run-header.mts';
+import { captureChatFingerprint, firstChange } from './lib/chatUntouched.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
 import { roleVerdict, summarizeHoldout, type RoleRun } from './lib/roleVerdict.mts';
@@ -217,22 +220,27 @@ async function runRole(page, { role, profile, effort = null, arm, filter, record
   let run = { records: [], incomplete: [] };
   let held = { records: [], incomplete: [] };
   let restored = null;
+  let fingerprints = null;
+  const untouchedBefore = await captureChatFingerprint(page).catch(() => null);
   try {
     await evaluateInST(page, () => { for (const key of Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; return true; });
     run = await runCases(page, role, cases);
     if (holdoutCases) held = await runCases(page, role, holdoutCases);
     reasoning = await readRoleReasoning(page, role);
+    fingerprints = fingerprintsOf({ prompts: [...run.records, ...held.records].map((entry) => String(entry.promptHash ?? '')).filter(Boolean), model: await readRoleModel(page, role).catch(() => null), header: await captureHeader(page, 'fingerprints').catch(() => null) });
   } finally {
     restored = await restoreRoute(page, route.before);
     if (pinned) effortsRestored = await restoreRoleEfforts(page, pinned.before);
   }
   const { records, incomplete } = run;
+  const touched = untouchedBefore ? firstChange(untouchedBefore, await captureChatFingerprint(page)) : 'the chat fingerprint was not read before the run';
   const holdoutSummary = holdoutCases ? summarizeHoldout(held.records) : null;
   if (holdoutSummary) console.log(`hold-out: validity ${holdoutSummary.validity.passed}/${holdoutSummary.validity.total}, opShape ${holdoutSummary.opShape.passed}/${holdoutSummary.opShape.total}${holdoutSummary.misses.length ? `, misses ${holdoutSummary.misses.join(', ')}` : ''}`);
   const summary = await evaluateInST(page, ({ role, records, floorIds }) => globalThis.storyOrchestratorLiveSuite.summarizeRoleCalibration(role, records, floorIds ? { floorIds } : {}), { role, records: records.map(({ case: _case, ...rest }) => rest), floorIds: loaded.floorIds });
   const reasons = [
     ...(incomplete.length ? [`incomplete: ${incomplete.map((entry) => entry.id).join(', ')}`] : []),
     ...(held.incomplete.length ? [`hold-out incomplete: ${held.incomplete.map((entry) => entry.id).join(', ')}`] : []),
+    ...(touched ? [`chat touched: ${touched}`] : []),
     ...(expectCount !== null && records.length + incomplete.length !== expectCount ? [`ran ${records.length + incomplete.length} case(s), expected ${expectCount}`] : []),
   ];
   const armLabel = arm || effortArmLabel(profile ? 'routed' : 'shared', effort);
@@ -247,6 +255,8 @@ async function runRole(page, { role, profile, effort = null, arm, filter, record
     roleMapRestored: restored,
     fixtureFrozenAt: loaded.frozenAt,
     bundle: String(manifest.bundle?.sha256 ?? '').slice(0, 12),
+    fingerprints,
+    chatUntouched: { ok: !touched, firstChange: touched },
     runAt: new Date().toISOString(),
     cases: records.length,
     summary,

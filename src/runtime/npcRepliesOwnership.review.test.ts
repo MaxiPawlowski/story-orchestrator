@@ -30,6 +30,7 @@ jest.mock("@services/STAPI", () => ({
   getActiveGroup: () => null,
   watchHostChatMove: () => () => undefined,
   guardHostStream: () => ({ halt: () => false, release: () => undefined }),
+  groupMemberPosition: (name: string) => ({ ok: true, position: name.length }),
   executeSlashCommands: async (command: string) => {
     spoken.push(command);
     speechGate.onSpeak?.(spoken.length);

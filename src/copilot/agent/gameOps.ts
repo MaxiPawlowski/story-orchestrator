@@ -7,10 +7,12 @@ import { readDisplay } from "@engine/validate/display";
 import { readMilestones, readQuests } from "@engine/validate/quests";
 import { readWidgets } from "@engine/validate/widgets";
 import { readLife } from "@engine/validate/life";
+import { checkRumors, readRumors } from "@engine/validate/rumors";
+import type { Rumor } from "@engine/rumorSchema";
 import type { CalendarInput, StoryClock } from "@engine/lifeSchema";
 import { isRecord } from "@utils/guards";
 import {
-  CHARACTER_LIFE_FIELDS, removeCodexEntry, setCalendar, setCharacterLife, setClock, setFactions, updateCodexEntry,
+  CHARACTER_LIFE_FIELDS, removeCodexEntry, setCalendar, setCharacterLife, setClock, setFactions, setMemberGossip, setRumors, updateCodexEntry,
   setMilestones, setQualityDisplay, setQuests, setCheckpointChecks, setTransitionCheck, setWidgets, type CharacterLife,
 } from "../../studio/gameMutations";
 import type { OpDescription } from "../index";
@@ -27,11 +29,12 @@ export type GameAgentOp =
   | { kind: "setCalendar"; calendar: CalendarInput | null }
   | { kind: "setCodexEntry"; page: CodexPage; entry: CodexEntry }
   | { kind: "removeCodexEntry"; page: CodexPage; id: string }
-  | { kind: "setFactions"; factions: Faction[] };
+  | { kind: "setFactions"; factions: Faction[] }
+  | { kind: "setRumors"; rumors: Rumor[]; gossip: Record<string, Record<string, unknown> | null> };
 
 export const GAME_AGENT_KINDS: ReadonlySet<string> = new Set<GameAgentOp["kind"]>([
   "setQuests", "setMilestones", "setWidgets", "setQualityDisplay", "setCheckpointChecks", "setTransitionCheck", "setCharacterLife", "setClock", "setCodexEntry", "removeCodexEntry",
-  "setFactions", "setCalendar",
+  "setFactions", "setCalendar", "setRumors",
 ]);
 
 const refused = (tool: string, errors: ValidationError[]) => ({ ok: false as const, message: errors.map((error) => `${tool}.${error.path}: ${error.message}`).join("; ") });
@@ -76,6 +79,13 @@ export const readGameCall = (tool: string, args: Record<string, unknown>): GameC
     const factions = readFactions(args.factions, errors) ?? [];
     return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setFactions", factions } };
   }
+  if (tool === "setRumors") {
+    const gossip = isRecord(args.gossip) ? args.gossip : {};
+    const roster = Object.entries(gossip).filter(([, channel]) => channel !== null).map(([id, channel]) => ({ id, gossip: channel }));
+    const parsed = readRumors({ rumors: args.rumors ?? [], roster }, errors);
+    const channels = Object.fromEntries(Object.entries(gossip).map(([id, channel]) => [id, isRecord(channel) ? channel : null]));
+    return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setRumors", rumors: parsed?.rumors ?? [], gossip: channels } };
+  }
   if (tool === "setCheckpointChecks") {
     const checks = readChecks(args.checks, "checks", errors);
     return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setCheckpointChecks", id: String(args.id).trim(), checks } };
@@ -98,6 +108,7 @@ export const applyGameOp = (draft: StoryV2, op: GameAgentOp): StoryV2 => {
     case "setCodexEntry": return updateCodexEntry(draft, op.page, op.entry);
     case "removeCodexEntry": return removeCodexEntry(draft, op.page, op.id);
     case "setFactions": return setFactions(draft, op.factions);
+    case "setRumors": return Object.entries(op.gossip).reduce((next, [id, channel]) => setMemberGossip(next, id, channel ?? undefined), setRumors(draft, op.rumors));
   }
 };
 
@@ -129,6 +140,11 @@ export const describeGameOp = (op: GameAgentOp): OpDescription => {
     case "setFactions": {
       const label = op.factions.length ? `Factions: ${op.factions.map((faction) => faction.name).join(" / ")}` : "Remove every faction";
       return { action: "update", entity: "story.factions", label };
+    }
+    case "setRumors": {
+      const channels = Object.keys(op.gossip).length;
+      const label = op.rumors.length ? `Rumors: ${op.rumors.map((rumor) => rumor.id).join(" / ")}${channels ? `; gossip for ${channels} member(s)` : ""}` : "Remove every rumor";
+      return { action: "update", entity: "story.rumors", label };
     }
   }
 };
@@ -165,6 +181,11 @@ export const gameOpProblem = (draft: StoryV2, op: GameAgentOp): string | null =>
   }
   if (op.kind === "removeCodexEntry" && !(draft.codex?.[op.page] ?? []).some((entry) => entry.id === op.id)) return `'${op.id}' is not on the ${op.page} page`;
   if (op.kind === "setFactions" || (op.kind === "setCharacterLife" && op.life.factions !== undefined)) factionProblems(applyGameOp(draft, op), errors);
+  if (op.kind === "setRumors") {
+    const next = applyGameOp(draft, op);
+    const life = readLife({ roster: next.roster.map((member) => ({ ...member })), clock: next.clock }, []);
+    checkRumors(readRumors({ ...next }, errors), { roster: next.roster, qualityByKey: byKey, hasClock: Boolean(next.clock), life }, errors);
+  }
   if (op.kind === "setCheckpointChecks" && !draft.checkpoints.some((checkpoint) => checkpoint.id === op.id)) return `'${op.id}' is not a checkpoint`;
   if (op.kind === "setTransitionCheck" && !draft.transitions[op.index]) return `transition ${op.index} does not exist (readGraph numbers them)`;
   return errors.length ? errors.map((error) => `${error.path}: ${error.message}`).join("; ") : null;

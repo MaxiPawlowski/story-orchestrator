@@ -2,7 +2,6 @@ import { PROVISIONING_OP_KINDS, type ProvisioningEnvironment, type ProvisioningO
 import { lorebookFileId } from "@utils/string";
 import { nearestKey } from "@utils/levenshtein";
 import { LORE_GENERATION_TRIGGERS, outletNameProblem, regexKeyProblem } from "@utils/wiKeys";
-import { castCardName, castMemberNames, type StoryV2 } from "@engine/index";
 
 const norm = (value: string) => value.trim().toLowerCase();
 const has = (values: string[], wanted: string) => values.some((value) => norm(value) === norm(wanted));
@@ -58,8 +57,7 @@ export const personaRequirementProblem = (personas: readonly string[] | undefine
     listed;
 };
 
-export const draftCastNames = (story: Pick<StoryV2, "roster" | "requirements"> | null | undefined): string[] =>
-  (story ? castMemberNames(story.roster ?? [], [...(story.roster ?? []).map(castCardName), ...(story.requirements?.members ?? [])]) : []);
+export { draftCastNames } from "./castNames";
 
 export const isProvisioningKind = (kind: string): kind is ProvisioningOpKind => (PROVISIONING_OP_KINDS as readonly string[]).includes(kind);
 

@@ -18,7 +18,7 @@ const SRC = join(__dirname, "..");
 // edge into delegated units, so both budgets come down to the design values with headroom below them.
 const MANAGER_LINE_BUDGET = 700;
 const COORDINATOR_LINE_BUDGET = 560;
-const DELEGATED_UNITS = ["runtime/memoryQueue.ts", "runtime/canonSynthesis.ts", "runtime/memorizeBacklog.ts", "runtime/curatorWriter.ts", "runtime/loreCreator.ts"];
+const DELEGATED_UNITS = ["runtime/memoryQueue.ts", "runtime/memoryDecisions.ts", "runtime/canonSynthesis.ts", "runtime/memorizeBacklog.ts", "runtime/curatorWriter.ts", "runtime/loreCreator.ts"];
 const COORDINATOR_SPECIFIER = /(^|\/)coordinators\/|^\.\/\w+Coordinator$/;
 const valueImportsOf = (source: string) => [...source.matchAll(/^import\s+(?!type\s)([\s\S]+?)\s+from\s+"([^"]+)"/gm)]
   .filter((match) => !/^\{[^}]*\}$/.test(match[1].trim()) || match[1].replace(/\btype\s+\w+(\s+as\s+\w+)?/g, "").replace(/[{},\s]/g, "") !== "")
@@ -103,6 +103,18 @@ describe("architecture guards", () => {
     const blockWriters = walk(SRC).filter((path) => /mes_block/.test(readFileSync(path, "utf8"))).map(relative);
     expect(blockWriters).toEqual(["services/stHost/inlineMount.ts"]);
     expect(MESSAGE_DOM.test('document.querySelector(`.mes[mesid="3"] .mes_text`)')).toBe(true);
+  });
+
+  it("never writes inside ST's .mes_text: only reads name it, and the shared selector is the one other mention (v2.8 69 K5)", () => {
+    const relative = (path: string) => path.slice(SRC.length + 1).replace(/\\/g, "/");
+    const live = (path: string) => !/\.(test|stories)\.tsx?$/.test(path);
+    const mentions = walk(SRC).filter((path) => live(path) && /mes_text/.test(readFileSync(path, "utf8"))).map(relative).sort();
+    expect(mentions).toEqual(["sprites/stage.ts", "utils/messageText.ts"]);
+    const WRITES_INTO = /mes_text[^\n]*\.(append|appendChild|prepend|insertBefore|insertAdjacent\w*|after|before|replaceWith|innerHTML|outerHTML)\b/;
+    const uses = (path: string) => [...readFileSync(path, "utf8").matchAll(/[^\n]*mes_text[^\n]*/g)].map((match) => match[0].trim());
+    expect(uses(join(SRC, "sprites/stage.ts")).every((line) => /closest\("\.mes_text"\)/.test(line) && !WRITES_INTO.test(line))).toBe(true);
+    expect(WRITES_INTO.test('block.querySelector(".mes_text").appendChild(host)')).toBe(true);
+    expect(WRITES_INTO.test('const text = target?.closest(".mes_text");')).toBe(false);
   });
 
   it("lets only the badge module touch ST's character, recent-chat and past-chat lists (v2.7 06 B)", () => {

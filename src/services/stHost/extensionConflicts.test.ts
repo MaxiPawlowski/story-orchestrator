@@ -48,10 +48,27 @@ describe("stHost extensionConflicts: which known extensions work against a story
     expect(extensionConflictsWith({ settings: null })).toEqual([]);
   });
 
+  it("v2.8 69 K2: NemoPresetExt is reported while it is loaded and enabled, never when disabled or missing", () => {
+    const others = ALL_FOLDERS.filter((folder) => folder !== "third-party/NemoPresetExt");
+    expect(extensionConflictsWith(host({ Presence: { enabled: false } }, { installed: ["third-party/NemoPresetExt"] }))).toEqual(["nemo-lorebook-spacing"]);
+    expect(extensionConflictsWith(host({ disabledExtensions: ["third-party/NemoPresetExt"] }, { installed: ["third-party/NemoPresetExt"] }))).toEqual([]);
+    expect(extensionConflictsWith(host({}, { installed: others }))).not.toContain("nemo-lorebook-spacing");
+  });
+
+  it("v2.8 69 K10: Chat Completion with send_if_empty set is reported; Text Completion, an empty or blank filler is not", () => {
+    const quietSettings = { Presence: { enabled: false }, disabledExtensions: ["third-party/NemoPresetExt"] };
+    const cc = (filler: unknown, mainApi = "openai") => ({ ...host(quietSettings), mainApi, chatCompletion: { send_if_empty: filler } });
+    expect(extensionConflictsWith(cc("[Continue.]"))).toEqual(["cc-send-if-empty"]);
+    expect(extensionConflictsWith(cc("[Continue.]", "textgenerationwebui"))).toEqual([]);
+    expect(extensionConflictsWith(cc(""))).toEqual([]);
+    expect(extensionConflictsWith(cc("   "))).toEqual([]);
+    expect(extensionConflictsWith(cc(undefined))).toEqual([]);
+  });
+
   it("Vector Storage World Info is read from its setting alone, the way exclusive lore select reads it", () => {
     expect(vectorsWorldInfoOn({ vectors: { enabled_world_info: true } })).toBe(true);
     expect(vectorsWorldInfoOn({ vectors: { enabled_world_info: false } })).toBe(false);
     expect(vectorsWorldInfoOn(undefined)).toBe(false);
-    expect(extensionConflictsWith(host({ Presence: { enabled: false }, vectors: { enabled_world_info: true }, disabledExtensions: ["vectors"] }))).toEqual(["vectors-world-info"]);
+    expect(extensionConflictsWith(host({ Presence: { enabled: false }, vectors: { enabled_world_info: true }, disabledExtensions: ["vectors", "third-party/NemoPresetExt"] }))).toEqual(["vectors-world-info"]);
   });
 });

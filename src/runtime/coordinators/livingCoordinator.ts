@@ -1,4 +1,6 @@
 import { isValidationErrorList, parseStoryV2, type ApplyQueueEntry, type EngineState, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
+import { focusCandidates } from "@pacing/focus";
+import { directorDisclosure } from "@generation/living/disclosure";
 import type { ModelCall, SchedulerJob } from "@extraction/index";
 import type { BranchOutcome, DirectorOutcome } from "@generation/living/direct";
 import { refusalLine, refusalOf } from "@generation/living/refusal";
@@ -9,6 +11,7 @@ import {
 import { compactOps, dropOpsAfter, graphEpoch, livingRaw } from "@generation/living/fold";
 import { findFrontier, livingAutonomy } from "@generation/living/frontier";
 import { checkDirectorOps } from "@generation/living/plan";
+import { dropSceneTestsAfter, planSceneTest, retainSceneTests, sceneTestFor, sceneTextsSafe, type SceneIds, type SceneTestRecord } from "@generation/living/sceneTest";
 import {
   createDivergenceState, createLivingState, LIVING_OP_CAP, LIVING_PREFETCH_WHY, LIVING_PROPOSAL_LIMIT,
   type DirectorProposal, type DivergenceReading, type DivergenceState, type LivingRuntimeState,
@@ -56,6 +59,9 @@ export interface LivingCoordinatorDeps {
   journal: (summary: string, note: string) => void;
   persist: () => Promise<void>;
   notify: () => void;
+  sceneIds?: () => SceneIds | null;
+  enabledIds?: () => string[];
+  sceneDrawn?: (record: SceneTestRecord) => void;
 }
 
 export type LivingDecision = "accepted" | "rejected";
@@ -209,17 +215,43 @@ export class LivingCoordinator {
     if (!story?.living || !state || !loaded || !frontierId || this.inFlight) return null;
     const run = placed ?? beginRun(this.deps.ownership);
     const base = this.baseFor(story, state, frontierId);
+    const { inputs, unknownNames } = this.disclosed(story, state);
+    const sceneTest = this.safeScene(this.sceneTest(story, state, frontierId, inputs, unknownNames), inputs, unknownNames);
     this.inFlight = true;
     try {
       const unit = await loadUnit();
       const outcome = await unit.directNext({
-        story, raw: loaded.raw, frontierId, state, sealsOn: this.deps.sealsOn(), inputs: this.deps.inputs(), model: this.deps.model,
+        story, raw: loaded.raw, frontierId, state, sealsOn: this.deps.sealsOn(), inputs, model: this.deps.model, sceneTest,
         signal: run.signal, debugResponse: debugResponse ?? this.deps.model.planted?.("living") ?? null,
       });
       return await this.record(outcome, base, run);
     } finally {
       this.inFlight = false;
     }
+  }
+
+  private disclosed(story: NormalizedStoryV2, state: EngineState): { inputs: LivingInputs; unknownNames: string[] } {
+    return directorDisclosure(story, state.blackboard.values, this.deps.enabledIds?.() ?? [], this.deps.inputs());
+  }
+
+  private safeScene(record: SceneTestRecord | null, inputs: LivingInputs, unknownNames: readonly string[]): SceneTestRecord | null {
+    if (!record || sceneTextsSafe(record, unknownNames, inputs.scrub)) return record;
+    this.deps.journal("scene signal withheld", `the frozen thread for ${record.frontierId} is no longer safe to show the director; the draw stands and its line is left out`);
+    return null;
+  }
+
+  private sceneTest(story: NormalizedStoryV2, state: EngineState, frontierId: string, inputs: LivingInputs, unknownNames: readonly string[]): SceneTestRecord | null {
+    const frozen = sceneTestFor(this.state.sceneTests, frontierId);
+    const ids = this.deps.sceneIds?.();
+    if (frozen || !ids || !story.living?.scene_test) return frozen;
+    const record = planSceneTest({
+      story, ids, frontierId, frontierName: story.checkpointById[frontierId]?.name ?? frontierId, plannedAt: state.boundary, messageId: state.lastMessageId,
+      tension: inputs.tension, candidates: focusCandidates({ arcs: inputs.openThreads, unknownNames }), prior: this.state.sceneTests ?? [],
+    });
+    if (!record) return null;
+    this.write({ ...this.state, sceneTests: [...(this.state.sceneTests ?? []), record] });
+    this.deps.sceneDrawn?.(record);
+    return record;
   }
 
   async checkDivergence(at: { boundary: number; messageId: number }, place: (job: SchedulerJob) => unknown): Promise<boolean> {
@@ -278,7 +310,7 @@ export class LivingCoordinator {
       const unit = await loadUnit();
       const outcome = await unit.branchNext({
         story, raw: loaded.raw, sourceId, targetId, branchId: nextBranchId(story), state, why, ...(prepared ? { prepared: true } : {}),
-        recent: await this.deps.recentTurns(), inputs: this.deps.inputs(),
+        recent: await this.deps.recentTurns(), inputs: this.disclosed(story, state).inputs,
         model: this.deps.model, signal: run.signal, debugResponse: debugResponse ?? this.deps.model.planted?.("living") ?? null,
       });
       return await this.record(outcome, base, run);
@@ -389,21 +421,26 @@ export class LivingCoordinator {
 
   compact() {
     const floor = this.deps.historyFloor();
-    if (floor === null || !this.state.ops.length) return;
-    const next = compactOps(this.state, floor);
+    if (floor === null) return;
+    const next = this.state.ops.length ? compactOps(this.state, floor) : this.state;
     if (next !== this.state) this.write(next);
+    const story = this.deps.getStory();
+    const kept = story && this.state.sceneTests?.length ? retainSceneTests(this.state, story, floor) : null;
+    if (kept && kept.length !== this.state.sceneTests?.length) this.write({ ...this.state, sceneTests: kept });
   }
 
-  restoreAfterRollback(boundary: number): number {
-    if (!this.tracks()) return 0;
+  restoreAfterRollback(boundary: number, run: RunGuard = beginRun(this.deps.ownership)): number {
+    if (!this.tracks() || !run.stillOwns()) return 0;
     const { state, dropped } = dropOpsAfter(this.state, boundary);
     const droppedBranches = state.proposals.filter((proposal) => proposal.kind === "branch" && dropped.some((op) => op.proposalId === proposal.id)).map((proposal) => proposal.frontierId);
     const divergence = { ...unmarkBranched(this.divergence, droppedBranches), streak: 0, lastTurn: -1 };
-    this.write({ ...state, divergence, epochBumps: state.epochBumps + (dropped.length ? 0 : 1) });
+    const sceneTests = state.sceneTests ? { sceneTests: dropSceneTestsAfter(state.sceneTests, boundary) } : {};
+    this.write({ ...state, ...sceneTests, divergence, epochBumps: state.epochBumps + (dropped.length ? 0 : 1) });
+    if (!run.stillOwns()) return 0;
     this.withdraw("a rollback changed the story's future");
     if (!dropped.length) return 0;
     const raw = livingRaw(this.state);
-    if (!raw) return 0;
+    if (!raw || !run.stillOwns()) return 0;
     this.deps.setPlayedRaw(raw);
     const story = this.deps.getStory();
     const pruned = story ? this.deps.pruneExpansion(story) : 0;

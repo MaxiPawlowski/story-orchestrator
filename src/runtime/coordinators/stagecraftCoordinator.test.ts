@@ -220,7 +220,7 @@ describe("StagecraftCoordinator", () => {
     expect(await coordinator.applyAccepted()).toBe(0);
     await coordinator.setOpDecision(record!.id, 0, "accepted");
     expect(await coordinator.applyAccepted()).toBe(1);
-    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "The bridge stands, its ropes cut.", disabled: false });
+    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "The bridge stands, its ropes cut.", disabled: false }, expect.anything());
     expect(upsertWIEntry).not.toHaveBeenCalled();
     expect(read().proposals[0].ops[0].status).toBe("applied");
     expect(journal.some((entry) => entry.includes("applied 1 change(s)"))).toBe(true);
@@ -233,7 +233,7 @@ describe("StagecraftCoordinator", () => {
     const { record } = await coordinator.runCuratorPass();
     expect(record?.ops[0].status).toBe("accepted");
     expect(await coordinator.applyAccepted()).toBe(1);
-    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "{{// so:auto}}The bridge stands, its ropes new and taut.", disabled: true });
+    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "{{// so:auto}}The bridge stands, its ropes new and taut.", disabled: true }, expect.anything());
   });
 
   it("v2.7 02 C13 control: in auto mode an op on an unmarked entry waits for the author and is not written", async () => {
@@ -329,7 +329,7 @@ describe("StagecraftCoordinator", () => {
     const { record } = await coordinator.runCuratorPass();
     await coordinator.setOpDecision(record!.id, 0, "accepted", { kind: "rewrite", lorebook: "Story Lore", comment: "The bridge", text: "The bridge is rubble.", uid: 1 });
     await coordinator.applyAccepted();
-    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "The bridge is rubble.", disabled: false });
+    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, { content: "The bridge is rubble.", disabled: false }, expect.anything());
   });
 
   it("T17.3: an op the author declined at this checkpoint is not proposed again, and the prompt says so", async () => {
@@ -527,7 +527,7 @@ describe("StagecraftCoordinator", () => {
     await coordinator.runCuratorPass();
     await authorAcceptsPending(coordinator);
     await coordinator.applyAccepted();
-    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 2 }, { content: "The ferryman is back.", disabled: true });
+    expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 2 }, { content: "The ferryman is back.", disabled: true }, expect.anything());
     expect(book.current.entries[2]).toMatchObject({ content: "The ferryman is back.", disable: true });
     expect(disableWIEntry).not.toHaveBeenCalled();
   });
@@ -600,7 +600,7 @@ describe("StagecraftCoordinator", () => {
     (upsertWIEntry as jest.Mock).mockClear();
     expect(await coordinator.revertAppliedSince(15)).toBe(1);
     expect(upsertWIEntry).not.toHaveBeenCalled();
-    expect(restoreWIEntryAt).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, expect.objectContaining({ content: "The bridge stands, its ropes new and taut.", disabled: false }));
+    expect(restoreWIEntryAt).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, expect.objectContaining({ content: "The bridge stands, its ropes new and taut.", disabled: false }), expect.anything());
     expect(entryOf("The bridge")?.content).toBe("The bridge stands, its ropes new and taut.");
     expect(read().proposals).toEqual([]);
     expect(journal.some((entry) => entry.includes("rolled back"))).toBe(true);
@@ -648,7 +648,7 @@ describe("ownership: a curator batch belongs to one chat", () => {
       await coordinator.runCuratorPass();
       await authorAcceptsPending(coordinator);
       await coordinator.applyAccepted();
-      expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, expect.objectContaining({ disabled: true }));
+      expect(updateWIEntryByUid).toHaveBeenCalledWith({ lorebookFileId: "Story Lore", uid: 1 }, expect.objectContaining({ disabled: true }), expect.anything());
     });
 
     it("stops the ops behind it when the world changes mid-batch", async () => {
@@ -935,6 +935,45 @@ describe("continuity warden (v2.2 plan 05)", () => {
     expect(env.read().proposals.at(-1)?.ops[0].status).toBe("applied");
     env.coordinator.onGenerationStarted("normal", false);
     expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(1);
+  });
+
+  it.each([
+    ["an in-place swipe", (row: Record<string, unknown>) => { row.swipe_id = 1; row.mes = "Mira says the ferry still runs."; }],
+    ["an in-place edit", (row: Record<string, unknown>) => { row.mes = "We wade the ford instead, the rope edited."; }],
+  ])("plan 69 K13: %s of the reply that carried the note makes its applied mark invalid, so the note rides again", async (_label, mutate) => {
+    const env = harness({ settings: wardenOn("auto"), warden: warden() });
+    await env.coordinator.runWardenPass(1);
+    env.coordinator.onGenerationStarted("normal", false);
+    mockChat.push({ name: "Mira", mes: "We wade the ford.", is_user: false, swipe_id: 0 });
+    env.coordinator.commitNote(true);
+    expect(env.read().proposals.at(-1)?.ops[0].status).toBe("applied");
+    env.coordinator.onGenerationStarted("normal", false);
+    expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(1);
+    mutate(mockChat.at(-1) as Record<string, unknown>);
+    env.coordinator.onGenerationStarted("swipe", false);
+    expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(2);
+    expect(setStoryExtensionPrompt).toHaveBeenLastCalledWith(KEY, note.text, 0);
+    mockChat.at(-1)!.mes = "Mira points at the ferry.";
+    env.coordinator.commitNote(true);
+    expect(env.read().proposals.at(-1)?.ops[0].status).toBe("applied");
+    env.coordinator.onGenerationStarted("normal", false);
+    expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(2);
+  });
+
+  it("review 2026-10-16 #5: a quiet run nested in the loud one withholds the note, the loud run gets it back, and its render spends it", async () => {
+    const env = harness({ settings: wardenOn("auto"), warden: warden() });
+    await env.coordinator.runWardenPass(1);
+    env.coordinator.onGenerationStarted("normal", false);
+    expect(setStoryExtensionPrompt).toHaveBeenLastCalledWith(KEY, note.text, 0);
+    env.coordinator.onGenerationStarted("quiet", false);
+    expect(clearStoryExtensionPrompt).toHaveBeenLastCalledWith(KEY);
+    env.coordinator.restoreNote();
+    expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(2);
+    expect(setStoryExtensionPrompt).toHaveBeenLastCalledWith(KEY, note.text, 0);
+    env.coordinator.commitNote(true);
+    expect(env.read().proposals.at(-1)?.ops[0].status).toBe("applied");
+    env.coordinator.restoreNote();
+    expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(2);
   });
 
   it("v2.4 X6: a reply-less close keeps the note accepted for the next loud generation; only a render spends it", async () => {

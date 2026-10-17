@@ -17,7 +17,7 @@ import { applyAuthorNote, applyWorldInfo, authorNoteText, fireReply, readNpcRepl
 import { worldInfoFilesHeld } from "./worldInfoMode";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { generationWatch } from "./generationWatch";
-import { heldLine, npcReplyMayFire, recordNpcReplyFire, recordOnEnterPost, type ActiveTrigger } from "./npcReplyRewind";
+import { heldLine, npcReplyMayFire, recordNpcReplyFire, recordOnEnterPost, releaseNpcReplyFire, type ActiveTrigger } from "./npcReplyRewind";
 import { castInPlayNote } from "./castInPlay";
 import { CAST_UNRESOLVED, CAST_UNRESOLVED_NOTE, holdsBackground, planCastChanges } from "./castEffect";
 import { InFlight } from "./inFlight";
@@ -391,7 +391,7 @@ export class EffectsApplier {
 
   private reads(): EffectHostReads { return this.deps.reads ?? { read: () => null }; }
 
-  private async speak(reply: NpcReplyEffect) {
+  private async speak(reply: NpcReplyEffect): Promise<WriteResult> {
     if (reply.kind === "scripted") return fireReply(reply);
     const chatId = openChatId();
     const stream = guardHostStream(chatId);
@@ -407,7 +407,9 @@ export class EffectsApplier {
     lapse?.addEventListener("abort", stopIfOurs, { once: true });
     const unwatch = watchHostChatMove(chatId, stopIfOurs);
     try {
-      await fireReply(reply);
+      const fired = await fireReply(reply);
+      if (!fired.ok) this.deps.journal?.(`${reply.member}'s reply was not triggered`, fired.reason);
+      return fired;
     } finally {
       unwatch();
       lapse?.removeEventListener("abort", stopIfOurs);
@@ -479,10 +481,18 @@ export class EffectsApplier {
       extras.firedNpcRepliesAt = extras.firedNpcRepliesAt ?? {};
       recordNpcReplyFire(extras.firedNpcReplies, extras.firedNpcRepliesAt, key, lastMessageId());
       this.speaking += 1;
-      try { await chatSettle.speak(() => this.speak(reply)); }
-      finally { this.speaking -= 1; }
-      spoken += 1;
+      let fired: WriteResult;
+      try { fired = await chatSettle.speak(() => this.speak(reply)); }
+      catch (error) {
+        if (run.stillOwns()) releaseNpcReplyFire(extras.firedNpcReplies, extras.firedNpcRepliesAt, key);
+        throw error;
+      } finally { this.speaking -= 1; }
       if (!run.stillOwns()) return spoken;
+      if (!fired.ok) {
+        releaseNpcReplyFire(extras.firedNpcReplies, extras.firedNpcRepliesAt, key);
+        continue;
+      }
+      spoken += 1;
       extras.lastSelfInjectionMessageId = lastMessageId();
     }
     return spoken;

@@ -4,8 +4,9 @@ import {
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, isPrimitive, refuse, rejectUnknownKeys } from "./common";
 import { DISPLAY_LABEL_MAX } from "./display";
+import { readGate } from "./gates";
 
-const CHECK_KEYS = ["id", "label", "quality", "roll", "modifiers", "narrate", "outcome", "twist"] as const;
+const CHECK_KEYS = ["id", "label", "quality", "roll", "modifiers", "narrate", "outcome", "twist", "when"] as const;
 const ROLL_KEYS = ["sides", "target", "dice"] as const;
 const MODIFIER_KEYS = ["q", "v", "add", "label"] as const;
 const OUTCOME_KEYS = ["quality", "bands", "partial_margin"] as const;
@@ -84,10 +85,11 @@ export const readCheck = (value: unknown, path: string, errors: ValidationError[
   const outcome = readOutcome(value.outcome, `${path}.outcome`, errors);
   const modifiers = readModifiers(value.modifiers, `${path}.modifiers`, errors);
   const label = readLabel(value.label, `${path}.label`, errors);
+  const when = value.when === undefined ? undefined : readGate(value.when, `${path}.when`, errors) ?? undefined;
   if (!GAME_ID_PATTERN.test(id) || !quality || !roll) return null;
   return {
     id, quality, roll, narrate: isOneOf(value.narrate, CHECK_NARRATE) ? value.narrate : "hidden",
-    ...(label ? { label } : {}), ...(modifiers.length ? { modifiers } : {}), ...(outcome ? { outcome } : {}), ...(twist ? { twist } : {}),
+    ...(label ? { label } : {}), ...(modifiers.length ? { modifiers } : {}), ...(outcome ? { outcome } : {}), ...(twist ? { twist } : {}), ...(when ? { when } : {}),
   };
 };
 

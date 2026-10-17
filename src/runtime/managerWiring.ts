@@ -28,6 +28,7 @@ import type { InnerBeatHost } from "./innerBeatHost";
 import { loadInnerRender, shownRows } from "@memory/index";
 import { currentChatOwner, getPlayerName } from "@services/STAPI";
 import { storyEnded } from "./chapterPort";
+import { createNarratorSheetPort } from "./narratorSheetPort";
 import { hasOpenGroup } from "./persistence";
 import { createGamePort } from "./gamePort";
 import { landedMeanwhile } from "./agendaProposals";
@@ -35,6 +36,10 @@ import { createMeanwhilePort } from "./meanwhilePort";
 import type { EffectsApplier } from "./effectsApplier";
 import { wireLiving } from "./livingWiring";
 import { createPromisePort } from "./promisePort";
+import { createWitnessPort } from "./witnessPort";
+import { createRumorPort, rumorRevision } from "./rumorPort";
+import { beginRun } from "./runToken";
+import { fnv1a } from "./hash";
 import { createRecapPort } from "./recapPort";
 import { createCarryActions } from "./carryPort";
 import { gameLayer } from "@engine/validate/gameLayer";
@@ -75,6 +80,22 @@ function wirePromises(port: ManagerPort, memory: MemoryCoordinator) {
   });
   memory.injector.addPrivateSource((rosterId) => promises.reminder(rosterId));
   return promises;
+}
+
+function wireRumors(port: ManagerPort, memory: MemoryCoordinator) {
+  const { view, engine } = port;
+  const rumors = createRumorPort({
+    getStory: view.getStory, values: () => view.getState()?.blackboard.values ?? null, extras: port.extras, chatId: () => view.hosts.chat.chatId(),
+    storyId: () => port.loaded()?.record.id, enabledIds: () => enabledCharacterIds(view.getStory(), view.hosts.roster),
+    revisionAt: (messageId) => rumorRevision(view.hosts.chat.chatWindow(messageId, messageId).messages, fnv1a),
+    historyFloor: () => (port.loaded() ? engine.historyFrom().messageId : null), epistemic: () => memory.activeEpistemic(),
+    refresh: () => memory.updateInjection(), heldKey: () => memory.injector.heldSecretsKey(),
+    resync: () => { void memory.syncWorldInfo(beginRun(port.lifecycle.ownership)); },
+    persist: () => { void port.lifecycle.persist(); }, notify: () => port.lifecycle.notify(), journal: (summary, note) => port.journal("author", summary, note),
+  });
+  memory.injector.addPrivateSource((rosterId) => rumors.lines(rosterId));
+  memory.injector.addDisclosureSource(() => rumors.disclosures());
+  return rumors;
 }
 
 function wireInner(port: ManagerPort, memory: MemoryCoordinator, pacing: () => PacingCoordinator) {
@@ -121,7 +142,14 @@ export function wireCoordinators(port: ManagerPort) {
     },
   });
   const promises = wirePromises(port, memory);
+  const rumors = wireRumors(port, memory);
+  const witness = createWitnessPort({ getStory: view.getStory, extras: port.extras, enabledIds: () => enabledCharacterIds(view.getStory(), view.hosts.roster) });
   memory.injector.addPrivateSource((rosterId) => gameLayer()?.carry.carryKnownLines(port.extras().carry, rosterId) ?? []);
+  const narrator = createNarratorSheetPort({
+    story: () => port.loaded()?.story ?? null, state: () => (port.loaded() ? engine.serialize() : null), log: () => (port.loaded() ? engine.stateLog : []),
+    chatId: () => view.hosts.chat.chatId(), refresh: () => memory.updateInjection(),
+  });
+  memory.injector.addPrivateSource((rosterId) => narrator.lines(rosterId));
   const carry = createCarryActions(port, () => memory.updateInjection());
   const inner = wireInner(port, memory, () => pacing);
   const refusing = () => {
@@ -157,7 +185,7 @@ export function wireCoordinators(port: ManagerPort) {
     setStatus: (status) => port.setStatus(status),
     judge: () => port.judge(),
     requestBudget: (role) => requestBudgetFor(role),
-    spikes: () => getGlobalSettings().spikes, promises,
+    spikes: () => getGlobalSettings().spikes, promises, witness, journal: (summary, note) => port.journal("story", summary, note),
     ...lifecycle,
   });
   const pacing = new PacingCoordinator({
@@ -219,10 +247,11 @@ export function wireCoordinators(port: ManagerPort) {
   const living = wireLiving({
     view, lifecycle, engine, loaded: port.loaded, extras: port.extras, memory, expansion, replaceStory: (story) => port.replaceStory(story),
     refused: () => refusing()?.checkpointName ?? null, journal: port.journal, judge: port.judge, chatRows: () => view.hosts.chat.chatRows(), promiseHooks: () => promises.hooks(),
+    chatId: () => (view.hosts.chat.chatId() ? String(view.hosts.chat.chatId()) : null), enabledIds: () => enabledCharacterIds(view.getStory(), view.hosts.roster),
   });
   const rollbackDeps: RollbackDeps = {
     ...port.rollback, engine, memory, stagecraft, pacing, ownership: lifecycle.ownership, revalidateExpansion: () => expansion.revalidateInserted(),
-    restoreExpansion: (boundary) => expansion.restoreStaledAfter(boundary), restoreLiving: (boundary) => living.restoreAfterRollback(boundary),
+    restoreExpansion: (boundary) => expansion.restoreStaledAfter(boundary), restoreLiving: (boundary, run) => living.restoreAfterRollback(boundary, run),
     livingMovedAfter: (boundary) => living.movedAfter(boundary), extras: () => port.extras(),
     persist: lifecycle.persist, notify: lifecycle.notify, setStatus: (status) => port.setStatus(status),
   };
@@ -233,5 +262,5 @@ export function wireCoordinators(port: ManagerPort) {
     chatOpen: () => Boolean(view.hosts.chat.chatId()),
     groupOpen: hasOpenGroup,
   };
-  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, promises, carry };
+  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, promises, witness, rumors, carry, narrator };
 }

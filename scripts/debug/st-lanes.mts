@@ -1,4 +1,4 @@
-import { execFile, spawn } from 'node:child_process';
+import { execFile, spawn, type ChildProcess } from 'node:child_process';
 import { cp, mkdir, open, readFile, readdir, rm, writeFile } from 'node:fs/promises';
 import { createWriteStream, existsSync, readFileSync, statSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
@@ -12,6 +12,7 @@ import { judgeShareEnv, LANE_POD_FILE, parsePodArg, podLoadProblem, podPortsIn, 
 import { ROW_DIR_ENV } from './lib/pageCapture.mts';
 import { ramGateBytes, waitForFreeRam, type RamPause } from './lib/ramGate.mts';
 import { collectRowEvidence, fileSize, recordPathsIn, ROW_FILES, rowDirName, type RowLane } from './lib/rowEvidence.mts';
+import { guardChildren } from './lib/childTree.mts';
 
 const USAGE = `Usage: node scripts/debug/st-lanes.mts <command> [...]
 
@@ -117,9 +118,14 @@ export function createLineStamper(onLine: (line: string) => void, now: () => Dat
   };
 }
 
+const liveChildren = new Set<ChildProcess>();
+let childGuard: { release(): void } | null = null;
+
 function runNode(args: string[], env: Record<string, string>, { logPath, echo = false }: { logPath?: string; echo?: boolean } = {}): Promise<{ code: number; output: string }> {
+  childGuard ??= guardChildren(() => [...liveChildren], { watchParent: process.env.SO_DETACHED_RUN !== '1' });
   return new Promise((done) => {
     const child = spawn(process.execPath, args, { cwd: PROJECT_ROOT, env: { ...process.env, ...env }, windowsHide: true });
+    liveChildren.add(child);
     const log = logPath ? createWriteStream(logPath, { encoding: 'utf-8' }) : null;
     const emit = (line: string) => {
       log?.write(`${line}\n`);
@@ -131,6 +137,7 @@ function runNode(args: string[], env: Record<string, string>, { logPath, echo = 
     child.stdout.on('data', (chunk) => { output += chunk; out.push(String(chunk)); });
     child.stderr.on('data', (chunk) => { output += chunk; err.push(String(chunk)); });
     child.on('close', (code) => {
+      liveChildren.delete(child);
       out.end();
       err.end();
       const finish = () => done({ code: code ?? 1, output });

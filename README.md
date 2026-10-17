@@ -34,11 +34,12 @@ Their source, tests and READMEs live in [`server-plugin/`](server-plugin/). They
 | Plugin | Provides |
 |---|---|
 | [Judge](server-plugin/story-orchestrator-judge/README.md) | Server-side judgment-provider requests and credentials. |
+| [Lore](server-plugin/story-orchestrator-lore/README.md) | Conditional lorebook saves: a write lands only while the file still holds what it started from. |
 | [Harness](server-plugin/story-orchestrator-harness/README.md) | Model tasks through coding-agent CLIs and the wizard's opencode tool bridge. |
 | [GPU](server-plugin/story-orchestrator-gpu/README.md) | Coordination of local text generation and ComfyUI sharing a GPU. |
 | [Media](server-plugin/story-orchestrator-media/README.md) | Owned ComfyUI jobs, reference edits, model fingerprints and generated sprite files. |
 
-All four are optional. Install them with `npm run plugin:install` (add `-- --with gpu,media,harness` for the others),
+All five are optional. `npm run plugin:install` installs judge and lore (add `-- --with gpu,media,harness` for the others),
 set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart SillyTavern:
 [Server plugins](https://maxipawlowski.github.io/story-orchestrator/setup/index.html#so-guide-h-server-plugins).
 
@@ -55,6 +56,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Playing | Carry a finished story | A sequel, or a replay of the same story, can start from how a run you finished ended. | Experimental |
 | Playing | Story drawer | Where you are, what happened, and what you are remembered for. |  |
 | Playing | Status strip | One line above the chat input: where the story is and how tense it is. |  |
+| Playing | Your move | A chip in the status strip when the characters hand the turn back to you. |  |
 | Playing | Notes under messages | Small icons under replies: where the story moved, what it remembered, which lore it used. |  |
 | Playing | Chat note when the story moves on | Optionally post a short chat note at each new turning point. | Off by default |
 | Playing | Recap and welcome back | Coming back after a break shows where you left off; /story recap asks any time. |  |
@@ -74,6 +76,8 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Playing | Story panels | Extra panels a story adds, such as a clock that fills, a board of quests, a wall of clues or a map. |  |
 | Playing | Story-made panels | A panel page a story brings, run shut off from SillyTavern. |  |
 | Playing | People and Places | Journal pages that fill in with the people and places you have learned about. |  |
+| Playing | Here now | A small card a story can place: where you are, when, and who you have met is with you. |  |
+| Playing | The narrator sees your sheet | What your stat sheet shows also reaches the narrator, so it does not deny an item you carry. |  |
 | Playing | Save this run as a story | Keep a living story's run as a story you can play again or edit. | Experimental |
 | Playing | What changed | Up to five lines on what changed this chapter: on the chapter card, in the Overview and in /story recap. | Experimental |
 | Memory | Story memory | Remembers what happened so characters stay consistent. |  |
@@ -83,6 +87,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Memory | Memory model test | Runs fixed scenes through the memory model and reports what it can do. |  |
 | Memory | Reply thinking | Limits how long the chat model thinks before each reply. |  |
 | Memory | Models per task | Send each kind of background work to its own model. |  |
+| Memory | Who heard what | Each story read also notes which characters heard each message. |  |
 | Characters | Speaker direction | In a group, the story picks who should speak next. |  |
 | Characters | Several voices per turn | More than one character can answer one of your messages. |  |
 | Characters | Private knowledge | Tracks who knows what, so characters do not know things they never saw. |  |
@@ -92,6 +97,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Characters | Standing with groups | How the groups in a story regard you, shown as a word such as "Wary" or "Trusted". | Experimental |
 | Characters | Relationship labels | Words for how a character treats you, and secrets about them you can learn, on their People page. | Experimental |
 | Characters | Promises remembered | A promise you make to a character is remembered in your own words. |  |
+| Characters | Rumors and gossip | News a story declares travels between characters along the channels it authors, and may change on the way. |  |
 | World | Story lorebook switching | Story lorebook entries switch on and off as the story moves. |  |
 | World | Story lorebooks | A story's lorebooks load only in the chats that play it. |  |
 | World | Memory can trigger lore | Established facts and scene history can activate lorebook entries. |  |
@@ -103,6 +109,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | World | Off-stage events | Proposes what a character did off stage toward their plan, for you to accept. | Experimental |
 | World | Living stories | A story that writes its next turning point ahead of you, from what you actually pursued. | Experimental |
 | World | Branches that follow you | When you leave the prepared ways forward, the story writes a branch that follows you and later comes back. | Experimental |
+| World | Scene test | Before the living director writes a turning point, a seeded draw may tell it the scene arrives changed or that the world acts first. | Experimental |
 | Images | Live close-shot head | A rigged close shot breathes, blinks and talks as a reply streams. | Experimental |
 | Images | Prepared cast presentation | Review and accept each character's base and bust before sprites, poses and live heads use them. | Experimental |
 | Images | Reference views | Draw an accepted character three-quarter left and right, in profile and from behind, then accept or cancel all six views. | Experimental |

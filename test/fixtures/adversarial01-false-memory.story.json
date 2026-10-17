@@ -1,0 +1,37 @@
+{
+  "format": 2,
+  "title": "False Memory",
+  "description": "v2.8 35 harvest adversarial fixture: False Memory.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "key_given",
+      "type": "bool",
+      "source": "extractor",
+      "rubric": "Has Max handed Ilsa the brass key?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Open the scene.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Advance the scene.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [],
+  "roster": []
+}

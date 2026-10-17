@@ -1,0 +1,57 @@
+{
+  "_note": "v2.8 plan 68 v1 (no-model lane; PLUMBING level: the reply is answered by an in-page fetch stub and the director by its debug response, which hands back to the player). The real talk path records kind player with the reply's revision; the HUD shows Your move. for that revision only: an in-place edit, an in-place swipe, a new player line and a delete each turn it off (Y2), restoring the exact text or swipe turns it back on; assert-player-clean with the chip shown (Y5). Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-68-your-move.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off",
+    "authorView": true
+  },
+  "steps": [
+    {
+      "log": true,
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds messages'); return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "file": "v28-68-your-move.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const NL = String.fromCharCode(10); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const chid = (name) => SillyTavern.getContext().characters.findIndex((character) => character.name === name); const line = (name) => { rt.onMemberDrafted(chid(name)); return String(rt.getAppliedEpistemicBlock() ?? ''); }; const textOf = (body) => typeof body?.prompt === 'string' ? body.prompt : Array.isArray(body?.messages) ? body.messages.map((m) => (typeof m?.content === 'string' ? m.content : JSON.stringify(m?.content ?? ''))).join(NL) : JSON.stringify(body ?? null); const stub = async (run, reply = 'SO stub reply.') => { const tg = await import('/scripts/textgen-settings.js'); const host = await import('/script.js'); const status = host.online_status; host.setOnlineStatus('SO stub'); const streaming = tg.textgenerationwebui_settings.streaming; tg.textgenerationwebui_settings.streaming = false; const seen = []; const original = globalThis.fetch; globalThis.fetch = async (input, init) => { const url = String(typeof input === 'string' ? input : input?.url ?? ''); if (url.includes('/api/backends/') && url.endsWith('/generate')) { let body = null; try { body = JSON.parse(String(init?.body ?? 'null')); } catch {} seen.push(textOf(body)); return new Response(JSON.stringify({ choices: [{ text: reply, message: { content: reply } }], results: [{ text: reply }], content: reply }), { status: 200, headers: { 'Content-Type': 'application/json' } }); } return original(input, init); }; let error = null; try { await run(); } catch (e) { error = String(e?.message ?? e); } finally { globalThis.fetch = original; tg.textgenerationwebui_settings.streaming = streaming; host.setOnlineStatus(status); } const box = document.querySelector('#send_textarea'); if (box) { box.value = ''; box.dispatchEvent(new Event('input', { bubbles: true })); } await pause(600); return { seen, error }; }; const fnv = (text) => { let hash = 2166136261; for (let i = 0; i < text.length; i += 1) { hash ^= text.charCodeAt(i); hash = Math.imul(hash, 16777619); } return (hash >>> 0).toString(16).padStart(8, '0'); }; const turn = () => { rt.notify(); return rt.getSnapshot().turn ?? null; }; const hud = () => document.querySelector('#so-hud-turn')?.textContent ?? null; const last = () => { const chat = SillyTavern.getContext().chat; return chat[chat.length - 1]; }; const edit = async (text) => { const ctx = SillyTavern.getContext(); const id = ctx.chat.length - 1; const row = ctx.chat[id]; row.mes = text; if (Array.isArray(row.swipes)) row.swipes[row.swipe_id ?? 0] = text; await ctx.eventSource.emit(ctx.eventTypes.MESSAGE_EDITED, id); await pause(800); }; const swipe = async (index, text) => { const ctx = SillyTavern.getContext(); const id = ctx.chat.length - 1; const row = ctx.chat[id]; if (!Array.isArray(row.swipes)) row.swipes = [row.mes]; if (text !== undefined) row.swipes[index] = text; row.swipe_id = index; row.mes = row.swipes[index]; await ctx.eventSource.emit(ctx.eventTypes.MESSAGE_SWIPED, id); await pause(800); }; const state = async (what) => { await pause(300); const t = turn(); await pause(300); return { what, yours: Boolean(t?.yours), hud: hud() }; }; globalThis.__y68 = { rt, pause, until, stub, turn, hud, last, edit, swipe, state, fnv }; return { ready: true, chain: rt.getTalkChainConfig?.() ?? null };",
+      "log": true
+    },
+    {
+      "send": "I wave at Arin across the hall."
+    },
+    {
+      "log": true,
+      "eval": "const f = globalThis.__y68; globalThis.storyOrchestratorDebugDirectorResponse = 'SPEAKER: PLAYER'; const ctx = SillyTavern.getContext(); const before = ctx.chat.length; const run = await f.stub(async () => { await ctx.generate('normal'); await f.until(() => { const d = f.rt.getSnapshot().talk.decisions.at(-1); return SillyTavern.getContext().chat.length > before && d?.kind === 'player' ? d : null; }, 20000, 'a recorded hand-back'); }, 'Arin waves back. Your call.'); if (run.error) throw new Error('the stubbed turn failed: ' + run.error); const d = f.rt.getSnapshot().talk.decisions.at(-1); const row = f.last(); if (!d.revision || d.revision.hash !== f.fnv(row.mes)) throw new Error('the hand-back revision does not match the reply: ' + JSON.stringify({ d, mes: row.mes })); const shown = await f.until(async () => { const s = await f.state('hand-back'); return s.yours && s.hud === 'Your move.' ? s : null; }, 8000, 'the chip after the hand-back'); return { decision: { kind: d.kind, source: d.source, messageId: d.messageId }, shown, requests: run.seen.length };"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await globalThis.__y68.pause(800); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); await globalThis.__y68.pause(500); return { authorView: true };"
+    },
+    {
+      "log": true,
+      "eval": "const f = globalThis.__y68; const original = f.last().mes; const out = []; await f.edit(original + ' (edited)'); out.push(await f.state('edit in place')); await f.edit(original); out.push(await f.state('edit restored')); await f.swipe(1, 'Arin shrugs instead.'); out.push(await f.state('swipe in place')); await f.swipe(0); out.push(await f.state('swipe back')); const expected = [false, true, false, true]; if (JSON.stringify(out.map((s) => s.yours)) !== JSON.stringify(expected)) throw new Error('Y2: ' + JSON.stringify(out)); if (out.some((s) => (s.hud === 'Your move.') !== s.yours)) throw new Error('the HUD disagrees with the snapshot: ' + JSON.stringify(out)); return { out };"
+    },
+    {
+      "send": "I open the door."
+    },
+    {
+      "log": true,
+      "eval": "const f = globalThis.__y68; const out = [await f.state('new player line')]; const ctx = SillyTavern.getContext(); await ctx.deleteMessage(ctx.chat.length - 1, undefined, false); out.push(await f.state('player line deleted')); await ctx.deleteMessage(ctx.chat.length - 1, undefined, false); out.push(await f.state('reply deleted')); if (JSON.stringify(out.map((s) => s.yours)) !== JSON.stringify([false, true, false])) throw new Error('Y2: ' + JSON.stringify(out)); return { out };"
+    }
+  ]
+}

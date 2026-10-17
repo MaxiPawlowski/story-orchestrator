@@ -1,6 +1,7 @@
 import { couldNot, type WriteResult } from "@utils/writeResult";
 import { worldInfoModule } from "./modules";
-import { disableWIEntry, enableWIEntry, findLorebook, readServerLorebook } from "./worldInfo";
+import { disableWIEntry, enableWIEntry, findLorebook, readServerLorebook, type WriteGuard } from "./worldInfo";
+import { lapsed, RUN_LAPSED } from "./writeGuard";
 
 // B. What a listed book's FILE holds per gated comment: the first entry carrying it (the entry the
 // file path flips), `true`/`false` for its `disable` flag and `null` when it has none. Read from the
@@ -25,9 +26,10 @@ export async function readLorebookEntries(name: string): Promise<Map<string, boo
 // write must start from it too: `setWIEntriesState` edits the cached copy, and a copy older than an API
 // write would answer "already off" and write nothing. Evicting one book makes the next `loadWorldInfo` fetch it
 // (world-info.js:2041-2055); the write is then the usual typed, read-back one.
-export async function setLorebookEntriesDisabled(name: string, comments: string[], disabled: boolean): Promise<WriteResult<{ changed: boolean; confirmed?: boolean }>> {
+export async function setLorebookEntriesDisabled(name: string, comments: string[], disabled: boolean, guard?: WriteGuard): Promise<WriteResult<{ changed: boolean; confirmed?: boolean }>> {
   const listed = findLorebook(name);
   if (!listed) return couldNot(`there is no lorebook "${name}"`);
+  if (lapsed(guard)) return couldNot(RUN_LAPSED);
   worldInfoModule.worldInfoCache.delete(listed);
-  return disabled ? disableWIEntry(listed, comments) : enableWIEntry(listed, comments);
+  return disabled ? disableWIEntry(listed, comments, guard) : enableWIEntry(listed, comments, guard);
 }

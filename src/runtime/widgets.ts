@@ -4,7 +4,7 @@ import {
 } from "@engine/index";
 import { isRecord } from "@utils/guards";
 import type {
-  BoardLane, GameView, IntentView, LogRowView, MainLineView, MilestoneView, ProgressView, ProvenanceView, QuestLane, QuestView, RosterRowView, SheetGroupView, TimelineChapterView,
+  BoardLane, CodexView, GameView, IntentView, LogRowView, MainLineView, MilestoneView, ProgressView, ProvenanceView, QuestLane, QuestView, RosterRowView, SheetGroupView, TimelineChapterView,
   WidgetBody, WidgetView,
 } from "./gameTypes";
 import { previousValues, sheetGroups } from "./gameSheet";
@@ -18,6 +18,7 @@ import { shownPlayerText } from "./stretchTurns";
 import { codexLogRows, composeCodex } from "./codexView";
 import { labelCodexSources, labelLogRows } from "./labelView";
 import { gameLayer } from "@engine/validate/gameLayer";
+import { sceneEmpty, sceneView } from "./sceneCard";
 
 export const LOG_LIMIT = 40;
 export const ACTION_CHARS = 140;
@@ -33,6 +34,8 @@ export interface GameSources {
   castNames: Record<string, string>;
   authorView?: boolean;
   enabled?: readonly string[];
+  location?: string | null;
+  portraits?: Readonly<Record<string, string>>;
 }
 
 export interface GameCompose {
@@ -252,8 +255,11 @@ const mapBody = (widget: StoryWidget, state: EngineState, before: EngineState | 
   return { kind: "map", image: widget.image ?? "", pins };
 };
 
-const widgetBody = (widget: StoryWidget, sources: GameSources, parts: { quests: QuestView[]; sheet: SheetGroupView[]; main: MainLineView; log: LogRowView[] }): WidgetBody | null => {
+type WidgetParts = { quests: QuestView[]; sheet: SheetGroupView[]; main: MainLineView; log: LogRowView[]; codex?: CodexView };
+
+const widgetBody = (widget: StoryWidget, sources: GameSources, parts: WidgetParts): WidgetBody | null => {
   const limit = widget.options?.limit;
+  if (widget.kind === "scene") return { kind: "scene", ...sceneView({ ...sources, codex: parts.codex }, widget.options?.time === true) };
   const before = sources.boundaryLog.at(-1)?.before ?? null;
   if (widget.kind === "clues") return cluesBody(widget, sources.state, before);
   if (widget.kind === "map") return mapBody(widget, sources.state, before);
@@ -269,7 +275,7 @@ const widgetBody = (widget: StoryWidget, sources: GameSources, parts: { quests: 
 const emptyBody = (body: WidgetBody): boolean =>
   (body.kind === "meters" && !body.groups.length) || (body.kind === "log" && !body.rows.length) || (body.kind === "board" && !body.lanes.length) || (body.kind === "clues" && !body.clues.length)
   || (body.kind === "track" && !body.quests.length && !body.main?.current && !body.main?.done.length)
-  || (body.kind === "roster" && !body.rows.length) || (body.kind === "timeline" && !body.chapters.length);
+  || (body.kind === "roster" && !body.rows.length) || (body.kind === "timeline" && !body.chapters.length) || (body.kind === "scene" && sceneEmpty(body));
 
 const viewOf = (widget: StoryWidget, body: WidgetBody, actions: IntentView[], still: boolean): WidgetView => ({
   id: widget.id, title: widget.title, audience: widget.audience, synthesized: false, body, ...(widget.accent ? { accent: widget.accent } : {}), ...(widget.icon ? { icon: widget.icon } : {}),
@@ -306,9 +312,10 @@ export function composeGame(sources: GameSources): GameCompose {
   const standing = standingView(story, values);
   const standingGroup: SheetGroupView[] = standing.length
     ? [{ label: FACTION_STANDING_GROUP, items: standing.map((view) => ({ label: view.name, as: "word" as const, text: view.band })) }] : [];
+  const codex = composeCodex({ story, state, castNames: sources.castNames, enabled: sources.enabled, ...labelCodexSources(sources) });
   const parts = {
     quests: visibleQuests(story, reader, values, sources.castNames), sheet: [...sheetOf(story.qualities, sources), ...standingGroup],
-    main: mainLine(story, state, sources.chat), log: composeLog(sources),
+    main: mainLine(story, state, sources.chat), log: composeLog(sources), codex,
   };
   const visible = (story.widgets ?? []).filter((widget) => !widget.visible_when || evaluateGate(widget.visible_when, reader));
   const ordinary = visible.filter((widget) => widget.kind !== "html").flatMap((widget) => {
@@ -329,7 +336,7 @@ export function composeGame(sources: GameSources): GameCompose {
   const log = kinds("log").length ? kinds("log") : fallback(synthesized("journal-log", "Log", { kind: "log", rows: parts.log }, still));
   const meters = kinds("meters");
   const statSheet = meters[0] ?? (parts.sheet.length ? synthesized("stat-sheet", "Stat sheet", { kind: "meters", groups: parts.sheet }, still) : null);
-  const codex = composeCodex({ story, state, castNames: sources.castNames, enabled: sources.enabled, ...labelCodexSources(sources) });
+  const scene = kinds("scene")[0]?.body;
   const provenance = sources.authorView ? provenanceFor(story.widgets ?? [], [...authored, ...(statSheet?.synthesized ? [statSheet] : [])], sources) : {};
   return {
     player: {
@@ -337,6 +344,7 @@ export function composeGame(sources: GameSources): GameCompose {
       ...(standing.length ? { standing } : {}),
       widgets: player.filter((widget) => !backing.has(widget.id) && (!["meters", "track", "log"].includes(widget.body.kind) || (widget.body.kind === "meters" && widget !== meters[0]))),
       ...(codex ? { codex } : {}),
+      ...(scene?.kind === "scene" ? { scene: { location: scene.location, time: scene.time, present: scene.present } } : {}),
     },
     authorWidgets: authored.filter((widget) => widget.audience === "author" && !backing.has(widget.id)),
     provenance,

@@ -158,6 +158,7 @@ export interface UiRuntimeSettings {
   authorView: boolean;
   announceTransitions: boolean;
   hudEnabled: boolean;
+  yourMove?: boolean;
   briefing?: boolean;
   briefingDraft?: boolean;
   playerSetup?: boolean;
@@ -183,6 +184,8 @@ export interface MemoryRuntimeSettings {
   innerFanOut?: InnerFanOut;
   harvestReasoning?: boolean;
   promises?: boolean;
+  witness?: boolean;
+  rumors?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
 
@@ -461,6 +464,8 @@ export interface RuntimeSnapshot {
   wiGating?: WiGatingStatus | null;
   globalStoryLore?: string[];
   stylesMissing?: boolean;
+  stateSize?: import("./stateSizeCore").StateSize | null;
+  libraryLost?: import("./libraryIndexCore").LibraryLost | null;
   /** Other extensions switched on in a way that works against the playing story (empty with no story). */
   extensionConflicts?: ExtensionConflict[];
   tunnelVisionBooks?: import("./tunnelVision").TunnelVisionBook[];
@@ -512,6 +517,7 @@ export interface RuntimeSnapshot {
   payloadCaptures: PayloadCapture[];
   /** What the next reply will receive, one row per injected block. */
   nextTurn: NextTurnContributor[];
+  turn?: import("./yourMove").TurnView;
   authorMoves?: JournalRecord[];
   /** Other extensions' blocks beside ours, read-only and never persisted. */
   nextTurnForeign: NextTurnForeignRow[];

@@ -390,3 +390,7 @@ Source: `review-astra-harvest-2026-10-16.md` §1 (triage audit), §3 (build orde
 - Label drift found while revising (not in the review): the 41, 49 and 52 addenda used H16f, H16d and H16e for booru, chance
   ramp and name fold, against this table's H16i, H16f and H16d. → addenda relabelled to match.
 - Rebutted: 68 as a fold (above). Everything else accepted.
+
+## Owner decisions 2026-10-16
+
+- All recommended options from the Astra-harvest revision accepted: folds as done (64 -> 18/46, 66 -> 09/34, 67 -> 35/24), 68 kept separate; build order 69 K11/K12 -> 35 matcher + 69 K5/K6/K8/K9/K10/K17/K1 -> 09 card checks + read-back -> 34 preview + lint -> 18 Q7 -> 65 v1 + 68 v1 -> 63 latency -> 62 probe; harvest Artemis rows deferred past the 12 h cap; 18 Q7 audience narrator-only; 65 reopens 51 decision 2, author-placed, small v1; 62 probe on the cloud model, stage 2 only on owner call; 63 decided on latency and recall, coverage from summaries and chapters only; 09 one bounded revision, tutorial severities, unconfirmed read-back = may exist; 35 prefix inventory first, re-scores versioned; 69 K3 detection only, K12 refuse on conflict.

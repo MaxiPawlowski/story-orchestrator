@@ -1,6 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { evaluateInST } from './lib/evaluate.mts';
+import { SO_IN_MESSAGE_TEXT } from '../../src/utils/messageText.ts';
 import { choosePlayerSetup, dismissBriefing, PLAYER_SETUP_CHOICES, readBriefingModal, readPlayerSetup, type PlayerSetupChoiceArg } from './lib/briefingHarness.mts';
 import { parseCardCount, runAgentCards, type AgentCardKind } from './lib/agentCards.mts';
 import { writeJSON, writeScreenshot } from './lib/output.mts';
@@ -1168,6 +1169,19 @@ async function recordPlayerSurfaces(page, tab: string): Promise<PlayerSurfaceRec
   }, { surfaces: RECORDED_SURFACES, tab });
 }
 
+export { SO_IN_MESSAGE_TEXT };
+
+export function messageTextFindings(nodes: Array<{ mesid: string; node: string }>) {
+  return nodes.map(({ mesid, node }) => ({ tab: 'chat', needle: `message ${mesid} .mes_text holds an SO node ${node}` }));
+}
+
+async function soNodesInMessageText(page): Promise<Array<{ mesid: string; node: string }>> {
+  return evaluateInST(page, (selector) => Array.from(document.querySelectorAll(`#chat ${selector.split(', ').join(', #chat ')}`)).map((node) => ({
+    mesid: node.closest('.mes')?.getAttribute('mesid') ?? '?',
+    node: `${node.tagName.toLowerCase()}${node.id ? `#${node.id}` : ''}${typeof node.className === 'string' && node.className ? `.${node.className.trim().split(/\s+/).join('.')}` : ''}`,
+  })), SO_IN_MESSAGE_TEXT);
+}
+
 export const PLAYER_ASK_QUESTION = 'What happens next in the story, and who is hiding something?';
 
 export async function askInHelp(page, question: string, timeoutMs = 120000) {
@@ -1263,6 +1277,7 @@ export async function assertPlayerClean(page) {
   }));
   findings.push(...playerSurfaceFindings(records, tokens));
   findings.push(...await inlinePlayerSweep(page, tokens));
+  findings.push(...messageTextFindings(await soNodesInMessageText(page)));
   if (tabs.includes('Overview')) await switchDrawerTab(page, 'Overview');
   const closedWorkspace = alreadyOpen ? false : await closeWorkspaceModal(page);
   return { ok: findings.length === 0, closedWorkspace, tabs, ask, surfaces: PLAYER_TEXT_SURFACES, selectorSurfaces: PLAYER_SELECTOR_SURFACES, selectorsChecked: PLAYER_FORBIDDEN_SELECTORS.length, findings, sweep, recoveryControls, records, tokens };

@@ -239,3 +239,78 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
   the source message's boundary; spans addressed by id and revision (`src/memory/audience.ts:10`).
 - **Timeline P4 (query rewrite) → 43's experiment.** Adopted as R19, an informational arm after R-Gate1.
 - Rebutted: none.
+
+## Gate record: gate check + offline harness, 2026-10-16 (no model, no GPU, LIST)
+
+Branch `v2.8-audience-42-44` (offline harness built on `v2.8-audience-43-offline`, merged). Not merged, not pushed.
+
+Gate status: **closed, no runtime code built.**
+- R-Gate1 (E0 winner): none. `v2.8-a12-e0` is fully merged into master (no commits ahead); plan 21's record holds only the synthetic
+  freeze and a provisional `incomplete` verdict (diagnostic (e), problem `retrieval`, §6.2 BLOCKED). The private `so-sessions` repo has no
+  `test/sessions/e0/` labels, pool or freeze.
+- R-Gate2: §6.2 not run (blocked by R-Gate1). R-Gate3: the 42 B record exists (this branch) but W4/W4fi are not scored on real labels.
+
+Built (allowed now: fixtures and an offline harness; modules reachable only from scripts and tests, like `e0Ranking.ts`; no injection key,
+registry entry, setting or feature; main bundle unchanged by them):
+- `src/memory/recall/`: `eligibility.ts` (provenance first via 42 §0 `mayAdd`: witnessed basis from the witness record with span offsets
+  and the live revision, else a told basis only for a span inside the telling, origin refused; `keptFrom` backstop), `select.ts` (pool 32,
+  eligibility and attribution over the whole pool, then a pluggable ranker, top 4 within 250 tokens estimated as ceil(chars/4), no refill),
+  `attribution.ts` (`Name said: "…"` only inside one quoted segment of a message stored under that speaker, byte-equal; narration,
+  multi-speaker, other-speaker tags and altered quotes rejected), `cues.ts` (§5 cue set, never quiet/impersonate), `cacheKey.ts` (chat,
+  story hash, member, query hash, `witnessRevision`, held-secrets key, each candidate's revision), `live.ts`, `fixture.ts`, `score.ts`.
+- `scripts/debug/so-recall.mts replay --fixture <dir>`; synthetic fixture `test/fixtures/recall/synthetic/` (2 sessions, 23 positives,
+  23 nonce exclusions, 4 askers, 4 secret scenes incl. a one-content-word secret and a paraphrase, 3 told cases, a VR2k case, VR8 bait);
+  pools are a recorded stub order (tooling check, not R-Gate evidence).
+
+Results (synthetic, module-level replay, golden `test/goldens/recall/synthetic-result.json`): VR1 23/23; VR2 0 nonce lines over 23
+exclusions; VR2s 7 secret candidates, 0 leaks, 7 refused by provenance, 0 by `keptFrom` alone; VR2t 0 origin lines, 2 telling lines;
+VR2k 8 forbidden ahead of 5 eligible: 4 returned, 0 forbidden; VR3 max 91 tokens; VR8 154 lines, 0 wrong speaker, 154/154 byte-equal,
+7/7 bait refused. jest: eligibility, select, attribution, cues, cacheKey (VR4c per key), `vr4.property.test.ts` (4 seeds; a re-revised span
+is never returned; recall after `rollbackWitness` equals recall over replayed reads), score with an everyone-heard negative control (fails
+VR2/VR2s). node: `scripts/debug/recall.test.mts`. Full gates as in the 42 record.
+
+What E0 needs (not run):
+- No GPU. Embeddings come from a lane's ST server with the `transformers` source on CPU; arm (d) is TypeSafe (cloud); labels are
+  written and checked by two different cloud models (Sol via the harness plus a second model; DeepSeek is excluded by the current rules).
+- Code owed: an `st-vectors` provider for `so-e0.mts pool` (it refuses anything but `stub`); an arm (d) recorder (the judge plugin
+  refuses an uncalibrated `e0` use, so either a calibration row or a direct recording path); the private label set (at least 40
+  questions, `review` per question) committed and frozen in `so-sessions`.
+- One-time: ST downloads its local embedding model on first use (owner OK and a disk check per the downloads rule).
+- Estimate: provider + recorder about half a day; labels 1–2 h wall on Sol; pool on CPU about 3,000 embeddings over 40 questions
+  (5–15 min) plus 5 threshold queries each; arm (d) 160 calls at 0.25–0.65 s (about 2 min). The E0 run itself is under 30 min once its
+  inputs exist.
+
+Still owed after E0: §6.2 (R-Gate2) on the private fixture, then the runtime build (VR4x clear events, injection key, per-member swap,
+refresh, `RunOwnership`, payload golden, feature/Help/setting), VR5, VR6r, VR7, VR7p, VR8 live, VR9 (F only), 47 pledge-span references,
+H13b time labels, R19.
+
+## Gate record: R-Gate1 from v2.8 21 E0 (2026-10-16, branch `v2.8-e0-run`)
+
+- **R-Gate1: met.** E0 private frozen set (84 questions, labels Sol-written and Claude-checked blind, 0 disagreed): winning
+  arm (d), TypeSafe Choice with removal, hit@4 0.9048 (76/84; pool recall is also 0.9048), MRR@4 0.8988. Not the
+  diagnostic arm: a winner under unchanged floors. Detail: `21-smart-context-harvest.md` §Gate record: E0 private run.
+- R-Gate2 (§6.2) not run; it now uses arm (d) as the ranker. R-Gate3 unchanged (42 B record built on
+  `v2.8-audience-42-44`, W4/W4fi not scored on real labels).
+- **Conflict to decide before the runtime build:** arm (d) adds 4 sequential judge calls, p50 893 ms and p95 999 ms
+  measured, on top of the pool query. VR6r (reply-path latency p95 ≤ 300 ms) cannot hold with (d) on the reply path. The
+  ST-order arm (e) is cheap but misses R-Gate1 (hit@4 0.75). Options: run (d) off the reply path (pre-computed on the
+  player's request turn before generation starts, as option D only fires on an explicit request), cut (d) to 1 call
+  (rank 1 only: hit@1 0.8929 here), or amend VR6r. The floor is not retuned here; the owner decides.
+- Pool recall 0.9048: 8 of 84 golds never reach the 8-candidate pool, so the R-Gate1 ceiling with topK 8 is 0.9048. §5's
+  wider pool (32) would raise it; not measured.
+- Nothing built at runtime.
+
+### Owner decision 2026-10-16: recall latency
+
+- Arm (d) (judge re-rank, E0 winner) runs only on explicit quotation-request turns (option D, first scope), before generation starts; every other turn is untouched.
+- On those turns VR6r (reply-path p95 <= 300 ms) is expected to miss by about 1 s; the miss is recorded as informational, the floor is not retuned.
+
+## Gate record: R-Gate2 from v2.8 21 §6.2 (2026-10-17, branch `v2.8-witness-real`)
+
+- **R-Gate2: not met.** §6.2 private run, fixture over its minimums (48 positives, 46 exclusions, 46 asking members, 34 secret
+  scenes, 16 sessions), R1 on the presence proxy ranked by arm (d): VR1 0.7083 passes, VR2 = 4 (floor 0) fails. Detail:
+  `21-smart-context-harvest.md` §Gate record: §6.2 private run.
+- **R-Gate3: not met.** 42 W4/W4fi not scored (no recorded witness reads; Artemis owed), and R-Gate2 failed on the presence
+  proxy, so neither branch holds. Labels are frozen for when reads exist (42 §Gate record: W4 real labels).
+- Also measured: VR3 (whole-message block) p95 1,274 tokens, far over 250; the runtime needs spans, as §5 already says.
+- Gate stays closed; nothing built at runtime.

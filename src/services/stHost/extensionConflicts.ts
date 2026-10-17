@@ -1,11 +1,13 @@
 import { isRecord } from "@utils/guards";
 
-export type ExtensionConflict = "stepped-thinking-separated" | "presence" | "prompt-inspector" | "vectors-world-info";
+export type ExtensionConflict = "stepped-thinking-separated" | "presence" | "prompt-inspector" | "vectors-world-info" | "cc-send-if-empty" | "nemo-lorebook-spacing";
 
 export interface ExtensionConflictHost {
   settings: unknown;
   manifest?: (name: string) => unknown;
   storage?: (key: string) => string | null;
+  mainApi?: unknown;
+  chatCompletion?: unknown;
 }
 
 type Settings = Record<string, unknown> | undefined;
@@ -37,6 +39,11 @@ const presenceOn = (settings: Settings): boolean => settings?.enabled !== false;
 // it is "true" every non-dry Generate waits on its popup (GENERATE_AFTER_COMBINE_PROMPTS / CHAT_COMPLETION_PROMPT_READY, :64-126).
 const inspecting = (_settings: Settings, storage: (key: string) => string | null): boolean => storage("promptInspectorEnabled") === "true";
 
+// NemoPresetExt 6.0.12: initializeExtension always calls initializeLorebookSpacing (content.js:105), whose
+// WORLDINFO_ENTRIES_LOADED listener rewrites every multiword plaintext key on the scan copies to a regex
+// (features/lorebook-spacing/runtime.js:7-14, matching.js:26-31); no setting turns it off, so loaded = on.
+const nemoSpacing = (): boolean => true;
+
 // Vector Storage: `enabled_world_info` (vectors/index.js:117, 791, 2003-2004); the exclusive lore select reads the
 // setting alone (loreExclusive.ts "vectors-wi"), so this one ignores whether the extension is loaded.
 export const vectorsWorldInfoOn = (root: unknown): boolean => {
@@ -44,10 +51,17 @@ export const vectorsWorldInfoOn = (root: unknown): boolean => {
   return isRecord(vectors) && vectors.enabled_world_info === true;
 };
 
+// Chat Completion's "Replace empty message" (oai_settings.send_if_empty, st-context.js:227 chatCompletionSettings; main_api
+// "openai", st-context.js:200): when the last chat prompt message is the assistant's, ST appends it as a user message
+// (openai.js:930-931), so a /trigger right after another reply carries a filler line in the prompt only.
+const ccFillerOn = (host: ExtensionConflictHost): boolean => host.mainApi === "openai" && isRecord(host.chatCompletion)
+  && typeof host.chatCompletion.send_if_empty === "string" && host.chatCompletion.send_if_empty.trim() !== "";
+
 export const KNOWN_EXTENSIONS: readonly KnownExtension[] = [
   { id: "stepped-thinking-separated", folder: "third-party/st-stepped-thinking", settingsKey: "st-stepped-thinking", on: separatedThinking },
   { id: "presence", folder: "third-party/SillyTavern-Presence", settingsKey: "Presence", on: presenceOn },
   { id: "prompt-inspector", folder: "third-party/Extension-PromptInspector", on: inspecting },
+  { id: "nemo-lorebook-spacing", folder: "third-party/NemoPresetExt", on: nemoSpacing },
 ];
 
 const safeStorage = (storage: ExtensionConflictHost["storage"]) => (key: string): string | null => {
@@ -73,5 +87,5 @@ export function extensionConflictsWith(host: ExtensionConflictHost): ExtensionCo
     const settings = known.settingsKey && isRecord(root[known.settingsKey]) ? root[known.settingsKey] as Record<string, unknown> : undefined;
     return known.on(settings, storage);
   }).map((known) => known.id);
-  return vectorsWorldInfoOn(root) ? [...found, "vectors-world-info"] : found;
+  return [...found, ...(vectorsWorldInfoOn(root) ? ["vectors-world-info" as const] : []), ...(ccFillerOn(host) ? ["cc-send-if-empty" as const] : [])];
 }

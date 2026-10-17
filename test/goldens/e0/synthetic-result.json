@@ -44,12 +44,12 @@
    "metrics": {
     "questions": 40,
     "hits1": 1,
-    "hits4": 9,
+    "hits4": 10,
     "inPool": 25,
     "ties": 0,
     "hitAt1": 0.025,
-    "hitAt4": 0.225,
-    "mrrAt4": 0.08958333333333333,
+    "hitAt4": 0.25,
+    "mrrAt4": 0.10416666666666666,
     "poolRecall": 0.625,
     "tieRate": 0,
     "callsPerQuestion": 0,
@@ -112,6 +112,16 @@
    "refused": 0
   }
  ],
+ "cost": {
+  "jevUsdPerMTokInput": 0.042,
+  "usdPerQuestion": {
+   "e": 0,
+   "c": 0,
+   "a": 0,
+   "b": 0,
+   "d": null
+  }
+ },
  "verdict": {
   "questions": 40,
   "winner": null,

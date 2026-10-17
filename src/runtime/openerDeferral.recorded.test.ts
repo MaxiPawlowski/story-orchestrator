@@ -14,7 +14,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   settingsReady: async () => {},
   getContext: () => host,
-  executeSlashCommands: jest.fn(async () => undefined),
+  executeSlashCommands: jest.fn(async () => true),
 }));
 
 const filler = Array.from({ length: 29 }, (_, index): Row => ({ is_user: index % 2 === 1, mes: "*Earlier.*", name: index % 2 === 1 ? recorded.persona : "Adolion Narrator" }));

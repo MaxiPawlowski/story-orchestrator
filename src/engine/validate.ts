@@ -124,7 +124,9 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const builtin = addBuiltinTensionQuality(addProgressQualities(baseQualities, checkpoints, errors), errors);
   const life = layer?.life.readLife(json, errors);
   const factions = layer?.factions.readFactions(json.factions, errors);
-  const lived = layer ? layer.codex.addCodexQualities(layer.life.addLifeQualities(layer.addRewardQualities(builtin, quests, errors), life, errors), codex, errors) : builtin;
+  const rumorNet = layer?.rumors.readRumors(json, errors);
+  const coded = layer ? layer.codex.addCodexQualities(layer.life.addLifeQualities(layer.addRewardQualities(builtin, quests, errors), life, errors), codex, errors) : builtin;
+  const lived = layer ? layer.addCheckQualities(coded, checkpoints, errors) : coded;
   const qualities = layer ? layer.factions.addFactionQualities(lived, factions, (json.roster as unknown[]).filter(isRecord), errors) : lived;
   const options = readStoryOptions(json, errors);
   const features = readFeaturePolicies(json.features, (path, message) => addError(errors, path, message));
@@ -158,6 +160,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   checkRecapGates({ transitions, quests: game, milestones }, qualityByKey, errors, validateGate);
   layer?.life.checkLife(life, roster, qualityByKey, errors, Boolean(chapters?.length), checkpoints, startCheckpointId);
   layer?.factions.checkFactions({ factions, roster, qualityByKey, quests: game }, errors);
+  layer?.rumors.checkRumors(rumorNet, { roster, qualityByKey, hasClock: Boolean(life?.clock), life }, errors);
   const widgets = layer?.readWidgets(json.widgets, { qualityByKey, qualities, checkpointIds: new Set(Object.keys(checkpointById)), checkpoints, transitions, roster, factions }, errors);
   layer?.codex.checkCodex(codex, { checkpointById, qualityByKey, roster }, errors);
   const carried = layer?.carry.readCarry(json, { storyId, qualityByKey, qualities, roster, transitions, checkpoints, quests: game, milestones, factions }, errors);
@@ -196,6 +199,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     ...gameFields({ quests: game, milestones, widgets, codex, life }),
     ...(living ? { living } : {}),
     ...(factions ? { factions } : {}),
+    ...(rumorNet ? { rumorNet } : {}),
     ...carried,
     startCheckpointId,
     checkpointById,

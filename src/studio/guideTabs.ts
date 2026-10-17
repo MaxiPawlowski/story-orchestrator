@@ -3,8 +3,8 @@ import type { StudioTab } from "./StudioModal";
 
 export const STUDIO_TAB_GUIDE: Partial<Record<StudioTab, readonly GuideTopicId[]>> = {
   features: ["feature-policies", "codex"],
-  story: ["story-basics", "briefing", "player", "requirements", "arc-template", "living-director", "branching"],
-  world: ["stagecraft", "lore-select", "lore-entries"],
+  story: ["story-basics", "briefing", "player", "requirements", "arc-template", "living-director", "scene-test", "branching"],
+  world: ["stagecraft", "lore-select", "lore-entries", "lore-content"],
   presentation: ["presentation", "background"],
   rules: ["arc-bridges", "scene-read", "house-rules"],
   chapters: ["chapters", "consequences", "outcome", "carry-from"],
@@ -16,5 +16,5 @@ export const STUDIO_TAB_GUIDE: Partial<Record<StudioTab, readonly GuideTopicId[]
   transitions: ["gates", "transitions", "convergence"],
   roster: ["roster", "drives-motives", "inner-voice", "opening-scene", "character-life", "factions", "relationship-labels", "story-time", "living-cards", "poses"],
   sprites: ["poses"],
-  game: ["quests", "checks", "widgets", "clues-and-maps", "html-panels"],
+  game: ["quests", "checks", "widgets", "clues-and-maps", "html-panels", "widget-scene", "display-narrate", "display-warn", "rumors"],
 };

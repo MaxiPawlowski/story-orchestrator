@@ -1,8 +1,10 @@
 import { DIRECTOR_ADDRESSED_WEIGHT, DIRECTOR_HANDBACK, DIRECTOR_LEAD_BONUS, DIRECTOR_ROLE_CONFIDENCE, DIRECTOR_SILENCE } from "./policy";
 import { choice, choiceAnswer, noul, noulAnswer } from "./questions";
 import type { JudgeAnswer, JudgeOption, JudgeQuestion, JudgeRequest } from "./types";
+import { DIRECTOR_NOBODY, normalizeDirectorName as normalize } from "./directorEligible";
 
-export const DIRECTOR_NOBODY = "nobody";
+export { DIRECTOR_NOBODY, directorJudgeEligible } from "./directorEligible";
+
 export const DIRECTOR_PLAYER = "the player";
 
 export interface JudgeDirectorCandidate {
@@ -29,15 +31,6 @@ export type JudgeDirectorDecision =
   | { kind: "member"; rosterId: string; name: string; confidence: number; via: "choice" | "composite" }
   | { kind: "silence"; confidence: number; via: "choice" | "composite" }
   | { kind: "player"; confidence: number; via: "choice" | "composite" };
-
-const normalize = (value: string) => value.trim().toLowerCase();
-
-export function directorJudgeEligible(candidates: JudgeDirectorCandidate[], allowSilence: boolean): boolean {
-  if (candidates.length + (allowSilence ? 1 : 0) < 2) return false;
-  if (!candidates.every((candidate) => Boolean(candidate.role?.trim()))) return false;
-  const names = candidates.map((candidate) => normalize(candidate.name));
-  return new Set(names).size === names.length && !names.includes(DIRECTOR_NOBODY);
-}
 
 const describe = (candidate: JudgeDirectorCandidate) => `${candidate.name} (${candidate.role?.trim() ?? candidate.name})`;
 

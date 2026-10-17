@@ -93,7 +93,7 @@ export class CuratorWriter {
     await beforeHostWrite(pending);
     if (run.lapsed()) return { ok: false, record: pending, lapsed: true };
     try {
-      const written = await host.updateWIEntryByUid({ lorebookFileId: fileId, uid }, after);
+      const written = await host.updateWIEntryByUid({ lorebookFileId: fileId, uid }, after, run);
       if (!written.ok) return { ok: false, record: { ...pending, status: "failed", message: written.reason, writeAhead: undefined } };
       return { ok: true, record: { ...pending, status: "applied", message: preview.message, writeAhead: undefined } };
     } catch (error) {
@@ -120,7 +120,7 @@ export class CuratorWriter {
     await beforeHostWrite(pending);
     if (run.lapsed()) return { ok: false, record: pending, lapsed: true };
     try {
-      const written = await host.createWIEntry(op.lorebook, { comment: op.comment, keys: op.keys, content: after.content });
+      const written = await host.createWIEntry(op.lorebook, { comment: op.comment, keys: op.keys, content: after.content }, run);
       if (!written.ok) return { ok: false, record: { ...pending, status: "failed", message: written.reason, writeAhead: undefined } };
       return { ok: true, record: { ...pending, status: "applied", message: preview.message, target: { lorebookFileId: written.lorebookFileId, uid: written.uid }, writeAhead: undefined } };
     } catch (error) {
@@ -208,7 +208,7 @@ export class CuratorWriter {
           ops.unshift({ ...entry, status: "externally-edited", message: `"${entry.op.comment}" changed after this write, so it was left alone` });
           continue;
         }
-        const restored = await this.restoreBefore(entry, at);
+        const restored = await this.restoreBefore(entry, at, run);
         if (restored) reverted += 1;
         if (restored && kept) {
           reviewed += 1;
@@ -254,7 +254,7 @@ export class CuratorWriter {
     const untouched = current.comment === op.comment && current.content === entry.after?.content && current.disabled === entry.after?.disabled && sameKeys(current.keys, keys);
     if (!untouched) return { ...entry, status: "externally-edited", message: `"${op.comment}" changed after it was created, so the rollback kept it` };
     try {
-      const removed = await this.deps.host().deleteWIEntryAt(at);
+      const removed = await this.deps.host().deleteWIEntryAt(at, run);
       return removed.ok ? "deleted" : { ...entry, status: "revert-failed", message: `could not delete "${op.comment}": ${removed.reason}` };
     } catch (error) {
       return { ...entry, status: "revert-failed", message: `could not delete "${op.comment}": ${error instanceof Error ? error.message : "the host refused"}` };
@@ -278,10 +278,10 @@ export class CuratorWriter {
   // One inverse host call, checked. `false` means the host refused or could not find the entry;
   // the caller keeps the record and its before-image rather than reporting a revert that did not
   // happen.
-  private async restoreBefore(entry: CuratorOpRecord, at: WIEntryTarget): Promise<boolean> {
+  private async restoreBefore(entry: CuratorOpRecord, at: WIEntryTarget, run: RunGuard): Promise<boolean> {
     if (!entry.before || isNoteOp(entry.op)) return false;
     try {
-      return (await this.deps.host().restoreWIEntryAt(at, entry.before)).ok;
+      return (await this.deps.host().restoreWIEntryAt(at, entry.before, run)).ok;
     } catch {
       return false;
     }

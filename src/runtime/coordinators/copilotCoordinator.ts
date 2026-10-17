@@ -5,10 +5,10 @@ import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Sugge
 
 const authoring = () => import("@copilot/index");
 import type { ModelAsk, ModelCall } from "@extraction/index";
-import {
-  draftCastNames, loreEntryShape, newWizardSession, recordGrant, validateProvisioningOp, wizardSessionKey, type ProvisioningEnvironment,
-  type ProvisioningOp, type ProvisioningResult, type WizardSessionState,
-} from "@wizard/index";
+import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardCreatedCard, WizardSessionState } from "@wizard/types";
+import { newWizardSession, recordGrant, wizardSessionKey } from "@wizard/interview";
+import { draftCastNames } from "@wizard/castNames";
+import { describeReadBack, type CardReadBackRecord } from "@utils/cardReadBack";
 import type { WIEntrySnapshot } from "@services/STAPI";
 import { lorebookFileId } from "@utils/string";
 import { COPILOT_NUDGE_KEY } from "@constants/defaults";
@@ -59,7 +59,7 @@ export class CopilotCoordinator {
     const lorebookNames = safe(host.listAllLorebooks, safe(host.listGlobalLorebooks, []));
     const granted = this.grantedLorebooks(lorebookNames, draft);
     return {
-      characterNames: safe(host.getAllCharacterNames, []),
+      characterNames: [...new Set([...safe(host.getAllCharacterNames, []), ...this.ledgerCardNames(draft)])],
       lorebookNames,
       groupNames: safe(host.listGroupNames, []),
       storyLorebooks: story?.requirements?.lorebooks ?? [],
@@ -87,6 +87,10 @@ export class CopilotCoordinator {
     return (session?.createdLorebooks ?? []).map(lorebookFileId).filter(listed);
   }
 
+  private ledgerCardNames(draft?: StoryV2): string[] {
+    return (this.sessionFor(draft)?.createdCards ?? []).flatMap((card) => [card.name, card.requested]);
+  }
+
   private grantedLorebooks(lorebooks: string[], draft?: StoryV2): string[] {
     const listed = (fileId: string) => lorebooks.some((entry) => entry.trim().toLowerCase() === fileId.toLowerCase());
     return (this.sessionFor(draft)?.grants ?? []).map((grant) => grant.lorebookFileId).filter(listed);
@@ -102,6 +106,23 @@ export class CopilotCoordinator {
     const createdLorebooks = kind === "lorebook" && !books.includes(name) ? [...books, name] : books;
     if (applied === session.applied && createdLorebooks === books) return;
     this.deps.saveWizardSession?.({ ...session, applied, createdLorebooks });
+  }
+
+  private recordCreatedCard(card: WizardCreatedCard, draft?: StoryV2): void {
+    const session = this.sessionFor(draft) ?? newWizardSession(this.sessionKeyFor(draft));
+    const createdCards = [...(session.createdCards ?? []).filter((entry) => entry.avatar !== card.avatar), card];
+    const applied = session.applied.includes(card.name) ? session.applied : [...session.applied, card.name];
+    this.deps.saveWizardSession?.({ ...session, applied, createdCards });
+  }
+
+  // A card whose read-back was unconfirmed or lossy may exist: the ledger keeps its avatar so the
+  // create-only rule refuses a second create, and the author can ask again later.
+  async recheckCreatedCard(op: Extract<ProvisioningOp, { kind: "createCharacterCard" }>, avatar: string, draft?: StoryV2): Promise<CardReadBackRecord> {
+    const read = this.deps.hosts.provisioning.readBackCharacterCard;
+    const readBack = read ? await read(avatar, op) : { state: "unconfirmed" as const, lossy: [], name: null };
+    const known = (this.sessionFor(draft)?.createdCards ?? []).find((entry) => entry.avatar === avatar);
+    this.recordCreatedCard({ name: readBack.name ?? known?.name ?? op.name, requested: op.name, avatar, readBack: readBack.state, lossy: readBack.lossy }, draft);
+    return { state: readBack.state, lossy: readBack.lossy, avatar };
   }
 
   private sessionKeyFor(draft?: StoryV2): string {
@@ -126,14 +147,17 @@ export class CopilotCoordinator {
     const run = beginRun(this.deps.ownership);
     const lapsed = (): ProvisioningResult => ({ ok: false, message: "The story changed before this provisioning step could finish." });
     const host = this.deps.hosts.provisioning;
+    const { validateProvisioningOp, loreEntryShape } = await import("@wizard/provisioning");
     const validation = validateProvisioningOp(op, this.getProvisioningEnvironment(draft));
     if (!validation.ok) return { ok: false, message: validation.message };
     try {
       if (op.kind === "createCharacterCard") {
         if (!run.stillOwns()) return lapsed();
         const created = await host.createCharacterCard(op);
-        this.recordCreated(created.name, "character", draft);
-        return { ok: true, message: `Created the character card "${created.name}".`, created: created.name };
+        if (!created.ok) return { ok: false, message: `Could not create the character card "${op.name}": ${created.reason}.` };
+        this.recordCreatedCard({ name: created.name, requested: op.name, avatar: created.avatar, readBack: created.readBack, lossy: created.lossy }, draft);
+        const readBack = { state: created.readBack, lossy: created.lossy, avatar: created.avatar };
+        return { ok: true, message: describeReadBack(created.name, readBack), created: created.name, readBack };
       }
       if (op.kind === "createStoryLorebook") {
         if (!run.stillOwns()) return lapsed();
@@ -165,7 +189,7 @@ export class CopilotCoordinator {
           return { ok: false, message: `"${op.lorebook}" is not this story's to write into any more.` };
         }
         if (!run.stillOwns()) return lapsed();
-        const result = await host.upsertWIEntry(op.lorebook, op.comment, op.content, op.keys, loreEntryShape(op));
+        const result = await host.upsertWIEntry(op.lorebook, op.comment, op.content, op.keys, { ...loreEntryShape(op), guard: run });
         if (result === "failed") return { ok: false, message: `Could not write "${op.comment}" into "${op.lorebook}".` };
         return { ok: true, message: `${result === "created" ? "Added" : "Updated"} "${op.comment}" in "${op.lorebook}".`, created: `${op.lorebook}/${op.comment}` };
       }

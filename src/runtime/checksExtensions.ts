@@ -66,6 +66,26 @@ export const EXTENSION_DEGRADE_CHECKS: readonly Check[] = [
 
 export const EXTENSION_INFO_CHECKS: readonly Check[] = [
   {
+    id: "cc-filler-after-reply", area: "extension", scope: "story", audience: "player", severity: "info", feature: "stories",
+    detect: (snapshot) => (has(snapshot, "cc-send-if-empty") ? {
+      consequence: "SillyTavern adds a filler line after a reply before a character answers another character, in the prompt only, "
+        + "so the story's own replies may read it as something the player said.",
+      detail: "The Chat Completion preset sets \"Replace empty message\" (send_if_empty). When the prompt ends on a character's reply, "
+        + "SillyTavern appends that text as a user message; "
+        + "this story's NPC replies are triggered right after other replies, so they carry it. It never reaches the chat. Clear the field in the preset if the replies answer it.",
+      player: "SillyTavern adds a filler line after a character's reply, in the prompt only: you will not see it in the chat.",
+    } : null),
+  },
+  {
+    id: "nemo-lorebook-keys", area: "extension", scope: "story", audience: "author", severity: "info", feature: "story-lorebooks",
+    detect: (snapshot) => (has(snapshot, "nemo-lorebook-spacing") ? {
+      consequence: "NemoPresetExt rewrites lorebook keys of more than one word while SillyTavern scans, so key previews and the story's own key matching may differ from what fires.",
+      detail: "NemoPresetExt turns every key of two or more words into a pattern that also matches its own word separator, on SillyTavern's scan copies only: "
+        + "the saved lorebooks are unchanged. A multiword key that names a character may stop counting as that character's own entry in lore select. "
+        + "Use single-word keys for names, or disable NemoPresetExt while this story plays.",
+    } : null),
+  },
+  {
     id: "vectors-world-info", area: "extension", scope: "story", audience: "author", severity: "info", feature: "judge-use-lore-exclusive",
     detect: (snapshot) => (has(snapshot, "vectors-world-info") ? {
       consequence: "Vector Storage can switch on lorebook entries by itself, so this story's exclusive lore choice stays off and every matching entry still reaches the prompt.",

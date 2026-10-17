@@ -269,3 +269,81 @@ Source: `review-astra-2026-10-14.md` §Plans 42-47 (44). Verified on `3a716f2b`.
 - **Recommendation (authored, typed hearsay, non-secret first; topic eligibility, lineage and crowding for stage 2;
   off baselines; paraphrased spoilers).** Adopted: decisions 1–3, G7/G8 off baselines, G9 paraphrases, G15.
 - Cross-plan: shared contract in v2.8 42 §0 referenced. Rebutted: none.
+
+## Gate record: stage 1 + 1b build, 2026-10-16 (no model, no GPU, LIST)
+
+Branch `v2.8-audience-42-44`. Built what decisions 1–3 allow now: stage 1 (A) and, since `v2.8-epistemic-cap` is merged (`57e53b64`),
+§5.4 recipient-specific disclosure with authored leaks (A+). Not built: stage 2 (needs stage-1 gates and G15), C, option F.
+
+Built:
+- Authoring: `rumors[]` and `roster[].gossip` (`engine/rumorSchema.ts`, schema fields by module augmentation; `validate/rumors.ts` in the
+  game layer): channels one-way, `contact` together (default) | any | gate, `when`, `delay` {boundaries|days} (days need a clock), `hops`
+  1–3 (default 2); versions with author-only `truth` and `weight`; `leaks_to` [{member, when}]. Refused: unknown or self member, hops
+  above 3, days without a clock, a claim restating an authored secret relationship label (the only secrets a story authors).
+- Core `memory/rumors/spread.ts` (lazy, game layer): origin event when `starts_when` holds; hops along channels with stable occurrence
+  ids (`chanceSeed` over chat, story, rumor, from, to, hop, parent); delay and version from `unitDraw([chat, story, occurrence, …])`;
+  stance from the receiver's relationship toward the teller (first axis: top third believes, bottom third doubts, else unsure; deviation:
+  no draw and no weight term); together = both schedule locations equal, whatever the party location; per-boundary cap 3; a member
+  outside the group never sends or receives; each member hears a rumor once.
+- Secrets: a hop is barred when any version of the rumor restates a secret kept from its receiver (held-secret phrasing, `keptFrom`), at
+  schedule and at land time; barred hops wait. `leaks_to` delivers from the origin to that one member and records a disclosure per secret
+  entry; `heldSecrets(…, disclosures)` makes that member a knower of that secret only (an `unaware` row stops barring its subject); the
+  resting view stays barred. Disclosures are dropped while the feature is off (fail closed).
+- Slice `extras.rumors` {events, hearsay, disclosures, settled}; `rollbackRumors` in quarantine; eviction only past the rollback horizon.
+- Runtime `runtime/rumorPort.ts`: boundary work `rumor-spread` (order 9) reads the committed blackboard and active epistemic rows
+  synchronously; writes the slice, refreshes the injection on a landing, resyncs the memory mirror when the held-secret key changed, and
+  journals landings. Hearsay reaches only the receiver's private block (`addPrivateSource`, held-secret filtered): "- Bryn told you: …
+  (you are not sure of it; hearsay, it may be wrong)". The read contract adds `HEARSAY_RULE` for rumor stories.
+- Surfaces: Author view Memory › Rumors (`#so-rumors`), Studio "Rumors and gossip" editor (State and rules), `setRumors` wizard tool,
+  feature `rumors` on by default (`memory.rumors`, policy `rumors`), guide topic `rumors`, plan 24 row. No player surface.
+
+Floors (D):
+- G1: 4 chats × 2 runs identical; occurrence ids stable per part. G2/G13: 4 seeds × 28 cuts, rollback to message m equals the run up to
+  it and replay from there equals the full run; a hop landed after the cut goes back to pending with its hearsay removed. G3: planted
+  secret plus a property over 40 generated channel sets (barred members get no hearsay row at all). G4: a leak lands, is marked and records
+  its disclosure. G11: only the recipient becomes a knower; another barred member and the resting view stay barred (jest, and
+  `rumorSecret.review.test.ts` through a real `MemoryInjector`: the recipient's private block and shared tiers carry the secret after the
+  leak, the other barred member's and the resting view do not; a rollback bars the recipient again; the backstop redacts an undisclosed
+  hearsay line). G5: grep guard (no `Math.random`, memory id or World Info write). G6: resting view and player snapshot identical with and
+  without rumors in flight; the author slice only in Author view. G12: covered by the merged cap fix, not re-measured. G10: 0 model calls
+  by construction; p95 not measured.
+- Validation, `setRumors` tool and mutations: `validate/rumors.test.ts`, `studio/rumorOps.test.ts`; Storybook `Drawer/RumorsPanel` and
+  `Studio/RumorsEditor` (in the 888 passing stories).
+- Live no-model lane 69 (`C:\dev\st-live-aud`, served `03ae0c12ab8f` before and after each run): `test/scenarios/v28-44-rumors.json` PASS
+  ×2: origin and a pending hop on the gate; one turn later the hop lands as Arin's private hearsay line with an Author view row; player
+  mode clean (`assert-player-clean` 0); a reopen keeps it; a swipe of the landing reply returns it to pending (row and line gone) and the
+  next turn re-lands the same occurrence at the same due point (live boundaries keep counting after a swipe, so it lands at the first
+  boundary at or after its due); a reopen equals replay. Evidence `C:\dev\so-live-lanes\evidence-2026-10-16\69\2026-10-16T19-36-36-864Z-so-scenario-run`
+  and `…19-37-19-415Z…`.
+- Gates: as in the 42 record (full gates green, Storybook green).
+
+Limits found: held-secret matching is lexical, so a version that paraphrases a secret without sharing its words is not caught on its own;
+the "any version restates" rule closes the case where one version names it.
+
+Owed: G7/G8 voicing fixture (20 cases, on/off arms, second-model labels), G9 paraphrased-spoiler subset, G14 30-turn fixture, G10 p95,
+RP/LT leg; decision 5 (Adolion adopts rumors: campaign repo, pin bump, reinstall) not done; correction signal (§5.2, open question 3) not
+built.
+
+## Gate record addendum: after the main-entry diet, 2026-10-16 (no model, no GPU, LIST)
+
+Build: master `4f2b53a2` (42 + 44 + the main-entry diet + master). Main bundle 1,282,779 B (budget 1,300,000). The diet moved the
+memorize backlog, canon regenerate, the author memory decisions and the warden check into lazy chunks, and judge imports name their module
+instead of the barrel. Full gates and Storybook green on `4f2b53a2` (coordinator run, Storybook 149 suites / 902 stories).
+
+Live: no-model lane 69 (`C:\dev\so-live-lanes`), private code copy `C:\dev\st-live-aud` staged from a detached worktree at `4f2b53a2`,
+images and sprites off, served `dist/index.js` sha256 `59bf6ba2c385` before and after every run. Each scenario run twice, back to back,
+`--sandbox --group "Group: Arin, DM Narrator"`; every run `ok`, no failed step, no reap prompt or mirror book leaked:
+- `v28-42-witness`: PASS ×2 (13 steps).
+- `v28-44-rumors`: PASS ×2 (24 steps).
+- `plan05-decision-write` (author memory decisions: resolve, reconfirm, refusal): PASS ×2 (6 steps).
+- `live-v8-memory-decisions` (memory queue and quarantine): PASS ×2 (13 steps).
+- `v27-s11d-held-secret-canon` (canon regenerate through the lazy unit): PASS ×2 (19 steps).
+- `v28-40-judge-consumers` (warden notes through the lazy check, canon regenerate with canonVerify): PASS ×2 (8 steps).
+- `v24-02-chat-delete-reap` (smoke): PASS ×2 (13 steps).
+
+Verdict: plumbing green, real-LLM owed (no model or GPU on this run; every model and judge answer above is scripted).
+
+Evidence `C:\dev\so-live-lanes\evidence-2026-10-16\69\`, run folders in the order above: `2026-10-16T23-48-24-313Z`, `…23-48-57-291Z`,
+`…23-49-26-588Z`, `…23-50-02-540Z`, `…23-50-38-518Z`, `…23-50-59-254Z`, `…23-51-21-736Z`, `…23-51-52-275Z`, `…23-52-23-766Z`,
+`…23-52-56-570Z`, `…23-53-44-404Z`, `…23-54-46-976Z`, `…23-55-24-309Z`, `…23-56-06-880Z` (each `-so-scenario-run`), with their
+`so-scenario-result.json` files beside them.

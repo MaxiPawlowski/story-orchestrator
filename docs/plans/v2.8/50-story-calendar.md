@@ -450,3 +450,15 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
   `src/runtime/agendaProposals.ts:6,138`); three exact floors (no events, event every boundary, advance inside the gap).
 - **Multihog P2 → 50.** Adopted as a deferred note (R15).
 - Rebutted: none.
+
+## Live gate 2026-10-16 (no-model lane, branch `v2.8-owed-live-fixes`)
+
+- Setup: no-model offline lane 61 (`SO_LANES_ROOT=C:/dev/so-live-lanes`, `SO_LANE_OFFLINE=1`, no server plugins, no GPU,
+  images and sprites off). Main build: master `7b3ef38b` (bundle `1d806c43b088`) staged into a private ST copy
+  `C:/dev/st-live-owed`, because `C:/dev/st-live` was restaged by a parallel agent mid-batch (two runs died on
+  `Loading chunk ... failed`; those runs are discarded). Served `dist/index.js` hash checked before and after every batch.
+- Each item `st-lanes.mts batch --lanes 61 --repeat 2 --strict`; batch dirs under `C:/dev/so-live-lanes/61/debug/batch/<stamp>/`,
+  archived with `so-evidence.mts archive --label owed-nomodel-2026-10-16`.
+- `test/scenarios/v28-50-story-time.json`: green x2 on `d1f9ede2` (batch `2026-10-16T17-40-07-788Z`, `C:/dev/st-live`)
+  and x2 on `7b3ef38b` (batch `2026-10-16T18-34-44-462Z`). No model call: plumbing.
+- Still owed: payload golden diff (no c0 baseline captured in `test/measurements/v2.7/payload/`); CL T8 read parity, RP T11.

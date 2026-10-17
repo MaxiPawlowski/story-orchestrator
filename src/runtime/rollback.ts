@@ -1,5 +1,5 @@
 import { chapterKit, loadChapterKit } from "./chapterPort";
-import { beginRun, type RunOwnership } from "./runToken";
+import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { rollbackModelCalls } from "./modelCallLog";
 import type { RollbackOutcome, StoryEngine } from "@engine/index";
 import type { SharedReadWindow } from "@extraction/index";
@@ -9,13 +9,15 @@ import type { JournalContext, SessionJournal } from "./journal";
 import type { DecodeJournal } from "./messageIdentity";
 
 export type { DecodeJournal };
-import { dropJudgeCallsAfter } from "@judge/index";
+import { dropJudgeCallsAfter } from "@judge/settings";
 import { rewindNpcReplies, rewindOnEnterPosts } from "./npcReplyRewind";
 import { rollbackLoreFired } from "./loreFired";
 import { rollbackChanceDraws } from "./rolls";
 import { rollbackChecks } from "./storyCheckDraws";
 import { rollbackAgendaProposals } from "./agendaProposals";
 import { rollbackPromises } from "@memory/promises/state";
+import { rollbackWitness } from "@memory/witness/state";
+import { rollbackRumors } from "@memory/rumors/state";
 import { rollbackRecap } from "./recapPort";
 import { rollbackTensionHistory } from "./tensionState";
 import type { RuntimeExtras } from "./types";
@@ -36,7 +38,7 @@ export interface RollbackDeps {
   /** The expansion cache is built from the blackboard, which the rollback just restored. */
   revalidateExpansion: () => unknown;
   restoreExpansion: (boundary: number) => unknown;
-  restoreLiving?: (boundary: number) => unknown;
+  restoreLiving?: (boundary: number, run: RunGuard) => unknown;
   livingMovedAfter?: (boundary: number) => boolean;
   extras: () => RuntimeExtras;
   refreshRequirements: () => void;
@@ -109,6 +111,8 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     if (extras.checks) extras.checks = rollbackChecks(extras.checks, messageId);
     if (extras.agendaProposals) extras.agendaProposals = rollbackAgendaProposals(extras.agendaProposals, messageId);
     if (extras.promises) extras.promises = rollbackPromises(extras.promises, messageId);
+    if (extras.witness) extras.witness = rollbackWitness(extras.witness, messageId);
+    if (extras.rumors) extras.rumors = rollbackRumors(extras.rumors, messageId);
     if (extras.recap) extras.recap = rollbackRecap(extras.recap, engine.serialize().boundary);
     extras.tension = { ...extras.tension, history: rollbackTensionHistory(extras.tension.history, messageId) };
     engine.clampToChat(deps.context().chatLength);
@@ -154,7 +158,8 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
   const outcome = engine.rollbackTo(boundary);
   if (!outcome.ok) return unavailable(outcome.oldest);
   if (outcome.result !== "applied") return outcome;
-  deps.restoreLiving?.(engine.serialize().boundary);
+  await deps.restoreLiving?.(engine.serialize().boundary, run);
+  if (!run.stillOwns()) return lapsed;
   deps.notices.rollbackUnavailable = null;
   const current = deps.context();
   const window = getChatWindow(engine.serialize().checkpointStartedMessageId, current.lastMessageId);

@@ -690,6 +690,19 @@ dialog#so-briefing::backdrop {
   overflow-wrap: anywhere;
 }
 
+#so-panels-root .so-scene-portrait {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  object-fit: cover;
+  font-size: 0.65rem;
+  background: color-mix(in srgb, var(--st-border) 50%, transparent);
+}
+
 #so-panels-root .so-game-bar {
   display: block;
   height: 6px;

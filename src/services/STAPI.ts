@@ -11,6 +11,7 @@ export { readPromptBudget } from "@services/stHost/contextBudget";
 export { stImageSource } from "@services/stHost/stImage";
 export { loadPersonasModule, readPersonas, type HostPersonaRead } from "@services/stHost/personas";
 export const loadPersonaWrites = () => import("@services/stHost/personaWrites");
+export const loadUserFiles = () => import("@services/stHost/userFiles");
 export { sendChatJump } from "@services/stHost/chatJump";
 export type { PromptBudget, PromptBudgetRead } from "@services/stHost/contextBudget";
 export { readPromptBuckets } from "@services/stHost/promptBuckets";
@@ -64,7 +65,7 @@ export { mountStoryWand, type WandEntry, type WandHandle } from "@services/stHos
 export type { ChatOwner, ChatPresence } from "@services/stHost/chatFiles";
 export { applyBackground, backgroundExists, getCurrentBackground, listBackgrounds } from "@services/stHost/backgrounds";
 export type { CurrentBackground } from "@services/stHost/backgrounds";
-export { createCharacterCard, createGroup, listGroupCasts, listGroupNames } from "@services/stHost/provisioning";
+export { createCharacterCard, createGroup, listGroupCasts, listGroupNames, readBackCharacterCard } from "@services/stHost/provisioning";
 export type { CharacterCardInput } from "@services/stHost/provisioning";
 export {
   listActiveWorldInfoComments,
@@ -79,7 +80,7 @@ export {
 } from "@services/stHost/selectors";
 export type { HostLoreBindings, HostSlashCommandMeta } from "@services/stHost/selectors";
 export {
-  addGroupMembers, getActiveGroup, openGroupById, resolveGroupMemberId, setGroupMembersDisabled, setGroupMemberDisabled, setGroupMemberFlags, readGroupMemberDisabled,
+  addGroupMembers, getActiveGroup, groupMemberPosition, openGroupById, resolveGroupMemberId, setGroupMembersDisabled, setGroupMemberDisabled, setGroupMemberFlags, readGroupMemberDisabled,
 } from "@services/stHost/groups";
 export { fillChatInput, guardHostStream, readChatInput, watchHostChatMove, hostSystemUserName, isHostGenerating, stopHostGeneration, willAddUserMessage } from "@services/stHost/generation";
 export { startGroupVoice } from "@services/stHost/generation";

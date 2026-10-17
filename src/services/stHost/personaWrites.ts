@@ -1,5 +1,5 @@
 import { getContext } from "./context";
-import { loadPersonasModule, personaCrudAvailable } from "./personas";
+import { loadPersonasModule, personaCrudAvailable, type PersonasHostModule } from "./personas";
 import { couldNot, wrote, type WriteResult } from "@utils/writeResult";
 import { quoteSlashArg } from "@utils/string";
 
@@ -31,10 +31,22 @@ export async function lockPersonaToChat(owns: StillOwns): Promise<WriteResult<{ 
 
 export async function createPersona(input: { name: string; description: string; title: string }, owns: StillOwns): Promise<WriteResult<{ avatarId: string }>> {
   if (!personaCrudAvailable()) return couldNot("this SillyTavern version cannot create personas from here");
+  const module = await loadPersonasModule();
+  const active = { module, avatarId: module?.user_avatar, owns };
   if (!owns()) return couldNot(PERSONA_WRITE_LAPSED);
   const command = `/persona-create select=false name=${quoteSlashArg(input.name)} title=${quoteSlashArg(input.title)} description=${quoteSlashArg(input.description)}`;
   const result = await getContext().executeSlashCommandsWithOptions(command, { handleParserErrors: false, handleExecutionErrors: true, parserFlags: PARSER_FLAGS });
   const avatarId = typeof result?.pipe === "string" ? result.pipe.trim() : "";
   if (result?.isError || !avatarId) return couldNot(result?.errorMessage ?? "SillyTavern did not create the persona");
-  return avatarId in listed() ? wrote({ avatarId }) : couldNot("the new persona is not in SillyTavern's list");
+  if (!(avatarId in listed())) return couldNot("the new persona is not in SillyTavern's list");
+  const kept = await keepActivePersona(active);
+  return kept.ok ? wrote({ avatarId }) : kept;
+}
+
+async function keepActivePersona(before: { module: PersonasHostModule | null; avatarId: string | undefined; owns: StillOwns }): Promise<WriteResult<object>> {
+  const { module, avatarId, owns } = before;
+  if (!module || !avatarId || module.user_avatar === avatarId) return wrote({});
+  if (!owns() || !module.setUserAvatar) return couldNot(PERSONA_WRITE_LAPSED);
+  await module.setUserAvatar(avatarId, { toastPersonaNameChange: false });
+  return module.user_avatar === avatarId ? wrote({}) : couldNot("SillyTavern switched to the new persona and did not switch back");
 }

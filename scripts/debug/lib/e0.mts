@@ -5,6 +5,7 @@ import { mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { JEV_USD_PER_MTOK_INPUT } from './limitProbe.mts';
 
 export const REPO_ROOT = resolve(import.meta.dirname, '..', '..', '..');
 export const PRIVATE_DIR = join(REPO_ROOT, 'test', 'sessions', 'e0');
@@ -16,12 +17,14 @@ type PoolQuestion = { id: string; gold: number[]; candidates: Candidate[] };
 type Pool = { format: string; source: 'synthetic' | 'private'; provider: string; questions: PoolQuestion[]; refused: Array<{ id: string; reason: string }> };
 type LabelRead = { source: 'synthetic' | 'private'; questions: Array<{ id: string; session: string }>; dropped: { disagreed: number; invalid: Array<{ id: string; reason: string }> } };
 type ArmResult = { arm: Arm; label: string; metrics: Record<string, number | null> | null; owed: string | null; refused: Array<{ id: string; reason: string }> };
+type ChatRow = { id: number; name: string; isUser: boolean; isSystem?: boolean; text: string };
+export type VectorProvider = { id: string; query(collection: Array<{ id: number; text: string }>, text: string, topK: number, threshold: number): Promise<number[] | { ids: number[]; latencyMs: number }> };
 
 interface E0Module {
   E0_COST_ORDER: readonly Arm[];
   E0_FLOORS: Record<string, number>;
   readE0Labels(raw: unknown): LabelRead;
-  readE0Chat(raw: unknown): unknown[];
+  readE0Chat(raw: unknown): ChatRow[];
   buildE0Pool(labels: LabelRead, chats: Map<string, unknown[]>, provider: unknown): Promise<Pool>;
   e0StubProvider: unknown;
   runArm(arm: Arm, questions: PoolQuestion[], recorded?: unknown): ArmResult;
@@ -57,7 +60,7 @@ export function refusePublicPrivate(source: string, out: string): void {
   if (inRepo && !inPrivate) throw new Error(`refused: private E0 output inside the public repo (${out}); write under test/sessions/e0/ (gitignored, so-sessions) or outside the repo`);
 }
 
-async function chatFile(dir: string): Promise<string> {
+export async function chatFile(dir: string): Promise<string> {
   const names = (await readdir(dir)).sort();
   const full = names.filter((name) => /^chat-full-.+\.json$/.test(name));
   const plain = names.filter((name) => /^chat-.+\.json$/.test(name) && !name.startsWith('chat-full-'));
@@ -66,8 +69,8 @@ async function chatFile(dir: string): Promise<string> {
   return join(dir, pick);
 }
 
-export async function buildPool(labelsFile: string, sessionsRoot: string, provider: string) {
-  if (provider !== 'stub') throw new Error(`provider ${provider}: only "stub" runs here; the st-vectors pool (a lane's /api/vector, transformers) is owed`);
+export async function buildPool(labelsFile: string, sessionsRoot: string, provider: 'stub' | VectorProvider) {
+  if (typeof provider === 'string' && provider !== 'stub') throw new Error(`provider ${provider}: unknown here; pass "stub", or run so-e0.mts pool --provider st-vectors against a lane`);
   const e0 = await loadE0();
   const labels = e0.readE0Labels(await readJson(labelsFile));
   const chats = new Map<string, unknown[]>();
@@ -75,7 +78,7 @@ export async function buildPool(labelsFile: string, sessionsRoot: string, provid
     const dir = join(sessionsRoot, session);
     if (existsSync(dir)) chats.set(session, e0.readE0Chat(await readJson(await chatFile(dir))));
   }
-  const pool = await e0.buildE0Pool(labels, chats, e0.e0StubProvider);
+  const pool = await e0.buildE0Pool(labels, chats, provider === 'stub' ? e0.e0StubProvider : provider);
   return { labels, pool };
 }
 
@@ -111,6 +114,7 @@ export async function runE0(labelsFile: string, poolFile: string, choicesFile?: 
   if (pool.source !== labels.source) throw new Error(`pool source ${pool.source} differs from labels source ${labels.source}`);
   const recorded = choicesFile ? await readJson(choicesFile) : undefined;
   const arms = e0.E0_COST_ORDER.map((arm) => e0.runArm(arm, pool.questions, arm === 'd' ? recorded : undefined));
+  const usdPerQuestion = Object.fromEntries(arms.map((arm) => [arm.arm, arm.metrics ? ((arm.metrics.inputTokensPerQuestion ?? 0) / 1_000_000) * JEV_USD_PER_MTOK_INPUT : null]));
   return {
     plan: 'v2.8 21 E0',
     source: pool.source,
@@ -121,6 +125,7 @@ export async function runE0(labelsFile: string, poolFile: string, choicesFile?: 
       pooled: pool.questions.length, poolRefused: pool.refused.length,
     },
     arms: arms.map(({ refused, ...arm }) => ({ ...arm, refused: refused.length })),
+    cost: { jevUsdPerMTokInput: JEV_USD_PER_MTOK_INPUT, usdPerQuestion },
     verdict: e0.decideE0(arms),
   };
 }

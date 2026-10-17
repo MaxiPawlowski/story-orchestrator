@@ -91,6 +91,12 @@ const readSnapshot = (value: unknown, issues: string[]): Record<string, Primitiv
   }));
 };
 
+const readChanged = (value: unknown): string[] | undefined => {
+  const list = Array.isArray(value) ? value : typeof value === "string" ? [value] : [];
+  const names = list.filter((entry): entry is string => typeof entry === "string").map((entry) => entry.trim().toLowerCase()).filter(Boolean);
+  return names.length ? names : undefined;
+};
+
 export function parseDirectorDraft(raw: string, story: NormalizedStoryV2): DirectorParse {
   const parsed = jsonObject(raw);
   if (!isRecord(parsed)) return { ok: false, issues: ["the answer was not one JSON object"] };
@@ -132,6 +138,8 @@ export function parseDirectorDraft(raw: string, story: NormalizedStoryV2): Direc
   const snapshot = readSnapshot(parsed.snapshot, issues);
   const buildsOn = typeof parsed.builds_on === "string" && parsed.builds_on.trim() && parsed.builds_on.trim().toLowerCase() !== "null" ? parsed.builds_on.trim() : null;
   const chapterTitle = typeof parsed.chapter_title === "string" && parsed.chapter_title.trim() ? parsed.chapter_title.trim().slice(0, 60) : undefined;
+  const changed = readChanged(parsed.changed);
+  const advances = typeof parsed.advances === "string" && parsed.advances.trim() ? parsed.advances.trim() : undefined;
   if (issues.length || !opensWhen || !tension) return { ok: false, issues: issues.length ? issues : ["incomplete answer"] };
   return {
     ok: true,
@@ -144,6 +152,8 @@ export function parseDirectorDraft(raw: string, story: NormalizedStoryV2): Direc
       ...(chapterTitle ? { chapterTitle } : {}),
       reason: typeof parsed.reason === "string" ? parsed.reason.trim().slice(0, 300) : "",
       ...(repaired.length ? { repaired } : {}),
+      ...(changed ? { changed } : {}),
+      ...(advances ? { advances } : {}),
     },
   };
 }

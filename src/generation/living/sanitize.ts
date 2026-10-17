@@ -1,5 +1,6 @@
 import { isRecord } from "@utils/guards";
 import { createDivergenceState, createLivingState, type DirectorProposal, type DivergenceState, type LivingOp, type LivingRuntimeState } from "./types";
+import type { SceneTestRecord } from "./sceneTest";
 
 const OP_KINDS = ["add-checkpoint", "add-transition", "add-stub", "add-quality", "add-chapter"];
 const STATUSES = ["proposed", "accepted", "applied", "rejected", "withdrawn", "failed"];
@@ -9,6 +10,14 @@ const isOp = (value: unknown): value is LivingOp => isRecord(value) && typeof va
 
 const isProposal = (value: unknown): value is DirectorProposal => isRecord(value) && typeof value.id === "string" && STATUSES.includes(String(value.status))
   && typeof value.epoch === "string" && typeof value.frontierId === "string" && Array.isArray(value.ops) && Array.isArray(value.issues);
+
+const OUTCOMES = ["expected", "altered", "interrupt"];
+const finite = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
+
+const isSceneTest = (value: unknown): value is SceneTestRecord => isRecord(value) && typeof value.frontierId === "string" && finite(value.plannedAt)
+  && finite(value.messageId) && finite(value.chaos) && finite(value.p) && finite(value.unit) && OUTCOMES.includes(String(value.drawn)) && OUTCOMES.includes(String(value.applied))
+  && (value.focus === undefined || typeof value.focus === "string") && isRecord(value.expected) && typeof value.expected.from === "string"
+  && (value.expected.thread === null || typeof value.expected.thread === "string");
 
 const sanitizeDivergence = (value: unknown): DivergenceState | undefined => {
   if (!isRecord(value)) return undefined;
@@ -31,6 +40,7 @@ export const sanitizeLivingState = (value: unknown): LivingRuntimeState | undefi
   const lastPass = isRecord(value.lastPass) && typeof value.lastPass.boundary === "number" && typeof value.lastPass.frontierId === "string" && typeof value.lastPass.at === "string"
     ? { boundary: value.lastPass.boundary, frontierId: value.lastPass.frontierId, at: value.lastPass.at } : null;
   const divergence = sanitizeDivergence(value.divergence);
+  const sceneTests = Array.isArray(value.sceneTests) ? value.sceneTests.filter(isSceneTest) : null;
   return {
     ...base,
     authored,
@@ -41,5 +51,6 @@ export const sanitizeLivingState = (value: unknown): LivingRuntimeState | undefi
     passes: typeof value.passes === "number" && Number.isFinite(value.passes) ? value.passes : 0,
     lastPass,
     ...(divergence ? { divergence } : {}),
+    ...(sceneTests ? { sceneTests } : {}),
   };
 };

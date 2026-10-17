@@ -9,6 +9,8 @@ import { BLOB_VERSION } from "./persistence";
 import { defaultInlineSettings } from "./settingsModel";
 import { defaultPresenceSettings } from "./displayToggles";
 import { control } from "../../test/findings/ledger";
+import { carriesInto, INJECTION_REGISTRY, type InjectionSpec } from "@constants/injectionRegistry";
+import { GenerationLifecycle } from "./generationLifecycle";
 
 const mockExtensionPrompts: Record<string, { value: string; depth: number }> = {};
 const mockLorebooks: Record<string, Record<string, boolean>> = {};
@@ -52,6 +54,7 @@ jest.mock("@services/STAPI", () => {
     readLoreBindings: () => ({ global: [], chat: null, persona: null, characters: [] }),
     watchHostChatMove: () => () => undefined,
     guardHostStream: () => ({ halt: () => false, release: () => undefined }),
+    groupMemberPosition: () => ({ ok: true, position: 0 }),
     saveOpenChat: async () => { await (mockContext).saveMetadata?.(); return { ok: true as const, chatId: "" }; },
     setStoryExtensionPrompt: (key: string, text: string, depth: number) => { mockExtensionPrompts[key] = { value: text, depth }; },
     clearStoryExtensionPrompt: (key: string) => { delete mockExtensionPrompts[key]; },
@@ -71,7 +74,7 @@ jest.mock("@services/STAPI", () => {
     vectorQuery: jest.fn(async () => []),
     vectorPurge: jest.fn(async () => undefined),
     DEFAULT_VECTOR_SOURCE: "transformers",
-    executeSlashCommands: jest.fn(async () => undefined),
+    executeSlashCommands: jest.fn(async () => true),
     setGroupMembersDisabled: jest.fn(async () => ({ ok: true, group: "g1" })),
     // v2.3 plan 06: the settings gate and the save evidence. The observation answers "a save went out
     // and was accepted" unless a test says otherwise, because that is the ordinary case every test
@@ -376,6 +379,84 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
     }
     manager.onGenerationStarted("normal", false);
     expect(block()?.value).toContain(WANDER);
+  });
+
+  it("v2.8 69 K9: a withholding run clears exactly the set blocks its registry entry declares withhold, and keeps the rest", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(guided(WANDER)));
+    const specOf = (key: string) => (Object.values(INJECTION_REGISTRY) as InjectionSpec[]).find((spec) => spec.key === key);
+    for (const type of ["quiet", "impersonate"]) {
+      manager.onGenerationStarted("normal", false);
+      const before = Object.keys(mockExtensionPrompts).filter((key) => specOf(key));
+      expect(before).toContain(INJECTION_REGISTRY.checkpointGuidance.key);
+      manager.onGenerationStarted(type, false);
+      const kept = before.filter((key) => key in mockExtensionPrompts);
+      expect(kept).toEqual(before.filter((key) => carriesInto(specOf(key)!, type)));
+      manager.clearPrivateInjection();
+    }
+  });
+
+  it("review 2026-10-16 #5: every declared block seeded, a withholding start clears every manager-owned withhold block and keeps every keep block", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(guided(WANDER)));
+    const wiringOwned = new Set<string>([INJECTION_REGISTRY.awayNotice.key, INJECTION_REGISTRY.previously.key, INJECTION_REGISTRY.checkOutcome.key]);
+    const specs = Object.values(INJECTION_REGISTRY) as InjectionSpec[];
+    for (const type of ["quiet", "impersonate"]) {
+      manager.onGenerationStarted("normal", false);
+      for (const spec of specs) mockExtensionPrompts[spec.key] ??= { value: `seeded ${spec.key}`, depth: spec.depth };
+      manager.onGenerationStarted(type, false);
+      const present = specs.filter((spec) => !wiringOwned.has(spec.key) && spec.key in mockExtensionPrompts).map((spec) => spec.key).sort();
+      expect(present).toEqual(specs.filter((spec) => !wiringOwned.has(spec.key) && carriesInto(spec, type)).map((spec) => spec.key).sort());
+      manager.clearPrivateInjection();
+    }
+  });
+
+  it("v2.8 69 K9: a quiet run nested inside a loud one withholds while it runs and the loud run's blocks come back when it ends", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(guided(WANDER)));
+    const lifecycle = new GenerationLifecycle(() => true);
+    const drive = (intents: ReturnType<GenerationLifecycle["started"]>) => intents.forEach((intent) => {
+      if (intent.kind === "opened" || (intent.kind === "nested" && intent.withholds)) manager.onGenerationStarted(intent.type, false);
+      if (intent.kind === "reapply" || intent.kind === "closed") manager.clearPrivateInjection();
+    });
+    drive(lifecycle.started(["normal", {}, false], 4));
+    expect(block()?.value).toContain(WANDER);
+    drive(lifecycle.started(["quiet", {}, false], 4));
+    expect(block()).toBeUndefined();
+    expect(manager.turnBlocksHeld()).toBe(true);
+    drive(lifecycle.ended([]));
+    expect(block()?.value).toContain(WANDER);
+    expect(manager.turnBlocksHeld()).toBe(false);
+  });
+
+  it("v2.8 69 K9: a withholding run that returns before sending is released by the next loud run (no stale hold)", async () => {
+    for (const type of ["quiet", "impersonate"]) {
+      const manager = new RuntimeManager();
+      await manager.importStory(JSON.stringify(guided(WANDER)));
+      const lifecycle = new GenerationLifecycle(() => true);
+      const drive = (intents: ReturnType<GenerationLifecycle["started"]>) => intents.forEach((intent) => {
+        if (intent.kind === "opened" || (intent.kind === "nested" && intent.withholds)) manager.onGenerationStarted(intent.type, false);
+        if (intent.kind === "reapply" || intent.kind === "closed") manager.clearPrivateInjection();
+      });
+      drive(lifecycle.started([type, {}, false], 4, 1000));
+      expect(block()).toBeUndefined();
+      expect(manager.turnBlocksHeld()).toBe(true);
+      drive(lifecycle.started(["normal", {}, false], 4, 1500));
+      expect(manager.turnBlocksHeld()).toBe(false);
+      expect(block()?.value).toContain(WANDER);
+      expect(lifecycle.snapshot().outermost?.type).toBe("normal");
+    }
+  });
+
+  it("v2.8 69 K9: a raw generation emits no lifecycle event, so nothing is withheld or released", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(guided(WANDER)));
+    const lifecycle = new GenerationLifecycle(() => true);
+    const before = JSON.stringify(mockExtensionPrompts);
+    expect(lifecycle.snapshot().outermost).toBeNull();
+    expect(lifecycle.ended([])).toEqual([]);
+    expect(JSON.stringify(mockExtensionPrompts)).toBe(before);
+    expect(manager.turnBlocksHeld()).toBe(false);
   });
 
   it("B10: the hold is readable by the other turn blocks and announced to subscribers on take and release", async () => {
@@ -1454,7 +1535,7 @@ describe("RuntimeManager transition announcements and pending deltas", () => {
   it("defaults ui settings on hydrate and persists overrides", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(gatedStory));
-    expect(manager.getSnapshot().ui).toEqual({ authorView: false, announceTransitions: false, hudEnabled: true, briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings() });
+    expect(manager.getSnapshot().ui).toEqual({ authorView: false, announceTransitions: false, hudEnabled: true, yourMove: true, briefing: true, briefingDraft: true, playerSetup: true, inline: defaultInlineSettings(), presence: defaultPresenceSettings() });
     manager.setUiSettings({ authorView: true });
     const metadata = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: { ui?: { authorView?: boolean } } }> };
     const storyId = Object.keys(metadata.stories)[0];

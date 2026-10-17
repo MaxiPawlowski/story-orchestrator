@@ -15,6 +15,20 @@ export interface LivingProposalRow {
   stale: boolean;
   at: string;
   branch: { why: string; prepared: boolean; convergeTo: string | null; fromName: string; toName: string } | null;
+  scene?: LivingSceneRow | null;
+}
+
+export interface LivingSceneRow {
+  frontierId: string;
+  fromName: string;
+  plannedAt: number;
+  chaos: number;
+  odds: number;
+  drawn: string;
+  applied: string;
+  focus?: string;
+  changed?: string;
+  advances?: string;
 }
 
 export interface LivingAuthorView {
@@ -31,6 +45,8 @@ export interface LivingAuthorView {
   folded: number;
   passes: number;
   proposals: LivingProposalRow[];
+  sceneTest?: boolean;
+  sceneTests?: LivingSceneRow[];
 }
 
 export interface LivingView {
