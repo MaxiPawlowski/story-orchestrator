@@ -7,6 +7,7 @@ import { isEstablished, type MemoryEntry } from "@memory/index";
 import { CP_AUTHOR_ONLY_TEXT, MEMORY_TIER_LABELS, SO_MEM_AUTHOR_ONLY_TEXT } from "./narrative";
 import { requestBriefing } from "./briefingRequest";
 import { requestGuide } from "@guide/request";
+import { requestTour, tourViewOf } from "@guide/tour/request";
 import { CP_HELP_STRING, SO_MEM_HELP_STRING, STORY_HELP_STRING, STORY_VERBS, soMemHelpText, storyHelpText } from "./slashHelp";
 
 type SlashArgs = Record<string, unknown>;
@@ -139,6 +140,7 @@ export const NO_STORY_BRIEFING = "No story is playing in this chat.";
 export const NO_BRIEFING_WRITTEN = "This story has no briefing.";
 export const GUIDE_UNAVAILABLE = "The guide could not open here. Reload the page and try again.";
 export const ASK_USAGE = "Usage: /story ask <your question>";
+export const TOUR_USAGE = "Usage: /story tour [player|author|setup]";
 
 async function storyCommand(manager: RuntimeManager, value: string | string[]) {
   const parts = partsOf(value);
@@ -173,6 +175,11 @@ async function storyCommand(manager: RuntimeManager, value: string | string[]) {
   if (command === "guide") {
     const page = parts[1]?.replace(/^\/+/, "");
     return requestGuide(page ? (page.endsWith(".md") ? page : `${page}.md`) : undefined) ? "" : show(GUIDE_UNAVAILABLE);
+  }
+  if (command === "tour") {
+    const view = tourViewOf(parts[1]);
+    if (view === undefined) return show(TOUR_USAGE);
+    return requestTour(view) ? "" : show(GUIDE_UNAVAILABLE);
   }
   if (command === "flag") {
     await manager.flagMoment(parts.slice(1).join(" "));

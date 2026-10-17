@@ -123,3 +123,11 @@ export const AskPhone: Story = { args: { ask: <AskBox persona="player" onAsk={pl
 export const AskTablet: Story = { args: { ask: <AskBox persona="player" onAsk={playerAsk} /> }, parameters: { testViewport: { width: 768, height: 1024 } } };
 
 export const AskWide: Story = { args: { ask: <AskBox persona="author" onAsk={playerAsk} /> }, parameters: { testViewport: { width: 1440, height: 900 } } };
+
+export const TakeTheTour: Story = {
+  args: { onTour: fn() },
+  play: async ({ canvasElement, args }) => {
+    await userEvent.click(within(canvasElement).getByRole("button", { name: "Take the tour" }));
+    await expect(args.onTour).toHaveBeenCalled();
+  },
+};

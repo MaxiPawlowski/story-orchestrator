@@ -11,6 +11,9 @@ import { gettingStartedSteps, imagesStepDone, installFindings, type OneClickFix 
 import { guideUrl } from "@features/guideLinks";
 import type { FeatureArea, FeatureWhere } from "@features/registry";
 import { requestGuide } from "@guide/request";
+import { requestTour } from "@guide/tour/request";
+import { HELP_COPY } from "@features/helpCopy";
+import { TOUR_COPY } from "@features/tourCopy";
 import type { ContinueRow } from "@runtime/playsIndex";
 import { HelpButton } from "../help/HelpButton";
 import type { CapabilitiesGroupProps } from "./CapabilitiesGroup";
@@ -199,6 +202,10 @@ const SettingsPanel = ({ snapshot, manager, host, workspaceSection }: SettingsPa
             gettingStarted={<Lazy fallback={null}><GettingStarted steps={steps} dismissed={checklistDismissed} onReveal={host.revealSetting} installChecks={installFindings(snapshot)}
               onHide={() => setChecklistDismissed(setGlobalSettings({ help: { checklistDismissed: true } }).help.checklistDismissed)} /></Lazy>}
           />}
+          {workspaceSection === "help" && <div className="flex flex-wrap items-center gap-2">
+            <button type="button" id="so-help-tour" data-so="help-tour" className="menu_button" onClick={() => requestTour()}>{HELP_COPY.tour}</button>
+            <button type="button" id="so-help-tour-setup" data-so="help-tour-setup" className="menu_button" onClick={() => requestTour("setup")}>{TOUR_COPY.setup}</button>
+          </div>}
           {workspaceSection === "interface" && <Lazy fallback={null}><DisplayGroup snapshot={snapshot} manager={manager} /></Lazy>}
           {show("play") && <SettingsArea {...area("play")} advanced={<Lazy fallback={null}><TransitionNoteRow snapshot={snapshot} manager={manager} /></Lazy>}>
             <Lazy fallback={null}><StoryGroup snapshot={snapshot} manager={manager} busy={busy} setBusy={setBusy} importOpen={importOpen} /></Lazy>

@@ -10,6 +10,7 @@ export const HELP_COPY = {
   needs: "Needs",
   showMe: "Show me",
   readMore: "Read more",
+  tour: "Take the tour",
   where: "Where",
   guideHeading: "Author's guide",
   guideIntro: "Every topic of the story guide. The Studio shows the topics for each tab; all of them are here.",

@@ -4,6 +4,7 @@ import { authorGuideDoc, FEATURES, guideUrl, HOME_PAGE, visibleFeatures, type Fe
 import type { AskOutcome } from "@runtime/askHost";
 import { getGlobalSettings } from "@runtime/settingsStore";
 import { AskBox, type AskBoxReply } from "@components/studio/AskBox";
+import { requestTour } from "@guide/tour/request";
 import { canShow, HelpPanel, type HelpGuideTopic } from "./HelpPanel";
 
 export type HelpAsk = (question: string) => Promise<AskOutcome>;
@@ -51,6 +52,7 @@ export default function HelpHost({ authorView, onShowMe, onOpenDoc, onClose, ask
       onShowMe={onShowMe}
       onOpenDoc={onOpenDoc}
       onClose={onClose}
+      onTour={() => { if (requestTour()) onClose(); }}
       ask={askBox}
     />
   );

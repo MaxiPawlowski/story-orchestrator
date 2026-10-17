@@ -60,6 +60,19 @@ message, rolls included, each linked to its message. The Scheduler tab also name
 from at least two of the five replies before it ("Repeating across the last 6 replies: …"); it is counted in code,
 calls no model and only reports.
 
+## Author view tabs
+
+Author view adds three tabs for the chat it is turned on in, on **This story → Author**. They spoil the story.
+
+- **Blackboard**: every tracked value, what it becomes next turn, its source and the quoted evidence.
+- **Scheduler**: the chat reads, speaker direction, stall re-checks, author moves, the road ahead, and phrases the
+  newest reply repeats.
+- **Payload**: the blocks the story adds to the prompt, and **Next reply**: each contributor to the next reply in
+  SillyTavern's order, its depth and size, and lines marked private for the character drafted.
+
+A story that never moves usually has a gate the chat cannot answer: the Blackboard shows the evidence each value
+was read from.
+
 ## Journal, stat sheet and story panels
 
 Some stories add panels. Open them from the buttons under the drawer's Overview or from the wand menu; each opens in

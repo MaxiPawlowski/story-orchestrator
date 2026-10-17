@@ -10,14 +10,14 @@ The repository lives **outside** SillyTavern. SillyTavern's extension slot
 
 ```bash
 npm ci
-npm run build                                   # prod bundle -> dist/ + dist/manifest.json
+npm run build                                   # the one bundle -> dist/ + dist/manifest.json
 npm run stage -- --st-root <SillyTavern>        # copy the release file list into the slot
 ```
 
-For the live debug harness use the dev bundle (debug handles on `globalThis.storyOrchestrator*`):
+There is one build: it carries the debug handles (`globalThis.storyOrchestrator*`) the live harness uses. After
+every build and stage, reload without the cache:
 
 ```bash
-npm run build:dev && npm run stage -- --st-root <SillyTavern> --flavor dev   # stage also needs a prod dist/
 node scripts/debug/st-session.mts reload        # a plain reload can run the cached old bundle
 ```
 
@@ -71,15 +71,15 @@ lanes. Start with [`scripts/debug/README.md`](../../scripts/debug/README.md) and
 - `src/engine/**` stays pure.
 - UI parts get a `.stories.tsx` with interaction and accessibility checks.
 - User-facing text is plain words, consequence first. No repo paths, plan ids or raw ids in the UI.
+- Colours, controls, layouts, copy and screenshots follow the [style guide](style.md): SillyTavern theme variables
+  only, the quote accent for Story and the em accent for Orchestrator, 44px controls, native dialogs, one save
+  vocabulary.
 
 ## Commands
 
-- `npm run build`: the **prod** bundle into `dist/` + `dist/manifest.json` (`flavor: "prod"`): no
-  `storyOrchestrator*` debug handles or response overrides, main entry within 1 250 000 bytes (the build fails over
-  it). `npm run build:dev` writes the **dev** bundle, with every handle, to `dist-dev/`, which SillyTavern never loads.
-  `npm run test:release` checks both manifests against the bytes they describe and refuses a dev build in `dist/`.
-- `npm run serve:dev` copies `dist-dev/` over `dist/` (the live harness needs the dev build served); `npm run build`
-  puts prod back.
+- `npm run build`: the one bundle into `dist/` + `dist/manifest.json`, with the debug handles; the main entry must
+  stay within 1,300,000 bytes (the build fails over it), so new code goes into lazy chunks. `npm run test:release`
+  checks the manifest against the bytes it describes.
 - `npm run notices` regenerates `THIRD-PARTY-NOTICES.md` from the prod module list; `npm run inventory -- --data-root
   <data>/<user>` lists what the extension owns in a SillyTavern data root, read-only.
 - `npm run storybook` / `npm run test-storybook:ci`: UI, with the runner invoked by path so it works on Windows shells

@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, posix, resolve } from "node:path";
 import { FEATURES, type FeatureSurface } from "./registry";
 import { canShow } from "@components/help/HelpPanel";
+import { allSteps } from "@guide/tour/tourRoutes";
 
 const ROOT = resolve(__dirname, "../..");
 
@@ -141,6 +142,17 @@ describe("v2.7 plan 29 (finding 20): every Help \"Show me\" target exists in the
     expect(resolveSpecifier("src/index.tsx", "@components/settings/SettingsPanel", diskRead)).toBe("src/components/settings/SettingsPanel.tsx");
     expect(resolveSpecifier("src/studio/StudioModal.tsx", "./components/GuideDisclosure", diskRead)).toBe("src/studio/components/GuideDisclosure.tsx");
     expect(dirname("src/x.tsx")).toBe("src");
+  });
+});
+
+describe("tour deep links land on a rendered control", () => {
+  it("every control a tour step opens is defined by the workspace tree", () => {
+    const workspace = [...renderedFiles(SURFACE_ROOTS.settings).values()];
+    const controls = [...new Set(allSteps().flatMap(({ step }) => (step.show?.control ? [step.show.control] : [])))];
+    expect(controls.length).toBeGreaterThan(10);
+    expect(controls.filter((control) => !definesSelector(workspace, `#${control}`))).toEqual([]);
+    expect(definesSelector(workspace, "#so-help-tour")).toBe(true);
+    expect(definesSelector(workspace, "#so-tour-nowhere")).toBe(false);
   });
 });
 

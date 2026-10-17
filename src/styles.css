@@ -16,7 +16,7 @@
   --so-badge-saga: var(--st-warning);
 }
 
-:is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal, #so-briefing-root, #so-briefing, #so-panels-root, #so-workspace-root, #so-workspace-modal) {
+:is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal, #so-briefing-root, #so-briefing, #so-panels-root, #so-workspace-root, #so-workspace-modal, #so-tour-root, #so-tour-modal) {
   @apply text-base;
 
   @tailwind utilities source(none);
@@ -880,35 +880,35 @@ dialog#so-briefing::backdrop {
   opacity: 0.75;
 }
 
-:is(#so-panels-root, #so-studio-modal) .so-guide-body :is(h2, h3, h4, h5, h6) {
+:is(#so-panels-root, #so-studio-modal, #so-tour-modal) .so-guide-body :is(h2, h3, h4, h5, h6) {
   margin: 0.6rem 0 0.1rem;
   line-height: 1.25;
 }
 
-:is(#so-panels-root, #so-studio-modal) .so-guide-body h2 {
+:is(#so-panels-root, #so-studio-modal, #so-tour-modal) .so-guide-body h2 {
   font-size: 1.25rem;
 }
 
-:is(#so-panels-root, #so-studio-modal) .so-guide-body h3 {
+:is(#so-panels-root, #so-studio-modal, #so-tour-modal) .so-guide-body h3 {
   font-size: 1.05rem;
 }
 
-:is(#so-panels-root, #so-studio-modal) .so-guide-body :is(h4, h5, h6) {
+:is(#so-panels-root, #so-studio-modal, #so-tour-modal) .so-guide-body :is(h4, h5, h6) {
   font-size: 0.95rem;
 }
 
-:is(#so-panels-root, #so-studio-modal) .so-guide-body p {
+:is(#so-panels-root, #so-studio-modal, #so-tour-modal) .so-guide-body p {
   margin: 0;
 }
 
-:is(#so-panels-root, #so-studio-modal) .so-guide-code {
+:is(#so-panels-root, #so-studio-modal, #so-tour-modal) .so-guide-code {
   padding: 0 0.25rem;
   border-radius: 0.25rem;
   background: color-mix(in srgb, var(--st-border) 25%, transparent);
   font-size: 0.85em;
 }
 
-:is(#so-panels-root, #so-studio-modal) .so-guide-pre {
+:is(#so-panels-root, #so-studio-modal, #so-tour-modal) .so-guide-pre {
   margin: 0;
   padding: 0.5rem;
   overflow-x: auto;
@@ -918,30 +918,30 @@ dialog#so-briefing::backdrop {
   white-space: pre;
 }
 
-:is(#so-panels-root, #so-studio-modal) .so-guide-quote {
+:is(#so-panels-root, #so-studio-modal, #so-tour-modal) .so-guide-quote {
   margin: 0;
   padding-left: 0.6rem;
   border-left: 3px solid var(--st-border);
   opacity: 0.9;
 }
 
-:is(#so-panels-root, #so-studio-modal) .so-guide-table-wrap {
+:is(#so-panels-root, #so-studio-modal, #so-tour-modal) .so-guide-table-wrap {
   overflow-x: auto;
 }
 
-:is(#so-panels-root, #so-studio-modal) .so-guide-table {
+:is(#so-panels-root, #so-studio-modal, #so-tour-modal) .so-guide-table {
   border-collapse: collapse;
   font-size: 0.8rem;
 }
 
-:is(#so-panels-root, #so-studio-modal) .so-guide-table :is(th, td) {
+:is(#so-panels-root, #so-studio-modal, #so-tour-modal) .so-guide-table :is(th, td) {
   padding: 0.25rem 0.4rem;
   border: 1px solid color-mix(in srgb, var(--st-border) 50%, transparent);
   text-align: left;
   vertical-align: top;
 }
 
-:is(#so-panels-root, #so-studio-modal) :is(.so-guide-nav-item, .so-guide-result) {
+:is(#so-panels-root, #so-studio-modal, #so-tour-modal) :is(.so-guide-nav-item, .so-guide-result) {
   padding: 0.1rem 0.25rem;
   border: 0;
   border-radius: 0.25rem;
@@ -952,11 +952,11 @@ dialog#so-briefing::backdrop {
   cursor: pointer;
 }
 
-:is(#so-panels-root, #so-studio-modal) :is(.so-guide-nav-item, .so-guide-result):hover {
+:is(#so-panels-root, #so-studio-modal, #so-tour-modal) :is(.so-guide-nav-item, .so-guide-result):hover {
   background: color-mix(in srgb, var(--st-border) 20%, transparent);
 }
 
-:is(#so-panels-root, #so-studio-modal) .so-guide-image {
+:is(#so-panels-root, #so-studio-modal, #so-tour-modal) .so-guide-image {
   display: block;
   max-width: 100%;
   height: auto;

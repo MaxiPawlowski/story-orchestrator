@@ -1,0 +1,233 @@
+import type { TourRoute } from "./tourTypes";
+
+export const PLAYER_ROUTE: TourRoute = {
+  view: "player",
+  label: "Player",
+  groups: [
+    {
+      title: "Getting started",
+      steps: [
+        {
+          id: "set-up-once", title: "Set up once", mock: "settings",
+          lead: "Stories need a group chat and one model that reads the chat. Everything else is optional.",
+          do: [
+            "Open **Extensions → Open Story Orchestrator**, then **Connections**.",
+            "Choose the [[memory|memory model]]. In the example, pick one and watch the chip.",
+            "Optional: a [[judge]] and pictures. The **Setup path** view walks through each one.",
+          ],
+          see: ["The red **fix setup** chip above the chat box clears once a memory model is set."],
+          off: ["**check setup** only means something works less well. Keep playing, or click the chip to see what."],
+          doc: "setup/memory-model.md", docTitle: "Memory model",
+          show: { context: "orchestrator", page: "connections", control: "so-extraction-profile" }, where: "Orchestrator › Connections › Memory model",
+          keywords: ["memory model", "connections", "profile", "fix setup"],
+        },
+        {
+          id: "start-a-story", title: "Start a story", mock: "start",
+          lead: "Stories play only in group chats, so each character keeps their own voice and what they know.",
+          do: [
+            "Open a group chat with the story's cast.",
+            "In **Library**, choose **Continue → Choose a story**, or **Start → Import a story**.",
+          ],
+          see: [
+            "The strip above the chat box shows the first scene.",
+            "Anything missing shows under **This story still needs**, and **Repair** names it.",
+          ],
+          off: ["In a one-on-one chat you get **Make a group for this story** instead. That is on purpose."],
+          doc: "player/playing.md#pick-a-story-for-a-chat", docTitle: "Pick a story for a chat",
+          show: { context: "orchestrator", page: "library", control: "so-entry-points" }, where: "Orchestrator › Library",
+          keywords: ["library", "import", "continue", "group", "repair"],
+        },
+        {
+          id: "start-page", title: "The start page", mock: "brief",
+          lead: "The first time a story starts in a chat, a briefing opens over it.",
+          do: ["Read the briefing, then choose who you are, if the story asks.", "Press **Begin**."],
+          see: ["The opening scene waits behind the page for you.", "Your persona stays with this chat for the whole story."],
+          off: ["Closed it too soon? `/story intro` opens it again."],
+          doc: "player/playing.md#the-story-briefing", docTitle: "The story briefing",
+          keywords: ["briefing", "persona", "who you are", "intro"],
+        },
+      ],
+    },
+    {
+      title: "Playing",
+      steps: [
+        {
+          id: "play-a-turn", title: "Play a turn", mock: "turn",
+          lead: "You write, the characters answer. After each finished reply the story reads the scene and moves on when it can.",
+          do: [
+            "Send a line in the example twice and watch the story strip.",
+            "Swipe, edit or delete freely. Try the swipe button.",
+            "Wrap a line in `((…))` to talk out of character.",
+          ],
+          see: [
+            "**1 update next turn**: noticed now, applied at the end of the next reply, the [[turn]].",
+            "The scene name changes when the story moves on.",
+            "**stepped back** after a swipe or an edit.",
+          ],
+          off: ["Out-of-character lines change nothing. To correct the story, edit the message."],
+          doc: "player/drawer-and-hud.md#the-story-bar", docTitle: "The story bar",
+          keywords: ["swipe", "edit", "out of character", "story strip", "tension"],
+        },
+        {
+          id: "story-page", title: "The story page", mock: "story",
+          lead: "The route icon in the top bar opens **This story → Play**. In player view it never spoils anything.",
+          do: ["Read where you are, what changed and what is still open.", "Open **What the story remembers** and pin something."],
+          see: [
+            "Tension in words, from \"The scene is calm.\" to \"Everything is at breaking point.\"",
+            "\"Because you…\" only when your own words decided it.",
+          ],
+          off: ["**not keeping up** means a read failed. The troubleshooting page says what to try."],
+          doc: "player/drawer-and-hud.md#the-drawer", docTitle: "The drawer",
+          show: { context: "story", page: "play" }, where: "This story › Play",
+          keywords: ["drawer", "memory", "pin", "recap", "threads", "restart"],
+        },
+        {
+          id: "people-places", title: "People, places, promises", mock: "people",
+          lead: "Depending on the story, pages fill in as you play. You only ever see what the story has [[shown|shown you]].",
+          do: ["Open the journal when the story has one, and the scene card if it shows one."],
+          see: [
+            "Standing is a word, never a number.",
+            "A character's promise to you shows as open, kept or broken.",
+            "Coming back to a place can add a \"back here\" line.",
+          ],
+          off: ["If a page shows something you never saw in the chat, flag it. That is a bug."],
+          doc: "player/drawer-and-hud.md#journal-stat-sheet-and-story-panels", docTitle: "Journal, stat sheet and story panels",
+          keywords: ["journal", "people", "places", "promises", "scene card", "quests"],
+        },
+      ],
+    },
+    {
+      title: "When you need help",
+      steps: [
+        {
+          id: "stuck", title: "Stuck?", mock: "stuck",
+          lead: "Ideas and answers, built only from what you have already played.",
+          do: ["Press the lightbulb, then pick an idea. It lands in the box where you type.", "Or ask: `/story ask what is still open?`"],
+          see: ["Nothing is sent until you send it."],
+          off: ["Ask about a scene you have not reached and it says so. That is correct."],
+          doc: "player/playing.md#stuck-what-could-i-do", docTitle: "Stuck? \"What could I do?\"",
+          keywords: ["what could i do", "lightbulb", "ideas", "ask"],
+        },
+        {
+          id: "report", title: "Report a problem", mock: "flag",
+          lead: "A flag marks the exact moment, so whoever looks at it later can find it.",
+          do: ["Use the flag in the wand menu or on the story page, or type `/story flag` and a short note."],
+          see: ["A message confirms it. The story is unchanged."],
+          off: ["The story will not move at all? The troubleshooting page lists the usual causes."],
+          doc: "player/troubleshooting.md", docTitle: "Troubleshooting and FAQ",
+          keywords: ["flag", "bug", "troubleshooting", "problem"],
+        },
+        {
+          id: "restart", title: "Restart or come back", mock: "restart",
+          lead: "Each chat keeps its [[copy|own copy]] of the story.",
+          do: ["**Restart story** on the story page starts over.", "Coming back after a break shows a short recap first."],
+          see: ["Messages stay on a restart; progress and memory start again."],
+          off: ["Finished stories are listed under **Continue → Finished stories**."],
+          doc: "player/playing.md#restart", docTitle: "Restart",
+          show: { context: "story", page: "play" }, where: "This story › Play",
+          keywords: ["restart", "recap", "finished stories", "welcome back"],
+        },
+      ],
+    },
+  ],
+};
+
+export const AUTHOR_ROUTE: TourRoute = {
+  view: "author",
+  label: "Author",
+  groups: [
+    {
+      title: "Foundations",
+      steps: [
+        {
+          id: "author-view", title: "Author view", mock: "authorview",
+          lead: "Author view adds panels for this chat. It never changes what a player sees.",
+          do: ["Turn it on in the example and confirm.", "Raise **Notes under messages** to Author or Raw in **Interface**."],
+          see: ["Blackboard, Scheduler and Payload tabs, and curator review.", "`/cp` now answers in the chat box."],
+          off: ["It is per chat. Other chats stay in player view."],
+          doc: "player/README.md#player-mode-and-author-view", docTitle: "Player mode and Author view",
+          show: { context: "story", page: "author", control: "so-author-view" }, where: "This story › Author",
+          keywords: ["author view", "blackboard", "scheduler", "cp"],
+        },
+        {
+          id: "how-it-plays", title: "How a story plays", mock: "graph",
+          lead: "A story is a graph of [[checkpoint|checkpoints]] joined by ways out, each with a [[gate]] over [[quality|qualities]].",
+          do: ["Pick the beats in the example to read their gates.", "Write gates the chat will visibly answer."],
+          see: ["One way out fires per reply. Swipes and edits roll the story back."],
+          off: ["A gate on a thought or on something off screen never opens: nobody can quote it."],
+          doc: "author/how-a-story-plays.md", docTitle: "How a story plays",
+          keywords: ["graph", "gates", "checkpoints", "qualities", "rollback"],
+        },
+      ],
+    },
+    {
+      title: "Building",
+      steps: [
+        {
+          id: "wizard", title: "The wizard", mock: "wizard",
+          lead: "From a premise to a playable story in four steps, through the same edits you would make by hand.",
+          do: ["Accept the edit card, then create the character card in the example."],
+          see: ["Creating cards, lorebooks or the group always waits for you.", "Cards are checked, and the wizard reads each created card back."],
+          off: ["\"changed since proposed\" means you edited what the card touches. Ask again."],
+          doc: "author/wizard.md", docTitle: "The setup wizard",
+          show: { context: "orchestrator", page: "library", control: "so-new-story-wizard" }, where: "Orchestrator › Library › Start › New story",
+          keywords: ["wizard", "premise", "cards", "provisioning"],
+        },
+        {
+          id: "validation", title: "Validation", mock: "validate",
+          lead: "Most broken stories are caught here, without a model.",
+          do: ["Fix errors first; read warnings before you play."],
+          see: ["Each finding names the field and what goes wrong in play."],
+          off: ["Unknown keys get a did-you-mean suggestion."],
+          doc: "author/studio.md#diagnostics", docTitle: "Diagnostics",
+          show: { context: "orchestrator", page: "library", control: "so-open-studio" }, where: "Orchestrator › Library › Author › Studio",
+          keywords: ["validation", "diagnostics", "studio", "errors"],
+        },
+        {
+          id: "lore-curators", title: "Lore and curators", mock: "lore",
+          lead: "Lorebooks follow the story's path; background curators only propose.",
+          do: ["Accept or reject the curator's proposal in the example.", "Protect the spans a curator must never touch."],
+          see: ["A story's lorebooks reach only the chats that play it."],
+          off: ["If another page changed the book first, the write is refused rather than overwriting it."],
+          doc: "author/fields/lore-and-memory.md#stagecraft", docTitle: "Curator scope",
+          show: { context: "story", page: "review" }, where: "This story › Review",
+          keywords: ["lore", "lorebook", "curator", "protect", "world info"],
+        },
+        {
+          id: "story-features", title: "Story features", mock: "layer",
+          lead: "Optional fields, each on by default once written, each undone exactly by a rollback.",
+          do: ["Add only what the story needs. Each one has a guide topic in the Studio."],
+          see: ["Players see only what the story has disclosed."],
+          off: ["A faction move on inaction is refused; a rumor never carries a secret to someone it is kept from."],
+          doc: "author/fields/game-layer.md", docTitle: "Game layer and display",
+          keywords: ["codex", "quests", "factions", "rumors", "promises", "story time", "new game plus"],
+        },
+      ],
+    },
+    {
+      title: "Testing",
+      steps: [
+        {
+          id: "next-reply", title: "Next-reply preview", mock: "preview",
+          lead: "See exactly what the model receives next.",
+          do: ["Open **Payload** after a reply. The highlighted lines are what the story adds."],
+          see: ["Private lines appear only for the character drafted."],
+          off: ["A story that never moves usually has a gate the chat cannot answer. Check the quoted evidence on the Blackboard."],
+          doc: "player/drawer-and-hud.md#author-view-tabs", docTitle: "Author view tabs",
+          show: { context: "story", page: "author" }, where: "This story › Author › Payload",
+          keywords: ["payload", "prompt", "preview", "next turn"],
+        },
+        {
+          id: "library-updates", title: "Library and updates", mock: "library",
+          lead: "Stories carry no version; each chat [[copy|pins its copy]].",
+          do: ["Save from the Studio; other chats use **Update to the latest**."],
+          see: ["Compatible changes swap in at once; others ask keep, restart or cancel."],
+          off: ["Keeping a run prunes values the new version no longer has."],
+          doc: "player/playing.md#each-chat-keeps-its-own-copy", docTitle: "Each chat keeps its own copy",
+          show: { context: "orchestrator", page: "library" }, where: "Orchestrator › Library",
+          keywords: ["library", "update", "save", "pinned copy"],
+        },
+      ],
+    },
+  ],
+};

@@ -146,6 +146,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Setup | Host capabilities | Checks that SillyTavern has everything the extension needs, and copies a bug report. |  |
 | Setup | Experiments | Unmeasured trials. | Experimental |
 | Setup | Guide | The whole guide inside SillyTavern: playing, setup and writing stories. |  |
+| Setup | Tour | A guided tour with examples: playing, writing stories, and turning each part on. |  |
 <!-- features:end -->
 
 ## Illustrations and scope

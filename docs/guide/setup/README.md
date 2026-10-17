@@ -1,6 +1,7 @@
 # Setup
 
 Only one thing is required: a **memory model**. Everything else is optional, and the story plays without it.
+The [Setup path](setup-path.md) puts every part in order, level by level.
 
 | Piece | Needed for | Page |
 |---|---|---|

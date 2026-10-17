@@ -17,6 +17,7 @@ export interface HelpPanelProps {
   onShowMe?: (where: FeatureWhere) => void;
   onOpenDoc?: (doc?: string) => void;
   onClose?: () => void;
+  onTour?: () => void;
   ask?: ReactNode;
 }
 
@@ -65,7 +66,7 @@ const FeatureRow = ({ feature, on, homePage, onShowMe, onOpenDoc }: FeatureRowPr
   );
 };
 
-export function HelpPanel({ features, isOn, homePage, guideTopics = [], onShowMe, onOpenDoc, onClose, ask }: HelpPanelProps) {
+export function HelpPanel({ features, isOn, homePage, guideTopics = [], onShowMe, onOpenDoc, onClose, onTour, ask }: HelpPanelProps) {
   const [query, setQuery] = useState("");
   const searchId = useId();
   const shown = features.filter((feature) => matchesQuery(feature, query));
@@ -78,7 +79,10 @@ export function HelpPanel({ features, isOn, homePage, guideTopics = [], onShowMe
       </div>
       <div className="text-xs opacity-80">{HELP_COPY.intro}</div>
       {ask}
-      {onOpenDoc && <button type="button" id="so-help-open-guide" data-so="help-open-guide" className="menu_button self-start text-xs" onClick={() => onOpenDoc()}>{GUIDE_COPY.open}</button>}
+      {(onOpenDoc || onTour) && <div className="flex flex-wrap gap-2">
+        {onTour && <button type="button" data-so="help-tour" className="menu_button text-xs" onClick={onTour}>{HELP_COPY.tour}</button>}
+        {onOpenDoc && <button type="button" id="so-help-open-guide" data-so="help-open-guide" className="menu_button text-xs" onClick={() => onOpenDoc()}>{GUIDE_COPY.open}</button>}
+      </div>}
       <label htmlFor={searchId} className="sr-only">{HELP_COPY.search}</label>
       <input id={searchId} data-so="help-search" type="search" className="text_pole" value={query} placeholder={HELP_COPY.searchPlaceholder} onChange={(event) => setQuery(event.target.value)} />
       {shown.length === 0 && topics.length === 0 && <div data-so="help-empty" className="text-xs opacity-70">{HELP_COPY.noMatch}</div>}

@@ -10,6 +10,7 @@ import {
 import { workspaceNavigation } from "@runtime/workspaceNavigation";
 import { inlinePresence } from "@runtime/presence";
 import { createPresenceUi, openPlay, togglePanel } from "./presenceUi";
+import { onTourRequest } from "@guide/tour/request";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
 import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
 import { type SettingsHost } from "./components/settings/SettingsPanel";
@@ -492,6 +493,8 @@ const mount = (attempt = 0) => {
 };
 
 presenceUi.mountMarks(ui);
+ui.add(onTourRequest((view) => void import("./guide/tour/tourMount").then(({ openTour }) => openTour(ui, manager, view))
+  .catch((error) => { log.warn("the tour could not open", error); window.toastr?.info?.(LAZY_FAILED_TEXT, "Story Orchestrator"); })));
 
 if (document.readyState === "loading") {
   ui.listen(document, "DOMContentLoaded", () => mount(), { once: true });

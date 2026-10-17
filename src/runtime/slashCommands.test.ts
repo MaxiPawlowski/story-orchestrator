@@ -20,7 +20,7 @@ jest.mock("@services/STAPI", () => ({
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null, getContext: () => fakeContext, sendSystemChatMessage: (text: string) => (sendSystemChatMessage as jest.Mock)(text) }));
 
-import { registerSlashCommands } from "./slashCommands";
+import { GUIDE_UNAVAILABLE, registerSlashCommands } from "./slashCommands";
 import type { RuntimeManager } from "./runtimeManager";
 
 const makeManager = (authorView = true) => {
@@ -82,6 +82,19 @@ describe("registerSlashCommands", () => {
     expect(await commands.story.callback({}, "threads")).toContain("• The missing sun-heart");
     await commands.story.callback({}, "flag it dragged here");
     expect(manager.flagMoment).toHaveBeenCalledWith("it dragged here");
+  });
+
+  it("/story tour opens the tour at a view, and refuses an unknown view", async () => {
+    const { onTourRequest } = await import("@guide/tour/request");
+    registerSlashCommands(makeManager());
+    const seen: unknown[] = [];
+    expect(await commands.story.callback({}, "tour")).toBe(GUIDE_UNAVAILABLE);
+    const stop = onTourRequest((view) => seen.push(view));
+    expect(await commands.story.callback({}, "tour setup")).toBe("");
+    expect(await commands.story.callback({}, "tour")).toBe("");
+    expect(await commands.story.callback({}, "tour everything")).toBe("Usage: /story tour [player|author|setup]");
+    stop();
+    expect(seen).toEqual(["setup", null]);
   });
 
   it("/so-mem list numbers active entries, hides superseded ones, and posts a chat message", async () => {

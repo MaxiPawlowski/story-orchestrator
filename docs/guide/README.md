@@ -27,6 +27,7 @@ What you see on screen while a story plays, and what to do when it stalls.
 The one required setting, the optional judge, images and server plugins.
 
 - [Setup and install](setup/README.md): what is required, what is optional, and the settings panel.
+- [Setup path](setup/setup-path.md): a stepped order for turning on and configuring every feature, level by level.
 - [Memory model](setup/memory-model.md): the one required setting, the model that reads the chat after each reply.
 - [Choosing models](setup/models.md): which model for which job, and where to set each.
 - [Judge](setup/judge.md): the optional small model that picks speakers, lore and scene details.
@@ -51,4 +52,5 @@ Work on the extension itself.
 - [Architecture](../dev/architecture.md)
 
 This guide also ships inside the extension: **Help → Open the guide**, or `/story guide`. Author pages show there
-only in Author view.
+only in Author view. A guided tour with an example on every step sits beside it: **Help → Take the tour**, or
+`/story tour` (`player`, `author` or `setup`). Its **Read more** links open these pages.

@@ -1,5 +1,6 @@
 import type { Feature, FeatureWhere } from "./registry";
 import { authorGuideDoc } from "./guideLinks";
+import { settingsAt as workspaceSettingsAt } from "./where";
 
 const settingsAt = (selector: string, label: string): FeatureWhere => ({ selector, label: `Settings › ${label}`, surface: "settings" });
 const drawerAt = (selector: string, label: string): FeatureWhere => ({ selector, label: `Story drawer › ${label}`, surface: "drawer" });
@@ -85,6 +86,14 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     what: "Open the guide from Help or with /story guide. Read more in Help opens the page about that feature. Pages about writing stories show only in Author view.",
     where: settingsAt("#so-help-toggle", "Help → Open the guide"),
     settings: [], doc: "player/README.md", status: "shipped",
+  },
+  {
+    id: "tour", name: "Tour", area: "setup", audience: "player",
+    oneLine: "A guided tour with examples: playing, writing stories, and turning each part on.",
+    what: "Take the tour from Help or with /story tour. Each step says what to do, what you should see and what to try if it looks off, beside an example "
+      + "that never changes your chat or settings. The Setup path view turns each part on in order, and Read more opens the guide at that page.",
+    where: workspaceSettingsAt("#so-help-tour", "Help › Take the tour"),
+    settings: [], doc: "setup/setup-path.md", status: "shipped",
   },
   {
     id: "open-stretches", name: "Open stretches", area: "authoring", audience: "author",

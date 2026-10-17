@@ -5,6 +5,9 @@ working SillyTavern (1.19.0 is the tested version) with a model connected for re
 
 **Stories play in group chats.** The example's cast is four characters: a narrator and three companions.
 
+Prefer to learn by trying? Inside SillyTavern, **Help → Take the tour** (or `/story tour`) walks through playing,
+writing and setting up, each step beside an example that never changes your chat.
+
 ## 1. Install the extension
 
 There is no published release yet, so build it from the source:
@@ -27,7 +30,7 @@ The memory model reads the chat after each reply and moves the story on. It is t
 
 1. In SillyTavern, save a **Connection Manager** profile for a model, with the instruct template that matches it.
    Your reply model is fine to start with.
-2. In **Extensions → Story Orchestrator → Memory**, pick it as the **Memory model profile**.
+2. In **Extensions → Open Story Orchestrator → Connections**, pick it as the **Memory model**.
 3. Press **Test memory model**.
 
 ## 3. Bring in the example's cast and lore
@@ -51,6 +54,7 @@ The bar above the chat box shows the current scene; click it to open the story d
 
 ## Where next
 
+- [Setup path](setup/setup-path.md): turn on and configure every other part, level by level
 - [What you see while playing](player/README.md)
 - [Choosing models](setup/models.md): which model to use for each job
 - [Write your own story](author/README.md)
