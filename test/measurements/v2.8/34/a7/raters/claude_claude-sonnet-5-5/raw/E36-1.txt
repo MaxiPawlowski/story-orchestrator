@@ -1,0 +1,7 @@
+exit 0
+served claude-sonnet-5-5
+--- text ---
+{"score": 4, "why": "The entry covers what happened, the demands, the effects, the settlement, the contested claims, and the current state, but it omits when it occurred, any named figures or leaders, and the town's name or geography, which a scene might ask about."}
+--- stderr ---
+[claude-code:unrecognized_model] {"model":"claude-sonnet-5-5","query_source":"sdk"}
+

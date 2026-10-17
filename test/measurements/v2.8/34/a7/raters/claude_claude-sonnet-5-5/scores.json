@@ -1,0 +1,162 @@
+{
+  "E22": {
+    "score": 5,
+    "why": "The entry concretely covers who swears it, the ritual wording and setting, the witness requirement, what it does and doesn't bind, the lack of magical enforcement, consequences and remedies for breaking it, refusal, and how terms can be changed, leaving a narrator little to invent."
+  },
+  "E36": {
+    "score": 4,
+    "why": "The entry covers what happened, the demands, the effects, the settlement, the contested claims, and the current state, but it omits when it occurred, any named figures or leaders, and the town's name or geography, which a scene might ask about."
+  },
+  "E16": {
+    "score": 4,
+    "why": "It concretely covers cause, mechanism, effects, resolution, competing memories and current disputes, but lacks a name/place anchor (town, guild, delegates, captain), timeframe, and the specific rates or liability terms agreed."
+  },
+  "E24": {
+    "score": 4,
+    "why": "It concretely covers the guild's size, six crews, work, dues and relief fund, jurisdiction, powers and limits, and how sack marks work, but it lacks named leaders, a location name, and concrete rates or current disputes, so a narrator must invent who speaks for the guild."
+  },
+  "E27": {
+    "score": 5,
+    "why": "The entry covers appearance, function (narrow beam and broad glow), burn time, fuel, limits (water, fog, tide, unsafe crossings), signaling constraints, who wants it, what possessing it does not prove, and where supplies come from, so a narrator would have little to invent."
+  },
+  "E25": {
+    "score": 4,
+    "why": "The entry covers what is sold, who trades, how pricing works, layout, entrances, and the limits of the scales' authority, but it lacks named traders, prices or currency, and sensory or social details such as crowd and atmosphere."
+  },
+  "E38": {
+    "score": 5,
+    "why": "The entry gives the ritual (gesture, wording, witnesses), what the oath binds, what to do when fulfilment fails, its customary rather than magical authority, the social consequences, and clear limits on its reach, so a narrator would not need to invent any basics."
+  },
+  "E39": {
+    "score": 4,
+    "why": "It concretely covers the cause, mechanism, damage, aftermath, current state, disputed points, and the limits of salvage and ownership claims, but it gives no time frame or name for the river town or river, and no death toll or scale of loss."
+  },
+  "E09": {
+    "score": 5,
+    "why": "The entry gives what it is, what signs are read, how it is learned, its firm limits (no distant sight, no hidden persons, no foretelling), its costs (pause, fatigue), what defeats it, how responsible readers behave, and where it is used, so a narrator would need to invent almost nothing."
+  },
+  "E07": {
+    "score": 5,
+    "why": "The entry gives the ritual's setting, gestures, spoken words, who takes part (trader, counterparty, witness), its scope and limits, timing rules, and the consequences of breaking it, so a narrator would not need to invent any basics."
+  },
+  "E19": {
+    "score": 4,
+    "why": "The entry concretely covers size, structure, jurisdiction, duties, powers, limits, authority source, and how to report, but it leaves out minor basics such as the wardens' appearance or gear, named individuals like the watchkeeper, and how they are perceived by locals."
+  },
+  "E05": {
+    "score": 4,
+    "why": "It concretely covers the cause, the physical mechanics, the aftermath, the ruin's present location and condition, the hazards of landing there, and the folklore versus fact, but it leaves out when the flood happened, the casualties, and the town's name, so a narrator would have to invent a few minor details."
+  },
+  "E26": {
+    "score": 5,
+    "why": "The entry concretely covers appearance, function, range, limits (no tide prediction, fog, or underwater footing), vulnerabilities (wind, immersion, salt), fuel and burn time, maintenance, who wants it, and its non-magical nature, so a narrator would not need to invent any basics."
+  },
+  "E20": {
+    "score": 4,
+    "why": "The entry concretely covers what Marsh Sight is, what signs it reads, its limits, how it is learned, its costs and its fallibility, so a narrator can play it without inventing basics; only minor gaps remain, such as who the locals are, how long a reading takes, and any specific fog conditions in the current scene."
+  },
+  "E14": {
+    "score": 4,
+    "why": "The entry concretely covers what is sold, who sells and buys, physical layout, all four entrances and how they connect, the low-water dock constraint, and how salt is stored, but it leaves out minor basics such as prices, named stallholders or officials, and market hours or rules."
+  },
+  "E17": {
+    "score": 4,
+    "why": "The entry concretely covers what the guild does, its size, structure (foremen, elected tally keeper), reach and limits, goals, how receipts and disputes work, and current operations, but it names no individuals and gives no town name, rates, or rivals, so a narrator would have to invent minor specifics such as personalities and the location."
+  },
+  "E03": {
+    "score": 5,
+    "why": "The entry defines what Marsh Sight is, what it can discern, its limits (no identification, no certainty, fails in still fog, rain, gusts, or wakes), its costs (time, attention, eye strain, fatigue), and who uses it and where, so a narrator needs to invent almost nothing."
+  },
+  "E04": {
+    "score": 4,
+    "why": "The entry concretely covers location, layout, access, operating rules, vessel limits, tide hazards, and current condition, but it leaves out minor basics such as who might be found there, what the surroundings look and sound like, and what a passage costs or how to hire hands."
+  },
+  "E40": {
+    "score": 4,
+    "why": "The entry concretely covers location, distance, access by towpath and steps, layout of chambers, footbridge, sluice, and boat-passage mechanics, but leaves out minor basics like who operates the locks, the exact width limit, and current occupants or conditions."
+  },
+  "E28": {
+    "score": 5,
+    "why": "The entry concretely covers who swears, the required wording, witnesses, obligations, how to modify or release, limits (no magic, binds only speakers), and consequences for breaking it, leaving a narrator little to invent."
+  },
+  "E32": {
+    "score": 4,
+    "why": "It concretely covers what the guild is, its size, work process, weather constraints, tally and weighing procedure, and the limits of its authority, but it names no leaders or contacts, gives no pricing, and does not say how people join or who they answer to."
+  },
+  "E23": {
+    "score": 5,
+    "why": "The entry concretely covers what the tally is, how notches are cut and settled, what it can and cannot prove, each party's goals, and the current state of the unpaid debt, leaving a narrator little to invent."
+  },
+  "E02": {
+    "score": 4,
+    "why": "The entry concretely explains how the tally is made, split, compared, and settled, plus what it does and does not prove and what each party wants, but it leaves out minor basics such as the physical wood, typical sums or units, and what happens when halves don't match or one is lost."
+  },
+  "E31": {
+    "score": 4,
+    "why": "The entry concretely covers what happened, why, who was affected, how it ended, the competing memories, what is unverified, and its present-day role as a reference point, but it omits minor basics such as the year, the town's name, named leaders, and how long ago it happened."
+  },
+  "E08": {
+    "score": 4,
+    "why": "It concretely covers size, work, territory, powers, limits, and dependencies, but it lacks named leaders or internal structure, specific rates, and the town's name, so a narrator would have to invent who actually speaks for the guild."
+  },
+  "E12": {
+    "score": 4,
+    "why": "The entry concretely explains what the tally is, how it is split, matched, cancelled and what it can and cannot prove, plus who wants it and why; only minor specifics such as notch conventions, who currently holds it, or the amounts are left open, and the current state deliberately leaves those to the scene."
+  },
+  "E37": {
+    "score": 4,
+    "why": "It gives the cause, sequence, aftermath, current state of the site, the competing local accounts (bell, offended river) and how to treat them, but lacks a date or how long ago it happened, the town's name, and specific figures or named people, so a narrator would have to invent a few minor details."
+  },
+  "E01": {
+    "score": 5,
+    "why": "The entry concretely covers location, distance and travel time, layout (two chambers, central island, footbridges), both bank paths and where they end, how boats must pass, gate mechanics and capacity limits, and current condition, leaving little for a narrator to invent."
+  },
+  "E29": {
+    "score": 4,
+    "why": "The entry covers who struck, why, how long, what the crews still did, how it ended, the lingering debts, and what is contested, but it gives no town name, no timeframe or how long ago it happened, and no named figures, so a narrator would have to invent those minor details."
+  },
+  "E11": {
+    "score": 5,
+    "why": "The entry concretely covers who they are (twelve wardens in pairs), what they do, their gear, their authority and its limits (no cargo disputes, no reach beyond maintained paths, too few boats), how travelers contact them, and how missing-person reports work, so a narrator would have to invent very little."
+  },
+  "E35": {
+    "score": 4,
+    "why": "The entry concretely covers what the tally is, how notches are agreed, how the stick is split, how settlement and marking work, its limits, and what happens when a half is lost, but it leaves out minor basics such as typical unit values, payment forms, and what the stick looks like."
+  },
+  "E34": {
+    "score": 5,
+    "why": "The entry gives size, structure, jurisdiction, duties, powers, explicit limits (no sentencing, no debt collection, no cargo seizure without evidence), and operational weaknesses, plus the current state clarifies the unclaimed crate case, so a narrator needs to invent almost nothing basic."
+  },
+  "E10": {
+    "score": 4,
+    "why": "It concretely covers what Marsh Sight is, what signs it reads, what it can't do, its failure conditions, learning time, and physical cost, but it leaves out who specifically has it and how a reading is communicated or how long it takes in practice."
+  },
+  "E21": {
+    "score": 4,
+    "why": "It concretely covers what happened, the causes, the aftermath, the current state of the ruins and the uncertain death toll, but it gives no date or time-ago, no town name, and no named survivors or figures a scene might touch on."
+  },
+  "E30": {
+    "score": 4,
+    "why": "The entry gives what is sold, how buyers and sellers deal, the layout, both entrances and the current state, but it leaves out who runs the market, typical prices or currency, and the people present, so a narrator would have to invent a few minor details."
+  },
+  "E15": {
+    "score": 4,
+    "why": "The entry concretely covers what the lamp is, how it works, its limits, who uses it, and how it can change hands, but it leaves out minor basics such as signal conventions (what shutter patterns mean), burn time, and typical price or availability."
+  },
+  "E18": {
+    "score": 4,
+    "why": "The entry gives location, access routes (towpath, footbridge, river), layout, how the locks operate, hazards, and the current state, but it omits who operates or tends the locks, whether tolls or keepers exist, and what people there look like or do."
+  },
+  "E13": {
+    "score": 4,
+    "why": "The entry concretely covers appearance, function, fuel and upkeep, limits (wind, immersion, no fog or tide help), social meaning, and identifying marks, but leaves out minor basics such as burn time, weight, price or how common the lamps are."
+  },
+  "E33": {
+    "score": 4,
+    "why": "The entry concretely covers who the Wardens are, how they patrol, their gear, their reach, what they can and cannot do, and the limits of their authority (no say over cargo or debts), but it gives no ranks, leaders, personalities, appearance, or manner of dealing with travelers, which a scene would likely want."
+  },
+  "E06": {
+    "score": 4,
+    "why": "It concretely covers what is sold, who sells and buys, the layout, the three gates, distances, and how loads move, but it leaves out prices, who runs or polices the market, and trading hours."
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "rater": "claude:claude-sonnet-5-5",
+  "cli": "claude",
+  "model": "claude-sonnet-5-5",
+  "served": [
+    "claude-sonnet-5-5"
+  ]
+}

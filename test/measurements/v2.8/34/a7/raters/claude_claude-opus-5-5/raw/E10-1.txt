@@ -1,0 +1,8 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+```json
+{"score": 4, "why": "The entry concretely covers what Marsh Sight reads, how it works, its limits, failure modes, cost, how it is learned and who has it, but it leaves one minor basic vague: how long a reading takes in a scene."}
+```
+--- stderr ---
+

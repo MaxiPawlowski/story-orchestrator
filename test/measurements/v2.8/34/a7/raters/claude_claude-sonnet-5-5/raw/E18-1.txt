@@ -1,0 +1,7 @@
+exit 0
+served claude-sonnet-5-5
+--- text ---
+{"score": 4, "why": "The entry gives location, access routes (towpath, footbridge, river), layout, how the locks operate, hazards, and the current state, but it omits who operates or tends the locks, whether tolls or keepers exist, and what people there look like or do."}
+--- stderr ---
+[claude-code:unrecognized_model] {"model":"claude-sonnet-5-5","query_source":"sdk"}
+

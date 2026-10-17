@@ -1,0 +1,7 @@
+exit 0
+served claude-sonnet-5-5
+--- text ---
+{"score": 5, "why": "The entry gives the ritual's setting, gestures, spoken words, who takes part (trader, counterparty, witness), its scope and limits, timing rules, and the consequences of breaking it, so a narrator would not need to invent any basics."}
+--- stderr ---
+[claude-code:unrecognized_model] {"model":"claude-sonnet-5-5","query_source":"sdk"}
+

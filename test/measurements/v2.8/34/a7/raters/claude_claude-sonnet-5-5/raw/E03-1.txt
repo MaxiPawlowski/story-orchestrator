@@ -1,0 +1,7 @@
+exit 0
+served claude-sonnet-5-5
+--- text ---
+{"score": 5, "why": "The entry defines what Marsh Sight is, what it can discern, its limits (no identification, no certainty, fails in still fog, rain, gusts, or wakes), its costs (time, attention, eye strain, fatigue), and who uses it and where, so a narrator needs to invent almost nothing."}
+--- stderr ---
+[claude-code:unrecognized_model] {"model":"claude-sonnet-5-5","query_source":"sdk"}
+

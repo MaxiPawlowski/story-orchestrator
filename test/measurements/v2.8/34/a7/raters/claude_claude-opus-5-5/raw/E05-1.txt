@@ -1,0 +1,6 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+{"score": 4, "why": "The entry concretely covers the flood's cause, how the harbour was destroyed, its aftermath, the ruin's location and hazards, and folklore versus fact, but it never says when the flood happened, and it only implies the death toll through 'surviving townspeople'."}
+--- stderr ---
+
