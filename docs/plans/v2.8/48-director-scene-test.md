@@ -392,6 +392,15 @@ old code (checked by reverting the source files only).
 - P2 one-character names: see plan 49 addendum (`23af055d`).
 - `npm run gates:quick` green on `13faf622` (13 changed files; lint, related jest 54 suites / 583 tests, typecheck,
   typecheck:test, defect replay 32 of 32 killed).
-- NOT run yet: full `npm run gates -- --jobs=1 --no-storybook` and the live re-run of `v28-48-scene-test` ×2 on lanes
-  77–78 (ST copy `C:/dev/st-live-ffix` prepared). Held by the coordinator's machine-load stop (no full gates, no lane
-  starts). Not green until both run. Storybook not needed (no component or story touched).
+- Master `4f2b53a2` (plans 42–44) merged in (`f3f6f641`, no conflicts). The merge pushed the coordinator to 567
+  effective lines (budget 560): retention and the director disclosure moved into pure lazy helpers
+  (`generation/living/sceneTest.ts` `retainSceneTests`, new `generation/living/disclosure.ts`), `7c2f1d0c`. No
+  generated file or arrival golden changed.
+- `npm run gates -- --jobs=1 --no-storybook` on `7c2f1d0c`: all green in 320.1 s (test 9,355 passed / 1 skipped,
+  806 suites; test:replay, build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin,
+  test:release). Storybook skipped (no component or story touched). Main `dist/index.js` 1,282,975 B.
+- Live: no-model offline lane 77 (`C:/dev/so-live-lanes`, data copied from lane 71, images and sprites off), branch
+  staged into the private ST copy `C:/dev/st-live-ffix`; served `dist/index.js` sha256 `7f815f180e8b` before and after.
+  `st-lanes.mts batch --lanes 77 --repeat 2 --strict test/scenarios/v28-48-scene-test.json`: GREEN ×2 (batch
+  `2026-10-17T00-00-35-274Z`, rows under `77/debug/batch/`). Only failed requests are the offline backend's
+  `/api/backends/text-completions/props` 500. Plumbing green, real-LLM owed (S7–S11 as before).
