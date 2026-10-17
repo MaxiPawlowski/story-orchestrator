@@ -1,0 +1,222 @@
+{
+  "_note": "v2.8 plan 52 option E (no-model lane, plumbing): a place return line shows when the party comes back to a known place after the event; reopen keeps it; a swipe of the reply that came back takes it away while the waiting latch stays; second reopen equals the replayed state; player-clean. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v28-52e-returns.json --sandbox --group 'Group: Arin, DM Narrator'.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off",
+    "authorView": true,
+    "briefingDraft": "off",
+    "innerBeat": "off"
+  },
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const s = globalThis.storyOrchestratorRuntime.getGlobalSettings(); if (s.image.enabled || s.sprites.enabled) throw new Error('media must be off'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds messages'); return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v28-52e-returns",
+        "title": "SO-V28-52e Returns",
+        "description": "Plan 52 E no-model fixture: a place line shown on coming back after a fight.",
+        "qualities": [
+          {
+            "key": "location",
+            "type": "enum",
+            "values": [
+              "camp",
+              "dock"
+            ],
+            "source": "extractor",
+            "evidence_from": "world",
+            "rubric": "Where the party is."
+          },
+          {
+            "key": "fought",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the party fight on the dock?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "camp",
+            "name": "Camp",
+            "player_name": "The Camp",
+            "type": "anchor",
+            "start": true,
+            "objective": "Set out."
+          }
+        ],
+        "transitions": [],
+        "codex": {
+          "places": [
+            {
+              "id": "dock",
+              "name": "The Dock",
+              "location": "dock",
+              "facts": [
+                {
+                  "id": "posts",
+                  "text": "The mooring posts are carved with gulls.",
+                  "known_when": {
+                    "q": "location",
+                    "op": "==",
+                    "v": "dock"
+                  }
+                }
+              ],
+              "returns": [
+                {
+                  "id": "door",
+                  "text": "The dock house door still hangs off one hinge.",
+                  "when": {
+                    "q": "fought",
+                    "op": "==",
+                    "v": true
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "roster": [
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "DM Narrator"
+          ]
+        }
+      }
+    },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const values = () => rt.getEngineState().blackboard.values; const line = (name) => { const ctx = SillyTavern.getContext(); const chid = ctx.characters.findIndex((character) => character.name === name); rt.onMemberDrafted(chid); return String(rt.getAppliedEpistemicBlock() ?? ''); }; const saved = async () => { for (let i = 0; i < 100 && rt.getSnapshot().saveHealth?.pendingBoundary != null; i += 1) await pause(100); if (rt.getSnapshot().saveHealth?.pendingBoundary != null) throw new Error('the last boundary is not saved'); const ctx = SillyTavern.getContext(); for (let i = 0; i < 100 && ctx.isChatSaving; i += 1) await pause(100); await pause(1500); }; const reopen = async (storyId) => { const chatId = SillyTavern.getContext().chatId; await SillyTavern.getContext().reloadCurrentChat(); await until(() => rt.getSnapshot().storyId === storyId, 10000, 'the story to hydrate after the reopen'); if (SillyTavern.getContext().chatId !== chatId) throw new Error('the reopen moved the page'); rt.setUiSettings({ authorView: true }); await pause(1500); }; const people = () => JSON.stringify(rt.getSnapshot().game?.codex?.people ?? []); const places = () => JSON.stringify(rt.getSnapshot().game?.codex?.places ?? []); const swipeable = async (text) => { const ctx = SillyTavern.getContext(); const last = ctx.chat.length - 1; const reply = ctx.chat[last]; if (reply.is_user) throw new Error('the last message is not a reply'); reply.swipes = [reply.mes, text]; reply.swipe_id = 0; reply.swipe_info = [{}, {}]; await ctx.saveChat(); return last; }; globalThis.__r52 = { pause, until, values, saved, reopen, places, swipeable, LINE: 'The dock house door still hangs off one hinge.' }; if (places().includes('hinge')) throw new Error('the return shows before anything happened'); return { places: places() };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The party reaches the dock."
+    },
+    {
+      "slash": "/cp set location dock"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" Steel rings on the dock; the dock house door splinters."
+    },
+    {
+      "slash": "/cp set fought true"
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__r52; await c.pause(800); if (c.places().includes('hinge')) throw new Error('the return showed while the party was still at the dock'); return { places: c.places() };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The party walks back to camp."
+    },
+    {
+      "slash": "/cp set location camp"
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__r52; await c.until(() => c.values()['codex_a_dock_door'] !== undefined, 10000, 'the return to wait for the party'); if (c.places().includes('hinge')) throw new Error('the return showed away from the dock'); return { armed: c.values()['codex_a_dock_door'] };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" At dawn the party returns to the dock."
+    },
+    {
+      "slash": "/cp set location dock"
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__r52; const rt = globalThis.storyOrchestratorRuntime; await c.until(() => c.places().includes(c.LINE), 10000, 'the return line'); const row = rt.getSnapshot().game.codex.places[0].rows.find((r) => r.text === c.LINE); if (row?.kind !== 'return' || row.fresh !== true) throw new Error('the return row is not a fresh return: ' + JSON.stringify(row)); c.backAt = rt.getEngineState().lastMessageId; await c.saved(); return { places: c.places() };"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await globalThis.__r52.pause(800); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); await globalThis.__r52.pause(800); return { authorView: true };"
+    },
+    {
+      "record_state": {
+        "as": "r52-shown"
+      }
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__r52; await c.reopen('so-v28-52e-returns'); if (!c.places().includes(c.LINE)) throw new Error('the reopen lost the return'); return { places: c.places() };"
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "r52-shown",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const c = globalThis.__r52; const last = await c.swipeable('The party never comes back to the dock.'); if (last !== c.backAt) throw new Error('a message landed after the returning reply'); return { swipeable: last };"
+    },
+    {
+      "swipe": {
+        "messageId": "last",
+        "swipeId": 1
+      }
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__r52; await c.until(() => !c.places().includes(c.LINE), 15000, 'the swipe to take the return back'); const v = c.values(); if (v['codex_r_dock_door'] !== undefined && v['codex_r_dock_door'] !== null) throw new Error('the return latch survived the swipe'); if (v['codex_a_dock_door'] === undefined) throw new Error('the swipe dropped the waiting latch of an earlier reply'); await c.saved(); return { places: c.places(), armed: v['codex_a_dock_door'] };"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await globalThis.__r52.pause(800); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); await globalThis.__r52.pause(800); return { authorView: true };"
+    },
+    {
+      "record_state": {
+        "as": "r52-replayed"
+      }
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__r52; await c.reopen('so-v28-52e-returns'); if (c.places().includes(c.LINE)) throw new Error('the reopen re-applied the return'); return { places: c.places() };"
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "r52-replayed",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary"
+          ]
+        }
+      }
+    }
+  ]
+}

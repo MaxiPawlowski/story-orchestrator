@@ -160,3 +160,50 @@ Source: `review-astra-harvest-2026-10-16.md` §2 (65). Verified on `e8b9dd6d`.
   `C:\dev\so-live-lanes\evidence-2026-10-16\67\`.
 - Session or explicit owner decision before the campaign adopts it (rule 4): Adolion not changed.
 - Gates (one run for 18 Q7, 65 and 68): 18 §Gate record 2026-10-16 (Phase Q7).
+
+## Gate record 2026-10-17: A+ lines (branch `v2.8-65aplus-09a7`, worktree `../so-65a7`, from master `64287be2`, unmerged)
+
+- Built (commits `8e054e73`, `7b01a47a`, `b14019ed`, `01de63ad`):
+  - Relationship labels (51) under each listed member: the People-page lines (`holderLabelRows`, now with an optional `toward`
+    filter), only toward the player or toward another member on the card. Holder and target must be known
+    (`knownEntities`; a listed member is known by construction, a target off the card is never named). A secret label shows
+    only once its reveal has latched, as "Learned: …"; before that nothing (text or badge).
+  - Standing (53) opt-in: `options.standing: true` (scene only, refused elsewhere, boolean only) adds
+    "<faction>: <band word>" for each group the member belongs to while that group is visible; `display.standing: false`
+    hides it. Opt-in because the line discloses membership (a hidden allegiance to a visible group); design question below.
+  - Projection only: `ScenePresent.labels?`, `ScenePresent.standing?` (absent when empty, so v1 views are byte-identical).
+    No `changedAgo`, `fresh`, trend or boundary in the scene projection.
+  - No badges: the label is text. The plan's "closed icon set" badge has no schema field; not built (question below).
+  - Keepsakes (58): BLOCKED, plan 58 not built (candidate, owner decision pending). Nothing written for it.
+  - Guide topic `widget-scene` (story guide + compact twin), Studio options hint, `npm run docs:guide` / `docs:settings`
+    (only `game-layer.md` and the bundle changed), matrix row `scene-card` updated.
+- Floors (D):
+  - N3: met. `src/runtime/sceneCardLines.test.ts`, 500 seeds over `test/fixtures/relationship-labels.story.json` with random
+    cast: 0 unrevealed secret labels in the scene JSON or rendered card, 0 label lines for an unknown holder or target;
+    revealed-and-known secrets shown in 50+ runs (control). Planted mutation (secret labels added raw) fails the test
+    (1,099 leaks). Storybook `ScenePlantedSecret`.
+  - N4: met. 500 seeds over the labels and factions fixtures: 0 recency keys, 0 digits or "ago" in a line.
+  - Standing: band word only, visible groups only, hidden faction 0 hits over 200 seeds, opt-in honoured, `display.standing`
+    false honoured. N8 (A+ lines) rollback ≡ replay 4/4.
+  - v1 floors unchanged (`sceneCard.test.ts` green).
+- Live, lane 83 (no-model offline lane, private copy `C:\dev\st-live-65a7`, staged dist `index.js` sha256 `9690eefcaf9d`
+  before and after every run, one lane at a time):
+  - `test/scenarios/v28-65-scene-lines.json` PASS ×2 (`2026-10-17T07-05-57-435Z`, `…07-07-06-481Z`): nothing of Arin before
+    she is met; then "Toward you: wary" only (secret absent from player view and DOM), no standing while the guild is
+    hidden; guild visible adds "The Guild: Neutral"; label and band follow (`warming to you`, `Trusted`); the secret appears
+    as "Learned: keeps a second ledger" only after its reveal; no recency mark; `assert-player-clean` ok.
+  - v1 regression `v28-65-scene-card.json`: run 1 FAIL at "the Journal open on People" (8 s wait), then PASS ×3
+    (`…07-08-18-929Z`, `…07-09-12-833Z`, `…07-10-23-508Z`); the failed step is the v1 page-link step, untouched here;
+    recorded as a timing flake to watch.
+  - Evidence copied to `C:\dev\so-live-lanes\evidence-2026-10-17\65a7\83\`.
+- Gates: `npm run gates -- --jobs=1 --no-storybook` on `01de63ad`: all green in 653.6 s (jest 9,510 passed, 1 skipped; replay;
+  build; test:debug; typecheck; typecheck:test; lint; debug:typecheck; test:plugin; test:release). Storybook run separately:
+  static build + test-runner on port 6291, `--maxWorkers 1`: 149 suites / 906 tests passed. Main bundle 1,284,209 B
+  (+13 B; budget 1,300,000, task cap 1,288,000).
+- Session or owner decision before the campaign adopts it (rule 4): Adolion not changed.
+- Questions:
+  1. Standing opt-in (`options.standing`) rather than on by default? Recommended: keep opt-in; the line discloses membership,
+     which no other player surface does on its own.
+  2. Badges from a closed icon set: add a `badge` field to public label rows, or keep text? Recommended: keep text; a badge
+     is a second disclosure surface with no gain over the same words.
+  3. Keepsakes: wait for plan 58 (unbuilt). Recommended: count on the card, names on the giver's page, when 58 lands.

@@ -1,0 +1,7 @@
+exit 0
+served claude-sonnet-5-5
+--- text ---
+{"score": 5, "why": "The entry concretely covers who they are (twelve wardens in pairs), what they do, their gear, their authority and its limits (no cargo disputes, no reach beyond maintained paths, too few boats), how travelers contact them, and how missing-person reports work, so a narrator would have to invent very little."}
+--- stderr ---
+[claude-code:unrecognized_model] {"model":"claude-sonnet-5-5","query_source":"sdk"}
+

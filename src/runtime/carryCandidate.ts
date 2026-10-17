@@ -31,7 +31,7 @@ export interface CandidateOptions {
   parse: (raw: unknown) => NormalizedStoryV2 | ValidationError[];
 }
 
-interface FinalRecord {
+export interface FinalRecord {
   playerTitle: string;
   blackboardAt: Record<string, unknown>;
   at: number;
@@ -39,19 +39,19 @@ interface FinalRecord {
 
 const text = (value: unknown): string => (typeof value === "string" ? value.trim() : "");
 
-const recordsOf = (extras: unknown): Record<string, unknown>[] => {
+export const recordsOf = (extras: unknown): Record<string, unknown>[] => {
   const memory = isRecord(extras) && isRecord(extras.memory) ? extras.memory : null;
   return memory && Array.isArray(memory.chapters) ? memory.chapters.filter(isRecord) : [];
 };
 
 const isEpistemic = (value: unknown): value is EpistemicEntry => isRecord(value) && typeof value.subject === "string" && typeof value.content === "string" && typeof value.tag === "string";
 
-const epistemicOf = (extras: unknown): EpistemicEntry[] => {
+export const epistemicOf = (extras: unknown): EpistemicEntry[] => {
   const memory = isRecord(extras) && isRecord(extras.memory) ? extras.memory : null;
   return memory && Array.isArray(memory.epistemic) ? memory.epistemic.filter(isEpistemic) : [];
 };
 
-const finalOf = (records: Record<string, unknown>[]): FinalRecord | null => {
+export const finalOf = (records: Record<string, unknown>[]): FinalRecord | null => {
   const found = [...records].reverse().find((record) => record.final === true);
   const sealedAt = found && isRecord(found.sealedAt) ? found.sealedAt : null;
   if (!found || !isRecord(found.blackboardAt) || !text(found.playerTitle) || typeof sealedAt?.at !== "number") return null;

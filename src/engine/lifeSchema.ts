@@ -118,12 +118,33 @@ export interface TimedEffects {
   time?: TimeEffect;
 }
 
+export const COMMITMENT_TO_PLAYER = "player";
+export const COMMITMENT_START = "start";
+export const COMMITMENTS_MAX = 6;
+export const COMMITMENT_TEXT_MAX = 160;
+export const COMMITMENT_OPEN_LIMIT = 12;
+
+export type CommitmentDue = { story_day: number } | { boundaries: number };
+
+export interface Commitment {
+  id: string;
+  to: typeof COMMITMENT_TO_PLAYER;
+  what: string;
+  made_when: GateNode | typeof COMMITMENT_START;
+  kept_when: GateNode;
+  broken_when?: GateNode;
+  due?: CommitmentDue;
+  heard?: boolean;
+  effect?: AgendaStepEffect;
+}
+
 export interface LifeMember {
   id: string;
   relationships: RelationshipDecl[];
   mood?: MoodDecl;
   agenda: Agenda[];
   schedule: ScheduleEntry[];
+  commitments?: Commitment[];
 }
 
 export interface StoryLife {
@@ -161,6 +182,9 @@ export const labelSinceKey = (holder: string, toward: string): string => `${labe
 export const isLabelKey = (key: string): boolean => key.startsWith(LABEL_REVEAL_PREFIX) || key.startsWith(LABEL_SHOWN_PREFIX);
 export const isRevealKey = (key: string): boolean => key.startsWith(LABEL_REVEAL_PREFIX);
 export const hasLabels = (relationship: Pick<RelationshipDecl, "public" | "secret">): boolean => Boolean(relationship.public?.length || relationship.secret?.length);
+export const COMMIT_KEY_PREFIX = "life_commit_";
+export const commitKey = (member: string, id: string, state: "made" | "kept" | "broken"): string => `${COMMIT_KEY_PREFIX}${member}_${id}_${state}`;
+export const isCommitKey = (key: string): boolean => key.startsWith(COMMIT_KEY_PREFIX);
 export const timeReachedKey = (checkpoint: string): string => `${TIME_REACHED_PREFIX}${checkpoint}`;
 
 export const isStoryTimeKey = (key: string): boolean => STORY_TIME_KEYS.includes(key) || key.startsWith(CALENDAR_KEY_PREFIX) || key.startsWith(TIME_REACHED_PREFIX);

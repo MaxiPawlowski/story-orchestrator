@@ -647,3 +647,42 @@ Gates (34 harvest included):
 - A6 stays as recorded: 0/10, a miss (floors are never retuned after a run). Two informational rows are added for a later run: A6a, revision clears the note on an author-written card when the task asks to fix what the check flags, x2 on Sol; A6b, share of first cards with notes on rough-draft tasks (lower is better).
 - A non-revision reply while a card is held stays dropped.
 - A7 waits for a lore-rule-off measurement switch and a blind two-rater command.
+
+## Gate record (2026-10-17, A7 prerequisites and A6a/A6b, branch `v2.8-65aplus-09a7`, worktree `../so-65a7`, from master `64287be2`)
+
+Owner decisions 2026-10-16: A7 waits for a lore-rule-off measurement switch and a blind two-rater command; A6a/A6b are
+informational rows for a later run. Built and run here; A6 itself stays 0/10 (not re-scored, never retuned).
+
+- **Measurement switch: built** (`090630e9`). `loreContentRule()` (`src/copilot/prompts.ts`) returns `LORE_CONTENT_RULE`
+  unless `globalThis.storyOrchestratorDebugLoreRuleOff === true` (literal true only); the staged provisioning grammar and
+  the agent rules (text and native) read it at render time. Debug-global family, so `so-scenario --sandbox` and
+  `so-journey` clear it; not a setting. Test `src/copilot/loreRuleSwitch.test.ts`: on by default in all three prompts; off
+  removes the rule and changes nothing else.
+- **Arm runner: built.** `so-wizard-agent.mts lore-guidance` runs each task of `test/measurements/v2.8/34/lore-guidance.json`
+  once per arm (order alternating by task), sets and restores the switch, applies only the story lorebook and its entries
+  (`provision: 'lore'`; cleaned with `so-assets.mts remove --marker SO-A7`), records per bridge open whether the prompt
+  carried the rule, and fails a task whose prompt disagrees with its arm.
+- **Blind two-rater command: built.** `so-lore-blind.mts build | verify-key | rate | unseal` (`scripts/debug/lib/loreBlind.mts`):
+  entries of both arms and both runs shuffled together under neutral ids with a sealed key (sha256 in the README, leak
+  check for arm/task/run fields and the marker); one entry per rater call in a rater-specific order; raters
+  `claude:<model>` (claude CLI, no tools, no settings, no session, served model checked) or `opencode:<model>`; DeepSeek
+  refused. `unseal` needs two raters on every entry: entry score = raters' mean, arm score = median, each rater's median,
+  on − off. Node tests in `scripts/debug/lib/loreBlind.test.mts`, `scripts/debug/so-lore-blind.test.mts`.
+- **Transport retry: built.** A model-listing, quota or socket failure retries a task up to 3 times, 60 s apart
+  (`withTransportRetry`, `card-revision` and `lore-guidance`). Finding: opencode's background service dropped
+  `openai/gpt-6.1-sol` from its model list for ~20 s at 06:03Z (`opencode run` with the model kept working); the harness
+  caches the view 15 s, so every call in that window was refused. The first chain was discarded for this; the counted runs
+  below needed no retry.
+- **A6a (informational): 10/10, 10/10.** Fixture `test/measurements/v2.8/09/card-revision-a6a.json` (declared before any run):
+  the author's whole draft, sent first as written, then "fix what the card check flags". Sol through the harness on lane 82
+  (private copy `C:\dev\st-live-65a7`, staged `9690eefcaf9d` before and after): every first card held with notes (10/10
+  seeded), every replacement cleared every note, ×2 (`2026-10-17T06-59-58-645Z`, `…07-03-26-547Z`). The revision step does
+  its job when the task asks for it.
+- **A6b (informational, lower is better): 2/10, 1/10** first cards with notes on the rough-draft tasks
+  (`card-revision-v2.json`; staged `557d5bc013d9`, the same card-revision code): run 1 `greeting-2` and `name-1` (`2026-10-17T06-07-41-009Z`),
+  run 2 `name-1` (`…06-12-51-695Z`); the earlier single run was 1/10. `name-1` (an everyday-word name the task fixes) is the
+  only plant the craft rules do not prevent.
+- **A7: run, recorded in `34-lorebook-features.md` §Gate record 2026-10-17.**
+- Evidence: `C:\dev\so-live-lanes\evidence-2026-10-17\65a7\82\` (chain logs, run outputs, row dirs).
+- Gates: see `65-here-now-scene-card.md` §Gate record 2026-10-17 (same branch): full gates green on `01de63ad`, Storybook
+  149/906.

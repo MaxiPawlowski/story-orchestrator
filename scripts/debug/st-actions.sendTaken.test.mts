@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { postSendWaitMs, waitForSendTaken } from './st-actions.mts';
+import { postSendWaitMs, readOpenPopups, waitForSendTaken } from './st-actions.mts';
 
 const fakePage = (lengths: number[]) => {
   let i = 0;
@@ -19,4 +19,14 @@ test('a send that never lands is reported after the wait, never as taken', async
   assert.equal(await waitForSendTaken(page, 1, 0), false);
   assert.equal(postSendWaitMs({}), 120000);
   assert.equal(postSendWaitMs({ SO_POST_SEND_WAIT_MS: '0' }), 0);
+});
+
+test('a send blocked by a host popup names the popup, so a not-posted line is diagnosable', async () => {
+  const button = (text: string) => ({ innerText: text });
+  const popup = { className: 'popup vertical_scrolling_dialogue_popup', querySelector: () => ({ innerText: '  Keep   going?' + String.fromCharCode(10) }), querySelectorAll: () => [button('Yes'), button(' '), button('No')] };
+  (globalThis as any).document = { querySelectorAll: (selector: string) => (selector === 'dialog.popup[open]' ? [popup] : []) };
+  const page = { evaluate: (fn: any, arg: any) => fn(arg) };
+  assert.deepEqual(await readOpenPopups(page), [{ classes: 'popup vertical_scrolling_dialogue_popup', text: 'Keep going?', buttons: ['Yes', 'No'] }]);
+  (globalThis as any).document = { querySelectorAll: () => [] };
+  assert.deepEqual(await readOpenPopups(page), []);
 });

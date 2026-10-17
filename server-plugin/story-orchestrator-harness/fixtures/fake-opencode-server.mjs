@@ -73,7 +73,7 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
         refuseAuth: false, unreachable: false, eventsDisabled: false, eventsBreakAfter: null, noMessages: false,
         mcpPids: [], mcpDelayMs, toolsRegisterMs, mcpFail: false, mcpPending: false, serviceStartFails, ignoreProjectConfig: false, dropPermissions: false,
         discoverCalls: 0, ensureCalls: [], created: [], prompts: [], removed: [], interrupts: [], evicted: [], replies: [], listCalls: 0,
-        running: 0, peak: 0, removeFails: false,
+        running: 0, peak: 0, removeFails: false, modelListCalls: 0, dropModelOnce: flags.dropModelOnce ?? null,
         sessions: new Map(), locations: new Map(), subscribers: new Set(), nextId: 1,
         ...flags,
         stall: new Set(flags.stall ?? []), held: [],
@@ -290,7 +290,15 @@ export function createFakeOpencode({ login = 'ok', up = true, version = '2.0.6',
                 return { location: { directory: '/x' }, data: providers.map((id) => ({ id, integrationID: id, name: id, activation: 'auto', package: 'synthetic' })) };
             },
         },
-        model: { list: async () => { check(); return { location: { directory: '/x' }, data: state.models }; } },
+        model: {
+            list: async () => {
+                check();
+                state.modelListCalls += 1;
+                const drop = state.dropModelOnce;
+                state.dropModelOnce = null;
+                return { location: { directory: '/x' }, data: drop ? state.models.filter((model) => `${model.providerID}/${model.modelID}` !== drop) : state.models };
+            },
+        },
         agent: {
             get: async ({ agentID, location }) => {
                 check();

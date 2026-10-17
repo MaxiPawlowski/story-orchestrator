@@ -1,0 +1,8 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+```json
+{"score": 4, "why": "The entry gives the market's purpose, trade practice, location, layout, entrances and current state concretely and consistently, but it never says who runs or polices the market or who is typically present, so a narrator would have to invent the people a scene needs."}
+```
+--- stderr ---
+

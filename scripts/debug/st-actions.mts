@@ -129,6 +129,14 @@ export const sendTimeoutMs = (requested: number | undefined, env: NodeJS.Process
 
 export const postSendWaitMs = (env: NodeJS.ProcessEnv = process.env): number => { const ms = Number(env.SO_POST_SEND_WAIT_MS); return Number.isFinite(ms) && ms >= 0 ? ms : 120000; };
 
+export async function readOpenPopups(page): Promise<Array<{ classes: string; text: string; buttons: string[] }>> {
+  return evaluateInST(page, () => Array.from(document.querySelectorAll('dialog.popup[open]')).map((node) => ({
+    classes: (node as HTMLElement).className,
+    text: String((node.querySelector('.popup-content') as HTMLElement | null)?.innerText ?? '').replace(/\s+/g, ' ').trim().slice(0, 120),
+    buttons: Array.from(node.querySelectorAll('.popup-controls .menu_button, .popup-controls button')).map((b) => String((b as HTMLElement).innerText ?? '').trim()).filter(Boolean),
+  })));
+}
+
 export async function waitForSendTaken(page, before: number, timeoutMs: number) {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
@@ -205,7 +213,9 @@ export async function sendUserMessage(page, text, { idleTimeoutMs: requestedTime
   // A reply is a non-user message with text in it. Silence is legitimate in a group whose talk
   // control allows it, so this is REPORTED by default and only fatal when the caller asks.
   let replied = repliedAfter(after, chatLenBefore);
-  if (after.length <= chatLenBefore) console.warn(`WARNING: SEND-NOT-POSTED: the chat did not grow (${chatLenBefore} -> ${after.length}); the player line never reached the chat (a dialog over #send_but, or the send was refused)`);
+  const notPosted = after.length <= chatLenBefore;
+  const blockingPopups = notPosted ? await readOpenPopups(page) : [];
+  if (notPosted) console.warn(`WARNING: SEND-NOT-POSTED: the chat did not grow (${chatLenBefore} -> ${after.length}); the player line never reached the chat (a dialog over #send_but, or the send was refused); open popups: ${JSON.stringify(blockingPopups)}`);
   const emptyReplies: Array<Record<string, unknown>> = [];
   const productRecoveries = await readProductRecoveries(page, sentAt);
   for (const record of productRecoveries) console.warn(`PRODUCT-RECOVERY ${JSON.stringify(record)}: the extension handled an empty reply itself`);
@@ -232,7 +242,8 @@ export async function sendUserMessage(page, text, { idleTimeoutMs: requestedTime
     lastLength: after.lastText.length,
     ...(emptyReplies.length ? { emptyReplies } : {}),
     ...(productRecoveries.length ? { productRecoveries } : {}),
-    ...(expectReply && !replied ? { ok: false } : {}),
+    ...(notPosted ? { notPosted: true, blockingPopups, error: 'the player line never reached the chat' } : {}),
+    ...((expectReply && !replied) || notPosted ? { ok: false } : {}),
   };
 }
 

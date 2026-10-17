@@ -2,7 +2,7 @@ import { progressQualityForAnchor } from "./convergence";
 import { questLatchesMoved } from "./quests";
 import {
   CLOCK_MOVED_KEY, CLOCK_STORY_TIME_KEY, TIME_REACHED_PREFIX, TURN_OOC_KEY, agendaChapterKey, agendaRepeatsKey, agendaStepKey, agendaWaitKey, clockStart, isCodexKey,
-  isStoryTimeKey, moodAgeKey, moodSceneKey, moodWasKey, isFactionKey, isLabelKey, questClosedKey, questRewardKey, type NormalizedStoryV2,
+  isStoryTimeKey, moodAgeKey, moodSceneKey, moodWasKey, isCommitKey, isFactionKey, isLabelKey, questClosedKey, questRewardKey, type NormalizedStoryV2,
 } from "./schema";
 import { PLAYER_TURNS_KEY } from "./stretch";
 import { checkRolledKeys } from "./storyChecks";
@@ -73,6 +73,11 @@ export const ROLLBACK_DETECTORS: readonly RollbackDetector[] = [
     id: "relationship-labels",
     keys: (story) => Object.keys(story.qualityByKey).filter(isLabelKey),
     moved: (story, before, after) => Boolean(story.life) && prefixMoved(isLabelKey, before, after),
+  },
+  {
+    id: "commitments",
+    keys: (story) => Object.keys(story.qualityByKey).filter(isCommitKey),
+    moved: (story, before, after) => Boolean(story.life) && prefixMoved(isCommitKey, before, after),
   },
   { id: "heritage", keys: (story) => Object.keys(story.qualityByKey).filter(isHeritage), moved: (_story, before, after) => prefixMoved(isHeritage, before, after) },
   { id: "check-attempts", keys: checkRolledKeys, moved: (story, before, after) => checkRolledKeys(story).some((key) => before[key] !== after[key]) },

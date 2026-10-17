@@ -63,4 +63,6 @@ export const DIAGNOSTIC_CODES = [
   "disclosure-names-unknown-entity",
   "relationship-label-reads-axis",
   "relationship-secret-in-public",
+  "commitment-broken-on-inaction",
+  "commitment-what-names-a-side",
 ] as const;

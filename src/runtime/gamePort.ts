@@ -29,6 +29,10 @@ const agendaLanded = (story: NormalizedStoryV2, entry: BoundaryLogEntry): Earned
   .flatMap((landed) => (landed.step.effect
     ? [{ kind: "agenda" as const, id: `${landed.memberId}:${landed.agendaId}:${landed.index}`, name: landed.agendaId, effects: landed.step.effect }] : []));
 
+const commitmentsKept = (story: NormalizedStoryV2, entry: BoundaryLogEntry): EarnedEffects[] => (story.life
+  ? gameLayer()?.life.keptCommitments(story, entry.before.blackboard.values, entry.after.blackboard.values) ?? [] : [])
+  .flatMap(({ memberId, commitment }) => (commitment.effect ? [{ kind: "commitment" as const, id: `${memberId}:${commitment.id}`, name: commitment.id, effects: commitment.effect }] : []));
+
 export function createGamePort(deps: GamePortDeps) {
   const dispatch = async (story: NormalizedStoryV2, landed: EarnedEffects[], entry: BoundaryLogEntry) => {
     const run = beginRun(deps.ownership);
@@ -55,7 +59,7 @@ export function createGamePort(deps: GamePortDeps) {
           deps.notify();
         }
       }
-      const landed = [...rewardsLanded(loaded.story, entry), ...agendaLanded(loaded.story, entry)];
+      const landed = [...rewardsLanded(loaded.story, entry), ...agendaLanded(loaded.story, entry), ...commitmentsKept(loaded.story, entry)];
       if (landed.length) void dispatch(loaded.story, landed, entry);
     },
     outcomeBlock: (): string | null => {

@@ -1,0 +1,6 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+{"score": 4, "why": "The entry concretely and consistently covers the tally's purpose, how it is made, split, settled and marked, its limits, the procedure for a lost half, each party's motives and its current status, but it never says what one notch is worth or what form payment takes, so a narrator would have to invent the value of a debt."}
+--- stderr ---
+

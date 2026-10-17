@@ -1,0 +1,203 @@
+{
+  "_note": "v2.8 plan 55 A (no-model lane, plumbing): Arin makes a commitment (People row 'open', holder line in Arin's applied private block only), keeps it (row 'kept', kept line once), a swipe of the keeping reply returns it to made, reopen is identical; player-clean throughout. Real-model holder behaviour (M7) is owed. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v28-55-commitments.json --sandbox --group 'Group: Arin, DM Narrator'.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off",
+    "authorView": true,
+    "briefingDraft": "off",
+    "innerBeat": "off"
+  },
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const s = globalThis.storyOrchestratorRuntime.getGlobalSettings(); if (s.image.enabled || s.sprites.enabled) throw new Error('media must be off'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds messages'); return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v28-55-commitments",
+        "title": "SO-V28-55 Commitments",
+        "description": "Plan 55 no-model fixture: Arin promises the player to cross the bridge together.",
+        "qualities": [
+          {
+            "key": "offered",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did Arin offer to get the party across the old bridge?"
+          },
+          {
+            "key": "crossed",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the party cross the old bridge?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "road",
+            "name": "Road",
+            "player_name": "The Road",
+            "type": "anchor",
+            "start": true,
+            "objective": "Reach the bridge."
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a guide",
+            "commitments": [
+              {
+                "id": "bridge",
+                "what": "get across the old bridge together",
+                "made_when": {
+                  "q": "offered",
+                  "op": "==",
+                  "v": true
+                },
+                "kept_when": {
+                  "q": "crossed",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      }
+    },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const values = () => rt.getEngineState().blackboard.values; const line = (name) => { const ctx = SillyTavern.getContext(); const chid = ctx.characters.findIndex((character) => character.name === name); rt.onMemberDrafted(chid); return String(rt.getAppliedEpistemicBlock() ?? ''); }; const saved = async () => { for (let i = 0; i < 100 && rt.getSnapshot().saveHealth?.pendingBoundary != null; i += 1) await pause(100); if (rt.getSnapshot().saveHealth?.pendingBoundary != null) throw new Error('the last boundary is not saved'); const ctx = SillyTavern.getContext(); for (let i = 0; i < 100 && ctx.isChatSaving; i += 1) await pause(100); await pause(1500); }; const reopen = async (storyId) => { const chatId = SillyTavern.getContext().chatId; await SillyTavern.getContext().reloadCurrentChat(); await until(() => rt.getSnapshot().storyId === storyId, 10000, 'the story to hydrate after the reopen'); if (SillyTavern.getContext().chatId !== chatId) throw new Error('the reopen moved the page'); rt.setUiSettings({ authorView: true }); await pause(1500); }; const people = () => JSON.stringify(rt.getSnapshot().game?.codex?.people ?? []); const places = () => JSON.stringify(rt.getSnapshot().game?.codex?.places ?? []); const swipeable = async (text) => { const ctx = SillyTavern.getContext(); const last = ctx.chat.length - 1; const reply = ctx.chat[last]; if (reply.is_user) throw new Error('the last message is not a reply'); reply.swipes = [reply.mes, text]; reply.swipe_id = 0; reply.swipe_info = [{}, {}]; await ctx.saveChat(); return last; }; globalThis.__c55 = { pause, until, values, line, saved, reopen, people, swipeable, OPEN: 'Promised you: get across the old bridge together (open)', KEPT: 'Promised you: get across the old bridge together (kept)', HOLD: 'You told the player you would get across the old bridge together', KEPT_LINE: 'You kept your word to the player: get across the old bridge together' }; if (people().includes('Promised')) throw new Error('a promise shows before it was made'); if (line('Arin').includes('You told the player you would get across the old bridge together')) throw new Error('the holder line exists before the promise'); return { people: people() };"
+    },
+    {
+      "slash": "/sendas name=\"Arin\" I will get us across the old bridge together. You have my word."
+    },
+    {
+      "slash": "/cp set offered true"
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__c55; await c.until(() => c.people().includes(c.OPEN), 10000, 'the open promise row'); const arin = c.line('Arin'); if (!arin.includes(c.HOLD)) throw new Error('the holder line is missing from Arin: ' + arin.slice(0, 400)); const narrator = c.line('DM Narrator'); if (narrator.includes('old bridge')) throw new Error('the promise reached another member'); return { people: c.people(), holder: true };"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await globalThis.__c55.pause(800); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); await globalThis.__c55.pause(800); return { authorView: true };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The old bridge sways as the party reaches the far bank."
+    },
+    {
+      "slash": "/cp set crossed true"
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__c55; const rt = globalThis.storyOrchestratorRuntime; await c.until(() => c.people().includes(c.KEPT), 10000, 'the kept promise row'); const arin = c.line('Arin'); if (!arin.includes(c.KEPT_LINE)) throw new Error('the kept line is missing from Arin'); if (arin.includes(c.HOLD)) throw new Error('a kept promise still reads as open'); c.keptAt = rt.getEngineState().lastMessageId; await c.saved(); return { people: c.people() };"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await globalThis.__c55.pause(800); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); await globalThis.__c55.pause(800); return { authorView: true };"
+    },
+    {
+      "record_state": {
+        "as": "c55-kept"
+      }
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__c55; await c.reopen('so-v28-55-commitments'); if (!c.people().includes(c.KEPT)) throw new Error('the reopen lost the kept promise'); return { people: c.people() };"
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "c55-kept",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const c = globalThis.__c55; const last = await c.swipeable('The bridge is down; the party camps on the near bank.'); if (last !== c.keptAt) throw new Error('a message landed after the keeping reply'); return { swipeable: last };"
+    },
+    {
+      "swipe": {
+        "messageId": "last",
+        "swipeId": 1
+      }
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__c55; await c.until(() => c.people().includes(c.OPEN), 15000, 'the swipe to return the promise to open'); if (!c.line('Arin').includes(c.HOLD)) throw new Error('the open holder line did not come back'); const v = c.values(); if (v['life_commit_arin_bridge_kept'] !== undefined && v['life_commit_arin_bridge_kept'] !== null) throw new Error('the kept latch survived the swipe'); await c.saved(); return { people: c.people() };"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await globalThis.__c55.pause(800); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); await globalThis.__c55.pause(800); return { authorView: true };"
+    },
+    {
+      "record_state": {
+        "as": "c55-replayed"
+      }
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__c55; await c.reopen('so-v28-55-commitments'); if (!c.people().includes(c.OPEN)) throw new Error('the reopen changed the promise'); return { people: c.people() };"
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "c55-replayed",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary"
+          ]
+        }
+      }
+    }
+  ]
+}

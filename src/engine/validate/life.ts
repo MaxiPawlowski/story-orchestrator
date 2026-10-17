@@ -15,6 +15,7 @@ import { addError, asString, isOneOf, refuse, rejectUnknownKeys } from "./common
 import { readGate, validateGate } from "./gates";
 import { readCheckpointEffects } from "./checkpoints";
 import { GAME_ID_PATTERN } from "./checks";
+import { checkCommitments, commitmentQualities, readCommitments } from "./commitments";
 
 const REL_KEYS = ["toward", "axes", "range", "step", "start", "label", "public", "secret"] as const;
 const PUBLIC_KEYS = ["label", "when", "follows_feeling", "hold"] as const;
@@ -39,7 +40,7 @@ const CALENDAR_MONTHS_MAX = 24;
 const CLOCK_SKIP_DAYS_MAX = 365;
 const AXIS_PATTERN = /^[a-z][a-z0-9]{0,23}$/;
 export const LIFE_TEXT_MAX = 200;
-export const LIFE_MEMBER_FIELDS = ["relationships", "mood", "agenda", "schedule"] as const;
+export const LIFE_MEMBER_FIELDS = ["relationships", "mood", "agenda", "schedule", "commitments"] as const;
 
 const isInt = (value: unknown): value is number => typeof value === "number" && Number.isInteger(value);
 
@@ -212,7 +213,11 @@ const readMember = (member: Record<string, unknown>, path: string, ids: Set<stri
   const agenda = readArray(member.agenda, `${path}.agenda`, (entry, at) => readAgenda(entry, at, errors), errors);
   agenda.forEach((entry, index) => { if (agenda.findIndex((other) => other.id === entry.id) !== index) addError(errors, `${path}.agenda.${index}.id`, `duplicate agenda '${entry.id}'`); });
   const mood = readMood(member.mood, `${path}.mood`, errors);
-  return { id, relationships, agenda, schedule: readArray(member.schedule, `${path}.schedule`, (entry, at) => readSchedule(entry, at, errors), errors), ...(mood ? { mood } : {}) };
+  const commitments = readCommitments(member.commitments, `${path}.commitments`, errors, readStepEffect);
+  return {
+    id, relationships, agenda, schedule: readArray(member.schedule, `${path}.schedule`, (entry, at) => readSchedule(entry, at, errors), errors), ...(mood ? { mood } : {}),
+    ...(commitments ? { commitments } : {}),
+  };
 };
 
 const readNames = (value: unknown, path: string, min: number, errors: ValidationError[]): string[] => {
@@ -381,7 +386,9 @@ const clockQualities = (life: StoryLife & { clock: StoryClock }): Quality[] => [
 export const addLifeQualities = (qualities: Quality[], life: StoryLife | undefined, errors: ValidationError[]): Quality[] => {
   if (!life) return qualities;
   const ticks = life.members.some((member) => member.agenda.length) ? [code(TURN_OOC_KEY, "bool", "Whether this boundary's player line was out of character")] : [];
-  const members = life.members.flatMap((member) => [...relationshipQualities(member, life), ...labelQualities(member), ...moodQualities(member, life), ...agendaQualities(member)]);
+  const members = life.members.flatMap((member) => [
+    ...relationshipQualities(member, life), ...labelQualities(member), ...moodQualities(member, life), ...agendaQualities(member), ...commitmentQualities(member),
+  ]);
   const added = [...members, ...(life.clock ? clockQualities({ ...life, clock: life.clock }) : []), ...ticks];
   const existing = new Set(qualities.map((quality) => quality.key));
   const compiled = new Set(added.map((quality) => quality.key));
@@ -457,12 +464,13 @@ export const checkLife = (
   life: StoryLife | undefined, roster: Array<{ id: string }>, qualityByKey: Record<string, Quality>, errors: ValidationError[], hasChapters = false,
   checkpoints: readonly Checkpoint[] = [], startId = "",
 ) => {
-  const start = life?.members.some((member) => member.relationships.some(hasLabels)) ? new Blackboard({ qualityByKey }).entries() : {};
+  const start = life?.members.some((member) => member.relationships.some(hasLabels) || member.commitments?.length) ? new Blackboard({ qualityByKey }).entries() : {};
   checkTimeEffects(life?.clock, checkpoints, startId, errors);
   for (const member of life?.members ?? []) {
     const path = `roster.${roster.findIndex((entry) => entry.id === member.id)}`;
     lifeGates(member).forEach(([field, gate]) => validateGate(gate, qualityByKey, `${path}.${field}`, errors));
     checkLabels(member, path, qualityByKey, start, errors);
+    checkCommitments(member, path, qualityByKey, start, Boolean(life?.clock), errors);
     if (!hasChapters) member.agenda.forEach((agenda, index) => { if (agenda.pace === "per_chapter") addError(errors, `${path}.agenda.${index}.pace`, AGENDA_NO_CHAPTERS); });
   }
 };

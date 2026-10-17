@@ -96,6 +96,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Characters | Story time | A time of day, a day count and an optional calendar, moved by the story, never by the wall clock. | Experimental |
 | Characters | Standing with groups | How the groups in a story regard you, shown as a word such as "Wary" or "Trusted". | Experimental |
 | Characters | Relationship labels | Words for how a character treats you, and secrets about them you can learn, on their People page. | Experimental |
+| Characters | Promises to you | Things a character has promised you, which the character remembers and may keep, raise or break. | Experimental |
 | Characters | Promises remembered | A promise you make to a character is remembered in your own words. |  |
 | Characters | Rumors and gossip | News a story declares travels between characters along the channels it authors, and may change on the way. |  |
 | World | Story lorebook switching | Story lorebook entries switch on and off as the story moves. |  |

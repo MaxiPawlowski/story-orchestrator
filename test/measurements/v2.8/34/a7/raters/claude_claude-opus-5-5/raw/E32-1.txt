@@ -1,0 +1,6 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+{"score": 4, "why": "The entry concretely covers the guild's size, work, hazards, record-keeping, buyer procedures, limits of authority and current activity, but it never says who leads the guild or how decisions are made, so a narrator would have to invent its leadership."}
+--- stderr ---
+

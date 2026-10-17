@@ -12,7 +12,7 @@ import { GAME_ID_PATTERN, readLabel } from "./checks";
 const WIDGET_KEYS = [
   "id", "kind", "title", "bind", "options", "visible_when", "audience", "accent", "icon", "clues", "links", "image", "pins", "template", "source", "actions", "rows", "dates",
 ] as const;
-const OPTION_KEYS = ["limit", "closed", "time"] as const;
+const OPTION_KEYS = ["limit", "closed", "time", "standing"] as const;
 const CLUE_KEYS = ["id", "text", "quality", "when", "action"] as const;
 const LINK_KEYS = ["from", "to", "label"] as const;
 const PIN_KEYS = ["id", "label", "x", "y", "checkpoint", "when", "action"] as const;
@@ -85,15 +85,17 @@ const bindProblem = (widget: Pick<StoryWidget, "kind" | "audience">, bind: Widge
 
 const readOptions = (value: unknown, path: string, errors: ValidationError[]): StoryWidget["options"] => {
   if (value === undefined) return undefined;
-  if (!isRecord(value)) return refuse(errors, path, "options is {limit?, closed?, time?}", undefined);
+  if (!isRecord(value)) return refuse(errors, path, "options is {limit?, closed?, time?, standing?}", undefined);
   rejectUnknownKeys(value, OPTION_KEYS, path, errors);
   const limit = Number.isInteger(value.limit) && (value.limit as number) >= 1 && (value.limit as number) <= WIDGET_LIMIT_MAX ? value.limit as number : undefined;
   if (value.limit !== undefined && limit === undefined) addError(errors, `${path}.limit`, `limit is 1 to ${WIDGET_LIMIT_MAX}`);
   if (value.closed !== undefined && typeof value.closed !== "boolean") addError(errors, `${path}.closed`, "closed is true or false");
   if (value.time !== undefined && typeof value.time !== "boolean") addError(errors, `${path}.time`, "time is true or false");
+  if (value.standing !== undefined && typeof value.standing !== "boolean") addError(errors, `${path}.standing`, "standing is true or false");
   const time = typeof value.time === "boolean" ? { time: value.time } : {};
-  return limit !== undefined || typeof value.closed === "boolean" || "time" in time
-    ? { ...(limit !== undefined ? { limit } : {}), ...(typeof value.closed === "boolean" ? { closed: value.closed } : {}), ...time } : undefined;
+  const standing = typeof value.standing === "boolean" ? { standing: value.standing } : {};
+  return limit !== undefined || typeof value.closed === "boolean" || "time" in time || "standing" in standing
+    ? { ...(limit !== undefined ? { limit } : {}), ...(typeof value.closed === "boolean" ? { closed: value.closed } : {}), ...time, ...standing } : undefined;
 };
 
 const readLook = (value: Record<string, unknown>, path: string, errors: ValidationError[]): Pick<StoryWidget, "accent" | "icon"> => {
@@ -362,6 +364,7 @@ const readWidget = (value: unknown, path: string, refs: WidgetRefs, errors: Vali
   if (visible) validateGate(visible, qualityByKey, `${path}.visible_when`, errors);
   const options = readOptions(value.options, `${path}.options`, errors);
   if (options?.time !== undefined && value.kind !== "scene") addError(errors, `${path}.options.time`, "only a scene panel shows the story's time");
+  if (options?.standing !== undefined && value.kind !== "scene") addError(errors, `${path}.options.standing`, "only a scene panel shows a member's group standing");
   const look = readLook(value, path, errors);
   if (!GAME_ID_PATTERN.test(id) || !isOneOf(value.kind, WIDGET_KINDS) || !title) return null;
   const audience = isOneOf(value.audience, WIDGET_AUDIENCES) ? value.audience : "player";

@@ -1,0 +1,6 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+{"score": 4, "why": "The entry concretely and consistently covers the Wardens' size, organization, territory, duties, legal powers and limits, source of authority, and current status, but it never says how a warden looks or is recognized (uniform, badge, equipment), so a narrator would have to invent that minor basic."}
+--- stderr ---
+

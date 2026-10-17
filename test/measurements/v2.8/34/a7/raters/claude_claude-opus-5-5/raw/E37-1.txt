@@ -1,0 +1,8 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+```json
+{"score": 4, "why": "The entry gives a narrator the cause, sequence, aftermath, current state of the site, and the contested local accounts concretely and consistently, but it never says when the flood happened or how long ago, so a narrator would have to invent the timeframe."}
+```
+--- stderr ---
+

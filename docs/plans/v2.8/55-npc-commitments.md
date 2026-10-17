@@ -1,6 +1,6 @@
 # Plan 55 — NPC commitments to the player
 
-**Status: candidate, owner decision pending.** Written 2026-10-14 from the Astra review's brainstorm (owner approved
+**Status: queued (M55); option A built 2026-10-17 on `v2.8-queue-55-45e-52e` (not merged; §Gate record 2026-10-17); B owed.** Was: candidate, owner decision pending. Written 2026-10-14 from the Astra review's brainstorm (owner approved
 writing it the same day). Not built, not queued. Implementation tier **D**; acceptance **D** + **LT/RP** (does the
 holder honour or raise it, on the main reply model) + **CL** (option B's read lines only). Overview:
 `00-overview.md` §Rules (this folder). Shared boundary contract: v2.8 52 §Review 2026-10-14 (Astra), SC1–SC5.
@@ -145,3 +145,128 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
 
 - **43/47/55 — message ids need revisions.** Accepted. → the pledge line binds to a span with revision, as 47 does.
 - Rebutted: none.
+
+## Gate record (2026-10-17, branch `v2.8-queue-55-45e-52e`, from master `64287be2`)
+
+Queued as M55; built option A with the plan's recommended decisions 1–5 (taken as recommended, the owner did not answer
+them separately). Option B is not built: its acceptance needs M8, a CL rate on a labelled member-line set (≥ 40 pledges,
+≥ 40 non-pledges), and its `[pledged]` read line can only be accepted after a model run on that set. Owed, not red.
+Not merged, not pushed.
+
+What landed
+
+- Format `roster[].commitments[]` (`engine/lifeSchema.ts` `Commitment`, `commitKey`, `isCommitKey`), parsed and compiled in
+  `engine/validate/commitments.ts` (game layer, called from `validate/life.ts`): at most 6 a member; `what` plain text up to
+  160 characters; `to` is the player only (another value is refused: between members use an agenda); `made_when` a gate or
+  `"start"`; `kept_when` a gate (refused when it holds at the start); `broken_when` through plan 53's inaction rule
+  (`commitment-broken-on-inaction`: a top-level `not`, time keys only, `== false`, `!= true` or a start value); `due`
+  `{boundaries: 1–200}` or `{story_day}` (needs a clock); `heard` (default true); `effect` through the agenda step-effect
+  reader (`world_info`, `npc_replies` with trigger `onEnter`).
+- State: three latching, monotonic code ints `life_commit_<member>_<id>_made|kept|broken` (the boundary of each step; see
+  Deviations), written by the latch pass (`GAME_LAYER.latchWriters`: SC2 step 5, again at step 7 after a fired transition).
+  A pass moves a commitment one step: made, then kept, or broken; kept wins when both hold. Rollback detector
+  `commitments` (SC1, `rollbackDetectors.ts`), and the guard sees every compiled key.
+- Holder line (`engine/life/commitments.ts` `commitmentLines`, in `privateLifeLines`, holder only, through the memory
+  injector's private block and so `withoutSecretLines`): the open line, "It is overdue." once `due` passed or after 12 open
+  boundaries, and the kept line on the boundary it was kept. `privateLifeLines` now takes the boundary
+  (`MemoryInjector` passes the engine's).
+- Player view (`runtime/commitmentView.ts` `peopleSources`): "Promised you: <what> (open|kept|broken)" rows (kind
+  `promised`, `fresh` on the boundary they changed) on the holder's People page while the holder is known (SC3
+  `knownEntities`) and `heard` is not false; merged with plan 51's label rows; a page is added for a holder without a codex
+  entry. No overdue marker, countdown or player reminder.
+- Director: open, heard commitments of members who are not away by schedule head the living director's `plans` list
+  ("Mara has promised the player to …"), capped with the agendas at 8 (`livingUnit.directorInput`).
+- Kept effect: `EarnedEffects.kind` and the effect origin gain `commitment`; `gamePort` dispatches a kept commitment's
+  effect once; `earnedWorldInfo` replays kept `world_info` from the latch through the lazy `life.lifeWorldInfo` (agenda
+  steps + commitments), so a swipe switches it back.
+- Discovery: `commitmentDiscoveryUnits` (plan 52 rotation) offers `made_when` keys before, `kept_when` / `broken_when`
+  keys while open, nothing after.
+- SC4: `hasGameLayer` and `usesGameLayer` count commitments.
+- Author view: Character life lists each commitment with state, boundary, overdue and out-of-hearing
+  (`lifeSnapshot.commitments`, `CharacterLifePanel`).
+- Studio: `CommitmentsEditor` under Roster (gate builders for made / kept, optional broken, due, heard, effect as JSON),
+  mutation `setCommitments`; `CHARACTER_LIFE_FIELDS` and the wizard tool `setCharacterLife` carry `commitments`. Studio
+  diagnostics `commitment-broken-on-inaction` (blocking) and `commitment-what-names-a-side` (warning: "you", "I", "me" in
+  `what` reads wrong on one side).
+- Guide topic `commitments` (doc section "Promises to the player", compact twin `copilot/guideTopicsCommitments.ts`,
+  coverage table), feature `npc-commitments` (player, on by default, Help → Journal › People), `docs:guide`,
+  `docs:settings`, plan 24 matrix row, synthetic fixture `test/fixtures/npc-commitments.story.json` (arrival golden
+  re-recorded in its own commit).
+- Main bundle: 1,284,196 → 1,285,150 B for all three queue items (M55, M45e, M52e; ceiling 1,288,000). Main holds only the
+  latch/door wiring (`gamePort`, `worldInfoGates`, `memoryInjector`, `lifeSnapshot`, schema constants); logic rides the game
+  layer, the game composer and the Studio chunks.
+
+Floors (D, jest `src/runtime/npcCommitments.review.test.ts`, all green)
+
+- M1: 60 seeds, rollback then replay ≡ the straight run with detection complete; swipe / edit / delete of the keeping reply
+  (rollback from its message) returns the commitment to made, live and after a reopen (hydrate); a code-only boundary (the
+  kept latch is the only change) is detected. Met.
+- M2: 150 seeds through the real `MemoryInjector`: each open commitment's line in its holder's drafted block (carried 100+
+  times), 0 in other members' blocks, the resting block, shared tiers, the ledger and the player view. Payload goldens on
+  lane 81 (below): 31 of 31 captures identical over 6 cases for stories without commitments. Met; no payload case carries a
+  commitment yet (owed with the next payload-case refresh).
+- M3: refused: 4 of 4 inaction shapes, plus kept at the start, a promise to a member, `due.story_day` without a clock, an
+  underscore id, no `kept_when`. 400 random walks: every broken latch lands on a boundary where its event key is true; 0
+  with only time passing. Met.
+- M4: 500 seeds: 0 text of the out-of-hearing promise, 0 of an unknown holder's; shown rows equal the expected heard rows.
+  Met.
+- M5: 500 seeds: 0 obligation framing, overdue, due, countdown or reminder words on player surfaces. Met.
+- M6: a commitments-only story renders the holder's page; one with nothing stays `game: null`. Met.
+- M7 (LT or RP): not run. Needs Artemis on the 3090, which the text suite owns; lab story ready
+  (`test/fixtures/npc-commitments.story.json`, `mara.gate` with `due: {boundaries: 4}`). Owed, informational.
+- M8: only with B; owed with B.
+
+Live (no-model lane 81, plumbing; real-LLM owed)
+
+- Private ST copy `C:/dev/st-live-q55` (code tar of `st-live`, `node_modules` junctioned), lane 81 under
+  `C:/dev/so-live-lanes` seeded from offline lane 61's data (offline marker kept; no server plugins, images and sprites off).
+  Branch build `4c82f465` staged, served `dist/index.js` sha256 `48986980ead4` before and after every batch.
+- `test/scenarios/v28-55-commitments.json` green ×2 (batch `81/debug/batch/2026-10-17T06-50-54-569Z`, plus a first single run
+  `2026-10-17T06-48-43-110Z`): made → "Promised you: … (open)" and the holder line in Arin's applied private block, not in
+  the narrator's; kept → "(kept)" and the kept line once; `assert-player-clean` after each; reopen identical; a swipe of
+  the keeping reply returns it to open and the open line comes back; second reopen identical.
+- Payload goldens: master `64287be2` (served `557d5bc013d9`) against the branch (served `48986980ead4`) on lane 81,
+  `so-payload-golden.mts diff`: "payload invariance: identical", 31 of 31 captures over 6 cases
+  (`C:/dev/so-live-lanes/81/payload-q55/{base,q55}`).
+
+Gates
+
+- `npm run gates -- --jobs=1 --no-storybook` on `2679d8e6`: all green in 456.6 s (test 9,664 passed, 1 skipped, 831 suites;
+  test:replay, build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release). The first run
+  on `4c82f465` was red on two guards: the arrival golden did not list the three new lane scenarios, and the error-copy
+  inventory lacked the shelf's metadata probe; fixed in `7be13226` (census row) and `2679d8e6` (golden re-recorded alone).
+- Storybook (static build, `http-server .sb-static -p 6290`, test-runner `--maxWorkers 1`): the first run was red on 2 suites
+  (SettingsPanel's fake manager had no `carry`; TrophyShelf's fit stories asserted a closed `<details>` visible), fixed in
+  `5dc9d941`; then 151 suites, 916 tests passed.
+- `npm run gates:quick` on `5dc9d941` (the last change, lazy component and stories only): green (typecheck, typecheck:test,
+  replay cached, jest related 7,301 passed). Main bundle unchanged (served `48986980ead4`); v28-45e-shelf re-run ×2 green on
+  the restaged build (batch `81/debug/batch/2026-10-17T07-53-47-114Z`).
+- Evidence archived to the private tree: `so-evidence.mts archive --label q55-55-45e-52e-2026-10-17 --lanes 81` (117 files,
+  gitignored `test/sessions/evidence/phase-c/`; `sessions:archive` not run: no push from this task).
+- Main bundle `dist/index.js` 1,285,150 B (master 1,284,196; ceiling 1,288,000; budget 1,300,000).
+
+Deviations
+
+- State is three latching int keys `_made`, `_kept`, `_broken` (the boundary of each), not one latching enum
+  `life_commit_<member>_<id>`: the blackboard freezes a latching enum on its first value, and the boundaries are what
+  overdue and the fresh marker read.
+- "Made in the player's hearing" is the author flag `heard` (default true). Plan 42's witness record is not consulted: it
+  records messages and the latch is a gate.
+- No holder line for a broken commitment (the plan names none); kept wins over broken when both hold in one pass.
+- Director hooks are the head of the living director's `plans` list; no other director gets them.
+- `effect.cast_changes` is refused (the agenda rule); Studio edits `effect` as JSON.
+
+Owed
+
+- M7 (Artemis, lab story); B with M8 and its read line (after 47's read, a CL run); a payload case that carries a
+  commitment (M2 on the commitment's own prompt).
+- Adolion: not changed. Whether the campaign declares commitments is the owner's call (content review by another model).
+
+Design questions (recommendation first)
+
+- A broken commitment gives the holder no line. Recommended: one line on the boundary it broke ("You did not keep your
+  word to the player: …"), so the holder can own it; it is model-facing, so it waits for the owner.
+- `heard` and plan 42: when 42's witness record gains `player: present`, derive `heard` from the made boundary's messages
+  and keep the flag as an override. Recommended: yes, as a follow-up row.
+- One `what` serves both sides ("You told the player you would …" / "Promised you: …"); a warning flags you/I/me.
+  Recommended: keep one field; add a `player_text` only if authors hit the warning often.

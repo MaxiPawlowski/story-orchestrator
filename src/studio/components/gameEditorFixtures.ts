@@ -59,6 +59,17 @@ export const labelStory = (): StoryDraft => {
   };
 };
 
+export const commitmentStory = (): StoryDraft => {
+  const base = sampleStory();
+  return {
+    ...base,
+    roster: base.roster.map((member, index) => (index === 0 ? {
+      ...member,
+      commitments: [{ id: "gate", to: "player", what: "get past the north gate together", made_when: { q: "trust", op: ">=", v: 1 }, kept_when: { q: "alarm", op: "==", v: true } }],
+    } : member)),
+  };
+};
+
 export const codexStory = (): StoryDraft => ({
   ...sampleStory(),
   qualities: [...sampleStory().qualities, { key: "location", type: "enum", values: ["gate", "boathouse"], source: "extractor", rubric: "Where the party is." }],

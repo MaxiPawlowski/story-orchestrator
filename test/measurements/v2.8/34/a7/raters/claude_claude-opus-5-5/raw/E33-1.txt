@@ -1,0 +1,6 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+{"score": 4, "why": "The entry concretely covers the Wardens' role, size, patrol pattern, reach, equipment, limits of authority and current state, but it never says who leads them or answers to whom, a minor basic a scene could ask about."}
+--- stderr ---
+

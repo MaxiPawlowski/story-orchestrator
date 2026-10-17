@@ -11,4 +11,9 @@ export const CARRY_COPY = {
   previously: "Previously…",
   dismiss: "Dismiss",
   refused: "This run could not be carried: it may have changed since the list was made. Pick another, or start fresh.",
+  shelfHeading: "Finished stories",
+  shelfLoading: "Checking your finished runs…",
+  shelfEmpty: "None of your finished runs could be read.",
+  shelfMilestones: "Milestones earned",
+  shelfOpen: "Open",
 };

@@ -1,0 +1,7 @@
+exit 0
+served claude-sonnet-5-5
+--- text ---
+{"score": 5, "why": "The entry gives what it is, what signs are read, how it is learned, its firm limits (no distant sight, no hidden persons, no foretelling), its costs (pause, fatigue), what defeats it, how responsible readers behave, and where it is used, so a narrator would need to invent almost nothing."}
+--- stderr ---
+[claude-code:unrecognized_model] {"model":"claude-sonnet-5-5","query_source":"sdk"}
+

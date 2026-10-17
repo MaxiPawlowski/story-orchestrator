@@ -81,7 +81,7 @@ export const NO_OPEN_CHAT = "the effect was not applied: no chat is open to own 
 export type RestoreScope = "leave" | "exit" | "restart" | { since: number };
 
 export interface EarnedEffects {
-  kind: "quest" | "agenda";
+  kind: "quest" | "agenda" | "commitment";
   id: string;
   name: string;
   effects: { world_info?: unknown; cast_changes?: unknown; npc_replies?: NpcReplyEffect[] };

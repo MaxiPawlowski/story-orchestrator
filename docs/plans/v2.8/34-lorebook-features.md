@@ -211,3 +211,28 @@ card checks and read-back).
   harness command or rubric fixture exists yet); nothing model-facing was tuned against it.
 - Storybook: `ProvisioningCard` `LoreKeyPreview` play (match line, reasons, lint, no "fires" in the preview).
 - Gates and commits: see `09-wizard-assistant.md` §Gate record (2026-10-16, harvest phase), same branch: final `npm run gates -- --jobs=1 --no-storybook` green on `1dfdcc5f`, Storybook 147 suites / 886 tests green.
+
+## Gate record — A7 2026-10-17 (branch `v2.8-65aplus-09a7`, worktree `../so-65a7`, from master `64287be2`)
+
+- Prerequisites built (`090630e9`): the measurement switch, the `lore-guidance` arm runner and the blind two-rater command;
+  detail in `09-wizard-assistant.md` §Gate record (2026-10-17).
+- Fixture `test/measurements/v2.8/34/lore-guidance.json`, declared before any run: 10 tasks (2 each place, item, faction,
+  history, concept) in a synthetic seed story, each asking for one entry; rubric 1–5 "could a narrator play a scene with
+  this entry without inventing its basics" (generic, not the rule's list). Declared limit: the guide topic `lore-content`
+  stays readable in both arms; reads recorded.
+- Writer: opencode `openai/gpt-6.1-sol` through the harness tool bridge, lane 82 (private copy `C:\dev\st-live-65a7`, staged
+  `9690eefcaf9d` before and after). Run 1 `2026-10-17T06-41-04-753Z`, run 2 `…06-56-12-009Z`: 10/10 entries per arm per run,
+  0 missing, 0 transport problems, 0 retries; every on-arm prompt carried the rule and no off-arm prompt did (switch
+  verified per bridge open). **The agent read `lore-content` in 40 of 40 runs**, so the off arm still received the same
+  guidance through `readGuide`: A7 measures the rule line's marginal effect, not the guidance's.
+- Raters, blind (one pack of 40 shuffled entries, key sha256 `49dde917…`): Claude `claude-opus-5-5` and `claude-sonnet-5-5`
+  through the claude CLI, served model checked, 40/40 each. Pack, scores, raw replies and summary:
+  `test/measurements/v2.8/34/a7/`.
+- **A7 (recorded, floor informational): run 1 on 4.25, off 4.00, on − off +0.25 (opus 4.00/4.00, 0.00; sonnet 4.50/4.00,
+  +0.50). Run 2 on 4.00, off 4.00, on − off 0.00 (opus 0.00, sonnet 0.00).** All 80 scores were 4 or 5 (opus 35×4, 5×5; sonnet
+  28×4, 12×5), exact rater agreement 31/40: a ceiling, with no room for a difference to show. No floor moved.
+- Questions:
+  1. A second arm with the `lore-content` topic hidden too ("guidance off")? Recommended: yes if the owner wants the
+     guidance's own effect; this run cannot tell it, because Sol read the topic every time.
+  2. The rubric saturates at 4–5 for Sol. Recommended: if re-run, rate pairwise (on vs off for the same task, blind order),
+     which a ceiling does not flatten; the 1–5 row stays as recorded.

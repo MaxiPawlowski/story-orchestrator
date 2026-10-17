@@ -2,7 +2,7 @@ import type { GuideTopicId } from "@copilot/guideTopics";
 import type { StudioTab } from "./StudioModal";
 
 export const STUDIO_TAB_GUIDE: Partial<Record<StudioTab, readonly GuideTopicId[]>> = {
-  features: ["feature-policies", "codex"],
+  features: ["feature-policies", "codex", "codex-returns"],
   story: ["story-basics", "briefing", "player", "requirements", "arc-template", "living-director", "scene-test", "branching"],
   world: ["stagecraft", "lore-select", "lore-entries", "lore-content"],
   presentation: ["presentation", "background"],
@@ -14,7 +14,7 @@ export const STUDIO_TAB_GUIDE: Partial<Record<StudioTab, readonly GuideTopicId[]
     "opening-scene", "npc-replies", "talk-control", "convergence", "experimental-effects",
   ],
   transitions: ["gates", "transitions", "convergence"],
-  roster: ["roster", "drives-motives", "inner-voice", "opening-scene", "character-life", "factions", "relationship-labels", "story-time", "living-cards", "poses"],
+  roster: ["roster", "drives-motives", "inner-voice", "opening-scene", "character-life", "factions", "relationship-labels", "commitments", "story-time", "living-cards", "poses"],
   sprites: ["poses"],
   game: ["quests", "checks", "widgets", "clues-and-maps", "html-panels", "widget-scene", "display-narrate", "display-warn", "rumors"],
 };

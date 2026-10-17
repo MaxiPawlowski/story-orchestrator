@@ -1,0 +1,59 @@
+{
+  "format": 2,
+  "id": "npc-commitments-lab",
+  "title": "Commitments lab",
+  "description": "Synthetic story for v2.8 plan 55: promises cast members make to the player, kept or broken by events, one out of the player's hearing, one holder known only through a People page.",
+  "roster": [
+    {
+      "id": "mara", "name": "Mara", "role": "a harbour clerk",
+      "commitments": [
+        {
+          "id": "gate", "what": "get past the north gate together",
+          "made_when": { "q": "offered_help", "op": "==", "v": true },
+          "kept_when": { "q": "past_gate", "op": "==", "v": true },
+          "broken_when": { "q": "mara_betrayed", "op": "==", "v": true },
+          "due": { "boundaries": 4 }
+        },
+        { "id": "debt", "what": "repay the debt from the river", "made_when": "start", "kept_when": { "q": "debt_repaid", "op": "==", "v": true } }
+      ],
+      "schedule": [{ "when": { "q": "mara_at_market", "op": "==", "v": true }, "at": "market" }]
+    },
+    {
+      "id": "tom", "name": "Tom", "role": "a ferryman",
+      "commitments": [
+        { "id": "ledger", "what": "hide the ledger until the fair", "made_when": { "q": "tom_swore", "op": "==", "v": true }, "kept_when": { "q": "fair_held", "op": "==", "v": true }, "heard": false }
+      ]
+    },
+    {
+      "id": "sera", "name": "Sera", "role": "a royal envoy",
+      "commitments": [
+        { "id": "word", "what": "carry word to the crown", "made_when": { "q": "met_sera", "op": "==", "v": true }, "kept_when": { "q": "word_sent", "op": "==", "v": true } }
+      ]
+    },
+    { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }
+  ],
+  "codex": {
+    "people": [
+      { "id": "envoy", "member": "sera", "known_when": { "q": "met_sera", "op": "==", "v": true }, "facts": [{ "id": "post", "text": "Carries the crown's seal.", "known_when": { "q": "met_sera", "op": "==", "v": true } }] }
+    ]
+  },
+  "qualities": [
+    { "key": "location", "type": "enum", "values": ["harbour", "docks", "market"], "source": "extractor", "evidence_from": "world", "rubric": "Where the party is." },
+    { "key": "offered_help", "type": "bool", "source": "extractor", "rubric": "Whether Mara offered to help the player past the gate." },
+    { "key": "past_gate", "type": "bool", "source": "extractor", "rubric": "Whether the party got past the north gate." },
+    { "key": "mara_betrayed", "type": "bool", "source": "extractor", "rubric": "Whether Mara betrayed the party." },
+    { "key": "debt_repaid", "type": "bool", "source": "extractor", "rubric": "Whether Mara repaid her river debt." },
+    { "key": "tom_swore", "type": "bool", "source": "extractor", "rubric": "Whether Tom swore to hide the ledger." },
+    { "key": "fair_held", "type": "bool", "source": "extractor", "rubric": "Whether the fair took place." },
+    { "key": "met_sera", "type": "bool", "source": "extractor", "rubric": "Whether the player met Sera." },
+    { "key": "word_sent", "type": "bool", "source": "extractor", "rubric": "Whether word reached the crown." },
+    { "key": "mara_at_market", "type": "bool", "source": "extractor", "rubric": "Whether Mara went to the market." }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "The harbour", "player_name": "The harbour", "type": "anchor", "start": true, "objective": "Meet the clerks." },
+    { "id": "docks", "name": "The docks", "player_name": "The docks", "type": "anchor", "objective": "Find the ferry." }
+  ],
+  "transitions": [
+    { "from": "start", "to": "docks", "priority": 1, "gate": { "all": [{ "q": "location", "op": "==", "v": "docks" }] } }
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "rater": "claude:claude-opus-5-5",
+  "cli": "claude",
+  "model": "claude-opus-5-5",
+  "served": [
+    "claude-opus-5-5"
+  ]
+}

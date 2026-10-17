@@ -148,4 +148,16 @@ export const sceneWidget: WidgetView = {
   },
 };
 
+export const sceneWidgetLines: WidgetView = {
+  ...sceneWidget, id: "here-lines",
+  body: {
+    kind: "scene", location: "Kessel boathouse", time: null,
+    present: [
+      { name: "Marla the innkeeper of the long river crossing", portrait: null, page: "Marla the innkeeper of the long river crossing",
+        labels: ["Toward you: warming to you", "Toward Ada: old friends from the crossing days"], standing: ["The Ferrymen's Guild of the Lower River: Trusted"] },
+      { name: "Ada", portrait: null, page: null, labels: ["Learned (toward Marla the innkeeper of the long river crossing): owes her a debt"] },
+    ],
+  },
+};
+
 export const sceneWidgetEmpty: WidgetView = { ...sceneWidget, id: "here-empty", body: { kind: "scene", location: null, time: null, present: [] } };

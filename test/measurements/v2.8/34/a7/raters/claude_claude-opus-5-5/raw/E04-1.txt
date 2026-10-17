@@ -1,0 +1,6 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+{"score": 5, "why": "The entry concretely and consistently covers location and distance from town, layout, both approaches, the foot crossing and lack of a road bridge, mooring and gate-working procedure, vessel limits, the spillway and tidal hazards, and current condition and staffing, so a narrator would only add incidental color."}
+--- stderr ---
+

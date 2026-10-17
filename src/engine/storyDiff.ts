@@ -1,6 +1,6 @@
 import { keptStagedFrom, type EngineHistory, type EngineState } from "./engine";
 import {
-  CODEX_PAGES, codexEntryKey, codexFactKey, isCodexKey, questClosedKey, questRewardKey, STORY_DISPLAY_TOGGLES,
+  CODEX_PAGES, codexArmedKey, codexEntryKey, codexFactKey, codexReturnKey, isCodexKey, questClosedKey, questRewardKey, STORY_DISPLAY_TOGGLES,
   type CodexEntry, type CodexPage, type NormalizedStoryV2, type PrimitiveValue, type Transition,
 } from "./schema";
 import { qualityAccepts } from "./blackboard";
@@ -64,6 +64,9 @@ export type StoryDiffCode =
   | "codex-fact-removed"
   | "codex-fact-replaced"
   | "codex-fact-edited"
+  | "codex-return-removed"
+  | "codex-return-replaced"
+  | "codex-return-edited"
   | "text-changed";
 
 export interface StoryDiffEntry {
@@ -353,11 +356,26 @@ const dropLive = (ctx: DiffContext, key: string): boolean => {
   return true;
 };
 
+const diffReturns = (ctx: DiffContext, path: string, label: string, entry: CodexEntry, kept: CodexEntry) => {
+  const after = new Map((kept.returns ?? []).map((back) => [back.id, back]));
+  (entry.returns ?? []).forEach((back) => {
+    const next = after.get(back.id);
+    if (next && (back.rev ?? 1) === (next.rev ?? 1) && sameValue(back.when, next.when)) {
+      if (back.text !== next.text) ctx.push("compatible", "codex-return-edited", `${path}.returns.${back.id}`, `A return line at “${label}” was reworded; a chat that shows it sees the new wording.`);
+      return;
+    }
+    const earned = [codexArmedKey(entry.id, back.id), codexReturnKey(entry.id, back.id)].map((key) => dropLive(ctx, key)).some(Boolean);
+    ctx.push("compatible", next ? "codex-return-replaced" : "codex-return-removed", `${path}.returns.${back.id}`, next
+      ? `A return line at “${label}” changed; ${earned ? "this chat must come back for it again" : "it shows on a later return"}.` : `A return line at “${label}” was removed.`);
+  });
+};
+
 const diffCodexEntry = (ctx: DiffContext, page: CodexPage, entry: CodexEntry, kept: CodexEntry | undefined) => {
   const path = `codex.${page}.${entry.id}`;
   const label = entry.name ?? entry.member ?? entry.id;
   if (!kept) {
-    const dropped = [codexEntryKey(page, entry.id), ...entry.facts.map((fact) => codexFactKey(page, entry.id, fact.id))].filter((key) => dropLive(ctx, key));
+    const returns = (entry.returns ?? []).flatMap((back) => [codexArmedKey(entry.id, back.id), codexReturnKey(entry.id, back.id)]);
+    const dropped = [codexEntryKey(page, entry.id), ...entry.facts.map((fact) => codexFactKey(page, entry.id, fact.id)), ...returns].filter((key) => dropLive(ctx, key));
     ctx.push("compatible", "codex-entry-removed", path, dropped.length ? `“${label}” left the codex; what this chat learned about it is dropped.` : `“${label}” left the codex.`);
     return;
   }
@@ -379,6 +397,7 @@ const diffCodexEntry = (ctx: DiffContext, page: CodexPage, entry: CodexEntry, ke
       ctx.push("compatible", "codex-fact-edited", `${path}.${fact.id}`, `A fact about “${label}” was reworded; a chat that knows it sees the new wording.`);
     }
   });
+  diffReturns(ctx, path, label, entry, kept);
 };
 
 const diffCodex = (ctx: DiffContext) => {

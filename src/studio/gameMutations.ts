@@ -1,5 +1,5 @@
 import type { CodexEntry, CodexPage, Faction, Milestone, QualityDisplay, Quest, RelationshipDecl, RosterMember, StoryCheck, StoryCodex, StoryWidget } from "@engine/index";
-import type { CalendarInput, StoryClock } from "@engine/lifeSchema";
+import type { CalendarInput, Commitment, StoryClock } from "@engine/lifeSchema";
 import type { Rumor } from "@engine/rumorSchema";
 import type { StoryDraft } from "./draft";
 import { nextId, updateCheckpoint, updateQuality, updateTransition } from "./mutations";
@@ -75,7 +75,7 @@ export const setTransitionCheck = (draft: StoryDraft, index: number, check: Stor
   ? updateTransition(draft, index, { check })
   : { ...draft, transitions: draft.transitions.map((transition, at) => (at === index ? without(transition, "check") : transition)) });
 
-export const CHARACTER_LIFE_FIELDS = ["relationships", "mood", "agenda", "schedule", "factions"] as const;
+export const CHARACTER_LIFE_FIELDS = ["relationships", "mood", "agenda", "schedule", "factions", "commitments"] as const;
 
 export type CharacterLife = Pick<RosterMember, (typeof CHARACTER_LIFE_FIELDS)[number]>;
 
@@ -107,6 +107,16 @@ export const setRelationshipLabels = (draft: StoryDraft, id: string, toward: str
   roster: draft.roster.map((member) => (member.id !== id ? member : {
     ...member, relationships: (member.relationships ?? []).map((relationship) => (relationship.toward === toward ? withLabels(relationship, labels) : relationship)),
   })),
+});
+
+export const setCommitments = (draft: StoryDraft, id: string, commitments: Commitment[]): StoryDraft => ({
+  ...draft,
+  roster: draft.roster.map((member) => {
+    if (member.id !== id) return member;
+    const rest: RosterMember = { ...member };
+    delete rest.commitments;
+    return commitments.length ? { ...rest, commitments } : rest;
+  }),
 });
 
 export const newFaction = (id: string): Faction => ({

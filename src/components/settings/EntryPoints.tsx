@@ -3,12 +3,14 @@ import { viewerRepairStep, type OneClickFix, type RepairStep } from "@runtime/re
 import { REPAIR_PLAYER_COPY } from "@runtime/pipeline";
 import { playingLine, playingStory } from "@runtime/playingStory";
 import type { ContinueRow } from "@runtime/playsIndex";
+import type { TrophyRow } from "@runtime/carryPort";
 import { ContinueList } from "./ContinueList";
 import type { LivingStartFields } from "./LivingStart";
 import { lazyRetry } from "@utils/lazyRetry";
 import { Lazy } from "@components/Lazy";
 
 const LivingStart = lazyRetry(() => import("./LivingStart"));
+const TrophyShelf = lazyRetry(() => import("@components/carry/TrophyShelf"));
 
 export interface EntryPointsProps {
   snapshot: RuntimeSnapshot;
@@ -27,6 +29,7 @@ export interface EntryPointsProps {
   onRepairCast?(action: OneClickFix): void;
   onOpenGroup?(): void;
   onOpenPlay?(row: ContinueRow): void;
+  onTrophies?(rows: readonly ContinueRow[]): Promise<TrophyRow[]>;
   gettingStarted?: React.ReactNode;
   onStartLiving?(fields: LivingStartFields): Promise<boolean>;
 }
@@ -69,8 +72,9 @@ const RepairAuthorDetail = ({ repair, wizardOn, onFixWithWizard, onRepairCast }:
 export default function EntryPoints(props: EntryPointsProps) {
   const {
     snapshot, busy, importOpen, onToggleImport, onNewStory, onOpenStudio, onOpenDrawer, onOpenAuthorView, onRevealSetting, onFixWithWizard, onRepairCast, onOpenGroup, onOpenPlay, gettingStarted,
-    onStartLiving,
+    onStartLiving, onTrophies,
   } = props;
+  const plays = snapshot.presence?.continueRows ?? [];
   const repair = viewerRepairStep(snapshot);
   const playing = playingStory(snapshot);
   const wizardOn = snapshot.copilot.enabled;
@@ -104,7 +108,10 @@ export default function EntryPoints(props: EntryPointsProps) {
           <button type="button" className="menu_button" disabled={busy || !snapshot.storyId} onClick={() => onRevealSetting("so-restart-story")}>Restart or export</button>
         </div>
         {onOpenPlay && snapshot.ui.presence?.continueList !== false && (
-          <ContinueList rows={snapshot.presence?.continueRows ?? []} onOpen={onOpenPlay} />
+          <ContinueList rows={plays} onOpen={onOpenPlay} />
+        )}
+        {onTrophies && snapshot.ui.presence?.continueList !== false && plays.some((row) => row.ended) && (
+          <Lazy fallback={null}><TrophyShelf rows={plays} load={onTrophies} onOpen={onOpenPlay} /></Lazy>
         )}
       </Row>
       <Row title="Repair">

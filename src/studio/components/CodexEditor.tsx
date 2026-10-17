@@ -1,5 +1,5 @@
 import React from "react";
-import { CODEX_START, isReached, type CodexEntry, type CodexFact, type CodexKnownWhen, type CodexPage, type Quality } from "@engine/index";
+import { CODEX_START, isReached, type CodexEntry, type CodexFact, type CodexKnownWhen, type CodexPage, type CodexReturn, type Quality } from "@engine/index";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
 import { removeCodexEntry, setCodexShown, updateCodexEntry } from "../gameMutations";
@@ -17,13 +17,14 @@ interface KnownWhenProps {
   label: string;
   when: CodexKnownWhen | undefined;
   allowNone: boolean;
+  noStart?: boolean;
   qualities: Quality[];
   checkpoints: string[];
   onChange: (when: CodexKnownWhen | undefined) => void;
 }
 
 const KnownWhenField: React.FC<KnownWhenProps> = ({
-  label, when, allowNone, qualities, checkpoints, onChange,
+  label, when, allowNone, noStart, qualities, checkpoints, onChange,
 }) => {
   const mode = modeOf(when);
   const pick = (next: Mode) => onChange(next === "none" ? undefined : next === "start" ? CODEX_START : next === "reached" ? { reached: checkpoints[0] ?? "" } : { all: [] });
@@ -33,7 +34,7 @@ const KnownWhenField: React.FC<KnownWhenProps> = ({
         <span className="text-xs st-muted">{label}</span>
         <select aria-label={label} value={mode} onChange={(event) => pick(event.target.value as Mode)}>
           {allowNone && <option value="none">When a line about it is known</option>}
-          <option value="start">From the start</option>
+          {!noStart && <option value="start">From the start</option>}
           <option value="reached">When a checkpoint is reached</option>
           <option value="gate">When a condition holds</option>
         </select>
@@ -81,12 +82,36 @@ const FactRow: React.FC<{ page: CodexPage; entry: CodexEntry; fact: CodexFact; s
   );
 };
 
+const ReturnRow: React.FC<{ entry: CodexEntry; back: CodexReturn }> = ({ entry, back }) => {
+  const mutate = useDraftStore((state) => state.mutate);
+  const qualities = useDraftStore((state) => state.draft.qualities);
+  const checkpoints = useDraftStore((state) => state.draft.checkpoints).map((checkpoint) => checkpoint.id);
+  const returns = entry.returns ?? [];
+  const patch = (value: Partial<CodexReturn>) => mutate((current) =>
+    updateCodexEntry(current, "places", { ...entry, returns: returns.map((item) => (item.id === back.id ? { ...item, ...value } : item)) }));
+  const label = `${entry.id} return ${back.id}`;
+  return (
+    <div data-so="codex-return-row" className="st-subpanel flex flex-col gap-2 p-2">
+      <div className="flex flex-wrap items-end gap-2">
+        <span className="st-pill px-2 py-0.5 text-[11px]">{back.id}</span>
+        <TextField label={`${label} text`} value={back.text} onChange={(text) => patch({ text })} />
+        <button type="button" className="st-button danger" aria-label={`Remove ${label}`}
+          onClick={() => mutate((current) => updateCodexEntry(current, "places", { ...entry, returns: returns.filter((item) => item.id !== back.id) }))}>×</button>
+      </div>
+      <KnownWhenField label={`${label} after`} when={back.when} allowNone={false} noStart qualities={qualities} checkpoints={checkpoints}
+        onChange={(when) => { if (when && when !== CODEX_START) patch({ when }); }} />
+    </div>
+  );
+};
+
 const EntryRow: React.FC<{ page: CodexPage; entry: CodexEntry; sources: string[] }> = ({ page, entry, sources }) => {
   const mutate = useDraftStore((state) => state.mutate);
   const draft = useDraftStore((state) => state.draft);
   const locations = draft.qualities.find((quality) => quality.key === "location" && quality.type === "enum")?.values ?? [];
   const patch = (value: Partial<CodexEntry>) => mutate((current) => updateCodexEntry(current, page, { ...entry, ...value }));
   const addFact = () => patch({ facts: [...entry.facts, { id: nextId(entry.facts.map((fact) => fact.id), "fact"), text: "", known_when: { reached: draft.checkpoints[0]?.id ?? "" } }] });
+  const returns = entry.returns ?? [];
+  const addReturn = () => patch({ returns: [...returns, { id: nextId(returns.map((back) => back.id), "return"), text: "", when: { reached: draft.checkpoints[0]?.id ?? "" } }] });
   return (
     <div data-so="codex-entry-row" className="st-subpanel flex flex-col gap-2 p-2">
       <div className="flex flex-wrap items-end gap-2">
@@ -117,6 +142,10 @@ const EntryRow: React.FC<{ page: CodexPage; entry: CodexEntry; sources: string[]
         onChange={(known) => patch({ known_when: known })} />
       {entry.facts.map((fact) => <FactRow key={fact.id} page={page} entry={entry} fact={fact} sources={sources} />)}
       <button type="button" className="st-button secondary self-start" onClick={addFact}>+ Fact</button>
+      {page === "places" && returns.map((back) => <ReturnRow key={back.id} entry={entry} back={back} />)}
+      {page === "places" && entry.location && (
+        <button type="button" className="st-button secondary self-start" title="A line that shows when the party comes back here after something happened" onClick={addReturn}>+ Return</button>
+      )}
     </div>
   );
 };
