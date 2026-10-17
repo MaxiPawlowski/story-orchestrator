@@ -1,0 +1,78 @@
+{
+  "plan": "v2.8 09 harvest A6a (owner 2026-10-16, informational row): on an author-written card with a planted mistake, the one bounded revision clears the note when the task asks to fix what the card check flags",
+  "declared": "2026-10-17, before any run. Informational, never retuned (rule 2). Same ten plants as card-revision.json; the task hands over the author's whole draft and asks for it first as written, then a fix of what the check flags",
+  "marker": "SO-W09A6A",
+  "route": "the authoring role on opencode openai/gpt-6.1-sol through the harness tool bridge (owner's subscription)",
+  "floor": "recorded: replacements that clear every flagged note, of tasks whose first card was held with notes, x2 (A6 expected >= 7/10 is not this row's floor)",
+  "scoring": "a task counts when its first createCharacterCard step was held for review; it passes when a replacement step (replaces = that step) exists and none of the held step's note ids remain on the replacement. A task whose first card had no note is 'not seeded' and counts as a miss; provisioning is rejected after the revision, so nothing is created",
+  "seed": {
+    "format": 2,
+    "id": "so-w09a6a-harbour",
+    "title": "SO-W09A6A Harbour",
+    "description": "A smuggler's port at night; a synthetic story for the v2.8 09 card revision runs.",
+    "qualities": [],
+    "checkpoints": [
+      {
+        "id": "quay",
+        "name": "The Quay",
+        "objective": "The player lands with a sealed letter and looks for a buyer.",
+        "type": "anchor",
+        "start": true
+      }
+    ],
+    "transitions": [],
+    "roster": []
+  },
+  "tasks": [
+    {
+      "id": "thin-1",
+      "plants": "description-thin",
+      "goal": "The author wrote this character card for the harbour fence and wants it created: {\"name\": \"Ilsa Crane\", \"description\": \"Buys stolen goods.\"}. Send the author's draft first, as written. The card check will return its notes; then fix what the card check flags in your one revision. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "thin-2",
+      "plants": "description-thin",
+      "goal": "The author wrote this character card for the ferry captain and wants it created: {\"name\": \"Rhosyn Dale\", \"description\": \"Runs the night ferry.\"}. Send the author's draft first, as written. The card check will return its notes; then fix what the card check flags in your one revision. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "adjectives-1",
+      "plants": "voice-adjectives",
+      "goal": "The author wrote this character card for the customs officer and wants it created: {\"name\": \"Teodor Quill\", \"description\": \"Strict, tired, honest, bitter, slow, careful, proud and lonely, the last honest officer of the old harbour customs house.\"}. Send the author's draft first, as written. The card check will return its notes; then fix what the card check flags in your one revision. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "adjectives-2",
+      "plants": "voice-adjectives",
+      "goal": "The author wrote this character card for the dock physician and wants it created: {\"name\": \"Corvin Ashby\", \"description\": \"Kind, drunk, clever, nervous, shabby, quick, gentle and sad, the only physician who still treats sailors on the docks.\"}. Send the author's draft first, as written. The card check will return its notes; then fix what the card check flags in your one revision. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "greeting-1",
+      "plants": "greeting-speaks-for-player",
+      "goal": "The author wrote this character card for the tide clerk and wants it created: {\"name\": \"Wenna Tregear\", \"description\": \"Wenna keeps the tide ledger at the harbour office. When a stranger asks about a boat, she answers with a question of her own; she knows every boat by its creak.\", \"first_mes\": \"You step off the boat and feel the cold. Wenna looks up from her ledger.\"}. Send the author's draft first, as written. The card check will return its notes; then fix what the card check flags in your one revision. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "greeting-2",
+      "plants": "greeting-speaks-for-player",
+      "goal": "The author wrote this character card for the dock boss and wants it created: {\"name\": \"Bram Harrow\", \"description\": \"Bram runs the night crews on the docks. When a debt is late, he settles it with a look before he ever raises his voice.\", \"first_mes\": \"{{user}} nods and follows Bram into the warehouse.\"}. Send the author's draft first, as written. The card check will return its notes; then fix what the card check flags in your one revision. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "traits-1",
+      "plants": "trait-no-behaviour",
+      "goal": "The author wrote this character card for the smuggler and wants it created: {\"name\": \"Kestrel Vane\", \"description\": \"Kestrel has run brandy past the customs house for ten years. She owns a narrow black boat and rents a room above the chandler's shop on the quay.\", \"personality\": \"reckless, loyal, superstitious\"}. Send the author's draft first, as written. The card check will return its notes; then fix what the card check flags in your one revision. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "traits-2",
+      "plants": "trait-no-behaviour",
+      "goal": "The author wrote this character card for the lamplighter and wants it created: {\"name\": \"Oswin Pell\", \"description\": \"Oswin lights the harbour lamps at dusk and puts them out at dawn. He has done it since he was a boy, and his father did it before him.\", \"personality\": \"patient, gossipy, fearful\"}. Send the author's draft first, as written. The card check will return its notes; then fix what the card check flags in your one revision. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "examples-1",
+      "plants": "examples-no-char-line",
+      "goal": "The author wrote this character card for the net mender and wants it created: {\"name\": \"Morwen Tull\", \"description\": \"Morwen mends nets on the quay and hears every rumour first; when a stranger lingers she starts singing loudly to drive them off.\", \"mes_example\": \"<START>\\nShe hums and keeps mending.\"}. Send the author's draft first, as written. The card check will return its notes; then fix what the card check flags in your one revision. Create nothing else and do not edit the story."
+    },
+    {
+      "id": "name-1",
+      "plants": "name-mention-trap",
+      "goal": "The author wrote this character card for the broker and wants it created: {\"name\": \"The Fence\", \"description\": \"A broker who buys anything that fell off a ship; when a seller haggles, he lowers his offer by a coin each time, and he keeps his shop dark so nobody sees his hands shake.\"}. Send the author's draft first, as written. The card check will return its notes; then fix what the card check flags in your one revision. Create nothing else and do not edit the story."
+    }
+  ]
+}
