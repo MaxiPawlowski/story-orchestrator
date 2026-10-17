@@ -27,7 +27,7 @@ Where the guide says "the reading model" it means the memory model that reads th
 
 ## Story fields
 
-Every field a story can carry: 63 topics on 8 pages, from the story as a whole down to the game layer.
+Every field a story can carry: 65 topics on 8 pages, from the story as a whole down to the game layer.
 
 - [The story as a whole](fields/story.md)
   - [Story feature policies](fields/story.md#feature-policies) (`feature-policies`)
@@ -45,6 +45,7 @@ Every field a story can carry: 63 topics on 8 pages, from the story as a whole d
   - [Factions and standing](fields/characters.md#factions) (`factions`)
   - [Rumors and gossip](fields/characters.md#rumors) (`rumors`)
   - [Relationship labels](fields/characters.md#relationship-labels) (`relationship-labels`)
+  - [Promises to the player](fields/characters.md#commitments) (`commitments`)
   - [Story time](fields/characters.md#story-time) (`story-time`)
   - [Living cards](fields/characters.md#living-cards) (`living-cards`)
   - [Poses and character layers](fields/characters.md#poses) (`poses`)
@@ -100,6 +101,7 @@ Every field a story can carry: 63 topics on 8 pages, from the story as a whole d
   - [The sheet reaches the narrator](fields/game-layer.md#display-narrate) (`display-narrate`)
   - [Warning bands](fields/game-layer.md#display-warn) (`display-warn`)
   - [People and Places](fields/game-layer.md#codex) (`codex`)
+  - [Return visits](fields/game-layer.md#codex-returns) (`codex-returns`)
 
 ## For contributors
 

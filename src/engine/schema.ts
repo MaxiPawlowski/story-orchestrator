@@ -335,7 +335,7 @@ export interface RosterMember {
   relationships?: RelationshipDecl[];
   mood?: MoodDecl;
   agenda?: Agenda[];
-  schedule?: ScheduleEntry[]; factions?: string[];
+  schedule?: ScheduleEntry[]; factions?: string[]; commitments?: import("./lifeSchema").Commitment[];
 }
 
 export { PLAYER_NAME_MODES, PLAYER_ROLE_MAX_CHARS, PLAYER_SUMMARY_MAX_CHARS, PLAYER_ASSUMES_MAX,

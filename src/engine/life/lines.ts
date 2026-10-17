@@ -6,6 +6,7 @@ import {
 import { effectiveMood, isAway, whereabouts } from "./presence";
 import { factionMemberLines } from "../factions/standing";
 import { labelClause } from "./labels";
+import { commitmentLines } from "./commitments";
 
 type Values = Readonly<Record<string, PrimitiveValue>>;
 type Read = Readonly<Record<string, unknown>>;
@@ -45,7 +46,7 @@ export const relationshipFeelings = (story: NormalizedStoryV2, values: Values, m
 const meanwhileLines = (member: LifeMember, values: Values, publicOnly: boolean): string[] => member.agenda.flatMap((agenda) =>
   doneSteps(member.id, agenda, values).filter((step) => !publicOnly || step.public).slice(-MEANWHILE_SHOWN).map((step) => step.text));
 
-export const privateLifeLines = (story: NormalizedStoryV2, values: Values, memberId: string, accepted: readonly string[] = []): string => {
+export const privateLifeLines = (story: NormalizedStoryV2, values: Values, memberId: string, accepted: readonly string[] = [], boundary = 0): string => {
   const members = story.life?.members ?? [];
   const self = members.find((member) => member.id === memberId);
   const mood = self ? effectiveMood(self, values) : null;
@@ -55,6 +56,7 @@ export const privateLifeLines = (story: NormalizedStoryV2, values: Values, membe
   const lines = [
     ...(self ? relationshipLines(story, self, values, true) : []),
     ...factionMemberLines(story, values, memberId),
+    ...commitmentLines(story, values, memberId, boundary),
     ...(mood ? [`- Your mood right now: ${mood}.`] : []),
     ...own, ...accepted.map((text) => `- Meanwhile, off stage, you: ${text}`), ...shared,
   ];

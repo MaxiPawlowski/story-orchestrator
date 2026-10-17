@@ -194,6 +194,8 @@ describe("runDiagnostics", () => {
       ...runDiagnostics(codexSeeded),
       ...runDiagnostics({ ...clean, roster: [{ id: "arin", name: "Arin", relationships: [{ toward: "player", axes: ["trust"], range: [-5, 5], step: 1, start: 0,
         public: [{ label: "cold but loyal" }], secret: [{ id: "loyal", label: "loyal", revealed_when: { q: "rel_arin_player_trust", op: ">=", v: 3 } }] }] }] }),
+      ...runDiagnostics({ ...clean, roster: [{ id: "arin", name: "Arin", commitments: [{ id: "gate", to: "player", what: "get you past the gate", made_when: "start",
+        kept_when: { q: "trust", op: ">=", v: 3 }, broken_when: { not: { q: "trust", op: ">=", v: 1 } } }] }] }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

@@ -27,4 +27,11 @@ export const returnPlaces = (): CodexView["places"] => [
   ] },
 ];
 
+export const promisedPeople = (): CodexView["people"] => [
+  { name: "Mara", fresh: true, facts: [], rows: [
+    { text: "Promised you: get past the north gate together (open)", kind: "promised", fresh: true },
+    { text: "Promised you: repay the debt from the river (kept)", kind: "promised" },
+  ] },
+];
+
 export const codexGame = (codex: CodexView | null = sampleCodex()): GameView => ({ ...sampleGame(), ...(codex ? { codex } : {}) });

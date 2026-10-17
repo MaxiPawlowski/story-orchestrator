@@ -177,7 +177,7 @@ export interface CodexFactView {
 
 export interface CodexRowView {
   text: string;
-  kind?: "label" | "learned" | "return";
+  kind?: "label" | "learned" | "return" | "promised";
   fresh?: boolean;
 }
 

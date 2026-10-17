@@ -12,6 +12,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 - [Factions and standing](#factions)
 - [Rumors and gossip](#rumors)
 - [Relationship labels](#relationship-labels)
+- [Promises to the player](#commitments)
 - [Story time](#story-time)
 - [Living cards](#living-cards)
 - [Poses and character layers](#poses)
@@ -122,6 +123,19 @@ Fields: `roster[].relationships[].public` (`label`, `when`, `follows_feeling`, `
 - **Good.** `{ "toward": "player", "axes": ["trust"], "public": [{ "label": "wary" }, { "label": "trusts your discretion", "when": { "q": "kept_secret", "op": "==", "v": true } }], "secret": [{ "id": "loyal", "label": "secretly loyal to you", "revealed_when": { "q": "saw_letter", "op": "==", "v": true } }] }`.
 - **Bad.** A public label that names the secret ("cold, but secretly loyal": `relationship-secret-in-public`, the player knows it before the reveal); a secret revealed by a feeling's number (`relationship-label-reads-axis`: the reveal tells the player the number moved); a label naming someone the player has not met (`disclosure-names-unknown-entity`); a secret whose gate holds at the start or whose text equals a public label (refused).
 - **If wrong.** A label gate nobody reads stays false; label gates ride the codex rotation, so a crowded read asks them a turn later.
+
+<a id="commitments"></a>
+
+## Promises to the player
+
+Topic `commitments`.
+
+Fields: `roster[].commitments[]` (`id`, `what`, `made_when`, `kept_when`, `broken_when`, `due`, `heard`, `effect`) (`engine/lifeSchema.ts`, `validate/commitments.ts`, `engine/life/commitments.ts`, `runtime/commitmentView.ts`).
+
+- **What it does.** A cast member can promise the player something ("repay the debt from the river"), and the story remembers it on the member, the holder. A commitment is made the first turn `made_when` holds (or is open from the start with `"start"`), then kept the first turn `kept_when` holds, or broken the first turn `broken_when` holds; each step latches `life_commit_<member>_<id>_made`, `_kept` or `_broken` (the turn it happened) and stays, and only a swipe, edit or delete of the reply that earned it takes it back. When both hold in one turn, kept wins. While it is open the holder's private block carries "You told the player you would <what>. It is not done yet; it is yours to keep, raise or explain.", and adds "It is overdue." once `due` has passed (`{"boundaries": n}` turns after it was made, or `{"story_day": d}` with a story clock) or, without `due`, after 12 turns; overdue is never broken. The turn it is kept, the holder reads "You kept your word to the player: <what>." once. No other member, no shared prompt and no player surface gets the holder's line. The player sees "Promised you: <what> (open)", then "(kept)" or "(broken)", on the holder's People page in the Journal (a page is added for a holder without a codex entry) while the holder is known; `heard: false` keeps a promise made out of the player's hearing off every player surface, for a twist. There is no countdown, no overdue marker and no reminder for the player, and the player owes nothing because a character offered something. The living director gets each open, heard promise of a member who is not away as a hook ("Mara has promised the player to ..."). A kept promise may carry an `effect` (`world_info`, replayed from the latch so a swipe switches it back, and `npc_replies` with trigger `onEnter`). The story reads the keys of the gates a promise waits on, in the same rotation as People and Places. Author view lists each promise under Character life with its state, the turn and whether it is overdue. At most 6 a member; `what` is plain text up to 160 characters.
+- **Good.** `{ "id": "mara", "commitments": [{ "id": "gate", "what": "get past the north gate together", "made_when": { "q": "mara_offered_help", "op": "==", "v": true }, "kept_when": { "q": "past_north_gate", "op": "==", "v": true }, "broken_when": { "q": "mara_betrayed_party", "op": "==", "v": true }, "due": { "boundaries": 8 } }] }`. Write `what` as a verb phrase both sides read: the holder sees "You told the player you would get past the north gate together", the player sees "Promised you: get past the north gate together".
+- **Bad.** A `broken_when` that holds by waiting or absence (refused, `commitment-broken-on-inaction`): a `not` at the top, a gate that reads only time (`message_count`, `story_day`, ...), or a leaf that holds before anything happens (`== false`, `!= true`, the quality's start value); a `kept_when` that holds at the start, `due.story_day` without a clock, an id with an underscore or a promise to anyone but the player (refused: between members use an agenda); "you", "I" or "me" in `what` (`commitment-what-names-a-side`: one side reads it wrong).
+- **If wrong.** A promise that never resolves: its keys are read a few at a time, so a crowded read asks them a turn later; check that some story event can set `kept_when`.
 
 <a id="story-time"></a>
 

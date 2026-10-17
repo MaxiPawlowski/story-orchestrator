@@ -178,14 +178,16 @@ setPoseCard: { backedBy: "setPoseCard", doc: "Set living card fields and charact
   },
   setCharacterLife: {
     backedBy: "setCharacterLife",
-    composes: ["setMemberFactions", "setRelationshipLabels"],
-    doc: "Replace one cast member's character life (every field you leave out is cleared): feelings, mood, off-stage agenda, whereabouts, the factions it belongs to. "
+    composes: ["setMemberFactions", "setRelationshipLabels", "setCommitments"],
+    doc: "Replace one cast member's character life (every field you leave out is cleared): feelings, mood, off-stage agenda, whereabouts, the factions it belongs to, "
+      + "promises it made to the player (kept or broken by an event, never by time). "
       + "Private to that member. Read the character-life guide first.",
     args: {
       id: req("string", "member id"),
       life: req("object", "{relationships?: [{toward: id|player, axes, range?, step?, start?, public?: [{label, when?, follows_feeling?, hold?}], "
         + "secret?: [{id, label, revealed_when}]}], mood?: {baseline, values?, lasts?}, "
-        + "agenda?: [{id, goal, steps: [{text, when?, effect?, public?, repeat?}], pace: per_n_boundaries|per_chapter, every?}], schedule?: [{when, at}], factions?: [faction id] (at most 3)}"),
+        + "agenda?: [{id, goal, steps: [{text, when?, effect?, public?, repeat?}], pace: per_n_boundaries|per_chapter, every?}], schedule?: [{when, at}], factions?: [faction id] (at most 3), "
+        + "commitments?: [{id, what (a verb phrase without you/I), made_when: gate | \"start\", kept_when, broken_when? (an event), due?: {boundaries}|{story_day}, heard?, effect?}] (at most 6)}"),
     },
   },
   setFactions: {
