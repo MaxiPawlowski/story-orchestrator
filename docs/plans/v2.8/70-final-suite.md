@@ -329,3 +329,11 @@ Counts only for campaign rows; no checkpoint, character or place names.
 2. GS6 carrier stories: which adopted stories carry each world-layer feature (count from the pinned build at
    pre-flight 1).
 3. Image POC GPU time: one session assumed; the remaining POC rows are listed in 33, 36 and 41 Gate records.
+
+## Owner decisions 2026-10-17
+
+- D1 budget: no fixed cap for the frozen run; it keeps going until the owner pauses it. Earlier rounds count as shakedown.
+- D2: Artemis is the reply/read model for the former cloud rows (no DeepSeek spend); +2.2 GPU-h accepted.
+- D5/D6: SP6, R2/R7, B1-HIST and the 63 latency arms run on a RunPod pod, when the owner says so.
+- D3 moot (no cloud reply lane); D4 carry empty-diff pairs: yes; D7 build missing harnesses before freeze; D8 GS6 as a new journey; D9 re-run 43 R-Gate2 automatically if W4 passes; D10 Claude runs the over-steer card (via go-with-recommendations).
+- The run starts only on the owner's go.
