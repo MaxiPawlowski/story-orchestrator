@@ -89,3 +89,12 @@ Suggested fix: propagate WriteResult through speak/settlement. Reserve while pen
 - `node --test scripts/debug/liveSuiteScore.test.mts scripts/debug/needleInventory.test.mts`: **25 passed, 0 failed**. Node emitted a module-type warning.
 - Two in-memory source reproductions, no files written: recent-load/remote-edit overwrite and same-page pending-edit false refusal. Both reproduced despite the selected suites passing.
 - Full gates and live/browser runs not run. Documentation-only review, not a build or live acceptance attestation. Only this review file intentionally added; pre-existing `.claude/launch.json` left untouched.
+
+## Addressed 2026-10-16/17
+
+All six findings fixed on `v2.8-harvest-review-fixes` (unmerged); details, tests and gates in plan 69 §Gate record
+addendum 2026-10-16/17. #1 `2d569834`, #4 `bef63587` (correction: the reference is returned on a cache miss,
+world-info.js:2054-2055; :2041-2042 clones), #2 `851dff9f`, #3 `5c086027` (new `story-orchestrator-lore` plugin,
+conditional commit; K12 claim reworded to "our writers never overwrite each other or a change the server already
+has; ST's editor saving in the same instant remains best-effort detection"), #5 `e33f6bbd` (also the continuity note
+and chapter bridge, found by seeding every declared block), #6 `dccdd24e`.
