@@ -6,6 +6,7 @@ import { ChatIdentity, describeDecode, type DecodeJournal } from "./messageIdent
 import type { ChatSave } from "./chatSave";
 import { currentChat, readChatChange, unbindBranchMirror, type LoadedChat } from "./chatIdentity";
 import { isThoughtOnlyReply, REASONING_RESIDUE_TAGS } from "./emptyReply";
+import { clearRegeneration, noteRegeneration, noteRenderAnchor, regeneratingMessage, resetRegeneration } from "./regeneration";
 
 const FLUSH_POLL_MS = 300;
 const FLUSH_POLL_MAX_MS = 60000;
@@ -82,9 +83,9 @@ export class TurnBridge {
       { eventName: "GENERATION_STOPPED", handler: () => void this.flushPending() },
       { eventName: "MESSAGE_RECEIVED", handler: (messageId, type) => void this.onRenderedReply(type, messageId) },
       { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (messageId, type) => void this.onRenderedReply(type, messageId) },
-      { eventName: "MESSAGE_SENT", handler: () => this.refreshIdentity() },
+      { eventName: "MESSAGE_SENT", handler: () => { clearRegeneration(); this.refreshIdentity(); } },
       { eventName: "MESSAGE_SWIPE_DELETED", handler: () => this.refreshIdentity() },
-      { eventName: "MESSAGE_SWIPED", handler: (messageId) => void this.onMutation(messageId, "swipe") },
+      { eventName: "MESSAGE_SWIPED", handler: (messageId) => this.onMutation(messageId, "swipe") },
       { eventName: "MESSAGE_EDITED", handler: (messageId) => void this.onMutation(messageId, "edit") },
       { eventName: "MESSAGE_DELETED", handler: (chatLength) => void this.onMutation(chatLength, "delete") },
       { eventName: "MESSAGE_UPDATED", handler: (messageId) => void this.onMutation(messageId, "update") },
@@ -132,10 +133,13 @@ export class TurnBridge {
   }
 
   private async onRenderedReply(type: unknown, messageId?: unknown) {
+    const regenerated = regeneratingMessage();
+    clearRegeneration();
     this.refreshIdentity();
     if (!isTurnMessageType(type)) return;
     const now = Date.now();
     const id = hostMessageId(messageId);
+    if (id !== null && id !== regenerated) noteRenderAnchor(id, this.manager.getEngineState?.()?.lastMessageId);
 
     if (id !== null && this.thoughtOnly(id)) {
       this.emptyReply?.observe(id, type);
@@ -221,6 +225,7 @@ export class TurnBridge {
   }
 
   private async onChatChanged() {
+    resetRegeneration();
     const change = readChatChange(this.loadedChat, { runContext: () => this.manager.getRunContext(), engineBoundary: () => this.manager.getEngineState()?.boundary ?? null });
     if (change.kind === "same-chat") {
       this.refreshIdentity();
@@ -256,6 +261,7 @@ export class TurnBridge {
     const edited = kind === "edit" || kind === "update";
     if (edited && this.save?.unchanged(messageId)) return;
     const recommit = kind === "swipe" && isStoredSwipeReply(getContext().chat as unknown[] | undefined, messageId);
+    if (kind === "swipe" && !recommit) noteRegeneration(messageId);
     const decoded = kind === "delete" ? this.decodeDelete(messageId) : null;
     if (!decoded) this.refreshIdentity();
     const drift = edited ? this.save?.firstDrift() ?? null : null;
