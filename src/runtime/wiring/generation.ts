@@ -27,6 +27,8 @@ import { spikeSeams } from "../spikeSeams";
 import { awayNoticeLine, createAwayNotice } from "../awayNotice";
 import { INJECTION_REGISTRY, type InjectionCarry } from "@constants/injectionRegistry";
 import { residueTags, settledOnReply } from "../emptyReply";
+import { observeRenderedReasoning } from "../reasoningRevision";
+import { hostMessageId } from "../turnBridge";
 import type { LoreWiring } from "./lore";
 import type { Disposers, LiveParts } from "./types";
 
@@ -143,7 +145,12 @@ export const subscribeGenerationEvents = (live: LiveParts, generation: Generatio
     { eventName: "GENERATION_ENDED", handler: (...args: unknown[]) => { live.loudGate.release(); apply(generation.ended(args)); } },
     { eventName: "GENERATION_STOPPED", handler: (...args: unknown[]) => { live.loudGate.release(); live.talk?.onGenerationStopped(); apply(generation.stopped(args)); } },
     { eventName: "MESSAGE_RECEIVED", handler: (messageId, type) => { live.loudGate.release(); apply(generation.rendered(messageId, type)); } },
-    { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (messageId, type) => { live.loudGate.release(); apply(generation.rendered(messageId, type)); } },
+    { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (messageId, type) => {
+      live.loudGate.release();
+      const id = hostMessageId(messageId);
+      if (id !== null) observeRenderedReasoning((getContext().chat ?? [])[id]);
+      apply(generation.rendered(messageId, type));
+    } },
     { eventName: "CHAT_CHANGED", handler: () => { live.loudGate.release(); apply(generation.chatChanged()); } },
     {
       eventName: "GROUP_WRAPPER_STARTED",
