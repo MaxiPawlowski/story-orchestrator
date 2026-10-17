@@ -35,7 +35,7 @@ const chatFiles = (root: string): string[] => ['chats', 'group chats'].flatMap((
   if (!fs.existsSync(base)) return [];
   return fs.readdirSync(base, { recursive: true, withFileTypes: true })
     .filter((entry) => entry.isFile() && entry.name.endsWith('.jsonl'))
-    .map((entry) => path.join(entry.parentPath ?? base, entry.name));
+    .map((entry) => path.join((entry as { parentPath?: string }).parentPath ?? base, entry.name));
 });
 
 const measure = (root: string): DataRootSizes => {
