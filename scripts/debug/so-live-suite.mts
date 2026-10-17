@@ -10,6 +10,7 @@ import { latencyPercentiles, parseEffortArm, pinRoleEffort, pinRoleProfile, read
 import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreContains, scoreIntents, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
 import { fingerprintsOf, readRoleModel, type MeasurementFingerprints } from './lib/measurementFingerprint.mts';
 import { compareArms } from './lib/armCompare.mts';
+import { captureChatFingerprint, firstChange } from './lib/chatUntouched.mts';
 import { captureHeader } from './so-run-header.mts';
 
 const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high] [--profile <name|id>] [--arm <label>] [--set extractor|time]
@@ -111,6 +112,7 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
   let effortsRestored = null;
   let profilesRestored = null;
 
+  const untouchedBefore = await captureChatFingerprint(page).catch(() => null);
   const results = [];
   const prompts: string[] = [];
   let fingerprints: MeasurementFingerprints | null = null;
@@ -157,6 +159,7 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
     if (routed) profilesRestored = await restoreRoleProfiles(page, routed.before);
   }
 
+  const touched = untouchedBefore ? firstChange(untouchedBefore, await captureChatFingerprint(page)) : 'the chat fingerprint was not read before the run';
   const passed = results.filter((entry) => entry.pass).length;
   const accuracy = passed / results.length;
   const totals = tierTotals(results.map((entry) => ({ name: entry.name, pass: entry.pass, tiers: entry.tiers ?? [] })), floors);
@@ -173,8 +176,9 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
     floors: Object.fromEntries(Object.entries(floors).map(([tier, floor]) => [tier, { floor, from: floorsGiven.includes(tier) ? 'given' : 'default' }])),
     expectCount: expectCount ?? null,
     incomplete,
-    notGreen: verdict.reasons,
-    ok: verdict.ok,
+    notGreen: [...verdict.reasons, ...(touched ? [`chat touched: ${touched}`] : [])],
+    ok: verdict.ok && !touched,
+    chatUntouched: { ok: !touched, firstChange: touched },
     recorded: record,
     judge,
     fingerprints,
@@ -189,7 +193,7 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
     const intents = total.intents ? ` precision ${total.intents.precision} recall ${total.intents.recall} playerAttributed ${total.intents.playerAttributed}` : '';
     console.log(`${total.ok ? 'ok  ' : 'FAIL'} ${tier.padEnd(10)} ${total.passed}/${total.scored}${intents}${total.floor === undefined ? '' : ` floor ${total.floor}`}${total.vacuous.length ? `  [vacuous expectations: ${total.vacuous.join(', ')}]` : ''}`);
   }
-  for (const reason of verdict.reasons) console.log(`NOT GREEN: ${reason}`);
+  for (const reason of report.notGreen) console.log(`NOT GREEN: ${reason}`);
   console.log(JSON.stringify({ total: report.total, passed, plotDeltaAccuracy: report.plotDeltaAccuracy, min, tiers: totals, ok: report.ok }, null, 2));
   return { ok: report.ok };
 }
