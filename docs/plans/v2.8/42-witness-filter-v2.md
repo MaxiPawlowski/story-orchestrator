@@ -506,3 +506,33 @@ Tooling: `so-witness.mts label-write | label-check | label-merge | lab | freeze 
 `combineWitnessScores` in `memory/witness/score.ts`; tests `src/memory/witnessLabels.test.ts`.
 
 Gates (branch `v2.8-witness-real`): `npm run gates -- --jobs=1 --no-storybook` all green in 270.6 s (test 9,440+ passed, test:replay, build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release). Storybook skipped: no UI change. First run red on `codeHealth.guard` (a dead export in `vr62.ts`, removed) and then `typecheck:test` (a test fixture field), both fixed before the green run. No product code changed: the new modules are reached only from scripts and tests.
+
+## W4 adjudication and recorder: declarations (2026-10-17, branch `v2.8-witness-real-2`, written before any adjudication)
+
+Owner rule "go with recommendations" (coordinator, 2026-10-17): the disagreement stratum is adjudicated, not dropped. Floors
+(§7) unchanged.
+
+- **Adjudicator.** Astra, `codex exec -m gpt-6-astra` (read-only sandbox, ephemeral, stdin closed), a third model distinct
+  from writer (Sol) and checker (Claude). Every frozen label with `agreed: false` goes to it: 60 real, 30 lab.
+- **Blind to identities.** One call per session (lab: one call) over that session's disagreed messages. Astra sees the
+  labelling prompt the writer and checker saw (transcript to the window's end, members, the same rubric) and, per message,
+  the two earlier labels as "Label A" and "Label B" in an order fixed by the hash of the message key, never which model
+  wrote either. It answers each message with its own label (`present`, then `heard` or `mixed` spans) or `undecided`.
+- **Its verdict wins.** The label becomes Astra's (`review.adjudicator`, `review.adjudicated: true`); an `undecided`
+  message, a missing answer, a malformed one or an unresolved span anchor becomes `heard: "unknown"` (the W4u ambiguous
+  stratum, where a predicted heard counts as a false inclusion) with Astra's `present` if given, else the writer's. Lab:
+  `present` stays structural (cast presence plus the verdict's listeners); Astra decides `heard` only.
+- **Scorer.** Keeps a label when writer and checker agreed, or when an adjudicator distinct from both decided it.
+- **Freeze.** New sha256 of every label file committed before any score; the 2026-10-17 freeze stays as the
+  pre-adjudication record. W4n is re-scored after that freeze.
+- **Recorder (built now, run later on the 3090 by the coordinator).** `so-witness.mts record` runs, on a lane page with the
+  read profile, the shipped `runSharedRead` (same contract, scope, retry on `length`) through
+  `storyOrchestratorLiveSuite.runWitnessRead`, twice per window: witness lines on (`witnessPresent` set) and off (baseline,
+  for Wc). Story = the session's pinned story, checkpoint and blackboard from the boundary log at the window's last
+  message. Real sessions: 2 reads per labelled window, the first 8 and the last 8 of its 12 messages; present = the
+  session's members (group enable history is not recorded). Lab: 5 reads of 8 consecutive messages on the lab's story;
+  present = the cast presence at the read's last message. On-arm responses are saved as `so-witness-reads/1` (members keyed
+  by name, roster ids and aliases as aliases); both arms record input and output tokens, `finish`, and latency.
+  `so-witness.mts wc` computes Wc (input p95, output p95, `finish: length` rate, latency p95 against the off arm);
+  `so-witness.mts score-real` scores W4 rows per set against the frozen labels. The live-suite row of Wc and RB stay
+  separate runs.
