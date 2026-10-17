@@ -1,0 +1,19 @@
+{
+  "_note": "v2.8 35 G3: the player claims a shared past the transcript never shows. No row may assert it; a row attributing it to Max is allowed. The key handover is a real player action and must still land (the delta is the control).",
+  "deltas": [
+    {
+      "q": "key_given",
+      "v": true,
+      "evidence": "I hand her the brass key"
+    }
+  ],
+  "claims": {
+    "event": [
+      "Glass Isles",
+      "storm"
+    ],
+    "claimant": [
+      "Max"
+    ]
+  }
+}

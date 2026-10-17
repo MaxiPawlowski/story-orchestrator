@@ -5,6 +5,8 @@ import { JUDGE_USE_COPY, ridesWardenRoute } from "@judge/settings";
 import type { RuntimeSnapshot } from "./types";
 import type { Check, CheckFinding } from "./checks";
 import { hasUnsavedChanges, playerSaveNotice, SAVE_PLAYER_TEXT } from "./saveHealth";
+import { overLimit, STATE_SIZE_LIMITS } from "./stateSizeCore";
+import { anyLost } from "./libraryIndexCore";
 import { ROLE_OUTAGE_STATES, ROLE_PROBLEM_STATES } from "./roleHealth";
 import { mutedMembersText, REPAIR_PLAYER_COPY, TRANSPORT_PLAYER_TEXT } from "./pipeline";
 
@@ -317,7 +319,45 @@ export const INFO_SETUP_CHECKS: readonly Check[] = [
   },
 ];
 
+const megabytes = (chars: number) => `${(chars / (1024 * 1024)).toFixed(1)} MB`;
+
 export const DEGRADING_SETUP_CHECKS: readonly Check[] = [
+  degrades({
+    id: "library-lost-to-tab", area: "save", scope: "install", audience: "player", engineFree: true, feature: "stories",
+    detect: (snapshot) => {
+      const lost = snapshot.libraryLost;
+      if (!anyLost(lost)) return null;
+      return {
+        consequence: "Another SillyTavern tab saved older settings over this install, so a story or wizard session saved here is gone from the library or holds an older version.",
+        detail: [
+          ...(lost.stories.length ? [`Missing from the library: ${lost.stories.join(", ")}.`] : []),
+          ...(lost.sessions.length ? [`Missing wizard sessions: ${lost.sessions.length}.`] : []),
+          ...(lost.changed.length ? [`Older than its last save: ${lost.changed.join(", ")}.`] : []),
+          "SillyTavern copies its settings at each server start into the user's backups folder (settings_<user>_<time>.json); "
+            + "a lost story can be copied back from there or imported again. Keep one SillyTavern tab open while you edit stories.",
+        ].join(" "),
+        player: "A story or story setup saved in another SillyTavern tab was overwritten by an older tab. Import it again, and keep one SillyTavern tab open.",
+      };
+    },
+  }),
+  degrades({
+    id: "state-size-large", area: "save", scope: "install", audience: "player", engineFree: true, feature: "stories",
+    detect: (snapshot) => {
+      const over = overLimit(snapshot.stateSize);
+      const size = snapshot.stateSize;
+      if (!size || !over.length) return null;
+      return {
+        consequence: "Story Orchestrator's saved data has grown large, so every save sends more and saving can become slow or fail.",
+        detail: [
+          ...(over.includes("blob") ? [`This chat keeps ${megabytes(size.blobChars)} of story state (limit ${megabytes(STATE_SIZE_LIMITS.blobChars)}), `
+            + "sent again with every chat save. Start a long story again in a new chat, or restart it here."] : []),
+          ...(over.includes("library") ? [`The story library and wizard sessions hold ${megabytes(size.libraryChars)} (limit ${megabytes(STATE_SIZE_LIMITS.libraryChars)}), `
+            + "sent with every settings save. Remove stories you no longer play from the Library."] : []),
+        ].join(" "),
+        player: "Story Orchestrator's saved data has grown large, so saving may get slow. Remove stories you no longer play from the Library, or start a long story in a new chat.",
+      };
+    },
+  }),
   degrades({
     id: "chapter-unsummarized", area: "chapter", scope: "story", audience: "author", feature: "chapters",
     detect: (snapshot) => {

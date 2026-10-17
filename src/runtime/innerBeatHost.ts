@@ -6,6 +6,7 @@ import type { MemoryCoordinator } from "./coordinators/memoryCoordinator";
 import type { PacingCoordinator } from "./coordinators/pacingCoordinator";
 import type { ManagerPort } from "./managerWiring";
 import { spikeSeams } from "./spikeSeams";
+import { withoutStaleReasoning } from "./reasoningRevision";
 import { activeSpeakerId, enabledCharacterIds, nameForRosterId } from "./roster";
 
 export interface InnerBeatHostDeps extends InnerCoordinatorDeps {
@@ -32,7 +33,7 @@ const within = async (work: Promise<unknown>, ms: number): Promise<void> => {
 const carried = (deps: InnerBeatHostDeps, rosterId: string): string => {
   if (!spikeSeams.carry || deps.harvest?.() !== true) return "";
   const name = deps.memberName(rosterId);
-  const rows = deps.chatRows();
+  const rows = withoutStaleReasoning(deps.chatRows());
   const started = deps.getState()?.checkpointStartedMessageId ?? -1;
   const result = spikeSeams.carry({ rosterId, name, rows, players: deps.personas?.() ?? [], from: Math.max(0, started + 1) });
   if (result.line) deps.journal(`Inner thought carried for ${name}`, `from message ${String(result.messageId)}`);

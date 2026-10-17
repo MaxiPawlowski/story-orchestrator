@@ -13,6 +13,8 @@ import { WITHHOLDING_TYPES } from "./generationLifecycle";
 import { log } from "@utils/log";
 import type { WriteResult } from "@utils/writeResult";
 
+const revisionKey = (revision: SourceRevision | null): string => (revision ? `${revision.swipeId ?? ""}/${revision.hash}` : "");
+
 export const DIRECTOR_TIMEOUT_MS = 20000;
 export const DIRECTOR_MAX_TOKENS = 96;
 export const DIRECTOR_WINDOW_MESSAGES = 8;
@@ -361,7 +363,8 @@ export class TalkController {
   }
 
   private decisionKey(): string {
-    return `${this.host.getChatId() ?? "?"}:${this.host.getCheckpointInfo()?.id ?? "?"}:${this.host.getLastMessageId()}`;
+    const revision = revisionKey(this.host.getLastMessageRevision?.() ?? null);
+    return `${this.host.getChatId() ?? "?"}:${this.host.getCheckpointInfo()?.id ?? "?"}:${this.host.getLastMessageId()}:${revision}`;
   }
 
   private passKey(): string {

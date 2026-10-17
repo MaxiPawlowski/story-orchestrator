@@ -1,6 +1,6 @@
 import { isRecord } from "@utils/guards";
 
-export type ExtensionConflict = "stepped-thinking-separated" | "presence" | "prompt-inspector" | "vectors-world-info" | "cc-send-if-empty";
+export type ExtensionConflict = "stepped-thinking-separated" | "presence" | "prompt-inspector" | "vectors-world-info" | "cc-send-if-empty" | "nemo-lorebook-spacing";
 
 export interface ExtensionConflictHost {
   settings: unknown;
@@ -39,6 +39,11 @@ const presenceOn = (settings: Settings): boolean => settings?.enabled !== false;
 // it is "true" every non-dry Generate waits on its popup (GENERATE_AFTER_COMBINE_PROMPTS / CHAT_COMPLETION_PROMPT_READY, :64-126).
 const inspecting = (_settings: Settings, storage: (key: string) => string | null): boolean => storage("promptInspectorEnabled") === "true";
 
+// NemoPresetExt 6.0.12: initializeExtension always calls initializeLorebookSpacing (content.js:105), whose
+// WORLDINFO_ENTRIES_LOADED listener rewrites every multiword plaintext key on the scan copies to a regex
+// (features/lorebook-spacing/runtime.js:7-14, matching.js:26-31); no setting turns it off, so loaded = on.
+const nemoSpacing = (): boolean => true;
+
 // Vector Storage: `enabled_world_info` (vectors/index.js:117, 791, 2003-2004); the exclusive lore select reads the
 // setting alone (loreExclusive.ts "vectors-wi"), so this one ignores whether the extension is loaded.
 export const vectorsWorldInfoOn = (root: unknown): boolean => {
@@ -56,6 +61,7 @@ export const KNOWN_EXTENSIONS: readonly KnownExtension[] = [
   { id: "stepped-thinking-separated", folder: "third-party/st-stepped-thinking", settingsKey: "st-stepped-thinking", on: separatedThinking },
   { id: "presence", folder: "third-party/SillyTavern-Presence", settingsKey: "Presence", on: presenceOn },
   { id: "prompt-inspector", folder: "third-party/Extension-PromptInspector", on: inspecting },
+  { id: "nemo-lorebook-spacing", folder: "third-party/NemoPresetExt", on: nemoSpacing },
 ];
 
 const safeStorage = (storage: ExtensionConflictHost["storage"]) => (key: string): string | null => {

@@ -1,6 +1,6 @@
 # Plan 69 — Harvest hardening bundle
 
-**Status: owner accepted 2026-10-16 (61 §Owner decisions). Built in part 2026-10-16 on `v2.8-harvest-k11-k12` (unmerged): K11, K12, K5, K6, K8, K9 (3/4), K10, K17, K1a; see §Gate record 2026-10-16. Revised 2026-10-16 after Astra's review (§Review 2026-10-16).** Written
+**Status: owner accepted 2026-10-16 (61 §Owner decisions). Built in part 2026-10-16 on `v2.8-harvest-k11-k12` (unmerged): K11, K12, K5, K6, K8, K9 (3/4), K10, K17, K1a; see §Gate record 2026-10-16. The rest built 2026-10-17 on `v2.8-harvest-rest` (unmerged): K2, K3 (detection), K6b, K7, K13, K14, K15; K16 measured, nothing to build; K4 blocked on B8; K1b owed; see §Gate record 2026-10-17. Revised 2026-10-16 after Astra's review (§Review 2026-10-16).** Written
 2026-10-14 from the extension harvest (`61-harvest-triage-2026-10-14.md`). Not built, not queued. One plan for the small
 hardening items that are not built defects and that no feature plan owns. Each item is S, independent, one commit, and closes
 on its own D floor. Two items (K11, K12) are **P1 correctness guards** and come first. Implementation and acceptance **D**,
@@ -422,3 +422,85 @@ test run against the code before its fix and failing there.
     (no model-consuming path touched).
 - Open: ST's own editor can still overwrite in the same instant, because its save is unconditional; the only fix would
   touch ST's source, which this plan does not do.
+
+## Gate record 2026-10-17: the rest of the bundle (branch `v2.8-harvest-rest`, master `b9c5f392` + merge of `1f4c676f`, unmerged)
+
+Scope: K2, K3 (detection only, owner), K4, K6b, K7, K13, K14, K15, K16, K1b. One commit and one test per item; each fix's
+test was run against the code before it and failed there. No GPU, no model. Lane 80 (no-model, offline, data copied from
+lane 75), private ST copy `C:\dev\st-live-hrest` (st-live code, no data, `node_modules` junctioned to the main ST), lanes
+root `C:\dev\so-live-lanes`.
+
+- **K7 built** (`c4131c42`, golden `9a61a610`). `similarityTokens`: NFKC and the quote and dash folds of `termPresent`
+  (`foldTerm`), lowercase, punctuation stripped at token edges only. `"Mara."` vs `"Mara"` 1.0; `don't`, `co-op`, `3.5` one
+  token each; planted inner-punctuation set (`don't/dont`, `co-op/coop`, `3.5/35`, `re-cover/recover`, `it's/its`, `e.g/eg`):
+  0 merges (`memory/similarity.test.ts`; floor holds). Declared rows: K0 rows K21–K23 now fall in the Jaccard band (fixture
+  frozen; the consistency test names them); two below-band polarity fixtures (`memoryQueueHeld.test.ts`,
+  `contradictedSeed.review.test.ts`) reworded to stay below the band; E0 synthetic golden arm c hits@4 9 → 10 (verdicts
+  unchanged).
+- **K15 built** (`480880cc`). `createPersona` reads the active persona before the slash command; when the host selects the
+  new persona despite `select=false`, it switches back (only while the chat is still owned, else refused). Planted 4 writes
+  (create on a host that selects, lock, select of an unlisted persona, select lapsing during load): active persona unchanged
+  4/4; the start step's order (create, select, lock) leaves the created persona locked (`stHost/personaActiveGuard.test.ts`).
+- **K2 built** (`f71fc60e`). Host fact: NemoPresetExt 6.0.12 calls `initializeLorebookSpacing` on every load (`content.js:105`)
+  and its `WORLDINFO_ENTRIES_LOADED` listener rewrites every multiword plaintext key to a regex on the scan copies
+  (`features/lorebook-spacing/runtime.js:7-14`, `matching.js:26-31`); no setting turns it off, so "rewrite on" = loaded and
+  enabled. Row `nemo-lorebook-spacing` (folder `third-party/NemoPresetExt`), kept only for a story with lorebooks; author
+  info check `nemo-lorebook-keys`. Planted: loaded and enabled → present, disabled or missing → absent: 2/2.
+- **K16 measured, nothing to build** (`7e98143f`). `so-critic-quotes.mts` over every recorded chat holding expansion
+  verdicts (207 files, 13 unique entries): 12 verdicts, 10 judge (no quote possible), 2 model verdicts with 0 findings;
+  0 findings quote text absent from the candidate. Record `test/measurements/v2.8/69/k16-critic-quotes.json`. Code check not
+  built (the plan builds it only if any finding misquotes).
+- **K14 built** (`4f4e5df9`, `389acdd2`). Rule set before measuring: limit = the smallest whole MiB at least 2× the largest
+  measured size. Measured on 39 lane data copies (`so-size-budget.mts`, record `test/measurements/v2.8/69/k14-size-budget.json`):
+  largest chat blob 3,673,781 B, largest library 2,186,460 B (wizard sessions 985 B), p95 blob 857,933 B. Limits 8 MiB blob,
+  5 MiB library + wizard sessions (JSON characters, pinned to the record by a test). `degrades` check `state-size-large`
+  (install, player copy, engine-free); per-item sizes cached by object identity, so a snapshot costs one stringify per changed
+  record. Planted: above fires, at and below not: 1/1, 0/1.
+- **K13 built** (`aab4a05a`). Talk decisions: the cache key adds the last message's swipe id and text hash, so an in-place
+  swipe or edit decides again (the defect-replay row `talk-key-not-chat-scoped` now targets the new key line). Warden note:
+  an applied note records the revision of the reply that carried it (`noteAppliedTo`); at the next loud start a swipe or edit
+  of that reply re-arms it, so it rides again. Expression picks: already bound to text hash + swipe (`storedReads`), test only.
+  3 × 2 mutations: 6/6 (`talkDecisionRevision.review.test.ts`, `stagecraftCoordinator.test.ts` K13 cases,
+  `sprites/storedReads.test.ts`). Architecture and gotchas updated for the new key.
+- **K6b built** (`82ab2ed0`). `reasoningRevision.ts`: at `CHARACTER_MESSAGE_RENDERED` (after the receipt repair) the reply's
+  text hash is kept per send date + swipe, in memory, cap 500. Thought carry (54) and the reasoning harvest the memory read
+  takes read rows through `withoutStaleReasoning`, which hides the reasoning of a reply whose text changed since render. An
+  unobserved reply (rendered before a reload) is never called stale. Planted, 2 consumers: 2/2 (`reasoningRevision.test.ts`).
+  43's recall quotes `mes` spans with their own revision and never reads `extra.reasoning`, so the harvest is the path by
+  which a stale thought could reach recalled memory.
+- **K3 built, detection only** (`d83862b4`, census `b9bd7b4f`).
+  - Step 1 (measure), `so-stale-tab.mts` on lane 80: page B loads, page A saves a story to the library, page B saves its
+    settings. A's story is gone from the server's settings file: **lost**, 2/2 (bundle `4e405b86d461`). Side finding:
+    `importStory`'s own debounced save had not landed 2.5 s after the import; the probe forces A's save before B's.
+  - Step 2: `user/files/so-library-index.json` through the new lazy `stHost/userFiles.ts` (`WriteResult`). Union index:
+    a library save upserts only the story it wrote (id + hash), a removal writes a tombstone, a wizard session write
+    upserts its keys and tombstones the ones it dropped, a start seeds ids the index never saw (never over a tombstone or a
+    newer hash). On start, an id in the index but missing from settings (not tombstoned), a missing session, or an older
+    hash raises `library-lost-to-tab` (`degrades`, player copy), naming ST's start-time settings backups. No restore.
+  - Floors: planted revert raises the check, tombstoned deletion does not, a stale page's index write keeps the id: 3/3
+    (`libraryIndex.test.ts`, plus hash-mismatch, sessions, seeding, parsing cases).
+  - Live, lane 80, bundle `8c995e387e13` ×2 and the final bundle `bbea74a8f4e9` ×2: lost, then reload reports the probe
+    id, re-import + remove tombstones it and a reload is quiet; 4/4.
+- **K4 blocked.** B8 (`makeLast`) is not built (`60-extension-harvest-fixes.md` §Not built), and the plan builds K4 only if a
+  planted later listener still overwrites overlay keys after B8 on the captured request. Nothing built.
+- **K1b owed (CL).** Not runnable offline as specified: short_term derived records keep the output and removed rows but not
+  the fitted window text, so a refusal rate over recorded windows would be approximate, and the retained-fact checklist per
+  window has to be written over campaign text, outside this public repo, by another model.
+- Gates:
+  - `npm run gates:quick` green after each item. Reds fixed before commit: two below-band fixtures and the K0 consistency
+    row (K7), coordinator line budget and max-len (K13: helpers moved to `noteRevision.ts`), ownership census rows
+    (K3, `local`), max-len (K14), the known replay `--listTests` flake once (plain `defect-replay.mjs`, 32 of 32).
+  - Full `npm run gates -- --jobs=1 --no-storybook` on `9a61a610`: **all green in 270.8 s**. test:replay, test (822 suites,
+    9,468 passed, 1 skipped), build (main `dist/index.js` 1,297,627 B of 1,300,000), test:debug (1,359 pass), typecheck,
+    typecheck:test, lint, debug:typecheck, test:plugin, test:release. Two earlier full runs were red and fixed: the
+    error-copy census (userFiles rows) and the E0 synthetic golden (K7). Storybook skipped: no component or story changed.
+- Evidence: `C:\dev\so-live-lanes\evidence-2026-10-17\80\` (stale-tab runs `01-15-48`, `01-15-56`, `01-22-43`, `01-23-03`,
+  `02-00-26`, `02-00-48`). Plumbing green; no model-consuming path touched except K6b's filter, whose real-LLM check (a
+  rewritten reply's thought not carried in a played session) is owed with the inner-voice runs.
+- Design questions:
+  - K14/K3: the main bundle is at 1,297,627 B (2,373 B left). The next main-bundle addition needs a lazy chunk or a budget
+    call.
+  - K3: the check keeps firing on every start until the lost story is imported again. Recommended: an "acknowledge" action
+    that tombstones the reported ids (a small follow-up), rather than a time limit.
+  - K6b: render hashes live in memory only, so a rewrite after a reload goes undetected for replies rendered before it.
+    Recommended: keep it in memory unless a live session shows that case.

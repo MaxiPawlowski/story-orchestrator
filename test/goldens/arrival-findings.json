@@ -1,5 +1,7 @@
 {
   "examples/sun-ruins/quest-for-the-sun-ruins.json#0": [],
+  "test/fixtures/adversarial01-false-memory.story.json#0": [],
+  "test/fixtures/adversarial02-persona-pressure.story.json#0": [],
   "test/fixtures/background-generation.story.json#0": [],
   "test/fixtures/branching.story.json#0": [],
   "test/fixtures/carry-sequel.story.json#0": [],

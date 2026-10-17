@@ -39,6 +39,7 @@ import { buildStallRequest, stallVerdict } from "@judge/extraction";
 import { buildVerifyRequest, readVerify, verifyVerdict } from "@judge/memory";
 import { STALL_TIMEOUT_MS, VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS } from "@judge/policy";
 import { log } from "@utils/log";
+import { withoutStaleReasoning } from "../reasoningRevision";
 
 export const TYPED_READ_WINDOW = 3;
 
@@ -467,7 +468,7 @@ export class ExtractionCoordinator {
     const existing = memory.activeEpistemic();
     const epistemicPrompt = buildEpistemicPassPrompt(sceneText, enabledCharacterNames(story, this.deps.hosts.roster),
         existing.map((entry) => ({ tag: entry.tag, subject: entry.subject, content: entry.content,
-        hiddenFrom: entry.hiddenFrom })), memory.harvestsReasoning ? inner.harvestReasoning(this.deps.hosts.chat.chatRows(), audit.window) : "");
+        hiddenFrom: entry.hiddenFrom })), memory.harvestsReasoning ? inner.harvestReasoning(withoutStaleReasoning(this.deps.hosts.chat.chatRows()), audit.window) : "");
     const epistemicResponse = await askText(this.deps.model, epistemicPrompt, { role: "read", pass: "epistemic", maxTokens: maxTokensForInput("epistemic", sceneText), signal: run.signal });
     if (!run.stillOwns()) return false;
     const epistemicSignals: ParsedEpistemicSignal[] = [];

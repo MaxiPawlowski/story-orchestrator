@@ -937,6 +937,29 @@ describe("continuity warden (v2.2 plan 05)", () => {
     expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(1);
   });
 
+  it.each([
+    ["an in-place swipe", (row: Record<string, unknown>) => { row.swipe_id = 1; row.mes = "Mira says the ferry still runs."; }],
+    ["an in-place edit", (row: Record<string, unknown>) => { row.mes = "We wade the ford instead, the rope edited."; }],
+  ])("plan 69 K13: %s of the reply that carried the note makes its applied mark invalid, so the note rides again", async (_label, mutate) => {
+    const env = harness({ settings: wardenOn("auto"), warden: warden() });
+    await env.coordinator.runWardenPass(1);
+    env.coordinator.onGenerationStarted("normal", false);
+    mockChat.push({ name: "Mira", mes: "We wade the ford.", is_user: false, swipe_id: 0 });
+    env.coordinator.commitNote(true);
+    expect(env.read().proposals.at(-1)?.ops[0].status).toBe("applied");
+    env.coordinator.onGenerationStarted("normal", false);
+    expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(1);
+    mutate(mockChat.at(-1) as Record<string, unknown>);
+    env.coordinator.onGenerationStarted("swipe", false);
+    expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(2);
+    expect(setStoryExtensionPrompt).toHaveBeenLastCalledWith(KEY, note.text, 0);
+    mockChat.at(-1)!.mes = "Mira points at the ferry.";
+    env.coordinator.commitNote(true);
+    expect(env.read().proposals.at(-1)?.ops[0].status).toBe("applied");
+    env.coordinator.onGenerationStarted("normal", false);
+    expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(2);
+  });
+
   it("review 2026-10-16 #5: a quiet run nested in the loud one withholds the note, the loud run gets it back, and its render spends it", async () => {
     const env = harness({ settings: wardenOn("auto"), warden: warden() });
     await env.coordinator.runWardenPass(1);

@@ -23,6 +23,7 @@ const CASES = [
   { id: "prompt-inspector-on", conflict: "prompt-inspector", severity: "degrades" },
   { id: "vectors-world-info", conflict: "vectors-world-info", severity: "info" },
   { id: "cc-filler-after-reply", conflict: "cc-send-if-empty", severity: "info" },
+  { id: "nemo-lorebook-keys", conflict: "nemo-lorebook-spacing", severity: "info" },
 ] as const;
 
 const story = (exclusive: boolean, lorebooks = ["Ruins"]) => ({ lore_select: { lorebooks, exclusive } }) as unknown as NormalizedStoryV2;
@@ -50,7 +51,7 @@ describe("extension conflict checks", () => {
   it("player copy is plain, and the author-only info finding has none", () => {
     for (const { id, conflict } of CASES) {
       const player = runCheck(check(id), quiet({ extensionConflicts: [conflict] }))?.player;
-      if (id === "vectors-world-info") expect(player).toBeNull();
+      if (id === "vectors-world-info" || id === "nemo-lorebook-keys") expect(player).toBeNull();
       else if (id === "cc-filler-after-reply") expect(player).toBe("SillyTavern adds a filler line after a character's reply, in the prompt only: you will not see it in the chat.");
       if (id === "cc-filler-after-reply") expect(jargonIn(player ?? "")).toEqual([]);
       else expect(jargonIn(player ?? "")).toEqual([]);
@@ -80,6 +81,14 @@ describe("extensionConflicts: the snapshot slice", () => {
     const without = { checkpoints: [{ id: "a", effects: { npc_replies: [] } }, { id: "b" }] } as unknown as NormalizedStoryV2;
     expect(extensionConflictsFor(withReplies, ["cc-send-if-empty"])).toEqual(["cc-send-if-empty"]);
     expect(extensionConflictsFor(without, ["cc-send-if-empty", "presence"])).toEqual(["presence"]);
+  });
+
+  it("v2.8 69 K2: keeps the NemoPresetExt row only for a story with lorebooks", () => {
+    const withBooks = { requirements: { lorebooks: ["Ruins"] } } as unknown as NormalizedStoryV2;
+    const without = { requirements: { lorebooks: [] } } as unknown as NormalizedStoryV2;
+    expect(extensionConflictsFor(withBooks, ["nemo-lorebook-spacing"])).toEqual(["nemo-lorebook-spacing"]);
+    expect(extensionConflictsFor(without, ["nemo-lorebook-spacing", "presence"])).toEqual(["presence"]);
+    expect(extensionConflictsFor({} as NormalizedStoryV2, ["nemo-lorebook-spacing"])).toEqual([]);
   });
 
   it("reads through the registered reader, and none once it is released", () => {

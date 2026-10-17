@@ -1,10 +1,15 @@
-function tokenize(text: string): Set<string> {
-  return new Set(String(text ?? "").toLowerCase().split(/\s+/).filter(Boolean));
+import { foldTerm } from "@utils/termPresent";
+
+const EDGE_PUNCTUATION = /^[^\p{L}\p{N}]+|[^\p{L}\p{N}]+$/gu;
+
+export function similarityTokens(text: string): Set<string> {
+  const folded = foldTerm(String(text ?? "")).toLowerCase();
+  return new Set(folded.split(/\s+/).map((token) => token.replace(EDGE_PUNCTUATION, "")).filter(Boolean));
 }
 
 export function jaccardSimilarity(a: string, b: string): number {
-  const setA = tokenize(a);
-  const setB = tokenize(b);
+  const setA = similarityTokens(a);
+  const setB = similarityTokens(b);
   if (setA.size === 0 || setB.size === 0) return 0;
   const overlap = [...setA].filter((word) => setB.has(word)).length;
   const union = new Set([...setA, ...setB]).size || 1;

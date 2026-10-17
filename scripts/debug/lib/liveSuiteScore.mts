@@ -6,13 +6,13 @@
 // expectations that nothing looked at. Per-tier accuracy is reported separately and each tier
 // carries its own floor, because one aggregate lets a strong tier carry a weak one.
 
-import { termPresent, TERM_SCORER_VERSION, type TermMode } from '../../../src/utils/termPresent.ts';
+import { foldTerm, termPresent, TERM_SCORER_VERSION, type TermMode } from '../../../src/utils/termPresent.ts';
 
 export type { TermMode };
 
-export type TierName = 'deltas' | 'facts' | 'rejected' | 'memory' | 'arcs' | 'epistemic' | 'ledger' | 'intents';
+export type TierName = 'deltas' | 'facts' | 'rejected' | 'memory' | 'arcs' | 'epistemic' | 'ledger' | 'intents' | 'claims' | 'quoted';
 
-export const TIERS: TierName[] = ['deltas', 'facts', 'rejected', 'memory', 'arcs', 'epistemic', 'ledger', 'intents'];
+export const TIERS: TierName[] = ['deltas', 'facts', 'rejected', 'memory', 'arcs', 'epistemic', 'ledger', 'intents', 'claims', 'quoted'];
 
 export interface IntentCounts { expected: number; matched: number; spurious: number; playerAttributed: number }
 
@@ -114,6 +114,51 @@ export function scoreRejected(stated: Array<{ reason?: string; scope?: string; m
     scored: true,
     pass: missing.length === 0,
     detail: missing.length ? `missing rejection reason(s): ${missing.join(', ')} (got: ${liveReasons.join(', ') || 'none'})` : `rejected for ${wanted.join(', ')}`,
+  };
+}
+
+/** v2.8 35 G3: a claimed event the transcript never shows. A row naming it is allowed only as the claimant's words. */
+export interface ClaimsSpec { event: string[]; claimant: string[]; modes?: Record<string, TermMode> }
+
+const SAYING = '(?:says|said|claims|claimed|insists|insisted|tells|told|recalls|recalled|asserts|asserted|mentions|mentioned|suggests|suggested|reminds|reminded|speaks of|spoke of|talks about|talked about)';
+
+export const attributedTo = (row: string, claimant: readonly string[]): boolean =>
+  /according to/i.test(row) || claimant.some((name) => new RegExp(`(?<![\\p{L}\\p{N}])${escapeRegExp(name)}(?![\\p{L}\\p{N}])[^.;]{0,60}?\\b${SAYING}\\b`, 'iu').test(row));
+
+export function scoreClaims(spec: ClaimsSpec | undefined, rows: unknown[], match: NeedleMatch = matchV2): TierOutcome {
+  if (!spec) return { tier: 'claims', scored: false, pass: false, detail: 'the fixture states no expectation for this tier' };
+  if (!spec.event?.length || !spec.claimant?.length) return { tier: 'claims', scored: true, pass: false, detail: 'no assertion', vacuous: ['claims: an event and a claimant are both needed'] };
+  const lines = (rows ?? []).map(text);
+  const naming = lines.filter((line) => spec.event.some((needle) => match(line, needle, modeOf(spec.modes, needle), 'contains')));
+  const asserted = naming.filter((line) => !attributedTo(line, spec.claimant));
+  return {
+    tier: 'claims',
+    scored: true,
+    pass: asserted.length === 0,
+    detail: asserted.length ? `${asserted.length} row(s) assert the claimed event: ${asserted.join(' | ')}` : `${naming.length} row(s) name the claimed event, all attributed`,
+  };
+}
+
+/** v2.8 35 G4: no memory row may quote a line it should not keep (a run of `words` consecutive words from it). */
+export interface QuotedSpec { line: string; words?: number }
+
+const wordsOf = (value: string): string[] => foldTerm(value).toLowerCase().split(/[^\p{L}\p{N}']+/u).filter(Boolean);
+
+export function scoreQuoted(spec: QuotedSpec | undefined, rows: unknown[]): TierOutcome {
+  if (!spec) return { tier: 'quoted', scored: false, pass: false, detail: 'the fixture states no expectation for this tier' };
+  const size = Math.max(2, spec.words ?? 4);
+  const source = wordsOf(spec.line);
+  if (source.length < size) return { tier: 'quoted', scored: true, pass: false, detail: 'no assertion', vacuous: [`quoted: the line is shorter than ${size} words`] };
+  const grams = new Set(source.slice(0, source.length - size + 1).map((_, at) => source.slice(at, at + size).join(' ')));
+  const quoting = (rows ?? []).map(text).filter((row) => {
+    const words = wordsOf(row);
+    return words.some((_, at) => at + size <= words.length && grams.has(words.slice(at, at + size).join(' ')));
+  });
+  return {
+    tier: 'quoted',
+    scored: true,
+    pass: quoting.length === 0,
+    detail: quoting.length ? `${quoting.length} row(s) quote the line: ${quoting.join(' | ')}` : `no row quotes ${size} words of the line`,
   };
 }
 
@@ -241,7 +286,7 @@ export function tierTotals(scores: FixtureScore[], floors: Partial<Record<TierNa
  * says so rather than having its floors lowered to meet it. `--min-tier tier=x` overrides one, and
  * `tier=0` switches one off in a way the report shows.
  */
-export const DEFAULT_TIER_FLOORS: Readonly<Partial<Record<TierName, number>>> = { facts: 0.85, rejected: 0.9, epistemic: 0.8, ledger: 0.8, arcs: 0.8, intents: INTENTS_FLOORS.precision };
+export const DEFAULT_TIER_FLOORS: Readonly<Partial<Record<TierName, number>>> = { facts: 0.85, rejected: 0.9, epistemic: 0.8, ledger: 0.8, arcs: 0.8, intents: INTENTS_FLOORS.precision, claims: 1, quoted: 1 };
 
 /** `--min-tier facts=0.85,rejected=0.9`, applied over `DEFAULT_TIER_FLOORS`. */
 export function parseTierFloors(value: string | null | undefined, defaults: Partial<Record<TierName, number>> = DEFAULT_TIER_FLOORS): { floors: Partial<Record<TierName, number>>; given: TierName[]; errors: string[] } {
