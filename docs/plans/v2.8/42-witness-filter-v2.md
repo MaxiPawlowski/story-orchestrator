@@ -536,3 +536,9 @@ Owner rule "go with recommendations" (coordinator, 2026-10-17): the disagreement
   `so-witness.mts wc` computes Wc (input p95, output p95, `finish: length` rate, latency p95 against the off arm);
   `so-witness.mts score-real` scores W4 rows per set against the frozen labels. The live-suite row of Wc and RB stay
   separate runs.
+- **Adjudicated freeze (2026-10-17).** `so-sessions` `test/sessions/witness-real/freeze-adjudicated.json`: 17 label files,
+  digest `2258f223bd31cbb0df10beaf16e2cc24c5abe6f478ee5dae2bf6684d0f661729`; lab `adjudicated/lab.json`
+  `35b492756cf46d167d631d9b4802f7a5c647704fca3d71e83190ee0581b9c422`. Astra: real 60 adjudicated (51 decided, 9 `unknown`, 0
+  unresolved anchors), lab 30 (29 decided, 1 `unknown`); 0 failed calls. Deviation: the freeze file was written before the
+  W4n re-score, but this commit landed just after it; W4n reads labels only, and the score checked the labels against this
+  digest.
