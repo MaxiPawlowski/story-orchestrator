@@ -1,0 +1,200 @@
+{
+  "_note": "v2.8 plan 55 payload case group-commitments: Arin's private block carries each open promise (including one made out of the player's hearing, which stays in her block only), then the kept and broken lines once on the boundary they land; the resting payload and the narrator's never carry any. Run ONLY through `node scripts/debug/so-payload-golden.mts capture` (see group-opening.json for the probe and the tripwire).",
+  "requires": {
+    "authorView": true,
+    "briefingDraft": "off",
+    "innerBeat": "off",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "DM Narrator",
+      "Arin"
+    ],
+    "judge": "off",
+    "why": "a fixed cast state at the start of every capture and no judge request"
+  },
+  "steps": [
+    {
+      "eval": "if (!globalThis.__soPayloadGolden?.capture) throw new Error('this fixture runs only through node scripts/debug/so-payload-golden.mts capture (the capture probe is not installed)'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; globalThis.storyOrchestratorDebugLivingResponse = JSON.stringify({ ops: [] }); return { pinned: ['read', 'curator', 'living'] };"
+    },
+    {
+      "import_story": {
+        "format": 2,
+        "id": "so-v28-55-payload",
+        "title": "SO-V28-55 Commitments payload",
+        "description": "v2.8 plan 55 payload case: Arin holds two promises to the player and one made out of the player's hearing.",
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a guide with a debt",
+            "commitments": [
+              {
+                "id": "bridge",
+                "what": "get across the old bridge together",
+                "made_when": "start",
+                "kept_when": {
+                  "q": "crossed",
+                  "op": "==",
+                  "v": true
+                }
+              },
+              {
+                "id": "debt",
+                "what": "repay the debt from the river",
+                "made_when": "start",
+                "kept_when": {
+                  "q": "repaid",
+                  "op": "==",
+                  "v": true
+                },
+                "broken_when": {
+                  "q": "debt_denied",
+                  "op": "==",
+                  "v": true
+                }
+              },
+              {
+                "id": "ledger",
+                "what": "hide the ledger until the fair",
+                "made_when": "start",
+                "kept_when": {
+                  "q": "fair_held",
+                  "op": "==",
+                  "v": true
+                },
+                "heard": false
+              }
+            ]
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator",
+            "view": "omniscient"
+          }
+        ],
+        "qualities": [
+          {
+            "key": "crossed",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the party cross the old bridge?"
+          },
+          {
+            "key": "repaid",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did Arin repay her river debt?"
+          },
+          {
+            "key": "debt_denied",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did Arin deny the river debt to the player?"
+          },
+          {
+            "key": "fair_held",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the fair take place?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "The road",
+            "type": "anchor",
+            "start": true,
+            "objective": "Reach the bridge."
+          }
+        ],
+        "transitions": [],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); const story = rt.getStory(); if (story?.id !== 'so-v28-55-payload') throw new Error('the story did not load: ' + story?.id); return { story: story.id };"
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "send": "Arin, will we make it over the bridge?"
+    },
+    {
+      "slash": "/sendas name=Arin raw=false Arin tests the first plank with her boot."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "return await globalThis.__soPayloadGolden.capture('open-rest');"
+    },
+    {
+      "eval": "return await globalThis.__soPayloadGolden.capture('open-arin', { member: 'Arin' });"
+    },
+    {
+      "eval": "return await globalThis.__soPayloadGolden.capture('open-dm', { member: 'DM Narrator' });"
+    },
+    {
+      "eval": "const ENTRY = (label) => globalThis.__soPayloadGolden.captures.find((entry) => entry.label === label); const has = (label, text) => { const entry = ENTRY(label); if (!entry) throw new Error('no capture ' + label); return entry.prompt.includes(text) || entry.blocks.some((b) => String(b.value).includes(text)); }; for (const label of [\"open-arin\"]) { for (const text of [\"You told the player you would get across the old bridge together\", \"You told the player you would repay the debt from the river\", \"You told the player you would hide the ledger until the fair\"]) if (!has(label, text)) throw new Error(label + ': missing ' + text); for (const text of [\"You kept your word to the player: get across the old bridge together\", \"You did not keep your word to the player: repay the debt from the river\"]) if (has(label, text)) throw new Error(label + ': carries ' + text); } return { openArin: 'ok' };"
+    },
+    {
+      "eval": "const ENTRY = (label) => globalThis.__soPayloadGolden.captures.find((entry) => entry.label === label); const has = (label, text) => { const entry = ENTRY(label); if (!entry) throw new Error('no capture ' + label); return entry.prompt.includes(text) || entry.blocks.some((b) => String(b.value).includes(text)); }; for (const label of [\"open-rest\", \"open-dm\"]) { for (const text of []) if (!has(label, text)) throw new Error(label + ': missing ' + text); for (const text of [\"old bridge\", \"debt from the river\", \"hide the ledger until the fair\", \"word to the player\"]) if (has(label, text)) throw new Error(label + ': carries ' + text); } return { openOthers: 'ok' };"
+    },
+    {
+      "slash": "/cp set crossed true"
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "return await globalThis.__soPayloadGolden.capture('kept-arin', { member: 'Arin' });"
+    },
+    {
+      "eval": "return await globalThis.__soPayloadGolden.capture('kept-dm', { member: 'DM Narrator' });"
+    },
+    {
+      "eval": "const ENTRY = (label) => globalThis.__soPayloadGolden.captures.find((entry) => entry.label === label); const has = (label, text) => { const entry = ENTRY(label); if (!entry) throw new Error('no capture ' + label); return entry.prompt.includes(text) || entry.blocks.some((b) => String(b.value).includes(text)); }; for (const label of [\"kept-arin\"]) { for (const text of [\"You kept your word to the player: get across the old bridge together\", \"You told the player you would repay the debt from the river\", \"You told the player you would hide the ledger until the fair\"]) if (!has(label, text)) throw new Error(label + ': missing ' + text); for (const text of [\"You told the player you would get across the old bridge together\", \"You did not keep your word to the player: repay the debt from the river\"]) if (has(label, text)) throw new Error(label + ': carries ' + text); } return { keptArin: 'ok' };"
+    },
+    {
+      "slash": "/cp set debt_denied true"
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "return await globalThis.__soPayloadGolden.capture('broken-arin', { member: 'Arin' });"
+    },
+    {
+      "eval": "return await globalThis.__soPayloadGolden.capture('broken-dm', { member: 'DM Narrator' });"
+    },
+    {
+      "eval": "const ENTRY = (label) => globalThis.__soPayloadGolden.captures.find((entry) => entry.label === label); const has = (label, text) => { const entry = ENTRY(label); if (!entry) throw new Error('no capture ' + label); return entry.prompt.includes(text) || entry.blocks.some((b) => String(b.value).includes(text)); }; for (const label of [\"broken-arin\"]) { for (const text of [\"You did not keep your word to the player: repay the debt from the river\", \"You told the player you would hide the ledger until the fair\"]) if (!has(label, text)) throw new Error(label + ': missing ' + text); for (const text of [\"You told the player you would get across the old bridge together\", \"You told the player you would repay the debt from the river\", \"You kept your word to the player: get across the old bridge together\"]) if (has(label, text)) throw new Error(label + ': carries ' + text); } return { brokenArin: 'ok' };"
+    },
+    {
+      "eval": "const ENTRY = (label) => globalThis.__soPayloadGolden.captures.find((entry) => entry.label === label); const has = (label, text) => { const entry = ENTRY(label); if (!entry) throw new Error('no capture ' + label); return entry.prompt.includes(text) || entry.blocks.some((b) => String(b.value).includes(text)); }; for (const label of [\"kept-dm\", \"broken-dm\"]) { for (const text of []) if (!has(label, text)) throw new Error(label + ': missing ' + text); for (const text of [\"old bridge\", \"debt from the river\", \"hide the ledger until the fair\", \"word to the player\"]) if (has(label, text)) throw new Error(label + ': carries ' + text); } return { landedDm: 'ok' };"
+    }
+  ]
+}
