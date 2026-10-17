@@ -383,4 +383,7 @@ No GPU, no model; no-model lane 85 (lanes root `C:\dev\so-live-lanes`) on the pr
     not harnesses.
 - Plan 24 matrix: GS6 checks and the new harnesses added as carriers; `coverage.mjs` 124 ids, 122 green, 2 image
   track, 0 red; 324 floors, 0 unmapped.
-- Gates: see the record line below.
+- Gates: `npm run gates -- --jobs=1 --no-storybook` on `9a9d0797`'s parent tree: **all green** in 406 s (test:replay, test, build,
+  test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release). Storybook skipped: no component
+  or story touched. Two gate fixes on the way: census rows for the 47 probe (model-call role, ownership `local`) and a
+  CRLF-checkout assumption in the 47 freeze test.
