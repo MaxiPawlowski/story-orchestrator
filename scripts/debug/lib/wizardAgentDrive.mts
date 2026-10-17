@@ -8,8 +8,9 @@ export interface WizardDriveInput {
   mode: string;
   route: WizardRoute;
   maxSteps: number;
-  provision: 'reject' | 'apply';
+  provision: 'reject' | 'apply' | 'lore';
   recordArgs?: boolean;
+  promptNeedle?: string;
   profileId?: string;
   seed?: Record<string, unknown>;
 }
@@ -17,13 +18,15 @@ export interface WizardDriveInput {
 export const NATIVE_TIMEOUT_MS = 180000;
 export const NATIVE_MAX_TOKENS = 1536;
 
-export interface BridgeEvent { op: 'open' | 'next' | 'answer' | 'close'; sessionId: string | null; ok?: boolean; kind?: string | null; tool?: string | null; callId?: string | null; delivered?: boolean; tools?: number; args?: unknown; text?: string }
+export interface BridgeEvent { op: 'open' | 'next' | 'answer' | 'close'; sessionId: string | null; ok?: boolean; kind?: string | null; tool?: string | null; callId?: string | null; delivered?: boolean; tools?: number; args?: unknown; text?: string; needle?: boolean }
+
+export const LORE_PROVISION_KINDS = ['createStoryLorebook', 'upsertLorebookEntry'] as const;
 export interface BridgeEvidence { transport: 'none' | 'refusal' | 'bridge' | 'text'; refusal: string | null; events: BridgeEvent[] }
 
 export const UI_RUNNER_HANDLES = ['newAgentSession', 'approvePlan', 'pendingStep', 'decideStep', 'resolveProvisioning', 'applyDraftOp', 'applyProvisioningFollowUps', 'validationErrorCount', 'createAgentRunner', 'driveAgent', 'resolveAgentHarness'] as const;
 
 export function driveWizardAgent(page: any, input: WizardDriveInput) {
-  return evaluateInST(page, async ({ input, handles }: { input: WizardDriveInput & { maxTokens?: number; timeoutMs?: number }; handles: readonly string[] }) => {
+  return evaluateInST(page, async ({ input, handles }: { input: WizardDriveInput & { maxTokens?: number; timeoutMs?: number; loreKinds?: readonly string[] }; handles: readonly string[] }) => {
     const rt = (globalThis as any).storyOrchestratorRuntime;
     const agent = (globalThis as any).storyOrchestratorWizardAgent;
     const store = (globalThis as any).storyOrchestratorStudioDraft;
@@ -34,7 +37,7 @@ export function driveWizardAgent(page: any, input: WizardDriveInput) {
     const recording = (inner: any) => ({
       open: async (request: any) => {
         const result = await inner.open(request);
-        bridge.events.push({ op: 'open', ok: Boolean(result?.ok), sessionId: result?.ok ? result.sessionId : null, kind: result?.ok ? null : result?.kind ?? null, tools: Array.isArray(request?.tools) ? request.tools.length : 0 });
+        bridge.events.push({ op: 'open', ok: Boolean(result?.ok), sessionId: result?.ok ? result.sessionId : null, kind: result?.ok ? null : result?.kind ?? null, tools: Array.isArray(request?.tools) ? request.tools.length : 0, ...(input.promptNeedle ? { needle: `${request?.system ?? ''}\n${request?.prompt ?? ''}`.includes(input.promptNeedle) } : {}) });
         return result;
       },
       nextCall: async (sessionId: string, deadlineAt: number) => {
@@ -106,6 +109,7 @@ export function driveWizardAgent(page: any, input: WizardDriveInput) {
       bridge.transport = transport.bridge ? 'bridge' : 'text';
       return transport.bridge ? { ...transport, bridge: recording(transport.bridge) } : transport;
     };
+    const loreKinds: readonly string[] = input.loreKinds ?? [];
     const runner = agent.createAgentRunner({ model: rt.model, environment: (draft: unknown) => rt.getProvisioningEnvironment(draft), harness });
     const ownership = { mint: () => ({}), check: () => ({ ok: true }) };
     store.getState().newDraft();
@@ -120,7 +124,7 @@ export function driveWizardAgent(page: any, input: WizardDriveInput) {
       if (session.status === 'awaiting-plan') { session = agent.approvePlan(session, session.plan); continue; }
       if (session.status === 'awaiting-author') {
         const pending = agent.pendingStep(session);
-        if (pending.family === 'provision' && input.provision === 'apply') {
+        if (pending.family === 'provision' && (input.provision === 'apply' || (input.provision === 'lore' && loreKinds.includes(pending.op?.kind)))) {
           const outcome = await rt.applyProvisioning(pending.op, store.getState().draft);
           if (outcome.ok) store.getState().mutate((draft: unknown) => agent.applyProvisioningFollowUps(draft, pending.op));
           session = agent.resolveProvisioning(session, pending.id, outcome, store.getState().draft);
@@ -143,7 +147,7 @@ export function driveWizardAgent(page: any, input: WizardDriveInput) {
     const draft = store.getState().draft;
     const replay = accepted.reduce((current, op) => agent.applyDraftOp(current, op), start);
     return { session, draft, lapsed, validationErrors: agent.validationErrorCount(draft), replayMatches: JSON.stringify(replay) === JSON.stringify(draft), bridge };
-  }, { input: { ...input, maxTokens: NATIVE_MAX_TOKENS, timeoutMs: NATIVE_TIMEOUT_MS }, handles: UI_RUNNER_HANDLES });
+  }, { input: { ...input, maxTokens: NATIVE_MAX_TOKENS, timeoutMs: NATIVE_TIMEOUT_MS, loreKinds: LORE_PROVISION_KINDS }, handles: UI_RUNNER_HANDLES });
 }
 
 export interface BridgeEvidenceOptions { textRefusalSafe?: boolean }

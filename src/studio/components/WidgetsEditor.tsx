@@ -13,6 +13,9 @@ const HELP = "A story panel shows qualities, quests, the path, a clock, a wall o
   + "or a scene card (where, when and who is with you). A player panel may bind only public qualities; "
   + "clues and pins stay hidden until found; an author panel shows only in Author view. Buttons put the player's line in the box, open a drawer tab or ask for a public check.";
 
+const OPTIONS_HINT = '{"limit"?, "closed"?, "time"?: a scene panel shows the story time, '
+  + '"standing"?: a scene panel shows the group standing of each member}';
+
 interface ChoiceProps<T extends string> {
   label: string;
   value: T | undefined;
@@ -49,7 +52,7 @@ const WidgetRow = ({ widget }: { widget: StoryWidget }) => {
       </div>
       <JsonField label={`${name} bind`} hint='{"quality"}, {"qualities": []}, {"group"}, {"quests": true}, {"path": true}, {"arcs": true}' value={widget.bind}
         onChange={(bind) => patch({ bind: bind as WidgetBind | undefined })} />
-      <JsonField label={`${name} options`} hint='{"limit"?, "closed"?, "time"?: a scene panel shows the story time}' value={widget.options}
+      <JsonField label={`${name} options`} hint={OPTIONS_HINT} value={widget.options}
         onChange={(options) => patch({ options: options as WidgetOptions | undefined })} />
       {widget.kind === "clues" && (
         <>

@@ -1,0 +1,7 @@
+exit 0
+served claude-sonnet-5-5
+--- text ---
+{"score": 4, "why": "The entry concretely covers who the Wardens are, how they patrol, their gear, their reach, what they can and cannot do, and the limits of their authority (no say over cargo or debts), but it gives no ranks, leaders, personalities, appearance, or manner of dealing with travelers, which a scene would likely want."}
+--- stderr ---
+[claude-code:unrecognized_model] {"model":"claude-sonnet-5-5","query_source":"sdk"}
+

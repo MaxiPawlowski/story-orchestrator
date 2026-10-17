@@ -259,7 +259,7 @@ type WidgetParts = { quests: QuestView[]; sheet: SheetGroupView[]; main: MainLin
 
 const widgetBody = (widget: StoryWidget, sources: GameSources, parts: WidgetParts): WidgetBody | null => {
   const limit = widget.options?.limit;
-  if (widget.kind === "scene") return { kind: "scene", ...sceneView({ ...sources, codex: parts.codex }, widget.options?.time === true) };
+  if (widget.kind === "scene") return { kind: "scene", ...sceneView({ ...sources, codex: parts.codex }, { time: widget.options?.time === true, standing: widget.options?.standing === true }) };
   const before = sources.boundaryLog.at(-1)?.before ?? null;
   if (widget.kind === "clues") return cluesBody(widget, sources.state, before);
   if (widget.kind === "map") return mapBody(widget, sources.state, before);

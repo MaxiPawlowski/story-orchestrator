@@ -1,0 +1,6 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+{"score": 5, "why": "The entry concretely covers what Marsh Sight is, who has it, how a reading works, what it can and cannot reveal, which conditions help or spoil it, its costs in time and fatigue, and its current role in the town, so a narrator would have little to invent."}
+--- stderr ---
+

@@ -1,0 +1,7 @@
+exit 0
+served claude-sonnet-5-5
+--- text ---
+{"score": 4, "why": "The entry concretely covers what the lamp is, how it works, its limits, who uses it, and how it can change hands, but it leaves out minor basics such as signal conventions (what shutter patterns mean), burn time, and typical price or availability."}
+--- stderr ---
+[claude-code:unrecognized_model] {"model":"claude-sonnet-5-5","query_source":"sdk"}
+

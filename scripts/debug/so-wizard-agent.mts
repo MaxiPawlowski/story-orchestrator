@@ -7,6 +7,7 @@ import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { scoreAgentRuns, scoreCardRevision, scoreRecipeTask, w5Escapes, type AgentRunRecord } from './lib/wizardAgentScore.mts';
 import { bridgeEvidenceProblems, driveWizardAgent, type BridgeEvidenceOptions, type WizardDriveInput, type WizardRoute } from './lib/wizardAgentDrive.mts';
+import { LORE_ARMS, pickLoreEntry, type LoreArm } from './lib/loreBlind.mts';
 
 const USAGE = `Usage: node scripts/debug/so-wizard-agent.mts <command> [options]
 
@@ -39,6 +40,13 @@ native bridge open/tool/answer/close evidence, fails.
       v2.8 09 harvest A6: each task of test/measurements/v2.8/09/card-revision-v2.json (default) asks for one card with a planted
       mistake; the card comes back with notes once, and a task passes when the agent's replacement clears every note
       it was shown. Provisioning is rejected, so nothing is created.
+  lore-guidance [--arms on,off] [--task <id>] [--route local|harness|native] [--profile <id>] [--max-steps <n>]
+      v2.8 34 harvest A7: each task of test/measurements/v2.8/34/lore-guidance.json asks for one lore entry, once per arm
+      (order alternating by task); the off arm sets the measurement-only switch storyOrchestratorDebugLoreRuleOff, which
+      drops LORE_CONTENT_RULE from the wizard's prompts, and restores it after. The story lorebook and its entries are
+      applied (real assets under the SO-A7 marker: so-assets.mts remove --marker SO-A7), cards and groups rejected. Every
+      bridge open records whether the prompt carried the rule, and a mismatch with the arm is a problem. Rate the entries
+      blind with so-lore-blind.mts.
   bridge-check [--premise <id>] [--max-steps <n>]
       Opt-in real-opencode compatibility check (plan 04 H): one short run on the harness route,
       provisioning rejected, that passes only on native bridge evidence. It calls the real CLI and
@@ -80,6 +88,28 @@ const record = (premise: string, route: string, result): AgentRunRecord => ({
 async function driveChecked(page, input: WizardDriveInput, options: BridgeEvidenceOptions = {}) {
   const result = await driveWizardAgent(page, input);
   return { ...result, bridgeProblems: bridgeEvidenceProblems(input.route, result.bridge, options) };
+}
+
+export const RETRYABLE_TRANSPORT = /does not list the model|background service|usage limit|quota|rate limit|ECONNRESET|socket hang up/i;
+const RETRY_WAIT_MS = Number(process.env.SO_WIZARD_RETRY_WAIT_MS ?? 60000);
+const pause = (ms: number) => new Promise((done) => setTimeout(done, ms));
+
+export async function withTransportRetry<T extends { bridgeProblems: string[] }>(run: () => Promise<T>, label: string, attempts = 3, wait = pause, waitMs = RETRY_WAIT_MS): Promise<{ result: T; attempts: number; retried: string[] }> {
+  const retried: string[] = [];
+  for (let attempt = 1; ; attempt += 1) {
+    let problem: string | null = null;
+    try {
+      const result = await run();
+      problem = result.bridgeProblems.find((entry) => RETRYABLE_TRANSPORT.test(entry)) ?? null;
+      if (!problem || attempt >= attempts) return { result, attempts: attempt, retried };
+    } catch (error) {
+      problem = String((error as Error)?.message ?? error).split(String.fromCharCode(10))[0].slice(0, 300);
+      if (attempt >= attempts || !RETRYABLE_TRANSPORT.test(problem)) throw error;
+    }
+    retried.push(problem);
+    console.log(`${label}: transport (${problem.slice(0, 160)}), retry ${attempt} after ${Math.round(waitMs / 1000)} s`);
+    await wait(waitMs);
+  }
 }
 
 async function run(page, args: string[]) {
@@ -157,10 +187,10 @@ async function cardRevision(page, args: string[]) {
   for (const task of fixture.tasks.filter((entry) => !only || entry.id === only).flatMap((entry) => Array.from({ length: repeat }, () => entry))) {
     let result;
     try {
-      result = await driveChecked(page, {
+      result = (await withTransportRetry(() => driveChecked(page, {
         goal: task.goal, title: `${fixture.marker} ${task.id}`, mode: 'review', route, maxSteps: Number(flag(args, '--max-steps') ?? 8),
         provision: 'reject', profileId: flag(args, '--profile'), seed: fixture.seed, recordArgs: true,
-      });
+      }), task.id)).result;
     } catch (error) {
       const message = String((error as Error)?.message ?? error).split(String.fromCharCode(10))[0].slice(0, 300);
       console.log(`${task.id}: run failed: ${message}`);
@@ -172,7 +202,67 @@ async function cardRevision(page, args: string[]) {
   }
   const transport = tasks.flatMap((entry) => entry.bridgeProblems.map((problem) => `${entry.id}: ${problem}`));
   const passed = tasks.filter((entry) => entry.score.pass).length;
-  return { ok: transport.length === 0, route, repeat, passed, of: tasks.length, floor: fixture.floor, transport, tasks: tasks.map(({ steps, ...rest }) => rest), detail: tasks };
+  const seeded = tasks.filter((entry) => entry.score.seeded).length;
+  return { ok: transport.length === 0, route, repeat, passed, seeded, of: tasks.length, floor: fixture.floor, transport, tasks: tasks.map(({ steps, ...rest }) => rest), detail: tasks };
+}
+
+export const LORE_RULE_OFF_GLOBAL = 'storyOrchestratorDebugLoreRuleOff';
+
+const setLoreRule = (page, arm: LoreArm) => evaluateInST(page, ({ name, off }: { name: string; off: boolean }) => {
+  if (off) Reflect.set(globalThis, name, true); else Reflect.deleteProperty(globalThis, name);
+  return Reflect.get(globalThis, name) === true;
+}, { name: LORE_RULE_OFF_GLOBAL, off: arm === 'off' });
+
+export const armOrder = (arms: readonly LoreArm[], index: number): LoreArm[] => (index % 2 ? [...arms].reverse() : [...arms]);
+
+async function loreGuidance(page, args: string[]) {
+  const fixture = JSON.parse(await readFile(resolve(PROJECT_ROOT, 'test/measurements/v2.8/34/lore-guidance.json'), 'utf-8'));
+  const arms = (flag(args, '--arms') ?? LORE_ARMS.join(',')).split(',').filter((arm): arm is LoreArm => (LORE_ARMS as readonly string[]).includes(arm));
+  if (!arms.length) throw new Error('--arms takes on, off or on,off');
+  const only = flag(args, '--task');
+  const route = routeOf(args);
+  const tasks = [];
+  try {
+    for (const [index, task] of fixture.tasks.filter((entry) => !only || entry.id === only).entries()) {
+      for (const arm of armOrder(arms, index)) {
+        const off = await setLoreRule(page, arm);
+        let result;
+        let retried: string[] = [];
+        try {
+          const outcome = await withTransportRetry(async () => {
+            const lapsed = await setLoreRule(page, arm);
+            if (lapsed !== (arm === 'off')) throw new Error(`the switch read ${lapsed} on the ${arm} arm`);
+            return driveChecked(page, {
+              goal: task.goal, title: `${fixture.marker} ${arm} ${task.id}`, mode: 'review', route, maxSteps: Number(flag(args, '--max-steps') ?? 10),
+              provision: 'lore', profileId: flag(args, '--profile'), seed: fixture.seed, recordArgs: true, promptNeedle: fixture.needle,
+            });
+          }, `${arm} ${task.id}`);
+          result = outcome.result;
+          retried = outcome.retried;
+        } catch (error) {
+          const message = String((error as Error)?.message ?? error).split(String.fromCharCode(10))[0].slice(0, 300);
+          console.log(`${arm} ${task.id}: run failed: ${message}`);
+          tasks.push({ id: task.id, kind: task.kind, arm, entry: null, switchOff: off, ruleShown: [], guideRead: false, bridgeProblems: [`run failed: ${message}`], steps: [] });
+          continue;
+        }
+        const steps = result.session.steps.map((step) => ({ id: step.id, status: step.status, call: { tool: step.call.tool, args: step.call.args } }));
+        const ruleShown = (result.bridge?.events ?? []).filter((event) => event.op === 'open' && typeof event.needle === 'boolean').map((event) => event.needle);
+        const armProblems = [
+          ...(off !== (arm === 'off') ? [`the switch read ${off} on the ${arm} arm`] : []),
+          ...(ruleShown.some((shown) => shown !== (arm === 'on')) ? [`a prompt ${arm === 'on' ? 'lacked' : 'carried'} the rule on the ${arm} arm`] : []),
+        ];
+        const entry = pickLoreEntry(task, steps);
+        const guideRead = steps.some((step) => step.call.tool === 'readGuide' && String(step.call.args.topic ?? '') === 'lore-content');
+        console.log(`${arm} ${task.id}: ${entry ? `entry "${entry.title}" (${entry.content.length} chars)` : 'no entry'}${guideRead ? ', read lore-content' : ''}${armProblems.length ? `, ${armProblems.join('; ')}` : ''}`);
+        tasks.push({ id: task.id, kind: task.kind, arm, entry, switchOff: off, ruleShown, guideRead, status: result.session.status, retried, bridgeProblems: [...result.bridgeProblems, ...armProblems], steps });
+      }
+    }
+  } finally {
+    await setLoreRule(page, 'on');
+  }
+  const transport = tasks.flatMap((entry) => entry.bridgeProblems.map((problem) => `${entry.arm} ${entry.id}: ${problem}`));
+  const count = (arm: LoreArm) => ({ arm, entries: tasks.filter((entry) => entry.arm === arm && entry.entry).length, missing: tasks.filter((entry) => entry.arm === arm && !entry.entry).map((entry) => entry.id), guideReads: tasks.filter((entry) => entry.arm === arm && entry.guideRead).length });
+  return { ok: transport.length === 0, route, floor: fixture.floor, arms: arms.map(count), transport, tasks: tasks.map(({ steps, ...rest }) => rest), detail: tasks };
 }
 
 async function bridgeCheck(page, args: string[]) {
@@ -185,14 +275,14 @@ async function bridgeCheck(page, args: string[]) {
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2);
-  if (hasHelpFlag() || !['run', 'safety', 'recipes', 'card-revision', 'bridge-check'].includes(args[0])) {
+  if (hasHelpFlag() || !['run', 'safety', 'recipes', 'card-revision', 'lore-guidance', 'bridge-check'].includes(args[0])) {
     console.log(USAGE);
     process.exit(hasHelpFlag() ? 0 : 1);
   }
   runCli(async (page) => {
-    const commands = { run, safety, recipes, 'card-revision': cardRevision, 'bridge-check': bridgeCheck } as const;
+    const commands = { run, safety, recipes, 'card-revision': cardRevision, 'lore-guidance': loreGuidance, 'bridge-check': bridgeCheck } as const;
     const output = await commands[args[0] as keyof typeof commands](page, args);
-    const shown = args[0] === 'run' ? { score: (output as any).score, transport: (output as any).transport } : ['safety', 'recipes', 'card-revision'].includes(args[0]) ? { ...output, detail: undefined } : output;
+    const shown = args[0] === 'run' ? { score: (output as any).score, transport: (output as any).transport } : ['safety', 'recipes', 'card-revision', 'lore-guidance'].includes(args[0]) ? { ...output, detail: undefined } : output;
     console.log(JSON.stringify(shown, null, 2));
     await writeJSON(output, `so-wizard-agent-${args[0]}`);
     return { ok: (output as { ok: boolean }).ok };

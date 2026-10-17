@@ -1,0 +1,6 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+{"score": 4, "why": "The entry concretely and consistently covers location, layout, foot access, and how boats pass through the locks, but it never says who tends or operates the gates, so a narrator would have to invent who is present and how a lock passage actually gets worked."}
+--- stderr ---
+

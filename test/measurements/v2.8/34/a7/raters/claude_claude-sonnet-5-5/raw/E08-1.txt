@@ -1,0 +1,7 @@
+exit 0
+served claude-sonnet-5-5
+--- text ---
+{"score": 4, "why": "It concretely covers size, work, territory, powers, limits, and dependencies, but it lacks named leaders or internal structure, specific rates, and the town's name, so a narrator would have to invent who actually speaks for the guild."}
+--- stderr ---
+[claude-code:unrecognized_model] {"model":"claude-sonnet-5-5","query_source":"sdk"}
+

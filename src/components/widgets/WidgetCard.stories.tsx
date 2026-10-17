@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import { WidgetCard } from "./WidgetCard";
 import {
-  boardWidget, clockWidget, cluesWidget, factionRosterWidget, intentsWidget, mapWidget, provenanceRows, rosterWidget, sampleGame, sceneWidget, sceneWidgetEmpty, standingWidget,
+  boardWidget, clockWidget, cluesWidget, factionRosterWidget, intentsWidget, mapWidget, provenanceRows, rosterWidget, sampleGame, sceneWidget, sceneWidgetEmpty, sceneWidgetLines, standingWidget,
   stillWidget, timelineWidget,
 } from "./gameViewFixtures";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
@@ -198,7 +198,7 @@ const plantedScene = (): typeof sceneWidget => {
   } as unknown as NormalizedStoryV2;
   const state = { boundary: 0, blackboard: { values: {} } } as unknown as EngineState;
   const view = sceneView({ story, state, boundaryLog: [], castNames: { tom: "Tom", ada: "Ada" }, enabled: ["tom", "ada"], location: "Kessel boathouse",
-    portraits: { tom: "/characters/tom.png", ada: "/characters/ada.png" } }, false);
+    portraits: { tom: "/characters/tom.png", ada: "/characters/ada.png" } });
   return { ...sceneWidget, id: "here-planted", body: { kind: "scene", ...view } };
 };
 
@@ -212,3 +212,36 @@ export const ScenePlantedUnknown: Story = {
 };
 
 export const ScenePhone: Story = { args: { widget: sceneWidget }, ...fitsAt(VIEWPORTS.phone, primary) };
+
+export const SceneLines: Story = {
+  args: { widget: sceneWidgetLines },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelectorAll('[data-so="scene-label"]')).toHaveLength(3);
+    await expect(canvasElement.querySelectorAll('[data-so="scene-standing"]')).toHaveLength(1);
+    await expect(within(canvasElement).getByText("Toward you: warming to you")).toBeVisible();
+    await expect(canvasElement.textContent).not.toMatch(/ago|changed|↑|↓/);
+  },
+};
+
+const plantedSecretScene = (): typeof sceneWidget => {
+  const story = {
+    roster: [{ id: "mara", name: "Mara" }, { id: "sera", name: "Sera" }],
+    life: { members: [{ id: "mara", relationships: [{ toward: "player", axes: ["trust"], public: [{ label: "wary" }],
+      secret: [{ id: "loyal", label: "secretly loyal to you", revealed_when: { q: "saw_letter", op: "==", v: true } }] },
+      { toward: "sera", axes: ["fear"], public: [{ label: "fears her" }] }] }] },
+    codex: { people: [{ id: "envoy", member: "sera", known_when: { q: "met_sera", op: "==", v: true }, facts: [] }], places: [] },
+  } as unknown as NormalizedStoryV2;
+  const state = { boundary: 0, blackboard: { values: {} } } as unknown as EngineState;
+  const view = sceneView({ story, state, boundaryLog: [], castNames: { mara: "Mara", sera: "Sera" }, enabled: ["mara", "sera"], location: "Kessel boathouse" });
+  return { ...sceneWidget, id: "here-secret", body: { kind: "scene", ...view } };
+};
+
+export const ScenePlantedSecret: Story = {
+  args: { widget: plantedSecretScene() },
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).getByText("Toward you: wary")).toBeVisible();
+    await expect(canvasElement.textContent).not.toMatch(/loyal|Sera|fears her/);
+  },
+};
+
+export const SceneLinesPhone: Story = { args: { widget: sceneWidgetLines }, ...fitsAt(VIEWPORTS.phone, primary) };

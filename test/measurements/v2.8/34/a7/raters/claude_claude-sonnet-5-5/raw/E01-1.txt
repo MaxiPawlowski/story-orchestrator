@@ -1,0 +1,7 @@
+exit 0
+served claude-sonnet-5-5
+--- text ---
+{"score": 5, "why": "The entry concretely covers location, distance and travel time, layout (two chambers, central island, footbridges), both bank paths and where they end, how boats must pass, gate mechanics and capacity limits, and current condition, leaving little for a narrator to invent."}
+--- stderr ---
+[claude-code:unrecognized_model] {"model":"claude-sonnet-5-5","query_source":"sdk"}
+

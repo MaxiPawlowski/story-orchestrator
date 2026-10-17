@@ -145,16 +145,20 @@ const SceneCard = ({ location, time, present }: SceneView) => (
         <div className="st-muted">{PLAYER_COPY.sceneWithYou}</div>
         <ul data-so="scene-present" className="m-0 flex list-none flex-wrap gap-2 p-0">
           {present.map((member) => (
-            <li key={member.name} data-so="scene-member" className="flex min-w-0 items-center gap-1">
-              {member.portrait
-                ? <img className="so-scene-portrait" src={member.portrait} alt="" />
-                : <span className="so-scene-portrait so-scene-initials" aria-hidden="true">{initials(member.name)}</span>}
-              {member.page
-                ? (
-                  <button type="button" className="truncate cursor-pointer border-0 bg-transparent p-0 text-left text-inherit underline" data-so="scene-page"
-                    onClick={() => requestJournalPage({ page: "people", name: member.page ?? member.name })}>{member.name}</button>
-                )
-                : <span className="truncate">{member.name}</span>}
+            <li key={member.name} data-so="scene-member" className="flex min-w-0 max-w-full flex-col gap-0.5">
+              <div className="flex min-w-0 items-center gap-1">
+                {member.portrait
+                  ? <img className="so-scene-portrait" src={member.portrait} alt="" />
+                  : <span className="so-scene-portrait so-scene-initials" aria-hidden="true">{initials(member.name)}</span>}
+                {member.page
+                  ? (
+                    <button type="button" className="truncate cursor-pointer border-0 bg-transparent p-0 text-left text-inherit underline" data-so="scene-page"
+                      onClick={() => requestJournalPage({ page: "people", name: member.page ?? member.name })}>{member.name}</button>
+                  )
+                  : <span className="truncate">{member.name}</span>}
+              </div>
+              {member.labels?.map((line) => <div key={line} data-so="scene-label" className="st-muted break-words">{line}</div>)}
+              {member.standing?.map((line) => <div key={line} data-so="scene-standing" className="st-muted break-words">{line}</div>)}
             </li>
           ))}
         </ul>

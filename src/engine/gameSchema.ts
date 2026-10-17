@@ -158,6 +158,7 @@ export interface WidgetOptions {
   limit?: number;
   closed?: boolean;
   time?: boolean;
+  standing?: boolean;
 }
 
 export interface WidgetClue {

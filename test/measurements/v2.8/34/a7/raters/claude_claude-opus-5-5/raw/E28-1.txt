@@ -1,0 +1,6 @@
+exit 0
+served claude-opus-5-5
+--- text ---
+{"score": 5, "why": "The entry concretely and consistently covers who swears, when, before whom, the exact words, what binds and what doesn't, how to change or release an oath, the oath's lack of magical power, and the social consequences of breaking it, so a narrator would not need to invent any basics."}
+--- stderr ---
+
