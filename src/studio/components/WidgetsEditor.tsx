@@ -49,7 +49,7 @@ const WidgetRow = ({ widget }: { widget: StoryWidget }) => {
       </div>
       <JsonField label={`${name} bind`} hint='{"quality"}, {"qualities": []}, {"group"}, {"quests": true}, {"path": true}, {"arcs": true}' value={widget.bind}
         onChange={(bind) => patch({ bind: bind as WidgetBind | undefined })} />
-      <JsonField label={`${name} options`} hint='{"limit"?, "closed"?, "time"?: a scene panel shows the story time}' value={widget.options}
+      <JsonField label={`${name} options`} hint='{"limit"?, "closed"?, "time"?: a scene panel shows the story time, "standing"?: a scene panel shows the group standing of each member}' value={widget.options}
         onChange={(options) => patch({ options: options as WidgetOptions | undefined })} />
       {widget.kind === "clues" && (
         <>
