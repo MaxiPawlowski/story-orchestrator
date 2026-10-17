@@ -392,3 +392,14 @@ No GPU, no model; no-model lane 85 (lanes root `C:\dev\so-live-lanes`) on the pr
   `coverage.mjs` 125 ids, 123 green, 2 image track, 0 red, 324 floors, 0 unmapped. `npm run gates -- --jobs=1
   --no-storybook` all green in 438 s (9,682 jest tests); Storybook static build + test-runner on port 6292, `--maxWorkers 1`:
   151 suites, 919 tests passed. Main bundle 1,285,188 B.
+
+## Owner revision 2026-10-17: lean suite (supersedes the scope and budget above)
+
+- Reason: plan 71 counted ~68 h Artemis + 8.4 h images; the owner cannot afford it.
+- Every row runs x1; a second run only when a row fails or flakes. Evidence from round 3 (build 167892d9) carries for GS3, GS4, AS-smoke, commit-model, encounters, C7.
+- Lean rows on the 3090 (about 5-6 h): GS1 x1 (smoke for everything since 167892d9), GS6 x1, 47 promises x1, T8 x1, 45 seal x1, 42 W4 recorder x1 (solo), image POC: 41 journey x1 + 33 latency pair x1 (solo).
+- Measurements stay in v2.8 (owner): SP6, R7/B1-PFX, B1-HIST, 63 H6r/H1, blind-pack arms; they run on a pod when the owner says so (plan 71 scenario A rows).
+- Cloud-model rows (former D2 reply turns: AS-smoke x9, GS2, journeys, O/33-W block, CL raters on a reply model) move to v2.9. D2 is withdrawn.
+- Deterministic rows, payload goldens and the human evaluation stay as written; the owner's own Adolion play also counts as an acceptance source (journal and logs watched for defects).
+- Starts only on the owner's go.
+

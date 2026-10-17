@@ -266,3 +266,9 @@ Per session, in this order:
 2. Do the 35-K3/K4/K5 `-C5` manifest ids accept the SP6 pair on F as their evidence (assumed), or need their own pair?
 3. M24 has no measured timing; the 2 h is an estimate until a carrier is written.
 4. R8's off-default arms have no protocol; add one or drop them to v2.9?
+
+## Owner revision 2026-10-17
+
+- Final suite cut to the lean set in plan 70 §Owner revision (about 5-6 h on the 3090, rows x1, no pod).
+- Pod: measurement rows only (scenario A sessions P1-P4), on the owner's call; cloud reply rows move to v2.9.
+
