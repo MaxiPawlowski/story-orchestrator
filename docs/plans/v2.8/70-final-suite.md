@@ -403,3 +403,5 @@ No GPU, no model; no-model lane 85 (lanes root `C:\dev\so-live-lanes`) on the pr
 - Deterministic rows, payload goldens and the human evaluation stay as written; the owner's own Adolion play also counts as an acceptance source (journal and logs watched for defects).
 - Starts only on the owner's go.
 
+- 2026-10-17: run schedule and pod budget in plan 71 §Owner arrangement.
+

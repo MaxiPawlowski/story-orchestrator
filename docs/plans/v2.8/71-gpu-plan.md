@@ -272,3 +272,13 @@ Per session, in this order:
 - Final suite cut to the lean set in plan 70 §Owner revision (about 5-6 h on the 3090, rows x1, no pod).
 - Pod: measurement rows only (scenario A sessions P1-P4), on the owner's call; cloud reply rows move to v2.9.
 
+## Owner arrangement 2026-10-17 (budget EUR 15 pod + 3090 nights; supersedes earlier pod scenarios)
+
+- Part 1, v2.8:
+  - Night 1, 3090 (~5-6 h): lean suite (plan 70 §Owner revision): GS1, GS6, 47 promises, T8, 45 seal, 42 W4 recorder (solo), 41 image journey x1, 33 latency pair x1 (solo).
+  - One pod session, RTX PRO 4500 EU-RO-1 (~10-11 h billed, about USD 8 / EUR 7.5): R7/B1-PFX x1 solo (--swa-full at 24576), B1-HIST x1 (98K unified, no --swa-full), SP6 lean: release vs control, judge on, x1 each in parallel. Stop and ask at 150 % of estimate or EUR 12 cumulative.
+  - Night 2, 3090 (~4-5 h): 63 H6r + H1 (play route), R5 B1-NARR run 2 x1.
+  - Order: night 1 first; the pod session and night 2 are independent.
+  - Single runs record as 'passed once, pair owed in v2.9' where a floor asks x2; SP6 PASS once is enough to start building 49 Phase 3.
+- Part 2, v2.9: SP6 second runs, judge-off cells and K5; thinking A/B (needs a model download); B1-R4/37-M3; M24; 51 R7/R9, 53 F7; 43 VR7; all cloud-model rows.
+
