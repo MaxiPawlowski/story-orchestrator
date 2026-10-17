@@ -16,6 +16,7 @@ import { createModelCall } from "./modelCall";
 import { buildTypedPlan, readTypedDeltas } from "@judge/extraction";
 import { buildCreateCandidatePrompt, caseContext, caseScope, scoreCreateSample, type CreateCase, type CreateCaseSample } from "@stagecraft/createCandidate";
 import type { RuntimeManager } from "./runtimeManager";
+import type { PromiseReadResult, PromiseReadSpec } from "./promiseReadCase";
 import {
   runRoleCase, summarizeRoleCalibration, type CalibrationCaseMap, type CalibrationRole, type RoleCaseRecord,
   type RoleSummary,
@@ -116,6 +117,7 @@ export interface LiveSuiteHandle {
   runMeanwhileCase: (spec: MeanwhileCaseSpec) => Promise<MeanwhileCaseResult>;
   lifeBlock: (story: unknown, values: Record<string, PrimitiveValue>, memberId: string) => Promise<LifeBlockReading>;
   runWitnessRead: (spec: WitnessReadSpec) => Promise<WitnessReadResult>;
+  runPromiseRead: (spec: PromiseReadSpec) => Promise<PromiseReadResult>;
 }
 
 const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
@@ -182,6 +184,7 @@ export function registerLiveSuite(manager: RuntimeManager) {
         window: audit.window, scope: audit.scope.length, rejected: audit.rejected.length, witness: audit.witness ?? null,
       };
     },
+    runPromiseRead: async (spec) => (await import("./promiseReadCase")).runPromiseReadCase(spec, { model, budget: () => requestBudgetFor("read") }),
     runFixture: async (spec, options = {}) => {
       await loadGameLayer();
       const hinted = { ...spec, story: withHints(spec.story, options.hints) };

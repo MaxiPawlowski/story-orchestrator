@@ -1,0 +1,1904 @@
+{
+ "format": "so-p47-p2/1",
+ "synthetic": true,
+ "player": "Rowan",
+ "story": "story.json",
+ "cases": [
+  {
+   "id": "p2-001",
+   "category": "kept",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "My lantern broke in the storm.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise I'll bring you a new lantern from the market.",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "I'll hold you to it.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Here you are, Mira. A new lantern, straight from the market.",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "Oh, it's lovely. You kept your word.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll bring you a new lantern from the market"
+    }
+   ],
+   "read": [
+    3,
+    4
+   ],
+   "event": {
+    "key": "a",
+    "kind": "kept",
+    "messageId": 4,
+    "quote": "You kept your word"
+   }
+  },
+  {
+   "id": "p2-002",
+   "category": "kept",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Fetch me iron from the mine.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise I'll fetch the iron from the mine.",
+     "user": true
+    },
+    {
+     "speaker": "Edda",
+     "text": "Let me come with you to the mine.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I swear I'll take you along next time.",
+     "user": true
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I drop the sack of iron on Tobin's bench. There's your iron, Tobin, as promised.",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "Good ore, too. Thank you.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise I'll fetch the iron from the mine"
+    },
+    {
+     "key": "b",
+     "promisee": "edda",
+     "messageId": 3,
+     "quote": "I swear I'll take you along next time"
+    }
+   ],
+   "read": [
+    4,
+    5
+   ],
+   "event": {
+    "key": "a",
+    "kind": "kept",
+    "messageId": 4,
+    "quote": "There's your iron, Tobin, as promised"
+   }
+  },
+  {
+   "id": "p2-003",
+   "category": "kept",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Teach me the knot for the ferry ropes.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I promise I'll teach you the ferry knot.",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "And my debt?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I promise I'll settle my debt to you.",
+     "user": true
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Watch my hands, Edda. Over, under, through. That's the ferry knot.",
+     "user": true
+    },
+    {
+     "speaker": "Edda",
+     "text": "I've got it! Thank you for teaching me.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I promise I'll teach you the ferry knot"
+    },
+    {
+     "key": "b",
+     "promisee": "corvin",
+     "messageId": 3,
+     "quote": "I promise I'll settle my debt to you"
+    }
+   ],
+   "read": [
+    4,
+    5
+   ],
+   "event": {
+    "key": "a",
+    "kind": "kept",
+    "messageId": 5,
+    "quote": "Thank you for teaching me"
+   }
+  },
+  {
+   "id": "p2-004",
+   "category": "kept",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "My strongbox key is at the bottom of the canal.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I swear I'll dive for your key.",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "Be careful down there.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I climb out of the canal, dripping, and hold up the key. Your key, Corvin.",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "You actually found it. I owe you.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I swear I'll dive for your key"
+    }
+   ],
+   "read": [
+    3,
+    4
+   ],
+   "event": {
+    "key": "a",
+    "kind": "kept",
+    "messageId": 3,
+    "quote": "Your key, Corvin"
+   }
+  },
+  {
+   "id": "p2-005",
+   "category": "kept",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "The orphans need blankets.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise I'll bring blankets for the orphans.",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "And the roof leaks.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise I'll patch the clinic roof too.",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "The blankets you brought are warm. The children slept through the night.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll bring blankets for the orphans"
+    },
+    {
+     "key": "b",
+     "promisee": "mira",
+     "messageId": 3,
+     "quote": "I promise I'll patch the clinic roof too"
+    }
+   ],
+   "read": [
+    4,
+    4
+   ],
+   "event": {
+    "key": "a",
+    "kind": "kept",
+    "messageId": 4,
+    "quote": "The blankets you brought are warm"
+   },
+   "note": "two open promises to the same member; the evidence names one"
+  },
+  {
+   "id": "p2-006",
+   "category": "kept",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Don't tell anyone about the cracked bell.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise I won't tell anyone about the bell.",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "What's this about a bell?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "What bell? I don't know anything about a bell, Corvin.",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "Thanks for keeping quiet back there.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise I won't tell anyone about the bell"
+    }
+   ],
+   "read": [
+    2,
+    4
+   ],
+   "event": {
+    "key": "a",
+    "kind": "kept",
+    "messageId": 4,
+    "quote": "Thanks for keeping quiet back there"
+   }
+  },
+  {
+   "id": "p2-007",
+   "category": "kept",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Bring my bow back from the repair shop.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I promise I'll collect your bow from the shop.",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "Don't forget my herbs either.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I'll pick up your herbs too, I promise.",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "You brought my herbs. Exactly the ones I needed.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I promise I'll collect your bow from the shop"
+    },
+    {
+     "key": "b",
+     "promisee": "mira",
+     "messageId": 3,
+     "quote": "I'll pick up your herbs too, I promise"
+    }
+   ],
+   "read": [
+    4,
+    4
+   ],
+   "event": {
+    "key": "b",
+    "kind": "kept",
+    "messageId": 4,
+    "quote": "You brought my herbs"
+   }
+  },
+  {
+   "id": "p2-008",
+   "category": "kept",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Pay me by the fair.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I promise I'll pay you every coin by the fair.",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "The fair is today.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I count thirty silver into Corvin's palm. Every coin, Corvin, paid in full.",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "Paid in full. We're square.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I promise I'll pay you every coin by the fair"
+    }
+   ],
+   "read": [
+    3,
+    4
+   ],
+   "event": {
+    "key": "a",
+    "kind": "kept",
+    "messageId": 3,
+    "quote": "Every coin, Corvin, paid in full"
+   }
+  },
+  {
+   "id": "p2-009",
+   "category": "kept",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Visit my mother this week.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise I'll visit your mother this week.",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "And you'll help me load the cart?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise I'll help you load the cart.",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "Cart's loaded. Couldn't have done it without you.",
+     "user": false
+    },
+    {
+     "speaker": "Mira",
+     "text": "My mother says nobody visited.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll visit your mother this week"
+    },
+    {
+     "key": "b",
+     "promisee": "tobin",
+     "messageId": 3,
+     "quote": "I promise I'll help you load the cart"
+    }
+   ],
+   "read": [
+    4,
+    5
+   ],
+   "event": {
+    "key": "b",
+    "kind": "kept",
+    "messageId": 4,
+    "quote": "Cart's loaded. Couldn't have done it without you"
+   },
+   "note": "Mira's line is not evidence of anything closing"
+  },
+  {
+   "id": "p2-010",
+   "category": "kept",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Keep watch on the east wall tonight.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I swear I'll keep watch on the east wall tonight.",
+     "user": true
+    },
+    {
+     "speaker": "Edda",
+     "text": "Dawn already? You stayed up there all night?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "All night on the east wall, Edda, just like I said.",
+     "user": true
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I swear I'll keep watch on the east wall tonight"
+    }
+   ],
+   "read": [
+    2,
+    3
+   ],
+   "event": {
+    "key": "a",
+    "kind": "kept",
+    "messageId": 3,
+    "quote": "All night on the east wall, Edda, just like I said"
+   }
+  },
+  {
+   "id": "p2-011",
+   "category": "broken",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Bring my hammer back from the guild.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise I'll bring your hammer back from the guild.",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "Well? Where is it?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I'm sorry, Tobin. I can't get the hammer back. The guild melted it down.",
+     "user": true
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise I'll bring your hammer back from the guild"
+    }
+   ],
+   "read": [
+    2,
+    3
+   ],
+   "event": {
+    "key": "a",
+    "kind": "broken",
+    "messageId": 3,
+    "quote": "I'm sorry, Tobin. I can't get the hammer back"
+   }
+  },
+  {
+   "id": "p2-012",
+   "category": "broken",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Stay for the festival.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise I'll stay for the festival.",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "And you'll mind my stall?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I promise I'll mind your stall at the festival.",
+     "user": true
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I won't be staying for the festival after all. I have to leave tonight.",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "Oh. I see.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll stay for the festival"
+    },
+    {
+     "key": "b",
+     "promisee": "corvin",
+     "messageId": 3,
+     "quote": "I promise I'll mind your stall at the festival"
+    }
+   ],
+   "read": [
+    4,
+    5
+   ],
+   "event": {
+    "key": "a",
+    "kind": "broken",
+    "messageId": 4,
+    "quote": "I won't be staying for the festival after all"
+   },
+   "note": "leaving also makes the stall promise doubtful, but only the festival promise is refused in words"
+  },
+  {
+   "id": "p2-013",
+   "category": "broken",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Keep the scouts' secret.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I swear I'll keep the scouts' secret.",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "Tell me about the scouts or no deal.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Fine, Corvin. I'll break my word. The scouts hide their boats under the willow bank.",
+     "user": true
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I swear I'll keep the scouts' secret"
+    }
+   ],
+   "read": [
+    2,
+    3
+   ],
+   "event": {
+    "key": "a",
+    "kind": "broken",
+    "messageId": 3,
+    "quote": "I'll break my word"
+   }
+  },
+  {
+   "id": "p2-014",
+   "category": "broken",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Pay me back by the fair.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I promise I'll pay you back by the fair.",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "And my coal money?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise you'll have your coal money too.",
+     "user": true
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I can't pay you for the coal. The money's gone.",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "Gone? All of it?",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I promise I'll pay you back by the fair"
+    },
+    {
+     "key": "b",
+     "promisee": "tobin",
+     "messageId": 3,
+     "quote": "I promise you'll have your coal money too"
+    }
+   ],
+   "read": [
+    4,
+    5
+   ],
+   "event": {
+    "key": "b",
+    "kind": "broken",
+    "messageId": 4,
+    "quote": "Tobin, I can't pay you for the coal"
+   }
+  },
+  {
+   "id": "p2-015",
+   "category": "broken",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Never drink from the black spring.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise I'll never drink from the black spring.",
+     "user": true
+    },
+    {
+     "speaker": "Edda",
+     "text": "You look pale.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I drank from the black spring, Mira. I broke my promise. I was so thirsty.",
+     "user": true
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll never drink from the black spring"
+    }
+   ],
+   "read": [
+    2,
+    3
+   ],
+   "event": {
+    "key": "a",
+    "kind": "broken",
+    "messageId": 3,
+    "quote": "I broke my promise"
+   }
+  },
+  {
+   "id": "p2-016",
+   "category": "broken",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Train my apprentice this winter.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise I'll train your apprentice this winter.",
+     "user": true
+    },
+    {
+     "speaker": "Edda",
+     "text": "Come north with me this winter.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I'm not going to train the boy. I'm going north with Edda instead.",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "You gave me your word.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise I'll train your apprentice this winter"
+    }
+   ],
+   "read": [
+    2,
+    4
+   ],
+   "event": {
+    "key": "a",
+    "kind": "broken",
+    "messageId": 3,
+    "quote": "I'm not going to train the boy"
+   }
+  },
+  {
+   "id": "p2-017",
+   "category": "broken",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Wait for me at the crossroads.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I promise I'll wait for you at the crossroads.",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "And you'll bring me the moss?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise to bring you the moss.",
+     "user": true
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I didn't wait at the crossroads. I failed you. The riders came and I ran.",
+     "user": true
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I promise I'll wait for you at the crossroads"
+    },
+    {
+     "key": "b",
+     "promisee": "mira",
+     "messageId": 3,
+     "quote": "I promise to bring you the moss"
+    }
+   ],
+   "read": [
+    4,
+    4
+   ],
+   "event": {
+    "key": "a",
+    "kind": "broken",
+    "messageId": 4,
+    "quote": "I didn't wait at the crossroads. I failed you"
+   }
+  },
+  {
+   "id": "p2-018",
+   "category": "renegotiated",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Bring the midwife by dawn.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise I'll bring the midwife by dawn.",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "Any news?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, the road's flooded. Can I bring her by noon instead?",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "Noon, then. Bring her by noon.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll bring the midwife by dawn"
+    }
+   ],
+   "read": [
+    2,
+    4
+   ],
+   "event": {
+    "key": "a",
+    "kind": "renegotiated",
+    "messageId": 4,
+    "quote": "Noon, then. Bring her by noon"
+   }
+  },
+  {
+   "id": "p2-019",
+   "category": "renegotiated",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Thirty silver by the fair.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I promise you'll have thirty silver by the fair.",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "The fair is close.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, what if I pay fifteen now and fifteen at the harvest?",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "Fifteen now, fifteen at harvest. Agreed.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I promise you'll have thirty silver by the fair"
+    }
+   ],
+   "read": [
+    2,
+    4
+   ],
+   "event": {
+    "key": "a",
+    "kind": "renegotiated",
+    "messageId": 4,
+    "quote": "Fifteen now, fifteen at harvest. Agreed"
+   }
+  },
+  {
+   "id": "p2-020",
+   "category": "renegotiated",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Mend the gate this week.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise I'll mend the gate this week.",
+     "user": true
+    },
+    {
+     "speaker": "Edda",
+     "text": "Help me with the tower roof this week.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I promise to fix the tower roof.",
+     "user": true
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I'll mend the gate next week instead, after the tower roof.",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "Next week is fine. The gate can wait.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise I'll mend the gate this week"
+    },
+    {
+     "key": "b",
+     "promisee": "edda",
+     "messageId": 3,
+     "quote": "I promise to fix the tower roof"
+    }
+   ],
+   "read": [
+    4,
+    5
+   ],
+   "event": {
+    "key": "a",
+    "kind": "renegotiated",
+    "messageId": 5,
+    "quote": "Next week is fine. The gate can wait"
+   }
+  },
+  {
+   "id": "p2-021",
+   "category": "renegotiated",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Teach me to read before spring.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I swear I'll teach you to read before spring.",
+     "user": true
+    },
+    {
+     "speaker": "Edda",
+     "text": "Spring's coming fast.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, could we say before summer? I'm away most of the spring.",
+     "user": true
+    },
+    {
+     "speaker": "Edda",
+     "text": "Before summer, then. But no later.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I swear I'll teach you to read before spring"
+    }
+   ],
+   "read": [
+    2,
+    4
+   ],
+   "event": {
+    "key": "a",
+    "kind": "renegotiated",
+    "messageId": 4,
+    "quote": "Before summer, then. But no later"
+   }
+  },
+  {
+   "id": "p2-022",
+   "category": "renegotiated",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Bring me a basket of marsh herbs.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise I'll bring you a basket of marsh herbs.",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "Are you coming to the auction?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I vow I'll be at the auction.",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "The marsh is too dangerous now. Bring me dried herbs from the market instead.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Dried herbs from the market it is, Mira.",
+     "user": true
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll bring you a basket of marsh herbs"
+    },
+    {
+     "key": "b",
+     "promisee": "corvin",
+     "messageId": 3,
+     "quote": "I vow I'll be at the auction"
+    }
+   ],
+   "read": [
+    4,
+    5
+   ],
+   "event": {
+    "key": "a",
+    "kind": "renegotiated",
+    "messageId": 4,
+    "quote": "Bring me dried herbs from the market instead"
+   }
+  },
+  {
+   "id": "p2-023",
+   "category": "renegotiated",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Guard my stall all week.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I promise I'll guard your stall all week.",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "How's the guarding?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I can do three nights, not the whole week. Is that enough?",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "Three nights. I'll hire someone for the rest.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I promise I'll guard your stall all week"
+    }
+   ],
+   "read": [
+    2,
+    4
+   ],
+   "event": {
+    "key": "a",
+    "kind": "renegotiated",
+    "messageId": 4,
+    "quote": "Three nights. I'll hire someone for the rest"
+   }
+  },
+  {
+   "id": "p2-024",
+   "category": "renegotiated",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Find me an apprentice by winter.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise I'll find you an apprentice by winter.",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "Find me another healer too.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise to find another healer.",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "Forget the apprentice. Just send me a strong pair of hands for the forge.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "A strong pair of hands for the forge. I'll find them, Tobin.",
+     "user": true
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise I'll find you an apprentice by winter"
+    },
+    {
+     "key": "b",
+     "promisee": "mira",
+     "messageId": 3,
+     "quote": "I promise to find another healer"
+    }
+   ],
+   "read": [
+    4,
+    5
+   ],
+   "event": {
+    "key": "a",
+    "kind": "renegotiated",
+    "messageId": 4,
+    "quote": "Just send me a strong pair of hands for the forge"
+   }
+  },
+  {
+   "id": "p2-025",
+   "category": "renegotiated",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Meet me at the watchtower at sundown.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I promise I'll meet you at the watchtower at sundown.",
+     "user": true
+    },
+    {
+     "speaker": "Edda",
+     "text": "Still coming?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, can we meet at the mill instead? The tower road is blocked.",
+     "user": true
+    },
+    {
+     "speaker": "Edda",
+     "text": "The mill is fine. I'll see you there.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I promise I'll meet you at the watchtower at sundown"
+    }
+   ],
+   "read": [
+    2,
+    4
+   ],
+   "event": {
+    "key": "a",
+    "kind": "renegotiated",
+    "messageId": 4,
+    "quote": "The mill is fine. I'll see you there"
+   }
+  },
+  {
+   "id": "p2-026",
+   "category": "released",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Find my brother.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise I'll find your brother.",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "A letter came today. My brother is safe in the capital.",
+     "user": false
+    },
+    {
+     "speaker": "Mira",
+     "text": "You don't owe me that search anymore, Rowan. Let it go.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll find your brother"
+    }
+   ],
+   "read": [
+    2,
+    3
+   ],
+   "event": {
+    "key": "a",
+    "kind": "released",
+    "messageId": 3,
+    "quote": "You don't owe me that search anymore, Rowan. Let it go"
+   }
+  },
+  {
+   "id": "p2-027",
+   "category": "released",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Pull my anvil from the river.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise I'll pull your anvil out of the river.",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "And my cart wheel?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I'll mend your cart wheel, I promise.",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "I bought a new anvil. Forget the old one, you're free of that promise.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise I'll pull your anvil out of the river"
+    },
+    {
+     "key": "b",
+     "promisee": "corvin",
+     "messageId": 3,
+     "quote": "I'll mend your cart wheel, I promise"
+    }
+   ],
+   "read": [
+    4,
+    4
+   ],
+   "event": {
+    "key": "a",
+    "kind": "released",
+    "messageId": 4,
+    "quote": "Forget the old one, you're free of that promise"
+   }
+  },
+  {
+   "id": "p2-028",
+   "category": "released",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Stand watch with me all winter.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I vow to stand watch beside you through the winter.",
+     "user": true
+    },
+    {
+     "speaker": "Edda",
+     "text": "I'm being sent south.",
+     "user": false
+    },
+    {
+     "speaker": "Edda",
+     "text": "I release you from your vow, Rowan. Stay here and keep warm.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I vow to stand watch beside you through the winter"
+    }
+   ],
+   "read": [
+    2,
+    3
+   ],
+   "event": {
+    "key": "a",
+    "kind": "released",
+    "messageId": 3,
+    "quote": "I release you from your vow"
+   }
+  },
+  {
+   "id": "p2-029",
+   "category": "released",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Bid for me at the auction.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I promise I'll bid for you at the auction.",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "Will you still help at the clinic?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise I'll help at the clinic tomorrow.",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "The auction's cancelled. No need to bid for me.",
+     "user": false
+    },
+    {
+     "speaker": "Mira",
+     "text": "See you at the clinic tomorrow, then.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I promise I'll bid for you at the auction"
+    },
+    {
+     "key": "b",
+     "promisee": "mira",
+     "messageId": 3,
+     "quote": "I promise I'll help at the clinic tomorrow"
+    }
+   ],
+   "read": [
+    4,
+    5
+   ],
+   "event": {
+    "key": "a",
+    "kind": "released",
+    "messageId": 4,
+    "quote": "No need to bid for me"
+   }
+  },
+  {
+   "id": "p2-030",
+   "category": "released",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Bring the willow bark.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise I'll bring the willow bark.",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "And you'll help me at the forge?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I swear I'll help at the forge.",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "My nephew is back. He'll help at the forge. You don't need to keep that promise.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll bring the willow bark"
+    },
+    {
+     "key": "b",
+     "promisee": "tobin",
+     "messageId": 3,
+     "quote": "I swear I'll help at the forge"
+    }
+   ],
+   "read": [
+    4,
+    4
+   ],
+   "event": {
+    "key": "b",
+    "kind": "released",
+    "messageId": 4,
+    "quote": "You don't need to keep that promise"
+   }
+  },
+  {
+   "id": "p2-031",
+   "category": "released",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Keep my daughter from the fighting.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise I'll keep your daughter from the fighting.",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "The war's over.",
+     "user": false
+    },
+    {
+     "speaker": "Tobin",
+     "text": "She's safe now. Consider your promise kept... no, released. You owe me nothing.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise I'll keep your daughter from the fighting"
+    }
+   ],
+   "read": [
+    2,
+    3
+   ],
+   "event": {
+    "key": "a",
+    "kind": "released",
+    "messageId": 3,
+    "quote": "You owe me nothing"
+   }
+  },
+  {
+   "id": "p2-032",
+   "category": "released",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Never leave me at the crossroads.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I swear I'll never leave you at the crossroads.",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "Edda's moving to the city.",
+     "user": false
+    },
+    {
+     "speaker": "Edda",
+     "text": "I'm leaving town for good. That oath was for the road, Rowan, and the road is done. You're released.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I swear I'll never leave you at the crossroads"
+    }
+   ],
+   "read": [
+    2,
+    3
+   ],
+   "event": {
+    "key": "a",
+    "kind": "released",
+    "messageId": 3,
+    "quote": "You're released"
+   }
+  },
+  {
+   "id": "p2-033",
+   "category": "control",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Find my brother.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise I'll find your brother.",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "Any word yet?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Not yet, Mira. I haven't forgotten my promise.",
+     "user": true
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll find your brother"
+    }
+   ],
+   "read": [
+    2,
+    3
+   ],
+   "event": null
+  },
+  {
+   "id": "p2-034",
+   "category": "control",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Mend the gate.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise I'll mend the gate.",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "The gate's still broken.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "I'm on it, Tobin. Tomorrow I start on the hinges.",
+     "user": true
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise I'll mend the gate"
+    }
+   ],
+   "read": [
+    2,
+    3
+   ],
+   "event": null
+  },
+  {
+   "id": "p2-035",
+   "category": "control",
+   "chat": [
+    {
+     "speaker": "Corvin",
+     "text": "Pay me back.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Corvin, I promise I'll pay you back.",
+     "user": true
+    },
+    {
+     "speaker": "Edda",
+     "text": "Did you ever pay Corvin?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Not yet, Edda. Soon.",
+     "user": true
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "corvin",
+     "messageId": 1,
+     "quote": "I promise I'll pay you back"
+    }
+   ],
+   "read": [
+    2,
+    3
+   ],
+   "event": null,
+   "note": "a third party asks; nothing closes"
+  },
+  {
+   "id": "p2-036",
+   "category": "control",
+   "chat": [
+    {
+     "speaker": "Edda",
+     "text": "Teach me the knot.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Edda, I promise I'll teach you the ferry knot.",
+     "user": true
+    },
+    {
+     "speaker": "Mira",
+     "text": "Can you teach me a knot too?",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Maybe later, Mira.",
+     "user": true
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "edda",
+     "messageId": 1,
+     "quote": "I promise I'll teach you the ferry knot"
+    }
+   ],
+   "read": [
+    2,
+    3
+   ],
+   "event": null
+  },
+  {
+   "id": "p2-037",
+   "category": "control",
+   "chat": [
+    {
+     "speaker": "Mira",
+     "text": "Bring blankets.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Mira, I promise I'll bring blankets.",
+     "user": true
+    },
+    {
+     "speaker": "Tobin",
+     "text": "I have spare wool.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Thanks, Tobin. That'll help with the blankets.",
+     "user": true
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "mira",
+     "messageId": 1,
+     "quote": "I promise I'll bring blankets"
+    }
+   ],
+   "read": [
+    2,
+    3
+   ],
+   "event": null,
+   "note": "progress, not fulfilment"
+  },
+  {
+   "id": "p2-038",
+   "category": "control",
+   "chat": [
+    {
+     "speaker": "Tobin",
+     "text": "Keep quiet about the bell.",
+     "user": false
+    },
+    {
+     "speaker": "Rowan",
+     "text": "Tobin, I promise I won't tell anyone about the bell.",
+     "user": true
+    },
+    {
+     "speaker": "Corvin",
+     "text": "Rumour says the bell is cracked.",
+     "user": false
+    },
+    {
+     "speaker": "Tobin",
+     "text": "Rumours. Nothing more.",
+     "user": false
+    }
+   ],
+   "seed": [
+    {
+     "key": "a",
+     "promisee": "tobin",
+     "messageId": 1,
+     "quote": "I promise I won't tell anyone about the bell"
+    }
+   ],
+   "read": [
+    2,
+    3
+   ],
+   "event": null
+  }
+ ]
+}

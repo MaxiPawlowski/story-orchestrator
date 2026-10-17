@@ -1,0 +1,345 @@
+{
+ "format": "so-p47-p6/1",
+ "synthetic": true,
+ "player": "Rowan",
+ "cast": [
+  {
+   "id": "mira",
+   "name": "Mira"
+  },
+  {
+   "id": "tobin",
+   "name": "Tobin"
+  },
+  {
+   "id": "edda",
+   "name": "Edda"
+  },
+  {
+   "id": "corvin",
+   "name": "Corvin"
+  }
+ ],
+ "cases": [
+  {
+   "id": "p6-001",
+   "title": "The Flooded Mill",
+   "premise": "A river town recovers from a spring flood.",
+   "promisee": "mira",
+   "quote": "I promise I'll find your brother before the snows come",
+   "frontier": {
+    "id": "cp_now",
+    "name": "Search the Ferry Landing",
+    "objective": "The ferryman says a caravan passed north three weeks ago."
+   },
+   "canon": "The ferryman says a caravan passed north three weeks ago.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-002",
+   "title": "Forge and Guild",
+   "premise": "A blacksmith fights the guild for his livelihood.",
+   "promisee": "tobin",
+   "quote": "I promise I will carry the hammer to the guild hall myself",
+   "frontier": {
+    "id": "cp_now",
+    "name": "The Guild Steps",
+    "objective": "Guild wardens bar the hall doors and demand a fee."
+   },
+   "canon": "Guild wardens bar the hall doors and demand a fee.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-003",
+   "title": "Watchtower Winter",
+   "premise": "Scouts hold a tower through a hard winter.",
+   "promisee": "edda",
+   "quote": "I vow to stand watch beside you until the winter ends",
+   "frontier": {
+    "id": "cp_now",
+    "name": "Frost on the East Wall",
+    "objective": "A signal fire flares on the ridge at midnight."
+   },
+   "canon": "A signal fire flares on the ridge at midnight.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-004",
+   "title": "The Stolen Ledger",
+   "premise": "A merchant's ledger holds half the town's debts.",
+   "promisee": "corvin",
+   "quote": "I promise to get your ledger back from whoever took it",
+   "frontier": {
+    "id": "cp_now",
+    "name": "Dockside Rumours",
+    "objective": "A dockhand hints that the ledger changed hands at the tannery."
+   },
+   "canon": "A dockhand hints that the ledger changed hands at the tannery.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-005",
+   "title": "Fever Season",
+   "premise": "A fever spreads through the lower town.",
+   "promisee": "mira",
+   "quote": "I promise I'll bring the willow bark within three days",
+   "frontier": {
+    "id": "cp_now",
+    "name": "The Apothecary's Shutters",
+    "objective": "The apothecary has closed and the willow bark is locked inside."
+   },
+   "canon": "The apothecary has closed and the willow bark is locked inside.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-006",
+   "title": "Naming Day",
+   "premise": "A father prepares for his son's naming day.",
+   "promisee": "tobin",
+   "quote": "You have my word it will be there for the naming day",
+   "frontier": {
+    "id": "cp_now",
+    "name": "Eve of the Naming",
+    "objective": "The sword still lacks a hilt and the festival is tomorrow."
+   },
+   "canon": "The sword still lacks a hilt and the festival is tomorrow.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-007",
+   "title": "The Marsh Path",
+   "premise": "A scout guides travellers across a treacherous marsh.",
+   "promisee": "edda",
+   "quote": "I swear I'll stay on the path",
+   "frontier": {
+    "id": "cp_now",
+    "name": "Lights in the Reeds",
+    "objective": "Will-o'-wisps dance off the path, and a voice calls from them."
+   },
+   "canon": "Will-o'-wisps dance off the path, and a voice calls from them.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-008",
+   "title": "Market Debts",
+   "premise": "A merchant's patience runs thin.",
+   "promisee": "corvin",
+   "quote": "on my word, I'll pay you back every coin by the next fair",
+   "frontier": {
+    "id": "cp_now",
+    "name": "The Fair Opens",
+    "objective": "Corvin sets up his stall and watches the crowd for a familiar face."
+   },
+   "canon": "Corvin sets up his stall and watches the crowd for a familiar face.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-009",
+   "title": "Garden of Ashes",
+   "premise": "A healer rebuilds a burned garden.",
+   "promisee": "mira",
+   "quote": "I swear on my mother's grave that nobody will burn your garden again",
+   "frontier": {
+    "id": "cp_now",
+    "name": "Smoke at Dusk",
+    "objective": "Strangers with torches gather at the garden wall."
+   },
+   "canon": "Strangers with torches gather at the garden wall.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-010",
+   "title": "Keys of the Forge",
+   "premise": "Someone wants into the forge at night.",
+   "promisee": "tobin",
+   "quote": "I give you my word I'll guard the forge keys",
+   "frontier": {
+    "id": "cp_now",
+    "name": "A Knock After Dark",
+    "objective": "A hooded figure offers gold for one night with the keys."
+   },
+   "canon": "A hooded figure offers gold for one night with the keys.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-011",
+   "title": "Letters Home",
+   "premise": "A scout cannot read the letters she receives.",
+   "promisee": "edda",
+   "quote": "I swear I'll teach you to read before the spring",
+   "frontier": {
+    "id": "cp_now",
+    "name": "The Unopened Letter",
+    "objective": "A letter with a black seal arrives for Edda."
+   },
+   "canon": "A letter with a black seal arrives for Edda.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-012",
+   "title": "The Auction",
+   "premise": "A rare map goes under the hammer.",
+   "promisee": "corvin",
+   "quote": "I vow I'll be at the auction to bid for you",
+   "frontier": {
+    "id": "cp_now",
+    "name": "Auction Morning",
+    "objective": "A rival buyer arrives with a fat purse and hired guards."
+   },
+   "canon": "A rival buyer arrives with a fat purse and hired guards.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-013",
+   "title": "The Cellar",
+   "premise": "A secret lies beneath the smithy.",
+   "promisee": "tobin",
+   "quote": "I promise I'll never tell a soul about the cellar",
+   "frontier": {
+    "id": "cp_now",
+    "name": "Questions from the Reeve",
+    "objective": "The reeve asks pointed questions about noises under the smithy."
+   },
+   "canon": "The reeve asks pointed questions about noises under the smithy.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-014",
+   "title": "The Crossroads",
+   "premise": "Old wounds between two travellers.",
+   "promisee": "edda",
+   "quote": "I swear I will never leave you behind again",
+   "frontier": {
+    "id": "cp_now",
+    "name": "Riders on the Road",
+    "objective": "Riders appear on the road behind them, closing fast."
+   },
+   "canon": "Riders appear on the road behind them, closing fast.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-015",
+   "title": "The Strongbox",
+   "premise": "A merchant guards his savings.",
+   "promisee": "corvin",
+   "quote": "I promise I won't touch your strongbox",
+   "frontier": {
+    "id": "cp_now",
+    "name": "The Open Lid",
+    "objective": "Corvin finds his strongbox open and coins missing."
+   },
+   "canon": "Corvin finds his strongbox open and coins missing.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-016",
+   "title": "Black Spring",
+   "premise": "A poisoned spring lies outside town.",
+   "promisee": "mira",
+   "quote": "you have my word I won't drink from the black spring",
+   "frontier": {
+    "id": "cp_now",
+    "name": "A Dry Road",
+    "objective": "The wells along the road are dry, and only the black spring flows."
+   },
+   "canon": "The wells along the road are dry, and only the black spring flows.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-017",
+   "title": "Bring Him Home",
+   "premise": "A boy went missing in the hills.",
+   "promisee": "tobin",
+   "quote": "I promise. I'll bring him home",
+   "frontier": {
+    "id": "cp_now",
+    "name": "Tracks in the Snow",
+    "objective": "Small footprints lead toward the wolf caves."
+   },
+   "canon": "Small footprints lead toward the wolf caves.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-018",
+   "title": "Supplies for the Tower",
+   "premise": "The tower is short of food.",
+   "promisee": "edda",
+   "quote": "I swear I'll get the supplies to the tower and pay for them myself",
+   "frontier": {
+    "id": "cp_now",
+    "name": "The Quartermaster's Price",
+    "objective": "The quartermaster doubles the price of flour overnight."
+   },
+   "canon": "The quartermaster doubles the price of flour overnight.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-019",
+   "title": "Speaking for Friends",
+   "premise": "The mayor judges two accused men.",
+   "promisee": "corvin",
+   "quote": "you have my word I'll speak for you before the mayor",
+   "frontier": {
+    "id": "cp_now",
+    "name": "The Mayor's Court",
+    "objective": "The court opens and the mayor calls the first witness."
+   },
+   "canon": "The court opens and the mayor calls the first witness.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  },
+  {
+   "id": "p6-020",
+   "title": "The Long Night",
+   "premise": "A storm threatens the town.",
+   "promisee": "mira",
+   "quote": "I promise I'll keep the lamps burning all night for you",
+   "frontier": {
+    "id": "cp_now",
+    "name": "Wind at the Shutters",
+    "objective": "The oil runs low as the storm reaches its height."
+   },
+   "canon": "The oil runs low as the storm reaches its height.",
+   "otherThreads": [
+    "Rumours of bandits on the north road"
+   ]
+  }
+ ]
+}

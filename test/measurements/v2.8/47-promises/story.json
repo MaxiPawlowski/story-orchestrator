@@ -1,0 +1,60 @@
+{
+ "format": 2,
+ "id": "so-p47-suite",
+ "title": "SO-P47 Promise Suite",
+ "description": "Plan 47 P1/P2/P8 measurement story: a generic river town, four cast members, one read-scoped value so the shared read runs.",
+ "qualities": [
+  {
+   "key": "town_mood",
+   "type": "enum",
+   "values": [
+    "calm",
+    "uneasy",
+    "festive"
+   ],
+   "source": "extractor",
+   "rubric": "How does the town feel right now?"
+  }
+ ],
+ "checkpoints": [
+  {
+   "id": "town",
+   "name": "River Town",
+   "player_name": "River Town",
+   "type": "anchor",
+   "start": true,
+   "objective": "Spend a few days in the river town."
+  }
+ ],
+ "transitions": [],
+ "roster": [
+  {
+   "id": "mira",
+   "name": "Mira",
+   "role": "healer"
+  },
+  {
+   "id": "tobin",
+   "name": "Tobin",
+   "role": "blacksmith"
+  },
+  {
+   "id": "edda",
+   "name": "Edda",
+   "role": "scout"
+  },
+  {
+   "id": "corvin",
+   "name": "Corvin",
+   "role": "merchant"
+  }
+ ],
+ "requirements": {
+  "members": [
+   "Mira",
+   "Tobin",
+   "Edda",
+   "Corvin"
+  ]
+ }
+}
