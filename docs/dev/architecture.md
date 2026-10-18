@@ -235,21 +235,21 @@ One line each; the full rule is in `.claude/rules/architecture.md`.
 - **A preset is a per-request sampler overlay**, never an install write (v2.4 plan 06, X20). The
   reply thinking budget (v2.6) is the one overlay that adds keys, five named ones, llama.cpp only.
 - **World Info activation is observed, not inferred** (v2.4 plan 05 T12). Checkpoint `world_info` is
-  rebuilt from the chat's path; a scan-time gating mode exists as a spike behind
-  `worldInfo.gatingMode`.
+  rebuilt from the chat's path; the default `worldInfo.gatingMode` is `scan` (a per-scan view, entries rest
+  off in their files), with `file` mode as the fallback.
 - **A story's lorebooks reach only the chats that play it** (2026-10-02): `runtime/storyLore.ts`
   appends them to each scan of the owning chat; nothing is selected globally.
 - **No chat, no story**: with no chat open an import only saves to the library and every effect is
   refused.
-- **Judge** (v2.2, extended through v2.6): every use on by default except `houseRules`; a
+- **Judge** (v2.2, extended through v2.8): every use on by default, `houseRules` and the unmeasured ones too; a
   `DecisionProvider` seam routes each use to a provider, refuses an uncalibrated route, and never
   sends a request over the provider's documented size limits. The judge never blocks and never writes.
 - **Chance is seeded** (v2.6 SP7.b): rolls, NPC reply probability and the talk pick are drawn from
   (chat, story, boundary, key), so rollback and reopen replay the same value.
 - **Inline timeline** (v2.6 plan 08): notes under each message, rendered into the DOM by
   `stHost/inlineMount.ts`, never posted as messages; levels 0–4, author levels only in Author view.
-- **Chapters and the saga** (v2.6 plan 07): chapter seals, fold, "Previously…", chronicle; the
-  features beyond sealing stay off until their floors are measured.
+- **Chapters and the saga** (v2.6 plan 07): chapter seals, fold, "Previously…", chronicle; all on by
+  default (every built feature is), measured or not.
 - **Agentic wizard** (v2.6 plan 11) writes only through typed tools, and only the author confirms an
   asset. The harness plugin's tool bridge (opencode only) changes the transport, not the rule.
 - **Release packaging** (v2.5 plan 12): `npm run package` builds the allowlisted zip;
@@ -360,8 +360,8 @@ already skips unchanged content.
 
 ## Packaging
 
-`manifest.json` loads the gitignored `dist/index.js` produced by `npm run build` (prod; `build:dev`
-writes the dev bundle with debug handles to `dist-dev/`). `npm run package` builds the release zip
+`manifest.json` loads the gitignored `dist/index.js` produced by `npm run build`, the one build: it carries the
+debug handles the live harness uses, and harness-only code rides lazy chunks. `npm run package` builds the release zip
 from `scripts/release/artifact-allowlist.json`; `npm run stage` copies the same file list into a
 SillyTavern extension slot. The
 `generate_interceptor` (`talkControlInterceptor`) is the live speaker-direction enforcement point,

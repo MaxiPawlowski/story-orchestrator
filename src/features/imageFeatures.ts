@@ -109,8 +109,8 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     oneLine: "Character sprites that change expression as replies stream.",
     what: "The speaking characters stand on a small stage and change expression with the reply. A story can switch the stage on; you can switch it off everywhere.",
     where: settingsAt("#so-sprite-enabled", "Images › Sprite stage"),
-    settings: ["sprites"], guideTopic: "presentation", doc: "player/drawer-and-hud.md", status: "off-by-default", needs: ["sprite-pack"],
-    isOn: (settings) => settings.sprites.enabled,
+    settings: ["sprites"], guideTopic: "presentation", doc: "player/drawer-and-hud.md", status: "shipped", needs: ["sprite-pack"],
+    isOn: (settings) => !settings.sprites.explicit || settings.sprites.enabled,
   },
   {
     id: "sprite-builder", name: "Build sprite packs", area: "authoring", audience: "author",

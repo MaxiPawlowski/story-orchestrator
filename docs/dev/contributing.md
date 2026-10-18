@@ -6,13 +6,17 @@ rules. The rules exist because each one was broken once; a change that touches a
 ## Setup
 
 The repository lives **outside** SillyTavern. SillyTavern's extension slot
-(`public/scripts/extensions/third-party/story-orchestrator`) holds only a staged copy.
+(`public/scripts/extensions/third-party/story-orchestrator`) holds only a staged copy. The user-facing install
+procedure, with PowerShell and Bash examples, is [Install](../guide/setup/README.md#install); for development:
 
 ```bash
+printf '%s' '/path/to/SillyTavern' > .st-root   # first: the build needs it too (or set ST_ROOT)
 npm ci
 npm run build                                   # the one bundle -> dist/ + dist/manifest.json
-npm run stage -- --st-root <SillyTavern>        # copy the release file list into the slot
+npm run stage                                   # copy the release file list into the slot
 ```
+
+Node.js 22 with its npm (tested on 22.22 and 10.9). The harness scripts (`*.mts`) run directly on that Node.
 
 There is one build: it carries the debug handles (`globalThis.storyOrchestrator*`) the live harness uses. After
 every build and stage, reload without the cache:
@@ -21,8 +25,9 @@ every build and stage, reload without the cache:
 node scripts/debug/st-session.mts reload        # a plain reload can run the cached old bundle
 ```
 
-The SillyTavern root can also come from `ST_ROOT` or a gitignored `.st-root` file; it is never guessed. `npm run
-build` needs it too: the build manifest hashes every SillyTavern file the extension imports.
+The SillyTavern root comes from the gitignored `.st-root` file or `ST_ROOT` (`stage` and `plugin:install` also accept
+`--st-root <path>`); it is never guessed. `npm run build` needs it too: the build manifest hashes every SillyTavern file
+the extension imports, so write `.st-root` before the first build.
 
 ## Gates
 
@@ -35,9 +40,12 @@ Run the gates for what you touched, and report the exact commands and results.
 | build, release tooling, `tsconfig` | the above + `npm run build` + `npm run test:release` |
 | runtime, UI, anything SillyTavern-facing | the above + a live check in a real SillyTavern (below) |
 
-`npm run gates` runs the whole chain in order (typecheck, test typecheck, lint, jest, both builds, the harness tests,
-release, replay, plugin and Storybook tests); `-- --no-storybook` skips Storybook and says so. Jest does not
-type-check tests: run `npm run typecheck:test` when you change a test.
+`npm run gates` runs every gate (typecheck, test typecheck, lint, jest, the build, the harness tests and their
+typecheck, release, replay, plugin and Storybook tests). Each step starts as soon as the steps it needs are done (the
+harness and release tests wait for the build), at most `--jobs` at once; `--serial` runs one at a time, and the first
+red step stops new starts. `-- --no-storybook` skips Storybook and says so; `npm run gates -- --help` lists the flags.
+Per change, `npm run gates:quick` checks only what changed. Jest does not type-check tests: run
+`npm run typecheck:test` when you change a test.
 
 A failing gate is reported as failing. Mocked model responses are for unit determinism only; a change to anything
 that calls a model is not done until it ran against a real model in the browser.
@@ -88,7 +96,9 @@ lanes. Start with [`scripts/debug/README.md`](../../scripts/debug/README.md) and
   release tooling (plus the generated guide), each on `node --test`.
 - `scripts/release/clean-host.sh` (and `.ps1`): clone SillyTavern at a pinned revision into a temp dir, copy this
   extension in without `node_modules`/`dist`, `npm ci` with an isolated cache, run the gates, and write a host record.
-- `npm run plugin:install -- --st-root <SillyTavern>`: copy the server plugins into SillyTavern's `plugins/`.
+- `npm run plugin:install`: copy the server plugins into SillyTavern's `plugins/` (`-- --with gpu,media,harness` for the
+  optional ones, `-- --check` to list differences only). How the installer and release packaging share one plugin
+  list: [Companion plugin maintenance](companion-plugin-maintenance.md).
 
 ## Releases
 

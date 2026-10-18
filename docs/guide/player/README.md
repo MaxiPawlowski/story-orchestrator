@@ -6,21 +6,22 @@ along, keeps track, and nudges the characters toward the next scene.
 
 You do not need to learn anything to play. These pages explain what you see on screen.
 
-- [Starting, continuing and restarting](playing.md): picking a story for a chat, restarting, library updates,
-  branches, the welcome-back recap and the `/story` command.
-- [The story bar, the drawer and the notes under messages](drawer-and-hud.md): what each part of the screen
+- [Starting, continuing and restarting](playing.md): picking a story for a chat, who answers in a group,
+  restarting, people and promises, finished stories, branches, the welcome-back recap and the `/story` command.
+- [The story bar, the story window and the notes under messages](drawer-and-hud.md): what each part of the screen
   tells you.
 - [Memory](memory.md): what the story remembers, and how to pin, edit or remove a memory.
 - [Troubleshooting and FAQ](troubleshooting.md): when the story does not move, or something looks wrong.
 
 Setting up the extension for the first time is in [Setup](../setup/README.md). Writing your own stories is in the
-[Author's guide](../author/README.md).
+[Author's guide](../author/README.md) (in the in-app guide it shows only in Author view).
 
 ## Player mode and Author view
 
-The drawer opens in **player mode**. It shows only what a player should see: where you are, what happened, what is
-still open. Nothing in it spoils the story.
+The story window opens in **player mode**: **This story → Play** shows only what a player should see: where you
+are, what happened, what is still open. Nothing in it spoils the story.
 
-**Author view** is for the person who wrote or is testing the story. It *adds* the machinery (tracked facts,
-scheduler, prompt contents, steering controls) and spoils the story, so it asks before it turns on. It is per chat.
-If you only want to play, leave it off.
+**Author view** is for the person who wrote or is testing the story. It *adds* the machinery (tracked values,
+scheduler, prompt contents, steering controls) on **This story → Review** and **This story → Author**, and spoils the
+story, so it asks before it turns on. It is per chat; **Return to player view** on the Author page turns it off. If you
+only want to play, leave it off.

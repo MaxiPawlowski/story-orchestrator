@@ -16,8 +16,8 @@ export function comfyPort(config) {
     return url.port || (url.protocol === 'https:' ? '443' : '80');
 }
 
-export function controllerStatus({ config, scheduler, imageCache, telemetry, controllerBuild, pid, configFile }) {
+export function controllerStatus({ config, scheduler, imageCache, telemetry, controllerBuild, pid, configFile, performance = null }) {
     return { ...scheduler, controllerBuild, imageCache: imageCache.last, imageCacheFailure: imageCache.lastFailure,
         imageCacheHostTrim: imageCache.lastHostTrim ?? null, imageCacheMode: config.imageCacheMode ?? 'warm', telemetry,
-        adapter: 'managed', guarding: true, reserves: config.reserves, pid, configFile, maxContext: config.maxContext };
+        adapter: 'managed', guarding: true, reserves: config.reserves, pid, configFile, maxContext: config.maxContext, performance };
 }

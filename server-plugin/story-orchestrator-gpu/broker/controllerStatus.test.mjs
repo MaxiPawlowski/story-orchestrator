@@ -17,6 +17,8 @@ test('/status reports the reserves and context the config declares, not a built-
     assert.equal(shape.imageCacheMode, 'warm');
     assert.equal(shape.imageCacheHostTrim, null);
     assert.deepEqual([shape.adapter, shape.guarding, shape.pid, shape.configFile], ['managed', true, 7, 'config.json']);
+    assert.equal(shape.performance, null);
+    assert.deepEqual(controllerStatus({ config: {}, scheduler: {}, imageCache, telemetry: null, performance: { mode: 'max' } }).performance, { mode: 'max' });
 });
 
 test('a config without reserves reports none rather than inventing them', () => {

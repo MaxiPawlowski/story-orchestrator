@@ -11,13 +11,15 @@ writes to the story itself.
 
 1. Install the plugin (see [Server plugins](README.md#server-plugins)) and set `enableServerPlugins: true` in
    SillyTavern's `config.yaml`. Restart SillyTavern.
-2. In the **Judge** section, paste your key into **TypeSafe API key** and press
-   **Save key**. It is stored in SillyTavern's own secrets on the server; it is never shown again and never sent to
-   the page.
-3. **Use the judge** is on by default. The status line says whether the plugin answers.
+2. Open **Orchestrator → Connections → Judge**, paste your key into **TypeSafe API key** and press **Save key**. It is
+   stored in SillyTavern's own secrets on the server; it is never shown again and never sent to the page.
+3. **Use the judge** is on by default. The status line says whether the plugin answers; **Recheck** asks again.
 
 The plugin reads the key from, in order: the requesting user's SillyTavern secrets; then, only when SillyTavern user
 accounts are off, the `TYPESAFE_API_KEY` environment variable and `~/.typesafe/api-key/.env`.
+
+**It works when** the status line under **Judge** says the plugin answers. In Author view the same section also counts
+this chat's judge calls, which rise after a few replies in a story chat.
 
 ## Privacy
 
@@ -27,61 +29,77 @@ text, other chats or the key. To stop it, untick **Use the judge**, or the singl
 <https://typesafe.ai/legal/privacy-policy>.
 
 A local provider (the [local judge](#local-judge-experimental) below, or `llama-logprob`, a llama-server you run, set
-with `SO_JUDGE_LLAMA_URL` on the server) keeps everything on your machine. A use is sent to a provider only where it
-has been measured for that provider and model.
+with `SO_JUDGE_LLAMA_URL` on the server) keeps everything on your machine. A use is sent to a local provider only where
+it has been measured for that provider and model.
 
 ## Uses
 
-Every use is on by default, House rules too (it is below its measured floor). The ones marked *author* show only in Author view.
+Each use is its own switch under **Orchestrator → Connections → Judge**. A feature's page (**Orchestrator → Defaults**
+or **This story → Features**) also lists the judge uses that support it.
 
-| Use | What it does | Sends |
-|---|---|---|
-| Speaker direction | Picks who speaks next in a group chat when the scene has talk control. Needs a one-line role for every character in the pool. | the last 8 messages, character names and roles, the scene name and goal |
-| Check memory before storing | Drops notes the story never showed and down-weights doubtful ones. | the read's messages, the candidate notes, story title and cast names |
-| Merge related notes | Decides whether two similar notes are a duplicate, an update, or both true. | two memory notes per question |
-| Notice scene changes | Asks for the scene read on the turn a scene changes. | the last 8 messages, the scene name and goal, cast names and roles, your persona name |
-| Scene tracker | Keeps location, time and who is present, and adds them to the prompt. | as above, plus the story's locations |
-| Heading toward | Shows which upcoming scenes play is moving toward (Author view). | the last 8 messages and the next scenes' names and goals |
-| Lore selection | Adds the lore entries that matter to the next reply, even without their keywords. | the last 8 messages, the scene name and goal, each entry of the story's lore-select books |
-| Curator focus | Shows the World Info curator only the entries the story may have overtaken. | the story so far and the story's lore entries |
-| Every-turn story reads | Reads the qualities the author marked for it on every turn, so scenes open sooner. | the last 3 messages, the story title and scene, each marked quality's description and values |
-| Stall check | Checks a stuck exit before spending a full re-read. | the messages since the scene began and the unmet conditions |
-| Expansion review (*author*) | Reviews generated scenes instead of a second model call. | up to 40 established facts, the target scene, cast names, the tension trajectory, the generated scenes |
-| Prepare ahead (*author*) | Writes generated scenes one step ahead, where play is heading. Needs Heading toward. | nothing beyond Heading toward and the expansion |
-| Agency check (*author*, warden) | Asks whether a reply wrote what only you do, say or decide; if so the next prompt leaves your part to you. | the character reply, your latest message and your persona name |
-| Answers the player (*author*, warden) | Asks whether a reply answered what you just said or did; if not, the next prompt asks for an answer. A refusal or a dodge in character counts as an answer. Not measured yet. | nothing beyond the warden's call |
-| House rules (*author*, warden) | Checks a reply against the story's house rules. Below its measured floor, on all the same. | the character reply and the house rules |
-| Lore check (*author*, warden) | Checks a reply against the story's own lore entries that fired for it. Needs the continuity warden on. | the reply and up to 8 fired story lore entries (600 characters each) |
-| Exclusive lore selection (*author*) | For a story marked exclusive, switches off for one reply the lore-select entries the judge did not pick. Needs Lore selection and per-chat lore gating. | nothing beyond Lore selection |
-| Sprite expressions | Picks who each passage of a reply is about and their expression, for the sprite stage. | each reply's passages, on-stage names, expression labels |
+<!-- judge-uses:start (generated by npm run docs:settings; edit src/judge/settings.ts and src/judge/readinessRows.ts) -->
+Every use is on by default (27 uses). **Shown** says whether the panel lists it to everyone or only in Author view.
+**TypeSafe** and **Local judge** say whether the use was measured on that provider against a floor fixed before the run. TypeSafe is the
+default for every use, and an unmeasured use still runs there; a use routed to the local judge is refused there until it is measured.
 
-### How the defaults were chosen
+| Use | What it does | Sends | Shown | Needs | TypeSafe (`jev-1.13.0`) | Local judge (decider-4b) |
+|---|---|---|---|---|---|---|
+| Speaker direction | Picks who speaks next in a group chat when the turning point has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides. | the last 8 messages, character names and roles, the scene name and goal | Everyone |  | Measured: 88%, about 245 ms | Not measured: refused there |
+| Check memory before storing | Drops notes the story never showed and down-weights doubtful ones. | the read's messages, the candidate notes, story title and cast names | Everyone |  | Measured: 97%, about 236 ms | Not measured: refused there |
+| Merge related notes | Decides whether two similar notes are a duplicate, an update, or both true. | two memory notes per question | Everyone |  | Measured: 93%, about 254 ms | Measured: 90% |
+| Notice scene changes | Asks for the scene read on the turn a scene changes, next to today's keyword check. | the last 8 messages, the turning point's name and goal, cast names and roles, your persona name | Everyone |  | Measured: 97%, about 243 ms | Not measured: refused there |
+| Scene tracker | Keeps location, time and who is present, and adds them to the prompt. | the last 8 messages, the turning point's name and goal, cast names and roles, your persona name, the story's locations | Everyone |  | Measured: 97%, about 243 ms | Not measured: refused there |
+| Heading toward (author view) | Shows which upcoming turning points play is moving toward. | the last 8 messages and the names and goals of the next turning points | Everyone |  | Measured: 100%, about 270 ms | Not measured: refused there |
+| Lore selection | Adds the lore entries that matter to the next reply, even without their keywords. | the last 8 messages, the turning point's name and goal, and the title and text of each entry in the story's lore-select books | Everyone |  | Measured: 90%, about 291 ms | Not measured: refused there |
+| Curator focus | Shows the World Info curator only the entries the story may have overtaken. | the story so far and the story's lore entries | Everyone |  | Measured: 89%, about 281 ms | Not measured: refused there |
+| Every-turn story reads | Reads the tracked values the author marked for it on every turn, so turning points open sooner; the rest stay with the story model. | the last 3 messages (or the read's window), the story title and turning point, and each marked value's description, values and numbers or names found in the messages | Everyone |  | Measured: 83%, about 260 ms | Not measured: refused there |
+| Stall check | Checks a stuck way forward before spending a full re-read; writes only what the messages clearly show. | the messages since the turning point began and the unmet conditions' descriptions and values | Everyone |  | Measured: 100%, about 243 ms | Not measured: refused there |
+| Expansion review | Reviews generated story beats instead of a second model call; the code checks still run first. | up to 40 established facts, the target turning point's name and goal, cast names with your persona, the tension trajectory and the generated beats | Author view |  | Measured: 99%, about 245 ms | Not measured: refused there |
+| Prepare ahead | Writes the generated beats one turning point ahead, where play is heading, before the story gets there. | nothing beyond Heading toward and the expansion itself (reviewed by Expansion review when that is on) | Author view | Heading toward (author view) | Measured: 100%, about 270 ms | Not measured: refused there |
+| Agency check (warden) | After a character reply, asks whether it wrote what only you do, say or decide; when it did, the next reply's prompt carries one line leaving your part to you. Uses the continuity warden's review or auto mode. | the character reply, your latest message and your persona name | Author view |  | Measured: 100%, about 241 ms | Not measured: refused there |
+| House rules (warden) | After a character reply, checks it against the story's house rules; a broken rule is named in the next reply's prompt. Uses the continuity warden's review or auto mode. | the character reply and the story's house rules | Author view |  | Below its floor (97%); on all the same | Not measured: refused there |
+| Lore check (warden) | After a character reply, checks it against the story's own lore entries that fired for that reply; a contradicted entry is named in the next reply's prompt. Needs the continuity warden on, and uses its review or auto mode. | the character reply and the title and text of up to 8 story lore entries that fired for it (600 characters each); never memory or other books | Author view |  | Measured: 100%, about 233 ms | Not measured: refused there |
+| Exclusive lore selection | For a story marked exclusive, switches off, for that one reply, the entries of its lore-select books the judge did not pick. Only with per-chat gating; a timeout, a refused pick or a timed entry keeps the keyword scan as it is. | nothing beyond Lore selection: it acts on the same request | Author view | Lore selection | Not measured | Not measured: refused there |
+| Sprite expressions | Reads each passage of a reply as it streams and picks which character it is about and their facial expression, for the sprite stage. Otherwise the sprite model, then the local classifier, decide. | each reply's passages, the on-stage character names and the expression labels with their descriptions | Everyone |  | Not measured | Not measured: refused there |
+| Answers the player (warden) | After a character reply, asks whether it answered what you just said or did; a reply that passed over it gets a one-line reminder in the next reply's prompt. A refusal or an in-character dodge counts as an answer. Passed its synthetic fixture twice. | nothing beyond the warden's call: the character reply, your latest message and your persona name | Author view | Continuity warden | Measured: 100%, about 235 ms | Not measured: refused there |
+| In character (warden) | After a character reply, asks whether it sounds like that character, against their role, drive and feelings; a reply that does not gets a one-line note in the next reply's prompt, never a rewrite. Not measured yet. | the character reply, the speaker's name, roster role and drive, and their feelings toward the others in the scene | Author view | Continuity warden | Not measured; rides the warden's call | Not measured: refused there |
+| Branch when the player goes off script | At each turn of a turning point with ways forward, asks whether what you are doing fits any of them; two answers of "none" in a row, or one very sure one, let the story director write a branch that follows you and later comes back. Not measured yet. | the last six chat messages, your persona name and a one-line description of each way forward from the current turning point | Author view |  | Not measured | Not measured: refused there |
+| Check story-so-far sentences | Drops unsupported canon sentences before storing them. A missing judge keeps the existing synthesis path; verification runs off the reply path. | canon sentences, resolved arc summaries, live facts and current goal | Everyone |  | Measured: 100%, about 291 ms | Not measured: refused there |
+| Checked canon drafts | Enables the author's checked story-so-far draft action. The current canon stays in play until the author accepts the draft. | draft canon sentences, resolved arc summaries, live facts and current goal | Author view |  | Measured: 100%, about 291 ms | Not measured: refused there |
+| Illustration-worthy replies | Filters cadence pictures and notices striking present-tense images. A missing judge keeps cadence; manual and turning-point pictures are unchanged. | the character reply | Everyone |  | Measured: 100%, about 247 ms | Not measured: refused there |
+| World-pressure trend | After 18 of 20 low-cost replies, offers a reviewed world-pressure note. Never chooses the player's loss or writes story state. | the character reply and player name, in a separate off-path call | Author view |  | Measured: 100%, about 251 ms | Not measured: refused there |
+| Nothing-happens trend | After 3 of 4 low-change, low-tension replies, offers a reviewed development hint. Its tension read is not yet compared with the memory model's. | the character reply, in a separate off-path call | Author view |  | Measured: 100%, about 219 ms | Not measured: refused there |
+| Story tone drift | After 5 low-tone replies, offers a reviewed tone reminder; high tension skips it. Needs Nothing-happens trend for its tension read. | the character reply, story description and current goal, in a separate off-path call | Author view | Nothing-happens trend | Measured: 100%, about 228 ms | Not measured: refused there |
+| Repeated-phrase check | Offers a reviewed prose reminder when a phrase appears in at least 4 replies. Pure English phrase mining; no judge calls. | nothing: reads up to 60 replies locally | Author view |  | No judge call: counted in code | Not measured: refused there |
+<!-- judge-uses:end -->
 
-Every use was measured in English on 2026-10-01 against `jev-1.13.0`, each against a floor fixed before the run.
-Every use met its floor except House rules: on one story's 8 rules it caught every broken
-rule (18/18) and kept every kept one (10/10), but left untouched replies alone 165 of 172 times against a floor of
-0.966 (2026-10-02). Every use is on by default all the same, the unmeasured ones too (2026-10-09), so you see them in play; switch one off here. For house rules, prefer objective rules with one demand each; judgement rules that overlap (who
-voices whom, mystery vs secret) raise false alarms. A paragraph-count rule is checked in code instead. On any other
-model, or after the measurement set changes, the panel marks a use as unproven.
+### What the measurements mean
+
+Each use was measured in English against a floor fixed before the run, on fixed test sets, twice. "Measured" means it
+met that floor; it does not mean the use was tried in a long play session. Every use is on by default all the same,
+the unmeasured ones and House rules too, so you see them in play; switch any one off. On any other model, or after the
+test set changes, the panel marks a use as unproven.
 
 Notes per use:
 
-- Speaker direction runs only when every candidate has an authored `roster[].role`; otherwise the usual director
+- Speaker direction runs only when every candidate has a one-line role in the story; otherwise the usual director
   decides.
 - Lore selection ranks by a compressed probability, so which entries win the top slots is weaker than its hit rate
   suggests.
 - Curator focus pays off once the curator's scope passes about 40 entries.
-- Every-turn story reads does nothing until the story marks qualities with `read_as`.
-- The warden uses are best in `review` mode, except the two about your part (Agency check and Answers the player):
-  their notes go in on their own by default ("Notes about the player's part" under Background helpers), because a
-  player who never opens the drawer would otherwise never get them. Lore check's live latency and over-steer are not
-  measured yet.
+- Every-turn story reads does nothing until the story marks which tracked values it reads.
+- House rules: prefer objective rules with one demand each. Judgement rules that overlap (who voices whom, a mystery
+  against a secret) raise false alarms. A paragraph-count rule is checked in code instead.
+- The warden uses are best in review mode, except the two about your part (Agency check and Answers the player): their
+  notes go in on their own by default (**Orchestrator → Defaults → Player agency → Application policy**), because a
+  player who never opens the review page would otherwise never get them.
 
 The warden uses run after a reply and only put a note in the *next* reply's prompt; review mode lets the author
 approve each note first.
 
 Two uses run before a reply (Speaker direction and Lore selection). They have a 1.5 s budget; a slow judge delays the
-turn by at most that much before falling back.
+turn by at most that much before falling back. Everything else runs after the reply. All waiting in one place:
+[Costs and waiting](README.md#costs-and-waiting).
 
 ## Local judge (experimental)
 
@@ -92,10 +110,10 @@ model is **decider-4b v2.1** (Apache-2.0, `Mapika/decider-4b-GGUF`, Q4_K_M); **P
 
 **Measured for one use.** A use routed to the local judge is refused until it has been measured there against the same
 floors as TypeSafe (twice, on held-out rows too, inside the use's time budget). Until then it keeps its usual path and
-the readiness list says "not calibrated there". So far only **memory pairs** has passed (decider-4b on a GPU, twice,
-held-out rows too, about 0.1 s per call); it has not been tried in a real play session yet. TypeSafe stays the default
-for every use; picking the local judge is per use, in the provider list beside it. On the CPU decider-4b is far too
-slow for any use's budget: run it on a GPU.
+the readiness list says "not calibrated there". So far only **Merge related notes** (memory pairs) has passed
+(decider-4b on a GPU, twice, held-out rows too, about 0.1 s per call); it has not been tried in a real play session
+yet. TypeSafe stays the default for every use; picking the local judge is per use, in the provider list beside it. On
+the CPU decider-4b is far too slow for any use's budget: run it on a GPU.
 
 ### Disk space
 
@@ -130,8 +148,8 @@ start when there is not enough.
    unless `SO_JUDGE_LOCAL_GPU_LAYERS` is set. **Check** asks it one question and prints the model, the latency and
    where the weights are; **Stop** stops it.
 3. Point the plugin at it: set `SO_JUDGE_LOCAL_URL=http://127.0.0.1:8095` (and `SO_JUDGE_MODELS_DIR` if you moved the
-   folder) in SillyTavern's environment and restart SillyTavern. The **Judge** panel then shows the local judge,
-   its model and its folder whenever a use is routed to it.
+   folder) in SillyTavern's environment and restart SillyTavern. **Orchestrator → Connections → Judge** then shows the
+   local judge, its model and its folder whenever a use is routed to it.
 
 The plugin asks the local judge one question at a time (`SO_JUDGE_LOCAL_MAX_IN_FLIGHT`, default 1) and keeps the same
 request-size limits as for TypeSafe.
@@ -142,7 +160,8 @@ The plugin never sends a request too large for the provider (it answers "too lar
 provider's documented rate, halving its rate after a "too many requests" answer and recovering over two minutes.
 Environment variables on the server: `TYPESAFE_API_KEY`, `TYPESAFE_BASE_URL`, `SO_JUDGE_LLAMA_URL`,
 `SO_JUDGE_LLAMA_KEY`, `SO_JUDGE_LOCAL_URL`, `SO_JUDGE_MODELS_DIR`, `SO_JUDGE_LOCAL_MAX_IN_FLIGHT`,
-`SO_JUDGE_RATE_PER_MIN`, `SO_JUDGE_ACCOUNT_RATE_PER_MIN`, `SO_JUDGE_ACCOUNT_TOKENS_PER_SEC`, `SO_JUDGE_MAX_IN_FLIGHT`. Details: `server-plugin/story-orchestrator-judge/README.md`.
+`SO_JUDGE_RATE_PER_MIN`, `SO_JUDGE_ACCOUNT_RATE_PER_MIN`, `SO_JUDGE_ACCOUNT_TOKENS_PER_SEC`, `SO_JUDGE_MAX_IN_FLIGHT`.
+Details for administrators: the [judge plugin README](../../../server-plugin/story-orchestrator-judge/README.md).
 
 ---
 

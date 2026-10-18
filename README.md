@@ -1,22 +1,49 @@
 # Story Orchestrator
 
-A SillyTavern extension that plays **authored stories** over a chat. A story is a graph of scenes (checkpoints) with
-exits that open on what the chat actually shows. A second model reads each reply off the response path, tracks the
-story's facts and memory, and the extension steers the cast, the lore and the pacing toward the next scene. Swipes,
-edits and deletions roll the story back with the chat. You play by chatting, as always.
+A SillyTavern extension that plays **authored stories** over a group chat. A story is a map of scenes (`checkpoint` in
+the story file) with ways forward that open on what the chat actually shows. A second model reads the chat every few
+replies, off the reply path, keeps the story's facts and memory, and the extension steers the cast, the lore and the
+pacing toward the next scene. Swipes, edits and deletions roll the story back with the chat. You play by chatting, as
+always.
 
-**Guide website:** [maxipawlowski.github.io/story-orchestrator](https://maxipawlowski.github.io/story-orchestrator/) (the same pages ship inside the extension: Help → Open the guide).
+**Guide website:** [maxipawlowski.github.io/story-orchestrator](https://maxipawlowski.github.io/story-orchestrator/) (the same pages ship inside the extension: `/story guide`).
 
-**New here?** The [Quick start](https://maxipawlowski.github.io/story-orchestrator/quick-start.html) takes you from install to playing the bundled
-example story in a group chat. The guide's sources are in [`docs/guide`](docs/guide/README.md); developer docs are in
-[`docs/dev`](docs/dev/contributing.md).
+## What it does
+
+- **Plays a story over your chat**: scenes open in order when the chat shows what they wait for; one scene change per
+  reply, never a forced one.
+- **Remembers**: facts, scene history and chapter summaries go back into the prompt, and each character knows only what
+  they saw or were told.
+- **Directs a group**: picks who speaks next, lets several characters answer one message, and switches each scene's
+  lore on in the chats that play the story only.
+- **Stays out of your way**: a one-line story bar, small notes under messages, and a story window with no spoilers
+  unless you turn on Author view.
+- **Helps you write**: a wizard that builds a story from a premise, and the Studio to refine it.
+- **Optional extras**: a fast judge model, illustrations and character sprites, and running tasks on a Claude, ChatGPT or
+  opencode subscription.
+
+Every feature with its status: [Feature catalog](#feature-catalog).
+
+## What you need
+
+- SillyTavern 1.19.0 (the tested version), with a model connected for replies.
+- A **memory model**: a Connection Manager profile the story uses to read the chat. Your reply model works to start.
+- Node.js 22 and Git, to build the extension (there is no published release yet).
+- Stories play in **group chats**; a group of one character is fine.
 
 ## Install
 
-There is no published release yet. Clone this repository anywhere outside SillyTavern, write your SillyTavern root into
-a `.st-root` file (or set `ST_ROOT`; the build hashes SillyTavern's files), then
-`npm ci && npm run build && npm run stage`. `dist/` is not in the repository, so the build is required. Reload
-SillyTavern; the panel appears under **Extensions → Story Orchestrator**.
+The step-by-step procedure, with PowerShell and Bash commands and how to tell it worked:
+[Install](https://maxipawlowski.github.io/story-orchestrator/setup/index.html#so-guide-h-install)
+([source](docs/guide/setup/README.md#install)). In short: clone this repository outside SillyTavern, write your
+SillyTavern folder into `.st-root`, then `npm ci`, `npm run build`, `npm run stage`, and reload SillyTavern.
+**Extensions → Story Orchestrator → Open Story Orchestrator** appears.
+
+## First play
+
+The [Quick start](https://maxipawlowski.github.io/story-orchestrator/quick-start.html) takes you from install to playing
+the bundled example story in a group chat: choose a memory model in **Orchestrator → Connections**, import the example's
+cast and lore, import the story in **Orchestrator → Library**, and write your first message.
 
 | Tested on | |
 |---|---|
@@ -25,6 +52,8 @@ SillyTavern; the panel appears under **Extensions → Story Orchestrator**.
 
 Other versions are untested; details in
 [Tested on](https://maxipawlowski.github.io/story-orchestrator/setup/index.html#so-guide-h-tested-on).
+
+## Optional services
 
 ### Companion server plugins
 
@@ -43,7 +72,53 @@ All five are optional. `npm run plugin:install` installs judge and lore (add `--
 set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart SillyTavern:
 [Server plugins](https://maxipawlowski.github.io/story-orchestrator/setup/index.html#so-guide-h-server-plugins).
 
-## Features
+### Illustrations and scope
+
+Images are optional. By default they use whatever image source SillyTavern's own Image Generation extension has set up
+(**Orchestrator → Connections → Images → Image service**); an image-prompt profile is optional, and a template works
+without one. With no image service nothing is drawn and nothing fails. Install defaults decide whether automation is
+allowed; a story can ask for art at its own moments; each chat can change it on **This story → Features →
+Illustrations**. The advanced ComfyUI recipes need the optional media plugin and pick a model per picture type from
+what your ComfyUI has. The GPU plugin is optional; configure its adapter when local text and image models need to
+share one GPU. [More](https://maxipawlowski.github.io/story-orchestrator/setup/images.html)
+
+### Judge
+
+The judge (TypeSafe's Jev, behind the optional `story-orchestrator-judge` server plugin) ships with **every use on**,
+and sends nothing until a TypeSafe key is configured. Each use lists what it sends in its tooltip. Measured on
+`jev-1.13.0`; on another model the panel marks a use as unproven. The use table, privacy and measurements:
+[Judge](https://maxipawlowski.github.io/story-orchestrator/setup/judge.html).
+
+## Macros and commands
+
+`{{story_*}}` macros (title, checkpoint, tension, scene location/time/present, `story_quality_<key>`, memory tiers,
+chapters, …), `/story`, `/so-mem` and the author's `/cp`:
+[Macros and slash commands](https://maxipawlowski.github.io/story-orchestrator/author/macros-and-commands.html).
+
+## Support and development
+
+Something wrong? **Orchestrator → Help → Setup → Host capabilities → Copy for a bug report** copies what a report needs;
+[Troubleshooting](https://maxipawlowski.github.io/story-orchestrator/player/troubleshooting.html) covers the common
+cases. The guide's sources are in [`docs/guide`](docs/guide/README.md); developer docs are in
+[`docs/dev`](docs/dev/contributing.md).
+
+## Provenance & licensing
+
+Story Orchestrator is **AGPL-3.0** (see [`LICENSE`](LICENSE)); distributing it requires making source available
+under the same terms.
+
+- The memory subsystem is a vendored TypeScript adaptation of
+  [Smart-Memory](https://github.com/senjinthedragon/Smart-Memory) (AGPL-3.0).
+- The copilot's proposal/diff-review pattern comes from [ST-Copilot](https://github.com/Supker/ST-Copilot) (MIT).
+- The state-memo and delta-log/rollback patterns come from
+  [MultihogDnDFramework](https://github.com/MultihogAurelius/SillyTavern-MultihogDnDFramework) (MIT).
+- The extraction stability lag and manual memory controls follow
+  [SillyTavern-MessageSummarize](https://github.com/qvink/SillyTavern-MessageSummarize) (AGPL-3.0 — patterns only,
+  no code vendored).
+
+## Feature catalog
+
+Generated from the feature registry. "Experimental" means not yet measured; it is still on by default.
 
 <!-- features:start (generated by npm run docs:settings; edit src/features/registry.ts) -->
 | Area | Feature | In one line | Status |
@@ -123,7 +198,7 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Images | One GPU for text and images | A local text model and local pictures share one graphics card. | Off by default |
 | Images | Story image workflows | A story picks which of your ComfyUI workflows draws each kind of picture. |  |
 | Images | Downloading models | Download a model from Civitai or Hugging Face into your model folders, verified. | Experimental |
-| Images | Sprite stage | Character sprites that change expression as replies stream. | Off by default |
+| Images | Sprite stage | Character sprites that change expression as replies stream. |  |
 | Images | Animated faces | Blink and talking-mouth frames give sprites movement. | Experimental |
 | Judge | Judge | A second, fast model for yes/no and pick-one decisions. |  |
 | Judge | Local judge | An open model on this machine that can answer the judge's questions instead of TypeSafe. | Experimental |
@@ -148,40 +223,3 @@ set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart Silly
 | Setup | Guide | The whole guide inside SillyTavern: playing, setup and writing stories. |  |
 | Setup | Tour | A guided tour with examples: playing, writing stories, and turning each part on. |  |
 <!-- features:end -->
-
-## Illustrations and scope
-
-Images are optional. By default they use whatever image source SillyTavern's own Image Generation extension has set up
-(**Images → Image service**); an image-prompt profile is optional, and a template works without one. With no
-image service nothing is drawn and nothing fails. Install settings decide whether automation is allowed; a story can ask
-for art at its own moments; each chat can pause it or draw on demand from **Overview → Illustrations**. The advanced
-ComfyUI recipes need the optional media plugin and pick a model per picture type from what your ComfyUI has. The GPU
-plugin is optional; configure its adapter when local text and image models need to share one GPU.
-[More](https://maxipawlowski.github.io/story-orchestrator/setup/images.html)
-
-## Judge
-
-The judge (TypeSafe's Jev, behind the optional `story-orchestrator-judge` server plugin) ships with **every use on**,
-and sends nothing until a TypeSafe key is configured. Each use lists what it sends in its tooltip. Measured on
-`jev-1.13.0`; on another model the panel marks a use as unproven. The use table, privacy and measurements:
-[Judge](https://maxipawlowski.github.io/story-orchestrator/setup/judge.html).
-
-## Macros and commands
-
-`{{story_*}}` macros (title, checkpoint, tension, scene location/time/present, `story_quality_<key>`, memory tiers,
-chapters, …), `/story`, `/so-mem` and the author's `/cp`:
-[Macros and slash commands](https://maxipawlowski.github.io/story-orchestrator/author/macros-and-commands.html).
-
-## Provenance & licensing
-
-Story Orchestrator is **AGPL-3.0** (see [`LICENSE`](LICENSE)); distributing it requires making source available
-under the same terms.
-
-- The memory subsystem is a vendored TypeScript adaptation of
-  [Smart-Memory](https://github.com/senjinthedragon/Smart-Memory) (AGPL-3.0).
-- The copilot's proposal/diff-review pattern comes from [ST-Copilot](https://github.com/Supker/ST-Copilot) (MIT).
-- The state-memo and delta-log/rollback patterns come from
-  [MultihogDnDFramework](https://github.com/MultihogAurelius/SillyTavern-MultihogDnDFramework) (MIT).
-- The extraction stability lag and manual memory controls follow
-  [SillyTavern-MessageSummarize](https://github.com/qvink/SillyTavern-MessageSummarize) (AGPL-3.0 — patterns only,
-  no code vendored).

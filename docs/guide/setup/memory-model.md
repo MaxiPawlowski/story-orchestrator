@@ -1,7 +1,7 @@
 # Memory model
 
-The memory model reads the chat after each reply. It decides whether the story can move on, writes the memories,
-and keeps summaries. It is a second connection, separate from the model that writes the replies (it can be the same
+The memory model reads the chat every few character replies (every three by default). It decides whether the story
+can move on, writes the memories, and keeps summaries. It is a second connection, separate from the model that writes the replies (it can be the same
 backend). It needs reliable instruction following more than good prose; see [Choosing models](models.md).
 
 ## Choose one
@@ -9,11 +9,13 @@ backend). It needs reliable instruction following more than good prose; see [Cho
 1. In SillyTavern, make a **Connection Manager** profile for the model you want (Text Completion or Chat
    Completion). Give it an **instruct template** that matches the model: without one, many local models answer the
    memory model's prompts with loops of repeated tokens.
-2. In **Extensions → Story Orchestrator → Memory → Memory model — this install**, pick it under **Memory
-   model profile**.
-3. Press **Test memory model**. It asks the model a few sample questions and says what passed.
+2. Open **Extensions → Story Orchestrator → Open Story Orchestrator → Orchestrator → Connections**, and under
+   **Memory → Models and routing** pick it as the **Memory model**.
+3. Press **Test memory model**. It runs fixed scenes through the real pipeline and says what passed.
 
-"Let the story advance on its own" must be on (it is by default). The choice affects every chat, including new ones.
+**Story reading** must be on (it is by default: **Orchestrator → Defaults → Story reading**). The choice affects every
+chat, including new ones. It worked when **This story → Play** stops asking for a memory model and its Status line
+reads "Following along.".
 
 ## Options in the same group
 
@@ -39,8 +41,9 @@ backend). It needs reliable instruction following more than good prose; see [Cho
 
   Every profile list is grouped by provider and labelled **local** (this machine or your network) or **cloud**. A
   task on a cloud profile says what it sends, and to whom, under its picker.
-- **Advanced**: how often the story reads (cadence), how hard it re-checks a stuck scene, and how many messages it
-  stays behind. The defaults are fine for nearly everyone.
+- **How often it reads**: **Read every … replies** (default 3) and **Leave newest … replies out** (default 0) are on
+  **Orchestrator → Defaults → Story reading**, and for one chat on **This story → Features → Story reading**. The
+  defaults are fine for nearly everyone.
 
 ## Use a cloud model for a task
 
@@ -57,7 +60,8 @@ model. Claude and ChatGPT subscriptions work only through the [harness plugin](h
 OpenRouter is another way to reach many models with one key; any Chat Completion source works the same way.
 
 Each task sends its own part of the story to the provider you pick for it: the line under each task says what.
-Speaker direction and the inner voice run before a reply, so give them a fast model.
+Speaker direction and the inner voice can run while a reply waits, so give them a fast model
+([Costs and waiting](README.md#costs-and-waiting)).
 
 ### How much the model is sent
 
@@ -73,21 +77,24 @@ OpenRouter, give the profile a settings preset with the right context size.
 
 ## When changes apply
 
-What a read finds is applied at the **next** turn boundary, after the next reply has finished; one scene change
-happens per turn, by design. Reads normally run every reply and include the newest message (swipes are handled by
-stepping back and reading again). A transition with an `extractor_trigger` cue forces a read the moment its cue
-appears in the chat, so decisive beats land without waiting: give your decisive transitions a cue.
+By default the story read runs every three character replies and includes the newest message (swipes are handled by
+stepping back and reading again). Other things can ask for a read sooner: a scene change, a cue the story's author
+wrote for a decisive moment, a stuck scene being re-checked, and an edit or swipe. What a read finds is applied after
+the **next** reply finishes; one scene change happens per reply, by design. So a story can take a few replies to react,
+and that is normal; **This story → Features → Story reading → Read now** reads straight away.
 
 **Tool calling.** With Chat Completion function calling on (for example an extension that gives the model tools), one
-player turn can render a reply, a tool call and a continuation. Each rendered reply is its own turn boundary, so one
-player turn can move the story's tension and extraction cadence more than once and fire one transition per step.
+player turn can render a reply, a tool call and a continuation. Each rendered reply counts as its own reply, so one
+player turn can move the story's tension and read cadence more than once and change scene once per step.
 Swipes, edits and deletes still roll back correctly, tool-call messages included. Not measured: how much this changes
 pacing in play. If a story feels rushed with tools on, compare a turn with tools off and report it.
 
 ## What it costs
 
-One read per reply on the memory model, plus occasional summaries. Reads happen after the reply is shown, so they
-never delay it. With a local model, a read competes with the next reply for the GPU.
+One story read every three character replies on the memory model, plus the extra reads above and occasional summaries.
+Other tasks (inner voice, chapter records, briefings, the wizard) are separate calls, listed in
+[Costs and waiting](README.md#costs-and-waiting). Reads happen after the reply is shown, so they do not delay it; with a
+local model on the same GPU, a read competes with the next reply.
 
 ---
 
