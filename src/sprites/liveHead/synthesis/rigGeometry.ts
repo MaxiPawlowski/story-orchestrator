@@ -74,7 +74,7 @@ export function rigStrands(hair: Point[][], s: number): Strand[] {
     if (length < s * 0.25) return;
     const nodes = resampleStrand(points), long = length > s * 1.5;
     if (nodes.some((p, i) => i > 0 && p[0] === nodes[i - 1][0] && p[1] === nodes[i - 1][1])) return;
-    strands.push({ name: `hair${index + 1}`, nodes, sigma: r2(Math.max(3, s * (long ? 0.12 : 0.09))), k: long ? 0.6 : 1, max: r2(Math.max(1.5, s * (long ? 0.055 : 0.04))) });
+    strands.push({ name: `hair${index + 1}`, nodes, sigma: r2(Math.max(3, s * (long ? 0.12 : 0.09))), k: long ? 0.6 : 1, max: r2(Math.max(1.5, s * (long ? 0.09 : 0.06))) });
   });
   return strands;
 }
