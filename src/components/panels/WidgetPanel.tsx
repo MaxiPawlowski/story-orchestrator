@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { ProvenanceView, WidgetView } from "@runtime/gameTypes";
 import { recordWidgetAudit } from "@runtime/htmlWidgetAudit";
 import { WIDGET_TEXT } from "@features/widgetCopy";
-import { WidgetCard, drawerOpener, type WidgetAction } from "../widgets/WidgetCard";
+import { WidgetCard, drawerOpener, type StoryOpener, type WidgetAction } from "../widgets/WidgetCard";
 import { HtmlWidgetFrame } from "../widgets/HtmlWidgetFrame";
 
 export interface HtmlPanelHost {
@@ -15,7 +15,7 @@ export interface WidgetPanelProps {
   widget: WidgetView;
   onAction?: WidgetAction;
   html?: HtmlPanelHost | null;
-  openDrawer?: () => void;
+  openDrawer?: StoryOpener;
   provenance?: ProvenanceView[];
 }
 

@@ -9,6 +9,8 @@ import {
 } from "@services/STAPI";
 import { workspaceNavigation } from "@runtime/workspaceNavigation";
 import { connectionsIntent, inspectorIntent, repairIntent, storyPlayIntent } from "@runtime/workspaceRoutes";
+import { storyPageFor } from "@runtime/drawerTab";
+import type { WidgetDrawerTab } from "@engine/index";
 import { inlinePresence } from "@runtime/presence";
 import { createPresenceUi, openChatPanel, openPlay, setPanel, togglePanel } from "./presenceUi";
 import { requestGuide } from "@guide/request";
@@ -267,7 +269,7 @@ const settingsHost: SettingsHost = {
   repairCast: (action) => fixSetup(action),
   openGroup,
   openStory: () => openStoryWindow(),
-  openAuthorView: () => void toggleAuthorView(true).then(openStoryWindow),
+  openAuthorView: () => void toggleAuthorView(true).then(() => openStoryWindow()),
   showFeature: (where) => showFeature(where),
   makeGroup,
   fixGroupWithWizard: (storyId, missing) => void openStudio({ tab: "copilot", stage: "provisioning", missing: { personas: [], members: missing, lorebooks: [] } }, storyId),
@@ -338,7 +340,7 @@ const jumpToChatMessage = async (messageId: number) => {
   if (!result.ok) window.toastr?.info?.(result.reason, "Story Orchestrator");
 };
 
-const openStoryWindow = () => workspaceNavigation.open(storyPlayIntent());
+const openStoryWindow = (tab?: WidgetDrawerTab) => workspaceNavigation.open(tab ? storyPageFor(tab) : storyPlayIntent());
 
 // The one missing setup step is always in one place (made settings install-wide), so the
 // player surface points straight at it instead of describing it: ST's Extensions drawer, then our
@@ -385,7 +387,7 @@ const openRepairStep = () => workspaceNavigation.open(repairIntent());
 
 const HudMount = () => {
   const snapshot = useRuntimeSnapshot();
-  return <HudStrip snapshot={snapshot} onOpenDrawer={openStoryWindow} onOpenSettings={openRepairStep} />;
+  return <HudStrip snapshot={snapshot} onOpenDrawer={() => openStoryWindow()} onOpenSettings={openRepairStep} />;
 };
 
 const mountTopBarDrawer = () => {
@@ -407,7 +409,7 @@ const mountTopBarDrawer = () => {
   const rightNav = document.getElementById("rightNavHolder");
   if (rightNav && rightNav.parentElement === holder) holder.insertBefore(drawer, rightNav);
   else holder.appendChild(drawer);
-  ui.listen(toggle, "click", openStoryWindow);
+  ui.listen(toggle, "click", () => openStoryWindow());
   ui.listen(toggle, "keydown", (event) => { if (event instanceof KeyboardEvent && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); openStoryWindow(); } });
   return true;
 };
@@ -430,7 +432,7 @@ const InlineMount = ({ hosts }: { hosts: InlineHostSet }) => {
 };
 
 const presenceUi = createPresenceUi({
-  manager, useSnapshot: useRuntimeSnapshot, showFeature: (where) => showFeature(where), openDrawer: () => openStoryWindow(),
+  manager, useSnapshot: useRuntimeSnapshot, showFeature: (where) => showFeature(where), openDrawer: openStoryWindow,
 });
 
 const mountInline = () => {

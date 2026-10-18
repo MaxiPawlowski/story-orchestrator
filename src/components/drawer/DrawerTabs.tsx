@@ -1,11 +1,10 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 import type { OneClickFix, ShowMe } from "@runtime/repair";
 import { chatUpdateSentence } from "@runtime/librarySave";
-import { DRAWER_TAB_EVENT } from "@runtime/drawerTab";
 import type { DriverController, RecoveryTarget } from "./DriverPanel";
 import { MessageJumpProvider } from "./MessageCitation";
 import { OverviewTab } from "./tabs/OverviewTab";
@@ -97,11 +96,6 @@ export const DrawerTabs = ({
   snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard, onNewStory, onBranchFromOldest, onJumpToMessage, inspect,
 }: DrawerTabsProps) => {
   const [active, setActive] = useState<DrawerTabId>("overview");
-  useEffect(() => {
-    const listen = (event: Event) => setActive((event as CustomEvent<DrawerTabId>).detail);
-    window.addEventListener(DRAWER_TAB_EVENT, listen);
-    return () => window.removeEventListener(DRAWER_TAB_EVENT, listen);
-  }, []);
   // A warden card cites the message a fact was read from, so its button has to land on
   // that fact. A `bound:` id is the blackboard's, and the blackboard tab is where it lives; a memory
   // row is focused in the Memory tab instead.
