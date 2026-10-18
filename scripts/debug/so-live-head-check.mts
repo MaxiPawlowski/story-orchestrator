@@ -61,7 +61,7 @@ async function main(page: Page, connection: ConnectResult) {
     return ctx.extensionSettings?.['story-orchestrator'] && ctx.characters?.length && ctx.getWorldInfoNames?.().length;
   });
   const recipe = JSON.parse(await readFile(resolve(fixture, 'rig.json'), 'utf8'));
-  const rig = JSON.parse(await readFile(resolve(PROJECT_ROOT, recipe.template), 'utf8'));
+  const rig = JSON.parse(await readFile(resolve(PROJECT_ROOT, argument('--rig-template', recipe.template)), 'utf8'));
   const story = JSON.parse(await readFile(resolve(fixture, 'story.json'), 'utf8'));
   const template = JSON.parse(await readFile(resolve(PROJECT_ROOT, '.claude/skills/st-character-authoring/templates/create-body.json'), 'utf8'));
   const out = resolve(DEBUG_DIR, 'runs', `live-head-${label}`);
@@ -242,6 +242,70 @@ async function main(page: Page, connection: ConnectResult) {
       }
       await remount(page); await ready(page);
     }
+    if (row === 'all' || row === 'LM') {
+      const cdp = await page.context().newCDPSession(page);
+      await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'no-preference' }] });
+      await page.evaluate(() => {
+        const root = globalThis as any; root.SillyTavern.getContext().powerUserSettings.reduced_motion = false;
+        root.storyOrchestratorRuntime.getStory().display.motion = true; root.storyOrchestratorSprites.notify();
+      });
+      const gestureTrace = (ms: number) => page.evaluate((ms) => new Promise<string[]>((done) => {
+        const seen: string[] = [], start = performance.now();
+        const tick = () => {
+          const value = document.querySelector<HTMLCanvasElement>('canvas.so-live-head')?.dataset.liveHeadGesture ?? '';
+          if (value && seen.at(-1) !== value) seen.push(value);
+          if (performance.now() - start < ms) requestAnimationFrame(tick); else done(seen);
+        };
+        tick();
+      }), ms);
+      await page.evaluate(resetLiveHeadSamples);
+      await pause(4000);
+      const idle = await page.evaluate(readLiveHeadSamples);
+      await page.screenshot({ path: resolve(out, 'LM-idle.png') });
+      check('LM/idle-motion', { frames: idle.frames.length, uploads: idle.uploads }, idle.frames.length > 1 && idle.uploads > 0);
+      const relabel = (label: string) => page.evaluate((label) => {
+        const stage = (globalThis as any).storyOrchestratorSprites, actor = stage.actors.find((entry: any) => entry.name === 'SOLH Circle');
+        actor.label = label; stage.notify();
+      }, label);
+      await relabel('joy');
+      const joy = await gestureTrace(2500);
+      await page.screenshot({ path: resolve(out, 'LM-joy-reaction.png') });
+      check('LM/expression-reaction', { label: 'joy', gestures: joy }, joy.includes('nod'));
+      await relabel('surprise');
+      const surprise = await gestureTrace(2500);
+      check('LM/expression-reaction-2', { label: 'surprise', gestures: surprise }, surprise.includes('surprise'));
+      await relabel('neutral');
+      await page.evaluate(() => {
+        const root = globalThis as any, ctx = root.SillyTavern.getContext();
+        ctx.chat.push({ name: 'SOLH Circle', is_user: false, is_system: false, mes: '', extra: {} });
+        root.storyOrchestratorSprites.begin('SOLH Circle');
+        root.__lhStream = setInterval(() => { ctx.chat.at(-1).mes += 'x'; ctx.eventSource.emit(ctx.eventTypes.STREAM_TOKEN_RECEIVED, 'x'); }, 100);
+      });
+      await page.waitForTimeout(300); await page.evaluate(resetLiveHeadSamples);
+      await relabel('joy');
+      const talking = await gestureTrace(3000);
+      const talkSamples = await page.evaluate(readLiveHeadSamples);
+      await page.screenshot({ path: resolve(out, 'LM-talking.png') });
+      const active = await page.evaluate(() => {
+        const root = globalThis as any; clearInterval(root.__lhStream);
+        const live = root.storyOrchestratorSprites.activity.view() === 'SOLH Circle';
+        root.storyOrchestratorSprites.activity.stop(); root.SillyTavern.getContext().chat.pop();
+        return live;
+      });
+      check('LM/talking-no-reaction', { stream: 'scripted tokens (plumbing, no model)', active, gestures: talking, uploads: talkSamples.uploads }, active && talking.length === 0 && talkSamples.uploads > 0);
+      await relabel('neutral');
+      await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+      await page.evaluate(() => (globalThis as any).storyOrchestratorSprites.notify());
+      await page.waitForTimeout(400); await page.evaluate(() => { (globalThis as any).__lh.parameterSample = true; }); await page.evaluate(resetLiveHeadSamples);
+      await relabel('joy');
+      const reducedGestures = await gestureTrace(3000);
+      const reduced = await page.evaluate(readLiveHeadSamples);
+      await page.screenshot({ path: resolve(out, 'LM-reduced.png') });
+      check('LM/reduced', { gestures: reducedGestures, vectors: reduced.vectors.length, frames: reduced.frames.length }, reducedGestures.length === 0 && reduced.vectors.length <= 2);
+      await relabel('neutral');
+      await page.evaluate(() => { (globalThis as any).__lh.parameterSample = false; });
+      await cdp.send('Emulation.setEmulatedMedia', { features: [] }); await cdp.detach();
+    }
     if (row === 'all' || row === 'LI4') {
       await page.evaluate(() => { (globalThis as any).__lh.parameterSample = true; });
       const cdp = await page.context().newCDPSession(page);
@@ -319,7 +383,20 @@ async function main(page: Page, connection: ConnectResult) {
         check(`LI6/${width}`, layout, layout.scroll <= layout.viewport && layout.contexts <= 1 && layout.peakContexts <= 1 && layout.canvases <= 1);
         await page.screenshot({ path: resolve(out, `LI6-${width}.png`) });
       }
-      try {
+      if ((connection.session as { headed?: boolean } | undefined)?.headed === false) {
+        const simulated = await page.evaluate(async () => {
+          const state = (globalThis as any).__lh, wait = (ms: number) => new Promise((done) => setTimeout(done, ms));
+          Object.defineProperty(document, 'hidden', { configurable: true, get: () => true });
+          Object.defineProperty(document, 'visibilityState', { configurable: true, get: () => 'hidden' });
+          document.dispatchEvent(new Event('visibilitychange'));
+          const before = state.draws; await wait(1500); const after = state.draws;
+          delete (document as any).hidden; delete (document as any).visibilityState;
+          document.dispatchEvent(new Event('visibilitychange'));
+          await wait(500);
+          return { mode: 'simulated visibilitychange (headless lane browser)', before, after, resumed: state.draws, ok: before === after && state.draws > after };
+        });
+        check('LI6/hidden', simulated, simulated.ok);
+      } else try {
         const hidden = await hiddenHeadCheck(connection);
         check('LI6/hidden', hidden, hidden.ok);
       } finally { reconnected = await connectToST(); page = reconnected.page; }
