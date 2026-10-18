@@ -187,6 +187,18 @@ describe("vision landmark provider (wired, never called for real here)", () => {
       send: async () => ({ ok: false as const, kind: "auth" as const, message: "sign in" }) });
     await expect(failing(request, new AbortController().signal)).rejects.toThrow("sign in");
   });
+  test("out-of-crop anatomy gets one same-image correction and is never clamped", async () => {
+    const { landmarks } = syntheticBust(1), invalid = { ...landmarks, chin: [80, 400], neck: [80, 450] };
+    let calls = 0;
+    const send = jest.fn(async (_input: ReturnType<typeof visionRigRequest>) => ({ ok: true as const, text: JSON.stringify({ landmarks: ++calls === 1 ? invalid : landmarks }),
+      finish: "stop" as const, meter: { effort: "high" as const, applied: true, collapsed: false, unsupported: null, budget: 0, chars: 0, tokens: null } }));
+    const provider = visionLandmarkProvider({ target: async () => ({ id: VISION_RIG_MODEL, context: 32768, image: true }), send });
+    expect(await provider(request, new AbortController().signal)).toEqual(JSON.parse(JSON.stringify(landmarks)));
+    expect(send).toHaveBeenCalledTimes(2);
+    expect(send.mock.calls[1][0].images).toEqual(send.mock.calls[0][0].images);
+    expect(send.mock.calls[1][0].prompt).toContain("landmarks.chin");
+    expect(send.mock.calls[1][0].prompt).toContain('"chin":[80,400]');
+  });
   test("the Sol offer holds while OpenCode's service is stopped and its image capability is not yet listed", () => {
     const row = (models: HarnessModel[], offered = true) => ({ pluginVersion: "1", harnesses: { opencode: { installed: true, version: "2", problem: null, loggedIn: null, fresh: false,
       loginProblem: null, blocked: null, offered, isolation: "", models, quotaUntil: null, spawns: 0, service: "stopped" } } });

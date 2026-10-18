@@ -15,6 +15,7 @@ import { completeLookFrames } from "../builder/lookFrames";
 import { retargetPose, retargetVersion, type Retarget } from "./skeleton";
 import { headToHipRatio } from "./import";
 import { shippedPoses } from "./library";
+import { anySignal } from "@utils/signals";
 
 export type HeadSource = "target" | "measured" | "none";
 export interface BodyStamp extends CachedBody { story: string; member: string; version: number; head: HeadBox; headSource?: HeadSource; stamp?: string }
@@ -68,15 +69,18 @@ export class PoseBodies {
   private running = false;
   private active: ReturnType<BodyDeps["builder"]> | null = null;
   private activeRequest: BodyRequest | null = null;
+  private controller: AbortController | null = null;
   private queue = new Map<string, BodyRequest>();
+  private frames = new Map<string, BodyRequest>();
   private attempted = new Set<string>();
   private proportions = new Map<string, PoseEntry["keypoints"] | undefined>();
   private heads = new Map<string, HeadBox | null | undefined>();
   constructor(private readonly deps: BodyDeps) {}
-  close(): void { this.closed = true; this.queue.clear(); this.active?.cancel(); }
+  private cancel(): void { this.controller?.abort(); this.active?.cancel(); }
+  close(): void { this.closed = true; this.queue.clear(); this.frames.clear(); this.cancel(); }
   revalidate(): void {
-    if (this.activeRequest && !this.activeRequest.accepts()) this.active?.cancel();
-    for (const [key, request] of this.queue) if (!request.accepts()) this.queue.delete(key);
+    if (this.activeRequest && !this.activeRequest.accepts()) this.cancel();
+    for (const queue of [this.queue, this.frames]) for (const [key, request] of queue) if (!request.accepts()) queue.delete(key);
   }
   request(request: BodyRequest): void {
     if (this.closed || !request.accepts()) return;
@@ -90,13 +94,15 @@ export class PoseBodies {
     if (this.running || this.closed) return;
     this.running = true;
     try {
-      while (this.queue.size && !this.closed) {
-        const [key, request] = this.queue.entries().next().value as [string, BodyRequest];
-        this.queue.delete(key);
+      while ((this.queue.size || this.frames.size) && !this.closed) {
+        const frames = !this.queue.size, queue = frames ? this.frames : this.queue;
+        const [key, request] = queue.entries().next().value as [string, BodyRequest];
+        queue.delete(key);
         if (!request.accepts()) continue;
         this.attempted.add(key);
         if (this.attempted.size > 256) this.attempted.delete(this.attempted.values().next().value as string);
-        await this.render(request);
+        const result = await this.render(frames ? request : { ...request, frames: false });
+        if (!frames && result && request.frames !== false && !this.closed && request.accepts()) this.frames.set(key, request);
       }
     } finally { this.running = false; }
   }
@@ -118,11 +124,14 @@ export class PoseBodies {
     return blocked;
   }
   async render(request: BodyRequest): Promise<BodyResult | null> {
+    if (this.closed || !request.accepts()) return null;
     const run = beginRun(this.deps.ownership), builder = this.deps.builder();
+    const controller = new AbortController(), signal = anySignal([run.signal, controller.signal]);
+    this.controller = controller;
     this.active = builder; this.activeRequest = request;
     let lineage: Awaited<ReturnType<NonNullable<BodyDeps["lineage"]>>> | undefined;
     const guard = () => {
-      run.signal.throwIfAborted();
+      signal.throwIfAborted();
       if (this.closed || !run.stillOwns() || !request.accepts()) throw new Error("The stage changed before this body was ready.");
       if (lineage && !lineage.current()) throw new Error("The accepted source changed before this body was ready.");
     };
@@ -139,10 +148,12 @@ export class PoseBodies {
     };
     try {
       guard();
-      lineage = await this.deps.lineage?.(request.folder, run.signal);
+      lineage = await this.deps.lineage?.(request.folder, signal);
       guard();
-      const discovery = await this.deps.discover(run.signal);
-      const models = await this.deps.models(request.config, run.signal);
+      const discovery = await this.deps.discover(signal);
+      guard();
+      const models = await this.deps.models(request.config, signal);
+      guard();
       const source = await this.deps.pack(request.folder, lineage?.baseSet ?? request.config.baseSet);
       guard();
       const neutral = source.files.find((file) => file.label === "neutral");
@@ -150,7 +161,7 @@ export class PoseBodies {
       const cutout: AlphaRecipe | undefined = discovery.alpha?.find((recipe) => recipe.files.length > 0);
       const render = builderRender(request.config), seedOf = (key: string) => Number.parseInt(key.slice(0, 8), 16);
       const save = async (build: SpriteBuildRequest) => {
-        await this.deps.wait(run.signal, () => !this.closed && run.stillOwns() && request.accepts());
+        await this.deps.wait(signal, () => !signal.aborted && !this.closed && run.stillOwns() && request.accepts());
         guard();
         const candidate = await builder.build(build);
         guard();
@@ -186,7 +197,7 @@ export class PoseBodies {
       const image = await this.deps.decode(base.path);
       guard();
       if (!this.proportions.has(base.sha256)) {
-        const measured = await this.deps.proportions?.(image, discovery, run.signal);
+        const measured = await this.deps.proportions?.(image, discovery, signal);
         guard(); this.proportions.set(base.sha256, measured);
       }
       const member = this.proportions.get(base.sha256);
@@ -223,7 +234,7 @@ export class PoseBodies {
         resolved = await bodyFor("p3");
       }
       const { bodyKey, body, posed } = resolved;
-      const expressionBlocked = await this.measureHead(request, posed, body, discovery, run.signal, guard);
+      const expressionBlocked = await this.measureHead(request, posed, body, discovery, signal, guard);
       const faceKey = await contentHash(new TextEncoder().encode(stableStringify({ bodyKey, face: request.layers.face, head: body.head, recipe: EDIT_RECIPE })));
       let finalSet = body.set, file: { path: string; sha256: string } = posed;
       if (!expressionBlocked && (request.label !== "neutral" || Object.keys(request.layers.face).length)) {
@@ -248,7 +259,7 @@ export class PoseBodies {
       const result: BodyResult = { set: finalSet, files: [{ label: request.label, path: file.path }], body: { ...body, set: finalSet, stamp } };
       request.apply(result);
       if (request.frames !== false && !expressionBlocked) {
-        const frames = await completeLookFrames({ guard, wait: () => this.deps.wait(run.signal, () => run.stillOwns() && request.accepts()),
+        const frames = await completeLookFrames({ guard, wait: () => this.deps.wait(signal, () => !signal.aborted && !this.closed && run.stillOwns() && request.accepts()),
           cached: async (kind) => (await checkedPack(`anim-${finalSet}`, `${request.label}.${kind}`))?.path ?? null,
           render: async (kind) => (await save({ ...common, set: finalSet, label: request.label, kind, value: request.label, reference: file.path,
             referenceHash: file.sha256, box: body.head, seed: (seedOf(faceKey) + (kind === "blink" ? 1 : 2)) >>> 0, body: result.body })).path });
@@ -256,8 +267,8 @@ export class PoseBodies {
       }
       return result;
     } catch (error) {
-      if (!this.closed && run.stillOwns() && request.accepts()) request.failed(error instanceof Error ? error.message : String(error));
+      if (!signal.aborted && !this.closed && run.stillOwns() && request.accepts()) request.failed(error instanceof Error ? error.message : String(error));
       return null;
-    } finally { builder.close(); run.release(); if (this.active === builder) { this.active = null; this.activeRequest = null; } }
+    } finally { builder.close(); run.release(); if (this.active === builder) { this.active = null; this.activeRequest = null; this.controller = null; } }
   }
 }

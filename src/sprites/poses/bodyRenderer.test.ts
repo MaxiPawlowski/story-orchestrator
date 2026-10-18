@@ -92,6 +92,61 @@ test("ownership lost after a preview prevents its save and application", async (
   expect(request.apply).not.toHaveBeenCalled();
 });
 
+test("closing during discovery aborts setup before any model or render work", async () => {
+  const { deps, request, builder } = setup();
+  let started!: () => void;
+  const ready = new Promise<void>((resolve) => { started = resolve; });
+  deps.discover = (signal) => new Promise((_resolve, reject) => {
+    signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+    started();
+  });
+  deps.models = jest.fn(deps.models);
+  const renderer = new PoseBodies(deps), pending = renderer.render(request);
+  await ready;
+  renderer.close();
+  expect(await pending).toBeNull();
+  expect(deps.models).not.toHaveBeenCalled();
+  expect(builder.build).not.toHaveBeenCalled();
+  expect(builder.close).toHaveBeenCalled();
+  expect(request.failed).not.toHaveBeenCalled();
+});
+
+test("a revalidated request stays cancelled even if its stage becomes acceptable again", async () => {
+  const { deps, request, builder } = setup();
+  let current = true, started!: () => void;
+  const ready = new Promise<void>((resolve) => { started = resolve; });
+  deps.wait = (signal) => new Promise((_resolve, reject) => {
+    signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+    started();
+  });
+  const renderer = new PoseBodies(deps), pending = renderer.render({ ...request, accepts: () => current });
+  await ready;
+  current = false;
+  renderer.revalidate();
+  current = true;
+  expect(await pending).toBeNull();
+  expect(builder.build).not.toHaveBeenCalled();
+  expect(request.apply).not.toHaveBeenCalled();
+  expect(request.failed).not.toHaveBeenCalled();
+  renderer.close();
+});
+
+test("queued cast bodies are published before animation frames consume render slots", async () => {
+  const { deps, request, calls } = setup();
+  let finish!: () => void;
+  const complete = new Promise<void>((resolve) => { finish = resolve; });
+  const published: string[] = [];
+  const renderer = new PoseBodies(deps);
+  for (const member of ["a", "b", "c"]) renderer.request({ ...request, member, folder: member, frames: true,
+    apply: (result) => { if (!result.frames) published.push(member); else if (member === "c") finish(); },
+  });
+  await complete;
+  expect(calls.slice(0, 3).map((call) => [call.member, call.kind])).toEqual([["a", "pose"], ["b", "pose"], ["c", "pose"]]);
+  expect(new Set(published.slice(0, 3))).toEqual(new Set(["a", "b", "c"]));
+  expect(calls.filter((call) => call.kind === "blink" || call.kind === "talk")).toHaveLength(6);
+  renderer.close();
+});
+
 const headKeypoints = (): ReturnType<NonNullable<BodyDeps["head"]>> extends Promise<infer T> ? NonNullable<T> : never => ({ format: "openpose-body18", canvas: [128, 192],
   points: Array.from({ length: 18 }, (_, at) => at === 0 ? [60, 50] : at === 14 ? [56, 46] : at === 15 ? [64, 46] : null) });
 

@@ -12,6 +12,7 @@ import { completeLookFrames, lookFrameRequest, lookKeyInput, lookStillRequest } 
 import { frameIndex, type AnimationFrames } from "../animation";
 import { visualRoot } from "../visualManifest";
 import { verifyVisualSource, sourceStillCurrent, publishDerivedVisual } from "../visualHost";
+import { anySignal } from "@utils/signals";
 
 export interface LookRequest {
   folder: string; member: string; label: string; fields: Record<string, string>;
@@ -23,16 +24,18 @@ export class OnDemandLooks {
   private stopped = false;
   private active: ReturnType<typeof createSpriteBuilder> | null = null;
   private activeRequest: LookRequest | null = null;
+  private controller: AbortController | null = null;
   private queue = new Map<string, LookRequest>();
   private running = false;
   private attempted = new Set<string>();
 
   constructor(private readonly manager: RuntimeManager) {}
 
-  close(): void { this.stopped = true; this.queue.clear(); this.active?.close(); }
+  private cancel(): void { this.controller?.abort(); this.active?.cancel(); }
+  close(): void { this.stopped = true; this.queue.clear(); this.cancel(); }
 
   revalidate(): void {
-    if (this.activeRequest && !this.activeRequest.accepts()) this.active?.cancel();
+    if (this.activeRequest && !this.activeRequest.accepts()) this.cancel();
     for (const [key, request] of this.queue) if (!request.accepts()) this.queue.delete(key);
   }
 
@@ -63,28 +66,35 @@ export class OnDemandLooks {
   private async edit(request: LookRequest): Promise<void> {
     const run = beginRun(this.manager.getOwnership());
     const builder = createSpriteBuilder(this.manager.getOwnership());
+    const controller = new AbortController(), signal = anySignal([run.signal, controller.signal]);
+    this.controller = controller;
     this.active = builder;
     this.activeRequest = request;
     const accepted = this.manager.getGlobalSettings().sprites.visualSources[request.folder];
     const guard = () => {
+      signal.throwIfAborted();
       if (this.stopped || !run.stillOwns() || !request.accepts()) throw new Error("The look changed before this sprite was ready.");
       if (accepted && !sourceStillCurrent(accepted)) throw new Error("The accepted visual source changed before this look was ready.");
     };
     try {
       const settings = this.manager.getGlobalSettings().sprites;
       const config = settings.builders[request.folder];
-      if (accepted) await verifyVisualSource(accepted, run.signal);
+      guard();
+      if (accepted) await verifyVisualSource(accepted, signal);
+      guard();
       if (!config || !settings.onDemand) throw new Error("Choose an expression reference pack in Studio before enabling on-demand look edits.");
       const story = this.manager.getCachedSnapshot().storyId;
       if (!story) return;
-      const discovery = await comfyDiscover(run.signal);
+      const discovery = await comfyDiscover(signal);
+      guard();
       const problems = recipeProblems(discovery, config.models);
       if (problems.length) throw new Error(problems.join(" "));
       const [diffusion, encoder, vae] = await Promise.all([
-        comfyFingerprint("diffusionModels", config.models.diffusion, run.signal),
-        comfyFingerprint("textEncoders", config.models.encoder, run.signal),
-        comfyFingerprint("vaes", config.models.vae, run.signal),
+        comfyFingerprint("diffusionModels", config.models.diffusion, signal),
+        comfyFingerprint("textEncoders", config.models.encoder, signal),
+        comfyFingerprint("vaes", config.models.vae, signal),
       ]);
+      guard();
       const base = await spriteReferencePack(request.folder, accepted?.baseSet ?? config.baseSet);
       const version = base.sha256;
       const models = { diffusion, encoder, vae };
@@ -98,7 +108,7 @@ export class OnDemandLooks {
       const animate = async (path: string, hash: string): Promise<AnimationFrames> => completeLookFrames({
         guard,
         wait: () => waitForTextPriority({ status: gpuBrokerStatus, current: () => !this.stopped && run.stillOwns() && request.accepts(),
-          signal: run.signal, now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) }),
+          signal, now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) }),
         cached: async (kind) => {
           const manifest = await spriteManifest(request.folder, `anim-${set}`);
           guard();
@@ -108,7 +118,7 @@ export class OnDemandLooks {
           guard();
           const path = index.get(request.label)?.[kind];
           if (!path || row.inputs?.base !== hash) throw new Error("The cached animation no longer matches this look.");
-          const actual = await spriteFileFingerprint(path, run.signal);
+          const actual = await spriteFileFingerprint(path, signal);
           guard();
           if (actual !== row.sha256) throw new Error("The cached animation changed outside Story Orchestrator.");
           return path;
@@ -138,7 +148,7 @@ export class OnDemandLooks {
       const reference = accepted ? { ...accepted.base, label: "neutral" } : base.files.find((file) => file.label === request.label) ?? base.files.find((file) => file.label === "neutral");
       if (!reference) throw new Error("The base pack has no reference for this expression.");
       await waitForTextPriority({ status: gpuBrokerStatus, current: () => !this.stopped && run.stillOwns() && request.accepts(),
-        signal: run.signal, now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) });
+        signal, now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) });
       guard();
       const candidate = await builder.build(lookStillRequest(build, publicLook(request.fields), reference));
       const after = await spriteReferencePack(request.folder, accepted?.baseSet ?? config.baseSet);
@@ -152,11 +162,11 @@ export class OnDemandLooks {
         { ...saved, key: candidate.key, recipe: EDIT_RECIPE });
       request.apply(set, [...existing.filter((file) => file.label !== request.label), { label: request.label, path: saved.path }], frames);
     } catch (error) {
-      if (!this.stopped && run.stillOwns() && request.accepts()) request.failed?.(error instanceof Error ? error.message : String(error));
+      if (!signal.aborted && !this.stopped && run.stillOwns() && request.accepts()) request.failed?.(error instanceof Error ? error.message : String(error));
       throw error;
     } finally {
       builder.close(); run.release();
-      if (this.active === builder) { this.active = null; this.activeRequest = null; }
+      if (this.active === builder) { this.active = null; this.activeRequest = null; this.controller = null; }
     }
   }
 }
