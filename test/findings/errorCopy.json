@@ -117,16 +117,6 @@
     { "site": "src/studio/components/SpriteBuilder.tsx#save", "kind": 2, "template": "reason instanceof Error ? reason.message : String(reason)",
       "surface": "author", "rawError": true, "silentCatch": null, "verdict": "pass", "reason": "Studio save refusal, no player surface." },
     {
-      "site": "src/components/drawer/tabs/MemoryTab.tsx#excludeWithUndo",
-      "kind": 1,
-      "template": "\"Memory excluded — click here to undo\"",
-      "surface": "player",
-      "rawError": false,
-      "silentCatch": null,
-      "verdict": "pass",
-      "reason": "constant toast"
-    },
-    {
       "site": "src/components/settings/CapabilitiesGroup.tsx#copy",
       "kind": 3,
       "template": "catch {} #1",
@@ -1176,16 +1166,6 @@
       "silentCatch": null,
       "verdict": "pass",
       "reason": "author or console surface: raw error kept for diagnosis"
-    },
-    {
-      "site": "src/components/settings/StoryGroup.tsx#whileBusy",
-      "kind": 1,
-      "template": "\"That did not finish. Try again, or reload SillyTavern.\"",
-      "surface": "player",
-      "rawError": false,
-      "silentCatch": null,
-      "verdict": "pass",
-      "reason": "constant toast"
     },
     {
       "site": "src/copilot/parse.ts#parseProposal",
