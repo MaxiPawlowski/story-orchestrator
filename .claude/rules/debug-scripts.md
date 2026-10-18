@@ -89,7 +89,7 @@ For any live/E2E work, load the **`debug` skill** (`.claude/skills/debug/SKILL.m
 
 ## Gates
 
-- `npm run gates` runs every step as soon as its needs are done (`--jobs`, `--serial`, `--no-storybook`; `npm run gates -- --help`); with `typecheck` in the run the builds skip their own type pass (`SO_BUILD_TYPECHECK=0`). Webpack/Storybook cache in `.build/webpack-cache`. `npm run test:replay` runs rows in parallel staged copies (`--workers`), `--cached` reuses rows no change can reach (`.build/defect-replay-cache.json`).
+- `npm run gates` runs every step as soon as its needs are done (`--jobs`, `--serial`, `--no-storybook`, `--resume`; `npm run gates -- --help`); each finished step is recorded in `.build/gates-last.json` against a hash of the working tree (HEAD + diff + untracked), and `--resume` reuses steps green on that exact tree (flake or environment fix only); with `typecheck` in the run the builds skip their own type pass (`SO_BUILD_TYPECHECK=0`). Webpack/Storybook cache in `.build/webpack-cache`. `npm run test:replay` runs rows in parallel staged copies (`--workers`), `--cached` reuses rows no change can reach (`.build/defect-replay-cache.json`).
 - **`npm run gates:quick`** is the per-change gate: typecheck (+ `typecheck:test` when a test changed), eslint and `jest --findRelatedTests` on changed src files, replay `--cached`; changed = since merge-base with `--base` (default `master`) plus uncommitted/untracked. Plans close and releases ship on `npm run gates`, never `gates:quick` or `--cached`.
 
 Standard snapshot:

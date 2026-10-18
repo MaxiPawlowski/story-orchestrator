@@ -47,7 +47,8 @@
     "guide:build": "node scripts/docs/guide-bundle.mjs",
     "guide:site": "node scripts/docs/guide-site.mjs",
     "gates": "node scripts/release/gates.mjs",
-    "gates:quick": "node scripts/release/gatesQuick.mjs"
+    "gates:quick": "node scripts/release/gatesQuick.mjs",
+    "worktree:setup": "node scripts/local/worktreeSetup.mjs"
   },
   "eslintConfig": {
     "extends": [

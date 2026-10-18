@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
-import { GATE_DEPS, GATE_STEPS, gateSteps, nextReady } from "./gates.mjs";
+import { GATE_DEPS, GATE_STEPS, gateSteps, nextReady, reusableSteps, treeId } from "./gates.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ciRuns = (yaml) => [...yaml.matchAll(/^\s+run: npm (?:run )?([\w:-]+)\s*$/gm)].map((match) => match[1]);
@@ -55,6 +55,23 @@ test("CR-P21: --no-storybook and --skip drop only the named steps, and an unknow
   assert.deepEqual(gateSteps(["--no-storybook"]).skipped, ["test-storybook:ci"]);
   assert.deepEqual(gateSteps(["--skip=test:replay,lint"]).skipped, ["test:replay", "lint"]);
   assert.deepEqual(gateSteps(["--skip=tests"]).unknown, ["tests"]);
+});
+
+test("--resume reuses only steps green on the same tree, and any change to the tree reruns everything", () => {
+  const record = { tree: "t1", steps: { test: { code: 0 }, build: { code: 0 }, lint: { code: 1 } } };
+  assert.equal(gateSteps(["--resume"]).resume, true);
+  assert.equal(gateSteps([]).resume, false);
+  assert.deepEqual(reusableSteps(record, "t1", ["test", "build", "lint", "typecheck"]), ["test", "build"]);
+  assert.deepEqual(reusableSteps(record, "t2", ["test", "build"]), []);
+  assert.deepEqual(reusableSteps({ tree: null, steps: record.steps }, null, ["test"]), []);
+  assert.deepEqual(reusableSteps(null, "t1", ["test"]), []);
+  const fakeGit = (files, diff) => (args, input) => Buffer.from(args[0] === "rev-parse" ? "head" : args[0] === "diff" ? diff
+    : args[0] === "ls-files" ? files.map(([path]) => `${path}\0`).join("") : input.split("\n").map((path) => files.find(([name]) => name === path)[1]).join("\n"));
+  const base = treeId(fakeGit([["a.ts", "h1"]], ""));
+  assert.equal(treeId(fakeGit([["a.ts", "h1"]], "")), base);
+  assert.notEqual(treeId(fakeGit([["a.ts", "h1"]], "edit")), base, "a tracked edit changes the tree");
+  assert.notEqual(treeId(fakeGit([["a.ts", "h2"]], "")), base, "an untracked file's content changes the tree");
+  assert.notEqual(treeId(fakeGit([["b.ts", "h1"]], "")), base, "an untracked file's name changes the tree");
 });
 
 test("CR-P21: overview rule 16 names the same chain", () => {
