@@ -17,6 +17,9 @@ source. Old → new numbers: `docs/plans/v2.7/RENUMBER.md`. Overview: `00-overvi
   cost with N actors on one canvas).
 - **Source** (anchors refreshed 2026-10-03, Sol r3 R3-19). `docs/plans/v2.7/19-talking-sprites.md` options table row D
   (`:110`), "Why not D now" (`:224`), §7 decision 5 (`:279-280`), review note "Rig option D" (`:362`).
+- **Re-parked 2026-10-18 (owner).** v2.8 plan 74 step 1 extends the mesh live head (hair springs, body sway, hand,
+  keyframed gestures) and step 2 trials rigged full-body pose sprites; option D stays parked behind that trial. Reopen
+  only if plan 74 step 2 is no-go for a reason a layered rig would fix (turns and parallax, not tearing or cost).
 
 ## 05.2 SP10 tool-call turns, the rest (old v2.7 16d option A)
 
@@ -107,6 +110,20 @@ recommended): all three are v2.9**, deferred with the reopen triggers below; the
   different from the generator), predeclared floor, CL.
 - **Source.** `docs/plans/v2.7/14-b10-cli-judge.md` §Decisions for the user (this research) decision 2, the role-map
   "Critic" rows.
+
+## 05.7 Pre-rendered image-to-video loops from pose sprites
+
+- **Context.** Image-to-video models (for example Wan in ComfyUI) could turn each pose sprite into short idle, talk
+  and gesture loops played back as video or frame strips. GPU heavy (a 3090 run per loop, minutes each), identity
+  drift across frames (face, outfit and hair change between the first and last frame, and a loop must close), file
+  size per look x pose x loop, and nothing measured on the 3090 yet (no workflow, model files or VRAM figures).
+- **Decision.** Parked, owner 2026-10-18; revisit after v2.8 plan 74 step 2 (rigged full-body pose sprites) has its
+  go/no-go.
+- **Reopen trigger.** Plan 74 step 2 is no-go, or the owner asks for motion a mesh rig cannot give (cloth, large
+  body movement). Start with a spike on 2 showcase characters x 2 poses: identity drift (Sol rater), loop seam,
+  GPU minutes and peak VRAM per loop on the 3090, bytes per loop; downloads need the owner's OK and plan 30's
+  model-source rules.
+- **Source.** `docs/plans/v2.8/74-live-character-motion.md` §Parked.
 
 ## Review 2026-10-03
 
