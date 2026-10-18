@@ -34,6 +34,46 @@ if (action === 'start') {
     }
     throw new Error('Controller did not start. Read controller.log.');
 }
+if (action === 'mode' || action === 'mode-probe') {
+    const { changeConfigFile, currentMode, knobValues, MODE_NAMES } = await import('./modes.mjs');
+    const title = (name) => name.charAt(0).toUpperCase() + name.slice(1);
+    const live = async () => {
+        try {
+            const reply = await fetch(`${url}/status`, { signal: AbortSignal.timeout(6000) });
+            return reply.ok ? { up: true, performance: (await reply.json()).performance ?? null } : { up: false };
+        } catch { return { up: false }; }
+    };
+    if (action === 'mode-probe') {
+        const state = await live();
+        if (!state.up) { console.error('Controller is not running.'); process.exit(255); }
+        if (!state.performance) { console.log(`${title(currentMode(config))} (saved)`); console.error('This controller build predates modes; the saved mode applies at its next start.'); process.exit(0); }
+        const { mode, pending, atNextTextLoad } = state.performance;
+        if (pending) { console.log(`${title(pending.mode)} (waiting)`); console.error('Applies when the current text or image job finishes.'); process.exit(2); }
+        console.log(title(mode));
+        if (atNextTextLoad.length) console.error(`${atNextTextLoad.join(', ')} apply at the next text load.`);
+        process.exit(0);
+    }
+    if (!profile) {
+        const state = await live();
+        console.log(`Saved mode: ${title(currentMode(config))}${state.performance ? `; running: ${title(state.performance.mode)}` : state.up ? '; running controller predates modes' : '; controller not running'}`);
+        for (const [key, value] of Object.entries(state.performance?.effective ?? knobValues(config))) console.log(`  ${key} = ${value}`);
+        console.log(`Set with: node scripts/local/cli.mjs mode ${MODE_NAMES.join('|')}`);
+        process.exit(0);
+    }
+    let reply = null;
+    try {
+        reply = await fetch(`${url}/ui/api/change`, { method: 'POST', headers: { 'content-type': 'application/json', 'x-so-local-ui': '1' }, body: JSON.stringify({ mode: profile }), signal: AbortSignal.timeout(30000) });
+    } catch {}
+    if (reply?.ok) {
+        const data = await reply.json();
+        console.log(`${title(data.mode)} mode ${data.applied === 'now' ? 'applied' : 'saved; applies when the current job finishes'}${data.atNextTextLoad.length ? `; ${data.atNextTextLoad.join(', ')} at the next text load` : ''}.`);
+        process.exit(0);
+    }
+    if (reply && reply.status !== 404) throw new Error((await reply.json().catch(() => ({}))).error ?? `Controller answered ${reply.status}`);
+    const plan = await changeConfigFile(configFile, { mode: profile });
+    console.log(`${title(plan.mode)} mode saved${plan.backup ? ` (backup ${plan.backup})` : ''}; ${reply ? 'the running controller predates modes and applies it at its next start' : 'applies when the controller starts'}.`);
+    process.exit(0);
+}
 const routes = { load: 'load', unload: 'unload', automatic: 'automatic', restore: 'restore', 'cache-mode': 'cache-mode', 'start-comfy': 'start-comfy', 'free-images': 'free-images', stop: 'stop' };
 const response = await fetch(action === 'status' ? `${url}/status` : `${url}/control/${routes[action] ?? 'unknown'}`, action === 'status' ? { signal: AbortSignal.timeout(15000) } : { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(profile ? { profile } : {}), signal: AbortSignal.timeout(300000) });
 const data = await response.json();

@@ -26,13 +26,14 @@ const answer = (res, status, data) => {
     res.end(JSON.stringify(data));
 };
 
-export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin = null, controls = null, extraGet = {} }) {
+export function createGateway({ arbiter, config, fetchImpl = fetch, allowOrigin = null, controls = null, extraGet = {}, routes = null }) {
     let closing = false;
     const server = http.createServer(async (req, res) => {
         try {
+            const route = new URL(req.url, 'http://localhost').pathname;
+            if (routes && await routes(req, res, route)) return;
             const origin = req.headers.origin;
             if (origin && !(allowOrigin && allowOrigin.test(origin))) { answer(res, 403, { error: 'The text gateway serves SillyTavern\'s server, not pages.' }); return; }
-            const route = new URL(req.url, 'http://localhost').pathname;
             if (req.method === 'GET' && extraGet[route]) { answer(res, 200, await extraGet[route]()); return; }
             if (req.method === 'GET' && ['/', '/status', '/health'].includes(route)) { answer(res, 200, await arbiter.status({ fresh: true })); return; }
             if (controls && req.method === 'POST' && ['/lease', '/renew', '/release'].includes(route)) {
