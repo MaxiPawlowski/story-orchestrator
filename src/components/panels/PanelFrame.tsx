@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
 import { clampPanel, docked, isPanelKey, movedBy, type PanelGeometry, type Viewport } from "@runtime/panelGeometry";
 
 export interface PanelFrameProps {
@@ -9,6 +9,7 @@ export interface PanelFrameProps {
   onClose: () => void;
   children: ReactNode;
   viewport?: Viewport;
+  dockInset?: number;
 }
 
 const windowViewport = (): Viewport => ({ width: window.innerWidth, height: window.innerHeight });
@@ -19,7 +20,7 @@ const dragged = (kind: DragKind, from: PanelGeometry, dx: number, dy: number): P
   ? { ...from, x: from.x + dx, y: from.y + dy }
   : { ...from, w: from.w + dx, h: from.h + dy });
 
-export const PanelFrame = ({ id, title, geometry, onChange, onClose, children, viewport }: PanelFrameProps) => {
+export const PanelFrame = ({ id, title, geometry, onChange, onClose, children, viewport, dockInset = 0 }: PanelFrameProps) => {
   const [view, setView] = useState<Viewport>(() => viewport ?? windowViewport());
   const [geom, setGeom] = useState<PanelGeometry>(() => clampPanel(geometry, viewport ?? windowViewport()));
   const stop = useRef<(() => void) | null>(null);
@@ -88,7 +89,7 @@ export const PanelFrame = ({ id, title, geometry, onChange, onClose, children, v
     onClose();
   };
 
-  const style = isDocked ? undefined : { left: geom.x, top: geom.y, width: geom.w, height: geom.h };
+  const style: CSSProperties = isDocked ? { ["--so-dock-inset" as string]: `${dockInset}px` } : { left: geom.x, top: geom.y, width: geom.w, height: geom.h };
   return (
     <section
       id={`so-panel-${id}`}

@@ -7,6 +7,8 @@ import { exportState } from "@runtime/stateExport";
 import { playingStory } from "@runtime/playingStory";
 import { removalRestore } from "@runtime/worldInfoScanHost";
 import { log } from "@utils/log";
+import { PLAYER_COPY } from "@runtime/narrative";
+import { ActionStatus, useActionStatus } from "@components/ActionStatus";
 import { FieldLabel } from "./Field";
 
 interface StoryGroupProps {
@@ -17,10 +19,10 @@ interface StoryGroupProps {
   importOpen: boolean;
 }
 
-const copyState = async () => {
+const copyState = async (show: (text: string) => void) => {
   await exportState({
     writeClipboard: (text) => navigator.clipboard.writeText(text),
-    toast: window.toastr ?? {},
+    toast: { success: show, info: show },
     log: (text) => log.info(text),
   });
 };
@@ -44,14 +46,16 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
   const identity = snapshot.storyIdentity;
   const playing = playingStory(snapshot);
   const noChat = snapshot.noChat ?? null;
+  const status = useActionStatus();
 
   const whileBusy = async (work: () => Promise<unknown>) => {
     setBusy(true);
+    status.show(null);
     try {
       await work();
     } catch (error) {
       log.warn("a story action failed", error);
-      window.toastr?.info?.("That did not finish. Try again, or reload SillyTavern.", "Story Orchestrator");
+      status.show(PLAYER_COPY.actionFailed);
     } finally {
       setBusy(false);
     }
@@ -114,6 +118,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
             onClick={() => void deleteStory()}
           />}
         </div>
+        <ActionStatus id="so-story-action-status" text={status.text} tone="plain" />
         {noChat && <div id="so-no-chat" role="status" className="text-xs opacity-90">{noChat.notice}</div>}
         {snapshot.storyId && (
           <div id="so-story-identity" className="text-xs opacity-70">
@@ -130,7 +135,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
             type="button"
             className="menu_button shrink-0 whitespace-nowrap"
             title="Copy this chat's saved story state to the clipboard, before anything can drop it."
-            onClick={() => void copyState()}
+            onClick={() => void copyState((text) => status.show(text))}
           >Export state</button>
         </div>}
       </div>

@@ -1,6 +1,6 @@
 import type { Feature } from "./registry";
 import { authorGuideDoc } from "./guideLinks";
-import { drawerAt } from "./where";
+import { drawerAt, featureAt } from "./where";
 
 export const LIFE_FEATURES: readonly Feature[] = [
   {
@@ -48,7 +48,7 @@ export const LIFE_FEATURES: readonly Feature[] = [
     oneLine: "Proposes what a character did off stage toward their plan, for you to accept.",
     what: "When the story moves on or a scene ends, the memory model suggests one short off-stage event per character, kept inside that character's plan. "
       + "Nothing lands until you accept it in Author view; an accepted event reaches only that character, at the next reply, and a swipe takes it back.",
-    where: { selector: "#so-meanwhile-accept-mode", label: "Settings › World › Background helpers", surface: "settings" },
+    where: featureAt("meanwhile", "acceptMode", "Off-stage events"),
     settings: ["stagecraft.meanwhileAcceptMode"], guideTopic: "character-life", doc: authorGuideDoc("character-life"), status: "experimental",
     needs: ["story", "memory-profile"],
     isOn: (settings) => settings.stagecraft.meanwhileAcceptMode !== "off",

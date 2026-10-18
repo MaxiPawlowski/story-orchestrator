@@ -1,6 +1,6 @@
 import type { Feature } from "./registry";
 import { authorGuideDoc } from "./guideLinks";
-import { drawerAt } from "./where";
+import { drawerAt, featureAt } from "./where";
 
 export const LIVING_FEATURES: readonly Feature[] = [
   {
@@ -9,7 +9,7 @@ export const LIVING_FEATURES: readonly Feature[] = [
     what: "A story with a premise and no fixed ending: when the story reaches its last written turning point, the story director writes the next one from the premise, "
       + "the canon and the threads you opened, and the road there is filled in as usual. A story can also continue past its authored end. "
       + "Author view lists each turning point it wrote and why; a swipe takes back what a reply led to.",
-    where: { selector: "#so-living-enabled", label: "Settings › World › Background helpers", surface: "settings" },
+    where: featureAt("living", "enabled", "Living stories"),
     settings: ["stagecraft.livingEnabled"], guideTopic: "living-director", doc: authorGuideDoc("living-director"), status: "experimental",
     needs: ["story", "group-chat", "memory-profile"],
     isOn: (settings) => settings.stagecraft.livingEnabled !== false,
@@ -19,7 +19,7 @@ export const LIVING_FEATURES: readonly Feature[] = [
     oneLine: "When you leave the prepared ways forward, the story writes a branch that follows you and later comes back.",
     what: "At a turning point with ways forward, the story notices when what you do fits none of them (refusing them twice, or the judge saying so twice in a row). "
       + "The story director then writes a short branch from where you are, and the road it takes rejoins the story further on. At most one branch per turning point.",
-    where: { selector: "#so-branching-enabled", label: "Settings › World › Background helpers", surface: "settings" },
+    where: featureAt("branching", "enabled", "Branches that follow you"),
     settings: ["stagecraft.branchingEnabled", "stagecraft.prefetchEnabled"], guideTopic: "branching", doc: authorGuideDoc("branching"), status: "experimental",
     needs: ["story", "group-chat", "memory-profile"],
     isOn: (settings) => settings.stagecraft.branchingEnabled !== false,
@@ -38,9 +38,9 @@ export const LIVING_FEATURES: readonly Feature[] = [
   {
     id: "save-run-as-story", name: "Save this run as a story", area: "play", audience: "player",
     oneLine: "Keep a living story's run as a story you can play again or edit.",
-    what: "The drawer's Overview offers to save what you played as a new story in your library. Only the turning points you reached are kept; what the story had written "
+    what: "This story → Play offers to save what you played as a new story in your library. Only the turning points you reached are kept; what the story had written "
       + "ahead of you is left out, so the saved copy never spoils a later play.",
-    where: drawerAt("#so-living-save", "Overview"),
+    where: drawerAt("#so-living-save", "Play"),
     settings: [], guideTopic: "living-director", doc: authorGuideDoc("living-director"), status: "experimental", needs: ["story"],
   },
 ];

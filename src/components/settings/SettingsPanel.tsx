@@ -1,5 +1,4 @@
-import { useCallback, useEffect, useState, type MouseEvent } from "react";
-import { askHost } from "@runtime/askEntry";
+import { useCallback, useEffect, useState } from "react";
 import type { ChatPanel } from "../../presenceUi";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
@@ -16,13 +15,11 @@ import { requestTour } from "@guide/tour/request";
 import { GUIDE_COPY, HELP_COPY } from "@features/helpCopy";
 import { workspaceNavigation } from "@runtime/workspaceNavigation";
 import type { ContinueRow } from "@runtime/playsIndex";
-import { HelpButton } from "../help/HelpButton";
 import type { CapabilitiesGroupProps } from "./CapabilitiesGroup";
 import EntryPoints from "./EntryPoints";
 import MakeGroupCard from "./MakeGroupCard";
 import type { MakeGroupOutcome } from "@runtime/makeGroup";
 import type { JudgeSettingsGroupProps, JudgeSettingsPatch } from "./JudgeSettingsGroup";
-import { authoringSettings } from "./settingsVisibility";
 import { SettingsArea } from "./SettingsArea";
 import { CheckRow } from "./Field";
 import { log } from "@utils/log";
@@ -31,19 +28,14 @@ const ImageGroup = lazyRetry(() => import("../../image/ImageGroup"));
 const SpriteGroup = lazyRetry(() => import("../../sprites/SpriteGroup"));
 const GroupStoryBinding = lazyRetry(() => import("./GroupStoryBinding"));
 const JudgeSettingsGroup = lazyRetry(() => import("./JudgeSettingsGroup"));
-const HelpHost = lazyRetry(() => import("../help/HelpHost"));
 const MemoryModelGroup = lazyRetry(() => import("./MemoryModelGroup").then((module) => ({ default: module.MemoryModelGroup })));
-const ChapterGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.ChapterGroup })));
 const ChapterBudgetGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.ChapterBudgetGroup })));
 const DisplayGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.DisplayGroup })));
 const InnerVoiceGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.InnerVoiceGroup })));
 const LorebooksGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.LorebooksGroup })));
-const PacingGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.PacingGroup })));
-const StagecraftGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.StagecraftGroup })));
 const TalkGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.TalkGroup })));
 const CharacterStateGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.CharacterStateGroup })));
 const TransitionNoteRow = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.TransitionNoteRow })));
-const WardenGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.WardenGroup })));
 const CapabilitiesGroup = lazyRetry(() => import("./CapabilitiesGroup"));
 const GettingStarted = lazyRetry(() => import("./GettingStarted"));
 const StoryGroup = lazyRetry(() => import("./StoryGroup").then((module) => ({ default: module.StoryGroup })));
@@ -55,22 +47,20 @@ export interface SettingsHost {
   openStudio: () => void;
   openWizardForRequirements: () => void;
   revealSetting: (id: string) => void;
-  repairCast?: (action: OneClickFix) => void;
+  repairCast?: (action: OneClickFix) => Promise<string | null> | void;
   openGroup?: () => void;
-  openDrawer: () => void;
+  openStory: () => void;
   openAuthorView?: () => void;
   showFeature: (where: FeatureWhere) => void;
   makeGroup?: (storyId: string) => Promise<MakeGroupOutcome>;
   fixGroupWithWizard?: (storyId: string, missing: string[]) => void;
   openPlay?: (row: ContinueRow) => void;
-  helpOpen?: boolean;
-  toggleHelp?: () => void;
   openPanel?: (panel: "help" | "guide" | ChatPanel) => void;
   openGuide?: (doc: string) => void;
 }
 
 interface SettingsPanelProps {
-  workspaceSection?: "library" | "connections" | "interface" | "help";
+  workspaceSection: "library" | "connections" | "interface" | "help";
   snapshot: RuntimeSnapshot;
   manager: RuntimeManager;
   host: SettingsHost;
@@ -151,7 +141,7 @@ const SettingsPanel = ({ snapshot, manager, host, workspaceSection }: SettingsPa
   const areas = useOpenAreas();
   const openGuide = host.openGuide ?? openGuideFromWorkspace;
   const area = (id: FeatureArea) => ({ area: id, open: areas.open.includes(id), onToggle: areas.toggle, onGuide: openGuide });
-  const show = (id: FeatureArea) => !workspaceSection || (workspaceSection === "library" && id === "play")
+  const show = (id: FeatureArea) => (workspaceSection === "library" && id === "play")
     || (workspaceSection === "connections" && ["memory", "world", "images", "judge", "setup"].includes(id))
     || (workspaceSection === "help" && ["setup", "authoring"].includes(id));
 
@@ -163,7 +153,6 @@ const SettingsPanel = ({ snapshot, manager, host, workspaceSection }: SettingsPa
   }, [recheck, probe]);
 
   const wardenOn = snapshot.stagecraft.settings.wardenEnabled && snapshot.stagecraft.settings.wardenAcceptMode !== "off";
-  const [helpOpen, setHelpOpen] = useState(false);
   const [checklistDismissed, setChecklistDismissed] = useState(() => getGlobalSettings().help.checklistDismissed);
   const image = getGlobalSettings().image;
   const extraction = snapshot.extraction.settings;
@@ -172,32 +161,18 @@ const SettingsPanel = ({ snapshot, manager, host, workspaceSection }: SettingsPa
     judgeReady: judge.judge.enabled && typeof judge.status === "object" && judge.status !== null && judge.status.configured,
     imagesReady: imagesStepDone(image, stImageSource()),
   });
-  const toggleHelp = (event: MouseEvent<HTMLButtonElement>) => {
-    const content = event.currentTarget.closest(".inline-drawer")?.querySelector<HTMLElement>(".inline-drawer-content");
-    const panelOpen = Boolean(content && content.offsetParent !== null);
-    if (panelOpen || host.toggleHelp) event.stopPropagation();
-    if (host.toggleHelp) host.toggleHelp();
-    else setHelpOpen(panelOpen ? !helpOpen : true);
-  };
-
   return (
-    <div id={workspaceSection ? "so-workspace-settings" : "story-orchestrator-settings"} data-section={workspaceSection}>
-      <div className="inline-drawer">
-        {!workspaceSection && <div className="inline-drawer-toggle inline-drawer-header flex items-center justify-between">
-          <b>Story Orchestrator</b>
-          <HelpButton id="so-help-toggle" open={host.toggleHelp ? host.helpOpen === true : helpOpen} onToggle={toggleHelp} />
-        </div>}
-        <div className="inline-drawer-content px-3 py-2 !flex flex-col gap-3">
-          {helpOpen && !host.toggleHelp && <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={host.showFeature} onClose={() => setHelpOpen(false)}
-            ask={async (question) => (await askHost()).askInChat(manager, question)} /></Lazy>}
-          {(!workspaceSection || workspaceSection === "library") && <EntryPoints
+    <div id="so-workspace-settings" data-section={workspaceSection}>
+      <div>
+        <div className="px-3 py-2 flex flex-col gap-3">
+          {workspaceSection === "library" && <EntryPoints
             snapshot={snapshot}
             busy={busy}
             importOpen={importOpen}
             onToggleImport={() => setImportOpen((open) => !open)}
             onNewStory={host.openWizard}
             onOpenStudio={host.openStudio}
-            onOpenDrawer={host.openDrawer}
+            onOpenStory={host.openStory}
             onOpenAuthorView={host.openAuthorView}
             onRevealSetting={host.revealSetting}
             onFixWithWizard={host.openWizardForRequirements}
@@ -228,16 +203,12 @@ const SettingsPanel = ({ snapshot, manager, host, workspaceSection }: SettingsPa
                 onFixWithWizard={(storyId, missing) => host.fixGroupWithWizard?.(storyId, missing)} />
             )}
             <Lazy fallback={null}><GroupStoryBinding snapshot={snapshot} busy={busy} /></Lazy>
-            <button type="button" className="menu_button self-start" onClick={host.openDrawer}>Open story and chat preferences</button>
-            {!workspaceSection && <Lazy fallback={null}><DisplayGroup snapshot={snapshot} manager={manager} /></Lazy>}
-            {!workspaceSection && <Lazy fallback={null}><PacingGroup snapshot={snapshot} manager={manager} /></Lazy>}
+            <button type="button" className="menu_button self-start" onClick={host.openStory}>Open story and chat preferences</button>
           </SettingsArea>}
           {show("memory") && <SettingsArea {...area("memory")}>
             <p className="text-xs opacity-80">Connection Manager owns the actual model profiles. Choose which profiles this extension uses here; changes affect every chat.</p>
             <Lazy fallback={null}><MemoryModelGroup snapshot={snapshot} manager={manager} connectionsOnly={workspaceSection === "connections"} /></Lazy>
-            {!workspaceSection && <Lazy fallback={null}><ChapterGroup snapshot={snapshot} manager={manager} /></Lazy>}
             {workspaceSection === "connections" && <Lazy fallback={null}><ChapterBudgetGroup snapshot={snapshot} manager={manager} /></Lazy>}
-            {!workspaceSection && <Lazy fallback={null}><WardenGroup snapshot={snapshot} manager={manager} /></Lazy>}
           </SettingsArea>}
           {show("characters") && <SettingsArea {...area("characters")}>
             <Lazy fallback={null}><TalkGroup snapshot={snapshot} manager={manager} /></Lazy>
@@ -246,7 +217,6 @@ const SettingsPanel = ({ snapshot, manager, host, workspaceSection }: SettingsPa
           </SettingsArea>}
           {show("world") && <SettingsArea {...area("world")}>
             <Lazy fallback={null}><LorebooksGroup snapshot={snapshot} manager={manager} /></Lazy>
-            {!workspaceSection && <Lazy fallback={null}><StagecraftGroup snapshot={snapshot} manager={manager} /></Lazy>}
           </SettingsArea>}
           {show("images") && <SettingsArea {...area("images")}>
             <Lazy fallback={<div className="text-xs">Loading image setup…</div>}><ImageGroup manager={manager} /></Lazy>
@@ -256,7 +226,7 @@ const SettingsPanel = ({ snapshot, manager, host, workspaceSection }: SettingsPa
             <Lazy fallback={null}><JudgeSettingsGroup settings={judge.judge} status={judge.status} selfTest={judge.selfTest} authorView={snapshot.ui.authorView} meter={snapshot.judgeMeter}
               wardenEnabled={wardenOn} onChange={judge.change} onSaveKey={writeJudgeSecret} onRefresh={judge.recheck} onRunSelfTest={() => void judge.test()} /></Lazy>
           </SettingsArea>}
-          {show("authoring") && (workspaceSection || authoringSettings(snapshot)) && (
+          {show("authoring") && (
             <SettingsArea {...area("authoring")}>
               <CheckRow id="so-copilot-enabled" setting="copilot.enabled" checked={snapshot.copilot.enabled} onChange={(on) => manager.setCopilotSettings({ enabled: on })} />
             </SettingsArea>

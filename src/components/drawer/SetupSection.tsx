@@ -1,8 +1,9 @@
 import type { OneClickFix, RepairStep, SetupFindings, ShowMe } from "@runtime/repair";
+import { ActionStatus, useActionStatus } from "@components/ActionStatus";
 
 export interface SetupHandlers {
   onShowMe?(target: ShowMe): void;
-  onFix?(action: OneClickFix): void;
+  onFix?(action: OneClickFix): Promise<string | null> | void;
   onDismiss?(check: string, dismissed: boolean): void;
 }
 
@@ -20,7 +21,9 @@ export const SETUP_COPY = {
 
 const SEVERITY_LABEL: Record<RepairStep["severity"], string> = { blocks: SETUP_COPY.blocks, degrades: SETUP_COPY.degrades, info: SETUP_COPY.info };
 
-const SetupRow = ({ step, authorView, handlers }: { step: RepairStep; authorView: boolean; handlers: SetupHandlers }) => (
+const SetupRow = ({ step, authorView, handlers }: { step: RepairStep; authorView: boolean; handlers: SetupHandlers }) => {
+  const status = useActionStatus();
+  return (
   <div data-so="setup-row" data-check={step.check} data-severity={step.severity} className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
     <div className="text-xs opacity-70">{SEVERITY_LABEL[step.severity]}</div>
     <div className={`text-sm ${step.severity === "blocks" ? "so-warning-text" : ""}`}>{step.consequence}</div>
@@ -30,14 +33,16 @@ const SetupRow = ({ step, authorView, handlers }: { step: RepairStep; authorView
         <button type="button" data-so="setup-show-me" className="menu_button" onClick={() => handlers.onShowMe?.(step.target as ShowMe)}>{SETUP_COPY.showMe}</button>
       )}
       {step.action && handlers.onFix && (
-        <button type="button" data-so="setup-fix" className="menu_button" onClick={() => handlers.onFix?.(step.action as OneClickFix)}>{step.action.label}</button>
+        <button type="button" data-so="setup-fix" className="menu_button" onClick={() => void status.run(() => handlers.onFix?.(step.action as OneClickFix))}>{step.action.label}</button>
       )}
       {step.dismissable && handlers.onDismiss && (
         <button type="button" data-so="setup-dismiss" className="menu_button opacity-80" onClick={() => handlers.onDismiss?.(step.check, true)}>{SETUP_COPY.dismiss}</button>
       )}
     </div>
+    <ActionStatus text={status.text} />
   </div>
-);
+  );
+};
 
 export const setupShown = (findings: SetupFindings): boolean =>
   findings.blocks.length + findings.degrades.length + findings.info.length + findings.dismissed.length > 0;

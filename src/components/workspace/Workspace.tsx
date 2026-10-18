@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import type { RuntimeManager } from "@runtime/runtimeManager";
@@ -16,7 +17,7 @@ import "./workspace.css";
 import { getGlobalSettings } from "@runtime/settingsStore";
 import BranchNotice from "@components/drawer/BranchNotice";
 import { composeActivity } from "@runtime/activityFeed";
-import { FlagControl } from "@components/drawer/DrawerTabs";
+import FlagControl from "@components/drawer/FlagControl";
 import { requestBriefing } from "@runtime/briefingRequest";
 
 const SettingsPanel = lazyRetry(() => import("../settings/SettingsPanel"));
@@ -24,6 +25,8 @@ const DrawerTabs = lazyRetry(() => import("../drawer/DrawerTabs"));
 const StagecraftPanel = lazyRetry(() => import("../drawer/StagecraftPanel"));
 const MemoryTab = lazyRetry(() => import("../drawer/tabs/MemoryTab").then((module) => ({ default: module.MemoryTab })));
 const ActivityPanel = lazyRetry(() => import("../panels/ActivityPanel"));
+const YourCharacter = lazyRetry(() => import("../drawer/YourCharacter"));
+const LivingSave = lazyRetry(() => import("../drawer/LivingSave"));
 
 export interface WorkspaceProps {
   intent: WorkspaceIntent;
@@ -33,9 +36,11 @@ export interface WorkspaceProps {
   drawerProps: DrawerTabsProps;
   onClose: () => void;
   onContinueBranch?: () => Promise<unknown> | void;
+  imagePanel?: ReactNode;
+  castPanel?: ReactNode;
 }
 
-export default function Workspace({ intent, snapshot, manager, settingsHost, drawerProps, onClose, onContinueBranch }: WorkspaceProps) {
+export default function Workspace({ intent, snapshot, manager, settingsHost, drawerProps, onClose, onContinueBranch, imagePanel, castPanel }: WorkspaceProps) {
   const global = getGlobalSettings();
   const installSnapshot = { ...snapshot, extraction: { ...snapshot.extraction, settings: global.extraction },
     memory: { ...snapshot.memory, settings: global.memory }, stagecraft: { ...snapshot.stagecraft, settings: global.stagecraft } };
@@ -55,10 +60,14 @@ export default function Workspace({ intent, snapshot, manager, settingsHost, dra
           onDismiss={(id, dismissed) => manager.setCheckDismissed(id, dismissed)} />
         {snapshot.ready ? <>
           <div className="so-task-card">
-            <PlayerOverview snapshot={snapshot} onOpenSettings={settingsHost.openDrawer} onReread={() => void manager.runExtractionNow()}
-              onRetry={() => void manager.retryExtraction()} onRestart={() => void manager.restartStory()} onDismissPreviously={() => void manager.carry.dismiss()} />
+            <PlayerOverview snapshot={snapshot} onOpenSettings={drawerProps.onOpenSettings} onReread={() => void manager.runExtractionNow(undefined, "recovery")}
+              onRetry={() => void manager.retryExtraction()} onRestart={() => void manager.restartStory()} onDismissPreviously={() => void manager.carry.dismiss()}
+              onFlagChapter={(title) => void manager.flagMoment(`chapter summary looks wrong: ${title}`)} />
+            {snapshot.playerSetup && <Lazy fallback={null}><YourCharacter snapshot={snapshot} /></Lazy>}
+            {snapshot.living?.canSave && <Lazy fallback={null}><LivingSave onSave={() => manager.living.saveAsStory({ includeUnreached: false })} /></Lazy>}
           </div>
           {settingsHost.openPanel && <ChatPanelLaunchers snapshot={snapshot} onLaunch={settingsHost.openPanel} />}
+          {imagePanel && <div className="so-task-card">{imagePanel}</div>}
           <details className="so-task-card so-card-disclosure">
             <summary id="so-open-memory" className="so-card-heading">What the story remembers</summary>
             <Lazy><MemoryTab snapshot={snapshot} manager={manager} authorView={false} /></Lazy>
@@ -82,6 +91,7 @@ export default function Workspace({ intent, snapshot, manager, settingsHost, dra
       return <section><h2>Author tools</h2><button className="st-button secondary" onClick={() => manager.setUiSettings({ authorView: false })}>Return to player view</button>
         <details><summary id="so-open-activity">Recent activity</summary><Lazy><ActivityPanel rows={composeActivity(snapshot.inline, snapshot.rolls ?? [])}
           onJump={drawerProps.onJumpToMessage ?? (() => undefined)} checks={Object.values(setupFindings(snapshot)).flat()} /></Lazy></details>
-        <div id="drawer-manager"><Lazy><DrawerTabs {...drawerProps} snapshot={snapshot} manager={manager} /></Lazy></div></section>;
+        <div id="drawer-manager"><Lazy><DrawerTabs {...drawerProps} snapshot={snapshot} manager={manager} /></Lazy></div>
+        {castPanel && <div className="so-task-card">{castPanel}</div>}</section>;
     }} />;
 }

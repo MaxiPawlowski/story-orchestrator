@@ -3,11 +3,8 @@ import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
-import { setupFindings, viewerRepairStep, type OneClickFix, type ShowMe } from "@runtime/repair";
-import { PLAYER_COPY } from "@runtime/narrative";
+import type { OneClickFix, ShowMe } from "@runtime/repair";
 import { chatUpdateSentence } from "@runtime/librarySave";
-import { requestBriefing } from "@runtime/briefingRequest";
-import { BRIEFING_COPY } from "@features/helpCopy";
 import { DRAWER_TAB_EVENT } from "@runtime/drawerTab";
 import type { DriverController, RecoveryTarget } from "./DriverPanel";
 import { MessageJumpProvider } from "./MessageCitation";
@@ -19,7 +16,6 @@ const MessageInspector = lazyRetry(() => import("./MessageInspector"));
 const BlackboardTab = lazyRetry(() => import("./tabs/BlackboardTab").then((module) => ({ default: module.BlackboardTab })));
 const SchedulerTab = lazyRetry(() => import("./tabs/SchedulerTab").then((module) => ({ default: module.SchedulerTab })));
 const PayloadTab = lazyRetry(() => import("./tabs/PayloadTab").then((module) => ({ default: module.PayloadTab })));
-const YourCharacter = lazyRetry(() => import("./YourCharacter"));
 const MemoryTab = lazyRetry(() => import("./tabs/MemoryTab").then((module) => ({ default: module.MemoryTab })));
 
 const AuthorTab = ({ id, children }: { id: DrawerTabId; children: ReactNode }) => (
@@ -59,106 +55,46 @@ export interface DrawerTabsProps {
   onBranchFromOldest?: (messageId: number) => void;
   /** A cited "message N" scrolls the chat there through /chat-jump. */
   onJumpToMessage?: (messageId: number) => void;
-  imagePanel?: ReactNode;
   onShowMe?: (target: ShowMe) => void;
-  onFix?: (action: OneClickFix) => void;
+  onFix?: (action: OneClickFix) => Promise<string | null> | void;
   /** The author's click-through from an inline chip: one message's full detail. */
   inspect?: { messageId: number; onClose: () => void; actions?: InlineActions } | null;
 }
 
-export const FlagControl = ({ manager }: { manager: RuntimeManager }) => {
-  const [open, setOpen] = useState(false);
-  const [note, setNote] = useState("");
-
-  const submit = async () => {
-    await manager.flagMoment(note);
-    setNote("");
-    setOpen(false);
-    window.toastr?.info?.(PLAYER_COPY.flaggedToast, "Story Orchestrator");
-  };
-
-  if (!open) return <button
-    id="so-flag-moment"
-    className="menu_button opacity-70"
-    title="Flag this moment — it lands in the session journal for review"
-    aria-label="Flag this moment"
-    onClick={() => setOpen(true)}
-  >⚑</button>;
-  return (
-    <div className="flex items-center gap-1 flex-1">
-      <input
-        id="so-flag-note"
-        className="text_pole flex-1"
-        autoFocus
-        placeholder="What happened here? (optional)"
-        value={note}
-        onChange={(event) => setNote(event.target.value)}
-        onKeyDown={(event) => { if (event.key === "Enter") void submit(); if (event.key === "Escape") setOpen(false); }}
-      />
-      <button id="so-flag-submit" className="menu_button" onClick={() => void submit()}>Flag</button>
-      <button className="menu_button opacity-70" aria-label="Cancel flag" onClick={() => { setNote(""); setOpen(false); }}>✕</button>
-    </div>
-  );
-};
-
-// Restart is the player's one destructive control (it asks first); "Edit story" is the author's
-// way into Studio from the chat they are playing — that is the chat the save can hot-swap into.
-// The drawer footer carries the same four tasks as the settings panel. Continue is
-// the drawer itself; Repair appears only while a step is missing and lands on the panel's own Repair
-// row, so there is still one control per task.
-const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStory }: {
+const AuthorStoryControls = ({ snapshot, manager, onEditStory, onNewStory }: {
   snapshot: RuntimeSnapshot;
   manager: RuntimeManager;
   onEditStory?: () => void;
-  onOpenRepair?: () => void;
   onNewStory?: () => void;
 }) => {
-  const repair = viewerRepairStep(snapshot);
-  const authorView = snapshot.ui.authorView;
+  const [updated, setUpdated] = useState<string | null>(null);
+  if (!snapshot.ui.authorView) return null;
   return (
-  <div id="so-drawer-entry-points" className="flex flex-wrap items-center gap-2 border-t border-solid border-white/10 pt-2">
-    {repair && onOpenRepair && (
-      <button id="so-drawer-repair" type="button" className="menu_button so-wrap-button" onClick={onOpenRepair}>Repair: {repair.consequence}</button>
-    )}
-    {authorView && repair && <span data-so="drawer-repair-detail" className="text-xs opacity-70">{repair.detail}</span>}
-    {authorView && onNewStory && (
-      <button id="so-drawer-new-story" type="button" className="menu_button opacity-80" disabled={!snapshot.copilot.enabled}
+  <div id="so-author-story-controls" className="so-actions border-t border-solid border-white/10 pt-2">
+    {onNewStory && (
+      <button id="so-author-new-story" type="button" className="menu_button opacity-80" disabled={!snapshot.copilot.enabled}
         title={snapshot.copilot.enabled ? "Start a new story with the wizard." : "Turn on the wizard under Authoring first."} onClick={onNewStory}>New story</button>
     )}
-    {authorView && onEditStory && (
+    {onEditStory && (
       <button id="so-edit-story" type="button" className="menu_button" onClick={onEditStory}
         title="Open this story in the Checkpoint Studio. Saving there offers to update this chat.">Edit story</button>
     )}
-    {snapshot.playerSetup && <Lazy fallback={null}><YourCharacter snapshot={snapshot} /></Lazy>}
-    {snapshot.briefing?.view && (
-      <button id="so-story-briefing" type="button" className="menu_button opacity-80" title={BRIEFING_COPY.reopenHelp}
-        onClick={() => requestBriefing()}>{BRIEFING_COPY.reopen}</button>
-    )}
-    <button
-      id="so-restart-story-drawer"
-      type="button"
-      className="menu_button opacity-80"
-      title="Start this story over in this chat. Messages stay; progress and story memory are cleared."
-      onClick={() => void manager.restartStory()}
-    >{PLAYER_COPY.restartButton}</button>
-    {authorView && snapshot.storyIdentity.drifted && (
+    {snapshot.storyIdentity.drifted && (
       <button
         id="so-update-story"
         type="button"
         className="menu_button"
         title="Take the library's copy of this story into this chat."
-        onClick={() => void manager.applyStoryUpdate().then((outcome) => {
-          const line = chatUpdateSentence(outcome);
-          if (line) window.toastr?.info?.(line, "Story Orchestrator");
-        })}
+        onClick={() => void manager.applyStoryUpdate().then((outcome) => setUpdated(chatUpdateSentence(outcome)))}
       >Update to the latest</button>
     )}
+    {updated && <span id="so-update-story-status" role="status" className="text-xs">{updated}</span>}
   </div>
   );
 };
 
 export const DrawerTabs = ({
-  snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard, onOpenRepair, onNewStory, onBranchFromOldest, onJumpToMessage, imagePanel, inspect, onShowMe, onFix,
+  snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard, onNewStory, onBranchFromOldest, onJumpToMessage, inspect,
 }: DrawerTabsProps) => {
   const [active, setActive] = useState<DrawerTabId>("overview");
   useEffect(() => {
@@ -199,25 +135,9 @@ export const DrawerTabs = ({
             </button>
           ))}
         </div>
-        <FlagControl manager={manager} />
       </div>
-      <div role="tabpanel" className={activeTab === "overview" ? "so-overview-layout" : undefined}>
-        {activeTab === "overview" && <OverviewTab
-          snapshot={snapshot}
-          authorView={authorView}
-          onOpenSettings={onOpenSettings}
-          onFixWithWizard={onFixWithWizard}
-          onReread={() => void manager.runExtractionNow(undefined, "recovery")}
-          onRestart={() => void manager.restartStory()}
-          onRetry={() => void manager.retryExtraction()}
-          onBranchFromOldest={onBranchFromOldest}
-          onFlagChapter={(title) => void manager.flagMoment(`chapter summary looks wrong: ${title}`)}
-          onSaveLiving={() => manager.living.saveAsStory({ includeUnreached: false })}
-          setup={{ findings: setupFindings(snapshot), onShowMe, onFix, onDismiss: (check, dismissed) => manager.setCheckDismissed(check, dismissed) }}
-        />}
-        {activeTab === "overview" && <div className="so-chat-tools flex flex-col gap-3">
-        {imagePanel}
-        </div>}
+      <div role="tabpanel">
+        {activeTab === "overview" && <OverviewTab snapshot={snapshot} authorView={authorView} onFixWithWizard={onFixWithWizard} onBranchFromOldest={onBranchFromOldest} />}
         {activeTab === "blackboard" && <AuthorTab id="blackboard"><BlackboardTab snapshot={snapshot} onDecideMeanwhile={(id, status) => void manager.decideMeanwhile(id, status)} /></AuthorTab>}
         {activeTab === "memory" && <Lazy fallback={null}><MemoryTab snapshot={snapshot} manager={manager} authorView={authorView} focusFact={focusFact} /></Lazy>}
         {activeTab === "scheduler" && <AuthorTab id="scheduler"><SchedulerTab snapshot={snapshot} manager={manager} onOpenFact={openFact} /></AuthorTab>}
@@ -227,7 +147,7 @@ export const DrawerTabs = ({
           </AuthorTab>
         )}
       </div>
-      {activeTab === "overview" && <StoryControls snapshot={snapshot} manager={manager} onEditStory={onEditStory} onOpenRepair={onOpenRepair} onNewStory={onNewStory} />}
+      {activeTab === "overview" && <AuthorStoryControls snapshot={snapshot} manager={manager} onEditStory={onEditStory} onNewStory={onNewStory} />}
       {/* The driver steers the story — Suggest/Probe/Advance/Nudge are author tools by D1, never
           part of the player surface, whatever the copilot setting says. */}
       {snapshot.copilot.enabled && authorView && (

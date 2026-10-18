@@ -9,8 +9,6 @@ import { acknowledgeLibraryLost } from "@runtime/libraryIndexPort";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import type { WriteResult } from "@utils/writeResult";
 
-const notice = (text: string) => window.toastr?.info?.(text, "Story Orchestrator");
-
 export const createSetupFixes = (manager: RuntimeManager) => {
   const dropPersonaRequirement = async (names: string[]): Promise<WriteResult<object>> => {
     const snapshot = manager.getSnapshot();
@@ -28,7 +26,7 @@ export const createSetupFixes = (manager: RuntimeManager) => {
     return outcome.applied ? { ok: true } : { ok: false, reason: chatUpdateOutcome(outcome)?.detail ?? "The library has the change; this chat did not take it." };
   };
 
-  const repairCast = async (action: RepairAction) => {
+  const repairCast = async (action: RepairAction): Promise<string | null> => {
     const result = await runCastRepair(action, {
       add: addGroupMembers,
       unmute: (names) => setGroupMembersDisabled(names, []),
@@ -37,24 +35,25 @@ export const createSetupFixes = (manager: RuntimeManager) => {
       journal: (summary, detail) => manager.chatSave.note(summary, detail),
       ownership: manager.requirementsHost.ownership,
     });
-    if (!result.ok) notice(result.reason);
+    return result.ok ? null : result.reason;
   };
 
-  const fixSetup = async (action: OneClickFix) => {
-    if (action.kind === "open-player-setup") return void requestBriefing({ kind: "identity" });
+  const fixSetup = async (action: OneClickFix): Promise<string | null> => {
+    if (action.kind === "open-player-setup") {
+      requestBriefing({ kind: "identity" });
+      return null;
+    }
     if (action.kind === "acknowledge-library-lost") {
       const acknowledged = await acknowledgeLibraryLost(action, () => manager.notify());
-      if (!acknowledged.ok) notice(acknowledged.reason);
-      return;
+      return acknowledged.ok ? null : acknowledged.reason;
     }
     if (action.kind === "switch-persona") {
       const switched = await manager.playerSetup.switchBack();
-      if (!switched.ok) notice(switched.reason);
-      return;
+      return switched.ok ? null : switched.reason;
     }
     if (action.kind !== "make-group") return repairCast(action);
     const outcome = await makeGroupFor(manager, action.storyId);
-    if (!outcome.ok && outcome.reason !== "cancelled") notice(outcome.message);
+    return !outcome.ok && outcome.reason !== "cancelled" ? outcome.message : null;
   };
 
   return { fixSetup };

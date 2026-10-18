@@ -8,6 +8,7 @@ import { ContinueList } from "./ContinueList";
 import type { LivingStartFields } from "./LivingStart";
 import { lazyRetry } from "@utils/lazyRetry";
 import { Lazy } from "@components/Lazy";
+import { ActionStatus, useActionStatus } from "@components/ActionStatus";
 
 const LivingStart = lazyRetry(() => import("./LivingStart"));
 const TrophyShelf = lazyRetry(() => import("@components/carry/TrophyShelf"));
@@ -20,13 +21,13 @@ export interface EntryPointsProps {
   onToggleImport(): void;
   onNewStory(): void;
   onOpenStudio(): void;
-  onOpenDrawer(): void;
+  onOpenStory(): void;
   /** Turns Author view on for this chat (it confirms first), then opens the drawer. */
   onOpenAuthorView?(): void;
   /** Reveal a settings control that already exists further down this panel. */
   onRevealSetting(id: string): void;
   onFixWithWizard(): void;
-  onRepairCast?(action: OneClickFix): void;
+  onRepairCast?(action: OneClickFix): Promise<string | null> | void;
   onOpenGroup?(): void;
   onOpenPlay?(row: ContinueRow): void;
   onTrophies?(rows: readonly ContinueRow[]): Promise<TrophyRow[]>;
@@ -44,15 +45,18 @@ const Row = ({ title, children }: { title: string; children: React.ReactNode }) 
 );
 
 const RepairAuthorDetail = ({ repair, wizardOn, onFixWithWizard, onRepairCast }: {
-  repair: RepairStep; wizardOn: boolean; onFixWithWizard(): void; onRepairCast?(action: OneClickFix): void;
-}) => (
+  repair: RepairStep; wizardOn: boolean; onFixWithWizard(): void; onRepairCast?(action: OneClickFix): Promise<string | null> | void;
+}) => {
+  const status = useActionStatus();
+  return (
   <>
     <div data-so="repair-detail" className="text-xs opacity-70">{repair.detail}</div>
     {repair.action && onRepairCast && (
       <div className="so-actions">
-        <button type="button" data-so="repair-fix" className="menu_button" onClick={() => onRepairCast(repair.action as OneClickFix)}>{repair.action.label}</button>
+        <button type="button" data-so="repair-fix" className="menu_button" onClick={() => void status.run(() => onRepairCast(repair.action as OneClickFix))}>{repair.action.label}</button>
       </div>
     )}
+    <ActionStatus text={status.text} />
     {repair.provisionable && (
       <div className="so-actions">
         <button
@@ -67,11 +71,12 @@ const RepairAuthorDetail = ({ repair, wizardOn, onFixWithWizard, onRepairCast }:
       </div>
     )}
   </>
-);
+  );
+};
 
 export default function EntryPoints(props: EntryPointsProps) {
   const {
-    snapshot, busy, importOpen, onToggleImport, onNewStory, onOpenStudio, onOpenDrawer, onOpenAuthorView, onRevealSetting, onFixWithWizard, onRepairCast, onOpenGroup, onOpenPlay, gettingStarted,
+    snapshot, busy, importOpen, onToggleImport, onNewStory, onOpenStudio, onOpenStory, onOpenAuthorView, onRevealSetting, onFixWithWizard, onRepairCast, onOpenGroup, onOpenPlay, gettingStarted,
     onStartLiving, onTrophies,
   } = props;
   const plays = snapshot.presence?.continueRows ?? [];
@@ -138,7 +143,7 @@ export default function EntryPoints(props: EntryPointsProps) {
         <div className="so-actions">
           {(!snapshot.storyId || snapshot.ui.authorView) && <button id="so-open-studio" type="button" className="menu_button" disabled={busy} onClick={onOpenStudio}>Open Studio</button>}
           {snapshot.storyId && !snapshot.ui.authorView && (
-            <button id="so-entry-author-view" type="button" className="menu_button" onClick={onOpenAuthorView ?? onOpenDrawer}>Turn on Author view</button>
+            <button id="so-entry-author-view" type="button" className="menu_button" onClick={onOpenAuthorView ?? onOpenStory}>Turn on Author view</button>
           )}
         </div>
         <div className="text-xs opacity-70">Edit the story, cast and what players may see.</div>
