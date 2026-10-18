@@ -9,7 +9,7 @@ Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instruc
 ## Now (running)
 
 - Plan 78 UI audit follow-up: nine approved navigation/feedback/layout fixes, story card, shared busy feedback
-  and batched cast persistence. Full gates and browser checks green; merge/install pending.
+  and batched cast persistence. Built and merged; full gates and browser checks green on `dcf50642`.
   [Scope and gate record](78-ui-audit-followup.md).
 
 The owner-approved no-GPU/no-authoring-model execution pass is [plan 40](40-build-now-no-gpu.md).

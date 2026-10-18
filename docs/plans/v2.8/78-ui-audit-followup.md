@@ -45,4 +45,10 @@ Runtime/UI improvements apply automatically to existing stories. No authored cam
   156 Storybook suites (942 tests), debug/plugin/release checks, all type checks, lint and 32/32 defect replay.
 - Evidence archived privately as `ui-audit-followup-2026-10-18` (106 files, 10,789,063 bytes), then
   `npm run sessions:archive` passed from the main checkout.
-- Final-tree confirmation follows the busy-spinner styling and this gate record; merge/install pending.
+- Final clean-tree confirmation on `dcf50642`: `npm run gates:quick && npm run gates -- --jobs=3`
+  passed; all 11 full steps green in 263.4 s, including all 942 Storybook tests. No skipped gate steps.
+- Merged to `master`. Owner approved local installation; `npm run plugins:install` on the main installation
+  reported every plugin unchanged and `restartNeeded: false`.
+- Phone media placeholders also checked at 390×844: both have a busy status, 358×96 box and no overflow.
+  Final private evidence archive: `ui-audit-followup-final-2026-10-18`, 108 files, 10,807,928 bytes;
+  `npm run sessions:archive` passed.
