@@ -358,7 +358,8 @@ export const SETTING_COPY = {
   "sprites.focus": copy("Dim whoever is not speaking", "Fades the characters who are not talking, so the speaker stands out."),
   "sprites.breathing": copy("Idle breathing", "A slow, small movement so sprites do not look frozen. Turn it off to save a little work on slow machines."),
   "sprites.liveHead": copy("Live close-shot head",
-    "Animates a close shot when this member's look has a rig: breathing, blinks, gaze, body sway, swinging hair locks and small gestures. Falls back to the static sprite. Reduced motion and the story's motion setting stop movement."),
+    "Animates a close shot when this member's look has a rig: breathing, blinks, gaze, body sway, swinging hair locks and small gestures. "
+      + "Falls back to the static sprite. Reduced motion and the story's motion setting stop movement."),
   "sprites.liveHeadFrames": copy("Drawn eyes and mouth on the live head",
     "Uses this look's blink and mouth frames for closed eyes and mouth shapes on a live close shot. Without mouth frames the head moves its own lips only a little."),
   "sprites.blink": copy("Blink", "Uses eyes-closed frames when the sprite pack has them. Reduced motion switches this off."),

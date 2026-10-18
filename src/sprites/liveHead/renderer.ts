@@ -228,18 +228,8 @@ export class HeadRenderer {
     gl.uniform4f(this.uniform("uMouthState"), this.director?.hasMouth() ? 0 : p.mouthOpen, p.mouthForm, rig.mouth.bow, Math.max(8, rig.face.jaw.cy + rig.face.jaw.ry - rig.mouth.cy));
     gl.uniform4fv(this.uniform("uCheeks"), this.cheeks); gl.uniform1f(this.uniform("uCheek"), p.blush);
     gl.activeTexture(gl.TEXTURE0);
-    const seen = this.uploaded;
-    const deformed = seen[0] !== p.breath || seen[1] !== p.angleX || seen[2] !== p.angleY || seen[3] !== p.angleZ
-      || seen[4] !== p.browY || seen[5] !== p.browAngle || seen[6] !== p.mouthOpen || seen[9] !== p.bodyAngleX || seen[10] !== p.bodyAngleZ;
-    const lids = deformed || seen[7] !== p.eyeOpen || seen[8] !== p.eyeSmile;
-    const handMoved = deformed || seen[11] !== p.armAngle || seen[12] !== p.handAngle || seen[13] !== p.fingerTap;
-    seen[0] = p.breath; seen[1] = p.angleX; seen[2] = p.angleY; seen[3] = p.angleZ; seen[4] = p.browY; seen[5] = p.browAngle;
-    seen[6] = p.mouthOpen; seen[7] = p.eyeOpen; seen[8] = p.eyeSmile; seen[9] = p.bodyAngleX; seen[10] = p.bodyAngleZ;
-    seen[11] = p.armAngle; seen[12] = p.handAngle; seen[13] = p.fingerTap;
-    const hair = this.hair;
-    if (hair) hair.step(p, dt / 1000);
-    const hairMoving = hair !== null && (hair.active || this.hairShown);
-    if (hair) this.hairShown = hair.active;
+    const { deformed, lids, hand: handMoved } = this.changes(p);
+    const hair = this.hair, hairMoving = this.stepHair(p, dt);
     for (const resource of this.layers) {
       const { layer, mesh } = resource;
       const part = resource.part, rest = mesh.rest, pos = mesh.pos;
@@ -291,6 +281,29 @@ export class HeadRenderer {
       gl.uniform1f(this.uniform("uAlpha"), alpha);
       gl.drawElements(gl.TRIANGLES, entry.mesh.triangles.length, gl.UNSIGNED_INT, 0);
     }
+  }
+
+  private readonly changed = { deformed: false, lids: false, hand: false };
+
+  private changes(p: HeadParameters): { deformed: boolean; lids: boolean; hand: boolean } {
+    const seen = this.uploaded, out = this.changed;
+    out.deformed = seen[0] !== p.breath || seen[1] !== p.angleX || seen[2] !== p.angleY || seen[3] !== p.angleZ
+      || seen[4] !== p.browY || seen[5] !== p.browAngle || seen[6] !== p.mouthOpen || seen[9] !== p.bodyAngleX || seen[10] !== p.bodyAngleZ;
+    out.lids = out.deformed || seen[7] !== p.eyeOpen || seen[8] !== p.eyeSmile;
+    out.hand = out.deformed || seen[11] !== p.armAngle || seen[12] !== p.handAngle || seen[13] !== p.fingerTap;
+    seen[0] = p.breath; seen[1] = p.angleX; seen[2] = p.angleY; seen[3] = p.angleZ; seen[4] = p.browY; seen[5] = p.browAngle;
+    seen[6] = p.mouthOpen; seen[7] = p.eyeOpen; seen[8] = p.eyeSmile; seen[9] = p.bodyAngleX; seen[10] = p.bodyAngleZ;
+    seen[11] = p.armAngle; seen[12] = p.handAngle; seen[13] = p.fingerTap;
+    return out;
+  }
+
+  private stepHair(p: HeadParameters, dtMs: number): boolean {
+    const hair = this.hair;
+    if (!hair) return false;
+    hair.step(p, dtMs / 1000);
+    const moving = hair.active || this.hairShown;
+    this.hairShown = hair.active;
+    return moving;
   }
 
   private drawHand(p: HeadParameters, moved: boolean): void {
