@@ -1008,3 +1008,49 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
   - Main bundle 1,280,994 B (was 1,280,736; budget 1,300,000).
   - Host RAM was about 11.5 GB free at the start; the suite was not stopped.
 - Live checks: NONE (CPU-only task). Every fix below is unit-proved only; the browser and GPU re-runs are owed.
+
+## Gate record: §5 journey on the 3090, 2026-10-18 (LIST, one candidate run)
+
+- Owner decision 2026-10-18: the 3090 is dedicated to the image plan, so this run went first and the owner played after it.
+- Build: staged master (`dist/` = staged dist, served bundle `bde8c4140dad`, builtAt 2026-10-18T10:22:24Z; the run header names commit `ae510246` before the run and `d6539d20` after, allowed by the served bundle). No stage or plugins:install was run.
+- Lane 33, seeded fresh, `--allow-local --headed`, `image-harness.json` unchanged (Qwen 2.1 int8 + `birefnet_toonout`).
+  - Lane copy only: `image.enabled` set to true, because the owner's install has images off. `image.directorProfileId` pointed at a deleted profile; it now points at the local "Story Orchestrator Memory Unsloth" profile (controller :18888).
+  - Every connection profile in the copy points at the controller. There is no DeepSeek profile. DeepSeek calls: 0.
+- Controller started from `C:\dev\story-orchestrator`, mode balanced, managed broker. `start-comfy` first failed because port 8188 was held by another session's ST lane (`so-live-lanes` 88, port 8100 + 88). The start went through once that lane was stopped. Lanes ≥ 88 in that scheme collide with ComfyUI.
+- Wizard on the default authoring route: opencode `openai/gpt-6.1-sol` was offered and used; no Claude fallback.
+- Card art: the card-art step uploads the showcase avatars, as in the 2026-10-15 deviation.
+- Run 1 (`node scripts/debug/st-lanes.mts run 33 -- scripts/debug/so-p41-journey.mts run 1 --candidate --label c1018`):
+  - Record: `C:\dev\so-lanes\33\debug\p41\2026-10-18T10-58-32-961Z-c1018-real-run1\record.json`.
+  - VERDICT NOT GREEN. Wall time 88.4 min; GPU busy (≥ 50 %) 29.3 min.
+  - Pass:
+    - preflight, wizard (51 s), story, card-art;
+    - base x3 (288/287/271 s), prepare x3, expressions[Ash, Bram], frames[Bram], rig[Ash, Bram];
+    - play (840 s; 10 turns, 18 streamed Artemis replies, visemes sampled on 9 of 10 turns);
+    - look (44 s), look-rebuild (320 s), background (171 s);
+    - swipe, delete, reload, chat-switch, stale, gpu-idle.
+  - look-rebuild passes for the first time, so the 2026-10-16 `publishedLook` stand-in fix works live.
+  - Misses (floors unchanged):
+    1. expressions[Cleo] `angry`: shifted 0,-4 px (limit 3).
+    2. frames[Ash] `neutral/blink`: mask spill, within 12 px mean 41.4/255, 20 % over 48 (limits 20 and 12 %). frames[Cleo] `neutral/talk`: shifted 0,-5 px.
+    3. rig[Cleo]: refused, "bust only, rig not prepared". Landmarks for brows, shoulders, chin and neck were not inside the bust. This is the hatted/bangs bust again (see the 2026-10-15 rig[Cleo] miss), so the plan 36 crop fix did not cover this bust.
+    4. pose: Cleo `sit_floor` stayed on set `default` after the 30-min wait. Ash `sit_chair` (`lp_a3b70b98`) and Bram `sit_edge` (`lp_614c6faf`) were posed.
+    5. illustration: refused after 12.7 s, "The last image could not be made". The step made only GPU-lease calls; the page log shows repeated `POST /gpu/lease` 409s at 12:20:40–56Z, so the lease was held, probably by the stage's pending pose/look render chain. The response bodies were not captured, so the cause is not proven.
+    6. cleanup: "2 owned asset(s) leaked". These were two ComfyUI input references for Ash (`lp_fc70ebf5`, `look_40c7ed06`), deferred because "ComfyUI still has work". A look-base render for Ash (prompt "outfit: long navy coat") was queued at about 12:27:42Z, after the look steps, and was still running when cleanup ran. Once the queue drained (12:28:34Z), `so-assets remove --marker SO-P41` released both, and `assert-clean --marker SO-P41` reported clean. Product finding: a late render chain outlives the journey's chat and holds its references.
+  - Calls: gpu-broker 500, judge 164, artemis 88, comfy 56, sol 29, landmarks 6, deepseek 0. Refusals: 5, three of them on mask-import.
+  - Page capture: 0 page errors; 389 HTTP errors, mostly `/gpu/lease` 409 polling and 3 `sprites/reference-sets` 400s.
+- Run 2: NOT RUN. Run 1 was not clean, so the rule allows no pair.
+- Floors (predeclared 2026-10-14): not met. Six step misses plus the cleanup leak. No floor changed.
+- After the run: the ComfyUI queue is empty, lane 33 is stopped, and the controller is in Automatic with text loaded (fast, 32,768) for the owner's play.
+- GPU minutes this session: about 88 wall, 29 busy. The 3.5 h cap was not approached.
+- Showcase: `C:\dev\so-poc-showcase\journey-2026-10-18.html`, linked from `index.html`. It shows 36 product-made images: card, accepted base set, prepared busts, look bases, directed pose bodies, animation frames, and the screenshots of the steps that missed. The images were copied from the lane during the run, before cleanup. Served by the `poc-showcase` launch config at http://127.0.0.1:8765/journey-2026-10-18.html.
+- Evidence:
+  - `node scripts/debug/so-evidence.mts archive --label p41-2026-10-18 --allow-incomplete` wrote `test/sessions/evidence/phase-c/p41-2026-10-18/`. `--allow-incomplete` was needed because of older unrelated incomplete batch rows on other lanes, for example lane 44 2026-10-14.
+  - The product sprite snapshot and runner log are in `lane-33/p41-product-sprites-run1/`.
+  - Then `npm run sessions:archive`.
+- Gates: docs only, none.
+- Still owed:
+  - a clean journey pair;
+  - the Cleo rig on a hatted bust;
+  - pose starvation for the third member;
+  - the illustration lease contention;
+  - the late look render outliving cleanup.
