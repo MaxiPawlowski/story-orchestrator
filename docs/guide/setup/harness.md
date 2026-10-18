@@ -82,7 +82,7 @@ discarded. Every change still goes through the same checks as a local run, and a
 lorebook or group still waits for you. If a harness you picked is not available, the wizard says so; it does not quietly fall
 back to a local profile. The default route (no model picked) falls back to DeepSeek or the memory model instead.
 
-Details, every config field and the routes: `server-plugin/story-orchestrator-harness/README.md`.
+Details, every config field and the routes: the [harness plugin README](../../../server-plugin/story-orchestrator-harness/README.md).
 
 ---
 

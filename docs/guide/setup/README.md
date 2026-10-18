@@ -12,45 +12,137 @@ The [Setup path](setup-path.md) puts every part in order, level by level.
 | GPU plugin | A local text model and local images sharing one graphics card | [One GPU for text and images](gpu-sharing.md) |
 | Harness plugin | Running tasks through Claude Code, Codex or opencode logins on the server | [Harness](harness.md) |
 
-## The settings panel
-
-Every setting is in **Extensions → Story Orchestrator**, below **Start / Continue / Repair / Author**, in one section
-per area. Each section's **?** opens its page in this guide, and rarely changed settings sit under its **Advanced**
-fold. A section's title says its scope: "this install" settings affect every chat, "this chat" only the open one.
-
-![Sketch of the settings panel: one section per area, each with its ? guide button](../assets/settings-sections.png)
-
-- **Playing**: which story this chat plays, the story bar, notes under messages, the briefing, list marks, pacing.
-- **Memory**: the memory model, its fallback, reply thinking, the memory model test, models per task, chapters, the
-  continuity warden (Author view).
-- **Characters**: several voices per turn.
-- **World**: how story lorebooks switch on, and the lorebook curator (Author view, or before a story is loaded).
-- **Images**: illustrations and the sprite stage.
-- **Judge**: the key, the switch, and what it is used for.
-- **Authoring**: the wizard switch (Author view, or before a story is loaded).
-- **Setup**: **Host capabilities** says which SillyTavern features the extension found, and **Copy for a bug
-  report** copies the whole picture.
-
-Every setting, its default and its key: [Settings reference](settings-reference.md).
-
 ## Install
 
-There is no published release yet. Build from the source: clone the repository anywhere **outside** SillyTavern, then
+This is the one install procedure; other pages link here. There is no published release yet, so you build the
+extension from its source and copy it into SillyTavern.
 
-```bash
-echo <SillyTavern root> > .st-root     # or set ST_ROOT; the build records hashes of SillyTavern's files
+**You need:** a working SillyTavern (1.19.0 is the tested version, see [Tested on](#tested-on)), Git, and Node.js 22
+with the npm that comes with it (tested on Node 22.22 and npm 10.9). Clone the repository anywhere **outside** the
+SillyTavern folder, and run every command from inside the cloned folder.
+
+In **PowerShell** (Windows). The example assumes SillyTavern is in a `SillyTavern` folder in your user folder; replace
+`"$HOME\SillyTavern"` with your own SillyTavern folder (the one that holds `server.js`) if it is elsewhere:
+
+```powershell
+git clone https://github.com/MaxiPawlowski/story-orchestrator
+cd story-orchestrator
+Set-Content -Path .st-root -Value "$HOME\SillyTavern"
 npm ci
 npm run build
 npm run stage
 ```
 
-`dist/` is not in the repository, so the build is not optional. `stage` copies exactly the files a release would ship
-into `<SillyTavern>/public/scripts/extensions/third-party/story-orchestrator` (and refuses a folder that holds a source
-checkout). Reload SillyTavern; the panel appears under **Extensions → Story Orchestrator**. To update, pull, then run
-the last three commands again.
+In **Bash** (Linux, macOS, or Git Bash on Windows). Replace `"$HOME/SillyTavern"` the same way; keep the quotes when
+the path has spaces:
 
-`npm run package` builds a release zip from a clean checkout. Unzip it so its `story-orchestrator/` folder lands in
-SillyTavern's `public/scripts/extensions/third-party/`.
+```bash
+git clone https://github.com/MaxiPawlowski/story-orchestrator
+cd story-orchestrator
+printf '%s' "$HOME/SillyTavern" > .st-root
+npm ci
+npm run build
+npm run stage
+```
+
+What each step does:
+
+- `.st-root` tells the build and the copy step where SillyTavern is; it is never guessed. Setting the `ST_ROOT`
+  environment variable instead works too. The build reads it because it records hashes of the SillyTavern files the
+  extension uses.
+- `npm ci` installs the build tools. `npm run build` writes the extension to `dist/`, which is not in the repository,
+  so the build is not optional.
+- `npm run stage` copies exactly the files a release would ship into
+  `<SillyTavern>/public/scripts/extensions/third-party/story-orchestrator` (and refuses a folder that holds a source
+  checkout).
+
+**It worked when:** after you reload SillyTavern in the browser, **Extensions** has a **Story Orchestrator** block with
+an **Open Story Orchestrator** button. If `stage` refused, its message names what is wrong (usually `.st-root` pointing
+at the wrong folder).
+
+**To update:** `git pull`, then run `npm ci`, `npm run build` and `npm run stage` again, and reload SillyTavern.
+
+`npm run package` builds a release zip from a clean checkout instead. Unzip it so its `story-orchestrator/` folder
+lands in SillyTavern's `public/scripts/extensions/third-party/`.
+
+## Where settings live
+
+Everything is in one window: **Extensions → Story Orchestrator → Open Story Orchestrator**. The route icon in
+SillyTavern's top bar opens the same window at **This story → Play**.
+
+| Half | Page | What is there |
+|---|---|---|
+| **This story** (the open chat) | **Play** | Where you are, setup problems, what the story remembers, Restart story |
+| | **Features** | This chat's changes to each feature |
+| | **Review** | Proposals waiting for you (Author view) |
+| | **Author** | Author view: tracked values, activity, the story's internals |
+| **Orchestrator** (every chat) | **Library** | Start (New story, Import a story), Continue, Repair, Author; the story for this chat |
+| | **Defaults** | Every feature's install default; off here is a master switch |
+| | **Connections** | Memory model and models per task, lorebooks, images, the judge, host capabilities |
+| | **Interface** | The status strip, notes under messages, briefings, list marks, and **This device** |
+| | **Help** | **Take the tour** and **Setup path**, the Ask and wizard switches, and host capabilities |
+
+Each section's **?** opens its page in this guide, and rarely changed settings sit under its **Advanced** fold. The
+guide itself opens with `/story guide`, and Ask with `/story ask <question>`.
+
+![Sketch of a settings page: one section per area, each with its ? guide button](../assets/settings-sections.png)
+
+Settings have four scopes: **install** (every chat), **story** (what the author chose), **chat** (your change for the
+open chat) and **device** (display preferences kept in this browser). How they combine, with an example, and every
+setting with its default: [Settings reference](settings-reference.md#where-settings-live).
+
+**Extensions → Story Orchestrator → Story setup and repair** jumps straight to the first thing that is missing.
+
+## Story lorebooks
+
+A story names the lorebooks it needs. Import them into SillyTavern (**World Info → Import**) and stop there: you do not
+select them globally. Story Orchestrator adds a story's books to the lorebook scan of the chats that play that story,
+and only those chats; a book selected globally reaches every chat, and Repair offers to deselect it.
+
+Inside a story's own books, entries a scene switches on or off rest off in their files, and each chat sees the ones its
+own path through the story has switched on. **Orchestrator → Connections → World → Lorebooks** can switch to file
+writes instead, where entries are switched on and off in the files as the chat moves; leave the default unless the
+setting's help says your host needs it.
+
+The **Lorebook curator** proposes edits to a story's lorebooks as the story moves (only the books the story allows,
+and nothing lands until you accept it in **This story → Review**). It is on by default; switch it off in
+**Orchestrator → Defaults → Lorebook curator** or for one chat in **This story → Features**. How authors set up story
+lore is in the author pages (in the in-app guide they show only in Author view).
+
+## Costs and waiting
+
+What runs while you wait for a reply, and what runs after it.
+
+**Before a reply** (adds to the wait):
+
+- **Speaker direction** with the judge: at most 1.5 seconds, then the usual pick.
+- **Lore selection** with the judge: at most 1.5 seconds, then the usual lore.
+- **Private inner voice**: usually prepared in the background after the previous reply. If the character about to
+  speak has no fresh intent, preparing one can add up to 3 seconds before their reply.
+- **Reply thinking** (llama.cpp only): the reply model thinks before it writes. Medium caps that at 400 tokens.
+- **After you edit the last reply**: your next reply can wait up to 15 seconds while the edit is read (the
+  "catching up after your edit" chip).
+- **One local GPU**: a story read, a summary or a picture on the same card as your reply model competes with the
+  reply. With the [GPU plugin](gpu-sharing.md), a reply asked while a picture renders waits for it.
+
+**After a reply** (you do not wait): story reads, memories and summaries, chapter records, the continuity warden, the
+curator, the judge's after-reply checks, and illustrations.
+
+**Calls, by default:**
+
+| What | How often |
+|---|---|
+| Story read (memory model) | Every 3 character replies. Scene changes, a story's authored cues, a stuck scene being re-checked, and an edit or swipe can each ask for one sooner. Its findings apply after the next reply finishes. |
+| Summaries | Now and then, as memories pile up. |
+| Private inner voice | Up to two calls per turn (one more with **Prepare for: two likeliest**). |
+| Chapter records | A few calls when a chapter ends, for stories with chapters. |
+| Story briefing | One call per new story in a chat, when the story has no briefing of its own. |
+| What could I do? and Ask | Only when you use them. |
+| Wizard | Only while you use it. |
+| Judge | One short call per use that applies, on the judge's provider. |
+
+The read cadence is **Read every … replies** under **Orchestrator → Defaults → Story reading**; lower reacts sooner and
+costs more calls. In a group, one message from you can draw several character replies, and each counts.
 
 ## Server plugins
 
@@ -62,15 +154,15 @@ what the write started from, so the story never overwrites a change another page
 compares with the server just before saving, which narrows that window but cannot close it. SillyTavern's own lorebook
 editor saves without that check, so its save landing in the same instant is detected afterwards, not prevented.
 
-- **From a source checkout**: `npm run plugin:install -- --st-root <SillyTavern>` installs the judge and lore plugins, and
-  `--with gpu,media,harness` adds the others. A plugin already installed is kept in sync. Files are compared by
-  content, never by version, and a local `config.json` is never touched; `--check` lists the files that differ without
-  writing. It warns when `enableServerPlugins` is off.
+- **From a source checkout**: `npm run plugin:install` installs the judge and lore plugins into the SillyTavern folder
+  named in `.st-root` (or pass `-- --st-root <path>`), and `-- --with gpu,media,harness` adds the others. A plugin
+  already installed is kept in sync. Files are compared by content, never by version, and a local `config.json` is
+  never touched; `-- --check` lists the files that differ without writing. It warns when `enableServerPlugins` is off.
 - **From a release zip**: copy each plugin folder you want from `story-orchestrator/server-plugin/<name>/` to
   `<SillyTavern>/plugins/<name>/`.
 
-Install only the plugins you need. The GPU plugin is for one specific machine setup; see
-[Illustrations](images.md).
+Then restart SillyTavern. Install only the plugins you need. The GPU plugin is for one specific machine setup; see
+[One GPU for text and images](gpu-sharing.md).
 
 ## Tested on
 
@@ -83,10 +175,12 @@ The extension is exercised against one host at a time; this is the one it was la
 | SillyTavern (clean install) | 1.19.0, commit `06bde939fb1e9c4c8d8641d810f0a916b5bce127` (`release`, cloned clean): machine gates only, no live play |
 | Declared older host | 1.18.0 (`minimum_client_version`), commit `51ad27fb86d39a3daca3adaa970375c9670c12df`: typecheck, lint, test, build and release tests green; not played through |
 | Browser | Chromium, desktop and a 390×844 phone viewport |
+| Node.js | 22.22 with npm 10.9 |
 
 **Not tested on other SillyTavern versions.** The extension imports SillyTavern modules by path and hashes them at
-build time, so a version whose files differ is one nobody has run it against. **Setup → Host capabilities** reports
-each feature it probes (`macros`, `slashCommands`, `backgrounds`, `vectors`, `judge`) as present, absent or error.
+build time, so a version whose files differ is one nobody has run it against. **Orchestrator → Help → Setup → Host
+capabilities** reports each feature it probes (`macros`, `slashCommands`, `backgrounds`, `vectors`, `judge`) as present,
+absent or error.
 
 ---
 

@@ -2,8 +2,10 @@ import { readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { FEATURES } from "./registry";
 import { SETTING_COPY } from "./settingsCopy";
+import { JUDGE_USE_COPY, JUDGE_USE_KEYS } from "@judge/settings";
 import {
-  FEATURE_TABLE_END, FEATURE_TABLE_START, formatDefault, ownerOf, readmeFeatures, renderFeatureTable, renderSettingsReference, settingRows, spliceFeatureTable,
+  FEATURE_TABLE_END, FEATURE_TABLE_START, formatDefault, JUDGE_TABLE_START, judgeMeasurement, localJudgeMeasurement, ownerOf, readmeFeatures, renderFeatureTable,
+  renderJudgeUseTable, renderSettingsReference, settingRows, spliceFeatureTable, spliceJudgeTable,
 } from "./settingsReference";
 
 const ROOT = resolve(__dirname, "../..");
@@ -43,6 +45,32 @@ describe("v2.7 plan 29 (finding 20): generated settings reference and README fea
     for (const feature of readmeFeatures()) expect([feature.id, table.includes(`| ${feature.name} |`)]).toEqual([feature.id, true]);
     expect(read("README.md")).toContain(FEATURE_TABLE_START);
     expect(read("README.md")).toContain(FEATURE_TABLE_END);
+  });
+
+  it("the judge page's use table is current and lists every use", () => {
+    const page = read("docs/guide/setup/judge.md");
+    expect([STALE, page]).toEqual([STALE, spliceJudgeTable(page)]);
+    expect(page).toContain(JUDGE_TABLE_START);
+    for (const use of JUDGE_USE_KEYS) expect([use, renderJudgeUseTable().includes(`| ${JUDGE_USE_COPY[use].label} |`)]).toEqual([use, true]);
+  });
+
+  it("states measurement from the readiness rows", () => {
+    expect(judgeMeasurement("houseRules")).toMatch(/^Below its floor/);
+    expect(judgeMeasurement("repetitionCheck")).toMatch(/^No judge call/);
+    expect(judgeMeasurement("divergence")).toBe("Not measured");
+    expect(judgeMeasurement("stallCheck")).toMatch(/^Measured: 100%/);
+    expect(localJudgeMeasurement("memoryPairs")).toMatch(/^Measured/);
+    expect(localJudgeMeasurement("director")).toMatch(/^Not measured/);
+  });
+
+  it("names current workspace locations, scopes and effective defaults", () => {
+    const rows = settingRows();
+    expect(rows.filter((row) => /^(Settings|Story drawer)/.test(row.where)).map((row) => row.key)).toEqual([]);
+    const row = (key: string) => rows.find((entry) => entry.key === key);
+    expect(row("talk.enabled")).toMatchObject({ scope: "Install, story, chat", where: expect.stringContaining("Orchestrator → Defaults → Speaker direction") });
+    expect(row("display.hudEnabled")?.scope).toBe("Install, device");
+    expect(row("sprites.enabled")?.defaultText).toMatch(/^Automatic/);
+    expect(row("extraction.profileId")?.where).toMatch(/^Orchestrator → Connections/);
   });
 
   it("formats defaults in plain words", () => {
