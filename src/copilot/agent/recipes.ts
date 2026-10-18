@@ -180,7 +180,7 @@ export const RECIPES = {
     diagnostics: ["requirement-member-roster-id", "cast-member-no-card", "talk-member-unknown", "roster-member-is-player"],
     traps: [
       { topic: "requirements", cue: "roster ids instead of card names", text: "requirements name cards, never roster ids" },
-      { topic: "opening-scene", cue: "Every member greeted at once in a fresh group", text: "every card with a first message greets at once: only characters present at the start get one" },
+      { topic: "opening-scene", cue: "Every member greets at once in a fresh group", text: "every card with a first message greets at once: only characters present at the start get one" },
       { topic: "talk-control", cue: "A `lead` left out of `speakers`", text: "list the lead in speakers" },
     ],
   },
