@@ -372,7 +372,7 @@ real-model carrier, or why none is needed.
 | story-briefing | RP | 16-05 | GS1.1 |
 | briefing-draft | CL | v28-10-briefing-draft (S) | GS1.1; 30-draft floors (informational) |
 | player-setup | RP | 34-L-* | GS1.1, GS1.8 |
-| live-head | LI | plan 36 A1 rows ×2, liveHead jest | N3 (LI2, LI5 campaign rigs); LI1 laptop deferred |
+| live-head | LI | plan 36 A1 rows ×2, plan 74 LM1–LM8, liveHead jest (motionDriver, hair, motionRig) | N3 (LI2, LI5 campaign rigs); LI1/LM1 laptop deferred |
 | prepared-presentation | LI | plan 41 D slice: visualPreparation jest | N3 |
 | reference-pack | LI | referenceViews jest | N3 (image track, rule 12) |
 | changed-look-rebuild | LI | plan 41 D slice: lookRebuild jest | N3 |

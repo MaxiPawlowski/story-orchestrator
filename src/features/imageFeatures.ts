@@ -5,9 +5,9 @@ import { authorGuideDoc } from "./guideLinks";
 export const IMAGE_FEATURES: readonly Feature[] = [
   {
     id: "live-head", name: "Live close-shot head", area: "images", audience: "setup",
-    oneLine: "A rigged close shot breathes, blinks and talks as a reply streams.",
+    oneLine: "A rigged close shot breathes, blinks, sways, gestures and talks as a reply streams.",
     what: "Import a rig for a member's look in Author view. Close shots animate in the page; missing rigs keep the static sprite. Reduced motion stops movement. "
-      + "When the look has blink and talk frames, the head swaps in those drawn closed eyes and open mouths.",
+      + "When the look has blink and talk frames, the head swaps in those drawn closed eyes and open mouths. Hair locks traced in the rig swing as it moves.",
     where: settingsAt("#so-live-head-enabled", "Images › Sprite stage › Live close-shot head"),
     settings: [], doc: "setup/sprites.md", status: "experimental", needs: ["sprite-pack"],
     isOn: (settings) => settings.sprites.liveHead,
