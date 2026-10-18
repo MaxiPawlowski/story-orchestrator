@@ -35,7 +35,7 @@ describe("T4-3: a chat whose story left the library still says what it plays", (
       copilot: { enabled: true },
     } as unknown as RuntimeSnapshot;
     const noop = () => undefined;
-    const page = renderToStaticMarkup(createElement(EntryPoints, { snapshot, busy: false, importOpen: false, onToggleImport: noop, onNewStory: noop, onOpenStudio: noop, onOpenDrawer: noop, onRevealSetting: noop, onFixWithWizard: noop }));
+    const page = renderToStaticMarkup(createElement(EntryPoints, { snapshot, busy: false, importOpen: false, onToggleImport: noop, onNewStory: noop, onOpenStudio: noop, onOpenStory: noop, onRevealSetting: noop, onFixWithWizard: noop }));
     expect(page).toContain("Adolion Between the Roads");
     expect(page).not.toContain("No story is playing in this chat yet.");
   });
