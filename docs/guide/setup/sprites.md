@@ -121,8 +121,13 @@ cached generated files stay available. A new chat starts from the card as it was
 
 **Live close-shot head** is on by default. With an imported rig for the member's current look,
 a close shot adds small head turns, gaze, blinking, breathing and mouth movement while the reply
-streams. Other shots use the usual sprites. Missing or failed rigs keep the static sprite;
-reduced motion and the story's motion switch stop movement.
+streams. The body sways a little, loose hair locks the rig traces swing on springs, and small
+gestures play: a reaction when the expression changes (a nod for joy, a giggle, a start of surprise,
+a sigh, a head shake, a shy turn, a curious tilt), small nods while talking, an attentive look and an
+occasional nod while another member talks, and now and then an idle motion (looking around, a
+stretch, a sigh) on a schedule fixed per character. A rig without hair locks keeps its hair still.
+Other shots use the usual sprites. Missing or failed rigs keep the static sprite;
+reduced motion and the story's motion switch stop all of this movement.
 
 **Drawn eyes and mouth on the live head** is on by default. When the look's neutral expression has
 blink and mouth frames (the same `neutral.blink.png`, `neutral.talk.png`, `neutral.talk2.png`,
