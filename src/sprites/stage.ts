@@ -41,8 +41,7 @@ export class SpriteStage {
   readonly activity = new StreamActivity();
   readonly expressionCalls = new ExpressionCallRing();
   private actors: Actor[] = [];
-  private speaking: string | null = null;
-  private standing: string | null = null;
+  private speaking: string | null = null; private standing: string | null = null;
   private talker: string | null = null;
   private stream: Stream | null = null;
   private listeners = new Set<() => void>();
@@ -386,13 +385,7 @@ export class SpriteStage {
 
   private spotlight(speaker: string | null): void {
     this.speaking = speaker && this.actor(speaker) ? speaker : null;
-    if (this.speaking) this.standing = this.speaking;
-  }
-
-  private idle(speaker: string): void {
-    if (this.speaking !== speaker) return;
-    this.speaking = null;
-    this.notify();
+    this.standing = this.speaking ?? this.standing;
   }
 
   replay(): void {
@@ -412,7 +405,7 @@ export class SpriteStage {
     this.chooseSets();
     for (const actor of this.actors) this.setFace(actor.name, this.directedFace(actor, direction));
     const seen = new Set<string>();
-    let standing: string | null = null;
+    this.standing = null;
     for (let id = spriteChatLength() - 1; id >= 0 && seen.size < this.actors.length; id -= 1) {
       const message = spriteMessage(id);
       if (!message || message.isUser || message.isSystem) continue;
@@ -422,10 +415,9 @@ export class SpriteStage {
         seen.add(who);
         this.setFace(who, read.face);
       }
-      standing ??= this.actor(message.name) ? message.name : null;
+      this.standing ??= this.actor(message.name) ? message.name : null;
       if (this.actor(message.name)) seen.add(message.name);
     }
-    this.standing = standing;
     this.spotlight(this.stream && !this.stream.final ? this.stream.speaker : null);
     this.notify();
   }
@@ -555,7 +547,10 @@ export class SpriteStage {
       this.playback.push(setTimeout(() => this.apply(read, speaker), at));
       at += Math.min(6000, Math.max(1200, (segments[index]?.text.length ?? 0) * 30));
     });
-    if (this.playback.length) this.playback.push(setTimeout(() => { this.playback = []; this.idle(speaker); }, at));
+    if (this.playback.length) this.playback.push(setTimeout(() => {
+      this.playback = [];
+      if (this.speaking === speaker) { this.speaking = null; this.notify(); }
+    }, at));
   }
 
   private stopPlayback(): void {
