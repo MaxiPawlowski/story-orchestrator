@@ -11,6 +11,7 @@ export const HELP_COPY = {
   showMe: "Show me",
   readMore: "Read more",
   tour: "Take the tour",
+  openPanel: "Help and Ask",
   where: "Where",
   guideHeading: "Author's guide",
   guideIntro: "Every topic of the story guide. The Studio shows the topics for each tab; all of them are here.",

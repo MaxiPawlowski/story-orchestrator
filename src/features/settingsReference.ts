@@ -87,8 +87,6 @@ const trail = (...parts: string[]) => parts.filter(Boolean).join(" → ");
 const DEVICE_LOCATION = trail("Orchestrator", "Interface", "This device");
 
 const LOCATION_OVERRIDES: Record<string, string> = {
-  "display.yourMove": trail("Orchestrator", "Interface", "Your move"),
-  "memory.chapters.chronicleTokens": "No control in the window yet: the default applies",
   "sprites.renderPreset": trail("Studio", "Sprite builder"),
 };
 
@@ -113,7 +111,8 @@ const ownerLocation = (owner: Feature | null): string => {
 
 export const locationOf = (key: string, owner: Feature | null): string => {
   const feature = featureControlFor(key);
-  const base = LOCATION_OVERRIDES[key] ?? (feature ? `${trail("Orchestrator", "Defaults", FEATURE_CONTROLS[feature].name)}; this chat: ${trail("This story", "Features", FEATURE_CONTROLS[feature].name)}`
+  const name = feature ? FEATURE_CONTROLS[feature].name : "";
+  const base = LOCATION_OVERRIDES[key] ?? (feature ? `${trail("Orchestrator", "Defaults", name)}; this chat: ${trail("This story", "Features", name)}`
     : key.startsWith("display.") ? trail("Orchestrator", "Interface", owner?.where.label.split(" › ").pop() ?? "")
       : ownerLocation(owner));
   return isDeviceSetting(key) ? `${base}; this device: ${DEVICE_LOCATION}` : base;
@@ -254,7 +253,8 @@ export const renderJudgeUseTable = (): string => [
   "|---|---|---|---|---|---|---|",
   ...JUDGE_USE_KEYS.map((use) => {
     const copy = JUDGE_USE_COPY[use];
-    return `| ${cell(copy.label)} | ${cell(copy.description)} | ${cell(copy.sends)} | ${AUTHOR_JUDGE_USES.includes(use) ? "Author view" : "Everyone"} | ${cell(needsOf(use))} | ${judgeMeasurement(use)} | ${localJudgeMeasurement(use)} |`;
+    const audience = AUTHOR_JUDGE_USES.includes(use) ? "Author view" : "Everyone";
+    return `| ${cell(copy.label)} | ${cell(copy.description)} | ${cell(copy.sends)} | ${audience} | ${cell(needsOf(use))} | ${judgeMeasurement(use)} | ${localJudgeMeasurement(use)} |`;
   }),
 ].join("\n");
 

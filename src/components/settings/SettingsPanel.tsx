@@ -12,7 +12,7 @@ import { guideUrl } from "@features/guideLinks";
 import type { FeatureArea, FeatureWhere } from "@features/registry";
 import { requestGuide } from "@guide/request";
 import { requestTour } from "@guide/tour/request";
-import { HELP_COPY } from "@features/helpCopy";
+import { GUIDE_COPY, HELP_COPY } from "@features/helpCopy";
 import { TOUR_COPY } from "@features/tourCopy";
 import type { ContinueRow } from "@runtime/playsIndex";
 import { HelpButton } from "../help/HelpButton";
@@ -33,6 +33,7 @@ const JudgeSettingsGroup = lazyRetry(() => import("./JudgeSettingsGroup"));
 const HelpHost = lazyRetry(() => import("../help/HelpHost"));
 const MemoryModelGroup = lazyRetry(() => import("./MemoryModelGroup").then((module) => ({ default: module.MemoryModelGroup })));
 const ChapterGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.ChapterGroup })));
+const ChapterBudgetGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.ChapterBudgetGroup })));
 const DisplayGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.DisplayGroup })));
 const InnerVoiceGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.InnerVoiceGroup })));
 const LorebooksGroup = lazyRetry(() => import("./PlayGroups").then((module) => ({ default: module.LorebooksGroup })));
@@ -63,6 +64,7 @@ export interface SettingsHost {
   openPlay?: (row: ContinueRow) => void;
   helpOpen?: boolean;
   toggleHelp?: () => void;
+  openPanel?: (panel: "help" | "guide") => void;
   openGuide?: (doc: string) => void;
 }
 
@@ -205,6 +207,8 @@ const SettingsPanel = ({ snapshot, manager, host, workspaceSection }: SettingsPa
           {workspaceSection === "help" && <div className="flex flex-wrap items-center gap-2">
             <button type="button" id="so-help-tour" data-so="help-tour" className="menu_button" onClick={() => requestTour()}>{HELP_COPY.tour}</button>
             <button type="button" id="so-help-tour-setup" data-so="help-tour-setup" className="menu_button" onClick={() => requestTour("setup")}>{TOUR_COPY.setup}</button>
+            {host.openPanel && <button type="button" id="so-help-open-panel" data-so="help-open-panel" className="menu_button" onClick={() => host.openPanel?.("help")}>{HELP_COPY.openPanel}</button>}
+            {host.openPanel && <button type="button" id="so-help-open-guide" data-so="help-open-guide" className="menu_button" onClick={() => host.openPanel?.("guide")}>{GUIDE_COPY.open}</button>}
           </div>}
           {workspaceSection === "interface" && <Lazy fallback={null}><DisplayGroup snapshot={snapshot} manager={manager} /></Lazy>}
           {show("play") && <SettingsArea {...area("play")} advanced={<Lazy fallback={null}><TransitionNoteRow snapshot={snapshot} manager={manager} /></Lazy>}>
@@ -222,6 +226,7 @@ const SettingsPanel = ({ snapshot, manager, host, workspaceSection }: SettingsPa
             <p className="text-xs opacity-80">Connection Manager owns the actual model profiles. Choose which profiles this extension uses here; changes affect every chat.</p>
             <Lazy fallback={null}><MemoryModelGroup snapshot={snapshot} manager={manager} connectionsOnly={workspaceSection === "connections"} /></Lazy>
             {!workspaceSection && <Lazy fallback={null}><ChapterGroup snapshot={snapshot} manager={manager} /></Lazy>}
+            {workspaceSection === "connections" && <Lazy fallback={null}><ChapterBudgetGroup snapshot={snapshot} manager={manager} /></Lazy>}
             {!workspaceSection && <Lazy fallback={null}><WardenGroup snapshot={snapshot} manager={manager} /></Lazy>}
           </SettingsArea>}
           {show("characters") && <SettingsArea {...area("characters")}>

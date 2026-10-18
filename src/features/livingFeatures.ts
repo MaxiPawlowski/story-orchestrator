@@ -1,5 +1,6 @@
 import type { Feature } from "./registry";
 import { authorGuideDoc } from "./guideLinks";
+import { drawerAt } from "./where";
 
 export const LIVING_FEATURES: readonly Feature[] = [
   {
@@ -30,7 +31,7 @@ export const LIVING_FEATURES: readonly Feature[] = [
       + "or an obstacle changes) or interrupt (a world event advances an open thread first). The odds rise with the story's smoothed tension. The draw is keyed by "
       + "the chat, the story and the turning point, frozen when first planned, never re-rolled by Write it again, and taken back only by a swipe past it. "
       + "It changes what the world does, never what the player does, and only the author sees it.",
-    where: { selector: "#so-living-scene-tests", label: "Story drawer › Author view › Living story", surface: "drawer" },
+    where: drawerAt("#so-living-scene-tests", "Living story"),
     settings: [], guideTopic: "scene-test", doc: authorGuideDoc("scene-test"), status: "experimental",
     needs: ["story", "group-chat", "memory-profile"],
   },
@@ -39,7 +40,7 @@ export const LIVING_FEATURES: readonly Feature[] = [
     oneLine: "Keep a living story's run as a story you can play again or edit.",
     what: "The drawer's Overview offers to save what you played as a new story in your library. Only the turning points you reached are kept; what the story had written "
       + "ahead of you is left out, so the saved copy never spoils a later play.",
-    where: { selector: "#so-living-save", label: "Story drawer › Overview", surface: "drawer" },
+    where: drawerAt("#so-living-save", "Overview"),
     settings: [], guideTopic: "living-director", doc: authorGuideDoc("living-director"), status: "experimental", needs: ["story"],
   },
 ];

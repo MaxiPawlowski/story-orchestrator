@@ -33,7 +33,7 @@ export default function ImageChatPanel({ manager, snapshot }: { manager: Runtime
         Pause automatic images in this chat
       </label>
       <HelpTooltip title="Only this chat is paused. You can still request an image manually; other chats keep their own preference."
-        href="/scripts/extensions/third-party/story-orchestrator/README.md#illustrations-and-scope" reference="Image preferences" />
+        href="/scripts/extensions/third-party/story-orchestrator/README.md#illustrations" reference="Image preferences" />
     </div>
     <details className="text-xs"><summary className="cursor-pointer">Chat image preferences</summary>
       <div className="flex flex-col gap-2 pt-2">
