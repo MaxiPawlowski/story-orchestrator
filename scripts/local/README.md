@@ -73,6 +73,71 @@ SillyTavern and delay the player's own line by seconds (v2.8 31 F19).
 state. Timings are invalidated when model/binary identity, loading mode or profiles change. JSON and streaming replies
 are forwarded unchanged; only numerical timings are retained.
 
+## Performance modes
+
+Three presets switch a few controller settings at once. Each is a patch over keys the controller already reads; the
+presets live in `config.json` under `modes` (edit them there) and the selected one under `mode`. A config without
+`modes` behaves exactly as before: Balanced is captured from the current values the first time a mode is saved.
+
+| Setting | Max (only playing) | Balanced (as before) | Safe (using the PC too) | Applies |
+|---|---|---|---|---|
+| `reserves.gpuMiB` | 1536 | 2048 | 3072 | now for images and admission; the text layout at its next load |
+| `reserves.ramMiB` | 3072 | 4096 | 6144 | now |
+| `streamImages.enabled` | on | on | off | now (next image) |
+| `streamImages.minFreeGpuMiB` | 2400 | 2400 | 2400 | now |
+| `idleRestoreMs` | 180000 | 600000 | 600000 | now |
+| `keepTextResident` | on | on | on | now |
+| `fitMarginMiB` | 512 | 512 | 512 | next text load |
+| `imageCacheMode` | warm | warm | evict | now (next image release) |
+
+Why these numbers (records: `docs/plans/v2.7/22-local-residency.md`, `22b-residency-harvest-2026-10-07.md`):
+
+- GPU reserve. The desktop holds about 0.8 GiB; full `fast` text leaves about 2.7 GiB free at a 2048 + 512 fit target,
+  all layers on the GPU. Max 1536 (fit target 2048, measured `--fit` undershoot ≤ 0.25 GiB still clears it) does not
+  speed text up; it lets swapped images and the reload after an image clear admission more often (plan 22 saw four
+  post-image reserve refusals). Safe 3072 leaves about 1 GiB more for other apps, so llama-server fits about 0.9 GiB of
+  layers on the CPU at its next load: at the measured ≈38 ms per GB per token CPU-layer cost (22b row 5: 2.2 GB on the
+  CPU gave 9.3 tok/s), expect roughly 15-18 tok/s instead of 31. That estimate is not measured yet.
+- RAM reserve. Runs saw 9.1-17.7 GiB available on this 32 GiB host and never crossed 4096. Max 3072 admits an SDXL
+  stream (≈8 GiB staging) about 1 GiB earlier; Safe 6144 makes images and text reloads wait rather than squeeze other
+  apps (a text reload then needs about 9-10 GiB available).
+- Streaming. Measured image→reply 23-30 s warm with text resident vs 53-144 s swapping, but free VRAM falls to
+  279-520 MiB during every stream: fine when only playing, the overcommit risk when other apps use the GPU, so Safe
+  turns it off. `minFreeGpuMiB` stays 2400 everywhere: a stream consumed ≈2.2-2.4 GiB of the free VRAM it started with,
+  so a lower start would leave nothing.
+- Idle restore. Shed text runs 3.3-3.9 tok/s and a full reload takes 21-22 s, so one 256-token reply on shed text
+  (≈66-78 s) already costs more than restoring; Max restores after 3 idle minutes. With streaming on, SDXL images do not
+  shed at all, so this mostly matters for hires/LoRA/edit work.
+- Fit margin stays 512 in every mode: without it `--fit` left 1.8-2.0 GiB against the 2 GiB reserve.
+- Image cache. Warm renders took 19-21 s vs 31-41 s cold; Safe evicts to return that RAM after each image.
+- Left out on purpose: `defaultProfile`/`maxContext` (SillyTavern's preset is 32768 and the 98k profile does not fit
+  beside a stream; not measured), `modelLoadMode` (`mmap` violated the physical-RAM floor), ComfyUI `--cache-ram` (fixed
+  in `controller.mjs`, applies only at a ComfyUI start, unmeasured).
+
+Use:
+
+```
+node scripts/local/cli.mjs mode                 # saved and running mode, effective values
+node scripts/local/cli.mjs mode max|balanced|safe
+node scripts/local/cli.mjs mode-probe           # one line for the tray; exit 255 = controller down, 2 = waiting
+```
+
+Every save goes through the same path: validate (each setting has bounds, `cli` and the page refuse anything else),
+back up `config.json` to `C:/dev/backups/story-orchestrator/local-config-<time>/` (`SO_LOCAL_BACKUP_ROOT` overrides),
+then write a temporary file and rename it over the config. With the controller running, the controller does the save
+and applies the values to its live config between jobs: never during a running reply, image lease or restore (the
+change waits and `/status` → `performance.pending` says so). Settings marked "next text load" are saved and used the
+next time text loads (after an image, an idle restore, Load text); the loaded model is never restarted for them, and
+`performance.atNextTextLoad` lists them until then. A controller started before this change answers `/ui` with 404;
+`cli mode` then saves the file and says it applies at the next controller start. With the controller stopped, `cli`
+saves directly.
+
+**Settings page**: `http://127.0.0.1:18888/ui` (served by the controller, loopback only, no external files). It shows
+live GPU/RAM free, the mode picker, and each setting with a one-line trade-off; edits save as `custom`, through the same
+backed-up path. Changes need a same-origin request with the `x-so-local-ui: 1` header and a JSON body, and the page
+answers only to a `127.0.0.1`/`localhost` Host, so another web page (or a DNS-rebound name) cannot change settings.
+`/status` reports `performance: { mode, effective, pending, atNextTextLoad }`.
+
 ## Measurements
 
 ```
