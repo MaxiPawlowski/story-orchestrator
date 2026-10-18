@@ -21,25 +21,25 @@ extension from its source and copy it into SillyTavern.
 with the npm that comes with it (tested on Node 22.22 and npm 10.9). Clone the repository anywhere **outside** the
 SillyTavern folder, and run every command from inside the cloned folder.
 
-In **PowerShell** (Windows). Replace `C:\path\to\SillyTavern` with your own SillyTavern folder, the one that holds
-`server.js`:
+In **PowerShell** (Windows). The example assumes SillyTavern is in a `SillyTavern` folder in your user folder; replace
+`"$HOME\SillyTavern"` with your own SillyTavern folder (the one that holds `server.js`) if it is elsewhere:
 
 ```powershell
 git clone https://github.com/MaxiPawlowski/story-orchestrator
 cd story-orchestrator
-Set-Content -Path .st-root -Value 'C:\path\to\SillyTavern'
+Set-Content -Path .st-root -Value "$HOME\SillyTavern"
 npm ci
 npm run build
 npm run stage
 ```
 
-In **Bash** (Linux, macOS, or Git Bash on Windows). Replace `/path/to/SillyTavern` the same way; keep the quotes when
+In **Bash** (Linux, macOS, or Git Bash on Windows). Replace `"$HOME/SillyTavern"` the same way; keep the quotes when
 the path has spaces:
 
 ```bash
 git clone https://github.com/MaxiPawlowski/story-orchestrator
 cd story-orchestrator
-printf '%s' '/path/to/SillyTavern' > .st-root
+printf '%s' "$HOME/SillyTavern" > .st-root
 npm ci
 npm run build
 npm run stage
