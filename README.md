@@ -72,7 +72,7 @@ All five are optional. `npm run plugin:install` installs judge and lore (add `--
 set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart SillyTavern:
 [Server plugins](https://maxipawlowski.github.io/story-orchestrator/setup/index.html#so-guide-h-server-plugins).
 
-### Illustrations
+### Illustrations and scope
 
 Images are optional. By default they use whatever image source SillyTavern's own Image Generation extension has set up
 (**Orchestrator → Connections → Images → Image service**); an image-prompt profile is optional, and a template works
