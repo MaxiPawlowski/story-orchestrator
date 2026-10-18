@@ -25,6 +25,7 @@ import { publishSpriteStageHealth, type SpriteStageIssue } from "@runtime/sprite
 import { changedLookIssues } from "./lookHealth";
 import { applyLookResult } from "./lookApply";
 import { storedReadRecord, storedReads, type StoredRead } from "./storedReads";
+import { passageRead, passageTarget } from "./passageClick";
 import { castInventory, loadCast, SpriteListCache, type Actor } from "./castLoad";
 import { stagePackIssues } from "./stageHealth";
 import { ExpressionCallRing, expressionDeps, type ExpressionCallTrace } from "./expressionCalls";
@@ -559,16 +560,10 @@ export class SpriteStage {
   }
 
   private clicked(event: MouseEvent): void {
-    const target = event.target instanceof Element ? event.target : null;
-    const text = target?.closest(".mes_text");
+    const target = passageTarget(event);
     const row = target?.closest(".mes");
-    if (!text || !row || !this.actors.length) return;
-    const message = spriteMessage(Number(row.getAttribute("mesid")));
-    if (!message) return;
-    const clicked = (target?.closest("p, q, em, i, span") ?? target)?.textContent?.trim() ?? "";
-    const reads = readsOf(message);
-    const probe = clicked.replace(/["*]/g, "").slice(0, 24);
-    const hit = probe ? reads.find((read) => read.at.replace(/["*]/g, "").includes(probe) || probe.includes(read.at.replace(/["*]/g, "").slice(0, 24))) : undefined;
-    if (hit) this.play([hit], [{ start: 0, end: hit.at.length, text: hit.at }], message.name);
+    const message = target && row && this.actors.length ? spriteMessage(Number(row.getAttribute("mesid"))) : null;
+    const hit = target && message ? passageRead(target, readsOf(message)) : undefined;
+    if (hit && message) this.play([hit], [{ start: 0, end: hit.at.length, text: hit.at }], message.name);
   }
 }
