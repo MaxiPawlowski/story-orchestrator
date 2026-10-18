@@ -155,4 +155,6 @@ Gates:
 - `npm run gates -- --jobs=1 --no-storybook` run 4, after merging master `5475068d`: **all green in 470.9 s**: jest 9,741 passed (1 skipped), replay 32/32, every other step ok. Main bundle in the worktree 1,286,169 B (budget 1,300,000).
 - Storybook (static build from `git archive HEAD` at `5876e727`, own port 6389, `--maxWorkers 1`): **158 suites / 959 tests passed**, including `Sprites/LiveHeadMotion` and `Sprites/LiveHeadAuthor`.
 
+- Final, after merging local master `27ababfc` (tour redesign): `npm run gates -- --jobs=1 --no-storybook` **all green in 349.7 s** (jest 9,743 passed, 1 skipped; replay 32/32; every step ok); Storybook static build from `git archive HEAD` on port 6389, `--maxWorkers 1`: **154 suites / 932 tests passed**. Worktree main bundle 1,286,600 B (budget 1,300,000).
+
 Owed: LI1/LM1 re-run on an idle GPU (coordinator) and the laptop; a real hidden tab (headed); a real streamed reply through the talking driver; step 2 trial.
