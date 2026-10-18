@@ -2,7 +2,7 @@
 
 Owner decision 2026-10-18, after reviewing how characters are shown: characters on stage feel mostly still.
 Step 1 brings the rest of mesh-avatar-studio into the live head (plan 36). Step 2 is a trial for full-body
-pose sprites, written down here and **not built**. Branch `v2.8-live-head-motion`.
+pose sprites, run 2026-10-18 as a trial (branch `v2.8-live-body-trial`): **NO-GO**, code dormant. Step 1 branch `v2.8-live-head-motion`.
 
 ## Context: what plan 36 took and skipped
 
@@ -111,6 +111,55 @@ fixed parameters, judged by Sol contact sheets (at most 3 rounds), never the own
 - **Go/no-go.** Go only when all four floors pass on the trial set; a miss on any is no-go, recorded, not retuned.
   A no-go keeps the static pose sprites with plan 19 B+P and parks full-body rigs with v2.9 §05.1.
 
+## Step 2 trial: protocol (written 2026-10-18 before any code or Sol call; branch `v2.8-live-body-trial`)
+
+Owner decision 2026-10-18: run step 2 as a trial. Existing pose sprites only (no image generation, ComfyUI or GPU),
+Sol through the opencode harness path (cap 60 calls, counted), not wired into the stage unless the go/no-go passes.
+
+Trial set (synthetic, never campaign art), 3 characters x 3 poses = 9 rigs:
+
+- Wren: standing (`SO-Show Wren/neutral.png`), wave (`looks/wren-wave.neutral.png`), sitting (the same design from the
+  plan 41 journey, lane 33 `SO-P41 Ash/lp_a188e2b7/neutral.png`);
+- Garrick: standing, arms crossed (`looks/garrick-arms-crossed.neutral.png`), sitting (`SO-P41 Bram/lp_f1220898`);
+- Pim: standing, attention (`looks/pim-attention.neutral.png`), sitting on the floor (`SO-P41 Cleo/lp_b262aeb0`).
+
+Design (trial):
+
+- A body rig is its own manifest kind (`kind: "body"`, identity member, look, pose, art sha256, source), never a head
+  `Rig`; bust rigs, their validator and goldens are untouched.
+- Landmarks by Sol, one answer per pose: head oval, optional eye centres, neck, shoulders, chest, waist, hips,
+  pose, up to two arms (shoulder, elbow, wrist, outline, state `free` | `resting` | `holding`) and up to 10 hair locks.
+  Required core invalid = rig refused; an invalid optional group (an arm, a lock, eye centres) is dropped with a note.
+- Base layer: torso sways (shift and roll about the hip centre, fading out between waist and hips so legs, seat and
+  feet stay put), breathes (shoulders and chest), head tilts/nods about the neck, hair springs (step 1 physics).
+  `free` arms are cut into their own layer (two bones: shoulder, elbow) with the hole filled where the body
+  continues behind the arm; `resting` arms stay in the base, shoulder end follows the torso, hand end stays put;
+  `holding` arms move with the torso. Arms keep hanging (counter-rotate against torso roll, spring lag) and take
+  `armAngle` (upper arm) and `handAngle` (forearm). One canvas and context per actor (N contexts).
+
+Definitions, fixed now:
+
+- **Valid rig from the first answer**: the first Sol landmark answer for that pose parses, its required core
+  validates, and synthesis, layer cut and manifest load succeed. Dropped optional groups are recorded, not counted as
+  failures.
+- **Review extremes** (fixed parameters): rest beside the source image, breath 1, sway +-10 (`bodyAngleX` and
+  `bodyAngleZ`), upper arms +-10, forearms +-10, hair held at +-x and +-y, head tilt +-30, and the two combined
+  extremes (sway, arms, forearms and hair all at -10/-x, then +10/+x).
+- **Sol review** per rig on JPEG sheets, floors: arms attached (hands never detached from forearms, arms never from
+  shoulders), no tearing at arm, sway or hair extremes, no inpaint smear visible at rest, strands on hair, bottom edge
+  planted. Pass = every floor passes. At most 3 rounds; between rounds Sol may correct the landmarks it placed.
+- **Accepted rig** = passed Sol review by round 3.
+- **Tears** on an accepted rig: any tear Sol reports at an extreme, plus any inverted triangle in any layer mesh at any
+  review extreme (deterministic count).
+- **CPU frame cost**: `frame-bench.mjs --body <N>`, no-op GL, N renderers each on its own canvas with its trial rig
+  (Wren standing, Garrick standing, Pim standing, repeated), head driver + motion driver per actor, 3,000 warm then
+  20,000 frames; mean ms per frame for all N actors together. N = 1, 3, 5.
+- **Frame interval**: informational only (coordinator 2026-10-18: the 3090 is busy); any sample is recorded with the
+  WebGL renderer string and GPU condition and is not scored.
+
+Measures and rule, as predeclared above (not retuned): rig success >= 80 % (>= 8 of 9); Sol review pass by round 3
+>= 80 % (>= 8 of 9); CPU <= 2 ms per frame at N = 3; 0 tears on accepted rigs. Go only when all four pass.
+
 ## Parked (v2.9)
 
 - Layered rig / option D: v2.9 `05-deferred-items.md` §05.1, owner re-parked 2026-10-18.
@@ -171,3 +220,92 @@ Gates:
 - Logs: `scratchpad/livehead/idle-*.log` (session scratch). Records: `C:\dev\so-live-lanes\debuguns\live-head-{cand1-t2,cand2-t1,base1-t1,base2-t2,hidden-t1}ecord.json`. Lane 30 was stopped afterwards and `st-live` restaged with the candidate.
 
 Owed: LM1 stays failed on this desktop (candidate and baseline alike); the laptop run; a real streamed reply through the talking driver; step 2 trial.
+
+## Gate record (step 2 trial, 2026-10-18, branch `v2.8-live-body-trial`, LIST)
+
+Verdict: **NO-GO** under the predeclared rule (one floor missed: Sol review pass rate). Full-body rigs are parked with
+v2.9 §05.1; the stage keeps the static pose sprites with plan 19 B+P. The body rig code stays in the repo **dormant,
+trial-only**: nothing imports it from the product (no stage, settings or author UI wiring), so it is in no bundle chunk.
+
+- Protocol committed (`6782e4f3`) before any code or Sol call. No floor retuned. No GPU, ComfyUI, image generation,
+  local model, controller, owner ST (port 8000), lane 0 or download. Reviews rendered on SwiftShader (CPU).
+- Trial set: Wren, Garrick, Pim (synthetic showcase cast), 3 poses each = 9 rigs: standing, one gesture pose (wave,
+  arms crossed, attention) from `C:\dev\so-poc-showcase`, and sitting from the same three designs made in the plan 41
+  journey (lane 33 `SO-P41 Ash/Bram/Cleo`; the lane copies were cleaned up by then, the files came from the journey's
+  snapshot, byte-identical by md5). 768 x 1152 (standing, gestures) and 400 x 600 (sitting).
+- Built (`src/sprites/liveHead/body/`, all trial-only): `kind: "body"` manifest + validator (identity member, look,
+  pose, art sha256, source; base + up to two arm layers; an arm layer needs a `free` arm; a free arm without its
+  layer loads and moves with the torso); deformation (torso sway/roll about the hip centre fading out over the waist
+  band, breath, head tilt/nod/turn about the neck, resting arms pinned at the hand, two-bone free arms that keep hanging
+  against torso roll with a spring, `armAngle`/`handAngle`), hair springs reusing step 1 physics through a new
+  `HairHost` seam in `hair.ts` (bust path unchanged: frame-loop and gaze goldens green), `BodyRenderer` on the existing
+  shaders (one canvas/context per actor), Sol landmark prompt and parser (bad optional groups dropped with notes), rig
+  synthesis, CPU layer cut with hole fill behind free arms. Tools: `scripts/live-head/body-rig.mjs`
+  (landmarks/synth/sheets/overlay/review/correct), `body-page.mjs`, `frame-bench.mjs --body <N> --manifests ...`.
+  Tests `body/body.test.ts` (14).
+- Engine changes made during the trial, recorded (none touches a floor or the rule): before round 1 sheets went to
+  Sol, the deterministic fold check found inverted triangles (wave forearm, sitting head tilt), fixed by an angular
+  elbow weight and a wider head band/side falloff; after round 1, the hole fill changed from a row rule to a 16-ray
+  2D rule (round 1 named horizontal streaks and stepped gaps); before round 3, the arm cut dilation scaled with the
+  sprite (2 to 5 px), the fill colour favours the nearest edge, and the arm outline cap went from 64 to 128 points
+  because Sol's round 3 corrections used 58 to 86 points (otherwise the arms would have been dropped, a degraded rig
+  that would have passed review without moving its arms). The fill/dilation/cap changes affect only rigs with free
+  arms; the four rigs accepted in round 1 render byte-identically under the final code (sheet PNG compare).
+
+Measures (predeclared, applied as written):
+
+- **Rig success: 9/9 = 100 % (floor >= 80 %) PASS.** Every first Sol landmark answer parsed, validated and
+  synthesized; no optional group dropped. Arms as Sol classified them: 5 rigs with two `free` arms (all standing and
+  gesture poses except arms crossed), 3 sitting rigs `resting`, Garrick arms crossed `holding`. Hair locks: Wren 7/4,
+  Pim 8/8/7, Garrick 0.
+- **Sol review by round 3: 5/9 = 56 % (floor >= 80 %) FAIL.** Round 1: 4/9 pass (Wren sitting, Garrick crossed,
+  Garrick sitting, Pim sitting: exactly the rigs without free arms). Round 2 (Sol corrected landmarks from overlay +
+  findings): 0/5. Round 3: 1/5 (Pim attention). Final fails, all on `no_tear_arms` (round 3 reasons): Wren standing
+  (skirt fabric dragged with the wrists, a gray gap at the waist), Wren wave (skirt patch dragged with the lowered
+  hand), Garrick standing (smears and ghost edges on the cape), Pim standing (sleeve remnants beside the torso).
+  `arms_attached`, sway, hair, rest-smear and head floors passed on every rig by round 3. So the body (breath, sway,
+  hair, head, resting/holding arms) worked on every pose; free arms failed 4 of 5.
+- **CPU frame cost: N=3 0.36 ms per frame (floor <= 2 ms) PASS.** `frame-bench.mjs --body N`, no-op GL, Wren/Garrick/Pim
+  standing (final rigs), head + motion driver per actor, 3,000 warm then 20,000 frames, two runs each: N=1 0.116/0.115 ms,
+  N=3 0.360/0.361 ms, N=5 0.590/0.596 ms (reduced motion 0.002/0.004/0.007 ms, 0 uploads). Garbage: 25/48/73 scavenges
+  per 10k frames at N=1/3/5 (an earlier build boxed doubles per vertex: 1,378 at N=1, fixed before the scored runs).
+- **Tears on accepted rigs: 0 PASS.** Sol reported no tear on the 5 accepted rigs; inverted triangles 0 in every layer
+  at every review extreme on all 9 final rigs.
+- **Frame interval: not sampled** (informational only; the owner was playing on the 3090 and the coordinator barred
+  GPU use). Owed only if the trial is ever re-opened.
+
+Sol: opencode `openai/gpt-6.1-sol` through the harness transport (worktree plugin copy in the step 1 scratch
+`livehead/harness`). **38 calls of the 60 cap, 38 ok**: 9 landmarks, 19 reviews (JPEG sheets, no WebSocket overflow),
+10 corrections; about 1,212 s of model time; token usage not captured (subscription).
+
+Showcase: `C:\dev\so-poc-showcase` section "Body motion trial" (`index.html#body`, `anim/live/body.html`): all nine
+bodies live (accepted green, failed red, with the reason), presence/expression/gesture/motion controls, Sol review sheets
+`anim/live/body/<id>/`, rigs `anim/live/rigs/body/`; bundle `anim/live/body-player.js` from `tools/body-entry.mjs`
+built against this branch. Previous page kept as `index.pre-body.html`. Checked headless at 1280 and 390 px: 9 canvases
+drawn, no page errors, no horizontal overflow.
+
+Evidence (scratchpad `livebody/`): `src/` (sprites), `r1/`, `r2/`, `r3/` (landmarks, Sol answers, reviews, sheets,
+overlays), `final/` (rigs + sheets), `sol-ledger.jsonl`, `bench-final.txt`, `showcase-body*.png`.
+
+Live check (no-model lane 85, `C:\dev\so-live-lanes` over `C:\dev\st-live`, plumbing only; images and sprites off on the
+lane, no story imported): staged this branch, reloaded, opened the most recent group; `storyOrchestratorRuntime`
+present, `sprites.liveHead` true, served `dist/index.js` 1,286,600 B sha `326a524e81a1` = local build; the page
+fetched no extension asset beyond the main bundle and manifest (body code is in no chunk); 0 page errors, 0 console
+errors, 0 failed requests. Lane stopped afterwards. Nothing body-related is live in the product (NO-GO).
+
+Gates:
+
+- `npm run gates -- --jobs=1 --no-storybook` run 1: RED at `test` (`legacyFree.guard` hit on a `version !== 1`
+  literal, `codeHealth.guard` T1 one cast through unknown, both in `body/`); fixed `d2767167`. Run 2: **all green in
+  489.1 s** (jest 9,757 passed, 1 skipped; replay ok; every step ok). After merging master `c94d9a6a`: run 3 **all green
+  in 400.0 s** (jest 9,765 passed, 1 skipped). After merging master `183b391a`: run 4 **all green in 352.9 s** (jest 9,769 passed, 1 skipped). Main bundle 1,286,600 B (budget 1,300,000), unchanged by this branch;
+  no `body/` code in any chunk.
+- Storybook (static build from `git archive HEAD`, own port 6392, `--maxWorkers 1`; no component or story touched):
+  full runs 1–3 153/154 suites, 931/932 tests, the one failure always `Studio/CharacterTutorial`
+  `ReviewBlocksATakenName` (axe `color-contrast`, untouched component); that story passed 2/2 alone, 2/2 in
+  `src/studio/components`, and in `src/sprites` + `src/studio`; full run 4 on the same build **154 suites / 932 tests
+  passed**. Master's build passed its full run 1/1. Recorded as an order/load flake, not caused by this branch.
+
+Owed: nothing for the verdict. If step 2 is ever re-opened: a free-arm cut that does not depend on the precision of a
+vision outline (a segmentation mask, or a layered sprite with the arms drawn apart, v2.9 §05.1), and a frame-interval
+sample on an idle GPU.

@@ -1,3 +1,4 @@
+/** @jest-environment jsdom */
 import { SpriteStage } from "./stage";
 import { defaultSpriteSettings, type SpriteSettings } from "./settings";
 import type { RuntimeManager } from "@runtime/runtimeManager";
@@ -5,6 +6,7 @@ import type { RunOwnership, TokenCheck } from "@runtime/runToken";
 import * as host from "@services/stHost/sprites";
 import { spriteStageHealth } from "@runtime/spriteStageHealth";
 import { liveHeadKey } from "./liveHeadRefs";
+import { storedReadRecord } from "./storedReads";
 
 type Handler = (...args: unknown[]) => unknown;
 const handlers = new Map<string, Handler>();
@@ -116,7 +118,7 @@ const manager = {
   getOwnership: () => ownership,
 } as unknown as RuntimeManager;
 
-(globalThis as unknown as { document: unknown }).document = { body: {}, addEventListener: () => {}, removeEventListener: () => {} };
+
 
 const emit = (event: string, ...args: unknown[]) => handlers.get(event)?.(...args);
 
@@ -673,5 +675,64 @@ describe("F17: the stage reads the shared snapshot, never builds its own", () =>
     storyListeners.forEach((listener) => listener());
     await flush();
     expect(snapshotBuilds).toBe(0);
+  });
+});
+
+describe("sprite stage: clicking a passage replays its read, selecting text does not", () => {
+  const TEXT = ["Ellie frowns.", "Then she beams."].join(" ");
+  const reads = [
+    { i: 0, who: "Ellie", face: "sad", src: "judge", at: "Ellie frowns." },
+    { i: 1, who: "Ellie", face: "happy", src: "judge", at: "Then she beams." },
+  ];
+  const mount = () => {
+    document.body.innerHTML = '<div class="mes" mesid="0"><div class="mes_text"><p id="first">Ellie frowns.</p><p>Then she beams.</p><p><a id="link" href="#x">Ellie frowns.</a></p></div></div>';
+    return document.getElementById("first") as HTMLElement;
+  };
+  const staged = async () => {
+    jest.useFakeTimers();
+    chat.push({ name: "Ellie", mes: TEXT, extra: { so_expr: storedReadRecord(reads, { text: TEXT, swipeId: 0 }) } });
+    const sprites = await started();
+    await sprites.reload();
+    expect(face(sprites, "Ellie")).toBe("happy");
+    return sprites;
+  };
+  const click = (target: Element, detail = 1) => {
+    target.dispatchEvent(new MouseEvent("click", { bubbles: true, detail }));
+    jest.advanceTimersByTime(0);
+  };
+
+  afterEach(() => {
+    window.getSelection()?.removeAllRanges();
+    document.body.innerHTML = "";
+    jest.useRealTimers();
+  });
+
+  it("a single click on a passage with a stored read replays it", async () => {
+    const sprites = await staged();
+    click(mount());
+    expect(face(sprites, "Ellie")).toBe("sad");
+  });
+
+  it("a click that ends a text selection does nothing", async () => {
+    const sprites = await staged();
+    const passage = mount();
+    const range = document.createRange();
+    range.selectNodeContents(passage);
+    window.getSelection()?.addRange(range);
+    click(passage);
+    expect(face(sprites, "Ellie")).toBe("happy");
+  });
+
+  it("a double click (selecting a word) does nothing", async () => {
+    const sprites = await staged();
+    click(mount(), 2);
+    expect(face(sprites, "Ellie")).toBe("happy");
+  });
+
+  it("a click on a link inside the message does nothing", async () => {
+    const sprites = await staged();
+    mount();
+    click(document.getElementById("link") as HTMLElement);
+    expect(face(sprites, "Ellie")).toBe("happy");
   });
 });

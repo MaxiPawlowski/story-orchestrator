@@ -51,15 +51,19 @@ function onPolyline(x: number, y: number, nodes: Strand["nodes"], out: Float64Ar
 }
 
 export function strandField(rig: Rig, rest: Float32Array): HairInput | null {
-  const strands = usableStrands(rig);
+  return strandWeights(usableStrands(rig), rest, [rig.face.eyeA, rig.face.eyeB].map((eye) => ({ ...eye, rx: eye.rx * 1.15, ry: eye.ry * 1.3 })));
+}
+
+export function strandWeights(strands: Strand[], rest: Float32Array, eyes: Ellipse[]): HairInput | null {
   if (!strands.length) return null;
   const count = rest.length / 2, start = new Uint32Array(count + 1), ids: number[] = [], weights: number[] = [], ts: number[] = [], hit = new Float64Array(2);
-  const eyes = [rig.face.eyeA, rig.face.eyeB].map((eye) => ({ ...eye, rx: eye.rx * 1.15, ry: eye.ry * 1.3 }));
   const found: Array<[number, number, number]> = [];
   for (let v = 0; v < count; v++) {
     start[v] = ids.length;
     const x = rest[v * 2], y = rest[v * 2 + 1];
-    const keep = 1 - Math.min(1, gaussian(x, y, eyes[0]) + gaussian(x, y, eyes[1])) * 1.4;
+    let near = 0;
+    for (const eye of eyes) near += gaussian(x, y, eye);
+    const keep = 1 - Math.min(1, near) * 1.4;
     if (keep > 0.02) {
       found.length = 0;
       let sum = 0;
@@ -82,6 +86,18 @@ export function strandField(rig: Rig, rest: Float32Array): HairInput | null {
     nodes: Uint8Array.from(strands.map((strand) => strand.nodes.length)), offsets: new Float64Array(strands.length * MAX_STRAND_NODES * 2), stride: MAX_STRAND_NODES * 2 };
 }
 
+export interface HairHost {
+  strands: Strand[];
+  anchor(x: number, y: number, p: HeadParameters, out: Float64Array, at: number): void;
+  roll(p: HeadParameters): number;
+}
+
+const headHost = (rig: Rig): HairHost => ({
+  strands: usableStrands(rig),
+  anchor: (x, y, p, out, at) => headPointInto(rig, x, y, p, 1, 1, out, at),
+  roll: (p) => -p.angleZ / 30 * rig.head.maxRoll - p.bodyAngleZ / 10 * rig.body.maxRoll,
+});
+
 export class HairPhysics {
   readonly strands: Strand[];
   readonly offsets: Float64Array;
@@ -95,8 +111,11 @@ export class HairPhysics {
   private time = 0;
   active = false;
 
-  constructor(private readonly rig: Rig, offsets?: Float64Array) {
-    this.strands = usableStrands(rig);
+  private readonly host: HairHost;
+
+  constructor(source: Rig | HairHost, offsets?: Float64Array) {
+    this.host = "anchor" in source ? source : headHost(source);
+    this.strands = this.host.strands;
     const size = this.strands.length * MAX_STRAND_NODES * 2;
     this.offsets = offsets ?? new Float64Array(size);
     this.position = new Float64Array(size); this.velocity = new Float64Array(size); this.target = new Float64Array(size);
@@ -125,14 +144,14 @@ export class HairPhysics {
     if (!this.strands.length) return this.offsets;
     if (this.held) return this.pose(this.held[0], this.held[1]);
     if (p.hair <= 0) { if (this.started || this.active) this.reset(); return this.offsets; }
-    const rig = this.rig, stride = MAX_STRAND_NODES * 2, target = this.target, position = this.position, velocity = this.velocity;
+    const host = this.host, stride = MAX_STRAND_NODES * 2, target = this.target, position = this.position, velocity = this.velocity;
     const dt = Math.min(MAX_DT, Math.max(0, Number.isFinite(dtSeconds) ? dtSeconds : 0));
     const sub = Math.min(MAX_SUBSTEPS, Math.max(1, Math.ceil(dt / SUBSTEP))), h = dt / sub;
-    const roll = -p.angleZ / 30 * rig.head.maxRoll - p.bodyAngleZ / 10 * rig.body.maxRoll, sinRoll = Math.sin(roll);
+    const roll = host.roll(p), sinRoll = Math.sin(roll);
     const tune = HAIR_TUNE;
     for (let s = 0; s < this.strands.length; s++) {
       const strand = this.strands[s], base = s * stride, count = strand.nodes.length;
-      for (let j = 0; j < count; j++) headPointInto(rig, strand.nodes[j][0], strand.nodes[j][1], p, 1, 1, target, base + j * 2);
+      for (let j = 0; j < count; j++) host.anchor(strand.nodes[j][0], strand.nodes[j][1], p, target, base + j * 2);
       if (!this.started) for (let j = 0; j < count * 2; j++) { position[base + j] = target[base + j]; velocity[base + j] = 0; }
       const phase = s * 1.7;
       for (let i = 0; i < sub; i++) {
