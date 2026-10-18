@@ -120,17 +120,18 @@ describe("body deformation", () => {
 
 describe("body layers", () => {
   test("the hole fills only where the body continues behind the arm", () => {
-    const width = 20, height = 3, data = new Uint8ClampedArray(width * height * 4);
+    const width = 20, height = 20, data = new Uint8ClampedArray(width * height * 4);
     for (let y = 0; y < height; y++) for (let x = 0; x < width; x++) {
-      const i = (y * width + x) * 4, body = (x >= 2 && x <= 8) || (x >= 12 && x <= 17);
+      const i = (y * width + x) * 4, body = (x >= 2 && x <= 8) || (x >= 12 && x <= 16);
       if (body) data.set([200, 100, 50, 255], i);
     }
     const hole = new Uint8Array(width * height);
-    for (let y = 0; y < height; y++) { for (let x = 5; x <= 7; x++) hole[y * width + x] = 1; for (let x = 15; x <= 18; x++) hole[y * width + x] = 1; }
+    for (let y = 5; y < 15; y++) { for (let x = 5; x <= 7; x++) hole[y * width + x] = 1; for (let x = 14; x <= 19; x++) hole[y * width + x] = 1; }
     const out = fillBehindArms({ width, height, data }, hole);
-    expect(out.data[(1 * width + 6) * 4 + 3]).toBe(255);
-    expect(out.data[(1 * width + 6) * 4]).toBe(200);
-    expect(out.data[(1 * width + 16) * 4 + 3]).toBe(0);
+    expect(out.data[(10 * width + 6) * 4 + 3]).toBe(255);
+    expect(out.data[(10 * width + 6) * 4]).toBe(200);
+    expect(out.data[(10 * width + 15) * 4 + 3]).toBe(255);
+    expect(out.data[(10 * width + 18) * 4 + 3]).toBe(0);
   });
 
   test("only free arms are cut; the base keeps its size", () => {

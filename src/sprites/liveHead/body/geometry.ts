@@ -39,9 +39,14 @@ export function armProgress(arm: BodyArm, x: number, y: number): number {
 }
 
 export function foreWeight(arm: BodyArm, x: number, y: number): number {
-  const upper = segmentDistance(x, y, arm.shoulder, arm.elbow).d, lower = segmentDistance(x, y, arm.elbow, arm.wrist).d;
-  const band = 0.15 * Math.min(Math.hypot(arm.elbow[0] - arm.shoulder[0], arm.elbow[1] - arm.shoulder[1]), Math.hypot(arm.wrist[0] - arm.elbow[0], arm.wrist[1] - arm.elbow[1]));
-  return smooth(-band, band, upper - lower);
+  const ex = arm.elbow[0], ey = arm.elbow[1], ux = arm.shoulder[0] - ex, uy = arm.shoulder[1] - ey, wx = arm.wrist[0] - ex, wy = arm.wrist[1] - ey;
+  const turn = Math.sign(ux * wy - uy * wx) || 1, inner = Math.acos(Math.max(-1, Math.min(1, (ux * wx + uy * wy) / Math.max(1e-9, Math.hypot(ux, uy) * Math.hypot(wx, wy)))));
+  const dx = x - ex, dy = y - ey;
+  if (dx === 0 && dy === 0) return 0.5;
+  let angle = Math.atan2(turn * (ux * dy - uy * dx), ux * dx + uy * dy);
+  if (angle < 0) angle += Math.PI * 2;
+  const outer = Math.PI * 2 - inner;
+  return angle <= inner ? smooth(inner * 0.25, inner * 0.75, angle) : 1 - smooth(inner + outer * 0.25, inner + outer * 0.75, angle);
 }
 
 const torsoAt = (rig: BodyRig, y: number): number => 1 - smooth(rig.torso.waistBand[0], rig.torso.waistBand[1], y);
@@ -89,9 +94,9 @@ export class BodyFrame {
   }
 }
 
-export function deformBodyPoint(rig: BodyRig, f: BodyFrame, x: number, y: number, w: Float64Array, k: number, out: { [index: number]: number }, at: number): void {
+export function deformBodyPoint(rig: BodyRig, f: BodyFrame, xy: ArrayLike<number>, si: number, w: Float64Array, k: number, out: { [index: number]: number }, at: number): void {
   const head = rig.head, torso = rig.torso;
-  let px = x, py = y;
+  let px = xy[si], py = xy[si + 1];
   const hw = w[k + 3];
   if (hw > 0) {
     if (f.headRoll !== 0) {
@@ -113,10 +118,13 @@ export function deformBodyPoint(rig: BodyRig, f: BodyFrame, x: number, y: number
   out[at] = px; out[at + 1] = py;
 }
 
+const moved = new Float64Array(2);
+
 export function deformBody(rig: BodyRig, f: BodyFrame, rest: Float32Array, w: Float64Array, out: Float32Array, hair: HairInput | null): void {
   for (let i = 0, k = 0; i < rest.length; i += 2, k += BODY_STRIDE) {
+    if (!hair || hair.start[i >> 1] === hair.start[(i >> 1) + 1]) { deformBodyPoint(rig, f, rest, i, w, k, out, i); continue; }
     let x = rest[i], y = rest[i + 1];
-    if (hair) {
+    {
       const offsets = hair.offsets, stride = hair.stride;
       for (let h = hair.start[i >> 1], end = hair.start[(i >> 1) + 1]; h < end; h++) {
         const s = hair.strand[h], last = hair.nodes[s] - 1, t = hair.t[h] * last, n = Math.min(last - 1, Math.floor(t)), u = t - n, weight = hair.weight[h];
@@ -125,7 +133,8 @@ export function deformBody(rig: BodyRig, f: BodyFrame, rest: Float32Array, w: Fl
         y += (offsets[o + 1] + (offsets[o + 3] - offsets[o + 1]) * u) * weight;
       }
     }
-    deformBodyPoint(rig, f, x, y, w, k, out, i);
+    moved[0] = x; moved[1] = y;
+    deformBodyPoint(rig, f, moved, 0, w, k, out, i);
   }
 }
 
@@ -143,7 +152,7 @@ export class ArmPose {
 
   set(f: BodyFrame, upper: number, fore: number): void {
     const arm = this.arm, s = arm.shoulder, e = arm.elbow, tw = this.weights[0];
-    deformBodyPoint(this.rig, f, s[0], s[1], this.weights, 0, this.at, 0);
+    deformBodyPoint(this.rig, f, s, 0, this.weights, 0, this.at, 0);
     this.shoulderX = this.at[0]; this.shoulderY = this.at[1];
     this.cos = Math.cos(f.roll * tw); this.sin = Math.sin(f.roll * tw);
     this.upperCos = Math.cos(upper); this.upperSin = Math.sin(upper);

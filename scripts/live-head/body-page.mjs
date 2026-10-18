@@ -62,7 +62,7 @@ window.renderBodyReview = async (value, sourceUrl) => {
   };
   const head = rig.head, top = Math.max(0, head.cy - head.ry * 1.2), bottom = Math.min(height, rig.torso.pivotY + (rig.torso.pivotY - top) * 0.35);
   const xs = [head.cx - head.rx * 2, head.cx + head.rx * 2, ...(rig.arms ?? []).flatMap((arm) => arm.outline.map((p) => p[0]))];
-  const zoomBox = [Math.max(0, Math.min(...xs) - 10), top, Math.min(width, Math.max(...xs) + 10), bottom];
+  const pad = (Math.max(...xs) - Math.min(...xs)) * 0.15, zoomBox = [Math.max(0, Math.min(...xs) - pad), Math.max(0, top - pad), Math.min(width, Math.max(...xs) + pad), bottom];
   const sheets = {
     "body-core": cells(BODY_EXTREMES, [0, 0, width, height], 230, 6, true),
     "body-zoom": cells(BODY_EXTREMES.filter(([name]) => /rest|sway|arms|all/.test(name)), zoomBox, 300, 4, true),

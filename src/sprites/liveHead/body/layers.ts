@@ -3,10 +3,10 @@ import { insideOutline } from "./geometry";
 import type { BodyRig } from "./types";
 
 export interface BodyCut { name: string; rect: [number, number, number, number]; image: PixelImage }
-const OPAQUE = 128, DILATE = 2, PAD = 4, SPAN = 0.45, PASSES = 12;
-const NEIGHBOURS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+const OPAQUE = 128, PAD = 8, SPAN = 0.25, RAYS = 16;
 
 function armMask(image: PixelImage, outline: [number, number][]): { rect: BodyCut["rect"]; mask: Uint8Array } | null {
+  const DILATE = Math.max(2, Math.round(image.height * 0.004));
   const xs = outline.map((p) => p[0]), ys = outline.map((p) => p[1]);
   const x0 = Math.max(0, Math.floor(Math.min(...xs)) - PAD), y0 = Math.max(0, Math.floor(Math.min(...ys)) - PAD);
   const x1 = Math.min(image.width, Math.ceil(Math.max(...xs)) + PAD), y1 = Math.min(image.height, Math.ceil(Math.max(...ys)) + PAD);
@@ -35,65 +35,31 @@ function crop(image: PixelImage, rect: BodyCut["rect"], mask: Uint8Array): Pixel
 }
 
 export function fillBehindArms(image: PixelImage, hole: Uint8Array): PixelImage {
-  const { width, height } = image, src = image.data, data = new Uint8ClampedArray(src), filled = new Uint8Array(width * height);
-  const opaque = (k: number) => !hole[k] && src[k * 4 + 3] >= OPAQUE;
-  for (let y = 0; y < height; y++) {
-    let x = 0;
-    while (x < width) {
-      if (!hole[y * width + x]) { x++; continue; }
-      let end = x;
-      while (end < width && hole[y * width + end]) end++;
-      const left = x - 1, right = end;
-      const between = left >= 0 && right < width && opaque(y * width + left) && opaque(y * width + right) && right - left <= SPAN * width;
-      if (between) for (let k = x; k < end; k++) filled[y * width + k] = 1;
-      x = end;
-    }
-  }
-  const smoothed = new Uint8Array(filled);
-  for (let y = 1; y < height - 1; y++) for (let x = 1; x < width - 1; x++) {
-    const k = y * width + x;
-    if (!hole[k]) continue;
-    let votes = 0;
-    for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) votes += filled[k + dy * width + dx];
-    smoothed[k] = votes >= 5 ? 1 : 0;
-  }
-  const rgb = new Float32Array(width * height * 3), seen = new Uint8Array(width * height), queue = new Int32Array(width * height);
-  let head = 0, tail = 0;
+  const { width, height } = image, src = image.data, data = new Uint8ClampedArray(src), limit = Math.round(SPAN * width);
+  const rays = Array.from({ length: RAYS }, (_, k) => [Math.cos(k * Math.PI * 2 / RAYS), Math.sin(k * Math.PI * 2 / RAYS)]);
+  const on = new Uint8Array(width * height), rgb = new Float32Array(width * height * 3);
   for (let k = 0; k < hole.length; k++) {
-    if (!opaque(k)) continue;
-    seen[k] = 1; queue[tail++] = k;
-    for (let c = 0; c < 3; c++) rgb[k * 3 + c] = src[k * 4 + c];
-  }
-  while (head < tail) {
-    const k = queue[head++], x = k % width, y = Math.floor(k / width);
-    for (const [dx, dy] of NEIGHBOURS) {
-      const nx = x + dx, ny = y + dy, n = ny * width + nx;
-      if (nx < 0 || ny < 0 || nx >= width || ny >= height || seen[n] || !hole[n]) continue;
-      seen[n] = 1; queue[tail++] = n;
-      for (let c = 0; c < 3; c++) rgb[n * 3 + c] = rgb[k * 3 + c];
-    }
-  }
-  const next = new Float32Array(rgb);
-  for (let pass = 0; pass < PASSES; pass++) {
-    for (let k = 0; k < hole.length; k++) {
-      if (!hole[k] || !smoothed[k]) continue;
-      const x = k % width, y = Math.floor(k / width);
-      for (let c = 0; c < 3; c++) {
-        let sum = 0, n = 0;
-        for (const [dx, dy] of NEIGHBOURS) {
-          const nx = x + dx, ny = y + dy, m = ny * width + nx;
-          if (nx >= 0 && ny >= 0 && nx < width && ny < height && (smoothed[m] || opaque(m))) { sum += rgb[m * 3 + c]; n++; }
-        }
-        next[k * 3 + c] = n ? sum / n : rgb[k * 3 + c];
+    if (!hole[k]) continue;
+    const x0 = k % width, y0 = Math.floor(k / width);
+    let weight = 0, opaqueWeight = 0, tintWeight = 0, r = 0, g = 0, b = 0;
+    for (const [dx, dy] of rays) {
+      for (let step = 1; step <= limit; step++) {
+        const x = Math.round(x0 + dx * step), y = Math.round(y0 + dy * step);
+        if (x < 0 || y < 0 || x >= width || y >= height) { weight += 1 / step; break; }
+        const m = y * width + x;
+        if (hole[m]) continue;
+        const w = 1 / step;
+        weight += w;
+        if (src[m * 4 + 3] >= OPAQUE) { const tint = w * w * w; opaqueWeight += w; tintWeight += tint; r += src[m * 4] * tint; g += src[m * 4 + 1] * tint; b += src[m * 4 + 2] * tint; }
+        break;
       }
     }
-    rgb.set(next);
+    if (weight > 0 && opaqueWeight / weight >= 0.5) { on[k] = 1; rgb[k * 3] = r / tintWeight; rgb[k * 3 + 1] = g / tintWeight; rgb[k * 3 + 2] = b / tintWeight; }
   }
   for (let k = 0; k < hole.length; k++) {
     if (!hole[k]) continue;
-    const on = smoothed[k] === 1;
-    for (let c = 0; c < 3; c++) data[k * 4 + c] = on ? Math.round(rgb[k * 3 + c]) : 0;
-    data[k * 4 + 3] = on ? 255 : 0;
+    for (let c = 0; c < 3; c++) data[k * 4 + c] = on[k] ? Math.round(rgb[k * 3 + c]) : 0;
+    data[k * 4 + 3] = on[k] ? 255 : 0;
   }
   return { width, height, data };
 }

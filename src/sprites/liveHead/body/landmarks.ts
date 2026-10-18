@@ -63,7 +63,7 @@ function armProblem(arm: unknown, size: Size): string | null {
   if (arm.state !== "free" && arm.state !== "resting" && arm.state !== "holding") return "state must be free, resting or holding";
   if (!point(arm.shoulder) || !point(arm.elbow) || !point(arm.wrist)) return "shoulder, elbow and wrist must lie inside the sprite";
   if (!far(arm.shoulder as Point, arm.elbow as Point) || !far(arm.elbow as Point, arm.wrist as Point)) return "shoulder, elbow and wrist must differ";
-  if (!Array.isArray(arm.outline) || arm.outline.length < 4 || arm.outline.length > 64 || !arm.outline.every(point)) return "outline must be 4..64 points inside the sprite";
+  if (!Array.isArray(arm.outline) || arm.outline.length < 4 || arm.outline.length > 128 || !arm.outline.every(point)) return "outline must be 4..128 points inside the sprite";
   if (area(arm.outline as Point[]) < 16) return "outline has no area";
   return null;
 }

@@ -15,7 +15,7 @@ export function synthesizeBodyRig(marks: BodyLandmarks): BodyRig {
   const rig: BodyRig = {
     version: 1, kind: "body", pose: marks.pose, image: { width, height },
     head: { cx: r2(head.cx), cy: r2(head.cy), rx: r2(head.rx), ry: r2(head.ry), pivotX: r2(neck[0]), pivotY: r2(neck[1]), maxRoll: BODY_TUNE.headRoll,
-      band: ordered(Math.min(head.cy + head.ry * 0.8, neck[1] - 1), neck[1], Math.max(2, head.ry * 0.2)), side: [1.2, 1.8] },
+      band: ordered(Math.min(head.cy + head.ry * 0.45, neck[1] - 1), neck[1], Math.max(4, head.ry * 0.35)), side: [1.5, 3] },
     torso: { pivotX: r2(hipX), pivotY: r2(hipY), maxRoll: marks.pose === "sitting" ? BODY_TUNE.sitRoll : BODY_TUNE.standRoll,
       sway: r2(torsoLength * BODY_TUNE.sway), breath: r2(torsoLength * BODY_TUNE.breath),
       waistBand: ordered(marks.waist[1], hipY, torsoLength * 0.12), breathBand: ordered(shoulderY, marks.waist[1], torsoLength * 0.2),

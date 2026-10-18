@@ -36,11 +36,14 @@ const ARM_K = 40, ARM_DAMP = 2 * 0.6 * Math.sqrt(ARM_K), MAX_DT = 0.05, ERROR_CH
 
 export function bodyHairHost(rig: BodyRig, frame: BodyFrame): HairHost {
   const strands = (rig.strands ?? []).filter((strand) => strand.nodes.length >= 2 && strand.nodes.length <= MAX_STRAND_NODES);
-  const weights = new Float64Array(Math.max(1, strands.length * MAX_STRAND_NODES * BODY_STRIDE));
-  strands.forEach((strand, s) => strand.nodes.forEach(([x, y], j) => bodyWeightsInto(rig, x, y, weights, (s * MAX_STRAND_NODES + j) * BODY_STRIDE)));
+  const weights = new Float64Array(Math.max(1, strands.length * MAX_STRAND_NODES * BODY_STRIDE)), nodes = new Float64Array(Math.max(2, strands.length * MAX_STRAND_NODES * 2));
+  strands.forEach((strand, s) => strand.nodes.forEach(([x, y], j) => {
+    bodyWeightsInto(rig, x, y, weights, (s * MAX_STRAND_NODES + j) * BODY_STRIDE);
+    nodes[(s * MAX_STRAND_NODES + j) * 2] = x; nodes[(s * MAX_STRAND_NODES + j) * 2 + 1] = y;
+  }));
   return {
     strands,
-    anchor: (x, y, _p, out, at) => deformBodyPoint(rig, frame, x, y, weights, at / 2 * BODY_STRIDE, out, at),
+    anchor: (_x, _y, _p, out, at) => deformBodyPoint(rig, frame, nodes, at, weights, at / 2 * BODY_STRIDE, out, at),
     roll: (p) => -p.angleZ / 30 * rig.head.maxRoll - p.bodyAngleZ / 10 * rig.torso.maxRoll,
   };
 }
