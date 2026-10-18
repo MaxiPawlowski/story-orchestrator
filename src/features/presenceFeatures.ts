@@ -38,8 +38,8 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
   },
   {
     id: "story-wand", name: "Story in the wand menu", area: "play", audience: "player",
-    oneLine: "Story recap, the story briefing, flag this moment and the story drawer, from the extensions wand.",
-    what: "While a story plays, the wand beside where you type lists a recap of the story so far, a flag for this moment and a shortcut to the story drawer.",
+    oneLine: "Story recap, the story briefing, flag this moment and the story window, from the extensions wand.",
+    what: "While a story plays, the wand beside where you type lists a recap of the story so far, a flag for this moment and a shortcut to the story window.",
     where: settingsAt("#so-presence-wand", "Interface › Story entries in the wand menu"),
     settings: ["display.presence.wand"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
     isOn: (settings) => settings.display.presence.wand,
@@ -63,7 +63,8 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
   {
     id: "suggestions", name: "What could I do?", area: "play", audience: "player",
     oneLine: "A button that suggests a few things you could try next, and puts the one you pick in the box where you type.",
-    what: "Click the lightbulb in the story drawer or pick it from the wand menu. The memory model suggests four things you could do or say, from what you have already seen. "
+    what: "Click What could I do? on This story → Play or the story card above the chat box, or pick it from the wand menu. "
+      + "The memory model suggests four things you could do or say, from what you have already seen. "
       + "Picking one only fills the box where you type; nothing is sent until you send it, and it never replaces something you started typing. A story can switch the button off.",
     where: drawerAt("#so-open-suggestions", "What could I do?"),
     settings: ["display.presence.suggestions"], doc: "player/playing.md", status: "shipped", needs: ["story", "memory-profile"],

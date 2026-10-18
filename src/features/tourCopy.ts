@@ -51,7 +51,7 @@ export const COACH_COPY: Readonly<Record<string, CoachStopCopy>> = {
   },
   "player.hud": {
     title: "The strip above the chat box",
-    text: "This strip shows the current scene and at most one state. Click it to open the Play page.",
+    text: "This strip shows the current scene and at most one state. Click it for the story card: your journal, ideas for your next move, what the story remembers, and More… for the Play page.",
     missing: "The strip shows while a story plays in this chat. It can be switched off under Orchestrator → Interface.",
   },
   "player.help": {

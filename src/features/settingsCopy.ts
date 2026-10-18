@@ -69,7 +69,7 @@ export const SETTING_COPY = {
   ),
   "display.briefing": copy(
     "Show the story briefing when a story starts",
-    "The first time a story starts in a chat, a page shows the author's briefing: the world, who you are, who is with you and how to play. You can re-open it from the drawer.",
+    "The first time a story starts in a chat, a page shows the author's briefing: the world, who you are, who is with you and how to play. You can re-open it from This story → Play.",
   ),
   "display.briefingDraft": copy(
     "Write a briefing when a story has none",
@@ -97,7 +97,7 @@ export const SETTING_COPY = {
   ),
   "display.presence.wand": copy(
     "Story entries in the wand menu",
-    "Story recap, the story briefing (when the story has one), flag this moment and the story drawer, from the extensions wand beside where you type.",
+    "Story recap, the story briefing (when the story has one), flag this moment and the story window, from the extensions wand beside where you type.",
   ),
   "display.presence.rollChips": copy(
     "Dice chips under messages",
@@ -123,12 +123,12 @@ export const SETTING_COPY = {
   ),
   "display.presence.suggestions": copy(
     "What could I do?",
-    "A button in the story drawer and the wand menu that asks the memory model for a few things you could try next. A suggestion goes into the box where you type; "
+    "A button on This story → Play and the wand menu that asks the memory model for a few things you could try next. A suggestion goes into the box where you type; "
       + "nothing is sent until you send it. The request sees only what you have already seen in the story.",
   ),
   "display.hudEnabled": copy(
     "Show story status above the chat input",
-    "A one-line strip above where you type: where the story is and how tense things are. Click it to open the story drawer.",
+    "A one-line strip above where you type: where the story is and how tense things are. Click it for the story card.",
   ),
   "display.yourMove": copy(
     "Show \"Your move.\" when the story hands the turn back",

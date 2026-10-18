@@ -141,7 +141,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Playing | Story card | Hover a group's story icon to see the story, its chapter and when you last played. |  |
 | Playing | Your stories | Under Continue: every chat that plays a story, newest first, one click to open it. |  |
 | Playing | Chapter title cards | A full-width card under the message where a new chapter opens. |  |
-| Playing | Story in the wand menu | Story recap, the story briefing, flag this moment and the story drawer, from the extensions wand. |  |
+| Playing | Story in the wand menu | Story recap, the story briefing, flag this moment and the story window, from the extensions wand. |  |
 | Playing | Dice chips | A check the story makes public shows its roll under the message it decided. |  |
 | Playing | Activity panel | A movable panel listing what the machine did behind each recent message. |  |
 | Playing | What could I do? | A button that suggests a few things you could try next, and puts the one you pick in the box where you type. |  |

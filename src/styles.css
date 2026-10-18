@@ -561,8 +561,95 @@ dialog#so-briefing::backdrop {
 }
 
 #so-hud-root {
+  position: relative;
   display: flex;
   justify-content: center;
+}
+
+#so-hud-root .so-hud-card {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 35;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: min(100%, 34rem);
+  max-height: min(60vh, 28rem);
+  margin: 0 auto;
+  padding: 0.75rem 1rem;
+  overflow-y: auto;
+  font-size: 1rem;
+  line-height: 1.4;
+  text-align: left;
+  color: var(--st-text-active);
+  background: var(--SmartThemeBlurTintColor, var(--st-bg-tint));
+  backdrop-filter: blur(var(--SmartThemeBlurStrength, 0px));
+  -webkit-backdrop-filter: blur(var(--SmartThemeBlurStrength, 0px));
+  border: 1px solid var(--st-border);
+  border-radius: 0.5rem;
+  box-shadow: 0 6px 24px rgb(0 0 0 / 0.35);
+}
+
+#so-hud-root .so-hud-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+#so-hud-root .so-hud-card-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+#so-hud-root .so-hud-card-line,
+#so-hud-root .so-hud-card-status {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.85;
+}
+
+#so-hud-root .so-hud-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+#so-hud-root .so-hud-card-actions .menu_button,
+#so-hud-root .so-hud-card-peek .menu_button,
+#so-hud-root .so-hud-card-head .menu_button {
+  min-height: 44px;
+  margin: 0;
+  white-space: nowrap;
+}
+
+#so-hud-root .so-hud-card-actions .so-launcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+#so-hud-root .so-hud-card-peek {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--st-border);
+  font-size: 0.9rem;
+}
+
+#so-hud-root .so-hud-card-peek ul {
+  margin: 0;
+  padding-left: 1.1rem;
+}
+
+#so-hud-root .so-hud-card-peek p {
+  margin: 0;
+  opacity: 0.8;
 }
 
 #so-hud {

@@ -12,7 +12,7 @@ import { connectionsIntent, inspectorIntent, repairIntent, storyPlayIntent } fro
 import { storyPageFor } from "@runtime/drawerTab";
 import type { WidgetDrawerTab } from "@engine/index";
 import { inlinePresence } from "@runtime/presence";
-import { createPresenceUi, openChatPanel, openPlay, setPanel, togglePanel } from "./presenceUi";
+import { chatPanelsShown, createPresenceUi, openChatPanel, openPlay, setPanel } from "./presenceUi";
 import { requestGuide } from "@guide/request";
 import { onTourRequest } from "@guide/tour/request";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
@@ -387,7 +387,12 @@ const openRepairStep = () => workspaceNavigation.open(repairIntent());
 
 const HudMount = () => {
   const snapshot = useRuntimeSnapshot();
-  return <HudStrip snapshot={snapshot} onOpenDrawer={() => openStoryWindow()} onOpenSettings={openRepairStep} />;
+  const card = {
+    panels: chatPanelsShown(snapshot).filter((panel): panel is "journal" | "suggestions" => panel === "journal" || panel === "suggestions"),
+    openPanel: (panel: "journal" | "suggestions") => openChatPanel(panel, manager.getCachedSnapshot()),
+    openMemory: () => openStoryWindow("memory"),
+  };
+  return <HudStrip snapshot={snapshot} onOpenStory={() => openStoryWindow()} onOpenSettings={openRepairStep} card={card} />;
 };
 
 const mountTopBarDrawer = () => {

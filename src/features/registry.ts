@@ -118,7 +118,7 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "story-drawer", name: "Story drawer", area: "play", audience: "player",
     oneLine: "Where you are, what happened, and what you are remembered for.",
-    what: "The route icon in the top bar opens the story drawer. Overview shows where the story is, what happened recently and what is still open; Memory lists what the story remembers.",
+    what: "The route icon in the top bar opens the story window. This story → Play shows where the story is, what happened recently and what is still open, and what the story remembers.",
     where: drawerAt("#so-player-overview", "Overview"),
     settings: [], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
   },
@@ -194,7 +194,7 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "memory-tab", name: "Memory tab", area: "memory", audience: "player",
     oneLine: "See, search, pin or remove what the story remembers.",
-    what: "The drawer's Memory tab lists the established facts. Pin one to keep it in every prompt, or remove one the story got wrong.",
+    what: "What the story remembers, on This story → Play, lists the established facts. Pin one to keep it in every prompt, or remove one the story got wrong.",
     where: drawerAt("#so-memory-search", "Memory"),
     settings: [], doc: "player/memory.md", status: "shipped", needs: ["story"],
   },

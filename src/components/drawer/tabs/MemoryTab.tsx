@@ -81,6 +81,7 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
   const [hiddenTiers, setHiddenTiers] = useState<MemoryTier[]>([]);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draftText, setDraftText] = useState("");
+  const [excluded, setExcluded] = useState<{ entry: MemoryEntry | null; state: "excluded" | "refused" | "restored" } | null>(null);
 
   const entries = authorView ? snapshot.memory.entries : snapshot.memoryShown ?? snapshot.memory.entries;
   const characterIds = Array.from(new Set(entries.map((entry) => entry.characterId).filter((id): id is string => Boolean(id)))).sort();
@@ -112,13 +113,15 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
   };
 
   const excludeWithUndo = async (id: string) => {
-    const entry = snapshot.memory.entries.find((candidate) => candidate.id === id);
-    await manager.excludeMemoryEntry(id);
-    if (!entry) return;
-    window.toastr?.info?.("Memory excluded — click here to undo", "Story Orchestrator", {
-      timeOut: 8000,
-      onclick: () => { void manager.restoreMemoryEntry(entry); },
-    });
+    const entry = snapshot.memory.entries.find((candidate) => candidate.id === id) ?? null;
+    setExcluded(null);
+    const done = await manager.excludeMemoryEntry(id);
+    setExcluded({ entry, state: done ? "excluded" : "refused" });
+  };
+  const undoExclude = async () => {
+    if (!excluded?.entry) return;
+    await manager.restoreMemoryEntry(excluded.entry);
+    setExcluded({ entry: null, state: "restored" });
   };
   const saveEdit = async () => {
     if (!editingId) return;
@@ -131,6 +134,16 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
   return (
     <div data-so="memory-tab" className="text-xs opacity-80">
       <div className="font-medium opacity-100">{PLAYER_COPY.memoryHeading}</div>
+      {excluded && (
+        <div id="so-memory-excluded" data-so="memory-excluded" data-state={excluded.state} role="status" className="flex flex-wrap items-center gap-2 mt-1">
+          <span className={excluded.state === "refused" ? "so-warning-text" : ""}>
+            {excluded.state === "excluded" ? PLAYER_COPY.memoryExcluded : excluded.state === "restored" ? PLAYER_COPY.memoryRestored : PLAYER_COPY.memoryExcludeRefused}
+          </span>
+          {excluded.state === "excluded" && excluded.entry && (
+            <button type="button" id="so-memory-undo" className="menu_button" onClick={() => void undoExclude()}>{PLAYER_COPY.memoryUndo}</button>
+          )}
+        </div>
+      )}
       {(snapshot.memory.pinnedOverflow ?? 0) > 0 && (
         <div id="so-pinned-overflow" className="so-warning-text">{pinnedOverflowText(snapshot.memory.pinnedOverflow ?? 0)}</div>
       )}

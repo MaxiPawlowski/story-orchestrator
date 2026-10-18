@@ -43,8 +43,6 @@ export const setPanel = (id: PanelId, open: boolean) => {
   panelListeners.forEach((listener) => listener());
 };
 
-export const togglePanel = (id: PanelId) => setPanel(id, !openPanels.includes(id));
-
 let guideTarget: GuideTarget | null = null;
 
 export const useOpenPanels = () => useSyncExternalStore(
@@ -165,7 +163,9 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer
     if (panels.includes("guide")) bodies.set("guide", { title: GUIDE_COPY.title, body: <Lazy fallback={null}><GuideHost authorView={snapshot.ui.authorView} target={guideTarget}
       onTargetSeen={() => { guideTarget = null; }} snapshot={snapshot} groupOpen={hasOpenGroup()} onShowMe={() => setPanel("guide", false)} /></Lazy> });
     if (suggestions) bodies.set("suggestions", { title: PRESENCE_TEXT.suggestionsTitle, body: <Lazy fallback={null}><SuggestionsPanel request={requestSuggestions} fill={fillSuggestion} /></Lazy> });
-    if (game.game && game.journal && panels.includes("journal")) bodies.set("journal", { title: GAME_TEXT.journalTitle, body: <Lazy fallback={null}><JournalPanel game={game.game} author={author} /></Lazy> });
+    if (game.game && game.journal && panels.includes("journal")) {
+      bodies.set("journal", { title: GAME_TEXT.journalTitle, body: <Lazy fallback={null}><JournalPanel game={game.game} author={author} /></Lazy> });
+    }
     if (game.statSheet && panels.includes("stat-sheet")) bodies.set("stat-sheet", { title: GAME_TEXT.statSheetTitle, body: <Lazy fallback={null}><StatSheetPanel
       sheet={game.game?.statSheet ?? null} provenance={author?.provenance?.[game.game?.statSheet?.id ?? ""]} onAction={fill} openDrawer={openDrawer} /></Lazy> });
     for (const widget of game.widgets) {

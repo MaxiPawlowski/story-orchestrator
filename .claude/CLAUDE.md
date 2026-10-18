@@ -62,20 +62,38 @@ Report exact commands and results at handover. Failing gate = say so plainly.
 
 ## UI entry points
 
-Current workspace routing: Extensions launcher `#so-open-workspace` and navbar drawer open lazy native dialog
-`#so-workspace-modal`. Story: Play, Features, Review, Author; Orchestrator: Library, Defaults, Connections,
-Interface, Help. `workspaceNavigation.open({context,page,feature,control})` owns deep links. Feature controls are
-`#so-feature-<id>-<field>`; changes in Story are chat overrides. Install defaults live in Defaults, authored
-policies in Studio. Device display/motion rows live in Interface. Browser Back traverses details before closing.
-The panels below are reused inside the workspace; the old Extensions settings body is replaced by its launcher.
-Studio groups its editors into Story setup, Flow, State and rules, Characters, World, Presentation,
-Story features, Assistant and Validation. Mobile graph sheets and checkpoint/transition drill-down keep editing enabled.
+Rule (owner 2026-10-18): in chat = glance or act mid-turn, or needs the chat/input visible; workspace = configure,
+library, setup/repair, author/inspect, long reference. A dialog control that targets in-chat UI closes the dialog first
+(`SettingsHost.openPanel`, `workspaceNavigation.close()`); feedback from an action inside a dialog renders inside it
+(`components/ActionStatus.tsx`), never as a toast behind it.
 
-- **Settings panel** (`#story-orchestrator-settings`): four entry points in `components/settings/EntryPoints.tsx` (`#so-entry-points`) — Start (`#so-new-story-wizard`, import `#so-entry-import-toggle`/`#so-entry-import`), Continue (`#so-entry-continue`), Repair (`#so-entry-repair`, `[data-so="repair-step"]`, `#so-entry-fix-with-wizard`), Author (`#so-open-studio`); then story select, extraction, display toggles, speaker direction, Stagecraft (`#so-curator-enabled` on by default, `#so-curator-accept-mode` default `review`).
-- **Drawer**: ST top-bar drawer `#so-drawer` (content `#drawer-manager`, toggled via `stHost/drawers.ts`); tabs in `components/drawer/DrawerTabs.tsx`. Player mode: Overview (`PlayerOverview.tsx`, `#so-setup`) + Memory (`#so-memory-search`). "Author view" (per-chat `extras.ui`, confirms first) adds Blackboard/Scheduler/Payload, engine panels, curator review (`#so-stagecraft`), next-turn preview (`#so-next-turn`), DriverPanel, "Fix with wizard" (`#so-fix-with-wizard`). Overview footer: Restart story; author-only Edit story / Update to the latest.
-- **HUD** `#so-hud` above the chat input (`HudStrip.tsx`): checkpoint, tension, pending-delta chip, `#so-hud-pipeline`, `#so-hud-setup` count chip.
-- **Inline timeline**: chips under each message (`#so-inline-<mesid>` hosts from `stHost/inlineMount.ts`, `components/inline/`), level `#so-inline-level` 0 Off / 1 Story (default) / 2 Behind the scenes / 3 Author / 4 Raw (3–4 need Author view); author chip opens `#so-inspector`. The `/comment` transition note is opt-in (`#so-announce-transitions`, default off).
+- **Launchers**: top-bar route icon `#so-drawer .drawer-toggle` (a launcher, not a drawer) and the wand's
+  `#so-wand-drawer` open the story window on This story → Play; Extensions settings holds `#so-open-workspace` (Orchestrator)
+  and `#so-open-setup` (Play at `#so-setup`). Routes live in `runtime/workspaceRoutes.ts` and `runtime/drawerTab.ts` `storyPageFor`.
+- **Workspace** `#so-workspace-modal` (lazy native dialog, `components/workspace/`): Story → Play, Features, Review,
+  Author; Orchestrator → Library, Defaults, Connections, Interface, Help. `workspaceNavigation.open({context,page,feature,control})`
+  owns deep links; Back traverses details before closing. Feature controls are `#so-feature-<id>-<field>` (Story = chat
+  overrides, Defaults = install, authored policies in Studio); device display/motion rows in Interface.
+  - **Play** (player-safe): Setup `#so-setup`, `PlayerOverview` (`#so-player-overview`, Open story settings → Connections),
+    Your character `#so-your-character`, Save this run `#so-living-save`, Beside the chat `#so-chat-side` (labelled
+    launchers that close the workspace), Illustrations `#so-image-chat` (pause automatic images in this chat), memory
+    `#so-open-memory` (Exclude has an inline Undo `#so-memory-undo`), Restart / Story briefing / Flag (`#so-flag-status`).
+  - **Author** (Author view only; nothing the Play page shows): Recent activity, `DrawerTabs` in `#drawer-manager` (Overview
+    `#so-author-overview` with engine, requirements, history floor, `#so-author-story-controls`: New story / Edit story / Update to the latest;
+    Blackboard, Memory (author), Scheduler, Payload, DriverPanel), Illustrate prepared cast `#so-cast-scene`. An author chip
+    under a message opens this page with `#so-inspector` on top (`inspectorIntent`).
+  - **Library** (`SettingsPanel` `workspaceSection="library"`): entry points `#so-entry-points` — Start (`#so-new-story-wizard`,
+    import `#so-entry-import-toggle`/`#so-entry-import`), Continue (`#so-entry-continue`, Continue list closes the workspace
+    before switching chat), Repair (`#so-entry-repair`, `[data-so="repair-step"]`, `#so-entry-fix-with-wizard`), Author (`#so-open-studio`); story select.
+  - **Help**: guide, tours, **Help and Ask** (`#so-help-open-panel`) and the guide reader (`#so-help-open-guide`) open as floating panels.
+- **HUD** `#so-hud` above the chat input (`HudStrip.tsx`): scene, tension, `#so-hud-turn`, pending chip, `#so-hud-pipeline`,
+  `#so-hud-setup` (opens Play at `#so-setup`). The scene button `#so-hud-main` opens the **story card** `#so-hud-card`
+  (lazy `HudCard.tsx`, anchored above the HUD, never over the input): scene, status line, journal / What could I do? when
+  shown, memory peek (`memoryShown` only), **More…** (Play). Escape, close or an outside click closes it.
+- **Floating panels** `#so-panels-root` (`presenceUi.tsx`, `PanelFrame`): Help and Ask, guide reader, journal, stat sheet,
+  story panels, What could I do?. Under 768px a panel docks above `#form_sheld` (`dockInset`) and only the last-opened one shows (`shownPanels`).
+- **Inline timeline**: chips under each message (`#so-inline-<mesid>` hosts from `stHost/inlineMount.ts`, `components/inline/`), level `#so-inline-level` 0 Off / 1 Story (default) / 2 Behind the scenes / 3 Author / 4 Raw (3–4 need Author view); author chip opens `#so-inspector` on the Author page. The `/comment` transition note is opt-in (`#so-announce-transitions`, default off).
 - **Start pane** `#so-briefing` (Before you start + identity + briefing).
-- **Checkpoint Studio** (`src/studio/`): `StudioModal` (`#so-studio-modal`, native `<dialog>` in its own `#so-studio-root`), zustand draft (`draft.ts`), all edits through typed `mutations.ts`. The **Wizard** tab (tab id `copilot`): four author steps (`[data-so="wizard-step"]`) over five stages, interview (`#so-wizard-questions`), create-only provisioning cards applied one at a time; modes **Ask** (`#so-studio-ask`) and **Build a character** (`#so-character-tutorial`). "How to write this" disclosure `#so-studio-guide`. Saving hands the record back via `onSaved`; the runtime decides whether this chat takes it. Every UI part has a `.stories.tsx` (`test-storybook:ci`).
+- **Checkpoint Studio** (`src/studio/`): `StudioModal` (`#so-studio-modal`, native `<dialog>` in its own `#so-studio-root`), zustand draft (`draft.ts`), all edits through typed `mutations.ts`. The **Wizard** tab (tab id `copilot`): four author steps (`[data-so="wizard-step"]`) over five stages, interview (`#so-wizard-questions`), create-only provisioning cards applied one at a time; modes **Ask** (`#so-studio-ask`) and **Build a character** (`#so-character-tutorial`). "How to write this" disclosure `#so-studio-guide`. Editors are grouped into Story setup, Flow, State and rules, Characters, World, Presentation, Story features, Assistant and Validation; mobile graph sheets and checkpoint/transition drill-down keep editing enabled. Its gate replay jump closes the Studio before scrolling the chat. Saving hands the record back via `onSaved`; the runtime decides whether this chat takes it. Every UI part has a `.stories.tsx` (`test-storybook:ci`).
 - **Ask**: Help panel `#so-help-ask`, Studio Ask, `/story ask <question>`; switch `copilot.ask` (`#so-copilot-ask`). Debug: `globalThis.storyOrchestratorAsk.ask(question, persona?)`; live Q&A `node scripts/debug/so-ask-qa.mts run --group <name>`.
 - `src/components/studio/` = shared presentational primitives (`GraphPanel`, `MultiSelect`, `Toolbar`, `FeedbackAlert`, `HelpTooltip`, `AskBox`). Do not resurrect the deleted pre-Studio editor/context/session code.

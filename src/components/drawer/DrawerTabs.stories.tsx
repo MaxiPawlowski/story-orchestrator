@@ -1,11 +1,13 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn, within, userEvent, expect, waitFor } from "@storybook/test";
 import type { RuntimeManager } from "@runtime/index";
-import { buildNarrativeStatus } from "@runtime/narrative";
+import { buildNarrativeStatus, PLAYER_COPY } from "@runtime/narrative";
 import { derivePipelineStatus } from "@runtime/pipeline";
 import { createSaveHealth } from "@runtime/saveHealth";
 import type { ExtractionRuntimeState, RuntimeSnapshot } from "@runtime/types";
 import { DrawerTabs } from "./DrawerTabs";
+import { PlayerOverview } from "./PlayerOverview";
+import { FlagControl } from "./FlagControl";
 
 const openMemoryTab = async (canvas: ReturnType<typeof within>) => {
   await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
@@ -433,8 +435,11 @@ type Story = StoryObj<typeof DrawerTabs>;
 export const Overview: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText("The Ruined Gate")).toBeInTheDocument();
     await expect(canvas.getByRole("tab", { name: "Overview" })).toHaveAttribute("aria-selected", "true");
+    await expect(canvasElement.querySelector("#so-author-overview")).not.toBeNull();
+    await expect(canvasElement.querySelector("#so-player-overview")).toBeNull();
+    await expect(canvasElement.querySelector("#so-setup")).toBeNull();
+    await expect(canvas.queryByLabelText("Flag this moment")).toBeNull();
   },
 };
 
@@ -722,6 +727,50 @@ export const Memory: Story = {
     await expect(canvas.getByText(/State ledger \(2\)/)).toBeInTheDocument();
     await expect(canvas.getByText(/respect=2/)).toBeInTheDocument();
     await expect(canvas.getByText("blackboard")).toBeInTheDocument();
+  },
+};
+
+const excludeManager = (done: boolean) => ({ ...fakeManager(), excludeMemoryEntry: fn(async () => done), restoreMemoryEntry: fn(async () => undefined) }) as unknown as RuntimeManager;
+const excludingManager = excludeManager(true);
+const refusingManager = excludeManager(false);
+
+export const ExcludeOffersAnInlineUndo: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={memorySnapshot()} manager={excludingManager} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await openMemoryTab(canvas);
+    const row = canvasElement.querySelector('[data-so="memory-row"][data-id="m1"]') as HTMLElement;
+    await userEvent.click(within(row).getByRole("button", { name: "Exclude" }));
+    await expect(excludingManager.excludeMemoryEntry).toHaveBeenCalledWith("m1");
+    await waitFor(() => expect(canvasElement.querySelector("#so-memory-excluded")).not.toBeNull());
+    const status = canvasElement.querySelector("#so-memory-excluded") as HTMLElement;
+    await expect(status).toHaveAttribute("data-state", "excluded");
+    await expect(status).toHaveTextContent(PLAYER_COPY.memoryExcluded);
+    await userEvent.click(within(status).getByRole("button", { name: PLAYER_COPY.memoryUndo }));
+    await expect(excludingManager.restoreMemoryEntry).toHaveBeenCalledWith(expect.objectContaining({ id: "m1" }));
+    await expect(await canvas.findByText(PLAYER_COPY.memoryRestored)).toBeInTheDocument();
+  },
+};
+
+export const ExcludeRefusedSaysNothingChanged: Story = {
+  render: () => (
+    <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={memorySnapshot()} manager={refusingManager} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await openMemoryTab(canvas);
+    const row = canvasElement.querySelector('[data-so="memory-row"][data-id="m1"]') as HTMLElement;
+    await userEvent.click(within(row).getByRole("button", { name: "Exclude" }));
+    await waitFor(() => expect(canvasElement.querySelector("#so-memory-excluded")).not.toBeNull());
+    const status = canvasElement.querySelector("#so-memory-excluded") as HTMLElement;
+    await expect(status).toHaveAttribute("data-state", "refused");
+    await expect(within(status).queryByRole("button")).toBeNull();
   },
 };
 
@@ -1026,7 +1075,7 @@ export const AuthorSceneRead: Story = {
 export const PlayerSeesLocationNeverHeading: Story = {
   render: () => (
     <div style={{ maxWidth: 360 }}>
-      <DrawerTabs snapshot={sceneSnapshot(false)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      <PlayerOverview snapshot={sceneSnapshot(false)} />
     </div>
   ),
   play: async ({ canvasElement }) => {
@@ -1056,9 +1105,7 @@ export const PlayerView: Story = {
     await expect(canvas.queryByRole("tab", { name: "Scheduler" })).toBeNull();
     await expect(canvas.queryByRole("tab", { name: "Payload" })).toBeNull();
     await expect(canvas.getByRole("tab", { name: "Memory" })).toBeInTheDocument();
-    await expect(canvas.getByText("The Ruined Gate")).toBeInTheDocument();
-    await expect(canvas.getByText(/1 thing the story picked up/)).toBeInTheDocument();
-    // No engine vocabulary, no gate progress, no raw quality keys on the player surface.
+    await expect(canvasElement.querySelector("#so-author-overview")).toBeNull();
     await expect(canvas.queryByText(/boundary 6/i)).toBeNull();
     await expect(canvas.queryByText(/luke_decision/)).toBeNull();
     await expect(canvas.queryByText(/Convergence/)).toBeNull();
@@ -1208,7 +1255,7 @@ const notConfiguredSnapshot = (): RuntimeSnapshot => {
 export const NotConfigured: Story = {
   render: () => (
     <div style={{ maxWidth: 360 }}>
-      <DrawerTabs snapshot={notConfiguredSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onOpenSettings={fn()} />
+      <PlayerOverview snapshot={notConfiguredSnapshot()} onOpenSettings={fn()} />
     </div>
   ),
   play: async ({ canvasElement }) => {
@@ -1218,41 +1265,18 @@ export const NotConfigured: Story = {
   },
 };
 
-// V19: the drawer footer carries the settings panel's tasks. Repair shows only while a step is missing,
-// says what the story loses, and lands on the panel's own Repair row.
-export const FooterEntryPoints: Story = {
-  render: () => {
-    const openRepair = fn();
-    const newStory = fn();
-    (globalThis as { __footer?: unknown }).__footer = { openRepair, newStory };
-    return (
-      <div style={{ maxWidth: 360 }}>
-        <DrawerTabs snapshot={notConfiguredSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onOpenRepair={openRepair} onNewStory={newStory} />
-      </div>
-    );
-  },
-  play: async ({ canvasElement }) => {
-    const calls = (globalThis as unknown as { __footer: { openRepair: ReturnType<typeof fn>; newStory: ReturnType<typeof fn> } }).__footer;
-    const repair = canvasElement.querySelector("#so-drawer-repair") as HTMLButtonElement;
-    await expect(repair).toBeInTheDocument();
-    await expect(repair.textContent).toMatch(/^Repair: /);
-    await userEvent.click(repair);
-    await expect(calls.openRepair).toHaveBeenCalled();
-    await expect(canvasElement.querySelector("#so-drawer-new-story")).toBeNull();
-    await expect(calls.newStory).not.toHaveBeenCalled();
-  },
-};
-
-export const FooterWithoutARepairStep: Story = {
+export const AuthorControlsWithoutPlayerDuplicates: Story = {
   render: () => (
     <div style={{ maxWidth: 360 }}>
+      <DrawerTabs snapshot={notConfiguredSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onOpenRepair={fn()} onNewStory={fn()} />
       <DrawerTabs snapshot={sampleSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onOpenRepair={fn()} onNewStory={fn()} />
     </div>
   ),
   play: async ({ canvasElement }) => {
-    await expect(canvasElement.querySelector("#so-drawer-entry-points")).toBeInTheDocument();
-    await expect(canvasElement.querySelector("#so-drawer-new-story")).toBeInTheDocument();
+    await expect(canvasElement.querySelectorAll("#so-author-new-story").length).toBe(1);
     await expect(canvasElement.querySelector("#so-drawer-repair")).toBeNull();
+    await expect(canvasElement.querySelector("#so-restart-story-drawer")).toBeNull();
+    await expect(canvasElement.querySelector("#so-story-briefing")).toBeNull();
   },
 };
 
@@ -1268,7 +1292,7 @@ const catchingUpSnapshot = (): RuntimeSnapshot => {
 export const CatchingUp: Story = {
   render: () => (
     <div style={{ maxWidth: 360 }}>
-      <DrawerTabs snapshot={catchingUpSnapshot()} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+      <PlayerOverview snapshot={catchingUpSnapshot()} />
     </div>
   ),
   play: async ({ canvasElement }) => {
@@ -1311,7 +1335,7 @@ export const AuthorStoryControls: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("button", { name: "Edit story" })).toBeInTheDocument();
     await expect(canvas.getByRole("button", { name: "Update to the latest" })).toBeInTheDocument();
-    await expect(canvas.getByRole("button", { name: "Restart story" })).toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: "Restart story" })).toBeNull();
   },
 };
 
@@ -1323,7 +1347,7 @@ export const PlayerStoryControls: Story = {
   ),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByRole("button", { name: "Restart story" })).toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: "Restart story" })).toBeNull();
     await expect(canvas.queryByRole("button", { name: "Edit story" })).toBeNull();
     await expect(canvas.queryByRole("button", { name: /Update to the latest/ })).toBeNull();
   },
@@ -1442,6 +1466,7 @@ export const PlayerSeesNoWizardFix: Story = {
     snapshot.requirements = { ready: false, missingPersonas: [], missingMembers: ["Arin"], missingLorebooks: [] };
     return (
       <div style={{ maxWidth: 360 }}>
+        <PlayerOverview snapshot={derive(snapshot as unknown as RuntimeSnapshot)} />
         <DrawerTabs snapshot={derive(snapshot as unknown as RuntimeSnapshot)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onFixWithWizard={fn()} />
       </div>
     );
@@ -1459,7 +1484,7 @@ export const FlagMoment: Story = {
     const manager = fakeManager();
     return (
       <div style={{ maxWidth: 360 }}>
-        <DrawerTabs snapshot={playerSnapshot()} manager={manager} driver={{ context: null, activeNudge: null, controller: {} as never }} />
+        <FlagControl manager={manager} />
       </div>
     );
   },
@@ -1470,6 +1495,7 @@ export const FlagMoment: Story = {
     await userEvent.type(note, "recap was useless");
     await userEvent.click(canvas.getByRole("button", { name: "Flag" }));
     await expect(canvas.getByLabelText("Flag this moment")).toBeInTheDocument();
+    await expect(await canvas.findByRole("status")).toHaveTextContent(PLAYER_COPY.flagged);
   },
 };
 
@@ -1544,6 +1570,7 @@ export const AuthorBranchesFromTheOldestRestorablePoint: Story = {
 export const PlayerNeverSeesTheHistoryFloor: Story = {
   render: () => (
     <div style={{ maxWidth: 360 }}>
+      <PlayerOverview snapshot={floorSnapshot(false)} />
       <DrawerTabs snapshot={floorSnapshot(false)} manager={fakeManager()} driver={{ context: null, activeNudge: null, controller: {} as never }} onBranchFromOldest={branchFromOldest} />
     </div>
   ),

@@ -32,7 +32,14 @@ export interface PipelineStatus {
 }
 
 export const HUD_COPY = {
-  open: "Open the story",
+  open: "Open the story card",
+  cardLabel: "Story card",
+  cardClose: "Close the story card",
+  cardMore: "More…",
+  cardMoreTitle: "Open This story → Play",
+  cardMemory: "What the story remembers",
+  cardMemoryEmpty: "Nothing remembered yet.",
+  cardMemoryAll: "See all",
   branchChip: "You went back: continue from here?",
   steppedBack: "stepped back",
   fallbackScene: "Current scene",
