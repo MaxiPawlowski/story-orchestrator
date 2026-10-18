@@ -36,9 +36,10 @@ const expectScrolledToHeading = async (reader: HTMLElement) => {
   }, { timeout: 8000 });
   const region = heading.closest<HTMLElement>(".so-guide-content");
   await expect(region).not.toBeNull();
+  if (!region) return;
   await waitFor(() => {
-    expect(region!.scrollTop).toBeGreaterThan(0);
-    expect(Math.abs(heading.getBoundingClientRect().top - region!.getBoundingClientRect().top)).toBeLessThan(8);
+    expect(region.scrollTop).toBeGreaterThan(0);
+    expect(Math.abs(heading.getBoundingClientRect().top - region.getBoundingClientRect().top)).toBeLessThan(8);
   });
 };
 
