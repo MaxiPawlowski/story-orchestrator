@@ -187,3 +187,30 @@ const firstAction = (canvasElement: HTMLElement) => canvasElement.querySelector(
 export const Phone: Story = { ...crowded, ...fitsAt(VIEWPORTS.phone, firstAction) };
 export const Tablet: Story = { ...crowded, ...fitsAt(VIEWPORTS.tablet, firstAction) };
 export const Desktop: Story = { ...crowded, ...fitsAt(VIEWPORTS.wide, firstAction) };
+
+const lostLibrary = { args: { findings: setupFindings(snapshot({ libraryLost: { stories: ["Old tale"], sessions: [], changed: [] } })) } };
+
+const lineCount = (element: Element) => {
+  const range = element.ownerDocument.createRange();
+  range.selectNodeContents(element);
+  return new Set([...range.getClientRects()].filter((rect) => rect.width > 0).map((rect) => Math.round(rect.bottom))).size;
+};
+
+const repairCard = (viewport: { width: number; height: number }, maxLines: number): Story => ({
+  ...lostLibrary,
+  parameters: { testViewport: viewport },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const card = canvasElement.querySelector("#so-setup") as HTMLElement;
+    await expect(Number.parseFloat(getComputedStyle(card).paddingLeft)).toBeGreaterThanOrEqual(12);
+    const fix = canvas.getByRole("button", { name: "I have dealt with it, stop reporting these" });
+    const dismiss = canvas.getByRole("button", { name: SETUP_COPY.dismiss });
+    await expect(lineCount(fix)).toBeLessThanOrEqual(maxLines);
+    await expect(lineCount(dismiss)).toBe(1);
+    await expect(fix.getBoundingClientRect().width).toBeGreaterThan(dismiss.getBoundingClientRect().width);
+    await expect(canvasElement.ownerDocument.documentElement.scrollWidth).toBeLessThanOrEqual(canvasElement.ownerDocument.documentElement.clientWidth);
+  },
+});
+
+export const RepairCardDesktop: Story = repairCard(VIEWPORTS.wide, 1);
+export const RepairCardPhone: Story = repairCard(VIEWPORTS.phone, 2);

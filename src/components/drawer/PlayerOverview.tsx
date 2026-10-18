@@ -47,7 +47,7 @@ const MissingRequirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
 const NowSection = ({ lines }: { lines: string[] }) => (
   <div className="checkpoints-wrapper flex flex-col gap-1">
     <div className="font-medium">Where you are</div>
-    <div className="st-checkpoint-row status-current">
+    <div className="st-checkpoint-row status-current flex flex-col gap-1 rounded-md px-3 py-2">
       <div className="font-semibold">{lines[0]}</div>
       {lines.slice(1).map((line) => <div key={line} className="text-sm opacity-80">{line}</div>)}
     </div>

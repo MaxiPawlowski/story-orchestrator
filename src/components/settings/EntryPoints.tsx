@@ -37,8 +37,8 @@ export interface EntryPointsProps {
 export const WIZARD_OFF_REASON = "Turn on the wizard under Authoring first.";
 
 const Row = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <div className="so-task-card flex flex-col gap-1" data-so="entry-point" data-task={title.toLowerCase()}>
-    <div className="font-medium text-sm">{title}</div>
+  <div className="so-task-card" data-so="entry-point" data-task={title.toLowerCase()}>
+    <div className="so-card-heading">{title}</div>
     {children}
   </div>
 );
@@ -49,12 +49,12 @@ const RepairAuthorDetail = ({ repair, wizardOn, onFixWithWizard, onRepairCast }:
   <>
     <div data-so="repair-detail" className="text-xs opacity-70">{repair.detail}</div>
     {repair.action && onRepairCast && (
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="so-actions">
         <button type="button" data-so="repair-fix" className="menu_button" onClick={() => onRepairCast(repair.action as OneClickFix)}>{repair.action.label}</button>
       </div>
     )}
     {repair.provisionable && (
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="so-actions">
         <button
           id="so-entry-fix-with-wizard"
           type="button"
@@ -82,7 +82,7 @@ export default function EntryPoints(props: EntryPointsProps) {
   return (
     <div id="so-entry-points" className="so-task-grid">
       <Row title="Start">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="so-actions">
           <button
             id="so-new-story-wizard"
             type="button"
@@ -103,7 +103,7 @@ export default function EntryPoints(props: EntryPointsProps) {
         <div id="so-entry-continue" className="text-xs opacity-80">
           {playingLine(playing)}
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="so-actions">
           <button type="button" className="menu_button" disabled={busy} onClick={() => onRevealSetting("story-library-select")}>Choose a story</button>
           <button type="button" className="menu_button" disabled={busy || !snapshot.storyId} onClick={() => onRevealSetting("so-restart-story")}>Restart or export</button>
         </div>
@@ -116,15 +116,15 @@ export default function EntryPoints(props: EntryPointsProps) {
       </Row>
       <Row title="Repair">
         {repair ? (
-          <div id="so-entry-repair" data-so="repair-step" data-area={repair.area} className="flex flex-col gap-1">
+          <div id="so-entry-repair" data-so="repair-step" data-area={repair.area} className="flex flex-col gap-2">
             <div className="text-xs so-warning-text">{repair.consequence}</div>
             {repair.targetId && (
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="so-actions">
                 <button type="button" data-so="repair-reveal" className="menu_button" onClick={() => onRevealSetting(repair.targetId as string)}>Show me the setting</button>
               </div>
             )}
             {!repair.targetId && repair.opensGroup && onOpenGroup && (
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="so-actions">
                 <button type="button" data-so="repair-reveal" className="menu_button" onClick={onOpenGroup}>Show me the group</button>
               </div>
             )}
@@ -135,7 +135,7 @@ export default function EntryPoints(props: EntryPointsProps) {
         )}
       </Row>
       <Row title="Author">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="so-actions">
           {(!snapshot.storyId || snapshot.ui.authorView) && <button id="so-open-studio" type="button" className="menu_button" disabled={busy} onClick={onOpenStudio}>Open Studio</button>}
           {snapshot.storyId && !snapshot.ui.authorView && (
             <button id="so-entry-author-view" type="button" className="menu_button" onClick={onOpenAuthorView ?? onOpenDrawer}>Turn on Author view</button>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState, type MouseEvent } from "react";
 import { askHost } from "@runtime/askEntry";
+import type { ChatPanel } from "../../presenceUi";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import { capabilityReport, hostFacts, judgeStatus, stImageSource, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
@@ -64,7 +65,7 @@ export interface SettingsHost {
   openPlay?: (row: ContinueRow) => void;
   helpOpen?: boolean;
   toggleHelp?: () => void;
-  openPanel?: (panel: "help" | "guide") => void;
+  openPanel?: (panel: "help" | "guide" | ChatPanel) => void;
   openGuide?: (doc: string) => void;
 }
 
@@ -133,12 +134,6 @@ const openGuideFromWorkspace = (doc?: string) => {
   if (url) window.open(url, "_blank", "noopener");
 };
 
-const openGuideDoc = (doc: string) => {
-  if (requestGuide(doc)) return;
-  const url = guideUrl(doc);
-  if (url) window.open(url, "_blank", "noopener");
-};
-
 const useOpenAreas = () => {
   const [open, setOpen] = useState<readonly string[]>(() => getGlobalSettings().help.openSections);
   const toggle = (area: FeatureArea, next: boolean) => {
@@ -154,7 +149,7 @@ const SettingsPanel = ({ snapshot, manager, host, workspaceSection }: SettingsPa
   const judge = useJudgeControls(manager);
   const hostProbe = useHostProbe();
   const areas = useOpenAreas();
-  const openGuide = host.openGuide ?? openGuideDoc;
+  const openGuide = host.openGuide ?? openGuideFromWorkspace;
   const area = (id: FeatureArea) => ({ area: id, open: areas.open.includes(id), onToggle: areas.toggle, onGuide: openGuide });
   const show = (id: FeatureArea) => !workspaceSection || (workspaceSection === "library" && id === "play")
     || (workspaceSection === "connections" && ["memory", "world", "images", "judge", "setup"].includes(id))

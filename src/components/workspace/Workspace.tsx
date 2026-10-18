@@ -1,4 +1,3 @@
-import { useCallback } from "react";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import type { RuntimeManager } from "@runtime/runtimeManager";
@@ -12,12 +11,11 @@ import { DevicePreferences } from "./DevicePreferences";
 import { setupFindings } from "@runtime/repair";
 import PlayerOverview from "@components/drawer/PlayerOverview";
 import SetupSection from "@components/drawer/SetupSection";
-import { GameOpeners } from "../../presenceUi";
+import { ChatPanelLaunchers } from "../../presenceUi";
 import "./workspace.css";
 import { getGlobalSettings } from "@runtime/settingsStore";
 import BranchNotice from "@components/drawer/BranchNotice";
 import { composeActivity } from "@runtime/activityFeed";
-import { askSuggestions, fillSuggestion } from "@runtime/suggestionsHost";
 import { FlagControl } from "@components/drawer/DrawerTabs";
 import { requestBriefing } from "@runtime/briefingRequest";
 
@@ -26,7 +24,6 @@ const DrawerTabs = lazyRetry(() => import("../drawer/DrawerTabs"));
 const StagecraftPanel = lazyRetry(() => import("../drawer/StagecraftPanel"));
 const MemoryTab = lazyRetry(() => import("../drawer/tabs/MemoryTab").then((module) => ({ default: module.MemoryTab })));
 const ActivityPanel = lazyRetry(() => import("../panels/ActivityPanel"));
-const SuggestionsPanel = lazyRetry(() => import("../panels/SuggestionsPanel"));
 
 export interface WorkspaceProps {
   intent: WorkspaceIntent;
@@ -39,7 +36,6 @@ export interface WorkspaceProps {
 }
 
 export default function Workspace({ intent, snapshot, manager, settingsHost, drawerProps, onClose, onContinueBranch }: WorkspaceProps) {
-  const requestSuggestions = useCallback(() => askSuggestions(manager), [manager]);
   const global = getGlobalSettings();
   const installSnapshot = { ...snapshot, extraction: { ...snapshot.extraction, settings: global.extraction },
     memory: { ...snapshot.memory, settings: global.memory }, stagecraft: { ...snapshot.stagecraft, settings: global.stagecraft } };
@@ -52,22 +48,30 @@ export default function Workspace({ intent, snapshot, manager, settingsHost, dra
         <Lazy><SettingsPanel snapshot={installSnapshot} manager={manager} host={settingsHost}
           workspaceSection={location.page === "connections" ? "connections" : location.page === "interface" ? "interface" : location.page === "help" ? "help" : "library"} /></Lazy>
       </>;
-      if (location.page === "play") return <section><h2>Playing this story</h2>
+      if (location.page === "play") return <section className="so-play">
+        <h2>Playing this story</h2>
         {snapshot.chatIdentity?.kind === "branch" && onContinueBranch && <BranchNotice identity={snapshot.chatIdentity} onContinue={onContinueBranch} />}
         <SetupSection findings={setupFindings(snapshot)} authorView={snapshot.ui.authorView} beforeStart={snapshot.boundary === 0} onShowMe={drawerProps.onShowMe} onFix={drawerProps.onFix}
           onDismiss={(id, dismissed) => manager.setCheckDismissed(id, dismissed)} />
         {snapshot.ready ? <>
-          <PlayerOverview snapshot={snapshot} onOpenSettings={settingsHost.openDrawer} onReread={() => void manager.runExtractionNow()}
-            onRetry={() => void manager.retryExtraction()} onRestart={() => void manager.restartStory()} onDismissPreviously={() => void manager.carry.dismiss()} />
-          <GameOpeners snapshot={snapshot} />
-          {snapshot.presence?.shown.suggestions && <details><summary id="so-open-suggestions">What could I do?</summary>
-            <Lazy><SuggestionsPanel request={requestSuggestions} fill={fillSuggestion} /></Lazy></details>}
-          <details><summary id="so-open-memory">What the story remembers</summary><Lazy><MemoryTab snapshot={snapshot} manager={manager} authorView={false} /></Lazy></details>
-          <button className="st-button secondary" onClick={() => void manager.restartStory()}>Restart story</button>
-          {snapshot.briefing?.view && <button id="so-story-briefing" className="st-button secondary" onClick={() => requestBriefing()}>Story briefing</button>}
-          <FlagControl manager={manager} />
-        </> : <><p>{snapshot.noChat ? "Open a group chat to play a story." : snapshot.noGroup ? "Stories run in group chats. Create or open the story's group." : "Choose a story for this chat."}</p>
-          <button className="st-button primary" onClick={() => navigate({ context: "orchestrator", page: "library" })}>Open library</button></>}
+          <div className="so-task-card">
+            <PlayerOverview snapshot={snapshot} onOpenSettings={settingsHost.openDrawer} onReread={() => void manager.runExtractionNow()}
+              onRetry={() => void manager.retryExtraction()} onRestart={() => void manager.restartStory()} onDismissPreviously={() => void manager.carry.dismiss()} />
+          </div>
+          {settingsHost.openPanel && <ChatPanelLaunchers snapshot={snapshot} onLaunch={settingsHost.openPanel} />}
+          <details className="so-task-card so-card-disclosure">
+            <summary id="so-open-memory" className="so-card-heading">What the story remembers</summary>
+            <Lazy><MemoryTab snapshot={snapshot} manager={manager} authorView={false} /></Lazy>
+          </details>
+          <div className="so-actions">
+            <button className="st-button secondary" onClick={() => void manager.restartStory()}>Restart story</button>
+            {snapshot.briefing?.view && <button id="so-story-briefing" className="st-button secondary" onClick={() => requestBriefing()}>Story briefing</button>}
+            <FlagControl manager={manager} />
+          </div>
+        </> : <div className="so-task-card">
+          <p>{snapshot.noChat ? "Open a group chat to play a story." : snapshot.noGroup ? "Stories run in group chats. Create or open the story's group." : "Choose a story for this chat."}</p>
+          <div className="so-actions"><button className="st-button primary" onClick={() => navigate({ context: "orchestrator", page: "library" })}>Open library</button></div>
+        </div>}
       </section>;
       if (!snapshot.ui.authorView) return <section><h2>{location.page === "review" ? "Review proposals" : "Author view"}</h2>
         <p>This area can reveal private character knowledge, lore and future routes. Feature configuration is available without revealing them.</p>

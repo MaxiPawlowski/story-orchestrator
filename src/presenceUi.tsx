@@ -79,25 +79,49 @@ export const gamePanels = (snapshot: RuntimeSnapshot) => {
   };
 };
 
-const Opener = ({ id, icon, label, panel, open }: { id: string; icon: string; label: string; panel: PanelId; open: readonly PanelId[] }) => (
-  <button id={id} type="button" data-so={id.slice(3)} className={`menu_button fa-solid ${icon}`} aria-expanded={open.includes(panel)} aria-label={label} title={label}
-    onClick={() => togglePanel(panel)} />
-);
+export type ChatPanel = "journal" | "stat-sheet" | "widgets" | "suggestions";
 
-export const GameOpeners = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
-  const open = useOpenPanels();
+export const openChatPanel = (panel: ChatPanel, snapshot: RuntimeSnapshot) => {
+  if (panel === "widgets") gamePanels(snapshot).widgets.forEach((widget) => setPanel(`widget-${widget.id}`, true));
+  else setPanel(panel, true);
+};
+
+export const chatPanelsShown = (snapshot: RuntimeSnapshot): ChatPanel[] => {
   const game = gamePanels(snapshot);
-  const widgets = game.widgets;
-  const widgetsOpen = widgets.some((widget) => open.includes(`widget-${widget.id}`));
+  return [
+    ...(game.journal ? ["journal" as const] : []),
+    ...(game.statSheet ? ["stat-sheet" as const] : []),
+    ...(game.widgets.length ? ["widgets" as const] : []),
+    ...(snapshot.ready && snapshot.presence?.shown.suggestions === true ? ["suggestions" as const] : []),
+  ];
+};
+
+const LAUNCHERS: Record<ChatPanel, { id: string; icon: string; label: string }> = {
+  journal: { id: "so-open-journal", icon: "fa-book", label: GAME_TEXT.journalLaunch },
+  "stat-sheet": { id: "so-open-stat-sheet", icon: "fa-list-check", label: GAME_TEXT.statSheetLaunch },
+  widgets: { id: "so-open-widgets", icon: "fa-table-columns", label: GAME_TEXT.widgetsLaunch },
+  suggestions: { id: "so-open-suggestions", icon: "fa-lightbulb", label: PRESENCE_TEXT.suggestionsOpen },
+};
+
+export const ChatPanelLaunchers = ({ snapshot, onLaunch }: { snapshot: RuntimeSnapshot; onLaunch: (panel: ChatPanel) => void }) => {
+  const shown = chatPanelsShown(snapshot);
+  if (!shown.length) return null;
   return (
-    <>
-      {game.journal && <Opener id="so-open-journal" icon="fa-book" label={GAME_TEXT.journalOpen} panel="journal" open={open} />}
-      {game.statSheet && <Opener id="so-open-stat-sheet" icon="fa-list-check" label={GAME_TEXT.statSheetOpen} panel="stat-sheet" open={open} />}
-      {widgets.length > 0 && (
-        <button id="so-open-widgets" type="button" data-so="open-widgets" className="menu_button fa-solid fa-table-columns" aria-expanded={widgetsOpen}
-          aria-label={GAME_TEXT.widgetsOpen} title={GAME_TEXT.widgetsOpen} onClick={() => widgets.forEach((widget) => setPanel(`widget-${widget.id}`, !widgetsOpen))} />
-      )}
-    </>
+    <section id="so-chat-side" aria-labelledby="so-chat-side-heading" className="so-task-card">
+      <h3 id="so-chat-side-heading" className="so-card-heading">{PRESENCE_TEXT.chatSideHeading}</h3>
+      <p className="so-card-hint">{PRESENCE_TEXT.chatSideHint}</p>
+      <div className="so-actions">
+        {shown.map((panel) => {
+          const { id, icon, label } = LAUNCHERS[panel];
+          return (
+            <button key={panel} id={id} type="button" data-so={id.slice(3)} className="menu_button so-launcher" onClick={() => onLaunch(panel)}>
+              <i className={`fa-solid ${icon}`} aria-hidden="true" />
+              <span>{label}</span>
+            </button>
+          );
+        })}
+      </div>
+    </section>
   );
 };
 
