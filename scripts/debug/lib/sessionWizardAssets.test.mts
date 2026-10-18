@@ -239,7 +239,7 @@ const stopAllow = (start: any, end: any, drafts: any, card: { headerAllow?: stri
 };
 const blocking = (start: unknown, end: unknown, allow: string[]) => diffHeaders(start, end, allow).filter((difference) => !difference.allowed).map((difference) => difference.path);
 
-test('T5-4 Fix with wizard: a session that existed at start allows exactly what its ledger grew by, and the story's library copy changing', async () => {
+test('T5-4 Fix with wizard: a session that existed at start allows exactly what its ledger grew by, and the story library copy changing', async () => {
   const { start, end, drafts } = continued();
   const card = findCard(await loadCards(), 'T5-4');
   const { wizard, declared, allow } = stopAllow(start, end, drafts, card);
