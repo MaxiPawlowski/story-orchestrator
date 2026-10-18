@@ -51,7 +51,7 @@ export interface LibraryCapture {
 export interface LibraryRestorePlan {
   untrusted: boolean;
   next: unknown[];
-  /** Records the run left that were not in the library before it (`id@version (hash)`). */
+  /** Records the run left that were not in the library before it (`id (hash)`). */
   removed: string[];
   /** Records that existed before and were changed or removed by the run, put back as they were. */
   restored: string[];

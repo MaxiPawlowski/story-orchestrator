@@ -134,7 +134,7 @@ test('pin bump: a continuation of the leased chat runs at the lane\'s own pin, r
   const doc = await loadCards();
   const card = findCard(doc, 'T2-4');
   const fresh = findCard(doc, 'T1-2');
-  const inventory = { commit: 'old', books: [{ name: 'Adolion' }], library: [{ id: 'adolion-saga', version: 1 }] };
+  const inventory = { commit: 'old', books: [{ name: 'Adolion' }], library: [{ id: 'adolion-saga' }] };
   const seeds = [
     { name: 'report-2026-10-01T10-00-00-000Z.json', report: { commit: 'older', file: 'inv-a.json', problems: [] } },
     { name: 'report-2026-10-01T11-00-00-000Z.json', report: { commit: 'old', file: 'inv-b.json', problems: [] } },
