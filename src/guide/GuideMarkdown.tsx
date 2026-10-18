@@ -10,13 +10,22 @@ export interface GuideMarkdownProps {
   onNavigate?: (target: GuideTarget) => void;
   hrefFor?: (target: GuideTarget) => string;
   assetSrc?: (asset: string) => string | undefined;
+  checks?: Readonly<Record<string, boolean>>;
+  onShow?: (value: string) => void;
+  actionLabels?: GuideActionLabels;
+}
+
+export interface GuideActionLabels {
+  showMe: string;
+  checkDone: string;
+  checkTodo: string;
 }
 
 export const headingDomId = (slug: string) => `so-guide-h-${slug}`;
 
 const HEADING_TAGS = ["h2", "h3", "h4", "h5", "h6", "h6"] as const;
 
-export function GuideMarkdown({ doc, body, homePage, onNavigate, hrefFor, assetSrc }: GuideMarkdownProps) {
+export function GuideMarkdown({ doc, body, homePage, onNavigate, hrefFor, assetSrc, checks, onShow, actionLabels }: GuideMarkdownProps) {
   const slug = slugger();
 
   const inline = (nodes: Inline[], key = "i"): ReactNode[] => nodes.map((node, index) => {
@@ -45,6 +54,17 @@ export function GuideMarkdown({ doc, body, homePage, onNavigate, hrefFor, assetS
         const src = asset && node.alt.trim() ? assetSrc?.(asset) : undefined;
         if (src) return <img key={id} src={src} alt={node.alt} data-so="guide-image" data-asset={asset ?? undefined} className="so-guide-image" loading="lazy" />;
         return node.alt.trim() ? <span key={id} data-so="guide-image-refused">{node.alt}</span> : null;
+      }
+      case "action": {
+        if (!actionLabels) return null;
+        if (node.name === "show") {
+          return onShow ? <button key={id} type="button" className="menu_button so-guide-show" data-so="guide-show" data-show={node.value}
+            onClick={() => onShow(node.value)}>{actionLabels.showMe}</button> : null;
+        }
+        if (!checks || !(node.value in checks)) return null;
+        const done = checks[node.value];
+        return <span key={id} className={`so-guide-check ${done ? "so-success-text" : ""}`} data-so="guide-check" data-check={node.value} data-done={done}>
+          <i className={done ? "fa-solid fa-circle-check" : "fa-regular fa-circle"} aria-hidden="true" /> {done ? actionLabels.checkDone : actionLabels.checkTodo}</span>;
       }
       default: return null;
     }

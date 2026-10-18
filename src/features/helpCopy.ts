@@ -11,6 +11,8 @@ export const HELP_COPY = {
   showMe: "Show me",
   readMore: "Read more",
   tour: "Take the tour",
+  setupPath: "Setup path",
+  quickStart: "Quick start",
   openPanel: "Help and Ask",
   where: "Where",
   guideHeading: "Author's guide",
@@ -59,5 +61,8 @@ export const GUIDE_COPY = {
   missing: "That page is not available here. Pick one from the list.",
   openInGuide: "Open in the guide",
   close: "Close the guide",
+  showMe: "Show me",
+  checkDone: "Done",
+  checkTodo: "Not yet",
   audience: { player: "Playing", setup: "Setup", author: "Writing stories" },
 } as const;

@@ -189,3 +189,22 @@ export const ShowsBundledImagesOnly: Story = {
     await expect(canvas.getByText("Remote")).toBeInTheDocument();
   },
 };
+
+export const QuickStartChecklist: Story = {
+  args: {
+    pages: [page("quick-start", "player", ["# Quick start", "", "1. <!-- so:check memory --> **Pick a memory model.** <!-- so:show setup:memory -->",
+      "2. <!-- so:check story --> **Import a story.** <!-- so:show player:library -->"])],
+    target: { id: "quick-start" },
+    checks: { memory: true, story: false },
+    onShow: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByText("Pick a memory model.")).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-check="memory"]')).toHaveAttribute("data-done", "true");
+    await expect(canvasElement.querySelector('[data-check="story"]')).toHaveAttribute("data-done", "false");
+    await expect(canvas.getByText("Not yet")).toBeInTheDocument();
+    await userEvent.click(canvas.getAllByRole("button", { name: "Show me" })[1]);
+    await expect(args.onShow).toHaveBeenCalledWith("player:library");
+  },
+};

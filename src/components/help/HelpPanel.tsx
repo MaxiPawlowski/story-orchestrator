@@ -80,8 +80,8 @@ export function HelpPanel({ features, isOn, homePage, guideTopics = [], onShowMe
       <div className="text-xs opacity-80">{HELP_COPY.intro}</div>
       {ask}
       {(onOpenDoc || onTour) && <div className="flex flex-wrap gap-2">
-        {onTour && <button type="button" data-so="help-tour" className="menu_button text-xs" onClick={onTour}>{HELP_COPY.tour}</button>}
-        {onOpenDoc && <button type="button" data-so="help-open-guide" className="menu_button text-xs" onClick={() => onOpenDoc()}>{GUIDE_COPY.open}</button>}
+        {onTour && <button type="button" data-so="help-tour" className="menu_button text-xs whitespace-nowrap" onClick={onTour}>{HELP_COPY.tour}</button>}
+        {onOpenDoc && <button type="button" data-so="help-open-guide" className="menu_button text-xs whitespace-nowrap" onClick={() => onOpenDoc()}>{GUIDE_COPY.open}</button>}
       </div>}
       <label htmlFor={searchId} className="sr-only">{HELP_COPY.search}</label>
       <input id={searchId} data-so="help-search" type="search" className="text_pole" value={query} placeholder={HELP_COPY.searchPlaceholder} onChange={(event) => setQuery(event.target.value)} />

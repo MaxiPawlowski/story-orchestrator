@@ -201,6 +201,7 @@ const StudioTabList = ({ tabs, activeTab, onSelect }: TabListProps) => {
 
   return (
     <div><nav className="so-studio-tasks" aria-label="Studio tasks">{tasks.map((entry) => <button type="button" key={entry.label}
+      id={`so-studio-task-${entry.label.toLowerCase().replace(/\s+/g, "-")}`}
       className={`st-button secondary ${entry === task ? "st-tab-active" : ""}`} aria-current={entry === task ? "page" : undefined}
       onClick={() => onSelect(entry.tabs[0])}>{entry.label}</button>)}</nav>
     <div className="flex flex-wrap items-center gap-2 px-3 py-2" role="tablist" aria-label="Studio sections" onKeyDown={onTablistKeyDown}>

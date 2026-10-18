@@ -62,7 +62,7 @@ export default function Workspace({ intent, snapshot, manager, settingsHost, dra
           <GameOpeners snapshot={snapshot} />
           {snapshot.presence?.shown.suggestions && <details><summary id="so-open-suggestions">What could I do?</summary>
             <Lazy><SuggestionsPanel request={requestSuggestions} fill={fillSuggestion} /></Lazy></details>}
-          <details><summary>What the story remembers</summary><Lazy><MemoryTab snapshot={snapshot} manager={manager} authorView={false} /></Lazy></details>
+          <details><summary id="so-open-memory">What the story remembers</summary><Lazy><MemoryTab snapshot={snapshot} manager={manager} authorView={false} /></Lazy></details>
           <button className="st-button secondary" onClick={() => void manager.restartStory()}>Restart story</button>
           {snapshot.briefing?.view && <button id="so-story-briefing" className="st-button secondary" onClick={() => requestBriefing()}>Story briefing</button>}
           <FlagControl manager={manager} />

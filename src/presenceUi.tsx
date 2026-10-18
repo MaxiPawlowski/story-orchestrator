@@ -11,6 +11,7 @@ import { panelGeometry } from "@runtime/panelGeometry";
 import { readPanels, savePanel } from "@runtime/panelStore";
 import { composeActivity } from "@runtime/activityFeed";
 import { setupFindings } from "@runtime/repair";
+import { hasOpenGroup } from "@runtime/persistence";
 import { renderNarrativeNode } from "@runtime/narrative";
 import type { MountRegistry } from "@utils/mountRegistry";
 import type { FeatureWhere } from "@features/registry";
@@ -137,7 +138,8 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
         )}
         {panels.includes("guide") && (
           <Panel id="guide" title={GUIDE_COPY.title}>
-            <Lazy fallback={null}><GuideHost authorView={snapshot.ui.authorView} target={guideTarget} onTargetSeen={() => { guideTarget = null; }} /></Lazy>
+            <Lazy fallback={null}><GuideHost authorView={snapshot.ui.authorView} target={guideTarget} onTargetSeen={() => { guideTarget = null; }} snapshot={snapshot}
+              groupOpen={hasOpenGroup()} onShowMe={() => setPanel("guide", false)} /></Lazy>
           </Panel>
         )}
         {activity && (

@@ -82,3 +82,98 @@ Branch `v2.8-tour-setup-path`, worktree `../so-tour`, lane 88 on the private ST 
   (the child's scroll effect ran before the parent's `showModal`). The tour reader now opens in a layout effect; the
   Studio's guide dialog has the same order and was left alone (outside this plan).
 - No story-guide change: the tour adds no authorable field. Plan 24 matrix row `tour` added; coverage 124 green, 0 red.
+
+## Redesign 2026-10-18: coach marks on the real UI, quick start as the entry point (branch `v2.8-tour-coach`)
+
+The owner rejected the three-column tour dialog (layout, presentation, navigation; the fake example mocks were unclear)
+and chose "A + C".
+
+### What changed
+
+- **A. Coach marks** (`src/guide/tour/`, lazy chunk): a ring around the real control plus one card ("Step n of m",
+  title, one or two sentences, **Skip tour**, **Back**, **Next** / **Done**). Three flows of 4–7 stops
+  (`coachFlows.ts`): Player 7 (route icon, Library, Play, What the story remembers, repair card, the strip above the
+  chat box, Help), Author 6 (Author view, Review, the wizard, Open Studio, the Studio's Wizard tab, Validation), Setup 6
+  (memory model, Test memory model, judge key, Defaults, one feature card, the setup path page). A stop runs an action
+  first (`workspaceNavigation.open`, back to the chat, open the Studio, open a guide page), then looks for its anchors
+  for 3 s; the first shown anchor wins (an `alt` anchor switches to the stop's alternate text, e.g. Author view already
+  on). Missing or hidden: the card says so in plain words and keeps **Next**. Closed `<details>` ancestors are opened;
+  a target summary's own details is not.
+- Top layer: the card is a `popover="manual"` element portaled into the topmost open modal dialog, else `body`
+  (a modal dialog makes everything outside it inert, and ST's `html` transform breaks `position: fixed`). Verified live
+  inside the workspace, the Studio and over the plain chat. Repositions on resize, scroll (capture), visual viewport,
+  DOM mutations and target resize. Under 700 px the card is a sheet at the bottom, or the top when the target is low.
+  Escape (capture listener) closes the tour only; the workspace stays open. Focus goes to **Next** on every stop and
+  back to the opener on close.
+- Entry points: **Orchestrator → Help** now has **Quick start**, **Take the tour** (opens a chooser card: Playing a
+  story / Writing stories / Setting up), **Setup path** (closes the workspace, opens the guide page);
+  `/story tour [player|author|setup]` starts a flow; the floating Help panel's **Take the tour** opens the chooser.
+- Removed: `TourDialog`, `TourStep`, `TourMocks`, `TourFinder`, `TourGuideReader`, `TourText`, `tourProgress`
+  (self-reported "tried" progress), `tourSteps`, `setupPath.ts`, `tour.css`, `dialogEvents.ts`, `#so-tour-root`,
+  `#so-tour-modal` (and their style-scope entries).
+- **C. Quick start** (`docs/guide/quick-start.md`) is the one entry point: a five-item checklist (memory model, group
+  chat, import or start a story, play a turn, where memory and repair live) with current workspace paths. In-app
+  markers ride HTML comments, so the website (and the guide site renderer) shows a plain numbered list:
+  `<!-- so:check memory|group|story|reply -->` ticks from real state (`src/guide/quickStart.ts`: memory model set, a
+  group chat open, a story loaded there, a reply committed), `<!-- so:show <view>:<stop> -->` starts that tour stop,
+  `<!-- so:show open:<context>.<page>.<control> -->` opens the workspace at a control (a `so-feature-*` control on
+  Defaults or Features opens its card). Install now links the canonical `setup/README.md#install`.
+- **Setup path** (`docs/guide/setup/setup-path.md`) rewritten as a readable roadmap: levels 0–6, each step four
+  bullets (what it does, cost, where, how to check) with a **Show me**, level 5 one table row per feature; no element
+  ids in the prose.
+- `GuideMarkdown` renders the markers only when the reader passes `actionLabels` (the guide site passes none);
+  `GuideHost` takes the snapshot and whether a group is open from the floating guide panel, and closes the panel when
+  a Show me runs.
+- Small fixes on the way: ids `so-open-memory` (Play → What the story remembers) and `so-studio-task-<task>` (Studio
+  task buttons); the docked floating panel (phone width) sat above the screen (`bottom: 0` against ST's collapsed
+  `html` containing block), now `top: 40vh`; Help buttons keep one line.
+- `docs/dev/style.md`: tours are coach marks on the real UI (rule added), in-app guide markers documented.
+
+### Tests
+
+- `src/guide/tour/coach.test.ts` (jsdom): request door (view and stop); flows 4–7 stops, unique, copy for every stop,
+  at most two sentences, alt copy exactly where an alt anchor exists; copy has no jargon, ids, paths or keys (planted
+  control); geometry (below, above, right, left, over, centre, bottom and top sheet, ring clamp, find/hidden/missing,
+  details opening, own summary details left closed, modal host); host actions (workspace, chat, guide, Studio opened
+  once and closed only when the tour opened it); quick-start state truth table; the quick-start page carries one check
+  per item; markers render in the app and not on the website; every guide Show me names a flow stop (planted control);
+  setup path structure (levels, four bullets per step, every feature once in level 5, no ids, claims vs code).
+- `src/features/showMeTargets.test.ts`: every coach anchor id is rendered by the tree its stop shows (workspace,
+  Studio, chat, guide; planted control); every `open:` Show me lands on a control the workspace renders.
+- Storybook `Tour/CoachMarks` (SetupFlow, Choose, NotOnScreen, AuthorViewAlreadyOn, InsideAModalDialog, PhoneSheet,
+  PhoneTargetLow) and `Panels/GuideReader` `QuickStartChecklist`, play tests + axe.
+- `scripts/debug/so-tour-check.mts` rewritten: walks every stop of each flow with real clicks, records state,
+  placement, focus and Escape behaviour; help and quick-start checks; screenshots per stop.
+
+## Gate record 2026-10-18 (branch `v2.8-tour-coach`)
+
+- Final, after merging master 5475068d: `npm run gates -- --jobs=1 --no-storybook` all green in 378.0 s (test:replay,
+  test 9,718 passed / 1 skipped, build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin,
+  test:release); Storybook skipped there and run on its own port (below), 153 suites / 929 tests green.
+- Red runs on the way, all fixed: `codeHealth.guard` (CoachMarks too long and branchy, split into hooks; two long
+  lines), `errorCopy.guard` (three silent catches: one logs now, the `:modal` probe uses `CSS.supports`), lint max-len
+  in a story, `test:release` guide-site (the guide site renderer imports `GuideMarkdown` without path aliases; labels
+  now come in as a prop), `test:debug` (stale gitignored `test/sessions/adolion-stories.json` after the pin moved).
+- Storybook: static build, served on port 6294, `test-storybook --maxWorkers 1`: 153 suites, 929 tests passed (axe
+  included). The first run had two axe colour-contrast failures from story stage markup (unstyled dialog and tabs).
+- Main bundle 1,286,600 B after the final merge (budget 1,300,000 B); the coach chunk is 22,962 B with its stylesheet.
+- Live, plumbing only (no model in this feature): private ST copy `C:\dev\st-live-tour` (ST 1.19.0), no-model lane,
+  images and sprites off, a chat in the bundled example's group with the example story imported and one committed
+  reply (`/sendas`). Earlier runs on lane 88 moved to lane 84 after lane 88's port 8188 collided with ComfyUI (lane 88
+  stopped). Served `dist/index.js` sha256 `b6274a354f03…`.
+  `ST_DEBUG_VIEWPORT=1400x900` and `390x844`, `node scripts/debug/st-lanes.mts run 84 -- scripts/debug/so-tour-check.mts all`:
+  player 7/7, author 6/6, setup 6/6 stops found at both sizes (sheet mode at 390), card in view, focus on Next, no
+  horizontal scroll, Escape closed the tour with the workspace still open; quick-start checks matched real state
+  (4/4 ticked) and Show me started the setup stop with the guide panel closed. Help (narrowed to the three tour entry
+  points; Help and Ask and Open the guide arrive with `v2.8-ui-gaps-integrate`): chooser, Setting up, Setup path page,
+  both sizes green; after merging master (5475068d) the Help row is one set, Quick start, Take the tour, Setup path,
+  Help and Ask, Open the guide, re-checked at both sizes (`…11-41-04-137Z-lane84-help3-1400x900\`,
+  `…11-41-09-562Z-lane84-help3-390x844\`, served `326a524e81a1…`). `so-ui.mts assert-player-clean`: ok (the first run flagged "Blackboard" in the setup path page left
+  open in the guide panel; reworded, and the check closes the panel). Records:
+  `C:\dev\so-live-lanes\84\debug\tour\2026-10-18T11-03-10-316Z-lane84-1400x900\`, `…11-13-25-095Z-lane84-390x844\`,
+  `…11-27-11-601Z-lane84-help2-1400x900\`, `…11-27-18-715Z-lane84-help2-390x844\`.
+
+### Unresolved questions
+
+- Should a Show me in the floating guide panel keep the panel open beside the coach card on wide screens?
+  Recommended: no; it closes so it never covers a target.

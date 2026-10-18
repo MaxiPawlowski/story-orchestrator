@@ -86,9 +86,9 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
   },
   {
     id: "tour", name: "Tour", area: "setup", audience: "player",
-    oneLine: "A guided tour with examples: playing, writing stories, and turning each part on.",
-    what: "Take the tour from Help or with /story tour. Each step says what to do, what you should see and what to try if it looks off, beside an example "
-      + "that never changes your chat or settings. The Setup path view turns each part on in order, and Read more opens the guide at that page.",
+    oneLine: "Short tours that point at the real controls: playing, writing stories, and setting up.",
+    what: "Take a tour from Help or with /story tour. A small card points at one control at a time, with Back, Next and Skip; nothing changes unless "
+      + "you click something yourself. Help › Setup path opens the guide page that turns each part on in order.",
     where: settingsAt("#so-help-tour", "Help › Take the tour"),
     settings: [], doc: "setup/setup-path.md", status: "shipped",
   },

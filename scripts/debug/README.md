@@ -78,7 +78,7 @@ copy, move or download weights.
 | `so-journey.mts` | `--list`, `run <id\|file> [--strict] [--keep] [--only ids] [--no-config]`, `restore-config [--file p]` |
 | `so-journal.mts` | `export [--md\|--json] [--kind k,k] [--limit n]`, `show` |
 | `so-mutation-check.mts` | `[--keep]` |
-| `so-tour-check.mts` | `help`, `setup`, `read-more`, `all` `[--label <name>]`: tour plumbing (opens from Help, `/story tour setup` deep-links into the workspace, Read more opens the guide reader); record + screenshots in `<debug dir>/tour/` |
+| `so-tour-check.mts` | `player`, `author`, `setup`, `help`, `quick-start`, `all` `[--label <name>]`: coach-mark tour plumbing (walks every stop with real clicks, records found/hidden/missing and card placement, Escape keeps the workspace open; Help opens the chooser and the setup path page; the quick start ticks from real state and its Show me starts a stop); record + screenshots in `<debug dir>/tour/`, viewport via `ST_DEBUG_VIEWPORT` |
 | `so-turn-types-check.mts` | `[--group <name>] [--character <name>] [--image sd\|synthetic\|auto] [--skip-reply] [--skip-image] [--skip-solo] [--keep]` |
 | `so-state.mts` | `current [--full] [--expect path=value]`, `all` |
 | `st-actions.mts` | `send`, `send-compact`, `trigger <member>`, `slash`, `checkpoint`, `swipe`, `edit`, `delete`, `wi-status`, `wait-idle` |
