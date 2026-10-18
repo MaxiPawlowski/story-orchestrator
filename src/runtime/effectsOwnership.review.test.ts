@@ -145,14 +145,21 @@ control("a switch during the FIRST cast change stops before the second member", 
   expect(h.extras.lastAppliedCheckpointId).toBe("previous");
 });
 
-control("a switch during the LAST cast change stops before the background", async () => {
-  // `applyCastChanges` runs its awaits between the check that guards it and the background write, so
-  // the background is the one write in this sequence that could land in another chat (2026-09-22).
+control("a switch during the preset stops before the background", async () => {
   const h = harness();
-  hostGate.onWrite = (name) => { if (name === "castChanges" && casts() === 2) h.switchChat(); };
+  hostGate.onWrite = (name) => { if (name === "preset") h.switchChat(); };
   await h.applier.applyCheckpoint(story, checkpoint, h.extras as never, snapshot, "activate", ["cp-1", "cp-2"]);
-  expect(casts()).toBe(2);
+  expect(hostWrites).toContain("preset");
   expect(hostWrites).not.toContain("background");
+  expect(casts()).toBe(0);
+});
+
+control("a switch during the background stops before the cast change reaches the shared group", async () => {
+  const h = harness();
+  hostGate.onWrite = (name) => { if (name === "background") h.switchChat(); };
+  await h.applier.applyCheckpoint(story, checkpoint, h.extras as never, snapshot, "activate", ["cp-1", "cp-2"]);
+  expect(hostWrites).toContain("background");
+  expect(casts()).toBe(0);
   expect(h.extras.lastAppliedCheckpointId).toBe("previous");
 });
 
@@ -182,11 +189,12 @@ control("a checkpoint that lapsed is not recorded as applied", async () => {
 control("a world that moves at the LAST step still leaves the marker unset", async () => {
   // Each check has to be pinned by a case that reaches it. With the switch fired early, the
   // sequence returns before the marker write and a mutation dropping that final check survived
-  // (2026-09-20). Here the switch lands after the background, so the marker is the only thing left.
+  // (2026-09-20). Here the switch lands on the last cast change, so the marker is the only thing left.
   const h = harness();
-  hostGate.onWrite = (name) => { if (name === "background") h.switchChat(); };
+  hostGate.onWrite = (name) => { if (name === "castChanges" && casts() === 2) h.switchChat(); };
   await h.applier.applyCheckpoint(story, checkpoint, h.extras as never, snapshot, "activate", ["cp-1", "cp-2"]);
-  expect(hostWrites).toContain("castChanges");
+  expect(casts()).toBe(2);
+  expect(hostWrites).toContain("background");
   // It stops ASKING as well: the NPC replies must not fire into the chat that is now open.
   expect(hostWrites).not.toContain("slash");
   expect(h.extras.lastAppliedCheckpointId).toBe("previous");

@@ -35,6 +35,8 @@ jest.mock("@services/STAPI", () => ({
   groupMemberPosition: jest.fn((name: string) => (name === "2" ? { ok: true, position: 0 } : name === "Mara" ? { ok: true, position: 3 } : { ok: false, reason: `"${name}" is not a member of this group` })),
 }));
 
+const settle = async () => { for (let tick = 0; tick < 20; tick += 1) await new Promise((resolve) => setTimeout(resolve, 0)); };
+
 const makeExtras = (): RuntimeExtras => ({
   firedNpcReplies: {},
   lastSelfInjectionMessageId: null,
@@ -297,6 +299,28 @@ describe("authored new-chat opening", () => {
     expect(executeSlashCommands).toHaveBeenCalledTimes(2);
   });
 
+  it("2026-10-18 saga new chat: an identity settled while the activate apply still writes the cast posts the opening at once, and only once", async () => {
+    (setGroupMembersDisabled as jest.Mock).mockClear();
+    let releaseCast: () => void = () => undefined;
+    (setGroupMembersDisabled as jest.Mock).mockImplementationOnce(() => new Promise((resolve) => { releaseCast = () => resolve({ ok: true }); }));
+    const extras = { ...readyExtras(), playerSetup: { pending: true } } as unknown as RuntimeExtras;
+    const checkpoint = { id: "cp", name: "CP", objective: "", type: "anchor", effects: { npc_replies: [opening], cast_changes: { disable: ["Mara"] } } } as unknown as Checkpoint;
+    const applier = new EffectsApplier(testOwnership());
+    const sendas = () => (executeSlashCommands as jest.Mock).mock.calls.filter(([command]) => String(command).startsWith("/sendas")).length;
+    const activate = applier.applyCheckpoint(story, checkpoint, extras, snapshot, "activate", []);
+    await settle();
+    expect(setGroupMembersDisabled).toHaveBeenCalled();
+    expect(sendas()).toBe(0);
+    extras.playerSetup = { pending: false } as RuntimeExtras["playerSetup"];
+    const hydrate = applier.applyCheckpoint(story, checkpoint, extras, snapshot, "hydrate", []);
+    await settle();
+    const beforeCastDone = sendas();
+    releaseCast();
+    await Promise.all([activate, hydrate]);
+    expect(beforeCastDone).toBe(1);
+    expect(sendas()).toBe(1);
+  });
+
   it("does not post the opening into a chat that already holds messages", async () => {
     const applier = new EffectsApplier(testOwnership());
     mockContext.chat = [{ mes: "already here" }];
@@ -319,6 +343,22 @@ describe("background effect", () => {
     await applier.applyCheckpoint(story, withBackground({ name: "tavern day.jpg" }), readyExtras(), snapshot, "activate", []);
     await applier.applyCheckpoint(story, withBackground({ name: "tavern day.jpg" }), readyExtras(), snapshot, "hydrate", []);
     expect(applyBackground).toHaveBeenCalledTimes(2);
+    expect(applyBackground).toHaveBeenCalledWith("tavern day.jpg");
+  });
+
+  it("2026-10-18 saga new chat: the background lands before the cast writes, not after a hundred member saves", async () => {
+    (setGroupMembersDisabled as jest.Mock).mockClear();
+    let releaseCast: () => void = () => undefined;
+    (setGroupMembersDisabled as jest.Mock).mockImplementationOnce(() => new Promise((resolve) => { releaseCast = () => resolve({ ok: true }); }));
+    const checkpoint = { id: "cp", name: "CP", objective: "", type: "anchor", effects: { background: { name: "tavern day.jpg" }, cast_changes: { disable: ["Mara"] } } } as unknown as Checkpoint;
+    const applier = new EffectsApplier(testOwnership());
+    const applied = applier.applyCheckpoint(story, checkpoint, readyExtras(), snapshot, "activate", []);
+    await settle();
+    expect(setGroupMembersDisabled).toHaveBeenCalled();
+    const beforeCastDone = (applyBackground as jest.Mock).mock.calls.length;
+    releaseCast();
+    await applied;
+    expect(beforeCastDone).toBe(1);
     expect(applyBackground).toHaveBeenCalledWith("tavern day.jpg");
   });
 
