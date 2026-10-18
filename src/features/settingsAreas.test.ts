@@ -47,7 +47,7 @@ describe("v2.7 plan 29 settings by area", () => {
       const section = feature.where.label.replace(/^(?:Settings|Orchestrator) › /, "").split(/ [›→] /)[0];
       if (ENTRY_POINTS.includes(section)) return [];
       if (feature.id.startsWith("judge-use-")) return section === "Judge" ? [] : [`${feature.id}: ${section}`];
-      const expected = SECTION_EXCEPTIONS[feature.id] ?? labels.get(feature.area);
+      const expected = feature.where.workspace?.page === "interface" ? "Interface" : SECTION_EXCEPTIONS[feature.id] ?? labels.get(feature.area);
       return section === expected ? [] : [`${feature.id}: ${section}, expected ${expected}`];
     });
     expect(misplaced).toEqual([]);

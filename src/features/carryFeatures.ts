@@ -1,5 +1,6 @@
 import type { Feature } from "./registry";
 import { authorGuideDoc } from "./guideLinks";
+import { drawerAt } from "./where";
 
 export const CARRY_FEATURES: readonly Feature[] = [
   {
@@ -9,7 +10,7 @@ export const CARRY_FEATURES: readonly Feature[] = [
       + "Pick one and the values its author chose carry over: a heritage line on the card, a few starting facts, and a short \"Previously…\" note for the narrator for the first "
       + "few turns. Only what you saw at the end carries; a character knows a carried thing only if the author says so. "
       + "Under Continue, Finished stories lists the runs you ended, each checked first, with its ending and the milestones you earned that were not secret.",
-    where: { selector: "#so-carry-heritage", label: "Story drawer › Overview › From an earlier story", surface: "drawer" },
+    where: drawerAt("#so-carry-heritage", "Overview › From an earlier story"),
     settings: [], guideTopic: "carry-from", doc: authorGuideDoc("carry-from"), status: "experimental", needs: ["group-chat", "story"],
   },
 ];

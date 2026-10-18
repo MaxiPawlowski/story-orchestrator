@@ -1,9 +1,6 @@
-import type { Feature, FeatureWhere } from "./registry";
+import type { Feature } from "./registry";
 import { authorGuideDoc } from "./guideLinks";
-import { settingsAt as workspaceSettingsAt } from "./where";
-
-const settingsAt = (selector: string, label: string): FeatureWhere => ({ selector, label: `Settings › ${label}`, surface: "settings" });
-const drawerAt = (selector: string, label: string): FeatureWhere => ({ selector, label: `Story drawer › ${label}`, surface: "drawer" });
+import { drawerAt, settingsAt } from "./where";
 
 export const PRESENCE_FEATURES: readonly Feature[] = [
   {
@@ -11,7 +8,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     oneLine: "Groups and chats that play a story carry a small icon in SillyTavern's lists.",
     what: "The group list, the welcome screen's recent chats and a group's past chats mark every chat that plays a story. A saga, a story its author marks as one, "
       + "has its own icon. The marks come from a list of the chats you played, which fills in by itself as you open chats.",
-    where: settingsAt("#so-presence-list-badges", "Playing › Mark story groups in the lists"),
+    where: settingsAt("#so-presence-list-badges", "Interface › Mark story groups in the lists"),
     settings: ["display.presence.listBadges"], doc: "player/playing.md", status: "shipped", needs: ["group-chat"],
     isOn: (settings) => settings.display.presence.listBadges,
   },
@@ -19,7 +16,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     id: "story-card", name: "Story card", area: "play", audience: "player",
     oneLine: "Hover a group's story icon to see the story, its chapter and when you last played.",
     what: "The card shows only names you have already reached. A story can switch its card off; switching it off here hides it for every story.",
-    where: settingsAt("#so-presence-group-card", "Playing › Story card on hover"),
+    where: settingsAt("#so-presence-group-card", "Interface › Story card on hover"),
     settings: ["display.presence.groupCard"], doc: "player/playing.md", status: "shipped", needs: ["group-chat"],
     isOn: (settings) => settings.display.presence.groupCard,
   },
@@ -27,7 +24,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     id: "continue-list", name: "Your stories", area: "play", audience: "player",
     oneLine: "Under Continue: every chat that plays a story, newest first, one click to open it.",
     what: "Each row names the story, the chapter and place you reached and when you last played. A chat keeps its row while it still plays the story, even after the story leaves your library.",
-    where: settingsAt("#so-presence-continue-list", "Playing › Your stories list"),
+    where: settingsAt("#so-presence-continue-list", "Interface › Your stories list"),
     settings: ["display.presence.continueList"], doc: "player/playing.md", status: "shipped", needs: ["group-chat"],
     isOn: (settings) => settings.display.presence.continueList,
   },
@@ -35,7 +32,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     id: "chapter-cards", name: "Chapter title cards", area: "play", audience: "player",
     oneLine: "A full-width card under the message where a new chapter opens.",
     what: "When the story enters a new chapter, a title card appears under that message with the chapter's name. Swiping that reply away takes the card with it.",
-    where: settingsAt("#so-presence-chapter-card", "Playing › Chapter title cards"),
+    where: settingsAt("#so-presence-chapter-card", "Interface › Chapter title cards"),
     settings: ["display.presence.chapterCard"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
     isOn: (settings) => settings.display.presence.chapterCard,
   },
@@ -43,7 +40,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     id: "story-wand", name: "Story in the wand menu", area: "play", audience: "player",
     oneLine: "Story recap, the story briefing, flag this moment and the story drawer, from the extensions wand.",
     what: "While a story plays, the wand beside where you type lists a recap of the story so far, a flag for this moment and a shortcut to the story drawer.",
-    where: settingsAt("#so-presence-wand", "Playing › Story entries in the wand menu"),
+    where: settingsAt("#so-presence-wand", "Interface › Story entries in the wand menu"),
     settings: ["display.presence.wand"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
     isOn: (settings) => settings.display.presence.wand,
   },
@@ -52,7 +49,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     oneLine: "A check the story makes public shows its roll under the message it decided.",
     what: "\"Climb: 15 + 4 vs 12, success\" sits under the reply the check decided. The roll is drawn from the chat itself, so a swipe or a reopened chat shows the same roll. "
       + "A check the author keeps hidden shows only in the story's telling. Author view also shows every other roll and background draw.",
-    where: settingsAt("#so-presence-roll-chips", "Playing › Dice chips under messages"),
+    where: settingsAt("#so-presence-roll-chips", "Interface › Dice chips under messages"),
     settings: ["display.presence.rollChips"], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
     isOn: (settings) => settings.display.presence.rollChips,
   },
@@ -60,7 +57,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     id: "activity-panel", name: "Activity panel", area: "play", audience: "author",
     oneLine: "A movable panel listing what the machine did behind each recent message.",
     what: "Story moves, memory notes, lore, speaker picks, model calls and rolls in one list, newest first, each linked to its message. Drag it anywhere; it remembers where you left it.",
-    where: drawerAt("#so-open-activity", "Activity"),
+    where: drawerAt("#so-open-activity", "Recent activity"),
     settings: [], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story", "author-view"],
   },
   {
@@ -84,7 +81,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     id: "guide", name: "Guide", area: "setup", audience: "player",
     oneLine: "The whole guide inside SillyTavern: playing, setup and writing stories.",
     what: "Open the guide from Help or with /story guide. Read more in Help opens the page about that feature. Pages about writing stories show only in Author view.",
-    where: settingsAt("#so-help-toggle", "Help → Open the guide"),
+    where: settingsAt("#so-help-open-guide", "Help › Open the guide"),
     settings: [], doc: "player/README.md", status: "shipped",
   },
   {
@@ -92,7 +89,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     oneLine: "A guided tour with examples: playing, writing stories, and turning each part on.",
     what: "Take the tour from Help or with /story tour. Each step says what to do, what you should see and what to try if it looks off, beside an example "
       + "that never changes your chat or settings. The Setup path view turns each part on in order, and Read more opens the guide at that page.",
-    where: workspaceSettingsAt("#so-help-tour", "Help › Take the tour"),
+    where: settingsAt("#so-help-tour", "Help › Take the tour"),
     settings: [], doc: "setup/setup-path.md", status: "shipped",
   },
   {

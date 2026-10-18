@@ -87,8 +87,6 @@ const trail = (...parts: string[]) => parts.filter(Boolean).join(" → ");
 const DEVICE_LOCATION = trail("Orchestrator", "Interface", "This device");
 
 const LOCATION_OVERRIDES: Record<string, string> = {
-  "display.yourMove": trail("Orchestrator", "Interface", "Your move"),
-  "memory.chapters.chronicleTokens": "No control in the window yet: the default applies",
   "sprites.renderPreset": trail("Studio", "Sprite builder"),
 };
 
