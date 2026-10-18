@@ -749,6 +749,10 @@
       "status": "checked",
       "note": "v2.3 plan 03 (moved out of onRenderedReply in the T0 fixes, 2026-10-01): captures ownership at event acceptance, queues its own pending entry (V4: no longer replaces a shared slot), and refuses a late afterSpeak continuation after its world lapses by removing its entry. The flush retains the same captured guard rather than minting in the landing world. A swipe back to a stored version enqueues with afterSpeak off (turnBridgeSwipeBack.test.ts)."
     },
+    "src/runtime/effectsApplier.ts#EffectsApplier.openNewChat": {
+      "status": "checked",
+      "note": "2026-10-18 saga new chat: the authored new-chat opening, fired once per apply (the fired flag is set synchronously before the await) from the top of applyCheckpointNow and from a hydrate that joins a running apply after the identity step settled. Checks the apply's RunGuard before it asks; fireNpcReplies checks before and after each reply (effectsApplier.test.ts \"an identity settled while the activate apply still writes the cast\")."
+    },
     "src/runtime/effectsApplier.ts#EffectsApplier.fireOnEnter": {
       "status": "checked",
       "note": "v2.6 plan 04 C12: fires the non-opening onEnter replies of a transition (fireNpcReplies checks before and after each reply) and then records the messages they posted as the transition's own (`extras.onEnterPosts`), only while the run minted at entry still owns the world, so a reply that outlived its chat never files a post into another chat's extras (onEnterRollback.review.test.ts)."
