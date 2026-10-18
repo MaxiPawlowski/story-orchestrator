@@ -2,14 +2,15 @@
 
 ## The default: SillyTavern's own image service
 
-In **Image service**, choose **Use SillyTavern Image Generation settings**. Configure a source in ST's own Image
+In **Orchestrator → Connections → Images → Image service**, choose **Use SillyTavern Image Generation settings**. Configure a source in ST's own Image
 Generation extension, then use **Test render** in an open group chat. Its saved image appears as a separate message.
 Nothing else needs installing for this route.
 
 The optional **Image-prompt model** picker uses Connection Manager. Leave it empty for a template built from the
 current public scene and appearance details. It never switches your reply profile.
 
-New installs draw automatically only at story-authored moments. Every-N automation is opt-in. While no image service
+New installs draw automatically only at story-authored moments. Every-N automation is opt-in
+(**Orchestrator → Defaults → Illustrations → When to draw**, or for one chat on **This story → Features**). While no image service
 is ready (ST's Image Generation is not set up, or its ComfyUI is stopped), automatic pictures are skipped without an
 error and Setup says why; Test render explains which step is missing.
 
@@ -38,8 +39,8 @@ media plugin for owned render jobs and sprite edits:
 
 Restart SillyTavern after installation. The plugin talks to the ComfyUI address set in ST's Image Generation settings;
 a `comfyUrl` in the plugin's `config.json` overrides it, and without either it uses ComfyUI's default
-`http://127.0.0.1:8188`. The same file holds the model roots used for fingerprints. See
-`server-plugin/story-orchestrator-media/README.md`. Reuse your existing model folders; the plugin never copies or moves
+`http://127.0.0.1:8188`. The same file holds the model roots used for fingerprints. See the
+[media plugin README](../../../server-plugin/story-orchestrator-media/README.md). Reuse your existing model folders; the plugin never copies or moves
 model weights, and downloads one only when you confirm it (below). Without the plugin this route draws nothing, and Setup says so.
 
 ### Picking models
@@ -66,7 +67,7 @@ hires is refused with a reason. Embeddings a recipe names are dropped when Comfy
 
 ## Downloading models (Civitai, Hugging Face)
 
-With the media plugin installed, **Images → Image service → Model sources** downloads a model you are missing into
+With the media plugin installed, **Orchestrator → Connections → Images → Image service → Model sources** downloads a model you are missing into
 your own model folders. It is admin-only, because it writes to the server's disk.
 
 1. Save a **Civitai token** and/or a **Hugging Face token** (needed for many Civitai files and for gated Hugging

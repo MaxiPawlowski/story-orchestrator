@@ -1,15 +1,17 @@
 # story-orchestrator-judge
 
-SillyTavern server plugin for Story Orchestrator's **judge**: a server-side proxy from the extension to its judgment
-providers, so a provider key never reaches the browser. Optional: without it, every judge use takes its ordinary
-path. User guide: [`docs/guide/setup/judge.md`](../../docs/guide/setup/judge.md).
+Server plugin for Story Orchestrator's **judge**: a server-side proxy from the extension to its judgment providers, so a provider key never reaches the browser. Optional: without it, every judge use takes its ordinary path.
 
-## Install
+| | |
+|---|---|
+| Who needs it | Anyone who wants the judge's faster, more careful choices (speaker picks, lore selection, memory checks), with a TypeSafe key or a local judge. |
+| Install | From a source checkout: `npm run plugin:install` (judge and lore are the default set). From a release zip: copy this folder to `<SillyTavern>/plugins/story-orchestrator-judge/`. |
+| Enable | Set `enableServerPlugins: true` in SillyTavern's `config.yaml`, then restart SillyTavern. A plugin is loaded only at start. |
+| Configure | Open **Orchestrator → Connections → Judge**, paste a TypeSafe key into **TypeSafe API key** and press **Save key**. Local providers: environment variables below. |
+| It works when | the status line under **Orchestrator → Connections → Judge** says the plugin answers; or while signed in to SillyTavern, `http://127.0.0.1:8000/api/plugins/story-orchestrator-judge/status` (your SillyTavern address) answers with JSON instead of an error. |
+| User guide | [Judge](../../docs/guide/setup/judge.md) |
 
-1. Copy this folder to `<SillyTavern>/plugins/story-orchestrator-judge/` (from a source checkout:
-   `npm run plugin:install -- --st-root <SillyTavern>`).
-2. Set `enableServerPlugins: true` in SillyTavern's `config.yaml` and restart SillyTavern.
-3. In **Extensions → Story Orchestrator → Author services → Judge**, paste a TypeSafe key and press **Save key**.
+The general install steps for every plugin: [Server plugins](../../docs/guide/setup/README.md#server-plugins).
 
 ## Providers
 

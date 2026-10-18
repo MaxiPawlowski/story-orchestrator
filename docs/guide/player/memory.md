@@ -1,20 +1,24 @@
 # Memory
 
-After each reply, a second model (the *memory model*) reads the recent chat and writes down what matters: facts,
-details of the current session, a short summary of the last few turns, and a history of past scenes. Those notes go
-back into the prompt, so characters remember what happened long after it scrolled out of view.
+A second model (the *memory model*) reads the recent chat every few character replies (every three by default, and
+sooner when a scene changes) and writes down what matters: facts, details of the current session, a short summary of
+the last few turns, and a history of past scenes. Those notes go back into the prompt, so characters remember what
+happened long after it scrolled out of view.
 
 The memory model is chosen once for the whole install (see [Memory model](../setup/memory-model.md)). Without one,
 nothing is remembered and the story does not move on its own.
 
-## The Memory tab
+## What the story remembers
 
-The drawer's **Memory** tab, "What the story remembers", lists every memory in four groups: **Facts**, **Session
+Open **This story → Play → What the story remembers**. It lists every memory in four groups: **Facts**, **Session
 details**, **Short-term** and **Scene history**.
+
+<a id="pinning"></a>
+### Pin, edit or exclude
 
 On each memory:
 
-- **Pin** keeps it in the prompt even when space runs short (📌). If pinned memories do not all fit, the tab says
+- **Pin** keeps it in the prompt even when space runs short (📌). If pinned memories do not all fit, the list says
   how many were left out.
 - **Edit** fixes the wording. An edited memory is marked "kept by you".
 - **Exclude** removes it. A toast lets you undo for a few seconds.
@@ -31,19 +35,19 @@ It shows progress (`Memorizing: 3/12`) and can be stopped.
 ## Private knowledge
 
 In a group, each character knows only what they saw or were told. A secret one character keeps is not shown to the
-others' replies. A memory that would give such a secret away is left out of the Memory tab, or shown without the
-sentence that does. You do not need to do anything for this.
+others' replies. A memory that would give such a secret away is left out of the list, or shown without the sentence
+that does. You do not need to do anything for this.
 
 Each story read also notes **who heard what**: for every message, which characters heard or saw it, part by part when a
 message mixes open speech with an aside, and "unknown" when the read cannot tell. Nothing uses this record yet; it is
-measured first. A swipe or edit takes the affected notes back. Switch it off under **This story › Features › Who heard
-what**.
+measured first. A swipe or edit takes the affected notes back. Switch it off in **This story → Features → Who heard
+what** (or for every chat in **Orchestrator → Defaults**).
 
 ## Chapters
 
 Some stories end chapters as they go. When one ends, a **Previously** card shows its summary, and the chapter
-appears under **Your story** in the Overview. Older memories are folded into the chapter summary so the prompt stays
-small. A wrong summary can be flagged with ⚑.
+appears under **Your story** on **This story → Play**. Older memories are folded into the chapter summary so the prompt
+stays small. A wrong summary can be flagged with the flag button on that chapter.
 
 ---
 

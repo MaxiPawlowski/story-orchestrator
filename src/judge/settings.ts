@@ -209,7 +209,7 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   },
   pictureCue: {
     label: "Illustration-worthy replies",
-    description: "Filters cadence pictures and notices striking present-tense images. A missing judge keeps cadence; manual and checkpoint pictures are unchanged.",
+    description: "Filters cadence pictures and notices striking present-tense images. A missing judge keeps cadence; manual and turning-point pictures are unchanged.",
     sends: "the character reply",
   },
   adversityTrend: {
@@ -219,7 +219,7 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   },
   idleCheck: {
     label: "Nothing-happens trend",
-    description: "After 3 of 4 low-change, low-tension replies, offers a reviewed development hint. Extractor tension comparison is still owed.",
+    description: "After 3 of 4 low-change, low-tension replies, offers a reviewed development hint. Its tension read is not yet compared with the memory model's.",
     sends: "the character reply, in a separate off-path call",
   },
   toneCheck: {
@@ -234,7 +234,7 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   },
   director: {
     label: "Speaker direction",
-    description: "Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides.",
+    description: "Picks who speaks next in a group chat when the turning point has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides.",
     sends: "the last 8 messages, character names and roles, the scene name and goal",
   },
   memoryVerify: {
@@ -246,42 +246,42 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   sceneTrigger: {
     label: "Notice scene changes",
     description: "Asks for the scene read on the turn a scene changes, next to today's keyword check.",
-    sends: "the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name",
+    sends: "the last 8 messages, the turning point's name and goal, cast names and roles, your persona name",
   },
   sceneTracker: {
     label: "Scene tracker",
     description: "Keeps location, time and who is present, and adds them to the prompt.",
-    sends: "the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations",
+    sends: "the last 8 messages, the turning point's name and goal, cast names and roles, your persona name, the story's locations",
   },
   lookahead: {
     label: "Heading toward (author view)",
-    description: "Shows which upcoming checkpoints play is moving toward.",
-    sends: "the last 8 messages and the names and goals of the next checkpoints",
+    description: "Shows which upcoming turning points play is moving toward.",
+    sends: "the last 8 messages and the names and goals of the next turning points",
   },
   loreSelect: {
     label: "Lore selection",
     description: "Adds the lore entries that matter to the next reply, even without their keywords.",
-    sends: "the last 8 messages, the checkpoint name and goal, and the title and text of each entry in the story's lore-select books",
+    sends: "the last 8 messages, the turning point's name and goal, and the title and text of each entry in the story's lore-select books",
   },
   curatorFilter: { label: "Curator focus", description: "Shows the World Info curator only the entries the story may have overtaken.", sends: "the story so far and the story's lore entries" },
   typedExtraction: {
     label: "Every-turn story reads",
-    description: "Reads qualities the author marked for it on every turn, so gates fire sooner; the rest stay with the story model.",
-    sends: "the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages",
+    description: "Reads the tracked values the author marked for it on every turn, so turning points open sooner; the rest stay with the story model.",
+    sends: "the last 3 messages (or the read's window), the story title and turning point, and each marked value's description, values and numbers or names found in the messages",
   },
   stallCheck: {
     label: "Stall check",
-    description: "Checks a stalled gate before spending a full re-read; writes only what the messages clearly show.",
-    sends: "the messages since the checkpoint began and the unmet conditions' descriptions and values",
+    description: "Checks a stuck way forward before spending a full re-read; writes only what the messages clearly show.",
+    sends: "the messages since the turning point began and the unmet conditions' descriptions and values",
   },
   expansionCritic: {
     label: "Expansion review",
     description: "Reviews generated story beats instead of a second model call; the code checks still run first.",
-    sends: "up to 40 established facts, the target checkpoint's name and goal, cast names with your persona, the tension trajectory and the generated beats",
+    sends: "up to 40 established facts, the target turning point's name and goal, cast names with your persona, the tension trajectory and the generated beats",
   },
   expansionLookahead: {
     label: "Prepare ahead",
-    description: "Writes the generated beats one checkpoint ahead, where play is heading, before the story gets there.",
+    description: "Writes the generated beats one turning point ahead, where play is heading, before the story gets there.",
     sends: "nothing beyond Heading toward and the expansion itself (reviewed by Expansion review when that is on)",
   },
   agencyCheck: {
@@ -321,9 +321,9 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
   },
   divergence: {
     label: "Branch when the player goes off script",
-    description: "At each turn of a checkpoint with ways forward, asks whether what you are doing fits any of them; two answers of \"none\" in a row, or one very sure one, "
+    description: "At each turn of a turning point with ways forward, asks whether what you are doing fits any of them; two answers of \"none\" in a row, or one very sure one, "
       + "let the story director write a branch that follows you and later comes back. Not measured yet.",
-    sends: "the last six chat messages, your persona name and a one-line description of each way forward from the current checkpoint",
+    sends: "the last six chat messages, your persona name and a one-line description of each way forward from the current turning point",
   },
   wardenVoice: {
     label: "In character (warden)",
