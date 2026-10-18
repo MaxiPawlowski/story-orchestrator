@@ -42,6 +42,7 @@ export class SpriteStage {
   readonly expressionCalls = new ExpressionCallRing();
   private actors: Actor[] = [];
   private speaking: string | null = null;
+  private standing: string | null = null;
   private talker: string | null = null;
   private stream: Stream | null = null;
   private listeners = new Set<() => void>();
@@ -97,7 +98,7 @@ export class SpriteStage {
     const ready = this.ready();
     const direction = this.direction();
     const actors = this.actors
-      .filter((actor) => standsOnStage({ keys: actor.keys, muted: actor.muted, speaking: actor.name === this.speaking }, direction))
+      .filter((actor) => standsOnStage({ keys: actor.keys, muted: actor.muted, speaking: actor.name === this.speaking || actor.name === this.standing }, direction))
       .map((actor) => ({ name: actor.name, avatar: actor.avatar, label: actor.label, path: actor.path, set: actor.set,
         pose: actor.pose, framing: memberDirection(direction, actor.keys).framing,
         frames: actor.frames.get(actor.set)?.get(actor.label), spotlight: isSpotlit(direction, actor.keys),
@@ -160,6 +161,7 @@ export class SpriteStage {
       { eventName: "STREAM_TOKEN_RECEIVED", handler: () => this.streamToken() },
       { eventName: "GENERATION_STOPPED", handler: () => this.activity.stop() },
       { eventName: "GENERATION_ENDED", handler: () => this.activity.stop() },
+      { eventName: "GROUP_WRAPPER_FINISHED", handler: () => { if (this.stream && !this.stream.final) this.endStream(this.stream); } },
       { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (id: unknown, type: unknown) => { if (typeof id === "number") void this.rendered(id, typeof type === "string" ? type : undefined); } },
       { eventName: "MESSAGE_SWIPED", handler: () => this.replay() },
       { eventName: "MESSAGE_EDITED", handler: () => this.replay() },
@@ -377,12 +379,19 @@ export class SpriteStage {
       actor.poseReads = [...(actor.poseReads ?? []), read];
       this.chooseBody(actor);
     }
-    if (this.actor(who)) {
-      this.setFace(who, read.face);
-      this.speaking = who;
-    } else if (this.actor(speaker)) {
-      this.speaking = speaker;
-    }
+    if (this.actor(who)) this.setFace(who, read.face);
+    this.spotlight(speaker);
+    this.notify();
+  }
+
+  private spotlight(speaker: string | null): void {
+    this.speaking = speaker && this.actor(speaker) ? speaker : null;
+    if (this.speaking) this.standing = this.speaking;
+  }
+
+  private idle(speaker: string): void {
+    if (this.speaking !== speaker) return;
+    this.speaking = null;
     this.notify();
   }
 
@@ -403,21 +412,21 @@ export class SpriteStage {
     this.chooseSets();
     for (const actor of this.actors) this.setFace(actor.name, this.directedFace(actor, direction));
     const seen = new Set<string>();
-    let speaking: string | null = null;
+    let standing: string | null = null;
     for (let id = spriteChatLength() - 1; id >= 0 && seen.size < this.actors.length; id -= 1) {
       const message = spriteMessage(id);
       if (!message || message.isUser || message.isSystem) continue;
       for (const read of [...readsOf(message)].reverse()) {
         const who = read.who === NARRATION ? message.name : read.who;
-        speaking ??= this.actor(who) ? who : null;
         if (seen.has(who) || !this.actor(who)) continue;
         seen.add(who);
         this.setFace(who, read.face);
       }
-      speaking ??= this.actor(message.name) ? message.name : null;
+      standing ??= this.actor(message.name) ? message.name : null;
       if (this.actor(message.name)) seen.add(message.name);
     }
-    this.speaking = speaking;
+    this.standing = standing;
+    this.spotlight(this.stream && !this.stream.final ? this.stream.speaker : null);
     this.notify();
   }
 
@@ -426,11 +435,9 @@ export class SpriteStage {
     this.castChanged();
     this.stopPlayback();
     this.stream = { chatId: spriteCast().chatId, speaker, segments: [], reads: new Map(), classifying: Promise.resolve(), streamed: false, final: false };
-    if (this.actor(speaker)) {
-      this.speaking = speaker;
-      this.talker = speaker;
-      this.notify();
-    }
+    this.spotlight(speaker);
+    this.talker = this.speaking;
+    this.notify();
   }
 
   private streamToken(): void {
@@ -536,10 +543,9 @@ export class SpriteStage {
   private endStream(stream: Stream): void {
     if (this.stream !== stream) return;
     this.stream = null;
-    if (this.talker === stream.speaker) {
-      this.talker = null;
-      this.notify();
-    }
+    if (this.talker === stream.speaker) this.talker = null;
+    if (!this.playback.length && this.speaking === stream.speaker) this.speaking = null;
+    this.notify();
   }
 
   private play(reads: StoredRead[], segments: Segment[], speaker: string): void {
@@ -549,6 +555,7 @@ export class SpriteStage {
       this.playback.push(setTimeout(() => this.apply(read, speaker), at));
       at += Math.min(6000, Math.max(1200, (segments[index]?.text.length ?? 0) * 30));
     });
+    if (this.playback.length) this.playback.push(setTimeout(() => { this.playback = []; this.idle(speaker); }, at));
   }
 
   private stopPlayback(): void {
@@ -567,9 +574,6 @@ export class SpriteStage {
     const reads = readsOf(message);
     const probe = clicked.replace(/["*]/g, "").slice(0, 24);
     const hit = probe ? reads.find((read) => read.at.replace(/["*]/g, "").includes(probe) || probe.includes(read.at.replace(/["*]/g, "").slice(0, 24))) : undefined;
-    if (hit) {
-      this.stopPlayback();
-      this.apply(hit, message.name);
-    }
+    if (hit) this.play([hit], [{ start: 0, end: hit.at.length, text: hit.at }], message.name);
   }
 }

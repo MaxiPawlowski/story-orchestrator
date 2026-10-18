@@ -520,8 +520,109 @@ describe("sprite stage: who talks and who is in focus", () => {
     chat.push({ name: "Ellie", mes: "Tobias stares at the floor.\n\nThen" });
     emit("STREAM_TOKEN_RECEIVED");
     await flush();
-    expect({ talker: sprites.view().talker, speaking: sprites.view().speaking }).toEqual({ talker: "Ellie", speaking: "Tobias" });
+    expect({ talker: sprites.view().talker, speaking: sprites.view().speaking }).toEqual({ talker: "Ellie", speaking: "Ellie" });
     expect(face(sprites, "Tobias")).toBe("sad");
+  });
+});
+
+describe("sprite stage: narration changes faces, the spotlight stays with the speaker", () => {
+  const NARRATION_TEXT = "Ellie smiles at the newcomers.\n\nTobias looks at the floor.";
+  const narrated = () => { judgeAnswers = { "who:1": { type: "choice", choice: "Ellie" }, "face:1": { type: "choice", choice: "happy" },
+    "who:2": { type: "choice", choice: "Tobias" }, "face:2": { type: "choice", choice: "sad" } }; settings = { ...settings, segmentChars: 40 }; };
+  const watch = (sprites: SpriteStage) => { const seen: Array<string | null> = []; sprites.subscribe(() => seen.push(sprites.view().speaking)); return seen; };
+  afterEach(() => jest.useRealTimers());
+
+  it("a narrator with no sprite posting about two members spotlights nobody, sets both faces and leaves nothing lit", async () => {
+    jest.useFakeTimers();
+    narrated();
+    const sprites = await started();
+    const seen = watch(sprites);
+    chat.push({ name: "Narrator", mes: NARRATION_TEXT });
+    void emit("CHARACTER_MESSAGE_RENDERED", 0, "command");
+    await flush();
+    jest.advanceTimersByTime(20_000);
+    await flush();
+    expect(seen.filter(Boolean)).toEqual([]);
+    expect({ ellie: face(sprites, "Ellie"), tobias: face(sprites, "Tobias"), speaking: sprites.view().speaking, talker: sprites.view().talker })
+      .toEqual({ ellie: "happy", tobias: "sad", speaking: null, talker: null });
+  });
+
+  it("a narrator with a sprite keeps the spotlight through the passage and goes idle after it", async () => {
+    jest.useFakeTimers();
+    narrated();
+    members = [...members, { name: "Narrator", avatar: "narrator.png" }];
+    const sprites = await started();
+    const seen = watch(sprites);
+    chat.push({ name: "Narrator", mes: NARRATION_TEXT });
+    void emit("CHARACTER_MESSAGE_RENDERED", 0, "command");
+    await flush();
+    jest.advanceTimersByTime(20_000);
+    await flush();
+    expect([...new Set(seen.filter(Boolean))]).toEqual(["Narrator"]);
+    expect({ tobias: face(sprites, "Tobias"), speaking: sprites.view().speaking }).toEqual({ tobias: "sad", speaking: null });
+  });
+
+  it("a stored narrated passage replays faces on reload without lighting anyone", async () => {
+    narrated();
+    write.mockImplementation(async (_chat: string, id: number, record: unknown) => { chat[id].extra = { ...chat[id].extra, so_expr: record }; return { ok: true, saved: true }; });
+    const sprites = await started();
+    chat.push({ name: "Narrator", mes: NARRATION_TEXT });
+    await emit("CHARACTER_MESSAGE_RENDERED", 0, "command");
+    await flush();
+    await sprites.reload();
+    expect({ ellie: face(sprites, "Ellie"), tobias: face(sprites, "Tobias"), speaking: sprites.view().speaking }).toEqual({ ellie: "happy", tobias: "sad", speaking: null });
+  });
+
+  it("a greeting is never classified and lights nobody", async () => {
+    narrated();
+    const sprites = await started();
+    chat.push({ name: "Narrator", mes: NARRATION_TEXT });
+    await emit("CHARACTER_MESSAGE_RENDERED", 0, "first_message");
+    await flush();
+    expect({ speaking: sprites.view().speaking, ellie: face(sprites, "Ellie"), calls: sprites.expressionCalls.list().length }).toEqual({ speaking: null, ellie: "neutral", calls: 0 });
+  });
+
+  it("a member's own reply spotlights that member while it plays, then clears", async () => {
+    jest.useFakeTimers();
+    const sprites = await started();
+    chat.push({ name: "Ellie", mes: "Ellie beams. \"Finally!\"" });
+    void emit("CHARACTER_MESSAGE_RENDERED", 0, "normal");
+    await flush();
+    expect(sprites.view().speaking).toBe("Ellie");
+    jest.advanceTimersByTime(20_000);
+    expect({ speaking: sprites.view().speaking, ellie: face(sprites, "Ellie"), standing: sprites.view().actors.map((actor) => actor.name) })
+      .toEqual({ speaking: null, ellie: "happy", standing: ["Ellie", "Tobias"] });
+  });
+
+  it("a streamed reply clears the spotlight when it lands", async () => {
+    const sprites = await started();
+    emit("GROUP_MEMBER_DRAFTED", 0);
+    chat.push({ name: "Ellie", mes: REPLY });
+    emit("STREAM_TOKEN_RECEIVED");
+    await flush();
+    expect(sprites.view().speaking).toBe("Ellie");
+    await emit("CHARACTER_MESSAGE_RENDERED", 0, "normal");
+    await flush();
+    expect({ speaking: sprites.view().speaking, talker: sprites.view().talker }).toEqual({ speaking: null, talker: null });
+  });
+
+  it("a drafted member whose turn ends with no reply does not stay lit", async () => {
+    const sprites = await started();
+    emit("GROUP_MEMBER_DRAFTED", 0);
+    expect(sprites.view().talker).toBe("Ellie");
+    emit("GROUP_WRAPPER_FINISHED", {});
+    expect({ speaking: sprites.view().speaking, talker: sprites.view().talker }).toEqual({ speaking: null, talker: null });
+  });
+
+  it("a speaker the checkpoint does not name stays standing after its turn, without the spotlight", async () => {
+    stage = { cast: { Tobias: { face: "neutral" } } };
+    const sprites = await started();
+    emit("GROUP_MEMBER_DRAFTED", 0);
+    chat.push({ name: "Ellie", mes: REPLY });
+    emit("STREAM_TOKEN_RECEIVED");
+    await emit("CHARACTER_MESSAGE_RENDERED", 0, "normal");
+    await flush();
+    expect({ speaking: sprites.view().speaking, standing: sprites.view().actors.map((actor) => actor.name) }).toEqual({ speaking: null, standing: ["Ellie", "Tobias"] });
   });
 });
 
