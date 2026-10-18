@@ -221,7 +221,7 @@ function continued() {
       { id: 3, at: LATER, status: 'refused', call: { tool: 'createGroup' }, op: { kind: 'createGroup', name: 'Never Made' }, observation: 'no' },
     ] },
   };
-  const drafts = { sessions: [session], library: [{ id: 'adolion-war', version: 10 }, { id: STORY, version: 2 }] };
+  const drafts = { sessions: [session], library: [{ id: 'adolion-war' }, { id: STORY }] };
   const end = clone(start);
   end.inventory.stories = ['adolion-war@10', `${STORY}@2`];
   end.inventory.wizardApplied = [...start.inventory.wizardApplied, `${STORY}/Ilse Vane`].sort();
@@ -239,7 +239,7 @@ const stopAllow = (start: any, end: any, drafts: any, card: { headerAllow?: stri
 };
 const blocking = (start: unknown, end: unknown, allow: string[]) => diffHeaders(start, end, allow).filter((difference) => !difference.allowed).map((difference) => difference.path);
 
-test('T5-4 Fix with wizard: a session that existed at start allows exactly what its ledger grew by, and the story version moving up', async () => {
+test('T5-4 Fix with wizard: a session that existed at start allows exactly what its ledger grew by, and the story's library copy changing', async () => {
   const { start, end, drafts } = continued();
   const card = findCard(await loadCards(), 'T5-4');
   const { wizard, declared, allow } = stopAllow(start, end, drafts, card);
@@ -313,7 +313,7 @@ test('T5-3 Studio edit: {story} names the continued chat\'s story, so only its l
 test('T5-1 staged arm: a group and lorebook entries in the ledger are neither characters nor unaccounted, and an adopted chat names its new group', () => {
   const start = { inventory: { stories: ['adolion-war@10'], wizardSessions: [], wizardApplied: [], lorebooksSelected: [], lorebookCount: 24, characterCount: 163, groups: ['17897@Adolion - War'], groupChats: [] } };
   const session = { key: 'the-ink-that-moves', updatedAt: LATER, applied: ['Ink Lore', 'Ink Lore/The Map', 'Ink Lore/House of Ash', 'Mira', 'Tomas', 'The Ink Crew'], createdLorebooks: ['Ink Lore'] };
-  const drafts = { sessions: [session], library: [{ id: 'the-ink-that-moves', version: 1 }] };
+  const drafts = { sessions: [session], library: [{ id: 'the-ink-that-moves' }] };
   const end = {
     inventory: {
       stories: ['adolion-war@10', 'the-ink-that-moves@1'], wizardSessions: ['the-ink-that-moves'],
@@ -412,7 +412,7 @@ test('T6-3-3: a group the agent created is never counted as a character, so 4 ca
     createdLorebooks: ['Red Ink — Lore'],
     agent: { steps: [{ status: 'applied', at: LATER, op: { kind: 'createGroup', name: 'Red Ink — Cast' }, call: { tool: 'createGroup' }, observation: 'Created the group "Red Ink — Cast" with 4 member(s).' }] },
   };
-  const drafts = { sessions: [session], library: [{ id: STORY_ID, version: 1 }] };
+  const drafts = { sessions: [session], library: [{ id: STORY_ID }] };
   const end = {
     inventory: {
       stories: ['adolion-war@10', `${STORY_ID}@1`], wizardSessions: [STORY_ID],

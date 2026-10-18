@@ -155,7 +155,7 @@ export interface CuratorPassOutcome {
   skipped?: CuratorSkipReason;
   record: CuratorProposalRecord | null;
   /**
-   * The pass ran, but the chat, story or story version it belongs to changed
+   * The pass ran, but the chat, story or story content it belongs to changed
    * while the model was answering, so its result was thrown away rather than written into whatever
    * is open now. Names which part of the world moved.
    */
