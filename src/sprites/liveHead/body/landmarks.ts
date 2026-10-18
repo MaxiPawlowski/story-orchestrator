@@ -2,7 +2,7 @@ import { isRecord } from "@utils/guards";
 import type { Point } from "../types";
 import type { ArmState, BodyPose } from "./types";
 
-export const MAX_BODY_STRANDS = 10;
+export const MAX_BODY_STRANDS = 10, BODY_LANDMARK_VERSION = 1;
 export interface ArmLandmarks { side: "left" | "right"; state: ArmState; shoulder: Point; elbow: Point; wrist: Point; outline: Point[] }
 export interface BodyLandmarks {
   version: 1;
@@ -35,7 +35,7 @@ const far = (a: Point, b: Point, d = 2): boolean => Math.hypot(a[0] - b[0], a[1]
 export function bodyLandmarkProblems(value: unknown, size: Size): string[] {
   if (!isRecord(value)) return ["landmarks: expected an object"];
   const problems: string[] = [], point = pointIn(size);
-  if (value.version !== 1) problems.push("landmarks.version: only version 1 is supported");
+  if (value.version !== BODY_LANDMARK_VERSION) problems.push("landmarks.version: only version 1 is supported");
   if (value.kind !== "body") problems.push("landmarks.kind: expected \"body\"");
   if (!isRecord(value.image) || value.image.width !== size.width || value.image.height !== size.height) problems.push("landmarks.image: must match the sprite size");
   if (value.pose !== "standing" && value.pose !== "sitting" && value.pose !== "other") problems.push("landmarks.pose: expected standing, sitting or other");

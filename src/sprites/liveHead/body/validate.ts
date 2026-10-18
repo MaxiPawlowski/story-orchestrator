@@ -16,7 +16,7 @@ const whole = (v: unknown): boolean => positive(v) && Number.isInteger(v);
 export function validateBodyRig(value: unknown): string[] {
   const errors: string[] = [], need = (ok: boolean, message: string) => { if (!ok) errors.push(message); };
   if (!isRecord(value)) return ["body: expected an object"];
-  need(value.version === 1, "body.version: only version 1 is supported");
+  need(value.version === BODY_MANIFEST_VERSION, "body.version: only version 1 is supported");
   need(value.kind === "body", "body.kind: expected \"body\"");
   need(value.pose === "standing" || value.pose === "sitting" || value.pose === "other", "body.pose: expected standing, sitting or other");
   const image = value.image;
@@ -46,7 +46,7 @@ export function validateBodyRig(value: unknown): string[] {
   }
   if (value.eyes !== undefined) need(Array.isArray(value.eyes) && value.eyes.length <= 2 && value.eyes.every(ellipse), "body.eyes: expected up to two ovals");
   if (errors.length) return errors;
-  const rig = value as unknown as BodyRig;
+  const rig: BodyRig = JSON.parse(JSON.stringify(value));
   need(rig.head.cy < rig.head.pivotY && rig.head.pivotY < rig.torso.pivotY, "body: expected head, neck and hips from top to bottom");
   need(rig.torso.waistBand[1] <= rig.image.height && rig.torso.waistBand[0] >= 0, "body.torso.waistBand: must lie inside the image");
   for (const [i, arm] of (rig.arms ?? []).entries())
