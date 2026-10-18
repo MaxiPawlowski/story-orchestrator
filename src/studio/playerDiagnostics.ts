@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { briefingTermsFor, namesTerms } from "./briefingDiagnostics";
 
 type PlayerCode = "opener-uses-player-name" | "player-spoiler-risk";
@@ -9,14 +9,14 @@ export const PLAYER_CONSEQUENCES: Record<PlayerCode, string> = {
 };
 
 export interface PlayerRun {
-  draft: StoryV2;
+  draft: Story;
   push: (code: PlayerCode, severity: "warning" | "info", path: string, message: string) => void;
   startId: string;
 }
 
 const PLAYER_MACRO = /\{\{\s*user\s*\}\}/i;
 
-const playerFields = (draft: StoryV2): Array<[string, string]> => {
+const playerFields = (draft: Story): Array<[string, string]> => {
   const player = draft.player;
   if (!player) return [];
   return [

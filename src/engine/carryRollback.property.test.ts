@@ -2,12 +2,12 @@ import { readFileSync } from "fs";
 import type { CarryProjection, CarryState } from "./carrySchema";
 import { join } from "path";
 import { StoryEngine } from "./engine";
-import { parseStoryV2OrThrow } from "./validate";
+import { parseStoryOrThrow } from "./validate";
 import { questClosedKey, standingKey, type PrimitiveValue } from "./schema";
 import { carrySeed, carryValues, publicOutcome } from "./carry";
 import { ROLLBACK_DETECTORS, rollbackMoved } from "./rollbackDetectors";
 
-const read = (name: string) => parseStoryV2OrThrow(JSON.parse(readFileSync(join(process.cwd(), `test/fixtures/${name}.story.json`), "utf8")));
+const read = (name: string) => parseStoryOrThrow(JSON.parse(readFileSync(join(process.cwd(), `test/fixtures/${name}.story.json`), "utf8")));
 const SOURCE = read("carry-source");
 const SEQUEL = read("carry-sequel");
 

@@ -51,7 +51,6 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 const storyJson = (over: Record<string, unknown> = {}) => JSON.stringify({
-  format: 2,
   id: "sun-ruins",
   title: "Quest for the Sun Ruins",
   description: "A desert expedition.",
@@ -84,7 +83,7 @@ describe("story identity", () => {
     await manager.importStory(storyJson());
     const snapshot = manager.getSnapshot();
     expect(snapshot.storyId).toBe("sun-ruins");
-    expect(snapshot.storyHash).toMatch(/^v2-/);
+    expect(snapshot.storyHash).toMatch(/^story-/);
     expect(Object.keys(blob().stories)).toEqual(["sun-ruins"]);
     expect(blob().selectedStoryId).toBe("sun-ruins");
     expect(listStoryRecords()[0]).toMatchObject({ id: "sun-ruins" });

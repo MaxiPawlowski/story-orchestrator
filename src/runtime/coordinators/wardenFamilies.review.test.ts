@@ -1,5 +1,5 @@
 import { plantedModel } from "../../../test/support/modelCall";
-import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type EngineState, type NormalizedStory } from "@engine/index";
 import { defaultJudgeSettings, type JudgeRequest, type JudgeSettings } from "@judge/index";
 import { composeWardenNote, type WardenCheckFinding, type WardenCheckInput, type WardenNoteOp } from "@stagecraft/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
@@ -32,8 +32,7 @@ const { clearStoryExtensionPrompt, setStoryExtensionPrompt } = host;
 const KEY = "story_orchestrator_continuity";
 const RULES = ["No character uses a gun.", "Magic cannot heal wounds."];
 
-const story = (agency?: { never_narrate_player_action: boolean }): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2,
+const story = (agency?: { never_narrate_player_action: boolean }): NormalizedStory => parseStoryOrThrow({
   id: "warden-families",
   title: "Families",
   description: "Warden.",

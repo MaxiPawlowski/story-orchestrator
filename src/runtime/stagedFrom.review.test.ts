@@ -1,8 +1,7 @@
-import { keptStagedFrom, parseStoryV2OrThrow, ROLLBACK_HORIZON, StoryEngine } from "@engine/index";
+import { keptStagedFrom, parseStoryOrThrow, ROLLBACK_HORIZON, StoryEngine } from "@engine/index";
 import { stagedPath } from "./worldInfoGates";
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "staging",
   title: "Staging",
   description: "",

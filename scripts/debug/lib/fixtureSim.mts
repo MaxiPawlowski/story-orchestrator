@@ -8,7 +8,7 @@ export const loadFixtureKit = () => loadEntry<any>('scripts/debug/lib/fixtureSto
 
 const parsed = async (kit: any, story: unknown) => {
   await kit.loadGameLayer();
-  const result = kit.parseStoryV2(story);
+  const result = kit.parseStory(story);
   if (Array.isArray(result)) throw new Error(result.map((error: { path: string; message: string }) => `${error.path}: ${error.message}`).join('; '));
   return result;
 };

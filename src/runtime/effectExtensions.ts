@@ -1,9 +1,9 @@
-import type { Checkpoint, NormalizedStoryV2 } from "@engine/index";
+import type { Checkpoint, NormalizedStory } from "@engine/index";
 import type { WriteResult } from "@utils/writeResult";
 import type { EffectLedgerRow } from "./types";
 
 export interface EffectExtensionInput {
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
   checkpoint: Checkpoint;
   path: string[];
   ledger: EffectLedgerRow[];

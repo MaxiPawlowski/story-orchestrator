@@ -1,8 +1,8 @@
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 import { cardLedgerView } from "./cardLedger";
 
 test("the author ledger follows card entry, later reads and rollback without a second store", () => {
-  const story = parseStoryV2OrThrow({ format: 2, title: "Card mirror", description: "A synthetic field change.",
+  const story = parseStoryOrThrow({ title: "Card mirror", description: "A synthetic field change.",
     roster: [{ id: "arin", name: "Arin", card: { fields: { hair: { quality: "hair", visual: true } } } }],
     qualities: [{ key: "hair", type: "string", source: "extractor", rubric: "Current hair colour." }],
     checkpoints: [{ id: "start", name: "Start", type: "anchor", start: true, objective: "Begin." },

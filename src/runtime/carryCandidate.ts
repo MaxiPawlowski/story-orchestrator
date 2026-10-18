@@ -1,4 +1,4 @@
-import { type NormalizedStoryV2, type ValidationError } from "@engine/index";
+import { type NormalizedStory, type ValidationError } from "@engine/index";
 import { CARRY_CANDIDATES_MAX, PREVIOUSLY_TOKENS, type CarryProjection, type CarryState, type CarryValue } from "@engine/carrySchema";
 import { carryValues, publicOutcome, type CarrySkip } from "@engine/carry";
 import { checkCarryPair } from "@engine/validate/carry";
@@ -28,7 +28,7 @@ export type CandidateResult = { ok: true; candidate: CarryCandidate } | { ok: fa
 
 export interface CandidateOptions {
   version: number;
-  parse: (raw: unknown) => NormalizedStoryV2 | ValidationError[];
+  parse: (raw: unknown) => NormalizedStory | ValidationError[];
 }
 
 export interface FinalRecord {
@@ -58,7 +58,7 @@ export const finalOf = (records: Record<string, unknown>[]): FinalRecord | null 
   return { playerTitle: text(found.playerTitle), blackboardAt: found.blackboardAt, at: sealedAt.at };
 };
 
-const missingKeys = (target: NormalizedStoryV2, values: Record<string, unknown>): string[] =>
+const missingKeys = (target: NormalizedStory, values: Record<string, unknown>): string[] =>
   (target.carry_from?.map ?? []).filter((entry) => !["string", "number", "boolean"].includes(typeof values[entry.from])).map((entry) => entry.from);
 
 const chapterLines = (records: Record<string, unknown>[], resting: (line: string) => string): string[] => {
@@ -66,7 +66,7 @@ const chapterLines = (records: Record<string, unknown>[], resting: (line: string
   return records.slice(0, end < 0 ? records.length : end + 1).map((record) => resting(text(record.short))).filter(Boolean);
 };
 
-export const carryCandidateFromBlob = (blob: unknown, chatId: string, target: NormalizedStoryV2, options: CandidateOptions): CandidateResult => {
+export const carryCandidateFromBlob = (blob: unknown, chatId: string, target: NormalizedStory, options: CandidateOptions): CandidateResult => {
   const carry = target.carry_from;
   if (!carry) return { ok: false, reason: "this story carries nothing" };
   if (!isRecord(blob) || blob.version !== options.version || blob.chatId !== chatId || !isRecord(blob.stories)) return { ok: false, reason: "the chat's story state is unreadable" };
@@ -116,7 +116,7 @@ export const previouslyText = (projection: CarryProjection, values: readonly Car
   return joined || null;
 };
 
-export const buildCarryState = (target: NormalizedStoryV2, candidate: CarryCandidate, now: string): { state: CarryState; skipped: CarrySkip[] } => {
+export const buildCarryState = (target: NormalizedStory, candidate: CarryCandidate, now: string): { state: CarryState; skipped: CarrySkip[] } => {
   const { values, skipped } = carryValues(target, candidate.projection);
   const carry = target.carry_from;
   const previously = carry?.previously === false ? null : previouslyText(candidate.projection, values, PREVIOUSLY_TOKENS - estimateTokens(PREVIOUSLY_HEADER));

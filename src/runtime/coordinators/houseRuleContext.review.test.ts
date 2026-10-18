@@ -1,5 +1,5 @@
 import { plantedModel } from "../../../test/support/modelCall";
-import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type EngineState, type NormalizedStory } from "@engine/index";
 import { defaultJudgeSettings, type JudgeAnswer, type JudgeRequest, type JudgeSettings } from "@judge/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { createStagecraft } from "../extras";
@@ -16,8 +16,8 @@ const STORY_TEXT = "Vallie is a one-eyed minotaur.";
 const MIRROR_TEXT = "Max owes Vallie ten crowns.";
 const FOREIGN_TEXT = "The foreign book says dragons rule Aegis.";
 
-const story = (): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2, id: "rules", title: "Rules", description: "House rules with context.",
+const story = (): NormalizedStory => parseStoryOrThrow({
+  id: "rules", title: "Rules", description: "House rules with context.",
   qualities: [{ key: "signed", type: "bool", source: "extractor", rubric: "Signed?" }],
   checkpoints: [{ id: "cp1", name: "The hall", objective: "Sign", type: "anchor", start: true }],
   transitions: [],

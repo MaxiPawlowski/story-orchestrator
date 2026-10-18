@@ -1,4 +1,4 @@
-import { StoryEngine, parseStoryV2, parseStoryV2OrThrow, resolveCheck, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { StoryEngine, parseStory, parseStoryOrThrow, resolveCheck, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 import { createChanceSeams } from "./chance";
 import { CHECK_OUTCOME_HEADER, checkOutcomeBlock, checkRecordsAt, createChecks, recordChecks, rollbackChecks, sanitizeChecks, type ChecksRuntimeState } from "./storyCheckDraws";
 import { checkRolls } from "./storyCheckDraws";
@@ -6,7 +6,7 @@ import { checkRolls } from "./storyCheckDraws";
 const IDS = { chatId: "chat-a", storyId: "climb" };
 
 const raw = (check: Record<string, unknown> = {}) => ({
-  format: 2, id: "climb", title: "Climb", description: "Synthetic.", roster: [],
+  id: "climb", title: "Climb", description: "Synthetic.", roster: [],
   qualities: [
     { key: "at_wall", type: "bool", source: "extractor", rubric: "Is the party at the wall?" },
     { key: "rope", type: "bool", source: "extractor", rubric: "Do they carry a rope?" },
@@ -27,7 +27,7 @@ const raw = (check: Record<string, unknown> = {}) => ({
   }],
 });
 
-const playing = (story: NormalizedStoryV2, ids = IDS) => {
+const playing = (story: NormalizedStory, ids = IDS) => {
   const seams = createChanceSeams(() => ({ ...ids, boundary: 0, qualities: story.qualities, story }), () => undefined);
   const engine = new StoryEngine({ now: () => 0, derive: seams.derive });
   engine.loadStory(story);
@@ -45,11 +45,11 @@ const playing = (story: NormalizedStoryV2, ids = IDS) => {
 
 describe("story checks", () => {
   test("validation refuses a check that writes an extractor quality", () => {
-    expect(Array.isArray(parseStoryV2(raw({ quality: "top" })))).toBe(true);
+    expect(Array.isArray(parseStory(raw({ quality: "top" })))).toBe(true);
   });
 
   test("the roll is the dice plus the matching modifiers against the target, with margin bands", () => {
-    const story = parseStoryV2OrThrow(raw());
+    const story = parseStoryOrThrow(raw());
     const check = story.transitions[0].check!;
     expect(resolveCheck(check, [0.5], { rope: true })).toMatchObject({ faces: [11], total: 15, success: true, degree: "weak" });
     expect(resolveCheck(check, [0.9], { rope: true })).toMatchObject({ total: 23, degree: "strong" });
@@ -57,7 +57,7 @@ describe("story checks", () => {
   });
 
   test("nothing is rolled until the rest of the gate holds", () => {
-    const play = playing(parseStoryV2OrThrow(raw()));
+    const play = playing(parseStoryOrThrow(raw()));
     play.turn();
     play.turn({ rope: true });
     expect(play.checks().records).toEqual([]);
@@ -66,7 +66,7 @@ describe("story checks", () => {
   });
 
   test("a failed check is one record however many turns the party stays at the wall", () => {
-    const failing = parseStoryV2OrThrow(raw({ roll: { sides: 20, target: 99 } }));
+    const failing = parseStoryOrThrow(raw({ roll: { sides: 20, target: 99 } }));
     const play = playing(failing);
     play.turn({ at_wall: true });
     play.turn();
@@ -76,14 +76,14 @@ describe("story checks", () => {
   });
 
   test("a group round of three replies at one boundary visit records one roll", () => {
-    const failing = parseStoryV2OrThrow(raw({ roll: { sides: 20, target: 99 } }));
+    const failing = parseStoryOrThrow(raw({ roll: { sides: 20, target: 99 } }));
     const play = playing(failing);
     for (let reply = 0; reply < 3; reply += 1) play.turn({ at_wall: true });
     expect(play.checks().records).toHaveLength(1);
   });
 
   test("picking up the rope changes the total, so it is a second record", () => {
-    const close = parseStoryV2OrThrow(raw({ roll: { sides: 2, target: 6 } }));
+    const close = parseStoryOrThrow(raw({ roll: { sides: 2, target: 6 } }));
     const play = playing(close);
     play.turn({ at_wall: true });
     play.turn({ rope: true });
@@ -91,7 +91,7 @@ describe("story checks", () => {
   });
 
   test("a swipe and a reopen read the same roll", () => {
-    const story = parseStoryV2OrThrow(raw());
+    const story = parseStoryOrThrow(raw());
     const first = playing(story);
     const message = first.turn({ at_wall: true });
     const kept = first.checks();
@@ -104,7 +104,7 @@ describe("story checks", () => {
   });
 
   test("a different chat rolls its own dice", () => {
-    const story = parseStoryV2OrThrow(raw({ roll: { sides: 1000, target: 1 } }));
+    const story = parseStoryOrThrow(raw({ roll: { sides: 1000, target: 1 } }));
     const one = playing(story), two = playing(story, { chatId: "chat-b", storyId: "climb" });
     one.turn({ at_wall: true });
     two.turn({ at_wall: true });
@@ -112,7 +112,7 @@ describe("story checks", () => {
   });
 
   test("the outcome block names the outcome on the reply it steers, and is gone after", () => {
-    const story = parseStoryV2OrThrow(raw());
+    const story = parseStoryOrThrow(raw());
     const play = playing(story);
     const message = play.turn({ at_wall: true });
     const block = checkOutcomeBlock(story, play.checks().records, message);
@@ -122,7 +122,7 @@ describe("story checks", () => {
   });
 
   test("a story with no checks has no block and no chips", () => {
-    const story = parseStoryV2OrThrow({ ...raw(), transitions: [{ ...raw().transitions[0], check: undefined }] });
+    const story = parseStoryOrThrow({ ...raw(), transitions: [{ ...raw().transitions[0], check: undefined }] });
     expect(checkOutcomeBlock(story, [], 4)).toBeNull();
     expect(checkRolls(story, undefined)).toEqual([]);
   });

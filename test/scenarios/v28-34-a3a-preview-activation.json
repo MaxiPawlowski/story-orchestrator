@@ -14,7 +14,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-a3a-preview",
         "title": "SO-A3a-Preview",
         "description": "Synthetic key-match preview against ST activation.",

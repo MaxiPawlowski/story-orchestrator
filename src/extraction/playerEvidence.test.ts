@@ -1,7 +1,7 @@
 import { readWith } from "../../test/support/modelCall";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { StoryEngine, parseStoryV2, parseStoryV2OrThrow, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
+import { StoryEngine, parseStory, parseStoryOrThrow, type NormalizedStory, type Story } from "@engine/index";
 import { buildTypedPlan, readTypedDeltas, stallDirectValue, stallVerdict } from "@judge/extraction";
 import { hashContract, PLAYER_MARK, renderSharedReadPrompt, WORLD_EVIDENCE_RULE } from "./contract";
 import { evidenceInWindow, evidenceSources } from "./evidence";
@@ -20,8 +20,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: [], extensionSettings: {} }),
 }));
 
-const storyRecord = (evidenceFrom?: "any" | "world"): StoryV2 => ({
-  format: 2,
+const storyRecord = (evidenceFrom?: "any" | "world"): Story => ({
   id: "sun-idol",
   title: "Sun idol",
   description: "v2.4 plan 04 T15",
@@ -37,7 +36,7 @@ const storyRecord = (evidenceFrom?: "any" | "world"): StoryV2 => ({
   roster: [],
 });
 
-const story = (evidenceFrom?: "any" | "world"): NormalizedStoryV2 => parseStoryV2OrThrow(storyRecord(evidenceFrom));
+const story = (evidenceFrom?: "any" | "world"): NormalizedStory => parseStoryOrThrow(storyRecord(evidenceFrom));
 
 const PLAYER = "I grab the Sun Idol from the altar.";
 const NARRATOR = "The Sun Idol comes free; you hold it now.";
@@ -218,7 +217,7 @@ describe("v2.4 plan 04 T15: the judge paths follow the same rule", () => {
 });
 
 describe("v2.4 plan 04 live fixture stories", () => {
-  const load = (file: string) => parseStoryV2(JSON.parse(readFileSync(join(process.cwd(), "test/scenarios", file), "utf8")));
+  const load = (file: string) => parseStory(JSON.parse(readFileSync(join(process.cwd(), "test/scenarios", file), "utf8")));
 
   it("validate, and only the variant declares world evidence and the attempts clause", () => {
     const variant = load("live-v24-04.story.json");
@@ -242,9 +241,9 @@ describe("v2.4 plan 04 T15: schema", () => {
   it("rejects evidence_from on a code quality and an unknown value", () => {
     const code = storyRecord("world");
     code.qualities[0] = { ...code.qualities[0], source: "code" };
-    expect((parseStoryV2(code) as Array<{ path: string }>).map((error) => error.path)).toContain("qualities.0.evidence_from");
+    expect((parseStory(code) as Array<{ path: string }>).map((error) => error.path)).toContain("qualities.0.evidence_from");
     const unknown = storyRecord();
     (unknown.qualities[0] as unknown as Record<string, unknown>).evidence_from = "narrator";
-    expect((parseStoryV2(unknown) as Array<{ message: string }>).map((error) => error.message)).toContain("evidence_from must be any, world or party");
+    expect((parseStory(unknown) as Array<{ message: string }>).map((error) => error.message)).toContain("evidence_from must be any, world or party");
   });
 });

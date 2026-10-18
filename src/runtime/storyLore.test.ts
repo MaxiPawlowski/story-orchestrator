@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import type { HostLoreBindings, HostScannableEntry } from "@services/STAPI";
 import { nextRepairStep, STORY_LORE_TARGET_ID } from "./repair";
 import { readRequirements } from "./requirementsRead";
@@ -12,8 +12,7 @@ import { createdStamp } from "@stagecraft/createdStamp";
 const HOARD = "The Hoard of the Dead Dragon";
 const PAWN = "The Pawnbroker of Forgotten Days";
 
-const make = (id: string, book: string, gated: string[]) => parseStoryV2OrThrow({
-  format: 2,
+const make = (id: string, book: string, gated: string[]) => parseStoryOrThrow({
   id,
   title: id,
   description: "Story lore fixture.",
@@ -48,7 +47,7 @@ const books: Record<string, StoryLoreBook> = {
 const world = {
   chatId: "pawn-chat" as string | null,
   ownedChat: "pawn-chat" as string | null,
-  story: pawn as NormalizedStoryV2 | null,
+  story: pawn as NormalizedStory | null,
   path: ["the-pawnbroker-1"],
   loads: [] as string[],
   onLoad: null as (() => void) | null,
@@ -67,7 +66,7 @@ const lore = () => createStoryLore({
 
 const emptyScan = (): HostScannableEntry[][] => [[], [], [], []];
 
-const play = (story: NormalizedStoryV2 | null, chat: string, path: string[] = []) => {
+const play = (story: NormalizedStory | null, chat: string, path: string[] = []) => {
   world.chatId = chat;
   world.ownedChat = story ? chat : null;
   world.story = story;

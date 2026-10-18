@@ -12,7 +12,7 @@ function fixture() {
   put("worlds/Story Orchestrator - Sun Ruins - chat-1.json", { entries: { 0: { comment: "so-owner", content: "{}" }, 1: { comment: "fact" } } });
   put("worlds/Story Orchestrator - Sun Ruins.json", { entries: { 0: { comment: "fact" } } });
   put("worlds/Xentar Checkpoints.json", { entries: { 0: { comment: "CP1" } } });
-  put("settings.json", { extension_settings: { "story-orchestrator": { settings: {}, v2Stories: [{ id: "a" }, { id: "b" }], wizardSessions: [{ key: "k", applied: ["Arin", "Lore"], createdLorebooks: ["Lore"] }] }, other: { x: 1 } } });
+  put("settings.json", { extension_settings: { "story-orchestrator": { settings: {}, stories: [{ id: "a" }, { id: "b" }], wizardSessions: [{ key: "k", applied: ["Arin", "Lore"], createdLorebooks: ["Lore"] }] }, other: { x: 1 } } });
   put("chats/Arin/one.jsonl", `${JSON.stringify({ chat_metadata: { story_orchestrator: { version: 5 } } })}\n{"mes":"hi"}\n`);
   put("chats/Arin/two.jsonl", `${JSON.stringify({ chat_metadata: { note_prompt: "x" } })}\n`);
   put("group chats/g1.jsonl", `${JSON.stringify({ chat_metadata: { story_orchestrator: { version: 5 }, pad: "p".repeat(200_000) } })}\n`);
@@ -33,7 +33,7 @@ test("UN: the inventory lists exactly what we own, and never a foreign book, cha
       { file: "worlds/Story Orchestrator - Sun Ruins - chat-1.json", owner: true },
       { file: "worlds/Story Orchestrator - Sun Ruins.json", owner: false },
     ]);
-    assert.deepEqual(out.settings, { keys: ["settings", "v2Stories", "wizardSessions"], libraryStories: 2, wizardSessions: 1, wizardAssets: ["Arin", "Lore"], wizardLorebooks: ["Lore"] });
+    assert.deepEqual(out.settings, { keys: ["settings", "stories", "wizardSessions"], libraryStories: 2, wizardSessions: 1, wizardAssets: ["Arin", "Lore"], wizardLorebooks: ["Lore"] });
     assert.deepEqual(out.chats, [{ file: "chats/Arin/one.jsonl", kind: "solo" }, { file: "group chats/g1.jsonl", kind: "group" }]);
     assert.equal(out.judgeKey, true);
     assert.deepEqual(out.transientVectors, ["vectors/transformers/so_consol_1_ab"]);

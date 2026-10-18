@@ -1,4 +1,4 @@
-import { slugifyStoryId, type StoryV2 } from "@engine/index";
+import { slugifyStoryId, type Story } from "@engine/index";
 
 export interface LivingStartInput {
   title: string;
@@ -16,13 +16,12 @@ const rosterId = (name: string, taken: Set<string>): string => {
   return id;
 };
 
-export function buildLivingStory(input: LivingStartInput): StoryV2 {
+export function buildLivingStory(input: LivingStartInput): Story {
   const taken = new Set<string>();
   const roster = input.members.map((name) => ({ id: rosterId(name, taken), name: name.trim() }));
   const premise = input.premise.trim();
   const title = input.title.trim() || "A living story";
   return {
-    format: 2,
     id: slugifyStoryId(title),
     title,
     description: premise,

@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { inactionProblem } from "@engine/validate/factions";
 
 type CommitmentCode = "commitment-broken-on-inaction" | "commitment-what-names-a-side";
@@ -10,13 +10,13 @@ export const COMMITMENT_CONSEQUENCES: Record<CommitmentCode, string> = {
 };
 
 export interface CommitmentRun {
-  draft: StoryV2;
+  draft: Story;
   push: (code: CommitmentCode, severity: "blocking" | "warning", path: string, message: string) => void;
 }
 
 const SIDES = /\b(you|your|yours|i|me|my|mine)\b/i;
 
-const startValues = (draft: StoryV2) => Object.fromEntries(draft.qualities.flatMap((quality) => (quality.step_rule?.start !== undefined ? [[quality.key, quality.step_rule.start]] : [])));
+const startValues = (draft: Story) => Object.fromEntries(draft.qualities.flatMap((quality) => (quality.step_rule?.start !== undefined ? [[quality.key, quality.step_rule.start]] : [])));
 
 export const checkCommitmentDiagnostics = ({ draft, push }: CommitmentRun) => {
   const start = startValues(draft);

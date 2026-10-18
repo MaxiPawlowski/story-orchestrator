@@ -1,9 +1,8 @@
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 import type { JudgeRuntime } from "./judge";
 import { createTypedJudge } from "./typedRead";
 
-const story = () => parseStoryV2OrThrow({
-  format: 2,
+const story = () => parseStoryOrThrow({
   id: "typed-world",
   title: "Typed world",
   description: "v2.4 plan 04 T15",

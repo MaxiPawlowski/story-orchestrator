@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type EngineState, type NormalizedStory } from "@engine/index";
 import { EXPANSION_CONTRACT, type ExpansionCacheEntry, type ExpansionRuntimeState } from "@generation/index";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "../runToken";
 import { sanitizeExpansion } from "../extras";
@@ -10,7 +10,6 @@ import { testOwnership } from "../../../test/findings/testOwnership";
 const ARRIVE = { q: "reached_walls", op: "==", v: true };
 
 const raw = (offer: string[] | null = ["encounters"]) => ({
-  format: 2,
   id: "pool-coordinator",
   title: "Pool coordinator",
   description: "A road between a camp and a city.",
@@ -47,7 +46,7 @@ function harness(options: { active?: string; values?: Record<string, unknown>; o
     async (_prompt: string, ask: { debugResponse?: string | null }) => ({ text: ask.debugResponse ?? planted ?? "", finish: "unknown" as const }),
     { planted: () => planted },
   );
-  let story: NormalizedStoryV2 = parseStoryV2OrThrow(raw());
+  let story: NormalizedStory = parseStoryOrThrow(raw());
   let active = options.active ?? "camp";
   let values: Record<string, unknown> = options.values ?? {};
   const store = fresh();
@@ -73,7 +72,7 @@ function harness(options: { active?: string; values?: Record<string, unknown>; o
     coordinator, store, schedule, jobs, replaced: () => replaced, plant: (text: string | null) => { planted = text; },
     setActive: (id: string) => { active = id; },
     setValues: (next: Record<string, unknown>) => { values = next; },
-    setStory: (next: NormalizedStoryV2) => { story = next; },
+    setStory: (next: NormalizedStory) => { story = next; },
     drain: async () => { while (jobs.length) await jobs.shift()?.(); },
   };
 }
@@ -100,7 +99,7 @@ describe("v2.8 19: scheduling a pool", () => {
 
   it("a plain open stretch and a checkpoint with no stretch schedule nothing", () => {
     const env = harness();
-    env.setStory(parseStoryV2OrThrow(raw(null)));
+    env.setStory(parseStoryOrThrow(raw(null)));
     env.coordinator.scheduleForActive(env.schedule);
     env.setActive("walls");
     env.coordinator.scheduleForActive(env.schedule);
@@ -167,8 +166,8 @@ describe("v2.8 19: generating, using and invalidating a pool", () => {
   it("is dropped when the story stops offering encounters or loses the stretch, and kept while it still does", async () => {
     const env = harness();
     await env.coordinator.runNow(GOOD);
-    expect(env.coordinator.pruneMissing(parseStoryV2OrThrow(raw()))).toBe(0);
-    expect(env.coordinator.pruneMissing(parseStoryV2OrThrow(raw(null)))).toBe(1);
+    expect(env.coordinator.pruneMissing(parseStoryOrThrow(raw()))).toBe(0);
+    expect(env.coordinator.pruneMissing(parseStoryOrThrow(raw(null)))).toBe(1);
     expect(env.store.entries).toEqual({});
   });
 });

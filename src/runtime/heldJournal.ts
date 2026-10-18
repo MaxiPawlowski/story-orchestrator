@@ -1,5 +1,5 @@
 import { TYPED_EVIDENCE_CHARS } from "@judge/extraction";
-import type { NormalizedStoryV2, StoryEngine } from "@engine/index";
+import type { NormalizedStory, StoryEngine } from "@engine/index";
 import type { BeatReading, HeldBeat } from "@engine/life/beats";
 import { gameLayer } from "@engine/validate/gameLayer";
 
@@ -15,7 +15,7 @@ export interface HeldReading {
 
 export const HELD_QUOTE_CHARS = 120;
 
-export const freshBeats = <T extends BeatReading>(story: NormalizedStoryV2 | null, engine: StoryEngine, readings: T[]): { accepted: T[]; held: HeldBeat[] } =>
+export const freshBeats = <T extends BeatReading>(story: NormalizedStory | null, engine: StoryEngine, readings: T[]): { accepted: T[]; held: HeldBeat[] } =>
   (story?.life && gameLayer()?.life.holdSameBeat(story, engine.stateLog, engine.pendingWrites, engine.serialize().boundary, readings)) || { accepted: readings, held: [] };
 
 const quote = (text: string) => `"${text.slice(0, HELD_QUOTE_CHARS)}"`;

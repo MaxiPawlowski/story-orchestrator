@@ -1,4 +1,4 @@
-import { gatedWorldInfo, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { gatedWorldInfo, type EngineState, type NormalizedStory } from "@engine/index";
 import { loadedEntries, observeWorldInfoScans, type HostEntriesLoaded } from "@services/STAPI";
 import { lorebookFileId } from "@utils/string";
 import type { RunContext } from "./runToken";
@@ -12,7 +12,7 @@ export const isLoudGeneration = (type: string | null) => type === null || !withh
 export interface LoreEvidenceWiring {
   chatId: () => string | null;
   context: () => RunContext;
-  story: () => NormalizedStoryV2 | null;
+  story: () => NormalizedStory | null;
   state: () => EngineState | null;
   mirrorBook: () => string | null;
   lastMessageId: () => number;
@@ -34,7 +34,7 @@ export interface LoreEvidenceControls {
 
 // Every book the story reads from: what it requires, what it gates, what lore-select may force, and
 // this chat's own memory mirror. These are the books a foreign scan filter could hide from the model.
-export function storyBooks(story: NormalizedStoryV2 | null, mirrorBook: string | null): string[] {
+export function storyBooks(story: NormalizedStory | null, mirrorBook: string | null): string[] {
   const books = [
     ...(story?.requirements?.lorebooks ?? []),
     ...(story ? [...gatedWorldInfo([story]).keys()] : []),

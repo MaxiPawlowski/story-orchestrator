@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStory } from "@engine/index";
 import {
   applyEpistemicInjection, applyLedgerInjection, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildLedgerView,
   buildMemoryInjectionBlocks, clearAllMemoryInjection, memoryInjectionView, pinnedOverflowOf, type MemoryInjectionView, clearEpistemicInjection, openArcTexts, withoutExcludedThreads,
@@ -17,10 +17,10 @@ import type { MemoryRuntimeState } from "./types";
 import type { InjectorHosts } from "./hostPorts";
 import { hasNarratedSheet } from "./narratorSheetPort";
 
-const storyKey = (story: NormalizedStoryV2): string => story.id ?? story.title;
+const storyKey = (story: NormalizedStory): string => story.id ?? story.title;
 
 export interface MemoryInjectorDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   memory: () => MemoryRuntimeState;
   enabled: () => boolean;
@@ -111,13 +111,13 @@ export class MemoryInjector {
     return withoutLapsedIntents(this.state.epistemic, { boundary: this.deps.getState()?.boundary ?? 0, derived: this.state.derived });
   }
 
-  private voices(story: NormalizedStoryV2): CastVoice[] {
+  private voices(story: NormalizedStory): CastVoice[] {
     const voices = castVoices(story, this.deps.getState()?.activeCheckpointId ?? null);
     const enabled = new Set(enabledCharacterIds(story, this.hosts.roster));
     return voices.map((voice) => (enabled.has(voice.id) ? { ...voice, selfVoiced: true } : voice));
   }
 
-  private memberBlock(story: NormalizedStoryV2, id: string, knowledge: EpistemicEntry[], beat = ""): string {
+  private memberBlock(story: NormalizedStory, id: string, knowledge: EpistemicEntry[], beat = ""): string {
     const known = this.deps.capable() ? knowledge : [];
     const privateBlock = known.length ? renderPrivateEpistemicBlock(known, namesForRosterId(story, id)) : "";
     const render = innerRender();
@@ -137,12 +137,12 @@ export class MemoryInjector {
     this.privateSources = [...this.privateSources, source];
   }
 
-  private sourcedLines(story: NormalizedStoryV2, id: string): string {
+  private sourcedLines(story: NormalizedStory, id: string): string {
     const lines = this.privateSources.flatMap((source) => source(id));
     return lines.length ? withoutSecretLines(lines.join("\n"), this.secrets(story), namesForRosterId(story, id)) : "";
   }
 
-  private lifeLines(story: NormalizedStoryV2, id: string): string {
+  private lifeLines(story: NormalizedStory, id: string): string {
     const layer = story.life || story.factions?.length ? gameLayer() : null;
     if (!layer) return "";
     const state = this.deps.getState();
@@ -208,18 +208,18 @@ export class MemoryInjector {
     }
   }
 
-  private stagedIds(story: NormalizedStoryV2): string[] {
+  private stagedIds(story: NormalizedStory): string[] {
     const ids = enabledCharacterIds(story, this.hosts.roster);
     const drafted = this.draft?.rosterId;
     return drafted && !ids.includes(drafted) ? [...ids, drafted] : ids;
   }
 
-  private ledgerFocusNames(story: NormalizedStoryV2): string[] {
+  private ledgerFocusNames(story: NormalizedStory): string[] {
     const speaker = activeSpeakerId(story, this.hosts.roster);
     return [...(this.deps.ledgerFocus?.() ?? []), ...(speaker ? namesForRosterId(story, speaker) : [])];
   }
 
-  private secrets(story: NormalizedStoryV2): HeldSecret[] {
+  private secrets(story: NormalizedStory): HeldSecret[] {
     if (!this.deps.capable()) return [];
     const disclosures = this.disclosureSources.flatMap((source) => source()).map((entry) => ({ entryId: entry.entryId, names: namesForRosterId(story, entry.member) }));
     return heldSecrets(this.knowledge(), story.roster.flatMap((member) => namesForRosterId(story, member.id)), disclosures);

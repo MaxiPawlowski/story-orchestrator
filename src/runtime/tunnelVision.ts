@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import type { TunnelVisionBook } from "@services/stHost/tunnelVision";
 import { storyLoreBooks } from "./storyLore";
 
@@ -13,7 +13,7 @@ export const readTunnelVisionWith = (read: () => TunnelVisionBook[]): (() => voi
   };
 };
 
-export const tunnelVisionFor = (story: NormalizedStoryV2 | null, books: readonly TunnelVisionBook[]): TunnelVisionBook[] => {
+export const tunnelVisionFor = (story: NormalizedStory | null, books: readonly TunnelVisionBook[]): TunnelVisionBook[] => {
   if (!story) return [];
   const owned = new Set([
     ...storyLoreBooks(story),
@@ -23,4 +23,4 @@ export const tunnelVisionFor = (story: NormalizedStoryV2 | null, books: readonly
   return books.filter((book) => owned.has(book.name));
 };
 
-export const tunnelVision = (story: NormalizedStoryV2 | null): TunnelVisionBook[] => tunnelVisionFor(story, readBooks());
+export const tunnelVision = (story: NormalizedStory | null): TunnelVisionBook[] => tunnelVisionFor(story, readBooks());

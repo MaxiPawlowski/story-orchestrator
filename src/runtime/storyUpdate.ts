@@ -1,4 +1,4 @@
-import { isValidationErrorList, type EngineHistory, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { isValidationErrorList, type EngineHistory, type EngineState, type NormalizedStory } from "@engine/index";
 import type { StoryDiffResult } from "@engine/storyDiff";
 import { showChoicePopup } from "@services/STAPI";
 import { findStoryRecord, loadStoryRecord } from "./storyLibrary";
@@ -24,7 +24,7 @@ export interface StoryUpdateDeps {
   getHistory?: () => EngineHistory | null;
   // The played graph, expansions merged in — diffing the authored base would read every generated
   // beat as removed (and could report the ACTIVE checkpoint as gone).
-  mergeStory: (raw: unknown, base: NormalizedStoryV2) => NormalizedStoryV2;
+  mergeStory: (raw: unknown, base: NormalizedStory) => NormalizedStory;
   swapStory: (loaded: LoadedStory, state: EngineState | null, reanchored: boolean, history?: EngineHistory | null) => Promise<void>;
   restart: () => Promise<boolean>;
   journal: (outcome: StoryUpdateOutcome) => void;
@@ -36,7 +36,7 @@ export interface StoryUpdateDeps {
 
 export interface LivingUpdatePort {
   tracks: () => boolean;
-  refold: (authored: { raw: Record<string, unknown>; hash: string }) => { raw: Record<string, unknown>; story: NormalizedStoryV2 } | { broken: string[] };
+  refold: (authored: { raw: Record<string, unknown>; hash: string }) => { raw: Record<string, unknown>; story: NormalizedStory } | { broken: string[] };
   commitAuthored: (authored: { raw: Record<string, unknown>; hash: string }) => void;
 }
 

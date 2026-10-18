@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { StoryEngine, type NormalizedStoryV2 } from "@engine/index";
-import { parseStoryV2OrThrow } from "@engine/validate";
+import { StoryEngine, type NormalizedStory } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/validate";
 import { entryKnown } from "@engine/codex";
 import { composeGame } from "./widgets";
 import { WidgetCard } from "../components/widgets/WidgetCard";
@@ -14,9 +14,9 @@ const PLACES = ["Kessel boathouse", "Grimsby mill", null];
 const ROSTER = [{ id: "tom", name: "Tom" }, { id: "ada", name: "Ada" }, { id: "nar", name: "The Narrator", view: "omniscient" }];
 const SCENE = { id: "here", kind: "scene", title: "Here now" };
 
-const sceneStory = (patch: Record<string, unknown> = {}): NormalizedStoryV2 => parseStoryV2OrThrow(labRaw({ roster: ROSTER, widgets: [SCENE], ...patch }));
+const sceneStory = (patch: Record<string, unknown> = {}): NormalizedStory => parseStoryOrThrow(labRaw({ roster: ROSTER, widgets: [SCENE], ...patch }));
 
-const run = (story: NormalizedStoryV2, seed: number, turns?: number) => {
+const run = (story: NormalizedStory, seed: number, turns?: number) => {
   const random = rng(seed);
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
@@ -28,7 +28,7 @@ const run = (story: NormalizedStoryV2, seed: number, turns?: number) => {
   return engine;
 };
 
-const compose = (story: NormalizedStoryV2, engine: StoryEngine, extra: { enabled?: string[]; location?: string | null } = {}): GameView =>
+const compose = (story: NormalizedStory, engine: StoryEngine, extra: { enabled?: string[]; location?: string | null } = {}): GameView =>
   composeGame({
     story, state: engine.serialize(), boundaryLog: engine.stateLog, checks: [], threads: { open: [], resolved: [] }, chat: [], castNames: CAST,
     enabled: extra.enabled ?? ["tom", "ada", "nar"], location: extra.location ?? null, portraits: PORTRAITS,
@@ -121,8 +121,8 @@ describe("65 here-now scene card", () => {
   });
 
   test("a story without a scene widget has no scene projection, and the validator keeps the time option on scene panels", () => {
-    const bare = parseStoryV2OrThrow(labRaw({ roster: ROSTER }));
+    const bare = parseStoryOrThrow(labRaw({ roster: ROSTER }));
     expect(compose(bare, run(bare, 2, 2)).scene).toBeUndefined();
-    expect(() => parseStoryV2OrThrow(labRaw({ widgets: [{ id: "log", kind: "log", title: "Log", options: { time: true } }] }))).toThrow(/only a scene panel shows the story's time/);
+    expect(() => parseStoryOrThrow(labRaw({ widgets: [{ id: "log", kind: "log", title: "Log", options: { time: true } }] }))).toThrow(/only a scene panel shows the story's time/);
   });
 });

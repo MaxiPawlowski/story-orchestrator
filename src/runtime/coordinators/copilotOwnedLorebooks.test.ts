@@ -1,5 +1,5 @@
 import { plantedModel } from "../../../test/support/modelCall";
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import type { ProvisioningOp, WizardSessionState } from "@wizard/index";
 import { CopilotCoordinator } from "./copilotCoordinator";
 import { testOwnership } from "../../../test/findings/testOwnership";
@@ -18,7 +18,7 @@ const host = {
 };
 const { createCharacterCard, createLorebook, upsertWIEntry } = host;
 
-const draft = { format: 2, id: "owned", title: "Owned", description: "Fixture", qualities: [], checkpoints: [], transitions: [], roster: [] } as unknown as StoryV2;
+const draft = { id: "owned", title: "Owned", description: "Fixture", qualities: [], checkpoints: [], transitions: [], roster: [] } as unknown as Story;
 
 const harness = (stored: WizardSessionState | null) => {
   let session = stored;

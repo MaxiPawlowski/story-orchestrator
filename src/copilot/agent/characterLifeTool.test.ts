@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { emptyEnvironment } from "@wizard/index";
 import { applyDraftOp, approvePlan, executeReply, newAgentSession, type StepMeta } from "./loop";
 import { agentContext } from "./testing";
@@ -7,8 +7,7 @@ import type { AgentSession } from "./types";
 const AT = "2026-10-10T12:00:00.000Z";
 const META: StepMeta = { route: "local", firstTryValid: true, repaired: false, at: AT };
 
-const draft = (patch: Partial<StoryV2> = {}): StoryV2 => ({
-  format: 2,
+const draft = (patch: Partial<Story> = {}): Story => ({
   title: "Harbour",
   description: "",
   qualities: [{ key: "paid", type: "bool", source: "extractor", rubric: "Has the debt been paid?" }],

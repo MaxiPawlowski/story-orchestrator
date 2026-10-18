@@ -17,15 +17,14 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 import * as sagaMini from "../../test/fixtures/chapters-mini.story.json";
-import { parseStoryV2OrThrow, type StoryEngine, type StoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type StoryEngine, type Story } from "@engine/index";
 import * as chapterPort from "./chapterPort";
 import { loadChapterKit } from "./chapterPort";
 import type { EffectsApplier } from "./effectsApplier";
 import type { RuntimeExtras } from "./types";
 import { RuntimeManager } from "./runtimeManager";
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "jump",
   title: "Jump",
   description: "",
@@ -63,7 +62,7 @@ beforeAll(async () => { await loadChapterKit(); });
 beforeEach(() => { choice.next = "seal"; choice.asked = []; choice.during = null; });
 
 describe("CR-E3 / CR-E4: every caller of activateCheckpoint gets the chapter-jump confirm, and a skip is written before the target applies", () => {
-  const chaptered = parseStoryV2OrThrow(JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as StoryV2);
+  const chaptered = parseStoryOrThrow(JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as Story);
   const managerAt = () => {
     const runtime = new RuntimeManager();
     const probe = runtime as unknown as { loaded: unknown; engine: StoryEngine; effects: EffectsApplier; persist: () => Promise<void>; extras: RuntimeExtras };

@@ -1,4 +1,4 @@
-import { anchorOpening, type Checkpoint, type NormalizedStoryV2, type ObjectiveKind, type TensionLevel } from "@engine/index";
+import { anchorOpening, type Checkpoint, type NormalizedStory, type ObjectiveKind, type TensionLevel } from "@engine/index";
 import type { MemoryTier } from "@memory/index";
 import type { PipelineStatus } from "./pipeline";
 import type { LatestScene } from "./recapCurrent";
@@ -49,7 +49,7 @@ export const transitionNoteText = (checkpoint: Pick<Checkpoint, "name" | "object
 
 const IDENTIFIER_LIKE = /^[^A-Z\s]+$/;
 
-export const playerLocation = (story: Pick<NormalizedStoryV2, "qualityByKey"> | null, value: string | null): string | null => {
+export const playerLocation = (story: Pick<NormalizedStory, "qualityByKey"> | null, value: string | null): string | null => {
   if (!story || !value) return null;
   return story.qualityByKey.location?.player_labels?.[value] ?? (IDENTIFIER_LIKE.test(value) ? null : value);
 };

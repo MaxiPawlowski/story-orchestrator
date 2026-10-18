@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStory } from "@engine/index";
 import type { SchedulerJob } from "@extraction/index";
 import {
   createAgendaProposals, DEFAULT_MEANWHILE_ACCEPT_MODE, hasOpenAgenda, landAcceptedProposals, meanwhileDue, recordMeanwhilePass, storyTimeOf,
@@ -13,7 +13,7 @@ export interface MeanwhileProposer {
 }
 
 export interface MeanwhilePortDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   extras: () => RuntimeExtras;
   ownership: RunOwnership;

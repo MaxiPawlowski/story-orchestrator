@@ -1,4 +1,4 @@
-import { hasChecks, hasGameLayer, questStatus, valueReader, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { hasChecks, hasGameLayer, questStatus, valueReader, type BoundaryLogEntry, type EngineState, type NormalizedStory } from "@engine/index";
 import { scopeDropped } from "@extraction/scope";
 import type { ScopeSourceContext } from "@extraction/scopeSources";
 import type { GameAuthorView, GameView } from "./gameTypes";
@@ -14,7 +14,7 @@ export const loadGameComposer = async () => {
 };
 
 export interface GameSliceInput {
-  story: NormalizedStoryV2 | null;
+  story: NormalizedStory | null;
   state: EngineState | null;
   boundaryLog: readonly BoundaryLogEntry[];
   checks: ChecksRuntimeState | undefined;
@@ -28,14 +28,14 @@ export interface GameSliceInput {
   characters?: ReadonlyArray<{ avatar?: string; name?: string }>;
 }
 
-export const portraitsOf = (story: NormalizedStoryV2, characters: ReadonlyArray<{ avatar?: string; name?: string }>, castNames: Record<string, string>): Record<string, string> =>
+export const portraitsOf = (story: NormalizedStory, characters: ReadonlyArray<{ avatar?: string; name?: string }>, castNames: Record<string, string>): Record<string, string> =>
   Object.fromEntries(story.roster.flatMap((member) => {
     const name = (castNames[member.id] ?? member.name ?? member.id).toLowerCase();
     const avatar = characters.find((card) => card.name?.toLowerCase() === name)?.avatar;
     return avatar && avatar !== "none" ? [[member.id, `/characters/${encodeURIComponent(avatar)}`]] : [];
   }));
 
-export const storyHasGame = (story: NormalizedStoryV2 | null): boolean => hasGameLayer(story) || hasChecks(story);
+export const storyHasGame = (story: NormalizedStory | null): boolean => hasGameLayer(story) || hasChecks(story);
 
 export function gameSlices(input: GameSliceInput): { game: GameView | null; gameAuthor: GameAuthorView | null } {
   const { story, state } = input;

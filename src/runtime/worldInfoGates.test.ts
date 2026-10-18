@@ -1,9 +1,8 @@
 import * as sunRuins from "../../examples/sun-ruins/quest-for-the-sun-ruins.json";
-import { gatedWorldInfo, parseStoryV2OrThrow, readWorldInfoEffect } from "@engine/index";
+import { gatedWorldInfo, parseStoryOrThrow, readWorldInfoEffect } from "@engine/index";
 import { isMemoryMirrorBook, releasePlan, worldInfoPlan } from "./worldInfoGates";
 
-const story = (checkpoints: Array<{ id: string; type?: string; world_info?: unknown }>) => parseStoryV2OrThrow({
-  format: 2,
+const story = (checkpoints: Array<{ id: string; type?: string; world_info?: unknown }>) => parseStoryOrThrow({
   title: "Gates",
   description: "World info gate fixture.",
   qualities: [],
@@ -62,7 +61,7 @@ describe("worldInfoPlan", () => {
   });
 
   it("carries an intermediate checkpoint's entries on to the checkpoints after it (sun-ruins cp-4a -> cp-4a1)", () => {
-    const example = parseStoryV2OrThrow(sunRuins);
+    const example = parseStoryOrThrow(sunRuins);
     const plan = planFor(worldInfoPlan(example, ["cp1", "cp2", "cp3", "cp-4a", "cp-4a1"]), "Xentar Checkpoints");
     expect(plan?.enable).toEqual(expect.arrayContaining(["CP1 - Mission", "CP3 - Luke", "CP4 - Scenario", "CP4 - Sphinx", "CP4 - Sphinx's Riddle"]));
     const early = planFor(worldInfoPlan(example, ["cp1"]), "Xentar Checkpoints");

@@ -1,5 +1,5 @@
 import * as recorded from "../../test/fixtures/t2-1-between-the-floors.expansion.json";
-import { StoryEngine, parseStoryV2OrThrow, type StoryV2 } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, type Story } from "@engine/index";
 import { mergeExpansions } from "./merge";
 import { parseGeneratedBeats } from "./parse";
 import type { ExpansionCacheEntry } from "./types";
@@ -9,8 +9,8 @@ jest.mock("@services/STAPI", () => ({
   settingsReady: async () => {},
 }));
 
-const raw = recorded.story as unknown as StoryV2;
-const story = parseStoryV2OrThrow(raw);
+const raw = recorded.story as unknown as Story;
+const story = parseStoryOrThrow(raw);
 const parsed = parseGeneratedBeats(JSON.stringify({ beats: recorded.beats }), story);
 const entry = { key: "k", status: "validated", contract: 2, sourceCheckpointId: "the-first-descent", stubId: "between-the-floors",
   targetAnchorId: "the-changed-deep", beats: parsed.beats } as unknown as ExpansionCacheEntry;

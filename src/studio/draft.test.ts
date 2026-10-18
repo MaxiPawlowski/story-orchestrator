@@ -41,7 +41,6 @@ describe("draft store", () => {
 
   it("recomputes validation errors on mutation", () => {
     load({
-      format: 2,
       title: "S",
       description: "",
       qualities: [],
@@ -67,7 +66,6 @@ describe("draft store", () => {
   it("loadDraft selects the first checkpoint and clears history", () => {
     useDraftStore.getState().mutate((draft) => addQuality(draft));
     load({
-      format: 2,
       title: "Fresh",
       description: "",
       qualities: [],

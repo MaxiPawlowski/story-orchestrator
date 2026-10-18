@@ -76,7 +76,6 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 const story = {
-  format: 2,
   id: "reload-blocks-story",
   title: "Reload blocks story",
   description: "Same-chat reload keeps the prompt blocks.",

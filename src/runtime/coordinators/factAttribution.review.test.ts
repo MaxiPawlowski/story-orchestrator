@@ -25,7 +25,7 @@ const stapi = {
   MEMORY_INJECTION_KEY_PREFIX: "so-memory-",
 };
 
-import { StoryEngine, parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import { runSharedRead } from "@extraction/sharedRead";
 import type { SharedReadWindow } from "@extraction/types";
 import { describeProvenance, type MemoryEntry } from "@memory/index";
@@ -34,8 +34,7 @@ import type { MemoryRuntimeState } from "../types";
 import { ExtractionCoordinator } from "./extractionCoordinator";
 import { MemoryCoordinator } from "./memoryCoordinator";
 
-const story: NormalizedStoryV2 = parseStoryV2OrThrow({
-  format: 2,
+const story: NormalizedStory = parseStoryOrThrow({
   id: "f1a",
   title: "F1a attribution",
   description: "v2.5 plan 05 F1a",

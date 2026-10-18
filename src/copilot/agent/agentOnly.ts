@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { setAppearance, setChapters, setHouseRules, setPlayer, setFeatures } from "../../studio/mutations";
 import { setCheckpointMotive, setRosterDrive, setRosterView } from "../../studio/innerVoiceMutations";
 import type { OpDescription } from "../index";
@@ -17,7 +17,7 @@ const isGameOp = (op: AgentOnlyOp): op is GameAgentOp => GAME_AGENT_KINDS.has(op
 
 export const isAgentOnly = (op: AgentOp): op is AgentOnlyOp => AGENT_ONLY_KINDS.has(op.kind);
 
-export const applyAgentOnly = (draft: StoryV2, op: AgentOnlyOp): StoryV2 => {
+export const applyAgentOnly = (draft: Story, op: AgentOnlyOp): Story => {
   if (isPoseOp(op)) return applyPoseOp(draft, op);
   if (isGameOp(op)) return applyGameOp(draft, op);
   switch (op.kind) {
@@ -54,7 +54,7 @@ export const describeAgentOnly = (op: AgentOnlyOp): OpDescription => {
   }
 };
 
-const chaptersProblem = (draft: StoryV2, op: Extract<AgentOnlyOp, { kind: "setChapters" }>): string | null => {
+const chaptersProblem = (draft: Story, op: Extract<AgentOnlyOp, { kind: "setChapters" }>): string | null => {
   const chapters = new Set(op.chapters.map((chapter) => chapter.id));
   const problems = Object.entries(op.assign).flatMap(([checkpoint, chapter]) => [
     ...(draft.checkpoints.some((entry) => entry.id === checkpoint) ? [] : [`'${checkpoint}' is not a checkpoint`]),
@@ -63,7 +63,7 @@ const chaptersProblem = (draft: StoryV2, op: Extract<AgentOnlyOp, { kind: "setCh
   return problems.length ? problems.join("; ") : null;
 };
 
-export const agentOnlyProblem = (draft: StoryV2, op: AgentOnlyOp): string | null => {
+export const agentOnlyProblem = (draft: Story, op: AgentOnlyOp): string | null => {
   if (isPoseOp(op)) return poseOpProblem(draft, op);
   if (isGameOp(op)) return gameOpProblem(draft, op);
   if (op.kind === "setHouseRules" || op.kind === "setPlayer" || op.kind === "setFeatures") return null;

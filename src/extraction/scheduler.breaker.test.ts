@@ -12,7 +12,7 @@ jest.mock("./sharedRead", () => ({
   runSharedRead: jest.fn(),
 }));
 
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStory } from "@engine/index";
 import { BREAKER_BACKOFF_MS, DANGLING_PROFILE_DETAIL, type ProbeResult } from "./breaker";
 import { ModelCallError } from "./modelError";
 import { CADENCE_WINDOW_MAX, ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "./scheduler";
@@ -41,7 +41,7 @@ function harness(overrides: Partial<SchedulerHost> = {}): Harness {
   let epoch = 1;
   const h = { settings, applied: [] as number[], probes: [] as number[], failures: [] as Array<[string, string]>, probeAnswers: [] as ProbeResult[], profiles: new Set(["artemis"]) } as Harness;
   const host: SchedulerHost = {
-    getStory: () => ({}) as unknown as NormalizedStoryV2,
+    getStory: () => ({}) as unknown as NormalizedStory,
     getEngineState: () => ({ lastMessageId: 9 }) as unknown as EngineState,
     getExtractionSettings: () => settings,
     model: plantedModel,

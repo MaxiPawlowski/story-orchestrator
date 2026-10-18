@@ -1,8 +1,7 @@
 import { agencyClauses, agencyFor, agencyForCheckpoint, DEFAULT_AGENCY, OBJECTIVE_KINDS, PLAYER_ATTEMPTS_CLAUSE, renderAgencyPolicy } from "./agency";
-import { parseStoryV2 } from "./validate";
+import { parseStory } from "./validate";
 
 const story = (extra: Record<string, unknown> = {}): Record<string, unknown> => ({
-  format: 2,
   id: "agency-probe",
   title: "Agency Probe",
   description: "A story with one quality and two anchors.",
@@ -16,7 +15,7 @@ const story = (extra: Record<string, unknown> = {}): Record<string, unknown> => 
 });
 
 const parsed = (extra: Record<string, unknown> = {}) => {
-  const result = parseStoryV2(story(extra));
+  const result = parseStory(story(extra));
   if (Array.isArray(result)) throw new Error(result.map((error) => `${error.path}: ${error.message}`).join("; "));
   return result;
 };
@@ -40,14 +39,14 @@ describe("agency policy (v2.3 plan 07, C4)", () => {
   });
 
   it("refuses a removed alias, an unknown key and a kind it does not know", () => {
-    const alias = parseStoryV2(story({ agency: { fallback: "start" } }));
+    const alias = parseStory(story({ agency: { fallback: "start" } }));
     expect(Array.isArray(alias) && alias.find((error) => error.path.endsWith("agency.fallback"))?.message).toMatch(/^unknown key/);
-    const typo = parseStoryV2(story({ agency: { alternat: "start" } }));
+    const typo = parseStory(story({ agency: { alternat: "start" } }));
     expect(Array.isArray(typo) && typo.find((error) => error.path.endsWith("agency.alternat"))?.message).toBe('unknown key (did you mean "alternate"?)');
     expect(parsed({ agency: { alternate: "start" } }).checkpointById.next.agency).toEqual({ alternate: "start" });
-    const bad = parseStoryV2(story({ agency: { objective_kind: "world" } }));
+    const bad = parseStory(story({ agency: { objective_kind: "world" } }));
     expect(Array.isArray(bad) && bad.some((error) => error.path.endsWith("agency.objective_kind"))).toBe(true);
-    const wrongType = parseStoryV2(story({ agency: { protect_player_choice: "yes" } }));
+    const wrongType = parseStory(story({ agency: { protect_player_choice: "yes" } }));
     expect(Array.isArray(wrongType) && wrongType.some((error) => error.path.endsWith("agency.protect_player_choice"))).toBe(true);
   });
 
@@ -71,7 +70,7 @@ describe("agency policy (v2.3 plan 07, C4)", () => {
     expect(agencyClauses(agencyForCheckpoint(built, "next"))).toContain(PLAYER_ATTEMPTS_CLAUSE);
     expect(agencyClauses(agencyForCheckpoint(built, "start"))).not.toContain(PLAYER_ATTEMPTS_CLAUSE);
     expect(PLAYER_ATTEMPTS_CLAUSE).toBe("{{user}}'s message states an attempt; decide its outcome from the world — it may fail.");
-    const wrongType = parseStoryV2(story({ agency: { player_attempts_only: "yes" } }));
+    const wrongType = parseStory(story({ agency: { player_attempts_only: "yes" } }));
     expect(Array.isArray(wrongType) && wrongType.some((error) => error.path.endsWith("agency.player_attempts_only"))).toBe(true);
   });
 

@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import type { SharedReadAudit } from "@extraction/index";
 import { createWitness } from "@memory/witness/state";
 import type { WitnessRecordState } from "@memory/witness/types";
@@ -13,7 +13,7 @@ declare module "./types" {
 type RecordKit = typeof import("@memory/witness/record");
 
 export interface WitnessPortDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   extras: () => RuntimeExtras;
   enabledIds: () => string[];
 }

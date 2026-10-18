@@ -2,7 +2,7 @@
 
 # Plan 14 charter cards
 
-Pinned Adolion build `fc2d6e7b0eee47d848cf81d45efeeb9bc51e020f`. 37 cards. Start one with `node scripts/debug/so-session.mts start <id> --lane <n>`.
+Pinned Adolion build `93549b11cd7abb0fb5901e0bec6dfc9e41895d9d`. 37 cards. Start one with `node scripts/debug/so-session.mts start <id> --lane <n>`.
 
 ## T0
 
@@ -1264,7 +1264,7 @@ Pinned Adolion build `fc2d6e7b0eee47d848cf81d45efeeb9bc51e020f`. 37 cards. Start
   - hot-swap
   - invalidating choice
   - save vocabulary
-- **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): `inventory.v2Stories:+adolion-adventurer`, `inventory.v2Stories:-adolion-adventurer`.
+- **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): `inventory.stories:+adolion-adventurer`, `inventory.stories:-adolion-adventurer`.
 - **Logged automatically:**
   - story update records (from/to version, classification, choice)
   - the library in the run header diff
@@ -1396,7 +1396,7 @@ Pinned Adolion build `fc2d6e7b0eee47d848cf81d45efeeb9bc51e020f`. 37 cards. Start
   - effects editor
   - diagnostics
   - hot-swap / invalidating choice
-- **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): `inventory.v2Stories:~{story}`. `{story}` is the story this session's chats play, `:~` lets only its library copy change (one `id@old` out, one `id@new` in); `{story-books}` are the lorebooks its wizard session created.
+- **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): `inventory.stories:~{story}`. `{story}` is the story this session's chats play, `:~` lets only its library copy change (one `id@old` out, one `id@new` in); `{story-books}` are the lorebooks its wizard session created.
 - **Logged automatically:**
   - story update records
   - library in the run header diff
@@ -1435,7 +1435,7 @@ Pinned Adolion build `fc2d6e7b0eee47d848cf81d45efeeb9bc51e020f`. 37 cards. Start
   - Repair
   - Fix with wizard
   - disabled member (known finding)
-- **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): `inventory.v2Stories:~{story}`, `inventory.lorebooksSelected:-{story-books}`. `{story}` is the story this session's chats play, `:~` lets only its library copy change (one `id@old` out, one `id@new` in); `{story-books}` are the lorebooks its wizard session created.
+- **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): `inventory.stories:~{story}`, `inventory.lorebooksSelected:-{story-books}`. `{story}` is the story this session's chats play, `:~` lets only its library copy change (one `id@old` out, one `id@new` in); `{story-books}` are the lorebooks its wizard session created.
 - **Wizard assets:** stop allows exactly what this session's wizard sessions created during the run: a new session's whole `applied` ledger, and for a session that existed at start (Fix with wizard continues the story's own) only what its ledger GREW by against the start header's `inventory.wizardApplied`; plus the library records saved under a new key. Allowed by name: each session, ledger item, story, selected lorebook and group (by id: a new group the wizard's applied createGroup step or its ledger names, or the new group of a chat the session adopted that plays a story the run created), and the character and lorebook counts by exactly the ledger's numbers. A removal, an unledgered asset or an existing session without a start ledger still invalidates the session.
 - **Logged automatically:**
   - requirement readings

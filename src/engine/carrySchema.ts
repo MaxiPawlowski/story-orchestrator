@@ -90,7 +90,7 @@ export interface CarryDeclined {
 export type CarrySlice = CarryState | CarryDeclined;
 
 declare module "./schema" {
-  interface StoryV2 {
+  interface Story {
     outcome?: OutcomeKey[];
     carry_from?: CarryFrom;
   }

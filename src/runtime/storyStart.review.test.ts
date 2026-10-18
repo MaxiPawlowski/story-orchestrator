@@ -52,7 +52,6 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 const storyJson = JSON.stringify({
-  format: 2,
   id: "sun-ruins",
   title: "Quest for the Sun Ruins",
   description: "A desert expedition.",

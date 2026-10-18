@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { emptyEnvironment } from "@wizard/index";
 import { BRIDGE_ROLE, BRIDGE_SYSTEM, bridgeAnswerText, createBridgeRoute, harnessRoute, HARNESS_ROUTE_REFUSAL } from "./bridge";
 import { createAgentRunner } from "./turn";
@@ -15,8 +15,7 @@ import type { AgentMode, AgentOp } from "./types";
 const AT = "2026-09-30T00:00:00.000Z";
 const TARGET = { harness: "opencode", model: "openai/gpt-6-astra-fast", timeoutMs: 600_000 };
 
-const story = (): StoryV2 => ({
-  format: 2,
+const story = (): Story => ({
   title: "Bridge",
   description: "",
   qualities: [],

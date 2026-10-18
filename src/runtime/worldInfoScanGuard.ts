@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import { storyRevision } from "./hash";
 import { applyScanGate, emptyScanGateStats, scanGatePlan, type ScanEntry, type ScanGate, type ScanGateStats } from "./scanGatePlan";
 import { earnedSwitches, earnedSwitchesKey, NO_EARNED_SWITCHES, releasePlan, type EarnedSwitches } from "./worldInfoGates";
@@ -7,7 +7,7 @@ import { bookKey } from "./worldInfoMatch";
 export interface ScanGuardSources {
   openChat: () => string | null;
   storyChat: () => string | null;
-  story: () => NormalizedStoryV2 | null;
+  story: () => NormalizedStory | null;
   path: () => string[];
   values?: () => Readonly<Record<string, unknown>>;
   ready: () => boolean;
@@ -21,7 +21,7 @@ export interface ScanGuardResult extends ScanGateStats {
   owner: ScanGuardOwner;
 }
 
-const releaseOnly = (library: unknown[], story: NormalizedStoryV2): ScanGate => {
+const releaseOnly = (library: unknown[], story: NormalizedStory): ScanGate => {
   const gate: ScanGate = new Map();
   for (const plan of releasePlan(library, story)) {
     const key = bookKey(plan.lorebook);
@@ -31,7 +31,7 @@ const releaseOnly = (library: unknown[], story: NormalizedStoryV2): ScanGate => 
   return gate;
 };
 
-export const scanGuardGate = (library: unknown[], story: NormalizedStoryV2 | null, path: string[], owner: ScanGuardOwner, switches: EarnedSwitches = NO_EARNED_SWITCHES): ScanGate => {
+export const scanGuardGate = (library: unknown[], story: NormalizedStory | null, path: string[], owner: ScanGuardOwner, switches: EarnedSwitches = NO_EARNED_SWITCHES): ScanGate => {
   if (owner === "no-story" || !story) return scanGatePlan(library, null, []);
   return owner === "story" ? scanGatePlan(library, story, path, switches) : releaseOnly(library, story);
 };

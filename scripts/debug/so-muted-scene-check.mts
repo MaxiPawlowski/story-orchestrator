@@ -57,7 +57,7 @@ await runCli(async (page) => {
     await openGroup(page, group); await startNewChat(page); await closeUnpinnedDrawers(page);
     record.checks.push(await page.evaluate(async () => {
       const root = globalThis as any, rt = root.storyOrchestratorRuntime;
-      const result = await rt.importStory(JSON.stringify({ format: 2, id: 'somute-scene', title: 'SOMUTE Scene cast', description: 'Synthetic pre-muted scene regression.', qualities: [],
+      const result = await rt.importStory(JSON.stringify({ id: 'somute-scene', title: 'SOMUTE Scene cast', description: 'Synthetic pre-muted scene regression.', qualities: [],
         roster: [{ id: 'lead', name: 'SOMUTE Lead' }, { id: 'guest', name: 'SOMUTE Guest' }, { id: 'other', name: 'SOMUTE Other' }],
         requirements: { members: ['lead', 'guest', 'other'] },
         checkpoints: [{ id: 'scene', name: 'Synthetic scene', type: 'anchor', start: true, objective: 'Keep the supporting cast offstage.', illustrate: false,

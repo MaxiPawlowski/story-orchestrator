@@ -1,11 +1,11 @@
-import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import type { LivingRuntimeState } from "@generation/living/types";
 import { createDivergenceState, createLivingState, type DirectorProposal } from "@generation/living/types";
 import type { LivingCoordinatorDeps } from "./coordinators/livingCoordinator";
 import { LIVING_NOT_LOADED, LivingPort } from "./livingPort";
 
-const story = (living: boolean): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2, id: "s", title: "S", description: "d", qualities: [], roster: [], transitions: [],
+const story = (living: boolean): NormalizedStory => parseStoryOrThrow({
+  id: "s", title: "S", description: "d", qualities: [], roster: [], transitions: [],
   checkpoints: living ? [] : [{ id: "a", name: "A", objective: "o", type: "anchor", start: true }],
   ...(living ? { living: { premise: "A coast where the lanterns go out one by one." } } : {}),
 });

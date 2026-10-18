@@ -1,11 +1,11 @@
-import { castMemberName, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { castMemberName, type BoundaryLogEntry, type EngineState, type NormalizedStory } from "@engine/index";
 import type { KnownEntities } from "@engine/codex";
 import { holderLabelRows, labelHolders, labelledRelationships, revealEvents } from "@engine/life/labels";
 import type { CodexSources } from "./codexView";
 import type { CodexEntryView, CodexRowView, LogRowView } from "./gameTypes";
 
 export interface LabelSources {
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
   state: EngineState;
   boundaryLog: readonly BoundaryLogEntry[];
   castNames: Record<string, string>;

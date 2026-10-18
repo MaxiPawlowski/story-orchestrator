@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { PREVIOUSLY_BOUNDARIES, type CarryState } from "@engine/carrySchema";
 import { join } from "path";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { carrySlice, type CarryView } from "./carryPort";
 import { carryKnownLines } from "@engine/carry";
@@ -10,7 +10,7 @@ import { carryStartSeed, createExtras, restartCarry, restartedExtras } from "./e
 import { defaultGlobalSettings } from "./settingsModel";
 
 const raw = () => JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/carry-sequel.story.json"), "utf8")) as Record<string, unknown>;
-const SEQUEL = parseStoryV2OrThrow(raw());
+const SEQUEL = parseStoryOrThrow(raw());
 const settings = () => defaultGlobalSettings();
 
 const carry = (patch: Partial<CarryState> = {}): CarryState => ({
@@ -42,7 +42,7 @@ describe("v2.8 plan 45 N5: the Previously block has a bounded life", () => {
     expect(at(3, carry(), 1)).toBeNull();
     expect(at(3, carry({ dismissed: true }))).toBeNull();
     expect(at(0, carry({ previously: null, block: null }))).toBeNull();
-    const chapterless = parseStoryV2OrThrow({ ...raw(), chapters: undefined });
+    const chapterless = parseStoryOrThrow({ ...raw(), chapters: undefined });
     expect(previouslyBlock(carrySlice(chapterless, extrasWith(carry()), 12))).toBeNull();
   });
 
@@ -63,7 +63,7 @@ describe("v2.8 plan 45 N5: the Previously block has a bounded life", () => {
 
 describe("v2.8 plan 45: start seed, private lines, restart", () => {
   it("seeds the kept values and journals each dropped one (N4)", () => {
-    const edited = parseStoryV2OrThrow({ ...raw(), qualities: (raw().qualities as Array<Record<string, unknown>>).filter((quality) => quality.key !== "guild_trust"),
+    const edited = parseStoryOrThrow({ ...raw(), qualities: (raw().qualities as Array<Record<string, unknown>>).filter((quality) => quality.key !== "guild_trust"),
       carry_from: { ...(raw().carry_from as Record<string, unknown>), map: (raw().carry_from as { map: Array<Record<string, unknown>> }).map.filter((entry) => entry.to !== "guild_trust") } });
     const extras = extrasWith(carry());
     const journal: string[] = [];

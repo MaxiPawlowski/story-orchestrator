@@ -32,7 +32,7 @@ import type {
 import { defaultTension, sanitizeTension } from "./tensionState";
 import { log } from "@utils/log";
 import { readFeaturePolicies } from "@engine/featurePolicy";
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import { gameLayer } from "@engine/validate/gameLayer";
 import type { JournalRecordKind } from "./journal";
 
@@ -419,7 +419,7 @@ export interface RestartCarry {
   from: string;
 }
 
-export const carryStartSeed = (story: NormalizedStoryV2, extras: RuntimeExtras, persisted: { engineState?: unknown } | null, host: CarryJournal) =>
+export const carryStartSeed = (story: NormalizedStory, extras: RuntimeExtras, persisted: { engineState?: unknown } | null, host: CarryJournal) =>
   (persisted?.engineState ? {} : gameLayer()?.carry.startSeed(story, extras, (summary, note) => host.noteRecap(summary, note, "author")) ?? {});
 
 export const restartCarry = (extras: RuntimeExtras, checkpoint: string | undefined, boundary: number): RestartCarry => ({

@@ -2,7 +2,7 @@ import { execFileSync } from "child_process";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import {
-  StoryEngine, parseStoryV2OrThrow, type GateNode, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue,
+  StoryEngine, parseStoryOrThrow, type GateNode, type NormalizedStory, type NormalizedTransition, type PrimitiveValue,
 } from "@engine/index";
 import { chanceGateValues } from "./chance";
 
@@ -24,7 +24,7 @@ const SAGA_ROLLS = ["wall_breached", "aegis_examiner_watching", "deep_swarm", "e
 const CHATS = 300;
 
 interface RollBranch {
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
   key: string;
   odds: number;
   branch: NormalizedTransition;
@@ -42,7 +42,7 @@ const satisfy = (node: GateNode, skip: string, out: Record<string, PrimitiveValu
   return out;
 };
 
-const rollsIn = (story: NormalizedStoryV2): RollBranch[] =>
+const rollsIn = (story: NormalizedStory): RollBranch[] =>
   story.qualities.flatMap((quality) => {
     if (!quality.roll) return [];
     const branch = story.transitions.find((transition) => JSON.stringify(transition.gate).includes(`{"q":"${quality.key}","op":"==","v":true}`)) as NormalizedTransition | undefined;
@@ -61,7 +61,7 @@ const play = ({ story, key, branch }: RollBranch, chatId: string | null) => {
 };
 
 (paths.length ? describe : describe.skip)("SP7.b: the Adolion roll checkpoints play on a prod build", () => {
-  const stories = paths.map((path) => parseStoryV2OrThrow(JSON.parse(campaignAt(path))));
+  const stories = paths.map((path) => parseStoryOrThrow(JSON.parse(campaignAt(path))));
   const rolls = stories.flatMap(rollsIn);
 
   it("the seven saga rolls survive validation as roll qualities", () => {

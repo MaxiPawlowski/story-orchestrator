@@ -1,7 +1,7 @@
 import { LORE_CONTENT_RULE, LORE_RULE_OFF_GLOBAL, loreContentRule, renderStagePrompt } from "./prompts";
 import { renderPlanPrompt } from "./agent/prompt";
 
-const DRAFT = { format: 2, title: "T", description: "D", qualities: [], checkpoints: [], transitions: [], roster: [] } as never;
+const DRAFT = { title: "T", description: "D", qualities: [], checkpoints: [], transitions: [], roster: [] } as never;
 const SESSION = { goal: "g", notes: [], steps: [], plan: [], budget: { maxSteps: 4 } } as never;
 const ENV = { characterNames: [], lorebookNames: [], ownedLorebooks: [], castNames: [], personaNames: [] } as never;
 const prompts = () => [renderStagePrompt("provisioning", DRAFT, "", []), renderPlanPrompt(SESSION, DRAFT, ENV), renderPlanPrompt(SESSION, DRAFT, ENV, true)];

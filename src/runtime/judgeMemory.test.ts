@@ -56,7 +56,6 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 const story = {
-  format: 2,
   id: "judge-memory",
   title: "Judge Memory",
   description: "v2.2 plan 02 fixture.",

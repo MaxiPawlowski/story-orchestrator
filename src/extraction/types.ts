@@ -1,4 +1,4 @@
-import type { BlackboardDelta, EngineState, GateNode, NormalizedStoryV2, Quality, TensionLevel } from "@engine/index";
+import type { BlackboardDelta, EngineState, GateNode, NormalizedStory, Quality, TensionLevel } from "@engine/index";
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine, SceneBreakSignal } from "@memory/index";
 import type { ContextLimit } from "./inputBudget";
 import type { WindowForm } from "./windowHygiene";
@@ -94,7 +94,7 @@ export interface JudgedTypedRead {
   fallback?: string;
 }
 
-export type TypedJudge = (input: { story: NormalizedStoryV2; state: EngineState; qualities: Quality[]; window: SharedReadWindow }) => Promise<JudgedTypedRead | null>;
+export type TypedJudge = (input: { story: NormalizedStory; state: EngineState; qualities: Quality[]; window: SharedReadWindow }) => Promise<JudgedTypedRead | null>;
 
 export interface ParsedFact {
   text: string;

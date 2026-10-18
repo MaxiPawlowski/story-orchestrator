@@ -2,12 +2,12 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import { runAsk } from "@copilot/agent/ask";
 import { emptyLookup } from "@copilot/agent/types";
-import type { StoryV2 } from "@engine/index";
+import type { Story as StoryFile } from "@engine/index";
 import { VIEWPORTS, expectFits } from "../../../.storybook/fit";
 import { sampleStory, seedDraft } from "../stories/fixtures";
 import StudioAsk from "./StudioAsk";
 
-const scripted = (replies: string[]) => async (question: string, draft: StoryV2) => {
+const scripted = (replies: string[]) => async (question: string, draft: StoryFile) => {
   const queue = [...replies];
   const result = await runAsk({ question, context: { persona: "author", draft, lookup: emptyLookup(), liveState: null }, model: async () => queue.shift() ?? "" });
   return { status: result.status, answer: result.answer, topics: result.topics.map((topic) => ({ id: topic.id, title: topic.title })), showMe: result.showMe };

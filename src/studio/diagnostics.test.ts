@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { DIAGNOSTIC_CODES, DIAGNOSTIC_CONSEQUENCES, runDiagnostics } from "./diagnostics";
 
 describe("diagnostic consequences (v2.3 plan 09)", () => {
@@ -14,8 +14,7 @@ describe("diagnostic consequences (v2.3 plan 09)", () => {
   });
 });
 
-const clean: StoryV2 = {
-  format: 2,
+const clean: Story = {
   title: "clean",
   description: "",
   qualities: [{ key: "trust", type: "int", source: "extractor", rubric: "r" }],
@@ -28,8 +27,8 @@ const clean: StoryV2 = {
 };
 
 describe("agenda pace without chapters (owner decision 2026-10-07)", () => {
-  const paceHits = (draft: StoryV2) => runDiagnostics(draft).filter((entry) => entry.code === "agenda-pace-no-chapters");
-  const withAgenda = (pace: "per_chapter" | "per_n_boundaries"): StoryV2 => ({
+  const paceHits = (draft: Story) => runDiagnostics(draft).filter((entry) => entry.code === "agenda-pace-no-chapters");
+  const withAgenda = (pace: "per_chapter" | "per_n_boundaries"): Story => ({
     ...clean, roster: [{ id: "arin", name: "Arin", agenda: [{ id: "plan", goal: "Leave town", pace, steps: [{ text: "packed" }] }] }],
   });
   it("blocks a per_chapter agenda in a story without chapters, consequence first", () => {
@@ -45,9 +44,9 @@ describe("agenda pace without chapters (owner decision 2026-10-07)", () => {
 });
 
 describe("story kind (2026-10-03)", () => {
-  const kindHits = (draft: StoryV2) => runDiagnostics(draft).filter((entry) => entry.code === "story-kind-invalid");
+  const kindHits = (draft: Story) => runDiagnostics(draft).filter((entry) => entry.code === "story-kind-invalid");
   it("blocks a kind that is neither saga nor story, and passes both and absent", () => {
-    expect(kindHits({ ...clean, kind: "epic" } as unknown as StoryV2)).toEqual([
+    expect(kindHits({ ...clean, kind: "epic" } as unknown as Story)).toEqual([
       expect.objectContaining({ severity: "blocking", path: "kind", consequence: DIAGNOSTIC_CONSEQUENCES["story-kind-invalid"] }),
     ]);
     expect(kindHits({ ...clean, kind: "saga" })).toEqual([]);
@@ -56,14 +55,14 @@ describe("story kind (2026-10-03)", () => {
   });
 });
 
-const installSeeded: StoryV2 = {
+const installSeeded: Story = {
   ...clean,
   description: "You are the courier of the guild.",
   checkpoints: [{ ...clean.checkpoints[0], effects: { background: { name: "harbour_night" }, cast_changes: { enable: ["Ghost"] } } }, clean.checkpoints[1]],
   roster: [{ id: "courier", name: "The Courier" }],
 };
 
-const arrivalSeeded: StoryV2 = {
+const arrivalSeeded: Story = {
   ...clean,
   checkpoints: [{ ...clean.checkpoints[0], effects: { cast_changes: { disable: ["The Warden"] } } }, { id: "road", name: "Road", objective: "", type: "intermediate" }, clean.checkpoints[1]],
   roster: [{ id: "warden", name: "The Warden" }],
@@ -74,11 +73,10 @@ const arrivalSeeded: StoryV2 = {
   requirements: { personas: ["The Apprentice"] },
 };
 
-const seeded: StoryV2 = {
-  format: 2,
+const seeded: Story = {
   title: "seeded",
   description: "",
-  kind: "epic" as StoryV2["kind"],
+  kind: "epic" as Story["kind"],
   qualities: [
     { key: "trust", type: "int", source: "extractor", rubric: "r" },
     { key: "route", type: "enum", values: ["stealth", "force"], source: "extractor", rubric: "r", evidence_from: "any" },
@@ -137,7 +135,7 @@ const seeded: StoryV2 = {
 const anchor = (id: string, chapter?: string, start = false) => ({ id, name: id, objective: "", type: "anchor" as const, ...(chapter ? { chapter } : {}), ...(start ? { start } : {}) });
 const hop = (from: string, to: string) => ({ from, to, priority: 0, gate: { all: [] } });
 
-const chaptered: StoryV2 = {
+const chaptered: Story = {
   ...clean,
   qualities: [],
   chapters: [{ id: "a", title: "A" }, { id: "b", title: "B" }, { id: "c", title: "C", final: true }, { id: "u", title: "Empty", final: true }],
@@ -145,7 +143,7 @@ const chaptered: StoryV2 = {
   transitions: [hop("a1", "a2"), hop("a1", "b1"), hop("b1", "b2"), hop("b2", "b1"), hop("a1", "c1"), hop("c1", "a1"), hop("a1", "m"), hop("a1", "g")],
 };
 
-const codexSeeded: StoryV2 = {
+const codexSeeded: Story = {
   ...clean,
   codex: {
     people: [
@@ -158,7 +156,7 @@ const codexSeeded: StoryV2 = {
   },
 };
 
-const widgetSeeded: StoryV2 = {
+const widgetSeeded: Story = {
   ...clean,
   qualities: [...clean.qualities, { key: "orphan_clue", type: "bool", source: "extractor", rubric: "Found the orphan clue?" }],
   checkpoints: [...clean.checkpoints, { id: "island", name: "Island", objective: "", type: "intermediate" }],
@@ -182,7 +180,7 @@ describe("runDiagnostics", () => {
       ...runDiagnostics(installSeeded, { characterNames: () => ["Tobias"], backgroundNames: () => ["tavern day.jpg"] }),
       ...runDiagnostics(arrivalSeeded, { personaNames: () => ["Traveller"] }),
       ...runDiagnostics({ ...clean, roster: [{ id: "arin", name: "Arin", agenda: [{ id: "plan", goal: "Leave", pace: "per_chapter", steps: [{ text: "packed" }] }] }] }),
-      ...runDiagnostics({ ...clean, checkpoints: [{ ...clean.checkpoints[0], effects: { stage: { cast: { Arin: { face: "angry" } } } } as StoryV2["checkpoints"][number]["effects"] }, clean.checkpoints[1]] },
+      ...runDiagnostics({ ...clean, checkpoints: [{ ...clean.checkpoints[0], effects: { stage: { cast: { Arin: { face: "angry" } } } } as Story["checkpoints"][number]["effects"] }, clean.checkpoints[1]] },
         { spriteInventory: () => ({ arin: { sets: ["default"], faces: ["neutral"] } }) }),
       ...runDiagnostics(widgetSeeded, { backgroundNames: () => ["tavern day.jpg"] }),
       ...runDiagnostics({ ...clean, display: { standing: false }, factions: [{ id: "guild", name: "G", range: [-5, 5], start: 0, bands: [{ max: 0, label: "Cold" }, { label: "Warm" }], moves: [] }] }),
@@ -206,20 +204,20 @@ describe("runDiagnostics", () => {
   });
 
   describe("checkpoint-inherits-author-note (v2.4 plan 06 T16b)", () => {
-    const chain = (patch: Partial<StoryV2> = {}, notes: Record<string, unknown> = { start: "Keep the hall hushed." }): StoryV2 => ({
+    const chain = (patch: Partial<Story> = {}, notes: Record<string, unknown> = { start: "Keep the hall hushed." }): Story => ({
       ...clean,
       checkpoints: [
         { id: "start", name: "Hall", objective: "", type: "intermediate", start: true },
         { id: "road", name: "Road", objective: "", type: "intermediate" },
         { id: "cache", name: "Cache", objective: "", type: "anchor" },
-      ].map((checkpoint) => (notes[checkpoint.id] === undefined ? checkpoint : { ...checkpoint, effects: { author_note: notes[checkpoint.id] } })) as StoryV2["checkpoints"],
+      ].map((checkpoint) => (notes[checkpoint.id] === undefined ? checkpoint : { ...checkpoint, effects: { author_note: notes[checkpoint.id] } })) as Story["checkpoints"],
       transitions: [
         { from: "start", to: "road", priority: 0, gate: { q: "trust", op: ">=", v: 1 } },
         { from: "road", to: "cache", priority: 0, gate: { q: "trust", op: ">=", v: 2 } },
       ],
       ...patch,
     });
-    const hits = (story: StoryV2) => runDiagnostics(story).filter((entry) => entry.code === "checkpoint-inherits-author-note");
+    const hits = (story: Story) => runDiagnostics(story).filter((entry) => entry.code === "checkpoint-inherits-author-note");
 
     it("names the checkpoint whose note a later one plays under, through inheriting ones, and says the objective line is added", () => {
       expect(hits(chain()).map((entry) => [entry.path, entry.severity, entry.message])).toEqual([
@@ -239,7 +237,7 @@ describe("runDiagnostics", () => {
   });
 
   it("warns when an extractor quality appears in no gate or snapshot", () => {
-    const story: StoryV2 = {
+    const story: Story = {
       ...clean,
       qualities: [...clean.qualities, { key: "orphan", type: "bool", source: "extractor", rubric: "r" }],
     };
@@ -250,7 +248,7 @@ describe("runDiagnostics", () => {
   });
 
   it("does not warn for code qualities, tension_current, or snapshot-only references", () => {
-    const story: StoryV2 = {
+    const story: Story = {
       ...clean,
       qualities: [
         ...clean.qualities,
@@ -264,7 +262,7 @@ describe("runDiagnostics", () => {
   });
 
   it("does not warn for a quality read only by a checkpoint check's when", () => {
-    const story: StoryV2 = {
+    const story: Story = {
       ...clean,
       qualities: [...clean.qualities, { key: "tried", type: "bool", source: "extractor", rubric: "r" }, { key: "ok", type: "bool", source: "code", rubric: "r" }],
       checkpoints: clean.checkpoints.map((checkpoint, index) => index === 0
@@ -274,7 +272,7 @@ describe("runDiagnostics", () => {
   });
 
   it("recognizes the runtime's card scope without hiding an unbound orphan", () => {
-    const story: StoryV2 = { ...clean,
+    const story: Story = { ...clean,
       qualities: [...clean.qualities, { key: "hair", type: "string", source: "extractor", rubric: "confirmed hair" },
         { key: "orphan", type: "string", source: "extractor", rubric: "unused" }],
       roster: [{ id: "belle", name: "Belle", card: { fields: { hair: { quality: "hair", visual: true } } } }],
@@ -285,7 +283,7 @@ describe("runDiagnostics", () => {
   });
 
   it("counts a quest's gates as scope (v2.7 36 quest scope source) without hiding a milestone-only orphan", () => {
-    const story: StoryV2 = { ...clean,
+    const story: Story = { ...clean,
       qualities: [...clean.qualities, { key: "seen", type: "bool", source: "extractor", rubric: "r" },
         { key: "found", type: "bool", source: "extractor", rubric: "r" },
         { key: "step_done", type: "bool", source: "extractor", rubric: "r" },
@@ -299,22 +297,22 @@ describe("runDiagnostics", () => {
   });
 
   it("warns that a free-text location quality leaves the scene tracker placeless, unless places are listed (v2.2 plan 03)", () => {
-    const freeText: StoryV2 = { ...clean, qualities: [...clean.qualities, { key: "location", type: "string", source: "extractor", rubric: "Where?" }] };
+    const freeText: Story = { ...clean, qualities: [...clean.qualities, { key: "location", type: "string", source: "extractor", rubric: "Where?" }] };
     expect(runDiagnostics(freeText).filter((entry) => entry.code === "scene-read-location-empty")).toEqual([expect.objectContaining({ severity: "warning", path: "qualities.1" })]);
     expect(runDiagnostics({ ...freeText, scene_read: { locations: ["guild hall"] } }).some((entry) => entry.code === "scene-read-location-empty")).toBe(false);
-    const enumLocation: StoryV2 = { ...clean, qualities: [...clean.qualities, { key: "location", type: "enum", values: ["hall"], source: "extractor", rubric: "Where?" }] };
+    const enumLocation: Story = { ...clean, qualities: [...clean.qualities, { key: "location", type: "enum", values: ["hall"], source: "extractor", rubric: "Where?" }] };
     expect(runDiagnostics(enumLocation).some((entry) => entry.code === "scene-read-location-empty")).toBe(false);
   });
 
   it("warns about a lore-select book the story does not require, case-insensitively (v2.2 plan 04)", () => {
-    const story: StoryV2 = { ...clean, requirements: { lorebooks: ["Vault Lore"] }, lore_select: { lorebooks: ["vault lore", "Other Lore"] } };
+    const story: Story = { ...clean, requirements: { lorebooks: ["Vault Lore"] }, lore_select: { lorebooks: ["vault lore", "Other Lore"] } };
     expect(runDiagnostics(story).filter((entry) => entry.code === "lore-select-inactive").map((entry) => entry.path)).toEqual(["lore_select.lorebooks.1"]);
   });
 
   it("L5: warns when exclusive lore-select names no lorebook, and not when it names one", () => {
-    const empty: StoryV2 = { ...clean, lore_select: { lorebooks: [], exclusive: true } };
+    const empty: Story = { ...clean, lore_select: { lorebooks: [], exclusive: true } };
     expect(runDiagnostics(empty).filter((entry) => entry.code === "lore-select-exclusive-empty").map((entry) => [entry.severity, entry.path])).toEqual([["warning", "lore_select.exclusive"]]);
-    const scoped: StoryV2 = { ...clean, requirements: { lorebooks: ["Vault Lore"] }, lore_select: { lorebooks: ["Vault Lore"], exclusive: true } };
+    const scoped: Story = { ...clean, requirements: { lorebooks: ["Vault Lore"] }, lore_select: { lorebooks: ["Vault Lore"], exclusive: true } };
     expect(runDiagnostics(scoped).some((entry) => entry.code === "lore-select-exclusive-empty")).toBe(false);
   });
 
@@ -330,7 +328,7 @@ describe("runDiagnostics", () => {
 
 
 describe("latching enums with a placeholder (S1)", () => {
-  const withEnums = (values: string[], latching: boolean | undefined): StoryV2 => ({
+  const withEnums = (values: string[], latching: boolean | undefined): Story => ({
     ...clean,
     qualities: [{ key: "mood", type: "enum", values, source: "extractor", rubric: "r", ...(latching === undefined ? {} : { latching }) }],
   });
@@ -358,16 +356,16 @@ describe("latching enums with a placeholder (S1)", () => {
 });
 
 describe("an outcome a player's line alone can prove (v2.4 plan 04 T15)", () => {
-  const story = (quality: Partial<StoryV2["qualities"][number]>, to: "cache" | "start" = "cache"): StoryV2 => ({
+  const story = (quality: Partial<Story["qualities"][number]>, to: "cache" | "start" = "cache"): Story => ({
     ...clean,
-    qualities: [{ key: "idol_taken", type: "bool", source: "extractor", rubric: "Does the player hold the idol?", ...quality } as StoryV2["qualities"][number]],
+    qualities: [{ key: "idol_taken", type: "bool", source: "extractor", rubric: "Does the player hold the idol?", ...quality } as Story["qualities"][number]],
     transitions: [
       to === "cache"
         ? { from: "start", to: "cache", priority: 0, gate: { all: [{ q: "idol_taken", op: "==", v: true }] } }
         : { from: "cache", to: "start", priority: 0, gate: { q: "idol_taken", op: "==", v: true } },
     ],
   });
-  const hits = (draft: StoryV2) => runDiagnostics(draft).filter((entry) => entry.code === "quality-outcome-player-evidence");
+  const hits = (draft: Story) => runDiagnostics(draft).filter((entry) => entry.code === "quality-outcome-player-evidence");
 
   it("suggests world evidence for a bool or enum that gates the way into an anchor, as info", () => {
     expect(hits(story({}))).toEqual([expect.objectContaining({ severity: "info", path: "qualities.0", consequence: "A player's line alone can move the story here: writing that they did it counts as done." })]);
@@ -386,15 +384,15 @@ describe("an outcome a player's line alone can prove (v2.4 plan 04 T15)", () => 
   });
 
   it("reports a quality once however many anchor gates read it", () => {
-    const twice: StoryV2 = { ...story({}), checkpoints: [...clean.checkpoints, { id: "vault", name: "Vault", objective: "", type: "anchor" }], transitions: [...story({}).transitions, { from: "start", to: "vault", priority: 0, gate: { not: { q: "idol_taken", op: "==", v: false } } }] };
+    const twice: Story = { ...story({}), checkpoints: [...clean.checkpoints, { id: "vault", name: "Vault", objective: "", type: "anchor" }], transitions: [...story({}).transitions, { from: "start", to: "vault", priority: 0, gate: { not: { q: "idol_taken", op: "==", v: false } } }] };
     expect(hits(twice)).toHaveLength(1);
   });
 });
 
 describe("a rating with no readable scale (F1)", () => {
-  const withRating = (quality: Partial<StoryV2["qualities"][number]>): StoryV2 => ({
+  const withRating = (quality: Partial<Story["qualities"][number]>): Story => ({
     ...clean,
-    qualities: [{ key: "dread", type: "int", source: "extractor", rubric: "How afraid is she?", read_as: "rating", ...quality } as StoryV2["qualities"][number]],
+    qualities: [{ key: "dread", type: "int", source: "extractor", rubric: "How afraid is she?", read_as: "rating", ...quality } as Story["qualities"][number]],
   });
 
   it("blocks, and carries the shape the repair pass has to produce", () => {
@@ -414,14 +412,14 @@ describe("a rating with no readable scale (F1)", () => {
 });
 
 describe("v2.5 plan 01 D: world info rests off under per-chat gating", () => {
-  const withWorldInfo: StoryV2 = {
+  const withWorldInfo: Story = {
     ...clean,
     checkpoints: [
       { id: "start", name: "Start", objective: "", type: "intermediate", start: true, effects: { world_info: { enable: [{ lorebook: "Ruins", comments: ["CP1", "CP2"] }] } } },
       { id: "cache", name: "Cache", objective: "", type: "anchor", effects: { world_info: { disable: [{ lorebook: "Ruins", comments: ["CP1"] }] } } },
     ],
   };
-  const restsOff = (draft: StoryV2, mode?: "file" | "scan") => runDiagnostics(draft, mode ? { worldInfoGating: mode } : {}).filter((entry) => entry.code === "world-info-rests-off");
+  const restsOff = (draft: Story, mode?: "file" | "scan") => runDiagnostics(draft, mode ? { worldInfoGating: mode } : {}).filter((entry) => entry.code === "world-info-rests-off");
 
   it("says the story's gated entries rest off in their lorebooks, once, as info", () => {
     const found = restsOff(withWorldInfo, "scan");

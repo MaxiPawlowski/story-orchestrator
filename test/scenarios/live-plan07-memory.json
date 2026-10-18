@@ -3,7 +3,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "title": "Live Memory Gate Check",
         "description": "Plan 07 retro validation with real memory extraction and real scene summary.",
         "qualities": [

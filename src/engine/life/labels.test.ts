@@ -2,17 +2,17 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { StoryEngine, type BoundaryLogEntry } from "../engine";
 import type { BlackboardDelta } from "../blackboard";
-import { parseStoryV2, parseStoryV2OrThrow } from "../validate";
-import { labelShownKey, relationshipKey, revealKey, type NormalizedStoryV2, type PrimitiveValue } from "../schema";
+import { parseStory, parseStoryOrThrow } from "../validate";
+import { labelShownKey, relationshipKey, revealKey, type NormalizedStory, type PrimitiveValue } from "../schema";
 import { privateLifeLines, relationshipFeelings } from "./lines";
 import { holderLabelRows, labelDiscoveryUnits, labelLatches, shownLabel } from "./labels";
 import { SAME_BEAT_BOUNDARIES, axisHistory, holdSameBeat, sameBeat } from "./beats";
 
 const RAW = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/relationship-labels.story.json"), "utf8")) as Record<string, unknown>;
-const STORY = parseStoryV2OrThrow(RAW);
+const STORY = parseStoryOrThrow(RAW);
 type Roster = Array<Record<string, unknown>>;
 
-const run = (story: NormalizedStoryV2, turns: Array<Record<string, PrimitiveValue>>) => {
+const run = (story: NormalizedStory, turns: Array<Record<string, PrimitiveValue>>) => {
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
   turns.forEach((deltas, at) => {
@@ -29,7 +29,7 @@ const withRelationship = (member: string, patch: Record<string, unknown>, index 
 });
 
 const errorsOf = (raw: Record<string, unknown>) => {
-  const parsed = parseStoryV2(raw);
+  const parsed = parseStory(raw);
   return Array.isArray(parsed) ? parsed.map((error) => `${error.path}: ${error.message}`) : [];
 };
 
@@ -114,7 +114,7 @@ describe("v2.8 plan 51: the holder's private line", () => {
   });
 
   it("R5: a story without labels sends the same private block as before labels existed", () => {
-    const stripped = parseStoryV2OrThrow({ ...RAW, codex: undefined, roster: (RAW.roster as Roster).map((member) => ({
+    const stripped = parseStoryOrThrow({ ...RAW, codex: undefined, roster: (RAW.roster as Roster).map((member) => ({
       ...member, ...(member.relationships ? { relationships: (member.relationships as Roster).map(({ public: _p, secret: _s, ...relationship }) => relationship) } : {}),
     })) });
     const labelled = privateLifeLines(STORY, {}, "mara").replace(/ \(shown as: [^)]*\)| \(secretly: [^)]*\)/g, "");
@@ -131,7 +131,7 @@ describe("v2.8 plan 51 R6: directed, never mirrored", () => {
     const baseline = holderLabelRows(STORY, {}, "tom", known, {});
     for (let at = 0; at < 200; at += 1) {
       const words = ["kind", "cold", "fond", "bitter", "close"].filter(() => next() < 0.5).map((label) => ({ label }));
-      const changed = parseStoryV2OrThrow(withRelationship("mara", { public: words.length ? words : undefined, secret: next() < 0.5 ? undefined : [{ id: "z", label: "hides a key", revealed_when: is("found_ring") }] }, 1));
+      const changed = parseStoryOrThrow(withRelationship("mara", { public: words.length ? words : undefined, secret: next() < 0.5 ? undefined : [{ id: "z", label: "hides a key", revealed_when: is("found_ring") }] }, 1));
       expect(holderLabelRows(changed, { found_ring: true }, "tom", known, {}).map((row) => row.text)).toEqual(holderLabelRows(STORY, { found_ring: true }, "tom", known, {}).map((row) => row.text));
     }
     expect(baseline.map((row) => row.text)).toEqual(["Toward you: guarded"]);

@@ -1,14 +1,13 @@
 import { StoryEngine, type GateNode } from "@engine/index";
 import { mergeExpansions, shortCheckpointName } from "./merge";
 import { parseGeneratedBeats } from "./parse";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import type { ExpansionCacheEntry, GeneratedBeat } from "./types";
 
 const ROAD_OBJECTIVE = "Travel the north road toward Wendhope and let the party notice what the road is missing: no ore wagons, no peddlers, no patrols, no smoke on the horizon.";
 const WALLS_OBJECTIVE = "Reach the walls of Wendhope before sundown and find the gate shut, barred, and guarded by frightened villagers who refuse entry to strangers as night falls.";
 
 const raw = () => ({
-  format: 2,
   id: "road",
   title: "Road",
   description: "",
@@ -115,7 +114,7 @@ describe("T0-1: a generated checkpoint is named, not titled with its whole objec
   });
 
   it("parses an optional beat title and ignores a non-text one", () => {
-    const story = parseStoryV2OrThrow(raw());
+    const story = parseStoryOrThrow(raw());
     const reply = (title: unknown) => JSON.stringify({ beats: [{ title, objective: "Reach the gate.", guidance: "Shut.", tension_target: "tense", outcomes: [{ label: "gate", gate: { q: "gate_seen", op: "==", v: true } }] }] });
     expect(parseGeneratedBeats(reply("  The Gate  "), story).beats[0].title).toBe("The Gate");
     expect(parseGeneratedBeats(reply(7), story).beats[0].title).toBeUndefined();

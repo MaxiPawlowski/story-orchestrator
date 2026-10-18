@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { isRecord } from "@utils/guards";
 import { normalizeJsonText } from "@utils/json";
 import { nearestKey } from "@utils/levenshtein";
@@ -58,7 +58,7 @@ export const checkAskCall = (persona: AskPersona, call: AgentToolCall): AskCheck
 
 export interface AuthorAskContext {
   persona: "author";
-  draft: StoryV2 | null;
+  draft: Story | null;
   lookup: AgentLookup;
   liveState: (() => string) | null;
 }
@@ -72,7 +72,7 @@ export type AskContext = AuthorAskContext | PlayerAskContext;
 
 const NO_DRAFT = "No story is open here: open one in the Studio, or play one in this chat.";
 
-export const recommendations = (draft: StoryV2, lookup: AgentLookup): string => {
+export const recommendations = (draft: Story, lookup: AgentLookup): string => {
   const diagnostics = runDiagnostics(draft, { characterNames: lookup.characters, backgroundNames: lookup.backgrounds });
   if (!diagnostics.length) return "Nothing to fix: the Studio's checks found no problem.";
   return diagnostics.map((diagnostic) => {

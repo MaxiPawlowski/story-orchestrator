@@ -1,10 +1,10 @@
 import { DEFAULT_AGENCY, OBJECTIVE_LINE_HEADER, objectiveClause, objectiveLine, objectiveLineApplies } from "./agency";
-import { parseStoryV2, parseStoryV2OrThrow } from "./validate";
-import { isValidationErrorList, type Checkpoint, type StoryV2 } from "./schema";
+import { parseStory, parseStoryOrThrow } from "./validate";
+import { isValidationErrorList, type Checkpoint, type Story } from "./schema";
 import { GUIDANCE_PREAMBLE, composeGuidanceBlock } from "@pacing/guidance";
 
 const checkpoint = (effects?: Checkpoint["effects"], objective = "Reach the gate."): Checkpoint => ({ id: "cp", name: "CP", objective, type: "anchor", ...(effects ? { effects } : {}) });
-const auto = { objective_block: undefined } as Pick<StoryV2, "objective_block">;
+const auto = { objective_block: undefined } as Pick<Story, "objective_block">;
 
 describe("objectiveLineApplies (v2.4 plan 06 T16a)", () => {
   it.each([
@@ -42,19 +42,19 @@ describe("objectiveLineApplies (v2.4 plan 06 T16a)", () => {
 
 describe("objective_block schema (v2.4 plan 06 T16a)", () => {
   const story = (value?: unknown) => ({
-    format: 2, id: "objective", title: "Objective", description: "", qualities: [], transitions: [], roster: [],
+    id: "objective", title: "Objective", description: "", qualities: [], transitions: [], roster: [],
     checkpoints: [{ id: "cp", name: "CP", objective: "Go.", type: "anchor", start: true }],
     ...(value === undefined ? {} : { objective_block: value }),
   });
 
   it("keeps auto and off, and leaves it absent when absent", () => {
-    expect(parseStoryV2OrThrow(story("off")).objective_block).toBe("off");
-    expect(parseStoryV2OrThrow(story("auto")).objective_block).toBe("auto");
-    expect(parseStoryV2OrThrow(story()).objective_block).toBeUndefined();
+    expect(parseStoryOrThrow(story("off")).objective_block).toBe("off");
+    expect(parseStoryOrThrow(story("auto")).objective_block).toBe("auto");
+    expect(parseStoryOrThrow(story()).objective_block).toBeUndefined();
   });
 
   it("rejects any other value", () => {
-    const parsed = parseStoryV2(story("sometimes"));
+    const parsed = parseStory(story("sometimes"));
     expect(isValidationErrorList(parsed) ? parsed : []).toEqual([{ path: "objective_block", message: 'objective_block must be "auto" or "off"' }]);
   });
 });

@@ -20,7 +20,7 @@ jest.mock("@services/STAPI", () => ({
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { validateProposal } from "@copilot/index";
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import {
   allowedStageKinds,
   runRoleCase,
@@ -47,7 +47,7 @@ const directorFixture = read("test/fixtures/judge/director.json");
 
 const authoringCase = (entry: Record<string, unknown>): AuthoringCalibrationCase => ({
   ...(entry as unknown as AuthoringCalibrationCase),
-  draft: authoringFixture.drafts[entry.draft as string] as StoryV2,
+  draft: authoringFixture.drafts[entry.draft as string] as Story,
   ...(entry.stage === "provisioning" ? { environment: authoringFixture.environment } : {}),
 });
 
@@ -85,7 +85,7 @@ describe("role calibration fixtures (labels frozen before any model answer)", ()
     const fixtureIds = new Set((authoringFixture.cases as Array<{ id: string }>).map((entry) => entry.id));
     expect(holdout.cases.filter((entry: { id: string }) => fixtureIds.has(entry.id))).toEqual([]);
     for (const raw of holdout.cases as Array<Record<string, unknown>>) {
-      const entry = { ...(raw as unknown as AuthoringCalibrationCase), draft: holdout.drafts[raw.draft as string] as StoryV2 };
+      const entry = { ...(raw as unknown as AuthoringCalibrationCase), draft: holdout.drafts[raw.draft as string] as Story };
       expect(validateProposal(entry.draft, []).blocking).toEqual([]);
       expect(allowedStageKinds(renderStagePrompt(entry.stage, entry.draft, entry.message, [], entry.environment))).toContain(entry.require.kind);
     }

@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { DIAGNOSTIC_CODES } from "../studio/diagnostics";
 import { STUDIO_TAB_GUIDE } from "../studio/guideTabs";
 import { DIAGNOSTIC_GUIDE_TOPIC, GUIDE_TOPICS, GUIDE_TOPIC_IDS } from "./guideTopics";
@@ -24,7 +24,7 @@ const section = (id: string): string => {
   return ends.length ? rest.slice(0, Math.min(...ends)) : rest;
 };
 
-const draft = { format: 2, title: "T", description: "D", qualities: [], checkpoints: [{ id: "start", name: "Start", objective: "o", type: "anchor", start: true }], transitions: [], roster: [] } as unknown as StoryV2;
+const draft = { title: "T", description: "D", qualities: [], checkpoints: [{ id: "start", name: "Start", objective: "o", type: "anchor", start: true }], transitions: [], roster: [] } as unknown as Story;
 
 describe("author's guide: the doc and the compact topics agree", () => {
   it("lists the same topics, in the same order", () => {

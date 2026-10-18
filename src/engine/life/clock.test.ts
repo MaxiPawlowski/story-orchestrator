@@ -1,12 +1,12 @@
 import { readdirSync, readFileSync } from "fs";
 import { join } from "path";
 import { StoryEngine } from "../engine";
-import { parseStoryV2, parseStoryV2OrThrow } from "../validate";
+import { parseStory, parseStoryOrThrow } from "../validate";
 import { questStatus, valueReader } from "../quests";
 import { rollbackMoved } from "../rollbackDetectors";
 import {
   CLOCK_DAY_KEY, CLOCK_MOVED_KEY, CLOCK_NIGHT_KEY, CLOCK_PART_KEY, CLOCK_READ_KEY, CLOCK_STORY_TIME_KEY, CLOCK_TIME_KEY, timeReachedKey,
-  type NormalizedStoryV2, type PrimitiveValue, type StoryCalendar,
+  type NormalizedStory, type PrimitiveValue, type StoryCalendar,
 } from "../schema";
 import { deriveLife } from "./derive";
 import { awayMembers } from "./presence";
@@ -18,7 +18,7 @@ const is = (key: string) => ({ q: key, op: "==", v: true });
 const bool = (key: string) => ({ key, type: "bool", source: "extractor", rubric: `Whether ${key}.` });
 
 const raw = (extra: Record<string, unknown> = {}): Record<string, unknown> => ({
-  format: 2, title: "Clock lab", description: "Story time for plan 50.",
+  title: "Clock lab", description: "Story time for plan 50.",
   roster: [{ id: "arin", name: "Arin", schedule: [{ when: { q: "time_of_day", op: "==", v: "night" }, at: "docks" }] }],
   clock: { times: TIMES, night: ["night"] },
   qualities: [
@@ -39,11 +39,11 @@ const raw = (extra: Record<string, unknown> = {}): Record<string, unknown> => ({
   ...extra,
 });
 
-const STORY = parseStoryV2OrThrow(raw());
+const STORY = parseStoryOrThrow(raw());
 
 interface Turn { text?: string; deltas?: Record<string, PrimitiveValue>; manual?: Record<string, PrimitiveValue>; readTo?: number }
 
-const play = (story: NormalizedStoryV2 = STORY) => {
+const play = (story: NormalizedStory = STORY) => {
   const chat: Array<{ is_user: boolean; mes: string; name: string }> = [];
   const engine = new StoryEngine({ now: () => 0, derive: (view) => deriveLife(story, view, chat) });
   engine.loadStory(story);
@@ -101,7 +101,7 @@ describe("plan 50 B1a: one story_time, every clock key derived from it", () => {
   });
 
   test("starts at (start_day - 1) x parts + start_part and derives day, part and night", () => {
-    const story = parseStoryV2OrThrow(raw({ clock: { times: TIMES, night: ["night"], start_day: 3, start_part: "evening" } }));
+    const story = parseStoryOrThrow(raw({ clock: { times: TIMES, night: ["night"], start_day: 3, start_part: "evening" } }));
     const run = play(story);
     run.turn({});
     expect(timeKeys(run.values())).toEqual({ story_time: 10, story_day: 3, time_of_day: "evening", time_part: 2, is_night: false });
@@ -110,7 +110,7 @@ describe("plan 50 B1a: one story_time, every clock key derived from it", () => {
   });
 
   test("an authored start part anchors the clock, so even the first read moves one part", () => {
-    const run = play(parseStoryV2OrThrow(raw({ clock: { times: TIMES, start_part: "morning" } })));
+    const run = play(parseStoryOrThrow(raw({ clock: { times: TIMES, start_part: "morning" } })));
     run.turn({ deltas: { [CLOCK_READ_KEY]: "night" } });
     expect(run.values()[CLOCK_TIME_KEY]).toBe("afternoon");
   });
@@ -195,7 +195,7 @@ describe("plan 50 B1b: authored entry advances in the pure entry pass", () => {
     const withEffect = (time: unknown, at = "road", extra: Record<string, unknown> = {}) => {
       const base = raw(extra);
       const checkpoints = (base.checkpoints as Array<Record<string, unknown>>).map((checkpoint) => (checkpoint.id === at ? { ...checkpoint, effects: { time } } : checkpoint));
-      const parsed = parseStoryV2({ ...base, checkpoints });
+      const parsed = parseStory({ ...base, checkpoints });
       return Array.isArray(parsed) ? parsed.map((error) => error.message).join(" | ") : "";
     };
     expect(withEffect({ advance: { days: -1 } })).toContain("only moves forward");
@@ -208,7 +208,7 @@ describe("plan 50 B1b: authored entry advances in the pure entry pass", () => {
     const noClock = raw();
     delete noClock.clock;
     noClock.roster = [{ id: "arin", name: "Arin" }];
-    expect(Array.isArray(parseStoryV2(noClock)) ? (parseStoryV2(noClock) as Array<{ message: string }>).map((error) => error.message).join() : "").toContain("effects.time needs a clock");
+    expect(Array.isArray(parseStory(noClock)) ? (parseStory(noClock) as Array<{ message: string }>).map((error) => error.message).join() : "").toContain("effects.time needs a clock");
     expect(withEffect({ advance: { parts: 3 } })).toBe("");
   });
 });
@@ -326,7 +326,7 @@ const walker = (calendar: StoryCalendar, days: number) => {
 };
 
 describe("plan 50 B1c: calendar", () => {
-  const story = parseStoryV2OrThrow(raw({ calendar: CALENDAR }));
+  const story = parseStoryOrThrow(raw({ calendar: CALENDAR }));
   const calendar = story.life!.calendar!;
 
   test("T2: 1,000 consecutive days equal an independent reference walker", () => {
@@ -336,7 +336,7 @@ describe("plan 50 B1c: calendar", () => {
   });
 
   test("T14: start date vs start_day, start_part, weekday origin, season wrap", () => {
-    const later = parseStoryV2OrThrow(raw({ calendar: CALENDAR, clock: { times: TIMES, start_day: 3, start_part: "night" } }));
+    const later = parseStoryOrThrow(raw({ calendar: CALENDAR, clock: { times: TIMES, start_day: 3, start_part: "night" } }));
     const run = play(later);
     run.turn({});
     expect(run.values()).toMatchObject({ story_day: 3, time_of_day: "night", cal_year: 412, cal_month: "Seedtide", cal_day_of_month: 1, cal_weekday: "Windday", cal_season: "Spring" });
@@ -357,7 +357,7 @@ describe("plan 50 B1c: calendar", () => {
 
   test("refuses a calendar without a clock, a bad start day, an unknown month and duplicate season months; reserves time keys", () => {
     const errors = (json: Record<string, unknown>) => {
-      const parsed = parseStoryV2(json);
+      const parsed = parseStory(json);
       return Array.isArray(parsed) ? parsed.map((error) => `${error.path}: ${error.message}`).join(" | ") : "";
     };
     const noClock = raw({ calendar: CALENDAR });
@@ -378,7 +378,7 @@ describe("plan 50 B1c: calendar", () => {
 
 describe("plan 50 T15: first-visit time", () => {
   test("an undated timeline checkpoint keeps the story time it was first reached, past a truncated log and a reopen", () => {
-    const story = parseStoryV2OrThrow(raw({ widgets: [{ id: "trail", kind: "timeline", title: "Trail", dates: { start: "The first morning" } }] }));
+    const story = parseStoryOrThrow(raw({ widgets: [{ id: "trail", kind: "timeline", title: "Trail", dates: { start: "The first morning" } }] }));
     expect(story.qualityByKey[timeReachedKey("road")]).toMatchObject({ source: "code", type: "int" });
     expect(story.qualityByKey[timeReachedKey("start")]).toBeUndefined();
     const run = play(story);
@@ -397,7 +397,7 @@ describe("plan 50 T15: first-visit time", () => {
 describe("plan 50 T6: an offered quest never fails on story time alone", () => {
   const quest = (failed: unknown) => ({ id: "deliver", title: "Deliver", kind: "side", steps: [], offered_when: is("left"), visible_when: is("slept"), done_when: is("waited"), failed_when: failed });
   const errors = (failed: unknown, extra: Record<string, unknown> = {}) => {
-    const parsed = parseStoryV2(raw({ quests: [quest(failed)], ...extra }));
+    const parsed = parseStory(raw({ quests: [quest(failed)], ...extra }));
     return Array.isArray(parsed) ? parsed.map((error) => error.message).join(" | ") : "";
   };
 
@@ -415,7 +415,7 @@ describe("plan 50 T6: an offered quest never fails on story time alone", () => {
 
   test("runtime: a quest taken on after its deadline fails the moment it is accepted, which the rule prevents", () => {
     const quests = [{ ...quest({ q: "story_day", op: ">=", v: 3 }), offered_when: undefined }];
-    const story = parseStoryV2OrThrow(raw({ quests: [{ id: "deliver", title: "Deliver", kind: "side", steps: [], visible_when: is("slept"), done_when: is("waited"), failed_when: quests[0].failed_when }] }));
+    const story = parseStoryOrThrow(raw({ quests: [{ id: "deliver", title: "Deliver", kind: "side", steps: [], visible_when: is("slept"), done_when: is("waited"), failed_when: quests[0].failed_when }] }));
     const deliver = story.quests![0];
     const late = { story_day: 4, slept: false };
     expect(questStatus(deliver, valueReader(late))).toBe("hidden");
@@ -423,7 +423,7 @@ describe("plan 50 T6: an offered quest never fails on story time alone", () => {
   });
 
   test("a reward never writes a story-time key", () => {
-    const parsed = parseStoryV2(raw({ quests: [{ id: "nap", title: "Nap", kind: "side", steps: [], done_when: is("slept"), reward: { set: { story_day: 9 } } }] }));
+    const parsed = parseStory(raw({ quests: [{ id: "nap", title: "Nap", kind: "side", steps: [], done_when: is("slept"), reward: { set: { story_day: 9 } } }] }));
     expect(Array.isArray(parsed) ? parsed.map((error) => error.message).join() : "").toContain("never moves the story clock");
   });
 });
@@ -469,11 +469,11 @@ describe("plan 50 B1c: Author view time row and timeline labels", () => {
     plain.roster = [{ id: "arin", name: "Arin" }];
     plain.checkpoints = (plain.checkpoints as Array<Record<string, unknown>>).map(({ effects: _effects, ...checkpoint }) => checkpoint);
     plain.transitions = (plain.transitions as Array<Record<string, unknown>>).slice(0, 2);
-    expect(storyTimeRow(parseStoryV2OrThrow(plain), {}, [])).toBeNull();
+    expect(storyTimeRow(parseStoryOrThrow(plain), {}, [])).toBeNull();
   });
 
   test("an undated timeline stop takes the label of its first-visit time; a dated one keeps its words", () => {
-    const story = parseStoryV2OrThrow(raw({ calendar: CALENDAR, widgets: [{ id: "trail", kind: "timeline", title: "Trail", dates: { start: "The first morning" } }] }));
+    const story = parseStoryOrThrow(raw({ calendar: CALENDAR, widgets: [{ id: "trail", kind: "timeline", title: "Trail", dates: { start: "The first morning" } }] }));
     const run = play(story);
     run.turn({ deltas: { [CLOCK_READ_KEY]: "evening" } });
     run.turn({ deltas: { left: true } });

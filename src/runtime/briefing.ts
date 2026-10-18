@@ -1,4 +1,4 @@
-import { composeBriefing, type BriefingSection, type BriefingView, type NormalizedStoryV2 } from "@engine/index";
+import { composeBriefing, type BriefingSection, type BriefingView, type NormalizedStory } from "@engine/index";
 import { isRecord } from "@utils/guards";
 
 export interface BriefingDraft {
@@ -58,7 +58,7 @@ export interface BriefingState {
 }
 
 export interface BriefingSources {
-  story: NormalizedStoryV2 | null;
+  story: NormalizedStory | null;
   storyId: string | null;
   record: BriefingRecord | undefined;
   enabled: boolean;

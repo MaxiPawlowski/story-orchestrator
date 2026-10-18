@@ -1,4 +1,4 @@
-import { milestoneEarned, valueReader, type NormalizedStoryV2, type ValidationError } from "@engine/index";
+import { milestoneEarned, valueReader, type NormalizedStory, type ValidationError } from "@engine/index";
 import { heldSecrets, withoutSecretLines } from "@memory/heldSecrets";
 import { isRecord } from "@utils/guards";
 import { epistemicOf, finalOf, recordsOf } from "./carryCandidate";
@@ -19,7 +19,7 @@ export type TrophyResult = { ok: true; row: TrophyRow } | { ok: false; reason: s
 
 export interface TrophyOptions {
   version: number;
-  parse: (raw: unknown) => NormalizedStoryV2 | ValidationError[];
+  parse: (raw: unknown) => NormalizedStory | ValidationError[];
 }
 
 export const shelfCandidates = (rows: readonly Pick<ContinueRow, "chatId" | "ended" | "updatedAt">[]): string[] => [...rows]

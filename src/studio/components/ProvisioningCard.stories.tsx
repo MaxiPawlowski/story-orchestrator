@@ -144,7 +144,7 @@ export const CharacterArtPlaceholder: Story = {
 };
 
 const HARBOUR = {
-  format: 2 as const, title: "Harbour", description: "A smuggler's port.", qualities: [], transitions: [], roster: [],
+  title: "Harbour", description: "A smuggler's port.", qualities: [], transitions: [], roster: [],
   checkpoints: [
     { id: "start", name: "The Quay", objective: "Meet the harbour master at the customs house.", type: "anchor" as const, start: true },
     { id: "vault", name: "The Vault", objective: "Open the vault.", type: "anchor" as const, effects: { world_info: { enable: { lorebook: "SO-Lore", comments: ["Customs"] } } } },

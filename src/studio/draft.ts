@@ -1,14 +1,13 @@
 import { create } from "zustand";
-import { isValidationErrorList, parseStoryV2, type StoryV2, type ValidationError } from "@engine/index";
+import { isValidationErrorList, parseStory, type Story, type ValidationError } from "@engine/index";
 import { wizardSessionKey } from "@wizard/index";
 import { installGameLayer } from "@engine/validate/gameLayer";
 import { GAME_LAYER } from "@engine/validate/gameLayerImpl";
 import { runDiagnostics, type Diagnostic, type DiagnosticsContext } from "./diagnostics";
 
-export type StoryDraft = StoryV2;
+export type StoryDraft = Story;
 
 export const newStoryDraft = (): StoryDraft => ({
-  format: 2,
   title: "Untitled Story",
   description: "",
   qualities: [],
@@ -36,7 +35,7 @@ const undoNote = (verb: "Undo" | "Redo", from: StoryDraft, to: StoryDraft): stri
 };
 
 const validate = (draft: StoryDraft): ValidationError[] => {
-  const parsed = parseStoryV2(draft);
+  const parsed = parseStory(draft);
   return isValidationErrorList(parsed) ? parsed : [];
 };
 

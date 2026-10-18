@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseStoryV2OrThrow, progressQualityForAnchor } from "@engine/index";
+import { parseStoryOrThrow, progressQualityForAnchor } from "@engine/index";
 import { runCodeChecks } from "./critic";
 import { mergeExpansions } from "./merge";
 import { parseGeneratedBeats } from "./parse";
@@ -21,7 +21,7 @@ const root = join(__dirname, "..", "..");
 const readJson = (path: string) => JSON.parse(readFileSync(join(root, path), "utf-8"));
 const readText = (path: string) => readFileSync(join(root, path), "utf-8");
 const raw = readJson("test/fixtures/generated-fork.story.json");
-const story = parseStoryV2OrThrow(raw);
+const story = parseStoryOrThrow(raw);
 
 const beatsOf = (name: string) => {
   const parsed = parseGeneratedBeats(readText(`test/goldens/generation/generated-fork.${name}.response.txt`), story);
@@ -189,7 +189,7 @@ describe("R9: a generated beat's outcomes are routes", () => {
 
   it("L4 control: without the entry transition the same chain does not bridge", () => {
     const pinned = { ...entry("3"), beats: entry("3").beats.map((beat) => ({ ...beat, outcomes: beat.outcomes.map((outcome) => ({ ...outcome, deltas: (outcome.deltas ?? []).filter((delta) => delta.q !== "key_found") })) })) };
-    const orphan = parseStoryV2OrThrow({ ...raw, transitions: raw.transitions.filter((transition: { from: string }) => transition.from !== "start"), checkpoints: raw.checkpoints });
+    const orphan = parseStoryOrThrow({ ...raw, transitions: raw.transitions.filter((transition: { from: string }) => transition.from !== "start"), checkpoints: raw.checkpoints });
     expect(revalidateExpansion(orphan, pinned, pinned.basis).status).toBe("fail");
   });
 

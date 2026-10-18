@@ -31,7 +31,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-v28-61b-suggest",
         "title": "SO-V28-61B Suggest",
         "description": "Synthetic suggestions fill coverage.",

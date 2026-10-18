@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2, parseStoryV2OrThrow } from "../validate";
+import { parseStory, parseStoryOrThrow } from "../validate";
 import {
   CLOCK_DAY_KEY, CLOCK_READ_KEY, CLOCK_TIME_KEY, TURN_OOC_KEY, agendaStepKey, isLifeKey, moodKey, relationshipKey, type ValidationError,
 } from "../schema";
@@ -12,7 +12,7 @@ type Raw = Record<string, unknown> & { roster: Array<Record<string, unknown>> };
 const copy = (): Raw => JSON.parse(JSON.stringify(FIXTURE)) as Raw;
 
 const errorsOf = (json: unknown): ValidationError[] => {
-  const parsed = parseStoryV2(json);
+  const parsed = parseStory(json);
   return Array.isArray(parsed) ? parsed : [];
 };
 
@@ -23,7 +23,7 @@ const withArin = (patch: Record<string, unknown>): Raw => {
 };
 
 describe("v2.7 plan 37: character life compiles to ordinary qualities", () => {
-  const story = parseStoryV2OrThrow(FIXTURE);
+  const story = parseStoryOrThrow(FIXTURE);
 
   it("compiles each relationship axis to a bounded extractor rating with a step rule", () => {
     const trust = story.qualityByKey[relationshipKey("arin", "player", "trust")];
@@ -51,7 +51,7 @@ describe("v2.7 plan 37: character life compiles to ordinary qualities", () => {
     plain.roster = [{ id: "arin", name: "Arin" }, { id: "narrator", name: "DM Narrator" }];
     delete plain.clock;
     plain.transitions = [];
-    const parsed = parseStoryV2OrThrow(plain);
+    const parsed = parseStoryOrThrow(plain);
     expect(parsed.life).toBeUndefined();
     expect(parsed.qualities.map((quality) => quality.key).filter(isLifeKey)).toEqual([]);
     expect(parsed.qualities.some((quality) => quality.step_rule)).toBe(false);

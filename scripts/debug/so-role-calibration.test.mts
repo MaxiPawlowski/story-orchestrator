@@ -26,7 +26,7 @@ test('the English authoring hold-out has five rows, resolves its own drafts and 
   const holdout = await loadHoldout('authoring');
   const { cases } = await loadCases('authoring');
   assert.equal(holdout.cases.length, 5);
-  assert.ok(holdout.cases.every((entry) => entry.lang === 'en' && entry.draft?.format === 2));
+  assert.ok(holdout.cases.every((entry) => entry.lang === 'en' && Array.isArray(entry.draft?.checkpoints)));
   assert.equal(holdout.cases.find((entry) => entry.id === 'h07').draft.title, 'The Drifting Ship');
   assert.equal(holdout.cases.filter((entry) => cases.some((row) => row.id === entry.id)).length, 0);
   assert.equal(holdout.cases.filter((entry) => cases.some((row) => row.draft.id === entry.draft.id)).length, 0);

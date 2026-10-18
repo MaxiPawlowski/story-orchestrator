@@ -1,6 +1,6 @@
 import { getActiveGroup } from "@services/STAPI";
 import { RuntimeManager } from "./runtimeManager";
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { briefingDraftInput, checkBriefingDraft, renderBriefingDraftPrompt } from "./briefingDraft";
 import { BRIEFING_DRAFT_JOURNAL, briefingDraftDue, draftBriefing, startBriefingDraft, type BriefingDraftManager } from "./briefingDraftHost";
 import { setGlobalSettings } from "./settingsStore";
@@ -53,7 +53,7 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 const SECRET_STORY = {
-  format: 2, id: "road", title: "The Road",
+  id: "road", title: "The Road",
   description: "AUTHOR-ONLY: the guide Mara is the heir and betrays the courier at the Sunken Gate.",
   player_intro: "You carry a sealed letter over the pass.",
   player: { role: "a courier", summary: "You owe a debt you cannot pay.", assumes: ["you can ride"] },
@@ -123,7 +123,7 @@ describe("v2.8 10 D2: the player's briefing draft reads a projection, never the 
     "betrayed", "crowned", "found_key", "Varek", "ambusher", "Road Secrets Book", "\"gate\""];
 
   it("the projection holds only the allowed fields", () => {
-    const input = briefingDraftInput(SECRET_STORY as unknown as StoryV2);
+    const input = briefingDraftInput(SECRET_STORY as unknown as Story);
     expect(input).toEqual({
       title: "The Road",
       intro: "You carry a sealed letter over the pass.",
@@ -141,13 +141,13 @@ describe("v2.8 10 D2: the player's briefing draft reads a projection, never the 
   });
 
   it("control: the projection does not fall back to the author's description", () => {
-    const input = briefingDraftInput({ ...SECRET_STORY, player_intro: undefined } as unknown as StoryV2);
+    const input = briefingDraftInput({ ...SECRET_STORY, player_intro: undefined } as unknown as Story);
     expect(input.intro).toBeNull();
     expect(renderBriefingDraftPrompt(input)).not.toContain("AUTHOR-ONLY");
   });
 
   it("keeps a clean draft and discards one that names a later beat, a muted member, a story value, a macro or bad JSON", () => {
-    const story = SECRET_STORY as unknown as StoryV2;
+    const story = SECRET_STORY as unknown as Story;
     expect(checkBriefingDraft(story, GOOD)).toEqual({ ok: true, sections: JSON.parse(GOOD).sections });
     expect(checkBriefingDraft(story, `<think>plan</think>\n\`\`\`json\n${GOOD}\n\`\`\``)).toMatchObject({ ok: true });
     const named = (text: string) => checkBriefingDraft(story, reply([{ heading: "Ahead", text }]));
@@ -165,7 +165,7 @@ describe("Astra v2.8 P2: the approved opening's own words are not spoilers", () 
     const story = {
       ...SECRET_STORY, player_intro: "You arrive as a friendly visitor with a sealed letter.",
       qualities: [...SECRET_STORY.qualities, { key: "stance", type: "enum", source: "extractor", rubric: "Their stance?", values: ["friendly", "hostile"] }],
-    } as unknown as StoryV2;
+    } as unknown as Story;
     expect(checkBriefingDraft(story, reply([{ heading: "Who you are", text: "A friendly visitor with a sealed letter." }]))).toMatchObject({ ok: true });
     expect(checkBriefingDraft(story, reply([{ heading: "Ahead", text: "They may turn hostile." }]))).toMatchObject({ ok: false, reason: expect.stringContaining("hostile") });
     expect(checkBriefingDraft(story, reply([{ heading: "Ahead", text: "You may end up betrayed." }]))).toMatchObject({ ok: false });

@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "fs";
 import { join } from "path";
-import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import { replayGate, type ReplayEdge, type ReplayHistory } from "./gateReplay";
 
 const RECORDS = join(__dirname, "..", "..", "test", "journeys", "records", "v2.5-plan07");
@@ -10,14 +10,14 @@ const walk = (dir: string): string[] => (existsSync(dir) ? readdirSync(dir).flat
   return statSync(path).isDirectory() ? walk(path) : [path];
 }) : []);
 
-interface RecordedRun { file: string; story: NormalizedStoryV2; history: ReplayHistory & { log: Array<{ fired: { effects?: { progress?: unknown } } | null }> } }
+interface RecordedRun { file: string; story: NormalizedStory; history: ReplayHistory & { log: Array<{ fired: { effects?: { progress?: unknown } } | null }> } }
 
 const runsIn = (file: string): RecordedRun[] => {
   const parsed = JSON.parse(readFileSync(file, "utf8")) as { stories?: Record<string, unknown> } & Record<string, unknown>;
   const records = parsed.stories ? Object.values(parsed.stories) : [parsed];
   return records.flatMap((record) => {
     const entry = record as { pinnedStory?: unknown; engineHistory?: RecordedRun["history"] };
-    return entry.pinnedStory && entry.engineHistory ? [{ file, story: parseStoryV2OrThrow(entry.pinnedStory), history: entry.engineHistory }] : [];
+    return entry.pinnedStory && entry.engineHistory ? [{ file, story: parseStoryOrThrow(entry.pinnedStory), history: entry.engineHistory }] : [];
   });
 };
 

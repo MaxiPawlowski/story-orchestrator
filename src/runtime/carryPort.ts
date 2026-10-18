@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import type { CarrySlice, CarryView } from "@engine/carrySchema";
 import { gameLayer } from "@engine/validate/gameLayer";
 import type { ManagerPort } from "./managerWiring";
@@ -17,7 +17,7 @@ export interface CarryCandidateRow {
 
 export type CarryOutcome = { ok: true } | { ok: false; reason: string };
 
-export const carrySlice = (story: NormalizedStoryV2 | null, extras: RuntimeExtras, boundary: number): CarryView | null =>
+export const carrySlice = (story: NormalizedStory | null, extras: RuntimeExtras, boundary: number): CarryView | null =>
   (story && gameLayer()?.carry.carryView(story, extras, boundary)) || null;
 
 type CarryUnit = typeof import("./carryUnit");

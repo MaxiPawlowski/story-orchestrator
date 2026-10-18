@@ -1,10 +1,10 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { applyGameOp, gameOpProblem, readGameCall } from "@copilot/agent/gameOps";
 import { addRumor, removeRumor, setMemberGossip, updateRumor } from "./gameMutations";
 import type { StoryDraft } from "./draft";
 
-const draft = (patch: Partial<StoryV2> = {}): StoryV2 => ({
-  format: 2, title: "T", description: "D", transitions: [],
+const draft = (patch: Partial<Story> = {}): Story => ({
+  title: "T", description: "D", transitions: [],
   qualities: [{ key: "confessed", type: "bool", source: "extractor", rubric: "Did Mara confess?" }],
   checkpoints: [{ id: "start", name: "Start", objective: "o", type: "anchor", start: true }],
   roster: [{ id: "mara", name: "Mara" }, { id: "ben", name: "Ben" }],

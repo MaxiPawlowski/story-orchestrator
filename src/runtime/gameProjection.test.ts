@@ -1,8 +1,8 @@
-import { StoryEngine, parseStoryV2OrThrow, type PrimitiveValue, type StoryV2 } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, type PrimitiveValue, type Story } from "@engine/index";
 import { composeGame, type GameSources } from "./widgets";
 
-const base = (): StoryV2 => ({
-  format: 2, id: "proj", title: "Projection", description: "Synthetic.", roster: [{ id: "keeper", name: "Keeper" }],
+const base = (): Story => ({
+  id: "proj", title: "Projection", description: "Synthetic.", roster: [{ id: "keeper", name: "Keeper" }],
   qualities: [
     { key: "resolve", type: "int", source: "extractor", rubric: "Resolve, 0-5.", display: { public: true, label: "Resolve", as: "meter", min: 0, max: 5 } },
     { key: "secret_plan", type: "bool", source: "extractor", rubric: "The keeper's secret plan." },
@@ -13,9 +13,9 @@ const base = (): StoryV2 => ({
   transitions: [],
   quests: [{ id: "open", title: "The open road", kind: "side", steps: [], done_when: { all: [{ q: "done", op: "==", v: true }] } }],
   milestones: [{ id: "first", title: "First step", when: { all: [{ q: "resolve", op: ">=", v: 1 }] } }],
-} as StoryV2);
+} as Story);
 
-const withHidden = (): StoryV2 => {
+const withHidden = (): Story => {
   const story = base();
   return {
     ...story,
@@ -28,8 +28,8 @@ const withHidden = (): StoryV2 => {
   };
 };
 
-const sources = (raw: StoryV2, values: Record<string, PrimitiveValue>): GameSources => {
-  const story = parseStoryV2OrThrow(raw);
+const sources = (raw: Story, values: Record<string, PrimitiveValue>): GameSources => {
+  const story = parseStoryOrThrow(raw);
   const engine = new StoryEngine();
   engine.loadStory(story);
   engine.enqueue({ source: "extractor", blackboardVersionSum: 0, deltas: Object.entries(values).map(([q, v]) => ({ q, v, source: "extractor" as const })) });

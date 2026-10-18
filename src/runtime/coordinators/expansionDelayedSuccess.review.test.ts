@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { parseStoryOrThrow, type EngineState } from "@engine/index";
 import { findStubExpansionCandidate, type ExpansionRuntimeState } from "@generation/index";
 import { recordingModel } from "../../../test/support/modelCall";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "../runToken";
@@ -8,7 +8,7 @@ import { ExpansionCoordinator } from "./expansionCoordinator";
 
 const root = join(__dirname, "..", "..", "..");
 const raw = JSON.parse(readFileSync(join(root, "test/fixtures/background-generation.story.json"), "utf-8"));
-const story = parseStoryV2OrThrow(raw);
+const story = parseStoryOrThrow(raw);
 const good = readFileSync(join(root, "test/goldens/background-generator-played.response.txt"), "utf-8");
 const candidate = findStubExpansionCandidate(story, "start")!;
 

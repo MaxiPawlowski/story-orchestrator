@@ -8,7 +8,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-v15c-rollback",
         "title": "SO-V15C Rollback Restore",
         "description": "A delta at a real boundary moves the story onto the road, which leaves Luke behind; an edit takes it back.",

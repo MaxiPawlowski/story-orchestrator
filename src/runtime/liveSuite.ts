@@ -3,7 +3,7 @@ import { windowOf } from "@extraction/chatRows";
 import { buildFixtureRun, type ExtractionFixtureSpec, type FixtureSourceRead } from "@extraction/fixtureRun";
 import { applyRatingGrounding } from "@extraction/ratingGuard";
 import { liveReadTiers } from "@extraction/liveTiers";
-import { agendaStepKey, parseStoryV2OrThrow, StoryEngine, type EngineState, type PrimitiveValue } from "@engine/index";
+import { agendaStepKey, parseStoryOrThrow, StoryEngine, type EngineState, type PrimitiveValue } from "@engine/index";
 import { loadGameLayer } from "@engine/validate/gameLayer";
 import { buildMeanwhilePrompt, parseMeanwhile, type MeanwhileParse } from "./meanwhilePrompt";
 import { MEANWHILE_MAX_TOKENS } from "./coordinators/agendaProposalCoordinator";
@@ -147,21 +147,21 @@ export function registerLiveSuite(manager: RuntimeManager) {
     askModel: (prompt, maxTokens, role) => model(prompt, { role, pass: ROLE_PASS[role], maxTokens }),
     runMeanwhileCase: async (spec) => {
       await loadGameLayer();
-      const story = parseStoryV2OrThrow(spec.story);
+      const story = parseStoryOrThrow(spec.story);
       const prompt = buildMeanwhilePrompt(story, { [agendaStepKey(spec.member, spec.agenda)]: spec.done }, spec.window);
       const rawResponse = await askText(model, prompt, { role: "curator", pass: "curator", maxTokens: MEANWHILE_MAX_TOKENS });
       return { prompt, rawResponse, ...parseMeanwhile(rawResponse, story) };
     },
     lifeBlock: async (story, values, memberId) => {
       const layer = await loadGameLayer();
-      const text = layer.life.privateLifeLines(parseStoryV2OrThrow(story), values, memberId);
+      const text = layer.life.privateLifeLines(parseStoryOrThrow(story), values, memberId);
       const budget = requestBudgetFor("read");
       await budget.meter.prime([text]);
       return { text, tokens: text ? budget.meter.count(text) : 0 };
     },
     runWitnessRead: async (spec) => {
       await loadGameLayer();
-      const story = parseStoryV2OrThrow(spec.story);
+      const story = parseStoryOrThrow(spec.story);
       const engine = new StoryEngine();
       engine.loadStory(story);
       const state = { ...(spec.state ?? engine.serialize()), ...(spec.activeCheckpointId ? { activeCheckpointId: spec.activeCheckpointId } : {}) };

@@ -10,7 +10,7 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 import { StoryEngine } from "@engine/index";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { getChatWindow } from "./chatWindow";
@@ -33,7 +33,7 @@ describe("reconciliation recovery", () => {
   });
 
   it("recovers a stalled gate via targeted re-read after a cadence miss", async () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
 

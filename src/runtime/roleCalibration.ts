@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { detectDegenerate, profileRoute, routedModel, type ModelCall, estimateTokens, maxTokensFor, maxTokensForInput, stripChannelNoise, type PassRole } from "@extraction/index";
 import { renderStagePrompt, runAuthoringStage, type CopilotStage, type ProposalOp } from "@copilot/index";
 import { parseDirectorResponse, renderDirectorPrompt, type DirectorWindowMessage } from "@talk/index";
@@ -41,7 +41,7 @@ export interface AuthoringCalibrationCase {
   id: string;
   lang: string;
   stage: CopilotStage;
-  draft: StoryV2;
+  draft: Story;
   ask: "never" | "allowed";
   message: string;
   require: { kind: ProposalOp["kind"]; min: number; match?: Record<string, string> };
@@ -174,7 +174,7 @@ const runCurator: Runner<"curator"> = async (entry, options, clock) => {
   return { responses: [reply.text], finishes: [reply.finish], latencyMs: Math.round(clock() - started), score: scoreCurator(entry, reply.text) };
 };
 
-const replayEnvironment = (entry: { draft: StoryV2; environment?: ProvisioningEnvironment }): ProvisioningEnvironment =>
+const replayEnvironment = (entry: { draft: Story; environment?: ProvisioningEnvironment }): ProvisioningEnvironment =>
   ({ ...emptyEnvironment(), castNames: draftCastNames(entry.draft), ...entry.environment });
 
 const runAuthoring: Runner<"authoring"> = async (entry, options, clock) => {

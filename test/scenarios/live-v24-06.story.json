@@ -1,5 +1,4 @@
 {
-  "format": 2,
   "id": "so-v2406-steering",
   "title": "SO-V2406 Steering",
   "description": "v2.4 plan 06 live: cp-bare has an objective and no Author's Note (the objective line applies, as on a generated checkpoint); cp-noted authors its own note (the line does not apply); cp-overlay carries a checkpoint preset (the sampler overlay) and its own note.",

@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2, parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStory, parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import type { ModelCall } from "@extraction/modelRoute";
 import { compactOps, dropOpsAfter, foldOps, graphEpoch, livingRaw } from "./fold";
 import { excludedCheckpoints, projectLivingExport } from "./export";
@@ -27,7 +27,7 @@ const draft = (patch: Partial<DirectorDraft> = {}, anchor: Partial<DirectorDraft
 const opsOf = (payloads: LivingOpPayload[], boundary: number, proposalId: string): LivingOp[] =>
   payloads.map((payload, index) => ({ ...payload, id: `${proposalId}:${index}`, boundary, messageId: boundary * 2, proposalId }));
 
-const apply = (raw: Record<string, unknown>, story: NormalizedStoryV2, frontierId: string, entry: DirectorDraft = draft()) => {
+const apply = (raw: Record<string, unknown>, story: NormalizedStory, frontierId: string, entry: DirectorDraft = draft()) => {
   const plan = planChapter(story, frontierId, { sealsOn: true, final: entry.anchor.final, newChapter: entry.newChapter });
   const built = buildDirectorOps(story, frontierId, entry, plan);
   const checked = checkDirectorOps({ raw, story, frontierId, ops: built.ops, values: {}, latched: {} });
@@ -36,7 +36,7 @@ const apply = (raw: Record<string, unknown>, story: NormalizedStoryV2, frontierI
 
 describe("living story block", () => {
   it("parses a premise-only story and synthesises the opening it starts on", () => {
-    const story = parseStoryV2OrThrow(fixture("living-premise"));
+    const story = parseStoryOrThrow(fixture("living-premise"));
     expect(story.startCheckpointId).toBe("liv_open");
     expect(story.checkpointById.liv_open).toMatchObject({ type: "anchor", start: true, objective: expect.stringContaining("harbour lanterns") });
     expect(story.living).toMatchObject({ chapter_size: [2, 3], ending: "director-proposes", cast: ["harbourmaster", "innkeeper", "keeper"] });
@@ -45,7 +45,7 @@ describe("living story block", () => {
   it("refuses an unknown key, a missing premise, an authored_until that is not an anchor and an unknown cast member", () => {
     const raw = fixture("living-hybrid");
     const errors = (living: unknown) => {
-      const parsed = parseStoryV2({ ...raw, living });
+      const parsed = parseStory({ ...raw, living });
       return Array.isArray(parsed) ? parsed.map((error) => error.path) : [];
     };
     expect(errors({ premise: "x", horizn: 2 })).toContain("living.horizn");
@@ -58,33 +58,33 @@ describe("living story block", () => {
   });
 
   it("defaults autonomy to suggest for a hybrid and auto for a premise-only story", () => {
-    expect(livingAutonomy(parseStoryV2OrThrow(fixture("living-premise")))).toBe("auto");
-    expect(livingAutonomy(parseStoryV2OrThrow({ ...fixture("living-hybrid"), living: { premise: "x", authored_until: "ford" } }))).toBe("suggest");
+    expect(livingAutonomy(parseStoryOrThrow(fixture("living-premise")))).toBe("auto");
+    expect(livingAutonomy(parseStoryOrThrow({ ...fixture("living-hybrid"), living: { premise: "x", authored_until: "ford" } }))).toBe("suggest");
   });
 });
 
 describe("the director's frontier", () => {
   it("is the active anchor when nothing is written ahead, and nothing once the horizon holds an anchor", () => {
     const raw = fixture("living-premise");
-    const story = parseStoryV2OrThrow(raw);
+    const story = parseStoryOrThrow(raw);
     expect(findFrontier(story, "liv_open")).toEqual({ frontierId: "liv_open", ahead: 0 });
-    const next = parseStoryV2OrThrow(apply(raw, story, "liv_open").raw);
+    const next = parseStoryOrThrow(apply(raw, story, "liv_open").raw);
     expect(findFrontier(next, "liv_open")).toBeNull();
     expect(findFrontier(next, "liv_1")).toEqual({ frontierId: "liv_1", ahead: 0 });
   });
 
   it("in a hybrid, waits for authored_until and never writes from an authored anchor before it", () => {
-    const story = parseStoryV2OrThrow(fixture("living-hybrid"));
+    const story = parseStoryOrThrow(fixture("living-hybrid"));
     expect(findFrontier(story, "mill")).toBeNull();
     expect(findFrontier(story, "ford")).toEqual({ frontierId: "ford", ahead: 0 });
-    const noUntil = parseStoryV2OrThrow({ ...fixture("living-hybrid"), living: { premise: "x" } });
+    const noUntil = parseStoryOrThrow({ ...fixture("living-hybrid"), living: { premise: "x" } });
     expect(findFrontier(noUntil, "ford")?.frontierId).toBe("ford");
   });
 
   it("stops at a final chapter", () => {
     const raw = fixture("living-premise");
-    const story = parseStoryV2OrThrow(raw);
-    const ended = parseStoryV2OrThrow(apply(raw, story, "liv_open", draft({}, { final: true })).raw);
+    const story = parseStoryOrThrow(raw);
+    const ended = parseStoryOrThrow(apply(raw, story, "liv_open", draft({}, { final: true })).raw);
     expect(ended.chapterById?.liv_ch_1?.final).toBe(true);
     expect(findFrontier(ended, "liv_1")).toBeNull();
   });
@@ -92,7 +92,7 @@ describe("the director's frontier", () => {
 
 describe("director ops", () => {
   const raw = fixture("living-premise");
-  const story = parseStoryV2OrThrow(raw);
+  const story = parseStoryOrThrow(raw);
 
   it("writes a namespaced anchor, its stub, the chapter and the transitions, and the folded story parses", () => {
     const { built, checked } = apply(raw, story, "liv_open");
@@ -153,7 +153,7 @@ describe("director ops", () => {
       const step = apply(current, parsed, frontier);
       expect(step.checked.issues).toEqual([]);
       current = step.raw;
-      parsed = parseStoryV2OrThrow(current);
+      parsed = parseStoryOrThrow(current);
       frontier = `liv_${index}`;
     }
     expect((parsed.chapters ?? []).map((chapter) => chapter.id)).toEqual(["liv_ch_1", "liv_ch_2", "liv_ch_3"]);
@@ -163,7 +163,7 @@ describe("director ops", () => {
 });
 
 describe("director answer", () => {
-  const story = parseStoryV2OrThrow(fixture("living-premise"));
+  const story = parseStoryOrThrow(fixture("living-premise"));
   const answer = (patch: Record<string, unknown> = {}) => JSON.stringify({
     name: "The Cold Quay", objective: "A lantern on the quay goes dark while the harbourmaster watches.", tension: "stirring", snapshot: {},
     opens_when: { new: { key: "lantern_failed", rubric: "Has a quay lantern gone out?" } }, new_qualities: [], builds_on: "the lanterns", new_chapter: false,
@@ -223,10 +223,10 @@ describe("graph-op history", () => {
   const state = (ops: LivingOp[]): LivingRuntimeState => ({ ...createLivingState(), authored: { raw, hash: "h" }, ops });
 
   it("drops ops after a rollback point, withdraws their applied proposals and bumps the epoch", () => {
-    const story = parseStoryV2OrThrow(raw);
+    const story = parseStoryOrThrow(raw);
     const first = opsOf(apply(raw, story, "liv_open").built.ops, 3, "p1");
     const after1 = foldOps(raw, first);
-    const second = opsOf(apply(after1, parseStoryV2OrThrow(after1), "liv_1").built.ops, 7, "p2");
+    const second = opsOf(apply(after1, parseStoryOrThrow(after1), "liv_1").built.ops, 7, "p2");
     const full: LivingRuntimeState = { ...state([...first, ...second]), proposals: [{ id: "p2", status: "applied" } as LivingRuntimeState["proposals"][number]] };
     const before = graphEpoch(full);
     const { state: rolled, dropped } = dropOpsAfter(full, 5);
@@ -237,7 +237,7 @@ describe("graph-op history", () => {
   });
 
   it("compaction moves settled ops into folded without changing the played graph", () => {
-    const story = parseStoryV2OrThrow(raw);
+    const story = parseStoryOrThrow(raw);
     const ops = opsOf(apply(raw, story, "liv_open").built.ops, 3, "p1");
     const live = state(ops);
     const compacted = compactOps(live, 4);
@@ -251,11 +251,11 @@ describe("graph-op history", () => {
 describe("Save as story", () => {
   const build = (steps: number) => {
     let raw = fixture("living-premise");
-    let story = parseStoryV2OrThrow(raw);
+    let story = parseStoryOrThrow(raw);
     let frontier = "liv_open";
     for (let index = 1; index <= steps; index += 1) {
       raw = apply(raw, story, frontier).raw;
-      story = parseStoryV2OrThrow(raw);
+      story = parseStoryOrThrow(raw);
       frontier = `liv_${index}`;
     }
     return { raw, story };
@@ -271,7 +271,7 @@ describe("Save as story", () => {
     expect(ids).not.toContain("liv_2_way");
     expect(JSON.stringify(out.raw)).not.toContain("liv_2_lantern_failed");
     expect(out.stubbed).toEqual(["liv_1"]);
-    const parsed = parseStoryV2OrThrow(out.raw);
+    const parsed = parseStoryOrThrow(out.raw);
     expect(parsed.outgoingByCheckpoint.liv_1[0].to).toMatch(/_way$/);
     const defined = new Set(parsed.checkpoints.map((checkpoint) => checkpoint.id));
     parsed.transitions.forEach((transition) => { expect(defined.has(transition.from) && defined.has(transition.to)).toBe(true); });
@@ -307,7 +307,7 @@ describe("Save as story", () => {
 
 describe("runDirector", () => {
   const raw = fixture("living-premise");
-  const story = parseStoryV2OrThrow(raw);
+  const story = parseStoryOrThrow(raw);
   const input: DirectorInput = {
     title: story.title, premise: story.living?.premise ?? "", cast: [{ name: "Maren" }], path: ["The opening"],
     frontier: { id: "liv_open", name: "The opening", objective: "x" }, canon: "", openThreads: ["the lanterns"], resolvedThreads: [], plans: [], refused: null,
@@ -339,7 +339,7 @@ describe("runDirector", () => {
     let parsed = story;
     for (let index = 0; index < 9; index += 1) {
       current = apply(current, parsed, index ? `liv_${index}` : "liv_open").raw;
-      parsed = parseStoryV2OrThrow(current);
+      parsed = parseStoryOrThrow(current);
     }
     const none = scripted([]);
     const capped = await runDirector({ story: parsed, raw: current, frontierId: "liv_9", values: {}, latched: {}, sealsOn: false, input, guard: { playerNames: [], restatesSecret: () => false }, critic: false },
@@ -349,7 +349,7 @@ describe("runDirector", () => {
   });
 
   it("forces the ending when the story's ending gate holds", async () => {
-    const ended = parseStoryV2OrThrow({ ...raw, living: { ...(raw.living as object), ending: { when: { q: "lighthouse_lit", op: "==", v: true } } } });
+    const ended = parseStoryOrThrow({ ...raw, living: { ...(raw.living as object), ending: { when: { q: "lighthouse_lit", op: "==", v: true } } } });
     const outcome = await runDirector({ story: ended, raw: { ...raw, living: ended.living }, frontierId: "liv_open", values: { lighthouse_lit: true }, latched: {}, sealsOn: true, input,
       guard: { playerNames: [], restatesSecret: () => false }, critic: false }, scripted([good]), { role: "authoring", pass: "living" });
     expect(outcome.status === "ok" && outcome.draft.anchor.final).toBe(true);

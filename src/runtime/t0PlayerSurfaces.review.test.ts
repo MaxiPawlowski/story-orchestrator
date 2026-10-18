@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import { playerThreadTexts, type ArcEntry } from "@memory/index";
 import { buildAwayRecap } from "./awayRecap";
 import { buildNarrativeStatus, excerpt, playerLocation, rollbackNoticeText, transitionNoteText, type NarrativeInput } from "./narrative";
@@ -13,8 +13,8 @@ const recordedT022 = () => JSON.parse(readFileSync(join(__dirname, "../../test/f
 
 const ADOLION_LOCATIONS = ["aegis_guild_hall", "north_road", "wendhope_gate", "wendhope_wall", "wendhope", "needlehaven", "needlehaven_heart", "driftmere", "upper_mines", "deep_mines", "the_seals", "behind_the_seals", "eltaronal"];
 
-const adolion = (labels?: Record<string, string>): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2, id: "t0-adolion", title: "Adventurer's Road", description: "T0 fixture",
+const adolion = (labels?: Record<string, string>): NormalizedStory => parseStoryOrThrow({
+  id: "t0-adolion", title: "Adventurer's Road", description: "T0 fixture",
   qualities: [{ key: "location", type: "enum", values: ADOLION_LOCATIONS, source: "extractor", rubric: "Where is the party?", ...(labels ? { player_labels: labels } : {}) }],
   checkpoints: [{ id: "guild-hall", name: "The Guild Hall", player_name: "The Adventurer's Guild, Aegis City", objective: "Take a job.", type: "anchor", start: true }],
   transitions: [],

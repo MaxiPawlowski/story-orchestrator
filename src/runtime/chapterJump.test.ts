@@ -10,7 +10,7 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 import * as sagaMini from "../../test/fixtures/chapters-mini.story.json";
-import { parseStoryV2OrThrow, type StoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type Story } from "@engine/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { reverseMemoryState, type MemoryRollbackState } from "@memory/reverse";
 import type { ChapterRecord } from "@memory/types";
@@ -20,7 +20,7 @@ import { SessionJournal } from "./journal";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./runToken";
 import type { MemoryRuntimeState } from "./types";
 
-const story = parseStoryV2OrThrow(JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as StoryV2);
+const story = parseStoryOrThrow(JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as Story);
 
 const harness = (seal = true) => {
   const current: RunContext = { chatId: "chat-a", storyId: "chapters-mini", storyHash: "h1", sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };

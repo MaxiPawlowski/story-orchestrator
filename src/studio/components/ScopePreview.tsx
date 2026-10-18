@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { isValidationErrorList, parseStoryV2, type BlackboardSnapshot } from "@engine/index";
+import { isValidationErrorList, parseStory, type BlackboardSnapshot } from "@engine/index";
 import { deriveScopeExplained } from "@extraction/scope";
 import { useDraftStore } from "../draft";
 
@@ -8,7 +8,7 @@ const EMPTY_BLACKBOARD: BlackboardSnapshot = { values: {}, versions: {}, latched
 const ScopePreview: React.FC<{ checkpointId: string }> = ({ checkpointId }) => {
   const draft = useDraftStore((state) => state.draft);
   const scope = useMemo(() => {
-    const parsed = parseStoryV2(draft);
+    const parsed = parseStory(draft);
     if (isValidationErrorList(parsed)) return null;
     if (!parsed.checkpointById[checkpointId]) return [];
     return deriveScopeExplained(parsed, checkpointId, EMPTY_BLACKBOARD);

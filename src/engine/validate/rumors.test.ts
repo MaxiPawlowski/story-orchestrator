@@ -1,4 +1,4 @@
-import { parseStoryV2, parseStoryV2OrThrow } from "../validate";
+import { parseStory, parseStoryOrThrow } from "../validate";
 import { usesGameLayer } from "./gameLayer";
 import { RUMOR_RESTATES_SECRET } from "./rumors";
 import type { ValidationError } from "../schema";
@@ -6,7 +6,7 @@ import type { ValidationError } from "../schema";
 type Raw = Record<string, unknown> & { roster: Array<Record<string, unknown>>; rumors?: unknown[] };
 
 const base = (): Raw => ({
-  format: 2, id: "rumor-mill", title: "Rumor mill", description: "plan 44",
+  id: "rumor-mill", title: "Rumor mill", description: "plan 44",
   qualities: [{ key: "mill_burned", type: "bool", source: "extractor", rubric: "Did the mill burn?" }],
   checkpoints: [{ id: "a", name: "A", objective: "", type: "anchor", start: true }],
   transitions: [],
@@ -23,7 +23,7 @@ const base = (): Raw => ({
 });
 
 const errorsOf = (json: unknown): ValidationError[] => {
-  const parsed = parseStoryV2(json);
+  const parsed = parseStory(json);
   return Array.isArray(parsed) ? parsed : [];
 };
 
@@ -35,7 +35,7 @@ const patched = (edit: (story: Raw) => void): Raw => {
 
 describe("plan 44 stage 1: rumors and gossip channels validate as authored data", () => {
   it("compiles channels and rumors into the story's rumor net, with defaults", () => {
-    const story = parseStoryV2OrThrow(base());
+    const story = parseStoryOrThrow(base());
     expect(story.rumorNet?.channels).toEqual([
       { from: "bryn", talks_to: ["tam"], contact: "any", delay: { boundaries: [1, 2] }, hops: 2 },
       { from: "tam", talks_to: ["ula"], contact: "together", delay: { boundaries: [1, 3] }, hops: 2 },

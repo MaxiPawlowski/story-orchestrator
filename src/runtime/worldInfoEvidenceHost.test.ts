@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 
 type Listener = (...args: unknown[]) => unknown;
 
@@ -21,8 +21,7 @@ jest.mock("@services/STAPI", () => jest.requireActual("@services/stHost/worldInf
 import { LoreEvidence } from "./worldInfoEvidence";
 import { startLoreEvidence, storyBooks } from "./worldInfoEvidenceHost";
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   title: "Host",
   description: "Evidence wiring fixture.",
   qualities: [],

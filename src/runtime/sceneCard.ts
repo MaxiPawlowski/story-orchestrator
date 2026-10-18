@@ -1,4 +1,4 @@
-import { RELATIONSHIP_TOWARD_PLAYER, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type RosterMember } from "@engine/index";
+import { RELATIONSHIP_TOWARD_PLAYER, type BoundaryLogEntry, type EngineState, type NormalizedStory, type RosterMember } from "@engine/index";
 import { entryName, knownEntities } from "@engine/codex";
 import { castMemberName } from "@engine/castNames";
 import { factionBand } from "@engine/factionSchema";
@@ -10,7 +10,7 @@ import type { CodexView, ScenePresent, SceneView } from "./gameTypes";
 import { presentRosterIds } from "./whereabouts";
 
 export interface SceneSources {
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
   state: EngineState;
   boundaryLog: readonly BoundaryLogEntry[];
   castNames: Record<string, string>;
@@ -20,7 +20,7 @@ export interface SceneSources {
   codex?: CodexView;
 }
 
-const personName = (story: NormalizedStoryV2, id: string, castNames: Record<string, string>): string => {
+const personName = (story: NormalizedStory, id: string, castNames: Record<string, string>): string => {
   const own = story.codex?.people?.find((entry) => entry.member === id);
   return own ? entryName(story, own, castNames) : castNames[id] ?? castMemberName(story.roster, id);
 };
@@ -30,7 +30,7 @@ export interface SceneOptions {
   standing?: boolean;
 }
 
-const standingLines = (story: NormalizedStoryV2, values: Readonly<Record<string, unknown>>, member: RosterMember): string[] => {
+const standingLines = (story: NormalizedStory, values: Readonly<Record<string, unknown>>, member: RosterMember): string[] => {
   if (story.display?.standing === false) return [];
   const byId = new Map((story.factions ?? []).map((faction) => [faction.id, faction]));
   return (member.factions ?? []).flatMap((id) => {

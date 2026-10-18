@@ -48,7 +48,6 @@ export function s8Story(entry: S8Case, cast: Cast) {
   const ok = okKey(entry);
   const tried = { q: 'tried', op: '==', v: true };
   return {
-    format: 2,
     id: `so-v18-s8-${entry.id}`,
     title: `SO-V18 S8 ${entry.id}`,
     description: `v2.8 plan 18 Q7 S8 case ${entry.id}: a public check that cannot succeed, attempted once${entry.quest ? ', failing a quest on the same boundary' : ''}.`,

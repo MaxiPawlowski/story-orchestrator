@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { emptyEnvironment, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
 import { missingAtDone } from "./finish";
 import { approvePlan, continueAgent, executeReply, newAgentSession, NO_CHANGE, REPEAT_LIMIT, resolveProvisioning, type StepMeta } from "./loop";
@@ -9,8 +9,7 @@ import type { AgentSession } from "./types";
 const AT = "2026-10-02T16:00:00.000Z";
 const META: StepMeta = { route: "local", firstTryValid: true, repaired: false, at: AT };
 
-const map = (patch: Partial<StoryV2> = {}): StoryV2 => ({
-  format: 2,
+const map = (patch: Partial<Story> = {}): Story => ({
   title: "The Redrawn Kingdom",
   description: "",
   qualities: [{ key: "ink", type: "int", source: "extractor", rubric: "How much ink?" }],

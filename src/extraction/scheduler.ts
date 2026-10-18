@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
+import type { EngineState, NormalizedStory, NormalizedTransition } from "@engine/index";
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine } from "@memory/index";
 import type { ExtraGateSource, TypedJudge } from "./types";
 import type { ScopeSourceContext } from "./scopeSources";
@@ -56,7 +56,7 @@ export interface SchedulerJob {
 }
 
 export interface SchedulerHost {
-  getStory(): NormalizedStoryV2 | null;
+  getStory(): NormalizedStory | null;
   getEngineState(): EngineState | null;
   getExtractionSettings(): SchedulerSettings;
   model: ModelCall;

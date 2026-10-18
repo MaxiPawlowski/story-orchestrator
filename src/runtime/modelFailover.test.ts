@@ -6,7 +6,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: mockChat }),
 }));
 
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStory } from "@engine/index";
 import { BREAKER_BACKOFF_MS, type FailoverGate, type ProbeResult } from "@extraction/breaker";
 import { ModelCallError } from "@extraction/modelError";
 import type { ModelRoute } from "@extraction/modelRoute";
@@ -139,7 +139,7 @@ function harness(fallbackProfileId: string | null, down: string[] = ["deepseek"]
   const gate: FailoverGate = { open: (id) => h.scheduler.gate.open(id), failed: (id, kind, detail) => h.scheduler.gate.failed(id, kind, detail) };
   const model = createModelCallVia(replyOf(h.backend), { settings: () => settings, exists, gate, ownership: steady, planted: false });
   const host: SchedulerHost = {
-    getStory: () => ({}) as unknown as NormalizedStoryV2,
+    getStory: () => ({}) as unknown as NormalizedStory,
     getEngineState: () => ({ lastMessageId: 9 }) as unknown as EngineState,
     getExtractionSettings: () => settings,
     model,

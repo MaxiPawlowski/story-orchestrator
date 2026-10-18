@@ -2,7 +2,7 @@ import { secret, secretsOf } from "../../../test/support/recallKit";
 import { heldSecretsKeyOf, recallCacheKey, type RecallCacheInput } from "./cacheKey";
 
 const BASE: RecallCacheInput = {
-  chatId: "chat-a", storyHash: "v2-abc", member: "tamsin", query: "What exactly did Corvin say?", witnessRevision: "w-1",
+  chatId: "chat-a", storyHash: "story-abc", member: "tamsin", query: "What exactly did Corvin say?", witnessRevision: "w-1",
   heldSecretsKey: "[]", candidates: [{ messageId: 3, revision: { swipeId: null, hash: "aaaa0001" } }, { messageId: 7, revision: { swipeId: 0, hash: "bbbb0002" } }],
 };
 
@@ -11,7 +11,7 @@ describe("plan 43 VR4c: the recall cache key changes with every input it depends
 
   it.each<[string, Partial<RecallCacheInput>]>([
     ["chat", { chatId: "chat-b" }],
-    ["story content hash", { storyHash: "v2-abd" }],
+    ["story content hash", { storyHash: "story-abd" }],
     ["member", { member: "hollis" }],
     ["query text", { query: "What exactly did Corvin say? " }],
     ["witness record revision", { witnessRevision: "w-2" }],

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseStoryV2OrThrow, readsByStep, resolveStep, stepWord, type Quality } from "@engine/index";
+import { parseStoryOrThrow, readsByStep, resolveStep, stepWord, type Quality } from "@engine/index";
 import { loadGameLayer } from "@engine/validate/gameLayer";
 import { STEP_READ_HEADER } from "./contract";
 import { buildFixtureRun } from "./fixtureRun";
@@ -18,7 +18,7 @@ beforeAll(async () => {
   await loadGameLayer();
 });
 
-const story = () => parseStoryV2OrThrow(raw);
+const story = () => parseStoryOrThrow(raw);
 const relKey = () => Object.keys(story().qualityByKey).find((key) => key.startsWith("rel_")) ?? "";
 const line = (key: string, value: string) => `DELTA q=${key} value=${value} evidence="Arin takes the map and smiles."`;
 
@@ -41,7 +41,7 @@ describe("v2.8 31 F6: a stepped relationship is read as a direction, never a lev
     expect(run.prompt.split(STEP_READ_REMINDER)).toHaveLength(2);
     expect(run.prompt.indexOf(STEP_READ_REMINDER)).toBeGreaterThan(run.prompt.lastIndexOf("Transcript:"));
     const plain = {
-      format: 2, id: "plain", title: "Plain", description: "", roster: [],
+      id: "plain", title: "Plain", description: "", roster: [],
       qualities: [{ key: "found", type: "int", source: "extractor", rubric: "How many clues?" }],
       checkpoints: [{ id: "a", name: "A", objective: "Look.", type: "anchor", start: true }, { id: "b", name: "B", objective: "Done.", type: "anchor" }],
       transitions: [{ from: "a", to: "b", priority: 0, gate: { q: "found", op: ">=", v: 1 } }],

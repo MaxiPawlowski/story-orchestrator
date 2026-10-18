@@ -1,5 +1,5 @@
 import { readWith } from "../../test/support/modelCall";
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 import { getChatWindow, getLastMessageText } from "./chatWindow";
 import { buildFixtureRun } from "./fixtureRun";
 import { readContext, renderSharedReadPrompt } from "./contract";
@@ -28,8 +28,7 @@ const hostChat = () => [
   { name: "Note", is_user: false, is_system: true, mes: "Checkpoint reached", extra: { type: "comment" } },
 ];
 
-const story = () => parseStoryV2OrThrow({
-  format: 2,
+const story = () => parseStoryOrThrow({
   id: "hygiene",
   title: "Hygiene",
   description: "v2.4 plan 04 T7",

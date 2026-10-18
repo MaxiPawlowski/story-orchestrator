@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { plantedModel } from "../../test/support/modelCall";
 import { testOwnership } from "../../test/findings/testOwnership";
 import { CopilotCoordinator } from "../runtime/coordinators/copilotCoordinator";
@@ -59,10 +59,10 @@ describe("T5-1-3 HIGH: the install read names this draft's cast by card name", (
     ownership: testOwnership(), getStory: () => null, getState: () => null, getSettings: () => ({}), model: plantedModel, getCanon: () => "", notify: () => {},
   } as never);
   const draft = {
-    format: 2, title: "The Redrawn Kingdom", description: "", qualities: [], checkpoints: [], transitions: [],
+    title: "The Redrawn Kingdom", description: "", qualities: [], checkpoints: [], transitions: [],
     roster: [{ id: "orin", name: "Master Orin" }, { id: "lord_vael", name: "Lord Vael" }],
     requirements: { members: ["orin", "Lady Morrow"] },
-  } as unknown as StoryV2;
+  } as unknown as Story;
 
   it("resolves roster ids and requirement members to card names, and reads the install's personas", () => {
     const environment = coordinator.getProvisioningEnvironment(draft);

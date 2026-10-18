@@ -1,10 +1,9 @@
-import { parseStoryV2OrThrow, type BlackboardSnapshot } from "@engine/index";
+import { parseStoryOrThrow, type BlackboardSnapshot } from "@engine/index";
 import { deriveScope, deriveScopeExplained } from "./scope";
 
 const EMPTY: BlackboardSnapshot = { values: {}, versions: {}, latched: {} };
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   title: "Ruins",
   description: "",
   qualities: [

@@ -1,4 +1,4 @@
-import { isLivingId, LIVING_OPENING_ID, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { isLivingId, LIVING_OPENING_ID, type EngineState, type NormalizedStory } from "@engine/index";
 import { findFrontier, livingAutonomy, livingChapters, livingHorizon } from "@generation/living/frontier";
 import { sceneTestFor, type SceneTestRecord } from "@generation/living/sceneTest";
 import type { LivingAuthorView, LivingProposalRow, LivingSceneRow, LivingSliceInput } from "./livingSnapshot";
@@ -7,7 +7,7 @@ const LIVING_PROPOSALS_SHOWN = 8;
 
 export function livingAuthorView(input: LivingSliceInput): LivingAuthorView {
   const { living } = input;
-  const story = input.story as NormalizedStoryV2;
+  const story = input.story as NormalizedStory;
   const state = input.state as EngineState;
   const nameOf = (id: string | null | undefined) => (id ? story.checkpointById[id]?.name ?? id : "");
   const generated = story.checkpoints.filter((checkpoint) => checkpoint.type === "anchor" && isLivingId(checkpoint.id) && checkpoint.id !== LIVING_OPENING_ID);

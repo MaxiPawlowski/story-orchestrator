@@ -2,7 +2,6 @@
   "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Arin"],"judge":"off"},
   "steps": [
     { "import_story": {
-      "format": 2,
       "title": "Plan 13 Surfacing",
       "description": "Surfacing smoke: macros, /so-mem, away-recap surface.",
       "qualities": [

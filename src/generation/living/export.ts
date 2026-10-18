@@ -1,6 +1,6 @@
 import {
-  gateKeys, GENERATED_CHECKPOINT_PREFIX, isLivingId, LIVING_OPENING_ID, parseStoryV2, progressQualityForAnchor, slugifyStoryId,
-  type Chapter, type Checkpoint, type NormalizedStoryV2, type Quality, type StoryV2, type Transition, type ValidationError,
+  gateKeys, GENERATED_CHECKPOINT_PREFIX, isLivingId, LIVING_OPENING_ID, parseStory, progressQualityForAnchor, slugifyStoryId,
+  type Chapter, type Checkpoint, type NormalizedStory, type Quality, type Story, type Transition, type ValidationError,
 } from "@engine/index";
 import { LIVING_STUB_SUFFIX } from "./types";
 
@@ -12,7 +12,7 @@ export interface LivingExportOptions {
   scrub?: (text: string) => string;
 }
 
-export type LivingExport = { ok: true; raw: StoryV2; excluded: string[]; stubbed: string[] } | { ok: false; reason: string; errors: ValidationError[] };
+export type LivingExport = { ok: true; raw: Story; excluded: string[]; stubbed: string[] } | { ok: false; reason: string; errors: ValidationError[] };
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
@@ -26,7 +26,7 @@ const isGenerated = (id: string) => isLivingId(id) && id !== LIVING_OPENING_ID;
 
 const bridgedStub = (id: string): string => new RegExp(`^${GENERATED_CHECKPOINT_PREFIX}(.+${LIVING_STUB_SUFFIX})_\\d+$`).exec(id)?.[1] ?? id;
 
-export function excludedCheckpoints(story: NormalizedStoryV2, reached: ReadonlySet<string>, includeUnreached: boolean): Set<string> {
+export function excludedCheckpoints(story: NormalizedStory, reached: ReadonlySet<string>, includeUnreached: boolean): Set<string> {
   if (includeUnreached) return new Set();
   const headedTo = new Set([...reached].map(bridgedStub).filter((id) => story.checkpointById[id]?.type === "intermediate")
     .flatMap((id) => (story.outgoingByCheckpoint[id] ?? []).map((transition) => transition.to)));
@@ -58,10 +58,10 @@ const qualityReferences = (checkpoints: readonly Checkpoint[], transitions: read
   ...checkpoints.flatMap((checkpoint) => Object.keys(checkpoint.state_snapshot ?? {})),
 ]);
 
-export function projectLivingExport(raw: Record<string, unknown>, story: NormalizedStoryV2, options: LivingExportOptions): LivingExport {
+export function projectLivingExport(raw: Record<string, unknown>, story: NormalizedStory, options: LivingExportOptions): LivingExport {
   const scrub = options.scrub ?? ((text: string) => text);
   const excluded = excludedCheckpoints(story, options.reached, options.includeUnreached);
-  const source: Partial<StoryV2> = clone(raw);
+  const source: Partial<Story> = clone(raw);
   const opening = story.checkpointById[LIVING_OPENING_ID];
   const authoredHasOpening = (source.checkpoints ?? []).some((checkpoint) => checkpoint.id === LIVING_OPENING_ID);
   const checkpoints: Checkpoint[] = [...(opening && !authoredHasOpening ? [clone(opening)] : []), ...(source.checkpoints ?? [])]
@@ -95,9 +95,8 @@ export function projectLivingExport(raw: Record<string, unknown>, story: Normali
   const usedChapters = new Set(checkpoints.map((checkpoint) => checkpoint.chapter).filter(Boolean));
   const chapters: Chapter[] | undefined = source.chapters?.filter((chapter) => !isGenerated(chapter.id) || usedChapters.has(chapter.id));
   const arcBridges = source.arc_bridges?.filter((bridge) => kept.has(bridge.anchor));
-  const out: StoryV2 = {
+  const out: Story = {
     ...source,
-    format: 2,
     id: options.id,
     title: options.title,
     description: source.description ?? "",
@@ -110,7 +109,7 @@ export function projectLivingExport(raw: Record<string, unknown>, story: Normali
   };
   if (!chapters?.length) delete out.chapters;
   if (!arcBridges?.length) delete out.arc_bridges;
-  const parsed = parseStoryV2(out);
+  const parsed = parseStory(out);
   if (Array.isArray(parsed)) return { ok: false, reason: `the saved story would not load: ${parsed[0]?.message ?? "invalid"}`, errors: parsed };
   const defined = new Set(parsed.checkpoints.map((checkpoint) => checkpoint.id));
   const dangling = out.transitions.flatMap((transition) => [transition.from, transition.to]).filter((id) => !defined.has(id));

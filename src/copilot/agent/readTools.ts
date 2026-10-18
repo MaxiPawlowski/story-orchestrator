@@ -1,4 +1,4 @@
-import { CODEX_PAGES, evaluateGate, isValidationErrorList, parseStoryV2, renderGateText, type PrimitiveValue, type StoryV2 } from "@engine/index";
+import { CODEX_PAGES, evaluateGate, isValidationErrorList, parseStory, renderGateText, type PrimitiveValue, type Story } from "@engine/index";
 import { isRecord } from "@utils/guards";
 import { storyCoverage, renderCoverage } from "../../studio/coverage";
 import { runDiagnostics } from "../../studio/diagnostics";
@@ -13,9 +13,9 @@ const LOOKUP_LIMIT = 50;
 
 const json = (value: unknown) => JSON.stringify(value);
 
-const BLOCKS = ["arc_template", "arc_bridges", "requirements", "stagecraft", "scene_read", "lore_select", "house_rules"] as const satisfies readonly (keyof StoryV2)[];
+const BLOCKS = ["arc_template", "arc_bridges", "requirements", "stagecraft", "scene_read", "lore_select", "house_rules"] as const satisfies readonly (keyof Story)[];
 
-const summarizeStory = (draft: StoryV2): string => json({
+const summarizeStory = (draft: Story): string => json({
   title: draft.title,
   description: draft.description,
   qualities: draft.qualities.map((quality) => ({ key: quality.key, type: quality.type, ...(quality.values ? { values: quality.values } : {}), ...(quality.latching ? { latching: true } : {}) })),
@@ -27,26 +27,26 @@ const summarizeStory = (draft: StoryV2): string => json({
   blocks: Object.fromEntries(BLOCKS.filter((key) => draft[key] !== undefined).map((key) => [key, draft[key]])),
 });
 
-const readCheckpoint = (draft: StoryV2, id: string): string => {
+const readCheckpoint = (draft: Story, id: string): string => {
   const checkpoint = draft.checkpoints.find((entry) => entry.id === id);
   if (!checkpoint) return `No checkpoint "${id}". Known: ${draft.checkpoints.map((entry) => entry.id).join(", ") || "(none)"}.`;
   const outgoing = draft.transitions.filter((transition) => transition.from === id).map((transition) => ({ to: transition.to, priority: transition.priority, gate: renderGateText(transition.gate) }));
   return json({ checkpoint, outgoing });
 };
 
-const validationLines = (draft: StoryV2): string => {
-  const parsed = parseStoryV2(draft);
+const validationLines = (draft: Story): string => {
+  const parsed = parseStory(draft);
   if (!isValidationErrorList(parsed)) return "Valid: 0 errors.";
   return `${parsed.length} error(s):\n${parsed.map((error) => `- ${error.path}: ${error.message}`).join("\n")}`;
 };
 
-const diagnosticLines = (draft: StoryV2, lookup: AgentLookup): string => {
+const diagnosticLines = (draft: Story, lookup: AgentLookup): string => {
   const diagnostics = runDiagnostics(draft, { characterNames: lookup.characters, backgroundNames: lookup.backgrounds });
   if (!diagnostics.length) return "No diagnostics.";
   return diagnostics.map((diagnostic) => `- [${diagnostic.severity}] ${diagnostic.code} at ${diagnostic.path}: ${diagnostic.message}`).join("\n");
 };
 
-export const reachability = (draft: StoryV2): { reachable: string[]; unreachable: string[]; deadEnds: string[] } => {
+export const reachability = (draft: Story): { reachable: string[]; unreachable: string[]; deadEnds: string[] } => {
   const start = draft.checkpoints.find((checkpoint) => checkpoint.start)?.id ?? draft.checkpoints[0]?.id;
   const seen = new Set<string>();
   const queue = start ? [start] : [];
@@ -65,8 +65,8 @@ export const reachability = (draft: StoryV2): { reachable: string[]; unreachable
 
 const isPrimitive = (value: unknown): value is PrimitiveValue => ["string", "number", "boolean"].includes(typeof value);
 
-export const simulateWalk = (draft: StoryV2, steps: unknown[]): string => {
-  const story = parseStoryV2(draft);
+export const simulateWalk = (draft: Story, steps: unknown[]): string => {
+  const story = parseStory(draft);
   if (isValidationErrorList(story)) return `Cannot simulate an invalid story. ${validationLines(draft)}`;
   const values: Record<string, PrimitiveValue> = {};
   let active = story.startCheckpointId;
@@ -96,7 +96,7 @@ const safeNames = (read: () => string[]): string[] => {
   try { return read(); } catch { return []; }
 };
 
-export const runReadTool = (tool: ReadToolName, args: Record<string, unknown>, draft: StoryV2, lookup: AgentLookup): string => {
+export const runReadTool = (tool: ReadToolName, args: Record<string, unknown>, draft: Story, lookup: AgentLookup): string => {
   switch (tool) {
     case "readStory":
       return summarizeStory(draft);

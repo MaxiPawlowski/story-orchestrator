@@ -12,7 +12,7 @@ jest.mock("./sharedRead", () => ({
   runSharedRead: jest.fn(),
 }));
 
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStory } from "@engine/index";
 import { BREAKER_BACKOFF_MS, type ProbeResult } from "./breaker";
 import { ModelCallError } from "./modelError";
 import { ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "./scheduler";
@@ -30,7 +30,7 @@ function harness() {
   const probeAnswers: ProbeResult[] = [];
   const applied: number[] = [];
   const host: SchedulerHost = {
-    getStory: () => ({}) as unknown as NormalizedStoryV2,
+    getStory: () => ({}) as unknown as NormalizedStory,
     getEngineState: () => ({ lastMessageId: 9 }) as unknown as EngineState,
     getExtractionSettings: () => settings,
     model: plantedModel,

@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { parseStoryOrThrow, type EngineState } from "@engine/index";
 import { privateLifeLines } from "@engine/life/lines";
 import type { ModelCall } from "@extraction/modelRoute";
 import { createAgendaProposals, landAcceptedProposals, landedMeanwhile, rollbackAgendaProposals, sanitizeAgendaProposals, type AgendaProposalsState } from "./agendaProposals";
@@ -8,7 +8,7 @@ import { AgendaProposalCoordinator } from "./coordinators/agendaProposalCoordina
 import { buildMeanwhilePrompt, parseMeanwhile } from "./meanwhilePrompt";
 import { mintToken, tokenMatches, type RunContext } from "./runToken";
 
-const STORY = parseStoryV2OrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
+const STORY = parseStoryOrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
 const STATE = { boundary: 4, lastMessageId: 9, blackboard: { values: {}, versions: {}, latched: {} } } as unknown as EngineState;
 
 const harness = (reply: string) => {

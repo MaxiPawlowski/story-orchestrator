@@ -21,7 +21,7 @@ jest.mock("@services/STAPI", () => ({
   setGroupMemberDisabled: async () => ({ ok: true }),
 }));
 
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { couldNot, wrote } from "@utils/writeResult";
 import { EffectsApplier, NO_OPEN_CHAT } from "./effectsApplier";
 import { effectExtension, registerEffectExtension } from "./effectExtensions";
@@ -37,8 +37,8 @@ const THREE = "SO-SP5 scenario three: the party stands in the guild hall.";
 const USER = "SO-SP5 user override: a quiet night at the inn.";
 
 const storyWith = (effects: Record<string, Record<string, unknown>>) => {
-  return parseStoryV2OrThrow({
-    format: 2, id: "so-v25-sp5", title: "SO-SP5 Scenario", description: "d",
+  return parseStoryOrThrow({
+    id: "so-v25-sp5", title: "SO-SP5 Scenario", description: "d",
     qualities: [{ key: "step", type: "int", source: "code", rubric: "Spike step." }],
     roster: [],
     checkpoints: ["gate", "road", "hall"].map((id, index) => ({ id, name: id, objective: "o", type: "anchor", ...(index === 0 ? { start: true } : {}), ...(effects[id] ? { effects: effects[id] } : {}) })),

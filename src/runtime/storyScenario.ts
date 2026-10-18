@@ -1,4 +1,4 @@
-import type { Checkpoint, NormalizedStoryV2 } from "@engine/index";
+import type { Checkpoint, NormalizedStory } from "@engine/index";
 import type { WriteResult } from "@utils/writeResult";
 import type { EffectExtension, EffectExtensionInput, EffectExtensionPlan } from "./effectExtensions";
 import type { EffectLedgerRow } from "./types";
@@ -27,11 +27,11 @@ const authored = (checkpoint: Checkpoint | undefined): string | null => {
   return typeof scenario === "string" ? scenario.trim() : "";
 };
 
-export function scenarioForPath(story: NormalizedStoryV2, path: string[]): string | null {
+export function scenarioForPath(story: NormalizedStory, path: string[]): string | null {
   return path.reduce<string | null>((text, id) => authored(story.checkpointById[id]) ?? text, null);
 }
 
-export const storySetsScenario = (story: NormalizedStoryV2): boolean => story.checkpoints.some((checkpoint) => authored(checkpoint) !== null);
+export const storySetsScenario = (story: NormalizedStory): boolean => story.checkpoints.some((checkpoint) => authored(checkpoint) !== null);
 
 const scenarioRows = (ledger: EffectLedgerRow[]) =>
   ledger.filter((row) => row.target.kind === "extension" && row.target.name === SCENARIO_EFFECT);
@@ -48,7 +48,7 @@ const alreadyRefused = (ledger: EffectLedgerRow[], desired: string, held: string
   return newest?.status === "externally-changed" && rowText(newest.after) === desired && rowText(newest.found) === held;
 };
 
-export function competingCards(story: NormalizedStoryV2, override: string, cast: ScenarioCard[]): string[] {
+export function competingCards(story: NormalizedStory, override: string, cast: ScenarioCard[]): string[] {
   if (storySetsScenario(story) || override.trim()) return [];
   return cast.filter((entry) => entry.scenario.trim()).map((entry) => entry.name);
 }
@@ -102,5 +102,5 @@ export const readScenarioFrameWith = (read: () => ScenarioFrame | null): (() => 
 
 export const scenarioFrame = (): ScenarioFrame | null => readFrame();
 
-export const competingScenarios = (story: NormalizedStoryV2 | null, frame: ScenarioFrame | null): string[] =>
+export const competingScenarios = (story: NormalizedStory | null, frame: ScenarioFrame | null): string[] =>
   story && frame ? competingCards(story, frame.override, frame.cast) : [];

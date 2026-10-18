@@ -13,7 +13,7 @@ jest.mock("@extraction/index", () => ({
 }));
 
 import * as sagaMini from "../../test/fixtures/chapters-mini.story.json";
-import { parseStoryV2OrThrow, type BoundaryResult, type EngineState, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type BoundaryResult, type EngineState, type NormalizedStory, type Story } from "@engine/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import type { ExtractionScheduler } from "@extraction/index";
 import type { ModelCall } from "@extraction/modelRoute";
@@ -31,7 +31,7 @@ import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./r
 import type { RuntimeManager } from "./runtimeManager";
 import type { ExtractionRuntimeState, MemoryRuntimeState } from "./types";
 
-const story = parseStoryV2OrThrow(JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as StoryV2);
+const story = parseStoryOrThrow(JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as Story);
 const chapter = (id: string) => story.chapterById![id];
 
 const scene = (id: string, messageId: number): MemoryEntry => ({
@@ -141,7 +141,7 @@ describe("endings (v2.6 plan 07 task 18)", () => {
 
 const promptHost = () => ({ setStoryExtensionPrompt: jest.fn(), clearStoryExtensionPrompt: jest.fn() });
 
-const kitPort = (memoryPatch: Partial<MemoryRuntimeState>, storyRef: NormalizedStoryV2 | null = story) => {
+const kitPort = (memoryPatch: Partial<MemoryRuntimeState>, storyRef: NormalizedStory | null = story) => {
   let memory = { arcs: [], chapters: [], chronicle: { eras: [] }, canon: null, settings: { enabled: true, chapters: {} }, ...memoryPatch } as unknown as MemoryRuntimeState;
   const prompt = promptHost();
   const blocks: Array<{ key: string; value: string }> = [];
@@ -249,7 +249,7 @@ describe("returning-cast dossiers (v2.6 plan 07 task 15)", () => {
   const castStory = {
     roster: [{ id: "kael", name: "Kael" }, { id: "mara", name: "Mara" }],
     checkpointById: { gate: {}, market: {}, fire: {}, walls: {}, dawn: { effects: { cast_changes: { enable: ["Kael"] } } } },
-  } as unknown as NormalizedStoryV2;
+  } as unknown as NormalizedStory;
 
   it("keeps each member's latest line with the earlier ones as history", () => {
     const kael = dossiers(records).get("kael");

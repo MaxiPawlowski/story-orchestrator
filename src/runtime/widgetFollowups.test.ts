@@ -1,4 +1,4 @@
-import { StoryEngine, parseStoryV2, parseStoryV2OrThrow, isValidationErrorList, type PrimitiveValue, type StoryV2 } from "@engine/index";
+import { StoryEngine, parseStory, parseStoryOrThrow, isValidationErrorList, type PrimitiveValue, type Story } from "@engine/index";
 import { composeGame, type GameSources } from "./widgets";
 import type { WidgetView } from "./gameTypes";
 import { changedAgoText, provenanceText } from "@features/widgetCopy";
@@ -31,8 +31,8 @@ const WIDGETS = [
   { id: "road", kind: "timeline", title: "The road", dates: { start: "Day 1", dock: "Day 2" } },
 ];
 
-const raw = (patch: Partial<Record<string, unknown>> = {}): StoryV2 => ({
-  format: 2, id: "followups", title: "Followups", description: "Synthetic.",
+const raw = (patch: Partial<Record<string, unknown>> = {}): Story => ({
+  id: "followups", title: "Followups", description: "Synthetic.",
   roster: [{ id: "arin", name: "Arin" }],
   qualities: QUALITIES,
   checkpoints: [
@@ -49,12 +49,12 @@ const raw = (patch: Partial<Record<string, unknown>> = {}): StoryV2 => ({
   ],
   widgets: WIDGETS,
   ...patch,
-} as unknown as StoryV2);
+} as unknown as Story);
 
 const chatOf = (length: number) => Array.from({ length }, (_, index) => ({ is_user: index % 2 === 1, mes: `m${index}` }));
 
-const play = (story: StoryV2, turns: Array<Record<string, PrimitiveValue>>, manual: ReadonlySet<number> = new Set()) => {
-  const normalized = parseStoryV2OrThrow(story);
+const play = (story: Story, turns: Array<Record<string, PrimitiveValue>>, manual: ReadonlySet<number> = new Set()) => {
+  const normalized = parseStoryOrThrow(story);
   const engine = new StoryEngine();
   engine.loadStory(normalized);
   turns.forEach((values, index) => {
@@ -65,7 +65,7 @@ const play = (story: StoryV2, turns: Array<Record<string, PrimitiveValue>>, manu
   return { normalized, engine };
 };
 
-const sources = (story: StoryV2, turns: Array<Record<string, PrimitiveValue>>, options: { authorView?: boolean; manual?: Set<number>; chatLength?: number } = {}): GameSources => {
+const sources = (story: Story, turns: Array<Record<string, PrimitiveValue>>, options: { authorView?: boolean; manual?: Set<number>; chatLength?: number } = {}): GameSources => {
   const { normalized, engine } = play(story, turns, options.manual);
   return {
     story: normalized, state: engine.serialize(), boundaryLog: engine.stateLog, checks: [], threads: { open: [], resolved: [] },
@@ -87,7 +87,7 @@ const walkable = (patch: Partial<Record<string, unknown>> = {}) => {
 describe("Astra v2.8 P2: an author meter over a non-public quality draws", () => {
   test("it validates, renders the raw values in Author view, and never reaches a player surface", () => {
     const story = raw({ widgets: [...WIDGETS, { id: "diag", kind: "meters", title: "Diagnostics", audience: "author", bind: { qualities: ["secret_status", "deep"] } }] });
-    expect(isValidationErrorList(parseStoryV2(story))).toBe(false);
+    expect(isValidationErrorList(parseStory(story))).toBe(false);
     const game = composeGame(sources(story, [{ secret_status: "plotting", deep: true }], { authorView: true }));
     const diag = find(game.authorWidgets, "diag");
     expect(diag?.body.kind).toBe("meters");
@@ -99,7 +99,7 @@ describe("Astra v2.8 P2: an author meter over a non-public quality draws", () =>
 
 describe("widget follow-ups validation (v2.8 23 A4)", () => {
   const errorsOf = (patch: Partial<Record<string, unknown>>) => {
-    const parsed = parseStoryV2(raw(patch));
+    const parsed = parseStory(raw(patch));
     return isValidationErrorList(parsed) ? parsed.map((error) => `${error.path}: ${error.message}`) : [];
   };
   const withWidgets = (widgets: unknown[]) => errorsOf({ widgets });
@@ -184,7 +184,7 @@ describe("widget follow-ups projection (v2.8 23 A4)", () => {
       chapters: [{ id: "one", title: "Chapter one", player_title: "The arrival" }, { id: "two", title: "Chapter two" }],
       checkpoints: raw().checkpoints.map((checkpoint, index) => ({ ...checkpoint, chapter: index === 0 ? "one" : "two" })),
     });
-    const parsed = parseStoryV2(chaptered);
+    const parsed = parseStory(chaptered);
     if (isValidationErrorList(parsed)) throw new Error(JSON.stringify(parsed));
     const view = composeGame(sources(chaptered, [{ tried_climb: true }])).player;
     expect(find(view.widgets, "road")?.body).toEqual({

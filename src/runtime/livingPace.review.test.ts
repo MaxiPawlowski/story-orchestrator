@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2, parseStoryV2OrThrow, StoryEngine, type EngineState, type GateNode, type NormalizedStoryV2 } from "@engine/index";
+import { parseStory, parseStoryOrThrow, StoryEngine, type EngineState, type GateNode, type NormalizedStory } from "@engine/index";
 import { EXPANSION_CONTRACT, mergeExpansions, type ExpansionCacheEntry, type ExpansionRuntimeState } from "@generation/index";
 import { projectLivingExport } from "@generation/living/export";
 import { foldOps } from "@generation/living/fold";
@@ -22,10 +22,10 @@ const draft: DirectorDraft = {
 
 const written = () => {
   const raw = premise();
-  const story = parseStoryV2OrThrow(raw);
+  const story = parseStoryOrThrow(raw);
   const built = buildDirectorOps(story, "liv_open", draft, planChapter(story, "liv_open", { sealsOn: true, final: false, newChapter: false }));
   const folded = foldOps(raw, built.ops);
-  return { raw: folded, story: parseStoryV2OrThrow(folded), ops: built.ops };
+  return { raw: folded, story: parseStoryOrThrow(folded), ops: built.ops };
 };
 
 const chain = (status: ExpansionCacheEntry["status"], attempts = 1): ExpansionCacheEntry => ({
@@ -41,7 +41,7 @@ const chain = (status: ExpansionCacheEntry["status"], attempts = 1): ExpansionCa
   lastError: null, attempts, origin: "active", updatedAt: "t",
 } as ExpansionCacheEntry);
 
-const walk = (story: NormalizedStoryV2) => {
+const walk = (story: NormalizedStory) => {
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
   let message = 0;
@@ -67,7 +67,7 @@ describe("v2.8 22 L1 pace: a premise story reaches its written turning points", 
 
   it("control: an authored, non-generated checkpoint still turns the synthesised opening off", () => {
     const raw = { ...premise(), checkpoints: [{ id: "harbour", name: "Harbour", objective: "The harbour at dusk.", type: "anchor", start: true }] };
-    const parsed = parseStoryV2(raw);
+    const parsed = parseStory(raw);
     expect(Array.isArray(parsed)).toBe(false);
     if (Array.isArray(parsed)) return;
     expect(parsed.checkpointById.liv_open).toBeUndefined();
@@ -87,7 +87,7 @@ describe("v2.8 22 L1 pace: a premise story reaches its written turning points", 
     const { ops } = written();
     const progressOnly: GateNode = { q: "progress_toward_liv_1", op: ">=", v: 1 };
     const old = ops.map((op): LivingOpPayload => (op.kind === "add-transition" && op.transition.from === "liv_1_way" ? { ...op, transition: { ...op.transition, gate: progressOnly } } : op));
-    const walked = walk(parseStoryV2OrThrow(foldOps(premise(), old)));
+    const walked = walk(parseStoryOrThrow(foldOps(premise(), old)));
     walked.read("liv_1_entered_shop", true);
     for (let turn = 0; turn < 10; turn += 1) walked.commit();
     expect(walked.active()).toBe("liv_1_way");
@@ -95,7 +95,7 @@ describe("v2.8 22 L1 pace: a premise story reaches its written turning points", 
 
   it("a failed bridge toward a director stub is asked again on the next boundary, up to the cap; an authored stub's failure is not", () => {
     const { story } = written();
-    const rigged = (entry: ExpansionCacheEntry | null, subject: NormalizedStoryV2 = story) => {
+    const rigged = (entry: ExpansionCacheEntry | null, subject: NormalizedStory = story) => {
       const store: ExpansionRuntimeState = { entries: entry ? { [entry.key]: entry } : {}, scheduler: { queueDepth: 0, inFlight: false, lastError: null } };
       const coordinator = new ExpansionCoordinator({
         hosts: { player: { getPlayerName: () => "Max" } },
@@ -120,8 +120,8 @@ describe("v2.8 22 L1 pace: a premise story reaches its written turning points", 
     expect(rigged({ ...chain("failed", LIVING_STUB_ATTEMPTS - 1), beats: [] })).toEqual(["expand:liv_1_way"]);
     expect(rigged({ ...chain("failed", LIVING_STUB_ATTEMPTS), beats: [] })).toEqual([]);
     expect(rigged({ ...chain("validated"), beats: [] })).toEqual([]);
-    const authored = parseStoryV2OrThrow({
-      format: 2, id: "authored", title: "Authored", description: "",
+    const authored = parseStoryOrThrow({
+      id: "authored", title: "Authored", description: "",
       qualities: [{ key: "done", type: "bool", source: "extractor", rubric: "Done?" }],
       checkpoints: [
         { id: "a", name: "A", objective: "Start.", type: "anchor", start: true },
@@ -145,7 +145,7 @@ describe("v2.8 22 L1 pace: a premise story reaches its written turning points", 
       expect({ where, ok: out.ok }).toEqual({ where, ok: true });
       if (!out.ok) continue;
       expect(out.raw.checkpoints.map((checkpoint) => checkpoint.id)).toEqual(["liv_open", "liv_1_way", "liv_1"]);
-      expect(() => parseStoryV2OrThrow(out.raw)).not.toThrow();
+      expect(() => parseStoryOrThrow(out.raw)).not.toThrow();
     }
     const atOpening = projectLivingExport(raw, story, { reached: new Set(["liv_open"]), includeUnreached: false, id: "x", title: "x" });
     expect(atOpening.ok && atOpening.raw.checkpoints.map((checkpoint) => checkpoint.id)).toEqual(["liv_open", "liv_next_1_way", "liv_next_1"]);

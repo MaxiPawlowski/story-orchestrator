@@ -11,7 +11,7 @@ jest.mock("@extraction/index", () => ({
 
 import { readFileSync } from "fs";
 import { join } from "path";
-import { StoryEngine, parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import type { SceneTestRecord } from "@generation/living/sceneTest";
 import { createLivingState, type LivingRuntimeState } from "@generation/living/types";
 import type { LivingCoordinatorDeps } from "./coordinators/livingCoordinator";
@@ -21,7 +21,7 @@ import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./r
 import type { RuntimeExtras } from "./types";
 
 const raw = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/living-premise.story.json"), "utf8")) as Record<string, unknown>;
-const story = parseStoryV2OrThrow(raw) as NormalizedStoryV2;
+const story = parseStoryOrThrow(raw) as NormalizedStory;
 
 const record = (frontierId: string, plannedAt: number): SceneTestRecord => ({
   frontierId, plannedAt, messageId: plannedAt * 2, chaos: 4, p: 5 / 7, unit: 0.1, drawn: "altered", applied: "altered", expected: { from: "Turn 1", thread: null },

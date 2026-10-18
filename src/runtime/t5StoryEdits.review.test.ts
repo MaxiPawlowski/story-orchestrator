@@ -1,6 +1,6 @@
-import { StoryEngine, type EngineHistory, type EngineState, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
+import { StoryEngine, type EngineHistory, type EngineState, type NormalizedStory, type Story } from "@engine/index";
 import { diffStories, pruneEngineHistory } from "@engine/storyDiff";
-import { parseStoryV2OrThrow } from "@engine/validate";
+import { parseStoryOrThrow } from "@engine/validate";
 import { applyStoryUpdate, type StoryUpdateDeps } from "./storyUpdate";
 import type { LoadedStory, StoryLibraryRecord } from "./types";
 import { testOwnership } from "../../test/findings/testOwnership";
@@ -12,8 +12,7 @@ jest.mock("@services/STAPI", () => ({
   showChoicePopup: async () => "keep",
 }));
 
-const base = (): StoryV2 => ({
-  format: 2,
+const base = (): Story => ({
   id: "redline",
   title: "The Redline Kingdom",
   description: "A map that redraws the kingdom.",
@@ -30,14 +29,14 @@ const base = (): StoryV2 => ({
   roster: [{ id: "lord_vael", name: "Lord Vael" }],
 });
 
-const edited = (patch: (draft: StoryV2) => void): StoryV2 => {
-  const draft = JSON.parse(JSON.stringify(base())) as StoryV2;
+const edited = (patch: (draft: Story) => void): Story => {
+  const draft = JSON.parse(JSON.stringify(base())) as Story;
   patch(draft);
   return draft;
 };
 
-const played = (): { engine: StoryEngine; story: NormalizedStoryV2 } => {
-  const story = parseStoryV2OrThrow(base());
+const played = (): { engine: StoryEngine; story: NormalizedStory } => {
+  const story = parseStoryOrThrow(base());
   const engine = new StoryEngine();
   engine.loadStory(story);
   for (let turn = 0; turn < 4; turn += 1) {
@@ -49,7 +48,7 @@ const played = (): { engine: StoryEngine; story: NormalizedStoryV2 } => {
 
 describe("T5-3 LOW: an edit that changes what a checkpoint does is never recorded as \"identical\"", () => {
   const state = { activeCheckpointId: "flight", boundary: 4, visitedAnchors: [], blackboard: { values: {}, versions: {}, latched: {} } } as unknown as EngineState;
-  const diff = (next: StoryV2) => diffStories(parseStoryV2OrThrow(base()), parseStoryV2OrThrow(next), state);
+  const diff = (next: Story) => diffStories(parseStoryOrThrow(base()), parseStoryOrThrow(next), state);
 
   it.each([
     ["guidance", edited((draft) => { draft.checkpoints[1].guidance = "Run north, not west."; }), "guidance"],
@@ -72,7 +71,7 @@ describe("T5-3 MEDIUM: a saved edit keeps the chat's boundary history, so the ga
     const { engine, story } = played();
     const history = engine.serializeHistory();
     expect(history.log).toHaveLength(4);
-    const next = parseStoryV2OrThrow(edited((draft) => { draft.checkpoints[1].guidance = "Run north."; }));
+    const next = parseStoryOrThrow(edited((draft) => { draft.checkpoints[1].guidance = "Run north."; }));
     const kept = pruneEngineHistory(history, next, diffStories(story, next, engine.serialize()));
     const swapped = new StoryEngine();
     swapped.loadStory(next);
@@ -82,7 +81,7 @@ describe("T5-3 MEDIUM: a saved edit keeps the chat's boundary history, so the ga
 
   it("drops a quality the new story no longer declares from every retained state", () => {
     const { engine, story } = played();
-    const next = parseStoryV2OrThrow(edited((draft) => {
+    const next = parseStoryOrThrow(edited((draft) => {
       draft.qualities = [{ key: "nerve", type: "int", source: "extractor", rubric: "Nerve?" }];
       draft.transitions = draft.transitions.map((transition) => ({ ...transition, gate: { q: "nerve", op: ">=", v: 1 } }));
     }));
@@ -92,7 +91,7 @@ describe("T5-3 MEDIUM: a saved edit keeps the chat's boundary history, so the ga
 
   it("hands the history to the swap when the author saves from this chat", async () => {
     const { engine, story } = played();
-    const record = (raw: StoryV2, hash: string): StoryLibraryRecord => ({ id: "redline", title: raw.title, hash, raw } as unknown as StoryLibraryRecord);
+    const record = (raw: Story, hash: string): StoryLibraryRecord => ({ id: "redline", title: raw.title, hash, raw } as unknown as StoryLibraryRecord);
     const loaded: LoadedStory = { record: record(base(), "h1"), story };
     const swapStory = jest.fn(async () => undefined);
     const deps: StoryUpdateDeps = {

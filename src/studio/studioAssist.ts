@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { askText, type ModelCall } from "@extraction/modelRoute";
 import { ASK_MAX_TOKENS, runAsk } from "@copilot/agent/ask";
 import { DRAFT_MAX_TOKENS } from "@copilot/characterTutorial";
@@ -16,7 +16,7 @@ export interface StudioAssist {
 }
 
 export const studioAssist = (model: ModelCall, host: WizardHost, backgrounds: () => string[]): StudioAssist => ({
-  ask: async (question: string, draft: StoryV2): Promise<AskBoxReply> => {
+  ask: async (question: string, draft: Story): Promise<AskBoxReply> => {
     const environment = host.environment(draft);
     const result = await runAsk({
       question,

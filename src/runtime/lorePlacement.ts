@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import type { HostScannableEntry } from "@services/STAPI";
 import { clampLateLoreDepth } from "./settingsModel";
 import { storyLoreBooks } from "./storyLore";
@@ -15,7 +15,7 @@ export type LorePlacementRefusal = "setting-off" | "story-off" | "not-owned" | "
 export interface LorePlacementSources {
   enabled: () => boolean;
   depth: () => number;
-  story: () => NormalizedStoryV2 | null;
+  story: () => NormalizedStory | null;
   chatId: () => string | null;
   ownedChat: () => string | null;
 }
@@ -31,7 +31,7 @@ export interface LorePlacementStats {
   constant: number;
 }
 
-export function lorePlacementBooks(story: NormalizedStoryV2): Set<string> {
+export function lorePlacementBooks(story: NormalizedStory): Set<string> {
   const books = [...storyLoreBooks(story), ...(story.lore_select?.lorebooks ?? [])].filter((book) => !isMemoryMirrorBook(book));
   return new Set(books.map(bookKey).filter(Boolean));
 }

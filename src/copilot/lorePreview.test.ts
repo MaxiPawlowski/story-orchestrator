@@ -1,14 +1,14 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import type { HostScannableEntry } from "@services/STAPI";
 import { activationUncertainty, keywordWillActivate, matchKey } from "@runtime/loreKeyMatch";
 import {
   bookSiblings, draftLoreTexts, gatedAt, loreKeyLint, loreOpEntry, loreOpLintEntry, opCards, previewKeyMatches, renderKeyMatchLine, type DraftText, type LintEntry,
 } from "./lorePreview";
 
-const draft: StoryV2 = {
-  format: 2, title: "Harbour", description: "A smuggler's port on a cold coast.", qualities: [], transitions: [], roster: [],
+const draft: Story = {
+  title: "Harbour", description: "A smuggler's port on a cold coast.", qualities: [], transitions: [], roster: [],
   checkpoints: [
     { id: "start", name: "The Quay", objective: "Meet the harbour master at the customs house.", type: "anchor", start: true },
     { id: "vault", name: "The Vault", objective: "Open the lighthouse vault before the tide turns.", type: "anchor", effects: { world_info: { enable: { lorebook: "Harbour Lore", comments: ["Vault"] } } } },

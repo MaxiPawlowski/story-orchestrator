@@ -18,7 +18,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-v28-55-payload",
         "title": "SO-V28-55 Commitments payload",
         "description": "v2.8 plan 55 payload case: Arin holds two promises to the player and one made out of the player's hearing.",

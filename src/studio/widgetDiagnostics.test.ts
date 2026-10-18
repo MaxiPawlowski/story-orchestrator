@@ -1,9 +1,9 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { DIAGNOSTIC_CONSEQUENCES, runDiagnostics } from "./diagnostics";
 import { PREVIEW_HIDDEN, PREVIEW_INVALID, previewCheckpoints, previewKeys, previewWidget } from "./widgetPreview";
 
-const story = (widgets: unknown[]): StoryV2 => ({
-  format: 2, id: "d", title: "D", description: "Synthetic.", roster: [],
+const story = (widgets: unknown[]): Story => ({
+  id: "d", title: "D", description: "Synthetic.", roster: [],
   qualities: [
     { key: "searched", type: "bool", source: "extractor", rubric: "Searched?" },
     { key: "orphan", type: "bool", source: "extractor", rubric: "Read by nothing but a clue." },
@@ -18,7 +18,7 @@ const story = (widgets: unknown[]): StoryV2 => ({
   ],
   transitions: [{ from: "start", to: "dock", priority: 0, gate: { q: "searched", op: "==", v: true } }, { from: "dock", to: "start", priority: 0, gate: { q: "count", op: ">=", v: 4 } }],
   widgets,
-} as unknown as StoryV2);
+} as unknown as Story);
 
 const wall = { id: "wall", kind: "clues", title: "Wall", audience: "player", clues: [
   { id: "a", text: "Prints.", when: { q: "searched", op: "==", v: true }, action: "I follow the prints." },

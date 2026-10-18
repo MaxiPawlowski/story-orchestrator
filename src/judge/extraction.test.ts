@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseStoryV2, type Quality, type ValidationError } from "@engine/index";
+import { parseStory, type Quality, type ValidationError } from "@engine/index";
 import { buildStallRequest, buildTypedPlan, readTypedDeltas, stallVerdict, typedFloor, type StallLeaf } from "./extraction";
 import { runStallCalibration, runTypedCalibration, type StallCase, type TypedCase } from "./extractionCalibration";
 import { validateJudgeRequest } from "./questions";
@@ -97,9 +97,9 @@ describe("stall pre-check core (v2.2 plan 06)", () => {
 });
 
 describe("read_as validation (v2.2 plan 06)", () => {
-  const story = (quality: Record<string, unknown>) => ({ format: 2, id: "hints", title: "Hints", description: "", qualities: [{ key: "x", source: "extractor", rubric: "What?", ...quality }], checkpoints: [{ id: "a", name: "A", objective: "", type: "anchor", start: true }], transitions: [], roster: [] });
+  const story = (quality: Record<string, unknown>) => ({ id: "hints", title: "Hints", description: "", qualities: [{ key: "x", source: "extractor", rubric: "What?", ...quality }], checkpoints: [{ id: "a", name: "A", objective: "", type: "anchor", start: true }], transitions: [], roster: [] });
   const errors = (quality: Record<string, unknown>) => {
-    const parsed = parseStoryV2(story(quality));
+    const parsed = parseStory(story(quality));
     return Array.isArray(parsed) ? (parsed as ValidationError[]).map((error) => `${error.path}: ${error.message}`) : [];
   };
 

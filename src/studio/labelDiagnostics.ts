@@ -1,4 +1,4 @@
-import { CODEX_START, gateKeys, type StoryV2 } from "@engine/index";
+import { CODEX_START, gateKeys, type Story } from "@engine/index";
 import { codexItems, entityNames, entryCondition } from "@engine/codex";
 import { mentions } from "./codexDiagnostics";
 
@@ -10,11 +10,11 @@ export const LABEL_CONSEQUENCES: Record<LabelCode, string> = {
 };
 
 export interface LabelRun {
-  draft: StoryV2;
+  draft: Story;
   push: (code: LabelCode | "disclosure-names-unknown-entity", severity: "warning", path: string, message: string) => void;
 }
 
-const unknownNames = (draft: StoryV2): string[] => codexItems({ codex: draft.codex }).filter(({ entry }) =>
+const unknownNames = (draft: Story): string[] => codexItems({ codex: draft.codex }).filter(({ entry }) =>
   entryCondition(entry) !== CODEX_START && !entry.facts.some((fact) => fact.known_when === CODEX_START))
   .flatMap(({ entry }) => entityNames({ codex: draft.codex, roster: draft.roster }, entry));
 

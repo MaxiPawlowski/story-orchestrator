@@ -32,7 +32,6 @@ export interface SelfTestOptions {
 // whose right answer is unambiguous, so a tier that fails here fails in play too.
 const CORE_FIXTURE: ExtractionFixtureSpec = {
   story: {
-    format: 2,
     id: "self-test-core",
     title: "Model self-test",
     description: "Fixed fixture for the memory model self-test.",
@@ -57,7 +56,6 @@ const CORE_FIXTURE: ExtractionFixtureSpec = {
 
 const CAPABILITY_FIXTURE: ExtractionFixtureSpec = {
   story: {
-    format: 2,
     id: "self-test-capability",
     title: "Model self-test (capability)",
     description: "Fixed fixture for the epistemic and ledger tiers.",

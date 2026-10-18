@@ -1,4 +1,4 @@
-import type { AgencyPolicy, ArcTemplate, EngineHistory, EngineState, NormalizedStoryV2, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
+import type { AgencyPolicy, ArcTemplate, EngineHistory, EngineState, NormalizedStory, PrimitiveValue, TensionLevel, ValidationError } from "@engine/index";
 import type { JudgeCallRecord, JudgeMeterView, JudgeRuntimeState, SceneReadRecord } from "@judge/index";
 import type { ExtractionHealth, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
@@ -548,5 +548,5 @@ export interface RuntimeSnapshot {
 
 export interface LoadedStory {
   record: StoryLibraryRecord;
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
 }

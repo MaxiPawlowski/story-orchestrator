@@ -11,7 +11,7 @@ jest.mock("@extraction/sharedRead", () => ({
   runSharedRead: jest.fn(),
 }));
 
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStory } from "@engine/index";
 import { ExtractionScheduler, rollbackRereadReason, type SchedulerHost } from "@extraction/scheduler";
 import { runSharedRead } from "@extraction/sharedRead";
 import { derivePipelineStatus, EDIT_CATCH_UP_TEXT, editRereadPending, hudChipLabel } from "./pipeline";
@@ -67,7 +67,7 @@ describe("v2.7 plan 08 C: the pipeline says it is catching up after the player's
 describe("v2.7 plan 08 C: the scheduler reports a pending rollback re-read until it lands", () => {
   const flush = () => new Promise((resolve) => setTimeout(resolve, 5));
   const host = (onChange: (snapshot: ReturnType<ExtractionScheduler["getSnapshot"]>) => void, scheduler: () => ExtractionScheduler) => ({
-    getStory: () => ({}) as unknown as NormalizedStoryV2,
+    getStory: () => ({}) as unknown as NormalizedStory,
     getEngineState: () => ({}) as unknown as EngineState,
     getExtractionSettings: () => ({ enabled: true, profileId: null, cadence: 1, stabilityLag: 0 }),
     getFacts: () => [], getFiredTransitions: () => [], getExpansionGateSources: () => [], getOpenArcs: () => [],

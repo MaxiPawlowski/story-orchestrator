@@ -3,7 +3,7 @@ import type { StoryLibraryRecord } from "./types";
 
 // A library write is `saveSettingsDebounced()`, and ST's `saveSettings` swallows
 // its own failure, so "the Studio saved" was never evidence the server holds the record. What
-// is: a settings save answered 2xx after the write, and the server's own `v2Stories` holding this
+// is: a settings save answered 2xx after the write, and the server's own `stories` holding this
 // record (or a later save of it), read back once per save burst because the read is heavy.
 
 export interface SettingsSaveObservation {

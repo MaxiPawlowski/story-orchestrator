@@ -1,11 +1,10 @@
-import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { parseStoryOrThrow, type EngineState } from "@engine/index";
 import { createJudgeRuntime, defaultJudgeSettings, dropJudgeCallsAfter, type JudgeAnswer, type JudgeRequest, type JudgeSettings, type SceneReadRecord } from "@judge/index";
 import { reachableFrom, SceneCoordinator, SCENE_JUDGE_READ_REASON } from "./coordinators/sceneCoordinator";
 import { JudgeRuntime } from "./judge";
 import { testOwnership } from "../../test/findings/testOwnership";
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "scene-fixture",
   title: "Sun Ruins",
   description: "Scene read fixture.",

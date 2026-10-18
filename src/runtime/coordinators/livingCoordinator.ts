@@ -1,4 +1,4 @@
-import { isValidationErrorList, parseStoryV2, type ApplyQueueEntry, type EngineState, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
+import { isValidationErrorList, parseStory, type ApplyQueueEntry, type EngineState, type NormalizedStory, type Story } from "@engine/index";
 import { focusCandidates } from "@pacing/focus";
 import { directorDisclosure } from "@generation/living/disclosure";
 import type { ModelCall, SchedulerJob } from "@extraction/index";
@@ -33,13 +33,13 @@ export interface LivingLoaded {
 }
 
 export interface LivingCoordinatorDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   loaded: () => LivingLoaded | null;
   getLiving: () => LivingRuntimeState | undefined;
   setLiving: (next: LivingRuntimeState) => void;
   setPlayedRaw: (raw: Record<string, unknown>) => void;
-  pruneExpansion: (story: NormalizedStoryV2) => number;
+  pruneExpansion: (story: NormalizedStory) => number;
   discardUnknownPending: () => ApplyQueueEntry[];
   ensureActive: () => string | null;
   historyFloor: () => number | null;
@@ -51,8 +51,8 @@ export interface LivingCoordinatorDeps {
   inputs: () => LivingInputs;
   recentTurns: () => Promise<string[]>;
   chatRows: () => readonly unknown[];
-  askDivergence: (story: NormalizedStoryV2, activeId: string) => Promise<DivergenceAnswer | null>;
-  saveRecord: (raw: StoryV2) => { ok: true; id: string; title: string } | { ok: false; reason: string };
+  askDivergence: (story: NormalizedStory, activeId: string) => Promise<DivergenceAnswer | null>;
+  saveRecord: (raw: Story) => { ok: true; id: string; title: string } | { ok: false; reason: string };
   storyIdTaken: (id: string) => boolean;
   model: ModelCall;
   ownership: RunOwnership;
@@ -175,7 +175,7 @@ export class LivingCoordinator {
     return true;
   }
 
-  private autonomy(story: NormalizedStoryV2) {
+  private autonomy(story: NormalizedStory) {
     return this.deps.authorView() ? livingAutonomy(story) : "auto";
   }
 
@@ -202,7 +202,7 @@ export class LivingCoordinator {
     return proposal;
   }
 
-  private baseFor(story: NormalizedStoryV2, state: EngineState, frontierId: string): ProposalBase {
+  private baseFor(story: NormalizedStory, state: EngineState, frontierId: string): ProposalBase {
     return { id: `liv_p${this.state.passes + 1}`, epoch: graphEpoch(this.state), frontierId, boundary: state.boundary, messageId: state.lastMessageId, autonomy: this.autonomy(story), at: now() };
   }
 
@@ -230,7 +230,7 @@ export class LivingCoordinator {
     }
   }
 
-  private disclosed(story: NormalizedStoryV2, state: EngineState): { inputs: LivingInputs; unknownNames: string[] } {
+  private disclosed(story: NormalizedStory, state: EngineState): { inputs: LivingInputs; unknownNames: string[] } {
     return directorDisclosure(story, state.blackboard.values, this.deps.enabledIds?.() ?? [], this.deps.inputs());
   }
 
@@ -240,7 +240,7 @@ export class LivingCoordinator {
     return null;
   }
 
-  private sceneTest(story: NormalizedStoryV2, state: EngineState, frontierId: string, inputs: LivingInputs, unknownNames: readonly string[]): SceneTestRecord | null {
+  private sceneTest(story: NormalizedStory, state: EngineState, frontierId: string, inputs: LivingInputs, unknownNames: readonly string[]): SceneTestRecord | null {
     const frozen = sceneTestFor(this.state.sceneTests, frontierId);
     const ids = this.deps.sceneIds?.();
     if (frozen || !ids || !story.living?.scene_test) return frozen;
@@ -457,9 +457,9 @@ export class LivingCoordinator {
     return dropped.length;
   }
 
-  refold(authored: { raw: Record<string, unknown>; hash: string }): { raw: Record<string, unknown>; story: NormalizedStoryV2 } | { broken: string[] } {
+  refold(authored: { raw: Record<string, unknown>; hash: string }): { raw: Record<string, unknown>; story: NormalizedStory } | { broken: string[] } {
     const raw = livingRaw({ ...this.state, authored });
-    const parsed = raw ? parseStoryV2(raw) : null;
+    const parsed = raw ? parseStory(raw) : null;
     if (!raw || !parsed || isValidationErrorList(parsed)) {
       return { broken: parsed && isValidationErrorList(parsed) ? parsed.slice(0, 4).map((error) => `${error.path}: ${error.message}`) : ["no authored copy"] };
     }
@@ -486,7 +486,7 @@ export class LivingCoordinator {
     const includeUnreached = options.includeUnreached && this.deps.authorView();
     const unit = await loadUnit();
     if (!run.stillOwns()) return { ok: false, reason: "the chat changed before the story was saved" };
-    const parsed = parseStoryV2(loaded.raw);
+    const parsed = parseStory(loaded.raw);
     if (isValidationErrorList(parsed)) return this.saveRefused("the played story does not validate");
     const reached = new Set([...state.visitedPath, state.activeCheckpointId]);
     const title = options.title?.trim() || `${story.title} (played)`;

@@ -7,7 +7,7 @@ import { saveSettingsNow } from './lib/settingsSave.mts';
 export async function dumpStoryLibrary(page) {
   return evaluateInST(page, () => {
     const ctx = SillyTavern.getContext();
-    const records = ctx.extensionSettings?.['story-orchestrator']?.v2Stories;
+    const records = ctx.extensionSettings?.['story-orchestrator']?.stories;
     if (!Array.isArray(records)) return { stories: [] };
     return {
       stories: records.map((record) => ({
@@ -26,7 +26,7 @@ export async function dumpStoryLibrary(page) {
 export async function dumpStory(page, id) {
   return evaluateInST(page, (needle) => {
     const ctx = SillyTavern.getContext();
-    const records = ctx.extensionSettings?.['story-orchestrator']?.v2Stories;
+    const records = ctx.extensionSettings?.['story-orchestrator']?.stories;
     if (!Array.isArray(records)) return null;
     return records.find((record) => record.id === needle) ?? null;
   }, id);
@@ -36,13 +36,13 @@ export async function removeStory(page, idOrTitle) {
   const result = await evaluateInST(page, async (needle) => {
     const ctx = SillyTavern.getContext();
     const root = ctx.extensionSettings?.['story-orchestrator'];
-    if (!root || !Array.isArray(root.v2Stories)) return { removed: [], remaining: [] };
+    if (!root || !Array.isArray(root.stories)) return { removed: [], remaining: [] };
     const search = String(needle).trim().toLowerCase();
-    const removed = root.v2Stories
+    const removed = root.stories
       .filter((record) => record.id === needle || (record.title ?? '').trim().toLowerCase() === search)
       .map((record) => ({ id: record.id ?? null, title: record.title }));
-    if (removed.length) root.v2Stories = root.v2Stories.filter((record) => !removed.some((gone) => gone.id === record.id));
-    return { removed, remaining: root.v2Stories.map((record) => record.title) };
+    if (removed.length) root.stories = root.stories.filter((record) => !removed.some((gone) => gone.id === record.id));
+    return { removed, remaining: root.stories.map((record) => record.title) };
   }, idOrTitle);
   return result.removed.length ? { ...result, saved: await saveSettingsNow(page) } : result;
 }
@@ -68,7 +68,7 @@ export async function wipeChatMeta(page, only) {
 const USAGE = `Usage: node so-library.mts [action] [args]
 
 Actions:
-  (none)                     Print the v2 story library (extensionSettings["story-orchestrator"].v2Stories)
+  (none)                     Print the story library (extensionSettings["story-orchestrator"].stories)
   <id>                       Print the full story record for an id
   remove <id|title>          Remove matching stories from the library (by id first) and flush settings
   wipe-chat-meta [--id i]    Delete chat_metadata.story_orchestrator from the current chat
@@ -102,7 +102,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     if (action) {
       const data = await dumpStory(page, action);
       if (!data) {
-        console.error(`Story "${action}" not found in the v2 library.`);
+        console.error(`Story "${action}" not found in the library.`);
         return { ok: false };
       }
       console.log(JSON.stringify(data, null, 2));

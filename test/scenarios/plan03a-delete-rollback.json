@@ -3,7 +3,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "title": "03a Delete Rollback",
         "description": "Delete rollback validation story.",
         "qualities": [

@@ -1,7 +1,7 @@
 import type { ApplyQueueEntry } from "../applyQueue";
 import type { BoundaryLogEntry } from "../engine";
 import type { BlackboardDelta } from "../blackboard";
-import type { NormalizedStoryV2, PrimitiveValue } from "../schema";
+import type { NormalizedStory, PrimitiveValue } from "../schema";
 
 export const SAME_BEAT_BOUNDARIES = 4;
 export const SAME_BEAT_REASON = "held: same beat as the last step on this feeling";
@@ -38,7 +38,7 @@ export const sameBeat = (left: string, right: string): boolean => {
   return short.length >= SHORTEST_CONTAINED && long.includes(short);
 };
 
-const stepped = (story: Pick<NormalizedStoryV2, "qualityByKey">, key: string): boolean => key.startsWith("rel_") && Boolean(story.qualityByKey[key]?.step_rule);
+const stepped = (story: Pick<NormalizedStory, "qualityByKey">, key: string): boolean => key.startsWith("rel_") && Boolean(story.qualityByKey[key]?.step_rule);
 
 const appliedDelta = (entry: BoundaryLogEntry, key: string): BlackboardDelta | undefined =>
   entry.queue.applied.flatMap((applied) => applied.deltas).filter((delta) => delta.q === key).at(-1);
@@ -49,7 +49,7 @@ const lastStepBeat = (log: readonly BoundaryLogEntry[], boundary: number, key: s
 };
 
 export const holdSameBeat = <T extends BeatReading>(
-  story: Pick<NormalizedStoryV2, "qualityByKey">, log: readonly BoundaryLogEntry[], pending: readonly ApplyQueueEntry[], boundary: number, readings: readonly T[],
+  story: Pick<NormalizedStory, "qualityByKey">, log: readonly BoundaryLogEntry[], pending: readonly ApplyQueueEntry[], boundary: number, readings: readonly T[],
 ): { accepted: T[]; held: HeldBeat[] } => {
   const accepted: T[] = [];
   const held: HeldBeat[] = [];
@@ -70,7 +70,7 @@ export const holdSameBeat = <T extends BeatReading>(
 
 const asNumber = (value: PrimitiveValue | undefined): number | null => (typeof value === "number" ? value : null);
 
-export const axisHistory = (story: Pick<NormalizedStoryV2, "qualities">, log: readonly BoundaryLogEntry[]): Record<string, AxisStep[]> => {
+export const axisHistory = (story: Pick<NormalizedStory, "qualities">, log: readonly BoundaryLogEntry[]): Record<string, AxisStep[]> => {
   const keys = story.qualities.filter((quality) => quality.key.startsWith("rel_") && quality.step_rule).map((quality) => quality.key);
   return Object.fromEntries(keys.map((key) => [key, log.flatMap((entry): AxisStep[] => {
     const to = asNumber(entry.after.blackboard.values[key]);

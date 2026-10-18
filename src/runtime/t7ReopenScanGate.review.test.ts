@@ -1,9 +1,8 @@
-import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import type { NormalizedLedger, ScanEntry, ScanGateRow } from "./scanGatePlan";
 import { ScanGateProvider } from "./worldInfoScan";
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "reopen",
   title: "reopen",
   description: "Reopen scan fixture.",
@@ -16,7 +15,7 @@ const story = parseStoryV2OrThrow({
   roster: [],
 });
 
-const world = { chatId: "chat-a", ownedChat: null as string | null, story: null as NormalizedStoryV2 | null, path: [] as string[] };
+const world = { chatId: "chat-a", ownedChat: null as string | null, story: null as NormalizedStory | null, path: [] as string[] };
 
 const provider = new ScanGateProvider({
   chatId: () => world.chatId,

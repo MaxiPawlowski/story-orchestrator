@@ -1,4 +1,4 @@
-import { castMemberNames, fixedPlayerName, type NormalizedStoryV2 } from "@engine/index";
+import { castMemberNames, fixedPlayerName, type NormalizedStory } from "@engine/index";
 import { getAllCharacterNames, getContext, listGroupMembers, listMutedGroupMembers, listPersonas, readLoreBindings } from "@services/STAPI";
 import { readRequirements, type RequirementsOptions } from "./requirementsRead";
 import type { MemoryMirrorBook, RequirementsState } from "./types";
@@ -6,12 +6,12 @@ import { scanGatingActive } from "./worldInfoMode";
 import { storyLoreActive } from "./storyLore";
 import { expectedCastMutes } from "./castEffect";
 
-export const storyRequirements = (story: Pick<NormalizedStoryV2, "requirements" | "roster">): NormalizedStoryV2["requirements"] => {
+export const storyRequirements = (story: Pick<NormalizedStory, "requirements" | "roster">): NormalizedStory["requirements"] => {
   const members = story.requirements?.members;
   return members?.length ? { ...story.requirements, members: castMemberNames(story.roster ?? [], members) } : story.requirements;
 };
 
-export function evaluateRequirements(story: NormalizedStoryV2 | null, options: RequirementsOptions,
+export function evaluateRequirements(story: NormalizedStory | null, options: RequirementsOptions,
   storyCast: Array<{ member: string; disabled: boolean }> = [], activeCast?: unknown): RequirementsState {
   if (!story) return { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
   const context = getContext();

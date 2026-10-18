@@ -1,8 +1,7 @@
-import { isValidationErrorList, type StoryV2, type ValidationError } from "./schema";
-import { parseStoryV2, parseStoryV2OrThrow } from "./validate";
+import { isValidationErrorList, type Story, type ValidationError } from "./schema";
+import { parseStory, parseStoryOrThrow } from "./validate";
 
-const story = (reasoning: unknown): StoryV2 => ({
-  format: 2,
+const story = (reasoning: unknown): Story => ({
   id: "reasoning-fixture",
   title: "Reasoning fixture",
   description: "A climax.",
@@ -13,30 +12,30 @@ const story = (reasoning: unknown): StoryV2 => ({
 });
 
 const errors = (json: unknown): ValidationError[] => {
-  const parsed = parseStoryV2(json);
+  const parsed = parseStory(json);
   return isValidationErrorList(parsed) ? parsed : [];
 };
 
 describe("R4: checkpoint effects.reasoning", () => {
   it.each(["off", "low", "medium", "high"])("keeps the story default %s independently of the checkpoint", (level) => {
-    const parsed = parseStoryV2OrThrow({ ...story("high"), reasoning: level });
+    const parsed = parseStoryOrThrow({ ...story("high"), reasoning: level });
     expect(parsed.reasoning).toBe(level);
     expect(parsed.checkpointById.cp1.effects?.reasoning).toBe("high");
   });
 
   it("normalizes the story default and refuses invalid values at the story path", () => {
-    expect(parseStoryV2OrThrow({ ...story("high"), reasoning: " LOW " }).reasoning).toBe("low");
+    expect(parseStoryOrThrow({ ...story("high"), reasoning: " LOW " }).reasoning).toBe("low");
     for (const reasoning of ["max", "", 2, true, null, { level: "high" }]) {
       expect(errors({ ...story("high"), reasoning })).toEqual([{ path: "reasoning", message: "reasoning must be off, low, medium or high" }]);
     }
-    expect(parseStoryV2OrThrow(story("high")).reasoning).toBeUndefined();
+    expect(parseStoryOrThrow(story("high")).reasoning).toBeUndefined();
   });
   it.each(["off", "low", "medium", "high"])("keeps %s", (level) => {
-    expect(parseStoryV2OrThrow(story(level)).checkpointById.cp1.effects?.reasoning).toBe(level);
+    expect(parseStoryOrThrow(story(level)).checkpointById.cp1.effects?.reasoning).toBe(level);
   });
 
   it("normalizes case and whitespace at parse", () => {
-    expect(parseStoryV2OrThrow(story(" HIGH ")).checkpointById.cp1.effects?.reasoning).toBe("high");
+    expect(parseStoryOrThrow(story(" HIGH ")).checkpointById.cp1.effects?.reasoning).toBe("high");
   });
 
   it.each([["max"], ["default"], [""], [2], [true], [{ level: "high" }]])("refuses %p by path", (value) => {
@@ -44,7 +43,7 @@ describe("R4: checkpoint effects.reasoning", () => {
   });
 
   it("control: a checkpoint without the key carries none", () => {
-    const parsed = parseStoryV2OrThrow({ ...story("off"), checkpoints: [{ id: "cp1", name: "The road", objective: "Walk", type: "anchor", start: true, effects: {} }] });
+    const parsed = parseStoryOrThrow({ ...story("off"), checkpoints: [{ id: "cp1", name: "The road", objective: "Walk", type: "anchor", start: true, effects: {} }] });
     expect(parsed.checkpointById.cp1.effects?.reasoning).toBeUndefined();
   });
 });

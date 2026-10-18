@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import type { SchedulerJob } from "@extraction/index";
 import type { DirectorProposal } from "@generation/living/types";
 import type { LivingCoordinator, LivingCoordinatorDeps, LivingDecision, LivingSaveOutcome } from "./coordinators/livingCoordinator";
@@ -42,7 +42,7 @@ export class LivingPort {
   }
 
   relevant(): boolean {
-    const story: NormalizedStoryV2 | null = this.deps.getStory();
+    const story: NormalizedStory | null = this.deps.getStory();
     return Boolean(story && (story.living || this.tracks() || this.deps.branching()));
   }
 

@@ -11,7 +11,7 @@ jest.mock("@extraction/index", () => ({
   getChatWindow: () => ({ from: 0, to: 0, messages: [] }),
 }));
 
-import { StoryEngine, type EngineState, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
+import { StoryEngine, type EngineState, type NormalizedStory, type Story } from "@engine/index";
 import { mergeExpansions } from "@generation/merge";
 import type { ExpansionCacheEntry, ExpansionRuntimeState } from "@generation/types";
 import { ExpansionCoordinator } from "./coordinators/expansionCoordinator";
@@ -20,8 +20,7 @@ import { derivePipelineStatus } from "./pipeline";
 import type { RuntimeExtras } from "./types";
 import { testOwnership } from "../../test/findings/testOwnership";
 
-const RAW: StoryV2 = {
-  format: 2,
+const RAW: Story = {
   id: "t61-road",
   title: "Road",
   description: "T6-1-2 shape: a generated chain off a stub, left by the stub's own exit into an anchor with a state snapshot.",
@@ -41,7 +40,7 @@ const RAW: StoryV2 = {
     { from: "on-road", to: "walls", priority: 1, gate: { q: "arrived", op: "==", v: true } },
   ],
   roster: [],
-} as unknown as StoryV2;
+} as unknown as Story;
 
 const beat = (id: string, deltas: Array<{ q: string; v: string }> = []) => ({ id, title: `Beat ${id}`, objective: "Keep going.", guidance: "Go.", tension_target: "medium", outcomes: [{ id: `${id}:0`, label: "rest", gate: { q: "rested", op: "==", v: true }, deltas }] });
 
@@ -56,7 +55,7 @@ const host = { now: () => 1000 };
 const harness = (options: { restore?: boolean } = {}) => {
   const engine = new StoryEngine(host);
   const expansion: ExpansionRuntimeState = { entries: { "road->on-road->walls": entry() }, scheduler: { queueDepth: 0, inFlight: false, lastError: null } };
-  let story: NormalizedStoryV2 = mergeExpansions(RAW, expansion.entries);
+  let story: NormalizedStory = mergeExpansions(RAW, expansion.entries);
   engine.loadStory(story);
   const coordinator = new ExpansionCoordinator({ hosts: { player: { getPlayerName: () => "Max" } }, ownership: testOwnership(),
     getStory: () => story,

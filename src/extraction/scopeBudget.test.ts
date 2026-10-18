@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, type BlackboardSnapshot, type StoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type BlackboardSnapshot, type Story } from "@engine/index";
 import { deriveScopeExplained, deriveScopeWithSources, scopeOverflow } from "./scope";
 import { fitScopeBudget, rotated, SCOPE_EXTRA_TOKENS, scopeSlots } from "./scopeBudget";
 import {
@@ -12,8 +12,8 @@ const QUESTS = 4;
 const HAIR_RULE = "Write a short factual value only when the scene confirms it. A suggestion, question, hypothetical, intention or an unconfirmed attempt changes nothing. "
   + "Keep the previous established value when the scene does not show a change.";
 
-const castStory = (quests = QUESTS): StoryV2 => ({
-  format: 2, title: "Combined scope", description: "Synthetic 7-member cast with side quests, relationships and card fields.",
+const castStory = (quests = QUESTS): Story => ({
+  title: "Combined scope", description: "Synthetic 7-member cast with side quests, relationships and card fields.",
   roster: MEMBERS.map((id, at) => ({
     id, name: id.toUpperCase(), role: `member ${at + 1}`,
     card: { fields: { hair: { quality: `hair_${id}`, visual: true } } },
@@ -29,9 +29,9 @@ const castStory = (quests = QUESTS): StoryV2 => ({
   checkpoints: [{ id: "a", name: "A", type: "anchor", start: true, objective: "Go." }, { id: "b", name: "B", type: "anchor", objective: "Stop." }],
   transitions: [{ from: "a", to: "b", priority: 0, gate: { q: "rel_m1_player_trust", op: ">=", v: 2 } }],
   quests: Array.from({ length: quests }, (_, at) => ({ id: `q${at}`, title: `Quest ${at}`, kind: "side" as const, steps: [], done_when: { q: `k${at}`, op: "==" as const, v: true } })),
-} as unknown as StoryV2);
+} as unknown as Story);
 
-const STORY = parseStoryV2OrThrow(castStory());
+const STORY = parseStoryOrThrow(castStory());
 const COST = questionCost(STORY);
 const context = (rotation: number, drafted = "m1") => ({ present: [...MEMBERS], drafted, rotation });
 const scopeKeys = (rotation: number, sources: readonly ScopeSource[] = SCOPE_SOURCES, drafted = "m1") =>
@@ -131,7 +131,7 @@ describe("S-17 combined scope budget: 7-member cast, 4 active quests, relationsh
   });
 
   it("more active quests than the quest cap take turns, so none is left out for more than 3 reads", () => {
-    const crowded = parseStoryV2OrThrow(castStory(QUEST_SCOPE_CAP + 3));
+    const crowded = parseStoryOrThrow(castStory(QUEST_SCOPE_CAP + 3));
     const all = Array.from({ length: QUEST_SCOPE_CAP + 3 }, (_, at) => `k${at}`);
     const lastSeen = new Map<string, number>();
     let worst = 0;
@@ -207,7 +207,7 @@ describe("S-17 combined scope budget: 7-member cast, 4 active quests, relationsh
   });
 
   it("with fewer game keys the leftover budget goes back to card pulls", () => {
-    const small = parseStoryV2OrThrow({ ...castStory(1), roster: castStory(1).roster.map((member, at) => (at === 0 ? { ...member, relationships: [{ toward: "player", axes: ["trust"], range: [-3, 3] }] } : { id: member.id, name: member.name, role: member.role, card: member.card })) } as unknown as StoryV2);
+    const small = parseStoryOrThrow({ ...castStory(1), roster: castStory(1).roster.map((member, at) => (at === 0 ? { ...member, relationships: [{ toward: "player", axes: ["trust"], range: [-3, 3] }] } : { id: member.id, name: member.name, role: member.role, card: member.card })) } as unknown as Story);
     const reads = readScopeSources(SCOPE_SOURCES, small, empty, context(0), new Set());
     expect(reads.find((read) => read.kind === "card")?.keys.length).toBeGreaterThanOrEqual(MEMBERS.length - 2);
   });
@@ -225,12 +225,12 @@ describe("S-17 combined scope budget: 7-member cast, 4 active quests, relationsh
 describe("F27: a key the scope will not carry costs nothing", () => {
   const hinted = () => {
     const raw = castStory();
-    return parseStoryV2OrThrow({
+    return parseStoryOrThrow({
       ...raw,
       checkpoints: [...raw.checkpoints, { id: "c", name: "C", type: "anchor", objective: "Later." }],
       transitions: [...raw.transitions, { from: "b", to: "c", priority: 0, gate: { q: "k0", op: "==", v: true } }],
       qualities: raw.qualities.map((quality) => (quality.key.startsWith("k") ? { ...quality, scope_hint: { from: "c" } } : quality)),
-    } as unknown as StoryV2);
+    } as unknown as Story);
   };
 
   it("a quest key hinted for a later checkpoint is not offered, so the budget it would have used goes to pairs and cards", () => {
@@ -253,7 +253,7 @@ describe("F27: a key the scope will not carry costs nothing", () => {
 
 describe("payload invariance: a story with no quests and no relationships reads what it read before the budget", () => {
   it("card pulls alone are never cut", () => {
-    const cards = parseStoryV2OrThrow({ ...castStory(0), quests: undefined, transitions: [], roster: castStory(0).roster.map((member) => ({ id: member.id, name: member.name, role: member.role, card: member.card })) } as unknown as StoryV2);
+    const cards = parseStoryOrThrow({ ...castStory(0), quests: undefined, transitions: [], roster: castStory(0).roster.map((member) => ({ id: member.id, name: member.name, role: member.role, card: member.card })) } as unknown as Story);
     const reads = readScopeSources(SCOPE_SOURCES, cards, empty, context(0));
     expect(reads).toEqual(SCOPE_SOURCES.map((source) => ({ kind: source.kind, cap: source.cap, ...readScopeSource(source, cards, empty, context(0)) })));
     expect(reads.find((read) => read.kind === "card")?.keys).toHaveLength(MEMBERS.length);

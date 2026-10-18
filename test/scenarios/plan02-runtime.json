@@ -4,7 +4,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "title": "Runtime Gate Check",
         "description": "Plan 02 live runtime validation story.",
         "requirements": { "members": ["DM Narrator"] },

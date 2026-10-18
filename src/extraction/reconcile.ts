@@ -1,8 +1,8 @@
-import { isOpenStretch, readsWorldEvidence, type GateNode, type NormalizedStoryV2, type PrimitiveValue, type Quality } from "@engine/index";
+import { isOpenStretch, readsWorldEvidence, type GateNode, type NormalizedStory, type PrimitiveValue, type Quality } from "@engine/index";
 import type { ChatWindowReader, ReconciliationDescriptor, SharedReadWindow } from "./types";
 import type { ExtractionScheduler } from "./scheduler";
 
-const collectUnmet = (gate: GateNode, story: NormalizedStoryV2, values: Record<string, unknown>, keys: Set<string>) => {
+const collectUnmet = (gate: GateNode, story: NormalizedStory, values: Record<string, unknown>, keys: Set<string>) => {
   if ("q" in gate) {
     const quality = story.qualityByKey[gate.q];
     if (quality?.source === "extractor") keys.add(gate.q);
@@ -50,7 +50,7 @@ export interface ReconciliationPlan {
   leaves: Array<{ q: string; rubric: string; type: Quality["type"]; op: string; v: PrimitiveValue | PrimitiveValue[]; world?: boolean }>;
 }
 
-const collectUnmetLeaves = (gate: GateNode, story: NormalizedStoryV2, values: Record<string, unknown>, out: ReconciliationPlan["leaves"]) => {
+const collectUnmetLeaves = (gate: GateNode, story: NormalizedStory, values: Record<string, unknown>, out: ReconciliationPlan["leaves"]) => {
   if ("q" in gate) {
     const quality = story.qualityByKey[gate.q];
     if (quality?.source === "extractor" && !compareLeaf(
@@ -71,7 +71,7 @@ const collectUnmetLeaves = (gate: GateNode, story: NormalizedStoryV2, values: Re
 };
 
 // The stall, planned but not scheduled, so a judge pre-check can decide first.
-export function planReconciliation(story: NormalizedStoryV2 | null, state: ReconcileState | null, multiplier: number, readWindow: ChatWindowReader): ReconciliationPlan | null {
+export function planReconciliation(story: NormalizedStory | null, state: ReconcileState | null, multiplier: number, readWindow: ChatWindowReader): ReconciliationPlan | null {
   if (!story || !state) return null;
   const checkpoint = story.checkpointById[state.activeCheckpointId];
   if (isOpenStretch(checkpoint)) return null;
@@ -98,7 +98,7 @@ export function planReconciliation(story: NormalizedStoryV2 | null, state: Recon
 }
 
 export function maybeScheduleReconciliation(
-  story: NormalizedStoryV2 | null, state: ReconcileState | null, multiplier: number, scheduler: ExtractionScheduler, readWindow: ChatWindowReader,
+  story: NormalizedStory | null, state: ReconcileState | null, multiplier: number, scheduler: ExtractionScheduler, readWindow: ChatWindowReader,
 ): ReconciliationDescriptor | null {
   const plan = planReconciliation(story, state, multiplier, readWindow);
   if (!plan) return null;

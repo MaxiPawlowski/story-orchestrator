@@ -9,7 +9,7 @@ jest.mock("@services/STAPI", () => ({
 
 jest.mock("./settingsStore", () => ({ getGlobalSettings: () => ({ copilot: { enabled: true, ask: host.ask } }) }));
 
-import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { parseStoryOrThrow, type EngineState } from "@engine/index";
 import type { ExtractionReply, ModelAsk } from "@extraction/index";
 import { emptyEnvironment } from "@wizard/index";
 import { PLAYER_REFUSAL } from "@copilot/agent/ask";
@@ -20,8 +20,8 @@ import { answerText, ASK_HOST_COPY, askInChat, chatAskContext, type AskManager }
 import { liveStateText } from "./askLiveState";
 import type { RuntimeSnapshot } from "./types";
 
-const story = parseStoryV2OrThrow({
-  format: 2, id: "host", title: "Host", description: "d",
+const story = parseStoryOrThrow({
+  id: "host", title: "Host", description: "d",
   qualities: [{ key: "secret_known", type: "bool", source: "extractor", rubric: "Known?" }],
   checkpoints: [
     { id: "a", name: "a-internal", player_name: "The Hall", objective: "Talk.", type: "anchor", start: true },

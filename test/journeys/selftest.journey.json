@@ -47,7 +47,6 @@
       "steps": [
         {
           "import_story": {
-            "format": 2,
             "title": "Journey selftest",
             "description": "Minimal story so the drawer renders; no gates, no model calls.",
             "qualities": [

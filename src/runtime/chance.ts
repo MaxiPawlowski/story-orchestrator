@@ -1,5 +1,5 @@
 import { chanceSeed, rollOutcome, seededStream, unitDraw } from "@engine/chance";
-import type { DerivedQualityView, NormalizedStoryV2, PrimitiveValue, Quality } from "@engine/index";
+import type { DerivedQualityView, NormalizedStory, PrimitiveValue, Quality } from "@engine/index";
 import { checkGateValues } from "./storyCheckDraws";
 import type { LoadedStory } from "./types";
 
@@ -11,7 +11,7 @@ export interface ChanceIds {
 export interface ChanceContext extends ChanceIds {
   boundary: number;
   qualities: readonly Quality[];
-  story?: NormalizedStoryV2;
+  story?: NormalizedStory;
 }
 
 export const chanceContext = (loaded: Pick<LoadedStory, "story" | "record"> | null, chatId: string | null, boundary: number): ChanceContext | null => {

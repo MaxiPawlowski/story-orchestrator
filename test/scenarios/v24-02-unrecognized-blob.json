@@ -4,7 +4,7 @@
   "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"],"judge":"off"},
   "steps": [
     {
-      "eval": "globalThis.__v2402LibBefore = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.v2Stories ?? []).map((r) => r.id); return { libraryBefore: globalThis.__v2402LibBefore };",
+      "eval": "globalThis.__v2402LibBefore = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.stories ?? []).map((r) => r.id); return { libraryBefore: globalThis.__v2402LibBefore };",
       "log": true
     },
     {
@@ -72,7 +72,7 @@
       "log": true
     },
     {
-      "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = globalThis.__v2402LibBefore; if (!Array.isArray(before)) throw new Error('the library was not captured before the import'); const added = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.v2Stories ?? []).map((r) => r.id).filter((id) => !before.includes(id)); const removed = []; for (const id of added) { if (!(await rt.removeStory(id))) throw new Error(`could not remove the refused import ${id} from the library`); removed.push(id); } SillyTavern.getContext().saveSettingsDebounced(); await new Promise((r) => setTimeout(r, 2500)); return { removed };",
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = globalThis.__v2402LibBefore; if (!Array.isArray(before)) throw new Error('the library was not captured before the import'); const added = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.stories ?? []).map((r) => r.id).filter((id) => !before.includes(id)); const removed = []; for (const id of added) { if (!(await rt.removeStory(id))) throw new Error(`could not remove the refused import ${id} from the library`); removed.push(id); } SillyTavern.getContext().saveSettingsDebounced(); await new Promise((r) => setTimeout(r, 2500)); return { removed };",
       "log": true
     }
   ]

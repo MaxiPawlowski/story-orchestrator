@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { StoryEngine, parseStoryV2OrThrow, TENSION_CURRENT_KEY } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, TENSION_CURRENT_KEY } from "@engine/index";
 import { unitDraw } from "@engine/chance";
 import {
   COMPLICATION_KEY, composeComplication, createComplicationSeam, deriveReleases, pendingRelease, readComplicationPools,
@@ -11,7 +11,7 @@ import { defaultSpikeSettings } from "../settingsModel";
 import { spikeSeams } from "../spikeSeams";
 
 const raw = JSON.parse(readFileSync(join(__dirname, "../../../test/fixtures/sp6-complications.story.json"), "utf8"));
-const story = parseStoryV2OrThrow(raw);
+const story = parseStoryOrThrow(raw);
 const pools = readComplicationPools(raw);
 const BOUNDARIES = 150;
 const CUTS = 100;

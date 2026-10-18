@@ -3,7 +3,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "title": "Epistemic and Ledger Gate Check",
         "description": "Plan 10 deterministic epistemic map + state ledger validation.",
         "qualities": [

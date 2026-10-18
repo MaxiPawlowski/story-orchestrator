@@ -1,4 +1,4 @@
-import { parseStoryV2 } from "@engine/index";
+import { parseStory } from "@engine/index";
 import { parseProposal } from "@copilot/index";
 import { applyAgentOp, checkToolCall, describeAgentOp } from "../copilot/agent";
 import { runDiagnostics } from "./diagnostics";
@@ -14,7 +14,7 @@ const base = () => ({
 
 describe("inner voice schema (v2.6 plan 06 A, D)", () => {
   it("parses drive, view and motives as optional authored fields, trimmed", () => {
-    const parsed = parseStoryV2({
+    const parsed = parseStory({
       ...base(),
       roster: [{ id: "kael", name: "Kael", drive: "  clear his name " }, { id: "dm", view: "omniscient" }],
       checkpoints: [{ ...newStoryDraft().checkpoints[0], motives: { kael: " get the ledger ", lyria: "   " } }],
@@ -26,7 +26,7 @@ describe("inner voice schema (v2.6 plan 06 A, D)", () => {
   });
 
   it("refuses a wrong-typed drive, an unknown view and a non-text motive", () => {
-    const errors = parseStoryV2({
+    const errors = parseStory({
       ...base(),
       roster: [{ id: "kael", drive: 3 }, { id: "dm", view: "god" }],
       checkpoints: [{ ...newStoryDraft().checkpoints[0], motives: { kael: 1 } }],

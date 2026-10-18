@@ -1,6 +1,6 @@
 import { routeFailure, studioFailure } from "../errorCopy";
 import React, { useEffect, useRef, useState } from "react";
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { COPILOT_STAGES, applyOp, applyOps, isProvisioningOp, provisioningFollowUpOps, type AuthoringStageInput, type CopilotMessage, type CopilotStage, type ProposalResult } from "@copilot/index";
 import {
   emptyEnvironment, entryKey, grantCandidates, revokeCandidates, newWizardSession, provisioningSeed, renderAnswers,
@@ -65,9 +65,9 @@ export const WIZARD_STEPS: WizardStep[] = [
 export const stepForStage = (stage: CopilotStage): WizardStep => WIZARD_STEPS.find((step) => step.stages.includes(stage)) ?? WIZARD_STEPS[0];
 
 export interface WizardHost {
-  environment: (draft?: StoryV2) => ProvisioningEnvironment;
-  applyProvisioning: (op: ProvisioningOp, draft: StoryV2) => Promise<ProvisioningResult>;
-  recheckCard?: (op: Extract<ProvisioningOp, { kind: "createCharacterCard" }>, avatar: string, draft: StoryV2) => Promise<CardReadBackRecord>;
+  environment: (draft?: Story) => ProvisioningEnvironment;
+  applyProvisioning: (op: ProvisioningOp, draft: Story) => Promise<ProvisioningResult>;
+  recheckCard?: (op: Extract<ProvisioningOp, { kind: "createCharacterCard" }>, avatar: string, draft: Story) => Promise<CardReadBackRecord>;
   readEntry?: (lorebook: string, comment: string) => Promise<ExistingEntry | null>;
   loadSession?: (key: string) => WizardSessionState | null;
   saveSession?: (session: WizardSessionUpdate) => void;

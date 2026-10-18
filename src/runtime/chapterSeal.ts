@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStory } from "@engine/index";
 import { maxTokensCap, maxTokensForInput } from "@extraction/callBudget";
 import { lapseAsEmpty } from "@extraction/modelError";
 import { askReply, type ModelCall } from "@extraction/modelRoute";
@@ -49,7 +49,7 @@ interface SealRun {
 }
 
 export interface ChapterSealDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   memory: () => MemoryRuntimeState;
   patch: (next: Partial<MemoryRuntimeState>) => void;
@@ -85,7 +85,7 @@ export const sealDeps = (host: ChapterHost): ChapterSealDeps => {
 
 const inRange = (messageId: number | undefined, range: { from: number; to: number }) => typeof messageId === "number" && messageId >= range.from && messageId <= range.to;
 
-const castDisabled = (story: NormalizedStoryV2, checkpointId: string): unknown => {
+const castDisabled = (story: NormalizedStory, checkpointId: string): unknown => {
   const changes = story.checkpointById[checkpointId]?.effects?.cast_changes;
   return changes && typeof changes === "object" ? (changes as { disable?: unknown }).disable : undefined;
 };
@@ -122,7 +122,7 @@ export class ChapterSeal {
     }
   }
 
-  private async run(story: NormalizedStoryV2, target: SealTarget, at: SealAt): Promise<ChapterRecord | null> {
+  private async run(story: NormalizedStory, target: SealTarget, at: SealAt): Promise<ChapterRecord | null> {
     const records = this.deps.memory().chapters ?? [];
     const range = sealRange(records, this.deps.memory().storyStart, at.messageId);
     const guard = beginRun(this.deps.ownership(), range);
@@ -193,7 +193,7 @@ export class ChapterSeal {
     return "";
   }
 
-  private async prepare(story: NormalizedStoryV2, target: SealTarget, raw: ChapterInput, style: "prose" | "chronicle", run: SealRun): Promise<ReducedChapterInput | null> {
+  private async prepare(story: NormalizedStory, target: SealTarget, raw: ChapterInput, style: "prose" | "chronicle", run: SealRun): Promise<ReducedChapterInput | null> {
     const title = playerTitleOf(target.chapter);
     const fits = (candidate: ChapterInput) => estimateTokens(buildChapterRecordPrompt(story.title, title, candidate, style)) <= CHAPTER_INPUT_TOKENS;
     if (fits(raw)) return { input: raw, sources: new Map() };
@@ -209,7 +209,7 @@ export class ChapterSeal {
     return { input: clipChapterInput(reduced.input, fits), sources: reduced.sources };
   }
 
-  private async write(story: NormalizedStoryV2, target: SealTarget, prepared: ReducedChapterInput, raw: ChapterInput, style: "prose" | "chronicle", known: string[], run: SealRun) {
+  private async write(story: NormalizedStory, target: SealTarget, prepared: ReducedChapterInput, raw: ChapterInput, style: "prose" | "chronicle", known: string[], run: SealRun) {
     const { input } = prepared;
     let failures: string[] = [];
     for (let attempt = 0; attempt < WRITE_ATTEMPTS; attempt += 1) {
@@ -227,7 +227,7 @@ export class ChapterSeal {
     return { record: degradedChapterRecord(raw), status: "degraded" as const, failures };
   }
 
-  private async judgeConsequences(story: NormalizedStoryV2, record: ParsedChapterRecord, input: ChapterInput, run: SealRun): Promise<string[] | null> {
+  private async judgeConsequences(story: NormalizedStory, record: ParsedChapterRecord, input: ChapterInput, run: SealRun): Promise<string[] | null> {
     const judge = this.deps.judge?.() ?? null;
     if (!judge?.active("memoryVerify") || !record.consequences.length) return [];
     const sources = new Map<string, { id: string; speaker: string; text: string }>([
@@ -305,7 +305,7 @@ export class ChapterSeal {
     this.deps.record({ kind: "chapter_seal", inputs: [...folded.folded, ...folded.resolved, ...knowledge.folded], outputId: record.id, messageId: record.sealedAt.messageId, ...range });
   }
 
-  private async saga(story: NormalizedStoryV2, sealed: ChapterRecord[], outcome: string[], run: SealRun): Promise<string | null> {
+  private async saga(story: NormalizedStory, sealed: ChapterRecord[], outcome: string[], run: SealRun): Promise<string | null> {
     const cast = [...this.deps.roster().map((member) => member.name), this.deps.playerName(), story.title];
     const records = restingRecords(sealed, this.deps.resting());
     let text = "";

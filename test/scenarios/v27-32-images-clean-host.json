@@ -15,7 +15,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-32-clean-host",
         "title": "SO 32 clean host",
         "description": "Synthetic illustrated story on a host with no image service.",

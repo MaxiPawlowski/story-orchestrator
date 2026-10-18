@@ -1,9 +1,9 @@
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { changedLookIssues, type LookActor } from "./lookHealth";
 import { defaultSpriteSettings } from "./settings";
 
 test("changed-look readiness reports missing references and backend failures, but not matched, cached, muted or inactive looks", () => {
-  const story = parseStoryV2OrThrow({ format: 2, title: "Changed look", description: "Synthetic readiness.",
+  const story = parseStoryOrThrow({ title: "Changed look", description: "Synthetic readiness.",
     roster: [{ id: "arin", name: "Arin", card: { fields: { hair: { quality: "hair", visual: true } } } }],
     qualities: [{ key: "hair", type: "string", source: "extractor", rubric: "Current hair colour." }],
     checkpoints: [{ id: "start", name: "Start", type: "anchor", start: true, objective: "Begin." }], transitions: [] });

@@ -1,8 +1,8 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { DIAGNOSTIC_CONSEQUENCES, runDiagnostics } from "./diagnostics";
 
-const story = (briefingText: string, extra: Partial<StoryV2> = {}): StoryV2 => ({
-  format: 2, id: "spoil", title: "Spoil", description: "d",
+const story = (briefingText: string, extra: Partial<Story> = {}): Story => ({
+  id: "spoil", title: "Spoil", description: "d",
   qualities: [{ key: "fate", type: "enum", source: "extractor", rubric: "Fate?", values: ["undecided", "betrayed", "spared"] }],
   roster: [{ id: "mara", name: "Mara" }, { id: "kael", name: "Kael", aliases: ["the stranger"] }],
   checkpoints: [
@@ -14,7 +14,7 @@ const story = (briefingText: string, extra: Partial<StoryV2> = {}): StoryV2 => (
   ...extra,
 });
 
-const spoilers = (draft: StoryV2) => runDiagnostics(draft).filter((diagnostic) => diagnostic.code === "briefing-spoiler-risk");
+const spoilers = (draft: Story) => runDiagnostics(draft).filter((diagnostic) => diagnostic.code === "briefing-spoiler-risk");
 
 describe("v2.7 05 briefing-spoiler-risk", () => {
   it("names a later checkpoint, its id, a story value and a character muted at the start", () => {

@@ -1,7 +1,7 @@
-import { isValidationErrorList, parseStoryV2, type StoryV2, type StoryWidget } from "@engine/index";
+import { isValidationErrorList, parseStory, type Story, type StoryWidget } from "@engine/index";
 
-const base = (widgets: unknown[]): StoryV2 => ({
-  format: 2, id: "w", title: "Widgets", description: "Synthetic.", roster: [{ id: "keeper", name: "Keeper" }],
+const base = (widgets: unknown[]): Story => ({
+  id: "w", title: "Widgets", description: "Synthetic.", roster: [{ id: "keeper", name: "Keeper" }],
   qualities: [
     { key: "found_ledger", type: "bool", source: "extractor", rubric: "Found the ledger?" },
     { key: "searched", type: "bool", source: "extractor", rubric: "Searched the dock?" },
@@ -11,7 +11,7 @@ const base = (widgets: unknown[]): StoryV2 => ({
   checkpoints: [{ id: "start", name: "Start", type: "anchor", start: true, objective: "Begin." }, { id: "dock", name: "Dock", type: "anchor", objective: "Dock." }],
   transitions: [{ from: "start", to: "dock", priority: 0, gate: { q: "searched", op: "==", v: true } }],
   widgets,
-} as unknown as StoryV2);
+} as unknown as Story);
 
 const clues = (extra: Record<string, unknown> = {}) => ({
   id: "wall", kind: "clues", title: "Clue wall",
@@ -31,13 +31,13 @@ const html = (extra: Record<string, unknown> = {}) => ({
 });
 
 const widgetsOf = (widgets: unknown[]): StoryWidget[] => {
-  const parsed = parseStoryV2(base(widgets));
+  const parsed = parseStory(base(widgets));
   if (isValidationErrorList(parsed)) throw new Error(parsed.map((error) => `${error.path}: ${error.message}`).join("; "));
   return parsed.widgets ?? [];
 };
 
 const errorsOf = (widgets: unknown[]): string[] => {
-  const parsed = parseStoryV2(base(widgets));
+  const parsed = parseStory(base(widgets));
   return isValidationErrorList(parsed) ? parsed.map((error) => `${error.path}: ${error.message}`) : [];
 };
 

@@ -7,15 +7,14 @@ jest.mock("@services/STAPI", () => ({
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { runAuthoringStage, runDriverReport, runDriverSuggest } from "./authoring";
 import type { DriverContext } from "./types";
 import type { ProvisioningEnvironment } from "@wizard/types";
 
 const readGolden = (name: string): string => readFileSync(join(process.cwd(), "test/goldens", name), "utf8");
 
-const baseDraft = (): StoryV2 => ({
-  format: 2,
+const baseDraft = (): Story => ({
   title: "The Vault Job",
   description: "A heist.",
   qualities: [{ key: "has_key", type: "bool", source: "extractor", rubric: "Does the crew have the vault key?" }],
@@ -108,7 +107,7 @@ describe("runAuthoringStage", () => {
   });
 
   it("control: a transitions proposal that leaves that intermediate unconnected fails, and carries no deferred note", async () => {
-    const draft: StoryV2 = { ...baseDraft(), checkpoints: [...baseDraft().checkpoints, { id: "lobby", name: "Lobby", objective: "Crack the lobby door.", type: "intermediate" }] };
+    const draft: Story = { ...baseDraft(), checkpoints: [...baseDraft().checkpoints, { id: "lobby", name: "Lobby", objective: "Crack the lobby door.", type: "intermediate" }] };
     const response = JSON.stringify({ summary: "", ops: [{ kind: "addTransition", transition: { from: "start", to: "vault", priority: 1, gate: { q: "has_key", op: "==", v: true } } }] });
     const result = await runAuthoringStage({ draft, stage: "transitions", message: "", history: [] }, plantedModel, { role: "authoring", pass: "copilot", debugResponse: response });
     expect(result.status).toBe("failed");

@@ -1,10 +1,10 @@
 # Example stories
 
-Polished, ready-to-run format-2 stories for Story Orchestrator.
+Polished, ready-to-run stories for Story Orchestrator.
 
 ## Quest for the Sun Ruins (`sun-ruins/`)
 
-A branching adventure that exercises the full v2 spine: latching and enum qualities, typed
+A branching adventure that exercises the whole engine: latching and enum qualities, typed
 gates (with `extractor_trigger` cues), a two-way branch (bring Luke or not) that reconverges,
 a sphinx-riddle sub-branch, checkpoint effects (author's note, world info, `cast_changes`,
 `npc_replies`, a preset override), convergence progress toward the finale anchor, arc bridges,

@@ -68,7 +68,6 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 const story = {
-  format: 2,
   id: "fp-story",
   title: "Fingerprint story",
   description: "Fingerprint reconcile fixture.",

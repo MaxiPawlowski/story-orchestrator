@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import type { ExtractionReply, ModelAsk, ModelCall } from "@extraction/modelRoute";
 import { ModelCallError } from "@extraction/modelError";
 import { emptyEnvironment } from "@wizard/index";
@@ -10,8 +10,8 @@ const AT = "2026-10-02T20:30:00.000Z";
 const TARGET = { harness: "opencode", model: "openai/gpt-6-astra-fast", timeoutMs: 600_000 };
 const FELL_BACK = { from: "harness:opencode:openai/gpt-6-astra-fast", fromLabel: "opencode · openai/gpt-6-astra-fast", kind: "quota", reason: "", by: "deepseek", label: "deepseek 4.1 flash", model: "deepseek-v4-flash" };
 
-const story = (): StoryV2 => ({
-  format: 2, title: "Fallback", description: "", qualities: [],
+const story = (): Story => ({
+  title: "Fallback", description: "", qualities: [],
   checkpoints: [{ id: "start", name: "Start", objective: "Begin.", type: "anchor", start: true }], transitions: [], roster: [],
 });
 

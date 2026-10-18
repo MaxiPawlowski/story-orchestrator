@@ -1,6 +1,6 @@
 import type { Blackboard } from "./blackboard";
 import { evaluateGate, gateKeys, type GateReader } from "./gates";
-import { hasCodex, hasLabels, questClosedKey, questRewardKey, type GateNode, type Milestone, type NormalizedStoryV2, type Quality, type Quest, type QuestStep } from "./schema";
+import { hasCodex, hasLabels, questClosedKey, questRewardKey, type GateNode, type Milestone, type NormalizedStory, type Quality, type Quest, type QuestStep } from "./schema";
 
 export type QuestStatus = "hidden" | "offered" | "active" | "done" | "failed";
 export type StepStatus = "hidden" | "open" | "done" | "failed";
@@ -30,7 +30,7 @@ export const isClosed = (status: QuestStatus): boolean => status === "done" || s
 
 export const valueReader = (values: Record<string, unknown>): GateReader => ({ get: (key) => values[key] as ReturnType<GateReader["get"]> });
 
-export const hasGameLayer = (story: Pick<NormalizedStoryV2, "quests" | "milestones" | "widgets" | "qualities" | "codex" | "factions" | "life"> | null | undefined): boolean =>
+export const hasGameLayer = (story: Pick<NormalizedStory, "quests" | "milestones" | "widgets" | "qualities" | "codex" | "factions" | "life"> | null | undefined): boolean =>
   Boolean(story && (story.quests?.length || story.milestones?.length || story.widgets?.length || story.factions?.length || story.qualities.some((quality) => quality.display)
     || hasCodex(story.codex) || story.life?.members.some((member) => member.relationships.some(hasLabels) || member.commitments?.length)));
 
@@ -71,7 +71,7 @@ const withinStepRule = (quality: Quality | undefined, value: number): number => 
   return rule ? Math.max(rule.min ?? value, Math.min(rule.max ?? value, value)) : value;
 };
 
-export const applyQuestRewards = (story: Pick<NormalizedStoryV2, "quests" | "qualityByKey">, blackboard: Blackboard): string[] => {
+export const applyQuestRewards = (story: Pick<NormalizedStory, "quests" | "qualityByKey">, blackboard: Blackboard): string[] => {
   const landed: string[] = [];
   for (const quest of story.quests ?? []) {
     const live = blackboard.get(questClosedKey(quest.id)) === undefined ? liveStatus(quest, blackboard) : null;
@@ -92,8 +92,8 @@ export const applyQuestRewards = (story: Pick<NormalizedStoryV2, "quests" | "qua
   return landed;
 };
 
-export const questLatchesMoved = (story: Pick<NormalizedStoryV2, "quests"> | null | undefined, before: Record<string, unknown>, after: Record<string, unknown>): boolean =>
+export const questLatchesMoved = (story: Pick<NormalizedStory, "quests"> | null | undefined, before: Record<string, unknown>, after: Record<string, unknown>): boolean =>
   (story?.quests ?? []).some((quest) => [questClosedKey(quest.id), questRewardKey(quest.id)].some((key) => before[key] !== after[key]));
 
-export const rewardedQuestIds = (story: Pick<NormalizedStoryV2, "quests"> | null | undefined, values: Record<string, unknown>): string[] =>
+export const rewardedQuestIds = (story: Pick<NormalizedStory, "quests"> | null | undefined, values: Record<string, unknown>): string[] =>
   (story?.quests ?? []).filter((quest) => quest.reward && values[questRewardKey(quest.id)] === true).map((quest) => quest.id);

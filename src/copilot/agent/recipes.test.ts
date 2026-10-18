@@ -73,7 +73,7 @@ describe("v2.8 09 owner 2026-10-10: wizard recipes stay in step with the tools, 
   });
 
   it("the agent's rules list every recipe", () => {
-    const draft = { format: 2, title: "T", description: "D", qualities: [], checkpoints: [], transitions: [], roster: [] } as never;
+    const draft = { title: "T", description: "D", qualities: [], checkpoints: [], transitions: [], roster: [] } as never;
     const prompt = renderPlanPrompt({ goal: "g", notes: [], steps: [], plan: [], budget: { maxSteps: 4 } } as never, draft, { characterNames: [], lorebookNames: [], ownedLorebooks: [], castNames: [], personaNames: [] } as never);
     expect(RECIPE_IDS.filter((id) => !prompt.includes(id))).toEqual([]);
   });

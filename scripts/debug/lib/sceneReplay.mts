@@ -76,7 +76,7 @@ export async function loadFrozen(file = FRONTIERS_FILE, lockFile = LOCK_FILE): P
 }
 
 export function prepareFrontier(mod: any, frontier: Frontier) {
-  const story = mod.parseStoryV2OrThrow(frontier.story);
+  const story = mod.parseStoryOrThrow(frontier.story);
   const engine = new mod.StoryEngine({ now: () => 0 });
   engine.loadStory(story);
   const base = engine.serialize();

@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 
 const SCHEMA_CONSEQUENCES: Array<[RegExp, string]> = [
   [/no reachable anchor/i, "A player who reaches this checkpoint can never reach a turning point after it, so the story cannot be saved."],
@@ -22,9 +22,9 @@ const pick = <T extends Located>(list: readonly T[], ref: string | undefined): T
   return Number.isInteger(index) && String(index) === ref ? list[index] : list.find((entry) => entry.id === ref || entry.key === ref);
 };
 
-const checkpointName = (draft: StoryV2, id: string) => draft.checkpoints.find((checkpoint) => checkpoint.id === id)?.name ?? id;
+const checkpointName = (draft: Story, id: string) => draft.checkpoints.find((checkpoint) => checkpoint.id === id)?.name ?? id;
 
-export const placeOf = (draft: StoryV2, path: string): string => {
+export const placeOf = (draft: Story, path: string): string => {
   const [collection, ref, ...rest] = path.split(".");
   const tail = rest.length ? ` · ${rest.join(".")}` : "";
   if (collection === "checkpoints") {

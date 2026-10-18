@@ -1,4 +1,4 @@
-import type { BoundaryLogEntry, EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { BoundaryLogEntry, EngineState, NormalizedStory } from "@engine/index";
 
 type Kit = typeof import("./narratorSheet");
 
@@ -6,13 +6,13 @@ let kit: Kit | null = null;
 
 export const loadNarratorSheet = async (): Promise<Kit> => (kit ??= await import("./narratorSheet"));
 
-export const hasNarratedSheet = (story: NormalizedStoryV2 | null | undefined): boolean =>
+export const hasNarratedSheet = (story: NormalizedStory | null | undefined): boolean =>
   Boolean(story?.qualities?.some((quality) => quality.display?.public === true && quality.display.narrate !== false));
 
 export const REQUESTED_BOUNDARIES_CAP = 32;
 
 export interface NarratorSheetDeps {
-  story: () => NormalizedStoryV2 | null;
+  story: () => NormalizedStory | null;
   state: () => EngineState | null;
   log: () => readonly BoundaryLogEntry[];
   chatId: () => string | null;

@@ -1,4 +1,4 @@
-import { PLAYER_TURNS_KEY, StoryEngine, parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { PLAYER_TURNS_KEY, StoryEngine, parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { GUIDANCE_PREAMBLE, OPEN_STRETCH_LINE, encounterOfferLine, pullLine } from "@pacing/index";
 import type { PromptHost } from "../hostPorts";
@@ -12,7 +12,6 @@ const KEY = INJECTION_REGISTRY.checkpointGuidance.key;
 const ARRIVE = { all: [{ q: "reached_walls", op: "==", v: true }, { q: "lamp_lit", op: "==", v: true }] };
 
 const raw = (stretch: Record<string, unknown>) => ({
-  format: 2,
   id: "offer-road",
   title: "Offer road",
   description: "An open road between two places.",
@@ -41,7 +40,7 @@ class Play {
   readonly chat: Row[] = [];
   readonly engine: StoryEngine;
 
-  constructor(readonly story: NormalizedStoryV2) {
+  constructor(readonly story: NormalizedStory) {
     this.engine = new StoryEngine({
       now: () => 0,
       derive: (view) => [
@@ -97,8 +96,8 @@ class Play {
   }
 }
 
-const story = parseStoryV2OrThrow(raw(OFFER));
-const WITHOUT = parseStoryV2OrThrow(raw({ mode: "open", pace: "brief", arrive_when: ARRIVE }));
+const story = parseStoryOrThrow(raw(OFFER));
+const WITHOUT = parseStoryOrThrow(raw({ mode: "open", pace: "brief", arrive_when: ARRIVE }));
 const play = (loaded = story, ...turns: Array<[number, string?]>) => {
   const run = new Play(loaded);
   turns.forEach(([replies, mes]) => run.send(replies, mes));

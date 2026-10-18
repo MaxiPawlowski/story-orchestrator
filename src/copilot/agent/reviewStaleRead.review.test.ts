@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { applyAgentOp, approvePlan, decideStep, executeReply, newAgentSession, type StepMeta } from "./loop";
 import { agentContext } from "./testing";
 import type { AgentSession } from "./types";
@@ -6,8 +6,7 @@ import type { AgentSession } from "./types";
 const AT = "2026-10-16T15:00:00.000Z";
 const META: StepMeta = { route: "harness", firstTryValid: true, repaired: false, at: AT };
 
-const ferry = (): StoryV2 => ({
-  format: 2,
+const ferry = (): Story => ({
   title: "SO-W09R codex-pages",
   description: "",
   qualities: [
@@ -30,7 +29,7 @@ const ARIN_PAGE = {
 const running = (): AgentSession => approvePlan({ ...newAgentSession("codex", "review", {}, AT), plan: ["pages"], status: "awaiting-plan" }, ["pages"], AT);
 const call = (tool: string, args: Record<string, unknown>) => ({ kind: "call" as const, call: { tool, args } });
 
-const harness = (start: StoryV2) => {
+const harness = (start: Story) => {
   let draft = start;
   let session = running();
   const step = (tool: string, args: Record<string, unknown> = {}) => {

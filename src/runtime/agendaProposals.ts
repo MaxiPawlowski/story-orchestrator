@@ -1,4 +1,4 @@
-import { CLOCK_STORY_TIME_KEY, agendaStepKey, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { CLOCK_STORY_TIME_KEY, agendaStepKey, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 import { isRecord } from "@utils/guards";
 
 export const PROPOSAL_RING_CAP = 40;
@@ -110,7 +110,7 @@ export const decideProposal = (state: AgendaProposalsState, id: string, status: 
 export const landedMeanwhile = (state: AgendaProposalsState | undefined, memberId: string): string[] =>
   (state?.proposals ?? []).filter((proposal) => proposal.status === "applied" && proposal.memberId === memberId).map((proposal) => proposal.text);
 
-export const hasOpenAgenda = (story: NormalizedStoryV2 | null, values: Readonly<Record<string, PrimitiveValue>>): boolean =>
+export const hasOpenAgenda = (story: NormalizedStory | null, values: Readonly<Record<string, PrimitiveValue>>): boolean =>
   (story?.life?.members ?? []).some((member) => member.agenda.some((agenda) => {
     const done = Number(values[agendaStepKey(member.id, agenda.id)] ?? 0);
     return done < agenda.steps.length || agenda.steps.at(-1)?.repeat === true;

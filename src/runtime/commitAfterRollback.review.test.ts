@@ -50,7 +50,6 @@ jest.mock("@services/STAPI", () => ({
 const COMMIT = "\\b(?:take|takes|taking|took|taken|accept(?:s|ed|ing)?|sign(?:s|ed|ing)?|agree(?:s|d)?|agreeing|commit(?:s|ted|ting)?|we'?ll (?:go|do it|come|ride|join)|i'?ll (?:go|do it|come|ride|join)|count (?:us|me) in|we'?re in|i'?m in)\\b";
 
 const story = {
-  format: 2,
   id: "adventurer-t0",
   title: "Adventurer T0",
   description: "T0-3 commit evidence after an edit rollback.",

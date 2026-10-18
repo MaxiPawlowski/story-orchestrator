@@ -14,7 +14,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-lore-eligibility",
         "title": "SO-Lore-Eligibility",
         "description": "Synthetic drafted-member lore selection.",

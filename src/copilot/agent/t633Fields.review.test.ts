@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { emptyEnvironment } from "@wizard/index";
 import { missingAtDone } from "./finish";
 import { approvePlan, executeReply, newAgentSession, NO_CHANGE, type StepMeta } from "./loop";
@@ -9,8 +9,7 @@ import type { AgentSession } from "./types";
 const AT = "2026-10-02T21:00:00.000Z";
 const META: StepMeta = { route: "local", firstTryValid: true, repaired: false, at: AT };
 
-const map = (): StoryV2 => ({
-  format: 2,
+const map = (): Story => ({
   title: "The Red Ink",
   description: "",
   qualities: [{ key: "pen_control", type: "enum", source: "extractor", rubric: "Who holds the pen?", values: ["house_held", "contested", "apprentice_held"] }],

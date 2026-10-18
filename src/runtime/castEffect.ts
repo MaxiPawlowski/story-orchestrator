@@ -1,4 +1,4 @@
-import { resolveCastChanges, type NormalizedStoryV2 } from "@engine/index";
+import { resolveCastChanges, type NormalizedStory } from "@engine/index";
 
 export const CAST_UNRESOLVED = "cast change names no member of this group";
 export const CAST_UNRESOLVED_NOTE = "no group member has that card name and no cast member has that id, so they were left as they are";
@@ -11,7 +11,7 @@ export interface CastPlan {
   unknown: string[];
 }
 
-export const planCastChanges = (roster: NormalizedStoryV2["roster"], authored: unknown, known: (name: string) => boolean): CastPlan | null => {
+export const planCastChanges = (roster: NormalizedStory["roster"], authored: unknown, known: (name: string) => boolean): CastPlan | null => {
   const value = resolveCastChanges(roster, authored)?.changes;
   if (!value) return null;
   const disable = names(value.disable);
@@ -23,7 +23,7 @@ export const planCastChanges = (roster: NormalizedStoryV2["roster"], authored: u
   };
 };
 
-export const expectedCastMutes = (roster: NormalizedStoryV2["roster"], authored: unknown, tracked: string[]): string[] => {
+export const expectedCastMutes = (roster: NormalizedStory["roster"], authored: unknown, tracked: string[]): string[] => {
   const flags = new Map(tracked.map((name) => [name.trim().toLowerCase(), name]));
   for (const [name, disabled] of planCastChanges(roster, authored, () => true)?.changes ?? []) {
     const key = name.trim().toLowerCase();

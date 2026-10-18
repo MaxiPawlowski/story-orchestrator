@@ -1,21 +1,21 @@
 import { readFileSync } from "fs";
 import type { CarryProjection, CarryState } from "./carrySchema";
 import { join } from "path";
-import { parseStoryV2, parseStoryV2OrThrow } from "./validate";
-import { questClosedKey, standingKey, type NormalizedStoryV2, type PrimitiveValue, type ValidationError } from "./schema";
+import { parseStory, parseStoryOrThrow } from "./validate";
+import { questClosedKey, standingKey, type NormalizedStory, type PrimitiveValue, type ValidationError } from "./schema";
 import { carryKnownLines, carrySeed, carryValues, outcomeLine, publicOutcome, sagaOutcomeLines } from "./carry";
 import { checkCarryPair, progressKeys } from "./validate/carry";
 
 const read = (name: string) => JSON.parse(readFileSync(join(process.cwd(), `test/fixtures/${name}.story.json`), "utf8")) as Record<string, unknown>;
 const SOURCE_RAW = read("carry-source");
 const SEQUEL_RAW = read("carry-sequel");
-const SOURCE = parseStoryV2OrThrow(SOURCE_RAW);
-const SEQUEL = parseStoryV2OrThrow(SEQUEL_RAW);
+const SOURCE = parseStoryOrThrow(SOURCE_RAW);
+const SEQUEL = parseStoryOrThrow(SEQUEL_RAW);
 
 type Raw = Record<string, unknown>;
 const clone = (raw: Raw): Raw => JSON.parse(JSON.stringify(raw)) as Raw;
 const errorsOf = (raw: Raw): ValidationError[] => {
-  const parsed = parseStoryV2(raw);
+  const parsed = parseStory(raw);
   return Array.isArray(parsed) ? parsed : [];
 };
 const map = (raw: Raw) => (raw.carry_from as { map: Raw[] }).map;
@@ -26,12 +26,12 @@ const END: Record<string, PrimitiveValue> = {
   [questClosedKey("ledger")]: "done", [standingKey("guild")]: 3, secret_pact: "sworn", pact_hidden: true,
 };
 
-const projectionOf = (values: Record<string, unknown>, source: NormalizedStoryV2 = SOURCE, target: NormalizedStoryV2 = SEQUEL): CarryProjection => ({
+const projectionOf = (values: Record<string, unknown>, source: NormalizedStory = SOURCE, target: NormalizedStory = SEQUEL): CarryProjection => ({
   storyTitle: source.title, endingTitle: "The Last Lantern",
   outcome: publicOutcome(source, values, new Set(target.carry_from?.map.map((entry) => entry.from))), lines: [],
 });
 
-const stateOf = (projection: CarryProjection, target: NormalizedStoryV2 = SEQUEL): CarryState => ({
+const stateOf = (projection: CarryProjection, target: NormalizedStory = SEQUEL): CarryState => ({
   fromChat: "chat-a", fromStory: "ngp-source", sourceStoryHash: "h", mode: "sequel", projection, values: carryValues(target, projection).values, previously: null, block: null, createdAt: "t",
 });
 
@@ -85,8 +85,8 @@ describe("v2.8 plan 45: outcome and carry_from validate", () => {
     const source = clone(SOURCE_RAW);
     const target = clone(SEQUEL_RAW);
     plant(source, target);
-    const parsedSource = parseStoryV2OrThrow(source);
-    const parsedTarget = parseStoryV2OrThrow(target);
+    const parsedSource = parseStoryOrThrow(source);
+    const parsedTarget = parseStoryOrThrow(target);
     const atImport = checkCarryPair(parsedSource, parsedTarget, "import").map((error) => error.message).join("\n");
     const atPick = checkCarryPair(parsedSource, parsedTarget, "pick").map((error) => error.message).join("\n");
     expect(atImport).toMatch(message);
@@ -96,7 +96,7 @@ describe("v2.8 plan 45: outcome and carry_from validate", () => {
   });
 
   it("refuses a source of another id at either timing", () => {
-    const other = parseStoryV2OrThrow({ ...clone(SOURCE_RAW), id: "ngp-other" });
+    const other = parseStoryOrThrow({ ...clone(SOURCE_RAW), id: "ngp-other" });
     expect(checkCarryPair(other, SEQUEL, "pick")[0].message).toMatch(/the earlier story is 'ngp-other', not 'ngp-source'; this run is not offered/);
   });
 });
@@ -154,7 +154,7 @@ describe("v2.8 plan 45: carried values", () => {
     const replay = clone(SOURCE_RAW);
     (replay.qualities as Raw[]).push({ key: "heritage_coast", type: "enum", values: ["lit", "dark"], source: "code", rubric: "earlier run" });
     replay.carry_from = { story: "ngp-source", mode: "replay", map: [{ from: "coast_fate", to: "heritage_coast", as: "heritage" }] };
-    const story = parseStoryV2OrThrow(replay);
+    const story = parseStoryOrThrow(replay);
     const planted: Array<[Raw, RegExp]> = [
       [{ ...(replay.carry_from as Raw), map: [...map(replay), { from: "lantern_relit", to: "met_guild", as: "state" }] }, /a replay carries heritage values only/],
       [{ ...(replay.carry_from as Raw), replay_map: ["met_guild"], map: [...map(replay), { from: "lantern_relit", to: "met_guild", as: "state" }] }, /read by a transition, quest or milestone gate/],
@@ -177,7 +177,7 @@ describe("v2.8 plan 45: carried values", () => {
     map(edited).splice(2, 1);
     quality(edited, "guild_trust").type = "bool";
     quality(edited, "harbour_feeling").values = ["bitter", "unsure"];
-    const { seed, dropped } = carrySeed(parseStoryV2OrThrow(edited), state);
+    const { seed, dropped } = carrySeed(parseStoryOrThrow(edited), state);
     expect(Object.keys(seed).sort()).toEqual(["heritage_coast", "heritage_ledger"]);
     expect(dropped.map((skip) => skip.key).sort()).toEqual(["guild_trust", "harbour_feeling", "heritage_coins"]);
     expect(dropped.every((skip) => skip.reason.length > 10)).toBe(true);

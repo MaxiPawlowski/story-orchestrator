@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import { plantedModel, recordingModel } from "../../test/support/modelCall";
 import { generateReviewedEncounters, parseEncounters, renderEncounterCriticPrompt, renderEncounterPrompt, runPoolChecks } from "./encounters";
 import { mergeExpansions } from "./merge";
@@ -10,7 +10,6 @@ import { EXPANSION_CONTRACT, type ExpansionCacheEntry, type GeneratedEncounter }
 const ARRIVE = { q: "reached_walls", op: "==", v: true };
 
 const raw = (stretch: Record<string, unknown> | null = { mode: "open", pace: "brief", offer: ["encounters"], arrive_when: ARRIVE }) => ({
-  format: 2,
   id: "pool-test",
   title: "Pool test",
   description: "A road between a camp and a city.",
@@ -30,7 +29,7 @@ const raw = (stretch: Record<string, unknown> | null = { mode: "open", pace: "br
   roster: [],
 });
 
-const story = (stretch?: Record<string, unknown> | null): NormalizedStoryV2 => parseStoryV2OrThrow(raw(stretch));
+const story = (stretch?: Record<string, unknown> | null): NormalizedStory => parseStoryOrThrow(raw(stretch));
 
 const GOOD = {
   encounters: [

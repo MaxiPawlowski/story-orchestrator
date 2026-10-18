@@ -1,4 +1,4 @@
-import { renderGateText, type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type Transition } from "@engine/index";
+import { renderGateText, type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type Story, type Transition } from "@engine/index";
 
 type ArrivalCode = "gate-open-on-arrival";
 
@@ -7,7 +7,7 @@ export const ARRIVAL_CONSEQUENCES: Record<ArrivalCode, string> = {
 };
 
 export interface ArrivalRun {
-  draft: StoryV2;
+  draft: Story;
   push: (code: ArrivalCode, severity: "warning", path: string, message: string) => void;
 }
 
@@ -133,7 +133,7 @@ const conjunctsOf = (index: ArrivalIndex, gate: GateNode): GateLeaf[] | null => 
 };
 
 interface ArrivalIndex {
-  draft: StoryV2;
+  draft: Story;
   qualities: Map<string, Quality>;
   incoming: Map<string, Transition[]>;
   snapshots: Map<string, GateLeaf[]>;
@@ -144,7 +144,7 @@ interface ArrivalIndex {
   allowed: WeakMap<GateLeaf, PrimitiveValue[] | null>;
 }
 
-const arrivalIndex = (draft: StoryV2): ArrivalIndex => {
+const arrivalIndex = (draft: Story): ArrivalIndex => {
   const incoming = new Map<string, Transition[]>();
   draft.transitions.filter((entry) => entry.from !== entry.to).forEach((entry) => incoming.set(entry.to, [...(incoming.get(entry.to) ?? []), entry]));
   return {
@@ -234,7 +234,7 @@ const exitOpenOnArrival = (index: ArrivalIndex, exit: Transition): string | null
   return null;
 };
 
-export const passThroughExits = (draft: StoryV2): PassThrough[] => {
+export const passThroughExits = (draft: Story): PassThrough[] => {
   const index = arrivalIndex(draft);
   return draft.transitions.flatMap((exit, at) => {
     const because = exitOpenOnArrival(index, exit);

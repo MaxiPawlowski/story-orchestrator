@@ -1,4 +1,4 @@
-import { addGatedEntry, checkpointWorldInfo, gatedWorldInfo, readWorldInfoEffect, rewardedQuestIds, validStagedFrom, type GatedWorldInfo, type NormalizedStoryV2 } from "@engine/index";
+import { addGatedEntry, checkpointWorldInfo, gatedWorldInfo, readWorldInfoEffect, rewardedQuestIds, validStagedFrom, type GatedWorldInfo, type NormalizedStory } from "@engine/index";
 import { bookKey } from "./worldInfoMatch";
 import { MIRROR_BOOK_PREFIX } from "./mirrorReaper";
 import { gameLayer } from "@engine/validate/gameLayer";
@@ -18,7 +18,7 @@ export const isMemoryMirrorBook = (lorebook: string): boolean => bookKey(loreboo
 
 const lorePlans = (plans: WorldInfoBookPlan[]): WorldInfoBookPlan[] => plans.filter((plan) => !isMemoryMirrorBook(plan.lorebook));
 
-export function worldInfoPlan(story: NormalizedStoryV2, path: string[], rewarded: readonly string[] = [], earned: readonly unknown[] = []): WorldInfoBookPlan[] {
+export function worldInfoPlan(story: NormalizedStory, path: string[], rewarded: readonly string[] = [], earned: readonly unknown[] = []): WorldInfoBookPlan[] {
   const enabled: GatedWorldInfo = new Map();
   const switches = [
     ...path.map((id) => checkpointWorldInfo(story.checkpointById[id])),
@@ -47,7 +47,7 @@ export function releasePlan(owners: unknown[], keep: unknown | null): WorldInfoB
     .filter((plan) => plan.disable.length > 0));
 }
 
-export const earnedWorldInfo = (story: NormalizedStoryV2, values: Readonly<Record<string, unknown>>): unknown[] =>
+export const earnedWorldInfo = (story: NormalizedStory, values: Readonly<Record<string, unknown>>): unknown[] =>
   (story.life ? gameLayer()?.life.lifeWorldInfo(story, values) ?? [] : []);
 
 export interface EarnedSwitches {
@@ -57,7 +57,7 @@ export interface EarnedSwitches {
 
 export const NO_EARNED_SWITCHES: EarnedSwitches = { rewarded: [], earned: [] };
 
-export const earnedSwitches = (story: NormalizedStoryV2 | null, values: Readonly<Record<string, unknown>>): EarnedSwitches =>
+export const earnedSwitches = (story: NormalizedStory | null, values: Readonly<Record<string, unknown>>): EarnedSwitches =>
   (story ? { rewarded: rewardedQuestIds(story, { ...values }), earned: earnedWorldInfo(story, values) } : NO_EARNED_SWITCHES);
 
 export const earnedSwitchesKey = (switches: EarnedSwitches): string =>

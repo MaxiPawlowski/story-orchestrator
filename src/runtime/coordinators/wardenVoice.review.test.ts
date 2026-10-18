@@ -1,13 +1,13 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { agendaStepKey, parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { agendaStepKey, parseStoryOrThrow, type EngineState } from "@engine/index";
 import { VOICE_DRIVE_ID, VOICE_DRIVE_QUESTION, VOICE_QUESTION, buildWardenRequests, defaultJudgeSettings, readWarden, wardenRecordP, type JudgeRequest, type JudgeSettings, type WardenInput } from "@judge/index";
 import { defaultGlobalSettings, sanitizeGlobalSettings } from "../settingsModel";
 import { createWarden, voiceProfile, wardenFamilies } from "../continuity";
 import { JudgeRuntime } from "../judge";
 import { testOwnership } from "../../../test/findings/testOwnership";
 
-const story = parseStoryV2OrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
+const story = parseStoryOrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
 const state = { activeCheckpointId: "start", blackboard: { values: { rel_arin_player_trust: -2, [agendaStepKey("arin", "debt")]: 0 }, versions: {}, latched: {} } } as unknown as EngineState;
 const view = { getStory: () => story, getState: () => state };
 

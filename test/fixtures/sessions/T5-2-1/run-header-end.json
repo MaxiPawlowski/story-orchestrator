@@ -4,12 +4,12 @@
     "id": "the-hoard-of-the-unflown",
     "title": "The Hoard of the Unflown",
     "playedVersion": 1,
-    "contentHash": "v2-a35af530",
+    "contentHash": "story-a35af530",
     "activeCheckpointId": "summons",
     "boundary": 8
   },
   "inventory": {
-    "v2Stories": [
+    "stories": [
       "adolion-academy@27",
       "adolion-adventurer@30",
       "adolion-aegis@12",

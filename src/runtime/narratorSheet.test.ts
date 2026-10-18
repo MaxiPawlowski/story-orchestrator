@@ -1,5 +1,5 @@
-import { StoryEngine, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
-import { parseStoryV2OrThrow } from "@engine/validate";
+import { StoryEngine, type NormalizedStory, type PrimitiveValue } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/validate";
 import { composeGame } from "./widgets";
 import { JUST_HAPPENED_HEADER, JUST_HAPPENED_MAX, narratorLines, SHEET_HEADER, WARN_HEADER } from "./narratorSheet";
 import { createNarratorSheetPort, deliveryFloor, hasNarratedSheet, loadNarratorSheet } from "./narratorSheetPort";
@@ -10,7 +10,7 @@ const is = (key: string) => ({ q: key, op: "==", v: true });
 const bool = (key: string, display?: Record<string, unknown>) => ({ key, type: "bool", source: "extractor", rubric: `Whether ${key}.`, ...(display ? { display } : {}) });
 
 const raw = (patch: Record<string, unknown> = {}): Record<string, unknown> => ({
-  format: 2, title: "Sheet lab", description: "Synthetic sheet.",
+  title: "Sheet lab", description: "Synthetic sheet.",
   roster: [{ id: "nar", name: "Narrator", view: "omniscient" }, { id: "guard", name: "Mara" }],
   qualities: [
     bool("lantern", { public: true, label: "Lantern", as: "item" }),
@@ -46,7 +46,7 @@ const writes = (random: ReturnType<typeof rng>): Array<{ q: string; v: Primitive
   ...(random.next() < 0.3 ? [{ q: "gold", v: Math.floor(random.next() * 30) }] : []),
 ];
 
-const play = (story: NormalizedStoryV2, seed: number, turns: number) => {
+const play = (story: NormalizedStory, seed: number, turns: number) => {
   const random = rng(seed);
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
@@ -57,7 +57,7 @@ const play = (story: NormalizedStoryV2, seed: number, turns: number) => {
   return engine;
 };
 
-const playerStrings = (story: NormalizedStoryV2, engine: StoryEngine): string => {
+const playerStrings = (story: NormalizedStory, engine: StoryEngine): string => {
   const game = composeGame({ story, state: engine.serialize(), boundaryLog: engine.stateLog, checks: [], threads: { open: [], resolved: [] }, chat: [], castNames: {} }).player;
   return JSON.stringify(game);
 };
@@ -65,7 +65,7 @@ const playerStrings = (story: NormalizedStoryV2, engine: StoryEngine): string =>
 const lineValue = (line: string) => line.replace(/^- /, "");
 
 describe("18 Q7: the public sheet reaches the narrator", () => {
-  const story = parseStoryV2OrThrow(raw());
+  const story = parseStoryOrThrow(raw());
 
   beforeAll(async () => { await loadNarratorSheet(); });
 
@@ -101,12 +101,12 @@ describe("18 Q7: the public sheet reaches the narrator", () => {
   });
 
   test("S2: no narrated public quality gives no lines at all, and narrate everyone is refused (owner: narrator-only)", () => {
-    const quiet = parseStoryV2OrThrow(raw({ qualities: [bool("paid"), bool("heard_rumour"), bool("secret_plan")] }));
+    const quiet = parseStoryOrThrow(raw({ qualities: [bool("paid"), bool("heard_rumour"), bool("secret_plan")] }));
     expect(hasNarratedSheet(quiet)).toBe(false);
     const engine = play(quiet, 4, 5);
     const port = createNarratorSheetPort({ story: () => quiet, state: () => engine.serialize(), log: () => engine.stateLog, chatId: () => "c1", refresh: () => {} });
     expect(port.lines("nar")).toEqual([]);
-    expect(() => parseStoryV2OrThrow(raw({ qualities: [bool("paid"), bool("heard_rumour"), bool("secret_plan"), bool("lantern", { public: true, label: "Lantern", as: "item", narrate: "everyone" })] })))
+    expect(() => parseStoryOrThrow(raw({ qualities: [bool("paid"), bool("heard_rumour"), bool("secret_plan"), bool("lantern", { public: true, label: "Lantern", as: "item", narrate: "everyone" })] })))
       .toThrow(/only the narrator hears the sheet/);
   });
 
@@ -180,7 +180,7 @@ describe("18 Q7: the public sheet reaches the narrator", () => {
     expect(playerStrings(story, engine)).toContain("One more wound could kill you.");
     const long = "x".repeat(81);
     const bands = [{ max: 2, label: "Dying", warn: long }, { label: "Fine" }];
-    expect(() => parseStoryV2OrThrow(raw({ qualities: [bool("paid"), bool("heard_rumour"), bool("secret_plan"),
+    expect(() => parseStoryOrThrow(raw({ qualities: [bool("paid"), bool("heard_rumour"), bool("secret_plan"),
       { key: "health", type: "int", source: "extractor", rubric: "Health.", display: { public: true, label: "Health", as: "meter", min: 0, max: 10, bands } }] }))).toThrow(/at most 80 characters/);
   });
 

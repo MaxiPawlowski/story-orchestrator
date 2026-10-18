@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStory } from "@engine/index";
 import { askText, type ModelCall } from "@extraction/modelRoute";
 import { fnv1a } from "../hash";
 import { createAgendaProposals, decideProposal, PROPOSAL_RING_CAP, type AgendaProposalsState, type MeanwhileProposal } from "../agendaProposals";
@@ -8,7 +8,7 @@ import { beginRun, type RunOwnership } from "../runToken";
 export const MEANWHILE_MAX_TOKENS = 300;
 
 export interface AgendaProposalDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   getProposals: () => AgendaProposalsState | undefined;
   setProposals: (next: AgendaProposalsState) => void;

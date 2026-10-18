@@ -10,7 +10,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-v25-08-xa",
         "title": "SO-V25-08 XA",
         "description": "v2.5 plan 08 G-L5: lore-select over a marked Adolion book.",
@@ -153,7 +152,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-v25-08-xb",
         "title": "SO-V25-08 XB",
         "description": "v2.5 plan 08 G-L5: lore-select over a marked Adolion book.",
@@ -207,7 +205,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-v25-08-xa",
         "title": "SO-V25-08 XA",
         "description": "v2.5 plan 08 G-L5: lore-select over a marked Adolion book.",

@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, type BlackboardSnapshot, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type BlackboardSnapshot, type NormalizedStory, type Story } from "@engine/index";
 import { loadGameLayer } from "@engine/validate/gameLayer";
 import { readContext, renderSharedReadPrompt, STEP_READ_HEADER } from "./contract";
 import { buildFixtureRun } from "./fixtureRun";
@@ -35,7 +35,7 @@ const CHECKPOINTS = ["c0", "c1", "c2", "c3"];
 const GATE = { all: GATES.map((q) => ({ q, op: "!=", v: q === "location" ? "nowhere" : -99 })) };
 
 const RAW = {
-  format: 2, id: "s17-replay", title: "S-17 replay", description: "Synthetic shape of the S-17 read inputs: 7 members, 4 active quest keys, 6 card pulls, up to 22 relationship candidates.",
+  id: "s17-replay", title: "S-17 replay", description: "Synthetic shape of the S-17 read inputs: 7 members, 4 active quest keys, 6 card pulls, up to 22 relationship candidates.",
   roster: [
     { id: "dm", name: "Narrator", role: "narrator" },
     ...LIFE.map((id) => ({
@@ -62,7 +62,7 @@ const RAW = {
   ],
   transitions: [...CHECKPOINTS.slice(1), "end"].map((to, at) => ({ from: CHECKPOINTS[at], to, priority: 0, gate: to === "end" ? { all: [...GATE.all, ...QUEST_KEYS.map((q) => ({ q, op: "==", v: true }))] } : GATE })),
   quests: QUEST_KEYS.map((key, at) => ({ id: `q${at}`, title: `Quest ${at}`, kind: "side", steps: [], done_when: { q: key, op: "==", v: true } })),
-} as unknown as StoryV2;
+} as unknown as Story;
 
 const WINDOWS: Array<{ holder: string; present: string[]; checkpoint: string }> = [
   ["m4", "m1 m2 m4 m3"], ["m3", "m1 m2 m4 m3"], ["m1", "m1 m2 m4 m3"], ["m2", "m1 m2 m4 m3"], ["m2", "m1 m2 m4 m3"], ["m1", "m1 m2 m4 m3"],
@@ -79,12 +79,12 @@ const transcriptOf = (holder: string) => [
 ];
 const CANON = Array.from({ length: 14 }, () => LINE).join(" ");
 
-let STORY: NormalizedStoryV2;
+let STORY: NormalizedStory;
 const empty: BlackboardSnapshot = { values: {}, versions: {}, latched: {} };
 
 beforeAll(async () => {
   await loadGameLayer();
-  STORY = parseStoryV2OrThrow(RAW);
+  STORY = parseStoryOrThrow(RAW);
 });
 
 const admitted = (key: string, checkpoint: string) => {

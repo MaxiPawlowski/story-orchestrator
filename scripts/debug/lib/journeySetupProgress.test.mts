@@ -6,7 +6,7 @@ function stubbedPage({ groups = [] as Array<{ id: string; name: string }> } = {}
   const extraction = { enabled: true, cadence: 1, stabilityLag: 0, profileId: 'memory', profiles: {} };
   const writes: Array<Record<string, unknown>> = [];
   const g = globalThis as Record<string, any>;
-  g.SillyTavern = { getContext: () => ({ extensionSettings: { 'story-orchestrator': { v2Stories: [] } }, groups, groupId: null }) };
+  g.SillyTavern = { getContext: () => ({ extensionSettings: { 'story-orchestrator': { stories: [] } }, groups, groupId: null }) };
   g.storyOrchestratorRuntime = {
     getGlobalSettings: () => ({ extraction: { ...extraction } }),
     setExtractionSettings: (next: Record<string, unknown>) => { writes.push(next); Object.assign(extraction, next); },

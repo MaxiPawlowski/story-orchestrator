@@ -1,6 +1,6 @@
-import type { IllustrationPurpose, StoryV2, WorkflowMap } from "@engine/schema";
+import type { IllustrationPurpose, Story, WorkflowMap } from "@engine/schema";
 
-type WorkflowStory = Pick<StoryV2, "illustrations"> & { checkpointById?: Record<string, { effects?: { illustrations?: { workflows?: WorkflowMap } } } | undefined> };
+type WorkflowStory = Pick<Story, "illustrations"> & { checkpointById?: Record<string, { effects?: { illustrations?: { workflows?: WorkflowMap } } } | undefined> };
 
 export const WORKFLOW_DENIED_NODES: readonly string[] = Object.freeze([
   "ExecutePython", "PythonScript", "RunPython", "Exec", "Eval", "ShellCommand", "RunCommand", "SystemCommand",

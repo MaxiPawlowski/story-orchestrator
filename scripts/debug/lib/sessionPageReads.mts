@@ -75,7 +75,7 @@ export async function readWizardDrafts(page: any) {
     const sessions = Array.isArray(root.wizardSessions) ? root.wizardSessions : [];
     const store = (globalThis as any).storyOrchestratorStudioDraft;
     const draft = store?.getState?.()?.draft ?? null;
-    const library = Array.isArray(root.v2Stories) ? root.v2Stories : [];
+    const library = Array.isArray(root.stories) ? root.stories : [];
     return {
       sessions: JSON.parse(JSON.stringify(sessions)),
       openDraft: draft ? JSON.parse(JSON.stringify(draft)) : null,

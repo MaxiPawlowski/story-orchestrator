@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { CardBinding, Quality, RosterMember, StoryV2 } from "@engine/index";
+import type { CardBinding, Quality, RosterMember, Story } from "@engine/index";
 import { boundCardQualities, cardQualityEligible } from "@engine/cardFields";
 import HelpTooltip from "@components/studio/HelpTooltip";
 
@@ -26,7 +26,7 @@ const CardFieldsEditor: React.FC<{
   card: CardBinding | undefined;
   qualities: Quality[];
   roster: RosterMember[];
-  player: StoryV2["player"];
+  player: Story["player"];
   onChange: (card: CardBinding | undefined) => void;
 }> = ({ card, qualities, roster, player, onChange }) => {
   const fields = card?.fields ?? {};

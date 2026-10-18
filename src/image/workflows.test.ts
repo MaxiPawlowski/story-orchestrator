@@ -1,7 +1,7 @@
 import { readdirSync, readFileSync } from "fs";
 import { join } from "path";
-import { ILLUSTRATION_PURPOSES, isValidationErrorList, type StoryV2 } from "@engine/schema";
-import { parseStoryV2, parseStoryV2OrThrow } from "@engine/validate";
+import { ILLUSTRATION_PURPOSES, isValidationErrorList, type Story } from "@engine/schema";
+import { parseStory, parseStoryOrThrow } from "@engine/validate";
 import type { Purpose } from "./catalog";
 import { checkWorkflowGraph, decideWorkflow, isDeniedNode, planBundleInstall, requiredWorkflows, workflowFor, workflowsFor } from "./workflows";
 
@@ -88,15 +88,15 @@ describe("v2.8 29 C: bundled workflows are checked and installed create-only", (
 });
 
 describe("v2.8 29 A: validation", () => {
-  const base = (illustrations: unknown, checkpointEffects: Record<string, unknown> = { illustrations: { workflows: { portrait: "Finale.json" } } }): StoryV2 => ({
-    format: 2, id: "wf", title: "WF", description: "d", roster: [], transitions: [],
+  const base = (illustrations: unknown, checkpointEffects: Record<string, unknown> = { illustrations: { workflows: { portrait: "Finale.json" } } }): Story => ({
+    id: "wf", title: "WF", description: "d", roster: [], transitions: [],
     qualities: [{ key: "arrived", type: "bool", source: "extractor", rubric: "Arrived?" }],
     checkpoints: [{ id: "cp1", name: "One", objective: "o", type: "anchor", start: true, effects: checkpointEffects as never }],
     illustrations: illustrations as never,
   });
-  const errors = (json: unknown) => { const parsed = parseStoryV2(json); return isValidationErrorList(parsed) ? parsed : []; };
+  const errors = (json: unknown) => { const parsed = parseStory(json); return isValidationErrorList(parsed) ? parsed : []; };
   it("keeps valid maps and bundles", () => {
-    const parsed = parseStoryV2OrThrow(base({ workflows: { scene: "Scene.json" }, bundle: { "Scene.json": { graph: { 1: {} }, sha256: "a".repeat(64) } } }));
+    const parsed = parseStoryOrThrow(base({ workflows: { scene: "Scene.json" }, bundle: { "Scene.json": { graph: { 1: {} }, sha256: "a".repeat(64) } } }));
     expect(parsed.illustrations?.workflows).toEqual({ scene: "Scene.json" });
     expect(parsed.checkpointById.cp1.effects?.illustrations).toEqual({ workflows: { portrait: "Finale.json" } });
   });

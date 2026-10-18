@@ -1,6 +1,6 @@
 import { fakeHosts } from "../../../test/support/fakeHosts";
 import { sendModel } from "../../../test/support/modelCall";
-import { parseStoryV2OrThrow, StoryEngine, type EngineState } from "@engine/index";
+import { parseStoryOrThrow, StoryEngine, type EngineState } from "@engine/index";
 import { ModelCallError } from "@extraction/modelError";
 import type { ExpansionRuntimeState } from "@generation/index";
 import { createStagecraft } from "../extras";
@@ -84,8 +84,8 @@ function memoryHarness(presummarised: boolean) {
   return { ...w, coordinator, summaries: () => memoryState.arcs.filter((arc) => arc.summary && arc.summary !== "already summarised").map((arc) => arc.id), canon: () => memoryState.canon };
 }
 
-const expansionStory = parseStoryV2OrThrow({
-  format: 2, id: "s1", title: "Aborted expansion", description: "One stub off the active checkpoint.",
+const expansionStory = parseStoryOrThrow({
+  id: "s1", title: "Aborted expansion", description: "One stub off the active checkpoint.",
   qualities: [{ key: "done", type: "bool", source: "extractor", rubric: "Done?" }],
   checkpoints: [
     { id: "a", name: "A", objective: "Start.", type: "anchor", start: true },
@@ -123,8 +123,8 @@ function expansionHarness() {
   return { ...w, coordinator, stores, liveJobs: () => (coordinator as unknown as { liveJobs: Map<string, unknown> }).liveJobs.size };
 }
 
-const curatorStory = () => parseStoryV2OrThrow({
-  format: 2, id: "s1", title: "Aborted curator", description: "Curator scope only.",
+const curatorStory = () => parseStoryOrThrow({
+  id: "s1", title: "Aborted curator", description: "Curator scope only.",
   qualities: [{ key: "crossed", type: "bool", source: "extractor", rubric: "Crossed?" }],
   checkpoints: [{ id: "bank", name: "Bank", objective: "Cross", type: "anchor", start: true }],
   transitions: [],

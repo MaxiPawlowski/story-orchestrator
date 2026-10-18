@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
+import type { EngineState, NormalizedStory, NormalizedTransition } from "@engine/index";
 import { getCanonLite } from "@extraction/canonLite";
 import type { ModelCall } from "@extraction/modelRoute";
 import type { ParsedFact } from "@extraction/types";
@@ -9,7 +9,7 @@ import type { JudgeRuntime } from "./judge";
 import type { CanonSynthesis } from "./canonSynthesis";
 
 export interface CanonSynthesisDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   memory: () => MemoryRuntimeState;
   patch: (next: Partial<MemoryRuntimeState>) => void;

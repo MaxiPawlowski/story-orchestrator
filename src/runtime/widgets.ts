@@ -1,6 +1,6 @@
 import {
   checkAttempted, checkDice, checksAt, checksById, evaluateGate, isClosed, isOocLine, milestoneEarned, questStatus, stepStatus, valueReader, type BoundaryLogEntry, type EngineState,
-  type GateReader, type NormalizedStoryV2, type PrimitiveValue, type Quality, type Quest, type QuestProgress, type StoryWidget, type WidgetIntent,
+  type GateReader, type NormalizedStory, type PrimitiveValue, type Quality, type Quest, type QuestProgress, type StoryWidget, type WidgetIntent,
 } from "@engine/index";
 import { isRecord } from "@utils/guards";
 import type {
@@ -26,7 +26,7 @@ export const ACTION_CHARS = 140;
 export const PLAYER_ACTOR = "You";
 
 export interface GameSources {
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
   state: EngineState;
   boundaryLog: readonly BoundaryLogEntry[];
   checks: readonly CheckRecord[];
@@ -69,24 +69,24 @@ const questView = (quest: Quest, status: QuestLane, reader: GateReader, values: 
   };
 };
 
-const visibleQuests = (story: NormalizedStoryV2, reader: GateReader, values: Readonly<Record<string, PrimitiveValue>>, castNames: Record<string, string>): QuestView[] =>
+const visibleQuests = (story: NormalizedStory, reader: GateReader, values: Readonly<Record<string, PrimitiveValue>>, castNames: Record<string, string>): QuestView[] =>
   (story.quests ?? []).flatMap((quest) => {
     const status = questStatus(quest, reader);
     return status === "hidden" ? [] : [questView(quest, status, reader, values, castNames)];
   });
 
-const mainLine = (story: NormalizedStoryV2, state: EngineState, chat: readonly unknown[]): MainLineView => {
+const mainLine = (story: NormalizedStory, state: EngineState, chat: readonly unknown[]): MainLineView => {
   const active = story.checkpointById[state.activeCheckpointId];
   const done = [...new Set(state.visitedPath.slice(0, -1).map((id) => story.checkpointById[id]?.player_name).filter((name): name is string => Boolean(name)))];
   return { done, current: active?.player_name ?? null, objective: active?.player_name ? shownPlayerText(active, state, chat) : null };
 };
 
-const milestones = (story: NormalizedStoryV2, reader: GateReader): MilestoneView[] => (story.milestones ?? []).flatMap((milestone) => {
+const milestones = (story: NormalizedStory, reader: GateReader): MilestoneView[] => (story.milestones ?? []).flatMap((milestone) => {
   const earned = milestoneEarned(milestone, reader);
   return earned || !milestone.secret ? [{ title: milestone.title, earned }] : [];
 });
 
-const statusMoves = (story: NormalizedStoryV2, entry: BoundaryLogEntry): LogRowView[] => {
+const statusMoves = (story: NormalizedStory, entry: BoundaryLogEntry): LogRowView[] => {
   const before = valueReader(entry.before.blackboard.values);
   const after = valueReader(entry.after.blackboard.values);
   const at = { boundary: entry.boundary, messageId: entry.context.lastMessageId };
@@ -102,7 +102,7 @@ const statusMoves = (story: NormalizedStoryV2, entry: BoundaryLogEntry): LogRowV
   return [...(reached ? [{ at, kind: "world_event" as const, text: `Reached ${reached}` }] : []), ...quests, ...earned];
 };
 
-const checkRows = (story: NormalizedStoryV2, records: readonly CheckRecord[]): LogRowView[] => {
+const checkRows = (story: NormalizedStory, records: readonly CheckRecord[]): LogRowView[] => {
   const byId = checksById(story);
   return records.flatMap((record): LogRowView[] => {
     const check = byId.get(record.checkId);
@@ -132,7 +132,7 @@ const composeLog = (sources: GameSources): LogRowView[] => {
     .slice(0, LOG_LIMIT);
 };
 
-const meterQualities = (widget: StoryWidget | null, story: NormalizedStoryV2): Quality[] => {
+const meterQualities = (widget: StoryWidget | null, story: NormalizedStory): Quality[] => {
   const bind = widget?.bind;
   if (!bind || !("quality" in bind || "qualities" in bind || "group" in bind)) return story.qualities.filter((quality) => quality.display);
   const grouped = (group: string) => story.qualities.filter((quality) => quality.display?.group === group).map((quality) => quality.key);
@@ -191,7 +191,7 @@ const rosterBody = (widget: StoryWidget, sources: GameSources): WidgetBody => {
   return { kind: "roster", rows };
 };
 
-const timelineBody = (widget: StoryWidget, story: NormalizedStoryV2, state: EngineState, before: EngineState | null): WidgetBody => {
+const timelineBody = (widget: StoryWidget, story: NormalizedStory, state: EngineState, before: EngineState | null): WidgetBody => {
   const earlier = before ? new Set([...before.visitedPath, before.activeCheckpointId]) : null;
   const ids = [...new Set([...state.visitedPath, state.activeCheckpointId])].filter((id) => story.checkpointById[id]?.player_name);
   const chapters = ids.reduce<TimelineChapterView[]>((groups, id) => {
@@ -287,7 +287,7 @@ const synthesized = (id: string, title: string, body: WidgetBody, still: boolean
   id, title, audience: "player", synthesized: true, body, ...(still ? { still: true as const } : {}),
 });
 
-const valueKeys = (widget: StoryWidget, story: NormalizedStoryV2, body: WidgetBody): Array<{ label: string; key: string }> => {
+const valueKeys = (widget: StoryWidget, story: NormalizedStory, body: WidgetBody): Array<{ label: string; key: string }> => {
   if (body.kind === "meters") return meterQualities(widget, story).map((quality) => ({ label: quality.display?.label ?? quality.key, key: quality.key }));
   if (body.kind === "clock" && widget.bind && "quality" in widget.bind) return [{ label: body.label, key: widget.bind.quality }];
   if (body.kind === "roster") return (widget.rows ?? []).map((row) => ({ label: row.label ?? row.member ?? row.id, key: row.quality ?? standingKey(row.faction ?? "") }));

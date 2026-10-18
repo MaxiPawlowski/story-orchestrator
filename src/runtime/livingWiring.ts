@@ -1,4 +1,4 @@
-import { isValidationErrorList, parseStoryV2, type EngineState, type NormalizedStoryV2, type StoryEngine } from "@engine/index";
+import { isValidationErrorList, parseStory, type EngineState, type NormalizedStory, type StoryEngine } from "@engine/index";
 import type { ModelCall } from "@extraction/index";
 import { getPlayerName } from "@services/STAPI";
 import { announceChanceDraw } from "./chance";
@@ -13,14 +13,14 @@ import { findStoryRecord, saveStoryRecord } from "./storyLibrary";
 import type { LoadedStory, RuntimeExtras } from "./types";
 
 export interface LivingWiring {
-  view: { getStory: () => NormalizedStoryV2 | null; getState: () => EngineState | null };
+  view: { getStory: () => NormalizedStory | null; getState: () => EngineState | null };
   lifecycle: { persist: () => Promise<void>; notify: () => void; ownership: RunOwnership; model: ModelCall };
   engine: StoryEngine;
   loaded: () => LoadedStory | null;
   extras: () => RuntimeExtras;
   memory: MemoryCoordinator;
   expansion: ExpansionCoordinator;
-  replaceStory: (story: NormalizedStoryV2) => void;
+  replaceStory: (story: NormalizedStory) => void;
   refused: () => string | null;
   journal: (kind: JournalRecordKind, summary: string, note?: string) => void;
   judge: () => JudgeRuntime | null;
@@ -30,7 +30,7 @@ export interface LivingWiring {
   enabledIds?: () => string[];
 }
 
-const rebuildFailure = (parsed: ReturnType<typeof parseStoryV2> | null): string => (parsed && isValidationErrorList(parsed) ? parsed[0]?.message ?? "" : "");
+const rebuildFailure = (parsed: ReturnType<typeof parseStory> | null): string => (parsed && isValidationErrorList(parsed) ? parsed[0]?.message ?? "" : "");
 
 const divergence = () => import("@generation/living/divergence");
 
@@ -46,7 +46,7 @@ export function wireLiving(wiring: LivingWiring): LivingPort {
     setLiving: (next) => { wiring.extras().living = next; },
     setPlayedRaw: (raw) => {
       const loaded = wiring.loaded();
-      const parsed = loaded ? parseStoryV2(raw) : null;
+      const parsed = loaded ? parseStory(raw) : null;
       if (!loaded || !parsed || isValidationErrorList(parsed)) return void wiring.journal("story", "living story could not rebuild its graph", rebuildFailure(parsed));
       loaded.record = { ...loaded.record, raw };
       wiring.replaceStory(expansion.mergedStoryOrBase(raw, { ...parsed, id: loaded.record.id }));

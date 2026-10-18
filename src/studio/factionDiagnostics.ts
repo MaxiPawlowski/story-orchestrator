@@ -1,4 +1,4 @@
-import { FACTION_KEY_PREFIX, standingKey, type StoryV2 } from "@engine/index";
+import { FACTION_KEY_PREFIX, standingKey, type Story } from "@engine/index";
 import { inactionProblem } from "@engine/validate/factions";
 
 type FactionCode = "faction-move-on-inaction" | "faction-never-moves" | "faction-no-visible-band" | "faction-snapshot-key";
@@ -11,15 +11,15 @@ export const FACTION_CONSEQUENCES: Record<FactionCode, string> = {
 };
 
 export interface FactionRun {
-  draft: StoryV2;
+  draft: Story;
   push: (code: FactionCode, severity: "blocking" | "warning", path: string, message: string) => void;
 }
 
-const rewardTargets = (draft: StoryV2): Set<string> => new Set((draft.quests ?? []).flatMap((quest) => Object.keys(quest.reward?.set ?? {})));
+const rewardTargets = (draft: Story): Set<string> => new Set((draft.quests ?? []).flatMap((quest) => Object.keys(quest.reward?.set ?? {})));
 
-const rowFactions = (draft: StoryV2): Set<string> => new Set((draft.widgets ?? []).flatMap((widget) => (widget.rows ?? []).flatMap((row) => (row.faction ? [row.faction] : []))));
+const rowFactions = (draft: Story): Set<string> => new Set((draft.widgets ?? []).flatMap((widget) => (widget.rows ?? []).flatMap((row) => (row.faction ? [row.faction] : []))));
 
-const startValues = (draft: StoryV2) => Object.fromEntries(draft.qualities.flatMap((quality) => (quality.step_rule?.start !== undefined ? [[quality.key, quality.step_rule.start]] : [])));
+const startValues = (draft: Story) => Object.fromEntries(draft.qualities.flatMap((quality) => (quality.step_rule?.start !== undefined ? [[quality.key, quality.step_rule.start]] : [])));
 
 export const checkFactionDiagnostics = ({ draft, push }: FactionRun) => {
   const start = startValues(draft);

@@ -24,10 +24,10 @@ test('AS-23 reads: the transcript keeps every swipe, the observation names the c
   assert.deepEqual(contextOf(transcript.messages, 2).map((message) => message.id), [1, 2]);
   assert.deepEqual(await readChatInventory(page), [{ chatId: 'chat-a', group: 'Adolion - Adventurer', groupId: 'g1' }, { chatId: 'chat-old', group: 'Adolion - Adventurer', groupId: 'g1' }]);
   assert.deepEqual((await readRuntimeBlob(page)).selectedStoryId, 'adolion-adventurer');
-  fake.ctx.extensionSettings = { 'story-orchestrator': { wizardSessions: [{ key: 'so-w11' }], v2Stories: [{ id: 'tide', title: 'Tide', hash: 'v2-tide' }] } };
+  fake.ctx.extensionSettings = { 'story-orchestrator': { wizardSessions: [{ key: 'so-w11' }], stories: [{ id: 'tide', title: 'Tide', hash: 'story-tide' }] } };
   const drafts = await readWizardDrafts(page);
   assert.equal(drafts.sessions.length, 1);
-  assert.deepEqual(drafts.library, [{ id: 'tide', title: 'Tide', hash: 'v2-tide' }]);
+  assert.deepEqual(drafts.library, [{ id: 'tide', title: 'Tide', hash: 'story-tide' }]);
 });
 
 test('AS-28 live args: --arm tags a generated reply, never a flag or an edit', () => {

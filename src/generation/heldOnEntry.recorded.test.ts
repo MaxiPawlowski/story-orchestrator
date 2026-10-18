@@ -1,6 +1,6 @@
 import * as recorded from "../../test/fixtures/t1-6-road-in.expansion.json";
 import * as longNight from "../../test/fixtures/t1-5-long-night.expansion.json";
-import { StoryEngine, parseStoryV2OrThrow, type PrimitiveValue } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, type PrimitiveValue } from "@engine/index";
 import { runCodeChecks } from "./critic";
 import { mergeExpansions } from "./merge";
 import { parseGeneratedBeats } from "./parse";
@@ -13,7 +13,7 @@ jest.mock("@services/STAPI", () => ({
   settingsReady: async () => {},
 }));
 
-const story = parseStoryV2OrThrow(recorded.story);
+const story = parseStoryOrThrow(recorded.story);
 const basis = recorded.basis as Record<string, PrimitiveValue>;
 const latched = { esha_at_border: true };
 const parsed = parseGeneratedBeats(JSON.stringify({ beats: recorded.beats }), story);
@@ -65,7 +65,7 @@ describe("T1-6: a generated beat gated on a value that already holds is passed u
 });
 
 describe("T1-5: the generated Long Night chain passed its first beat on the fog value that entered it (journal.jsonl:782, :798)", () => {
-  const nightStory = parseStoryV2OrThrow(longNight.story);
+  const nightStory = parseStoryOrThrow(longNight.story);
   const beats = parseGeneratedBeats(JSON.stringify({ beats: longNight.beats }), nightStory);
   const candidate = findStubExpansionCandidate(nightStory, "night-the-kelger-falls");
 

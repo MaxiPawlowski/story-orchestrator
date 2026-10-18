@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, type StoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type Story } from "@engine/index";
 import type { ReplyEffort } from "@utils/reasoningEffort";
 import { REPLY_EFFORTS } from "@utils/replyEffort";
 import {
@@ -6,8 +6,7 @@ import {
   type EffortHost, type EffortRequest,
 } from "./replyEffort";
 
-const story = (reasoning: unknown = "high") => parseStoryV2OrThrow({
-  format: 2,
+const story = (reasoning: unknown = "high") => parseStoryOrThrow({
   id: "effort-fixture",
   title: "Effort fixture",
   description: "A climax thinks harder.",
@@ -18,7 +17,7 @@ const story = (reasoning: unknown = "high") => parseStoryV2OrThrow({
   ],
   transitions: [],
   roster: [],
-} as unknown as StoryV2);
+} as unknown as Story);
 
 const GEMMA = { prefix: "<|channel>thought\n", suffix: "<channel|>" };
 const LLAMA_MODELS = [{ id: "artemis.gguf", owned_by: "llamacpp" }];

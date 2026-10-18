@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { emptyEnvironment } from "@wizard/index";
 import { FIRST_MESSAGE_RULE, OPENING_CAST_RULE, renderStagePrompt } from "../prompts";
 import { addCheckpoint, addQuality, addRosterMember } from "../../studio/mutations";
@@ -11,8 +11,7 @@ import { emptyLookup, type AgentMode, type AgentSession, type AgentStep } from "
 const AT = "2026-10-02T08:10:05.535Z";
 const META: StepMeta = { route: "local", firstTryValid: true, repaired: false, at: AT };
 
-const pawnbroker = (): StoryV2 => ({
-  format: 2,
+const pawnbroker = (): Story => ({
   title: "The Pawnbroker of Forgotten Days",
   description: "",
   qualities: [{ key: "ledger_found", type: "bool", source: "extractor", rubric: "Has the ticket been found?" }],

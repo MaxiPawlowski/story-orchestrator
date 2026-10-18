@@ -1,19 +1,19 @@
 import { StoryEngine, type EngineState } from "./engine";
-import { isCodexKey, type NormalizedStoryV2, type PrimitiveValue } from "./schema";
-import { parseStoryV2OrThrow } from "./validate";
+import { isCodexKey, type NormalizedStory, type PrimitiveValue } from "./schema";
+import { parseStoryOrThrow } from "./validate";
 import { labRaw, labStory, randomWrites, rng, type Rng } from "../../test/support/codexLab";
 
 type Turn = Array<{ q: string; v: PrimitiveValue }>;
 
-const equalIds = (): NormalizedStoryV2 => {
+const equalIds = (): NormalizedStory => {
   const raw = labRaw();
   const codex = raw.codex as { people: unknown[]; places: unknown[] };
-  return parseStoryV2OrThrow({ ...raw, codex: { ...codex, people: [...codex.people, { id: "mill", name: "The miller", facts: [{ id: "wheel", text: "Built the wheel.", known_when: { q: "saw_mill", op: "==", v: true } }] }] } });
+  return parseStoryOrThrow({ ...raw, codex: { ...codex, people: [...codex.people, { id: "mill", name: "The miller", facts: [{ id: "wheel", text: "Built the wheel.", known_when: { q: "saw_mill", op: "==", v: true } }] }] } });
 };
 
-const script = (random: Rng, story: NormalizedStoryV2, length: number): Turn[] => Array.from({ length }, () => randomWrites(random, story));
+const script = (random: Rng, story: NormalizedStory, length: number): Turn[] => Array.from({ length }, () => randomWrites(random, story));
 
-const engineFor = (story: NormalizedStoryV2) => {
+const engineFor = (story: NormalizedStory) => {
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
   return engine;

@@ -1,8 +1,7 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { DIAGNOSTIC_CONSEQUENCES, runDiagnostics } from "./diagnostics";
 
-const kingdom = (patch: Partial<StoryV2> = {}): StoryV2 => ({
-  format: 2,
+const kingdom = (patch: Partial<Story> = {}): Story => ({
   title: "The Redrawn Kingdom",
   description: "",
   qualities: [
@@ -22,7 +21,7 @@ const kingdom = (patch: Partial<StoryV2> = {}): StoryV2 => ({
   ...patch,
 });
 
-const codes = (story: StoryV2, code: string) => runDiagnostics(story).filter((diagnostic) => diagnostic.code === code);
+const codes = (story: Story, code: string) => runDiagnostics(story).filter((diagnostic) => diagnostic.code === code);
 
 describe("T6-3 MEDIUM: a cast member switched off and never switched back on", () => {
   it("names each muted-for-good member at the disable that mutes them", () => {

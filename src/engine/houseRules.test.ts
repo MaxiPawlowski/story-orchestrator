@@ -1,8 +1,7 @@
-import { parseStoryV2 } from "./validate";
-import { HOUSE_RULES_MAX, HOUSE_RULE_MAX_CHARS, type NormalizedStoryV2, type ValidationError } from "./schema";
+import { parseStory } from "./validate";
+import { HOUSE_RULES_MAX, HOUSE_RULE_MAX_CHARS, type NormalizedStory, type ValidationError } from "./schema";
 
 const story = (house_rules?: unknown) => ({
-  format: 2,
   title: "Rules",
   description: "",
   qualities: [{ key: "done", type: "bool", source: "extractor", rubric: "Done?" }],
@@ -13,18 +12,18 @@ const story = (house_rules?: unknown) => ({
 });
 
 const errors = (value: unknown): string[] => {
-  const parsed = parseStoryV2(story(value));
+  const parsed = parseStory(story(value));
   return Array.isArray(parsed) ? (parsed as ValidationError[]).map((error) => `${error.path}: ${error.message}`) : [];
 };
 
 describe("house_rules (v2.4 plan 07 T23, rule 6: additive and optional)", () => {
   it("absent means no rules, as today", () => {
-    expect((parseStoryV2(story()) as NormalizedStoryV2).house_rules).toBeUndefined();
-    expect((parseStoryV2(story([])) as NormalizedStoryV2).house_rules).toBeUndefined();
+    expect((parseStory(story()) as NormalizedStory).house_rules).toBeUndefined();
+    expect((parseStory(story([])) as NormalizedStory).house_rules).toBeUndefined();
   });
 
   it("keeps trimmed rules in order", () => {
-    expect((parseStoryV2(story(["  No guns. ", "Magic cannot heal wounds."])) as NormalizedStoryV2).house_rules).toEqual(["No guns.", "Magic cannot heal wounds."]);
+    expect((parseStory(story(["  No guns. ", "Magic cannot heal wounds."])) as NormalizedStory).house_rules).toEqual(["No guns.", "Magic cannot heal wounds."]);
   });
 
   it("refuses a non-list, an empty rule, a duplicate, an over-long rule and more than eight", () => {

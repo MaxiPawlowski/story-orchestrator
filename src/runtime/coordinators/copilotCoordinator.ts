@@ -1,5 +1,5 @@
 import {
-  Blackboard, authorsOwnNote, evaluateGate, objectiveLineApplies, renderGateText, type EngineState, type NormalizedStoryV2, type StoryV2,
+  Blackboard, authorsOwnNote, evaluateGate, objectiveLineApplies, renderGateText, type EngineState, type NormalizedStory, type Story,
 } from "@engine/index";
 import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
 
@@ -18,7 +18,7 @@ import { beginRun, type RunOwnership } from "../runToken";
 import type { ChatHost, PromptHost, ProvisioningHost } from "../hostPorts";
 
 export interface CopilotCoordinatorDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   getSettings: () => CopilotRuntimeSettings;
   model: ModelCall;
@@ -43,7 +43,7 @@ export class CopilotCoordinator {
     return { role: "authoring", pass: "copilot", debugResponse: debugResponse ?? null };
   }
 
-  async runStage(input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment }, debugResponse?: string): Promise<ProposalResult> {
+  async runStage(input: { draft: Story; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment }, debugResponse?: string): Promise<ProposalResult> {
     const environment = input.environment ?? (input.stage === "provisioning" || input.stage === "effects" ? this.getProvisioningEnvironment(input.draft) : undefined);
     return (await authoring()).runAuthoringStage({ ...input, environment }, this.deps.model, this.ask(debugResponse));
   }
@@ -52,7 +52,7 @@ export class CopilotCoordinator {
   // create-only rule needs. Read fresh every time: the wizard is creating assets as it goes.
   // `lorebookNames` is *every* book, not just the globally selected ones: an inactive book the user
   // wrote is still theirs, and creating over it would be exactly the thing create-only forbids.
-  getProvisioningEnvironment(draft?: StoryV2): ProvisioningEnvironment {
+  getProvisioningEnvironment(draft?: Story): ProvisioningEnvironment {
     const safe = <T>(read: () => T[], fallback: T[]): T[] => { try { return read(); } catch { return fallback; } };
     const story = draft ?? this.deps.getStory();
     const host = this.deps.hosts.provisioning;
@@ -74,31 +74,31 @@ export class CopilotCoordinator {
     };
   }
 
-  private sessionFor(draft?: StoryV2): WizardSessionState | null {
+  private sessionFor(draft?: Story): WizardSessionState | null {
     return this.deps.wizardSession?.(this.sessionKeyFor(draft)) ?? null;
   }
 
   // Ownership is the books this wizard recorded creating AS books. A name in `applied` alone
   // is only a claim that something by that name was made: a card named after one of the user's
   // listed books read as owning it.
-  private sessionOwnedLorebooks(lorebooks: string[], draft?: StoryV2): string[] {
+  private sessionOwnedLorebooks(lorebooks: string[], draft?: Story): string[] {
     const listed = (name: string) => lorebooks.some((entry) => entry.trim().toLowerCase() === lorebookFileId(name).toLowerCase());
     const session = this.sessionFor(draft);
     return (session?.createdLorebooks ?? []).map(lorebookFileId).filter(listed);
   }
 
-  private ledgerCardNames(draft?: StoryV2): string[] {
+  private ledgerCardNames(draft?: Story): string[] {
     return (this.sessionFor(draft)?.createdCards ?? []).flatMap((card) => [card.name, card.requested]);
   }
 
-  private grantedLorebooks(lorebooks: string[], draft?: StoryV2): string[] {
+  private grantedLorebooks(lorebooks: string[], draft?: Story): string[] {
     const listed = (fileId: string) => lorebooks.some((entry) => entry.trim().toLowerCase() === fileId.toLowerCase());
     return (this.sessionFor(draft)?.grants ?? []).map((grant) => grant.lorebookFileId).filter(listed);
   }
 
   // The session's created-asset ledger, written where the asset is made. The UI keeps its own copy
   // for display; this is the one ownership is read back from.
-  private recordCreated(name: string, kind: "character" | "lorebook" | "group", draft?: StoryV2): void {
+  private recordCreated(name: string, kind: "character" | "lorebook" | "group", draft?: Story): void {
     const existing = this.sessionFor(draft);
     const session = existing ?? newWizardSession(this.sessionKeyFor(draft));
     const books = session.createdLorebooks;
@@ -108,7 +108,7 @@ export class CopilotCoordinator {
     this.deps.saveWizardSession?.({ ...session, applied, createdLorebooks });
   }
 
-  private recordCreatedCard(card: WizardCreatedCard, draft?: StoryV2): void {
+  private recordCreatedCard(card: WizardCreatedCard, draft?: Story): void {
     const session = this.sessionFor(draft) ?? newWizardSession(this.sessionKeyFor(draft));
     const createdCards = [...(session.createdCards ?? []).filter((entry) => entry.avatar !== card.avatar), card];
     const applied = session.applied.includes(card.name) ? session.applied : [...session.applied, card.name];
@@ -117,7 +117,7 @@ export class CopilotCoordinator {
 
   // A card whose read-back was unconfirmed or lossy may exist: the ledger keeps its avatar so the
   // create-only rule refuses a second create, and the author can ask again later.
-  async recheckCreatedCard(op: Extract<ProvisioningOp, { kind: "createCharacterCard" }>, avatar: string, draft?: StoryV2): Promise<CardReadBackRecord> {
+  async recheckCreatedCard(op: Extract<ProvisioningOp, { kind: "createCharacterCard" }>, avatar: string, draft?: Story): Promise<CardReadBackRecord> {
     const read = this.deps.hosts.provisioning.readBackCharacterCard;
     const readBack = read ? await read(avatar, op) : { state: "unconfirmed" as const, lossy: [], name: null };
     const known = (this.sessionFor(draft)?.createdCards ?? []).find((entry) => entry.avatar === avatar);
@@ -125,12 +125,12 @@ export class CopilotCoordinator {
     return { state: readBack.state, lossy: readBack.lossy, avatar };
   }
 
-  private sessionKeyFor(draft?: StoryV2): string {
+  private sessionKeyFor(draft?: Story): string {
     const story = draft ?? this.deps.getStory();
     return wizardSessionKey({ id: (story as { id?: string } | null)?.id, title: story?.title });
   }
 
-  private storyScopeId(draft?: StoryV2): string {
+  private storyScopeId(draft?: Story): string {
     const story = draft ?? this.deps.getStory();
     return (story as { id?: string } | null)?.id ?? story?.title ?? this.sessionFor(draft)?.key ?? "story";
   }
@@ -143,7 +143,7 @@ export class CopilotCoordinator {
 
   // The one write path to the user's install. Validation runs again here — the UI is a convenience,
   // never the guard (spec addendum §Story wizard: enforced in op validation, not prompt-trusted).
-  async applyProvisioning(op: ProvisioningOp, draft?: StoryV2): Promise<ProvisioningResult> {
+  async applyProvisioning(op: ProvisioningOp, draft?: Story): Promise<ProvisioningResult> {
     const run = beginRun(this.deps.ownership);
     const lapsed = (): ProvisioningResult => ({ ok: false, message: "The story changed before this provisioning step could finish." });
     const host = this.deps.hosts.provisioning;

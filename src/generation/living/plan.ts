@@ -1,6 +1,6 @@
 import {
-  evaluateGate, gateLeaves, isLivingId, LIVING_OPENING_ID, parseStoryV2, PLAYER_TURNS_KEY, progressQualityForAnchor,
-  type Chapter, type Checkpoint, type GateNode, type NormalizedStoryV2, type PrimitiveValue, type Quality, type TensionLevel,
+  evaluateGate, gateLeaves, isLivingId, LIVING_OPENING_ID, parseStory, PLAYER_TURNS_KEY, progressQualityForAnchor,
+  type Chapter, type Checkpoint, type GateNode, type NormalizedStory, type PrimitiveValue, type Quality, type TensionLevel,
 } from "@engine/index";
 import { expectedTension, numericToLevel } from "@pacing/index";
 import { livingChapterSize } from "@engine/validate/living";
@@ -12,15 +12,15 @@ import {
   type DirectorDraft, type LivingOpPayload,
 } from "./types";
 
-export const generatedAnchorIds = (story: NormalizedStoryV2): string[] =>
+export const generatedAnchorIds = (story: NormalizedStory): string[] =>
   story.checkpoints.filter((checkpoint) => checkpoint.type === "anchor" && isLivingId(checkpoint.id) && checkpoint.id !== LIVING_OPENING_ID).map((checkpoint) => checkpoint.id);
 
-export const nextLivingAnchorId = (story: NormalizedStoryV2): string => {
+export const nextLivingAnchorId = (story: NormalizedStory): string => {
   const numbers = story.checkpoints.map((checkpoint) => /^liv_(\d+)$/.exec(checkpoint.id)?.[1]).filter((value): value is string => Boolean(value)).map(Number);
   return `liv_${(numbers.length ? Math.max(...numbers) : 0) + 1}`;
 };
 
-export const usesLivingChapters = (story: NormalizedStoryV2): boolean => Boolean(story.chapters?.length) || !story.living?.authored_until;
+export const usesLivingChapters = (story: NormalizedStory): boolean => Boolean(story.chapters?.length) || !story.living?.authored_until;
 
 
 export interface ChapterPlan {
@@ -30,7 +30,7 @@ export interface ChapterPlan {
   capped: boolean;
 }
 
-export function planChapter(story: NormalizedStoryV2, frontierId: string, options: { sealsOn: boolean; final: boolean; newChapter: boolean; title?: string }): ChapterPlan {
+export function planChapter(story: NormalizedStory, frontierId: string, options: { sealsOn: boolean; final: boolean; newChapter: boolean; title?: string }): ChapterPlan {
   const living = story.living;
   if (!living) return { chapterId: null, create: null, anchorsInChapter: 0, capped: true };
   const [min, max] = livingChapterSize(living);
@@ -51,14 +51,14 @@ export function planChapter(story: NormalizedStoryV2, frontierId: string, option
   return { chapterId: id, create: { id, title, ...(options.final ? { final: true } : {}) }, anchorsInChapter: 0, capped };
 }
 
-export const suggestedTension = (story: NormalizedStoryV2, anchorsInChapter: number): TensionLevel => {
+export const suggestedTension = (story: NormalizedStory, anchorsInChapter: number): TensionLevel => {
   const [, max] = story.living ? livingChapterSize(story.living) : [3, 5];
   return numericToLevel(expectedTension(story.arc_template ?? "rising", (anchorsInChapter + 1) / max));
 };
 
 export const playerTurnsGate = (turns: number): GateNode => ({ q: PLAYER_TURNS_KEY, op: ">=", v: turns });
 
-export const countsPlayerTurns = (story: Pick<NormalizedStoryV2, "qualityByKey">): boolean => story.qualityByKey[PLAYER_TURNS_KEY]?.source === "code";
+export const countsPlayerTurns = (story: Pick<NormalizedStory, "qualityByKey">): boolean => story.qualityByKey[PLAYER_TURNS_KEY]?.source === "code";
 
 export const withoutPace = (gate: GateNode): GateNode => {
   if (!("any" in gate)) return gate;
@@ -75,7 +75,7 @@ export interface BuiltDirectorOps {
   issues: string[];
 }
 
-export function buildDirectorOps(story: NormalizedStoryV2, frontierId: string, draft: DirectorDraft, plan: ChapterPlan): BuiltDirectorOps {
+export function buildDirectorOps(story: NormalizedStory, frontierId: string, draft: DirectorDraft, plan: ChapterPlan): BuiltDirectorOps {
   const anchorId = nextLivingAnchorId(story);
   const stubId = `${anchorId}${LIVING_STUB_SUFFIX}`;
   const issues: string[] = [];
@@ -132,7 +132,7 @@ export function buildDirectorOps(story: NormalizedStoryV2, frontierId: string, d
 
 export interface DirectorCheckInput {
   raw: Record<string, unknown>;
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
   frontierId: string;
   ops: readonly LivingOpPayload[];
   values: Record<string, PrimitiveValue>;
@@ -143,7 +143,7 @@ export interface DirectorCheckInput {
 
 const reader = (values: Record<string, PrimitiveValue>) => ({ get: (key: string) => values[key] });
 
-export function gateImpossible(gate: GateNode, story: NormalizedStoryV2, values: Record<string, PrimitiveValue>, latched: Record<string, boolean>): string | null {
+export function gateImpossible(gate: GateNode, story: NormalizedStory, values: Record<string, PrimitiveValue>, latched: Record<string, boolean>): string | null {
   if ("q" in gate) {
     const quality = story.qualityByKey[gate.q];
     if (!quality) return `reads '${gate.q}', which no quality declares`;
@@ -159,7 +159,7 @@ export function gateImpossible(gate: GateNode, story: NormalizedStoryV2, values:
   return null;
 }
 
-export function checkDirectorOps(input: DirectorCheckInput): { story: NormalizedStoryV2 | null; issues: string[] } {
+export function checkDirectorOps(input: DirectorCheckInput): { story: NormalizedStory | null; issues: string[] } {
   const issues: string[] = [];
   const existing = new Set([...input.story.checkpoints.map((checkpoint) => checkpoint.id), ...(input.story.chapters ?? []).map((chapter) => chapter.id)]);
   const keys = new Set(input.story.qualities.map((quality) => quality.key));
@@ -190,7 +190,7 @@ export function checkDirectorOps(input: DirectorCheckInput): { story: Normalized
   if (input.scene) issues.push(...sceneAnswerIssues(input.scene.signal, input.scene.answer, input.scene.threads));
   if (!input.convergeTo && (input.story.outgoingByCheckpoint[input.frontierId] ?? []).length) issues.push(`'${input.frontierId}' already has exits`);
   if (input.convergeTo && input.story.checkpointById[input.convergeTo]?.type !== "anchor") issues.push(`'${input.convergeTo}' is not an anchor to converge on`);
-  const parsed = parseStoryV2(foldOps(input.raw, input.ops));
+  const parsed = parseStory(foldOps(input.raw, input.ops));
   if (Array.isArray(parsed)) {
     issues.push(...parsed.slice(0, 4).map((error) => `${error.path}: ${error.message}`));
     return { story: null, issues };
@@ -215,7 +215,7 @@ export interface BuiltBranchOps {
   issues: string[];
 }
 
-export function buildBranchOps(story: NormalizedStoryV2, sourceId: string, targetId: string, branchId: string, draft: DirectorDraft): BuiltBranchOps {
+export function buildBranchOps(story: NormalizedStory, sourceId: string, targetId: string, branchId: string, draft: DirectorDraft): BuiltBranchOps {
   const issues: string[] = [];
   const target = story.checkpointById[targetId];
   if (draft.opensWhen.kind !== "new") issues.push("a branch opens on a new value that names what the player is doing");

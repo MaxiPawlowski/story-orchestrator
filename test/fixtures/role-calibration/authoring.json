@@ -5,7 +5,7 @@
   "floors": { "validity": 0.9, "opShape": 0.8 },
   "drafts": {
     "heist": {
-      "format": 2, "id": "cal-heist", "title": "The Vault Job", "description": "A crew of thieves breaks into the city bank's vault.",
+      "id": "cal-heist", "title": "The Vault Job", "description": "A crew of thieves breaks into the city bank's vault.",
       "qualities": [{ "key": "has_key", "type": "bool", "source": "extractor", "rubric": "Does the crew have the vault key?" }],
       "checkpoints": [
         { "id": "start", "name": "Casing the Bank", "objective": "Case the bank and get the vault key.", "type": "anchor", "start": true },
@@ -15,7 +15,7 @@
       "roster": []
     },
     "heist-open": {
-      "format": 2, "id": "cal-heist-open", "title": "The Vault Job", "description": "A crew of thieves breaks into the city bank's vault.",
+      "id": "cal-heist-open", "title": "The Vault Job", "description": "A crew of thieves breaks into the city bank's vault.",
       "qualities": [{ "key": "has_key", "type": "bool", "source": "extractor", "rubric": "Does the crew have the vault key?" }],
       "checkpoints": [
         { "id": "start", "name": "Casing the Bank", "objective": "Case the bank and get the vault key.", "type": "anchor", "start": true },
@@ -25,14 +25,14 @@
       "roster": []
     },
     "blank": {
-      "format": 2, "id": "cal-blank", "title": "Untitled", "description": "",
+      "id": "cal-blank", "title": "Untitled", "description": "",
       "qualities": [],
       "checkpoints": [{ "id": "start", "name": "Start", "objective": "Begin.", "type": "anchor", "start": true }],
       "transitions": [],
       "roster": []
     },
     "ruins": {
-      "format": 2, "id": "cal-ruins", "title": "The Sun Ruins", "description": "A party of adventurers takes a guild job to explore desert ruins.",
+      "id": "cal-ruins", "title": "The Sun Ruins", "description": "A party of adventurers takes a guild job to explore desert ruins.",
       "qualities": [
         { "key": "agreed_to_go", "type": "bool", "source": "extractor", "rubric": "Has the party agreed to take the job?" },
         { "key": "torch_lit", "type": "bool", "source": "extractor", "rubric": "Is the party's torch lit?" }
@@ -46,7 +46,7 @@
       "roster": [{ "id": "arin", "name": "Arin", "role": "The player's companion, a sharp-tongued swordswoman" }]
     },
     "heist-cast": {
-      "format": 2, "id": "cal-heist-cast", "title": "The Vault Job", "description": "A crew of thieves breaks into the city bank's vault.",
+      "id": "cal-heist-cast", "title": "The Vault Job", "description": "A crew of thieves breaks into the city bank's vault.",
       "qualities": [{ "key": "has_key", "type": "bool", "source": "extractor", "rubric": "Does the crew have the vault key?" }],
       "checkpoints": [
         { "id": "start", "name": "Casing the Bank", "objective": "Case the bank and get the vault key.", "type": "anchor", "start": true },

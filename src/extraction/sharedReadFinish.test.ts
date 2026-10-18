@@ -1,4 +1,4 @@
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 import { callExtractionReply } from "@extraction/client";
 import { ModelCallError } from "@extraction/modelError";
 import { viaReply } from "../../test/support/modelCall";
@@ -11,8 +11,7 @@ jest.mock("@services/STAPI", () => ({
   readServerBoundary: async () => null, getContext: () => ({ chat: [], extensionSettings: {} }) }));
 jest.mock("@extraction/client", () => ({ ...jest.requireActual("@extraction/client"), callExtractionReply: jest.fn() }));
 
-const story = () => parseStoryV2OrThrow({
-  format: 2,
+const story = () => parseStoryOrThrow({
   id: "finish-reason",
   title: "Finish reason",
   description: "v2.4 plan 03 D6",

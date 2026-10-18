@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import { storyRevision } from "./hash";
 import { earnedSwitches, earnedSwitchesKey, NO_EARNED_SWITCHES } from "./worldInfoGates";
 import { applyScanGate, emptyScanGateStats, restsOffIn, scanGatePlan, type NormalizedLedger, type ScanEntry, type ScanGate, type ScanGateRow, type ScanGateStats } from "./scanGatePlan";
@@ -10,7 +10,7 @@ import { applyScanGate, emptyScanGateStats, restsOffIn, scanGatePlan, type Norma
 export interface ScanGateSources {
   chatId: () => string | null;
   ownedChat: () => string | null;
-  story: () => NormalizedStoryV2 | null;
+  story: () => NormalizedStory | null;
   path: () => string[];
   values?: () => Readonly<Record<string, unknown>>;
   ready: () => boolean;

@@ -10,7 +10,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-v25-08-mirror",
         "title": "SO-V25-08 Mirror",
         "description": "v2.5 plan 08 G-L1: the unbound mirror in scan mode.",
@@ -131,7 +130,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-v25-08-other",
         "title": "SO-V25-08 Other",
         "description": "v2.5 plan 08 G-L1 U1: another story's chat.",

@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { emptyTutorialCard, reviewTutorialCard, type TutorialCard } from "@copilot/characterTutorial";
 import { cardFindings, cardWarnings, inOpeningCast, listedTraits, reviewCard, showsBehaviour, type CardCheckInput } from "./cardChecks";
 import { emptyEnvironment, validateProvisioningOp } from "./provisioning";
@@ -17,8 +17,8 @@ const tutorial = (patch: Partial<TutorialCard> = {}): TutorialCard => ({
   description: DESCRIPTION, personality: "patient, evasive, quietly greedy", ...patch,
 });
 
-const draftFor = (name: string, opening: boolean): StoryV2 => ({
-  format: 2, title: "Harbour", description: "A port.", qualities: [], transitions: [], roster: [],
+const draftFor = (name: string, opening: boolean): Story => ({
+  title: "Harbour", description: "A port.", qualities: [], transitions: [], roster: [],
   checkpoints: [{ id: "start", name: "Start", objective: "Arrive.", type: "anchor", start: true, effects: { cast_changes: opening ? { enable: [name] } : { disable: [name] } } }],
 });
 
@@ -70,7 +70,7 @@ const CLEAN_CARDS: CardOp[] = [
   { kind: "createCharacterCard", name: "Wenna Tregear", description: "Wenna runs the tide office and knows every boat by its creak. When a stranger asks about the tides, she answers with a question of her own and watches their face.", personality: "curious, guarded" },
 ];
 
-const PLANTED: Array<{ label: string; op: CardOp; draft?: StoryV2; env?: { characterNames: string[] }; id: string; severity: "blocks" | "warns" }> = [
+const PLANTED: Array<{ label: string; op: CardOp; draft?: Story; env?: { characterNames: string[] }; id: string; severity: "blocks" | "warns" }> = [
   { label: "no name", op: { ...CLEAN_CARDS[1], name: " " }, id: "name-missing", severity: "blocks" },
   { label: "taken name", op: { ...CLEAN_CARDS[1], name: "Mara Venn" }, id: "name-taken", severity: "blocks" },
   { label: "empty description", op: { ...CLEAN_CARDS[1], description: "" }, id: "description-empty", severity: "blocks" },
@@ -85,7 +85,7 @@ const PLANTED: Array<{ label: string; op: CardOp; draft?: StoryV2; env?: { chara
   { label: "examples without {{char}}:", op: { ...CLEAN_CARDS[1], mes_example: "<START>\nShe counts the coins twice." }, id: "examples-no-char-line", severity: "warns" },
 ];
 
-const NEUTRAL: StoryV2 = { format: 2, title: "Harbour", description: "", qualities: [], transitions: [], roster: [], checkpoints: [{ id: "start", name: "Start", objective: "Arrive.", type: "anchor", start: true }] };
+const NEUTRAL: Story = { title: "Harbour", description: "", qualities: [], transitions: [], roster: [], checkpoints: [{ id: "start", name: "Start", objective: "Arrive.", type: "anchor", start: true }] };
 
 describe("v2.8 09 harvest A2: planted card mistakes", () => {
   it.each(PLANTED)("$label is flagged as $id ($severity)", ({ op, draft, env, id, severity }) => {

@@ -47,7 +47,6 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 const story = {
-  format: 2,
   id: "manual-read",
   title: "Manual Read",
   description: "batch-2 regression fixture.",

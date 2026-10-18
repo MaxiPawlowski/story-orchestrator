@@ -1,4 +1,4 @@
-import { STORY_KINDS, type StoryV2 } from "@engine/index";
+import { STORY_KINDS, type Story } from "@engine/index";
 
 type KindCode = "story-kind-invalid";
 
@@ -7,7 +7,7 @@ export const KIND_CONSEQUENCES: Record<KindCode, string> = {
 };
 
 export interface KindRun {
-  draft: StoryV2;
+  draft: Story;
   push: (code: KindCode, severity: "blocking", path: string, message: string) => void;
 }
 

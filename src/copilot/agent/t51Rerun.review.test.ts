@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { emptyEnvironment, type ProvisioningEnvironment } from "@wizard/index";
 import { approvePlan, decideStep, executeReply, newAgentSession, type StepMeta } from "./loop";
 import { renderStepPrompt } from "./prompt";
@@ -8,8 +8,7 @@ import type { AgentSession } from "./types";
 const AT = "2026-10-02T14:20:00.000Z";
 const META: StepMeta = { route: "local", firstTryValid: true, repaired: false, at: AT };
 
-const kingdom = (): StoryV2 => ({
-  format: 2,
+const kingdom = (): Story => ({
   title: "The Redrawn Kingdom",
   description: "",
   qualities: [{ key: "map_truth", type: "enum", values: ["asleep", "awake"], source: "extractor", rubric: "Is the map awake?" }],

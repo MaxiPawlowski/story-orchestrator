@@ -14,7 +14,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-a20-list",
         "title": "SO-A20 List",
         "description": "Synthetic lorebook readiness refresh.",

@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import { chanceSeed, seededStream } from "@engine/chance";
-import { parseStoryV2OrThrow, StoryEngine, TENSION_LEVELS, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, StoryEngine, TENSION_LEVELS, type NormalizedStory } from "@engine/index";
 import type { ModelCall } from "@extraction/index";
 import { renderDirectorPrompt } from "@generation/living/prompt";
 import { planSceneTest, sceneSignal, sceneSignalLine, type SceneIds, type SceneTestRecord } from "@generation/living/sceneTest";
@@ -57,7 +57,7 @@ const rig = (options: RigOptions = {}) => {
   const raw = withScene(fixture("living-premise"), { ...(options.horizon ? { horizon: options.horizon } : {}), ...options.living });
   const context: RunContext = { chatId: "c1", storyId: "s1", storyHash: "h1", sessionEpoch: 1, windowRevision: 0 };
   const engine = new StoryEngine({ now: () => 0 });
-  const loaded = { record: { id: "s1", hash: "h1", raw }, story: parseStoryV2OrThrow(raw) as NormalizedStoryV2 };
+  const loaded = { record: { id: "s1", hash: "h1", raw }, story: parseStoryOrThrow(raw) as NormalizedStory };
   engine.loadStory(loaded.story);
   const extras: { living?: LivingRuntimeState } = {};
   const prompts: string[] = [];
@@ -79,7 +79,7 @@ const rig = (options: RigOptions = {}) => {
     setLiving: (next) => { extras.living = next; },
     setPlayedRaw: (next) => {
       loaded.record = { ...loaded.record, raw: next };
-      loaded.story = parseStoryV2OrThrow(next);
+      loaded.story = parseStoryOrThrow(next);
       engine.replaceGraph(loaded.story);
     },
     pruneExpansion: () => 0,
@@ -266,7 +266,7 @@ describe("v2.8 48 S4 expected = today", () => {
     expected: { from: "The opening", thread: "the dark lanterns" }, ...patch,
   });
   const build = (raw: Record<string, unknown>, sceneTest?: SceneTestRecord | null) => {
-    const story = parseStoryV2OrThrow(raw) as NormalizedStoryV2;
+    const story = parseStoryOrThrow(raw) as NormalizedStory;
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     const inputs: LivingInputs = { ...boundaryInputs(0), openThreads: ["the dark lanterns"], tension: "tense" };
@@ -321,12 +321,12 @@ describe("v2.8 48 S5 player clean at fixed played state", () => {
   });
 
   it("the player's living slice is identical with and without scene tests", () => {
-    const story = parseStoryV2OrThrow(withScene(fixture("living-premise"))) as NormalizedStoryV2;
-    const plain = parseStoryV2OrThrow(fixture("living-premise")) as NormalizedStoryV2;
+    const story = parseStoryOrThrow(withScene(fixture("living-premise"))) as NormalizedStory;
+    const plain = parseStoryOrThrow(fixture("living-premise")) as NormalizedStory;
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     const living = { authored: null, folded: [], ops: [], proposals: [], epochBumps: 0, passes: 0, lastPass: null };
-    const slice = (s: NormalizedStoryV2, sceneTests?: SceneTestRecord[]) =>
+    const slice = (s: NormalizedStory, sceneTests?: SceneTestRecord[]) =>
       JSON.stringify(livingSlice({ story: s, state: engine.serialize(), living: { ...living, ...(sceneTests ? { sceneTests } : {}) }, authorView: false, enabled: true, branching: true, epoch: null }));
     expect(slice(story, records)).toBe(slice(plain));
   });

@@ -56,7 +56,7 @@
       "goal": "the story is selected and its requirements are GREEN — the guard v2.3 plan 04 added, because a journey that never established its lorebooks gets silent no-op latches instead of a failure, and the symptom then surfaces 300 s later as a checkpoint that never arrives",
       "steps": [
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const library = (globalThis.SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.v2Stories ?? []).map((r) => r.id); if (!library.includes('adolion-adventurer')) throw new Error(`the story this journey needs is not in the library (has: ${library.join(', ')}) — install it from the campaign's own assets before running J12`); return { library };"
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const library = (globalThis.SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.stories ?? []).map((r) => r.id); if (!library.includes('adolion-adventurer')) throw new Error(`the story this journey needs is not in the library (has: ${library.join(', ')}) — install it from the campaign's own assets before running J12`); return { library };"
         },
         {
           "select_story": "adolion-adventurer"

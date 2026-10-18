@@ -28,15 +28,14 @@ jest.mock("@services/STAPI", () => ({
   setGroupMembersDisabled: async (enable: string[], disable: string[]) => { host.calls.push(`cast:+${enable.join(",")}-${disable.join(",")}`); return { ok: true, group: "g1" }; },
 }));
 
-import { parseStoryV2OrThrow, StoryEngine } from "@engine/index";
+import { parseStoryOrThrow, StoryEngine } from "@engine/index";
 import { EffectsApplier } from "./effectsApplier";
 import { samplerOverlay } from "./samplerOverlay";
 import { stagedPath } from "./worldInfoGates";
 import type { EffectLedgerRow, EffectTarget, RuntimeExtras } from "./types";
 import { testOwnership } from "../../test/findings/testOwnership";
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "staging",
   title: "Staging",
   description: "",

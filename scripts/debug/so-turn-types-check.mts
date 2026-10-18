@@ -25,7 +25,6 @@ Solo checks pick a character with alternate greetings, no embedded lorebook and 
 Every chat the run creates is deleted by id afterwards; a story it imported is removed from the library.`;
 
 const STORY = {
-  format: 2,
   id: 'so-turn-types-check',
   title: 'Turn Types Check',
   description: 'Throwaway story for so-turn-types-check.mts.',

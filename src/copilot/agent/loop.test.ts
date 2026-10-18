@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { advanceAgent, agentStats, applyAgentOp, approvePlan, decideStep, newAgentSession, opPreview, pendingStep, resolveProvisioning, stopAgent } from "./loop";
 import { harnessRoute } from "./bridge";
 import { AgentRouteUnavailable } from "./route";
@@ -8,8 +8,7 @@ import type { AgentSession } from "./types";
 
 const AT = "2026-09-30T00:00:00.000Z";
 
-const story = (): StoryV2 => ({
-  format: 2,
+const story = (): Story => ({
   title: "Flooded Courier",
   description: "",
   qualities: [{ key: "delivered", type: "bool", source: "extractor", rubric: "Has the parcel been handed over?" }],

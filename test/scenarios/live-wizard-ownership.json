@@ -4,7 +4,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "id": "so-p02-ownership",
         "title": "SO-P02 Ownership Probe",
         "description": "A story that depends on the author's own world lorebook without owning it.",

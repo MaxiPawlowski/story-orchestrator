@@ -17,8 +17,8 @@ export const jsonBytes = (value: unknown): number => (value === undefined ? 0 : 
 export function settingsSizes(settings: unknown): Pick<DataRootSizes, 'extensionBytes' | 'libraryBytes' | 'libraryStories' | 'wizardBytes'> {
   const extensions = (settings as { extension_settings?: Record<string, unknown> } | null)?.extension_settings;
   const root = extensions?.['story-orchestrator'] as Record<string, unknown> | undefined;
-  const stories = Array.isArray(root?.v2Stories) ? root.v2Stories : [];
-  return { extensionBytes: jsonBytes(root), libraryBytes: jsonBytes(root?.v2Stories), libraryStories: stories.length, wizardBytes: jsonBytes(root?.wizardSessions) };
+  const stories = Array.isArray(root?.stories) ? root.stories : [];
+  return { extensionBytes: jsonBytes(root), libraryBytes: jsonBytes(root?.stories), libraryStories: stories.length, wizardBytes: jsonBytes(root?.wizardSessions) };
 }
 
 export const blobBytesOf = (chatHeader: unknown): number => jsonBytes((chatHeader as { chat_metadata?: Record<string, unknown> } | null)?.chat_metadata?.story_orchestrator);

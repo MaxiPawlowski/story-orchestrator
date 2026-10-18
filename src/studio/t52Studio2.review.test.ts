@@ -1,10 +1,9 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { chatSaveHalf, NO_CHAT_OPEN } from "@runtime/librarySave";
 import { runDiagnostics, type DiagnosticsContext } from "./diagnostics";
 import { playerRoles } from "./playerRole";
 
-const pawnbroker = (patch: Partial<StoryV2> = {}): StoryV2 => ({
-  format: 2,
+const pawnbroker = (patch: Partial<Story> = {}): Story => ({
   title: "The Pawnbroker of Forgotten Days",
   description: "",
   qualities: [],
@@ -21,7 +20,7 @@ const pawnbroker = (patch: Partial<StoryV2> = {}): StoryV2 => ({
   ...patch,
 });
 
-const rows = (draft: StoryV2, code: string, context: DiagnosticsContext = {}) => runDiagnostics(draft, context).filter((entry) => entry.code === code);
+const rows = (draft: Story, code: string, context: DiagnosticsContext = {}) => runDiagnostics(draft, context).filter((entry) => entry.code === code);
 
 describe("T5-2-2 MEDIUM: Diagnostics names a cast member with no card on the install", () => {
   const context: DiagnosticsContext = { characterNames: () => ["The Queen's Agent", "Seraphina"] };

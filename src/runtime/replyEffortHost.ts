@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import { observeSamplerPayloads, parseHostYaml, type SamplerPayloadHandlers } from "@services/STAPI";
 import { listedModels, readThinkingTemplate } from "@services/stHost/llamaCpp";
 import type { ReplyEffort } from "@utils/reasoningEffort";
@@ -44,7 +44,7 @@ export interface ReplyEffortWiring {
   storyChat: () => string | null;
   openChat: () => string | null;
   checkpointId: () => string | null;
-  story: () => NormalizedStoryV2 | null;
+  story: () => NormalizedStory | null;
   generation: () => GenerationLifecycleSnapshot;
   journal: (summary: string, note: string) => void;
   now?: () => number;

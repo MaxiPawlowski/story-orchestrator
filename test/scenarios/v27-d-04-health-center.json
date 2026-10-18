@@ -20,7 +20,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-v27d04",
         "title": "SO-V27D04 Health",
         "description": "v2.7 04 live row: a group story missing one member, played with no memory model and Summarize on.",

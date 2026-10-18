@@ -43,7 +43,7 @@ const derive = (snapshot: RuntimeSnapshot): RuntimeSnapshot => {
 const sampleSnapshot = (): RuntimeSnapshot => derive(({
     ready: true,
     storyId: "sun-ruins",
-    storyHash: "v2-demo",
+    storyHash: "story-demo",
     storyIdentity: { id: "sun-ruins", pinned: true, drifted: false },
     storyTitle: "Quest for the Sun Ruins",
     storyDescription: "A desert expedition toward a buried temple.",

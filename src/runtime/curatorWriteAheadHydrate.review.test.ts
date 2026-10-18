@@ -75,7 +75,6 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 const story = {
-  format: 2,
   id: "write-ahead-story",
   title: "Write-ahead story",
   description: "A curator write-ahead marker survives a reload.",

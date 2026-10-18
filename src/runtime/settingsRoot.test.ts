@@ -15,7 +15,6 @@ import { listStoryRecords, saveStoryRecord } from "./storyLibrary";
 import { loadWizardSession, saveWizardSession } from "./wizardSessions";
 
 const story = {
-  format: 2,
   id: "heist",
   title: "Heist",
   description: "Root fixture.",
@@ -62,7 +61,7 @@ describe("v2.5 plan 11: the install-wide root carries schema 1", () => {
 
   it("a library record without an id is dropped on read, and the read writes nothing", () => {
     const stored = [{ hash: "h1", title: "Old", raw: { id: "old" }, importedAt: "2026-09-01T00:00:00.000Z" }, { id: "kept", hash: "h2", title: "Kept", raw: { id: "kept" }, importedAt: "x", updatedAt: "x" }];
-    settings["story-orchestrator"] = { v2Stories: stored };
+    settings["story-orchestrator"] = { stories: stored };
     const before = JSON.stringify(settings);
     expect(listStoryRecords().map((record) => record.id)).toEqual(["kept"]);
     expect(JSON.stringify(settings)).toBe(before);
@@ -71,7 +70,7 @@ describe("v2.5 plan 11: the install-wide root carries schema 1", () => {
 
   it("a duplicate id keeps the newer record", () => {
     const record = (title: string, updatedAt: string) => ({ id: "same", hash: title, title, raw: { id: "same" }, importedAt: updatedAt, updatedAt });
-    settings["story-orchestrator"] = { v2Stories: [record("Newer", "2026-09-02T00:00:00.000Z"), record("Older", "2026-09-01T00:00:00.000Z")] };
+    settings["story-orchestrator"] = { stories: [record("Newer", "2026-09-02T00:00:00.000Z"), record("Older", "2026-09-01T00:00:00.000Z")] };
     expect(listStoryRecords().map((entry) => entry.title)).toEqual(["Newer"]);
   });
 });

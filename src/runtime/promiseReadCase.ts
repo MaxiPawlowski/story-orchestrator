@@ -2,7 +2,7 @@ import { runSharedRead } from "@extraction/sharedRead";
 import type { ModelCall } from "@extraction/modelRoute";
 import type { RequestBudget } from "@extraction/tokenMeter";
 import { windowOf } from "@extraction/chatRows";
-import { parseStoryV2OrThrow, StoryEngine } from "@engine/index";
+import { parseStoryOrThrow, StoryEngine } from "@engine/index";
 import { loadGameLayer } from "@engine/validate/gameLayer";
 import { applyReadLines, seedPromises, seededRefs, type PromiseReadOutcome, type PromiseSeed } from "@memory/promises/readCase";
 import type { OpenPromiseRef } from "@memory/promises/types";
@@ -41,7 +41,7 @@ export interface PromiseReadDeps {
 
 export async function runPromiseReadCase(spec: PromiseReadSpec, { model, budget: budgetFor }: PromiseReadDeps): Promise<PromiseReadResult> {
   await loadGameLayer();
-  const story = parseStoryV2OrThrow(spec.story);
+  const story = parseStoryOrThrow(spec.story);
   const engine = new StoryEngine();
   engine.loadStory(story);
   const chatId = spec.chatId ?? "p47-suite";

@@ -2,7 +2,6 @@ import type { StoryDraft } from "./draft";
 import { findQualityUsages, reservedQualityKeys } from "./qualityUsage";
 
 const draft = (): StoryDraft => ({
-  format: 2,
   title: "T",
   description: "",
   qualities: [

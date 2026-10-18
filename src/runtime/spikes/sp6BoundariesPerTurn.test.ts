@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { StoryEngine, parseStoryV2OrThrow, TENSION_CURRENT_KEY } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, TENSION_CURRENT_KEY } from "@engine/index";
 import { unitDraw } from "@engine/chance";
 import { deriveReleases, readComplicationPools, type ComplicationRelease, type ReleaseInput } from "./sp6Complications";
 import { complicationView } from "./install";
@@ -8,7 +8,7 @@ import { defaultSpikeSettings } from "../settingsModel";
 import { playerTurnIds } from "../agencyRecovery";
 
 const raw = JSON.parse(readFileSync(join(__dirname, "../../../test/scenarios/live-v25-09-sp6.story.json"), "utf8"));
-const story = parseStoryV2OrThrow(raw);
+const story = parseStoryOrThrow(raw);
 const pools = readComplicationPools(raw);
 const TURNS = 98;
 const RATES = [1.0, 1.4, 1.5, 1.6];
