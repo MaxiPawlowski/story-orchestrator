@@ -400,7 +400,7 @@ real-model carrier, or why none is needed.
 | suggestions | CL | v28-04 scripted | suggestions block (10 runs), GS1.9 |
 | repetition-readout | D | repetition jest | none: no model |
 | guide | D | 30-D*, docs drift tests | none: no model |
-| tour | D | tour jest (drift: Read more targets, setup path claims), showMeTargets, Storybook, assert-player-clean; so-tour-check plumbing (plan 72) | none: no model |
+| tour | D | coach jest (flows, copy, geometry, quick-start checks, Show me targets, setup path claims), showMeTargets (every anchor rendered), Storybook Tour/CoachMarks, assert-player-clean; so-tour-check plumbing at 1400x900 and 390x844 (plans 72, 73) | none: no model |
 | open-stretches | D + RP | v28-19 scenarios ×2, 35-P2 | campaign encounters-model |
 | journal | RP | 36-Q5-scn, campaign panels | GS1.3 |
 | stat-sheet | RP | 36-P-live | GS1.3 |

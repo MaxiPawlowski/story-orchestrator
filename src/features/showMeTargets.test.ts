@@ -2,7 +2,9 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, posix, resolve } from "node:path";
 import { FEATURES, type FeatureSurface } from "./registry";
 import { canShow } from "@components/help/HelpPanel";
-import { allSteps } from "@guide/tour/tourRoutes";
+import { COACH_FLOWS } from "@guide/tour/coachFlows";
+import { GUIDE_PAGES } from "@guide/pages.generated";
+import { guideShowOf } from "@guide/showTarget";
 
 const ROOT = resolve(__dirname, "../..");
 
@@ -145,14 +147,35 @@ describe("v2.7 plan 29 (finding 20): every Help \"Show me\" target exists in the
   });
 });
 
-describe("tour deep links land on a rendered control", () => {
-  it("every control a tour step opens is defined by the workspace tree", () => {
+describe("tour coach marks anchor on rendered controls", () => {
+  const ids = (selector: string) => [...selector.matchAll(/#([A-Za-z0-9_-]+)/g)].map((match) => match[1]);
+  const stops = Object.values(COACH_FLOWS).flatMap((flow) => flow.stops.map((stop) => ({ view: flow.view, stop })));
+
+  it("every anchor id of a workspace, studio or chat stop is defined by the tree that stop shows", () => {
+    const trees = {
+      workspace: [...renderedFiles(SURFACE_ROOTS.settings).values()],
+      studio: [...renderedFiles(SURFACE_ROOTS.studio).values()],
+      chat: [...renderedFiles(SURFACE_ROOTS.chat).values(), diskRead("src/index.tsx") ?? ""],
+      guide: [...renderedFiles([{ file: "src/guide/GuideHost.tsx" }]).values()],
+    };
+    const treeOf = (kind: string) => (kind === "workspace" ? trees.workspace : kind === "studio" ? trees.studio : kind === "guide" ? trees.guide : trees.chat);
+    const missing = stops.flatMap(({ view, stop }) => stop.anchors.flatMap((anchor) => ids(anchor.selector)
+      .filter((id) => !definesSelector(treeOf(stop.action.kind), `#${id}`)).map((id) => `${view}.${stop.id}: #${id}`)));
+    expect(stops.length).toBeGreaterThanOrEqual(15);
+    expect(missing).toEqual([]);
+    expect(definesSelector(trees.workspace, "#so-coach-nowhere")).toBe(false);
+  });
+
+  it("every guide Show me that opens the workspace lands on a control the workspace renders", () => {
     const workspace = [...renderedFiles(SURFACE_ROOTS.settings).values()];
-    const controls = [...new Set(allSteps().flatMap(({ step }) => (step.show?.control ? [step.show.control] : [])))];
-    expect(controls.length).toBeGreaterThan(10);
-    expect(controls.filter((control) => !definesSelector(workspace, `#${control}`))).toEqual([]);
-    expect(definesSelector(workspace, "#so-help-tour")).toBe(true);
-    expect(definesSelector(workspace, "#so-tour-nowhere")).toBe(false);
+    const controls = GUIDE_PAGES.flatMap((page) => [...page.body.matchAll(/<!--\s*so:show\s+(open:[\w:.-]+)\s*-->/g)].map((match) => ({ page: page.id, value: match[1] })));
+    const broken = controls.filter(({ value }) => {
+      const target = guideShowOf(value);
+      return target?.kind !== "open" || (target.intent.control !== undefined && !definesSelector(workspace, `#${target.intent.control}`));
+    });
+    expect(controls.length).toBeGreaterThan(5);
+    expect(broken).toEqual([]);
+    expect(definesSelector(workspace, "#so-capabilities-nowhere")).toBe(false);
   });
 });
 

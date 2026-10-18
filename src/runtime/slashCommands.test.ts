@@ -89,7 +89,7 @@ describe("registerSlashCommands", () => {
     registerSlashCommands(makeManager());
     const seen: unknown[] = [];
     expect(await commands.story.callback({}, "tour")).toBe(GUIDE_UNAVAILABLE);
-    const stop = onTourRequest((view) => seen.push(view));
+    const stop = onTourRequest((request) => seen.push(request.view));
     expect(await commands.story.callback({}, "tour setup")).toBe("");
     expect(await commands.story.callback({}, "tour")).toBe("");
     expect(await commands.story.callback({}, "tour everything")).toBe("Usage: /story tour [player|author|setup]");

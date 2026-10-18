@@ -12,7 +12,7 @@ Taken from the code as it is; when the code and this page disagree, fix one of t
   variable such as `--grey10` or `--black70a`; a new literal colour is a bug, because it breaks the user's theme.
 - **Two accents, one meaning each.** The quote colour (`--SmartThemeQuoteColor`) is **Story**: this chat, playing,
   the player view. The em colour (`--SmartThemeEmColor`, the blue in the default theme) is **Orchestrator**: install
-  settings, authoring, setup. The workspace sets `--so-context-accent` from `data-context`; the tour from `data-view`.
+  settings, authoring, setup. The workspace sets `--so-context-accent` from `data-context`; the tour's card from `data-flow`.
   Use the accent for the current page, the pressed view, the primary action and the "Do this" rule, nothing else.
 - **Severity has its own tokens**: `--st-error` stops the story (`blocks`, the **fix setup** chip), `--st-warning`
   weakens it (`degrades`, **check setup**), `--st-success` is done or applied, `--st-info` is neutral. Text classes:
@@ -25,11 +25,11 @@ Taken from the code as it is; when the code and this page disagree, fix one of t
   (uppercase section labels with letter spacing). Monospace only for commands, keys and ids.
 - Spacing comes from Tailwind's scale inside the mount roots (`gap-2`, `p-3`) or rem values in a feature's own
   stylesheet (`.25rem` steps). No pixel layouts except hairlines.
-- **Every control is at least 44px tall** in the workspace and the tour (buttons, selects, inputs, summaries).
+- **Every control is at least 44px tall** in the workspace and the tour card (buttons, selects, inputs, summaries).
 - Buttons are ST's `menu_button` (or `.st-button` in the workspace); the primary action adds the accent border.
   Toggles are labelled checkboxes. Chips are `.st-chip` / `.st-pill`, round, small text, a border in the state's
   token. Icons are Font Awesome classes ST already ships, with an `aria-label` when the icon is the whole button.
-- CSS is scoped to the mount roots listed in `src/styles.css` (`:is(#drawer-manager, … #so-tour-modal)`); a new root
+- CSS is scoped to the mount roots listed in `src/styles.css` (`:is(#drawer-manager, … #so-workspace-modal)`); a new root
   goes into that list and into `mountRootFor` in `.storybook/preview.ts`.
 
 ## Layouts
@@ -40,10 +40,14 @@ Taken from the code as it is; when the code and this page disagree, fix one of t
 - **Drawer and HUD**: the route icon opens **This story → Play**; the HUD is one line above the chat input
   (`#so-hud-root`) with the scene and at most one state chip.
 - **Dialogs** are native `<dialog>` + `showModal()`, never a positioned div (ST's `<html>` transform breaks
-  `position: fixed`). Escape closes the top dialog only; focus returns to the opener. Nested dialogs (the tour's
-  finder and guide reader) are their own `<dialog>`.
-- **The tour** (`#so-tour-modal`) reuses the workspace frame: header, view switch, step nav, content. A step pairs
-  guidance (Do this / You should see / If it looks off) with an example that only changes its own state.
+  `position: fixed`). Escape closes the top dialog only; focus returns to the opener. A nested dialog is its own `<dialog>`.
+- **Tours are coach marks on the real UI** (`src/guide/tour/`, `#so-coach`): a ring around the actual control and one
+  card with "Step n of m", a title, one or two sentences, **Skip tour**, **Back** and **Next**. Never a fake copy of
+  a control. The card is a `popover="manual"` element in the top layer, portaled into the topmost open modal
+  dialog (or `body` when none is open), because a modal dialog makes everything outside it inert. Its styles are
+  scoped by `#so-coach`, not by a mount root. A stop that cannot find its control says so and keeps **Next**; at
+  under 700px the card is a sheet at the bottom (top when the control is low). Escape closes the tour only, and
+  focus returns to where it was. A flow has 4 to 7 stops; a stop's copy lives in `src/features/tourCopy.ts`.
 
 ## Copy
 
@@ -63,11 +67,14 @@ Taken from the code as it is; when the code and this page disagree, fix one of t
 
 ## Docs and screenshots
 
-- The user guide is `docs/guide/`; the in-app reader and the tour's **Read more** read the same pages
+- The user guide is `docs/guide/`; the in-app reader and the website read the same pages
   (`npm run docs:guide` rebuilds `src/guide/pages.generated.ts`). Author field pages come from
   `docs/authoring/story-guide.md`; the settings reference is generated (`npm run docs:settings`).
 - Link pages relatively (`setup/judge.md#install`); `scripts/docs/guide-bundle.mjs` fails on a broken link or anchor,
-  and the tour's drift test fails on a **Read more** target that is not a guide page.
+  and the tour's drift tests fail on a coach-mark anchor no component renders or a **Show me** that names no stop.
+- In-app extras ride in HTML comments, so the website shows a plain page: `<!-- so:check memory -->` ticks from real
+  state in the reader, `<!-- so:show setup:memory -->` starts that tour stop, and
+  `<!-- so:show open:orchestrator.connections.so-capabilities -->` opens the workspace at that control.
 - Short paragraphs, tables for reference, one idea per bullet. Same location wording as the UI copy.
 - Screenshots and sketches go in `docs/guide/assets/` as png, jpg or webp under 150 KB, each with alt text, each used
   by a page. Capture them at the 1280px desktop and 390×844 phone viewports in ST's default theme, with no story,

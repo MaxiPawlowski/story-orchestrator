@@ -499,7 +499,8 @@ const mount = (attempt = 0) => {
 };
 
 presenceUi.mountMarks(ui);
-ui.add(onTourRequest((view) => void import("./guide/tour/tourMount").then(({ openTour }) => openTour(ui, manager, view))
+const coachDeps = { openStudio: () => void openStudio({ tab: "copilot" }), closeStudio: () => setStudioOpen(false), studioOpen: () => studioOpen };
+ui.add(onTourRequest((request) => void import("./guide/tour/coachMount").then(({ openCoach }) => openCoach(ui, coachDeps, request))
   .catch((error) => { log.warn("the tour could not open", error); window.toastr?.info?.(LAZY_FAILED_TEXT, "Story Orchestrator"); })));
 
 if (document.readyState === "loading") {

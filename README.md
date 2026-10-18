@@ -221,5 +221,5 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Setup | Host capabilities | Checks that SillyTavern has everything the extension needs, and copies a bug report. |  |
 | Setup | Experiments | Unmeasured trials. | Experimental |
 | Setup | Guide | The whole guide inside SillyTavern: playing, setup and writing stories. |  |
-| Setup | Tour | A guided tour with examples: playing, writing stories, and turning each part on. |  |
+| Setup | Tour | Short tours that point at the real controls: playing, writing stories, and setting up. |  |
 <!-- features:end -->

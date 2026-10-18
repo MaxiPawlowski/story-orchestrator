@@ -1,60 +1,43 @@
 # Quick start
 
-From nothing to playing the bundled example story, *Quest for the Sun Ruins*, in about fifteen minutes. You need a
-working SillyTavern (1.19.0 is the tested version) with a model connected for replies.
+Five steps from a fresh install to a story that plays. Inside SillyTavern each step ticks itself when it is done, and
+**Show me** points at the place on screen. You need a working SillyTavern (1.19.0 is the tested version) with a model
+connected for replies.
 
-**Stories play in group chats.** The example's cast is four characters: a narrator and three companions.
+Not installed yet? Follow [Install](setup/README.md#install) first.
 
-Prefer to learn by trying? Inside SillyTavern, **Help → Take the tour** (or `/story tour`) walks through playing,
-writing and setting up, each step beside an example that never changes your chat.
+## The checklist
 
-## 1. Install the extension
+1. <!-- so:check memory --> **Pick a memory model.** It reads the chat after each reply and moves the story on; it is
+   the one setting a story needs. Save a **Connection Manager** profile for a model with its matching instruct
+   template (your reply model is fine to start with), then choose it in **Extensions → Story Orchestrator → Open Story
+   Orchestrator → Orchestrator → Connections → Memory model** and press **Test memory model**.
+   <!-- so:show setup:memory -->
+2. <!-- so:check group --> **Open a group chat.** Stories play in group chats whose members are the story's cast. For
+   the bundled example, import the four cards from the repository's `examples/sun-ruins/` folder (**Characters →
+   Import**: `DM Narrator.png`, `Arin.png`, `Ponticius.png`, `Luke.png`) and its lorebook (**World Info → Import**
+   `Xentar Checkpoints.json`; you do not need to switch it on), then create a group with all four and open its chat.
+3. <!-- so:check story --> **Import or start a story.** In **Orchestrator → Library**, press **Import a story**, pick
+   or paste `quest-for-the-sun-ruins.json` and press **Import and load**. **New story (wizard)** builds one from your
+   own idea instead. If a **Before you start** page opens, read it and close it. <!-- so:show player:library -->
+4. <!-- so:check reply --> **Play a turn.** Write your first message in character and send it. When the reply ends,
+   the strip above the chat box shows the current scene; click it to open **This story → Play**.
+   <!-- so:show player:hud -->
+5. **Know where things live.** **This story → Play → What the story remembers** lists what the story kept from your
+   chat. If something is missing, a repair card on the same page (and a **fix setup** or **check setup** chip on the
+   strip) says what will not happen, and **Show me** takes you to the fix. <!-- so:show player:memory -->
+   <!-- so:show player:repair -->
 
-There is no published release yet, so build it from the source:
+## Tours
 
-```bash
-git clone https://github.com/MaxiPawlowski/story-orchestrator
-cd story-orchestrator
-echo <your SillyTavern folder> > .st-root
-npm ci
-npm run build
-npm run stage
-```
-
-`stage` copies the built extension into SillyTavern. Reload SillyTavern: **Extensions → Story Orchestrator** appears.
-Skip this step if you are reading this inside SillyTavern.
-
-## 2. Choose a memory model
-
-The memory model reads the chat after each reply and moves the story on. It is the one required setting.
-
-1. In SillyTavern, save a **Connection Manager** profile for a model, with the instruct template that matches it.
-   Your reply model is fine to start with.
-2. In **Extensions → Open Story Orchestrator → Connections**, pick it as the **Memory model**.
-3. Press **Test memory model**.
-
-## 3. Bring in the example's cast and lore
-
-The files are in the repository's `examples/sun-ruins/` folder.
-
-1. **Characters → Import** the four cards: `DM Narrator.png`, `Arin.png`, `Ponticius.png`, `Luke.png`.
-2. **World Info → Import** `Xentar Checkpoints.json`. You do not need to switch it on: the story loads it in its own
-   chats.
-3. Create a **group** with all four characters and open its chat.
-
-## 4. Load the story and play
-
-1. In **Extensions → Story Orchestrator**, choose **Start → Import a story**, pick or paste
-   `quest-for-the-sun-ruins.json`, and press **Import and load**.
-2. If a **Before you start** page opens, read it and close it.
-3. Write your first message, in character. The story follows from there.
-
-The bar above the chat box shows the current scene; click it to open the story drawer. If something is missing, the
-**Repair** row in the settings names it and **Show me** takes you there.
+**Orchestrator → Help → Take the tour** (or `/story tour` in the chat box) offers three short tours that point at the
+real controls one at a time: playing a story, writing stories, and setting up. `/story tour player`, `/story tour
+author` and `/story tour setup` start one directly.
 
 ## Where next
 
-- [Setup path](setup/setup-path.md): turn on and configure every other part, level by level
+- [Setup path](setup/setup-path.md): turn on and check every other part, level by level
 - [What you see while playing](player/README.md)
 - [Choosing models](setup/models.md): which model to use for each job
+- [Costs and waiting](setup/README.md#costs-and-waiting): what each part costs and when replies wait
 - [Write your own story](author/README.md)

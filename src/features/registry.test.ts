@@ -18,7 +18,7 @@ import {
 import { SETTINGS_AREA_COPY, SETTING_COPY } from "./settingsCopy";
 import { JARGON, jargonIn } from "./jargon";
 import { BRIEFING_COPY, HELP_COPY, ONBOARDING_LINES } from "./helpCopy";
-import { TOUR_COPY, TOUR_TERMS } from "./tourCopy";
+import { COACH_COPY, TOUR_COPY } from "./tourCopy";
 import { BRIEFING_DRAFT_COPY } from "./briefingDraftCopy";
 import { ASK_TEXT } from "./askCopy";
 import { ASK_COPY, PLAYER_REFUSAL } from "@copilot/agent/ask";
@@ -86,7 +86,7 @@ const copyItems = (): CopyItem[] => [
   ...Object.entries(JUDGE_USE_COPY).flatMap(([key, copy]) => [copy.label, copy.description, copy.sends].map((text) => ({ source: `judge use ${key}`, audience: "setup" as const, text }))),
   ...Object.entries(JUDGE_READINESS_BY_PROVIDER).flatMap(([provider, facts]) => Object.entries(facts)
     .map(([key, fact]) => ({ source: `readiness ${provider}.${key}`, audience: "setup" as const, text: fact?.recommendation ?? "" }))),
-  ...[PLAYER_COPY, HUD_COPY, REPAIR_PLAYER_COPY, PIPELINE_ACTION_COPY, HELP_COPY, INLINE_LEGEND_COPY, INLINE_CATEGORY_HELP, INLINE_STATE_LABELS, INLINE_LEVEL_HELP, ASK_TEXT, ASK_COPY, ASK_HOST_COPY, { refusal: PLAYER_REFUSAL }, TOUR_COPY, TOUR_TERMS]
+  ...[PLAYER_COPY, HUD_COPY, REPAIR_PLAYER_COPY, PIPELINE_ACTION_COPY, HELP_COPY, INLINE_LEGEND_COPY, INLINE_CATEGORY_HELP, INLINE_STATE_LABELS, INLINE_LEVEL_HELP, ASK_TEXT, ASK_COPY, ASK_HOST_COPY, { refusal: PLAYER_REFUSAL }, TOUR_COPY, ...Object.values(COACH_COPY)]
     .flatMap((table, index) => Object.values(table).map((text) => ({ source: `player copy table ${index}`, audience: "player" as const, text: String(text) }))),
   ...Object.values(INLINE_LEVEL_LABELS).map((text) => ({ source: "inline level", audience: "player" as const, text })),
   ...[...Object.values(BRIEFING_COPY), ...Object.values(BRIEFING_DRAFT_COPY), ...ONBOARDING_LINES.map((line) => line.text)].map((text) => ({ source: "briefing copy", audience: "player" as const, text })),

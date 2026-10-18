@@ -1,10 +1,17 @@
+export type GuideActionName = "check" | "show";
+
+const ACTION_OPEN = "\u0002";
+const ACTION_CLOSE = "\u0003";
+const ACTION_MARKER = /<!--\s*so:(check|show)\s+([\w:.-]+)\s*-->/g;
+
 export type Inline =
   | { kind: "text"; text: string }
   | { kind: "code"; text: string }
   | { kind: "strong"; children: Inline[] }
   | { kind: "em"; children: Inline[] }
   | { kind: "link"; href: string; children: Inline[] }
-  | { kind: "image"; src: string; alt: string };
+  | { kind: "image"; src: string; alt: string }
+  | { kind: "action"; name: GuideActionName; value: string };
 
 export interface ListItem {
   children: Inline[];
@@ -60,6 +67,15 @@ export const parseInline = (source: string): Inline[] => {
       pushText(out, source[index + 1]);
       index += 2;
       continue;
+    }
+    if (char === ACTION_OPEN) {
+      const end = source.indexOf(ACTION_CLOSE, index + 1);
+      const [name, value] = source.slice(index + 1, end).split(" ");
+      if (end > index && (name === "check" || name === "show") && value) {
+        out.push({ kind: "action", name, value });
+        index = end + 1;
+        continue;
+      }
     }
     if (char === "`") {
       const end = source.indexOf("`", index + 1);
@@ -126,6 +142,7 @@ export const parseInline = (source: string): Inline[] => {
 export const inlineText = (nodes: Inline[]): string => nodes.map((node) => {
   if (node.kind === "text" || node.kind === "code") return node.text;
   if (node.kind === "image") return node.alt;
+  if (node.kind === "action") return "";
   return inlineText(node.children);
 }).join("");
 
@@ -197,7 +214,7 @@ const parseList = (lines: string[], start: number): { block: ListBlock; next: nu
 };
 
 export const parseMarkdown = (source: string): Block[] => {
-  const lines = source.replace(/\r\n/g, "\n").replace(/<!--[\s\S]*?-->/g, "").split("\n");
+  const lines = source.replace(/\r\n/g, "\n").replace(ACTION_MARKER, `${ACTION_OPEN}$1 $2${ACTION_CLOSE}`).replace(/<!--[\s\S]*?-->/g, "").split("\n");
   const blocks: Block[] = [];
   let index = 0;
   let anchor: string | undefined;
