@@ -111,6 +111,55 @@ fixed parameters, judged by Sol contact sheets (at most 3 rounds), never the own
 - **Go/no-go.** Go only when all four floors pass on the trial set; a miss on any is no-go, recorded, not retuned.
   A no-go keeps the static pose sprites with plan 19 B+P and parks full-body rigs with v2.9 §05.1.
 
+## Step 2 trial: protocol (written 2026-10-18 before any code or Sol call; branch `v2.8-live-body-trial`)
+
+Owner decision 2026-10-18: run step 2 as a trial. Existing pose sprites only (no image generation, ComfyUI or GPU),
+Sol through the opencode harness path (cap 60 calls, counted), not wired into the stage unless the go/no-go passes.
+
+Trial set (synthetic, never campaign art), 3 characters x 3 poses = 9 rigs:
+
+- Wren: standing (`SO-Show Wren/neutral.png`), wave (`looks/wren-wave.neutral.png`), sitting (the same design from the
+  plan 41 journey, lane 33 `SO-P41 Ash/lp_a188e2b7/neutral.png`);
+- Garrick: standing, arms crossed (`looks/garrick-arms-crossed.neutral.png`), sitting (`SO-P41 Bram/lp_f1220898`);
+- Pim: standing, attention (`looks/pim-attention.neutral.png`), sitting on the floor (`SO-P41 Cleo/lp_b262aeb0`).
+
+Design (trial):
+
+- A body rig is its own manifest kind (`kind: "body"`, identity member, look, pose, art sha256, source), never a head
+  `Rig`; bust rigs, their validator and goldens are untouched.
+- Landmarks by Sol, one answer per pose: head oval, optional eye centres, neck, shoulders, chest, waist, hips,
+  pose, up to two arms (shoulder, elbow, wrist, outline, state `free` | `resting` | `holding`) and up to 10 hair locks.
+  Required core invalid = rig refused; an invalid optional group (an arm, a lock, eye centres) is dropped with a note.
+- Base layer: torso sways (shift and roll about the hip centre, fading out between waist and hips so legs, seat and
+  feet stay put), breathes (shoulders and chest), head tilts/nods about the neck, hair springs (step 1 physics).
+  `free` arms are cut into their own layer (two bones: shoulder, elbow) with the hole filled where the body
+  continues behind the arm; `resting` arms stay in the base, shoulder end follows the torso, hand end stays put;
+  `holding` arms move with the torso. Arms keep hanging (counter-rotate against torso roll, spring lag) and take
+  `armAngle` (upper arm) and `handAngle` (forearm). One canvas and context per actor (N contexts).
+
+Definitions, fixed now:
+
+- **Valid rig from the first answer**: the first Sol landmark answer for that pose parses, its required core
+  validates, and synthesis, layer cut and manifest load succeed. Dropped optional groups are recorded, not counted as
+  failures.
+- **Review extremes** (fixed parameters): rest beside the source image, breath 1, sway +-10 (`bodyAngleX` and
+  `bodyAngleZ`), upper arms +-10, forearms +-10, hair held at +-x and +-y, head tilt +-30, and the two combined
+  extremes (sway, arms, forearms and hair all at -10/-x, then +10/+x).
+- **Sol review** per rig on JPEG sheets, floors: arms attached (hands never detached from forearms, arms never from
+  shoulders), no tearing at arm, sway or hair extremes, no inpaint smear visible at rest, strands on hair, bottom edge
+  planted. Pass = every floor passes. At most 3 rounds; between rounds Sol may correct the landmarks it placed.
+- **Accepted rig** = passed Sol review by round 3.
+- **Tears** on an accepted rig: any tear Sol reports at an extreme, plus any inverted triangle in any layer mesh at any
+  review extreme (deterministic count).
+- **CPU frame cost**: `frame-bench.mjs --body <N>`, no-op GL, N renderers each on its own canvas with its trial rig
+  (Wren standing, Garrick standing, Pim standing, repeated), head driver + motion driver per actor, 3,000 warm then
+  20,000 frames; mean ms per frame for all N actors together. N = 1, 3, 5.
+- **Frame interval**: informational only (coordinator 2026-10-18: the 3090 is busy); any sample is recorded with the
+  WebGL renderer string and GPU condition and is not scored.
+
+Measures and rule, as predeclared above (not retuned): rig success >= 80 % (>= 8 of 9); Sol review pass by round 3
+>= 80 % (>= 8 of 9); CPU <= 2 ms per frame at N = 3; 0 tears on accepted rigs. Go only when all four pass.
+
 ## Parked (v2.9)
 
 - Layered rig / option D: v2.9 `05-deferred-items.md` §05.1, owner re-parked 2026-10-18.
