@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdirSync, mkdtempSync, readFileSync, rmSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { changedFiles, longestFirst, nextCache, readsTree, REPLAY_CACHE_VERSION, reusableRows, specHash } from './suiteReplayCache.mjs';
+import { changedFiles, chunked, longestFirst, nextCache, readsTree, REPLAY_CACHE_VERSION, relatedQuery, reusableRows, specHash } from './suiteReplayCache.mjs';
 import { stageCopies, stageCopy, stageDir, stagedFiles } from './suiteStage.mjs';
 import { defaultWorkers, replayVerdict } from '../suite/defect-replay.mjs';
 
@@ -90,4 +90,19 @@ test('plan 26: re-staging copies only what changed and removes what the tree dro
   } finally {
     rmSync(root, { recursive: true, force: true });
   }
+});
+
+test('a cache that cannot be reused asks jest for nothing, so a fresh worktree never builds one huge --findRelatedTests command', () => {
+  const specs = [spec('a')];
+  const files = { 'src/a.ts': '1', 'src/x.ts': '2', 'test/fixtures/f.json': '3' };
+  const cache = cacheOf(specs, files);
+  assert.deepEqual(relatedQuery({ cache: null, hashes: files }), []);
+  assert.deepEqual(relatedQuery({ cache: { ...cache, version: REPLAY_CACHE_VERSION + 1 }, hashes: files }), []);
+  assert.deepEqual(relatedQuery({ cache, hashes: { ...files, 'test/fixtures/f.json': 'x', 'src/x.ts': 'x' } }), []);
+  assert.deepEqual(relatedQuery({ cache, hashes: { ...files, 'src/x.ts': 'x', 'docs/d.md': 'y' } }), ['src/x.ts']);
+});
+
+test('related lookups are split into bounded chunks', () => {
+  assert.deepEqual(chunked([], 2), []);
+  assert.deepEqual(chunked([1, 2, 3, 4, 5], 2), [[1, 2], [3, 4], [5]]);
 });

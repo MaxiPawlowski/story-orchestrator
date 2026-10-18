@@ -17,7 +17,7 @@ import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { applyMutant, classifyJest, specProblems } from '../lib/suiteMutants.mjs';
 import { failingTitles, runJest, runJestAsync, stageCopies, stageCopy, trackedFiles, withMutated, withMutatedAsync } from '../lib/suiteStage.mjs';
-import { changedFiles, fileHashes, longestFirst, nextCache, readsTree, reusableRows } from '../lib/suiteReplayCache.mjs';
+import { chunked, fileHashes, longestFirst, nextCache, readsTree, relatedQuery, reusableRows } from '../lib/suiteReplayCache.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const SPECS = join(ROOT, 'test', 'findings', 'defect-replay');
@@ -44,13 +44,20 @@ const readCache = () => {
   }
 };
 
-function relatedTests(dir, changed) {
-  const sources = changed.filter((path) => path.startsWith('src/'));
-  if (!sources.length) return new Set();
-  const run = spawnSync(process.execPath, [join(dir, 'node_modules', 'jest', 'bin', 'jest.js'), '--runInBand', '--listTests', '--findRelatedTests', ...sources],
-    { cwd: dir, encoding: 'utf-8', maxBuffer: 64 * 1024 * 1024 });
-  if (run.status !== 0) throw new Error(`jest --listTests failed: ${(run.stderr ?? '').slice(-2000)}`);
-  return new Set(run.stdout.split(/\r?\n/).map((line) => line.trim()).filter(Boolean).map((path) => path.replace(/\\/g, '/')).map((path) => path.slice(path.indexOf('/src/') + 1)));
+export const RELATED_CHUNK = 100;
+
+function relatedTests(dir, sources) {
+  const related = new Set();
+  for (const chunk of chunked(sources, RELATED_CHUNK)) {
+    const run = spawnSync(process.execPath, [join(dir, 'node_modules', 'jest', 'bin', 'jest.js'), '--runInBand', '--listTests', '--findRelatedTests', ...chunk],
+      { cwd: dir, encoding: 'utf-8', maxBuffer: 64 * 1024 * 1024 });
+    if (run.status !== 0) throw new Error(`jest --listTests failed (status ${run.status}, signal ${run.signal}${run.error ? `, ${run.error.message}` : ''}): ${(run.stderr ?? '').slice(-2000)}`);
+    for (const line of run.stdout.split(/\r?\n/)) {
+      const path = line.trim().replace(/\\/g, '/');
+      if (path) related.add(path.slice(path.indexOf('/src/') + 1));
+    }
+  }
+  return related;
 }
 
 async function runPool(dirs, specs, full, first) {
@@ -101,7 +108,7 @@ async function main() {
   const cache = readCache();
   let reused = new Map();
   if (cached) {
-    const reading = reusableRows({ cache, hashes, specs, related: relatedTests(dirs[0], changedFiles(cache?.files, hashes)), readsFiles: (test) => readsTree(readFileSync(join(ROOT, test), 'utf-8')) });
+    const reading = reusableRows({ cache, hashes, specs, related: relatedTests(dirs[0], relatedQuery({ cache, hashes })), readsFiles: (test) => readsTree(readFileSync(join(ROOT, test), 'utf-8')) });
     reused = reading.reused;
     console.log(`--cached: ${reading.reason}; reusing ${reused.size} of ${specs.length} row(s)`);
   }
