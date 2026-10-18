@@ -16,6 +16,7 @@ It records current progress, source-plan links and deferred acceptance protocols
   prepared-current-look cast scene and live-head fallback status. Harness dependency adopted from parent;
   source and gate detail in [plan 41](41-product-integration-and-image-models.md). Product live acceptance
   and complete changed-look bust/rig preparation remain owed. Campaign adoption deferred to RP acceptance.
+  2026-10-18: §5 journey run 1 on the 3090 NOT GREEN (6 step misses + late-render cleanup leak; look-rebuild now passes); no pair run. Plan 41 Gate record 2026-10-18.
 
 | # | Item | Source | State |
 |---|---|---|---|
