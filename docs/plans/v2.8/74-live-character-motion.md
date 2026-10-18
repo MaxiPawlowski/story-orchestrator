@@ -298,7 +298,7 @@ Gates:
 - `npm run gates -- --jobs=1 --no-storybook` run 1: RED at `test` (`legacyFree.guard` hit on a `version !== 1`
   literal, `codeHealth.guard` T1 one cast through unknown, both in `body/`); fixed `d2767167`. Run 2: **all green in
   489.1 s** (jest 9,757 passed, 1 skipped; replay ok; every step ok). After merging master `c94d9a6a`: run 3 **all green
-  in 400.0 s** (jest 9,765 passed, 1 skipped). Main bundle 1,286,600 B (budget 1,300,000), unchanged by this branch;
+  in 400.0 s** (jest 9,765 passed, 1 skipped). After merging master `183b391a`: run 4 **all green in 352.9 s** (jest 9,769 passed, 1 skipped). Main bundle 1,286,600 B (budget 1,300,000), unchanged by this branch;
   no `body/` code in any chunk.
 - Storybook (static build from `git archive HEAD`, own port 6392, `--maxWorkers 1`; no component or story touched):
   full runs 1–3 153/154 suites, 931/932 tests, the one failure always `Studio/CharacterTutorial`
