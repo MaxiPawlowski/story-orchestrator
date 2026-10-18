@@ -1,4 +1,4 @@
-import { isOocLine, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { isOocLine, type EngineState, type NormalizedStory } from "@engine/index";
 import { failureClass } from "@extraction/breaker";
 import { askText, type ModelCall } from "@extraction/modelRoute";
 import { maxTokensForInput } from "@extraction/callBudget";
@@ -29,7 +29,7 @@ import { log } from "@utils/log";
 export const CURATOR_BOUNDARY_GAP = 4;
 
 export interface StagecraftCoordinatorDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   getStagecraft: () => StagecraftRuntimeState;
   setStagecraft: (next: StagecraftRuntimeState) => void;

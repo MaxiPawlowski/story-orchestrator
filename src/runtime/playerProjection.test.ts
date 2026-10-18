@@ -1,11 +1,11 @@
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { buildNarrativeStatus, type NarrativeInput } from "./narrative";
 import type { PipelineStatus } from "./pipeline";
 import { playedProjection, projectionText, startProjection, transcriptWindow, withheldNames, type ProjectionInput } from "./playerProjection";
 import { buildSuggestionPrompt, parseSuggestions } from "./suggestions";
 
-const story = parseStoryV2OrThrow({
-  format: 2, id: "gated", title: "The Ferry", description: "A crossing at night.", player_intro: "You need to cross the river before dawn.",
+const story = parseStoryOrThrow({
+  id: "gated", title: "The Ferry", description: "A crossing at night.", player_intro: "You need to cross the river before dawn.",
   qualities: [
     { key: "ferry_paid", type: "bool", source: "extractor", rubric: "Has the player paid the ferryman?" },
     { key: "traitor_known", type: "bool", source: "extractor", rubric: "Does the player know Corvin is the traitor?" },
@@ -86,8 +86,8 @@ describe("v2.7 33 W4: the player projection", () => {
   });
 
   it("a checkpoint without player_name, authored or generated, never shows its internal name: the scene list skips it and the current scene reads \"Current scene\"", () => {
-    const unnamed = parseStoryV2OrThrow({
-      format: 2, id: "unnamed", title: "The Ferry", description: "A crossing at night.",
+    const unnamed = parseStoryOrThrow({
+      id: "unnamed", title: "The Ferry", description: "A crossing at night.",
       qualities: [{ key: "ferry_paid", type: "bool", source: "extractor", rubric: "Paid?" }],
       checkpoints: [
         { id: "dock", name: "dock-internal", objective: "Pay the ferryman.", type: "anchor", start: true },
@@ -125,7 +125,7 @@ describe("v2.7 33 W4: the player projection", () => {
   });
 
   it("Astra v2.8 P0: the author's description never stands in for a missing player_intro", () => {
-    const authorOnly = (description: string) => parseStoryV2OrThrow({ format: 2, id: "gated", title: "The Ferry", description,
+    const authorOnly = (description: string) => parseStoryOrThrow({ id: "gated", title: "The Ferry", description,
       qualities: story.qualities.filter((quality) => quality.source === "extractor"), checkpoints: story.checkpoints, transitions: story.transitions, roster: [] });
     const secret = authorOnly("Corvin the ferryman is secretly the traitor who sank the boats.");
     const plain = authorOnly("A crossing at night.");

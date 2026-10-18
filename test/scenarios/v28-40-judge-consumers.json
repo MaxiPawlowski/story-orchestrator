@@ -19,7 +19,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-k40-consumers",
         "title": "SO-K40 Consumers",
         "description": "Synthetic judge consumer plumbing.",

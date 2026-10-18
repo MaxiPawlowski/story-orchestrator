@@ -1,5 +1,5 @@
 ﻿{
- "format":2,"id":"review-river-crossing","title":"Two Ways Across","description":"Independent review story: the player's explicit choice determines the route; both routes converge on the far shore.",
+ "id":"review-river-crossing","title":"Two Ways Across","description":"Independent review story: the player's explicit choice determines the route; both routes converge on the far shore.",
  "qualities":[
   {"key":"route","type":"enum","values":["undecided","bridge","ferry"],"source":"extractor","rubric":"Which route has the player explicitly chosen? Merely seeing a route does not count. Use bridge or ferry only for an explicit choice."},
   {"key":"arrived","type":"bool","source":"extractor","latching":true,"rubric":"Has the traveler explicitly reached the far shore? Intending or beginning to cross is not arrival."}

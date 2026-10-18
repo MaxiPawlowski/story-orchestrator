@@ -1,16 +1,16 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import { addressedAmong } from "@talk/rules";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { awayNoticeLine, createAwayNotice } from "./awayNotice";
 
 const RAW = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")) as { roster: Array<Record<string, unknown>> };
 
-const storyWith = (aliases: Record<string, string[]> = {}): NormalizedStoryV2 => {
+const storyWith = (aliases: Record<string, string[]> = {}): NormalizedStory => {
   const raw = JSON.parse(JSON.stringify(RAW)) as typeof RAW;
   raw.roster = raw.roster.map((member) => (aliases[String(member.id)] ? { ...member, aliases: aliases[String(member.id)] } : member));
-  return parseStoryV2OrThrow(raw);
+  return parseStoryOrThrow(raw);
 };
 
 const STORY = storyWith({ arin: ["the guide"] });

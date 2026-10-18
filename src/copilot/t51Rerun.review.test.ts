@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import type { ModelAsk, ModelCall } from "@extraction/modelRoute";
 import { emptyEnvironment, type ProvisioningEnvironment } from "@wizard/index";
 import { runAuthoringStage, STAGE_MAX_TOKENS, STAGE_TRUNCATED_ISSUE, STAGE_UNREADABLE_ISSUE } from "./authoring";
@@ -6,8 +6,7 @@ import type { CopilotStage } from "./types";
 
 const ASK: ModelAsk = { role: "authoring", pass: "copilot" };
 
-const draft = (): StoryV2 => ({
-  format: 2,
+const draft = (): Story => ({
   title: "The Redrawing Map",
   description: "An apprentice whose ink redraws the kingdom.",
   qualities: [{ key: "map_truth", type: "bool", source: "extractor", rubric: "Has the map changed the land?" }],

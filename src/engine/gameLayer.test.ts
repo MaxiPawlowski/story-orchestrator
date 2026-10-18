@@ -2,7 +2,7 @@ import type * as Validate from "./validate";
 import type * as Layer from "./validate/gameLayer";
 
 const plain = {
-  format: 2, title: "Plain", description: "No game layer.", roster: [],
+  title: "Plain", description: "No game layer.", roster: [],
   qualities: [{ key: "paid", type: "bool", source: "extractor", rubric: "Paid?" }],
   checkpoints: [{ id: "start", name: "Start", type: "anchor", start: true, objective: "Begin." }],
   transitions: [],
@@ -21,14 +21,14 @@ describe("the quest layer loads apart from the main bundle", () => {
   test("before it loads, a story without quests parses and a story with them is refused, never half-read", () => {
     const { validate, layer } = fresh();
     expect(layer.gameLayer()).toBeNull();
-    expect(Array.isArray(validate.parseStoryV2(plain))).toBe(false);
-    expect(validate.parseStoryV2(gamey)).toEqual([{ path: "$", message: layer.GAME_LAYER_LOADING }]);
+    expect(Array.isArray(validate.parseStory(plain))).toBe(false);
+    expect(validate.parseStory(gamey)).toEqual([{ path: "$", message: layer.GAME_LAYER_LOADING }]);
   });
 
   test("once loaded, the same story parses", async () => {
     const { validate, layer } = fresh();
     await layer.loadGameLayer();
-    const parsed = validate.parseStoryV2(gamey);
+    const parsed = validate.parseStory(gamey);
     expect(Array.isArray(parsed)).toBe(false);
   });
 

@@ -129,7 +129,6 @@ const gateLeaf = (key: string, quality: QualityDef) => {
 export function buildMiniStory(world: WorldDef, checkpointId: string, ask: string[]) {
   const checkpoint = world.checkpoints[checkpointId];
   return {
-    format: 2,
     id: `spike-${world.id}`,
     title: world.title,
     description: 'TypeSafe spike case.',

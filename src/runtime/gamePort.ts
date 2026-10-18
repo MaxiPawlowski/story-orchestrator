@@ -1,4 +1,4 @@
-import { questRewardKey, type BoundaryLogEntry, type BoundaryResult, type NormalizedStoryV2, type StoryEngine } from "@engine/index";
+import { questRewardKey, type BoundaryLogEntry, type BoundaryResult, type NormalizedStory, type StoryEngine } from "@engine/index";
 import { gameLayer } from "@engine/validate/gameLayer";
 import type { EarnedEffects, EffectsApplier } from "./effectsApplier";
 import { beginRun, type RunOwnership } from "./runToken";
@@ -17,24 +17,24 @@ export interface GamePortDeps {
   notify: () => void;
 }
 
-const rewardsLanded = (story: NormalizedStoryV2, entry: BoundaryLogEntry): EarnedEffects[] => (story.quests ?? []).flatMap((quest) => {
+const rewardsLanded = (story: NormalizedStory, entry: BoundaryLogEntry): EarnedEffects[] => (story.quests ?? []).flatMap((quest) => {
   const key = questRewardKey(quest.id);
   const effects = quest.reward?.effects;
   return effects && entry.before.blackboard.values[key] !== true && entry.after.blackboard.values[key] === true
     ? [{ kind: "quest" as const, id: quest.id, name: quest.title, effects }] : [];
 });
 
-const agendaLanded = (story: NormalizedStoryV2, entry: BoundaryLogEntry): EarnedEffects[] => (story.life
+const agendaLanded = (story: NormalizedStory, entry: BoundaryLogEntry): EarnedEffects[] => (story.life
   ? gameLayer()?.life.landedSteps(story, entry.before.blackboard.values, entry.after.blackboard.values) ?? [] : [])
   .flatMap((landed) => (landed.step.effect
     ? [{ kind: "agenda" as const, id: `${landed.memberId}:${landed.agendaId}:${landed.index}`, name: landed.agendaId, effects: landed.step.effect }] : []));
 
-const commitmentsKept = (story: NormalizedStoryV2, entry: BoundaryLogEntry): EarnedEffects[] => (story.life
+const commitmentsKept = (story: NormalizedStory, entry: BoundaryLogEntry): EarnedEffects[] => (story.life
   ? gameLayer()?.life.keptCommitments(story, entry.before.blackboard.values, entry.after.blackboard.values) ?? [] : [])
   .flatMap(({ memberId, commitment }) => (commitment.effect ? [{ kind: "commitment" as const, id: `${memberId}:${commitment.id}`, name: commitment.id, effects: commitment.effect }] : []));
 
 export function createGamePort(deps: GamePortDeps) {
-  const dispatch = async (story: NormalizedStoryV2, landed: EarnedEffects[], entry: BoundaryLogEntry) => {
+  const dispatch = async (story: NormalizedStory, landed: EarnedEffects[], entry: BoundaryLogEntry) => {
     const run = beginRun(deps.ownership);
     const path = stagedPath(deps.engine.checkpointPath, deps.engine.serialize().stagedFrom);
     const at = { checkpointId: null, boundary: entry.boundary, messageId: entry.context.lastMessageId };

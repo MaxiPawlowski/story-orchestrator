@@ -5,6 +5,8 @@ import { createArbiter, brokerBuild } from '../../server-plugin/story-orchestrat
 import { createGateway } from '../../server-plugin/story-orchestrator-gpu/broker/gateway.mjs';
 import { runtimeMemoryProfile } from '../../server-plugin/story-orchestrator-gpu/broker/runtimeIdentity.mjs';
 import { controllerStatus, withControllerDefaults } from '../../server-plugin/story-orchestrator-gpu/broker/controllerStatus.mjs';
+import { createLiveSettings, currentMode } from './modes.mjs';
+import { createSettingsRoutes } from './settingsUi.mjs';
 
 const configFile = process.argv[2];
 if (!configFile) throw new Error('Usage: node scripts/local/controller.mjs <config.json>');
@@ -24,14 +26,17 @@ const arbiter = createArbiter(arbiterConfig, {
         const code = createHash('sha256');
         for (const name of ['main.py', 'comfy/model_management.py', 'comfy/model_patcher.py']) code.update(await fs.readFile(path.join(config.comfyRoot, name)));
         code.update(await fs.readFile(guard));
-        return runtimeMemoryProfile(stats.system, code.digest('hex'), { hostCacheRelease: 'pressure-only-public-api-v1', cacheMode: config.imageCacheMode ?? 'warm',
-            warmReleaseMs: config.imageWarmReleaseMs ?? 5000 });
+        return runtimeMemoryProfile(stats.system, code.digest('hex'), { hostCacheRelease: 'pressure-only-public-api-v1', cacheMode: arbiterConfig.imageCacheMode ?? 'warm',
+            warmReleaseMs: arbiterConfig.imageWarmReleaseMs ?? 5000 });
     },
 });
 await arbiter.start();
+const performance = createLiveSettings({ target: arbiterConfig, scheduler: () => arbiter.scheduler, backend: arbiter.backend, mode: currentMode(config) });
 const status = async () => controllerStatus({ config: arbiterConfig, scheduler: arbiter.scheduler.status(), imageCache: arbiter.imageCache,
-    telemetry: (await arbiter.status({ fresh: true })).telemetry, controllerBuild, pid: process.pid, configFile });
+    telemetry: (await arbiter.status({ fresh: true })).telemetry, controllerBuild, pid: process.pid, configFile, performance: performance.status() });
 const gateway = createGateway({ arbiter, config: arbiterConfig, allowOrigin: /^http:\/\/(127\.0\.0\.1|localhost):(8000|81\d\d)$/,
+    routes: createSettingsRoutes({ configFile, port: config.gatewayPort, live: performance,
+        telemetry: async () => { const data = await arbiter.status({ fresh: true }); return { ...data.telemetry, phase: data.phase }; } }),
     extraGet: { '/': status, '/status': status, '/health': status, '/measurement': async () => arbiter.scheduler.lastMeasurement ?? null },
     controls: {
         stop: async () => {
@@ -41,6 +46,7 @@ const gateway = createGateway({ arbiter, config: arbiterConfig, allowOrigin: /^h
                     if (queue.queue_running?.length || queue.queue_pending?.length) throw new Error('ComfyUI has an existing job; finish it before stopping the controller.');
                 }
             });
+            performance.stop();
             await arbiter.stop();
             setTimeout(() => { void gateway.close().finally(() => process.exit(0)); }, 50);
         },

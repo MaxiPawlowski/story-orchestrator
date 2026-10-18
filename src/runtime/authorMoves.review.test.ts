@@ -17,7 +17,7 @@ jest.mock("@services/STAPI", () => ({
   clearStoryExtensionPrompt: jest.fn(),
 }));
 
-import { parseStoryV2OrThrow, type StoryEngine } from "@engine/index";
+import { parseStoryOrThrow, type StoryEngine } from "@engine/index";
 import { loadChapterKit } from "./chapterPort";
 import type { EffectsApplier } from "./effectsApplier";
 import type { RuntimeExtras } from "./types";
@@ -27,8 +27,7 @@ import { CanonSynthesis } from "./canonSynthesis";
 import { renderReportPrompt } from "@copilot/prompts";
 import { testOwnership } from "../../test/findings/testOwnership";
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "war",
   title: "War",
   description: "",

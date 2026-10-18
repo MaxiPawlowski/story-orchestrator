@@ -36,7 +36,7 @@ const header = (overrides: Record<string, any> = {}) => ({
   chat: { groupId: '17897', chatId: 'chat-a', chatLength: 4, authorView: false },
   story: { id: 'adolion-adventurer', contentHash: 'h1', boundary: 2, activeCheckpointId: 'guild-hall' },
   group: { disabledMembers: ['tobias'] },
-  inventory: { v2Stories: ['adolion-adventurer@9'], wizardSessions: [], lorebooksSelected: ['Adolion World'] },
+  inventory: { stories: ['adolion-adventurer@9'], wizardSessions: [], lorebooksSelected: ['Adolion World'] },
   ...overrides,
 });
 
@@ -81,9 +81,9 @@ test('an --allow prefix covers every field under it', () => {
 
 test('list differences report added and removed items', () => {
   const after = header();
-  after.inventory.v2Stories = ['adolion-adventurer@9', 'SO-J12@1'];
+  after.inventory.stories = ['adolion-adventurer@9', 'SO-J12@1'];
   const [difference] = diffHeaders(header(), after);
-  assert.equal(difference.path, 'inventory.v2Stories');
+  assert.equal(difference.path, 'inventory.stories');
   assert.deepEqual(difference.added, ['SO-J12@1']);
   assert.deepEqual(difference.removed, []);
   assert.equal(difference.allowed, false);
@@ -91,18 +91,18 @@ test('list differences report added and removed items', () => {
 
 test('an item allowance clears exactly that addition, version-independently', () => {
   const after = header();
-  after.inventory.v2Stories = ['adolion-adventurer@9', 'SO-J12@1'];
-  const [difference] = diffHeaders(header(), after, ['inventory.v2Stories:+SO-J12']);
+  after.inventory.stories = ['adolion-adventurer@9', 'SO-J12@1'];
+  const [difference] = diffHeaders(header(), after, ['inventory.stories:+SO-J12']);
   assert.equal(difference.allowed, true);
-  assert.equal(difference.allowedBy, 'inventory.v2Stories:+SO-J12');
+  assert.equal(difference.allowedBy, 'inventory.stories:+SO-J12');
 });
 
 test('an item allowance does NOT cover a second, undeclared change (the S12 case)', () => {
   // A journey that adds its own story and also eats the user's library must fail, even though the
   // recipe declared the addition. This is the defect the v2.2 config restore actually had.
   const after = header();
-  after.inventory.v2Stories = ['SO-J12@1'];
-  const [difference] = diffHeaders(header(), after, ['inventory.v2Stories:+SO-J12']);
+  after.inventory.stories = ['SO-J12@1'];
+  const [difference] = diffHeaders(header(), after, ['inventory.stories:+SO-J12']);
   assert.deepEqual(difference.added, ['SO-J12@1']);
   assert.deepEqual(difference.removed, ['adolion-adventurer@9']);
   assert.equal(difference.allowed, false, 'a declared addition must not excuse an undeclared removal');
@@ -110,8 +110,8 @@ test('an item allowance does NOT cover a second, undeclared change (the S12 case
 
 test('declaring both the addition and the removal clears it', () => {
   const after = header();
-  after.inventory.v2Stories = ['SO-J12@1'];
-  const [difference] = diffHeaders(header(), after, ['inventory.v2Stories:+SO-J12', 'inventory.v2Stories:-adolion-adventurer']);
+  after.inventory.stories = ['SO-J12@1'];
+  const [difference] = diffHeaders(header(), after, ['inventory.stories:+SO-J12', 'inventory.stories:-adolion-adventurer']);
   assert.equal(difference.allowed, true);
 });
 
@@ -124,8 +124,8 @@ test('a removed lorebook selection is blocking (S12 companion)', () => {
 });
 
 test('A28: a group chat that came back after its cleanup is blocking', () => {
-  const before = header({ inventory: { v2Stories: [], wizardSessions: [], lorebooksSelected: [], groupChats: ['17897/Adolion - 2026-09-20'] } });
-  const after = header({ inventory: { v2Stories: [], wizardSessions: [], lorebooksSelected: [], groupChats: ['17897/Adolion - 2026-09-20', '17897/sandbox-resurrected'] } });
+  const before = header({ inventory: { stories: [], wizardSessions: [], lorebooksSelected: [], groupChats: ['17897/Adolion - 2026-09-20'] } });
+  const after = header({ inventory: { stories: [], wizardSessions: [], lorebooksSelected: [], groupChats: ['17897/Adolion - 2026-09-20', '17897/sandbox-resurrected'] } });
   const [difference] = diffHeaders(before, after);
   assert.equal(difference.path, 'inventory.groupChats');
   assert.deepEqual(difference.added, ['17897/sandbox-resurrected']);
@@ -134,7 +134,7 @@ test('A28: a group chat that came back after its cleanup is blocking', () => {
 });
 
 test('A28 control: the same chat list on both sides is no difference', () => {
-  const chats = { v2Stories: [], wizardSessions: [], lorebooksSelected: [], groupChats: ['17897/Adolion - 2026-09-20'] };
+  const chats = { stories: [], wizardSessions: [], lorebooksSelected: [], groupChats: ['17897/Adolion - 2026-09-20'] };
   assert.deepEqual(diffHeaders(header({ inventory: chats }), header({ inventory: { ...chats } })), []);
 });
 
@@ -231,11 +231,11 @@ test('last-segment matching no longer over-permits', () => {
 });
 
 test('a malformed item allowance is rejected, not treated as a removal', () => {
-  const { allow, errors } = parseAllow(['inventory.v2Stories:+new', 'inventory.v2Stories:xold']);
+  const { allow, errors } = parseAllow(['inventory.stories:+new', 'inventory.stories:xold']);
   assert.equal(allow.length, 1);
   assert.equal(errors.length, 1);
   const after = header();
-  after.inventory.v2Stories = ['new@1'];
+  after.inventory.stories = ['new@1'];
   const [difference] = diffHeaders(header(), after, allow);
   assert.equal(difference.allowed, false, 'replacing the library must not be excused by a typo');
 });

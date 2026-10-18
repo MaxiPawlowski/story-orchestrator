@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { askReply, askText, type ModelAsk, type ModelCall } from "@extraction/modelRoute";
 import { stripChannelNoise } from "@extraction/parse";
 import { personaRequirementProblem, planProvisioning, type ProvisioningEnvironment } from "@wizard/index";
@@ -47,7 +47,7 @@ const unterminatedJson = (text: string): boolean => {
 const wasCut = (reply: { text: string; finish?: string }): boolean => reply.finish === "length" || unterminatedJson(reply.text);
 
 export interface AuthoringStageInput {
-  draft: StoryV2;
+  draft: Story;
   stage: CopilotStage;
   message: string;
   history: CopilotMessage[];

@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 
 type LifeCode = "agenda-pace-no-chapters";
 
@@ -7,7 +7,7 @@ export const LIFE_CONSEQUENCES: Record<LifeCode, string> = {
 };
 
 export interface LifeRun {
-  draft: StoryV2;
+  draft: Story;
   push: (code: LifeCode, severity: "blocking", path: string, message: string) => void;
 }
 

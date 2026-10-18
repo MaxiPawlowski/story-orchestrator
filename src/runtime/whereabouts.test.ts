@@ -1,10 +1,10 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { buildCandidates } from "@talk/rules";
 import { presentRosterIds } from "./whereabouts";
 
-const STORY = parseStoryV2OrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
+const STORY = parseStoryOrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
 
 describe("v2.7 plan 37 L4: a schedule drops a member from the speakers, and writes nothing", () => {
   it("drops the away member and keeps everyone else", () => {

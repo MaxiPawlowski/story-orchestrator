@@ -103,10 +103,10 @@ const isRecord = (value: unknown): value is Record<string, any> => Boolean(value
 const nonEmptyString = (value: unknown) => typeof value === 'string' && value.trim().length > 0;
 const stringList = (value: unknown, min = 1) => Array.isArray(value) && value.length >= min && value.every(nonEmptyString);
 
-export const LIST_HEADER_PATHS = ['inventory.v2Stories', 'inventory.wizardSessions', 'inventory.wizardApplied', 'inventory.lorebooksSelected', 'inventory.groupChats', 'inventory.groups', 'inventory.debugGlobals'] as const;
+export const LIST_HEADER_PATHS = ['inventory.stories', 'inventory.wizardSessions', 'inventory.wizardApplied', 'inventory.lorebooksSelected', 'inventory.groupChats', 'inventory.groups', 'inventory.debugGlobals'] as const;
 const HEADER_ALLOW_ENTRY = /^([A-Za-z][\w]*(?:\.[\w]+)*)(?::([+~-])(\S.*))?$/;
 const HEADER_TOKENS: Record<string, { path: string; signs: string[] }> = {
-  '{story}': { path: 'inventory.v2Stories', signs: ['~'] },
+  '{story}': { path: 'inventory.stories', signs: ['~'] },
   '{story-books}': { path: 'inventory.lorebooksSelected', signs: ['-'] },
 };
 
@@ -118,7 +118,7 @@ export function headerAllowProblems(where: string, entries: unknown): string[] {
     if (!match) { problems.push(`${where}: headerAllow "${entry}" is neither a run-header path nor path:+item / path:-item`); continue; }
     if (!match[2] && (LIST_HEADER_PATHS as readonly string[]).includes(match[1])) problems.push(`${where}: headerAllow "${entry}" would excuse every change to a list; name each item as ${match[1]}:+item or ${match[1]}:-item, so an undeclared removal still blocks`);
     if (match[1] === 'inventory.groupChats') problems.push(`${where}: headerAllow cannot name group chats: stop declares the chats the session created (+) and deleted through delete-chat (-) itself`);
-    if (match[2] === '~' && match[1] !== 'inventory.v2Stories') problems.push(`${where}: headerAllow "${entry}": a story change (:~) is only for inventory.v2Stories, whose items are id@hash`);
+    if (match[2] === '~' && match[1] !== 'inventory.stories') problems.push(`${where}: headerAllow "${entry}": a story change (:~) is only for inventory.stories, whose items are id@hash`);
     if (match[3]?.includes('{')) {
       const token = HEADER_TOKENS[match[3]];
       if (!token) problems.push(`${where}: headerAllow "${entry}" names an unknown token; known: ${Object.keys(HEADER_TOKENS).join(', ')}, each as the whole item`);

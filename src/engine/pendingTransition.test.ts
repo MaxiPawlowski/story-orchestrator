@@ -1,7 +1,6 @@
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 
-const story = () => parseStoryV2OrThrow({
-  format: 2,
+const story = () => parseStoryOrThrow({
   id: "whispers",
   title: "Whispers",
   description: "The queued read that moves the story on (T4-1-2 whispers -> the-duel)",

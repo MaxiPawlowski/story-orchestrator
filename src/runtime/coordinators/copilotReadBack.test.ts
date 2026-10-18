@@ -1,5 +1,5 @@
 import { plantedModel } from "../../../test/support/modelCall";
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import type { ProvisioningOp, WizardSessionState } from "@wizard/index";
 import type { CardReadBackState } from "@utils/cardReadBack";
 import { CopilotCoordinator } from "./copilotCoordinator";
@@ -7,7 +7,7 @@ import { testOwnership } from "../../../test/findings/testOwnership";
 
 type CardOp = Extract<ProvisioningOp, { kind: "createCharacterCard" }>;
 
-const draft = { format: 2, id: "readback", title: "Read back", description: "Fixture", qualities: [], checkpoints: [], transitions: [], roster: [] } as unknown as StoryV2;
+const draft = { id: "readback", title: "Read back", description: "Fixture", qualities: [], checkpoints: [], transitions: [], roster: [] } as unknown as Story;
 const CARD: CardOp = { kind: "createCharacterCard", name: "Ilsa Crane", description: "Buys anything that fell off a ship." };
 
 const harness = (state: CardReadBackState, installNames: string[] = []) => {

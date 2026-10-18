@@ -5,7 +5,7 @@ import type { JudgeRuntime } from "./judge";
 import { acceptModelCall, type ModelCallRecord } from "./modelCallLog";
 import {
   StoryEngine, type RollbackOutcome, type ApplyQueueEntry, type BoundaryContext, type BoundaryLogEntry, type BoundaryResult, type EngineHistory, type EngineState,
-  type NormalizedStoryV2, type NormalizedTransition, type TalkControl, type ValidationError,
+  type NormalizedStory, type NormalizedTransition, type TalkControl, type ValidationError,
 } from "@engine/index";
 import { type ExtractionScheduler, type ParsedDelta, type SchedulerJob, type SharedReadAudit } from "@extraction/index";
 import { applyCommitEvidence } from "@extraction/commitGuard";
@@ -362,7 +362,7 @@ export class RuntimeManager extends SettingsDelegates {
   private rollbackRun: Promise<unknown> = Promise.resolve();
   rollbackSettled(): Promise<unknown> { return this.rollbackRun; }
 
-  getStory(): NormalizedStoryV2 | null { return this.loaded?.story ?? null; }
+  getStory(): NormalizedStory | null { return this.loaded?.story ?? null; }
   getPendingCheckpointId(): string | null { return this.loaded ? this.engine.pendingTransition()?.to ?? null : null; }
   // What this chat is actually playing, authored form — the Studio edits this, not the library's copy.
   getPlayedStoryRaw(): unknown { return this.loaded?.record.raw ?? null; }
@@ -570,7 +570,7 @@ export class RuntimeManager extends SettingsDelegates {
     this.notify();
   }
 
-  private replaceStory(story: NormalizedStoryV2) {
+  private replaceStory(story: NormalizedStory) {
     if (!this.loaded) return;
     this.loaded = { ...this.loaded, story };
     this.engine.replaceGraph(story);

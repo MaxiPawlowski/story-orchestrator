@@ -1,4 +1,4 @@
-import type { Chapter, NormalizedStoryV2 } from "@engine/index";
+import type { Chapter, NormalizedStory } from "@engine/index";
 import type { ArcEntry, ChapterRecord, MemoryEntry } from "@memory/types";
 import type { DerivedRecord } from "@memory/derived";
 import { isLive } from "@memory/provenance";
@@ -12,7 +12,7 @@ export interface SealTarget {
   final: boolean;
 }
 
-export const chapterOf = (story: NormalizedStoryV2 | null, checkpointId: string | null | undefined): Chapter | null => {
+export const chapterOf = (story: NormalizedStory | null, checkpointId: string | null | undefined): Chapter | null => {
   const id = checkpointId ? story?.chapterByCheckpoint?.[checkpointId] : undefined;
   return (id && story?.chapterById?.[id]) || null;
 };
@@ -20,14 +20,14 @@ export const chapterOf = (story: NormalizedStoryV2 | null, checkpointId: string 
 export const nextPart = (records: readonly ChapterRecord[], chapterId: string): number =>
   records.filter((record) => record.chapterId === chapterId).length + 1;
 
-export const endsStory = (story: NormalizedStoryV2, checkpointId: string): boolean =>
+export const endsStory = (story: NormalizedStory, checkpointId: string): boolean =>
   Boolean(chapterOf(story, checkpointId)?.final) && !(story.outgoingByCheckpoint[checkpointId]?.length);
 
 // Read from the path, not from the boundary that fired: a seal that never landed (a reload mid-seal,
 // a chat switch) is still due at the next boundary, and an interlude is skipped back over so its
 // messages join the next chapter's range.
 export function sealTarget(
-  story: NormalizedStoryV2 | null, activeCheckpointId: string, records: readonly ChapterRecord[], visitedPath: readonly string[], skipAt: number | null = null,
+  story: NormalizedStory | null, activeCheckpointId: string, records: readonly ChapterRecord[], visitedPath: readonly string[], skipAt: number | null = null,
 ): SealTarget | null {
   if (!story?.chapters?.length || storyEnded(records)) return null;
   const path = visitedPath.length ? visitedPath : [activeCheckpointId];
@@ -47,7 +47,7 @@ export interface JumpState {
   visitedPath: readonly string[];
 }
 
-export const jumpSeal = (story: NormalizedStoryV2 | null, state: JumpState, records: readonly ChapterRecord[], targetId: string, skipAt: number | null = null): SealTarget | null => {
+export const jumpSeal = (story: NormalizedStory | null, state: JumpState, records: readonly ChapterRecord[], targetId: string, skipAt: number | null = null): SealTarget | null => {
   if (!story?.checkpointById[targetId] || targetId === state.activeCheckpointId) return null;
   const target = sealTarget(story, targetId, records, [...state.visitedPath, targetId], skipAt);
   return target && !target.final ? target : null;
@@ -65,9 +65,9 @@ export const sealRange = (records: readonly ChapterRecord[], storyStart: number,
   return { from: previous ? previous.range.to + 1 : Math.max(0, storyStart), to };
 };
 
-export const isEraId = (story: NormalizedStoryV2 | null, chapterId: string): boolean => !story?.chapterById?.[chapterId] && /^era-\d+$/.test(chapterId);
+export const isEraId = (story: NormalizedStory | null, chapterId: string): boolean => !story?.chapterById?.[chapterId] && /^era-\d+$/.test(chapterId);
 
-export const chapterNumber = (story: NormalizedStoryV2 | null, chapterId: string): number =>
+export const chapterNumber = (story: NormalizedStory | null, chapterId: string): number =>
   isEraId(story, chapterId) ? Number(chapterId.slice(4)) : (story?.chapters ?? []).filter((chapter) => chapter.kind !== "interlude").findIndex((chapter) => chapter.id === chapterId) + 1;
 
 export const playerTitleOf = (chapter: Chapter): string => chapter.player_title ?? chapter.title;
@@ -122,7 +122,7 @@ const eraTitle = (names: string[], number: number): string => {
 };
 
 export function eraTarget(
-  story: NormalizedStoryV2 | null, records: readonly ChapterRecord[], sources: EraSources, lastMessageId: number, visitedPath: readonly string[], settings: ChapterSettings,
+  story: NormalizedStory | null, records: readonly ChapterRecord[], sources: EraSources, lastMessageId: number, visitedPath: readonly string[], settings: ChapterSettings,
 ): SealTarget | null {
   if (!story || story.chapters?.length || !settings.eraSeals || storyEnded(records)) return null;
   const last = records[records.length - 1];
@@ -157,7 +157,7 @@ export interface ChapterView {
   epilogue: string | null;
 }
 
-export function buildChapterView(story: NormalizedStoryV2 | null, activeCheckpointId: string | undefined, records: readonly ChapterRecord[] = []): ChapterView {
+export function buildChapterView(story: NormalizedStory | null, activeCheckpointId: string | undefined, records: readonly ChapterRecord[] = []): ChapterView {
   const active = chapterOf(story, activeCheckpointId);
   const ending = records.find((record) => record.final);
   return {

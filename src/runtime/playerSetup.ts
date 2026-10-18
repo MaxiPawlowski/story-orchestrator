@@ -1,5 +1,5 @@
 import {
-  carriesPlayerRoleLine, castCardName, fixedPlayerName, hasPlayerProfile, playerInjects, playerRoleLine, type NormalizedStoryV2, type StoryPlayer,
+  carriesPlayerRoleLine, castCardName, fixedPlayerName, hasPlayerProfile, playerInjects, playerRoleLine, type NormalizedStory, type StoryPlayer,
 } from "@engine/index";
 import { isRecord } from "@utils/guards";
 
@@ -48,7 +48,7 @@ export const sanitizePlayerSetup = (value: unknown): PlayerSetupRecord | undefin
 
 export const identitySettled = (record: PlayerSetupRecord | undefined): boolean => !record?.pending;
 
-export const setupNeedsPane = (story: NormalizedStoryV2 | null, enabled: boolean): boolean =>
+export const setupNeedsPane = (story: NormalizedStory | null, enabled: boolean): boolean =>
   enabled && Boolean(story) && (hasPlayerProfile(story) || fixedPlayerName(story) !== null);
 
 export interface PlayerSetupView {
@@ -71,7 +71,7 @@ export interface PlayerSetupView {
 }
 
 export interface PlayerSetupSources {
-  story: NormalizedStoryV2 | null;
+  story: NormalizedStory | null;
   storyId: string | null;
   record: PlayerSetupRecord | undefined;
   persona: PersonaRead | null;
@@ -81,7 +81,7 @@ export interface PlayerSetupSources {
 
 const same = (left: string, right: string) => left.trim().toLowerCase() === right.trim().toLowerCase();
 
-export const playerRoleBlock = (story: NormalizedStoryV2 | null, persona: Pick<PersonaRead, "description" | "descriptionSent" | "name"> | null): string | null => {
+export const playerRoleBlock = (story: NormalizedStory | null, persona: Pick<PersonaRead, "description" | "descriptionSent" | "name"> | null): string | null => {
   const player = story?.player;
   if (!playerInjects(player)) return null;
   const line = playerRoleLine(player);

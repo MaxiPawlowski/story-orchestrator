@@ -1,10 +1,10 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import { scheduleForcedCues } from "./cues";
 import type { ExtractionScheduler } from "./scheduler";
 import type { SharedReadWindow } from "./types";
 
-const storyWith = (trigger: string): NormalizedStoryV2 =>
-  ({ outgoingByCheckpoint: { cp1: [{ from: "cp1", to: "cp2", extractor_trigger: trigger }] } }) as unknown as NormalizedStoryV2;
+const storyWith = (trigger: string): NormalizedStory =>
+  ({ outgoingByCheckpoint: { cp1: [{ from: "cp1", to: "cp2", extractor_trigger: trigger }] } }) as unknown as NormalizedStory;
 
 const windowOf = (...texts: string[]): SharedReadWindow => ({
   from: 0,

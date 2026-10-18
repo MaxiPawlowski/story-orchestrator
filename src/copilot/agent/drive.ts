@@ -1,11 +1,11 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import type { ProvisioningOp } from "@wizard/index";
 import { describeMismatch, type RunOwnership } from "@runtime/runToken";
 import { resolveProvisioning, stopAgent, type AgentTurn, type ProvisioningOutcome } from "./loop";
 import type { AgentOp, AgentSession, AgentStep } from "./types";
 
 export interface AgentRunner {
-  (session: AgentSession, draft: StoryV2): Promise<AgentTurn>;
+  (session: AgentSession, draft: Story): Promise<AgentTurn>;
   settle?: (turn: AgentTurn) => Promise<void>;
   close?: () => Promise<void>;
 }
@@ -15,7 +15,7 @@ export const DRIVE_LIMIT = 60;
 export interface DriveDeps {
   runner: AgentRunner;
   ownership: RunOwnership;
-  draft: () => StoryV2;
+  draft: () => Story;
   applyOp: (op: AgentOp) => void;
   commit: (session: AgentSession) => void;
   stopRequested: () => boolean;
@@ -56,8 +56,8 @@ export async function driveAgent(start: AgentSession, deps: DriveDeps): Promise<
 
 export interface ProvisionDeps {
   ownership: RunOwnership;
-  draft: () => StoryV2;
-  provision: (op: ProvisioningOp, draft: StoryV2) => Promise<ProvisioningOutcome>;
+  draft: () => Story;
+  provision: (op: ProvisioningOp, draft: Story) => Promise<ProvisioningOutcome>;
   applyFollowUps: (op: ProvisioningOp) => void;
 }
 

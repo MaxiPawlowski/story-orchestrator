@@ -1,5 +1,5 @@
 import { capProposalRing } from "./types";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { buildWiCuratorPrompt } from "./prompt";
 import { parseCuratorResponse } from "./parse";
 import { applyCuratorPatch, declinedOps, planCuratorProposal, previewCuratorOp, splitPatchAnchor } from "./proposal";
@@ -11,8 +11,7 @@ const entries = (): CuratorEntryView[] => [
   { lorebook: "Story Lore", comment: "The ferryman", keys: ["ferryman"], content: "Nobody has seen the ferryman for a season.", disabled: true },
 ];
 
-const story = (stagecraft?: Record<string, unknown>) => parseStoryV2OrThrow({
-  format: 2,
+const story = (stagecraft?: Record<string, unknown>) => parseStoryOrThrow({
   id: "curator-fixture",
   title: "Curator fixture",
   description: "Scope.",
@@ -38,7 +37,7 @@ describe("curator scope", () => {
   });
 
   it("never treats an entry a checkpoint switches as writable, even inside the allowlist", () => {
-    const gated = parseStoryV2OrThrow({
+    const gated = parseStoryOrThrow({
       ...JSON.parse(JSON.stringify(story({ lorebooks: ["Story Lore"] }))),
       checkpoints: [{ id: "cp1", name: "The bank", objective: "Cross", type: "anchor", start: true, effects: { world_info: { enable: [{ lorebook: "Story Lore", comments: ["The ferryman"] }] } } }],
     });

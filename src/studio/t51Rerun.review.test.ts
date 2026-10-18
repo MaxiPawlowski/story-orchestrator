@@ -1,10 +1,9 @@
-import type { GateNode, StoryV2, Transition } from "@engine/index";
+import type { GateNode, Story, Transition } from "@engine/index";
 import { DIAGNOSTIC_CONSEQUENCES, runDiagnostics } from "./diagnostics";
 
 const edge = (from: string, to: string, gate: GateNode): Transition => ({ from, to, gate, priority: 1 });
 
-const kingdom = (transitions: Transition[], patch: Partial<StoryV2> = {}): StoryV2 => ({
-  format: 2,
+const kingdom = (transitions: Transition[], patch: Partial<Story> = {}): Story => ({
   title: "The Redrawn Kingdom",
   description: "",
   qualities: [
@@ -23,7 +22,7 @@ const kingdom = (transitions: Transition[], patch: Partial<StoryV2> = {}): Story
   ...patch,
 });
 
-const passThrough = (story: StoryV2) => runDiagnostics(story).filter((diagnostic) => diagnostic.code === "gate-open-on-arrival");
+const passThrough = (story: Story) => runDiagnostics(story).filter((diagnostic) => diagnostic.code === "gate-open-on-arrival");
 
 describe("T5-1-3 MEDIUM: a checkpoint whose way out is already open when the story arrives", () => {
   it("flags the same gate on two consecutive edges (the T5-1-3 shape)", () => {

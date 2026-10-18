@@ -49,7 +49,7 @@ export function wizardAllowance(baseline: unknown, drafts: unknown, startedAt: s
   const inventory = inventoryOf(baseline);
   const ending = inventoryOf(run.end);
   const knownSessions = new Set(strings(inventory.wizardSessions));
-  const knownStories = strings(inventory.v2Stories).map(storyId);
+  const knownStories = strings(inventory.stories).map(storyId);
   const startLedger = Array.isArray(inventory.wizardApplied) ? strings(inventory.wizardApplied) : null;
   const from = stamp(startedAt);
   const recent = (session: Record<string, any>) => {
@@ -94,7 +94,7 @@ export function wizardAllowance(baseline: unknown, drafts: unknown, startedAt: s
   const applied = growth.flatMap((entry) => entry.names.map((name) => `${entry.key}/${name}`));
   const allow = [
     ...fresh.map((session) => `inventory.wizardSessions:+${session.key}`),
-    ...stories.map((id) => `inventory.v2Stories:+${id}`),
+    ...stories.map((id) => `inventory.stories:+${id}`),
     ...lorebooks.map((name) => `inventory.lorebooksSelected:+${name}`),
     ...(lorebooks.length ? [`inventory.lorebookCount=+${lorebooks.length}`] : []),
     ...(characters.length ? [`inventory.characterCount=+${characters.length}`] : []),

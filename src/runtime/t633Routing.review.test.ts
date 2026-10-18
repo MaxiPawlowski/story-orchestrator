@@ -1,6 +1,6 @@
 jest.mock("@services/STAPI", () => ({ harnessStatusCached: () => null, refreshHarnessStatus: async () => null }));
 
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { runAuthoringStage } from "@copilot/authoring";
 import { ModelCallError } from "@extraction/modelError";
 import { fellBackText, type ExtractionReply, type ModelCall, type ModelRoute } from "@extraction/modelRoute";
@@ -27,8 +27,8 @@ const quotaThenLocal = () => {
   return { reply, calls };
 };
 
-const draft = (): StoryV2 => ({
-  format: 2, title: "The Redrawn Kingdom", description: "", qualities: [],
+const draft = (): Story => ({
+  title: "The Redrawn Kingdom", description: "", qualities: [],
   checkpoints: [{ id: "start", name: "Start", objective: "Begin.", type: "anchor", start: true }], transitions: [], roster: [],
 });
 

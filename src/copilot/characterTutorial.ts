@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { isRecord } from "@utils/guards";
 import { normalizeJsonText } from "@utils/json";
 import type { ProvisioningEnvironment, ProvisioningOp } from "@wizard/index";
@@ -106,12 +106,12 @@ export const tutorialCardOp = (card: TutorialCard): Extract<ProvisioningOp, { ki
   ...optional("mes_example", card.mes_example),
 });
 
-export const tutorialRosterId = (draft: StoryV2, name: string): string => {
+export const tutorialRosterId = (draft: Story, name: string): string => {
   const wanted = savedName(name).toLowerCase();
   return draft.roster.find((member) => (member.name ?? member.id).trim().toLowerCase() === wanted)?.id ?? cardRosterId(savedName(name));
 };
 
-export const tutorialLookOps = (draft: StoryV2, card: TutorialCard): AgentOp[] => {
+export const tutorialLookOps = (draft: Story, card: TutorialCard): AgentOp[] => {
   const name = savedName(card.name);
   if (!name || !card.appearance.trim()) return [];
   const id = tutorialRosterId(draft, name);
@@ -133,7 +133,7 @@ const STEP_ASK: Record<Exclude<TutorialStepId, "review">, string> = {
 
 export const DRAFT_MAX_TOKENS = 900;
 
-export const renderTutorialDraftPrompt = (step: Exclude<TutorialStepId, "review">, card: TutorialCard, story: Pick<StoryV2, "title" | "description"> | null): string => {
+export const renderTutorialDraftPrompt = (step: Exclude<TutorialStepId, "review">, card: TutorialCard, story: Pick<Story, "title" | "description"> | null): string => {
   const fields = TUTORIAL_STEPS.find((entry) => entry.id === step)?.fields ?? [];
   const known = (Object.keys(FIELD_LABELS) as TutorialField[]).filter((field) => card[field].trim()).map((field) => `${FIELD_LABELS[field]}: ${card[field].trim()}`);
   return [

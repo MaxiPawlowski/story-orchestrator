@@ -42,7 +42,7 @@ await withST(async (page) => {
   if (!baseline.trusted || scopedSprites(baseline, marker).length) throw new Error('The runtime check needs a clean trusted sprite baseline.');
   const saved = await page.evaluate(({ marker, names }) => {
     const ctx = (globalThis as any).SillyTavern.getContext(), rt = (globalThis as any).storyOrchestratorRuntime;
-    const library = ctx.extensionSettings['story-orchestrator'].v2Stories;
+    const library = ctx.extensionSettings['story-orchestrator'].stories;
     if (!Array.isArray(library)) throw new Error('The library baseline is unavailable.');
     return { settings: JSON.parse(JSON.stringify(rt.getGlobalSettings())), selected: ctx.extensionSettings.connectionManager.selectedProfile,
       storyIndex: library.findIndex((record) => record.id === marker.toLowerCase()),
@@ -81,7 +81,7 @@ await withST(async (page) => {
           models } } });
       rt.setExtractionSettings({ enabled: true, cadence: 1000, stabilityLag: 0, profileId: memory.id,
         profiles: { ...rt.getGlobalSettings().extraction.profiles, read: memory.id } });
-      const story = { format: 2, id: marker.toLowerCase(), title: marker, description: 'An isolated appearance and image/read recovery check.',
+      const story = { id: marker.toLowerCase(), title: marker, description: 'An isolated appearance and image/read recovery check.',
         roster: [{ id: rosterId, name: character, role: 'Portrait subject', card: { fields: { hair: { quality: 'hair', visual: true } } } }],
         qualities: [{ key: 'hair', type: 'enum', values: ['black', 'green'], source: 'extractor', rubric: 'Established current hair colour, green after the dye.' }],
         requirements: { members: [character] }, checkpoints: [{ id: 'start', name: 'Portrait', type: 'anchor', start: true, objective: 'Pose after dyeing the hair green.', illustrate: false,
@@ -161,8 +161,8 @@ await withST(async (page) => {
     await page.evaluate(async ({ saved, marker }) => {
       const ctx = (globalThis as any).SillyTavern.getContext();
       const root = ctx.extensionSettings['story-orchestrator'];
-      root.v2Stories = root.v2Stories.filter((record) => record.id !== marker.toLowerCase());
-      root.v2Stories.splice(Math.max(0, saved.storyIndex), 0, ...saved.stories);
+      root.stories = root.stories.filter((record) => record.id !== marker.toLowerCase());
+      root.stories.splice(Math.max(0, saved.storyIndex), 0, ...saved.stories);
       for (const prior of saved.profiles) ctx.extensionSettings.connectionManager.profiles.find((profile) => profile.id === prior.id).api = prior.api;
       const profile = ctx.extensionSettings.connectionManager.profiles.find((profile) => profile.id === saved.selected);
       if (profile) { const slashPath = '/scripts/slash-commands.js'; await (await import(slashPath)).executeSlashCommandsWithOptions(`/profile "${profile.name}"`); }

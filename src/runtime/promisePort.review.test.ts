@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import { EPISTEMIC_INJECTION_KEY } from "@constants/defaults";
 import type { EpistemicEntry } from "@memory/index";
 import type { SharedReadAudit } from "@extraction/index";
@@ -15,7 +15,7 @@ import type { InjectorHosts } from "./hostPorts";
 
 installPromisePortImpl(PROMISE_PORT_IMPL);
 
-const STORY: NormalizedStoryV2 = parseStoryV2OrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
+const STORY: NormalizedStory = parseStoryOrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
 const CAST = ["Arin", "DM Narrator"];
 const PROMISE = "Arin, I promise I'll pay your debt to the smuggler.";
 

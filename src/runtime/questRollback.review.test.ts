@@ -9,14 +9,14 @@ jest.mock("@extraction/index", () => ({
   getChatWindow: () => ({ from: 0, to: 0, messages: [] }),
 }));
 
-import { StoryEngine, parseStoryV2OrThrow, questClosedKey, questRewardKey } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, questClosedKey, questRewardKey } from "@engine/index";
 import { runRollback, type RollbackDeps } from "./rollback";
 import type { RollbackKind } from "./narrative";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./runToken";
 import type { RuntimeExtras } from "./types";
 
-const story = parseStoryV2OrThrow({
-  format: 2, title: "Quest rollback", description: "Synthetic.", roster: [],
+const story = parseStoryOrThrow({
+  title: "Quest rollback", description: "Synthetic.", roster: [],
   qualities: [{ key: "paid", type: "bool", source: "extractor", rubric: "Was the debt paid?" }, { key: "coins", type: "int", source: "code", rubric: "Coins." }],
   checkpoints: [{ id: "start", name: "Start", type: "anchor", start: true, objective: "Begin." }],
   transitions: [],

@@ -1,4 +1,4 @@
-import type { BriefingSection, Chapter, StoryBriefing, StoryKind, StoryV2 } from "./schema";
+import type { BriefingSection, Chapter, StoryBriefing, StoryKind, Story } from "./schema";
 
 export const BRIEFING_START_LABEL = "Begin";
 export const BRIEFING_INTRO_HEADING = "About this story";
@@ -13,7 +13,7 @@ export interface BriefingView {
   chapterId: string | null;
 }
 
-type BriefingStory = Pick<StoryV2, "title" | "player_intro" | "briefing" | "chapters">;
+type BriefingStory = Pick<Story, "title" | "player_intro" | "briefing" | "chapters">;
 
 const viewOf = (briefing: StoryBriefing, title: string, chapterId: string | null): BriefingView => ({
   title: briefing.title ?? title,

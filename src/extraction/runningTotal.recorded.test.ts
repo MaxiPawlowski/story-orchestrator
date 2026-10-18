@@ -1,4 +1,4 @@
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 import { runningTotalRule } from "./contract";
 import { sharedReadOverhead } from "./sharedRead";
 
@@ -6,8 +6,7 @@ jest.mock("@services/STAPI", () => ({ getContext: () => ({ chat: [], extensionSe
 
 const EVIDENCE_RUBRIC = "How many of these clues to a plot against the Nightriver bloodline has the heir actually found (0 to 3)? The only clues: Javon asked for the second's place rather than being offered it; Leevon's debt to House Valtara; the venom bought near the Academy; Valtara seals on the betrothal papers; the Duchess's night visits. Count one only when the scene puts it in front of the heir as a fact: a document, a witness, a confession, something seen. A character's guess, worry or accusation about a plot is not a clue, and neither is talk of the duel or the seals. Count each clue once.";
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "t6-4-whispers",
   title: "Adolion: House Nightriver",
   description: "",

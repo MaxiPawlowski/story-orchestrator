@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import { CHECKS, runCheck, type Check } from "./checks";
 import { readTunnelVisionWith, tunnelVision, tunnelVisionFor } from "./tunnelVision";
 import type { RuntimeSnapshot } from "./types";
@@ -8,7 +8,7 @@ const story = {
   requirements: { lorebooks: ["Required"] },
   stagecraft: { lorebooks: ["Curated"] },
   lore_select: { lorebooks: ["Selected"] },
-} as unknown as NormalizedStoryV2;
+} as unknown as NormalizedStory;
 const books = ["Required", "Curated", "Selected", "Other"].map((name) => ({ name, suppressesScan: true, canWrite: true }));
 const check = CHECKS.find((entry) => entry.id === "tunnelvision-story-lore") as Check;
 const snapshot = (overrides: Record<string, unknown> = {}) => ({ storyId: "story", ui: { authorView: true }, tunnelVisionBooks: books.slice(0, 3), ...overrides }) as unknown as RuntimeSnapshot;
@@ -16,7 +16,7 @@ const snapshot = (overrides: Record<string, unknown> = {}) => ({ storyId: "story
 describe("TunnelVision coexistence", () => {
   it("intersects every authored lore scope with managed books and clears on story switch", () => {
     expect(tunnelVisionFor(story, books).map((book) => book.name)).toEqual(["Required", "Curated", "Selected"]);
-    expect(tunnelVisionFor({ requirements: { lorebooks: ["Elsewhere"] } } as unknown as NormalizedStoryV2, books)).toEqual([]);
+    expect(tunnelVisionFor({ requirements: { lorebooks: ["Elsewhere"] } } as unknown as NormalizedStory, books)).toEqual([]);
     expect(tunnelVisionFor(null, books)).toEqual([]);
   });
 

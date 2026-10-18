@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { parseStoryOrThrow, type EngineState } from "@engine/index";
 import { createJudgeGate, defaultJudgeSettings, JudgeBusyError, LORE_CONTENT_CHARS, LORE_RETRY_WAIT_MS, type JudgeRequest, type JudgeSettings } from "@judge/index";
 import type { HostScannableEntry } from "@services/STAPI";
 import { JudgeRuntime } from "./judge";
@@ -16,8 +16,7 @@ jest.mock("@services/STAPI", () => ({
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,}));
 
-const story = (loreSelect: Record<string, unknown> | undefined, roster: unknown[] = []) => parseStoryV2OrThrow({
-  format: 2,
+const story = (loreSelect: Record<string, unknown> | undefined, roster: unknown[] = []) => parseStoryOrThrow({
   id: "lore-fixture",
   title: "Lore",
   description: "Lore-select fixture.",

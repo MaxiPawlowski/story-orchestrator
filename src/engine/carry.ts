@@ -1,4 +1,4 @@
-import { factionBand, questClosedKey, standingKey, type ValidationError, type NormalizedStoryV2, type PrimitiveValue } from "./schema";
+import { factionBand, questClosedKey, standingKey, type ValidationError, type NormalizedStory, type PrimitiveValue } from "./schema";
 import {
   PREVIOUSLY_BOUNDARIES, isCarryState, isHeritageKey, type CarrySlice, type CarryView, type CarryMapEntry, type CarryOutcomeLine, type CarryProjection, type CarryState,
   type CarryValue, type OutcomeKey,
@@ -7,11 +7,11 @@ import { qualityAccepts } from "./blackboard";
 import { evaluateGate } from "./gates";
 import { valueReader } from "./quests";
 import { checkCarryPair, outcomeKind, progressKeys } from "./validate/carry";
-import { parseStoryV2 } from "./validate";
+import { parseStory } from "./validate";
 
 type Values = Readonly<Record<string, unknown>>;
-type OutcomeStory = Pick<NormalizedStoryV2, "qualityByKey" | "quests" | "factions" | "outcome">;
-type TargetStory = Pick<NormalizedStoryV2, "qualityByKey" | "carry_from" | "roster" | "transitions" | "quests" | "milestones">;
+type OutcomeStory = Pick<NormalizedStory, "qualityByKey" | "quests" | "factions" | "outcome">;
+type TargetStory = Pick<NormalizedStory, "qualityByKey" | "carry_from" | "roster" | "transitions" | "quests" | "milestones">;
 
 const isPrimitive = (value: unknown): value is PrimitiveValue => typeof value === "string" || typeof value === "boolean" || (typeof value === "number" && Number.isFinite(value));
 
@@ -114,10 +114,10 @@ export const startSeed = (story: TargetStory, holder: { carry?: CarrySlice }, jo
   return seed;
 };
 
-export const importCarryErrors = (parsed: NormalizedStoryV2, id: string, rawOf: (storyId: string) => unknown): ValidationError[] => {
+export const importCarryErrors = (parsed: NormalizedStory, id: string, rawOf: (storyId: string) => unknown): ValidationError[] => {
   const from = parsed.carry_from?.story;
   const raw = from && from !== id ? rawOf(from) : undefined;
-  const source = from === id ? { ...parsed, id } : raw === undefined ? null : parseStoryV2(raw);
+  const source = from === id ? { ...parsed, id } : raw === undefined ? null : parseStory(raw);
   return source && !Array.isArray(source) ? checkCarryPair(source, parsed, "import") : [];
 };
 

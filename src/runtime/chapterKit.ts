@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import { estimateTokens } from "@memory/budget";
 import { renderChronicle } from "@memory/chronicle";
 import type { ArcEntry, ChapterRecord, EraLine, MemoryEntry } from "@memory/types";
@@ -240,7 +240,7 @@ const coveredBy = (records: readonly ChapterRecord[], eras: readonly { recordIds
   (block ? records.filter((record) => record.status !== "degraded"
     && (block.includes(record.short) || block.includes(record.summary) || eras.some((era) => era.recordIds.includes(record.id) && block.includes(era.text)))) : []);
 
-export function foldPreview(memory: MemoryRuntimeState, story: NormalizedStoryV2 | null, blocks: ReadonlyArray<{ key: string; value: string }>, chatLength: number): number {
+export function foldPreview(memory: MemoryRuntimeState, story: NormalizedStory | null, blocks: ReadonlyArray<{ key: string; value: string }>, chatLength: number): number {
   const records = memory.chapters ?? [];
   if (!records.length || !chapterSettings(memory.settings.chapters).fold) return 0;
   const block = blocks.find((entry) => entry.key === INJECTION_REGISTRY.storySoFar.key)?.value ?? "";
@@ -321,7 +321,7 @@ export interface FoldOutcome {
   missing: number;
 }
 
-export function foldRange(records: readonly ChapterRecord[], story: NormalizedStoryV2 | null, foldEras = false): Array<{ from: number; to: number }> {
+export function foldRange(records: readonly ChapterRecord[], story: NormalizedStory | null, foldEras = false): Array<{ from: number; to: number }> {
   return records.filter((record) => (isEraId(story, record.chapterId) ? foldEras : story?.chapterById?.[record.chapterId]?.seal?.fold_messages !== false)).map((record) => {
     const tail = story?.chapterById?.[record.chapterId]?.seal?.keep_tail ?? 6;
     return { from: record.range.from, to: record.range.to - tail };
@@ -366,13 +366,13 @@ export function dossiers(records: readonly ChapterRecord[]): Map<string, Dossier
   return out;
 }
 
-const enabledBy = (story: NormalizedStoryV2, checkpointId: string): string[] => {
+const enabledBy = (story: NormalizedStory, checkpointId: string): string[] => {
   const changes = story.checkpointById[checkpointId]?.effects?.cast_changes as { enable?: unknown } | undefined;
   const enable = changes?.enable;
   return (Array.isArray(enable) ? enable : typeof enable === "string" ? [enable] : []).filter((name): name is string => typeof name === "string").map((name) => name.trim().toLowerCase());
 };
 
-export function returningLines(story: NormalizedStoryV2 | null, records: readonly ChapterRecord[], visitedPath: readonly string[], lastMessageId: number, window: number): Map<string, string> {
+export function returningLines(story: NormalizedStory | null, records: readonly ChapterRecord[], visitedPath: readonly string[], lastMessageId: number, window: number): Map<string, string> {
   const out = new Map<string, string>();
   const last = records[records.length - 1];
   if (!story || !last || lastMessageId - last.range.to > window) return out;
@@ -387,7 +387,7 @@ export function returningLines(story: NormalizedStoryV2 | null, records: readonl
   return out;
 }
 
-export function chapterListText(story: NormalizedStoryV2 | null, records: readonly ChapterRecord[], activeCheckpointId: string | undefined): string {
+export function chapterListText(story: NormalizedStory | null, records: readonly ChapterRecord[], activeCheckpointId: string | undefined): string {
   if (!records.length) return "No chapter has ended yet.";
   const current = chapterOf(story, activeCheckpointId);
   const lines = records.map((record) => `${chapterNumber(story, record.chapterId)}. ${record.playerTitle} — ${record.short}`);
@@ -395,5 +395,5 @@ export function chapterListText(story: NormalizedStoryV2 | null, records: readon
   return lines.join("\n");
 }
 
-export const recordsForChapter = (story: NormalizedStoryV2 | null, records: readonly ChapterRecord[], number: number): ChapterRecord[] =>
+export const recordsForChapter = (story: NormalizedStory | null, records: readonly ChapterRecord[], number: number): ChapterRecord[] =>
   records.filter((record) => chapterNumber(story, record.chapterId) === number);

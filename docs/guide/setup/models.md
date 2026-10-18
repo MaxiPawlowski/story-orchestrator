@@ -6,10 +6,10 @@ something different, so splitting them is usually better and often cheaper.
 | Job | What it does | What matters | Example | Where to set it |
 |---|---|---|---|---|
 | **Replies** | Writes what the characters say. | Prose, voice, staying in character, a long context. An RP or storytelling finetune is a good fit. | TheDrummer's Artemis 31B | SillyTavern's own connection (the chat model) |
-| **Memory model** | Reads the chat after each reply: story facts, memories, summaries, whether a scene is over. | Following instructions and strict output formats, not prose flair. Needs its instruct template. | DeepSeek (Chat Completion) | **Memory → Memory model profile** |
-| **Judge** | Answers short yes/no and pick-one questions: who speaks next, which lore matters, is this memory real. | Speed (two uses run before a reply, with a 1.5 s budget). | TypeSafe's Jev, through the judge plugin; experimental: decider-4b on this machine ([local judge](judge.md#local-judge-experimental)) | **Judge** section ([Judge](judge.md)) |
-| **Wizard and road ahead** | Builds stories from a premise through tool calls, writes generated scenes, and answers Ask. | Reliable tool calling and planning. | opencode `openai/gpt-6.1-sol` or Claude Code `claude-sonnet-5-5` on a subscription; DeepSeek pay-per-token | **Memory → Models per task → Wizard and road ahead** |
-| **Image prompts** | Turns a scene into a picture prompt. Optional. | Short, literal output. | any small instruct model | **Images → Image-prompt model** ([Illustrations](images.md)) |
+| **Memory model** | Reads the chat every few replies: story facts, memories, summaries, whether a scene is over. | Following instructions and strict output formats, not prose flair. Needs its instruct template. | DeepSeek (Chat Completion) | **Orchestrator → Connections → Memory** |
+| **Judge** | Answers short yes/no and pick-one questions: who speaks next, which lore matters, is this memory real. | Speed (two uses run before a reply, with a 1.5 s budget). | TypeSafe's Jev, through the judge plugin; experimental: decider-4b on this machine ([local judge](judge.md#local-judge-experimental)) | **Orchestrator → Connections → Judge** ([Judge](judge.md)) |
+| **Wizard and road ahead** | Builds stories from a premise through tool calls, writes generated scenes, and answers Ask. | Reliable tool calling and planning. | opencode `openai/gpt-6.1-sol` or Claude Code `claude-sonnet-5-5` on a subscription; DeepSeek pay-per-token | **Orchestrator → Connections → Memory → Models per task → Wizard and road ahead** |
+| **Image prompts** | Turns a scene into a picture prompt. Optional. | Short, literal output. | any small instruct model | **Orchestrator → Connections → Images → Image-prompt model** ([Illustrations](images.md)) |
 
 **The wizard's default.** Left on its default, **Wizard and road ahead** (and Ask, which shares it) uses, in order:
 opencode `openai/gpt-6.1-sol` through the [harness plugin](harness.md) when the plugin offers it with the wizard's
@@ -37,8 +37,9 @@ their defaults. You lose speed (every read competes with the next reply), some a
 the wizard's reliability; without the judge plugin its uses take their ordinary, slower paths.
 
 **A local judge** (decider-4b, about 6 GB of disk with its Python environment, in `dev/models/so-judge` on the system drive by
-default) can stand in for TypeSafe per use, so nothing leaves the machine. It is not measured yet, so every use routed
-to it keeps its usual path until it is: [Local judge](judge.md#local-judge-experimental).
+default) can stand in for TypeSafe per use, so nothing leaves the machine. Only one use, **Merge related notes**, has
+been measured there so far; every other use routed to it keeps its usual path until it is:
+[Local judge](judge.md#local-judge-experimental).
 
 **Image models** are files, not connections: a missing checkpoint or LoRA can be downloaded from Civitai or Hugging
 Face into your model folders, verified by SHA256, after you confirm a card ([Illustrations](images.md#downloading-models-civitai-hugging-face)).
@@ -46,8 +47,9 @@ Face into your model folders, verified by SHA256, after you confirm a card ([Ill
 ## What we tested on
 
 The extension was battle-tested on **TheDrummer's Artemis 31B v1.1**, GGUF Q4_K_M on llama.cpp's `llama-server`,
-through a **Text Completion** profile. Every floor and measurement in this guide was taken on that setup. Other
-models work, but they have not been measured.
+through a **Text Completion** profile. The reply-quality ratings and play checks in this guide were taken on that
+setup (the judge's own measurements are per provider, on the [Judge](judge.md) page). Other reply models work, but
+they have not been measured.
 
 | Setting | Value |
 |---|---|

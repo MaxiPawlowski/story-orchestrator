@@ -17,7 +17,7 @@ jest.mock("./sharedRead", () => ({
 }));
 
 
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStory } from "@engine/index";
 import { CADENCE_WINDOW_MAX, ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "./scheduler";
 import { runSharedRead } from "./sharedRead";
 import { ModelCallError } from "./modelError";
@@ -25,7 +25,7 @@ import { ModelCallError } from "./modelError";
 const flush = () => new Promise((resolve) => setTimeout(resolve, 5));
 
 const makeHost = (settings: Partial<SchedulerSettings> = {}) => ({
-  getStory: () => ({}) as unknown as NormalizedStoryV2,
+  getStory: () => ({}) as unknown as NormalizedStory,
   getEngineState: () => ({}) as unknown as EngineState,
   getExtractionSettings: () => ({ enabled: true, profileId: null, cadence: 1, stabilityLag: 1, ...settings }),
   getFacts: () => [],

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { evaluateGate, parseStoryV2OrThrow, progressQualityForAnchor } from "@engine/index";
+import { evaluateGate, parseStoryOrThrow, progressQualityForAnchor } from "@engine/index";
 import { runCodeChecks } from "./critic";
 import { mergeExpansions } from "./merge";
 import { findStubExpansionCandidate, planExpansion } from "./planner";
@@ -15,7 +15,7 @@ jest.mock("@services/STAPI", () => ({
 
 const root = join(__dirname, "..", "..");
 const raw = JSON.parse(readFileSync(join(root, "test/fixtures/generated-fork.story.json"), "utf-8"));
-const story = parseStoryV2OrThrow(raw);
+const story = parseStoryOrThrow(raw);
 const ANCHOR = "finish";
 const PROGRESS = progressQualityForAnchor(ANCHOR);
 

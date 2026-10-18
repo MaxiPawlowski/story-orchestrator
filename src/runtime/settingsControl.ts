@@ -2,7 +2,7 @@ import { applyGlobalSettings } from "./extras";
 import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
 import type { BriefingDraft } from "./briefing";
 import type { TalkChainSettings } from "./settingsModel";
-import type { StoryV2 } from "@engine/schema";
+import type { Story } from "@engine/schema";
 import { readFeaturePolicies, type StoryFeatureId, type FeatureTuning } from "@engine/featurePolicy";
 import { featureSettings, resolveFeatures } from "./featureResolve";
 import { applyDeviceSettings } from "./deviceSettings";
@@ -12,7 +12,7 @@ import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSe
 export type UiSettingsPatch = Partial<UiRuntimeSettings> & { briefingSeen?: true; briefingDrafted?: BriefingDraft };
 
 export interface SettingsControlDeps {
-  story?: () => StoryV2 | null;
+  story?: () => Story | null;
   ownsChat?: () => boolean;
   extras: () => RuntimeExtras;
   updateSteering: () => void;

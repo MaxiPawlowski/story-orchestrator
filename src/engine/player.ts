@@ -1,8 +1,8 @@
-import type { StoryPlayer, StoryV2 } from "./schema";
+import type { StoryPlayer, Story } from "./schema";
 
 export const PLAYER_REF_MACRO = "{{user}}";
 
-type PlayerStory = Pick<StoryV2, "player" | "requirements">;
+type PlayerStory = Pick<Story, "player" | "requirements">;
 
 const clean = (text: string | undefined): string => (text ?? "").trim().replace(/\s+/g, " ");
 

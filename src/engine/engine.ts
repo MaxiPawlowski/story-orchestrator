@@ -2,7 +2,7 @@ import { ApplyQueue, appliedKeys, type AppliedKey, type ApplyQueueEntry, type Qu
 import { Blackboard, type BlackboardSnapshot } from "./blackboard";
 import { applyTransitionProgress, progressQualityForAnchor } from "./convergence";
 import { gateKeys } from "./gates";
-import { GENERATED_CHECKPOINT_PREFIX, type Checkpoint, type CheckpointEffects, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue } from "./schema";
+import { GENERATED_CHECKPOINT_PREFIX, type Checkpoint, type CheckpointEffects, type NormalizedStory, type NormalizedTransition, type PrimitiveValue } from "./schema";
 import { selectFiring } from "./transitions";
 import { applyCardEntry } from "./cardFields";
 import { applyQuestRewards } from "./quests";
@@ -111,7 +111,7 @@ export const keptStagedFrom = (state: EngineState, keep: (ids: string[]) => stri
 
 // A story edit can take away the checkpoint a chat was parked at (a generated chain that no longer
 // merges). The chat resumes at the newest checkpoint of its trail that the graph still has.
-export function repairActiveCheckpoint(state: EngineState, story: NormalizedStoryV2): { state: EngineState; detail: string | null } {
+export function repairActiveCheckpoint(state: EngineState, story: NormalizedStory): { state: EngineState; detail: string | null } {
   if (story.checkpointById[state.activeCheckpointId]) return { state, detail: null };
   const trail = [...[...state.visitedPath].reverse(), ...[...state.visitedAnchors].reverse()];
   const fallback = trail.find((id) => story.checkpointById[id]) ?? story.startCheckpointId;
@@ -123,7 +123,7 @@ export function repairActiveCheckpoint(state: EngineState, story: NormalizedStor
 }
 
 export class StoryEngine {
-  private story: NormalizedStoryV2 | null = null;
+  private story: NormalizedStory | null = null;
   private blackboard: Blackboard | null = null;
   private queue = new ApplyQueue();
   private activeCheckpointId = "";
@@ -144,7 +144,7 @@ export class StoryEngine {
 
   hydrateRepair: string | null = null;
 
-  loadStory(normalized: NormalizedStoryV2, seed: Readonly<Record<string, PrimitiveValue>> = {}): void {
+  loadStory(normalized: NormalizedStory, seed: Readonly<Record<string, PrimitiveValue>> = {}): void {
     this.story = normalized;
     this.hydrateRepair = null;
     this.blackboard = new Blackboard(normalized);
@@ -213,7 +213,7 @@ export class StoryEngine {
   // A merged or staled expansion changes the graph under a live run. Reloading and
   // hydrating dropped the pending writes (a staled chain at the start of a boundary threw away the
   // write that boundary was committing) and the boundary history rollback needs.
-  replaceGraph(normalized: NormalizedStoryV2): void {
+  replaceGraph(normalized: NormalizedStory): void {
     const state = this.serialize();
     const history = this.serializeHistory();
     const pending = this.queue.flush();
@@ -554,7 +554,7 @@ export class StoryEngine {
     return this.activeCheckpointId.startsWith(GENERATED_CHECKPOINT_PREFIX) && typeof player === "number" && player <= this.checkpointStartedMessageId;
   }
 
-  private requireStory(): NormalizedStoryV2 {
+  private requireStory(): NormalizedStory {
     if (!this.story) throw new Error("StoryEngine has no loaded story");
     return this.story;
   }

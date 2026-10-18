@@ -1,7 +1,6 @@
 {
  "source": "test/sessions/T2/T2-1-2: runtime-2026-10-01@16h56m09s049ms.json extras.expansion.entries['the-first-descent->between-the-floors->the-changed-deep'] (journal.jsonl:1001 enter gen_1 at b30/msg 46, :1030 gen_1 -> gen_2 at b31/msg 47, same round); pinned story cut to the three checkpoints the chain spans",
  "story": {
-  "format": 2,
   "id": "adolion-saga",
   "title": "Adolion: The Saga",
   "description": "The whole of Adolion in one campaign: a new party's first postings, the Nightriver succession, the C-rank exam, four roads from the Guild board (the Deep, the Eastern Road, the Night Courts, Eshalanore) and the war with the Zegallan Empire, where whoever the party won over answers the muster.",

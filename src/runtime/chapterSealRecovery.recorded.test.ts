@@ -9,7 +9,7 @@ jest.mock("@services/STAPI", () => ({
 import * as sagaMini from "../../test/fixtures/chapters-mini.story.json";
 import * as recorded from "../../test/fixtures/t2-1-seal.memory.json";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
-import { parseStoryV2OrThrow, type EngineState, type StoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type EngineState, type Story } from "@engine/index";
 import { maxTokensCap, maxTokensFor, MAX_TOKENS_TABLE } from "@extraction/callBudget";
 import type { ModelAsk } from "@extraction/modelRoute";
 import { assembleChapterInput } from "@memory/chapterInput";
@@ -27,7 +27,7 @@ const OLD_RECORD_FLOOR = 1024;
 const TOKENS_PER_WORD = 2;
 const TOKENS_PER_CITATION = 25;
 
-const story = parseStoryV2OrThrow(JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as StoryV2);
+const story = parseStoryOrThrow(JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as Story);
 const arrival = story.chapterById!.arrival;
 
 const liveRows = (recorded.entries as unknown as MemoryEntry[]).map((entry) => ({

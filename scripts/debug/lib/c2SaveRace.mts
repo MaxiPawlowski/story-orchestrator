@@ -1,7 +1,6 @@
 export const C2_MARKER = 'SO-C2';
 
 export const C2_STORY = {
-  format: 2,
   id: 'so-c2-save-race',
   title: 'SO-C2 save race guard',
   description: 'v2.6 plan 01 C2: the vehicle for the late-bound save guard. Model-free: no checkpoint fires on its own.',

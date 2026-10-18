@@ -4,7 +4,7 @@ import { authorAcceptsPending } from "../../../test/support/curatorAccept";
 // Each finding() states the contract the fix must satisfy; test/findings/ledger.json says whether
 // it is still open and, while open, the reason it must fail with. See v2.3 plan 01 §A.
 
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 import { StagecraftCoordinator } from "@runtime/coordinators/stagecraftCoordinator";
 import { createStagecraft } from "@runtime/extras";
 import type { WardenCheckInput } from "@stagecraft/index";
@@ -31,8 +31,7 @@ const callExtractionModel = jest.fn(async (..._args: unknown[]): Promise<string>
 
 const chatRef = { current: [] as unknown[] };
 
-const story = () => parseStoryV2OrThrow({
-  format: 2,
+const story = () => parseStoryOrThrow({
   id: "review-independent",
   title: "Review crossing",
   description: "Independent fixture",

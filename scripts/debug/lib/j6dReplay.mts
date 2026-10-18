@@ -16,7 +16,7 @@ type CompareResult = { rows: KeyRow[]; refusedReplies: Array<{ caseId: string; r
 type Summary = { verdict: 'rate' | 'insufficient' | 'deferred'; [field: string]: unknown };
 
 interface ReplayModule {
-  parseStoryV2OrThrow(raw: unknown): unknown;
+  parseStoryOrThrow(raw: unknown): unknown;
   readSessionArchive(files: unknown): { storyId: string; storyRaw: Record<string, unknown>; audits: unknown[] };
   rebuildSession(session: unknown, story: unknown): { cases: ReplayCase[]; refusals: Refusal[]; skipped: Skipped; rebuiltKeys: number };
   compareCases(input: { cases: ReplayCase[]; story: unknown; replies: unknown }): CompareResult;
@@ -63,7 +63,7 @@ export async function reconstruct(dirs: string[]) {
   const sessions = [];
   for (const dir of dirs) {
     const archive = replay.readSessionArchive(await readSessionDir(dir));
-    const story = replay.parseStoryV2OrThrow(archive.storyRaw);
+    const story = replay.parseStoryOrThrow(archive.storyRaw);
     const rebuilt = replay.rebuildSession(archive, story);
     sessions.push({ dir, storyId: archive.storyId, story: archive.storyRaw, audits: archive.audits.length, ...rebuilt });
   }
@@ -79,7 +79,7 @@ export async function compare(reconstruction: Reconstruction, replies: Record<st
   const unasked = [];
   const refusals = reconstruction.sessions.flatMap((session) => session.refusals);
   for (const session of reconstruction.sessions) {
-    const story = replay.parseStoryV2OrThrow(session.story);
+    const story = replay.parseStoryOrThrow(session.story);
     const result = replay.compareCases({ cases: session.cases, story, replies });
     rows.push(...result.rows);
     refusedReplies.push(...result.refusedReplies);

@@ -1,5 +1,4 @@
 {
-  "format": 2,
   "id": "sp6-complications",
   "title": "SP6 complication pool (jest)",
   "description": "v2.5 plan 09 SP6 K1 fixture: a camp that wants critical tension, with a three-item pool released after 3 consecutive escalate boundaries, and a road with a one-item pool after 2; the two loop, so spent-ness must survive a revisit.",

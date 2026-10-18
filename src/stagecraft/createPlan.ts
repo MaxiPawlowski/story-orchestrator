@@ -1,13 +1,13 @@
-import { STAGECRAFT_CREATE_CAP_DEFAULT, type NormalizedStoryV2 } from "@engine/index";
+import { STAGECRAFT_CREATE_CAP_DEFAULT, type NormalizedStory } from "@engine/index";
 import { parseCreateLines, validateCreate, type CreateCandidateContext, type CreateVerdict } from "./createCandidate";
 import { protectedRefusal } from "./curatorTiers";
 import { previewCuratorOp } from "./proposal";
 import { isCheckpointGated, isCuratorExcluded } from "./scope";
 import type { CreateCuratorOp, CreatedEntry, CuratorOpRecord, CuratorPlan, WiCuratorOp } from "./types";
 
-export const createCapFor = (story: NormalizedStoryV2 | null): number => story?.stagecraft?.createCap ?? STAGECRAFT_CREATE_CAP_DEFAULT;
+export const createCapFor = (story: NormalizedStory | null): number => story?.stagecraft?.createCap ?? STAGECRAFT_CREATE_CAP_DEFAULT;
 
-export const hiddenTitleRefusal = (story: NormalizedStoryV2 | null, lorebook: string, comment: string): string | null => {
+export const hiddenTitleRefusal = (story: NormalizedStory | null, lorebook: string, comment: string): string | null => {
   if (isCheckpointGated(story, lorebook, comment)) return `"${comment}" is switched by checkpoint effects, which alone decide it`;
   if (isCuratorExcluded(story, lorebook, comment)) return `"${comment}" is excluded from the curator by this story`;
   return null;
@@ -18,7 +18,7 @@ export const newEntriesText = (count: number): string => `${String(count)} new e
 export const capRefusal = (cap: number) => `this story's limit of ${String(cap)} new entr${cap === 1 ? "y" : "ies"} is reached`;
 
 export interface CreatePlanOptions {
-  story: NormalizedStoryV2 | null;
+  story: NormalizedStory | null;
   cap: number;
   used: number;
   declined: WiCuratorOp[];

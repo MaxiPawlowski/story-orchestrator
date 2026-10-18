@@ -1,6 +1,6 @@
 import {
   CALENDAR_KEY_PREFIX, CLOCK_DAY_KEY, CLOCK_MOVED_KEY, CLOCK_NIGHT_KEY, CLOCK_PART_KEY, CLOCK_READ_KEY, CLOCK_SKIP_DAYS_DEFAULT, CLOCK_STORY_TIME_KEY, CLOCK_TIME_KEY,
-  clockStart, timeReachedKey, type NormalizedStoryV2, type PrimitiveValue, type StoryCalendar, type StoryClock, type TimedEffects, type TimeEffect,
+  clockStart, timeReachedKey, type NormalizedStory, type PrimitiveValue, type StoryCalendar, type StoryClock, type TimedEffects, type TimeEffect,
 } from "../schema";
 import type { BoundaryLogEntry, DerivedQualityView, EntryView } from "../engine";
 import { dateOf, ordinal } from "./calendar";
@@ -114,7 +114,7 @@ export interface StoryTimeRow {
   move: ClockMove | null;
 }
 
-const writerOf = (story: NormalizedStoryV2, entry: BoundaryLogEntry): ClockWriter => {
+const writerOf = (story: NormalizedStory, entry: BoundaryLogEntry): ClockWriter => {
   const checkpoint = entry.after.activeCheckpointId !== entry.before.activeCheckpointId ? story.checkpointById[entry.after.activeCheckpointId] : undefined;
   if ((checkpoint?.effects as TimedEffects | undefined)?.time) return "checkpoint";
   const reads = entry.queue.applied.some((applied) => applied.source === "extractor" && applied.deltas.some((delta) => delta.q === CLOCK_READ_KEY));
@@ -122,7 +122,7 @@ const writerOf = (story: NormalizedStoryV2, entry: BoundaryLogEntry): ClockWrite
   return reads && !authored ? "read" : "author";
 };
 
-export const clockMoves = (story: NormalizedStoryV2, log: readonly BoundaryLogEntry[]): ClockMove[] => {
+export const clockMoves = (story: NormalizedStory, log: readonly BoundaryLogEntry[]): ClockMove[] => {
   const clock = story.life?.clock;
   if (!clock) return [];
   return log.flatMap((entry) => {
@@ -134,20 +134,20 @@ export const clockMoves = (story: NormalizedStoryV2, log: readonly BoundaryLogEn
   });
 };
 
-export const storyTimeRow = (story: NormalizedStoryV2, values: Values, log: readonly BoundaryLogEntry[]): StoryTimeRow | null => {
+export const storyTimeRow = (story: NormalizedStory, values: Values, log: readonly BoundaryLogEntry[]): StoryTimeRow | null => {
   const clock = story.life?.clock;
   if (!clock) return null;
   const time = currentTime(clock, values);
   return { time, label: timeLabel(clock, story.life?.calendar, time), move: clockMoves(story, log).at(-1) ?? null };
 };
 
-export const reachedLabel = (story: NormalizedStoryV2, values: Values, checkpoint: string): string | null => {
+export const reachedLabel = (story: NormalizedStory, values: Values, checkpoint: string): string | null => {
   const clock = story.life?.clock;
   const time = values[timeReachedKey(checkpoint)];
   return clock && typeof time === "number" ? timeLabel(clock, story.life?.calendar, time) : null;
 };
 
-export const timeEntry = (story: NormalizedStoryV2, view: EntryView): Write[] => {
+export const timeEntry = (story: NormalizedStory, view: EntryView): Write[] => {
   const clock = story.life?.clock;
   if (!clock) return [];
   const effect = (story.checkpointById[view.activeCheckpointId]?.effects as TimedEffects | undefined)?.time;

@@ -1,4 +1,4 @@
-import { parseStoryV2 } from "./validate";
+import { parseStory } from "./validate";
 import { readPlayer } from "./validate/player";
 import { carriesPlayerRoleLine, createdPersonaDescription, fixedPlayerName, playerInjects, playerRoleLine, renderPlayerRoleLine, storyPlayerNames } from "./player";
 import type { ValidationError } from "./schema";
@@ -9,7 +9,7 @@ const read = (value: unknown) => {
 };
 
 const story = (player: unknown) => ({
-  format: 2, title: "T", description: "D", qualities: [], transitions: [], roster: [],
+  title: "T", description: "D", qualities: [], transitions: [], roster: [],
   checkpoints: [{ id: "start", name: "Start", objective: "o", type: "anchor", start: true }], player,
 });
 
@@ -36,9 +36,9 @@ describe("v2.7 34 the story's player profile", () => {
   });
 
   it("parses into the normalized story and an absent block stays absent", () => {
-    const parsed = parseStoryV2(story({ role: "a courier" }));
+    const parsed = parseStory(story({ role: "a courier" }));
     expect(Array.isArray(parsed) ? parsed : parsed.player).toEqual({ role: "a courier" });
-    const without = parseStoryV2(story(undefined));
+    const without = parseStory(story(undefined));
     expect(Array.isArray(without) ? without : "player" in without).toBe(false);
   });
 

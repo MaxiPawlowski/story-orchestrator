@@ -62,7 +62,6 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 const story = {
-  format: 2,
   id: "switch-story",
   title: "Adolion: The Adventurer's Road",
   description: "Two chats of one story, one played as the author.",

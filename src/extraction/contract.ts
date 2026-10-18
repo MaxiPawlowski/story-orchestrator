@@ -1,4 +1,4 @@
-import { readsByStep, readsWorldEvidence, TENSION_CURRENT_KEY, TENSION_FRESH_MESSAGES, TENSION_LEVELS, type NormalizedStoryV2, type Quality, type TensionLevel } from "@engine/index";
+import { readsByStep, readsWorldEvidence, TENSION_CURRENT_KEY, TENSION_FRESH_MESSAGES, TENSION_LEVELS, type NormalizedStory, type Quality, type TensionLevel } from "@engine/index";
 import { HEARSAY_RULE, renderMemoryContractAddendum } from "@memory/contract";
 import { fnv1a, stableStringify } from "@runtime/hash";
 import { STEP_READ_REMINDER, STEP_READ_RULE } from "./stepRead";
@@ -63,7 +63,7 @@ const renderTranscript = (contract: SharedReadContract) => {
 export const READ_TASK_HEADER = "[STORY STATE READ — output structured lines only. Do NOT continue the roleplay or write as any character.]";
 export const READ_OUTPUT_RULE = "Write one line per item and nothing else: no prose, no headings, no numbering, no code fences.";
 
-export function readContext(story: Pick<NormalizedStoryV2, "checkpointById" | "roster">, checkpointId: string): Pick<SharedReadContract, "checkpoint" | "cast"> {
+export function readContext(story: Pick<NormalizedStory, "checkpointById" | "roster">, checkpointId: string): Pick<SharedReadContract, "checkpoint" | "cast"> {
   const active = story.checkpointById[checkpointId];
   return {
     ...(active ? { checkpoint: { name: active.name, objective: active.objective } } : {}),

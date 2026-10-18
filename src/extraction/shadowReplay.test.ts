@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { parseStoryV2OrThrow, StoryEngine, type PrimitiveValue } from "@engine/index";
+import { parseStoryOrThrow, StoryEngine, type PrimitiveValue } from "@engine/index";
 import { windowOf } from "./chatRows";
 import { runSharedRead, sharedReadWindow } from "./sharedRead";
 import {
@@ -14,7 +14,7 @@ jest.mock("@services/STAPI", () => ({ getContext: () => ({ chat: [] }) }));
 const ROOT = path.join(process.cwd(), "test/fixtures/j6d");
 const SESSION = path.join(ROOT, "session-synthetic");
 const storyRaw = JSON.parse(fs.readFileSync(path.join(ROOT, "shadow-crossroads.story.json"), "utf8")) as Record<string, unknown>;
-const story = parseStoryV2OrThrow(storyRaw);
+const story = parseStoryOrThrow(storyRaw);
 const CHAT_ID = "j6d-synthetic";
 const T0 = Date.parse("2026-10-14T08:00:00.000Z");
 const iso = (ms: number) => new Date(ms).toISOString();
@@ -175,7 +175,7 @@ describe("v2.8 12 J6d option C: offline reconstruction and replay", () => {
 
   it("rebuilds every judged read whose residual prompt re-renders byte for byte, and refuses the rest with a reason", () => {
     const session = readSessionArchive(readFixture());
-    const rebuilt = rebuildSession(session, parseStoryV2OrThrow(session.storyRaw));
+    const rebuilt = rebuildSession(session, parseStoryOrThrow(session.storyRaw));
     expect(rebuilt.cases).toHaveLength(7);
     expect(rebuilt.rebuiltKeys).toBe(28);
     expect(rebuilt.refusals.map((entry) => entry.code)).toEqual(["prompt-mismatch"]);
@@ -237,7 +237,7 @@ describe("v2.8 12 J6d option C: offline reconstruction and replay", () => {
   it("refusal: a story that no longer holds an answered key", () => {
     const session = readSessionArchive(readFixture());
     const audit = session.audits.find((entry) => entry.detail.window.to === 8)!;
-    const edited = parseStoryV2OrThrow({ ...storyRaw, qualities: (storyRaw.qualities as Array<Record<string, unknown>>).filter((quality) => quality.key !== "has_map"), transitions: [] });
+    const edited = parseStoryOrThrow({ ...storyRaw, qualities: (storyRaw.qualities as Array<Record<string, unknown>>).filter((quality) => quality.key !== "has_map"), transitions: [] });
     const result = rebuildCase(audit, { story: edited, history: session.history, transcripts: session.transcripts, boundaries: session.boundaries });
     expect(result).toMatchObject({ ok: false, refusal: { code: "scope-not-rebuilt" } });
   });

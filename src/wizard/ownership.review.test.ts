@@ -4,7 +4,7 @@ import { plantedModel } from "../../test/support/modelCall";
 // DECLARES a dependency on one of the user's own books lets the wizard overwrite entries in it.
 // v2.3 plan 01 §A.
 
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { CopilotCoordinator } from "@runtime/coordinators/copilotCoordinator";
 import { control, finding, must } from "../../test/findings/ledger";
 import { testOwnership } from "../../test/findings/testOwnership";
@@ -19,8 +19,7 @@ const host = {
 };
 const { upsertWIEntry } = host;
 
-const story = () => parseStoryV2OrThrow({
-  format: 2,
+const story = () => parseStoryOrThrow({
   id: "review-independent",
   title: "Review crossing",
   description: "Independent fixture",

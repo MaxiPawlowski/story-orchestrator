@@ -1,7 +1,7 @@
-import { parseStoryV2OrThrow } from "./validate";
+import { parseStoryOrThrow } from "./validate";
 import { ROLLBACK_DETECTORS, ROLLBACK_EXEMPT, rollbackMoved, uncoveredCodeKeys } from "./rollbackDetectors";
 import { StoryEngine } from "./engine";
-import { agendaStepKey, agendaWaitKey, codexFactKey, moodAgeKey, moodKey, type NormalizedStoryV2, type Quality } from "./schema";
+import { agendaStepKey, agendaWaitKey, codexFactKey, moodAgeKey, moodKey, type NormalizedStory, type Quality } from "./schema";
 import { deriveLife } from "./life/derive";
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -33,7 +33,7 @@ const authoredKeys = (raw: Record<string, unknown>): Set<string> => new Set((raw
 describe("SC1: every compiled code key has a rollback check", () => {
   test("a story using every compiler leaves no compiled code key uncovered", () => {
     const raw = everyCompiler();
-    const story = parseStoryV2OrThrow(raw);
+    const story = parseStoryOrThrow(raw);
     const compiled = story.qualities.filter((quality) => quality.source === "code" && !authoredKeys(raw).has(quality.key)).map((quality) => quality.key);
     expect(compiled.length).toBeGreaterThan(20);
     expect(compiled.some((key) => key.startsWith("codex_"))).toBe(true);
@@ -47,9 +47,9 @@ describe("SC1: every compiled code key has a rollback check", () => {
 
   test("planted control: a compiled prefix with no detector is caught", () => {
     const raw = everyCompiler();
-    const story = parseStoryV2OrThrow(raw);
+    const story = parseStoryOrThrow(raw);
     const planted: Quality = { key: "zz_new_writer_latch", type: "int", source: "code", rubric: "A new writer nobody registered." };
-    const withPlant: NormalizedStoryV2 = { ...story, qualities: [...story.qualities, planted], qualityByKey: { ...story.qualityByKey, [planted.key]: planted } };
+    const withPlant: NormalizedStory = { ...story, qualities: [...story.qualities, planted], qualityByKey: { ...story.qualityByKey, [planted.key]: planted } };
     expect(uncoveredCodeKeys(withPlant, authoredKeys(raw))).toEqual(["zz_new_writer_latch"]);
   });
 
@@ -60,7 +60,7 @@ describe("SC1: every compiled code key has a rollback check", () => {
   });
 
   test("code-only boundary: a swiped boundary whose only change is a codex latch still rolls back", () => {
-    const story = parseStoryV2OrThrow(labRaw());
+    const story = parseStoryOrThrow(labRaw());
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     engine.enqueue({ source: "extractor", blackboardVersionSum: 0, deltas: [{ q: "searched_dock", v: true, source: "extractor" }] });
@@ -78,7 +78,7 @@ describe("SC1: every compiled code key has a rollback check", () => {
   test("code-only boundary: an agenda wait or mood age that moved without a step rolls back, so a swipe replays clean", () => {
     const raw = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8"));
     raw.roster[0].agenda[0].every = 5;
-    const life = parseStoryV2OrThrow(raw);
+    const life = parseStoryOrThrow(raw);
     const chat: Array<{ is_user: boolean; mes: string; name: string }> = [];
     const engine = new StoryEngine({ now: () => 0, derive: (view) => deriveLife(life, view, chat) });
     engine.loadStory(life);
@@ -103,7 +103,7 @@ describe("SC1: every compiled code key has a rollback check", () => {
   });
 
   test("control: a boundary with no derived write and no read window does not ask for a rollback", () => {
-    const story = parseStoryV2OrThrow({ ...labRaw(), codex: { places: [{ id: "far", name: "Far", facts: [{ id: "f", text: "x", known_when: is("lost") }] }] } });
+    const story = parseStoryOrThrow({ ...labRaw(), codex: { places: [{ id: "far", name: "Far", facts: [{ id: "f", text: "x", known_when: is("lost") }] }] } });
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     engine.enqueue({ source: "extractor", blackboardVersionSum: 0, deltas: [{ q: "searched_dock", v: true, source: "extractor" }] });

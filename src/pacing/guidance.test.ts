@@ -1,7 +1,7 @@
 import { execFileSync } from "child_process";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
-import { DEFAULT_AGENCY, PLAYER_ATTEMPTS_CLAUSE, guidanceMembers, guidanceShared, parseStoryV2OrThrow, type Checkpoint, type NormalizedStoryV2 } from "@engine/index";
+import { DEFAULT_AGENCY, PLAYER_ATTEMPTS_CLAUSE, guidanceMembers, guidanceShared, parseStoryOrThrow, type Checkpoint, type NormalizedStory } from "@engine/index";
 import { INJECTION_REGISTRY, findInjectionRegistryProblems } from "@constants/injectionRegistry";
 import { mergeExpansions } from "@generation/merge";
 import { parseGeneratedBeats } from "@generation/parse";
@@ -15,23 +15,23 @@ const MIN_FOREIGN_CHARS = 24;
 
 const directionOf = (cp: Checkpoint): string[] => [guidanceShared(cp.guidance), ...Object.values(guidanceMembers(cp.guidance)), cp.objective].map((text) => text.trim());
 
-const foreignDirection = (story: NormalizedStoryV2, active: Checkpoint, extra: string[] = []): string[] => {
+const foreignDirection = (story: NormalizedStory, active: Checkpoint, extra: string[] = []): string[] => {
   const own = new Set(directionOf(active));
   const others = story.checkpoints.filter((cp) => cp.id !== active.id).flatMap(directionOf);
   return [...others, ...extra].filter((text) => text.length >= MIN_FOREIGN_CHARS && !own.has(text) && ![...own].some((mine) => mine.includes(text)));
 };
 
-const blocksFor = (story: NormalizedStoryV2, cp: Checkpoint): string[] => {
+const blocksFor = (story: NormalizedStory, cp: Checkpoint): string[] => {
   const members = Object.entries(guidanceMembers(cp.guidance)).map(([id, text]) => ({ name: story.roster.find((member) => member.id === id)?.name ?? id, text }));
   return [composeGuidanceBlock(cp, DEFAULT_AGENCY, true), ...members.map((member) => composeGuidanceBlock(cp, DEFAULT_AGENCY, true, member))];
 };
 
-const leaksIn = (story: NormalizedStoryV2, extra: string[] = []) => story.checkpoints.flatMap((cp) => {
+const leaksIn = (story: NormalizedStory, extra: string[] = []) => story.checkpoints.flatMap((cp) => {
   const foreign = foreignDirection(story, cp, extra);
   return blocksFor(story, cp).flatMap((block) => foreign.filter((text) => block.includes(text)).map((text) => `${story.id}/${cp.id}: ${text.slice(0, 60)}`));
 });
 
-const unframed = (story: NormalizedStoryV2) => story.checkpoints.flatMap((cp) => blocksFor(story, cp)
+const unframed = (story: NormalizedStory) => story.checkpoints.flatMap((cp) => blocksFor(story, cp)
   .filter((block) => block && (!block.startsWith(GUIDANCE_PREAMBLE) || /scene direction:/i.test(block)))
   .map(() => `${story.id}/${cp.id}`));
 
@@ -91,7 +91,7 @@ describe("T0-2 spoiler leak: the guidance block is private direction, never a qu
 
   it("never carries a later checkpoint's direction or a generated outcome label (the future the scene has not reached)", () => {
     const raw = JSON.parse(readFileSync(join(root, "test/fixtures/background-generation.story.json"), "utf8"));
-    const base = parseStoryV2OrThrow(raw);
+    const base = parseStoryOrThrow(raw);
     const parsed = parseGeneratedBeats(readFileSync(join(root, "test/goldens/background-generator1.response.txt"), "utf8"), base);
     const merged = mergeExpansions(raw, { chain: { status: "inserted", sourceCheckpointId: "start", stubId: "bridge_stub", targetAnchorId: "finish", beats: parsed.beats } } as never);
     const labels = parsed.beats.flatMap((beat) => beat.outcomes.map((outcome) => outcome.label));
@@ -120,7 +120,7 @@ const campaignStories = (): string[] => {
 const stories = campaignStories();
 
 (stories.length ? describe : describe.skip)("the nine Adolion stories at the adolion-fresh pin", () => {
-  const parsed = stories.map((path) => parseStoryV2OrThrow(JSON.parse(campaignAt(path))));
+  const parsed = stories.map((path) => parseStoryOrThrow(JSON.parse(campaignAt(path))));
 
   it("are the nine the sessions play", () => {
     expect(parsed).toHaveLength(9);

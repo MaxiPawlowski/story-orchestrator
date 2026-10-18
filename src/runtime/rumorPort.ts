@@ -1,4 +1,4 @@
-import type { BoundaryResult, NormalizedStoryV2, PrimitiveValue } from "@engine/index";
+import type { BoundaryResult, NormalizedStory, PrimitiveValue } from "@engine/index";
 import { gameLayer } from "@engine/validate/gameLayer";
 import { heldSecrets, keptFrom } from "@memory/heldSecrets";
 import type { EpistemicEntry } from "@memory/types";
@@ -19,7 +19,7 @@ declare module "./types" {
 }
 
 export interface RumorPortDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   values: () => Readonly<Record<string, PrimitiveValue>> | null;
   extras: () => RuntimeExtras;
   chatId: () => string | null;
@@ -40,7 +40,7 @@ export function createRumorPort(deps: RumorPortDeps) {
   const state = () => deps.extras().rumors ?? createRumors();
   const enabled = () => Boolean(deps.getStory()?.rumorNet) && deps.extras().memory.settings.rumors !== false;
   const nameOf = (id: string) => nameForRosterId(deps.getStory(), id);
-  const secretFor = (story: NormalizedStoryV2) => {
+  const secretFor = (story: NormalizedStory) => {
     const disclosures = state().disclosures.map((entry) => ({ entryId: entry.entryId, names: namesForRosterId(story, entry.member) }));
     const secrets = heldSecrets(deps.epistemic(), story.roster.flatMap((member) => namesForRosterId(story, member.id)), disclosures);
     return (text: string, member: string) => {
@@ -86,7 +86,7 @@ export function createRumorPort(deps: RumorPortDeps) {
   };
 }
 
-export const rumorAuthorSlice = (story: NormalizedStoryV2 | null, extras: Pick<RuntimeExtras, "rumors" | "memory" | "ui">): RumorAuthorRow[] | null =>
+export const rumorAuthorSlice = (story: NormalizedStory | null, extras: Pick<RuntimeExtras, "rumors" | "memory" | "ui">): RumorAuthorRow[] | null =>
   (story?.rumorNet && extras.ui.authorView && extras.memory.settings.rumors !== false
     ? gameLayer()?.rumors.rumorAuthorRows(extras.rumors, story.rumorNet, (id) => nameForRosterId(story, id)) ?? null : null);
 

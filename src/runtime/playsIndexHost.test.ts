@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 
 const root: Record<string, unknown> = {};
 const host = { chatId: "chat-1", groupId: "g1", loaded: true, saved: 0 };
@@ -21,7 +21,7 @@ jest.mock("./settingsStore", () => ({ getGlobalSettings: () => ({ display: { pre
 
 import { forgetChatPlay, readPlaysIndex, syncOpenChatPlay, type PlaysPort } from "./playsIndexHost";
 
-const story = parseStoryV2OrThrow(JSON.parse(readFileSync(join(__dirname, "../../test/fixtures/chapters-mini.story.json"), "utf8")));
+const story = parseStoryOrThrow(JSON.parse(readFileSync(join(__dirname, "../../test/fixtures/chapters-mini.story.json"), "utf8")));
 
 const port = (overrides: Partial<PlaysPort> = {}): PlaysPort => ({
   subscribe: () => () => undefined,

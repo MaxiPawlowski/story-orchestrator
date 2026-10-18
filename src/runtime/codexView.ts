@@ -1,5 +1,5 @@
 import {
-  codexEntryKey, codexFactKey, hasCodex, isReached, type BoundaryLogEntry, type CodexEntry, type CodexFact, type CodexPage, type EngineState, type NormalizedStoryV2,
+  codexEntryKey, codexFactKey, hasCodex, isReached, type BoundaryLogEntry, type CodexEntry, type CodexFact, type CodexPage, type EngineState, type NormalizedStory,
 } from "@engine/index";
 import { entryKnown, entryName, factKnown, knownEntities, latchedAt, returnShownAt, sourceKnown, sourceName, type KnownEntities } from "@engine/codex";
 import type { CodexEntryView, CodexFactView, CodexRowView, CodexView, LogRowView } from "./gameTypes";
@@ -7,7 +7,7 @@ import type { CodexEntryView, CodexFactView, CodexRowView, CodexView, LogRowView
 type Values = Readonly<Record<string, unknown>>;
 
 export interface CodexSources {
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
   state: EngineState;
   castNames: Record<string, string>;
   enabled?: readonly string[];
@@ -15,11 +15,11 @@ export interface CodexSources {
   extraPeople?: (known: KnownEntities, paged: ReadonlySet<string>) => CodexEntryView[];
 }
 
-export const codexShown = (story: NormalizedStoryV2): boolean => hasCodex(story.codex) && story.display?.codex !== false;
+export const codexShown = (story: NormalizedStory): boolean => hasCodex(story.codex) && story.display?.codex !== false;
 
 const freshAt = (at: number | null, boundary: number): boolean => at !== null && boundary > 0 && at === boundary;
 
-const provenance = (story: NormalizedStoryV2, fact: CodexFact, known: KnownEntities, castNames: Record<string, string>): string | undefined => {
+const provenance = (story: NormalizedStory, fact: CodexFact, known: KnownEntities, castNames: Record<string, string>): string | undefined => {
   if (fact.source && sourceKnown(story, fact.source, known)) return `From ${sourceName(story, fact.source, castNames)}`;
   if (!isReached(fact.known_when)) return undefined;
   const place = story.checkpointById[fact.known_when.reached]?.player_name?.trim();
@@ -61,7 +61,7 @@ export const composeCodex = (sources: CodexSources): CodexView | undefined => {
   return view.people.length || view.places.length ? view : undefined;
 };
 
-const learnedOn = (story: NormalizedStoryV2, entry: BoundaryLogEntry, castNames: Record<string, string>): LogRowView[] => {
+const learnedOn = (story: NormalizedStory, entry: BoundaryLogEntry, castNames: Record<string, string>): LogRowView[] => {
   const before: Values = entry.before.blackboard.values;
   const after: Values = entry.after.blackboard.values;
   const at = { boundary: entry.boundary, messageId: entry.context.lastMessageId };
@@ -72,5 +72,5 @@ const learnedOn = (story: NormalizedStoryV2, entry: BoundaryLogEntry, castNames:
   }));
 };
 
-export const codexLogRows = (story: NormalizedStoryV2, log: readonly BoundaryLogEntry[], castNames: Record<string, string>): LogRowView[] =>
+export const codexLogRows = (story: NormalizedStory, log: readonly BoundaryLogEntry[], castNames: Record<string, string>): LogRowView[] =>
   (codexShown(story) ? log.flatMap((entry) => learnedOn(story, entry, castNames)) : []);

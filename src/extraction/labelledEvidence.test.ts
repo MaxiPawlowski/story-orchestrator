@@ -1,7 +1,7 @@
 import { readWith } from "../../test/support/modelCall";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseStoryV2OrThrow, StoryEngine, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, StoryEngine, type NormalizedStory } from "@engine/index";
 import { evidenceSources, type EvidenceMessage } from "./evidence";
 import { parseSharedReadResponse } from "./parse";
 import { PLAYER_ONLY_EVIDENCE, runSharedRead } from "./sharedRead";
@@ -39,7 +39,7 @@ interface LevelCase {
 
 const ROOT = join(__dirname, "../..");
 const fixture = JSON.parse(readFileSync(join(ROOT, "test/fixtures/v24-acc-labelled-evidence.json"), "utf-8")) as { labelled: LabelledCase[]; levels: LevelCase[] };
-const readStory = (file: string): NormalizedStoryV2 => parseStoryV2OrThrow(JSON.parse(readFileSync(join(ROOT, file), "utf-8")));
+const readStory = (file: string): NormalizedStory => parseStoryOrThrow(JSON.parse(readFileSync(join(ROOT, file), "utf-8")));
 
 const messagesOf = (window: WindowLine[]): EvidenceMessage[] => window.map((line) => ({ messageId: line.index, index: line.index, speaker: line.speaker, isUser: line.isUser, text: line.text }));
 const evidenceOf = (line: string): string => line.match(/evidence="([\s\S]*)"\s*$/)?.[1] ?? "";
@@ -129,7 +129,7 @@ describe("v2.4 acceptance D1: a quote that carries the window's own line label",
 describe("v2.4 acceptance D1: the screen takes the labelled quote, and the world rule still binds", () => {
   const sunRuins = readStory("examples/sun-ruins/quest-for-the-sun-ruins.json");
   const window = (lines: WindowLine[]): SharedReadWindow => ({ from: lines[0].index, to: lines[lines.length - 1].index, messages: lines.map((line) => ({ ...line, messageId: line.index })) });
-  const read = async (story: NormalizedStoryV2, lines: WindowLine[], reply: string) => {
+  const read = async (story: NormalizedStory, lines: WindowLine[], reply: string) => {
     const engine = new StoryEngine();
     engine.loadStory(story);
     return runSharedRead({
@@ -150,8 +150,7 @@ describe("v2.4 acceptance D1: the screen takes the labelled quote, and the world
   });
 
   it("control: a labelled quote of the player's own line is still refused for a world quality", async () => {
-    const worldStory = parseStoryV2OrThrow({
-      format: 2,
+    const worldStory = parseStoryOrThrow({
       id: "d1-world",
       title: "D1 world rule",
       description: "v2.4 acceptance D1",
@@ -176,9 +175,9 @@ describe("v2.4 acceptance D3: a level or enum value written single-quoted, or as
     readStory("test/journeys/j8-stagecraft.story.json"),
     readStory("test/journeys/j11-expand.story.json"),
   ];
-  const story = (line: string): NormalizedStoryV2 => {
+  const story = (line: string): NormalizedStory => {
     const key = line.match(/^DELTA\s+(?:q=)?([A-Za-z0-9_]+)/)?.[1] ?? "";
-    return stories.find((entry) => entry.qualityByKey[key]) as NormalizedStoryV2;
+    return stories.find((entry) => entry.qualityByKey[key]) as NormalizedStory;
   };
   const parse = (line: string) => parseSharedReadResponse(line, story(line));
 

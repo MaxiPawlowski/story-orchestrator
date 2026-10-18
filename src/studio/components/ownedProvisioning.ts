@@ -1,11 +1,11 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { describeMismatch, type RunOwnership } from "@runtime/runToken";
 import type { ProvisioningOp, ProvisioningResult } from "@wizard/index";
 
 export interface OwnedProvisioningDeps {
   ownership: RunOwnership;
-  draft: () => StoryV2;
-  provision: (op: ProvisioningOp, draft: StoryV2) => Promise<ProvisioningResult>;
+  draft: () => Story;
+  provision: (op: ProvisioningOp, draft: Story) => Promise<ProvisioningResult>;
   recordCreated: (created: string) => void;
   applyFollowUps: (op: ProvisioningOp) => void;
 }

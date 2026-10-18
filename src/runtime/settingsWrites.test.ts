@@ -21,7 +21,6 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 const story = (title = "Heist") => ({
-  format: 2,
   id: "heist",
   title,
   description: "Library fixture.",
@@ -68,7 +67,7 @@ describe("v2.4 E3: library writes record save evidence", () => {
 
   it("a removal the server still holds is not confirmed", async () => {
     const { record } = saved(story());
-    host.server = { v2Stories: [record] };
+    host.server = { stories: [record] };
     heard = [];
     expect(removeStoryRecord("heist")).toBe(true);
     expect(heard.map(({ summary, label }) => ({ summary, label }))).toEqual([{ summary: "library removal not confirmed", label: "“Heist”" }]);
@@ -77,7 +76,7 @@ describe("v2.4 E3: library writes record save evidence", () => {
 
   it("control: a removal the server no longer holds is confirmed", async () => {
     saved(story());
-    host.server = { v2Stories: [] };
+    host.server = { stories: [] };
     heard = [];
     removeStoryRecord("heist");
     await expect(heard[0].evidence).resolves.toEqual({ confirmed: true });

@@ -1,8 +1,8 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { StoryEngine, codexEntryKey, codexFactKey, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { StoryEngine, codexEntryKey, codexFactKey, type EngineState, type NormalizedStory } from "@engine/index";
 import { codexItems, entryKnown, factKnown } from "@engine/codex";
-import { parseStoryV2OrThrow } from "@engine/validate";
+import { parseStoryOrThrow } from "@engine/validate";
 import { composeGame } from "./widgets";
 import { withheldNames } from "./playerProjection";
 import { JournalPanel } from "../components/panels/JournalPanel";
@@ -11,7 +11,7 @@ import type { GameView } from "./gameTypes";
 
 const CAST = { tom: "Tom", ada: "Ada" };
 
-const run = (story: NormalizedStoryV2, seed: number) => {
+const run = (story: NormalizedStory, seed: number) => {
   const random = rng(seed);
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
@@ -23,7 +23,7 @@ const run = (story: NormalizedStoryV2, seed: number) => {
   return engine;
 };
 
-const view = (story: NormalizedStoryV2, state: EngineState, engine: StoryEngine): GameView =>
+const view = (story: NormalizedStory, state: EngineState, engine: StoryEngine): GameView =>
   composeGame({ story, state, boundaryLog: engine.stateLog, checks: [], threads: { open: [], resolved: [] }, chat: [], castNames: CAST, enabled: ["tom", "ada"] }).player;
 
 const page = (game: GameView, tab: "people" | "places" | null): string => {
@@ -32,12 +32,12 @@ const page = (game: GameView, tab: "people" | "places" | null): string => {
   return markup + game.codex[tab].map((entry) => [entry.name, ...entry.facts.map((fact) => `${fact.text}|${fact.from ?? ""}`)].join("/")).join(";");
 };
 
-const hiddenTexts = (story: NormalizedStoryV2, values: Record<string, unknown>): string[] => codexItems(story).flatMap(({ page: name, entry }) => [
+const hiddenTexts = (story: NormalizedStory, values: Record<string, unknown>): string[] => codexItems(story).flatMap(({ page: name, entry }) => [
   ...entry.facts.filter((fact) => !factKnown(name, entry, fact, values)).map((fact) => fact.text),
   ...(entryKnown(name, entry, values) ? [] : [entry.name ?? "", ...(entry.aliases ?? [])].filter((text) => text.length >= 4)),
 ]);
 
-const knownOnly = (story: NormalizedStoryV2, values: Record<string, unknown>): NormalizedStoryV2 => {
+const knownOnly = (story: NormalizedStory, values: Record<string, unknown>): NormalizedStory => {
   const raw = labRaw();
   const codex = raw.codex as Record<"people" | "places", Array<{ id: string; facts: Array<{ id: string; source?: string }> }>>;
   const known = (name: "people" | "places", id: string) => entryKnown(name, story.codex![name]!.find((item) => item.id === id)!, values);
@@ -49,7 +49,7 @@ const knownOnly = (story: NormalizedStoryV2, values: Record<string, unknown>): N
       .map(({ source, ...fact }) => (source && kept.has(source) ? { ...fact, source } : fact));
     return [{ ...entry, facts }];
   });
-  return parseStoryV2OrThrow({ ...raw, codex: { people: keep("people"), places: keep("places") } });
+  return parseStoryOrThrow({ ...raw, codex: { people: keep("people"), places: keep("places") } });
 };
 
 describe("C1/C2/C3: the codex is projection-only", () => {

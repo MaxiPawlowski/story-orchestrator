@@ -1,12 +1,11 @@
-import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type EngineState, type NormalizedStory } from "@engine/index";
 import { PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import type { PromptHost } from "../hostPorts";
 import type { TensionRuntimeState } from "../types";
 import { PacingCoordinator } from "./pacingCoordinator";
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "pacing-host",
   title: "Pacing host",
   description: "One guided checkpoint.",
@@ -19,7 +18,7 @@ const story = parseStoryV2OrThrow({
   roster: [],
 });
 
-function harness(loaded: NormalizedStoryV2 | null) {
+function harness(loaded: NormalizedStory | null) {
   const calls: string[] = [];
   const prompt: PromptHost = {
     setStoryExtensionPrompt: (key: string) => { calls.push(`set:${key}`); },

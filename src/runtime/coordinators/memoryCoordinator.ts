@@ -1,5 +1,5 @@
 import { foldEpistemicSignals, foldLedgerSignals, nameIndexOf } from "@memory/nameFold";
-import { progressQualityForAnchor, type BlackboardDelta, type EngineState, type NormalizedStoryV2, type NormalizedTransition } from "@engine/index";
+import { progressQualityForAnchor, type BlackboardDelta, type EngineState, type NormalizedStory, type NormalizedTransition } from "@engine/index";
 import { maxTokensForInput } from "@extraction/callBudget";
 import { askText } from "@extraction/modelRoute";
 import { stripChannelNoise } from "@extraction/parse";
@@ -36,7 +36,7 @@ import { VERIFY_DROP_LIMIT, type MemoryBackfillState, type MemoryRuntimeState, t
 import { required } from "@utils/guards";
 
 export interface MemoryCoordinatorDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   getMemory: () => MemoryRuntimeState;
   setMemory: (next: MemoryRuntimeState) => void;

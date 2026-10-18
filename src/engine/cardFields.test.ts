@@ -1,11 +1,11 @@
 import { StoryEngine } from "./engine";
-import { parseStoryV2OrThrow, parseStoryV2 } from "./validate";
+import { parseStoryOrThrow, parseStory } from "./validate";
 import { cardReadKeys, cardValues } from "./cardFields";
 import { Blackboard } from "./blackboard";
 import { deriveScope } from "@extraction/scope";
 
 const raw = {
-  format: 2, title: "Synthetic look", description: "A synthetic appearance change.",
+  title: "Synthetic look", description: "A synthetic appearance change.",
   roster: [{ id: "test", name: "Test", card: { fields: { hair: { quality: "hair", visual: true } } } }],
   qualities: [{ key: "hair", type: "string", source: "extractor", rubric: "Current public hair colour, only when it changes." }],
   checkpoints: [{ id: "start", name: "Start", type: "anchor", start: true, objective: "Begin." },
@@ -13,7 +13,7 @@ const raw = {
 };
 
 test("entry, extraction and manual writes roll back and reopen with their provenance", () => {
-  const story = parseStoryV2OrThrow(raw);
+  const story = parseStoryOrThrow(raw);
   const engine = new StoryEngine(); engine.loadStory(story);
   engine.activateCheckpoint("change", { lastMessageId: 1, chatLength: 2 });
   expect(engine.serialize().blackboard.writerOf?.hair).toEqual({ writer: "card-entry", boundary: 1 });
@@ -33,15 +33,15 @@ test("entry, extraction and manual writes roll back and reopen with their proven
 });
 
 test("an unbound or wrongly sourced card-entry write is refused", () => {
-  const story = parseStoryV2OrThrow(raw);
+  const story = parseStoryOrThrow(raw);
   const board = new Blackboard(story);
   expect(board.applyDelta({ q: "hair", v: "red", source: "code", writer: "card-entry" })).toMatchObject({ ok: false, reason: "source mismatch" });
   expect(board.applyDelta({ q: "tension_current", v: 0.5, source: "extractor", writer: "card-entry" })).toMatchObject({ ok: false, reason: "writer not permitted" });
-  expect(Array.isArray(parseStoryV2({ ...raw, qualities: [{ ...raw.qualities[0], latching: true }] }))).toBe(true);
+  expect(Array.isArray(parseStory({ ...raw, qualities: [{ ...raw.qualities[0], latching: true }] }))).toBe(true);
 });
 
 test("public card fields are read without a gate, but not for an absent member", () => {
-  const story = parseStoryV2OrThrow(raw), empty = { values: {}, versions: {}, latched: {} };
+  const story = parseStoryOrThrow(raw), empty = { values: {}, versions: {}, latched: {} };
   expect(deriveScope(story, "start", empty, [], { owners: ["test"], cursor: 0 }).map((item) => item.key)).toContain("hair");
   expect(deriveScope(story, "start", empty, [], { owners: [], cursor: 0 }).map((item) => item.key)).not.toContain("hair");
 });

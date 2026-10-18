@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2, NormalizedTransition, StoryEngine } from "@engine/index";
+import type { EngineState, NormalizedStory, NormalizedTransition, StoryEngine } from "@engine/index";
 import type { ExtraGateSource, ModelCall, ParsedDelta, SchedulerJob, SharedReadAudit } from "@extraction/index";
 import { agencyRecovery, playerTurnIds } from "./agencyRecovery";
 import type { coordinatorHosts } from "./coordinatorHosts";
@@ -47,7 +47,7 @@ import { gameLayer } from "@engine/validate/gameLayer";
 export const restingTexts = <T extends { text: string }>(memory: MemoryCoordinator, rows: readonly T[]): T[] => shownRows(rows, memory.injector.restingFilter());
 
 export interface ManagerPort {
-  view: { getStory: () => NormalizedStoryV2 | null; getState: () => EngineState | null; hosts: typeof coordinatorHosts };
+  view: { getStory: () => NormalizedStory | null; getState: () => EngineState | null; hosts: typeof coordinatorHosts };
   lifecycle: { persist: () => Promise<void>; notify: () => void; ownership: RunOwnership; model: ModelCall };
   engine: StoryEngine;
   loaded: () => LoadedStory | null;
@@ -59,7 +59,7 @@ export interface ManagerPort {
   gateSources: () => ExtraGateSource[];
   enqueueExtractorDeltas: (accepted: ParsedDelta[], window: { from: number; to: number }, origin: string) => void;
   commitBoundary: () => Promise<unknown>;
-  replaceStory: (story: NormalizedStoryV2) => void;
+  replaceStory: (story: NormalizedStory) => void;
   fireSceneBreakReplies: (breakAt: number) => Promise<void>;
   sceneBreakListeners: Set<(audit: SharedReadAudit, collect?: SchedulerJob[]) => void>;
   arcResolvedListeners: Set<(arcIds: string[]) => void>;

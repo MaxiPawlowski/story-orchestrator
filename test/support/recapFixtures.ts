@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, StoryEngine, type ApplyQueueEntry, type BoundaryLogEntry, type NormalizedStoryV2, type PrimitiveValue } from "../../src/engine";
+import { parseStoryOrThrow, StoryEngine, type ApplyQueueEntry, type BoundaryLogEntry, type NormalizedStory, type PrimitiveValue } from "../../src/engine";
 import { playerRowRevision } from "../../src/extraction/playerSpan";
 import { deriveRefs } from "../../src/runtime/consequences";
 import type { EffectKind, EffectRef } from "../../src/runtime/recapPort";
@@ -12,7 +12,7 @@ const place = (id: string, chapter: string | null, playerName: string | null, st
 });
 
 export const POSTING_RAW: Record<string, any> = {
-  format: 2, id: "recap-posting", title: "The Posting", description: "Recap fixture: transitions.",
+  id: "recap-posting", title: "The Posting", description: "Recap fixture: transitions.",
   qualities: [
     choice("posting_choice", ["taken", "refused"], {
       commit_evidence: { taken: "\\b(take|accept)\\b", refused: "\\b(refuse|decline)\\b" }, player_action: { taken: "took the posting", refused: "turned the posting down" },
@@ -45,10 +45,10 @@ export const POSTING_RAW: Record<string, any> = {
   ],
   roster: [],
 };
-export const POSTING = parseStoryV2OrThrow(POSTING_RAW);
+export const POSTING = parseStoryOrThrow(POSTING_RAW);
 
 export const WELL_RAW: Record<string, any> = {
-  format: 2, id: "recap-well", title: "The Well", description: "Recap fixture: quests.",
+  id: "recap-well", title: "The Well", description: "Recap fixture: quests.",
   qualities: [
     extractor("keeper_met", "Has the keeper been met?", { commit_evidence: "\\b(greet|meet)\\b", player_action: { true: "greeted the keeper" } }),
     choice("water_state", ["drawn", "spilled"], { commit_evidence: { drawn: "\\b(draw|haul)\\b", spilled: "\\bspill\\b" }, player_action: { drawn: "drew the water" } }),
@@ -73,10 +73,10 @@ export const WELL_RAW: Record<string, any> = {
   ],
   roster: [],
 };
-export const WELL = parseStoryV2OrThrow(WELL_RAW);
+export const WELL = parseStoryOrThrow(WELL_RAW);
 
 export const OATH_RAW: Record<string, any> = {
-  format: 2, id: "recap-oath", title: "The Oath", description: "Recap fixture: milestones and a chapter crossing.",
+  id: "recap-oath", title: "The Oath", description: "Recap fixture: milestones and a chapter crossing.",
   qualities: [
     choice("oath_state", ["sworn", "broken"], { commit_evidence: { sworn: "\\b(swear|vow)\\b", broken: "\\bbreak\\b" }, player_action: { sworn: "swore the oath" } }),
     code("rank_level"),
@@ -99,7 +99,7 @@ export const OATH_RAW: Record<string, any> = {
   ],
   roster: [],
 };
-export const OATH = parseStoryV2OrThrow(OATH_RAW);
+export const OATH = parseStoryOrThrow(OATH_RAW);
 
 export const STORIES = { posting: POSTING, well: WELL, oath: OATH } as const;
 export type StoryKey = keyof typeof STORIES;
@@ -131,14 +131,14 @@ export const entryOf = (writes: readonly Write[], chat: readonly ChatRow[]): App
 };
 
 export interface Played {
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
   engine: StoryEngine;
   chat: ChatRow[];
   entry: BoundaryLogEntry;
   refs: EffectRef[];
 }
 
-export const playBoundaries = (story: NormalizedStoryV2, boundaries: ReadonlyArray<ReadonlyArray<readonly Write[]>>, chat: ChatRow[]): Played => {
+export const playBoundaries = (story: NormalizedStory, boundaries: ReadonlyArray<ReadonlyArray<readonly Write[]>>, chat: ChatRow[]): Played => {
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
   let refs: EffectRef[] = [];

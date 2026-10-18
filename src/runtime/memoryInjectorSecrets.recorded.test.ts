@@ -1,5 +1,5 @@
 import * as recorded from "../../test/fixtures/t2-2-secrets.memory.json";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { LEDGER_INJECTION_KEY, MEMORY_INJECTION_KEY_PREFIX } from "@constants/defaults";
 import type { EpistemicEntry, MemoryEntry } from "@memory/index";
 import { MemoryInjector } from "./memoryInjector";
@@ -12,8 +12,7 @@ const CAST: Array<[string, string]> = [
 const SEALS = /seals? (?:beneath|under)[^.]*(?:failing|weakening)|seals? (?:are|were) failing|failing seals/i;
 const WELL = /poisoned (?:old )?well|old well[^.]*poisoned/i;
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "t2-2-secrets",
   title: "Secrets",
   description: "",

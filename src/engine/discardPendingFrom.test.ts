@@ -1,7 +1,6 @@
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 
-const story = () => parseStoryV2OrThrow({
-  format: 2,
+const story = () => parseStoryOrThrow({
   id: "queued",
   title: "Queued",
   description: "A write read before a mutation",

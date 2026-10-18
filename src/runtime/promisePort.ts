@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStory } from "@engine/index";
 import type { SharedReadAudit, SharedReadWindow } from "@extraction/index";
 import type { ParsedArcSignal } from "@memory/index";
 import { unknownAudience, type SpanAudienceOf } from "@memory/audience";
@@ -9,7 +9,7 @@ import { nameForRosterId } from "./roster";
 import type { RuntimeExtras } from "./types";
 
 export interface PromisePortDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   extras: () => RuntimeExtras;
   chatId: () => string | null;

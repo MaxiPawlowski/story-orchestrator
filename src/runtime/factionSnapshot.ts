@@ -1,4 +1,4 @@
-import type { BoundaryLogEntry, EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { BoundaryLogEntry, EngineState, NormalizedStory } from "@engine/index";
 import type { FactionAuthorRow } from "@engine/factions/standing";
 import { gameLayer } from "@engine/validate/gameLayer";
 import { scopeDropped } from "@extraction/scope";
@@ -30,7 +30,7 @@ const ledgerLines = (ledger: readonly LedgerEntry[], name: string): string[] => 
 };
 
 export const factionAuthorSlice = (
-  story: NormalizedStoryV2 | null, state: EngineState | null, authorView: boolean, log: readonly BoundaryLogEntry[], ledger: readonly LedgerEntry[], scopeContext?: ScopeSourceContext,
+  story: NormalizedStory | null, state: EngineState | null, authorView: boolean, log: readonly BoundaryLogEntry[], ledger: readonly LedgerEntry[], scopeContext?: ScopeSourceContext,
 ): FactionAuthorView | null => {
   const layer = story?.factions?.length && state && authorView ? gameLayer() : null;
   if (!story || !state || !layer) return null;

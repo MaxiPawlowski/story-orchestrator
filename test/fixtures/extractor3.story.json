@@ -1,5 +1,4 @@
 {
-  "format": 2,
   "title": "Cellar Ledger",
   "description": "Extractor test story exercising bool latching and missing-evidence rejection.",
   "qualities": [

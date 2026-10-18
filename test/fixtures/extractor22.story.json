@@ -1,5 +1,4 @@
 {
-  "format": 2,
   "title": "Latched Oath",
   "description": "Suite-A corpus fixture: a latched quality must be excluded from scope; only the live quality is asked.",
   "qualities": [

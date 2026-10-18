@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { startPlayerRole } from "./playerRoleHost";
 import { installPersonaHost } from "./playerSetupPort";
@@ -22,12 +22,12 @@ jest.mock("@services/STAPI", () => ({
   },
 }));
 
-const storyWith = (player?: Record<string, unknown>): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2, id: "road", title: "The Road", description: "D", qualities: [], transitions: [], roster: [],
+const storyWith = (player?: Record<string, unknown>): NormalizedStory => parseStoryOrThrow({
+  id: "road", title: "The Road", description: "D", qualities: [], transitions: [], roster: [],
   checkpoints: [{ id: "start", name: "Start", objective: "o", type: "anchor", start: true }], ...(player ? { player } : {}),
 });
 
-const fakeManager = (story: NormalizedStoryV2 | null, chat: string | null = "chat-1") => {
+const fakeManager = (story: NormalizedStory | null, chat: string | null = "chat-1") => {
   const listeners = new Set<() => void>();
   const state = { story, chat };
   const manager = {

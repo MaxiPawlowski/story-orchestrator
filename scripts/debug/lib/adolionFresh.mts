@@ -216,9 +216,9 @@ export function stripPlan(manifest: AdolionManifest, disk: LaneDisk): StripPlan 
   const swipes = swipesOn(settings);
   const imageExtension = imageExtensionOff(settings);
   const profiles = laneProfiles(settings);
-  const library = Array.isArray(root.v2Stories) ? root.v2Stories : [];
+  const library = Array.isArray(root.stories) ? root.stories : [];
   const removedStories = library.filter((entry) => storyIds.has(record(entry).id)).map((entry) => String(record(entry).id));
-  if (Array.isArray(root.v2Stories)) root.v2Stories = library.filter((entry) => !storyIds.has(record(entry).id));
+  if (Array.isArray(root.stories)) root.stories = library.filter((entry) => !storyIds.has(record(entry).id));
   const bindings = record(root.groupStories);
   const removedBindings = Object.keys(bindings).filter((id) => groupIds.has(id) || storyIds.has(bindings[id]));
   if (root.groupStories) root.groupStories = Object.fromEntries(Object.entries(bindings).filter(([id]) => !removedBindings.includes(id)));
@@ -304,7 +304,7 @@ export function buildInventory(manifest: AdolionManifest, input: InventoryInput)
       name: group.name, story: typeof bindings[String(group.id)] === 'string' ? bindings[String(group.id)] : null,
       members: sorted(strings(group.members)), disabled: sorted(strings(group.disabled_members)),
     })).sort((a, b) => a.name.localeCompare(b.name) || String(a.story).localeCompare(String(b.story))),
-    library: (Array.isArray(root.v2Stories) ? root.v2Stories : []).map(record)
+    library: (Array.isArray(root.stories) ? root.stories : []).map(record)
       .filter((entry) => storyIds.has(entry.id) || String(entry.id ?? '').startsWith('adolion-'))
       .map((entry) => ({ id: String(entry.id), hash: String(entry.hash ?? ''), title: String(entry.title ?? ''), checkpoints: Array.isArray(entry.raw?.checkpoints) ? entry.raw.checkpoints.length : 0 }))
       .sort((a, b) => a.id.localeCompare(b.id)),

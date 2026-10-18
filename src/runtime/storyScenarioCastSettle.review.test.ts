@@ -52,7 +52,7 @@ jest.mock("@services/STAPI", () => ({
   setGroupMemberDisabled: async () => ({ ok: true }),
 }));
 
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { couldNot, wrote } from "@utils/writeResult";
 import { EffectsApplier } from "./effectsApplier";
 import { registerEffectExtension } from "./effectExtensions";
@@ -69,8 +69,8 @@ const host: ScenarioHost = {
   cast: () => CARDS.filter((card) => !world.group.disabled_members.includes(card.name)),
 };
 
-const story = (id: string) => parseStoryV2OrThrow({
-  format: 2, id, title: id, description: "d",
+const story = (id: string) => parseStoryOrThrow({
+  id, title: id, description: "d",
   qualities: [{ key: "step", type: "int", source: "code", rubric: "Step." }],
   roster: [],
   checkpoints: [{ id: "start", name: "start", objective: "o", type: "anchor", start: true }],

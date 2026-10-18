@@ -1,4 +1,4 @@
-import { ARC_TEMPLATE_NAMES, GATE_OPERATORS, QUALITY_SOURCES, QUALITY_TYPES, TENSION_LEVELS, type StoryV2 } from "@engine/index";
+import { ARC_TEMPLATE_NAMES, GATE_OPERATORS, QUALITY_SOURCES, QUALITY_TYPES, TENSION_LEVELS, type Story } from "@engine/index";
 import type { ProvisioningEnvironment } from "@wizard/index";
 import { renderStageGuide } from "./guideRead";
 import { stageOnlyEmitLine } from "./stages";
@@ -7,7 +7,7 @@ import type { CopilotMessage, CopilotStage, DriverContext } from "./types";
 export type WizardEnvironmentView = ProvisioningEnvironment;
 
 const SCHEMA_SUMMARY = [
-  "Format-2 story vocabulary:",
+  "Story vocabulary:",
   `- quality: { key, type: ${QUALITY_TYPES.join("|")}, source: ${QUALITY_SOURCES.join("|")}, rubric, values?[] (enum only), latching?, monotonic? }. rubric MUST be a yes/no or ` +
     `short-answer question an extractor answers from the prose.`,
   `- checkpoint: { id, name, objective, type: anchor|intermediate, start?, state_snapshot?{ quality: value }, tension_target?: ${TENSION_LEVELS.join("|")}, ` +
@@ -144,9 +144,9 @@ const renderPersonas = (environment?: WizardEnvironmentView): string => {
 const renderHistory = (history: CopilotMessage[]): string =>
   history.length ? `Conversation so far:\n${history.map((message) => `${message.role}: ${message.text}`).join("\n")}` : "";
 
-export const renderStagePrompt = (stage: CopilotStage, draft: StoryV2, message: string, history: CopilotMessage[], environment?: WizardEnvironmentView): string =>
+export const renderStagePrompt = (stage: CopilotStage, draft: Story, message: string, history: CopilotMessage[], environment?: WizardEnvironmentView): string =>
   [
-    "You are a story-setup wizard building a format-2 interactive story with the author, from premise to playable.",
+    "You are a story-setup wizard building an interactive story with the author, from premise to playable.",
     stage === "provisioning" ? "" : SCHEMA_SUMMARY,
     stage === "provisioning" ? provisioningGrammar() : OP_GRAMMAR,
     stage === "provisioning" ? 'Return exact JSON only: { "summary": string, "ops": Op[] }. No prose outside the JSON.' : "",

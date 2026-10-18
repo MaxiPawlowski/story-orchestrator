@@ -1,9 +1,9 @@
-import { castCardName, type StoryV2 } from "@engine/index";
+import { castCardName, type Story } from "@engine/index";
 import { draftCastNames, validateProvisioningOp } from "@wizard/provisioning";
 import type { ProvisioningEnvironment } from "@wizard/types";
 import { log } from "@utils/log";
 
-export type MakeGroupStory = Pick<StoryV2, "title" | "roster" | "requirements">;
+export type MakeGroupStory = Pick<Story, "title" | "roster" | "requirements">;
 
 export interface MakeGroupInput {
   story: MakeGroupStory;

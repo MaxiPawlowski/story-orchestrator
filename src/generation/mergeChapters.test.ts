@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { mergeExpansions } from "@generation/merge";
 import { parseGeneratedBeats } from "@generation/parse";
 
@@ -16,7 +16,7 @@ const chaptered = () => {
 describe("mergeExpansions in a story with chapters", () => {
   it("files every generated beat in its stub's chapter, so the merged story still parses", () => {
     const raw = chaptered();
-    const story = parseStoryV2OrThrow(raw);
+    const story = parseStoryOrThrow(raw);
     const parsed = parseGeneratedBeats(readFileSync(join(root, "test/goldens/background-generator1.response.txt"), "utf8"), story);
     expect(parsed.issues).toEqual([]);
     const merged = mergeExpansions(raw, { bridge: { status: "inserted", sourceCheckpointId: "start", stubId: "bridge_stub", targetAnchorId: "finish", beats: parsed.beats } } as never);

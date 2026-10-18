@@ -1,12 +1,12 @@
 import { StoryEngine } from "./engine";
-import { parseStoryV2 } from "./validate";
+import { parseStory } from "./validate";
 import { hasGameLayer } from "./quests";
 import { codexEntryKey, codexFactKey, type PrimitiveValue, type ValidationError } from "./schema";
 import { codexItems, codexScopeUnits, entryKnown, factKnown, knownEntities, unknownCodexNames } from "./codex";
 import { labRaw, labStory } from "../../test/support/codexLab";
 
 const errorsOf = (raw: Record<string, unknown>): ValidationError[] => {
-  const parsed = parseStoryV2(raw);
+  const parsed = parseStory(raw);
   return Array.isArray(parsed) ? parsed : [];
 };
 

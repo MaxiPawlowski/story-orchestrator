@@ -7,7 +7,7 @@ const listed = (value: unknown): Array<Record<string, unknown>> => (Array.isArra
 export const heldNow = (): LibraryHeld => {
   const root = settingsRoot();
   return {
-    stories: listed(root.v2Stories).flatMap((record) => (typeof record.id === "string" && typeof record.hash === "string" ? [{ id: record.id, hash: record.hash }] : [])),
+    stories: listed(root.stories).flatMap((record) => (typeof record.id === "string" && typeof record.hash === "string" ? [{ id: record.id, hash: record.hash }] : [])),
     sessions: listed(root.wizardSessions).flatMap((session) => (typeof session.key === "string" ? [session.key] : [])),
   };
 };

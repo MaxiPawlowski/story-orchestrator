@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import { estimateTokens } from "@extraction/callBudget";
 import { generateReviewedEncounters, renderEncounterPrompt } from "@generation/encounters";
 import { generateReviewedBeats, type ExpansionJudge } from "@generation/generate";
@@ -9,7 +9,7 @@ import { CRITIC_TIMEOUT_MS } from "@judge/policy";
 import { numericToLevel } from "@pacing/index";
 import type { JudgeRuntime } from "./judge";
 
-export function expansionJudge(judge: JudgeRuntime | null, story: NormalizedStoryV2, input: PlannedExpansionInput, playerName: () => string): ExpansionJudge {
+export function expansionJudge(judge: JudgeRuntime | null, story: NormalizedStory, input: PlannedExpansionInput, playerName: () => string): ExpansionJudge {
   const target = story.checkpointById[input.candidate.targetAnchorId];
   if (!judge || !target) return {};
   const cast = [...new Set([...story.roster.map((member) => member.name ?? member.id), playerName()].filter(Boolean))];
@@ -30,7 +30,7 @@ export function expansionJudge(judge: JudgeRuntime | null, story: NormalizedStor
   };
 }
 
-export const generationRequestTokens = (story: NormalizedStoryV2, input: PlannedExpansionInput): number =>
+export const generationRequestTokens = (story: NormalizedStory, input: PlannedExpansionInput): number =>
   estimateTokens(input.candidate.kind === "encounters" ? renderEncounterPrompt(story, input) : renderGenerationPrompt(story, input));
 
 export { generateReviewedBeats, generateReviewedEncounters };

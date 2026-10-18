@@ -1,5 +1,5 @@
 import {
-  PLAYER_TURNS_KEY, isValidationErrorList, objectiveLineApplies, parseStoryV2, parseStoryV2OrThrow, pullStage, type EngineState, type NormalizedStoryV2,
+  PLAYER_TURNS_KEY, isValidationErrorList, objectiveLineApplies, parseStory, parseStoryOrThrow, pullStage, type EngineState, type NormalizedStory,
 } from "@engine/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { GUIDANCE_PREAMBLE, OPEN_STRETCH_LINE, composeGuidanceBlock, pullLine } from "@pacing/index";
@@ -14,7 +14,6 @@ const KEY = INJECTION_REGISTRY.checkpointGuidance.key;
 const ARRIVE = { q: "reached_walls", op: "==", v: true };
 
 const raw = (stretch: Record<string, unknown> | null, extra: { checkpoint?: Record<string, unknown>; transitions?: unknown[] } = {}) => ({
-  format: 2,
   id: "road",
   title: "Road",
   description: "",
@@ -35,10 +34,10 @@ const raw = (stretch: Record<string, unknown> | null, extra: { checkpoint?: Reco
 });
 
 const OPEN = { mode: "open", pace: "brief", arrive_when: ARRIVE };
-const story = parseStoryV2OrThrow(raw(OPEN));
-const closed = parseStoryV2OrThrow(raw(null));
+const story = parseStoryOrThrow(raw(OPEN));
+const closed = parseStoryOrThrow(raw(null));
 const errorsOf = (value: unknown) => {
-  const parsed = parseStoryV2(value);
+  const parsed = parseStory(value);
   return isValidationErrorList(parsed) ? parsed.map((error) => `${error.path}: ${error.message}`) : [];
 };
 
@@ -51,7 +50,7 @@ const state = (overrides: Partial<EngineState> = {}): EngineState => ({
 const chatWithTurns = (turns: number): Array<{ is_user: boolean }> =>
   [{ is_user: true }, { is_user: false }, ...Array.from({ length: turns }, () => [{ is_user: true }, { is_user: false }, { is_user: false }]).flat()];
 
-function harness(loaded: NormalizedStoryV2, turns: number) {
+function harness(loaded: NormalizedStory, turns: number) {
   const blocks = new Map<string, string>();
   const prompt = {
     setStoryExtensionPrompt: (key: string, value: string) => { blocks.set(key, value); },
@@ -76,8 +75,8 @@ function harness(loaded: NormalizedStoryV2, turns: number) {
 describe("v2.7 35 Phase 2: the open stretch format", () => {
   it("normalizes pace into pull_after and keeps arrive_when as a gate", () => {
     expect(story.checkpointById.road.stretch).toEqual({ mode: "open", pace: "brief", pull_after: 3, arrive_when: ARRIVE });
-    expect(parseStoryV2OrThrow(raw({ mode: "open", arrive_when: ARRIVE })).checkpointById.road.stretch?.pull_after).toBe(6);
-    expect(parseStoryV2OrThrow(raw({ mode: "open", pace: "long", pull_after: 4, max_turns: 9, arrive_when: ARRIVE })).checkpointById.road.stretch)
+    expect(parseStoryOrThrow(raw({ mode: "open", arrive_when: ARRIVE })).checkpointById.road.stretch?.pull_after).toBe(6);
+    expect(parseStoryOrThrow(raw({ mode: "open", pace: "long", pull_after: 4, max_turns: 9, arrive_when: ARRIVE })).checkpointById.road.stretch)
       .toEqual({ mode: "open", pace: "long", pull_after: 4, max_turns: 9, arrive_when: ARRIVE });
   });
 
@@ -90,7 +89,7 @@ describe("v2.7 35 Phase 2: the open stretch format", () => {
 
   it("accepts offer: [encounters] and refuses any other offer", () => {
     expect(errorsOf(raw({ ...OPEN, offer: ["encounters"] }))).toEqual([]);
-    expect(parseStoryV2OrThrow(raw({ ...OPEN, offer: ["encounters", "encounters"] })).checkpointById.road.stretch?.offer).toEqual(["encounters"]);
+    expect(parseStoryOrThrow(raw({ ...OPEN, offer: ["encounters", "encounters"] })).checkpointById.road.stretch?.offer).toEqual(["encounters"]);
     expect(errorsOf(raw({ ...OPEN, offer: ["complications"] }))).toContain("checkpoints.1.stretch.offer: offer lists what the stretch may hold, from: encounters");
     expect(errorsOf(raw({ ...OPEN, offer: "encounters" }))).toContain("checkpoints.1.stretch.offer: offer lists what the stretch may hold, from: encounters");
   });
@@ -170,7 +169,7 @@ describe("v2.7 35 Phase 2: what an open stretch changes", () => {
   });
 
   it("the pull curve: free until pull_after player turns, then gentle, steady, and strong at max_turns", () => {
-    const stretch = parseStoryV2OrThrow(raw({ ...OPEN, max_turns: 9 })).checkpointById.road.stretch!;
+    const stretch = parseStoryOrThrow(raw({ ...OPEN, max_turns: 9 })).checkpointById.road.stretch!;
     expect([0, 2, 3, 5, 6, 8, 9, 20].map((turns) => pullStage(stretch, turns))).toEqual([null, null, "gentle", "gentle", "steady", "steady", "strong", "strong"]);
     expect(pullStage(story.checkpointById.road.stretch!, 40)).toBe("steady");
   });

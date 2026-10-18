@@ -9,7 +9,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-v17-readback",
         "title": "SO-V17 Readback",
         "description": "A second checkpoint that switches a lorebook entry on.",

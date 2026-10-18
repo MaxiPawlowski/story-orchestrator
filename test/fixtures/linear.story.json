@@ -1,7 +1,6 @@
 {
-  "format": 2,
   "title": "Linear Vault",
-  "description": "A minimal linear v2 story.",
+  "description": "A minimal linear story.",
   "qualities": [
     { "key": "message_count", "type": "int", "source": "code", "monotonic": true, "rubric": "Current rendered message count." },
     { "key": "has_key", "type": "bool", "source": "extractor", "latching": true, "rubric": "Did the player obtain the key?" },

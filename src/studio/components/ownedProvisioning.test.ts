@@ -1,10 +1,10 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "@runtime/runToken";
 import type { ProvisioningOp, ProvisioningResult } from "@wizard/index";
 import { lapsedProvisioningCopy, provisionOwned } from "./ownedProvisioning";
 
 const op: ProvisioningOp = { kind: "createCharacterCard", name: "SO-Arin", description: "A scout." };
-const draft = { id: "d1", title: "D" } as unknown as StoryV2;
+const draft = { id: "d1", title: "D" } as unknown as Story;
 
 const rig = (result: ProvisioningResult, duringProvision: (context: RunContext) => void = () => {}) => {
   const context: RunContext = { chatId: null, storyId: null, storyHash: null, sessionEpoch: 0, windowRevision: 0 };

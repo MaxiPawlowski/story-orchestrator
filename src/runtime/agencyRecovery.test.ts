@@ -1,8 +1,7 @@
-import { parseStoryV2 } from "@engine/index";
+import { parseStory } from "@engine/index";
 import { agencyRecovery as recoveryOf, AGENCY_STALL_TURNS, playerTurnIds, REFUSAL_PLAYER_TEXT } from "./agencyRecovery";
 
 const raw = (agency?: Record<string, unknown>, stub = false) => ({
-  format: 2,
   id: "refusal-probe",
   title: "Refusal Probe",
   description: "A checkpoint whose only exit asks the player to accept a duel.",
@@ -26,7 +25,7 @@ const raw = (agency?: Record<string, unknown>, stub = false) => ({
 });
 
 const story = (agency?: Record<string, unknown>, stub = false) => {
-  const parsed = parseStoryV2(raw(agency, stub));
+  const parsed = parseStory(raw(agency, stub));
   if (Array.isArray(parsed)) throw new Error(parsed.map((error) => `${error.path}: ${error.message}`).join("; "));
   return parsed;
 };
@@ -56,26 +55,26 @@ const agencyRecovery = (...args: [Parameters<typeof recoveryOf>[0], Parameters<t
 
 describe("refused-route recovery (v2.3 plan 07, C4)", () => {
   it("reports a refusal only after two boundaries that were read and moved no exit", () => {
-    const storyV2 = story();
+    const played = story();
     expect(AGENCY_STALL_TURNS).toBe(2);
-    expect(agencyRecovery(storyV2, state("duel"), log("duel", 1), reads(1))).toBeNull();
-    const stalled = agencyRecovery(storyV2, state("duel"), log("duel", 2), reads(2, ["mood"]));
+    expect(agencyRecovery(played, state("duel"), log("duel", 1), reads(1))).toBeNull();
+    const stalled = agencyRecovery(played, state("duel"), log("duel", 2), reads(2, ["mood"]));
     expect(stalled).toMatchObject({ checkpointId: "duel", checkpointName: "The Duel", alternate: null, turns: 2 });
     expect(REFUSAL_PLAYER_TEXT).toContain("deciding how the world answers that");
   });
 
   it("is not a stall when the story actually moved", () => {
-    const storyV2 = story();
-    expect(agencyRecovery(storyV2, state("duel"), log("duel", 2, { fired: { from: "duel", to: "elsewhere" } }), reads(2))).toBeNull();
+    const played = story();
+    expect(agencyRecovery(played, state("duel"), log("duel", 2, { fired: { from: "duel", to: "elsewhere" } }), reads(2))).toBeNull();
     // Two quiet boundaries in DIFFERENT checkpoints are two checkpoint entries, not a refusal.
     const crossed = [...log("start", 1), ...log("duel", 2).slice(1)] as unknown as Log;
-    expect(agencyRecovery(storyV2, state("duel"), crossed, reads(2))).toBeNull();
+    expect(agencyRecovery(played, state("duel"), crossed, reads(2))).toBeNull();
   });
 
   it("leaves a manual boundary and a checkpoint with no exits alone", () => {
-    const storyV2 = story();
-    expect(agencyRecovery(storyV2, state("duel"), log("duel", 2, { source: "manual" }), reads(2))).toBeNull();
-    expect(agencyRecovery(storyV2, state("elsewhere"), log("elsewhere", 3), reads(3))).toBeNull();
+    const played = story();
+    expect(agencyRecovery(played, state("duel"), log("duel", 2, { source: "manual" }), reads(2))).toBeNull();
+    expect(agencyRecovery(played, state("elsewhere"), log("elsewhere", 3), reads(3))).toBeNull();
   });
 
   it("offers the authored alternate, and only when it names a checkpoint that exists", () => {
@@ -112,7 +111,7 @@ describe("V13: a refusal is a read that classified nothing against an exit", () 
   });
 
   it("a numeric step toward an exit's threshold is progress, even far below it", () => {
-    const counted = parseStoryV2({ ...raw(), qualities: [...raw().qualities, { key: "steps", type: "int", source: "extractor", rubric: "Steps taken." }], transitions: [raw().transitions[0], { from: "duel", to: "elsewhere", priority: 1, gate: { q: "steps", op: ">=", v: 3 } }] });
+    const counted = parseStory({ ...raw(), qualities: [...raw().qualities, { key: "steps", type: "int", source: "extractor", rubric: "Steps taken." }], transitions: [raw().transitions[0], { from: "duel", to: "elsewhere", priority: 1, gate: { q: "steps", op: ">=", v: 3 } }] });
     if (Array.isArray(counted)) throw new Error("fixture");
     expect(agencyRecovery(counted, state("duel"), log("duel", 2), reads(2, ["steps"], 1))).toBeNull();
     expect(agencyRecovery(counted, state("duel"), log("duel", 2), reads(2, ["mood"]))).not.toBeNull();

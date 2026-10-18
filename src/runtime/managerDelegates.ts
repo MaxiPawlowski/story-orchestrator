@@ -1,4 +1,4 @@
-import { type StoryV2 } from "@engine/index";
+import { type Story } from "@engine/index";
 import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
 import type { ProvisioningEnvironment, ProvisioningOp, ProvisioningResult, WizardSessionState, WizardSessionUpdate } from "@wizard/index";
 import { type ExtraGateSource, type ParsedFact, type ReadOwnership, type SharedReadAudit } from "@extraction/index";
@@ -45,7 +45,7 @@ export abstract class CoordinatorDelegates {
     this.generationOpen = open;
     this.notify();
   }
-  async livingStory(input: Omit<LivingStartInput, "members">): Promise<StoryV2> {
+  async livingStory(input: Omit<LivingStartInput, "members">): Promise<Story> {
     const { buildLivingStory } = await import("@generation/living/start");
     return buildLivingStory({ ...input, members: listGroupMemberNames() });
   }
@@ -53,12 +53,12 @@ export abstract class CoordinatorDelegates {
   refreshMemoryInjection() { this.co.memory.updateInjection(); }
 
   async runCopilotStage(
-    input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment },
+    input: { draft: Story; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment },
     debugResponse?: string,
   ): Promise<ProposalResult> { return this.co.copilot.runStage(input, debugResponse); }
-  getProvisioningEnvironment(draft?: StoryV2): ProvisioningEnvironment { return this.co.copilot.getProvisioningEnvironment(draft); }
-  async applyProvisioning(op: ProvisioningOp, draft?: StoryV2): Promise<ProvisioningResult> { return this.co.copilot.applyProvisioning(op, draft); }
-  async recheckCreatedCard(op: Extract<ProvisioningOp, { kind: "createCharacterCard" }>, avatar: string, draft?: StoryV2): Promise<CardReadBackRecord> {
+  getProvisioningEnvironment(draft?: Story): ProvisioningEnvironment { return this.co.copilot.getProvisioningEnvironment(draft); }
+  async applyProvisioning(op: ProvisioningOp, draft?: Story): Promise<ProvisioningResult> { return this.co.copilot.applyProvisioning(op, draft); }
+  async recheckCreatedCard(op: Extract<ProvisioningOp, { kind: "createCharacterCard" }>, avatar: string, draft?: Story): Promise<CardReadBackRecord> {
     return this.co.copilot.recheckCreatedCard(op, avatar, draft);
   }
   async readProvisioningEntry(lorebook: string, comment: string): Promise<WIEntrySnapshot | null> { return this.co.copilot.readProvisioningEntry(lorebook, comment); }

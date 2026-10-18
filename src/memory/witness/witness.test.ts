@@ -1,5 +1,5 @@
 import { readWith, recordingModel } from "../../../test/support/modelCall";
-import { StoryEngine, parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import { hashContract, renderSharedReadPrompt } from "@extraction/contract";
 import { parseSharedReadResponse } from "@extraction/parse";
 import { readContract, runSharedRead } from "@extraction/sharedRead";
@@ -17,8 +17,8 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: [], extensionSettings: {} }),
 }));
 
-const story = (qualities = true): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2, id: "witness-read", title: "Witness read", description: "plan 42",
+const story = (qualities = true): NormalizedStory => parseStoryOrThrow({
+  id: "witness-read", title: "Witness read", description: "plan 42",
   qualities: qualities ? [{ key: "gate_open", type: "bool", source: "extractor", rubric: "Is the gate open?" }] : [],
   checkpoints: [{ id: "cp1", name: "The Gate", objective: "Get past", type: "anchor", start: true }],
   transitions: [], roster: [{ id: "mara", name: "Mara", aliases: ["The Smith"] }, { id: "ben", name: "Ben" }, { id: "ula", name: "Ula" }],

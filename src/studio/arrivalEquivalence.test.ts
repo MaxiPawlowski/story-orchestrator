@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync } from "fs";
 import { join, relative } from "path";
-import { isValidationErrorList, parseStoryV2, type Checkpoint, type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type Transition } from "@engine/index";
+import { isValidationErrorList, parseStory, type Checkpoint, type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type Story, type Transition } from "@engine/index";
 import { passThroughExits, type PassThrough } from "./arrivalDiagnostics";
 import { referencePassThroughExits } from "../../test/support/arrivalReference";
 
@@ -29,7 +29,7 @@ const storiesIn = (value: unknown, found: unknown[] = []): unknown[] => {
   if (Array.isArray(value)) value.forEach((entry) => storiesIn(entry, found));
   else if (value && typeof value === "object") {
     const record = value as Record<string, unknown>;
-    if (record.format === 2 && Array.isArray(record.checkpoints)) found.push(record);
+    if (typeof record.title === "string" && Array.isArray(record.checkpoints) && Array.isArray(record.transitions)) found.push(record);
     else Object.values(record).forEach((entry) => storiesIn(entry, found));
   }
   return found;
@@ -45,8 +45,8 @@ const corpus = CORPUS_DIRS.flatMap((dir) => walk(join(ROOT, dir))).flatMap((path
   }
   const where = relative(ROOT, path).replace(/\\/g, "/");
   return storiesIn(parsed).flatMap((raw, index) => {
-    const story = parseStoryV2(raw);
-    return isValidationErrorList(story) ? [] : [{ where: `${where}#${index}`, story: story as StoryV2, golden: !OUT_OF_GOLDEN.test(where) && !OUT_OF_GOLDEN.test(text) }];
+    const story = parseStory(raw);
+    return isValidationErrorList(story) ? [] : [{ where: `${where}#${index}`, story: story as Story, golden: !OUT_OF_GOLDEN.test(where) && !OUT_OF_GOLDEN.test(text) }];
   });
 });
 
@@ -98,7 +98,7 @@ const randomSnapshot = (rng: ReturnType<typeof seeded>, qualities: Quality[]): R
   return { [quality.key]: Array.isArray(leaf.v) ? rng.pick(ENUM_VALUES) : leaf.v };
 };
 
-const randomStory = (seed: number): StoryV2 => {
+const randomStory = (seed: number): Story => {
   const rng = seeded(seed);
   const qualities = randomQualities();
   const size = 4 + rng.int(9);
@@ -113,7 +113,7 @@ const randomStory = (seed: number): StoryV2 => {
   for (let at = 1; at < size; at += 1) transitions.push({ from: `c${rng.int(at)}`, to: `c${at}`, priority: 1, gate: randomGate(rng, qualities) });
   const extra = rng.int(size * 2);
   for (let count = 0; count < extra; count += 1) transitions.push({ from: `c${rng.int(size)}`, to: `c${rng.int(size)}`, priority: 1 + rng.int(3), gate: randomGate(rng, qualities) });
-  return { format: 2, title: `random ${seed}`, description: "", qualities, checkpoints, transitions, roster: [{ id: "guide", name: "Guide" }] };
+  return { title: `random ${seed}`, description: "", qualities, checkpoints, transitions, roster: [{ id: "guide", name: "Guide" }] };
 };
 
 describe("gate-open-on-arrival: the d321a2b8 rewrite finds exactly what the old algorithm found", () => {

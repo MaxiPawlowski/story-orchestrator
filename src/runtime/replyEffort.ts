@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import type { ThinkingTemplate } from "@services/stHost/llamaCpp";
 import { foldIncludeBody } from "@services/stHost/reasoningPayload";
 import { isRecord } from "@utils/guards";
@@ -31,7 +31,7 @@ export interface EffortArm {
 export interface EffortTarget {
   storyChat: string | null;
   checkpointId: string | null;
-  story: NormalizedStoryV2 | null;
+  story: NormalizedStory | null;
   fallback: ReplyEffort;
   checkpointOverride: boolean;
   override?: ReplyEffort;

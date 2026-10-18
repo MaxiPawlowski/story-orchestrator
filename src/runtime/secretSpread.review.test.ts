@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_KEY, MEMORY_INJECTION_KEY_PREFIX } from "@constants/defaults";
 import type { EpistemicEntry, MemoryEntry } from "@memory/index";
 import { MemoryInjector } from "./memoryInjector";
@@ -8,8 +8,7 @@ import type { InjectorHosts } from "./hostPorts";
 const CAST: Array<[string, string]> = [["narrator", "Narrator"], ["aria", "Aria"], ["bram", "Bram"]];
 const SECRET = /silver key|vault/i;
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "secret-spread",
   title: "Secret Spread",
   description: "",

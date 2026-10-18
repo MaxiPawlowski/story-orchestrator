@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { StoryEngine, commitKey, parseStoryV2, parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2, type PrimitiveValue, type ValidationError } from "@engine/index";
+import { StoryEngine, commitKey, parseStory, parseStoryOrThrow, type EngineState, type NormalizedStory, type PrimitiveValue, type ValidationError } from "@engine/index";
 import { COMMITMENT_COPY, commitmentDiscoveryUnits, commitmentHooks, commitmentLines, commitmentState, heldCommitments, keptCommitments } from "@engine/life/commitments";
 import { gameLayer, loadGameLayer } from "@engine/validate/gameLayer";
 import { EPISTEMIC_INJECTION_KEY } from "@constants/defaults";
@@ -15,7 +15,7 @@ import type { MemoryRuntimeState } from "./types";
 import type { InjectorHosts } from "./hostPorts";
 
 const RAW = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/npc-commitments.story.json"), "utf8")) as Record<string, unknown>;
-const STORY = parseStoryV2OrThrow(RAW);
+const STORY = parseStoryOrThrow(RAW);
 const CAST = { mara: "Mara", tom: "Tom", sera: "Sera", narrator: "DM Narrator" };
 const ENABLED = ["mara", "tom", "sera", "narrator"];
 const EVENTS = ["offered_help", "past_gate", "mara_betrayed", "debt_repaid", "tom_swore", "fair_held", "met_sera", "word_sent", "mara_at_market"];
@@ -38,7 +38,7 @@ const play = (engine: StoryEngine, turns: Turn[], from = 0, lag = false) => {
   return engine;
 };
 
-const fresh = (story: NormalizedStoryV2 = STORY) => {
+const fresh = (story: NormalizedStory = STORY) => {
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
   return engine;
@@ -47,13 +47,13 @@ const fresh = (story: NormalizedStoryV2 = STORY) => {
 const randomTurns = (next: () => number, length = 1 + Math.floor(next() * 12)): Turn[] =>
   Array.from({ length }, () => Object.fromEntries(EVENTS.filter(() => next() < 0.16).map((key) => [key, true])));
 
-const compose = (story: NormalizedStoryV2, engine: StoryEngine, state: EngineState = engine.serialize()): GameView =>
+const compose = (story: NormalizedStory, engine: StoryEngine, state: EngineState = engine.serialize()): GameView =>
   composeGame({ story, state, boundaryLog: engine.stateLog, checks: [], threads: { open: [], resolved: [] }, chat: [], castNames: CAST, enabled: ENABLED }).player;
 
 const surfaces = (game: GameView): string => [JSON.stringify(game), renderToStaticMarkup(createElement(JournalPanel, { game }))].join("\n");
 
 const errorsOf = (raw: Record<string, unknown>): string[] => {
-  const parsed = parseStoryV2(raw);
+  const parsed = parseStory(raw);
   return Array.isArray(parsed) ? (parsed as ValidationError[]).map((error) => `${error.path}: ${error.message}`) : [];
 };
 
@@ -278,7 +278,7 @@ describe("v2.8 plan 55 M4/M5: the player sees only what was said in their hearin
 
 describe("v2.8 plan 55 M6 (SC4): a commitments-only story renders; one with nothing stays null", () => {
   it("renders the holder's page from commitments alone", () => {
-    const only = parseStoryV2OrThrow({ ...RAW, codex: undefined });
+    const only = parseStoryOrThrow({ ...RAW, codex: undefined });
     expect(storyHasGame(only)).toBe(true);
     const engine = play(fresh(only), [{ offered_help: true }]);
     const slice = gameSlices({
@@ -288,7 +288,7 @@ describe("v2.8 plan 55 M6 (SC4): a commitments-only story renders; one with noth
     expect(slice.game?.codex?.people[0].rows?.map((row) => row.text)).toEqual([
       COMMITMENT_COPY.promised("get past the north gate together", "made"), COMMITMENT_COPY.promised("repay the debt from the river", "made"),
     ]);
-    const plain = parseStoryV2OrThrow({ ...RAW, codex: undefined, roster: (RAW.roster as Roster).map(({ commitments: _c, schedule: _s, ...member }) => member) });
+    const plain = parseStoryOrThrow({ ...RAW, codex: undefined, roster: (RAW.roster as Roster).map(({ commitments: _c, schedule: _s, ...member }) => member) });
     expect(storyHasGame(plain)).toBe(false);
   });
 });
@@ -303,7 +303,7 @@ describe("v2.8 plan 55: director hooks, kept effects, discovery", () => {
 
   it("a kept promise with an effect lands once and replays its world_info from the latch", () => {
     const raw = withCommitment({ effect: { world_info: { lorebook: "Lab", enable: ["Gate open"] } } });
-    const story = parseStoryV2OrThrow(raw);
+    const story = parseStoryOrThrow(raw);
     const engine = play(fresh(story), [{ offered_help: true }, { past_gate: true }]);
     const entry = engine.stateLog.at(-1)!;
     expect(keptCommitments(story, entry.before.blackboard.values, entry.after.blackboard.values).map((kept) => kept.commitment.id)).toEqual(["gate"]);

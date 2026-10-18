@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
+import type { EngineState, NormalizedStory, NormalizedTransition } from "@engine/index";
 import { planBacklog } from "@extraction/backlogPlan";
 import { isLapse, retryOnTimeout } from "@extraction/modelError";
 import { preflightNeeded, withJudgeCalls } from "@extraction/preflight";
@@ -29,7 +29,7 @@ type ApplyAudit = (
 ) => Promise<unknown>;
 
 export interface MemorizeBacklogDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   memory: () => MemoryCoordinator;
   model: () => ModelCall;
@@ -104,7 +104,7 @@ export class MemorizeBacklog {
     return true;
   }
 
-  private backlogRead(story: NormalizedStoryV2, reason: "memorize:window" | "memorize:full", window: SharedReadWindow, ask: ModelAsk): RunSharedReadOptions {
+  private backlogRead(story: NormalizedStory, reason: "memorize:window" | "memorize:full", window: SharedReadWindow, ask: ModelAsk): RunSharedReadOptions {
     const memory = this.deps.memory();
     const state = required(this.deps.getState(), "engine state");
     const windowed = reason === "memorize:window" ? { openArcs: memory.getOpenArcs(), epistemicLedgerCapable: memory.capable, entities: memory.getEntities() } : {};
@@ -113,7 +113,7 @@ export class MemorizeBacklog {
     return { story, state, priority: 0, reason, window, scope, firedTransitions: this.deps.firedTransitions(), facts: memory.getFacts(), ...windowed, model: this.deps.model(), ask: tagged };
   }
 
-  private async memorizeWindows(story: NormalizedStoryV2, windows: SharedReadWindow[], length: number, read: ReadOwnership, budget: RequestBudget): Promise<boolean> {
+  private async memorizeWindows(story: NormalizedStory, windows: SharedReadWindow[], length: number, read: ReadOwnership, budget: RequestBudget): Promise<boolean> {
     const memory = this.deps.memory();
     const client: ModelAsk = { role: "read", pass: "read", budget, signal: read.signal };
     const sceneWork: SchedulerJob[] = [];

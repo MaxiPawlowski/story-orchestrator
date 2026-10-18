@@ -1,11 +1,11 @@
 jest.mock("@services/STAPI", () => ({ settingsAreLoaded: () => true, settingsReady: async () => {}, getContext: () => ({ chat: [], chatId: "chat-a", extensionSettings: {}, chatMetadata: {}, characters: [] }) }));
 
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { setupWarnings, type SnapshotSources } from "./snapshotBuilder";
 import { readScenarioFrameWith, scenarioFrame } from "./storyScenario";
 
-const storyWith = (effects: Record<string, unknown> | undefined) => parseStoryV2OrThrow({
-  format: 2, id: "frame", title: "Frame", description: "d",
+const storyWith = (effects: Record<string, unknown> | undefined) => parseStoryOrThrow({
+  id: "frame", title: "Frame", description: "d",
   qualities: [{ key: "step", type: "int", source: "code", rubric: "Step." }],
   roster: [],
   checkpoints: [{ id: "start", name: "Start", objective: "o", type: "anchor", start: true, ...(effects ? { effects } : {}) }],

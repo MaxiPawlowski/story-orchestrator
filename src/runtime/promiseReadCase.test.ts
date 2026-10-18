@@ -4,7 +4,7 @@ import type { ModelCall } from "@extraction/modelRoute";
 import { runPromiseReadCase } from "./promiseReadCase";
 
 const STORY = {
-  format: 2, id: "so-p47-unit", title: "P47 unit", description: "",
+  id: "so-p47-unit", title: "P47 unit", description: "",
   qualities: [{ key: "town_mood", type: "enum", values: ["calm", "uneasy"], source: "extractor", rubric: "How does the town feel?" }],
   checkpoints: [{ id: "town", name: "Town", type: "anchor", start: true, objective: "Stay." }],
   transitions: [], roster: [{ id: "mira", name: "Mira" }, { id: "tobin", name: "Tobin" }],

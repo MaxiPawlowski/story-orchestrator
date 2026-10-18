@@ -1,5 +1,4 @@
 {
-  "format": 2,
   "id": "so-v27-35-side-exit-turns",
   "title": "SO-V27-35 Side Exit Turns",
   "description": "v2.7 plan 39 row S-09 refused fixture: the open stretch has a second exit gated on player_turns_in_checkpoint. Import must be refused naming transitions.1.",

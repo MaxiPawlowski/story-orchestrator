@@ -1,4 +1,4 @@
-import { isValidationErrorList, storyWarnings, type NormalizedStoryV2, type ValidationError } from "@engine/index";
+import { isValidationErrorList, storyWarnings, type NormalizedStory, type ValidationError } from "@engine/index";
 import { showConfirmPopup } from "@services/STAPI";
 import {
   adoptChatState, blobMismatch, describeMismatch, dropPersistedRuntime, getSelectedStoryId, hasOpenChat, hasOpenGroup, loadPersistedRuntime,
@@ -36,8 +36,8 @@ export interface StorySelectionDeps {
  * before each write, and the caller asks it again before going on. */
 export async function releaseGatedWorldInfo(
   effects: { releaseWorldInfo: (owners: unknown[], keep: unknown | null, run?: RunGuard) => Promise<unknown> },
-  previous: NormalizedStoryV2 | null,
-  keep: NormalizedStoryV2 | null,
+  previous: NormalizedStory | null,
+  keep: NormalizedStory | null,
   run?: RunGuard,
 ): Promise<void> {
   const owners = [...listStoryRecords().map((record) => record.raw), ...(previous ? [previous] : [])];

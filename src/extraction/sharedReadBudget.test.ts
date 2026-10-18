@@ -1,4 +1,4 @@
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 import { callExtractionReply } from "@extraction/client";
 import { viaReply } from "../../test/support/modelCall";
 import { estimateTokens } from "@extraction/callBudget";
@@ -17,8 +17,7 @@ jest.mock("@services/STAPI", () => ({
   readServerBoundary: async () => null, getContext: () => ({ chat: mockChat, extensionSettings: {} }) }));
 jest.mock("@extraction/client", () => ({ ...jest.requireActual("@extraction/client"), callExtractionReply: jest.fn() }));
 
-const story = () => parseStoryV2OrThrow({
-  format: 2,
+const story = () => parseStoryOrThrow({
   id: "budget",
   title: "Budget",
   description: "v2.4 plan 03 D5",

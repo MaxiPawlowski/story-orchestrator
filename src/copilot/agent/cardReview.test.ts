@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import {
   approvePlan, decideStep, executeReply, newAgentSession, pendingStep, recheckReadBack, renderStepPrompt, resolveProvisioning, reviewStep, stopAgent, unsettledReadBacks, type StepMeta,
 } from "./index";
@@ -8,8 +8,8 @@ import type { AgentReply, AgentSession } from "./types";
 const AT = "2026-10-16T00:00:00.000Z";
 const META: StepMeta = { route: "local", firstTryValid: true, repaired: false, at: AT };
 
-const story = (): StoryV2 => ({
-  format: 2, title: "Harbour", description: "A smuggler's port.", qualities: [], transitions: [], roster: [],
+const story = (): Story => ({
+  title: "Harbour", description: "A smuggler's port.", qualities: [], transitions: [], roster: [],
   checkpoints: [{ id: "start", name: "Start", objective: "Arrive.", type: "anchor", start: true }],
 });
 

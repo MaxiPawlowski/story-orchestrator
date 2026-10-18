@@ -1,4 +1,4 @@
-import { LIVING_OPENING_ID, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { LIVING_OPENING_ID, type EngineState, type NormalizedStory } from "@engine/index";
 import { livingChapterSize } from "@engine/validate/living";
 import { gameLayer } from "@engine/validate/gameLayer";
 import type { ModelCall } from "@extraction/modelRoute";
@@ -13,7 +13,7 @@ import type { LivingInputs } from "./livingInputs";
 export { livingExportId, projectLivingExport } from "@generation/living/export";
 
 export interface DirectNextInput {
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
   raw: Record<string, unknown>;
   frontierId: string;
   state: EngineState;
@@ -79,7 +79,7 @@ export async function directNext(input: DirectNextInput): Promise<DirectorOutcom
 }
 
 export interface BranchNextInput {
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
   raw: Record<string, unknown>;
   sourceId: string;
   targetId: string;

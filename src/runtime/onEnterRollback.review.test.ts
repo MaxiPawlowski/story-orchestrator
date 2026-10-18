@@ -24,7 +24,7 @@ jest.mock("@services/STAPI", () => ({
   readLoreBindings: () => ({ global: [], chat: null, persona: null, characters: [] }),
 }));
 
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { EffectsApplier } from "./effectsApplier";
 import { onEnterRollbackPlan, rewindOnEnterPosts, sanitizeOnEnterPosts, type OnEnterPost } from "./npcReplyRewind";
 import { RuntimeManager } from "./runtimeManager";
@@ -33,8 +33,7 @@ import { createJudgeRuntime } from "@judge/index";
 import type { RuntimeExtras } from "./types";
 import { testOwnership } from "../../test/findings/testOwnership";
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "opener",
   title: "Opener",
   description: "",

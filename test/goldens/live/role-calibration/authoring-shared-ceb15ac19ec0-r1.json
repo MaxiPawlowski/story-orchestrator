@@ -112,7 +112,6 @@
         "lang": "en",
         "stage": "qualities",
         "draft": {
-          "format": 2,
           "id": "cal-heist",
           "title": "The Vault Job",
           "description": "A crew of thieves breaks into the city bank's vault.",
@@ -196,7 +195,6 @@
         "lang": "en",
         "stage": "qualities",
         "draft": {
-          "format": 2,
           "id": "cal-heist",
           "title": "The Vault Job",
           "description": "A crew of thieves breaks into the city bank's vault.",
@@ -280,7 +278,6 @@
         "lang": "en",
         "stage": "qualities",
         "draft": {
-          "format": 2,
           "id": "cal-heist",
           "title": "The Vault Job",
           "description": "A crew of thieves breaks into the city bank's vault.",
@@ -368,7 +365,6 @@
         "lang": "en",
         "stage": "qualities",
         "draft": {
-          "format": 2,
           "id": "cal-blank",
           "title": "Untitled",
           "description": "",
@@ -427,7 +423,6 @@
         "lang": "en",
         "stage": "checkpoints",
         "draft": {
-          "format": 2,
           "id": "cal-heist",
           "title": "The Vault Job",
           "description": "A crew of thieves breaks into the city bank's vault.",
@@ -513,7 +508,6 @@
         "lang": "en",
         "stage": "checkpoints",
         "draft": {
-          "format": 2,
           "id": "cal-heist",
           "title": "The Vault Job",
           "description": "A crew of thieves breaks into the city bank's vault.",
@@ -597,7 +591,6 @@
         "lang": "en",
         "stage": "checkpoints",
         "draft": {
-          "format": 2,
           "id": "cal-ruins",
           "title": "The Sun Ruins",
           "description": "A party of adventurers takes a guild job to explore desert ruins.",
@@ -684,7 +677,6 @@
         "lang": "en",
         "stage": "transitions",
         "draft": {
-          "format": 2,
           "id": "cal-heist-open",
           "title": "The Vault Job",
           "description": "A crew of thieves breaks into the city bank's vault.",
@@ -754,7 +746,6 @@
         "lang": "en",
         "stage": "transitions",
         "draft": {
-          "format": 2,
           "id": "cal-ruins",
           "title": "The Sun Ruins",
           "description": "A party of adventurers takes a guild job to explore desert ruins.",
@@ -849,7 +840,6 @@
         "lang": "en",
         "stage": "effects",
         "draft": {
-          "format": 2,
           "id": "cal-heist",
           "title": "The Vault Job",
           "description": "A crew of thieves breaks into the city bank's vault.",
@@ -937,7 +927,6 @@
         "lang": "en",
         "stage": "effects",
         "draft": {
-          "format": 2,
           "id": "cal-heist",
           "title": "The Vault Job",
           "description": "A crew of thieves breaks into the city bank's vault.",
@@ -1025,7 +1014,6 @@
         "lang": "en",
         "stage": "provisioning",
         "draft": {
-          "format": 2,
           "id": "cal-heist-cast",
           "title": "The Vault Job",
           "description": "A crew of thieves breaks into the city bank's vault.",
@@ -1154,7 +1142,6 @@
         "lang": "en",
         "stage": "checkpoints",
         "draft": {
-          "format": 2,
           "id": "cal-crypt",
           "title": "The Abbey Crypt",
           "description": "A party of adventurers descends into the crypt beneath an abandoned abbey of the Holy Church.",
@@ -1240,7 +1227,6 @@
         "lang": "en",
         "stage": "checkpoints",
         "draft": {
-          "format": 2,
           "id": "cal-ghost-ship",
           "title": "The Drifting Ship",
           "description": "A crew boards a ship found drifting through thick fog.",
@@ -1329,7 +1315,6 @@
         "lang": "en",
         "stage": "checkpoints",
         "draft": {
-          "format": 2,
           "id": "cal-crypt",
           "title": "The Abbey Crypt",
           "description": "A party of adventurers descends into the crypt beneath an abandoned abbey of the Holy Church.",
@@ -1410,7 +1395,6 @@
         "lang": "en",
         "stage": "transitions",
         "draft": {
-          "format": 2,
           "id": "cal-ghost-ship",
           "title": "The Drifting Ship",
           "description": "A crew boards a ship found drifting through thick fog.",
@@ -1499,7 +1483,6 @@
         "lang": "en",
         "stage": "effects",
         "draft": {
-          "format": 2,
           "id": "cal-ghost-ship",
           "title": "The Drifting Ship",
           "description": "A crew boards a ship found drifting through thick fog.",

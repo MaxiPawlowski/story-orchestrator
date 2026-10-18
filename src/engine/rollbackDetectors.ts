@@ -2,7 +2,7 @@ import { progressQualityForAnchor } from "./convergence";
 import { questLatchesMoved } from "./quests";
 import {
   CLOCK_MOVED_KEY, CLOCK_STORY_TIME_KEY, TIME_REACHED_PREFIX, TURN_OOC_KEY, agendaChapterKey, agendaRepeatsKey, agendaStepKey, agendaWaitKey, clockStart, isCodexKey,
-  isStoryTimeKey, moodAgeKey, moodSceneKey, moodWasKey, isCommitKey, isFactionKey, isLabelKey, questClosedKey, questRewardKey, type NormalizedStoryV2,
+  isStoryTimeKey, moodAgeKey, moodSceneKey, moodWasKey, isCommitKey, isFactionKey, isLabelKey, questClosedKey, questRewardKey, type NormalizedStory,
 } from "./schema";
 import { PLAYER_TURNS_KEY } from "./stretch";
 import { checkRolledKeys } from "./storyChecks";
@@ -12,23 +12,23 @@ type Values = Readonly<Record<string, unknown>>;
 
 export interface RollbackDetector {
   id: string;
-  keys: (story: NormalizedStoryV2) => string[];
-  moved: (story: NormalizedStoryV2, before: Values, after: Values) => boolean;
+  keys: (story: NormalizedStory) => string[];
+  moved: (story: NormalizedStory, before: Values, after: Values) => boolean;
 }
 
 export interface RollbackExemption {
   id: string;
-  keys: (story: NormalizedStoryV2) => string[];
+  keys: (story: NormalizedStory) => string[];
   reason: string;
 }
 
-const agendas = (story: NormalizedStoryV2) => (story.life?.members ?? []).flatMap((member) => member.agenda.map((agenda) => ({ member: member.id, agenda })));
+const agendas = (story: NormalizedStory) => (story.life?.members ?? []).flatMap((member) => member.agenda.map((agenda) => ({ member: member.id, agenda })));
 
 const isHeritage = (key: string): boolean => key.startsWith("heritage_");
 
-const mood = (story: NormalizedStoryV2) => (story.life?.members ?? []).filter((member) => member.mood).flatMap((member) => [moodAgeKey(member.id), moodSceneKey(member.id), moodWasKey(member.id)]);
+const mood = (story: NormalizedStory) => (story.life?.members ?? []).filter((member) => member.mood).flatMap((member) => [moodAgeKey(member.id), moodSceneKey(member.id), moodWasKey(member.id)]);
 
-const lifePacing = (story: NormalizedStoryV2) => [...mood(story), ...agendas(story).flatMap(({ member, agenda }) => [agendaWaitKey(member, agenda.id), agendaChapterKey(member, agenda.id)])];
+const lifePacing = (story: NormalizedStory) => [...mood(story), ...agendas(story).flatMap(({ member, agenda }) => [agendaWaitKey(member, agenda.id), agendaChapterKey(member, agenda.id)])];
 
 const prefixMoved = (match: (key: string) => boolean, before: Values, after: Values): boolean =>
   [...new Set([...Object.keys(before), ...Object.keys(after)])].some((key) => match(key) && before[key] !== after[key]);
@@ -90,10 +90,10 @@ export const ROLLBACK_EXEMPT: readonly RollbackExemption[] = [
     reason: "recounted from the chat at every boundary" },
 ];
 
-export const rollbackMoved = (story: NormalizedStoryV2 | null | undefined, before: Values, after: Values): boolean =>
+export const rollbackMoved = (story: NormalizedStory | null | undefined, before: Values, after: Values): boolean =>
   Boolean(story && ROLLBACK_DETECTORS.some((detector) => detector.moved(story, before, after)));
 
-export const uncoveredCodeKeys = (story: NormalizedStoryV2, authored: ReadonlySet<string>): string[] => {
+export const uncoveredCodeKeys = (story: NormalizedStory, authored: ReadonlySet<string>): string[] => {
   const covered = new Set([...ROLLBACK_DETECTORS, ...ROLLBACK_EXEMPT].flatMap((entry) => entry.keys(story)));
   return story.qualities.filter((quality) => quality.source === "code" && !authored.has(quality.key) && !covered.has(quality.key)).map((quality) => quality.key);
 };

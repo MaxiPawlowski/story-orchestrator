@@ -1,6 +1,6 @@
 import { readWith } from "../../test/support/modelCall";
 import * as recorded from "../../test/fixtures/player-evidence.recorded.json";
-import { StoryEngine, parseStoryV2OrThrow, type PrimitiveValue, type Quality, type StoryV2 } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, type PrimitiveValue, type Quality, type Story } from "@engine/index";
 import { PLAYER_ONLY_EVIDENCE, runSharedRead } from "./sharedRead";
 import type { SharedReadWindow } from "./types";
 
@@ -18,12 +18,12 @@ const typed = (row: Row): PrimitiveValue => (row.quality.type === "bool" ? row.v
 
 const read = async (row: Row, evidenceFrom = row.quality.evidence_from) => {
   const quality = { ...row.quality, evidence_from: evidenceFrom } as Quality;
-  const story = parseStoryV2OrThrow({
-    format: 2, id: "t2-1-moves", title: "Moves", description: "recorded", roster: [],
+  const story = parseStoryOrThrow({
+    id: "t2-1-moves", title: "Moves", description: "recorded", roster: [],
     qualities: [quality],
     checkpoints: [{ id: "here", name: "Here", objective: "o", type: "anchor", start: true }, { id: "there", name: "There", objective: "o", type: "anchor" }],
     transitions: [{ from: "here", to: "there", priority: 0, gate: { q: row.key, op: "==", v: typed(row) } }],
-  } as unknown as StoryV2);
+  } as unknown as Story);
   const engine = new StoryEngine();
   engine.loadStory(story);
   const window: SharedReadWindow = { from: row.window.from, to: row.window.to, messages: row.window.messages.map((message) => ({ ...message, index: message.messageId })) };

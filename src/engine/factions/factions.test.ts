@@ -2,19 +2,19 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { StoryEngine } from "../engine";
 import { Blackboard } from "../blackboard";
-import { parseStoryV2, parseStoryV2OrThrow } from "../validate";
-import { factionMoveKey, seenStandingKey, standingKey, type NormalizedStoryV2, type PrimitiveValue, type ValidationError } from "../schema";
+import { parseStory, parseStoryOrThrow } from "../validate";
+import { factionMoveKey, seenStandingKey, standingKey, type NormalizedStory, type PrimitiveValue, type ValidationError } from "../schema";
 import { applyFactionMoves, factionDirectorLines, factionMemberLines, factionsMoved, standingView, DIRECTOR_INTRODUCE, factionLatches } from "./standing";
 import { ROLLBACK_DETECTORS } from "../rollbackDetectors";
 import { privateLifeLines } from "../life/lines";
 import { FACTION_MOVE_ON_INACTION } from "../validate/factions";
 
 const RAW = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/factions.story.json"), "utf8")) as Record<string, unknown>;
-const STORY = parseStoryV2OrThrow(RAW);
+const STORY = parseStoryOrThrow(RAW);
 
 const clone = (): Record<string, unknown> => JSON.parse(JSON.stringify(RAW)) as Record<string, unknown>;
 const errorsOf = (raw: Record<string, unknown>): ValidationError[] => {
-  const parsed = parseStoryV2(raw);
+  const parsed = parseStory(raw);
   return Array.isArray(parsed) ? parsed : [];
 };
 const guildMoves = (raw: Record<string, unknown>) => ((raw.factions as Array<Record<string, unknown>>)[0].moves as Array<Record<string, unknown>>);
@@ -27,7 +27,7 @@ const rng = (seed: number) => {
   };
 };
 
-const play = (story: NormalizedStoryV2 = STORY) => {
+const play = (story: NormalizedStory = STORY) => {
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
   let message = -1;
@@ -114,7 +114,7 @@ describe("v2.8 plan 53: standing moves on authored events only", () => {
   });
 
   it("F10: every writer keeps standing inside its range, and a move's record exists iff its add applied (1,000 sequences)", () => {
-    const story = parseStoryV2OrThrow({ ...clone(), quests: [] });
+    const story = parseStoryOrThrow({ ...clone(), quests: [] });
     for (let seed = 1; seed <= 1000; seed += 1) {
       const random = rng(seed * 7919);
       const blackboard = new Blackboard(story);
@@ -167,15 +167,15 @@ describe("v2.8 plan 53: standing moves on authored events only", () => {
     const raw = clone();
     guildMoves(raw).push({ id: "arrived", when: { q: "progress_toward_street", op: ">=", v: 0.5 }, add: 1 });
     raw.transitions = [{ from: "hall", to: "street", gate: { q: "left_hall", op: "==", v: true }, priority: 1, effects: { progress: { anchor: "street", amount: 0.5 } } }];
-    const run = play(parseStoryV2OrThrow(raw));
+    const run = play(parseStoryOrThrow(raw));
     const result = run.turn({ left_hall: true });
     expect(result.fired?.to).toBe("street");
     expect(run.values()[factionMoveKey("guild", "arrived")]).toBe(1);
   });
 
   it("clamps a display-bounded int on every writer, so the player view is the blackboard (one clamp)", () => {
-    const story = parseStoryV2OrThrow({
-      format: 2, title: "Clamp", description: "d", roster: [], transitions: [],
+    const story = parseStoryOrThrow({
+      title: "Clamp", description: "d", roster: [], transitions: [],
       checkpoints: [{ id: "a", name: "A", objective: "o", type: "anchor", start: true }],
       qualities: [
         { key: "supplies", type: "int", source: "extractor", rubric: "r", display: { public: true, label: "Supplies", as: "meter", min: 0, max: 10 } },
@@ -228,7 +228,7 @@ describe("v2.8 plan 53: who hears, and who is told", () => {
   it("F11: the director gets visible factions' bands; a hidden one only with introduce, and then only its name", () => {
     const values = { ...new Blackboard(STORY).entries(), met_guild: true };
     expect(factionDirectorLines(STORY, values)).toEqual(["The Guild: Neutral"]);
-    const introduced = parseStoryV2OrThrow({ ...clone(), factions: (clone().factions as Array<Record<string, unknown>>).map((faction) => (faction.id === "crown" ? { ...faction, introduce: true } : faction)) });
+    const introduced = parseStoryOrThrow({ ...clone(), factions: (clone().factions as Array<Record<string, unknown>>).map((faction) => (faction.id === "crown" ? { ...faction, introduce: true } : faction)) });
     const lines = factionDirectorLines(introduced, values);
     expect(lines).toEqual(["The Guild: Neutral", `The Silver Crown: ${DIRECTOR_INTRODUCE}`]);
     expect(lines.join("\n")).not.toMatch(/Distrusts|Watches|Favours|Sera|envoy/);
@@ -258,7 +258,7 @@ describe("v2.8 plan 53 F4 (SC1): standing rolls back with the boundary and repla
     expect(entry && factionsMoved(STORY, entry.before.blackboard.values, entry.after.blackboard.values)).toBe(true);
     expect(ROLLBACK_DETECTORS.find((detector) => detector.id === "factions")?.moved(STORY, { rep_guild: 0 }, { rep_guild: -3 })).toBe(true);
     expect(run.engine.shouldRollbackFromMessage(4)).toBe(true);
-    const story = parseStoryV2OrThrow({ ...clone(), factions: undefined, roster: (clone().roster as Array<Record<string, unknown>>).map(({ factions: _f, ...member }) => member), quests: [] });
+    const story = parseStoryOrThrow({ ...clone(), factions: undefined, roster: (clone().roster as Array<Record<string, unknown>>).map(({ factions: _f, ...member }) => member), quests: [] });
     expect(factionsMoved(story, { rep_guild: 0 }, { rep_guild: 1 })).toBe(false);
   });
 

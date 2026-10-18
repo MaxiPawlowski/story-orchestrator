@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import { createdPersonaDescription, renderPlayerRoleLine } from "@engine/player";
 import { runCheck } from "./checks";
 import { PERSONA_CAST_CHECK, PERSONA_EMPTY_CHECK, PERSONA_FIT_CHECK, PERSONA_SWITCH_CHECK } from "./checksPersona";
@@ -8,8 +8,8 @@ import type { RuntimeSnapshot } from "./types";
 
 const PLAYER = { role: "a hired courier", summary: "You carry a sealed letter." };
 
-const storyWith = (player?: Record<string, unknown>, roster: Array<{ id: string; name?: string }> = []): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2, id: "road", title: "The Road", description: "D", qualities: [], transitions: [], roster,
+const storyWith = (player?: Record<string, unknown>, roster: Array<{ id: string; name?: string }> = []): NormalizedStory => parseStoryOrThrow({
+  id: "road", title: "The Road", description: "D", qualities: [], transitions: [], roster,
   checkpoints: [{ id: "start", name: "Start", objective: "o", type: "anchor", start: true }], ...(player ? { player } : {}),
 });
 

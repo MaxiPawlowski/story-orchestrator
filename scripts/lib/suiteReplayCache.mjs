@@ -34,6 +34,14 @@ export const readsTree = (source) => FS_READ.test(source);
 
 export const outsideSource = (changed) => changed.filter((path) => !path.startsWith('src/') && !path.startsWith('docs/'));
 
+export function relatedQuery({ cache, hashes }) {
+  if (!cache || cache.version !== REPLAY_CACHE_VERSION) return [];
+  const changed = changedFiles(cache.files, hashes);
+  return outsideSource(changed).length ? [] : changed.filter((path) => path.startsWith('src/'));
+}
+
+export const chunked = (items, size) => Array.from({ length: Math.ceil(items.length / size) }, (_, index) => items.slice(index * size, (index + 1) * size));
+
 export function reusableRows({ cache, hashes, specs, related = new Set(), readsFiles = () => false }) {
   const reused = new Map();
   if (!cache || cache.version !== REPLAY_CACHE_VERSION) return { reused, reason: 'no cache' };

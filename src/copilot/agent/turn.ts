@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { fellBackText, type FellBack, type ModelAsk, type ModelCall } from "@extraction/modelRoute";
 import type { ProvisioningEnvironment } from "@wizard/index";
 import type { AgentRunner } from "./drive";
@@ -10,7 +10,7 @@ import type { AgentRouteId, AgentSession } from "./types";
 
 export interface AgentTurnInput {
   session: AgentSession;
-  draft: StoryV2;
+  draft: Story;
   model: ModelCall;
   environment: ProvisioningEnvironment;
   backgrounds?: () => string[];
@@ -21,7 +21,7 @@ export interface AgentTurnInput {
 
 export const agentToolSchemas = (): Array<Record<string, unknown>> => Object.values(AGENT_TOOLS).map(toolJsonSchema);
 
-const contextFor = (draft: StoryV2, environment: ProvisioningEnvironment, backgrounds?: () => string[]): AgentContext => ({
+const contextFor = (draft: Story, environment: ProvisioningEnvironment, backgrounds?: () => string[]): AgentContext => ({
   draft,
   environment,
   lookup: {
@@ -41,7 +41,7 @@ export const runAgentTurn = (input: AgentTurnInput): Promise<AgentTurn> => {
 
 export interface AgentRunnerInput {
   model: ModelCall;
-  environment: (draft: StoryV2) => ProvisioningEnvironment;
+  environment: (draft: Story) => ProvisioningEnvironment;
   backgrounds?: () => string[];
   harness?: () => Promise<HarnessTransport | null>;
   debugResponse?: string;

@@ -6,7 +6,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: jest.fn(() => ({ chat: [] })),
 }));
 
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { getCanonLite } from "@extraction/canonLite";
 import type { ModelAsk } from "@extraction/modelRoute";
 import { canonHistory, heldSecrets, withoutSecretLines, type ArcEntry, type EpistemicEntry, type MemoryEntry } from "@memory/index";
@@ -20,8 +20,7 @@ import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./r
 const CAST: Array<[string, string]> = [["narrator", "Narrator"], ["aria", "Aria"], ["bram", "Bram"]];
 const SECRET = /silver key|vault/i;
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "secret-canon",
   title: "Secret Canon",
   description: "",

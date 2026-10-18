@@ -1,12 +1,19 @@
 # story-orchestrator-harness
 
-SillyTavern server plugin that answers Story Orchestrator's non-narrative passes (reads, summaries, the wizard, …)
-through a coding agent the server owner is signed in to: **Claude Code**, **Codex** (their CLIs, in owned temporary
-homes) or **opencode** (OpenCode's own client library and background service, one session per call). Text in, text
-out, every tool off. Off until a task is routed to it. User guide:
-[`docs/guide/setup/harness.md`](../../docs/guide/setup/harness.md).
+Server plugin that answers Story Orchestrator's non-narrative passes (reads, summaries, the wizard, …) through a coding agent the server owner is signed in to: **Claude Code**, **Codex** (their CLIs, in owned temporary homes) or **opencode** (OpenCode's own client library and background service, one session per call). Text in, text out, every tool off. Off until a task is routed to it.
 
-## Install
+| | |
+|---|---|
+| Who needs it | Anyone who wants the wizard or other tasks to run on a Claude, ChatGPT (Codex) or opencode subscription instead of an API key. |
+| Install | From a source checkout: `npm run plugin:install -- --with harness` (it also installs the plugin's one dependency in the plugin's own folder). From a release zip: copy this folder to `<SillyTavern>/plugins/story-orchestrator-harness/` and run `npm install` there. |
+| Enable | Set `enableServerPlugins: true` in SillyTavern's `config.yaml`, then restart SillyTavern. A plugin is loaded only at start. |
+| Configure | Sign in to the CLI on the server, then write `config.json` (steps below). |
+| It works when | **Orchestrator → Connections → Memory → Models per task** offers the harness routes you enabled; or while signed in to SillyTavern, `http://127.0.0.1:8000/api/plugins/story-orchestrator-harness/status` (your SillyTavern address) answers with JSON instead of an error. |
+| User guide | [Harness](../../docs/guide/setup/harness.md) |
+
+The general install steps for every plugin: [Server plugins](../../docs/guide/setup/README.md#server-plugins).
+
+## Install details
 
 1. Copy this folder to `<SillyTavern>/plugins/story-orchestrator-harness/` (from a source checkout:
     `npm run plugin:install -- --st-root <SillyTavern> --with harness`). The installer also runs `npm install` in the

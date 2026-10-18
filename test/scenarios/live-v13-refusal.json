@@ -5,7 +5,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "id": "so-v13-refusal",
         "title": "SO-V13 Refusal",
         "description": "A knight demands a duel; the only prepared exit is accepting it.",

@@ -1,5 +1,5 @@
 import { getContext, isHostGeneratingFlag, listGroupChats, readGroupChatMetadata, settingsAreLoaded, subscribeToHostEvents } from "@services/STAPI";
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import { blobMismatch, getSelectedStoryId } from "./persistence";
 import { settingsRoot, writableSettingsRoot } from "./settingsRoot";
 import { dropPlay, playRow, playRowFromBlob, sanitizePlays, upsertPlay, type PlayRow, type PlaysIndex } from "./playsIndex";
@@ -39,7 +39,7 @@ const writePlays = (plays: PlaysIndex): boolean => {
 export interface PlaysPort {
   subscribe(listener: () => void): () => void;
   loadedChatId(): string | null;
-  story(): NormalizedStoryV2 | null;
+  story(): NormalizedStory | null;
   storyId(): string | null;
   activeCheckpointId(): string | null;
   ended(): boolean;

@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { isRecord } from "@utils/guards";
 import type { ProvisioningEnvironment, ProvisioningOp } from "./types";
 
@@ -120,9 +120,9 @@ const fold = (text: string) => text.trim().toLowerCase();
 
 const castNames = (value: unknown): string[] => (Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string").map(fold) : []);
 
-export const startCheckpoint = (draft: Pick<StoryV2, "checkpoints">) => draft.checkpoints.find((checkpoint) => checkpoint.start) ?? draft.checkpoints[0];
+export const startCheckpoint = (draft: Pick<Story, "checkpoints">) => draft.checkpoints.find((checkpoint) => checkpoint.start) ?? draft.checkpoints[0];
 
-export const inOpeningCast = (draft: Pick<StoryV2, "checkpoints">, name: string): boolean | null => {
+export const inOpeningCast = (draft: Pick<Story, "checkpoints">, name: string): boolean | null => {
   const cast = startCheckpoint(draft)?.effects?.cast_changes;
   if (!isRecord(cast)) return null;
   const wanted = fold(savedName(name));
@@ -132,7 +132,7 @@ export const inOpeningCast = (draft: Pick<StoryV2, "checkpoints">, name: string)
 
 export const cardFindings = (
   op: Extract<ProvisioningOp, { kind: "createCharacterCard" }>,
-  draft: Pick<StoryV2, "checkpoints">,
+  draft: Pick<Story, "checkpoints">,
   environment: Pick<ProvisioningEnvironment, "characterNames">,
 ): CardFinding[] => reviewCard({
   name: op.name, description: op.description, personality: op.personality ?? "", first_mes: op.first_mes ?? "", mes_example: op.mes_example ?? "",

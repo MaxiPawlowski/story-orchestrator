@@ -1,14 +1,13 @@
-import { StoryEngine, type StoryV2 } from "@engine/index";
+import { StoryEngine, type Story } from "@engine/index";
 import { mergeExpansions } from "@generation/merge";
 import { parseGeneratedBeats } from "@generation/parse";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import type { ExpansionCacheEntry } from "@generation/types";
 import { buildLastTransition, playerLastTransition } from "./snapshot";
 
 jest.mock("@services/STAPI", () => ({ settingsAreLoaded: () => true, settingsReady: async () => {} }));
 
-const raw: StoryV2 = {
-  format: 2,
+const raw: Story = {
   title: "T1-1 road",
   description: "",
   qualities: [
@@ -28,7 +27,7 @@ const raw: StoryV2 = {
     { from: "on-the-road", to: "at-the-walls", priority: 1, gate: { q: "reached_walls", op: "==", v: true } },
   ],
   roster: [],
-} as unknown as StoryV2;
+} as unknown as Story;
 
 const RECORDED_BEATS = JSON.stringify({ beats: [
   { title: "The Road North", objective: "Walk north toward Wendhope.", guidance: "g", tension_target: "stirring",
@@ -38,7 +37,7 @@ const RECORDED_BEATS = JSON.stringify({ beats: [
 ] });
 
 const merged = () => {
-  const story = parseStoryV2OrThrow(raw);
+  const story = parseStoryOrThrow(raw);
   const beats = parseGeneratedBeats(RECORDED_BEATS, story).beats;
   const entry = { key: "k", status: "validated", contract: 2, sourceCheckpointId: "road-to-wendhope", stubId: "on-the-road", targetAnchorId: "at-the-walls", beats } as unknown as ExpansionCacheEntry;
   return mergeExpansions(raw, { k: entry });
@@ -68,7 +67,7 @@ describe("T1-1: at Wendhope's gate the HUD said 'First Night on the Road' and th
   it("control: a stub with no generated title keeps the stub's player name", () => {
     const untitled = JSON.parse(RECORDED_BEATS);
     untitled.beats.forEach((beat: { title?: string }) => { delete beat.title; });
-    const story = parseStoryV2OrThrow(raw);
+    const story = parseStoryOrThrow(raw);
     const entry = { key: "k", status: "validated", contract: 2, sourceCheckpointId: "road-to-wendhope", stubId: "on-the-road", targetAnchorId: "at-the-walls",
       beats: parseGeneratedBeats(JSON.stringify(untitled), story).beats } as unknown as ExpansionCacheEntry;
     expect(mergeExpansions(raw, { k: entry }).checkpointById["gen_on-the-road_1"].player_name).toBe("First Night on the Road");

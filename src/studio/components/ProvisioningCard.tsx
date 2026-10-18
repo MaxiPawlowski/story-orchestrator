@@ -1,14 +1,14 @@
 import React, { lazy, Suspense, useState } from "react";
 import { describeProvisioningOp, validateProvisioningOp, type ExistingEntry, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
 import { cardFindings, cardWarnings } from "@wizard/cardChecks";
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import type { CardReadBackRecord } from "@utils/cardReadBack";
 import {
   bookSiblings, draftLoreTexts, gatedAt, loreKeyLint, loreOpEntry, loreOpLintEntry, opCards, previewKeyMatches, renderKeyMatchLine,
 } from "@copilot/lorePreview";
 
 export interface ProvisioningContext {
-  draft: StoryV2;
+  draft: Story;
   ops: readonly ProvisioningOp[];
 }
 

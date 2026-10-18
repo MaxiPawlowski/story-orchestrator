@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { StoryEngine, checkRolledKey, parseStoryV2, parseStoryV2OrThrow, uncoveredCodeKeys, type NormalizedStoryV2, type PrimitiveValue, type ValidationError } from "@engine/index";
+import { StoryEngine, checkRolledKey, parseStory, parseStoryOrThrow, uncoveredCodeKeys, type NormalizedStory, type PrimitiveValue, type ValidationError } from "@engine/index";
 import { deriveScope } from "@extraction/scope";
 import { createChanceSeams } from "./chance";
 import { checkRecordsAt, createChecks, recordChecks, rollbackChecks, type ChecksRuntimeState } from "./storyCheckDraws";
@@ -9,7 +9,7 @@ const ROLLED = checkRolledKey("climb");
 const tried = { q: "tried_climb", op: "==", v: true };
 
 const raw = (check: Record<string, unknown> = {}, extra: Record<string, unknown> = {}) => ({
-  format: 2, id: "wall", title: "Wall", description: "Synthetic.", roster: [],
+  id: "wall", title: "Wall", description: "Synthetic.", roster: [],
   qualities: [
     { key: "tried_climb", type: "bool", source: "extractor", rubric: "Has the party started climbing the wall?" },
     { key: "rope", type: "bool", source: "extractor", rubric: "Do they carry a rope?" },
@@ -33,7 +33,7 @@ const raw = (check: Record<string, unknown> = {}, extra: Record<string, unknown>
 
 type Turn = Record<string, PrimitiveValue>;
 
-const playing = (story: NormalizedStoryV2, ids = IDS) => {
+const playing = (story: NormalizedStory, ids = IDS) => {
   const seams = createChanceSeams(() => ({ ...ids, boundary: 0, qualities: story.qualities, story }), () => undefined);
   const engine = new StoryEngine({ now: () => 0, derive: seams.derive });
   engine.loadStory(story);
@@ -61,13 +61,13 @@ const playing = (story: NormalizedStoryV2, ids = IDS) => {
 
 const sha = (value: unknown) => createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const errorsOf = (json: unknown): ValidationError[] => {
-  const parsed = parseStoryV2(json);
+  const parsed = parseStory(json);
   return Array.isArray(parsed) ? parsed : [];
 };
 
 describe("checkpoint check without when: unchanged", () => {
   test("golden: the parsed story and a five-turn run match the recording made before when existed", () => {
-    const story = parseStoryV2OrThrow(raw({ roll: { sides: 20, target: 5 } }, {
+    const story = parseStoryOrThrow(raw({ roll: { sides: 20, target: 5 } }, {
       qualities: raw().qualities.filter((quality) => quality.key !== "back"),
     }));
     const play = playing(story);
@@ -75,7 +75,7 @@ describe("checkpoint check without when: unchanged", () => {
     turns.forEach((deltas) => play.turn(deltas));
     const run = play.engine.stateLog.map((entry) => ({ boundary: entry.boundary, cp: entry.after.activeCheckpointId, values: entry.after.blackboard.values }));
     expect(story.qualities.some((quality) => quality.key === ROLLED)).toBe(false);
-    expect(sha(story)).toBe("b056f4abd65088fc6dd44ca721cb98af338650089d7f375c32a103900bd16bff");
+    expect(sha(story)).toBe("f4ad5abdf7461dadff2c9c11c46712ee7bf2659fd18834bcde3f155ad523e331");
     expect(sha(run)).toBe("e697b4d6fee2098464daf358a08e5a0ce902f674c5bf55ba312938eeba9354fd");
     expect(play.checks().records).toEqual([
       { checkId: "climb", boundary: 1, messageId: 2, visit: 0, draws: [1], modifiers: [], total: 1, target: 5, outcome: "miss" },
@@ -85,7 +85,7 @@ describe("checkpoint check without when: unchanged", () => {
 });
 
 describe("checkpoint check with when", () => {
-  const failing = () => parseStoryV2OrThrow(raw({ roll: { sides: 20, target: 99 }, when: tried }));
+  const failing = () => parseStoryOrThrow(raw({ roll: { sides: 20, target: 99 }, when: tried }));
 
   test("stays pending while the checkpoint is active and when does not hold", () => {
     const play = playing(failing());
@@ -104,13 +104,13 @@ describe("checkpoint check with when", () => {
     expect(play.values().climbed).toBe(false);
     expect(play.checks().records).toHaveLength(1);
     expect(play.checks().records[0]).toMatchObject({ checkId: "climb", boundary: 2, messageId: 4, visit: 0 });
-    const plain = playing(parseStoryV2OrThrow(raw({ roll: { sides: 20, target: 99 } })));
+    const plain = playing(parseStoryOrThrow(raw({ roll: { sides: 20, target: 99 } })));
     plain.turn();
     expect(play.checks().records[0].draws).toEqual(plain.checks().records[0].draws);
   });
 
   test("rolls once per visit: later turns keep the outcome, a modifier picked up afterwards or when turning false changes nothing", () => {
-    const close = parseStoryV2OrThrow(raw({ roll: { sides: 2, target: 6 }, when: tried }));
+    const close = parseStoryOrThrow(raw({ roll: { sides: 2, target: 6 }, when: tried }));
     const play = playing(close);
     play.turn({ tried_climb: true });
     const rolled = { ...play.values() };
@@ -161,7 +161,7 @@ describe("checkpoint check with when", () => {
   test("rollback is replay over seeded random turn sequences and swipe points", () => {
     let seed = 7;
     const next = () => { seed = (seed * 1103515245 + 12345) % 2147483648; return seed / 2147483648; };
-    const close = parseStoryV2OrThrow(raw({ roll: { sides: 4, target: 4 }, when: tried }));
+    const close = parseStoryOrThrow(raw({ roll: { sides: 4, target: 4 }, when: tried }));
     let swiped = 0;
     for (let run = 0; run < 40; run += 1) {
       const turns = Array.from({ length: 6 }, (): Turn => (next() < 0.5 ? {} : next() < 0.5 ? { tried_climb: next() < 0.7 } : { rope: next() < 0.5 }));
@@ -181,7 +181,7 @@ describe("checkpoint check with when", () => {
   });
 
   test("a revisit is a new visit: pending again until when holds, then a fresh roll", () => {
-    const loop = parseStoryV2OrThrow(raw({ roll: { sides: 20, target: 1 }, when: tried }, {
+    const loop = parseStoryOrThrow(raw({ roll: { sides: 20, target: 1 }, when: tried }, {
       transitions: [
         { from: "base", to: "top", priority: 0, gate: { all: [tried, { q: "climbed", op: "==", v: true }] } },
         { from: "top", to: "base", priority: 0, gate: { q: "back", op: "==", v: true } },
@@ -202,12 +202,12 @@ describe("checkpoint check with when", () => {
   test("extraction reads the when keys while the checkpoint is active, and only then", () => {
     const json = raw({ when: { q: "asked_guard", op: "==", v: true } });
     json.qualities.push({ key: "asked_guard", type: "bool", source: "extractor", rubric: "Has the party asked the guard to let them climb?" });
-    const story = parseStoryV2OrThrow(json);
+    const story = parseStoryOrThrow(json);
     const play = playing(story);
     const blackboard = play.engine.serialize().blackboard;
     expect(deriveScope(story, "base", blackboard).map((entry) => entry.key)).toContain("asked_guard");
     expect(deriveScope(story, "top", blackboard).map((entry) => entry.key)).not.toContain("asked_guard");
-    expect(deriveScope(parseStoryV2OrThrow(raw()), "base", blackboard).map((entry) => entry.key)).not.toContain("asked_guard");
+    expect(deriveScope(parseStoryOrThrow(raw()), "base", blackboard).map((entry) => entry.key)).not.toContain("asked_guard");
   });
 
   test("the compiled attempt key is covered by a rollback detector", () => {

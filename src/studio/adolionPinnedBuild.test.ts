@@ -1,7 +1,7 @@
 import { execFileSync } from "child_process";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2, type GateNode, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
+import { parseStory, type GateNode, type NormalizedStory, type Story } from "@engine/index";
 import { runDiagnostics } from "./diagnostics";
 
 const root = join(__dirname, "../..");
@@ -35,8 +35,8 @@ const leaves = (gate: GateNode): string[] => {
 };
 
 const load = (path: string) => {
-  const json = JSON.parse(git(["show", `${pin.commit}:${path}`])) as StoryV2;
-  return { path, json, parsed: parseStoryV2(json) };
+  const json = JSON.parse(git(["show", `${pin.commit}:${path}`])) as Story;
+  return { path, json, parsed: parseStory(json) };
 };
 
 (files.length ? describe : describe.skip)("v2.7 38: the pinned Adolion build validates on this plugin", () => {
@@ -44,7 +44,7 @@ const load = (path: string) => {
   const ok = (path: string) => {
     const story = stories.find((entry) => entry.path === path);
     if (!story || Array.isArray(story.parsed)) throw new Error(`${path} did not parse`);
-    return story.parsed as NormalizedStoryV2;
+    return story.parsed as NormalizedStory;
   };
 
   it("the pin names nine campaign stories and the eight lab copies", () => {
@@ -62,7 +62,7 @@ const load = (path: string) => {
 
   it("D13a: every campaign story carries a player profile with a role and a summary, and no fixed name", () => {
     for (const entry of stories.filter((story) => story.path.startsWith("build/"))) {
-      const player = (entry.parsed as NormalizedStoryV2).player;
+      const player = (entry.parsed as NormalizedStory).player;
       expect([entry.json.id, Boolean(player?.role), Boolean(player?.summary), player?.name?.mode ?? "any"]).toEqual([entry.json.id, true, true, "any"]);
     }
   });
@@ -70,7 +70,7 @@ const load = (path: string) => {
   it("D13d: a trigger sits exactly on the transitions a read can move", () => {
     let triggers = 0;
     for (const entry of stories.filter((story) => story.path.startsWith("build/"))) {
-      const story = entry.parsed as NormalizedStoryV2;
+      const story = entry.parsed as NormalizedStory;
       const read = new Set(story.qualities.filter((quality) => quality.source === "extractor").map((quality) => quality.key));
       for (const transition of story.transitions) {
         const gating = leaves(transition.gate).some((key) => read.has(key));

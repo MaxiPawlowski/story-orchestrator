@@ -1,4 +1,4 @@
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 import { runningTotalRule } from "./contract";
 import { buildFixtureRun } from "./fixtureRun";
 import { sharedReadOverhead } from "./sharedRead";
@@ -6,7 +6,6 @@ import { sharedReadOverhead } from "./sharedRead";
 jest.mock("@services/STAPI", () => ({ getContext: () => ({ chat: [], extensionSettings: {} }) }));
 
 const raw = {
-  format: 2,
   id: "parity",
   title: "Parity",
   description: "",
@@ -30,7 +29,7 @@ const questions = (prompt: string) => prompt.slice(prompt.indexOf("Quality quest
 
 const shipped = (values: Record<string, number | boolean>) => {
   const engine = new StoryEngine();
-  const story = parseStoryV2OrThrow(raw);
+  const story = parseStoryOrThrow(raw);
   engine.loadStory(story);
   const state = engine.serialize();
   return sharedReadOverhead({ story, state: { ...state, blackboard: { ...state.blackboard, values: { ...state.blackboard.values, ...values } } }, priority: 1, reason: "parity", model: (async () => ({ text: "" })) as never, ask: { role: "read", pass: "read" } } as never);

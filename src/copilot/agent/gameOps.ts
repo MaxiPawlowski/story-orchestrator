@@ -1,4 +1,4 @@
-import { CODEX_PAGES, type CodexEntry, type CodexPage, type Faction, type Milestone, type QualityDisplay, type Quest, type StoryCheck, type StoryV2, type StoryWidget,
+import { CODEX_PAGES, type CodexEntry, type CodexPage, type Faction, type Milestone, type QualityDisplay, type Quest, type StoryCheck, type Story, type StoryWidget,
   type ValidationError } from "@engine/index";
 import { addCodexQualities, checkCodex, readCodex } from "@engine/validate/codex";
 import { checkFactions, factionQualities, readFactions } from "@engine/validate/factions";
@@ -94,7 +94,7 @@ export const readGameCall = (tool: string, args: Record<string, unknown>): GameC
   return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setTransitionCheck", index: Number(args.index), check } };
 };
 
-export const applyGameOp = (draft: StoryV2, op: GameAgentOp): StoryV2 => {
+export const applyGameOp = (draft: Story, op: GameAgentOp): Story => {
   switch (op.kind) {
     case "setQuests": return setQuests(draft, op.quests);
     case "setMilestones": return setMilestones(draft, op.milestones);
@@ -149,12 +149,12 @@ export const describeGameOp = (op: GameAgentOp): OpDescription => {
   }
 };
 
-const factionProblems = (draft: StoryV2, errors: ValidationError[]) => {
+const factionProblems = (draft: Story, errors: ValidationError[]) => {
   const byKey = Object.fromEntries([...draft.qualities, ...factionQualities(draft.factions ?? [], draft.roster)].map((quality) => [quality.key, quality]));
   checkFactions({ factions: draft.factions, roster: draft.roster, qualityByKey: byKey, quests: draft.quests }, errors);
 };
 
-export const gameOpProblem = (draft: StoryV2, op: GameAgentOp): string | null => {
+export const gameOpProblem = (draft: Story, op: GameAgentOp): string | null => {
   const errors: ValidationError[] = [];
   const byKey = Object.fromEntries(draft.qualities.map((quality) => [quality.key, quality]));
   if (op.kind === "setWidgets") readWidgets(op.widgets, {

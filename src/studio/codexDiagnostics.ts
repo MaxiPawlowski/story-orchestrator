@@ -1,4 +1,4 @@
-import { CODEX_PAGES, CODEX_START, evaluateGate, gateKeys, isReached, type CodexEntry, type CodexKnownWhen, type CodexPage, type StoryV2 } from "@engine/index";
+import { CODEX_PAGES, CODEX_START, evaluateGate, gateKeys, isReached, type CodexEntry, type CodexKnownWhen, type CodexPage, type Story } from "@engine/index";
 import { entityNames, entryCondition } from "@engine/codex";
 
 type CodexCode = "codex-fact-never-read" | "codex-gate-holds-at-start" | "disclosure-names-unknown-entity";
@@ -10,7 +10,7 @@ export const CODEX_CONSEQUENCES: Record<CodexCode, string> = {
 };
 
 export interface CodexRun {
-  draft: StoryV2;
+  draft: Story;
   reachableFrom: (start: string) => Set<string>;
   startId: string;
   push: (code: CodexCode, severity: "warning" | "info", path: string, message: string) => void;
@@ -18,7 +18,7 @@ export interface CodexRun {
 
 const MECHANICAL = new Set(["message_count", "messages_in_checkpoint", "elapsed", "player_turns_in_checkpoint"]);
 
-const writtenCodeKeys = (draft: StoryV2): Set<string> => {
+const writtenCodeKeys = (draft: Story): Set<string> => {
   const keys = new Set<string>(MECHANICAL);
   (draft.quests ?? []).forEach((quest) => Object.keys(quest.reward?.set ?? {}).forEach((key) => keys.add(key)));
   const checks = [...draft.checkpoints.flatMap((checkpoint) => checkpoint.checks ?? []), ...draft.transitions.flatMap((transition) => (transition.check ? [transition.check] : []))];
@@ -33,7 +33,7 @@ interface Item {
   entry: CodexEntry;
 }
 
-const items = (draft: StoryV2): Item[] => CODEX_PAGES.flatMap((page) => (draft.codex?.[page] ?? []).map((entry, index) => ({ page, index, entry })));
+const items = (draft: Story): Item[] => CODEX_PAGES.flatMap((page) => (draft.codex?.[page] ?? []).map((entry, index) => ({ page, index, entry })));
 
 const whens = ({ page, index, entry }: Item): Array<{ path: string; when: CodexKnownWhen; text?: string; what: string }> => {
   const condition = entryCondition(entry);

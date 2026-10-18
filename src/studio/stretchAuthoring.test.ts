@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, stretchDestination, type CheckpointStretch, type Transition } from "@engine/index";
+import { parseStoryOrThrow, stretchDestination, type CheckpointStretch, type Transition } from "@engine/index";
 import { OPEN_STRETCH_LINE, pullLine } from "@pacing/index";
 import { readCheckpoint, readCheckpointPatch } from "@copilot/parseFields";
 import { arrivalExit, newOpenStretch, newOpening, offArrivalExits, stretchExits, withArrival, withEncounters, withMaxTurns, withOpeningTurns, withPace, withPullAfter } from "./stretchDraft";
@@ -6,8 +6,8 @@ import { currentCheckpointText } from "@runtime/stretchTurns";
 
 const arrive = { q: "reached_walls", op: "==", v: true } as const;
 
-const story = (stretch: Record<string, unknown> | null, extra: { player_name?: string; exits?: Array<Record<string, unknown>> } = {}) => parseStoryV2OrThrow({
-  format: 2, id: "road-test", title: "Road test", description: "Open stretch authoring fixture.",
+const story = (stretch: Record<string, unknown> | null, extra: { player_name?: string; exits?: Array<Record<string, unknown>> } = {}) => parseStoryOrThrow({
+  id: "road-test", title: "Road test", description: "Open stretch authoring fixture.",
   qualities: [{ key: "reached_walls", type: "bool", source: "extractor", rubric: "Arrived at the walls?" }],
   checkpoints: [
     { id: "road", name: "On the road", objective: "Reach the walls.", type: "intermediate", start: true, ...(stretch ? { stretch } : {}) },
@@ -119,8 +119,8 @@ describe("the wizard writes an open opening and an encounter offer (v2.8 19)", (
     const on = withEncounters(newOpenStretch([]), true);
     expect(on.offer).toEqual(["encounters"]);
     expect(withEncounters(on, false)).not.toHaveProperty("offer");
-    const anchorStory = parseStoryV2OrThrow({
-      format: 2, id: "opening-draft", title: "Opening draft", description: "x", roster: [],
+    const anchorStory = parseStoryOrThrow({
+      id: "opening-draft", title: "Opening draft", description: "x", roster: [],
       qualities: [{ key: "reached_walls", type: "bool", source: "extractor", rubric: "Reached the walls?" }],
       checkpoints: [{ id: "gate", name: "The gate", objective: "Get in.", type: "anchor", start: true, stretch: withOpeningTurns(newOpening(), 10) }, { id: "walls", name: "The walls", objective: "Arrive.", type: "anchor" }],
       transitions: [{ from: "gate", to: "walls", priority: 1, gate: arrive }],

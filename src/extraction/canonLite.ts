@@ -1,7 +1,7 @@
-import type { NormalizedStoryV2, NormalizedTransition } from "@engine/index";
+import type { NormalizedStory, NormalizedTransition } from "@engine/index";
 import type { ParsedFact } from "./types";
 
-export function getCanonLite(story: NormalizedStoryV2, visitedAnchors: string[], firedTransitions: NormalizedTransition[], facts: ParsedFact[] = []): string {
+export function getCanonLite(story: NormalizedStory, visitedAnchors: string[], firedTransitions: NormalizedTransition[], facts: ParsedFact[] = []): string {
   const anchors = visitedAnchors.map((id) => story.checkpointById[id]).filter(Boolean).map((checkpoint) => {
     return `Anchor ${checkpoint.id}: ${checkpoint.objective}`;
   });

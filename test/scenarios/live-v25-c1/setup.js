@@ -5,7 +5,7 @@ const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 await sleep(3000);
 const c2 = SillyTavern.getContext();
 const story = {
-  format: 2, id: 'so-v25-c2c1', version: 1, title: 'SO-V25-C2C1 save race and NPC switch',
+  id: 'so-v25-c2c1', version: 1, title: 'SO-V25-C2C1 save race and NPC switch',
   description: 'v2.5 plan 02 C2/C1 step 0 lane vehicle.',
   qualities: [{ key: 'harness_gate', type: 'bool', source: 'code', latching: true, rubric: 'Set only by the test harness.' }],
   checkpoints: [

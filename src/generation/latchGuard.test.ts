@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, type PrimitiveValue } from "@engine/index";
+import { parseStoryOrThrow, type PrimitiveValue } from "@engine/index";
 import { runCodeChecks } from "./critic";
 import type { GeneratedBeat, PlannedExpansionInput } from "./types";
 
@@ -10,8 +10,7 @@ jest.mock("@services/STAPI", () => ({
   sendConnectionProfileRequest: jest.fn(async () => ({ ok: true, text: "{}", finish: "stop" })),
 }));
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   title: "Latch",
   description: "",
   qualities: [{ key: "key_found", type: "bool", source: "extractor", latching: true, rubric: "r" }],

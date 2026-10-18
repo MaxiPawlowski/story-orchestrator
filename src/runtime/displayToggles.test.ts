@@ -1,4 +1,4 @@
-import { parseStoryV2 } from "@engine/index";
+import { parseStory } from "@engine/index";
 import { defaultPresenceSettings, presenceShown, PRESENCE_TOGGLES, sanitizePresenceSettings, shownFor, STORY_TOGGLE_KEYS, type PresenceToggle } from "./displayToggles";
 import { defaultGlobalSettings, sanitizeGlobalSettings } from "./settingsModel";
 
@@ -41,17 +41,17 @@ describe("v2.7 06 per-story toggles: shown = story AND install, absent story key
 
 describe("v2.7 06 story display keys", () => {
   const base = {
-    format: 2, title: "T", description: "d", qualities: [], roster: [], transitions: [],
+    title: "T", description: "d", qualities: [], roster: [], transitions: [],
     checkpoints: [{ id: "a", name: "A", objective: "o", type: "anchor", start: true }],
   };
 
   it("accepts each toggle as a boolean and keeps only what the author set", () => {
-    const parsed = parseStoryV2({ ...base, display: { continue_list: false, roll_chips: true } });
+    const parsed = parseStory({ ...base, display: { continue_list: false, roll_chips: true } });
     expect(Array.isArray(parsed) ? parsed : parsed.display).toEqual({ continue_list: false, roll_chips: true });
   });
 
   it("refuses a toggle that is not a boolean, naming the key", () => {
-    const parsed = parseStoryV2({ ...base, display: { wand: "off" } });
+    const parsed = parseStory({ ...base, display: { wand: "off" } });
     expect(Array.isArray(parsed) ? parsed.map((error) => error.path) : []).toContain("display.wand");
   });
 });

@@ -2,7 +2,7 @@ import { createHash } from "crypto";
 import { recordingModel } from "../../../test/support/modelCall";
 import { SP8_CONTROLS, SP8_ENTRIES, SP8_VIOLATIONS, type Sp8Case } from "../../../test/support/curatorSpikeCases";
 import { testOwnership } from "../../../test/findings/testOwnership";
-import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { parseStoryOrThrow, type EngineState } from "@engine/index";
 import { buildWiCuratorPrompt, entriesForScope, type CuratorOpRecord, type CuratorProposalRecord } from "@stagecraft/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { createStagecraft } from "../extras";
@@ -10,8 +10,8 @@ import type { StagecraftRuntimeState } from "../types";
 
 type Entry = { uid: number; comment: string; key: string[]; content: string; disable: boolean; constant?: boolean };
 
-const story = parseStoryV2OrThrow({
-  format: 2, id: "sp8-fixture", title: "Crossing", description: "Curator.", qualities: [],
+const story = parseStoryOrThrow({
+  id: "sp8-fixture", title: "Crossing", description: "Curator.", qualities: [],
   checkpoints: [{ id: "cp1", name: "The bank", objective: "Cross", type: "anchor", start: true }], transitions: [], roster: [],
   stagecraft: { lorebooks: ["Story Lore"] },
 });

@@ -54,7 +54,6 @@ const LINES = [
 ];
 
 const STORY = {
-  format: 2,
   title: "SO-V25-09 SP8 Protected Lore",
   description: "v2.5 plan 09 SP8 W3 live fixture: a town whose lore the story keeps overtaking, with protected spans and auto-tier entries.",
   qualities: [],

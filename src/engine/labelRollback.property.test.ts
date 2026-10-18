@@ -1,14 +1,14 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import { StoryEngine, type EngineState } from "./engine";
-import { isLabelKey, relationshipKey, revealKey, type NormalizedStoryV2, type PrimitiveValue } from "./schema";
-import { parseStoryV2OrThrow } from "./validate";
+import { isLabelKey, relationshipKey, revealKey, type NormalizedStory, type PrimitiveValue } from "./schema";
+import { parseStoryOrThrow } from "./validate";
 import { rollbackMoved } from "./rollbackDetectors";
 import { rng, type Rng } from "../../test/support/codexLab";
 
 type Turn = Array<{ q: string; v: PrimitiveValue }>;
 
-const STORY = parseStoryV2OrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/relationship-labels.story.json"), "utf8")));
+const STORY = parseStoryOrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/relationship-labels.story.json"), "utf8")));
 const FLAGS = ["shared_meal", "saw_letter", "paid_debt", "overheard", "found_ring", "heard_rumor", "met_sera"];
 const TRUST = relationshipKey("tom", "player", "trust");
 
@@ -17,7 +17,7 @@ const writes = (random: Rng): Turn => [
   ...(random.next() < 0.4 ? [{ q: TRUST, v: Math.floor(random.next() * 7) - 2 }] : []),
 ];
 
-const engineFor = (story: NormalizedStoryV2) => {
+const engineFor = (story: NormalizedStory) => {
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
   return engine;

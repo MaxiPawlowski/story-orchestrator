@@ -1,4 +1,4 @@
-import type { ApplyQueueEntry, BoundaryResult, EngineHistory, EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { ApplyQueueEntry, BoundaryResult, EngineHistory, EngineState, NormalizedStory } from "@engine/index";
 import { deriveScope, type ExtraGateSource } from "@extraction/index";
 import { fingerprintOf } from "../fingerprints";
 import { fnv1a, stableStringify } from "../hash";
@@ -10,7 +10,7 @@ import { SwipeCache, type SwipeKey } from "./swipeCache";
 
 export interface SwipeBackHost {
   getEngineState(): EngineState | null;
-  getStory(): NormalizedStoryV2 | null;
+  getStory(): NormalizedStory | null;
   getOwnership(): RunOwnership;
   getExpansionGateSources(): ExtraGateSource[];
   onBoundary(listener: (result: BoundaryResult) => void): () => void;
@@ -73,7 +73,7 @@ export const restorePoint = (history: EngineHistory, messageId: number): EngineS
   return history.base.lastMessageId < messageId ? history.base : null;
 };
 
-export const scopeHash = (story: NormalizedStoryV2, point: EngineState, sources: ExtraGateSource[]): string =>
+export const scopeHash = (story: NormalizedStory, point: EngineState, sources: ExtraGateSource[]): string =>
   fnv1a(stableStringify(deriveScope(story, point.activeCheckpointId, point.blackboard, sources).map((quality) => quality.key).sort()));
 
 export class SwipeBack {

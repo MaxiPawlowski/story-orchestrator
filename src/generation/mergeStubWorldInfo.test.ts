@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { gatedWorldInfo, parseStoryV2OrThrow } from "@engine/index";
+import { gatedWorldInfo, parseStoryOrThrow } from "@engine/index";
 import { mergeExpansions } from "@generation/merge";
 import { parseGeneratedBeats } from "@generation/parse";
 import { worldInfoPlan } from "../runtime/worldInfoGates";
@@ -22,7 +22,7 @@ const saga = (stubLore: boolean) => {
 };
 
 const merged = (raw: unknown) => {
-  const parsed = parseGeneratedBeats(readFileSync(join(root, "test/goldens/background-generator1.response.txt"), "utf8"), parseStoryV2OrThrow(raw));
+  const parsed = parseGeneratedBeats(readFileSync(join(root, "test/goldens/background-generator1.response.txt"), "utf8"), parseStoryOrThrow(raw));
   expect(parsed.issues).toEqual([]);
   return mergeExpansions(raw, { bridge: { status: "inserted", sourceCheckpointId: "start", stubId: "bridge_stub", targetAnchorId: "finish", beats: parsed.beats } } as never);
 };

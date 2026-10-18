@@ -1,6 +1,6 @@
 import {
   DEFAULT_AGENCY, effectiveThresholdFor, progressQualityForAnchor, renderGateText, type AgencyPolicy,
-  type ApplyQueueEntry, type ArcTemplate, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2,
+  type ApplyQueueEntry, type ArcTemplate, type BoundaryLogEntry, type EngineState, type NormalizedStory,
 } from "@engine/index";
 import { expectedTension, getSteeringHint, levelToNumeric, numericToLevel } from "@pacing/index";
 import type { NarrativeInput } from "./narrative";
@@ -28,7 +28,7 @@ export const buildPendingDeltas = (pendingWrites: ApplyQueueEntry[], state: Engi
   return [...seen.values()].filter((pending) => state.blackboard.values[pending.quality] !== pending.value);
 };
 
-export const buildConvergenceReadout = (story: NormalizedStoryV2 | null, state: EngineState | null): ConvergenceReadout[] => {
+export const buildConvergenceReadout = (story: NormalizedStory | null, state: EngineState | null): ConvergenceReadout[] => {
   if (!story || !state) return [];
   const visited = new Set(state.visitedAnchors);
   return story.checkpoints
@@ -48,7 +48,7 @@ export const buildConvergenceReadout = (story: NormalizedStoryV2 | null, state: 
     });
 };
 
-export const buildLastTransition = (story: NormalizedStoryV2 | null, boundaryLog: BoundaryLogEntry[]): NarrativeInput["lastTransition"] => {
+export const buildLastTransition = (story: NormalizedStory | null, boundaryLog: BoundaryLogEntry[]): NarrativeInput["lastTransition"] => {
   if (!story) return null;
   for (let index = boundaryLog.length - 1; index >= 0; index -= 1) {
     const entry = boundaryLog[index];
@@ -60,7 +60,7 @@ export const buildLastTransition = (story: NormalizedStoryV2 | null, boundaryLog
   return null;
 };
 
-export const playerLastTransition = (story: NormalizedStoryV2 | null, boundaryLog: BoundaryLogEntry[]): NarrativeInput["lastTransition"] => {
+export const playerLastTransition = (story: NormalizedStory | null, boundaryLog: BoundaryLogEntry[]): NarrativeInput["lastTransition"] => {
   const entry = story ? [...boundaryLog].reverse().find((candidate) => candidate.fired) : undefined;
   if (!story || !entry) return null;
   const to = story.checkpointById[entry.after.activeCheckpointId]?.player_name ?? null;
@@ -68,7 +68,7 @@ export const playerLastTransition = (story: NormalizedStoryV2 | null, boundaryLo
 };
 
 // The `story_possible_transitions` macro source: where the story could go from here, in names.
-export const buildPossibleTransitions = (story: NormalizedStoryV2 | null, state: EngineState | null): string[] => {
+export const buildPossibleTransitions = (story: NormalizedStory | null, state: EngineState | null): string[] => {
   if (!story || !state) return [];
   return (story.outgoingByCheckpoint[state.activeCheckpointId] ?? []).map((transition) => {
     const toName = story.checkpointById[transition.to]?.name ?? transition.to;
@@ -77,7 +77,7 @@ export const buildPossibleTransitions = (story: NormalizedStoryV2 | null, state:
   });
 };
 
-export const computeExpectedTension = (story: NormalizedStoryV2 | null, state: EngineState | null, tensionTarget: string | undefined, shape: ArcTemplate | null): number | null => {
+export const computeExpectedTension = (story: NormalizedStory | null, state: EngineState | null, tensionTarget: string | undefined, shape: ArcTemplate | null): number | null => {
   if (!story || !state) return null;
   if (tensionTarget) return levelToNumeric(tensionTarget as Parameters<typeof levelToNumeric>[0]);
   if (!shape) return null;

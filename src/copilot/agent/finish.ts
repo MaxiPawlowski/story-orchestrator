@@ -1,4 +1,4 @@
-import type { Checkpoint, StoryV2 } from "@engine/index";
+import type { Checkpoint, Story } from "@engine/index";
 import { draftCastNames, isProvisioningKind, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
 import { passThroughExits } from "../../studio/arrivalDiagnostics";
 import type { AgentSession, AgentStepStatus } from "./types";
@@ -13,33 +13,33 @@ const provisioned = (session: AgentSession, status: AgentStepStatus): Provisioni
 const namesOf = (ops: ProvisioningOp[], kind: "createCharacterCard" | "createStoryLorebook"): string[] =>
   ops.flatMap((op) => (op.kind === kind ? [op.name] : []));
 
-const missingCards = (draft: StoryV2, environment: ProvisioningEnvironment, declined: string[]): string[] => {
+const missingCards = (draft: Story, environment: ProvisioningEnvironment, declined: string[]): string[] => {
   if (!environment.characterNames.length) return [];
   return draft.roster.map((member) => member.name ?? member.id)
     .filter((name) => !has(environment.characterNames, name) && !has(declined, name))
     .map((name) => `no card for "${name}"`);
 };
 
-const missingBooks = (draft: StoryV2, environment: ProvisioningEnvironment, declined: string[]): string[] => {
+const missingBooks = (draft: Story, environment: ProvisioningEnvironment, declined: string[]): string[] => {
   if (!environment.lorebookNames.length) return [];
   return (draft.requirements?.lorebooks ?? [])
     .filter((name) => !has(environment.lorebookNames, name) && !has(declined, name))
     .map((name) => `no lorebook "${name}"`);
 };
 
-const castGroupExists = (draft: StoryV2, environment: ProvisioningEnvironment): boolean => {
+const castGroupExists = (draft: Story, environment: ProvisioningEnvironment): boolean => {
   const cast = draftCastNames(draft);
   return cast.length > 0 && (environment.groupCasts ?? []).some((group) => cast.every((name) => has(group.members, name)));
 };
 
-const wantsGroup = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment): boolean => {
+const wantsGroup = (session: AgentSession, draft: Story, environment: ProvisioningEnvironment): boolean => {
   const created = provisioned(session, "applied");
   const declined = provisioned(session, "rejected");
   const decided = [...created, ...declined].some((op) => op.kind === "createGroup");
   return draft.roster.length > 0 && !decided && !has(environment.groupNames, draft.title) && !castGroupExists(draft, environment);
 };
 
-const groupGaps = (session: AgentSession, draft: StoryV2): string[] => provisioned(session, "applied").flatMap((op) => {
+const groupGaps = (session: AgentSession, draft: Story): string[] => provisioned(session, "applied").flatMap((op) => {
   if (op.kind !== "createGroup") return [];
   const missing = draftCastNames(draft).filter((name) => !has(op.members, name));
   return missing.length
@@ -48,11 +48,11 @@ const groupGaps = (session: AgentSession, draft: StoryV2): string[] => provision
     : [];
 });
 
-const passedThrough = (draft: StoryV2): string[] => passThroughExits(draft).map(({ index, exit }) =>
+const passedThrough = (draft: Story): string[] => passThroughExits(draft).map(({ index, exit }) =>
   `'${exit.from}' is passed straight through (gate-open-on-arrival at transitions.${index}.gate): its way out to '${exit.to}' is already open when the story arrives, ` +
   "so gate it on something that happens in that checkpoint");
 
-export const missingAtDone = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment): string[] => {
+export const missingAtDone = (session: AgentSession, draft: Story, environment: ProvisioningEnvironment): string[] => {
   const declined = provisioned(session, "rejected");
   return [
     ...groupGaps(session, draft),
@@ -98,12 +98,12 @@ const FEATURES: Array<{ label: string; claim: RegExp; on: (checkpoint: Checkpoin
 
 const EVERY = /\b(?:every|each|all)\b/i;
 
-const coverage = (draft: StoryV2) => FEATURES.map((feature) => ({ ...feature, count: draft.checkpoints.filter(feature.on).length }));
+const coverage = (draft: Story) => FEATURES.map((feature) => ({ ...feature, count: draft.checkpoints.filter(feature.on).length }));
 
 const unsupported = (sentence: string, measured: ReturnType<typeof coverage>, total: number): boolean => measured.some(({ claim, count }) =>
   claim.test(sentence) && (count === 0 || (EVERY.test(sentence) && count < total)));
 
-export const doneSummary = (session: AgentSession, draft: StoryV2, claim: string): string => {
+export const doneSummary = (session: AgentSession, draft: Story, claim: string): string => {
   const created = provisioned(session, "applied");
   const made = CREATED.map(([kind, one, many]) => [created.filter((op) => op.kind === kind).length, one, many] as const)
     .filter(([amount]) => amount > 0)

@@ -1,4 +1,4 @@
-import { parseStoryV2, parseStoryV2OrThrow, StoryEngine, type BoundaryLogEntry, type NormalizedStoryV2 } from "@engine/index";
+import { parseStory, parseStoryOrThrow, StoryEngine, type BoundaryLogEntry, type NormalizedStory } from "@engine/index";
 import { readFileSync } from "fs";
 import { join } from "path";
 import {
@@ -17,7 +17,7 @@ interface Scored {
   neutral: string | null;
 }
 
-const neutralOnly = (story: NormalizedStoryV2): NormalizedStoryV2 => ({
+const neutralOnly = (story: NormalizedStory): NormalizedStory => ({
   ...story,
   transitions: story.transitions.map(({ recap: _recap, recap_when: _when, ...rest }) => rest),
   quests: story.quests?.map(({ recap: _recap, recap_when: _when, ...rest }) => rest),
@@ -83,7 +83,7 @@ describe("v2.8 46 C1: \"Because you…\" is precise, abstaining on everything it
   });
 });
 
-const played = (story: NormalizedStoryV2, boundaries: Write[][][], line = "We take it.") => playBoundaries(story, boundaries, chatFor(line));
+const played = (story: NormalizedStory, boundaries: Write[][][], line = "We take it.") => playBoundaries(story, boundaries, chatFor(line));
 
 const stateOf = (run: ReturnType<typeof played>) => run.engine.serialize();
 
@@ -98,7 +98,7 @@ describe("v2.8 46 C2/C10: player-safe lines only", () => {
   });
 
   it("drops a line naming a withheld name and falls back to the neutral line; a planted control proves the check fires", () => {
-    const story = parseStoryV2OrThrow({
+    const story = parseStoryOrThrow({
       ...JSON.parse(JSON.stringify(rawOf(POSTING))),
       transitions: [{ from: "board", to: "gate", priority: 5, gate: { q: "posting_choice", op: "==", v: "taken" }, recap: "The road to The Tower opens." }],
     });
@@ -137,11 +137,11 @@ describe("v2.8 46 C2/C10: player-safe lines only", () => {
   });
 
   it("a hidden check and a private agenda step render nothing; public ones render neutral", () => {
-    const life = parseStoryV2OrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
+    const life = parseStoryOrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
     const at = { boundary: 1, messageId: 1, chapterId: null, authored: false, causes: [] };
     expect(neutralText(life, { ...at, kind: "agenda", id: "arin:debt:0", visible: false })).toBeNull();
     expect(neutralText(life, { ...at, kind: "agenda", id: "arin:debt:1", visible: true })).toBe("met the smuggler at the docks");
-    const checks = parseStoryV2OrThrow({
+    const checks = parseStoryOrThrow({
       ...rawOf(POSTING),
       qualities: [...rawOf(POSTING).qualities, { key: "sneak_ok", type: "bool", source: "code", rubric: "Sneaked?" }, { key: "climb_ok", type: "bool", source: "code", rubric: "Climbed?" }],
       checkpoints: [{ ...rawOf(POSTING).checkpoints[0], checks: [
@@ -314,7 +314,7 @@ describe("v2.8 46 retention store", () => {
 
   it("validates the new authoring fields", () => {
     const errors = (patch: Record<string, unknown>) => {
-      const parsed = parseStoryV2({ ...rawOf(POSTING), ...patch });
+      const parsed = parseStory({ ...rawOf(POSTING), ...patch });
       return Array.isArray(parsed) ? parsed.map((error) => `${error.path}: ${error.message}`) : [];
     };
     expect(errors({})).toEqual([]);
@@ -335,7 +335,7 @@ describe("v2.8 46 retention store", () => {
 
 class StoryEngineFor {
   readonly state;
-  constructor(story: NormalizedStoryV2) {
+  constructor(story: NormalizedStory) {
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     this.state = engine.serialize();
@@ -350,6 +350,6 @@ function seeded(seed: number): () => number {
   };
 }
 
-function rawOf(story: NormalizedStoryV2) {
+function rawOf(story: NormalizedStory) {
   return JSON.parse(JSON.stringify(story === POSTING ? POSTING_RAW : story === WELL ? WELL_RAW : OATH_RAW));
 }

@@ -7,13 +7,13 @@ jest.mock("@services/STAPI", () => ({
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { runAuthoringStage } from "@copilot/index";
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import type { ExtractionReply, ModelAsk, ModelCall } from "@extraction/modelRoute";
 import { runRoleCase, type AuthoringCalibrationCase } from "./roleCalibration";
 
 const fixture = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/role-calibration/authoring.json"), "utf8"));
 const entry = fixture.cases.find((item: { id: string }) => item.id === "a01");
-const authoringCase: AuthoringCalibrationCase = { ...entry, draft: fixture.drafts[entry.draft] as StoryV2 };
+const authoringCase: AuthoringCalibrationCase = { ...entry, draft: fixture.drafts[entry.draft] as Story };
 
 const scripted = (replies: ExtractionReply[]): ModelCall & { asks: ModelAsk[] } => {
   const asks: ModelAsk[] = [];

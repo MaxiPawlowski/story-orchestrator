@@ -1,4 +1,4 @@
-import { checkpointWorldInfo, type StoryV2 } from "@engine/index";
+import { checkpointWorldInfo, type Story } from "@engine/index";
 import type { HostScannableEntry } from "@services/STAPI";
 import type { ProvisioningOp } from "@wizard/index";
 import { activationUncertainty, matchKey } from "@runtime/loreKeyMatch";
@@ -63,7 +63,7 @@ export const loreOpLintEntry = (op: LoreEntryOp): LintEntry => {
   };
 };
 
-export const draftLoreTexts = (draft: Pick<StoryV2, "checkpoints" | "briefing" | "description">, cards: readonly DraftCard[] = []): DraftText[] => [
+export const draftLoreTexts = (draft: Pick<Story, "checkpoints" | "briefing" | "description">, cards: readonly DraftCard[] = []): DraftText[] => [
   ...(draft.description?.trim() ? [{ label: "story description", text: draft.description }] : []),
   ...draft.checkpoints.filter((checkpoint) => checkpoint.objective?.trim()).map((checkpoint) => ({ label: `objective of ${checkpoint.name || checkpoint.id}`, text: checkpoint.objective })),
   ...(draft.briefing?.sections ?? []).filter((section) => section.text?.trim()).map((section) => ({ label: `briefing: ${section.heading || "section"}`, text: section.text })),
@@ -73,7 +73,7 @@ export const draftLoreTexts = (draft: Pick<StoryV2, "checkpoints" | "briefing" |
   ]),
 ];
 
-export const gatedAt = (draft: Pick<StoryV2, "checkpoints">, lorebook: string, comment: string): string[] => {
+export const gatedAt = (draft: Pick<Story, "checkpoints">, lorebook: string, comment: string): string[] => {
   const fold = (text: string) => text.trim().toLowerCase();
   return draft.checkpoints.filter((checkpoint) => checkpointWorldInfo(checkpoint).enable
     .some((ref) => fold(ref.lorebook) === fold(lorebook) && ref.comments.some((entry) => fold(entry) === fold(comment))))

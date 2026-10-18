@@ -76,7 +76,6 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 const story = {
-  format: 2,
   id: "branch-story",
   title: "Branch story",
   description: "Branch fixture.",

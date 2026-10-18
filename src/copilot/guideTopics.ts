@@ -24,8 +24,8 @@ export const GUIDE_TOPICS = {
   },
   "story-basics": {
     title: "Title, description and id",
-    fields: "format, title, description, id, player_intro, kind",
-    text: "format: 2 is required (a story without it does not load). The title and description tell the model and the author what the story is; "
+    fields: "title, description, id, player_intro, kind",
+    text: "The title and description are required and tell the model and the author what the story is; "
       + "player_intro is what a player reads before the first beat. The id is the story's identity "
       + "(a lowercase slug the library keys by); stories carry no version number. kind is saga or story (default): only the player's badges read it, never the model; "
       + "chapters do not make a saga. Good: \"The Sunken Ruins\" with a short premise. Avoid: renaming the id "

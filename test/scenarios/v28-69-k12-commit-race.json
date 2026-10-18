@@ -17,7 +17,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-v28-69-k12r",
         "title": "SO-V28-69 K12R",
         "description": "Plan 69 K12 no-model fixture: a checkpoint that enables an entry of the story book in file mode.",

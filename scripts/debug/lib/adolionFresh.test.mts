@@ -50,7 +50,7 @@ const cleanInput = (): InventoryInput => ({
   settings: {
     extension_settings: { 'story-orchestrator': {
       groupStories: { 17: 'adolion-academy', 18: 'adolion-esha' },
-      v2Stories: [
+      stories: [
         { id: 'adolion-academy', hash: 'h1', title: 'House Nightriver', raw: { checkpoints: [{}, {}] } },
         { id: 'adolion-esha', hash: 'h2', title: 'Adolion: Eshalanore', raw: { checkpoints: [{}] } },
         { id: 'so-j9-wizard', hash: 'h3', title: 'Wizard', raw: {} },
@@ -122,7 +122,7 @@ test('an installer SKIP, a lost group binding, a stale library copy and a missin
   const input = cleanInput();
   input.ledger = { lorebooks: input.ledger!.lorebooks!, characters: ['Natalia.png'] };
   input.settings.extension_settings['story-orchestrator'].groupStories = { 17: 'adolion-academy' };
-  input.settings.extension_settings['story-orchestrator'].v2Stories[0].raw = { checkpoints: [{}] };
+  input.settings.extension_settings['story-orchestrator'].stories[0].raw = { checkpoints: [{}] };
   input.characters = input.characters.filter((avatar) => avatar !== 'Natalia.png');
   const problems = checkInventory(manifest, buildInventory(manifest, input));
   assert.ok(problems.some((line) => line.startsWith('installer ledger cards differ')));
@@ -220,7 +220,7 @@ test('the strip removes the campaign\'s assets from the lane copy and nothing of
     groupChats: ['g1.jsonl', 'g2.jsonl'],
     settings: {
       active_group: '17', active_character: 'Seraphina.png', tag_map: { 'Belle.png': ['t'], 'Seraphina.png': ['t'] },
-      extension_settings: { 'story-orchestrator': { groupStories: { 17: 'adolion-academy', 5: 'mine' }, v2Stories: [{ id: 'adolion-academy' }, { id: 'sun-ruins' }] } },
+      extension_settings: { 'story-orchestrator': { groupStories: { 17: 'adolion-academy', 5: 'mine' }, stories: [{ id: 'adolion-academy' }, { id: 'sun-ruins' }] } },
       world_info_settings: { world_info: { globalSelect: ['Adolion World', 'Xentar Checkpoints'] } },
     },
   });
@@ -231,7 +231,7 @@ test('the strip removes the campaign\'s assets from the lane copy and nothing of
   assert.deepEqual(plan.groupFiles, ['17.json']);
   assert.deepEqual(plan.groupChats, ['g1.jsonl']);
   const root = plan.settings.extension_settings['story-orchestrator'];
-  assert.deepEqual(root.v2Stories, [{ id: 'sun-ruins' }]);
+  assert.deepEqual(root.stories, [{ id: 'sun-ruins' }]);
   assert.deepEqual(root.groupStories, { 5: 'mine' });
   assert.deepEqual(plan.settings.world_info_settings.world_info.globalSelect, ['Xentar Checkpoints']);
   assert.equal(plan.settings.active_group, null);

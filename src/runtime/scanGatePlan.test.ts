@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { gatedWorldInfo, parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { gatedWorldInfo, parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import { applyScanGate, restsOffIn, scanGatePlan, type ScanEntry, type ScanGateRow } from "./scanGatePlan";
 import { noteScanGate, scanGateView, setScanGatingActive } from "./worldInfoMode";
 import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoGates";
@@ -24,10 +24,9 @@ const some = <T>(next: () => number, values: T[], max: number): T[] => [...new S
 
 const refs = (next: () => number) => some(next, BOOKS, 2).map((lorebook) => ({ lorebook, comments: some(next, COMMENTS, 3) })).filter((ref) => ref.comments.length);
 
-const randomStory = (next: () => number, index: number): NormalizedStoryV2 => {
+const randomStory = (next: () => number, index: number): NormalizedStory => {
   const count = 2 + Math.floor(next() * 4);
-  return parseStoryV2OrThrow({
-    format: 2,
+  return parseStoryOrThrow({
     id: `s${index}`,
     title: `Story ${index}`,
     description: "Generated.",
@@ -46,7 +45,7 @@ const randomStory = (next: () => number, index: number): NormalizedStoryV2 => {
 // The file path as the manager runs it on a load (runtimeManager `loadStory`): apply the loaded
 // story's path (applyWorldInfo: per book, disables then enables), then release every library story's
 // gated entries except what the loaded story gates. Books resolve by file id, case-insensitively.
-const filePath = (library: NormalizedStoryV2[], loaded: NormalizedStoryV2 | null, path: string[], start: Map<string, boolean>) => {
+const filePath = (library: NormalizedStory[], loaded: NormalizedStory | null, path: string[], start: Map<string, boolean>) => {
   const disabled = new Map(start);
   const write = (plans: WorldInfoBookPlan[]) => {
     for (const plan of plans) {
@@ -90,8 +89,8 @@ describe("scanGatePlan (v2.4 plan 05 T13 spike)", () => {
       "examples/sun-ruins/quest-for-the-sun-ruins.json",
       "test/fixtures/scan-gate/adolion-academy.story.json",
       "test/fixtures/scan-gate/adolion-adventurer.story.json",
-    ].map((file) => parseStoryV2OrThrow(JSON.parse(readFileSync(join(root, file), "utf8"))));
-    const walk = (next: () => number, story: NormalizedStoryV2): string[] => {
+    ].map((file) => parseStoryOrThrow(JSON.parse(readFileSync(join(root, file), "utf8"))));
+    const walk = (next: () => number, story: NormalizedStory): string[] => {
       const start = story.checkpoints.find((checkpoint) => checkpoint.start)?.id ?? story.checkpoints[0].id;
       const path = [start];
       for (let step = 0; step < 8; step += 1) {

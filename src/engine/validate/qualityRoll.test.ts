@@ -1,8 +1,7 @@
-import { parseStoryV2 } from "../validate";
-import type { NormalizedStoryV2, ValidationError } from "../schema";
+import { parseStory } from "../validate";
+import type { NormalizedStory, ValidationError } from "../schema";
 
 const storyWith = (quality: Record<string, unknown>) => ({
-  format: 2,
   id: "roll-schema",
   title: "Roll schema",
   description: "SP7.b: the roll field on a quality.",
@@ -14,7 +13,7 @@ const storyWith = (quality: Record<string, unknown>) => ({
 
 const rolled = (overrides: Record<string, unknown> = {}) => ({ key: "deep_swarm", type: "bool", source: "code", rubric: "Does a swarm cut off the way back?", roll: { sides: 6, target: 2 }, ...overrides });
 
-const parsed = (quality: Record<string, unknown>) => parseStoryV2(storyWith(quality));
+const parsed = (quality: Record<string, unknown>) => parseStory(storyWith(quality));
 const errorsOf = (quality: Record<string, unknown>) => {
   const result = parsed(quality);
   return Array.isArray(result) ? (result as ValidationError[]).map((error) => error.path) : [];
@@ -22,14 +21,14 @@ const errorsOf = (quality: Record<string, unknown>) => {
 
 describe("SP7.b: a roll is part of the story schema, not read from the raw record", () => {
   it("a code bool or int quality keeps its roll in the normalized story", () => {
-    const bool = parsed(rolled()) as NormalizedStoryV2;
+    const bool = parsed(rolled()) as NormalizedStory;
     expect(bool.qualityByKey.deep_swarm.roll).toEqual({ sides: 6, target: 2 });
-    const int = parsed(rolled({ key: "clue_die", type: "int", roll: { sides: 6, target: 6 } })) as NormalizedStoryV2;
+    const int = parsed(rolled({ key: "clue_die", type: "int", roll: { sides: 6, target: 6 } })) as NormalizedStory;
     expect(int.qualityByKey.clue_die.roll).toEqual({ sides: 6, target: 6 });
   });
 
   it("a quality without a roll stays without one", () => {
-    const story = parsed({ key: "met", type: "bool", source: "code", rubric: "Met?" }) as NormalizedStoryV2;
+    const story = parsed({ key: "met", type: "bool", source: "code", rubric: "Met?" }) as NormalizedStory;
     expect("roll" in story.qualityByKey.met).toBe(false);
   });
 

@@ -1,7 +1,7 @@
 import { testOwnership } from "../../test/findings/testOwnership";
 import type { RuntimeExtras } from "./types";
 import { runRollback, type RollbackDeps } from "./rollback";
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 import { finding, must } from "../../test/findings/ledger";
 
 // `@judge` reaches the host module graph through its client, which is a top-level-await import jest
@@ -146,8 +146,8 @@ describe("V11: an engine that cannot restore is never answered with silence", ()
 });
 
 describe("E1, asserted on the runtime and not on an object the test built", () => {
-  const stationary = () => parseStoryV2OrThrow({
-    format: 2, id: "history-review", title: "History review", description: "Long-running rollback fixture",
+  const stationary = () => parseStoryOrThrow({
+    id: "history-review", title: "History review", description: "Long-running rollback fixture",
     qualities: [{ key: "counter", type: "int", source: "extractor", rubric: "Latest counter?" }],
     checkpoints: [{ id: "start", name: "Start", objective: "Wait", type: "anchor", start: true }],
     transitions: [], roster: [],

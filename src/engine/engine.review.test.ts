@@ -6,11 +6,10 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 import { control, finding, must } from "../../test/findings/ledger";
 
-const crossingStory = () => parseStoryV2OrThrow({
-  format: 2,
+const crossingStory = () => parseStoryOrThrow({
   id: "review-independent",
   title: "Review crossing",
   description: "Independent fixture",
@@ -23,8 +22,7 @@ const crossingStory = () => parseStoryV2OrThrow({
   roster: [],
 });
 
-const stationaryStory = () => parseStoryV2OrThrow({
-  format: 2,
+const stationaryStory = () => parseStoryOrThrow({
   id: "history-review",
   title: "History review",
   description: "Long-running rollback fixture",

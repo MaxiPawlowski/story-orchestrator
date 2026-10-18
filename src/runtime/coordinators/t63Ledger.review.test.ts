@@ -1,5 +1,5 @@
 import { plantedModel } from "../../../test/support/modelCall";
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import type { WizardSessionState } from "@wizard/index";
 import { CopilotCoordinator } from "./copilotCoordinator";
 import { testOwnership } from "../../../test/findings/testOwnership";
@@ -14,9 +14,9 @@ const host = {
 };
 
 const draft = {
-  format: 2, id: "map", title: "Map", description: "", qualities: [], checkpoints: [], transitions: [],
+  id: "map", title: "Map", description: "", qualities: [], checkpoints: [], transitions: [],
   roster: [{ id: "halden", name: "Master Halden" }, { id: "marrow", name: "Envoy Marrow" }],
-} as unknown as StoryV2;
+} as unknown as Story;
 
 describe("T6-3 LOW: the wizard ledger records the group it created", () => {
   it("adds the created group's name to the session's applied ledger", async () => {

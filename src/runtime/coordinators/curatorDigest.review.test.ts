@@ -1,5 +1,5 @@
 import { recordingModel } from "../../../test/support/modelCall";
-import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type EngineState, type NormalizedStory } from "@engine/index";
 import {
   CURATOR_DIGEST_FULL_LIMIT, CURATOR_DIGEST_INDEX_LIMIT, DIGEST_NO_MATCH, SEEN_TARGET_REFUSAL, TITLE_ONLY_REFUSAL, buildWiCuratorPrompt, entriesForScope,
   type CuratorOpRecord, type CuratorProposalRecord,
@@ -13,8 +13,8 @@ type Entry = { uid: number; comment: string; key: string[]; content: string; dis
 
 const CANON = "The flood took the bridge.";
 
-const storyWith = (stagecraft: Record<string, unknown>, extra: Record<string, unknown> = {}): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2, id: "digest-fixture", title: "Crossing", description: "Curator.", qualities: [],
+const storyWith = (stagecraft: Record<string, unknown>, extra: Record<string, unknown> = {}): NormalizedStory => parseStoryOrThrow({
+  id: "digest-fixture", title: "Crossing", description: "Curator.", qualities: [],
   checkpoints: [{ id: "cp1", name: "The bank", objective: "Cross", type: "anchor", start: true, ...extra }], transitions: [], roster: [],
   stagecraft,
 });
@@ -31,7 +31,7 @@ const entries = (count: number, tweak: (entry: Entry) => Entry = (entry) => entr
 
 interface Options {
   mode?: "auto" | "review";
-  story?: NormalizedStoryV2;
+  story?: NormalizedStory;
   filterEntries?: StagecraftCoordinatorDeps["filterEntries"];
   onAsk?: () => void;
 }

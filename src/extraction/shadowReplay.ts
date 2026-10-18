@@ -1,4 +1,4 @@
-import type { BoundaryLogEntry, EngineHistory, EngineState, NormalizedStoryV2, NormalizedTransition, PrimitiveValue, QualityReadAs } from "@engine/index";
+import type { BoundaryLogEntry, EngineHistory, EngineState, NormalizedStory, NormalizedTransition, PrimitiveValue, QualityReadAs } from "@engine/index";
 import { fnv1a, stableStringify } from "@runtime/hash";
 import { windowOf } from "./chatRows";
 import { renderSharedReadPrompt } from "./contract";
@@ -49,7 +49,7 @@ export interface ReadContextSource {
 }
 
 export interface ReplayArchive {
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
   history: EngineHistory;
   transcripts: TranscriptSource[];
   boundaries: ArchivedBoundary[];
@@ -244,7 +244,7 @@ export function rebuildCase(audit: ArchivedAudit, archive: ReplayArchive): Rebui
   return refuse(audit, "scope-not-rebuilt", scopeGap || "the residual scope could not be rebuilt");
 }
 
-export function rebuildSession(session: SessionArchive, story: NormalizedStoryV2, context?: ReadContextSource) {
+export function rebuildSession(session: SessionArchive, story: NormalizedStory, context?: ReadContextSource) {
   const archive: ReplayArchive = { story, history: session.history, transcripts: session.transcripts, boundaries: session.boundaries, ...(context ? { context } : {}) };
   const cases: ReplayCase[] = [];
   const refusals: ReplayRefusal[] = [];
@@ -265,7 +265,7 @@ export interface ExtractorReply {
 
 export type ExtractorSide = { refused: string } | { values: Record<string, { moved: boolean; value: PrimitiveValue | null; playerOnly: boolean }> };
 
-export function extractorSide(replayCase: ReplayCase, story: NormalizedStoryV2, reply: ExtractorReply): ExtractorSide {
+export function extractorSide(replayCase: ReplayCase, story: NormalizedStory, reply: ExtractorReply): ExtractorSide {
   const parsed = parseSharedReadResponse(reply.text, story, replayCase.values);
   const refused = refusal({ text: reply.text, finish: reply.finish ?? "stop" }, parsed);
   if (refused) return { refused };
@@ -301,7 +301,7 @@ export interface KeyRow {
 
 export interface CompareInput {
   cases: ReplayCase[];
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
   replies: Record<string, ExtractorReply[]>;
 }
 

@@ -1,4 +1,4 @@
-import { castCardName, resolveCastChanges, type BriefingSection, type StoryV2, type ValidationError } from "@engine/index";
+import { castCardName, resolveCastChanges, type BriefingSection, type Story, type ValidationError } from "@engine/index";
 import { readBriefing } from "@engine/validate/briefing";
 import { stripReasoningBlocks } from "@extraction/parse";
 import { isRecord } from "@utils/guards";
@@ -16,7 +16,7 @@ export interface BriefingDraftInput {
   scenario: string | null;
 }
 
-type DraftStory = Pick<StoryV2, "title" | "player_intro" | "player" | "roster" | "checkpoints">;
+type DraftStory = Pick<Story, "title" | "player_intro" | "player" | "roster" | "checkpoints">;
 
 const clean = (value: unknown): string | null => (typeof value === "string" && value.trim() ? value.trim() : null);
 
@@ -78,7 +78,7 @@ const readSections = (raw: string): BriefingDraftCheck => {
   return { ok: true, sections: briefing.sections };
 };
 
-export const checkBriefingDraft = (story: StoryV2, raw: string): BriefingDraftCheck => {
+export const checkBriefingDraft = (story: Story, raw: string): BriefingDraftCheck => {
   const read = readSections(raw);
   if (!read.ok) return read;
   const spoilers = briefingSpoilerNames(story, { sections: read.sections });

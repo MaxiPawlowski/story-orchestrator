@@ -1,4 +1,4 @@
-import type { Checkpoint, IllustrationLook, NormalizedStoryV2, RosterMember } from "@engine/index";
+import type { Checkpoint, IllustrationLook, NormalizedStory, RosterMember } from "@engine/index";
 import type { ImageScene } from "./prompt";
 import { cardValues, publicLook } from "@engine/cardFields";
 import type { PrimitiveValue } from "@engine/index";
@@ -14,10 +14,10 @@ export const beatLabel = (checkpoint: Pick<Checkpoint, "player_name"> | null | u
 export const cueText = (kind: "checkpoint" | "scene", label: string | null): string =>
   kind === "checkpoint" ? (label ? `Establishing shot of ${label}.` : "Establishing shot of the current scene.") : `The scene moves to ${label ?? "a new place"}.`;
 
-export const beatIllustrated = (story: NormalizedStoryV2 | null, checkpointId: string | null): boolean =>
+export const beatIllustrated = (story: NormalizedStory | null, checkpointId: string | null): boolean =>
   !checkpointId || story?.checkpointById[checkpointId]?.illustrate !== false;
 
-export const lookFor = (story: NormalizedStoryV2 | null, checkpointId: string | null): IllustrationLook => {
+export const lookFor = (story: NormalizedStory | null, checkpointId: string | null): IllustrationLook => {
   const base = story?.illustrations;
   const chapterId = checkpointId ? story?.chapterByCheckpoint?.[checkpointId] : undefined;
   const chapter = chapterId ? story?.chapterById?.[chapterId]?.illustrations : undefined;
@@ -26,7 +26,7 @@ export const lookFor = (story: NormalizedStoryV2 | null, checkpointId: string | 
   return { ...(style ? { style } : {}), ...(Object.keys(appearances).length ? { appearances } : {}) };
 };
 
-export const castForImage = (subjects: ImageScene["subjects"], story: NormalizedStoryV2 | null, look: IllustrationLook, values: Record<string, PrimitiveValue> = {}): ImageScene["subjects"] => {
+export const castForImage = (subjects: ImageScene["subjects"], story: NormalizedStory | null, look: IllustrationLook, values: Record<string, PrimitiveValue> = {}): ImageScene["subjects"] => {
   if (!story) return subjects;
   return subjects.flatMap((subject) => {
     const member = story.roster.find((entry) => (entry.name ?? entry.id).toLowerCase() === subject.name.toLowerCase());

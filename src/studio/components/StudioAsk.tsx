@@ -1,10 +1,10 @@
 import React from "react";
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import type { KnowledgeShowMe } from "@copilot/knowledge/types";
 import AskBox, { type AskBoxReply } from "@components/studio/AskBox";
 import { useDraftStore } from "../draft";
 
-export type StudioAskRunner = (question: string, draft: StoryV2) => Promise<AskBoxReply>;
+export type StudioAskRunner = (question: string, draft: Story) => Promise<AskBoxReply>;
 
 export interface StudioAskProps {
   ask?: StudioAskRunner;

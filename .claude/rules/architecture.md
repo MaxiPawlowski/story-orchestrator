@@ -6,7 +6,7 @@ Map of the main modules (not exhaustive: `ls` the dir). Plan numbers and dates l
 src/
   index.tsx                  # starts runtime, mounts settings panel + drawer
   engine/                    # pure — never imports STAPI
-    schema.ts / gameSchema.ts # format-2 types (+ quests, checks, widgets)
+    schema.ts / gameSchema.ts # story types (+ quests, checks, widgets)
     validate.ts, validate/*  # normalization/validation, graph indexes (requirements -> {personas,members,lorebooks}); validate/life.ts, validate/widgets.ts
     agency.ts                # AgencyPolicy + DEFAULT_AGENCY + prompt clauses
     player.ts                # the story's `player` profile: renderPlayerRoleLine (the one canonical line), carriesPlayerRoleLine

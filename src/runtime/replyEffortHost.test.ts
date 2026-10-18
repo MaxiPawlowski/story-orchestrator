@@ -1,14 +1,13 @@
 jest.mock("@services/STAPI", () => ({ observeSamplerPayloads: () => () => undefined, parseHostYaml: () => undefined }));
 jest.mock("@services/stHost/llamaCpp", () => ({ readThinkingTemplate: () => null, listedModels: () => [] }));
 
-import { parseStoryV2OrThrow, type StoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type Story } from "@engine/index";
 import type { SamplerPayloadHandlers } from "@services/STAPI";
 import type { ReplyEffort } from "@utils/reasoningEffort";
 import type { GenerationLifecycleSnapshot } from "./generationLifecycle";
 import { EFFORT_SHOT_RING, startReplyEffort, type EffortDebug } from "./replyEffortHost";
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "effort-host",
   title: "Effort host",
   description: "Climax.",
@@ -19,7 +18,7 @@ const story = parseStoryV2OrThrow({
   ],
   transitions: [],
   roster: [],
-} as unknown as StoryV2);
+} as unknown as Story);
 
 const idle = { outermost: null, nested: [], awaitingRender: null, draftedChid: null, openedCount: 0 } as GenerationLifecycleSnapshot;
 const open = (type: string, nested: string[] = []): GenerationLifecycleSnapshot => ({ outermost: { type, watermark: 3 }, nested, awaitingRender: null, draftedChid: null, openedCount: 1 });

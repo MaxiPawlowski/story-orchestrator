@@ -1,4 +1,4 @@
-import { storyKind, type Chapter, type Checkpoint, type NormalizedStoryV2, type StoryDisplay, type StoryKind } from "@engine/index";
+import { storyKind, type Chapter, type Checkpoint, type NormalizedStory, type StoryDisplay, type StoryKind } from "@engine/index";
 import { isRecord } from "@utils/guards";
 
 export const PLAYS_LIMIT = 500;
@@ -64,7 +64,7 @@ export const dropPlay = (plays: PlaysIndex, chatId: string): { plays: PlaysIndex
 const playerChapterTitle = (chapter: Pick<Chapter, "title" | "player_title"> | undefined): string | undefined => chapter ? chapter.player_title ?? chapter.title : undefined;
 
 export interface PlayView {
-  story: Pick<NormalizedStoryV2, "title" | "chapters" | "checkpointById" | "kind"> & { id?: string };
+  story: Pick<NormalizedStory, "title" | "chapters" | "checkpointById" | "kind"> & { id?: string };
   storyId: string;
   activeCheckpointId: string | null;
   groupId: string;

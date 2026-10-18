@@ -3,7 +3,7 @@ import { GAME_LAYER } from '../../../src/engine/validate/gameLayerImpl';
 
 installGameLayer(GAME_LAYER);
 
-export { parseStoryV2OrThrow, StoryEngine } from '../../../src/engine/index';
+export { parseStoryOrThrow, StoryEngine } from '../../../src/engine/index';
 export { unitDraw } from '../../../src/engine/chance';
 export { focusCandidates, focusPick } from '../../../src/pacing/focus';
 export { directorInput } from '../../../src/runtime/livingUnit';

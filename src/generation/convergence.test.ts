@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { effectiveThresholdFor, parseStoryV2OrThrow, progressQualityForAnchor, StoryEngine, type NormalizedStoryV2 } from "@engine/index";
+import { effectiveThresholdFor, parseStoryOrThrow, progressQualityForAnchor, StoryEngine, type NormalizedStory } from "@engine/index";
 import { mergeExpansions } from "./merge";
 import type { ExpansionCacheEntry, GeneratedBeat } from "./types";
 
@@ -59,7 +59,7 @@ const cacheEntry = (stubId: string, sourceId: string, targetId: string, beats: G
   updatedAt: "2026-07-05T00:00:00.000Z",
 }) as Partial<ExpansionCacheEntry> as ExpansionCacheEntry;
 
-const mergedDriftStory = (): NormalizedStoryV2 => {
+const mergedDriftStory = (): NormalizedStory => {
   const entries = {
     "start->bridge_a->midway": cacheEntry("bridge_a", "start", "midway", bridgeAChain),
     "midway->bridge_b->finale": cacheEntry("bridge_b", "midway", "finale", bridgeBChain),
@@ -149,7 +149,7 @@ describe("convergence in play", () => {
 
   it("refuse fixture: alternative authored path converges when likely branch is refused", () => {
     const refuseRaw = readJson("test/fixtures/convergence-refuse.story.json");
-    const story = parseStoryV2OrThrow(refuseRaw);
+    const story = parseStoryOrThrow(refuseRaw);
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
 

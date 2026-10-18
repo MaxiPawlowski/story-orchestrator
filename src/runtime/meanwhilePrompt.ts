@@ -1,4 +1,4 @@
-import { PLAYER_REF, agendaStepKey, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { PLAYER_REF, agendaStepKey, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 
 export const MEANWHILE_TEXT_MAX = 200;
 const LINE = /^MEANWHILE:\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*(.+?)\s*$/;
@@ -17,13 +17,13 @@ export interface MeanwhileParse {
 
 interface WindowLine { speaker: string; text: string }
 
-const openAgendas = (story: NormalizedStoryV2, values: Readonly<Record<string, PrimitiveValue>>) => (story.life?.members ?? []).flatMap((member) =>
+const openAgendas = (story: NormalizedStory, values: Readonly<Record<string, PrimitiveValue>>) => (story.life?.members ?? []).flatMap((member) =>
   member.agenda.map((agenda) => {
     const done = Math.min(agenda.steps.length, Number(values[agendaStepKey(member.id, agenda.id)] ?? 0));
     return { member, agenda, done: agenda.steps.slice(0, done).map((step) => step.text), next: agenda.steps[done]?.text ?? null };
   }));
 
-export const buildMeanwhilePrompt = (story: NormalizedStoryV2, values: Readonly<Record<string, PrimitiveValue>>, window: readonly WindowLine[]): string => {
+export const buildMeanwhilePrompt = (story: NormalizedStory, values: Readonly<Record<string, PrimitiveValue>>, window: readonly WindowLine[]): string => {
   const agendas = openAgendas(story, values).map(({ member, agenda, done, next }) => [
     `- ${member.id} | ${agenda.id} | goal: ${agenda.goal}`,
     ...(done.length ? [`  done so far: ${done.join("; ")}`] : []),
@@ -47,7 +47,7 @@ const refuseText = (text: string): string | null => {
   return null;
 };
 
-export const parseMeanwhile = (reply: string, story: NormalizedStoryV2): MeanwhileParse => {
+export const parseMeanwhile = (reply: string, story: NormalizedStory): MeanwhileParse => {
   const proposals: ParsedMeanwhile[] = [];
   const refused: MeanwhileParse["refused"] = [];
   for (const raw of reply.split("\n").map((line) => line.trim()).filter(Boolean)) {

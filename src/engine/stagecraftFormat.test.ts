@@ -1,8 +1,7 @@
-import { isValidationErrorList, type StoryV2, type ValidationError } from "./schema";
-import { parseStoryV2, parseStoryV2OrThrow } from "./validate";
+import { isValidationErrorList, type Story, type ValidationError } from "./schema";
+import { parseStory, parseStoryOrThrow } from "./validate";
 
-const story = (patch: Partial<StoryV2> & { checkpoints?: StoryV2["checkpoints"] } = {}): StoryV2 => ({
-  format: 2,
+const story = (patch: Partial<Story> & { checkpoints?: Story["checkpoints"] } = {}): Story => ({
   id: "stagecraft-fixture",
   title: "Stagecraft fixture",
   description: "Presentation fields.",
@@ -14,20 +13,20 @@ const story = (patch: Partial<StoryV2> & { checkpoints?: StoryV2["checkpoints"] 
 });
 
 const errors = (json: unknown): ValidationError[] => {
-  const parsed = parseStoryV2(json);
+  const parsed = parseStory(json);
   return isValidationErrorList(parsed) ? parsed : [];
 };
 
-describe("format-2 stagecraft fields", () => {
+describe("stagecraft fields", () => {
   it("normalizes a bare background filename into { name }", () => {
-    const parsed = parseStoryV2OrThrow(story({
+    const parsed = parseStoryOrThrow(story({
       checkpoints: [{ id: "cp1", name: "The road", objective: "Walk", type: "anchor", start: true, effects: { background: "tavern day.jpg" } as never }],
     }));
     expect(parsed.checkpointById.cp1.effects?.background).toEqual({ name: "tavern day.jpg" });
   });
 
   it("keeps the object form and trims it", () => {
-    const parsed = parseStoryV2OrThrow(story({
+    const parsed = parseStoryOrThrow(story({
       checkpoints: [{ id: "cp1", name: "The road", objective: "Walk", type: "anchor", start: true, effects: { background: { name: " royal.jpg " } } }],
     }));
     expect(parsed.checkpointById.cp1.effects?.background).toEqual({ name: "royal.jpg" });
@@ -40,7 +39,7 @@ describe("format-2 stagecraft fields", () => {
   });
 
   it("reads the curator allowlist, and refuses the removed singular alias with a hint", () => {
-    expect(parseStoryV2OrThrow(story({ stagecraft: { lorebooks: ["Xentar Checkpoints", " Story Lore "] } })).stagecraft)
+    expect(parseStoryOrThrow(story({ stagecraft: { lorebooks: ["Xentar Checkpoints", " Story Lore "] } })).stagecraft)
       .toEqual({ lorebooks: ["Xentar Checkpoints", "Story Lore"] });
     expect(errors(story({ stagecraft: { lorebook: "Story Lore" } as never }))).toEqual([{ path: "stagecraft.lorebook", message: 'unknown key (did you mean "lorebooks"?)' }]);
   });
@@ -58,8 +57,8 @@ describe("format-2 stagecraft fields", () => {
   });
 
   it("treats an empty allowlist as no allowlist at all", () => {
-    expect(parseStoryV2OrThrow(story({ stagecraft: { lorebooks: [] } })).stagecraft).toBeUndefined();
-    expect(parseStoryV2OrThrow(story()).stagecraft).toBeUndefined();
+    expect(parseStoryOrThrow(story({ stagecraft: { lorebooks: [] } })).stagecraft).toBeUndefined();
+    expect(parseStoryOrThrow(story()).stagecraft).toBeUndefined();
   });
 
   it("rejects a stagecraft block that is not an object", () => {
@@ -67,12 +66,12 @@ describe("format-2 stagecraft fields", () => {
   });
 });
 
-describe("format-2 scene_read (v2.2 plan 03)", () => {
+describe("scene_read (v2.2 plan 03)", () => {
   it("keeps trimmed places and times, and only an explicit inject: false", () => {
-    const parsed = parseStoryV2OrThrow(story({ scene_read: { locations: [" guild hall ", "", "desert road"], times: ["day", "night"], inject: true } }));
+    const parsed = parseStoryOrThrow(story({ scene_read: { locations: [" guild hall ", "", "desert road"], times: ["day", "night"], inject: true } }));
     expect(parsed.scene_read).toEqual({ locations: ["guild hall", "desert road"], times: ["day", "night"] });
-    expect(parseStoryV2OrThrow(story({ scene_read: { inject: false } })).scene_read).toEqual({ inject: false });
-    expect(parseStoryV2OrThrow(story({ scene_read: {} })).scene_read).toBeUndefined();
+    expect(parseStoryOrThrow(story({ scene_read: { inject: false } })).scene_read).toEqual({ inject: false });
+    expect(parseStoryOrThrow(story({ scene_read: {} })).scene_read).toBeUndefined();
   });
 
   it("rejects a non-object block and a non-boolean inject", () => {
@@ -81,10 +80,10 @@ describe("format-2 scene_read (v2.2 plan 03)", () => {
   });
 });
 
-describe("format-2 lore_select (v2.2 plan 04)", () => {
+describe("lore_select (v2.2 plan 04)", () => {
   it("keeps the books, rounds top_k, and drops an empty block", () => {
-    expect(parseStoryV2OrThrow(story({ lore_select: { lorebooks: [" Story Lore "], top_k: 5.6, min_p: 0.7 } })).lore_select).toEqual({ lorebooks: ["Story Lore"], top_k: 6, min_p: 0.7 });
-    expect(parseStoryV2OrThrow(story({ lore_select: { lorebooks: [] } })).lore_select).toBeUndefined();
+    expect(parseStoryOrThrow(story({ lore_select: { lorebooks: [" Story Lore "], top_k: 5.6, min_p: 0.7 } })).lore_select).toEqual({ lorebooks: ["Story Lore"], top_k: 6, min_p: 0.7 });
+    expect(parseStoryOrThrow(story({ lore_select: { lorebooks: [] } })).lore_select).toBeUndefined();
   });
 
   it("rejects out-of-range numbers and a non-object block", () => {

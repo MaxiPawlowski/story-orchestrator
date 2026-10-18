@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { runCodeChecks } from "./critic";
 import { computeStateDelta } from "./delta";
 import { mergeExpansions } from "./merge";
@@ -20,7 +20,7 @@ jest.mock("@services/STAPI", () => ({
 const root = join(__dirname, "..", "..");
 const readJson = (path: string) => JSON.parse(readFileSync(join(root, path), "utf-8"));
 const readText = (path: string) => readFileSync(join(root, path), "utf-8");
-const story = parseStoryV2OrThrow(readJson("test/fixtures/background-generation.story.json"));
+const story = parseStoryOrThrow(readJson("test/fixtures/background-generation.story.json"));
 
 const candidate = () => {
   const found = findStubExpansionCandidate(story, "start");

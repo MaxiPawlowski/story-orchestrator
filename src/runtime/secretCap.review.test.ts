@@ -6,7 +6,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: jest.fn(() => ({ chat: [] })),
 }));
 
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import {
   capEpistemic, EPISTEMIC_CAP, EPISTEMIC_SECRET_CEILING, EPISTEMIC_SUBJECT_CAP, heldSecrets, withoutSecretLines,
   type EpistemicEntry, type MemoryEntry, type ParsedEpistemicSignal,
@@ -19,8 +19,7 @@ const CAST: Array<[string, string]> = [["narrator", "Narrator"], ["aria", "Aria"
 const NAMES = CAST.map(([, name]) => name);
 const SECRET = /silver key|vault/i;
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "secret-cap",
   title: "Secret Cap",
   description: "",

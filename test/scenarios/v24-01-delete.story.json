@@ -1,5 +1,4 @@
 {
-  "format": 2,
   "title": "v24-01 Delete Decode",
   "description": "v2.4 plan 01 T1 fixture story: four latching facts, one per player line, so a rollback that lands on the wrong boundary keeps a value it should have dropped. Shared by the v24-01 delete fixtures.",
   "qualities": [

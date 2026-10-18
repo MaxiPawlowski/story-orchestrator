@@ -1,11 +1,10 @@
-import { castMemberNames, isValidationErrorList, parseStoryV2, type StoryV2 } from "@engine/index";
+import { castMemberNames, isValidationErrorList, parseStory, type Story } from "@engine/index";
 import { runDiagnostics } from "./diagnostics";
 import { rosterMemberIsPlayer } from "./playerRole";
 import { placeOf, SCHEMA_FALLBACK, schemaConsequence } from "./schemaErrors";
 import { useDraftStore, type StoryDraft } from "./draft";
 
-const redline = (): StoryV2 => ({
-  format: 2,
+const redline = (): Story => ({
   title: "The Redline Kingdom",
   description: "A cartographer's apprentice learns the map she inks redraws the kingdom.",
   qualities: [{ key: "ink", type: "int", source: "extractor", rubric: "How much does she understand?" }],
@@ -52,7 +51,7 @@ describe("T5-3 LOW: the player is never offered as a cast member", () => {
 });
 
 describe("T5-3 MEDIUM: a blocking schema error says what it costs and names the checkpoint", () => {
-  const looped = (): StoryV2 => {
+  const looped = (): Story => {
     const draft = redline();
     draft.checkpoints = [
       { id: "start", name: "The Ink That Moves", objective: "Notice.", type: "intermediate", start: true },
@@ -67,7 +66,7 @@ describe("T5-3 MEDIUM: a blocking schema error says what it costs and names the 
   };
 
   it("maps the error path to the checkpoint's name and gives a consequence", () => {
-    const parsed = parseStoryV2(looped());
+    const parsed = parseStory(looped());
     if (!isValidationErrorList(parsed)) throw new Error("expected a schema error");
     const reachable = parsed.find((error) => /no reachable anchor/.test(error.message));
     expect(reachable).toBeDefined();

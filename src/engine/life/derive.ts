@@ -2,7 +2,7 @@ import { evaluateGate } from "../gates";
 import {
   CLOCK_TIME_KEY, PARTY_LOCATION_KEY, TURN_OOC_KEY, agendaChapterKey, agendaRepeatsKey, agendaStepKey, agendaWaitKey,
   moodAgeKey, moodKey, moodSceneKey, moodWasKey,
-  type Agenda, type AgendaStep, type LifeMember, type NormalizedStoryV2, type PrimitiveValue,
+  type Agenda, type AgendaStep, type LifeMember, type NormalizedStory, type PrimitiveValue,
 } from "../schema";
 import type { DerivedQualityView } from "../engine";
 import { latestPlayerLineIsOoc } from "../ooc";
@@ -46,7 +46,7 @@ const moodWrites = (member: LifeMember, values: Values, versions: Values): Write
 };
 
 
-export const deriveLife = (story: NormalizedStoryV2, view: DerivedQualityView, chat: readonly unknown[]): Write[] => {
+export const deriveLife = (story: NormalizedStory, view: DerivedQualityView, chat: readonly unknown[]): Write[] => {
   const life = story.life;
   if (!life) return [];
   const values = view.values;

@@ -1,4 +1,4 @@
-import { agencyForCheckpoint, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { agencyForCheckpoint, type EngineState, type NormalizedStory } from "@engine/index";
 import type { HouseRuleScene, WardenInput, WardenLore } from "@judge/index";
 import { CONTINUITY_MAX_FACTS } from "@judge/policy";
 import type { WardenCheckFinding } from "@stagecraft/index";
@@ -63,7 +63,7 @@ export const createWardenCheck = (judge: () => JudgeRuntime | null): WardenCheck
 
 // Are their own judge.uses opt-ins. The agency check stands down where the checkpoint lets
 // narration write the player (never_narrate_player_action false): the author allowed it.
-export const wardenFamilies = (judge: () => JudgeRuntime | null, view: { getStory: () => NormalizedStoryV2 | null; getState: () => EngineState | null }) => () => {
+export const wardenFamilies = (judge: () => JudgeRuntime | null, view: { getStory: () => NormalizedStory | null; getState: () => EngineState | null }) => () => {
   const runtime = judge();
   const story = view.getStory();
   const agency = Boolean(runtime?.active("agencyCheck")) && agencyForCheckpoint(story, view.getState()?.activeCheckpointId).never_narrate_player_action;
@@ -77,13 +77,13 @@ export const wardenFamilies = (judge: () => JudgeRuntime | null, view: { getStor
     } } : {}) };
 };
 
-export const houseRuleScene = (story: NormalizedStoryV2 | null, speaker: string, groupMembers: string[]): Pick<HouseRuleScene, "speakerRole" | "groupMembers"> => {
+export const houseRuleScene = (story: NormalizedStory | null, speaker: string, groupMembers: string[]): Pick<HouseRuleScene, "speakerRole" | "groupMembers"> => {
   const name = speaker.trim().toLowerCase();
   const role = story?.roster.find((member) => rosterMemberName(member).trim().toLowerCase() === name)?.role?.trim();
   return { ...(role ? { speakerRole: role } : {}), groupMembers };
 };
 
-export const voiceProfile = (story: NormalizedStoryV2 | null, state: EngineState | null, speaker: string): WardenInput["voice"] | null => {
+export const voiceProfile = (story: NormalizedStory | null, state: EngineState | null, speaker: string): WardenInput["voice"] | null => {
   const id = rosterIdForName(story, speaker);
   const member = story?.roster.find((entry) => entry.id === id);
   if (!story || !member) return null;

@@ -1,5 +1,4 @@
 {
-  "format": 2,
   "title": "Story time read 01",
   "description": "v2.8 50 T8 live-suite time window: the clock's read key (life_time_read) on a story with a clock; the window starts in the morning. A gate waits on time_of_day, so the read asks for the clock (plan 50 B1a scope rule).",
   "qualities": [

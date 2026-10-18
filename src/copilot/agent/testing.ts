@@ -1,6 +1,6 @@
 import type { ModelCall } from "@extraction/modelRoute";
 import { emptyEnvironment, type ProvisioningEnvironment } from "@wizard/index";
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import type { AgentContext } from "./loop";
 import { localRoute, type AgentRoute } from "./route";
 import { emptyLookup } from "./types";
@@ -25,4 +25,4 @@ export const scriptedRoute = (replies: Array<string | Record<string, unknown>>):
   return { route: localRoute(model.call, { role: "authoring", pass: "copilot" }), prompts: model.prompts };
 };
 
-export const agentContext = (draft: StoryV2, environment: ProvisioningEnvironment = emptyEnvironment()): AgentContext => ({ draft, environment, lookup: emptyLookup() });
+export const agentContext = (draft: Story, environment: ProvisioningEnvironment = emptyEnvironment()): AgentContext => ({ draft, environment, lookup: emptyLookup() });

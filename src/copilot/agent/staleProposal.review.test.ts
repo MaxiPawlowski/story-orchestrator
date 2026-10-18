@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { approvePlan, decideStep, executeReply, newAgentSession, type StepMeta } from "./loop";
 import { agentContext } from "./testing";
 import type { AgentSession } from "./types";
@@ -6,8 +6,7 @@ import type { AgentSession } from "./types";
 const AT = "2026-10-16T18:00:00.000Z";
 const META: StepMeta = { route: "harness", firstTryValid: true, repaired: false, at: AT };
 
-const ferry = (): StoryV2 => ({
-  format: 2,
+const ferry = (): Story => ({
   title: "SO-K11 stale proposals",
   description: "A ferry crossing.",
   qualities: [
@@ -22,7 +21,7 @@ const ferry = (): StoryV2 => ({
   roster: [{ id: "arin", name: "Arin", role: "the ferryman's daughter" }],
 });
 
-type Edit = (draft: StoryV2) => StoryV2;
+type Edit = (draft: Story) => Story;
 
 const checkpoint = (id: string, patch: Record<string, unknown>): Edit => (draft) =>
   ({ ...draft, checkpoints: draft.checkpoints.map((entry) => (entry.id === id ? { ...entry, ...patch } : entry)) });
@@ -30,7 +29,7 @@ const quality = (key: string, patch: Record<string, unknown>): Edit => (draft) =
   ({ ...draft, qualities: draft.qualities.map((entry) => (entry.key === key ? { ...entry, ...patch } as typeof entry : entry)) });
 const member = (id: string, patch: Record<string, unknown>): Edit => (draft) =>
   ({ ...draft, roster: draft.roster.map((entry) => (entry.id === id ? { ...entry, ...patch } : entry)) });
-const field = (patch: Partial<StoryV2>): Edit => (draft) => ({ ...draft, ...patch });
+const field = (patch: Partial<Story>): Edit => (draft) => ({ ...draft, ...patch });
 
 interface Case {
   name: string;
@@ -68,7 +67,7 @@ const CASES: Case[] = [
 
 const running = (): AgentSession => approvePlan({ ...newAgentSession("ferry", "review", {}, AT), plan: ["edit"], status: "awaiting-plan" }, ["edit"], AT);
 
-const propose = (draft: StoryV2, tool: string, args: Record<string, unknown>) => {
+const propose = (draft: Story, tool: string, args: Record<string, unknown>) => {
   const turn = executeReply(running(), { kind: "call", call: { tool, args } }, agentContext(draft), META);
   const step = turn.session.steps.at(-1)!;
   expect(step.status).toBe("pending");
@@ -105,7 +104,7 @@ describe("K11: an accepted proposal never overwrites an author edit made since i
     expect(decided.apply).toBeNull();
     expect(decided.session.steps.find((entry) => entry.id === id)!.observation).toContain("player.summary changed since proposed");
     const removal = propose(ferry(), "removeCheckpoint", { id: "far_bank" });
-    const bumped = (draft: StoryV2) => ({ ...draft, transitions: draft.transitions.map((entry) => ({ ...entry, priority: 5 })) });
+    const bumped = (draft: Story) => ({ ...draft, transitions: draft.transitions.map((entry) => ({ ...entry, priority: 5 })) });
     expect(decideStep(removal.session, removal.id, { kind: "accept" }, bumped(ferry())).apply).toBeNull();
   });
 

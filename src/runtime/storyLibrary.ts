@@ -1,4 +1,4 @@
-import { parseStoryV2, isValidationErrorList, slugifyStoryId } from "@engine/index";
+import { parseStory, isValidationErrorList, slugifyStoryId } from "@engine/index";
 import { getContext, observeNextSettingsSave, readServerExtensionSettings } from "@services/STAPI";
 import { hashStory } from "./hash";
 import { createSettingsWriteEvidence, missingFromServer, recordSettingsWrite, stillHeldByServer, type LibrarySaveEvidence } from "./librarySave";
@@ -8,7 +8,7 @@ import { log } from "@utils/log";
 import { gameLayer } from "@engine/validate/gameLayer";
 import { noteLibraryIndex } from "./libraryIndexPort";
 
-const SETTINGS_KEY = "v2Stories";
+const SETTINGS_KEY = "stories";
 
 const storyObject = (raw: unknown): Record<string, unknown> | null => (raw && typeof raw === "object" && !Array.isArray(raw) ? raw as Record<string, unknown> : null);
 
@@ -75,7 +75,7 @@ export function availableStoryId(base: string): string {
 }
 
 export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["validationErrors"] {
-  const parsed = parseStoryV2(raw);
+  const parsed = parseStory(raw);
   if (isValidationErrorList(parsed)) return parsed;
   const body = storyObject(raw);
   if (!body) return [{ path: "$", message: "a story is a JSON object" }];
@@ -123,14 +123,14 @@ export function removeStoryRecord(id: string): boolean {
 }
 
 export function loadStoryRecord(record: StoryLibraryRecord): LoadedStory | RuntimeSnapshot["validationErrors"] {
-  const parsed = parseStoryV2(record.raw);
+  const parsed = parseStory(record.raw);
   if (isValidationErrorList(parsed)) return parsed;
   return { record, story: { ...parsed, id: record.id } };
 }
 
 // A chat plays its pinned copy, so it must load without consulting the library at all.
 export function loadPinnedStory(id: string, pinned: Record<string, unknown>, hash: string, title: string): LoadedStory | RuntimeSnapshot["validationErrors"] {
-  const parsed = parseStoryV2(pinned);
+  const parsed = parseStory(pinned);
   if (isValidationErrorList(parsed)) return parsed;
   const record: StoryLibraryRecord = {
     id,

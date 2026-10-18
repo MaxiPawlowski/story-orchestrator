@@ -1,7 +1,6 @@
 import { newStoryDraft, useDraftStore, type StoryDraft } from "../draft";
 
 export const sampleStory = (): StoryDraft => ({
-  format: 2,
   title: "The Ruins Heist",
   description: "A two-beat infiltration of the sun ruins.",
   qualities: [
@@ -25,7 +24,6 @@ export const sampleStory = (): StoryDraft => ({
 // that is a paragraph, and twelve options — the shapes a real author produces and a fixed-width row
 // does not survive.
 export const longNameStory = (): StoryDraft => ({
-  format: 2,
   title: "The Long Named Story",
   description: "A story whose names are the whole sentence.",
   qualities: [
@@ -68,7 +66,6 @@ export const longNameStory = (): StoryDraft => ({
 });
 
 export const problemStory = (): StoryDraft => ({
-  format: 2,
   title: "Problem Story",
   description: "A story with warnings for the diagnostics panel.",
   qualities: [{ key: "trust", type: "int", source: "extractor", rubric: "How much the guide trusts the party." }],

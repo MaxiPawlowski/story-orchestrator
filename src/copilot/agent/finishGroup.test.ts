@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { emptyEnvironment, type ProvisioningEnvironment } from "@wizard/index";
 import { missingAtDone } from "./finish";
 import { approvePlan, newAgentSession } from "./loop";
@@ -6,8 +6,7 @@ import { approvePlan, newAgentSession } from "./loop";
 const AT = "2026-10-10T12:00:00.000Z";
 const NO_GROUP = "no group for the cast (createGroup with every card)";
 
-const story = (): StoryV2 => ({
-  format: 2,
+const story = (): Story => ({
   title: "Arin's Errand",
   description: "",
   qualities: [{ key: "trust", type: "int", source: "extractor", rubric: "How much?" }],

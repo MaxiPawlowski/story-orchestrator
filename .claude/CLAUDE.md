@@ -2,7 +2,7 @@
 
 # Story Orchestrator
 
-SillyTavern extension running format-2 authored stories as deterministic checkpoint graphs over an active group chat.
+SillyTavern extension running authored stories as deterministic checkpoint graphs over an active group chat.
 
 ## Sources of truth (read before implementing)
 
@@ -28,7 +28,7 @@ Status lives in tables, not prose (v2.3 process rule 15). One line per version; 
 
 Older status paragraphs: `docs/plans/v2.3/status-history.md` (history only).
 
-## V2 spine
+## Engine spine
 
 - Stories declare qualities, checkpoints, typed gates, transitions, roster, effects, requirements.
 - `StoryEngine`: blackboard, serialized apply queue drained at boundaries, one transition per boundary, boundary logs, snapshots, rollback.
@@ -78,4 +78,4 @@ Story features, Assistant and Validation. Mobile graph sheets and checkpoint/tra
 - **Start pane** `#so-briefing` (Before you start + identity + briefing).
 - **Checkpoint Studio** (`src/studio/`): `StudioModal` (`#so-studio-modal`, native `<dialog>` in its own `#so-studio-root`), zustand draft (`draft.ts`), all edits through typed `mutations.ts`. The **Wizard** tab (tab id `copilot`): four author steps (`[data-so="wizard-step"]`) over five stages, interview (`#so-wizard-questions`), create-only provisioning cards applied one at a time; modes **Ask** (`#so-studio-ask`) and **Build a character** (`#so-character-tutorial`). "How to write this" disclosure `#so-studio-guide`. Saving hands the record back via `onSaved`; the runtime decides whether this chat takes it. Every UI part has a `.stories.tsx` (`test-storybook:ci`).
 - **Ask**: Help panel `#so-help-ask`, Studio Ask, `/story ask <question>`; switch `copilot.ask` (`#so-copilot-ask`). Debug: `globalThis.storyOrchestratorAsk.ask(question, persona?)`; live Q&A `node scripts/debug/so-ask-qa.mts run --group <name>`.
-- `src/components/studio/` = shared presentational primitives (`GraphPanel`, `MultiSelect`, `Toolbar`, `FeedbackAlert`, `HelpTooltip`, `AskBox`). Do not resurrect deleted v1 editor/context/session code.
+- `src/components/studio/` = shared presentational primitives (`GraphPanel`, `MultiSelect`, `Toolbar`, `FeedbackAlert`, `HelpTooltip`, `AskBox`). Do not resurrect the deleted pre-Studio editor/context/session code.

@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { castMemberName, isCastMember, storyPlayerNames } from "@engine/index";
 import { memberIsPlayer, rosterMemberIsPlayer, storyPlayerRoles } from "./playerRole";
 
@@ -21,7 +21,7 @@ export interface InstallFacts {
 }
 
 export interface CastRun {
-  draft: StoryV2;
+  draft: Story;
   context: InstallFacts;
   push: (code: CastCode, severity: "warning", path: string, message: string) => void;
 }
@@ -33,13 +33,13 @@ const known = (read: (() => readonly string[]) | undefined): Set<string> | null 
 
 const strings = (value: unknown): string[] => (Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : []);
 
-const castChangeNames = (draft: StoryV2): Array<{ name: string; path: string }> => draft.checkpoints.flatMap((checkpoint, index) => {
+const castChangeNames = (draft: Story): Array<{ name: string; path: string }> => draft.checkpoints.flatMap((checkpoint, index) => {
   const changes = checkpoint.effects?.cast_changes as { enable?: unknown; disable?: unknown } | undefined;
   return (["enable", "disable"] as const).flatMap((side) =>
     strings(changes?.[side]).map((name, position) => ({ name, path: `checkpoints.${index}.effects.cast_changes.${side}.${position}` })));
 });
 
-const castNames = (draft: StoryV2): Array<{ name: string; path: string }> => [
+const castNames = (draft: Story): Array<{ name: string; path: string }> => [
   ...castChangeNames(draft),
   ...(draft.requirements?.members ?? []).map((name, position) => ({ name, path: `requirements.members.${position}` })),
 ].map((entry) => ({ ...entry, name: castMemberName(draft.roster, entry.name) }));

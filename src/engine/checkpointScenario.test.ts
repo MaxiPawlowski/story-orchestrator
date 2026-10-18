@@ -1,8 +1,7 @@
-import { isValidationErrorList, type StoryV2, type ValidationError } from "./schema";
-import { parseStoryV2, parseStoryV2OrThrow } from "./validate";
+import { isValidationErrorList, type Story, type ValidationError } from "./schema";
+import { parseStory, parseStoryOrThrow } from "./validate";
 
-const story = (effects: Record<string, unknown>): StoryV2 => ({
-  format: 2,
+const story = (effects: Record<string, unknown>): Story => ({
   id: "scenario-fixture",
   title: "Scenario fixture",
   description: "A gate.",
@@ -13,11 +12,11 @@ const story = (effects: Record<string, unknown>): StoryV2 => ({
 });
 
 const errors = (json: unknown): ValidationError[] => {
-  const parsed = parseStoryV2(json);
+  const parsed = parseStory(json);
   return isValidationErrorList(parsed) ? parsed : [];
 };
 
-const scenarioOf = (effects: Record<string, unknown>) => parseStoryV2OrThrow(story(effects)).checkpointById.cp1.effects?.scenario;
+const scenarioOf = (effects: Record<string, unknown>) => parseStoryOrThrow(story(effects)).checkpointById.cp1.effects?.scenario;
 
 describe("v2.7 02 C1: checkpoint effects.scenario keeps three states", () => {
   it("keeps text, trimmed", () => {
@@ -29,7 +28,7 @@ describe("v2.7 02 C1: checkpoint effects.scenario keeps three states", () => {
   });
 
   it("absent means inherit: the key stays out", () => {
-    const effects = parseStoryV2OrThrow(story({ background: "gate.jpg" })).checkpointById.cp1.effects;
+    const effects = parseStoryOrThrow(story({ background: "gate.jpg" })).checkpointById.cp1.effects;
     expect(effects && Object.prototype.hasOwnProperty.call(effects, "scenario")).toBe(false);
   });
 

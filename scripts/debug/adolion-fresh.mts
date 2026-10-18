@@ -386,7 +386,7 @@ async function badgesPhase(outFile: string) {
     const observed = await evaluateInST(page, async () => {
       const ctx = SillyTavern.getContext();
       const root = (ctx.extensionSettings?.['story-orchestrator'] ?? {}) as Record<string, any>;
-      const library = Array.isArray(root.v2Stories) ? root.v2Stories : [];
+      const library = Array.isArray(root.stories) ? root.stories : [];
       const kinds = Object.fromEntries(library.map((entry: any) => [String(entry?.id), entry?.raw?.kind ?? null]));
       const blocks = Array.from(document.querySelectorAll('#rm_print_characters_block .group_select[data-grid]')).map((element) => ({
         grid: String(element.getAttribute('data-grid')), kind: (element.querySelector('.so-story-badge') as HTMLElement | null)?.dataset.kind ?? null,

@@ -1,5 +1,5 @@
 import { FEATURE_POLICY_FIELDS, STORY_FEATURE_IDS, readFeaturePolicies, type FeaturePolicyValue, type StoryFeatureId, type StoryFeatures } from "@engine/featurePolicy";
-import type { StoryV2 } from "@engine/schema";
+import type { Story } from "@engine/schema";
 import { isRecord } from "@utils/guards";
 import { DEFAULT_CHAPTER_SETTINGS } from "./chapters";
 import { DEFAULT_REPLY_EFFORT } from "@utils/reasoningEffort";
@@ -56,7 +56,7 @@ const defaultValue = (global: GlobalSettings, id: StoryFeatureId, field: string,
   return spec.kind === "boolean" ? true : spec.kind === "number" ? spec.min ?? 0 : spec.options?.[0] ?? "";
 };
 
-export const resolveFeatures = (global: GlobalSettings, story: Pick<StoryV2, "features" | "reasoning"> | null, rawOverrides: StoryFeatures = {}): ResolvedFeatures => {
+export const resolveFeatures = (global: GlobalSettings, story: Pick<Story, "features" | "reasoning"> | null, rawOverrides: StoryFeatures = {}): ResolvedFeatures => {
   const authored = readFeaturePolicies(story?.features);
   const overrides = readFeaturePolicies(rawOverrides);
   return Object.fromEntries(STORY_FEATURE_IDS.map((id) => {

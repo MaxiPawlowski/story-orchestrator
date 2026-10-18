@@ -12,7 +12,7 @@ jest.mock("./sharedRead", () => ({
   runSharedRead: jest.fn(),
 }));
 
-import type { EngineHistory, EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineHistory, EngineState, NormalizedStory } from "@engine/index";
 import { readCursorSeed } from "./readCursor";
 import { ExtractionScheduler, type SchedulerHost, type SchedulerSettings } from "./scheduler";
 import { runSharedRead } from "./sharedRead";
@@ -32,7 +32,7 @@ const history = (log: ReturnType<typeof boundary>[]) => ({ from: { boundary: 0, 
 function harness(seed: () => number | null) {
   const settings: SchedulerSettings = { enabled: true, profileId: "deepseek", cadence: 1, stabilityLag: 0 };
   const host: SchedulerHost = {
-    getStory: () => ({}) as unknown as NormalizedStoryV2,
+    getStory: () => ({}) as unknown as NormalizedStory,
     getEngineState: () => ({ lastMessageId: 9 }) as unknown as EngineState,
     getExtractionSettings: () => settings,
     model: plantedModel,

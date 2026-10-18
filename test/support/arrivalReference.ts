@@ -1,4 +1,4 @@
-import { type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type Transition } from "../../src/engine/index";
+import { type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type Story, type Transition } from "../../src/engine/index";
 
 export interface PassThrough {
   index: number;
@@ -95,7 +95,7 @@ const byQuality = (leaves: GateLeaf[]): Map<string, GateLeaf[]> => {
   return grouped;
 };
 
-const routesInto = (draft: StoryV2, target: string): Transition[][] => {
+const routesInto = (draft: Story, target: string): Transition[][] => {
   const routes: Transition[][] = [];
   const walk = (route: Transition[], seen: Set<string>) => {
     if (routes.length >= MAX_ROUTES) return;
@@ -111,7 +111,7 @@ const routesInto = (draft: StoryV2, target: string): Transition[][] => {
   return routes;
 };
 
-const factsAlong = (draft: StoryV2, route: Transition[], qualities: Map<string, Quality>): Map<string, Fact> => {
+const factsAlong = (draft: Story, route: Transition[], qualities: Map<string, Quality>): Map<string, Fact> => {
   const facts = new Map<string, Fact>();
   const snapshots = new Map(draft.checkpoints.map((checkpoint) => [checkpoint.id, snapshotLeaves(checkpoint.state_snapshot)]));
   route.forEach((edge, index) => {
@@ -142,7 +142,7 @@ const reason = (exit: Transition, route: Transition[], used: Fact[]): string => 
   return `on the way in through ${path} it already holds (${origins.join(", ")}) and nothing later on that route asks about it again`;
 };
 
-const exitOpenOnArrival = (draft: StoryV2, exit: Transition, qualities: Map<string, Quality>): string | null => {
+const exitOpenOnArrival = (draft: Story, exit: Transition, qualities: Map<string, Quality>): string | null => {
   const wanted = conjuncts(exit.gate);
   if (!wanted?.length || exit.from === exit.to) return null;
   const own = snapshotLeaves(draft.checkpoints.find((checkpoint) => checkpoint.id === exit.from)?.state_snapshot);
@@ -158,7 +158,7 @@ const exitOpenOnArrival = (draft: StoryV2, exit: Transition, qualities: Map<stri
   return null;
 };
 
-export const referencePassThroughExits = (draft: StoryV2): PassThrough[] => {
+export const referencePassThroughExits = (draft: Story): PassThrough[] => {
   const qualities = new Map(draft.qualities.map((quality) => [quality.key, quality]));
   return draft.transitions.flatMap((exit, index) => {
     const because = exitOpenOnArrival(draft, exit, qualities);

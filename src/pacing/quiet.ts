@@ -1,6 +1,6 @@
 import {
   gateKeys, openStretch, PLAYER_TURNS_KEY, QUIET_WINDOW_TURNS,
-  type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type PrimitiveValue,
+  type BoundaryLogEntry, type EngineState, type NormalizedStory, type PrimitiveValue,
 } from "@engine/index";
 
 const COUNTERS: readonly string[] = ["message_count", "messages_in_checkpoint", "elapsed", PLAYER_TURNS_KEY];
@@ -12,14 +12,14 @@ export interface QuietRead {
 }
 
 export interface QuietInput {
-  story: Pick<NormalizedStoryV2, "checkpointById" | "outgoingByCheckpoint"> | null;
+  story: Pick<NormalizedStory, "checkpointById" | "outgoingByCheckpoint"> | null;
   state: Pick<EngineState, "activeCheckpointId" | "checkpointStartedMessageId" | "lastMessageId" | "blackboard"> | null;
   log: readonly BoundaryLogEntry[];
   playerTurnIds: readonly number[];
   window?: number;
 }
 
-export const watchedQualities = (story: Pick<NormalizedStoryV2, "outgoingByCheckpoint">, checkpointId: string): string[] =>
+export const watchedQualities = (story: Pick<NormalizedStory, "outgoingByCheckpoint">, checkpointId: string): string[] =>
   [...new Set((story.outgoingByCheckpoint[checkpointId] ?? []).flatMap((transition) => gateKeys(transition.gate)))].filter((key) => !COUNTERS.includes(key));
 
 type Values = Readonly<Record<string, PrimitiveValue>>;

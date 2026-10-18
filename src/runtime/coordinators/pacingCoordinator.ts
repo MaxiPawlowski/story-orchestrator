@@ -1,7 +1,7 @@
 import {
   TENSION_CURRENT_KEY, agencyForCheckpoint, guidanceForMember, objectiveLineApplies, offersEncounters, openPhase, openStretch, pullStage, stretchDestination,
   type ArcTemplate, type BoundaryLogEntry, type BoundaryResult,
-  type Checkpoint, type EngineState, type NormalizedStoryV2, type TensionLevel,
+  type Checkpoint, type EngineState, type NormalizedStory, type TensionLevel,
 } from "@engine/index";
 import type { ParsedDelta } from "@extraction/index";
 import { OPENING_LINE, composeGuidanceBlock, encounterOfferLine, getSteeringHint, pullLine, quietRead, tensionEvidenceFresh, updateEma, type EncounterOffer } from "@pacing/index";
@@ -19,7 +19,7 @@ import type { PacingSettings, TensionRuntimeState } from "../types";
 const TENSION_LEVEL_LIMIT = 50;
 
 export interface PacingCoordinatorDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   getStateLog: () => BoundaryLogEntry[];
   getEncounters?: (stretchId: string) => EncounterOffer[];
@@ -141,7 +141,7 @@ export class PacingCoordinator {
     else this.clearGuidance();
   }
 
-  private stretchLine(story: NormalizedStoryV2, active: Checkpoint | null, rows: readonly unknown[], turns: number): string | null {
+  private stretchLine(story: NormalizedStory, active: Checkpoint | null, rows: readonly unknown[], turns: number): string | null {
     const stretch = openStretch(active);
     if (!active) return null;
     if (!stretch) return openPhase(active, turns) ? OPENING_LINE : null;
@@ -150,7 +150,7 @@ export class PacingCoordinator {
     return [pullLine(pullStage(stretch, turns), stretchDestination(story, active.id)), offer].filter(Boolean).join("\n");
   }
 
-  private memberLine(story: NormalizedStoryV2, active: Checkpoint | null) {
+  private memberLine(story: NormalizedStory, active: Checkpoint | null) {
     const id = this.withheld ? null : this.drafted;
     const text = guidanceForMember(active?.guidance, id);
     if (!id || !text) return null;

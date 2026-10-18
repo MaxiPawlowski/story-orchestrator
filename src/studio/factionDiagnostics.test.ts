@@ -1,9 +1,9 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { runDiagnostics } from "./diagnostics";
 import { readGameCall, gameOpProblem, applyGameOp } from "@copilot/agent/gameOps";
 
-const draft = (patch: Partial<StoryV2> = {}): StoryV2 => ({
-  format: 2, title: "T", description: "D", transitions: [],
+const draft = (patch: Partial<Story> = {}): Story => ({
+  title: "T", description: "D", transitions: [],
   qualities: [{ key: "helped", type: "bool", source: "extractor", rubric: "Did the player help?" }],
   checkpoints: [{ id: "start", name: "Start", objective: "o", type: "anchor", start: true }],
   roster: [{ id: "mara", name: "Mara" }],
@@ -11,7 +11,7 @@ const draft = (patch: Partial<StoryV2> = {}): StoryV2 => ({
   ...patch,
 });
 
-const codes = (story: StoryV2) => runDiagnostics(story).map((entry) => entry.code);
+const codes = (story: Story) => runDiagnostics(story).map((entry) => entry.code);
 
 describe("v2.8 plan 53: faction diagnostics and the wizard tool", () => {
   it("names a faction that never moves, one the player never sees, a snapshot write and a move on inaction", () => {
@@ -27,7 +27,7 @@ describe("v2.8 plan 53: faction diagnostics and the wizard tool", () => {
 
   it("a draft faction that leaves out range and start is diagnosed with the parser's defaults, not a crash", () => {
     const { range: _range, start: _start, ...bare } = draft().factions![0];
-    const story = draft({ factions: [bare as NonNullable<StoryV2["factions"]>[number]] });
+    const story = draft({ factions: [bare as NonNullable<Story["factions"]>[number]] });
     expect(() => runDiagnostics(story)).not.toThrow();
     expect(codes(story)).toContain("faction-never-moves");
   });

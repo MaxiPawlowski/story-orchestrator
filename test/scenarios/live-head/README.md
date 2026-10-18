@@ -3,7 +3,7 @@
 Three synthetic members use the owned geometric Storybook bust. `rig.json` is the
 rig recipe: the runner clones its template for each member and both looks, routes
 the nine PNG layers locally, and creates marked `SOLH` cards, sprite packs and a group.
-`story.json` is an ordinary format-2 story, not a scenario-runner document.
+`story.json` is an ordinary story, not a scenario-runner document.
 
 ```bash
 ST_DEBUG_VIEWPORT=1440x844 node scripts/debug/st-lanes.mts run 30 -- scripts/debug/so-live-head-check.mts --row all --label run1 --candidate

@@ -1,6 +1,6 @@
 import {
   GATE_OPERATORS, LIVING_MAX_NAME_CHARS, LIVING_MAX_OBJECTIVE_CHARS, TENSION_LEVELS,
-  type GateNode, type GateOperator, type NormalizedStoryV2, type PrimitiveValue, type TensionLevel,
+  type GateNode, type GateOperator, type NormalizedStory, type PrimitiveValue, type TensionLevel,
 } from "@engine/index";
 import { stripReasoningBlocks } from "@extraction/parse";
 import { isRecord } from "@utils/guards";
@@ -53,7 +53,7 @@ const text = (value: unknown, path: string, max: number, issues: string[]): stri
   return trimmed;
 };
 
-const readReuseGate = (value: unknown, story: NormalizedStoryV2, issues: string[]): GateNode | null => {
+const readReuseGate = (value: unknown, story: NormalizedStory, issues: string[]): GateNode | null => {
   if (!isRecord(value) || typeof value.q !== "string" || typeof value.op !== "string" || !(GATE_OPERATORS as readonly string[]).includes(value.op)) {
     issues.push("opens_when.reuse must be {q, op, v}");
     return null;
@@ -97,7 +97,7 @@ const readChanged = (value: unknown): string[] | undefined => {
   return names.length ? names : undefined;
 };
 
-export function parseDirectorDraft(raw: string, story: NormalizedStoryV2): DirectorParse {
+export function parseDirectorDraft(raw: string, story: NormalizedStory): DirectorParse {
   const parsed = jsonObject(raw);
   if (!isRecord(parsed)) return { ok: false, issues: ["the answer was not one JSON object"] };
   const issues: string[] = [];

@@ -1,6 +1,6 @@
 import {
   checksById, evaluateGate, LIVING_PREFIX, milestoneEarned, questStatus, valueReader,
-  type AppliedQueueEntry, type BoundaryLogEntry, type EngineState, type GateLeaf, type GateNode, type NormalizedStoryV2, type NormalizedTransition,
+  type AppliedQueueEntry, type BoundaryLogEntry, type EngineState, type GateLeaf, type GateNode, type NormalizedStory, type NormalizedTransition,
   type Milestone, type PrimitiveValue, type Quest, type QuestStatus, type RecapText, type StoryCheck, type Transition,
 } from "@engine/index";
 import { gameLayer } from "@engine/validate/gameLayer";
@@ -30,7 +30,7 @@ export interface RecapSection {
 }
 
 export interface RecapView {
-  story: NormalizedStoryV2 | null;
+  story: NormalizedStory | null;
   state: EngineState | null;
   recap: RecapRuntimeState | undefined;
   chat: readonly unknown[];
@@ -45,9 +45,9 @@ interface StoryIndex {
   transitions: Map<string, Transition | null>;
 }
 
-const indexes = new WeakMap<NormalizedStoryV2, StoryIndex>();
+const indexes = new WeakMap<NormalizedStory, StoryIndex>();
 
-const indexOf = (story: NormalizedStoryV2): StoryIndex => {
+const indexOf = (story: NormalizedStory): StoryIndex => {
   const known = indexes.get(story);
   if (known) return known;
   const index = {
@@ -62,7 +62,7 @@ type Revisions = Map<number, string | null>;
 
 const holds = (gate: GateNode | undefined, values: Values): boolean => !gate || evaluateGate(gate, valueReader(values));
 
-export const chapterOf = (story: NormalizedStoryV2, checkpointId: string): string | null =>
+export const chapterOf = (story: NormalizedStory, checkpointId: string): string | null =>
   story.chapterByCheckpoint?.[checkpointId] ?? story.checkpointById[checkpointId]?.chapter ?? null;
 
 const flatLeaves = (gates: Array<GateNode | undefined>): GateLeaf[] | null => {
@@ -96,12 +96,12 @@ export function decidingCause(gates: Array<GateNode | undefined>, before: Values
   return [{ key, value: last.delta.v, ...(last.entry.origin ? { origin: last.entry.origin } : {}), playerSpan: span }];
 }
 
-export const transitionId = (story: Pick<NormalizedStoryV2, "transitions">, transition: Pick<NormalizedTransition, "from" | "to" | "declarationIndex">): string => {
+export const transitionId = (story: Pick<NormalizedStory, "transitions">, transition: Pick<NormalizedTransition, "from" | "to" | "declarationIndex">): string => {
   const occurrence = story.transitions.slice(0, transition.declarationIndex).filter((other) => other.from === transition.from && other.to === transition.to).length;
   return `${transition.from}->${transition.to}#${occurrence}`;
 };
 
-const transitionById = (story: NormalizedStoryV2, id: string): Transition | null => {
+const transitionById = (story: NormalizedStory, id: string): Transition | null => {
   const cache = indexOf(story).transitions;
   if (cache.has(id)) return cache.get(id) ?? null;
   const match = /^(.*)->(.*)#(\d+)$/.exec(id);
@@ -112,7 +112,7 @@ const transitionById = (story: NormalizedStoryV2, id: string): Transition | null
 
 const isLiving = (transition: Pick<Transition, "from" | "to">): boolean => transition.from.startsWith(LIVING_PREFIX) || transition.to.startsWith(LIVING_PREFIX);
 
-const transitionCause = (story: NormalizedStoryV2, entry: BoundaryLogEntry, fired: NormalizedTransition): CauseRef[] => {
+const transitionCause = (story: NormalizedStory, entry: BoundaryLogEntry, fired: NormalizedTransition): CauseRef[] => {
   if (isLiving(fired) || !entry.evaluated) return [];
   const evaluated = valueReader(entry.evaluated);
   const rivals = (story.outgoingByCheckpoint[fired.from] ?? []).filter((transition) => transition.declarationIndex !== fired.declarationIndex && evaluateGate(transition.gate, evaluated));
@@ -134,7 +134,7 @@ const questCause = (quest: Quest, to: QuestStatus, before: Values, after: Values
   return gates && quiet ? decidingCause(gates, before, after, entry) : [];
 };
 
-const transitionRef = (story: NormalizedStoryV2, entry: BoundaryLogEntry, fired: NormalizedTransition) => {
+const transitionRef = (story: NormalizedStory, entry: BoundaryLogEntry, fired: NormalizedTransition) => {
   const target = story.checkpointById[fired.to];
   return {
     kind: "transition" as const, id: transitionId(story, fired), from: fired.from, to: fired.to,
@@ -142,7 +142,7 @@ const transitionRef = (story: NormalizedStoryV2, entry: BoundaryLogEntry, fired:
   };
 };
 
-const questRefs = (story: NormalizedStoryV2, entry: BoundaryLogEntry) => {
+const questRefs = (story: NormalizedStory, entry: BoundaryLogEntry) => {
   const before = entry.before.blackboard.values;
   const after = entry.after.blackboard.values;
   return (story.quests ?? []).flatMap((quest) => {
@@ -154,32 +154,32 @@ const questRefs = (story: NormalizedStoryV2, entry: BoundaryLogEntry) => {
   });
 };
 
-const milestoneRefs = (story: NormalizedStoryV2, entry: BoundaryLogEntry) => {
+const milestoneRefs = (story: NormalizedStory, entry: BoundaryLogEntry) => {
   const before = entry.before.blackboard.values;
   const after = entry.after.blackboard.values;
   return (story.milestones ?? []).filter((milestone) => !milestoneEarned(milestone, valueReader(before)) && milestoneEarned(milestone, valueReader(after)))
     .map((milestone) => ({ kind: "milestone" as const, id: milestone.id, visible: true, authored: holds(milestone.recap_when, after), causes: decidingCause([milestone.when], before, after, entry) }));
 };
 
-const checkRefs = (story: NormalizedStoryV2, entry: BoundaryLogEntry, records: readonly CheckRecord[]) => {
+const checkRefs = (story: NormalizedStory, entry: BoundaryLogEntry, records: readonly CheckRecord[]) => {
   const byId = checksById(story);
   return records.filter((record) => record.boundary === entry.boundary).map((record) => ({
     kind: "check" as const, id: record.checkId, to: record.outcome, visible: byId.get(record.checkId)?.narrate === "public", authored: false, causes: [],
   }));
 };
 
-const agendaRefs = (story: NormalizedStoryV2, entry: BoundaryLogEntry) => (story.life
+const agendaRefs = (story: NormalizedStory, entry: BoundaryLogEntry) => (story.life
   ? gameLayer()?.life.landedSteps(story, entry.before.blackboard.values, entry.after.blackboard.values) ?? [] : [])
   .map((landed) => ({ kind: "agenda" as const, id: `${landed.memberId}:${landed.agendaId}:${landed.index}`, visible: landed.step.public === true, authored: false, causes: [] }));
 
-export function deriveRefs(story: NormalizedStoryV2, entry: BoundaryLogEntry, records: readonly CheckRecord[] = []): EffectRef[] {
+export function deriveRefs(story: NormalizedStory, entry: BoundaryLogEntry, records: readonly CheckRecord[] = []): EffectRef[] {
   const at = { boundary: entry.boundary, messageId: entry.context.lastMessageId, chapterId: chapterOf(story, entry.before.activeCheckpointId) };
   const fired = entry.fired && entry.source === "gate" ? [transitionRef(story, entry, entry.fired)] : [];
   return [...fired, ...questRefs(story, entry), ...milestoneRefs(story, entry), ...checkRefs(story, entry, records), ...agendaRefs(story, entry)]
     .map((ref): EffectRef => ({ ...ref, ...at }));
 }
 
-export const recapWithheld = (story: NormalizedStoryV2, state: EngineState): string[] => {
+export const recapWithheld = (story: NormalizedStory, state: EngineState): string[] => {
   const reader = valueReader(state.blackboard.values);
   const shownQuests = new Set((story.quests ?? []).filter((quest) => questStatus(quest, reader) !== "hidden").map((quest) => quest.title.trim()));
   const secret = (story.milestones ?? []).filter((milestone) => milestone.secret && !milestoneEarned(milestone, reader)).map((milestone) => milestone.title.trim());
@@ -191,12 +191,12 @@ const naming = (withheld: readonly string[]) => (text: string): boolean => {
   return withheld.some((name) => lower.includes(name.toLowerCase()));
 };
 
-const agendaStep = (story: NormalizedStoryV2, id: string) => {
+const agendaStep = (story: NormalizedStory, id: string) => {
   const [memberId, agendaId, index] = id.split(":");
   return story.life?.members.find((member) => member.id === memberId)?.agenda.find((agenda) => agenda.id === agendaId)?.steps[Number(index)] ?? null;
 };
 
-export function neutralText(story: NormalizedStoryV2, ref: EffectRef): string | null {
+export function neutralText(story: NormalizedStory, ref: EffectRef): string | null {
   if (!ref.visible) return null;
   if (ref.kind === "transition") {
     const target = ref.to ? story.checkpointById[ref.to] : undefined;
@@ -219,7 +219,7 @@ export function neutralText(story: NormalizedStoryV2, ref: EffectRef): string | 
   return step?.public ? step.text : null;
 }
 
-const authoredOf = (story: NormalizedStoryV2, ref: EffectRef): RecapText | null => {
+const authoredOf = (story: NormalizedStory, ref: EffectRef): RecapText | null => {
   if (!ref.authored) return null;
   if (ref.kind === "transition") return transitionById(story, ref.id)?.recap ?? null;
   if (ref.kind === "milestone") return indexOf(story).milestones.get(ref.id)?.recap ?? null;
@@ -238,7 +238,7 @@ export const evidencedCause = (ref: EffectRef, chat: readonly unknown[], revisio
   return revisionAt(chat, cause.playerSpan.messageId, revisions) === cause.playerSpan.revision ? cause : null;
 };
 
-export function lineFor(story: NormalizedStoryV2, ref: EffectRef, chat: readonly unknown[], withheld: readonly string[], revisions: Revisions = new Map()): RecapLine | null {
+export function lineFor(story: NormalizedStory, ref: EffectRef, chat: readonly unknown[], withheld: readonly string[], revisions: Revisions = new Map()): RecapLine | null {
   const neutral = neutralText(story, ref);
   if (!neutral) return null;
   const hides = naming(withheld);
@@ -257,7 +257,7 @@ export function lineFor(story: NormalizedStoryV2, ref: EffectRef, chat: readonly
 
 const TIER_RANK: Record<RecapTier, number> = { authored: 0, evidenced: 1, neutral: 2 };
 
-export function composeLines(story: NormalizedStoryV2, state: EngineState, refs: readonly EffectRef[], chat: readonly unknown[], limit = RECAP_LINES): RecapLine[] {
+export function composeLines(story: NormalizedStory, state: EngineState, refs: readonly EffectRef[], chat: readonly unknown[], limit = RECAP_LINES): RecapLine[] {
   const withheld = recapWithheld(story, state);
   const revisions: Revisions = new Map();
   const ranked = refs.flatMap((ref, order) => {
@@ -284,7 +284,7 @@ const trailingRun = (refs: readonly EffectRef[], end: number, chapterId: string 
   return refs.slice(start, end);
 };
 
-export function currentRefs(story: NormalizedStoryV2, state: EngineState, refs: readonly EffectRef[]): { refs: EffectRef[]; recent: boolean } {
+export function currentRefs(story: NormalizedStory, state: EngineState, refs: readonly EffectRef[]): { refs: EffectRef[]; recent: boolean } {
   if (!story.chapters?.length) return { refs: refs.filter((ref) => ref.boundary > state.boundary - RECAP_RECENT_BOUNDARIES), recent: true };
   return { refs: trailingRun(refs, refs.length, chapterOf(story, state.activeCheckpointId)), recent: false };
 }

@@ -3,7 +3,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "title": "Live Runtime Gate Check",
         "description": "Plan 02 retro validation with real main-model generation.",
         "requirements": { "members": ["DM Narrator"] },

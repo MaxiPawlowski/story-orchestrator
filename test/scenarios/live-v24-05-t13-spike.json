@@ -17,7 +17,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-t13-c",
         "title": "SO-T13 C",
         "description": "v2.4 plan 05 T13 spike: a second story sharing the marker book.",
@@ -91,7 +90,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-t13-d",
         "title": "SO-T13 D",
         "description": "v2.4 plan 05 T13 spike: a second story sharing the marker book.",
@@ -135,7 +133,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-t13-e",
         "title": "SO-T13 E",
         "description": "v2.4 plan 05 T13 spike: a second story sharing the marker book.",
@@ -435,7 +432,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-t13-a",
         "title": "SO-T13 A",
         "description": "Humanity's last survivors shelter in the ruined city of Xentar as its magical wards fail. The Adventurers Guild sends a team to recover the legendary Sun's Heart Artifact from the perilous Sun Ruins, past ancient traps and a riddling sphinx.",

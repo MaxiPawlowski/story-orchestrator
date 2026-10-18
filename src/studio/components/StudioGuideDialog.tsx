@@ -1,4 +1,4 @@
-import React, { Component, Suspense, useEffect, useMemo, useRef, type ReactNode } from "react";
+import React, { Component, Suspense, useLayoutEffect, useMemo, useRef, type ReactNode } from "react";
 import { lazyRetry } from "@utils/lazyRetry";
 import { GUIDE_COPY } from "@features/helpCopy";
 import { targetForDoc } from "@guide/links";
@@ -29,7 +29,7 @@ const StudioGuideDialog: React.FC<StudioGuideDialogProps> = ({ doc, onClose }) =
   const closeRef = useRef<HTMLButtonElement | null>(null);
   const target = useMemo(() => targetForDoc(doc), [doc]);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const dialog = dialogRef.current;
     if (dialog && !dialog.open) dialog.showModal();
     closeRef.current?.focus();

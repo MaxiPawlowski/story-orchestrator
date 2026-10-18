@@ -1,7 +1,7 @@
 // V20d (S6, S7, S12): the decisions behind a journey's config and library cleanup, pure so they are tested
 // without a browser. Each one narrows what a run may remove when it cannot prove what it found.
 
-type Root = Record<string, unknown> & { v2Stories?: unknown; wizardSessions?: unknown };
+type Root = Record<string, unknown> & { stories?: unknown; wizardSessions?: unknown };
 
 const idOfStory = (record: unknown): string | null => {
   const id = (record as { id?: unknown } | null)?.id;
@@ -22,14 +22,14 @@ export function mergeRestore(next: Root | null, live: Root | null): { next: Root
   const merged: Root = { ...next };
   const preservedStories: string[] = [];
   const preservedSessions: string[] = [];
-  const liveStories = Array.isArray(live?.v2Stories) ? live.v2Stories : [];
-  const stories = Array.isArray(next.v2Stories) ? [...next.v2Stories] : [];
+  const liveStories = Array.isArray(live?.stories) ? live.stories : [];
+  const stories = Array.isArray(next.stories) ? [...next.stories] : [];
   const knownStories = new Set(stories.map(idOfStory).filter(Boolean));
   for (const record of liveStories) {
     const id = idOfStory(record);
     if (id && !knownStories.has(id)) { stories.push(record); preservedStories.push(id); }
   }
-  if (stories.length) merged.v2Stories = stories;
+  if (stories.length) merged.stories = stories;
   const liveSessions = Array.isArray(live?.wizardSessions) ? live.wizardSessions : [];
   const sessions = Array.isArray(next.wizardSessions) ? [...next.wizardSessions] : [];
   const knownSessions = new Set(sessions.map(keyOfSession).filter(Boolean));

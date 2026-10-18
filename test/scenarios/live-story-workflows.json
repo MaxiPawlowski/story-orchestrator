@@ -15,7 +15,6 @@
   },
   {
    "import_story": {
-    "format": 2,
     "id": "so-li-story-workflows",
     "title": "SO LI story workflows",
     "description": "Maps two picture purposes to two marked ST workflows.",

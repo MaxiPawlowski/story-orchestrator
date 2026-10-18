@@ -1,4 +1,4 @@
-import { StoryEngine, parseStoryV2OrThrow, type PrimitiveValue, type StoryV2 } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, type PrimitiveValue, type Story } from "@engine/index";
 import { composeGame, type GameSources } from "./widgets";
 import type { WidgetView } from "./gameTypes";
 
@@ -34,8 +34,8 @@ const hiddenWidgets = () => [
   ] },
 ];
 
-const raw = (widgets: unknown[]): StoryV2 => ({
-  format: 2, id: "kinds", title: "Kinds", description: "Synthetic.", roster: [],
+const raw = (widgets: unknown[]): Story => ({
+  id: "kinds", title: "Kinds", description: "Synthetic.", roster: [],
   qualities: QUALITIES,
   checkpoints: [
     { id: "start", name: "Start", type: "anchor", start: true, objective: "Begin." },
@@ -47,10 +47,10 @@ const raw = (widgets: unknown[]): StoryV2 => ({
     { from: "dock", to: "far", priority: 0, gate: { q: "secret_place", op: "==", v: true } },
   ],
   widgets,
-} as unknown as StoryV2);
+} as unknown as Story);
 
-const play = (story: StoryV2, turns: Array<Record<string, PrimitiveValue>>) => {
-  const normalized = parseStoryV2OrThrow(story);
+const play = (story: Story, turns: Array<Record<string, PrimitiveValue>>) => {
+  const normalized = parseStoryOrThrow(story);
   const engine = new StoryEngine();
   engine.loadStory(normalized);
   turns.forEach((values, index) => {
@@ -60,7 +60,7 @@ const play = (story: StoryV2, turns: Array<Record<string, PrimitiveValue>>) => {
   return { normalized, engine };
 };
 
-const sources = (story: StoryV2, turns: Array<Record<string, PrimitiveValue>>): GameSources => {
+const sources = (story: Story, turns: Array<Record<string, PrimitiveValue>>): GameSources => {
   const { normalized, engine } = play(story, turns);
   return { story: normalized, state: engine.serialize(), boundaryLog: engine.stateLog, checks: [], threads: { open: [], resolved: [] }, chat: [], castNames: {} };
 };

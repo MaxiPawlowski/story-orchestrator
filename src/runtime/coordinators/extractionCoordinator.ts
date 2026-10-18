@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
+import type { EngineState, NormalizedStory, NormalizedTransition } from "@engine/index";
 import { maxTokensFor, maxTokensForInput } from "@extraction/callBudget";
 import { acceptCompaction, CompactionAttempts, compactionKey } from "@memory/compactionGate";
 import { defaultContextLimit } from "@extraction/inputBudget";
@@ -50,7 +50,7 @@ export type JudgedExtractionWork =
   | { kind: "stall"; plan: ReconciliationPlan; reread: () => void };
 
 export interface ExtractionCoordinatorDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   getExtraction: () => ExtractionRuntimeState;
   model: ModelCall;

@@ -1,5 +1,5 @@
 import { readWith } from "../../test/support/modelCall";
-import { StoryEngine, parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import { PROMISE_ARC_RULE } from "@memory/contract";
 import { renderPromiseContractSection } from "@memory/promises/contract";
 import { commitmentVerdict } from "./commitGuard";
@@ -17,8 +17,8 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: [], extensionSettings: {} }),
 }));
 
-const story = (): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2, id: "promise-read", title: "Promise read", description: "plan 47",
+const story = (): NormalizedStory => parseStoryOrThrow({
+  id: "promise-read", title: "Promise read", description: "plan 47",
   qualities: [{ key: "gate_open", type: "bool", source: "extractor", rubric: "Is the gate open?" }],
   checkpoints: [{ id: "cp1", name: "The Gate", objective: "Get past", type: "anchor", start: true }],
   transitions: [], roster: [{ id: "mara", name: "Mara" }],

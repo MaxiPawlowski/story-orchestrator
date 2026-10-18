@@ -1,6 +1,6 @@
 import { textModel } from "../../../test/support/modelCall";
 import { authorAcceptsPending } from "../../../test/support/curatorAccept";
-import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type EngineState, type NormalizedStory } from "@engine/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { CURATOR_OP_REVERTED, DECLINE_MEMORY_BOUNDARIES } from "@stagecraft/index";
 import { createStagecraft, sanitizeStagecraft } from "../extras";
@@ -42,8 +42,7 @@ type FakeBook = ReturnType<typeof lorebook>;
 const book: { current: FakeBook } = { current: lorebook() };
 const entryOf = (name: string) => Object.values(book.current.entries).find((entry) => entry.comment === name);
 
-const story = (lorebooks: string[] = ["Story Lore"]): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2,
+const story = (lorebooks: string[] = ["Story Lore"]): NormalizedStory => parseStoryOrThrow({
   id: "coordinator-fixture",
   title: "Crossing",
   description: "Curator.",
@@ -54,12 +53,12 @@ const story = (lorebooks: string[] = ["Story Lore"]): NormalizedStoryV2 => parse
   ...(lorebooks.length ? { stagecraft: { lorebooks } } : {}),
 });
 
-const gatedStory = (): NormalizedStoryV2 => parseStoryV2OrThrow({
+const gatedStory = (): NormalizedStory => parseStoryOrThrow({
   ...JSON.parse(JSON.stringify(story())),
   checkpoints: [{ id: "cp1", name: "The bank", objective: "Cross", type: "anchor", start: true, effects: { world_info: { enable: [{ lorebook: "Story Lore", comments: ["The ferryman"] }] } } }],
 });
 
-const excludedStory = (): NormalizedStoryV2 => parseStoryV2OrThrow({
+const excludedStory = (): NormalizedStory => parseStoryOrThrow({
   ...JSON.parse(JSON.stringify(story())),
   stagecraft: { lorebooks: ["Story Lore"], exclude: [{ lorebook: "story lore", comments: ["The Ferryman"] }] },
 });
@@ -72,7 +71,7 @@ const engineState = (boundary = 10, lastMessageId = 20): EngineState => ({
   visitedAnchors: ["cp1"],
 } as unknown as EngineState);
 
-const harness = (options: { story?: NormalizedStoryV2 | null; state?: EngineState; settings?: Partial<StagecraftRuntimeState["settings"]>; filterEntries?: StagecraftCoordinatorDeps["filterEntries"]; warden?: StagecraftCoordinatorDeps["warden"]; owned?: boolean } = {}) => {
+const harness = (options: { story?: NormalizedStory | null; state?: EngineState; settings?: Partial<StagecraftRuntimeState["settings"]>; filterEntries?: StagecraftCoordinatorDeps["filterEntries"]; warden?: StagecraftCoordinatorDeps["warden"]; owned?: boolean } = {}) => {
   let state: StagecraftRuntimeState = { ...createStagecraft(), settings: { curatorEnabled: true, acceptMode: "review", ...options.settings } as StagecraftRuntimeState["settings"] };
   const journal: string[] = [];
   let writes = 0;

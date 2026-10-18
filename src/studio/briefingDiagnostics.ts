@@ -1,4 +1,4 @@
-import { castCardName, resolveCastChanges, type Checkpoint, type StoryBriefing, type StoryV2 } from "@engine/index";
+import { castCardName, resolveCastChanges, type Checkpoint, type StoryBriefing, type Story } from "@engine/index";
 
 type BriefingCode = "briefing-spoiler-risk";
 
@@ -7,7 +7,7 @@ export const BRIEFING_CONSEQUENCES: Record<BriefingCode, string> = {
 };
 
 export interface BriefingRun {
-  draft: StoryV2;
+  draft: Story;
   push: (code: BriefingCode, severity: "warning", path: string, message: string) => void;
   startId: string;
 }
@@ -50,13 +50,13 @@ const checkpointTerms = (checkpoints: readonly Checkpoint[]): string[] => checkp
   ...(checkpoint.player_name ? [checkpoint.player_name] : []),
 ]);
 
-const qualityValues = (draft: StoryV2, start: Checkpoint | undefined): string[] => {
+const qualityValues = (draft: Story, start: Checkpoint | undefined): string[] => {
   const known = new Set(Object.values(start?.state_snapshot ?? {}).filter((value): value is string => typeof value === "string").map(fold));
   return draft.qualities.flatMap((quality) => (quality.type === "enum" ? quality.values ?? [] : []))
     .filter((value) => value.trim().length >= MIN_TERM && !known.has(fold(value)));
 };
 
-const mutedAtStart = (draft: StoryV2, start: Checkpoint | undefined): string[] => {
+const mutedAtStart = (draft: Story, start: Checkpoint | undefined): string[] => {
   const disabled = resolveCastChanges(draft.roster, start?.effects?.cast_changes)?.changes.disable ?? [];
   return disabled.flatMap((name) => {
     const member = draft.roster.find((entry) => fold(castCardName(entry)) === fold(name) || fold(entry.id) === fold(name));
@@ -64,16 +64,16 @@ const mutedAtStart = (draft: StoryV2, start: Checkpoint | undefined): string[] =
   });
 };
 
-const entryCheckpoints = (draft: StoryV2, chapterId: string, startId: string): Set<string> => {
+const entryCheckpoints = (draft: Story, chapterId: string, startId: string): Set<string> => {
   const chapterOf = new Map(draft.checkpoints.map((checkpoint) => [checkpoint.id, checkpoint.chapter]));
   const entries = draft.transitions.filter((transition) => chapterOf.get(transition.to) === chapterId && chapterOf.get(transition.from) !== chapterId).map((transition) => transition.to);
   return new Set([...entries, ...(chapterOf.get(startId) === chapterId ? [startId] : [])]);
 };
 
-const disclosedAtStart = (draft: StoryV2, start: Checkpoint | undefined): string =>
+const disclosedAtStart = (draft: Story, start: Checkpoint | undefined): string =>
   fold([draft.player_intro, start?.player_name, start?.player_text, draft.player?.role, draft.player?.summary].filter(Boolean).join("\n"));
 
-const storyTerms = (draft: StoryV2, startId: string, exemptOpening = false): Terms => {
+const storyTerms = (draft: Story, startId: string, exemptOpening = false): Terms => {
   const start = draft.checkpoints.find((checkpoint) => checkpoint.id === startId);
   const disclosed = exemptOpening ? disclosedAtStart(draft, start) : "";
   const hidden = (term: string) => !namesFolded(disclosed, term);
@@ -84,7 +84,7 @@ const storyTerms = (draft: StoryV2, startId: string, exemptOpening = false): Ter
   };
 };
 
-const chapterTerms = (draft: StoryV2, index: number, startId: string): Terms => {
+const chapterTerms = (draft: Story, index: number, startId: string): Terms => {
   const chapters = draft.chapters ?? [];
   const earlier = new Set(chapters.slice(0, index).map((chapter) => chapter.id));
   const entries = entryCheckpoints(draft, chapters[index].id, startId);
@@ -121,9 +121,9 @@ export const namesTerms = (text: string, terms: Terms): string[] => {
   ];
 };
 
-export const briefingTermsFor = (draft: StoryV2, startId: string): Terms => storyTerms(draft, startId);
+export const briefingTermsFor = (draft: Story, startId: string): Terms => storyTerms(draft, startId);
 
-export const briefingSpoilerNames = (draft: StoryV2, briefing: StoryBriefing): string[] => {
+export const briefingSpoilerNames = (draft: Story, briefing: StoryBriefing): string[] => {
   const start = draft.checkpoints.find((checkpoint) => checkpoint.start) ?? draft.checkpoints[0];
   if (!start) return [];
   const terms = storyTerms(draft, start.id, true);

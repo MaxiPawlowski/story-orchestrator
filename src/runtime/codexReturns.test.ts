@@ -1,8 +1,8 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { StoryEngine, codexArmedKey, codexReturnKey, isCodexKey, type EngineState, type NormalizedStoryV2, type PrimitiveValue, type ValidationError } from "@engine/index";
+import { StoryEngine, codexArmedKey, codexReturnKey, isCodexKey, type EngineState, type NormalizedStory, type PrimitiveValue, type ValidationError } from "@engine/index";
 import { codexItems } from "@engine/codex";
-import { parseStoryV2, parseStoryV2OrThrow } from "@engine/validate";
+import { parseStory, parseStoryOrThrow } from "@engine/validate";
 import { diffStories, pruneEngineState } from "@engine/storyDiff";
 import { composeGame } from "./widgets";
 import { JournalPanel } from "../components/panels/JournalPanel";
@@ -30,11 +30,11 @@ const placesWith = (change: (places: RawPlace[]) => RawPlace[] = (places) => pla
   return { ...raw, codex: { ...codex, places: change(JSON.parse(JSON.stringify(places)) as RawPlace[]) } };
 };
 
-const returnsStory = (change?: (places: RawPlace[]) => RawPlace[]): NormalizedStoryV2 => parseStoryV2OrThrow(placesWith(change));
+const returnsStory = (change?: (places: RawPlace[]) => RawPlace[]): NormalizedStory => parseStoryOrThrow(placesWith(change));
 
 const door = (places: RawPlace[]) => places.find((place) => place.id === "boathouse")!.returns!.find((back) => back.id === "door")!;
 
-const engineFor = (story: NormalizedStoryV2) => {
+const engineFor = (story: NormalizedStory) => {
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
   return engine;
@@ -49,13 +49,13 @@ const play = (engine: StoryEngine, turns: Turn[], from = 0, lag = true) => {
   });
 };
 
-const view = (story: NormalizedStoryV2, engine: StoryEngine): GameView =>
+const view = (story: NormalizedStory, engine: StoryEngine): GameView =>
   composeGame({ story, state: engine.serialize(), boundaryLog: engine.stateLog, checks: [], threads: { open: [], resolved: [] }, chat: [], castNames: CAST, enabled: ["tom", "ada"] }).player;
 
 const boathouseRows = (game: GameView) => game.codex?.places.find((entry) => entry.name === "Kessel boathouse")?.rows ?? [];
 
 const errorsOf = (raw: Record<string, unknown>): string[] => {
-  const parsed = parseStoryV2(raw);
+  const parsed = parseStory(raw);
   return Array.isArray(parsed) ? (parsed as ValidationError[]).map((error) => `${error.path}: ${error.message}`) : [];
 };
 
@@ -99,7 +99,7 @@ describe("M52e E1: a return line shows only when the party comes back after the 
   });
 
   test("a story without returns writes no return keys", () => {
-    const plain = parseStoryV2OrThrow(labRaw());
+    const plain = parseStoryOrThrow(labRaw());
     const engine = engineFor(plain);
     play(engine, [at("boathouse"), at("landing"), [{ q: "lost", v: true }], at("boathouse")]);
     expect(Object.keys(engine.serialize().blackboard.values).filter((key) => key.startsWith("codex_a_") || key.startsWith("codex_r_"))).toEqual([]);
@@ -216,7 +216,7 @@ describe("M52e E4: validation", () => {
 });
 
 describe("M52e E5: story edits to a return", () => {
-  const shownState = (story: NormalizedStoryV2) => {
+  const shownState = (story: NormalizedStory) => {
     const engine = engineFor(story);
     play(engine, [at("boathouse"), at("landing"), [{ q: "lost", v: true }], at("boathouse")]);
     return engine.serialize();

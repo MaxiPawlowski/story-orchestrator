@@ -2,6 +2,15 @@
 
 Open a story in Studio and choose **Sprites**. The member picker contains installed cards from that story's roster.
 
+## When the stage shows
+
+On an untouched install the character stage is **Automatic**: it shows when the story directs the stage and stays off
+otherwise. Switch it on or off for every chat in **Orchestrator → Defaults → Character stage** (or under
+**Orchestrator → Connections → Images → Sprite stage**), or for one chat on **This story → Features → Character
+stage**. Once you switch it in Defaults it is no longer automatic: off there is a master switch, and on shows it in
+every story that does not turn it off. **Orchestrator → Interface → This device** changes how this
+browser shows it (stage visibility, dimming, breathing, blinking, mouth movement) without touching the other settings.
+
 ## Where the stage looks for sprites
 
 Like SillyTavern's Character Expressions, the stage reads a character's sprites from the folder named after the
@@ -92,15 +101,15 @@ that still breathes and cross-fades. Both the browser's and ST's reduced-motion 
 
 ## Public changes inside one story
 
-An author binds short public fields to ordinary extractor qualities:
+An author binds short public fields to tracked values (`quality` in the story file) that the story read fills in:
 
 ```json
 "card": {"fields": {"hair": {"quality": "current_hair", "visual": true}}}
 ```
 
-Put that `card` object on a roster member (or `player`). Declare `current_hair` as a non-latching extractor string or
-enum quality. A checkpoint may apply `effects.card: {"member_id": {"hair": "red"}}`. Later extraction or an author
-edit wins; undoing a boundary restores the earlier value and its writer. A fresh chat has no applied change.
+Put that `card` object on a roster member (or `player`). Declare `current_hair` as a non-latching string or enum
+quality read from the chat. A scene (`checkpoint`) may apply `effects.card: {"member_id": {"hair": "red"}}`. A later
+read or an author edit wins; a swipe or edit of the reply restores the earlier value and its writer. A fresh chat has no applied change.
 
 Illustrations read the applied public visual fields. Pre-rendered sprite rules may select a set using
 `when.card: {"hair": ["red"]}`. **Current character state in replies** is a separate switch, on by default, under
@@ -143,7 +152,7 @@ Without a usable drawn mouth the head has only its closed lips to move, so it op
 smoothly, on vowels instead of stretching them. A rig whose mouth points have no width or fall
 outside the face keeps its mouth still; Author view says so when that rig is imported or previewed.
 
-In Author view, Images → Sprite stage lists rig present or missing per member and selected look.
+In Author view, **Orchestrator → Connections → Images → Sprite stage** lists rig present or missing per member and selected look.
 Open **Import a live head rig**, paste the rig package JSON and select **Import rig**. The package
 must match that member, look and neutral artwork. Changed artwork requires a new rig. Creating
 a rig requires a calibrated vision authoring session; it does not happen during play.

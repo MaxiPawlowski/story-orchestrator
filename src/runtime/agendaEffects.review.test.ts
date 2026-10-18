@@ -6,7 +6,7 @@ jest.mock("@services/STAPI", () => ({
 
 import { readFileSync } from "fs";
 import { join } from "path";
-import { StoryEngine, agendaStepKey, parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { StoryEngine, agendaStepKey, parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import { deriveLife } from "@engine/life/derive";
 import { pendingRow, restorePlan, rowsAfter, type EffectWrite } from "./effectLedger";
 import { createGamePort } from "./gamePort";
@@ -16,7 +16,7 @@ import type { EarnedEffects, EffectsApplier } from "./effectsApplier";
 import type { EffectLedgerRow, EffectOrigin, LoadedStory, RuntimeExtras } from "./types";
 
 const RAW = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")) as Record<string, unknown> & { roster: Array<Record<string, unknown>> };
-const STORY = parseStoryV2OrThrow(RAW);
+const STORY = parseStoryOrThrow(RAW);
 
 const wi = { kind: "wi" as const, book: "Life Lab", uid: 4, entry: "Smuggler paid" };
 const origin = (kind: EffectOrigin["kind"], id: string, messageId: number): EffectOrigin => ({ kind, id, boundary: messageId, messageId });
@@ -57,7 +57,7 @@ describe("v2.7 plan 37 L3: an agenda step's world_info is part of the path repla
 const context: RunContext = { chatId: "c1", storyId: "character-life-lab", storyHash: "h1", sessionEpoch: 1, windowRevision: 0 };
 const ownership: RunOwnership = { mint: (window) => mintToken(context, window ?? null), check: (token) => tokenMatches(context, token) };
 
-const port = (story: NormalizedStoryV2) => {
+const port = (story: NormalizedStory) => {
   const chat: Array<{ is_user: boolean; mes: string }> = [];
   const engine = new StoryEngine({ now: () => 0, derive: (view) => deriveLife(story, view, chat) });
   engine.loadStory(story);
@@ -77,7 +77,7 @@ describe("v2.7 plan 37 L3 (F25): the boundary dispatches a landed step's effects
     const withReply = JSON.parse(JSON.stringify(RAW)) as typeof RAW;
     const steps = (withReply.roster[0].agenda as Array<{ steps: Array<Record<string, unknown>> }>)[0].steps;
     steps[0].effect = { npc_replies: [{ trigger: "onEnter", member: "narrator", kind: "scripted", text: "A ring glints at a stall." }] };
-    const run = port(parseStoryV2OrThrow(withReply));
+    const run = port(parseStoryOrThrow(withReply));
     run.turn();
     run.turn();
     run.turn();

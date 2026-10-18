@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { guardDraft } from "./guard";
 import { parseDirectorDraft } from "./parse";
 import { buildDirectorOps, checkDirectorOps, planChapter } from "./plan";
@@ -19,7 +19,7 @@ const goldens = readdirSync(ROOT).flatMap((run) => readdirSync(join(ROOT, run)).
 })));
 
 const verdictOf = (golden: Golden) => {
-  const story = parseStoryV2OrThrow(golden.raw);
+  const story = parseStoryOrThrow(golden.raw);
   const parsed = parseDirectorDraft(golden.reply, story);
   if (!parsed.ok) return { parse: parsed.issues, check: [], guard: [] };
   const plan = planChapter(story, golden.frontierId, { sealsOn: true, final: parsed.draft.anchor.final, newChapter: parsed.draft.newChapter });

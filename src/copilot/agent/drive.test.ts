@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "@runtime/runToken";
 import type { ProvisioningOp } from "@wizard/index";
 import { confirmProvisioning, driveAgent, type AgentRunner } from "./drive";
@@ -7,8 +7,7 @@ import type { AgentOp, AgentSession, AgentStep } from "./types";
 
 const AT = "2026-09-30T00:00:00.000Z";
 
-const story = (): StoryV2 => ({
-  format: 2,
+const story = (): Story => ({
   title: "Drive",
   description: "",
   qualities: [],

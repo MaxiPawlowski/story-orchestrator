@@ -7,7 +7,7 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 import * as sagaMini from "../../test/fixtures/chapters-mini.story.json";
-import { parseStoryV2OrThrow, type EngineState, type StoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type EngineState, type Story } from "@engine/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { assembleChapterInput, restingChapterInput, restingRecord } from "@memory/chapterInput";
 import { heldSecrets, memoryExtensionKey, withoutSecretLines, type ArcEntry, type ChapterRecord, type EpistemicEntry, type MemoryEntry } from "@memory/index";
@@ -29,8 +29,7 @@ const NAMES = CAST.map(([, name]) => name);
 const SECRET = /silver key|vault/i;
 const identity = (text: string) => text;
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "secret-shared",
   title: "Secret Shared",
   description: "",
@@ -39,7 +38,7 @@ const story = parseStoryV2OrThrow({
   transitions: [{ from: "a", to: "b", priority: 1, gate: { q: "done", op: "==", v: true } }],
   roster: CAST.map(([id, name]) => ({ id, name })),
 });
-const mini = parseStoryV2OrThrow(JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as StoryV2);
+const mini = parseStoryOrThrow(JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as Story);
 
 const HIDING = { id: "h-kel", subject: "Kel", tag: "hiding", hiddenFrom: "Bram", content: "that he carries a silver key to the old vault", messageId: 1, createdAt: 1 } as unknown as EpistemicEntry;
 const ARIA_KNOWS = { id: "k-aria", subject: "Aria", tag: "knows", content: "Kel carries a silver key to the old vault", messageId: 1, createdAt: 1 } as unknown as EpistemicEntry;

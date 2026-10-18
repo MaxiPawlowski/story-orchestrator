@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2, PrimitiveValue } from "@engine/index";
+import type { NormalizedStory, PrimitiveValue } from "@engine/index";
 import { insertedCheckpointIds } from "./merge";
 import { applyOutcome, gatePins, isEncounterPool, outcomePaths } from "./paths";
 import type { ExpansionCacheEntry, GeneratedBeat, RevalidationResult } from "./types";
@@ -32,7 +32,7 @@ const routes = (blackboard: Record<string, PrimitiveValue>, beats: GeneratedBeat
 };
 
 export function revalidateExpansion(
-  story: NormalizedStoryV2,
+  story: NormalizedStory,
   entry: ExpansionCacheEntry,
   blackboard: Record<string, PrimitiveValue>,
   tolerance = 0.001,

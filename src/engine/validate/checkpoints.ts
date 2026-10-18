@@ -1,6 +1,6 @@
 import {
   CHECKPOINT_REASONING, NPC_REPLY_KINDS, NPC_REPLY_TRIGGERS, ROSTER_VIEWS, TALK_CHAIN_MAX_CAP, TENSION_LEVELS, type BackgroundEffect, type AgencyPolicy, type Checkpoint,
-  type CheckpointEffects, type PrimitiveValue, type StoryV2, type TalkControl, type TalkControlChain, type TalkControlSpeaker,
+  type CheckpointEffects, type PrimitiveValue, type Story, type TalkControl, type TalkControlChain, type TalkControlSpeaker,
   type ValidationError,
 } from "../schema";
 import { isRecord } from "@utils/guards";
@@ -11,7 +11,7 @@ import { readStretch } from "./stretch";
 import { gameLayer } from "./gameLayer";
 import { readWorkflowMap } from "./illustrations";
 
-type Member = StoryV2["roster"][number];
+type Member = Story["roster"][number];
 
 const readMemberText = (member: Member, key: "role" | "drive", path: string, errors: ValidationError[]): Member => {
   const { [key]: value, ...rest } = member;
@@ -40,7 +40,7 @@ const readMemberAliases = (member: Member, path: string, errors: ValidationError
   return kept.length ? { ...rest, aliases: kept } : rest;
 };
 
-export const readRoster = (roster: StoryV2["roster"], errors: ValidationError[]): StoryV2["roster"] => roster.map((member, index) => {
+export const readRoster = (roster: Story["roster"], errors: ValidationError[]): Story["roster"] => roster.map((member, index) => {
   if (!isRecord(member)) return member;
   const path = `roster.${index}`;
   if (member.view !== undefined && !isOneOf(member.view, ROSTER_VIEWS)) addError(errors, `${path}.view`, "roster view must be own or omniscient");

@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import {
   CURATOR_OP_REVERTED, hiddenTitleRefusal, keepStamps, stampCreated, titleOnlyEditRefusal, type CreatedStampOwner,
   isCreateOp, newEntriesText, isCuratorWritable, isNoteOp, noWriteAheads, pendingWriteAheads, previewCuratorOp, protectedRefusal, settleWriteAheads, staleRewriteRefusal,
@@ -24,7 +24,7 @@ const reopened = (entry: CuratorOpRecord): CuratorOpRecord => ({
   ...(entry.nearDups ? { nearDups: entry.nearDups } : {}), ...(entry.created ? { created: entry.created } : {}),
 });
 
-const scopeRefusal = (story: NormalizedStoryV2, op: WiCuratorOp): string =>
+const scopeRefusal = (story: NormalizedStory, op: WiCuratorOp): string =>
   hiddenTitleRefusal(story, op.lorebook, op.comment) ?? `"${op.lorebook}" is not on this story's stagecraft allowlist`;
 
 const sameKeys = (left: string[], right: string[]) => left.length === right.length && left.every((key, index) => key === right[index]);
@@ -38,7 +38,7 @@ export const createdEntryOf = (record: CuratorProposalRecord, entry: CuratorOpRe
     : null;
 
 export interface CuratorWriterDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   state: () => StagecraftRuntimeState;
   patch: (next: Partial<StagecraftRuntimeState>) => void;
   updateOps: (id: string, update: (record: CuratorProposalRecord) => CuratorProposalRecord) => void;
@@ -62,7 +62,7 @@ export class CuratorWriter {
   // A lapse returns before the next write and records nothing: after a switch, the state and the
   // save both resolve to the chat that replaced this one.
   async writeOp(
-    story: NormalizedStoryV2, entry: CuratorOpRecord, run: RunGuard, messageId: number, beforeHostWrite: (pending: CuratorOpRecord) => Promise<void>,
+    story: NormalizedStory, entry: CuratorOpRecord, run: RunGuard, messageId: number, beforeHostWrite: (pending: CuratorOpRecord) => Promise<void>,
   ): Promise<{ ok: boolean; record: CuratorOpRecord; lapsed?: true }> {
     const op = entry.op;
     if (isNoteOp(op)) return { ok: false, record: entry };

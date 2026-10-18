@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, type BlackboardSnapshot } from "@engine/index";
+import { parseStoryOrThrow, type BlackboardSnapshot } from "@engine/index";
 import { renderSharedReadPrompt } from "./contract";
 import { buildFixtureRun } from "./fixtureRun";
 import { parseSharedReadResponse, stripChannelNoise } from "./parse";
@@ -17,20 +17,20 @@ const expectedFixture = readJson<{ deltas: Array<{ q: string; v: unknown; eviden
 
 describe("extraction scope", () => {
   it("derives extractor qualities gated ahead of the active checkpoint", () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const scope = deriveScope(story, "start", { values: {}, versions: {}, latched: {} });
     expect(scope.map((entry) => entry.key)).toEqual(["location", "mara_trust", "player_has_key", "tension_current"]);
     expect(scope.find((entry) => entry.key === "player_has_key")?.hints).toEqual(["Look for explicit possession of the brass key."]);
   });
 
   it("excludes latched qualities", () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const scope = deriveScope(story, "start", { values: { player_has_key: true }, versions: { player_has_key: 1 }, latched: { player_has_key: true } });
     expect(scope.map((entry) => entry.key)).not.toContain("player_has_key");
   });
 
   it("includes active and reachable checkpoint snapshots", () => {
-    const story = parseStoryV2OrThrow({
+    const story = parseStoryOrThrow({
       ...(storyFixture as Record<string, unknown>),
       checkpoints: [
         { id: "start", name: "Search", objective: "Find the key.", type: "anchor", start: true, state_snapshot: { location: "hall" } },
@@ -45,19 +45,19 @@ describe("extraction scope", () => {
 
 describe("deriveFullScope", () => {
   it("includes every extractor-source quality regardless of reachability from any checkpoint", () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const scope = deriveFullScope(story, { values: {}, versions: {}, latched: {} });
     expect(scope.map((entry) => entry.key)).toEqual(["location", "mara_trust", "player_has_key", "tension_current"]);
   });
 
   it("excludes latched qualities", () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const scope = deriveFullScope(story, { values: { player_has_key: true }, versions: { player_has_key: 1 }, latched: { player_has_key: true } });
     expect(scope.map((entry) => entry.key)).not.toContain("player_has_key");
   });
 
   it("excludes code-source qualities", () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const scope = deriveFullScope(story, { values: {}, versions: {}, latched: {} });
     expect(scope.map((entry) => entry.key)).not.toContain("message_count");
   });
@@ -65,7 +65,7 @@ describe("deriveFullScope", () => {
 
 describe("shared read parser", () => {
   it("parses golden deltas and facts", () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const golden = fs.readFileSync(path.join(process.cwd(), "test/goldens/extractor.response.txt"), "utf8");
     const parsed = parseSharedReadResponse(golden, story);
     expect(parsed.rejected).toEqual([]);
@@ -79,7 +79,7 @@ describe("shared read parser", () => {
   });
 
   it("rejects unknown qualities, bad enum values, and missing evidence", () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const parsed = parseSharedReadResponse([
       "DELTA q=unknown value=true evidence=\"x\"",
       "DELTA q=location value=\"tower\" evidence=\"tower\"",
@@ -90,7 +90,7 @@ describe("shared read parser", () => {
   });
 
   it("maps a tension level label to a numeric delta and keeps the raw level", () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const parsed = parseSharedReadResponse([
       "DELTA q=tension_current value=\"critical\" evidence=\"the walls begin to shake\"",
       "DELTA q=tension_current value=\"frantic\" evidence=\"panic sets in\"",
@@ -102,7 +102,7 @@ describe("shared read parser", () => {
   });
 
   it("parses DELTA, legacy FACT, tagged MEMORY, and a confirmed scene break from one combined response", () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const parsed = parseSharedReadResponse([
       "DELTA q=player_has_key value=true evidence=\"brass key from the hook\"",
       "FACT importance=2 text=\"Max took the brass key from the hook.\" evidence=\"brass key from the hook\"",
@@ -122,7 +122,7 @@ describe("shared read parser", () => {
   });
 
   it("strips reasoning-channel token prefixes before matching directives", () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const parsed = parseSharedReadResponse([
       "<|channel>thought",
       "<channel|>DELTA q=player_has_key value=true evidence=\"I take the brass key\"",
@@ -135,7 +135,7 @@ describe("shared read parser", () => {
   });
 
   it("accepts bare known-quality delta lines missing the DELTA prefix, still requiring evidence", () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const parsed = parseSharedReadResponse([
       "tension_current=\"tense\" evidence=\"a low growl in the dark\"",
       "player_has_key=true evidence=\"took the key\"",
@@ -150,7 +150,7 @@ describe("shared read parser", () => {
   });
 
   it("accepts DELTA-prefixed bare and q-less value= delta variants (gemma live quirks)", () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const parsed = parseSharedReadResponse([
       "DELTA player_has_key=true evidence=\"I take the brass key\"",
       "<channel|>DELTA tension_current=\"stirring\" evidence=\"the air turns cold\"",
@@ -172,7 +172,7 @@ describe("shared read parser", () => {
   });
 
   it("accepts unquoted enum/string/level values as bare words, still rejecting type mismatches", () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const parsed = parseSharedReadResponse([
       "DELTA q=tension_current value=stirring evidence=\"a low growl\"",
       "DELTA q=player_has_key value=maybe evidence=\"unclear\"",
@@ -184,14 +184,14 @@ describe("shared read parser", () => {
   });
 
   it("treats SCENE_NONE as an explicit no-break rather than a rejection", () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const parsed = parseSharedReadResponse("SCENE_NONE", story);
     expect(parsed.sceneBreak).toBeUndefined();
     expect(parsed.rejected).toEqual([]);
   });
 
   it("routes epistemic and state lines into their own buckets without arc collision", () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const parsed = parseSharedReadResponse([
       "[arc] The thief's identity remains unknown to the guard.",
       "[knows] Kael | he took the gem",
@@ -281,7 +281,7 @@ describe("shared read parser", () => {
 
 describe("shared read contract", () => {
   it("renders closed vocabulary and transcript", () => {
-    const story = parseStoryV2OrThrow(storyFixture);
+    const story = parseStoryOrThrow(storyFixture);
     const qualities = deriveScope(story, "start", { values: {}, versions: {}, latched: {} });
     const prompt = renderSharedReadPrompt({
       storyTitle: story.title,

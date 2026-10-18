@@ -1,7 +1,7 @@
 import { keptStagedFrom, type EngineHistory, type EngineState } from "./engine";
 import {
   CODEX_PAGES, codexArmedKey, codexEntryKey, codexFactKey, codexReturnKey, isCodexKey, questClosedKey, questRewardKey, STORY_DISPLAY_TOGGLES,
-  type CodexEntry, type CodexPage, type NormalizedStoryV2, type PrimitiveValue, type Transition,
+  type CodexEntry, type CodexPage, type NormalizedStory, type PrimitiveValue, type Transition,
 } from "./schema";
 import { qualityAccepts } from "./blackboard";
 import { gateLeaves } from "./gates";
@@ -111,7 +111,7 @@ const changedFields = (before: object, after: object, skip: readonly string[]): 
 
 const QUALITY_DIFFED = ["key", "type", "values", "evidence_from", "latching", "source"] as const;
 
-const rosterRefs = (story: NormalizedStoryV2): Set<string> => {
+const rosterRefs = (story: NormalizedStory): Set<string> => {
   const refs = new Set<string>();
   const add = (value: unknown) => { if (typeof value === "string" && value.trim()) refs.add(value.trim().toLowerCase()); };
   story.checkpoints.forEach((checkpoint) => {
@@ -125,8 +125,8 @@ const rosterRefs = (story: NormalizedStoryV2): Set<string> => {
 };
 
 interface DiffContext {
-  previous: NormalizedStoryV2;
-  next: NormalizedStoryV2;
+  previous: NormalizedStory;
+  next: NormalizedStory;
   values: Record<string, PrimitiveValue>;
   latched: Record<string, boolean>;
   visited: string[];
@@ -142,7 +142,7 @@ interface DiffContext {
   drop: (key: string) => void;
 }
 
-const diffContext = (previous: NormalizedStoryV2, next: NormalizedStoryV2, state: EngineState | null): DiffContext => {
+const diffContext = (previous: NormalizedStory, next: NormalizedStory, state: EngineState | null): DiffContext => {
   const entries: StoryDiffEntry[] = [];
   const droppedQualityKeys = new Set<string>();
   const values = state?.blackboard.values ?? {};
@@ -443,7 +443,7 @@ const diffStoryFields = (ctx: DiffContext) => {
   if (previous.title !== next.title || previous.description !== next.description) push("compatible", "text-changed", "story", "Title or description changed.");
 };
 
-export function diffStories(previous: NormalizedStoryV2, next: NormalizedStoryV2, state: EngineState | null): StoryDiffResult {
+export function diffStories(previous: NormalizedStory, next: NormalizedStory, state: EngineState | null): StoryDiffResult {
   const ctx = diffContext(previous, next, state);
   [diffQualities, diffCheckpoints, diffStart, diffTransitions, diffRoster, diffStoryFields].forEach((section) => section(ctx));
   const classification: StoryChangeClass = ctx.entries.some((entry) => entry.kind === "invalidating")
@@ -462,7 +462,7 @@ export function diffStories(previous: NormalizedStoryV2, next: NormalizedStoryV2
 
 // "Keep playing" in the invalidation flow: everything the new story can still explain survives,
 // everything it cannot is dropped — never a silent orphan sitting in the blackboard.
-export function pruneEngineState(state: EngineState, next: NormalizedStoryV2, diff: StoryDiffResult): EngineState {
+export function pruneEngineState(state: EngineState, next: NormalizedStory, diff: StoryDiffResult): EngineState {
   const dropped = new Set(diff.droppedQualityKeys);
   const orphaned = Object.keys(state.blackboard.values).filter((key) => !next.qualityByKey[key]);
   orphaned.forEach((key) => dropped.add(key));
@@ -495,7 +495,7 @@ export function pruneEngineState(state: EngineState, next: NormalizedStoryV2, di
   };
 }
 
-export function pruneEngineHistory(history: EngineHistory | null, next: NormalizedStoryV2, diff: StoryDiffResult): EngineHistory | null {
+export function pruneEngineHistory(history: EngineHistory | null, next: NormalizedStory, diff: StoryDiffResult): EngineHistory | null {
   if (!history || diff.reanchorTo) return null;
   const prune = (state: EngineState) => pruneEngineState(state, next, diff);
   return { ...history, base: prune(history.base), log: history.log.map((entry) => ({ ...entry, before: prune(entry.before), after: prune(entry.after) })) };

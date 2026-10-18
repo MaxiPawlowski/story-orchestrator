@@ -1,8 +1,7 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { toGraphDraft, toMermaid } from "./graphAdapter";
 
-const story: StoryV2 = {
-  format: 2,
+const story: Story = {
   title: "Graph",
   description: "",
   qualities: [{ key: "trust", type: "int", source: "extractor", rubric: "r" }],
@@ -26,7 +25,7 @@ describe("toGraphDraft", () => {
 });
 
 describe("chapter lanes (v2.6 plan 07 D13)", () => {
-  const chaptered: StoryV2 = {
+  const chaptered: Story = {
     ...story,
     chapters: [{ id: "act-1", title: "The \"Road\"" }, { id: "act2", title: "Empty" }],
     checkpoints: [{ ...story.checkpoints[0], chapter: "act-1" }, { ...story.checkpoints[1], chapter: "gone" }],

@@ -14,7 +14,7 @@ jest.mock("./sharedRead", () => ({
 
 import { readFileSync } from "fs";
 import { join } from "path";
-import type { EngineHistory, EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineHistory, EngineState, NormalizedStory } from "@engine/index";
 import { droppedReadEnd, readCursorSeed } from "./readCursor";
 import { ExtractionScheduler, RESUME_DROPPED_REASON, type SchedulerHost, type SchedulerSettings } from "./scheduler";
 import { runSharedRead } from "./sharedRead";
@@ -52,7 +52,7 @@ const reasons = () => read.mock.calls.map((call) => call[0].reason);
 function harness(lastMessageId: () => number) {
   const settings: SchedulerSettings = { enabled: true, profileId: "deepseek", cadence: recorded.cadence, stabilityLag: recorded.stabilityLag };
   const host: SchedulerHost = {
-    getStory: () => ({}) as unknown as NormalizedStoryV2,
+    getStory: () => ({}) as unknown as NormalizedStory,
     getEngineState: () => ({ lastMessageId: lastMessageId() }) as unknown as EngineState,
     getExtractionSettings: () => settings,
     model: plantedModel,

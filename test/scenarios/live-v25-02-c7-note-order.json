@@ -4,7 +4,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "id": "v25-c7-note-order",
         "title": "C7 note order",
         "description": "The transition note precedes the reply it announces.",

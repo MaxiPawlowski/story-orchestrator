@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import type { LedgerBinding } from "./ledger";
 import type { LedgerEntry, MemoryEntry } from "./types";
 import { isLive } from "./provenance";
@@ -9,7 +9,7 @@ import { scoreEntry, type ScoreContext } from "./score";
 // conflict queue all ask the same question, and each answering it for itself is how two of them end
 // up disagreeing about the cast.
 
-export function ledgerBindings(story: NormalizedStoryV2 | null): LedgerBinding[] {
+export function ledgerBindings(story: NormalizedStory | null): LedgerBinding[] {
   if (!story) return [];
   return Object.values(story.qualityByKey)
     .flatMap((quality) => (quality.ledger_binding
@@ -18,7 +18,7 @@ export function ledgerBindings(story: NormalizedStoryV2 | null): LedgerBinding[]
 }
 
 /** The roster, then the bound entities, then whatever the ledger has actually seen. */
-export function ledgerEntityList(story: NormalizedStoryV2 | null, ledger: LedgerEntry[], nameOf: (member: NormalizedStoryV2["roster"][number]) => string): Array<{ name: string; type: string }> {
+export function ledgerEntityList(story: NormalizedStory | null, ledger: LedgerEntry[], nameOf: (member: NormalizedStory["roster"][number]) => string): Array<{ name: string; type: string }> {
   if (!story) return [];
   const types = new Map<string, string>();
   for (const member of story.roster) types.set(nameOf(member), "character");
@@ -27,7 +27,7 @@ export function ledgerEntityList(story: NormalizedStoryV2 | null, ledger: Ledger
   return [...types].map(([name, type]) => ({ name, type }));
 }
 
-export function storyEntities(story: NormalizedStoryV2 | null, ledger: LedgerEntry[], nameOf: (member: NormalizedStoryV2["roster"][number]) => string): string[] {
+export function storyEntities(story: NormalizedStory | null, ledger: LedgerEntry[], nameOf: (member: NormalizedStory["roster"][number]) => string): string[] {
   if (!story) return [];
   const names = new Set<string>();
   for (const member of story.roster) names.add(nameOf(member));

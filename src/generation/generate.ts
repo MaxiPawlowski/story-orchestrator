@@ -1,6 +1,6 @@
 import { askText, isPlanted, type ModelAsk, type ModelCall } from "@extraction/modelRoute";
 import { stripReasoningBlocks } from "@extraction/parse";
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import { buildPickPrompt, chainScore, judgeVerdict, parsePick, pickChain, type ChainRead } from "@judge/expansion";
 import { runCodeChecks, runCritic } from "./critic";
 import { parseGeneratedBeats } from "./parse";
@@ -25,7 +25,7 @@ export interface ReviewedBeats {
 
 type Checked = { beats: GeneratedBeat[]; raw: string; issues: string[]; codeCheck: CodeCheckResult | null };
 
-export async function generateBeats(story: NormalizedStoryV2, input: PlannedExpansionInput, model: ModelCall, ask: ModelAsk): Promise<{ beats: GeneratedBeat[]; raw: string; issues: string[] }> {
+export async function generateBeats(story: NormalizedStory, input: PlannedExpansionInput, model: ModelCall, ask: ModelAsk): Promise<{ beats: GeneratedBeat[]; raw: string; issues: string[] }> {
   const prompt = renderGenerationPrompt(story, input);
   const raw = await askText(model, prompt, { ...ask, maxTokens: 2048 });
   const parsed = parseGeneratedBeats(raw, story);
@@ -36,7 +36,7 @@ export async function generateBeats(story: NormalizedStoryV2, input: PlannedExpa
 }
 
 // Generation, then the binding code checks with their one repair pass: everything before a critic.
-async function generateChecked(story: NormalizedStoryV2, input: PlannedExpansionInput, model: ModelCall, ask: ModelAsk): Promise<Checked> {
+async function generateChecked(story: NormalizedStory, input: PlannedExpansionInput, model: ModelCall, ask: ModelAsk): Promise<Checked> {
   const generated = await generateBeats(story, input, model, ask);
   if (generated.issues.length) return { ...generated, codeCheck: null };
   const initialCheck = runCodeChecks(story, input, generated.beats);
@@ -56,7 +56,7 @@ const checkFailure = (checked: Checked): ReviewedBeats =>
     ? { ...checked, codeCheck: null, verdict: { pass: false, issues: checked.issues, raw: checked.raw }, needsReview: true }
     : { ...checked, verdict: { pass: false, issues: checked.codeCheck.issues, raw: "CODE_CHECK" }, needsReview: true };
 
-export async function generateReviewedBeats(story: NormalizedStoryV2, input: PlannedExpansionInput, model: ModelCall, ask: ModelAsk, judge: ExpansionJudge = {}): Promise<ReviewedBeats> {
+export async function generateReviewedBeats(story: NormalizedStory, input: PlannedExpansionInput, model: ModelCall, ask: ModelAsk, judge: ExpansionJudge = {}): Promise<ReviewedBeats> {
   if (judge.variants && judge.variants.n > 1 && !isPlanted(model, ask)) return generateVariants(story, input, model, ask, judge.variants);
   const checked = await generateChecked(story, input, model, ask);
   if (checked.issues.length || !checked.codeCheck) return checkFailure(checked);
@@ -68,7 +68,7 @@ export async function generateReviewedBeats(story: NormalizedStoryV2, input: Pla
 // N chains, one at a time on the lane, each with today's repair pass; the judge
 // scores the survivors and code (or the LLM, from the judge's top two) picks. The judge never writes
 // beats: with no survivor it is today's failed / needs-review path.
-async function generateVariants(story: NormalizedStoryV2, input: PlannedExpansionInput, model: ModelCall, ask: ModelAsk, variants: NonNullable<ExpansionJudge["variants"]>): Promise<ReviewedBeats> {
+async function generateVariants(story: NormalizedStory, input: PlannedExpansionInput, model: ModelCall, ask: ModelAsk, variants: NonNullable<ExpansionJudge["variants"]>): Promise<ReviewedBeats> {
   const runs: Array<{ checked: Checked; ms: number }> = [];
   for (let index = 0; index < variants.n; index += 1) {
     const started = Date.now();

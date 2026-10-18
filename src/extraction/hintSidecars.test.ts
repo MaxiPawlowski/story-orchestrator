@@ -1,6 +1,6 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { parseStoryV2, READ_AS_TYPES } from "@engine/index";
+import { parseStory, READ_AS_TYPES } from "@engine/index";
 
 const DIR = path.join(process.cwd(), "test/fixtures");
 const sidecars = fs.readdirSync(DIR).filter((file) => file.endsWith(".hints.json")).map((file) => file.replace(".hints.json", ""));
@@ -19,7 +19,7 @@ describe("live-suite hint sidecars", () => {
     const keys = new Set(story.qualities.map((quality) => quality.key));
     expect(Object.keys(hints).filter((key) => !keys.has(key))).toEqual([]);
     const merged = { ...story, qualities: story.qualities.map((quality) => ({ ...quality, ...(hints[String(quality.key)] ?? {}) })) };
-    const parsed = parseStoryV2(merged);
+    const parsed = parseStory(merged);
     expect(Array.isArray(parsed) ? parsed : []).toEqual([]);
   });
 });

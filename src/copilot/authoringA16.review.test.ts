@@ -1,9 +1,8 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { recordingModel } from "../../test/support/modelCall";
 import { runAuthoringStage } from "./authoring";
 
 const draft = {
-  format: 2,
   id: "cal-crypt",
   title: "The Crypt",
   description: "A party of adventurers goes down into the crypt of an abandoned abbey.",
@@ -14,7 +13,7 @@ const draft = {
   ],
   transitions: [{ from: "entrance", to: "crypt", priority: 1, gate: { q: "door_open", op: "==", v: true } }],
   roster: [],
-} as unknown as StoryV2;
+} as unknown as Story;
 
 const MESSAGE = "Add a final anchor, The exit, where the party escapes the abbey with the relic.";
 const exit = { id: "exit", name: "The exit", objective: "Escape the abbey with the relic.", type: "anchor" };

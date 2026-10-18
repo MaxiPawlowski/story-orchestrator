@@ -1,4 +1,4 @@
-import { evaluateGate, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { evaluateGate, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 import { askText, isPlanted, type ModelAsk, type ModelCall } from "@extraction/modelRoute";
 import { parseCriticVerdict } from "../parse";
 import { guardDraft, type DraftGuardDeps } from "./guard";
@@ -13,7 +13,7 @@ export const DIRECTOR_MAX_TOKENS = 1024;
 const UNREADABLE_VERDICTS = ["Invalid critic JSON", "Invalid critic verdict"];
 
 export interface DirectorRun {
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
   raw: Record<string, unknown>;
   frontierId: string;
   values: Record<string, PrimitiveValue>;
@@ -29,7 +29,7 @@ export type DirectorOutcome =
   | { status: "refused"; issues: string[]; refusal: DirectorRefusal; attempts: number; raw: string }
   | { status: "capped"; reason: string };
 
-export const endingFor = (story: NormalizedStoryV2, values: Record<string, PrimitiveValue>): { finalAllowed: boolean; finalRequired: boolean } => {
+export const endingFor = (story: NormalizedStory, values: Record<string, PrimitiveValue>): { finalAllowed: boolean; finalRequired: boolean } => {
   const ending = story.living?.ending ?? "open";
   if (typeof ending === "object") {
     const required = evaluateGate(ending.when, { get: (key: string) => values[key] });

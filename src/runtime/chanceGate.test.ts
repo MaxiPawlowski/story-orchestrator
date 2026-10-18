@@ -52,7 +52,6 @@ jest.mock("@services/STAPI", () => ({
 const STORY_ID = "sp7-prod";
 
 const story = {
-  format: 2,
   id: STORY_ID,
   title: "Chance gate in prod",
   description: "SP7.b: a seeded roll routes the story on a prod build, with no spike flag.",

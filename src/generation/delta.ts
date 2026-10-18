@@ -1,4 +1,4 @@
-import type { BlackboardSnapshot, NormalizedStoryV2, PrimitiveValue } from "@engine/index";
+import type { BlackboardSnapshot, NormalizedStory, PrimitiveValue } from "@engine/index";
 import type { QualityDeltaPlan } from "./types";
 
 const distanceBetween = (current: PrimitiveValue | undefined, target: PrimitiveValue): number | null => {
@@ -9,7 +9,7 @@ const distanceBetween = (current: PrimitiveValue | undefined, target: PrimitiveV
 export function computeStateDelta(
   blackboard: BlackboardSnapshot,
   anchorSnapshot: Record<string, PrimitiveValue> | undefined,
-  story: Pick<NormalizedStoryV2, "qualityByKey">,
+  story: Pick<NormalizedStory, "qualityByKey">,
 ): QualityDeltaPlan[] {
   return Object.entries(anchorSnapshot ?? {})
     .filter(([key]) => Boolean(story.qualityByKey[key]))

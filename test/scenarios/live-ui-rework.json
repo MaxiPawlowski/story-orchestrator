@@ -2,7 +2,7 @@
   "requires": { "lane": "model", "group": "Group: Arin, DM Narrator" },
   "steps": [
     { "import_story": {
-      "format": 2, "id": "so-ui-rework-live", "title": "SO-UI-Rework Live", "description": "A public UI and model-routing fixture.",
+      "id": "so-ui-rework-live", "title": "SO-UI-Rework Live", "description": "A public UI and model-routing fixture.",
       "features": { "reading": { "cadence": 1, "stabilityLag": 0 }, "pacing": "off", "voices": { "max": 1 } },
       "qualities": [{ "key": "message_count", "type": "int", "source": "code", "monotonic": true, "rubric": "Rendered replies." }],
       "checkpoints": [{ "id": "start", "name": "An open gate", "objective": "Describe an open gate and let the player decide where to go.", "type": "anchor", "start": true }],

@@ -4,7 +4,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { parseStoryV2 } from "@engine/index";
+import { parseStory } from "@engine/index";
 import { loadGameLayer } from "@engine/validate/gameLayer";
 import { BLOB_VERSION } from "./persistence";
 import { TROPHY_SHELF_MAX, shelfCandidates, trophyFromBlob } from "./trophyShelf";
@@ -20,7 +20,7 @@ const SOURCE_RAW = {
     { id: "dark", title: "Let the coast go dark", when: { q: "coast_fate", op: "==", v: "dark" } },
   ],
 };
-const OPTIONS = { version: BLOB_VERSION, parse: parseStoryV2 };
+const OPTIONS = { version: BLOB_VERSION, parse: parseStory };
 const END: Record<string, unknown> = { met_guild: true, coast_fate: "lit", harbour_mood: "bitter", coins: 4, secret_pact: "sworn" };
 
 const record = (id: string, extra: Record<string, unknown> = {}) => ({

@@ -1,17 +1,17 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import type { RosterHost } from "./hostPorts";
 import { isRecord } from "@utils/guards";
 
 // Roster ↔ ST group/chat resolution, shared by the manager, the coordinators and the talk host.
 
-type RosterMember = NormalizedStoryV2["roster"][number];
+type RosterMember = NormalizedStory["roster"][number];
 
 // `/comment` notes, hidden rows, `/sd` and tool rows are not a character's turn.
 type ChatRow = { name?: string; is_user?: boolean; is_system?: boolean; extra?: { type?: unknown } };
 
 export const rosterMemberName = (member: RosterMember): string => member.name ?? member.id;
 
-export function enabledCharacterIds(story: NormalizedStoryV2 | null, host: RosterHost): string[] {
+export function enabledCharacterIds(story: NormalizedStory | null, host: RosterHost): string[] {
   if (!story) return [];
   const group = host.getActiveGroup();
   if (!group) return [];
@@ -24,14 +24,14 @@ export function enabledCharacterIds(story: NormalizedStoryV2 | null, host: Roste
     .map((member) => member.id);
 }
 
-export function enabledCharacterNames(story: NormalizedStoryV2 | null, host: RosterHost): string[] {
+export function enabledCharacterNames(story: NormalizedStory | null, host: RosterHost): string[] {
   if (!story) return [];
   const enabled = new Set(enabledCharacterIds(story, host));
   const names = story.roster.filter((member) => enabled.has(member.id)).map(rosterMemberName);
   return names.length ? names : story.roster.map(rosterMemberName);
 }
 
-export function cardScopeOwners(story: NormalizedStoryV2 | null, host: RosterHost): string[] {
+export function cardScopeOwners(story: NormalizedStory | null, host: RosterHost): string[] {
   const owners = enabledCharacterIds(story, host);
   if (!story) return owners;
   const speaker = activeSpeakerId(story, host);
@@ -47,7 +47,7 @@ export function cardScopeOwners(story: NormalizedStoryV2 | null, host: RosterHos
   return owners.sort((left, right) => rank(left) - rank(right));
 }
 
-export function activeSpeakerId(story: NormalizedStoryV2 | null, host: RosterHost): string | null {
+export function activeSpeakerId(story: NormalizedStory | null, host: RosterHost): string | null {
   if (!story) return null;
   const enabled = new Set(enabledCharacterIds(story, host));
   if (!enabled.size) return null;
@@ -64,17 +64,17 @@ export function activeSpeakerId(story: NormalizedStoryV2 | null, host: RosterHos
   return null;
 }
 
-export function namesForRosterId(story: NormalizedStoryV2 | null, id: string): string[] {
+export function namesForRosterId(story: NormalizedStory | null, id: string): string[] {
   const member = story?.roster.find((candidate) => candidate.id === id);
   return member ? [rosterMemberName(member), member.id] : [id];
 }
 
-export function nameForRosterId(story: NormalizedStoryV2 | null, id: string): string {
+export function nameForRosterId(story: NormalizedStory | null, id: string): string {
   const member = story?.roster.find((candidate) => candidate.id === id);
   return member ? rosterMemberName(member) : id;
 }
 
-export function rosterIdForName(story: NormalizedStoryV2 | null, name: string): string | null {
+export function rosterIdForName(story: NormalizedStory | null, name: string): string | null {
   if (!story) return null;
   const search = name.trim().toLowerCase();
   const match = story.roster.find((member) => rosterMemberName(member).trim().toLowerCase() === search);

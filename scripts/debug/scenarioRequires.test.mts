@@ -170,11 +170,11 @@ test('no-model lane: only model keys leave secrets.json, and the judge flag is w
   assert.deepEqual(removed.sort(), ['api_key_deepseek', 'typesafe_api_key']);
   assert.deepEqual(next, { api_url_custom: 'u', other: 1 });
   assert.deepEqual(stripModelSecrets(null), { next: {}, removed: [] });
-  const settings = { power_user: { a: 1 }, extension_settings: { 'story-orchestrator': { settings: { judge: { enabled: true, uses: { director: true } }, extraction: { cadence: 2 } }, v2Stories: [1] } } };
+  const settings = { power_user: { a: 1 }, extension_settings: { 'story-orchestrator': { settings: { judge: { enabled: true, uses: { director: true } }, extraction: { cadence: 2 } }, stories: [1] } } };
   const off = withJudgeEnabled(settings, false);
   assert.equal(judgeEnabledIn(off), false);
   assert.deepEqual((off.extension_settings as any)['story-orchestrator'].settings.judge.uses, { director: true });
-  assert.deepEqual((off.extension_settings as any)['story-orchestrator'].v2Stories, [1]);
+  assert.deepEqual((off.extension_settings as any)['story-orchestrator'].stories, [1]);
   assert.deepEqual((off.extension_settings as any)['story-orchestrator'].settings.extraction, { cadence: 2 });
   assert.equal(judgeEnabledIn(withJudgeEnabled({}, true)), true);
   assert.equal(judgeEnabledIn({}), true, 'an unset judge.enabled reads as its default (on)');

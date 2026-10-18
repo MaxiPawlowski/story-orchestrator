@@ -1,12 +1,12 @@
 import { BOUNDARY_STEPS, StoryEngine, type DerivedQualityView } from "./engine";
-import { parseStoryV2OrThrow } from "./validate";
+import { parseStoryOrThrow } from "./validate";
 import { codexFactKey, questRewardKey } from "./schema";
 
 const bool = (key: string, source: "code" | "extractor" = "extractor") => ({ key, type: "bool", source, rubric: `Whether ${key} is true.` });
 const is = (key: string) => ({ q: key, op: "==", v: true });
 
-const story = () => parseStoryV2OrThrow({
-  format: 2, title: "Order lab", description: "One planted writer per step.",
+const story = () => parseStoryOrThrow({
+  title: "Order lab", description: "One planted writer per step.",
   roster: [],
   qualities: [bool("searched"), bool("derived", "code"), bool("rewarded", "code"), { key: "message_count", type: "int", source: "code", rubric: "Messages." }],
   checkpoints: [

@@ -1,4 +1,4 @@
-import { isLivingId, type Chapter, type NormalizedStoryV2, type StoryLiving } from "@engine/index";
+import { isLivingId, type Chapter, type NormalizedStory, type StoryLiving } from "@engine/index";
 import { LIVING_CHAPTER_PREFIX } from "./types";
 
 export interface LivingFrontier {
@@ -8,19 +8,19 @@ export interface LivingFrontier {
 
 export const livingHorizon = (living: StoryLiving): number => living.horizon ?? 1;
 
-export const livingAutonomy = (story: NormalizedStoryV2): "suggest" | "auto" => {
+export const livingAutonomy = (story: NormalizedStory): "suggest" | "auto" => {
   const living = story.living;
   if (!living) return "auto";
   if (living.autonomy) return living.autonomy;
   return living.authored_until ? "suggest" : "auto";
 };
 
-const isFinalAnchor = (story: NormalizedStoryV2, id: string): boolean => {
+const isFinalAnchor = (story: NormalizedStory, id: string): boolean => {
   const chapter = story.chapterByCheckpoint?.[id];
   return Boolean(chapter && story.chapterById?.[chapter]?.final);
 };
 
-export const isEligibleFrontier = (story: NormalizedStoryV2, id: string): boolean => {
+export const isEligibleFrontier = (story: NormalizedStory, id: string): boolean => {
   const living = story.living;
   const checkpoint = story.checkpointById[id];
   if (!living || checkpoint?.type !== "anchor") return false;
@@ -29,7 +29,7 @@ export const isEligibleFrontier = (story: NormalizedStoryV2, id: string): boolea
   return living.authored_until ? id === living.authored_until : true;
 };
 
-export function findFrontier(story: NormalizedStoryV2, activeId: string): LivingFrontier | null {
+export function findFrontier(story: NormalizedStory, activeId: string): LivingFrontier | null {
   const living = story.living;
   if (!living || !story.checkpointById[activeId]) return null;
   const reachable = story.reachableByCheckpoint[activeId] ?? [];
@@ -40,4 +40,4 @@ export function findFrontier(story: NormalizedStoryV2, activeId: string): Living
   return frontierId ? { frontierId, ahead } : null;
 }
 
-export const livingChapters = (story: NormalizedStoryV2): Chapter[] => (story.chapters ?? []).filter((chapter) => chapter.id.startsWith(LIVING_CHAPTER_PREFIX));
+export const livingChapters = (story: NormalizedStory): Chapter[] => (story.chapters ?? []).filter((chapter) => chapter.id.startsWith(LIVING_CHAPTER_PREFIX));

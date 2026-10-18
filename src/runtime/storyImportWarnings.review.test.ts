@@ -1,9 +1,9 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { isValidationErrorList, parseStoryV2, storyWarnings } from "@engine/index";
+import { isValidationErrorList, parseStory, storyWarnings } from "@engine/index";
 
 const fixture = fs.readFileSync(path.join(process.cwd(), "test/fixtures/placeholder-enums.story.json"), "utf8");
-const parsed = parseStoryV2(JSON.parse(fixture));
+const parsed = parseStory(JSON.parse(fixture));
 
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,

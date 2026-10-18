@@ -1,5 +1,5 @@
 import { cardReadKeys } from "@engine/cardFields";
-import { activeQuestScopeKeys, moodKey, questScopeKeys, readsByStep, relationshipKey, valueReader, type BlackboardSnapshot, type NormalizedStoryV2 } from "@engine/index";
+import { activeQuestScopeKeys, moodKey, questScopeKeys, readsByStep, relationshipKey, valueReader, type BlackboardSnapshot, type NormalizedStory } from "@engine/index";
 import { gameLayer } from "@engine/validate/gameLayer";
 import { renderQuestion, STEP_READ_HEADER } from "./contract";
 import { fitScopeBudget, rotated, scopeSlots, type BudgetTier } from "./scopeBudget";
@@ -29,11 +29,11 @@ export interface ScopeSource {
   kind: Extract<ScopePull["kind"], "card" | "quest" | "relationship" | "discovery">;
   detail: string;
   cap: number | null;
-  keys: (story: NormalizedStoryV2, blackboard: BlackboardSnapshot, context: ScopeSourceContext) => string[];
-  lead?: (story: NormalizedStoryV2, blackboard: BlackboardSnapshot, context: ScopeSourceContext) => string[];
+  keys: (story: NormalizedStory, blackboard: BlackboardSnapshot, context: ScopeSourceContext) => string[];
+  lead?: (story: NormalizedStory, blackboard: BlackboardSnapshot, context: ScopeSourceContext) => string[];
 }
 
-const readable = (story: NormalizedStoryV2, blackboard: BlackboardSnapshot) => (key: string) =>
+const readable = (story: NormalizedStory, blackboard: BlackboardSnapshot) => (key: string) =>
   story.qualityByKey[key]?.source === "extractor" && !blackboard.latched[key];
 
 export const CARD_SOURCE: ScopeSource = {
@@ -72,7 +72,7 @@ const chunkKeys = (keys: string[], size: number): string[][] =>
   Array.from({ length: Math.ceil(keys.length / size) }, (_, at) => keys.slice(at * size, (at + 1) * size));
 
 export const discoveryRotation = (
-  story: NormalizedStoryV2, blackboard: BlackboardSnapshot, rotation: number, admits: (key: string) => boolean = readable(story, blackboard), cap = DISCOVERY_SCOPE_CAP,
+  story: NormalizedStory, blackboard: BlackboardSnapshot, rotation: number, admits: (key: string) => boolean = readable(story, blackboard), cap = DISCOVERY_SCOPE_CAP,
 ): DiscoveryRotation => {
   const found = (gameLayer()?.discoveryUnits ?? []).map((units) => units(story, blackboard.values));
   const usable = (units: string[][]) => units.map((unit) => unit.filter(admits)).filter((unit) => unit.length).flatMap((unit) => chunkKeys(unit, Math.max(1, cap)));
@@ -96,7 +96,7 @@ export const DISCOVERY_SOURCE: ScopeSource = {
 export const SCOPE_SOURCES: readonly ScopeSource[] = [CARD_SOURCE, QUEST_SOURCE, RELATIONSHIP_SOURCE, DISCOVERY_SOURCE];
 
 export const readScopeSource = (
-  source: ScopeSource, story: NormalizedStoryV2, blackboard: BlackboardSnapshot, context: ScopeSourceContext, admits: (key: string) => boolean = () => true,
+  source: ScopeSource, story: NormalizedStory, blackboard: BlackboardSnapshot, context: ScopeSourceContext, admits: (key: string) => boolean = () => true,
 ): ScopeSourceRead => {
   const keys = source.keys(story, blackboard, context).filter(admits);
   return source.cap === null ? { keys, dropped: [] } : { keys: keys.slice(0, source.cap), dropped: keys.slice(source.cap) };
@@ -114,7 +114,7 @@ export interface LifeUnit {
   phase: number;
 }
 
-export const lifeUnits = (story: NormalizedStoryV2): LifeUnit[] => (story.life?.members ?? [])
+export const lifeUnits = (story: NormalizedStory): LifeUnit[] => (story.life?.members ?? [])
   .flatMap((member) => [
     ...member.relationships.map((relationship) => relationship.axes.map((axis) => relationshipKey(member.id, relationship.toward, axis))),
     ...(member.mood ? [[moodKey(member.id)]] : []),
@@ -123,7 +123,7 @@ export const lifeUnits = (story: NormalizedStoryV2): LifeUnit[] => (story.life?.
 
 export const questionTokens = (text: string): number => (text.match(/[A-Za-z]+|\d|[^\sA-Za-z\d]/g) ?? []).length;
 
-export const questionCost = (story: NormalizedStoryV2) => (key: string): number => {
+export const questionCost = (story: NormalizedStory) => (key: string): number => {
   const quality = story.qualityByKey[key];
   return quality ? questionTokens(renderQuestion(quality)) : 0;
 };
@@ -135,7 +135,7 @@ const single = (keys: readonly string[]) => keys.map((key) => [key]);
 const chunks = (unit: LifeUnit, size: number): LifeUnit[] =>
   Array.from({ length: Math.ceil(unit.keys.length / size) }, (_, at) => ({ ...unit, keys: unit.keys.slice(at * size, (at + 1) * size) }));
 
-export const relationshipUnits = (story: NormalizedStoryV2, candidates: readonly string[], lead: ReadonlySet<string>, rotation: number, cap: number | null = null) => {
+export const relationshipUnits = (story: NormalizedStory, candidates: readonly string[], lead: ReadonlySet<string>, rotation: number, cap: number | null = null) => {
   const offered = new Set(candidates);
   const size = Math.max(1, cap ?? candidates.length);
   const grouped = lifeUnits(story).map((unit) => ({ ...unit, keys: unit.keys.filter((key) => offered.has(key)) })).filter((unit) => unit.keys.length).flatMap((unit) => chunks(unit, size));
@@ -154,7 +154,7 @@ export const relationshipUnits = (story: NormalizedStoryV2, candidates: readonly
 type Read = ScopeSourceResult & { source: ScopeSource };
 
 export const readScopeSources = (
-  sources: readonly ScopeSource[], story: NormalizedStoryV2, blackboard: BlackboardSnapshot, context: ScopeSourceContext, free: ReadonlySet<string> = new Set(),
+  sources: readonly ScopeSource[], story: NormalizedStory, blackboard: BlackboardSnapshot, context: ScopeSourceContext, free: ReadonlySet<string> = new Set(),
   admits: (key: string) => boolean = () => true,
 ): ScopeSourceResult[] => {
   const reads: Read[] = sources.map((source) => ({ source, kind: source.kind, cap: source.cap, ...readScopeSource(source, story, blackboard, context, admits) }));

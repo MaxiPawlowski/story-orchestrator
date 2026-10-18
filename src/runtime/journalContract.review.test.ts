@@ -11,7 +11,7 @@ jest.mock("@services/STAPI", () => ({
 import * as linearStory from "../../test/fixtures/linear.story.json";
 import { ApplyQueue } from "@engine/applyQueue";
 import { Blackboard } from "@engine/blackboard";
-import { parseStoryV2OrThrow } from "@engine/validate";
+import { parseStoryOrThrow } from "@engine/validate";
 import type { BoundaryLogEntry } from "@engine/index";
 import type { SharedReadAudit } from "@extraction/index";
 import { ExtractionCoordinator } from "./coordinators/extractionCoordinator";
@@ -34,7 +34,7 @@ const sources = (boundaryLog: BoundaryLogEntry[], audits: SharedReadAudit[], pen
 
 describe("V20e: the journal contract", () => {
   it("the queue keeps a write's origin through the drain, applied and discarded alike", () => {
-    const story = parseStoryV2OrThrow(linearStory);
+    const story = parseStoryOrThrow(linearStory);
     const queue = new ApplyQueue();
     queue.enqueue({ source: "extractor", origin: "audit-old", blackboardVersionSum: 0, turnRange: { from: 1, to: 1 }, deltas: [{ q: "has_key", v: false, source: "extractor" }] });
     queue.enqueue({ source: "extractor", origin: "audit-new", blackboardVersionSum: 0, turnRange: { from: 1, to: 2 }, deltas: [{ q: "has_key", v: true, source: "extractor" }, { q: "door_open", v: true, source: "extractor" }] });

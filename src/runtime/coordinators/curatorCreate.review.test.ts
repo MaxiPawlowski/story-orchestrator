@@ -1,7 +1,7 @@
 import { textModel } from "../../../test/support/modelCall";
 import type { ModelAsk } from "@extraction/modelRoute";
 import { ModelCallError } from "@extraction/modelError";
-import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type EngineState, type NormalizedStory } from "@engine/index";
 import { createEligibility, type CreateEligibilityRow, type CuratorEntryView, type CuratorOpRecord, type CuratorProposalRecord, type NearDup, type NearDupSubject } from "@stagecraft/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { createExtras, createStagecraft, sanitizeStagecraft, stripGlobalSettings } from "../extras";
@@ -53,8 +53,7 @@ const host = {
   getContext: () => ({ extensionSettings: {}, chat: [] }),
 };
 
-const story = (createCap?: number): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2,
+const story = (createCap?: number): NormalizedStory => parseStoryOrThrow({
   id: "create-fixture",
   title: "The Delta",
   description: "Curator create op.",

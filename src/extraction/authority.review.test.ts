@@ -4,7 +4,7 @@
 // for the wrong reason — its own evidence string is seven characters. The contract pins both
 // halves: reject what is out of scope, accept short legitimate evidence. v2.3 plan 01 §A.
 
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 import { callExtractionReply } from "@extraction/client";
 import { viaReply } from "../../test/support/modelCall";
 import { parseSharedReadResponse } from "@extraction/parse";
@@ -19,8 +19,7 @@ jest.mock("@services/STAPI", () => ({
   readServerBoundary: async () => null, getContext: () => ({ chat: [], extensionSettings: {} }) }));
 jest.mock("@extraction/client", () => ({ callExtractionReply: jest.fn() }));
 
-const story = () => parseStoryV2OrThrow({
-  format: 2,
+const story = () => parseStoryOrThrow({
   id: "review-independent",
   title: "Review crossing",
   description: "Independent fixture",

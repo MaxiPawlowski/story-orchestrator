@@ -1,12 +1,11 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { wizardSessionKey } from "@wizard/index";
 import { isCompoundHouseRule } from "./authoringDiagnostics";
 import { runDiagnostics } from "./diagnostics";
 import { newStoryDraft, useDraftStore } from "./draft";
 import { setRequirements } from "./mutations";
 
-const pawnbroker = (members: string[]): StoryV2 => ({
-  format: 2,
+const pawnbroker = (members: string[]): Story => ({
   title: "The Pawnbroker of Forgotten Days",
   description: "",
   qualities: [],
@@ -16,7 +15,7 @@ const pawnbroker = (members: string[]): StoryV2 => ({
   requirements: { members },
 });
 
-const rosterIdRows = (draft: StoryV2) => runDiagnostics(draft).filter((entry) => entry.code === "requirement-member-roster-id");
+const rosterIdRows = (draft: Story) => runDiagnostics(draft).filter((entry) => entry.code === "requirement-member-roster-id");
 
 describe("T5-2 HIGH: Diagnostics names a requirement written as a roster id", () => {
   it("warns for each member that is a cast id whose card has another name (wizard-drafts.json:2486)", () => {
@@ -51,7 +50,7 @@ describe("T5-2 LOW: house-rule-compound flags two demands, not one world fact wi
   });
 
   it("the diagnostic follows the narrowed check", () => {
-    const draft: StoryV2 = { ...pawnbroker([]), house_rules: [...T52_RULES, "No guns; no swords."] };
+    const draft: Story = { ...pawnbroker([]), house_rules: [...T52_RULES, "No guns; no swords."] };
     expect(runDiagnostics(draft).filter((entry) => entry.code === "house-rule-compound").map((entry) => entry.path)).toEqual([`house_rules.${T52_RULES.length}`]);
   });
 });
