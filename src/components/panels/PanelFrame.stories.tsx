@@ -66,7 +66,8 @@ export const Phone390Docked: Story = {
     const panel = panelOf(canvasElement);
     await expect(panel?.dataset.docked).toBe("true");
     await expect(panel?.style.getPropertyValue("--so-dock-inset")).toBe("120px");
-    await expect(getComputedStyle(panel as HTMLElement).bottom).toBe("120px");
+    const box = (panel as HTMLElement).getBoundingClientRect();
+    await expect(Math.abs(box.bottom - (window.innerHeight - 120))).toBeLessThanOrEqual(1);
     await expect(canvasElement.querySelector('[data-so="panel-resize"]')).toBeNull();
     await userEvent.click(canvas.getByRole("button", { name: "Close Demo panel" }));
     await expect(args.onClose).toHaveBeenCalled();

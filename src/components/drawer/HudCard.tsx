@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { isEstablished, type MemoryEntry } from "@memory/index";
 import { HUD_COPY, pipelineAction } from "@runtime/pipeline";
 import type { RuntimeSnapshot } from "@runtime/types";
@@ -21,6 +21,8 @@ export interface HudCardProps extends HudCardActions {
 
 const PEEK = 5;
 
+export const cardRoom = (hudTop: number, clipTop: number): number => Math.max(120, Math.floor(hudTop - clipTop - 8));
+
 export const memoryPeek = (snapshot: RuntimeSnapshot, limit = PEEK): MemoryEntry[] => (snapshot.memoryShown ?? [])
   .filter((entry) => !entry.supersededBy && (!entry.foldedInto || isEstablished(entry)) && entry.provenance?.validity !== "conflicted")
   .sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)) || (b.createdAt ?? 0) - (a.createdAt ?? 0))
@@ -37,6 +39,19 @@ export const HudCard = ({ snapshot, panels, openPanel, openMemory, onMore, onClo
   const now = snapshot.narrative?.sections.find((section) => section.id === "now")?.lines ?? [];
   const action = pipelineAction(snapshot.pipeline);
   const remembered = peek ? memoryPeek(snapshot) : [];
+
+  useLayoutEffect(() => {
+    const element = card.current;
+    const root = element?.closest<HTMLElement>("#so-hud-root");
+    if (!element || !root) return undefined;
+    const measure = () => {
+      const clip = element.closest<HTMLElement>("#sheld")?.getBoundingClientRect().top ?? 0;
+      element.style.setProperty("--so-hud-card-room", `${cardRoom(root.getBoundingClientRect().top, clip)}px`);
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, []);
 
   useEffect(() => {
     card.current?.querySelector<HTMLElement>("button")?.focus();
