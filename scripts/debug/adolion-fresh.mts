@@ -4,7 +4,7 @@ import { appendFile, lstat, mkdir, readdir, readFile, rm, statfs, writeFile } fr
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lanesRootFor, REPO_ROOT } from '../lib/stRoot.mjs';
-import { laneRangeIssue } from './lib/laneRange.mts';
+import { laneIssue, lanePorts } from './lib/laneRange.mts';
 import { TOY_GROUP_NAME, toyGroupCreateBody, toyGroupProblems } from '../lib/toyGroup.mjs';
 import {
   acceptBaseline, badgeReport, buildInventory, buildManifest, castResetPlan, checkInventory, diffInventories, expectedStartDisabled, imageExtensionProblems, lastGoodSeed, seedDrift, installerProblems, isInstalledBook, isLfsPointer, spriteFolders, stripPlan,
@@ -55,7 +55,7 @@ const SPRITE_PNGS = 'campaign/sprites/*/sprites/*/*.png';
 const lane = (n: number) => {
   const root = resolve(LANES_ROOT, String(n));
   const work = resolve(root, 'adolion-fresh');
-  return { root, user: resolve(root, 'data', 'default-user'), debug: resolve(root, 'debug'), work, url: `http://127.0.0.1:${8100 + n}/` };
+  return { root, user: resolve(root, 'data', 'default-user'), debug: resolve(root, 'debug'), work, url: `http://127.0.0.1:${lanePorts(n).st}/` };
 };
 
 const run = (command: string, args: string[], { env = {}, echo = false }: { env?: Record<string, string>; echo?: boolean } = {}) =>
@@ -624,7 +624,7 @@ const argValue = (args: string[], name: string) => {
 };
 
 const laneArg = (value: string | undefined) => {
-  const issue = laneRangeIssue(value);
+  const issue = laneIssue(value);
   if (issue) throw new Error(issue);
   return Number(value);
 };
