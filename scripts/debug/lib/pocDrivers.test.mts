@@ -131,6 +131,7 @@ test('laneProblem refuses the owner ST and lanes below 30', () => {
   assert.match(laneProblem('http://127.0.0.1:8101', 'C:/so-lanes/1/debug')!, /not a lane >= 30/);
   assert.equal(laneProblem('http://127.0.0.1:8146', 'C:\\so-lanes\\46\\debug'), null);
   assert.match(laneProblem('http://127.0.0.1:8146', 'C:\\so-lanes\\0\\debug')!, /lane 0/);
+  assert.match(laneProblem('http://127.0.0.1:8188', 'C:/so-lanes/88/debug')!, /reserved for ComfyUI/);
   assert.equal(evidenceDirName('my label', 2, 'dry', '2026-10-14T10:00:00.000Z'), '2026-10-14T10-00-00-000Z-my_label-dry-run2');
 });
 

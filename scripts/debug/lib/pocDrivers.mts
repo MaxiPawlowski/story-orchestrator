@@ -1,3 +1,5 @@
+import { lanePortIssue } from './laneRange.mts';
+
 export const P41_MARKER = 'SO-P41';
 export const POSE_MARKER = 'SO-PL';
 export const FLOORS_DATE = '2026-10-14';
@@ -364,6 +366,8 @@ export function laneProblem(stUrl: string | undefined, debugDir: string): string
   const port = (() => { try { return Number(new URL(stUrl ?? 'http://127.0.0.1:8000').port || 80); } catch { return 0; } })();
   if (port === 8000) return 'refused: ST_URL is the owner ST (port 8000); run through st-lanes.mts run <n> with n >= 30';
   const lane = port - 8100;
+  const reserved = lanePortIssue(lane);
+  if (lane >= 30 && lane < 100 && reserved) return `refused: ${reserved}`;
   if (!(lane >= 30 && lane < 100)) return `refused: port ${port} is not a lane >= 30 (8130-8199)`;
   if (/[\\/]0[\\/]debug$/.test(debugDir.replace(/\\/g, '/'))) return 'refused: SO_DEBUG_DIR is lane 0';
   return null;

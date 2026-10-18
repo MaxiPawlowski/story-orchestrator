@@ -29,7 +29,7 @@ import { DEFAULT_MAIN_PROFILE, DEFAULT_ORCHESTRATOR, judgeExpectation, pinVerdic
 import { scoreRow } from './lib/sessionRubric.mts';
 import { meterSession, updateBudgetDocument, type BudgetRow } from './lib/sessionSpend.mts';
 import { renderRunbook } from './lib/sessionRunbook.mts';
-import { laneRangeIssue } from './lib/laneRange.mts';
+import { laneIssue, lanePorts } from './lib/laneRange.mts';
 
 const USAGE = `Usage: node scripts/debug/so-session.mts <command> [...]
 
@@ -147,7 +147,7 @@ const rel = (path: string) => relative(REPO_ROOT, path).replace(/\\/g, '/');
 
 const laneInfo = (n: number) => {
   const root = resolve(lanesRootFor(process.env, REPO_ROOT), String(n));
-  return { root, debug: resolve(root, 'debug'), log: resolve(root, 'server.log'), url: `http://127.0.0.1:${8100 + n}/`, env: { ST_URL: `http://127.0.0.1:${8100 + n}/`, ST_DEBUG_CDP_PORT: String(9300 + n), SO_DEBUG_DIR: resolve(root, 'debug'), SO_LANE: String(n) } };
+  return { root, debug: resolve(root, 'debug'), log: resolve(root, 'server.log'), url: `http://127.0.0.1:${lanePorts(n).st}/`, env: { ST_URL: `http://127.0.0.1:${lanePorts(n).st}/`, ST_DEBUG_CDP_PORT: String(lanePorts(n).cdp), SO_DEBUG_DIR: resolve(root, 'debug'), SO_LANE: String(n) } };
 };
 
 const logSize = (path: string) => (existsSync(path) ? statSync(path).size : 0);
@@ -252,7 +252,7 @@ export function planStart(doc: CardDoc, index: StoryIndex, card: Card, options: 
   if (missingData.length) return { refused: `${card.id} cannot run on this pin: the story lacks the data the card exercises.\n- ${missingData.join('\n- ')}` } as const;
   if (options.age !== null && options.age !== undefined && !continuing) return { refused: `--age backdates the chat a card continues; ${card.id} plays a fresh chat.` } as const;
   const lane = options.lane ?? (continuing ? Number(previous!.session.lane) : options.planned ?? 1);
-  if (laneRangeIssue(lane)) return { refused: laneRangeIssue(lane) as string } as const;
+  if (laneIssue(lane)) return { refused: laneIssue(lane) as string } as const;
   if (continuing && previous && Number(previous.session.lane) !== lane) return { refused: `${card.id} continues the ${card.setup.continues} chat on lane ${previous.session.lane}; start it there (or drop --lane).` } as const;
   const seed = options.seed && !continuing;
   const reseed = seed ? reseedRefusal(doc, lane, sessions, card.id) : null;
