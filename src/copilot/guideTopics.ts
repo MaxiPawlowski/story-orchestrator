@@ -24,10 +24,11 @@ export const GUIDE_TOPICS = {
   },
   "story-basics": {
     title: "Title, description and id",
-    fields: "title, description, id, player_intro, kind",
-    text: "The title and description tell the model and the author what the story is; player_intro is what a player reads before the first beat. The id is the story's identity "
+    fields: "format, title, description, id, player_intro, kind",
+    text: "format: 2 is required (a story without it does not load). The title and description tell the model and the author what the story is; "
+      + "player_intro is what a player reads before the first beat. The id is the story's identity "
       + "(a lowercase slug the library keys by); stories carry no version number. kind is saga or story (default): only the player's badges read it, never the model; "
-      + "chapters do not make a saga. Good: \"The Pawnbroker's Debt\" with a short premise. Avoid: renaming the id "
+      + "chapters do not make a saga. Good: \"The Sunken Ruins\" with a short premise. Avoid: renaming the id "
       + "after chats play it; a chat keeps the copy it pinned and the renamed story becomes a different story.",
   },
   briefing: {
@@ -57,7 +58,8 @@ export const GUIDE_TOPICS = {
     fields: "requirements.personas, requirements.members, requirements.lorebooks",
     text: "What the install must provide before the story's effects run: personas, group members and lorebooks, each named as SillyTavern names them. Name characters by "
       + "their CARD name, never by a roster id: \"Mara Venn\", not \"mara\". If wrong: the story never reads as ready and its effects stay deferred. A lorebook used by "
-      + "lore_select or checkpoint world_info belongs here too, or it may not be active. Name a persona only if it already exists: nothing creates one.",
+      + "lore_select or checkpoint world_info belongs here too; a listed book the install has is loaded for this story's chats, so no global selection is needed. "
+      + "Name a persona only if it already exists: nothing creates one.",
   },
   roster: {
     title: "Cast",
@@ -66,7 +68,7 @@ export const GUIDE_TOPICS = {
       + "director pick by it; the judge director runs only when every candidate has a role). aliases are other names players use (\"the captain\"); an alias two members "
       + "share is ignored. view: omniscient makes a narrator see the private rows and aims of the members on stage, plus the beat's other cast and anyone named "
       + "in the last 20 messages (about 1,000 tokens, most recently named first) to foreshadow; own (default) sees only their own. Never put the player in the roster: "
-      + "if a greeting says \"you are the pawnbroker\", there is no Pawnbroker card.",
+      + "if a greeting says \"you are the lamplighter\", there is no Lamplighter card.",
   },
   "drives-motives": {
     title: "Drives and motives",
@@ -196,7 +198,7 @@ export const GUIDE_TOPICS = {
     fields: "first_mes, new_chat_only, cast_changes",
     text: "In a group every card with a first message greets at once. Give a first message only to characters present in the start beat, for that scene only: no secret, twist "
       + "or later reveal. Everyone else gets none, and enters through cast_changes. A story-owned opener is a scripted onEnter npc_reply with new_chat_only, which posts only into an empty chat. "
-      + "A greeting addressing the player (\"you are the pawnbroker\") makes that role the player's: no card plays it.",
+      + "A greeting addressing the player (\"you are the lamplighter\") makes that role the player's: no card plays it.",
   },
   "npc-replies": {
     title: "NPC replies",
@@ -360,11 +362,12 @@ export const GUIDE_TOPICS = {
   ...LIVING_TOPICS,
   branching: {
     title: "Branches that follow the player",
-    fields: "stagecraft.branchingEnabled, stagecraft.prefetchEnabled, judge.uses.divergence",
+    fields: "features.branching, features.prefetch, stagecraft.branchingEnabled, stagecraft.prefetchEnabled, judge.uses.divergence",
     text: "Authored turning points with exits and an anchor after them; never where the living director writes. Exits' extraction_hint says what fits. "
       + "Once per player turn that moved nowhere, the judge reads whether it fits an exit; only a turn that commits to an action counts (questions, talk, OOC "
       + "never do). 2 counted 'none' in a row at p>=0.8, or one at p>=0.97, is divergence: the director writes liv_b<n>_way, rejoining the next anchor. "
-      + "Prefetch: one more way out, written ahead. One branch per turning point; a swipe takes it back.",
+      + "Refusals alone never branch. Prefetch writes one way out ahead. One branch per turning point; a swipe takes it back. "
+      + "features.branching or features.prefetch off declines it for the story.",
   },
   poses: {
     title: "Poses and character layers",

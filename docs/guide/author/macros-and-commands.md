@@ -9,7 +9,7 @@ moves. With no story, each answers a placeholder such as `(none)` or `(unknown)`
 |---|---|
 | `{{story_title}}` / `{{story_description}}` | Story title / description |
 | `{{story_current_checkpoint}}` | Active checkpoint name and objective |
-| `{{story_past_checkpoints}}` | Visited anchor names |
+| `{{story_past_checkpoints}}` | Names of the anchors this chat has passed through, not the active one, one per line in the story's checkpoint order; `(none)` when there are none |
 | `{{story_possible_transitions}}` | Outgoing transitions with their gate text (spoils; author use) |
 | `{{story_tension}}` | Current tension level |
 | `{{story_player_name}}` | Player persona name |
