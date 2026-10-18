@@ -206,4 +206,17 @@ Gates:
 
 - Final, after merging local master `27ababfc` (tour redesign): `npm run gates -- --jobs=1 --no-storybook` **all green in 349.7 s** (jest 9,743 passed, 1 skipped; replay 32/32; every step ok); Storybook static build from `git archive HEAD` on port 6389, `--maxWorkers 1`: **154 suites / 932 tests passed**. Worktree main bundle 1,286,600 B (budget 1,300,000).
 
-Owed: LI1/LM1 re-run on an idle GPU (coordinator) and the laptop; a real hidden tab (headed); a real streamed reply through the talking driver; step 2 trial.
+### Idle-GPU LI1/LM1 run 2026-10-18 (12:15–12:44Z)
+
+- Conditions: 3090 idle (Artemis loaded but idle on the controller, no ComfyUI job, owner not playing, step 2 agent told no GPU). Lane 30 (`C:\dev\so-live-lanes`, port 8130, no-model), private ST copy `C:\dev\st-live`, **headed** browser, viewport 1440x844, Wren motion rig, 60 s of steady drawing with all motion on. WebGL renderer on every run: `ANGLE (NVIDIA, NVIDIA GeForce RTX 3090 (0x00002204) Direct3D11 vs_5_0 ps_5_0, D3D11)`.
+- Candidate = master `d6539d20` (served `dist/index.js` sha `326a524e81a1`), frozen for both runs. Baseline = pre-motion master `ae510246` (sha `001b39c5d987`), same lane, rig and viewport.
+- Interval histogram buckets (ms): ≤17 / 17–25 / 25–33.34 / 33.34–50 / 50–100 / >100.
+- Candidate run 1 (`live-head-cand1-t2`; t1 aborted on a popup over `#so-briefing-start`, a harness flake, no sample): 3,550 frames, **max 866.8 ms**, 2 drops, p50 16.7, p95 16.8, 2 long tasks; histogram 3542/3/2/0/1/1; spikes 25.2 @0.2 s, 54.2 @6.0 s, 866.8 @34.6 s (all `no-tick`), 25.1 @51.1 s (`skipped-ticks`).
+- Candidate run 2 (`live-head-cand2-t1`): 3,617 frames, **max 41.7 ms**, 2 drops, p95 18.1, 0 long tasks; histogram 3171/443/0/2/0/0; spikes 37.4 @0.2 s, 41.7 @6.6 s (`no-tick`).
+- Baseline run 1 (`live-head-base1-t1`): 3,627 frames, **max 120.8 ms**, 2 drops, p95 18.7, 1 long task; histogram 2556/1066/2/1/0/1; spikes 41.2, 120.8, 26.6, 25.4 (all `no-tick`).
+- Baseline run 2 (`live-head-base2-t2`; t1 aborted on the same click flake): 3,647 frames, **max 41.7 ms**, 2 drops, p95 19.4, 0 long tasks; histogram 1902/1739/3/2/0/0; spikes 37.4, 29.2, 41.7, 29.2, 25.9 (all `no-tick`).
+- **Verdict, floor applied as predeclared (no interval over 33.34 ms), not retuned: LM1 FAIL, 2 of 2 candidate runs.** The pre-motion baseline fails the same floor 2 of 2 with the same `no-tick` signature: the browser delivered no frame and ran no script. Run 2 of each has an identical 41.7 ms max. Steady state on the candidate is tighter than the baseline: p95 16.8–18.1 vs 18.7–19.4, and 17–25 ms intervals 3/443 vs 1066/1739. So the misses track the host compositor on this desktop, not the motion code. That is an observation, not a pass. The single 866.8 ms stall (candidate run 1, with a long task) is unexplained.
+- LI6 real hidden tab (`live-head-hidden-t1`, headed, raw CDP path, no simulated `visibilitychange`): **PASS**. `document.hidden` was true, draws held at 239 before and after the hidden window. LI6 keyboard, 1440 width (1 context) and teardown (0 contexts, 0 resources) passed too.
+- Logs: `scratchpad/livehead/idle-*.log` (session scratch). Records: `C:\dev\so-live-lanes\debuguns\live-head-{cand1-t2,cand2-t1,base1-t1,base2-t2,hidden-t1}ecord.json`. Lane 30 was stopped afterwards and `st-live` restaged with the candidate.
+
+Owed: LM1 stays failed on this desktop (candidate and baseline alike); the laptop run; a real streamed reply through the talking driver; step 2 trial.
