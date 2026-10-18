@@ -1,6 +1,6 @@
 import type { RunGuard } from "@runtime/runToken";
 import type { PixelImage } from "../../builder/pixels";
-import { HEAD_LAYERS, HEAD_MANIFEST_VERSION, loadHeadManifest, manifestRef, type HeadManifest } from "../manifest";
+import { HAND_LAYER, HEAD_LAYERS, HEAD_MANIFEST_VERSION, loadHeadManifest, manifestRef, type HeadManifest } from "../manifest";
 import { parseLandmarks } from "./landmarks";
 import { synthesizeRig } from "./rigGeometry";
 import { cutHeadLayers } from "./layers";
@@ -49,7 +49,7 @@ export async function synthesizeCheckedHead(input: RigSynthesisInput, run: RunGu
     if (!run.stillOwns()) return null;
     layers.push({ name: layer.name, rect: layer.rect, image: `data:image/png;base64,${data}` });
   }
-  if (layers.map((layer) => layer.name).join() !== HEAD_LAYERS.join()) throw new Error("The rig layers are incomplete.");
+  if (layers.map((layer) => layer.name).join() !== [...HEAD_LAYERS, ...(rig.hand ? [HAND_LAYER] : [])].join()) throw new Error("The rig layers are incomplete.");
   const manifest = loadHeadManifest({ version: HEAD_MANIFEST_VERSION, member: input.member, look: input.look, artHash: input.sha256, source: input.source, rig, layers },
     { member: input.member, look: input.look, artHash: input.sha256, source: input.source, manifest: "" });
   if (manifestRef(manifest).manifest.length > MAX_RIG_PACKAGE) throw new Error("The synthesized rig exceeds the import limit. Use a smaller bust.");

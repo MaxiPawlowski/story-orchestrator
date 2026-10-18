@@ -15,7 +15,12 @@ export interface FaceLandmarks {
   neck: Point;
   shoulders: [Point, Point];
   ears?: [Point, Point];
+  hair?: Point[][];
+  chest?: Point;
+  hand?: HandLandmarks;
 }
+export interface HandLandmarks { outline: Point[]; wrist: Point; knuckle: Point; elbow: Point }
+export const MAX_HAIR_STRANDS = 10;
 
 const finite = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
 const pointIn = (size: { width: number; height: number }) => (value: unknown): value is Point =>
@@ -67,6 +72,43 @@ export function landmarkProblems(value: unknown, size: { width: number; height: 
   return problems;
 }
 
+export function optionalLandmarkNotes(value: unknown, size: { width: number; height: number }): string[] {
+  if (!isRecord(value)) return [];
+  const point = pointIn(size), notes: string[] = [];
+  const hair = value.hair;
+  if (hair !== undefined) {
+    if (!Array.isArray(hair) || hair.length > MAX_HAIR_STRANDS) notes.push(`landmarks.hair: expected up to ${MAX_HAIR_STRANDS} strands; hair left still`);
+    else hair.forEach((strand: unknown, index: number) => {
+      if (!Array.isArray(strand) || strand.length < 2 || strand.length > 6 || !strand.every(point)) notes.push(`landmarks.hair[${index}]: expected 2..6 points inside the bust; strand dropped`);
+      else if ((strand as Point[]).some((p, j) => j > 0 && Math.hypot(p[0] - strand[j - 1][0], p[1] - strand[j - 1][1]) < 1)) notes.push(`landmarks.hair[${index}]: repeated points; strand dropped`);
+    });
+  }
+  if (value.chest !== undefined && !point(value.chest)) notes.push("landmarks.chest: expected a point inside the bust; chest estimated from the shoulders");
+  const hand = value.hand;
+  if (hand !== undefined) {
+    const anywhere = (p: unknown): boolean => Array.isArray(p) && p.length === 2 && finite(p[0]) && finite(p[1]);
+    if (!isRecord(hand) || !Array.isArray(hand.outline) || hand.outline.length < 3 || hand.outline.length > 64 || !hand.outline.every(point)
+      || area(hand.outline as Point[]) < 16 || !point(hand.wrist) || !point(hand.knuckle) || !anywhere(hand.elbow))
+      notes.push("landmarks.hand: expected an outline, wrist and knuckle inside the bust and an elbow; hand left still");
+  }
+  return notes;
+}
+
+function optionalGroups(value: Record<string, unknown>, size: { width: number; height: number }): Pick<FaceLandmarks, "hair" | "chest" | "hand"> {
+  const notes = optionalLandmarkNotes(value, size), out: Pick<FaceLandmarks, "hair" | "chest" | "hand"> = {};
+  const noted = (prefix: string) => notes.some((note) => note.startsWith(prefix));
+  if (Array.isArray(value.hair) && !noted("landmarks.hair:")) {
+    const hair = (value.hair as Point[][]).filter((_, index) => !noted(`landmarks.hair[${index}]`)).map((strand) => strand.map(copy));
+    if (hair.length) out.hair = hair;
+  }
+  if (value.chest !== undefined && !noted("landmarks.chest")) out.chest = copy(value.chest as Point);
+  if (value.hand !== undefined && !noted("landmarks.hand")) {
+    const hand = value.hand as HandLandmarks;
+    out.hand = { outline: hand.outline.map(copy), wrist: copy(hand.wrist), knuckle: copy(hand.knuckle), elbow: copy(hand.elbow) };
+  }
+  return out;
+}
+
 export function parseLandmarks(value: unknown, size: { width: number; height: number }): FaceLandmarks {
   const problems = landmarkProblems(value, size);
   if (problems.length) throw new Error(`These face landmarks cannot be rigged:\n${problems.join("\n")}`);
@@ -75,7 +117,7 @@ export function parseLandmarks(value: unknown, size: { width: number; height: nu
     eyes: [marks.eyes[0].map(copy), marks.eyes[1].map(copy)], brows: [copy(marks.brows[0]), copy(marks.brows[1])], nose: copy(marks.nose),
     mouth: { left: copy(marks.mouth.left), right: copy(marks.mouth.right), top: copy(marks.mouth.top), bottom: copy(marks.mouth.bottom) },
     chin: copy(marks.chin), neck: copy(marks.neck), shoulders: [copy(marks.shoulders[0]), copy(marks.shoulders[1])],
-    ...(marks.ears ? { ears: [copy(marks.ears[0]), copy(marks.ears[1])] as [Point, Point] } : {}) };
+    ...(marks.ears ? { ears: [copy(marks.ears[0]), copy(marks.ears[1])] as [Point, Point] } : {}), ...optionalGroups(value as Record<string, unknown>, size) };
 }
 
 export const eyeCentre = centre;

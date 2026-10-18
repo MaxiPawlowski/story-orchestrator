@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import { LiveHeadAuthor } from "./LiveHeadAuthor";
-import { syntheticHead } from "./synthetic";
+import { syntheticHead, syntheticMotionHead } from "./synthetic";
 
 const meta: Meta<typeof LiveHeadAuthor> = { title: "Sprites/LiveHeadAuthor", component: LiveHeadAuthor,
   args: { rows: [{ member: "shape", name: "Shape", look: "default", present: false }, { member: "other", name: "Other", look: "default", present: true }], onImport: fn() },
@@ -23,7 +23,7 @@ export const StatusAndImport: Story = {
     await userEvent.paste(JSON.stringify(syntheticHead));
     await userEvent.click(canvas.getByRole("button", { name: "Import rig" }));
     await expect(args.onImport).toHaveBeenCalledOnce();
-    await expect(canvas.getByRole("status")).toHaveTextContent("Rig imported for shape, default.");
+    await expect(canvas.getByRole("status")).toHaveTextContent("Rig imported for shape, default. Moves: body sway. No hair locks in this rig, so the hair stays still.");
   },
 };
 
@@ -36,6 +36,19 @@ export const ImportWithStillMouth: Story = {
     await userEvent.paste(JSON.stringify(degenerate));
     await userEvent.click(canvas.getByRole("button", { name: "Import rig" }));
     await expect(args.onImport).toHaveBeenCalledOnce();
-    await expect(canvas.getByRole("status")).toHaveTextContent("Rig imported for shape, default. The rig's mouth region has no width. Its mouth stays still.");
+    await expect(canvas.getByRole("status")).toHaveTextContent("hair stays still. The rig's mouth region has no width. Its mouth stays still.");
+  },
+};
+
+export const ImportWithHairLocks: Story = {
+  args: { rows: [{ member: "shape-motion", name: "Shape", look: "default", present: false }] },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText("Import a live head rig"));
+    await userEvent.click(canvas.getByRole("textbox", { name: "Rig package JSON" }));
+    await userEvent.paste(JSON.stringify(syntheticMotionHead));
+    await userEvent.click(canvas.getByRole("button", { name: "Import rig" }));
+    await expect(args.onImport).toHaveBeenCalledOnce();
+    await expect(canvas.getByRole("status")).toHaveTextContent("Rig imported for shape-motion, default. Moves: hair (4 locks), body sway.");
   },
 };

@@ -5,6 +5,7 @@ import { log } from "@utils/log";
 import type { LiveHeadRef } from "../liveHeadRefs";
 import type { StreamActivity } from "../animation";
 import { HeadDriver, visemeMouth } from "./headDriver";
+import { MotionDriver, type Presence } from "./motionDriver";
 import { headImage } from "./load";
 import { attachHead } from "./mount";
 import type { DrawnSource } from "./drawn";
@@ -24,6 +25,7 @@ export interface LiveHeadProps {
   beginRun(): RunGuard;
   drawn?: DrawnSource;
   mouthConfig?: MouthConfig;
+  gesture?: { id: string; nonce: number };
   style?: React.CSSProperties;
 }
 
@@ -54,7 +56,8 @@ export function LiveHead(props: LiveHeadProps) {
       return live && !abort.signal.aborted && owner.stillOwns() && current.member === member && current.look === look
         && current.artHash === artHash && current.source === source && current.manifest === manifest;
     } };
-    const start = performance.now(), driver = new HeadDriver(binding.member);
+    const start = performance.now(), driver = new HeadDriver(binding.member), motion = new MotionDriver(binding.member);
+    let gestureNonce = latest.current.gesture?.nonce ?? 0;
     const visible = (ready: boolean) => {
       if (!live) return;
       element.style.visibility = ready ? "visible" : "hidden";
@@ -62,10 +65,16 @@ export function LiveHead(props: LiveHeadProps) {
     };
     visible(false);
     void attachHead(element, binding, run, { bytes: headAssetBytes, hash: headArtHash, image: headImage }, () => {
-      const current = latest.current;
-      const speaking = current.activity.view() === current.name, p = driver.drive(performance.now() - start, current.label, speaking, current.motion,
-        current.breathing, current.blink, current.mouth);
-      return speaking && current.motion && current.mouth ? visemeMouth(p, current.activity.mouth(current.name), mouthConfig) : p;
+      const current = latest.current, elapsed = performance.now() - start, speaker = current.activity.view();
+      const speaking = speaker === current.name, presence: Presence = speaking ? "talking" : speaker ? "listening" : "idle";
+      const p = driver.drive(elapsed, current.label, speaking, current.motion, current.breathing, current.blink, current.mouth);
+      if (speaking && current.motion && current.mouth) visemeMouth(p, current.activity.mouth(current.name), mouthConfig);
+      if (current.gesture && current.gesture.nonce !== gestureNonce) { gestureNonce = current.gesture.nonce; motion.start(current.gesture.id, elapsed); }
+      motion.apply(p, elapsed, current.label, presence, current.motion);
+      if (!current.breathing) p.breath = 0;
+      const gesture = motion.playing ?? "";
+      if (element.dataset.liveHeadGesture !== gesture) element.dataset.liveHeadGesture = gesture;
+      return p;
     }, visible, (target, prepared) => new HeadRenderer(target, prepared, mouthConfig), drawnKey ? { source: JSON.parse(drawnKey) as DrawnSource, deps: drawnDeps, report: (set, error) => {
       if (!live) return;
       element.dataset.liveHeadDrawn = set?.sprites.map((sprite) => sprite.name).join(" ") || "none";

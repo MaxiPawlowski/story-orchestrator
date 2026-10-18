@@ -92,10 +92,43 @@ export function deformInto(rig: Rig, x: number, y: number, p: HeadParameters, ou
     py -= p.breath * (5 * (1 - smooth(body.breathBand[0], body.breathBand[1], y)) + 4 * shoulders);
     px += (px - body.chest.cx) * 0.012 * p.breath * gaussian(x, y, body.chest);
   }
+  if (p.bodyAngleX !== 0 || p.bodyAngleZ !== 0) {
+    const roll = 1 - smooth(body.rollBand[0], body.rollBand[1], y);
+    px += p.bodyAngleX / 10 * (SWAY_BASE + SWAY_CHEST * gaussian(x, y, body.chest)) * head.rx / SWAY_HEAD * roll;
+    const angle = -p.bodyAngleZ / 10 * body.maxRoll * roll, dx = px - body.pivotX, dy = py - body.pivotY, c = Math.cos(angle), s = Math.sin(angle);
+    px = body.pivotX + dx * c - dy * s; py = body.pivotY + dx * s + dy * c;
+  }
   out[at] = px; out[at + 1] = py;
 }
 
-export const WEIGHT_STRIDE = 14;
+const SWAY_BASE = 7, SWAY_CHEST = 9, SWAY_HEAD = 430;
+
+export function headPointInto(rig: Rig, x: number, y: number, p: HeadParameters, weight: number, turnWeight: number, out: { [index: number]: number }, at = 0, breathWeight = 1): void {
+  const head = rig.head, body = rig.body;
+  let px = x, py = y;
+  const ax = p.angleX / 30, ay = p.angleY / 30;
+  if ((ax !== 0 || ay !== 0) && turnWeight > 0) {
+    const bump = 1 - ((x - head.cx) / head.rx) ** 2 - ((y - head.cy) / head.ry) ** 2;
+    const turn = smooth(0, 0.84, bump) * turnWeight;
+    px += ax * head.shiftX * turn; py -= ay * head.shiftY * turn;
+  }
+  if (p.angleZ !== 0 && weight > 0) {
+    const angle = -p.angleZ / 30 * head.maxRoll * weight, dx = px - head.pivotX, dy = py - head.pivotY, c = Math.cos(angle), s = Math.sin(angle);
+    px = head.pivotX + dx * c - dy * s; py = head.pivotY + dx * s + dy * c;
+  }
+  py -= p.breath * 5 * breathWeight * (1 - smooth(body.breathBand[0], body.breathBand[1], y));
+  const roll = 1 - smooth(body.rollBand[0], body.rollBand[1], y);
+  px += p.bodyAngleX / 10 * SWAY_BASE * head.rx / SWAY_HEAD * roll;
+  const angle = -p.bodyAngleZ / 10 * body.maxRoll * roll, dx = px - body.pivotX, dy = py - body.pivotY, c = Math.cos(angle), s = Math.sin(angle);
+  out[at] = body.pivotX + dx * c - dy * s; out[at + 1] = body.pivotY + dx * s + dy * c;
+}
+
+export const headWeightAt = (rig: Rig, y: number): number => 1 - smooth(rig.head.weightBand[0], rig.head.weightBand[1], y);
+export const turnWeightAt = (rig: Rig, y: number): number => 1 - smooth(rig.head.turnBand[0], rig.head.turnBand[1], y);
+
+export interface HairInput { start: Uint32Array; strand: Uint16Array; weight: Float32Array; t: Float32Array; nodes: Uint8Array; offsets: Float64Array; stride: number }
+
+export const WEIGHT_STRIDE = 15;
 
 export function vertexWeights(rig: Rig, rest: Float32Array): Float64Array {
   const head = rig.head, body = rig.body, face = rig.face, weights = new Float64Array(rest.length / 2 * WEIGHT_STRIDE);
@@ -112,17 +145,28 @@ export function vertexWeights(rig: Rig, rest: Float32Array): Float64Array {
     let shoulders = 0;
     for (const shoulder of body.shoulders) shoulders += gaussian(x, y, shoulder);
     weights[k + 12] = shoulders; weights[k + 13] = gaussian(x, y, body.chest);
+    weights[k + 14] = 1 - smooth(body.rollBand[0], body.rollBand[1], y);
   }
   return weights;
 }
 
-export function deformWeighted(rig: Rig, rest: Float32Array, weights: Float64Array, p: HeadParameters, out: Float32Array): void {
+export function deformWeighted(rig: Rig, rest: Float32Array, weights: Float64Array, p: HeadParameters, out: Float32Array, hair: HairInput | null = null): void {
   const head = rig.head, body = rig.body, face = rig.face;
   const ax = p.angleX / 30, ay = p.angleY / 30, roll = -p.angleZ / 30 * head.maxRoll;
   const brows = p.browY !== 0 || p.browAngle !== 0, jaw = p.mouthOpen * 3.5;
+  const sway = p.bodyAngleX / 10 * head.rx / SWAY_HEAD, bodyRoll = -p.bodyAngleZ / 10 * body.maxRoll, swaying = p.bodyAngleX !== 0 || p.bodyAngleZ !== 0;
   for (let i = 0, k = 0; i < rest.length; i += 2, k += WEIGHT_STRIDE) {
     const x = rest[i], y = rest[i + 1];
     let px = x, py = y;
+    if (hair) {
+      const offsets = hair.offsets, stride = hair.stride;
+      for (let h = hair.start[i >> 1], end = hair.start[(i >> 1) + 1]; h < end; h++) {
+        const s = hair.strand[h], last = hair.nodes[s] - 1, f = hair.t[h] * last, n = Math.min(last - 1, Math.floor(f)), u = f - n, w = hair.weight[h];
+        const o = s * stride + n * 2;
+        px += (offsets[o] + (offsets[o + 2] - offsets[o]) * u) * w;
+        py += (offsets[o + 1] + (offsets[o + 3] - offsets[o + 1]) * u) * w;
+      }
+    }
     if (brows) {
       const brow = weights[k];
       py -= p.browY * 7 * brow;
@@ -152,6 +196,12 @@ export function deformWeighted(rig: Rig, rest: Float32Array, weights: Float64Arr
     if (p.breath !== 0) {
       py -= p.breath * (5 * weights[k + 11] + 4 * weights[k + 12]);
       px += (px - body.chest.cx) * 0.012 * p.breath * weights[k + 13];
+    }
+    if (swaying) {
+      const rollWeight = weights[k + 14];
+      px += sway * (SWAY_BASE + SWAY_CHEST * weights[k + 13]) * rollWeight;
+      const angle = bodyRoll * rollWeight, dx = px - body.pivotX, dy = py - body.pivotY, c = Math.cos(angle), sn = Math.sin(angle);
+      px = body.pivotX + dx * c - dy * sn; py = body.pivotY + dx * sn + dy * c;
     }
     out[i] = px; out[i + 1] = py;
   }

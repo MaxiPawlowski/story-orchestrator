@@ -24,7 +24,9 @@ SOFTWARE.
 import type { HeadManifest, HeadLayer } from "./manifest";
 import type { HeadParameters } from "./drivers";
 import type { Eye } from "./types";
-import { deformInto, deformWeighted, eyeVertexY, headGrid, vertexWeights, type HeadMesh } from "./geometry";
+import { deformInto, deformWeighted, eyeVertexY, headGrid, vertexWeights, type HairInput, type HeadMesh } from "./geometry";
+import { HairPhysics, strandField } from "./hair";
+import { HandBones, handWeights } from "./hand";
 import { VS, FS } from "./shaders";
 import { GAZE_TRAVEL, gazeLimits, irisSpan, limitGaze, scleraTone, type IrisSpan, type Tone } from "./gaze";
 import { DrawnDirector, mouthInner, squashVertex, type DrawnSprite, type DrawnState } from "./drawn";
@@ -33,8 +35,10 @@ import { DEFAULT_MOUTH_CONFIG, type MouthConfig } from "../mouthConfig";
 
 interface LayerResources {
   layer: HeadLayer; mesh: HeadMesh; vao: WebGLVertexArrayObject; position: WebGLBuffer; texture: WebGLTexture; buffers: WebGLBuffer[];
-  eye: number; part: string; lidded: boolean; weights: Float64Array | null;
+  eye: number; part: string; lidded: boolean; weights: Float64Array | null; hair: HairInput | null;
 }
+
+interface HandResources { layer: HeadLayer; mesh: HeadMesh; vao: WebGLVertexArrayObject; position: WebGLBuffer; texture: WebGLTexture; buffers: WebGLBuffer[]; weights: Float64Array; bones: HandBones }
 
 interface DrawnResources {
   sprite: DrawnSprite; mesh: HeadMesh; vao: WebGLVertexArrayObject; position: WebGLBuffer; texture: WebGLTexture; buffers: WebGLBuffer[];
@@ -71,7 +75,10 @@ export class HeadRenderer {
   private readonly iris = new Float32Array(8);
   private readonly limits: Array<[number, number] | null> = [null, null];
   private toned = false;
-  private readonly uploaded = new Float64Array(9).fill(Number.NaN);
+  private readonly uploaded = new Float64Array(14).fill(Number.NaN);
+  private hair: HairPhysics | null = null;
+  private hairShown = false;
+  private hand: HandResources | null = null;
   private readonly drawn: DrawnResources[] = [];
   private director: DrawnDirector | null = null;
   private lastTime = Number.NaN;
@@ -133,23 +140,41 @@ export class HeadRenderer {
   }
 
   add(layer: HeadLayer, image: HTMLImageElement): void {
-    const gl = this.gl, rig = this.manifest.rig;
+    const rig = this.manifest.rig;
     if (image.naturalWidth !== layer.rect[2] || image.naturalHeight !== layer.rect[3]) throw new Error("Layer image dimensions differ from the rig.");
+    if (layer.name === "hand") {
+      if (!rig.hand || this.hand) return;
+      const resources = this.allocate(layer.rect, rig.mesh.handCell);
+      this.hand = { layer, ...resources, weights: handWeights(rig.hand, resources.mesh.rest), bones: new HandBones(rig, rig.hand) };
+      this.upload(image);
+      return;
+    }
     const cell = layer.name === "base" ? Math.min(rig.mesh.baseCell, rig.mesh.fine.cell) : layer.name.endsWith("ball") ? rig.mesh.eyeBallCell : rig.mesh.eyeCell;
     const resources = this.allocate(layer.rect, cell);
     const eye = /^eye([01])_(.+)$/.exec(layer.name);
     const part = eye?.[2] ?? "", lidded = part === "lash" || part === "low" || part === "crease";
-    this.layers.push({ layer, ...resources, eye: eye ? Number(eye[1]) : -1, part, lidded, weights: lidded ? null : vertexWeights(rig, resources.mesh.rest) });
+    const hair = layer.name === "base" ? strandField(rig, resources.mesh.rest) : null;
+    if (hair && !this.hair) this.hair = new HairPhysics(rig, hair.offsets);
+    this.layers.push({ layer, ...resources, eye: eye ? Number(eye[1]) : -1, part, lidded, weights: lidded ? null : vertexWeights(rig, resources.mesh.rest), hair });
     const index = Number(eye?.[1]), ball = part === "ball" ? readBall(image, layer.rect, rig.eyes[index]) : null;
     if (ball) {
       this.sclera.set([...ball.tone, 1], index * 4); this.toned = true;
       if (ball.span) { this.iris.set([ball.span[0], ball.span[1], 1, 0], index * 4); this.limits[index] = gazeLimits(rig.eyes[index], ball.span); }
     }
+    this.upload(image);
+  }
+
+  private upload(image: HTMLImageElement): void {
+    const gl = this.gl;
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
     this.sampling();
     if (gl.getError() !== gl.NO_ERROR) throw new Error("Layer texture upload failed.");
   }
+
+  holdHair(x: number | null, y = 0): void { this.hair?.hold(x, y); }
+
+  motionParts(): { strands: number; hand: boolean } { return { strands: this.hair?.strands.length ?? 0, hand: this.hand !== null }; }
 
   addDrawn(sprites: readonly DrawnSprite[]): void {
     const gl = this.gl, rig = this.manifest.rig;
@@ -205,16 +230,22 @@ export class HeadRenderer {
     gl.activeTexture(gl.TEXTURE0);
     const seen = this.uploaded;
     const deformed = seen[0] !== p.breath || seen[1] !== p.angleX || seen[2] !== p.angleY || seen[3] !== p.angleZ
-      || seen[4] !== p.browY || seen[5] !== p.browAngle || seen[6] !== p.mouthOpen;
+      || seen[4] !== p.browY || seen[5] !== p.browAngle || seen[6] !== p.mouthOpen || seen[9] !== p.bodyAngleX || seen[10] !== p.bodyAngleZ;
     const lids = deformed || seen[7] !== p.eyeOpen || seen[8] !== p.eyeSmile;
+    const handMoved = deformed || seen[11] !== p.armAngle || seen[12] !== p.handAngle || seen[13] !== p.fingerTap;
     seen[0] = p.breath; seen[1] = p.angleX; seen[2] = p.angleY; seen[3] = p.angleZ; seen[4] = p.browY; seen[5] = p.browAngle;
-    seen[6] = p.mouthOpen; seen[7] = p.eyeOpen; seen[8] = p.eyeSmile;
+    seen[6] = p.mouthOpen; seen[7] = p.eyeOpen; seen[8] = p.eyeSmile; seen[9] = p.bodyAngleX; seen[10] = p.bodyAngleZ;
+    seen[11] = p.armAngle; seen[12] = p.handAngle; seen[13] = p.fingerTap;
+    const hair = this.hair;
+    if (hair) hair.step(p, dt / 1000);
+    const hairMoving = hair !== null && (hair.active || this.hairShown);
+    if (hair) this.hairShown = hair.active;
     for (const resource of this.layers) {
       const { layer, mesh } = resource;
       const part = resource.part, rest = mesh.rest, pos = mesh.pos;
       gl.bindVertexArray(resource.vao);
-      if (resource.lidded ? lids : deformed) {
-        if (resource.weights) deformWeighted(rig, rest, resource.weights, p, pos);
+      if (resource.lidded ? lids : deformed || (hairMoving && resource.hair !== null)) {
+        if (resource.weights) deformWeighted(rig, rest, resource.weights, p, pos, hair?.active ? resource.hair : null);
         else {
           const eye = rig.eyes[resource.eye];
           for (let i = 0; i < rest.length; i += 2) deformInto(rig, rest[i], eyeVertexY(eye, part, rest[i], rest[i + 1], p.eyeOpen, p.eyeSmile), p, pos, i);
@@ -228,6 +259,7 @@ export class HeadRenderer {
       if (!drawn || resource.eye < 0 || !drawn.covered[resource.eye]) gl.drawElements(gl.TRIANGLES, mesh.triangles.length, gl.UNSIGNED_INT, 0);
     }
     if (drawn) this.drawSprites(p, drawn, deformed);
+    if (this.hand) this.drawHand(p, handMoved);
     gl.bindVertexArray(null);
     this.frames += 1;
     if ((this.frames <= 3 || this.frames % ERROR_CHECK_EVERY === 0) && gl.getError() !== gl.NO_ERROR) throw new Error("Live head draw failed.");
@@ -261,12 +293,26 @@ export class HeadRenderer {
     }
   }
 
+  private drawHand(p: HeadParameters, moved: boolean): void {
+    const gl = this.gl, hand = this.hand;
+    if (!hand) return;
+    gl.bindVertexArray(hand.vao);
+    if (moved) {
+      hand.bones.frame(p); hand.bones.deform(hand.mesh.rest, hand.weights, p, hand.mesh.pos);
+      gl.bindBuffer(gl.ARRAY_BUFFER, hand.position); gl.bufferSubData(gl.ARRAY_BUFFER, 0, hand.mesh.pos);
+    }
+    gl.bindTexture(gl.TEXTURE_2D, hand.texture); gl.uniform4fv(this.uniform("uRect"), hand.layer.rect);
+    gl.uniform1i(this.uniform("uFace"), 0); gl.uniform1f(this.uniform("uAlpha"), 1);
+    gl.drawElements(gl.TRIANGLES, hand.mesh.triangles.length, gl.UNSIGNED_INT, 0);
+  }
+
   destroy(): void {
     if (this.closed) return;
     this.closed = true;
-    for (const layer of [...this.layers, ...this.drawn]) {
+    for (const layer of [...this.layers, ...this.drawn, ...(this.hand ? [this.hand] : [])]) {
       this.gl.deleteTexture(layer.texture); this.gl.deleteVertexArray(layer.vao); layer.buffers.forEach((buffer) => this.gl.deleteBuffer(buffer));
     }
-    this.layers.length = 0; this.drawn.length = 0; this.director = null; this.gl.deleteProgram(this.program); this.gl.getExtension("WEBGL_lose_context")?.loseContext();
+    this.layers.length = 0; this.drawn.length = 0; this.director = null; this.hand = null; this.hair = null;
+    this.gl.deleteProgram(this.program); this.gl.getExtension("WEBGL_lose_context")?.loseContext();
   }
 }

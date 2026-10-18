@@ -5,10 +5,12 @@ export interface HeadParameters {
   breath: number; angleX: number; angleY: number; angleZ: number;
   gazeX: number; gazeY: number; eyeOpen: number; eyeSmile: number;
   mouthOpen: number; mouthForm: number; browY: number; browAngle: number; blush: number;
+  bodyAngleX: number; bodyAngleZ: number; armAngle: number; handAngle: number; fingerTap: number; hair: number;
 }
 
 export const restHead = (): HeadParameters => ({ breath: 0, angleX: 0, angleY: 0, angleZ: 0,
-  gazeX: 0, gazeY: 0, eyeOpen: 1, eyeSmile: 0, mouthOpen: 0, mouthForm: 0, browY: 0, browAngle: 0, blush: 0 });
+  gazeX: 0, gazeY: 0, eyeOpen: 1, eyeSmile: 0, mouthOpen: 0, mouthForm: 0, browY: 0, browAngle: 0, blush: 0,
+  bodyAngleX: 0, bodyAngleZ: 0, armAngle: 0, handAngle: 0, fingerTap: 0, hair: 0 });
 
 export function expressionHead(label: string): Partial<HeadParameters> {
   switch (label.toLowerCase()) {

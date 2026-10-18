@@ -24,6 +24,7 @@ export class HeadDriver {
     const expression = this.expression;
     out.breath = 0; out.angleX = 0; out.angleY = 0; out.angleZ = 0; out.gazeX = 0; out.gazeY = 0;
     out.eyeOpen = 1; out.eyeSmile = 0; out.mouthOpen = 0; out.mouthForm = 0; out.browY = 0; out.browAngle = 0; out.blush = 0;
+    out.bodyAngleX = 0; out.bodyAngleZ = 0; out.armAngle = 0; out.handAngle = 0; out.fingerTap = 0; out.hair = 0;
     let idleOpen = 1;
     if (motion) {
       const time = Math.max(0, Number.isFinite(elapsedMs) ? elapsedMs : 0), phase = this.phase;

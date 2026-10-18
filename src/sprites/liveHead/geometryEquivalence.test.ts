@@ -58,7 +58,10 @@ function referenceDeform(rig: Rig, x: number, y: number, p: HeadParameters): Poi
   py = head.pivotY + dx * Math.sin(angle) + dy * Math.cos(angle);
   py -= p.breath * (5 * (1 - band(body.breathBand, y)) + 4 * body.shoulders.reduce((sum, e) => sum + weight(e), 0));
   px += (px - body.chest.cx) * 0.012 * p.breath * weight(body.chest);
-  return [px, py];
+  const roll = 1 - band(body.rollBand, y);
+  px += p.bodyAngleX / 10 * (7 + 9 * weight(body.chest)) * head.rx / 430 * roll;
+  const bodyAngle = -p.bodyAngleZ / 10 * body.maxRoll * roll, bx = px - body.pivotX, by = py - body.pivotY;
+  return [body.pivotX + bx * Math.cos(bodyAngle) - by * Math.sin(bodyAngle), body.pivotY + bx * Math.sin(bodyAngle) + by * Math.cos(bodyAngle)];
 }
 
 const seeded = (seed: number) => () => {
@@ -69,7 +72,7 @@ const seeded = (seed: number) => () => {
 };
 
 const ranges: Partial<Record<keyof HeadParameters, [number, number]>> = { angleX: [-30, 30], angleY: [-30, 30], angleZ: [-30, 30], eyeOpen: [0, 1], eyeSmile: [0, 1], mouthOpen: [0, 1],
-  breath: [-1, 1], browY: [-1, 1], browAngle: [-1, 1], gazeX: [-1, 1], gazeY: [-1, 1] };
+  breath: [-1, 1], browY: [-1, 1], browAngle: [-1, 1], gazeX: [-1, 1], gazeY: [-1, 1], bodyAngleX: [-10, 10], bodyAngleZ: [-10, 10] };
 
 function parameters(random: () => number, zeroed: ReadonlySet<string>): HeadParameters {
   const value: Record<string, number> = { ...restHead() };

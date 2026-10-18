@@ -3,6 +3,7 @@ import type { LiveHeadRef } from "../liveHeadRefs";
 import { liveHeadKey } from "../liveHeadRefs";
 import { loadHeadManifest, manifestRef } from "./manifest";
 import { mouthRegionProblem } from "./meshMouth";
+import { motionSummary } from "./motionSummary";
 
 export interface HeadStatus { member: string; name: string; look: string; present: boolean; state?: "missing-source" | "pending-bust" | "pending-rig" | "ready" }
 export function LiveHeadAuthor({ rows, onImport }: { rows: HeadStatus[]; onImport(ref: LiveHeadRef): void }) {
@@ -15,7 +16,7 @@ export function LiveHeadAuthor({ rows, onImport }: { rows: HeadStatus[]; onImpor
       const ref = manifestRef(manifest);
       if (ref.manifest.length > 24_000_000) throw new Error("Rig package is too large.");
       const still = mouthRegionProblem(manifest.rig);
-      onImport(ref); setNotice(`Rig imported for ${manifest.member}, ${manifest.look}.${still ? ` ${still} Its mouth stays still.` : ""}`); setText("");
+      onImport(ref); setNotice(`Rig imported for ${manifest.member}, ${manifest.look}. ${motionSummary(manifest)}${still ? ` ${still} Its mouth stays still.` : ""}`); setText("");
     } catch (error) { setNotice(error instanceof Error ? error.message : "Invalid rig package."); }
   };
   return <div id="so-live-head-author" className="flex flex-col gap-1 text-xs">

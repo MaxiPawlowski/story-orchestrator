@@ -157,5 +157,69 @@ export function cutHeadLayers(image: PixelImage, rig: Rig): CutLayer[] {
     holes.push({ rect, mask: hole, skin });
     for (const part of PARTS) eyes.push({ name: `eye${index}_${part}`, rect, image: crop(image, rect, masks[part]) });
   });
-  return [{ name: "base", rect: [0, 0, image.width, image.height], image: fillHoles(image, holes) }, ...eyes];
+  const hand = rig.hand ? handCut(image, rig.hand.outline) : null, base = fillHoles(image, holes);
+  if (hand) fillHand(base, hand.rect, hand.mask);
+  return [{ name: "base", rect: [0, 0, image.width, image.height], image: base }, ...eyes, ...(hand ? [hand.layer] : [])];
+}
+
+function fillHand(image: PixelImage, rect: Rect, mask: Uint8Array): void {
+  const [rx, ry, rw, rh] = rect, data = image.data, channels = new Float32Array(rw * rh * 4), next = new Float32Array(channels.length);
+  for (let y = 0; y < rh; y++) for (let x = 0; x < rw; x++) {
+    const k = y * rw + x, i = ((ry + y) * image.width + rx + x) * 4, alpha = mask[k] ? 0 : data[i + 3] / 255;
+    for (let c = 0; c < 3; c++) channels[k * 4 + c] = mask[k] ? 0 : data[i + c] * alpha;
+    channels[k * 4 + 3] = alpha;
+  }
+  const queue = new Int32Array(mask.length), seen = new Uint8Array(mask.length);
+  let head = 0, tail = 0;
+  for (let k = 0; k < mask.length; k++) if (!mask[k]) { seen[k] = 1; queue[tail++] = k; }
+  while (head < tail) {
+    const k = queue[head++], x = k % rw, y = Math.floor(k / rw);
+    for (const [dx, dy] of NEIGHBOURS) {
+      const nx = x + dx, ny = y + dy, n = ny * rw + nx;
+      if (nx < 0 || ny < 0 || nx >= rw || ny >= rh || seen[n]) continue;
+      seen[n] = 1; queue[tail++] = n;
+      for (let c = 0; c < 4; c++) channels[n * 4 + c] = channels[k * 4 + c];
+    }
+  }
+  const passes = Math.min(24, Math.max(rw, rh));
+  for (let pass = 0; pass < passes; pass++) {
+    next.set(channels);
+    for (let k = 0; k < mask.length; k++) {
+      if (!mask[k]) continue;
+      const x = k % rw, y = Math.floor(k / rw);
+      for (let c = 0; c < 4; c++) {
+        let sum = 0, n = 0;
+        for (const [dx, dy] of NEIGHBOURS) {
+          const nx = x + dx, ny = y + dy;
+          if (nx >= 0 && ny >= 0 && nx < rw && ny < rh) { sum += channels[(ny * rw + nx) * 4 + c]; n += 1; }
+        }
+        next[k * 4 + c] = n ? sum / n : channels[k * 4 + c];
+      }
+    }
+    channels.set(next);
+  }
+  for (let k = 0; k < mask.length; k++) {
+    if (!mask[k]) continue;
+    const i = ((ry + Math.floor(k / rw)) * image.width + rx + k % rw) * 4, alpha = channels[k * 4 + 3];
+    for (let c = 0; c < 3; c++) data[i + c] = alpha > 1e-3 ? Math.round(channels[k * 4 + c] / alpha) : 0;
+    data[i + 3] = Math.round(alpha * 255);
+  }
+}
+
+function handCut(image: PixelImage, outline: Point[]): { layer: CutLayer; rect: Rect; mask: Uint8Array } | null {
+  const xs = outline.map((p) => p[0]), ys = outline.map((p) => p[1]), pad = 3;
+  const x0 = Math.max(0, Math.floor(Math.min(...xs)) - pad), y0 = Math.max(0, Math.floor(Math.min(...ys)) - pad);
+  const x1 = Math.min(image.width, Math.ceil(Math.max(...xs)) + pad), y1 = Math.min(image.height, Math.ceil(Math.max(...ys)) + pad);
+  if (x1 - x0 < 3 || y1 - y0 < 3) return null;
+  const rect: Rect = [x0, y0, x1 - x0, y1 - y0], [, , rw, rh] = rect, inside = new Uint8Array(rw * rh), mask = new Uint8Array(rw * rh);
+  for (let y = 0; y < rh; y++) for (let x = 0; x < rw; x++) if (insidePolygon(outline, x0 + x + 0.5, y0 + y + 0.5)) inside[y * rw + x] = 1;
+  for (let y = 0; y < rh; y++) for (let x = 0; x < rw; x++) {
+    let hit = 0;
+    for (let dy = -1; dy <= 1 && !hit; dy++) for (let dx = -1; dx <= 1 && !hit; dx++) {
+      const nx = x + dx, ny = y + dy;
+      if (nx >= 0 && ny >= 0 && nx < rw && ny < rh && inside[ny * rw + nx]) hit = 1;
+    }
+    mask[y * rw + x] = hit;
+  }
+  return { layer: { name: "hand", rect, image: crop(image, rect, mask) }, rect, mask };
 }

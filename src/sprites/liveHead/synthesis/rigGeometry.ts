@@ -1,6 +1,6 @@
-import type { Band, Ellipse, Eye, Point, Rig } from "../types";
+import type { Band, Ellipse, Eye, Hand, Point, Rig, Strand } from "../types";
 import { validateRig } from "../validate";
-import { eyeCentre, type FaceLandmarks } from "./landmarks";
+import { eyeCentre, type FaceLandmarks, type HandLandmarks } from "./landmarks";
 
 export const EYE_SAMPLES = 24;
 export const MAX_LAYER_VERTICES = 40_000;
@@ -51,6 +51,50 @@ export function eyeRoi(opening: Point[], pad: number, size: { width: number; hei
   return [[x0, y0], [x1, y0], [x1, y1], [x0, y1]];
 }
 
+export const STRAND_NODES = 4;
+
+export function resampleStrand(points: Point[], count = STRAND_NODES): Point[] {
+  const lengths = [0];
+  for (let i = 1; i < points.length; i++) lengths.push(lengths[i - 1] + dist(points[i - 1], points[i]));
+  const total = lengths[lengths.length - 1], out: Point[] = [];
+  for (let k = 0; k < count; k++) {
+    const at = total * k / (count - 1);
+    let i = 1;
+    while (i < points.length - 1 && lengths[i] < at) i++;
+    const span = lengths[i] - lengths[i - 1], u = span > 0 ? (at - lengths[i - 1]) / span : 0;
+    out.push([r2(points[i - 1][0] + (points[i][0] - points[i - 1][0]) * u), r2(points[i - 1][1] + (points[i][1] - points[i - 1][1]) * u)]);
+  }
+  return out;
+}
+
+export function rigStrands(hair: Point[][], s: number): Strand[] {
+  const strands: Strand[] = [];
+  hair.forEach((points, index) => {
+    const length = points.reduce((sum, p, i) => i ? sum + dist(points[i - 1], p) : 0, 0);
+    if (length < s * 0.25) return;
+    const nodes = resampleStrand(points), long = length > s * 1.5;
+    if (nodes.some((p, i) => i > 0 && p[0] === nodes[i - 1][0] && p[1] === nodes[i - 1][1])) return;
+    strands.push({ name: `hair${index + 1}`, nodes, sigma: r2(Math.max(3, s * (long ? 0.12 : 0.09))), k: long ? 0.6 : 1, max: r2(Math.max(1.5, s * (long ? 0.055 : 0.04))) });
+  });
+  return strands;
+}
+
+export function rigHand(hand: HandLandmarks, size: { width: number; height: number }): Hand | null {
+  const { outline, wrist, knuckle, elbow } = hand;
+  if (knuckle[1] >= wrist[1]) return null;
+  const d = Math.max(4, dist(wrist, knuckle)), xs = outline.map((p) => p[0]);
+  const contact = outline.reduce((best, p) => dist(p, wrist) > dist(best, wrist) ? p : best, outline[0]);
+  const minX = Math.min(...xs), maxX = Math.max(...xs), { width, height } = size;
+  const pt = (p: Point): Point => [r2(p[0]), r2(p[1])];
+  return {
+    outline: outline.map(pt), jaw: [[r2(minX), r2(contact[1])], [r2(Math.max(maxX, minX + 1)), r2(contact[1])]], jawRange: band(minX, maxX), background: outline.map(pt),
+    elbow: pt(elbow), wrist: pt(wrist), knuckle: pt(knuckle), contact: pt(contact), forearmShare: 0.3,
+    armBand: band(height - d * 0.4, height + d * 0.4), wristBand: band(wrist[1] - d * 0.27, wrist[1] + d * 0.27), handBand: band(wrist[1] - d * 0.25, wrist[1] + d * 0.25),
+    fingerXBand: contact[0] > knuckle[0] ? band(knuckle[0] - d * 0.075, knuckle[0] + d * 0.21) : band(width, width + 1),
+    fingerYBand: band(knuckle[1] + d * 0.13, knuckle[1] + d * 0.35), pinBand: band(height - Math.max(4, d * 0.37), height),
+  };
+}
+
 export function synthesizeRig(marks: FaceLandmarks): Rig {
   const { width, height } = marks.image, size = marks.image;
   const [ca, cb] = marks.eyes.map(eyeCentre), s = dist(ca, cb);
@@ -92,7 +136,7 @@ export function synthesizeRig(marks: FaceLandmarks): Rig {
       pivotX: r2(neck[0]), pivotY: r2(neck[1]), maxRoll: 0.15, weightBand: band(neck[1] - s * 0.28, neck[1] + s * 0.33), turnBand: band(neck[1] - s * 0.28, neck[1] + s * 0.44) },
     body: { pivotX: r2(neck[0]), pivotY: height, maxRoll: 0.035, breathBand: band(Math.min(neck[1] - s * 0.17, height - 2), height),
       rollBand: band(Math.min(neck[1] - s * 0.06, height - 1), height),
-      chest: ellipse(shoulderX, shoulderY + s * 0.78, Math.abs(sr[0] - sl[0]) / 2 * 1.46, s * 1.33),
+      chest: ellipse(marks.chest?.[0] ?? shoulderX, marks.chest?.[1] ?? shoulderY + s * 0.78, Math.abs(sr[0] - sl[0]) / 2 * 1.46, s * 1.33),
       shoulders: [ellipse(sl[0], sl[1], s * 0.42, s * 0.33), ellipse(sr[0], sr[1], s * 0.42, s * 0.33)] },
     face: {
       nose: ellipse(marks.nose[0], marks.nose[1], s * 0.17, s * 0.28),
@@ -109,6 +153,9 @@ export function synthesizeRig(marks: FaceLandmarks): Rig {
     mesh: { baseCell: fineCell * 2, fine: { ...fine, cell: fineCell }, handCell: fineCell * 2, tasselCell: fineCell * 2, eyeBallCell: eyeCell, eyeCell, spriteCell: eyeCell },
     view: { padTop: 0, padSide: 0 },
   };
+  const strands = marks.hair ? rigStrands(marks.hair, s) : [], hand = marks.hand ? rigHand(marks.hand, size) : null;
+  if (strands.length) rig.strands = strands;
+  if (hand) rig.hand = hand;
   const problems = validateRig(rig);
   if (problems.length) throw new Error(`The synthesized rig is invalid:\n${problems.join("\n")}`);
   return rig;
