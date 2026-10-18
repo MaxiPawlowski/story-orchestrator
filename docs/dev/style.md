@@ -26,6 +26,10 @@ Taken from the code as it is; when the code and this page disagree, fix one of t
 - Spacing comes from Tailwind's scale inside the mount roots (`gap-2`, `p-3`) or rem values in a feature's own
   stylesheet (`.25rem` steps). No pixel layouts except hairlines.
 - **Every control is at least 44px tall** in the workspace and the tour card (buttons, selects, inputs, summaries).
+- **Cards** are `.so-task-card` (padding `.75rem 1rem`, `.5rem` gap, `--st-border`, `.5rem` radius) with a
+  `.so-card-heading` and an optional `.so-card-hint`; a page stacks them `1rem` apart. A divider is `border-t
+  border-solid` (only the top edge is drawn). Buttons sit in a `.so-actions` row: they wrap as whole buttons at their
+  full label width, never one word per line.
 - Buttons are ST's `menu_button` (or `.st-button` in the workspace); the primary action adds the accent border.
   Toggles are labelled checkboxes. Chips are `.st-chip` / `.st-pill`, round, small text, a border in the state's
   token. Icons are Font Awesome classes ST already ships, with an `aria-label` when the icon is the whole button.
@@ -41,6 +45,10 @@ Taken from the code as it is; when the code and this page disagree, fix one of t
   (`#so-hud-root`) with the scene and at most one state chip.
 - **Dialogs** are native `<dialog>` + `showModal()`, never a positioned div (ST's `<html>` transform breaks
   `position: fixed`). Escape closes the top dialog only; focus returns to the opener. A nested dialog is its own `<dialog>`.
+- **Nothing opens behind the workspace.** Floating panels (journal, stat sheet, story panels, **What could I do?**,
+  Help, the guide) and chat-side tools (the group member list, ST's Extensions drawer, another chat) sit under the
+  modal, so a workspace control that opens one is a labelled button that closes the workspace first
+  (`SettingsHost.openPanel`, `workspaceNavigation.close()`). Reading content stays inline on the page.
 - **Tours are coach marks on the real UI** (`src/guide/tour/`, `#so-coach`): a ring around the actual control and one
   card with "Step n of m", a title, one or two sentences, **Skip tour**, **Back** and **Next**. Never a fake copy of
   a control. The card is a `popover="manual"` element in the top layer, portaled into the topmost open modal

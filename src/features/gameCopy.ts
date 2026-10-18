@@ -2,10 +2,10 @@ import type { QuestStatus } from "@engine/index";
 
 export const GAME_TEXT = {
   journalTitle: "Journal",
-  journalOpen: "Journal",
   statSheetTitle: "Stat sheet",
-  statSheetOpen: "Stat sheet",
-  widgetsOpen: "Story panels",
+  journalLaunch: "Open the journal",
+  statSheetLaunch: "Open the stat sheet",
+  widgetsLaunch: "Open the story panels",
   mainLine: "Main line",
   mainLineDone: "Reached",
   mainLineNow: "Now",

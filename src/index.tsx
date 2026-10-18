@@ -9,7 +9,7 @@ import {
 } from "@services/STAPI";
 import { workspaceNavigation } from "@runtime/workspaceNavigation";
 import { inlinePresence } from "@runtime/presence";
-import { createPresenceUi, openPlay, setPanel, togglePanel } from "./presenceUi";
+import { createPresenceUi, openChatPanel, openPlay, setPanel, togglePanel } from "./presenceUi";
 import { requestGuide } from "@guide/request";
 import { onTourRequest } from "@guide/tour/request";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
@@ -121,6 +121,7 @@ const openWizardForRequirements = async () => {
 };
 
 const openGroup = () => {
+  workspaceNavigation.close();
   const opened = openGroupMemberList();
   if (!opened.ok) window.toastr?.info?.(opened.reason, "Story Orchestrator");
 };
@@ -131,6 +132,7 @@ const fixSetup = (action: OneClickFix) => import("./setupFixes").then(({ createS
 const showSetupTarget = (target: ShowMe) => {
   if (target.kind === "group-members") return openGroup();
   if (target.kind === "st-extensions") {
+    workspaceNavigation.close();
     openExtensionsDrawer();
     window.setTimeout(() => openInlinePanel(document.querySelector<HTMLElement>(target.selector), "center"), 250);
     return;
@@ -261,12 +263,13 @@ const settingsHost: SettingsHost = {
   showFeature: (where) => showFeature(where),
   makeGroup,
   fixGroupWithWizard: (storyId, missing) => void openStudio({ tab: "copilot", stage: "provisioning", missing: { personas: [], members: missing, lorebooks: [] } }, storyId),
-  openPlay: (row) => void openPlay(row),
+  openPlay: (row) => { workspaceNavigation.close(); void openPlay(row); },
   toggleHelp: () => togglePanel("help"),
   openPanel: (panel) => {
     workspaceNavigation.close();
     if (panel === "guide") requestGuide();
-    else setPanel("help", true);
+    else if (panel === "help") setPanel("help", true);
+    else openChatPanel(panel, manager.getCachedSnapshot());
   },
 };
 

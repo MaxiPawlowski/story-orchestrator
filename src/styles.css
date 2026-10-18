@@ -383,17 +383,69 @@ body.no-blur dialog#so-studio-modal {
   margin: 0;
 }
 
-#story-orchestrator-settings .so-task-grid {
+:is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) .so-task-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 195px), 1fr));
-  gap: 0.6rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+  gap: 0.75rem;
 }
 
-#story-orchestrator-settings .so-task-card {
-  padding: 0.65rem;
+:is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) .so-task-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  padding: 0.75rem 1rem;
   border: 1px solid var(--st-border);
   border-radius: 0.5rem;
   background: color-mix(in srgb, var(--st-bg-tint) 50%, transparent);
+}
+
+:is(#drawer-manager, #so-hud-root, #story-orchestrator-settings, #so-studio-root, #so-studio-modal, #so-panels-root, #so-workspace-modal) .border-t.border-solid:not(.border) {
+  border-width: 1px 0 0;
+  border-top-color: color-mix(in srgb, var(--st-border) 40%, transparent);
+}
+
+:is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) .so-card-heading {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+:is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) summary.so-card-heading {
+  cursor: pointer;
+  padding: 0.5rem 0;
+}
+
+:is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) .so-card-hint {
+  margin: 0;
+  font-size: 0.875rem;
+  opacity: 0.8;
+}
+
+:is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) .so-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+:is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) .so-actions > :is(.menu_button, .st-button) {
+  width: auto;
+  max-width: 100%;
+  margin: 0;
+  white-space: normal;
+  overflow-wrap: break-word;
+  text-align: center;
+}
+
+:is(#story-orchestrator-settings, #so-workspace-modal, #drawer-manager, #so-panels-root) .so-launcher {
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+}
+
+:is(#so-workspace-modal, #so-panels-root) .menu_button:not(.w-full) {
+  width: auto;
+  max-width: 100%;
 }
 
 #drawer-manager .menu_button,

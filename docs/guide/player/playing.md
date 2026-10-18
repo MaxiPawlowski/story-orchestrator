@@ -101,8 +101,8 @@ say (quietly) hello", are read as usual. To correct the story, edit the message 
 
 ## Stuck? "What could I do?"
 
-**What could I do?** on **This story → Play** (and in the wand menu) asks the memory model for four things you could
-try next. It sees only what you have already seen: the scenes you reached, the Play page (with the quests you are on)
+**What could I do?** in the wand menu beside where you type (or under **Beside the chat** on **This story → Play**, which
+closes the story window first) opens a panel over the chat and asks the memory model for four things you could try next. It sees only what you have already seen: the scenes you reached, the Play page (with the quests you are on)
 and the recent messages, never the story's later scenes, a quest you have not found or anything a character keeps from
 you. A suggestion that happens to name a place you have not reached yet is left out. Pick one and it is put in the box
 where you type; nothing is sent until you send it, and it never replaces something you started typing. **Other ideas**

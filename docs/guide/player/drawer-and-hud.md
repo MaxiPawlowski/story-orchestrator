@@ -59,8 +59,10 @@ Everything a player needs, top to bottom:
 - **The story so far** (or **This chapter**): a short summary.
 - **Noted**: things the story picked up that take effect on the next turn.
 - **Status**: what the extension is doing right now ("Following along.", "Reading the last few messages…").
-- Buttons for the **Journal**, the **Stat sheet** and **Story panels**, when the story has them.
-- **What could I do?**: a few ideas for your next move (see [Starting, continuing and restarting](playing.md#stuck-what-could-i-do)).
+- **Beside the chat**: **Open the journal**, **Open the stat sheet** and **Open the story panels** when the story has
+  them, and **What could I do?** for a few ideas for your next move (see [Starting, continuing and
+  restarting](playing.md#stuck-what-could-i-do)). Each closes the story window and opens its panel over the chat, so a
+  suggestion lands in the box where you type.
 - **What the story remembers**: the story's memory, to read, pin, edit or remove (see [Memory](memory.md)).
 - **Restart story**, **Story briefing** (when the story has one) and **Flag this moment**.
 
@@ -106,8 +108,8 @@ was read from.
 
 ## Journal, stat sheet and story panels
 
-Some stories add panels. Open them from the buttons on **This story → Play** or from the wand menu; each opens in its
-own panel you can move and resize.
+Some stories add panels. Open them from **Beside the chat** on **This story → Play** (which closes the story window) or
+from the wand menu; each opens over the chat in its own panel you can move and resize.
 
 - **Journal**: the quests you have found, their steps and progress, what a quest gives you when the story shows it,
   the main line so far, milestones and a short log. A quest you have not found is not listed. In stories that keep
