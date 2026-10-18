@@ -8,6 +8,7 @@ import { chatUpdateSentence } from "@runtime/librarySave";
 import type { DriverController, RecoveryTarget } from "./DriverPanel";
 import { MessageJumpProvider } from "./MessageCitation";
 import { OverviewTab } from "./tabs/OverviewTab";
+import { BusyButton } from "@components/BusyButton";
 import type { InlineActions } from "../inline/InlineDetail";
 
 const DriverPanel = lazyRetry(() => import("./DriverPanel"));
@@ -79,13 +80,13 @@ const AuthorStoryControls = ({ snapshot, manager, onEditStory, onNewStory }: {
         title="Open this story in the Checkpoint Studio. Saving there offers to update this chat.">Edit story</button>
     )}
     {snapshot.storyIdentity.drifted && (
-      <button
+      <BusyButton
         id="so-update-story"
         type="button"
         className="menu_button"
         title="Take the library's copy of this story into this chat."
-        onClick={() => void manager.applyStoryUpdate().then((outcome) => setUpdated(chatUpdateSentence(outcome)))}
-      >Update to the latest</button>
+        work={() => manager.applyStoryUpdate().then((outcome) => setUpdated(chatUpdateSentence(outcome)))}
+      >Update to the latest</BusyButton>
     )}
     {updated && <span id="so-update-story-status" role="status" className="text-xs">{updated}</span>}
   </div>

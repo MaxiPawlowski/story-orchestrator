@@ -10,6 +10,7 @@ import { activeSpriteBatch } from "./batchSlot";
 import { getGlobalSettings } from "@runtime/settingsStore";
 import { verifyVisualSource, sourceStillCurrent } from "../visualHost";
 import { visualRoot } from "../visualManifest";
+import { busyWork } from "@runtime/busy";
 
 export function createSpriteBuilder(ownership: RunOwnership): SpriteBuilder {
   return new SpriteBuilder({
@@ -20,7 +21,10 @@ export function createSpriteBuilder(ownership: RunOwnership): SpriteBuilder {
       await verifyVisualSource(source, signal);
       return { root: visualRoot(source), current: () => sourceStillCurrent(source) };
     },
-    uploadReference: comfyReference, render: comfyRenderOwned,
+    uploadReference: comfyReference, render: async (...args) => {
+      const busy = busyWork.begin("sprite", ownership.mint().chatId);
+      try { return await comfyRenderOwned(...args); } finally { busy.end(); }
+    },
     releaseReference: async (name) => {
       const result = await comfyReleaseReference(name);
       if (!result.ok) log.warn(result.reason);

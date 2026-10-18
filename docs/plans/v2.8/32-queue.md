@@ -8,6 +8,10 @@ Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instruc
 
 ## Now (running)
 
+- Plan 78 UI audit follow-up: nine approved navigation/feedback/layout fixes, story card, shared busy feedback
+  and batched cast persistence. Full gates and browser checks green; merge/install pending.
+  [Scope and gate record](78-ui-audit-followup.md).
+
 The owner-approved no-GPU/no-authoring-model execution pass is [plan 40](40-build-now-no-gpu.md).
 It records current progress, source-plan links and deferred acceptance protocols.
 

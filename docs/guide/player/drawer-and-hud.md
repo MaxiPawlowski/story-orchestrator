@@ -22,6 +22,12 @@ click anywhere else closes the card; it never covers the box where you type. The
 | `stepped back` | You swiped, edited or deleted a message and the story moved back to match. |
 | `branch — continue?` | This chat is a branch; click to pick the story up here. |
 | `Your move.` | The characters have finished and handed the turn to you. |
+| `Setting up the story… N of M cast` | The story is saving the cast for this scene in one group update. |
+| `Drawing the scene…` / `Preparing a character…` | An illustration or character image is being made; a placeholder above the input keeps its progress visible. |
+| `Still working · Ns` | A model call has taken more than ten seconds. The elapsed time keeps updating until it finishes. |
+
+Slow action buttons, including Restart, Update to the latest, Import, Ask and asset creation, stay busy until their
+work settles. Clicking again while busy does not start another copy of that action.
 
 The bar can be switched off in **Orchestrator → Interface** (**Show story status above the chat input**), or for this
 browser only under **This device**.

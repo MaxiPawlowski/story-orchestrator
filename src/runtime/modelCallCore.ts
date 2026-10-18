@@ -7,6 +7,7 @@ import type { RouteReply } from "@extraction/reply";
 import { resolveRoute, type HarnessListed, type RouteSettings } from "./passProfiles";
 import type { ModelCallRecord } from "./modelCallLog";
 import type { RunOwnership } from "./runToken";
+import { busyWork } from "./busy";
 
 const DEBUG_RESPONSES: Record<ModelPass, () => string | null | undefined> = {
   read: () => globalThis.storyOrchestratorDebugExtractionResponse,
@@ -107,6 +108,7 @@ export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): Mode
     });
     if (ask.onFailure && route) return fallBack(new ModelCallError(ask.onFailure.kind, ask.onFailure.reason, routeKey(route)), route);
     const startedAt = Date.now();
+    const busy = busyWork.begin("model", stamp?.chatId ?? null);
     try {
       const answer = await reply(prompt, used, options);
       if (used) recordCall(used, startedAt, diverted ? "fallback" : "ok", answer, from);
@@ -120,7 +122,9 @@ export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): Mode
       noteFailover(gate, used, kind, error);
       if (!retries(used, kind, diverted, fallback, gate)) throw error;
       if (used.kind === "profile" && token && deps.ownership && !deps.ownership.check(token).ok) throw new ModelCallError("lapsed", LAPSED_BEFORE_FALLBACK, routeKey(used));
-      return fallBack(error, used, used.kind === "profile" ? fallback : undefined);
+      return await fallBack(error, used, used.kind === "profile" ? fallback : undefined);
+    } finally {
+      busy.end();
     }
   };
   call.planted = planted;

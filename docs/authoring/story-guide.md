@@ -14,6 +14,10 @@ A story is a graph of beats (checkpoints) joined by exits (transitions). Each ex
 
 After each reply the reading model reads the recent chat and proposes changes to the qualities, each backed by a quoted line. The changes are applied at the next turn boundary, after a reply has finished. Then the exits of the active beat are checked; when one opens, the story moves to the next beat and that beat's effects run (lore switches on, the cast changes, a background appears, a character speaks). One exit fires per turn.
 
+The story bar reports setup progress while the scene's cast is saved together, and elapsed time when a model call
+takes more than ten seconds. Pending illustration and character work has a placeholder above the input. Slow
+action buttons stay busy until their work finishes; these indicators need no story fields.
+
 Two things follow, and most of the advice below comes from them:
 
 - **The story only knows what the chat shows.** A gate on a thought, a mood or something that happened off screen never opens, because nobody can quote it.

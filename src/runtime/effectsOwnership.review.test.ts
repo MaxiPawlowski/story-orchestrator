@@ -116,7 +116,7 @@ control("a checkpoint applied in its own chat stages everything and marks itself
   expect(hostWrites.length).toBeGreaterThan(0);
   // The control has to reach every write the scoping cases skip, or it proves nothing about them.
   expect(hostWrites).toEqual(expect.arrayContaining(["authorNote", "preset", "background", "castChanges", "slash"]));
-  expect(casts()).toBe(2);
+   expect(casts()).toBe(1);
 });
 
 control("a chat switch stops the sequence before the cast change reaches the shared group", async () => {
@@ -135,9 +135,7 @@ control("a chat switch stops the sequence before the cast change reaches the sha
   expect(hostWrites).not.toContain("background");
 });
 
-control("a switch during the FIRST cast change stops before the second member", async () => {
-  // One member is one await. Without a check inside the loop a two-member change writes the second
-  // member's flag onto whatever group the page moved to (2026-09-22).
+control("a switch during the cast batch stops before the following effect", async () => {
   const h = harness();
   hostGate.onWrite = (name) => { if (name === "castChanges" && casts() === 1) h.switchChat(); };
   await h.applier.applyCheckpoint(story, checkpoint, h.extras as never, snapshot, "activate", ["cp-1", "cp-2"]);
@@ -191,9 +189,9 @@ control("a world that moves at the LAST step still leaves the marker unset", asy
   // sequence returns before the marker write and a mutation dropping that final check survived
   // (2026-09-20). Here the switch lands on the last cast change, so the marker is the only thing left.
   const h = harness();
-  hostGate.onWrite = (name) => { if (name === "castChanges" && casts() === 2) h.switchChat(); };
+  hostGate.onWrite = (name) => { if (name === "castChanges" && casts() === 1) h.switchChat(); };
   await h.applier.applyCheckpoint(story, checkpoint, h.extras as never, snapshot, "activate", ["cp-1", "cp-2"]);
-  expect(casts()).toBe(2);
+  expect(casts()).toBe(1);
   expect(hostWrites).toContain("background");
   // It stops ASKING as well: the NPC replies must not fire into the chat that is now open.
   expect(hostWrites).not.toContain("slash");

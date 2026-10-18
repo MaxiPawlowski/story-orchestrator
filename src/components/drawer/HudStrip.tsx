@@ -2,12 +2,13 @@ import { useCallback, useRef, useState } from "react";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import { branchNoticeText, PLAYER_COPY, rollbackNoticeText, yourMoveAuthorTitle } from "@runtime/narrative";
-import { HUD_COPY, hudChipLabel, hudPendingText, hudSetupText, hudSetupTitle, hudTensionText, playerPendingCount } from "@runtime/pipeline";
+import { busyText, HUD_COPY, hudChipLabel, hudPendingText, hudSetupText, hudSetupTitle, hudTensionText, playerPendingCount } from "@runtime/pipeline";
 import { setupAlert, setupCounts } from "@runtime/repair";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { HudCardActions } from "./HudCard";
 
 const HudCard = lazyRetry(() => import("./HudCard"));
+const MediaPending = lazyRetry(() => import("../MediaPending"));
 
 export interface HudStripProps {
   snapshot: RuntimeSnapshot;
@@ -34,11 +35,13 @@ export const HudStrip = ({ snapshot, onOpenStory, onOpenSettings, card }: HudStr
   }
   if (!snapshot.ready) return null;
   const pending = playerPendingCount(snapshot.pendingDeltas);
-  const chip = snapshot.pipeline.state === "not-configured" && !snapshot.lastRollback ? null : hudChipLabel(snapshot.pipeline.state, Boolean(snapshot.lastRollback));
+  const working = busyText(snapshot.busy ?? []);
+  const chip = working ?? (snapshot.pipeline.state === "not-configured" && !snapshot.lastRollback ? null : hudChipLabel(snapshot.pipeline.state, Boolean(snapshot.lastRollback)));
   const alert = chip ? null : setupAlert(snapshot);
   const counts = setupCounts(snapshot);
   return (
     <>
+      {snapshot.busy?.some((job) => job.kind === "image" || job.kind === "sprite") && <Lazy fallback={null}><MediaPending jobs={snapshot.busy} /></Lazy>}
       {card && open && (
         <Lazy fallback={null}>
           <HudCard snapshot={snapshot} panels={card.panels} openPanel={card.openPanel} openMemory={card.openMemory} onMore={onOpenStory} onClose={close} />
@@ -57,7 +60,8 @@ export const HudStrip = ({ snapshot, onOpenStory, onOpenSettings, card }: HudStr
         ) : null}
         {chip ? (
           <button
-            id="so-hud-pipeline"
+             id="so-hud-pipeline"
+             aria-busy={Boolean(working)}
             type="button"
             className="so-hud-chip"
             title={snapshot.lastRollback ? rollbackNoticeText(snapshot.lastRollback) : snapshot.ui.authorView ? snapshot.pipeline.detail ?? snapshot.pipeline.text : snapshot.pipeline.text}

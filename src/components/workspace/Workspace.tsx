@@ -19,6 +19,7 @@ import BranchNotice from "@components/drawer/BranchNotice";
 import { composeActivity } from "@runtime/activityFeed";
 import FlagControl from "@components/drawer/FlagControl";
 import { requestBriefing } from "@runtime/briefingRequest";
+import { BusyButton } from "@components/BusyButton";
 
 const SettingsPanel = lazyRetry(() => import("../settings/SettingsPanel"));
 const DrawerTabs = lazyRetry(() => import("../drawer/DrawerTabs"));
@@ -73,7 +74,7 @@ export default function Workspace({ intent, snapshot, manager, settingsHost, dra
             <Lazy><MemoryTab snapshot={snapshot} manager={manager} authorView={false} /></Lazy>
           </details>
           <div className="so-actions">
-            <button className="st-button secondary" onClick={() => void manager.restartStory()}>Restart story</button>
+            <BusyButton className="st-button secondary" work={() => manager.restartStory()}>Restart story</BusyButton>
             {snapshot.briefing?.view && <button id="so-story-briefing" className="st-button secondary" onClick={() => requestBriefing()}>Story briefing</button>}
             <FlagControl manager={manager} />
           </div>

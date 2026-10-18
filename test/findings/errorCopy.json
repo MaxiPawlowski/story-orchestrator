@@ -938,16 +938,6 @@
       "reason": "becomes a typed refusal the next-turn header states"
     },
     {
-      "site": "src/image/ImageChatPanel.tsx#ImageChatPanel>callback",
-      "kind": 3,
-      "template": ".catch(() => undefined)",
-      "surface": "player",
-      "rawError": false,
-      "silentCatch": "probe",
-      "verdict": "pass",
-      "reason": "the image runtime records the failure in this chat's visible Illustrations status"
-    },
-    {
       "site": "src/image/prompt.ts#parseImageReply",
       "kind": 3,
       "template": "catch {} #1",

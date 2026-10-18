@@ -6,6 +6,7 @@ import { imageAutomationText, PLAYER_COPY } from "@runtime/narrative";
 import { startImage } from "./start";
 import type { ImageOverride } from "./settings";
 import { log } from "@utils/log";
+import { BusyButton } from "@components/BusyButton";
 
 export default function ImageChatPanel({ manager, snapshot }: { manager: RuntimeManager; snapshot: RuntimeSnapshot }) {
   const image = startImage(manager);
@@ -52,9 +53,9 @@ export default function ImageChatPanel({ manager, snapshot }: { manager: Runtime
       </div>
     </details>
     <div className="flex flex-wrap gap-2">
-      <button type="button" className="menu_button" onClick={() => void image.direct({ purpose: "scene", text: "", messageId: null }).catch(() => undefined)}>Illustrate scene</button>
-      <button type="button" className="menu_button" onClick={() => void image.direct({ purpose: "portrait", text: "", messageId: null }).catch(() => undefined)}>Portrait</button>
-      <button type="button" className="menu_button" onClick={() => void image.direct({ purpose: "background", text: "", messageId: null }).catch(() => undefined)}>Background</button>
+      <BusyButton className="menu_button" work={() => image.direct({ purpose: "scene", text: "", messageId: null })}>Illustrate scene</BusyButton>
+      <BusyButton className="menu_button" work={() => image.direct({ purpose: "portrait", text: "", messageId: null })}>Portrait</BusyButton>
+      <BusyButton className="menu_button" work={() => image.direct({ purpose: "background", text: "", messageId: null })}>Background</BusyButton>
       {state.jobs.length > 0 && <button type="button" className="menu_button" onClick={() => image.queue.cancelAll()}>Stop images</button>}
     </div>
     <div role="status" className="text-xs opacity-80">{state.jobs.length ? state.jobs.map((job) => `${job.label}: ${job.state}`).join(" · ") : PLAYER_COPY.imageNoJobs}</div>

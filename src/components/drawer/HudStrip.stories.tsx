@@ -287,7 +287,7 @@ export const StoryCardOpensFromTheStrip: Story = {
 
 export const StoryCardClosesOnEscapeAndOutsideClick: Story = {
   args: { snapshot: cardSnapshot(), card: { ...cardArgs(), panels: [] } },
-  render: (args) => <><button type="button" id="outside" className="menu_button">elsewhere</button><HudStrip {...args} /></>,
+  render: (args) => <><button type="button" id="outside" className="menu_button">elsewhere</button><div id="so-hud-root"><HudStrip {...args} /></div></>,
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     const main = canvasElement.querySelector("#so-hud-main") as HTMLButtonElement;
