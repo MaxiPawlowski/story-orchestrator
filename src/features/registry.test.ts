@@ -149,6 +149,12 @@ describe("v2.7 plan 01 feature registry", () => {
     expect(guideUrl("player/memory.md", "")).toBeNull();
   });
 
+  it("points every settings and drawer feature at a workspace page", () => {
+    const stale = FEATURES.filter((feature) => (feature.where.surface === "settings" || feature.where.surface === "drawer")
+      && (!feature.where.workspace || !/^(Orchestrator|This story) › /.test(feature.where.label)));
+    expect(stale.map((feature) => `${feature.id}: ${feature.where.label}`)).toEqual([]);
+  });
+
   it("lists only player and setup features unless Author view is on", () => {
     expect(visibleFeatures(false).some((feature) => feature.audience === "author")).toBe(false);
     expect(visibleFeatures(true).length).toBe(FEATURES.length);

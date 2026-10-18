@@ -16,6 +16,15 @@ export interface ChapterRecordControlsProps {
   onWrite(next: Partial<ChapterSettings>): void;
 }
 
+export const ChapterBudgetField = ({ stored, onWrite }: ChapterRecordControlsProps) => (
+  <div className="flex items-center gap-2 text-xs">
+    <FieldLabel htmlFor="so-chapter-budget" setting="memory.chapters.chronicleTokens" />
+    <select id="so-chapter-budget" value={chapterSettings(stored).chronicleTokens} onChange={(event) => onWrite({ chronicleTokens: Number(event.target.value) })}>
+      {CHRONICLE_BUDGET_ARMS.map((tokens) => <option key={tokens} value={tokens}>{tokens} tokens</option>)}
+    </select>
+  </div>
+);
+
 export const ChapterRecordControls = ({ stored, onWrite }: ChapterRecordControlsProps) => {
   const settings = chapterSettings(stored);
   return (
@@ -23,12 +32,7 @@ export const ChapterRecordControls = ({ stored, onWrite }: ChapterRecordControls
       {RECORD_TOGGLES.map(([key, id, setting]) => (
         <CheckRow key={key} id={id} setting={setting} className="text-xs" checked={settings[key] === true} onChange={(on) => onWrite({ [key]: on })} />
       ))}
-      <div className="flex items-center gap-2 text-xs">
-        <FieldLabel htmlFor="so-chapter-budget" setting="memory.chapters.chronicleTokens" />
-        <select id="so-chapter-budget" value={settings.chronicleTokens} onChange={(event) => onWrite({ chronicleTokens: Number(event.target.value) })}>
-          {CHRONICLE_BUDGET_ARMS.map((tokens) => <option key={tokens} value={tokens}>{tokens} tokens</option>)}
-        </select>
-      </div>
+      <ChapterBudgetField stored={stored} onWrite={onWrite} />
     </Advanced>
   );
 };

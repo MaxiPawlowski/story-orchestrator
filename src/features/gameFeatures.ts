@@ -1,7 +1,7 @@
-import type { Feature, FeatureWhere } from "./registry";
+import type { Feature } from "./registry";
 import { authorGuideDoc } from "./guideLinks";
+import { drawerAt } from "./where";
 
-const drawerAt = (selector: string, label: string): FeatureWhere => ({ selector, label: `Story drawer › ${label}`, surface: "drawer" });
 
 export const GAME_FEATURES: readonly Feature[] = [
   {

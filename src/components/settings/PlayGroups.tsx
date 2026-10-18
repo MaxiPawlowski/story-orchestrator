@@ -6,6 +6,7 @@ import { TALK_CHAIN_MAX_CAP } from "@engine/index";
 import type { RuntimeManager } from "@runtime/index";
 import { getGlobalSettings, setGlobalSettings, type TalkChainSettings } from "@runtime/settingsStore";
 import type { RuntimeSnapshot } from "@runtime/types";
+import { chapterSettings } from "@runtime/chapters";
 import { wiGating } from "@runtime/worldInfoScanHost";
 import { DEFAULT_MEANWHILE_ACCEPT_MODE, isMeanwhileAcceptMode } from "@runtime/agendaProposals";
 import { keepGlobalStoryLore, releaseGlobalStoryLore } from "@runtime/storyLoreHost";
@@ -18,6 +19,7 @@ import { PresenceControls } from "./PresenceControls";
 
 const InlineControls = lazyRetry(() => import("./InlineControls"));
 const ChapterControls = lazyRetry(() => import("./ChapterControls"));
+const ChapterBudgetField = lazyRetry(() => import("./ChapterRecordControls").then((module) => ({ default: module.ChapterBudgetField })));
 const InnerVoiceControls = lazyRetry(() => import("./InnerVoiceControls"));
 
 interface GroupProps {
@@ -49,6 +51,14 @@ export const TransitionNoteRow = ({ snapshot, manager }: GroupProps) => (
 export const ChapterGroup = ({ snapshot, manager }: GroupProps) => (
   <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
     <Lazy fallback={null}><ChapterControls snapshot={snapshot} manager={manager} /></Lazy>
+  </div>
+);
+
+export const ChapterBudgetGroup = ({ snapshot, manager }: GroupProps) => (
+  <div id="so-chapter-budget-group" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
+    <GroupHeader title="Chapters" scope="install" id="so-chapter-budget-header" />
+    <Lazy fallback={null}><ChapterBudgetField stored={snapshot.memory.settings.chapters}
+      onWrite={(next) => manager.setMemorySettings({ chapters: { ...chapterSettings(snapshot.memory.settings.chapters), ...next } })} /></Lazy>
   </div>
 );
 

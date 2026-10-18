@@ -52,6 +52,7 @@ Work on the extension itself.
 - [Contributing](../dev/contributing.md)
 - [Architecture](../dev/architecture.md)
 
-This guide also ships inside the extension: `/story guide`, or the **?** beside any settings section. Author pages
+This guide also ships inside the extension: **Orchestrator → Help → Open the guide**, `/story guide`, or the **?** beside any
+settings section. **Orchestrator → Help → Help and Ask** opens the feature index with its Ask box. Author pages
 show there only in Author view. A guided tour with an example on every step sits beside it: **Orchestrator → Help →
 Take the tour**, or `/story tour` (`player`, `author` or `setup`). Its **Read more** links open these pages.

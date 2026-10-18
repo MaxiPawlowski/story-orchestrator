@@ -73,8 +73,8 @@ step-by-step tasks for a codex run are in `docs/plans/v2.8/37-codex-handoff.md`.
 
 ## Working rules
 
-- **Parallel work** happens in a worktree per task: `git worktree add -b <branch> ../so-<name> master`, copy `.st-root`,
-  junction `node_modules` (`cmd //c mklink //J`).
+- **Parallel work** happens in a worktree per task: `git worktree add -b <branch> ../so-<name> master`, then `npm run worktree:setup`
+  (junctions `node_modules`, copies `.st-root` and the gitignored campaign story index the harness tests read).
 - **Merge to master** only with the full `npm run gates` green, Storybook included (`-- --no-storybook` only when the
   record says so). Then push, stage and install. Never force-push.
 - **Commits:**
@@ -89,6 +89,10 @@ step-by-step tasks for a codex run are in `docs/plans/v2.8/37-codex-handoff.md`.
 
 ## Gates
 
-- Per change: `npm run gates:quick`.
-- Per plan, merge or release: `npm run gates` (`npm run gates -- --help`).
+- Per change: `npm run gates:quick`. Run it until green before the first full run; a full run is minutes, the quick one
+  is seconds.
+- Per plan, merge or release: `npm run gates` (`npm run gates -- --help`), once.
+- After a flaky or environment failure (no code change): `npm run gates -- --resume` reruns only the steps not green on
+  this exact working tree. Any edit changes the tree hash, so every step runs again. A merge or plan close cites a run
+  without `--resume`.
 - Live gates use the `debug` skill; see `.claude/CLAUDE.md` §Validation.

@@ -44,7 +44,9 @@ Run the gates for what you touched, and report the exact commands and results.
 typecheck, release, replay, plugin and Storybook tests). Each step starts as soon as the steps it needs are done (the
 harness and release tests wait for the build), at most `--jobs` at once; `--serial` runs one at a time, and the first
 red step stops new starts. `-- --no-storybook` skips Storybook and says so; `npm run gates -- --help` lists the flags.
-Per change, `npm run gates:quick` checks only what changed. Jest does not type-check tests: run
+After a flaky or environment failure, `npm run gates -- --resume` reruns only the steps not green on this exact
+working tree. Per change, `npm run gates:quick` checks only what changed; a new worktree needs `npm run worktree:setup`
+once. Jest does not type-check tests: run
 `npm run typecheck:test` when you change a test.
 
 A failing gate is reported as failing. Mocked model responses are for unit determinism only; a change to anything

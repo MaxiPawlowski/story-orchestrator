@@ -9,7 +9,8 @@ import {
 } from "@services/STAPI";
 import { workspaceNavigation } from "@runtime/workspaceNavigation";
 import { inlinePresence } from "@runtime/presence";
-import { createPresenceUi, openPlay, togglePanel } from "./presenceUi";
+import { createPresenceUi, openPlay, setPanel, togglePanel } from "./presenceUi";
+import { requestGuide } from "@guide/request";
 import { onTourRequest } from "@guide/tour/request";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
 import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
@@ -262,6 +263,11 @@ const settingsHost: SettingsHost = {
   fixGroupWithWizard: (storyId, missing) => void openStudio({ tab: "copilot", stage: "provisioning", missing: { personas: [], members: missing, lorebooks: [] } }, storyId),
   openPlay: (row) => void openPlay(row),
   toggleHelp: () => togglePanel("help"),
+  openPanel: (panel) => {
+    workspaceNavigation.close();
+    if (panel === "guide") requestGuide();
+    else setPanel("help", true);
+  },
 };
 
 const SettingsRoot = () => {
