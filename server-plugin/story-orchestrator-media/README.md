@@ -1,8 +1,19 @@
-# Optional media plugin
+# story-orchestrator-media
 
-Install with `npm run plugin:install -- --with media`, then restart SillyTavern.
-Ordinary illustrations use ST's configured Image Generation backend without this plugin.
-Reference edits and the Studio sprite builder require it.
+Optional server plugin for Story Orchestrator's advanced pictures: owned ComfyUI jobs, reference edits, model fingerprints and generated sprite files. Ordinary illustrations use SillyTavern's configured Image Generation backend without it.
+
+| | |
+|---|---|
+| Who needs it | Authors who use the Studio sprite builder, reference edits, changed looks, or the advanced ComfyUI recipes. |
+| Install | From a source checkout: `npm run plugin:install -- --with media`. From a release zip: copy this folder to `<SillyTavern>/plugins/story-orchestrator-media/`. |
+| Enable | Set `enableServerPlugins: true` in SillyTavern's `config.yaml`, then restart SillyTavern. A plugin is loaded only at start. |
+| Configure | `config.json` beside this plugin: model roots and, optionally, the ComfyUI address (below). |
+| It works when | while signed in to SillyTavern, `http://127.0.0.1:8000/api/plugins/story-orchestrator-media/status` (your SillyTavern address) answers with JSON instead of an error; `comfyUrlFrom` says which ComfyUI address it uses. |
+| User guide | [Illustrations](../../docs/guide/setup/images.md), [Sprite packs](../../docs/guide/setup/sprites.md) |
+
+The general install steps for every plugin: [Server plugins](../../docs/guide/setup/README.md#server-plugins).
+
+## Configuration
 
 `config.json` beside this plugin holds the local model roots and, optionally, the ComfyUI server. Without `comfyUrl`
 the plugin uses the ComfyUI address set in SillyTavern's Image Generation settings (per user), then ComfyUI's

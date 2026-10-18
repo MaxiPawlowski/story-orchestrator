@@ -1,8 +1,18 @@
 # story-orchestrator-gpu
 
-Optional SillyTavern server plugin that shares one GPU between a local text model and ComfyUI renders.
-Install from this checkout with `npm run plugin:install -- --with gpu`, enable server plugins in SillyTavern's
-`config.yaml`, then restart SillyTavern. The user guide page is `docs/guide/setup/gpu-sharing.md`.
+Optional server plugin that shares one GPU between a local text model and ComfyUI renders: while a picture renders,
+replies wait, and the text model is unloaded first when the picture does not fit beside it.
+
+| | |
+|---|---|
+| Who needs it | Only installs that run a local text model and local ComfyUI on the same graphics card. Cloud reply models never need it. |
+| Install | From a source checkout: `npm run plugin:install -- --with gpu`. From a release zip: copy this folder to `<SillyTavern>/plugins/story-orchestrator-gpu/`. |
+| Enable | Set `enableServerPlugins: true` in SillyTavern's `config.yaml`, then restart SillyTavern. A plugin is loaded only at start. |
+| Configure | Write `config.json` beside `index.mjs` and choose an adapter (below); point your reply profile at `http://127.0.0.1:<listenPort>`. |
+| It works when | `http://127.0.0.1:<listenPort>/status` (default port 18888) answers with your adapter and a `state`, and **Orchestrator → Connections → Images → Image service** shows a **GPU sharing** line. |
+| User guide | [One GPU for text and images](../../docs/guide/setup/gpu-sharing.md), with complete `observe` and `supervise` examples |
+
+The general install steps for every plugin: [Server plugins](../../docs/guide/setup/README.md#server-plugins).
 
 ## Adapters
 

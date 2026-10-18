@@ -22,9 +22,39 @@ never overwrites it.
 | `adapter` | What the plugin does | When to use it |
 |---|---|---|
 | `none` (no config) | Nothing. Pictures pass through. | You do not run a local text model. |
-| `observe` | Watches a text server **you** start (Unsloth Studio), unloads and reloads it through its own API. | You already start your text server yourself. The recommended start. |
-| `supervise` | Starts and stops `llama-server` itself, on demand, and optionally ComfyUI. | You want the plugin to own the text server. Opt-in. |
+| `observe` | Watches a text server **you** start in Unsloth Studio, and unloads it through Unsloth Studio's API before a picture. | You already run your text model in Unsloth Studio. The recommended start. |
+| `supervise` | Starts and stops `llama-server` itself, on demand, and optionally ComfyUI. | You run a bare `llama-server` (it has no unload API, so the plugin has to own it), or you want the plugin to own the text server. |
 | `managed` | Forwards to an external controller. Kept for one release, then removed. | You still run the older standalone controller. |
+
+### An `observe` example
+
+`observe` needs Unsloth Studio's API (it asks it which model is loaded, whether it is generating, and to unload). A bare
+`llama-server` has no such API: use `supervise` for it. Every value below is an example; use your own:
+
+```json
+{
+  "adapter": "observe",
+  "listenPort": 18888,
+  "upstream": "http://127.0.0.1:8888",
+  "model": "my-model-Q4_K_M",
+  "comfyUrl": "http://127.0.0.1:8188"
+}
+```
+
+- `upstream`: where Unsloth Studio's server listens on this machine (loopback only).
+- `model`: the start of the model id Unsloth Studio reports for your loaded text model. The plugin refuses to unload a
+  model whose id does not start with it.
+- `comfyUrl`: your ComfyUI (loopback only).
+- `listenPort`: the plugin's own text address (default 18888).
+
+Then point your reply profile in Connection Manager at `http://127.0.0.1:18888` (the `listenPort`) instead of Unsloth
+Studio's own address, and send one reply: the plugin unloads the model only after an authenticated reply has passed
+through it. It worked when `http://127.0.0.1:18888/status` answers `"adapter": "observe"`, `"guarding": true` and
+`"state": "text-loaded"`, and the **GPU sharing** line in **Orchestrator → Connections → Images → Image service** says
+the text model is loaded. During a picture the state is `image` and replies wait; afterwards the next reply reaches
+Unsloth Studio again.
+
+### A `supervise` example
 
 `supervise` starts nothing when SillyTavern starts. The text model loads on the first reply or when an admin presses
 **Load text**; when SillyTavern stops, the plugin stops only the programs it started itself, never one you started.
@@ -80,7 +110,7 @@ load's time, so you can compare modes on your own disk.
 
 ## What you see
 
-**Images → Image service** shows a **GPU sharing** line while the plugin runs: idle, text model loaded, rendering a
+**Orchestrator → Connections → Images → Image service** shows a **GPU sharing** line while the plugin runs: idle, text model loaded, rendering a
 picture, or waiting, and why a picture waits. The plugin's status (`lastResidency`) also says whether the last picture
 kept text loaded or swapped it out, and the memory readings behind that. If the text server stops by itself, the line says so: pictures keep
 rendering, and replies fail with a reason until an admin loads text again.

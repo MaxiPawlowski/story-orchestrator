@@ -8,6 +8,7 @@ import { build } from "esbuild";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 export const REFERENCE_OUT = join(root, "docs", "guide", "setup", "settings-reference.md");
 export const README = join(root, "README.md");
+export const JUDGE_DOC = join(root, "docs", "guide", "setup", "judge.md");
 
 export async function loadSettingsDocs() {
   const dir = mkdtempSync(join(tmpdir(), "so-settings-docs-"));
@@ -28,5 +29,6 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const docs = await loadSettingsDocs();
   writeFileSync(REFERENCE_OUT, docs.renderSettingsReference());
   writeFileSync(README, docs.spliceFeatureTable(readFileSync(README, "utf8")));
-  console.log(`settings docs: ${relative(root, REFERENCE_OUT)}, README feature table`);
+  writeFileSync(JUDGE_DOC, docs.spliceJudgeTable(readFileSync(JUDGE_DOC, "utf8")));
+  console.log(`settings docs: ${relative(root, REFERENCE_OUT)}, README feature table, judge use table`);
 }
