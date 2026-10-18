@@ -2,7 +2,7 @@
 
 # Plan 14 charter cards
 
-Pinned Adolion build `93549b11cd7abb0fb5901e0bec6dfc9e41895d9d`. 37 cards. Start one with `node scripts/debug/so-session.mts start <id> --lane <n>`.
+Pinned Adolion build `c8b34b145fc98d52380df97b90d0a3820f4f0fbe`. 37 cards. Start one with `node scripts/debug/so-session.mts start <id> --lane <n>`.
 
 ## T0
 
@@ -1266,7 +1266,7 @@ Pinned Adolion build `93549b11cd7abb0fb5901e0bec6dfc9e41895d9d`. 37 cards. Start
   - save vocabulary
 - **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): `inventory.stories:+adolion-adventurer`, `inventory.stories:-adolion-adventurer`.
 - **Logged automatically:**
-  - story update records (from/to version, classification, choice)
+  - story update records (classification, choice)
   - the library in the run header diff
 - **Known limits:**
   - Edits change the lane's library copy only.

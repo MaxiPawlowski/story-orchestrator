@@ -44,7 +44,7 @@ describe("beginRun", () => {
     expect(run.lapsedDetail()).toContain("chat");
   });
 
-  test("a story swap, a version bump and a restart each lapse the run", () => {
+  test("a story swap, a content change and a restart each lapse the run", () => {
     for (const [patch, reason] of [
       [{ storyId: "s2" }, "story"],
       [{ storyHash: "h2" }, "revision"],

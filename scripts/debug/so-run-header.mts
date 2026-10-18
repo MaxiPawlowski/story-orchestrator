@@ -41,7 +41,7 @@ const USAGE = `Usage: node scripts/debug/so-run-header.mts <capture|diff|show> [
         inventory.stories        any change at or under that path
         inventory.stories:+SO-J12   only the addition of that item
         inventory.stories:-SO-J12   only the removal of that item
-        inventory.stories:~SO-J12   only that item's version moving up (one id@old out, one id@new in)
+        inventory.stories:~SO-J12   only that item's library copy changing (one id@old out, one id@new in)
         inventory.characterCount=+9   only a numeric field moving by exactly that much
       --allow-file <path> reads more entries from a JSON array of strings, so an item may
       carry a comma (a character or lorebook name).

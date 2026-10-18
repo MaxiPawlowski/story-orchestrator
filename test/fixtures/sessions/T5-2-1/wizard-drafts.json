@@ -60,48 +60,37 @@
   ],
   "library": [
     {
-      "id": "adolion-aegis",
-      "version": 12
+      "id": "adolion-aegis"
     },
     {
-      "id": "adolion-deep",
-      "version": 11
+      "id": "adolion-deep"
     },
     {
-      "id": "adolion-esha",
-      "version": 11
+      "id": "adolion-esha"
     },
     {
-      "id": "adolion-war",
-      "version": 10
+      "id": "adolion-war"
     },
     {
-      "id": "adolion-academy",
-      "version": 27
+      "id": "adolion-academy"
     },
     {
-      "id": "adolion-night",
-      "version": 10
+      "id": "adolion-night"
     },
     {
-      "id": "adolion-adventurer",
-      "version": 30
+      "id": "adolion-adventurer"
     },
     {
-      "id": "adolion-east",
-      "version": 11
+      "id": "adolion-east"
     },
     {
-      "id": "adolion-saga",
-      "version": 17
+      "id": "adolion-saga"
     },
     {
-      "id": "the-hoard-of-the-unflown",
-      "version": 1
+      "id": "the-hoard-of-the-unflown"
     },
     {
-      "id": "the-pawnbroker-of-forgotten-days",
-      "version": 2
+      "id": "the-pawnbroker-of-forgotten-days"
     }
   ]
 }

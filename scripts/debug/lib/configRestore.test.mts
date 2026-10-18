@@ -22,12 +22,12 @@ test('a restore to "no config" stays a delete', () => {
   assert.equal(mergeRestore(null, { stories: [{ id: 'x' }] }).next, null);
 });
 
-const story = (id: string, version: number, hash: string) => ({ id, version, hash, raw: { id, version, title: id } });
+const story = (id: string, hash: string) => ({ id, hash, raw: { id, title: id } });
 
 test('H1: a story that existed under the same id is put back exactly as it was, not deleted with the run\'s import', () => {
-  const mine = story('v24-01-delete-decode', 1, 'story-original');
-  const before = { trusted: true, records: [story('other', 3, 'story-other'), mine] };
-  const afterRun = [story('other', 3, 'story-other'), story('v24-01-delete-decode', 1, 'story-de4f955d')];
+  const mine = story('v24-01-delete-decode', 'story-original');
+  const before = { trusted: true, records: [story('other', 'story-other'), mine] };
+  const afterRun = [story('other', 'story-other'), story('v24-01-delete-decode', 'story-de4f955d')];
   const plan = planLibraryRestore(before, afterRun);
   assert.deepEqual(plan.next, before.records);
   assert.deepEqual(plan.restored, ['v24-01-delete-decode (story-original)']);
@@ -37,8 +37,8 @@ test('H1: a story that existed under the same id is put back exactly as it was, 
 });
 
 test('H1: a story the run created is removed, including an edited re-import the played hash no longer names (L5)', () => {
-  const before = { trusted: true, records: [story('other', 3, 'story-other')] };
-  const afterRun = [story('other', 3, 'story-other'), story('so-v25-fixture', 2, 'story-edited')];
+  const before = { trusted: true, records: [story('other', 'story-other')] };
+  const afterRun = [story('other', 'story-other'), story('so-v25-fixture', 'story-edited')];
   const plan = planLibraryRestore(before, afterRun);
   assert.deepEqual(plan.next, before.records);
   assert.deepEqual(plan.removed, ['so-v25-fixture (story-edited)']);
@@ -46,20 +46,20 @@ test('H1: a story the run created is removed, including an edited re-import the 
 });
 
 test('control: a library the run did not touch is not rewritten', () => {
-  const records = [story('a', 1, 'h-a'), story('b', 2, 'h-b')];
+  const records = [story('a', 'h-a'), story('b', 'h-b')];
   const plan = planLibraryRestore({ trusted: true, records }, structuredClone(records));
   assert.deepEqual({ changed: plan.changed, removed: plan.removed, restored: plan.restored }, { changed: false, removed: [], restored: [] });
 });
 
 test('a pre-existing story the run deleted comes back, in its old place', () => {
-  const records = [story('a', 1, 'h-a'), story('b', 2, 'h-b')];
-  const plan = planLibraryRestore({ trusted: true, records }, [story('b', 2, 'h-b')]);
+  const records = [story('a', 'h-a'), story('b', 'h-b')];
+  const plan = planLibraryRestore({ trusted: true, records }, [story('b', 'h-b')]);
   assert.deepEqual(plan.next, records);
   assert.deepEqual(plan.restored, ['a (h-a)']);
 });
 
 test('an untrusted or missing capture removes nothing, and keeps what it cannot account for (S6)', () => {
-  const current = [story('a', 1, 'h-a')];
+  const current = [story('a', 'h-a')];
   assert.deepEqual(planLibraryRestore({ trusted: false, records: [] }, current), { untrusted: true, next: current, removed: [], restored: [], changed: false });
   assert.equal(planLibraryRestore(null, current).untrusted, true);
 });
@@ -95,14 +95,14 @@ test('every journey declares the extraction it runs at, and nothing else (§E)',
 });
 
 test('A25: a refused import that still wrote a record is removed, because the restore is the pre-run library', () => {
-  const before = { trusted: true, records: [story('user-story', 1, 'h-user')] };
-  const plan = planLibraryRestore(before, [...before.records, story('refused-import', 1, 'h-refused')]);
+  const before = { trusted: true, records: [story('user-story', 'h-user')] };
+  const plan = planLibraryRestore(before, [...before.records, story('refused-import', 'h-refused')]);
   assert.deepEqual(plan.next, before.records);
   assert.deepEqual(plan.removed, ['refused-import (h-refused)']);
 });
 
 test('A25 control: an unreadable library before the run removes nothing, so no user story is at risk', () => {
-  const current = [story('user-story', 1, 'h-user'), story('refused-import', 1, 'h-refused')];
+  const current = [story('user-story', 'h-user'), story('refused-import', 'h-refused')];
   assert.deepEqual(planLibraryRestore({ trusted: false, records: [] }, current).next, current);
 });
 
