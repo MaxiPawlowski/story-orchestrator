@@ -7,7 +7,8 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { diskBuildIssue } from './lib/servedBundle.mts';
 import { lanesRootFor, requireStRoot } from './../lib/stRoot.mjs';
 import { swipesOn } from './lib/adolionFresh.mts';
-import { isLaneNumber } from './lib/laneRange.mts';
+import { isLaneNumber, laneIssue, lanePortIssue, lanePorts } from './lib/laneRange.mts';
+import { holderSummary, portHolder, portOwnership } from './lib/lanePortOwner.mts';
 import { firewalledServerEnv, laneExtraPorts, judgeEnabledIn, NO_MODEL_BACKUP, OFFLINE_ENV, offlineProblems, offlineSettings, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
 import { judgeShareEnv, LANE_POD_FILE, parsePodArg, podLoadProblem, podPortsIn, podTunnelPort, readLanePod, retargetPodUrls, retargetProfiles } from './lib/lanePods.mts';
 import { ROW_DIR_ENV } from './lib/pageCapture.mts';
@@ -78,7 +79,7 @@ const SKIP_SEED = new Set(['backups', 'vectors', 'thumbnails']);
 
 const lanePaths = (n: number) => {
   const root = resolve(LANES_ROOT, String(n));
-  return { root, data: resolve(root, 'data'), debug: resolve(root, 'debug'), pid: resolve(root, 'server.pid'), log: resolve(root, 'server.log'), port: 8100 + n, cdp: 9300 + n };
+  return { root, data: resolve(root, 'data'), debug: resolve(root, 'debug'), pid: resolve(root, 'server.pid'), log: resolve(root, 'server.log'), port: lanePorts(n).st, cdp: lanePorts(n).cdp };
 };
 
 export const laneEnv = (n: number): Record<string, string> => {
@@ -86,7 +87,13 @@ export const laneEnv = (n: number): Record<string, string> => {
   return { ST_URL: `http://127.0.0.1:${lane.port}/`, ST_DEBUG_CDP_PORT: String(lane.cdp), SO_DEBUG_DIR: lane.debug, SO_LANE: String(n) };
 };
 
-const laneNumbers = (args: string[]) => args.filter((arg) => /^\d+$/.test(arg)).map(Number).filter(isLaneNumber);
+export function refuseReservedLanes(lanes: number[]): number[] {
+  const issues = lanes.map((n) => laneIssue(n)).filter((issue): issue is string => issue !== null);
+  if (issues.length) throw new Error(issues.join('; '));
+  return lanes;
+}
+
+const laneNumbers = (args: string[]) => refuseReservedLanes(args.filter((arg) => /^\d+$/.test(arg)).map(Number).filter(isLaneNumber));
 
 function argValue(name: string, fallback: string | null = null) {
   const index = process.argv.indexOf(name);
@@ -103,6 +110,17 @@ async function isUp(port: number) {
     return false;
   }
 }
+
+async function laneServer(n: number) {
+  const lane = lanePaths(n);
+  if (!(await isUp(lane.port))) return { up: false, heldBy: null };
+  const holder = await portHolder(lane.port);
+  const pid = Number(await readFile(lane.pid, 'utf-8').catch(() => ''));
+  const owner = portOwnership(holder, { data: lane.data, pid: Number.isInteger(pid) && pid > 0 ? pid : null });
+  return owner === 'other' ? { up: false, heldBy: holderSummary(holder) } : { up: true, heldBy: null };
+}
+
+const heldByMessage = (n: number, port: number, heldBy: ReturnType<typeof holderSummary>) => `lane ${n}'s port ${port} is held by another server (pid ${heldBy.pid ?? '?'}${heldBy.dataRoot ? `, data root ${heldBy.dataRoot}` : `, ${heldBy.commandLine ?? 'command line unreadable'}`}), not this lane root (${LANES_ROOT}); stop that server or use another lane`;
 
 export function createLineStamper(onLine: (line: string) => void, now: () => Date = () => new Date()) {
   let partial = '';
@@ -203,7 +221,9 @@ async function start(n: number, headed: boolean, judgeLanes: number | null = nul
   const lane = lanePaths(n);
   if (!existsSync(resolve(lane.data, 'default-user'))) throw new Error(`lane ${n} is not seeded: run \`st-lanes.mts seed ${n}\` first`);
   await mkdir(lane.debug, { recursive: true });
-  const wasUp = await isUp(lane.port);
+  const held = await laneServer(n);
+  if (held.heldBy) throw new Error(heldByMessage(n, lane.port, held.heldBy));
+  const wasUp = held.up;
   const offline = existsSync(resolve(lane.root, OFFLINE_MARKER));
   const podLane = offline ? readLanePod(lane.root) : null;
   const firewall = podLane ? { podPort: podLane.pod === null ? null : podLane.port, extraPorts: laneExtraPorts(podLane.pod, allowLocal) } : null;
@@ -259,7 +279,8 @@ async function stop(n: number) {
   const pid = Number(await readFile(lane.pid, 'utf-8').catch(() => ''));
   if (Number.isInteger(pid) && pid > 0) await killTree(pid);
   await rm(lane.pid, { force: true });
-  return { lane: n, stopped: true, serverUp: await isUp(lane.port) };
+  const after = await laneServer(n);
+  return { lane: n, stopped: true, serverUp: after.up, ...(after.heldBy ? { portHeldBy: after.heldBy } : {}) };
 }
 
 async function status() {
@@ -267,7 +288,9 @@ async function status() {
   return Promise.all(entries.map(async (n) => {
     const lane = lanePaths(n);
     const pod = readLanePod(lane.root);
-    return { lane: n, seeded: existsSync(resolve(lane.data, 'default-user')), serverUp: await isUp(lane.port), noModel: existsSync(resolve(lane.data, 'default-user', NO_MODEL_BACKUP)), pod: pod ? pod.pod : 0, podId: pod?.podId ?? null, browser: existsSync(resolve(lane.debug, 'session.json')), url: laneEnv(n).ST_URL };
+    const issue = lanePortIssue(n);
+    const server = issue ? { up: false, heldBy: null } : await laneServer(n);
+    return { lane: n, seeded: existsSync(resolve(lane.data, 'default-user')), serverUp: server.up, ...(server.heldBy ? { portHeldBy: server.heldBy } : {}), ...(issue ? { refused: issue } : {}), noModel: existsSync(resolve(lane.data, 'default-user', NO_MODEL_BACKUP)), pod: pod ? pod.pod : 0, podId: pod?.podId ?? null, browser: existsSync(resolve(lane.debug, 'session.json')), url: laneEnv(n).ST_URL };
   }));
 }
 
@@ -285,7 +308,7 @@ export function rowLane(n: number): RowLane {
 
 async function setModelAccess(n: number, on: boolean) {
   const lane = lanePaths(n);
-  if (await isUp(lane.port)) throw new Error(`lane ${n} is running: stop it first (st-lanes.mts stop ${n}), the server rewrites secrets.json and settings.json`);
+  if ((await laneServer(n)).up) throw new Error(`lane ${n} is running: stop it first (st-lanes.mts stop ${n}), the server rewrites secrets.json and settings.json`);
   const user = resolve(lane.data, 'default-user');
   const secretsPath = resolve(user, 'secrets.json');
   const backupPath = resolve(user, NO_MODEL_BACKUP);
@@ -316,7 +339,7 @@ async function setModelAccess(n: number, on: boolean) {
 
 async function assignPod(n: number, pod: number | null, podId: string | null) {
   const lane = lanePaths(n);
-  if (await isUp(lane.port)) throw new Error(`lane ${n} is running: stop it first (st-lanes.mts stop ${n}), the server rewrites settings.json`);
+  if ((await laneServer(n)).up) throw new Error(`lane ${n} is running: stop it first (st-lanes.mts stop ${n}), the server rewrites settings.json`);
   const settingsPath = resolve(lane.data, 'default-user', 'settings.json');
   if (!existsSync(settingsPath)) throw new Error(`lane ${n} is not seeded: ${settingsPath} is missing`);
   const port = podTunnelPort(pod);
@@ -462,7 +485,7 @@ async function main() {
     process.exitCode = code !== 0 ? code : required && !evidence.complete ? 3 : 0;
     return;
   } else if (command === 'batch') {
-    const lanes = String(argValue('--lanes', '1')).split(',').map(Number).filter(Boolean);
+    const lanes = refuseReservedLanes(String(argValue('--lanes', '1')).split(',').map(Number).filter(Boolean));
     const flags = new Set(['--lanes', '--repeat', '--group', '--wi-gating']);
     const items = rest.filter((arg, index) => !arg.startsWith('--') && !flags.has(rest[index - 1] ?? ''));
     const refused = lanePreflight();
