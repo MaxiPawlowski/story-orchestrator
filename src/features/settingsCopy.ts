@@ -249,8 +249,8 @@ export const SETTING_COPY = {
   ),
   "stagecraft.branchingEnabled": copy(
     "Branch when the player goes off script",
-    "When what you do fits none of a turning point's ways forward (you refused them twice, or the judge says so twice in a row), the story director writes a short "
-      + "branch that follows you and rejoins the story further on. At most one branch per turning point; a swipe takes it back.",
+    "When what you commit to doing fits none of a turning point's ways forward (the judge says so twice in a row, or once with near certainty), the story director writes a short "
+      + "branch that follows you and rejoins the story further on. Questions and refusing a route never branch by themselves. At most one branch per turning point; a swipe takes it back.",
   ),
   "stagecraft.prefetchEnabled": copy(
     "Prepare one more way forward",
