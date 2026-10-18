@@ -109,10 +109,10 @@ describe("architecture guards", () => {
     const relative = (path: string) => path.slice(SRC.length + 1).replace(/\\/g, "/");
     const live = (path: string) => !/\.(test|stories)\.tsx?$/.test(path);
     const mentions = walk(SRC).filter((path) => live(path) && /mes_text/.test(readFileSync(path, "utf8"))).map(relative).sort();
-    expect(mentions).toEqual(["sprites/stage.ts", "utils/messageText.ts"]);
+    expect(mentions).toEqual(["sprites/passageClick.ts", "utils/messageText.ts"]);
     const WRITES_INTO = /mes_text[^\n]*\.(append|appendChild|prepend|insertBefore|insertAdjacent\w*|after|before|replaceWith|innerHTML|outerHTML)\b/;
     const uses = (path: string) => [...readFileSync(path, "utf8").matchAll(/[^\n]*mes_text[^\n]*/g)].map((match) => match[0].trim());
-    expect(uses(join(SRC, "sprites/stage.ts")).every((line) => /closest\("\.mes_text"\)/.test(line) && !WRITES_INTO.test(line))).toBe(true);
+    expect(uses(join(SRC, "sprites/passageClick.ts")).every((line) => /closest\("\.mes_text"\)/.test(line) && !WRITES_INTO.test(line))).toBe(true);
     expect(WRITES_INTO.test('block.querySelector(".mes_text").appendChild(host)')).toBe(true);
     expect(WRITES_INTO.test('const text = target?.closest(".mes_text");')).toBe(false);
   });
