@@ -116,7 +116,8 @@ describe("v2.6 03 SP5: a hydrate never joins an activate that the same world cha
     const hydrate = effects.applyCheckpoint(story, story.checkpointById.start, state, {} as never, "hydrate", ["start"]);
     release();
     await Promise.all([activate, hydrate]);
-    expect(host.calls.filter((call) => call.startsWith("bg:"))).toEqual(["bg:start.jpg"]);
+    expect(host.calls.filter((call) => call.startsWith("bg:"))).toEqual(["bg:start.jpg", "bg:start.jpg"]);
+    expect(host.calls.filter((call) => call.startsWith("cast:"))).toEqual(["cast:+-Mara", "cast:+-Finn", "cast:+-Leila"]);
     expect(state.lastAppliedCheckpointId).toBe("start");
   });
 });

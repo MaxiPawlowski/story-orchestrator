@@ -94,12 +94,14 @@ export const NO_OPEN_GROUP = "the effect was not applied: stories play in group 
 const openChatId = () => String(getContext().chatId ?? "");
 const openGroupId = () => String(getContext().groupId ?? "");
 
+interface NewChatOpening { fired: boolean }
+
 export class EffectsApplier {
   private speaking = 0;
   constructor(private readonly ownership: RunOwnership, private readonly deps: EffectApplierDeps = {}) {}
 
   private appliedChat: string | null = null;
-  private applying: { key: string; run: RunGuard; done: Promise<void> } | null = null;
+  private applying: { key: string; run: RunGuard; opening: NewChatOpening; done: Promise<void> } | null = null;
   private readonly castWrites = new InFlight();
 
   // The one thing a transition posts into the chat itself: a compact system note naming where the
@@ -165,9 +167,13 @@ export class EffectsApplier {
     if (!openGroupId()) return this.deps.journal?.("checkpoint effects were not applied", NO_OPEN_GROUP);
     const key = `${openChatId()}|${checkpoint.id}`;
     const running = this.applying;
-    if (mode === "hydrate" && running?.key === key && running.run.stillOwns()) return running.done;
+    if (mode === "hydrate" && running?.key === key && running.run.stillOwns()) {
+      await this.openNewChat(running.opening, checkpoint, extras, running.run);
+      return running.done;
+    }
     const run = beginRun(this.ownership);
-    const entry = { key, run, done: this.applyCheckpointNow(story, checkpoint, extras, snapshot, mode, path, run, gate) };
+    const opening: NewChatOpening = { fired: false };
+    const entry = { key, run, opening, done: this.applyCheckpointNow(story, checkpoint, extras, snapshot, mode, path, run, opening, gate) };
     this.applying = entry;
     try {
       await entry.done;
@@ -176,8 +182,15 @@ export class EffectsApplier {
     }
   }
 
+  private async openNewChat(opening: NewChatOpening, checkpoint: Checkpoint, extras: RuntimeExtras, run: RunGuard) {
+    if (opening.fired || !extras.requirements.ready || !identitySettled(extras.playerSetup) || !run.stillOwns()) return;
+    opening.fired = true;
+    await this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], (reply) => reply.new_chat_only === true);
+  }
+
   private async applyCheckpointNow(
-    story: NormalizedStory, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[], run: RunGuard, gate?: number,
+    story: NormalizedStory, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[], run: RunGuard,
+    opening: NewChatOpening, gate?: number,
   ) {
     const ready = extras.requirements.ready;
     // This is the write edge with the widest blast radius in the extension: unlike
@@ -195,7 +208,7 @@ export class EffectsApplier {
     // writes ~100 group members one await at a time, so an opening fired at the end of the sequence
     // left a brand-new chat blank for the better part of a minute — and an interrupted apply lost it
     // entirely. Every other onEnter beat stays below, after the cast it needs is enabled.
-    if (ready && identitySettled(extras.playerSetup)) await this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], (reply) => reply.new_chat_only === true);
+    await this.openNewChat(opening, checkpoint, extras, run);
     if (!run.stillOwns()) return;
     const scope = { checkpointId: checkpoint.id, boundary: 0, messageId: lastMessageId() };
     const plan = worldInfoPlan(story, path, rewardedQuestIds(story, snapshot.blackboard), earnedWorldInfo(story, snapshot.blackboard));
@@ -223,16 +236,6 @@ export class EffectsApplier {
       );
     }
     if (!run.stillOwns()) return;
-    if (ready && mode === "hydrate") await this.castWrites.track(this.applyCastMirror(extras, scope, run));
-    if (!run.stillOwns()) return;
-    if (ready && effects.cast_changes !== undefined) {
-      await this.castWrites.track(this.applyCastChanges(effects.cast_changes, story.roster ?? [], extras, scope, run, mode === "activate" ? checkpoint.name : null));
-    }
-    // Deterministic stagecraft: idempotent, so hydrating a chat and rolling back into this
-    // checkpoint both restore its background without re-triggering anything.
-    // `applyCastChanges` awaits once per member, so this needs its own check: without it the
-    // background is the one write in this sequence that can land in another chat.
-    if (!run.stillOwns()) return;
     if (effects.background) {
       const name = effects.background.name;
       const before = this.reads().read({ kind: "background" });
@@ -241,6 +244,12 @@ export class EffectsApplier {
         { effect: "background", target: { kind: "background" }, before, after: { name }, ...scope },
         () => applyBackground(name),
       );
+    }
+    if (!run.stillOwns()) return;
+    if (ready && mode === "hydrate") await this.castWrites.track(this.applyCastMirror(extras, scope, run));
+    if (!run.stillOwns()) return;
+    if (ready && effects.cast_changes !== undefined) {
+      await this.castWrites.track(this.applyCastChanges(effects.cast_changes, story.roster ?? [], extras, scope, run, mode === "activate" ? checkpoint.name : null));
     }
     for (const extension of ready ? effectExtensions() : []) {
       if (!run.stillOwns()) return;
