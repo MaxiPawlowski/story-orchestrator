@@ -5,6 +5,7 @@ import { lazyRetry } from "@utils/lazyRetry";
 import { BADGE_REFRESH_EVENTS, fillChatInput, mountStoryBadges, mountStoryWand, openStoryGroupChat, showTextPopup, subscribeToHostEvents } from "@services/STAPI";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
+import type { WidgetDrawerTab } from "@engine/index";
 import { onPlaysChanged, readBadgeMaps } from "@runtime/playsIndexHost";
 import type { ContinueRow } from "@runtime/playsIndex";
 import { panelGeometry } from "@runtime/panelGeometry";
@@ -59,7 +60,7 @@ export interface PresenceUiDeps {
   useSnapshot: () => RuntimeSnapshot;
   showFeature: (where: FeatureWhere) => void;
   jump: (messageId: number) => void;
-  openDrawer: () => void;
+  openDrawer: (tab?: WidgetDrawerTab) => void;
 }
 
 const activityChecks = (snapshot: RuntimeSnapshot) => {
@@ -212,7 +213,7 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, jump, open
       },
       { id: "so-wand-journal", icon: "fa-book", label: GAME_TEXT.wandJournal, run: () => setPanel("journal", true), shown: () => gamePanels(manager.getCachedSnapshot()).journal },
       { id: "so-wand-stat-sheet", icon: "fa-list-check", label: GAME_TEXT.wandStatSheet, run: () => setPanel("stat-sheet", true), shown: () => gamePanels(manager.getCachedSnapshot()).statSheet },
-      { id: "so-wand-drawer", icon: "fa-route", label: PRESENCE_TEXT.wandDrawer, run: openDrawer },
+      { id: "so-wand-drawer", icon: "fa-route", label: PRESENCE_TEXT.wandDrawer, run: () => openDrawer() },
     ]);
     ui.add(() => wand.dispose());
     let settingsKey = "";

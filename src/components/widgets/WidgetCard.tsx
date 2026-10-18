@@ -5,7 +5,7 @@ import type {
   WidgetBody, WidgetView,
 } from "@runtime/gameTypes";
 import type { WriteResult } from "@utils/writeResult";
-import { requestDrawerTab, requestJournalPage } from "@runtime/drawerTab";
+import { requestJournalPage } from "@runtime/drawerTab";
 import { PLAYER_COPY } from "@runtime/narrative";
 import { GAME_TEXT } from "@features/gameCopy";
 import { WIDGET_TEXT, changedAgoText, provenanceText, rollHintText } from "@features/widgetCopy";
@@ -202,9 +202,10 @@ const Board = ({ lanes }: { lanes: BoardLane[] }) => (
 export type WidgetAction = (text: string) => WriteResult;
 export type WidgetOpen = (tab: WidgetDrawerTab) => WriteResult;
 
-export const drawerOpener = (openDrawer?: () => void): WidgetOpen | undefined => (openDrawer ? (tab) => {
-  openDrawer();
-  requestDrawerTab(tab);
+export type StoryOpener = (tab?: WidgetDrawerTab) => void;
+
+export const drawerOpener = (openStory?: StoryOpener): WidgetOpen | undefined => (openStory ? (tab) => {
+  openStory(tab);
   return { ok: true };
 } : undefined);
 

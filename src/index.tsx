@@ -8,6 +8,8 @@ import {
   type InlineHostSet,
 } from "@services/STAPI";
 import { workspaceNavigation } from "@runtime/workspaceNavigation";
+import { storyPageFor } from "@runtime/drawerTab";
+import type { WidgetDrawerTab } from "@engine/index";
 import { inlinePresence } from "@runtime/presence";
 import { createPresenceUi, openPlay, setPanel, togglePanel } from "./presenceUi";
 import { requestGuide } from "@guide/request";
@@ -333,7 +335,8 @@ const jumpFromDrawer = async (messageId: number) => {
   if (!result.ok) window.toastr?.info?.(result.reason, "Story Orchestrator");
 };
 
-const openSoDrawer = () => workspaceNavigation.open({ context: "story" });
+const openStoryPage = (tab?: WidgetDrawerTab) => workspaceNavigation.open(storyPageFor(tab));
+const openSoDrawer = () => openStoryPage();
 
 // The one missing setup step is always in one place (made settings install-wide), so the
 // player surface points straight at it instead of describing it: ST's Extensions drawer, then our
@@ -429,7 +432,7 @@ const InlineMount = ({ hosts }: { hosts: InlineHostSet }) => {
 };
 
 const presenceUi = createPresenceUi({
-  manager, useSnapshot: useRuntimeSnapshot, showFeature: (where) => showFeature(where), jump: (messageId) => void jumpFromDrawer(messageId), openDrawer: () => openSoDrawer(),
+  manager, useSnapshot: useRuntimeSnapshot, showFeature: (where) => showFeature(where), jump: (messageId) => void jumpFromDrawer(messageId), openDrawer: openStoryPage,
 });
 
 const mountInline = () => {

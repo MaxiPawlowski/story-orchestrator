@@ -1,12 +1,12 @@
 import type { ProvenanceView, WidgetView } from "@runtime/gameTypes";
 import { GAME_TEXT } from "@features/gameCopy";
-import { WidgetCard, drawerOpener, type WidgetAction } from "../widgets/WidgetCard";
+import { WidgetCard, drawerOpener, type StoryOpener, type WidgetAction } from "../widgets/WidgetCard";
 
 export interface StatSheetPanelProps {
   sheet: WidgetView | null;
   provenance?: ProvenanceView[];
   onAction?: WidgetAction;
-  openDrawer?: () => void;
+  openDrawer?: StoryOpener;
 }
 
 export function StatSheetPanel({ sheet, provenance, onAction, openDrawer }: StatSheetPanelProps) {

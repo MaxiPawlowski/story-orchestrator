@@ -1,8 +1,9 @@
 import type { WidgetDrawerTab } from "@engine/index";
+import type { WorkspaceIntent } from "./workspaceNavigation";
 
-export const DRAWER_TAB_EVENT = "so-drawer-tab";
+export const STORY_MEMORY_CONTROL = "so-open-memory";
 
-export const requestDrawerTab = (tab: WidgetDrawerTab): boolean => window.dispatchEvent(new CustomEvent(DRAWER_TAB_EVENT, { detail: tab }));
+export const storyPageFor = (tab?: WidgetDrawerTab): WorkspaceIntent => ({ context: "story", page: "play", ...(tab === "memory" ? { control: STORY_MEMORY_CONTROL } : {}) });
 
 export const JOURNAL_PAGE_EVENT = "so-journal-page";
 
@@ -12,6 +13,8 @@ export interface JournalPageRequest {
 }
 
 let pendingJournalPage: JournalPageRequest | null = null;
+
+export const peekJournalPage = (): JournalPageRequest | null => pendingJournalPage;
 
 export const takeJournalPage = (): JournalPageRequest | null => {
   const request = pendingJournalPage;
