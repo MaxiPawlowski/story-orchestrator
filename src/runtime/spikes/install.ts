@@ -1,4 +1,4 @@
-import type { ArcTemplate, BoundaryLogEntry, NormalizedStoryV2 } from "@engine/index";
+import type { ArcTemplate, BoundaryLogEntry, NormalizedStory } from "@engine/index";
 import { installSpikeSeams } from "../spikeSeams";
 import type { SpikeSettings } from "../settingsModel";
 import { onChanceDraw, type ChanceDraw } from "../chance";
@@ -11,7 +11,7 @@ import {
 export interface SpikePort {
   flags(): SpikeSettings;
   raw(): unknown;
-  story?(): NormalizedStoryV2 | null;
+  story?(): NormalizedStory | null;
   log?(): readonly BoundaryLogEntry[];
   shape?(): ArcTemplate | null;
   chat?(): readonly unknown[];

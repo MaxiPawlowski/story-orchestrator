@@ -12,7 +12,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "title": "SO-V28-69 K8",
         "description": "Plan 69 K8 no-model fixture: four facts, one per player line.",
         "qualities": [

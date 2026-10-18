@@ -13,7 +13,7 @@ import { sendModel } from "../../../test/support/modelCall";
 //
 // Owner: plan 11. Flips the `expansion|worldSwitched` row of `test/findings/faultMatrix.json`.
 
-import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { parseStoryOrThrow, type EngineState } from "@engine/index";
 import { EXPANSION_CONTRACT, type ExpansionCacheEntry, type ExpansionRuntimeState } from "@generation/index";
 import type { RunContext, RunOwnership } from "./../runToken";
 import { mintToken, tokenMatches } from "./../runToken";
@@ -30,8 +30,7 @@ const stapi = {
   getPlayerName: () => "Max",
   sendConnectionProfileRequest: jest.fn() };
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "expansion-ownership",
   title: "Expansion ownership",
   description: "One stub off the active checkpoint.",

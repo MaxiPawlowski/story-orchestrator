@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStory } from "@engine/index";
 import { EXPANSION_CONTRACT } from "@generation/types";
 import { collectExpansionGateSources, insertedCheckpointIds, mergeExpansions } from "@generation/merge";
 import { findEncounterCandidate, findStubExpansionCandidate, findStubExpansionCandidates, planEncounterPool, planExpansion } from "@generation/planner";
@@ -28,14 +28,14 @@ export const expansionKey = (
 ) => (candidate.kind === "encounters" ? `${candidate.stubId}->encounters` : `${candidate.sourceCheckpointId}->${candidate.stubId}->${candidate.targetAnchorId}`);
 
 export interface ExpansionCoordinatorDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getStoryRaw: () => unknown;
   getState: () => EngineState | null;
   getExpansion: () => ExpansionRuntimeState;
   model: ModelCall;
   getCanon: () => string;
   getFactTexts: () => string[];
-  replaceStory: (story: NormalizedStoryV2) => void;
+  replaceStory: (story: NormalizedStory) => void;
   judge?: () => JudgeRuntime | null;
   getSceneRead?: () => SceneReadRecord | null;
   refusing?: () => boolean;
@@ -82,7 +82,7 @@ export class ExpansionCoordinator {
 
   // Expansions are merged into the played story, so a story that fails to merge must not take the
   // chat down with it — fall back to the authored base and surface the error as status.
-  mergedStoryOrBase(raw: unknown, base: NormalizedStoryV2): NormalizedStoryV2 {
+  mergedStoryOrBase(raw: unknown, base: NormalizedStory): NormalizedStory {
     try {
       return mergeExpansions(raw, this.entries);
     } catch (error) {
@@ -97,7 +97,7 @@ export class ExpansionCoordinator {
     this.deps.replaceStory(mergeExpansions(this.deps.getStoryRaw(), this.entries));
   }
 
-  pruneRemovedQualities(story: NormalizedStoryV2): number {
+  pruneRemovedQualities(story: NormalizedStory): number {
     let pruned = 0;
     Object.entries(this.entries).forEach(([key, entry]) => {
       const basis = Object.fromEntries(Object.entries(entry.basis).filter(([quality]) => story.qualityByKey[quality]));
@@ -127,7 +127,7 @@ export class ExpansionCoordinator {
     if (changed) this.rebuildMergedStory();
   }
 
-  pruneMissing(story: NormalizedStoryV2): number {
+  pruneMissing(story: NormalizedStory): number {
     const missing = Object.entries(this.entries).filter(([, entry]) => [entry.sourceCheckpointId, entry.stubId, entry.targetAnchorId].some((id) => !story.checkpointById[id])
       || (isEncounterPool(entry) && !offersEncounters(story.checkpointById[entry.stubId])));
     missing.forEach(([key]) => { delete this.entries[key]; this.liveJobs.delete(key); });
@@ -205,7 +205,7 @@ export class ExpansionCoordinator {
 
   // One stub one hop ahead of where play is heading (look-ahead), one
   // pre-generation in flight at most, never in place of the active candidate.
-  private scheduleLookahead(story: NormalizedStoryV2, schedule: (reason: string, run: () => Promise<void>) => void) {
+  private scheduleLookahead(story: NormalizedStory, schedule: (reason: string, run: () => Promise<void>) => void) {
     const scene = this.deps.getSceneRead?.() ?? null;
     // A tracker the judge can no longer confirm must not steer pre-generation either. Its
     // headingTo describes where play was going when it last answered, which may be minutes stale.
@@ -224,7 +224,7 @@ export class ExpansionCoordinator {
     }
   }
 
-  private judgeFor(unit: ExpansionUnit, story: NormalizedStoryV2, input: PlannedExpansionInput) {
+  private judgeFor(unit: ExpansionUnit, story: NormalizedStory, input: PlannedExpansionInput) {
     return unit.expansionJudge(this.deps.judge?.() ?? null, story, input, () => this.deps.hosts.player.getPlayerName());
   }
 
@@ -275,14 +275,14 @@ export class ExpansionCoordinator {
     return true;
   }
 
-  private plan(story: NormalizedStoryV2, state: EngineState, candidate: StubExpansionCandidate): PlannedExpansionInput {
+  private plan(story: NormalizedStory, state: EngineState, candidate: StubExpansionCandidate): PlannedExpansionInput {
     return candidate.kind === "encounters"
       ? planEncounterPool(state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts())
       : planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
   }
 
   // What an author's "generate now" is about to send: every variant, plus the critic.
-  private async preflight(story: NormalizedStoryV2, state: EngineState, candidate: StubExpansionCandidate): Promise<Preflight> {
+  private async preflight(story: NormalizedStory, state: EngineState, candidate: StubExpansionCandidate): Promise<Preflight> {
     const unit = await loadUnit();
     const input = this.plan(story, state, candidate);
     const requests = (candidate.kind === "encounters" ? 1 : this.judgeFor(unit, story, input).variants?.n ?? 1) + 1;

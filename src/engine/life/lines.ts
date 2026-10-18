@@ -1,7 +1,7 @@
 import { PLAYER_REF } from "../agency";
 import {
   RELATIONSHIP_TOWARD_PLAYER, agendaRepeatsKey, agendaStepKey, relationshipKey,
-  type Agenda, type AgendaStep, type LifeMember, type NormalizedStoryV2, type PrimitiveValue,
+  type Agenda, type AgendaStep, type LifeMember, type NormalizedStory, type PrimitiveValue,
 } from "../schema";
 import { effectiveMood, isAway, whereabouts } from "./presence";
 import { factionMemberLines } from "../factions/standing";
@@ -26,10 +26,10 @@ const doneSteps = (member: string, agenda: Agenda, values: Read): AgendaStep[] =
   return [...agenda.steps.slice(0, steps), ...(last && repeats > 0 ? [last] : [])];
 };
 
-const towardName = (story: NormalizedStoryV2, toward: string): string =>
+const towardName = (story: NormalizedStory, toward: string): string =>
   (toward === RELATIONSHIP_TOWARD_PLAYER ? PLAYER_REF : story.roster.find((member) => member.id === toward)?.name ?? toward);
 
-const relationshipLines = (story: NormalizedStoryV2, member: LifeMember, values: Values, labelled = false): string[] => member.relationships.flatMap((relationship) =>
+const relationshipLines = (story: NormalizedStory, member: LifeMember, values: Values, labelled = false): string[] => member.relationships.flatMap((relationship) =>
   relationship.axes.map((axis, at) => {
     const value = values[relationshipKey(member.id, relationship.toward, axis)];
     const shown = typeof value === "number" ? value : relationship.start;
@@ -38,7 +38,7 @@ const relationshipLines = (story: NormalizedStoryV2, member: LifeMember, values:
     return `- Your ${axis} toward ${towardName(story, relationship.toward)}${label}${labels}: ${shown} on a scale from ${relationship.range[0]} to ${relationship.range[1]}.`;
   }));
 
-export const relationshipFeelings = (story: NormalizedStoryV2, values: Values, memberId: string): string[] => {
+export const relationshipFeelings = (story: NormalizedStory, values: Values, memberId: string): string[] => {
   const member = story.life?.members.find((entry) => entry.id === memberId);
   return member ? relationshipLines(story, member, values).map((line) => line.replace(/^- Your /, "")) : [];
 };
@@ -46,7 +46,7 @@ export const relationshipFeelings = (story: NormalizedStoryV2, values: Values, m
 const meanwhileLines = (member: LifeMember, values: Values, publicOnly: boolean): string[] => member.agenda.flatMap((agenda) =>
   doneSteps(member.id, agenda, values).filter((step) => !publicOnly || step.public).slice(-MEANWHILE_SHOWN).map((step) => step.text));
 
-export const privateLifeLines = (story: NormalizedStoryV2, values: Values, memberId: string, accepted: readonly string[] = [], boundary = 0): string => {
+export const privateLifeLines = (story: NormalizedStory, values: Values, memberId: string, accepted: readonly string[] = [], boundary = 0): string => {
   const members = story.life?.members ?? [];
   const self = members.find((member) => member.id === memberId);
   const mood = self ? effectiveMood(self, values) : null;
@@ -63,7 +63,7 @@ export const privateLifeLines = (story: NormalizedStoryV2, values: Values, membe
   return lines.length ? [LIFE_BLOCK_HEADER, ...lines].join("\n") : "";
 };
 
-export const agendaWorldInfo = (story: NormalizedStoryV2 | null, values: Read): unknown[] =>
+export const agendaWorldInfo = (story: NormalizedStory | null, values: Read): unknown[] =>
   (story?.life?.members ?? []).flatMap((member) => member.agenda.flatMap((agenda) =>
     doneSteps(member.id, agenda, values).flatMap((step) => (step.effect?.world_info !== undefined ? [step.effect.world_info] : []))));
 
@@ -74,7 +74,7 @@ export interface LandedStep {
   step: AgendaStep;
 }
 
-export const landedSteps = (story: NormalizedStoryV2 | null, before: Read, after: Read): LandedStep[] =>
+export const landedSteps = (story: NormalizedStory | null, before: Read, after: Read): LandedStep[] =>
   (story?.life?.members ?? []).flatMap((member) => member.agenda.flatMap((agenda) => {
     const was = doneCount(member.id, agenda, before);
     const now = doneCount(member.id, agenda, after);
@@ -83,7 +83,7 @@ export const landedSteps = (story: NormalizedStoryV2 | null, before: Read, after
     return [{ memberId: member.id, agendaId: agenda.id, index, step: agenda.steps[index] }];
   }));
 
-export const lifeMoved = (story: NormalizedStoryV2 | null, before: Read, after: Read): boolean => landedSteps(story, before, after).length > 0;
+export const lifeMoved = (story: NormalizedStory | null, before: Read, after: Read): boolean => landedSteps(story, before, after).length > 0;
 
 export interface LifeAuthorRow {
   id: string;
@@ -94,7 +94,7 @@ export interface LifeAuthorRow {
   agendas: Array<{ id: string; goal: string; done: number; of: number; next: string | null }>;
 }
 
-export const lifeAuthorRows = (story: NormalizedStoryV2, values: Values): LifeAuthorRow[] => (story.life?.members ?? []).map((member) => ({
+export const lifeAuthorRows = (story: NormalizedStory, values: Values): LifeAuthorRow[] => (story.life?.members ?? []).map((member) => ({
   id: member.id,
   name: story.roster.find((entry) => entry.id === member.id)?.name ?? member.id,
   away: isAway(member, values) ? whereabouts(member, values) : null,

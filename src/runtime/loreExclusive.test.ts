@@ -1,10 +1,9 @@
-import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import type { HostScannableEntry } from "@services/STAPI";
 import { applyLoreExclusive, loreExclusiveFor, type LoreExclusiveSources } from "./loreExclusive";
 import { loreStoryKey } from "./loreSelect";
 
-const story = (exclusive: boolean | "absent" = true): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2,
+const story = (exclusive: boolean | "absent" = true): NormalizedStory => parseStoryOrThrow({
   id: "lx",
   title: "Lore exclusive",
   description: "Fixture.",

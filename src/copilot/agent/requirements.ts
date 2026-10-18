@@ -1,4 +1,4 @@
-import { castMemberName, resolveCastChanges, type CheckpointEffects, type StoryRequirements, type StoryV2 } from "@engine/index";
+import { castMemberName, resolveCastChanges, type CheckpointEffects, type StoryRequirements, type Story } from "@engine/index";
 import { isProvisioningKind, personaRequirementProblem, provisioningRequirements, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
 import type { ProposalOp } from "../types";
 import type { AgentOp, AgentSession } from "./types";
@@ -17,7 +17,7 @@ const fold = (text: string) => text.trim().toLowerCase();
 
 const holds = (list: string[] | undefined, value: string) => (list ?? []).some((entry) => fold(entry) === fold(value));
 
-export const rosterNameForId = (draft: StoryV2, member: string): string | null => {
+export const rosterNameForId = (draft: Story, member: string): string | null => {
   const name = castMemberName(draft.roster, member);
   return fold(name) === fold(member) ? null : name;
 };
@@ -29,7 +29,7 @@ export const createdBySession = (session: AgentSession): { members: string[]; lo
     return { members: [...created.members, ...wanted.members], lorebooks: [...created.lorebooks, ...wanted.lorebooks] };
   }, { members: [] as string[], lorebooks: [] as string[] });
 
-const resolveMembers = (draft: StoryV2, members: string[]) => {
+const resolveMembers = (draft: Story, members: string[]) => {
   const resolved: string[] = [];
   const next = members.map((member) => {
     const name = rosterNameForId(draft, member);
@@ -40,7 +40,7 @@ const resolveMembers = (draft: StoryV2, members: string[]) => {
   return { next, resolved };
 };
 
-const dropped = (draft: StoryV2, session: AgentSession, requirements: StoryRequirements): string[] => {
+const dropped = (draft: Story, session: AgentSession, requirements: StoryRequirements): string[] => {
   const created = createdBySession(session);
   const lost = (kind: "members" | "lorebooks") => created[kind].filter((name) => holds(draft.requirements?.[kind], name) && !holds(requirements[kind], name));
   return [
@@ -49,7 +49,7 @@ const dropped = (draft: StoryV2, session: AgentSession, requirements: StoryRequi
   ];
 };
 
-export const checkRequirementsOp = (session: AgentSession, draft: StoryV2, op: RequirementsOp, environment: Pick<ProvisioningEnvironment, "personaNames">): RequirementsCheck => {
+export const checkRequirementsOp = (session: AgentSession, draft: Story, op: RequirementsOp, environment: Pick<ProvisioningEnvironment, "personaNames">): RequirementsCheck => {
   const persona = personaRequirementProblem(op.requirements.personas, environment);
   if (persona) return { op, note: null, problem: persona };
   const members = op.requirements.members ?? [];
@@ -86,7 +86,7 @@ const withEffects = (op: AgentOp, effects: CheckpointEffects): AgentOp => {
   return op;
 };
 
-export const resolveCastOp = (draft: StoryV2, op: AgentOp): { op: AgentOp; note: string | null } => {
+export const resolveCastOp = (draft: Story, op: AgentOp): { op: AgentOp; note: string | null } => {
   const effects = effectsOf(op);
   const resolved = effects?.cast_changes === undefined ? null : resolveCastChanges(draft.roster, effects.cast_changes);
   if (!effects || !resolved?.resolved.length) return { op, note: null };

@@ -1,6 +1,6 @@
 import {
   STORY_ID_PATTERN, TENSION_CURRENT_KEY, isFactionDerivedKey, isFactionKey, isLifeKey, isLivingId, questClosedKey, standingKey, type Checkpoint,
-  type Faction, type GateNode, type Milestone, type NormalizedStoryV2, type Quality, type Quest, type RosterMember, type Transition,
+  type Faction, type GateNode, type Milestone, type NormalizedStory, type Quality, type Quest, type RosterMember, type Transition,
   type ValidationError,
 } from "../schema";
 import {
@@ -18,7 +18,7 @@ const QUIET = new Set(["tension", TENSION_CURRENT_KEY]);
 
 export type OutcomeKind = "quality" | "quest" | "standing";
 
-type OutcomeStory = Pick<NormalizedStoryV2, "qualityByKey" | "quests" | "factions">;
+type OutcomeStory = Pick<NormalizedStory, "qualityByKey" | "quests" | "factions">;
 
 export const outcomeKind = (story: OutcomeStory, key: string): OutcomeKind | string => {
   const quality = story.qualityByKey[key];
@@ -172,7 +172,7 @@ const checkHeritageQualities = (carry: CarryFrom | undefined, context: CarryCont
   writes.filter((entry) => isHeritageKey(entry.key)).forEach((entry) => addError(errors, entry.path, `'${entry.key}' is written only by a carry, never by a state_snapshot or reward`));
 };
 
-export const readCarry = (json: Record<string, unknown>, context: CarryContext, errors: ValidationError[]): Pick<NormalizedStoryV2, "outcome" | "carry_from"> => {
+export const readCarry = (json: Record<string, unknown>, context: CarryContext, errors: ValidationError[]): Pick<NormalizedStory, "outcome" | "carry_from"> => {
   const outcome = readOutcome(json.outcome, errors);
   const carry = readCarryFrom(json.carry_from, errors);
   checkOutcome(outcome, context, errors);
@@ -207,7 +207,7 @@ const typeFits = (from: Quality, to: Quality): string | null => {
   return `'${from.key}' is ${from.type} but '${to.key}' is ${to.type}`;
 };
 
-export const checkCarryPair = (source: NormalizedStoryV2, target: Pick<NormalizedStoryV2, "carry_from" | "qualityByKey">, timing: "import" | "pick"): ValidationError[] => {
+export const checkCarryPair = (source: NormalizedStory, target: Pick<NormalizedStory, "carry_from" | "qualityByKey">, timing: "import" | "pick"): ValidationError[] => {
   const carry = target.carry_from;
   if (!carry) return [];
   const errors: ValidationError[] = [];

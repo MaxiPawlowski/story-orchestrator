@@ -7,7 +7,7 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 import * as sagaMini from "../../test/fixtures/chapters-mini.story.json";
-import { parseStoryV2OrThrow, type EngineState, type StoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type EngineState, type Story } from "@engine/index";
 import type { DerivedRecord } from "@memory/derived";
 import { memoryExtensionKey } from "@memory/index";
 import type { ArcEntry, ChapterRecord, EpistemicEntry, LedgerEntry, MemoryEntry } from "@memory/types";
@@ -19,21 +19,21 @@ import { ModelCallError } from "@extraction/modelError";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./runToken";
 import type { MemoryRuntimeState } from "./types";
 
-const clone = () => JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as Omit<StoryV2, "checkpoints"> & { checkpoints: Array<Record<string, unknown>> };
+const clone = () => JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as Omit<Story, "checkpoints"> & { checkpoints: Array<Record<string, unknown>> };
 const ROSTER = [{ id: "mara", name: "Mara" }, { id: "kael", name: "Kael" }, { id: "belle", name: "Belle" }];
 
-const castStory = parseStoryV2OrThrow((() => {
+const castStory = parseStoryOrThrow((() => {
   const raw = clone();
-  raw.roster = ROSTER as StoryV2["roster"];
+  raw.roster = ROSTER as Story["roster"];
   raw.checkpoints = raw.checkpoints.map((checkpoint) => (checkpoint.id === "walls" ? { ...checkpoint, effects: { cast_changes: { disable: ["Mara", "Kael"] } } } : checkpoint));
-  return raw as unknown as StoryV2;
+  return raw as unknown as Story;
 })());
 
-const chapterless = parseStoryV2OrThrow((() => {
+const chapterless = parseStoryOrThrow((() => {
   const raw = clone();
   delete raw.chapters;
   raw.checkpoints = raw.checkpoints.map(({ chapter: _chapter, ...checkpoint }) => checkpoint);
-  return raw as unknown as StoryV2;
+  return raw as unknown as Story;
 })());
 
 const provenance = (messageId: number) => ({ source: "extractor", messageId, boundary: messageId, pass: "read", validity: "live" });
@@ -66,7 +66,7 @@ const recordReply = (cite: string) => [
 ].join("\n");
 
 interface HarnessOptions {
-  story?: ReturnType<typeof parseStoryV2OrThrow>;
+  story?: ReturnType<typeof parseStoryOrThrow>;
   memory?: Partial<MemoryRuntimeState>;
   reply?: (prompt: string) => string;
   judge?: SealJudge | null;

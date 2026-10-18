@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStory } from "@engine/index";
 import { failureClass } from "@extraction/breaker";
 import { askText, type ModelCall } from "@extraction/modelRoute";
 import { maxTokensForInput } from "@extraction/callBudget";
@@ -20,7 +20,7 @@ export interface LoreCreateOutcome {
 }
 
 export interface LoreCreatorDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   state: () => StagecraftRuntimeState;
   patch: (next: Partial<StagecraftRuntimeState>) => void;
@@ -63,7 +63,7 @@ export class LoreCreator {
     return null;
   }
 
-  private async readBooks(story: NormalizedStoryV2): Promise<{ shown: CuratorEntryView[]; hidden: CuratorEntryView[] }> {
+  private async readBooks(story: NormalizedStory): Promise<{ shown: CuratorEntryView[]; hidden: CuratorEntryView[] }> {
     const views: CuratorEntryView[] = [];
     for (const lorebook of curatorLorebooks(story)) {
       const loaded = await this.deps.host().loadLorebook(lorebook);

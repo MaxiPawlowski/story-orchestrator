@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { plantedModel } from "../../../test/support/modelCall";
-import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type EngineState, type NormalizedStory } from "@engine/index";
 import {
   AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, defaultJudgeSettings, JUDGE_USE_COPY, sanitizeJudgeSettings,
   type JudgeAnswer, type JudgeCallRecord, type JudgeRequest, type JudgeSettings,
@@ -35,8 +35,8 @@ const caseOf = (id: string): LoreCase => {
 };
 
 const RULES = ["No character uses a gun."];
-const story = (): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2, id: "warden-lore", title: "Lore", description: "Warden lore.",
+const story = (): NormalizedStory => parseStoryOrThrow({
+  id: "warden-lore", title: "Lore", description: "Warden lore.",
   qualities: [{ key: "crossed", type: "bool", source: "extractor", rubric: "Crossed?" }],
   checkpoints: [{ id: "cp1", name: "The bank", objective: "Cross", type: "anchor", start: true }],
   transitions: [], roster: [], house_rules: RULES,

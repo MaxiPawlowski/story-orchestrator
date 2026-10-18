@@ -1,13 +1,13 @@
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStory } from "@engine/index";
 import { ledgerKey, type LedgerView } from "@memory/index";
 import { spriteLookIssues } from "./spriteLookHealth";
 import { spriteStageHealth } from "./spriteStageHealth";
 
-export const cardSurface = (story: NormalizedStoryV2 | null, state: EngineState | null, chatId: string | null, ledger: LedgerView[]) => ({
+export const cardSurface = (story: NormalizedStory | null, state: EngineState | null, chatId: string | null, ledger: LedgerView[]) => ({
   ledger: cardLedgerView(story, state, ledger), spriteLookIssues: spriteLookIssues(chatId), spriteStage: spriteStageHealth(chatId),
 });
 
-export function cardLedgerView(story: NormalizedStoryV2 | null, state: EngineState | null, rows: LedgerView[]): LedgerView[] {
+export function cardLedgerView(story: NormalizedStory | null, state: EngineState | null, rows: LedgerView[]): LedgerView[] {
   if (!story || !state) return rows;
   const cards = Object.entries(story.cardFieldByQuality ?? {}).flatMap(([key, binding]): LedgerView[] => {
     const value = state.blackboard.values[key];

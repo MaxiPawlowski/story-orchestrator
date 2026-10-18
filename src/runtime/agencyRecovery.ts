@@ -1,6 +1,6 @@
 import {
   agencyForCheckpoint, isInCharacterPlayerLine, openPhase, playerTurnsBetween,
-  type BoundaryLogEntry, type EngineState, type GateLeaf, type GateNode, type NormalizedStoryV2, type PrimitiveValue,
+  type BoundaryLogEntry, type EngineState, type GateLeaf, type GateNode, type NormalizedStory, type PrimitiveValue,
 } from "@engine/index";
 import type { SharedReadAudit } from "@extraction/types";
 import { findStubExpansionCandidate } from "@generation/planner";
@@ -64,7 +64,7 @@ export const playerTurnIds = (chat: readonly unknown[]): number[] =>
   chat.flatMap((message, index) => (isInCharacterPlayerLine(message) ? [index] : []));
 
 export const agencyRecovery = (
-  story: NormalizedStoryV2 | null,
+  story: NormalizedStory | null,
   state: EngineState | null,
   log: BoundaryLogEntry[],
   audits: SharedReadAudit[] = [],

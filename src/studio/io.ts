@@ -1,4 +1,4 @@
-import { isValidationErrorList, parseStoryV2, type ValidationError } from "@engine/index";
+import { isValidationErrorList, parseStory, type ValidationError } from "@engine/index";
 import type { StoryDraft } from "./draft";
 
 export const exportDraft = (draft: StoryDraft): string => JSON.stringify(draft, null, 2);
@@ -10,7 +10,7 @@ export const importDraft = (text: string): StoryDraft | ValidationError[] => {
   } catch {
     return [{ path: "$", message: "file is not valid JSON" }];
   }
-  const validated = parseStoryV2(parsedJson);
+  const validated = parseStory(parsedJson);
   if (isValidationErrorList(validated)) return validated;
   return parsedJson as StoryDraft;
 };

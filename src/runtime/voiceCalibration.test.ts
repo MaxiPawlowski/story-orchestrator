@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { loadGameLayer } from "@engine/validate/gameLayer";
 import { VOICE_QUESTION, type JudgeRequest, type JudgeResult } from "@judge/index";
 import { runVoiceCalibration } from "@judge/calibration";
@@ -20,7 +20,7 @@ beforeAll(async () => {
 
 describe("wardenVoice calibration (v2.7 37 L6-C, so-judge calibrate --use warden-voice)", () => {
   it("builds each row's voice from the story roster, by id or name, and refuses a stranger", () => {
-    const story = parseStoryV2OrThrow(raw);
+    const story = parseStoryOrThrow(raw);
     const [byId, byName] = voiceCases(story, [
       { id: "v1", member: "arin", label: "in", reply: "I will pay it back." },
       { id: "v2", member: "Arin", label: "ooc", reply: "Debts? Who cares." },
@@ -31,7 +31,7 @@ describe("wardenVoice calibration (v2.7 37 L6-C, so-judge calibrate --use warden
   });
 
   it("asks the voice question alone and scores a note against the label", async () => {
-    const story = parseStoryV2OrThrow(raw);
+    const story = parseStoryOrThrow(raw);
     const cases = voiceCases(story, [{ id: "v1", member: "arin", label: "ooc", reply: "Debts? Who cares." }, { id: "v2", member: "arin", label: "in", reply: "I will pay it back." }]);
     const asked: JudgeRequest[] = [];
     const low = await runVoiceCalibration(async (request) => { asked.push(request); return answering(0.1)(request); }, cases);

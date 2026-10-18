@@ -1,9 +1,9 @@
-import { parseStoryV2OrThrow } from "./validate";
+import { parseStoryOrThrow } from "./validate";
 import { StoryEngine } from "./engine";
 import type { ApplyQueueEntry } from "./applyQueue";
 
-const story = () => parseStoryV2OrThrow({
-  format: 2, id: "f25", title: "F25", description: "The widgets glance shape.", roster: [],
+const story = () => parseStoryOrThrow({
+  id: "f25", title: "F25", description: "The widgets glance shape.", roster: [],
   qualities: [
     { key: "found_ledger", type: "bool", source: "extractor", rubric: "Did the party find the ledger page?" },
     { key: "searched_dock", type: "bool", source: "extractor", rubric: "Did the party search the dock?" },

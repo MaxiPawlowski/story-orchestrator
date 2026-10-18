@@ -1,4 +1,4 @@
-import { INTERMEDIATE_UNREACHABLE, isValidationErrorList, parseStoryV2, type StoryV2, type ValidationError } from "@engine/index";
+import { INTERMEDIATE_UNREACHABLE, isValidationErrorList, parseStory, type Story, type ValidationError } from "@engine/index";
 import { runDiagnostics, type Diagnostic } from "../studio/diagnostics";
 import { briefingSpoilerNames } from "../studio/briefingDiagnostics";
 import { applyOpsChecked } from "./proposal";
@@ -8,7 +8,7 @@ import type { CopilotStage, ProposalOp } from "./types";
 export const BRIEFING_SPOILER_REFUSAL = "the briefing is player copy read before the first line, so it may hold only what the player knows at the start.";
 
 export interface ProposalValidation {
-  next: StoryV2;
+  next: Story;
   errors: ValidationError[];
   diagnostics: Diagnostic[];
   stageIssues: string[];
@@ -16,16 +16,16 @@ export interface ProposalValidation {
   blocking: string[];
 }
 
-const addedUnconnected = (draft: StoryV2, next: StoryV2, error: ValidationError): string | null => {
+const addedUnconnected = (draft: Story, next: Story, error: ValidationError): string | null => {
   if (error.message !== INTERMEDIATE_UNREACHABLE) return null;
   const index = /^checkpoints\.(\d+)$/.exec(error.path)?.[1];
   const id = index === undefined ? undefined : next.checkpoints[Number(index)]?.id;
   return id !== undefined && !draft.checkpoints.some((checkpoint) => checkpoint.id === id) ? id : null;
 };
 
-export const validateProposal = (draft: StoryV2, ops: ProposalOp[], stage?: CopilotStage): ProposalValidation => {
+export const validateProposal = (draft: Story, ops: ProposalOp[], stage?: CopilotStage): ProposalValidation => {
   const { next, issues, stageIssues } = applyOpsChecked(draft, ops, stage);
-  const parsed = parseStoryV2(next);
+  const parsed = parseStory(next);
   const errors = isValidationErrorList(parsed) ? parsed : [];
   const diagnostics = runDiagnostics(next);
   const deferring = defersReachability(stage);

@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn, within, userEvent, expect } from "@storybook/test";
 import { buildNarrativeStatus, playerLocation } from "@runtime/narrative";
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import type { ExtractionHealth } from "@extraction/index";
 import { derivePipelineStatus } from "@runtime/pipeline";
 import type { ExtractionRuntimeState, RuntimeSnapshot } from "@runtime/types";
@@ -182,7 +182,7 @@ export const SteppedBackBySwipe: Story = {
 };
 
 const LOCATION = { key: "location", type: "enum", source: "extractor", rubric: "Where?", values: ["aegis_guild_hall", "north_road"], player_labels: { north_road: "the road north" } };
-const ADOLION_PLACES = { qualityByKey: { location: LOCATION } } as unknown as NormalizedStoryV2;
+const ADOLION_PLACES = { qualityByKey: { location: LOCATION } } as unknown as NormalizedStory;
 
 export const UnlabelledLocationLeftOut: Story = {
   args: { snapshot: snapshot({ sceneLocation: playerLocation(ADOLION_PLACES, "aegis_guild_hall") }) },

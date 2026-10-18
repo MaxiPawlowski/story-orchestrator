@@ -1,12 +1,12 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { StoryEngine, parseStoryV2OrThrow, type DerivedQualityView, type PrimitiveValue } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, type DerivedQualityView, type PrimitiveValue } from "@engine/index";
 import { dieFace, unitDraw } from "@engine/chance";
 import { chooseByRules } from "@talk/index";
 import { chanceGateValues, createChanceSeams, npcRollDraw, onChanceDraw, talkDrawStream, type ChanceContext, type ChanceDraw } from "./chance";
 
 const raw = JSON.parse(readFileSync(join(__dirname, "../../test/fixtures/sp7-chance.story.json"), "utf8"));
-const story = parseStoryV2OrThrow(raw);
+const story = parseStoryOrThrow(raw);
 const qualities = story.qualities;
 const STORY_ID = "sp7-chance";
 const BOUNDARIES = 150;

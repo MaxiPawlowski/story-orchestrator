@@ -1,5 +1,4 @@
 {
-  "format": 2,
   "id": "so-v28-60-b10",
   "title": "SO-V28-60 B10 Withhold",
   "description": "Plan 60 B10 no-model fixture: a checkpoint that wants critical tension (so a pacing hint is set) and a public check that rolls when the party reaches the wall (so a check outcome is set).",

@@ -1,9 +1,9 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 
 type AuthoringCode = "house-rule-compound" | "requirement-member-roster-id" | "motive-member-unknown" | "motive-for-player";
 
 export interface AuthoringRun {
-  draft: StoryV2;
+  draft: Story;
   push: (code: AuthoringCode, severity: "warning", path: string, message: string) => void;
 }
 

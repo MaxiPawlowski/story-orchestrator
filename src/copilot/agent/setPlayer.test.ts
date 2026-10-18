@@ -1,12 +1,12 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { setPlayer } from "../../studio/mutations";
 import { rosterMemberIsPlayer, storyPlayerRoles } from "../../studio/playerRole";
 import { runDiagnostics } from "../../studio/diagnostics";
 import { applyAgentOp, describeAgentOp } from "./loop";
 import { AGENT_TOOLS, checkToolCall } from "./tools";
 
-const draft = (over: Partial<StoryV2> = {}): StoryV2 => ({
-  format: 2, title: "T", description: "D", qualities: [], transitions: [], roster: [],
+const draft = (over: Partial<Story> = {}): Story => ({
+  title: "T", description: "D", qualities: [], transitions: [], roster: [],
   checkpoints: [{ id: "start", name: "Start", objective: "o", type: "anchor", start: true }], ...over,
 });
 

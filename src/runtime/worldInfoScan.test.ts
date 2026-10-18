@@ -1,9 +1,8 @@
-import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import type { NormalizedLedger, ScanEntry } from "./scanGatePlan";
 import { ScanGateProvider } from "./worldInfoScan";
 
-const make = (id: string, world_info: unknown[]) => parseStoryV2OrThrow({
-  format: 2,
+const make = (id: string, world_info: unknown[]) => parseStoryOrThrow({
   id,
   title: id,
   description: "Scan gating fixture.",
@@ -22,7 +21,7 @@ const other = make("other", [{ enable: [{ lorebook: "SO-T13 Ruins", comments: ["
 const world = {
   chatId: "chat-a" as string | null,
   ownedChat: "chat-a" as string | null,
-  story: ruins as NormalizedStoryV2 | null,
+  story: ruins as NormalizedStory | null,
   path: ["cp1", "cp2"],
   ready: true,
   revision: "r1",

@@ -1,15 +1,15 @@
-import { agencyClauses, agencyForCheckpoint, isLivingId, renderAgencyPolicy, thresholdFor, type NormalizedStoryV2 } from "@engine/index";
+import { agencyClauses, agencyForCheckpoint, isLivingId, renderAgencyPolicy, thresholdFor, type NormalizedStory } from "@engine/index";
 import { gatePins } from "./paths";
 import type { GeneratedBeat, PlannedExpansionInput } from "./types";
 
 const PREMISE_CHARS = 600;
 
-const checkpointLine = (story: NormalizedStoryV2, id: string): string => {
+const checkpointLine = (story: NormalizedStory, id: string): string => {
   const checkpoint = story.checkpointById[id];
   return checkpoint ? `${id} "${checkpoint.name}" — ${checkpoint.objective}` : id;
 };
 
-export const storyContext = (story: NormalizedStoryV2): string[] => {
+export const storyContext = (story: NormalizedStory): string[] => {
   const premise = story.description.trim();
   const cast = story.roster.map((member) => `${member.name ?? member.id}${member.role ? ` (${member.role})` : ""}`);
   return [
@@ -18,12 +18,12 @@ export const storyContext = (story: NormalizedStoryV2): string[] => {
   ];
 };
 
-const livingStubLine = (story: NormalizedStoryV2, stubId: string): string[] => {
+const livingStubLine = (story: NormalizedStory, stubId: string): string[] => {
   const stub = story.checkpointById[stubId];
   return stub && isLivingId(stubId) ? [`This stretch follows what the player is doing: "${stub.name}" — ${stub.objective}. Let the beats follow that before they reach the target anchor.`] : [];
 };
 
-export function renderGenerationPrompt(story: NormalizedStoryV2, input: PlannedExpansionInput): string {
+export function renderGenerationPrompt(story: NormalizedStory, input: PlannedExpansionInput): string {
   const target = story.checkpointById[input.candidate.targetAnchorId];
   const threshold = target ? thresholdFor(target) : 1;
   const qualities = Object.values(story.qualityByKey).map((quality) => {
@@ -72,7 +72,7 @@ export function renderGenerationPrompt(story: NormalizedStoryV2, input: PlannedE
   ].join("\n");
 }
 
-export function renderCriticPrompt(story: NormalizedStoryV2, input: PlannedExpansionInput, beats: GeneratedBeat[], issues: string[]): string {
+export function renderCriticPrompt(story: NormalizedStory, input: PlannedExpansionInput, beats: GeneratedBeat[], issues: string[]): string {
   return [
     `Story: ${story.title}`,
     ...storyContext(story),

@@ -137,7 +137,7 @@ async function snapshotGlobalConfig(page) {
   return data;
 }
 
-// The story library (`v2Stories`) and the wizard's sessions live in this same root and are shared with
+// The story library (`stories`) and the wizard's sessions live in this same root and are shared with
 // every other session, so a restore keeps whatever another session added after the snapshot (S12,
 // `mergeRestore`). Replacing the root wholesale cost a peer a story record on 2026-09-20.
 async function writeGlobalConfig(page, value) {
@@ -213,7 +213,7 @@ async function journeyListedBooks(page, journey) {
   const refs = journeyStoryRefs(journey);
   const files = await Promise.all(refs.files.map((file) => readJSON(resolve(JOURNEY_DIR, file)).catch(() => null)));
   const library = refs.selected.length ? await evaluateInST(page, (ids: string[]) => {
-    const records = (globalThis as any).SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.v2Stories ?? [];
+    const records = (globalThis as any).SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.stories ?? [];
     return records.filter((record: any) => ids.includes(record?.id)).map((record: any) => record.raw ?? null);
   }, refs.selected) : [];
   return storyListedBooks([...files, ...refs.inline, ...library]);

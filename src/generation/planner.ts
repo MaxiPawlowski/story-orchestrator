@@ -1,12 +1,12 @@
 import { getGenerationBias, getTensionTrajectory } from "@pacing/index";
-import { isOpenStretch, offersEncounters, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { isOpenStretch, offersEncounters, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 import { computeStateDelta } from "./delta";
 import { gatePins } from "./paths";
 import { ENCOUNTER_POOL_SIZE, type PlannedExpansionInput, type StubExpansionCandidate } from "./types";
 
 const tensionToNumeric: Record<string, number> = { calm: 0, stirring: 0.25, tense: 0.5, critical: 0.75, peak: 1 };
 
-export function isStubCheckpoint(story: NormalizedStoryV2, checkpointId: string): boolean {
+export function isStubCheckpoint(story: NormalizedStory, checkpointId: string): boolean {
   const checkpoint = story.checkpointById[checkpointId];
   return Boolean(
     checkpoint && checkpoint.type === "intermediate" && !isOpenStretch(checkpoint) && !checkpoint.state_snapshot && !checkpoint.guidance && !checkpoint.effects
@@ -16,7 +16,7 @@ export function isStubCheckpoint(story: NormalizedStoryV2, checkpointId: string)
   );
 }
 
-export function findFirstReachableAnchor(story: NormalizedStoryV2, checkpointId: string): string | null {
+export function findFirstReachableAnchor(story: NormalizedStory, checkpointId: string): string | null {
   const queue = [...(story.outgoingByCheckpoint[checkpointId] ?? []).map((transition) => transition.to)];
   const seen = new Set<string>();
   while (queue.length) {
@@ -29,7 +29,7 @@ export function findFirstReachableAnchor(story: NormalizedStoryV2, checkpointId:
   return null;
 }
 
-export function findStubExpansionCandidates(story: NormalizedStoryV2, sourceCheckpointId: string): StubExpansionCandidate[] {
+export function findStubExpansionCandidates(story: NormalizedStory, sourceCheckpointId: string): StubExpansionCandidate[] {
   return (story.outgoingByCheckpoint[sourceCheckpointId] ?? []).flatMap((transition) => {
     if (!isStubCheckpoint(story, transition.to)) return [];
     const targetAnchorId = findFirstReachableAnchor(story, transition.to);
@@ -37,7 +37,7 @@ export function findStubExpansionCandidates(story: NormalizedStoryV2, sourceChec
   });
 }
 
-export function findStubExpansionCandidate(story: NormalizedStoryV2, sourceCheckpointId: string): StubExpansionCandidate | null {
+export function findStubExpansionCandidate(story: NormalizedStory, sourceCheckpointId: string): StubExpansionCandidate | null {
   for (const transition of story.outgoingByCheckpoint[sourceCheckpointId] ?? []) {
     if (!isStubCheckpoint(story, transition.to)) continue;
     const targetAnchorId = findFirstReachableAnchor(story, transition.to);
@@ -46,7 +46,7 @@ export function findStubExpansionCandidate(story: NormalizedStoryV2, sourceCheck
   return null;
 }
 
-export function findEncounterCandidate(story: NormalizedStoryV2, checkpointId: string): StubExpansionCandidate | null {
+export function findEncounterCandidate(story: NormalizedStory, checkpointId: string): StubExpansionCandidate | null {
   const entering = (story.outgoingByCheckpoint[checkpointId] ?? []).find((transition) => offersEncounters(story.checkpointById[transition.to]));
   const stretchId = offersEncounters(story.checkpointById[checkpointId]) ? checkpointId : entering?.to;
   if (!stretchId) return null;
@@ -74,7 +74,7 @@ export function planEncounterPool(
 }
 
 export function planExpansion(
-  story: NormalizedStoryV2,
+  story: NormalizedStory,
   blackboard: { values: Record<string, PrimitiveValue>; latched?: Record<string, boolean> },
   candidate: StubExpansionCandidate,
   canon: string,

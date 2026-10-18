@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { StoryEngine, parseStoryV2OrThrow, type GateLeaf, type GateNode, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, type GateLeaf, type GateNode, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 import { replayGate, type ReplayEdge } from "./gateReplay";
 
 const rng = (seed: number) => {
@@ -35,9 +35,9 @@ const shipped = [
   "test/fixtures/branching.story.json",
   "test/fixtures/linear.story.json",
   "test/fixtures/convergence-drift.story.json",
-].map((file) => parseStoryV2OrThrow(JSON.parse(readFileSync(join(root, file), "utf8"))));
+].map((file) => parseStoryOrThrow(JSON.parse(readFileSync(join(root, file), "utf8"))));
 
-const play = (story: NormalizedStoryV2, seed: number) => {
+const play = (story: NormalizedStory, seed: number) => {
   const next = rng(seed);
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
@@ -57,7 +57,7 @@ const play = (story: NormalizedStoryV2, seed: number) => {
   return engine.serializeHistory();
 };
 
-const edgesOf = (story: NormalizedStoryV2): ReplayEdge[] => story.transitions.map((transition, order) => ({ from: transition.from, to: transition.to, gate: transition.gate, priority: transition.priority, order }));
+const edgesOf = (story: NormalizedStory): ReplayEdge[] => story.transitions.map((transition, order) => ({ from: transition.from, to: transition.to, gate: transition.gate, priority: transition.priority, order }));
 
 describe("v2.5 plan 07 A3: replaying every UNCHANGED gate reproduces the recording (shipped stories, fixed seeds)", () => {
   it("every boundary at a source: the replay fires exactly where the engine fired, 100%", () => {

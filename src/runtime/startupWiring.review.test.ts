@@ -207,7 +207,7 @@ describe("v2.4 E3: startRuntime routes save evidence", () => {
     await settle();
     const answer = heldSettingsSave();
     const epoch = runtimeManager.getRunContext().sessionEpoch;
-    const story = { format: 2, title: "SO Import", description: "d", qualities: [], checkpoints: [{ id: "start", name: "Start", objective: "x", type: "anchor", start: true }], transitions: [], roster: [] };
+    const story = { title: "SO Import", description: "d", qualities: [], checkpoints: [{ id: "start", name: "Start", objective: "x", type: "anchor", start: true }], transitions: [], roster: [] };
     expect(await runtimeManager.importStory(JSON.stringify(story))).toBe(true);
     expect(runtimeManager.getRunContext().sessionEpoch).toBeGreaterThan(epoch);
     noteRecap.mockClear();

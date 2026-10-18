@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, PLAYER_TURNS_KEY, playerTurnsBetween, StoryEngine, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, PLAYER_TURNS_KEY, playerTurnsBetween, StoryEngine, type NormalizedStory } from "@engine/index";
 import { EXPANSION_CONTRACT, mergeExpansions, type ExpansionCacheEntry } from "@generation/index";
 import { foldOps } from "@generation/living/fold";
 import { isEligibleFrontier } from "@generation/living/frontier";
@@ -6,7 +6,7 @@ import { buildDirectorOps, checkDirectorOps, planChapter, withoutPace } from "@g
 import type { DirectorDraft, LivingOpPayload } from "@generation/living/types";
 
 const premise = (): Record<string, unknown> => ({
-  format: 2, id: "l1-lantern-shop", title: "L1 Lantern Shop", description: "A robbed shop.",
+  id: "l1-lantern-shop", title: "L1 Lantern Shop", description: "A robbed shop.",
   living: {
     premise: "A lantern-maker's shop in a river town was robbed in the night, and the town watch asks the newcomers to look into it before the morning market opens.",
     cast: ["narrator", "ward", "smith"], autonomy: "auto",
@@ -44,7 +44,7 @@ const stripPace = (ops: LivingOpPayload[]): LivingOpPayload[] =>
 
 const play = (shape: Shape, turns = 12) => {
   let raw = premise();
-  let story: NormalizedStoryV2 = parseStoryV2OrThrow(raw);
+  let story: NormalizedStory = parseStoryOrThrow(raw);
   const chains: Record<string, ExpansionCacheEntry> = {};
   const playerIds: number[] = [];
   const engine = new StoryEngine({
@@ -57,7 +57,7 @@ const play = (shape: Shape, turns = 12) => {
   let written = 0;
   const issues: string[] = [];
   let message = 0;
-  const graph = () => (shape.chain ? mergeExpansions(raw, chains) : parseStoryV2OrThrow(raw));
+  const graph = () => (shape.chain ? mergeExpansions(raw, chains) : parseStoryOrThrow(raw));
   for (let turn = 1; turn <= turns; turn += 1) {
     message += 1;
     const player = message;

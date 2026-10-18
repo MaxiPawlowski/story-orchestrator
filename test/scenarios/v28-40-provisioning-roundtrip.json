@@ -220,7 +220,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-p40-roundtrip",
         "title": "SO-P40 Roundtrip",
         "description": "Synthetic provisioning roundtrip.",

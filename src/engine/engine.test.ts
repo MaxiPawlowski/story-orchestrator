@@ -9,7 +9,7 @@ import { evaluateGate, renderGateText } from "./gates";
 import { runReplay } from "../../test/support/replay";
 import type { GateNode } from "./schema";
 import { selectFiring } from "./transitions";
-import { parseStoryV2, parseStoryV2OrThrow } from "./validate";
+import { parseStory, parseStoryOrThrow } from "./validate";
 
 const entry = (q: string, v: string | number | boolean, from = 1, to = 1) => ({
   source: "extractor" as const,
@@ -18,9 +18,9 @@ const entry = (q: string, v: string | number | boolean, from = 1, to = 1) => ({
   deltas: [{ q, v, source: "extractor" as const }],
 });
 
-describe("v2 schema validation", () => {
+describe("schema validation", () => {
   it("normalizes indices and auto progress qualities", () => {
-    const story = parseStoryV2OrThrow(branchingStory);
+    const story = parseStoryOrThrow(branchingStory);
     expect(story.startCheckpointId).toBe("start");
     expect(story.outgoingByCheckpoint.start.map((transition) => transition.to)).toEqual(["stealth", "alarm"]);
     expect(story.qualityByKey[progressQualityForAnchor("exit")]).toMatchObject({ source: "code", monotonic: true });
@@ -32,7 +32,7 @@ describe("v2 schema validation", () => {
       ...linearStory,
       transitions: [{ from: "start", to: "door", priority: 1, gate: { q: "has_key", op: ">=", v: true } }],
     };
-    const result = parseStoryV2(invalid);
+    const result = parseStory(invalid);
     expect(Array.isArray(result)).toBe(true);
     expect(JSON.stringify(result)).toContain("ordered comparisons require numeric qualities");
   });
@@ -46,7 +46,7 @@ describe("v2 schema validation", () => {
       ],
       transitions: [{ from: "start", to: "stub", priority: 1, gate: { q: "has_key", op: "==", v: true } }],
     };
-    expect(JSON.stringify(parseStoryV2(invalid))).toContain("no reachable anchor");
+    expect(JSON.stringify(parseStory(invalid))).toContain("no reachable anchor");
   });
 
   it("accepts valid npc_replies and drops malformed entries", () => {
@@ -60,7 +60,7 @@ describe("v2 schema validation", () => {
         ...(linearStory as any).checkpoints.slice(1),
       ],
     };
-    const result = parseStoryV2OrThrow(valid);
+    const result = parseStoryOrThrow(valid);
     expect(result.checkpointById.start.effects?.npc_replies).toEqual([
       { trigger: "onEnter", member: "guard", kind: "scripted", text: "Halt!", maxTriggers: 1, probability: 0.5 },
     ]);
@@ -75,7 +75,7 @@ describe("v2 schema validation", () => {
         ...(linearStory as any).checkpoints.slice(1),
       ],
     };
-    expect(JSON.stringify(parseStoryV2(invalidTrigger))).toContain("npc reply trigger is invalid");
+    expect(JSON.stringify(parseStory(invalidTrigger))).toContain("npc reply trigger is invalid");
 
     const missingMember = {
       ...linearStory,
@@ -87,7 +87,7 @@ describe("v2 schema validation", () => {
         ...(linearStory as any).checkpoints.slice(1),
       ],
     };
-    expect(JSON.stringify(parseStoryV2(missingMember))).toContain("npc reply member is required");
+    expect(JSON.stringify(parseStory(missingMember))).toContain("npc reply member is required");
 
     const notAnArray = {
       ...linearStory,
@@ -96,7 +96,7 @@ describe("v2 schema validation", () => {
         ...(linearStory as any).checkpoints.slice(1),
       ],
     };
-    const errors = parseStoryV2(notAnArray);
+    const errors = parseStory(notAnArray);
     expect(Array.isArray(errors)).toBe(true);
     expect(JSON.stringify(errors)).toContain("npc_replies must be an array");
   });
@@ -112,7 +112,7 @@ describe("v2 schema validation", () => {
         ...(linearStory as any).checkpoints.slice(1),
       ],
     };
-    expect(parseStoryV2OrThrow(valid).checkpointById.start.effects?.npc_replies).toEqual([
+    expect(parseStoryOrThrow(valid).checkpointById.start.effects?.npc_replies).toEqual([
       { trigger: "afterSpeak", member: "guard", kind: "llm", after_member: "captain", enabled: false },
     ]);
   });
@@ -123,9 +123,9 @@ describe("v2 schema validation", () => {
       ...(linearStory as any).checkpoints.slice(1),
     ] });
     const opening = { trigger: "onEnter", member: "Adolion Narrator", kind: "scripted", text: "Welcome.", new_chat_only: true };
-    expect(parseStoryV2OrThrow(withOpening(opening)).checkpointById.start.effects?.npc_replies).toEqual([opening]);
-    expect(JSON.stringify(parseStoryV2(withOpening({ ...opening, kind: "llm" })))).toContain("new_chat_only requires a scripted onEnter reply");
-    expect(JSON.stringify(parseStoryV2(withOpening({ ...opening, trigger: "afterSpeak" })))).toContain("new_chat_only requires a scripted onEnter reply");
+    expect(parseStoryOrThrow(withOpening(opening)).checkpointById.start.effects?.npc_replies).toEqual([opening]);
+    expect(JSON.stringify(parseStory(withOpening({ ...opening, kind: "llm" })))).toContain("new_chat_only requires a scripted onEnter reply");
+    expect(JSON.stringify(parseStory(withOpening({ ...opening, trigger: "afterSpeak" })))).toContain("new_chat_only requires a scripted onEnter reply");
   });
 
   it("accepts valid talk_control and rejects bad shapes", () => {
@@ -145,7 +145,7 @@ describe("v2 schema validation", () => {
         ...(linearStory as any).checkpoints.slice(1),
       ],
     };
-    expect(parseStoryV2OrThrow(valid).checkpointById.start.talk_control).toEqual({
+    expect(parseStoryOrThrow(valid).checkpointById.start.talk_control).toEqual({
       speakers: [{ member: "guard", weight: 2 }, { member: "captain" }],
       lead: "guard",
       no_repeat: false,
@@ -160,7 +160,7 @@ describe("v2 schema validation", () => {
         ...(valid as any).checkpoints.slice(1),
       ],
     };
-    expect(parseStoryV2OrThrow(boolDirector).checkpointById.start.talk_control).toEqual({ director: true });
+    expect(parseStoryOrThrow(boolDirector).checkpointById.start.talk_control).toEqual({ director: true });
 
     const badWeight = {
       ...linearStory,
@@ -169,7 +169,7 @@ describe("v2 schema validation", () => {
         ...(linearStory as any).checkpoints.slice(1),
       ],
     };
-    expect(JSON.stringify(parseStoryV2(badWeight))).toContain("speaker weight must be a positive number");
+    expect(JSON.stringify(parseStory(badWeight))).toContain("speaker weight must be a positive number");
 
     const badLead = {
       ...linearStory,
@@ -178,7 +178,7 @@ describe("v2 schema validation", () => {
         ...(linearStory as any).checkpoints.slice(1),
       ],
     };
-    expect(JSON.stringify(parseStoryV2(badLead))).toContain("lead must be a non-empty string");
+    expect(JSON.stringify(parseStory(badLead))).toContain("lead must be a non-empty string");
 
     const notAnObject = {
       ...linearStory,
@@ -187,7 +187,7 @@ describe("v2 schema validation", () => {
         ...(linearStory as any).checkpoints.slice(1),
       ],
     };
-    expect(JSON.stringify(parseStoryV2(notAnObject))).toContain("talk_control must be an object");
+    expect(JSON.stringify(parseStory(notAnObject))).toContain("talk_control must be an object");
   });
 
   it("accepts commit_evidence on an extractor quality and refuses a bad pattern", () => {
@@ -196,32 +196,32 @@ describe("v2 schema validation", () => {
       ...linearStory,
       qualities: [...(linearStory as any).qualities, quality(extra)],
     });
-    expect(parseStoryV2OrThrow(withQuality({ commit_evidence: "\\b(accept|swear)\\b" })).qualityByKey.committed.commit_evidence).toBe("\\b(accept|swear)\\b");
-    expect(JSON.stringify(parseStoryV2(withQuality({ commit_evidence: "([unterminated" })))).toContain("commit_evidence must be a valid regular expression");
-    expect(JSON.stringify(parseStoryV2(withQuality({ commit_evidence: "" })))).toContain("commit_evidence must be a non-empty pattern");
-    expect(JSON.stringify(parseStoryV2({ ...linearStory, qualities: [...(linearStory as any).qualities, { key: "committed", type: "bool", source: "code", rubric: "x", commit_evidence: "accept" }] }))).toContain("only extractor qualities read evidence");
+    expect(parseStoryOrThrow(withQuality({ commit_evidence: "\\b(accept|swear)\\b" })).qualityByKey.committed.commit_evidence).toBe("\\b(accept|swear)\\b");
+    expect(JSON.stringify(parseStory(withQuality({ commit_evidence: "([unterminated" })))).toContain("commit_evidence must be a valid regular expression");
+    expect(JSON.stringify(parseStory(withQuality({ commit_evidence: "" })))).toContain("commit_evidence must be a non-empty pattern");
+    expect(JSON.stringify(parseStory({ ...linearStory, qualities: [...(linearStory as any).qualities, { key: "committed", type: "bool", source: "code", rubric: "x", commit_evidence: "accept" }] }))).toContain("only extractor qualities read evidence");
   });
 
   it("accepts valid arc_bridges and rejects bad shapes", () => {
     const valid = { ...linearStory, arc_bridges: [{ arcMatch: "vault-arc", anchor: "end", amount: 2 }] };
-    expect(parseStoryV2OrThrow(valid).arc_bridges).toEqual([{ arcMatch: "vault-arc", anchor: "end", amount: 2 }]);
+    expect(parseStoryOrThrow(valid).arc_bridges).toEqual([{ arcMatch: "vault-arc", anchor: "end", amount: 2 }]);
 
     const unknownAnchor = { ...linearStory, arc_bridges: [{ arcMatch: "vault-arc", anchor: "nowhere", amount: 2 }] };
-    expect(JSON.stringify(parseStoryV2(unknownAnchor))).toContain("unknown anchor 'nowhere'");
+    expect(JSON.stringify(parseStory(unknownAnchor))).toContain("unknown anchor 'nowhere'");
 
     const missingFields = { ...linearStory, arc_bridges: [{ anchor: "end" }] };
-    const errors = parseStoryV2(missingFields);
+    const errors = parseStory(missingFields);
     expect(JSON.stringify(errors)).toContain("arcMatch is required");
     expect(JSON.stringify(errors)).toContain("amount is required");
 
     const notAnArray = { ...linearStory, arc_bridges: "end" };
-    expect(parseStoryV2OrThrow(notAnArray).arc_bridges).toBeUndefined();
+    expect(parseStoryOrThrow(notAnArray).arc_bridges).toBeUndefined();
   });
 });
 
 describe("blackboard and gates", () => {
   it("evaluates leaf operators, nesting, and text rendering", () => {
-    const story = parseStoryV2OrThrow(branchingStory);
+    const story = parseStoryOrThrow(branchingStory);
     const blackboard = new Blackboard(story);
     blackboard.applyDelta({ q: "route", v: "stealth", source: "extractor" });
     blackboard.applyDelta({ q: "noise", v: 3, source: "extractor" });
@@ -232,7 +232,7 @@ describe("blackboard and gates", () => {
   });
 
   it("enforces monotonic and latching qualities", () => {
-    const story = parseStoryV2OrThrow(linearStory);
+    const story = parseStoryOrThrow(linearStory);
     const blackboard = new Blackboard(story);
     expect(blackboard.applyDelta({ q: "message_count", v: 3, source: "code" }).ok).toBe(true);
     expect(blackboard.applyDelta({ q: "message_count", v: 2, source: "code" })).toMatchObject({ ok: false, reason: "monotonic decrease" });
@@ -243,7 +243,7 @@ describe("blackboard and gates", () => {
   });
 
   it("selects highest priority with declaration-order ties", () => {
-    const story = parseStoryV2OrThrow(branchingStory);
+    const story = parseStoryOrThrow(branchingStory);
     const blackboard = new Blackboard(story);
     blackboard.applyDelta({ q: "route", v: "stealth", source: "extractor" });
     blackboard.applyDelta({ q: "noise", v: 5, source: "extractor" });
@@ -253,7 +253,7 @@ describe("blackboard and gates", () => {
 
 describe("apply queue", () => {
   it("applies only at drain time and discards a value a newer covering read wrote again", () => {
-    const story = parseStoryV2OrThrow(linearStory);
+    const story = parseStoryOrThrow(linearStory);
     const blackboard = new Blackboard(story);
     const queue = new ApplyQueue();
     queue.enqueue(entry("has_key", false, 1, 1));
@@ -266,7 +266,7 @@ describe("apply queue", () => {
   });
 
   it("T1-1: a later contrary read does not supersede a pending value the latch would keep", () => {
-    const story = parseStoryV2OrThrow(linearStory);
+    const story = parseStoryOrThrow(linearStory);
     const blackboard = new Blackboard(story);
     const queue = new ApplyQueue();
     queue.enqueue(entry("has_key", true, 12, 19));
@@ -278,7 +278,7 @@ describe("apply queue", () => {
   });
 
   it("T1-1: a later lower read does not supersede a pending value on a monotonic quality", () => {
-    const story = parseStoryV2OrThrow({ ...linearStory, qualities: [...(linearStory as unknown as { qualities: unknown[] }).qualities, { key: "clues", type: "int", source: "extractor", monotonic: true, rubric: "Clues found." }] });
+    const story = parseStoryOrThrow({ ...linearStory, qualities: [...(linearStory as unknown as { qualities: unknown[] }).qualities, { key: "clues", type: "int", source: "extractor", monotonic: true, rubric: "Clues found." }] });
     const blackboard = new Blackboard(story);
     const queue = new ApplyQueue();
     queue.enqueue(entry("clues", 3, 4, 6));
@@ -288,7 +288,7 @@ describe("apply queue", () => {
   });
 
   it("T0-1: a newer covering read that is silent on a key does not supersede it", () => {
-    const story = parseStoryV2OrThrow(linearStory);
+    const story = parseStoryOrThrow(linearStory);
     const blackboard = new Blackboard(story);
     const queue = new ApplyQueue();
     queue.enqueue({ ...entry("has_key", true, 6, 13), deltas: [{ q: "has_key", v: true, source: "extractor" }, { q: "door_open", v: false, source: "extractor" }] });
@@ -302,7 +302,7 @@ describe("apply queue", () => {
 
   it("splits tension levels with the tension delta they belong to", () => {
     const queue = new ApplyQueue();
-    const blackboard = new Blackboard(parseStoryV2OrThrow(linearStory));
+    const blackboard = new Blackboard(parseStoryOrThrow(linearStory));
     queue.enqueue({ source: "extractor", blackboardVersionSum: 0, turnRange: { from: 1, to: 1 }, tensionLevels: ["tense"],
       deltas: [{ q: "has_key", v: true, source: "extractor" }, { q: "tension_current", v: 0.5, source: "extractor" }] });
     queue.enqueue({ source: "extractor", blackboardVersionSum: 0, turnRange: { from: 1, to: 2 }, deltas: [{ q: "has_key", v: true, source: "extractor" }] });
@@ -314,7 +314,7 @@ describe("apply queue", () => {
 
 describe("story engine", () => {
   it("keeps writes invisible to gates until a boundary", () => {
-    const story = parseStoryV2OrThrow(linearStory);
+    const story = parseStoryOrThrow(linearStory);
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     engine.enqueue(entry("has_key", true));
@@ -323,7 +323,7 @@ describe("story engine", () => {
   });
 
   it("refreshes message_count from chat length", () => {
-    const story = parseStoryV2OrThrow(linearStory);
+    const story = parseStoryOrThrow(linearStory);
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     engine.commitBoundary({ lastMessageId: 4, chatLength: 5 });
@@ -331,7 +331,7 @@ describe("story engine", () => {
   });
 
   it("fires one transition per boundary and applies convergence effects", () => {
-    const story = parseStoryV2OrThrow(branchingStory);
+    const story = parseStoryOrThrow(branchingStory);
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     engine.enqueue(entry("route", "stealth"));
@@ -343,7 +343,7 @@ describe("story engine", () => {
   });
 
   it("rolls back to a prior boundary snapshot", () => {
-    const story = parseStoryV2OrThrow(linearStory);
+    const story = parseStoryOrThrow(linearStory);
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     engine.enqueue(entry("has_key", true));
@@ -357,7 +357,7 @@ describe("story engine", () => {
   });
 
   it("maps mutations by message id and ignores untouched swipes", () => {
-    const story = parseStoryV2OrThrow(linearStory);
+    const story = parseStoryOrThrow(linearStory);
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     engine.enqueue(entry("has_key", true, 0, 0));
@@ -369,7 +369,7 @@ describe("story engine", () => {
   });
 
   it("has nothing to roll back from the greeting before the first committed turn", () => {
-    const story = parseStoryV2OrThrow(linearStory);
+    const story = parseStoryOrThrow(linearStory);
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     expect(engine.shouldRollbackFromMessage(0)).toBe(false);
@@ -377,7 +377,7 @@ describe("story engine", () => {
   });
 
   it("reports where the previous boundary ended, following rollback and hydrate", () => {
-    const story = parseStoryV2OrThrow(linearStory);
+    const story = parseStoryOrThrow(linearStory);
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     expect(engine.commitBoundary({ lastMessageId: 2, chatLength: 3 }).previousLastMessageId).toBe(-1);
@@ -394,7 +394,7 @@ describe("story engine", () => {
   });
 
   it("V12: hydrating onto a checkpoint the graph no longer has resumes at the newest one that still exists, and says so", () => {
-    const story = parseStoryV2OrThrow(linearStory);
+    const story = parseStoryOrThrow(linearStory);
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     const saved = { ...engine.serialize(), activeCheckpointId: "gen_gone_2", visitedPath: [story.startCheckpointId, "gen_gone_1", "gen_gone_2"] };
@@ -407,7 +407,7 @@ describe("story engine", () => {
   });
 
   it("flushes pending writes and truncates logs on rollback", () => {
-    const story = parseStoryV2OrThrow(linearStory);
+    const story = parseStoryOrThrow(linearStory);
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     engine.enqueue(entry("has_key", true, 0, 0));
@@ -420,7 +420,7 @@ describe("story engine", () => {
   });
 
   it("rollback matches never-applied state", () => {
-    const story = parseStoryV2OrThrow(linearStory);
+    const story = parseStoryOrThrow(linearStory);
     const withRollback = new StoryEngine({ now: () => 0 });
     withRollback.loadStory(story);
     withRollback.enqueue(entry("has_key", true, 0, 0));
@@ -438,7 +438,7 @@ describe("story engine", () => {
   });
 
   it("hydrate does not double-apply progress on rehydration", () => {
-    const story = parseStoryV2OrThrow(branchingStory);
+    const story = parseStoryOrThrow(branchingStory);
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     engine.enqueue(entry("route", "stealth"));
@@ -497,7 +497,7 @@ describe("replay harness", () => {
 describe("StoryEngine checkpointPath", () => {
   const load = () => {
     const engine = new StoryEngine({ now: () => 0 });
-    engine.loadStory(parseStoryV2OrThrow(sunRuinsStory));
+    engine.loadStory(parseStoryOrThrow(sunRuinsStory));
     return engine;
   };
   const enter = (engine: StoryEngine, ids: string[]) => ids.forEach((id, index) => engine.activateCheckpoint(id, { lastMessageId: index, chatLength: index + 1 }));
@@ -525,7 +525,7 @@ describe("StoryEngine checkpointPath", () => {
 
 describe("gate recovery (step back a fired transition, reset a latched value)", () => {
   it("steps back a fired transition, restores the path and progress, and names the gate keys", () => {
-    const story = parseStoryV2OrThrow(branchingStory);
+    const story = parseStoryOrThrow(branchingStory);
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     engine.enqueue(entry("route", "stealth"));
@@ -542,7 +542,7 @@ describe("gate recovery (step back a fired transition, reset a latched value)", 
   });
 
   it("does not re-fire a gate once its key is reset", () => {
-    const story = parseStoryV2OrThrow(branchingStory);
+    const story = parseStoryOrThrow(branchingStory);
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
     engine.enqueue(entry("route", "stealth"));
@@ -556,7 +556,7 @@ describe("gate recovery (step back a fired transition, reset a latched value)", 
 
   it("reports when no gate moved the chat and walks back one checkpoint at a time", () => {
     const engine = new StoryEngine({ now: () => 0 });
-    engine.loadStory(parseStoryV2OrThrow(linearStory));
+    engine.loadStory(parseStoryOrThrow(linearStory));
     expect(engine.stepBackFiredTransition()).toEqual({ ok: false, reason: "no gate transition has moved this chat" });
     engine.enqueue(entry("has_key", true, 0, 0));
     engine.commitBoundary({ lastMessageId: 0, chatLength: 1 });
@@ -570,7 +570,7 @@ describe("gate recovery (step back a fired transition, reset a latched value)", 
 
   it("resetQuality clears a latched value so a later read can revise it", () => {
     const engine = new StoryEngine({ now: () => 0 });
-    engine.loadStory(parseStoryV2OrThrow(sunRuinsStory));
+    engine.loadStory(parseStoryOrThrow(sunRuinsStory));
     engine.enqueue(entry("mission_accepted", true, 0, 0));
     engine.commitBoundary({ lastMessageId: 0, chatLength: 1 });
     expect(engine.serialize().blackboard.latched.mission_accepted).toBe(true);

@@ -1,4 +1,4 @@
-import { isValidationErrorList, parseStoryV2, type StoryV2 } from "@engine/index";
+import { isValidationErrorList, parseStory, type Story } from "@engine/index";
 import { validateProvisioningOp, type ProvisioningEnvironment } from "@wizard/index";
 import { cardFindings, cardWarnings, renderCardNotes, type CardFinding } from "@wizard/cardChecks";
 import { describeReadBack, type CardReadBackRecord } from "@utils/cardReadBack";
@@ -31,7 +31,7 @@ const now = () => new Date().toISOString();
 
 export const isProvisionOp = (op: AgentOp): op is ProvisioningOp => !isAgentOnly(op) && isProvisioningOp(op);
 
-export const applyAgentOp = (draft: StoryV2, op: AgentOp): StoryV2 => (isAgentOnly(op) ? applyAgentOnly(draft, op) : applyOp(draft, op));
+export const applyAgentOp = (draft: Story, op: AgentOp): Story => (isAgentOnly(op) ? applyAgentOnly(draft, op) : applyOp(draft, op));
 
 export const describeAgentOp = (op: AgentOp): OpDescription => {
   if (!isAgentOnly(op)) {
@@ -118,8 +118,8 @@ export const addAuthorNote = (session: AgentSession, text: string, at = now()): 
 export const addUndoNote = (session: AgentSession, text: string, at = now()): AgentSession =>
   text.trim() ? { ...session, notes: [...session.notes, { role: "author", text: text.trim(), at, onceAt: session.steps.length }] } : session;
 
-export const checkDraft = (draft: StoryV2, install: DiagnosticsContext = {}): string => {
-  const parsed = parseStoryV2(draft);
+export const checkDraft = (draft: Story, install: DiagnosticsContext = {}): string => {
+  const parsed = parseStory(draft);
   const errors = isValidationErrorList(parsed) ? parsed : [];
   const diagnostics = runDiagnostics(draft, install).filter((diagnostic) => diagnostic.severity !== "info");
   const lines = [
@@ -132,7 +132,7 @@ export const checkDraft = (draft: StoryV2, install: DiagnosticsContext = {}): st
 };
 
 export interface AgentContext {
-  draft: StoryV2;
+  draft: Story;
   environment: ProvisioningEnvironment;
   lookup: AgentLookup;
 }
@@ -200,13 +200,13 @@ export const recordUnparsed = (session: AgentSession, issues: string[], meta: St
     repaired: meta.repaired,
   });
 
-const briefingProblem = (draft: StoryV2, op: AgentOp): string | null => {
+const briefingProblem = (draft: Story, op: AgentOp): string | null => {
   if (op.kind !== "setBriefing") return null;
   const named = briefingSpoilerNames(applyOp(draft, op), op.briefing);
   return named.length ? `${BRIEFING_SPOILER_REFUSAL} It names ${named.join(", ")}; rewrite it without them (diagnostic briefing-spoiler-risk).` : null;
 };
 
-const editProblem = (draft: StoryV2, op: AgentOp): string | null => {
+const editProblem = (draft: Story, op: AgentOp): string | null => {
   if (isAgentOnly(op)) return agentOnlyProblem(draft, op);
   const issue = applyOpsChecked(draft, [op]).issues[0];
   return issue ? issue.replace(/^ops\.0: /, "") : briefingProblem(draft, op);
@@ -216,14 +216,14 @@ export const NO_CHANGE = "this changes nothing in the draft; send only the field
 
 const nameSet = (names: readonly string[] | undefined) => [...new Set((names ?? []).map((name) => name.trim().toLowerCase()))].sort();
 
-const sameRequirements = (draft: StoryV2, op: AgentOp): boolean => {
+const sameRequirements = (draft: Story, op: AgentOp): boolean => {
   if (op.kind !== "setRequirements") return false;
   const before = draft.requirements ?? {};
   const after = op.requirements;
   return (["personas", "members", "lorebooks"] as const).every((kind) => stableStringify(nameSet(before[kind])) === stableStringify(nameSet(after[kind])));
 };
 
-const unchangedProblem = (draft: StoryV2, op: AgentOp): string | null =>
+const unchangedProblem = (draft: Story, op: AgentOp): string | null =>
   (JSON.stringify(applyAgentOp(draft, op)) === JSON.stringify(draft) || sameRequirements(draft, op) ? NO_CHANGE : null);
 
 const fold = (text: unknown) => String(text ?? "").trim().toLowerCase();
@@ -246,7 +246,7 @@ const unchangedRead = (session: AgentSession, call: AgentStep["call"], observati
     : null;
 };
 
-const groupGap = (draft: StoryV2, op: AgentOp): string | null => {
+const groupGap = (draft: Story, op: AgentOp): string | null => {
   if (op.kind !== "createGroup") return null;
   const listed = new Set(op.members.map(fold));
   const missing = draftCastNames(draft).filter((name) => !listed.has(fold(name)));
@@ -387,7 +387,7 @@ const staleRefusal = (session: AgentSession, id: number, op: AgentOp, changed: s
 
 export type AgentDecision = { kind: "accept"; op?: AgentOp } | { kind: "reject"; reason: string };
 
-export const decideStep = (session: AgentSession, id: number, decision: AgentDecision, draft: StoryV2): AgentTurn => {
+export const decideStep = (session: AgentSession, id: number, decision: AgentDecision, draft: Story): AgentTurn => {
   const step = session.steps.find((entry) => entry.id === id);
   if (!step || step.status !== "pending") return { session, apply: null };
   if (decision.kind === "reject") {
@@ -414,7 +414,7 @@ export interface ProvisioningOutcome {
   readBack?: CardReadBackRecord;
 }
 
-export const resolveProvisioning = (session: AgentSession, id: number, outcome: ProvisioningOutcome, draftAfter: StoryV2): AgentSession => {
+export const resolveProvisioning = (session: AgentSession, id: number, outcome: ProvisioningOutcome, draftAfter: Story): AgentSession => {
   const step = session.steps.find((entry) => entry.id === id);
   if (!step || step.status !== "pending" || step.family !== "provision") return session;
   const readBack = outcome.ok && outcome.readBack ? { readBack: outcome.readBack } : {};
@@ -461,14 +461,14 @@ export interface OpPreview {
 
 const fieldPath = (root: unknown, fields: string[]): unknown => fields.reduce<unknown>((value, field) => (isRecord(value) ? value[field] ?? null : null), root);
 
-const entityPath = (draft: StoryV2, entity: string): unknown => {
+const entityPath = (draft: Story, entity: string): unknown => {
   const [collection, id, ...fields] = entity.split(".");
   if (collection === "roster") return fieldPath(draft.roster.find((entry) => entry.id === id) ?? null, fields);
   if (collection === "checkpoints") return fieldPath(draft.checkpoints.find((entry) => entry.id === id) ?? null, fields);
   return undefined;
 };
 
-const entityOf = (draft: StoryV2, entity: string): unknown => {
+const entityOf = (draft: Story, entity: string): unknown => {
   const dotted = entityPath(draft, entity);
   if (dotted !== undefined) return dotted;
   const [kind, ...rest] = entity.split(":");
@@ -485,7 +485,7 @@ const entityOf = (draft: StoryV2, entity: string): unknown => {
   return null;
 };
 
-export const opPreview = (draft: StoryV2, op: AgentOp): OpPreview => {
+export const opPreview = (draft: Story, op: AgentOp): OpPreview => {
   const described = describeAgentOp(op);
   if (isProvisionOp(op)) return { action: "provision", label: described.label, before: null, after: op };
   return { action: described.action, label: described.label, before: entityOf(draft, described.entity), after: entityOf(applyAgentOp(draft, op), described.entity) };
@@ -513,10 +513,10 @@ export const agentStats = (session: AgentSession): AgentStats => {
 
 export const applyDraftOp = applyAgentOp;
 
-export const validationErrorCount = (draft: StoryV2): number => {
-  const parsed = parseStoryV2(draft);
+export const validationErrorCount = (draft: Story): number => {
+  const parsed = parseStory(draft);
   return isValidationErrorList(parsed) ? parsed.length : 0;
 };
 
-export const applyProvisioningFollowUps = (draft: StoryV2, op: AgentOp): StoryV2 =>
+export const applyProvisioningFollowUps = (draft: Story, op: AgentOp): Story =>
   (isProvisionOp(op) ? applyOps(draft, provisioningFollowUpOps(draft, op)) : draft);

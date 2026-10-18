@@ -1,6 +1,6 @@
 import { dieFace } from "./chance";
 import { evaluateGate, type GateReader } from "./gates";
-import { checkRolledKey, type CheckDegree, type GateNode, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue, type StoryCheck } from "./schema";
+import { checkRolledKey, type CheckDegree, type GateNode, type NormalizedStory, type NormalizedTransition, type PrimitiveValue, type StoryCheck } from "./schema";
 import { valueReader } from "./quests";
 
 export interface ActiveCheck {
@@ -17,15 +17,15 @@ export interface CheckResult {
   twist: boolean;
 }
 
-export const checksAt = (story: Pick<NormalizedStoryV2, "checkpointById" | "outgoingByCheckpoint">, checkpointId: string): ActiveCheck[] => [
+export const checksAt = (story: Pick<NormalizedStory, "checkpointById" | "outgoingByCheckpoint">, checkpointId: string): ActiveCheck[] => [
   ...(story.checkpointById[checkpointId]?.checks ?? []).map((check) => ({ check, transition: null })),
   ...(story.outgoingByCheckpoint[checkpointId] ?? []).flatMap((transition) => (transition.check ? [{ check: transition.check, transition }] : [])),
 ];
 
-export const hasChecks = (story: Pick<NormalizedStoryV2, "checkpoints" | "transitions"> | null | undefined): boolean =>
+export const hasChecks = (story: Pick<NormalizedStory, "checkpoints" | "transitions"> | null | undefined): boolean =>
   Boolean(story && (story.checkpoints.some((checkpoint) => checkpoint.checks?.length) || story.transitions.some((transition) => transition.check)));
 
-export const checksById = (story: Pick<NormalizedStoryV2, "checkpoints" | "transitions">): Map<string, StoryCheck> => new Map([
+export const checksById = (story: Pick<NormalizedStory, "checkpoints" | "transitions">): Map<string, StoryCheck> => new Map([
   ...story.checkpoints.flatMap((checkpoint) => checkpoint.checks ?? []),
   ...story.transitions.flatMap((transition) => (transition.check ? [transition.check] : [])),
 ].map((check) => [check.id, check]));
@@ -73,5 +73,5 @@ export const checkRollsNow = (check: StoryCheck, values: Values, visit: number):
 
 export const checkRolledAt = (check: StoryCheck, values: Values, boundary: number): boolean => !check.when || values[checkRolledKey(check.id)] === boundary;
 
-export const checkRolledKeys = (story: Pick<NormalizedStoryV2, "checkpoints">): string[] =>
+export const checkRolledKeys = (story: Pick<NormalizedStory, "checkpoints">): string[] =>
   story.checkpoints.flatMap((checkpoint) => (checkpoint.checks ?? []).filter((check) => check.when).map((check) => checkRolledKey(check.id)));

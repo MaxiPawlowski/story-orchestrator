@@ -1,5 +1,5 @@
 import { carriesInto, INJECTION_REGISTRY, type InjectionCarry } from "@constants/injectionRegistry";
-import { isInCharacterPlayerLine, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { isInCharacterPlayerLine, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 import { addressedAmong } from "@talk/index";
 import { awayRosterIds } from "./whereabouts";
 
@@ -13,7 +13,7 @@ const latestTurnText = (chat: readonly unknown[]): string | null => {
 
 const listed = (names: string[]): string => (names.length < 3 ? names.join(" and ") : `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`);
 
-export const awayNoticeLine = (story: NormalizedStoryV2 | null, values: Readonly<Record<string, PrimitiveValue>>, chat: readonly unknown[]): string | null => {
+export const awayNoticeLine = (story: NormalizedStory | null, values: Readonly<Record<string, PrimitiveValue>>, chat: readonly unknown[]): string | null => {
   const away = awayRosterIds(story, values);
   if (!story || !away.length) return null;
   const text = latestTurnText(chat);

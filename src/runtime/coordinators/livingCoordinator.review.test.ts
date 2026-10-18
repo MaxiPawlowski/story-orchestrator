@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { gateLeaves, parseStoryV2OrThrow, PLAYER_TURNS_KEY, StoryEngine, type NormalizedStoryV2 } from "@engine/index";
+import { gateLeaves, parseStoryOrThrow, PLAYER_TURNS_KEY, StoryEngine, type NormalizedStory } from "@engine/index";
 import { diffStories } from "@engine/storyDiff";
 import type { ModelCall, SchedulerJob } from "@extraction/index";
 import { compactOps, graphEpoch, livingRaw } from "@generation/living/fold";
@@ -37,7 +37,7 @@ const rig = (options: RigOptions = {}) => {
   const raw = fixture(options.story ?? "living-premise");
   const context: RunContext = { chatId: "c1", storyId: "s1", storyHash: "h1", sessionEpoch: 1, windowRevision: 0 };
   const engine = new StoryEngine({ now: () => 0 });
-  const loaded = { record: { id: "s1", hash: "h1", raw }, story: parseStoryV2OrThrow(raw) as NormalizedStoryV2 };
+  const loaded = { record: { id: "s1", hash: "h1", raw }, story: parseStoryOrThrow(raw) as NormalizedStory };
   engine.loadStory(loaded.story);
   const extras: { living?: LivingRuntimeState; authorView: boolean } = { authorView: options.authorView ?? false };
   const answers = [...(options.answers ?? [])];
@@ -61,7 +61,7 @@ const rig = (options: RigOptions = {}) => {
     setLiving: (next) => { extras.living = next; },
     setPlayedRaw: (next) => {
       loaded.record = { ...loaded.record, raw: next };
-      loaded.story = parseStoryV2OrThrow(next);
+      loaded.story = parseStoryOrThrow(next);
       engine.replaceGraph(loaded.story);
     },
     pruneExpansion: () => 0,
@@ -244,7 +244,7 @@ describe("v2.8 22 living director at runtime", () => {
     expect(refolded.story.checkpointById.liv_1).toBeDefined();
     expect(refolded.story.checkpointById[rigged.engine.serialize().activeCheckpointId]).toBeDefined();
     expect(JSON.stringify(refolded.raw)).toBe(JSON.stringify(livingRaw({ ...(rigged.extras.living as LivingRuntimeState), authored: { raw: edited as unknown as Record<string, unknown>, hash: "h2" } })));
-    const control = diffStories(rigged.loaded.story, parseStoryV2OrThrow(edited), rigged.engine.serialize());
+    const control = diffStories(rigged.loaded.story, parseStoryOrThrow(edited), rigged.engine.serialize());
     expect(control.entries.some((entry) => entry.message.includes("liv_1"))).toBe(true);
   });
 
@@ -312,7 +312,7 @@ describe("v2.8 22 living director at runtime", () => {
     const copy = rigged.calls.saved[0] as { checkpoints: Array<{ id: string }> };
     expect(copy.checkpoints.map((checkpoint) => checkpoint.id)).toEqual(["liv_open", "liv_next_1_way", "liv_next_1"]);
     expect(JSON.stringify(copy)).not.toContain("Turn 1");
-    expect(() => parseStoryV2OrThrow(copy)).not.toThrow();
+    expect(() => parseStoryOrThrow(copy)).not.toThrow();
   });
 });
 

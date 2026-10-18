@@ -1,4 +1,4 @@
-import { isValidationErrorList, parseStoryV2, type Quality } from "@engine/index";
+import { isValidationErrorList, parseStory, type Quality } from "@engine/index";
 import { boundCardQualities, cardQualityEligible, declaredCardFields } from "@engine/cardFields";
 import { newStoryDraft, type StoryDraft } from "./draft";
 import {
@@ -130,7 +130,7 @@ describe("setRequirements / setStagecraft keep entries as typed", () => {
   });
   it("leaves the trimming to parse", () => {
     const draft = setStagecraft(setRequirements(base(), { personas: ["Max Power ", ""], lorebooks: [" Xentar Checkpoints"] }), { lorebooks: ["", " "] });
-    const parsed = parseStoryV2(draft);
+    const parsed = parseStory(draft);
     if (isValidationErrorList(parsed)) throw new Error(parsed[0]?.message);
     expect(parsed.requirements).toEqual({ personas: ["Max Power"], lorebooks: ["Xentar Checkpoints"] });
     expect(parsed.stagecraft).toBeUndefined();
@@ -181,7 +181,7 @@ describe("card fields (plan 24 C)", () => {
 
   it("a bound card validates", () => {
     const bound = setMemberCard(carded(), "guide", { fields: { look: { quality: "look" } } });
-    expect(isValidationErrorList(parseStoryV2(bound))).toBe(false);
+    expect(isValidationErrorList(parseStory(bound))).toBe(false);
   });
 
   it("only a non-latching extractor string or enum may bind", () => {
@@ -214,7 +214,7 @@ describe("setChapters (v2.6 plan 07 D13, the wizard's chapter op)", () => {
     expect(next.chapters).toEqual([{ id: "three", title: "Three", final: true }, { id: "one", title: "Opening", seal: { open_threads: "close" } }]);
     expect(Object.keys(next.chapters?.[1] ?? {})).toEqual(["id", "title", "seal"]);
     expect(next.checkpoints.map((checkpoint) => checkpoint.chapter)).toEqual(["one", "three"]);
-    expect(isValidationErrorList(parseStoryV2(next))).toBe(false);
+    expect(isValidationErrorList(parseStory(next))).toBe(false);
   });
 
   it("an empty list removes every chapter and every checkpoint's chapter", () => {

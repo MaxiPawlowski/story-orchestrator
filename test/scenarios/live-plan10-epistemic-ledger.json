@@ -3,7 +3,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "title": "Live Epistemic Ledger Gate Check",
         "description": "Plan 10 retro validation: real-model epistemic + state-ledger P2 pass.",
         "qualities": [

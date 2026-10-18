@@ -1,6 +1,6 @@
 import { readFileSync, readdirSync } from "fs";
 import { join } from "path";
-import { parseStoryV2OrThrow, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 import { heldSecrets, keptFrom } from "../heldSecrets";
 import type { EpistemicEntry } from "../types";
 import { hearsayLines, rumorAuthorRows } from "./lines";
@@ -10,9 +10,9 @@ import type { RumorsState } from "./types";
 
 type Raw = Record<string, unknown>;
 
-const story = (patch: (raw: Raw & { roster: Raw[]; rumors: Raw[] }) => void = () => undefined): NormalizedStoryV2 => {
+const story = (patch: (raw: Raw & { roster: Raw[]; rumors: Raw[] }) => void = () => undefined): NormalizedStory => {
   const raw = {
-    format: 2, id: "rumor-mill", title: "Rumor mill", description: "plan 44",
+    id: "rumor-mill", title: "Rumor mill", description: "plan 44",
     qualities: [
       { key: "mill_burned", type: "bool", source: "extractor", rubric: "Did the mill burn?" },
       { key: "confess", type: "bool", source: "extractor", rubric: "Did Bryn confess?" },
@@ -35,12 +35,12 @@ const story = (patch: (raw: Raw & { roster: Raw[]; rumors: Raw[] }) => void = ()
     }],
   } as Raw & { roster: Raw[]; rumors: Raw[] };
   patch(raw);
-  return parseStoryV2OrThrow(raw);
+  return parseStoryOrThrow(raw);
 };
 
-const NAMES = (s: NormalizedStoryV2) => (id: string) => s.roster.find((member) => member.id === id)?.name ?? id;
+const NAMES = (s: NormalizedStory) => (id: string) => s.roster.find((member) => member.id === id)?.name ?? id;
 
-const secretChecker = (s: NormalizedStoryV2, epistemic: EpistemicEntry[], state: RumorsState) => {
+const secretChecker = (s: NormalizedStory, epistemic: EpistemicEntry[], state: RumorsState) => {
   const names = (id: string) => [NAMES(s)(id)];
   const secrets = heldSecrets(epistemic, s.roster.map((member) => member.name ?? member.id),
     state.disclosures.map((row) => ({ entryId: row.entryId, names: names(row.member) })));
@@ -51,7 +51,7 @@ const secretChecker = (s: NormalizedStoryV2, epistemic: EpistemicEntry[], state:
 };
 
 interface RunOptions {
-  s?: NormalizedStoryV2;
+  s?: NormalizedStory;
   chatId?: string;
   boundaries?: number;
   values?: (boundary: number) => Record<string, PrimitiveValue>;
@@ -69,7 +69,7 @@ const run = (options: RunOptions = {}) => {
   const start = (options.from?.boundary ?? 0) + 1;
   for (let boundary = start; boundary <= (options.boundaries ?? 12); boundary += 1) {
     const input: SpreadInput = {
-      state, net: s.rumorNet as NonNullable<NormalizedStoryV2["rumorNet"]>, life: s.life?.members ?? [], values: (options.values ?? burned)(boundary),
+      state, net: s.rumorNet as NonNullable<NormalizedStory["rumorNet"]>, life: s.life?.members ?? [], values: (options.values ?? burned)(boundary),
       at: { boundary, messageId: boundary * 2 }, chatId: options.chatId ?? "chat-1", storyId: "rumor-mill", enabled: options.enabled ?? ["bryn", "tam", "ula", "vik", "cora"],
       secretFor: secretChecker(s, options.epistemic ?? [], state), revision: { swipeId: null, hash: `h${boundary}` }, horizonMessageId: null,
     };

@@ -10,7 +10,7 @@
 
 import type { SceneReadRecord } from "@judge/index";
 import { SceneCoordinator } from "@runtime/coordinators/sceneCoordinator";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { control, finding, must } from "../../../test/findings/ledger";
 import { testOwnership } from "../../../test/findings/testOwnership";
 
@@ -20,8 +20,7 @@ const stapi = {
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null, getContext: () => ({ chat: [], extensionSettings: {} }) };
 
-const story = () => parseStoryV2OrThrow({
-  format: 2,
+const story = () => parseStoryOrThrow({
   id: "scene-freshness",
   title: "Scene freshness",
   description: "C2 fixture",

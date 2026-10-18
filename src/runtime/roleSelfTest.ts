@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { askText, profileRoute, routedModel, routeKey, stripChannelNoise, PASS_ROLE_LABELS, type ModelRoute, type PassRole } from "@extraction/index";
 import { runAuthoringStage } from "@copilot/index";
 import { parseDirectorResponse, renderDirectorPrompt } from "@talk/index";
@@ -110,8 +110,7 @@ const SCENE_LINES = [
 
 const SCENE_TEXT = SCENE_LINES.join("\n");
 
-const AUTHORING_DRAFT: StoryV2 = {
-  format: 2,
+const AUTHORING_DRAFT: Story = {
   id: "self-test-authoring",
   title: "Model self-test",
   description: "A lantern-lit descent into an old tunnel.",

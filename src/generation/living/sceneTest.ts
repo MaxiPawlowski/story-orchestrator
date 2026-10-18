@@ -1,5 +1,5 @@
 import { unitDraw, type ChancePart } from "@engine/chance";
-import { LIVING_OPENING_ID, TENSION_LEVELS, type NormalizedStoryV2, type TensionLevel } from "@engine/index";
+import { LIVING_OPENING_ID, TENSION_LEVELS, type NormalizedStory, type TensionLevel } from "@engine/index";
 import { focusPick, focusSafe, type FocusCandidate } from "@pacing/focus";
 import { isEligibleFrontier } from "./frontier";
 import type { LivingRuntimeState } from "./types";
@@ -47,7 +47,7 @@ export interface SceneAnswer {
 }
 
 export interface ScenePlanInput {
-  story: Pick<NormalizedStoryV2, "living">;
+  story: Pick<NormalizedStory, "living">;
   ids: SceneIds;
   frontierId: string;
   frontierName: string;
@@ -67,10 +67,10 @@ export const sceneDrawParts = (ids: SceneIds, frontierId: string, plannedAt: num
 export const drawSceneOutcome = (p: number, unit: number, kind: number): SceneOutcome =>
   (unit >= p ? "expected" : kind < SCENE_INTERRUPT_SHARE ? "interrupt" : "altered");
 
-export const sceneTestApplies = (story: Pick<NormalizedStoryV2, "living">, frontierId: string): boolean =>
+export const sceneTestApplies = (story: Pick<NormalizedStory, "living">, frontierId: string): boolean =>
   Boolean(story.living?.scene_test) && frontierId !== LIVING_OPENING_ID;
 
-export const sceneMinGap = (story: Pick<NormalizedStoryV2, "living">): number => story.living?.scene_test?.min_gap ?? SCENE_MIN_GAP_DEFAULT;
+export const sceneMinGap = (story: Pick<NormalizedStory, "living">): number => story.living?.scene_test?.min_gap ?? SCENE_MIN_GAP_DEFAULT;
 
 export const spacedOutcome = (drawn: SceneOutcome, prior: readonly SceneTestRecord[], minGap: number): SceneOutcome =>
   (drawn === "interrupt" && minGap > 0 && [...prior].sort((left, right) => left.plannedAt - right.plannedAt).slice(-minGap).some((record) => record.applied === "interrupt")
@@ -134,7 +134,7 @@ export function sceneAnswerIssues(signal: SceneSignal | undefined, answer: Scene
 
 export const dropSceneTestsAfter = (records: readonly SceneTestRecord[], boundary: number): SceneTestRecord[] => records.filter((record) => record.plannedAt <= boundary);
 
-export function retainSceneTests(living: Pick<LivingRuntimeState, "sceneTests" | "proposals" | "ops">, story: NormalizedStoryV2, floor: number): SceneTestRecord[] {
+export function retainSceneTests(living: Pick<LivingRuntimeState, "sceneTests" | "proposals" | "ops">, story: NormalizedStory, floor: number): SceneTestRecord[] {
   const records = living.sceneTests ?? [];
   const from = new Map(living.proposals.map((proposal) => [proposal.id, proposal.frontierId]));
   const replannable = (frontierId: string) => isEligibleFrontier(story, frontierId) || living.ops.some((op) => (from.get(op.proposalId) ?? frontierId) === frontierId);

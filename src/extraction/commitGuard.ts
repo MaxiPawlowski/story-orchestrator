@@ -1,4 +1,4 @@
-import { gateLeaves, type NormalizedStoryV2, type PrimitiveValue, type Quality } from "@engine/index";
+import { gateLeaves, type NormalizedStory, type PrimitiveValue, type Quality } from "@engine/index";
 import { log } from "@utils/log";
 import type { EvidenceMessage } from "./evidence";
 import { evidenceCut, type EvidenceCut } from "./evidenceCut";
@@ -17,7 +17,7 @@ import type { ParsedDelta } from "./types";
 // up", a bare "Deal.") needs the window to be about the value. Which line the read quoted does not
 // decide it, and an NPC or narrator line saying the player agreed never stands in for the player's
 // own words. Values with no pattern keep today's behaviour.
-export type CommitStory = Pick<NormalizedStoryV2, "qualityByKey" | "transitions">;
+export type CommitStory = Pick<NormalizedStory, "qualityByKey" | "transitions">;
 
 export interface HeldCommitDelta extends EvidenceCut {
   key: string;

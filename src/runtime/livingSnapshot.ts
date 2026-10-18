@@ -1,4 +1,4 @@
-import type { EngineState, LivingAutonomy, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, LivingAutonomy, NormalizedStory } from "@engine/index";
 import type { LivingRuntimeState, ProposalStatus } from "@generation/living/types";
 
 export interface LivingProposalRow {
@@ -55,7 +55,7 @@ export interface LivingView {
 }
 
 export interface LivingSliceInput {
-  story: NormalizedStoryV2 | null;
+  story: NormalizedStory | null;
   state: EngineState | null;
   living: LivingRuntimeState | undefined;
   authorView: boolean;

@@ -1,5 +1,5 @@
 import { plantedModel } from "../../../test/support/modelCall";
-import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type EngineState, type NormalizedStory } from "@engine/index";
 import { wardenFamilyMode, type StagecraftAcceptMode, type WardenCheckFinding, type WardenNoteOp } from "@stagecraft/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { createStagecraft } from "../extras";
@@ -15,8 +15,8 @@ const host = {
   getPlayerName: () => "Max",
 };
 
-const story: NormalizedStoryV2 = parseStoryV2OrThrow({
-  format: 2, id: "agency-auto", title: "Auto", description: "W2.",
+const story: NormalizedStory = parseStoryOrThrow({
+  id: "agency-auto", title: "Auto", description: "W2.",
   qualities: [{ key: "crossed", type: "bool", source: "extractor", rubric: "Crossed?" }],
   checkpoints: [{ id: "cp1", name: "The bank", objective: "Cross", type: "anchor", start: true }],
   transitions: [], roster: [],

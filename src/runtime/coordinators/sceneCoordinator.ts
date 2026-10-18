@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStory } from "@engine/index";
 import { SCENE_TIMEOUT_MS } from "@judge/policy";
 import {
   buildSceneReadRequest, confirmedSceneFacts, readScene, SCENE_MAX_REACHABLE, isSceneStale, sceneTrackerText, toSceneRecord,
@@ -11,7 +11,7 @@ import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
 
 export interface SceneCoordinatorDeps {
   judge: () => JudgeRuntime | null;
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   getWindow: () => Array<{ speaker: string; text: string }>;
   getPlayerName: () => string;
@@ -201,7 +201,7 @@ export class SceneCoordinator {
 }
 
 // Checkpoints the graph can reach from here, one hop first, then two; never the active one.
-export function reachableFrom(story: NormalizedStoryV2, from: string): Array<{ id: string; name: string; objective: string; hops: number }> {
+export function reachableFrom(story: NormalizedStory, from: string): Array<{ id: string; name: string; objective: string; hops: number }> {
   const next = (id: string) => (story.outgoingByCheckpoint[id] ?? []).map((transition) => transition.to);
   const one = [...new Set(next(from))].filter((id) => id !== from && story.checkpointById[id]);
   const two = [...new Set(one.flatMap(next))].filter((id) => id !== from && !one.includes(id) && story.checkpointById[id]);

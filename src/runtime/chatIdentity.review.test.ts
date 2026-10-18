@@ -68,7 +68,6 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 const story = {
-  format: 2,
   id: "reload-story",
   title: "Reload story",
   description: "Same-chat reload fixture.",

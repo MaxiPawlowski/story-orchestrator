@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type BoundaryLogEntry, type EngineState, type NormalizedStory } from "@engine/index";
 import { composeInlineTimeline, type InlineSources } from "./inlineTimeline";
 import { buildNarrativeStatus, transitionNoteText } from "./narrative";
 import { playedProjection, startProjection } from "./playerProjection";
@@ -8,8 +8,8 @@ import { playerTurnsInCheckpoint, shownPlayerText } from "./stretchTurns";
 const OBJECTIVE = "Persuade the harbour master to open the gate.";
 const PUBLIC = "Gulls wheel over a long queue at the customs shed.";
 
-const story = (opening: boolean): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2, id: "opening-text", title: "Opening text", description: "", roster: [],
+const story = (opening: boolean): NormalizedStory => parseStoryOrThrow({
+  id: "opening-text", title: "Opening text", description: "", roster: [],
   qualities: [{ key: "arrived", type: "bool", source: "extractor", rubric: "Has the party reached the harbour?" }, { key: "gate_open", type: "bool", source: "extractor", rubric: "Is the gate open?" }],
   checkpoints: [
     { id: "dock", name: "The dock", objective: "Land.", type: "anchor", start: true },
@@ -67,7 +67,7 @@ describe("v2.8 19 correction: an anchor's authored player_text is hidden while i
     expect(projection(2).current).toEqual({ name: "The Harbour", text: null });
     expect(projection(3).current).toEqual({ name: "The Harbour", text: PUBLIC });
     expect(JSON.stringify(projection(1))).not.toContain(OBJECTIVE);
-    const started = parseStoryV2OrThrow({ ...JSON.parse(JSON.stringify({ format: 2, id: "s", title: "S", description: "", roster: [], qualities: [], transitions: [] })),
+    const started = parseStoryOrThrow({ ...JSON.parse(JSON.stringify({ id: "s", title: "S", description: "", roster: [], qualities: [], transitions: [] })),
       checkpoints: [{ id: "harbour", name: "x", player_name: "The Harbour", player_text: PUBLIC, objective: OBJECTIVE, type: "anchor", start: true, stretch: { mode: "open", pace: "brief" } }] });
     expect(startProjection(started, "Max", []).start).toEqual({ name: "The Harbour", text: null });
     expect(startProjection(PLAIN, "Max", []).start).toEqual({ name: "Current scene", text: null });
@@ -76,11 +76,11 @@ describe("v2.8 19 correction: an anchor's authored player_text is hidden while i
   it("the entry note and the inline progress chip name the place but hold the opening's public text back; a plain anchor keeps it", () => {
     expect(transitionNoteText(harbour)).toBe("◈ The Harbour");
     expect(transitionNoteText(PLAIN.checkpointById.harbour)).toBe(`◈ The Harbour — ${PUBLIC}`);
-    const entry = (loaded: NormalizedStoryV2): BoundaryLogEntry => ({
+    const entry = (loaded: NormalizedStory): BoundaryLogEntry => ({
       at: 0, boundary: 1, before: stateAt([]), after: stateAt(chatOf(1)), fired: loaded.outgoingByCheckpoint.dock[0], source: "gate",
       context: { lastMessageId: 2, chatLength: 3 }, queue: { applied: [], discarded: [] }, evaluated: null,
     }) as unknown as BoundaryLogEntry;
-    const chip = (loaded: NormalizedStoryV2) => {
+    const chip = (loaded: NormalizedStory) => {
       const view = composeInlineTimeline({
         story: loaded, settings: { ...defaultInlineSettings(), level: 1 }, authorView: false, chatLength: 3, boundaryLog: [entry(loaded)], audits: [], pending: [], reconciliation: [],
         memory: { entries: [], arcs: [], derived: [], conflicts: [], verifyDrops: [] }, loreFired: [], talkDecisions: [], judgeCalls: [], proposals: [], curatorPass: null, effects: [],

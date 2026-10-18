@@ -17,7 +17,7 @@ import {
   runContradictionReleaseCalibration, scoreReleasePhaseA, type ContradictionReleaseCase, type ReleasePhaseAVerdict,
 } from "@judge/contradictionCalibration";
 import { runWardenLoreCalibration, runVoiceCalibration, type VoiceCase, type WardenLoreCase } from "@judge/calibration";
-import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import { loadGameLayer } from "@engine/validate/gameLayer";
 import type { JudgeRuntime } from "./judge";
 import { voiceProfile } from "./continuity";
@@ -100,7 +100,7 @@ const CALIBRATIONS: Record<string, (ask: Ask, cases: unknown[]) => Promise<Judge
   backgrounds: (ask, cases) => runBackgroundCalibration(ask, cases as BackgroundCase[], (cases as Array<{ installed?: string[] }>)[0]?.installed ?? []),
 };
 
-export const voiceCases = (story: NormalizedStoryV2, rows: VoiceRow[]): VoiceCase[] => rows.map((row) => {
+export const voiceCases = (story: NormalizedStory, rows: VoiceRow[]): VoiceCase[] => rows.map((row) => {
   const wanted = row.member.trim().toLowerCase();
   const member = story.roster.find((entry) => entry.id.toLowerCase() === wanted || rosterMemberName(entry).trim().toLowerCase() === wanted);
   const voice = member ? voiceProfile(story, null, rosterMemberName(member)) : null;
@@ -120,7 +120,7 @@ export const createJudgeHarness =(runtime: JudgeRuntime): JudgeHarness => ({
   calibrateLoreRelevance: (cases, model, provider, split) => runLoreRelevanceCalibration(askVia(runtime, model, provider, split), cases as never),
   calibrateVoice: async (story, rows, model, provider) => {
     await loadGameLayer();
-    return runVoiceCalibration(askVia(runtime, model, provider, undefined), voiceCases(parseStoryV2OrThrow(story), rows));
+    return runVoiceCalibration(askVia(runtime, model, provider, undefined), voiceCases(parseStoryOrThrow(story), rows));
   },
   rescore: (use, rows, model, provider) => ((WARDEN_RESCORE_USES as readonly string[]).includes(use)
     ? runWardenRescore((request) => runtime.probe(request, model, provider), use as WardenRescoreUse, rows)

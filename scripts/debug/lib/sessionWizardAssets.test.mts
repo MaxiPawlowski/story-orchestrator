@@ -19,7 +19,7 @@ import { digestSession } from './sessionDigest.mts';
 const T52 = resolve(REPO_ROOT, 'test', 'fixtures', 'sessions', 'T5-2-1');
 const json = (name: string) => JSON.parse(readFileSync(resolve(T52, name), 'utf-8'));
 const clone = <T,>(value: T): T => JSON.parse(JSON.stringify(value));
-const WIZARD_PATHS = ['inventory.characterCount', 'inventory.lorebookCount', 'inventory.lorebooksSelected', 'inventory.v2Stories', 'inventory.wizardSessions'];
+const WIZARD_PATHS = ['inventory.characterCount', 'inventory.lorebookCount', 'inventory.lorebooksSelected', 'inventory.stories', 'inventory.wizardSessions'];
 
 function t52() {
   const drafts = json('wizard-drafts.json');
@@ -57,8 +57,8 @@ test('T5-2 wizard assets: a removal, an unledgered character or book, and a fore
   const { drafts, start, end, startedAt } = t52();
   const { allow } = wizardAllowance(start, drafts, startedAt);
   const removed = clone(end);
-  removed.inventory.v2Stories = removed.inventory.v2Stories.filter((item: string) => !item.startsWith('adolion-war@'));
-  assert.deepEqual(blockingIn(start, removed, allow), ['inventory.v2Stories']);
+  removed.inventory.stories = removed.inventory.stories.filter((item: string) => !item.startsWith('adolion-war@'));
+  assert.deepEqual(blockingIn(start, removed, allow), ['inventory.stories']);
   const extraCard = clone(end);
   extraCard.inventory.characterCount += 1;
   assert.deepEqual(blockingIn(start, extraCard, allow), ['inventory.characterCount']);
@@ -67,8 +67,8 @@ test('T5-2 wizard assets: a removal, an unledgered character or book, and a fore
   extraBook.inventory.lorebooksSelected = [...extraBook.inventory.lorebooksSelected, 'Someone Else'].sort();
   assert.deepEqual(blockingIn(start, extraBook, allow), ['inventory.lorebookCount', 'inventory.lorebooksSelected']);
   const foreignStory = clone(end);
-  foreignStory.inventory.v2Stories = [...foreignStory.inventory.v2Stories, 'imported-by-hand@1'].sort();
-  assert.deepEqual(blockingIn(start, foreignStory, allow), ['inventory.v2Stories']);
+  foreignStory.inventory.stories = [...foreignStory.inventory.stories, 'imported-by-hand@1'].sort();
+  assert.deepEqual(blockingIn(start, foreignStory, allow), ['inventory.stories']);
 });
 
 test('T5-2 wizard assets: sessions that existed at start, or were last written before it, ledger nothing', () => {
@@ -203,7 +203,7 @@ function continued() {
   const start = {
     story: { id: STORY },
     inventory: {
-      v2Stories: ['adolion-war@10', `${STORY}@1`],
+      stories: ['adolion-war@10', `${STORY}@1`],
       wizardSessions: [STORY],
       wizardApplied: ORIGINAL_CAST.map((name) => `${STORY}/${name}`).sort(),
       lorebooksSelected: ['Adolion World', 'The Hoard of the Unflown — Lore'],
@@ -223,7 +223,7 @@ function continued() {
   };
   const drafts = { sessions: [session], library: [{ id: 'adolion-war', version: 10 }, { id: STORY, version: 2 }] };
   const end = clone(start);
-  end.inventory.v2Stories = ['adolion-war@10', `${STORY}@2`];
+  end.inventory.stories = ['adolion-war@10', `${STORY}@2`];
   end.inventory.wizardApplied = [...start.inventory.wizardApplied, `${STORY}/Ilse Vane`].sort();
   end.inventory.characterCount = 173;
   end.inventory.groups = [...start.inventory.groups, '1790999999999@Hoard Crew 2'].sort();
@@ -248,7 +248,7 @@ test('T5-4 Fix with wizard: a session that existed at start allows exactly what 
   assert.deepEqual(wizard.ledger.characters, ['Ilse Vane']);
   assert.deepEqual(wizard.ledger.groups, [{ id: '1790999999999', name: 'Hoard Crew 2', source: 'agent' }]);
   assert.deepEqual(wizard.ledger.applied, [`${STORY}/Ilse Vane`]);
-  assert.deepEqual(declared.allow, [`inventory.v2Stories:~${STORY}`, 'inventory.lorebooksSelected:-The Hoard of the Unflown — Lore']);
+  assert.deepEqual(declared.allow, [`inventory.stories:~${STORY}`, 'inventory.lorebooksSelected:-The Hoard of the Unflown — Lore']);
   assert.ok(allow.includes('inventory.characterCount=+1'));
   assert.ok(allow.includes('inventory.groups:+1790999999999'));
   assert.deepEqual(blocking(start, end, allow), []);
@@ -259,7 +259,7 @@ test('T5-4 Fix with wizard: a session that existed at start allows exactly what 
 
 test('T5-4 Fix with wizard: unledgered growth, a ledger removal, another book, another group and a story removal still block', () => {
   const { start, end, drafts } = continued();
-  const { allow } = stopAllow(start, end, drafts, { headerAllow: ['inventory.v2Stories:~{story}', 'inventory.lorebooksSelected:-{story-books}'] });
+  const { allow } = stopAllow(start, end, drafts, { headerAllow: ['inventory.stories:~{story}', 'inventory.lorebooksSelected:-{story-books}'] });
   const extraCard = clone(end);
   extraCard.inventory.characterCount = 174;
   assert.deepEqual(blocking(start, extraCard, allow), ['inventory.characterCount']);
@@ -276,11 +276,11 @@ test('T5-4 Fix with wizard: unledgered growth, a ledger removal, another book, a
   goneGroup.inventory.groups = goneGroup.inventory.groups.filter((item: string) => !item.startsWith('17897@'));
   assert.deepEqual(blocking(start, goneGroup, allow), ['inventory.groups']);
   const goneStory = clone(end);
-  goneStory.inventory.v2Stories = ['adolion-war@10'];
-  assert.deepEqual(blocking(start, goneStory, allow), ['inventory.v2Stories']);
+  goneStory.inventory.stories = ['adolion-war@10'];
+  assert.deepEqual(blocking(start, goneStory, allow), ['inventory.stories']);
   const withOther = clone(end);
-  withOther.inventory.v2Stories = [`${STORY}@2`];
-  assert.deepEqual(blocking(start, withOther, allow), ['inventory.v2Stories'], 'a story change does not excuse dropping another story');
+  withOther.inventory.stories = [`${STORY}@2`];
+  assert.deepEqual(blocking(start, withOther, allow), ['inventory.stories'], 'a story change does not excuse dropping another story');
 });
 
 test('T5-4 Fix with wizard: an existing session with no start ledger (an older header) allows nothing', () => {
@@ -297,26 +297,26 @@ test('T5-4 Fix with wizard: an existing session with no start ledger (an older h
 
 test('T5-3 Studio edit: {story} names the continued chat\'s story, so only its library copy changing is allowed', async () => {
   const card = findCard(await loadCards(), 'T5-3');
-  assert.deepEqual(card.headerAllow, ['inventory.v2Stories:~{story}']);
+  assert.deepEqual(card.headerAllow, ['inventory.stories:~{story}']);
   assert.equal(card.wizardAssets, undefined);
-  const start = { story: { id: STORY }, inventory: { v2Stories: ['adolion-war@10', `${STORY}@1`] } };
-  const end = { story: { id: STORY }, inventory: { v2Stories: ['adolion-war@10', `${STORY}@4`] } };
+  const start = { story: { id: STORY }, inventory: { stories: ['adolion-war@10', `${STORY}@1`] } };
+  const end = { story: { id: STORY }, inventory: { stories: ['adolion-war@10', `${STORY}@4`] } };
   const chats = [{ chatId: 'chat-a', groupId: '1790929215846', storyId: STORY, continued: true }];
   const declared = resolveHeaderAllow(card.headerAllow!, storyContext(start, chats, null));
-  assert.deepEqual(declared, { allow: [`inventory.v2Stories:~${STORY}`], unresolved: [] });
+  assert.deepEqual(declared, { allow: [`inventory.stories:~${STORY}`], unresolved: [] });
   assert.deepEqual(blocking(start, end, declared.allow), []);
-  assert.deepEqual(blocking(start, { ...end, inventory: { v2Stories: ['adolion-war@10'] } }, declared.allow), ['inventory.v2Stories']);
-  assert.deepEqual(blocking(start, { ...end, inventory: { v2Stories: ['adolion-war@10', `${STORY}@4`, 'other@1'] } }, declared.allow), ['inventory.v2Stories']);
-  assert.deepEqual(resolveHeaderAllow(card.headerAllow!, storyContext(null, [], null)), { allow: [], unresolved: ['inventory.v2Stories:~{story}'] });
+  assert.deepEqual(blocking(start, { ...end, inventory: { stories: ['adolion-war@10'] } }, declared.allow), ['inventory.stories']);
+  assert.deepEqual(blocking(start, { ...end, inventory: { stories: ['adolion-war@10', `${STORY}@4`, 'other@1'] } }, declared.allow), ['inventory.stories']);
+  assert.deepEqual(resolveHeaderAllow(card.headerAllow!, storyContext(null, [], null)), { allow: [], unresolved: ['inventory.stories:~{story}'] });
 });
 
 test('T5-1 staged arm: a group and lorebook entries in the ledger are neither characters nor unaccounted, and an adopted chat names its new group', () => {
-  const start = { inventory: { v2Stories: ['adolion-war@10'], wizardSessions: [], wizardApplied: [], lorebooksSelected: [], lorebookCount: 24, characterCount: 163, groups: ['17897@Adolion - War'], groupChats: [] } };
+  const start = { inventory: { stories: ['adolion-war@10'], wizardSessions: [], wizardApplied: [], lorebooksSelected: [], lorebookCount: 24, characterCount: 163, groups: ['17897@Adolion - War'], groupChats: [] } };
   const session = { key: 'the-ink-that-moves', updatedAt: LATER, applied: ['Ink Lore', 'Ink Lore/The Map', 'Ink Lore/House of Ash', 'Mira', 'Tomas', 'The Ink Crew'], createdLorebooks: ['Ink Lore'] };
   const drafts = { sessions: [session], library: [{ id: 'the-ink-that-moves', version: 1 }] };
   const end = {
     inventory: {
-      v2Stories: ['adolion-war@10', 'the-ink-that-moves@1'], wizardSessions: ['the-ink-that-moves'],
+      stories: ['adolion-war@10', 'the-ink-that-moves@1'], wizardSessions: ['the-ink-that-moves'],
       wizardApplied: session.applied.map((name) => `the-ink-that-moves/${name}`).sort(),
       lorebooksSelected: ['Ink Lore'], lorebookCount: 25, characterCount: 165,
       groups: ['17897@Adolion - War', '1800@The Ink Crew'], groupChats: ['1800/ink-chat'],
@@ -342,15 +342,15 @@ test('T5-1 staged arm: a group and lorebook entries in the ledger are neither ch
 });
 
 test('run header: :~ allows only one id@old out and one id@new in; allow files carry comma items; charters check the tokens', () => {
-  const before = { inventory: { v2Stories: ['a@h1', 'b@h3'] } };
-  const at = (v2Stories: string[]) => diffHeaders(before, { inventory: { v2Stories } }, ['inventory.v2Stories:~a'])[0]?.allowed ?? true;
+  const before = { inventory: { stories: ['a@h1', 'b@h3'] } };
+  const at = (stories: string[]) => diffHeaders(before, { inventory: { stories } }, ['inventory.stories:~a'])[0]?.allowed ?? true;
   assert.equal(at(['a@h2', 'b@h3']), true);
   assert.equal(at(['a@h1', 'b@h3']), true);
   assert.equal(at(['b@h3']), false);
   assert.equal(at(['a@h1', 'a@h2', 'b@h3']), false);
   assert.equal(at(['a@h2']), false);
   assert.equal(at(['a@h2', 'b@h3', 'c@h1']), false);
-  assert.deepEqual(parseAllow(['inventory.v2Stories:~a']).allow[0].sign, 'changed');
+  assert.deepEqual(parseAllow(['inventory.stories:~a']).allow[0].sign, 'changed');
   assert.deepEqual(allowFileEntries('["inventory.wizardApplied:+k/Vaelrith, the Unflown", ""]'), ['inventory.wizardApplied:+k/Vaelrith, the Unflown']);
   assert.throws(() => allowFileEntries('{"a":1}'), /JSON array of strings/);
   const allow = ['inventory.characterCount=+1', 'inventory.wizardApplied:+k/Vaelrith, the Unflown'];
@@ -360,10 +360,10 @@ test('run header: :~ allows only one id@old out and one id@new in; allow files c
   assert.deepEqual(args.slice(-2), ['--allow-file', 'allow.json']);
   assert.deepEqual(fileAllowances(allow), ['inventory.wizardApplied:+k/Vaelrith, the Unflown']);
   assert.ok(!headerDiffArgs('s', 'e', [], ['inventory.characterCount=+1'], 'allow.json').includes('--allow-file'));
-  assert.deepEqual(headerAllowProblems('c', ['inventory.v2Stories:~{story}', 'inventory.lorebooksSelected:-{story-books}', 'inventory.v2Stories:~adolion-war']), []);
-  assert.match(headerAllowProblems('c', ['inventory.v2Stories:~{chat}'])[0], /unknown token/);
+  assert.deepEqual(headerAllowProblems('c', ['inventory.stories:~{story}', 'inventory.lorebooksSelected:-{story-books}', 'inventory.stories:~adolion-war']), []);
+  assert.match(headerAllowProblems('c', ['inventory.stories:~{chat}'])[0], /unknown token/);
   assert.match(headerAllowProblems('c', ['inventory.lorebooksSelected:+{story-books}'])[0], /only inventory.lorebooksSelected:-/);
-  assert.match(headerAllowProblems('c', ['inventory.lorebooksSelected:~x'])[0], /only for inventory.v2Stories/);
+  assert.match(headerAllowProblems('c', ['inventory.lorebooksSelected:~x'])[0], /only for inventory.stories/);
   assert.match(headerAllowProblems('c', ['inventory.groups'])[0], /would excuse every change to a list/);
 });
 
@@ -373,8 +373,8 @@ test('T5 cards: what stop is told for each card', async () => {
   assert.deepEqual(rows, [
     ['T5-1', true, []],
     ['T5-2', true, []],
-    ['T5-3', false, ['inventory.v2Stories:~{story}']],
-    ['T5-4', true, ['inventory.v2Stories:~{story}', 'inventory.lorebooksSelected:-{story-books}']],
+    ['T5-3', false, ['inventory.stories:~{story}']],
+    ['T5-4', true, ['inventory.stories:~{story}', 'inventory.lorebooksSelected:-{story-books}']],
     ['T5-5', false, []],
   ]);
 });
@@ -404,7 +404,7 @@ test('T5-2-1 evidence through the whole stop allowance: nothing blocks, and with
 
 test('T6-3-3: a group the agent created is never counted as a character, so 4 cards allow characterCount +4, not +5', () => {
   const STORY_ID = 'the-red-ink';
-  const start = { inventory: { v2Stories: ['adolion-war@10'], wizardSessions: [], wizardApplied: [], lorebooksSelected: [], lorebookCount: 24, characterCount: 163, groups: ['17897@Adolion - War'], groupChats: [] } };
+  const start = { inventory: { stories: ['adolion-war@10'], wizardSessions: [], wizardApplied: [], lorebooksSelected: [], lorebookCount: 24, characterCount: 163, groups: ['17897@Adolion - War'], groupChats: [] } };
   const cast = ['House Agent', 'House Scholar-Envoy', 'House Enforcer', 'Master Cartographer'];
   const session = {
     key: STORY_ID, updatedAt: LATER,
@@ -415,7 +415,7 @@ test('T6-3-3: a group the agent created is never counted as a character, so 4 ca
   const drafts = { sessions: [session], library: [{ id: STORY_ID, version: 1 }] };
   const end = {
     inventory: {
-      v2Stories: ['adolion-war@10', `${STORY_ID}@1`], wizardSessions: [STORY_ID],
+      stories: ['adolion-war@10', `${STORY_ID}@1`], wizardSessions: [STORY_ID],
       wizardApplied: session.applied.map((name) => `${STORY_ID}/${name}`).sort(),
       lorebooksSelected: ['Red Ink — Lore'], lorebookCount: 25, characterCount: 167,
       groups: ['17897@Adolion - War', '1790974874340@Red Ink — Cast'], groupChats: ['1790974874340/red-chat'],

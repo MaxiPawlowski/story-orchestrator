@@ -1,15 +1,15 @@
 import { StoryEngine } from "./engine";
 import { diffStories, pruneEngineState } from "./storyDiff";
-import { parseStoryV2OrThrow } from "./validate";
-import { codexFactKey, type NormalizedStoryV2 } from "./schema";
+import { parseStoryOrThrow } from "./validate";
+import { codexFactKey, type NormalizedStory } from "./schema";
 import { labRaw, labStory } from "../../test/support/codexLab";
 
 type RawEntry = { id: string; facts: Array<Record<string, unknown>> } & Record<string, unknown>;
 
-const edited = (change: (people: RawEntry[]) => RawEntry[]): NormalizedStoryV2 => {
+const edited = (change: (people: RawEntry[]) => RawEntry[]): NormalizedStory => {
   const raw = labRaw();
   const codex = raw.codex as { people: RawEntry[]; places: RawEntry[] };
-  return parseStoryV2OrThrow({ ...raw, codex: { ...codex, people: change(JSON.parse(JSON.stringify(codex.people)) as RawEntry[]) } });
+  return parseStoryOrThrow({ ...raw, codex: { ...codex, people: change(JSON.parse(JSON.stringify(codex.people)) as RawEntry[]) } });
 };
 
 const earned = () => {

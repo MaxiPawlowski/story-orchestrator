@@ -1,4 +1,4 @@
-import { gatedWorldInfo, type NormalizedStoryV2 } from "@engine/index";
+import { gatedWorldInfo, type NormalizedStory } from "@engine/index";
 import type { HostScannableEntry } from "@services/STAPI";
 import { loreStoryKey, type CompleteLoreSelection } from "./loreSelect";
 import { bookKey, entryComment } from "./worldInfoMatch";
@@ -8,7 +8,7 @@ export type LoreExclusiveRefusal = "use-off" | "not-scan" | "story-off" | "not-l
 export interface LoreExclusiveSources {
   useActive: () => boolean;
   scanActive: () => boolean;
-  story: () => NormalizedStoryV2 | null;
+  story: () => NormalizedStory | null;
   chatId: () => string | null;
   messageId: () => number;
   loud: () => boolean;

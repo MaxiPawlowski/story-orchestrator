@@ -1,4 +1,4 @@
-import { type CheckpointEffects, type NormalizedStoryV2, type NpcReplyEffect } from "@engine/index";
+import { type CheckpointEffects, type NormalizedStory, type NpcReplyEffect } from "@engine/index";
 import { applyCharacterAN, clearCharacterAN, executeSlashCommands, groupMemberPosition, lorebookExists, readSamplerPreset, setWIEntriesState } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
 import type { SamplerApi } from "@utils/samplerKeys";
@@ -35,7 +35,7 @@ export const applyAuthorNote = async (value: unknown, rendered: string): Promise
 // The authored preset effect, resolved at activation to the sampler stack it overlays. A string names
 // an installed preset of the connection's own API, matched exactly (never `/preset`'s fuzzy match); an
 // object may carry the stack inline.
-export function resolvePreset(value: unknown, story: NormalizedStoryV2, api: SamplerApi | null): { name: string; settings: Record<string, unknown> | null } {
+export function resolvePreset(value: unknown, story: NormalizedStory, api: SamplerApi | null): { name: string; settings: Record<string, unknown> | null } {
   if (typeof value === "string") return { name: value, settings: api ? readSamplerPreset(value, api) : null };
   if (!isRecord(value)) return { name: "", settings: null };
   const name = typeof value.name === "string" ? value.name : `Story:${story.title}`;
@@ -57,7 +57,7 @@ export const applyWorldInfo = async (plans: WorldInfoBookPlan[], run?: RunGuard)
 // C: leaving scan mode applies the open chat's state through the file path at once. It enables
 // from rest-off. `path` is null when the story's requirements do not hold, which leaves its own entries
 // alone, as the file path does.
-export const replayWorldInfoFiles = async (library: unknown[], story: NormalizedStoryV2 | null, path: string[] | null, run?: RunGuard): Promise<string[]> => {
+export const replayWorldInfoFiles = async (library: unknown[], story: NormalizedStory | null, path: string[] | null, run?: RunGuard): Promise<string[]> => {
   const released = await applyWorldInfo(releasePlan(story ? [...library, story] : library, story), run);
   if (!story || !path) return released;
   return [...released, ...(await applyWorldInfo(worldInfoPlan(story, path), run))];

@@ -1,5 +1,5 @@
 import { narratesPlayer } from "@generation/living/guard";
-import { parseStoryV2 } from "@engine/index";
+import { parseStory } from "@engine/index";
 import { livingInputs, type LivingInputSources } from "./livingInputs";
 
 const sources = (hooks: string[], hidden: string[] = []): LivingInputSources => ({
@@ -42,20 +42,20 @@ describe("plan 47 director guard: keeping, breaking or releasing is the player's
 
 describe("plan 47 authored promises: a promise quest needs a giver", () => {
   const base = {
-    format: 2, id: "q", title: "Q", description: "d",
+    id: "q", title: "Q", description: "d",
     qualities: [{ key: "found", type: "bool", source: "extractor", rubric: "Found?" }],
     checkpoints: [{ id: "cp1", name: "Start", objective: "o", type: "anchor", start: true }], transitions: [], roster: [{ id: "mara", name: "Mara" }],
   };
   const quest = (patch: object) => ({ id: "brother", title: "Bring her brother home", kind: "side", done_when: { q: "found", op: "==", v: true }, ...patch });
 
   it("accepts promise: true with a giver and keeps it", () => {
-    const parsed = parseStoryV2({ ...base, quests: [quest({ giver: "mara", promise: true })] });
+    const parsed = parseStory({ ...base, quests: [quest({ giver: "mara", promise: true })] });
     expect(Array.isArray(parsed)).toBe(false);
     expect(!Array.isArray(parsed) && parsed.quests?.[0]?.promise).toBe(true);
   });
 
   it("refuses a promise quest without a giver, and a non-boolean promise", () => {
-    expect(parseStoryV2({ ...base, quests: [quest({ promise: true })] })).toEqual(expect.arrayContaining([expect.objectContaining({ path: "quests.0.promise" })]));
-    expect(parseStoryV2({ ...base, quests: [quest({ giver: "mara", promise: "yes" })] })).toEqual(expect.arrayContaining([expect.objectContaining({ path: "quests.0.promise" })]));
+    expect(parseStory({ ...base, quests: [quest({ promise: true })] })).toEqual(expect.arrayContaining([expect.objectContaining({ path: "quests.0.promise" })]));
+    expect(parseStory({ ...base, quests: [quest({ giver: "mara", promise: "yes" })] })).toEqual(expect.arrayContaining([expect.objectContaining({ path: "quests.0.promise" })]));
   });
 });

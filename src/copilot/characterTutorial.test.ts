@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { emptyEnvironment, validateProvisioningOp } from "@wizard/index";
 import {
   CARD_TOKEN_BUDGET, emptyTutorialCard, exampleBlocksWithoutChar, missingTutorialTopics, parseTutorialDraft, renderTutorialDraftPrompt, reviewTutorialCard, savedName,
@@ -11,8 +11,8 @@ import { checkToolCall } from "./agent/tools";
 
 const AT = "2026-10-10T00:00:00.000Z";
 
-const story = (): StoryV2 => ({
-  format: 2, title: "Harbour", description: "A smuggler's port.", qualities: [],
+const story = (): Story => ({
+  title: "Harbour", description: "A smuggler's port.", qualities: [],
   checkpoints: [{ id: "start", name: "Start", objective: "Arrive.", type: "anchor", start: true }], transitions: [], roster: [{ id: "mara", name: "Mara Venn" }],
 });
 

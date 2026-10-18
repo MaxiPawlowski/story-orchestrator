@@ -153,7 +153,6 @@ export const QO_CASES: readonly QoCase[] = [
 
 export function labStory() {
   return {
-    format: 2,
     id: QO_STORY_ID,
     title: 'SO-QO Lab',
     description: 'v2.8 62 stage 1 lab: a synthetic harbour town where each probe case hands one committed fact to its holder through a member-filtered lore entry (or a world entry for a closed container).',
@@ -275,7 +274,6 @@ MEMORY type=fact importance=2 expiration=permanent text="The party is at the ${q
 
 export function abaStory() {
   return {
-    format: 2,
     id: 'so-qo-aba',
     title: 'SO-QO Swipe ABA',
     description: 'v2.8 62 Q3: one extractor quality that each swipe reads differently.',

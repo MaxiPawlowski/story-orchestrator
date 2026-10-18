@@ -1,5 +1,5 @@
 import { readWith } from "../../test/support/modelCall";
-import { StoryEngine, parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import { labelMemoryBlock, MEMORY_BLOCK_LABELS } from "@memory/index";
 import { parseDirectorResponse, renderDirectorPrompt } from "@talk/index";
 import { READ_TASK_HEADER, renderSharedReadPrompt } from "./contract";
@@ -14,8 +14,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: [], extensionSettings: {} }),
 }));
 
-const story = (): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2,
+const story = (): NormalizedStory => parseStoryOrThrow({
   id: "audit",
   title: "Audit",
   description: "v2.6 plan 15 prompt audit",

@@ -1,18 +1,18 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { agendaStepKey, parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { agendaStepKey, parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import "@engine/life/derive";
 import { ScanGateProvider } from "./worldInfoScan";
 import { ScanGuard } from "./worldInfoScanGuard";
 
-const STORY = parseStoryV2OrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
+const STORY = parseStoryOrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
 const STEP = agendaStepKey("arin", "debt");
 
 const world = { values: { [STEP]: 1 } as Record<string, unknown> };
 
 const sources = (withValues: boolean) => ({
   chatId: () => "c1", ownedChat: () => "c1", openChat: () => "c1", storyChat: () => "c1",
-  story: (): NormalizedStoryV2 | null => STORY, path: () => ["start"], ready: () => true,
+  story: (): NormalizedStory | null => STORY, path: () => ["start"], ready: () => true,
   library: () => [STORY], libraryRevision: () => "r1", ledger: () => ({}),
   ...(withValues ? { values: () => world.values } : {}),
 });

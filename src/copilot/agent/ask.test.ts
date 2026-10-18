@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import type { PlayedProjection } from "@runtime/playerProjection";
 import {
   AUTHOR_ASK_TOOLS, ASK_COPY, PLAYER_ASK_TOOLS, PLAYER_REFUSAL, askToolSpec, checkAskCall, parseAskReply, renderAskPrompt, runAsk, runAskTool,
@@ -7,8 +7,7 @@ import {
 import { EDIT_TOOLS, PROVISION_TOOLS, READ_TOOLS } from "./tools";
 import { emptyLookup } from "./types";
 
-const draft = (): StoryV2 => ({
-  format: 2,
+const draft = (): Story => ({
   title: "The Ferry",
   description: "A crossing.",
   qualities: [{ key: "ferry_paid", type: "bool", source: "extractor", rubric: "Paid?" }],
@@ -18,7 +17,7 @@ const draft = (): StoryV2 => ({
   ],
   transitions: [{ from: "dock", to: "vault", priority: 0, gate: { q: "ferry_paid", op: "==", v: true } }],
   roster: [],
-} as StoryV2);
+} as Story);
 
 const projection: PlayedProjection = {
   title: "The Ferry", intro: "Cross before dawn.", player: "Max", visited: ["The Dock"], current: { name: "The Dock", text: "Fog." },
@@ -86,7 +85,7 @@ describe("v2.8 09 B: Ask tools", () => {
   });
 
   it("recommendations explain a diagnostic in plain words and name its topic", () => {
-    const broken = { ...draft(), transitions: [{ from: "dock", to: "vault", priority: 0, gate: { q: "missing_quality", op: "==", v: true } }] } as StoryV2;
+    const broken = { ...draft(), transitions: [{ from: "dock", to: "vault", priority: 0, gate: { q: "missing_quality", op: "==", v: true } }] } as Story;
     expect(runAskTool({ persona: "author", draft: broken, lookup: emptyLookup(), liveState: null }, { tool: "readRecommendations", args: {} }))
       .toContain("This gate can never open as written. (at transitions");
   });

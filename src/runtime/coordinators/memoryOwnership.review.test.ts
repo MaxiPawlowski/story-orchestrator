@@ -12,7 +12,7 @@ import { sendModel } from "../../../test/support/modelCall";
 // rest of the session.
 
 import { MemoryCoordinator } from "./memoryCoordinator";
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 import { provenance } from "@memory/index";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
 import { control } from "../../../test/findings/ledger";
@@ -416,8 +416,8 @@ control("a dedup keeps its derived record with the rows it dropped", async () =>
 });
 
 describe("V3: a supersession bridge enqueues only into the story it read for", () => {
-  const bridgeStory = () => parseStoryV2OrThrow({
-    format: 2, id: "bridge", title: "Bridge", description: "",
+  const bridgeStory = () => parseStoryOrThrow({
+    id: "bridge", title: "Bridge", description: "",
     qualities: [{ key: "crossed", type: "bool", source: "extractor", rubric: "Crossed?" }],
     checkpoints: [{ id: "bank", name: "Bank", objective: "Cross", type: "anchor", start: true }, { id: "island", name: "Island", objective: "Rest", type: "anchor" }],
     transitions: [{ id: "cross", from: "bank", to: "island", priority: 0, gate: { q: "crossed", op: "==", v: true } }],

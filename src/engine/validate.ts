@@ -1,5 +1,5 @@
 import {
-  STORY_ID_PATTERN, type Checkpoint, type NormalizedStoryV2, type NormalizedTransition, type Quality, type StoryV2,
+  STORY_ID_PATTERN, type Checkpoint, type NormalizedStory, type NormalizedTransition, type Quality, type Story,
   type Transition, type ValidationError,
 } from "./schema";
 import { isRecord } from "@utils/guards";
@@ -23,7 +23,6 @@ export { readChapters };
 export const INTERMEDIATE_UNREACHABLE = "intermediate checkpoint has no reachable anchor beyond it";
 
 const readHeader = (json: Record<string, unknown>, errors: ValidationError[]) => {
-  if (json.format !== 2) addError(errors, "format", "story format must be 2");
   const storyId = json.id === undefined ? undefined : asString(json.id)?.trim().toLowerCase();
   if (json.id !== undefined && (!storyId || !STORY_ID_PATTERN.test(storyId))) {
     addError(errors, "id", "id must be a slug: lowercase letters, digits, '-' or '_', starting alphanumeric, max 64 chars");
@@ -98,14 +97,14 @@ const orderOutgoing = (checkpoints: Checkpoint[], normalizedTransitions: Normali
 const readList = <T,>(value: unknown, prefix: string, read: (entry: unknown, path: string, errors: ValidationError[]) => T | null, errors: ValidationError[]) =>
   (value as unknown[]).map((entry, index) => read(entry, `${prefix}.${index}`, errors)).filter((entry): entry is T => entry !== null);
 
-type GameFields = Pick<NormalizedStoryV2, "quests" | "milestones" | "widgets" | "codex" | "life">;
+type GameFields = Pick<NormalizedStory, "quests" | "milestones" | "widgets" | "codex" | "life">;
 
-const gameFields = ({ quests, milestones, widgets, codex, life }: GameFields): Partial<NormalizedStoryV2> => ({
+const gameFields = ({ quests, milestones, widgets, codex, life }: GameFields): Partial<NormalizedStory> => ({
   ...(quests ? { quests } : {}), ...(milestones ? { milestones } : {}), ...(widgets ? { widgets } : {}), ...(codex ? { codex } : {}),
   ...(life?.clock ? { clock: life.clock } : {}), ...(life ? { life } : {}),
 });
 
-export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError[] => {
+export const parseStory = (json: unknown): NormalizedStory | ValidationError[] => {
   const errors: ValidationError[] = [];
   if (!isRecord(json)) return [{ path: "$", message: "story must be an object" }];
   const { storyId } = readHeader(json, errors);
@@ -130,7 +129,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const qualities = layer ? layer.factions.addFactionQualities(lived, factions, (json.roster as unknown[]).filter(isRecord), errors) : lived;
   const options = readStoryOptions(json, errors);
   const features = readFeaturePolicies(json.features, (path, message) => addError(errors, path, message));
-  const roster = readRoster(json.roster as StoryV2["roster"], errors);
+  const roster = readRoster(json.roster as Story["roster"], errors);
   resolveGuidanceMembers(checkpoints, roster);
   const arcBridges = readArcBridges(json.arc_bridges, errors);
   const chapters = readChapters(json.chapters, errors);
@@ -169,7 +168,6 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   if (errors.length) return errors;
 
   return {
-    format: 2,
     ...(Object.keys(features).length ? { features } : {}),
     ...(storyId ? { id: storyId } : {}),
     title: json.title as string,
@@ -210,8 +208,8 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   };
 };
 
-export const parseStoryV2OrThrow = (json: unknown): NormalizedStoryV2 => {
-  const parsed = parseStoryV2(json);
+export const parseStoryOrThrow = (json: unknown): NormalizedStory => {
+  const parsed = parseStory(json);
   if (Array.isArray(parsed)) {
     throw new Error(parsed.map((error) => `${error.path}: ${error.message}`).join("; "));
   }

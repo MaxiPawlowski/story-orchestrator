@@ -1,4 +1,4 @@
-import { CODEX_PAGES, CODEX_START, gateKeys, isReached, type GateNode, type StoryV2 } from "@engine/index";
+import { CODEX_PAGES, CODEX_START, gateKeys, isReached, type GateNode, type Story } from "@engine/index";
 import { boundCardQualities } from "@engine/cardFields";
 import { clueKeys } from "./widgetKeys";
 
@@ -12,7 +12,7 @@ export const WIDGET_CONSEQUENCES: Record<WidgetCode, string> = {
 };
 
 export interface WidgetRun {
-  draft: StoryV2;
+  draft: Story;
   context: { backgroundNames?: () => readonly string[] };
   reachableFrom: (start: string) => Set<string>;
   startId: string;
@@ -21,7 +21,7 @@ export interface WidgetRun {
 
 const gateList = (gates: ReadonlyArray<GateNode | undefined>): string[] => gates.flatMap((gate) => (gate ? gateKeys(gate) : []));
 
-export const scopedKeys = (draft: StoryV2): Set<string> => {
+export const scopedKeys = (draft: Story): Set<string> => {
   const keys = boundCardQualities(draft.roster ?? [], draft.player);
   draft.transitions.forEach((transition) => gateKeys(transition.gate).forEach((key) => keys.add(key)));
   draft.checkpoints.forEach((checkpoint) => Object.keys(checkpoint.state_snapshot ?? {}).forEach((key) => keys.add(key)));
@@ -33,14 +33,14 @@ export const scopedKeys = (draft: StoryV2): Set<string> => {
   return keys;
 };
 
-const itemGates = (draft: StoryV2): Array<{ path: string; keys: string[]; what: string }> => (draft.widgets ?? []).flatMap((widget, index) => [
+const itemGates = (draft: Story): Array<{ path: string; keys: string[]; what: string }> => (draft.widgets ?? []).flatMap((widget, index) => [
   ...(widget.visible_when ? [{ path: `widgets.${index}.visible_when`, keys: gateKeys(widget.visible_when), what: `panel '${widget.id}'` }] : []),
   ...(widget.clues ?? []).map((clue, at) => ({ path: `widgets.${index}.clues.${at}`, keys: clueKeys(clue), what: `clue '${clue.id}'` })),
   ...(widget.pins ?? []).flatMap((pin, at) => (pin.when ? [{ path: `widgets.${index}.pins.${at}`, keys: gateKeys(pin.when), what: `pin '${pin.id}'` }] : [])),
   ...(widget.rows ?? []).map((row, at) => ({ path: `widgets.${index}.rows.${at}`, keys: [...(row.quality ? [row.quality] : []), ...(row.when ? gateKeys(row.when) : [])], what: `row '${row.id}'` })),
 ]);
 
-export const widgetGateKeys = (draft: StoryV2): Set<string> => new Set(itemGates(draft).flatMap(({ keys }) => keys));
+export const widgetGateKeys = (draft: Story): Set<string> => new Set(itemGates(draft).flatMap(({ keys }) => keys));
 
 const checkNeverRead = ({ draft, push }: WidgetRun) => {
   const read = scopedKeys(draft);

@@ -1,6 +1,6 @@
 import {
   authorsOwnNote, gatedWorldInfo, guidanceMembers, progressQualityForAnchor, ratingLevels, storyWarnings, TENSION_CURRENT_KEY,
-  type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError,
+  type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type Story, type ValidationError,
 } from "@engine/index";
 import { directorEnabled } from "@talk/index";
 import { checkChapters } from "./chapterDiagnostics";
@@ -105,7 +105,7 @@ const walkLeaves = (gate: GateNode, visit: (leaf: GateLeaf) => void) => {
   else walkLeaves(gate.not, visit);
 };
 
-const buildQualityMap = (draft: StoryV2): Map<string, Quality> => {
+const buildQualityMap = (draft: Story): Map<string, Quality> => {
   const map = new Map<string, Quality>();
   draft.qualities.forEach((quality) => map.set(quality.key, quality));
   draft.checkpoints.filter((checkpoint) => checkpoint.type === "anchor").forEach((anchor) => {
@@ -117,7 +117,7 @@ const buildQualityMap = (draft: StoryV2): Map<string, Quality> => {
   return map;
 };
 
-const buildReachable = (draft: StoryV2) => {
+const buildReachable = (draft: Story) => {
   const adjacency = new Map<string, string[]>();
   draft.checkpoints.forEach((checkpoint) => adjacency.set(checkpoint.id, []));
   draft.transitions.forEach((transition) => adjacency.get(transition.from)?.push(transition.to));
@@ -145,11 +145,11 @@ const hintApplies = (quality: Quality, at: string, reachableFrom: (start: string
 type DiagnosticCode = (typeof DIAGNOSTIC_CODES)[number];
 
 interface DiagnosticRun {
-  draft: StoryV2;
+  draft: Story;
   context: DiagnosticsContext;
   push: (code: DiagnosticCode, severity: DiagnosticSeverity, path: string, message: string) => void;
   qualityByKey: ReturnType<typeof buildQualityMap>;
-  checkpointById: Map<string, StoryV2["checkpoints"][number]>;
+  checkpointById: Map<string, Story["checkpoints"][number]>;
   reachableFrom: (start: string) => Set<string>;
   startId: string;
 }
@@ -513,7 +513,7 @@ const DIAGNOSTIC_CHECKS = [
   checkCommitmentDiagnostics,
 ];
 
-export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {
+export const runDiagnostics = (draft: Story, context: DiagnosticsContext = {}): Diagnostic[] => {
   const diagnostics: Diagnostic[] = [];
   const run: DiagnosticRun = {
     draft,

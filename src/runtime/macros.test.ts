@@ -10,7 +10,7 @@ jest.mock("@services/STAPI", () => ({
   getPlayerName: () => "Max",
 }));
 
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import { registerRuntimeMacros } from "./macros";
 import type { RuntimeManager } from "./runtimeManager";
 import type { RuntimeSnapshot } from "./types";
@@ -30,7 +30,7 @@ const snapshot = (): RuntimeSnapshot =>
 
 const makeManager = (roster: Array<{ id: string; name?: string }>): RuntimeManager => {
   let listener: (() => void) | null = null;
-  const story = { roster } as unknown as NormalizedStoryV2;
+  const story = { roster } as unknown as NormalizedStory;
   return {
     getSnapshot: () => snapshot(),
     getCachedSnapshot: () => snapshot(),
@@ -65,7 +65,7 @@ describe("registerRuntimeMacros", () => {
   });
 
   it("unregisters stale role macros when the roster changes", () => {
-    const manager = makeManager([{ id: "arin", name: "Arin" }]) as RuntimeManager & { __fire: () => void; getStory: () => NormalizedStoryV2 };
+    const manager = makeManager([{ id: "arin", name: "Arin" }]) as RuntimeManager & { __fire: () => void; getStory: () => NormalizedStory };
     registerRuntimeMacros(manager);
     expect(mockRegistry.has("story_role_arin")).toBe(true);
     (manager.getStory() as unknown as { roster: Array<{ id: string; name?: string }> }).roster = [{ id: "luke", name: "Luke" }];
@@ -82,7 +82,7 @@ describe("registerRuntimeMacros: per-quality macros (v2.4 plan 08 R15)", () => {
     const values: Record<string, unknown> = { has_key: true };
     const manager = {
       ...makeManager([]),
-      getStory: () => ({ roster: [], qualities: [{ key: "has_key" }, { key: "trap_state" }] }) as unknown as NormalizedStoryV2,
+      getStory: () => ({ roster: [], qualities: [{ key: "has_key" }, { key: "trap_state" }] }) as unknown as NormalizedStory,
       getEngineState: () => ({ blackboard: { values } }),
       noteRecap: () => {},
     } as unknown as RuntimeManager;
@@ -101,7 +101,7 @@ describe("registerRuntimeMacros: {{story_quality::<key>}} (v2.5 plan 07 A2)", ()
     const values: Record<string, unknown> = { has_key: true };
     const manager = {
       ...makeManager([]),
-      getStory: () => ({ roster: [], qualities: [{ key: "has_key" }, { key: "trap_state" }] }) as unknown as NormalizedStoryV2,
+      getStory: () => ({ roster: [], qualities: [{ key: "has_key" }, { key: "trap_state" }] }) as unknown as NormalizedStory,
       getEngineState: () => ({ blackboard: { values } }),
       noteRecap: () => {},
     } as unknown as RuntimeManager;

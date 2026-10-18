@@ -1,7 +1,7 @@
 import { execFileSync } from "child_process";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2, type NormalizedStoryV2, type RosterMember } from "@engine/index";
+import { parseStory, type NormalizedStory, type RosterMember } from "@engine/index";
 import { buildCandidates, parseDirectorResponse, renderDirectorPrompt, type TalkCandidate } from "./index";
 import { nameMatcher } from "./aliases";
 
@@ -79,13 +79,13 @@ describe("SP3.b: one resolver for SPEAKER answers", () => {
 });
 
 describe("SP3.b: roster aliases reach the candidates", () => {
-  const story = (roster: unknown) => parseStoryV2({
-    format: 2, id: "aliases", title: "Aliases", description: "SP3.b", qualities: [],
+  const story = (roster: unknown) => parseStory({
+    id: "aliases", title: "Aliases", description: "SP3.b", qualities: [],
     checkpoints: [{ id: "a", name: "A", objective: "Start.", type: "anchor", start: true }], transitions: [], roster,
   });
 
   it("a roster member keeps its aliases, trimmed and deduplicated, its own name dropped", () => {
-    const parsed = story([{ id: "companion_b", name: "Dalan", aliases: [" Dalan Evergreen ", "dalan evergreen", "Dalan", "", "little brother"] }]) as NormalizedStoryV2;
+    const parsed = story([{ id: "companion_b", name: "Dalan", aliases: [" Dalan Evergreen ", "dalan evergreen", "Dalan", "", "little brother"] }]) as NormalizedStory;
     expect(parsed.roster[0].aliases).toEqual(["Dalan Evergreen", "little brother"]);
   });
 

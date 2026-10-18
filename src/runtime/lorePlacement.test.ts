@@ -1,11 +1,10 @@
-import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import type { HostScannableEntry } from "@services/STAPI";
 import { applyLoreExclusive, type LoreExclusivePlan } from "./loreExclusive";
 import { applyLorePlacement, lorePlacementFor, WI_POSITION_AT_DEPTH, type LorePlacementSources } from "./lorePlacement";
 import { clampLateLoreDepth, defaultWorldInfoSettings, readGlobalSettings } from "./settingsModel";
 
 const raw = (position?: unknown) => ({
-  format: 2,
   id: "lp",
   title: "Lore placement",
   description: "Fixture.",
@@ -17,7 +16,7 @@ const raw = (position?: unknown) => ({
   lore_select: { lorebooks: ["Select Lore"], ...(position ? { position } : {}) },
 });
 
-const story = (position?: "authored" | "depth"): NormalizedStoryV2 => parseStoryV2OrThrow(raw(position));
+const story = (position?: "authored" | "depth"): NormalizedStory => parseStoryOrThrow(raw(position));
 
 const entry = (uid: number, world: string, position: number, order: number, patch: Partial<HostScannableEntry> = {}): HostScannableEntry => ({
   world, uid, comment: `${world} ${uid}`, content: `${world} ${uid} text`, disable: false, constant: false, position, order, depth: 4, role: null, ...patch,
@@ -143,6 +142,6 @@ describe("late lore placement on the scan copies", () => {
   });
 
   it("rejects an unknown lore_select.position", () => {
-    expect(() => parseStoryV2OrThrow(raw("before"))).toThrow(/lore_select.position/);
+    expect(() => parseStoryOrThrow(raw("before"))).toThrow(/lore_select.position/);
   });
 });

@@ -1,4 +1,4 @@
-import type { BoundaryLogEntry, EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { BoundaryLogEntry, EngineState, NormalizedStory } from "@engine/index";
 import type { LifeAuthorRow } from "@engine/life/lines";
 import type { LabelAuthorRow } from "@engine/life/labels";
 import type { AxisStep } from "@engine/life/beats";
@@ -20,7 +20,7 @@ export interface LifeAuthorView {
 }
 
 export const lifeAuthorSlice = (
-  story: NormalizedStoryV2 | null, state: EngineState | null, authorView: boolean, proposals?: AgendaProposalsState, scopeContext?: ScopeSourceContext,
+  story: NormalizedStory | null, state: EngineState | null, authorView: boolean, proposals?: AgendaProposalsState, scopeContext?: ScopeSourceContext,
   log: readonly BoundaryLogEntry[] = [],
 ): LifeAuthorView | null => {
   const layer = story?.life && state && authorView ? gameLayer() : null;

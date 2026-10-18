@@ -246,7 +246,7 @@ export function journeyStory(cast: CastMember[], marker = P41_MARKER) {
   const slug = marker.toLowerCase().replace(/[^a-z0-9]+/g, '-');
   const stage = (pose: number, face: string, framing: string) => ({ framing, cast: Object.fromEntries(cast.map((member) => [member.id, { pose: member.poses[pose], face }])) });
   return {
-    format: 2, id: `${slug}-lighthouse`, title: `${marker} Lighthouse`, description: 'Synthetic plan 41 journey story: three keepers wait out a storm.',
+    id: `${slug}-lighthouse`, title: `${marker} Lighthouse`, description: 'Synthetic plan 41 journey story: three keepers wait out a storm.',
     display: { motion: true },
     player: { role: 'A visitor who reached the lighthouse before the storm', summary: 'You arrive at the lighthouse as the storm closes in.' },
     roster: cast.map((member, index) => ({ id: member.id, name: member.name, role: member.description.split('.')[1]?.trim() || member.name,
@@ -296,7 +296,7 @@ export function poseStory(cast: PoseMember[], marker = POSE_MARKER) {
     },
   }));
   return {
-    format: 2, id: `${slug}-forge`, title: `${marker} Forge`, description: 'Synthetic plan 33 acceptance story: 3 looks x 4 directed poses x 3 labels.',
+    id: `${slug}-forge`, title: `${marker} Forge`, description: 'Synthetic plan 33 acceptance story: 3 looks x 4 directed poses x 3 labels.',
     display: { motion: true },
     player: { role: 'A traveller waiting out the night at a village forge', summary: 'You share the forge fire with three travellers.' },
     roster: cast.map((member) => ({ id: member.id, name: member.name, role: member.description.split(' is ')[1] ?? member.name,

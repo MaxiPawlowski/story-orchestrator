@@ -1,6 +1,6 @@
 # Architecture
 
-Story Orchestrator runs a format-2 story as a deterministic checkpoint graph over a live
+Story Orchestrator runs an authored story as a deterministic checkpoint graph over a live
 SillyTavern chat. This document describes the shape; the normative rules (every invariant, with the
 incident that taught it) live in `.claude/rules/architecture.md` and `.claude/rules/gotchas.md`, and
 win wherever this page disagrees. Design rationale and per-plan build history: the plan records
@@ -16,7 +16,7 @@ Release status per version: `.claude/CLAUDE.md` §Status and [`CHANGELOG.md`](..
 src/
   index.tsx                  # boots the runtime, mounts settings panel + drawer
   engine/                    # pure — never imports STAPI
-    schema.ts validate.ts    # format-2 types, normalization, graph indexes
+    schema.ts validate.ts    # story types, normalization, graph indexes
     storyDiff.ts             # classifies an edit against live state (compatible/invalidating) + state pruning
     blackboard.ts            # typed values, versions, latching, monotonic checks
     gates.ts transitions.ts convergence.ts

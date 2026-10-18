@@ -1,7 +1,7 @@
 jest.mock("@services/STAPI", () => ({ observeSamplerPayloads: () => () => undefined, parseHostYaml: () => undefined }));
 jest.mock("@services/stHost/llamaCpp", () => ({ readThinkingTemplate: () => null, listedModels: () => [] }));
 
-import { parseStoryV2OrThrow, type StoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type Story } from "@engine/index";
 import type { SamplerPayloadHandlers } from "@services/STAPI";
 import type { GenerationLifecycleSnapshot } from "./generationLifecycle";
 import { REASONING_BUDGET_MESSAGE, textgenPlan } from "./replyEffort";
@@ -39,12 +39,12 @@ describe("T6-3-3 HIGH: a thought that runs past its budget is moved out of the v
   });
 });
 
-const story = parseStoryV2OrThrow({
-  format: 2, id: "leak", title: "Leak", description: "",
+const story = parseStoryOrThrow({
+  id: "leak", title: "Leak", description: "",
   qualities: [{ key: "arrived", type: "bool", source: "extractor", rubric: "Arrived?" }],
   checkpoints: [{ id: "cp1", name: "The road", objective: "Walk", type: "anchor", start: true }],
   transitions: [], roster: [],
-} as unknown as StoryV2);
+} as unknown as Story);
 
 const loud: GenerationLifecycleSnapshot = { outermost: { type: "normal", watermark: 3 }, nested: [], awaitingRender: null, draftedChid: null, openedCount: 1 };
 

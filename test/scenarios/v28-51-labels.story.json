@@ -1,5 +1,4 @@
 {
-  "format": 2,
   "id": "so-v28-51-labels",
   "title": "SO-V28-51 Labels",
   "description": "v2.8 plan 51 no-model fixture: one public label and one secret label that a seeded gate reveals.",

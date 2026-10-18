@@ -3,7 +3,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "title": "Arcs and Canon Gate Check",
         "description": "Plan 09 live arc lifecycle, bridge, and canon validation story.",
         "qualities": [],

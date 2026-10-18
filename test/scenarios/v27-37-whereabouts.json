@@ -6,7 +6,6 @@
     { "expect": { "groupDisabled": { "enabled": ["Arin", "DM Narrator"] } } },
     {
       "import_story": {
-        "format": 2,
         "id": "so-v27-37-whereabouts",
         "version": 1,
         "title": "SO-V27-37 Whereabouts",

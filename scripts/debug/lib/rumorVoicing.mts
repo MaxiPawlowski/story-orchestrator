@@ -73,7 +73,6 @@ export function voicingProblems(fixture: VoicingFixture, cast: Cast = castOf()):
 
 export function voicingStory(entry: VoicingCase, cast: Cast) {
   return {
-    format: 2,
     id: `so-v44-voice-${entry.id}`,
     title: `SO-V44 Voice ${entry.id}`,
     description: `v2.8 plan 44 G7/G8 case ${entry.id}: one rumor about ${entry.subject} reaches the receiver as hearsay a turn after it starts.`,

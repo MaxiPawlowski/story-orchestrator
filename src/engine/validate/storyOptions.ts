@@ -1,6 +1,6 @@
 import {
   ARC_TEMPLATE_NAMES, type ArcTemplate, type StoryRequirements, type StoryLoreSelect, HOUSE_RULES_MAX,
-  HOUSE_RULE_MAX_CHARS, STAGECRAFT_CREATE_CAP_MAX, type StagecraftExclusion, type StorySceneRead, type StoryStagecraft, type StoryV2, type ValidationError,
+  HOUSE_RULE_MAX_CHARS, STAGECRAFT_CREATE_CAP_MAX, type StagecraftExclusion, type StorySceneRead, type StoryStagecraft, type Story, type ValidationError,
   STORY_DISPLAY_TOGGLES, type StoryDisplay, STORY_KINDS, type StoryKind, CHECKPOINT_REASONING,
 } from "../schema";
 import { OBJECTIVE_BLOCK_MODES } from "../agency";
@@ -181,12 +181,12 @@ export const readArcBridges = (value: unknown, errors: ValidationError[]) => (Ar
   : undefined);
 
 const readObjectiveBlock = (value: unknown, errors: ValidationError[]) => {
-  const objectiveBlock = value === undefined || (OBJECTIVE_BLOCK_MODES as readonly unknown[]).includes(value) ? value as StoryV2["objective_block"] : undefined;
+  const objectiveBlock = value === undefined || (OBJECTIVE_BLOCK_MODES as readonly unknown[]).includes(value) ? value as Story["objective_block"] : undefined;
   if (value !== undefined && !objectiveBlock) addError(errors, "objective_block", "objective_block must be \"auto\" or \"off\"");
   return objectiveBlock;
 };
 
-const readDisplay = (value: unknown, errors: ValidationError[]): StoryV2["display"] => {
+const readDisplay = (value: unknown, errors: ValidationError[]): Story["display"] => {
   if (value === undefined) return undefined;
   if (!isRecord(value)) {
     addError(errors, "display", "display must be an object");

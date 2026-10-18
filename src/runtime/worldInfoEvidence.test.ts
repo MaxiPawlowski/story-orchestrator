@@ -1,9 +1,8 @@
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import type { RunContext } from "./runToken";
 import { constantMisses, forcedOutcome, HIDDEN_GENERATIONS_FOR_REPAIR, LORE_EVIDENCE_LIMIT, LoreEvidence, type ScanInput } from "./worldInfoEvidence";
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   title: "Evidence",
   description: "World info evidence fixture.",
   qualities: [],

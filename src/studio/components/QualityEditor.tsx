@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { QUALITY_SOURCES, QUALITY_TYPES, READ_AS_TYPES, ROLL_TYPES, type EvidenceFrom, type Quality, type QualityRoll, type QualitySource, type QualityType, type StoryV2 } from "@engine/index";
+import { QUALITY_SOURCES, QUALITY_TYPES, READ_AS_TYPES, ROLL_TYPES, type EvidenceFrom, type Quality, type QualityRoll, type QualitySource, type QualityType, type Story } from "@engine/index";
 import { useDraftStore } from "../draft";
 import { addQuality, newQuality, nextId, removeQuality, updateQuality } from "../mutations";
 import { findQualityUsages, reservedQualityKeys } from "../qualityUsage";
@@ -156,13 +156,13 @@ const QualityRollFields = ({ selected, patch }: { selected: Quality; patch: (cha
 interface ScopeProps {
   selected: Quality;
   isReserved: boolean;
-  draft: StoryV2;
+  draft: Story;
   patch: (change: Partial<Quality>) => void;
   onScope: (field: "from" | "until", value: string) => void;
   onLedger: (field: "entity" | "field", value: string) => void;
 }
 
-const CheckpointOptions = ({ draft }: { draft: StoryV2 }) => (
+const CheckpointOptions = ({ draft }: { draft: Story }) => (
   <>
     <option value="">— none —</option>
     {draft.checkpoints.map((checkpoint) => <option key={checkpoint.id} value={checkpoint.id}>{checkpoint.name}</option>)}

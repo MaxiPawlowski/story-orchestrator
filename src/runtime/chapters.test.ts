@@ -1,13 +1,13 @@
 import * as sagaMini from "../../test/fixtures/chapters-mini.story.json";
 import * as corpus from "../../test/measurements/v2.6-07/saga-mini.story.json";
-import { parseStoryV2, parseStoryV2OrThrow, type StoryV2 } from "@engine/index";
+import { parseStory, parseStoryOrThrow, type Story } from "@engine/index";
 import type { ChapterRecord } from "@memory/types";
 import { runDiagnostics } from "../studio/diagnostics";
 import { addChapter, removeChapter, setChapterPolicy, setCheckpointChapter } from "../studio/mutations";
 import { buildChapterView, chapterNumber, chapterSettings, DEFAULT_CHAPTER_SETTINGS, jumpSeal, liveSkip, sealRange, sealTarget } from "./chapters";
 
-const raw = () => JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as StoryV2;
-const story = parseStoryV2OrThrow(raw());
+const raw = () => JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as Story;
+const story = parseStoryOrThrow(raw());
 
 const sealed = (chapterId: string, pathLength: number, patch: Partial<ChapterRecord> = {}) => ({
   id: `${chapterId}-1`, chapterId, playerTitle: chapterId, range: { from: 0, to: 9 }, sealedAt: { boundary: 1, messageId: 9, at: 0, pathLength }, ...patch,
@@ -35,7 +35,7 @@ describe("seal target on the chapters-mini graph", () => {
     const plain = raw();
     delete plain.chapters;
     plain.checkpoints.forEach((checkpoint) => delete checkpoint.chapter);
-    expect(sealTarget(parseStoryV2OrThrow(plain), "fire", [], ["gate", "market", "fire"])).toBeNull();
+    expect(sealTarget(parseStoryOrThrow(plain), "fire", [], ["gate", "market", "fire"])).toBeNull();
   });
 
   it("ranges start after the previous record and numbers skip interludes", () => {
@@ -90,7 +90,7 @@ describe("chapter validation", () => {
     delete broken.checkpoints[1].chapter;
     broken.checkpoints[2].chapter = "nowhere";
     broken.chapters!.push({ id: "arrival", title: "Again" });
-    const errors = parseStoryV2(broken);
+    const errors = parseStory(broken);
     expect(Array.isArray(errors) ? errors.map((error) => error.message) : []).toEqual(expect.arrayContaining([
       "every checkpoint needs a chapter once chapters are declared", "unknown chapter 'nowhere'", "duplicate chapter 'arrival'",
     ]));
@@ -99,19 +99,19 @@ describe("chapter validation", () => {
   it("refuses an unknown seal policy", () => {
     const broken = raw();
     broken.chapters![0].seal = { open_threads: "maybe" } as never;
-    const errors = parseStoryV2(broken);
+    const errors = parseStory(broken);
     expect(Array.isArray(errors) && errors.some((error) => error.path === "chapters.0.seal.open_threads")).toBe(true);
   });
 });
 
 describe("chapter diagnostics and mutations", () => {
-  const codes = (draft: StoryV2) => runDiagnostics(draft).map((item) => item.code).filter((code) => /chapter|dead-end/.test(code));
+  const codes = (draft: Story) => runDiagnostics(draft).map((item) => item.code).filter((code) => /chapter|dead-end/.test(code));
 
   it("finds nothing on the fixture or on the Q-M corpus story", () => {
     expect(codes(raw())).toEqual([]);
-    const saga = JSON.parse(JSON.stringify({ ...corpus, default: undefined })) as StoryV2;
+    const saga = JSON.parse(JSON.stringify({ ...corpus, default: undefined })) as Story;
     expect(codes(saga)).toEqual([]);
-    expect(parseStoryV2OrThrow(saga).checkpoints).toHaveLength(14);
+    expect(parseStoryOrThrow(saga).checkpoints).toHaveLength(14);
   });
 
   it("names a chapter with no exit and the dead end it leaves", () => {

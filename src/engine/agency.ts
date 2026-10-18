@@ -1,4 +1,4 @@
-import type { AgencyPolicy, Checkpoint, NormalizedStoryV2, ObjectiveKind, StoryV2 } from "./schema";
+import type { AgencyPolicy, Checkpoint, NormalizedStory, ObjectiveKind, Story } from "./schema";
 import { openPhase } from "./stretch";
 
 // The policy is the defaults, not "absent = today's phrasing": every story that
@@ -15,7 +15,7 @@ export const OBJECTIVE_KINDS: readonly ObjectiveKind[] = ["world_pressure", "pla
 
 export const agencyFor = (checkpoint: Checkpoint | null | undefined): AgencyPolicy => ({ ...DEFAULT_AGENCY, ...(checkpoint?.agency ?? {}) });
 
-export const agencyForCheckpoint = (story: NormalizedStoryV2 | null | undefined, checkpointId: string | null | undefined): AgencyPolicy =>
+export const agencyForCheckpoint = (story: NormalizedStory | null | undefined, checkpointId: string | null | undefined): AgencyPolicy =>
   agencyFor(checkpointId ? story?.checkpointById[checkpointId] : null);
 
 export const PLAYER_REF = "{{user}}";
@@ -61,7 +61,7 @@ export const authorsOwnNote = (checkpoint: Checkpoint | null | undefined): boole
   return false;
 };
 
-export const objectiveLineApplies = (story: Pick<StoryV2, "objective_block"> | null | undefined, checkpoint: Checkpoint | null | undefined, playerTurns = 0): boolean =>
+export const objectiveLineApplies = (story: Pick<Story, "objective_block"> | null | undefined, checkpoint: Checkpoint | null | undefined, playerTurns = 0): boolean =>
   Boolean(story && checkpoint) && story?.objective_block !== "off" && Boolean(checkpoint?.objective?.trim()) && !authorsOwnNote(checkpoint) && !openPhase(checkpoint, playerTurns);
 
 export const objectiveLine = (checkpoint: Checkpoint, policy: AgencyPolicy): string => `${OBJECTIVE_LINE_HEADER} ${checkpoint.objective.trim()} ${objectiveClause(policy.objective_kind)}`;

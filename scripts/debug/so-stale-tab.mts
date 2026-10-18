@@ -19,12 +19,12 @@ const serverHas = (page, id: string) => evaluateInST(page, async (needle) => {
   const response = await fetch('/api/settings/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: '{}', cache: 'no-cache' });
   const data = await response.json();
   const root = JSON.parse(data.settings)?.extension_settings?.['story-orchestrator'];
-  return Array.isArray(root?.v2Stories) && root.v2Stories.some((record) => record?.id === needle);
+  return Array.isArray(root?.stories) && root.stories.some((record) => record?.id === needle);
 }, id);
 
 const pageHas = (page, id: string) => evaluateInST(page, (needle) => {
   const root = (globalThis as any).SillyTavern.getContext().extensionSettings?.['story-orchestrator'];
-  return Array.isArray(root?.v2Stories) && root.v2Stories.some((record) => record?.id === needle);
+  return Array.isArray(root?.stories) && root.stories.some((record) => record?.id === needle);
 }, id);
 
 const freshLost = async (page) => {

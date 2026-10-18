@@ -1,4 +1,4 @@
-import { storyPlayerNames, type StoryV2 } from "@engine/index";
+import { storyPlayerNames, type Story } from "@engine/index";
 import { memberIsPlayer, playerRoles, storyPlayerRoles } from "../../studio/playerRole";
 import type { AgentOp, AgentSession } from "./types";
 
@@ -8,7 +8,7 @@ const greetings = (session: AgentSession): string[] => session.steps.flatMap((st
   return kept && op?.kind === "createCharacterCard" && op.first_mes ? [op.first_mes] : [];
 });
 
-const rolesFor = (session: AgentSession, draft: StoryV2, extra: string[]): string[] =>
+const rolesFor = (session: AgentSession, draft: Story, extra: string[]): string[] =>
   storyPlayerRoles(draft, [session.goal, ...greetings(session), ...extra]);
 
 const castName = (op: AgentOp): { name: string; greeting: string[] } | null => {
@@ -17,7 +17,7 @@ const castName = (op: AgentOp): { name: string; greeting: string[] } | null => {
   return null;
 };
 
-export const playerCastProblem = (session: AgentSession, draft: StoryV2, op: AgentOp): string | null => {
+export const playerCastProblem = (session: AgentSession, draft: Story, op: AgentOp): string | null => {
   const cast = castName(op);
   if (!cast) return null;
   const match = memberIsPlayer({ id: cast.name, name: cast.name }, rolesFor(session, draft, cast.greeting), storyPlayerNames(draft));
@@ -26,7 +26,7 @@ export const playerCastProblem = (session: AgentSession, draft: StoryV2, op: Age
   return `${who}; the player is never a card or a cast member. Cast only the characters the player meets`;
 };
 
-export const greetingClash = (draft: StoryV2, op: AgentOp): string | null => {
+export const greetingClash = (draft: Story, op: AgentOp): string | null => {
   if (op.kind !== "createCharacterCard" || !op.first_mes) return null;
   const roles = playerRoles([op.first_mes]);
   const member = draft.roster.find((entry) => memberIsPlayer(entry, roles));

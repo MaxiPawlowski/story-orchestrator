@@ -1443,7 +1443,7 @@ settings: print settings panel state.
 drawer: print drawer state.
 open-drawer: open the Story Orchestrator top-bar drawer.
 open-settings: expand the settings panel.
-open-studio: open Checkpoint Studio modal (v2).
+open-studio: open Checkpoint Studio modal.
 studio: print Checkpoint Studio modal state (title, active tab, error/issue badges).
 studio-tab <Graph|Story|Qualities|Checkpoints|Transitions|Roster|Diagnostics>: switch the studio tab.
 studio-save [keep|restart|cancel]: click Save and answer the invalidation popup if one appears.

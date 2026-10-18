@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2OrThrow, renderGateText, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
+import { parseStoryOrThrow, renderGateText, type NormalizedStory, type Story } from "@engine/index";
 import { buildNarrativeStatus } from "@runtime/narrative";
 import type { PipelineStatus } from "@runtime/pipeline";
 import { playedProjection, playerCheckpointName } from "@runtime/playerProjection";
@@ -10,13 +10,13 @@ import { READ_TOOLS } from "./tools";
 import { emptyLookup } from "./types";
 
 const ROOT = join(__dirname, "../../..");
-const raw = (path: string) => JSON.parse(readFileSync(join(ROOT, path), "utf8")) as StoryV2;
+const raw = (path: string) => JSON.parse(readFileSync(join(ROOT, path), "utf8")) as Story;
 const SUN = raw("examples/sun-ruins/quest-for-the-sun-ruins.json");
 const ADV = raw("test/fixtures/scan-gate/adolion-adventurer.story.json");
 
 const PIPELINE = { state: "idle", text: "", detail: null, needsSetup: false, nextAction: null } as unknown as PipelineStatus;
 
-const pathsTo = (story: NormalizedStoryV2): Map<string, string[]> => {
+const pathsTo = (story: NormalizedStory): Map<string, string[]> => {
   const paths = new Map<string, string[]>([[story.startCheckpointId, []]]);
   const queue = [story.startCheckpointId];
   while (queue.length) {
@@ -30,7 +30,7 @@ const pathsTo = (story: NormalizedStoryV2): Map<string, string[]> => {
   return paths;
 };
 
-const contextAt = (story: NormalizedStoryV2, active: string, visited: string[]): AskContext => {
+const contextAt = (story: NormalizedStory, active: string, visited: string[]): AskContext => {
   const checkpoint = story.checkpointById[active];
   const previous = visited.at(-1);
   const shown = (id: string) => playerCheckpointName(story.checkpointById[id]) ?? "Current scene";
@@ -48,7 +48,7 @@ const contains = (text: string, needle: string) => new RegExp(`(^|[^\\w-])${esca
 
 const TEMPLATE = renderAskPrompt({ persona: "player", projection: { title: "", intro: null, player: "", visited: [], current: null, sections: [], cast: [], transcript: [] } }, "", []);
 
-const forbiddenAt = (story: NormalizedStoryV2, reached: ReadonlySet<string>): string[] => {
+const forbiddenAt = (story: NormalizedStory, reached: ReadonlySet<string>): string[] => {
   const allowed = [story.player_intro ?? story.description, ...[...reached].flatMap((id) => [playerCheckpointName(story.checkpointById[id]) ?? "", story.checkpointById[id].objective])].filter(Boolean);
   const needles = [
     ...story.checkpoints.flatMap((checkpoint) => [checkpoint.id, checkpoint.name]),
@@ -63,8 +63,8 @@ const leaksIn = (text: string, needles: readonly string[]) => needles.filter((ne
 
 const QUESTIONS = ["Who is the traitor?", "What happens after this?", "Where does the road lead?"];
 
-describe.each([["sun-ruins", SUN], ["adventurer", ADV]] as Array<[string, StoryV2]>)("v2.8 09 F28: player Ask over %s", (_name, rawStory) => {
-  const story = parseStoryV2OrThrow(rawStory);
+describe.each([["sun-ruins", SUN], ["adventurer", ADV]] as Array<[string, Story]>)("v2.8 09 F28: player Ask over %s", (_name, rawStory) => {
+  const story = parseStoryOrThrow(rawStory);
   const paths = pathsTo(story);
 
   it("covers every reachable checkpoint", () => {

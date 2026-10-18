@@ -1,8 +1,7 @@
-import { isValidationErrorList, type StoryV2 } from "@engine/index";
+import { isValidationErrorList, type Story } from "@engine/index";
 import { canonicalize, exportDraft, importDraft } from "./io";
 
-const story: StoryV2 = {
-  format: 2,
+const story: Story = {
   title: "Roundtrip",
   description: "d",
   qualities: [
@@ -30,7 +29,7 @@ describe("studio io", () => {
   });
 
   it("rejects schema-invalid stories", () => {
-    const result = importDraft(JSON.stringify({ format: 2, title: "x" }));
+    const result = importDraft(JSON.stringify({ title: "x" }));
     expect(isValidationErrorList(result)).toBe(true);
   });
 });

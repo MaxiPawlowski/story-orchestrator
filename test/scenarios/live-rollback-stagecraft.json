@@ -4,7 +4,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "id": "so-p04-stagecraft",
         "title": "SO-P04 Stagecraft Rollback",
         "description": "An entry two curator writes touch, then a rollback past both.",

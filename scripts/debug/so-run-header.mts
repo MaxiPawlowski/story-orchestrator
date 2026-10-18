@@ -38,10 +38,10 @@ const USAGE = `Usage: node scripts/debug/so-run-header.mts <capture|diff|show> [
       naming that served bundle are allowed (a rebuild or merge of the repo mid-run).
       --allow takes a comma-separated list of:
         chatId                     any change at that path (or any path ending in it)
-        inventory.v2Stories        any change at or under that path
-        inventory.v2Stories:+SO-J12   only the addition of that item
-        inventory.v2Stories:-SO-J12   only the removal of that item
-        inventory.v2Stories:~SO-J12   only that item's version moving up (one id@old out, one id@new in)
+        inventory.stories        any change at or under that path
+        inventory.stories:+SO-J12   only the addition of that item
+        inventory.stories:-SO-J12   only the removal of that item
+        inventory.stories:~SO-J12   only that item's version moving up (one id@old out, one id@new in)
         inventory.characterCount=+9   only a numeric field moving by exactly that much
       --allow-file <path> reads more entries from a JSON array of strings, so an item may
       carry a comma (a character or lorebook name).
@@ -55,7 +55,7 @@ lane.n/pod/port/podId (SO_LANE and <lane>/pod.json from st-lanes.mts pod; pod 0 
 bundle.served (the hash of what the page is running),
 host.stVersion/mainApi/onlineStatus, profiles.selected/extraction,
 judge.plugin/model/enabled/uses, stagecraft.*, extraction.*, spikes.* (v2.5 plan 09 flags), chat.groupId/chatId/authorView,
-story.id/contentHash, group.disabledMembers, inventory.v2Stories/wizardSessions/
+story.id/contentHash, group.disabledMembers, inventory.stories/wizardSessions/
 wizardApplied (<session key>/<ledgered name>)/lorebooksSelected/groups (<id>@<name>).`;
 
 const safeName = (value: string) => String(value ?? 'run').replace(/[^a-zA-Z0-9_-]/g, '_').slice(0, 60);
@@ -297,7 +297,7 @@ export async function capturePage(page) {
       },
       // The three inventories a run can mutate without anyone noticing (S8, S11, S12).
       inventory: {
-        v2Stories: (root.v2Stories ?? []).map((record: any) => `${record.id ?? '?'}@${record.hash ?? '?'}`).sort(),
+        stories: (root.stories ?? []).map((record: any) => `${record.id ?? '?'}@${record.hash ?? '?'}`).sort(),
         wizardSessions: (Array.isArray(root.wizardSessions)
           ? root.wizardSessions.map((session: any, index: number) => (typeof session?.key === 'string' ? session.key : String(index)))
           : Object.keys(root.wizardSessions ?? {})).sort(),
@@ -439,7 +439,7 @@ const ALLOW_ALIASES: Record<string, string> = {
   authorView: 'chat.authorView',
   cadence: 'extraction.cadence',
   profile: 'profiles.extraction',
-  v2Stories: 'inventory.v2Stories',
+  stories: 'inventory.stories',
   wizardSessions: 'inventory.wizardSessions',
   lorebooksSelected: 'inventory.lorebooksSelected',
   disabledMembers: 'group.disabledMembers',

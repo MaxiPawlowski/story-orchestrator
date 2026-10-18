@@ -1,4 +1,4 @@
-import type { GateNode, Quality, StoryV2, Transition } from "@engine/index";
+import type { GateNode, Quality, Story, Transition } from "@engine/index";
 import { DIAGNOSTIC_CONSEQUENCES, runDiagnostics } from "./diagnostics";
 
 const enumQuality = (key: string, values: string[], patch: Partial<Quality> = {}): Quality => ({ key, type: "enum", source: "extractor", rubric: `${key}?`, values, ...patch });
@@ -14,8 +14,7 @@ const edge = (from: string, to: string, gate: GateNode): Transition => ({ from, 
 
 const ids = ["start", "dawn", "offer", "archive", "raid", "choice", "siege"];
 
-const story = (transitions: Transition[], patch: Partial<StoryV2> = {}): StoryV2 => ({
-  format: 2,
+const story = (transitions: Transition[], patch: Partial<Story> = {}): Story => ({
   title: "The Red Ink",
   description: "",
   qualities: QUALITIES,
@@ -36,7 +35,7 @@ const RED_INK = (): Transition[] => [
   edge("choice", "siege", { q: "pen_control", op: "in", v: ["apprentice_held", "mastered", "contested"] }),
 ];
 
-const passThrough = (draft: StoryV2) => runDiagnostics(draft).filter((diagnostic) => diagnostic.code === "gate-open-on-arrival");
+const passThrough = (draft: Story) => runDiagnostics(draft).filter((diagnostic) => diagnostic.code === "gate-open-on-arrival");
 
 describe("T6-3-3 HIGH: a way out already open from a value set earlier on the route", () => {
   it("flags offer (its exit was met two edges back) and choice (an enum != that implies the exit's in)", () => {

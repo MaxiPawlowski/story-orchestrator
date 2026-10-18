@@ -1,11 +1,10 @@
 import { StoryEngine, type EngineState } from "./engine";
 import type { StoryDiffCode, StoryDiffResult } from "./storyDiff";
 import { diffStories, pruneEngineState } from "./storyDiff";
-import { parseStoryV2OrThrow } from "./validate";
-import type { StoryV2 } from "./schema";
+import { parseStoryOrThrow } from "./validate";
+import type { Story } from "./schema";
 
-const baseStory = (): StoryV2 => ({
-  format: 2,
+const baseStory = (): Story => ({
   id: "diff-fixture",
   title: "Diff fixture",
   description: "A tiny story used to classify edits.",
@@ -26,8 +25,8 @@ const baseStory = (): StoryV2 => ({
   roster: [{ id: "her", name: "Ilse" }, { id: "him", name: "Bran" }],
 });
 
-const edited = (patch: (draft: StoryV2) => void): StoryV2 => {
-  const draft = JSON.parse(JSON.stringify(baseStory())) as StoryV2;
+const edited = (patch: (draft: Story) => void): Story => {
+  const draft = JSON.parse(JSON.stringify(baseStory())) as Story;
   patch(draft);
   return draft;
 };
@@ -35,7 +34,7 @@ const edited = (patch: (draft: StoryV2) => void): StoryV2 => {
 // A chat that has played: it is at `middle`, holds trust=3 and has latched the pact.
 const playedState = (): EngineState => {
   const engine = new StoryEngine();
-  engine.loadStory(parseStoryV2OrThrow(baseStory()));
+  engine.loadStory(parseStoryOrThrow(baseStory()));
   engine.enqueue({ source: "extractor", blackboardVersionSum: 0, deltas: [{ q: "trust", v: 3, source: "extractor" }, { q: "mood", v: "angry", source: "extractor" }] });
   engine.commitBoundary({ lastMessageId: 4, chatLength: 5 });
   engine.enqueue({ source: "extractor", blackboardVersionSum: 0, deltas: [{ q: "pact", v: true, source: "extractor" }] });
@@ -43,7 +42,7 @@ const playedState = (): EngineState => {
   return engine.serialize();
 };
 
-const withoutTrust = (draft: StoryV2) => {
+const withoutTrust = (draft: Story) => {
   draft.qualities = draft.qualities.filter((quality) => quality.key !== "trust");
   draft.transitions = [
     { from: "start", to: "middle", gate: { q: "mood", op: "==", v: "angry" }, priority: 0 },
@@ -51,8 +50,8 @@ const withoutTrust = (draft: StoryV2) => {
   ];
 };
 
-const run = (next: StoryV2, state: EngineState | null = playedState()): StoryDiffResult =>
-  diffStories(parseStoryV2OrThrow(baseStory()), parseStoryV2OrThrow(next), state);
+const run = (next: Story, state: EngineState | null = playedState()): StoryDiffResult =>
+  diffStories(parseStoryOrThrow(baseStory()), parseStoryOrThrow(next), state);
 
 const codes = (result: StoryDiffResult): StoryDiffCode[] => result.entries.map((entry) => entry.code);
 
@@ -98,7 +97,7 @@ describe("storyDiff classification table", () => {
     const result = run(off);
     expect(result.classification).toBe("compatible");
     expect(result.entries).toEqual([expect.objectContaining({ code: "story-objective-block-changed", path: "objective_block", message: "Whether the objective line is added changed." })]);
-    expect(codes(diffStories(parseStoryV2OrThrow(off), parseStoryV2OrThrow(edited((draft) => { draft.objective_block = "auto"; })), playedState()))).toEqual(["story-objective-block-changed"]);
+    expect(codes(diffStories(parseStoryOrThrow(off), parseStoryOrThrow(edited((draft) => { draft.objective_block = "auto"; })), playedState()))).toEqual(["story-objective-block-changed"]);
   });
 
   it("keeps a lore_select scope edit compatible (v2.2 plan 04)", () => {
@@ -109,7 +108,7 @@ describe("storyDiff classification table", () => {
 
   it("L5: switching lore-select to exclusive is the same compatible row, worded for the mode", () => {
     const scoped = edited((draft) => { draft.lore_select = { lorebooks: ["Diff Lore"] }; });
-    const result = diffStories(parseStoryV2OrThrow(scoped), parseStoryV2OrThrow(edited((draft) => { draft.lore_select = { lorebooks: ["Diff Lore"], exclusive: true }; })), playedState());
+    const result = diffStories(parseStoryOrThrow(scoped), parseStoryOrThrow(edited((draft) => { draft.lore_select = { lorebooks: ["Diff Lore"], exclusive: true }; })), playedState());
     expect(result.classification).toBe("compatible");
     expect(result.entries).toEqual([expect.objectContaining({ code: "lore-select-changed", message: "What lore-select may judge, or whether it excludes unpicked entries, changed." })]);
   });
@@ -119,8 +118,8 @@ describe("storyDiff classification table", () => {
     const added = run(withRules);
     expect(added.classification).toBe("compatible");
     expect(added.entries).toEqual([expect.objectContaining({ code: "house-rules-changed", path: "house_rules", message: "What the narrator is held to changed." })]);
-    expect(codes(diffStories(parseStoryV2OrThrow(withRules), parseStoryV2OrThrow(edited((draft) => { draft.house_rules = ["No guns."]; })), playedState()))).toEqual(["house-rules-changed"]);
-    expect(codes(diffStories(parseStoryV2OrThrow(withRules), parseStoryV2OrThrow(withRules), playedState()))).toEqual([]);
+    expect(codes(diffStories(parseStoryOrThrow(withRules), parseStoryOrThrow(edited((draft) => { draft.house_rules = ["No guns."]; })), playedState()))).toEqual(["house-rules-changed"]);
+    expect(codes(diffStories(parseStoryOrThrow(withRules), parseStoryOrThrow(withRules), playedState()))).toEqual([]);
   });
 
   it("keeps a scene_read vocabulary edit compatible (v2.2 plan 03)", () => {
@@ -134,12 +133,12 @@ describe("storyDiff classification table", () => {
     const result = run(next);
     expect(result.classification).toBe("compatible");
     expect(result.entries).toEqual([expect.objectContaining({ code: "quality-evidence-changed", path: "qualities.pact.evidence_from" })]);
-    expect(pruneEngineState(playedState(), parseStoryV2OrThrow(next), result).blackboard.values.pact).toBe(true);
-    expect(codes(diffStories(parseStoryV2OrThrow(next), parseStoryV2OrThrow(edited((draft) => { draft.qualities[1].evidence_from = "any"; })), playedState()))).toEqual(["quality-evidence-changed"]);
+    expect(pruneEngineState(playedState(), parseStoryOrThrow(next), result).blackboard.values.pact).toBe(true);
+    expect(codes(diffStories(parseStoryOrThrow(next), parseStoryOrThrow(edited((draft) => { draft.qualities[1].evidence_from = "any"; })), playedState()))).toEqual(["quality-evidence-changed"]);
   });
 
   it("keeps an agency edit compatible, for every agency field (v2.4 plan 04 X14)", () => {
-    const fields: Array<(draft: StoryV2) => void> = [
+    const fields: Array<(draft: Story) => void> = [
       (draft) => { draft.checkpoints[1].agency = { player_attempts_only: true }; },
       (draft) => { draft.checkpoints[1].agency = { protect_player_choice: false }; },
       (draft) => { draft.checkpoints[1].agency = { never_narrate_player_action: false }; },
@@ -299,8 +298,8 @@ describe("storyDiff classification table", () => {
 describe("pruneEngineState", () => {
   it("drops only what the new story cannot explain and keeps the rest of the run", () => {
     const state = playedState();
-    const next = parseStoryV2OrThrow(edited((draft) => { draft.qualities = draft.qualities.filter((quality) => quality.key !== "mood"); }));
-    const diff = diffStories(parseStoryV2OrThrow(baseStory()), next, state);
+    const next = parseStoryOrThrow(edited((draft) => { draft.qualities = draft.qualities.filter((quality) => quality.key !== "mood"); }));
+    const diff = diffStories(parseStoryOrThrow(baseStory()), next, state);
     const pruned = pruneEngineState(state, next, diff);
     expect(diff.classification).toBe("invalidating");
     expect(pruned.blackboard.values.mood).toBeUndefined();
@@ -314,11 +313,11 @@ describe("pruneEngineState", () => {
 
   it("re-anchors and restarts the checkpoint counters when the active checkpoint is gone", () => {
     const state = playedState();
-    const next = parseStoryV2OrThrow(edited((draft) => {
+    const next = parseStoryOrThrow(edited((draft) => {
       draft.checkpoints = draft.checkpoints.filter((checkpoint) => checkpoint.id !== "middle");
       draft.transitions = [{ from: "start", to: "end", gate: { q: "trust", op: ">=", v: 99 }, priority: 0 }];
     }));
-    const diff = diffStories(parseStoryV2OrThrow(baseStory()), next, state);
+    const diff = diffStories(parseStoryOrThrow(baseStory()), next, state);
     const pruned = pruneEngineState(state, next, diff);
     expect(pruned.activeCheckpointId).toBe("start");
     expect(pruned.checkpointStartedBoundary).toBe(state.boundary);
@@ -328,17 +327,17 @@ describe("pruneEngineState", () => {
   it("keeps the entered path minus dropped checkpoints", () => {
     const state = playedState();
     expect(state.visitedPath).toEqual(["start", "middle"]);
-    const next = parseStoryV2OrThrow(edited((draft) => {
+    const next = parseStoryOrThrow(edited((draft) => {
       draft.checkpoints = draft.checkpoints.filter((checkpoint) => checkpoint.id !== "middle");
       draft.transitions = [{ from: "start", to: "end", gate: { q: "trust", op: ">=", v: 99 }, priority: 0 }];
     }));
-    expect(pruneEngineState(state, next, diffStories(parseStoryV2OrThrow(baseStory()), next, state)).visitedPath).toEqual(["start"]);
+    expect(pruneEngineState(state, next, diffStories(parseStoryOrThrow(baseStory()), next, state)).visitedPath).toEqual(["start"]);
   });
 
   it("releases a lock the new story no longer declares", () => {
     const state = playedState();
-    const next = parseStoryV2OrThrow(edited((draft) => { delete draft.qualities[1].latching; }));
-    const diff = diffStories(parseStoryV2OrThrow(baseStory()), next, state);
+    const next = parseStoryOrThrow(edited((draft) => { delete draft.qualities[1].latching; }));
+    const diff = diffStories(parseStoryOrThrow(baseStory()), next, state);
     const pruned = pruneEngineState(state, next, diff);
     expect(pruned.blackboard.values.pact).toBe(true);
     expect(pruned.blackboard.latched.pact).toBeUndefined();
@@ -346,8 +345,8 @@ describe("pruneEngineState", () => {
 
   it("hydrates cleanly into an engine loaded with the new story", () => {
     const state = playedState();
-    const next = parseStoryV2OrThrow(edited((draft) => { draft.transitions[0].gate = { q: "trust", op: ">=", v: 1 }; draft.description = "Rewritten."; }));
-    const diff = diffStories(parseStoryV2OrThrow(baseStory()), next, state);
+    const next = parseStoryOrThrow(edited((draft) => { draft.transitions[0].gate = { q: "trust", op: ">=", v: 1 }; draft.description = "Rewritten."; }));
+    const diff = diffStories(parseStoryOrThrow(baseStory()), next, state);
     expect(diff.classification).toBe("compatible");
     const engine = new StoryEngine();
     engine.loadStory(next);

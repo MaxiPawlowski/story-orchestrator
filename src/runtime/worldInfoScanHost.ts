@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import {
   installScanGating, loadLorebook, probeScanGating, readLorebookEntries, setLorebookEntriesDisabled, showConfirmPopup, subscribeToHostEvent, vectorsScanWorldInfo,
   type ScanGatingHandle,
@@ -26,7 +26,7 @@ export interface ScanGatingWiring {
   settings?: () => import("./settingsModel").WorldInfoSettings;
   chatId: () => string | null;
   ownedChat: () => string | null;
-  story: () => NormalizedStoryV2 | null;
+  story: () => NormalizedStory | null;
   path: () => string[];
   filePath: () => string[];
   values: () => Readonly<Record<string, unknown>>;

@@ -1,7 +1,7 @@
 // v2.4 plan 03 D5: an author's "generate the road ahead" is a manual heavy pass, so it is announced
 // before it is sent, and a cancel sends nothing. A debug response sends nothing either way.
 
-import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { parseStoryOrThrow, type EngineState } from "@engine/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type { ModelAsk, ModelCall } from "@extraction/index";
 import { ExpansionCoordinator } from "./expansionCoordinator";
@@ -13,8 +13,7 @@ const model: ModelCall = async (_prompt, ask) => {
   sent.push(ask);
   return { text: "not a chain", finish: "stop" };
 };
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "expansion-preflight",
   title: "Expansion preflight",
   description: "One stub off the active checkpoint.",

@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
-import { StoryEngine, parseStoryV2OrThrow, relationshipKey, revealKey, type EngineState, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, relationshipKey, revealKey, type EngineState, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 import { labelledRelationships } from "@engine/life/labels";
 import { relationshipFeelings } from "@engine/life/lines";
 import { deriveScopeWithSources } from "@extraction/scope";
@@ -19,7 +19,7 @@ import type { MemoryRuntimeState } from "./types";
 import type { InjectorHosts } from "./hostPorts";
 
 const RAW = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/relationship-labels.story.json"), "utf8")) as Record<string, unknown>;
-const STORY = parseStoryV2OrThrow(RAW);
+const STORY = parseStoryOrThrow(RAW);
 const CAST = { mara: "Mara", tom: "Tom", sera: "Sera", narrator: "DM Narrator" };
 const ENABLED = ["mara", "tom", "sera", "narrator"];
 const FLAGS = ["shared_meal", "saw_letter", "paid_debt", "overheard", "found_ring", "heard_rumor", "met_sera"];
@@ -30,7 +30,7 @@ const random = (seed: number) => {
   return () => { state = (state * 1664525 + 1013904223) >>> 0; return state / 0x100000000; };
 };
 
-const run = (story: NormalizedStoryV2, turns: Array<Record<string, PrimitiveValue>>) => {
+const run = (story: NormalizedStory, turns: Array<Record<string, PrimitiveValue>>) => {
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
   turns.forEach((deltas, at) => {
@@ -45,15 +45,15 @@ const randomTurns = (next: () => number): Array<Record<string, PrimitiveValue>> 
   ...(next() < 0.4 ? [[relationshipKey("tom", "player", "trust"), Math.floor(next() * 7) - 2]] : []),
 ]));
 
-const compose = (story: NormalizedStoryV2, engine: StoryEngine, enabled = ENABLED, state: EngineState = engine.serialize()): GameView =>
+const compose = (story: NormalizedStory, engine: StoryEngine, enabled = ENABLED, state: EngineState = engine.serialize()): GameView =>
   composeGame({ story, state, boundaryLog: engine.stateLog, checks: [], threads: { open: [], resolved: [] }, chat: [], castNames: CAST, enabled }).player;
 
 const surfaces = (game: GameView): string => [JSON.stringify(game), renderToStaticMarkup(createElement(JournalPanel, { game }))].join("\n");
 
-const secrets = (story: NormalizedStoryV2) => labelledRelationships(story).flatMap(({ member, relationship }) =>
+const secrets = (story: NormalizedStory) => labelledRelationships(story).flatMap(({ member, relationship }) =>
   (relationship.secret ?? []).map((secret) => ({ member, toward: relationship.toward, secret, key: revealKey(member, relationship.toward, secret.id) })));
 
-const unrevealed = (story: NormalizedStoryV2, values: Readonly<Record<string, unknown>>) => secrets(story).filter((entry) => values[entry.key] === undefined);
+const unrevealed = (story: NormalizedStory, values: Readonly<Record<string, unknown>>) => secrets(story).filter((entry) => values[entry.key] === undefined);
 
 const withoutSecrets = (raw: Record<string, unknown>) => ({
   ...raw,
@@ -85,7 +85,7 @@ describe("v2.8 plan 51 R1/R3/R12: the player sees authored words of known people
   });
 
   it("R2: the player page is byte-identical with and without unrevealed secret labels declared", () => {
-    const bare = parseStoryV2OrThrow(withoutSecrets(RAW));
+    const bare = parseStoryOrThrow(withoutSecrets(RAW));
     for (let seed = 1; seed <= 200; seed += 1) {
       const turns = randomTurns(random(seed)).map((turn) => Object.fromEntries(Object.entries(turn).filter(([key]) => !["saw_letter", "paid_debt", "overheard", "found_ring", "heard_rumor"].includes(key))));
       const left = compose(STORY, run(STORY, turns));
@@ -145,14 +145,14 @@ describe("v2.8 plan 51 R1/R3/R12: the player sees authored words of known people
 describe("v2.8 plan 51 R10 (SC4): a labels-only story renders; one with nothing stays null", () => {
   it("renders the holder's page from labels alone", async () => {
     await loadGameComposer();
-    const only = parseStoryV2OrThrow({ ...RAW, codex: undefined });
+    const only = parseStoryOrThrow({ ...RAW, codex: undefined });
     expect(storyHasGame(only)).toBe(true);
     const engine = run(only, [{}]);
     const slice = gameSlices({
       story: only, state: engine.serialize(), boundaryLog: engine.stateLog, checks: undefined, threads: { open: [], resolved: [] }, chat: [], castNames: CAST, authorView: false, enabled: ENABLED,
     });
     expect(slice.game?.codex?.people.map((entry) => entry.name)).toEqual(["Mara", "Tom", "Sera"]);
-    const plain = parseStoryV2OrThrow(withoutSecrets({ ...RAW, codex: undefined, roster: (RAW.roster as Roster).map(({ relationships: _r, ...member }) => member) }));
+    const plain = parseStoryOrThrow(withoutSecrets({ ...RAW, codex: undefined, roster: (RAW.roster as Roster).map(({ relationships: _r, ...member }) => member) }));
     expect(storyHasGame(plain)).toBe(false);
   });
 });

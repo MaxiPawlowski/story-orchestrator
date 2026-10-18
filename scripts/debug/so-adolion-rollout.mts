@@ -144,7 +144,7 @@ try {
             const gc = await import(modulePath);
             const root = ctx.extensionSettings['story-orchestrator'];
             const rows = stories.map((story: any) => {
-                const library = root.v2Stories.find((r: any) => r.id === story.id);
+                const library = root.stories.find((r: any) => r.id === story.id);
                 const spec = groups.find((g: any) => g.story === story.id)!;
                 const group = gc.groups.find((g: any) => g.name === spec.name);
                 const missing = spec.members.filter((avatar: string) => !ctx.characters.some((c: any) => c.avatar === avatar) || !group?.members.includes(avatar));

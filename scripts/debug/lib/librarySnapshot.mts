@@ -6,7 +6,7 @@ export async function captureLibrary(page): Promise<LibraryCapture> {
   return evaluateInST(page, () => {
     const settings = SillyTavern.getContext().extensionSettings;
     if (!settings || typeof settings !== 'object') return { trusted: false, records: [] };
-    const records = settings['story-orchestrator']?.v2Stories;
+    const records = settings['story-orchestrator']?.stories;
     return { trusted: true, records: Array.isArray(records) ? JSON.parse(JSON.stringify(records)) : [] };
   });
 }
@@ -15,7 +15,7 @@ export async function restoreLibrary(page, before: LibraryCapture | null | undef
   const current = await evaluateInST(page, () => {
     const settings = SillyTavern.getContext().extensionSettings;
     if (!settings || typeof settings !== 'object') return null;
-    const records = settings['story-orchestrator']?.v2Stories;
+    const records = settings['story-orchestrator']?.stories;
     return Array.isArray(records) ? JSON.parse(JSON.stringify(records)) : [];
   }) as unknown[] | null;
   if (current === null) return { untrusted: true, note: 'the library could not be read at cleanup, so nothing was restored' };
@@ -25,11 +25,11 @@ export async function restoreLibrary(page, before: LibraryCapture | null | undef
   await evaluateInST(page, (records) => {
     const settings = SillyTavern.getContext().extensionSettings;
     const root = settings['story-orchestrator'] ?? (settings['story-orchestrator'] = {});
-    root.v2Stories = records;
+    root.stories = records;
     return true;
   }, plan.next);
   const saved = await save(page).catch((error) => ({ error: error instanceof Error ? error.message : String(error) }));
-  const readBack = await evaluateInST(page, () => JSON.stringify(SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.v2Stories ?? []));
+  const readBack = await evaluateInST(page, () => JSON.stringify(SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.stories ?? []));
   const verified = readBack === JSON.stringify(plan.next);
   return { changed: true, removed: plan.removed, restored: plan.restored, saved, verified, ...(verified ? {} : { error: 'the library read back after the restore does not match the pre-run snapshot' }) };
 }

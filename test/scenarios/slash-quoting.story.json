@@ -1,5 +1,4 @@
 {
-  "format": 2,
   "id": "so-slash-quoting-probe",
   "title": "SO Slash Quoting Probe",
   "description": "Live check: text with pipes, quotes, backslashes, newlines and macro braces reaches ST verbatim through our slash commands.",

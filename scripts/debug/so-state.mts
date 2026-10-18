@@ -166,7 +166,7 @@ export async function dumpCurrentChatState(page) {
       selectedStoryId: selected,
       globalSettings: (globalThis as any).storyOrchestratorRuntime?.getGlobalSettings?.() ?? ctx.extensionSettings?.['story-orchestrator']?.settings ?? null,
       globalSettingsStored: ctx.extensionSettings?.['story-orchestrator']?.settings ?? null,
-      libraryIds: (ctx.extensionSettings?.['story-orchestrator']?.v2Stories ?? []).map((record) => ({ id: record.id ?? null, hash: record.hash, title: record.title })),
+      libraryIds: (ctx.extensionSettings?.['story-orchestrator']?.stories ?? []).map((record) => ({ id: record.id ?? null, hash: record.hash, title: record.title })),
       version: blob?.version ?? null,
       storyCount: blob?.stories ? Object.keys(blob.stories).length : 0,
       entry,

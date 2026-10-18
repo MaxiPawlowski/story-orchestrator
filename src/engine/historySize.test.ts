@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { ROLLBACK_HORIZON, StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { ROLLBACK_HORIZON, StoryEngine, parseStoryOrThrow } from "@engine/index";
 
 // V11: the engine persists up to ROLLBACK_HORIZON full states with every save, and the audit found
 // the size had never been measured. Measured here over the shipped sun-ruins story, one delta per
@@ -8,7 +8,7 @@ import { ROLLBACK_HORIZON, StoryEngine, parseStoryV2OrThrow } from "@engine/inde
 // each retained state heavier fails here before it reaches a player's chat file.
 const HISTORY_BUDGET_BYTES = 400_000;
 
-const sunRuins = () => parseStoryV2OrThrow(JSON.parse(readFileSync(join(__dirname, "../../examples/sun-ruins/quest-for-the-sun-ruins.json"), "utf-8")));
+const sunRuins = () => parseStoryOrThrow(JSON.parse(readFileSync(join(__dirname, "../../examples/sun-ruins/quest-for-the-sun-ruins.json"), "utf-8")));
 
 function fullHorizon(boundaries: number) {
   const story = sunRuins();

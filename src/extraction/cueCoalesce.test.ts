@@ -20,7 +20,7 @@ jest.mock("./sharedRead", () => ({
 
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2OrThrow, type EngineState, type GateNode, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type EngineState, type GateNode, type NormalizedStory } from "@engine/index";
 import { ExtractionScheduler, type SchedulerHost } from "./scheduler";
 import { runSharedRead } from "./sharedRead";
 import { scheduleForcedCues } from "./cues";
@@ -30,14 +30,14 @@ import { deriveScope } from "./scope";
 const HUB = "war-the-summons";
 const HUB_LINE = "No more waiting: we join the company and swear to the banner.";
 
-const war = (): NormalizedStoryV2 =>
-  parseStoryV2OrThrow(JSON.parse(readFileSync(join(__dirname, "..", "..", "test", "fixtures", "adolion-war.story.json"), "utf8")));
+const war = (): NormalizedStory =>
+  parseStoryOrThrow(JSON.parse(readFileSync(join(__dirname, "..", "..", "test", "fixtures", "adolion-war.story.json"), "utf8")));
 
 const flush = () => new Promise((resolve) => setTimeout(resolve, 5));
 
 const blackboard = { values: {}, versions: {}, latched: {} };
 
-const hostFor = (story: NormalizedStoryV2, lastMessageId: () => number, checkpoint = HUB): SchedulerHost => ({
+const hostFor = (story: NormalizedStory, lastMessageId: () => number, checkpoint = HUB): SchedulerHost => ({
   getStory: () => story,
   getEngineState: () => ({ activeCheckpointId: checkpoint, lastMessageId: lastMessageId(), blackboard }) as unknown as EngineState,
   getExtractionSettings: () => ({ enabled: true, profileId: null, cadence: 1, stabilityLag: 0 }),

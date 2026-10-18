@@ -1,5 +1,4 @@
 {
-  "format": 2,
   "id": "so-preset-probe",
   "title": "SO Preset Probe",
   "description": "Live check: an authored preset effect either reaches the backend's sampler stack or is refused with a reason, and never silently claims success.",

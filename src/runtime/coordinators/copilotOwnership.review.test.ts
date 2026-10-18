@@ -1,5 +1,5 @@
 import { plantedModel } from "../../../test/support/modelCall";
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import type { ProvisioningOp } from "@wizard/index";
 import { control } from "../../../test/findings/ledger";
 import { CopilotCoordinator } from "./copilotCoordinator";
@@ -20,7 +20,6 @@ const host = {
 const { listAllLorebooks, upsertWIEntry } = host;
 
 const draft = {
-  format: 2,
   id: "ownership-story",
   title: "Ownership story",
   description: "Fixture",
@@ -29,7 +28,7 @@ const draft = {
   checkpoints: [],
   transitions: [],
   roster: [],
-} as unknown as StoryV2;
+} as unknown as Story;
 
 function harness() {
   let current: RunContext = {

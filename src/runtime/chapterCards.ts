@@ -1,4 +1,4 @@
-import { composeChapterBriefing, type BoundaryLogEntry, type BriefingView, type Chapter, type NormalizedStoryV2 } from "@engine/index";
+import { composeChapterBriefing, type BoundaryLogEntry, type BriefingView, type Chapter, type NormalizedStory } from "@engine/index";
 
 export interface ChapterCard {
   messageId: number;
@@ -16,19 +16,19 @@ export interface ChapterCardRecap {
   lines: string[];
 }
 
-const chapterOfCheckpoint = (story: NormalizedStoryV2, checkpointId: string): Chapter | null => {
+const chapterOfCheckpoint = (story: NormalizedStory, checkpointId: string): Chapter | null => {
   const id = story.chapterByCheckpoint?.[checkpointId] ?? story.checkpointById[checkpointId]?.chapter;
   return id ? story.chapterById?.[id] ?? story.chapters?.find((chapter) => chapter.id === id) ?? null : null;
 };
 
-const numberOf = (story: NormalizedStoryV2, chapter: Chapter): number | null => {
+const numberOf = (story: NormalizedStory, chapter: Chapter): number | null => {
   if (chapter.kind === "interlude") return null;
   const numbered = (story.chapters ?? []).filter((entry) => entry.kind !== "interlude");
   const index = numbered.findIndex((entry) => entry.id === chapter.id);
   return index < 0 ? null : index + 1;
 };
 
-const card = (story: NormalizedStoryV2, chapter: Chapter, messageId: number): ChapterCard => {
+const card = (story: NormalizedStory, chapter: Chapter, messageId: number): ChapterCard => {
   const briefing = composeChapterBriefing(story, chapter.id);
   return {
     messageId, chapterId: chapter.id, title: chapter.player_title ?? chapter.title, number: numberOf(story, chapter),
@@ -36,7 +36,7 @@ const card = (story: NormalizedStoryV2, chapter: Chapter, messageId: number): Ch
   };
 };
 
-export function composeChapterCards(story: NormalizedStoryV2 | null, log: readonly BoundaryLogEntry[]): ChapterCard[] {
+export function composeChapterCards(story: NormalizedStory | null, log: readonly BoundaryLogEntry[]): ChapterCard[] {
   if (!story?.chapters?.length) return [];
   const cards: ChapterCard[] = [];
   const first = log[0];

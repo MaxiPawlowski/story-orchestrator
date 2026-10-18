@@ -1,9 +1,8 @@
 import { ApplyQueue, type ApplyQueueEntry } from "./applyQueue";
 import { Blackboard } from "./blackboard";
-import { parseStoryV2OrThrow } from "./validate";
+import { parseStoryOrThrow } from "./validate";
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   title: "T1-6 location",
   description: "",
   qualities: [

@@ -1,15 +1,14 @@
 import type { PoseEntry, StoryPoses, MemberSprites, StageMember, CardFieldBinding, CodexEntry, CodexFact, CodexReturn, StoryCodex } from "@engine/schema";
 import type { CarryFrom, CarryMapEntry, OutcomeKey } from "@engine/carrySchema";
 import type { Commitment } from "@engine/lifeSchema";
-import type { Checkpoint, CheckpointEffects, Quality, RosterMember, StoryV2, Transition } from "@engine/index";
+import type { Checkpoint, CheckpointEffects, Quality, RosterMember, Story, Transition } from "@engine/index";
 import { GUIDE_TOPICS, type GuideTopicId } from "./guideTopics";
 import { PENDING_GUIDE_TOPICS, readGuide } from "./guideRead";
 
 type Covered = GuideTopicId | { none: string };
 
-const STORY: Record<keyof StoryV2, Covered> = {
+const STORY: Record<keyof Story, Covered> = {
   features: "feature-policies",
-  format: { none: "always 2, written by the Studio" },
   id: "story-basics", title: "story-basics", description: "story-basics", player_intro: "story-basics", kind: "story-basics",
   player: "player", briefing: "briefing", reasoning: "experimental-effects", illustrations: "presentation", poses: "poses", qualities: "qualities", checkpoints: "checkpoints", transitions: "transitions",
   roster: "roster", arc_template: "arc-template", arc_bridges: "arc-bridges", requirements: "requirements", stagecraft: "stagecraft",

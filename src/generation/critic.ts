@@ -1,4 +1,4 @@
-import { progressQualityForAnchor, thresholdFor, type GateLeaf, type GateNode, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { progressQualityForAnchor, thresholdFor, type GateLeaf, type GateNode, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 import { askText, type ModelAsk, type ModelCall } from "@extraction/modelRoute";
 import { renderCriticPrompt } from "./prompts";
 import { parseCriticVerdict } from "./parse";
@@ -31,7 +31,7 @@ const leafSatisfiedBy = (leaf: GateLeaf, value: PrimitiveValue): boolean => {
   return true;
 };
 
-export function runCodeChecks(story: NormalizedStoryV2, input: PlannedExpansionInput, beats: GeneratedBeat[]): CodeCheckResult {
+export function runCodeChecks(story: NormalizedStory, input: PlannedExpansionInput, beats: GeneratedBeat[]): CodeCheckResult {
   const issues: string[] = [];
   const target = story.checkpointById[input.candidate.targetAnchorId];
   // A snapshot key the plan left out already holds its target on entry (planExpansion only lists what
@@ -91,7 +91,7 @@ export function runCodeChecks(story: NormalizedStoryV2, input: PlannedExpansionI
 }
 
 export async function runCritic(
-  story: NormalizedStoryV2,
+  story: NormalizedStory,
   input: PlannedExpansionInput,
   beats: GeneratedBeat[],
   model: ModelCall,

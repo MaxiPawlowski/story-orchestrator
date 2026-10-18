@@ -1,4 +1,4 @@
-import { GATE_OPERATORS, qualityAccepts, TENSION_LEVELS, type GateNode, type GateOperator, type NormalizedStoryV2, type PrimitiveValue, type Quality, type ScaffoldingDelta } from "@engine/index";
+import { GATE_OPERATORS, qualityAccepts, TENSION_LEVELS, type GateNode, type GateOperator, type NormalizedStory, type PrimitiveValue, type Quality, type ScaffoldingDelta } from "@engine/index";
 import type { CriticVerdict, GeneratedBeat, GeneratedOutcome } from "./types";
 import { isRecord } from "@utils/guards";
 import { normalizeJsonText } from "@utils/json";
@@ -14,7 +14,7 @@ const coerceValue = (quality: Quality | undefined, value: PrimitiveValue): Primi
   return value;
 };
 
-const readGate = (value: unknown, story: NormalizedStoryV2, path: string, issues: string[]): GateNode | null => {
+const readGate = (value: unknown, story: NormalizedStory, path: string, issues: string[]): GateNode | null => {
   if (!isRecord(value)) {
     issues.push(`${path}: gate must be an object`);
     return null;
@@ -40,7 +40,7 @@ const readGate = (value: unknown, story: NormalizedStoryV2, path: string, issues
   return null;
 };
 
-const readDeltas = (value: unknown, story: NormalizedStoryV2, path: string, issues: string[]): ScaffoldingDelta[] | undefined => {
+const readDeltas = (value: unknown, story: NormalizedStory, path: string, issues: string[]): ScaffoldingDelta[] | undefined => {
   if (value === undefined) return undefined;
   if (!Array.isArray(value)) {
     issues.push(`${path}: deltas must be an array`);
@@ -62,7 +62,7 @@ const readDeltas = (value: unknown, story: NormalizedStoryV2, path: string, issu
   }).filter((entry): entry is ScaffoldingDelta => Boolean(entry));
 };
 
-const readOutcome = (value: unknown, story: NormalizedStoryV2, path: string, issues: string[], id: string): GeneratedOutcome | null => {
+const readOutcome = (value: unknown, story: NormalizedStory, path: string, issues: string[], id: string): GeneratedOutcome | null => {
   if (!isRecord(value)) {
     issues.push(`${path}: outcome must be an object`);
     return null;
@@ -80,7 +80,7 @@ const readOutcome = (value: unknown, story: NormalizedStoryV2, path: string, iss
   return { id, label: value.label, gate, ...(deltas ? { deltas } : {}), ...(progress ? { progress } : {}) };
 };
 
-export function parseGeneratedBeats(raw: string, story: NormalizedStoryV2): { beats: GeneratedBeat[]; issues: string[] } {
+export function parseGeneratedBeats(raw: string, story: NormalizedStory): { beats: GeneratedBeat[]; issues: string[] } {
   const issues: string[] = [];
   let parsed: unknown;
   try {

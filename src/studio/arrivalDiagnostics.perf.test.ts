@@ -1,4 +1,4 @@
-import type { Checkpoint, GateNode, Quality, StoryV2, Transition } from "@engine/index";
+import type { Checkpoint, GateNode, Quality, Story, Transition } from "@engine/index";
 import { passThroughExits } from "./arrivalDiagnostics";
 import { referencePassThroughExits } from "../../test/support/arrivalReference";
 
@@ -32,7 +32,7 @@ const gateInto = (layer: number): GateNode => ({
   ],
 });
 
-const layeredStory = (): StoryV2 => {
+const layeredStory = (): Story => {
   const checkpoints: Checkpoint[] = [{ id: "start", name: "start", objective: "Play.", type: "anchor", start: true }];
   const transitions: Transition[] = [];
   for (let layer = 1; layer <= LAYERS; layer += 1) {
@@ -43,10 +43,10 @@ const layeredStory = (): StoryV2 => {
       if (slot === 0 && layer % SHORTCUT_EVERY === 0 && layer + 2 <= LAYERS) transitions.push({ from: node(layer, 0), to: node(layer + 2, 0), priority: 2, gate: { q: "stage", op: "==", v: `s${layer % STAGES}` } });
     }
   }
-  return { format: 2, title: "Layers", description: "", qualities: QUALITIES, checkpoints, transitions, roster: [{ id: "guide", name: "Guide" }] };
+  return { title: "Layers", description: "", qualities: QUALITIES, checkpoints, transitions, roster: [{ id: "guide", name: "Guide" }] };
 };
 
-const counted = (story: StoryV2, limit: number) => {
+const counted = (story: Story, limit: number) => {
   let reads = 0;
   const trap: ProxyHandler<object> = {
     get(target, key, receiver) {
@@ -55,7 +55,7 @@ const counted = (story: StoryV2, limit: number) => {
       return Reflect.get(target, key, receiver);
     },
   };
-  const draft: StoryV2 = {
+  const draft: Story = {
     ...story,
     transitions: story.transitions.map((entry) => new Proxy(entry, trap) as Transition),
     checkpoints: story.checkpoints.map((entry) => new Proxy(entry, trap) as Checkpoint),
@@ -63,7 +63,7 @@ const counted = (story: StoryV2, limit: number) => {
   return { draft, reads: () => reads };
 };
 
-const routeShape = (story: StoryV2): Map<string, { routes: number; depth: number }> => {
+const routeShape = (story: Story): Map<string, { routes: number; depth: number }> => {
   const shape = new Map<string, { routes: number; depth: number }>([["start", { routes: 1, depth: 0 }]]);
   story.transitions.forEach((entry) => {
     const before = shape.get(entry.from) ?? { routes: 1, depth: 0 };
@@ -73,7 +73,7 @@ const routeShape = (story: StoryV2): Map<string, { routes: number; depth: number
   return shape;
 };
 
-const ceilingFor = (story: StoryV2): number => {
+const ceilingFor = (story: Story): number => {
   const shape = routeShape(story);
   const work = (id: string) => (shape.get(id)?.routes ?? 0) * (shape.get(id)?.depth ?? 0);
   const walks = story.checkpoints.reduce((sum, checkpoint) => sum + work(checkpoint.id), 0);
@@ -112,7 +112,7 @@ describe("gate-open-on-arrival stays linear in edges x routes on a large branchi
 
   it("control: the counter sees the old algorithm agree on a story small enough to finish", () => {
     const kept = new Set(story.checkpoints.slice(0, 1 + WIDTH * 12).map((checkpoint) => checkpoint.id));
-    const small: StoryV2 = { ...story, checkpoints: story.checkpoints.filter((checkpoint) => kept.has(checkpoint.id)), transitions: story.transitions.filter((entry) => kept.has(entry.to)) };
+    const small: Story = { ...story, checkpoints: story.checkpoints.filter((checkpoint) => kept.has(checkpoint.id)), transitions: story.transitions.filter((entry) => kept.has(entry.to)) };
     const fresh = counted(small, Number.POSITIVE_INFINITY);
     const reference = counted(small, Number.POSITIVE_INFINITY);
     const found = passThroughExits(fresh.draft);

@@ -1,5 +1,4 @@
 {
-  "format": 2,
   "title": "Village Watch",
   "description": "Extractor test story exercising enum qualities and invalid-value rejection.",
   "qualities": [

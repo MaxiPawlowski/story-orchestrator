@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import type { ExtractionScheduler } from "./scheduler";
 import type { SharedReadWindow } from "./types";
 import { log } from "@utils/log";
@@ -13,7 +13,7 @@ export const cueReason = (pairs: string[]): string => `${CUE_REASON_PREFIX}${[..
 
 export const mergeCueReasons = (left: string, right: string): string => cueReason([...cuePairs(left), ...cuePairs(right)]);
 
-export function scheduleForcedCues(story: NormalizedStoryV2 | null, activeCheckpointId: string | null, scheduler: ExtractionScheduler, window: SharedReadWindow) {
+export function scheduleForcedCues(story: NormalizedStory | null, activeCheckpointId: string | null, scheduler: ExtractionScheduler, window: SharedReadWindow) {
   if (!story || !activeCheckpointId || !window.messages.length) return;
   const matched: string[] = [];
   for (const transition of story.outgoingByCheckpoint[activeCheckpointId] ?? []) {

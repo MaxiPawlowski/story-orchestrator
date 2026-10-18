@@ -3,7 +3,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "title": "Live Hygiene Gate Check",
         "description": "Plan 08 retro validation: story-loaded consolidation, supersession bridge, WI sync.",
         "qualities": [

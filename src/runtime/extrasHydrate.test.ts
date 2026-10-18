@@ -11,7 +11,7 @@ jest.mock("@services/STAPI", () => ({
 import { isLive } from "@memory/index";
 import { EXPANSION_CONTRACT } from "@generation/index";
 import { sanitizeExpansion, sanitizeExtraction, sanitizeMemory } from "./extras";
-import { repairActiveCheckpoint, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { repairActiveCheckpoint, type EngineState, type NormalizedStory } from "@engine/index";
 import type { RuntimeExtras } from "./types";
 
 // v2.5 plan 11. Every stored row carries its envelope; one that does not is dropped at hydrate, and
@@ -94,7 +94,7 @@ describe("v2.4 plan 03 D3: the scheduler snapshot is a display cache, not state"
 });
 
 describe("V12: a saved checkpoint the merged graph no longer has", () => {
-  const story = { startCheckpointId: "cp1", checkpointById: { cp1: {}, cp2: {} } } as unknown as NormalizedStoryV2;
+  const story = { startCheckpointId: "cp1", checkpointById: { cp1: {}, cp2: {} } } as unknown as NormalizedStory;
   const saved = (activeCheckpointId: string, visitedPath: string[]) => ({ activeCheckpointId, visitedPath, visitedAnchors: ["cp1"] }) as unknown as EngineState;
 
   it("resumes at the newest visited checkpoint that still exists, and says why", () => {

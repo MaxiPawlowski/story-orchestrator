@@ -1,5 +1,5 @@
 import {
-  OPENING_MAX_TURNS, anchorOpening, isOpenStretch, isValidationErrorList, objectiveLineApplies, openPhase, parseStoryV2, parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2,
+  OPENING_MAX_TURNS, anchorOpening, isOpenStretch, isValidationErrorList, objectiveLineApplies, openPhase, parseStory, parseStoryOrThrow, type EngineState, type NormalizedStory,
 } from "@engine/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { GUIDANCE_PREAMBLE, OPENING_LINE, composeGuidanceBlock } from "@pacing/index";
@@ -15,7 +15,6 @@ const KEY = INJECTION_REGISTRY.checkpointGuidance.key;
 const OBJECTIVE = "Persuade the harbour master to open the gate.";
 
 const raw = (opening: Record<string, unknown> | null, extra: { camp?: Record<string, unknown> } = {}) => ({
-  format: 2,
   id: "opening",
   title: "Opening",
   description: "",
@@ -32,10 +31,10 @@ const raw = (opening: Record<string, unknown> | null, extra: { camp?: Record<str
 });
 
 const OPEN = { mode: "open", pace: "brief" };
-const story = parseStoryV2OrThrow(raw(OPEN));
-const plain = parseStoryV2OrThrow(raw(null));
+const story = parseStoryOrThrow(raw(OPEN));
+const plain = parseStoryOrThrow(raw(null));
 const errorsOf = (value: unknown) => {
-  const parsed = parseStoryV2(value);
+  const parsed = parseStory(value);
   return isValidationErrorList(parsed) ? parsed.map((error) => `${error.path}: ${error.message}`) : [];
 };
 
@@ -48,7 +47,7 @@ const state = (overrides: Partial<EngineState> = {}): EngineState => ({
 const chatWithTurns = (turns: number, replies = 3): Array<{ is_user: boolean }> =>
   Array.from({ length: turns }, () => [{ is_user: true }, ...Array.from({ length: replies }, () => ({ is_user: false }))]).flat();
 
-function block(loaded: NormalizedStoryV2, turns: number, replies = 3) {
+function block(loaded: NormalizedStory, turns: number, replies = 3) {
   const blocks = new Map<string, string>();
   const prompt = {
     setStoryExtensionPrompt: (key: string, value: string) => { blocks.set(key, value); },
@@ -72,9 +71,9 @@ function block(loaded: NormalizedStoryV2, turns: number, replies = 3) {
 describe("v2.8 19: the open opening of an anchor, the format", () => {
   it("is a stretch with only a mode, a pace and the turns; pace sets the turns and an explicit count wins", () => {
     expect(story.checkpointById.harbour.stretch).toEqual({ mode: "open", pace: "brief", pull_after: 3 });
-    expect(parseStoryV2OrThrow(raw({ mode: "open" })).checkpointById.harbour.stretch?.pull_after).toBe(6);
-    expect(parseStoryV2OrThrow(raw({ mode: "open", pace: "long" })).checkpointById.harbour.stretch?.pull_after).toBe(OPENING_MAX_TURNS);
-    expect(parseStoryV2OrThrow(raw({ mode: "open", pace: "long", pull_after: 4 })).checkpointById.harbour.stretch?.pull_after).toBe(4);
+    expect(parseStoryOrThrow(raw({ mode: "open" })).checkpointById.harbour.stretch?.pull_after).toBe(6);
+    expect(parseStoryOrThrow(raw({ mode: "open", pace: "long" })).checkpointById.harbour.stretch?.pull_after).toBe(OPENING_MAX_TURNS);
+    expect(parseStoryOrThrow(raw({ mode: "open", pace: "long", pull_after: 4 })).checkpointById.harbour.stretch?.pull_after).toBe(4);
     expect(errorsOf(raw(OPEN))).toEqual([]);
   });
 
@@ -98,7 +97,7 @@ describe("v2.8 19: the open opening of an anchor, the format", () => {
   it("keeps the anchor's authored player_text: it validates, and survives parsing", () => {
     const authored = raw(OPEN, { camp: { player_name: "The Harbour", player_text: "Gulls over the quay." } });
     expect(errorsOf(authored)).toEqual([]);
-    const parsed = parseStoryV2OrThrow(authored);
+    const parsed = parseStoryOrThrow(authored);
     expect(parsed.checkpointById.harbour.player_text).toBe("Gulls over the quay.");
     expect(parsed.checkpointById.harbour.stretch).toEqual({ mode: "open", pace: "brief", pull_after: 3 });
   });
@@ -168,7 +167,7 @@ describe("v2.8 19: the opening ends at its player-turn boundary", () => {
   });
 
   it("an anchor that also authors player_text gets the same narrator block: no objective at turns 1 and 2, the objective at 3", () => {
-    const authored = parseStoryV2OrThrow(raw(OPEN, { camp: { player_name: "The Harbour", player_text: "Gulls over the quay." } }));
+    const authored = parseStoryOrThrow(raw(OPEN, { camp: { player_name: "The Harbour", player_text: "Gulls over the quay." } }));
     [1, 2].forEach((turns) => {
       const text = block(authored, turns);
       expect(text).toBe([GUIDANCE_PREAMBLE, OPENING_LINE].join("\n"));
@@ -192,7 +191,7 @@ describe("v2.8 19: the opening ends at its player-turn boundary", () => {
       context: { lastMessageId: index * 2 + 3, chatLength: index * 2 + 4 }, queue: { applied: [], discarded: [] }, evaluated: null,
     }));
     const audits = [{ window: { from: 0, to: 40 }, acceptedDeltas: [] }] as unknown as Parameters<typeof agencyRecovery>[3];
-    const at = (loaded: NormalizedStoryV2, turns: number[]) => agencyRecovery(loaded, state({ lastMessageId: 12 }), log, audits, turns);
+    const at = (loaded: NormalizedStory, turns: number[]) => agencyRecovery(loaded, state({ lastMessageId: 12 }), log, audits, turns);
     expect(at(plain, [2, 4])).not.toBeNull();
     expect(at(story, [2, 4])).toBeNull();
     expect(at(story, [2, 4, 6])).not.toBeNull();
@@ -207,7 +206,7 @@ describe("v2.8 19: the opening ends at its player-turn boundary", () => {
 });
 
 describe("v2.8 19: what the player sees of an opening", () => {
-  const projectionInput = (loaded: NormalizedStoryV2) => ({
+  const projectionInput = (loaded: NormalizedStory) => ({
     story: loaded, narrative: { sections: [], text: "", title: "Opening" }, visitedPath: [] as string[], activeCheckpointId: "harbour", cast: [], chat: [], playerName: "Max",
   } as unknown as Parameters<typeof playedProjection>[0]);
 

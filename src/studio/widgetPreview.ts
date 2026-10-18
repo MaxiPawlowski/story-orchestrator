@@ -1,5 +1,5 @@
 import {
-  StoryEngine, gateKeys, isValidationErrorList, parseStoryV2, type EngineState, type PrimitiveValue, type StoryV2, type StoryWidget,
+  StoryEngine, gateKeys, isValidationErrorList, parseStory, type EngineState, type PrimitiveValue, type Story, type StoryWidget,
 } from "@engine/index";
 import { composeGame } from "@runtime/widgets";
 import type { IntentView, WidgetBody, WidgetView } from "@runtime/gameTypes";
@@ -18,7 +18,7 @@ export type WidgetPreview =
 export const PREVIEW_HIDDEN = "Not shown in this sample: its visible when does not hold, or it has nothing to show yet.";
 export const PREVIEW_INVALID = "Fix the story's validation errors to preview this panel.";
 
-const bindKeys = (widget: StoryWidget, draft: StoryV2): string[] => {
+const bindKeys = (widget: StoryWidget, draft: Story): string[] => {
   const bind = authoredBind(widget);
   if (!bind) return [];
   if ("quality" in bind) return [bind.quality];
@@ -27,7 +27,7 @@ const bindKeys = (widget: StoryWidget, draft: StoryV2): string[] => {
   return [];
 };
 
-export const previewKeys = (widget: StoryWidget, draft: StoryV2): string[] => [...new Set([
+export const previewKeys = (widget: StoryWidget, draft: Story): string[] => [...new Set([
   ...(widget.visible_when ? gateKeys(widget.visible_when) : []),
   ...bindKeys(widget, draft),
   ...(widget.clues ?? []).flatMap(clueKeys),
@@ -96,8 +96,8 @@ export const describeBody = (body: WidgetBody): string[] => {
   }
 };
 
-export const startValues = (draft: StoryV2): Readonly<Record<string, PrimitiveValue>> => {
-  const story = parseStoryV2(draft);
+export const startValues = (draft: Story): Readonly<Record<string, PrimitiveValue>> => {
+  const story = parseStory(draft);
   if (isValidationErrorList(story)) return {};
   const engine = new StoryEngine();
   engine.loadStory(story);
@@ -111,8 +111,8 @@ export const sampleDefault = (type: string | undefined, values: readonly string[
   return "";
 };
 
-export function previewWidget(draft: StoryV2, widgetId: string, sample: WidgetSample): WidgetPreview {
-  const story = parseStoryV2(draft);
+export function previewWidget(draft: Story, widgetId: string, sample: WidgetSample): WidgetPreview {
+  const story = parseStory(draft);
   if (isValidationErrorList(story)) return { status: "invalid", reason: PREVIEW_INVALID };
   const engine = new StoryEngine();
   engine.loadStory(story);

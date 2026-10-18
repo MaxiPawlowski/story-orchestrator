@@ -1,4 +1,4 @@
-import { agencyClauses, agencyForCheckpoint, guidanceShared, renderAgencyPolicy, type NormalizedStoryV2 } from "@engine/index";
+import { agencyClauses, agencyForCheckpoint, guidanceShared, renderAgencyPolicy, type NormalizedStory } from "@engine/index";
 import { askText, isPlanted, type ModelAsk, type ModelCall } from "@extraction/modelRoute";
 import { isRecord } from "@utils/guards";
 import { normalizeJsonText } from "@utils/json";
@@ -25,12 +25,12 @@ export interface ReviewedEncounters {
 
 type Checked = { encounters: GeneratedEncounter[]; raw: string; issues: string[]; codeCheck: CodeCheckResult | null };
 
-const placeName = (story: NormalizedStoryV2, id: string): string => {
+const placeName = (story: NormalizedStory, id: string): string => {
   const checkpoint = story.checkpointById[id];
   return (checkpoint?.player_name ?? checkpoint?.name ?? id).trim();
 };
 
-export function renderEncounterPrompt(story: NormalizedStoryV2, input: PlannedExpansionInput): string {
+export function renderEncounterPrompt(story: NormalizedStory, input: PlannedExpansionInput): string {
   const place = story.checkpointById[input.candidate.stubId];
   const guidance = guidanceShared(place?.guidance).trim();
   return [
@@ -52,7 +52,7 @@ export function renderEncounterPrompt(story: NormalizedStoryV2, input: PlannedEx
   ].join("\n");
 }
 
-export function renderEncounterCriticPrompt(story: NormalizedStoryV2, input: PlannedExpansionInput, encounters: GeneratedEncounter[], issues: string[]): string {
+export function renderEncounterCriticPrompt(story: NormalizedStory, input: PlannedExpansionInput, encounters: GeneratedEncounter[], issues: string[]): string {
   return [
     `Story: ${story.title}`,
     ...storyContext(story),
@@ -113,7 +113,7 @@ export function runPoolChecks(encounters: GeneratedEncounter[], playerNames: rea
 
 type Generated = { encounters: GeneratedEncounter[]; raw: string; issues: string[] };
 
-async function generateEncounters(story: NormalizedStoryV2, input: PlannedExpansionInput, model: ModelCall, ask: ModelAsk): Promise<Generated> {
+async function generateEncounters(story: NormalizedStory, input: PlannedExpansionInput, model: ModelCall, ask: ModelAsk): Promise<Generated> {
   const prompt = renderEncounterPrompt(story, input);
   const raw = await askText(model, prompt, { ...ask, maxTokens: 1024 });
   const parsed = parseEncounters(raw);
@@ -123,7 +123,7 @@ async function generateEncounters(story: NormalizedStoryV2, input: PlannedExpans
   return { encounters: repaired.encounters, raw: repairRaw, issues: repaired.issues };
 }
 
-async function generateChecked(story: NormalizedStoryV2, input: PlannedExpansionInput, model: ModelCall, ask: ModelAsk, playerNames: readonly string[]): Promise<Checked> {
+async function generateChecked(story: NormalizedStory, input: PlannedExpansionInput, model: ModelCall, ask: ModelAsk, playerNames: readonly string[]): Promise<Checked> {
   const generated = await generateEncounters(story, input, model, ask);
   if (generated.issues.length) return { ...generated, codeCheck: null };
   const initial = runPoolChecks(generated.encounters, playerNames);
@@ -143,7 +143,7 @@ const failure = (checked: Checked): ReviewedEncounters => (checked.issues.length
   : { ...checked, verdict: { pass: false, issues: checked.codeCheck.issues, raw: "CODE_CHECK" }, needsReview: true });
 
 export async function generateReviewedEncounters(
-  story: NormalizedStoryV2, input: PlannedExpansionInput, model: ModelCall, ask: ModelAsk, playerNames: readonly string[] = [],
+  story: NormalizedStory, input: PlannedExpansionInput, model: ModelCall, ask: ModelAsk, playerNames: readonly string[] = [],
 ): Promise<ReviewedEncounters> {
   const checked = await generateChecked(story, input, model, ask, playerNames);
   if (checked.issues.length || !checked.codeCheck) return failure(checked);

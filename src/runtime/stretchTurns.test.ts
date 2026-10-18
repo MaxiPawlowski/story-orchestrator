@@ -1,4 +1,4 @@
-import { PLAYER_TURNS_KEY, StoryEngine, parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { PLAYER_TURNS_KEY, StoryEngine, parseStoryOrThrow, type EngineState } from "@engine/index";
 import { deriveQualities, playerTurnValues, playerTurnsInCheckpoint } from "./stretchTurns";
 import { createChanceSeams } from "./chance";
 
@@ -7,7 +7,6 @@ type Row = { is_user: boolean; is_system?: boolean; mes?: string };
 const OOC_FORMS = ["((brb))", "OOC: can we skip ahead?", "(OOC) one question"];
 
 const RAW = {
-  format: 2,
   title: "Road",
   description: "An open road between two places.",
   qualities: [
@@ -26,7 +25,7 @@ const RAW = {
   ],
   roster: [] as never[],
 };
-const STORY = parseStoryV2OrThrow(RAW);
+const STORY = parseStoryOrThrow(RAW);
 
 class Play {
   readonly chat: Row[] = [];
@@ -272,7 +271,7 @@ describe("player_turns_in_checkpoint (v2.7 35 Phase 2)", () => {
   it("writes nothing when the story does not declare the quality, and composes with the chance seam", () => {
     const view = { boundary: 1, activeCheckpointId: "camp", checkpointStartedBoundary: 0, checkpointStartedMessageId: -1, lastMessageId: 3, values: {} };
     const rows = [{ is_user: true }, { is_user: false }, { is_user: true }, { is_user: false }];
-    const bare = parseStoryV2OrThrow({ ...RAW, qualities: RAW.qualities.slice(1), transitions: RAW.transitions.slice(1) });
+    const bare = parseStoryOrThrow({ ...RAW, qualities: RAW.qualities.slice(1), transitions: RAW.transitions.slice(1) });
     expect(playerTurnValues(bare, view, rows)).toEqual([]);
     const derive = deriveQualities(createChanceSeams(() => null), () => STORY, () => rows);
     expect(derive(view)).toEqual([{ q: PLAYER_TURNS_KEY, v: 2 }]);

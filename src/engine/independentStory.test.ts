@@ -5,12 +5,12 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 
 const raw = JSON.parse(readFileSync(join(__dirname, "../../test/fixtures/two-ways-across.story.json"), "utf8").replace(/^﻿/, ""));
 
 test.each(["bridge", "ferry"])("the independent fixture preserves an explicit %s choice and converges", (route) => {
-  const story = parseStoryV2OrThrow(raw);
+  const story = parseStoryOrThrow(raw);
   const engine = new StoryEngine();
   engine.loadStory(story);
   expect(story.outgoingByCheckpoint.bank).toHaveLength(2);

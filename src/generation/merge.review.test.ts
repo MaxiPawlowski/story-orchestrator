@@ -5,7 +5,7 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { mergeExpansions } from "@generation/merge";
 import { parseGeneratedBeats } from "@generation/parse";
 import { control, finding, must } from "../../test/findings/ledger";
@@ -20,7 +20,7 @@ const root = join(__dirname, "../..");
 const rawStory = () => JSON.parse(readFileSync(join(root, "test/fixtures/background-generation.story.json"), "utf8"));
 
 const parsedBeats = () => {
-  const story = parseStoryV2OrThrow(rawStory());
+  const story = parseStoryOrThrow(rawStory());
   const parsed = parseGeneratedBeats(readFileSync(join(root, "test/goldens/background-generator1.response.txt"), "utf8"), story);
   expect(parsed.issues).toEqual([]);
   return { story, parsed };

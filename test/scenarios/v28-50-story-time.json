@@ -6,7 +6,6 @@
     { "expect": { "groupDisabled": { "enabled": ["Arin", "DM Narrator"] } } },
     {
       "import_story": {
-        "format": 2,
         "id": "so-v28-50-story-time",
         "title": "SO-V28-50 Story Time",
         "description": "v2.8 plan 50 no-model fixture: a clock with a calendar, a night schedule, a two-day journey and a deadline.",

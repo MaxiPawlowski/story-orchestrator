@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2OrThrow, StoryEngine, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, StoryEngine, type NormalizedStory } from "@engine/index";
 import { foldOps } from "@generation/living/fold";
 import { projectLivingExport } from "@generation/living/export";
 import { guardDraft } from "@generation/living/guard";
@@ -29,7 +29,7 @@ const draft = (name: string, objective: string, key: string): DirectorDraft => (
 });
 
 const grow = (raw: Record<string, unknown>, frontierId: string, entry: DirectorDraft) => {
-  const story = parseStoryV2OrThrow(raw);
+  const story = parseStoryOrThrow(raw);
   const built = buildDirectorOps(story, frontierId, entry, planChapter(story, frontierId, { sealsOn: true, final: false, newChapter: false }));
   expect(checkDirectorOps({ raw, story, frontierId, ops: built.ops, values: {}, latched: {} }).issues).toEqual([]);
   return foldOps(raw, built.ops);
@@ -39,7 +39,7 @@ const livingRun = () => {
   const authored = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/living-premise.story.json"), "utf8")) as Record<string, unknown>;
   const once = grow(authored, "liv_open", draft("The Cold Quay", "A quay lantern goes dark while the harbourmaster watches.", "lantern_dark"));
   const raw = grow(once, "liv_1", draft(UNREACHED_NAME, UNREACHED_OBJECTIVE, "bell_heard"));
-  const story = parseStoryV2OrThrow(raw) as NormalizedStoryV2;
+  const story = parseStoryOrThrow(raw) as NormalizedStory;
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
   const step = (q: string, v: boolean | number, source: "extractor" | "code", message: number) => {
@@ -102,7 +102,7 @@ describe("v2.8 22 spoiler property: an unreached generated anchor and a held sec
     const leaky = JSON.parse(JSON.stringify(run.raw)) as { checkpoints: Array<{ id: string; objective: string }> };
     const kept = leaky.checkpoints.find((checkpoint) => checkpoint.id === "liv_1");
     if (kept) kept.objective = "Tobin smuggles lamp oil past the customs house. A quay lantern goes dark.";
-    const out = projectLivingExport(leaky as unknown as Record<string, unknown>, parseStoryV2OrThrow(leaky), { reached, includeUnreached: false, id: "x", title: "x", scrub: resting });
+    const out = projectLivingExport(leaky as unknown as Record<string, unknown>, parseStoryOrThrow(leaky), { reached, includeUnreached: false, id: "x", title: "x", scrub: resting });
     expect(out.ok).toBe(true);
     const text = JSON.stringify(out.ok ? out.raw : null);
     expect(text).not.toContain(UNREACHED_NAME);

@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, type BlackboardSnapshot, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { parseStoryOrThrow, type BlackboardSnapshot, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 import { readContext, renderSharedReadPrompt, runningTotals } from "./contract";
 import { deriveScopeWithSources } from "./scope";
 import { SCOPE_SOURCES, type ScopeSource, type ScopeSourceContext } from "./scopeSources";
@@ -38,7 +38,7 @@ export interface FixtureSourceRead {
 }
 
 export interface FixtureRun {
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
   activeCheckpointId: string;
   scope: ScopedQuality[];
   prompt: string;
@@ -62,7 +62,7 @@ export const withCurrentValues = (prompt: string, scope: ScopedQuality[], values
 };
 
 export function buildFixtureRun(spec: ExtractionFixtureSpec): FixtureRun {
-  const story = parseStoryV2OrThrow(spec.story);
+  const story = parseStoryOrThrow(spec.story);
   const startId = story.checkpoints.find((checkpoint) => checkpoint.start)?.id ?? story.checkpoints[0]?.id ?? "";
   const activeCheckpointId = spec.activeCheckpointId ?? startId;
   const blackboard = spec.blackboard ?? emptyBlackboard();

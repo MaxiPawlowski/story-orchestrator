@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, type BoundaryResult } from "@engine/index";
+import { parseStoryOrThrow, type BoundaryResult } from "@engine/index";
 import { EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_KEY, MEMORY_INJECTION_KEY_PREFIX } from "@constants/defaults";
 import type { EpistemicEntry, MemoryEntry } from "@memory/index";
 import { createRumors } from "@memory/rumors/state";
@@ -16,8 +16,8 @@ jest.mock("@extraction/index", () => ({
 const CAST: Array<[string, string]> = [["narrator", "Narrator"], ["kel", "Kel"], ["tam", "Tam"], ["cora", "Cora"]];
 const SECRET = /silver key|vault/i;
 
-const story = parseStoryV2OrThrow({
-  format: 2, id: "rumor-secret", title: "Rumor secret", description: "",
+const story = parseStoryOrThrow({
+  id: "rumor-secret", title: "Rumor secret", description: "",
   qualities: [{ key: "confess", type: "bool", source: "extractor", rubric: "Did Kel confess?" }],
   checkpoints: [{ id: "a", name: "A", objective: "", type: "anchor", start: true }],
   transitions: [],

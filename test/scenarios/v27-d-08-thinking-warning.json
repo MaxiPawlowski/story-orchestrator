@@ -24,7 +24,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-v27d08",
         "title": "SO-V27D08 Thinking",
         "description": "v2.7 08 live row: replies with and without reasoning while harvest is on.",

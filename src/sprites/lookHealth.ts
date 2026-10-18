@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2, PrimitiveValue } from "@engine/index";
+import type { NormalizedStory, PrimitiveValue } from "@engine/index";
 import { cardValues } from "@engine/cardFields";
 import type { SpriteLookIssue } from "@runtime/spriteLookHealth";
 import { cardSet, type SpriteSetRule } from "./profile";
@@ -13,7 +13,7 @@ export interface LookActor {
   lookError?: string;
 }
 
-export function changedLookIssues(story: NormalizedStoryV2 | null, values: Record<string, PrimitiveValue>,
+export function changedLookIssues(story: NormalizedStory | null, values: Record<string, PrimitiveValue>,
   settings: SpriteSettings, active: boolean, actors: LookActor[]): SpriteLookIssue[] {
   if (!story || !active) return [];
   return story.roster.flatMap((member) => {

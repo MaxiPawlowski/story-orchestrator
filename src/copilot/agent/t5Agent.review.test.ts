@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { doneSummary } from "./finish";
 import { approvePlan, executeReply, NO_CHANGE, newAgentSession, opPreview, type StepMeta } from "./loop";
 import { agentContext } from "./testing";
@@ -7,8 +7,7 @@ import type { AgentSession } from "./types";
 const AT = "2026-10-02T11:00:00.000Z";
 const META: StepMeta = { route: "local", firstTryValid: true, repaired: false, at: AT };
 
-const redline = (): StoryV2 => ({
-  format: 2,
+const redline = (): Story => ({
   title: "The Redline Kingdom",
   description: "",
   qualities: [{ key: "ink_awareness", type: "int", source: "extractor", rubric: "How much does the apprentice understand?" }],

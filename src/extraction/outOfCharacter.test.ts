@@ -1,5 +1,5 @@
 import { recordingModel } from "../../test/support/modelCall";
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 import { getChatWindow } from "./chatWindow";
 import { onlyOutOfCharacter, windowOf } from "./chatRows";
 import { runSharedRead } from "./sharedRead";
@@ -16,8 +16,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: chatRef.current, extensionSettings: {} }),
 }));
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "sun-idol-ooc",
   title: "Sun idol",
   description: "v2.7 finding 19",

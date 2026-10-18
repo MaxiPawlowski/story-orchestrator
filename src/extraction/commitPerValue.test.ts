@@ -1,4 +1,4 @@
-import { parseStoryV2, type Quality } from "@engine/index";
+import { parseStory, type Quality } from "@engine/index";
 import { applyCommitEvidence, commitPattern, type CommitStory } from "./commitGuard";
 import type { EvidenceMessage } from "./evidence";
 import type { ParsedDelta } from "./types";
@@ -18,8 +18,7 @@ const player = (text: string): EvidenceMessage => ({ messageId: 3, text, isUser:
 const story = (quality: Quality): CommitStory => ({ qualityByKey: { escape: quality }, transitions: [] });
 
 const parsed = (commit_evidence: unknown, patch: Record<string, unknown> = {}) => {
-  const result = parseStoryV2({
-  format: 2,
+  const result = parseStory({
   id: "per-value",
   title: "Per value",
   description: "Per-value commitment fixture.",

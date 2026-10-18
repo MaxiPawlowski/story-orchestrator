@@ -1,13 +1,13 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 import { composeChapterCards } from "./chapterCards";
 import {
   continueRows, dropPlay, groupPlays, lastPlayedText, PLAYS_LIMIT, playRow, playRowFromBlob, sanitizePlays, upsertPlay, type PlayRow, type PlaysIndex,
 } from "./playsIndex";
 import { BACKFILL_CAP, planBackfill, runBackfill, sanitizeBackfill, type BackfillState, type BackfillTarget } from "./playsBackfill";
 
-const chapters = parseStoryV2OrThrow(JSON.parse(readFileSync(join(__dirname, "../../test/fixtures/chapters-mini.story.json"), "utf8")));
+const chapters = parseStoryOrThrow(JSON.parse(readFileSync(join(__dirname, "../../test/fixtures/chapters-mini.story.json"), "utf8")));
 const NOW = "2026-10-03T10:00:00.000Z";
 
 const row = (overrides: Partial<PlayRow> = {}): PlayRow => ({

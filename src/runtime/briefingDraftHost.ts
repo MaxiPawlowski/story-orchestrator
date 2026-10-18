@@ -1,6 +1,6 @@
 import { getContext } from "@services/STAPI";
 import { askText, type ModelCall } from "@extraction/index";
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { log } from "@utils/log";
 import { BRIEFING_DRAFT_MAX_TOKENS, briefingDraftInput, checkBriefingDraft, renderBriefingDraftPrompt } from "./briefingDraft";
 import { beginRun } from "./runToken";
@@ -17,7 +17,7 @@ export const BRIEFING_DRAFT_JOURNAL = {
   discarded: "A drafted briefing was discarded; the story's introduction stays",
 } as const;
 
-export async function draftBriefing(manager: BriefingDraftManager, story: StoryV2, storyId: string, hash: string, clock: () => number = Date.now): Promise<BriefingDraftOutcome> {
+export async function draftBriefing(manager: BriefingDraftManager, story: Story, storyId: string, hash: string, clock: () => number = Date.now): Promise<BriefingDraftOutcome> {
   const run = beginRun(manager.getOwnership());
   const started = clock();
   try {
@@ -40,7 +40,7 @@ export async function draftBriefing(manager: BriefingDraftManager, story: StoryV
   }
 }
 
-export const briefingDraftDue = (manager: Pick<BriefingDraftManager, "getCachedSnapshot" | "getStory" | "getGlobalSettings">): { story: StoryV2; storyId: string; hash: string } | null => {
+export const briefingDraftDue = (manager: Pick<BriefingDraftManager, "getCachedSnapshot" | "getStory" | "getGlobalSettings">): { story: Story; storyId: string; hash: string } | null => {
   const snapshot = manager.getCachedSnapshot();
   const story = manager.getStory();
   const state = snapshot.briefing;

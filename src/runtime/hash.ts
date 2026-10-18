@@ -16,7 +16,7 @@ export function fnv1a(text: string): string {
 }
 
 export function hashStory(value: unknown): string {
-  return `v2-${fnv1a(stable(value))}`;
+  return `story-${fnv1a(stable(value))}`;
 }
 
 const revisions = new WeakMap<object, string>();

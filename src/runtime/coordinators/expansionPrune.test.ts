@@ -1,12 +1,12 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import type { ExpansionCacheEntry, ExpansionRuntimeState } from "@generation/index";
 import { ExpansionCoordinator } from "./expansionCoordinator";
 
 const root = join(__dirname, "..", "..", "..");
 const raw = JSON.parse(readFileSync(join(root, "test/fixtures/background-generation.story.json"), "utf-8"));
-const story = parseStoryV2OrThrow(raw);
+const story = parseStoryOrThrow(raw);
 const kept = story.qualities[0].key;
 
 const entry = (basis: Record<string, string | number | boolean>): ExpansionCacheEntry => ({

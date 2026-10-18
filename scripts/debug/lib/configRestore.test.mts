@@ -3,45 +3,45 @@ import assert from 'node:assert/strict';
 import { blockingDialogFor, emptySnapshotRefusal, mergeRestore, planLibraryRestore, shouldRecoverConfig, validateJourneyExtraction } from './configRestore.mts';
 
 test('a restore keeps a story and a wizard session another session created after the snapshot (S12)', () => {
-  const snapshot = { settings: { cadence: 3 }, v2Stories: [{ id: 'mine' }], wizardSessions: [{ key: 'mine' }] };
-  const live = { settings: { cadence: 1 }, v2Stories: [{ id: 'mine' }, { id: 'peer' }], wizardSessions: [{ key: 'mine' }, { key: 'peer-draft' }] };
+  const snapshot = { settings: { cadence: 3 }, stories: [{ id: 'mine' }], wizardSessions: [{ key: 'mine' }] };
+  const live = { settings: { cadence: 1 }, stories: [{ id: 'mine' }, { id: 'peer' }], wizardSessions: [{ key: 'mine' }, { key: 'peer-draft' }] };
   const { next, preservedStories, preservedSessions } = mergeRestore(snapshot, live);
   assert.deepEqual(next?.settings, { cadence: 3 });
-  assert.deepEqual((next?.v2Stories as Array<{ id: string }>).map((story) => story.id), ['mine', 'peer']);
+  assert.deepEqual((next?.stories as Array<{ id: string }>).map((story) => story.id), ['mine', 'peer']);
   assert.deepEqual((next?.wizardSessions as Array<{ key: string }>).map((session) => session.key), ['mine', 'peer-draft']);
   assert.deepEqual(preservedStories, ['peer']);
   assert.deepEqual(preservedSessions, ['peer-draft']);
 });
 
 test('a snapshot whose settings delta was absent restores to absent, whatever the run stored', () => {
-  const { next } = mergeRestore({ v2Stories: [{ id: 'mine' }] }, { settings: { judge: { enabled: false } }, v2Stories: [{ id: 'mine' }] });
+  const { next } = mergeRestore({ stories: [{ id: 'mine' }] }, { settings: { judge: { enabled: false } }, stories: [{ id: 'mine' }] });
   assert.equal(next && 'settings' in next, false);
 });
 
 test('a restore to "no config" stays a delete', () => {
-  assert.equal(mergeRestore(null, { v2Stories: [{ id: 'x' }] }).next, null);
+  assert.equal(mergeRestore(null, { stories: [{ id: 'x' }] }).next, null);
 });
 
 const story = (id: string, version: number, hash: string) => ({ id, version, hash, raw: { id, version, title: id } });
 
 test('H1: a story that existed under the same id is put back exactly as it was, not deleted with the run\'s import', () => {
-  const mine = story('v24-01-delete-decode', 1, 'v2-original');
-  const before = { trusted: true, records: [story('other', 3, 'v2-other'), mine] };
-  const afterRun = [story('other', 3, 'v2-other'), story('v24-01-delete-decode', 1, 'v2-de4f955d')];
+  const mine = story('v24-01-delete-decode', 1, 'story-original');
+  const before = { trusted: true, records: [story('other', 3, 'story-other'), mine] };
+  const afterRun = [story('other', 3, 'story-other'), story('v24-01-delete-decode', 1, 'story-de4f955d')];
   const plan = planLibraryRestore(before, afterRun);
   assert.deepEqual(plan.next, before.records);
-  assert.deepEqual(plan.restored, ['v24-01-delete-decode (v2-original)']);
+  assert.deepEqual(plan.restored, ['v24-01-delete-decode (story-original)']);
   assert.deepEqual(plan.removed, []);
   assert.equal(plan.changed, true);
   assert.notEqual(plan.next[1], mine, 'the plan writes copies, never the captured objects');
 });
 
 test('H1: a story the run created is removed, including an edited re-import the played hash no longer names (L5)', () => {
-  const before = { trusted: true, records: [story('other', 3, 'v2-other')] };
-  const afterRun = [story('other', 3, 'v2-other'), story('so-v25-fixture', 2, 'v2-edited')];
+  const before = { trusted: true, records: [story('other', 3, 'story-other')] };
+  const afterRun = [story('other', 3, 'story-other'), story('so-v25-fixture', 2, 'story-edited')];
   const plan = planLibraryRestore(before, afterRun);
   assert.deepEqual(plan.next, before.records);
-  assert.deepEqual(plan.removed, ['so-v25-fixture (v2-edited)']);
+  assert.deepEqual(plan.removed, ['so-v25-fixture (story-edited)']);
   assert.deepEqual(plan.restored, []);
 });
 
@@ -65,10 +65,10 @@ test('an untrusted or missing capture removes nothing, and keeps what it cannot 
 });
 
 test('setup recovers a crashed run only from an unrestored snapshot over a cleared root (S7)', () => {
-  const crashed = { present: true, value: { settings: { profileId: 'p' }, v2Stories: [] } };
+  const crashed = { present: true, value: { settings: { profileId: 'p' }, stories: [] } };
   assert.equal(shouldRecoverConfig([], crashed), true);
   assert.equal(shouldRecoverConfig(['settings'], crashed), true);
-  assert.equal(shouldRecoverConfig(['settings', 'v2Stories'], crashed), false);
+  assert.equal(shouldRecoverConfig(['settings', 'stories'], crashed), false);
   assert.equal(shouldRecoverConfig([], { ...crashed, restoredAt: '2026-09-23T10:00:00Z' }), false);
   assert.equal(shouldRecoverConfig([], { present: true, value: {} }), false);
   assert.equal(shouldRecoverConfig([], { present: false, value: null }), false);

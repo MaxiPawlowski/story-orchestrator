@@ -1,4 +1,4 @@
-import { CLOCK_READ_KEY, TENSION_CURRENT_KEY, isStoryTimeKey, type BlackboardSnapshot, type GateNode, type NormalizedStoryV2, type Quality } from "@engine/index";
+import { CLOCK_READ_KEY, TENSION_CURRENT_KEY, isStoryTimeKey, type BlackboardSnapshot, type GateNode, type NormalizedStory, type Quality } from "@engine/index";
 import type { ExtraGateSource, ScopePull, ScopedQuality, ScopedQualityExplained } from "./types";
 import { readScopeSources, SCOPE_SOURCES, type ScopeSource, type ScopeSourceContext, type ScopeSourceResult } from "./scopeSources";
 
@@ -12,7 +12,7 @@ const collectGateKeys = (gate: GateNode, keys: Set<string>) => {
   if ("not" in gate) collectGateKeys(gate.not, keys);
 };
 
-const hintApplies = (quality: Quality, activeCheckpointId: string, story: NormalizedStoryV2) => {
+const hintApplies = (quality: Quality, activeCheckpointId: string, story: NormalizedStory) => {
   const hint = quality.scope_hint;
   if (!hint) return true;
   if (hint.from && activeCheckpointId !== hint.from && !story.reachableByCheckpoint[hint.from]?.includes(activeCheckpointId)) return false;
@@ -26,7 +26,7 @@ export interface ScopeWithSources {
 }
 
 export function deriveScopeExplained(
-  story: NormalizedStoryV2,
+  story: NormalizedStory,
   activeCheckpointId: string,
   blackboard: BlackboardSnapshot,
   extraGateSources: ExtraGateSource[] = [],
@@ -37,7 +37,7 @@ export function deriveScopeExplained(
 }
 
 export function deriveScopeWithSources(
-  story: NormalizedStoryV2,
+  story: NormalizedStory,
   activeCheckpointId: string,
   blackboard: BlackboardSnapshot,
   extraGateSources: ExtraGateSource[] = [],
@@ -133,18 +133,18 @@ export function deriveScopeWithSources(
 export type ScopeOverflow = Array<{ kind: ScopeSourceResult["kind"]; dropped: string[] }>;
 
 export const scopeOverflow = (
-  story: NormalizedStoryV2 | null, activeCheckpointId: string | null, blackboard: BlackboardSnapshot | null, context: ScopeSourceContext = {},
+  story: NormalizedStory | null, activeCheckpointId: string | null, blackboard: BlackboardSnapshot | null, context: ScopeSourceContext = {},
 ): ScopeOverflow => (story && activeCheckpointId && blackboard
   ? deriveScopeWithSources(story, activeCheckpointId, blackboard, [], context).sources.map((read) => ({ kind: read.kind, dropped: read.dropped })).filter((row) => row.dropped.length)
   : []);
 
 export interface ScopeAt { activeCheckpointId: string; blackboard: BlackboardSnapshot; boundary: number }
 
-export const scopeDropped = (story: NormalizedStoryV2, at: ScopeAt, kind: ScopeSourceResult["kind"], context?: ScopeSourceContext): string[] =>
+export const scopeDropped = (story: NormalizedStory, at: ScopeAt, kind: ScopeSourceResult["kind"], context?: ScopeSourceContext): string[] =>
   scopeOverflow(story, at.activeCheckpointId, at.blackboard, context ?? { rotation: at.boundary }).filter((row) => row.kind === kind).flatMap((row) => row.dropped);
 
 export function deriveScope(
-  story: NormalizedStoryV2,
+  story: NormalizedStory,
   activeCheckpointId: string,
   blackboard: BlackboardSnapshot,
   extraGateSources: ExtraGateSource[] = [],
@@ -154,7 +154,7 @@ export function deriveScope(
     .map(({ key, quality, hints }) => ({ key, quality, hints }));
 }
 
-export function deriveFullScope(story: NormalizedStoryV2, blackboard: BlackboardSnapshot): ScopedQuality[] {
+export function deriveFullScope(story: NormalizedStory, blackboard: BlackboardSnapshot): ScopedQuality[] {
   return Object.values(story.qualityByKey)
     .filter((quality) => quality.source === "extractor")
     .filter((quality) => !blackboard.latched[quality.key])

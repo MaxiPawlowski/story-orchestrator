@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { createProfileToolBridge, type ToolMessage } from "@services/stHost/profileToolBridge";
 import { createBridgeRoute } from "./bridge";
 import { advanceAgent, approvePlan, newAgentSession } from "./loop";
@@ -10,8 +10,8 @@ import { checkToolCall } from "./tools";
 const AT = "2026-10-14T00:00:00.000Z";
 const TARGET = { harness: "profile", model: "ds", timeoutMs: 600_000 };
 
-const story = (): StoryV2 => ({
-  format: 2, title: "Args", description: "", qualities: [],
+const story = (): Story => ({
+  title: "Args", description: "", qualities: [],
   checkpoints: [{ id: "start", name: "Start", objective: "Begin.", type: "anchor", start: true }], transitions: [], roster: [],
 });
 

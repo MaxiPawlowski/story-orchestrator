@@ -1,10 +1,10 @@
 import { readFileSync, readdirSync, existsSync } from "fs";
 import { join, relative } from "path";
-import { parseStoryV2 } from "./validate";
+import { parseStory } from "./validate";
 import { isValidationErrorList } from "./schema";
 
 // v2.5 plan 11 step 6: one authoring vocabulary is only safe if no story in the repo still speaks the
-// old one. Every format-2 story file, and every story a scenario or journey imports inline, parses.
+// old one. Every story file, and every story a scenario or journey imports inline, parses.
 const ROOT = join(__dirname, "..", "..");
 
 const walk = (dir: string): string[] => (existsSync(dir)
@@ -19,7 +19,7 @@ const storiesIn = (value: unknown, found: unknown[] = []): unknown[] => {
   if (Array.isArray(value)) value.forEach((entry) => storiesIn(entry, found));
   else if (value && typeof value === "object") {
     const record = value as Record<string, unknown>;
-    if (record.format === 2 && Array.isArray(record.checkpoints)) found.push(record);
+    if (typeof record.title === "string" && Array.isArray(record.checkpoints) && Array.isArray(record.transitions)) found.push(record);
     else Object.values(record).forEach((entry) => storiesIn(entry, found));
   }
   return found;
@@ -42,7 +42,7 @@ const REFUSED_ON_PURPOSE: Record<string, string> = {
 };
 
 const problemsOf = (story: unknown): string[] => {
-  const parsed = parseStoryV2(story);
+  const parsed = parseStory(story);
   return isValidationErrorList(parsed) ? parsed.map((error) => `${error.path} ${error.message}`) : [];
 };
 
@@ -59,9 +59,9 @@ describe("v2.5 plan 11: the repo's story corpus parses under one vocabulary", ()
     }
   });
 
-  it("every format-2 story parses with no validation error", () => {
+  it("every story parses with no validation error", () => {
     const failing = corpus.filter(({ where }) => !(where in REFUSED_ON_PURPOSE)).flatMap(({ where, story }) => {
-      const parsed = parseStoryV2(story);
+      const parsed = parseStory(story);
       return isValidationErrorList(parsed) ? [`${where}: ${parsed.map((error) => `${error.path} ${error.message}`).join("; ")}`] : [];
     });
     expect(failing).toEqual([]);
@@ -69,7 +69,7 @@ describe("v2.5 plan 11: the repo's story corpus parses under one vocabulary", ()
 
   it("control: a story with a removed alias fails the same check", () => {
     const [first] = corpus;
-    const parsed = parseStoryV2({ ...(first.story as Record<string, unknown>), requirements: { groupMembers: ["Arin"] } });
+    const parsed = parseStory({ ...(first.story as Record<string, unknown>), requirements: { groupMembers: ["Arin"] } });
     expect(isValidationErrorList(parsed)).toBe(true);
   });
 });

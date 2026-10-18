@@ -29,14 +29,14 @@ jest.mock("@services/STAPI", () => ({
   },
 }));
 
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { EffectsApplier } from "./effectsApplier";
 import type { RuntimeExtras } from "./types";
 import { testOwnership } from "../../test/findings/testOwnership";
 import { mintToken, type RunContext, type RunOwnership } from "./runToken";
 
-const story = parseStoryV2OrThrow({
-  format: 2, id: "saga", title: "Saga", description: "",
+const story = parseStoryOrThrow({
+  id: "saga", title: "Saga", description: "",
   qualities: [{ key: "done", type: "bool", source: "extractor", rubric: "Done?" }],
   checkpoints: [
     {

@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { describeProvisioningOp, isProvisioningKind, provisioningRequirements, type ProvisioningOp } from "@wizard/index";
 import {
   addCheckpoint,
@@ -30,16 +30,16 @@ import {
 import { stageOpIssue } from "./stages";
 import type { CopilotStage, ProposalOp, TransitionRef } from "./types";
 
-export const transitionRefMatches = (draft: StoryV2, ref: TransitionRef): number[] =>
+export const transitionRefMatches = (draft: Story, ref: TransitionRef): number[] =>
   draft.transitions.reduce<number[]>((matches, entry, index) => {
     const named = ref.index === undefined || ref.index === index + 1;
     if (named && entry.from === ref.from && entry.to === ref.to && (ref.priority === undefined || entry.priority === ref.priority)) matches.push(index);
     return matches;
   }, []);
 
-export const resolveTransitionRef = (draft: StoryV2, ref: TransitionRef): number => transitionRefMatches(draft, ref)[0] ?? -1;
+export const resolveTransitionRef = (draft: Story, ref: TransitionRef): number => transitionRefMatches(draft, ref)[0] ?? -1;
 
-export const ambiguousRef = (draft: StoryV2, op: ProposalOp): string | null => {
+export const ambiguousRef = (draft: Story, op: ProposalOp): string | null => {
   if (op.kind !== "updateTransition" && op.kind !== "removeTransition" && op.kind !== "setTransitionGate") return null;
   const matches = transitionRefMatches(draft, op.ref);
   if (matches.length < 2) return null;
@@ -54,7 +54,7 @@ export const isProvisioningOp = (op: ProposalOp): op is ProvisioningOp => isProv
 // behind in the story is its requirement, added through the ordinary mutation path.
 export const cardRosterId = (name: string): string => name.trim().toLowerCase().replace(/[^a-z0-9]+/g, "_");
 
-export const provisioningFollowUpOps = (draft: StoryV2, op: ProvisioningOp): ProposalOp[] => {
+export const provisioningFollowUpOps = (draft: Story, op: ProvisioningOp): ProposalOp[] => {
   const wanted = provisioningRequirements(op);
   const current = draft.requirements ?? {};
   const merge = (existing: string[] | undefined, additions: string[]) => {
@@ -81,13 +81,13 @@ export const provisioningFollowUpOps = (draft: StoryV2, op: ProvisioningOp): Pro
   return ops;
 };
 
-const keepAuthorLoreFlags = (draft: StoryV2, next: NonNullable<StoryV2["lore_select"]>): NonNullable<StoryV2["lore_select"]> => ({
+const keepAuthorLoreFlags = (draft: Story, next: NonNullable<Story["lore_select"]>): NonNullable<Story["lore_select"]> => ({
   ...next,
   ...(next.min_p === undefined && draft.lore_select?.min_p !== undefined ? { min_p: draft.lore_select.min_p } : {}),
   ...(next.exclusive === undefined && draft.lore_select?.exclusive ? { exclusive: true } : {}),
 });
 
-export const applyOp = (draft: StoryV2, op: ProposalOp): StoryV2 => {
+export const applyOp = (draft: Story, op: ProposalOp): Story => {
   if (isProvisioningOp(op)) return draft;
   switch (op.kind) {
     case "setStoryField":
@@ -149,9 +149,9 @@ export const applyOp = (draft: StoryV2, op: ProposalOp): StoryV2 => {
   }
 };
 
-export const applyOps = (draft: StoryV2, ops: ProposalOp[]): StoryV2 => ops.reduce(applyOp, draft);
+export const applyOps = (draft: Story, ops: ProposalOp[]): Story => ops.reduce(applyOp, draft);
 
-export const missingTarget = (draft: StoryV2, op: ProposalOp): string | null => {
+export const missingTarget = (draft: Story, op: ProposalOp): string | null => {
   switch (op.kind) {
     case "updateQuality":
       return draft.qualities.some((entry) => entry.key === op.key) ? null : `quality "${op.key}"`;
@@ -172,7 +172,7 @@ export const missingTarget = (draft: StoryV2, op: ProposalOp): string | null => 
 
 const exists = (what: string, id: string, update: string, field: string) => `${what} "${id}" already exists; change it with ${update}, or pick a new ${field}`;
 
-export const duplicateTarget = (draft: StoryV2, op: ProposalOp): string | null => {
+export const duplicateTarget = (draft: Story, op: ProposalOp): string | null => {
   if (op.kind === "addQuality" && draft.qualities.some((entry) => entry.key === op.quality.key)) return exists("quality", op.quality.key, "updateQuality", "key");
   if (op.kind === "addCheckpoint" && draft.checkpoints.some((entry) => entry.id === op.checkpoint.id)) return exists("checkpoint", op.checkpoint.id, "updateCheckpoint", "id");
   if (op.kind === "addRosterMember" && draft.roster.some((entry) => entry.id === op.member.id)) return exists("roster member", op.member.id, "updateRosterMember", "id");
@@ -183,7 +183,7 @@ export const duplicateTarget = (draft: StoryV2, op: ProposalOp): string | null =
   return null;
 };
 
-export const applyOpsChecked = (draft: StoryV2, ops: ProposalOp[], stage?: CopilotStage): { next: StoryV2; issues: string[]; stageIssues: string[] } => {
+export const applyOpsChecked = (draft: Story, ops: ProposalOp[], stage?: CopilotStage): { next: Story; issues: string[]; stageIssues: string[] } => {
   const issues: string[] = [];
   const stageIssues: string[] = [];
   const next = ops.reduce((current, op, index) => {

@@ -1,13 +1,13 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 import { unitDraw } from "@engine/chance";
 import { chanceGateValues } from "./chance";
 import {
   CHANCE_DRAW_LIMIT, composeRolls, createChance, recordChanceDraw, reconstructQualityRolls, rollbackChanceDraws, sanitizeChance, type ChanceRuntimeState,
 } from "./rolls";
 
-const story = parseStoryV2OrThrow(JSON.parse(readFileSync(join(__dirname, "../../test/fixtures/sp7-chance.story.json"), "utf8")));
+const story = parseStoryOrThrow(JSON.parse(readFileSync(join(__dirname, "../../test/fixtures/sp7-chance.story.json"), "utf8")));
 const STORY_ID = "sp7-chance";
 const BOUNDARIES = 120;
 const CUTS = 60;

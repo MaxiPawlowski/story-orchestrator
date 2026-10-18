@@ -1,5 +1,5 @@
 import type { Blackboard } from "./blackboard";
-import type { GateNode, NormalizedStoryV2, Checkpoint, Transition } from "./schema";
+import type { GateNode, NormalizedStory, Checkpoint, Transition } from "./schema";
 
 export const progressQualityForAnchor = (anchorId: string): string => `progress_toward_${anchorId}`;
 
@@ -15,7 +15,7 @@ const findProgressGateValue = (gate: GateNode, key: string): number | undefined 
   return undefined;
 };
 
-export const effectiveThresholdFor = (story: NormalizedStoryV2, anchorId: string): number => {
+export const effectiveThresholdFor = (story: NormalizedStory, anchorId: string): number => {
   const key = progressQualityForAnchor(anchorId);
   let found: number | undefined;
   for (const transitions of Object.values(story.outgoingByCheckpoint)) {

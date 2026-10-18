@@ -1,5 +1,5 @@
-import { parseStoryV2OrThrow } from "@engine/validate";
-import type { NormalizedStoryV2, PrimitiveValue } from "@engine/schema";
+import { parseStoryOrThrow } from "@engine/validate";
+import type { NormalizedStory, PrimitiveValue } from "@engine/schema";
 
 export const LAB_FLAGS = ["met_tom", "heard_debt", "searched_dock", "found_ledger", "saw_mill", "asked_widow", "rang_bell", "read_letter", "paid", "lost"] as const;
 
@@ -7,7 +7,7 @@ const bool = (key: string) => ({ key, type: "bool", source: "extractor", rubric:
 const is = (key: string) => ({ q: key, op: "==", v: true });
 
 export const labRaw = (patch: Record<string, unknown> = {}): Record<string, unknown> => ({
-  format: 2, title: "Codex lab", description: "Synthetic codex.",
+  title: "Codex lab", description: "Synthetic codex.",
   roster: [{ id: "tom", name: "Tom" }, { id: "ada", name: "Ada" }],
   qualities: [...LAB_FLAGS.map(bool), { key: "location", type: "enum", values: ["landing", "boathouse", "mill"], source: "extractor", rubric: "Where the party is." }],
   checkpoints: [
@@ -65,7 +65,7 @@ export const labRaw = (patch: Record<string, unknown> = {}): Record<string, unkn
   ...patch,
 });
 
-export const labStory = (patch: Record<string, unknown> = {}): NormalizedStoryV2 => parseStoryV2OrThrow(labRaw(patch));
+export const labStory = (patch: Record<string, unknown> = {}): NormalizedStory => parseStoryOrThrow(labRaw(patch));
 
 export interface Rng {
   next(): number;
@@ -83,7 +83,7 @@ export const rng = (seed: number): Rng => {
   return { next, pick: (items) => items[Math.floor(next() * items.length)] };
 };
 
-export const randomWrites = (random: Rng, story: NormalizedStoryV2): Array<{ q: string; v: PrimitiveValue }> => {
+export const randomWrites = (random: Rng, story: NormalizedStory): Array<{ q: string; v: PrimitiveValue }> => {
   const writes: Array<{ q: string; v: PrimitiveValue }> = [];
   LAB_FLAGS.forEach((key) => { if (random.next() < 0.18) writes.push({ q: key, v: true }); });
   if (random.next() < 0.3) writes.push({ q: "location", v: random.pick(story.qualityByKey.location.values ?? []) });

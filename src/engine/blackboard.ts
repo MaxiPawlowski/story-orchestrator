@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2, PrimitiveValue, Quality, QualitySource } from "./schema";
+import type { NormalizedStory, PrimitiveValue, Quality, QualitySource } from "./schema";
 
 export interface BlackboardDelta {
   q: string;
@@ -55,7 +55,7 @@ export class Blackboard {
   private writeBoundary = 0;
   private writeMessage = -1;
 
-  constructor(private readonly story: Pick<NormalizedStoryV2, "qualityByKey" | "cardFieldByQuality">, snapshot?: BlackboardSnapshot) {
+  constructor(private readonly story: Pick<NormalizedStory, "qualityByKey" | "cardFieldByQuality">, snapshot?: BlackboardSnapshot) {
     if (snapshot) this.restore(snapshot);
     else this.seed();
   }

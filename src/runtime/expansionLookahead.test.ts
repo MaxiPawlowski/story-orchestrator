@@ -1,5 +1,5 @@
 import { plantedModel } from "../../test/support/modelCall";
-import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { parseStoryOrThrow, type EngineState } from "@engine/index";
 import type { ExpansionCacheEntry, ExpansionRuntimeState, GeneratedBeat } from "@generation/index";
 import { defaultJudgeSettings, type JudgeSettings, type SceneReadRecord } from "@judge/index";
 import { ExpansionCoordinator } from "./coordinators/expansionCoordinator";
@@ -8,7 +8,6 @@ import { testOwnership } from "../../test/findings/testOwnership";
 
 const gate = { q: "done", op: "==", v: true };
 const RAW = {
-  format: 2,
   id: "lookahead",
   title: "Lookahead",
   description: "v2.2 plan 07 fixture: a stub off the active checkpoint and one off the next.",
@@ -28,7 +27,7 @@ const RAW = {
   ],
   roster: [],
 };
-const story = parseStoryV2OrThrow(RAW);
+const story = parseStoryOrThrow(RAW);
 
 const scene = (p: number, hops = 1): SceneReadRecord => ({ at: "2026-09-19T00:00:00.000Z", boundary: 2, messageId: 4, model: "jev-1.13.0", headingTo: [{ id: "b", name: "B", p, hops }], facts: { location: null, time: null, present: [], headingTo: ["B"] } });
 

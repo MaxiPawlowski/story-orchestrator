@@ -1,11 +1,11 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2OrThrow, type BlackboardSnapshot } from "@engine/index";
+import { parseStoryOrThrow, type BlackboardSnapshot } from "@engine/index";
 import { deriveScopeExplained, scopeOverflow } from "./scope";
 import { CARD_SOURCE, QUEST_SOURCE, readScopeSource, RELATIONSHIP_SOURCE, REL_AXES_PER_READ } from "./scopeSources";
 
 const RAW = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")) as Record<string, unknown> & { roster: Array<Record<string, unknown>> };
-const STORY = parseStoryV2OrThrow(RAW);
+const STORY = parseStoryOrThrow(RAW);
 const board = (values: BlackboardSnapshot["values"] = {}): BlackboardSnapshot => ({ values, versions: {}, latched: {} });
 const keys = (present: string[], values: BlackboardSnapshot["values"] = {}) =>
   deriveScopeExplained(STORY, "start", board(values), [], { present, drafted: present[0] ?? null }).map((entry) => entry.key);
@@ -24,7 +24,7 @@ describe("v2.7 plan 37 L1 (F20): relationships are read by presence, not by gate
 
   it("caps the source and names the overflow for the author", () => {
     const axes = Array.from({ length: REL_AXES_PER_READ + 2 }, (_, index) => `axis${String.fromCharCode(97 + index)}`);
-    const wide = parseStoryV2OrThrow({ ...RAW, transitions: [], roster: [{ ...RAW.roster[0], relationships: [{ toward: "player", axes }] }, RAW.roster[1]] });
+    const wide = parseStoryOrThrow({ ...RAW, transitions: [], roster: [{ ...RAW.roster[0], relationships: [{ toward: "player", axes }] }, RAW.roster[1]] });
     const read = readScopeSource(RELATIONSHIP_SOURCE, wide, board(), {});
     expect(read.keys).toHaveLength(REL_AXES_PER_READ);
     expect(read.dropped.length).toBeGreaterThanOrEqual(2);
@@ -35,7 +35,7 @@ describe("v2.7 plan 37 L1 (F20): relationships are read by presence, not by gate
   });
 
   it("adds nothing to a story without relationships (control: the same scope as without the source)", () => {
-    const plain = parseStoryV2OrThrow({ ...RAW, transitions: [], clock: undefined, roster: [{ id: "arin", name: "Arin" }, { id: "narrator", name: "DM Narrator" }] });
+    const plain = parseStoryOrThrow({ ...RAW, transitions: [], clock: undefined, roster: [{ id: "arin", name: "Arin" }, { id: "narrator", name: "DM Narrator" }] });
     const withSource = deriveScopeExplained(plain, "start", board(), [], { present: ["arin"] });
     const without = deriveScopeExplained(plain, "start", board(), [], { present: ["arin"] }, [CARD_SOURCE, QUEST_SOURCE]);
     expect(withSource).toEqual(without);

@@ -1,5 +1,4 @@
 {
-  "format": 2,
   "title": "Signal Fire",
   "description": "Extractor test story exercising float qualities and unknown-quality rejection.",
   "qualities": [

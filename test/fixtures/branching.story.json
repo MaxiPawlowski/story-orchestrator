@@ -1,7 +1,6 @@
 {
-  "format": 2,
   "title": "Branching Vault",
-  "description": "A minimal branching v2 story.",
+  "description": "A minimal branching story.",
   "qualities": [
     { "key": "route", "type": "enum", "values": ["stealth", "force"], "source": "extractor", "rubric": "Which route did the player choose?" },
     { "key": "noise", "type": "int", "source": "extractor", "monotonic": true, "rubric": "How much noise has been made?" },

@@ -67,7 +67,6 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 const story = {
-  format: 2,
   id: "leak-story",
   title: "Leak receipt story",
   description: "Thought-leak receipt fixture.",

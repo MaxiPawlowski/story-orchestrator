@@ -18,7 +18,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-v28-52e-returns",
         "title": "SO-V28-52e Returns",
         "description": "Plan 52 E no-model fixture: a place line shown on coming back after a fight.",

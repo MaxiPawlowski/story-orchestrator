@@ -32,7 +32,7 @@ const SHAPES: Array<[string, () => unknown, number | string | null]> = [
   ["a v5 blob, the format before v6", () => ({ version: 5, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: record("s1") } }), 5],
   ["a v4 blob", () => ({ version: 4, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: record("s1") } }), 4],
   ["a v3 blob", () => ({ version: 3, selectedStoryId: "s1", stories: { s1: record("s1") } }), 3],
-  ["a v2 blob", () => ({ version: 2, selectedStoryHash: "v2-abc", stories: { "v2-abc": { storyHash: "v2-abc" } } }), 2],
+  ["a v2 blob", () => ({ version: 2, selectedStoryHash: "story-abc", stories: { "story-abc": { storyHash: "story-abc" } } }), 2],
   ["a string version \"6\"", () => ({ version: "6", chatId: "chat-a", selectedStoryId: "s1", stories: { s1: {} } }), "6"],
   ["a blob with no version", () => ({ chatId: "chat-a", selectedStoryId: "s1", stories: { s1: {} } }), null],
   ["a v6 blob whose stories is not a record", () => ({ version: 6, chatId: "chat-a", selectedStoryId: "s1", stories: ["s1"] }), 6],

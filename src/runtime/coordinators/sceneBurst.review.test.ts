@@ -7,7 +7,7 @@
 // stored scene once, so one slow call marked the tracker stale and switched pre-generation off.
 
 import type { EngineState } from "@engine/index";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import { createJudgeRuntime, defaultJudgeSettings, JudgeTimeoutError, type JudgeAnswer, type JudgeRequest, type JudgeResponse, type JudgeSettings } from "@judge/index";
 import { SceneCoordinator } from "./sceneCoordinator";
 import { JudgeRuntime } from "../judge";
@@ -15,8 +15,7 @@ import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunTo
 import { control, finding, must } from "../../../test/findings/ledger";
 import { testOwnership } from "../../../test/findings/testOwnership";
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "scene-burst",
   title: "Ridge Road",
   description: "A8 fixture.",

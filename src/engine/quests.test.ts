@@ -1,12 +1,12 @@
 import { StoryEngine } from "./engine";
-import { parseStoryV2, parseStoryV2OrThrow } from "./validate";
+import { parseStory, parseStoryOrThrow } from "./validate";
 import { questScopeKeys, questStatus, rewardedQuestIds, valueReader } from "./quests";
 import { questClosedKey, questRewardKey, type PrimitiveValue } from "./schema";
 
 const bool = (key: string) => ({ key, type: "bool", source: "extractor", rubric: `Whether ${key} is true.` });
 
 const raw = (quest: Record<string, unknown> = {}) => ({
-  format: 2, title: "Quest lab", description: "Synthetic quests.",
+  title: "Quest lab", description: "Synthetic quests.",
   roster: [{ id: "keeper", name: "Keeper" }],
   qualities: [bool("offered"), bool("accepted"), bool("ledger"), bool("paid"), bool("lost"), bool("found_map"), { key: "coins", type: "int", source: "code", rubric: "Coins held." }],
   checkpoints: [{ id: "start", name: "Start", type: "anchor", start: true, objective: "Begin." }],
@@ -25,7 +25,7 @@ const raw = (quest: Record<string, unknown> = {}) => ({
   }],
 });
 
-const playing = (story = parseStoryV2OrThrow(raw())) => {
+const playing = (story = parseStoryOrThrow(raw())) => {
   const engine = new StoryEngine();
   engine.loadStory(story);
   let message = 0;
@@ -40,24 +40,24 @@ const playing = (story = parseStoryV2OrThrow(raw())) => {
 
 describe("quest validation", () => {
   test("an offered quest needs visible_when, the acceptance gate", () => {
-    const parsed = parseStoryV2(raw({ visible_when: undefined }));
+    const parsed = parseStory(raw({ visible_when: undefined }));
     expect(Array.isArray(parsed) && parsed.some((error) => error.path.endsWith("visible_when"))).toBe(true);
   });
 
   test("a story quality cannot take a key the quest layer keeps", () => {
     const story = raw();
-    const parsed = parseStoryV2({ ...story, qualities: [...story.qualities, bool(questClosedKey("debt"))] });
+    const parsed = parseStory({ ...story, qualities: [...story.qualities, bool(questClosedKey("debt"))] });
     expect(Array.isArray(parsed) && parsed.some((error) => error.message.includes("kept for a quest"))).toBe(true);
   });
 
   test("a relationship quality cannot be made public", () => {
     const story = raw();
-    const parsed = parseStoryV2({ ...story, qualities: [...story.qualities, { ...bool("rel_keeper_trust"), display: { public: true, label: "Trust", as: "word" } }] });
+    const parsed = parseStory({ ...story, qualities: [...story.qualities, { ...bool("rel_keeper_trust"), display: { public: true, label: "Trust", as: "word" } }] });
     expect(Array.isArray(parsed)).toBe(true);
   });
 
   test("the closed and rewarded latches are added as code qualities", () => {
-    const story = parseStoryV2OrThrow(raw());
+    const story = parseStoryOrThrow(raw());
     expect(story.qualityByKey[questClosedKey("debt")]).toMatchObject({ source: "code", latching: true, type: "enum" });
     expect(story.qualityByKey[questRewardKey("debt")]).toMatchObject({ source: "code", latching: true, type: "bool" });
   });
@@ -95,7 +95,7 @@ describe("quest lifecycle", () => {
 
   test("B16: a reward add on a stepped int stays inside its step_rule min and max", () => {
     for (const [add, expected] of [[9, 3], [-9, -3]] as const) {
-      const story = parseStoryV2OrThrow(raw({ reward: { set: { coins: { add } } } }));
+      const story = parseStoryOrThrow(raw({ reward: { set: { coins: { add } } } }));
       story.qualityByKey.coins = { ...story.qualityByKey.coins, step_rule: { step: 1, min: -3, max: 3, start: 0 } };
       const play = playing(story);
       play.turn({ offered: true, accepted: true, ledger: true, paid: true });
@@ -123,7 +123,7 @@ describe("quest lifecycle", () => {
   });
 
   test("the engine rolls back from a message whose boundary only latched a quest", () => {
-    const story = parseStoryV2OrThrow(raw({ visible_when: undefined, offered_when: undefined, steps: [], done_when: { all: [{ q: "ledger", op: "==", v: true }] } }));
+    const story = parseStoryOrThrow(raw({ visible_when: undefined, offered_when: undefined, steps: [], done_when: { all: [{ q: "ledger", op: "==", v: true }] } }));
     const play = playing(story);
     play.turn({ ledger: true });
     expect(play.values()[questClosedKey("debt")]).toBe("done");
@@ -132,7 +132,7 @@ describe("quest lifecycle", () => {
 });
 
 describe("quest requires", () => {
-  const chained = () => parseStoryV2OrThrow({
+  const chained = () => parseStoryOrThrow({
     ...raw(),
     quests: [
       { id: "map", title: "The map", kind: "side", steps: [], done_when: { all: [{ q: "found_map", op: "==", v: true }] }, failed_when: { all: [{ q: "lost", op: "==", v: true }] } },
@@ -167,13 +167,13 @@ describe("quest scope", () => {
   });
 
   test("every active quest gets its first key before any quest gets a second", () => {
-    const story = parseStoryV2OrThrow(many());
+    const story = parseStoryOrThrow(many());
     const keys = questScopeKeys(story.quests, valueReader({}));
     expect(keys.slice(0, 8)).toEqual(Array.from({ length: 8 }, (_, index) => `a${index}`));
   });
 
   test("closed quests leave the scope", () => {
-    const story = parseStoryV2OrThrow(many());
+    const story = parseStoryOrThrow(many());
     const keys = questScopeKeys(story.quests, valueReader({ [questClosedKey("q0")]: "done" }));
     expect(keys).not.toContain("a0");
     expect(keys).toContain("a1");

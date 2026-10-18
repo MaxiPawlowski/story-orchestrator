@@ -101,7 +101,6 @@ jest.mock("@services/STAPI", () => {
 });
 
 const story = {
-  format: 2,
   title: "Runtime Pacing Test",
   description: "Runtime pacing regression fixture.",
   arc_template: "rising",
@@ -142,7 +141,6 @@ const resetHost = () => {
 };
 
 const gatedStory = (id: string, start: Record<string, unknown>, next?: Record<string, unknown>) => ({
-  format: 2,
   id,
   title: id,
   description: "Checkpoint world info fixture.",
@@ -284,7 +282,6 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
   const WANDER = "Let the player wander toward the job board at their own pace.";
   const SPHINX = "The sphinx blocks the only way in.";
   const guided = (startGuidance?: string) => ({
-    format: 2,
     id: "guided",
     title: "Guided",
     description: "Checkpoint guidance fixture.",
@@ -505,7 +502,6 @@ describe("RuntimeManager memory hydrate", () => {
 });
 
 const sceneStory = {
-  format: 2,
   title: "Scene Detection Test",
   description: "Scene detection regression fixture.",
   qualities: [
@@ -728,7 +724,6 @@ describe("RuntimeManager short-term rolling compaction", () => {
 });
 
 const castStory = {
-  format: 2,
   title: "Cast Injection Test",
   description: "Cast + injection regression fixture.",
   qualities: [],
@@ -997,7 +992,6 @@ describe("RuntimeManager memory injection and cast", () => {
 });
 
 const backlogStory = {
-  format: 2,
   title: "Memorize Backlog Test",
   description: "Memorize backlog regression fixture.",
   qualities: [
@@ -1114,7 +1108,6 @@ describe("RuntimeManager manual memory controls", () => {
 });
 
 const bridgeStory = {
-  format: 2,
   title: "Bridge Test",
   description: "Arc bridge regression fixture.",
   qualities: [],
@@ -1263,7 +1256,6 @@ describe("RuntimeManager arc bridge and canon", () => {
 });
 
 const copilotDraft = {
-  format: 2,
   title: "Copilot Draft",
   description: "",
   qualities: [{ key: "has_key", type: "bool", source: "extractor", rubric: "Does the crew have the vault key?" }],
@@ -1273,7 +1265,6 @@ const copilotDraft = {
 };
 
 const driverStory = {
-  format: 2,
   title: "Driver Test",
   description: "Driver context fixture.",
   qualities: [{ key: "has_key", type: "bool", source: "extractor", rubric: "Does the crew have the vault key?" }],

@@ -55,10 +55,10 @@ declare module "./schema" {
   interface RosterMember {
     gossip?: Record<string, unknown>;
   }
-  interface StoryV2 {
+  interface Story {
     rumors?: Rumor[];
   }
-  interface NormalizedStoryV2 {
+  interface NormalizedStory {
     rumorNet?: StoryRumors;
   }
 }

@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { emptyEnvironment, type ProvisioningEnvironment } from "@wizard/index";
 import { addTransition } from "../../studio/mutations";
 import { applyOpsChecked } from "../proposal";
@@ -11,8 +11,7 @@ const AT = "2026-10-02T11:00:00.000Z";
 const META: StepMeta = { route: "local", firstTryValid: true, repaired: false, at: AT };
 const GATE = { q: "heist_progress", op: ">=" as const, v: 2 };
 
-const heist = (): StoryV2 => ({
-  format: 2,
+const heist = (): Story => ({
   title: "The Hoard of the Dead Dragon",
   description: "",
   qualities: [{ key: "heist_progress", type: "int", source: "extractor", rubric: "How far along is the heist?" }],
@@ -80,7 +79,7 @@ describe("T5-2-2 MEDIUM: the agent cannot finish while the cast it wrote has no 
     provisioned(1, { kind: "createCharacterCard", name: "Sable", description: "Crew leader." }),
     provisioned(2, { kind: "createStoryLorebook", name: "The Hoard of the Dead Dragon" }),
   ];
-  const story = (): StoryV2 => ({ ...heist(), requirements: { members: ["Sable", "Mirek"], lorebooks: ["The Hoard of the Dead Dragon"] } });
+  const story = (): Story => ({ ...heist(), requirements: { members: ["Sable", "Mirek"], lorebooks: ["The Hoard of the Dead Dragon"] } });
 
   it("refuses done with what is missing (x-p2-done-state.json: 2 of 5 cards, no group)", () => {
     const environment = install({ characterNames: ["Seraphina", "Sable"], lorebookNames: ["The Hoard of the Dead Dragon"] });

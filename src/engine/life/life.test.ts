@@ -1,20 +1,20 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import { StoryEngine } from "../engine";
-import { parseStoryV2OrThrow } from "../validate";
+import { parseStoryOrThrow } from "../validate";
 import {
-  CLOCK_DAY_KEY, TURN_OOC_KEY, agendaRepeatsKey, agendaStepKey, agendaWaitKey, moodKey, type NormalizedStoryV2, type PrimitiveValue,
+  CLOCK_DAY_KEY, TURN_OOC_KEY, agendaRepeatsKey, agendaStepKey, agendaWaitKey, moodKey, type NormalizedStory, type PrimitiveValue,
 } from "../schema";
 import { deriveLife } from "./derive";
 import { isOocText } from "../ooc";
 import { awayMembers, effectiveMood, lifeScopeKeys } from "./presence";
 import { agendaWorldInfo, landedSteps, lifeAuthorRows, privateLifeLines } from "./lines";
 
-const STORY = parseStoryV2OrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
+const STORY = parseStoryOrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
 
 interface Turn { text: string; deltas?: Record<string, PrimitiveValue> }
 
-const play = (story: NormalizedStoryV2 = STORY) => {
+const play = (story: NormalizedStory = STORY) => {
   const chat: Array<{ is_user: boolean; mes: string; name: string }> = [];
   const engine = new StoryEngine({ now: () => 0, derive: (view) => deriveLife(story, view, chat) });
   engine.loadStory(story);
@@ -210,7 +210,7 @@ describe("owner decision 2026-10-07 (plan 37 Q1): an unread relationship reads a
   const startingAt = (start: number) => {
     const raw = JSON.parse(JSON.stringify(RAW)) as typeof RAW;
     raw.roster[0].relationships = raw.roster[0].relationships?.map((relationship) => (relationship.toward === "player" ? { ...relationship, start } : relationship));
-    return parseStoryV2OrThrow(raw);
+    return parseStoryOrThrow(raw);
   };
 
   it("holds start on the blackboard from load, with no version, so the extractor's first read is still the first write", () => {

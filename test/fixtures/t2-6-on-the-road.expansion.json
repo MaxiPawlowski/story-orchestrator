@@ -1,7 +1,6 @@
 {
   "source": "test/sessions/T2/T2-6-1: runtime-2026-10-01@16h48m27s720ms.json extras.expansion.entries['road-to-wendhope->on-the-road->at-the-walls'] (journal.jsonl:793, :901); pinned story cut to the three checkpoints the chain spans",
   "story": {
-    "format": 2,
     "id": "t2-6-on-the-road",
     "title": "T2-6 On the Road",
     "description": "A new adventuring party out of Aegis City takes the Wendhope posting, finds a frontier village under nightly siege by something out of the forest, and - once it has earned the rank - goes down the Driftmere Mines after whatever silenced a god.",

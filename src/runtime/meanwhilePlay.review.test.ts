@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2OrThrow, type BoundaryResult, type EngineState } from "@engine/index";
+import { parseStoryOrThrow, type BoundaryResult, type EngineState } from "@engine/index";
 import type { SchedulerJob } from "@extraction/index";
 import {
   createAgendaProposals, decideProposal, hasOpenAgenda, landAcceptedProposals, landedMeanwhile, MEANWHILE_MIN_GAP, meanwhileDue, recordMeanwhilePass,
@@ -19,7 +19,7 @@ jest.mock("@extraction/index", () => ({
   scheduleForcedCues: () => undefined,
 }));
 
-const STORY = parseStoryV2OrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
+const STORY = parseStoryOrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
 
 const engineState = (boundary: number, lastMessageId: number, values: Record<string, unknown> = {}) =>
   ({ boundary, lastMessageId, blackboard: { values, versions: {}, latched: {} } }) as unknown as EngineState;
@@ -156,7 +156,7 @@ describe("v2.8 agenda proposals in play: cadence", () => {
     expect(hasOpenAgenda(STORY, done)).toBe(true);
     const raw = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8"));
     for (const member of raw.roster) for (const agenda of member.agenda ?? []) for (const item of agenda.steps) delete item.repeat;
-    const finite = parseStoryV2OrThrow(raw);
+    const finite = parseStoryOrThrow(raw);
     expect(hasOpenAgenda(finite, {})).toBe(true);
     expect(hasOpenAgenda(finite, done)).toBe(false);
     expect(hasOpenAgenda(null, {})).toBe(false);

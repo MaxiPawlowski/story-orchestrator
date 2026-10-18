@@ -1,37 +1,37 @@
-import { gatedWorldInfo, type NormalizedStoryV2 } from "@engine/index";
+import { gatedWorldInfo, type NormalizedStory } from "@engine/index";
 import type { CuratorEntryView } from "./types";
 
 // The whole write scope of every background curator, in one function: the story's own
 // `stagecraft.lorebooks`. Nothing is inferred from requirements or from world_info effects (user
 // decision), so a story that says nothing grants nothing.
-export const curatorLorebooks = (story: NormalizedStoryV2 | null): string[] =>
+export const curatorLorebooks = (story: NormalizedStory | null): string[] =>
   (story?.stagecraft?.lorebooks ?? []).map((name) => name.trim()).filter(Boolean);
 
-export const curatorHasScope = (story: NormalizedStoryV2 | null): boolean => curatorLorebooks(story).length > 0;
+export const curatorHasScope = (story: NormalizedStory | null): boolean => curatorLorebooks(story).length > 0;
 
 // An entry some checkpoint switches belongs to the story's world_info effects, which rebuild its
 // flag from the chat's path at every checkpoint: a curator write there would be undone, or undo it.
-export const isCheckpointGated = (story: NormalizedStoryV2 | null, lorebook: string, comment: string): boolean => {
+export const isCheckpointGated = (story: NormalizedStory | null, lorebook: string, comment: string): boolean => {
   const book = lorebook.trim().toLowerCase();
   const wanted = comment.trim().toLowerCase();
   return [...gatedWorldInfo(story ? [story] : [])].some(([name, comments]) =>
     name.toLowerCase() === book && [...comments].some((gated) => gated.toLowerCase() === wanted));
 };
 
-export const isCuratorExcluded = (story: NormalizedStoryV2 | null, lorebook: string, comment: string): boolean => {
+export const isCuratorExcluded = (story: NormalizedStory | null, lorebook: string, comment: string): boolean => {
   const book = lorebook.trim().toLowerCase();
   const wanted = comment.trim().toLowerCase();
   return (story?.stagecraft?.exclude ?? []).some((exclusion) =>
     exclusion.lorebook.trim().toLowerCase() === book && exclusion.comments.some((excluded) => excluded.trim().toLowerCase() === wanted));
 };
 
-export const isCuratorHidden = (story: NormalizedStoryV2 | null, lorebook: string, comment: string): boolean =>
+export const isCuratorHidden = (story: NormalizedStory | null, lorebook: string, comment: string): boolean =>
   isCheckpointGated(story, lorebook, comment) || isCuratorExcluded(story, lorebook, comment);
 
 // A write is legal only if the entry sits in an allowlisted book, is neither checkpoint-gated nor
 // excluded by the author, *and* was in the scope the curator was shown. The parser already enforces
 // the last part; this is the check at the write edge.
-export const isCuratorWritable = (story: NormalizedStoryV2 | null, lorebook: string, comment: string): boolean => {
+export const isCuratorWritable = (story: NormalizedStory | null, lorebook: string, comment: string): boolean => {
   const wanted = lorebook.trim().toLowerCase();
   return Boolean(wanted) && curatorLorebooks(story).some((name) => name.toLowerCase() === wanted) && !isCuratorHidden(story, lorebook, comment);
 };

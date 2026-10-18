@@ -1,4 +1,4 @@
-import { agencyForCheckpoint, openPhase, renderAgencyPolicy, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { agencyForCheckpoint, openPhase, renderAgencyPolicy, type EngineState, type NormalizedStory } from "@engine/index";
 import { askText, type ModelCall } from "@extraction/modelRoute";
 import { stripChannelNoise } from "@extraction/parse";
 import type { InnerBeat } from "@memory/index";
@@ -20,7 +20,7 @@ export interface InnerWindowMessage {
 }
 
 export interface InnerCoordinatorDeps {
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   model: ModelCall;
   ownership: RunOwnership;
@@ -59,7 +59,7 @@ export class InnerCoordinator {
 
   constructor(private readonly deps: InnerCoordinatorDeps) {}
 
-  candidates(story: NormalizedStoryV2, state: EngineState): string[] {
+  candidates(story: NormalizedStory, state: EngineState): string[] {
     if (!this.deps.group()) return [];
     const control = story.checkpointById[state.activeCheckpointId]?.talk_control ?? {};
     const pool = buildCandidates(control, story.roster, this.deps.enabledIds());
@@ -78,7 +78,7 @@ export class InnerCoordinator {
   }
 
   private async beatFor(
-    story: NormalizedStoryV2, state: EngineState, rosterId: string, anchor: number, signal: AbortSignal, key: string, repair = true,
+    story: NormalizedStory, state: EngineState, rosterId: string, anchor: number, signal: AbortSignal, key: string, repair = true,
   ): Promise<ParsedInnerBeat | null> {
     const member = story.roster.find((entry) => entry.id === rosterId);
     const checkpoint = story.checkpointById[state.activeCheckpointId];
@@ -141,7 +141,7 @@ export class InnerCoordinator {
   }
 
   private build(
-    story: NormalizedStoryV2, state: EngineState, rosterId: string, anchor: number, run: RunGuard, key: string, repair: boolean,
+    story: NormalizedStory, state: EngineState, rosterId: string, anchor: number, run: RunGuard, key: string, repair: boolean,
   ): Promise<boolean> {
     const slot = `${this.deps.chatId() ?? ""}:${rosterId}`;
     const work = this.write(story, state, rosterId, anchor, run, key, repair);
@@ -150,7 +150,7 @@ export class InnerCoordinator {
   }
 
   private async write(
-    story: NormalizedStoryV2, state: EngineState, rosterId: string, anchor: number, run: RunGuard, key: string, repair: boolean,
+    story: NormalizedStory, state: EngineState, rosterId: string, anchor: number, run: RunGuard, key: string, repair: boolean,
   ): Promise<boolean> {
     const chatId = this.deps.chatId() ?? "";
     const parsed = await this.beatFor(story, state, rosterId, anchor, run.signal, key, repair);

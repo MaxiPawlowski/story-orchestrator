@@ -1,4 +1,4 @@
-import { isValidationErrorList, parseStoryV2, type StoryV2 } from "@engine/index";
+import { isValidationErrorList, parseStory, type Story } from "@engine/index";
 import { parseProposal } from "./parse";
 import { validateProposal } from "./validate";
 import { renderStagePrompt } from "./prompts";
@@ -9,8 +9,7 @@ import { join } from "node:path";
 
 const readGolden = (name: string): string => readFileSync(join(process.cwd(), "test/goldens", name), "utf8");
 
-const baseDraft = (): StoryV2 => ({
-  format: 2,
+const baseDraft = (): Story => ({
   title: "The Vault Job",
   description: "A heist.",
   qualities: [{ key: "has_key", type: "bool", source: "extractor", rubric: "Does the crew have the vault key?" }],
@@ -139,9 +138,9 @@ describe("validateProposal", () => {
   });
 
   describe("an intermediate the checkpoints stage adds is connected by the transitions stage", () => {
-    const linked = (): StoryV2 => ({ ...baseDraft(), transitions: [{ from: "start", to: "vault", priority: 1, gate: { q: "has_key", op: "==", v: true } }] });
+    const linked = (): Story => ({ ...baseDraft(), transitions: [{ from: "start", to: "vault", priority: 1, gate: { q: "has_key", op: "==", v: true } }] });
     const lobby: ProposalOp = { kind: "addCheckpoint", checkpoint: { id: "lobby", name: "Lobby", objective: "Crack the lobby door.", type: "intermediate" } };
-    const withLobby = (): StoryV2 => validateProposal(linked(), [lobby], "checkpoints").next;
+    const withLobby = (): Story => validateProposal(linked(), [lobby], "checkpoints").next;
 
     it("only a stage before the transitions stage defers it; no stage (Studio save, import) never does", () => {
       expect(COPILOT_STAGES.map((stage) => [stage, defersReachability(stage)])).toEqual([
@@ -158,7 +157,7 @@ describe("validateProposal", () => {
       const result = validateProposal(linked(), [lobby], "checkpoints");
       expect(result.blocking).toEqual([]);
       expect(result.deferred).toEqual(["checkpoints.2: intermediate checkpoint 'lobby' has no route to an anchor yet; the transitions stage must connect it"]);
-      expect(isValidationErrorList(parseStoryV2(result.next))).toBe(true);
+      expect(isValidationErrorList(parseStory(result.next))).toBe(true);
     });
 
     it("control: without a stage (Studio save, import) the same proposal stays blocking", () => {
@@ -200,7 +199,7 @@ describe("validateProposal", () => {
       const result = validateProposal(withLobby(), ops, "transitions");
       expect(result.blocking).toEqual([]);
       expect(result.deferred).toEqual([]);
-      expect(isValidationErrorList(parseStoryV2(result.next))).toBe(false);
+      expect(isValidationErrorList(parseStory(result.next))).toBe(false);
     });
   });
 

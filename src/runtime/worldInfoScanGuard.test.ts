@@ -1,10 +1,9 @@
-import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import type { ScanEntry } from "./scanGatePlan";
 import { worldInfoPlan, releasePlan } from "./worldInfoGates";
 import { ScanGuard } from "./worldInfoScanGuard";
 
-const make = (id: string, book: string, scenes: string[], cast: string) => parseStoryV2OrThrow({
-  format: 2,
+const make = (id: string, book: string, scenes: string[], cast: string) => parseStoryOrThrow({
   id,
   title: id,
   description: "Scan guard fixture.",
@@ -30,7 +29,7 @@ const AEGIS_PATH = ["adolion-aegis-1", "adolion-aegis-2"];
 
 const entry = (world: string, uid: number, comment: string, disable: boolean): ScanEntry => ({ world, uid, comment, disable });
 
-const filesAfter = (story: NormalizedStoryV2, path: string[], others: NormalizedStoryV2[]): ScanEntry[][] => {
+const filesAfter = (story: NormalizedStory, path: string[], others: NormalizedStory[]): ScanEntry[][] => {
   const on = new Set(worldInfoPlan(story, path).flatMap((plan) => plan.enable.map((comment) => `${plan.lorebook}|${comment}`)));
   const off = new Set(releasePlan(others, story).flatMap((plan) => plan.disable.map((comment) => `${plan.lorebook}|${comment}`)));
   const books: Array<[string, string[]]> = [
@@ -50,7 +49,7 @@ const live = (arrays: ScanEntry[][]) => arrays.flat().filter((item) => item.disa
 const world = {
   open: "adv-chat" as string | null,
   storyChat: "adv-chat" as string | null,
-  story: adventurer as NormalizedStoryV2 | null,
+  story: adventurer as NormalizedStory | null,
   path: ADV_PATH,
   ready: true,
 };

@@ -1,4 +1,4 @@
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import { classifyFired, firedEntries, type LoreSlot } from "./worldInfoEvidence";
 
 export const LORE_FIRED_LIMIT = 100;
@@ -53,7 +53,7 @@ export const recordLoreFired = (state: LoreRuntimeState, record: LoreFiredRecord
 export const rollbackLoreFired = (state: LoreRuntimeState, messageId: number): LoreRuntimeState =>
   (Number.isFinite(messageId) ? { fired: state.fired.filter((record) => record.messageId < messageId) } : state);
 
-export function loreFiredRecord(slot: LoreSlot, story: NormalizedStoryV2 | null, mirrorBook: string | null): LoreFiredRecord | null {
+export function loreFiredRecord(slot: LoreSlot, story: NormalizedStory | null, mirrorBook: string | null): LoreFiredRecord | null {
   if (slot.rendered !== true || slot.lastMessageId === null || !slot.scans.some((scan) => scan.loud)) return null;
   const entries = firedEntries(slot.scans).map((entry): LoreFiredEntry => {
     const origin = classifyFired(entry, story, slot.forced, mirrorBook);

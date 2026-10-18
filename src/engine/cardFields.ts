@@ -1,4 +1,4 @@
-import type { CardBinding, CardFieldIndex, NormalizedStoryV2, PrimitiveValue, Quality, RosterMember, StoryV2, ValidationError } from "./schema";
+import type { CardBinding, CardFieldIndex, NormalizedStory, PrimitiveValue, Quality, RosterMember, Story, ValidationError } from "./schema";
 import { isRecord } from "@utils/guards";
 import { qualityAccepts, type Blackboard } from "./blackboard";
 
@@ -7,7 +7,7 @@ import { qualityAccepts, type Blackboard } from "./blackboard";
 export const cardQualityEligible = (quality: Pick<Quality, "type" | "source" | "latching" | "monotonic">): boolean =>
   (quality.type === "string" || quality.type === "enum") && quality.source === "extractor" && !quality.latching && !quality.monotonic;
 
-export const boundCardQualities = (roster: RosterMember[], player: StoryV2["player"]): Set<string> =>
+export const boundCardQualities = (roster: RosterMember[], player: Story["player"]): Set<string> =>
   new Set([...roster.map((member) => member.card), player?.card].flatMap((card) => Object.values(card?.fields ?? {}).map((binding) => binding.quality)));
 
 export interface DeclaredCardField {
@@ -17,7 +17,7 @@ export interface DeclaredCardField {
 }
 
 /** Every card field the story declares, with its quality, for the checkpoint card-effect editor. */
-export const declaredCardFields = (roster: RosterMember[], player: StoryV2["player"], qualities: Quality[]): DeclaredCardField[] => {
+export const declaredCardFields = (roster: RosterMember[], player: Story["player"], qualities: Quality[]): DeclaredCardField[] => {
   const byKey = new Map(qualities.map((quality) => [quality.key, quality]));
   const owners: Array<[string, CardBinding | undefined]> = [...roster.map((member): [string, CardBinding | undefined] => [member.id, member.card]), ["player", player?.card]];
   return owners.flatMap(([owner, card]) => Object.entries(card?.fields ?? {}).flatMap(([field, binding]) => {
@@ -26,7 +26,7 @@ export const declaredCardFields = (roster: RosterMember[], player: StoryV2["play
   }));
 };
 
-export function indexCardFields(roster: RosterMember[], player: StoryV2["player"], qualities: Record<string, Quality>, errors: ValidationError[]): CardFieldIndex {
+export function indexCardFields(roster: RosterMember[], player: Story["player"], qualities: Record<string, Quality>, errors: ValidationError[]): CardFieldIndex {
   const index: CardFieldIndex = {};
   const owners = [...roster.map((member, at) => ({ owner: member.id, card: member.card, path: `roster.${at}.card` })), { owner: "player", card: player?.card, path: "player.card" }];
   for (const { owner, card, path } of owners) {
@@ -52,7 +52,7 @@ export function indexCardFields(roster: RosterMember[], player: StoryV2["player"
   return index;
 }
 
-export function validateCardEffects(story: Pick<NormalizedStoryV2, "cardFieldByQuality" | "qualityByKey" | "checkpoints">, errors: ValidationError[]): void {
+export function validateCardEffects(story: Pick<NormalizedStory, "cardFieldByQuality" | "qualityByKey" | "checkpoints">, errors: ValidationError[]): void {
   const fields = Object.entries(story.cardFieldByQuality ?? {});
   story.checkpoints.forEach((checkpoint, at) => {
     if (checkpoint.effects?.card === undefined) return;
@@ -70,7 +70,7 @@ export function validateCardEffects(story: Pick<NormalizedStoryV2, "cardFieldByQ
   });
 }
 
-export function applyCardEntry(story: NormalizedStoryV2, checkpoint: string, blackboard: Blackboard, boundary: number): void {
+export function applyCardEntry(story: NormalizedStory, checkpoint: string, blackboard: Blackboard, boundary: number): void {
   const values = story.checkpointById[checkpoint]?.effects?.card;
   if (!values) return;
   for (const [key, binding] of Object.entries(story.cardFieldByQuality ?? {})) {
@@ -79,7 +79,7 @@ export function applyCardEntry(story: NormalizedStoryV2, checkpoint: string, bla
   }
 }
 
-export function cardValues(story: Pick<NormalizedStoryV2, "cardFieldByQuality">, values: Record<string, PrimitiveValue>, owner: string, visualOnly = false): Record<string, string> {
+export function cardValues(story: Pick<NormalizedStory, "cardFieldByQuality">, values: Record<string, PrimitiveValue>, owner: string, visualOnly = false): Record<string, string> {
   return Object.fromEntries(Object.entries(story.cardFieldByQuality ?? {}).flatMap(([key, binding]) => {
     const value = values[key];
     return binding.owner === owner && (!visualOnly || binding.visual) && typeof value === "string" && value.trim() ? [[binding.field, value.slice(0, 240)]] : [];
@@ -88,7 +88,7 @@ export function cardValues(story: Pick<NormalizedStoryV2, "cardFieldByQuality">,
 
 export const publicLook = (fields: Record<string, string>): string => Object.entries(fields).map(([field, value]) => `${field}: ${value}`).join("; ");
 
-export function cardReadKeys(story: Pick<NormalizedStoryV2, "cardFieldByQuality">, owners: string[], cursor = 0): string[] {
+export function cardReadKeys(story: Pick<NormalizedStory, "cardFieldByQuality">, owners: string[], cursor = 0): string[] {
   const present = new Set([...owners, "player"]);
   const rank = new Map([...owners, "player"].map((owner, at) => [owner, at]));
   const keys = Object.entries(story.cardFieldByQuality ?? {}).filter(([, binding]) => present.has(binding.owner))

@@ -1,7 +1,7 @@
 import { memorySightings, nameIndexOf, sameCharacterCandidates } from "@memory/nameFold";
 import {
   agencyFor, gateKeys, milestoneEarned, valueReader, visibleQuestTitles,
-  type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type StoryEngine, type ValidationError,
+  type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStory, type StoryEngine, type ValidationError,
 } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
 import { castVoices, sceneFieldsInConflict, shownRows, withoutExcludedThreads, type LedgerView, type MemoryInjectionView } from "@memory/index";
@@ -85,9 +85,9 @@ const readerFields = (reader: { reader: "judge" | "llm"; confidence?: number } |
   ? { reader: reader.reader, ...(reader.confidence !== undefined ? { confidence: reader.confidence } : {}) }
   : {});
 
-const playerTransition = (story: NormalizedStoryV2 | null, boundaryLog: BoundaryLogEntry[]): NarrativeTransition | null => playerLastTransition(story, boundaryLog);
+const playerTransition = (story: NormalizedStory | null, boundaryLog: BoundaryLogEntry[]): NarrativeTransition | null => playerLastTransition(story, boundaryLog);
 
-const publishedIntro = (story: NormalizedStoryV2 | null): string | null => story?.player_intro || story?.description || null;
+const publishedIntro = (story: NormalizedStory | null): string | null => story?.player_intro || story?.description || null;
 
 export interface SnapshotSources {
   loaded: LoadedStory | null;
@@ -190,7 +190,7 @@ const routeGaps = () => {
 
 const stem = (value: string) =>value.replace(/\.(png|webp|jpe?g)$/i, "");
 
-export const buildCastNames = (story: NormalizedStoryV2 | null, characters: ReadonlyArray<{ avatar?: string; name?: string }>): Record<string, string> => {
+export const buildCastNames = (story: NormalizedStory | null, characters: ReadonlyArray<{ avatar?: string; name?: string }>): Record<string, string> => {
   const names: Record<string, string> = {};
   for (const character of characters) {
     if (!character.avatar || !character.name) continue;
@@ -201,7 +201,7 @@ export const buildCastNames = (story: NormalizedStoryV2 | null, characters: Read
   return names;
 };
 
-const lastFiredTransition = (log: BoundaryLogEntry[], story: NormalizedStoryV2 | null, activeCheckpointId: string | undefined): LastFiredTransition | null => {
+const lastFiredTransition = (log: BoundaryLogEntry[], story: NormalizedStory | null, activeCheckpointId: string | undefined): LastFiredTransition | null => {
   const entry = [...log].reverse().find((candidate) => candidate.fired?.to === activeCheckpointId);
   if (!entry?.fired) return null;
   return {
@@ -225,11 +225,11 @@ export const loadInlineComposer = async () => {
   inlineComposer = (await import("./inlineTimeline")).composeInlineTimeline;
 };
 
-const gateQualitiesOf = (story: NormalizedStoryV2 | null, activeId: string | undefined): string[] => (story && activeId
+const gateQualitiesOf = (story: NormalizedStory | null, activeId: string | undefined): string[] => (story && activeId
   ? [...new Set((story.outgoingByCheckpoint[activeId] ?? []).flatMap((transition) => gateKeys(transition.gate)))].filter((key) => Boolean(story.qualityByKey[key]))
   : []);
 
-const activeOf = (story: NormalizedStoryV2 | null, state: EngineState | null) => {
+const activeOf = (story: NormalizedStory | null, state: EngineState | null) => {
   const active = state && story ? story.checkpointById[state.activeCheckpointId] ?? null : null;
   return { active, lost: state && story && !active ? state.activeCheckpointId : null };
 };
@@ -241,7 +241,7 @@ const recentEmptyReplies = (chat: readonly unknown[], window: number): number[] 
 
 const authorMoves = (extras: RuntimeExtras) => extras.journal.filter((record) => record.kind === "author");
 
-const inlineView = (sources: SnapshotSources, story: NormalizedStoryV2 | null, live: { tension: RuntimeSnapshot["tension"]; pipeline: PipelineStatus; agencyRecovery: boolean },
+const inlineView = (sources: SnapshotSources, story: NormalizedStory | null, live: { tension: RuntimeSnapshot["tension"]; pipeline: PipelineStatus; agencyRecovery: boolean },
   castNames: Record<string, string>) => {
   const { extras } = sources;
   const { memory } = extras;
@@ -263,7 +263,7 @@ const inlineView = (sources: SnapshotSources, story: NormalizedStoryV2 | null, l
   });
 };
 
-export const chapterParts = (sources: SnapshotSources, story: NormalizedStoryV2 | null, state: EngineState | null) => {
+export const chapterParts = (sources: SnapshotSources, story: NormalizedStory | null, state: EngineState | null) => {
   const { memory } = sources.extras;
   const resting = sources.resting ?? ((text: string) => text);
   const kit = chapterKit();
@@ -313,7 +313,7 @@ export const setupWarnings = (sources: SnapshotSources): Pick<RuntimeSnapshot, S
   }),
 });
 
-const questNarrative = (story: NormalizedStoryV2 | null, values: Record<string, unknown>, epilogue: string | null) => {
+const questNarrative = (story: NormalizedStory | null, values: Record<string, unknown>, epilogue: string | null) => {
   const reader = valueReader(values);
   const earned = epilogue ? (story?.milestones ?? []).filter((milestone) => milestoneEarned(milestone, reader)) : [];
   return { quests: visibleQuestTitles(story?.quests, reader), milestones: earned.map((milestone) => milestone.title) };
@@ -324,7 +324,7 @@ export const resolvedThreads = (memory: RuntimeExtras["memory"], resting: (text:
 
 type PresenceGame = { castNames: Record<string, string>; openThreads: string[] };
 
-const presenceSlices = (sources: SnapshotSources, story: NormalizedStoryV2 | null, state: EngineState | null, game: PresenceGame) => {
+const presenceSlices = (sources: SnapshotSources, story: NormalizedStory | null, state: EngineState | null, game: PresenceGame) => {
   const storyId = sources.loaded?.record.id;
   const ids = storyId && sources.chatId ? { chatId: sources.chatId, storyId } : null;
   const quality = reconstructQualityRolls(story, ids, sources.boundaryLog, state);
@@ -357,7 +357,7 @@ const turnOf = (sources: SnapshotSources, checkpointId: string | null) => derive
   enabled: Boolean(sources.loaded) && sources.extras.ui.yourMove !== false, generating: sources.generating === true, chat: sources.chat, checkpointId, decisions: sources.extras.talk.decisions,
 });
 
-const sceneLocationOf = (story: NormalizedStoryV2 | null, extras: RuntimeExtras) =>
+const sceneLocationOf = (story: NormalizedStory | null, extras: RuntimeExtras) =>
   playerLocation(story, confirmedSceneFacts(extras.judge.scene, sceneFieldsInConflict(extras.memory.conflicts))?.location ?? null);
 
 const readingEvidence = (extras: RuntimeExtras) => {

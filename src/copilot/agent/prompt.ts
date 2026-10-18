@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import type { ProvisioningEnvironment } from "@wizard/index";
 import { isRecord } from "@utils/guards";
 import { truncate } from "@utils/string";
@@ -126,7 +126,7 @@ const authorNotes = (session: AgentSession): string[] => session.notes.slice(1)
   .filter((note) => note.role === "author" && (note.onceAt === undefined || note.onceAt === session.steps.length))
   .map((note) => `- ${note.text}`);
 
-const header = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment, native = false, backgrounds: readonly string[] = []): string[] => [
+const header = (session: AgentSession, draft: Story, environment: ProvisioningEnvironment, native = false, backgrounds: readonly string[] = []): string[] => [
   (native ? [...NATIVE_RULES, ...rules().slice(2)] : rules()).join("\n"),
   ...(native ? [] : [`TOOLS\n${renderToolSchema()}`]),
   `GOAL\n${session.goal}`,
@@ -136,12 +136,12 @@ const header = (session: AgentSession, draft: StoryV2, environment: Provisioning
   ...(authorNotes(session).length ? [`AUTHOR NOTES\n${authorNotes(session).join("\n")}`] : []),
 ];
 
-export const renderPlanPrompt = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment, native = false, backgrounds: readonly string[] = []): string => [
+export const renderPlanPrompt = (session: AgentSession, draft: Story, environment: ProvisioningEnvironment, native = false, backgrounds: readonly string[] = []): string => [
   ...header(session, draft, environment, native, backgrounds),
   "REPLY NOW with the plan only: {\"plan\": [\"one step per entry, in the order you will do them\"]}",
 ].join("\n\n");
 
-export const renderStepPrompt = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment, native = false, backgrounds: readonly string[] = []): string => [
+export const renderStepPrompt = (session: AgentSession, draft: Story, environment: ProvisioningEnvironment, native = false, backgrounds: readonly string[] = []): string => [
   ...header(session, draft, environment, native, backgrounds),
   `PLAN (agreed with the author)\n${session.plan.map((step, index) => `${index + 1}. ${step}`).join("\n")}`,
   ...earlierSteps(session),

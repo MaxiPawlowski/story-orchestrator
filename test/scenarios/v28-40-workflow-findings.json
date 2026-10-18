@@ -15,7 +15,6 @@
     },
     {
       "import_story": {
-        "format": 2,
         "id": "so-w40-workflows",
         "title": "SO-W40 Workflows",
         "description": "Synthetic story workflow map with a checkpoint override.",

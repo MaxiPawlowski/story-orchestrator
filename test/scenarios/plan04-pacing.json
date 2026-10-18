@@ -3,7 +3,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "title": "Pacing Gate Check",
         "description": "Plan 04 live pacing validation story.",
         "arc_template": "rising",

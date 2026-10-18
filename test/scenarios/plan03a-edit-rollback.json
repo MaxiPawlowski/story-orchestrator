@@ -3,7 +3,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "title": "03a Edit Rollback",
         "description": "Edit rollback validation story.",
         "qualities": [

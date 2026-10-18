@@ -1,7 +1,7 @@
 import { readFileSync } from "fs";
 import { join } from "path";
 import { unitDraw } from "@engine/chance";
-import { parseStoryV2, parseStoryV2OrThrow, TENSION_LEVELS, type NormalizedStoryV2 } from "@engine/index";
+import { parseStory, parseStoryOrThrow, TENSION_LEVELS, type NormalizedStory } from "@engine/index";
 import { parseDirectorDraft } from "./parse";
 import { sanitizeLivingState } from "./sanitize";
 import { buildDirectorOps, checkDirectorOps, planChapter } from "./plan";
@@ -23,7 +23,7 @@ const record = (patch: Partial<SceneTestRecord> = {}): SceneTestRecord => ({
 
 describe("v2.8 48 scene test format", () => {
   it("accepts { chaos: { from: tension }, min_gap } and keeps it", () => {
-    const story = parseStoryV2OrThrow(withScene(fixture("living-premise"), { chaos: { from: "tension" }, min_gap: 3 }));
+    const story = parseStoryOrThrow(withScene(fixture("living-premise"), { chaos: { from: "tension" }, min_gap: 3 }));
     expect(story.living?.scene_test).toEqual({ chaos: { from: "tension" }, min_gap: 3 });
   });
 
@@ -35,12 +35,12 @@ describe("v2.8 48 scene test format", () => {
     [{ chaos: { from: "tension", max: 4 } }, "living.scene_test.chaos.max"],
     ["on", "living.scene_test"],
   ])("refuses %j", (scene, path) => {
-    const result = parseStoryV2(withScene(fixture("living-premise"), scene));
+    const result = parseStory(withScene(fixture("living-premise"), scene));
     expect(Array.isArray(result) && result.some((error) => error.path === path)).toBe(true);
   });
 
   it("offers a did-you-mean for a misspelt key", () => {
-    const result = parseStoryV2(withScene(fixture("living-premise"), { chaos: { from: "tension" }, min_gaps: 1 }));
+    const result = parseStory(withScene(fixture("living-premise"), { chaos: { from: "tension" }, min_gaps: 1 }));
     expect(Array.isArray(result) && result.find((error) => error.path === "living.scene_test.min_gaps")?.message).toContain('did you mean "min_gap"');
   });
 });
@@ -124,7 +124,7 @@ describe("v2.8 48 scene tests survive a reload", () => {
 });
 
 describe("v2.8 48 signal and S13 one change", () => {
-  const story = parseStoryV2OrThrow(fixture("living-premise")) as NormalizedStoryV2;
+  const story = parseStoryOrThrow(fixture("living-premise")) as NormalizedStory;
   const raw = fixture("living-premise");
   const reply = (patch: Record<string, unknown>) => JSON.stringify({
     name: "The Cold Quay", objective: "A lantern on the quay goes dark while the harbourmaster watches.", tension: "stirring", snapshot: {},

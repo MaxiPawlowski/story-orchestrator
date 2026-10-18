@@ -1,4 +1,4 @@
-export { parseStoryV2 } from '../../../src/engine/validate';
+export { parseStory } from '../../../src/engine/validate';
 export { loadGameLayer } from '../../../src/engine/validate/gameLayer';
 export { spreadRumors } from '../../../src/memory/rumors/spread';
 export { hearsayLines } from '../../../src/memory/rumors/lines';

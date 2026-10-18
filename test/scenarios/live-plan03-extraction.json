@@ -3,7 +3,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "title": "Live Extraction Gate Check",
         "description": "Plan 03 retro validation with real memory-LLM shared reads.",
         "qualities": [

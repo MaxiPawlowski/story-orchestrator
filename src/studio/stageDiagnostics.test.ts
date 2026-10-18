@@ -1,13 +1,12 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { runDiagnostics, type DiagnosticsContext } from "./diagnostics";
 
-const story = (stage: unknown): StoryV2 => ({
-  format: 2,
+const story = (stage: unknown): Story => ({
   title: "Stage test",
   description: "",
   qualities: [],
   checkpoints: [
-    { id: "start", name: "Arrival", objective: "", type: "intermediate", start: true, effects: { stage } as StoryV2["checkpoints"][number]["effects"] },
+    { id: "start", name: "Arrival", objective: "", type: "intermediate", start: true, effects: { stage } as Story["checkpoints"][number]["effects"] },
     { id: "end", name: "Leaving", objective: "", type: "anchor" },
   ],
   transitions: [{ from: "start", to: "end", priority: 0, gate: { all: [] } }],
@@ -16,7 +15,7 @@ const story = (stage: unknown): StoryV2 => ({
 
 const installed: DiagnosticsContext = { spriteInventory: () => ({ arin: { sets: ["default", "rain"], faces: ["happy", "neutral"] } }) };
 
-const rows = (draft: StoryV2, context: DiagnosticsContext = installed) => runDiagnostics(draft, context).filter((entry) => entry.code === "stage-sprite-unknown");
+const rows = (draft: Story, context: DiagnosticsContext = installed) => runDiagnostics(draft, context).filter((entry) => entry.code === "stage-sprite-unknown");
 
 describe("Studio: a stage direction names a set or face the installed sprites lack", () => {
   it("warns for an unknown set and an unknown face, by card name or cast id, and states the consequence", () => {

@@ -1,5 +1,4 @@
 {
-  "format": 2,
   "id": "sp7-chance",
   "title": "SP7 chance gates (jest)",
   "description": "v2.5 plan 09 SP7 D1 fixture: a gate that loops, so a code roll quality is drawn again at every re-entry at a new boundary. lock_gives is a d20 at or under 12, clue_die is the raw d6 face.",

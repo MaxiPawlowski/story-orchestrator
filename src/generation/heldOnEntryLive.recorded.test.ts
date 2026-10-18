@@ -1,5 +1,5 @@
 import * as recorded from "../../test/fixtures/t2-6-on-the-road.expansion.json";
-import { StoryEngine, parseStoryV2OrThrow, type PrimitiveValue } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, type PrimitiveValue } from "@engine/index";
 import { runCodeChecks } from "./critic";
 import { mergeExpansions } from "./merge";
 import { parseGeneratedBeats } from "./parse";
@@ -12,7 +12,7 @@ jest.mock("@services/STAPI", () => ({
   settingsReady: async () => {},
 }));
 
-const story = parseStoryV2OrThrow(recorded.story);
+const story = parseStoryOrThrow(recorded.story);
 const basis = recorded.basis as Record<string, PrimitiveValue>;
 const latched = recorded.latched as Record<string, boolean>;
 const parsed = parseGeneratedBeats(JSON.stringify({ beats: recorded.beats }), story);

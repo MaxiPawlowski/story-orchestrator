@@ -1,4 +1,4 @@
-import { gateLeaves, isLivingId, isOocText, isPlayerLine, type NormalizedStoryV2 } from "@engine/index";
+import { gateLeaves, isLivingId, isOocText, isPlayerLine, type NormalizedStory } from "@engine/index";
 import { DIVERGENCE_COMMIT_P, DIVERGENCE_NONE_P, DIVERGENCE_STREAK, DIVERGENCE_SURE_P } from "@judge/policy";
 import { choice, choiceAnswer, noul, noulAnswer } from "@judge/questions";
 import type { JudgeAnswer, JudgeRequest } from "@judge/types";
@@ -28,10 +28,10 @@ export interface PlayerTurn {
 
 export type DivergenceSkip = "no-turn" | "same-turn" | "ooc" | "inquiry";
 
-export const directorLeads = (story: NormalizedStoryV2, activeId: string): boolean =>
+export const directorLeads = (story: NormalizedStory, activeId: string): boolean =>
   Boolean(story.living) && (!story.living?.authored_until || isLivingId(activeId));
 
-export const followsPlayer = (story: NormalizedStoryV2, activeId: string): boolean => directorLeads(story, activeId) || isBranchStub(activeId);
+export const followsPlayer = (story: NormalizedStory, activeId: string): boolean => directorLeads(story, activeId) || isBranchStub(activeId);
 
 export function latestPlayerTurn(rows: readonly unknown[]): PlayerTurn | null {
   for (let index = rows.length - 1; index >= 0; index -= 1) {
@@ -85,7 +85,7 @@ export interface ExitDescription {
   text: string;
 }
 
-export function exitDescriptions(story: NormalizedStoryV2, activeId: string): ExitDescription[] {
+export function exitDescriptions(story: NormalizedStory, activeId: string): ExitDescription[] {
   return (story.outgoingByCheckpoint[activeId] ?? []).map((transition, index) => {
     const rubrics = [...new Set(gateLeaves(transition.gate).map((leaf) => story.qualityByKey[leaf.q]?.rubric).filter((rubric): rubric is string => Boolean(rubric)))];
     const target = story.checkpointById[transition.to];
@@ -139,7 +139,7 @@ export function readDivergence(answers: Record<string, JudgeAnswer> | null | und
   return { none: answer.choice === DIVERGENCE_NONE, p, commits: noulAnswer(answers, "commits") };
 }
 
-export function branchTarget(story: NormalizedStoryV2, activeId: string): string | null {
+export function branchTarget(story: NormalizedStory, activeId: string): string | null {
   const queue = [...(story.outgoingByCheckpoint[activeId] ?? []).map((transition) => transition.to)];
   const seen = new Set<string>([activeId]);
   while (queue.length) {
@@ -154,10 +154,10 @@ export function branchTarget(story: NormalizedStoryV2, activeId: string): string
 
 export const isBranchStub = (id: string): boolean => id.startsWith(LIVING_BRANCH_PREFIX) && id.endsWith(LIVING_STUB_SUFFIX);
 
-export const hasLiveBranch = (story: NormalizedStoryV2, activeId: string): boolean =>
+export const hasLiveBranch = (story: NormalizedStory, activeId: string): boolean =>
   (story.outgoingByCheckpoint[activeId] ?? []).some((transition) => isBranchStub(transition.to));
 
-export const nextBranchId = (story: NormalizedStoryV2): string => {
+export const nextBranchId = (story: NormalizedStory): string => {
   const numbers = story.checkpoints.map((checkpoint) => new RegExp(`^${LIVING_BRANCH_PREFIX}(\\d+)${LIVING_STUB_SUFFIX}$`).exec(checkpoint.id)?.[1]).filter(Boolean).map(Number);
   return `${LIVING_BRANCH_PREFIX}${(numbers.length ? Math.max(...numbers) : 0) + 1}`;
 };

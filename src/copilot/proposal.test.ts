@@ -1,9 +1,8 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { applyOp, applyOps, describeOp, diffProposal, isProvisioningOp, provisioningFollowUpOps, resolveTransitionRef } from "./proposal";
 import type { ProposalOp } from "./types";
 
-const baseDraft = (): StoryV2 => ({
-  format: 2,
+const baseDraft = (): Story => ({
   title: "The Vault Job",
   description: "A heist.",
   qualities: [{ key: "has_key", type: "bool", source: "extractor", rubric: "Does the crew have the vault key?" }],
@@ -136,7 +135,7 @@ describe("provisioning ops against the draft", () => {
   });
 
   it("merges into existing requirements without duplicating, and skips a roster member already present", () => {
-    const draft: StoryV2 = { ...baseDraft(), requirements: { members: ["Arin"], lorebooks: ["Vault Lore"] }, roster: [{ id: "guide", name: "arin" }] };
+    const draft: Story = { ...baseDraft(), requirements: { members: ["Arin"], lorebooks: ["Vault Lore"] }, roster: [{ id: "guide", name: "arin" }] };
     expect(provisioningFollowUpOps(draft, { kind: "createCharacterCard", name: "Arin", description: "A guide." })).toEqual([
       { kind: "setRequirements", requirements: { members: ["Arin"], lorebooks: ["Vault Lore"] } },
     ]);
@@ -147,7 +146,7 @@ describe("provisioning ops against the draft", () => {
       { kind: "setStagecraft", stagecraft: { lorebooks: ["Heist Lore"] } },
       { kind: "setLoreSelect", loreSelect: { lorebooks: ["Heist Lore"] } },
     ]);
-    const scoped: StoryV2 = { ...draft, stagecraft: { lorebooks: ["Vault Lore"] }, lore_select: { lorebooks: ["Vault Lore"], top_k: 6 } };
+    const scoped: Story = { ...draft, stagecraft: { lorebooks: ["Vault Lore"] }, lore_select: { lorebooks: ["Vault Lore"], top_k: 6 } };
     expect(provisioningFollowUpOps(scoped, { kind: "createStoryLorebook", name: "Heist Lore" }).slice(1)).toEqual([
       { kind: "setStagecraft", stagecraft: { lorebooks: ["Vault Lore", "Heist Lore"] } },
       { kind: "setLoreSelect", loreSelect: { lorebooks: ["Vault Lore", "Heist Lore"], top_k: 6 } },

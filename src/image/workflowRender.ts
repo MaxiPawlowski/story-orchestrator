@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/schema";
+import type { Story } from "@engine/schema";
 import { listComfyWorkflows, readComfyWorkflow, reconcileComfyWorkflowSwap, withComfyWorkflow } from "@services/stHost/comfyWorkflows";
 import { renderStImage, stImageReadiness } from "@services/stHost/stImage";
 import { log } from "@utils/log";
@@ -21,7 +21,7 @@ export async function renderWithStoryWorkflow(workflow: string, positive: string
   return { path: outcome.value, note: outcome.note };
 }
 
-type HealthStory = Parameters<typeof requiredWorkflows>[0] & Pick<StoryV2, "illustrations">;
+type HealthStory = Parameters<typeof requiredWorkflows>[0] & Pick<Story, "illustrations">;
 
 export async function storyWorkflowHealth(story: HealthStory | null, source: string | null, nodes: () => Promise<string[] | null>): Promise<ImageHealthView["storyWorkflows"]> {
   const wanted = requiredWorkflows(story);

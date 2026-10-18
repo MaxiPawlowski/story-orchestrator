@@ -5,7 +5,6 @@
   "steps": [
     { "eval": "const bg = document.querySelector('#bg1')?.style?.backgroundImage ?? ''; const settings = SillyTavern.getContext().chatMetadata?.custom_background ?? null; globalThis.__v15bBaseline = { settingsName: (await import('/scripts/backgrounds.js')).background_settings?.name ?? '', locked: settings, note: document.querySelector('#extension_floating_prompt')?.value ?? '' }; if (globalThis.__v15bBaseline.settingsName.toLowerCase() === 'bedroom red.jpg') throw new Error('the baseline background is already the one this check switches to, so the switch would prove nothing'); return globalThis.__v15bBaseline;", "log": true },
     { "import_story": {
-      "format": 2,
       "id": "so-v15b-ledger",
       "title": "SO-V15b Ledger",
       "description": "A second checkpoint that sets an Author's Note and a background.",

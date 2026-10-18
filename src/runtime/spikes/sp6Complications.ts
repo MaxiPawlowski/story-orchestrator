@@ -1,4 +1,4 @@
-import { PLAYER_REF, TENSION_CURRENT_KEY, agencyForCheckpoint, type ArcTemplate, type BoundaryLogEntry, type NormalizedStoryV2 } from "@engine/index";
+import { PLAYER_REF, TENSION_CURRENT_KEY, agencyForCheckpoint, type ArcTemplate, type BoundaryLogEntry, type NormalizedStory } from "@engine/index";
 import { getSteeringHint } from "@pacing/index";
 import { isRecord } from "@utils/guards";
 import { computeExpectedTension } from "../snapshot";
@@ -27,7 +27,7 @@ export interface ComplicationRelease {
 }
 
 export interface ReleaseInput {
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
   pools: Record<string, ComplicationPool>;
   log: readonly BoundaryLogEntry[];
   shape: ArcTemplate | null;
@@ -55,7 +55,7 @@ export const readComplicationPools = (raw: unknown): Record<string, Complication
   return pools;
 };
 
-const directionOf = (story: NormalizedStoryV2, entry: BoundaryLogEntry, shape: ArcTemplate | null): string => {
+const directionOf = (story: NormalizedStory, entry: BoundaryLogEntry, shape: ArcTemplate | null): string => {
   const state = entry.after;
   const smoothed = state.blackboard.values[TENSION_CURRENT_KEY];
   const target = story.checkpointById[state.activeCheckpointId]?.tension_target;
@@ -111,7 +111,7 @@ export const pendingRelease = (input: ReleaseInput): ComplicationRelease | null 
   return last && last.boundary === latest.boundary ? last : null;
 };
 
-export const composeComplication = (story: NormalizedStoryV2, release: ComplicationRelease): string => {
+export const composeComplication = (story: NormalizedStory, release: ComplicationRelease): string => {
   const policy = agencyForCheckpoint(story, release.checkpointId);
   const clause = policy.never_narrate_player_action ? ` Do not narrate ${PLAYER_REF}'s own words or decisions.` : "";
   return `World pressure: ${release.text} Let it land in this reply as something the world does.${clause}`;

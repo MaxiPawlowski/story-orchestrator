@@ -30,11 +30,10 @@ import { estimateTokens, maxTokensCap } from "@extraction/callBudget";
 import { createTokenMeter } from "@extraction/tokenMeter";
 import { inputBudget } from "@extraction/inputBudget";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 import { finding, must } from "../../../test/findings/ledger";
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "wiring",
   title: "Wiring",
   description: "v2.4 plan 03 D5",

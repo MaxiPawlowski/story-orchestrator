@@ -1,8 +1,8 @@
-import { parseStoryV2OrThrow, CLOCK_READ_KEY } from "@engine/index";
+import { parseStoryOrThrow, CLOCK_READ_KEY } from "@engine/index";
 import { deriveScope } from "./scope";
 
-const story = (gate: Record<string, unknown>) => parseStoryV2OrThrow({
-  format: 2, title: "Clock scope", description: "d", roster: [],
+const story = (gate: Record<string, unknown>) => parseStoryOrThrow({
+  title: "Clock scope", description: "d", roster: [],
   clock: { times: ["morning", "evening", "night"] },
   qualities: [{ key: "left", type: "bool", source: "extractor", rubric: "Left?" }],
   checkpoints: [{ id: "start", name: "Start", type: "anchor", start: true, objective: "o" }, { id: "end", name: "End", type: "anchor", objective: "o" }],

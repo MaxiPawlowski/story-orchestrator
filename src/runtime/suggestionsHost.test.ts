@@ -17,7 +17,7 @@ jest.mock("@services/STAPI", () => ({
   },
 }));
 
-import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { parseStoryOrThrow, type EngineState } from "@engine/index";
 import { heldSecrets, withoutSecrets, type EpistemicEntry } from "@memory/index";
 import type { ExtractionReply, ModelAsk } from "@extraction/index";
 import { buildNarrativeStatus } from "./narrative";
@@ -27,8 +27,8 @@ import type { RuntimeSnapshot } from "./types";
 import { testOwnership } from "../../test/findings/testOwnership";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./runToken";
 
-const story = parseStoryV2OrThrow({
-  format: 2, id: "host", title: "Host", description: "d",
+const story = parseStoryOrThrow({
+  id: "host", title: "Host", description: "d",
   qualities: [{ key: "secret_known", type: "bool", source: "extractor", rubric: "Known?" }],
   checkpoints: [{ id: "a", name: "a-internal", player_name: "The Hall", objective: "Talk.", type: "anchor", start: true }],
   transitions: [],
@@ -143,8 +143,8 @@ describe("v2.7 33 W4: filling the box never sends, and never overwrites the play
 });
 
 describe("v2.8 04 C5: a suggestion never names a scene the player has not reached", () => {
-  const gated = parseStoryV2OrThrow({
-    format: 2, id: "gated-host", title: "Host", description: "d",
+  const gated = parseStoryOrThrow({
+    id: "gated-host", title: "Host", description: "d",
     qualities: [{ key: "secret_known", type: "bool", source: "extractor", rubric: "Known?" }],
     checkpoints: [
       { id: "a", name: "a-internal", player_name: "The Hall", objective: "Talk.", type: "anchor", start: true },

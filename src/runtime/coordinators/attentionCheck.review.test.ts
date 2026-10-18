@@ -1,13 +1,13 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { parseStoryOrThrow, type EngineState } from "@engine/index";
 import { ATTENTION_QUESTION, buildWardenRequests, defaultJudgeSettings, readWarden, wardenRecordP, type JudgeRequest, type JudgeSettings, type WardenInput } from "@judge/index";
 import { createWarden, wardenFamilies } from "../continuity";
 import { JudgeRuntime } from "../judge";
 import { testOwnership } from "../../../test/findings/testOwnership";
 
-const story = parseStoryV2OrThrow({
-  format: 2, id: "attention", title: "Attention", description: "N1.",
+const story = parseStoryOrThrow({
+  id: "attention", title: "Attention", description: "N1.",
   qualities: [{ key: "crossed", type: "bool", source: "extractor", rubric: "Crossed?" }],
   checkpoints: [{ id: "cp1", name: "The bank", objective: "Cross", type: "anchor", start: true }],
   transitions: [], roster: [],

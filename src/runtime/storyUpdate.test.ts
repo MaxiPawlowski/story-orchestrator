@@ -1,4 +1,4 @@
-import { parseStoryV2OrThrow, StoryEngine, type EngineState, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
+import { parseStoryOrThrow, StoryEngine, type EngineState, type NormalizedStory, type Story } from "@engine/index";
 import { chatUpdateSentence } from "./librarySave";
 import { applyStoryUpdate, describeStoryUpdate, renderStoryUpdate, type StoryUpdateDeps, type StoryUpdateOutcome } from "./storyUpdate";
 import { diffStories } from "@engine/storyDiff";
@@ -16,12 +16,11 @@ const choiceProxy = (...args: unknown[]) => choice(...(args as []));
 const library = new Map<string, StoryLibraryRecord>();
 jest.mock("./storyLibrary", () => ({
   findStoryRecord: (id: string) => libraryProxy().get(id) ?? null,
-  loadStoryRecord: (record: StoryLibraryRecord) => ({ record, story: parseStoryV2OrThrow(record.raw) }),
+  loadStoryRecord: (record: StoryLibraryRecord) => ({ record, story: parseStoryOrThrow(record.raw) }),
 }));
 const libraryProxy = () => library;
 
-const storyV1 = (): StoryV2 => ({
-  format: 2,
+const baseStory = (): Story => ({
   id: "hot-swap",
   title: "Hot swap",
   description: "Base.",
@@ -37,7 +36,7 @@ const storyV1 = (): StoryV2 => ({
   roster: [],
 });
 
-const record = (raw: StoryV2, hash: string): StoryLibraryRecord => ({
+const record = (raw: Story, hash: string): StoryLibraryRecord => ({
   id: raw.id as string,
   hash,
   title: raw.title,
@@ -47,7 +46,7 @@ const record = (raw: StoryV2, hash: string): StoryLibraryRecord => ({
   updatedAt: "2026-08-12T00:00:00.000Z",
 });
 
-const playedState = (story: NormalizedStoryV2): EngineState => {
+const playedState = (story: NormalizedStory): EngineState => {
   const engine = new StoryEngine();
   engine.loadStory(story);
   engine.enqueue({ source: "extractor", blackboardVersionSum: 0, deltas: [{ q: "trust", v: 3, source: "extractor" }, { q: "mood", v: "angry", source: "extractor" }] });
@@ -55,8 +54,8 @@ const playedState = (story: NormalizedStoryV2): EngineState => {
   return engine.serialize();
 };
 
-const harness = (next: StoryV2, nextHash = "hash-2") => {
-  const base = parseStoryV2OrThrow(storyV1());
+const harness = (next: Story, nextHash = "hash-2") => {
+  const base = parseStoryOrThrow(baseStory());
   let current: RunContext = {
     chatId: "chat-a",
     storyId: "hot-swap",
@@ -69,7 +68,7 @@ const harness = (next: StoryV2, nextHash = "hash-2") => {
     mint: (window = null) => mintToken(current, window),
     check: (token: RunToken) => tokenMatches(current, token),
   };
-  const loaded: LoadedStory = { record: record(storyV1(), "hash-1"), story: base };
+  const loaded: LoadedStory = { record: record(baseStory(), "hash-1"), story: base };
   const state = playedState(base);
   library.clear();
   library.set("hot-swap", record(next, nextHash));
@@ -134,7 +133,7 @@ beforeEach(() => {
 
 describe("applyStoryUpdate", () => {
   it("hot-swaps a compatible edit without asking, keeping the run", async () => {
-    const next = storyV1();
+    const next = baseStory();
     next.transitions[0].gate = { q: "trust", op: ">=", v: 2 };
     next.description = "Edited mid-play.";
     const { deps, swapped, journalled } = harness(next);
@@ -150,7 +149,7 @@ describe("applyStoryUpdate", () => {
   });
 
   it("asks before an invalidating edit and drops only the orphaned value on keep", async () => {
-    const next = storyV1();
+    const next = baseStory();
     next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
     const { deps, swapped } = harness(next);
 
@@ -163,7 +162,7 @@ describe("applyStoryUpdate", () => {
   });
 
   it("applies a delayed keep decision while the same world remains current", async () => {
-    const next = storyV1();
+    const next = baseStory();
     next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
     const h = harness(next);
     const pending = deferred<string | null>();
@@ -181,7 +180,7 @@ describe("applyStoryUpdate", () => {
   });
 
   it("discards a delayed keep decision after the world changes", async () => {
-    const next = storyV1();
+    const next = baseStory();
     next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
     const h = harness(next);
     const pending = deferred<string | null>();
@@ -202,7 +201,7 @@ describe("applyStoryUpdate", () => {
   });
 
   it("discards the update when the world changes while the story comparison is still loading", async () => {
-    const next = storyV1();
+    const next = baseStory();
     next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
     const h = harness(next);
 
@@ -218,7 +217,7 @@ describe("applyStoryUpdate", () => {
   });
 
   it("discards a delayed restart decision after the world changes", async () => {
-    const next = storyV1();
+    const next = baseStory();
     next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
     const h = harness(next);
     const pending = deferred<string | null>();
@@ -238,7 +237,7 @@ describe("applyStoryUpdate", () => {
   });
 
   it("restarts when the author picks restart, and leaves the chat alone on cancel", async () => {
-    const next = storyV1();
+    const next = baseStory();
     next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
 
     choice.mockResolvedValue("restart");
@@ -255,7 +254,7 @@ describe("applyStoryUpdate", () => {
   });
 
   it("re-anchors when the checkpoint the chat is standing on is gone", async () => {
-    const next = storyV1();
+    const next = baseStory();
     next.checkpoints = [
       { id: "prologue", name: "The road out", objective: "Set off", type: "anchor", start: true },
       { id: "end", name: "The road", objective: "Leave", type: "anchor" },
@@ -271,7 +270,7 @@ describe("applyStoryUpdate", () => {
   });
 
   it("does nothing when the chat already plays the library copy", async () => {
-    const { deps, swapped, journalled } = harness(storyV1(), "hash-1");
+    const { deps, swapped, journalled } = harness(baseStory(), "hash-1");
 
     const outcome = await applyStoryUpdate(deps);
 
@@ -281,7 +280,7 @@ describe("applyStoryUpdate", () => {
   });
 
   it("2026-10-02: takes nothing while no chat is open, so no host effect runs on the welcome screen", async () => {
-    const next = storyV1();
+    const next = baseStory();
     next.description = "Edited on the welcome screen.";
     const h = harness(next);
     h.deps.chatOpen = () => false;
@@ -292,7 +291,7 @@ describe("applyStoryUpdate", () => {
   });
 
   it("v2.7 plan 03: takes nothing in a one-on-one chat", async () => {
-    const next = storyV1();
+    const next = baseStory();
     next.description = "Edited from a solo chat.";
     const h = harness(next);
     h.deps.groupOpen = () => false;
@@ -302,8 +301,8 @@ describe("applyStoryUpdate", () => {
   });
 
   it("refuses a record that is a different story", async () => {
-    const { deps } = harness(storyV1());
-    const other = record({ ...storyV1(), id: "somewhere-else" }, "hash-x");
+    const { deps } = harness(baseStory());
+    const other = record({ ...baseStory(), id: "somewhere-else" }, "hash-x");
 
     expect(await applyStoryUpdate(deps, other)).toMatchObject({ applied: false, classification: "unavailable" });
   });
@@ -311,11 +310,11 @@ describe("applyStoryUpdate", () => {
 
 describe("describeStoryUpdate", () => {
   it("lists every consequence the author is deciding about", () => {
-    const before = parseStoryV2OrThrow(storyV1());
-    const next = storyV1();
+    const before = parseStoryOrThrow(baseStory());
+    const next = baseStory();
     next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
     next.description = "Edited.";
-    const diff = diffStories(before, parseStoryV2OrThrow(next), playedState(before));
+    const diff = diffStories(before, parseStoryOrThrow(next), playedState(before));
     const description = describeStoryUpdate("Hot swap", diff);
     const text = renderStoryUpdate(description, fakeDoc().doc).textContent ?? "";
     expect(text).not.toMatch(/\bv\d/);
@@ -327,10 +326,10 @@ describe("describeStoryUpdate", () => {
   });
 
   it("T4-4: taken from the drawer in a chat that made no edit, the popup names the library's copy, not an edit (T4-4-2 x-drive-1790920434406-update.json)", () => {
-    const before = parseStoryV2OrThrow(storyV1());
-    const next = storyV1();
+    const before = parseStoryOrThrow(baseStory());
+    const next = baseStory();
     next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
-    const diff = diffStories(before, parseStoryV2OrThrow(next), playedState(before));
+    const diff = diffStories(before, parseStoryOrThrow(next), playedState(before));
     const text = renderStoryUpdate(describeStoryUpdate("Hot swap", diff, "update"), fakeDoc().doc).textContent ?? "";
     expect(text).not.toContain("Your edit");
     expect(text).toContain("The library's copy of this story differs from the one this chat plays.");

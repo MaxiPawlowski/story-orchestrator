@@ -1,4 +1,4 @@
-import { castCardName, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { castCardName, type EngineState, type NormalizedStory } from "@engine/index";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { fnv1a, storyRevision } from "./hash";
 import { buildLoreRequests, loreCandidates, loreKey, pickLore, readLore, type LoreEntry, type LorePick } from "@judge/lore";
@@ -13,7 +13,7 @@ export type LoreTrigger = "MESSAGE_SENT" | "GENERATION_STARTED";
 
 export interface LoreSelectDeps {
   judge: () => JudgeRuntime | null;
-  getStory: () => NormalizedStoryV2 | null;
+  getStory: () => NormalizedStory | null;
   getState: () => EngineState | null;
   getWindow: () => Array<{ speaker: string; text: string }>;
   getChatId: () => string | null;
@@ -36,7 +36,7 @@ export interface CompleteLoreSelection {
   left: Array<{ world: string; uid: number }>;
 }
 
-export const loreStoryKey = (story: NormalizedStoryV2): string => `${story.id ?? ""}@${storyRevision(story)}`;
+export const loreStoryKey = (story: NormalizedStory): string => `${story.id ?? ""}@${storyRevision(story)}`;
 
 export interface LoreSelection {
   trigger: LoreTrigger;
@@ -51,7 +51,7 @@ const sameBook = (left: string, right: string) => left.trim().toLowerCase() === 
 
 const fold = (text: string) => text.trim().toLowerCase();
 
-export function memberNames(story: NormalizedStoryV2, card: string | null): string[] {
+export function memberNames(story: NormalizedStory, card: string | null): string[] {
   if (!card?.trim()) return [];
   const member = (story.roster ?? []).find((entry) => fold(castCardName(entry)) === fold(card));
   return [...new Set([card, ...(member ? [castCardName(member), ...(member.aliases ?? [])] : [])].filter((name) => name.trim()))];

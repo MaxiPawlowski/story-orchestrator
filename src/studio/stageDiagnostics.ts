@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { isRecord } from "@utils/guards";
 import { readStageDirection } from "../sprites/direction";
 
@@ -13,12 +13,12 @@ export interface StageInventory {
 }
 
 export interface StageRun {
-  draft: StoryV2;
+  draft: Story;
   context: StageInventory;
   push: (code: StageCode, severity: "warning", path: string, message: string) => void;
 }
 
-const memberKeys = (draft: StoryV2, key: string): string[] => {
+const memberKeys = (draft: Story, key: string): string[] => {
   const member = draft.roster.find((entry) => entry.id.toLowerCase() === key || (entry.name ?? "").toLowerCase() === key);
   return [...new Set([key, ...(member ? [member.id.toLowerCase(), (member.name ?? member.id).toLowerCase()] : [])])];
 };

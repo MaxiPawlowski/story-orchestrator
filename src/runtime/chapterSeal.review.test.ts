@@ -6,7 +6,7 @@ jest.mock("@services/STAPI", () => ({
 }));
 
 import * as sagaMini from "../../test/fixtures/chapters-mini.story.json";
-import { parseStoryV2OrThrow, type EngineState, type StoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type EngineState, type Story } from "@engine/index";
 import type { DerivedRecord } from "@memory/derived";
 import type { ChapterRecord, MemoryEntry } from "@memory/types";
 import { markRecapSeen } from "@memory/chapterUnfold";
@@ -17,7 +17,7 @@ import { ChapterSeal, type ChapterSealDeps, type SealAt } from "./chapterSeal";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./runToken";
 import type { MemoryRuntimeState } from "./types";
 
-const story = parseStoryV2OrThrow(JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as StoryV2);
+const story = parseStoryOrThrow(JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as Story);
 const WRITTEN = "SUMMARY:\nthe span was played through.\nSHORT:\nthe span ended.";
 
 const shortTerm = (id: string, messageId: number) => ({

@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Story } from "@engine/index";
 import { emptyEnvironment } from "@wizard/index";
 import { AUTHOR_ASK_TOOLS, PLAYER_ASK_TOOLS, runAsk, type AskContext } from "./ask";
 import { advanceAgent, approvePlan, decideStep, newAgentSession, pendingStep } from "./loop";
@@ -7,8 +7,7 @@ import { emptyLookup, type AgentMode } from "./types";
 
 const AT = "2026-09-30T00:00:00.000Z";
 
-const story = (): StoryV2 => ({
-  format: 2,
+const story = (): Story => ({
   title: "Safety",
   description: "",
   qualities: [],
@@ -75,7 +74,7 @@ describe("W5 safety: a planted instruction cannot reach outside the tools (v2.6 
 
 describe("v2.8 09 B: a planted instruction cannot write through either Ask mode", () => {
   const projection = { title: "Safety", intro: null, player: "Max", visited: [], current: null, sections: [], cast: [], transcript: [] };
-  const contexts = (draft: StoryV2): AskContext[] => [
+  const contexts = (draft: Story): AskContext[] => [
     { persona: "author", draft, lookup: emptyLookup(), liveState: () => "live" },
     { persona: "player", projection },
   ];

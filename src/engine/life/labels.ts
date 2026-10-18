@@ -1,7 +1,7 @@
 import { evaluateGate, gateKeys, renderGateText } from "../gates";
 import {
   RELATIONSHIP_TOWARD_PLAYER, hasLabels, labelNextKey, labelShownKey, labelSinceKey, revealKey,
-  type NormalizedStoryV2, type PrimitiveValue, type RelationshipDecl, type SecretLabel,
+  type NormalizedStory, type PrimitiveValue, type RelationshipDecl, type SecretLabel,
 } from "../schema";
 import type { BoundaryLogEntry } from "../engine";
 import { knownEntities } from "../codex";
@@ -45,7 +45,7 @@ export interface LabelAuthorRow {
 
 const reader = (values: Read) => ({ get: (key: string) => values[key] as PrimitiveValue | undefined });
 
-export const labelledRelationships = (story: Pick<NormalizedStoryV2, "life">): LabelledRelationship[] =>
+export const labelledRelationships = (story: Pick<NormalizedStory, "life">): LabelledRelationship[] =>
   (story.life?.members ?? []).flatMap((member) => member.relationships.filter(hasLabels).map((relationship) => ({ member: member.id, relationship })));
 
 const holdingRow = (relationship: RelationshipDecl, values: Read, eventsOnly = false): number => {
@@ -94,13 +94,13 @@ const revealWrites = (member: string, relationship: RelationshipDecl, view: { bo
   .filter((secret) => revealedAt(member, relationship, secret, view.values) === null && evaluateGate(secret.revealed_when, reader(view.values)))
   .map((secret) => ({ q: revealKey(member, relationship.toward, secret.id), v: view.boundary }));
 
-export const labelLatches = (story: Pick<NormalizedStoryV2, "life">, view: { boundary: number; values: Read }): Write[] =>
+export const labelLatches = (story: Pick<NormalizedStory, "life">, view: { boundary: number; values: Read }): Write[] =>
   labelledRelationships(story).flatMap(({ member, relationship }) => [
     ...revealWrites(member, relationship, view),
     ...(usesHold(relationship) ? holdWrites(member, relationship, view) : []),
   ]);
 
-export const labelDiscoveryUnits = (story: Pick<NormalizedStoryV2, "life">, values: Read): { entries: string[][]; facts: string[][] } => ({
+export const labelDiscoveryUnits = (story: Pick<NormalizedStory, "life">, values: Read): { entries: string[][]; facts: string[][] } => ({
   entries: [],
   facts: labelledRelationships(story).flatMap(({ member, relationship }) => [
     ...(relationship.secret ?? []).filter((secret) => revealedAt(member, relationship, secret, values) === null).map((secret) => gateKeys(secret.revealed_when)),
@@ -108,16 +108,16 @@ export const labelDiscoveryUnits = (story: Pick<NormalizedStoryV2, "life">, valu
   ]).map((keys) => keys.filter((key) => !key.startsWith("rel_"))).filter((keys) => keys.length > 0),
 });
 
-const nameOf = (story: Pick<NormalizedStoryV2, "roster">, names: Names, id: string): string => names[id] ?? story.roster.find((member) => member.id === id)?.name ?? id;
+const nameOf = (story: Pick<NormalizedStory, "roster">, names: Names, id: string): string => names[id] ?? story.roster.find((member) => member.id === id)?.name ?? id;
 
-const towardName = (story: Pick<NormalizedStoryV2, "roster">, names: Names, toward: string): string | null =>
+const towardName = (story: Pick<NormalizedStory, "roster">, names: Names, toward: string): string | null =>
   (toward === RELATIONSHIP_TOWARD_PLAYER ? null : nameOf(story, names, toward));
 
 const visible = (known: ReadonlySet<string>, member: string, toward: string): boolean =>
   known.has(member) && (toward === RELATIONSHIP_TOWARD_PLAYER || known.has(toward));
 
 export const holderLabelRows = (
-  story: Pick<NormalizedStoryV2, "life" | "roster">, values: Read, holder: string, known: ReadonlySet<string>, names: Names, toward: (id: string) => boolean = () => true,
+  story: Pick<NormalizedStory, "life" | "roster">, values: Read, holder: string, known: ReadonlySet<string>, names: Names, toward: (id: string) => boolean = () => true,
 ): LabelRow[] => labelledRelationships(story).filter(({ member, relationship }) => member === holder && visible(known, member, relationship.toward) && toward(relationship.toward))
   .flatMap(({ member, relationship }) => {
     const label = shownLabel(member, relationship, values);
@@ -129,10 +129,10 @@ export const holderLabelRows = (
     return [...(label ? [{ kind: "label" as const, text: `${LABEL_COPY.toward(toward ?? LABEL_COPY.you)}: ${label}`, at: null }] : []), ...learned];
   });
 
-export const labelHolders = (story: Pick<NormalizedStoryV2, "life">): string[] => [...new Set(labelledRelationships(story).map(({ member }) => member))];
+export const labelHolders = (story: Pick<NormalizedStory, "life">): string[] => [...new Set(labelledRelationships(story).map(({ member }) => member))];
 
 export const revealEvents = (
-  story: NormalizedStoryV2, log: readonly BoundaryLogEntry[], values: Read, enabled: readonly string[], names: Names,
+  story: NormalizedStory, log: readonly BoundaryLogEntry[], values: Read, enabled: readonly string[], names: Names,
 ): RevealEvent[] => {
   const known = knownEntities(story, values, enabled).members;
   const pairs = labelledRelationships(story).filter(({ member, relationship }) => visible(known, member, relationship.toward));
@@ -144,7 +144,7 @@ export const revealEvents = (
     }))));
 };
 
-export const revealChips = (story: NormalizedStoryV2, log: readonly BoundaryLogEntry[], values: Read, enabled: readonly string[], names: Names): RevealEvent[] =>
+export const revealChips = (story: NormalizedStory, log: readonly BoundaryLogEntry[], values: Read, enabled: readonly string[], names: Names): RevealEvent[] =>
   revealEvents(story, log, values, enabled, names).map((event) => ({ ...event, text: LABEL_COPY.chip(event.text) }));
 
 export const labelClause = (member: string, relationship: RelationshipDecl, values: Read): string => {
@@ -158,7 +158,7 @@ export const labelClause = (member: string, relationship: RelationshipDecl, valu
 const messageAt = (log: readonly BoundaryLogEntry[], boundary: number | null): number | null =>
   (boundary === null ? null : log.find((entry) => entry.boundary === boundary)?.context.lastMessageId ?? null);
 
-export const labelAuthorRows = (story: Pick<NormalizedStoryV2, "life">, values: Read, log: readonly BoundaryLogEntry[]): LabelAuthorRow[] =>
+export const labelAuthorRows = (story: Pick<NormalizedStory, "life">, values: Read, log: readonly BoundaryLogEntry[]): LabelAuthorRow[] =>
   labelledRelationships(story).map(({ member, relationship }) => {
     const shownAt = shownLabelRow(member, relationship, values);
     return {
@@ -173,6 +173,6 @@ export const labelAuthorRows = (story: Pick<NormalizedStoryV2, "life">, values: 
     };
   });
 
-export const unrevealedSecretLabels = (story: Pick<NormalizedStoryV2, "life">, values: Read): string[] =>
+export const unrevealedSecretLabels = (story: Pick<NormalizedStory, "life">, values: Read): string[] =>
   labelledRelationships(story).flatMap(({ member, relationship }) =>
     (relationship.secret ?? []).filter((secret) => revealedAt(member, relationship, secret, values) === null).map((secret) => secret.label));

@@ -2,7 +2,7 @@ jest.mock("@services/STAPI", () => ({ getContext: () => ({}), saveOpenChat: jest
 
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2, parseStoryV2OrThrow, questClosedKey, standingKey, type NormalizedStoryV2 } from "@engine/index";
+import { parseStory, parseStoryOrThrow, questClosedKey, standingKey, type NormalizedStory } from "@engine/index";
 import { sagaOutcomeLines } from "@engine/carry";
 import { buildSagaPrompt } from "@memory/chapterRecord";
 import { estimateTokens } from "@memory/budget";
@@ -13,9 +13,9 @@ import { playRow, playRowFromBlob, upsertPlay, type PlaysIndex } from "./playsIn
 
 const raw = (name: string) => JSON.parse(readFileSync(join(process.cwd(), `test/fixtures/${name}.story.json`), "utf8")) as Record<string, unknown>;
 const SOURCE_RAW = raw("carry-source");
-const SOURCE = parseStoryV2OrThrow(SOURCE_RAW);
-const SEQUEL = parseStoryV2OrThrow(raw("carry-sequel"));
-const OPTIONS = { version: BLOB_VERSION, parse: parseStoryV2 };
+const SOURCE = parseStoryOrThrow(SOURCE_RAW);
+const SEQUEL = parseStoryOrThrow(raw("carry-sequel"));
+const OPTIONS = { version: BLOB_VERSION, parse: parseStory };
 
 const END = {
   met_guild: true, ledger_seen: true, coast_fate: "lit", harbour_mood: "bitter", coins: 4, [questClosedKey("ledger")]: "done", [standingKey("guild")]: -3, secret_pact: "sworn",
@@ -57,7 +57,7 @@ const blob = ({ chatId, final = true, values = END, epistemic = [], shorts, stor
 
 const secretRow = { id: "e1", subject: "Tom", tag: "hiding", content: "Tom swore the drowned pact under the pier at midnight", hiddenFrom: "Mara", createdAt: 1 };
 
-const verified = (plays: PlaysIndex, blobs: Record<string, unknown>, target: NormalizedStoryV2 = SEQUEL): string[] =>
+const verified = (plays: PlaysIndex, blobs: Record<string, unknown>, target: NormalizedStory = SEQUEL): string[] =>
   candidateChats(plays, target.carry_from?.story ?? "", "open").filter((chatId) => carryCandidateFromBlob(blobs[chatId], chatId, target, OPTIONS).ok);
 
 describe("v2.8 plan 45: the picker verifies runs before offering them", () => {
@@ -145,7 +145,7 @@ describe("v2.8 plan 45: the public projection and the pinned copy", () => {
     expect(state.previously).toMatch(/^"The Lantern Coast" ended with "The Last Lantern"\. You relit the Lantern Coast\. The keeper's ledger: done\. Coins: 4\./);
     expect(state.previously?.endsWith(".")).toBe(true);
     expect(previouslyText({ storyTitle: "T", endingTitle: "", outcome: [], lines: [] }, [])).toBe("\"T\" has ended.");
-    const off = buildCarryState(parseStoryV2OrThrow({ ...raw("carry-sequel"), carry_from: { ...(raw("carry-sequel").carry_from as object), previously: false } }), result.candidate, "t");
+    const off = buildCarryState(parseStoryOrThrow({ ...raw("carry-sequel"), carry_from: { ...(raw("carry-sequel").carry_from as object), previously: false } }), result.candidate, "t");
     expect(off.state.previously).toBeNull();
   });
 });

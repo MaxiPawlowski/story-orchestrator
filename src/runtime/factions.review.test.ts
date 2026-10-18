@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { StoryEngine, parseStoryV2OrThrow, standingKey, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, standingKey, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 import { privateLifeLines } from "@engine/life/lines";
 import { deriveScopeWithSources } from "@extraction/scope";
 import { DISCOVERY_SCOPE_CAP as FACTION_SCOPE_CAP, DISCOVERY_SOURCE as FACTION_SOURCE, SCOPE_SOURCES } from "@extraction/scopeSources";
@@ -14,7 +14,7 @@ const read = (name: string) => JSON.parse(readFileSync(join(process.cwd(), `test
 const FACTIONS = read("factions.story.json");
 const LIFE = read("character-life.story.json");
 
-const run = (story: NormalizedStoryV2, turns: Array<Record<string, PrimitiveValue>>) => {
+const run = (story: NormalizedStory, turns: Array<Record<string, PrimitiveValue>>) => {
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
   turns.forEach((deltas, at) => {
@@ -24,7 +24,7 @@ const run = (story: NormalizedStoryV2, turns: Array<Record<string, PrimitiveValu
   return engine;
 };
 
-const sources = (story: NormalizedStoryV2, engine: StoryEngine): GameSources => ({
+const sources = (story: NormalizedStory, engine: StoryEngine): GameSources => ({
   story, state: engine.serialize(), boundaryLog: engine.stateLog, checks: [], threads: { open: [], resolved: [] }, chat: [], castNames: { mara: "Mara", tom: "Tom", sera: "Sera" },
 });
 
@@ -32,7 +32,7 @@ const inputs: LivingInputs = {
   canon: "", openThreads: [], resolvedThreads: [], plans: [], refused: null, playerNames: [], tension: null, restatesSecret: () => false, scrub: (text) => text,
 };
 
-const prompt = (story: NormalizedStoryV2, engine: StoryEngine) => renderDirectorPrompt(directorInput({
+const prompt = (story: NormalizedStory, engine: StoryEngine) => renderDirectorPrompt(directorInput({
   story, raw: {}, frontierId: story.startCheckpointId, state: engine.serialize(), sealsOn: true, inputs, model: (async () => "") as never, debugResponse: null,
 }));
 
@@ -50,7 +50,7 @@ describe("v2.8 plan 53 F1/F2: the player sees band words of visible factions, no
   const turns: Array<Record<string, PrimitiveValue>> = [{ met_guild: true }, { ledger_stolen: true }, { location: "docks" }, { apprentice_saved: true }];
 
   it("F1: no standing value, range, trend or recency reaches the player view (500 random blackboards)", () => {
-    const story = parseStoryV2OrThrow({ ...FACTIONS, widgets: [{ id: "groups", kind: "roster", title: "Groups", audience: "player", rows: [{ id: "g", label: "The Guild", faction: "guild" }] }] });
+    const story = parseStoryOrThrow({ ...FACTIONS, widgets: [{ id: "groups", kind: "roster", title: "Groups", audience: "player", rows: [{ id: "g", label: "The Guild", faction: "guild" }] }] });
     const engine = run(story, turns);
     let seed = 7;
     const next = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 0x100000000; };
@@ -67,8 +67,8 @@ describe("v2.8 plan 53 F1/F2: the player sees band words of visible factions, no
   });
 
   it("F2: a faction whose visible_when is false leaves the player view byte-identical to the story without it", () => {
-    const withCrown = parseStoryV2OrThrow(FACTIONS);
-    const withoutCrown = parseStoryV2OrThrow(hiddenCrownRemoved(FACTIONS));
+    const withCrown = parseStoryOrThrow(FACTIONS);
+    const withoutCrown = parseStoryOrThrow(hiddenCrownRemoved(FACTIONS));
     const left = composeGame(sources(withCrown, run(withCrown, turns))).player;
     const right = composeGame(sources(withoutCrown, run(withoutCrown, turns))).player;
     expect(JSON.stringify(left)).toBe(JSON.stringify(right));
@@ -77,21 +77,21 @@ describe("v2.8 plan 53 F1/F2: the player sees band words of visible factions, no
 
   it("F12 (SC4): a story whose only game feature is factions renders the Standing group; one with nothing stays null", async () => {
     await loadGameComposer();
-    const only = parseStoryV2OrThrow({ ...FACTIONS, quests: [], factions: (FACTIONS.factions as Array<Record<string, unknown>>).map(({ visible_when: _v, ...faction }) => faction) });
+    const only = parseStoryOrThrow({ ...FACTIONS, quests: [], factions: (FACTIONS.factions as Array<Record<string, unknown>>).map(({ visible_when: _v, ...faction }) => faction) });
     expect(storyHasGame(only)).toBe(true);
     const engine = run(only, [{}]);
     const slice = gameSlices({ story: only, state: engine.serialize(), boundaryLog: engine.stateLog, checks: undefined, threads: { open: [], resolved: [] }, chat: [], castNames: {}, authorView: false });
     expect(slice.game?.statSheet?.body.kind === "meters" && slice.game.statSheet.body.groups.map((group) => group.label)).toEqual(["Standing"]);
     expect(slice.game?.standing).toEqual([{ name: "The Guild", band: "Neutral" }, { name: "The Silver Crown", band: "Watches you" }]);
-    const none = parseStoryV2OrThrow({ format: 2, title: "N", description: "d", qualities: [], roster: [], transitions: [], checkpoints: [{ id: "a", name: "A", objective: "o", type: "anchor", start: true }] });
+    const none = parseStoryOrThrow({ title: "N", description: "d", qualities: [], roster: [], transitions: [], checkpoints: [{ id: "a", name: "A", objective: "o", type: "anchor", start: true }] });
     expect(gameSlices({ story: none, state: run(none, [{}]).serialize(), boundaryLog: [], checks: undefined, threads: { open: [], resolved: [] }, chat: [], castNames: {}, authorView: false }).game).toBeNull();
   });
 });
 
 describe("v2.8 plan 53 F5/F11: prompts without factions are unchanged; hidden factions never reach the director", () => {
   it("F5: a member outside every faction gets a byte-identical private block, and a story without factions an identical read scope", () => {
-    const life = parseStoryV2OrThrow(LIFE);
-    const plus = parseStoryV2OrThrow({
+    const life = parseStoryOrThrow(LIFE);
+    const plus = parseStoryOrThrow({
       ...LIFE,
       roster: (LIFE.roster as Array<Record<string, unknown>>).map((member) => (member.id === "narrator" ? { ...member, factions: ["guild"] } : member)),
       factions: [{ id: "guild", name: "The Guild", bands: [{ max: 0, label: "Cold" }, { label: "Warm" }], moves: [] }],
@@ -104,19 +104,19 @@ describe("v2.8 plan 53 F5/F11: prompts without factions are unchanged; hidden fa
   });
 
   it("F5: the director prompt of a story without factions carries no standing list", () => {
-    const story = parseStoryV2OrThrow(withoutFactions(FACTIONS));
+    const story = parseStoryOrThrow(withoutFactions(FACTIONS));
     const engine = run(story, [{}]);
     expect(directorInput({ story, raw: {}, frontierId: "hall", state: engine.serialize(), sealsOn: true, inputs, model: (async () => "") as never, debugResponse: null })).not.toHaveProperty("standing");
     expect(prompt(story, engine)).not.toContain(DIRECTOR_STANDING_TITLE);
   });
 
   it("F11: a hidden faction's name, band and members are absent from the director prompt; introduce sends the name only", () => {
-    const story = parseStoryV2OrThrow(FACTIONS);
+    const story = parseStoryOrThrow(FACTIONS);
     const engine = run(story, [{ met_guild: true }]);
     const text = prompt(story, engine);
     expect(text).toContain(`${DIRECTOR_STANDING_TITLE}:\n- The Guild: Neutral`);
     expect(text).not.toMatch(/Silver Crown|Distrusts you|Watches you|Favours you/);
-    const introduced = parseStoryV2OrThrow({ ...FACTIONS, factions: (FACTIONS.factions as Array<Record<string, unknown>>).map((faction) => (faction.id === "crown" ? { ...faction, introduce: true } : faction)) });
+    const introduced = parseStoryOrThrow({ ...FACTIONS, factions: (FACTIONS.factions as Array<Record<string, unknown>>).map((faction) => (faction.id === "crown" ? { ...faction, introduce: true } : faction)) });
     const shown = prompt(introduced, run(introduced, [{ met_guild: true }]));
     expect(shown).toContain("- The Silver Crown: the player has not met this group; you may introduce it");
     expect(shown).not.toMatch(/Distrusts you|Watches you|Favours you/);
@@ -132,7 +132,7 @@ describe("v2.8 plan 53 F14: move gates are offered by the scope, in rotation", (
   });
 
   it("offers a pending move's gate key, drops it once the move fired, and the control without the source starves", () => {
-    const story = parseStoryV2OrThrow(FACTIONS);
+    const story = parseStoryOrThrow(FACTIONS);
     const before = run(story, [{}]).serialize();
     const keys = (state: typeof before, list = SCOPE_SOURCES) => deriveScopeWithSources(story, state.activeCheckpointId, state.blackboard, [], { rotation: 0 }, list)
       .scope.filter((entry) => entry.pulledBy.some((pull) => pull.kind === "discovery")).map((entry) => entry.key);
@@ -144,7 +144,7 @@ describe("v2.8 plan 53 F14: move gates are offered by the scope, in rotation", (
   });
 
   it("asks every pending move gate within ceil(moves / cap) rotations", () => {
-    const story = parseStoryV2OrThrow(many());
+    const story = parseStoryOrThrow(many());
     const state = run(story, [{}]).serialize();
     const asked = new Set<string>();
     for (let rotation = 0; rotation < Math.ceil(6 / FACTION_SCOPE_CAP); rotation += 1) {

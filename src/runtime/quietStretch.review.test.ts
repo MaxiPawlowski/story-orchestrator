@@ -1,4 +1,4 @@
-import { PLAYER_TURNS_KEY, StoryEngine, parseStoryV2OrThrow, type BoundaryLogEntry, type EngineState } from "@engine/index";
+import { PLAYER_TURNS_KEY, StoryEngine, parseStoryOrThrow, type BoundaryLogEntry, type EngineState } from "@engine/index";
 import { quietRead, watchedQualities, type QuietRead } from "@pacing/index";
 import { playerTurnIds } from "./agencyRecovery";
 import { playerTurnValues } from "./stretchTurns";
@@ -8,7 +8,6 @@ type Row = { is_user: boolean; is_system?: boolean; mes?: string };
 const ARRIVE = { all: [{ q: "reached_walls", op: "==", v: true }, { q: "lamp_lit", op: "==", v: true }, { q: "flip", op: "==", v: true }, { q: PLAYER_TURNS_KEY, op: ">=", v: 99 }] };
 
 const RAW = {
-  format: 2,
   id: "quiet-road",
   title: "Quiet road",
   description: "An open road between two places.",
@@ -25,7 +24,7 @@ const RAW = {
   transitions: [{ from: "road", to: "walls", priority: 1, gate: ARRIVE }],
   roster: [] as never[],
 };
-const STORY = parseStoryV2OrThrow(RAW);
+const STORY = parseStoryOrThrow(RAW);
 
 class Play {
   readonly chat: Row[] = [];
@@ -400,7 +399,7 @@ describe("v2.8 19 correction: the window reads every snapshot, from the log and 
   });
 
   it("a counter that goes 0 -> 1 -> 0 inside the window moves", () => {
-    const counted = parseStoryV2OrThrow({
+    const counted = parseStoryOrThrow({
       ...RAW, qualities: [...RAW.qualities, { key: "stage", type: "int", source: "extractor", rubric: "the stage reached" }],
       transitions: [{ from: "road", to: "walls", priority: 1, gate: { all: [{ q: "stage", op: ">=", v: 9 }, ARRIVE] } }],
       checkpoints: RAW.checkpoints.map((checkpoint) => (checkpoint.id === "road" ? { ...checkpoint, stretch: { ...checkpoint.stretch, arrive_when: { all: [{ q: "stage", op: ">=", v: 9 }, ARRIVE] } } } : checkpoint)),

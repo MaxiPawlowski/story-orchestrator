@@ -466,9 +466,8 @@ export const slugifyStoryId = (title: string): string =>
 export const HOUSE_RULES_MAX = 8;
 export const HOUSE_RULE_MAX_CHARS = 240;
 
-export interface StoryV2 {
+export interface Story {
   features?: import("./featurePolicy").StoryFeatures;
-  format: 2;
   id?: string;
   title: string;
   description: string;
@@ -549,7 +548,7 @@ export interface NormalizedTransition extends Transition {
   declarationIndex: number;
 }
 
-export interface NormalizedStoryV2 extends StoryV2 {
+export interface NormalizedStory extends Story {
   startCheckpointId: string;
   checkpointById: Record<string, Checkpoint>;
   outgoingByCheckpoint: Record<string, NormalizedTransition[]>;
@@ -574,7 +573,7 @@ export const placeholderEnumValues = (quality: Pick<Quality, "type" | "latching"
 // What a story may play with but should not ship with. The parser answers a story or its
 // errors, so the warnings are their own read of the parsed story, shared by the Studio's diagnostic
 // and the import path.
-export const storyWarnings = (story: Pick<StoryV2, "qualities">): ValidationError[] =>
+export const storyWarnings = (story: Pick<Story, "qualities">): ValidationError[] =>
   story.qualities.flatMap((quality, index) => {
     const placeholders = placeholderEnumValues(quality);
     return placeholders.length

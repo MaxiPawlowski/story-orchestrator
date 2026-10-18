@@ -93,7 +93,7 @@ const host: PersonaHost = {
 const OPENER = { member: "Narrator", trigger: "onEnter", kind: "scripted", new_chat_only: true, text: "The road opens." };
 
 const storyJson = (over: Record<string, unknown> = {}) => JSON.stringify({
-  format: 2, id: "road", title: "The Road", description: "D",
+  id: "road", title: "The Road", description: "D",
   qualities: [{ key: "found_key", type: "bool", source: "extractor", rubric: "Did they find the key?" }],
   checkpoints: [
     { id: "start", name: "Start", objective: "Look around.", type: "anchor", start: true, effects: { npc_replies: [OPENER] } },

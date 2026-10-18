@@ -228,9 +228,9 @@ test('plan 14 sessions: numbering continues after the highest existing run', () 
 });
 
 test('T4 headerAllow: a list is declared item by item, scalar paths whole, and group chats never (stop declares those)', () => {
-  assert.deepEqual(headerAllowProblems('c', ['inventory.lorebookCount', 'inventory.v2Stories:+adolion-adventurer', 'inventory.v2Stories:-adolion-adventurer']), []);
-  assert.match(headerAllowProblems('c', ['inventory.v2Stories'])[0], /would excuse every change to a list/);
+  assert.deepEqual(headerAllowProblems('c', ['inventory.lorebookCount', 'inventory.stories:+adolion-adventurer', 'inventory.stories:-adolion-adventurer']), []);
+  assert.match(headerAllowProblems('c', ['inventory.stories'])[0], /would excuse every change to a list/);
   assert.match(headerAllowProblems('c', ['inventory.groupChats:-g/x'])[0], /cannot name group chats/);
-  assert.match(headerAllowProblems('c', ['inventory.v2Stories:x'])[0], /neither a run-header path nor/);
+  assert.match(headerAllowProblems('c', ['inventory.stories:x'])[0], /neither a run-header path nor/);
   assert.match(headerAllowProblems('c', [])[0], /non-empty list/);
 });

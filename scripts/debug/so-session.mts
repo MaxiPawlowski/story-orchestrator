@@ -963,7 +963,7 @@ async function buildIndex() {
     for (const name of await readdir(resolve(exampleRoot, dir.name))) {
       if (!name.endsWith('.json')) continue;
       const raw = await readJson(resolve(exampleRoot, dir.name, name)).catch(() => null);
-      if (raw?.format === 2 || (raw?.id && Array.isArray(raw?.checkpoints) && Array.isArray(raw?.transitions))) examples[raw.id] = { ...indexEntry(raw, null), path: `examples/${dir.name}/${name}` };
+      if (raw?.id && Array.isArray(raw?.checkpoints) && Array.isArray(raw?.transitions)) examples[raw.id] = { ...indexEntry(raw, null), path: `examples/${dir.name}/${name}` };
     }
   }
   const sorted = Object.fromEntries(Object.entries(stories).sort(([a], [b]) => a.localeCompare(b)));

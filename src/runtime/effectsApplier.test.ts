@@ -1,5 +1,5 @@
-import type { Checkpoint, NormalizedStoryV2 } from "@engine/index";
-import { parseStoryV2OrThrow } from "@engine/validate";
+import type { Checkpoint, NormalizedStory } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/validate";
 import { applyBackground, applyCharacterAN, clearCharacterAN, executeSlashCommands, setGroupMembersDisabled, setWIEntriesState } from "@services/STAPI";
 import { EffectsApplier, NO_OPEN_CHAT, NO_OPEN_GROUP, PENDING_NOT_SAVED } from "./effectsApplier";
 import { CAST_UNRESOLVED, CAST_UNRESOLVED_NOTE } from "./castEffect";
@@ -278,7 +278,7 @@ describe("sceneBreak replies (T1-1 runaway)", () => {
 });
 
 describe("authored new-chat opening", () => {
-  const story = { title: "Fixture" } as unknown as NormalizedStoryV2;
+  const story = { title: "Fixture" } as unknown as NormalizedStory;
   const snapshot = {} as unknown as RuntimeSnapshot;
   const readyExtras = () => ({ ...makeExtras(), requirements: { ready: true } } as unknown as RuntimeExtras);
   const opening = { trigger: "onEnter", member: "Adolion Narrator", kind: "scripted", text: "Welcome.", new_chat_only: true };
@@ -306,7 +306,7 @@ describe("authored new-chat opening", () => {
 });
 
 describe("background effect", () => {
-  const story = { title: "Fixture" } as unknown as NormalizedStoryV2;
+  const story = { title: "Fixture" } as unknown as NormalizedStory;
   const snapshot = {} as unknown as RuntimeSnapshot;
   const readyExtras = () => ({ ...makeExtras(), requirements: { ready: true } } as unknown as RuntimeExtras);
   const withBackground = (background: unknown): Checkpoint =>
@@ -379,7 +379,7 @@ describe("background effect", () => {
 });
 
 describe("author note effect", () => {
-  const story = { title: "Fixture" } as unknown as NormalizedStoryV2;
+  const story = { title: "Fixture" } as unknown as NormalizedStory;
   const snapshot = {} as unknown as RuntimeSnapshot;
   const readyExtras = () => ({ ...makeExtras(), requirements: { ready: true } } as unknown as RuntimeExtras);
   const withAuthorNote = (author_note: unknown): Checkpoint =>
@@ -419,8 +419,7 @@ describe("author note effect", () => {
 });
 
 describe("world_info effect", () => {
-  const story = parseStoryV2OrThrow({
-    format: 2,
+  const story = parseStoryOrThrow({
     title: "Gated",
     description: "World info gate fixture.",
     qualities: [],
@@ -576,7 +575,7 @@ describe("world_info effect", () => {
 // reading instead, and a row that exists only in memory refuses the host write rather than producing
 // an effect with no durable record. `setGroupMembersDisabled` is the host write here.
 describe("the write-ahead record gates the effect (plan 11)", () => {
-  const story = { title: "Fixture" } as unknown as NormalizedStoryV2;
+  const story = { title: "Fixture" } as unknown as NormalizedStory;
   const snapshot = {} as unknown as RuntimeSnapshot;
   const castCheckpoint = (): Checkpoint => ({ id: "cp", name: "CP", objective: "", type: "anchor", effects: { cast_changes: { disable: ["Mara"] } } }) as unknown as Checkpoint;
   const castExtras = () => ({ ...makeExtras(), requirements: { ready: true }, effects: { ledger: [], cast: [] } } as unknown as RuntimeExtras);
@@ -629,7 +628,7 @@ describe("T1-2: a cast change that drops a member the play just brought in says 
     const previous = mockContext.chat;
     mockContext.chat = roadRows as unknown as typeof mockContext.chat;
     try {
-      const story = { title: "Fixture" } as unknown as NormalizedStoryV2;
+      const story = { title: "Fixture" } as unknown as NormalizedStory;
       const road = { id: "road", name: "The Road North", objective: "", type: "anchor", effects: { cast_changes: { disable: ["Talis", "Mara"] } } } as unknown as Checkpoint;
       const extras = () => ({ ...makeExtras(), requirements: { ready: true }, effects: { ledger: [], cast: [] } } as unknown as RuntimeExtras);
       const journal = jest.fn();
@@ -684,7 +683,7 @@ describe("transition announcement leaves a trace when it is not posted (L2 J1.7)
 });
 
 describe("T5-1: a cast change written with roster ids", () => {
-  const story = { title: "Redline", roster: [{ id: "mara_v", name: "Mara" }, { id: "ghost_id", name: "Ghost" }] } as unknown as NormalizedStoryV2;
+  const story = { title: "Redline", roster: [{ id: "mara_v", name: "Mara" }, { id: "ghost_id", name: "Ghost" }] } as unknown as NormalizedStory;
   const start = (disable: string[]) => ({ id: "start", name: "Start", objective: "", type: "anchor", effects: { cast_changes: { disable } } }) as unknown as Checkpoint;
   const extras = () => ({ ...makeExtras(), requirements: { ready: true }, effects: { ledger: [], cast: [] } } as unknown as RuntimeExtras);
 

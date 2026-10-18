@@ -1,13 +1,13 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { agendaStepKey, parseStoryV2OrThrow } from "@engine/index";
+import { agendaStepKey, parseStoryOrThrow } from "@engine/index";
 import { EPISTEMIC_INJECTION_KEY } from "@constants/defaults";
 import type { EpistemicEntry } from "@memory/index";
 import { MemoryInjector } from "./memoryInjector";
 import type { MemoryRuntimeState } from "./types";
 import type { InjectorHosts } from "./hostPorts";
 
-const STORY = parseStoryV2OrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
+const STORY = parseStoryOrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/character-life.story.json"), "utf8")));
 const CAST = ["Arin", "DM Narrator"];
 const VALUES = { rel_arin_player_trust: 2, [agendaStepKey("arin", "debt")]: 2 };
 

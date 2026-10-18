@@ -1,4 +1,4 @@
-import { gatedWorldInfo, type NormalizedStoryV2 } from "@engine/index";
+import { gatedWorldInfo, type NormalizedStory } from "@engine/index";
 import type { RunContext } from "./runToken";
 import { worldInfoPlan } from "./worldInfoGates";
 import { entryComment, firstMatch, sameLorebook } from "./worldInfoMatch";
@@ -138,7 +138,7 @@ export function forcedOutcome(forced: EntryRef[], fired: ScannedEntry[]): { land
 // Flag b: a constant entry the active gated plan switches ON, which the scan view held enabled,
 // and which still did not fire. Budget or probability are the likely causes; the flag only says it did
 // not land. Keyword-gated entries are never flagged: not firing is their normal state.
-export function constantMisses(story: NormalizedStoryV2, path: string[], loaded: LoadedCopy[], fired: ScannedEntry[]): Array<{ lorebook: string; comment: string }> {
+export function constantMisses(story: NormalizedStory, path: string[], loaded: LoadedCopy[], fired: ScannedEntry[]): Array<{ lorebook: string; comment: string }> {
   const firedKeys = new Set(fired.map(refKey));
   const missed: Array<{ lorebook: string; comment: string }> = [];
   for (const plan of worldInfoPlan(story, path)) {
@@ -151,7 +151,7 @@ export function constantMisses(story: NormalizedStoryV2, path: string[], loaded:
   return missed;
 }
 
-export function classifyFired(entry: ScannedEntry, story: NormalizedStoryV2 | null, forced: EntryRef[], mirrorBook: string | null): FiredOrigin {
+export function classifyFired(entry: ScannedEntry, story: NormalizedStory | null, forced: EntryRef[], mirrorBook: string | null): FiredOrigin {
   if (forced.some((pick) => refKey(pick) === refKey(entry))) return "pick";
   if (mirrorBook && sameLorebook(mirrorBook, entry.world) && entry.comment.startsWith(MIRROR_COMMENT_PREFIX)) return "mirror";
   if (story) {
@@ -167,7 +167,7 @@ const summarize = (refs: Array<{ comment: string; world?: string; lorebook?: str
 export interface SettleInput {
   rendered: boolean;
   lastMessageId: number;
-  story: NormalizedStoryV2 | null;
+  story: NormalizedStory | null;
   path: string[];
   mirrorBook: string | null;
 }
@@ -311,7 +311,7 @@ export class LoreEvidence {
     return this.settledSlot;
   }
 
-  view(story: NormalizedStoryV2 | null = null, mirrorBook: string | null = null): LoreEvidenceView {
+  view(story: NormalizedStory | null = null, mirrorBook: string | null = null): LoreEvidenceView {
     const slots = this.live();
     const last = slots[slots.length - 1] ?? null;
     if (!last) return { last: null, hiddenBooks: this.hiddenBooks() };
@@ -398,4 +398,4 @@ export class LoreEvidence {
 
 export const loreEvidence = new LoreEvidence();
 
-export const loreEvidenceView = (story: NormalizedStoryV2 | null, mirrorBook: string | null): LoreEvidenceView => loreEvidence.view(story, mirrorBook);
+export const loreEvidenceView = (story: NormalizedStory | null, mirrorBook: string | null): LoreEvidenceView => loreEvidence.view(story, mirrorBook);

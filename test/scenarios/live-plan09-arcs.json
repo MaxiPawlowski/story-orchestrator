@@ -3,7 +3,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "title": "Live Arcs Canon Gate Check",
         "description": "Plan 09 retro validation: real arc summary and canon synthesis.",
         "qualities": [

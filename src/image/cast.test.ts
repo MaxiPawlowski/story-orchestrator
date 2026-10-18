@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { parseStoryV2, parseStoryV2OrThrow, isValidationErrorList, type NormalizedStoryV2 } from "@engine/index";
+import { parseStory, parseStoryOrThrow, isValidationErrorList, type NormalizedStory } from "@engine/index";
 import { beatIllustrated, beatLabel, castForImage, cueText, isNarratorMember, lookFor } from "./cast";
 import { firedLoreKeys, visualLore } from "./lore";
 import { imageMessages, sceneForImage, templateImagePrompt, type ImageScene } from "./prompt";
@@ -9,7 +9,7 @@ import { defaultImageSettings, sanitizeImageOverride } from "./settings";
 
 const ROOT = join(__dirname, "../..");
 const SUN_RAW = JSON.parse(readFileSync(join(ROOT, "examples/sun-ruins/quest-for-the-sun-ruins.json"), "utf8")) as { checkpoints: Array<Record<string, unknown>> };
-const withPlayerNames = (names: Record<string, string>): NormalizedStoryV2 => parseStoryV2OrThrow({
+const withPlayerNames = (names: Record<string, string>): NormalizedStory => parseStoryOrThrow({
   ...SUN_RAW,
   checkpoints: SUN_RAW.checkpoints.map((checkpoint) => (names[checkpoint.id as string] ? { ...checkpoint, player_name: names[checkpoint.id as string] } : checkpoint)),
 });
@@ -23,7 +23,7 @@ const emptyScene = (checkpoint: string | null): ImageScene =>
   sceneForImage({ id: "c", groupId: null, folder: "c", userName: "Player", messages: [], characters: [] }, { purpose: "scene", text: "", messageId: null }, 6, checkpoint);
 
 const base = {
-  format: 2, id: "look-fixture", title: "Looks", description: "Pictures.",
+  id: "look-fixture", title: "Looks", description: "Pictures.",
   qualities: [{ key: "done", type: "bool", source: "extractor", rubric: "Done?" }],
   transitions: [{ from: "a", to: "b", priority: 1, gate: { q: "done", op: "==", v: true } }],
   roster: [
@@ -31,7 +31,7 @@ const base = {
     { id: "mira", name: "Mira", role: "A smuggler who owes the player" },
   ],
 };
-const story = (extra: Record<string, unknown> = {}, checkpoints?: Array<Record<string, unknown>>) => parseStoryV2OrThrow({
+const story = (extra: Record<string, unknown> = {}, checkpoints?: Array<Record<string, unknown>>) => parseStoryOrThrow({
   ...base,
   checkpoints: checkpoints ?? [
     { id: "a", name: "The Hidden Betrayal", objective: "o", type: "anchor", start: true, chapter: "one" },
@@ -100,9 +100,9 @@ describe("C8: per-checkpoint opt-out and per-chapter look", () => {
     expect(parsed.checkpointById.b.illustrate).toBe(false);
     expect(parsed.checkpointById.a).not.toHaveProperty("illustrate");
     expect(parsed.chapterById?.two.illustrations).toEqual({ style: "ink wash", appearances: { mira: "travel cloak" } });
-    const bad = parseStoryV2({ ...base, checkpoints: [{ id: "a", name: "A", objective: "o", type: "anchor", start: true, illustrate: "no" }, { id: "b", name: "B", objective: "o", type: "anchor" }] });
+    const bad = parseStory({ ...base, checkpoints: [{ id: "a", name: "A", objective: "o", type: "anchor", start: true, illustrate: "no" }, { id: "b", name: "B", objective: "o", type: "anchor" }] });
     expect(isValidationErrorList(bad) && bad.map((error) => error.path)).toEqual(["checkpoints.0.illustrate"]);
-    const badChapter = parseStoryV2({ ...base, chapters: [{ id: "one", title: "One", final: true, illustrations: { checkpoints: true } }],
+    const badChapter = parseStory({ ...base, chapters: [{ id: "one", title: "One", final: true, illustrations: { checkpoints: true } }],
       checkpoints: [{ id: "a", name: "A", objective: "o", type: "anchor", start: true, chapter: "one" }, { id: "b", name: "B", objective: "o", type: "anchor", chapter: "one" }] });
     expect(isValidationErrorList(badChapter) && badChapter.map((error) => error.path)).toContain("chapters.0.illustrations.checkpoints");
   });
@@ -153,7 +153,7 @@ describe("C9: a narrator or system member is never drawn from its card descripti
   });
 
   it("a changed look never carries a card description: narrator dropped, others get only the look", () => {
-    const looked = parseStoryV2OrThrow({
+    const looked = parseStoryOrThrow({
       ...base,
       roster: [
         { id: "dm", name: "Keeper", role: "Narrator: describes places", card: { fields: { cloak: { quality: "dm_cloak", visual: true } } } },

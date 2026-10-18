@@ -64,7 +64,7 @@ export function inventory({ dataRoot, stRoot = null }) {
     mirrorBooks: books,
     settings: root ? {
       keys: Object.keys(root).sort(),
-      libraryStories: Array.isArray(root.v2Stories) ? root.v2Stories.length : 0,
+      libraryStories: Array.isArray(root.stories) ? root.stories.length : 0,
       wizardSessions: sessions.length,
       wizardAssets: [...new Set(sessions.flatMap((session) => (Array.isArray(session?.applied) ? session.applied : [])))].sort(),
       wizardLorebooks: [...new Set(sessions.flatMap((session) => (Array.isArray(session?.createdLorebooks) ? session.createdLorebooks : [])))].sort(),

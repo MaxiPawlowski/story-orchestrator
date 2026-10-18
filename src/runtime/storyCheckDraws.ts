@@ -2,7 +2,7 @@ import { unitDraw } from "@engine/chance";
 import {
   checkAttempted, checkDice, checkRolledAt, checkRolledKey, checkRollsNow, checksById, checkWrites, checksAt, resolveCheck, valueReader, type BoundaryLogEntry, type CheckDegree,
   type DerivedQualityView,
-  type NormalizedStoryV2, type PrimitiveValue, type StoryCheck,
+  type NormalizedStory, type PrimitiveValue, type StoryCheck,
 } from "@engine/index";
 import { isRecord } from "@utils/guards";
 import type { ChanceIds } from "./chance";
@@ -40,14 +40,14 @@ const rollWrites = (check: StoryCheck, ids: ChanceIds, view: DerivedQualityView)
   return check.when ? [...writes, { q: checkRolledKey(check.id), v: view.boundary + 1 }] : writes;
 };
 
-export const checkGateValues = (story: NormalizedStoryV2 | undefined, ids: ChanceIds, view: DerivedQualityView): Array<{ q: string; v: PrimitiveValue }> =>
+export const checkGateValues = (story: NormalizedStory | undefined, ids: ChanceIds, view: DerivedQualityView): Array<{ q: string; v: PrimitiveValue }> =>
   (story ? checksAt(story, view.activeCheckpointId).flatMap(({ check }) => rollWrites(check, ids, view)) : []);
 
-const publicLabel = (story: NormalizedStoryV2, key: string): string | undefined => story.qualityByKey[key]?.display?.label;
+const publicLabel = (story: NormalizedStory, key: string): string | undefined => story.qualityByKey[key]?.display?.label;
 
-export const checkLabel = (story: NormalizedStoryV2, check: StoryCheck): string => check.label ?? publicLabel(story, check.quality) ?? "A check";
+export const checkLabel = (story: NormalizedStory, check: StoryCheck): string => check.label ?? publicLabel(story, check.quality) ?? "A check";
 
-export function checkRecordsAt(story: NormalizedStoryV2 | null, ids: ChanceIds | null, entry: BoundaryLogEntry): CheckRecord[] {
+export function checkRecordsAt(story: NormalizedStory | null, ids: ChanceIds | null, entry: BoundaryLogEntry): CheckRecord[] {
   if (!story || !ids || !entry.evaluated) return [];
   const values = entry.evaluated;
   const visit = entry.before.checkpointStartedBoundary;
@@ -99,7 +99,7 @@ export const CHECK_OUTCOME_HEADER = "The story has already decided these outcome
   + "Show each one happening in this reply, as it fell: never change it, never skip it, and never mention dice or numbers. "
   + "Narrate only the outcomes and consequences listed. A failure means the attempt did not succeed; do not add costs the list does not name.";
 
-export function checkOutcomeBlock(story: NormalizedStoryV2 | null, records: readonly CheckRecord[], lastMessageId: number): string | null {
+export function checkOutcomeBlock(story: NormalizedStory | null, records: readonly CheckRecord[], lastMessageId: number): string | null {
   if (!story) return null;
   const byId = checksById(story);
   const lines = records.filter((record) => record.messageId === lastMessageId).flatMap((record) => {
@@ -111,7 +111,7 @@ export function checkOutcomeBlock(story: NormalizedStoryV2 | null, records: read
 
 const DEGREES: readonly CheckOutcomeWord[] = ["miss", "weak", "strong"];
 
-const rollOf = (story: NormalizedStoryV2, check: StoryCheck, record: CheckRecord): RollRecord => {
+const rollOf = (story: NormalizedStory, check: StoryCheck, record: CheckRecord): RollRecord => {
   const draw = record.draws.reduce((sum, face) => sum + face, 0);
   const dice = `${record.draws.length > 1 ? record.draws.length : ""}d${check.roll.sides}: ${record.draws.join(" + ")}`;
   const modifiers = record.modifiers.map((modifier) => `${modifier.label} ${modifier.add > 0 ? "+" : ""}${modifier.add}`);
@@ -123,7 +123,7 @@ const rollOf = (story: NormalizedStoryV2, check: StoryCheck, record: CheckRecord
   };
 };
 
-export const checkRolls = (story: NormalizedStoryV2 | null, state: ChecksRuntimeState | undefined): RollRecord[] => {
+export const checkRolls = (story: NormalizedStory | null, state: ChecksRuntimeState | undefined): RollRecord[] => {
   if (!story || !state?.records.length) return [];
   const byId = checksById(story);
   return state.records.flatMap((record) => {

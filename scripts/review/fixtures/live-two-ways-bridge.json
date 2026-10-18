@@ -2,7 +2,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "id": "review-river-crossing",
         "title": "Two Ways Across",
         "description": "Independent review story: the player's explicit choice determines the route; both routes converge on the far shore.",

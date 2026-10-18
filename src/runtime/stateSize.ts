@@ -6,6 +6,6 @@ export const stateSize = (): StateSize => {
   const root = settingsRoot();
   return {
     blobChars: sizeOfItems(listed(getMetadataBlob().stories)),
-    libraryChars: sizeOfItems(listed(root.v2Stories)) + sizeOfItems(listed(root.wizardSessions)),
+    libraryChars: sizeOfItems(listed(root.stories)) + sizeOfItems(listed(root.wizardSessions)),
   };
 };

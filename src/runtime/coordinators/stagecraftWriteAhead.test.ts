@@ -1,5 +1,5 @@
 import { textModel } from "../../../test/support/modelCall";
-import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type EngineState, type NormalizedStory } from "@engine/index";
 import type { CuratorOpRecord, CuratorProposalRecord } from "@stagecraft/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { createStagecraft } from "../extras";
@@ -28,8 +28,7 @@ const PATCHED = "The bridge stands, its ropes cut.";
 
 const entries: Record<number, { comment: string; content: string; disable: boolean }> = {};
 
-const story = (): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2,
+const story = (): NormalizedStory => parseStoryOrThrow({
   id: "write-ahead-fixture",
   title: "Crossing",
   description: "Curator write-ahead.",

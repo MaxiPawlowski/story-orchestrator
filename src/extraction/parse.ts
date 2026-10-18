@@ -1,4 +1,4 @@
-import { qualityAccepts, readsByStep, resolveStep, stepWord, TENSION_CURRENT_KEY, type NormalizedStoryV2, type PrimitiveValue, type Quality } from "@engine/index";
+import { qualityAccepts, readsByStep, resolveStep, stepWord, TENSION_CURRENT_KEY, type NormalizedStory, type PrimitiveValue, type Quality } from "@engine/index";
 import { parseArcLine, parseEpistemicLine, parseLedgerLine, parseMemoryLine, parseSceneBreakLine } from "@memory/parse";
 import { isTensionLevel, levelToNumeric } from "@pacing/index";
 import type { ParsedSharedRead } from "./types";
@@ -109,7 +109,7 @@ const restatedValue = (raw: string): string => {
   return twice && twice[1] === twice[2] ? twice[1] : raw;
 };
 
-export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStoryV2, "qualityByKey">, values: Readonly<Record<string, PrimitiveValue>> = {}): ParsedSharedRead {
+export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory, "qualityByKey">, values: Readonly<Record<string, PrimitiveValue>> = {}): ParsedSharedRead {
   const result: ParsedSharedRead = { deltas: [], facts: [], memory: [], arcs: [], epistemic: [], ledger: [], rejected: [] };
   const lines = raw.split(/\r?\n/).map((line) => stripChannelTokens(line)).filter(Boolean);
 

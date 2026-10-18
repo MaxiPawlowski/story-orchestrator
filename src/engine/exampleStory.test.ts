@@ -1,12 +1,12 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { parseStoryV2, parseStoryV2OrThrow } from "./validate";
-import { isValidationErrorList, type StoryV2 } from "./schema";
+import { parseStory, parseStoryOrThrow } from "./validate";
+import { isValidationErrorList, type Story } from "./schema";
 import { runReplay, type ReplayStep } from "../../test/support/replay";
 import { runDiagnostics } from "../studio/diagnostics";
 import { deriveScope } from "../extraction/scope";
 
-const exampleJson = JSON.parse(fs.readFileSync(path.join(process.cwd(), "examples/sun-ruins/quest-for-the-sun-ruins.json"), "utf8")) as StoryV2;
+const exampleJson = JSON.parse(fs.readFileSync(path.join(process.cwd(), "examples/sun-ruins/quest-for-the-sun-ruins.json"), "utf8")) as Story;
 
 const advance = (q: string, v: unknown): ReplayStep[] => [
   { type: "write", entry: { source: "extractor", blackboardVersionSum: 0, deltas: [{ q, v: v as never, source: "extractor" }] } },
@@ -15,7 +15,7 @@ const advance = (q: string, v: unknown): ReplayStep[] => [
 
 describe("example story: Quest for the Sun Ruins", () => {
   it("parses with no validation errors", () => {
-    const parsed = parseStoryV2(exampleJson);
+    const parsed = parseStory(exampleJson);
     expect(isValidationErrorList(parsed)).toBe(false);
   });
 
@@ -88,7 +88,7 @@ describe("example story: Quest for the Sun Ruins", () => {
   });
 
   it("keeps every extractor quality reachable in extraction scope somewhere on the graph", () => {
-    const story = parseStoryV2OrThrow(exampleJson);
+    const story = parseStoryOrThrow(exampleJson);
     const empty = { values: {}, versions: {}, latched: {} };
     const inScopeAnywhere = new Set<string>();
     story.checkpoints.forEach((checkpoint) => {
@@ -100,7 +100,7 @@ describe("example story: Quest for the Sun Ruins", () => {
   });
 
   it("scopes riddle_answer to the sphinx segment only", () => {
-    const story = parseStoryV2OrThrow(exampleJson);
+    const story = parseStoryOrThrow(exampleJson);
     const empty = { values: {}, versions: {}, latched: {} };
     expect(deriveScope(story, "cp1", empty).map((entry) => entry.key)).not.toContain("riddle_answer");
     expect(deriveScope(story, "cp-4a", empty).map((entry) => entry.key)).toContain("riddle_answer");

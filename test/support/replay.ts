@@ -2,7 +2,7 @@ import { expectedTension, levelToNumeric, updateEma } from "../../src/pacing/ind
 import type { ApplyQueueEntry } from "../../src/engine/applyQueue";
 import { StoryEngine } from "../../src/engine/engine";
 import { TENSION_CURRENT_KEY, type ArcTemplate, type TensionLevel } from "../../src/engine/schema";
-import { parseStoryV2OrThrow } from "../../src/engine/validate";
+import { parseStoryOrThrow } from "../../src/engine/validate";
 
 export type ReplayStep =
   | { type: "write"; entry: ApplyQueueEntry }
@@ -17,7 +17,7 @@ export interface ReplayResult {
 }
 
 export const runReplay = (storyJson: unknown, steps: ReplayStep[]): ReplayResult => {
-  const story = parseStoryV2OrThrow(storyJson);
+  const story = parseStoryOrThrow(storyJson);
   const engine = new StoryEngine({ now: () => 0 });
   engine.loadStory(story);
   const totalAnchors = story.checkpoints.filter((checkpoint) => checkpoint.type === "anchor").length;

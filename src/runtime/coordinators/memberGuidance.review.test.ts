@@ -1,4 +1,4 @@
-import { isValidationErrorList, parseStoryV2, parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { isValidationErrorList, parseStory, parseStoryOrThrow, type EngineState, type NormalizedStory } from "@engine/index";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import type { InjectorHosts, PromptHost } from "../hostPorts";
 import type { MemoryRuntimeState, TensionRuntimeState } from "../types";
@@ -9,7 +9,6 @@ import { PacingCoordinator } from "./pacingCoordinator";
 const KEY = INJECTION_REGISTRY.checkpointGuidance.key;
 
 const raw = (guidance: unknown) => ({
-  format: 2,
   id: "witness",
   title: "Witness",
   description: "",
@@ -22,9 +21,9 @@ const raw = (guidance: unknown) => ({
   roster: [{ id: "haley", name: "Haley" }, { id: "forre", name: "Forre" }, { id: "narrator", name: "Narrator" }],
 });
 
-const story = parseStoryV2OrThrow(raw({ all: "The duel is at noon.", members: { Haley: "You rigged the blade.", forre: "You owe the duke money." } }));
+const story = parseStoryOrThrow(raw({ all: "The duel is at noon.", members: { Haley: "You rigged the blade.", forre: "You owe the duke money." } }));
 
-function harness(loaded: NormalizedStoryV2) {
+function harness(loaded: NormalizedStory) {
   const blocks = new Map<string, string>();
   const prompt = {
     setStoryExtensionPrompt: (key: string, value: string) => { blocks.set(key, value); },
@@ -47,12 +46,12 @@ function harness(loaded: NormalizedStoryV2) {
 describe("v2.6 plan 04 C13: per-member guidance is staged per drafted member", () => {
   it("normalizes { all, members } at parse, keyed by roster id, and keeps a plain string as it was", () => {
     expect(story.checkpointById.a.guidance).toEqual({ all: "The duel is at noon.", members: { haley: "You rigged the blade.", forre: "You owe the duke money." } });
-    expect(parseStoryV2OrThrow(raw("Plain.")).checkpointById.a.guidance).toBe("Plain.");
-    expect(parseStoryV2OrThrow(raw({ members: { haley: "  " } })).checkpointById.a.guidance).toBeUndefined();
+    expect(parseStoryOrThrow(raw("Plain.")).checkpointById.a.guidance).toBe("Plain.");
+    expect(parseStoryOrThrow(raw({ members: { haley: "  " } })).checkpointById.a.guidance).toBeUndefined();
   });
 
   it("refuses a member guidance that is not text, and an unknown key", () => {
-    const refused = parseStoryV2(raw({ members: { haley: 3 }, extra: "x" }));
+    const refused = parseStory(raw({ members: { haley: 3 }, extra: "x" }));
     expect(isValidationErrorList(refused) && refused.map((error) => error.path)).toEqual(["checkpoints.0.guidance", "checkpoints.0.guidance.members.haley"]);
   });
 

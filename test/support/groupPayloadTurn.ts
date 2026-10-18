@@ -1,6 +1,6 @@
 import { join } from "node:path";
 import * as recorded from "../fixtures/t2-2-secrets.memory.json";
-import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { parseStoryOrThrow, type EngineState } from "@engine/index";
 import { loadInnerRender, type EpistemicEntry, type MemoryEntry } from "@memory/index";
 import { MemoryInjector } from "@runtime/memoryInjector";
 import { PacingCoordinator } from "@runtime/coordinators/pacingCoordinator";
@@ -13,8 +13,7 @@ const CAST: Array<[string, string]> = [
   ["dm", "Adolion Narrator"], ["sister", "Natalia"], ["maid", "Shiya"], ["knight", "Ronan"], ["father", "Javon"], ["brother", "Welden"], ["heir_maid", "Leila"],
 ];
 
-const story = parseStoryV2OrThrow({
-  format: 2,
+const story = parseStoryOrThrow({
   id: "v27-03-payload",
   title: "Payload",
   description: "",

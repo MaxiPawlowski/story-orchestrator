@@ -1,7 +1,7 @@
 import { evaluateGate, gateKeys } from "../gates";
 import {
   CLOCK_DAY_KEY, COMMITMENT_OPEN_LIMIT, COMMITMENT_START, commitKey,
-  type Commitment, type LifeMember, type NormalizedStoryV2, type PrimitiveValue,
+  type Commitment, type LifeMember, type NormalizedStory, type PrimitiveValue,
 } from "../schema";
 import { isAway } from "./presence";
 
@@ -39,7 +39,7 @@ const reader = (values: Read) => ({ get: (key: string) => values[key] as Primiti
 
 const at = (values: Read, key: string): number | null => (typeof values[key] === "number" ? values[key] as number : null);
 
-export const heldCommitments = (story: Pick<NormalizedStoryV2, "life">): HeldCommitment[] =>
+export const heldCommitments = (story: Pick<NormalizedStory, "life">): HeldCommitment[] =>
   (story.life?.members ?? []).flatMap((member) => (member.commitments ?? []).map((commitment) => ({ member: member.id, commitment })));
 
 export const madeAt = (member: string, commitment: Commitment, values: Read): number | null =>
@@ -64,7 +64,7 @@ export const commitmentOverdue = (member: string, commitment: Commitment, values
 
 const holds = (gate: Commitment["kept_when"] | undefined, values: Read): boolean => Boolean(gate && evaluateGate(gate, reader(values)));
 
-export const commitmentLatches = (story: Pick<NormalizedStoryV2, "life">, view: { boundary: number; values: Read }): Write[] =>
+export const commitmentLatches = (story: Pick<NormalizedStory, "life">, view: { boundary: number; values: Read }): Write[] =>
   heldCommitments(story).flatMap(({ member, commitment }): Write[] => {
     const state = commitmentState(member, commitment, view.values);
     if (!state) return commitment.made_when !== COMMITMENT_START && holds(commitment.made_when, view.values) ? [{ q: commitKey(member, commitment.id, "made"), v: view.boundary }] : [];
@@ -73,7 +73,7 @@ export const commitmentLatches = (story: Pick<NormalizedStoryV2, "life">, view: 
     return holds(commitment.broken_when, view.values) ? [{ q: commitKey(member, commitment.id, "broken"), v: view.boundary }] : [];
   });
 
-export const commitmentDiscoveryUnits = (story: Pick<NormalizedStoryV2, "life">, values: Read): { entries: string[][]; facts: string[][] } => ({
+export const commitmentDiscoveryUnits = (story: Pick<NormalizedStory, "life">, values: Read): { entries: string[][]; facts: string[][] } => ({
   entries: [],
   facts: heldCommitments(story).flatMap(({ member, commitment }) => {
     const state = commitmentState(member, commitment, values);
@@ -83,7 +83,7 @@ export const commitmentDiscoveryUnits = (story: Pick<NormalizedStoryV2, "life">,
   }).filter((keys) => keys.length > 0),
 });
 
-export const commitmentLines = (story: Pick<NormalizedStoryV2, "life">, values: Read, memberId: string, boundary: number): string[] =>
+export const commitmentLines = (story: Pick<NormalizedStory, "life">, values: Read, memberId: string, boundary: number): string[] =>
   heldCommitments(story).filter(({ member }) => member === memberId).flatMap(({ member, commitment }) => {
     const state = commitmentState(member, commitment, values);
     if (state?.state === "made") return [`- ${COMMITMENT_COPY.open(commitment.what)}${commitmentOverdue(member, commitment, values, boundary) ? ` ${COMMITMENT_COPY.overdue}` : ""}`];
@@ -91,17 +91,17 @@ export const commitmentLines = (story: Pick<NormalizedStoryV2, "life">, values: 
     return state.state === "kept" ? [`- ${COMMITMENT_COPY.kept(commitment.what)}`] : state.state === "broken" ? [`- ${COMMITMENT_COPY.broken(commitment.what)}`] : [];
   });
 
-export const heardCommitmentRows = (story: Pick<NormalizedStoryV2, "life">, values: Read, holder: string): CommitmentRow[] =>
+export const heardCommitmentRows = (story: Pick<NormalizedStory, "life">, values: Read, holder: string): CommitmentRow[] =>
   heldCommitments(story).filter(({ member, commitment }) => member === holder && commitment.heard !== false).flatMap(({ member, commitment }) => {
     const state = commitmentState(member, commitment, values);
     return state ? [{ text: COMMITMENT_COPY.promised(commitment.what, state.state), state: state.state, at: state.at }] : [];
   });
 
-export const commitmentHolders = (story: Pick<NormalizedStoryV2, "life">): string[] => [...new Set(heldCommitments(story).map(({ member }) => member))];
+export const commitmentHolders = (story: Pick<NormalizedStory, "life">): string[] => [...new Set(heldCommitments(story).map(({ member }) => member))];
 
-const lifeMember = (story: Pick<NormalizedStoryV2, "life">, id: string): LifeMember | undefined => story.life?.members.find((member) => member.id === id);
+const lifeMember = (story: Pick<NormalizedStory, "life">, id: string): LifeMember | undefined => story.life?.members.find((member) => member.id === id);
 
-export const commitmentHooks = (story: Pick<NormalizedStoryV2, "life" | "roster">, values: Read): string[] => heldCommitments(story)
+export const commitmentHooks = (story: Pick<NormalizedStory, "life" | "roster">, values: Read): string[] => heldCommitments(story)
   .filter(({ member, commitment }) => commitment.heard !== false && commitmentState(member, commitment, values)?.state === "made")
   .filter(({ member }) => {
     const life = lifeMember(story, member);
@@ -109,11 +109,11 @@ export const commitmentHooks = (story: Pick<NormalizedStoryV2, "life" | "roster"
   })
   .map(({ member, commitment }) => COMMITMENT_COPY.hook(story.roster.find((entry) => entry.id === member)?.name ?? member, commitment.what));
 
-export const keptCommitments = (story: Pick<NormalizedStoryV2, "life"> | null, before: Read, after: Read): KeptCommitment[] => (story ? heldCommitments(story) : [])
+export const keptCommitments = (story: Pick<NormalizedStory, "life"> | null, before: Read, after: Read): KeptCommitment[] => (story ? heldCommitments(story) : [])
   .filter(({ member, commitment }) => commitmentState(member, commitment, before)?.state !== "kept" && commitmentState(member, commitment, after)?.state === "kept")
   .map(({ member, commitment }) => ({ memberId: member, commitment }));
 
-export const commitmentWorldInfo = (story: Pick<NormalizedStoryV2, "life"> | null, values: Read): unknown[] => (story ? heldCommitments(story) : [])
+export const commitmentWorldInfo = (story: Pick<NormalizedStory, "life"> | null, values: Read): unknown[] => (story ? heldCommitments(story) : [])
   .flatMap(({ member, commitment }) => (commitment.effect?.world_info !== undefined && commitmentState(member, commitment, values)?.state === "kept" ? [commitment.effect.world_info] : []));
 
 export interface CommitmentAuthorRow {
@@ -126,7 +126,7 @@ export interface CommitmentAuthorRow {
   heard: boolean;
 }
 
-export const commitmentAuthorRows = (story: Pick<NormalizedStoryV2, "life">, values: Read, boundary: number): CommitmentAuthorRow[] =>
+export const commitmentAuthorRows = (story: Pick<NormalizedStory, "life">, values: Read, boundary: number): CommitmentAuthorRow[] =>
   heldCommitments(story).map(({ member, commitment }) => {
     const state = commitmentState(member, commitment, values);
     return {

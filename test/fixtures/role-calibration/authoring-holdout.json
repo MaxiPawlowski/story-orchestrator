@@ -4,7 +4,7 @@
   "draftsFrom": "authoring-holdout.json",
   "drafts": {
     "crypt": {
-      "format": 2, "id": "cal-crypt", "title": "The Abbey Crypt", "description": "A party of adventurers descends into the crypt beneath an abandoned abbey of the Holy Church.",
+      "id": "cal-crypt", "title": "The Abbey Crypt", "description": "A party of adventurers descends into the crypt beneath an abandoned abbey of the Holy Church.",
       "qualities": [{ "key": "door_open", "type": "bool", "source": "extractor", "rubric": "Is the crypt door open?" }],
       "checkpoints": [
         { "id": "entrance", "name": "The Entrance", "objective": "Find a way to open the crypt.", "type": "anchor", "start": true },
@@ -14,7 +14,7 @@
       "roster": []
     },
     "ghost-ship": {
-      "format": 2, "id": "cal-ghost-ship", "title": "The Drifting Ship", "description": "A crew boards a ship found drifting through thick fog.",
+      "id": "cal-ghost-ship", "title": "The Drifting Ship", "description": "A crew boards a ship found drifting through thick fog.",
       "qualities": [
         { "key": "boarded", "type": "bool", "source": "extractor", "rubric": "Has the crew boarded the drifting ship?" },
         { "key": "log_read", "type": "bool", "source": "extractor", "rubric": "Has the crew read the captain's log?" }

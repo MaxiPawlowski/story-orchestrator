@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 import { join } from "path";
-import { StoryEngine, gatedWorldInfo, parseStoryV2OrThrow, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { StoryEngine, gatedWorldInfo, parseStoryOrThrow, type BoundaryLogEntry, type EngineState, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 import type { SharedReadAudit } from "@extraction/index";
 import { heldSecrets, provenance, withoutSecretLines, type EpistemicEntry, type MemoryEntry } from "@memory/index";
 import { composeInlineTimeline, inlineMessageIds, visibleInlineItems, type InlineSources, type InlineView } from "./inlineTimeline";
@@ -10,29 +10,29 @@ import { firstLines } from "./castInPlay";
 import { defaultInlineSettings, effectiveInlineLevel, INLINE_WINDOW_MAX, sanitizeGlobalSettings, sanitizeInlineSettings, type InlineLevel } from "./settingsModel";
 
 const ROOT = join(__dirname, "../..");
-const load = (path: string, names: Record<string, string>): NormalizedStoryV2 => {
+const load = (path: string, names: Record<string, string>): NormalizedStory => {
   const raw = JSON.parse(readFileSync(join(ROOT, path), "utf8")) as { checkpoints: Array<Record<string, unknown>> };
   raw.checkpoints = raw.checkpoints.map((checkpoint) => (names[checkpoint.id as string] ? { ...checkpoint, player_name: names[checkpoint.id as string] } : checkpoint));
-  return parseStoryV2OrThrow(raw);
+  return parseStoryOrThrow(raw);
 };
 const SUN = load("examples/sun-ruins/quest-for-the-sun-ruins.json", { cp2: "The Mission" });
 const ADV = load("test/fixtures/scan-gate/adolion-adventurer.story.json", { "road-to-wendhope": "Wendhope Road" });
 
-const state = (story: NormalizedStoryV2, active: string, values: Record<string, PrimitiveValue>, messageId: number): EngineState => ({
+const state = (story: NormalizedStory, active: string, values: Record<string, PrimitiveValue>, messageId: number): EngineState => ({
   blackboard: { values, versions: {}, latched: {} } as unknown as EngineState["blackboard"],
   activeCheckpointId: active, visitedAnchors: [story.startCheckpointId, active], visitedPath: [story.startCheckpointId, active],
   boundary: 1, checkpointStartedBoundary: 1, checkpointStartedAt: 0, checkpointStartedMessageId: messageId, lastMessageId: messageId, chatLength: messageId + 1,
 });
 
-const transitionOf = (story: NormalizedStoryV2) => {
+const transitionOf = (story: NormalizedStory) => {
   const transition = story.outgoingByCheckpoint[story.startCheckpointId][0];
   const key = Object.keys(story.qualityByKey)[0];
   return { transition, key };
 };
 
-const unnamedTransition = (story: NormalizedStoryV2) => Object.values(story.outgoingByCheckpoint).flat().find((candidate) => !story.checkpointById[candidate.to]?.player_name);
+const unnamedTransition = (story: NormalizedStory) => Object.values(story.outgoingByCheckpoint).flat().find((candidate) => !story.checkpointById[candidate.to]?.player_name);
 
-const boundary = (story: NormalizedStoryV2, messageId: number, applied: Array<{ origin: string; q: string; v: PrimitiveValue }>, fired = transitionOf(story).transition): BoundaryLogEntry => {
+const boundary = (story: NormalizedStory, messageId: number, applied: Array<{ origin: string; q: string; v: PrimitiveValue }>, fired = transitionOf(story).transition): BoundaryLogEntry => {
   const { key } = transitionOf(story);
   const transition = fired;
   return {
@@ -57,7 +57,7 @@ const fact = (id: string, text: string, messageId: number, extra: Partial<Memory
   createdAt: 1, recallCount: 0, provenance: provenance({ source: "extractor", messageId, boundary: 1, pass: "shared-read" }), ...extra,
 });
 
-const sources = (story: NormalizedStoryV2, overrides: Partial<InlineSources> = {}): InlineSources => {
+const sources = (story: NormalizedStory, overrides: Partial<InlineSources> = {}): InlineSources => {
   const gated = [...gatedWorldInfo([story])].flatMap(([book, comments]) => [...comments].map((comment, uid) => ({ book, uid, comment, via: "constant" as const, gated: true })));
   const key = Object.keys(story.qualityByKey)[0];
   return {
@@ -166,7 +166,7 @@ describe("inline timeline composer (v2.6 plan 08 D3/D4)", () => {
     expect(Object.values(view.byMessage).flat().some((item) => item.id.startsWith("cast:talk"))).toBe(false);
   });
 
-  it.each([["sun-ruins", SUN], ["adventurer", ADV]] as Array<[string, NormalizedStoryV2]>)("never puts a checkpoint id, a quality key or a gated entry name in player copy (%s)", (_name, story) => {
+  it.each([["sun-ruins", SUN], ["adventurer", ADV]] as Array<[string, NormalizedStory]>)("never puts a checkpoint id, a quality key or a gated entry name in player copy (%s)", (_name, story) => {
     const view = composeInlineTimeline(sources(story, { lastRollback: { checkpointName: story.checkpoints[1].name, playerName: story.checkpoints[1].player_name ?? null, at: "r" }, agencyRecovery: true, saveNotice: "Changes not saved yet" }));
     const player = texts(view, 2);
     const gatedNames = [...gatedWorldInfo([story]).values()].flatMap((comments) => [...comments]);
@@ -176,7 +176,7 @@ describe("inline timeline composer (v2.6 plan 08 D3/D4)", () => {
     expect(player).toEqual(expect.arrayContaining([`Lore consulted: The Tavern and ${gatedNames.length} more`, `Stepped back to ${story.checkpoints[1].player_name}`]));
   });
 
-  it.each([["sun-ruins", SUN], ["adventurer", ADV]] as Array<[string, NormalizedStoryV2]>)("never names a cast member the player has not met (%s)", (_name, story) => {
+  it.each([["sun-ruins", SUN], ["adventurer", ADV]] as Array<[string, NormalizedStory]>)("never names a cast member the player has not met (%s)", (_name, story) => {
     const roster = story.roster.map((member) => ({ id: member.id, name: member.name ?? member.id }));
     const row = (member: string, disabled: boolean, messageId: number, index: number): EffectLedgerRow => ({
       id: `r${messageId}-${index}`, effect: "cast", target: { kind: "cast", group: "g", member: `${member}.png` }, before: { disabled: !disabled }, after: { disabled },
@@ -344,7 +344,7 @@ describe("inline timeline player copy and held secrets: facts and threads go thr
 });
 
 describe("v2.8 plan 51: a reveal chip under the message that earned it", () => {
-  const labels = parseStoryV2OrThrow(JSON.parse(readFileSync(join(ROOT, "test/fixtures/relationship-labels.story.json"), "utf8")));
+  const labels = parseStoryOrThrow(JSON.parse(readFileSync(join(ROOT, "test/fixtures/relationship-labels.story.json"), "utf8")));
   const played = (enabled: string[]) => {
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(labels);

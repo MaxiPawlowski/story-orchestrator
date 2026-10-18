@@ -3,7 +3,7 @@ import { extensionConflictsFor, readExtensionConflictsWith, extensionConflicts }
 import { repairSteps, setupFindings } from "./repair";
 import { createSaveHealth } from "./saveHealth";
 import { jargonIn } from "@features/jargon";
-import type { NormalizedStoryV2 } from "@engine/index";
+import type { NormalizedStory } from "@engine/index";
 import type { RuntimeSnapshot } from "./types";
 
 const quiet = (overrides: Record<string, unknown> = {}): RuntimeSnapshot => ({
@@ -26,7 +26,7 @@ const CASES = [
   { id: "nemo-lorebook-keys", conflict: "nemo-lorebook-spacing", severity: "info" },
 ] as const;
 
-const story = (exclusive: boolean, lorebooks = ["Ruins"]) => ({ lore_select: { lorebooks, exclusive } }) as unknown as NormalizedStoryV2;
+const story = (exclusive: boolean, lorebooks = ["Ruins"]) => ({ lore_select: { lorebooks, exclusive } }) as unknown as NormalizedStory;
 
 describe("extension conflict checks", () => {
   it.each(CASES)("$id fires on its own conflict and stays quiet on the others", ({ id, conflict, severity }) => {
@@ -77,18 +77,18 @@ describe("extensionConflicts: the snapshot slice", () => {
   });
 
   it("v2.8 69 K10: keeps the Chat Completion filler row only for a story with NPC replies", () => {
-    const withReplies = { checkpoints: [{ id: "a", effects: { npc_replies: [{ trigger: "onEnter", member: "Arin", kind: "llm" }] } }] } as unknown as NormalizedStoryV2;
-    const without = { checkpoints: [{ id: "a", effects: { npc_replies: [] } }, { id: "b" }] } as unknown as NormalizedStoryV2;
+    const withReplies = { checkpoints: [{ id: "a", effects: { npc_replies: [{ trigger: "onEnter", member: "Arin", kind: "llm" }] } }] } as unknown as NormalizedStory;
+    const without = { checkpoints: [{ id: "a", effects: { npc_replies: [] } }, { id: "b" }] } as unknown as NormalizedStory;
     expect(extensionConflictsFor(withReplies, ["cc-send-if-empty"])).toEqual(["cc-send-if-empty"]);
     expect(extensionConflictsFor(without, ["cc-send-if-empty", "presence"])).toEqual(["presence"]);
   });
 
   it("v2.8 69 K2: keeps the NemoPresetExt row only for a story with lorebooks", () => {
-    const withBooks = { requirements: { lorebooks: ["Ruins"] } } as unknown as NormalizedStoryV2;
-    const without = { requirements: { lorebooks: [] } } as unknown as NormalizedStoryV2;
+    const withBooks = { requirements: { lorebooks: ["Ruins"] } } as unknown as NormalizedStory;
+    const without = { requirements: { lorebooks: [] } } as unknown as NormalizedStory;
     expect(extensionConflictsFor(withBooks, ["nemo-lorebook-spacing"])).toEqual(["nemo-lorebook-spacing"]);
     expect(extensionConflictsFor(without, ["nemo-lorebook-spacing", "presence"])).toEqual(["presence"]);
-    expect(extensionConflictsFor({} as NormalizedStoryV2, ["nemo-lorebook-spacing"])).toEqual([]);
+    expect(extensionConflictsFor({} as NormalizedStory, ["nemo-lorebook-spacing"])).toEqual([]);
   });
 
   it("reads through the registered reader, and none once it is released", () => {

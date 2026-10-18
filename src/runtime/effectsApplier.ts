@@ -1,4 +1,4 @@
-import { rewardedQuestIds, type Checkpoint, type CheckpointEffects, type NormalizedStoryV2, type NpcReplyEffect, type NpcReplyTrigger } from "@engine/index";
+import { rewardedQuestIds, type Checkpoint, type CheckpointEffects, type NormalizedStory, type NpcReplyEffect, type NpcReplyTrigger } from "@engine/index";
 import {
   applyBackground, executeSlashCommands, resolveGroupMemberId, samplerApi, setGroupMembersDisabled, setGroupMemberFlags, getActiveGroup,
   getContext, guardHostStream, watchHostChatMove, isHostGenerating, stopHostGeneration,
@@ -158,7 +158,7 @@ export class EffectsApplier {
   // `path` is every checkpoint the chat entered, ending at `checkpoint`: world_info is rebuilt from it
   // each time, so a flag another chat left in a shared lorebook never survives into this one.
   async applyCheckpoint(
-    story: NormalizedStoryV2, checkpoint: Checkpoint | undefined, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[], gate?: number,
+    story: NormalizedStory, checkpoint: Checkpoint | undefined, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[], gate?: number,
   ): Promise<void> {
     if (!checkpoint) return;
     if (!openChatId()) return this.deps.journal?.("checkpoint effects were not applied", NO_OPEN_CHAT);
@@ -177,7 +177,7 @@ export class EffectsApplier {
   }
 
   private async applyCheckpointNow(
-    story: NormalizedStoryV2, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[], run: RunGuard, gate?: number,
+    story: NormalizedStory, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[], run: RunGuard, gate?: number,
   ) {
     const ready = extras.requirements.ready;
     // This is the write edge with the widest blast radius in the extension: unlike
@@ -283,7 +283,7 @@ export class EffectsApplier {
     return wrote({ name: preset.name });
   }
 
-  async releaseStaging(story: NormalizedStoryV2, extras: RuntimeExtras, run: RunGuard) {
+  async releaseStaging(story: NormalizedStory, extras: RuntimeExtras, run: RunGuard) {
     const staged = extras.effects.ledger.filter((row) => row.status === "applied" && JUMP_RELEASED.has(row.target.kind));
     if (staged.length) await this.restoreEffects(extras, staged);
     if (!run.stillOwns() || !extras.requirements.ready) return;
@@ -300,7 +300,7 @@ export class EffectsApplier {
 
   // Each member the effect names is one decision about a shared group, so each is its own row: a
   // two-member change that fails on the second leaves the first recorded and restorable.
-  private async applyCastChanges(authored: unknown, roster: NormalizedStoryV2["roster"], extras: RuntimeExtras, scope: EffectScope, run: RunGuard, entering: string | null) {
+  private async applyCastChanges(authored: unknown, roster: NormalizedStory["roster"], extras: RuntimeExtras, scope: EffectScope, run: RunGuard, entering: string | null) {
     const plan = planCastChanges(roster, authored, (name) => Boolean(resolveGroupMemberId(name)));
     if (!plan) return;
     const group = getActiveGroup();
@@ -336,7 +336,7 @@ export class EffectsApplier {
     );
   }
 
-  async applyEarnedEffects(story: NormalizedStoryV2, earned: readonly EarnedEffects[], extras: RuntimeExtras, values: Record<string, unknown>, path: string[], at: EffectScope, run: RunGuard) {
+  async applyEarnedEffects(story: NormalizedStory, earned: readonly EarnedEffects[], extras: RuntimeExtras, values: Record<string, unknown>, path: string[], at: EffectScope, run: RunGuard) {
     if (!openChatId() || !openGroupId() || !extras.requirements.ready || !run.stillOwns()) return;
     if (earned.some((item) => item.effects.world_info) && !worldInfoFilesHeld()) {
       const refused = await applyWorldInfo(worldInfoPlan(story, path, rewardedQuestIds(story, values), earnedWorldInfo(story, values)), run);

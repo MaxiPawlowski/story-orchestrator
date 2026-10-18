@@ -76,7 +76,6 @@ jest.mock("./effectHost", () => {
 let mockReconcile: (rows: unknown[]) => { rows: unknown[]; notes: string[] } = (rows) => ({ rows, notes: [] });
 
 const story = {
-  format: 2,
   id: "switch-story",
   title: "Switch story",
   description: "Two chats of one story, switched back and forth.",

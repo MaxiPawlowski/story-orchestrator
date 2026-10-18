@@ -1,11 +1,11 @@
-import { isLivingId, type StoryV2 } from "@engine/index";
+import { isLivingId, type Story } from "@engine/index";
 
 type ChapterCode = "chapter-missing" | "chapter-unknown" | "chapter-unreachable" | "chapter-no-exit" | "chapter-reentry" | "story-dead-end";
 
 export interface ChapterRun {
-  draft: StoryV2;
+  draft: Story;
   push: (code: ChapterCode, severity: "blocking" | "warning", path: string, message: string) => void;
-  checkpointById: Map<string, StoryV2["checkpoints"][number]>;
+  checkpointById: Map<string, Story["checkpoints"][number]>;
   reachableFrom: (start: string) => Set<string>;
   startId: string;
 }

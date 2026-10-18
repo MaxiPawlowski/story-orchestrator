@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseStoryV2OrThrow } from "@engine/index";
+import { parseStoryOrThrow } from "@engine/index";
 import type { ChainRead } from "@judge/expansion";
 import { callExtractionReply, profileRoute, routedModel, type ModelAsk } from "@extraction/index";
 import { generateReviewedBeats } from "./generate";
@@ -15,7 +15,7 @@ jest.mock("@services/STAPI", () => ({
 const mockSend = jest.fn();
 const send = mockSend;
 const root = join(__dirname, "..", "..");
-const story = parseStoryV2OrThrow(JSON.parse(readFileSync(join(root, "test/fixtures/background-generation.story.json"), "utf-8")));
+const story = parseStoryOrThrow(JSON.parse(readFileSync(join(root, "test/fixtures/background-generation.story.json"), "utf-8")));
 const good = readFileSync(join(root, "test/goldens/background-generator-played.response.txt"), "utf-8");
 const input = () => planExpansion(story, { values: { key_found: false, approach: "unknown" } }, findStubExpansionCandidate(story, "start")!, "", []);
 const model = routedModel(profileRoute("p1"));

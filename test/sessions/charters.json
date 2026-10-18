@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "pin": "fc2d6e7b0eee47d848cf81d45efeeb9bc51e020f",
+  "pin": "93549b11cd7abb0fb5901e0bec6dfc9e41895d9d",
   "cards": [
     {
       "id": "T0-1",
@@ -894,7 +894,7 @@
       "rubric": [{ "feature": "Restart" }, { "feature": "hot-swap" }, { "feature": "invalidating choice" }, { "feature": "save vocabulary" }],
       "loggedAutomatically": ["story update records (from/to version, classification, choice)", "the library in the run header diff"],
       "knownLimits": ["Edits change the lane's library copy only."],
-      "headerAllow": ["inventory.v2Stories:+adolion-adventurer", "inventory.v2Stories:-adolion-adventurer"]
+      "headerAllow": ["inventory.stories:+adolion-adventurer", "inventory.stories:-adolion-adventurer"]
     },
     {
       "id": "T5-1",
@@ -981,7 +981,7 @@
       "rubric": [{ "feature": "checkpoint editor" }, { "feature": "gate editor" }, { "feature": "effects editor" }, { "feature": "diagnostics" }, { "feature": "hot-swap / invalidating choice" }],
       "loggedAutomatically": ["story update records", "library in the run header diff"],
       "knownLimits": ["The chat is the one T5-1 adopted; without an adopt the card cannot start. The lane is the T5-1 lane."],
-      "headerAllow": ["inventory.v2Stories:~{story}"]
+      "headerAllow": ["inventory.stories:~{story}"]
     },
     {
       "id": "T5-4",
@@ -1007,7 +1007,7 @@
       "rubric": [{ "feature": "Repair" }, { "feature": "Fix with wizard" }, { "feature": "disabled member (known finding)" }],
       "loggedAutomatically": ["requirement readings", "wizard provisioning"],
       "knownLimits": ["Personas are never provisioned.", "A disabled member still counts as present (listGroupMembers ignores disabled_members): that is a recorded product finding, not a card error."],
-      "headerAllow": ["inventory.v2Stories:~{story}", "inventory.lorebooksSelected:-{story-books}"]
+      "headerAllow": ["inventory.stories:~{story}", "inventory.lorebooksSelected:-{story-books}"]
     },
     {
       "id": "T5-5",

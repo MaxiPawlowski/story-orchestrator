@@ -9,7 +9,7 @@
   "steps": [
     {"eval": "const rt=globalThis.storyOrchestratorRuntime; const s=rt.getGlobalSettings(); globalThis.__soV27RollbackPrior={image:s.image.enabled, onDemand:s.sprites.onDemand}; rt.setExtractionSettings({enabled:false}); globalThis.storyOrchestratorImage.updateSettings({enabled:false}); globalThis.storyOrchestratorSprites.updateSettings({onDemand:false}); return {configured:true, prior:globalThis.__soV27RollbackPrior};"},
     {"import_story": {
-      "format": 2, "id": "soimg-card-rollback", "title": "SOIMG card rollback", "description": "Synthetic public look rollback.",
+      "id": "soimg-card-rollback", "title": "SOIMG card rollback", "description": "Synthetic public look rollback.",
       "roster": [{"id":"wren","name":"SOIMG Wren","card":{"fields":{"hair":{"quality":"hair","visual":true}}}}],
       "qualities": [{"key":"hair","type":"string","source":"extractor","rubric":"Public hair."},{"key":"done","type":"bool","source":"code","rubric":"Scripted gate."}],
       "checkpoints": [{"id":"start","name":"Start","type":"anchor","start":true,"objective":"Begin."},{"id":"changed","name":"Changed","type":"anchor","objective":"Changed.","effects":{"card":{"wren":{"hair":"green"}}}}],

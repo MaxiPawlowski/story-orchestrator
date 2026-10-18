@@ -5,7 +5,6 @@
     { "eval": "globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugShortTermResponse = 'They gathered in the hall and moved on to the vault.'; return true;" },
     {
       "import_story": {
-        "format": 2,
         "title": "Memory Foundation Gate Check",
         "description": "Plan 07 live memory validation story.",
         "qualities": [

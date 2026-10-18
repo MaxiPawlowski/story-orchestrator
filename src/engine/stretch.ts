@@ -1,4 +1,4 @@
-import type { Checkpoint, CheckpointStretch, NormalizedStoryV2, StretchPace } from "./schema";
+import type { Checkpoint, CheckpointStretch, NormalizedStory, StretchPace } from "./schema";
 
 export const PLAYER_TURNS_KEY = "player_turns_in_checkpoint";
 
@@ -41,7 +41,7 @@ export const pullStage = (stretch: CheckpointStretch, playerTurns: number): Pull
   return playerTurns - stretch.pull_after >= PULL_STEADY_AFTER ? "steady" : "gentle";
 };
 
-export const stretchDestination = (story: Pick<NormalizedStoryV2, "checkpointById" | "outgoingByCheckpoint">, checkpointId: string): string | null => {
+export const stretchDestination = (story: Pick<NormalizedStory, "checkpointById" | "outgoingByCheckpoint">, checkpointId: string): string | null => {
   const stretch = openStretch(story.checkpointById[checkpointId]);
   if (!stretch?.arrive_when) return null;
   const arrive = JSON.stringify(stretch.arrive_when);

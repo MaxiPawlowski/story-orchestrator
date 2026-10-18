@@ -1,4 +1,4 @@
-import { movesParty, readsWorldEvidence, TENSION_CURRENT_KEY, type EngineState, type NormalizedStoryV2, type NormalizedTransition } from "@engine/index";
+import { movesParty, readsWorldEvidence, TENSION_CURRENT_KEY, type EngineState, type NormalizedStory, type NormalizedTransition } from "@engine/index";
 import { fnv1a, stableStringify } from "@runtime/hash";
 import type { ExtractionReply, ModelAsk, ModelCall } from "./modelRoute";
 import { getCanonLite } from "./canonLite";
@@ -101,7 +101,7 @@ const attributed = <T extends { evidence: string; messageId?: number }>(line: T,
 };
 
 export interface RunSharedReadOptions {
-  story: NormalizedStoryV2;
+  story: NormalizedStory;
   state: EngineState;
   priority: 0 | 1;
   reason: string;
@@ -154,13 +154,13 @@ export const readContract = (options: ReadContractOptions, window: SharedReadWin
   counted: runningTotals(qualities, options.state.blackboard.values),
 });
 
-export function rosterCharacterId(roster: NormalizedStoryV2["roster"], raw: string | undefined): string | undefined {
+export function rosterCharacterId(roster: NormalizedStory["roster"], raw: string | undefined): string | undefined {
   const value = raw?.trim().toLowerCase();
   if (!value) return undefined;
   return (roster.find((member) => member.id.toLowerCase() === value) ?? roster.find((member) => member.name?.trim().toLowerCase() === value))?.id;
 }
 
-const castMemory = (line: ParsedMemoryLine, roster: NormalizedStoryV2["roster"]): ParsedMemoryLine => {
+const castMemory = (line: ParsedMemoryLine, roster: NormalizedStory["roster"]): ParsedMemoryLine => {
   const { characterId, ...rest } = line;
   const id = rosterCharacterId(roster, characterId);
   return id ? { ...rest, characterId: id } : rest;
@@ -225,7 +225,7 @@ async function reaskPlayerOnly(
   return { keys, rawResponse: reply.text, accepted: screened.accepted.filter(confirms), rejected: [...parsed.rejected, ...screened.rejected, ...unconfirmed] };
 }
 
-const memberResolver = (roster: NormalizedStoryV2["roster"]) => (token: string): string | null => {
+const memberResolver = (roster: NormalizedStory["roster"]) => (token: string): string | null => {
   const value = token.trim().toLowerCase();
   return roster.find((member) => member.id.toLowerCase() === value || member.name?.trim().toLowerCase() === value
     || (member.aliases ?? []).some((alias) => alias.trim().toLowerCase() === value))?.id ?? null;

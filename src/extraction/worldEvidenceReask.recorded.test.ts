@@ -2,7 +2,7 @@ import { recordingModel } from "../../test/support/modelCall";
 import * as recorded from "../../test/fixtures/t3-1-world-evidence.recorded.json";
 import * as earlier from "../../test/fixtures/player-evidence.recorded.json";
 import * as thornwood from "../../test/fixtures/t3-3-world-evidence.recorded.json";
-import { StoryEngine, parseStoryV2OrThrow, type PrimitiveValue, type Quality, type StoryV2 } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow, type PrimitiveValue, type Quality, type Story } from "@engine/index";
 import { PLAYER_ONLY_REASK } from "./contract";
 import { NOT_CONFIRMED, PLAYER_ONLY_EVIDENCE, runSharedRead } from "./sharedRead";
 import type { SharedReadWindow } from "./types";
@@ -23,12 +23,12 @@ type EarlierRow = Row & { quality: Quality };
 const T3_QUALITIES = recorded.qualities as unknown as Quality[];
 const t3 = recorded.rows as unknown as T3Row[];
 
-const storyOf = (qualities: Quality[], gateKey: string, value: PrimitiveValue) => parseStoryV2OrThrow({
-  format: 2, id: "t3-1-world", title: "World evidence", description: "recorded", roster: [],
+const storyOf = (qualities: Quality[], gateKey: string, value: PrimitiveValue) => parseStoryOrThrow({
+  id: "t3-1-world", title: "World evidence", description: "recorded", roster: [],
   qualities,
   checkpoints: [{ id: "here", name: "Here", objective: "o", type: "anchor", start: true }, { id: "there", name: "There", objective: "o", type: "anchor" }],
   transitions: [{ from: "here", to: "there", priority: 0, gate: { q: gateKey, op: "==", v: value } }],
-} as unknown as StoryV2);
+} as unknown as Story);
 
 const windowOf = (row: Row): SharedReadWindow => ({ from: row.window.from, to: row.window.to, messages: row.window.messages.map((message) => ({ ...message, index: message.messageId })) });
 

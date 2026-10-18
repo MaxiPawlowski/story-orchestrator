@@ -1,7 +1,6 @@
-import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
+import { StoryEngine, parseStoryOrThrow } from "@engine/index";
 
-const story = (extra = false) => parseStoryV2OrThrow({
-  format: 2,
+const story = (extra = false) => parseStoryOrThrow({
   id: "graph-swap",
   title: "Graph swap",
   description: "A merged expansion changes the graph under a live run",

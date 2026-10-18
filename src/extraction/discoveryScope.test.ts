@@ -1,12 +1,12 @@
-import { parseStoryV2OrThrow, type NormalizedStoryV2 } from "@engine/index";
+import { parseStoryOrThrow, type NormalizedStory } from "@engine/index";
 import { deriveScopeWithSources } from "./scope";
 import { DISCOVERY_SCOPE_CAP, DISCOVERY_SOURCE, SCOPE_SOURCES, discoveryRotation } from "./scopeSources";
 import { labRaw } from "../../test/support/codexLab";
 
 const FLAGS = Array.from({ length: 10 }, (_, at) => `clue_${at}`);
 
-const crowded = (): NormalizedStoryV2 => parseStoryV2OrThrow({
-  format: 2, title: "Crowded", description: "Every entry starts unknown.", roster: [],
+const crowded = (): NormalizedStory => parseStoryOrThrow({
+  title: "Crowded", description: "Every entry starts unknown.", roster: [],
   qualities: FLAGS.map((key) => ({ key, type: "bool", source: "extractor", rubric: `Whether ${key} was found.` })),
   checkpoints: [{ id: "start", name: "Start", type: "anchor", start: true, objective: "o" }],
   transitions: [],
@@ -15,7 +15,7 @@ const crowded = (): NormalizedStoryV2 => parseStoryV2OrThrow({
 
 const empty = { values: {}, versions: {}, latched: {} };
 
-const offered = (story: NormalizedStoryV2, rotation: number): string[] =>
+const offered = (story: NormalizedStory, rotation: number): string[] =>
   deriveScopeWithSources(story, "start", empty, [], { rotation }).sources.filter((read) => read.kind === "discovery").flatMap((read) => read.keys);
 
 describe("C9: discovery never deadlocks", () => {
@@ -42,7 +42,7 @@ describe("C9: discovery never deadlocks", () => {
 
 describe("C5: a story without a codex reads exactly as before", () => {
   test("scope and pulls are identical with and without the discovery source", () => {
-    const story = parseStoryV2OrThrow({ ...labRaw(), codex: undefined });
+    const story = parseStoryOrThrow({ ...labRaw(), codex: undefined });
     const without = SCOPE_SOURCES.filter((source) => source !== DISCOVERY_SOURCE);
     for (let rotation = 0; rotation < 6; rotation += 1) {
       const a = deriveScopeWithSources(story, "start", empty, [], { rotation });

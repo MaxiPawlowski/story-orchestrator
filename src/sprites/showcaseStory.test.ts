@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseStoryV2 } from "@engine/validate";
+import { parseStory } from "@engine/validate";
 import { shippedPoses } from "./poses/library";
 import { readStageDirection } from "./direction";
 
@@ -8,8 +8,8 @@ const raw = JSON.parse(readFileSync(join(__dirname, "../../test/showcase/lantern
 const BUILT_FACES = ["neutral", "happy", "angry", "worried"];
 
 describe("showcase story fixture", () => {
-  test("validates as a format-2 story", () => {
-    const parsed = parseStoryV2(raw);
+  test("validates as a story", () => {
+    const parsed = parseStory(raw);
     expect(Array.isArray(parsed) ? parsed : []).toEqual([]);
   });
 

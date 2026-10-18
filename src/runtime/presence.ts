@@ -1,4 +1,4 @@
-import type { BoundaryLogEntry, NormalizedStoryV2, StoryDisplay } from "@engine/index";
+import type { BoundaryLogEntry, NormalizedStory, StoryDisplay } from "@engine/index";
 import { isRecord } from "@utils/guards";
 import { composeChapterCards, type ChapterCard, type ChapterCardRecap } from "./chapterCards";
 import { defaultPresenceSettings, presenceShown, type PresenceSettings, type PresenceShown } from "./displayToggles";
@@ -13,7 +13,7 @@ export interface PresenceView {
 }
 
 export interface PresenceSources {
-  story: NormalizedStoryV2 | null;
+  story: NormalizedStory | null;
   settings: PresenceSettings | undefined;
   boundaryLog: readonly BoundaryLogEntry[];
   plays: PlaysIndex;

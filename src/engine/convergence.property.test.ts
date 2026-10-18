@@ -1,7 +1,7 @@
 import * as branchingStory from "../../test/fixtures/branching.story.json";
 import { progressQualityForAnchor } from "./convergence";
 import { StoryEngine } from "./engine";
-import { parseStoryV2OrThrow } from "./validate";
+import { parseStoryOrThrow } from "./validate";
 import type { ApplyQueueEntry } from "./applyQueue";
 import type { PrimitiveValue } from "./schema";
 
@@ -16,7 +16,7 @@ const mulberry32 = (seed: number) => {
   };
 };
 
-const STORY = parseStoryV2OrThrow(branchingStory);
+const STORY = parseStoryOrThrow(branchingStory);
 const PROGRESS_KEY = progressQualityForAnchor("exit");
 const RUNS = 1000;
 

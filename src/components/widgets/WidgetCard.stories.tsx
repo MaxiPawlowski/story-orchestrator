@@ -7,7 +7,7 @@ import {
 } from "./gameViewFixtures";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 import { sceneView } from "@runtime/sceneCard";
-import type { EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { EngineState, NormalizedStory } from "@engine/index";
 
 const meta: Meta<typeof WidgetCard> = {
   title: "Panels/WidgetCard",
@@ -195,7 +195,7 @@ const plantedScene = (): typeof sceneWidget => {
   const story = {
     roster: [{ id: "tom", name: "Tom" }, { id: "ada", name: "Ada" }],
     codex: { people: [{ id: "ferryman", member: "tom", known_when: { q: "met_tom", op: "==", v: true }, facts: [] }], places: [] },
-  } as unknown as NormalizedStoryV2;
+  } as unknown as NormalizedStory;
   const state = { boundary: 0, blackboard: { values: {} } } as unknown as EngineState;
   const view = sceneView({ story, state, boundaryLog: [], castNames: { tom: "Tom", ada: "Ada" }, enabled: ["tom", "ada"], location: "Kessel boathouse",
     portraits: { tom: "/characters/tom.png", ada: "/characters/ada.png" } });
@@ -230,7 +230,7 @@ const plantedSecretScene = (): typeof sceneWidget => {
       secret: [{ id: "loyal", label: "secretly loyal to you", revealed_when: { q: "saw_letter", op: "==", v: true } }] },
       { toward: "sera", axes: ["fear"], public: [{ label: "fears her" }] }] }] },
     codex: { people: [{ id: "envoy", member: "sera", known_when: { q: "met_sera", op: "==", v: true }, facts: [] }], places: [] },
-  } as unknown as NormalizedStoryV2;
+  } as unknown as NormalizedStory;
   const state = { boundary: 0, blackboard: { values: {} } } as unknown as EngineState;
   const view = sceneView({ story, state, boundaryLog: [], castNames: { mara: "Mara", sera: "Sera" }, enabled: ["mara", "sera"], location: "Kessel boathouse" });
   return { ...sceneWidget, id: "here-secret", body: { kind: "scene", ...view } };

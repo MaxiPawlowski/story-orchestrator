@@ -1,5 +1,5 @@
 import { dieFace, unitDraw } from "@engine/chance";
-import type { BoundaryLogEntry, EngineState, NormalizedStoryV2 } from "@engine/index";
+import type { BoundaryLogEntry, EngineState, NormalizedStory } from "@engine/index";
 import { isRecord } from "@utils/guards";
 import type { ChanceDraw, ChanceDrawKind } from "./chance";
 
@@ -71,10 +71,10 @@ const startedStates = (log: readonly BoundaryLogEntry[], state: EngineState | nu
   return [...byBoundary.values()].sort((left, right) => left.checkpointStartedBoundary - right.checkpointStartedBoundary);
 };
 
-const rolledQualities = (story: NormalizedStoryV2) =>
+const rolledQualities = (story: NormalizedStory) =>
   story.qualities.filter((quality) => quality.roll && quality.source === "code" && (quality.type === "bool" || quality.type === "int"));
 
-export function reconstructQualityRolls(story: NormalizedStoryV2 | null, ids: RollIds | null, log: readonly BoundaryLogEntry[], state: EngineState | null): RollRecord[] {
+export function reconstructQualityRolls(story: NormalizedStory | null, ids: RollIds | null, log: readonly BoundaryLogEntry[], state: EngineState | null): RollRecord[] {
   if (!story || !ids) return [];
   const rolled = rolledQualities(story);
   if (!rolled.length) return [];

@@ -5,7 +5,6 @@
   "steps": [
     {
       "import_story": {
-        "format": 2,
         "id": "so-pf-curator-switch",
         "title": "SO-PF Curator Switch",
         "description": "v2.4 post-freeze AE-01 live gate: a curator op held at the write edge while the chat moves.",

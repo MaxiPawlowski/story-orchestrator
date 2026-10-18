@@ -1,6 +1,6 @@
 import { recordingModel } from "../../../test/support/modelCall";
 import { testOwnership } from "../../../test/findings/testOwnership";
-import { parseStoryV2OrThrow, type EngineState } from "@engine/index";
+import { parseStoryOrThrow, type EngineState } from "@engine/index";
 import { CURATOR_DIGEST_INDEX_LIMIT, TITLE_ONLY_REFUSAL, type CuratorProposalRecord } from "@stagecraft/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
 import { createStagecraft } from "../extras";
@@ -49,8 +49,8 @@ function harness(books: Books, lorebooks: string[] = Object.keys(books), mode: "
     setStoryExtensionPrompt: () => undefined,
     clearStoryExtensionPrompt: () => undefined,
   };
-  const story = parseStoryV2OrThrow({
-    format: 2, id: "digest-books", title: "Crossing", description: "Curator.", qualities: [],
+  const story = parseStoryOrThrow({
+    id: "digest-books", title: "Crossing", description: "Curator.", qualities: [],
     checkpoints: [{ id: "cp1", name: "The bank", objective: "Cross", type: "anchor", start: true }], transitions: [], roster: [],
     stagecraft: { lorebooks },
   });

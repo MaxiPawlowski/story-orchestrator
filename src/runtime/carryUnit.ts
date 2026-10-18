@@ -1,4 +1,4 @@
-import { parseStoryV2, type NormalizedStoryV2 } from "@engine/index";
+import { parseStory, type NormalizedStory } from "@engine/index";
 import { isCarryState } from "@engine/carrySchema";
 import { loadGameLayer } from "@engine/validate/gameLayer";
 import { readGroupChatMetadata } from "@services/STAPI";
@@ -21,9 +21,9 @@ export const carryDeps = (port: ManagerPort, refresh: () => void) => ({
 
 export type CarryDeps = ReturnType<typeof carryDeps>;
 
-const verify = async (target: NormalizedStoryV2, chatId: string): Promise<CandidateResult> => {
+const verify = async (target: NormalizedStory, chatId: string): Promise<CandidateResult> => {
   const metadata = await readGroupChatMetadata(chatId).catch(() => null);
-  return carryCandidateFromBlob(metadata?.story_orchestrator, chatId, target, { version: BLOB_VERSION, parse: parseStoryV2 });
+  return carryCandidateFromBlob(metadata?.story_orchestrator, chatId, target, { version: BLOB_VERSION, parse: parseStory });
 };
 
 export async function carryCandidates(deps: CarryDeps): Promise<CarryCandidateRow[]> {
@@ -46,7 +46,7 @@ export async function trophyShelf(deps: CarryDeps, rows: readonly ContinueRow[])
   for (const chatId of shelfCandidates(rows)) {
     const metadata = await readGroupChatMetadata(chatId).catch(() => null);
     if (!run.stillOwns()) return [];
-    const result = trophyFromBlob(metadata?.story_orchestrator, chatId, { version: BLOB_VERSION, parse: parseStoryV2 });
+    const result = trophyFromBlob(metadata?.story_orchestrator, chatId, { version: BLOB_VERSION, parse: parseStory });
     if (result.ok) shelf.push(result.row);
   }
   return shelf;

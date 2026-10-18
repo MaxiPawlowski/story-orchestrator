@@ -1,4 +1,4 @@
-import { openPhase, type Checkpoint, type NormalizedStoryV2 } from "@engine/index";
+import { openPhase, type Checkpoint, type NormalizedStory } from "@engine/index";
 import { PLAYER_COPY, type NarrativeSectionId, type NarrativeStatus } from "./narrative";
 import { gameLayer } from "@engine/validate/gameLayer";
 
@@ -40,7 +40,7 @@ export interface StartProjection {
 }
 
 export interface ProjectionInput {
-  story: NormalizedStoryV2 | null;
+  story: NormalizedStory | null;
   narrative: NarrativeStatus;
   visitedPath: readonly string[];
   activeCheckpointId: string | null;
@@ -64,9 +64,9 @@ export const transcriptWindow = (chat: readonly unknown[], messages = PROJECTION
   return [{ speaker: typeof shaped.name === "string" && shaped.name.trim() ? shaped.name.trim() : "Someone", text: clip(shaped.mes.trim()) }];
 }).slice(-messages);
 
-const intro = (story: NormalizedStoryV2 | null) => story?.player_intro?.trim() || null;
+const intro = (story: NormalizedStory | null) => story?.player_intro?.trim() || null;
 
-const reachedNames = (story: NormalizedStoryV2 | null, visitedPath: readonly string[], activeCheckpointId: string | null): string[] => {
+const reachedNames = (story: NormalizedStory | null, visitedPath: readonly string[], activeCheckpointId: string | null): string[] => {
   if (!story) return [];
   const ids = [...visitedPath, ...(activeCheckpointId ? [activeCheckpointId] : [])];
   const names = ids.flatMap((id) => {
@@ -78,7 +78,7 @@ const reachedNames = (story: NormalizedStoryV2 | null, visitedPath: readonly str
 };
 
 export const withheldNames = (
-  story: NormalizedStoryV2 | null, visitedPath: readonly string[], activeCheckpointId: string | null, values: Readonly<Record<string, unknown>> = {},
+  story: NormalizedStory | null, visitedPath: readonly string[], activeCheckpointId: string | null, values: Readonly<Record<string, unknown>> = {},
 ): string[] => {
   if (!story) return [];
   const reached = new Set([...visitedPath, ...(activeCheckpointId ? [activeCheckpointId] : [])]);
@@ -107,7 +107,7 @@ export function playedProjection(input: ProjectionInput): PlayedProjection {
   };
 }
 
-export function startProjection(story: NormalizedStoryV2, playerName: string, cast: readonly string[]): StartProjection {
+export function startProjection(story: NormalizedStory, playerName: string, cast: readonly string[]): StartProjection {
   const start = story.checkpointById[story.startCheckpointId];
   return {
     title: story.title,

@@ -1,7 +1,7 @@
 import { evaluateGate } from "../gates";
 import {
   PARTY_LOCATION_KEY, RELATIONSHIP_TOWARD_PLAYER, moodKey, moodAgeKey, moodSceneKey, relationshipKey,
-  type LifeMember, type NormalizedStoryV2, type PrimitiveValue,
+  type LifeMember, type NormalizedStory, type PrimitiveValue,
 } from "../schema";
 import { sceneMarker } from "./derive";
 
@@ -19,7 +19,7 @@ export const isAway = (member: LifeMember, values: Values): boolean => {
   return typeof here === "string" ? at.trim().toLowerCase() !== here.trim().toLowerCase() : true;
 };
 
-export const awayMembers = (story: NormalizedStoryV2 | null, values: Values): string[] =>
+export const awayMembers = (story: NormalizedStory | null, values: Values): string[] =>
   (story?.life?.members ?? []).filter((member) => isAway(member, values)).map((member) => member.id);
 
 export const moodExpired = (member: LifeMember, values: Values): boolean => {
@@ -51,7 +51,7 @@ export interface LifeScopeTiers {
   others: string[];
 }
 
-export const lifeScopeTiers = (story: NormalizedStoryV2, values: Values, context: LifeScopeContext): LifeScopeTiers => {
+export const lifeScopeTiers = (story: NormalizedStory, values: Values, context: LifeScopeContext): LifeScopeTiers => {
   const members = story.life?.members ?? [];
   if (!members.length) return { drafted: [], others: [] };
   const away = new Set(awayMembers(story, values));
@@ -66,7 +66,7 @@ export const lifeScopeTiers = (story: NormalizedStoryV2, values: Values, context
   };
 };
 
-export const lifeScopeKeys = (story: NormalizedStoryV2, values: Values, context: LifeScopeContext): string[] => {
+export const lifeScopeKeys = (story: NormalizedStory, values: Values, context: LifeScopeContext): string[] => {
   const tiers = lifeScopeTiers(story, values, context);
   return [...tiers.drafted, ...tiers.others];
 };

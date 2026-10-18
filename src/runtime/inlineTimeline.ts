@@ -1,4 +1,4 @@
-import { anchorOpening, questStatus, valueReader, type ApplyQueueEntry, type BoundaryLogEntry, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { anchorOpening, questStatus, valueReader, type ApplyQueueEntry, type BoundaryLogEntry, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 import { questMoveText } from "@features/gameCopy";
 import type { SharedReadAudit, ReconciliationEvent } from "@extraction/index";
 import type { JudgeCallRecord } from "@judge/index";
@@ -50,7 +50,7 @@ export interface InlineView {
 }
 
 export interface InlineSources {
-  story: NormalizedStoryV2 | null;
+  story: NormalizedStory | null;
   settings: InlineSettings;
   authorView: boolean;
   chatLength: number;
@@ -94,7 +94,7 @@ const memberName = (sources: InlineSources, member: string) => sources.castNames
 const metBefore = (sources: InlineSources, member: string, messageId: number) => [memberStem(member), memberName(sources, member)]
   .some((key) => (sources.firstLines?.[key.trim().toLowerCase()] ?? Infinity) < messageId);
 
-const checkpointPlayerName = (story: NormalizedStoryV2 | null, id: string) => story?.checkpointById[id]?.player_name ?? null;
+const checkpointPlayerName = (story: NormalizedStory | null, id: string) => story?.checkpointById[id]?.player_name ?? null;
 
 const changedKeys = (entry: BoundaryLogEntry) => {
   const before = entry.before.blackboard.values;
