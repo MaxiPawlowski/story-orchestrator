@@ -457,9 +457,9 @@
       "status": "checked",
       "note": "v2.6 plan 07 D13: an author action. The record patch happens before the only await (the save); the journal line after it is checked against a run minted at the top."
     },
-    "src/runtime/effectsApplier.ts#EffectsApplier.applyCastChanges>withLedger": {
-      "status": "partial",
-      "note": "v2.3 replan V3 (2026-09-23): COVERED: the host write inside is preceded by the caller's per-member run.stillOwns() (applyCastChanges loop); the mirror write after it goes to the `extras` object this checkpoint was applied to, captured, never re-read, so a switch mid-call updates the departing chat's own mirror. NOT COVERED: none beyond withLedger's own row."
+    "src/runtime/effectsApplier.ts#EffectsApplier.applyCastChanges>withLedgerRows": {
+      "status": "checked",
+      "note": "Plan 78: one group save for all flags, a pending ledger row per member. Checks ownership inside the callback after the write-ahead persist, before the host write, and after the host await before the cast mirror changes. effectsDuplicateApply.review.test.ts covers a lapse during persistence and a 120-member batch."
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.applyCheckpoint": {
       "status": "checked",

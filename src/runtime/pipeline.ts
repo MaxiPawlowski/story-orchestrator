@@ -1,4 +1,14 @@
 import type { ExtractionHealth } from "@extraction/index";
+import type { BusyJob } from "./busy";
+
+export const busyText = (jobs: readonly BusyJob[], now = Date.now()): string | null => {
+  const setup = jobs.find((job) => job.kind === "setup");
+  if (setup) return `Setting up the story… ${setup.completed ?? 0} of ${setup.total ?? 0} cast`;
+  if (jobs.some((job) => job.kind === "image")) return "Drawing the scene…";
+  if (jobs.some((job) => job.kind === "sprite")) return "Preparing a character…";
+  const oldest = jobs.reduce<BusyJob | null>((found, job) => !found || job.startedAt < found.startedAt ? job : found, null);
+  return oldest && now - oldest.startedAt >= 10000 ? `Still working · ${Math.floor((now - oldest.startedAt) / 1000)}s` : null;
+};
 import { ROLLBACK_REREAD_PREFIX } from "@extraction/rereadReason";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type { ExtractionRuntimeState } from "./types";
@@ -32,7 +42,14 @@ export interface PipelineStatus {
 }
 
 export const HUD_COPY = {
-  open: "Open the story",
+  open: "Open the story card",
+  cardLabel: "Story card",
+  cardClose: "Close the story card",
+  cardMore: "More…",
+  cardMoreTitle: "Open This story → Play",
+  cardMemory: "What the story remembers",
+  cardMemoryEmpty: "Nothing remembered yet.",
+  cardMemoryAll: "See all",
   branchChip: "You went back: continue from here?",
   steppedBack: "stepped back",
   fallbackScene: "Current scene",

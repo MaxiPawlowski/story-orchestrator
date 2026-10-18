@@ -7,7 +7,7 @@ export const PRESENCE_TEXT = {
   continueOpenNow: "Open now",
   wandRecap: "Story recap",
   wandFlag: "Flag this moment",
-  wandDrawer: "Open the story drawer",
+  wandDrawer: "Open the story window",
   flagged: "Flagged this moment.",
   chapter: "Chapter",
   interlude: "Interlude",

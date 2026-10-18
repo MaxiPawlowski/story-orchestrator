@@ -109,7 +109,7 @@ export const FirstRun: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByText(BRIEFING_COPY.onboarding));
     await expect(canvasElement.querySelector('[data-so="briefing-onboarding"]')).toHaveAttribute("open");
-    await expect(canvas.getByText(/opens the story drawer/)).toBeVisible();
+    await expect(canvas.getByText(/opens the story window/)).toBeVisible();
   },
 };
 

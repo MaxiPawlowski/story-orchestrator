@@ -8,10 +8,11 @@ import {
   type InlineHostSet,
 } from "@services/STAPI";
 import { workspaceNavigation } from "@runtime/workspaceNavigation";
+import { connectionsIntent, inspectorIntent, repairIntent, storyPlayIntent } from "@runtime/workspaceRoutes";
 import { storyPageFor } from "@runtime/drawerTab";
 import type { WidgetDrawerTab } from "@engine/index";
 import { inlinePresence } from "@runtime/presence";
-import { createPresenceUi, openChatPanel, openPlay, setPanel, togglePanel } from "./presenceUi";
+import { chatPanelsShown, createPresenceUi, openChatPanel, openPlay, setPanel } from "./presenceUi";
 import { requestGuide } from "@guide/request";
 import { onTourRequest } from "@guide/tour/request";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
@@ -129,7 +130,13 @@ const openGroup = () => {
 };
 
 const makeGroup = (storyId: string) => import("@runtime/makeGroupHost").then(({ makeGroupFor }) => makeGroupFor(manager, storyId));
-const fixSetup = (action: OneClickFix) => import("./setupFixes").then(({ createSetupFixes }) => createSetupFixes(manager).fixSetup(action));
+const fixSetup = async (action: OneClickFix): Promise<string | null> => {
+  if (action.kind === "make-group") workspaceNavigation.close();
+  const { createSetupFixes } = await import("./setupFixes");
+  const message = await createSetupFixes(manager).fixSetup(action);
+  if (message && !workspaceNavigation.read()) window.toastr?.info?.(message, "Story Orchestrator");
+  return message;
+};
 
 const showSetupTarget = (target: ShowMe) => {
   if (target.kind === "group-members") return openGroup();
@@ -174,7 +181,7 @@ const applySavedStory = async (record: StoryLibraryRecord): Promise<ChatSaveAnsw
 const readReplaySource = (): GateReplaySource | null => {
   const storyId = manager.getSnapshot().storyId;
   const source = buildReplaySource(storyId, manager.getStory(), storyId ? loadPersistedRuntime(storyId)?.engineHistory ?? null : null);
-  return source ? { ...source, jump: (messageId) => void jumpFromDrawer(messageId) } : null;
+  return source ? { ...source, jump: (messageId) => { setStudioOpen(false); void jumpToChatMessage(messageId); } } : null;
 };
 
 const inspectListeners = new Set<() => void>();
@@ -198,13 +205,14 @@ const inlineActions: InlineActions = {
   },
   inspect: (messageId) => {
     setInspectTarget(messageId);
-    openSoDrawer();
+    workspaceNavigation.open(inspectorIntent());
   },
 };
 
 const StudioModal = lazyRetry(() => import("./studio/StudioModal"));
 const InlineLayer = lazyRetry(() => import("./components/inline/InlineLayer"));
 const ImageChatPanel = lazyRetry(() => import("./image/ImageChatPanel"));
+const CastScenePanel = lazyRetry(() => import("./image/CastScenePanel"));
 const BriefingHost = lazyRetry(() => import("./components/briefing/BriefingHost"));
 
 const StudioHost = () => {
@@ -258,15 +266,14 @@ const settingsHost: SettingsHost = {
   openStudio: launch(() => openStudio()),
   openWizardForRequirements: launch(openWizardForRequirements),
   revealSetting: (id) => revealSetting(id),
-  repairCast: (action) => void fixSetup(action),
+  repairCast: (action) => fixSetup(action),
   openGroup,
-  openDrawer: () => openSoDrawer(),
-  openAuthorView: () => void toggleAuthorView(true).then(openSoDrawer),
+  openStory: () => openStoryWindow(),
+  openAuthorView: () => void toggleAuthorView(true).then(() => openStoryWindow()),
   showFeature: (where) => showFeature(where),
   makeGroup,
   fixGroupWithWizard: (storyId, missing) => void openStudio({ tab: "copilot", stage: "provisioning", missing: { personas: [], members: missing, lorebooks: [] } }, storyId),
   openPlay: (row) => { workspaceNavigation.close(); void openPlay(row); },
-  toggleHelp: () => togglePanel("help"),
   openPanel: (panel) => {
     workspaceNavigation.close();
     if (panel === "guide") requestGuide();
@@ -281,7 +288,7 @@ const SettingsRoot = () => {
     <strong>Story Orchestrator</strong>
     <span>{snapshot.ready ? "A story is active in this chat." : "Open a story to begin."}</span>
     <button id="so-open-workspace" className="menu_button" onClick={() => workspaceNavigation.open({ context: "orchestrator" })}>Open Story Orchestrator</button>
-    <button id="so-entry-repair" className="menu_button" onClick={openRepairStep}>Story setup and repair</button>
+    <button id="so-open-setup" className="menu_button" onClick={openRepairStep}>Story setup and repair</button>
   </div>;
 };
 
@@ -315,31 +322,25 @@ const WorkspaceHost = () => {
   if (!intent) return null;
   return <Lazy quiet><Workspace intent={intent} snapshot={snapshot} manager={manager} settingsHost={settingsHost} onClose={workspaceNavigation.close}
     onContinueBranch={continueBranch}
+    imagePanel={<Lazy><ImageChatPanel manager={manager} snapshot={snapshot} /></Lazy>}
+    castPanel={snapshot.ui.authorView ? <Lazy><CastScenePanel manager={manager} snapshot={snapshot} /></Lazy> : null}
     drawerProps={{ snapshot, manager,
       driver: { context: snapshot.driver, activeNudge: snapshot.activeNudge, controller: driverController, recovery: snapshot.lastFired },
       onOpenSettings: openStorySettings, onEditStory: launch(() => openStudio({ fromChat: true })),
       onFixWithWizard: launch(openWizardForRequirements), onOpenRepair: openRepairStep, onNewStory: launch(openWizard),
-      onShowMe: showSetupTarget, onFix: (action) => void fixSetup(action),
-      onBranchFromOldest: (messageId) => void branchAtFloor(messageId), onJumpToMessage: (messageId) => void jumpFromDrawer(messageId),
+      onShowMe: showSetupTarget, onFix: (action) => fixSetup(action),
+      onBranchFromOldest: (messageId) => { workspaceNavigation.close(); void branchAtFloor(messageId); }, onJumpToMessage: (messageId) => void jumpToChatMessage(messageId),
       inspect: inspecting === null ? null : { messageId: inspecting, onClose: () => setInspectTarget(null), actions: inlineActions },
-      imagePanel: <Lazy><ImageChatPanel manager={manager} snapshot={snapshot} /></Lazy>,
     }} /></Lazy>;
 };
 
-// On a narrow viewport the drawer covers #chat, so it closes before ST scrolls.
-const NARROW_VIEWPORT = 1000;
-
-const jumpFromDrawer = async (messageId: number) => {
+const jumpToChatMessage = async (messageId: number) => {
   workspaceNavigation.close();
-  const toggle = document.querySelector<HTMLElement>("#so-drawer .drawer-toggle");
-  const content = document.getElementById("drawer-manager");
-  if (window.innerWidth <= NARROW_VIEWPORT && toggle && content?.classList.contains("openDrawer")) toggleNavbarDrawer(toggle);
   const result = await jumpToMessage(messageId, manager.getSnapshot().chatJump);
   if (!result.ok) window.toastr?.info?.(result.reason, "Story Orchestrator");
 };
 
-const openStoryPage = (tab?: WidgetDrawerTab) => workspaceNavigation.open(storyPageFor(tab));
-const openSoDrawer = () => openStoryPage();
+const openStoryWindow = (tab?: WidgetDrawerTab) => workspaceNavigation.open(tab ? storyPageFor(tab) : storyPlayIntent());
 
 // The one missing setup step is always in one place (made settings install-wide), so the
 // player surface points straight at it instead of describing it: ST's Extensions drawer, then our
@@ -357,7 +358,7 @@ const openInlinePanel = (panel: HTMLElement | null, block: ScrollLogicalPosition
   window.setTimeout(() => panel?.scrollIntoView({ block, behavior: "smooth" }), 100);
 };
 
-const openStorySettings = () => workspaceNavigation.open({ context: "orchestrator", page: "connections" });
+const openStorySettings = () => workspaceNavigation.open(connectionsIntent());
 
 // Repair names a step; this is how it lands on it. A control that is already in the panel is pointed
 // at, never duplicated — two controls that do the same thing is how one of them goes stale.
@@ -377,20 +378,21 @@ const showFeature = (where: FeatureWhere) => {
     openStorySettings();
     window.setTimeout(() => revealSetting(id), 250);
   } else if (where.surface === "drawer") {
-    openSoDrawer();
+    openStoryWindow();
     window.setTimeout(() => revealSetting(id), 100);
   }
 };
 
-// The HUD's needs-setup chip and the drawer's Repair button land ON the Repair step, not just on the
-// panel: the panel opens first, then the row is revealed once it is laid out.
-const openRepairStep = () => {
-  workspaceNavigation.open({ context: "story", page: "play", control: "so-setup" });
-};
+const openRepairStep = () => workspaceNavigation.open(repairIntent());
 
 const HudMount = () => {
   const snapshot = useRuntimeSnapshot();
-  return <HudStrip snapshot={snapshot} onOpenDrawer={openSoDrawer} onOpenSettings={openRepairStep} />;
+  const card = {
+    panels: chatPanelsShown(snapshot).filter((panel): panel is "journal" | "suggestions" => panel === "journal" || panel === "suggestions"),
+    openPanel: (panel: "journal" | "suggestions") => openChatPanel(panel, manager.getCachedSnapshot()),
+    openMemory: () => openStoryWindow("memory"),
+  };
+  return <HudStrip snapshot={snapshot} onOpenStory={() => openStoryWindow()} onOpenSettings={openRepairStep} card={card} />;
 };
 
 const mountTopBarDrawer = () => {
@@ -412,8 +414,8 @@ const mountTopBarDrawer = () => {
   const rightNav = document.getElementById("rightNavHolder");
   if (rightNav && rightNav.parentElement === holder) holder.insertBefore(drawer, rightNav);
   else holder.appendChild(drawer);
-  ui.listen(toggle, "click", openSoDrawer);
-  ui.listen(toggle, "keydown", (event) => { if (event instanceof KeyboardEvent && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); openSoDrawer(); } });
+  ui.listen(toggle, "click", () => openStoryWindow());
+  ui.listen(toggle, "keydown", (event) => { if (event instanceof KeyboardEvent && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); openStoryWindow(); } });
   return true;
 };
 
@@ -435,7 +437,7 @@ const InlineMount = ({ hosts }: { hosts: InlineHostSet }) => {
 };
 
 const presenceUi = createPresenceUi({
-  manager, useSnapshot: useRuntimeSnapshot, showFeature: (where) => showFeature(where), jump: (messageId) => void jumpFromDrawer(messageId), openDrawer: openStoryPage,
+  manager, useSnapshot: useRuntimeSnapshot, showFeature: (where) => showFeature(where), openDrawer: openStoryWindow,
 });
 
 const mountInline = () => {

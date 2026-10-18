@@ -60,11 +60,14 @@ export const Tablet768: Story = {
 };
 
 export const Phone390Docked: Story = {
-  args: { viewport: { width: 390, height: 844 } },
+  args: { viewport: { width: 390, height: 844 }, dockInset: 120 },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     const panel = panelOf(canvasElement);
     await expect(panel?.dataset.docked).toBe("true");
+    await expect(panel?.style.getPropertyValue("--so-dock-inset")).toBe("120px");
+    const box = (panel as HTMLElement).getBoundingClientRect();
+    await expect(Math.abs(box.bottom - (window.innerHeight - 120))).toBeLessThanOrEqual(1);
     await expect(canvasElement.querySelector('[data-so="panel-resize"]')).toBeNull();
     await userEvent.click(canvas.getByRole("button", { name: "Close Demo panel" }));
     await expect(args.onClose).toHaveBeenCalled();

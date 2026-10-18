@@ -104,7 +104,7 @@ export const ERRORS = {
   unknownIntent: "this panel declares no such action",
   tooSoon: "one action at a time: wait a moment",
   badHeight: "height is a number",
-  noOpen: "this panel cannot open the story drawer here",
+  noOpen: "this panel cannot open the story window here",
   unsigned: "message without this frame's nonce: dropped",
 } as const;
 

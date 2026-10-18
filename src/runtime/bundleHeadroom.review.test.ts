@@ -72,7 +72,7 @@ describe("bundle headroom: player mode's first render loads no lazy chunk", () =
   it("renders the player drawer and the HUD from the main entry alone", () => {
     expect(render(createElement(DrawerTabs, { snapshot: snapshot(false), manager, driver }))).toEqual({ loads: [], suspended: false });
     expect(render(createElement(PlayerOverview, { snapshot: snapshot(false) }))).toEqual({ loads: [], suspended: false });
-    expect(render(createElement(HudStrip, { snapshot: snapshot(false), onOpenDrawer: noop }))).toEqual({ loads: [], suspended: false });
+    expect(render(createElement(HudStrip, { snapshot: snapshot(false), onOpenStory: noop }))).toEqual({ loads: [], suspended: false });
   });
 
   it("control: the author's inspector does reach a lazy chunk, so the counter sees one", () => {

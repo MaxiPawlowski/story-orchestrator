@@ -62,7 +62,7 @@ const playPage = (viewport: { width: number; height: number }, maxLines: number)
   args: {
     intent: { context: "story", page: "play" }, snapshot: playSnapshot,
     manager: { setCheckDismissed: fn(), restartStory: fn(), flagMoment: fn() } as unknown as RuntimeManager,
-    settingsHost: { openPanel: fn(), openDrawer: fn() } as unknown as SettingsHost,
+    settingsHost: { openPanel: fn(), openStory: fn() } as unknown as SettingsHost,
     drawerProps: { onShowMe: fn(), onFix: fn() } as unknown as DrawerTabsProps,
   },
   parameters: { testViewport: viewport, a11y: { element: "#so-workspace-modal" } },

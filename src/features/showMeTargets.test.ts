@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, posix, resolve } from "node:path";
-import { FEATURES, type FeatureSurface } from "./registry";
+import { FEATURES, SOURCE_FEATURES, type FeatureSurface } from "./registry";
 import { canShow } from "@components/help/HelpPanel";
 import { COACH_FLOWS } from "@guide/tour/coachFlows";
 import { GUIDE_PAGES } from "@guide/pages.generated";
@@ -94,9 +94,9 @@ export const definesSelector = (sources: Iterable<string>, selector: string): bo
   return false;
 };
 
-const brokenTargets = (read: Read = diskRead) => {
+const brokenTargets = (read: Read = diskRead, features = FEATURES) => {
   const rendered = Object.fromEntries((Object.keys(SURFACE_ROOTS) as FeatureSurface[]).map((surface) => [surface, [...renderedFiles(SURFACE_ROOTS[surface], read).values()]]));
-  return FEATURES.filter((feature) => !definesSelector(rendered[feature.where.surface], feature.where.selector))
+  return features.filter((feature) => !definesSelector(rendered[feature.where.surface], feature.where.selector))
     .map((feature) => `${feature.id}: ${feature.where.selector} (${feature.where.surface})`);
 };
 
@@ -112,6 +112,10 @@ describe("v2.7 plan 29 (finding 20): every Help \"Show me\" target exists in the
 
   it("every feature's selector is defined by a component its surface renders", () => {
     expect(brokenTargets()).toEqual([]);
+  });
+
+  it("every feature's own target renders too, before the feature-policy routing replaces it", () => {
+    expect(brokenTargets(diskRead, SOURCE_FEATURES)).toEqual([]);
   });
 
   it("every feature Help offers Show me for sits on a surface Show me can open", () => {

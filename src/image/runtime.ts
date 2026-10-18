@@ -22,6 +22,7 @@ import { firedLoreKeys, visualLore } from "./lore";
 import { beatIllustrated, beatLabel, castForImage, cueText, lookFor } from "./cast";
 import { fnv1a } from "@runtime/hash";
 import { beginRun, type RunGuard } from "@runtime/runToken";
+import { busyWork } from "@runtime/busy";
 const workflowKit = () => import("./workflowRender");
 
 export interface ImagePlan {
@@ -325,6 +326,7 @@ export class StoryImageDirector {
 
   async direct(request: ImageRequest, args: ImageArgs = {}, cueKey?: string): Promise<string> {
     const run = beginRun(this.manager.getOwnership());
+    const busy = busyWork.begin("image", imageChat()?.id ?? null);
     try {
       const plan = await this.plan(request, args);
       if (!run.stillOwns()) throw new Error("The story changed while the image was being planned.");
@@ -392,6 +394,6 @@ export class StoryImageDirector {
       this.lastError = error instanceof Error ? error.message : String(error);
       this.notify();
       throw error;
-    } finally { run.release(); }
+    } finally { busy.end(); run.release(); }
   }
 }

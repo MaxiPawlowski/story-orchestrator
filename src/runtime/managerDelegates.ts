@@ -127,7 +127,7 @@ export abstract class CoordinatorDelegates {
   memorizeChat() { return this.co.extraction.backlog.runMemorizeBacklog(undefined, confirmPreflight); }
   cancelMemorizeBacklog(): boolean { return this.co.extraction.backlog.cancelMemorizeBacklog(); }
   async setMemoryPinned(id: string, pinned: boolean) { await this.co.memory.setMemoryPinned(id, pinned); }
-  async excludeMemoryEntry(id: string) { await this.co.memory.queue.excludeMemoryEntry(id); }
+  async excludeMemoryEntry(id: string): Promise<boolean> { return this.co.memory.queue.excludeMemoryEntry(id); }
   async restoreMemoryEntry(entry: MemoryEntry) { await this.co.memory.restoreMemoryEntry(entry); }
   async editMemoryEntry(id: string, text: string) { await this.co.memory.editMemoryEntry(id, text); }
   async storeDroppedMemory(id: string) { return this.co.memory.queue.storeDroppedEntry(id); }

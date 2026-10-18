@@ -10,7 +10,7 @@ import { PROMISE_FEATURES } from "./promiseFeatures";
 import { AUDIENCE_FEATURES } from "./audienceFeatures";
 import { START_FEATURES } from "./startFeatures";
 import { CARRY_FEATURES } from "./carryFeatures";
-import { chatAt, drawerAt, settingsAt, studioAt } from "./where";
+import { chatAt, drawerAt, featureAt, settingsAt, studioAt } from "./where";
 import { IMAGE_FEATURES } from "./imageFeatures";
 import { authorGuideDoc } from "./guideLinks";
 
@@ -118,7 +118,7 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "story-drawer", name: "Story drawer", area: "play", audience: "player",
     oneLine: "Where you are, what happened, and what you are remembered for.",
-    what: "The route icon in the top bar opens the story drawer. Overview shows where the story is, what happened recently and what is still open; Memory lists what the story remembers.",
+    what: "The route icon in the top bar opens the story window. This story → Play shows where the story is, what happened recently and what is still open, and what the story remembers.",
     where: drawerAt("#so-player-overview", "Overview"),
     settings: [], doc: "player/drawer-and-hud.md", status: "shipped", needs: ["story"],
   },
@@ -174,7 +174,7 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "pacing", name: "Tension and pacing", area: "play", audience: "author",
     oneLine: "Measures the scene's tension and nudges replies toward the story's intended shape.",
     what: "Each turn's tension is measured and compared with what the story expects at this point. A quiet note in the prompt asks the reply to build the tension up or let it cool.",
-    where: settingsAt("#so-pacing-hint", "Playing › Pacing"),
+    where: featureAt("pacing", "enabled", "Tension and pacing"),
     settings: ["pacing"], guideTopic: "tension", doc: authorGuideDoc("tension"), status: "shipped", needs: ["story"],
     isOn: (settings) => settings.pacing.hintEnabled,
   },
@@ -194,7 +194,7 @@ const CORE_FEATURES: readonly Feature[] = [
   {
     id: "memory-tab", name: "Memory tab", area: "memory", audience: "player",
     oneLine: "See, search, pin or remove what the story remembers.",
-    what: "The drawer's Memory tab lists the established facts. Pin one to keep it in every prompt, or remove one the story got wrong.",
+    what: "What the story remembers, on This story → Play, lists the established facts. Pin one to keep it in every prompt, or remove one the story got wrong.",
     where: drawerAt("#so-memory-search", "Memory"),
     settings: [], doc: "player/memory.md", status: "shipped", needs: ["story"],
   },
@@ -203,7 +203,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Long stories write up each finished chapter and recap it when you return.",
     what: "For stories that declare chapters, a finished chapter becomes one written record. The record can stand in for its "
       + "messages in the prompt, and \"Previously…\" recaps it when you reopen the chat.",
-    where: settingsAt("#so-chapter-recap", "Memory › Chapters"),
+    where: featureAt("chapters", "recap", "Chapters"),
     settings: ["memory.chapters"], guideTopic: "chapters", doc: "player/memory.md", status: "shipped", needs: ["story", "memory-profile"],
     isOn: (settings) => settings.memory.chapters?.recap !== false || settings.memory.chapters?.seal !== false,
   },
@@ -213,7 +213,7 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "After each character reply, the judge checks it against the established facts. When the reply breaks one, "
       + "the next reply's prompt restates that fact once, after your approval or on its own. The switch covers this continuity check only; "
       + "the other reply checks share the warden's call under their own judge use switches.",
-    where: settingsAt("#so-warden-enabled", "Memory › Continuity warden"),
+    where: featureAt("continuity", "enabled", "Continuity warden"),
     settings: ["stagecraft.wardenEnabled", "stagecraft.wardenAcceptMode", "stagecraft.agencyAcceptMode", "judge.provider.warden"],
     doc: authorGuideDoc("house-rules"), status: "shipped", needs: ["judge-plugin"],
     isOn: (settings) => settings.stagecraft.wardenEnabled && settings.stagecraft.wardenAcceptMode !== "off",
@@ -297,7 +297,7 @@ const CORE_FEATURES: readonly Feature[] = [
     id: "curator", name: "Lorebook curator", area: "world", audience: "author",
     oneLine: "Proposes updates to the story's lorebook as play overtakes it.",
     what: "A background helper reads what happened and proposes switching entries on or off, or correcting text. It touches only the lorebooks the story lists, and never progress or memory.",
-    where: settingsAt("#so-curator-enabled", "World › Background helpers"),
+    where: featureAt("curator", "enabled", "Lorebook curator"),
     settings: ["stagecraft.curatorEnabled", "stagecraft.acceptMode"], guideTopic: "stagecraft", doc: authorGuideDoc("stagecraft"), status: "shipped",
     needs: ["memory-profile"],
     isOn: (settings) => settings.stagecraft.curatorEnabled && settings.stagecraft.acceptMode !== "off",
@@ -308,7 +308,7 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "When at least two established facts name a person, place, group or thing that no entry covers, the curator drafts a new entry for the story's own lorebook. "
       + "Each one waits for you, can be edited first, names any entry that already reads as the same thing so you can patch that one instead, counts against the story's limit per chat, "
       + "and a rollback deletes it unless you changed it. A written entry is stamped with its chat; deleting that chat asks whether to delete its entries too. Its model is the Lore creation task.",
-    where: settingsAt("#so-curator-create", "World › Background helpers"),
+    where: featureAt("curator", "create", "New lorebook entries"),
     settings: ["stagecraft.createEnabled", "stagecraft.createRequireMeasured"], guideTopic: "stagecraft", doc: authorGuideDoc("stagecraft"), status: "shipped",
     needs: ["memory-profile"],
     isOn: (settings) => settings.stagecraft.curatorEnabled && settings.stagecraft.createEnabled && settings.stagecraft.acceptMode !== "off",
@@ -318,7 +318,7 @@ const CORE_FEATURES: readonly Feature[] = [
     oneLine: "Markers in a lorebook entry keep words safe from the curator, or let its changes apply on their own.",
     what: "Inside an entry, text between {{// so:protect}} and {{// so:end}} is never changed or switched off by the curator. An entry carrying {{// so:auto}} takes the curator's "
       + "changes without review when its changes are set to apply on their own; every other entry still waits for you. SillyTavern drops the markers before the prompt.",
-    where: settingsAt("#so-curator-accept-mode", "World › Background helpers"),
+    where: featureAt("curator", "acceptMode", "Protected and auto lore"),
     settings: [], guideTopic: "stagecraft", doc: authorGuideDoc("stagecraft"), status: "shipped",
     needs: ["memory-profile"],
   },
@@ -462,15 +462,16 @@ const POLICY_TARGETS: Record<string, [import("@engine/featurePolicy").StoryFeatu
   "witness-record": ["witness", "enabled"], rumors: ["rumors", "enabled"],
 };
 
-export const FEATURES: readonly Feature[] = [
+export const SOURCE_FEATURES: readonly Feature[] = [
   ...CORE_FEATURES, ...PRESENCE_FEATURES, ...GAME_FEATURES, ...LIFE_FEATURES, ...LIVING_FEATURES, ...JUDGE_USE_KEYS.map(judgeUseFeature),
   ...RECAP_FEATURES, ...PROMISE_FEATURES, ...AUDIENCE_FEATURES,
-].map((feature) => {
+];
+
+export const FEATURES: readonly Feature[] = SOURCE_FEATURES.map((feature) => {
   const target = POLICY_TARGETS[feature.id];
   if (!target) return feature;
   const [id, control] = target;
-  return { ...feature, where: { surface: "drawer", selector: `#so-feature-${id}-${control}`, label: `This story › Features › ${feature.name}`,
-    workspace: { context: "story", page: "features", feature: id, control: `so-feature-${id}-${control}` } } };
+  return { ...feature, where: featureAt(id, control, feature.name) };
 });
 
 export const coversSetting = (owned: string, key: string): boolean => key === owned || key.startsWith(`${owned}.`);

@@ -59,7 +59,7 @@ export function AskBox({ persona, id = "so-help-ask", onAsk, onShowMe, canShow =
           onKeyDown={(event) => { if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) void submit(); }}
         />
         <div className="flex flex-wrap items-center gap-2">
-          <button type="submit" data-so="ask-submit" className="menu_button text-xs" disabled={busy || !question.trim()}>{busy ? ASK_TEXT.busy : ASK_TEXT.submit}</button>
+          <button type="submit" data-so="ask-submit" className="menu_button text-xs" aria-busy={busy} disabled={busy || !question.trim()}>{busy ? ASK_TEXT.busy : ASK_TEXT.submit}</button>
           <span data-so="ask-note" className="text-xs opacity-70">{persona === "player" ? ASK_TEXT.playerNote : ASK_TEXT.authorNote}</span>
         </div>
       </form>

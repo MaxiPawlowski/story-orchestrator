@@ -20,7 +20,7 @@ const meta: Meta<typeof EntryPoints> = {
   title: "Settings/EntryPoints",
   component: EntryPoints,
   args: {
-    snapshot: base(), busy: false, importOpen: false, onToggleImport: fn(), onNewStory: fn(), onOpenStudio: fn(), onOpenDrawer: fn(), onRevealSetting: fn(),
+    snapshot: base(), busy: false, importOpen: false, onToggleImport: fn(), onNewStory: fn(), onOpenStudio: fn(), onOpenStory: fn(), onRevealSetting: fn(),
     onFixWithWizard: fn(), onRepairCast: fn(), onOpenGroup: fn(),
   },
 };

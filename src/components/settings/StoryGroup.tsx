@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { showChoicePopup, showConfirmPopup } from "@services/STAPI";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
@@ -7,7 +7,10 @@ import { exportState } from "@runtime/stateExport";
 import { playingStory } from "@runtime/playingStory";
 import { removalRestore } from "@runtime/worldInfoScanHost";
 import { log } from "@utils/log";
+import { PLAYER_COPY } from "@runtime/narrative";
+import { ActionStatus, useActionStatus } from "@components/ActionStatus";
 import { FieldLabel } from "./Field";
+import { busyWork } from "@runtime/busy";
 
 interface StoryGroupProps {
   snapshot: RuntimeSnapshot;
@@ -17,10 +20,10 @@ interface StoryGroupProps {
   importOpen: boolean;
 }
 
-const copyState = async () => {
+const copyState = async (show: (text: string) => void) => {
   await exportState({
     writeClipboard: (text) => navigator.clipboard.writeText(text),
-    toast: window.toastr ?? {},
+    toast: { success: show, info: show },
     log: (text) => log.info(text),
   });
 };
@@ -44,15 +47,23 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
   const identity = snapshot.storyIdentity;
   const playing = playingStory(snapshot);
   const noChat = snapshot.noChat ?? null;
+  const status = useActionStatus();
+  const lock = useRef(false);
 
   const whileBusy = async (work: () => Promise<unknown>) => {
+    if (lock.current) return;
+    lock.current = true;
+    const job = busyWork.begin("action", null);
     setBusy(true);
+    status.show(null);
     try {
       await work();
     } catch (error) {
       log.warn("a story action failed", error);
-      window.toastr?.info?.("That did not finish. Try again, or reload SillyTavern.", "Story Orchestrator");
+      status.show(PLAYER_COPY.actionFailed);
     } finally {
+      job.end();
+      lock.current = false;
       setBusy(false);
     }
   };
@@ -100,6 +111,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
             type="button"
             className="menu_button fa-solid fa-rotate-left"
             aria-label="Restart story in this chat"
+            aria-busy={busy}
             title="Restart this story in this chat (clears progress and memory for it)"
             disabled={busy || (!snapshot.storyId && !snapshot.blobUnreadable)}
             onClick={() => void whileBusy(() => manager.restartStory())}
@@ -114,6 +126,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
             onClick={() => void deleteStory()}
           />}
         </div>
+        <ActionStatus id="so-story-action-status" text={status.text} tone="plain" />
         {noChat && <div id="so-no-chat" role="status" className="text-xs opacity-90">{noChat.notice}</div>}
         {snapshot.storyId && (
           <div id="so-story-identity" className="text-xs opacity-70">
@@ -130,7 +143,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
             type="button"
             className="menu_button shrink-0 whitespace-nowrap"
             title="Copy this chat's saved story state to the clipboard, before anything can drop it."
-            onClick={() => void copyState()}
+            onClick={() => void copyState((text) => status.show(text))}
           >Export state</button>
         </div>}
       </div>
@@ -141,7 +154,8 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
             placeholder="Paste story JSON, or pick a file below" />
           <input type="file" aria-label="Import story from a JSON file" accept=".json,application/json" disabled={busy}
             onChange={(event) => { void importFile(event.target.files?.[0]); event.target.value = ""; }} />
-          <button type="button" className="menu_button self-start" disabled={busy || !importText.trim()} onClick={() => void importStory()}>{noChat ? "Save to library" : "Import and load"}</button>
+          <button type="button" className="menu_button self-start" aria-busy={busy} disabled={busy || !importText.trim()}
+            onClick={() => void importStory()}>{noChat ? "Save to library" : "Import and load"}</button>
         </div>
       )}
       {snapshot.validationErrors.length > 0 && (

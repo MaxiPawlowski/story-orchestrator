@@ -54,13 +54,13 @@ const snapshot = (authorView: boolean, overrides: Record<string, unknown> = {}):
 
 describe("CR-U: player mode never shows ids, internals or raw errors", () => {
   it("H1/H2: the HUD chip says the pipeline text and the player's place name, never the detail or the author checkpoint name", () => {
-    const rolled = html(createElement(HudStrip, { snapshot: snapshot(false), onOpenDrawer: noop }));
+    const rolled = html(createElement(HudStrip, { snapshot: snapshot(false), onOpenStory: noop }));
     expect(rolled).toContain("The Gate");
     expect(rolled).not.toContain("CP2 - Author Name");
-    const failing = html(createElement(HudStrip, { snapshot: snapshot(false, { lastRollback: null }), onOpenDrawer: noop }));
+    const failing = html(createElement(HudStrip, { snapshot: snapshot(false, { lastRollback: null }), onOpenStory: noop }));
     expect(failing).not.toContain("SECRET-PIPELINE-DETAIL");
     expect(failing).toContain("The story stopped keeping up.");
-    expect(html(createElement(HudStrip, { snapshot: snapshot(true, { lastRollback: null }), onOpenDrawer: noop }))).toContain("SECRET-PIPELINE-DETAIL");
+    expect(html(createElement(HudStrip, { snapshot: snapshot(true, { lastRollback: null }), onOpenStory: noop }))).toContain("SECRET-PIPELINE-DETAIL");
   });
 
   it("H2: the player overview's rollback notice names the player's place", () => {
@@ -114,7 +114,7 @@ describe("CR-U: player mode never shows ids, internals or raw errors", () => {
   });
 
   it("M6/M7/17: Repair in player mode is player copy, with no author-only step, detail or wizard; the wizard entry says why it is off", () => {
-    const props = { busy: false, importOpen: false, onToggleImport: noop, onNewStory: noop, onOpenStudio: noop, onOpenDrawer: noop, onRevealSetting: noop, onFixWithWizard: noop };
+    const props = { busy: false, importOpen: false, onToggleImport: noop, onNewStory: noop, onOpenStudio: noop, onOpenStory: noop, onRevealSetting: noop, onFixWithWizard: noop };
     const hidden = html(createElement(EntryPoints, { ...props, snapshot: snapshot(false) }));
     expect(hidden).not.toContain("Another extension");
     expect(hidden).not.toContain("Sun Ruins Lore");

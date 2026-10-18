@@ -1,11 +1,6 @@
 import type { LoreSource, RuntimeSnapshot } from "@runtime/types";
 import { provisionableMissing } from "@runtime/repair";
 import { competingSummary } from "@runtime/storyScenario";
-import PlayerOverview from "../PlayerOverview";
-import LivingSave from "../LivingSave";
-import type { LivingSaveResult } from "../LivingSave";
-import SetupSection, { type SetupHandlers } from "../SetupSection";
-import type { SetupFindings } from "@runtime/repair";
 import ScenePanel from "../ScenePanel";
 
 const extractionReady = (snapshot: RuntimeSnapshot): boolean => snapshot.extraction.settings.enabled && Boolean(snapshot.extraction.settings.profileId);
@@ -106,7 +101,7 @@ const HistoryFloor = ({ snapshot, onBranchFromOldest }: { snapshot: RuntimeSnaps
 };
 
 const AuthorOverview = ({ snapshot, onFixWithWizard, onBranchFromOldest }: { snapshot: RuntimeSnapshot; onFixWithWizard?: () => void; onBranchFromOldest?: (messageId: number) => void }) => (
-  <div className="flex flex-col gap-3 border-t border-solid border-white/10 pt-2">
+  <div id="so-author-overview" className="flex flex-col gap-3">
     <HistoryFloor snapshot={snapshot} onBranchFromOldest={onBranchFromOldest} />
     <div className="text-xs opacity-80">
       <div className="font-medium opacity-100">Engine</div>
@@ -149,23 +144,9 @@ const AuthorOverview = ({ snapshot, onFixWithWizard, onBranchFromOldest }: { sna
   </div>
 );
 
-export const OverviewTab = ({ snapshot, authorView, onOpenSettings, onFixWithWizard, onReread, onRestart, onRetry, onBranchFromOldest, onFlagChapter, onSaveLiving, setup }: {
+export const OverviewTab = ({ snapshot, authorView, onFixWithWizard, onBranchFromOldest }: {
   snapshot: RuntimeSnapshot;
   authorView: boolean;
-  onOpenSettings?: () => void;
   onFixWithWizard?: () => void;
-  onReread?: () => void;
-  onRestart?: () => void;
-  onRetry?: () => void;
   onBranchFromOldest?: (messageId: number) => void;
-  onFlagChapter?: (title: string) => void;
-  onSaveLiving?: () => Promise<LivingSaveResult>;
-  setup?: { findings: SetupFindings } & SetupHandlers;
-}) => (
-  <div className="flex flex-col gap-3">
-    {setup && <SetupSection authorView={authorView} beforeStart={snapshot.boundary === 0} {...setup} />}
-    <PlayerOverview snapshot={snapshot} onOpenSettings={onOpenSettings} onReread={onReread} onRestart={onRestart} onRetry={onRetry} onFlagChapter={onFlagChapter} />
-    {snapshot.living?.canSave && onSaveLiving && <LivingSave onSave={onSaveLiving} />}
-    {authorView && <AuthorOverview snapshot={snapshot} onFixWithWizard={onFixWithWizard} onBranchFromOldest={onBranchFromOldest} />}
-  </div>
-);
+}) => (authorView ? <AuthorOverview snapshot={snapshot} onFixWithWizard={onFixWithWizard} onBranchFromOldest={onBranchFromOldest} /> : null);

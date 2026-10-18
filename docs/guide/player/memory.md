@@ -21,7 +21,7 @@ On each memory:
 - **Pin** keeps it in the prompt even when space runs short (📌). If pinned memories do not all fit, the list says
   how many were left out.
 - **Edit** fixes the wording. An edited memory is marked "kept by you".
-- **Exclude** removes it. A toast lets you undo for a few seconds.
+- **Exclude** removes it. A line at the top of the list says so and offers **Undo** until you exclude another one.
 
 "The message it came from changed" means you edited or swiped the message the memory was read from; check it.
 

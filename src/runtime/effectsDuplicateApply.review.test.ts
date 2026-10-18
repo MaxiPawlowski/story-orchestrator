@@ -71,6 +71,34 @@ beforeEach(() => {
 });
 
 describe("AS-10: an import's activate and a concurrent hydrate of the same checkpoint apply it once", () => {
+  it("saves 120 cast flags in one host write with a durable row per member", async () => {
+    const batch = parseStoryOrThrow({
+      id: "batch", title: "Batch", description: "", qualities: [], roster: [], transitions: [],
+      checkpoints: [{ id: "start", name: "Start", type: "anchor", start: true, objective: "",
+        effects: { cast_changes: { disable: Array.from({ length: 120 }, (_, index) => `Member ${index}`) } } }],
+    });
+    const state = extras();
+    const persisted: number[] = [];
+    const effects = new EffectsApplier(testOwnership(), { persist: async () => { persisted.push(state.effects.ledger.length); } });
+    await effects.applyCheckpoint(batch, batch.checkpointById.start, state, {} as never, "activate", ["start"]);
+    expect(host.calls.filter((call) => call.startsWith("cast:"))).toHaveLength(1);
+    expect(persisted).toEqual([120, 120]);
+    expect(state.effects.ledger).toHaveLength(120);
+    expect(state.effects.ledger.every((row) => row.status === "applied")).toBe(true);
+    expect(state.effects.cast).toHaveLength(120);
+  });
+
+  it("refuses the entire cast batch when ownership lapses during the write-ahead save", async () => {
+    let valid = true;
+    const ownership = { ...testOwnership(), check: () => valid ? { ok: true as const } : { ok: false as const, reason: "epoch" as const, detail: "moved" } };
+    const state = extras();
+    const effects = new EffectsApplier(ownership, { persist: async () => { if (state.effects.ledger.some((row) => row.effect === "cast")) valid = false; } });
+    await effects.applyCheckpoint(story, story.checkpointById.start, state, {} as never, "activate", ["start"]);
+    expect(host.calls.filter((call) => call.startsWith("cast:"))).toEqual([]);
+    expect(state.effects.ledger.filter((row) => row.effect === "cast").every((row) => row.status === "failed")).toBe(true);
+    expect(state.effects.cast).toEqual([]);
+  });
+
   it("a hydrate asked while the activate is still writing the cast waits for it instead of writing again", async () => {
     let release: () => void = () => undefined;
     host.gate = new Promise<void>((resolve) => { release = resolve; });
@@ -82,7 +110,7 @@ describe("AS-10: an import's activate and a concurrent hydrate of the same check
     release();
     host.gate = null;
     await Promise.all([activate, hydrate]);
-    expect(host.calls.filter((call) => call.startsWith("cast:"))).toEqual(["cast:+-Mara", "cast:+-Finn", "cast:+-Leila"]);
+    expect(host.calls.filter((call) => call.startsWith("cast:"))).toEqual(["cast:+-Mara,Finn,Leila"]);
     expect(state.effects.ledger.filter((row) => row.effect === "cast")).toHaveLength(3);
     expect(host.calls.filter((call) => call.startsWith("bg:"))).toEqual(["bg:start.jpg"]);
     expect(state.lastAppliedCheckpointId).toBe("start");
@@ -93,7 +121,7 @@ describe("AS-10: an import's activate and a concurrent hydrate of the same check
     const state = extras();
     await effects.applyCheckpoint(story, story.checkpointById.start, state, {} as never, "activate", ["start"]);
     await effects.applyCheckpoint(story, story.checkpointById.start, state, {} as never, "hydrate", ["start"]);
-    expect(host.calls.filter((call) => call.startsWith("cast:"))).toEqual(["cast:+-Mara", "cast:+-Finn", "cast:+-Leila"]);
+    expect(host.calls.filter((call) => call.startsWith("cast:"))).toEqual(["cast:+-Mara,Finn,Leila"]);
     expect(host.calls.filter((call) => call.startsWith("bg:"))).toEqual(["bg:start.jpg", "bg:start.jpg"]);
   });
 });
@@ -117,7 +145,7 @@ describe("v2.6 03 SP5: a hydrate never joins an activate that the same world cha
     release();
     await Promise.all([activate, hydrate]);
     expect(host.calls.filter((call) => call.startsWith("bg:"))).toEqual(["bg:start.jpg", "bg:start.jpg"]);
-    expect(host.calls.filter((call) => call.startsWith("cast:"))).toEqual(["cast:+-Mara", "cast:+-Finn", "cast:+-Leila"]);
+    expect(host.calls.filter((call) => call.startsWith("cast:"))).toEqual(["cast:+-Mara,Finn,Leila"]);
     expect(state.lastAppliedCheckpointId).toBe("start");
   });
 });

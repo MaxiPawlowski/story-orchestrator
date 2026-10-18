@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { fn, within, userEvent, expect } from "@storybook/test";
+import { fn, within, userEvent, expect, waitFor } from "@storybook/test";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { HudStrip } from "./HudStrip";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
@@ -19,7 +19,7 @@ const baseSnapshot = (overrides: Record<string, unknown> = {}): RuntimeSnapshot 
 const meta: Meta<typeof HudStrip> = {
   title: "Drawer/HudStrip",
   component: HudStrip,
-  args: { onOpenDrawer: fn(), onOpenSettings: fn() },
+  args: { onOpenStory: fn(), onOpenSettings: fn() },
 };
 
 export default meta;
@@ -33,7 +33,7 @@ export const Default: Story = {
     await expect(canvas.getByText(/◈ The Ruined Gate/)).toBeInTheDocument();
     await expect(canvas.getByText(/tension high/)).toBeInTheDocument();
     await userEvent.click(canvas.getByRole("button"));
-    await expect(args.onOpenDrawer).toHaveBeenCalledTimes(1);
+    await expect(args.onOpenStory).toHaveBeenCalledTimes(1);
   },
 };
 
@@ -42,7 +42,7 @@ export const CatchingUp: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByText("catching up…"));
-    await expect(args.onOpenDrawer).toHaveBeenCalled();
+    await expect(args.onOpenStory).toHaveBeenCalled();
     await expect(args.onOpenSettings).not.toHaveBeenCalled();
   },
 };
@@ -106,7 +106,7 @@ export const BranchChip: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByText("You went back: continue from here?"));
-    await expect(args.onOpenDrawer).toHaveBeenCalledTimes(1);
+    await expect(args.onOpenStory).toHaveBeenCalledTimes(1);
     await expect(canvas.queryByText(/◈/)).toBeNull();
   },
 };
@@ -145,7 +145,7 @@ export const PipelineChipWinsOverSetupAlert: Story = {
     const canvas = within(canvasElement);
     await expect(canvasElement.querySelector("#so-hud-setup")).toBeNull();
     await userEvent.click(canvas.getByText("catching up after your edit"));
-    await expect(args.onOpenDrawer).toHaveBeenCalledTimes(1);
+    await expect(args.onOpenStory).toHaveBeenCalledTimes(1);
   },
 };
 
@@ -240,3 +240,95 @@ const crowdedTurn = { args: { snapshot: baseSnapshot({
 }) } };
 
 export const YourMovePhone: Story = { ...crowdedTurn, ...fitsAt(VIEWPORTS.phone, hudButton) };
+
+const cardSnapshot = () => baseSnapshot({
+  ...playing,
+  narrative: { title: "Quest", sections: [{ id: "now", label: "Where you are", lines: ["The Ruined Gate", "Breach the sanctum."] }], text: "" },
+  activeCheckpointId: "cp_gate_internal",
+  memory: { entries: [{ id: "secret", text: "Kel hides the key from Arin.", tier: "facts" }] },
+  memoryShown: [
+    { id: "m1", text: "The sun-key opens the inner sanctum.", tier: "facts", createdAt: 1 },
+    { id: "m2", text: "The guild master warned you.", tier: "facts", createdAt: 2, pinned: true },
+    { id: "m3", text: "An old claim.", tier: "facts", createdAt: 3, supersededBy: "m1" },
+  ],
+});
+
+const cardArgs = () => ({ panels: ["journal", "suggestions"] as const, openPanel: fn(), openMemory: fn() });
+
+export const StoryCardOpensFromTheStrip: Story = {
+  args: { snapshot: cardSnapshot(), card: { ...cardArgs(), panels: ["journal", "suggestions"] } },
+  parameters: { a11y: { element: "#so-hud-root" } },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const main = canvasElement.querySelector("#so-hud-main") as HTMLButtonElement;
+    await expect(main).toHaveAttribute("aria-expanded", "false");
+    await userEvent.click(main);
+    const card = await canvas.findByRole("dialog", { name: "The Ruined Gate" });
+    await expect(main).toHaveAttribute("aria-expanded", "true");
+    await expect(args.onOpenStory).not.toHaveBeenCalled();
+    await waitFor(() => expect(card.contains(document.activeElement)).toBe(true));
+    await expect(within(card).getByText("Breach the sanctum.")).toBeInTheDocument();
+    await expect(within(card).getByText(/Following along\./)).toBeInTheDocument();
+    await expect(card.textContent).not.toMatch(/cp_gate_internal|boundary/);
+    await userEvent.click(within(card).getByRole("button", { name: "What the story remembers" }));
+    const peek = canvasElement.querySelector("#so-hud-card-peek") as HTMLElement;
+    const rows = [...peek.querySelectorAll('[data-so="hud-card-memory"]')].map((row) => row.textContent);
+    await expect(rows).toEqual(["The guild master warned you.", "The sun-key opens the inner sanctum."]);
+    await expect(peek.textContent).not.toMatch(/Kel hides|old claim/);
+    await userEvent.click(within(card).getByRole("button", { name: "Open the journal" }));
+    await expect(args.card?.openPanel).toHaveBeenCalledWith("journal");
+    await expect(canvasElement.querySelector("#so-hud-card")).toBeNull();
+    await userEvent.click(main);
+    await userEvent.click(await canvas.findByRole("button", { name: "More…" }));
+    await expect(args.onOpenStory).toHaveBeenCalledTimes(1);
+    await expect(canvasElement.querySelector("#so-hud-card")).toBeNull();
+  },
+};
+
+export const StoryCardClosesOnEscapeAndOutsideClick: Story = {
+  args: { snapshot: cardSnapshot(), card: { ...cardArgs(), panels: [] } },
+  render: (args) => <><button type="button" id="outside" className="menu_button">elsewhere</button><div id="so-hud-root"><HudStrip {...args} /></div></>,
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const main = canvasElement.querySelector("#so-hud-main") as HTMLButtonElement;
+    await userEvent.click(main);
+    await canvas.findByRole("dialog");
+    await expect(canvas.queryByRole("button", { name: "Open the journal" })).toBeNull();
+    await userEvent.keyboard("{Escape}");
+    await waitFor(() => expect(canvasElement.querySelector("#so-hud-card")).toBeNull());
+    await expect(document.activeElement).toBe(main);
+    await userEvent.keyboard("{Enter}");
+    await canvas.findByRole("dialog");
+    await userEvent.click(canvas.getByRole("button", { name: "elsewhere" }));
+    await waitFor(() => expect(canvasElement.querySelector("#so-hud-card")).toBeNull());
+    await expect(args.onOpenStory).not.toHaveBeenCalled();
+  },
+};
+
+export const StoryCardSetupChipStillOpensPlay: Story = {
+  args: { snapshot: baseSnapshot({ ...playing, thinkingSilent: true }), card: { ...cardArgs(), panels: [] } },
+  play: async ({ args, canvasElement }) => {
+    await userEvent.click(canvasElement.querySelector("#so-hud-setup") as HTMLElement);
+    await expect(args.onOpenSettings).toHaveBeenCalledTimes(1);
+    await expect(canvasElement.querySelector("#so-hud-card")).toBeNull();
+  },
+};
+
+export const StoryCardOnAPhone: Story = {
+  args: { snapshot: cardSnapshot(), card: { ...cardArgs(), panels: ["journal", "suggestions"] } },
+  parameters: { testViewport: VIEWPORTS.phone },
+  render: (args) => <div style={{ paddingTop: 480 }}><HudStrip {...args} /><textarea id="send_textarea" aria-label="Chat input" /></div>,
+  play: async ({ canvasElement }) => {
+    await userEvent.click(canvasElement.querySelector("#so-hud-main") as HTMLElement);
+    const card = await within(canvasElement).findByRole("dialog");
+    const hud = (canvasElement.querySelector("#so-hud") as HTMLElement).getBoundingClientRect();
+    const input = (canvasElement.querySelector("#send_textarea") as HTMLElement).getBoundingClientRect();
+    const box = card.getBoundingClientRect();
+    await expect(box.bottom).toBeLessThanOrEqual(hud.top + 1);
+    await expect(box.bottom).toBeLessThanOrEqual(input.top);
+    await expect(box.left).toBeGreaterThanOrEqual(0);
+    await expect(box.right).toBeLessThanOrEqual(canvasElement.ownerDocument.documentElement.clientWidth);
+    const page = canvasElement.ownerDocument.documentElement;
+    await expect(page.scrollWidth).toBeLessThanOrEqual(page.clientWidth);
+  },
+};

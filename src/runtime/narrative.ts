@@ -226,7 +226,12 @@ export const PLAYER_COPY = {
   branchContinue: "Continue from here",
   chaptersHeading: "Your story",
   chapterFlagTitle: "Something is wrong in this summary: flag it for the author",
-  flaggedToast: "Moment flagged for the author.",
+  flagged: "Moment flagged for the author.",
+  memoryExcluded: "Excluded: the story no longer uses this.",
+  memoryUndo: "Undo",
+  memoryRestored: "Put back.",
+  memoryExcludeRefused: "Nothing changed: the exclusion was not written to this chat. Try again.",
+  actionFailed: "That did not finish. Try again, or reload SillyTavern.",
   memorizeError: "Memorizing the chat stopped before the end. Try again later.",
   imageError: "The last image could not be made. Try again in a moment.",
   imagePreferenceError: "Could not save the image preference.",
@@ -314,9 +319,9 @@ export const MEMORY_TIER_LABELS: Record<MemoryTier, string> = {
   scene_history: "Scene history",
 };
 
-export const CP_AUTHOR_ONLY_TEXT = "/cp is an author tool and shows the story's internals. Turn on Author view in the story drawer to use it; /story recap shows where the story is.";
+export const CP_AUTHOR_ONLY_TEXT = "/cp is an author tool and shows the story's internals. Turn on Author view under This story → Author to use it; /story recap shows where the story is.";
 
-export const SO_MEM_AUTHOR_ONLY_TEXT = "/so-mem backlog is an author tool. Turn on Author view in the story drawer to use it.";
+export const SO_MEM_AUTHOR_ONLY_TEXT = "/so-mem backlog is an author tool. Turn on Author view under This story → Author to use it.";
 
 export const castChangeText = (name: string, left: boolean): string => `${name} ${left ? "left" : "joined"}`;
 

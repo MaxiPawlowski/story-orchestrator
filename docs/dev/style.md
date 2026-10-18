@@ -41,14 +41,23 @@ Taken from the code as it is; when the code and this page disagree, fix one of t
 - **Workspace** (`#so-workspace-modal`, `src/components/workspace/workspace.css`): a full-screen native dialog. A
   header with the title, scope line and Close, a 3px accent rule under it, the **This story / Orchestrator** switch,
   a page nav on the left (a bottom bar under 700px, with a Back button), content capped at 72rem.
-- **Drawer and HUD**: the route icon opens **This story → Play**; the HUD is one line above the chat input
-  (`#so-hud-root`) with the scene and at most one state chip.
+- **Launcher, HUD and story card**: the top-bar route icon is a launcher (not a drawer) that opens **This story →
+  Play**; the HUD is one line above the chat input (`#so-hud-root`) with the scene and at most one state chip. Its scene
+  button opens the story card (`#so-hud-card`), a small player-safe card anchored above the HUD that never covers the
+  input: scene, one status line, journal, **What could I do?**, a memory peek and **More…** (Play). Escape, its close
+  button or an outside click closes it and focus returns to the scene button. The setup chip opens Play at `#so-setup`.
+- **Floating panels** (`#so-panels-root`, `PanelFrame`) move and resize on a desktop; under 768px they dock at the
+  bottom just above the chat form (`#form_sheld`) and only the panel opened last shows.
 - **Dialogs** are native `<dialog>` + `showModal()`, never a positioned div (ST's `<html>` transform breaks
   `position: fixed`). Escape closes the top dialog only; focus returns to the opener. A nested dialog is its own `<dialog>`.
 - **Nothing opens behind the workspace.** Floating panels (journal, stat sheet, story panels, **What could I do?**,
   Help, the guide) and chat-side tools (the group member list, ST's Extensions drawer, another chat) sit under the
   modal, so a workspace control that opens one is a labelled button that closes the workspace first
-  (`SettingsHost.openPanel`, `workspaceNavigation.close()`). Reading content stays inline on the page.
+  (`SettingsHost.openPanel`, `workspaceNavigation.close()`). The Studio does the same (its gate replay jump closes it).
+  Reading content stays inline on the page.
+- **Feedback stays in the dialog.** A toast sits under a modal dialog, so the result of an action inside the workspace
+  or the Studio is a status line next to the control (`role="status"`, `components/ActionStatus.tsx`): "Moment flagged
+  for the author.", a refused fix's reason, the memory **Undo** row. Toasts are for actions taken from the chat.
 - **Tours are coach marks on the real UI** (`src/guide/tour/`, `#so-coach`): a ring around the actual control and one
   card with "Step n of m", a title, one or two sentences, **Skip tour**, **Back** and **Next**. Never a fake copy of
   a control. The card is a `popover="manual"` element in the top layer, portaled into the topmost open modal

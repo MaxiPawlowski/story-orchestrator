@@ -16,6 +16,7 @@ import {
   type HostSubscriptionEntry,
 } from "@services/STAPI";
 import { runtimeManager } from "../runtimeManager";
+import { busyWork } from "../busy";
 import { WITHHOLD_CAP_MS, withholds, type GenerationIntent, type GenerationLifecycle } from "../generationLifecycle";
 import { generationWatch } from "../generationWatch";
 import { promptCost } from "../promptCost";
@@ -93,6 +94,8 @@ const dispatch = (handlers: ReturnType<typeof intentHandlers>, intent: Generatio
 };
 
 export const attachGenerationObservers = (live: LiveParts, disposers: Disposers, generation: GenerationLifecycle) => {
+  disposers.push(busyWork.subscribe(() => runtimeManager.notify()));
+  disposers.push(busyWork.attach(() => getContext().chatId ?? null));
   disposers.push(generationWatch.attach(() => generation.snapshot().openedCount));
   setRoleDefault((role) => roleDefaultFrom(listConnectionProfiles(), harnessOffersAgent)(role));
   disposers.push(() => setRoleDefault(null));

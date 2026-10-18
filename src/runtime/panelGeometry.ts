@@ -19,7 +19,6 @@ export const PANELS_KEY = "panels";
 
 export const PANEL_DEFAULTS: Record<string, PanelGeometry> = {
   help: { x: 80, y: 80, w: 420, h: 520 },
-  activity: { x: 120, y: 100, w: 440, h: 480 },
   guide: { x: 100, y: 60, w: 780, h: 620 },
   journal: { x: 140, y: 90, w: 420, h: 540 },
   "stat-sheet": { x: 180, y: 120, w: 340, h: 420 },
@@ -28,6 +27,11 @@ export const PANEL_DEFAULTS: Record<string, PanelGeometry> = {
 const fallback: PanelGeometry = { x: 80, y: 80, w: 420, h: 480 };
 
 export const docked = (viewport: Viewport): boolean => viewport.width < DOCK_BELOW;
+
+export const shownPanels = <T>(open: readonly T[], viewport: Viewport): T[] => (docked(viewport) ? open.slice(-1) : [...open]);
+
+export const dockInset = (formTop: number | null, viewportHeight: number): number =>
+  (formTop === null || !Number.isFinite(formTop) ? 0 : Math.max(0, Math.min(viewportHeight, Math.round(viewportHeight - formTop))));
 
 export const clampPanel = (geometry: PanelGeometry, viewport: Viewport): PanelGeometry => {
   const w = Math.max(PANEL_MIN.w, Math.min(geometry.w, viewport.width));

@@ -210,6 +210,7 @@ const ProvisioningCard: React.FC<ProvisioningCardProps> = ({ op, environment, ap
           className="st-button primary"
           data-so="provisioning-apply"
           disabled={applied || busy || !validation.ok}
+          aria-busy={busy}
           onClick={() => onApply(draft)}
         >
           {applyLabel(draft, applied, busy)}

@@ -69,6 +69,7 @@ import { deriveTurn } from "./yourMove";
 import { readPlaysIndex } from "./playsIndexHost";
 import { imageHealth } from "./imageHealth";
 import { cardSurface } from "./cardLedger";
+import { busyWork } from "./busy";
 import type { PlaysIndex } from "./playsIndex";
 import type { ExtensionPromptBlocks } from "@services/STAPI";
 import type { ExtractionHealth } from "@extraction/index";
@@ -435,6 +436,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   const unreadable = mismatch?.kind === "unreadable" ? mismatch : null;
   return {
     ready: Boolean(loaded),
+    busy: busyWork.view(sources.chatId ?? null),
     features: resolveFeatures(getGlobalSettings(), story, extras.overrides), featureOverrides: extras.overrides ?? {},
     storyId: loaded?.record.id ?? null,
     storyHash: loaded?.record.hash ?? null,

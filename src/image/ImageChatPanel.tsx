@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import HelpTooltip from "@components/studio/HelpTooltip";
@@ -6,26 +6,28 @@ import { imageAutomationText, PLAYER_COPY } from "@runtime/narrative";
 import { startImage } from "./start";
 import type { ImageOverride } from "./settings";
 import { log } from "@utils/log";
-const CastSceneControls = lazy(() => import("./CastSceneControls"));
+import { BusyButton } from "@components/BusyButton";
 
 export default function ImageChatPanel({ manager, snapshot }: { manager: RuntimeManager; snapshot: RuntimeSnapshot }) {
   const image = startImage(manager);
   const [, refresh] = useState(0);
+  const [preferenceFailed, setPreferenceFailed] = useState(false);
   useEffect(() => image.subscribe(() => refresh((value) => value + 1)), [image]);
   const settings = image.settings();
   const state = image.status();
   const override = image.override();
   const models = [...new Set([override.checkpoint, ...Object.values(settings.purposes).map((route) => route.checkpoint)])].filter(Boolean);
   const update = (patch: Partial<ImageOverride>) => {
+    setPreferenceFailed(false);
     void image.setOverride({ ...override, ...patch }).catch((error: unknown) => {
       log.warn("image preference not saved", error);
-      window.toastr?.info?.(PLAYER_COPY.imagePreferenceError);
+      setPreferenceFailed(true);
     });
   };
   const cues = [snapshot.imageStory?.checkpoints && "each new turn in the story", snapshot.imageStory?.scenes && "confirmed scene changes"].filter(Boolean);
   const automation = imageAutomationText(settings.automation.mode, cues.filter((cue): cue is string => typeof cue === "string"), settings.automation.everyN);
-  return <section id="so-image-chat" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2 text-sm">
-    <div className="font-medium">Illustrations <span className="opacity-70 font-normal">— this chat</span></div>
+  return <section id="so-image-chat" aria-labelledby="so-image-chat-heading" className="flex flex-col gap-2 text-sm">
+    <h3 id="so-image-chat-heading" className="so-card-heading">Illustrations <span className="opacity-70 font-normal">— this chat</span></h3>
     <div className="text-xs opacity-80">{settings.enabled ? automation : PLAYER_COPY.imageInstallOff} Manual images are still available.</div>
     <div className="flex items-center gap-2">
       <label className="flex items-center gap-2">
@@ -51,13 +53,13 @@ export default function ImageChatPanel({ manager, snapshot }: { manager: Runtime
       </div>
     </details>
     <div className="flex flex-wrap gap-2">
-      <button type="button" className="menu_button" onClick={() => void image.direct({ purpose: "scene", text: "", messageId: null }).catch(() => undefined)}>Illustrate scene</button>
-      <button type="button" className="menu_button" onClick={() => void image.direct({ purpose: "portrait", text: "", messageId: null }).catch(() => undefined)}>Portrait</button>
-      <button type="button" className="menu_button" onClick={() => void image.direct({ purpose: "background", text: "", messageId: null }).catch(() => undefined)}>Background</button>
+      <BusyButton className="menu_button" work={() => image.direct({ purpose: "scene", text: "", messageId: null })}>Illustrate scene</BusyButton>
+      <BusyButton className="menu_button" work={() => image.direct({ purpose: "portrait", text: "", messageId: null })}>Portrait</BusyButton>
+      <BusyButton className="menu_button" work={() => image.direct({ purpose: "background", text: "", messageId: null })}>Background</BusyButton>
       {state.jobs.length > 0 && <button type="button" className="menu_button" onClick={() => image.queue.cancelAll()}>Stop images</button>}
     </div>
     <div role="status" className="text-xs opacity-80">{state.jobs.length ? state.jobs.map((job) => `${job.label}: ${job.state}`).join(" · ") : PLAYER_COPY.imageNoJobs}</div>
-    <Suspense fallback={<p>Loading cast controls…</p>}><CastSceneControls manager={manager} snapshot={snapshot} queue={image.queue} /></Suspense>
+    {preferenceFailed && <div role="alert" data-so="image-preference-error" className="text-xs so-error-text">{PLAYER_COPY.imagePreferenceError}</div>}
     {state.lastError && <div role="alert" data-so="image-error" className="text-xs so-error-text">{PLAYER_COPY.imageError}</div>}
   </section>;
 }

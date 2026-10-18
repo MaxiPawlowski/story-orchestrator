@@ -401,6 +401,7 @@ export interface LastFiredTransition {
 }
 
 export interface RuntimeSnapshot {
+  busy?: import("./busy").BusyJob[];
   features?: import("./featureResolve").ResolvedFeatures;
   featureOverrides?: import("@engine/featurePolicy").StoryFeatures;
   ready: boolean;

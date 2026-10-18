@@ -24,6 +24,7 @@ import { InFlight } from "./inFlight";
 import { chatSettle } from "./chatSettle";
 import { heldOpenerLine, holdOpener, openerRelease } from "./openerDeferral";
 import { identitySettled } from "./playerSetup";
+import { busyWork } from "./busy";
 
 // What a host effect changed, read back from the host as it is NOW. Every reader is a
 // QUESTION with an honest "cannot tell", so a reconcile never guesses: a target whose value cannot be
@@ -307,8 +308,6 @@ export class EffectsApplier {
     if (refused.length) this.deps.journal?.("world_info could not be released", refused.join("; "));
   }
 
-  // Each member the effect names is one decision about a shared group, so each is its own row: a
-  // two-member change that fails on the second leaves the first recorded and restorable.
   private async applyCastChanges(authored: unknown, roster: NormalizedStory["roster"], extras: RuntimeExtras, scope: EffectScope, run: RunGuard, entering: string | null) {
     const plan = planCastChanges(roster, authored, (name) => Boolean(resolveGroupMemberId(name)));
     if (!plan) return;
@@ -316,19 +315,28 @@ export class EffectsApplier {
     if (group && entering && plan.unknown.length) this.deps.journal?.(CAST_UNRESOLVED, `${plan.unknown.join(", ")}: ${CAST_UNRESOLVED_NOTE}`);
     const dropped = entering ? castInPlayNote(entering, plan.disable, getContext().chat) : null;
     if (dropped) this.deps.journal?.(dropped.summary, dropped.note);
-    for (const [identifier, disabled] of plan.changes) {
-      // Inside the loop, like `fireNpcReplies`: one member is one await, and a two-member change
-      // that stops half-way must not disable the second member on another chat's group.
-      if (!run.stillOwns()) return;
+    if (!group || !run.stillOwns()) return;
+    const flags = plan.changes.flatMap(([identifier, disabled]) => {
       const member = resolveGroupMemberId(identifier);
-      if (!member) continue;
-      const before = group ? castFlag(group, member) : null;
-      if (before?.disabled === disabled) continue;
-      await this.withLedger(extras, { ...scope, effect: "cast", target: { kind: "cast", group: String(group?.id ?? ""), member }, before, after: { disabled } }, async () => {
-        const result = await setGroupMembersDisabled(disabled ? [] : [identifier], disabled ? [identifier] : []);
-        if (result.ok) extras.effects.cast = [...extras.effects.cast.filter((entry) => entry.member !== member), { member, disabled }];
+      return member && castFlag(group, member).disabled !== disabled ? [{ member, disabled, identifier }] : [];
+    });
+    if (!flags.length) return;
+    const busy = busyWork.begin("setup", openChatId(), flags.length);
+    try {
+      const writes = flags.map(({ member, disabled }) => ({ ...scope, effect: "cast", target: { kind: "cast" as const, group: String(group.id), member },
+        before: castFlag(group, member), after: { disabled } }));
+      await this.withLedgerRows(extras, writes, async () => {
+        if (!run.stillOwns()) return couldNot("the story changed before its cast could be saved");
+        const result = await setGroupMembersDisabled(flags.filter((flag) => !flag.disabled).map((flag) => flag.identifier), flags.filter((flag) => flag.disabled).map((flag) => flag.identifier));
+        if (result.ok && run.stillOwns()) {
+          const changed = new Set(flags.map((flag) => flag.member));
+          extras.effects.cast = [...extras.effects.cast.filter((entry) => !changed.has(entry.member)), ...flags.map(({ member, disabled }) => ({ member, disabled }))];
+          busy.progress(flags.length);
+        }
         return result;
       });
+    } finally {
+      busy.end();
     }
   }
 
@@ -341,7 +349,7 @@ export class EffectsApplier {
     await this.withLedgerRows(
       extras,
       flags.map(({ member, disabled }) => ({ ...scope, effect: "cast", target: { kind: "cast" as const, group: groupId, member }, before: castFlag(group, member), after: { disabled } })),
-      async () => setGroupMemberFlags(groupId, flags),
+      async () => run.stillOwns() ? setGroupMemberFlags(groupId, flags) : couldNot("the story changed before its cast could be restored"),
     );
   }
 
