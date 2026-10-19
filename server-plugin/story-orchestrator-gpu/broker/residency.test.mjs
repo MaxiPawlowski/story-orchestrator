@@ -63,7 +63,8 @@ test('recorded reading: a job that fits beside text with both reserves keeps tex
     assert.match(row.reason, /^Kept text: the image fits beside the loaded text model/);
     assert.deepEqual(row.shortBy, { gpuMiB: 0, ramMiB: 0 });
     await scheduler.release(granted.lease);
-    assert.deepEqual(calls, ['free']);
+    assert.deepEqual(calls, []);
+    assert.equal(scheduler.status().imageResidency.mode, 'gpu-warm');
 });
 
 test('tight by one MiB on either reserve swaps instead of keeping text', async () => {

@@ -52,10 +52,13 @@ SillyTavern and delay the player's own line by seconds (v2.8 31 F19).
   resident (`stream-image`) and ComfyUI streams its weights from RAM; the physical-RAM reserve still applies.
   Measured in `docs/plans/v2.7/22b-residency-harvest-2026-10-07.md`.
 - `idleRestoreMs`: idle full-speed restore (600000 on this install), serialized with reads and renders.
-- `imageCacheMode`: `warm` (default) offloads image weights but preserves the Comfy execution cache while RAM allows;
+- `imageCacheMode`: `warm` (default) keeps image weights in GPU memory between compatible image jobs while reserves allow;
   `evict` also resets the cache. `cli.mjs cache-mode warm|evict` changes the running comparison arm, not disk config.
-  Pressure can evict a warm cache before the next workload. Warm means retained node/model references, not a pinned
-  guarantee: ComfyUI can reclaim them under RAM pressure.
+  a text request reclaims the image memory before text runs. `imageIdleGraceMs` (60000) prevents background text restoration
+  between image jobs; an actual text request skips that grace. A different workflow, runtime, model identity or resident
+  text layout reclaims the cache before admission. Same-workflow admission credits only allocations still observed from
+  the preceding render, and measurements retain the full workload cost rather than learning a near-zero hot-start demand.
+  Pressure can evict a warm cache before the next workload. ComfyUI can also reclaim its cache under RAM pressure.
 - ComfyUI `--cache-ram 8` is an **8 GiB headroom threshold**, not an 8 GiB cache capacity. `comfyExtraArgs` selects
   supported loading flags; `modelCacheRoot` keeps new HF/compile caches off C:. A supported CUDA-13 DynamicVRAM runtime
   with explicit `--fast-disk` receives a separate 8 GiB host-staging-window estimate plus activations. Legacy/non-streaming
@@ -67,14 +70,14 @@ SillyTavern and delay the player's own line by seconds (v2.8 31 F19).
   miss cannot promote a budget. `/measurement` exports the last owned render's trace.
 - A verified same-runtime RAM observation replaces the conservative loader estimate. An explicit caller RAM demand
   remains a lower bound. Unknown/unverified runtimes keep the estimate; the physical-RAM reserve always applies.
-- Image release observes RAM eviction as well as GPU release. A loader that cannot offload while cached escalates to
+- When reclamation is needed, image release observes RAM eviction as well as GPU release. A loader that cannot offload while cached escalates to
   cache eviction. NVML must return to the lease baseline (512 MiB tolerance), including native allocations outside torch.
 - `modelLoadMode`: optional native loading-mode comparison; overrides the profile's `--load-mode`. Leave unset on
   this 32 GiB host: the measured `mmap` arm violated the physical RAM floor. `--cache-ram 512` is a prompt-state cache,
   not a model-weight hot store. Dense weight/layer placement is fixed at native startup; shedding restarts the backend.
 
 `/status` names the resident/desired profile, fit target, load count/cost, objective, learned timings and image cache
-state. Timings are invalidated when model/binary identity, loading mode or profiles change. JSON and streaming replies
+  state (`imageResidency.mode` is `gpu-warm` while images stay resident). Timings are invalidated when model/binary identity, loading mode or profiles change. JSON and streaming replies
 are forwarded unchanged; only numerical timings are retained.
 
 ## Performance modes

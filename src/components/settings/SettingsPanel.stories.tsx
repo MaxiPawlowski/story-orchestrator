@@ -104,8 +104,8 @@ export const ConnectionsHoldTheInstallServices: Story = {
     const canvas = within(canvasElement);
     await expect(await canvas.findByLabelText("Memory model")).toBeInTheDocument();
     await expect(sectionIds(canvasElement)).toEqual(["so-area-memory", "so-area-world", "so-area-images", "so-area-judge", "so-area-setup"]);
-    await expect(canvasElement.querySelector("#so-area-memory #so-extraction-profile")).not.toBeNull();
-    await expect(canvasElement.querySelector("#so-area-images #so-image-settings")).not.toBeNull();
+    await waitFor(() => expect(canvasElement.querySelector("#so-area-memory #so-extraction-profile")).not.toBeNull());
+    await waitFor(() => expect(canvasElement.querySelector("#so-area-images #so-image-settings")).not.toBeNull());
     await expect(canvasElement.querySelector("#so-curator-enabled")).toBeNull();
     await expect(canvasElement.querySelector("#so-warden-enabled")).toBeNull();
     await expect(canvasElement.querySelector("#so-pacing-hint")).toBeNull();
