@@ -77,7 +77,11 @@ SillyTavern and delay the player's own line by seconds (v2.8 31 F19).
   not a model-weight hot store. Dense weight/layer placement is fixed at native startup; shedding restarts the backend.
 
 `/status` names the resident/desired profile, fit target, load count/cost, objective, learned timings and image cache
-  state (`imageResidency.mode` is `gpu-warm` while images stay resident). Timings are invalidated when model/binary identity, loading mode or profiles change. JSON and streaming replies
+  state (`imageResidency.mode` is `gpu-warm` while images stay resident). If an automatic-layer text load misses only the GPU reserve,
+  the backend retries once with its measured shortfall plus a margin added to llama-server's fit target. The learned correction
+  stays in memory for later loads of that profile; `/status` reports `text.fitCorrectionMiB` and `text.lastFitCorrection`.
+  Fixed-layer layouts and host-RAM misses refuse directly; a second failed fit refuses and stops its owned backend.
+  Context, KV settings and the admission reserves stay unchanged. Timings are invalidated when model/binary identity, loading mode or profiles change. JSON and streaming replies
 are forwarded unchanged; only numerical timings are retained.
 
 ## Performance modes
