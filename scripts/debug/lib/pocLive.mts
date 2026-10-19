@@ -10,6 +10,7 @@ import { classifyCall, type Mode, type Provider, type Sample, parseSmi } from '.
 import { DRY_REPLIES, FakeMedia, harnessCompleteFake, harnessStatusFake } from './pocFakes.mts';
 import { installLiveHeadProbe, readLiveHeadSamples, resetLiveHeadSamples } from './liveHeadProbe.mts';
 import { waitForIdle } from '../st-actions.mts';
+import { ensureSTReady } from './st-ready.mts';
 
 export const BLOCKED_PORTS = new Set([8188, 18888, 18080, 18898, 18899, 8139]);
 export const VISION_MODEL = 'openai/gpt-6.1-sol';
@@ -184,6 +185,7 @@ export interface TurnResult {
 }
 
 export async function playTurn(page: Page, line: string, { timeoutMs = 600000 } = {}): Promise<TurnResult> {
+  await ensureSTReady(page);
   await waitForIdle(page, timeoutMs);
   const startLength = await page.evaluate(() => {
     const root = globalThis as any;
@@ -200,6 +202,7 @@ export async function playTurn(page: Page, line: string, { timeoutMs = 600000 } 
   let error: string | undefined;
   try { await page.waitForFunction((length) => (globalThis as any).SillyTavern.getContext().chat.length > length, startLength, { timeout: 60000 }); await waitForIdle(page, timeoutMs); }
   catch (reason) { error = reason instanceof Error ? reason.message : String(reason); }
+  if (error) await ensureSTReady(page);
   const samples = await page.evaluate(readLiveHeadSamples).catch(() => ({ mouths: [], uploads: 0 }));
   const read = await page.evaluate((length) => {
     const root = globalThis as any, events = root.__pocTurns.events as Array<{ kind: string; at: number }>;

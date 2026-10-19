@@ -8,6 +8,7 @@ import { activate, applyAuthoringRoute, captureSettings, freshPage, preflightCom
 import { evaluateInST } from './lib/evaluate.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
 import { assertRuntimeOnPage } from './lib/servedBundle.mts';
+import { ensureSTReady } from './lib/st-ready.mts';
 import { driveWizardAgent } from './lib/wizardAgentDrive.mts';
 import { laneHarness } from './lib/imageHarness.mts';
 import { comfyCleared, harnessGaps } from './lib/imageHarnessConfig.mts';
@@ -383,7 +384,21 @@ async function stepGpuIdle(ctx: Ctx, sampler: ReturnType<typeof startSampler>): 
 }
 
 async function cleanup(page: Page, baseline: Awaited<ReturnType<typeof snapshotAssets>> | null, settings: SettingsCapture | null = null) {
+  const recovery = await ensureSTReady(page).then(() => null, async (error) => {
+    await freshPage(page);
+    return { reloadedForCleanup: String(error) };
+  });
   await closeCheckpointStudio(page).catch(() => undefined);
+  const library = await removeStory(page, journeyStory(journeyCast()).id).catch((error) => ({ error: String(error) }));
+  await waitForIdle(page, 120000);
+  await page.waitForFunction(async () => {
+    const headers = (globalThis as any).SillyTavern.getContext().getRequestHeaders();
+    const response = await fetch('/api/plugins/story-orchestrator-gpu/status', { headers });
+    if (response.status === 404) return true;
+    if (!response.ok) throw new Error(`GPU cleanup status: ${response.status}`);
+    const status = await response.json();
+    return !status.imageLease && !status.imageWaiting;
+  }, undefined, { polling: 1000, timeout: 120000 });
   const removed = await removeMarkedAssets(page, P41_MARKER, { baseline });
   const scrub = await page.evaluate(async (marker: string) => {
     const root = globalThis as any, rt = root.storyOrchestratorRuntime, home = root.SillyTavern.getContext().extensionSettings['story-orchestrator'];
@@ -403,10 +418,10 @@ async function cleanup(page: Page, baseline: Awaited<ReturnType<typeof snapshotA
     return { dropped };
   }, P41_MARKER);
   await saveSoon(page);
-  const library = await removeStory(page, journeyStory(journeyCast()).id).catch((error) => ({ error: String(error) }));
   const restored = await restoreSettings(page, settings).catch((error) => ({ error: String(error) }));
   const found = await listMarkedAssets(page, P41_MARKER, { baseline });
-  return { removed: { characters: removed.removed.characters.length, groups: removed.removed.groups.length, errors: removed.removed.errors }, scrub, library, restored, leaked: leakCount(found), leakedAssets: leakNames(found) };
+  return { recovery, removed: { characters: removed.removed.characters.length, groups: removed.removed.groups.length,
+    errors: [...removed.removed.errors, ...removed.removed.sprites.errors, ...removed.removed.spriteReferences.errors] }, scrub, library, restored, leaked: leakCount(found), leakedAssets: leakNames(found) };
 }
 
 async function runJourney(page: Page) {
@@ -425,7 +440,7 @@ async function runJourney(page: Page) {
     kind: 'p41-journey', mode, run, startedAt: stamp, updatedAt: new Date().toISOString(), complete: false,
     verdict: 'NOT GREEN', current: ctx.current, steps: ctx.rows, refusals: ctx.refusals,
     cleanup: 'not completed', partial: Boolean(ctx.only),
-  }); };
+  }); if (ctx.current !== 'setup' && ctx.current !== 'cleanup') await ensureSTReady(page); };
   await ctx.checkpoint();
   const distDir = mode === 'dry' || flag('--candidate') ? resolve(PROJECT_ROOT, 'dist') : null;
   let candidate: { stop(): Promise<void> } | null = null;
