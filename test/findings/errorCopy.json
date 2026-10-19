@@ -48,6 +48,8 @@
       "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A retained batch lease the broker no longer renews is dropped (its release failure is logged through failed) and a fresh lease is taken; nothing is reported as success." },
     { "site": "src/studio/components/BaseSpriteBuilder.tsx#keep", "kind": 3, "template": ".catch(() => null)",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "The face detector only anchors the head box: when it is not running the kept base gets the fraction head box, as before the detector existed." },
+    { "site": "src/sprites/builder/headBox.ts#referenceHeadBox", "kind": 3, "template": ".catch(() => null)",
+      "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Optional face detection for an unconfigured reference falls back to the fractional edit box for author review; valid saved boxes bypass the probe." },
     { "site": "src/sprites/cardArt.ts#refuseDefaultCardArt", "kind": 3, "template": ".catch(() => null)",
       "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "SillyTavern's default card picture is only a comparison probe: when it cannot be read the card is not judged a placeholder and the build proceeds." },
     { "site": "src/services/stHost/servedContext.ts#probe", "kind": 3, "template": "catch {} #1",

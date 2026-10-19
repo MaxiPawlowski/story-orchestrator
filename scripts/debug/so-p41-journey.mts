@@ -70,6 +70,7 @@ interface Ctx extends StepEnv {
   only: Set<string> | null;
   gpuBaseline: number | null;
   settings: SettingsCapture | null;
+  checkpoint?(): Promise<void>;
 }
 
 
@@ -420,6 +421,12 @@ async function runJourney(page: Page) {
     dry: null, refusals: [], models: { diffusion: 'dry_edit.safetensors', encoder: 'dry_encoder.safetensors', vae: 'dry_vae.safetensors' }, alpha: 'dry_alpha', staleChecks: [],
     baseline: null, only: flag('--only') ? new Set(value('--only', '').split(',').filter(Boolean)) : null, gpuBaseline: null, settings: null, setOf: slug, seedOf: (member) => cast.findIndex((row) => row.id === member.id) };
   console.log(`p41 journey run ${run} (${mode}) -> ${dir}`);
+  ctx.checkpoint = async () => { await writeRecord(dir, 'record.json', {
+    kind: 'p41-journey', mode, run, startedAt: stamp, updatedAt: new Date().toISOString(), complete: false,
+    verdict: 'NOT GREEN', current: ctx.current, steps: ctx.rows, refusals: ctx.refusals,
+    cleanup: 'not completed', partial: Boolean(ctx.only),
+  }); };
+  await ctx.checkpoint();
   const distDir = mode === 'dry' || flag('--candidate') ? resolve(PROJECT_ROOT, 'dist') : null;
   let candidate: { stop(): Promise<void> } | null = null;
   if (mode === 'dry') ctx.dry = await installDryRoutes(page, owned, distDir);
@@ -459,6 +466,8 @@ async function runJourney(page: Page) {
     console.log(`ABORT ${error instanceof Error ? error.message : String(error)}`);
     ctx.rows.push({ id: 'abort', outcome: 'fail', ms: 0, startedAt: new Date().toISOString(), detail: error instanceof Error ? error.message : String(error) });
   } finally {
+    ctx.current = 'cleanup';
+    await ctx.checkpoint();
     sampler.stop();
     calls.stop();
     const headerAfter = await captureHeader(page, `p41-after-run${run}`).catch((error) => ({ error: String(error) }));
@@ -475,8 +484,8 @@ async function runJourney(page: Page) {
     if (ctx.rows.some((row) => row.id === 'abort')) misses.unshift(`aborted: ${ctx.rows.find((row) => row.id === 'abort')?.detail}`);
     const plumbing = plumbingProblems(ctx.rows, ctx.only ? [...ctx.only] : JOURNEY_STEPS, cleaned);
     const record = {
-      kind: 'p41-journey', mode, run, startedAt: stamp, finishedAt: new Date().toISOString(), partial: Boolean(ctx.only), floorsDate: FLOORS_DATE, floors: JOURNEY_FLOORS,
-      verdict: mode === 'dry' ? (plumbing.length ? 'PLUMBING-FAIL' : 'PLUMBING-OK (dry: no floor result)') : (misses.length || ctx.only ? 'NOT GREEN' : 'GREEN'),
+      kind: 'p41-journey', mode, run, complete: true, startedAt: stamp, finishedAt: new Date().toISOString(), partial: Boolean(ctx.only), floorsDate: FLOORS_DATE, floors: JOURNEY_FLOORS,
+      verdict: mode === 'dry' ? (plumbing.length ? 'PLUMBING-FAIL' : 'PLUMBING-OK (dry: no floor result)') : (misses.length || plumbing.length || ctx.only ? 'NOT GREEN' : 'GREEN'),
       plumbing, misses, steps: ctx.rows, stale: ctx.staleChecks, turns: ctx.turns, modelCalls: countCalls(calls.rows), refusals: ctx.refusals,
       samples: sampleSummary(sampler.samples), gpuBaselineMiB: ctx.gpuBaseline, cleanup: cleaned, headerDiff: diff, serverLog: serverSlice,
       dry: ctx.dry ? { fakeCalls: ctx.dry.fake.calls.length, renders: ctx.dry.fake.jobs.size, blocked: ctx.dry.blocked, textReplies: ctx.dry.replies } : null,
@@ -484,7 +493,7 @@ async function runJourney(page: Page) {
     const path = await writeRecord(dir, 'record.json', record);
     console.log(`RECORD ${path}`);
     console.log(`VERDICT ${record.verdict}${plumbing.length ? `\n  plumbing: ${plumbing.join('\n  plumbing: ')}` : ''}${misses.length ? `\n  ${misses.join('\n  ')}` : ''}`);
-    if (mode === 'real' && (misses.length || ctx.only)) process.exitCode = 1;
+    if (mode === 'real' && (misses.length || plumbing.length || ctx.only)) process.exitCode = 1;
     if (mode === 'dry' && plumbing.length) process.exitCode = 1;
   }
 }

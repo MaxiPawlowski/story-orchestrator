@@ -8,6 +8,7 @@ import { validateBox, type HeadBox } from "./builder/pixels";
 import { VisualPreparation } from "./visualPreparation";
 import { visualRoot, publishVisualLook, lookSignature, type VisualAsset, type VisualManifest } from "./visualManifest";
 import { visualSourceAccepted } from "./visualChanges";
+import { bustBox } from "./builder/headBox";
 
 export async function verifyVisualSource(source: VisualManifest, signal: AbortSignal): Promise<void> {
   signal.throwIfAborted();
@@ -20,6 +21,7 @@ export async function verifyVisualSource(source: VisualManifest, signal: AbortSi
 export async function cropBust(path: string, box: HeadBox, signal: AbortSignal): Promise<{ data: string; sha256: string }> {
   signal.throwIfAborted();
   const image = await decodeImage(path); validateBox(image, box);
+  box = bustBox(image, box);
   signal.throwIfAborted();
   const pixels = new Uint8ClampedArray(box.width * box.height * 4);
   for (let y = 0; y < box.height; y += 1) pixels.set(image.data.subarray(((box.y + y) * image.width + box.x) * 4, ((box.y + y) * image.width + box.x + box.width) * 4), y * box.width * 4);

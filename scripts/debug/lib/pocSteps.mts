@@ -16,7 +16,7 @@ import { resolve } from 'node:path';
 
 export interface Member { id: string; name: string }
 
-export interface StepCtx { page: Page; dir: string; rows: StepRow[]; refusals: string[]; current: string; only: Set<string> | null }
+export interface StepCtx { page: Page; dir: string; rows: StepRow[]; refusals: string[]; current: string; only: Set<string> | null; checkpoint?(): Promise<void> }
 
 export type StepResult = { outcome?: Outcome; detail?: string; data?: unknown; refusals?: string[] };
 
@@ -80,6 +80,7 @@ export async function stepBase(ctx: StepEnv, member: Member): Promise<StepResult
 
 export async function stepPrepare(ctx: StepEnv, member: Member): Promise<StepResult> {
   await chooseCharacter(ctx, member);
+  const revision = await ctx.page.evaluate((name) => (globalThis as any).storyOrchestratorRuntime.getGlobalSettings().sprites.visualSources?.[name]?.revision ?? 0, member.name);
   const root = ctx.page.locator('#so-sprite-builder');
   await root.getByLabel('Reference sprite', { exact: true }).selectOption({ label: `${ctx.setOf(member)}/neutral` });
   await ctx.page.waitForTimeout(500);
@@ -92,7 +93,8 @@ export async function stepPrepare(ctx: StepEnv, member: Member): Promise<StepRes
   const alert = await section.locator('[role="alert"]').allTextContents();
   if (alert.length) return { outcome: 'refused', detail: alert.join(' ').slice(0, 300), refusals: alert };
   await section.getByRole('button', { name: 'Accept base and bust identity' }).click({ force: true });
-  await ctx.page.waitForFunction(() => /Accepted source revision \d+/.test(document.getElementById('so-prepare-presentation')?.textContent ?? '') || Boolean(document.querySelector('#so-prepare-presentation [role="alert"]')), undefined, { polling: 250, timeout: 60000 });
+  await ctx.page.waitForFunction(({ name, revision }) => ((globalThis as any).storyOrchestratorRuntime.getGlobalSettings().sprites.visualSources?.[name]?.revision ?? 0) > revision
+    || Boolean(document.querySelector('#so-prepare-presentation [role="alert"]')), { name: member.name, revision }, { polling: 250, timeout: 60000 });
   const after = await section.locator('[role="alert"]').allTextContents();
   if (after.length) return { outcome: 'refused', detail: after.join(' ').slice(0, 300), refusals: after };
   const source = await ctx.page.evaluate((name) => {
@@ -278,6 +280,7 @@ export async function step(ctx: StepCtx, id: string, member: string | null, fn: 
     return row;
   }
   ctx.current = member ? `${id}:${member}` : id;
+  await ctx.checkpoint?.();
   const startedAt = new Date().toISOString(), started = Date.now();
   let row: StepRow;
   try {
@@ -292,6 +295,7 @@ export async function step(ctx: StepCtx, id: string, member: string | null, fn: 
   if (row.refusals?.length) ctx.refusals.push(...row.refusals.map((text) => `${id}${member ? `[${member}]` : ''}: ${text}`));
   ctx.rows.push(row);
   await appendFile(resolve(ctx.dir, 'steps.jsonl'), `${JSON.stringify(row)}\n`);
+  await ctx.checkpoint?.();
   console.log(`STEP ${id}${member ? `[${member}]` : ''} ${row.outcome} ${row.ms} ms${row.detail ? ` — ${row.detail}` : ''}`);
   return row;
 }

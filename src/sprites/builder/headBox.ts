@@ -34,3 +34,19 @@ export function headBox(image: Pick<PixelImage, "width" | "height">, face?: Face
   const clamp = (value: number, most: number) => Math.min(Math.max(0, Math.round(value)), most);
   return { x: clamp(face.cx - width / 2, image.width - width), y: clamp(face.top - faceHeight * ABOVE_FACE, image.height - height), width, height };
 }
+
+export function bustBox(image: Pick<PixelImage, "width" | "height">, head: HeadBox): HeadBox {
+  const width = Math.min(image.width, Math.round(head.width * 2.2));
+  const y = Math.max(0, Math.round(head.y - head.height * 0.5));
+  const height = Math.min(image.height, Math.round(head.y + head.height * 2.2)) - y;
+  return { x: Math.max(0, Math.min(image.width - width, Math.round(head.x + head.width / 2 - width / 2))), y, width, height };
+}
+
+export async function referenceHeadBox(image: Pick<PixelImage, "width" | "height">, saved?: HeadBox, detect?: () => Promise<unknown>): Promise<HeadBox> {
+  if (saved) {
+    if (Object.values(saved).every(Number.isInteger) && saved.x >= 0 && saved.y >= 0 && saved.width >= 8 && saved.height >= 8
+      && saved.x + saved.width <= image.width && saved.y + saved.height <= image.height) return { ...saved };
+  }
+  const face = detect ? faceAnchor(await detect().catch(() => null), image) : null;
+  return headBox(image, face);
+}

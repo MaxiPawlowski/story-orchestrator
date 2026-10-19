@@ -1069,6 +1069,10 @@
       "status": "local",
       "note": "After the media discovery call it writes only the component's discovery/models/busy/error state, behind live.current."
     },
+    "src/studio/components/SpriteBuilder.tsx#useReferenceBox>then": {
+      "status": "local",
+      "note": "Reference-local preview state only; the effect's current flag rejects stale decode/detector results after reference, character or component changes. No host persistence."
+    },
     "src/studio/components/SpriteBuilder.tsx#SpriteBuilder.generate": {
       "status": "delegate",
       "note": "awaits SpriteBuilder.build, which holds the draft RunGuard before upload, render and retaining a preview; afterwards it annotates its own result's timings and sets component preview state."

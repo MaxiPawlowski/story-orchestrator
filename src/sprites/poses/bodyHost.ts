@@ -18,7 +18,7 @@ export const createPoseBodies = (ownership: RunOwnership): PoseBodies => {
     try { for (const name of DWPOSE_FILES) await comfyFingerprint("poseModels", name, signal); }
     catch { signal.throwIfAborted(); return undefined; }
     signal.throwIfAborted();
-    try { return await importPoseImage(encodeImage(image), ownership); }
+    try { return await importPoseImage(encodeImage(image), ownership, signal); }
     catch (error) { signal.throwIfAborted(); return NO_PERSON.test(error instanceof Error ? error.message : String(error)) ? none : undefined; }
   };
   return new PoseBodies({

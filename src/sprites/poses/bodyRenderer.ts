@@ -123,6 +123,11 @@ export class PoseBodies {
     body.headSource ??= "target";
     return blocked;
   }
+  private publishBody(request: BodyRequest, body: BodyStamp, path: string, guard: () => void): void {
+    if (request.label === "neutral" && !Object.keys(request.layers.face).length && !Object.keys(request.layers.decal).length) return;
+    guard();
+    request.apply({ set: body.set, files: [{ label: "neutral", path }], body });
+  }
   async render(request: BodyRequest): Promise<BodyResult | null> {
     if (this.closed || !request.accepts()) return null;
     const run = beginRun(this.deps.ownership), builder = this.deps.builder();
@@ -234,6 +239,7 @@ export class PoseBodies {
         resolved = await bodyFor("p3");
       }
       const { bodyKey, body, posed } = resolved;
+      this.publishBody(request, body, posed.path, guard);
       const expressionBlocked = await this.measureHead(request, posed, body, discovery, signal, guard);
       const faceKey = await contentHash(new TextEncoder().encode(stableStringify({ bodyKey, face: request.layers.face, head: body.head, recipe: EDIT_RECIPE })));
       let finalSet = body.set, file: { path: string; sha256: string } = posed;

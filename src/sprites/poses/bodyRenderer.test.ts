@@ -92,6 +92,19 @@ test("ownership lost after a preview prevents its save and application", async (
   expect(request.apply).not.toHaveBeenCalled();
 });
 
+test("a refused expression leaves the completed pose body visible", async () => {
+  const { deps, request, builder } = setup();
+  const build = builder.build.getMockImplementation()!;
+  builder.build.mockImplementation(async (input) => {
+    if (input.kind === "expression") throw new Error("The edit is shifted by 0, -5 px");
+    return build(input);
+  });
+  expect(await new PoseBodies(deps).render({ ...request, label: "happy" })).toBeNull();
+  expect(request.apply).toHaveBeenCalledTimes(1);
+  expect(request.apply).toHaveBeenCalledWith(expect.objectContaining({ set: expect.stringMatching(/^lp_/), files: [expect.objectContaining({ label: "neutral" })] }));
+  expect(request.failed).toHaveBeenCalledWith("The edit is shifted by 0, -5 px");
+});
+
 test("closing during discovery aborts setup before any model or render work", async () => {
   const { deps, request, builder } = setup();
   let started!: () => void;

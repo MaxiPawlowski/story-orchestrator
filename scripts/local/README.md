@@ -12,6 +12,10 @@ required and is reported verbatim on `/status`. Start/stop/load/unload/automatic
 restore/free-images/start-comfy are available through `node scripts/local/cli.mjs <action>` and the tray. Every text
 and lifecycle operation shares the lease queue; a manual hold requires Automatic or Load text to resume.
 
+Pose import and body measurements need `modelDirs.poseModels` pointing at the installed approved DWPose ONNX pair,
+matching the media plugin's `modelRoots.poseModels`. ONNX weights use their file size for conservative admission;
+they are not safetensors. Restart the controller after changing its model folders.
+
 ## Context
 
 Each profile's context is its `--ctx-size`. The gateway counts every completion request with the backend's own
