@@ -309,3 +309,17 @@ Gates:
 Owed: nothing for the verdict. If step 2 is ever re-opened: a free-arm cut that does not depend on the precision of a
 vision outline (a segmentation mask, or a layered sprite with the arms drawn apart, v2.9 §05.1), and a frame-interval
 sample on an idle GPU.
+
+## Gate record: idle desktop follow-up (2026-10-19, plan 79)
+
+- Candidate `862f627c`, copied lane 30, hardware ANGLE RTX 3090 D3D11, DPR 1, 1440x900; existing showcase motion
+  rig with ten strands. `so-live-head-check.mts --candidate --rig-template <private-motion-template>`, first `--row all`,
+  then `--row LI1`: **LM1 PASS twice**, 60 s each, max 25.0 / 20.9 ms, p95 16.8 ms both, zero intervals above the
+  unchanged 33.34 ms floor, 32,418 uploads each. No simultaneous text/image GPU work. Earlier misses remain recorded.
+- First run all 27 checks pass, including LI3/LI4/LI6, zero stale publications, one context, zero teardown resources;
+  hidden tab is simulated on the headless lane. Zero model requests, zero page errors and zero leaked owned assets.
+  Offline-lane missing-plugin/backend availability probes and deliberate fault-injection requests fail as expected.
+- CPU repeat: base 0.198 ms/frame, motion 0.250 (CPU floor met); GC 136 vs 259 scavenges/10k frames, **1.904x,
+  MISS** against unchanged 1.5x floor. Reduced arms zero uploads/scavenges. No allocation/GC sign-off from this sample.
+- Commands, full measurements and private archive labels: plan 79, "Idle-GPU head checks". The real streamed motion
+  row remains owed; scripted tokens prove plumbing only. Laptop remains unavailable. Body trial remains NO-GO.
