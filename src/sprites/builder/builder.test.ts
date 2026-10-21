@@ -173,6 +173,27 @@ test("a base keeps the rendered pixel count in the card's shape instead of shrin
   expect(sizes).toEqual([[64, 96]]);
 });
 
+test("a base render's fringe is cleaned before QA and save: background-coloured edge pixels take the subject's colour", async () => {
+  const { builder, deps } = fixture();
+  const card = image(16, 16);
+  card.data[3] = 255;
+  deps.decode = async (src) => src === "card" ? card : image(16, 16, 80);
+  deps.resize = (_input, box) => {
+    const data = new Uint8ClampedArray(box.width * box.height * 4);
+    for (let y = 2; y < 14; y++) for (let x = 4; x < 12; x++) data.set([180 + (x % 3) * 20, 40 + y, 30, 255], (y * box.width + x) * 4);
+    for (let y = 2; y < 14; y++) data.set([250, 250, 250, 128], (y * box.width + 3) * 4);
+    return { width: box.width, height: box.height, data };
+  };
+  let saved: PixelImage | null = null;
+  deps.encode = (output) => { saved = output; return "encoded"; };
+  const cutout = { id: "installed_alpha", node: "BiRefNetRMBG" as const, model: "BiRefNet_toonout", files: [models.diffusion] };
+  await builder.build({ ...request, kind: "base", reference: "card", label: "neutral", cutout });
+  const fringe = Array.from(saved!.data.subarray((8 * saved!.width + 3) * 4, (8 * saved!.width + 3) * 4 + 3));
+  expect(fringe.every((channel, i) => channel !== 250 || i > 0)).toBe(true);
+  expect(fringe[0]).toBeGreaterThanOrEqual(180);
+  expect(fringe[2]).toBe(30);
+});
+
 test("a failed reference cleanup still releases the GPU lease", async () => {
   const { builder, deps } = fixture();
   const release = jest.fn(async () => {});

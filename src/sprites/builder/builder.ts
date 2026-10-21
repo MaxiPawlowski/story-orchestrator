@@ -1,4 +1,5 @@
-import { beginRun, type RunGuard, type RunOwnership } from "@runtime/runToken";
+import { beginRun, type RunGuard, type RunOwnership } from "@runtime/runToken";
+import { cleanEdges } from "./edges";
 import { checkPixels, checkMouthCoverage, pasteEdit, validateBox, type HeadBox, type PixelImage, type PixelQA } from "./pixels";
 import { skeletonImage } from "../poses/skeleton";
 import type { PoseEntry } from "@engine/poseSchema";
@@ -71,8 +72,8 @@ export function renderedBox(box: HeadBox, raw: Pick<PixelImage, "width" | "heigh
 
 function composeEdit(base: PixelImage, raw: PixelImage, box: HeadBox, kind: EditKind, region: FrameRegion | undefined,
   resize: BuilderDeps["resize"]): { output: PixelImage; maskImport?: MaskImportReport } {
-  if (kind === "base") return { output: resize(raw, renderedBox(box, raw)) };
-  if (kind === "pose") return { output: resize(raw, box) };
+  if (kind === "base") return { output: cleanEdges(resize(raw, renderedBox(box, raw))).image };
+  if (kind === "pose") return { output: cleanEdges(resize(raw, box)).image };
   if (!MASK_IMPORT_KINDS.includes(kind)) return { output: pasteEdit(base, resize(raw, box), box, kind, region) };
   const aligned = alignEdit(base, raw, box, kind, region, resize);
   return { output: pasteEdit(base, aligned.edit, box, kind, region), maskImport: aligned.report };
