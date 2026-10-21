@@ -18,6 +18,27 @@ scout, `SUMMARY.md`) plus sol's own audit of current features (A01–A13 in `01-
 - Model-consuming acceptance = real Artemis replies, thinking and inner voice on, on a lane in an authorized GPU window; corpus,
   prompts, scorer, routes, settings and floors frozen before inference; denominators, abstentions and cancellations reported.
 
+## Owner decisions 2026-10-21
+
+Owner, verbatim: "Work on every plan. Do not use gpu to test yet." Read as approval to build every plan on its recommended
+option. Exceptions kept open: anything the plan marks as needing explicit approval beyond that, model time, and campaign work.
+
+- **No GPU:** no Artemis replies, no real-LLM live gates, no S/LT/RP measurements. Those rows are recorded NOT green
+  ("not run: no GPU, owner 2026-10-21"). Deterministic tiers, Storybook and no-model lanes are allowed.
+- **02:** field `roster[].polish` + Studio "Voice and delivery" group approved; `by_mood` approved; mined repetition lines
+  for every story (on-by-default rule); rater route sol default, DeepSeek fallback (route only, no model time).
+- **03:** S0 (timing spike, no model call), S1 (pure core) and S2 (polish role + shadow mode) only. **S3 (automatic
+  in-place write + chip) is not built**: the P0 thought-carry reduction needs the owner's explicit approval or a preserved-carry
+  design. Polish-role default sol, DeepSeek fallback; group = abandon once consumed; dialogue frozen in v1.
+- **04:** cue format approved; topics advance on direct address only (no extraction slice F); defaults as recommended.
+- **05:** authored-only patterns; four-kind vocabulary and bounds approved; word `patterns`; callback line in What changed approved.
+- **06:** check-help field + help line approved; authored greyed offers (slice 3) approved; anchors author-view only; no
+  negative-modifier lines in v1.
+- **07:** cue-only; wait until `expires` then expire; once per echo per chat.
+- **08:** surface, passive checks, perception-only warnings, page-only v1 approved; named voices not built.
+- **09:** scope accepted; source labels approved; wording "Turned off by this story".
+- **Campaign adoption:** none in this pass (each plan's adoption waits for its measurement).
+
 ## Plans
 
 - **01** `01-triage-sol.md` — sol's triage: verdicts V/E/M/G/C/N, audit A01–A13, plan set, challenges to the harvest.
