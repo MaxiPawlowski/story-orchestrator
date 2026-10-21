@@ -66,9 +66,9 @@ export async function stepBase(ctx: StepEnv, member: Member): Promise<StepResult
   const root = await chooseCharacter(ctx, member);
   await root.getByLabel('Seed', { exact: true }).fill(String(1234 + ctx.seedOf(member)));
   const base = ctx.page.locator('#so-sprite-base');
-  if (!await base.getByRole('button', { name: 'Build four base candidates' }).isVisible().catch(() => false)) await base.locator('summary').click({ force: true });
+  if (!await base.getByRole('button', { name: 'Build a base candidate' }).isVisible().catch(() => false)) await base.locator('summary').click({ force: true });
   await base.getByLabel('Background removal', { exact: true }).selectOption(ctx.alpha);
-  await base.getByRole('button', { name: 'Build four base candidates' }).click({ force: true });
+  await base.getByRole('button', { name: 'Build a base candidate' }).click({ force: true });
   await ctx.page.waitForFunction(() => { const b = document.getElementById('so-sprite-build-base') as HTMLButtonElement | null; return b && !b.disabled; }, undefined, { polling: 500, timeout: 1_800_000 });
   const candidates = await base.getByRole('img', { name: /Base candidate/ }).count();
   const refusals = await base.locator('[role="alert"]').allTextContents();
