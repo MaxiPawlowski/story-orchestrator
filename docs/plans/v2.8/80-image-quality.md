@@ -85,3 +85,30 @@ Informational, as always: a miss is recorded, never retuned.
   only; missed for Ash and Bram (≥ 40). Busts 581–634 px (were 286–317). Floors unchanged.
 - Live players for the res1 characters run the product live head with all drawn frames accepted; before/after page
   `resolution-2026-10-21.html` in the private showcase folder. Lane cleaned, leaked 0.
+
+## Gate record — CPU stages B, E, W, Q, 2026-10-21
+
+- B (`e121c545`, `53adb5b9`): `node scripts/debug/so-image-bench.mts edges <raw dir> --out <dir>`, PNG codec on node's
+  zlib (`scripts/debug/lib/pngNode.mts`, round-trip test).
+- E (`e121c545`): base and pose outputs pass `cleanEdges`: fringe pixels take the colour of the solid pixels inside
+  them, alpha tightened (floor 0.12). Bench on the res1 bases: bright fringe Ash 2,535 → 356, Bram 2,055 → 0,
+  Cleo 4,054 → 1,646; colour drift of fringe pixels 103–207 before. Visual 4× crops: Bram's light hair outline and Ash's
+  grey strand halo gone; one stray cutout wisp on Cleo remains (matte error, not colour). Note: the predeclared
+  bright-pixel floor also counts light skin and silver hair, so Cleo's count stays high with correct colours. Floor
+  unchanged; judged at stage A.
+- W (`3bbbd5ae`): cause of the see-through eyes: when `scleraTone` found fewer than 12 pale pixels (the 400×600 Bram
+  rig: 10), the shader warped the eyeball by displaced sampling (7 px travel on a 13 px eye) and sampled the layer's
+  transparent padding. A near-white fallback tone keeps the slide path, whose alpha is the layer's own (opaque inside
+  the outline on all six rigs measured). CPU test: zero see-through pixels at gaze −1..1 in 0.25 steps with the
+  fallback; the old warp shows through. Renderer test: readable but shaded pixels get the fallback tone.
+- Q (`2f972df8`):
+  - Deviation: the plan said the rig's eye landmarks; the rig does not exist when frames are built, so the blink check
+    uses the face detector's eye points (11–16, 17–22).
+  - A left/right-half comparison was tried first and rejected: Cleo's one-eyed blink scored 0.98, the same as real
+    blinks, because the edit redraws the whole band.
+  - Per-eye eye-white share on real frames: proper blinks 0.00/0.00; Cleo 0.46/0.17 (journey) and 0.42/0.29 (res1):
+    refused at the 35% limit.
+  - Tone match: edits subtract their median offset against unchanged base pixels before pasting. Bram's blink skin shift
+    −2.0/−4.5/−4.2 → +0.8/+1.2/+0.5 (journey) and −4.7/−5.4/−4.7 → −1.9/−1.6/−0.9 (res1), simulated on the saved frames.
+  - Not built yet: align-then-retry with a new seed on a shift refusal.
+- Gates: `npm run gates:quick` green after each stage; `npm run debug:typecheck` green. No GPU run since stage R.
