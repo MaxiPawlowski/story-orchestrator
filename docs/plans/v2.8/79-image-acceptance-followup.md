@@ -121,3 +121,23 @@ Owner 2026-10-18: continue image items 1–5; 3090 free for several hours. Branc
 - Run 1 all 27 checks passed: nine LI3 failures fall back within one frame, zero stale publications; motion/reactions; scripted-token talking suppression (plumbing only); all six LI4 reduced-motion rows; keyboard import; 390/768/1440 layout and one context; simulated hidden-tab pause/resume; teardown zero contexts/resources. Both runs: zero page errors, zero model requests and zero leaked assets. Offline lane intentionally has no server plugins/backend; availability probes return 404/500. Fault injection includes an intentional failed fixture fetch. Lane stopped afterward.
 - Additional CPU measurement: `node scripts/live-head/frame-bench.mjs` and `--motion`, each 20,000 frames after 3,000 warm. Base 0.198 ms/frame, motion 0.250 ms/frame (1 ms CPU floor met). GC 136 vs 259 scavenges/10k frames: 1.904x, MISSES the 1.5x floor in this sample. Reduced arms zero uploads and zero scavenges. No floor changed; this does not erase the prior borderline GC record.
 - Private evidence `image-live-head-idle-2026-10-19` (50 files / 34,250,575 B) and `image-live-head-template-bench-2026-10-19` (3 files / 599,713 B), zero hash problems. Real streamed motion evidence is being collected during the new journey pair; scripted-token checks do not sign off that row.
+
+## Gate record — 2026-10-21 (Claude Code; 3090; lane 33)
+
+- Fixes, each with a test that fails without it:
+  - `0eaa78f3`: player-facing images (chat illustrations, cast scene) hold background renders off the GPU lease while they wait; resident image credit follows model files, runtime and text layout instead of the workflow key (the cast scene was charged a cold 8,139 MiB RAM estimate and evicted the loaded Qwen model).
+  - `dedc81b7`: controller doc.
+  - `7d0de9b7` and `ad7e013f`: a pose render cancelled mid-flight can be requested again, including during its unwind; only a real failure counts as tried. The journey preflight refuses to start without the face landmark check (without it the head box falls back to a fixed fraction and three face edits are refused the same way every time).
+  - `b88b3f3e`: live-head drawn frames find the widened bust crop from the saved head box. Since `2254d0fd` every blink/talk frame was refused as "head box differs from the rig artwork" and live heads fell back to the mesh.
+- §5 journey runs (`node scripts/debug/st-lanes.mts run 33 -- scripts/debug/so-p41-journey.mts run <k> --candidate --label <x>`), records under lane 33 `debug/p41/`:
+  - `c1021` run 1 (stock GPU): NOT GREEN. 3 mask-import refusals (landmark service down), Ash pose stuck on default (the cancelled-render bug). Illustration passed.
+  - `c1021b` run 1 (stock): GREEN, 50 min.
+  - `c1021b` run 2 (stock): NOT GREEN, GPU idle only: 18–19 % from the headed lane browser (3–4 % headless, 0 % with the lane closed). Cause of the idle draw not found.
+  - `c1021c` run 1 (stock, headless): NOT GREEN, one silent play turn: background model calls timed out at about 36 s, a chat save stuck ("Timeout waiting for chat to save" ×8), ST held the send over 60 s. Queue X2, not an image step.
+  - `showcase1021` run 1 (`--keep`, owner's GPU tensor unlock active): GREEN, 71 min.
+  - `showcase1021b` run 1 (`--keep`): NOT GREEN, GPU idle only: the reviewer's browser was running three live players at that moment.
+- Pair rule: two greens on one build, not consecutive. Not met.
+- GPU tensor unlock (owner, pre-boot; cuBLAS FP16 55.6 → 124, rechecked 120.5 TFLOPS): no measurable gain on this stack. Qwen 2.1 int8 edit renders 27–29 s unlocked against 28–34 s stock; Artemis 21–26 tokens/s either way. One unlocked run against three stock runs.
+- Full gates after the last code change: `npm run gates -- --jobs=3`, all 11 steps green in 390.4 s (Storybook included, no resume). The run before it was red only on the opencode boot-timing flake in test:plugin (340/340 alone).
+- Showcase: `C:\dev\so-poc-showcase\journey-2026-10-21.html` with live players for the three characters (product live-head bundle built from this branch), raw outputs in `journey-2026-10-21-raw`.
+- Owner 2026-10-21: no longer a POC; quality not good enough. Follow-up is [plan 80](80-image-quality.md). Branch not merged (owner).

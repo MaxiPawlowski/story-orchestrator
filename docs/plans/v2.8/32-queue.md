@@ -8,6 +8,9 @@ Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instruc
 
 ## Now (running)
 
+- Plan 80 image quality (owner 2026-10-21): resolution, edges, eye whites, frame QA, then the journey pair with predeclared floors.
+  [Plan](80-image-quality.md).
+
 - Plan 79 image acceptance follow-up: owner approved items 1–5 and a several-hour 3090 window.
   Queue fairness, render cancellation, rig correction, same-build live acceptance and body-cutout investigation.
   [Scope and gate record](79-image-acceptance-followup.md).
