@@ -90,7 +90,13 @@ const staleResult = (findings: string[], extra: Record<string, unknown> = {}): S
   ? { outcome: 'fail', detail: `stale: ${findings.slice(0, 3).join('; ')}`, data: { findings, ...extra } }
   : { data: { findings: [], ...extra } };
 
+const landmarksUp = async (): Promise<boolean> => {
+  const port = process.env.SO_LANDMARKS_PORT ?? '8096';
+  try { return (await fetch(`http://127.0.0.1:${port}/health`, { signal: AbortSignal.timeout(3000) })).ok; } catch { return false; }
+};
+
 async function stepPreflight(ctx: Ctx): Promise<StepResult> {
+  if (ctx.mode !== 'dry' && !(await landmarksUp())) return { outcome: 'fail', detail: 'the face landmark check is down (node scripts/local/landmarks.mjs start); without it the head box falls back to a fixed fraction' };
   const common = await preflightCommon(ctx, P41_MARKER);
   ctx.baseline = common.baseline;
   ctx.settings = await captureSettings(ctx.page);

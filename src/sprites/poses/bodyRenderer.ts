@@ -101,7 +101,10 @@ export class PoseBodies {
         if (!request.accepts()) continue;
         this.attempted.add(key);
         if (this.attempted.size > 256) this.attempted.delete(this.attempted.values().next().value as string);
-        const result = await this.render(frames ? request : { ...request, frames: false });
+        let failed = false;
+        const tracked: BodyRequest = { ...request, failed: (reason) => { failed = true; request.failed(reason); } };
+        const result = await this.render(frames ? tracked : { ...tracked, frames: false });
+        if (!result && !failed) this.attempted.delete(key);
         if (!frames && result && request.frames !== false && !this.closed && request.accepts()) this.frames.set(key, request);
       }
     } finally { this.running = false; }

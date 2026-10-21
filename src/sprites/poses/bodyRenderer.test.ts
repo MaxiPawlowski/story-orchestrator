@@ -144,6 +144,38 @@ test("a revalidated request stays cancelled even if its stage becomes acceptable
   renderer.close();
 });
 
+test("a body cancelled mid-render is requested again later; a failed body is not retried", async () => {
+  const { deps, request, calls } = setup();
+  let current = true, started!: () => void, firstWait = true;
+  const ready = new Promise<void>((resolve) => { started = resolve; });
+  const wait = deps.wait;
+  deps.wait = (signal, still) => firstWait ? new Promise((_resolve, reject) => {
+    firstWait = false;
+    signal.addEventListener("abort", () => reject(signal.reason), { once: true });
+    started();
+  }) : wait(signal, still);
+  const renderer = new PoseBodies(deps), applied = jest.fn(), staged = { ...request, accepts: () => current, apply: applied };
+  renderer.request(staged);
+  await ready;
+  current = false;
+  renderer.revalidate();
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  current = true;
+  renderer.request(staged);
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  expect(calls.filter((call) => call.kind === "pose")).toHaveLength(1);
+  expect(applied).toHaveBeenCalled();
+  const broken = setup(), failed = jest.fn();
+  broken.deps.models = async () => { throw new Error("no models"); };
+  const again = new PoseBodies(broken.deps), refused = { ...broken.request, failed };
+  again.request(refused);
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  again.request(refused);
+  await new Promise((resolve) => setTimeout(resolve, 20));
+  expect(failed).toHaveBeenCalledTimes(1);
+  renderer.close(); again.close();
+});
+
 test("queued cast bodies are published before animation frames consume render slots", async () => {
   const { deps, request, calls } = setup();
   let finish!: () => void;
