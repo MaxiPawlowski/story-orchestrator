@@ -1,3 +1,4 @@
+import { EDGE_SOLID } from "./edges";
 import type { EditKind } from "./recipes";
 import { isFrameKey, isMouthFrameKey } from "../frameKeys";
 import { mouthRegion, regionWeight, validateRegion, type FrameRegion } from "./frameRegion";
@@ -55,8 +56,9 @@ export function pasteEdit(base: PixelImage, edit: PixelImage, box: HeadBox, kind
     const weight = weights[y * box.width + x];
     if (!weight) continue;
     const target = ((box.y + y) * base.width + box.x + x) * 4, source = (y * edit.width + x) * 4;
+    const edge = base.data[target + 3] < EDGE_SOLID;
     for (let channel = 0; channel < 3; channel += 1) {
-      const value = edit.data[source + channel] - offset[channel];
+      const value = edge ? base.data[target + channel] : edit.data[source + channel] - offset[channel];
       data[target + channel] = frame ? value : Math.round(base.data[target + channel] * (1 - weight) + value * weight);
     }
     data[target + 3] = frame ? Math.round(base.data[target + 3] * weight) : base.data[target + 3];
