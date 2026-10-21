@@ -1,5 +1,4 @@
-import { cleanEdges, edgeReport, EDGE_FLOOR } from "./edges";
-import type { PixelImage } from "./pixels";
+import { cleanEdges, edgeReport, EDGE_FLOOR, type PixelImage } from "./edges";
 
 const sprite = (): PixelImage => {
   const width = 20, height = 20, data = new Uint8ClampedArray(width * height * 4);

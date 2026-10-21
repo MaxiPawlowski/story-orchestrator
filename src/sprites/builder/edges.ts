@@ -1,4 +1,4 @@
-import type { PixelImage } from "./pixels";
+export interface PixelImage { width: number; height: number; data: Uint8ClampedArray }
 
 export const EDGE_SOLID = 250;
 export const EDGE_FLOOR = 0.12;
