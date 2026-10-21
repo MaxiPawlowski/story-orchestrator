@@ -64,9 +64,15 @@ export interface BuilderDeps {
   lineage?(request: SpriteBuildRequest, signal: AbortSignal): Promise<{ root: string; current(): boolean } | null>;
 }
 
+export function renderedBox(box: HeadBox, raw: Pick<PixelImage, "width" | "height">): HeadBox {
+  const scale = Math.max(1, Math.min(raw.width / box.width, raw.height / box.height));
+  return { x: 0, y: 0, width: Math.round(box.width * scale), height: Math.round(box.height * scale) };
+}
+
 function composeEdit(base: PixelImage, raw: PixelImage, box: HeadBox, kind: EditKind, region: FrameRegion | undefined,
   resize: BuilderDeps["resize"]): { output: PixelImage; maskImport?: MaskImportReport } {
-  if (kind === "base" || kind === "pose") return { output: resize(raw, box) };
+  if (kind === "base") return { output: resize(raw, renderedBox(box, raw)) };
+  if (kind === "pose") return { output: resize(raw, box) };
   if (!MASK_IMPORT_KINDS.includes(kind)) return { output: pasteEdit(base, resize(raw, box), box, kind, region) };
   const aligned = alignEdit(base, raw, box, kind, region, resize);
   return { output: pasteEdit(base, aligned.edit, box, kind, region), maskImport: aligned.report };

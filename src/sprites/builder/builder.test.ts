@@ -1,5 +1,5 @@
 import { webcrypto } from "node:crypto";
-import { SpriteBuilder, type BuilderDeps, type SpriteBuildRequest } from "./builder";
+import { renderedBox, SpriteBuilder, type BuilderDeps, type SpriteBuildRequest } from "./builder";
 import { checkPixels, pasteEdit, type PixelImage } from "./pixels";
 import { cropPixels } from "./maskImport";
 import { editKey } from "./recipes";
@@ -156,6 +156,21 @@ test("base creation accepts opaque card art only with a fingerprinted alpha step
   await expect(builder.build({ ...baseRequest, cutout: undefined })).rejects.toThrow("background-removal setup");
   deps.decode = async () => card;
   await expect(builder.build({ ...baseRequest, seed: 2 })).rejects.toThrow("transparent background");
+});
+
+test("a base keeps the rendered pixel count in the card's shape instead of shrinking to the card; a smaller render is not shrunk below it", async () => {
+  expect(renderedBox({ x: 0, y: 0, width: 400, height: 600 }, { width: 832, height: 1248 })).toEqual({ x: 0, y: 0, width: 832, height: 1248 });
+  expect(renderedBox({ x: 0, y: 0, width: 400, height: 600 }, { width: 1024, height: 1024 })).toEqual({ x: 0, y: 0, width: 683, height: 1024 });
+  expect(renderedBox({ x: 0, y: 0, width: 400, height: 600 }, { width: 256, height: 384 })).toEqual({ x: 0, y: 0, width: 400, height: 600 });
+  const { builder, deps } = fixture();
+  const card = image(32, 48);
+  card.data[3] = 255;
+  const sizes: Array<[number, number]> = [];
+  deps.decode = async (src) => src === "card" ? card : image(64, 96, 80);
+  deps.resize = (input, box) => { sizes.push([box.width, box.height]); return { width: box.width, height: box.height, data: new Uint8ClampedArray(box.width * box.height * 4).map((_, at) => at % 4 === 3 ? (at % 8 === 3 ? 0 : 255) : (at * 7) % 251) }; };
+  const cutout = { id: "installed_alpha", node: "BiRefNetRMBG" as const, model: "BiRefNet_toonout", files: [models.diffusion] };
+  await builder.build({ ...request, kind: "base", reference: "card", label: "neutral", cutout });
+  expect(sizes).toEqual([[64, 96]]);
 });
 
 test("a failed reference cleanup still releases the GPU lease", async () => {
