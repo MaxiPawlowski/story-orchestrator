@@ -70,13 +70,15 @@ export class PoseBodies {
   private active: ReturnType<BodyDeps["builder"]> | null = null;
   private activeRequest: BodyRequest | null = null;
   private controller: AbortController | null = null;
+  private activeKey: string | null = null;
+  private activeCancelled = false;
   private queue = new Map<string, BodyRequest>();
   private frames = new Map<string, BodyRequest>();
   private attempted = new Set<string>();
   private proportions = new Map<string, PoseEntry["keypoints"] | undefined>();
   private heads = new Map<string, HeadBox | null | undefined>();
   constructor(private readonly deps: BodyDeps) {}
-  private cancel(): void { this.controller?.abort(); this.active?.cancel(); }
+  private cancel(): void { this.activeCancelled = true; this.controller?.abort(); this.active?.cancel(); }
   close(): void { this.closed = true; this.queue.clear(); this.frames.clear(); this.cancel(); }
   revalidate(): void {
     if (this.activeRequest && !this.activeRequest.accepts()) this.cancel();
@@ -86,7 +88,7 @@ export class PoseBodies {
     if (this.closed || !request.accepts()) return;
     this.revalidate();
     const key = stableStringify([request.story, request.member, request.label, request.pose, request.layers, request.config]);
-    if (this.attempted.has(key)) return;
+    if (this.attempted.has(key) && !(key === this.activeKey && this.activeCancelled)) return;
     this.queue.set(key, request);
     void this.drain();
   }
@@ -103,8 +105,9 @@ export class PoseBodies {
         if (this.attempted.size > 256) this.attempted.delete(this.attempted.values().next().value as string);
         let failed = false;
         const tracked: BodyRequest = { ...request, failed: (reason) => { failed = true; request.failed(reason); } };
-        const result = await this.render(frames ? tracked : { ...tracked, frames: false });
-        if (!result && !failed) this.attempted.delete(key);
+        this.activeKey = key; this.activeCancelled = false;
+        const result = await this.render(frames ? tracked : { ...tracked, frames: false }).finally(() => { this.activeKey = null; });
+        if (!result && !failed && !this.queue.has(key) && !this.frames.has(key)) this.attempted.delete(key);
         if (!frames && result && request.frames !== false && !this.closed && request.accepts()) this.frames.set(key, request);
       }
     } finally { this.running = false; }

@@ -144,7 +144,8 @@ test("a revalidated request stays cancelled even if its stage becomes acceptable
   renderer.close();
 });
 
-test("a body cancelled mid-render is requested again later; a failed body is not retried", async () => {
+test("a body cancelled mid-render is requested again, even before the cancelled render unwinds; a failed body is not retried", async () => {
+  const until = async (done: () => boolean) => { for (let at = 0; at < 500 && !done(); at += 1) await new Promise((resolve) => setTimeout(resolve, 5)); expect(done()).toBe(true); };
   const { deps, request, calls } = setup();
   let current = true, started!: () => void, firstWait = true;
   const ready = new Promise<void>((resolve) => { started = resolve; });
@@ -159,19 +160,17 @@ test("a body cancelled mid-render is requested again later; a failed body is not
   await ready;
   current = false;
   renderer.revalidate();
-  await new Promise((resolve) => setTimeout(resolve, 0));
   current = true;
   renderer.request(staged);
-  await new Promise((resolve) => setTimeout(resolve, 20));
+  await until(() => applied.mock.calls.length > 0);
   expect(calls.filter((call) => call.kind === "pose")).toHaveLength(1);
-  expect(applied).toHaveBeenCalled();
   const broken = setup(), failed = jest.fn();
   broken.deps.models = async () => { throw new Error("no models"); };
   const again = new PoseBodies(broken.deps), refused = { ...broken.request, failed };
   again.request(refused);
-  await new Promise((resolve) => setTimeout(resolve, 20));
+  await until(() => failed.mock.calls.length === 1);
   again.request(refused);
-  await new Promise((resolve) => setTimeout(resolve, 20));
+  await new Promise((resolve) => setTimeout(resolve, 50));
   expect(failed).toHaveBeenCalledTimes(1);
   renderer.close(); again.close();
 });
