@@ -112,3 +112,32 @@ Informational, as always: a miss is recorded, never retuned.
     −2.0/−4.5/−4.2 → +0.8/+1.2/+0.5 (journey) and −4.7/−5.4/−4.7 → −1.9/−1.6/−0.9 (res1), simulated on the saved frames.
   - Not built yet: align-then-retry with a new seed on a shift refusal.
 - Gates: `npm run gates:quick` green after each stage; `npm run debug:typecheck` green. No GPU run since stage R.
+
+## Gate record — GPU check of B, E, W, Q and C1, 2026-10-21 (runs q1–q4, lane 33, 3090 beside a game)
+
+- q1: all 12 base candidates refused, `Insufficient GPU headroom` (free 20,501 MiB, need 18,990 + reserve 2,048) with
+  a game holding VRAM. Owner asked for it to run anyway: local controller `reserves.gpuMiB` 2048 → 1024 (knob minimum),
+  saved as mode `custom` through `modes.mjs` (backup `C:/dev/backups/story-orchestrator/local-config-1792619562920/`).
+  Back with `node scripts/local/cli.mjs mode balanced`. Not a code change.
+- Retry (`f7958688`): a refusal matching `Render it again` or `eye open (` re-renders once with seed + 7919; anything
+  else throws. Closes Q's "not built yet" line.
+- q2 (`f7958688`): every step passes except Cleo's blink, refused twice at 48%/44% eye white. Her raw renders show
+  both eyes closed: silver hair over the eye box counts as eye white. Correction to the CPU record: Cleo's journey and
+  res1 blinks (0.46/0.17, 0.42/0.29) were the same hair, not one-eyed blinks; a 3× crop of the journey frame shows
+  both eyes closed.
+- First fix (`8d2da306`, detector point confidence ≥ 0.6) was wrong: it was read off the 400×600 saved sprites, where
+  closed-eye points collapse to ≤ 0.44. On render-size images closed eyes score 0.85–0.88. q3 refused Cleo again.
+- Fix (`130d4b83`): lid openness = point height / width per eye. Closed 0.05–0.25, open 0.43–0.82 (Bram's narrow
+  eyes are the 0.43), unchanged at 0.5/0.33/0.22 scale. A blink is refused only when eye white stays above 35% and the
+  lid reads open (above 0.3 and above 0.6 × the base's openness); no detector reading keeps the white-only rule.
+  Known gap: a half-open lid under both limits passes.
+- E follow-up (`01747ecf`): expression and frame pastes took the edit's colour on edge pixels, bringing the rendered
+  background back. Edge pixels (base alpha < 250) keep the base colour. Bench, bright fringe on the four expression
+  sprites: q2 Ash 358/594/807/608, Bram 0/131/198/234, Cleo 1,647/1,812/1,839/1,879 → q4 every expression equals its
+  neutral (Ash 352, Bram 0, Cleo 1,647; Cleo's count is her silver hair).
+- C1: q2, q3 and q4 each built one base candidate per member (floor ≤ 1.5).
+- q4 (`130d4b83`, run `2026-10-21T22-36-18-736Z-q4-real-run1`): preflight, wizard, story, card-art, base, prepare,
+  expressions, frames, rig all pass for all three members, no refusals. Verdict NOT GREEN only because the run is
+  partial (`--only`) and `--keep` leaves its assets (header DIFF rows are those assets). Raw images: private showcase
+  folder `q2-raw`, `q3-raw`, `q4-raw`.
+- Gates: `npm run gates:quick` green after each commit. Full `npm run gates` not run since `b88b3f3e`; stage A owes it.
