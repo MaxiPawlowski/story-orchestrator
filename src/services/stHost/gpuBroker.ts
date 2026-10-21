@@ -27,6 +27,7 @@ export interface GpuRequest {
   height?: number;
   hires?: boolean;
   signal?: AbortSignal;
+  foreground?: boolean;
 }
 
 export const BROKER_ADAPTERS = ["none", "observe", "supervise", "managed"] as const;
@@ -64,8 +65,15 @@ export async function gpuBrokerStatus(): Promise<GpuBrokerStatus | null> {
     ...(typeof data.listenPort === "number" ? { listenPort: data.listenPort } : {}) };
 }
 
-export const reserveGpu = (request: GpuRequest = {}): Promise<GpuReservation> =>
-  waitWhileBusy(() => reserveOnce(request), { signal: request.signal, now: Date.now, sleep: abortableSleep });
+let foregroundWaiting = 0;
+
+export async function reserveGpu(request: GpuRequest = {}): Promise<GpuReservation> {
+  const wait = { signal: request.signal, now: Date.now, sleep: abortableSleep };
+  if (!request.foreground) return waitWhileBusy(() => reserveOnce(request), { ...wait, held: () => foregroundWaiting > 0 });
+  foregroundWaiting += 1;
+  try { return await waitWhileBusy(() => reserveOnce(request), wait); }
+  finally { foregroundWaiting -= 1; }
+}
 
 async function reserveOnce(request: GpuRequest): Promise<GpuReservation> {
   let response: Response;

@@ -335,7 +335,7 @@ export class StoryImageDirector {
       const gpuRequest = { ...gpuFacts, workflowKey: renderKey(gpuFacts) };
       const candidates = await this.queue.enqueue(`${plan.route.purpose} · ${plan.route.checkpoint.label}`, async (signal) => {
         await this.idle(signal);
-        const reservation = await reserveGpu({ ...gpuRequest, signal });
+        const reservation = await reserveGpu({ ...gpuRequest, signal, foreground: true });
         try {
           const images: ImageCandidate[] = [];
           for (let index = 0; index < count; index += 1) images.push(await this.render(plan, index, signal, run));
@@ -351,7 +351,7 @@ export class StoryImageDirector {
         const result = await review(plan, candidates, async (index) => {
           const fresh = await this.queue.enqueue(`Regenerate image ${index + 1}`, async (signal) => {
             await this.idle(signal);
-            const reservation = await reserveGpu({ ...gpuRequest, signal });
+            const reservation = await reserveGpu({ ...gpuRequest, signal, foreground: true });
             try { return await this.render(plan, index, signal, run, Math.floor(Math.random() * 2 ** 32)); }
             finally { await releaseGpu(reservation.lease); }
           });

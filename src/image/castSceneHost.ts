@@ -76,7 +76,7 @@ export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueu
       await waitForTextPriority({ status: gpuBrokerStatus, current: () => run.stillOwns(), signal,
         now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) });
       guard(); signal.throwIfAborted();
-      const lease = await reserveGpu({ workflowKey: key, width: render.resolution, height: render.resolution, signal,
+      const lease = await reserveGpu({ workflowKey: key, width: render.resolution, height: render.resolution, signal, foreground: true,
         modelFiles: [{ kind: "diffusionModels", name: diffusion.name }, { kind: "textEncoders", name: encoder.name }, { kind: "vaes", name: vae.name }] });
       const heartbeat = setInterval(() => { void renewGpu(lease.lease); }, 60_000);
       try {

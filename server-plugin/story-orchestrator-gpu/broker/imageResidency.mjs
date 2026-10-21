@@ -3,7 +3,7 @@ import { observedFootprint } from './footprints.mjs';
 
 export const IMAGE_IDLE_GRACE_MS = 60000;
 
-const identityKey = ({ workflowKey, runtime, models, text }) => JSON.stringify({ workflowKey, runtime, models, text });
+const identityKey = ({ workflowKey, runtime, models, text }) => JSON.stringify(models?.length ? { runtime, models, text } : { workflowKey, runtime, models, text });
 const difference = (high, low) => Number.isFinite(high) && Number.isFinite(low) ? Math.max(0, high - low) : 0;
 
 export function imageResidency(lease, snapshot, reserves) {

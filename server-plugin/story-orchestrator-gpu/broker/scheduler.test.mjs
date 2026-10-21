@@ -666,3 +666,22 @@ test('host RAM short for an image is a retryable refusal that frees the broker f
     assert.equal(lease.decision, 'swap-text');
     await scheduler.release(lease.lease);
 });
+
+test('another workflow on the same resident model files keeps hot-image credit; other model files reclaim first', async () => {
+    const modelDirs = await fakeCheckpoint(6600);
+    const shared = { modelFiles: [{ kind: 'checkpoints', name: 'sdxl.safetensors' }], width: 1024, height: 1024 };
+    const same = warmImages({ config: { modelDirs } });
+    const first = await same.scheduler.reserve({ ...shared, workflowKey: 'face-edit', needGpuMiB: 18000 });
+    same.render(); same.scheduler.lease.seenJob = true; await same.scheduler.release(first.lease);
+    await same.scheduler.reserve({ ...shared, workflowKey: 'cast-scene', needGpuMiB: 18000 });
+    assert.deepEqual(same.calls, []);
+    assert.equal(same.scheduler.lease.identity.cacheState, 'gpu-warm');
+    const otherDirs = await fakeCheckpoint(6600);
+    const other = warmImages({ config: { modelDirs: { checkpoints: [...modelDirs.checkpoints, ...otherDirs.checkpoints] } } });
+    await fs.writeFile(path.join(otherDirs.checkpoints[0], 'other.safetensors'), await fs.readFile(path.join(otherDirs.checkpoints[0], 'sdxl.safetensors')));
+    const lease = await other.scheduler.reserve({ ...shared, workflowKey: 'face-edit', needGpuMiB: 18000 });
+    other.render(); await other.scheduler.release(lease.lease);
+    await other.scheduler.reserve({ ...shared, modelFiles: [{ kind: 'checkpoints', name: 'other.safetensors' }], workflowKey: 'cast-scene', needGpuMiB: 18000 });
+    assert.deepEqual(other.calls, ['free']);
+    assert.notEqual(other.scheduler.lease.identity.cacheState, 'gpu-warm');
+});
