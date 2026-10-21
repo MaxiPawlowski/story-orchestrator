@@ -23,12 +23,6 @@ export interface ResolvedFeature {
 
 export const AUTOMATIC_STAGE = "Automatic: on when the story directs the stage";
 
-export const featureStateWord = (feature: ResolvedFeature | undefined): string => {
-  if (feature?.masterOff) return "Off on this install";
-  if (feature?.declined && !feature.enabled) return "Turned off by story";
-  if (feature?.automatic) return AUTOMATIC_STAGE;
-  return feature?.enabled ? "Enabled" : "Off in this chat";
-};
 export type ResolvedFeatures = Record<StoryFeatureId, ResolvedFeature>;
 
 export const readSettingPath = (root: unknown, path: string): unknown => path.split(".").reduce<unknown>((value, part) => isRecord(value) ? value[part] : undefined, root);
