@@ -19,5 +19,8 @@ export const featureAt = (feature: StoryFeatureId, control: string, label: strin
   selector: `#so-feature-${feature}-${control}`, label: `This story › Features › ${label}`, surface: "drawer",
   workspace: { context: "story", page: "features", feature, control: `so-feature-${feature}-${control}` },
 });
+export const defaultsWhere = (where: FeatureWhere): FeatureWhere => (where.workspace?.context === "story" && where.workspace.page === "features"
+  ? { ...where, label: where.label.replace("This story › Features", "Orchestrator › Defaults"), surface: "settings", workspace: { ...where.workspace, context: "orchestrator", page: "defaults" } }
+  : where);
 export const chatAt = (selector: string, label: string): FeatureWhere => ({ selector, label, surface: "chat" });
 export const studioAt = (selector: string, label: string): FeatureWhere => ({ selector, label: `Studio › ${label}`, surface: "studio" });

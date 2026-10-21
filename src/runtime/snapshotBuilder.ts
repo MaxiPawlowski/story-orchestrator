@@ -438,6 +438,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     ready: Boolean(loaded),
     busy: busyWork.view(sources.chatId ?? null),
     features: resolveFeatures(getGlobalSettings(), story, extras.overrides), featureOverrides: extras.overrides ?? {},
+    storyDeclares: { commitments: Boolean(story?.life?.members.some((member) => (member.commitments?.length ?? 0) > 0)) },
     storyId: loaded?.record.id ?? null,
     storyHash: loaded?.record.hash ?? null,
     storyIdentity: buildStoryIdentity(loaded?.record ?? null, loaded ? findStoryRecord(loaded.record.id) : null, Boolean(loaded && hasPersistedRuntime(loaded.record.id))),

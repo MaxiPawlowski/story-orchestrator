@@ -158,7 +158,7 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer
     const game = gamePanels(snapshot);
     const author = snapshot.ui.authorView ? snapshot.gameAuthor ?? null : null;
     const bodies = new Map<PanelId, { title: string; body: ReactNode }>();
-    if (panels.includes("help")) bodies.set("help", { title: HELP_COPY.heading, body: <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} onShowMe={showFeature}
+    if (panels.includes("help")) bodies.set("help", { title: HELP_COPY.heading, body: <Lazy fallback={null}><HelpHost authorView={snapshot.ui.authorView} snapshot={snapshot} onShowMe={showFeature}
       onOpenDoc={requestGuide} onClose={() => setPanel("help", false)} ask={async (question) => (await askHost()).askInChat(manager, question)} /></Lazy> });
     if (panels.includes("guide")) bodies.set("guide", { title: GUIDE_COPY.title, body: <Lazy fallback={null}><GuideHost authorView={snapshot.ui.authorView} target={guideTarget}
       onTargetSeen={() => { guideTarget = null; }} snapshot={snapshot} groupOpen={hasOpenGroup()} onShowMe={() => setPanel("guide", false)} /></Lazy> });

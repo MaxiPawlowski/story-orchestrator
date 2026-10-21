@@ -45,12 +45,12 @@ export const LIFE_FEATURES: readonly Feature[] = [
   },
   {
     id: "meanwhile-proposals", name: "Off-stage events", area: "world", audience: "author",
-    oneLine: "Proposes what a character did off stage toward their plan, for you to accept.",
+    oneLine: "Adds what a character did off stage toward their plan; it applies on its own by default.",
     what: "When the story moves on or a scene ends, the memory model suggests one short off-stage event per character, kept inside that character's plan. "
-      + "Nothing lands until you accept it in Author view; an accepted event reaches only that character, at the next reply, and a swipe takes it back.",
+      + "Each event applies on its own by default; set it to Review and each one waits for you in Author view, set it to Off and none are proposed. "
+      + "An applied event reaches only that character, at the next reply, and a swipe takes it back.",
     where: featureAt("meanwhile", "acceptMode", "Off-stage events"),
     settings: ["stagecraft.meanwhileAcceptMode"], guideTopic: "character-life", doc: authorGuideDoc("character-life"), status: "experimental",
     needs: ["story", "memory-profile"],
-    isOn: (settings) => settings.stagecraft.meanwhileAcceptMode !== "off",
   },
 ];

@@ -2,6 +2,11 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { expect, fn, userEvent, within } from "@storybook/test";
 import { FEATURES, visibleFeatures } from "@features/registry";
 import { AskBox } from "@components/studio/AskBox";
+import { defaultsWhere } from "@features/where";
+import { resolveFeatures } from "@runtime/featureResolve";
+import { helpFeatureState, type HelpStateSnapshot } from "@runtime/helpFeatureState";
+import { defaultGlobalSettings } from "@runtime/settingsModel";
+import type { Feature } from "@features/registry";
 import { HelpPanel, type HelpGuideTopic } from "./HelpPanel";
 
 const HOME = "https://github.com/MaxiPawlowski/story-orchestrator";
@@ -11,12 +16,22 @@ const TOPICS: HelpGuideTopic[] = [
   { id: "gates", title: "Gates", text: "What must be true before the story moves on.", doc: "author/fields/moving-on.md#gates" },
 ];
 
-const isOn = (feature: { id: string }) => (feature.id === "memory" ? true : feature.id === "chapters" ? false : null);
+const settings = defaultGlobalSettings();
+const snapshotOf = (ready: boolean, overrides = {}): HelpStateSnapshot => ({
+  ready, features: resolveFeatures(settings, ready ? { features: { pacing: "off" } } : null, ready ? { meanwhile: { acceptMode: "review" } } : {}),
+  roleRoutes: [{ role: "inner", label: "Inner voice", profileId: "p", state: "missing", detail: "", effort: "default" }],
+  extraction: { settings: { profileId: "p" }, scheduler: { inFlight: false } }, stagecraftScope: ["Book"], stagecraft: { proposals: [] },
+  storyDeclares: { commitments: true }, ...overrides,
+}) as unknown as HelpStateSnapshot;
+const loaded = snapshotOf(true);
+const noStory = snapshotOf(false);
+const stateOf = (feature: Feature) => helpFeatureState(feature, loaded, settings);
+const rowOf = (canvasElement: HTMLElement, id: string) => canvasElement.querySelector(`[data-so="help-feature"][data-feature="${id}"]`) as HTMLElement;
 
 const meta: Meta<typeof HelpPanel> = {
   title: "Settings/HelpPanel",
   component: HelpPanel,
-  args: { features: visibleFeatures(false), isOn, homePage: HOME, onShowMe: fn(), onClose: fn() },
+  args: { features: visibleFeatures(false), stateOf, homePage: HOME, onShowMe: fn(), onClose: fn() },
   render: ({ onOpenDoc: _onOpenDoc, ...args }) => <HelpPanel {...args} />,
 };
 
@@ -31,7 +46,9 @@ export const PlayerMode: Story = {
     await expect(canvasElement.querySelector('[data-so="help-guide-topics"]')).toBeNull();
     await expect(canvas.getByText("Playing a story")).toBeInTheDocument();
     const memory = canvasElement.querySelector('[data-so="help-feature"][data-feature="memory"]') as HTMLElement;
-    await expect(within(memory).getByText("On")).toBeInTheDocument();
+    await expect(within(memory).getByText("Story reading:")).toBeInTheDocument();
+    await expect(within(memory).getAllByText("Enabled")).toHaveLength(2);
+    await expect(within(memory).getAllByText("Install")).toHaveLength(2);
     await expect(within(memory).getByRole("link", { name: "Read more" })).toHaveAttribute("href", `${HOME}/blob/master/docs/guide/player/memory.md`);
     await userEvent.click(within(memory).getByRole("button", { name: "Show me" }));
     await expect(args.onShowMe).toHaveBeenCalledWith(expect.objectContaining({ selector: "#so-extraction-profile", surface: "settings" }));
@@ -131,3 +148,40 @@ export const TakeTheTour: Story = {
     await expect(args.onTour).toHaveBeenCalled();
   },
 };
+
+export const EffectiveStateInThisChat: Story = {
+  args: {
+    features: FEATURES, onOpenSetup: fn(),
+    findingsOf: (feature: Feature) => (feature.id === "models-per-task" ? [{ check: "model-role-outage", text: "The inner voice is not answering." }] : []),
+  },
+  play: async ({ canvasElement, args }) => {
+    const pacing = rowOf(canvasElement, "pacing");
+    await expect(within(pacing).getByText("Turned off by this story")).toBeInTheDocument();
+    await expect(within(pacing).getByText("Story")).toHaveAttribute("data-so", "help-source");
+    const meanwhile = rowOf(canvasElement, "meanwhile-proposals");
+    await expect(within(meanwhile).getByText("Review before applying")).toBeInTheDocument();
+    await expect(within(meanwhile).getByText("This chat")).toBeInTheDocument();
+    await expect(within(meanwhile).getByText("Experimental")).toBeInTheDocument();
+    await expect(within(rowOf(canvasElement, "inner-voice")).getByText("Missing setup: choose a model")).toBeInTheDocument();
+    await expect(within(rowOf(canvasElement, "npc-commitments")).getByText("In this story")).toBeInTheDocument();
+    const models = rowOf(canvasElement, "models-per-task");
+    await userEvent.click(within(models).getByRole("button", { name: "Open setup" }));
+    await expect(args.onOpenSetup).toHaveBeenCalled();
+  },
+};
+
+export const NoStoryShowsDefaults: Story = {
+  args: {
+    features: FEATURES, stateOf: (feature: Feature) => helpFeatureState(feature, noStory, settings), whereOf: (feature: Feature) => defaultsWhere(feature.where),
+  },
+  play: async ({ canvasElement, args }) => {
+    const pacing = rowOf(canvasElement, "pacing");
+    await expect(within(pacing).getByText("Default for new stories: on")).toBeInTheDocument();
+    await expect(canvasElement.textContent).not.toContain("Off in this chat");
+    await expect(within(rowOf(canvasElement, "npc-commitments")).getByText("Needs a story")).toBeInTheDocument();
+    await userEvent.click(within(pacing).getByRole("button", { name: "Show me" }));
+    await expect(args.onShowMe).toHaveBeenCalledWith(expect.objectContaining({ workspace: expect.objectContaining({ context: "orchestrator", page: "defaults", feature: "pacing" }) }));
+  },
+};
+
+export const EffectiveStatePhone: Story = { ...EffectiveStateInThisChat, parameters: { testViewport: { width: 390, height: 844 } } };

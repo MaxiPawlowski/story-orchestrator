@@ -58,7 +58,7 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     oneLine: "Direct a body pose and let looks change with the story.",
     what: "Choose from 40 original skeletons, add story or install poses, and bind visual card fields to base, face or decal edits. Bodies render on first need and swipes restore the applied choice.",
     where: studioAt("#so-studio-poses", "Sprites › Poses"), settings: [], guideTopic: "poses", doc: authorGuideDoc("poses"), status: "shipped",
-    needs: ["sprite-pack"], isOn: (settings) => settings.sprites.poses,
+    needs: ["sprite-pack"],
   },
   {
     id: "backgrounds", name: "Backgrounds", area: "images", audience: "author",
@@ -81,7 +81,6 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     what: "Uses SillyTavern’s image service by default. Stories can ask for pictures, or you can draw by hand. An optional prompt model improves the scene description; a template works without it.",
     where: settingsAt("#so-image-settings", "Images › Image service"),
     settings: ["image"], guideTopic: "presentation", doc: "setup/images.md", status: "shipped", needs: ["group-chat"],
-    isOn: (settings) => settings.image.enabled && settings.image.automation.mode !== "manual",
   },
   {
     id: "gpu-sharing", name: "One GPU for text and images", area: "images", audience: "setup",
@@ -110,7 +109,6 @@ export const IMAGE_FEATURES: readonly Feature[] = [
     what: "The speaking characters stand on a small stage and change expression with the reply. A story can switch the stage on; you can switch it off everywhere.",
     where: settingsAt("#so-sprite-enabled", "Images › Sprite stage"),
     settings: ["sprites"], guideTopic: "presentation", doc: "player/drawer-and-hud.md", status: "shipped", needs: ["sprite-pack"],
-    isOn: (settings) => !settings.sprites.explicit || settings.sprites.enabled,
   },
   {
     id: "sprite-builder", name: "Build sprite packs", area: "authoring", audience: "author",

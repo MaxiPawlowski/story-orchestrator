@@ -176,7 +176,6 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "Each turn's tension is measured and compared with what the story expects at this point. A quiet note in the prompt asks the reply to build the tension up or let it cool.",
     where: featureAt("pacing", "enabled", "Tension and pacing"),
     settings: ["pacing"], guideTopic: "tension", doc: authorGuideDoc("tension"), status: "shipped", needs: ["story"],
-    isOn: (settings) => settings.pacing.hintEnabled,
   },
   {
     id: "memory", name: "Story memory", area: "memory", audience: "player",
@@ -189,7 +188,6 @@ const CORE_FEATURES: readonly Feature[] = [
       "memory.enabled", "memory.injectionDepths", "memory.tierBudgets", "memory.tierTokenBudgets", "memory.scoreWeights",
     ],
     doc: "player/memory.md", status: "shipped", needs: ["memory-profile"],
-    isOn: (settings) => settings.extraction.enabled && Boolean(settings.extraction.profileId),
   },
   {
     id: "memory-tab", name: "Memory tab", area: "memory", audience: "player",
@@ -205,18 +203,16 @@ const CORE_FEATURES: readonly Feature[] = [
       + "messages in the prompt, and \"Previously…\" recaps it when you reopen the chat.",
     where: featureAt("chapters", "recap", "Chapters"),
     settings: ["memory.chapters"], guideTopic: "chapters", doc: "player/memory.md", status: "shipped", needs: ["story", "memory-profile"],
-    isOn: (settings) => settings.memory.chapters?.recap !== false || settings.memory.chapters?.seal !== false,
   },
   {
     id: "continuity-warden", name: "Continuity warden", area: "memory", audience: "author",
     oneLine: "Catches a reply that breaks an established fact and restates the fact for the next reply.",
     what: "After each character reply, the judge checks it against the established facts. When the reply breaks one, "
-      + "the next reply's prompt restates that fact once, after your approval or on its own. The switch covers this continuity check only; "
+      + "the next reply's prompt restates that fact once; the restatement waits for your review by default, or applies on its own when set to. The switch covers this continuity check only; "
       + "the other reply checks share the warden's call under their own judge use switches.",
     where: featureAt("continuity", "enabled", "Continuity warden"),
     settings: ["stagecraft.wardenEnabled", "stagecraft.wardenAcceptMode", "stagecraft.agencyAcceptMode", "judge.provider.warden"],
     doc: authorGuideDoc("house-rules"), status: "shipped", needs: ["judge-plugin"],
-    isOn: (settings) => settings.stagecraft.wardenEnabled && settings.stagecraft.wardenAcceptMode !== "off",
   },
   {
     id: "speaker-direction", name: "Speaker direction", area: "characters", audience: "player",
@@ -224,7 +220,6 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "In a group chat, the story chooses the character the scene calls for instead of rotating through everyone. A story can set who leads each scene.",
     where: drawerAt("#so-feature-speakers-enabled", "Features › Speaker direction"),
     settings: ["talk.enabled"], guideTopic: "talk-control", doc: "player/playing.md", status: "shipped", needs: ["group-chat", "story"],
-    isOn: (settings) => settings.talk.enabled,
   },
   {
     id: "talk-chain", name: "Several voices per turn", area: "characters", audience: "player",
@@ -232,7 +227,6 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "In a group chat, a single message can be answered by several characters in turn; the chain stops when it is your turn again or the scene changes.",
     where: settingsAt("#so-chain-enabled", "Characters › Speaker direction"),
     settings: ["talk.chain"], guideTopic: "talk-control", doc: "player/playing.md", status: "shipped", needs: ["group-chat"],
-    isOn: (settings) => settings.talk.chain.enabled,
   },
   {
     id: "private-knowledge", name: "Private knowledge", area: "characters", audience: "author",
@@ -250,7 +244,6 @@ const CORE_FEATURES: readonly Feature[] = [
     where: settingsAt("#so-inner-beat", "Characters › Inner voice"),
     settings: ["memory.innerBeat", "memory.innerFanOut", "memory.harvestReasoning"], guideTopic: "inner-voice", doc: authorGuideDoc("inner-voice"), status: "shipped",
     needs: ["memory-profile", "author-view"],
-    isOn: (settings) => settings.memory.innerBeat === true || settings.memory.harvestReasoning === true,
   },
   {
     id: "thought-carry", name: "Carried thought", area: "setup", audience: "author",
@@ -282,7 +275,6 @@ const CORE_FEATURES: readonly Feature[] = [
     what: "Facts, scene history and the current guidance join each lorebook scan, so an entry whose keys they mention activates. Private knowledge never joins.",
     where: settingsAt("#so-wi-scan-memory", "World › Lorebooks"),
     settings: ["worldInfo.scanMemory"], doc: authorGuideDoc("world-info"), status: "shipped",
-    isOn: (settings) => settings.worldInfo.scanMemory,
   },
   {
     id: "late-lore", name: "Per-turn lore after the history", area: "world", audience: "author",
@@ -291,16 +283,15 @@ const CORE_FEATURES: readonly Feature[] = [
       + "with the same text and order. Per chat gating only; a story can keep its authored positions with lore_select.position.",
     where: settingsAt("#so-wi-late-lore", "World › Lorebooks"),
     settings: ["worldInfo.lateLore", "worldInfo.lateLoreDepth"], guideTopic: "world-info", doc: authorGuideDoc("world-info"), status: "shipped",
-    isOn: (settings) => settings.worldInfo.lateLore,
   },
   {
     id: "curator", name: "Lorebook curator", area: "world", audience: "author",
     oneLine: "Proposes updates to the story's lorebook as play overtakes it.",
-    what: "A background helper reads what happened and proposes switching entries on or off, or correcting text. It touches only the lorebooks the story lists, and never progress or memory.",
+    what: "A background helper reads what happened and proposes switching entries on or off, or correcting text. "
+      + "It touches only the lorebooks the story lists, and never progress or memory. Each change waits for your review by default.",
     where: featureAt("curator", "enabled", "Lorebook curator"),
     settings: ["stagecraft.curatorEnabled", "stagecraft.acceptMode"], guideTopic: "stagecraft", doc: authorGuideDoc("stagecraft"), status: "shipped",
     needs: ["memory-profile"],
-    isOn: (settings) => settings.stagecraft.curatorEnabled && settings.stagecraft.acceptMode !== "off",
   },
   {
     id: "curator-create", name: "New lorebook entries", area: "world", audience: "author",
@@ -311,13 +302,13 @@ const CORE_FEATURES: readonly Feature[] = [
     where: featureAt("curator", "create", "New lorebook entries"),
     settings: ["stagecraft.createEnabled", "stagecraft.createRequireMeasured"], guideTopic: "stagecraft", doc: authorGuideDoc("stagecraft"), status: "shipped",
     needs: ["memory-profile"],
-    isOn: (settings) => settings.stagecraft.curatorEnabled && settings.stagecraft.createEnabled && settings.stagecraft.acceptMode !== "off",
   },
   {
     id: "curator-markers", name: "Protected and auto lore", area: "world", audience: "author",
     oneLine: "Markers in a lorebook entry keep words safe from the curator, or let its changes apply on their own.",
     what: "Inside an entry, text between {{// so:protect}} and {{// so:end}} is never changed or switched off by the curator. An entry carrying {{// so:auto}} takes the curator's "
-      + "changes without review when its changes are set to apply on their own; every other entry still waits for you. SillyTavern drops the markers before the prompt.",
+      + "changes without review when its changes are set to apply on their own; every other entry still waits for you. "
+      + "Changes wait for your review by default. SillyTavern drops the markers before the prompt.",
     where: featureAt("curator", "acceptMode", "Protected and auto lore"),
     settings: [], guideTopic: "stagecraft", doc: authorGuideDoc("stagecraft"), status: "shipped",
     needs: ["memory-profile"],
@@ -401,8 +392,9 @@ const CORE_FEATURES: readonly Feature[] = [
   },
   {
     id: "help", name: "Help", area: "setup", audience: "player",
-    oneLine: "This list: every feature, whether it is on, and where to find it.",
-    what: "The ? button opens this index. Show me jumps to a feature's setting; Read more opens its guide page.",
+    oneLine: "This list: every feature, whether it is on in this chat and who chose that, and where to find it.",
+    what: "The ? button opens this index. Each feature says what this chat has: on, off and by whom (install, story or this chat), or what it still waits for. "
+      + "Without a story it shows the defaults new stories start from. Show me jumps to a feature's setting; Read more opens its guide page.",
     where: settingsAt("#so-help-open-panel", "Help › Help and Ask"),
     settings: ["help.openSections"], doc: "setup/README.md", status: "shipped",
   },

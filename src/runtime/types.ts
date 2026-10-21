@@ -404,6 +404,7 @@ export interface RuntimeSnapshot {
   busy?: import("./busy").BusyJob[];
   features?: import("./featureResolve").ResolvedFeatures;
   featureOverrides?: import("@engine/featurePolicy").StoryFeatures;
+  storyDeclares?: { commitments: boolean };
   ready: boolean;
   storyId: string | null;
   storyHash: string | null;
