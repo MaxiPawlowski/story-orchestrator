@@ -32,7 +32,17 @@ until the owner says so).
 5. **Q — frame QA.** Blink: both eyes' openness from the rig's eye landmarks must drop. Seam/tone check along the edit
    border. Feathered blend with colour matching. A shift refusal aligns first, then one automatic re-render with a
    new seed.
-6. **A — acceptance (3090).** The plan 41 §5 journey twice on one frozen build with the floors below.
+6. **C — cost cuts (owner 2026-10-21).** Measured on `showcase1021b`: 59 ComfyUI renders, about 27 s each (about 27 min
+   of image GPU time) in an 85-minute run; preparing three characters took 14.5 min.
+   - **C1, fewer base candidates.** Today 4 are rendered and the first QA-passing one is kept: 9 of 12 base renders
+     are thrown away. Render one; render the next only when QA refuses it (author's "more candidates" stays available).
+   - **C2, prepare poses before play.** Poses the story's checkpoints name (and the stand-in look) are rendered in the
+     preparation pass, not when the stage first asks during a turn. A pose still missing at play time renders only
+     when no loud generation is running or queued.
+   - **C3, reuse face frames across poses.** A posed body with the base's face reuses the base's blink/talk frames,
+     warped through the head boxes, instead of two new renders. It renders new frames only when the reused frames fail
+     the drawn-frame guard.
+7. **A — acceptance (3090).** The plan 41 §5 journey twice on one frozen build with the floors below.
 
 ## Floors (predeclared 2026-10-21, before any run)
 
@@ -46,6 +56,12 @@ Informational, as always: a miss is recorded, never retuned.
   threshold set in stage B before stage Q is built; no accepted frame with a visible edit rectangle in the rater sheet.
 - Rater (Sol, contact sheets, ≤ 60 calls): identity same-character ≥ 90 %; edge/eye defects flagged on ≤ 1 of 12
   sheets.
+- C1: base renders per member ≤ 1.5 on average across both runs (baseline 4).
+- C2: zero image renders started while a loud generation is running; every pose the story names is ready before the
+  first play turn.
+- C3: frames on posed bodies with the base face: zero new renders; every reused frame passes the drawn-frame guard.
+- Cost: ComfyUI renders per run ≤ 35 (baseline 59) at the same step coverage; character preparation ≤ 9 min for three
+  members (baseline 14.5).
 - Journey: every §5 step passes, both runs, GPU idle measured with no browser of ours drawing.
 
 ## Not in scope
