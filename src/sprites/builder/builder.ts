@@ -81,6 +81,9 @@ function composeEdit(base: PixelImage, raw: PixelImage, box: HeadBox, kind: Edit
   return { output: pasteEdit(base, aligned.edit, box, kind, region), maskImport: aligned.report };
 }
 
+export const RETRY_REFUSAL = /Render it again|eye open \(/;
+export const RETRY_SEED_STEP = 7919;
+
 export class SpriteBuilder {
   private controller: AbortController | null = null;
   private candidates = new Map<string, RunGuard>();
@@ -100,6 +103,14 @@ export class SpriteBuilder {
   }
 
   async build(request: SpriteBuildRequest): Promise<SpriteCandidate> {
+    try { return await this.buildOnce(request); }
+    catch (error) {
+      if (!(error instanceof Error) || !RETRY_REFUSAL.test(error.message) || this.controller) throw error;
+      return this.buildOnce({ ...request, seed: (request.seed + RETRY_SEED_STEP) >>> 0 });
+    }
+  }
+
+  private async buildOnce(request: SpriteBuildRequest): Promise<SpriteCandidate> {
     if (this.controller) throw new Error("Finish or cancel the current sprite first.");
     const resolution = validateBuildRequest(request);
     const controller = new AbortController();
