@@ -73,3 +73,15 @@ Informational, as always: a miss is recorded, never retuned.
 
 - Should the card art itself be replaced by the full-size base (cards are 400×600 in SillyTavern)? Proposed: no.
 - Long edge 1248 or a 2× upscale step (more VRAM per edit)? Proposed: render size first, measure, then decide.
+
+## Gate record — stage R, 2026-10-21
+
+- Change `6f350a0b`: a base keeps its rendered pixel count in the card's shape (`renderedBox`); never shrunk below the
+  reference. Test fails without it. Builder suite 65/65; typecheck:test clean.
+- Focused run on lane 33 (`so-p41-journey.mts run 1 --candidate --keep --label res1 --only preflight,wizard,story,card-art,base,prepare,expressions,frames,rig`):
+  every requested step passed (partial record, never a gate). Step times close to the full runs (base 116–135 s,
+  expressions 97–102 s, frames 63–66 s per member): edits still render at 1024.
+- Floors: base long edge 1,248 px, met (≥ 1,200). Eye layer width Ash 38/38, Bram 32/33, Cleo 42/43: met for Cleo
+  only; missed for Ash and Bram (≥ 40). Busts 581–634 px (were 286–317). Floors unchanged.
+- Live players for the res1 characters run the product live head with all drawn frames accepted; before/after page
+  `resolution-2026-10-21.html` in the private showcase folder. Lane cleaned, leaked 0.
