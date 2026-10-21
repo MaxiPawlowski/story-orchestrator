@@ -1,5 +1,5 @@
 import { beginRun, type RunGuard, type RunOwnership } from "@runtime/runToken";
-import { blinkProblems, overBase } from "./eyeOpen";
+import { blinkProblems, overBase, type EyeRead } from "./eyeOpen";
 import { cleanEdges } from "./edges";
 import { checkPixels, checkMouthCoverage, pasteEdit, validateBox, type HeadBox, type PixelImage, type PixelQA } from "./pixels";
 import { skeletonImage } from "../poses/skeleton";
@@ -64,7 +64,7 @@ export interface BuilderDeps {
   lease(request: SpriteBuildRequest, signal: AbortSignal): Promise<{ release(): Promise<void> }>;
   save(candidate: SpriteCandidate, expectedHash?: string): Promise<{ path: string; sha256: string }>;
   lineage?(request: SpriteBuildRequest, signal: AbortSignal): Promise<{ root: string; current(): boolean } | null>;
-  eyes?(base: PixelImage, signal: AbortSignal): Promise<HeadBox[] | null>;
+  eyes?(image: PixelImage, signal: AbortSignal): Promise<EyeRead | null>;
 }
 
 export function renderedBox(box: HeadBox, raw: Pick<PixelImage, "width" | "height">): HeadBox {
@@ -190,9 +190,14 @@ reference: reference as string, instruction: editInstruction(request.kind, reque
         : checkPixels(base, output, box, isFrameKey(request.kind));
       if (region) qa.reasons.push(...checkMouthCoverage(base, output, box, region, request.kind !== "rest"));
       if (request.kind === "blink" && this.deps.eyes) {
-        const eyes = await this.deps.eyes(base, controller.signal).catch(() => null);
+        const before = await this.deps.eyes(base, controller.signal).catch(() => null);
         guard();
-        if (eyes) qa.reasons.push(...blinkProblems(base, overBase(base, output), eyes));
+        if (before?.boxes) {
+          const shown = overBase(base, output);
+          const after = await this.deps.eyes(shown, controller.signal).catch(() => null);
+          guard();
+          qa.reasons.push(...blinkProblems(base, shown, before.boxes, after?.seen));
+        }
       }
       qa.maskImport = maskImport;
       qa.ok = qa.ok && !qa.reasons.length;

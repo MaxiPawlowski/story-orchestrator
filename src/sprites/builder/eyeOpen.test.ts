@@ -1,4 +1,4 @@
-import { blinkProblems, eyeBoxes, eyeWhites, overBase, BLINK_OPEN_LIMIT } from "./eyeOpen";
+import { blinkProblems, eyeBoxes, eyesSeen, eyeWhites, overBase, BLINK_OPEN_LIMIT, EYE_SEEN_SCORE } from "./eyeOpen";
 import type { PixelImage } from "./pixels";
 
 const face = (whites: Array<[number, number]>): PixelImage => {
@@ -35,4 +35,15 @@ test("detector points 11-16 and 17-22 become eye boxes scaled to the image; low-
   expect(eyeBoxes(result, { width: 200, height: 200 })).toEqual([{ x: 20, y: 37, width: 20, height: 8 }, { x: 80, y: 37, width: 20, height: 8 }]);
   expect(eyeBoxes({ ...result, faces: [{ ...result.faces[0], points: points.map((p, at) => at === 12 ? [p[0], p[1], 0.1] : p) }] }, { width: 200, height: 200 })).toBeNull();
   expect(eyeBoxes({ width: 100, height: 100, faces: [] }, { width: 100, height: 100 })).toBeNull();
+});
+
+test("an eye the detector no longer sees confidently is closed even when pale pixels remain (hair over the eye)", () => {
+  const base = face([[6, 14], [26, 34]]);
+  expect(blinkProblems(base, base, eyes, [false, true])).toEqual([`The blink leaves the second eye open (100% of its white still shows).`]);
+  expect(blinkProblems(base, base, eyes, [false, false])).toEqual([]);
+  const points = (score: number) => Array.from({ length: 28 }, (_, at): [number, number, number] => [at, at, at >= 11 && at <= 16 ? score : 0.9]);
+  const result = (score: number) => ({ width: 100, height: 100, faces: [{ box: [0, 0, 80, 80, 0.95], points: points(score) }] });
+  expect(eyesSeen(result(0.9))).toEqual([true, true]);
+  expect(eyesSeen(result(EYE_SEEN_SCORE - 0.01))).toEqual([false, true]);
+  expect(eyesSeen({ width: 100, height: 100, faces: [] })).toEqual([false, false]);
 });
