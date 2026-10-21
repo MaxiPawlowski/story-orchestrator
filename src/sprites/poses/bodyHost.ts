@@ -1,6 +1,7 @@
 import type { RunOwnership } from "@runtime/runToken";
 import { comfyDiscover, comfyFingerprint, spriteManifest, spriteReferencePack, type ComfyDiscovery } from "@services/stHost/media";
 import { gpuBrokerStatus } from "@services/stHost/gpuBroker";
+import { isHostGenerating } from "@services/stHost/generation";
 import { createSpriteBuilder } from "../builder/host";
 import { decodeImage, encodeImage } from "../builder/images";
 import type { PixelImage } from "../builder/pixels";
@@ -35,7 +36,7 @@ export const createPoseBodies = (ownership: RunOwnership): PoseBodies => {
       config.models.encoder, signal), comfyFingerprint("vaes", config.models.vae, signal)]);
     return { diffusion, encoder, vae };
   },
-  wait: (signal, current) => waitForTextPriority({ signal, current, status: gpuBrokerStatus, now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) }),
+  wait: (signal, current) => waitForTextPriority({ signal, current, status: gpuBrokerStatus, loud: isHostGenerating, now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) }),
   proportions: async (image, discovery, signal) => (await measure(image, discovery, signal, undefined)) ?? undefined,
   head: (image, discovery, signal) => measure(image, discovery, signal, null),
   });

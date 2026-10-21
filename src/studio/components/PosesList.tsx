@@ -10,6 +10,8 @@ import { draftOwnership } from "../agentHost";
 import { useDraftStore } from "../draft";
 import { setMemberPoses, setPoses, setStagePose } from "../poseMutations";
 import { lookLayers } from "../../sprites/poses/layers";
+import { posesToPrepare } from "../../sprites/poses/prepareList";
+import { isValidationErrorList, parseStory } from "@engine/index";
 import PoseSkeleton from "./PoseSkeleton";
 
 export interface PosesServices {
@@ -17,6 +19,7 @@ export interface PosesServices {
   saveInstalled(poses: PoseEntry[]): void;
   render(pose: PoseEntry, member: string): Promise<string>;
   importImage?(image: string): Promise<PoseEntry["keypoints"]>;
+  prepare?(): Promise<string>;
 }
 
 const host: PosesServices = {
@@ -39,6 +42,27 @@ const host: PosesServices = {
     } finally { renderer.close(); }
   },
   importImage: async (image) => (await import("../../sprites/poses/importHost")).importPoseImage(image, draftOwnership),
+  prepare: async () => {
+    const { draft, draftKey } = useDraftStore.getState(), parsed = parseStory(draft), settings = getGlobalSettings().sprites;
+    if (isValidationErrorList(parsed)) throw new Error("Fix the story's validation errors before preparing poses.");
+    const jobs = posesToPrepare(parsed, settings.customPoses);
+    if (!jobs.length) return "Nothing to prepare: no member has a default or directed pose that differs from the base.";
+    const renderer = createPoseBodies(draftOwnership), problems: string[] = [];
+    let ready = 0;
+    try {
+      for (const job of jobs) {
+        const target = spriteBuilderMembers([job.name])[0], config = target && settings.builders[target.folder];
+        if (!target || !config) { problems.push(`${job.name}: choose a reference pack in Sprites first.`); continue; }
+        let saved = false, error = "";
+        await renderer.render({ story: draft.id ?? draftKey, member: job.member, folder: target.folder, cardArt: target.image, label: "neutral", pose: job.pose,
+          layers: job.layers, config, frames: settings.blink || settings.mouth !== "off", accepts: () => true,
+          apply: () => { saved = true; }, failed: (reason) => { error = reason; } });
+        if (saved) ready += 1;
+        else problems.push(`${job.name}, ${job.pose.label}: ${error || "not saved"}`);
+      }
+    } finally { renderer.close(); }
+    return [`Prepared ${ready} of ${jobs.length} story pose(s).`, ...problems].join(" ");
+  },
 };
 
 export default function PosesList({ services = host }: { services?: PosesServices }) {
@@ -73,6 +97,8 @@ export default function PosesList({ services = host }: { services?: PosesService
   return <section id="so-studio-poses" className="flex flex-col gap-2">
     <h3 className="font-semibold">Poses</h3>
     <p className="text-sm">Choose a default, restrict the poses a member can use, or direct a pose at a scene. A changed look renders a whole body when that pose is next used.</p>
+    {services.prepare && <button id="so-prepare-poses" type="button" className="st-button" disabled={busy} onClick={() => void work(() => (services.prepare as () => Promise<string>)())}>
+      Prepare story poses before play</button>}
     <label>Story pose ids or tags<input aria-label="Story pose ids or tags" className="text_pole" value={draft.poses?.use?.join(", ") ?? ""}
 onChange={(event) => event.target.value.trim() ? setUse(event.target.value.split(",").map((id) => id.trim()).filter(Boolean)) : mutate((current) => setPoses(current,
         { custom: current.poses?.custom }))} /></label>

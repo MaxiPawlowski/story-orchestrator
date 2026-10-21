@@ -105,6 +105,20 @@ export async function stepPrepare(ctx: StepEnv, member: Member): Promise<StepRes
   return { data: source };
 }
 
+export async function stepPoses(ctx: StepEnv): Promise<StepResult> {
+  await openSprites(ctx);
+  const section = ctx.page.locator('#so-studio-poses');
+  await section.locator('#so-prepare-poses').click({ force: true });
+  await ctx.page.waitForFunction(() => /Prepared \d+ of \d+|Nothing to prepare|Fix the story/.test(document.querySelector('#so-studio-poses [role="status"]')?.textContent ?? ''),
+    undefined, { polling: 1000, timeout: 1_800_000 });
+  const note = (await section.locator('[role="status"]').textContent()) ?? '';
+  const counts = /Prepared (\d+) of (\d+)/.exec(note);
+  if (!counts) return { outcome: 'fail', detail: note.slice(0, 300) };
+  const [ready, total] = [Number(counts[1]), Number(counts[2])];
+  return { outcome: ready === total && total > 0 ? 'pass' : 'refused', detail: ready === total ? undefined : note.slice(0, 300), data: { ready, total, note },
+    refusals: ready === total ? [] : [note] };
+}
+
 export async function buildAndKeep(ctx: StepEnv, member: Member, label: string, kind: string, reference: string, seed: number) {
   const box = await readBox(ctx);
   const result = await buildSpriteFromUI(ctx.page, { character: member.name, set: ctx.setOf(member), label, kind, reference, box, seed, steps: 25, models: ctx.models });

@@ -8,7 +8,7 @@ export type Mode = 'real' | 'dry';
 export type Outcome = 'pass' | 'fail' | 'refused' | 'skipped' | 'stub';
 
 export const JOURNEY_STEPS = [
-  'preflight', 'wizard', 'story', 'base', 'prepare', 'expressions', 'frames', 'pose', 'rig', 'play', 'look', 'look-rebuild',
+  'preflight', 'wizard', 'story', 'base', 'prepare', 'expressions', 'frames', 'pose', 'rig', 'poses', 'play', 'look', 'look-rebuild',
   'illustration', 'background', 'swipe', 'delete', 'reload', 'chat-switch', 'stale', 'gpu-idle',
 ] as const;
 export type JourneyStep = (typeof JOURNEY_STEPS)[number];

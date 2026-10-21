@@ -23,3 +23,14 @@ test("a broker that schedules images fairly gets the request at once: it gives q
   await waitForTextPriority({ status: async () => ({ activeText: 1, waitingText: 4, fairImages: true }), current: () => true, now: () => time, sleep, signal: new AbortController().signal });
   expect(sleep).not.toHaveBeenCalled();
 });
+
+test("a loud generation holds the render even when the broker is fair or silent; it starts once ST stops generating", async () => {
+  let time = 0, loud = 3;
+  const sleep = jest.fn(async () => { time += 500; loud -= 1; });
+  await waitForTextPriority({ status: async () => ({ fairImages: true }), loud: () => loud > 0, current: () => true, now: () => time, sleep, signal: new AbortController().signal });
+  expect(sleep).toHaveBeenCalledTimes(3);
+  loud = 1;
+  sleep.mockClear();
+  await waitForTextPriority({ status: async () => null, loud: () => loud > 0, current: () => true, now: () => time, sleep, signal: new AbortController().signal });
+  expect(sleep).toHaveBeenCalledTimes(1);
+});

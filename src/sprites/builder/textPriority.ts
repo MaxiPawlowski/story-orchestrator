@@ -4,6 +4,7 @@ export async function waitForTextPriority(deps: {
   now(): number;
   sleep(): Promise<void>;
   signal: AbortSignal;
+  loud?(): boolean;
 }, timeoutMs = 600_000): Promise<void> {
   const deadline = deps.now() + timeoutMs;
   for (;;) {
@@ -12,7 +13,7 @@ export async function waitForTextPriority(deps: {
     const status = await deps.status();
     deps.signal.throwIfAborted();
     if (!deps.current()) throw new Error("The look changed while waiting for the text model.");
-    if (!status || status.fairImages || !(status.activeText || status.waitingText)) return;
+    if (!deps.loud?.() && (!status || status.fairImages || !(status.activeText || status.waitingText))) return;
     if (deps.now() >= deadline) throw new Error("Text requests are still waiting. The changed-look render was deferred.");
     await deps.sleep();
   }

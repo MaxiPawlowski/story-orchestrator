@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 import type { Page } from 'playwright';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { DEBUG_DIR, PROJECT_ROOT } from './lib/connection.mts';
-import { activate, applyAuthoringRoute, captureSettings, freshPage, preflightCommon, restoreSettings, saveSoon, settleSaves, step, stepBase, stepPrepare, stepEdits, stepRig, chooseCharacter, type SettingsCapture, type StepEnv, type StepResult } from './lib/pocSteps.mts';
+import { activate, applyAuthoringRoute, captureSettings, freshPage, preflightCommon, restoreSettings, saveSoon, settleSaves, step, stepBase, stepPrepare, stepEdits, stepRig, stepPoses, chooseCharacter, type SettingsCapture, type StepEnv, type StepResult } from './lib/pocSteps.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
 import { assertRuntimeOnPage } from './lib/servedBundle.mts';
@@ -210,11 +210,12 @@ async function stepPose(ctx: Ctx): Promise<StepResult> {
   await activate(ctx, 'table');
   const wanted = Object.fromEntries(ctx.cast.map((member) => [member.name, member.poses[1]]));
   const posed = (actor: any, member: CastMember) => actor?.pose === wanted[member.name] && String(actor?.set ?? '').startsWith('lp_');
+  const posedAt = Date.now();
   const waited = await waitStage(ctx.page, (view) => ctx.cast.every((member) => posed(view.actors.find((actor: any) => actor.name === member.name), member)),
     ctx.mode === 'dry' ? 120000 : 1_800_000, 2000);
   const shown = Object.fromEntries(waited.view.actors.map((actor: any) => [actor.name, { pose: actor.pose, set: actor.set }]));
   const missing = ctx.cast.filter((member) => !posed(shown[member.name], member)).map((member) => `${member.name}: ${shown[member.name]?.pose ?? 'no actor'} on set ${shown[member.name]?.set ?? 'none'} (wanted a posed ${wanted[member.name]} body)`);
-  return { outcome: missing.length ? 'fail' : 'pass', detail: missing.join('; ') || undefined, data: { wanted, shown } };
+  return { outcome: missing.length ? 'fail' : 'pass', detail: missing.join('; ') || undefined, data: { wanted, shown, waitedMs: Date.now() - posedAt } };
 }
 
 async function stepLook(ctx: Ctx): Promise<StepResult> {
@@ -471,6 +472,7 @@ async function runJourney(page: Page) {
     for (const member of cast) await step(ctx, 'expressions', member.name, () => stepEdits(ctx, member, ['happy', 'angry', 'worried'].map((label) => ({ label, kind: 'expression', reference: `${slug(member)}/neutral` }))));
     for (const member of cast) await step(ctx, 'frames', member.name, () => stepEdits(ctx, member, ['blink', 'talk'].map((kind) => ({ label: 'neutral', kind, reference: `${slug(member)}/neutral` }))));
     for (const member of cast) await step(ctx, 'rig', member.name, () => stepRig(ctx, member));
+    await step(ctx, 'poses', null, () => stepPoses(ctx));
     await step(ctx, 'play', null, () => stepPlay(ctx, Math.max(1, turns - 2)));
     await step(ctx, 'pose', null, () => stepPose(ctx));
     await step(ctx, 'look', null, () => stepLook(ctx));
