@@ -33,6 +33,8 @@ const LAZY_MEANWHILE = ["src/runtime/agendaProposalsHost.ts", "src/runtime/coord
 
 const LAZY_DIET = ["src/runtime/storyUpdate.ts", "src/judge/director.ts", "src/wizard/provisioning.ts"];
 
+const LAZY_DELIVERY = ["src/runtime/delivery/kit.ts", "src/runtime/delivery/render.ts", "src/runtime/delivery/mine.ts"];
+
 const WARM_BATCH = ["src/sprites/builder/batchHost.ts", "src/sprites/builder/batchLease.ts"];
 
 const isHarness = (path: string) => HARNESS.includes(path) || CALIBRATION_PATTERN.test(path) || SPIKE_PATTERN.test(path);
@@ -63,6 +65,21 @@ describe("harness, calibration and spike modules ship as lazy chunks, never in t
     const present = new Set(files.map(rel));
     expect(LAZY_MEANWHILE.filter((path) => !present.has(path))).toEqual([]);
     expect(staticReach(files).filter((path) => LAZY_MEANWHILE.includes(path))).toEqual([]);
+  });
+
+  it("v2.9 plan 02: the voice and delivery renderer and per-speaker miner load as their own chunk, never with the entry", () => {
+    const present = new Set(files.map(rel));
+    expect(LAZY_DELIVERY.filter((path) => !present.has(path))).toEqual([]);
+    expect(staticReach(files).filter((path) => LAZY_DELIVERY.includes(path))).toEqual([]);
+  });
+
+  it("control: a planted static import of the delivery kit from the entry is reached", () => {
+    const planted = join(SRC, "index.tsx");
+    const fs = require("fs") as typeof import("fs");
+    const read = (path: string) => (path === planted ? `${fs.readFileSync(path, "utf8")}
+export { deliveryLines } from "./runtime/delivery/kit";
+` : fs.readFileSync(path, "utf8"));
+    expect(staticReach(files, read).filter((path) => LAZY_DELIVERY.includes(path))).toEqual(expect.arrayContaining(LAZY_DELIVERY));
   });
 
   it("control: a planted static import of the meanwhile host from the entry is reached", () => {

@@ -76,7 +76,20 @@ export interface GlobalSettings {
   sprites: SpriteSettings;
   spikes: SpikeSettings;
   help: HelpSettings;
+  characters: CharacterSettings;
 }
+
+export interface CharacterSettings {
+  delivery: boolean;
+  deliveryRepetition: boolean;
+}
+
+export const defaultCharacterSettings = (): CharacterSettings => ({ delivery: true, deliveryRepetition: true });
+
+const sanitizeCharacterSettings = (value: unknown): CharacterSettings => ({
+  delivery: !(isRecord(value) && value.delivery === false),
+  deliveryRepetition: !(isRecord(value) && value.deliveryRepetition === false),
+});
 
 export interface HelpSettings {
   checklistDismissed: boolean;
@@ -228,6 +241,7 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   sprites: defaultSpriteSettings(),
   spikes: defaultSpikeSettings(),
   help: defaultHelpSettings(),
+  characters: defaultCharacterSettings(),
 });
 
 const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRuntimeSettings): MemoryRuntimeSettings => {
@@ -332,6 +346,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     sprites: sanitizeSpriteSettings(value.sprites),
     spikes: sanitizeSpikeSettings(value.spikes),
     help: sanitizeHelpSettings(value.help),
+    characters: sanitizeCharacterSettings(value.characters),
   };
 };
 

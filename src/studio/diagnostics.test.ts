@@ -194,6 +194,11 @@ describe("runDiagnostics", () => {
         public: [{ label: "cold but loyal" }], secret: [{ id: "loyal", label: "loyal", revealed_when: { q: "rel_arin_player_trust", op: ">=", v: 3 } }] }] }] }),
       ...runDiagnostics({ ...clean, roster: [{ id: "arin", name: "Arin", commitments: [{ id: "gate", to: "player", what: "get you past the gate", made_when: "start",
         kept_when: { q: "trust", op: ">=", v: 3 }, broken_when: { not: { q: "trust", op: ">=", v: 1 } } }] }] }),
+      ...runDiagnostics({
+        ...clean, codex: { people: [{ id: "ferryman", name: "The ferryman", known_when: { reached: "cache" }, facts: [] }] },
+        roster: [{ id: "arin", name: "Arin", polish: { notes: "Teases {{user}} about everything." } }, { id: "bo", name: "Bo", polish: { notes: "Speaks of the ferryman with awe." } },
+          { id: "cy", name: "Cy", polish: { notes: "x ".repeat(150).trim(), prefer: Array.from({ length: 12 }, (_, index) => `a long preferred phrase ${index}`) } }],
+      }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

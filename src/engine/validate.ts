@@ -7,6 +7,7 @@ import { readFeaturePolicies } from "./featurePolicy";
 import { addError, asString } from "./validate/common";
 import { buildReachability, readTransition, validateGate, validateLiteral } from "./validate/gates";
 import { readCheckpoint, readRoster } from "./validate/checkpoints";
+import { deliveryNames } from "./validate/delivery";
 import { resolveGuidanceMembers } from "./checkpointGuidance";
 import { addBuiltinTensionQuality, addProgressQualities, readQuality } from "./validate/qualities";
 import { readArcBridges, readStoryOptions } from "./validate/storyOptions";
@@ -129,7 +130,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   const qualities = layer ? layer.factions.addFactionQualities(lived, factions, (json.roster as unknown[]).filter(isRecord), errors) : lived;
   const options = readStoryOptions(json, errors);
   const features = readFeaturePolicies(json.features, (path, message) => addError(errors, path, message));
-  const roster = readRoster(json.roster as Story["roster"], errors);
+  const roster = readRoster(json.roster as Story["roster"], errors, deliveryNames(json));
   resolveGuidanceMembers(checkpoints, roster);
   const arcBridges = readArcBridges(json.arc_bridges, errors);
   const chapters = readChapters(json.chapters, errors);

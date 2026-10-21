@@ -70,6 +70,14 @@ export const GUIDE_TOPICS = {
       + "in the last 20 messages (about 1,000 tokens, most recently named first) to foreshadow; own (default) sees only their own. Never put the player in the roster: "
       + "if a greeting says \"you are the lamplighter\", there is no Lamplighter card.",
   },
+  "roster-polish": {
+    title: "Voice and delivery",
+    fields: "roster[].polish, notes, prefer, avoid, tics, rhythm, by_mood, dialogue, enabled",
+    text: "polish {notes (300), prefer (12x40), avoid (20x40), tics (12x40), rhythm clipped|plain|flowing|ornate, by_mood {mood: text (160)}, dialogue keep|voice, enabled}: "
+      + "wording only, told to that member alone before they speak, never facts or plans. tics are habits named back when seen in 2 of their last 6 replies; "
+      + "repeated phrases are named too. No names in avoid/tics, no word in both prefer and avoid, by_mood needs mood. About 120 tokens: prefer, avoid, repeats, "
+      + "rhythm, then note sentences are cut. Record only what the card shows; never invent a trait.",
+  },
   "drives-motives": {
     title: "Drives and motives",
     fields: "roster[].drive, checkpoints[].motives",
@@ -431,6 +439,7 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "cast-member-no-card": "cast-changes",
   "background-missing": "background",
   "roster-member-is-player": "roster",
+  "delivery-names-unknown-entity": "roster-polish", "delivery-directs-player": "roster-polish", "delivery-over-budget": "roster-polish",
   "cast-change-unknown-member": "cast-changes",
   "requirement-persona-missing": "requirements",
   "gate-open-on-arrival": "gates",

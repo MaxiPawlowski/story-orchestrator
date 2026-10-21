@@ -173,6 +173,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Characters | Relationship labels | Words for how a character treats you, and secrets about them you can learn, on their People page. | Experimental |
 | Characters | Promises to you | Things a character has promised you, which the character remembers and may keep, raise or break. | Experimental |
 | Characters | Promises remembered | A promise you make to a character is remembered in your own words. |  |
+| Characters | Voice and delivery | Each character is told privately how they word things. |  |
 | Characters | Rumors and gossip | News a story declares travels between characters along the channels it authors, and may change on the way. |  |
 | World | Story lorebook switching | Story lorebook entries switch on and off as the story moves. |  |
 | World | Story lorebooks | A story's lorebooks load only in the chats that play it. |  |

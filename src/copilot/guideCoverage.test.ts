@@ -39,6 +39,7 @@ const TRANSITION: Record<keyof Transition, Covered> = {
 const ROSTER: Record<keyof RosterMember, Covered> = {
   id: "roster", name: "roster", role: "roster", drive: "drives-motives", view: "roster", aliases: "roster", card: "living-cards", sprites: "poses",
   relationships: "character-life", mood: "character-life", agenda: "character-life", schedule: "character-life", factions: "factions", gossip: "rumors", commitments: "commitments",
+  polish: "roster-polish",
 };
 
 const QUALITY: Record<keyof Quality, Covered> = {

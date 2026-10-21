@@ -29,6 +29,8 @@ import { loadInnerRender, shownRows } from "@memory/index";
 import { currentChatOwner, getPlayerName } from "@services/STAPI";
 import { storyEnded } from "./chapterPort";
 import { createNarratorSheetPort } from "./narratorSheetPort";
+import { createDeliveryPort } from "./deliveryPort";
+import { resolveFeatures } from "./featureResolve";
 import { hasOpenGroup } from "./persistence";
 import { createGamePort } from "./gamePort";
 import { landedMeanwhile } from "./agendaProposals";
@@ -98,6 +100,20 @@ function wireRumors(port: ManagerPort, memory: MemoryCoordinator) {
   return rumors;
 }
 
+function wireDelivery(port: ManagerPort, memory: MemoryCoordinator) {
+  const { view } = port;
+  const delivery = createDeliveryPort({
+    story: () => port.loaded()?.story ?? null, values: () => view.getState()?.blackboard.values ?? null, rows: () => view.hosts.chat.chatRows(),
+    switches: () => {
+      const feature = resolveFeatures(getGlobalSettings(), port.loaded()?.story ?? null, port.extras().overrides).delivery;
+      return { enabled: feature.enabled, repetition: feature.controls.repetition?.value === true };
+    },
+    refresh: () => memory.updateInjection(),
+  });
+  memory.injector.addPrivateSource((rosterId) => delivery.lines(rosterId), { active: () => delivery.active(), perDraft: (rosterId) => delivery.delivers(rosterId) });
+  return delivery;
+}
+
 function wireInner(port: ManagerPort, memory: MemoryCoordinator, pacing: () => PacingCoordinator) {
   let innerHost: InnerBeatHost | null = null;
   let innerLoad: Promise<InnerBeatHost> | null = null;
@@ -150,6 +166,7 @@ export function wireCoordinators(port: ManagerPort) {
     chatId: () => view.hosts.chat.chatId(), refresh: () => memory.updateInjection(),
   });
   memory.injector.addPrivateSource((rosterId) => narrator.lines(rosterId));
+  const delivery = wireDelivery(port, memory);
   const carry = createCarryActions(port, () => memory.updateInjection());
   const inner = wireInner(port, memory, () => pacing);
   const refusing = () => {
@@ -262,5 +279,5 @@ export function wireCoordinators(port: ManagerPort) {
     chatOpen: () => Boolean(view.hosts.chat.chatId()),
     groupOpen: hasOpenGroup,
   };
-  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, promises, witness, rumors, carry, narrator };
+  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, promises, witness, rumors, carry, narrator, delivery };
 }

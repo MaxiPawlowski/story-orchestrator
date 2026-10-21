@@ -1,0 +1,46 @@
+{
+  "id": "delivery-ferry",
+  "title": "The Ferry Crossing",
+  "description": "A synthetic two-member story whose only new content is voice and delivery sheets.",
+  "roster": [
+    {
+      "id": "tamsin",
+      "name": "Tamsin",
+      "role": "the ferry pilot",
+      "polish": {
+        "notes": "Short sentences. Talks in river terms. Never says sorry out loud.",
+        "prefer": ["current", "mind the rope"],
+        "avoid": ["indeed", "perhaps"],
+        "tics": ["smirks"],
+        "rhythm": "clipped"
+      }
+    },
+    {
+      "id": "orrin",
+      "name": "Orrin",
+      "role": "the toll clerk",
+      "aliases": ["the clerk"],
+      "polish": {
+        "notes": "Long, careful sentences full of qualifications.",
+        "prefer": ["strictly speaking"],
+        "rhythm": "ornate"
+      }
+    },
+    {
+      "id": "narrator",
+      "name": "River Narrator",
+      "role": "narrator",
+      "view": "omniscient"
+    }
+  ],
+  "qualities": [
+    { "key": "fare_paid", "type": "bool", "source": "extractor", "rubric": "Has the player paid the fare?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "The landing", "type": "anchor", "start": true, "objective": "Board the ferry." },
+    { "id": "across", "name": "The far bank", "type": "anchor", "objective": "Reach the far bank." }
+  ],
+  "transitions": [
+    { "from": "start", "to": "across", "priority": 1, "gate": { "q": "fare_paid", "op": "==", "v": true } }
+  ]
+}
