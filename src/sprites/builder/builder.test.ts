@@ -194,6 +194,23 @@ test("a base render's fringe is cleaned before QA and save: background-coloured 
   expect(fringe[2]).toBe(30);
 });
 
+test("a blink frame is checked eye by eye when the face detector answers; expressions are not", async () => {
+  const { builder, deps } = fixture();
+  const white = image(32, 32);
+  for (let y = 11; y < 14; y++) for (let x = 10; x < 22; x++) white.data.set([246, 246, 248, 255], (y * 32 + x) * 4);
+  const kept = cropPixels(white, box);
+  for (let y = 4; y < 6; y++) for (let x = 3; x < 6; x++) kept.data.set([30, 30, 30, 255], (y * 16 + x) * 4);
+  deps.decode = async (src) => src === "base" ? white : kept;
+  const eyes = jest.fn(async () => [{ x: 10, y: 10, width: 5, height: 5 }, { x: 17, y: 10, width: 5, height: 5 }]);
+  deps.eyes = eyes;
+  await expect(builder.build({ ...request, kind: "blink", label: "neutral", value: "neutral" })).rejects.toThrow(/eye open/);
+  expect(eyes).toHaveBeenCalledTimes(1);
+  eyes.mockClear();
+  deps.decode = async (src) => src === "base" ? base : edit;
+  await builder.build(request).catch(() => undefined);
+  expect(eyes).not.toHaveBeenCalled();
+});
+
 test("a failed reference cleanup still releases the GPU lease", async () => {
   const { builder, deps } = fixture();
   const release = jest.fn(async () => {});
