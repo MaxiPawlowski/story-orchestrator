@@ -1,12 +1,12 @@
 # Plan 11 — C4 option (b): re-stage the target's path after a jump
 
 **Status (2026-10-03): v2.7 plan 11 (was old v2.7 09). CLOSED: keep (c) (decision 1), seed dropped; option E deferred to
-`v2.9/05-deferred-items.md` §05.3 (decision 2). No code.** Source: `docs/plans/v2.6/v2.7-seeds.md` row "C4 option (b)".
+`v3.0/05-deferred-items.md` §05.3 (decision 2). No code.** Source: `docs/plans/v2.6/v2.7-seeds.md` row "C4 option (b)".
 Overview: `00-overview.md`.
 **Gate tiers:** none (docs). Model input: none.
 
 Name clash: this is v2.6 plan 04's design call **C4** (`/cp activate` staging). It is not v2.3 plan 07's C4 ("absent agency
-= the defaults"), which v2.4 D6 cites. v2.9 04 (D6/T22 revisits) uses the other one.
+= the defaults"), which v2.4 D6 cites. v3.0 04 (D6/T22 revisits) uses the other one.
 
 ## What it is (plain words, 3–6 lines)
 
@@ -82,11 +82,11 @@ information without the product guessing.
 4. If (b) is ever built, how is an ambiguous path resolved? **Recommended: don't build; if forced, C (author picks).**
 
 Decisions 3 and 4 had no inline answer; they are taken as recommended (review A16). "Plan 23" in decision 3 is now the
-v2.8 01 §G over-steer session, whose evidence feeds v2.9 04.
+v2.8 01 §G over-steer session, whose evidence feeds v3.0 04.
 
 ## Floor, measurement and gates if reopened
 
-Moved to `v2.9/05-deferred-items.md` §05.3, which is now their only owner (Sol r3 R3-21): the reopen trigger (2
+Moved to `v3.0/05-deferred-items.md` §05.3, which is now their only owner (Sol r3 R3-21): the reopen trigger (2
 sessions), the needs-inheritance census, the (b)/(D) floor and the gate recipes for E and B/C/D. This plan is closed
 and keeps only the decisions above.
 
@@ -96,14 +96,14 @@ and keeps only the decisions above.
 
 ## Links
 
-- v2.9 05 §05.3 (option E, deferred), v2.7 04 (where E would land as a finding with an action).
-- v2.8 16 SP5 (its "unstaged jump target" caveat), v2.9 04 D6/T22 revisits (deferred; agency alternates), v2.8 01 §G.
-- No direct dependency: v2.7 06, v2.8 18, v2.8 20, v2.9 03, v2.8 01 §C SP2, v2.9 02, v2.8 12, v2.8 13, v2.7 14, v2.8 11,
+- v3.0 05 §05.3 (option E, deferred), v2.7 04 (where E would land as a finding with an action).
+- v2.8 16 SP5 (its "unstaged jump target" caveat), v3.0 04 D6/T22 revisits (deferred; agency alternates), v2.8 01 §G.
+- No direct dependency: v2.7 06, v2.8 18, v2.8 20, v3.0 03, v2.8 01 §C SP2, v3.0 02, v2.8 12, v2.8 13, v2.7 14, v2.8 11,
   v2.7 13, v2.8 15, v2.7 09, v2.7 12, v2.7 08, v2.8 14.
 
 ## Review 2026-10-03
 
-Applied: A16 (the "not recorded" answer is recorded; decisions 3/4 as recommended; E deferred to v2.9 05.3), the
+Applied: A16 (the "not recorded" answer is recorded; decisions 3/4 as recommended; E deferred to v3.0 05.3), the
 Claude-A note on Links (deferred plans named as deferred), B12/F36 (references). Closed.
 
 Round 3 (Sol): R3-21 applied.

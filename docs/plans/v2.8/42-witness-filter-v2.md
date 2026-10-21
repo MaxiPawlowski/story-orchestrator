@@ -1,10 +1,10 @@
 # Plan 42 — Witness filter v2
 
-**Status: v2.8, owner decision 2026-10-14 (moved from v2.9 02), not built. Revised 2026-10-14 against the Astra review
+**Status: v2.8, owner decision 2026-10-14 (moved from v3.0 02), not built. Revised 2026-10-14 against the Astra review
 (owner approved; §13).** Option A shipped as v2.7 02 C2 and its K1/K2 fix (`7ee079f2`). This plan owns option B (an
 extraction witness source with span/mixed-audience labels and explicit unknowns, measured offline) and, as a separate
-later decision, option C (a host-channel-aware message filter). Was v2.7 22 → v2.9 02 (`docs/plans/v2.7/RENUMBER.md`);
-`docs/plans/v2.9/02-sp9-witness-filter-v2.md` keeps the full spike history and now points here.
+later decision, option C (a host-channel-aware message filter). Was v2.7 22 → v3.0 02 (`docs/plans/v2.7/RENUMBER.md`);
+`docs/plans/v3.0/02-sp9-witness-filter-v2.md` keeps the full spike history and now points here.
 **Gate tiers** (v2.8 00 §Gate taxonomy): B implementation D, acceptance CL (extraction route + second-model labels);
 C implementation D, acceptance RP/LT (live reply legs on an adolion-fresh lane).
 
@@ -286,7 +286,7 @@ Committed before any run; never retuned (v2.8 rule 2). First added 2026-10-14 (n
 - v2.8 15 cue + scene read merge: B adds a line family to the same read (RB).
 - v2.8 13 J7.3 (epistemic via the judge): a possible second witness source; not scored here.
 - v2.8 52 codex: needs player-character provenance, which this record does not give by itself.
-- v2.9 02: history kept, status "moved to v2.8 42".
+- v3.0 02: history kept, status "moved to v2.8 42".
 
 ## 11. Decisions for the owner
 
@@ -296,7 +296,7 @@ Committed before any run; never retuned (v2.8 rule 2). First added 2026-10-14 (n
    accuracy rows pass and Wc fails.**
 3. Build C (message-level filter, a stance change)? **Recommended: a separate decision after B's record; default no
    unless sessions show characters acting on scenes they missed (not only secrets).**
-4. Should a story be able to require Summarize / chat vectors off? **Recommended: warn only (kept from v2.9 02
+4. Should a story be able to require Summarize / chat vectors off? **Recommended: warn only (kept from v3.0 02
    decision 4).**
 5. Witness labels from real sessions: who writes them? **Recommended: one model writes, a second checks,
    disagreements adjudicated by a third or labelled `unknown` (never dropped); the owner never sees them.**

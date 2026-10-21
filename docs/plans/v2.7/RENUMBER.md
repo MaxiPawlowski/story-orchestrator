@@ -1,7 +1,7 @@
 # Version split and renumbering (2026-10-03)
 
 The v2.7 set was split by the user: **v2.7** = urgent fixes + quick wins whose gates are deterministic (`npm run gates`,
-no-LLM scenarios, Storybook; no full LLM suite); **v2.8** = the rest of the defined plans; **v2.9** = everything deferred.
+no-LLM scenarios, Storybook; no full LLM suite); **v2.8** = the rest of the defined plans; **v3.0** = everything deferred.
 Old numbers (left) are the v2.7 build-order numbers used before this date.
 
 | old v2.7 | new |
@@ -16,17 +16,17 @@ Old numbers (left) are the v2.7 build-order numbers used before this date.
 | 06 thinking-per-story | v2.7 08 (warning, built); story/checkpoint level (R4) → v2.8 01 |
 | 07 commitment-double-negatives | v2.7 09 |
 | 08 sp2-recommit-v2 | v2.7 10 (option C, built); option A → v2.8 01 |
-| 09 c4-option-b-restage | v2.7 11 (close); E → v2.9 05 |
+| 09 c4-option-b-restage | v2.7 11 (close); E → v3.0 05 |
 | 10 model-choice | v2.7 12 (decision + docs); funded thinking A/B → v2.8 01 |
 | 10a model-switch-checklist | v2.7 12a |
 | 11 warden-lore-one-request | v2.7 13 (close) |
 | 13 b10-cli-judge | v2.7 14 (drop as runtime judge; role picker + per-source context table) |
-| 16d sp10-tool-call-turns | v2.7 15 (B + C); the rest → v2.9 05 |
+| 16d sp10-tool-call-turns | v2.7 15 (B + C); the rest → v3.0 05 |
 | 16 spike-defers (index) | removed; its four children are below |
 | 30 player-persona-and-start-setup | v2.8 03 |
 | 26 self-contained-images | v2.7 17 |
 | 26b sprite generation (no file before) | v2.7 18 (new) |
-| 28 talkinghead-review | v2.7 19 talking-sprites (rig option D → v2.9 05) |
+| 28 talkinghead-review | v2.7 19 talking-sprites (rig option D → v3.0 05) |
 | 32 living-cards | v2.7 20 |
 | 27 wizard-assistant | v2.8 09 |
 | 12 curator-create-op | v2.8 11 |
@@ -39,12 +39,12 @@ Old numbers (left) are the v2.7 build-order numbers used before this date.
 | 19 quests-and-game-layer | v2.8 18 |
 | 17 open-stretches | v2.8 19 |
 | 18 character-life | v2.8 20 |
-| 29 smart-context-harvest | v2.8 21 (E0 + offline group evaluation); runtime verbatim recall → v2.9 05 |
+| 29 smart-context-harvest | v2.8 21 (E0 + offline group evaluation); runtime verbatim recall → v3.0 05 |
 | 24 living-story-director | v2.8 22 |
-| 23 d6-t22-revisits | v2.9 04 (decision); Claude's over-steer card + session → v2.8 01 |
-| 16c sp1-swipe-back-cache | v2.9 01 |
-| 22 sp9-witness-filter-v2 | v2.9 02 |
-| 25 new-game-plus | v2.9 03 |
+| 23 d6-t22-revisits | v3.0 04 (decision); Claude's over-steer card + session → v2.8 01 |
+| 16c sp1-swipe-back-cache | v3.0 01 |
+| 22 sp9-witness-filter-v2 | v3.0 02 |
+| 25 new-game-plus | v3.0 03 |
 
 ## 2026-10-04: the image track returns to v2.7
 
@@ -85,7 +85,7 @@ v2.7 re-scoped for player experience; every test re-runs from zero (v2.7 39).
 | — | v2.7 30 in-plugin guide (new) |
 | — (v2.7 22/23/25 FLUX + tooling clean-up) | v2.7 31 FLUX out, product vs local tooling |
 | v2.7 17–21, 24, 26, 28 (product pieces) | v2.7 32 images and living characters |
-| v2.8 01 §C, v2.9 04 option D, v2.8 13 N1/N6/J7.2, v2.8 04 C5 | v2.7 33 player loop fixes |
+| v2.8 01 §C, v3.0 04 option D, v2.8 13 N1/N6/J7.2, v2.8 04 C5 | v2.7 33 player loop fixes |
 | v2.8 03 | v2.7 34 (file moved) |
 | v2.8 17, 18 Q6, 19, 13 N3/N5 | v2.7 35 world pressure and open stretches |
 | v2.8 18 Q1–Q5, 04 C4/C7/C9a, 23 option A | v2.7 36 quests and story panels |

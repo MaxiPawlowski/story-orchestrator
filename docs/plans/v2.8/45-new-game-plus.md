@@ -1,7 +1,7 @@
 # Plan 45 — New Game+
 
 **Status: v2.8, owner 2026-10-14; built 2026-10-15 on `v2.8-p45-carry` (not merged; §Gate record). Revised 2026-10-14 against the Astra review (owner approved; §Review
-2026-10-14).** Moved here from `docs/plans/v2.9/03-new-game-plus.md` (owner 2026-10-14: roleplay mechanics move into
+2026-10-14).** Moved here from `docs/plans/v3.0/03-new-game-plus.md` (owner 2026-10-14: roleplay mechanics move into
 v2.8). That plan's history and options are kept; this one restates them on master `211d8d96`. Overview:
 `00-overview.md` §Rules (this folder).
 **Gate tiers** (v2.8 rule 7): implementation **D**; acceptance **D** for the carry, **CL** + **LT** for the
@@ -26,7 +26,7 @@ v2.8). That plan's history and options are kept; this one restates them on maste
 | What | State | Citation |
 |---|---|---|
 | Seed and deferral | out of v2.6 07 scope; "nothing measured asks for it yet" | `docs/plans/v2.6/07-chapters-and-saga-memory.md:382-383` §D9, `:611-626` |
-| v2.9 03 | deferred 2026-10-03; recommended "A now, B when built" because `seal` was off and no final chapter had run | `docs/plans/v2.9/03-new-game-plus.md` §Recommendation |
+| v3.0 03 | deferred 2026-10-03; recommended "A now, B when built" because `seal` was off and no final chapter had run | `docs/plans/v3.0/03-new-game-plus.md` §Recommendation |
 | Blocker 1: `seal` off | **gone.** Owner features-on rule 2026-10-09 (v2.8 rule 9); every chapter feature now defaults on | `src/runtime/chapters.ts:91-94` |
 | Blocker 2: no live final chapter | still open: no session record mentions an epilogue (`grep -ril epilogue test/sessions` = 0 hits on `211d8d96`) | — |
 | Epilogue in tests | `chapterSaga.test.ts:110` "the final seal writes the epilogue, ends the story, clears the bridge" | `src/runtime/chapterSaga.test.ts:110` |

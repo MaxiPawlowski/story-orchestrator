@@ -1,6 +1,6 @@
 # Plan 04 — D6/T22 revisits
 
-**Status: DEFERRED to v2.9 (user, 2026-10-03).** Was v2.7 plan 23; moved at the version split
+**Status: DEFERRED to v3.0 (user, 2026-10-03).** Was v2.7 plan 23; moved at the version split
 (`docs/plans/v2.7/RENUMBER.md`). Only the **decision** lives here. Claude's over-steer charter card, its completion
 contract and the session (Claude's and the user's) are **v2.8 01** carry-over. Source: `docs/plans/v2.6/v2.7-seeds.md`
 row "D6/T22 revisits". Overview: `00-overview.md` (this folder).
@@ -45,7 +45,7 @@ jump call C4 (now v2.7 11).
 | v2.5 C6 | "Keep the defaults and add no player text in 2.5", because no session had measured the need | `docs/plans/v2.5/decisions-sheet.md:75`; waiting list `v2.5/00-overview.md:350, :378`; `v2.5/10-acceptance.md:249` |
 | v2.6 rule 5, 2026-09-30 | **Judge uses default on** (user). This flipped `agencyCheck` on. Only `houseRules` stays off | `docs/plans/v2.6/00-overview.md:47`; `src/judge/settings.ts:70` (`JUDGE_USES_OFF_BY_DEFAULT`) |
 | v2.6 plan 10 | D6/T22 are "rule-7 surface decisions … recorded for the user's review with the scores as evidence" (v2.4 rule 7) | `docs/plans/v2.6/10-acceptance.md:80` |
-| v2.7 review, 2026-10-03 | D6 defaults kept; `agencyCheck` stays on; warden mode decided after sessions. Card + session → v2.8 01; decision → v2.9 (this plan) | `docs/plans/v2.7/00-overview.md` §Decisions on 16–26; `RENUMBER.md` |
+| v2.7 review, 2026-10-03 | D6 defaults kept; `agencyCheck` stays on; warden mode decided after sessions. Card + session → v2.8 01; decision → v3.0 (this plan) | `docs/plans/v2.7/00-overview.md` §Decisions on 16–26; `RENUMBER.md` |
 
 So **T22's default has already flipped**, through the blanket v2.6 rule 5 and not through a T22-specific decision. D6's
 defaults have not changed.
@@ -145,7 +145,7 @@ Each is a separate default and can be chosen independently.
 6. Close the seed if 1–3 are "yes" and 4 is decided? **Recommended: yes.** defer
 
 (Answers kept verbatim. 1–3 are decided. 5's "test case" is the over-steer charter card in v2.8 01. 4 and 6 are what
-this v2.9 plan decides, from the v2.8 01 session evidence.)
+this v3.0 plan decides, from the v2.8 01 session evidence.)
 
 ## The session: owned by v2.8 01 (review C9, refined)
 
@@ -157,7 +157,7 @@ its completion contract; both are **v2.8 01** work, not this plan's:
 - **Completion contract:** `so-session stop` VALID (fail-closed artifacts), `so-session digest` reports agency notes
   raised / accepted / applied per 100 turns and every reply the check flagged, with the rater's "helpful / invisible /
   OOC / over-corrected" mark per note. Claude plays the card; the user plays the same card by hand (decision 5).
-- **Hand-over to this plan:** the digest(s) and the T0–T7 journal count below. v2.9 04 then decides 4 and 6.
+- **Hand-over to this plan:** the digest(s) and the T0–T7 journal count below. v3.0 04 then decides 4 and 6.
 
 ## Floor and measurement before deciding
 
@@ -188,7 +188,7 @@ at `any`, warden on `auto`:
 - v2.7 09 commitment double negatives (player-line evidence).
 - v2.7 11 C4 option (b) (agency alternates are jumps; the other "C4").
 - v2.8 20 character life, v2.8 18 quests (more outcome qualities raise D6's stakes).
-- v2.9 01 SP1: the user's hand-played turns feed its S4 counter too.
+- v3.0 01 SP1: the user's hand-played turns feed its S4 counter too.
 
 ## Review 2026-10-03
 

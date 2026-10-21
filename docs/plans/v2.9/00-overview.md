@@ -1,61 +1,106 @@
 # Implementation Overview — Story Orchestrator v2.9
 
-> **2026-10-14 (owner):** 02 and 05.4 moved to v2.8 42 / 43.
->
-> **2026-10-07:** 04 option D (agency notes → `auto`) moved to v2.7 33 W2. Decided (recommendations): 01 (SP1 swipe-back cache) and 05.1 (2D rig) dropped.
+**Status: PLANNED 2026-10-21 (owner).** v2.9 = player-experience additions and current-feature fixes from the 2026-10-21
+harvest, triaged by gpt-6.1-sol (`01-triage-sol.md`, codex exec, high reasoning, read-only, on `6861d989`). The previous
+v2.9 (deferred items) was renamed **v3.0** the same day (`docs/plans/v3.0/00-overview.md`). Nothing here is approved or built;
+v2.8 keeps its queue (`docs/plans/v2.8/32-queue.md`), and this set does not reorder it. No model time or pod budget is authorized.
 
-**Status: DEFERRED (created 2026-10-03 at the v2.7 split).** v2.9 = everything the user deferred from the v2.7 plan set
-on 2026-10-03, and the deferred remainders of plans that moved to v2.7 or v2.8. **Nothing here is scheduled until v2.8
-closes.** No plan is approved or built. Old → new numbers: `docs/plans/v2.7/RENUMBER.md`. Review findings applied:
-`docs/plans/v2.7/review-2026-10-03.md` (old numbers), per plan in each file's "Review 2026-10-03" section.
+Inputs: `docs/plans/v2.8/extension-research-2026-10-21/` (13 repo reviews, the per-character polish design, a non-ST niche
+scout, `SUMMARY.md`) plus sol's own audit of current features (A01–A13 in `01-triage-sol.md`).
 
 ## Rules
 
-1. **Inherited.** v2.6, v2.7 (`v2.7/00-overview.md` §Rules) and v2.8 (`v2.8/00-overview.md` §Rules) rules and every
-   invariant in `.claude/rules/architecture.md` apply.
-2. **A deferred plan is not a backlog item.** Each one names what would reopen it (table below). When v2.8 closes, every
-   row is either reopened (its trigger met, re-approved by the user with its floors restated) or dropped. None is built
-   because its turn came.
-3. **Stories run in group chats only** (v2.7 03). No plan here adds solo support.
-4. **Version-qualified references** (review B12): every plan reference names its version ("v2.7 02 C2", "v2.8 21").
-5. Gate classes as in v2.8 rule 7 (`v2.8/00-overview.md` §Gate taxonomy, review F15). A reopened plan states its class.
+- v2.8 `00-overview.md` §Rules apply (tiers, new player surfaces need an owner decision, floors informational and never
+  retuned, every built feature on by default, thinking and inner voice stay on, English only, no campaign content here).
+- Each plan registers its feature, updates `docs/authoring/story-guide.md` (+ `npm run docs:guide`, `npm run docs:settings`),
+  keeps new code in lazy chunks (main budget 1,300,000 B) and decides campaign adoption explicitly (review by another model,
+  counts only to the owner).
+- Model-consuming acceptance = real Artemis replies, thinking and inner voice on, on a lane in an authorized GPU window; corpus,
+  prompts, scorer, routes, settings and floors frozen before inference; denominators, abstentions and cancellations reported.
 
-## Deferred items
+## Plans
 
-| # | Item | Source (old v2.7 → new home) | Why deferred | What would reopen it | Depends on |
-|---|---|---|---|---|---|
-| 01 | `01-sp1-swipe-back-cache.md` SP1 swipe-back cache | old 16c (child of the removed 16 index) → v2.9 01 | S4 (≥ 3 natural swipe-backs per 100 player turns) is the deciding bar and only hand play can score it; S3's control made 0 reads; ST cannot swipe a non-last message | S4 ≥ 3 in the user's own play (≥ 300 turns), or a swipe-back left wrong state, or ST allows non-last swipes. **Otherwise auto-drop at the v2.9 freeze** (option (b), no counter; decided by the user 2026-10-03) | v2.8 01 (SP2 option A owns the mutation seam first); user's hand-played sessions |
-| 02 | `02-sp9-witness-filter-v2.md` SP9 witness filter v2 (**moved to v2.8 42, owner 2026-10-14**) | old 22 → v2.9 02 (its option A shipped as v2.7 02 C2; K1/K2 fix in v2.7) | no accurate witness source (presence 4/40); host channels (Summarize, Vector Storage) leak regardless; stance change would promise privacy the host does not keep | sessions show characters acting on scenes they missed (not only secrets), and the user makes message-level privacy a goal; then B (extraction witness, offline, W4 ≥ 0.9) before any filter (C) | v2.7 02 C2 + **K1 fixed**; v2.8 21's offline presence-proxy result |
-| 03 | `03-new-game-plus.md` New game plus: **moved to v2.8 45 (owner 2026-10-14)** | old 25 → v2.9 03 → v2.8 45 | the epilogue it would consume has never run live (`seal` off, no final chapter reached); nobody asked for it | the Q-M floors pass and `seal` ships (or an author opts in) **and** one live run reaches a `final` chapter; then B (typed outcome carry into a declared sequel) | v2.8 01 Q-M ratings; v2.7 06 plays index; v2.7 06 Continue list (option E) |
-| 04 | `04-d6-t22-revisits.md` D6/T22 revisits (decision only) | old 23 → v2.9 04; the over-steer charter card, its completion contract and the sessions → v2.8 01 | D6/T22 defaults were reserved for a player session that has not happened; 1–3 decided (keep), 4 and 6 wait | the v2.8 01 over-steer session(s) (Claude's card + the user's play) hand over their digest; floors already predeclared in the plan | v2.8 01 card + sessions |
-| 05.1 | `05-deferred-items.md` layered 2D rig | old 28 option D → v2.7 19 talking-sprites (D → here) | heavy build, auto-rig robustness unknown, Spine licence; user parked it | the v2.7 19 playtest asks for real head motion B + P cannot give | v2.7 18 sprite generation, v2.7 19 |
-| 05.2 | SP10 tool-call turns, the rest | old 16d option A → v2.7 15 (B + C there) | nobody plays story chats with CC function calling | CC + tools in story chats, or a session finding on multi-boundary tool turns | v2.7 15 (probe removed; recipe in the v2.5 report) |
-| 05.3 | C4 report-only staging panel | old 09 option E → v2.7 11 (close) | no author session asked for it | an author session finds jump staging wrong and painful to fix | v2.7 04 check registry (lands as a finding with an action) |
-| 05.4 | Runtime verbatim recall (**moved to v2.8 43, owner 2026-10-14**) | old 29 B/P1/P5 → v2.8 21 (E0 + offline only) | in groups, recall needs a witness filter; unmeasured | E0 picks a winning arm (hit@4 ≥ 0.80), current VR1 and VR2 pass together on a fixture meeting v2.8 21 §6.2's minimums (≥ 20 positives, ≥ 20 nonce exclusions, ≥ 3 members, ≥ 2 secret scenes, ≥ 2 sessions), and a reversible witness record exists (old VR6 retired) | v2.8 21; v2.9 02 option B; v2.8 01 Q-M5 + P3 |
-| 05.6 | Optional "Critic" role | v2.7 14 research decision 2 (home decided by the user 2026-10-03) | "after the wizard work" (v2.8 09) | v2.8 09 built, and the critic passes chains a different model rejects | v2.8 09; v2.7 14 role map |
-| 05.5 | "Not in v2.7" items inside v2.8 plans (persona-fit judge, per-chat avatars, same-Jev hosts A5) | v2.8 03 / 08 / 14 | written before the split; placed in v2.9 by the user 2026-10-03 | per item, see `05-deferred-items.md` §05.5 | parent v2.8 plan |
+- **01** `01-triage-sol.md` — sol's triage: verdicts V/E/M/G/C/N, audit A01–A13, plan set, challenges to the harvest.
+- **02** `02-roster-voice-prevention.md` — characters sound distinct before any rewrite: authored `roster[].polish`, a voice
+  line in the drafted member's private block, per-speaker repetition and tics. No play-time model call. Owns the schema 03 uses.
+- **03** `03-per-character-reply-polish.md` — the owner's lead idea: a signal-triggered, per-member rewrite of wording only,
+  guarded in code and measured against prevention alone. Lands last (timing spike first).
+- **04** `04-reactive-character-cues.md` — authored cue bank: characters notice specific events, topics deepen when raised again,
+  social norms get noticed; member-private, once/cooldown, rollback ≡ replay.
+- **05** `05-evidenced-story-threads.md` — bounded story-sifting patterns over public typed events (Felt/Winnow), with evidence
+  refs and authored callbacks.
+- **06** `06-grounded-next-actions-and-stakes.md` — "What could I do?" seeded from goals, threads and disclosed check-help hints;
+  dormant threads resurface; visible ways to improve a pending check.
+- **07** `07-delayed-story-echoes.md` — authored consequences that land later (story time or boundaries) if still valid; cue-only
+  first slice.
+- **08** `08-player-observations.md` — perception-only "You notice…" details with disclosure gates and optional seeded passive
+  checks; never the player's feelings or actions.
+- **09** `09-effective-feature-help.md` — Help shows what this chat actually has enabled and what waits for setup (A01, A11).
 
-## Order if reopened
+- **10** `10-review-sol.md` — sol's review of 00 and 02–09 (2026-10-21): every plan fix-first, one P0 (03 thought carry);
+  fixes applied the same day (see each plan's §Review 2026-10-21 (sol)).
 
-No build order is set. If several reopen at once, by dependency: 02 B before 05.4; 04 needs only v2.8 01's evidence
-(decision, docs or a settings default); 01 and 03 are independent; 05.1 after v2.7 18/19.
+## Build order (sol)
 
-## Status
+1. Relevant v2.8 foundation first: stopped-partial contract (A02/M12 → v2.8 69 K13), chapter-fold compatibility (A03/M05 →
+   v2.8 69 + 63), transcript-copier warning (M06), measurement hygiene (v2.8 35).
+2. v2.9 09 and 02 (measure prevention alone).
+3. v2.9 04.
+4. v2.9 05 → 06.
+5. v2.9 07.
+6. v2.9 08 (after the surface and agency decisions).
+7. v2.9 03: timing/ownership spike after 02; automatic rewriting only after consumer-order and independent-faithfulness evidence.
+   Automatic polish also waits for a design preserving thought carry, or explicit owner approval of its reduction; retaining
+   reasoning bytes alone is insufficient (review P0, `10-review-sol.md`).
 
-| Plan | State |
-|---|---|
-| 01, 02, 04 | DEFERRED (user, 2026-10-03); user answers recorded inline; not scheduled before v2.8 closes |
-| 03 | moved to v2.8 45 (owner 2026-10-14) |
-| 05 | DEFERRED; entries recorded |
+## Folds into existing plans (not yet applied)
 
-## Decisions (user, 2026-10-03: as recommended)
+sol's FOLD verdicts name a destination plan. They are recorded here and in `01-triage-sol.md`; none of the destination plans has
+been edited yet.
 
-| Question | Decided | Where |
-|---|---|---|
-| 01 park mechanism: (a) dev counter or (b) auto-drop | (b): no counter; auto-drop at the next freeze via `DROPPED_SPIKES` with a planted-import control, unless S4 data exists | v2.9 01 §Park mechanism |
-| 05.5: the three "not in v2.7" items inside v2.8 plans (persona-fit judge, per-chat avatars, same-Jev hosts A5) | v2.9 scope; entries decided; v2.8 03 / 08 / 14 point here | v2.9 05 §05.5 |
-| Optional "Critic" role (v2.7 14 decision 2, "after the wizard work") | here, as 05.6 | v2.9 05 §05.6 |
+- **v2.9 02:** V03 per-speaker repetition/tics, V06 speaker-attribution measurement, A07 separate distinctness score, N08
+  per-character verbs and mood delivery, N21 quirk throttle.
+- **v2.9 03:** V04 immutable windows/anchors, V08 lexical ignore list, V10 (polish prompt), V13 final accepted text, N21.
+- **v2.9 04:** N01 storylet framing in the guide, N03 important vs optional cues, N04 topic tiers, N07 norm reactions.
+- **v2.9 06:** N14 greyed visible prerequisites, N25 visible ways to improve a pending check.
+- **v2.8 09:** V10 reference-not-instructions in existing prompts, V11 varied example dialogue + monotony warning.
+- **v2.8 18:** G02 margin word and whose attempt, G07 player authors feelings/beliefs (agency contract).
+- **v2.8 21:** M10 recency scaled to chat length (experimental arm).
+- **v2.8 22:** N05 reestablish an interrupted conversation, N15 recovery after setbacks (with 49).
+- **v2.8 35 / 24:** V10 existing-prompt fixtures, E01 interval + no-change fixtures, E02 real-play-model fixture prose + holdout, E03, E04, E05, M09, C01 (G9),
+  G06, G07 fixtures, A04 witness acceptance, A06 thought-carry fresh corpus.
+- **v2.8 42:** A04. **v2.8 43:** M08 causal recall, A05. **v2.8 49:** G04 weighted outcomes (G19), N15.
+- **v2.8 50:** M02 story-time span on chapter cards, M03 chronology (with 69 K1).
+- **v2.8 51:** G05 slow-burn caps, G06, N06 mood causes, A08. **v2.8 52:** G15 people met (option B), N20/A13 codex supersede.
+- **v2.8 54:** A06. **v2.8 58:** E04, G08 holder-scoped reminders. **v2.8 63:** M05, M07, M14, M15.
+- **v2.8 69:** M05 fold interior holes (fixture: two seals, retained middle rows, a coverage gap, a no-fold chapter), M06 VectFox
+  copier keys, M12/A02 stopped partials (K13), G03 stale-build check, G13 image upload read-back.
+- **v2.8 74/36:** A12 instrument the animation stall. **Character-life docs:** A11 off-stage Help copy.
 
-## Review 2026-10-03
+## Deferred to v3.0 (sol verdict V3.0)
 
-Round 3 (Sol): R3-14, R3-15 applied; R3-15's homes decided by the user 2026-10-03.
+V07 LanguageTool guard, M01 player-safe character diary, M04 why-lore-fired provenance, G01 player-declared attempt, G10 time-jump
+interrupt at a due event, N09 rumor evidence changes belief, N10 post-story rumor trail, N16 role-cast set-pieces, N19 per-member
+phrase bias, N23 named player inner voices, N26 per-member typography, V06 runtime speaker-attribution classifier (needs calibrated
+discrimination on a held-out set; measurement stays in 02), G05 automatic relationship decay toward baseline (separate owner
+decision and session evidence; authored caps stay in v2.8 51). Not yet copied into `docs/plans/v3.0/05-deferred-items.md`.
+
+## Skipped (sol)
+
+V05, V09 (kept as a possible experiment), V12, M11, M13 (already the rule), G09/G11 (built), G12, G14, G16, C02 (privacy
+anti-pattern), C03–C07, N17/N18 (covered), N24. Reasons in `01-triage-sol.md`.
+
+## Decisions for the owner
+
+From `01-triage-sol.md` §Unresolved and each plan's own list:
+- 02: approve the authored `roster[].polish` field and mood variants.
+- 03: sol as the polish-role default; independent rating route; visible swap after streaming; group cancel vs bounded hold;
+  dialogue rewriting in v1.
+- 04: cue format; topic progression from extraction or explicit state only.
+- 05: authored patterns + a small built-in public library, or authored-only.
+- 06/08: new or changed player surfaces (explicit check-help field; observations surface; passive checks).
+- 07: cue-only first slice; expire vs wait when temporarily invalid.
+- A02: does a user-stopped partial reply count as a turn?
+- G07: feelings and conclusions belong to the player (NPC thinking and inner voice unchanged).
+- Applying the folds above to their v2.8 plans; copying the V3.0 rows into v3.0 05.
+- Campaign adoption per plan after measurement; v2.9 model-time allocation.

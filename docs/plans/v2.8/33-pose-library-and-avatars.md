@@ -38,7 +38,7 @@ story-orchestrator master `aef0ec08`, branch `v2.8-media-stack` `81c27515` (v2.8
   for webcam tracking. It runs anywhere ST runs, 0 GB of VRAM; nothing competes with ComfyUI or a local text model.
 - **License:** code MIT (`LICENSE`, © Yuki Shindo); MediaPipe Apache-2.0 (`vendor/mediapipe/LICENSE`); the sample
   character is **not** MIT and may not be redistributed (`samples/miko-qipao/MIKO_ASSET_TERMS.md`).
-- **Prior decisions it touches:** it is v2.7 19 option D (layered 2D rig), deferred to v2.9 05.1, a route the owner
+- **Prior decisions it touches:** it is v2.7 19 option D (layered 2D rig), deferred to v3.0 05.1, a route the owner
   dropped on 2026-09-29. It is lighter than the See-through + auto-rig chain D assumed (no 12–16 GB build), but the rig
   is placed by an agent per image, and every sprite set (every look) is a new rig.
 
@@ -92,7 +92,7 @@ any pose". The owner moved it into the separate v2.8-live-head track on 2026-10-
 
 | # | Option | Per-pose cost (3090) | Identity to expect | VRAM | Cached | Library entry |
 |---|---|---|---|---|---|---|
-| P1 | **Mesh/rig re-posing** (mesh-avatar-studio, or v2.9 05.1's See-through + rig) | ~0 at runtime | perfect (same pixels) | 0 (WebGL) | the rig per (member, look) | a parameter vector (`angleX/Y/Z`, `bodyAngleZ`, `armAngle`, expression) | 
+| P1 | **Mesh/rig re-posing** (mesh-avatar-studio, or v3.0 05.1's See-through + rig) | ~0 at runtime | perfect (same pixels) | 0 (WebGL) | the rig per (member, look) | a parameter vector (`angleX/Y/Z`, `bodyAngleZ`, `armAngle`, expression) | 
 | P2 | **Skeleton-guided reference edit on Qwen Image** (the model we run): the member's look base + a rendered skeleton image as a second input, "same character, take the pose in image 2" | one full edit (S0 measures; estimate 30–90 s at 1024) | as today's edits for the face and outfit; pose fidelity unknown | ~17 GB resident (7.3 + 9.4 GB weights, measured file sizes); exclusive lease while the text model is unloaded | look base, pose body PNG, keypoints | keypoints JSON (OpenPose 18-point body), tags, framing, a one-line pose text, props |
 | P3 | **Text-only reference edit** (what the campaign does today): the instruction names the pose, no skeleton | same as P2 | same as P2; the pose varies per member and per seed | same as P2 | same as P2 | tags + pose text only |
 | P4 | **SDXL + ControlNet OpenPose + identity adapter** on the Illustrious/NoobAI checkpoints: OpenPose ControlNet for the pose, IP-Adapter Plus from the look base or a per-member character LoRA for identity | one SDXL render + cutout (estimate 10–20 s) | IP-Adapter: style and face close, outfit details drift; LoRA: high, after training (estimate 30–90 min per member on the 3090); PuLID/InstantID: tuned for real faces, and InsightFace weights are non-commercial (v2.7 19 rejected the same detector) → **not used** | ~8–12 GB | CLIP-vision embedding or the LoRA file per (member, look) | the same keypoints JSON + tag prompt |
@@ -229,7 +229,7 @@ quoted before any run) goes to a pod (RTX PRO 4500 class, 32 GB), budget permitt
 3. Layer model (base / pose body / face / decal) with full body re-render instead of composited outfit layers?
    **Recommended: yes.**
 4. Shipped library of ~40 generic poses plus story and install-wide custom poses? **Recommended: yes.**
-5. mesh-avatar-studio: park with v2.9 05.1 (close-shot live head), no work now? **Recommended: yes.**
+5. mesh-avatar-studio: park with v3.0 05.1 (close-shot live head), no work now? **Recommended: yes.**
    **Owner decision 2026-10-10:** brought into v2.8 as [plan 36](36-live-head.md), building on `v2.8-live-head`; posing stays separate.
 6. Pose pick in the classifier chain, on by default? **Recommended: yes (owner rule), after B1–B2.**
 
@@ -249,7 +249,7 @@ quoted before any run) goes to a pod (RTX PRO 4500 class, 32 GB), budget permitt
 - v2.7 18 sprite generation (contract, cache key), v2.7 19 talking sprites (options C–E, frames), v2.7 20 living
   cards (fields, on-demand looks), v2.7 24 image and local completion (identity record), v2.7 37 character life (mood)
 - v2.8 22 living director (prefetch), v2.8 28 GPU broker (`v2.8-media-stack` `81c27515`), v2.8 29 ST workflows,
-  v2.8 30 model downloads; v2.9 05.1 layered 2D rig, 05.5 per-chat avatars
+  v2.8 30 model downloads; v3.0 05.1 layered 2D rig, 05.5 per-chat avatars
 - `src/sprites/builder/recipes.ts`, `onDemand.ts`, `lookFrames.ts`, `textPriority.ts`; `src/sprites/profile.ts`,
   `stage.ts`, `direction.ts`, `settings.ts`; `src/engine/cardFields.ts`, `schema.ts:315`;
   `server-plugin/story-orchestrator-media`, `story-orchestrator-gpu`; `.claude/skills/st-image-generation`

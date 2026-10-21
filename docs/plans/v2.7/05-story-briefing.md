@@ -166,7 +166,7 @@ from Help. A drawer opened with no story says what to do next (v2.7 01 deviation
 ## Links
 
 v2.7 06 (C3 title card, C6 wand, the badge that shows the saga/act kind), v2.7 04 (Before you start), v2.7 07 A7
-(Adolion briefings), v2.8 10 (drafting), v2.8 03 (identity step, activation sequence), v2.9 03 new game plus (a sequel
+(Adolion briefings), v2.8 10 (drafting), v2.8 03 (identity step, activation sequence), v3.0 03 new game plus (a sequel
 briefing could recap the carried outcome), v2.8 19 open stretches.
 
 ## Review 2026-10-03

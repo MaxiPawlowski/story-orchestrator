@@ -73,7 +73,7 @@ create-only provisioning, confirmed by the player.
   anchor is generated at start.
 - **Hybrid:** an authored story with `authored_until`. The authored part plays as today, then the director continues.
   This also answers "what happens after the ending": an open epilogue (v2.8 19). A sequel arc is new game plus, deferred,
-  v2.9 03.
+  v3.0 03.
 
 ### The director loop
 
@@ -288,7 +288,7 @@ v2.8 03 (`player.role`), v2.8 20 character life (agendas and relationships as di
 verification), v2.8 11 curator create (similar proposal discipline), v2.8 19 open stretches (fallback and epilogue),
 v2.8 18 quests (the director may open side quests), v2.8 17/18 complications (not inputs until shipped), v2.7 05 briefing
 and v2.8 10 briefing drafting (generated from the premise), v2.7 03 group chats only, v2.8 09 wizard assistant (shares
-the agent loop), v2.6 plan 07 chapter seals (dependency), v2.9 03 new game plus (deferred).
+the agent loop), v2.6 plan 07 chapter seals (dependency), v3.0 03 new game plus (deferred).
 
 ## Review 2026-10-03
 
@@ -299,7 +299,7 @@ the agent loop), v2.6 plan 07 chapter seals (dependency), v2.9 03 new game plus 
   generated fields, Save-as-story trimming and spoiler-checklist rows; M1 floors added.
 - **C10:** `player.role` (v2.8 03) replaces `living.player_role`; group required (v2.7 03); complications (v2.8 17/18)
   and curator tiers are dev spikes, not production inputs; chapter seal readiness stated as a dependency; new game plus
-  deferred, v2.9 03.
+  deferred, v3.0 03.
 - **B10:** registry + Help gate row.
 - **Rule 9:** dev-only, then off by default.
 - **F15:** tiers per gate row.

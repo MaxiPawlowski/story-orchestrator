@@ -196,8 +196,8 @@ snapshot names would never be read. It gains an explicit, bounded source:
   `architecture.test.ts:98-104` pin changes. It is lost on every re-render.
 - **List/group avatars:** global, so never.
 - **Player:** ST's per-chat persona lock (v2.8 03) gives a per-chat avatar.
-- **Decision 11:** none here. The sprite stage and illustrations carry the look. Per-chat avatars are deferred to v2.9
-  (`v2.9/05-deferred-items.md` §05.5, user 2026-10-03), revisited after on-demand sets exist, since they produce the
+- **Decision 11:** none here. The sprite stage and illustrations carry the look. Per-chat avatars are deferred to v3.0
+  (`v3.0/05-deferred-items.md` §05.5, user 2026-10-03), revisited after on-demand sets exist, since they produce the
   image an avatar would need.
 
 ### Expressions and sprites for a changed look
@@ -323,7 +323,7 @@ v2.7 18.** The overlay ships as D-tier code (pure engine + injection) with the p
 10. Cleanup on chat delete: ask (like the mirror reaper) or silent? **Recommended: ask, and keep sets another chat
     still references.**
 11. Per-chat avatars via `force_avatar`? **Recommended: not in this plan**; revisit with on-demand images. **Decided
-    2026-10-03: deferred to v2.9**, `v2.9/05-deferred-items.md` §05.5.
+    2026-10-03: deferred to v3.0**, `v3.0/05-deferred-items.md` §05.5.
  Lets do as you recommend on those options
 
 ## Gates
@@ -383,7 +383,7 @@ v2.7 18.** The overlay ships as D-tier code (pure engine + injection) with the p
 
 ## Unresolved
 
-- How swipes and regenerates rebuild `force_avatar` in a group: not determined (only matters if v2.9 05 §05.5 reopens
+- How swipes and regenerates rebuild `force_avatar` in a group: not determined (only matters if v3.0 05 §05.5 reopens
   avatars).
 - Whether ST deletes an empty sprite subfolder: not determined.
 - Which edit model the user's ComfyUI has for on-demand edits: probed at runtime (v2.7 17), not assumed.

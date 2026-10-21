@@ -1,10 +1,10 @@
 # Implementation Overview — Story Orchestrator v2.8
 
-**Re-scoped 2026-10-07 (user):** 02, 03, 20 moved to v2.7 (38, 34, 37); 17, 18, 19 and 13 N3/N5 merged into v2.7 35 (world pressure) and v2.7 36 (quests); 04 C4/C7/C9a and 23 option A into v2.7 36; 04 C5, 13 N1/N6 (+J7.2) and 01 §C into v2.7 33. v2.8 01's owed rows run in v2.7 39 (Phase C, from zero). New: 25–30 from the user's idea list. Cuts decided 2026-10-07 (recommendations): 12 and 14 cut, 15 folded into v2.7 38 D13d, 21 → v2.9, 13 J7.3–J7.6 and N4 cut; 26 pulled into v2.7. Details: §Build order. **Owner 2026-10-14:** 12, 13 J7.3–J7.6/N4, 15 and 21 stay in v2.8 (supersedes the 2026-10-07 cut recommendations).
+**Re-scoped 2026-10-07 (user):** 02, 03, 20 moved to v2.7 (38, 34, 37); 17, 18, 19 and 13 N3/N5 merged into v2.7 35 (world pressure) and v2.7 36 (quests); 04 C4/C7/C9a and 23 option A into v2.7 36; 04 C5, 13 N1/N6 (+J7.2) and 01 §C into v2.7 33. v2.8 01's owed rows run in v2.7 39 (Phase C, from zero). New: 25–30 from the user's idea list. Cuts decided 2026-10-07 (recommendations): 12 and 14 cut, 15 folded into v2.7 38 D13d, 21 → v3.0, 13 J7.3–J7.6 and N4 cut; 26 pulled into v2.7. Details: §Build order. **Owner 2026-10-14:** 12, 13 J7.3–J7.6/N4, 15 and 21 stay in v2.8 (supersedes the 2026-10-07 cut recommendations).
 
 **Status: IN BUILD (updated 2026-10-14).** v2.8 = the rest of the defined plans: everything the user
 decided on 2026-10-03 that is not an urgent fix or a quick win with deterministic gates (those are v2.7), and not
-deferred (those are v2.9). Old → new numbers: `docs/plans/v2.7/RENUMBER.md`. Review findings applied here:
+deferred (those are v3.0). Old → new numbers: `docs/plans/v2.7/RENUMBER.md`. Review findings applied here:
 `docs/plans/v2.7/review-2026-10-03.md` (old numbers). Part B code is on master; latest combined-build evidence is in
 `37-codex-handoff.md` §Status 2026-10-12 and `35-test-coverage.md` §Combined build. Model/GPU acceptance remains open.
 
@@ -129,7 +129,7 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | 04 | 04 | plays index holds checkpoint names; seamless backfill (v2.7 06) | **build all C-items**, draggable panels where it makes sense, each switchable per story; **new C9 "Behind the scenes"**. Split 2026-10-03 (user-approved): C1–C3, C6, C9 (b), the frame and the toggles in v2.7 06; C4, C5, C7, C9 (a) here. C8 is built in v2.7 05 |
 | 05 → v2.7 17 | 26 | all recommendations | **moved to v2.7 17 on 2026-10-04**; sprite generation is v2.7 18 (campaign script as the base) |
 | 06 → v2.7 18 | 26b | from v2.7 17 decision 6 and the review (F31) | **moved to v2.7 18 on 2026-10-04** |
-| 07 → v2.7 19 | 28 | drop Talkinghead; B + P; on by default with reduced-motion off | **moved to v2.7 19 on 2026-10-04**; mouth frames compared (2 vs 3) **and** a "Mouth movement" setting (off/simple/smooth); D (rig) → v2.9 05 |
+| 07 → v2.7 19 | 28 | drop Talkinghead; B + P; on by default with reduced-motion off | **moved to v2.7 19 on 2026-10-04**; mouth frames compared (2 vs 3) **and** a "Mouth movement" setting (off/simple/smooth); D (rig) → v3.0 05 |
 | 08 → v2.7 20 | 32 | all recommendations | **moved to v2.7 20 on 2026-10-04** |
 | 09 | 27 | all recommendations | — |
 | 10 | 03 decision 1 | fallback to `player_intro`, and "maybe we can create something on the fly with the wizard, if the player enables auto" | LLM drafting split out of v2.7 05 |
@@ -143,14 +143,14 @@ Re-keyed from `v2.7/00-overview.md` §Decisions. The inline answers stay in each
 | 18 | 19 | all of Q1–Q5; rolls visible; side quests authored + proposed | pilot: academy act, then the Saga |
 | 19 | 17 | `open` mode yes; authored curve; encounter pool behind M2; in-fiction onward only; measure stubs first | — |
 | 20 | 18 | relationships toward the player and between NPCs; meters author-visible, private for players; agendas authored + curator-proposed | schedules drop members from speaker candidates (no cast change) |
-| 21 | 29 | group chats only; offline only | **E0** ranking evaluation (5 arms, predeclared floors) before the spike; runtime verbatim recall → v2.9 05 |
+| 21 | 29 | group chats only; offline only | **E0** ranking evaluation (5 arms, predeclared floors) before the spike; runtime verbatim recall → v3.0 05 |
 | 22 | 24 | all recommendations; M1 first, then M1–M3 with proper UI | new plan v2.8 09 (wizard assistant) came from its decision 4 |
 
 ### Open questions decided (user, 2026-10-03: as recommended)
 
 | Question | Decided | Where |
 |---|---|---|
-| Persona-fit judge check (03), per-chat avatars (08), measuring other hosts of the Jev model A5 (14) | all three go to v2.9 (`v2.9/05-deferred-items.md` §05.5, now decided); the v2.8 plans point there | v2.8 03 decision 5, v2.7 20 decision 11, v2.8 14 decision 7 |
+| Persona-fit judge check (03), per-chat avatars (08), measuring other hosts of the Jev model A5 (14) | all three go to v3.0 (`v3.0/05-deferred-items.md` §05.5, now decided); the v2.8 plans point there | v2.8 03 decision 5, v2.7 20 decision 11, v2.8 14 decision 7 |
 | Native tool calls over CC profiles (v2.7 14 decision 3) | v2.8 09 §F (decided); rows indexed in v2.8 24 | v2.8 09 §F |
 | `/story ask` for players vs rule 4 (09 decision 3) | the user's yes counts as the explicit decision rule 4 needs; player Ask ships dev-only, then off by default (rule 9) | v2.8 09 §E |
 | Living director "Save as story" (22) | drops unreached generated checkpoints by default; the player is not asked | v2.8 22 §Spoilers |
@@ -230,7 +230,7 @@ User ideas 2026-10-07 → plans 25–30 (§Build order).
 
 ## Roleplay mechanics added 2026-10-14 (owner)
 
-Plans 42–53 (42, 43, 45 moved from v2.9 02, 05.4, 03). Status: written, not built; decisions pending in each plan. All
+Plans 42–53 (42, 43, 45 moved from v3.0 02, 05.4, 03). Status: written, not built; decisions pending in each plan. All
 twelve revised 2026-10-14 against `review-astra-2026-10-14.md` (each plan's closing "Review 2026-10-14 (Astra)"
 section); the shared contract for 48–53 (SC1 rollback detectors, SC2 one evaluation order, SC3 disclosure vs
 knowledge, SC4 feature-only fixtures, SC5 bookkeeping) lives in plan 52's review. Plans 55–59 are candidates from the

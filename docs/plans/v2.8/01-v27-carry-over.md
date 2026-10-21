@@ -321,25 +321,25 @@ floor exactly as v2.6 declared it.
 Ratings of Adolion content go to Astra (delegated) or a second model, never the user (rule 11). The `intents` tier
 scorer is built first (D) so M2 can count.
 
-## G. Claude's over-steer session (from v2.9 04)
+## G. Claude's over-steer session (from v3.0 04)
 
-The D6/T22 decision stays deferred in `v2.9/04-d6-t22-revisits.md` (decision 6: "defer"). The user's answer to its
+The D6/T22 decision stays deferred in `v3.0/04-d6-t22-revisits.md` (decision 6: "defer"). The user's answer to its
 decision 5, verbatim: "i'll play it, but add a tesst case so that claude also plays it." This plan owns Claude's half
-(review C9, refined: the session floors already exist in v2.9 04; the card and its completion contract were missing).
+(review C9, refined: the session floors already exist in v3.0 04; the card and its completion contract were missing).
 
 - **Charter card** in `test/sessions/charters.json` (validated, `14-cards.md` regenerated): one session of ≥ 40 turns
   on a story whose outcome qualities stay at `evidence_from: any`, warden accept mode `auto`, `agencyCheck` on.
   Claude plays a player who sometimes declares outcomes and sometimes goes silent (the two near-miss shapes from v2.6
   T1). Runs on an adolion-fresh lane with the overview's baseline settings.
-- **Completion contract** (the full v2.9 04 hand-off, Sol r3 R3-08): the session is VALID (so-session stop exit 0);
+- **Completion contract** (the full v3.0 04 hand-off, Sol r3 R3-08): the session is VALID (so-session stop exit 0);
   the digest counts agency notes **raised, accepted and applied** per 100 turns, every reply the check flagged, replies
   that narrated the player, and declarations counted as world outcomes; **every applied note** (the eligible set for
   the T22 80 % / zero floors) carries one rating, `helpful | invisible | OOC | over-corrected`, from a second-model
-  rater named in the record (Adolion content: never the user, rule 11); the T0–T7 journal count v2.9 04 asks for is
+  rater named in the record (Adolion content: never the user, rule 11); the T0–T7 journal count v3.0 04 asks for is
   attached. A note without a rating leaves the session **incomplete**, not scored. Each counted case is quoted in the
-  session dir (private `so-sessions`, not the public repo). The v2.9 04 floors are then scored against this session
+  session dir (private `so-sessions`, not the public repo). The v3.0 04 floors are then scored against this session
   and, separately, against the user's.
-- It does not decide D6/T22. It produces the evidence v2.9 04 decides on. Tier: RP (replies) + CL (judge).
+- It does not decide D6/T22. It produces the evidence v3.0 04 decides on. Tier: RP (replies) + CL (judge).
 
 ## H. Send latency: vector queries on ST's server (deferred from v2.7, owner 2026-10-08)
 
@@ -361,7 +361,7 @@ Speed only, no correctness issue: the player's line always posts, in order, and 
 
 ## Links
 
-v2.7 01, 02, 08, 09, 10, 12, 12a (sources); v2.9 04 D6/T22 (the decision this session feeds); v2.8 13 (C12 batching
+v2.7 01, 02, 08, 09, 10, 12, 12a (sources); v3.0 04 D6/T22 (the decision this session feeds); v2.8 13 (C12 batching
 shares the judge request shape); v2.8 15 (R5′ changes if the cue and scene reads merge); v2.8 20 (inner voice L5 needs
 M2/M3); v2.8 21 (Q-M5 before its spike).
 

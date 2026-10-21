@@ -1,7 +1,7 @@
 # Plan 02 — SP9 witness filter, v2
 
 **Status: moved to v2.8 42 (owner 2026-10-14)** (`docs/plans/v2.8/42-witness-filter-v2.md`; history kept here).
-Was DEFERRED to v2.9 (user, 2026-10-03). Was v2.7 plan 22; moved at the version split
+Was DEFERRED to v3.0 (user, 2026-10-03). Was v2.7 plan 22; moved at the version split
 (`docs/plans/v2.7/RENUMBER.md`). Not scheduled until v2.8 closes. Its option A shipped as **v2.7 02 C2**; what stays
 here is the witness source (B) and the message-level filter (C). Source: `docs/plans/v2.6/v2.7-seeds.md` row "SP9
 witness filter, v2". Overview: `00-overview.md` (this folder).
@@ -138,7 +138,7 @@ measured 4/40 at message level), B needs an extraction witness line.
 4. If C is ever built: should a story be able to require Summarize / chat vectors off (a requirement that blocks), or only
    warn? **Recommended: warn only. They are the user's install-wide tools.**  Lets do as you recommend
 
-(Answers kept verbatim. Decision 1 is built as v2.7 02 C2; the "next version" in decision 2 is this v2.9 plan.)
+(Answers kept verbatim. Decision 1 is built as v2.7 02 C2; the "next version" in decision 2 is this v3.0 plan.)
 
 ## Floor and measurement before building
 

@@ -127,9 +127,9 @@ warning (v2.7) and the install/story/checkpoint level (v2.8 01 §E). L5 needs th
 - v2.7 12 model choice: thinking per story only matters on a model that thinks; Artemis v1.2 closes the thought at once
   in 14/16.
 - v2.7 04 (the check registry this warning seeded), v2.7 05 (C8 onboarding could explain the thinking cost).
-- No direct dependency: v2.8 18 quests, v2.9 03 new game plus (deferred), v2.8 01 §C SP2, v2.9 02 SP9 (deferred), v2.8 12
+- No direct dependency: v2.8 18 quests, v3.0 03 new game plus (deferred), v2.8 01 §C SP2, v3.0 02 SP9 (deferred), v2.8 12
   J6d, v2.8 13 J7, v2.7 14 B10, v2.8 11 curator create op, v2.7 13 warden-lore, v2.8 15 cue+scene merge, v2.7 11 C4
-  option (b), v2.7 09 commitment double negatives, v2.9 04 D6/T22 (deferred), v2.8 14 open-source Jev.
+  option (b), v2.7 09 commitment double negatives, v3.0 04 D6/T22 (deferred), v2.8 14 open-source Jev.
 
 ## Gate record — option A warning (2026-10-03)
 

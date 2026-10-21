@@ -352,7 +352,7 @@ Adolion text. W27 (the harness plugin offers opencode only, no logins) is kept.
    **Answer:** A5 is the *same* Jev model sold by other hosts (OpenRouter, NanoGPT, Rout, classifier.dev), not a
    different judge. Measuring it would only show those hosts give the same answers as TypeSafe, as a fallback if
    TypeSafe's price, limits or availability change. Nothing to gain while TypeSafe works, so: not in v2.7 (nor v2.8).
-   **Decided 2026-10-03 (user: as recommended): deferred to v2.9**, `v2.9/05-deferred-items.md` §05.5 (reopen trigger:
+   **Decided 2026-10-03 (user: as recommended): deferred to v3.0**, `v3.0/05-deferred-items.md` §05.5 (reopen trigger:
    TypeSafe changes price, limits or availability).
    **Also recorded:** local models are stored off `C:` (another drive; the path becomes a setting); every local server
    this plan adds gets a tray entry (`C:\dev\tray\items\story-orchestrator.json`). Both are now §Deployment rules
@@ -621,6 +621,6 @@ calibration rate and p50):
   `node --test scripts/local/judgeServerQueue.test.mjs scripts/local/judge.test.mjs` 11/11. No live ST gate: nothing ST-facing
   ran (owner's :8000 and lane 0 untouched); the routable memory-pairs route is NOT live-validated in a browser or under play load.
 
-## Owner decision 2026-10-14: local judge deferred to v2.9
+## Owner decision 2026-10-14: local judge deferred to v3.0
 
 - No implementation depends on a local decision model; every use runs on TypeSafe (default) and keeps its pre-judge fallback. The decider-4b baselines (CPU, 3090) stay recorded; the memory-pairs readiness row stays as an optional route. Reopen with Plumb-4B (jevbench #2) when wanted.

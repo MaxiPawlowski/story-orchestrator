@@ -1,6 +1,6 @@
 # Plan 03 — New game plus
 
-**Status: moved to v2.8 45 (owner 2026-10-14)**: `docs/plans/v2.8/45-new-game-plus.md` supersedes this plan. Was: DEFERRED to v2.9 (user, 2026-10-03). Was v2.7 plan 25; moved at the version split
+**Status: moved to v2.8 45 (owner 2026-10-14)**: `docs/plans/v2.8/45-new-game-plus.md` supersedes this plan. Was: DEFERRED to v3.0 (user, 2026-10-03). Was v2.7 plan 25; moved at the version split
 (`docs/plans/v2.7/RENUMBER.md`). Not scheduled until v2.8 closes. Source: `docs/plans/v2.6/v2.7-seeds.md` row "New game
 plus". Overview: `00-overview.md` (this folder).
 
@@ -36,7 +36,7 @@ Q-M5 and the owed Q-M ratings are owned by v2.8 01 (review D10).
 - Out of v2.6 plan 07's scope (memory at saga length), and no player, session or measurement asked for it (v2.6 07 §Resolved).
 - Its input does not exist in practice yet: the epilogue only appears when `seal` is on and a final chapter is reached,
   and neither has happened live.
-- User 2026-10-03: deferred to the next version; at the split it landed in v2.9.
+- User 2026-10-03: deferred to the next version; at the split it landed in v3.0.
 
 ## Current state in code
 
@@ -107,7 +107,7 @@ use it. Add E as a by-product once v2.7 06's Continue list is built. C only behi
    fourth home for state and breaks the three-lifetimes rule (`.claude/rules/architecture.md` §Invariants).
 5. A trophy shelf (option E) in the Continue list? **Recommended: only if plan 04 C1 is built; decide there.**
 
-(Answer above kept verbatim; "next version" = this v2.9 plan. In 4 and 5, "plan 04" = the plays index, v2.7 06 §A, and
+(Answer above kept verbatim; "next version" = this v3.0 plan. In 4 and 5, "plan 04" = the plays index, v2.7 06 §A, and
 "plan 04 C1" = the Continue list, now v2.7 06. The user chose to build all eight C-items, so 5 is decided when v2.7 06
 closes.)
 

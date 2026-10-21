@@ -39,7 +39,7 @@ and that section differ, the section wins.
 | 6 | v2.8 27 report G25, guide `clues-and-maps` | the `map` widget's pins already gate on `checkpoint` or `when` and are "not sent to the panel at all" until shown |
 | 7 | `docs/plans/v2.7/37-character-life.md` L1 | relationships author-only; meters refused for players |
 | 8 | `.claude/rules/architecture.md` §Memory and privacy | every shared text built from memory, including the player's Memory tab, renders through the resting view |
-| 9 | `docs/plans/v2.9/02-sp9-witness-filter-v2.md` §Current state | no witness source exists; presence is "not hearing" |
+| 9 | `docs/plans/v3.0/02-sp9-witness-filter-v2.md` §Current state | no witness source exists; presence is "not hearing" |
 
 ## Current state in code
 
@@ -72,7 +72,7 @@ Verified on master `211d8d96`.
 | | Design | Cost | Risk | Notes |
 |---|---|---|---|---|
 | **A. Authored codex, latched facts** | story `codex {people[], places[]}`; facts `{id, text, known_when}` where `known_when` is a gate or `{reached: <checkpoint>}`; latched in code qualities | M | authors write facts that name a twist before it is earned | deterministic, rolls back, testable by property |
-| **B. A + accepted memory facts** | A, plus per entry `learn_from_memory: true`: live memory facts whose `entities` name the entry, through `restingEntries` | M+ | memory facts can carry what only a member witnessed (no witness source, v2.9 02); wording quality varies | needs the held-secret filter and a witness answer |
+| **B. A + accepted memory facts** | A, plus per entry `learn_from_memory: true`: live memory facts whose `entities` name the entry, through `restingEntries` | M+ | memory facts can carry what only a member witnessed (no witness source, v3.0 02); wording quality varies | needs the held-secret filter and a witness answer |
 | **C. Generated pages** | the read model writes pages from the transcript | L | spoilers from lore the model saw; nondeterministic; a new write path | rejected: stagecraft proposes, never writes |
 | **D. Clues widget only** | reuse the `clues` widget per person/place | S | no entity grouping; a wall per person is clumsy | possible today, no new code |
 | **E. A + return visits** (Astra brainstorm) | places carry `returns: [{id, when, text}]`: a line on the place page, earned like a fact, that acknowledges a known past event there ("The boathouse door is still splintered"); the model side stays authored checkpoint `world_info` | S on top of A | a return line can name an event the player did not see; same disclosure rule as facts | follow-up row after A (decision 8) |
@@ -184,7 +184,7 @@ editing. It ships only when decision 2 says the witness question is answered.
 - **v2.8 42 (witness):** drafted in parallel (branch `v2.8-plans-42-44`, not on master at writing). The player sees
   the whole chat, but the player's *character* may not have witnessed an aside; a memory fact learned only by members
   should not be a "known" fact. B waits for 42's witness source or for the owner to accept the gap (decision 2).
-  `docs/plans/v2.9/02-sp9-witness-filter-v2.md` is the prior record.
+  `docs/plans/v3.0/02-sp9-witness-filter-v2.md` is the prior record.
 - **v2.8 51 relationship labels:** person pages host 51's rows; one projection rule and one spoiler property.
 - **v2.8 53 reputation:** a faction may get a codex entry (`people` kind "group"?) — see unresolved questions; 53's
   band word may show on that entry.
