@@ -1,5 +1,5 @@
 import { beginRun, type RunGuard, type RunOwnership } from "@runtime/runToken";
-import { blinkProblems, overBase, type EyeRead } from "./eyeOpen";
+import { blinkProblems, overBase, stillOpen, type EyeRead } from "./eyeOpen";
 import { cleanEdges } from "./edges";
 import { checkPixels, checkMouthCoverage, pasteEdit, validateBox, type HeadBox, type PixelImage, type PixelQA } from "./pixels";
 import { skeletonImage } from "../poses/skeleton";
@@ -196,7 +196,7 @@ reference: reference as string, instruction: editInstruction(request.kind, reque
           const shown = overBase(base, output);
           const after = await this.deps.eyes(shown, controller.signal).catch(() => null);
           guard();
-          qa.reasons.push(...blinkProblems(base, shown, before.boxes, after?.seen));
+          qa.reasons.push(...blinkProblems(base, shown, before.boxes, stillOpen(before.openness, after?.openness)));
         }
       }
       qa.maskImport = maskImport;

@@ -1,5 +1,5 @@
 import { comfyReference, comfyReleaseReference, comfyRenderOwned, saveGeneratedSprite } from "@services/stHost/media";
-import { eyeBoxes, eyesSeen } from "./eyeOpen";
+import { eyeBoxes, eyeOpenness } from "./eyeOpen";
 import { reserveGpu, releaseGpu, renewGpu } from "@services/stHost/gpuBroker";
 import type { RunOwnership } from "@runtime/runToken";
 import { SpriteBuilder } from "./builder";
@@ -18,7 +18,7 @@ export function createSpriteBuilder(ownership: RunOwnership): SpriteBuilder {
     ownership, decode: decodeImage, encode: encodeImage, crop: cropReference, resize: resizeEdit,
     eyes: async (image, signal) => {
       const reply = await (await import("@services/stHost/landmarkDetector")).detectFaceLandmarks(encodeImage(image), signal);
-      return reply.ok ? { boxes: eyeBoxes(reply.result, image), seen: eyesSeen(reply.result) } : null;
+      return reply.ok ? { boxes: eyeBoxes(reply.result, image), openness: eyeOpenness(reply.result) } : null;
     },
     lineage: async (request, signal) => {
       const source = getGlobalSettings().sprites.visualSources[request.character];

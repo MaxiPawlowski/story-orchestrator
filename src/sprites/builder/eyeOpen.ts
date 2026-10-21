@@ -3,7 +3,8 @@ import type { HeadBox, PixelImage } from "./pixels";
 
 export const BLINK_OPEN_LIMIT = 0.35;
 export const BLINK_MIN_WHITES = 6;
-export const EYE_SEEN_SCORE = 0.6;
+export const EYE_CLOSED_LIMIT = 0.3;
+export const EYE_CLOSED_SHARE = 0.6;
 const EYE_POINTS = [[11, 12, 13, 14, 15, 16], [17, 18, 19, 20, 21, 22]] as const;
 const MIN_POINT_SCORE = 0.3;
 const area = (face: DetectorFace): number => (face.box[2] - face.box[0]) * (face.box[3] - face.box[1]);
@@ -24,13 +25,26 @@ export function eyeBoxes(result: unknown, image: Pick<PixelImage, "width" | "hei
   return boxes;
 }
 
-export interface EyeRead { boxes: HeadBox[] | null; seen: boolean[] }
+export interface EyeRead { boxes: HeadBox[] | null; openness: number[] | null }
 
-export function eyesSeen(result: unknown): boolean[] {
+export function eyeOpenness(result: unknown): number[] | null {
   const read = readDetectorResult(result);
-  if (!read || !read.faces.length) return EYE_POINTS.map(() => false);
+  if (!read || !read.faces.length) return null;
   const face = read.faces.reduce((best, entry) => area(entry) > area(best) ? entry : best);
-  return EYE_POINTS.map((indexes) => indexes.every((index) => (face.points[index]?.[2] ?? 0) >= EYE_SEEN_SCORE));
+  const open: number[] = [];
+  for (const indexes of EYE_POINTS) {
+    const points = indexes.map((index) => face.points[index]);
+    if (points.some((point) => !point || point[2] < MIN_POINT_SCORE)) return null;
+    const xs = points.map((point) => point[0]), ys = points.map((point) => point[1]), width = Math.max(...xs) - Math.min(...xs);
+    if (width <= 0) return null;
+    open.push((Math.max(...ys) - Math.min(...ys)) / width);
+  }
+  return open;
+}
+
+export function stillOpen(before: number[] | null, after: number[] | null | undefined): boolean[] | undefined {
+  if (!before || !after) return undefined;
+  return after.map((value, index) => value > Math.max(EYE_CLOSED_LIMIT, EYE_CLOSED_SHARE * (before[index] ?? 0)));
 }
 
 export function eyeWhites(image: PixelImage, box: HeadBox): number {
@@ -54,9 +68,9 @@ export function overBase(base: PixelImage, overlay: PixelImage): PixelImage {
   return { width: base.width, height: base.height, data };
 }
 
-export function blinkProblems(base: PixelImage, shown: PixelImage, eyes: HeadBox[], seen?: boolean[]): string[] {
+export function blinkProblems(base: PixelImage, shown: PixelImage, eyes: HeadBox[], lids?: boolean[]): string[] {
   return eyes.flatMap((box, index) => {
-    if (seen?.[index] === false) return [];
+    if (lids?.[index] === false) return [];
     const open = eyeWhites(base, box);
     if (open < BLINK_MIN_WHITES) return [];
     const left = eyeWhites(shown, box) / open;

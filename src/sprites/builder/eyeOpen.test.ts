@@ -1,4 +1,4 @@
-import { blinkProblems, eyeBoxes, eyesSeen, eyeWhites, overBase, BLINK_OPEN_LIMIT, EYE_SEEN_SCORE } from "./eyeOpen";
+import { blinkProblems, eyeBoxes, eyeOpenness, eyeWhites, overBase, stillOpen, BLINK_OPEN_LIMIT, EYE_CLOSED_LIMIT } from "./eyeOpen";
 import type { PixelImage } from "./pixels";
 
 const face = (whites: Array<[number, number]>): PixelImage => {
@@ -37,13 +37,22 @@ test("detector points 11-16 and 17-22 become eye boxes scaled to the image; low-
   expect(eyeBoxes({ width: 100, height: 100, faces: [] }, { width: 100, height: 100 })).toBeNull();
 });
 
-test("an eye the detector no longer sees confidently is closed even when pale pixels remain (hair over the eye)", () => {
+test("a lid the detector reads as closed outranks pale pixels left in the eye box (hair over the eye)", () => {
   const base = face([[6, 14], [26, 34]]);
   expect(blinkProblems(base, base, eyes, [false, true])).toEqual([`The blink leaves the second eye open (100% of its white still shows).`]);
   expect(blinkProblems(base, base, eyes, [false, false])).toEqual([]);
-  const points = (score: number) => Array.from({ length: 28 }, (_, at): [number, number, number] => [at, at, at >= 11 && at <= 16 ? score : 0.9]);
-  const result = (score: number) => ({ width: 100, height: 100, faces: [{ box: [0, 0, 80, 80, 0.95], points: points(score) }] });
-  expect(eyesSeen(result(0.9))).toEqual([true, true]);
-  expect(eyesSeen(result(EYE_SEEN_SCORE - 0.01))).toEqual([false, true]);
-  expect(eyesSeen({ width: 100, height: 100, faces: [] })).toEqual([false, false]);
+  expect(stillOpen([0.8, 0.42], [0.16, 0.2])).toEqual([false, false]);
+  expect(stillOpen([0.8, 0.42], [0.79, 0.43])).toEqual([true, true]);
+  expect(stillOpen([0.8, 0.42], [0.5, EYE_CLOSED_LIMIT])).toEqual([true, false]);
+  expect(stillOpen(null, [0.1, 0.1])).toBeUndefined();
+});
+
+test("eye openness is lid height over eye width from points 11-16 and 17-22; a weak point gives no reading", () => {
+  const points = (lid: number, score = 0.9) => Array.from({ length: 28 }, (_, at): [number, number, number] =>
+    at >= 11 && at <= 22 ? [(at - 11) % 6 < 3 ? ((at - 11) % 3) * 10 : ((at - 11) % 3) * 10, (at - 11) % 6 < 3 ? 0 : lid, score] : [0, 0, 0.9]);
+  const result = (lid: number, score?: number) => ({ width: 100, height: 100, faces: [{ box: [0, 0, 80, 80, 0.95], points: points(lid, score) }] });
+  expect(eyeOpenness(result(16))).toEqual([0.8, 0.8]);
+  expect(eyeOpenness(result(2))).toEqual([0.1, 0.1]);
+  expect(eyeOpenness(result(16, 0.1))).toBeNull();
+  expect(eyeOpenness({ width: 100, height: 100, faces: [] })).toBeNull();
 });

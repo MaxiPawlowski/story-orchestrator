@@ -1,4 +1,5 @@
 import { webcrypto } from "node:crypto";
+import type { EyeRead } from "./eyeOpen";
 import { renderedBox, RETRY_SEED_STEP, SpriteBuilder, type BuilderDeps, type SpriteBuildRequest } from "./builder";
 import { checkPixels, pasteEdit, type PixelImage } from "./pixels";
 import { cropPixels } from "./maskImport";
@@ -201,11 +202,12 @@ test("a blink frame is checked eye by eye when the face detector answers; expres
   const kept = cropPixels(white, box);
   for (let y = 4; y < 6; y++) for (let x = 3; x < 6; x++) kept.data.set([30, 30, 30, 255], (y * 16 + x) * 4);
   deps.decode = async (src) => src === "base" ? white : kept;
-  const eyes = jest.fn(async () => ({ boxes: [{ x: 10, y: 10, width: 5, height: 5 }, { x: 17, y: 10, width: 5, height: 5 }], seen: [true, true] }));
+  const open = { boxes: [{ x: 10, y: 10, width: 5, height: 5 }, { x: 17, y: 10, width: 5, height: 5 }], openness: [0.8, 0.8] };
+  const eyes = jest.fn(async (): Promise<EyeRead> => open);
   deps.eyes = eyes;
   await expect(builder.build({ ...request, kind: "blink", label: "neutral", value: "neutral" })).rejects.toThrow(/eye open/);
   expect(eyes).toHaveBeenCalledTimes(4);
-  eyes.mockImplementation(async () => ({ boxes: [{ x: 10, y: 10, width: 5, height: 5 }, { x: 17, y: 10, width: 5, height: 5 }], seen: [false, false] }));
+  eyes.mockResolvedValueOnce(open).mockResolvedValueOnce({ boxes: null, openness: [0.15, 0.1] });
   await expect(builder.build({ ...request, kind: "blink", label: "neutral", value: "neutral" })).resolves.toBeDefined();
   eyes.mockClear();
   deps.decode = async (src) => src === "base" ? base : edit;
@@ -219,7 +221,7 @@ test("a retryable refusal re-renders once with a new seed; any other refusal is 
   const render = jest.fn(async (graph: Record<string, unknown>) => { seeds.push(Number(JSON.stringify(graph).match(/"seed":(\d+)/)?.[1])); return { data: "result", format: "png" }; });
   deps.render = render;
   let calls = 0;
-  deps.eyes = async () => (calls++ ? null : { boxes: [{ x: 10, y: 10, width: 5, height: 5 }], seen: [true] });
+  deps.eyes = async () => (calls++ ? null : { boxes: [{ x: 10, y: 10, width: 5, height: 5 }], openness: [0.8] });
   const white = image(32, 32);
   for (let y = 11; y < 14; y++) for (let x = 10; x < 22; x++) white.data.set([246, 246, 248, 255], (y * 32 + x) * 4);
   const kept = cropPixels(white, box);
