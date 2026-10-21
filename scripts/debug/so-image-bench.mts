@@ -3,12 +3,15 @@ import { existsSync } from 'node:fs';
 import { basename, join, resolve } from 'node:path';
 import { decodePng, encodePng, type RgbaImage } from './lib/pngNode.mts';
 import { cleanEdges, edgeReport } from '../../src/sprites/builder/edges.ts';
+import { seamScore } from '../../src/sprites/builder/seam.ts';
 
 const USAGE = `Usage: node scripts/debug/so-image-bench.mts edges <raw dir> --out <dir>
+       node scripts/debug/so-image-bench.mts seams <raw dir>
 
 Plan 80 bench, CPU only. Walks <raw dir>/<character>/<set>/*.png for full-body sprites (base sets and lp_/look_ sets,
 not anim- frames or busts), runs the edge clean-up, and writes edges.json (fringe and bright-fringe counts before and
-after, per image) plus before/after composites over a dark and a light background.`;
+after, per image) plus before/after composites over a dark and a light background. seams prints the border
+score of every saved face frame (anim-<set>/<label>.<kind>.png) against its base sprite.`;
 
 const over = (image: RgbaImage, [r, g, b]: [number, number, number]): RgbaImage => {
   const data = new Uint8ClampedArray(image.data.length);
@@ -56,7 +59,24 @@ async function edges(root: string, outDir: string) {
   await writeFile(join(outDir, 'edges.json'), JSON.stringify(rows, null, 1));
 }
 
+async function seams(root: string) {
+  for (const character of await readdir(root, { withFileTypes: true })) {
+    if (!character.isDirectory()) continue;
+    for (const set of await readdir(join(root, character.name), { withFileTypes: true })) {
+      if (!set.isDirectory() || !set.name.startsWith('anim-')) continue;
+      const baseDir = join(root, character.name, set.name.slice(5));
+      for (const file of await readdir(join(root, character.name, set.name))) {
+        const match = /^(.+)\.([a-z_0-9]+)\.png$/.exec(file);
+        if (!match || !existsSync(join(baseDir, `${match[1]}.png`))) continue;
+        const base = decodePng(await readFile(join(baseDir, `${match[1]}.png`))), frame = decodePng(await readFile(join(root, character.name, set.name, file)));
+        console.log(`${character.name} ${set.name}/${file}: seam ${seamScore(base, frame) ?? 'n/a'}`);
+      }
+    }
+  }
+}
+
 const [command, dir] = process.argv.slice(2);
 const outAt = process.argv.indexOf('--out');
-if (command !== 'edges' || !dir || outAt < 0 || !existsSync(dir)) { console.log(USAGE); process.exit(command ? 1 : 0); }
-await edges(resolve(dir), resolve(process.argv[outAt + 1]));
+if (command === 'seams' && dir && existsSync(dir)) await seams(resolve(dir));
+else if (command !== 'edges' || !dir || outAt < 0 || !existsSync(dir)) { console.log(USAGE); process.exit(command ? 1 : 0); }
+else await edges(resolve(dir), resolve(process.argv[outAt + 1]));

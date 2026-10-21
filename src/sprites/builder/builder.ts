@@ -1,5 +1,6 @@
 import { beginRun, type RunGuard, type RunOwnership } from "@runtime/runToken";
 import { blinkProblems, overBase, stillOpen, type EyeRead } from "./eyeOpen";
+import { seamProblem } from "./seam";
 import { cleanEdges } from "./edges";
 import { checkPixels, checkMouthCoverage, pasteEdit, validateBox, type HeadBox, type PixelImage, type PixelQA } from "./pixels";
 import { skeletonImage } from "../poses/skeleton";
@@ -189,6 +190,7 @@ reference: reference as string, instruction: editInstruction(request.kind, reque
         alphaPixels: output.data.filter((value, at) => at % 4 === 3 && value <= 8).length, ringDrift: 0 }
         : checkPixels(base, output, box, isFrameKey(request.kind));
       if (region) qa.reasons.push(...checkMouthCoverage(base, output, box, region, request.kind !== "rest"));
+      if (isFrameKey(request.kind)) qa.reasons.push(...seamProblem(base, output));
       if (request.kind === "blink" && this.deps.eyes) {
         const before = await this.deps.eyes(base, controller.signal).catch(() => null);
         guard();
