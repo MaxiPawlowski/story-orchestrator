@@ -1,7 +1,7 @@
 # Plan 21 — Smart Context and Chat Vectorization: what to harvest (E0 + offline group evaluation)
 
 **Status (2026-10-16): v2.8 plan 21 (was v2.7 plan 29). E0 private run done on `v2.8-e0-run`: winner (d), judge
-re-rank, hit@4 0.9048 on 84 frozen questions (Gate record at the end). §6.2 not started (may run after v2.8 01 M1).** Runtime verbatim recall is deferred, v2.9 05.
+re-rank, hit@4 0.9048 on 84 frozen questions (Gate record at the end). §6.2 not started (may run after v2.8 01 M1).** Runtime verbatim recall is deferred, v3.0 05.
 Overview: `00-overview.md`.
 **Gate tiers** (00-overview §Gate taxonomy): implementation D (fixture tooling, offline runner, scorer); acceptance CL
 (TypeSafe Choice arm, second-model labels). Embeddings run in a lane's ST server (`transformers`, CPU); no pod.
@@ -84,15 +84,15 @@ VectHare's report notes ours is "more accurate about truth … and weaker on rel
 ### 2.1 The privacy conflict is measured, not hypothetical
 
 - v2.6 Adolion lab F2 (Summarize off): **41 unwitnessed lines visible**, and the diagnostics placed the leaks in Vector
-  Storage's `Past events:` block (`docs/plans/v2.9/02-sp9-witness-filter-v2.md` §History, row F2). Their interceptor
-  runs after ours (ours `loading_order` 1, theirs 100; v2.9 02 H1) and splices matched messages out of the chat it is
-  given (v2.9 02 H4).
+  Storage's `Past events:` block (`docs/plans/v3.0/02-sp9-witness-filter-v2.md` §History, row F2). Their interceptor
+  runs after ours (ours `loading_order` 1, theirs 100; v3.0 02 H1) and splices matched messages out of the chat it is
+  given (v3.0 02 H4).
 - So a global transcript retriever, theirs or a naive one of ours, re-injects scenes a member never witnessed into that
   member's prompt. Any recall we build must not reopen that channel.
 - The host side is shipped: v2.7 02 C2, the `transcript-copiers` check warning when Summarize or chat vectors are on in a
   group story (`docs/plans/v2.7/02-v26-carry-in.md` §Gate record C2). Its player copy currently reveals that a secret is
   held (review K1); the fix is pending in v2.7.
-- The witness filter itself (witness records, the host-channel-aware filter) is **v2.9 02, deferred**. This plan does not
+- The witness filter itself (witness records, the host-channel-aware filter) is **v3.0 02, deferred**. This plan does not
   build it; §6 only measures whether the scene-presence set that already exists is good enough to filter retrieval
   offline.
 
@@ -100,11 +100,11 @@ VectHare's report notes ours is "more accurate about truth … and weaker on rel
 
 | # | Pattern | Where it plugs in | Rollback | Privacy | Cost | Verdict |
 |---|---|---|---|---|---|---|
-| P1 | **Verbatim quote recall**: for "what exactly did X say / promise / name", retrieve the past *message*, not a summary | a per-chat transcript index keyed by message content hash (Vector Storage's pattern), query = last player turn + last reply, ≤ k quoted lines as a one-turn block, never splicing the chat | safe by construction if the index follows hashes like `:468`/`:500-503`, plus a hard filter against the live chat at query time | **group only, and only behind a witness filter**: a member gets only messages it witnessed | one embedding per message (local `transformers`), a collection per chat, one query per loud generation | **offline evaluation here (§6); runtime build deferred, v2.9 05** |
+| P1 | **Verbatim quote recall**: for "what exactly did X say / promise / name", retrieve the past *message*, not a summary | a per-chat transcript index keyed by message content hash (Vector Storage's pattern), query = last player turn + last reply, ≤ k quoted lines as a one-turn block, never splicing the chat | safe by construction if the index follows hashes like `:468`/`:500-503`, plus a hard filter against the live chat at query time | **group only, and only behind a witness filter**: a member gets only messages it witnessed | one embedding per message (local `transformers`), a collection per chat, one query per loud generation | **offline evaluation here (§6); runtime build deferred, v3.0 05** |
 | P2 | **Summary routes, raw answers** (their summarize-before-vectorize injects the original; Timeline-Memory's drill-down) | index our `scene_history`/chapter rows (already summaries, already carry `range`), return the matched row's raw `range` lines trimmed to the budget | rows already reverse by message | same as P1 | lower than P1 (index = rows, not messages); needs a quote picker | arm R2 of §6 |
 | P3 | **Query by recent messages, no entity gate** | D10 today fires only when an entity is named (`archiveRecall.ts:30-39`); with vectors present, also query by the last turn's text | unchanged | unchanged (folded rows are shared memory) | one more vector query | an arm inside Q-M5, owned and slotted by v2.8 01 §F M1; no code here |
 | P4 | **Embedding relevance for live-tier scoring** | replace Jaccard `semanticSimilarity` (`score.ts:61`) with vector band membership | derived per call | none new | an ephemeral insert + query per refresh, or a persistent row index | later; only if E0 shows ranking matters |
-| P5 | **Per-member witnessed retrieval** | P1/P2 with a durable witness record | needs witness records that reverse with the message | v2.9 02 option B/C | L | deferred with v2.9 02 |
+| P5 | **Per-member witnessed retrieval** | P1/P2 with a durable witness record | needs witness records that reverse with the message | v3.0 02 option B/C | L | deferred with v3.0 02 |
 | P6 | **Evidence retrieval for the warden / judge** | the warden's fact list is the established facts, capped at 40 (`src/runtime/continuity.ts:29-57`, `src/judge/policy.ts:72`); v2.8 13 J7.2 (canon verification) needs sources | read-only | quotes obey the same witness rule as P1 | bounded by TypeSafe's request limits | candidate input for v2.8 13; not its own build |
 | P7 | **Data Bank-style document retrieval** | not player memory. Fits v2.8 09 (wizard assistant: retrieve from the shipped knowledge base) | n/a | n/a | v2.8 09's | handed to v2.8 09 |
 | P8 | **Prompt-cache warning** | our dynamic blocks have the same effect; a note for v2.7 12 (model choice) if a cached CC backend is chosen | — | — | — | note only |
@@ -112,7 +112,7 @@ VectHare's report notes ours is "more accurate about truth … and weaker on rel
 What we already do as well or better, so nothing to harvest: threshold + top-k + token budget (D10's 0.55 / 4 / 200);
 recency and importance weighting (`score.ts`); per-chat scoping; rollback (explicit and property-tested); curation;
 per-member privacy; typed state that steers gates. Not to copy: splicing retrieved messages out of the prompt chat (it
-shifts depth-based injections, v2.9 02 H5), and Smart Context's "all character chats" scope (cross-story bleed; our
+shifts depth-based injections, v3.0 02 H5), and Smart Context's "all character chats" scope (cross-story bleed; our
 stories never share assets, CLAUDE.md storyLore invariant).
 
 ## 4. Options
@@ -121,7 +121,7 @@ stories never share assets, CLAUDE.md storyLore invariant).
 |---|---|---|---|
 | A | Nothing new for memory; C2 (shipped, v2.7 02); Q-M5 with the P3 arm (v2.8 01) | S | in hand |
 | B | A + **offline** evaluation: E0 ranking, then group witness feasibility (§6). No runtime code, no flag | M | **this plan** |
-| C | B + a runtime verbatim-recall feature (reply path, group, witness-filtered) | M+ | deferred, v2.9 05 |
+| C | B + a runtime verbatim-recall feature (reply path, group, witness-filtered) | M+ | deferred, v3.0 05 |
 | D | Tell players to switch Vector Storage on next to us | — | refused: measured leak in groups (§2.1) |
 
 Rejected: a solo-only spike (no solo support, v2.7 03); P4 before E0.
@@ -136,7 +136,7 @@ offline only, E0 first.
   Q-M5 leaves it configured. Q-M5's owner and slot are v2.8 01; its corpus (rating pack 1 of 20 pairs, none rated,
   `test/sessions/rating-pack/Q-M/status.json`) and ratings are still outstanding.
 - **The shipping decision is not made here.** The spike reports retrieval quality, privacy and persistence costs; a
-  runtime build is a v2.9 05 decision that reads this plan's record.
+  runtime build is a v3.0 05 decision that reads this plan's record.
 
 ## 6. Exploration (offline)
 
@@ -289,7 +289,7 @@ per-scene `present` set: a member gets a message only if it was present in that 
 **Fixture** (F29): one **secret-bearing** group fixture holds both halves, and both are scored in the same run:
 - **Witnessed positives:** ≥ 20 questions whose gold message the asking member witnessed;
 - **Unwitnessed exclusions:** ≥ 20 questions whose most similar message the asking member did **not** witness, carrying a
-  per-message nonce marker the model cannot predict (v2.9 02's F2 method);
+  per-message nonce marker the model cannot predict (v3.0 02's F2 method);
 - **Coverage minimum:** ≥ 3 different asking members, ≥ 2 scenes holding a `[hiding]`/`[unaware]` row, ≥ 2 sessions. A
   fixture below the minimum is refused, not scored.
 
@@ -299,13 +299,13 @@ per-scene `present` set: a member gets a message only if it was present in that 
 | VR2 | unwitnessed exclusions: nonce text in the filtered top 4 | 0 | privacy |
 | VR3 | tokens a k ≤ 4 block would add | p95 ≤ 250 | budget |
 | VR4 | swipe/edit/delete: a removed message is never returned | 0 in jest property cases over the fixture | rollback |
-| VR5 | persistence cost: a per-chat collection kept on disk vs rebuilt per session (build time, disk size, query time, on the lane) | report only, no floor | the v2.9 05 build question (D11) |
+| VR5 | persistence cost: a per-chat collection kept on disk vs rebuilt per session (build time, disk size, query time, on the lane) | report only, no floor | the v3.0 05 build question (D11) |
 
 **VR1 and VR2 pass only together.** A filter that returns nothing passes VR2 and fails VR1; that is the vacuous pass the
-old VR6 allowed ("refused in groups"), and it is now a failure. If presence is too weak for VR1 (v2.9 02 measured 4/40
-presence agreement at message level), the result is recorded and P1 waits with v2.9 02.
+old VR6 allowed ("refused in groups"), and it is now a failure. If presence is too weak for VR1 (v3.0 02 measured 4/40
+presence agreement at message level), the result is recorded and P1 waits with v3.0 02.
 
-Retired runtime questions (D11), now v2.9 05's: answer accuracy of a real reply, reply-path latency, the
+Retired runtime questions (D11), now v3.0 05's: answer accuracy of a real reply, reply-path latency, the
 dev-flag rollout and a live mutation run.
 
 #### §6.2 private run: declarations (2026-10-17, branch `v2.8-witness-real`, written before any label or pool)
@@ -364,12 +364,12 @@ Floors, minimums and the VR1+VR2 rule above are unchanged. E0's winner (d) ranks
    Q-M5.
 2. Is verbatim recall wanted at all for play, or is summarised memory enough? (Nothing in the v2.6 session flags
    has been checked for "the character misquoted me"; not determined.)
-   → Open. It is v2.9 05's question; this plan's record is its evidence.
+   → Open. It is v3.0 05's question; this plan's record is its evidence.
 3. Solo-only until plan 22's witness records: acceptable? Recommended: yes.
    → Superseded: no solo (answer below, v2.7 03).
 4. Should the spike's index persist per chat on disk (ST's vectors folder) or be rebuilt per session? Not determined;
    the spike measures both costs.
-   → Measured as VR5; decided in v2.9 05.
+   → Measured as VR5; decided in v3.0 05.
 
 ## 8. Gates
 
@@ -386,7 +386,7 @@ Floors, minimums and the VR1+VR2 rule above are unchanged. E0's winner (d) ranks
 | `npm run gates` for any runner code in this repo | D |
 
 No feature registry entry: offline measurements need none (v2.8 rule 10). No runtime code ships, so no
-`RunOwnership`, injection key or live gate here; those belong to v2.9 05 if it builds.
+`RunOwnership`, injection key or live gate here; those belong to v3.0 05 if it builds.
 
 ## 9. Links
 
@@ -396,8 +396,8 @@ No feature registry entry: offline measurements need none (v2.8 rule 10). No run
 - v2.8 09 — knowledge-base retrieval (P7).
 - v2.8 13 J7.2 canon verification — candidate consumer of P6 evidence.
 - v2.8 20 character life — exact past words would feed relationships and off-screen time.
-- v2.9 02 witness filter v2 (deferred) — F2 leak in `Past events:`, options A–C, witness records (P5).
-- v2.9 05 — runtime verbatim recall (deferred).
+- v3.0 02 witness filter v2 (deferred) — F2 leak in `Past events:`, options A–C, witness records (P5).
+- v3.0 05 — runtime verbatim recall (deferred).
 - `docs/plans/v2.6/07-chapters-and-saga-memory.md` D10 + Q-M floors — the archive recall this compares against.
 - `.claude/sillytavern-docs/community/prompting-memory-prior-art.md` §8.2, §10, §11.
 - `docs/plans/v2.4/extension-research/timeline-memory-an-agentic-memory-system.md`, `vecthare-a-rag-and-vector-foundational-overhaul.md`.
@@ -415,14 +415,14 @@ No feature registry entry: offline measurements need none (v2.8 rule 10). No run
   - the D10 solo path is removed;
   - this plan's "solo first" spike scope is gone.
   - Verbatim recall can only ship for groups, and in a group it must be filtered by who witnessed the message.
-  - That ties P1 to a witness record, which v2.9 02 (deferred) owns.
+  - That ties P1 to a witness record, which v3.0 02 (deferred) owns.
 - **New sequence:**
   1. C2 (shipped, v2.7 02).
   2. Q-M5 with the P3 arm (v2.8 01).
   3. The verbatim-recall spike on group chats in **offline replay only**, with a witness filter built from scene
      presence (the per-scene `present` set the scene read already records), measured against the "no unwitnessed text"
      floor (§6.2).
-  4. If presence is too weak (v2.9 02 measured 4/40 agreement for message-level labels), P1 waits with v2.9 02.
+  4. If presence is too weak (v3.0 02 measured 4/40 agreement for message-level labels), P1 waits with v3.0 02.
 - **"Do a proper review and evaluation" of ranking within the retrieved set:** a dedicated evaluation step, E0, before
   the spike (§6.1, with the frozen pool, ordered outputs, tie rule and the Choice arm's ranking defined there).
   - **The fixture:** written by one model from private session transcripts (`so-sessions`), checked by a second model,
@@ -430,7 +430,7 @@ No feature registry entry: offline measurements need none (v2.8 rule 10). No run
 
 ## Review 2026-10-03
 
-- **F01:** status line per plan (decided, not run; runtime recall deferred, v2.9 05).
+- **F01:** status line per plan (decided, not run; runtime recall deferred, v3.0 05).
 - **F08:** no solo scope anywhere; group chats only (v2.7 03); solo appears only as the superseded decision 3.
 - **F29:** old VR6 replaced: one secret-bearing group fixture scores witnessed positives (VR1) and unwitnessed
   exclusions (VR2) together, with a coverage minimum; a return-nothing filter fails.
@@ -438,11 +438,11 @@ No feature registry entry: offline measurements need none (v2.8 rule 10). No run
   arm runs. The Choice arm ranks by repeated Choice with removal (4 calls for ranks 1–4, ST's order after); all four calls
   count in cost and latency.
 - **D10:** Q-M5/P3 owner and slot = v2.8 01 §F M1; corpus and ratings stated as outstanding.
-- **D11:** runtime questions (reply accuracy, reply-path latency, flag rollout, live mutation run) retired to v2.9 05;
+- **D11:** runtime questions (reply accuracy, reply-path latency, flag rollout, live mutation run) retired to v3.0 05;
   the spike compares persistence costs (VR5); no shipping decision here.
 - **E0 wired into §6:** §6.1 is E0, the spike's first step.
 - **One review rule (B4):** labels written by one model, checked by a second, never by the user.
-- **Witness filter v2** cited as v2.9 02 (deferred); **C2** cited as shipped in v2.7 02 with K1 pending in v2.7.
+- **Witness filter v2** cited as v3.0 02 (deferred); **C2** cited as shipped in v2.7 02 with K1 pending in v2.7.
 - **F15:** implementation D, acceptance CL, per gate row.
 - Changed from the earlier draft: "spot-checked by Claude" → second-model check (rule 11). Line ref touched and verified:
   `src/endpoints/vectors.js:385-392` (the server sorts via `queryItems`, so ST's order is a real score order, which
@@ -571,7 +571,7 @@ Results (R1, presence proxy, ranked by arm (d)):
 - VR2: 4 nonces (4 of 46 exclusions). In each, presence read the member as present for a message the labels say it did not
   perceive, and the gold ranked into the top 4 of 8 candidates. Presence dropped 42 of 46 unwitnessed golds (0.913).
 - Diagnostic, unfiltered ST order: VR1 0.6875 (33/48), 34 of 46 exclusions leaked. The filter removes most leaks but not all:
-  presence is not hearing (v2.9 02 measured 4/40), here at a better rate and still not 0.
+  presence is not hearing (v3.0 02 measured 4/40), here at a better rate and still not 0.
 - VR3: p95 1,274 tokens, max 1,673 (cap 250): whole messages are far over the budget; a span picker is needed. Fails.
 - Cost: arm (d) latency p95 1,040 ms on ranked questions.
 - VR4: the jest property cases stay green (`src/memory/recall/vr4.property.test.ts`). VR5: index build per collection

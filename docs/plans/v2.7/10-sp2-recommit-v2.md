@@ -152,13 +152,13 @@ measure for C.
 ## Links
 
 - v2.8 01 §C (option A), O10 (real re-read leg of C).
-- v2.9 02 SP9 witness filter v2 (deferred): the other dropped spike that needs a new design.
-- v2.9 01 SP1 swipe-back cache (deferred): shares the bridge seam and `writes.requeue`; its fate decides whether the
+- v3.0 02 SP9 witness filter v2 (deferred): the other dropped spike that needs a new design.
+- v3.0 01 SP1 swipe-back cache (deferred): shares the bridge seam and `writes.requeue`; its fate decides whether the
   seam stays.
 - v2.8 15 cue + scene read merge: R5's second read is the scene read; a merged read would change R5′.
 - v2.7 11 C4 option (b): also about what a re-applied checkpoint re-stages.
-- No direct dependency: v2.7 06, v2.8 18, v2.8 20, v2.9 03 (deferred), v2.8 12, v2.8 13, v2.7 14, v2.8 11, v2.7 13,
-  v2.7 09, v2.9 04 (deferred), v2.7 12, v2.7 08, v2.8 14.
+- No direct dependency: v2.7 06, v2.8 18, v2.8 20, v3.0 03 (deferred), v2.8 12, v2.8 13, v2.7 14, v2.8 11, v2.7 13,
+  v2.7 09, v3.0 04 (deferred), v2.7 12, v2.7 08, v2.8 14.
 
 ## Gate record — option C (2026-10-03)
 

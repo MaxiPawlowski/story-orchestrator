@@ -217,7 +217,7 @@ v2.8 13 decision 1 "All", 2 "yes", 6 "yes".
 - v2.8 17, v2.8 18 §Q6, v2.8 19, v2.8 13 N3/N5/P2: merged sources (pointer lines on approval).
 - v2.7 36 quests; v2.7 37 character life; v2.7 38 Adolion (lab data, stub lab copy); v2.7 39 re-run from zero.
 - v2.7 33 W2 (warden agency → auto); v2.7 03 group only; v2.7 01 registry; v2.7 06 C9 (b) Activity panel.
-- v2.8 22 living story director (reads releases); v2.6 plan 07 seals (epilogue play, later); v2.9 03 new game plus.
+- v2.8 22 living story director (reads releases); v2.6 plan 07 seals (epilogue play, later); v3.0 03 new game plus.
 
 ## Decided (user, 2026-10-07)
 

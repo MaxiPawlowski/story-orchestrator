@@ -108,9 +108,9 @@ ever needed; C risks the precision that the T0 blocker fix bought; D is out of s
 ## Links
 
 - v2.8 01 O11 (real-play journal check), v2.8 01 §B C11-F1/F2 (other commitment-guard changes; semantics, v2.8).
-- v2.9 04 D6/T22 revisits (deferred; agency, player-line evidence), v2.8 13 J7 judge ideas (D's judge question would be
+- v3.0 04 D6/T22 revisits (deferred; agency, player-line evidence), v2.8 13 J7 judge ideas (D's judge question would be
   one; refused here).
-- No direct dependency: v2.7 06, v2.8 18, v2.8 20, v2.9 03 (deferred), v2.8 01 §C SP2, v2.9 02 SP9 (deferred), v2.8 12,
+- No direct dependency: v2.7 06, v2.8 18, v2.8 20, v3.0 03 (deferred), v2.8 01 §C SP2, v3.0 02 SP9 (deferred), v2.8 12,
   v2.7 14, v2.8 11, v2.7 13, v2.8 15, v2.7 11, v2.7 12, v2.7 08, v2.8 14.
 
 ## Gate record — option E (2026-10-03)

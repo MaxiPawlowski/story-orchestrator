@@ -12,7 +12,7 @@ profile with streaming on).
 
 Depends on **v2.7 18 sprite generation** (the in-plugin builder and its edit recipe) for the in-plugin frame build, and
 on v2.7 17's route B interfaces through it. The campaign-side build (`render_sprites.py --anim`, v2.8 02) and the
-runtime animator do not wait for 06. Rig option D is **deferred, v2.9 05**.
+runtime animator do not wait for 06. Rig option D is **deferred, v3.0 05**.
 
 Storage correction (user, 2026-10-03): existing image models stay on C: for autoload. Off-C model preconditions below
 are superseded for this installation (overview rule 5 exception); record the existing paths, do not copy weights.
@@ -114,7 +114,7 @@ or one image), anime quality, multi-actor stage, licence.
 | P | **Procedural CSS idle** (breath exists; add a slight sway or bob on the speaker, a settle on a label change) | browser, compositor-only transforms | ~0 | today's PNGs | fine; no faces move | yes | ours | Ships with anything below; cannot blink or talk. |
 | B | **Build-time variant frames through the existing ComfyUI edit pipeline** (eyes-closed, mouth-open, optionally mouth-half, per label) + a tiny runtime animator in `VnStage` | build: local ComfyUI or pod; runtime: `<img>` toggles | build: 2 or 3 extra head edits per label per set (time per edit not determined; measure); runtime: ~0 GPU | our PNG sets (same base, same head box) | same model and QA as today's expressions; the risk is a visible seam or pop at the toggle (spike) | yes; each actor has its own timer, only the speaker flaps | ours + whatever the edit model is (Qwen image edit; licence not re-checked here) | Zero new runtime dependency. A missing frame degrades to today's static sprite. |
 | C | **Offline portrait animators pre-rendering short loops** (LivePortrait; THA4) | build only | GPU; THA4 needs an RTX 2080-class card, and its distilled per-character student takes about 30 h on an A6000 per character | one image (THA4: 512×512 RGBA, head in a fixed box; LivePortrait: a portrait crop plus a driving video) | THA4 is made for anime; LivePortrait for humans and animals, anime not determined | as files, yes | THA4 code MIT, **models CC BY-NC 4.0**; LivePortrait code and weights MIT, but its InsightFace detector is **non-commercial** | NC terms rule both out for a public plugin's default path. Our full/thigh framing does not fit THA4's 512 bust box. |
-| D | **Layered 2D rig**: See-through (one anime image → up to 23 inpainted layers as PSD) → auto-rig (Stretchy Studio → Spine 4.0 JSON; Iki → own `.iki` JSON + WebGL2 runtime) → mesh runtime in the page | build: See-through 12–16 GB VRAM (≈8 GB with NF4), 2–3 min per image; runtime: WebGL | heavy build; runtime WebGL per actor | one image per *set* (every set is a new rig) | real Live2D-like motion when it works; how robust auto-rigging is on our art is not determined | yes, but N WebGL contexts or one shared canvas | See-through Apache-2.0 (V3 models 2026-04-14); Stretchy Studio MIT; Iki MIT (v0.x, 9 stars, schema "still settling"); **Spine runtimes need every end user to own a Spine Editor licence**, so Stretchy's Spine export is unusable for a public plugin; Inochi2D BSD-2 (web via WASM from 0.9) | **Deferred, v2.9 05.** The closest to the "Live2D feel"; also the route the user dropped on 2026-09-29. flat2rig (MIT, CPU, part-based, 0 stars): too immature. |
+| D | **Layered 2D rig**: See-through (one anime image → up to 23 inpainted layers as PSD) → auto-rig (Stretchy Studio → Spine 4.0 JSON; Iki → own `.iki` JSON + WebGL2 runtime) → mesh runtime in the page | build: See-through 12–16 GB VRAM (≈8 GB with NF4), 2–3 min per image; runtime: WebGL | heavy build; runtime WebGL per actor | one image per *set* (every set is a new rig) | real Live2D-like motion when it works; how robust auto-rigging is on our art is not determined | yes, but N WebGL contexts or one shared canvas | See-through Apache-2.0 (V3 models 2026-04-14); Stretchy Studio MIT; Iki MIT (v0.x, 9 stars, schema "still settling"); **Spine runtimes need every end user to own a Spine Editor licence**, so Stretchy's Spine export is unusable for a public plugin; Inochi2D BSD-2 (web via WASM from 0.9) | **Deferred, v3.0 05.** The closest to the "Live2D feel"; also the route the user dropped on 2026-09-29. flat2rig (MIT, CPU, part-based, 0 stars): too immature. |
 | E | **Video-loop sprites** (Wan 2.2 image-to-video, first/last-frame loop workflows in ComfyUI) | build only | Wan 2.2 TI2V-5B: 24 GB VRAM, under 9 min per 5 s 720p clip (README) | one image per label | good motion; identity drift and alpha not determined (video has no alpha, so each frame needs a cutout) | yes, as files | Apache-2.0 | One clip per expression PNG (2,889 in the Adolion inventory) makes it the most expensive option by far. Heavy files; looping per label fights cross-fades. |
 | A | **Talkinghead via Extras** | live Python server + GPU | always-on GPU | one 512 bust image | THA3 | one character | CC BY 4.0 | Removed from ST (§1). |
 | F | **Do nothing** | — | 0 | — | — | — | — | Today's breath and cross-fade stay. |
@@ -136,7 +136,7 @@ Prior art in our research: Prome VN (`docs/plans/v2.4/extension-research/prome-v
   - treat a stream as done only when `isFinished && !isStopped`, with a hard timeout;
   - avoid MutationObserver re-runs on `#chat`.
 
-## 5. Proposal (decided): B + P; D deferred to v2.9 05
+## 5. Proposal (decided): B + P; D deferred to v3.0 05
 
 **Build-time variant frames + a runtime animator (option B), plus procedural idle (P).**
 
@@ -230,7 +230,7 @@ Prior art in our research: Prome VN (`docs/plans/v2.4/extension-research/prome-v
 
 **Why not D now.** See-through + an auto-rig is the only route to real head turns and parallax. It is also the
 Live2D route the user dropped on 2026-09-29, it needs a WebGL runtime per actor, and every set is a separate rig.
-Spine's per-user licence rules out Stretchy's export; Iki is v0.x. Deferred, v2.9 05 (decision 5).
+Spine's per-user licence rules out Stretchy's export; Iki is v0.x. Deferred, v3.0 05 (decision 5).
 
 **Why not C or E.**
 - C: non-commercial model terms (THA4 models, LivePortrait's InsightFace).
@@ -333,7 +333,7 @@ under the existing ComfyUI lock / GPU broker.
 - **v2.7 20 living cards**: look sprites are new sets; a look set without frames animates with P only until frames are
   built for it.
 - **v2.8 02 Adolion campaign**: the `render_sprites.py --anim` change and its paths moved to settings/env off `C:`.
-- **v2.9 05**: rig option D (deferred).
+- **v3.0 05**: rig option D (deferred).
 - Memory: `adolion-sprites` (Live2D/Inochi2D dropped 2026-09-29; self-contained, SFW, build-time rendered).
 - v2.4 research: Prome VN (`docs/plans/v2.4/extension-research/prome-visual-novel-extension.md`).
 
@@ -348,7 +348,7 @@ under the existing ComfyUI lock / GPU broker.
 ## Review of the answers (2026-10-03)
 
 1, 2 and 4 taken as recommended. 3 is answered above (compare in the spike, plus a setting); §5 now specifies the
-setting, per-set frame counts and the fallback. 5 is parked for the next version: deferred, v2.9 05. 6 is decided by the
+setting, per-set frame counts and the fallback. 5 is parked for the next version: deferred, v3.0 05. 6 is decided by the
 spike's seconds-per-edit measurement: under about 2 s per edit it goes to the local 3090 night runs, otherwise to a pod.
 The cost is quoted before any run.
 
@@ -366,7 +366,7 @@ Applied from `v2.7/review-2026-10-03.md`:
 - **"adolion-fresh turns sprites off"**: the acceptance gate switches sprites on explicitly (`--media on
   --allow-comfy` or a read-back settings write) and requires zero ComfyUI calls.
 - **F31**: depends on v2.7 18, not "26b".
-- **Rig option D**: deferred, v2.9 05.
+- **Rig option D**: deferred, v3.0 05.
 - **Rule 5**: ComfyUI via its tray entry, model path off `C:`, campaign paths from settings/env.
 - **B10**: registry + Help gate row.
 

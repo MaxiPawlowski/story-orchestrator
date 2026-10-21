@@ -26,7 +26,7 @@ decision 1). So:
 
 Not in v2.7 (each needs a model or a later plan):
 - **Lore-creation role** (research decision 2): built with the curator create op, `v2.8/11-curator-create-op.md`.
-- **Optional Critic role** (decision 2, "after the wizard work"): `v2.9/05-deferred-items.md` §05.6 (decided by the
+- **Optional Critic role** (decision 2, "after the wizard work"): `v3.0/05-deferred-items.md` §05.6 (decided by the
   user 2026-10-03, as recommended).
 - **Native tool calls over CC profiles** for the agentic wizard (decision 3): a CL spike on the DeepSeek API CC profile
   plus the opencode subscription route (which already has native tools via the MCP bridge), floor = v2.6 plan 11's agent
@@ -146,10 +146,10 @@ For option B: no floor; record which fixture rows were model-proposed and which 
 - v2.7 02 C14 (the build row), v2.8 01 §B C14-b (enlarged inputs, real-model row).
 - v2.8 14 open-source Jev (the recommended path to a non-TypeSafe judge).
 - v2.8 13 J7 judge ideas, v2.8 12 J6d shadow record (fixtures B10-as-labeller would help build).
-- v2.8 11 curator create op (Lore-creation role), v2.8 09 wizard assistant §F (native tools), v2.9 05 §05.6 (Critic).
+- v2.8 11 curator create op (Lore-creation role), v2.8 09 wizard assistant §F (native tools), v3.0 05 §05.6 (Critic).
 - v2.7 12 model choice (a hosted model choice may change the harness model list).
-- No direct dependency: v2.7 06, v2.8 18, v2.8 20, v2.9 03 (deferred), v2.8 01 §C, v2.9 02 (deferred), v2.9 01
-  (deferred), v2.7 13, v2.8 15, v2.7 11, v2.7 09, v2.9 04 (deferred), v2.7 08.
+- No direct dependency: v2.7 06, v2.8 18, v2.8 20, v3.0 03 (deferred), v2.8 01 §C, v3.0 02 (deferred), v3.0 01
+  (deferred), v2.7 13, v2.8 15, v2.7 11, v2.7 09, v3.0 04 (deferred), v2.7 08.
 
 ## Research 2026-10-03: multiple cloud providers per role
 

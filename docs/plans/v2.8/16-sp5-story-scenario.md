@@ -176,7 +176,7 @@ Bars unchanged (C1–C5 above). Restate before the run, as `v2.6/03-sp5-restated
 - v2.7 11 C4 option (b): owns the jump semantics; keeps (c).
 - v2.7 05 story briefing: `effects.scenario` frames the story for the model, the briefing for the player.
 - v2.7 04 story health center: the C5 note as an author check row.
-- v2.8 17 SP6 complication pool: the other v2.6 spike still measured in v2.8. SP1 is deferred (v2.9 01); SP10 is v2.7 15.
+- v2.8 17 SP6 complication pool: the other v2.6 spike still measured in v2.8. SP1 is deferred (v3.0 01); SP10 is v2.7 15.
 - v2.7 07 / v2.8 02 Adolion campaign: the stories that already author the key, and the lab fixture.
 
 ## Review 2026-10-03

@@ -1,9 +1,9 @@
 # Plan 43 — Verbatim recall
 
-**Status: v2.8, owner decision 2026-10-14 (moved from v2.9 05 §05.4), not built. Revised 2026-10-14 against the Astra
+**Status: v2.8, owner decision 2026-10-14 (moved from v3.0 05 §05.4), not built. Revised 2026-10-14 against the Astra
 review (owner approved; §12).** Gated: no runtime code before v2.8 21 E0 names a winning arm and a witness record
 exists (v2.8 42 B, or the presence proxy if v2.8 21 §6.2 passes on it). Was old v2.7 29 options B/P1/P5 → v2.8 21
-(offline) + v2.9 05.4 (runtime).
+(offline) + v3.0 05.4 (runtime).
 **Gate tiers** (v2.8 00 §Gate taxonomy): implementation D; acceptance CL (recall fixture, second-model labels) and RP
 or LT (one real-reply leg).
 
@@ -31,7 +31,7 @@ or LT (one real-reply leg).
 - The leak is measured: v2.6 lab F2 put 41 unwitnessed lines into other members' prompts through Vector Storage's
   `Past events:` (`v2.5/09-sp9-spike-report.md:123`; v2.8 42 §2).
 - Deferred at the split (review item 9) with a reopen trigger: E0 winner (hit@4 ≥ 0.80), VR1 + VR2 jointly on a
-  fixture meeting §6.2's minimums, and a reversible witness record (`docs/plans/v2.9/05-deferred-items.md` §05.4;
+  fixture meeting §6.2's minimums, and a reversible witness record (`docs/plans/v3.0/05-deferred-items.md` §05.4;
   `21` §6.2 `:206-230`).
 - E0 code merged to master (`c1764024`): floors in code (`E0_FLOORS`, `src/memory/e0Ranking.ts:12`), cost order
   (e),(c),(a),(b),(d), synthetic freeze recorded, private freeze owed. No winner yet.
@@ -174,7 +174,7 @@ VR7p–VR9 added 2026-10-14 by the review (never run).
 - v2.8 01 §F M1 (Q-M5 with the P3 arm): the D10 baseline R0 compares against.
 - v2.8 44 rumors: a told member gets the telling span, not the origin (VR2t).
 - v2.8 13 J7.2 canon verification: may consume recalled spans as evidence (P6).
-- v2.9 05 §05.4: status "moved to v2.8 43".
+- v3.0 05 §05.4: status "moved to v2.8 43".
 
 ## 10. Decisions for the owner
 

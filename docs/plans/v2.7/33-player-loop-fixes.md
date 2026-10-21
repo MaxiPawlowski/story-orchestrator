@@ -1,7 +1,7 @@
 # Plan 33 — Player loop fixes
 
 **Status: APPROVED 2026-10-07 (every Recommended answer); tier D built 2026-10-07 on `v2.7-33-player-loop` (see §Gate
-record); CL/RP acceptance owed to v2.7 39 Phase C; J7.2 not built.** Moved from v2.8 01 §C (W1), v2.9 04 option D (W2),
+record); CL/RP acceptance owed to v2.7 39 Phase C; J7.2 not built.** Moved from v2.8 01 §C (W1), v3.0 04 option D (W2),
 v2.8 13 N1 + N6 (+ J7.2) (W3) and v2.8 04 C5 (W4). Overview: `00-overview.md`.
 **Gate tiers:** implementation D; acceptance CL and RP per workstream. Real-model rows are allowed in v2.7 by the
 2026-10-07 re-scope (an exception to v2.7 rules 5 and 6, as rule 13 is for the image track); RunPod may carry test
@@ -12,7 +12,7 @@ volume. Every test, these included, re-runs from zero in v2.7 39 (Phase C).
 - `docs/plans/v2.8/01-v27-carry-over.md` §C (option A, floors V0–V8), O10 (option C's real re-read leg), §G (over-steer
   session).
 - `docs/plans/v2.7/10-sp2-recommit-v2.md` (option C built `e9082dd5`; host facts H1–H6; decisions 1–5).
-- `docs/plans/v2.9/04-d6-t22-revisits.md` (option D, T22 floor, decisions 1–6).
+- `docs/plans/v3.0/04-d6-t22-revisits.md` (option D, T22 floor, decisions 1–6).
 - `docs/plans/v2.8/13-j7-judge-ideas.md` §J7.2, §Research N1 + N6, P2, P4, §Spike programme, ship rule (v2.8 rule 9).
 - `docs/plans/v2.8/04-story-presence-panels.md` C5; `v2.8/09-wizard-assistant.md` §B (player projection);
   `v2.8/10-briefing-drafting.md` §Model-input spoiler protection.
@@ -79,18 +79,18 @@ batch. Folds in v2.8 01 O10 (option C's real re-read leg).
 | V7 | C12 interaction | edit of the gating reply with an onEnter post ends like a replay of the edited chat |
 | V8 | rollback journey | J6 green ×2 with the flag on |
 
-## W2 — Agency notes reach players (v2.9 04 option D)
+## W2 — Agency notes reach players (v3.0 04 option D)
 
 **Problem.** `wardenAcceptMode` defaults to `review` (`src/runtime/settingsModel.ts:180`) and is shared by every warden
 family (v2.4 X22). `agencyCheck` is on (v2.6 rule 5), so a player-only install pays for the agency question on every
 reply and gets nothing: the note waits for an author who never opens the drawer (`test/sessions/T3/SUMMARY.md:187`). Prerequisite
 for every warden-based player feature (W3 N1/N6, v2.7 37 L6).
 
-**User decisions (verbatim, v2.9 04).** 3: "yes" (`agencyCheck` stays on). 4: "lets take notes and reevaluate once we
+**User decisions (verbatim, v3.0 04).** 3: "yes" (`agencyCheck` stays on). 4: "lets take notes and reevaluate once we
 have some session then". 5: "i'll play it, but add a tesst case so that claude also plays it." 6: "defer". On
 2026-10-07 the user pulled option D into v2.7 ahead of the session; 4 and 6 are therefore re-asked below (decision 2).
 
-**Design — decided:** split the accept mode per family: agency `auto`, continuity `review` (v2.9 04 option D, first
+**Design — decided:** split the accept mode per family: agency `auto`, continuity `review` (v3.0 04 option D, first
 form). A note's status is computed per finding (`wardenNoteOps`, `src/stagecraft/warden.ts:73-84`, today one `mode` for
 all); a record may then hold an accepted agency op beside a pending continuity op, and `newestCarriedNote` carries only
 accepted indices. `wardenAcceptMode: "off"` still stops every family. Existing stored settings keep their value for the
@@ -110,9 +110,9 @@ byte-identical (still `review`).
 
 **Tier:** D impl; CL (judge) + RP acceptance. **Gate:** `npm run gates`; jest on the warden coordinator (agency applied
 in `auto` while continuity waits in `review`, same record), settings migration test, Storybook for the two panels,
-then live real-LLM `so-journey J8 --only J8.10 --judge-uses agencyCheck --warden-mode auto` ×2 (v2.9 04 §Gates);
+then live real-LLM `so-journey J8 --only J8.10 --judge-uses agencyCheck --warden-mode auto` ×2 (v3.0 04 §Gates);
 `assert-player-clean`; registry entry (rule 9).
-**Floor** (verbatim, v2.9 04 §Floor, T22 for D): "at least 1 reply narrating the player's action, decision or words,
+**Floor** (verbatim, v3.0 04 §Floor, T22 for D): "at least 1 reply narrating the player's action, decision or words,
 caught by the check. Notes rated "helpful or invisible" in at least 80 % of cases, and 0 notes that produced an OOC or
 over-corrected reply. Missing either floor means E or keep `review`." Measured on the v2.8 01 §G over-steer session
 (Claude's card, ≥ 40 turns, second-model rater) — see decision 3.
@@ -232,7 +232,7 @@ the current objective or an open thread; 0 suggestions that state an outcome for
 
 1. **W1 step 0:** name the post-processor you run (and its settings). **Rec:** name it; Recast-shaped bursts stay as
    scripted fixtures either way.
-2. **W2:** ship agency `auto` by default now, before the over-steer session (overrides v2.9 04 decisions 4/6 "reevaluate
+2. **W2:** ship agency `auto` by default now, before the over-steer session (overrides v3.0 04 decisions 4/6 "reevaluate
    once we have some session" / "defer")? **Rec:** build it default-on behind its own key, and treat the T22 floor as
    acceptance: a miss reverts the default to `review` (or E).
 3. **W2:** move Claude's over-steer session (v2.8 01 §G) into v2.7 39 Phase C on RunPod? **Rec:** yes; it is W2's only
@@ -247,7 +247,7 @@ the current objective or an open thread; 0 suggestions that state an outcome for
 
 ## Links
 
-v2.8 01 §C, O10, C3, §G; v2.7 10 (option C); v2.9 04 (D6/T22; option D now here); v2.8 13 (N1, N6, J7.2 here; rest
+v2.8 01 §C, O10, C3, §G; v2.7 10 (option C); v3.0 04 (D6/T22; option D now here); v2.8 13 (N1, N6, J7.2 here; rest
 stays); v2.8 04 (C5 here; C4, C7, C9 (a) stay); v2.8 09, v2.8 10 (reuse the projection); v2.7 06 (panel frame,
 display toggles); v2.7 37 L6 (needs W2); v2.8 20 L6 (why N7 is out); v2.7 39 (Phase C re-run); v2.8 15 (a merged
 cue + scene read changes R5′).

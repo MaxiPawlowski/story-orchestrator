@@ -353,7 +353,7 @@ real-model carrier, or why none is needed.
 | curator-create | CL | v28-35-curator-create ×2 | GS2.5; M17 carried |
 | curator-markers | CL | 16-02-C13, A19 scenario | GS2.5 (O14) |
 | judge | CL | judge plugin tests | every GS, J11 |
-| judge-local | D | v28-40-local-judge-uncalibrated ×2 | play-load deferred to v2.9 (A7) |
+| judge-local | D | v28-40-local-judge-uncalibrated ×2 | play-load deferred to v3.0 (A7) |
 | road-ahead | CL | expansion scenarios | GS2.1, J11 |
 | studio | D | Storybook (135 suites), mobile long-press ×2 | none: no model |
 | wizard | CL | J14 (no model), tools tests | O13b, O16, J9, plan 09 live (Sol) |
@@ -532,7 +532,7 @@ registry, and the 109-id check above, when a plan is built. Floor ids are the pl
 | v2.8 01 §D thinking A/B | deferred | RP | blind pack |
 | plan 10 briefing floors | informational | CL | 30 drafts ×1 |
 | plan 13 J7 ideas live | acceptance | CL | J7-consumers block ×2 + off |
-| plan 14 local judge play load | deferred | LT | v2.9 (A7) |
+| plan 14 local judge play load | deferred | LT | v3.0 (A7) |
 | plan 18 quests M1/M2 | informational | CL | from GS1/GS3 audits |
 | plan 19 open stretches M1/M2 | informational | RP | encounters-model tail |
 | plan 21 E0 (A12) | informational | CL | offline (5 arms) |
@@ -546,7 +546,7 @@ registry, and the 109-id check above, when a plan is built. Floor ids are the pl
 | v2.8 01 §F M1–M5 (Q-M5/P3, inner voice B2, inner voice C, W6, Part B packs) | deferred | RP + CL | as M15/R8: packs from GS replies where the arm is the shipped default; other arms deferred |
 | v2.8 17 K1, K2 (SP6 release, one block) | carried | D + RP | K1 complication jest replay; K2 = 35-K2 (live-v25-09-sp6-k2, carried); GS4.5 re-reads the release |
 | v2.8 17 K3–K5 (SP6 agency, over-steer, tension) | deferred | RP | = 35-K3/K4/K5, with plan 49 C8 (§Cuts 8) |
-| v2.8 21 §6.2 VR1–VR5 | superseded | CL | measured as plan 43 VR1–VR4 (CL offline ×2 when 43 is built); VR5 report only, v2.9 05 |
+| v2.8 21 §6.2 VR1–VR5 | superseded | CL | measured as plan 43 VR1–VR4 (CL offline ×2 when 43 is built); VR5 report only, v3.0 05 |
 | plan 36 LI3, LI4, LI6 (fault, reduced motion, mobile) | image track (rule 12) | D + LI | owed no-model lane / Storybook rows of plan 36, closed with the image track |
 
 ## Cuts and merges
@@ -669,7 +669,7 @@ recorded and the feature stays on (00-overview rule 9).
 3. Attestation `docs/release/2.8.0/attestation.json` cites archived records only (`test/journeys/records/v2.8/`,
    `test/measurements/v2.8/`, so-sessions paths for campaign evidence).
 4. Verdict: ACCEPTED only with every acceptance row green ×2; PARTIAL with reasons otherwise; INCOMPLETE if an
-   acceptance row has no evidence pair. Deferred rows go to v2.9 with their reopen trigger.
+   acceptance row has no evidence pair. Deferred rows go to v3.0 with their reopen trigger.
 
 ## Unresolved questions
 
@@ -680,7 +680,7 @@ recorded and the feature stays on (00-overview rule 9).
 4. Over-steer card: inside the 2.5 h informational cap, or left to the owner's own play?
 5. DeepSeek as the CL reply and memory model (pay per token, cap EUR 15), or Sol only (no marginal cost, about twice
    the wall time, subject to its usage limit)?
-6. Pod P1 (about EUR 4) to finish the Artemis blocks in one night instead of two; P2 for the 98K rows now or v2.9?
+6. Pod P1 (about EUR 4) to finish the Artemis blocks in one night instead of two; P2 for the 98K rows now or v3.0?
 7. Model downloads (plan 30): deferred until the owner supplies a token and approves the space check?
 8. `test/sessions/adolion-stories.json` in this public repo lists campaign checkpoint names (pin `ecccdb78`). Move it
    to so-sessions and purge it from the public tree?
@@ -984,8 +984,8 @@ missing artifact). A session counts only when VALID.
 
 | Card | Who plays | Question | Completion |
 |---|---|---|---|
-| **Over-steer** (v2.8 01 §G) | Claude | does the warden on `auto` with `agencyCheck` over-steer when the player declares outcomes or goes silent? ≥ 40 turns | VALID; digest counts agency notes raised/accepted/applied per 100 turns, every flagged reply, replies narrating the player, declarations counted as outcomes, each quoted (private); every applied note rated helpful/invisible/OOC/over-corrected by a second-model rater (unrated note = incomplete); T0–T7 journal count attached (v2.8 01 §G, v2.9 04) |
-| Over-steer (same shape) | the user | same, the user's own play | the user's choice; scored against the same v2.9 04 floors, separately |
+| **Over-steer** (v2.8 01 §G) | Claude | does the warden on `auto` with `agencyCheck` over-steer when the player declares outcomes or goes silent? ≥ 40 turns | VALID; digest counts agency notes raised/accepted/applied per 100 turns, every flagged reply, replies narrating the player, declarations counted as outcomes, each quoted (private); every applied note rated helpful/invisible/OOC/over-corrected by a second-model rater (unrated note = incomplete); T0–T7 journal count attached (v2.8 01 §G, v3.0 04) |
+| Over-steer (same shape) | the user | same, the user's own play | the user's choice; scored against the same v3.0 04 floors, separately |
 | Persona start (v2.8 03) | Claude | does the identity step lock the persona and does the opener use it? | VALID; lock + opener name in the digest |
 | Panels (v2.8 04) | Claude | Journal, stat sheet, suggestions and public rolls in player mode | VALID; `assert-player-clean` at every stop |
 | Living cards + talking sprites (v2.7 19/20) | Claude | overlay changes and look sprites over a long run | VALID, `--media on --allow-comfy` |
@@ -1024,8 +1024,8 @@ Session evidence goes to the private `so-sessions` repo (`npm run sessions:archi
    records archived under `test/journeys/records/v2.8/` (journeys), `test/measurements/v2.8/` (measurements); citations
    checked by `scripts/release/attestation.test.mjs`.
 5. **Verdict:** ACCEPTED only with every critical row green ×2, every plan's acceptance rows green, every session VALID
-   and scored, every broken finding fixed and re-run; otherwise PARTIAL with the reasons. Anything deferred goes to v2.9
-   with a reopen trigger (v2.9 rule 2).
+   and scored, every broken finding fixed and re-run; otherwise PARTIAL with the reasons. Anything deferred goes to v3.0
+   with a reopen trigger (v3.0 rule 2).
 
 #### Review 2026-10-03
 

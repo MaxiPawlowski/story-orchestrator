@@ -158,8 +158,8 @@ Data needed: the 20 blind turns (exist), the A/B bodies (exist), pod time.
 - v2.8 20 character life L5: harvest needs a thinking main model.
 - v2.8 14 open-source Jev and v2.7 14 B10 CLI judge: other judge providers; the `llama-logprob` provider is tied to the
   served model (`measuredOn`).
-- No direct dependency: v2.7 06, v2.8 18, v2.9 03 (deferred), v2.8 01 §C, v2.9 02 (deferred), v2.8 12, v2.8 13, v2.8 11,
-  v2.7 13, v2.8 15, v2.7 11, v2.7 09, v2.9 04 (deferred).
+- No direct dependency: v2.7 06, v2.8 18, v3.0 03 (deferred), v2.8 01 §C, v3.0 02 (deferred), v2.8 12, v2.8 13, v2.8 11,
+  v2.7 13, v2.8 15, v2.7 11, v2.7 09, v3.0 04 (deferred).
 
 ## Review 2026-10-03
 
