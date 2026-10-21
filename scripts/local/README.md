@@ -55,9 +55,9 @@ SillyTavern and delay the player's own line by seconds (v2.8 31 F19).
 - `imageCacheMode`: `warm` (default) keeps image weights in GPU memory between compatible image jobs while reserves allow;
   `evict` also resets the cache. `cli.mjs cache-mode warm|evict` changes the running comparison arm, not disk config.
   a text request reclaims the image memory before text runs. `imageIdleGraceMs` (60000) prevents background text restoration
-  between image jobs; an actual text request skips that grace. A different workflow, runtime, model identity or resident
-  text layout reclaims the cache before admission. Same-workflow admission credits only allocations still observed from
-  the preceding render, and measurements retain the full workload cost rather than learning a near-zero hot-start demand.
+  between image jobs; an actual text request skips that grace. A different runtime, model files or resident text layout
+  reclaims the cache before admission (a render without model files also reclaims on a different workflow). Admission on the
+  same model files credits only allocations still observed from the preceding render, and measurements retain the full workload cost rather than learning a near-zero hot-start demand.
   Pressure can evict a warm cache before the next workload. ComfyUI can also reclaim its cache under RAM pressure.
 - ComfyUI `--cache-ram 8` is an **8 GiB headroom threshold**, not an 8 GiB cache capacity. `comfyExtraArgs` selects
   supported loading flags; `modelCacheRoot` keeps new HF/compile caches off C:. A supported CUDA-13 DynamicVRAM runtime
