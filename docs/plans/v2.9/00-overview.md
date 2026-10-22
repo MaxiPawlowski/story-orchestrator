@@ -1,6 +1,12 @@
 # Implementation Overview — Story Orchestrator v2.9
 
-**Status: PLANNED 2026-10-21 (owner).** v2.9 = player-experience additions and current-feature fixes from the 2026-10-21
+**Status 2026-10-22: BUILT, no GPU.** 02, 04, 05, 06, 07, 08, 09 on master (`297e7234`), full gates green (records below and
+in each plan). 03 S0–S2 built on `v2.9-03-polish` (`1bd5d6a6`), NOT merged: its merge contract keeps S2 off master alone
+(shadow polish on by default calls sol, cap 40/h); owner decides. NOT run anywhere: real-LLM floors, lane scenarios, payload
+goldens, campaign adoption. 07 record: plain gates red only on a foreign :6006 holder; `--no-storybook --serial` green +
+Storybook alone on :6207 985/985.
+
+**Was: PLANNED 2026-10-21 (owner).** v2.9 = player-experience additions and current-feature fixes from the 2026-10-21
 harvest, triaged by gpt-6.1-sol (`01-triage-sol.md`, codex exec, high reasoning, read-only, on `6861d989`). The previous
 v2.9 (deferred items) was renamed **v3.0** the same day (`docs/plans/v3.0/00-overview.md`). Nothing here is approved or built;
 v2.8 keeps its queue (`docs/plans/v2.8/32-queue.md`), and this set does not reorder it. No model time or pod budget is authorized.
