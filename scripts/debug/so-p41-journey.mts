@@ -183,10 +183,11 @@ async function playBlock(ctx: Ctx, from: number, count: number, label: string) {
   const rows: TurnResult[] = [];
   for (let at = 0; at < count; at += 1) {
     const line = PLAYER_LINES[(from + at) % PLAYER_LINES.length];
+    const startedAt = new Date().toISOString();
     const turn = await playTurn(ctx.page, line);
     rows.push(turn);
     ctx.turns.push(turn);
-    await appendFile(resolve(ctx.dir, 'turns.jsonl'), `${JSON.stringify({ block: label, ...turn })}\n`);
+    await appendFile(resolve(ctx.dir, 'turns.jsonl'), `${JSON.stringify({ block: label, startedAt, endedAt: new Date().toISOString(), ...turn })}\n`);
   }
   return rows;
 }

@@ -11,6 +11,7 @@ import { useDraftStore } from "../draft";
 import { setMemberPoses, setPoses, setStagePose } from "../poseMutations";
 import { lookLayers } from "../../sprites/poses/layers";
 import { posesToPrepare } from "../../sprites/poses/prepareList";
+import { spriteFilesSaved } from "../../sprites/visualChanges";
 import { isValidationErrorList, parseStory } from "@engine/index";
 import PoseSkeleton from "./PoseSkeleton";
 
@@ -60,7 +61,7 @@ const host: PosesServices = {
         if (saved) ready += 1;
         else problems.push(`${job.name}, ${job.pose.label}: ${error || "not saved"}`);
       }
-    } finally { renderer.close(); }
+    } finally { renderer.close(); if (ready) spriteFilesSaved(); }
     return [`Prepared ${ready} of ${jobs.length} story pose(s).`, ...problems].join(" ");
   },
 };

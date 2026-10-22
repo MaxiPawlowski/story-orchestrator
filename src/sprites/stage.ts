@@ -6,7 +6,7 @@ import {
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { beginRun } from "@runtime/runToken";
 import { actorHead, castHeadStatus } from "./liveHeadStage";
-import { subscribeVisualSources } from "./visualChanges";
+import { subscribeSpriteFiles, subscribeVisualSources } from "./visualChanges";
 import { PLAYER_COPY } from "@runtime/narrative";
 import { log } from "@utils/log";
 import { classifyExpressions, NARRATION, type ExpressionRead } from "./classify";
@@ -173,6 +173,7 @@ export class SpriteStage {
     const offViewport = spriteWatchViewport(this.notify);
     const offStory = this.manager.subscribe(() => this.placeChanged());
     const offSources = subscribeVisualSources(() => { this.lists.clear(); void this.reload(); });
+    const offFiles = subscribeSpriteFiles(() => { this.lists.clear(); void this.reload(); });
     const click = (event: MouseEvent) => this.clicked(event);
     document.addEventListener("click", click);
     void this.reload();
@@ -180,6 +181,7 @@ export class SpriteStage {
       off();
       offStory();
       offSources();
+      offFiles();
       offViewport();
       observer?.disconnect();
       document.removeEventListener("click", click);
