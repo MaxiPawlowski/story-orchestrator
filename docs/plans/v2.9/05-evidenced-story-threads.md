@@ -1,6 +1,6 @@
 # Plan 05 — Evidenced story threads
 
-**Status: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md`); not built; owner decisions pending.** Implementation
+**Status: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md`); built 2026-10-21 on branch `v2.9-05-patterns` (slices A-D, authored-only), deterministic gates green, real-LLM and corpus floors NOT run (no GPU); see §Gate record.** Implementation
 tier **D** (pure matcher, schema, runtime slice, Studio, no model call). Acceptance **D** (matcher floors on the frozen
 corpus, replay, perf) + **CL** (independent labels for the real-play part of the corpus) + **RP/LT** (real-play ref sequences;
 narrator-hint slice C only). Overview rules: `docs/plans/v2.8/00-overview.md` §Rules (inherited by v2.9).
@@ -366,3 +366,117 @@ Sol's, informational, frozen before inference, never retuned.
 2. Real-play part of the 50-sequence corpus: which lane/model window, and how many rows real vs synthetic?
 3. Does `repeat: "each"` need a per-pattern cooldown, or are non-overlapping occurrences plus the 16-branch cap enough?
 4. Should a quest `giver` binding also accept codex People entries once v2.8 52 links entries to members?
+
+## Gate record 2026-10-21 (v2.9 build, branch v2.9-05-patterns)
+
+Scope per owner decisions 2026-10-21: authored-only patterns (no built-in library), four-kind vocabulary and bounds as
+recommended, word `patterns`, callback line in What changed. No GPU: no Artemis, no real-LLM gate, no RP/LT/CL runs.
+
+### Built
+
+- **Slice A (schema, validation, matcher).** `engine/patternSchema.ts` (`StoryPattern`, `PatternStep`, `PatternUnless`,
+  limits: 16 patterns, 3 steps, 2 vars, 4 unless rows, 240-char texts, `within` 1-200, 16 live branches per pattern);
+  `engine/validate/patterns.ts` (`readPatterns`, `checkPatterns`) through the game layer (`GAME_LAYER.patterns`),
+  `patterns` in `usesGameLayer`, `parseStory` and `gameFields`. Refused: `liv_` checkpoints, secret milestones, non-public
+  checks, quest `to: hidden`, unknown attributes per kind, an `unless` var not bound by step i, a pattern with no label,
+  hint or pending line. Studio diagnostics `pattern-label-names-unknown-entity`, `pattern-label-claims-cause`,
+  `pattern-never-completes` (`studio/patternDiagnostics.ts`), each in `DIAGNOSTIC_CONSEQUENCES` and the guide.
+  Matcher `runtime/patterns.ts` (lazy kit, `loadPatternsKit`): refs filtered to visible transition/quest/milestone/public
+  check, living and secret excluded; cursor `{boundary, index}` = position in `deriveRefs` output; per ref expire ->
+  advance (waiting branch kept) -> cancel (exclusive endpoints, before completion) -> complete (non-overlapping, `once`
+  tombstone) -> dominance dedupe -> cap 16 (overflow counted). Attributes from the story index only. No randomness, no
+  wall clock, no blackboard write. Frozen fixtures (A-B-B-C once/each, unless B1-B2, same-boundary order, step and
+  unless on one ref, bound-variable negative, unless endpoint, expiry at `within` and `within + 1`, public-only filter).
+- **Slice B (runtime slice, rollback, author view).** `extras.patterns = {base {at, branches, ring, overflow}, deltas,
+  tombstones, completed (cap 200), gaps, partial}`; `runtime/patternsPort.ts` main door (types, `rollbackPatterns`,
+  `createPatternsPort`, doors to the kit). `recap.onBoundary` now returns `{derived} | {unavailable: "kit"}`; boundary
+  work `patterns` (order 7.5, afterEnd) consumes exactly that return via the work context, never re-derives. Startup
+  awaits `loadPatternsKit` beside `loadRecapKit`; a missing kit or recap records a `gaps` row and raises the `degrades`
+  check `patterns-unavailable` (feature `story-patterns`, player copy, firing fixture). Deltas fold into `base` when
+  `engine.historyFrom()` passes them; `rollbackPatterns` in `quarantine()` beside `rollbackRecap`; a target below the
+  base is recorded as a `history` gap, never claimed equal. Re-running a boundary trims first (no doubles). Story update:
+  `reconcilePatterns` via `StoryUpdateDeps.reconcile` before `swapStory` (rev = hash of steps/unless/within/repeat; text
+  edits keep the rev; edited or removed patterns drop live branches from base and every delta; completions and
+  tombstones kept; `once` is per pattern id). Author panel `#so-author-patterns` (Author › Overview) and an inline level 3
+  chip `progress:pattern:*` on the completing message. Sanitizer runs in the kit (main keeps a shape guard).
+- **Slice C (delivery).** Public filter per text at projection and at delivery: `recapWithheld` names,
+  `unknownEntityNames(knownEntities(...))`, and the resting content check (`MemoryInjector.restingFilter` changing the
+  text = restates a held secret, withheld whole, counted `withheldSecret`). What changed: completions with `label.text`
+  join `composeLines` as tier `authored`, never because, scoped to the current section's boundaries
+  (`RecapView.callbacks`). Narrator hint: `hint` rides the omniscient member's private block for 3 boundaries under
+  `PATTERN_HINT_HEADER` (`narratorSheetPort` `hints` dep; `memoryInjector` stages the block for pattern stories).
+- **Public projection (for v2.9 06), as specified.** `patternProjection(story, extras.patterns, engineState, resting):
+  PublicPattern[]` (pure, kit) through the main door `runtime/patternsPort.ts` (absent kit -> `[]`), on
+  `snapshot.patterns`. `PublicPattern = {patternId, rev, phase: "pending" | "completed", text, evidence: {kind, id,
+  boundary, index, messageId}[], boundary}`; pending = one live branch with exactly one step left (first by stable order)
+  and authored `pending` text; completed = completions within the last 3 boundaries with their stored label; entries
+  whose text fails the filter are omitted. Byte-identical for the same state (test).
+- **Slice D (authoring).** Studio `PatternsEditor` (Game tab, State and rules), typed `addPattern` / `updatePattern` /
+  `removePattern` / `setPatterns` (`studio/gameMutations.ts`), agent tool `setPatterns` (`tools.ts`, `gameOps.ts`,
+  validated with the story validator), `readStory` lists patterns for Ask. Guide topic `patterns` (`story-guide.md` +
+  `guideTopicsRecap.ts`), `npm run docs:guide`, `npm run docs:settings`, setup-path Level 5 row. Feature `story-patterns`
+  (`recapFeatures.ts`, experimental, needs story), install setting `memory.patterns` default on, story policy
+  `features.patterns.enabled`. Storybook: `Studio/PatternsEditor` (play + phone/tablet/wide), `Drawer/PatternsPanel`.
+
+### Not built, and why
+
+- Built-in pattern library: owner decision 1 = authored-only.
+- Studio read-only preview of the open chat's last matches: not built (the Studio has no runtime read seam without
+  crossing the components/studio boundary); Author › Overview › Patterns shows the live state instead.
+- Refold of an edited pattern from retained refs: not built; an edited pattern's live branches are dropped and the
+  pattern is marked `partial` (author view). No branch is invented from older refs, which the plan also requires.
+- Chapter title card recap (`cardSections`) does not include callback lines; only the current What changed section does.
+- The 50-sequence P1/P2 corpus with independent labels: not built (its real-play rows and the CL rater need model time).
+- No-model lane scenario `test/scenarios/v29-05-patterns.json` (pending, completion on the Overview,
+  assert-player-clean, delete takes it back) is written and schema-checked (`validateFixture` = `[]`, every eval parses)
+  but **not run**: lanes serve the one staged extension slot in the owner's ST tree, and staging this unmerged branch
+  there would replace what :8000 and the other v2.9 builders' lanes serve. Lane 43 was never started.
+
+### Deviations from the plan text
+
+- Install setting is `memory.patterns` (no `recap` settings section exists; mirrors `memory.rumors`), plus a story
+  feature policy `patterns`.
+- Agent tool is `setPatterns` (full list, composes add/update/remove), the repo's idiom (`setRumors`, `setFactions`),
+  not `upsert_pattern` / `remove_pattern`.
+- Kill ring and completions carry their own boundary; deltas hold `{boundary, added, removed, killed, overflow}`;
+  tombstones and completions are top-level and roll back by boundary (equivalent to per-delta storage).
+- Boundary work order 7.5 (between recap 7 and living-apply 8) instead of renumbering.
+
+### Floors (informational, not retuned)
+
+- P1 precision, P2 recall (50 frozen sequences, CL labels): **NOT run: no GPU (owner 2026-10-21)**; corpus not built.
+- P3 unsupported causal claims / hidden-name disclosures: unit fixtures only (withheld name, unknown entity, restated
+  secret, secret learned after completion withheld at delivery): 0 in fixtures; the real-play corpus part NOT run.
+- P4 replay identical: property tests (8 seeds x 60 boundaries with persistence and a moving floor; 200 boundaries
+  with >600 refs) incremental == fold; every cut from the floor to the end of an 80-boundary run equals the replay to
+  that cut (51 of 51 cuts); a cut below the floor is a `history` gap. Real-play runs NOT run.
+- P5 p95 per boundary <= 2 ms: stress fixture 16 patterns x 3 steps, 693 refs over 100 boundaries, 52 live branches:
+  p95 2.7 to 8.5 ms across 3 jest runs (`SO_PATTERN_PERF=1`), mean ~1.1 ms per boundary for the matcher alone.
+  **Below the floor** (recorded, not retuned). Persisted `extras.patterns` on that fixture: 791,630 bytes
+  (deltas' added branches 631,542). Overflow, killed and withheld counts are on the author slice.
+- Slice C narrator hint real-Artemis gate: **NOT run: no GPU (owner 2026-10-21)**.
+
+### Commands
+
+- Per slice: `npm run gates:quick` (RED first on max-len, a coverage map entry, codeHealth/errorCopy ratchets, golden and
+  count updates; each fixed, then the targeted suites and the full jest run green).
+- `npm run gates` (full, Storybook included, no `--resume`) on `0a0bda79`: **all green in 229.3s** (build, typecheck,
+  test:debug, test:replay 32 of 32 killed, debug:typecheck, typecheck:test, test:release, lint, test:plugin, test
+  847 suites / 9823 passed / 1 skipped, test-storybook:ci 158 suites / 948 passed). Earlier full runs on this branch went
+  red for environment reasons, not code: port 6006 held by another worktree's Storybook (EADDRINUSE, twice) and
+  `childTree.test.mts` timing under machine load (passes alone); one real miss (`suiteCoverage`: no plan 24 matrix row
+  for `story-patterns`) was fixed by adding the row.
+- Storybook also run on an alternate port (6016) before the final run: 158 suites / 948 passed.
+- Main bundle `dist/index.js` 1,296,730 B (budget 1,300,000). The matcher, validation, diagnostics, Studio editor and
+  author panel ride lazy chunks; the main entry carries `patternsPort` (types, rollback, port, doors), the check, the
+  narrator header and the wiring.
+- `SO_PATTERN_PERF=1 npx jest src/runtime/patterns.test.ts` x3 for P5 (numbers above).
+- Live no-model lane check: **NOT run** (reason under Not built). Real-LLM gates: **NOT run: no GPU (owner 2026-10-21)**.
+
+### Invariants
+
+Engine purity (schema and validation in `src/engine`, no STAPI), boundary work is a registry entry consuming recap's
+return, rollback keeps exactly the boundaries the engine kept (`rollbackPatterns` in `quarantine`), no compiled code key
+(no `ROLLBACK_DETECTORS` entry), no randomness or wall clock, propose-never-write (no blackboard write), held secrets
+filtered on every public text (resting content check, withheld whole), architecture and code-health guards green.
+Thinking and inner voice untouched.
