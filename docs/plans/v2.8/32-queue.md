@@ -77,9 +77,8 @@ It records current progress, source-plan links and deferred acceptance protocols
   - Other paths checked, cannot evict a restriction row: `capIntents` (only `intends`), `dropCommonKnowledge` (only
     `knows`), `rollbackEpistemic` (rows from rolled-back messages, rollback = replay), `capLedger`/`capAllTiers`/
     short-term compaction/`foldChapter` (memory and ledger stores, never epistemic), `sanitizeMemory` (drops only rows
-    without a provenance envelope). Open: an echo `[knows]` row (a knower restating the
-    secret) can still be capped; that shrinks the knower set (safe) but drops its paraphrase from the filter, so only
-    the secret's own wording and surviving echoes still match.
+    without a provenance envelope). Echo rows (a knower restating a held secret in other words) are reserved too since 2026-10-22, so their paraphrases stay in
+    the filter (`capEpistemic` `secretEchoes`; test "an echo row … survives the cap", fails on the old code).
   - Tests: `runtime/secretCap.review.test.ts` (planted: 5 fail on the old code), `rollbackReplay.property.test.ts` green.
 
 ## Features

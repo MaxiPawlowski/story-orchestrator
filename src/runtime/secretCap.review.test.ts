@@ -125,6 +125,17 @@ describe("X11: the epistemic cap never evicts a row that keeps a secret", () => 
     expect(kept(evicted, ["bram"])).toMatch(SECRET);
   });
 
+  it("an echo row (a knower restating the secret in other words) survives the cap, so its paraphrase still keeps the secret", () => {
+    const echo = { id: "e-aria", subject: "Aria", tag: "knows", content: "the silver key opens the vault beneath the chapel floor", messageId: 10, createdAt: 2 } as unknown as EpistemicEntry;
+    const flood = Array.from({ length: 13 }, (_, at) => ({ id: `a${at}`, subject: "Aria", tag: "knows", content: `Aria knows harmless fact number ${at}`, messageId: 11 + at, createdAt: 3 + at }) as unknown as EpistemicEntry);
+    const capped = capEpistemic([HIDING, echo, ...flood]);
+    expect(capped.map((entry) => entry.id)).toContain("e-aria");
+    expect(capped.filter((entry) => entry.subject === "Aria")).toHaveLength(EPISTEMIC_SUBJECT_CAP);
+    const line = "The key opens a door beneath the chapel floor.";
+    expect(withoutSecretLines(line, heldSecrets(capped, NAMES), ["bram"])).not.toContain("chapel floor");
+    expect(withoutSecretLines(line, heldSecrets(capped.filter((entry) => entry.id !== "e-aria"), NAMES), ["bram"])).toContain("chapel floor");
+  });
+
   it("[unaware] rows are reserved the same way", () => {
     const unaware = { ...HIDING, id: "u-kel", tag: "unaware", hiddenFrom: undefined } as unknown as EpistemicEntry;
     expect(capEpistemic([unaware, ...knowsRows(13)]).map((entry) => entry.id)).toContain("u-kel");

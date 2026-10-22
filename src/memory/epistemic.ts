@@ -2,7 +2,7 @@ import { jaccardSimilarity } from "./similarity";
 import { isLive, keepPinnedFrom, provenance as provenanceOf, type ProvenanceSource } from "./provenance";
 import { EPISTEMIC_TAGS, generateMemoryId, type EpistemicEntry, type EpistemicTag, type ParsedEpistemicSignal } from "./types";
 import { lastAffirmed } from "./innerVoice";
-import { contentWords, restatesWords, sharedCount, wordOverlap } from "./words";
+import { contentWords, restatesWords, RESTATE_MIN_SHARED_WORDS, sharedCount, wordOverlap } from "./words";
 
 export const EPISTEMIC_MIN_LENGTH = 3;
 export const EPISTEMIC_DEDUP_THRESHOLD = 0.6;
@@ -226,12 +226,21 @@ export function dropCommonKnowledge(signals: ParsedEpistemicSignal[], present: s
 
 const isRetired = (entry: EpistemicEntry): boolean => Boolean(entry.supersededBy || entry.foldedInto);
 
+function secretEchoes(pass: EpistemicEntry[]): EpistemicEntry[] {
+  const secrets = pass.filter(restrictsSecret);
+  if (!secrets.length) return [];
+  const named = new Set(pass.flatMap((entry) => [...contentWords(entry.subject)]));
+  const words = (entry: EpistemicEntry) => new Set([...contentWords(entry.content)].filter((word) => !named.has(word)));
+  const phrasings = secrets.map(words).filter((phrasing) => phrasing.size >= RESTATE_MIN_SHARED_WORDS);
+  return pass.filter((entry) => entry.tag !== "unaware" && !restrictsSecret(entry) && phrasings.some((phrasing) => restatesWords(phrasing, words(entry))));
+}
+
 export function capEpistemic(entries: EpistemicEntry[], cap: number = EPISTEMIC_CAP, subjectCap: number = EPISTEMIC_SUBJECT_CAP): EpistemicEntry[] {
   const keep = new Set<string>();
   for (const retiredPass of [false, true]) {
     const pass = entries.filter((entry) => !entry.pinned && isRetired(entry) === retiredPass);
     const perSubject = new Map<string, number>();
-    const reserved = pass.filter(restrictsSecret);
+    const reserved = [...pass.filter(restrictsSecret), ...secretEchoes(pass)];
     for (const entry of reserved) {
       keep.add(entry.id);
       perSubject.set(normalize(entry.subject), (perSubject.get(normalize(entry.subject)) ?? 0) + 1);
