@@ -1,6 +1,6 @@
 import type { SamplerApi } from "@utils/samplerKeys";
 import { getContext } from "./context";
-import { subscribeToHostEvent } from "./events";
+import { subscribeToHostEventLast } from "./events";
 import { isRecord } from "@utils/guards";
 
 const PRESET_API: Record<SamplerApi, string> = { textgen: "textgenerationwebui", chat: "openai" };
@@ -29,10 +29,10 @@ export interface SamplerPayloadHandlers {
 }
 
 export function observeSamplerPayloads(handlers: SamplerPayloadHandlers): () => void {
-  const offTextgen = subscribeToHostEvent("GENERATE_AFTER_DATA", (payload, dryRun) => {
+  const offTextgen = subscribeToHostEventLast("GENERATE_AFTER_DATA", (payload, dryRun) => {
     if (isRecord(payload)) handlers.textgen(payload, dryRun === true);
   });
-  const offChat = subscribeToHostEvent("CHAT_COMPLETION_SETTINGS_READY", (payload) => {
+  const offChat = subscribeToHostEventLast("CHAT_COMPLETION_SETTINGS_READY", (payload) => {
     if (isRecord(payload)) handlers.chat(payload);
   });
   return () => {

@@ -42,7 +42,8 @@ Verified on master `e8b9dd6d`.
 - **K3.** `librarySave.ts` confirms a save by read-back at save time; nothing notices a later revert by another page. ST's
   `/api/settings/save` writes the whole file (last writer wins). ST backs up the settings file only at server start
   (`backupSettings` in `init`, ST `src/endpoints/settings.js:118-156,379-381`).
-- **K4.** `src/services/stHost/samplerOverlay.ts` subscribes with plain `subscribeToHostEvent`; B8 (`makeLast`) is not built.
+- **K4.** B8 built 2026-10-22: the overlay is placed last per generation. K4 (a last-word request rewrite) stays conditional on
+  evidence that B8 is not enough on the host send path; none so far.
 - **K5.** `src/services/stHost/inlineMount.ts` mounts on `.mes_block` (outside `.mes_text`): safe today, unguarded.
 - **K6/K6b.** `rewriteReplyText` (`src/services/stHost/chatMessages.ts`) re-renders through `updateMessageBlock`;
   `ChatIdentity` keys by content hash (`src/runtime/messageIdentity.ts`). No test separates a receipt normalisation from a

@@ -1,5 +1,6 @@
 import { getContext } from "./context";
-import { subscribeToEventSource, subscribeToEvents, type EventHandler } from "@utils/event-source";
+import { subscribeToEventSource, subscribeToEvents, type EventHandler, type EventSourceLike } from "@utils/event-source";
+import { log } from "@utils/log";
 import type { HostEntriesLoaded, HostScannableEntry } from "./hostTypes";
 
 export type { EventHandler } from "@utils/event-source";
@@ -98,4 +99,24 @@ export function subscribeToHostEvents(
 ): () => void {
   const { eventSource } = getContext();
   return subscribeToEvents(eventSource, entries.map((entry) => ({ ...entry, eventName: resolveEventName(entry.eventName) })));
+}
+
+type OrderedSource = EventSourceLike & { makeLast?: (event: string, listener: EventHandler) => void };
+
+export function subscribeToHostEventLast<K extends HostEventName>(eventName: K, handler: TypedHostEventHandler<K>): () => void {
+  const resolved = resolveEventName(eventName);
+  const source = getContext().eventSource as OrderedSource | undefined;
+  if (!resolved || !source) return () => {};
+  if (typeof source.makeLast !== "function") return subscribeToHostEvent(eventName, handler);
+  const listener = handler as EventHandler;
+  const place = () => source.makeLast?.(resolved, listener);
+  place();
+  const offPlace = subscribeToHostEvent("GENERATION_STARTED", place);
+  return () => {
+    offPlace();
+    try {
+      if (typeof source.off === "function") source.off(resolved, listener);
+      else source.removeListener?.(resolved, listener);
+    } catch (error) { log.warn("a last-placed host listener failed to detach", resolved, error); }
+  };
 }

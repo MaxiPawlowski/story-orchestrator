@@ -86,7 +86,9 @@ regression test that fails on the parent tree (checked by stashing the source ch
 
 - B4 harness auth/quota regexes (PLAUSIBLE): queue candidate, small; needs recorded error bodies for the anchors.
 - B7 `Number(messageId)` in `replyEffortLive.ts` (PLAUSIBLE, negligible): `hostMessageId` swap, folds into plan 69.
-- B8 sampler overlay listener order (PLAUSIBLE): `makeLast` registration; needs a peer extension fixture.
+- B8 sampler overlay listener order (PLAUSIBLE): **built 2026-10-22** (`v2.8-queue-2026-10-22`): `subscribeToHostEventLast`
+  (`stHost/events.ts`) registers with `makeLast` and re-places itself on every `GENERATION_STARTED`; plain subscription on a
+  host without `makeLast`. Peer-extension fixture `stHost/samplerOverlay.order.test.ts` (fails on the old code).
 - B17 flush poll gives up after 60 s (PLAUSIBLE): **built 2026-10-22** (`v2.8-queue-2026-10-22`): after 60 s the poll keeps going
   every 2 s, and `GROUP_WRAPPER_FINISHED` flushes too. Tests `turnBridgeFlushPoll.review.test.ts` (both fail on the old code).
 - B18 (REFUTED as drift; plan 53 build note: faction rows omit `changedAgo`), B19 (REFUTED).
