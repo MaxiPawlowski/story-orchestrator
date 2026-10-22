@@ -359,3 +359,47 @@ Informational, frozen before the run, never retuned (triage §02, unchanged).
 - **Schema ownership (caller request): applied.** `deliverySchema.ts` exports `DeliverySheet`, `RosterPolish`,
   `NarrationSheet` and readers; 03 reuses them exactly and adds no member field. 03 aligned the same day.
 - Floors unchanged.
+
+## Gate record 2026-10-21 (v2.9 build, branch v2.9-02-voice)
+
+Scope: owner decisions 2026-10-21 (`00-overview.md`): field, Studio group, `by_mood`, mined repetition for every story, rater
+route recorded only. S1-S5 built; S6 not run.
+
+- **S1** `engine/deliverySchema.ts` (`DeliveryRhythm`, `DeliverySheet`, `RosterPolish`, `NarrationSheet`, `DELIVERY_CAPS`,
+  `DELIVERY_TOKEN_CAP`, `polishOn`), `engine/validate/delivery.ts` (`readDeliverySheet`, `readRosterPolish`,
+  `readNarrationSheet`, `deliveryNames`), called from `readRoster` with roster + codex names. Errors: caps, prefer/avoid overlap,
+  name in tics/avoid, `by_mood` without mood or outside its values (default mood values honoured), unknown keys. Warnings in
+  `studio/deliveryDiagnostics.ts`: `delivery-names-unknown-entity`, `delivery-directs-player`, `delivery-over-budget`.
+  `storyDiff` unchanged (`roster-member-changed` compatible, pinned). Guide topic `roster-polish` + compact twin.
+- **S2** lazy chunk `runtime/delivery/{kit,render,mine}.ts`; main-side `runtime/deliveryPort.ts` (`hasDeliverySheet`,
+  `memberDelivers`, lazy load + refresh, early-draft count). `MemoryInjector.addPrivateSource(source, staging)` adds the
+  staging predicate and per-draft rebuild (`delivers` beside `beat || narrates`); wired in `managerWiring.wireDelivery`.
+  Feature `delivery {enabled, repetition}` in `FEATURE_POLICY_FIELDS`/`FEATURE_CONTROLS`; install `characters.delivery`,
+  `characters.deliveryRepetition` (new `characters` settings section, default on); registry `character-delivery`.
+  Budget 120 tokens, cut order prefer, avoid, repetition, rhythm, note sentences, mood line.
+- **S3** `mineRepetitionBy`: unique-match resolver over card names + aliases, omniscient quotes excluded, own last 6 replies,
+  tics in >= 2; private line; `snapshot.repetition.byMember` (Author view, `StagecraftPanel` rows).
+- **S4** `by_mood` through `gameLayer().life.effectiveMood` (added to the game layer's `life`); rollback = replay test.
+- **S5** `studio/deliveryMutations.ts` `setMemberPolish`; `VoiceDeliveryEditor` (Characters › Roster, "Voice and delivery")
+  + stories; coverage row `polish`; agent op/tool `setMemberPolish` (edit family, validated by `readRosterPolish` in
+  `agentOnlyProblem`); wizard prompt line (seed from card example/first message only, card text is reference data, never
+  invent a trait).
+- Payload case `test/scenarios/payload/group-delivery.json` written (schema-valid), **not captured**.
+
+Commands (final tree):
+- `npm run gates -- --jobs=3`: **all green in 409.6s** (test:replay, test 849 suites / 9821 tests, build, typecheck,
+  test:debug, lint, typecheck:test, debug:typecheck, test:release, test:plugin, test-storybook:ci 157 suites / 947 tests).
+  Earlier full runs on this branch went red on real gaps fixed here (guide bundle, arrival golden, error-copy inventory,
+  plan 24 matrix row) and on environment collisions: port 6006 held by a parallel builder's Storybook (EADDRINUSE),
+  `childTree` and OpenCode boot timing tests under load, `SettingsPanel` ConnectionsHoldTheInstallServices under load
+  (passes alone on the same static build).
+- Main bundle 1,298,414 B (budget 1,300,000): delivery renderer/miner stay out of the entry (`lazyHarness.guard` rows + planted control).
+
+NOT run:
+- S6 measurement (attribution, repetition, token floors): NOT run: no GPU (owner 2026-10-21).
+- S5 wizard real-route check (opencode sol): NOT run (no model time authorized in this pass).
+- No-model lane 42 live check and payload golden capture: NOT run. A lane serves the one staged `dist/` in the owner's ST
+  extension slot; staging this branch would replace the owner's served build and collide with the other v2.9 builders.
+
+Deviations: payload goldens and the live payload check are fixture-only; the per-draft early-draft count is exposed by the
+port (`earlyDrafts`) but not surfaced in the UI; 09's resolver mapping/parity fixtures not extended (09 is not on this branch's base).
