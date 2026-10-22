@@ -5,6 +5,7 @@ import {
   isObservationKey, isStoryTimeKey, moodAgeKey, moodSceneKey, moodWasKey, isCommitKey, isFactionKey, isLabelKey, questClosedKey, questRewardKey, type NormalizedStory,
 } from "./schema";
 import { PLAYER_TURNS_KEY } from "./stretch";
+import { isCueKey, isTopicKey } from "./cueKeys";
 import { checkRolledKeys } from "./storyChecks";
 import { gameLayer } from "./validate/gameLayer";
 
@@ -33,6 +34,12 @@ const lifePacing = (story: NormalizedStory) => [...mood(story), ...agendas(story
 const prefixMoved = (match: (key: string) => boolean, before: Values, after: Values): boolean =>
   [...new Set([...Object.keys(before), ...Object.keys(after)])].some((key) => match(key) && before[key] !== after[key]);
 
+const byPrefix = (id: string, match: (key: string) => boolean, applies: (story: NormalizedStory) => boolean = () => true): RollbackDetector => ({
+  id, keys: (story) => Object.keys(story.qualityByKey).filter(match), moved: (story, before, after) => applies(story) && prefixMoved(match, before, after),
+});
+
+const lived = (story: NormalizedStory): boolean => Boolean(story.life);
+
 export const ROLLBACK_DETECTORS: readonly RollbackDetector[] = [
   {
     id: "quests",
@@ -49,16 +56,8 @@ export const ROLLBACK_DETECTORS: readonly RollbackDetector[] = [
     keys: lifePacing,
     moved: (story, before, after) => lifePacing(story).some((key) => before[key] !== after[key]),
   },
-  {
-    id: "codex",
-    keys: (story) => Object.keys(story.qualityByKey).filter(isCodexKey),
-    moved: (_story, before, after) => prefixMoved(isCodexKey, before, after),
-  },
-  {
-    id: "observations",
-    keys: (story) => Object.keys(story.qualityByKey).filter(isObservationKey),
-    moved: (_story, before, after) => prefixMoved(isObservationKey, before, after),
-  },
+  byPrefix("codex", isCodexKey),
+  byPrefix("observations", isObservationKey),
   {
     id: "story-time",
     keys: (story) => (story.life?.clock ? Object.keys(story.qualityByKey).filter((key) => isStoryTimeKey(key) || key === CLOCK_MOVED_KEY) : []),
@@ -69,22 +68,12 @@ export const ROLLBACK_DETECTORS: readonly RollbackDetector[] = [
       return (before[CLOCK_STORY_TIME_KEY] ?? start) !== (after[CLOCK_STORY_TIME_KEY] ?? start) || prefixMoved((key) => key.startsWith(TIME_REACHED_PREFIX), before, after);
     },
   },
-  {
-    id: "factions",
-    keys: (story) => Object.keys(story.qualityByKey).filter(isFactionKey),
-    moved: (story, before, after) => Boolean(story.factions?.length) && prefixMoved(isFactionKey, before, after),
-  },
-  {
-    id: "relationship-labels",
-    keys: (story) => Object.keys(story.qualityByKey).filter(isLabelKey),
-    moved: (story, before, after) => Boolean(story.life) && prefixMoved(isLabelKey, before, after),
-  },
-  {
-    id: "commitments",
-    keys: (story) => Object.keys(story.qualityByKey).filter(isCommitKey),
-    moved: (story, before, after) => Boolean(story.life) && prefixMoved(isCommitKey, before, after),
-  },
-  { id: "heritage", keys: (story) => Object.keys(story.qualityByKey).filter(isHeritage), moved: (_story, before, after) => prefixMoved(isHeritage, before, after) },
+  byPrefix("factions", isFactionKey, (story) => Boolean(story.factions?.length)),
+  byPrefix("relationship-labels", isLabelKey, lived),
+  byPrefix("commitments", isCommitKey, lived),
+  byPrefix("cues", isCueKey, lived),
+  byPrefix("cue-topics", isTopicKey, lived),
+  byPrefix("heritage", isHeritage),
   { id: "check-attempts", keys: checkRolledKeys, moved: (story, before, after) => checkRolledKeys(story).some((key) => before[key] !== after[key]) },
 ];
 

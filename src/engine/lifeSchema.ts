@@ -1,4 +1,5 @@
 import type { GateNode, NpcReplyEffect } from "./schema";
+import type { MemberCue, MemberTopic, StoryNorm } from "./cueSchema";
 
 export const RELATIONSHIP_TOWARD_PLAYER = "player";
 export const MOOD_DEFAULT_VALUES = ["calm", "tense", "angry", "afraid", "elated"] as const;
@@ -145,10 +146,13 @@ export interface LifeMember {
   agenda: Agenda[];
   schedule: ScheduleEntry[];
   commitments?: Commitment[];
+  cues?: MemberCue[];
+  topics?: MemberTopic[];
 }
 
 export interface StoryLife {
   members: LifeMember[];
+  norms?: StoryNorm[];
   clock?: StoryClock;
   calendar?: StoryCalendar;
   reached?: string[];

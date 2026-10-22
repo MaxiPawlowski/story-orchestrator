@@ -28,7 +28,7 @@ const NOT_A_GIVEN_NAME = new Set([
   "master", "mistress", "father", "mother", "brother", "sister", "doctor", "miss", "mrs", "old", "young", "saint", "elder",
 ]);
 
-const isGivenName = (word: string) => /^\p{Lu}[\p{L}'-]{2,}$/u.test(word) && !NOT_A_GIVEN_NAME.has(word.toLowerCase());
+export const isGivenName = (word: string) => /^\p{Lu}[\p{L}'-]{2,}$/u.test(word) && !NOT_A_GIVEN_NAME.has(word.toLowerCase());
 
 const escapePattern = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 

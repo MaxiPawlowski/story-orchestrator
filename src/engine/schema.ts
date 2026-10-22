@@ -333,7 +333,7 @@ export interface RosterMember {
   card?: CardBinding;
   sprites?: MemberSprites;
   relationships?: RelationshipDecl[];
-  mood?: MoodDecl; polish?: import("./deliverySchema").RosterPolish;
+  mood?: MoodDecl; polish?: import("./deliverySchema").RosterPolish; cues?: import("./cueSchema").MemberCue[]; topics?: import("./cueSchema").MemberTopic[];
   agenda?: Agenda[];
   schedule?: ScheduleEntry[]; factions?: string[]; commitments?: import("./lifeSchema").Commitment[];
 }
@@ -499,7 +499,7 @@ export interface Story {
   widgets?: StoryWidget[];
   codex?: import("./codexSchema").StoryCodex; observations?: import("./observationSchema").Observation[];
   clock?: StoryClock; calendar?: import("./lifeSchema").CalendarInput;
-  living?: StoryLiving; factions?: import("./factionSchema").Faction[];
+  living?: StoryLiving; factions?: import("./factionSchema").Faction[]; norms?: import("./cueSchema").StoryNorm[];
 }
 
 export const LIVING_PREFIX = "liv_";

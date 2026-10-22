@@ -33,9 +33,17 @@ import { spreadRumors } from "../../memory/rumors/spread";
 import { hearsayLines, rumorAuthorRows } from "../../memory/rumors/lines";
 import { carryKnownLines, carryView, importCarryErrors, startSeed } from "../carry";
 import { reachedLabel, storyTimeRow, timeEntry } from "../life/clock";
+import {
+  cueAuthorRows, cueDerive, cueDiscoveryUnits, cueLatches, cueProvider, diffCues, hasCueSources, landedCues, namesUnknownEntity, reconcileCues,
+} from "../life/cues";
+import {
+  createCues, cueEvidence, liveCueReceipts, rearmCues, rebindCueReceipts, rollbackCues, sanitizeCues, selectOffer, withCueLapses, withCueReceipt,
+} from "../life/offers";
 
 const LIFE = {
-  readLife, addLifeQualities, checkLife, deriveLife, awayMembers, lifeScopeKeys, lifeScopeTiers, privateLifeLines, agendaWorldInfo, landedSteps, lifeMoved, lifeAuthorRows,
+  readLife, addLifeQualities, checkLife,
+  deriveLife: (...args: Parameters<typeof deriveLife>) => (args[0].life ? [...deriveLife(...args), ...cueDerive(args[0], args[1])] : []),
+  awayMembers, lifeScopeKeys, lifeScopeTiers, privateLifeLines, agendaWorldInfo, landedSteps, lifeMoved, lifeAuthorRows,
   relationshipFeelings, storyTimeRow, reachedLabel, labelAuthorRows, revealChips, unrevealedSecretLabels, axisHistory, holdSameBeat,
   commitmentAuthorRows, commitmentHooks, heardCommitmentRows, keptCommitments, effectiveMood,
   lifeWorldInfo: (story: Parameters<typeof agendaWorldInfo>[0], values: Parameters<typeof agendaWorldInfo>[1]) => [...agendaWorldInfo(story, values), ...commitmentWorldInfo(story, values)],
@@ -61,15 +69,21 @@ const STRETCH = { readStretch, checkStretches };
 
 const LIVING = { readLiving, needsLivingOpening, livingOpening, addLivingQualities, checkLiving };
 
-const LATCH_WRITERS = [codexLatches, factionLatches, labelLatches, commitmentLatches, observationLatches] as const;
+const CUES = {
+  cueProvider, selectOffer, namesUnknownEntity, cueAuthorRows, diffCues, hasCueSources, landedCues, reconcileCues, createCues, cueEvidence, liveCueReceipts, rearmCues, rebindCueReceipts,
+  rollbackCues, sanitizeCues, withCueLapses, withCueReceipt,
+};
 
-const DISCOVERY_UNITS = [codexScopeUnits, factionDiscoveryUnits, labelDiscoveryUnits, commitmentDiscoveryUnits, observationScopeUnits] as const;
+const LATCH_WRITERS = [codexLatches, factionLatches, labelLatches, commitmentLatches, observationLatches, cueLatches] as const;
+
+const DISCOVERY_UNITS = [codexScopeUnits, factionDiscoveryUnits, labelDiscoveryUnits, commitmentDiscoveryUnits, observationScopeUnits, cueDiscoveryUnits] as const;
 
 const ENTRY_WRITERS = [timeEntry] as const;
 
 export const GAME_LAYER = {
   readCheck, readChecks, checkStoryChecks, addCheckQualities,
   checkDisplays, readDisplay, addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests, readWidgets, life: LIFE, poses, validateCardLayers,
-  codex: CODEX, observations: OBSERVATIONS, factions: FACTIONS, carry: CARRY, rumors: RUMORS, patterns: PATTERNS, delivery: DELIVERY, living: LIVING, stretch: STRETCH, latchWriters: LATCH_WRITERS,
+  codex: CODEX, observations: OBSERVATIONS, factions: FACTIONS, carry: CARRY, rumors: RUMORS, patterns: PATTERNS, delivery: DELIVERY, living: LIVING, stretch: STRETCH, cues: CUES,
+  latchWriters: LATCH_WRITERS,
   discoveryUnits: DISCOVERY_UNITS, entryWriters: ENTRY_WRITERS,
 };
