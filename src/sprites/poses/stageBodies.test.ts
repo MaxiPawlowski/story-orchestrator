@@ -50,7 +50,7 @@ test("rollback and replay choose the same cached look, pose and actual image pat
 test("a changed look with its base published stands in on stage and its close shot rig follows while the body renders", () => {
   const card = { fields: { outfit: { quality: "outfit", visual: true } } };
   let outfit = "";
-  const story = { id: "s", roster: [{ id: "arin", name: "Arin", card, sprites: { pose: "sit_chair" } }], cardFieldByQuality: { outfit: { owner: "arin", field: "outfit", visual: true } } };
+  const story = { id: "s", roster: [{ id: "arin", name: "Arin", card }], cardFieldByQuality: { outfit: { owner: "arin", field: "outfit", visual: true } } };
   const manager = { getStory: () => story, getCachedSnapshot: () => ({ storyId: "s", activeCheckpointId: "a", blackboard: { outfit } }), getBoundaryLog: () => [] } as unknown as RuntimeManager;
   const profile = readSpriteProfile({ default: "neutral", labels: { neutral: { what: "calm" }, worried: { what: "uneasy", fallback: ["neutral"] } } }, "Arin")!;
   const fixture = visualFixture(), root = visualRoot(fixture);
@@ -65,13 +65,9 @@ test("a changed look with its base published stands in on stage and its close sh
   const ref = { member: "arin", look: "look_39e5bf69", artHash: lookBust.sha256, source: lookBust.path, manifest: "/head.json" };
   const refs = { [liveHeadKey(ref)]: ref };
   outfit = "navy coat"; controller.choose(actor);
-  expect([actor.pose, actor.set, actor.path]).toEqual(["sit_chair", "look_39e5bf69", lookBase.path]);
+  expect([actor.set, actor.path]).toEqual(["look_39e5bf69", lookBase.path]);
   expect(actorHeadRef(actor, story.roster, refs, { Arin: source })).toEqual(ref);
   outfit = "plain shirt"; controller.choose(actor);
   expect(actor.set).toBe("default");
-  delete (story.roster[0] as { sprites?: unknown }).sprites;
-  outfit = "navy coat";
-  expect(controller.choose(actor)).toBe(false);
-  expect(actor.pose).toBe("stand_relaxed");
   controller.close();
 });

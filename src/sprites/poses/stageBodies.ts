@@ -78,7 +78,6 @@ export class StagePoses {
     const fields = cardValues(story, snapshot.blackboard, member.id, true), layers = lookLayers(member.card, fields);
     if (pose.id === "stand_relaxed" && !Object.keys(fields).length) return false;
     const source = this.deps.settings().visualSources[actor.profile.folder], root = source ? visualRoot(source) : undefined;
-    if (pose.id === "stand_relaxed" && source && !Object.keys(layers.face).length && !Object.keys(layers.decal).length && publishedLook(source, layers.base)) return false;
     const config = this.deps.settings().builders[actor.profile.folder], stamp = bodyStamp(pose, layers, config, root);
     const available = (actor.bodies ?? []).filter((body) => body.visualRoot === root);
     const exact = available.find((body) => body.stamp === stamp && actor.packs.get(body.set)?.has(actor.desiredLabel));
