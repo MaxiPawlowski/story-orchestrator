@@ -8,8 +8,10 @@ import { imageChat, imageSave, imagePlace, imageDelete } from "@services/stHost/
 import { reserveGpu, releaseGpu, renewGpu } from "@services/stHost/gpuBroker";
 import { anySignal } from "@utils/signals";
 import { verifyVisualSource, sourceStillCurrent } from "../sprites/visualHost";
+import type { VisualManifest } from "../sprites/visualManifest";
 import { contentHash, qwenImageInput, recipeProblems } from "../sprites/builder/recipes";
-import { castSceneBuilder, castSceneGraph, castSceneIdentities, castSceneKey, CastSetupGap, CAST_SCENE_RECIPE, CAST_TWO_REFERENCE_MISSING } from "./castScene";
+import { castSceneBuilder, castSceneGraph, castSceneIdentities, castSceneKey, CastSetupGap, CAST_SCENE_RECIPE, CAST_TWO_REFERENCE_MISSING, LookPending,
+  type CastSceneIdentity, type CastSceneMember } from "./castScene";
 import { isNarratorMember } from "./cast";
 import type { ImageQueue } from "./queue";
 import { decodeImage, encodeImage } from "../sprites/builder/images";
@@ -22,23 +24,44 @@ async function discardUnplaced(path: string): Promise<void> {
   if (!removed.ok) log.warn(`Cast scene image ${path} was not removed after a refusal: ${removed.reason}`);
 }
 
+export const LOOK_WAIT_MS = 240_000;
+type PreparedMember = CastSceneMember & { source: VisualManifest };
+
+function selectedMembers(story: NonNullable<ReturnType<RuntimeManager["getStory"]>>, cast: ReturnType<typeof spriteCast>, selected: string[],
+  blackboard: ReturnType<RuntimeManager["getCachedSnapshot"]>["blackboard"]): PreparedMember[] {
+  const sources = getGlobalSettings().sprites.visualSources;
+  return selected.map((folder) => {
+    const installed = cast.members.find((member) => member.folder === folder);
+    const roster = story.roster.find((member) => (member.name ?? member.id) === installed?.name);
+    if (!installed || !roster || isNarratorMember(roster)) throw new Error("Choose a present, non-narrator story member.");
+    const source = sources[folder];
+    if (!source) throw new Error("Prepare each selected character's base and bust first.");
+    return { character: folder, fields: cardValues(story, blackboard, roster.id, true), source, card: roster.card };
+  });
+}
+
+export async function settledLooks<M extends CastSceneMember>(read: () => M[], run: { stillOwns(): boolean }, waitMs = LOOK_WAIT_MS,
+  sleep = () => new Promise<void>((resolve) => setTimeout(resolve, 3_000)), now = Date.now): Promise<{ members: M[]; identities: CastSceneIdentity[] }> {
+  const until = now() + waitMs;
+  for (;;) {
+    const members = read();
+    try { return { members, identities: castSceneIdentities(members) }; } catch (error) {
+      if (!(error instanceof LookPending) || now() >= until || !run.stillOwns()) throw error;
+    }
+    await sleep();
+    if (!run.stillOwns()) throw new Error("The chat or accepted artwork changed. Request the cast scene again.");
+  }
+}
+
 export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueue, selected: string[], direction: string): Promise<string> {
   const run = beginRun(manager.getOwnership());
   let path: string | null = null;
   const refs: string[] = [];
   try {
-    const chat = imageChat(), story = manager.getStory(), snapshot = manager.getCachedSnapshot(), cast = spriteCast();
+    const chat = imageChat(), story = manager.getStory(), cast = spriteCast();
     if (!chat || !story || !manager.ownsImageChat(chat.id)) throw new Error("Open the story's group before illustrating its cast.");
     const settings = getGlobalSettings().sprites;
-    const members = selected.map((folder) => {
-      const installed = cast.members.find((member) => member.folder === folder);
-      const roster = story.roster.find((member) => (member.name ?? member.id) === installed?.name);
-      if (!installed || !roster || isNarratorMember(roster)) throw new Error("Choose a present, non-narrator story member.");
-      const source = settings.visualSources[folder];
-      if (!source) throw new Error("Prepare each selected character's base and bust first.");
-      return { character: folder, fields: cardValues(story, snapshot.blackboard, roster.id, true), source, card: roster.card };
-    });
-    const identities = castSceneIdentities(members);
+    const { members, identities } = await settledLooks(() => selectedMembers(story, cast, selected, manager.getCachedSnapshot().blackboard), run);
     const config = castSceneBuilder(selected, settings.builders);
     const target = chat.messages.length ? chat.messages.length - 1 : null;
     const targetText = target === null ? null : chat.messages[target].mes;
