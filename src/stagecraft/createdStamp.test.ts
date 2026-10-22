@@ -1,4 +1,5 @@
-import { createdStamp, keepStamps, readCreatedStamps, stampCreated, stampedFor, withoutStamps } from "./createdStamp";
+import { createdStamp, foreignStamped, keepStamps, readCreatedStamps, stampCreated, stampedFor, withoutStamps } from "./createdStamp";
+import { entriesForScope } from "./scope";
 import { entryMarks, protectedRefusal } from "./curatorTiers";
 import { buildWiCuratorPrompt } from "./prompt";
 
@@ -47,5 +48,22 @@ describe("v2.8 A16: the so:created stamp on a curator-created entry", () => {
 
   it("the curator prompt is unchanged by the stamp vocabulary", () => {
     expect(buildWiCuratorPrompt({ storyTitle: "T", checkpointName: "C", objective: "", canon: "", openArcs: [], entries: [] })).not.toContain("so:created");
+  });
+});
+
+describe("61b: an entry another chat created is not this chat's curator's to change", () => {
+  it("an entry stamped only for another chat is foreign; its own chat, an unstamped entry and a shared stamp are not", () => {
+    expect(foreignStamped(stamped, "2026-10-22@other")).toBe(true);
+    expect(foreignStamped(stamped, owner.chatId)).toBe(false);
+    expect(foreignStamped("Oskar mends hulls.", "2026-10-22@other")).toBe(false);
+    expect(foreignStamped(stampCreated(stamped, { chatId: "2026-10-22@other", groupId: null }), "2026-10-22@other")).toBe(false);
+    expect(foreignStamped(stamped, null)).toBe(true);
+  });
+
+  it("the curator's scope leaves out other chats' created entries and keeps everything without the chat filter", () => {
+    const entries = [{ uid: 1, comment: "Oskar", content: stamped }, { uid: 2, comment: "The Delta", content: "Reeds and channels." }];
+    expect(entriesForScope("Story Lore", entries, "2026-10-22@other").map((entry) => entry.comment)).toEqual(["The Delta"]);
+    expect(entriesForScope("Story Lore", entries, owner.chatId).map((entry) => entry.comment)).toEqual(["Oskar", "The Delta"]);
+    expect(entriesForScope("Story Lore", entries).map((entry) => entry.comment)).toEqual(["Oskar", "The Delta"]);
   });
 });

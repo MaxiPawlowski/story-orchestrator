@@ -1,6 +1,6 @@
 import type { NormalizedStory } from "@engine/index";
 import {
-  CURATOR_OP_REVERTED, hiddenTitleRefusal, keepStamps, stampCreated, titleOnlyEditRefusal, type CreatedStampOwner,
+  CURATOR_OP_REVERTED, foreignStamped, hiddenTitleRefusal, keepStamps, stampCreated, titleOnlyEditRefusal, type CreatedStampOwner,
   isCreateOp, newEntriesText, isCuratorWritable, isNoteOp, noWriteAheads, pendingWriteAheads, previewCuratorOp, protectedRefusal, settleWriteAheads, staleRewriteRefusal,
   type CreatedEntry, type CuratorOpRecord, type CuratorProposalRecord, type WiCuratorOp, type WriteAheadCounts, type WriteAheadLive,
 } from "@stagecraft/index";
@@ -36,6 +36,8 @@ export const createdEntryOf = (record: CuratorProposalRecord, entry: CuratorOpRe
         proposalId: record.id, messageId: entry.writeAhead?.messageId ?? record.messageId, at,
       }
     : null;
+
+export const FOREIGN_CREATED_REFUSAL = "Not written: another chat created this entry, and only that chat's curator may change it.";
 
 export interface CuratorWriterDeps {
   getStory: () => NormalizedStory | null;
@@ -78,6 +80,7 @@ export class CuratorWriter {
     if (run.lapsed()) return { ok: false, record: entry, lapsed: true };
     const uid = op.uid ?? live?.uid;
     if (!live || uid === undefined) return { ok: false, record: { ...entry, status: "failed", message: `"${op.comment}" is no longer in ${op.lorebook}` } };
+    if (foreignStamped(live.content, this.deps.owner?.()?.chatId ?? null)) return { ok: false, record: { ...entry, status: "failed", message: FOREIGN_CREATED_REFUSAL } };
     const comment = "comment" in live && typeof live.comment === "string" ? live.comment : op.comment;
     if (!isCuratorWritable(story, op.lorebook, comment)) return { ok: false, record: { ...entry, status: "failed", message: `"${op.comment}" is now "${comment}", which the curator may not write` } };
     const preview = previewCuratorOp(op, { lorebook: op.lorebook, comment: op.comment, keys: live.keys, content: live.content, disabled: live.disabled, uid });

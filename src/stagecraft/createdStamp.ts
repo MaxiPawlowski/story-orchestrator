@@ -21,6 +21,11 @@ export function readCreatedStamps(content: string): CreatedStampOwner[] {
 export const stampedFor = (content: string, chatId: string): CreatedStampOwner | null =>
   readCreatedStamps(content).find((owner) => owner.chatId === clean(chatId)) ?? null;
 
+export const foreignStamped = (content: string, chatId: string | null | undefined): boolean => {
+  const stamps = content.includes("so:created") ? readCreatedStamps(content) : [];
+  return stamps.length > 0 && !stamps.some((owner) => owner.chatId === clean(chatId ?? ""));
+};
+
 export const withoutStamps = (content: string): string => content.replace(new RegExp(STAMP.source, "gi"), "").replace(/\n{2,}$/, "\n").trimEnd();
 
 export const stampCreated = (content: string, owner: CreatedStampOwner | null): string =>

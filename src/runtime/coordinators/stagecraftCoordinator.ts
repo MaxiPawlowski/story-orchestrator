@@ -161,7 +161,7 @@ export class StagecraftCoordinator {
     for (const lorebook of curatorLorebooks(story)) {
       const loaded = await this.deps.hosts.curator.loadLorebook(lorebook);
       if (!loaded?.entries) continue;
-      views.push(...entriesForScope(lorebook, Object.values(loaded.entries)).filter((view) => !isCuratorHidden(story, view.lorebook, view.comment)));
+      views.push(...entriesForScope(lorebook, Object.values(loaded.entries), this.deps.chatOwner?.()?.chatId ?? null).filter((view) => !isCuratorHidden(story, view.lorebook, view.comment)));
     }
     return views;
   }

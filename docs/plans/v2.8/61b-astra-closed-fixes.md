@@ -98,7 +98,10 @@ before the fix; every fix is one commit whose regression test fails on the old c
   `livingCoordinator.review.test.ts` and `curatorCreate.review.test.ts`, both fail on the old code). HTML widget navigation
   under sandbox/CSP: still open.
 - Living divergence reset for chats without a tracked living history.
-- Curator patching a foreign-stamped entry in another chat.
+- Curator patching a foreign-stamped entry in another chat: **fixed 2026-10-22** (`v2.8-queue-2026-10-22`): the curator's
+  scope leaves out entries stamped only for another chat (`foreignStamped`, unknown chat fails closed), and the writer
+  refuses one at the write edge (`FOREIGN_CREATED_REFUSAL`). Tests `createdStamp.test.ts` "61b: …" and
+  `curatorForeignStamp.review.test.ts` (fails without the guard).
 - Player-experience suggestions, v2.7 review section 2: still-catching-up vs failed suggestion copy and distinct attempt
   types (33); one settled identity summary and lock-failure recovery (34); deterministic hook spacing and respite after a
   decline (35); latest meaningful change and shared public wording across quest surfaces (36); evidence-triggered mood

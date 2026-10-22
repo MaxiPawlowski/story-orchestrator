@@ -1,3 +1,4 @@
+import { foreignStamped } from "./createdStamp";
 import { gatedWorldInfo, type NormalizedStory } from "@engine/index";
 import type { CuratorEntryView } from "./types";
 
@@ -36,9 +37,11 @@ export const isCuratorWritable = (story: NormalizedStory | null, lorebook: strin
   return Boolean(wanted) && curatorLorebooks(story).some((name) => name.toLowerCase() === wanted) && !isCuratorHidden(story, lorebook, comment);
 };
 
-export const entriesForScope = (lorebook: string, entries: Array<{ uid?: unknown; comment?: string; content?: unknown; key?: unknown; disable?: unknown; constant?: unknown }>): CuratorEntryView[] =>
+export const entriesForScope = (lorebook: string, entries: Array<{ uid?: unknown; comment?: string; content?: unknown; key?: unknown; disable?: unknown; constant?: unknown }>,
+  chatId?: string | null): CuratorEntryView[] =>
   entries
     .filter((entry) => typeof entry.comment === "string" && entry.comment.trim().length > 0)
+    .filter((entry) => chatId === undefined || typeof entry.content !== "string" || !foreignStamped(entry.content, chatId))
     .map((entry) => ({
       lorebook,
       comment: (entry.comment ?? "").trim(),
