@@ -18,7 +18,7 @@ export interface HelpFinding {
 export interface HelpPanelProps {
   features: readonly Feature[];
   stateOf: (feature: Feature) => HelpRowState | null;
-  whereOf?: (feature: Feature) => FeatureWhere;
+  whereOf?: (feature: Feature) => FeatureWhere | null;
   findingsOf?: (feature: Feature) => readonly HelpFinding[];
   onOpenSetup?: () => void;
   homePage: string;
@@ -47,7 +47,7 @@ const ReadMore = ({ doc, homePage, onOpenDoc }: { doc: string; homePage: string;
 interface FeatureRowProps {
   feature: Feature;
   state: HelpRowState | null;
-  where: FeatureWhere;
+  where: FeatureWhere | null;
   findings: readonly HelpFinding[];
   homePage: string;
   onShowMe?: (where: FeatureWhere) => void;
@@ -75,7 +75,7 @@ const FeatureRow = ({ feature, state, where, findings, homePage, onShowMe, onOpe
       {setup.map((line) => <div key={line} data-so="help-setup" className="text-xs so-warning-text">{line}</div>)}
       <div className="text-xs">{feature.oneLine}</div>
       <details className="text-xs">
-        <summary className="cursor-pointer opacity-80">{HELP_COPY.where}: {where.label}</summary>
+        <summary className="cursor-pointer opacity-80">{HELP_COPY.where}: {(where ?? feature.where).label}</summary>
         <div className="pt-1">{feature.what}</div>
       </details>
       {feature.needs?.length ? <div data-so="help-needs" className="text-xs opacity-70">{HELP_COPY.needs}: {feature.needs.map((need) => NEED_LABELS[need]).join(", ")}</div> : null}
@@ -86,8 +86,9 @@ const FeatureRow = ({ feature, state, where, findings, homePage, onShowMe, onOpe
         </li>)}
       </ul>}
       <div className="flex flex-wrap items-center gap-2">
-        {onShowMe && canShow(where) && (
-          <button type="button" data-so="help-show-me" className="menu_button text-xs" onClick={() => onShowMe(where)}>{HELP_COPY.showMe}</button>
+        {onShowMe && where && canShow(where) && (
+          <button type="button" data-so="help-show-me" data-target={where.workspace?.control ?? where.selector.replace(/^#/, "")} className="menu_button text-xs"
+            onClick={() => onShowMe(where)}>{HELP_COPY.showMe}</button>
         )}
         <ReadMore doc={feature.doc} homePage={homePage} onOpenDoc={onOpenDoc} />
       </div>

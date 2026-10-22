@@ -1,7 +1,7 @@
 import { GUIDE_TOPIC_IDS, GUIDE_TOPICS } from "@copilot/guideTopics";
 import type { KnowledgeShowMe } from "@copilot/knowledge/types";
 import { authorGuideDoc, FEATURES, guideUrl, HOME_PAGE, visibleFeatures, type Feature, type FeatureWhere } from "@features/registry";
-import { defaultsWhere } from "@features/where";
+import { helpWhere } from "@features/where";
 import { findingsByFeature, helpFeatureState } from "@runtime/helpFeatureState";
 import { repairIntent } from "@runtime/workspaceRoutes";
 import type { RuntimeSnapshot } from "@runtime/types";
@@ -37,15 +37,17 @@ const docOf = (target: KnowledgeShowMe) => target.target.split("#")[0];
 export default function HelpHost({ authorView, snapshot, onShowMe, onOpenDoc, onClose, ask }: HelpHostProps) {
   const settings = getGlobalSettings();
   const findings = snapshot ? findingsByFeature(snapshot) : null;
-  const placed = (where: FeatureWhere) => (snapshot && !snapshot.ready ? defaultsWhere(where) : where);
+  const placed = (where: FeatureWhere) => helpWhere(where, !snapshot || snapshot.ready);
   const showable = (target: KnowledgeShowMe) => {
     if (target.kind === "doc") return Boolean(onOpenDoc || guideUrl(docOf(target)));
     const where = featureWhere(target);
-    return Boolean(where && canShow(where));
+    const shown = where && placed(where);
+    return Boolean(shown && canShow(shown));
   };
   const show = (target: KnowledgeShowMe) => {
     const where = featureWhere(target);
-    if (where) onShowMe(placed(where));
+    const shown = where && placed(where);
+    if (shown) onShowMe(shown);
     else if (target.kind === "doc" && onOpenDoc) onOpenDoc(docOf(target));
     else if (target.kind === "doc") window.open(guideUrl(docOf(target)) ?? "", "_blank", "noopener");
   };

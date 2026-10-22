@@ -1,7 +1,7 @@
 import { STORY_FEATURE_IDS } from "@engine/featurePolicy";
 import { FEATURE_STATE, UNMAPPED_CONTROLS, UNMAPPED_STORY_FEATURES, rowFeatures } from "@features/featureState";
 import { FEATURES, visibleFeatures, type Feature } from "@features/registry";
-import { defaultsWhere } from "@features/where";
+import { defaultsWhere, helpWhere } from "@features/where";
 import { FEATURE_CONTROLS } from "./featureControls";
 import { readSettingPath, resolveFeatures } from "./featureResolve";
 import { FEATURE_STATE_CASES, type FeatureStateCase } from "./featureStatus.cases";
@@ -171,6 +171,14 @@ describe("v2.9 plan 09: every story feature and control has a Help row or a reas
     }).map(({ feature }) => feature.id);
     expect(broken).toEqual([]);
     expect(defaultsWhere(featureOf("hud").where)).toEqual(featureOf("hud").where);
+  });
+
+  it("without a story, Help offers no Show me into a story page that cannot render", () => {
+    expect(helpWhere(featureOf("story-drawer").where, false)).toBeNull();
+    expect(helpWhere(featureOf("story-drawer").where, true)).toEqual(featureOf("story-drawer").where);
+    expect(helpWhere(featureOf("pacing").where, false)?.workspace).toMatchObject({ context: "orchestrator", page: "defaults" });
+    expect(helpWhere(featureOf("hud").where, false)).toEqual(featureOf("hud").where);
+    expect(featureOf("promises-remembered").where.workspace).toMatchObject({ context: "story", page: "play" });
   });
 });
 
