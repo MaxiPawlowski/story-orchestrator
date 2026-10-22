@@ -461,6 +461,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   if (extras.promises) extras.promises = sanitizePromises(extras.promises);
   if (extras.witness) extras.witness = sanitizeWitness(extras.witness);
   if (extras.rumors) extras.rumors = sanitizeRumors(extras.rumors);
+  if (extras.cues) extras.cues = gameLayer()?.cues.sanitizeCues(extras.cues) ?? extras.cues;
   const recap = sanitizeRecap(extras.recap);
   if (recap) extras.recap = recap; else delete extras.recap;
   const patterns = sanitizePatterns(extras.patterns);

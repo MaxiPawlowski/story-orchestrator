@@ -245,7 +245,8 @@
     },
     "characters": {
       "delivery": true,
-      "deliveryRepetition": true
+      "deliveryRepetition": true,
+      "cues": true
     }
   }
 }

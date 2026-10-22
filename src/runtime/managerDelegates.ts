@@ -38,6 +38,7 @@ export abstract class CoordinatorDelegates {
   get promises() { return this.co.promises; }
   get witness() { return this.co.witness; }
   get rumors() { return this.co.rumors; }
+  get cues() { return this.co.cues; }
   get carry() { return this.co.carry; }
   protected generationOpen = false;
   setGenerationOpen(open: boolean) {
@@ -144,11 +145,21 @@ export abstract class CoordinatorDelegates {
   async decideCanonDraft(accept: boolean): Promise<boolean> { return this.co.memory.canon.decideDraft(accept); }
   scheduleExpansionForActive(schedule: (reason: string, run: () => Promise<void>) => void) { return this.co.expansion.scheduleForActive(schedule); }
   async runExpansionNow(debugResponse?: string, confirm = false) { return this.co.expansion.runNow(debugResponse, confirm ? (preflight) => confirmPreflight(preflight, "authoring") : undefined); }
-  onMemberDrafted(chId: number | [number]) { this.co.memory.onMemberDrafted(chId); this.co.pacing.draftGuidance(this.co.memory.draftedRosterId(chId)); }
+  onMemberDrafted(chId: number | [number]) {
+    const id = this.co.memory.draftedRosterId(chId);
+    this.co.cues.draft(id);
+    this.co.memory.onMemberDrafted(chId);
+    this.co.cues.staged();
+    this.co.pacing.draftGuidance(id);
+  }
   async prepareDraftedBeat(chId: number | [number]) { const id = this.co.memory.draftedRosterId(chId); return id ? this.co.inner.prepare(id) : false; }
   innerBeatDue(): boolean { return this.co.inner.due(); }
   runInnerBeat(): Promise<number> { return this.co.inner.run(); }
-  commitContinuityNote(rendered: boolean) { this.co.stagecraft.commitNote(rendered); this.co.memory.chapters.commitBridge(rendered); }
+  commitContinuityNote(rendered: boolean, messageId?: number) {
+    this.co.stagecraft.commitNote(rendered);
+    this.co.memory.chapters.commitBridge(rendered);
+    this.co.cues.settle(rendered, messageId);
+  }
   runWardenPass(replyMessageId: number) { return this.co.stagecraft.runWardenPass(replyMessageId); }
   withholdTurnBlocks() { this.co.memory.withholdPrivateKnowledge(); this.co.pacing.withholdGuidance(); }
   restoreTurnNotes() { this.co.stagecraft.restoreNote(); this.co.memory.chapters.restoreBridge(); }
