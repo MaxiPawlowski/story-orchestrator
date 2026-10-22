@@ -264,7 +264,8 @@ From `docs/plans/v2.8/61-harvest-triage-2026-10-14.md`. Ideas only (source licen
   the type check (`src/engine/blackboard.ts:94`); the display-time clamp is gone (`src/runtime/gameSheet.ts:29`). Owed tests:
   (a) **range precedence** pinned: a compiled quality never takes a display range, and an authored quality has no second range
   source (today the sources cannot overlap; the test keeps it so); (b) **initialization**: an initial or start value outside
-  the range is refused at validation or clamped at seed, and the test pins which.
+  the range is refused at validation or clamped at seed, and the test pins which. Both written 2026-10-22
+  (`src/engine/factions/factions.test.ts` "range precedence", "initialization": a faction start outside its range is refused).
 - Cross-check (`docs/plans/v2.8/extension-research-2026-10-14/rpg-companion.md` P7): faction rows through a `roster` widget omit `changedAgo` (built: band word while
   visible, no `changedAgo`; plan 60 B18 refuted as drift).
 
@@ -383,8 +384,9 @@ Owed
 
 Unresolved questions
 
-- `storyDiff` has no faction case: a move whose gate is rewritten keeps its record by id (52's `(id, rev, gate)` identity
-  would fit).
+- ~~`storyDiff` has no faction case~~ Built 2026-10-22: a move this chat applied whose `when` or `add` changed keeps its
+  record and reports `faction-move-changed-applied` (like `quest-reward-changed-earned`: not given again); any other faction
+  edit is `factions-changed` (was `identical`). No `rev`: a re-fire would add the standing twice.
 - Should a group-disabled member hear a `present` move?
 
 ## Review 2026-10-16 (Astra)

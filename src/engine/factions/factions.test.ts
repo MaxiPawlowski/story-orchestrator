@@ -8,6 +8,7 @@ import { applyFactionMoves, factionDirectorLines, factionMemberLines, factionsMo
 import { ROLLBACK_DETECTORS } from "../rollbackDetectors";
 import { privateLifeLines } from "../life/lines";
 import { FACTION_MOVE_ON_INACTION } from "../validate/factions";
+import { diffStories } from "../storyDiff";
 
 const RAW = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/factions.story.json"), "utf8")) as Record<string, unknown>;
 const STORY = parseStoryOrThrow(RAW);
@@ -286,5 +287,41 @@ describe("v2.8 plan 53 F4 (SC1): standing rolls back with the boundary and repla
       turns.forEach((turn) => full.turn(turn));
       expect(pick(full.values())).toEqual(pick(recorded));
     }
+  });
+});
+
+describe("v2.8 plan 53: story updates and factions", () => {
+  const edited = (edit: (raw: Record<string, unknown>) => void) => { const raw = clone(); edit(raw); return parseStoryOrThrow(raw); };
+  const codes = (result: ReturnType<typeof diffStories>) => result.entries.map((entry) => `${entry.kind}:${entry.code}`);
+  const rewritten = edited((raw) => { const saved = guildMoves(raw).find((move) => move.id === "saved")!; saved.add = 4; });
+
+  it("a rewritten move this chat already applied keeps its record and says so; the standing is not given again", () => {
+    const run = play();
+    run.turn({ apprentice_saved: true });
+    expect(run.values()[factionMoveKey("guild", "saved")]).toBeDefined();
+    const result = diffStories(STORY, rewritten, run.engine.serialize());
+    expect(codes(result)).toEqual(["compatible:faction-move-changed-applied"]);
+    expect(result.droppedQualityKeys).not.toContain(factionMoveKey("guild", "saved"));
+  });
+
+  it("the same rewrite before the move applied, or with no chat, is an ordinary compatible edit, never identical", () => {
+    expect(codes(diffStories(STORY, rewritten, play().engine.serialize()))).toEqual(["compatible:factions-changed"]);
+    expect(diffStories(STORY, rewritten, null).classification).toBe("compatible");
+  });
+
+  it("range precedence: a compiled faction quality takes the faction range, an authored one only its display range", () => {
+    const ranged = edited((raw) => {
+      (raw.factions as Array<Record<string, unknown>>)[0].range = [-3, 3];
+      (raw.qualities as Array<Record<string, unknown>>).push({ key: "coins", type: "int", source: "code", rubric: "Coins.", display: { public: true, label: "Coins", as: "meter", min: 0, max: 9 } });
+    });
+    expect(ranged.qualityByKey[standingKey("guild")].range).toEqual([-3, 3]);
+    expect(ranged.qualityByKey.coins.range).toEqual([0, 9]);
+    expect(ranged.qualityByKey.apprentice_saved.range).toBeUndefined();
+  });
+
+  it("initialization: a faction start outside its range is refused at validation, never clamped at seed", () => {
+    const outside = clone();
+    (outside.factions as Array<Record<string, unknown>>)[0].start = 9;
+    expect(errorsOf(outside).length).toBeGreaterThan(0);
   });
 });

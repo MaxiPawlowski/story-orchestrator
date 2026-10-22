@@ -1,7 +1,7 @@
 import { keptStagedFrom, type EngineHistory, type EngineState } from "./engine";
 import {
   CODEX_PAGES, observationIdentity, observationKey, observationMissedKey, codexArmedKey, codexEntryKey, codexFactKey, codexReturnKey, isCodexKey, isObservationKey,
-  questClosedKey, questRewardKey, STORY_DISPLAY_TOGGLES,
+  factionMoveKey, questClosedKey, questRewardKey, STORY_DISPLAY_TOGGLES,
   type CodexEntry, type CodexPage, type NormalizedStory, type PrimitiveValue, type Transition,
 } from "./schema";
 import { qualityAccepts } from "./blackboard";
@@ -25,6 +25,7 @@ export type StoryDiffCode =
   | "scene-read-changed" | "player-card-changed" | "player-profile-changed" | "lore-select-changed"
   | "house-rules-changed" | "arc-template-changed" | "arc-bridges-changed" | "chapters-changed" | "game-changed"
   | "quest-removed" | "quest-removed-closed" | "quest-reward-changed-earned" | "check-changed" | "codex-changed"
+  | "factions-changed" | "faction-move-changed-applied"
   | "codex-entry-removed" | "codex-entry-replaced" | "codex-fact-removed" | "codex-fact-replaced"
   | "codex-fact-edited" | "codex-return-removed" | "codex-return-replaced" | "codex-return-edited"
   | "observations-changed" | "observation-removed" | "cue-edited" | "cue-replaced" | "cue-removed"
@@ -309,6 +310,23 @@ const diffQuests = ({ previous, next, values, push }: DiffContext) => {
   }
 };
 
+const diffFactions = (ctx: DiffContext) => {
+  const { previous, next } = ctx;
+  if (sameValue(previous.factions, next.factions)) return;
+  const before = ctx.entries.length;
+  const after = new Map((next.factions ?? []).map((faction) => [faction.id, faction]));
+  (previous.factions ?? []).forEach((faction) => {
+    const moves = new Map((after.get(faction.id)?.moves ?? []).map((move) => [move.id, move]));
+    faction.moves.forEach((move) => {
+      const kept = moves.get(move.id);
+      if (!kept || !ctx.live(factionMoveKey(faction.id, move.id)) || sameValue([move.when, move.add], [kept.when, kept.add])) return;
+      ctx.push("compatible", "faction-move-changed-applied", `factions.${faction.id}.moves.${move.id}`,
+        `A standing change with “${faction.name}” was rewritten; this chat already had the old one and is not given the new one.`);
+    });
+  });
+  if (ctx.entries.length === before) ctx.push("compatible", "factions-changed", "factions", "The story's factions changed; the standing this chat already holds stays.");
+};
+
 const conditionOf = (entry: CodexEntry) => entry.known_when ?? (entry.location ? { location: entry.location } : null);
 
 const dropLive = (ctx: DiffContext, key: string): boolean => {
@@ -426,6 +444,7 @@ const diffStoryFields = (ctx: DiffContext) => {
     push("compatible", "game-changed", "quests", "The story's quests, milestones or panels changed; what this chat already reached stays.");
   }
   diffQuests(ctx);
+  diffFactions(ctx);
   diffCodex(ctx);
   diffObservations(ctx);
   diffCueSources(ctx);
