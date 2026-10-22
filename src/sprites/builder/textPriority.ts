@@ -1,4 +1,6 @@
-export const hostGenerating = async (): Promise<boolean> => (await import("@services/stHost/generation")).isHostGenerating();
+import { voiceChainPending } from "@runtime/voiceBusy";
+
+export const hostGenerating = async (): Promise<boolean> => (await import("@services/stHost/generation")).isHostGenerating() || voiceChainPending();
 
 export async function waitForTextPriority(deps: {
   status(): Promise<{ activeText?: number; waitingText?: number; fairImages?: boolean } | null>;
