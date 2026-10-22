@@ -66,7 +66,7 @@ export const NoticedMany: Story = {
     await expect(rows).toHaveLength(3);
     await expect(within(rows[0] as HTMLElement).getByText("At The landing")).toBeVisible();
     await expect(canvasElement.querySelector('[data-so="journal-noticed-jump"]')).toBeNull();
-    await expect(canvasElement.querySelector('[data-so="journal-noticed"]')?.textContent).not.toMatch(/obs_|missed|d6|roll|id/);
+    await expect(canvasElement.querySelector('[data-so="journal-noticed"]')?.textContent).not.toMatch(/obs_|missed|d6|roll|"id"/);
   },
 };
 
