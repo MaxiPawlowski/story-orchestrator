@@ -1,9 +1,11 @@
-import { CODEX_PAGES, type CodexEntry, type CodexPage, type Faction, type Milestone, type Observation, type QualityDisplay, type Quest, type StoryCheck, type Story, type StoryWidget,
+import { CODEX_PAGES, type CheckpointOffer, type CodexEntry, type CodexPage,
+  type Faction, type Milestone, type Observation, type QualityDisplay, type Quest, type StoryCheck, type Story, type StoryWidget,
   type ValidationError } from "@engine/index";
 import { addCodexQualities, checkCodex, readCodex } from "@engine/validate/codex";
 import { addObservationQualities, checkObservations, readObservation } from "@engine/validate/observations";
 import { checkFactions, factionQualities, readFactions } from "@engine/validate/factions";
 import { readCheck, readChecks } from "@engine/validate/checks";
+import { checkOffers, readOffers } from "@engine/validate/offers";
 import { readDisplay } from "@engine/validate/display";
 import { readMilestones, readQuests } from "@engine/validate/quests";
 import { readWidgets } from "@engine/validate/widgets";
@@ -17,7 +19,7 @@ import { isRecord } from "@utils/guards";
 import {
   CHARACTER_LIFE_FIELDS, removeCodexEntry, removeObservation, updateObservation, setCalendar, setCharacterLife, setClock, setFactions, setMemberGossip,
   setPatterns, setRumors, updateCodexEntry,
-  setMilestones, setQualityDisplay, setQuests, setCheckpointChecks, setTransitionCheck, setWidgets, type CharacterLife,
+  setMilestones, setQualityDisplay, setQuests, setCheckpointChecks, setCheckpointOffers, setTransitionCheck, setWidgets, type CharacterLife,
 } from "../../studio/gameMutations";
 import type { OpDescription } from "../index";
 import { CUE_AGENT_KINDS, applyCueOp, cueOpProblem, describeCueOp, readCueCall, type CueAgentOp } from "./cueOps";
@@ -28,6 +30,7 @@ export type GameAgentOp =
   | { kind: "setWidgets"; widgets: StoryWidget[] }
   | { kind: "setQualityDisplay"; key: string; display: QualityDisplay | null }
   | { kind: "setCheckpointChecks"; id: string; checks: StoryCheck[] }
+  | { kind: "setCheckpointOffers"; id: string; offers: CheckpointOffer[] }
   | { kind: "setTransitionCheck"; index: number; check: StoryCheck | null }
   | { kind: "setCharacterLife"; id: string; life: CharacterLife }
   | { kind: "setClock"; clock: StoryClock | null }
@@ -43,7 +46,7 @@ export type GameAgentOp =
 
 export const GAME_AGENT_KINDS: ReadonlySet<string> = new Set<GameAgentOp["kind"]>([
   "setQuests", "setMilestones", "setWidgets", "setQualityDisplay", "setCheckpointChecks", "setTransitionCheck", "setCharacterLife", "setClock", "setCodexEntry", "removeCodexEntry",
-  "setFactions", "setCalendar", "setRumors", "setObservation", "removeObservation", "setPatterns", ...CUE_AGENT_KINDS,
+  "setFactions", "setCalendar", "setRumors", "setObservation", "removeObservation", "setPatterns", "setCheckpointOffers", ...CUE_AGENT_KINDS,
 ]);
 
 const refused = (tool: string, errors: ValidationError[]) => ({ ok: false as const, message: errors.map((error) => `${tool}.${error.path}: ${error.message}`).join("; ") });
@@ -59,6 +62,17 @@ const readCodexCall = (tool: string, args: Record<string, unknown>): GameCallChe
   const errors: ValidationError[] = [];
   const entry = readCodex({ [page]: [args.entry] }, errors)?.[page]?.[0];
   return errors.length || !entry ? refused(tool, errors) : { ok: true, op: { kind: "setCodexEntry", page, entry } };
+};
+
+const readBeatCall = (tool: "setCheckpointChecks" | "setCheckpointOffers", args: Record<string, unknown>): GameCallCheck => {
+  const errors: ValidationError[] = [];
+  const id = String(args.id).trim();
+  if (tool === "setCheckpointOffers") {
+    const offers = readOffers(args.offers ?? [], "offers", errors);
+    return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setCheckpointOffers", id, offers } };
+  }
+  const checks = readChecks(args.checks, "checks", errors);
+  return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setCheckpointChecks", id, checks } };
 };
 
 const isCueOp = (op: GameAgentOp): op is CueAgentOp => (CUE_AGENT_KINDS as readonly string[]).includes(op.kind);
@@ -106,10 +120,7 @@ const readCoreGameCall = (tool: string, args: Record<string, unknown>): GameCall
     const patterns = readPatterns(args.patterns ?? [], errors) ?? [];
     return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setPatterns", patterns } };
   }
-  if (tool === "setCheckpointChecks") {
-    const checks = readChecks(args.checks, "checks", errors);
-    return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setCheckpointChecks", id: String(args.id).trim(), checks } };
-  }
+  if (tool === "setCheckpointChecks" || tool === "setCheckpointOffers") return readBeatCall(tool, args);
   const check = args.check === null || args.check === undefined ? null : readCheck(args.check, "check", errors);
   return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setTransitionCheck", index: Number(args.index), check } };
 };
@@ -125,6 +136,7 @@ export const applyGameOp = (draft: Story, op: GameAgentOp): Story => {
     case "setWidgets": return setWidgets(draft, op.widgets);
     case "setQualityDisplay": return setQualityDisplay(draft, op.key, op.display ?? undefined);
     case "setCheckpointChecks": return setCheckpointChecks(draft, op.id, op.checks);
+    case "setCheckpointOffers": return setCheckpointOffers(draft, op.id, op.offers);
     case "setTransitionCheck": return setTransitionCheck(draft, op.index, op.check ?? undefined);
     case "setCharacterLife": return setCharacterLife(draft, op.id, op.life);
     case "setClock": return setClock(draft, op.clock ?? undefined);
@@ -147,6 +159,10 @@ export const describeGameOp = (op: GameAgentOp): OpDescription => {
     case "setWidgets": return { action: "update", entity: "story.widgets", label: op.widgets.length ? `Panels: ${op.widgets.map((widget) => widget.title).join(" / ")}` : "Remove every panel" };
     case "setQualityDisplay": return { action: "update", entity: `qualities.${op.key}.display`, label: op.display ? `Show ${op.key} as ${op.display.label}` : `Hide ${op.key} from players` };
     case "setCheckpointChecks": return { action: "update", entity: `checkpoints.${op.id}.checks`, label: `${op.checks.length} check(s) at ${op.id}` };
+    case "setCheckpointOffers": {
+      const label = op.offers.length ? `Offers at ${op.id}: ${op.offers.map((offer) => offer.text).join(" / ")}` : `Remove the offers at ${op.id}`;
+      return { action: "update", entity: `checkpoints.${op.id}.offers`, label };
+    }
     case "setTransitionCheck": {
       const label = op.check ? `Check ${op.check.id} on transition ${op.index}` : `Remove the check on transition ${op.index}`;
       return { action: "update", entity: `transitions.${op.index}.check`, label };
@@ -230,7 +246,8 @@ export const gameOpProblem = (draft: Story, op: GameAgentOp): string | null => {
     checkPatterns(op.patterns, { checkpointById, checkpoints: draft.checkpoints, transitions: draft.transitions, quests: draft.quests, milestones: draft.milestones,
       chapters: draft.chapters, roster: draft.roster, qualityByKey: byKey }, errors);
   }
-  if (op.kind === "setCheckpointChecks" && !draft.checkpoints.some((checkpoint) => checkpoint.id === op.id)) return `'${op.id}' is not a checkpoint`;
+  if ((op.kind === "setCheckpointChecks" || op.kind === "setCheckpointOffers") && !draft.checkpoints.some((checkpoint) => checkpoint.id === op.id)) return `'${op.id}' is not a checkpoint`;
+  if (op.kind === "setCheckpointOffers") checkOffers(setCheckpointOffers(draft, op.id, op.offers).checkpoints, draft.transitions, byKey, errors, draft.quests);
   if (op.kind === "setTransitionCheck" && !draft.transitions[op.index]) return `transition ${op.index} does not exist (readGraph numbers them)`;
   return errors.length ? errors.map((error) => `${error.path}: ${error.message}`).join("; ") : null;
 };

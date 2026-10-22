@@ -49,7 +49,7 @@ const CHECKPOINT = "{id, name, objective, type: anchor|intermediate, tension_tar
   + "stretch?: {mode: open, pace?, pull_after?, max_turns?, offer?: [encounters], arrive_when (an anchor's opening has only mode, pace, pull_after)} (null clears)}";
 const GATE = "{q, op: ==|!=|>=|<=|>|<|in, v} | {all: gate[]} | {any: gate[]} | {not: gate}";
 const QUEST = "[{id, title, visible_when?, offered_when?, done_when?, failed_when?, steps: [{text, done_when}], requires?, progress?, labels?, giver?, reward?}]";
-const CHECK = "{id, label?, quality, roll: {sides, target, dice?}, modifiers?: [{q, v, add, label?}], narrate: public|hidden, outcome?, twist?}";
+const CHECK = "{id, label?, quality, roll: {sides, target, dice?}, modifiers?: [{q, v, add, label?, hint? (public only, 60)}], narrate: public|hidden, outcome?, twist?, hint_when?}";
 const CHAPTER = "[{id, title, player_title?, kind?: chapter|interlude, final?: boolean, seal?: {open_threads?: carry|close|decide, keep_tail?, fold_messages?, record_style?: prose|chronicle}}]";
 
 type EditSpec = Omit<AgentToolSpec, "name" | "family"> & { backedBy: keyof Mutations };
@@ -184,6 +184,12 @@ setPoseCard: { backedBy: "setPoseCard", doc: "Set living card fields and charact
     backedBy: "setCheckpointChecks",
     doc: "Replace a beat's checks: seeded rolls once per visit, written to code bool qualities.",
     args: { id: ID, checks: req("array", CHECK) },
+  },
+  setCheckpointOffers: {
+    backedBy: "setCheckpointOffers",
+    doc: "Replace a beat's authored offers: player lines the What could I do? panel may show while the beat is active. needs greys an offer with your reason "
+      + "until its gate holds; never gate needs on a check result or a latch. Read the offers guide first.",
+    args: { id: ID, offers: req("array", `[{id (slug), text (the player's line, 200), visible_when?: ${GATE}, needs?: {when: ${GATE}, reason (120)}}] (at most 8)`) },
   },
   setTransitionCheck: {
     backedBy: "setTransitionCheck",

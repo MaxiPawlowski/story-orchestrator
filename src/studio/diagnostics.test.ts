@@ -216,6 +216,11 @@ describe("runDiagnostics", () => {
           { id: "glad", kind: "remark", when: { q: "trust", op: ">=", v: 2 }, cue: "you feel relieved to be home" },
         ], topics: [{ id: "boat", keys: ["boat"], tiers: [{ cue: "the boat leaks" }, { cue: "the boat was sabotaged" }] }] }],
       }),
+      ...runDiagnostics({
+        ...clean, checkpoints: [{ ...clean.checkpoints[0], offers: [{ id: "go", text: "I head for the cache." }] }, clean.checkpoints[1]],
+        transitions: [{ ...clean.transitions[0], check: { id: "climb", quality: "trust", roll: { sides: 20, target: 12 }, narrate: "public",
+          modifiers: [{ q: "trust", v: 1, add: 2, hint: "the map of the cache" }] } }],
+      }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

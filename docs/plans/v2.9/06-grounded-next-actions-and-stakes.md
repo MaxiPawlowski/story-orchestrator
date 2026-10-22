@@ -1,6 +1,6 @@
 # Plan 06 — Grounded next actions and stakes
 
-**Status: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md` §06); not built; owner decisions pending.** Implementation
+**Status: written 2026-10-21 from the v2.9 triage (`01-triage-sol.md` §06); slices 1–4 built 2026-10-21 on branch `v2.9-06-next-actions` (Gate record below); LT acceptance not run (no GPU).** Implementation
 tier **D** (pure anchor ranking, schema, validation, Storybook, no-LLM scenarios). Acceptance **LT** (suggestions run on the
 memory model, 3090, authorized window only) + independent rater on the authoring route (opencode `openai/gpt-6.1-sol`) +
 owner decision for the two new panel elements (00-overview rule 4).
@@ -321,3 +321,66 @@ Source: `10-review-sol.md` §06 and cross-plan findings naming 06. Code re-verif
 - P1 cross-plan, story-update extras: applied as a statement: 06 persists nothing, so no extras reconciliation; update →
   rollback → reopen test added.
 - P2 cross-plan, model routing: applied. Rater Sol default, DeepSeek fallback only; no model time, GPU or pod authorized.
+
+## Gate record 2026-10-21 (v2.9 build, branch v2.9-06-next-actions)
+
+Worktree `C:/dev/so-v29-06-next-actions` off master `65aebaa0`. Owner decisions applied (00-overview §Owner decisions 2026-10-21):
+check-help field + help line, authored greyed offers, anchors author-view only, no negative-modifier lines.
+
+Built:
+- Slice 1, anchors: `src/runtime/suggestionAnchors.ts` (pure, lazy, imported only by `suggestionsHost.ts`). Kinds objective,
+  quest-step, quest, thread, dormant-thread, promise (`snapshot.promises`, conditional excluded), clue-action (shown player clue/pin
+  actions from `snapshot.game`), check-help, offer, pattern. Weight table and resurfacing (+1.5 when an arc resolved or a quest/step
+  closed within 4 boundaries, against the boundary log's `before` values) test-pinned; ties rotate by `unitDraw([chat, story,
+  boundary, "suggest:"+id, again])`, `again` = Other ideas presses (panel-local). ≤3 anchors, one per kind except quest-step,
+  600-char block. One screen (`makeScreen`): resting held-secret filter (`restingText`, changed text = dropped), unseen withheld
+  names, `knownEntities`-unknown names; run on every anchor, on every model line after the answer, and again at render on model-free
+  lines (`SuggestionSide.shows`, memoized on the cached snapshot). Prompt adds the numbered block only when anchors exist (no-anchor
+  prompt unchanged). Parser `parseSuggestionLines`: `[n]` tag kept as `anchorId` only when the line shares a content term with the
+  anchor (`termPresent`, prefix). Panel API `{text, anchorId?, authored?}[]`; fill writes only `text`. One `askText` per ask,
+  role `read`, RunGuard + owns-check unchanged. Author view: "for: …" under grounded lines and a row "Suggestions: anchors …,
+  grounded n/m" in the panel (not an inline-timeline/Activity row: nothing is stored, so the row lives in the panel).
+- Slice 2, stakes: `CheckModifier.hint` (≤60), `StoryCheck.hint_when` (`gameSchema.ts`); `validate/checks.ts` refuses either on a
+  hidden check; `checkRefs.ts` checks `hint_when` keys like `when` (declared, not what the check writes). Help line for a waiting
+  public transition check (`checkAttempted`) or a public checkpoint check with `when` not rolled this visit; positive modifiers only,
+  authored order, independent of dice and modifier truth; "(you have it)" only for a holding modifier on a `display` quality.
+  Diagnostic `check-hint-names-unknown` (warning). Studio: ChecksEditor hint text; wizard via `readCheck` (tool doc updated).
+- Slice 3, offers: `engine/offerSchema.ts` (`Checkpoint.offers` by augmentation, schema.ts untouched), `validate/offers.ts` in the
+  game-layer chunk (`readOffers`/`addOffers`/`checkOffers`: slug ids unique, ≤8, text ≤200, reason ≤120, no macro/slash, gate keys
+  declared, `needs` refused on check-written/rolled keys and code latches except quest closed/rewarded). `usesGameLayer` lists
+  `checkpoints[].offers`. Runtime `offerRows`: active checkpoint, `visible_when` holds; failing `needs` → greyed row with reason;
+  available offers become `offer` anchors and a selected one the model drops is listed verbatim (`authored`). Diagnostic
+  `offer-names-unknown` (warning). Typed mutation `setCheckpointOffers` (`studio/gameMutations.ts`) + wizard tool
+  `setCheckpointOffers` (gameOps); Studio JSON field under Flow → checkpoint (`data-so="offers-editor"`). storyDiff: offers ride
+  `checkpoint-changed` (compatible); nothing persisted.
+- Slice 4, pattern anchors: `snapshot.patterns` rows with `phase === "pending"` only (weight 3, id `pattern:<id>@<rev>`, evidence from
+  05's refs); completed rows never anchor. 05's contract unchanged.
+- Docs: guide `checks` (hint, hint_when, `check-hint-names-unknown`) and new topic `offers`; compact `guideTopicsOffers.ts`;
+  `guideTabs` game tab; `guideTopicGroups.json`; `npm run docs:guide`, `npm run docs:settings`. Registry `suggestions` `what` updated;
+  no new feature id, setting or control (so no FEATURE_STATE / plan 24 row).
+- Tests: `runtime/suggestionAnchors.test.ts` (25: ranker table, resurfacing, rotation + no Math.random, one-per-kind, prompt, tag
+  grounding, screen on every kind incl. secret with no unknown noun, conditional promise negative, pending vs completed 05 rows,
+  stakes identical across faces and non-public truth values, hidden check empty, hint_when, checkpoint-check pending, validation
+  fixtures, offers before/after disclosure, needs on check result refused, offers-only story loads the chunk, wizard tool, update →
+  rollback → reopen), `suggestionsHost.test.ts` (+3: anchors in the one call, author-only side, side on failure, secret after open
+  drops the line at render), `diagnostics.test.ts` every-code case, arrival golden re-recorded for the new scenario.
+  Storybook `SuggestionsPanel`: help line + greyed offer, secret-after-open, grounded author view, 390 px.
+- Scenario `test/scenarios/v29-06-anchored-suggestions.json` (no-model, debugResponse plumbing only): schema-checked with
+  `validateFixture` (0 problems), every eval parses.
+
+Gates (final tree):
+- `npm run gates:quick`: green after fixes (lint max-len, S4 branch budget for `readCheckpoint`/`readGameCall` kept by helpers).
+- `npm run gates -- --no-storybook` (full, no `--resume`): `gates: all green in 222.3s` (typecheck, typecheck:test, build,
+  debug:typecheck, test:plugin, test:debug, test:replay, lint, test:release, test 858 suites / 9985 passed + 1 skipped).
+  test-storybook:ci SKIPPED in that run (wave 2 port rule), run alone:
+- `npm run storybook:build` then test-runner on :6206: `Test Suites: 160 passed, 160 total`, `Tests: 970 passed, 970 total`.
+- Main bundle `dist/index.js` 1,297,849 B (master 1,297,590; +259 B: checkpoint offers hook, `usesGameLayer`, validate call,
+  presenceUi `again`). Budget 1,300,000 not raised.
+
+NOT run:
+- Lane live check (scenario above): NOT run: unmerged branch, no staging (wave 2).
+- LT acceptance (40 situations × 2 arms, rater, floors): NOT run: no GPU (owner 2026-10-21). Floors unmeasured.
+
+Decisions taken on open questions: offered quests are not anchors (their titles are withheld names, so the screen would drop them);
+dormant = open, unexcluded, unfolded arcs outside `currentThreads`; a dropped selected offer is listed verbatim; help line in the
+panel only (not on the widget check button).

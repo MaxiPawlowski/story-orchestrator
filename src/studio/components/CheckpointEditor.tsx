@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { TENSION_LEVELS, type ArcBridge, type Checkpoint, type CheckpointEffects, type PrimitiveValue, type RosterMember, type TalkControl, type TensionLevel } from "@engine/index";
+import {
+  TENSION_LEVELS, type ArcBridge, type Checkpoint, type CheckpointOffer, type CheckpointEffects, type PrimitiveValue, type RosterMember, type TalkControl, type TensionLevel,
+} from "@engine/index";
 import { useDraftStore } from "../draft";
 import { addCheckpoint, clearStartCheckpoint, removeCheckpoint, setArcBridges, setStartCheckpoint, updateCheckpoint } from "../mutations";
 import { setCheckpointMotive } from "../innerVoiceMutations";
@@ -12,6 +14,7 @@ import TalkControlEditor from "./TalkControlEditor";
 import GuidanceEditor from "./GuidanceEditor";
 import StretchEditor from "./StretchEditor";
 import { stretchExits } from "../stretchDraft";
+import { JsonField } from "./GameFields";
 import { rosterMemberIsPlayer } from "../playerRole";
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
@@ -20,6 +23,8 @@ const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, 
     {children}
   </label>
 );
+
+const OFFERS_HINT = '[{"id", "text", "visible_when"?, "needs"?: {"when", "reason"}}], at most 8; a failing needs greys the offer with your reason';
 
 const optionalInt = (raw: string): number | undefined => {
   const parsed = parseInt(raw, 10);
@@ -239,6 +244,11 @@ const CheckpointBehaviour = ({ selected, draft, backgroundNames, patch }: { sele
         hasPlayerText={Boolean(selected.player_text)}
         onChange={(next) => patch({ stretch: next })}
       />
+    </div>
+
+    <div data-so="offers-editor" className="flex flex-col gap-1">
+      <JsonField label="Offers in What could I do?" hint={OFFERS_HINT} value={selected.offers}
+        onChange={(offers) => patch({ offers: Array.isArray(offers) && offers.length ? (offers as CheckpointOffer[]) : undefined })} />
     </div>
 
     <div className="flex flex-col gap-1">

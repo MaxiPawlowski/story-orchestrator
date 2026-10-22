@@ -79,4 +79,6 @@ export const DIAGNOSTIC_CODES = [
   "cue-tie",
   "cue-narrates-player",
   "topic-ungated-depth",
+  "offer-names-unknown",
+  "check-hint-names-unknown",
 ] as const;

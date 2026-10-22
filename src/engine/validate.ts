@@ -165,6 +165,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   checkIntermediates(checkpoints, checkpointById, reachableByCheckpoint, errors);
   checkTurnsKey(qualityByKey, errors);
   layer?.stretch.checkStretches(checkpoints, transitions, qualityByKey, errors);
+  layer?.offers.checkOffers(checkpoints, transitions, qualityByKey, errors, quests);
   layer?.checkDisplays(qualities, json.checkpoints as unknown[], errors);
   layer?.checkStoryChecks(checkpoints, transitions, qualityByKey, errors);
   const game = quests ? layer?.expandRequires(quests, errors) : undefined;
