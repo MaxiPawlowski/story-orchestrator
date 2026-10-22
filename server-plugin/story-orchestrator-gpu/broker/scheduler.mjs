@@ -289,7 +289,7 @@ export class ResidencyScheduler {
         if (!policy?.enabled || !runtime?.streaming || !this.backend.status().pid || this.backend.status().fitTargetMiB != null) return false;
         if (!models.length || models.some((row) => !(policy.kinds ?? ['checkpoints']).includes(row.kind))) return false;
         if (models.reduce((sum, row) => sum + row.weightsMiB, 0) > (policy.maxWeightMiB ?? 8192)) return false;
-        return admission(snapshot, { gpuMiB: policy.minFreeGpuMiB ?? 2400, ramMiB: needRamMiB }, { gpuMiB: 0, ramMiB: this.config.reserves.ramMiB }).allowed;
+        return admission(snapshot, { gpuMiB: policy.minFreeGpuMiB ?? 2400, ramMiB: needRamMiB }, this.config.reserves).allowed;
     }
 
     renew(id) { if (this.lease?.id !== id) return false; this.lease.touched = Date.now(); return true; }

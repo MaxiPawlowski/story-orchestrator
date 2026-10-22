@@ -560,7 +560,7 @@ const sdxl = { workflowKey: 'scene', modelFiles: [{ kind: 'checkpoints', name: '
 
 test('a measured streaming runtime keeps full text resident for an SDXL render instead of swapping it', async () => {
     const modelDirs = await fakeCheckpoint(6600);
-    const { scheduler, calls } = setup({ runtime: streamingRuntime, snapshot: async () => free(2700),
+    const { scheduler, calls } = setup({ runtime: streamingRuntime, snapshot: async () => free(4500),
         config: { modelDirs, streamImages: { enabled: true, minFreeGpuMiB: 2400, maxWeightMiB: 8192 } } });
     const lease = await scheduler.reserve(sdxl);
     assert.equal(lease.decision, 'stream-image');
@@ -571,7 +571,7 @@ test('streaming is off unless enabled, needs a streaming runtime, a small checkp
     const modelDirs = await fakeCheckpoint(6600);
     const decide = async (config, options = {}) => {
         let n = 0;
-        const { scheduler } = setup({ runtime: options.runtime ?? streamingRuntime, snapshot: options.snapshot ?? (async () => (n++ === 0 ? free(2700) : free(22000))),
+        const { scheduler } = setup({ runtime: options.runtime ?? streamingRuntime, snapshot: options.snapshot ?? (async () => (n++ === 0 ? free(4500) : free(22000))),
             config: { modelDirs, ...config } });
         return (await scheduler.reserve(sdxl)).decision;
     };
@@ -580,9 +580,22 @@ test('streaming is off unless enabled, needs a streaming runtime, a small checkp
     assert.notEqual(await decide({ streamImages: policy }, { runtime: async () => ({ id: 'r', streaming: false }) }), 'stream-image');
     assert.notEqual(await decide({ streamImages: { ...policy, maxWeightMiB: 4000 } }), 'stream-image');
     assert.notEqual(await decide({ streamImages: { ...policy, minFreeGpuMiB: 3000 } }), 'stream-image');
-    const lowRam = { highCadence: true, gpus: [{ usedMiB: 21876, freeMiB: 2700 }], host: { availableMiB: 5000, commitFreeMiB: 80000 } };
+    assert.equal(await decide({ streamImages: policy }), 'stream-image');
+    const lowRam = { highCadence: true, gpus: [{ usedMiB: 19876, freeMiB: 4500 }], host: { availableMiB: 5000, commitFreeMiB: 80000 } };
     let n = 0;
     assert.notEqual(await decide({ streamImages: policy }, { snapshot: async () => (n++ === 0 ? lowRam : free(22000)) }), 'stream-image');
+});
+
+test('streaming beside text keeps the GPU reserve: 2.5 GB free with a 1024 MiB reserve makes room for the image instead of spilling beside text (a10)', async () => {
+    const modelDirs = await fakeCheckpoint(6600);
+    const decide = async (freeMiB) => {
+        let n = 0;
+        const { scheduler } = setup({ runtime: streamingRuntime, snapshot: async () => (n++ === 0 ? free(freeMiB) : free(22000)),
+            config: { modelDirs, reserves: { gpuMiB: 1024, ramMiB: 2048 }, streamImages: { enabled: true, minFreeGpuMiB: 2400, maxWeightMiB: 8192 } } });
+        return (await scheduler.reserve(sdxl)).decision;
+    };
+    assert.notEqual(await decide(2510), 'stream-image');
+    assert.equal(await decide(3500), 'stream-image');
 });
 
 test('a queued image gets a fair window after a bounded number of text replies instead of waiting for an idle text queue', async () => {
