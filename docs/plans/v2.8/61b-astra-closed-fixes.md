@@ -59,8 +59,9 @@ before the fix; every fix is one commit whose regression test fails on the old c
 - **P1 living pending work survives a rollback that does not move the engine.** Reproduced: `movedAfter` counted applied ops
   only. Fixed `deb8d68c`: a waiting (proposed/accepted) proposal or a divergence reading after the restored boundary also
   counts, so the mutation takes the full path and `restoreAfterRollback` withdraws it and resets the streak. Test
-  `src/runtime/livingPort.test.ts`. Limit: `restoreAfterRollback` still does nothing for a chat that does not track a living
-  history (branching on a plain story); its divergence streak is not reset there.
+  `src/runtime/livingPort.test.ts`. A chat that does not track a living history (branching on a plain story) now withdraws
+  its waiting proposals and resets the streak too (2026-10-22, test "61b: a rollback on a plain story…" in
+  `livingCoordinator.review.test.ts`).
 - **P1 wizard lorebook updates cannot clear fields.** Reproduced at three layers (parser, `loreEntryShape`, `upsertWIEntry`).
   Fixed `f734defe`: a step naming `secondaryKeys: []`, `outlet: ""` or `triggers: []` clears it (an outlet clear also moves an
   outlet-positioned entry back to position 0); a field left out keeps the entry's value. Primary `keys` are deliberately not

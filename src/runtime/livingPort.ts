@@ -71,7 +71,7 @@ export class LivingPort {
 
   async restoreAfterRollback(boundary: number, run: RunGuard = beginRun(this.deps.ownership)): Promise<number> {
     if (this.impl) return this.impl.restoreAfterRollback(boundary, run);
-    if (!this.tracks()) return 0;
+    if (!this.tracks() && !this.deps.getLiving()) return 0;
     const coordinator = await this.load();
     return run.stillOwns() ? coordinator.restoreAfterRollback(boundary, run) : 0;
   }

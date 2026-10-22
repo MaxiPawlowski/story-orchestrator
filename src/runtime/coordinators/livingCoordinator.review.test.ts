@@ -397,6 +397,17 @@ describe("v2.8 22 divergence branching", () => {
     expect(await sure.coordinator.checkDivergence(sure.at(), placed().place)).toBe(true);
   });
 
+  it("61b: a rollback on a plain story that branches (no tracked living history) still resets the divergence streak", async () => {
+    const rigged = await atMill([act(0.85)]);
+    const before = rigged.at();
+    await rigged.commit();
+    expect(await rigged.coordinator.checkDivergence(rigged.at(), placed().place)).toBe(false);
+    expect(rigged.extras.living?.divergence?.streak).toBe(1);
+    rigged.extras.living = { ...rigged.extras.living!, authored: null };
+    rigged.coordinator.restoreAfterRollback(before.boundary);
+    expect(rigged.extras.living?.divergence?.streak).toBe(0);
+  });
+
   it("never branches on a single reading below the sure line, with or without a refusal (L2)", async () => {
     for (const refused of [null, "the player refused the prepared route"]) {
       const rigged = await atMill([act(0.76), act(0.96)], [], false, refused);
