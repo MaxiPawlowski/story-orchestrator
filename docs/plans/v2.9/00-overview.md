@@ -125,3 +125,40 @@ From `01-triage-sol.md` §Unresolved and each plan's own list:
 - G07: feelings and conclusions belong to the player (NPC thinking and inner voice unchanged).
 - Applying the folds above to their v2.8 plans; copying the V3.0 rows into v3.0 05.
 - Campaign adoption per plan after measurement; v2.9 model-time allocation.
+
+## Gate record 2026-10-21 (v2.9 wave 1 merge)
+
+Branch `v2.9-wave1` off master `e7bcee5d`, worktree `C:/dev/so-v29-wave1`. No GPU, no lanes, no model calls.
+
+Merges (`--no-ff`, in order), `npm run gates:quick` green after each:
+- 09 `v2.9-09-feature-help` @`27b1d8f2`: clean.
+- 02 `v2.9-02-voice` @`62dc3495`: conflict `src/guide/pages.generated.ts` only (regenerated with `npm run docs:guide`, `npm run docs:settings`).
+  Follow-up: `FEATURE_STATE` row `character-delivery` -> `master("delivery")`, `delivery.repetition` in `UNMAPPED_CONTROLS`,
+  `isOn` dropped from the registry row (09 rule).
+- 08 `v2.9-08-observations` @`90bd722d`: conflicts `pages.generated.ts` (regenerated), `snapshotBuilder.ts` (observation roll chips
+  kept beside 02's `byMember` repetition rows). Follow-up: codeHealth S3 file budget: `roster-polish` topic and the delivery and
+  observation diagnostic maps moved to `copilot/guideTopicsDelivery.ts` / `guideTopicsCodex.ts`; two schema fields joined onto
+  existing lines. `observations` has no story feature policy, so no `FEATURE_STATE` row.
+- 05 `v2.9-05-patterns` @`f1c3cc1d`: 16 files, all both-sides unions (game layer `observations` + `patterns`, `gameFields`,
+  `usesGameLayer`, agent ops/tools, readTools, diagnostics codes/consequences/checks, guide coverage, memoryInjector staging
+  condition keeps 05's `story.patterns?.length` and 02's staging sources, `StoryUpdateDeps` keeps both `reconcileExtras` (08)
+  and `reconcile` (05), wiring returns `patterns` and `delivery`). Both 02 and 05 exported the label-diagnostics name helper
+  under different names: kept `unknownEntityNames`, `patternDiagnostics.ts` switched to it. `diagnostics.test.ts` every-code
+  case split into two stories (each code fires once). `FEATURE_STATE` row `story-patterns` -> `master("patterns")`, `isOn` dropped.
+  codeHealth S4: `wireCoordinators` over 150 lines, `storyUpdateDepsFor` extracted.
+
+Main bundle (budget 1,300,000 B, not raised): master 1,291,214; combined 1,307,579 (over). Moved into the game-layer chunk
+(`GAME_LAYER.delivery|living|stretch`; the layer is awaited at startup, so runtime behaviour is unchanged; `usesGameLayer`
+now also names `roster[].polish`, `living`, `checkpoints[].stretch`, so without the layer such a story is refused as loading,
+like other game-layer fields):
+- `engine/validate/delivery.ts` (02): 1,304,314.
+- `engine/validate/living.ts` (pre-existing; `readLivingParts` helper keeps `parseStory` under the S4 branch budget): 1,300,531.
+- `engine/validate/stretch.ts` read and checks (pre-existing; the `player_turns` key check stays in `validate.ts`): 1,297,511.
+- Final `npm run build`: `dist/index.js` 1,297,590 B.
+
+Full gates on `c65d40cc` (no `--resume`, Storybook included, :6006 free): `npm run gates -- --jobs=3` ->
+`gates: all green in 424.5s` (test:replay 32 of 32 killed, test 857 suites / 9957 passed + 1 skipped, build, test:debug,
+typecheck, typecheck:test, debug:typecheck, lint, test:release, test:plugin, test-storybook:ci 160 suites / 966 passed).
+
+NOT run: live lane checks, payload goldens, every real-LLM row of 02/05/08 (no GPU, owner 2026-10-21). Not staged into ST,
+`plugins:install` not run (end of all waves).
