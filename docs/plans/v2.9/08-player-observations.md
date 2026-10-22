@@ -305,3 +305,78 @@ Sol's, frozen before any run; informational, never retuned (v2.8 rule 2).
 - Cross P1, settings via `FEATURE_POLICY_FIELDS` / `extras.overrides`: applied as a rule (no install/chat control in v1; any later
   one goes there; 09 mapping extended).
 - Cross P2, model routing: applied. O3 second-model review on sol, DeepSeek fallback only. Thinking and inner voice untouched.
+
+## Gate record 2026-10-21 (v2.9 build, branch v2.9-08-observations)
+
+Scope per the owner decisions 2026-10-21 (`00-overview.md`): surface, passive checks, perception-only warnings, page-only v1;
+named voices not built. Slices 1-4 built; slice 5 deterministic floors run, model floors and rows not run (no GPU).
+
+Built:
+- Slice 1: `observations[]` (`engine/observationSchema.ts`, `validate/observations.ts`, `engine/observations.ts`), game-layer
+  load detector, `hasGameLayer`, normalized copy; latching code keys `obs_<id>` (+ `obs_<id>_missed` for passive); latch writer
+  `observationLatches` appended to `LATCH_WRITERS` (frozen-pass semantics, no new boundary step); rollback detector `observations`
+  (prefix); discovery units for unnoticed gates (`DISCOVERY_UNITS`); `storyDiff` `diffObservations` (identity = id + rev + when +
+  passive; codes `observation-edited|replaced|removed`, `observations-changed`; obs keys skipped by the quality diff like codex
+  keys); refusals: duplicate id, length/macro text, `"start"`, unknown checkpoint / key with nearest name, own key, unknown source,
+  authored `obs_` quality, unknown keys (`voice` refused).
+- Slice 2: `resolveRoll` extracted from `resolveCheck` (check regression green); passive rolls once the first boundary the gate
+  holds, `unitDraw([chatId, storyId, boundary, "observe:<id>:<die>"])`; a miss is final. Seeding: `EngineHost.chanceIds?()`
+  (data only, read into the latch view as `chance`; the recommended option, not the derive-step fallback). No ids, no roll.
+  Author roll chips (`RollSource` `observation`, author view only in the snapshot).
+- Slice 3: `extras.observations {records, retired}` (cap 200/60; main door `runtime/observationRecords.ts`: types, rollback,
+  sanitize; lazy `runtime/observationKit.ts`: records at boundary, record, reconcile, rolls, installed with the game composer);
+  records built in boundary work `game` from the finished entry; `rollbackObservations` in `quarantine`; sanitize on load;
+  story-update hook `StoryUpdateDeps.reconcileExtras` before `swapStory` (same identity keeps, changed identity drops, removed ->
+  author-only retired list). Projection `runtime/observationView.ts` (lazy widgets chunk): earned only, newest first, From/At,
+  drops a line naming an unknown entity or restating a held secret (resting filter on every snapshot build). Story card
+  `#so-hud-card-notice` (3 + "and N more in the Journal"), Journal `[data-so="journal-noticed"]` with "Show in chat" jump, log row
+  "Noticed something" (only for shown lines). `display.observations: false`. Feature `observations` ("Things you notice").
+- Slice 4: Studio `ObservationsEditor` (Story features), typed mutations `setObservations`, `updateObservation`,
+  `removeObservation`, `setObservationsShown`; wizard tools `setObservation`, `removeObservation` (edit family, review);
+  diagnostics `observation-imposes-mind`, `observation-instructs`, `observation-never-read`, `observation-gate-holds-at-start`,
+  `disclosure-names-unknown-entity` reused; guide topic `observations` (+ compact twin, group, Studio tab), `docs:guide`,
+  `docs:settings`; plan 24 matrix row.
+
+Floors (frozen corpus `test/fixtures/observations-corpus.json`, 40 synthetic lines over the codex lab):
+- O1 40/40 (`src/engine/observations.test.ts`), including codex-latch gates on no-transition boundaries (lands next boundary)
+  and on transition boundaries (after-entry pass); passive rolls chosen to hold for every seed. Time-keyed gates not in the
+  corpus (the lab has no clock).
+- O2 12/12 cuts: rollback ≡ replay to the cut and back to the straight run, engine state; records `rollbackObservations` ≡
+  replay (`src/runtime/observations.review.test.ts`).
+- O3 deterministic half 0/0/0: lexical lint zero imposes/instructs over the 40; page-only import guard (only page and record
+  modules import the projection/records; nothing in `INJECTION_REGISTRY`); unknown entity and held-secret filter tests (secret in
+  known words, narrator who privately knows, secret after the latch). The second-model review (CL, sol): NOT run: no model
+  passes in this build (owner 2026-10-21).
+- O4 task run: NOT run (owner or delegated rater; synthetic story owed).
+
+Commands and results (final tree `HEAD`):
+- `npm run gates -- --no-storybook`: `gates: all green in 158.0s` (build, typecheck, typecheck:test, test 847 suites / 9823 passed + 1 skipped, test:replay, test:debug, debug:typecheck, test:release, test:plugin, lint all ok); earlier runs on this branch fixed: arrival golden row, plan 24 matrix row, a story regex; `childTree.test.mts` failed once under load and passed alone and in every later run. `--no-storybook` because port 6006 (Storybook's fixed port) was held by
+  another worktree's gate run for most of the session; a full `npm run gates` started when the port was free lost it to
+  `EADDRINUSE` mid-run (recorded RED, environment).
+- Storybook on its own port (same scripts, `.sb-static` on 6108): `npm run storybook:build`, then `http-server .sb-static -p 6108`
+  + `test-storybook --url http://127.0.0.1:6108 --maxWorkers 4`: 157 suites, 952 tests passed (after fixing NoticedMany: Storybook supplies `onJump` as an action arg).
+- Main bundle 1,294,581 B (master 1,291,214 B, +3,367 B; budget 1,300,000).
+- No-model lane 44 (default lanes root, ST code copy `C:\dev\st-v29-08` with `node_modules` junctioned, staged there with
+  `npm run stage -- --st-root C:/dev/st-v29-08` so the owner's ST slot was not touched; images off in the lane, sprites not
+  enabled): `ST_ROOT=C:/dev/st-v29-08 node scripts/debug/st-lanes.mts run 44 -- scripts/debug/so-scenario.mts run
+  test/scenarios/v29-08-observations.json --sandbox --group "Group: Arin, DM Narrator"`: ok, 22 steps, cleanup clean, twice
+  (evidence `C:\dev\so-lanes\44\debug\runs\2026-10-22T00-18-08-921Z-so-scenario-run`, `...00-20-26-725Z...`), and once with
+  `ST_DEBUG_VIEWPORT=390x844` (`...00-21-12-384Z...`). Covers plain + passive landing, the missed line absent, author roll chips,
+  the story card notice in player mode, `assert-player-clean` before and after the swipe, reopen keeps, swipe takes back, second
+  reopen equals replay. The two failed requests per run are `text-completions/props` 500 on the no-model lane. Lane stopped.
+
+NOT run: no GPU (owner 2026-10-21):
+- Payload golden capture/diff: not run (no lane capture was made for it); no payload fixture has observations and the only
+  request change is discovery-scope gate keys for stories that have them.
+- Slice 4 real wizard call on the authoring role (CL); deterministic tool tests only (`observationTools.review.test.ts`).
+- O3 second-model review, O4, final-suite played row with Artemis.
+
+Deviations:
+- Records split into a main door + lazy kit to keep the main bundle near budget; a boundary before the kit loads records
+  nothing (the latch stays the truth; the Journal then has no jump link for that line).
+- Log row reuses kind `learned` (no new `LOG_KINDS` value).
+- Observation roll chips are in the snapshot only in Author view (stricter than checks).
+- 09's state mapping / parity fixtures not extended: 09 is not on this base.
+
+Unresolved (from the plan, unchanged): re-roll a missed passive line on re-entry (v1: never); Ask projection; caps (60/3);
+O4 rater and wording; same-pass latch visibility.
