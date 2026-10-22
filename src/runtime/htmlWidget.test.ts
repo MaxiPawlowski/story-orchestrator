@@ -1,6 +1,6 @@
 import {
   BRIDGE, ERRORS, FRAME_CSP, FRAME_HEIGHT, FRAME_SANDBOX, INTENT_INTERVAL_MS, appendAudit, buildSrcdoc, carriesNonce, createNonce, dataNotification, frameHelper, frameMayTalk,
-  frameOnFirstLoad, handleViewMessage, unsignedAudit, type BridgeContext,
+  frameMayReceiveData, handleViewMessage, unsignedAudit, type BridgeContext,
 } from "./htmlWidget";
 import { journalWorthy } from "./htmlWidgetAudit";
 import type { WidgetView } from "./gameTypes";
@@ -47,8 +47,17 @@ describe("a frame that navigated itself is cut off (v2.8 small fixes 5)", () => 
     expect([0, 1, 2, 3].map(frameMayTalk)).toEqual([true, true, false, false]);
   });
 
-  test("data is pushed only while it shows its first load", () => {
-    expect([0, 1, 2].map(frameOnFirstLoad)).toEqual([false, true, false]);
+  test("data is pushed only while it shows its first load, and only after its own signed handshake", () => {
+    expect([0, 1, 2].map((loads) => frameMayReceiveData(loads, { lastIntentAt: null, initialized: true }))).toEqual([false, true, false]);
+    expect(frameMayReceiveData(1, { lastIntentAt: null })).toBe(false);
+  });
+
+  test("61b probe: only a signed initialized notification opens the data push, and an intent keeps it open", () => {
+    const opened = handleViewMessage({ jsonrpc: "2.0", method: BRIDGE.initialized, params: {} }, context());
+    expect(opened.state.initialized).toBe(true);
+    expect(handleViewMessage({ jsonrpc: "2.0", id: 1, method: BRIDGE.initialize, params: {} }, context()).state.initialized).toBeUndefined();
+    const paced = handleViewMessage({ jsonrpc: "2.0", id: 2, method: BRIDGE.intent, params: { id: "ask" } }, context({ state: opened.state }));
+    expect(paced.state).toEqual({ lastIntentAt: 10_000, initialized: true });
   });
 });
 

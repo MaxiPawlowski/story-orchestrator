@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { WidgetView } from "@runtime/gameTypes";
 import {
-  FRAME_HEIGHT, FRAME_SANDBOX, buildSrcdoc, carriesNonce, createNonce, dataNotification, frameData, frameMayTalk, frameOnFirstLoad, handleViewMessage, teardownNotification, unsignedAudit,
+  FRAME_HEIGHT, FRAME_SANDBOX, buildSrcdoc, carriesNonce, createNonce, dataNotification, frameData, frameMayReceiveData, frameMayTalk, handleViewMessage, teardownNotification, unsignedAudit,
   type AuditEntry, type BridgeState,
 } from "@runtime/htmlWidget";
 import type { WidgetDrawerTab } from "@engine/index";
@@ -61,7 +61,7 @@ export const HtmlWidgetFrame = ({ widget, onIntent, onOpen, onAudit, onNavigated
 
   useEffect(() => {
     const view = frame.current?.contentWindow;
-    if (!view || !frameOnFirstLoad(loads.current)) return;
+    if (!view || !frameMayReceiveData(loads.current, bridge.current)) return;
     const message = dataNotification(latest.current);
     view.postMessage(message, "*");
     handlers.current.onAudit({ at: handlers.current.now(), widgetId: latest.current.id, direction: "out", method: message.method, outcome: "ok" });

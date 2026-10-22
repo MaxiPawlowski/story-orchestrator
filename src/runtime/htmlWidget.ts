@@ -79,6 +79,7 @@ export interface JsonRpcReply {
 
 export interface BridgeState {
   lastIntentAt: number | null;
+  initialized?: boolean;
 }
 
 export interface BridgeContext {
@@ -122,7 +123,7 @@ export const dataNotification = (widget: WidgetView) => ({ jsonrpc: "2.0" as con
 
 export const frameMayTalk = (loads: number): boolean => loads <= 1;
 
-export const frameOnFirstLoad = (loads: number): boolean => loads === 1;
+export const frameMayReceiveData = (loads: number, state: BridgeState): boolean => loads === 1 && state.initialized === true;
 
 export const unsignedAudit = (widget: WidgetView, now: number): AuditEntry => ({ at: now, widgetId: widget.id, direction: "in", method: "(unsigned)", outcome: "refused", detail: ERRORS.unsigned });
 
@@ -151,7 +152,7 @@ export function handleViewMessage(raw: unknown, context: BridgeContext): BridgeO
     };
     return { reply: ok(result), audit: audit(raw.method, "ok"), state };
   }
-  if (raw.method === BRIDGE.initialized) return { reply: null, audit: audit(raw.method, "ok"), state };
+  if (raw.method === BRIDGE.initialized) return { reply: null, audit: audit(raw.method, "ok"), state: { ...state, initialized: true } };
   if (raw.method === BRIDGE.sizeChanged) {
     const height = typeof params.height === "number" && Number.isFinite(params.height) ? Math.round(params.height) : null;
     if (height === null) return { reply: null, audit: audit(raw.method, "refused", ERRORS.badHeight), state };
@@ -161,7 +162,7 @@ export function handleViewMessage(raw: unknown, context: BridgeContext): BridgeO
   if (!intent) return { reply: fail(-32602, ERRORS.unknownIntent), audit: audit(raw.method, "refused", params.id), state };
   if (state.lastIntentAt !== null && now - state.lastIntentAt < INTENT_INTERVAL_MS) return { reply: fail(-32000, ERRORS.tooSoon), audit: audit(raw.method, "refused", ERRORS.tooSoon), state };
   const result = intent.open ? context.open?.(intent.open) ?? { ok: false as const, reason: ERRORS.noOpen } : context.fill(intent.text);
-  const next = { lastIntentAt: now };
+  const next = { ...state, lastIntentAt: now };
   const reply = result.ok ? ok({ proposed: true }) : fail(-32001, result.reason);
   return { reply, audit: audit(raw.method, result.ok ? "ok" : "refused", result.ok ? intent.id : `${intent.id}: ${result.reason}`), intent: { intent, result }, state: next };
 }

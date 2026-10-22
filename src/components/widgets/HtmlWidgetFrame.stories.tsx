@@ -146,6 +146,40 @@ export const ARemountRotatesTheNonce: Story = {
   },
 };
 
+const Refreshing = (props: Parameters<typeof HtmlWidgetFrame>[0]) => {
+  const [round, setRound] = useState(0);
+  const source = { ...cluesWidget, title: `${cluesWidget.title} ${round}` };
+  const widget = { ...props.widget, body: props.widget.body.kind === "html" ? { ...props.widget.body, source } : props.widget.body };
+  return (
+    <div>
+      <button type="button" style={{ color: "#000", background: "#fff" }} onClick={() => setRound((value) => value + 1)}>Refresh</button>
+      <HtmlWidgetFrame {...props} widget={widget} />
+    </div>
+  );
+};
+
+const pushes = (onAudit: unknown) => audits(onAudit).filter((entry) => entry.direction === "out" && entry.method === "ui/notifications/widget-data").length;
+
+export const AFrameThatLeavesWhileParsingGetsNoData: Story = {
+  args: { widget: htmlWidget("<script>location.href='data:text/html,'+encodeURIComponent('<p>elsewhere</p>');</script>") },
+  render: (args) => <Refreshing {...args} />,
+  play: async ({ canvasElement, args }) => {
+    await new Promise((resolve) => setTimeout(resolve, 600));
+    await userEvent.click(within(canvasElement).getByRole("button", { name: "Refresh" }));
+    await new Promise((resolve) => setTimeout(resolve, 300));
+    await expect(pushes(args.onAudit)).toBe(0);
+  },
+};
+
+export const AnInitializedFrameGetsFreshData: Story = {
+  render: (args) => <Refreshing {...args} />,
+  play: async ({ canvasElement, args }) => {
+    await waitFor(() => expect(audits(args.onAudit).some((entry) => entry.method === "ui/notifications/initialized")).toBe(true), { timeout: 4000 });
+    await userEvent.click(within(canvasElement).getByRole("button", { name: "Refresh" }));
+    await waitFor(() => expect(pushes(args.onAudit)).toBe(1));
+  },
+};
+
 const primary = (canvasElement: HTMLElement) => canvasElement.querySelector('[data-so="html-widget"]');
 
 export const Phone: Story = fitsAt(VIEWPORTS.phone, primary);

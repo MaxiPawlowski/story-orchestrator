@@ -97,8 +97,13 @@ before the fix; every fix is one commit whose regression test fails on the old c
   checked secrets only when drafting. A director proposal now re-runs `guardDraft` at apply with the current inputs and is
   withdrawn; a curator op restating a held secret fails with `CURATOR_SECRET_REFUSAL` (tests "61b probe: …" in
   `livingCoordinator.review.test.ts` and `curatorCreate.review.test.ts`, both fail on the old code). HTML widget navigation
-  under sandbox/CSP: still open.
-- Living divergence reset for chats without a tracked living history.
+  under sandbox/CSP: **probed 2026-10-22** in Chrome 152: `allow-scripts` alone blocks popups, top navigation and forms, CSP
+  blocks images and fetches, but a frame may still navigate itself (script or `meta refresh`); CSP has no navigation
+  directive. Navigating after load is caught (second load, `onNavigatedAway`), only afterwards. Navigating while parsing
+  leaves one load, so the host kept pushing every data change to the page the frame went to: fixed, data is pushed only after
+  the frame's signed `initialized` (`frameMayReceiveData`; story `AFrameThatLeavesWhileParsingGetsNoData` fails on the old
+  code). Limit kept: a page that received its view can carry it out in the address it opens; the guide says so.
+- Living divergence reset for chats without a tracked living history: **fixed 2026-10-22** (`v2.8-queue-2026-10-22`, see the P1 living row above).
 - Curator patching a foreign-stamped entry in another chat: **fixed 2026-10-22** (`v2.8-queue-2026-10-22`): the curator's
   scope leaves out entries stamped only for another chat (`foreignStamped`, unknown chat fails closed), and the writer
   refuses one at the write edge (`FOREIGN_CREATED_REFUSAL`). Tests `createdStamp.test.ts` "61b: …" and
