@@ -22,3 +22,19 @@ export async function waitForTextPriority(deps: {
     await deps.sleep();
   }
 }
+
+export async function leaseOutsideTurns<Lease>(deps: {
+  acquire(): Promise<Lease>;
+  release(lease: Lease): Promise<void>;
+  loud(): Promise<boolean>;
+  sleep(): Promise<void>;
+  signal: AbortSignal;
+}): Promise<Lease> {
+  for (;;) {
+    while (await deps.loud()) { deps.signal.throwIfAborted(); await deps.sleep(); }
+    deps.signal.throwIfAborted();
+    const lease = await deps.acquire();
+    if (!await deps.loud()) return lease;
+    await deps.release(lease);
+  }
+}

@@ -1,4 +1,4 @@
-import { waitForTextPriority } from "./textPriority";
+import { leaseOutsideTurns, waitForTextPriority } from "./textPriority";
 
 test("another look render waits until every active and queued text request has cleared", async () => {
   const statuses = [{ activeText: 1, waitingText: 2 }, { activeText: 0, waitingText: 1 }, { activeText: 1, waitingText: 0 }, { activeText: 0, waitingText: 0 }];
@@ -33,4 +33,21 @@ test("a loud generation holds the render even when the broker is fair or silent;
   sleep.mockClear();
   await waitForTextPriority({ status: async () => null, loud: async () => loud > 0, current: () => true, now: () => time, sleep, signal: new AbortController().signal });
   expect(sleep).toHaveBeenCalledTimes(1);
+});
+
+test("a lease granted while a reply started is handed back and taken again once the reply is over", async () => {
+  const loud = [true, false, true, false, false], events: string[] = [];
+  let leases = 0;
+  const lease = await leaseOutsideTurns({ acquire: async () => { events.push("acquire"); return ++leases; }, release: async (held) => { events.push(`release ${held}`); },
+    loud: async () => loud.shift() ?? false, sleep: async () => { events.push("sleep"); }, signal: new AbortController().signal });
+  expect(lease).toBe(2);
+  expect(events).toEqual(["sleep", "acquire", "release 1", "acquire"]);
+});
+
+test("waiting out a reply stops when the render is cancelled", async () => {
+  const controller = new AbortController();
+  const acquire = jest.fn(async () => 1);
+  const waiting = leaseOutsideTurns({ acquire, release: async () => {}, loud: async () => true, sleep: async () => { controller.abort(); }, signal: controller.signal });
+  await expect(waiting).rejects.toThrow();
+  expect(acquire).not.toHaveBeenCalled();
 });

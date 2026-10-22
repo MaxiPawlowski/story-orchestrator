@@ -1,6 +1,7 @@
 import { comfyReference, comfyReleaseReference, comfyRenderOwned, saveGeneratedSprite } from "@services/stHost/media";
 import { eyeBoxes, eyeOpenness } from "./eyeOpen";
 import { reserveGpu, releaseGpu, renewGpu } from "@services/stHost/gpuBroker";
+import { hostGenerating, leaseOutsideTurns } from "./textPriority";
 import type { RunOwnership } from "@runtime/runToken";
 import { SpriteBuilder } from "./builder";
 import { decodeImage, encodeImage, cropReference, resizeEdit } from "./images";
@@ -47,8 +48,10 @@ export function createSpriteBuilder(ownership: RunOwnership): SpriteBuilder {
           { kind: "textEncoders", name: request.models.encoder.name },
           { kind: "vaes", name: request.models.vae.name },
          ] };
+      const reserve = () => leaseOutsideTurns({ acquire: () => reserveGpu(gpuRequest), release: async (held) => { if (held.lease) await releaseGpu(held.lease); },
+        loud: hostGenerating, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)), signal });
       const acquire = async () => {
-      const reservation = await reserveGpu(gpuRequest);
+      const reservation = await reserve();
       const timer = reservation.lease ? setInterval(() => { void renewGpu(reservation.lease).then((result) => {
         if (!result.ok) log.warn(result.reason);
       }).catch(() => {}); }, 30_000) : null;
