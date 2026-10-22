@@ -1,5 +1,6 @@
 import { defaultGlobalSettings } from "./settingsModel";
-import { AUTOMATIC_STAGE, featureSettings, featureStateWord, resolveFeatures } from "./featureResolve";
+import { AUTOMATIC_STAGE, featureSettings, resolveFeatures } from "./featureResolve";
+import { featureStateWord } from "./featureStatus";
 import { readFeaturePolicies } from "@engine/featurePolicy";
 import { applyDeviceSettings, deviceSettingsStore } from "./deviceSettings";
 

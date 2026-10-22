@@ -1,12 +1,12 @@
 export const HELP_COPY = {
   toggle: "Help: what each part does",
   heading: "Help",
-  intro: "Every part of Story Orchestrator, grouped by what it is for. Show me takes you to its setting; Read more opens its guide page.",
+  intro: "Every part of Story Orchestrator, grouped by what it is for, with what this chat has on and who chose it. Show me takes you to its setting; Read more opens its guide page.",
   search: "Search features",
   searchPlaceholder: "memory, images, group…",
   noMatch: "Nothing matches. Try another word.",
-  on: "On",
-  off: "Off",
+  experimental: "Experimental",
+  openSetup: "Open setup",
   needs: "Needs",
   showMe: "Show me",
   readMore: "Read more",
@@ -23,6 +23,8 @@ export const HELP_COPY = {
   optional: "optional",
   done: "Done",
 } as const;
+
+export const HELP_SOURCE_LABELS = { install: "Install", story: "Story", chat: "This chat", device: "This device" } as const;
 
 export const BRIEFING_COPY = {
   beforeYouStart: "Before you start",

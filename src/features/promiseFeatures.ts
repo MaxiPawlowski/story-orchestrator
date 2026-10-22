@@ -10,6 +10,5 @@ export const PROMISE_FEATURES: readonly Feature[] = [
       + "it never decides for you whether you keep it. Your open promises show in the Overview as your own quoted words. A swipe or edit takes a promise back.",
     where: drawerAt("#so-player-promises", "Overview › Your promises"),
     settings: ["memory.promises"], guideTopic: "quests", doc: authorGuideDoc("quests"), status: "shipped", needs: ["story", "group-chat", "memory-profile"],
-    isOn: (settings) => settings.memory.promises !== false,
   },
 ];

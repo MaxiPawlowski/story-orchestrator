@@ -182,7 +182,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | World | New lorebook entries | The curator proposes a new keyed entry for something play has established. |  |
 | World | Protected and auto lore | Markers in a lorebook entry keep words safe from the curator, or let its changes apply on their own. |  |
 | World | Story scenario | A turning point can set the chat's scenario text, in place of every character card's own. |  |
-| World | Off-stage events | Proposes what a character did off stage toward their plan, for you to accept. | Experimental |
+| World | Off-stage events | Adds what a character did off stage toward their plan; it applies on its own by default. | Experimental |
 | World | Living stories | A story that writes its next turning point ahead of you, from what you actually pursued. | Experimental |
 | World | Branches that follow you | When you leave the prepared ways forward, the story writes a branch that follows you and later comes back. | Experimental |
 | World | Scene test | Before the living director writes a turning point, a seeded draw may tell it the scene arrives changed or that the world acts first. | Experimental |
@@ -216,7 +216,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Setup | Carried thought | When no private intent is ready, a character keeps the aim from its own last thought. | Experimental |
 | Setup | Repair | Names the one thing missing and takes you to the setting that fixes it. |  |
 | Setup | Getting started | A short checklist: memory model first, then the optional judge and images. |  |
-| Setup | Help | This list: every feature, whether it is on, and where to find it. |  |
+| Setup | Help | This list: every feature, whether it is on in this chat and who chose that, and where to find it. |  |
 | Setup | Ask | Ask about Story Orchestrator, SillyTavern or your story. It only reads. |  |
 | Setup | Host capabilities | Checks that SillyTavern has everything the extension needs, and copies a bug report. |  |
 | Setup | Experiments | Unmeasured trials. | Experimental |

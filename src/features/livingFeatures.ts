@@ -12,7 +12,6 @@ export const LIVING_FEATURES: readonly Feature[] = [
     where: featureAt("living", "enabled", "Living stories"),
     settings: ["stagecraft.livingEnabled"], guideTopic: "living-director", doc: authorGuideDoc("living-director"), status: "experimental",
     needs: ["story", "group-chat", "memory-profile"],
-    isOn: (settings) => settings.stagecraft.livingEnabled !== false,
   },
   {
     id: "story-branching", name: "Branches that follow you", area: "world", audience: "author",
@@ -22,7 +21,6 @@ export const LIVING_FEATURES: readonly Feature[] = [
     where: featureAt("branching", "enabled", "Branches that follow you"),
     settings: ["stagecraft.branchingEnabled", "stagecraft.prefetchEnabled"], guideTopic: "branching", doc: authorGuideDoc("branching"), status: "experimental",
     needs: ["story", "group-chat", "memory-profile"],
-    isOn: (settings) => settings.stagecraft.branchingEnabled !== false,
   },
   {
     id: "scene-test", name: "Scene test", area: "world", audience: "author",

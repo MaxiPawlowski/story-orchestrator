@@ -1,6 +1,7 @@
 import { useId, useState, type ReactNode } from "react";
 import { featuresByArea, guideUrl, matchesQuery, NEED_LABELS, type Feature, type FeatureWhere } from "@features/registry";
-import { GUIDE_COPY, HELP_COPY } from "@features/helpCopy";
+import { GUIDE_COPY, HELP_COPY, HELP_SOURCE_LABELS } from "@features/helpCopy";
+import type { HelpRowState } from "@runtime/helpFeatureState";
 
 export interface HelpGuideTopic {
   id: string;
@@ -9,9 +10,17 @@ export interface HelpGuideTopic {
   doc: string;
 }
 
+export interface HelpFinding {
+  check: string;
+  text: string;
+}
+
 export interface HelpPanelProps {
   features: readonly Feature[];
-  isOn: (feature: Feature) => boolean | null;
+  stateOf: (feature: Feature) => HelpRowState | null;
+  whereOf?: (feature: Feature) => FeatureWhere | null;
+  findingsOf?: (feature: Feature) => readonly HelpFinding[];
+  onOpenSetup?: () => void;
   homePage: string;
   guideTopics?: readonly HelpGuideTopic[];
   onShowMe?: (where: FeatureWhere) => void;
@@ -37,28 +46,49 @@ const ReadMore = ({ doc, homePage, onOpenDoc }: { doc: string; homePage: string;
 
 interface FeatureRowProps {
   feature: Feature;
-  on: boolean | null;
+  state: HelpRowState | null;
+  where: FeatureWhere | null;
+  findings: readonly HelpFinding[];
   homePage: string;
   onShowMe?: (where: FeatureWhere) => void;
   onOpenDoc?: (doc?: string) => void;
+  onOpenSetup?: () => void;
 }
 
-const FeatureRow = ({ feature, on, homePage, onShowMe, onOpenDoc }: FeatureRowProps) => {
+const StateChips = ({ state }: { state: HelpRowState }) => <>
+  {state.parts.map((part, index) => <span key={part.label ?? index} data-so="help-state" data-on={part.on} data-source={part.source ?? "none"} className="flex flex-wrap items-center gap-1 text-xs">
+    {part.label && <span className="opacity-80">{part.label}:</span>}
+    <span className={part.on ? "so-success-text" : "opacity-70"}>{part.word}</span>
+    {part.source && <span data-so="help-source" className="so-source-chip">{HELP_SOURCE_LABELS[part.source]}</span>}
+  </span>)}
+</>;
+
+const FeatureRow = ({ feature, state, where, findings, homePage, onShowMe, onOpenDoc, onOpenSetup }: FeatureRowProps) => {
+  const setup = state?.parts.flatMap((part) => (part.setup ? [part.label ? `${part.label}: ${part.setup}` : part.setup] : [])) ?? [];
   return (
     <li data-so="help-feature" data-feature={feature.id} data-audience={feature.audience} className="so-help-feature flex flex-col gap-1">
       <div className="flex flex-wrap items-center gap-2">
         <span className="font-medium">{feature.name}</span>
-        {on !== null && <span data-so="help-state" data-on={on} className={`text-xs ${on ? "so-success-text" : "opacity-70"}`}>{on ? HELP_COPY.on : HELP_COPY.off}</span>}
+        {state && <StateChips state={state} />}
+        {feature.status === "experimental" && <span data-so="help-experimental" className="text-xs opacity-70">{HELP_COPY.experimental}</span>}
       </div>
+      {setup.map((line) => <div key={line} data-so="help-setup" className="text-xs so-warning-text">{line}</div>)}
       <div className="text-xs">{feature.oneLine}</div>
       <details className="text-xs">
-        <summary className="cursor-pointer opacity-80">{HELP_COPY.where}: {feature.where.label}</summary>
+        <summary className="cursor-pointer opacity-80">{HELP_COPY.where}: {(where ?? feature.where).label}</summary>
         <div className="pt-1">{feature.what}</div>
       </details>
       {feature.needs?.length ? <div data-so="help-needs" className="text-xs opacity-70">{HELP_COPY.needs}: {feature.needs.map((need) => NEED_LABELS[need]).join(", ")}</div> : null}
+      {findings.length > 0 && <ul data-so="help-findings" className="flex flex-col gap-1 text-xs">
+        {findings.map((finding) => <li key={finding.check} data-so="help-finding" data-check={finding.check} className="flex flex-wrap items-center gap-2">
+          <span>{finding.text}</span>
+          {onOpenSetup && <button type="button" data-so="help-finding-show-me" className="menu_button text-xs" onClick={onOpenSetup}>{HELP_COPY.openSetup}</button>}
+        </li>)}
+      </ul>}
       <div className="flex flex-wrap items-center gap-2">
-        {onShowMe && canShow(feature.where) && (
-          <button type="button" data-so="help-show-me" className="menu_button text-xs" onClick={() => onShowMe(feature.where)}>{HELP_COPY.showMe}</button>
+        {onShowMe && where && canShow(where) && (
+          <button type="button" data-so="help-show-me" data-target={where.workspace?.control ?? where.selector.replace(/^#/, "")} className="menu_button text-xs"
+            onClick={() => onShowMe(where)}>{HELP_COPY.showMe}</button>
         )}
         <ReadMore doc={feature.doc} homePage={homePage} onOpenDoc={onOpenDoc} />
       </div>
@@ -66,7 +96,7 @@ const FeatureRow = ({ feature, on, homePage, onShowMe, onOpenDoc }: FeatureRowPr
   );
 };
 
-export function HelpPanel({ features, isOn, homePage, guideTopics = [], onShowMe, onOpenDoc, onClose, onTour, ask }: HelpPanelProps) {
+export function HelpPanel({ features, stateOf, whereOf, findingsOf, onOpenSetup, homePage, guideTopics = [], onShowMe, onOpenDoc, onClose, onTour, ask }: HelpPanelProps) {
   const [query, setQuery] = useState("");
   const searchId = useId();
   const shown = features.filter((feature) => matchesQuery(feature, query));
@@ -90,7 +120,8 @@ export function HelpPanel({ features, isOn, homePage, guideTopics = [], onShowMe
         <div key={group.area} data-so="help-area" data-area={group.area} className="flex flex-col gap-1">
           <div className="font-medium text-xs uppercase opacity-80">{group.label}</div>
           <ul className="so-help-list flex flex-col gap-2">
-            {group.features.map((feature) => <FeatureRow key={feature.id} feature={feature} on={isOn(feature)} homePage={homePage} onShowMe={onShowMe} onOpenDoc={onOpenDoc} />)}
+            {group.features.map((feature) => <FeatureRow key={feature.id} feature={feature} state={stateOf(feature)} where={whereOf ? whereOf(feature) : feature.where}
+              findings={findingsOf?.(feature) ?? []} homePage={homePage} onShowMe={onShowMe} onOpenDoc={onOpenDoc} onOpenSetup={onOpenSetup} />)}
           </ul>
         </div>
       ))}

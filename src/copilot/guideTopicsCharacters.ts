@@ -11,6 +11,7 @@ export const CHARACTER_TOPICS = {
       + "both are present, at most step a turn, seen only by the holder and Author view. mood {baseline, values, lasts}: re-read after a scene change, else "
       + "baseline. agenda [{id, goal, steps [{text, when, effect: world_info|npc_replies, public, repeat}], pace per_n_boundaries|per_chapter (needs chapters), "
       + "every}] moves in code, never on OOC. schedule [{when, at}]: away drops a member from speakers; addressed, the narrator says they are not here. "
+      + "Off-stage events: auto by default. "
       + "Time of day and day count: see story-time.",
   },
   factions: {

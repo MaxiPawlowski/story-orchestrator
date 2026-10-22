@@ -53,6 +53,7 @@ Work on the extension itself.
 - [Architecture](../dev/architecture.md)
 
 This guide also ships inside the extension: **Orchestrator → Help → Open the guide**, `/story guide`, or the **?** beside any
-settings section. **Orchestrator → Help → Help and Ask** opens the feature index with its Ask box. Author pages
+settings section. **Orchestrator → Help → Help and Ask** opens the feature index with its Ask box; each feature says what this chat has (on,
+off and by whom: Install, Story or This chat, or what it waits for), and without a story the defaults new stories start from. Author pages
 show there only in Author view. A guided tour with an example on every step sits beside it: **Orchestrator → Help →
 Take the tour**, or `/story tour` (`player`, `author` or `setup`). Its **Read more** links open these pages.
