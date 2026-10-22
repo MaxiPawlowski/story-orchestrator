@@ -10,7 +10,7 @@ import {
   forgetDecline, mergeDeclined, refuseProtected, rememberDecline, routeByTier, standingDeclines,
   anyWardenFamily, composeWardenNote, newestCarriedNote, wardenFamilyMode, wardenFlagJournal, wardenNoteJournal, wardenNoteOps,
   wardenReason, wardenSummary, withdrawRemovedRules, type WardenCheckFinding, type WardenCheckInput,
-  type WardenFamiliesActive, type WriteAheadCounts,
+  type WardenFamiliesActive, type WriteAheadCounts, CURATOR_SECRET_REFUSAL, curatorOpText,
   capRefusal, createCapFor, isCreateOp, newEntriesText, type CreatedEntry, type CreatedStampOwner,
 } from "@stagecraft/index";
 import { carriesInto, INJECTION_REGISTRY } from "@constants/injectionRegistry";
@@ -34,7 +34,7 @@ export interface StagecraftCoordinatorDeps {
   getStagecraft: () => StagecraftRuntimeState;
   setStagecraft: (next: StagecraftRuntimeState) => void;
   model: ModelCall;
-  getCanon: () => string;
+  getCanon: () => string; restatesSecret?: (text: string) => boolean;
   getOpenArcs: () => string[];
   filterEntries?: (entries: CuratorEntryView[], context: { checkpoint: { name: string; objective: string }; canon: string; openThreads: string[] }) => Promise<CuratorEntryView[]>;
   warden?: {
@@ -329,8 +329,10 @@ export class StagecraftCoordinator {
           ops.push(entry);
           continue;
         }
-        if (isCreateOp(entry.op) && (this.state.created ?? []).length + created.length >= cap) {
-          ops.push({ ...entry, status: "failed", message: capRefusal(cap) });
+        const refusal = this.deps.restatesSecret?.(curatorOpText(entry.op)) ? CURATOR_SECRET_REFUSAL
+          : isCreateOp(entry.op) && (this.state.created ?? []).length + created.length >= cap ? capRefusal(cap) : null;
+        if (refusal) {
+          ops.push({ ...entry, status: "failed", message: refusal });
           continue;
         }
         const result = await kit.writer.writeOp(story, entry, run, messageId, async (pending) => kit.writer.markWriteAhead(record.id, index, pending));

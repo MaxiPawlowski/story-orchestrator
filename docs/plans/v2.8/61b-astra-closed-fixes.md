@@ -92,7 +92,11 @@ before the fix; every fix is one commit whose regression test fails on the old c
 - Open-stretch offers: one candidate per player turn, reversible offer receipts and cooldown, public-thread movement in the
   quiet read; refusal never raises pressure.
 - Agency: constrain director fields to world events, NPC intentions and opportunities (beyond the regex guard).
-- Probes: held-secret recheck at curator/director accept; HTML widget navigation under sandbox/CSP.
+- Probes: held-secret recheck at curator/director accept: **probed and fixed 2026-10-22** (`v2.8-queue-2026-10-22`): both
+  checked secrets only when drafting. A director proposal now re-runs `guardDraft` at apply with the current inputs and is
+  withdrawn; a curator op restating a held secret fails with `CURATOR_SECRET_REFUSAL` (tests "61b probe: …" in
+  `livingCoordinator.review.test.ts` and `curatorCreate.review.test.ts`, both fail on the old code). HTML widget navigation
+  under sandbox/CSP: still open.
 - Living divergence reset for chats without a tracked living history.
 - Curator patching a foreign-stamped entry in another chat.
 - Player-experience suggestions, v2.7 review section 2: still-catching-up vs failed suggestion copy and distinct attempt

@@ -18,8 +18,8 @@ const answer = (index: number, patch: Record<string, unknown> = {}) => JSON.stri
   ...patch,
 });
 
-const inputs = (refused: string | null = null): LivingInputs => ({
-  canon: "", openThreads: [], resolvedThreads: [], plans: [], refused, playerNames: ["Max"], tension: null, restatesSecret: () => false, scrub: (text) => text,
+const inputs = (refused: string | null = null, restatesSecret: (text: string) => boolean = () => false): LivingInputs => ({
+  canon: "", openThreads: [], resolvedThreads: [], plans: [], refused, playerNames: ["Max"], tension: null, restatesSecret, scrub: (text) => text,
 });
 
 const OFF_SCRIPT = "I walk away from the ford and follow the miller's dog into the reeds.";
@@ -31,6 +31,7 @@ interface RigOptions {
   judge?: Array<DivergenceAnswer | null>;
   prefetch?: boolean;
   refused?: string | null;
+  restates?: (text: string) => boolean;
 }
 
 const rig = (options: RigOptions = {}) => {
@@ -73,7 +74,7 @@ const rig = (options: RigOptions = {}) => {
     prefetch: () => options.prefetch ?? true,
     authorView: () => extras.authorView,
     sealsOn: () => true,
-    inputs: () => inputs(options.refused ?? null),
+    inputs: () => inputs(options.refused ?? null, options.restates),
     recentTurns: async () => ["Max: I walk away from the ford and follow the miller's dog into the reeds."],
     chatRows: () => rows,
     askDivergence: async () => { judgeCalls.count += 1; hooks.duringJudge?.(); return judge.shift() ?? null; },
@@ -120,6 +121,18 @@ describe("v2.8 22 living director at runtime", () => {
     expect(rigged.extras.living?.ops.every((op) => op.boundary === result.boundary)).toBe(true);
     expect(rigged.coordinator.due()).toBe(false);
     expect(rigged.calls.journal).toContain("the story grew: 1 director change(s) applied");
+  });
+
+  it("61b probe: a turning point that restates a secret held only after it was drafted is withdrawn at apply, not written", async () => {
+    let held = false;
+    const rigged = rig({ answers: [answer(1)], restates: (text) => held && /Turn 1/.test(text) });
+    const proposal = await rigged.coordinator.propose();
+    expect(proposal?.status).toBe("accepted");
+    held = true;
+    await rigged.commit();
+    expect(rigged.loaded.story.checkpointById.liv_1).toBeUndefined();
+    expect(rigged.extras.living?.proposals.find((row) => row.id === proposal?.id)).toMatchObject({ status: "withdrawn" });
+    expect(rigged.extras.living?.proposals.find((row) => row.id === proposal?.id)?.reason).toMatch(/keeps private/);
   });
 
   it("in suggest mode waits for the author, and an edit lands in the graph", async () => {

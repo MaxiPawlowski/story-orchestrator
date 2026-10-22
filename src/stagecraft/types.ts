@@ -35,6 +35,9 @@ export type CreateCuratorOp = Extract<WiCuratorOp, { kind: "create" }>;
 
 export const isCreateOp = (op: CuratorOp): op is CreateCuratorOp => op.kind === "create";
 
+export const CURATOR_SECRET_REFUSAL = "Not written: it restates something a character keeps private.";
+export const curatorOpText = (op: CuratorOp): string => (op.kind === "rewrite" || op.kind === "create" ? op.text : op.kind === "patch" ? op.replace : "");
+
 export interface CreatedEntry {
   lorebook: string;
   lorebookFileId: string;

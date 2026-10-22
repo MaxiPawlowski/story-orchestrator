@@ -272,6 +272,7 @@ export function wireCoordinators(port: ManagerPort) {
     setStagecraft: (next) => { port.extras().stagecraft = next; },
     getCanon: () => memory.canon.getCanon(),
     getOpenArcs: () => restingTexts(memory, memory.getOpenArcs().map((text) => ({ text }))).map((arc) => arc.text),
+    restatesSecret: (text) => text.trim() !== "" && memory.injector.restingFilter()(text).trim() !== text.trim(),
     filterEntries: createCuratorFilter(() => port.judge()),
     warden: createWarden(() => port.judge(), view, {
       facts: () => restingTexts(memory, establishedFacts(port.extras().memory.entries, memory.getLedger(), memory.boundProvenance(), port.extras().memory.conflicts)),

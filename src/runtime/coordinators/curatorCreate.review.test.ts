@@ -4,6 +4,7 @@ import { ModelCallError } from "@extraction/modelError";
 import { parseStoryOrThrow, type EngineState, type NormalizedStory } from "@engine/index";
 import { createEligibility, type CreateEligibilityRow, type CuratorEntryView, type CuratorOpRecord, type CuratorProposalRecord, type NearDup, type NearDupSubject } from "@stagecraft/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
+import { CURATOR_SECRET_REFUSAL } from "@stagecraft/index";
 import { createExtras, createStagecraft, sanitizeStagecraft, stripGlobalSettings } from "../extras";
 import { defaultGlobalSettings } from "../settingsModel";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
@@ -79,6 +80,7 @@ interface Options {
   cap?: number;
   owner?: { chatId: string; groupId: string | null } | null;
   nearDups?: (subjects: NearDupSubject[], entries: CuratorEntryView[]) => Promise<NearDup[][] | null>;
+  restatesSecret?: (text: string) => boolean;
 }
 
 const harness = (options: Options = {}) => {
@@ -102,6 +104,7 @@ const harness = (options: Options = {}) => {
     model: textModel(model),
     getCanon: () => "",
     getOpenArcs: () => [],
+    ...(options.restatesSecret ? { restatesSecret: options.restatesSecret } : {}),
     lore: {
       facts: () => options.facts ?? FACTS,
       roster: () => ["Mira"],
@@ -218,6 +221,18 @@ describe("v2.8 11: the curator create op, end to end through the coordinator", (
     expect(env.creates()[0].entry).toMatchObject({ status: "applied", target: { lorebookFileId: "Story Lore", uid: created?.uid } });
     expect(env.read().created).toEqual([expect.objectContaining({ lorebook: "Story Lore", comment: "Oskar", uid: created?.uid })]);
     expect(env.journal).toContain("World Info curator created 1 new entry");
+  });
+
+  it("61b probe: an accepted card that restates a secret held since the proposal is not written, and says why", async () => {
+    let held = false;
+    const env = harness({ restatesSecret: (text) => held && /boatwright/.test(text) });
+    await env.coordinator.runCreatePass("checkpoint", OSKAR);
+    const [card] = env.creates();
+    await env.coordinator.setOpDecision(card.record.id, card.index, "accepted");
+    held = true;
+    expect(await env.coordinator.applyAccepted()).toBe(0);
+    expect(Object.values(books.get("Story Lore") ?? {}).some((entry) => entry.comment === "Oskar")).toBe(false);
+    expect(env.creates()[0].entry).toMatchObject({ status: "failed", message: CURATOR_SECRET_REFUSAL });
   });
 
   it("the author's edit to the card is what gets written", async () => {

@@ -11,6 +11,7 @@ import {
 import { compactOps, dropOpsAfter, graphEpoch, livingRaw } from "@generation/living/fold";
 import { findFrontier, livingAutonomy } from "@generation/living/frontier";
 import { checkDirectorOps } from "@generation/living/plan";
+import { guardDraft } from "@generation/living/guard";
 import { dropSceneTestsAfter, planSceneTest, retainSceneTests, sceneTestFor, sceneTextsSafe, type SceneIds, type SceneTestRecord } from "@generation/living/sceneTest";
 import {
   createDivergenceState, createLivingState, LIVING_OP_CAP, LIVING_PREFETCH_WHY, LIVING_PROPOSAL_LIMIT,
@@ -385,6 +386,7 @@ export class LivingCoordinator {
     let current: LivingRuntimeState = this.state.authored ? this.state : { ...this.state, authored: { raw: loaded.raw, hash: loaded.hash } };
     const applied: string[] = [];
     const switched: string[] = [];
+    let inputs: LivingInputs | null = null;
     for (const proposal of accepted) {
       const off = this.switchedOff(proposal);
       if (off) {
@@ -398,6 +400,7 @@ export class LivingCoordinator {
         raw: loaded.raw, story, frontierId: proposal.frontierId, ops: proposal.ops, values: state.blackboard.values, latched: state.blackboard.latched ?? {},
         ...(proposal.convergeTo ? { convergeTo: proposal.convergeTo } : {}),
       });
+      if (check && proposal.draft) check.issues.push(...guardDraft(proposal.draft, (inputs ??= this.deps.inputs())));
       if (!check || check.issues.length) {
         current = patchProposal(current, proposal.id, { status: "withdrawn", reason: check ? check.issues.join("; ") : "the story moved on before it applied" });
         continue;
