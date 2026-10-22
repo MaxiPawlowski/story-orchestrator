@@ -205,6 +205,11 @@ describe("runDiagnostics", () => {
         roster: [{ id: "arin", name: "Arin", polish: { notes: "Teases {{user}} about everything." } }, { id: "bo", name: "Bo", polish: { notes: "Speaks of the ferryman with awe." } },
           { id: "cy", name: "Cy", polish: { notes: "x ".repeat(150).trim(), prefer: Array.from({ length: 12 }, (_, index) => `a long preferred phrase ${index}`) } }],
       }),
+      ...runDiagnostics({
+        ...clean, codex: { people: [{ id: "tobin", name: "Tobin", known_when: { q: "trust", op: ">=", v: 1 }, facts: [] }] },
+        quests: [{ id: "ferry", title: "Ferry", kind: "side", done_when: { q: "trust", op: ">=", v: 2 }, steps: [] }],
+        patterns: [{ id: "p", steps: [{ kind: "quest", id: "ferry", to: "failed" }], label: { text: "Tobin remembers it, because the ferry failed." } }],
+      }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

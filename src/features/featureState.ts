@@ -36,6 +36,7 @@ export const FEATURE_STATE: Readonly<Record<string, FeatureStateRow>> = {
   sprites: master("sprites"),
   "pose-library": master("poses"),
   "character-delivery": master("delivery"),
+  "story-patterns": master("patterns"),
 };
 
 export const UNMAPPED_STORY_FEATURES: Readonly<Partial<Record<StoryFeatureId, string>>> = {

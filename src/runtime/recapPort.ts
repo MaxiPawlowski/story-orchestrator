@@ -31,6 +31,8 @@ export interface RecapRuntimeState {
 
 export const RECAP_REF_CAP = 600;
 
+export type RecapOutcome = { derived: EffectRef[] } | { unavailable: "kit" };
+
 type RecapKit = typeof import("./consequences");
 
 let kit: RecapKit | null = null;
@@ -64,16 +66,19 @@ export interface RecapPortDeps {
 
 export function createRecapPort(deps: RecapPortDeps) {
   return {
-    onBoundary(result: BoundaryResult) {
+    onBoundary(result: BoundaryResult): RecapOutcome | null {
       const loaded = deps.loaded();
       const entry = deps.engine.stateLog.at(-1);
-      if (!loaded || !entry || entry.boundary !== result.boundary || !kit) return;
+      if (!loaded || !entry || entry.boundary !== result.boundary) return null;
+      if (!kit) return { unavailable: "kit" };
       const extras = deps.extras();
-      const next = appendRefs(extras.recap, kit.deriveRefs(loaded.story, entry, extras.checks?.records ?? []));
-      if (next === extras.recap) return;
+      const derived = kit.deriveRefs(loaded.story, entry, extras.checks?.records ?? []);
+      const next = appendRefs(extras.recap, derived);
+      if (next === extras.recap) return { derived };
       extras.recap = next;
       void deps.persist();
       deps.notify();
+      return { derived };
     },
   };
 }

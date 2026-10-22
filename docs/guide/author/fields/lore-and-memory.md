@@ -12,6 +12,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 - [House rules](#house-rules)
 - [Chapters](#chapters)
 - [Consequences recap](#consequences)
+- [Story patterns (callbacks)](#patterns)
 - [Outcome a next story can carry](#outcome)
 - [Carry from a finished run](#carry-from)
 
@@ -130,6 +131,20 @@ Fields: `recap` and `recap_when` on `transitions[]`, `quests[]` (`recap: {done?,
 - **Good.** `{"from": "board", "to": "gate", "gate": {"q": "posting", "op": "==", "v": "taken"}, "priority": 1, "recap": {"text": "The garrison opened its gates.", "because": "Because you took the posting, the garrison opened its gates."}}` with `"player_action": {"taken": "took the posting"}` on `posting`.
 - **Bad.** A recap line that names a place the player has not reached or a quest still hidden: the line is dropped (and the neutral line with it if that also names it). A `because` written as plain `text`: it would be shown even when an NPC caused the change.
 - **If wrong.** `recap_when` without `recap`, a `player_action` on a value with no `commit_evidence`, or a line over 240 characters stops the story loading.
+
+<a id="patterns"></a>
+
+## Story patterns (callbacks)
+
+Topic `patterns`.
+
+Fields: `patterns[]` (`id`, `steps` with `kind`, `id`, `to`, `where`; `unless` with `between`; `within`, `repeat`, `label.text`, `hint`, `pending`) (`engine/patternSchema.ts`, `validate/patterns.ts`, `runtime/patterns.ts`, `runtime/patternsPort.ts`).
+
+- **What it does.** A pattern notices an order of things the player could see happen, and lets you call it back. Each step is one visible event: a reached checkpoint (`kind: "transition"`, attributes `to`, `from`, `chapter`), a quest that moved (`kind: "quest"`, `id`, `to` = offered, active, done or failed, `giver`), an earned milestone (`kind: "milestone"`, `id`) or a public check (`kind: "check"`, `id`, `outcome` = success, failure, miss, weak or strong, `quality`). `id` and `to` are shorthands for those attributes (on a check `to` is the outcome); `where` names any of them. A value written `"?name"` binds on its first step and must match on later ones ("the same giver"); a pattern uses at most two. At most 3 steps, matched in code at each turn in the order the story recorded them, never by a model; within one turn the order is the order the recap lists them (checkpoint, quests, milestones, checks), not the order of the prose. `unless` rows (`between: [i, j]`, steps counted from 1) cancel a match when such an event happens after step i and before step j. `within` limits the turns from the first step to the last (that many turns still match). `repeat: "once"` (the default) completes once per chat, even after an edit or after you remove and re-add it; `"each"` completes again, never reusing an event.
+- **What the player sees.** When a pattern completes, `label.text` is one line in What changed (an authored line, never "because you"), `hint` goes to the narrator for 3 turns as something to let colour the scene, and `pending` is the line other features read while exactly one step is left. Every one of them is withheld whole, not edited, when it names a place, quest or person the player has not met, or restates a secret the story keeps from the resting view; it is checked again each time it is shown. A swipe or edit takes the completion back with the turn. Author view lists live partial matches, cancelled and expired ones, completions and anything withheld (Author › Overview › Patterns).
+- **Good.** `{ "id": "two-favours", "steps": [{ "kind": "quest", "to": "done", "where": { "giver": "?who" } }, { "kind": "quest", "to": "done", "where": { "giver": "?who" } }], "label": { "text": "Two favours done for the same patron." }, "pending": "One more favour for a familiar patron would make two." }`; `{ "id": "second-try", "steps": [{ "kind": "check", "id": "climb", "to": "failure" }, { "kind": "check", "id": "climb", "to": "success" }], "within": 10, "hint": "The cliff that beat them once has now been climbed." }`.
+- **Bad.** A label that explains why ("because you were kind, …"): a pattern sees order, not cause (`pattern-label-claims-cause`). A label naming someone the player meets later (`pattern-label-names-unknown-entity`). A step on a checkpoint no path reaches, or a quest move the quest can never make (`pattern-never-completes`). A secret milestone, a hidden check or a living (`liv_`) checkpoint: refused, a pattern reads only what the player can see.
+- **If wrong.** An unknown kind, attribute, id or value, more than 3 steps or 2 variables, an `unless` naming a variable no earlier step binds, `within` outside 1 to 200, a text over 240 characters, or a pattern with no label, hint or pending line stops the story loading.
 
 <a id="outcome"></a>
 

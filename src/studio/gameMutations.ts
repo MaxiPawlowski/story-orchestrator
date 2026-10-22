@@ -1,10 +1,11 @@
 import type { CodexEntry, CodexPage, Faction, Milestone, Observation, QualityDisplay, Quest, RelationshipDecl, RosterMember, StoryCheck, StoryCodex, StoryWidget } from "@engine/index";
 import type { CalendarInput, Commitment, StoryClock } from "@engine/lifeSchema";
 import type { Rumor } from "@engine/rumorSchema";
+import type { StoryPattern } from "@engine/patternSchema";
 import type { StoryDraft } from "./draft";
 import { nextId, updateCheckpoint, updateQuality, updateTransition } from "./mutations";
 
-type ListKey = "quests" | "milestones" | "widgets" | "factions" | "rumors";
+type ListKey = "quests" | "milestones" | "widgets" | "factions" | "rumors" | "patterns";
 
 const withList = <K extends ListKey>(draft: StoryDraft, key: K, items: NonNullable<StoryDraft[K]>): StoryDraft => {
   const rest: StoryDraft = { ...draft };
@@ -225,3 +226,23 @@ export const setCodexShown = (draft: StoryDraft, shown: boolean): StoryDraft => 
   else display.codex = false;
   return Object.keys(display).length ? { ...draft, display } : without(draft, "display");
 };
+
+export const newPattern = (id: string): StoryPattern => ({ id, steps: [{ kind: "milestone" }, { kind: "milestone" }], label: { text: "Two milestones in a row." } });
+
+export const setPatterns = (draft: StoryDraft, patterns: StoryPattern[]): StoryDraft => withList(draft, "patterns", patterns);
+
+export const addPattern = (draft: StoryDraft, pattern?: StoryPattern): StoryDraft => {
+  const patterns = draft.patterns ?? [];
+  if (pattern && patterns.some((entry) => entry.id === pattern.id)) return draft;
+  return setPatterns(draft, [...patterns, pattern ?? newPattern(nextId(patterns.map((entry) => entry.id), "pattern"))]);
+};
+
+const compactPattern = ({ id, steps, unless, within, repeat, label, hint, pending }: StoryPattern): StoryPattern => ({
+  id, steps, ...(unless?.length ? { unless } : {}), ...(within !== undefined ? { within } : {}), ...(repeat && repeat !== "once" ? { repeat } : {}),
+  ...(label?.text ? { label } : {}), ...(hint ? { hint } : {}), ...(pending ? { pending } : {}),
+});
+
+export const updatePattern = (draft: StoryDraft, id: string, patch: Partial<Omit<StoryPattern, "id">>): StoryDraft =>
+  setPatterns(draft, (draft.patterns ?? []).map((pattern) => (pattern.id !== id ? pattern : compactPattern({ ...pattern, ...patch }))));
+
+export const removePattern = (draft: StoryDraft, id: string): StoryDraft => setPatterns(draft, (draft.patterns ?? []).filter((pattern) => pattern.id !== id));

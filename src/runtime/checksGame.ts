@@ -72,4 +72,18 @@ export const SAME_CHARACTER_CHECK: Check = {
   },
 };
 
-export const GAME_CHECKS: readonly Check[] = [QUEST_SCOPE_CHECK, RELATIONSHIP_SCOPE_CHECK, DISCOVERY_SCOPE_CHECK, SAME_CHARACTER_CHECK];
+export const PATTERNS_UNAVAILABLE_CHECK: Check = {
+  id: "patterns-unavailable",
+  area: "quest",
+  scope: "story",
+  audience: "player",
+  severity: "degrades",
+  feature: "story-patterns",
+  detect: (snapshot) => (snapshot.patternsUnavailable ? {
+    consequence: "This story's callback lines may not appear, because the part that notices its patterns did not load.",
+    detail: "The patterns kit was missing for a recent turn, so those turns were not matched and are recorded as a gap (Author › Patterns). Reload the page; turns already played stay unmatched.",
+    player: "Some of this story's \"what changed\" lines may be missing. Reloading the page usually fixes it.",
+  } : null),
+};
+
+export const GAME_CHECKS: readonly Check[] = [QUEST_SCOPE_CHECK, RELATIONSHIP_SCOPE_CHECK, DISCOVERY_SCOPE_CHECK, SAME_CHARACTER_CHECK, PATTERNS_UNAVAILABLE_CHECK];

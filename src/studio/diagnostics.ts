@@ -21,6 +21,7 @@ import { OBSERVATION_CONSEQUENCES, checkObservationDraft } from "./observationDi
 import { LABEL_CONSEQUENCES, checkLabelDiagnostics } from "./labelDiagnostics";
 import { COMMITMENT_CONSEQUENCES, checkCommitmentDiagnostics } from "./commitmentDiagnostics";
 import { DELIVERY_CONSEQUENCES, checkDeliveryDiagnostics } from "./deliveryDiagnostics";
+import { PATTERN_CONSEQUENCES, checkPatternDiagnostics } from "./patternDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -89,6 +90,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   ...LABEL_CONSEQUENCES,
   ...COMMITMENT_CONSEQUENCES,
   ...DELIVERY_CONSEQUENCES,
+  ...PATTERN_CONSEQUENCES,
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -517,6 +519,7 @@ const DIAGNOSTIC_CHECKS = [
   checkLabelDiagnostics,
   checkCommitmentDiagnostics,
   checkDeliveryDiagnostics,
+  checkPatternDiagnostics,
 ];
 
 export const runDiagnostics = (draft: Story, context: DiagnosticsContext = {}): Diagnostic[] => {

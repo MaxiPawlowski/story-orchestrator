@@ -25,6 +25,7 @@ import { addObservationQualities, checkObservations, readObservations } from "./
 import { observationLatches, observationRoll, observationScopeUnits } from "../observations";
 import { readCarry } from "./carry";
 import { checkRumors, readRumors } from "./rumors";
+import { checkPatterns, readPatterns } from "./patterns";
 import { spreadRumors } from "../../memory/rumors/spread";
 import { hearsayLines, rumorAuthorRows } from "../../memory/rumors/lines";
 import { carryKnownLines, carryView, importCarryErrors, startSeed } from "../carry";
@@ -49,6 +50,8 @@ const RUMORS = { readRumors, checkRumors, spreadRumors, hearsayLines, rumorAutho
 
 const OBSERVATIONS = { readObservations, addObservationQualities, checkObservations, observationRoll };
 
+const PATTERNS = { readPatterns, checkPatterns };
+
 const LATCH_WRITERS = [codexLatches, factionLatches, labelLatches, commitmentLatches, observationLatches] as const;
 
 const DISCOVERY_UNITS = [codexScopeUnits, factionDiscoveryUnits, labelDiscoveryUnits, commitmentDiscoveryUnits, observationScopeUnits] as const;
@@ -58,5 +61,6 @@ const ENTRY_WRITERS = [timeEntry] as const;
 export const GAME_LAYER = {
   readCheck, readChecks, checkStoryChecks, addCheckQualities,
   checkDisplays, readDisplay, addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests, readWidgets, life: LIFE, poses, validateCardLayers,
-  codex: CODEX, observations: OBSERVATIONS, factions: FACTIONS, carry: CARRY, rumors: RUMORS, latchWriters: LATCH_WRITERS, discoveryUnits: DISCOVERY_UNITS, entryWriters: ENTRY_WRITERS,
+  codex: CODEX, observations: OBSERVATIONS, factions: FACTIONS, carry: CARRY, rumors: RUMORS, patterns: PATTERNS, latchWriters: LATCH_WRITERS,
+  discoveryUnits: DISCOVERY_UNITS, entryWriters: ENTRY_WRITERS,
 };

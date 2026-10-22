@@ -449,5 +449,6 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "html-widget-declared": "html-panels",
   "codex-fact-never-read": "codex", "codex-gate-holds-at-start": "codex", "disclosure-names-unknown-entity": "codex",
   ...OBSERVATION_DIAGNOSTIC_TOPICS,
+  "pattern-label-names-unknown-entity": "patterns", "pattern-label-claims-cause": "patterns", "pattern-never-completes": "patterns",
 };
 

@@ -72,4 +72,7 @@ export const DIAGNOSTIC_CODES = [
   "delivery-names-unknown-entity",
   "delivery-directs-player",
   "delivery-over-budget",
+  "pattern-label-names-unknown-entity",
+  "pattern-label-claims-cause",
+  "pattern-never-completes",
 ] as const;

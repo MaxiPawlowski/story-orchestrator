@@ -32,6 +32,7 @@ export abstract class CoordinatorDelegates {
   get chapters() { return this.co.memory.chapters; }
   get game() { return this.co.game; }
   get recap() { return this.co.recap; }
+  get patterns() { return this.co.patterns; }
   get meanwhile() { return this.co.meanwhile; }
   get living() { return this.co.living; }
   get promises() { return this.co.promises; }

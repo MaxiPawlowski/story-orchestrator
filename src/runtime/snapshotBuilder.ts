@@ -59,6 +59,7 @@ import { checkRolls } from "./storyCheckDraws";
 import { observationKit } from "./observationRecords";
 import { gameSlices } from "./gameSnapshot";
 import { recapCardSections, recapSection } from "./recapPort";
+import { patternRecapLines, patternSlices } from "./patternsPort";
 import { lifeAuthorSlice } from "./lifeSnapshot";
 import { factionAuthorSlice } from "./factionSnapshot";
 import { carrySlice } from "./carryPort";
@@ -263,6 +264,7 @@ const inlineView = (sources: SnapshotSources, story: NormalizedStory | null, liv
     agencyRecovery: live.agencyRecovery, lastRollback: sources.lastRollback, saveNotice: playerSaveNotice(extras.saveHealth), castNames,
     firstLines: firstLines(sources.chat), authorMoves: authorMoves(extras), resting: sources.resting,
     emptyReplies: recentEmptyReplies(sources.chat, settings.window), enabled: sources.enabled, sceneTests: authorView ? extras.living?.sceneTests : undefined,
+    patternCompletions: authorView ? extras.patterns?.completed : undefined,
   });
 };
 
@@ -433,7 +435,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     saveNotice: playerSaveNotice(extras.saveHealth),
     agencyNotice: agencyRecovery ? REFUSAL_PLAYER_TEXT : null,
     objectiveKind: agency.objective_kind, ...questNarrative(story, blackboard, chapters.epilogue),
-    consequences: recapSection({ story, state, recap: extras.recap, chat: sources.chat }),
+    consequences: recapSection({ story, state, recap: extras.recap, chat: sources.chat, callbacks: patternRecapLines(story, extras, state, sources) }),
   });
   const castNames = buildCastNames(story, sources.characters ?? []), inline = inlineView(sources, story, { tension, pipeline, agencyRecovery: Boolean(agencyRecovery) }, castNames);
   const mismatch = loaded ? null : blobMismatch();
@@ -482,7 +484,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     memory: extras.memory, memoryShown: shownRows(extras.memory.entries, sources.resting ?? ((text: string) => text)),
     chapters,
     promises: promisesSlice(story, extras, blackboard),
-    rumorsAuthor: rumorAuthorSlice(story, extras),
+    rumorsAuthor: rumorAuthorSlice(story, extras), ...patternSlices(story, extras, state, sources),
     pacing: extras.pacing,
     copilot: extras.copilot,
     ui: extras.ui,
