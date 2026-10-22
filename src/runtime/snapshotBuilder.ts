@@ -23,6 +23,7 @@ import { blobMismatch, getSelectedStoryId, hasOpenChat, hasOpenGroup, hasPersist
 import { noGroupView } from "./noGroup";
 import { getGlobalSettings } from "./settingsStore";
 import { resolveFeatures } from "./featureResolve";
+import { memberRepetitionRows } from "./deliveryPort";
 import { noChatView } from "./noChat";
 import { shownPlayerText } from "./stretchTurns";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
@@ -345,7 +346,7 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStory | null,
       epoch: extras.living ? graphEpoch(extras.living) : null,
     }),
     rolls: composeRolls(quality, sources.extras.chance ?? createChance(), checkRolls(story, extras.checks)),
-    repetition: sources.loaded && sources.extras.ui.authorView ? mineRepetition(replyTexts(sources.chat)) : null,
+    repetition: sources.loaded && sources.extras.ui.authorView ? { ...mineRepetition(replyTexts(sources.chat)), byMember: memberRepetitionRows(story, sources.chat) } : null,
     ...(extras.ui.authorView && story ? { sameCharacter: sameCharacterCandidates(nameIndexOf(story), memorySightings(extras.memory), [extras.playerSetup?.name ?? "", "player", "you", "user"]) } : {}),
     presence: buildPresence({
       story, settings: sources.extras.ui.presence, boundaryLog: sources.boundaryLog, plays: sources.plays ?? {}, library: listStoryRecords(),

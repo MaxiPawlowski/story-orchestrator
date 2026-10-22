@@ -7,6 +7,7 @@ import CardFieldsEditor from "./CardFieldsEditor";
 import FactionsEditor from "./FactionsEditor";
 import RelationshipLabelsEditor from "./RelationshipLabelsEditor";
 import CommitmentsEditor from "./CommitmentsEditor";
+import VoiceDeliveryEditor from "./VoiceDeliveryEditor";
 
 const splitAliases = (text: string) => text.split(",").map((alias) => alias.trim()).filter(Boolean);
 
@@ -129,6 +130,7 @@ const RosterEditor: React.FC<{ memberNames?: string[] }> = ({ memberNames = [] }
           ))}
         </ul>
       )}
+      <VoiceDeliveryEditor />
       <RelationshipLabelsEditor />
       <CommitmentsEditor />
       <FactionsEditor />

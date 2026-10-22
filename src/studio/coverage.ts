@@ -63,6 +63,7 @@ export const CHECKPOINT_COVERAGE: readonly CoverageField<Checkpoint>[] = [
 export const MEMBER_COVERAGE: readonly CoverageField<RosterMember>[] = [
   field("role", "Role", "updateRosterMember", "Speaker direction and the judge director can pick this member for a reason.", (member) => filled(member.role)),
   field("drive", "Drive", "setRosterDrive", "The character is privately told what they want across the story.", (member) => filled(member.drive)),
+  field("polish", "Voice and delivery", "setMemberPolish", "The character is privately told how they talk.", (member) => filled(member.polish)),
 ];
 
 export const TRANSITION_COVERAGE: readonly CoverageField<Transition>[] = [

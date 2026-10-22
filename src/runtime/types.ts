@@ -541,7 +541,7 @@ export interface RuntimeSnapshot {
   rolls?: RollRecord[];
   presence?: PresenceView;
   /** The repetition miner over the latest reply and five earlier ones; Author view only, null otherwise. */
-  repetition?: RepetitionReport | null;
+  repetition?: (RepetitionReport & { byMember?: import("./deliveryPort").MemberRepetitionRow[] }) | null;
   game?: GameView | null;
   gameAuthor?: GameAuthorView | null;
   lifeAuthor?: LifeAuthorView | null;

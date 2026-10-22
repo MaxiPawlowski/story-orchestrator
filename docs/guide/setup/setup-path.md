@@ -207,6 +207,7 @@ Every feature is on by default; the character stage is on in its automatic form.
 | **Speaker direction** | Chooses who should answer in a group scene. | A short pick before replies: the judge, else its own model. | You prefer SillyTavern's own turn order. |
 | **Several voices per turn** | Lets several characters answer before it is your turn. | Each extra voice is another reply, up to 3. | You want one character to answer at a time. |
 | **Private inner voice** | Prepares private intent for the next speaker. | Up to two memory model calls per turn, never while you wait. | Your memory model is slow or paid per token. |
+| **Voice and delivery** | Tells each character privately how they word things, and steers them off phrases they keep repeating. | About 120 tokens in each drafted character's prompt; no model call. | You are comparing replies with and without voice sheets. |
 | **Promises remembered** | Remembers promises you make to a character, in your words. | A few extra lines in each story read. | You do not want promises tracked. |
 | **Who heard what** | Notes which characters heard each message. | A few extra lines in each story read. | You want the shortest possible reads. |
 | **Rumors and gossip** | Passes a story's rumors between characters as hearsay. | No model call. | News should reach characters only on stage. |

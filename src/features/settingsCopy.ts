@@ -168,6 +168,16 @@ export const SETTING_COPY = {
     "After a reply, the memory model writes a short private note of what the likely next speaker wants, handed only to that character. "
       + "At most two extra calls per turn, never while you wait for a reply. Not measured yet.",
   ),
+  "characters.delivery": copy(
+    "Tell each character how they word things",
+    "A story's voice sheets reach only the character they describe, before that character speaks: how they talk, words that are theirs, words they would not use, "
+      + "a rhythm and a line for their mood. Wording only, never what happens. No model call.",
+  ),
+  "characters.deliveryRepetition": copy(
+    "Steer characters off phrases they keep repeating",
+    "Phrases a character used in several of their own last six replies, and the habits a story lists for them, are named back to that character alone as something to vary. "
+      + "Read from the chat each time, so a swipe or edit changes it. No model call.",
+  ),
   "memory.promises": copy(
     "Remember promises you make",
     "When you promise a character something, the story keeps your exact words and reminds only that character, when the scene touches it. "

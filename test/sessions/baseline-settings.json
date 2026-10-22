@@ -241,6 +241,10 @@
       "reasoningEffect": true,
       "editReread": true,
       "thoughtCarry": true
+    },
+    "characters": {
+      "delivery": true,
+      "deliveryRepetition": true
     }
   }
 }

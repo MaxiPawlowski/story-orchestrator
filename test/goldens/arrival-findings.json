@@ -17,6 +17,8 @@
       "because": "the checkpoint's own state_snapshot already sets it"
     }
   ],
+  "test/fixtures/delivery-mood.story.json#0": [],
+  "test/fixtures/delivery.story.json#0": [],
   "test/fixtures/effects-cast.story.json#0": [
     {
       "index": 1,
@@ -201,6 +203,7 @@
   "test/scenarios/memory-mirror-file.json#0": [],
   "test/scenarios/payload/group-away-notice.json#0": [],
   "test/scenarios/payload/group-commitments.json#0": [],
+  "test/scenarios/payload/group-delivery.json#0": [],
   "test/scenarios/payload/group-narrator-holdings.json#0": [],
   "test/scenarios/payload/group-relationships.json#0": [],
   "test/scenarios/payload/group-relationships.json#1": [],

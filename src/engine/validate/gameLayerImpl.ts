@@ -5,7 +5,7 @@ import { addRewardQualities, checkQuests, expandRequires, readMilestones, readQu
 import { readWidgets } from "./widgets";
 import { addLifeQualities, checkLife, readLife } from "./life";
 import { deriveLife } from "../life/derive";
-import { awayMembers, lifeScopeKeys, lifeScopeTiers } from "../life/presence";
+import { awayMembers, effectiveMood, lifeScopeKeys, lifeScopeTiers } from "../life/presence";
 import { agendaWorldInfo, landedSteps, lifeAuthorRows, lifeMoved, privateLifeLines, relationshipFeelings } from "../life/lines";
 import { labelAuthorRows, labelDiscoveryUnits, labelLatches, revealChips, unrevealedSecretLabels } from "../life/labels";
 import { axisHistory, holdSameBeat } from "../life/beats";
@@ -31,7 +31,7 @@ import { reachedLabel, storyTimeRow, timeEntry } from "../life/clock";
 const LIFE = {
   readLife, addLifeQualities, checkLife, deriveLife, awayMembers, lifeScopeKeys, lifeScopeTiers, privateLifeLines, agendaWorldInfo, landedSteps, lifeMoved, lifeAuthorRows,
   relationshipFeelings, storyTimeRow, reachedLabel, labelAuthorRows, revealChips, unrevealedSecretLabels, axisHistory, holdSameBeat,
-  commitmentAuthorRows, commitmentHooks, heardCommitmentRows, keptCommitments,
+  commitmentAuthorRows, commitmentHooks, heardCommitmentRows, keptCommitments, effectiveMood,
   lifeWorldInfo: (story: Parameters<typeof agendaWorldInfo>[0], values: Parameters<typeof agendaWorldInfo>[1]) => [...agendaWorldInfo(story, values), ...commitmentWorldInfo(story, values)],
 };
 
