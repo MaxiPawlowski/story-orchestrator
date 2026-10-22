@@ -178,3 +178,60 @@ Informational, as always: a miss is recorded, never retuned.
   (`so-v29-02-voice`, left alone), on `a driver whose wrapper shell is killed…` under load (green alone and on the
   rerun) and on the OpenCode boot-timing test in `test:plugin` (340/340 alone, green on the third resume). No merge
   is cited on these runs; the owner has not asked for a merge.
+
+## Gate record — stage A, 2026-10-22 (lane 33, 3090, plan 41 §5 journey)
+
+Local controller during these runs: mode `custom`, `reserves.gpuMiB` 1024 (owner's request, beside a game) and
+`reserves.ramMiB` 2048 (lowered 2026-10-22 02:2x when renders were refused for RAM with other sessions running; backups
+under `C:/dev/backups/story-orchestrator/local-config-*`). Back with `node scripts/local/cli.mjs mode balanced`.
+
+Runs (records `<so-lanes>/33/debug/p41/<stamp>-<label>-real-run<n>/`, raw images in the private showcase folder
+`<label>-raw`, contact sheets `sheets-<label>`):
+
+- a1 (`f7aa1a59`): GREEN. Pose step waited 932 s: prepared poses were not on the stage (cast loaded before the Studio
+  preparation) and play wanted `happy` on top. Fixed in `c3564bef` (stage reloads its cast on saved sprite files).
+- Pair 1 on `c3564bef` (full gates green, no resume):
+  - a3: GREEN. Pose step 12 ms.
+  - a4: NOT GREEN. `look-rebuild` (close shot showed a posed body of an older outfit while the new look's body
+    rendered, so no rig: a race, open finding), `illustration` (refused once, transient), `gpu-idle` (text model had
+    reloaded itself, 17.6 GB > baseline). Rater: three changed-look bases of Ash had no head.
+- Fixes after pair 1: `38973d2c` (a lease granted after a reply started is handed back), `2e028561` (a new look with no
+  face is refused and rendered again; detector on a4's looks: headless 0 faces, normal 1 face at 1.0). `cd0a18e5`
+  (standing pose served by the look path) regressed: with poses on it dropped the published look and showed the
+  default body (a5); undone in `cf6f000d`. a5 and a first a6 on `2e028561`: an environment abort (stale CSRF on the
+  lane page mid-play) and the regression; not counted.
+- Final pair on `cf6f000d` (full gates green, no resume):
+  - a7: NOT GREEN, one miss: Ash's changed-look rig not prepared, `opencode answered with an error:
+    provider.transport: WebSocket inbound queue overflow` (environment). Every other step passed, `look-rebuild`
+    included.
+  - a8 (run 2): GREEN. (A first a8 start stopped at preflight on a ComfyUI reference left by a7's last background
+    render while cleanup ran; the next cleanup found nothing. Cleanup now waits 90 s after a run.)
+
+Floors (informational, not retuned):
+
+| Floor | a3 | a4 | a7 | a8 | Verdict |
+|---|---|---|---|---|---|
+| R base long edge ≥ 1,200 | 1,248 | 1,248 | 1,248 | 1,248 | met |
+| R bust eye width ≥ 40 px | rig ROI Ash 37/38, Bram 31/34, Cleo 45/43 (all runs) | | | | miss (Ash, Bram) |
+| E bright fringe ≤ 25 % baseline (scaled ~146/483/144) | Ash 352, Bram 0, Cleo 1,647 (every run; expressions equal neutral) | | | | met Bram; miss Ash, Cleo (light hair counted) |
+| W no see-through in the eye at 81 gazes | 0 | 0 | 0 | 0 | met (Bram's opening is 0–20 px, near vacuous) |
+| Q seam ≤ 1.3 | max 0.9 | 0.9 | 1.3 | 1.0 | met |
+| Q blinks close both eyes | lid check + white share; no wrong refusal after `130d4b83` | | | | met |
+| Rater identity ≥ 90 % | pair 1: 57/60 (95 %) | | final: 59/59 (100 %) | | met |
+| Rater edge/eye/rectangle defects ≤ 1 of 12 | pair 1: 0 (3 headless panels as "other") | | final: 0, nothing at all | | met |
+| C1 base renders ≤ 1.5 per member | 1 | 1 | 1 | 1 | met |
+| C2 poses ready before play | pose step 12 ms | 3 s | 2 s | 2 s | met |
+| C2 no render started in a reply | 1 render inside | 4 inside | 0 submitted inside | 2 ending inside, started 1 s and 0 s before/at the send | met on the final pair within a 1 s send race |
+| C3 | not built (no applicable frame) | | | | n/a |
+| Cost renders ≤ 35 | 33 | 40 | 35 | 36 | miss on 2 of 4 (baseline 59) |
+| Cost preparation ≤ 9 min (base..rig) | 13.7 | 12.4 | 13.1 | 11.1 | miss (baseline 14.5); pose preparation adds 5–10 min |
+| Journey every step passes, both runs | yes | no | no (environment) | yes | miss |
+
+Open findings: the a4 close-shot race (an older posed body shown while the new look's body renders); preparation
+time; renders per run at the floor; bust eye width for Ash and Bram (needs a larger bust or upscale, unresolved
+question 2); the GPU-idle step reads a self-reloaded text model as busy; the lane page's CSRF token can go stale
+during a 90-minute run.
+
+Gates: `npm run gates` green on `c3564bef` and `cf6f000d` without `--resume`; harness-only commits after the freeze
+(`ee0c283a`, `053b311a`, `8aeb3844`) do not change the served bundle. Rater: `so-image-bench.mts rate`, opencode
+`gpt-6.1-sol` through `codex exec`, 37 calls (≤ 60).

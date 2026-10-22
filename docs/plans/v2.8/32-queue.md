@@ -8,8 +8,7 @@ Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instruc
 
 ## Now (running)
 
-- Plan 80 image quality (owner 2026-10-21): resolution, edges, eye whites, frame QA, then the journey pair with predeclared floors.
-  [Plan](80-image-quality.md).
+- Plan 80 image quality (owner 2026-10-21): built and measured 2026-10-22 on branch `v2.8-image-acceptance-followup` (not merged). Stage A final pair on `cf6f000d`: a8 GREEN, a7 one environment miss (opencode transport); misses on eye width, edges (light hair), preparation time and renders. [Plan](80-image-quality.md) §Gate record — stage A.
 
 - Plan 79 image acceptance follow-up: owner approved items 1–5 and a several-hour 3090 window.
   Queue fairness, render cancellation, rig correction, same-build live acceptance and body-cutout investigation.
