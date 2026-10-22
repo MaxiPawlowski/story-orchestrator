@@ -667,6 +667,20 @@ test('a routing or config error that only mentions credentials or sign-in is not
     }
 });
 
+test('B4: a context overflow or a token count is not misread as a sign-in or quota failure; real ones still are', () => {
+    const notAuthOrQuota = [
+        { type: 'provider.error', message: 'context length exceeded: 140192 tokens requested, 128000 allowed' },
+        { type: 'provider.error', message: 'context limit reached for this conversation' },
+        { type: 'provider.error', message: 'request used 4017 tokens' },
+        { type: 'provider.error', message: 'authenticated session reused' },
+    ];
+    for (const error of notAuthOrQuota) assert.equal(transport.classifyV2Error(error).kind, 'transport', JSON.stringify(error));
+    assert.equal(transport.classifyV2Error({ type: 'provider.error', message: 'Authentication failed for openai' }).kind, 'auth');
+    assert.equal(transport.classifyV2Error({ type: 'provider.error', message: 'HTTP 401 from provider' }).kind, 'auth');
+    assert.equal(transport.classifyV2Error({ type: 'provider.error', message: 'Usage limit reached, try again later' }).kind, 'quota');
+    assert.equal(transport.classifyV2Error({ type: 'provider.error', message: 'context length exceeded', status: 429 }).kind, 'quota', 'a status code still wins');
+});
+
 test('transport helpers: permissions evaluate last-match, images are sniffed from bytes, errors keep their words', () => {
     const rules = [{ action: '*', resource: '*', effect: 'deny' }, { action: 'so_*', resource: '*', effect: 'allow' }];
     assert.equal(transport.evaluatePermission(rules, 'so_readStory'), 'allow');

@@ -3,7 +3,7 @@ import { execFile } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
 import { BRIDGE_AGENT, BRIDGE_SERVER, SHIM_PATH } from './agentBridge.mjs';
-import { AUTH_TEXT, NETWORK_TEXT, QUOTA_TEXT, readRetryAt } from './errors.mjs';
+import { AUTH_TEXT, CONTEXT_TEXT, NETWORK_TEXT, QUOTA_TEXT, readRetryAt } from './errors.mjs';
 
 export const OPENCODE_CLIENT = Object.freeze({ name: '@opencode/client', version: '2.0.28' });
 export const TEXT_AGENT = 'so-text';
@@ -190,10 +190,11 @@ export function classifyV2Error(error, { now = Date.now() } = {}) {
     const body = typeof source.response?.body === 'string' ? source.response.body.slice(0, 2000) : '';
     const evidence = `${type} ${message} ${body}`;
     const routing = /no-route|model unavailable|model not found|unknown model/i.test(evidence);
-    if (status === 401 || status === 403 || /(^|\.)auth$/i.test(type) || (!routing && (AUTH_TEXT.test(evidence) || SIGN_IN_TEXT.test(`${message} ${body}`)))) {
+    const overflow = CONTEXT_TEXT.test(evidence);
+    if (status === 401 || status === 403 || /(^|\.)auth$/i.test(type) || (!routing && !overflow && (AUTH_TEXT.test(evidence) || SIGN_IN_TEXT.test(`${message} ${body}`)))) {
         return { ok: false, kind: 'auth', message: `OpenCode could not authenticate with the model's provider (${message || type || 'no detail'}): ${signInAction('the routed provider')}`, signIn: true };
     }
-    if (status === 429 || QUOTA_TEXT.test(evidence)) {
+    if (status === 429 || (!overflow && QUOTA_TEXT.test(evidence))) {
         const retryAt = readRetryAt(evidence, now);
         return { ok: false, kind: 'quota', message: `opencode reports its usage limit${retryAt ? ` until ${new Date(retryAt).toISOString()}` : ''}`, ...(retryAt ? { retryAt } : {}) };
     }

@@ -84,7 +84,10 @@ regression test that fails on the parent tree (checked by stashing the source ch
 
 ## Not built
 
-- B4 harness auth/quota regexes (PLAUSIBLE): queue candidate, small; needs recorded error bodies for the anchors.
+- B4 harness auth/quota regexes (PLAUSIBLE): **built 2026-10-22** (`v2.8-queue-2026-10-22`): `401`,
+  `authentication (failed|required|error)`, `(usage|rate) limit reached`, and a context-overflow match that keeps the text
+  guesses off (status codes still win) in all three transports. Synthetic bodies, not recorded ones; test "B4: …" in
+  `opencode.test.mjs` (fails on the old code).
 - B7 `Number(messageId)` in `replyEffortLive.ts` (PLAUSIBLE, negligible): `hostMessageId` swap, folds into plan 69.
 - B8 sampler overlay listener order (PLAUSIBLE): **built 2026-10-22** (`v2.8-queue-2026-10-22`): `subscribeToHostEventLast`
   (`stHost/events.ts`) registers with `makeLast` and re-places itself on every `GENERATION_STARTED`; plain subscription on a

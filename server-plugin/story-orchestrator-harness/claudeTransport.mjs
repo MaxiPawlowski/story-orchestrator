@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { BRIDGE_MODELS, BRIDGE_SERVER, SHIM_PATH } from './agentBridge.mjs';
-import { AUTH_TEXT, QUOTA_TEXT } from './errors.mjs';
+import { AUTH_TEXT, CONTEXT_TEXT, QUOTA_TEXT } from './errors.mjs';
 
 export const CLAUDE_AGENT_MODELS = BRIDGE_MODELS.claude;
 export const CLAUDE_AGENT_CWD = 'story-orchestrator-authoring';
@@ -40,8 +40,8 @@ export function claudeAgentEnv(base, { callTimeoutMs }) {
 const blockText = (content) => (Array.isArray(content) ? content.filter((block) => block?.type === 'text' && typeof block.text === 'string').map((block) => block.text).join('') : '');
 
 const localError = (text) => {
-    if (AUTH_TEXT.test(text)) return { kind: 'auth', message: 'claude is not logged in on the machine running SillyTavern: run `claude` once in a terminal there' };
-    if (QUOTA_TEXT.test(text)) return { kind: 'quota', message: `claude reports its usage limit: ${text}`.slice(0, 400) };
+    if (!CONTEXT_TEXT.test(text) && AUTH_TEXT.test(text)) return { kind: 'auth', message: 'claude is not logged in on the machine running SillyTavern: run `claude` once in a terminal there' };
+    if (!CONTEXT_TEXT.test(text) && QUOTA_TEXT.test(text)) return { kind: 'quota', message: `claude reports its usage limit: ${text}`.slice(0, 400) };
     return { kind: 'transport', message: `claude stopped with a local error: ${text || 'no detail'}`.slice(0, 400) };
 };
 

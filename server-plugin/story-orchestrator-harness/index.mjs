@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BRIDGE_HARNESSES, BRIDGE_MODELS, createAgentBridge, validateOpen } from './agentBridge.mjs';
 import { createClaudeAgentTransport } from './claudeTransport.mjs';
-import { AUTH_TEXT, NETWORK_TEXT, QUOTA_TEXT, readRetryAt } from './errors.mjs';
+import { AUTH_TEXT, CONTEXT_TEXT, NETWORK_TEXT, QUOTA_TEXT, readRetryAt } from './errors.mjs';
 import { createOpencodeTransport, OPENCODE_CLIENT } from './opencodeTransport.mjs';
 
 export { readRetryAt };
@@ -382,10 +382,11 @@ export function classify(harness, run, { maxOutputChars, now = Date.now() } = {}
         return { ok: true, text: cut ? parsed.text.slice(0, maxOutputChars) : parsed.text, finish: cut ? 'length' : parsed.finish, usage: parsed.usage, model: parsed.model, ...(warnings.length ? { warnings } : {}) };
     }
     const evidence = `${errorText} ${run.stderr ?? ''}`;
-    if (statuses.includes(401) || statuses.includes(403) || AUTH_TEXT.test(evidence)) {
+    const overflow = CONTEXT_TEXT.test(evidence);
+    if (statuses.includes(401) || statuses.includes(403) || (!overflow && AUTH_TEXT.test(evidence))) {
         return { ok: false, kind: 'auth', message: `${harness} is not logged in on the machine running SillyTavern: run \`${harness}\` once in a terminal there` };
     }
-    if (statuses.includes(429) || QUOTA_TEXT.test(evidence)) {
+    if (statuses.includes(429) || (!overflow && QUOTA_TEXT.test(evidence))) {
         const retryAt = readRetryAt(evidence, now);
         return { ok: false, kind: 'quota', message: `${harness} reports its usage limit${retryAt ? ` until ${new Date(retryAt).toISOString()}` : ''}`, ...(retryAt ? { retryAt } : {}) };
     }
