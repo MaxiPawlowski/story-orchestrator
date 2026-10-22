@@ -1,4 +1,4 @@
-import type { PoseEntry, StoryPoses, MemberSprites, StageMember, CardFieldBinding, CodexEntry, CodexFact, CodexReturn, StoryCodex } from "@engine/schema";
+import type { PoseEntry, StoryPoses, MemberSprites, StageMember, CardFieldBinding, CodexEntry, CodexFact, CodexReturn, StoryCodex, Observation, ObservationPassive } from "@engine/schema";
 import type { CarryFrom, CarryMapEntry, OutcomeKey } from "@engine/carrySchema";
 import type { Commitment } from "@engine/lifeSchema";
 import type { Checkpoint, CheckpointEffects, Quality, RosterMember, Story, Transition } from "@engine/index";
@@ -16,7 +16,7 @@ const STORY: Record<keyof Story, Covered> = {
   scaffolding: { none: "written by the road-ahead generator, never authored" },
   objective_block: "objective-agency", display: "presentation", chapters: "chapters", memory: "chapters", quests: "quests", milestones: "quests",
   widgets: "widgets", clock: "story-time", calendar: "story-time", living: "living-director", factions: "factions",
-  codex: "codex", outcome: "outcome", carry_from: "carry-from", rumors: "rumors",
+  codex: "codex", observations: "observations", outcome: "outcome", carry_from: "carry-from", rumors: "rumors",
 };
 
 const CHECKPOINT: Record<keyof Checkpoint, Covered> = {
@@ -61,6 +61,10 @@ const CODEX: Record<keyof StoryCodex, Covered> = { people: "codex", places: "cod
 const CODEX_ENTRY: Record<keyof CodexEntry, Covered> = { id: "codex", name: "codex", member: "codex", location: "codex", aliases: "codex", known_when: "codex", facts: "codex", returns: "codex-returns" };
 const CODEX_FACT: Record<keyof CodexFact, Covered> = { id: "codex", text: "codex", known_when: "codex", source: "codex", rev: "codex" };
 const CODEX_RETURN: Record<keyof CodexReturn, Covered> = { id: "codex-returns", text: "codex-returns", when: "codex-returns", rev: "codex-returns" };
+const OBSERVATION: Record<keyof Observation, Covered> = {
+  id: "observations", text: "observations", when: "observations", source: "observations", rev: "observations", passive: "observations",
+};
+const OBSERVATION_PASSIVE: Record<keyof ObservationPassive, Covered> = { roll: "observations", modifiers: "observations" };
 const COMMITMENT: Record<keyof Commitment, Covered> = {
   id: "commitments", to: { none: "always \"player\"; another value is refused" }, what: "commitments", made_when: "commitments", kept_when: "commitments",
   broken_when: "commitments", due: "commitments", heard: "commitments", effect: "commitments",
@@ -71,6 +75,7 @@ const CARRY_MAP: Record<keyof CarryMapEntry, Covered> = { from: "carry-from", to
 const TABLES: Array<[string, Record<string, Covered>]> = [
   ["outcome[]", OUTCOME], ["carry_from", CARRY], ["carry_from.map[]", CARRY_MAP],
   ["codex", CODEX], ["codex.entry", CODEX_ENTRY], ["codex.fact", CODEX_FACT], ["roster[].commitments[]", COMMITMENT], ["codex.return", CODEX_RETURN],
+  ["observations[]", OBSERVATION], ["observations[].passive", OBSERVATION_PASSIVE],
   ["poses", POSES], ["pose", POSE], ["pose.keypoints", POSE_KEYS], ["pose.when", POSE_WHEN], ["sprites", MEMBER_POSES], ["stage.member", STAGE_MEMBER], ["card.field", CARD_FIELD], ["card.region", REGION],
   ["story", STORY], ["checkpoints[]", CHECKPOINT], ["checkpoints[].effects", EFFECTS], ["transitions[]", TRANSITION], ["roster[]", ROSTER], ["qualities[]", QUALITY],
 ];

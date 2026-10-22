@@ -1,6 +1,7 @@
-import { CODEX_PAGES, type CodexEntry, type CodexPage, type Faction, type Milestone, type QualityDisplay, type Quest, type StoryCheck, type Story, type StoryWidget,
+import { CODEX_PAGES, type CodexEntry, type CodexPage, type Faction, type Milestone, type Observation, type QualityDisplay, type Quest, type StoryCheck, type Story, type StoryWidget,
   type ValidationError } from "@engine/index";
 import { addCodexQualities, checkCodex, readCodex } from "@engine/validate/codex";
+import { addObservationQualities, checkObservations, readObservation } from "@engine/validate/observations";
 import { checkFactions, factionQualities, readFactions } from "@engine/validate/factions";
 import { readCheck, readChecks } from "@engine/validate/checks";
 import { readDisplay } from "@engine/validate/display";
@@ -12,7 +13,7 @@ import type { Rumor } from "@engine/rumorSchema";
 import type { CalendarInput, StoryClock } from "@engine/lifeSchema";
 import { isRecord } from "@utils/guards";
 import {
-  CHARACTER_LIFE_FIELDS, removeCodexEntry, setCalendar, setCharacterLife, setClock, setFactions, setMemberGossip, setRumors, updateCodexEntry,
+  CHARACTER_LIFE_FIELDS, removeCodexEntry, removeObservation, updateObservation, setCalendar, setCharacterLife, setClock, setFactions, setMemberGossip, setRumors, updateCodexEntry,
   setMilestones, setQualityDisplay, setQuests, setCheckpointChecks, setTransitionCheck, setWidgets, type CharacterLife,
 } from "../../studio/gameMutations";
 import type { OpDescription } from "../index";
@@ -29,12 +30,14 @@ export type GameAgentOp =
   | { kind: "setCalendar"; calendar: CalendarInput | null }
   | { kind: "setCodexEntry"; page: CodexPage; entry: CodexEntry }
   | { kind: "removeCodexEntry"; page: CodexPage; id: string }
+  | { kind: "setObservation"; observation: Observation }
+  | { kind: "removeObservation"; id: string }
   | { kind: "setFactions"; factions: Faction[] }
   | { kind: "setRumors"; rumors: Rumor[]; gossip: Record<string, Record<string, unknown> | null> };
 
 export const GAME_AGENT_KINDS: ReadonlySet<string> = new Set<GameAgentOp["kind"]>([
   "setQuests", "setMilestones", "setWidgets", "setQualityDisplay", "setCheckpointChecks", "setTransitionCheck", "setCharacterLife", "setClock", "setCodexEntry", "removeCodexEntry",
-  "setFactions", "setCalendar", "setRumors",
+  "setFactions", "setCalendar", "setRumors", "setObservation", "removeObservation",
 ]);
 
 const refused = (tool: string, errors: ValidationError[]) => ({ ok: false as const, message: errors.map((error) => `${tool}.${error.path}: ${error.message}`).join("; ") });
@@ -73,6 +76,11 @@ export const readGameCall = (tool: string, args: Record<string, unknown>): GameC
     return { ok: true, op: { kind: "setCharacterLife", id: String(args.id).trim(), life: life as CharacterLife } };
   }
   if (tool === "setCodexEntry" || tool === "removeCodexEntry") return readCodexCall(tool, args);
+  if (tool === "removeObservation") return { ok: true, op: { kind: "removeObservation", id: String(args.id).trim() } };
+  if (tool === "setObservation") {
+    const observation = readObservation(args.observation, "observation", errors);
+    return errors.length || !observation ? refused(tool, errors) : { ok: true, op: { kind: "setObservation", observation } };
+  }
   if (tool === "setClock") return { ok: true, op: { kind: "setClock", clock: isRecord(args.clock) ? clockOf(args.clock) : null } };
   if (tool === "setCalendar") return { ok: true, op: { kind: "setCalendar", calendar: isRecord(args.calendar) ? args.calendar as CalendarInput : null } };
   if (tool === "setFactions") {
@@ -107,6 +115,8 @@ export const applyGameOp = (draft: Story, op: GameAgentOp): Story => {
     case "setCalendar": return setCalendar(draft, op.calendar ?? undefined);
     case "setCodexEntry": return updateCodexEntry(draft, op.page, op.entry);
     case "removeCodexEntry": return removeCodexEntry(draft, op.page, op.id);
+    case "setObservation": return updateObservation(draft, op.observation);
+    case "removeObservation": return removeObservation(draft, op.id);
     case "setFactions": return setFactions(draft, op.factions);
     case "setRumors": return Object.entries(op.gossip).reduce((next, [id, channel]) => setMemberGossip(next, id, channel ?? undefined), setRumors(draft, op.rumors));
   }
@@ -136,6 +146,8 @@ export const describeGameOp = (op: GameAgentOp): OpDescription => {
       const label = `${op.page === "people" ? "Person" : "Place"} page ${op.entry.name ?? op.entry.member ?? op.entry.id}: ${op.entry.facts.length} fact(s)`;
       return { action: "update", entity: `codex.${op.page}.${op.entry.id}`, label };
     }
+    case "setObservation": return { action: "update", entity: `observations.${op.observation.id}`, label: `Noticed line ${op.observation.id}: ${op.observation.text}` };
+    case "removeObservation": return { action: "remove", entity: `observations.${op.id}`, label: `Remove the noticed line ${op.id}` };
     case "removeCodexEntry": return { action: "remove", entity: `codex.${op.page}.${op.id}`, label: `Remove the ${op.page === "people" ? "person" : "place"} page ${op.id}` };
     case "setFactions": {
       const label = op.factions.length ? `Factions: ${op.factions.map((faction) => faction.name).join(" / ")}` : "Remove every faction";
@@ -180,6 +192,13 @@ export const gameOpProblem = (draft: Story, op: GameAgentOp): string | null => {
     checkCodex(codex, { checkpointById, qualityByKey: Object.fromEntries(qualities.map((quality) => [quality.key, quality])), roster: draft.roster }, errors);
   }
   if (op.kind === "removeCodexEntry" && !(draft.codex?.[op.page] ?? []).some((entry) => entry.id === op.id)) return `'${op.id}' is not on the ${op.page} page`;
+  if (op.kind === "setObservation") {
+    const observations = updateObservation(draft, op.observation).observations;
+    const qualities = addObservationQualities(addCodexQualities(draft.qualities, draft.codex, []), observations, errors);
+    const checkpointById = Object.fromEntries(draft.checkpoints.map((checkpoint) => [checkpoint.id, checkpoint]));
+    checkObservations(observations, { checkpointById, qualityByKey: Object.fromEntries(qualities.map((quality) => [quality.key, quality])), roster: draft.roster, codex: draft.codex }, errors);
+  }
+  if (op.kind === "removeObservation" && !(draft.observations ?? []).some((entry) => entry.id === op.id)) return `'${op.id}' is not an observation`;
   if (op.kind === "setFactions" || (op.kind === "setCharacterLife" && op.life.factions !== undefined)) factionProblems(applyGameOp(draft, op), errors);
   if (op.kind === "setRumors") {
     const next = applyGameOp(draft, op);

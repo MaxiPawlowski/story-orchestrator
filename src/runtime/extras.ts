@@ -12,6 +12,7 @@ import { defaultExtractionSettings, defaultInlineSettings, defaultMemorySettings
 import { createLore, sanitizeLore } from "./loreFired";
 import { createChance, sanitizeChance } from "./rolls";
 import { sanitizeChecks } from "./storyCheckDraws";
+import { sanitizeObservations } from "./observationRecords";
 import { sanitizeAgendaProposals } from "./agendaProposals";
 import { sanitizePromises } from "@memory/promises/state";
 import { sanitizeWitness } from "@memory/witness/state";
@@ -454,6 +455,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.lore = sanitizeLore(extras.lore);
   extras.chance = sanitizeChance(extras.chance);
   if (extras.checks) extras.checks = sanitizeChecks(extras.checks);
+  if (extras.observations) extras.observations = sanitizeObservations(extras.observations);
   if (extras.agendaProposals) extras.agendaProposals = sanitizeAgendaProposals(extras.agendaProposals);
   if (extras.promises) extras.promises = sanitizePromises(extras.promises);
   if (extras.witness) extras.witness = sanitizeWitness(extras.witness);

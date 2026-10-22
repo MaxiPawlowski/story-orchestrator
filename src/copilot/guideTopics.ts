@@ -454,5 +454,7 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "widget-item-never-read": "clues-and-maps", "map-pin-unreachable": "clues-and-maps", "map-image-missing": "clues-and-maps",
   "html-widget-declared": "html-panels",
   "codex-fact-never-read": "codex", "codex-gate-holds-at-start": "codex", "disclosure-names-unknown-entity": "codex",
+  "observation-imposes-mind": "observations", "observation-instructs": "observations", "observation-never-read": "observations",
+  "observation-gate-holds-at-start": "observations",
 };
 

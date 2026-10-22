@@ -17,6 +17,7 @@ import { DIAGNOSTIC_CODES } from "./diagnosticCodes";
 import { STAGE_CONSEQUENCES, checkStageSprites, type StageInventory } from "./stageDiagnostics";
 import { WIDGET_CONSEQUENCES, checkWidgets, scopedKeys, widgetGateKeys } from "./widgetDiagnostics";
 import { CODEX_CONSEQUENCES, checkCodexDraft } from "./codexDiagnostics";
+import { OBSERVATION_CONSEQUENCES, checkObservationDraft } from "./observationDiagnostics";
 import { LABEL_CONSEQUENCES, checkLabelDiagnostics } from "./labelDiagnostics";
 import { COMMITMENT_CONSEQUENCES, checkCommitmentDiagnostics } from "./commitmentDiagnostics";
 import { DELIVERY_CONSEQUENCES, checkDeliveryDiagnostics } from "./deliveryDiagnostics";
@@ -84,6 +85,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   ...STAGE_CONSEQUENCES,
   ...WIDGET_CONSEQUENCES,
   ...CODEX_CONSEQUENCES,
+  ...OBSERVATION_CONSEQUENCES,
   ...LABEL_CONSEQUENCES,
   ...COMMITMENT_CONSEQUENCES,
   ...DELIVERY_CONSEQUENCES,
@@ -511,6 +513,7 @@ const DIAGNOSTIC_CHECKS = [
   checkStageSprites,
   checkWidgets,
   checkCodexDraft,
+  checkObservationDraft,
   checkLabelDiagnostics,
   checkCommitmentDiagnostics,
   checkDeliveryDiagnostics,

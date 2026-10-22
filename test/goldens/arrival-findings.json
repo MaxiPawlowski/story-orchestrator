@@ -311,6 +311,7 @@
   "test/scenarios/v28-69-k8-silent-rewrite.json#0": [],
   "test/scenarios/v28-69-k8-swipe-append.json#0": [],
   "test/scenarios/v28-69-k8-synthetic-player.json#0": [],
+  "test/scenarios/v29-08-observations.json#0": [],
   "test/journeys/j11-expand.story.json#0": [],
   "test/journeys/j11-judge.story.json#0": [],
   "test/journeys/j11-lore.story.json#0": [],

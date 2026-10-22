@@ -21,6 +21,13 @@ export interface HudCardProps extends HudCardActions {
 
 const PEEK = 5;
 
+export const NOTICE_MAX = 3;
+
+export const cardNotices = (snapshot: RuntimeSnapshot): { lines: string[]; more: number } => {
+  const fresh = (snapshot.game?.observations ?? []).filter((line) => line.fresh).map((line) => line.text);
+  return { lines: fresh.slice(0, NOTICE_MAX), more: Math.max(0, fresh.length - NOTICE_MAX) };
+};
+
 export const cardRoom = (hudTop: number, clipTop: number): number => Math.max(120, Math.floor(hudTop - clipTop - 8));
 
 export const memoryPeek = (snapshot: RuntimeSnapshot, limit = PEEK): MemoryEntry[] => (snapshot.memoryShown ?? [])
@@ -39,6 +46,7 @@ export const HudCard = ({ snapshot, panels, openPanel, openMemory, onMore, onClo
   const now = snapshot.narrative?.sections.find((section) => section.id === "now")?.lines ?? [];
   const action = pipelineAction(snapshot.pipeline);
   const remembered = peek ? memoryPeek(snapshot) : [];
+  const notices = cardNotices(snapshot);
 
   useLayoutEffect(() => {
     const element = card.current;
@@ -81,6 +89,13 @@ export const HudCard = ({ snapshot, panels, openPanel, openMemory, onMore, onClo
       </div>
       {now[1] ? <p className="so-hud-card-line">{now[1]}</p> : null}
       <p id="so-hud-card-status" className="so-hud-card-status">{snapshot.pipeline.text}{action ? ` ${action}` : ""}</p>
+      {notices.lines.length > 0 && (
+        <div id="so-hud-card-notice" className="so-hud-card-line">
+          <span>{GAME_TEXT.noticeLead}</span>
+          <ul>{notices.lines.map((line, index) => <li key={index} data-so="hud-card-notice-line">{line}</li>)}</ul>
+          {notices.more > 0 && <p data-so="hud-card-notice-more">{`and ${notices.more} ${GAME_TEXT.noticeMore}`}</p>}
+        </div>
+      )}
       <div className="so-hud-card-actions">
         {panels.map((panel) => (
           <button key={panel} type="button" id={PANEL_LABELS[panel].id} className="menu_button so-launcher" onClick={() => { onClose(false); openPanel(panel); }}>

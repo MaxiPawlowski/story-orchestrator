@@ -30,6 +30,7 @@ export interface EntryView {
 export interface EngineHost {
   now(): number;
   derive?(view: DerivedQualityView): Array<{ q: string; v: PrimitiveValue }>;
+  chanceIds?(): { chatId: string; storyId: string } | null;
 }
 
 export interface BoundaryContext {
@@ -513,7 +514,8 @@ export class StoryEngine {
     if (!writers?.length) return;
     const story = this.requireStory();
     const blackboard = this.requireBlackboard();
-    const view = { boundary, values: blackboard.entries(), visitedPath: this.visitedPath, activeCheckpointId: this.activeCheckpointId };
+    const chance = this.host.chanceIds?.() ?? undefined;
+    const view = { boundary, values: blackboard.entries(), visitedPath: this.visitedPath, activeCheckpointId: this.activeCheckpointId, ...(chance ? { chance } : {}) };
     for (const writer of writers) for (const delta of writer(story, view)) blackboard.applyDelta({ q: delta.q, v: delta.v, source: "code" });
   }
 

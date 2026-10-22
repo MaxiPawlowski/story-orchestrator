@@ -151,6 +151,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Playing | Story panels | Extra panels a story adds, such as a clock that fills, a board of quests, a wall of clues or a map. |  |
 | Playing | Story-made panels | A panel page a story brings, run shut off from SillyTavern. |  |
 | Playing | People and Places | Journal pages that fill in with the people and places you have learned about. |  |
+| Playing | Things you notice | Small details the story lets you notice, on the story card when they land and in the Journal after. |  |
 | Playing | Here now | A small card a story can place: where you are, when, and who you have met is with you. |  |
 | Playing | The narrator sees your sheet | What your stat sheet shows also reaches the narrator, so it does not deny an item you carry. |  |
 | Playing | Save this run as a story | Keep a living story's run as a story you can play again or edit. | Experimental |

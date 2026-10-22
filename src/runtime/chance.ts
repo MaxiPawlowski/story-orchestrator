@@ -19,6 +19,8 @@ export const chanceContext = (loaded: Pick<LoadedStory, "story" | "record"> | nu
   return loaded && storyId && chatId ? { chatId, storyId, boundary, qualities: loaded.story.qualities, story: loaded.story } : null;
 };
 
+export const chanceIdsOf = (context: ChanceContext | null): ChanceIds | null => (context ? { chatId: context.chatId, storyId: context.storyId } : null);
+
 export type ChanceDrawKind = "npc" | "talk" | "scene";
 
 export interface ChanceDraw extends ChanceIds {
@@ -32,6 +34,7 @@ export interface ChanceSeams {
   derive: (view: DerivedQualityView) => Array<{ q: string; v: PrimitiveValue }>;
   npcRoll: (key: string) => number | null;
   talkRandom: () => (() => number) | null;
+  ids: () => ChanceIds | null;
 }
 
 export const TALK_DRAW_KEY = "talk";
@@ -60,6 +63,7 @@ const announce = (draw: ChanceDraw) => drawListeners.forEach((listener) => liste
 export const announceChanceDraw = announce;
 
 export const createChanceSeams = (read: () => ChanceContext | null, record: (draw: ChanceDraw) => void = announce): ChanceSeams => ({
+  ids: () => chanceIdsOf(read()),
   derive: (view) => {
     const context = read();
     return context ? [...chanceGateValues(context.qualities, context, view), ...checkGateValues(context.story, context, view)] : [];

@@ -2,7 +2,7 @@ import { progressQualityForAnchor } from "./convergence";
 import { questLatchesMoved } from "./quests";
 import {
   CLOCK_MOVED_KEY, CLOCK_STORY_TIME_KEY, TIME_REACHED_PREFIX, TURN_OOC_KEY, agendaChapterKey, agendaRepeatsKey, agendaStepKey, agendaWaitKey, clockStart, isCodexKey,
-  isStoryTimeKey, moodAgeKey, moodSceneKey, moodWasKey, isCommitKey, isFactionKey, isLabelKey, questClosedKey, questRewardKey, type NormalizedStory,
+  isObservationKey, isStoryTimeKey, moodAgeKey, moodSceneKey, moodWasKey, isCommitKey, isFactionKey, isLabelKey, questClosedKey, questRewardKey, type NormalizedStory,
 } from "./schema";
 import { PLAYER_TURNS_KEY } from "./stretch";
 import { checkRolledKeys } from "./storyChecks";
@@ -53,6 +53,11 @@ export const ROLLBACK_DETECTORS: readonly RollbackDetector[] = [
     id: "codex",
     keys: (story) => Object.keys(story.qualityByKey).filter(isCodexKey),
     moved: (_story, before, after) => prefixMoved(isCodexKey, before, after),
+  },
+  {
+    id: "observations",
+    keys: (story) => Object.keys(story.qualityByKey).filter(isObservationKey),
+    moved: (_story, before, after) => prefixMoved(isObservationKey, before, after),
   },
   {
     id: "story-time",

@@ -98,10 +98,10 @@ const orderOutgoing = (checkpoints: Checkpoint[], normalizedTransitions: Normali
 const readList = <T,>(value: unknown, prefix: string, read: (entry: unknown, path: string, errors: ValidationError[]) => T | null, errors: ValidationError[]) =>
   (value as unknown[]).map((entry, index) => read(entry, `${prefix}.${index}`, errors)).filter((entry): entry is T => entry !== null);
 
-type GameFields = Pick<NormalizedStory, "quests" | "milestones" | "widgets" | "codex" | "life">;
+type GameFields = Pick<NormalizedStory, "quests" | "milestones" | "widgets" | "codex" | "observations" | "life">;
 
-const gameFields = ({ quests, milestones, widgets, codex, life }: GameFields): Partial<NormalizedStory> => ({
-  ...(quests ? { quests } : {}), ...(milestones ? { milestones } : {}), ...(widgets ? { widgets } : {}), ...(codex ? { codex } : {}),
+const gameFields = ({ quests, milestones, widgets, codex, observations, life }: GameFields): Partial<NormalizedStory> => ({
+  ...(quests ? { quests } : {}), ...(milestones ? { milestones } : {}), ...(widgets ? { widgets } : {}), ...(codex ? { codex } : {}), ...(observations ? { observations } : {}),
   ...(life?.clock ? { clock: life.clock } : {}), ...(life ? { life } : {}),
 });
 
@@ -121,11 +121,13 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   const quests = layer?.readQuests(json.quests, errors);
   const milestones = layer?.readMilestones(json.milestones, errors);
   const codex = layer?.codex.readCodex(json.codex, errors);
+  const observations = layer?.observations.readObservations(json.observations, errors);
   const builtin = addBuiltinTensionQuality(addProgressQualities(baseQualities, checkpoints, errors), errors);
   const life = layer?.life.readLife(json, errors);
   const factions = layer?.factions.readFactions(json.factions, errors);
   const rumorNet = layer?.rumors.readRumors(json, errors);
-  const coded = layer ? layer.codex.addCodexQualities(layer.life.addLifeQualities(layer.addRewardQualities(builtin, quests, errors), life, errors), codex, errors) : builtin;
+  const rewarded = layer ? layer.codex.addCodexQualities(layer.life.addLifeQualities(layer.addRewardQualities(builtin, quests, errors), life, errors), codex, errors) : builtin;
+  const coded = layer ? layer.observations.addObservationQualities(rewarded, observations, errors) : rewarded;
   const lived = layer ? layer.addCheckQualities(coded, checkpoints, errors) : coded;
   const qualities = layer ? layer.factions.addFactionQualities(lived, factions, (json.roster as unknown[]).filter(isRecord), errors) : lived;
   const options = readStoryOptions(json, errors);
@@ -163,6 +165,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   layer?.rumors.checkRumors(rumorNet, { roster, qualityByKey, hasClock: Boolean(life?.clock), life }, errors);
   const widgets = layer?.readWidgets(json.widgets, { qualityByKey, qualities, checkpointIds: new Set(Object.keys(checkpointById)), checkpoints, transitions, roster, factions }, errors);
   layer?.codex.checkCodex(codex, { checkpointById, qualityByKey, roster }, errors);
+  layer?.observations.checkObservations(observations, { checkpointById, qualityByKey, roster, codex }, errors);
   const carried = layer?.carry.readCarry(json, { storyId, qualityByKey, qualities, roster, transitions, checkpoints, quests: game, milestones, factions }, errors);
   checkLiving(living, checkpointById, roster, qualityByKey, errors);
   const chapterIndex = indexChapters(chapters, checkpoints, errors);
@@ -195,7 +198,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
     ...(chapters ? { chapters } : {}),
     ...(memoryOptions ? { memory: memoryOptions } : {}),
     ...(options.kind ? { kind: options.kind } : {}),
-    ...gameFields({ quests: game, milestones, widgets, codex, life }),
+    ...gameFields({ quests: game, milestones, widgets, codex, observations, life }),
     ...(living ? { living } : {}),
     ...(factions ? { factions } : {}),
     ...(rumorNet ? { rumorNet } : {}),

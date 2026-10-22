@@ -22,6 +22,11 @@ export const GAME_TEXT = {
   authorOverflow: "Left out of this read",
   wandJournal: "Journal",
   wandStatSheet: "Stat sheet",
+  noticed: "Noticed",
+  noticedEmpty: "Nothing noticed yet.",
+  noticeLead: "You notice:",
+  noticeMore: "more in the Journal",
+  noticedJump: "Show in chat",
 };
 
 export const QUEST_MOVE_TEXT: Record<Exclude<QuestStatus, "hidden">, string> = {

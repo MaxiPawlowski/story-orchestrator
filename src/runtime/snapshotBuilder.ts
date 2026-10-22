@@ -56,6 +56,7 @@ import { isRecord } from "@utils/guards";
 import { chapterKit, storyEnded } from "./chapterPort";
 import { composeRolls, createChance, reconstructQualityRolls } from "./rolls";
 import { checkRolls } from "./storyCheckDraws";
+import { observationKit } from "./observationRecords";
 import { gameSlices } from "./gameSnapshot";
 import { recapCardSections, recapSection } from "./recapPort";
 import { lifeAuthorSlice } from "./lifeSnapshot";
@@ -333,7 +334,8 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStory | null,
   const { extras } = sources;
   return {
     ...gameSlices({
-      story, state, boundaryLog: sources.boundaryLog, checks: extras.checks, chat: sources.chat, castNames: game.castNames, authorView: extras.ui.authorView, scopeContext: sources.scopeContext,
+      story, state, boundaryLog: sources.boundaryLog, checks: extras.checks, observations: extras.observations, resting: sources.resting,
+      chat: sources.chat, castNames: game.castNames, authorView: extras.ui.authorView, scopeContext: sources.scopeContext,
       enabled: sources.enabled, threads: { open: game.openThreads, resolved: story ? resolvedThreads(extras.memory, sources.resting) : [] },
       location: sceneLocationOf(story, extras), characters: sources.characters,
     }),
@@ -345,7 +347,8 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStory | null,
       branching: extras.stagecraft.settings.branchingEnabled !== false,
       epoch: extras.living ? graphEpoch(extras.living) : null,
     }),
-    rolls: composeRolls(quality, sources.extras.chance ?? createChance(), checkRolls(story, extras.checks)),
+    rolls: composeRolls(quality, sources.extras.chance ?? createChance(),
+      [...checkRolls(story, extras.checks), ...(extras.ui.authorView ? observationKit()?.rolls(story, extras.observations) ?? [] : [])]),
     repetition: sources.loaded && sources.extras.ui.authorView ? { ...mineRepetition(replyTexts(sources.chat)), byMember: memberRepetitionRows(story, sources.chat) } : null,
     ...(extras.ui.authorView && story ? { sameCharacter: sameCharacterCandidates(nameIndexOf(story), memorySightings(extras.memory), [extras.playerSetup?.name ?? "", "player", "you", "user"]) } : {}),
     presence: buildPresence({

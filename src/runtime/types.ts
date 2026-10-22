@@ -132,6 +132,7 @@ export interface RuntimeExtras {
   /** NPC reply and talk draws, by message; quality rolls are reconstructed instead. */
   chance?: ChanceRuntimeState;
   checks?: ChecksRuntimeState;
+  observations?: import("./observationRecords").ObservationsRuntimeState;
   agendaProposals?: AgendaProposalsState;
   recap?: RecapRuntimeState;
   living?: LivingRuntimeState;
