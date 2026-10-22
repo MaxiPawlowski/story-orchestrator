@@ -10,6 +10,7 @@ import { clearRegeneration, noteRegeneration, noteRenderAnchor, regeneratingMess
 
 const FLUSH_POLL_MS = 300;
 const FLUSH_POLL_MAX_MS = 60000;
+const FLUSH_POLL_SLOW_MS = 2000;
 
 export const NON_TURN_MESSAGE_TYPES: ReadonlySet<string> = new Set(["first_message", "extension"]);
 
@@ -81,6 +82,7 @@ export class TurnBridge {
     const entries: HostSubscriptionEntry[] = [
       { eventName: "GENERATION_ENDED", handler: () => void this.flushPending() },
       { eventName: "GENERATION_STOPPED", handler: () => void this.flushPending() },
+      { eventName: "GROUP_WRAPPER_FINISHED", handler: () => void this.flushPending() },
       { eventName: "MESSAGE_RECEIVED", handler: (messageId, type) => void this.onRenderedReply(type, messageId) },
       { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (messageId, type) => void this.onRenderedReply(type, messageId) },
       { eventName: "MESSAGE_SENT", handler: () => { clearRegeneration(); this.refreshIdentity(); } },
@@ -212,8 +214,7 @@ export class TurnBridge {
         void this.flushPending();
         return;
       }
-      if (Date.now() - startedAt >= FLUSH_POLL_MAX_MS) return;
-      this.flushTimer = setTimeout(tick, FLUSH_POLL_MS);
+      this.flushTimer = setTimeout(tick, Date.now() - startedAt >= FLUSH_POLL_MAX_MS ? FLUSH_POLL_SLOW_MS : FLUSH_POLL_MS);
     };
     this.flushTimer = setTimeout(tick, FLUSH_POLL_MS);
   }
