@@ -333,10 +333,9 @@ export interface RosterMember {
   card?: CardBinding;
   sprites?: MemberSprites;
   relationships?: RelationshipDecl[];
-  mood?: MoodDecl;
+  mood?: MoodDecl; polish?: import("./deliverySchema").RosterPolish;
   agenda?: Agenda[];
   schedule?: ScheduleEntry[]; factions?: string[]; commitments?: import("./lifeSchema").Commitment[];
-  polish?: import("./deliverySchema").RosterPolish;
 }
 
 export { PLAYER_NAME_MODES, PLAYER_ROLE_MAX_CHARS, PLAYER_SUMMARY_MAX_CHARS, PLAYER_ASSUMES_MAX,
@@ -498,8 +497,7 @@ export interface Story {
   quests?: Quest[];
   milestones?: Milestone[];
   widgets?: StoryWidget[];
-  codex?: import("./codexSchema").StoryCodex;
-  observations?: import("./observationSchema").Observation[];
+  codex?: import("./codexSchema").StoryCodex; observations?: import("./observationSchema").Observation[];
   clock?: StoryClock; calendar?: import("./lifeSchema").CalendarInput;
   living?: StoryLiving; factions?: import("./factionSchema").Faction[];
 }

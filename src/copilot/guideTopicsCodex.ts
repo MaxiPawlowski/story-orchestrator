@@ -21,3 +21,8 @@ export const CODEX_GUIDE_TOPIC = {
       + "seeded and never shown, and a miss is final. It shows on the story card that turn and in the Journal's Noticed section. Page only: no model is told. A swipe takes it back.",
   },
 } as const;
+
+export const OBSERVATION_DIAGNOSTIC_TOPICS = {
+  "observation-imposes-mind": "observations", "observation-instructs": "observations", "observation-never-read": "observations",
+  "observation-gate-holds-at-start": "observations",
+} as const;

@@ -1,5 +1,6 @@
 import { RECAP_GUIDE_TOPIC } from "./guideTopicsRecap";
-import { CODEX_GUIDE_TOPIC } from "./guideTopicsCodex";
+import { CODEX_GUIDE_TOPIC, OBSERVATION_DIAGNOSTIC_TOPICS } from "./guideTopicsCodex";
+import { DELIVERY_DIAGNOSTIC_TOPICS, DELIVERY_TOPICS } from "./guideTopicsDelivery";
 import { SHEET_GUIDE_TOPICS } from "./guideTopicsSheet";
 import type { DIAGNOSTIC_CODES } from "../studio/diagnostics";
 import { CHARACTER_TOPICS, FACTION_DIAGNOSTIC_TOPICS } from "./guideTopicsCharacters";
@@ -70,14 +71,7 @@ export const GUIDE_TOPICS = {
       + "in the last 20 messages (about 1,000 tokens, most recently named first) to foreshadow; own (default) sees only their own. Never put the player in the roster: "
       + "if a greeting says \"you are the lamplighter\", there is no Lamplighter card.",
   },
-  "roster-polish": {
-    title: "Voice and delivery",
-    fields: "roster[].polish, notes, prefer, avoid, tics, rhythm, by_mood, dialogue, enabled",
-    text: "polish {notes (300), prefer (12x40), avoid (20x40), tics (12x40), rhythm clipped|plain|flowing|ornate, by_mood {mood: text (160)}, dialogue keep|voice, enabled}: "
-      + "wording only, told to that member alone before they speak, never facts or plans. tics are habits named back when seen in 2 of their last 6 replies; "
-      + "repeated phrases are named too. No names in avoid/tics, no word in both prefer and avoid, by_mood needs mood. About 120 tokens: prefer, avoid, repeats, "
-      + "rhythm, then note sentences are cut. Record only what the card shows; never invent a trait.",
-  },
+  ...DELIVERY_TOPICS,
   "drives-motives": {
     title: "Drives and motives",
     fields: "roster[].drive, checkpoints[].motives",
@@ -439,7 +433,7 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "cast-member-no-card": "cast-changes",
   "background-missing": "background",
   "roster-member-is-player": "roster",
-  "delivery-names-unknown-entity": "roster-polish", "delivery-directs-player": "roster-polish", "delivery-over-budget": "roster-polish",
+  ...DELIVERY_DIAGNOSTIC_TOPICS,
   "cast-change-unknown-member": "cast-changes",
   "requirement-persona-missing": "requirements",
   "gate-open-on-arrival": "gates",
@@ -454,7 +448,6 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "widget-item-never-read": "clues-and-maps", "map-pin-unreachable": "clues-and-maps", "map-image-missing": "clues-and-maps",
   "html-widget-declared": "html-panels",
   "codex-fact-never-read": "codex", "codex-gate-holds-at-start": "codex", "disclosure-names-unknown-entity": "codex",
-  "observation-imposes-mind": "observations", "observation-instructs": "observations", "observation-never-read": "observations",
-  "observation-gate-holds-at-start": "observations",
+  ...OBSERVATION_DIAGNOSTIC_TOPICS,
 };
 
