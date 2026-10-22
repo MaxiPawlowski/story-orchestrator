@@ -234,3 +234,40 @@ Informational; frozen before inference; never retuned. Denominator: **100 eligib
 - Cross P1 — story-update reconciliation: applied (03 has no authored-definition-bound pending work beyond live candidates): candidates abandon on swap; recorded rows keep original findings.
 - Cross P2 — model routing: applied. Sol default, DeepSeek fallback only; rater exception pending owner, no model time/GPU/pod authorized.
 - Brief — schema reference: `per-character-polish.md` P1(1) replaced by 02's `RosterPolish`/`DeliverySheet` (`engine/deliverySchema.ts`); `banned_tics` → `tics`; `narration` = `Omit<DeliverySheet, "by_mood">`; speaker via 02's delivery-local unique-match resolver, not first-match `rosterIdForName` (`roster.ts:77`).
+
+## Gate record 2026-10-21 (v2.9 build, branch v2.9-03-polish)
+
+Built on master `65aebaa0` in `C:/dev/so-v29-03-polish`. No GPU, no model call, no lane, not staged. Scope per owner decisions 2026-10-21: S0, S1, S2. **S3 not built** (automatic write + chip; P0 thought-carry gate).
+
+Built:
+- **S1 pure core** (`src/polish/`, lazy): `text.ts` (quotes, sentences never split inside a quote, word-edge phrase spans), `windows.ts` (findings outside quotes: avoid, tics past 02's threshold, this speaker's repeats; finding sentences = windows, neighbours merged; anchor alignment, unique, idea from Lattice credited in THIRD-PARTY-NOTICES, no code copied), `guards.ts` (finding reduced, quotes frozen, added name/number, negation, modal, second person, player action, length bands 0.7-1.3 / 0.85-1.1, markup, target rise, held secret via resting filter, copied reference text, no-op = unchanged), `projection.ts` (02's sheet minus withheld names and resting-filtered sentences), `prompt.ts` (one sectioned prompt, 2 context lines, `[n]` output contract, `stripReasoningBlocks`, maxTokens = window tokens x 1.2 rounded to 64), `plan.ts`, `ledger.ts` (eligibility, consumption ledger, write-time mismatch).
+- Frozen fixtures (sha256 pinned in `guards.test.ts`): `test/fixtures/polish/structural-refusals.json` 21 cases, 21 refused with their code (+ accepted and unchanged controls); `semantic-challenges.json` 8 cases, scored only: 5 pass the guards (mental-state, knowledge x2, event dropped, relation swap), 3 refused by length band. The guards do not prove meaning; the zero-change floor needs the independent rater.
+- **S0 spike** (debug only, no feature ships): `TurnBridge.setReplySettle` seam awaited before `fireAfterSpeak`; stand-in polish `runtime/polish/standIn.ts` behind `globalThis.storyOrchestratorDebugPolishStandIn` (find/replace after a delay) with lazy writer `stHost/polishWrite.ts` (`mes` + `swipes[swipe_id]`, reasoning bytes untouched, `WriteResult`); review test `polishStandIn.review.test.ts`; no-model scenario `test/scenarios/v29-03-polish-standin.json` (schema-checked, evals parse).
+- **S2**: pass role `polish` "Reply polish" (default sol harness when offered; DeepSeek only as the failure fallback; never the play model: an unrouted polish role resolves to the memory model as `fallback`, which shadow treats as no route and sends nothing, and `defaultFallbackRoute` never returns the memory model for it); self-test run; story root `polish {mode, narration}` (`engine/polishSchema.ts` augmentation, `validate/polish.ts` in the game layer, `usesGameLayer`, `polish-only.story.json`); feature `polish {enabled, mode}` with story `polish.mode` as authored default in `resolveFeatures`; shadow runner `runtime/polish/shadow.ts` (records `extras.polish`, cap 200, rolled back by message, never writes, `consumedBy` from the ledger, hourly cap); check `two-polishers` (Recast auto-run); Studio Presentation `ReplyPolishEditor` + `setStoryPolish` mutation + agent tool; feature `reply-polish`, `FEATURE_STATE` row, settings copy, guide topic `story-polish` (+ compact twin), `npm run docs:guide`, `npm run docs:settings`, plan 24 matrix row, ownership census and error-copy rows.
+
+S0 consumer census (jest, real RuntimeManager + TurnBridge, four listener orders):
+- Written before `fireAfterSpeak` and the commit; the NPC-reply pass reads the polished text; commit fingerprint = polished text; 0 rollbacks, 0 eventless-change journals at the next boundary.
+- Abandon: quiet generation, third-party `GENERATION_STARTED`, next group member's start (k consumed at k+1's start), `MESSAGE_SENT`, edit (edit wins), `GENERATION_STOPPED` on the row, row replaced without an event, hold deadline. A dry run does not consume.
+- Swipe left and back shows the polished swipe; continue polishes only the suffix.
+- A read of the row runs at or after its boundary, which waits for settle: covered by order, not separately exercised.
+- K6b: every stand-in write on a reply with reasoning hides that reasoning from carry and harvest (`carryHides` 1 per write, `withoutStaleReasoning` drops it): the P0 baseline.
+- K13: a polish is a new `messageRevision` (same swipe id, new hash): your-move chip, talk decision and warden `noteAppliedTo` would treat it as a new reply. Per-consumer rules are S3 work.
+- SO `GENERATION_STARTED` listeners before prompt assembly: lore select at start (`loreSelectTiming.ts`), generation wiring `onStarted`, `requirementsWatch`; third parties unknown. Default kept: abandon once consumed. C+ not built.
+
+Gates on `e7515aaa`:
+- `npm run gates -- --no-storybook` (no `--resume`): `gates: all green in 216.3s` (typecheck, build, typecheck:test, debug:typecheck, test:debug, test:release, test:replay 32 of 32 killed, test 864 suites / 10061 passed + 1 skipped, test:plugin, lint).
+- Storybook alone on :6203 (`npm run storybook:build`, then http-server + test-runner `--maxWorkers 2`): 161 suites / 970 passed.
+- `npm run gates:quick` green before commit.
+- Main bundle `dist/index.js` 1,298,198 B (master 1,297,590; +608). Headroom made by loading the extension-conflict scan lazily (`wiring/lore.ts`; `vectorsWorldInfoOn` moved to `stHost/vectorsWorldInfo.ts`); polish host loads with the spikes chunk.
+
+NOT run:
+- No-model lane scenario v29-03-polish-standin x2: unmerged branch, no staging (wave 2).
+- S2 shadow faithfulness/preference/attribution (100 Artemis replies, independent rater), any real polish route call: no GPU (owner 2026-10-21).
+- S3 isolated-lane measurements: S3 not built.
+
+Deviations:
+- `mode` is `shadow | off`; `auto` waits for S3. On by default means shadow is on: with sol offered every reply with a finding makes one call (cap 40 an hour). The plan said S2 must not merge alone to avoid silent shadow quota spend: integrator/owner decision.
+- Install settings are `characters.polish`, `characters.polishMode`, `characters.polishMaxPerHour` (not `polish.*`); hold cap is a constant 45000 ms; no `polish.chip` (S3).
+- No Studio coverage row for `polish` (optional policy; a gap would make the wizard propose it).
+- Stand-in accepts `includeScripted` so a no-model lane's `/sendas` rows count; shadow never holds the boundary.
+- Test mocks in `generationWiring` / `loreForceWiring` review tests now keep the generation wiring's subscriber (polish adds a second `GENERATION_STARTED` subscriber).
