@@ -1,0 +1,732 @@
+{
+ "note": "Plan v2.9 08 O1-O3 frozen corpus (2026-10-21): 40 synthetic observations over the codex lab, a scripted run of 12 boundaries (one per player turn, message 2b), and the expected noticed/missed boundary of each. Passive rolls are chosen so the outcome holds for every seed.",
+ "chance": {
+  "chatId": "chat-o1",
+  "storyId": "codex-lab"
+ },
+ "observations": [
+  {
+   "id": "o01",
+   "text": "The ferry rope is frayed where it meets the post.",
+   "when": {
+    "q": "met_tom",
+    "op": "==",
+    "v": true
+   },
+   "source": "tom"
+  },
+  {
+   "id": "o02",
+   "text": "A thin line of salt crusts the hem of the coat.",
+   "when": {
+    "q": "heard_debt",
+    "op": "==",
+    "v": true
+   }
+  },
+  {
+   "id": "o03",
+   "text": "Fresh scratches circle the lock of the dock shed.",
+   "when": {
+    "q": "searched_dock",
+    "op": "==",
+    "v": true
+   }
+  },
+  {
+   "id": "o04",
+   "text": "One ledger page is a different shade of paper.",
+   "when": {
+    "q": "found_ledger",
+    "op": "==",
+    "v": true
+   },
+   "source": "innkeeper"
+  },
+  {
+   "id": "o05",
+   "text": "The mill wheel stands still, but the race is wet.",
+   "when": {
+    "q": "saw_mill",
+    "op": "==",
+    "v": true
+   }
+  },
+  {
+   "id": "o06",
+   "text": "A black ribbon is tied around the gate latch.",
+   "when": {
+    "q": "asked_widow",
+    "op": "==",
+    "v": true
+   }
+  },
+  {
+   "id": "o07",
+   "text": "The letter's ink has run in two places.",
+   "when": {
+    "q": "read_letter",
+    "op": "==",
+    "v": true
+   }
+  },
+  {
+   "id": "o08",
+   "text": "The bell rope is worn smooth halfway down.",
+   "when": {
+    "q": "rang_bell",
+    "op": "==",
+    "v": true
+   }
+  },
+  {
+   "id": "o09",
+   "text": "The coins are older than the ones sold at the market.",
+   "when": {
+    "q": "paid",
+    "op": "==",
+    "v": true
+   }
+  },
+  {
+   "id": "o10",
+   "text": "Water stands in the cellar steps.",
+   "when": {
+    "q": "lost",
+    "op": "==",
+    "v": true
+   }
+  },
+  {
+   "id": "o11",
+   "text": "Two sets of boot prints lead to the water.",
+   "when": {
+    "all": [
+     {
+      "q": "met_tom",
+      "op": "==",
+      "v": true
+     },
+     {
+      "q": "heard_debt",
+      "op": "==",
+      "v": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "o12",
+   "text": "Candle wax has dripped onto the counter.",
+   "when": {
+    "any": [
+     {
+      "q": "rang_bell",
+      "op": "==",
+      "v": true
+     },
+     {
+      "q": "read_letter",
+      "op": "==",
+      "v": true
+     }
+    ]
+   }
+  },
+  {
+   "id": "o13",
+   "text": "Mist sits low over the landing.",
+   "when": {
+    "not": {
+     "q": "lost",
+     "op": "==",
+     "v": true
+    }
+   }
+  },
+  {
+   "id": "o14",
+   "text": "Flour dust lies thick on every sill.",
+   "when": {
+    "q": "location",
+    "op": "==",
+    "v": "mill"
+   }
+  },
+  {
+   "id": "o15",
+   "text": "A lantern burns in the upper window.",
+   "when": {
+    "all": [
+     {
+      "q": "saw_mill",
+      "op": "==",
+      "v": true
+     },
+     {
+      "not": {
+       "q": "paid",
+       "op": "==",
+       "v": true
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "o16",
+   "text": "The far shore's dock has new planks.",
+   "when": {
+    "all": [
+     {
+      "q": "paid",
+      "op": "==",
+      "v": true
+     },
+     {
+      "not": {
+       "q": "lost",
+       "op": "==",
+       "v": true
+      }
+     }
+    ]
+   }
+  },
+  {
+   "id": "o17",
+   "text": "Reeds bend in a wake that no boat made.",
+   "when": {
+    "reached": "river"
+   }
+  },
+  {
+   "id": "o18",
+   "text": "The millstones are chipped along one edge.",
+   "when": {
+    "reached": "mill"
+   }
+  },
+  {
+   "id": "o19",
+   "text": "Gulls circle a single post in the shallows.",
+   "when": {
+    "reached": "end"
+   }
+  },
+  {
+   "id": "o20",
+   "text": "Tar has been brushed over old rot on the planks.",
+   "when": {
+    "reached": "start"
+   }
+  },
+  {
+   "id": "o21",
+   "text": "The boatman's hands are calloused across the palms.",
+   "when": {
+    "q": "codex_p_ferryman",
+    "op": ">=",
+    "v": 1
+   }
+  },
+  {
+   "id": "o22",
+   "text": "A folded note sticks out of a coat pocket.",
+   "when": {
+    "q": "codex_p_ferryman_debt",
+    "op": ">=",
+    "v": 1
+   }
+  },
+  {
+   "id": "o23",
+   "text": "The bar's back shelf has one clean square in the dust.",
+   "when": {
+    "q": "codex_p_innkeeper_ledger",
+    "op": ">=",
+    "v": 1
+   }
+  },
+  {
+   "id": "o24",
+   "text": "The mill door has been oiled recently.",
+   "when": {
+    "q": "codex_l_mill",
+    "op": ">=",
+    "v": 1
+   }
+  },
+  {
+   "id": "o25",
+   "text": "Green wax flakes lie on the hall floor.",
+   "when": {
+    "q": "codex_p_widow_owner",
+    "op": ">=",
+    "v": 1
+   }
+  },
+  {
+   "id": "o26",
+   "text": "The night lamp on the ferry is new.",
+   "when": {
+    "q": "codex_p_ferryman_job",
+    "op": ">=",
+    "v": 1
+   }
+  },
+  {
+   "id": "o27",
+   "text": "The widow's chair faces the window.",
+   "when": {
+    "q": "codex_p_widow_gone",
+    "op": ">=",
+    "v": 1
+   }
+  },
+  {
+   "id": "o28",
+   "text": "A tally of chalk marks runs beside the bell.",
+   "when": {
+    "q": "codex_p_innkeeper_bell",
+    "op": ">=",
+    "v": 1
+   }
+  },
+  {
+   "id": "o29",
+   "text": "Salt has also dried on the boat's bench.",
+   "when": {
+    "q": "obs_o02",
+    "op": ">=",
+    "v": 1
+   }
+  },
+  {
+   "id": "o30",
+   "text": "The post itself is newer than the rope.",
+   "when": {
+    "q": "obs_o01",
+    "op": ">=",
+    "v": 1
+   }
+  },
+  {
+   "id": "o31",
+   "text": "A faint smell of pitch hangs in the air.",
+   "when": {
+    "q": "heard_debt",
+    "op": "==",
+    "v": true
+   },
+   "passive": {
+    "roll": {
+     "sides": 6,
+     "target": 1
+    }
+   }
+  },
+  {
+   "id": "o32",
+   "text": "A hairline crack runs through the shed's hinge.",
+   "when": {
+    "q": "searched_dock",
+    "op": "==",
+    "v": true
+   },
+   "passive": {
+    "roll": {
+     "sides": 6,
+     "target": 7
+    }
+   }
+  },
+  {
+   "id": "o33",
+   "text": "The bell's clapper is bound in cloth.",
+   "when": {
+    "q": "rang_bell",
+    "op": "==",
+    "v": true
+   },
+   "passive": {
+    "roll": {
+     "sides": 6,
+     "target": 7
+    },
+    "modifiers": [
+     {
+      "q": "paid",
+      "v": true,
+      "add": 6
+     }
+    ]
+   }
+  },
+  {
+   "id": "o34",
+   "text": "The purse strings are knotted twice.",
+   "when": {
+    "q": "paid",
+    "op": "==",
+    "v": true
+   },
+   "passive": {
+    "roll": {
+     "sides": 6,
+     "target": 7
+    },
+    "modifiers": [
+     {
+      "q": "met_tom",
+      "v": true,
+      "add": 6
+     }
+    ]
+   }
+  },
+  {
+   "id": "o35",
+   "text": "A child's shoe is wedged under the sluice.",
+   "when": {
+    "reached": "mill"
+   },
+   "passive": {
+    "roll": {
+     "sides": 6,
+     "target": 2,
+     "dice": 2
+    }
+   }
+  },
+  {
+   "id": "o36",
+   "text": "Fishing line is strung low across the path.",
+   "when": {
+    "reached": "mill"
+   },
+   "passive": {
+    "roll": {
+     "sides": 6,
+     "target": 13,
+     "dice": 2
+    }
+   }
+  },
+  {
+   "id": "o37",
+   "text": "Something glints at the bottom of the race.",
+   "when": {
+    "q": "lost",
+    "op": "==",
+    "v": true
+   },
+   "passive": {
+    "roll": {
+     "sides": 6,
+     "target": 1
+    }
+   }
+  },
+  {
+   "id": "o38",
+   "text": "The ledger's spine has been re-stitched.",
+   "when": {
+    "q": "found_ledger",
+    "op": "==",
+    "v": true
+   },
+   "passive": {
+    "roll": {
+     "sides": 6,
+     "target": 1
+    },
+    "modifiers": [
+     {
+      "q": "lost",
+      "v": true,
+      "add": -5
+     }
+    ]
+   }
+  },
+  {
+   "id": "o39",
+   "text": "The letter's fold lines do not match.",
+   "when": {
+    "q": "read_letter",
+    "op": "==",
+    "v": true
+   },
+   "passive": {
+    "roll": {
+     "sides": 20,
+     "target": 1
+    },
+    "modifiers": [
+     {
+      "q": "lost",
+      "v": true,
+      "add": -5
+     }
+    ]
+   }
+  },
+  {
+   "id": "o40",
+   "text": "The grain sacks are stacked to hide a door.",
+   "when": {
+    "any": [
+     {
+      "q": "saw_mill",
+      "op": "==",
+      "v": true
+     },
+     {
+      "q": "paid",
+      "op": "==",
+      "v": true
+     }
+    ]
+   },
+   "passive": {
+    "roll": {
+     "sides": 6,
+     "target": 7
+    },
+    "modifiers": [
+     {
+      "q": "location",
+      "v": "mill",
+      "add": 6
+     }
+    ]
+   }
+  }
+ ],
+ "script": [
+  [
+   [
+    "met_tom",
+    true
+   ]
+  ],
+  [
+   [
+    "heard_debt",
+    true
+   ]
+  ],
+  [
+   [
+    "searched_dock",
+    true
+   ]
+  ],
+  [
+   [
+    "found_ledger",
+    true
+   ]
+  ],
+  [],
+  [
+   [
+    "saw_mill",
+    true
+   ],
+   [
+    "location",
+    "mill"
+   ]
+  ],
+  [
+   [
+    "asked_widow",
+    true
+   ]
+  ],
+  [
+   [
+    "read_letter",
+    true
+   ]
+  ],
+  [
+   [
+    "rang_bell",
+    true
+   ]
+  ],
+  [
+   [
+    "paid",
+    true
+   ]
+  ],
+  [],
+  []
+ ],
+ "expected": {
+  "o01": {
+   "noticed": 1,
+   "missed": null
+  },
+  "o02": {
+   "noticed": 2,
+   "missed": null
+  },
+  "o03": {
+   "noticed": 3,
+   "missed": null
+  },
+  "o04": {
+   "noticed": 4,
+   "missed": null
+  },
+  "o05": {
+   "noticed": 6,
+   "missed": null
+  },
+  "o06": {
+   "noticed": 7,
+   "missed": null
+  },
+  "o07": {
+   "noticed": 8,
+   "missed": null
+  },
+  "o08": {
+   "noticed": 9,
+   "missed": null
+  },
+  "o09": {
+   "noticed": 10,
+   "missed": null
+  },
+  "o10": {
+   "noticed": null,
+   "missed": null
+  },
+  "o11": {
+   "noticed": 2,
+   "missed": null
+  },
+  "o12": {
+   "noticed": 8,
+   "missed": null
+  },
+  "o13": {
+   "noticed": 1,
+   "missed": null
+  },
+  "o14": {
+   "noticed": 6,
+   "missed": null
+  },
+  "o15": {
+   "noticed": 6,
+   "missed": null
+  },
+  "o16": {
+   "noticed": 10,
+   "missed": null
+  },
+  "o17": {
+   "noticed": 1,
+   "missed": null
+  },
+  "o18": {
+   "noticed": 6,
+   "missed": null
+  },
+  "o19": {
+   "noticed": 10,
+   "missed": null
+  },
+  "o20": {
+   "noticed": 1,
+   "missed": null
+  },
+  "o21": {
+   "noticed": 1,
+   "missed": null
+  },
+  "o22": {
+   "noticed": 3,
+   "missed": null
+  },
+  "o23": {
+   "noticed": 5,
+   "missed": null
+  },
+  "o24": {
+   "noticed": 6,
+   "missed": null
+  },
+  "o25": {
+   "noticed": 8,
+   "missed": null
+  },
+  "o26": {
+   "noticed": 2,
+   "missed": null
+  },
+  "o27": {
+   "noticed": 11,
+   "missed": null
+  },
+  "o28": {
+   "noticed": 10,
+   "missed": null
+  },
+  "o29": {
+   "noticed": 3,
+   "missed": null
+  },
+  "o30": {
+   "noticed": 1,
+   "missed": null
+  },
+  "o31": {
+   "noticed": 2,
+   "missed": null
+  },
+  "o32": {
+   "noticed": null,
+   "missed": 3
+  },
+  "o33": {
+   "noticed": null,
+   "missed": 9
+  },
+  "o34": {
+   "noticed": 10,
+   "missed": null
+  },
+  "o35": {
+   "noticed": 6,
+   "missed": null
+  },
+  "o36": {
+   "noticed": null,
+   "missed": 6
+  },
+  "o37": {
+   "noticed": null,
+   "missed": null
+  },
+  "o38": {
+   "noticed": 4,
+   "missed": null
+  },
+  "o39": {
+   "noticed": 8,
+   "missed": null
+  },
+  "o40": {
+   "noticed": 6,
+   "missed": null
+  }
+ }
+}

@@ -34,13 +34,13 @@ const readModifier = (entry: unknown, at: string, errors: ValidationError[]): Ch
   return [{ q, v: entry.v, add, ...(label ? { label } : {}) }];
 };
 
-const readModifiers = (value: unknown, path: string, errors: ValidationError[]): CheckModifier[] => {
+export const readModifiers = (value: unknown, path: string, errors: ValidationError[]): CheckModifier[] => {
   if (value === undefined) return [];
   if (!Array.isArray(value)) return refuse(errors, path, "modifiers are a list of {q, v, add}", []);
   return value.flatMap((entry, index) => readModifier(entry, `${path}.${index}`, errors));
 };
 
-const readCheckRoll = (value: unknown, path: string, errors: ValidationError[]): StoryCheck["roll"] | null => {
+export const readCheckRoll = (value: unknown, path: string, errors: ValidationError[]): StoryCheck["roll"] | null => {
   if (!isRecord(value)) return refuse(errors, path, "a check rolls {sides, target, dice?}", null);
   rejectUnknownKeys(value, ROLL_KEYS, path, errors);
   const dice = value.dice === undefined ? 1 : value.dice;

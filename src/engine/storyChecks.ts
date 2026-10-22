@@ -1,6 +1,6 @@
 import { dieFace } from "./chance";
 import { evaluateGate, type GateReader } from "./gates";
-import { checkRolledKey, type CheckDegree, type GateNode, type NormalizedStory, type NormalizedTransition, type PrimitiveValue, type StoryCheck } from "./schema";
+import { checkRolledKey, type CheckDegree, type CheckModifier, type CheckRoll, type GateNode, type NormalizedStory, type NormalizedTransition, type PrimitiveValue, type StoryCheck } from "./schema";
 import { valueReader } from "./quests";
 
 export interface ActiveCheck {
@@ -34,15 +34,21 @@ export const checkWrittenKeys = (check: StoryCheck): string[] => [check.quality,
 
 export const checkDice = (check: StoryCheck): number => check.roll.dice ?? 1;
 
-export const resolveCheck = (check: StoryCheck, units: readonly number[], values: Readonly<Record<string, PrimitiveValue>>): CheckResult => {
-  const faces = units.map((unit) => dieFace(check.roll.sides, unit));
-  const modifiers = (check.modifiers ?? []).filter((modifier) => values[modifier.q] === modifier.v)
+export type RollResult = Omit<CheckResult, "degree">;
+
+export const resolveRoll = (roll: CheckRoll, checkModifiers: readonly CheckModifier[] | undefined, units: readonly number[], values: Readonly<Record<string, PrimitiveValue>>): RollResult => {
+  const faces = units.map((unit) => dieFace(roll.sides, unit));
+  const modifiers = (checkModifiers ?? []).filter((modifier) => values[modifier.q] === modifier.v)
     .map((modifier) => ({ q: modifier.q, add: modifier.add, ...(modifier.label ? { label: modifier.label } : {}) }));
   const total = faces.reduce((sum, face) => sum + face, 0) + modifiers.reduce((sum, modifier) => sum + modifier.add, 0);
-  const success = total >= check.roll.target;
+  return { faces, modifiers, total, success: total >= roll.target, twist: faces.length > 1 && faces.every((face) => face === faces[0]) };
+};
+
+export const resolveCheck = (check: StoryCheck, units: readonly number[], values: Readonly<Record<string, PrimitiveValue>>): CheckResult => {
+  const result = resolveRoll(check.roll, check.modifiers, units, values);
   const margin = check.outcome?.partial_margin;
-  const degree: CheckDegree | null = margin === undefined ? null : !success ? "miss" : total >= check.roll.target + margin ? "strong" : "weak";
-  return { faces, modifiers, total, success, degree, twist: faces.length > 1 && faces.every((face) => face === faces[0]) };
+  const degree: CheckDegree | null = margin === undefined ? null : !result.success ? "miss" : result.total >= check.roll.target + margin ? "strong" : "weak";
+  return { ...result, degree };
 };
 
 export const checkWrites = (check: StoryCheck, result: CheckResult): Array<{ q: string; v: PrimitiveValue }> => [
