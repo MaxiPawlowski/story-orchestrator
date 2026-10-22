@@ -7,10 +7,8 @@ import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, rejectUnknownKeys } from "./common";
 import { readCheckpointChapter } from "./chapters";
 import { readGuidance } from "../checkpointGuidance";
-import { readStretch } from "./stretch";
 import { gameLayer } from "./gameLayer";
 import { readWorkflowMap } from "./illustrations";
-import { readRosterPolish } from "./delivery";
 
 type Member = Story["roster"][number];
 
@@ -44,7 +42,7 @@ const readMemberAliases = (member: Member, path: string, errors: ValidationError
 const readMemberPolish = (member: Member, path: string, names: readonly string[], errors: ValidationError[]): Member => {
   const { polish, ...rest } = member;
   if (polish === undefined) return member;
-  const read = readRosterPolish(polish, member, { path: `${path}.polish`, errors, names });
+  const read = gameLayer()?.delivery.readRosterPolish(polish, member, { path: `${path}.polish`, errors, names });
   return read ? { ...rest, polish: read } : rest;
 };
 
@@ -323,7 +321,7 @@ export const readCheckpoint = (value: unknown, path: string, errors: ValidationE
   const motives = value.motives === undefined ? undefined : readMotives(value.motives, `${path}.motives`, errors);
   if (motives) checkpoint.motives = motives;
   if (value.stretch !== undefined) {
-    const stretch = readStretch(value.stretch, `${path}.stretch`, errors, type);
+    const stretch = gameLayer()?.stretch.readStretch(value.stretch, `${path}.stretch`, errors, type);
     if (stretch) checkpoint.stretch = stretch;
   }
   readCheckpointChapter(value, checkpoint, path, errors);

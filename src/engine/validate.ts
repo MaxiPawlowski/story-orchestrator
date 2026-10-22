@@ -5,18 +5,16 @@ import {
 import { isRecord } from "@utils/guards";
 import { readFeaturePolicies } from "./featurePolicy";
 import { addError, asString } from "./validate/common";
+import { PLAYER_TURNS_KEY } from "./stretch";
 import { buildReachability, readTransition, validateGate, validateLiteral } from "./validate/gates";
 import { readCheckpoint, readRoster } from "./validate/checkpoints";
-import { deliveryNames } from "./validate/delivery";
 import { resolveGuidanceMembers } from "./checkpointGuidance";
 import { addBuiltinTensionQuality, addProgressQualities, readQuality } from "./validate/qualities";
 import { readArcBridges, readStoryOptions } from "./validate/storyOptions";
 import { indexChapters, readChapters, readMemoryOptions } from "./validate/chapters";
 import { indexCardFields, validateCardEffects } from "./cardFields";
-import { checkStretches } from "./validate/stretch";
 import { readPlayer } from "./validate/player";
-import { GAME_LAYER_LOADING, gameLayer, usesGameLayer } from "./validate/gameLayer";
-import { addLivingQualities, checkLiving, livingOpening, needsLivingOpening, readLiving } from "./validate/living";
+import { GAME_LAYER_LOADING, gameLayer, usesGameLayer, type GameLayer } from "./validate/gameLayer";
 import { checkRecapGates } from "./validate/recap";
 
 export { readChapters };
@@ -105,6 +103,19 @@ const gameFields = ({ quests, milestones, widgets, codex, observations, life, pa
   ...(life?.clock ? { clock: life.clock } : {}), ...(life ? { life } : {}), ...(patterns ? { patterns } : {}),
 });
 
+const checkTurnsKey = (qualityByKey: Record<string, Quality>, errors: ValidationError[]): void => {
+  const turns = qualityByKey[PLAYER_TURNS_KEY];
+  if (turns && (turns.type !== "int" || turns.source !== "code")) addError(errors, "qualities", `${PLAYER_TURNS_KEY} must be an int with source code`);
+};
+
+const readLivingParts = (layer: GameLayer | null, json: Record<string, unknown>, errors: ValidationError[]) => {
+  const living = layer?.living.readLiving(json.living, errors);
+  const authored = readList(json.checkpoints, "checkpoints", readCheckpoint, errors);
+  const checkpoints = living && layer?.living.needsLivingOpening(living, authored) ? [layer.living.livingOpening(living, json.chapters), ...authored] : authored;
+  const qualities = readList(json.qualities, "qualities", readQuality, errors);
+  return { living, checkpoints, baseQualities: layer ? layer.living.addLivingQualities(living, qualities) : qualities };
+};
+
 export const parseStory = (json: unknown): NormalizedStory | ValidationError[] => {
   const errors: ValidationError[] = [];
   if (!isRecord(json)) return [{ path: "$", message: "story must be an object" }];
@@ -113,10 +124,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   const layer = gameLayer();
   if (!layer && usesGameLayer(json)) return [{ path: "$", message: GAME_LAYER_LOADING }];
 
-  const living = readLiving(json.living, errors);
-  const authoredCheckpoints = readList(json.checkpoints, "checkpoints", readCheckpoint, errors);
-  const checkpoints = living && needsLivingOpening(living, authoredCheckpoints) ? [livingOpening(living, json.chapters), ...authoredCheckpoints] : authoredCheckpoints;
-  const baseQualities = addLivingQualities(living, readList(json.qualities, "qualities", readQuality, errors));
+  const { living, checkpoints, baseQualities } = readLivingParts(layer, json, errors);
   const transitions = readList(json.transitions, "transitions", readTransition, errors);
   const quests = layer?.readQuests(json.quests, errors);
   const milestones = layer?.readMilestones(json.milestones, errors);
@@ -133,7 +141,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   const qualities = layer ? layer.factions.addFactionQualities(lived, factions, (json.roster as unknown[]).filter(isRecord), errors) : lived;
   const options = readStoryOptions(json, errors);
   const features = readFeaturePolicies(json.features, (path, message) => addError(errors, path, message));
-  const roster = readRoster(json.roster as Story["roster"], errors, deliveryNames(json));
+  const roster = readRoster(json.roster as Story["roster"], errors, layer?.delivery.deliveryNames(json));
   resolveGuidanceMembers(checkpoints, roster);
   const arcBridges = readArcBridges(json.arc_bridges, errors);
   const chapters = readChapters(json.chapters, errors);
@@ -155,7 +163,8 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   const normalizedTransitions = transitions.map((transition, declarationIndex) => ({ ...transition, declarationIndex }));
   const reachableByCheckpoint = buildReachability(checkpoints, normalizedTransitions);
   checkIntermediates(checkpoints, checkpointById, reachableByCheckpoint, errors);
-  checkStretches(checkpoints, transitions, qualityByKey, errors);
+  checkTurnsKey(qualityByKey, errors);
+  layer?.stretch.checkStretches(checkpoints, transitions, qualityByKey, errors);
   layer?.checkDisplays(qualities, json.checkpoints as unknown[], errors);
   layer?.checkStoryChecks(checkpoints, transitions, qualityByKey, errors);
   const game = quests ? layer?.expandRequires(quests, errors) : undefined;
@@ -168,7 +177,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   layer?.codex.checkCodex(codex, { checkpointById, qualityByKey, roster }, errors);
   layer?.observations.checkObservations(observations, { checkpointById, qualityByKey, roster, codex }, errors);
   const carried = layer?.carry.readCarry(json, { storyId, qualityByKey, qualities, roster, transitions, checkpoints, quests: game, milestones, factions }, errors);
-  checkLiving(living, checkpointById, roster, qualityByKey, errors);
+  layer?.living.checkLiving(living, checkpointById, roster, qualityByKey, errors);
   layer?.patterns.checkPatterns(patterns, { checkpointById, checkpoints, transitions, quests: game, milestones, chapters, roster, qualityByKey }, errors);
   const chapterIndex = indexChapters(chapters, checkpoints, errors);
   if (errors.length) return errors;

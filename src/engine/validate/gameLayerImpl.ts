@@ -26,6 +26,9 @@ import { observationLatches, observationRoll, observationScopeUnits } from "../o
 import { readCarry } from "./carry";
 import { checkRumors, readRumors } from "./rumors";
 import { checkPatterns, readPatterns } from "./patterns";
+import { deliveryNames, readRosterPolish } from "./delivery";
+import { checkStretches, readStretch } from "./stretch";
+import { addLivingQualities, checkLiving, livingOpening, needsLivingOpening, readLiving } from "./living";
 import { spreadRumors } from "../../memory/rumors/spread";
 import { hearsayLines, rumorAuthorRows } from "../../memory/rumors/lines";
 import { carryKnownLines, carryView, importCarryErrors, startSeed } from "../carry";
@@ -52,6 +55,12 @@ const OBSERVATIONS = { readObservations, addObservationQualities, checkObservati
 
 const PATTERNS = { readPatterns, checkPatterns };
 
+const DELIVERY = { readRosterPolish, deliveryNames };
+
+const STRETCH = { readStretch, checkStretches };
+
+const LIVING = { readLiving, needsLivingOpening, livingOpening, addLivingQualities, checkLiving };
+
 const LATCH_WRITERS = [codexLatches, factionLatches, labelLatches, commitmentLatches, observationLatches] as const;
 
 const DISCOVERY_UNITS = [codexScopeUnits, factionDiscoveryUnits, labelDiscoveryUnits, commitmentDiscoveryUnits, observationScopeUnits] as const;
@@ -61,6 +70,6 @@ const ENTRY_WRITERS = [timeEntry] as const;
 export const GAME_LAYER = {
   readCheck, readChecks, checkStoryChecks, addCheckQualities,
   checkDisplays, readDisplay, addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests, readWidgets, life: LIFE, poses, validateCardLayers,
-  codex: CODEX, observations: OBSERVATIONS, factions: FACTIONS, carry: CARRY, rumors: RUMORS, patterns: PATTERNS, latchWriters: LATCH_WRITERS,
+  codex: CODEX, observations: OBSERVATIONS, factions: FACTIONS, carry: CARRY, rumors: RUMORS, patterns: PATTERNS, delivery: DELIVERY, living: LIVING, stretch: STRETCH, latchWriters: LATCH_WRITERS,
   discoveryUnits: DISCOVERY_UNITS, entryWriters: ENTRY_WRITERS,
 };
