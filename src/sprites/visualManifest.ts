@@ -77,6 +77,39 @@ export function publishedLook(source: VisualManifest, fields: Record<string, str
   return look && set ? { set, path: look.base.path } : null;
 }
 
+const LOOK_FILLER = new Set(["a", "an", "the", "and", "with", "over", "under", "of", "in", "on", "her", "his", "their"]);
+const lookWords = (value: string): Set<string> => new Set(value.toLowerCase().split(/[^a-z0-9]+/).filter((word) => word.length > 1 && !LOOK_FILLER.has(word)));
+export const NEAREST_LOOK_MIN = 0.5;
+
+export function lookOverlap(a: Record<string, string>, b: Record<string, string>): number {
+  const keys = Object.keys(a);
+  if (!keys.length || keys.length !== Object.keys(b).length || keys.some((key) => !(key in b))) return 0;
+  return keys.reduce((sum, key) => {
+    const left = lookWords(a[key]), right = lookWords(b[key]);
+    const shared = [...left].filter((word) => right.has(word)).length, union = new Set([...left, ...right]).size;
+    return sum + (union ? shared / union : 0);
+  }, 0) / keys.length;
+}
+
+export function nearestLook(source: VisualManifest, fields: Record<string, string>): { set: string; path: string } | null {
+  let best: { set: string; path: string; score: number } | null = null;
+  for (const [set, look] of Object.entries(source.looks)) {
+    if (set === "default" || look.root !== visualRoot(source)) continue;
+    const parsed = parseSignature(look.signature);
+    const score = parsed ? lookOverlap(fields, parsed) : 0;
+    if (score >= NEAREST_LOOK_MIN && (!best || score > best.score)) best = { set, path: look.base.path, score };
+  }
+  return best && { set: best.set, path: best.path };
+}
+
+function parseSignature(signature: string): Record<string, string> | null {
+  try {
+    const rows: unknown = JSON.parse(signature);
+    return Array.isArray(rows) && rows.every((row) => Array.isArray(row) && row.length === 2 && row.every((cell) => typeof cell === "string"))
+      ? Object.fromEntries(rows as Array<[string, string]>) : null;
+  } catch { return null; }
+}
+
 export function publishVisualLook(source: VisualManifest, root: string, set: string, signature: string, served: VisualAsset): VisualManifest {
   const base = servedAsset(served);
   if (visualRoot(source) !== root) throw new Error("The accepted visual source changed. Prepare this look again.");
