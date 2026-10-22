@@ -23,6 +23,11 @@ export async function waitForTextPriority(deps: {
   }
 }
 
+export async function outsideTurns(deps: { loud(): Promise<boolean>; sleep(): Promise<void>; signal: AbortSignal }): Promise<void> {
+  while (await deps.loud()) { deps.signal.throwIfAborted(); await deps.sleep(); }
+  deps.signal.throwIfAborted();
+}
+
 export async function leaseOutsideTurns<Lease>(deps: {
   acquire(): Promise<Lease>;
   release(lease: Lease): Promise<void>;
@@ -31,8 +36,7 @@ export async function leaseOutsideTurns<Lease>(deps: {
   signal: AbortSignal;
 }): Promise<Lease> {
   for (;;) {
-    while (await deps.loud()) { deps.signal.throwIfAborted(); await deps.sleep(); }
-    deps.signal.throwIfAborted();
+    await outsideTurns(deps);
     const lease = await deps.acquire();
     if (!await deps.loud()) return lease;
     await deps.release(lease);

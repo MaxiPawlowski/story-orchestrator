@@ -1,7 +1,7 @@
 import { comfyReference, comfyReleaseReference, comfyRenderOwned, saveGeneratedSprite } from "@services/stHost/media";
 import { eyeBoxes, eyeOpenness, faceCount } from "./eyeOpen";
 import { reserveGpu, releaseGpu, renewGpu } from "@services/stHost/gpuBroker";
-import { hostGenerating, leaseOutsideTurns } from "./textPriority";
+import { hostGenerating, leaseOutsideTurns, outsideTurns } from "./textPriority";
 import type { RunOwnership } from "@runtime/runToken";
 import { SpriteBuilder } from "./builder";
 import { decodeImage, encodeImage, cropReference, resizeEdit } from "./images";
@@ -27,9 +27,10 @@ export function createSpriteBuilder(ownership: RunOwnership): SpriteBuilder {
       await verifyVisualSource(source, signal);
       return { root: visualRoot(source), current: () => sourceStillCurrent(source) };
     },
-    uploadReference: comfyReference, render: async (...args) => {
+    uploadReference: comfyReference, render: async (graph, signal) => {
+      await outsideTurns({ loud: hostGenerating, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)), signal });
       const busy = busyWork.begin("sprite", ownership.mint().chatId);
-      try { return await comfyRenderOwned(...args); } finally { busy.end(); }
+      try { return await comfyRenderOwned(graph, signal); } finally { busy.end(); }
     },
     releaseReference: async (name) => {
       const result = await comfyReleaseReference(name);

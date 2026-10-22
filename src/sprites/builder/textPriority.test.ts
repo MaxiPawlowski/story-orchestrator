@@ -1,4 +1,4 @@
-import { leaseOutsideTurns, waitForTextPriority } from "./textPriority";
+import { leaseOutsideTurns, outsideTurns, waitForTextPriority } from "./textPriority";
 
 test("another look render waits until every active and queued text request has cleared", async () => {
   const statuses = [{ activeText: 1, waitingText: 2 }, { activeText: 0, waitingText: 1 }, { activeText: 1, waitingText: 0 }, { activeText: 0, waitingText: 0 }];
@@ -50,4 +50,12 @@ test("waiting out a reply stops when the render is cancelled", async () => {
   const waiting = leaseOutsideTurns({ acquire, release: async () => {}, loud: async () => true, sleep: async () => { controller.abort(); }, signal: controller.signal });
   await expect(waiting).rejects.toThrow();
   expect(acquire).not.toHaveBeenCalled();
+});
+
+test("a render under a lease the batch already holds still waits out a reply before it is submitted", async () => {
+  const loud = [true, true, false], events: string[] = [];
+  await outsideTurns({ loud: async () => { events.push("check"); return loud.shift() ?? false; }, sleep: async () => { events.push("sleep"); }, signal: new AbortController().signal });
+  expect(events).toEqual(["check", "sleep", "check", "sleep", "check"]);
+  const controller = new AbortController();
+  await expect(outsideTurns({ loud: async () => true, sleep: async () => { controller.abort(); }, signal: controller.signal })).rejects.toThrow();
 });
