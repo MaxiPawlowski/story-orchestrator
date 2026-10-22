@@ -178,6 +178,19 @@ export const SETTING_COPY = {
     "Phrases a character used in several of their own last six replies, and the habits a story lists for them, are named back to that character alone as something to vary. "
       + "Read from the chat each time, so a swipe or edit changes it. No model call.",
   ),
+  "characters.polish": copy(
+    "Check replies for off-voice wording",
+    "When a reply uses a word its character would not use or keeps repeating a phrase, one call to the Reply polish model rewrites only those sentences, and code checks "
+      + "nothing else changed. Never the play model. In this build the result is only recorded for the author; the chat is not changed.",
+  ),
+  "characters.polishMode": copy(
+    "Reply polish mode",
+    "Shadow runs the check and records what would change, without touching the chat. Off sends nothing. The automatic rewrite is not built yet.",
+  ),
+  "characters.polishMaxPerHour": copy(
+    "Polish calls per hour",
+    "At most this many Reply polish calls in an hour, so a subscription route is not used up. Replies past the cap stay as written.",
+  ),
   "memory.promises": copy(
     "Remember promises you make",
     "When you promise a character something, the story keeps your exact words and reminds only that character, when the scene touches it. "

@@ -3,7 +3,7 @@ import { getContext } from "./context";
 import { getScannableEntries } from "./worldInfoActivate";
 import { LOADED_ARRAYS, observeWorldInfoScans } from "./worldInfoEvidence";
 import { log } from "@utils/log";
-import { vectorsWorldInfoOn } from "./extensionConflicts";
+import { vectorsWorldInfoOn } from "./vectorsWorldInfo";
 
 export interface ScanGatingHandle {
   reassert: () => void;

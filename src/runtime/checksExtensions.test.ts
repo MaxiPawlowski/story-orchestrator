@@ -21,6 +21,7 @@ const CASES = [
   { id: "stepped-thinking-separated", conflict: "stepped-thinking-separated", severity: "degrades" },
   { id: "presence-hides-chat", conflict: "presence", severity: "degrades" },
   { id: "prompt-inspector-on", conflict: "prompt-inspector", severity: "degrades" },
+  { id: "two-polishers", conflict: "recast-autorun", severity: "degrades" },
   { id: "vectors-world-info", conflict: "vectors-world-info", severity: "info" },
   { id: "cc-filler-after-reply", conflict: "cc-send-if-empty", severity: "info" },
   { id: "nemo-lorebook-keys", conflict: "nemo-lorebook-spacing", severity: "info" },
@@ -44,7 +45,7 @@ describe("extension conflict checks", () => {
 
   it("the degrading ones list in Repair after the thinking row; the info one never does", () => {
     const steps = repairSteps(quiet({ thinkingSilent: true, extensionConflicts: CASES.map((entry) => entry.conflict) }));
-    expect(steps.map((step) => step.check)).toEqual(["model-not-thinking", "stepped-thinking-separated", "presence-hides-chat", "prompt-inspector-on"]);
+    expect(steps.map((step) => step.check)).toEqual(["model-not-thinking", "stepped-thinking-separated", "presence-hides-chat", "prompt-inspector-on", "two-polishers"]);
     expect(setupFindings(quiet({ extensionConflicts: ["vectors-world-info"], ui: { authorView: true } })).info.map((step) => step.check)).toEqual(["vectors-world-info"]);
   });
 

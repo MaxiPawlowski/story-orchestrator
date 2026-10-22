@@ -245,7 +245,10 @@
     },
     "characters": {
       "delivery": true,
-      "deliveryRepetition": true
+      "deliveryRepetition": true,
+      "polish": true,
+      "polishMode": "shadow",
+      "polishMaxPerHour": 40
     }
   }
 }

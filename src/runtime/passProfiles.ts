@@ -1,4 +1,4 @@
-import { isPassRole, PASS_ROLES, PASS_ROLE_LABELS, ROLE_INHERITS, type PassRole } from "@extraction/passRole";
+import { isPassRole, OWN_ROUTE_ROLES, PASS_ROLES, PASS_ROLE_LABELS, ROLE_INHERITS, type PassRole } from "@extraction/passRole";
 import { isRecord } from "@utils/guards";
 import { routeKey, type ModelRoute, type RouteResolution } from "@extraction/modelRoute";
 import { harnessKey, isHarnessId, type HarnessId } from "@utils/harness";
@@ -92,9 +92,10 @@ export const isAuthoringDefaultSource = (profile: ProfileSourceRow | undefined):
   Boolean(profile && profile.kind === "chat" && profile.source && AUTHORING_DEFAULT_SOURCES.includes(profile.source));
 
 export const roleDefaultFrom = (profiles: ProfileSourceRow[], offered: HarnessOffered = () => false): RoleDefault => (role) => {
-  if (role !== "authoring") return [];
+  if (role !== "authoring" && role !== "polish") return [];
   const harness: DefaultCandidate[] = offered(AUTHORING_DEFAULT_HARNESS.harness, AUTHORING_DEFAULT_HARNESS.model) ? [{ kind: "harness", ...AUTHORING_DEFAULT_HARNESS }] : [];
   const profile = profiles.find(isAuthoringDefaultSource);
+  if (role === "polish" && !harness.length) return [];
   return profile ? [...harness, { kind: "profile", profileId: profile.id }] : harness;
 };
 
@@ -111,7 +112,8 @@ export const defaultFallbackRoute = (settings: RouteSettings, role: PassRole, ex
   const candidates = defaults?.(role) ?? [];
   if (!candidates.some((candidate) => candidate.kind === "harness")) return null;
   const profile = candidates.find((candidate): candidate is DefaultCandidate & { kind: "profile" } => candidate.kind === "profile" && exists(candidate.profileId));
-  const profileId = profile ? profile.profileId : settings.profileId && exists(settings.profileId) ? settings.profileId : null;
+  const memory = OWN_ROUTE_ROLES.has(role) ? null : settings.profileId;
+  const profileId = profile ? profile.profileId : memory && exists(memory) ? memory : null;
   if (!profileId) return null;
   const effort = roleEffort(settings, role);
   return effort === "default" ? { kind: "profile", profileId } : { kind: "profile", profileId, effort };

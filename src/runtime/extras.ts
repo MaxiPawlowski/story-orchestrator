@@ -457,6 +457,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.chance = sanitizeChance(extras.chance);
   if (extras.checks) extras.checks = sanitizeChecks(extras.checks);
   if (extras.observations) extras.observations = sanitizeObservations(extras.observations);
+  if (extras.polish) extras.polish = Array.isArray(extras.polish) ? extras.polish.slice(-200) : undefined;
   if (extras.agendaProposals) extras.agendaProposals = sanitizeAgendaProposals(extras.agendaProposals);
   if (extras.promises) extras.promises = sanitizePromises(extras.promises);
   if (extras.witness) extras.witness = sanitizeWitness(extras.witness);

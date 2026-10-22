@@ -62,6 +62,14 @@ export const EXTENSION_DEGRADE_CHECKS: readonly Check[] = [
         + "Choose \"Stop Inspecting\" in SillyTavern's extensions menu (the magic wand) to play without the pauses.",
     } : null),
   },
+  {
+    id: "two-polishers", area: "extension", scope: "story", audience: "player", severity: "degrades", feature: "reply-polish",
+    detect: (snapshot) => (has(snapshot, "recast-autorun") && snapshot.features?.polish.enabled !== false ? {
+      consequence: "Recast also rewrites every reply, so the story may read a reply that changed after it.",
+      detail: "Recast's Auto-run is on. Untick it while this story plays.",
+      player: "Recast rewrites every reply. Untick its Auto-run while you play.",
+    } : null),
+  },
 ];
 
 export const EXTENSION_INFO_CHECKS: readonly Check[] = [

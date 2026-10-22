@@ -51,6 +51,8 @@ export interface EmptyReplySeam {
 
 export type MutationSeam = (kind: MutationKind, messageId: number, entered?: boolean) => (() => Promise<void>) | null;
 
+export type ReplySettle = (messageId: number, type: unknown) => Promise<void>;
+
 interface PendingBoundary {
   run: RunGuard;
   messageId: number | null;
@@ -73,6 +75,7 @@ export class TurnBridge {
   private unsubscribe: (() => void) | null = null;
   private seam: MutationSeam | null = null;
   private emptyReply: EmptyReplySeam | null = null;
+  private settle: ReplySettle | null = null;
 
   constructor(private readonly manager: RuntimeManager, private readonly save: ChatSave | null = null) {}
 
@@ -107,6 +110,10 @@ export class TurnBridge {
 
   setEmptyReplySeam(seam: EmptyReplySeam | null) {
     this.emptyReply = seam;
+  }
+
+  setReplySettle(seam: ReplySettle | null) {
+    this.settle = seam;
   }
 
   private thoughtOnly(messageId: number): boolean {
@@ -157,12 +164,13 @@ export class TurnBridge {
     }
 
     this.lastRenderedAt = now;
-    await this.enqueueBoundary(id, true);
+    await this.enqueueBoundary(id, true, type);
   }
 
-  private async enqueueBoundary(id: number | null, afterSpeak: boolean) {
+  private async enqueueBoundary(id: number | null, afterSpeak: boolean, type?: unknown) {
     const mine: PendingBoundary = { run: beginRun(this.manager.getOwnership()), messageId: id, ready: false };
     this.pending.push(mine);
+    if (afterSpeak && id !== null && this.settle) await this.settle(id, type).catch(() => undefined);
     if (afterSpeak) await this.manager.fireAfterSpeak();
     if (!mine.run.stillOwns()) {
       this.pending = this.pending.filter((entry) => entry !== mine);

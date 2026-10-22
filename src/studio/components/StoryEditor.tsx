@@ -10,6 +10,7 @@ import PlayerEditor from "./PlayerEditor";
 import { composeBriefing } from "@engine/index";
 import { requestBriefing } from "@runtime/briefingRequest";
 import StoryDisplayEditor from "./StoryDisplayEditor";
+import ReplyPolishEditor from "./ReplyPolishEditor";
 import WorkflowMapEditor, { useWorkflowNames } from "./WorkflowMapEditor";
 import BundledWorkflowsPanel from "./BundledWorkflowsPanel";
 import { bundleMapped, installBundled, mappedNames } from "../workflowBundle";
@@ -467,7 +468,7 @@ const StoryEditor: React.FC<StoryEditorProps> = ({ personaNames = [], memberName
     <div data-so="story" className="flex flex-col gap-4">
       {(!section || section === "setup") && <><StoryIdentitySection draft={draft} mutate={mutate} idLocked={idLocked} />
         <RequirementsSection draft={draft} mutate={mutate} personaNames={personaNames} memberNames={memberNames} lorebookNames={lorebookNames} /></>}
-      {(!section || section === "presentation") && <><IllustrationsSection draft={draft} mutate={mutate} /><StoryDisplayEditor /></>}
+      {(!section || section === "presentation") && <><IllustrationsSection draft={draft} mutate={mutate} /><StoryDisplayEditor /><ReplyPolishEditor /></>}
       {(!section || section === "world") && <><StagecraftSection draft={draft} mutate={mutate} lorebookNames={lorebookNames} />
         <LoreSelectSection draft={draft} mutate={mutate} lorebookNames={lorebookNames} /></>}
       {(!section || section === "rules") && <><HouseRulesSection draft={draft} mutate={mutate} /><SceneReadSection draft={draft} mutate={mutate} />

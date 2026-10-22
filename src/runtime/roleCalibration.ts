@@ -9,7 +9,7 @@ import { DIRECTOR_MAX_TOKENS, DIRECTOR_TIMEOUT_MS } from "./talkControl";
 import { curatorIndexArm, refuseIndexEdits } from "./curatorIndexArm";
 import { fnv1a } from "./hash";
 
-export type CalibrationRole = Exclude<PassRole, "read" | "inner" | "lore">;
+export type CalibrationRole = Exclude<PassRole, "read" | "inner" | "lore" | "polish">;
 
 export interface DirectorCalibrationCase {
   id: string;

@@ -1,0 +1,23 @@
+{
+  "id": "polish-quay",
+  "title": "The Quay at Dusk",
+  "description": "A synthetic story whose only new content is the story's reply polish policy and narration voice.",
+  "polish": {
+    "mode": "shadow",
+    "narration": { "notes": "Present tense. Short paragraphs.", "avoid": ["suddenly"], "tics": ["a mix of"], "rhythm": "plain" }
+  },
+  "roster": [
+    { "id": "keeper", "name": "Keeper", "role": "the harbour keeper" },
+    { "id": "narrator", "name": "Quay Narrator", "role": "narrator", "view": "omniscient" }
+  ],
+  "qualities": [
+    { "key": "boat_found", "type": "bool", "source": "extractor", "rubric": "Has the player found a boat?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "The quay", "type": "anchor", "start": true, "objective": "Find a boat." },
+    { "id": "away", "name": "Out on the water", "type": "anchor", "objective": "Leave the harbour." }
+  ],
+  "transitions": [
+    { "from": "start", "to": "away", "priority": 1, "gate": { "q": "boat_found", "op": "==", "v": true } }
+  ]
+}

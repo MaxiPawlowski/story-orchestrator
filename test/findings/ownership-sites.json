@@ -1184,6 +1184,14 @@
     "src/runtime/libraryIndexUnit.ts#checkIndex": {
       "status": "local",
       "note": "v2.8 69 K3 (2026-10-17): the library index (user/files/so-library-index.json) is install-wide, keyed by story id and wizard session key, never by chat; after the awaited read it seeds only ids the index has never seen (never over a tombstone or a newer hash), so a lapsed chat run has nothing chat-scoped to protect and a stale page cannot remove another page's ids. Tests: runtime/libraryIndex.test.ts."
+    },
+    "src/runtime/polish/shadow.ts#createShadow.receive": {
+      "status": "checked",
+      "note": "v2.9 03 S2: a RunGuard over the reply's window is minted before the polish call; stillOwns() and the same story object are checked after the answer and in the catch before the ring write, and before persist. Shadow never writes the chat. polishShadow.review.test.ts covers record, refusal, no-route, cap and off paths."
+    },
+    "src/runtime/polish/standIn.ts#createStandIn.settle": {
+      "status": "checked",
+      "note": "v2.9 03 S0 spike, debug seam only: after the delay the consumption ledger is ticked, writeMismatch (same row object, chat, swipe, fingerprint, deadline, abandon) and run.stillOwns() precede the one host write; stats are local counters. polishStandIn.review.test.ts reaches every abandon branch."
     }
   }
 }

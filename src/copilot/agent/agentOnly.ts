@@ -1,6 +1,7 @@
 import type { Story } from "@engine/index";
 import { readRosterPolish, deliveryNames } from "@engine/validate/delivery";
-import { setMemberPolish } from "../../studio/deliveryMutations";
+import { readStoryPolish } from "@engine/validate/polish";
+import { setMemberPolish, setStoryPolish } from "../../studio/deliveryMutations";
 import { setAppearance, setChapters, setHouseRules, setPlayer, setFeatures } from "../../studio/mutations";
 import { setCheckpointMotive, setRosterDrive, setRosterView } from "../../studio/innerVoiceMutations";
 import type { OpDescription } from "../index";
@@ -9,7 +10,7 @@ import { applyGameOp, describeGameOp, GAME_AGENT_KINDS, gameOpProblem, type Game
 import type { AgentOnlyOp, AgentOp } from "./types";
 
 const AGENT_ONLY_KINDS: ReadonlySet<string> = new Set<AgentOnlyOp["kind"]>(
-  ["setFeatures", "setHouseRules", "setPlayer", "setChapters", "setRosterDrive", "setRosterView", "setCheckpointMotive", "setAppearance", "setMemberPolish",
+  ["setFeatures", "setHouseRules", "setPlayer", "setChapters", "setRosterDrive", "setRosterView", "setCheckpointMotive", "setAppearance", "setMemberPolish", "setStoryPolish",
     ...GAME_AGENT_KINDS, ...POSE_AGENT_KINDS] as AgentOnlyOp["kind"][],
 );
 
@@ -32,6 +33,7 @@ export const applyAgentOnly = (draft: Story, op: AgentOnlyOp): Story => {
     case "setAppearance": return setAppearance(draft, op.id, op.appearance);
     case "setFeatures": return setFeatures(draft, op.features);
     case "setMemberPolish": return setMemberPolish(setMemberPolish(draft, op.id, null), op.id, op.polish);
+    case "setStoryPolish": return setStoryPolish(setStoryPolish(draft, null), op.polish);
   }
 };
 
@@ -54,6 +56,7 @@ export const describeAgentOnly = (op: AgentOnlyOp): OpDescription => {
     }
     case "setAppearance": return { action: "update", entity: "story.illustrations", label: op.appearance ? `Look of ${op.id}: ${op.appearance}` : `Clear ${op.id}'s look` };
     case "setFeatures": return { action: "update", entity: "story.features", label: "Replace story feature policies" };
+    case "setStoryPolish": return { action: "update", entity: "story.polish", label: op.polish ? `Reply polish${op.polish.mode ? `: ${op.polish.mode}` : ""}` : "Clear reply polish" };
     case "setMemberPolish": {
       const label = op.polish ? `Voice and delivery for ${op.id}${op.polish.notes ? `: ${op.polish.notes}` : ""}` : `Clear ${op.id}'s voice and delivery`;
       return { action: "update", entity: `roster.${op.id}.polish`, label };
@@ -78,10 +81,18 @@ const polishProblem = (draft: Story, op: Extract<AgentOnlyOp, { kind: "setMember
   return errors.length ? errors.map(({ path, message }) => [path, message].join(": ")).join("; ") : null;
 };
 
+const storyPolishProblem = (draft: Story, op: Extract<AgentOnlyOp, { kind: "setStoryPolish" }>): string | null => {
+  if (!op.polish) return null;
+  const errors: Array<{ path: string; message: string }> = [];
+  readStoryPolish({ polish: op.polish, roster: draft.roster, codex: draft.codex }, errors);
+  return errors.length ? errors.map(({ path, message }) => [path, message].join(": ")).join("; ") : null;
+};
+
 export const agentOnlyProblem = (draft: Story, op: AgentOnlyOp): string | null => {
   if (isPoseOp(op)) return poseOpProblem(draft, op);
   if (isGameOp(op)) return gameOpProblem(draft, op);
   if (op.kind === "setHouseRules" || op.kind === "setPlayer" || op.kind === "setFeatures") return null;
+  if (op.kind === "setStoryPolish") return storyPolishProblem(draft, op);
   if (op.kind === "setChapters") return chaptersProblem(draft, op);
   const member = op.kind === "setCheckpointMotive" ? op.member : op.id;
   if (!draft.roster.some((entry) => entry.id === member)) return `'${member}' is not a roster id`;

@@ -82,13 +82,19 @@ export interface GlobalSettings {
 export interface CharacterSettings {
   delivery: boolean;
   deliveryRepetition: boolean;
+  polish: boolean;
+  polishMode: "shadow" | "off";
+  polishMaxPerHour: number;
 }
 
-export const defaultCharacterSettings = (): CharacterSettings => ({ delivery: true, deliveryRepetition: true });
+export const defaultCharacterSettings = (): CharacterSettings => ({ delivery: true, deliveryRepetition: true, polish: true, polishMode: "shadow", polishMaxPerHour: 40 });
 
 const sanitizeCharacterSettings = (value: unknown): CharacterSettings => ({
   delivery: !(isRecord(value) && value.delivery === false),
   deliveryRepetition: !(isRecord(value) && value.deliveryRepetition === false),
+  polish: !(isRecord(value) && value.polish === false),
+  polishMode: isRecord(value) && value.polishMode === "off" ? "off" : "shadow",
+  polishMaxPerHour: isRecord(value) && Number.isInteger(value.polishMaxPerHour) && Number(value.polishMaxPerHour) >= 0 ? Number(value.polishMaxPerHour) : 40,
 });
 
 export interface HelpSettings {

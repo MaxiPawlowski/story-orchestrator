@@ -35,6 +35,7 @@ export interface AgentToolSpec {
 }
 
 type AgentPolish = Extract<AgentOnlyOp, { kind: "setMemberPolish" }>["polish"];
+type AgentStoryPolish = Extract<AgentOnlyOp, { kind: "setStoryPolish" }>["polish"];
 
 export type DraftOpKind = Exclude<ProposalOpKind, ProvisioningOpKind>;
 
@@ -138,6 +139,8 @@ setPoseCard: { backedBy: "setPoseCard", doc: "Set living card fields and charact
         + "by_mood?: {mood: text <=160} (needs the member's mood), dialogue?: keep|voice, enabled?: boolean}; see readGuide roster-polish"),
     },
   },
+  setStoryPolish: { backedBy: "setStoryPolish", doc: "Set reply polish: mode shadow (records, never edits the chat) or off, and narration (an omniscient narrator's voice). {} clears it.",
+    args: { polish: req("object", "{mode?: shadow|off, narration?: {notes?, prefer?, avoid?, tics?, rhythm?}} (needs a narrator); see readGuide story-polish") } },
   setRosterView: {
     backedBy: "setRosterView",
     doc: "omniscient: this member (a narrator) is told every character's private rows, to foreshadow; own: only their own.",
@@ -469,6 +472,8 @@ export const checkToolCall = (call: AgentToolCall): ToolCheck => {
     const polish = isRecord(call.args.polish) && Object.keys(call.args.polish).length ? call.args.polish as AgentPolish : null;
     return { ok: true, spec, op: { kind: "setMemberPolish", id: text("id"), polish } };
   }
+  const storyPolish = isRecord(call.args.polish) && Object.keys(call.args.polish).length ? call.args.polish as AgentStoryPolish : null;
+  if (call.tool === "setStoryPolish") return { ok: true, spec, op: { kind: "setStoryPolish", polish: storyPolish } };
   if (call.tool === "setRosterDrive") return { ok: true, spec, op: { kind: "setRosterDrive", id: text("id"), drive: text("drive") } };
   if (call.tool === "setAppearance") return { ok: true, spec, op: { kind: "setAppearance", id: text("id"), appearance: text("appearance") } };
   if (call.tool === "setFeatures") {
