@@ -79,6 +79,11 @@ export async function removeSpriteReferences(page, rows: SpriteReference[]): Pro
     for (const row of rows) {
       const response = await fetch('/api/plugins/story-orchestrator-media/reference/release', { method: 'POST', headers, body: JSON.stringify({ name: row.name }) });
       const data = await response.json();
+      for (let wait = 0; response.ok && data?.prune?.deferred && wait < 24; wait++) {
+        await new Promise((resolve) => setTimeout(resolve, 5_000));
+        const retry = await fetch('/api/plugins/story-orchestrator-media/prune', { method: 'POST', headers, body: JSON.stringify({ names: [row.name] }) });
+        data.prune = await retry.json();
+      }
       if (!response.ok || data?.released !== true || data.prune?.deferred || data.prune?.errors?.length) {
         report.errors.push(`${row.name}: ${data?.error ?? data?.prune?.deferred ?? JSON.stringify(data?.prune?.errors)}`);
       } else report.released.push(row.name);

@@ -315,6 +315,19 @@ export async function releaseReference(root, name) {
     });
 }
 
+export const STALE_REFERENCE_MS = 30 * 60_000;
+
+export async function reapableReferences(root, now = Date.now(), maxAgeMs = STALE_REFERENCE_MS) {
+    return serial(`${root}:references`, async () => {
+        const rows = await readReferences(root);
+        const names = Object.entries(rows).filter(([, row]) => row.unused || now - row.createdAt > maxAgeMs).map(([name]) => name);
+        if (!names.some((name) => !rows[name].unused)) return names;
+        for (const name of names) rows[name].unused = true;
+        await atomic(referenceLedger(root), JSON.stringify(rows));
+        return names;
+    });
+}
+
 export async function pruneReferences(root, inputRoot, names) {
     if (!Array.isArray(names) || names.some((name) => !referenceName(name))) throw new Error('Pruning needs an explicit list of owned references.');
     if (!inputRoot) return { deleted: [], errors: [], deferred: 'Configure comfyInputRoot on the local ComfyUI host.' };
