@@ -61,3 +61,12 @@ test("speaker-first owner order takes the priority slots without starving other 
   expect(new Set(reads.flat()).size).toBe(30);
   expect(cardReadKeys({ cardFieldByQuality: index }, ["first", "second"], 0).some((key) => key.startsWith("third"))).toBe(false);
 });
+
+test("a placeholder in a card field is refused: a read that does not know the outfit must not change the artwork", () => {
+  const board = new Blackboard(parseStoryOrThrow(raw));
+  for (const value of ["unknown", "Unknown.", " none ", "N/A", "(unchanged)", "same as before"]) {
+    expect(board.applyDelta({ q: "hair", v: value, source: "extractor" })).toMatchObject({ ok: false, reason: "card field placeholder" });
+  }
+  expect(board.applyDelta({ q: "hair", v: "unknown dye, faded", source: "extractor" })).toMatchObject({ ok: true });
+  expect(board.applyDelta({ q: "hair", v: "red", source: "extractor" })).toMatchObject({ ok: true, value: "red" });
+});
