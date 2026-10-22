@@ -30,6 +30,7 @@ export type OfferProviderId = "cues" | "echoes";
 export interface OfferRegistry {
   providers: Map<OfferProviderId, OfferProvider>;
   lapseListeners: Map<OfferProviderId, (lapse: OfferLapse) => void>;
+  relevance?: Map<OfferProviderId, (story: NormalizedStory) => boolean>;
 }
 
 export interface CuePortDeps {
@@ -75,7 +76,7 @@ const latestPlayerOf = (rows: readonly unknown[]): OfferContext["latestPlayer"] 
 
 const REPLACING = new Set(["swipe", "regenerate"]);
 
-function createCueCore(deps: CuePortDeps, { providers }: OfferRegistry) {
+function createCueCore(deps: CuePortDeps, { providers, relevance }: OfferRegistry) {
   const refusals = new Map<string, OfferLapseReason>();
   const kit = () => gameLayer()?.cues ?? null;
   const cues = (): CuesState => deps.extras().cues ?? { receipts: [], lapses: [], consumed: [] };
@@ -93,7 +94,8 @@ function createCueCore(deps: CuePortDeps, { providers }: OfferRegistry) {
     const layer = kit();
     return [...(layer && ownOn() ? [["cues", layer.cueProvider] as [OfferProviderId, OfferProvider]] : []), ...providers.entries()];
   };
-  const active = () => Boolean(deps.story() && kit() && (ownOn() || providers.size));
+  const offering = (story: NormalizedStory) => [...providers.keys()].some((id) => relevance?.get(id)?.(story) ?? true);
+  const active = () => { const story = deps.story(); return Boolean(story && kit() && (ownOn() || offering(story))); };
   const revisionAt = (messageId: number) => revisionKey(deps.rows()[messageId]);
   const liveReceipts = (): OfferReceipt[] => kit()?.liveCueReceipts(cues().receipts, revisionAt) ?? [];
   const context = (story: NormalizedStory, recipient: string, receipts: readonly OfferReceipt[]): OfferContext => ({

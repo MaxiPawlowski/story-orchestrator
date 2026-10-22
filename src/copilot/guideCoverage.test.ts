@@ -2,6 +2,7 @@ import type { PoseEntry, StoryPoses, MemberSprites, StageMember, CardFieldBindin
 import type { CarryFrom, CarryMapEntry, OutcomeKey } from "@engine/carrySchema";
 import type { Commitment } from "@engine/lifeSchema";
 import type { MemberCue, MemberTopic, StoryNorm, TopicTier } from "@engine/cueSchema";
+import type { StoryEcho } from "@engine/echoSchema";
 import type { Checkpoint, CheckpointEffects, Quality, RosterMember, Story, Transition } from "@engine/index";
 import { GUIDE_TOPICS, type GuideTopicId } from "./guideTopics";
 import { PENDING_GUIDE_TOPICS, readGuide } from "./guideRead";
@@ -17,7 +18,7 @@ const STORY: Record<keyof Story, Covered> = {
   scaffolding: { none: "written by the road-ahead generator, never authored" },
   objective_block: "objective-agency", display: "presentation", chapters: "chapters", memory: "chapters", quests: "quests", milestones: "quests",
   widgets: "widgets", clock: "story-time", calendar: "story-time", living: "living-director", factions: "factions",
-  codex: "codex", observations: "observations", outcome: "outcome", carry_from: "carry-from", rumors: "rumors", patterns: "patterns", norms: "norms",
+  codex: "codex", observations: "observations", outcome: "outcome", carry_from: "carry-from", rumors: "rumors", patterns: "patterns", norms: "norms", echoes: "echoes",
 };
 
 const CHECKPOINT: Record<keyof Checkpoint, Covered> = {
@@ -81,8 +82,11 @@ const TIER: Record<keyof TopicTier, Covered> = { cue: "topics", when: "topics" }
 const NORM: Record<keyof StoryNorm, Covered> = {
   id: "norms", label: "norms", broken_when: "norms", noticed_by: "norms", cue: "norms", priority: "norms", checkpoints: "norms",
 };
+const ECHO: Record<keyof StoryEcho, Covered> = {
+  id: "echoes", after: "echoes", delay: "echoes", when: "echoes", cancel_when: "echoes", expires: "echoes", to: "echoes", cue: "echoes", hold: "echoes",
+};
 const TABLES: Array<[string, Record<string, Covered>]> = [
-  ["roster[].cues[]", CUE], ["roster[].topics[]", TOPIC], ["roster[].topics[].tiers[]", TIER], ["norms[]", NORM],
+  ["roster[].cues[]", CUE], ["roster[].topics[]", TOPIC], ["roster[].topics[].tiers[]", TIER], ["norms[]", NORM], ["echoes[]", ECHO],
   ["outcome[]", OUTCOME], ["carry_from", CARRY], ["carry_from.map[]", CARRY_MAP],
   ["codex", CODEX], ["codex.entry", CODEX_ENTRY], ["codex.fact", CODEX_FACT], ["roster[].commitments[]", COMMITMENT], ["codex.return", CODEX_RETURN],
   ["observations[]", OBSERVATION], ["observations[].passive", OBSERVATION_PASSIVE],

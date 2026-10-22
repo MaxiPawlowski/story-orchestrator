@@ -1,0 +1,69 @@
+{
+  "_note": "v2.9 07 (no-model lane, plumbing only, never sign-off): leaving the harbour fires the one transition and schedules Arin's echo; the next boundary lands it to plan 04's channel; drafting Arin puts the echo line in the applied private block and drafting the narrator does not; a rendered Arin reply settled through the generation hook writes an echo receipt and the author row reads offered; player mode stays clean; a swipe of the reply drops the receipt and the echo is offered again (once per chat: no second schedule). Run: node scripts/debug/so-scenario.mts run test/scenarios/v29-07-echoes.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": ["Arin", "DM Narrator"],
+    "judge": "off",
+    "authorView": true
+  },
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); return { cleared: ctx.chat.length === 0 };"
+    },
+    {
+      "import_story": {
+        "id": "so-v29-07-echoes",
+        "title": "SO-V29-07 Echoes",
+        "description": "Plan v2.9 07 no-model fixture: one echo for Arin one turn after the party leaves the harbour.",
+        "qualities": [
+          { "key": "left_harbour", "type": "bool", "source": "extractor", "rubric": "Did the party leave the harbour?" }
+        ],
+        "checkpoints": [
+          { "id": "harbour", "name": "Harbour", "player_name": "The Harbour", "type": "anchor", "start": true, "objective": "Leave the harbour." },
+          { "id": "road", "name": "Road", "player_name": "The Road", "type": "anchor", "objective": "Travel on." }
+        ],
+        "transitions": [{ "from": "harbour", "to": "road", "priority": 1, "gate": { "q": "left_harbour", "op": "==", "v": true } }],
+        "roster": [
+          { "id": "arin", "name": "Arin", "role": "a clerk" },
+          { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }
+        ],
+        "echoes": [
+          { "id": "unpaid", "after": { "transition": "harbour->road" }, "delay": { "boundaries": [1, 1] }, "to": "arin", "cue": "the harbour fee you left unpaid has been noticed" }
+        ],
+        "requirements": { "members": ["Arin", "DM Narrator"] }
+      }
+    },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const LINE = 'If it fits, you may bring up: the harbour fee you left unpaid'; const chid = (name) => SillyTavern.getContext().characters.findIndex((character) => character.name === name); const rows = () => rt.getSnapshot().echoesAuthor?.rows ?? []; const receipts = () => (rt.getSnapshot().cuesAuthor?.receipts ?? []).filter((row) => row.source.kind === 'echo'); const block = (name) => { rt.onMemberDrafted(chid(name)); return rt.getAppliedEpistemicBlock(); }; globalThis.__e07 = { pause, until, LINE, chid, rows, receipts, block }; if (rows().length) throw new Error('an echo exists before its event'); return { rows: rows().length };"
+    },
+    { "slash": "/cp set left_harbour true" },
+    { "slash": "/sendas name=\"DM Narrator\" The party walks out past the harbour gate." },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__e07; await c.until(() => c.rows().some((row) => row.echoId === 'unpaid' && row.state === 'scheduled'), 10000, 'the echo scheduled'); if (c.block('Arin').includes(c.LINE)) throw new Error('the echo is offered on its source turn'); return { state: c.rows()[0].state };"
+    },
+    { "slash": "/sendas name=\"DM Narrator\" The road climbs into the hills." },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__e07; await c.until(() => c.rows().some((row) => row.state === 'landed-to-channel'), 10000, 'the echo landed to channel'); await c.until(() => c.block('Arin').includes(c.LINE), 10000, 'the echo in the applied block of Arin'); if (c.block('DM Narrator').includes(c.LINE)) throw new Error('the narrator was handed the echo of Arin'); return { state: c.rows()[0].state };"
+    },
+    { "slash": "/sendas name=\"Arin\" Someone will want that fee." },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__e07; const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const id = ctx.chat.length - 1; if (!c.block('Arin').includes(c.LINE)) throw new Error('the echo is not staged for the reply'); rt.commitContinuityNote(true, id); await c.until(() => c.receipts().length === 1, 5000, 'an echo receipt'); await c.until(() => c.rows()[0]?.state === 'offered', 5000, 'the author row offered'); if (c.block('Arin').includes(c.LINE)) throw new Error('a spent echo was offered again'); return { receipt: c.receipts()[0].key, rows: c.rows().length };"
+    },
+    { "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await globalThis.__e07.pause(800); return { authorView: false };" },
+    { "ui": { "action": "assert-player-clean" } },
+    { "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); await globalThis.__e07.pause(800); return { authorView: true };" },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const last = ctx.chat.length - 1; const reply = ctx.chat[last]; if (reply.is_user || reply.name !== 'Arin') throw new Error('the last message is not the reply of Arin'); reply.swipes = [reply.mes, 'The fee can wait.']; reply.swipe_id = 0; reply.swipe_info = [{}, {}]; await ctx.saveChat(); return { swipeable: last };"
+    },
+    { "swipe": { "messageId": "last", "swipeId": 1 } },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__e07; await c.until(() => c.receipts().length === 0, 15000, 'the swipe to drop the receipt'); await c.until(() => c.block('Arin').includes(c.LINE), 10000, 'the echo offered again after the swipe'); if (c.rows().length !== 1) throw new Error('the echo was scheduled twice: ' + c.rows().length); return { rows: c.rows().length };"
+    }
+  ]
+}

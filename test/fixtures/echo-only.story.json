@@ -1,0 +1,13 @@
+{
+  "id": "echo-only",
+  "title": "Echo only",
+  "description": "Synthetic story for v2.9 plan 07: an echo and nothing else from the game layer.",
+  "roster": [{ "id": "mara", "name": "Mara" }],
+  "qualities": [{ "key": "left", "type": "bool", "source": "extractor", "rubric": "Whether the party left." }],
+  "checkpoints": [
+    { "id": "start", "name": "Start", "type": "anchor", "start": true, "objective": "Begin." },
+    { "id": "out", "name": "Outside", "type": "anchor", "objective": "Go on." }
+  ],
+  "transitions": [{ "from": "start", "to": "out", "priority": 1, "gate": { "q": "left", "op": "==", "v": true } }],
+  "echoes": [{ "id": "door", "after": { "transition": "start->out" }, "delay": { "boundaries": [1, 2] }, "to": "mara", "cue": "the door you left open is still swinging" }]
+}

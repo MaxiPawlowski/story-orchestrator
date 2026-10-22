@@ -32,6 +32,7 @@ import { storyEnded } from "./chapterPort";
 import { createNarratorSheetPort } from "./narratorSheetPort";
 import { createDeliveryPort } from "./deliveryPort";
 import { createCuePort } from "./cuePort";
+import { createEchoPort } from "./echoPort";
 import { resolveFeatures } from "./featureResolve";
 import { hasOpenGroup } from "./persistence";
 import { createGamePort } from "./gamePort";
@@ -53,6 +54,7 @@ const reconcileWith = (read: () => RuntimeExtras) => (previous: NormalizedStory,
   const extras = read();
   extras.observations = observationKit()?.reconcile(extras.observations, previous, next) ?? extras.observations;
   extras.cues = gameLayer()?.cues.reconcileCues(extras.cues, previous, next) ?? extras.cues;
+  extras.echoes = gameLayer()?.echoes.reconcileEchoes(extras.echoes, previous, next) ?? extras.echoes;
 };
 
 export const restingTexts = <T extends { text: string }>(memory: MemoryCoordinator, rows: readonly T[]): T[] => shownRows(rows, memory.injector.restingFilter());
@@ -214,7 +216,7 @@ export function wireCoordinators(port: ManagerPort) {
     hints: patternsWiring.hints,
   });
   memory.injector.addPrivateSource((rosterId) => narrator.lines(rosterId));
-  const delivery = wireDelivery(port, memory), cues = wireCues(port, memory);
+  const delivery = wireDelivery(port, memory), cues = wireCues(port, memory), echoes = createEchoPort(port, memory, cues);
   const carry = createCarryActions(port, () => memory.updateInjection());
   const inner = wireInner(port, memory, () => pacing);
   const refusing = () => {
@@ -323,6 +325,6 @@ export function wireCoordinators(port: ManagerPort) {
   const storyUpdateDeps = storyUpdateDepsFor(port, expansion, living, patternsWiring.reconcile);
   return {
     memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, patterns, promises, witness, rumors,
-    carry, narrator, delivery, cues,
+    carry, narrator, delivery, cues, echoes,
   };
 }

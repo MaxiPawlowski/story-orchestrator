@@ -88,6 +88,12 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     },
   },
   {
+    id: "echoes",
+    order: 11,
+    afterEnd: true,
+    run: ({ result, manager }) => manager.echoes.onBoundary(result),
+  },
+  {
     // The judged typed read on every boundary, skipped when this boundary's cadence
     // read already carries the judged step. Fire-and-forget; the manager says whether it ran.
     id: "typed-read",

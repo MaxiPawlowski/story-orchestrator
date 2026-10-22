@@ -53,6 +53,15 @@ export const LIFE_FEATURES: readonly Feature[] = [
     settings: ["characters.cues"], guideTopic: "cues", doc: authorGuideDoc("cues"), status: "experimental", needs: ["story", "group-chat"],
   },
   {
+    id: "delayed-echoes", name: "Delayed echoes", area: "characters", audience: "author",
+    oneLine: "Something that happened comes back later: after a delay, if the story still fits, one character or the narrator is handed a cue about it.",
+    what: "A story can say: when this transition, quest ending, milestone or check result happens, then after a few turns or day parts, tell this character (or the narrator) this. "
+      + "When it is due the echo checks again that it still fits, that the character is in the scene and that it gives nothing away; then it is handed over as one private cue, "
+      + "the same way reactive cues are, used at most once in a chat. If it never fits before it expires, it is dropped. A swipe or delete takes it back. No model call.",
+    where: featureAt("echoes", "enabled", "Delayed echoes"),
+    settings: ["characters.echoes"], guideTopic: "echoes", doc: authorGuideDoc("echoes"), status: "experimental", needs: ["story", "group-chat"],
+  },
+  {
     id: "meanwhile-proposals", name: "Off-stage events", area: "world", audience: "author",
     oneLine: "Adds what a character did off stage toward their plan; it applies on its own by default.",
     what: "When the story moves on or a scene ends, the memory model suggests one short off-stage event per character, kept inside that character's plan. "

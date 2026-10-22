@@ -6,6 +6,7 @@ import { ChecksEditor, QualityDisplayEditor } from "./ChecksEditor";
 import RumorsEditor from "./RumorsEditor";
 import PatternsEditor from "./PatternsEditor";
 import NormsEditor from "./NormsEditor";
+import EchoesEditor from "./EchoesEditor";
 
 const GameEditor: React.FC = () => (
   <div data-so="game-editor" className="flex flex-col gap-3">
@@ -17,6 +18,7 @@ const GameEditor: React.FC = () => (
     <RumorsEditor />
     <PatternsEditor />
     <NormsEditor />
+    <EchoesEditor />
   </div>
 );
 

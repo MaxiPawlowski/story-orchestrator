@@ -221,6 +221,12 @@ describe("runDiagnostics", () => {
         transitions: [{ ...clean.transitions[0], check: { id: "climb", quality: "trust", roll: { sides: 20, target: 12 }, narrate: "public",
           modifiers: [{ q: "trust", v: 1, add: 2, hint: "the map of the cache" }] } }],
       }),
+      ...runDiagnostics({
+        ...clean, codex: { people: [{ id: "tobin", name: "Tobin", known_when: { q: "trust", op: ">=", v: 1 }, facts: [] }] },
+        roster: [{ id: "nar", name: "Nar", view: "omniscient" }],
+        echoes: [{ id: "debt", after: { transition: "start->cache#0" }, delay: { boundaries: [1, 2] }, to: "narrator", cue: "Tobin is back and you feel uneasy",
+          cancel_when: { not: { q: "trust", op: ">=", v: 1 } } }],
+      }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

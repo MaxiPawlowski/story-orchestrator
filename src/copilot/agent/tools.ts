@@ -11,7 +11,7 @@ import type * as PoseMutations from "../../studio/poseMutations";
 import { POSE_AGENT_KINDS, readPoseCall } from "./poseOps";
 import type * as GameMutations from "../../studio/gameMutations";
 import { GAME_AGENT_KINDS, readGameCall } from "./gameOps";
-import { CUE_EDIT_TOOLS } from "./cueTools";
+import { CUE_EDIT_TOOLS, ECHO_EDIT_TOOLS } from "./cueTools";
 import { parseProposal } from "../index";
 import type { ProposalOpKind } from "../types";
 import type { AgentOnlyOp, AgentOp, AgentToolCall, AgentToolFamily } from "./types";
@@ -271,7 +271,7 @@ setPoseCard: { backedBy: "setPoseCard", doc: "Set living card fields and charact
     doc: "Remove one line the player can notice.",
     args: { id: req("string", "observation id") },
   },
-  ...CUE_EDIT_TOOLS,
+  ...CUE_EDIT_TOOLS, ...ECHO_EDIT_TOOLS,
   setClock: {
     backedBy: "setClock",
     doc: "Give the story a time of day and a day count, or null to remove it (and its calendar).",
@@ -362,7 +362,7 @@ export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof Mutations, string>> 
   newWidget: "constructor; setWidgets takes the full list",
   newFaction: "constructor; setFactions takes the full list",
   newRumor: "constructor; setRumors takes the full list",
-  newPattern: "constructor; setPatterns takes the full list",
+  newPattern: "constructor; setPatterns takes the full list", newEcho: "constructor; setEchoes takes the full list",
   CHARACTER_LIFE_FIELDS: "a constant, not a mutation: the fields setCharacterLife replaces",
   setCodex: "the Studio replaces the whole codex; the agent edits one entry at a time with setCodexEntry and removeCodexEntry",
   setCodexShown: "whether the story shows People and Places is a presence choice the author makes in the Studio",

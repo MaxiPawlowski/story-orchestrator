@@ -118,6 +118,7 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     if (extras.witness) extras.witness = rollbackWitness(extras.witness, messageId);
     if (extras.rumors) extras.rumors = rollbackRumors(extras.rumors, messageId);
     if (extras.cues) extras.cues = gameLayer()?.cues.rollbackCues(extras.cues, messageId, engine.serialize().boundary) ?? extras.cues;
+    if (extras.echoes) extras.echoes = gameLayer()?.echoes.rollbackEchoes(extras.echoes, messageId, engine.serialize().boundary) ?? extras.echoes;
     if (extras.recap) extras.recap = rollbackRecap(extras.recap, engine.serialize().boundary);
     if (extras.patterns) extras.patterns = rollbackPatterns(extras.patterns, engine.serialize().boundary);
     extras.tension = { ...extras.tension, history: rollbackTensionHistory(extras.tension.history, messageId) };

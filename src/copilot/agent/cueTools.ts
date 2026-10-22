@@ -1,6 +1,6 @@
 const GATE = "{q, op: ==|!=|>=|<=|>|<|in, v} | {all: gate[]} | {any: gate[]} | {not: gate}";
 
-const req = (type: "string" | "object", doc: string) => ({ type, required: true, doc });
+const req = (type: "string" | "object" | "array", doc: string) => ({ type, required: true, doc });
 
 export const CUE_EDIT_TOOLS = {
   setCue: {
@@ -31,4 +31,17 @@ export const CUE_EDIT_TOOLS = {
     },
   },
   removeNorm: { backedBy: "removeNorm", doc: "Remove one social norm.", args: { id: req("string", "norm id") } },
+} as const;
+
+export const ECHO_EDIT_TOOLS = {
+  setEchoes: {
+    backedBy: "setEchoes",
+    composes: ["addEcho", "updateEcho", "removeEcho"] as Array<"addEcho" | "updateEcho" | "removeEcho">,
+    doc: "Replace the story's delayed echoes (the full list): after an event and a delay, if the story still fits, one cast member or the narrator is handed one short cue. "
+      + "Once per chat, cue only, no model call. Write what comes back, never what the player does or feels. Read the echoes guide first.",
+    args: {
+      echoes: req("array", `[{id (slug), after: {transition: "from->to"} | {quest, to: done|failed} | {milestone} | {check, outcome}, delay: {boundaries|parts: [min, max]}, `
+        + `to (member id or narrator), cue (200 characters), when?: ${GATE}, cancel_when?: ${GATE}, expires?: {boundaries|parts: n}, hold?: 1-6}]`),
+    },
+  },
 } as const;

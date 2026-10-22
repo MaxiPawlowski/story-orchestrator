@@ -17,6 +17,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 - [Remarks and reactions](#cues)
 - [Topics a character deepens](#topics)
 - [Social norms](#norms)
+- [Delayed echoes](#echoes)
 - [Story time](#story-time)
 - [Living cards](#living-cards)
 - [Poses and character layers](#poses)
@@ -194,6 +195,19 @@ Fields: `norms[]` (`id`, `label`, `broken_when`, `noticed_by`, `cue`, `priority`
 - **Good.** `{ "norms": [{ "id": "steel", "label": "no drawn steel at the host's table", "broken_when": { "q": "drew_weapon_at_feast", "op": "==", "v": true }, "noticed_by": ["mara", "host"], "cue": "a guest drew steel at the host's table" }] }`.
 - **Bad.** A `broken_when` that holds by waiting or absence (refused, `cue-needs-event`); an unknown member or checkpoint (refused); a cue that says what the player feels (`cue-narrates-player`).
 - **If wrong.** A witness who never reacts: it was away when the norm broke, or not enabled in the group when it replied within the 3 turns (Author view shows the lapse and its reason).
+
+<a id="echoes"></a>
+
+## Delayed echoes
+
+Topic `echoes`.
+
+Fields: `echoes[]` (`id`, `after` with `transition`, or `quest` and `to`, or `milestone`, or `check` and `outcome`; `delay` with `parts` or `boundaries`; `when`, `cancel_when`, `expires`, `to`, `cue`, `hold`) (`engine/echoSchema.ts`, `validate/echoes.ts`, `engine/life/echoes.ts`, `runtime/echoPort.ts`).
+
+- **What it does.** An echo is a consequence that comes back later: "when this happened, then after a while, if the world still supports it, tell this character this". `after` names one event: a transition (`"from->to"`, with `#1` for a second transition between the same two checkpoints), a quest ending (`to: "done"` or `"failed"`), a milestone earned, or a check result (`outcome`: success, failure, miss, weak or strong). The turn it happens schedules the echo, with a delay drawn once for the chat from `delay`: `{"boundaries": [min, max]}` turns (at least one turn later) or `{"parts": [min, max]}` day parts of story time (needs a `clock`). When the delay has passed the echo checks again, every turn until it lands: `when` must hold (optional), the recipient must be enabled in the group, and the cue must not restate a secret kept from its audience. `to` is a cast id, or `"narrator"` for the cast member with `view: "omniscient"`; a narrator's reply is read by the player, so its cue must also keep the player's secrets and name only people and places the player has met. While it waits it may still expire: past `expires` (default 6 turns, or 4 day parts, counted from when it was due, in the delay's unit) it is dropped, even when a time skip crosses both points in one turn. `cancel_when` drops it at any turn before it lands. At most 2 echoes land a turn; the rest wait, and their expiry keeps counting. A landed echo is handed to the same one-cue channel as reactive cues, at priority 20 (below a raised topic and any must cue, above norms and remarks), for `hold` turns (default 2, at most 6): "If it fits, you may bring up: <cue>. Say it as yourself; the player's actions and feelings are theirs." It counts as offered only when that line reached the reply's prompt and the member answered; unused by the end of `hold`, it lapses. Each echo happens at most once in a chat: a later repeat of its event never schedules it again, whether it landed, lapsed, expired or was cancelled. Nothing is drawn at random beyond the seeded delay, there is no model call, echoes never move story time and write nothing a gate can read. A swipe, edit or delete takes back what that reply led to (the schedule, a landing, a cancel or expiry), and replaying it gives the same result. Author view lists each echo under Memory › Echoes with its state (scheduled, due, waiting and why, landed to channel, offered, cancelled, expired, lapsed), its source and any turns the story could not scan (an echo added to a long chat cannot see events older than the kept history). Journal author rows record schedules, landings and endings.
+- **Good.** `{ "echoes": [{ "id": "trader-returns", "after": { "transition": "market->road" }, "delay": { "parts": [2, 4] }, "when": { "q": "trader_repaid", "op": "==", "v": false }, "cancel_when": { "q": "trader_repaid", "op": "==", "v": true }, "to": "narrator", "cue": "the trader the player short-changed is in town and remembers" }] }`.
+- **Bad.** A delay in `parts` without a clock, an unknown transition, quest, milestone or check, an outcome a check never gives, `to` outside the cast, `"narrator"` with no omniscient member, `expires` in a different unit from the delay, `hold` above 6 or a second echo with the same id (refused); a cue that says what the player does or feels (`echo-speaks-for-player`); a cue naming someone or somewhere the player may not have met when it lands (`echo-names-unknown-entity`: it waits and may expire); a `cancel_when` that already holds at the start (`echo-gate-holds-never`: it is cancelled before it can land).
+- **If wrong.** An echo that never lands: check Author view's reason; a member who is never enabled, or a `when` the story never makes true, lets it expire. An echo in a story you updated keeps what it already did; an edited gate or delay reschedules a pending echo from the kept history, an edited cue alone lands with the new words.
 
 <a id="story-time"></a>
 

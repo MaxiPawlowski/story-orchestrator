@@ -132,6 +132,7 @@ export interface SnapshotSources {
   enabled?: readonly string[];
   generating?: boolean;
   cuesAuthor?: import("./cuePort").CuesAuthorView | null;
+  echoesAuthor?: import("@engine/life/echoView").EchoAuthorView | null;
 }
 
 export interface SnapshotPort {
@@ -155,6 +156,7 @@ export interface SnapshotPort {
   enabled?: readonly string[];
   generating?: boolean;
   cues?: Pick<import("./cuePort").CuePort, "authorView">;
+  echoes?: Pick<import("./echoPort").EchoPort, "authorView">;
 }
 
 export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
@@ -188,6 +190,7 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   enabled: port.enabled,
   generating: port.generating,
   cuesAuthor: port.cues?.authorView(port.extras.ui.authorView),
+  echoesAuthor: port.echoes?.authorView(port.extras.ui.authorView),
 });
 
 const routeGaps = () => {
@@ -268,6 +271,7 @@ const inlineView = (sources: SnapshotSources, story: NormalizedStory | null, liv
     firstLines: firstLines(sources.chat), authorMoves: authorMoves(extras), resting: sources.resting,
     emptyReplies: recentEmptyReplies(sources.chat, settings.window), enabled: sources.enabled, sceneTests: authorView ? extras.living?.sceneTests : undefined,
     patternCompletions: authorView ? extras.patterns?.completed : undefined, cueReceipts: authorView ? extras.cues?.receipts : undefined,
+    echoLandings: authorView ? extras.echoes?.events : undefined,
   });
 };
 
@@ -487,7 +491,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     memory: extras.memory, memoryShown: shownRows(extras.memory.entries, sources.resting ?? ((text: string) => text)),
     chapters,
     promises: promisesSlice(story, extras, blackboard),
-    rumorsAuthor: rumorAuthorSlice(story, extras), ...patternSlices(story, extras, state, sources), cuesAuthor: sources.cuesAuthor,
+    rumorsAuthor: rumorAuthorSlice(story, extras), ...patternSlices(story, extras, state, sources), cuesAuthor: sources.cuesAuthor, echoesAuthor: sources.echoesAuthor,
     pacing: extras.pacing,
     copilot: extras.copilot,
     ui: extras.ui,

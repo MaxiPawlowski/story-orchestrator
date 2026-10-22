@@ -83,6 +83,17 @@ export const cueStory = (): StoryDraft => {
   };
 };
 
+export const echoStory = (): StoryDraft => {
+  const base = sampleStory();
+  const transition = base.transitions[0];
+  return {
+    ...base,
+    echoes: [{
+      id: "debt", after: { transition: `${transition.from}->${transition.to}#0` }, delay: { boundaries: [2, 4] }, to: base.roster[0].id, cue: "the unpaid debt from the market",
+    }],
+  };
+};
+
 export const codexStory = (): StoryDraft => ({
   ...sampleStory(),
   qualities: [...sampleStory().qualities, { key: "location", type: "enum", values: ["gate", "boathouse"], source: "extractor", rubric: "Where the party is." }],

@@ -14,11 +14,13 @@ import { checkRumors, readRumors } from "@engine/validate/rumors";
 import type { Rumor } from "@engine/rumorSchema";
 import type { StoryPattern } from "@engine/patternSchema";
 import { checkPatterns, readPatterns } from "@engine/validate/patterns";
+import { readEchoes, readEchoList } from "@engine/validate/echoes";
+import type { StoryEcho } from "@engine/echoSchema";
 import type { CalendarInput, StoryClock } from "@engine/lifeSchema";
 import { isRecord } from "@utils/guards";
 import {
   CHARACTER_LIFE_FIELDS, removeCodexEntry, removeObservation, updateObservation, setCalendar, setCharacterLife, setClock, setFactions, setMemberGossip,
-  setPatterns, setRumors, updateCodexEntry,
+  setEchoes, setPatterns, setRumors, updateCodexEntry,
   setMilestones, setQualityDisplay, setQuests, setCheckpointChecks, setCheckpointOffers, setTransitionCheck, setWidgets, type CharacterLife,
 } from "../../studio/gameMutations";
 import type { OpDescription } from "../index";
@@ -42,11 +44,12 @@ export type GameAgentOp =
   | { kind: "setFactions"; factions: Faction[] }
   | { kind: "setRumors"; rumors: Rumor[]; gossip: Record<string, Record<string, unknown> | null> }
   | { kind: "setPatterns"; patterns: StoryPattern[] }
+  | { kind: "setEchoes"; echoes: StoryEcho[] }
   | CueAgentOp;
 
 export const GAME_AGENT_KINDS: ReadonlySet<string> = new Set<GameAgentOp["kind"]>([
   "setQuests", "setMilestones", "setWidgets", "setQualityDisplay", "setCheckpointChecks", "setTransitionCheck", "setCharacterLife", "setClock", "setCodexEntry", "removeCodexEntry",
-  "setFactions", "setCalendar", "setRumors", "setObservation", "removeObservation", "setPatterns", "setCheckpointOffers", ...CUE_AGENT_KINDS,
+  "setFactions", "setCalendar", "setRumors", "setObservation", "removeObservation", "setPatterns", "setEchoes", "setCheckpointOffers", ...CUE_AGENT_KINDS,
 ]);
 
 const refused = (tool: string, errors: ValidationError[]) => ({ ok: false as const, message: errors.map((error) => `${tool}.${error.path}: ${error.message}`).join("; ") });
@@ -125,8 +128,16 @@ const readCoreGameCall = (tool: string, args: Record<string, unknown>): GameCall
   return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setTransitionCheck", index: Number(args.index), check } };
 };
 
-export const readGameCall = (tool: string, args: Record<string, unknown>): GameCallCheck =>
-  ((CUE_AGENT_KINDS as readonly string[]).includes(tool) ? readCueCall(tool, args) : readCoreGameCall(tool, args));
+const readEchoCall = (args: Record<string, unknown>): GameCallCheck => {
+  const errors: ValidationError[] = [];
+  const echoes = readEchoList(args.echoes ?? [], errors) ?? [];
+  return errors.length ? refused("setEchoes", errors) : { ok: true, op: { kind: "setEchoes", echoes } };
+};
+
+export const readGameCall = (tool: string, args: Record<string, unknown>): GameCallCheck => {
+  if ((CUE_AGENT_KINDS as readonly string[]).includes(tool)) return readCueCall(tool, args);
+  return tool === "setEchoes" ? readEchoCall(args) : readCoreGameCall(tool, args);
+};
 
 export const applyGameOp = (draft: Story, op: GameAgentOp): Story => {
   if (isCueOp(op)) return applyCueOp(draft, op);
@@ -148,6 +159,7 @@ export const applyGameOp = (draft: Story, op: GameAgentOp): Story => {
     case "setFactions": return setFactions(draft, op.factions);
     case "setRumors": return Object.entries(op.gossip).reduce((next, [id, channel]) => setMemberGossip(next, id, channel ?? undefined), setRumors(draft, op.rumors));
     case "setPatterns": return setPatterns(draft, op.patterns);
+    case "setEchoes": return setEchoes(draft, op.echoes);
   }
 };
 
@@ -193,6 +205,7 @@ export const describeGameOp = (op: GameAgentOp): OpDescription => {
       return { action: "update", entity: "story.rumors", label };
     }
     case "setPatterns": return { action: "update", entity: "story.patterns", label: op.patterns.length ? `Patterns: ${op.patterns.map((pattern) => pattern.id).join(" / ")}` : "Remove every pattern" };
+    case "setEchoes": return { action: "update", entity: "story.echoes", label: op.echoes.length ? `Echoes: ${op.echoes.map((echo) => echo.id).join(" / ")}` : "Remove every echo" };
   }
 };
 
@@ -245,6 +258,10 @@ export const gameOpProblem = (draft: Story, op: GameAgentOp): string | null => {
     const checkpointById = Object.fromEntries(draft.checkpoints.map((checkpoint) => [checkpoint.id, checkpoint]));
     checkPatterns(op.patterns, { checkpointById, checkpoints: draft.checkpoints, transitions: draft.transitions, quests: draft.quests, milestones: draft.milestones,
       chapters: draft.chapters, roster: draft.roster, qualityByKey: byKey }, errors);
+  }
+  if (op.kind === "setEchoes") {
+    readEchoes(op.echoes, { roster: draft.roster, transitions: draft.transitions, checkpoints: draft.checkpoints, quests: draft.quests, milestones: draft.milestones,
+      qualityByKey: byKey, hasClock: Boolean(draft.clock) }, errors);
   }
   if ((op.kind === "setCheckpointChecks" || op.kind === "setCheckpointOffers") && !draft.checkpoints.some((checkpoint) => checkpoint.id === op.id)) return `'${op.id}' is not a checkpoint`;
   if (op.kind === "setCheckpointOffers") checkOffers(setCheckpointOffers(draft, op.id, op.offers).checkpoints, draft.transitions, byKey, errors, draft.quests);

@@ -81,4 +81,7 @@ export const DIAGNOSTIC_CODES = [
   "topic-ungated-depth",
   "offer-names-unknown",
   "check-hint-names-unknown",
+  "echo-speaks-for-player",
+  "echo-names-unknown-entity",
+  "echo-gate-holds-never",
 ] as const;

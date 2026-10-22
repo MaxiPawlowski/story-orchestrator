@@ -1,6 +1,7 @@
 import { CLOCK_DAY_KEY, evaluateGate, relationshipKey, type GateNode, type LifeMember, type PrimitiveValue } from "@engine/index";
 import { chanceSeed, unitDraw } from "@engine/chance";
 import { whereabouts } from "@engine/life/presence";
+import { byDue, dueNow, span } from "@engine/life/due";
 import { rumorVersions, type GossipChannel, type GossipDelay, type HearsayStance, type Rumor, type StoryRumors } from "@engine/rumorSchema";
 import type { SourceRevision } from "../audience";
 import {
@@ -48,8 +49,6 @@ export const occurrenceIdOf = (parts: { chatId: string; storyId: string; rumorId
 const draw = (input: Pick<SpreadInput, "chatId" | "storyId">, occurrenceId: string, what: "delay" | "version"): number =>
   unitDraw([input.chatId, input.storyId, occurrenceId, what]);
 
-const span = (range: [number, number], unit: number): number => range[0] + Math.min(range[1] - range[0], Math.floor(unit * (range[1] - range[0] + 1)));
-
 const storyDay = (values: Values): number | null => (typeof values[CLOCK_DAY_KEY] === "number" ? values[CLOCK_DAY_KEY] as number : null);
 
 const dueOf = (delay: GossipDelay, unit: number, at: RumorAt, values: Values): RumorDue => {
@@ -59,14 +58,6 @@ const dueOf = (delay: GossipDelay, unit: number, at: RumorAt, values: Values): R
   }
   return { boundary: at.boundary + span("boundaries" in delay ? delay.boundaries : [0, 0], unit) };
 };
-
-const isDue = (due: RumorDue, at: RumorAt, values: Values): boolean => {
-  if ("boundary" in due) return due.boundary <= at.boundary;
-  const day = storyDay(values);
-  return day !== null && due.day <= day;
-};
-
-const dueRank = (due: RumorDue): number => ("boundary" in due ? due.boundary : due.day);
 
 export const pickVersion = (rumor: Rumor, unit: number): number => {
   const versions = rumorVersions(rumor);
@@ -173,8 +164,7 @@ export function spreadRumors(input: SpreadInput): SpreadResult {
   const landed: RumorEvent[] = [];
   const disclosed: RumorDisclosure[] = [];
   const hearsay: HearsayRow[] = [];
-  const due = events.filter((event) => !event.landedAt && isDue(event.due, at, values))
-    .sort((left, right) => dueRank(left.due) - dueRank(right.due) || left.occurrenceId.localeCompare(right.occurrenceId));
+  const due = events.filter((event) => !event.landedAt && dueNow(event.due, at.boundary, storyDay(values))).sort(byDue);
   for (const event of due) {
     if (landed.length >= RUMOR_LANDINGS_PER_BOUNDARY) break;
     const rumor = rumorById.get(event.rumorId);

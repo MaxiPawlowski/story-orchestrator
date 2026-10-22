@@ -1,3 +1,4 @@
+import type { NormalizedStory } from "@engine/index";
 import type { CuesState, OfferLapse, OfferProvider, OfferReceipt } from "@engine/life/offers";
 import type { CueRuntime, CuesAuthorView, OfferProviderId, OfferRegistry } from "./cueRuntime";
 import type { ManagerPort } from "./managerWiring";
@@ -15,16 +16,19 @@ declare module "./types" {
 export type { CuesAuthorView, OfferProviderId };
 
 export interface CuePort extends CueRuntime {
-  addOfferProvider: (id: OfferProviderId, provider: OfferProvider) => void;
+  addOfferProvider: (id: OfferProviderId, provider: OfferProvider, relevant?: (story: NormalizedStory) => boolean) => void;
   onLapse: (id: OfferProviderId, listener: (lapse: OfferLapse) => void) => void;
   receipts: () => readonly OfferReceipt[];
   lapses: () => readonly OfferLapse[];
 }
 
 export function createCuePort(port: ManagerPort, memory: MemoryCoordinator): CuePort {
-  const registry: OfferRegistry = { providers: new Map(), lapseListeners: new Map() };
+  const registry: OfferRegistry = { providers: new Map(), lapseListeners: new Map(), relevance: new Map() };
   const cues: CuePort = {
-    addOfferProvider: (id, provider) => { registry.providers.set(id, provider); },
+    addOfferProvider: (id, provider, relevant) => {
+      registry.providers.set(id, provider);
+      if (relevant) registry.relevance?.set(id, relevant);
+    },
     onLapse: (id, listener) => { registry.lapseListeners.set(id, listener); },
     receipts: () => port.extras().cues?.receipts ?? [],
     lapses: () => port.extras().cues?.lapses ?? [],
