@@ -376,3 +376,80 @@ Sol's, frozen as written (informational; never retuned):
 - P1 cross-plan, settings through `FEATURE_POLICY_FIELDS`/`extras.overrides` per 09: applied (S3 settings bullet; 09 mapping
   row); old "setting home" unresolved question removed.
 - P2 cross-plan, model routing: applied. Sol default, DeepSeek fallback only (decision 6). Thinking and inner voice untouched.
+
+## Gate record 2026-10-22 (v2.9 build, branch v2.9-07-echoes)
+
+Worktree `C:/dev/so-v29-07-echoes`, off master `74420f97`. Owner decisions applied: cue-only; wait until `expires`, then expire
+(default 6 turns / 4 day parts after due); once per echo per chat. No GPU, no lanes, no model calls.
+
+Built:
+
+- S1: `engine/echoSchema.ts` (own schema module; `schema.ts` untouched), `engine/validate/echoes.ts` (errors as planned; `parts`
+  without a clock refused, never the rumor zero-delay fallback), `echoes` in `usesGameLayer`, parse + normalized copy through
+  `gameFields`; `engine/life/due.ts` (`span`, `dueRank`, `dueNow`, `byDue`) now used by rumors (rumor tests unchanged and green).
+  Diagnostics `echo-speaks-for-player`, `echo-names-unknown-entity` (narrator cues), `echo-gate-holds-never` (`cancel_when`
+  holds at start), each with a consequence and guide topic. Story update: `reconcileEchoes` in the existing `reconcileExtras`
+  hook (identity = id + after + to + unit, revision adds delay range, gates, expiry, hold; cue-only edit keeps pending events;
+  changed revision drops pending events and rewinds the scan cursor; a new identity rescans the kept log; terminal events kept).
+- S2: pure scheduler `engine/life/echoes.ts` (game-layer chunk): schedule from each `BoundaryLogEntry` + check records,
+  idempotent occurrence ids (`chanceSeed`), delay by `unitDraw`, catch-up only over a contiguous kept range with `gaps[]`
+  rows (`log`, `checks`), due from the source entry's own `story_time`; per boundary cancel -> expiry -> due/revalidate ->
+  at most 2 landings; `settled` rows on eviction; `rollbackEchoes` in `quarantine()`; `sanitizeEchoes` in extras.
+- S3: `runtime/echoPort.ts` (thin main-entry door) + lazy `echoRuntime.ts`/`echoRuntimeHost.ts`; boundary work `echoes`
+  order 11. Delivery only through plan 04: `CuePort.addOfferProvider("echoes", …)` (echo source variant, priority 20, lane may,
+  window `landedAt … landedAt + hold - 1`, spend once) and `onLapse("echoes", …)` closes an unoffered landing as `lapsed`.
+  Offered = 04 receipt joined by offer key. Author rows `#so-echoes` (Memory, Author view) with every lifecycle state and
+  gaps, inline level-3 "Echo landed" chip, journal author rows. Feature `echoes` in `FEATURE_POLICY_FIELDS` /
+  `FEATURE_CONTROLS`, install switch `characters.echoes` (default true), registry row `delayed-echoes`, `FEATURE_STATE` row,
+  settings copy, setup-path row, plan 24 matrix row.
+- S4: typed mutations `newEcho`/`setEchoes`/`addEcho`/`updateEcho`/`removeEcho`, wizard tool `setEchoes`
+  (`readEchoList` + cross-checks), Studio `EchoesEditor` (+ stories) under the game editor, `EchoesPanel` (+ stories), guide
+  topic `echoes` (`story-guide.md`, `copilot/guideTopicsEchoes.ts`, `guideTopicGroups.json`), `npm run docs:guide`,
+  `npm run docs:settings`.
+
+Floors (deterministic, predeclared, not retuned):
+
+- 40-schedule corpus `engine/life/echoSchedules.corpus.test.ts` (10 time-jump, 10 invalidated `when`/`cancel_when`, 10 absent or
+  refused recipient / unknown entity, 10 rollback cuts): exact once-only due/cancel 40 of 40; early deliveries 0; unauthorized
+  deliveries 0; planted controls caught.
+- Rollback = replay at every cut 0-9 (`echoes.test.ts`), sanitize(serialize) round trip, update -> rescan equals replay on
+  the new story.
+- Privacy (`runtime/echoes.review.test.ts`): member cue restating a secret with no unknown proper noun, narrator who knows
+  the secret (resting audience), secret introduced after landing and before render, narrator cue naming an unmet person: 0
+  reached a block; echo never offered to a non-recipient. `echo-vs-must-vs-topic`: must cue, then raised topic, then echo
+  (04's pinned order).
+- Narrator acknowledgement >= 80% (real Artemis): NOT run: no GPU (owner 2026-10-21).
+
+Commands and results (final tree):
+
+- `npm run gates:quick`: green after fixes (typecheck, typecheck:test, lint, jest related, replay 32 of 32).
+- `npm run gates` (plain, Storybook included): RED only at `test-storybook:ci` because :6006 was held by another worktree's
+  http-server (`C:\dev\so-image-acceptance`, not stopped), and at `test:release` (bundled guide stale after a line-ending
+  rewrite; regenerated). Then `npm run gates -- --no-storybook` twice: RED only at `test:debug` under parallel load (alone
+  `npm run test:debug`: 1484 pass, 0 fail). Final: `npm run gates -- --no-storybook --serial` -> `gates: all green in 406.6s`
+  (test:replay, test, build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release).
+- Storybook on its own port: `npm run storybook:build`, test-runner on :6207 `--maxWorkers 2`: 164 suites, 985 of 985 passed
+  (one EchoesEditor play fix: select-and-type instead of clear on a controlled number field).
+- Main bundle `dist/index.js` 1,292,147 B (master 1,290,479; +1,668 B, budget 1,300,000 not raised). Echo logic, editors and
+  panels ride lazy chunks; main holds the door, feature control row, setting and the wiring lines.
+
+NOT run:
+
+- Lane live scenario `test/scenarios/v29-07-echoes.json` (written, schema-checked by `scenarioSchema.test.mts` 17 of 17,
+  evals syntax-checked): NOT run: unmerged branch, no staging.
+- Payload golden `test/scenarios/payload/echo-*.json`: not written (needs a lane capture baseline).
+- Real-LLM narrator floor and final-suite rows: NOT run: no GPU (owner 2026-10-21). Campaign adoption: none (owner).
+
+Deviations:
+
+- Scheduler core lives in `engine/life/echoes.ts` (pure, game layer), not `runtime/echoes/schedule.ts`: the game layer is an
+  engine module and cannot import runtime.
+- Install switch is `characters.echoes` (beside `characters.cues`, the channel it rides), not `memory.echoes`.
+- `due` and `waiting` (with its reason) are derived at view time, not stored, so persisted state is exactly replayable;
+  stored statuses are scheduled / landed / cancelled / expired / lapsed.
+- Kit load needs no RunToken: echoes are game-layer fields, and a game-layer story does not load before the layer; a late
+  echo runtime chunk is covered by the cursor catch-up.
+- Plan 04 contract unchanged; one additive internal change: `addOfferProvider(id, provider, relevant?)` and
+  `OfferRegistry.relevance`, so a registered echo provider wakes the cue channel (and the per-draft staging path) only for
+  stories with echoes. Without it, registering any provider made `cues.active()` true for every story.
+- Echo cue header stays 04's `CUE_COPY.echo` text.

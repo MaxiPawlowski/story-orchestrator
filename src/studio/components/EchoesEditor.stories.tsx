@@ -24,8 +24,7 @@ export const EditsEchoes: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText("Delayed echoes")).toBeVisible();
-    await userEvent.clear(canvas.getByLabelText("echo debt delay to"));
-    await userEvent.type(canvas.getByLabelText("echo debt delay to"), "6");
+    await userEvent.type(canvas.getByLabelText("echo debt delay to"), "6", { initialSelectionStart: 0, initialSelectionEnd: 1 });
     await expect(echoes()[0].delay).toEqual({ boundaries: [2, 6] });
     await userEvent.type(canvas.getByLabelText("echo debt hold"), "3");
     await expect(echoes()[0].hold).toBe(3);
