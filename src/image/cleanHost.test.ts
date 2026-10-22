@@ -6,6 +6,7 @@ const host = {
   media: null as null | { ready: true; comfyUrl: string },
   checkpoints: [] as string[],
   onReady: null as null | (() => void),
+  generating: false,
 };
 
 const renderStImage = jest.fn(async () => "/user/images/st.png");
@@ -14,7 +15,7 @@ const comfyDiscover = jest.fn(async () => ({ nodes: {}, embeddings: [], checkpoi
 const reserveGpu = jest.fn(async () => ({ lease: null, brokered: false }));
 const imagePlace = jest.fn(async () => ({ ok: true as const, placed: true as const }));
 
-jest.mock("@services/STAPI", () => ({ isHostGenerating: () => false, listConnectionProfiles: () => [], getScannableEntries: async () => [] }));
+jest.mock("@services/STAPI", () => ({ isHostGenerating: () => host.generating, listConnectionProfiles: () => [], getScannableEntries: async () => [] }));
 jest.mock("@services/stHost/image", () => ({
   imageChat: () => ({ id: "chat-1", groupId: "g1", folder: "g1", userName: "Player", characters: [],
     messages: [{ name: "Narrator", mes: "The gate opens.", is_user: false, is_system: false }] }),
@@ -83,6 +84,7 @@ beforeEach(() => {
   host.media = null;
   host.checkpoints = [];
   host.onReady = null;
+  host.generating = false;
   jest.clearAllMocks();
   workflowHost.swaps = [];
 });
@@ -122,6 +124,20 @@ describe("plan 32 W4: a clean host never tries to render", () => {
     expect(reserveGpu).toHaveBeenCalledTimes(1);
     expect(renderStImage).toHaveBeenCalledTimes(1);
     expect(imagePlace).toHaveBeenCalledTimes(1);
+    stop();
+  });
+
+  it("a lease granted just as a reply starts is handed back, and the cue draws once the reply is over", async () => {
+    host.stReady = true;
+    reserveGpu.mockImplementationOnce(async () => { host.generating = true; setTimeout(() => { host.generating = false; }, 50); return { lease: null, brokered: false }; });
+    jest.useFakeTimers();
+    const { fire, stop } = harness();
+    try {
+      fire();
+      await jest.advanceTimersByTimeAsync(1_000);
+    } finally { jest.useRealTimers(); }
+    expect(reserveGpu).toHaveBeenCalledTimes(2);
+    expect(renderStImage).toHaveBeenCalledTimes(1);
     stop();
   });
 

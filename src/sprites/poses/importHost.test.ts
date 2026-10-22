@@ -4,6 +4,7 @@ import * as gpu from "@services/stHost/gpuBroker";
 import type { RunOwnership } from "@runtime/runToken";
 
 jest.mock("@services/stHost/media", () => ({ comfyDiscover: jest.fn(), comfyFingerprint: jest.fn(), comfyReference: jest.fn(), comfyReleaseReference: jest.fn(), comfyRenderOwned: jest.fn() }));
+jest.mock("@services/stHost/generation", () => ({ isHostGenerating: () => false }));
 jest.mock("@services/stHost/gpuBroker", () => ({ gpuBrokerStatus: jest.fn(async () => null), reserveGpu: jest.fn(), releaseGpu: jest.fn(), renewGpu: jest.fn() }));
 let owns = true;
 const ownership: RunOwnership = { mint: () => ({ chatId: "c", storyId: "s", storyHash: "h", sessionEpoch: 1, windowRevision: 0, window: null }),

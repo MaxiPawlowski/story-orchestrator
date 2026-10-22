@@ -1,7 +1,7 @@
 import { beginRun, type RunOwnership } from "@runtime/runToken";
 import { comfyDiscover, comfyFingerprint, comfyReference, comfyReleaseReference, comfyRenderOwned } from "@services/stHost/media";
 import { reserveGpu, releaseGpu, renewGpu, gpuBrokerStatus, type GpuReservation } from "@services/stHost/gpuBroker";
-import { waitForTextPriority } from "../builder/textPriority";
+import { hostGenerating, waitForTextPriority } from "../builder/textPriority";
 import { DWPOSE_FILES, dwposeGraph, readDWPose } from "./import";
 import { anySignal } from "@utils/signals";
 
@@ -17,7 +17,8 @@ export async function importPoseImage(image: string, ownership: RunOwnership, si
     guard();
     if (!discovery.nodes.DWPreprocessor) throw new Error("Install comfyui_controlnet_aux and the approved DWPose files first. No download was started.");
     for (const name of DWPOSE_FILES) { await comfyFingerprint("poseModels", name, active); guard(); }
-    await waitForTextPriority({ signal: active, current: run.stillOwns, status: gpuBrokerStatus, now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) });
+    await waitForTextPriority({ signal: active, current: run.stillOwns, status: gpuBrokerStatus, loud: hostGenerating, now: Date.now,
+      sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) });
     guard();
     reservation = await reserveGpu({ workflowKey: "dwpose-import-v1", modelFiles: DWPOSE_FILES.map((name) => ({ kind: "poseModels", name })), width: 1024, height: 1024, signal: active });
     guard();
