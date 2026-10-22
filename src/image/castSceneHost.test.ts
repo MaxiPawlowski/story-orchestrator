@@ -24,8 +24,7 @@ jest.mock("@services/stHost/gpuBroker", () => ({ reserveGpu: jest.fn(), releaseG
 jest.mock("@runtime/settingsStore", () => ({ getGlobalSettings: jest.fn() }));
 jest.mock("../sprites/builder/images", () => ({ decodeImage: jest.fn(), encodeImage: () => "encoded-reference-bytes" }));
 jest.mock("../sprites/visualHost", () => ({ verifyVisualSource: jest.fn(), sourceStillCurrent: jest.fn() }));
-jest.mock("../sprites/builder/textPriority", () => ({ waitForTextPriority: jest.fn() }));
-jest.mock("@services/stHost/generation", () => ({ isHostGenerating: () => false }));
+jest.mock("../sprites/builder/textPriority", () => ({ waitForTextPriority: jest.fn(), hostGenerating: jest.fn() }));
 Object.defineProperty(globalThis, "crypto", { value: webcrypto, configurable: true });
 
 const setup = () => {

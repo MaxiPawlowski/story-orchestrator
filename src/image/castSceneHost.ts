@@ -13,9 +13,8 @@ import { castSceneBuilder, castSceneGraph, castSceneIdentities, castSceneKey, Ca
 import { isNarratorMember } from "./cast";
 import type { ImageQueue } from "./queue";
 import { decodeImage, encodeImage } from "../sprites/builder/images";
-import { waitForTextPriority } from "../sprites/builder/textPriority";
+import { hostGenerating, waitForTextPriority } from "../sprites/builder/textPriority";
 import { gpuBrokerStatus } from "@services/stHost/gpuBroker";
-import { isHostGenerating } from "@services/stHost/generation";
 import { log } from "@utils/log";
 
 async function discardUnplaced(path: string): Promise<void> {
@@ -74,7 +73,7 @@ export async function drawPreparedCast(manager: RuntimeManager, queue: ImageQueu
           + (identities[index].layered?.length ? ` (the reference image predates ${identities[index].layered?.join(", ")}; draw those details as described)` : ""))].join(" ");
       const input = { prompt, models: { diffusion, encoder, vae }, seed: 1234, ...render };
       const key = await contentHash(new TextEncoder().encode(castSceneKey(identities, input)));
-      await waitForTextPriority({ status: gpuBrokerStatus, loud: isHostGenerating, current: () => run.stillOwns(), signal,
+      await waitForTextPriority({ status: gpuBrokerStatus, loud: hostGenerating, current: () => run.stillOwns(), signal,
         now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) });
       guard(); signal.throwIfAborted();
       const lease = await reserveGpu({ workflowKey: key, width: render.resolution, height: render.resolution, signal, foreground: true,

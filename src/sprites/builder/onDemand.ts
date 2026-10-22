@@ -1,14 +1,13 @@
 import { comfyDiscover, comfyFingerprint, spriteFileFingerprint, spriteManifest, spriteReferencePack } from "@services/stHost/media";
 import { spriteList } from "@services/stHost/sprites";
 import { gpuBrokerStatus } from "@services/stHost/gpuBroker";
-import { isHostGenerating } from "@services/stHost/generation";
 import { beginRun } from "@runtime/runToken";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { createSpriteBuilder } from "./host";
 import { contentHash, EDIT_RECIPE, recipeProblems } from "./recipes";
 import { publicLook } from "@engine/cardFields";
 import { log } from "@utils/log";
-import { waitForTextPriority } from "./textPriority";
+import { hostGenerating, waitForTextPriority } from "./textPriority";
 import { completeLookFrames, lookFrameRequest, lookKeyInput, lookStillRequest } from "./lookFrames";
 import { frameIndex, type AnimationFrames } from "../animation";
 import { visualRoot } from "../visualManifest";
@@ -108,7 +107,7 @@ export class OnDemandLooks {
       guard();
       const animate = async (path: string, hash: string): Promise<AnimationFrames> => completeLookFrames({
         guard,
-        wait: () => waitForTextPriority({ status: gpuBrokerStatus, loud: isHostGenerating, current: () => !this.stopped && run.stillOwns() && request.accepts(),
+        wait: () => waitForTextPriority({ status: gpuBrokerStatus, loud: hostGenerating, current: () => !this.stopped && run.stillOwns() && request.accepts(),
           signal, now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) }),
         cached: async (kind) => {
           const manifest = await spriteManifest(request.folder, `anim-${set}`);
@@ -148,7 +147,7 @@ export class OnDemandLooks {
       }
       const reference = accepted ? { ...accepted.base, label: "neutral" } : base.files.find((file) => file.label === request.label) ?? base.files.find((file) => file.label === "neutral");
       if (!reference) throw new Error("The base pack has no reference for this expression.");
-      await waitForTextPriority({ status: gpuBrokerStatus, loud: isHostGenerating, current: () => !this.stopped && run.stillOwns() && request.accepts(),
+      await waitForTextPriority({ status: gpuBrokerStatus, loud: hostGenerating, current: () => !this.stopped && run.stillOwns() && request.accepts(),
         signal, now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) });
       guard();
       const candidate = await builder.build(lookStillRequest(build, publicLook(request.fields), reference));
