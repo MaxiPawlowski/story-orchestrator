@@ -4,7 +4,7 @@
     "lane": "no-model",
     "group": "Group: Arin, DM Narrator",
     "members": ["Arin", "DM Narrator"],
-    "judge": "off",
+    "judge": "off", "briefingDraft": "off", "innerBeat": "off",
     "authorView": true
   },
   "steps": [
