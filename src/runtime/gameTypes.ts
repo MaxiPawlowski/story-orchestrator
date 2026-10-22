@@ -195,6 +195,15 @@ export interface CodexView {
   places: CodexEntryView[];
 }
 
+export interface ObservationLineView {
+  text: string;
+  boundary: number;
+  fresh: boolean;
+  from?: string;
+  at?: string;
+  messageId?: number;
+}
+
 export interface GameView {
   quests: QuestView[];
   mainLine: MainLineView;
@@ -206,6 +215,7 @@ export interface GameView {
   widgets: WidgetView[];
   standing?: Array<{ name: string; band: string }>;
   codex?: CodexView;
+  observations?: ObservationLineView[];
   scene?: SceneView;
 }
 

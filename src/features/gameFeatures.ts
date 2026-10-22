@@ -48,6 +48,14 @@ export const GAME_FEATURES: readonly Feature[] = [
     settings: [], guideTopic: "codex", doc: authorGuideDoc("codex"), status: "shipped", needs: ["story"],
   },
   {
+    id: "observations", name: "Things you notice", area: "play", audience: "player",
+    oneLine: "Small details the story lets you notice, on the story card when they land and in the Journal after.",
+    what: "A line shows only once the story says you noticed it; some need a quiet roll you never see, and a miss is final. "
+      + "It says what is there to see, never what you feel, think or should do, and no character or narrator is told. A swipe of the reply that showed it takes it back. A story can switch it off.",
+    where: drawerAt("#so-open-journal", "Journal › Noticed"),
+    settings: [], guideTopic: "observations", doc: authorGuideDoc("observations"), status: "shipped", needs: ["story"],
+  },
+  {
     id: "scene-card", name: "Here now", area: "play", audience: "player",
     oneLine: "A small card a story can place: where you are, when, and who you have met is with you.",
     what: "The card shows the place, the time when the story shows it, and the cast members with you whom you have already met, each with a link to their page. "

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { fn, within, userEvent, expect, waitFor } from "@storybook/test";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { HudStrip } from "./HudStrip";
+import { emptyGame } from "../widgets/gameViewFixtures";
 import { fitsAt, VIEWPORTS } from "../../../.storybook/fit";
 
 const baseSnapshot = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
@@ -282,6 +283,50 @@ export const StoryCardOpensFromTheStrip: Story = {
     await userEvent.click(await canvas.findByRole("button", { name: "More…" }));
     await expect(args.onOpenStory).toHaveBeenCalledTimes(1);
     await expect(canvasElement.querySelector("#so-hud-card")).toBeNull();
+  },
+};
+
+const noticing = (count: number) => baseSnapshot({
+  ...cardSnapshot(),
+  game: { ...emptyGame(), observations: [
+    ...Array.from({ length: count }, (_, index) => ({ text: `Detail ${index + 1} is there to see.`, boundary: 5, fresh: true })),
+    { text: "An older detail.", boundary: 2, fresh: false },
+  ] },
+});
+
+export const StoryCardNotices: Story = {
+  args: { snapshot: noticing(5), card: { ...cardArgs(), panels: ["journal"] } },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(canvasElement.querySelector("#so-hud-main") as HTMLElement);
+    await waitFor(() => expect(canvasElement.querySelector("#so-hud-card-notice")).not.toBeNull());
+    const notice = canvasElement.querySelector("#so-hud-card-notice") as HTMLElement;
+    await expect(within(notice).getByText("You notice:")).toBeInTheDocument();
+    await expect(notice.querySelectorAll('[data-so="hud-card-notice-line"]')).toHaveLength(3);
+    await expect(within(notice).getByText("and 2 more in the Journal")).toBeInTheDocument();
+    await expect(notice.textContent).not.toMatch(/older detail/);
+  },
+};
+
+export const StoryCardWithoutNotices: Story = {
+  args: { snapshot: noticing(0), card: { ...cardArgs(), panels: ["journal"] } },
+  play: async ({ canvasElement }) => {
+    await userEvent.click(canvasElement.querySelector("#so-hud-main") as HTMLElement);
+    await within(canvasElement).findByRole("dialog");
+    await expect(canvasElement.querySelector("#so-hud-card-notice")).toBeNull();
+  },
+};
+
+export const StoryCardNoticesOnAPhone: Story = {
+  args: { snapshot: noticing(2), card: { ...cardArgs(), panels: ["journal"] } },
+  parameters: { testViewport: VIEWPORTS.phone },
+  render: (args) => <div style={{ paddingTop: 480 }}><HudStrip {...args} /><textarea id="send_textarea" aria-label="Chat input" /></div>,
+  play: async ({ canvasElement }) => {
+    await userEvent.click(canvasElement.querySelector("#so-hud-main") as HTMLElement);
+    await waitFor(() => expect(canvasElement.querySelector("#so-hud-card-notice")).not.toBeNull());
+    const notice = canvasElement.querySelector("#so-hud-card-notice") as HTMLElement;
+    const box = notice.getBoundingClientRect();
+    await expect(box.left).toBeGreaterThanOrEqual(0);
+    await expect(box.right).toBeLessThanOrEqual(canvasElement.ownerDocument.documentElement.clientWidth);
   },
 };
 

@@ -21,6 +21,7 @@ import { requestBudgetFor } from "./requestBudget";
 import { getGlobalSettings } from "./settingsStore";
 import type { RollbackDeps } from "./rollback";
 import type { StoryUpdateDeps } from "./storyUpdate";
+import { observationKit } from "./observationRecords";
 import type { RunOwnership } from "./runToken";
 import type { LoadedStory, RuntimeExtras } from "./types";
 import { loadWizardSession, saveWizardSession } from "./wizardSessions";
@@ -43,6 +44,11 @@ import { fnv1a } from "./hash";
 import { createRecapPort } from "./recapPort";
 import { createCarryActions } from "./carryPort";
 import { gameLayer } from "@engine/validate/gameLayer";
+
+const reconcileWith = (read: () => RuntimeExtras) => (previous: NormalizedStory, next: NormalizedStory): void => {
+  const extras = read();
+  extras.observations = observationKit()?.reconcile(extras.observations, previous, next) ?? extras.observations;
+};
 
 export const restingTexts = <T extends { text: string }>(memory: MemoryCoordinator, rows: readonly T[]): T[] => shownRows(rows, memory.injector.restingFilter());
 
@@ -261,6 +267,7 @@ export function wireCoordinators(port: ManagerPort) {
     mergeStory: (raw, base) => expansion.mergedStoryOrBase(raw, base), ownership: lifecycle.ownership, living,
     chatOpen: () => Boolean(view.hosts.chat.chatId()),
     groupOpen: hasOpenGroup,
+    reconcileExtras: reconcileWith(port.extras),
   };
   return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, promises, witness, rumors, carry, narrator };
 }

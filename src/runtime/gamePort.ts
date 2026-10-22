@@ -3,6 +3,7 @@ import { gameLayer } from "@engine/validate/gameLayer";
 import type { EarnedEffects, EffectsApplier } from "./effectsApplier";
 import { beginRun, type RunOwnership } from "./runToken";
 import { checkOutcomeBlock, checkRecordsAt, createChecks, recordChecks } from "./storyCheckDraws";
+import { createObservations, observationKit } from "./observationRecords";
 import { stagedPath } from "./worldInfoGates";
 import { outcomeAnchor, regeneratingMessage } from "./regeneration";
 import type { LoadedStory, RuntimeExtras } from "./types";
@@ -49,15 +50,18 @@ export function createGamePort(deps: GamePortDeps) {
       const entry = deps.engine.stateLog.at(-1);
       if (!loaded || !entry || entry.boundary !== result.boundary) return;
       const storyId = loaded.story.id ?? loaded.record.id;
-      const records = checkRecordsAt(loaded.story, chatId && storyId ? { chatId, storyId } : null, entry);
+      const ids = chatId && storyId ? { chatId, storyId } : null;
+      const records = checkRecordsAt(loaded.story, ids, entry);
+      const kit = observationKit();
+      const noticed = kit?.recordsAt(loaded.story, ids, entry) ?? [];
       const extras = deps.extras();
-      if (records.length) {
-        const next = recordChecks(extras.checks ?? createChecks(), records);
-        if (next !== extras.checks) {
-          extras.checks = next;
-          void deps.persist();
-          deps.notify();
-        }
+      const checks = records.length ? recordChecks(extras.checks ?? createChecks(), records) : extras.checks;
+      const observations = kit && noticed.length ? kit.record(extras.observations ?? createObservations(), noticed) : extras.observations;
+      if (checks !== extras.checks || observations !== extras.observations) {
+        if (checks) extras.checks = checks;
+        if (observations) extras.observations = observations;
+        void deps.persist();
+        deps.notify();
       }
       const landed = [...rewardsLanded(loaded.story, entry), ...agendaLanded(loaded.story, entry), ...commitmentsKept(loaded.story, entry)];
       if (landed.length) void dispatch(loaded.story, landed, entry);

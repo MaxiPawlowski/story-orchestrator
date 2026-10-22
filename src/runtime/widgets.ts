@@ -4,7 +4,8 @@ import {
 } from "@engine/index";
 import { isRecord } from "@utils/guards";
 import type {
-  BoardLane, CodexView, GameView, IntentView, LogRowView, MainLineView, MilestoneView, ProgressView, ProvenanceView, QuestLane, QuestView, RosterRowView, SheetGroupView, TimelineChapterView,
+  BoardLane, CodexView, GameView, IntentView, LogRowView, MainLineView, MilestoneView, ObservationLineView,
+  ProgressView, ProvenanceView, QuestLane, QuestView, RosterRowView, SheetGroupView, TimelineChapterView,
   WidgetBody, WidgetView,
 } from "./gameTypes";
 import { previousValues, sheetGroups } from "./gameSheet";
@@ -16,6 +17,8 @@ import { factionVisible, standingOf, standingView } from "@engine/factions/stand
 
 import { shownPlayerText } from "./stretchTurns";
 import { codexLogRows, composeCodex } from "./codexView";
+import { composeObservations, observationLogRows } from "./observationView";
+import type { ObservationRecord } from "./observationRecords";
 import { labelLogRows } from "./labelView";
 import { peopleSources } from "./commitmentView";
 import { gameLayer } from "@engine/validate/gameLayer";
@@ -30,6 +33,8 @@ export interface GameSources {
   state: EngineState;
   boundaryLog: readonly BoundaryLogEntry[];
   checks: readonly CheckRecord[];
+  observations?: readonly ObservationRecord[];
+  resting?: (text: string) => string;
   threads: { open: string[]; resolved: string[] };
   chat: readonly unknown[];
   castNames: Record<string, string>;
@@ -124,10 +129,10 @@ const actionRows = (chat: readonly unknown[], from: number, log: readonly Bounda
   return [{ at: { boundary, messageId }, kind: "action", actor: PLAYER_ACTOR, text: firstLine(row.mes) }];
 });
 
-const composeLog = (sources: GameSources): LogRowView[] => {
+const composeLog = (sources: GameSources, noticed: readonly ObservationLineView[] | undefined): LogRowView[] => {
   const from = sources.boundaryLog[0]?.before.lastMessageId ?? -1;
   return [...sources.boundaryLog.flatMap((entry) => statusMoves(sources.story, entry)), ...checkRows(sources.story, sources.checks), ...actionRows(sources.chat, from, sources.boundaryLog),
-    ...codexLogRows(sources.story, sources.boundaryLog, sources.castNames), ...labelLogRows(sources)]
+    ...codexLogRows(sources.story, sources.boundaryLog, sources.castNames), ...labelLogRows(sources), ...observationLogRows(noticed, sources.boundaryLog)]
     .sort((left, right) => right.at.messageId - left.at.messageId || right.at.boundary - left.at.boundary)
     .slice(0, LOG_LIMIT);
 };
@@ -314,9 +319,10 @@ export function composeGame(sources: GameSources): GameCompose {
   const standingGroup: SheetGroupView[] = standing.length
     ? [{ label: FACTION_STANDING_GROUP, items: standing.map((view) => ({ label: view.name, as: "word" as const, text: view.band })) }] : [];
   const codex = composeCodex({ story, state, castNames: sources.castNames, enabled: sources.enabled, ...peopleSources(sources) });
+  const observations = composeObservations({ story, state, castNames: sources.castNames, enabled: sources.enabled, records: sources.observations ?? [], resting: sources.resting });
   const parts = {
     quests: visibleQuests(story, reader, values, sources.castNames), sheet: [...sheetOf(story.qualities, sources), ...standingGroup],
-    main: mainLine(story, state, sources.chat), log: composeLog(sources), codex,
+    main: mainLine(story, state, sources.chat), log: composeLog(sources, observations), codex,
   };
   const visible = (story.widgets ?? []).filter((widget) => !widget.visible_when || evaluateGate(widget.visible_when, reader));
   const ordinary = visible.filter((widget) => widget.kind !== "html").flatMap((widget) => {
@@ -345,6 +351,7 @@ export function composeGame(sources: GameSources): GameCompose {
       ...(standing.length ? { standing } : {}),
       widgets: player.filter((widget) => !backing.has(widget.id) && (!["meters", "track", "log"].includes(widget.body.kind) || (widget.body.kind === "meters" && widget !== meters[0]))),
       ...(codex ? { codex } : {}),
+      ...(observations ? { observations } : {}),
       ...(scene?.kind === "scene" ? { scene: { location: scene.location, time: scene.time, present: scene.present } } : {}),
     },
     authorWidgets: authored.filter((widget) => widget.audience === "author" && !backing.has(widget.id)),

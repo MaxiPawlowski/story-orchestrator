@@ -438,6 +438,7 @@ const InlineMount = ({ hosts }: { hosts: InlineHostSet }) => {
 
 const presenceUi = createPresenceUi({
   manager, useSnapshot: useRuntimeSnapshot, showFeature: (where) => showFeature(where), openDrawer: openStoryWindow,
+  jumpToMessage: (messageId) => void jumpToChatMessage(messageId),
 });
 
 const mountInline = () => {

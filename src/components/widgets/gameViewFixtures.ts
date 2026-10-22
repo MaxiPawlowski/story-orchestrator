@@ -1,4 +1,4 @@
-import type { GameAuthorView, GameView, ProvenanceView, WidgetView } from "@runtime/gameTypes";
+import type { GameAuthorView, GameView, ObservationLineView, ProvenanceView, WidgetView } from "@runtime/gameTypes";
 
 const track: WidgetView = {
   id: "journal-track", title: "Journal", audience: "player", synthesized: true,
@@ -126,6 +126,14 @@ export const sampleGame = (): GameView => ({
   statSheet: sheet,
   widgets: [clockWidget, boardWidget, cluesWidget, mapWidget],
 });
+
+export const noticedLines = (): ObservationLineView[] => [
+  { text: "Fresh scratches circle the lock of the dock shed.", boundary: 4, fresh: true, at: "At The landing", messageId: 8 },
+  { text: "A thin line of salt crusts the hem of the coat.", boundary: 4, fresh: true, from: "From Tom", messageId: 8 },
+  { text: "The ferry rope is frayed where it meets the post.", boundary: 2, fresh: false, messageId: 4 },
+];
+
+export const noticingGame = (observations: ObservationLineView[] = noticedLines()): GameView => ({ ...sampleGame(), observations });
 
 export const emptyGame = (): GameView => ({
   quests: [], mainLine: { done: [], current: null, objective: null }, sheet: [], milestones: [], log: [], journal: [], statSheet: null, widgets: [],

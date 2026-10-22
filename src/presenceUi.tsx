@@ -55,6 +55,7 @@ export interface PresenceUiDeps {
   useSnapshot: () => RuntimeSnapshot;
   showFeature: (where: FeatureWhere) => void;
   openDrawer: (tab?: WidgetDrawerTab) => void;
+  jumpToMessage?: (messageId: number) => void;
 }
 
 const viewport = (): Viewport => ({ width: window.innerWidth, height: window.innerHeight });
@@ -140,7 +141,7 @@ export const openPlay = async (row: ContinueRow) => {
   if (!opened.ok) window.toastr?.info?.(opened.reason, "Story Orchestrator");
 };
 
-export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer }: PresenceUiDeps) {
+export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer, jumpToMessage }: PresenceUiDeps) {
   const requestSuggestions = async () => (await suggestionsHost()).askSuggestions(manager);
   let host: Awaited<ReturnType<typeof suggestionsHost>> | null = null;
   void suggestionsHost().then((loaded) => { host = loaded; });
@@ -164,7 +165,7 @@ export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer
       onTargetSeen={() => { guideTarget = null; }} snapshot={snapshot} groupOpen={hasOpenGroup()} onShowMe={() => setPanel("guide", false)} /></Lazy> });
     if (suggestions) bodies.set("suggestions", { title: PRESENCE_TEXT.suggestionsTitle, body: <Lazy fallback={null}><SuggestionsPanel request={requestSuggestions} fill={fillSuggestion} /></Lazy> });
     if (game.game && game.journal && panels.includes("journal")) {
-      bodies.set("journal", { title: GAME_TEXT.journalTitle, body: <Lazy fallback={null}><JournalPanel game={game.game} author={author} /></Lazy> });
+      bodies.set("journal", { title: GAME_TEXT.journalTitle, body: <Lazy fallback={null}><JournalPanel game={game.game} author={author} onJump={jumpToMessage} /></Lazy> });
     }
     if (game.statSheet && panels.includes("stat-sheet")) bodies.set("stat-sheet", { title: GAME_TEXT.statSheetTitle, body: <Lazy fallback={null}><StatSheetPanel
       sheet={game.game?.statSheet ?? null} provenance={author?.provenance?.[game.game?.statSheet?.id ?? ""]} onAction={fill} openDrawer={openDrawer} /></Lazy> });
