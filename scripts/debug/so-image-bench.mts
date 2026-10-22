@@ -4,7 +4,7 @@ import { basename, join, resolve } from 'node:path';
 import { decodePng, encodePng, type RgbaImage } from './lib/pngNode.mts';
 import { cleanEdges, edgeReport } from '../../src/sprites/builder/edges.ts';
 import { seamScore } from '../../src/sprites/builder/seam.ts';
-import { eyeTone, gazeOffset, interior, irisSpan, renderOpenBall } from '../../src/sprites/liveHead/gaze.ts';
+import { pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { raterPrompt, readRating, summarize, type SheetRating } from './lib/sheetRater.mts';
@@ -172,6 +172,8 @@ const along = (values: number[], u: number): number => {
 };
 
 async function eyes(root: string) {
+  const gazeUrl = pathToFileURL(resolve(import.meta.dirname, '../../src/sprites/liveHead/gaze.ts')).href;
+  const { eyeTone, gazeOffset, interior, irisSpan, renderOpenBall } = await import(gazeUrl);
   const settings = JSON.parse(await readFile(join(root, 'lane-settings.json'), 'utf8')).extension_settings['story-orchestrator'].settings.sprites;
   const rows = [];
   for (const ref of Object.values(settings.liveHeadRigs ?? {}) as Array<{ member: string; look: string; manifest: string }>) {
