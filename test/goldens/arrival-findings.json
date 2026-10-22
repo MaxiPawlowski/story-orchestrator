@@ -203,6 +203,7 @@
   "test/scenarios/memory-mirror-file.json#0": [],
   "test/scenarios/payload/group-away-notice.json#0": [],
   "test/scenarios/payload/group-commitments.json#0": [],
+  "test/scenarios/payload/group-delivery.json#0": [],
   "test/scenarios/payload/group-narrator-holdings.json#0": [],
   "test/scenarios/payload/group-relationships.json#0": [],
   "test/scenarios/payload/group-relationships.json#1": [],

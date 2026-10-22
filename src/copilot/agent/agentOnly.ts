@@ -75,7 +75,7 @@ const polishProblem = (draft: Story, op: Extract<AgentOnlyOp, { kind: "setMember
   const errors: Array<{ path: string; message: string }> = [];
   const member = draft.roster.find((entry) => entry.id === op.id);
   readRosterPolish(op.polish, member, { path: "polish", errors, names: deliveryNames(draft) });
-  return errors.length ? errors.map((error) => `${error.path}: ${error.message}`).join("; ") : null;
+  return errors.length ? errors.map(({ path, message }) => [path, message].join(": ")).join("; ") : null;
 };
 
 export const agentOnlyProblem = (draft: Story, op: AgentOnlyOp): string | null => {
