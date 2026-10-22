@@ -47,7 +47,8 @@ SillyTavern and delay the player's own line by seconds (v2.8 31 F19).
   swap, a failed load, a failed restore) is reloaded at its desired profile once `textReloadGraceMs` (5000) has passed
   since the last lease; a failed load retries with backoff 5 s doubling to `textReloadMaxBackoffMs` (60000). The native
   backend's admission reads the fast NVML/GlobalMemoryStatusEx probe; the PowerShell CIM probe is only its fallback.
-- `streamImages` (default off; enabling it crosses the 2 GiB GPU reserve, owner decision): `{enabled, minFreeGpuMiB
+- `streamImages` (default off; owner 2026-10-22: a stream keeps the GPU reserve, so it starts only with `minFreeGpuMiB` plus
+  `reserves.gpuMiB` free, else text swaps or sheds): `{enabled, minFreeGpuMiB
   (2400), maxWeightMiB (8192), kinds (['checkpoints'])}`. On a DynamicVRAM runtime, an SDXL-sized render keeps full text
   resident (`stream-image`) and ComfyUI streams its weights from RAM; the physical-RAM reserve still applies.
   Measured in `docs/plans/v2.7/22b-residency-harvest-2026-10-07.md`.
@@ -116,6 +117,8 @@ Why these numbers (records: `docs/plans/v2.7/22-local-residency.md`, `22b-reside
   279-520 MiB during every stream: fine when only playing, the overcommit risk when other apps use the GPU, so Safe
   turns it off. `minFreeGpuMiB` stays 2400 everywhere: a stream consumed ≈2.2-2.4 GiB of the free VRAM it started with,
   so a lower start would leave nothing.
+  On 2026-10-22 a stream started with 2.5 GiB free under a 1024 MiB reserve filled the card and the text model spilled
+  to shared memory (1.4 tok/s); since then the reserve is added on top.
 - Idle restore. Shed text runs 3.3-3.9 tok/s and a full reload takes 21-22 s, so one 256-token reply on shed text
   (≈66-78 s) already costs more than restoring; Max restores after 3 idle minutes. With streaming on, SDXL images do not
   shed at all, so this mostly matters for hires/LoRA/edit work.
