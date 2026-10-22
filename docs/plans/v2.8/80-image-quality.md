@@ -235,3 +235,87 @@ during a 90-minute run.
 Gates: `npm run gates` green on `c3564bef` and `cf6f000d` without `--resume`; harness-only commits after the freeze
 (`ee0c283a`, `053b311a`, `8aeb3844`) do not change the served bundle. Rater: `so-image-bench.mts rate`, opencode
 `gpt-6.1-sol` through `codex exec`, 37 calls (≤ 60).
+
+## Gate record — stage A2, 2026-10-22 afternoon (lane 33, 3090)
+
+Same controller config as stage A (custom, GPU reserve 1024 MiB, RAM 2048 MiB). Owner: extra time and renders are fine
+when quality holds.
+
+Fixes, each with a test that fails without it:
+
+- `44868d33`: the media plugin's idle prune also removes ledgered references a deferred cleanup left and active ones
+  older than 30 min (a page reloaded mid-render never released them); journey cleanup retries a deferred prune until
+  ComfyUI is idle. Server plugin: unit-tested only, the lanes run the installed plugin copy (branch not installed).
+- `8a28cd62`: every sprite render submit waits out a reply, also under a lease the batch already holds (a9: 7 submits
+  inside turns).
+- `0fcc8345`: a pending chained voice (`TalkControl.chainPending`, the precedent in `emptyReplyHost`) counts as a reply
+  for render submits (a11: 2 submits between voices).
+- `696733ed`: the prepared-cast illustration waits up to 4 min for a look still being prepared (a12 refused because the
+  extractor had just changed the outfit).
+- `5476a947` + `19ad1461`: with no exact published look, the stage stands in with the closest published look by
+  wording (≥ 0.5 word overlap per field, filler ignored) instead of the card art (a13: "navy wool coat over a mustard
+  jacket" vs the published "a long navy wool coat over the jacket" showed the original outfit, close shot on the
+  default rig).
+
+Runs (records `<so-lanes>/33/debug/p41/<stamp>-<label>-real-run<n>/`, raw images `<label>-raw` in the private showcase):
+
+- a9 (`44868d33`, full gates green): GREEN. Prep 10.4 min, 37 renders, 1 base per member; seam max 0.9; 0
+  see-through over 81 gazes; rater 29/29 same, no defects. 7 render submits inside turns (found the batch-lease gap).
+- a10 (`44868d33`): stopped in play, environment (broker overcommit, below).
+- a11 (`8a28cd62`, full gates green): GREEN. Prep 11.1 min, 33 renders; seam max 1.1; rater 25/25, no defects. 6 submits
+  inside turns: 4 within 1 s of the send, 2 between chained voices.
+- a12 (`8a28cd62`): NOT GREEN, `illustration` only (look pending, fixed in `696733ed`). Prep 11.2 min, 35 renders; one
+  bench seam 1.5 (see the measurement note); 8 submits inside turns.
+- a13 (`696733ed`, full gates green): NOT GREEN, `look-rebuild` only (card art shown for a reworded outfit, fixed in
+  `5476a947`). Prep 11.1 min, 33 renders; 4 submits inside turns.
+- Pair on `19ad1461` (full gates green; one `--resume` after the known test 194 flake):
+  - a14: GREEN. Prep 10.5 min, 36 renders; seam max 1.0; 7 submits inside turns (3 send races, 2 SDXL chat
+    illustrations, 1 DWPose import, 1 sprite base at the window edge; illustration and DWPose paths fixed in `6e50be1f`).
+  - a15: GREEN. Prep 11.2 min, 36 renders; seam max 1.1; rater 30/30, no defects; 8 submits inside turns.
+  - Pair rule (two greens on one build) met.
+
+a10 (on `44868d33`) was stopped in play: the text model ran at 1.4 tok/s with the GPU at 24.1 GB, spilled to shared
+memory. Cause found: an SDXL chat illustration (ComfyUI history 12:20:47, `CheckpointLoaderSimple`) was admitted as
+`stream-image` beside the resident text with 2.5 GB free, because `streams()` checked `minFreeGpuMiB` (2400) against a
+zero GPU reserve. Fixed in `161779cc` (owner 2026-10-22: a stream keeps the GPU reserve; below it text swaps or sheds),
+test fails without it; controller doc `75b1c025`. Live from latency run 2 on (controller restarted).
+
+Later fixes after the pair, each with a test: `6e50be1f` (chat illustrations and DWPose imports wait out replies and
+chained voices; a lease granted as a reply starts is handed back); `so-pose-latency` prepares story poses before the
+arms (plan 80 C2 flow).
+
+Plan 79 paired play latency (`so-pose-latency.mts`, plan 33 floor: poses-on median ≤ 1.10 × no-sprites median, per run):
+
+- run 1 first attempt (`6e50be1f`, old harness): latency 82.9 / 90.3 s = 0.918 (met), pose renders FAIL (11 of 12
+  directed poses without a body: deferred requests for checkpoints already left were dropped).
+- run 1 (`6e50be1f`, poses prepared before the arms, 26 min): pose renders pass; latency 98.0 / 80.7 s = 1.214, MISS.
+  Each on-demand sprite render in the gap swaps text out ("need 18940"); the harness sends the next turn at once, so
+  that reply waits for the render and a text reload (first token up to 131 s). Turn times 16–162 s in both arms.
+- run 2 (`6e50be1f` + broker fix live, controller restarted): first start stopped at preflight on a stale page group
+  list (no leak on disk); second start's pose preparation hit the 30 min harness cap while renders were still steady
+  (stopped, `e762d8d1` raises it to 60); third start GREEN: poses 33 min, pose renders pass, latency 97.3 / 122.8 s =
+  0.792.
+- Pair: run 1 miss (1.214), run 2 green (0.792). Turn times 40–176 s per arm, 8 turns each: the spread is larger than
+  the effect; recorded, not retuned.
+
+Controller note: killing the controller's process tree left its llama-server running (18 GB, unknown to the new
+controller); killed by hand before run 2.
+
+Floors, stage A2 (informational, not retuned):
+
+- R base edge ≥ 1,200: 1,248, met. R bust eye width ≥ 40 px: unchanged miss (Ash, Bram).
+- Q seam ≤ 1.3: met on every bench except a12's one blink (1.5, measurement note). W see-through: 0, met.
+- Rater identity: 29/29, 25/25, 30/30; defects 0 of 18 sheets; 55 calls (≤ 60). Met.
+- C1 ≤ 1.5 base renders per member: 1, met.
+- C2 poses ready before play: met (pose step 6–7.6 min in the journey). C2 no render started during a reply: MISS, 4–8
+  submits inside turn windows per run; after the fixes the rest are send races (≤ 1.2 s after the player's send) and
+  the paths fixed in `6e50be1f` (not yet measured in a journey).
+- Cost renders ≤ 35: 33–37, at the floor (miss on 4 of 7 runs). Preparation ≤ 9 min: 10.4–11.2, miss.
+- Journey both runs green: met on `19ad1461` (a14, a15).
+
+Gates: `npm run gates` green without `--resume` on `44868d33`, `8a28cd62`, `696733ed`, `6e50be1f`; `19ad1461` green with
+one `--resume` after the test 194 flake. Final: `npm run gates` green without `--resume` on `e762d8d1` (317.1 s, Storybook included); the run before it was
+red only on test 194.
+
+Measurement note: the bench seam score reads the saved PNG; the builder scores the image before the canvas encode
+(premultiplied alpha shifts faint feather pixels). a12 had one blink at 1.5 on the bench, accepted by the builder.

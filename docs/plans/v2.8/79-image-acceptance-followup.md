@@ -141,3 +141,14 @@ Owner 2026-10-18: continue image items 1–5; 3090 free for several hours. Branc
 - Full gates after the last code change: `npm run gates -- --jobs=3`, all 11 steps green in 390.4 s (Storybook included, no resume). The run before it was red only on the opencode boot-timing flake in test:plugin (340/340 alone).
 - Showcase: `C:\dev\so-poc-showcase\journey-2026-10-21.html` with live players for the three characters (product live-head bundle built from this branch), raw outputs in `journey-2026-10-21-raw`.
 - Owner 2026-10-21: no longer a POC; quality not good enough. Follow-up is [plan 80](80-image-quality.md). Branch not merged (owner).
+
+## Gate record — 2026-10-22 (Claude Code; 3090; lane 33)
+
+- Journey pair: a14 and a15 GREEN on one build (`19ad1461`), every §5 step; pair rule met. Detail and the fixes found on
+  the way (renders during replies, cast scene and pending looks, reworded looks, broker stream overcommit) are in
+  [plan 80](80-image-quality.md) §Gate record — stage A2.
+- Paired play latency (`so-pose-latency.mts`, plan 33 floor 1.10): run 1 1.214 MISS, run 2 0.792 GREEN; pose renders pass in
+  both once the harness prepares story poses before the arms (plan 80 C2). Not met as a pair.
+- Real-CUDA text-fit retry: proven 2026-10-19 above; no new run.
+- Still open: live-head acceptance with real streamed motion beyond the journey close shots; pose-quality panel on new
+  renders; lie_side labels.

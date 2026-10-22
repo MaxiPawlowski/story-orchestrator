@@ -8,7 +8,7 @@ Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instruc
 
 ## Now (running)
 
-- Plan 80 image quality (owner 2026-10-21): built and measured 2026-10-22 on branch `v2.8-image-acceptance-followup` (not merged). Stage A final pair on `cf6f000d`: a8 GREEN, a7 one environment miss (opencode transport); misses on eye width, edges (light hair), preparation time and renders. [Plan](80-image-quality.md) §Gate record — stage A.
+- Plan 80 image quality (owner 2026-10-21): built and measured 2026-10-22 on branch `v2.8-image-acceptance-followup` (not merged). Stage A final pair on `cf6f000d`: a8 GREEN, a7 one environment miss (opencode transport); misses on eye width, edges (light hair), preparation time and renders. [Plan](80-image-quality.md) §Gate record — stage A. Stage A2 (2026-10-22 afternoon): journey pair a14+a15 GREEN on `19ad1461`; fixes for renders during replies, pending/reworded looks and the broker stream overcommit (`161779cc`, owner: streams keep the GPU reserve); latency pair 1.214 miss / 0.792 green; full gates green on `e762d8d1`. §Gate record — stage A2.
 
 - Plan 79 image acceptance follow-up: owner approved items 1–5 and a several-hour 3090 window.
   Queue fairness, render cancellation, rig correction, same-build live acceptance and body-cutout investigation.
