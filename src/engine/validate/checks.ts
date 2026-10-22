@@ -1,14 +1,15 @@
 import {
-  CHECK_DICE_MAX, CHECK_NARRATE, type CheckModifier, type StoryCheck, type ValidationError,
+  CHECK_DICE_MAX, CHECK_HINT_MAX, CHECK_NARRATE, type CheckModifier, type StoryCheck, type ValidationError,
 } from "../schema";
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, isPrimitive, refuse, rejectUnknownKeys } from "./common";
 import { DISPLAY_LABEL_MAX } from "./display";
 import { readGate } from "./gates";
 
-const CHECK_KEYS = ["id", "label", "quality", "roll", "modifiers", "narrate", "outcome", "twist", "when"] as const;
+const CHECK_KEYS = ["id", "label", "quality", "roll", "modifiers", "narrate", "outcome", "twist", "when", "hint_when"] as const;
 const ROLL_KEYS = ["sides", "target", "dice"] as const;
 const MODIFIER_KEYS = ["q", "v", "add", "label"] as const;
+const HINTED_MODIFIER_KEYS = [...MODIFIER_KEYS, "hint"] as const;
 const OUTCOME_KEYS = ["quality", "bands", "partial_margin"] as const;
 export const GAME_ID_PATTERN = /^[a-z0-9][a-z0-9_-]{0,63}$/;
 
@@ -21,26 +22,41 @@ export const readLabel = (value: unknown, path: string, errors: ValidationError[
   return refuse(errors, path, `a label is text of at most ${DISPLAY_LABEL_MAX} characters`, undefined);
 };
 
-const readModifier = (entry: unknown, at: string, errors: ValidationError[]): CheckModifier[] => {
+const readHint = (value: unknown, path: string, errors: ValidationError[]): string | undefined => {
+  if (value === undefined) return undefined;
+  const hint = asString(value)?.trim();
+  if (hint && hint.length <= CHECK_HINT_MAX) return hint;
+  return refuse(errors, path, `a hint is the player's words for the help, at most ${CHECK_HINT_MAX} characters`, undefined);
+};
+
+const readModifier = (entry: unknown, at: string, errors: ValidationError[], hinted: boolean): CheckModifier[] => {
   if (!isRecord(entry)) return refuse(errors, at, "a modifier is {q, v, add}", []);
-  rejectUnknownKeys(entry, MODIFIER_KEYS, at, errors);
+  rejectUnknownKeys(entry, hinted ? HINTED_MODIFIER_KEYS : MODIFIER_KEYS, at, errors);
   const q = asString(entry.q);
   const add = Number.isInteger(entry.add) && entry.add !== 0 ? entry.add as number : null;
   if (!q) addError(errors, `${at}.q`, "a modifier names the quality it reads");
   if (!isPrimitive(entry.v)) addError(errors, `${at}.v`, "a modifier's value is a literal");
   if (add === null) addError(errors, `${at}.add`, "add is a whole number other than 0");
   const label = readLabel(entry.label, `${at}.label`, errors);
+  const hint = hinted ? readHint(entry.hint, `${at}.hint`, errors) : undefined;
   if (!q || !isPrimitive(entry.v) || add === null) return [];
-  return [{ q, v: entry.v, add, ...(label ? { label } : {}) }];
+  return [{ q, v: entry.v, add, ...(label ? { label } : {}), ...(hint ? { hint } : {}) }];
 };
 
-const readModifiers = (value: unknown, path: string, errors: ValidationError[]): CheckModifier[] => {
+export const readModifiers = (value: unknown, path: string, errors: ValidationError[], hinted = false): CheckModifier[] => {
   if (value === undefined) return [];
   if (!Array.isArray(value)) return refuse(errors, path, "modifiers are a list of {q, v, add}", []);
-  return value.flatMap((entry, index) => readModifier(entry, `${path}.${index}`, errors));
+  return value.flatMap((entry, index) => readModifier(entry, `${path}.${index}`, errors, hinted));
 };
 
-const readCheckRoll = (value: unknown, path: string, errors: ValidationError[]): StoryCheck["roll"] | null => {
+const refuseHiddenHints = (check: Pick<StoryCheck, "modifiers" | "hint_when">, path: string, errors: ValidationError[]) => {
+  (check.modifiers ?? []).forEach((modifier, index) => {
+    if (modifier.hint) addError(errors, `${path}.modifiers.${index}.hint`, "a hint shows the player what could help, so it is only for a public check (narrate: public)");
+  });
+  if (check.hint_when) addError(errors, `${path}.hint_when`, "hint_when shows a public check's help list; a hidden check shows none");
+};
+
+export const readCheckRoll = (value: unknown, path: string, errors: ValidationError[]): StoryCheck["roll"] | null => {
   if (!isRecord(value)) return refuse(errors, path, "a check rolls {sides, target, dice?}", null);
   rejectUnknownKeys(value, ROLL_KEYS, path, errors);
   const dice = value.dice === undefined ? 1 : value.dice;
@@ -83,13 +99,17 @@ export const readCheck = (value: unknown, path: string, errors: ValidationError[
   const roll = readCheckRoll(value.roll, `${path}.roll`, errors);
   const twist = readTwist(value.twist, roll, `${path}.twist`, errors);
   const outcome = readOutcome(value.outcome, `${path}.outcome`, errors);
-  const modifiers = readModifiers(value.modifiers, `${path}.modifiers`, errors);
+  const modifiers = readModifiers(value.modifiers, `${path}.modifiers`, errors, true);
   const label = readLabel(value.label, `${path}.label`, errors);
   const when = value.when === undefined ? undefined : readGate(value.when, `${path}.when`, errors) ?? undefined;
+  const hintWhen = value.hint_when === undefined ? undefined : readGate(value.hint_when, `${path}.hint_when`, errors) ?? undefined;
+  const narrate = isOneOf(value.narrate, CHECK_NARRATE) ? value.narrate : "hidden";
+  if (narrate !== "public") refuseHiddenHints({ modifiers, hint_when: hintWhen }, path, errors);
   if (!GAME_ID_PATTERN.test(id) || !quality || !roll) return null;
   return {
-    id, quality, roll, narrate: isOneOf(value.narrate, CHECK_NARRATE) ? value.narrate : "hidden",
+    id, quality, roll, narrate,
     ...(label ? { label } : {}), ...(modifiers.length ? { modifiers } : {}), ...(outcome ? { outcome } : {}), ...(twist ? { twist } : {}), ...(when ? { when } : {}),
+    ...(hintWhen ? { hint_when: hintWhen } : {}),
   };
 };
 

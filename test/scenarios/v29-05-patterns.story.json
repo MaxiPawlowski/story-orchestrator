@@ -1,0 +1,28 @@
+{
+  "id": "so-v29-05-patterns",
+  "title": "SO-V29-05 Patterns",
+  "description": "Plan 05 no-model fixture: a two-step pattern over visible transitions shows its pending line, then its callback in What changed; a delete takes it back.",
+  "qualities": [
+    { "key": "step", "type": "int", "source": "extractor", "monotonic": true, "rubric": "How far has the party come?" }
+  ],
+  "checkpoints": [
+    { "id": "road", "name": "The Road", "player_name": "The Road", "objective": "Reach the gate.", "type": "anchor", "start": true },
+    { "id": "gatehouse", "name": "The Gatehouse", "player_name": "The Gatehouse", "objective": "Pass the gate.", "type": "anchor" },
+    { "id": "yard", "name": "The Yard", "player_name": "The Yard", "objective": "Rest.", "type": "anchor" }
+  ],
+  "transitions": [
+    { "from": "road", "to": "gatehouse", "priority": 1, "gate": { "q": "step", "op": ">=", "v": 1 } },
+    { "from": "gatehouse", "to": "yard", "priority": 1, "gate": { "q": "step", "op": ">=", "v": 2 } }
+  ],
+  "patterns": [
+    {
+      "id": "gate-and-yard",
+      "steps": [{ "kind": "transition", "to": "gatehouse" }, { "kind": "transition", "to": "yard" }],
+      "label": { "text": "Through the gate and on into the yard, without a halt." },
+      "hint": "The party has pushed on without stopping.",
+      "pending": "One more door stands between the party and rest."
+    }
+  ],
+  "roster": [{ "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }],
+  "requirements": { "members": ["DM Narrator"] }
+}

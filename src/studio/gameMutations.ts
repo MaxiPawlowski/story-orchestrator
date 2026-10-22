@@ -1,10 +1,15 @@
-import type { CodexEntry, CodexPage, Faction, Milestone, QualityDisplay, Quest, RelationshipDecl, RosterMember, StoryCheck, StoryCodex, StoryWidget } from "@engine/index";
+import type {
+  CheckpointOffer, CodexEntry, CodexPage, Faction, Milestone, Observation, QualityDisplay, Quest, RelationshipDecl, RosterMember, StoryCheck, StoryCodex, StoryWidget,
+} from "@engine/index";
 import type { CalendarInput, Commitment, StoryClock } from "@engine/lifeSchema";
 import type { Rumor } from "@engine/rumorSchema";
+import type { StoryPattern } from "@engine/patternSchema";
+import type { MemberCue, MemberTopic, StoryNorm } from "@engine/cueSchema";
+import type { StoryEcho } from "@engine/echoSchema";
 import type { StoryDraft } from "./draft";
 import { nextId, updateCheckpoint, updateQuality, updateTransition } from "./mutations";
 
-type ListKey = "quests" | "milestones" | "widgets" | "factions" | "rumors";
+type ListKey = "quests" | "milestones" | "widgets" | "factions" | "rumors" | "patterns" | "norms" | "echoes";
 
 const withList = <K extends ListKey>(draft: StoryDraft, key: K, items: NonNullable<StoryDraft[K]>): StoryDraft => {
   const rest: StoryDraft = { ...draft };
@@ -71,6 +76,10 @@ export const setCheckpointChecks = (draft: StoryDraft, id: string, checks: Story
   ? updateCheckpoint(draft, id, { checks })
   : { ...draft, checkpoints: draft.checkpoints.map((checkpoint) => (checkpoint.id === id ? without(checkpoint, "checks") : checkpoint)) });
 
+export const setCheckpointOffers = (draft: StoryDraft, id: string, offers: CheckpointOffer[]): StoryDraft => (offers.length
+  ? updateCheckpoint(draft, id, { offers })
+  : { ...draft, checkpoints: draft.checkpoints.map((checkpoint) => (checkpoint.id === id ? without(checkpoint, "offers") : checkpoint)) });
+
 export const setTransitionCheck = (draft: StoryDraft, index: number, check: StoryCheck | undefined): StoryDraft => (check
   ? updateTransition(draft, index, { check })
   : { ...draft, transitions: draft.transitions.map((transition, at) => (at === index ? without(transition, "check") : transition)) });
@@ -118,6 +127,33 @@ export const setCommitments = (draft: StoryDraft, id: string, commitments: Commi
     return commitments.length ? { ...rest, commitments } : rest;
   }),
 });
+
+const upsert = <T extends { id: string }>(list: readonly T[], item: T): T[] =>
+  (list.some((entry) => entry.id === item.id) ? list.map((entry) => (entry.id === item.id ? item : entry)) : [...list, item]);
+
+const withMemberList = <K extends "cues" | "topics">(draft: StoryDraft, id: string, key: K, edit: (list: NonNullable<RosterMember[K]>) => NonNullable<RosterMember[K]>): StoryDraft => ({
+  ...draft,
+  roster: draft.roster.map((member) => {
+    if (member.id !== id) return member;
+    const rest: RosterMember = { ...member };
+    delete rest[key];
+    const list = edit((member[key] ?? []) as NonNullable<RosterMember[K]>);
+    return list.length ? { ...rest, [key]: list } : rest;
+  }),
+});
+
+export const setCue = (draft: StoryDraft, member: string, cue: MemberCue): StoryDraft => withMemberList(draft, member, "cues", (list) => upsert(list, cue));
+
+export const removeCue = (draft: StoryDraft, member: string, id: string): StoryDraft => withMemberList(draft, member, "cues", (list) => list.filter((cue) => cue.id !== id));
+
+export const setTopic = (draft: StoryDraft, member: string, topic: MemberTopic): StoryDraft => withMemberList(draft, member, "topics", (list) => upsert(list, topic));
+
+export const removeTopic = (draft: StoryDraft, member: string, id: string): StoryDraft =>
+  withMemberList(draft, member, "topics", (list) => list.filter((topic) => topic.id !== id));
+
+export const setNorm = (draft: StoryDraft, norm: StoryNorm): StoryDraft => withList(draft, "norms", upsert(draft.norms ?? [], norm));
+
+export const removeNorm = (draft: StoryDraft, id: string): StoryDraft => withList(draft, "norms", (draft.norms ?? []).filter((norm) => norm.id !== id));
 
 export const newFaction = (id: string): Faction => ({
   id, name: id, range: [-5, 5], start: 0, bands: [{ max: -2, label: "Hostile" }, { max: 1, label: "Neutral" }, { label: "Trusted" }], moves: [],
@@ -174,6 +210,28 @@ export const updateRumor = (draft: StoryDraft, id: string, patch: Partial<Omit<R
 
 export const removeRumor = (draft: StoryDraft, id: string): StoryDraft => setRumors(draft, (draft.rumors ?? []).filter((rumor) => rumor.id !== id));
 
+export const newEcho = (id: string, draft: StoryDraft): StoryEcho => {
+  const transition = draft.transitions[0];
+  return {
+    id, after: { transition: transition ? `${transition.from}->${transition.to}#0` : "" }, delay: { boundaries: [2, 4] }, to: draft.roster[0]?.id ?? "",
+    cue: "what happened earlier has come back",
+  };
+};
+
+export const setEchoes = (draft: StoryDraft, echoes: StoryEcho[]): StoryDraft => withList(draft, "echoes", echoes);
+
+export const addEcho = (draft: StoryDraft): StoryDraft =>
+  setEchoes(draft, [...(draft.echoes ?? []), newEcho(nextId((draft.echoes ?? []).map((echo) => echo.id), "echo"), draft)]);
+
+const compactEcho = ({ id, after, delay, when, cancel_when, expires, to, cue, hold }: StoryEcho): StoryEcho => ({
+  id, after, delay, ...(when ? { when } : {}), ...(cancel_when ? { cancel_when } : {}), ...(expires ? { expires } : {}), to, cue, ...(hold !== undefined ? { hold } : {}),
+});
+
+export const updateEcho = (draft: StoryDraft, id: string, patch: Partial<Omit<StoryEcho, "id">>): StoryDraft =>
+  setEchoes(draft, (draft.echoes ?? []).map((echo) => (echo.id !== id ? echo : compactEcho({ ...echo, ...patch }))));
+
+export const removeEcho = (draft: StoryDraft, id: string): StoryDraft => setEchoes(draft, (draft.echoes ?? []).filter((echo) => echo.id !== id));
+
 export const setMemberGossip = (draft: StoryDraft, memberId: string, gossip: Record<string, unknown> | undefined): StoryDraft => ({
   ...draft,
   roster: draft.roster.map((member) => {
@@ -202,9 +260,46 @@ export const updateCodexEntry = (draft: StoryDraft, page: CodexPage, entry: Code
 export const removeCodexEntry = (draft: StoryDraft, page: CodexPage, id: string): StoryDraft =>
   setCodex(draft, { ...draft.codex, [page]: (draft.codex?.[page] ?? []).filter((item) => item.id !== id) });
 
+export const setObservations = (draft: StoryDraft, observations: Observation[] | undefined): StoryDraft =>
+  (observations?.length ? { ...draft, observations } : without(draft, "observations"));
+
+export const updateObservation = (draft: StoryDraft, observation: Observation): StoryDraft => {
+  const list = draft.observations ?? [];
+  return setObservations(draft, list.some((item) => item.id === observation.id) ? list.map((item) => (item.id === observation.id ? observation : item)) : [...list, observation]);
+};
+
+export const removeObservation = (draft: StoryDraft, id: string): StoryDraft => setObservations(draft, (draft.observations ?? []).filter((item) => item.id !== id));
+
+export const setObservationsShown = (draft: StoryDraft, shown: boolean): StoryDraft => {
+  const display = { ...draft.display };
+  if (shown) delete display.observations;
+  else display.observations = false;
+  return Object.keys(display).length ? { ...draft, display } : without(draft, "display");
+};
+
 export const setCodexShown = (draft: StoryDraft, shown: boolean): StoryDraft => {
   const display = { ...draft.display };
   if (shown) delete display.codex;
   else display.codex = false;
   return Object.keys(display).length ? { ...draft, display } : without(draft, "display");
 };
+
+export const newPattern = (id: string): StoryPattern => ({ id, steps: [{ kind: "milestone" }, { kind: "milestone" }], label: { text: "Two milestones in a row." } });
+
+export const setPatterns = (draft: StoryDraft, patterns: StoryPattern[]): StoryDraft => withList(draft, "patterns", patterns);
+
+export const addPattern = (draft: StoryDraft, pattern?: StoryPattern): StoryDraft => {
+  const patterns = draft.patterns ?? [];
+  if (pattern && patterns.some((entry) => entry.id === pattern.id)) return draft;
+  return setPatterns(draft, [...patterns, pattern ?? newPattern(nextId(patterns.map((entry) => entry.id), "pattern"))]);
+};
+
+const compactPattern = ({ id, steps, unless, within, repeat, label, hint, pending }: StoryPattern): StoryPattern => ({
+  id, steps, ...(unless?.length ? { unless } : {}), ...(within !== undefined ? { within } : {}), ...(repeat && repeat !== "once" ? { repeat } : {}),
+  ...(label?.text ? { label } : {}), ...(hint ? { hint } : {}), ...(pending ? { pending } : {}),
+});
+
+export const updatePattern = (draft: StoryDraft, id: string, patch: Partial<Omit<StoryPattern, "id">>): StoryDraft =>
+  setPatterns(draft, (draft.patterns ?? []).map((pattern) => (pattern.id !== id ? pattern : compactPattern({ ...pattern, ...patch }))));
+
+export const removePattern = (draft: StoryDraft, id: string): StoryDraft => setPatterns(draft, (draft.patterns ?? []).filter((pattern) => pattern.id !== id));

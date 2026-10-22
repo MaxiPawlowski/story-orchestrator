@@ -115,8 +115,8 @@ T0–T7, 2026-10-01..03, events deduplicated, every answered call on route `type
 - v2.8 13 J7 judge ideas (its N1/N3/N5 add questions to the warden request; routing and failure behaviour there),
   v2.7 14 B10 CLI judge, v2.8 14 open-source Jev (provider routing interacts with combining), v2.7 12 model choice,
   v2.8 11 curator create op.
-- No direct dependency: v2.7 06, v2.8 18, v2.8 20, v2.9 03 (deferred), v2.8 01 §C, v2.9 02 (deferred), v2.9 01
-  (deferred), v2.8 12, v2.8 15, v2.7 11, v2.7 09, v2.9 04 (deferred), v2.7 08.
+- No direct dependency: v2.7 06, v2.8 18, v2.8 20, v3.0 03 (deferred), v2.8 01 §C, v3.0 02 (deferred), v3.0 01
+  (deferred), v2.8 12, v2.8 15, v2.7 11, v2.7 09, v3.0 04 (deferred), v2.7 08.
 
 ## Review 2026-10-03
 

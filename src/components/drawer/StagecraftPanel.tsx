@@ -193,6 +193,11 @@ export const StagecraftPanel = ({ snapshot, manager, onOpenFact }: { snapshot: R
       {snapshot.repetition?.loops && (
         <div data-so="repetition" className="opacity-70">{repetitionText(snapshot.repetition)}</div>
       )}
+      {(snapshot.repetition?.byMember ?? []).map((row) => (
+        <div key={row.id} data-so="repetition-member" data-member={row.id} className="opacity-70">
+          {row.name} repeats across their last {row.replies} replies: {row.phrases.map((phrase) => `"${phrase}"`).join(", ")}
+        </div>
+      ))}
       {lastError && <div className="so-error-text">{lastError}</div>}
       {settings.curatorEnabled && settings.createEnabled && scope.length > 0 && (
         <div data-so="lore-create-status" className="opacity-70">

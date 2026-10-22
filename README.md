@@ -151,10 +151,12 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Playing | Story panels | Extra panels a story adds, such as a clock that fills, a board of quests, a wall of clues or a map. |  |
 | Playing | Story-made panels | A panel page a story brings, run shut off from SillyTavern. |  |
 | Playing | People and Places | Journal pages that fill in with the people and places you have learned about. |  |
+| Playing | Things you notice | Small details the story lets you notice, on the story card when they land and in the Journal after. |  |
 | Playing | Here now | A small card a story can place: where you are, when, and who you have met is with you. |  |
 | Playing | The narrator sees your sheet | What your stat sheet shows also reaches the narrator, so it does not deny an item you carry. |  |
 | Playing | Save this run as a story | Keep a living story's run as a story you can play again or edit. | Experimental |
 | Playing | What changed | Up to five lines on what changed this chapter: on the chapter card, in the Overview and in /story recap. | Experimental |
+| Playing | Story patterns | When events the story wrote a pattern for happen in order, its callback line joins What changed. | Experimental |
 | Memory | Story memory | Remembers what happened so characters stay consistent. |  |
 | Memory | Memory tab | See, search, pin or remove what the story remembers. |  |
 | Memory | Chapters | Long stories write up each finished chapter and recap it when you return. |  |
@@ -172,7 +174,10 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Characters | Standing with groups | How the groups in a story regard you, shown as a word such as "Wary" or "Trusted". | Experimental |
 | Characters | Relationship labels | Words for how a character treats you, and secrets about them you can learn, on their People page. | Experimental |
 | Characters | Promises to you | Things a character has promised you, which the character remembers and may keep, raise or break. | Experimental |
+| Characters | Reactive cues | Characters notice what a story says they would, deepen a topic you ask them about again, and react when a social rule is broken. | Experimental |
+| Characters | Delayed echoes | Something that happened comes back later: after a delay, if the story still fits, one character or the narrator is handed a cue about it. | Experimental |
 | Characters | Promises remembered | A promise you make to a character is remembered in your own words. |  |
+| Characters | Voice and delivery | Each character is told privately how they word things. |  |
 | Characters | Rumors and gossip | News a story declares travels between characters along the channels it authors, and may change on the way. |  |
 | World | Story lorebook switching | Story lorebook entries switch on and off as the story moves. |  |
 | World | Story lorebooks | A story's lorebooks load only in the chats that play it. |  |
@@ -182,7 +187,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | World | New lorebook entries | The curator proposes a new keyed entry for something play has established. |  |
 | World | Protected and auto lore | Markers in a lorebook entry keep words safe from the curator, or let its changes apply on their own. |  |
 | World | Story scenario | A turning point can set the chat's scenario text, in place of every character card's own. |  |
-| World | Off-stage events | Proposes what a character did off stage toward their plan, for you to accept. | Experimental |
+| World | Off-stage events | Adds what a character did off stage toward their plan; it applies on its own by default. | Experimental |
 | World | Living stories | A story that writes its next turning point ahead of you, from what you actually pursued. | Experimental |
 | World | Branches that follow you | When you leave the prepared ways forward, the story writes a branch that follows you and later comes back. | Experimental |
 | World | Scene test | Before the living director writes a turning point, a seeded draw may tell it the scene arrives changed or that the world acts first. | Experimental |
@@ -216,7 +221,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Setup | Carried thought | When no private intent is ready, a character keeps the aim from its own last thought. | Experimental |
 | Setup | Repair | Names the one thing missing and takes you to the setting that fixes it. |  |
 | Setup | Getting started | A short checklist: memory model first, then the optional judge and images. |  |
-| Setup | Help | This list: every feature, whether it is on, and where to find it. |  |
+| Setup | Help | This list: every feature, whether it is on in this chat and who chose that, and where to find it. |  |
 | Setup | Ask | Ask about Story Orchestrator, SillyTavern or your story. It only reads. |  |
 | Setup | Host capabilities | Checks that SillyTavern has everything the extension needs, and copies a bug report. |  |
 | Setup | Experiments | Unmeasured trials. | Experimental |

@@ -333,7 +333,7 @@ export interface RosterMember {
   card?: CardBinding;
   sprites?: MemberSprites;
   relationships?: RelationshipDecl[];
-  mood?: MoodDecl;
+  mood?: MoodDecl; polish?: import("./deliverySchema").RosterPolish; cues?: import("./cueSchema").MemberCue[]; topics?: import("./cueSchema").MemberTopic[];
   agenda?: Agenda[];
   schedule?: ScheduleEntry[]; factions?: string[]; commitments?: import("./lifeSchema").Commitment[];
 }
@@ -497,9 +497,9 @@ export interface Story {
   quests?: Quest[];
   milestones?: Milestone[];
   widgets?: StoryWidget[];
-  codex?: import("./codexSchema").StoryCodex;
+  codex?: import("./codexSchema").StoryCodex; observations?: import("./observationSchema").Observation[];
   clock?: StoryClock; calendar?: import("./lifeSchema").CalendarInput;
-  living?: StoryLiving; factions?: import("./factionSchema").Faction[];
+  living?: StoryLiving; factions?: import("./factionSchema").Faction[]; norms?: import("./cueSchema").StoryNorm[];
 }
 
 export const LIVING_PREFIX = "liv_";
@@ -537,7 +537,7 @@ export const STORY_KINDS = ["saga", "story"] as const;
 export type StoryKind = typeof STORY_KINDS[number];
 
 export const STORY_DISPLAY_TOGGLES = ["continue_list", "group_card", "chapter_card", "wand", "roll_chips", "suggestions", "journal", "stat_sheet", "widgets", "motion", "codex",
-  "standing"] as const;
+  "standing", "observations"] as const;
 export type StoryDisplayToggle = typeof STORY_DISPLAY_TOGGLES[number];
 
 export interface StoryDisplay extends Partial<Record<StoryDisplayToggle, boolean>> {

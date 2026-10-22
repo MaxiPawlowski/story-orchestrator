@@ -190,10 +190,43 @@ describe("runDiagnostics", () => {
           moves: [{ id: "idle", when: { not: { q: "trust", op: ">=", v: 1 } }, add: -1, heard_by: "present" }] }],
       }),
       ...runDiagnostics(codexSeeded),
+      ...runDiagnostics({ ...clean, observations: [
+        { id: "a", text: "You sense the door was forced.", when: { reached: "cache" } },
+        { id: "b", text: "Check the boat before dawn.", when: { q: "trust", op: ">=", v: 2 } },
+        { id: "c", text: "A boot print by the post.", when: { reached: "nowhere" } },
+        { id: "d", text: "Mist lies on the water.", when: { not: { q: "trust", op: ">=", v: 5 } } },
+      ] }),
       ...runDiagnostics({ ...clean, roster: [{ id: "arin", name: "Arin", relationships: [{ toward: "player", axes: ["trust"], range: [-5, 5], step: 1, start: 0,
         public: [{ label: "cold but loyal" }], secret: [{ id: "loyal", label: "loyal", revealed_when: { q: "rel_arin_player_trust", op: ">=", v: 3 } }] }] }] }),
       ...runDiagnostics({ ...clean, roster: [{ id: "arin", name: "Arin", commitments: [{ id: "gate", to: "player", what: "get you past the gate", made_when: "start",
         kept_when: { q: "trust", op: ">=", v: 3 }, broken_when: { not: { q: "trust", op: ">=", v: 1 } } }] }] }),
+      ...runDiagnostics({
+        ...clean, codex: { people: [{ id: "ferryman", name: "The ferryman", known_when: { reached: "cache" }, facts: [] }] },
+        roster: [{ id: "arin", name: "Arin", polish: { notes: "Teases {{user}} about everything." } }, { id: "bo", name: "Bo", polish: { notes: "Speaks of the ferryman with awe." } },
+          { id: "cy", name: "Cy", polish: { notes: "x ".repeat(150).trim(), prefer: Array.from({ length: 12 }, (_, index) => `a long preferred phrase ${index}`) } }],
+      }),
+      ...runDiagnostics({
+        ...clean, codex: { people: [{ id: "tobin", name: "Tobin", known_when: { q: "trust", op: ">=", v: 1 }, facts: [] }] },
+        quests: [{ id: "ferry", title: "Ferry", kind: "side", done_when: { q: "trust", op: ">=", v: 2 }, steps: [] }],
+        patterns: [{ id: "p", steps: [{ kind: "quest", id: "ferry", to: "failed" }], label: { text: "Tobin remembers it, because the ferry failed." } }],
+      }),
+      ...runDiagnostics({
+        ...clean, roster: [{ id: "arin", name: "Arin", cues: [
+          { id: "idle", kind: "reaction", when: { not: { q: "trust", op: ">=", v: 1 } }, cue: "nothing has changed" },
+          { id: "glad", kind: "remark", when: { q: "trust", op: ">=", v: 2 }, cue: "you feel relieved to be home" },
+        ], topics: [{ id: "boat", keys: ["boat"], tiers: [{ cue: "the boat leaks" }, { cue: "the boat was sabotaged" }] }] }],
+      }),
+      ...runDiagnostics({
+        ...clean, checkpoints: [{ ...clean.checkpoints[0], offers: [{ id: "go", text: "I head for the cache." }] }, clean.checkpoints[1]],
+        transitions: [{ ...clean.transitions[0], check: { id: "climb", quality: "trust", roll: { sides: 20, target: 12 }, narrate: "public",
+          modifiers: [{ q: "trust", v: 1, add: 2, hint: "the map of the cache" }] } }],
+      }),
+      ...runDiagnostics({
+        ...clean, codex: { people: [{ id: "tobin", name: "Tobin", known_when: { q: "trust", op: ">=", v: 1 }, facts: [] }] },
+        roster: [{ id: "nar", name: "Nar", view: "omniscient" }],
+        echoes: [{ id: "debt", after: { transition: "start->cache#0" }, delay: { boundaries: [1, 2] }, to: "narrator", cue: "Tobin is back and you feel uneasy",
+          cancel_when: { not: { q: "trust", op: ">=", v: 1 } } }],
+      }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

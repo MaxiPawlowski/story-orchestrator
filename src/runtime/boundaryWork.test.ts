@@ -148,3 +148,20 @@ describe("judged extraction (v2.2 plan 06)", () => {
   });
 });
 
+
+describe("story patterns (v2.9 05)", () => {
+  it("run right after recap, on the refs recap derived for this boundary, before living-apply and after the story ended", () => {
+    const ids = BOUNDARY_WORK.map((item) => item.id);
+    expect(ids.indexOf("patterns")).toBe(ids.indexOf("recap") + 1);
+    expect(ids.indexOf("patterns")).toBeLessThan(ids.indexOf("living-apply"));
+    expect(BOUNDARY_WORK.find((item) => item.id === "patterns")?.afterEnd).toBe(true);
+    const outcome = { derived: [] };
+    const onBoundary = jest.fn();
+    const with_ = { ...manager, game: { onBoundary: jest.fn() }, getLoadedChatId: () => "c", recap: { onBoundary: () => outcome }, patterns: { onBoundary } } as unknown as RuntimeManager;
+    runBoundaryWork({ result: result(2, 4), manager: with_, scheduler });
+    expect(onBoundary).toHaveBeenCalledWith(expect.objectContaining({ boundary: 1 }), outcome);
+    const missing = { ...with_, recap: { onBoundary: () => ({ unavailable: "kit" }) } } as unknown as RuntimeManager;
+    runBoundaryWork({ result: result(2, 4), manager: missing, scheduler });
+    expect(onBoundary).toHaveBeenLastCalledWith(expect.anything(), { unavailable: "kit" });
+  });
+});

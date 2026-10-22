@@ -18,9 +18,12 @@ import { rollbackAgendaProposals } from "./agendaProposals";
 import { rollbackPromises } from "@memory/promises/state";
 import { rollbackWitness } from "@memory/witness/state";
 import { rollbackRumors } from "@memory/rumors/state";
+import { gameLayer } from "@engine/validate/gameLayer";
+import { rollbackPatterns } from "./patternsPort";
 import { rollbackRecap } from "./recapPort";
 import { rollbackTensionHistory } from "./tensionState";
 import type { RuntimeExtras } from "./types";
+import { rollbackObservations } from "./observationRecords";
 
 // The mutation contract spans every store, so the composition lives in one place
 // rather than in the manager's line budget. What is *not* here: the engine's own restore (it owns
@@ -109,11 +112,15 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     extras.lore = rollbackLoreFired(extras.lore, messageId);
     if (extras.chance) extras.chance = rollbackChanceDraws(extras.chance, messageId);
     if (extras.checks) extras.checks = rollbackChecks(extras.checks, messageId);
+    if (extras.observations) extras.observations = rollbackObservations(extras.observations, messageId);
     if (extras.agendaProposals) extras.agendaProposals = rollbackAgendaProposals(extras.agendaProposals, messageId);
     if (extras.promises) extras.promises = rollbackPromises(extras.promises, messageId);
     if (extras.witness) extras.witness = rollbackWitness(extras.witness, messageId);
     if (extras.rumors) extras.rumors = rollbackRumors(extras.rumors, messageId);
+    if (extras.cues) extras.cues = gameLayer()?.cues.rollbackCues(extras.cues, messageId, engine.serialize().boundary) ?? extras.cues;
+    if (extras.echoes) extras.echoes = gameLayer()?.echoes.rollbackEchoes(extras.echoes, messageId, engine.serialize().boundary) ?? extras.echoes;
     if (extras.recap) extras.recap = rollbackRecap(extras.recap, engine.serialize().boundary);
+    if (extras.patterns) extras.patterns = rollbackPatterns(extras.patterns, engine.serialize().boundary);
     extras.tension = { ...extras.tension, history: rollbackTensionHistory(extras.tension.history, messageId) };
     engine.clampToChat(deps.context().chatLength);
     engine.discardPendingFrom(messageId);

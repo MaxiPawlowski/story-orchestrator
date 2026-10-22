@@ -17,6 +17,10 @@
       "because": "the checkpoint's own state_snapshot already sets it"
     }
   ],
+  "test/fixtures/delayed-echoes.story.json#0": [],
+  "test/fixtures/delivery-mood.story.json#0": [],
+  "test/fixtures/delivery.story.json#0": [],
+  "test/fixtures/echo-only.story.json#0": [],
   "test/fixtures/effects-cast.story.json#0": [
     {
       "index": 1,
@@ -79,6 +83,7 @@
   "test/fixtures/npc-commitments.story.json#0": [],
   "test/fixtures/pacing.story.json#0": [],
   "test/fixtures/placeholder-enums.story.json#0": [],
+  "test/fixtures/reactive-cues.story.json#0": [],
   "test/fixtures/relationship-labels.story.json#0": [],
   "test/fixtures/role-calibration/authoring-holdout.json#0": [],
   "test/fixtures/role-calibration/authoring-holdout.json#1": [],
@@ -201,6 +206,7 @@
   "test/scenarios/memory-mirror-file.json#0": [],
   "test/scenarios/payload/group-away-notice.json#0": [],
   "test/scenarios/payload/group-commitments.json#0": [],
+  "test/scenarios/payload/group-delivery.json#0": [],
   "test/scenarios/payload/group-narrator-holdings.json#0": [],
   "test/scenarios/payload/group-relationships.json#0": [],
   "test/scenarios/payload/group-relationships.json#1": [],
@@ -308,6 +314,11 @@
   "test/scenarios/v28-69-k8-silent-rewrite.json#0": [],
   "test/scenarios/v28-69-k8-swipe-append.json#0": [],
   "test/scenarios/v28-69-k8-synthetic-player.json#0": [],
+  "test/scenarios/v29-04-cues.json#0": [],
+  "test/scenarios/v29-05-patterns.story.json#0": [],
+  "test/scenarios/v29-06-anchored-suggestions.json#0": [],
+  "test/scenarios/v29-07-echoes.json#0": [],
+  "test/scenarios/v29-08-observations.json#0": [],
   "test/journeys/j11-expand.story.json#0": [],
   "test/journeys/j11-judge.story.json#0": [],
   "test/journeys/j11-lore.story.json#0": [],

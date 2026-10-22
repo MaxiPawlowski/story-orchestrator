@@ -1,6 +1,8 @@
-import type { PoseEntry, StoryPoses, MemberSprites, StageMember, CardFieldBinding, CodexEntry, CodexFact, CodexReturn, StoryCodex } from "@engine/schema";
+import type { PoseEntry, StoryPoses, MemberSprites, StageMember, CardFieldBinding, CodexEntry, CodexFact, CodexReturn, StoryCodex, Observation, ObservationPassive } from "@engine/schema";
 import type { CarryFrom, CarryMapEntry, OutcomeKey } from "@engine/carrySchema";
 import type { Commitment } from "@engine/lifeSchema";
+import type { MemberCue, MemberTopic, StoryNorm, TopicTier } from "@engine/cueSchema";
+import type { StoryEcho } from "@engine/echoSchema";
 import type { Checkpoint, CheckpointEffects, Quality, RosterMember, Story, Transition } from "@engine/index";
 import { GUIDE_TOPICS, type GuideTopicId } from "./guideTopics";
 import { PENDING_GUIDE_TOPICS, readGuide } from "./guideRead";
@@ -16,14 +18,14 @@ const STORY: Record<keyof Story, Covered> = {
   scaffolding: { none: "written by the road-ahead generator, never authored" },
   objective_block: "objective-agency", display: "presentation", chapters: "chapters", memory: "chapters", quests: "quests", milestones: "quests",
   widgets: "widgets", clock: "story-time", calendar: "story-time", living: "living-director", factions: "factions",
-  codex: "codex", outcome: "outcome", carry_from: "carry-from", rumors: "rumors",
+  codex: "codex", observations: "observations", outcome: "outcome", carry_from: "carry-from", rumors: "rumors", patterns: "patterns", norms: "norms", echoes: "echoes",
 };
 
 const CHECKPOINT: Record<keyof Checkpoint, Covered> = {
   id: "checkpoints", name: "checkpoints", objective: "checkpoints", player_name: "checkpoints", player_text: "checkpoints", type: "checkpoints",
   start: "checkpoints", state_snapshot: "checkpoints", tension_target: "tension", target_turn_length: "checkpoints", effects: "world-info",
   talk_control: "talk-control", agency: "objective-agency", guidance: "guidance", convergence_threshold: "convergence", motives: "drives-motives",
-  chapter: "chapters", illustrate: "presentation", stretch: "open-stretches", checks: "checks",
+  chapter: "chapters", illustrate: "presentation", stretch: "open-stretches", checks: "checks", offers: "offers",
 };
 
 const EFFECTS: Record<keyof CheckpointEffects, Covered> = {
@@ -39,6 +41,7 @@ const TRANSITION: Record<keyof Transition, Covered> = {
 const ROSTER: Record<keyof RosterMember, Covered> = {
   id: "roster", name: "roster", role: "roster", drive: "drives-motives", view: "roster", aliases: "roster", card: "living-cards", sprites: "poses",
   relationships: "character-life", mood: "character-life", agenda: "character-life", schedule: "character-life", factions: "factions", gossip: "rumors", commitments: "commitments",
+  polish: "roster-polish", cues: "cues", topics: "topics",
 };
 
 const QUALITY: Record<keyof Quality, Covered> = {
@@ -60,6 +63,10 @@ const CODEX: Record<keyof StoryCodex, Covered> = { people: "codex", places: "cod
 const CODEX_ENTRY: Record<keyof CodexEntry, Covered> = { id: "codex", name: "codex", member: "codex", location: "codex", aliases: "codex", known_when: "codex", facts: "codex", returns: "codex-returns" };
 const CODEX_FACT: Record<keyof CodexFact, Covered> = { id: "codex", text: "codex", known_when: "codex", source: "codex", rev: "codex" };
 const CODEX_RETURN: Record<keyof CodexReturn, Covered> = { id: "codex-returns", text: "codex-returns", when: "codex-returns", rev: "codex-returns" };
+const OBSERVATION: Record<keyof Observation, Covered> = {
+  id: "observations", text: "observations", when: "observations", source: "observations", rev: "observations", passive: "observations",
+};
+const OBSERVATION_PASSIVE: Record<keyof ObservationPassive, Covered> = { roll: "observations", modifiers: "observations" };
 const COMMITMENT: Record<keyof Commitment, Covered> = {
   id: "commitments", to: { none: "always \"player\"; another value is refused" }, what: "commitments", made_when: "commitments", kept_when: "commitments",
   broken_when: "commitments", due: "commitments", heard: "commitments", effect: "commitments",
@@ -67,9 +74,22 @@ const COMMITMENT: Record<keyof Commitment, Covered> = {
 const OUTCOME: Record<keyof OutcomeKey, Covered> = { key: "outcome", heritage_text: "outcome" };
 const CARRY: Record<keyof CarryFrom, Covered> = { story: "carry-from", mode: "carry-from", map: "carry-from", replay_map: "carry-from", previously: "carry-from", default: "carry-from" };
 const CARRY_MAP: Record<keyof CarryMapEntry, Covered> = { from: "carry-from", to: "carry-from", as: "carry-from", known_by: "carry-from" };
+const CUE: Record<keyof MemberCue, Covered> = {
+  id: "cues", kind: "cues", when: "cues", cue: "cues", lane: "cues", priority: "cues", window: "cues", repeat: "cues", landed_when: "cues", max_offers: "cues",
+};
+const TOPIC: Record<keyof MemberTopic, Covered> = { id: "topics", keys: "topics", tiers: "topics", priority: "topics" };
+const TIER: Record<keyof TopicTier, Covered> = { cue: "topics", when: "topics" };
+const NORM: Record<keyof StoryNorm, Covered> = {
+  id: "norms", label: "norms", broken_when: "norms", noticed_by: "norms", cue: "norms", priority: "norms", checkpoints: "norms",
+};
+const ECHO: Record<keyof StoryEcho, Covered> = {
+  id: "echoes", after: "echoes", delay: "echoes", when: "echoes", cancel_when: "echoes", expires: "echoes", to: "echoes", cue: "echoes", hold: "echoes",
+};
 const TABLES: Array<[string, Record<string, Covered>]> = [
+  ["roster[].cues[]", CUE], ["roster[].topics[]", TOPIC], ["roster[].topics[].tiers[]", TIER], ["norms[]", NORM], ["echoes[]", ECHO],
   ["outcome[]", OUTCOME], ["carry_from", CARRY], ["carry_from.map[]", CARRY_MAP],
   ["codex", CODEX], ["codex.entry", CODEX_ENTRY], ["codex.fact", CODEX_FACT], ["roster[].commitments[]", COMMITMENT], ["codex.return", CODEX_RETURN],
+  ["observations[]", OBSERVATION], ["observations[].passive", OBSERVATION_PASSIVE],
   ["poses", POSES], ["pose", POSE], ["pose.keypoints", POSE_KEYS], ["pose.when", POSE_WHEN], ["sprites", MEMBER_POSES], ["stage.member", STAGE_MEMBER], ["card.field", CARD_FIELD], ["card.region", REGION],
   ["story", STORY], ["checkpoints[]", CHECKPOINT], ["checkpoints[].effects", EFFECTS], ["transitions[]", TRANSITION], ["roster[]", ROSTER], ["qualities[]", QUALITY],
 ];

@@ -132,11 +132,11 @@ Step 0 runs first. Then file order, except where a row says "together".
 | 08 | `08-thinking-per-story.md` | warning (built); copy fix (A11) | built | story/checkpoint level (R4) → v2.8 01 §E |
 | 09 | `09-commitment-double-negatives.md` | option E (built); close | built | — |
 | 10 | `10-sp2-recommit-v2.md` | option C (built); guide line | built; doc line open | option A → v2.8 01 §C |
-| 11 | `11-c4-option-b-restage.md` | close (keep (c)) | docs | E → v2.9 05.3 |
+| 11 | `11-c4-option-b-restage.md` | close (keep (c)) | docs | E → v3.0 05.3 |
 | 12 | `12-model-choice.md` + `12a-model-switch-checklist.md` | decision + runbook | docs (done) | thinking A/B → v2.8 01 §D |
 | 13 | `13-warden-lore-one-request.md` | close (separate arm) | docs | C3/C4 → v2.8 01 §B |
 | 14 | `14-b10-cli-judge.md` | role picker grouped by source + per-source context table (built as 02 C14) | not built | Lore-creation role → v2.8 11; native CC tool spike: no home (question) |
-| 15 | `15-sp10-tool-call-turns.md` | B guide note + C probe removal | not built | A → v2.9 05.2 |
+| 15 | `15-sp10-tool-call-turns.md` | B guide note + C probe removal | not built | A → v3.0 05.2 |
 | 16 | `16-test-plan.md` | the v2.7 test plan and close-out checklist | written | — |
 | 17 | `17-self-contained-images.md` | ST Image Generation route, template fallback, ComfyUI discovery, owned jobs, broker optional, probes, Test render, `/imagine` setup | implemented candidate; live acceptance PARTIAL | live LI/CL rows → v2.8 01 / final suite |
 | 18 | `18-sprite-generation.md` | reference-edit recipes, pixel QA, Studio Sprites tab, fingerprinted generated-set storage, guarded removal | implemented candidate; live acceptance PARTIAL | multi-character LI + identity rating → v2.8 01 / final suite |
@@ -187,7 +187,7 @@ re-read each against the current tree, then fix.
 ## Decisions (user, 2026-10-03)
 
 Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. Decisions for plans that moved are in
-`v2.8/00-overview.md` §Decisions and `v2.9/00-overview.md`.
+`v2.8/00-overview.md` §Decisions and `v3.0/00-overview.md`.
 
 | v2.7 | Was | Decided | Scope change |
 |---|---|---|---|
@@ -201,14 +201,14 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 | 08 | 06 | warning yes; no turning thinking on (C refused); story + checkpoint level behind R4; Astra rates | **the warning reaches players too** (built as a player-safe check); level → v2.8 01 §E |
 | 09 | 07 | hold; journal row (E); B if ever needed; D no | — |
 | 10 | 08 | C now; **option A is important** (the user edits replies and uses a post-processor); 15 s hold; R5′ | A → v2.8 01 §C |
-| 11 | 09 | keep (c); E deferred | E → v2.9 05.3 |
+| 11 | 09 | keep (c); E deferred | E → v3.0 05.3 |
 | 12 | 10 | keep Artemis v1.1; thinking required; checklist (12a); all three triggers | **one thinking A/B funded** → v2.8 01 §D |
 | 13 | 11 | A: keep separate, close | — |
 | 14 | 13 | not a runtime judge; labelling aid yes; W27 kept; profiles per role; Lore-creation role with the create op; native-tool spike; no own provider seam; fix the 8192 default | the user has Claude and Codex subscriptions and DeepSeek, no OpenRouter (review B6) |
-| 15 | 16d | no CC function calling in story chats: B + C now | A → v2.9 05.2 |
+| 15 | 16d | no CC function calling in story chats: B + C now | A → v3.0 05.2 |
 | 17 | v2.8 05 (was 26) | all recommendations; **moved to v2.7 on 2026-10-04** | route A default, template fallback, broker optional/fail-open, story-authored automation default |
 | 18 | v2.8 06 (26b) | **moved to v2.7 on 2026-10-04** | Studio Sprites tab, ledgered writes, second-model QA |
-| 19 | v2.8 07 (28) | **moved to v2.7 on 2026-10-04**; drop Talkinghead; B + P; compare 2 vs 3 mouth frames and ship a Mouth movement setting | D (rig) → v2.9 05 |
+| 19 | v2.8 07 (28) | **moved to v2.7 on 2026-10-04**; drop Talkinghead; B + P; compare 2 vs 3 mouth frames and ship a Mouth movement setting | D (rig) → v3.0 05 |
 | 20 | v2.8 08 (32) | **moved to v2.7 on 2026-10-04**; all recommendations; avatars deferred | S32-1, S32-2 → v2.8 01 / final suite |
 | 21 | new 2026-10-04 | Belle the Barbarian is the image-track pilot; every piece is production code | one-character evidence never closes the multi-character floors |
 | 22 | new 2026-10-04 (`v2.8/local-residency.md`) | local-first text/images on the one 3090; DeepSeek image direction + cloud judge kept; owner-tier live rows stay here | moved to v2.7 as current work |
@@ -217,7 +217,7 @@ Re-keyed to new numbers. The user's inline answers stay verbatim in each plan. D
 
 | Question | Decided | Where |
 |---|---|---|
-| Homes for v2.7 14 research decisions 2 and 3 (Sol r3 R3-15) | native tool calls over CC profiles = v2.8 09 §F (rows in v2.8 24); optional Critic role = v2.9 05 §05.6 | v2.7 14, v2.8 09, v2.9 05 |
+| Homes for v2.7 14 research decisions 2 and 3 (Sol r3 R3-15) | native tool calls over CC profiles = v2.8 09 §F (rows in v2.8 24); optional Critic role = v3.0 05 §05.6 | v2.7 14, v2.8 09, v3.0 05 |
 | 01 triage: what "dev-only" means; what a fixed default removes | dev-only = left out of the release build, behind `__SO_DEV__` like the spike modules; a fixed default loses the control **and** the setting key (no-legacy rule) | v2.7 01 §D, §Triage proposal |
 | 16 live smoke | 5 real turns on the DeepSeek CC profile, no pod; plumbing check only, not acceptance; small spend accepted | v2.7 16 §Live smoke |
 | 05/06 saga rule (earlier proposal) | stands as written: a saga = a story with ≥ 2 chapters | v2.7 05 §Saga vs act, v2.7 06 B |

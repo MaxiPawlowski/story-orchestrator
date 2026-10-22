@@ -7,6 +7,8 @@ import CardFieldsEditor from "./CardFieldsEditor";
 import FactionsEditor from "./FactionsEditor";
 import RelationshipLabelsEditor from "./RelationshipLabelsEditor";
 import CommitmentsEditor from "./CommitmentsEditor";
+import CuesEditor from "./CuesEditor";
+import VoiceDeliveryEditor from "./VoiceDeliveryEditor";
 
 const splitAliases = (text: string) => text.split(",").map((alias) => alias.trim()).filter(Boolean);
 
@@ -129,8 +131,10 @@ const RosterEditor: React.FC<{ memberNames?: string[] }> = ({ memberNames = [] }
           ))}
         </ul>
       )}
+      <VoiceDeliveryEditor />
       <RelationshipLabelsEditor />
       <CommitmentsEditor />
+      <CuesEditor />
       <FactionsEditor />
       <div data-so="player-card" className="st-subpanel flex flex-col gap-2 p-2">
         <span className="text-xs st-muted">Player card <HelpTooltip title={"Binds a quality to the player's own card, so their look or state can change as the story " +

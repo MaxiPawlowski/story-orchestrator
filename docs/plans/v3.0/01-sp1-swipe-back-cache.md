@@ -1,6 +1,6 @@
 # Plan 01 — SP1 swipe-back cache
 
-**Status: DEFERRED to v2.9 (user, 2026-10-03).** Was v2.7 plan 16c (split out of the removed `16-spike-defers.md`);
+**Status: DEFERRED to v3.0 (user, 2026-10-03).** Was v2.7 plan 16c (split out of the removed `16-spike-defers.md`);
 moved at the version split (`docs/plans/v2.7/RENUMBER.md`). Not scheduled until v2.8 closes. v2.7 02 row **C5** points
 here for SP1. Overview: `00-overview.md` (this folder).
 
@@ -49,7 +49,7 @@ optional and later (v2.6 W26).
 - v2.6 C12 and ST's swipe UI keep gating-reply swipe-backs rare, and S3's control made 0 reads, so the "saves a call"
   value measured 0 on the lane that ran.
 - Cost L in v2.5's own estimate (a new seam plus a human-session leg; `v2.5/09-research-spikes.md:77`).
-- User 2026-10-03: moved to the next version; at the split it landed in v2.9 (F07: it was still scheduled as active work).
+- User 2026-10-03: moved to the next version; at the split it landed in v3.0 (F07: it was still scheduled as active work).
 
 ## Current state in code
 
@@ -94,7 +94,7 @@ your edit" status) is built as **v2.7 10**.
 4. **What counts:** only sessions the user plays by hand, in group chats (v2.7 03 group-chats-only: no solo support).
    Machine sessions (charter swipes, loop-guard repairs) are excluded and labelled so in the digest.
 5. **Decision point:** after **≥ 300 player turns** of the user's own play (enough for the 3-per-100 bar to mean more
-   than one stray swipe), or at the v2.9 freeze, whichever is first.
+   than one stray swipe), or at the v3.0 freeze, whichever is first.
 
 **What reopens it (any one):**
 
@@ -112,18 +112,18 @@ your edit" status) is built as **v2.7 10**.
 The review asked to pick one of:
 
 - **(a) Dev counter now.** Build item 3 above in v2.8's tooling so the user's own play produces S4 data; decide at
-  300 turns or the v2.9 freeze.
-- **(b) Auto-drop at the next freeze.** Build nothing. At the v2.9 freeze, if no S4 data exists, run option C. The
+  300 turns or the v3.0 freeze.
+- **(b) Auto-drop at the next freeze.** Build nothing. At the v3.0 freeze, if no S4 data exists, run option C. The
   v2.6 note "drop if still unmeasured at that freeze" (v2.7 overview, decision 16c) already says this.
 
-**Decided: (b)** (user, 2026-10-03: as recommended). No counter is built. At the v2.9 freeze, unless S4 data exists,
+**Decided: (b)** (user, 2026-10-03: as recommended). No counter is built. At the v3.0 freeze, unless S4 data exists,
 option C runs: `DROPPED_SPIKES` gains `swipeBack.ts` and `swipeCache.ts`, with a planted-import control. Why: no version
-before v2.9 has a slot for the counter, and the user's hand-played turns before the v2.9 freeze are unlikely to reach
+before v3.0 has a slot for the counter, and the user's hand-played turns before the v3.0 freeze are unlikely to reach
 300; the code costs nothing in prod.
 
 ## Recommendation
 
-**A (parked), closed by (b): drop at the v2.9 freeze unless S4 data exists** (decided 2026-10-03).
+**A (parked), closed by (b): drop at the v3.0 freeze unless S4 data exists** (decided 2026-10-03).
 
 ## Decisions for the user
 allright, lets move this to next version
@@ -133,9 +133,9 @@ allright, lets move this to next version
    habit; a clear "rarely" is enough to drop now.**
 3. Decision point: 300 of your player turns or v2.7 freeze, whichever is first? **Recommended: yes.**
 
-(Answer above kept verbatim. After the split, "v2.7 freeze" in 1 and 3 reads "v2.9 freeze". 2026-10-03: the user took
+(Answer above kept verbatim. After the split, "v2.7 freeze" in 1 and 3 reads "v3.0 freeze". 2026-10-03: the user took
 the recommendations: park mechanism (b), no counter. Decision 2 no longer gates anything: with no counter there is no
-S4 data, so the drop runs at the v2.9 freeze.)
+S4 data, so the drop runs at the v3.0 freeze.)
 
 ## Floor and measurement before building
 
@@ -148,14 +148,14 @@ S4 data, so the drop runs at the v2.9 freeze.)
 ## Gates
 
 - Counter: not built ((b) decided 2026-10-03).
-- Drop (at the v2.9 freeze, unless S4 data exists): `npm run gates`; `DROPPED_SPIKES` gains `swipeBack.ts`, `swipeCache.ts` with a planted-import control
+- Drop (at the v3.0 freeze, unless S4 data exists): `npm run gates`; `DROPPED_SPIKES` gains `swipeBack.ts`, `swipeCache.ts` with a planted-import control
   (`devOnly.guard.test.ts`); the seam stays for v2.8 01.
 - Build (only after reopening): runtime tier `npm run gates`, live S3 ×2, J6 ×2, ownership census row for `SwipeBack.restore`.
 
 ## Links
 
 - v2.7 10 (SP2 option C, built) and v2.8 01 (SP2 option A): share the mutation seam and `writes.requeue`; build first.
-- v2.9 04 D6/T22 revisits, v2.8 15 cue + scene read merge: user sessions feed S4.
+- v3.0 04 D6/T22 revisits, v2.8 15 cue + scene read merge: user sessions feed S4.
 - v2.8 16 SP5, v2.8 17 SP6, v2.7 15 SP10: the other children of the removed v2.7 plan 16.
 
 ## Review 2026-10-03

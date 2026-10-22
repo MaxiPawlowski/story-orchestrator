@@ -1,5 +1,6 @@
 import { runsAsCommand } from "@utils/string";
 import { projectionText, type PlayedProjection } from "./playerProjection";
+import type { SuggestionAnchor } from "./suggestionAnchors";
 
 export const SUGGESTION_COUNT = 4;
 export const SUGGESTION_MIN = 3;
@@ -14,9 +15,17 @@ export const SUGGESTION_RULES = [
   "Never repeat the player's last message.",
 ] as const;
 
-export const buildSuggestionPrompt = (projection: PlayedProjection): string => [
+export const ANCHOR_HEADING = "Build on these things the player already knows:";
+
+const anchorBlock = (anchors: readonly Pick<SuggestionAnchor, "text">[]): string[] => (anchors.length ? [
+  [ANCHOR_HEADING, ...anchors.map((entry, index) => `[${index + 1}] ${entry.text}`)].join("\n"),
+  "Write one line for each numbered idea, starting with its tag, like \"- [1] …\"; make the other lines your own ideas.",
+] : []);
+
+export const buildSuggestionPrompt = (projection: PlayedProjection, anchors: readonly Pick<SuggestionAnchor, "text">[] = []): string => [
   `You help a player who is stuck in a roleplay story. Write exactly ${SUGGESTION_COUNT} short things ${projection.player || "the player"} could do or say next.`,
   SUGGESTION_RULES.map((rule) => `- ${rule}`).join("\n"),
+  ...anchorBlock(anchors),
   `Answer with ${SUGGESTION_COUNT} lines, each starting with "- ", and nothing else.`,
   "---",
   projectionText(projection),
@@ -30,22 +39,46 @@ const lastPlayerLine = (projection: PlayedProjection): string | null => {
 
 const escapeName = (name: string) => name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-const namesIn = (line: string, names: readonly string[]) => names.some((name) => new RegExp(`(?<![\\p{L}\\p{N}])${escapeName(name)}(?![\\p{L}\\p{N}])`, "iu").test(line));
+export const namesIn = (line: string, names: readonly string[]) => names.some((name) => new RegExp(`(?<![\\p{L}\\p{N}])${escapeName(name)}(?![\\p{L}\\p{N}])`, "iu").test(line));
 
 export const unseenWithheld = (projection: PlayedProjection, withheld: readonly string[]): string[] => {
   const shown = projectionText(projection);
   return withheld.filter((name) => !namesIn(shown, [name]));
 };
 
-export function parseSuggestions(text: string, projection: PlayedProjection, withheld: readonly string[] = []): string[] {
+export interface SuggestionLine {
+  text: string;
+  anchorId?: string;
+  authored?: true;
+}
+
+export interface ParseOptions {
+  anchors?: readonly SuggestionAnchor[];
+  grounded?: (line: string, anchor: SuggestionAnchor) => boolean;
+  screen?: (line: string) => boolean;
+}
+
+const TAG = /^\[(\d+)\]\s*/;
+
+const unquote = (line: string) => line.replace(/^["“]|["”]$/g, "").trim();
+
+const tagged = (line: string, options: ParseOptions): SuggestionLine => {
+  const match = TAG.exec(line);
+  if (!match) return { text: line };
+  const text = unquote(line.slice(match[0].length));
+  const anchor = options.anchors?.[Number(match[1]) - 1];
+  return anchor && options.grounded?.(text, anchor) ? { text, anchorId: anchor.id } : { text };
+};
+
+export function parseSuggestionLines(text: string, projection: PlayedProjection, withheld: readonly string[] = [], options: ParseOptions = {}): SuggestionLine[] {
   const last = lastPlayerLine(projection);
   const unseen = unseenWithheld(projection, withheld);
   const seen = new Set<string>();
   return text.split("\n")
-    .map((line) => line.trim().replace(/^(?:[-*•]|\d+[.)])\s*/, "").replace(/^["“]|["”]$/g, "").trim())
-    .filter((line) => line.length > 0 && line.length <= SUGGESTION_MAX_CHARS && !/^(?:here are|sure|suggestions?:)/i.test(line))
-    .filter((line) => !runsAsCommand(line) && !namesIn(line, unseen))
-    .filter((line) => {
+    .map((line) => tagged(unquote(line.trim().replace(/^(?:[-*•]|\d+[.)])\s*/, "")), options))
+    .filter(({ text: line }) => line.length > 0 && line.length <= SUGGESTION_MAX_CHARS && !/^(?:here are|sure|suggestions?:)/i.test(line))
+    .filter(({ text: line }) => !runsAsCommand(line) && !namesIn(line, unseen) && (options.screen?.(line) ?? true))
+    .filter(({ text: line }) => {
       const key = line.toLowerCase();
       if (key === last || seen.has(key)) return false;
       seen.add(key);
@@ -54,7 +87,10 @@ export function parseSuggestions(text: string, projection: PlayedProjection, wit
     .slice(0, SUGGESTION_COUNT);
 }
 
-export const suggestionsUsable = (suggestions: readonly string[]): boolean => suggestions.length >= SUGGESTION_MIN;
+export const parseSuggestions = (text: string, projection: PlayedProjection, withheld: readonly string[] = []): string[] =>
+  parseSuggestionLines(text, projection, withheld).map((line) => line.text);
+
+export const suggestionsUsable = (suggestions: readonly unknown[]): boolean => suggestions.length >= SUGGESTION_MIN;
 
 export type FillRefusal = "chat-changed" | "box-changed";
 

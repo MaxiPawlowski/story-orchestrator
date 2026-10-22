@@ -134,7 +134,7 @@ quiet-machine LI1 ×2 are browser/CPU rows, not GPU.
 | **Subtotal** | | | **1.7 firm + 1.3 C** | |
 
 Not GPU: R11 SP5 (dry-run captures, 0 pod minutes), 48 S7–S11 (Sol replay; S10 rides GS3), 62 Q1/Q2, 63 H6 (CL), 14 A7
-(v2.9). 55 B and 56–59 are not built.
+(v3.0). 55 B and 56–59 are not built.
 
 ## 2. Two scenarios
 
@@ -253,7 +253,7 @@ Per session, in this order:
    take two nights) or B (frees about 4 nights, about USD 29 more).
 2. **Pod budget:** raise plan 24's EUR 20 cap to about USD 35 for A (stop line) or USD 70 for B; November start vs an
    October exception.
-3. **Blind arms on the pod (P4, about USD 6.4)** or 3090 nights / v2.9.
+3. **Blind arms on the pod (P4, about USD 6.4)** or 3090 nights / v3.0.
 4. **TypeSafe cap** with SP6 judge-on cells: raise above 20,000 or run SP6 judge-on cells only after the suite's count is
    known.
 5. **Thinking A/B candidate download** (about 14–19 GB onto the volume, the space check first).
@@ -265,12 +265,12 @@ Per session, in this order:
    owner's route?
 2. Do the 35-K3/K4/K5 `-C5` manifest ids accept the SP6 pair on F as their evidence (assumed), or need their own pair?
 3. M24 has no measured timing; the 2 h is an estimate until a carrier is written.
-4. R8's off-default arms have no protocol; add one or drop them to v2.9?
+4. R8's off-default arms have no protocol; add one or drop them to v3.0?
 
 ## Owner revision 2026-10-17
 
 - Final suite cut to the lean set in plan 70 §Owner revision (about 5-6 h on the 3090, rows x1, no pod).
-- Pod: measurement rows only (scenario A sessions P1-P4), on the owner's call; cloud reply rows move to v2.9.
+- Pod: measurement rows only (scenario A sessions P1-P4), on the owner's call; cloud reply rows move to v3.0.
 
 ## Owner arrangement 2026-10-17 (budget EUR 15 pod + 3090 nights; supersedes earlier pod scenarios)
 
@@ -279,6 +279,6 @@ Per session, in this order:
   - One pod session, RTX PRO 4500 EU-RO-1 (~10-11 h billed, about USD 8 / EUR 7.5): R7/B1-PFX x1 solo (--swa-full at 24576), B1-HIST x1 (98K unified, no --swa-full), SP6 lean: release vs control, judge on, x1 each in parallel. Stop and ask at 150 % of estimate or EUR 12 cumulative.
   - Night 2, 3090 (~4-5 h): 63 H6r + H1 (play route), R5 B1-NARR run 2 x1.
   - Order: night 1 first; the pod session and night 2 are independent.
-  - Single runs record as 'passed once, pair owed in v2.9' where a floor asks x2; SP6 PASS once is enough to start building 49 Phase 3.
-- Part 2, v2.9: SP6 second runs, judge-off cells and K5; thinking A/B (needs a model download); B1-R4/37-M3; M24; 51 R7/R9, 53 F7; 43 VR7; all cloud-model rows.
+  - Single runs record as 'passed once, pair owed in v3.0' where a floor asks x2; SP6 PASS once is enough to start building 49 Phase 3.
+- Part 2, v3.0: SP6 second runs, judge-off cells and K5; thinking A/B (needs a model download); B1-R4/37-M3; M24; 51 R7/R9, 53 F7; 43 VR7; all cloud-model rows.
 

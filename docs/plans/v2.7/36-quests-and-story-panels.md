@@ -192,7 +192,7 @@ Depends on: v2.7 06 (frame, toggles, roll store), v2.7 35 (release read model fo
   ships. **One proposal-review contract** (typed proposal ring, author-only review, accept/reject with reason, journaled,
   boundary-applied, rolled back by message, never auto-accepted) is defined by the first proposer to build and shared
   with v2.8 20's `AgendaProposalCoordinator` (as carried into v2.7 37) and v2.8 11's create op. Note only; not built here.
-- Sandboxed author HTML (v2.8 23 option B): seed, v2.9, off by default if ever built.
+- Sandboxed author HTML (v2.8 23 option B): seed, v3.0, off by default if ever built.
 - Cross-chat trophy shelf (plays index), list/set quality type, generated-beat checks, combat/HP, XP/levels,
   player-editable sheets, public relationship meters.
 

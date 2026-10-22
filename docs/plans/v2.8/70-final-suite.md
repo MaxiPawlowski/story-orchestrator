@@ -57,7 +57,7 @@ D1 is required before the run.
 Tiers: D, CL (cloud reply/read; Sol authoring/wizard/Ask/rater; TypeSafe judge), RP (Artemis v1.1 on the 3090 at
 32K, thinking on, preset `Artemis v1.1 RP`), RP-read (Artemis as the read/memory model, the shipped local route),
 LT, LI. A = acceptance ×2, I = informational ×1, C = conditional (runs only if its prerequisite exists at freeze,
-else deferred with that trigger), X = deferred (owner decision or v2.9).
+else deferred with that trigger), X = deferred (owner decision or v3.0).
 
 ### Artemis rows
 
@@ -77,7 +77,7 @@ else deferred with that trigger), X = deferred (owner decision or v2.9).
 | 42 W4 recorder | `so-witness.mts record` (74 reads, both arms), then `reads`, `wc`, `score-real --adjudicated` | RP-read | I (decision-bearing) | W4 ≥ 0.9 per set, W4fi ≤ 0.02, Wc (42 §7); solo: Wc has a latency row |
 | T-Q3 check narration | `v27-36-quests.story.json` variant, 10 attempts | RP | I | 36-Q3 rater |
 | Encounters M2 tail | same lab file, remaining 7 turns | RP | I | 35-M2 / 19 M1–M2 |
-| Over-steer card | `so-session` charter 33-W2-oversteer, 40 turns | RP | I | 01 §G / v2.9 04 floors |
+| Over-steer card | `so-session` charter 33-W2-oversteer, 40 turns | RP | I | 01 §G / v3.0 04 floors |
 | 47 P7/P7h | scripted relevance session | LT | I | P7 ≥ 6/10 (47) |
 
 ### Artemis rows deferred (X), with reopen trigger
@@ -220,9 +220,9 @@ round 3 about 3.2 h (coordinator; to confirm from its record) = **about 9.0 h of
 
 Cut list, in order (first cut first); savings in GPU-h:
 
-1. Over-steer card → the owner's own play or v2.9: −1.0 (D10).
-2. 47 P7/P7h (LT) → v2.9: −0.5.
-3. T-Q3 and the M2 tail → v2.9: −0.4.
+1. Over-steer card → the owner's own play or v3.0: −1.0 (D10).
+2. 47 P7/P7h (LT) → v3.0: −0.5.
+3. T-Q3 and the M2 tail → v3.0: −0.4.
 4. 45 seal ×2 → ×1, recorded informational: −0.25.
 5. AS-smoke and GS2 stay on the cloud reply (rule 2): avoids +2.2.
    After 1–5: 7.0 h acceptance + 0.75 h W4 = **7.7 h**, still 4.7 h over the 3.0 h left.
@@ -316,8 +316,8 @@ Counts only for campaign rows; no checkpoint, character or place names.
 - **D3 third lane.** `--allow-load` for a CL lane during the Artemis nights (shorter wall time, RAM risk) or CL on days
   only (recommended).
 - **D4 carries.** Carry a `167892d9` or manifest pair whose path diff to F is empty? Recommended yes (rule 6).
-- **D5 SP6** (49 C8–C10, R3, R12, about 10 lane-h RP): v2.9 (recommended) or a pod.
-- **D6 R2/R7/B1-HIST + 63 H1/H2/H6r:** pod P2 (about EUR 6–10) or v2.9 (recommended).
+- **D5 SP6** (49 C8–C10, R3, R12, about 10 lane-h RP): v3.0 (recommended) or a pod.
+- **D6 R2/R7/B1-HIST + 63 H1/H2/H6r:** pod P2 (about EUR 6–10) or v3.0 (recommended).
 - **D7 missing harnesses** (47 labelled sets, 44 voicing fixture, 48 frontier set and runner, 34 A7 arm, 18 S8 fixture,
   62 probe, K1b checklist): build before freeze (no GPU) or defer. 62 stage 1 itself awaits the owner.
 - **D8 GS6** as a new journey (recommended, independent per-feature record) vs folding adoption checks into GS1/GS3/GS4.
@@ -399,7 +399,7 @@ No GPU, no model; no-model lane 85 (lanes root `C:\dev\so-live-lanes`) on the pr
 - Every row runs x1; a second run only when a row fails or flakes. Evidence from round 3 (build 167892d9) carries for GS3, GS4, AS-smoke, commit-model, encounters, C7.
 - Lean rows on the 3090 (about 5-6 h): GS1 x1 (smoke for everything since 167892d9), GS6 x1, 47 promises x1, T8 x1, 45 seal x1, 42 W4 recorder x1 (solo), image POC: 41 journey x1 + 33 latency pair x1 (solo).
 - Measurements stay in v2.8 (owner): SP6, R7/B1-PFX, B1-HIST, 63 H6r/H1, blind-pack arms; they run on a pod when the owner says so (plan 71 scenario A rows).
-- Cloud-model rows (former D2 reply turns: AS-smoke x9, GS2, journeys, O/33-W block, CL raters on a reply model) move to v2.9. D2 is withdrawn.
+- Cloud-model rows (former D2 reply turns: AS-smoke x9, GS2, journeys, O/33-W block, CL raters on a reply model) move to v3.0. D2 is withdrawn.
 - Deterministic rows, payload goldens and the human evaluation stay as written; the owner's own Adolion play also counts as an acceptance source (journal and logs watched for defects).
 - Starts only on the owner's go.
 

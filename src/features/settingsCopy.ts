@@ -168,6 +168,26 @@ export const SETTING_COPY = {
     "After a reply, the memory model writes a short private note of what the likely next speaker wants, handed only to that character. "
       + "At most two extra calls per turn, never while you wait for a reply. Not measured yet.",
   ),
+  "characters.delivery": copy(
+    "Tell each character how they word things",
+    "A story's voice sheets reach only the character they describe, before that character speaks: how they talk, words that are theirs, words they would not use, "
+      + "a rhythm and a line for their mood. Wording only, never what happens. No model call.",
+  ),
+  "characters.deliveryRepetition": copy(
+    "Steer characters off phrases they keep repeating",
+    "Phrases a character used in several of their own last six replies, and the habits a story lists for them, are named back to that character alone as something to vary. "
+      + "Read from the chat each time, so a swipe or edit changes it. No model call.",
+  ),
+  "characters.cues": copy(
+    "Give characters the cues a story authors",
+    "When an event a story names happens, or you ask a character directly about one of its topics, that character alone is handed one short cue it may use in its own words. "
+      + "Never a posted message and never your actions. No model call.",
+  ),
+  "characters.echoes": copy(
+    "Let past events come back later",
+    "When a story names an event and a delay, the character or narrator it names is handed one short cue about it once the delay has passed and the story still fits. "
+      + "Used at most once per chat, never a posted message and never your actions. No model call.",
+  ),
   "memory.promises": copy(
     "Remember promises you make",
     "When you promise a character something, the story keeps your exact words and reminds only that character, when the scene touches it. "
@@ -182,6 +202,11 @@ export const SETTING_COPY = {
     "Let rumors travel between characters",
     "In a story that declares rumors, news passes between characters along the channels it authors, after a delay, as hearsay the receiver may doubt. "
       + "No model call. A secret travels only to the one person a story's leak names.",
+  ),
+  "memory.patterns": copy(
+    "Notice story patterns",
+    "In a story that declares patterns, an order of events the player saw (two favours for one patron, a failed climb then a successful one) shows the story's own "
+      + "callback line in What changed and a hint to the narrator. No model call. A line naming someone not yet met, or a secret, is withheld.",
   ),
   "memory.innerFanOut": copy(
     "Inner beats for",

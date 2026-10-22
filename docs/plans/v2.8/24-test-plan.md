@@ -353,7 +353,7 @@ real-model carrier, or why none is needed.
 | curator-create | CL | v28-35-curator-create ×2 | GS2.5; M17 carried |
 | curator-markers | CL | 16-02-C13, A19 scenario | GS2.5 (O14) |
 | judge | CL | judge plugin tests | every GS, J11 |
-| judge-local | D | v28-40-local-judge-uncalibrated ×2 | play-load deferred to v2.9 (A7) |
+| judge-local | D | v28-40-local-judge-uncalibrated ×2 | play-load deferred to v3.0 (A7) |
 | road-ahead | CL | expansion scenarios | GS2.1, J11 |
 | studio | D | Storybook (135 suites), mobile long-press ×2 | none: no model |
 | wizard | CL | J14 (no model), tools tests | O13b, O16, J9, plan 09 live (Sol) |
@@ -406,10 +406,12 @@ real-model carrier, or why none is needed.
 | stat-sheet | RP | 36-P-live | GS1.3 |
 | story-panels | RP | v28-23-widgets ×2 | GS1.3 |
 | consequences-recap | D | consequences jest, recapRollback review test, recapSecret review test | no model pass (46 A); GS6.7 reads the What changed line on the adopted Saga (RP) |
+| story-patterns | D + CL/RP | patterns jest (frozen A fixtures, incremental = fold property, rollback cuts, P5 stress), patternsPort jest, patternTool jest, Storybook PatternsEditor/PatternsPanel; v29-05-patterns (no-model, written, not yet run) | v2.9 05 P1/P2 50-sequence corpus (CL labels) and the narrator-hint real-Artemis gate, v2.9 final suite (NOT run: no GPU, owner 2026-10-21) |
 | promises-remembered | D + CL | promises jest, promiseRead jest, promiseRollback review test | live-v28-47-promises (P1s CL half, P2w live, ids, rollback reopens) ×2; P1/P2 labelled-set rates, P6 rater, P8 cost via `so-promises.mts` (frozen sets in `test/measurements/v2.8/47-promises/`, 47 Gate record 2026-10-17); GS6.8 promise row (RP); P7/P7h informational (LT) |
 | codex | D + CL | codex jest, codexView property test, codexRollback; return visits (52 E): codexReturns jest (E1–E5), codexReturnsDiagnostics jest (E6), v28-52e-returns (no-model ×2) | C7: codex-pages task in `test/measurements/v2.8/09/recipes.json`, `so-wizard-agent.mts recipes --task codex-pages --repeat 10 --mode auto-draft --route harness` (Sol); GS6.3 fact after its gate, gone on swipe (RP) |
 | witness-record | D + CL | witness jest, score jest | W4/W4fi/W4fe/W4cov/W4u/W4m/W4a/W4n offline on the lab 40 + >= 40 real-session labels (second-model labels, private), Wc and RB via `so-live-suite.mts run` (CL, read model), deferred: private labels and a read-model run owed |
 | rumors | D + CL | rumors jest, rumorSecret review test, v28-44-rumors (no-model ×2) | G7/G8 voicing (20 cases, on/off arms, second-model labels) and G14 30-turn fixture via `so-rumor-voicing.mts` (`test/measurements/v2.8/44-voicing/`, 44 Gate record 2026-10-17); G6 live in v28-44-rumors; GS6.6 rumor stays private (RP) |
+| character-delivery | D | delivery jest (validate/delivery, runtime/delivery, deliveryPort), delivery review test (private block, leaks, per-member round, mood rollback, player projection), deliveryMutations jest, VoiceDeliveryEditor Storybook, payload case group-delivery | v2.9 02 S6: blind attribution +10 pp, targeted repetition down 25 %, <= 120 tokens per drafted member (LT/RP); not run: no GPU (owner 2026-10-21) |
 | story-calendar | D + CL | clock jest, clockScope jest, v28-50-story-time (no-model) | T8: live suite time windows `timewindow01..04` (`so-live-suite.mts run --set time`, CL, read model); T9/T10 wait for B2 (not built); T11 read in GS3.3; GS6.9 story time never goes back (RP) |
 | relationship-labels | D | labels jest, labelRollback property test, relationshipLabels review test, v28-51-labels (no-model) | R7/R9 informational ×1 (RP lab story), deferred: no lab story; GS6.4 reveal latch on the adopted Saga (RP) |
 | npc-commitments | D + LT/RP | npcCommitments review test (M1–M6), diagnostics jest, npc-commitments fixture, v28-55-commitments (no-model ×2), payload goldens identical for stories without commitments | M7 informational ×1 (LT or RP lab story), deferred: Artemis owed, GPU busy; M8 only with option B (CL, labelled member-line set) |
@@ -418,6 +420,9 @@ real-model carrier, or why none is needed.
 | new-game-plus | D | carry jest (N1–N6, N8–N13), carry fixtures carry-source/carry-sequel, v28-45-carry (no-model plumbing green x2 2026-10-16; real generation owed); trophy shelf (45 E): trophyShelf jest (T1–T4), TrophyShelf Storybook, v28-45e-shelf (no-model ×2) | N7 informational (CL rater + local replies), deferred: needs two finished source runs; one real final seal on the 3090; GS6.11 carry declarations census |
 | story-made-panels | D | html widget tests, Storybook | none: no model |
 | scene-card | D | sceneCard + sceneCardLines jest, WidgetCard Storybook (Scene*, SceneLines, ScenePlantedSecret, SceneLinesPhone), v28-65-scene-card + v28-65-scene-lines (no-model) | no model (65 N1–N8, A+ N3/N4); GS6.2 card on the adopted Saga (RP) |
+| observations | D + CL | observations jest (v2.9 08 O1 40/40, O2 every cut), observations review test, observationDiagnostics jest (O3 lexical half, page-only import guard), observationTools review test, JournalPanel/HudStrip/ObservationsEditor Storybook, v29-08-observations (no-model ×2, 390x844) | O3 second-model review (CL, sol) and O4 task run owed; final-suite played row (RP) owed: no GPU (owner 2026-10-21) |
+| reactive-cues | D + CL/RP | cues jest (offers, cue keys, validation, derive/latches), v2.9 04 C1 cue selection corpus 40/40, cues review test (C4 adversarial: held secret, narrator unknown entity, swipe/continue/rollback receipts, thought-only reply), cueTools review test, CuesEditor/NormsEditor/CharacterLifePanel Storybook; v29-04-cues (no-model, written, NOT run: unmerged branch, no staging (wave 2)) | v2.9 04 C2 cue uptake and C5 played rows on real Artemis, v2.9 final suite (NOT run: no GPU, owner 2026-10-21) |
+| delayed-echoes | D + RP | echoes jest (validation, schedule/cancel/expiry/capacity, catch-up gaps, rollback = replay every cut, sanitize round trip, story-update reconcile), v2.9 07 40-schedule corpus 40/40 with zero early or unauthorized delivery, echoes review test (offer channel, echo-vs-must-vs-topic, lapse, three held-secret cases), echoTool jest, EchoesEditor/EchoesPanel Storybook; v29-07-echoes (no-model, written, NOT run: unmerged branch, no staging) | v2.9 07 narrator acknowledgement floor on real Artemis, v2.9 final suite (NOT run: no GPU, owner 2026-10-21) |
 | public-sheet-narration | D + CL | narratorSheet jest, v28-18-q7-sheet (no-model) | S8 header clause via `so-q7-failure.mts` (`test/measurements/v2.8/18-s8/`, reply on Artemis per 70 D2, blind rater); GS6.2 narrator-only sheet (RP); S7 informational (RP, Artemis) |
 | your-move-chip | D | yourMove jest, talkControl jest, HudStrip Storybook, v28-68-your-move (no-model) | none: no model (68 Y1–Y6) |
 | quests | RP | 36-Q5-scn, S-16, storyCheckWhen jest (checkpoint check `when`, 2026-10-16) | GS1.3, GS3.1, GS6.10 (check `when`) |
@@ -532,7 +537,7 @@ registry, and the 109-id check above, when a plan is built. Floor ids are the pl
 | v2.8 01 §D thinking A/B | deferred | RP | blind pack |
 | plan 10 briefing floors | informational | CL | 30 drafts ×1 |
 | plan 13 J7 ideas live | acceptance | CL | J7-consumers block ×2 + off |
-| plan 14 local judge play load | deferred | LT | v2.9 (A7) |
+| plan 14 local judge play load | deferred | LT | v3.0 (A7) |
 | plan 18 quests M1/M2 | informational | CL | from GS1/GS3 audits |
 | plan 19 open stretches M1/M2 | informational | RP | encounters-model tail |
 | plan 21 E0 (A12) | informational | CL | offline (5 arms) |
@@ -546,7 +551,7 @@ registry, and the 109-id check above, when a plan is built. Floor ids are the pl
 | v2.8 01 §F M1–M5 (Q-M5/P3, inner voice B2, inner voice C, W6, Part B packs) | deferred | RP + CL | as M15/R8: packs from GS replies where the arm is the shipped default; other arms deferred |
 | v2.8 17 K1, K2 (SP6 release, one block) | carried | D + RP | K1 complication jest replay; K2 = 35-K2 (live-v25-09-sp6-k2, carried); GS4.5 re-reads the release |
 | v2.8 17 K3–K5 (SP6 agency, over-steer, tension) | deferred | RP | = 35-K3/K4/K5, with plan 49 C8 (§Cuts 8) |
-| v2.8 21 §6.2 VR1–VR5 | superseded | CL | measured as plan 43 VR1–VR4 (CL offline ×2 when 43 is built); VR5 report only, v2.9 05 |
+| v2.8 21 §6.2 VR1–VR5 | superseded | CL | measured as plan 43 VR1–VR4 (CL offline ×2 when 43 is built); VR5 report only, v3.0 05 |
 | plan 36 LI3, LI4, LI6 (fault, reduced motion, mobile) | image track (rule 12) | D + LI | owed no-model lane / Storybook rows of plan 36, closed with the image track |
 
 ## Cuts and merges
@@ -669,7 +674,7 @@ recorded and the feature stays on (00-overview rule 9).
 3. Attestation `docs/release/2.8.0/attestation.json` cites archived records only (`test/journeys/records/v2.8/`,
    `test/measurements/v2.8/`, so-sessions paths for campaign evidence).
 4. Verdict: ACCEPTED only with every acceptance row green ×2; PARTIAL with reasons otherwise; INCOMPLETE if an
-   acceptance row has no evidence pair. Deferred rows go to v2.9 with their reopen trigger.
+   acceptance row has no evidence pair. Deferred rows go to v3.0 with their reopen trigger.
 
 ## Unresolved questions
 
@@ -680,7 +685,7 @@ recorded and the feature stays on (00-overview rule 9).
 4. Over-steer card: inside the 2.5 h informational cap, or left to the owner's own play?
 5. DeepSeek as the CL reply and memory model (pay per token, cap EUR 15), or Sol only (no marginal cost, about twice
    the wall time, subject to its usage limit)?
-6. Pod P1 (about EUR 4) to finish the Artemis blocks in one night instead of two; P2 for the 98K rows now or v2.9?
+6. Pod P1 (about EUR 4) to finish the Artemis blocks in one night instead of two; P2 for the 98K rows now or v3.0?
 7. Model downloads (plan 30): deferred until the owner supplies a token and approves the space check?
 8. `test/sessions/adolion-stories.json` in this public repo lists campaign checkpoint names (pin `ecccdb78`). Move it
    to so-sessions and purge it from the public tree?
@@ -984,8 +989,8 @@ missing artifact). A session counts only when VALID.
 
 | Card | Who plays | Question | Completion |
 |---|---|---|---|
-| **Over-steer** (v2.8 01 §G) | Claude | does the warden on `auto` with `agencyCheck` over-steer when the player declares outcomes or goes silent? ≥ 40 turns | VALID; digest counts agency notes raised/accepted/applied per 100 turns, every flagged reply, replies narrating the player, declarations counted as outcomes, each quoted (private); every applied note rated helpful/invisible/OOC/over-corrected by a second-model rater (unrated note = incomplete); T0–T7 journal count attached (v2.8 01 §G, v2.9 04) |
-| Over-steer (same shape) | the user | same, the user's own play | the user's choice; scored against the same v2.9 04 floors, separately |
+| **Over-steer** (v2.8 01 §G) | Claude | does the warden on `auto` with `agencyCheck` over-steer when the player declares outcomes or goes silent? ≥ 40 turns | VALID; digest counts agency notes raised/accepted/applied per 100 turns, every flagged reply, replies narrating the player, declarations counted as outcomes, each quoted (private); every applied note rated helpful/invisible/OOC/over-corrected by a second-model rater (unrated note = incomplete); T0–T7 journal count attached (v2.8 01 §G, v3.0 04) |
+| Over-steer (same shape) | the user | same, the user's own play | the user's choice; scored against the same v3.0 04 floors, separately |
 | Persona start (v2.8 03) | Claude | does the identity step lock the persona and does the opener use it? | VALID; lock + opener name in the digest |
 | Panels (v2.8 04) | Claude | Journal, stat sheet, suggestions and public rolls in player mode | VALID; `assert-player-clean` at every stop |
 | Living cards + talking sprites (v2.7 19/20) | Claude | overlay changes and look sprites over a long run | VALID, `--media on --allow-comfy` |
@@ -1024,8 +1029,8 @@ Session evidence goes to the private `so-sessions` repo (`npm run sessions:archi
    records archived under `test/journeys/records/v2.8/` (journeys), `test/measurements/v2.8/` (measurements); citations
    checked by `scripts/release/attestation.test.mjs`.
 5. **Verdict:** ACCEPTED only with every critical row green ×2, every plan's acceptance rows green, every session VALID
-   and scored, every broken finding fixed and re-run; otherwise PARTIAL with the reasons. Anything deferred goes to v2.9
-   with a reopen trigger (v2.9 rule 2).
+   and scored, every broken finding fixed and re-run; otherwise PARTIAL with the reasons. Anything deferred goes to v3.0
+   with a reopen trigger (v3.0 rule 2).
 
 #### Review 2026-10-03
 

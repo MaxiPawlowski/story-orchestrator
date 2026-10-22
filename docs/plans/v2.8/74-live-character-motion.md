@@ -109,7 +109,7 @@ fixed parameters, judged by Sol contact sheets (at most 3 rounds), never the own
     > 33.34 ms at N = 3 on the desktop, CPU bench ≤ 2 ms per frame at N = 3;
   - tearing: 0 tears at the review extremes on accepted rigs.
 - **Go/no-go.** Go only when all four floors pass on the trial set; a miss on any is no-go, recorded, not retuned.
-  A no-go keeps the static pose sprites with plan 19 B+P and parks full-body rigs with v2.9 §05.1.
+  A no-go keeps the static pose sprites with plan 19 B+P and parks full-body rigs with v3.0 §05.1.
 
 ## Step 2 trial: protocol (written 2026-10-18 before any code or Sol call; branch `v2.8-live-body-trial`)
 
@@ -160,10 +160,10 @@ Definitions, fixed now:
 Measures and rule, as predeclared above (not retuned): rig success >= 80 % (>= 8 of 9); Sol review pass by round 3
 >= 80 % (>= 8 of 9); CPU <= 2 ms per frame at N = 3; 0 tears on accepted rigs. Go only when all four pass.
 
-## Parked (v2.9)
+## Parked (v3.0)
 
-- Layered rig / option D: v2.9 `05-deferred-items.md` §05.1, owner re-parked 2026-10-18.
-- Pre-rendered image-to-video loops from pose sprites: v2.9 §05.7, parked 2026-10-18, revisit after step 2.
+- Layered rig / option D: v3.0 `05-deferred-items.md` §05.1, owner re-parked 2026-10-18.
+- Pre-rendered image-to-video loops from pose sprites: v3.0 §05.7, parked 2026-10-18, revisit after step 2.
 
 ## Unresolved questions
 
@@ -224,7 +224,7 @@ Owed: LM1 stays failed on this desktop (candidate and baseline alike); the lapto
 ## Gate record (step 2 trial, 2026-10-18, branch `v2.8-live-body-trial`, LIST)
 
 Verdict: **NO-GO** under the predeclared rule (one floor missed: Sol review pass rate). Full-body rigs are parked with
-v2.9 §05.1; the stage keeps the static pose sprites with plan 19 B+P. The body rig code stays in the repo **dormant,
+v3.0 §05.1; the stage keeps the static pose sprites with plan 19 B+P. The body rig code stays in the repo **dormant,
 trial-only**: nothing imports it from the product (no stage, settings or author UI wiring), so it is in no bundle chunk.
 
 - Protocol committed (`6782e4f3`) before any code or Sol call. No floor retuned. No GPU, ComfyUI, image generation,
@@ -307,7 +307,7 @@ Gates:
   passed**. Master's build passed its full run 1/1. Recorded as an order/load flake, not caused by this branch.
 
 Owed: nothing for the verdict. If step 2 is ever re-opened: a free-arm cut that does not depend on the precision of a
-vision outline (a segmentation mask, or a layered sprite with the arms drawn apart, v2.9 §05.1), and a frame-interval
+vision outline (a segmentation mask, or a layered sprite with the arms drawn apart, v3.0 §05.1), and a frame-interval
 sample on an idle GPU.
 
 ## Gate record: idle desktop follow-up (2026-10-19, plan 79)

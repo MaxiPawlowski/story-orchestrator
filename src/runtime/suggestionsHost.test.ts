@@ -60,6 +60,8 @@ const manager = (held: boolean, reply: (prompt: string, ask: ModelAsk) => string
     return { text: reply(prompt, ask) } as ExtractionReply;
   },
   getSnapshot: () => snapshotWith(held),
+  getCachedSnapshot: () => snapshotWith(held),
+  getBoundaryLog: () => [],
   getStory: () => story,
   getEngineState: () => ({ visitedPath: ["a"], activeCheckpointId: "a" }) as unknown as EngineState,
   getEnabledCharacterIds: () => ["guard"],
@@ -110,7 +112,7 @@ describe("v2.7 33 W4: the suggestion request", () => {
     const asks: ModelAsk[] = [];
     const outcome = await askSuggestions(manager(false, (_prompt, ask) => { asks.push(ask); return FOUR; }));
     expect(asks.map((ask) => [ask.role, ask.pass])).toEqual([["read", "suggestions"]]);
-    expect(outcome.ok && outcome.suggestions).toEqual(["I ask the guard about the door.", "I look around the hall.", "Who else came here tonight?"]);
+    expect(outcome.ok && outcome.suggestions.map((line) => line.text)).toEqual(["I ask the guard about the door.", "I look around the hall.", "Who else came here tonight?"]);
   });
 
   it("answers a failure in player words when fewer than three usable lines came back", async () => {
@@ -157,13 +159,13 @@ describe("v2.8 04 C5: a suggestion never names a scene the player has not reache
 
   it("drops the line naming the unreached scene and keeps the rest", async () => {
     const outcome = await askSuggestions(manager(false, reply, [], { getStory: () => gated }));
-    expect(outcome.ok && outcome.suggestions).toEqual(["I ask the guard about the door.", "I look around the hall.", "Who else came here tonight?"]);
+    expect(outcome.ok && outcome.suggestions.map((line) => line.text)).toEqual(["I ask the guard about the door.", "I look around the hall.", "Who else came here tonight?"]);
   });
 
   it("control: once the scene is reached the same line is kept", async () => {
     const reached = { getStory: () => gated, getEngineState: () => ({ visitedPath: ["a"], activeCheckpointId: "b" }) as unknown as EngineState };
     const outcome = await askSuggestions(manager(false, reply, [], reached));
-    expect(outcome.ok && outcome.suggestions).toContain("I search for the sealed vault.");
+    expect(outcome.ok && outcome.suggestions.map((line) => line.text)).toContain("I search for the sealed vault.");
   });
 });
 
@@ -191,5 +193,63 @@ describe("Astra P1: a suggestion set is bound to the transcript it read", () => 
     edit(1);
     expect(fillSuggestion(outcome.ask, "I look around the hall.")).toEqual({ ok: false, reason: SUGGESTION_COPY.edited });
     expect(host.box).toBe("");
+  });
+});
+
+describe("v2.9 06: anchored asks, the help line, greyed offers and the render-time screen", () => {
+  const anchored = parseStoryOrThrow({
+    id: "anchored", title: "Host", description: "d",
+    qualities: [
+      { key: "tried", type: "bool", source: "extractor", rubric: "Tried?" }, { key: "ok", type: "bool", source: "code", rubric: "Rolled" },
+      { key: "has_rope", type: "bool", source: "extractor", rubric: "Rope?" }, { key: "has_lantern", type: "bool", source: "extractor", rubric: "Lantern?" },
+    ],
+    checkpoints: [
+      { id: "a", name: "a-internal", player_name: "The Hall", objective: "Talk.", player_text: "Get past the guard.", type: "anchor", start: true,
+        offers: [{ id: "bribe", text: "I offer the guard a coin." }, { id: "dark", text: "I slip down the cellar stairs.", needs: { when: { q: "has_lantern", op: "==", v: true }, reason: "You need a lantern first." } }] },
+      { id: "b", name: "b-internal", player_name: "The Yard", objective: "Go.", type: "anchor" },
+    ],
+    transitions: [{ from: "a", to: "b", priority: 0, gate: { all: [{ q: "tried", op: "==", v: true }, { q: "ok", op: "==", v: true }] },
+      check: { id: "climb", label: "Climb", quality: "ok", roll: { sides: 20, target: 12 }, narrate: "public", modifiers: [{ q: "has_rope", v: true, add: 4, hint: "a rope" }] } }],
+    roster: [{ id: "guard", name: "Guard" }],
+  });
+  const state = { visitedPath: [], activeCheckpointId: "a", boundary: 4, checkpointStartedBoundary: 0, blackboard: { values: { tried: false, ok: false, has_rope: false, has_lantern: false } } } as unknown as EngineState;
+  let snapshot: RuntimeSnapshot = snapshotWith(false);
+  const over = (authorView: boolean, resting: (text: string) => string = (text) => text): Partial<SuggestionManager> => ({
+    getStory: () => anchored, getEngineState: () => state, getCachedSnapshot: () => snapshot,
+    getSnapshot: () => ({ ...snapshotWith(false), ui: { authorView } }) as unknown as RuntimeSnapshot, memoryActions: { restingText: resting },
+  });
+
+  it("sends the anchors in the one suggestions call and maps tagged lines back; author view only names them", async () => {
+    const prompts: string[] = [];
+    const reply = "- [1] I look for another way past the guard.\n- [2] I wonder about the weather.\n- I wait.\n- I hum.";
+    const outcome = await askSuggestions(manager(false, () => reply, prompts, over(true)));
+    expect(prompts).toHaveLength(1);
+    expect(prompts[0]).toContain("[1] Get past the guard.");
+    if (!outcome.ok || !outcome.side) throw new Error("no suggestions");
+    expect(outcome.suggestions[0]).toEqual({ text: "I look for another way past the guard.", anchorId: "objective:a" });
+    expect(outcome.suggestions.filter((line) => line.authored).map((line) => line.text)).toEqual(["I offer the guard a coin."]);
+    expect(outcome.side.help).toEqual([{ checkId: "climb", label: "Climb", hints: [{ text: "a rope", have: false }] }]);
+    expect(outcome.side.unavailable).toEqual([{ id: "dark", text: "I slip down the cellar stairs.", reason: "You need a lantern first." }]);
+    expect(outcome.side.author?.anchors.map((entry) => entry.kind)).toEqual(["objective", "check-help", "offer"]);
+    expect(outcome.side.author).toMatchObject({ grounded: 1, lines: 4 });
+    const player = await askSuggestions(manager(false, () => reply, [], over(false)));
+    expect(player.side?.author).toBeNull();
+  });
+
+  it("the help line and greyed offers survive a failed answer", async () => {
+    const outcome = await askSuggestions(manager(false, () => "- one", [], over(false)));
+    expect(outcome.ok).toBe(false);
+    expect(outcome.side?.help).toHaveLength(1);
+  });
+
+  it("a secret introduced after the panel opened drops the model-free line at render", async () => {
+    let secret = false;
+    const resting = (text: string) => (secret && /rope/.test(text) ? "" : text);
+    const outcome = await askSuggestions(manager(false, () => FOUR, [], over(false, resting)));
+    expect(outcome.side?.shows("a rope")).toBe(true);
+    secret = true;
+    snapshot = snapshotWith(true);
+    expect(outcome.side?.shows("a rope")).toBe(false);
+    expect(outcome.side?.shows("I offer the guard a coin.")).toBe(true);
   });
 });

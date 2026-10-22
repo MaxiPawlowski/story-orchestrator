@@ -1639,7 +1639,7 @@ Pinned Adolion build `c8b34b145fc98d52380df97b90d0a3820f4f0fbe`. 37 cards. Start
   - Before playing, record which outcome qualities the chosen story declares with evidence_from absent or any. Refuse the session if none qualify; do not weaken authored evidence guards for this run.
   - Completion needs a VALID stop, all required tails, and a second-model rating of every applied agency note: helpful, invisible, OOC or over-corrected. Any missing rating leaves the session incomplete.
   - Attach T0-T7 journal counts and per-100-turn counts of notes raised, accepted and applied, flagged replies, player-narrating replies and declarations counted as world outcomes. Quotes stay in private session evidence.
-  - Score the unchanged v2.9 04 T22 floors (at least 80 percent helpful or invisible; zero OOC or over-corrected) separately from the owner's session. This card does not decide D6/T22.
+  - Score the unchanged v3.0 04 T22 floors (at least 80 percent helpful or invisible; zero OOC or over-corrected) separately from the owner's session. This card does not decide D6/T22.
 - **Drive:**
   1. **Establish ordinary play**, aims at The Guild Hall `guild-hall`. Let the real replies establish the scene before provocations.
      - Sample line: "I look around and wait for an answer."

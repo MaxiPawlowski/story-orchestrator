@@ -22,6 +22,7 @@ import { DEFAULT_MAX_TOKENS, inputBudget } from "@extraction/index";
 import { startRuntime, stopRuntime } from "@runtime/index";
 import { loadGameLayer } from "@engine/validate/gameLayer";
 import { loadRecapKit } from "@runtime/recapPort";
+import { loadPatternsKit } from "@runtime/patternsPort";
 import { loadStylesheet } from "@runtime/stylesheet";
 import { createMountRegistry } from "@utils/mountRegistry";
 import { loadPersistedRuntime } from "@runtime/persistence";
@@ -45,6 +46,7 @@ import { log } from "@utils/log";
 await loadStylesheet(() => import("./styles.css" as string), (message, error) => log.warn(message, error));
 await loadGameLayer().catch((error) => log.warn("quests, checks and story panels did not load", error));
 await loadRecapKit().catch((error) => log.warn("the consequences recap did not load", error));
+await loadPatternsKit().catch((error) => log.warn("story patterns did not load", error));
 const manager = startRuntime();
 const loadDraft = () => import("./studio/draft");
 const ui = createMountRegistry();
@@ -438,6 +440,7 @@ const InlineMount = ({ hosts }: { hosts: InlineHostSet }) => {
 
 const presenceUi = createPresenceUi({
   manager, useSnapshot: useRuntimeSnapshot, showFeature: (where) => showFeature(where), openDrawer: openStoryWindow,
+  jumpToMessage: (messageId) => void jumpToChatMessage(messageId),
 });
 
 const mountInline = () => {

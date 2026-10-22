@@ -1,6 +1,6 @@
 import type { ProposalBase } from "./staleProposal";
 import type { CardReadBackRecord } from "@utils/cardReadBack";
-import type { Chapter, RosterView, StoryPlayer } from "@engine/index";
+import type { Chapter, RosterPolish, RosterView, StoryPlayer } from "@engine/index";
 import type { ProposalOp } from "../types";
 import type { PoseAgentOp } from "./poseOps";
 import type { GameAgentOp } from "./gameOps";
@@ -14,6 +14,7 @@ export type AgentOnlyOp =
   | { kind: "setRosterView"; id: string; view: RosterView }
   | { kind: "setCheckpointMotive"; id: string; member: string; motive: string }
   | { kind: "setAppearance"; id: string; appearance: string }
+  | { kind: "setMemberPolish"; id: string; polish: RosterPolish | null }
   | GameAgentOp
   | PoseAgentOp;
 

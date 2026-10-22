@@ -5,9 +5,11 @@ import { useDraftStore } from "../draft";
 import { setCheckpointChecks, setQualityDisplay, setTransitionCheck } from "../gameMutations";
 import { JsonField } from "./GameFields";
 
-const CHECK_HINT = '[{"id", "quality", "roll": {"sides", "target", "dice"?}, "modifiers"?, "narrate": "public|hidden", "outcome"?, "twist"?, "when"?}]';
+const CHECK_HINT = '[{"id", "quality", "roll": {"sides", "target", "dice"?}, "modifiers"?: [{"q", "v", "add", "label"?, "hint"?}], "narrate": "public|hidden", '
+  + '"outcome"?, "twist"?, "when"?, "hint_when"?}]';
 const CHECKS_HELP = "A check rolls seeded dice when its checkpoint is reached (or, with when, at the first turn when holds, once per visit), "
-  + "or when the rest of its transition's gate holds, and writes its bool quality.";
+  + "or when the rest of its transition's gate holds, and writes its bool quality. On a public check, a modifier's hint (the player's words: \"a rope\") "
+  + "lists what could help in What could I do? while the check waits, never the dice; hint_when limits when the list shows.";
 const DISPLAY_HELP = "Mark a quality public to show it on the Stat sheet and in story panels. Relationship qualities and checkpoint-gated entries cannot be public.";
 const DISPLAY_HINT = '{"public": true, "label", "as": "meter|count|word|item|boxes", "group"?, "min"?, "max"?, "bands"?}';
 

@@ -2,6 +2,7 @@ import type { LoreSource, RuntimeSnapshot } from "@runtime/types";
 import { provisionableMissing } from "@runtime/repair";
 import { competingSummary } from "@runtime/storyScenario";
 import ScenePanel from "../ScenePanel";
+import { PatternsPanel } from "../PatternsPanel";
 
 const extractionReady = (snapshot: RuntimeSnapshot): boolean => snapshot.extraction.settings.enabled && Boolean(snapshot.extraction.settings.profileId);
 
@@ -116,6 +117,7 @@ const AuthorOverview = ({ snapshot, onFixWithWizard, onBranchFromOldest }: { sna
     )}
     <AuthorRequirements snapshot={snapshot} onFixWithWizard={onFixWithWizard} />
     <ScenePanel scene={snapshot.scene} />
+    {snapshot.patternsAuthor ? <PatternsPanel slice={snapshot.patternsAuthor} /> : null}
     <div className="text-xs opacity-80">
       <div className="font-medium opacity-100">Tension</div>
       <div>Level: {snapshot.tension.level ?? "—"} {snapshot.tension.smoothed !== null && <span>({snapshot.tension.smoothed.toFixed(2)})</span>}</div>

@@ -47,23 +47,30 @@ export const addCheckQualities = (qualities: Quality[], checkpoints: Checkpoint[
   return [...qualities, ...kept.filter((quality) => !existing.has(quality.key))];
 };
 
-const checkWhen = (placed: PlacedCheck, transition: boolean, qualityByKey: Record<string, Quality>, errors: ValidationError[]) => {
+const checkOwnGate = (placed: PlacedCheck, field: "when" | "hint_when", qualityByKey: Record<string, Quality>, errors: ValidationError[]) => {
   const { check, path } = placed;
-  if (!check.when) return;
-  if (transition) {
-    addError(errors, `${path}.when`, "a transition check is attempted when the rest of its gate holds; when is for checkpoint checks");
-    return;
-  }
+  const gate = check[field];
+  if (!gate) return;
   const own = new Set([...written(check).map(([key]) => key), checkRolledKey(check.id)]);
-  const keys = gateKeys(check.when);
+  const keys = gateKeys(gate);
   const unknown = keys.filter((key) => !qualityByKey[key]);
   const known = Object.keys(qualityByKey);
   unknown.forEach((key) => {
     const hint = nearestKey(key, known);
-    addError(errors, `${path}.when`, hint ? `unknown quality '${key}' (did you mean "${hint}"?)` : `unknown quality '${key}'`);
+    addError(errors, `${path}.${field}`, hint ? `unknown quality '${key}' (did you mean "${hint}"?)` : `unknown quality '${key}'`);
   });
-  keys.filter((key) => own.has(key)).forEach((key) => addError(errors, `${path}.when`, `when reads '${key}', which this check writes; gate it on the attempt`));
-  if (!unknown.length) validateGate(check.when, qualityByKey, `${path}.when`, errors);
+  keys.filter((key) => own.has(key)).forEach((key) => addError(errors, `${path}.${field}`, `${field} reads '${key}', which this check writes; gate it on the attempt`));
+  if (!unknown.length) validateGate(gate, qualityByKey, `${path}.${field}`, errors);
+};
+
+const checkWhen = (placed: PlacedCheck, transition: boolean, qualityByKey: Record<string, Quality>, errors: ValidationError[]) => {
+  checkOwnGate(placed, "hint_when", qualityByKey, errors);
+  if (!placed.check.when) return;
+  if (transition) {
+    addError(errors, `${placed.path}.when`, "a transition check is attempted when the rest of its gate holds; when is for checkpoint checks");
+    return;
+  }
+  checkOwnGate(placed, "when", qualityByKey, errors);
 };
 
 export const checkStoryChecks = (checkpoints: Checkpoint[], transitions: Transition[], qualityByKey: Record<string, Quality>, errors: ValidationError[]) => {

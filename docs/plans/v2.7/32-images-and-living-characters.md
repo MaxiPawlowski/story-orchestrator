@@ -12,8 +12,8 @@ Real-model rows (CL/LT/LI/RP) are allowed inside v2.7 (user, 2026-10-07; this ov
 |---|---|---|---|
 | v2.7 17 | route A (ST Image Generation) as default, route B (ComfyUI) opt-in, template fallback, `image` probe, Repair rows, Test render, cue seam | route A + template (`stHost/stImage.ts`, `image/prompt.ts` `templateImagePrompt`), discovery (`stHost/media.ts` `comfyDiscover`), owned jobs, `image` capability, `runtime/imageHealth.ts`, checks `images-on-no-service` / `image-model-missing` / `gpu-broker-no-text-model` | FLUX family and FLUX background default (→ v2.7 31); hardcoded checkpoint defaults (fixed in W2) |
 | v2.7 18 | multi-character builder acceptance, cleanup scope | Studio Sprites tab, recipes, pixel QA, ledgered owned sets, cancellation, protected reference adoption, base-from-card (four candidates + alpha) | — |
-| v2.7 19 | S28 runtime floors, multi-character frame QA, Mouth movement default | blink/talk/talk2 frames, `anim-<set>` layout, animator, reduced motion, missing-frame degradation | S28 blind preference pass (closed by the user, see W6); rig option D stays v2.9 05 |
-| v2.7 20 | S32-1 re-measure, S32-2 lifecycle, overlay/on-demand defaults | bound public card fields, transactional entry writes, `writerOf`, scope rotation 8+4, image/sprite readers, `cast` chip, default-off `cardOverlay` and `onDemand` | per-chat avatars (v2.9 05 §05.5, unchanged) |
+| v2.7 19 | S28 runtime floors, multi-character frame QA, Mouth movement default | blink/talk/talk2 frames, `anim-<set>` layout, animator, reduced motion, missing-frame degradation | S28 blind preference pass (closed by the user, see W6); rig option D stays v3.0 05 |
+| v2.7 20 | S32-1 re-measure, S32-2 lifecycle, overlay/on-demand defaults | bound public card fields, transactional entry writes, `writerOf`, scope rotation 8+4, image/sprite readers, `cast` chip, default-off `cardOverlay` and `onDemand` | per-chat avatars (v3.0 05 §05.5, unchanged) |
 | v2.7 21 | nothing new; its record is history | Belle pilot code | Belle as acceptance evidence for any multi-character floor |
 | v2.7 24 | owed rows: route A/B/template/director, clean-host, base LI ×2, S32-2, docs | A–C workstreams, story-scoped removal, crash-resume, `so-assets` generated-set scope | residency integration (F) → v2.7 31 / v2.8 28 |
 | v2.7 26 | mouth region, raw-edit cache, two-frame default, 512/20 candidate | `builder/frameRegion.ts`, `builder/rawCache.ts`, `SpriteEditRegion`, `SpritePreview`, recipe 4, neutral-rest recipe | — |
@@ -208,7 +208,7 @@ Tiers per `00-overview.md` §Gate taxonomy. "Model input" = whether the change a
 
 v2.7 17, 18, 19, 20, 21, 24, 26, 28 (sources); v2.7 31 (FLUX removal, tooling split); v2.8 28 (broker in the ST plugin); v2.7 38 (Saga assets);
 v2.7 39 (Phase C); v2.7 01 (registry, Help); v2.7 02 C6/C7 (image spoiler rules); v2.7 04 (check registry);
-v2.9 05 (rig option D, per-chat avatars). Evidence of the earlier slices: `test/measurements/v2.7/{s28,s32-1,s32-2,
+v3.0 05 (rig option D, per-chat avatars). Evidence of the earlier slices: `test/measurements/v2.7/{s28,s32-1,s32-2,
 image-completion,sprite-quality,saga-main-cast}/`.
 
 ## Unresolved questions

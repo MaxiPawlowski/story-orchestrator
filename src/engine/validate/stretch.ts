@@ -1,5 +1,5 @@
 import { STRETCH_MODES, STRETCH_OFFERS, STRETCH_PACES, type Checkpoint, type CheckpointStretch, type Quality, type StretchOffer, type Transition, type ValidationError } from "../schema";
-import { DEFAULT_STRETCH_PACE, OPENING_MAX_TURNS, PACE_PULL_AFTER, PLAYER_TURNS_KEY } from "../stretch";
+import { DEFAULT_STRETCH_PACE, OPENING_MAX_TURNS, PACE_PULL_AFTER } from "../stretch";
 import { gateKeys } from "../gates";
 import { isRecord } from "@utils/guards";
 import { addError, isOneOf, rejectUnknownKeys } from "./common";
@@ -56,8 +56,6 @@ export const readStretch = (value: unknown, path: string, errors: ValidationErro
 };
 
 export const checkStretches = (checkpoints: Checkpoint[], transitions: Transition[], qualityByKey: Record<string, Quality>, errors: ValidationError[]) => {
-  const turns = qualityByKey[PLAYER_TURNS_KEY];
-  if (turns && (turns.type !== "int" || turns.source !== "code")) addError(errors, "qualities", `${PLAYER_TURNS_KEY} must be an int with source code`);
   checkpoints.forEach((checkpoint, index) => {
     const stretch = checkpoint.stretch;
     if (!stretch) return;

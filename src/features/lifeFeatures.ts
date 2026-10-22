@@ -44,13 +44,31 @@ export const LIFE_FEATURES: readonly Feature[] = [
     settings: [], guideTopic: "commitments", doc: authorGuideDoc("commitments"), status: "experimental", needs: ["story"],
   },
   {
+    id: "reactive-cues", name: "Reactive cues", area: "characters", audience: "author",
+    oneLine: "Characters notice what a story says they would, deepen a topic you ask them about again, and react when a social rule is broken.",
+    what: "A story can give a character remarks and reactions, topics with up to three tiers, and norms its witnesses notice. When one applies, that character alone is handed "
+      + "one short cue in its private notes, which it may use in its own words; it is never a posted message, never your actions or feelings, and never a secret kept from it. "
+      + "A topic goes one tier deeper only when you ask that character directly. A swipe takes it back. No model call.",
+    where: featureAt("cues", "enabled", "Reactive cues"),
+    settings: ["characters.cues"], guideTopic: "cues", doc: authorGuideDoc("cues"), status: "experimental", needs: ["story", "group-chat"],
+  },
+  {
+    id: "delayed-echoes", name: "Delayed echoes", area: "characters", audience: "author",
+    oneLine: "Something that happened comes back later: after a delay, if the story still fits, one character or the narrator is handed a cue about it.",
+    what: "A story can say: when this transition, quest ending, milestone or check result happens, then after a few turns or day parts, tell this character (or the narrator) this. "
+      + "When it is due the echo checks again that it still fits, that the character is in the scene and that it gives nothing away; then it is handed over as one private cue, "
+      + "the same way reactive cues are, used at most once in a chat. If it never fits before it expires, it is dropped. A swipe or delete takes it back. No model call.",
+    where: featureAt("echoes", "enabled", "Delayed echoes"),
+    settings: ["characters.echoes"], guideTopic: "echoes", doc: authorGuideDoc("echoes"), status: "experimental", needs: ["story", "group-chat"],
+  },
+  {
     id: "meanwhile-proposals", name: "Off-stage events", area: "world", audience: "author",
-    oneLine: "Proposes what a character did off stage toward their plan, for you to accept.",
+    oneLine: "Adds what a character did off stage toward their plan; it applies on its own by default.",
     what: "When the story moves on or a scene ends, the memory model suggests one short off-stage event per character, kept inside that character's plan. "
-      + "Nothing lands until you accept it in Author view; an accepted event reaches only that character, at the next reply, and a swipe takes it back.",
+      + "Each event applies on its own by default; set it to Review and each one waits for you in Author view, set it to Off and none are proposed. "
+      + "An applied event reaches only that character, at the next reply, and a swipe takes it back.",
     where: featureAt("meanwhile", "acceptMode", "Off-stage events"),
     settings: ["stagecraft.meanwhileAcceptMode"], guideTopic: "character-life", doc: authorGuideDoc("character-life"), status: "experimental",
     needs: ["story", "memory-profile"],
-    isOn: (settings) => settings.stagecraft.meanwhileAcceptMode !== "off",
   },
 ];

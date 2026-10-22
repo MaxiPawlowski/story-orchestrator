@@ -27,7 +27,7 @@ Where the guide says "the reading model" it means the memory model that reads th
 
 ## Story fields
 
-Every field a story can carry: 65 topics on 8 pages, from the story as a whole down to the game layer.
+Every field a story can carry: 73 topics on 8 pages, from the story as a whole down to the game layer.
 
 - [The story as a whole](fields/story.md)
   - [Story feature policies](fields/story.md#feature-policies) (`feature-policies`)
@@ -38,6 +38,7 @@ Every field a story can carry: 65 topics on 8 pages, from the story as a whole d
   - [Requirements](fields/story.md#requirements) (`requirements`)
 - [Characters](fields/characters.md)
   - [Cast](fields/characters.md#roster) (`roster`)
+  - [Voice and delivery](fields/characters.md#roster-polish) (`roster-polish`)
   - [Drives and motives](fields/characters.md#drives-motives) (`drives-motives`)
   - [Inner voice](fields/characters.md#inner-voice) (`inner-voice`)
   - [Speaker direction](fields/characters.md#talk-control) (`talk-control`)
@@ -46,6 +47,10 @@ Every field a story can carry: 65 topics on 8 pages, from the story as a whole d
   - [Rumors and gossip](fields/characters.md#rumors) (`rumors`)
   - [Relationship labels](fields/characters.md#relationship-labels) (`relationship-labels`)
   - [Promises to the player](fields/characters.md#commitments) (`commitments`)
+  - [Remarks and reactions](fields/characters.md#cues) (`cues`)
+  - [Topics a character deepens](fields/characters.md#topics) (`topics`)
+  - [Social norms](fields/characters.md#norms) (`norms`)
+  - [Delayed echoes](fields/characters.md#echoes) (`echoes`)
   - [Story time](fields/characters.md#story-time) (`story-time`)
   - [Living cards](fields/characters.md#living-cards) (`living-cards`)
   - [Poses and character layers](fields/characters.md#poses) (`poses`)
@@ -88,12 +93,14 @@ Every field a story can carry: 65 topics on 8 pages, from the story as a whole d
   - [House rules](fields/lore-and-memory.md#house-rules) (`house-rules`)
   - [Chapters](fields/lore-and-memory.md#chapters) (`chapters`)
   - [Consequences recap](fields/lore-and-memory.md#consequences) (`consequences`)
+  - [Story patterns (callbacks)](fields/lore-and-memory.md#patterns) (`patterns`)
   - [Outcome a next story can carry](fields/lore-and-memory.md#outcome) (`outcome`)
   - [Carry from a finished run](fields/lore-and-memory.md#carry-from) (`carry-from`)
 - [Game layer and display](fields/game-layer.md)
   - [Illustrations and display](fields/game-layer.md#presentation) (`presentation`)
   - [Quests and milestones](fields/game-layer.md#quests) (`quests`)
   - [Checks](fields/game-layer.md#checks) (`checks`)
+  - [Offers](fields/game-layer.md#offers) (`offers`)
   - [Stats and story panels](fields/game-layer.md#widgets) (`widgets`)
   - [Clue walls and maps](fields/game-layer.md#clues-and-maps) (`clues-and-maps`)
   - [Story-made HTML panels](fields/game-layer.md#html-panels) (`html-panels`)
@@ -102,6 +109,7 @@ Every field a story can carry: 65 topics on 8 pages, from the story as a whole d
   - [Warning bands](fields/game-layer.md#display-warn) (`display-warn`)
   - [People and Places](fields/game-layer.md#codex) (`codex`)
   - [Return visits](fields/game-layer.md#codex-returns) (`codex-returns`)
+  - [Things the player notices](fields/game-layer.md#observations) (`observations`)
 
 ## For contributors
 

@@ -245,7 +245,7 @@ floor), then L4. L5 follows v2.8 01's measurements. L6 waits for its fixture.
    - **Talk.** The director prompt and `talk/rules.ts` take an "away" set. A member addressed by name while away is
      answered by the narrator ("X is not here"), never voiced.
    - **Memory.** The away member's private block still receives what they learn later, through epistemic reads.
-     Nothing is written while they are away, which fits the witness filter work (v2.9 02, deferred).
+     Nothing is written while they are away, which fits the witness filter work (v3.0 02, deferred).
    - **Briefing and HUD.** "Who is here" can be shown from the same data (player-safe names only).
    - **Authors.** `cast_changes` stays the tool for a deliberate, authored exit or entry; schedules are for routine
      whereabouts.
@@ -262,7 +262,7 @@ floor), then L4. L5 follows v2.8 01's measurements. L6 waits for its fixture.
 - v2.7 08: the thinking warning (built).
 - v2.8 02: A4 lab windows, the 7-member act pilot.
 - v2.8 19 open stretches: agendas tick while the player roams.
-- v2.9 02 witness filter (deferred): away members and what they witness.
+- v3.0 02 witness filter (deferred): away members and what they witness.
 
 ## Review 2026-10-03
 

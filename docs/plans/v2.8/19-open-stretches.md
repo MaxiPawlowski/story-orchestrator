@@ -136,7 +136,7 @@ authoring is `pull_after` (how much pure freedom), and `pace` presets cover most
 - **After the final checkpoint:** today the story ends in an epilogue view. An open stretch with no destination
   ("epilogue play") would let the player keep living in the world. Dependency: the epilogue view's summary needs chapter
   seals (v2.6 plan 07 chapters/seals), which stay off until their Q-M floors pass. It also links to new game plus
-  (deferred, v2.9 03).
+  (deferred, v3.0 03).
 - **Off-route play inside an anchor:** agency recovery already handles refusals. An anchor could declare
   `stretch.mode: "open"` for its first N player turns too, to delay the objective line on arrival.
 - Neither is built in this plan; both wait for M2 on stubs.
@@ -190,7 +190,7 @@ authoring is `pull_after` (how much pure freedom), and `pace` presets cover most
 - v2.8 02 Adolion campaign: A4 lab data, the stub lab copy, the pilot stubs.
 - v2.7 11 C4 option (b): jump semantics for checkpoints a stretch leads to.
 - v2.6 plan 07: chapter seals the epilogue would need.
-- v2.9 03 new game plus (deferred): epilogue play.
+- v3.0 03 new game plus (deferred): epilogue play.
 
 ## Review 2026-10-03
 

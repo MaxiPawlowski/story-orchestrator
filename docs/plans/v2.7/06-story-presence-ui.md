@@ -196,7 +196,7 @@ do we have some infomration about the kind of background processses that are hap
 
 v2.7 05 (briefing, chapter briefings, C8, `storyKind`), v2.7 04 (check findings in Activity), v2.7 03 (groups only),
 v2.7 01 (Help panel moves into the frame; registry), v2.7 07 A6 (badge check on the campaign), v2.8 04 (C4, C5, C7,
-C9 (a)), v2.8 18 (Journal, `display.public`, public rolls), v2.9 03 (new game plus in the Continue list).
+C9 (a)), v2.8 18 (Journal, `display.public`, public rolls), v3.0 03 (new game plus in the Continue list).
 
 ## Review 2026-10-03
 

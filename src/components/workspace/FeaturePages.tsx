@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { STORY_FEATURE_IDS, type FeaturePolicyValue, type StoryFeatureId } from "@engine/featurePolicy";
 import { FEATURE_CONTROLS } from "@runtime/featureControls";
-import { AUTOMATIC_STAGE, featureStateWord, resolveFeatures, writeSettingPath } from "@runtime/featureResolve";
+import { resolveFeatures, writeSettingPath } from "@runtime/featureResolve";
+import { featureStateWord, featureStatus, waitingCount } from "@runtime/featureStatus";
 import { getGlobalSettings, setGlobalSettings, type GlobalSettings } from "@runtime/settingsStore";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import type { RuntimeSnapshot } from "@runtime/types";
@@ -9,7 +10,6 @@ import { FeaturePolicyFields } from "./FeaturePolicyFields";
 import { JUDGE_USE_COPY, judgeUseActive, type JudgeUseKey } from "@judge/settings";
 import { isArcTemplateName } from "@pacing/index";
 import type { ResolvedFeatures } from "@runtime/featureResolve";
-import type { ResolvedFeature } from "@runtime/featureResolve";
 import { workspaceNavigation } from "@runtime/workspaceNavigation";
 
 const JUDGE_USES: Partial<Record<StoryFeatureId, JudgeUseKey[]>> = {
@@ -19,21 +19,6 @@ const JUDGE_USES: Partial<Record<StoryFeatureId, JudgeUseKey[]>> = {
   pacing: ["adversityTrend"], speakers: ["director"], curator: ["curatorFilter"],
   branching: ["divergence", "expansionCritic"], prefetch: ["expansionLookahead"],
   memoryLore: ["loreSelect", "loreExclusive"], illustrations: ["pictureCue"], sprites: ["expressions"],
-};
-
-const featureStatus = (feature: ResolvedFeature, snapshot: RuntimeSnapshot, selected: StoryFeatureId, install: boolean, waiting: number) => {
-  if (feature.masterOff) return "Off on this install";
-  if (!feature.enabled) return feature.declined ? "Turned off by this story" : "Off in this chat";
-  if (!snapshot.ready && !install) return "Open a story to use this feature";
-  const role = snapshot.roleRoutes?.find((route) => route.role === FEATURE_CONTROLS[selected].role);
-  if (role && ["missing", "not-configured", "not-logged-in"].includes(role.state)) return "Missing setup: choose a model";
-  if (!role && FEATURE_CONTROLS[selected].role && !snapshot.extraction.settings.profileId) return "Missing setup: choose a model";
-  if (selected === "curator" && !install && snapshot.stagecraftScope.length === 0) return "Not used by this story: no curator scope";
-  if (selected === "prefetch" && snapshot.features && !snapshot.features.branching.enabled) return "Waiting for adaptive branches";
-  if (waiting) return `Waiting for review: ${waiting} changes`;
-  if (selected === "reading" && snapshot.extraction.scheduler.inFlight) return "Working";
-  if (role && ["not-answering", "quota", "failed", "reasoning-exhausted"].includes(role.state)) return "Fallback: model route unavailable";
-  return feature.automatic ? AUTOMATIC_STAGE : "Ready";
 };
 
 const FeatureIndex = ({ install, resolved, onSelect }: {
@@ -89,11 +74,9 @@ export const FeaturePages = ({ snapshot, manager, install, selected, onSelect, o
     manager.reapplyPromptBlocks();
   };
   const role = config.role && snapshot.roleRoutes?.find((route) => route.role === config.role);
-  const proposals = snapshot.stagecraft.proposals.filter((proposal) => selected === "curator" ? proposal.curator === "wi"
-    : selected === "continuity" ? proposal.curator === "warden" : false);
-  const waiting = proposals.flatMap((proposal) => proposal.ops).filter((op) => op.status === "pending").length;
+  const waiting = waitingCount(snapshot, selected);
   const calls = (snapshot.modelCalls ?? []).filter((call) => config.role && call.role.split(":")[0] === config.role);
-  const status = featureStatus(feature, snapshot, selected, install, waiting);
+  const status = featureStatus(feature, snapshot, selected, install, waiting).word;
   return <section className="so-feature-detail" data-feature={selected}>
     <button className="st-button secondary" onClick={() => onSelect(undefined)}>← All features</button>
     <h2>{config.name}</h2><p>{config.description}</p>

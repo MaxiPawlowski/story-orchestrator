@@ -6,4 +6,12 @@ export const RECAP_GUIDE_TOPIC = {
       + "text shows when the effect is visible; because only when the player's committed line decided it (one gate condition on a commit_evidence quality, nothing else open). "
       + "recap_when narrows it. player_action maps a committed enum/bool value to a clause (\"took the posting\"). Otherwise the line is neutral. Never name an unreached place.",
   },
+  patterns: {
+    title: "Story patterns (callbacks)",
+    fields: "patterns[], steps, kind, where, unless, between, within, repeat, label.text, hint, pending",
+    text: "patterns [{id, steps (1-3) [{kind transition|quest|milestone|check, id?, to?, where?}], unless [{...step, between [i, j]}], within (turns, 1-200), repeat once|each, "
+      + "label {text}, hint, pending}] notice an order of visible events: reached checkpoints (to, from, chapter), quest moves (id, to, giver), earned milestones, public checks "
+      + "(id, outcome, quality). \"?name\" binds a value (at most 2). In code, no model call. A completion shows label.text in What changed and hint to the narrator for 3 turns; "
+      + "pending is the one-step-left line other features read. Your own words only; never a cause, never a secret milestone, hidden check or living checkpoint.",
+  },
 } as const;

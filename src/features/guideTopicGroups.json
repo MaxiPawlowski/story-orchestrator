@@ -16,6 +16,7 @@
   "title": "Characters",
   "topics": [
    "roster",
+   "roster-polish",
    "drives-motives",
    "inner-voice",
    "talk-control",
@@ -24,6 +25,10 @@
    "rumors",
    "relationship-labels",
    "commitments",
+   "cues",
+   "topics",
+   "norms",
+   "echoes",
    "story-time",
    "living-cards",
    "poses"
@@ -91,6 +96,7 @@
    "house-rules",
    "chapters",
    "consequences",
+   "patterns",
    "outcome",
    "carry-from"
   ]
@@ -102,6 +108,7 @@
    "presentation",
    "quests",
    "checks",
+   "offers",
    "widgets",
    "clues-and-maps",
    "html-panels",
@@ -109,7 +116,8 @@
    "display-narrate",
    "display-warn",
    "codex",
-   "codex-returns"
+   "codex-returns",
+   "observations"
   ]
  }
 ]

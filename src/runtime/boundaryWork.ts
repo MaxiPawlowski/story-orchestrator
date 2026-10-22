@@ -3,6 +3,7 @@ import { getChatWindow, planReconciliation, scheduleForcedCues, type ExtractionS
 import type { SceneCoordinator } from "./coordinators/sceneCoordinator";
 import { sealAtState, storyEnded } from "./chapterPort";
 import type { RuntimeManager } from "./runtimeManager";
+import type { RecapOutcome } from "./recapPort";
 import { RECONCILIATION_MULTIPLIER } from "./settingsModel";
 import { log } from "@utils/log";
 
@@ -18,6 +19,7 @@ export interface BoundaryWorkContext {
   scheduler: ExtractionScheduler;
   scene?: SceneCoordinator;
   sceneHeuristicFired?: boolean;
+  recap?: RecapOutcome | null;
 }
 
 export const cueScanStart = (result: BoundaryResult): number =>
@@ -43,7 +45,13 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     id: "recap",
     order: 7,
     afterEnd: true,
-    run: ({ result, manager }) => manager.recap.onBoundary(result),
+    run: (context) => { context.recap = context.manager.recap.onBoundary(context.result); },
+  },
+  {
+    id: "patterns",
+    order: 7.5,
+    afterEnd: true,
+    run: ({ result, manager, recap }) => manager.patterns.onBoundary(result, recap ?? null),
   },
   {
     id: "meanwhile-land",
@@ -67,11 +75,23 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     run: ({ result, manager }) => manager.rumors.onBoundary(result),
   },
   {
+    id: "cue-offers",
+    order: 9.5,
+    afterEnd: true,
+    run: ({ manager }) => manager.cues.onBoundary(),
+  },
+  {
     id: "scheduler-tick",
     order: 10,
     run: ({ result, scheduler }) => {
       scheduler.onBoundary(result.boundary, Boolean(result.fired), result.context.lastMessageId);
     },
+  },
+  {
+    id: "echoes",
+    order: 11,
+    afterEnd: true,
+    run: ({ result, manager }) => manager.echoes.onBoundary(result),
   },
   {
     // The judged typed read on every boundary, skipped when this boundary's cadence

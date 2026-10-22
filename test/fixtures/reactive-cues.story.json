@@ -1,0 +1,52 @@
+{
+  "id": "reactive-cues-lab",
+  "title": "Reactive cues lab",
+  "description": "Synthetic story for v2.9 plan 04: per-member remarks, reactions, a must cue, a topic with a gated tier, and a social norm with two witnesses.",
+  "roster": [
+    {
+      "id": "mara", "name": "Mara Voss", "role": "a harbour clerk",
+      "cues": [
+        { "id": "ledger", "kind": "reaction", "when": { "q": "ledger_returned", "op": "==", "v": true }, "cue": "the stolen ledger is back in the guild's hands" },
+        { "id": "warn", "kind": "remark", "lane": "must", "when": { "q": "guild_angry", "op": "==", "v": true }, "cue": "the guild is hunting whoever took the ledger",
+          "landed_when": { "q": "heard_warning", "op": "==", "v": true }, "max_offers": 2 },
+        { "id": "market", "kind": "remark", "priority": 5, "when": { "q": "location", "op": "==", "v": "market" }, "cue": "the market stalls are half empty today", "repeat": { "cooldown": 3 } }
+      ],
+      "topics": [
+        { "id": "accounts", "keys": ["ledger", "accounts"], "tiers": [
+          { "cue": "the ledger lists debts the guild never paid" },
+          { "cue": "the last page names the magistrate", "when": { "q": "trusts_player", "op": "==", "v": true } }
+        ] }
+      ],
+      "schedule": [{ "when": { "q": "mara_at_market", "op": "==", "v": true }, "at": "market" }]
+    },
+    {
+      "id": "tom", "name": "Tom", "role": "a ferryman", "aliases": ["the ferryman"],
+      "cues": [
+        { "id": "ledger", "kind": "reaction", "window": 2, "when": { "q": "ledger_returned", "op": "==", "v": true }, "cue": "someone returned the guild ledger" },
+        { "id": "river", "kind": "remark", "when": { "q": "location", "op": "==", "v": "docks" }, "cue": "the river is running high" }
+      ]
+    },
+    { "id": "bryn", "name": "Bryn", "role": "the innkeeper" },
+    { "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }
+  ],
+  "norms": [
+    { "id": "steel", "label": "no drawn steel at the host's table", "broken_when": { "q": "drew_weapon", "op": "==", "v": true }, "noticed_by": ["mara", "bryn"],
+      "cue": "a guest drew steel at the host's table" }
+  ],
+  "qualities": [
+    { "key": "location", "type": "enum", "values": ["harbour", "docks", "market"], "source": "extractor", "evidence_from": "world", "rubric": "Where the party is." },
+    { "key": "ledger_returned", "type": "bool", "source": "extractor", "rubric": "Whether the stolen ledger was returned to the guild." },
+    { "key": "guild_angry", "type": "bool", "source": "extractor", "rubric": "Whether the guild is angry about the theft." },
+    { "key": "heard_warning", "type": "bool", "source": "extractor", "rubric": "Whether the player heard that the guild is hunting the thief." },
+    { "key": "trusts_player", "type": "bool", "source": "extractor", "rubric": "Whether Mara trusts the player." },
+    { "key": "drew_weapon", "type": "bool", "source": "extractor", "rubric": "Whether someone drew a weapon at the host's table." },
+    { "key": "mara_at_market", "type": "bool", "source": "extractor", "rubric": "Whether Mara went to the market." }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "The harbour", "player_name": "The harbour", "type": "anchor", "start": true, "objective": "Meet the clerks." },
+    { "id": "docks", "name": "The docks", "player_name": "The docks", "type": "anchor", "objective": "Find the ferry." }
+  ],
+  "transitions": [
+    { "from": "start", "to": "docks", "priority": 1, "gate": { "all": [{ "q": "location", "op": "==", "v": "docks" }] } }
+  ]
+}

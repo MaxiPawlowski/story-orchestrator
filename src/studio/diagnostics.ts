@@ -17,8 +17,14 @@ import { DIAGNOSTIC_CODES } from "./diagnosticCodes";
 import { STAGE_CONSEQUENCES, checkStageSprites, type StageInventory } from "./stageDiagnostics";
 import { WIDGET_CONSEQUENCES, checkWidgets, scopedKeys, widgetGateKeys } from "./widgetDiagnostics";
 import { CODEX_CONSEQUENCES, checkCodexDraft } from "./codexDiagnostics";
+import { OBSERVATION_CONSEQUENCES, checkObservationDraft } from "./observationDiagnostics";
 import { LABEL_CONSEQUENCES, checkLabelDiagnostics } from "./labelDiagnostics";
 import { COMMITMENT_CONSEQUENCES, checkCommitmentDiagnostics } from "./commitmentDiagnostics";
+import { DELIVERY_CONSEQUENCES, checkDeliveryDiagnostics } from "./deliveryDiagnostics";
+import { PATTERN_CONSEQUENCES, checkPatternDiagnostics } from "./patternDiagnostics";
+import { CUE_CONSEQUENCES, checkCueDiagnostics } from "./cueDiagnostics";
+import { OFFER_CONSEQUENCES, checkOfferDiagnostics } from "./offerDiagnostics";
+import { ECHO_CONSEQUENCES, checkEchoDiagnostics } from "./echoDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -83,8 +89,14 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   ...STAGE_CONSEQUENCES,
   ...WIDGET_CONSEQUENCES,
   ...CODEX_CONSEQUENCES,
+  ...OBSERVATION_CONSEQUENCES,
   ...LABEL_CONSEQUENCES,
   ...COMMITMENT_CONSEQUENCES,
+  ...DELIVERY_CONSEQUENCES,
+  ...PATTERN_CONSEQUENCES,
+  ...CUE_CONSEQUENCES,
+  ...OFFER_CONSEQUENCES,
+  ...ECHO_CONSEQUENCES,
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -509,8 +521,14 @@ const DIAGNOSTIC_CHECKS = [
   checkStageSprites,
   checkWidgets,
   checkCodexDraft,
+  checkObservationDraft,
   checkLabelDiagnostics,
   checkCommitmentDiagnostics,
+  checkDeliveryDiagnostics,
+  checkPatternDiagnostics,
+  checkCueDiagnostics,
+  checkOfferDiagnostics,
+  checkEchoDiagnostics,
 ];
 
 export const runDiagnostics = (draft: Story, context: DiagnosticsContext = {}): Diagnostic[] => {

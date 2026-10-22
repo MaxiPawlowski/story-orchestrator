@@ -19,7 +19,7 @@ stay as written, as history.
 | # | Item | What | Source | Gate (D) | Model input |
 |---|---|---|---|---|---|
 | C1 | **SP5.b build** | the story-owned scenario (`effects.scenario` → `chat_metadata.scenario`), approved in v2.6, never built. No model call in its code path (review A5), so it is deterministic to build. Design: `v2.8/16-sp5-story-scenario.md` | v2.6 `v2.6/04-remaining-builds.md:26`, `v2.6/03-sp5-restated.md` | triage the T7 red first; jest (scenario set, released on jump/leave, held while requirements are unmet, rollback ≡ replay); `effects-*`-style no-LLM scenario on a group; dry-run payload shows the authored block and nothing else | **yes**: the scenario block; real legs owned by v2.8 16 |
-| C2 | **Summarize / chat-vectors privacy check** | built (gate record below) | `v2.9/02-sp9-witness-filter-v2.md` option A | live seeded lane (v2.8 01 O8, tier D) | no |
+| C2 | **Summarize / chat-vectors privacy check** | built (gate record below) | `v3.0/02-sp9-witness-filter-v2.md` option A | live seeded lane (v2.8 01 O8, tier D) | no |
 | C2-K1 | **K1: the player alert must not reveal a held secret** | `SECRET_LEAK_CHECK` (`src/runtime/checks.ts:45`) shows only when `secretLeaks()` is non-empty, which needs a held secret. Fix: the player copy shows whenever a copier is on in a **group story**; `secretsHeld` gates only the author detail. K2: rewrite the held-secret invariant in `.claude/rules/architecture.md` (player alert + HUD chip, author detail) in the same change | review K1, K2, F34 | jest: player-visible output (HUD chip, drawer row, settings row, Help) identical with and without held secrets, both copiers, solo control inactive; live seeded lane ×2 | no |
 | C6–C10 | image cue, fired/public looks, `illustrate`, narrator fallback, `stagecraft.exclude` | built (gate record below) | campaign F3–F6, review | done (D) | **yes**: image and curator prompts; real rows v2.8 01 O3–O7 |
 | C11-F1a | **Judge-typed evidence cut, display half** | F1: a judge-typed read cites only the first 160 characters of the chosen message (`src/judge/extraction.ts:179`). The display half: the author journal row of a held judge-typed reading says the evidence was cut and names the source message id, so an author can see why a long reply did not commit. Own short plan first (problem above; floor: jest, the note appears for a cut source and never for a short one; gate: `npm run gates`) | campaign F1; Sol split item 3 | jest + `so-journal.mts show` on a seeded hold | no |
@@ -32,7 +32,7 @@ stay as written, as history.
 |---|---|---|
 | C3 | warden and lore-check timeouts | v2.8 01 §B C3 (CL) |
 | C4 | separate-arm live checks (R4, R6, G-L7 J8) | v2.8 01 §B C4 (CL + RP) |
-| C5 | SP6 / SP1 / SP10 runs | SP6 → `v2.8/17-sp6-complication-pool.md`; SP1 → `v2.9/01-sp1-swipe-back-cache.md`; SP10 → v2.7 15 (B + C) and v2.9 05.2 |
+| C5 | SP6 / SP1 / SP10 runs | SP6 → `v2.8/17-sp6-complication-pool.md`; SP1 → `v3.0/01-sp1-swipe-back-cache.md`; SP10 → v2.7 15 (B + C) and v3.0 05.2 |
 | C11-F1 guard | test the commit guard against the whole source message (commitment semantics) | v2.8 01 §B C11-F1 |
 | C11-F2 | `commit_evidence` per value | v2.8 01 §B |
 | C11-F7 | chain voice ignores `no_repeat` | v2.8 01 §B |
@@ -55,8 +55,8 @@ Decision 2 now applies in v2.8 01 (C3/C4 measure on the first v2.7 build).
 
 ## Links
 
-`v2.9/02-sp9-witness-filter-v2.md` (C2 is its option A), `v2.8/16-sp5-story-scenario.md` (C1 design + live legs),
-`v2.8/17-sp6-complication-pool.md`, `v2.9/01-sp1-swipe-back-cache.md`, v2.7 15 (SP10), v2.7 13 (warden-lore kept
+`v3.0/02-sp9-witness-filter-v2.md` (C2 is its option A), `v2.8/16-sp5-story-scenario.md` (C1 design + live legs),
+`v2.8/17-sp6-complication-pool.md`, `v3.0/01-sp1-swipe-back-cache.md`, v2.7 15 (SP10), v2.7 13 (warden-lore kept
 separate), v2.7 14 (C14 design), v2.7 04 (checks registry), `v2.8/01-v27-carry-over.md` §A/§B.
 
 ## Gate record (C6–C10)

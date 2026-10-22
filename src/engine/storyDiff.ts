@@ -1,10 +1,12 @@
 import { keptStagedFrom, type EngineHistory, type EngineState } from "./engine";
 import {
-  CODEX_PAGES, codexArmedKey, codexEntryKey, codexFactKey, codexReturnKey, isCodexKey, questClosedKey, questRewardKey, STORY_DISPLAY_TOGGLES,
+  CODEX_PAGES, observationIdentity, observationKey, observationMissedKey, codexArmedKey, codexEntryKey, codexFactKey, codexReturnKey, isCodexKey, isObservationKey,
+  questClosedKey, questRewardKey, STORY_DISPLAY_TOGGLES,
   type CodexEntry, type CodexPage, type NormalizedStory, type PrimitiveValue, type Transition,
 } from "./schema";
 import { qualityAccepts } from "./blackboard";
 import { gateLeaves } from "./gates";
+import { gameLayer } from "./validate/gameLayer";
 
 // What changes when an author edits a story a chat is already playing. The table below is
 // the spec — every row is a jest fixture. "Live" always means the running chat actually holds the
@@ -12,62 +14,21 @@ import { gateLeaves } from "./gates";
 export type StoryChangeClass = "identical" | "compatible" | "invalidating";
 
 export type StoryDiffCode =
-  | "quality-added"
-  | "quality-removed"
-  | "quality-removed-live"
-  | "quality-retyped"
-  | "quality-retyped-live"
-  | "quality-enum-narrowed-live"
-  | "quality-latch-enabled-live"
-  | "quality-latch-disabled-live"
-  | "quality-source-changed-live"
-  | "quality-evidence-changed"
-  | "checkpoint-agency-changed"
-  | "checkpoint-changed"
-  | "roster-member-changed"
-  | "quality-changed"
-  | "checkpoint-added"
-  | "checkpoint-removed"
-  | "checkpoint-removed-visited"
-  | "active-checkpoint-removed"
-  | "start-changed"
-  | "start-changed-unplayed"
-  | "transition-added"
-  | "transition-removed"
-  | "gate-changed"
-  | "gate-changed-frontier"
-  | "gate-changed-latched"
-  | "roster-member-removed"
-  | "requirements-changed"
-  | "stagecraft-changed"
-  | "features-changed"
-  | "story-objective-block-changed"
-  | "story-display-changed"
-  | "story-presence-changed"
-  | "story-kind-changed"
-  | "scene-read-changed"
-  | "player-card-changed"
-  | "player-profile-changed"
-  | "lore-select-changed"
-  | "house-rules-changed"
-  | "arc-template-changed"
-  | "arc-bridges-changed"
-  | "chapters-changed"
-  | "game-changed"
-  | "quest-removed"
-  | "quest-removed-closed"
-  | "quest-reward-changed-earned"
-  | "check-changed"
-  | "codex-changed"
-  | "codex-entry-removed"
-  | "codex-entry-replaced"
-  | "codex-fact-removed"
-  | "codex-fact-replaced"
-  | "codex-fact-edited"
-  | "codex-return-removed"
-  | "codex-return-replaced"
-  | "codex-return-edited"
-  | "text-changed";
+  | "quality-added" | "quality-removed" | "quality-removed-live" | "quality-retyped" | "quality-retyped-live"
+  | "quality-enum-narrowed-live" | "quality-latch-enabled-live" | "quality-latch-disabled-live"
+  | "quality-source-changed-live" | "quality-evidence-changed" | "checkpoint-agency-changed" | "checkpoint-changed"
+  | "roster-member-changed" | "quality-changed" | "checkpoint-added" | "checkpoint-removed"
+  | "checkpoint-removed-visited" | "active-checkpoint-removed" | "start-changed" | "start-changed-unplayed"
+  | "transition-added" | "transition-removed" | "gate-changed" | "gate-changed-frontier" | "gate-changed-latched"
+  | "roster-member-removed" | "requirements-changed" | "stagecraft-changed" | "features-changed"
+  | "story-objective-block-changed" | "story-display-changed" | "story-presence-changed" | "story-kind-changed"
+  | "scene-read-changed" | "player-card-changed" | "player-profile-changed" | "lore-select-changed"
+  | "house-rules-changed" | "arc-template-changed" | "arc-bridges-changed" | "chapters-changed" | "game-changed"
+  | "quest-removed" | "quest-removed-closed" | "quest-reward-changed-earned" | "check-changed" | "codex-changed"
+  | "codex-entry-removed" | "codex-entry-replaced" | "codex-fact-removed" | "codex-fact-replaced"
+  | "codex-fact-edited" | "codex-return-removed" | "codex-return-replaced" | "codex-return-edited"
+  | "observations-changed" | "observation-removed" | "cue-edited" | "cue-replaced" | "cue-removed"
+  | "observation-replaced" | "observation-edited" | "text-changed";
 
 export interface StoryDiffEntry {
   code: StoryDiffCode;
@@ -167,7 +128,7 @@ const diffContext = (previous: NormalizedStory, next: NormalizedStory, state: En
 
 const diffQualities = (ctx: DiffContext) => {
   const { previous, next, push } = ctx;
-  Object.values(previous.qualityByKey).filter((quality) => !isCodexKey(quality.key)).forEach((quality) => {
+  Object.values(previous.qualityByKey).filter((quality) => !isCodexKey(quality.key) && !isObservationKey(quality.key)).forEach((quality) => {
     const after = next.qualityByKey[quality.key];
     const path = `qualities.${quality.key}`;
     if (!after) {
@@ -209,7 +170,7 @@ const diffQualities = (ctx: DiffContext) => {
     }
   });
 
-  Object.keys(next.qualityByKey).filter((key) => !previous.qualityByKey[key] && !isCodexKey(key)).forEach((key) => {
+  Object.keys(next.qualityByKey).filter((key) => !previous.qualityByKey[key] && !isCodexKey(key) && !isObservationKey(key)).forEach((key) => {
     push("compatible", "quality-added", `qualities.${key}`, `New quality “${key}”.`);
   });
 };
@@ -411,6 +372,32 @@ const diffCodex = (ctx: DiffContext) => {
   if (ctx.entries.length === before) ctx.push("compatible", "codex-changed", "codex", "The People and Places pages changed; what this chat already learned stays.");
 };
 
+const diffObservations = (ctx: DiffContext) => {
+  const { previous, next } = ctx;
+  if (sameValue(previous.observations, next.observations)) return;
+  const before = ctx.entries.length;
+  const after = new Map((next.observations ?? []).map((observation) => [observation.id, observation]));
+  (previous.observations ?? []).forEach((observation) => {
+    const kept = after.get(observation.id);
+    const path = `observations.${observation.id}`;
+    if (kept && observationIdentity(kept) === observationIdentity(observation)) {
+      const reworded = kept.text !== observation.text || kept.source !== observation.source;
+      if (reworded) ctx.push("compatible", "observation-edited", path, "A line the player can notice was reworded; a chat that noticed it sees the new wording.");
+      return;
+    }
+    const earned = [observationKey(observation.id), observationMissedKey(observation.id)].map((key) => dropLive(ctx, key)).some(Boolean);
+    ctx.push("compatible", kept ? "observation-replaced" : "observation-removed", path, kept
+      ? `A line the player can notice changed; ${earned ? "this chat must notice it again" : "it is noticed when its moment comes"}.`
+      : "A line the player can notice was removed.");
+  });
+  if (ctx.entries.length === before) ctx.push("compatible", "observations-changed", "observations", "The lines the player can notice changed; what this chat already noticed stays.");
+};
+
+const diffCueSources = (ctx: DiffContext) => (gameLayer()?.cues.diffCues(ctx.previous, ctx.next) ?? []).forEach((row) => {
+  row.drop.forEach((key) => dropLive(ctx, key));
+  ctx.push("compatible", row.code, row.path, row.message);
+});
+
 const diffStoryFields = (ctx: DiffContext) => {
   const { previous, next, push } = ctx;
   if (!sameValue(previous.requirements, next.requirements)) push("compatible", "requirements-changed", "requirements", "What the story needs from your setup changed.");
@@ -440,6 +427,8 @@ const diffStoryFields = (ctx: DiffContext) => {
   }
   diffQuests(ctx);
   diffCodex(ctx);
+  diffObservations(ctx);
+  diffCueSources(ctx);
   if (previous.title !== next.title || previous.description !== next.description) push("compatible", "text-changed", "story", "Title or description changed.");
 };
 

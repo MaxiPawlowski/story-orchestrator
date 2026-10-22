@@ -4,13 +4,16 @@ import type { ScopeSourceContext } from "@extraction/scopeSources";
 import type { GameAuthorView, GameView } from "./gameTypes";
 import type { GameSources } from "./widgets";
 import type { ChecksRuntimeState } from "./storyCheckDraws";
+import { installObservationKit, type ObservationsRuntimeState } from "./observationRecords";
 
 type Composer = typeof import("./widgets").composeGame;
 
 let composer: Composer | null = null;
 
 export const loadGameComposer = async () => {
-  composer = (await import("./widgets")).composeGame;
+  const [widgets, observations] = await Promise.all([import("./widgets"), import("./observationKit")]);
+  installObservationKit(observations.OBSERVATION_KIT);
+  composer = widgets.composeGame;
 };
 
 export interface GameSliceInput {
@@ -18,6 +21,8 @@ export interface GameSliceInput {
   state: EngineState | null;
   boundaryLog: readonly BoundaryLogEntry[];
   checks: ChecksRuntimeState | undefined;
+  observations?: ObservationsRuntimeState;
+  resting?: (text: string) => string;
   threads: GameSources["threads"];
   chat: readonly unknown[];
   castNames: Record<string, string>;
@@ -41,7 +46,8 @@ export function gameSlices(input: GameSliceInput): { game: GameView | null; game
   const { story, state } = input;
   if (!story || !state || !storyHasGame(story)) return { game: null, gameAuthor: null };
   const composed = composer?.({
-    story, state, boundaryLog: input.boundaryLog, checks: input.checks?.records ?? [], threads: input.threads, chat: input.chat, castNames: input.castNames, authorView: input.authorView,
+    story, state, boundaryLog: input.boundaryLog, checks: input.checks?.records ?? [], observations: input.observations?.records ?? [], resting: input.resting,
+    threads: input.threads, chat: input.chat, castNames: input.castNames, authorView: input.authorView,
     enabled: input.enabled, location: input.location ?? null,
     ...((story.widgets ?? []).some((widget) => widget.kind === "scene") ? { portraits: portraitsOf(story, input.characters ?? [], input.castNames) } : {}),
   }) ?? null;
@@ -49,7 +55,7 @@ export function gameSlices(input: GameSliceInput): { game: GameView | null; game
   const gameAuthor: GameAuthorView | null = input.authorView ? {
     quests: (story.quests ?? []).map((quest) => ({ id: quest.id, title: quest.title, status: questStatus(quest, reader) })),
     scopeOverflow: scopeDropped(story, state, "quest", input.scopeContext),
-    ...(story.codex ? { discoveryOverflow: scopeDropped(story, state, "discovery", input.scopeContext) } : {}),
+    ...(story.codex || story.observations?.length ? { discoveryOverflow: scopeDropped(story, state, "discovery", input.scopeContext) } : {}),
     widgets: composed?.authorWidgets ?? [],
     provenance: composed?.provenance,
   } : null;

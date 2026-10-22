@@ -1,0 +1,26 @@
+{
+  "id": "delivery-ferry-mood",
+  "title": "The Ferry Crossing (moods)",
+  "description": "A synthetic story whose pilot has two moods, each with its own delivery.",
+  "roster": [
+    {
+      "id": "tamsin",
+      "name": "Tamsin",
+      "role": "the ferry pilot",
+      "mood": { "values": ["calm", "angry"], "baseline": "calm", "lasts": { "boundaries": 3 } },
+      "polish": {
+        "notes": "Short sentences. Talks in river terms.",
+        "rhythm": "clipped",
+        "by_mood": { "calm": "Slow and dry, a joke under every warning.", "angry": "Bitten-off words, no jokes at all." }
+      }
+    },
+    { "id": "orrin", "name": "Orrin", "role": "the toll clerk" }
+  ],
+  "qualities": [
+    { "key": "fare_paid", "type": "bool", "source": "extractor", "rubric": "Has the player paid the fare?" }
+  ],
+  "checkpoints": [
+    { "id": "start", "name": "The landing", "type": "anchor", "start": true, "objective": "Board the ferry." }
+  ],
+  "transitions": []
+}

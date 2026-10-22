@@ -171,7 +171,7 @@ already has native tools through the MCP bridge (`harnessRoute`).
 - Decision 3 counts as the explicit decision v2.8 rule 4 needs for the player Ask surface. Player Ask ships dev-only,
   then off by default (rule 9, §E).
 - Homes for two v2.7 14 research decisions (Sol r3 R3-15): the CC native tool-call spike (decision 3) is this plan's
-  §F; the optional Critic role (decision 2, "after the wizard work") is `v2.9/05-deferred-items.md` §05.6.
+  §F; the optional Critic role (decision 2, "after the wizard work") is `v3.0/05-deferred-items.md` §05.6.
 
 ## Links
 

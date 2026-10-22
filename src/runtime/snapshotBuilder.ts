@@ -23,6 +23,7 @@ import { blobMismatch, getSelectedStoryId, hasOpenChat, hasOpenGroup, hasPersist
 import { noGroupView } from "./noGroup";
 import { getGlobalSettings } from "./settingsStore";
 import { resolveFeatures } from "./featureResolve";
+import { memberRepetitionRows } from "./deliveryPort";
 import { noChatView } from "./noChat";
 import { shownPlayerText } from "./stretchTurns";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
@@ -55,8 +56,10 @@ import { isRecord } from "@utils/guards";
 import { chapterKit, storyEnded } from "./chapterPort";
 import { composeRolls, createChance, reconstructQualityRolls } from "./rolls";
 import { checkRolls } from "./storyCheckDraws";
+import { observationKit } from "./observationRecords";
 import { gameSlices } from "./gameSnapshot";
 import { recapCardSections, recapSection } from "./recapPort";
+import { patternRecapLines, patternSlices } from "./patternsPort";
 import { lifeAuthorSlice } from "./lifeSnapshot";
 import { factionAuthorSlice } from "./factionSnapshot";
 import { carrySlice } from "./carryPort";
@@ -128,6 +131,8 @@ export interface SnapshotSources {
   scopeContext?: ScopeSourceContext;
   enabled?: readonly string[];
   generating?: boolean;
+  cuesAuthor?: import("./cuePort").CuesAuthorView | null;
+  echoesAuthor?: import("@engine/life/echoView").EchoAuthorView | null;
 }
 
 export interface SnapshotPort {
@@ -150,6 +155,8 @@ export interface SnapshotPort {
   scopeContext?: ScopeSourceContext;
   enabled?: readonly string[];
   generating?: boolean;
+  cues?: Pick<import("./cuePort").CuePort, "authorView">;
+  echoes?: Pick<import("./echoPort").EchoPort, "authorView">;
 }
 
 export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
@@ -182,6 +189,8 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   scopeContext: port.scopeContext,
   enabled: port.enabled,
   generating: port.generating,
+  cuesAuthor: port.cues?.authorView(port.extras.ui.authorView),
+  echoesAuthor: port.echoes?.authorView(port.extras.ui.authorView),
 });
 
 const routeGaps = () => {
@@ -261,6 +270,8 @@ const inlineView = (sources: SnapshotSources, story: NormalizedStory | null, liv
     agencyRecovery: live.agencyRecovery, lastRollback: sources.lastRollback, saveNotice: playerSaveNotice(extras.saveHealth), castNames,
     firstLines: firstLines(sources.chat), authorMoves: authorMoves(extras), resting: sources.resting,
     emptyReplies: recentEmptyReplies(sources.chat, settings.window), enabled: sources.enabled, sceneTests: authorView ? extras.living?.sceneTests : undefined,
+    patternCompletions: authorView ? extras.patterns?.completed : undefined, cueReceipts: authorView ? extras.cues?.receipts : undefined,
+    echoLandings: authorView ? extras.echoes?.events : undefined,
   });
 };
 
@@ -332,7 +343,8 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStory | null,
   const { extras } = sources;
   return {
     ...gameSlices({
-      story, state, boundaryLog: sources.boundaryLog, checks: extras.checks, chat: sources.chat, castNames: game.castNames, authorView: extras.ui.authorView, scopeContext: sources.scopeContext,
+      story, state, boundaryLog: sources.boundaryLog, checks: extras.checks, observations: extras.observations, resting: sources.resting,
+      chat: sources.chat, castNames: game.castNames, authorView: extras.ui.authorView, scopeContext: sources.scopeContext,
       enabled: sources.enabled, threads: { open: game.openThreads, resolved: story ? resolvedThreads(extras.memory, sources.resting) : [] },
       location: sceneLocationOf(story, extras), characters: sources.characters,
     }),
@@ -344,8 +356,9 @@ const presenceSlices = (sources: SnapshotSources, story: NormalizedStory | null,
       branching: extras.stagecraft.settings.branchingEnabled !== false,
       epoch: extras.living ? graphEpoch(extras.living) : null,
     }),
-    rolls: composeRolls(quality, sources.extras.chance ?? createChance(), checkRolls(story, extras.checks)),
-    repetition: sources.loaded && sources.extras.ui.authorView ? mineRepetition(replyTexts(sources.chat)) : null,
+    rolls: composeRolls(quality, sources.extras.chance ?? createChance(),
+      [...checkRolls(story, extras.checks), ...(extras.ui.authorView ? observationKit()?.rolls(story, extras.observations) ?? [] : [])]),
+    repetition: sources.loaded && sources.extras.ui.authorView ? { ...mineRepetition(replyTexts(sources.chat)), byMember: memberRepetitionRows(story, sources.chat) } : null,
     ...(extras.ui.authorView && story ? { sameCharacter: sameCharacterCandidates(nameIndexOf(story), memorySightings(extras.memory), [extras.playerSetup?.name ?? "", "player", "you", "user"]) } : {}),
     presence: buildPresence({
       story, settings: sources.extras.ui.presence, boundaryLog: sources.boundaryLog, plays: sources.plays ?? {}, library: listStoryRecords(),
@@ -429,7 +442,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     saveNotice: playerSaveNotice(extras.saveHealth),
     agencyNotice: agencyRecovery ? REFUSAL_PLAYER_TEXT : null,
     objectiveKind: agency.objective_kind, ...questNarrative(story, blackboard, chapters.epilogue),
-    consequences: recapSection({ story, state, recap: extras.recap, chat: sources.chat }),
+    consequences: recapSection({ story, state, recap: extras.recap, chat: sources.chat, callbacks: patternRecapLines(story, extras, state, sources) }),
   });
   const castNames = buildCastNames(story, sources.characters ?? []), inline = inlineView(sources, story, { tension, pipeline, agencyRecovery: Boolean(agencyRecovery) }, castNames);
   const mismatch = loaded ? null : blobMismatch();
@@ -438,6 +451,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     ready: Boolean(loaded),
     busy: busyWork.view(sources.chatId ?? null),
     features: resolveFeatures(getGlobalSettings(), story, extras.overrides), featureOverrides: extras.overrides ?? {},
+    storyDeclares: { commitments: Boolean(story?.life?.members.some((member) => (member.commitments?.length ?? 0) > 0)) },
     storyId: loaded?.record.id ?? null,
     storyHash: loaded?.record.hash ?? null,
     storyIdentity: buildStoryIdentity(loaded?.record ?? null, loaded ? findStoryRecord(loaded.record.id) : null, Boolean(loaded && hasPersistedRuntime(loaded.record.id))),
@@ -477,7 +491,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     memory: extras.memory, memoryShown: shownRows(extras.memory.entries, sources.resting ?? ((text: string) => text)),
     chapters,
     promises: promisesSlice(story, extras, blackboard),
-    rumorsAuthor: rumorAuthorSlice(story, extras),
+    rumorsAuthor: rumorAuthorSlice(story, extras), ...patternSlices(story, extras, state, sources), cuesAuthor: sources.cuesAuthor, echoesAuthor: sources.echoesAuthor,
     pacing: extras.pacing,
     copilot: extras.copilot,
     ui: extras.ui,

@@ -1,7 +1,7 @@
 # Plan 15 — SP10 tool-call turns
 
 **Status (2026-10-03): v2.7 plan 15 (was old v2.7 16d, split out of the removed 16 index). APPROVED: B (guide note) +
-C (remove the Q1 probe), not built. Option A is deferred to `v2.9/05-deferred-items.md` §05.2.** v2.7 02 row C5 points
+C (remove the Q1 probe), not built. Option A is deferred to `v3.0/05-deferred-items.md` §05.2.** v2.7 02 row C5 points
 here for SP10. Overview: `00-overview.md`.
 **Gate tiers** (v2.7 overview §Gate taxonomy): implementation D; acceptance D. Model input: none.
 
@@ -90,13 +90,13 @@ that is Q2's question and was not measured.
 `DROPPED_SPIKES` with a planted-import control. The v2.5 report stays as history, and its Q1 procedure (`:30-39`) is the
 recipe if SP10 reopens. Keep `v24-01-toolcall-run.json` (it guards the delete decode, not SP10).
 
-**What reopens it:** see `v2.9/05-deferred-items.md` §05.2, the only owner of the reopen trigger and of option A's
+**What reopens it:** see `v3.0/05-deferred-items.md` §05.2, the only owner of the reopen trigger and of option A's
 recipe and gates (Sol r3 R3-21).
 
 ## Recommendation
 
 **B + C.** No known user on CC + tools, the fold failed its invariant, and the work-only fold has no measured need. The
-note tells a player what to expect; the probe is dead code until someone has the data. A → v2.9 05.2.
+note tells a player what to expect; the probe is dead code until someone has the data. A → v3.0 05.2.
 
 ## Decisions for the user
 
@@ -107,7 +107,7 @@ note tells a player what to expect; the probe is dead code until someone has the
 
 ## Floor and measurement before building
 
-None in v2.7 (B + C need no measurement). Option A's floor and gates live in `v2.9/05-deferred-items.md` §05.2.
+None in v2.7 (B + C need no measurement). Option A's floor and gates live in `v3.0/05-deferred-items.md` §05.2.
 
 ## Gates
 
@@ -117,7 +117,7 @@ None in v2.7 (B + C need no measurement). Option A's floor and gates live in `v2
 
 ## Links
 
-- v2.9 05.2 (option A, deferred); siblings from the removed 16 index: v2.8 16 SP5, v2.8 17 SP6, v2.9 01 SP1.
+- v3.0 05.2 (option A, deferred); siblings from the removed 16 index: v2.8 16 SP5, v2.8 17 SP6, v3.0 01 SP1.
 - v2.7 01 docs and in-app guidance (the guide page holds the note; no feature registry entry: it is a host-interaction
   note).
 - v2.7 12 model choice: a switch to a CC profile would change the reach question.
@@ -132,7 +132,7 @@ version. Decisions 2 and 3 are taken as recommended.
 ## Review 2026-10-03
 
 Applied: B9 (the note targets `docs/guide/setup/memory-model.md`, not the README), the Claude-B note "16d moves to tier 1"
-(v2.7, deterministic), option A deferred to v2.9 05.2, B12/F36 (references).
+(v2.7, deterministic), option A deferred to v3.0 05.2, B12/F36 (references).
 
 Round 3 (Sol): R3-21 applied.
 

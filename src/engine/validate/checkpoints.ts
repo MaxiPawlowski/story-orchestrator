@@ -7,7 +7,6 @@ import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, rejectUnknownKeys } from "./common";
 import { readCheckpointChapter } from "./chapters";
 import { readGuidance } from "../checkpointGuidance";
-import { readStretch } from "./stretch";
 import { gameLayer } from "./gameLayer";
 import { readWorkflowMap } from "./illustrations";
 
@@ -40,13 +39,20 @@ const readMemberAliases = (member: Member, path: string, errors: ValidationError
   return kept.length ? { ...rest, aliases: kept } : rest;
 };
 
-export const readRoster = (roster: Story["roster"], errors: ValidationError[]): Story["roster"] => roster.map((member, index) => {
+const readMemberPolish = (member: Member, path: string, names: readonly string[], errors: ValidationError[]): Member => {
+  const { polish, ...rest } = member;
+  if (polish === undefined) return member;
+  const read = gameLayer()?.delivery.readRosterPolish(polish, member, { path: `${path}.polish`, errors, names });
+  return read ? { ...rest, polish: read } : rest;
+};
+
+export const readRoster = (roster: Story["roster"], errors: ValidationError[], names: readonly string[] = []): Story["roster"] => roster.map((member, index) => {
   if (!isRecord(member)) return member;
   const path = `roster.${index}`;
   if (member.view !== undefined && !isOneOf(member.view, ROSTER_VIEWS)) addError(errors, `${path}.view`, "roster view must be own or omniscient");
   const sprites = gameLayer()?.poses.readMemberSprites(member.sprites, `${path}.sprites`, errors);
   member = { ...member, ...(sprites ? { sprites } : {}) };
-  return readMemberAliases(readMemberText(readMemberText(member, "role", path, errors), "drive", path, errors), path, errors);
+  return readMemberPolish(readMemberAliases(readMemberText(readMemberText(member, "role", path, errors), "drive", path, errors), path, errors), path, names, errors);
 });
 
 const readMotives = (value: unknown, path: string, errors: ValidationError[]): Record<string, string> | undefined => {
@@ -315,9 +321,10 @@ export const readCheckpoint = (value: unknown, path: string, errors: ValidationE
   const motives = value.motives === undefined ? undefined : readMotives(value.motives, `${path}.motives`, errors);
   if (motives) checkpoint.motives = motives;
   if (value.stretch !== undefined) {
-    const stretch = readStretch(value.stretch, `${path}.stretch`, errors, type);
+    const stretch = gameLayer()?.stretch.readStretch(value.stretch, `${path}.stretch`, errors, type);
     if (stretch) checkpoint.stretch = stretch;
   }
+  gameLayer()?.offers.addOffers(checkpoint, value.offers, path, errors);
   readCheckpointChapter(value, checkpoint, path, errors);
   const checks = gameLayer()?.readChecks(value.checks, `${path}.checks`, errors) ?? [];
   return checks.length ? { ...checkpoint, checks } : checkpoint;

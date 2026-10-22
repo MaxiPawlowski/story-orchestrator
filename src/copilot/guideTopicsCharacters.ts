@@ -2,6 +2,8 @@ import type { GuideTopic } from "./guideTopics";
 import { LABEL_DIAGNOSTIC_TOPICS, LABEL_TOPICS } from "./guideTopicsLabels";
 import { RUMOR_TOPICS } from "./guideTopicsRumors";
 import { COMMITMENT_DIAGNOSTIC_TOPICS, COMMITMENT_TOPICS } from "./guideTopicsCommitments";
+import { CUE_DIAGNOSTIC_TOPICS, CUE_TOPICS } from "./guideTopicsCues";
+import { ECHO_DIAGNOSTIC_TOPICS, ECHO_TOPICS } from "./guideTopicsEchoes";
 
 export const CHARACTER_TOPICS = {
   "character-life": {
@@ -11,6 +13,7 @@ export const CHARACTER_TOPICS = {
       + "both are present, at most step a turn, seen only by the holder and Author view. mood {baseline, values, lasts}: re-read after a scene change, else "
       + "baseline. agenda [{id, goal, steps [{text, when, effect: world_info|npc_replies, public, repeat}], pace per_n_boundaries|per_chapter (needs chapters), "
       + "every}] moves in code, never on OOC. schedule [{when, at}]: away drops a member from speakers; addressed, the narrator says they are not here. "
+      + "Off-stage events: auto by default. "
       + "Time of day and day count: see story-time.",
   },
   factions: {
@@ -24,10 +27,14 @@ export const CHARACTER_TOPICS = {
   ...RUMOR_TOPICS,
   ...LABEL_TOPICS,
   ...COMMITMENT_TOPICS,
+  ...CUE_TOPICS,
+  ...ECHO_TOPICS,
 } as const satisfies Record<string, GuideTopic>;
 
 export const FACTION_DIAGNOSTIC_TOPICS = {
   "faction-move-on-inaction": "factions", "faction-never-moves": "factions", "faction-no-visible-band": "factions", "faction-snapshot-key": "factions",
   ...LABEL_DIAGNOSTIC_TOPICS,
   ...COMMITMENT_DIAGNOSTIC_TOPICS,
+  ...CUE_DIAGNOSTIC_TOPICS,
+  ...ECHO_DIAGNOSTIC_TOPICS,
 } as const;

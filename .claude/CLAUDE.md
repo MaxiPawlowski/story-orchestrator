@@ -22,9 +22,11 @@ Status lives in tables, not prose (v2.3 process rule 15). One line per version; 
 | v2.2 (plans 01–08) | automated side green; human eval outstanding | `docs/plans/v2.2/00-overview.md` §Live gate status, `08-acceptance.md` |
 | v2.3 (plans 01–11) | FROZEN candidate `569b053` 2026-09-24; NOT accepted (J11 judge floors, L1 human playthrough, L7) | `docs/plans/v2.3/11-acceptance.md` §Freeze 2026-09-24 |
 | v2.4 (plans 01–09) | plans 01–08 live green ×2 (06 F5 `create` not built; 08 calibration below floor); 09 on FROZEN `4ebe1db`: PARTIAL, not accepted; post-freeze fixes 13/14 rows green ×2 on `e7626d7` | `docs/plans/v2.4/00-overview.md` §Status, `09-acceptance.md` §Gate record, `docs/release/2.4.0/attestation.json` |
-| v2.6 (plans 00–15) | FROZEN 2026-10-03 (absorbs v2.5, closed unreleased); remaining work split into v2.7/v2.8/v2.9 | `docs/plans/v2.6/00-overview.md`, `15-final-review-and-autonomous-testing.md`, `15-review.md` |
+| v2.6 (plans 00–15) | FROZEN 2026-10-03 (absorbs v2.5, closed unreleased); remaining work split into v2.7/v2.8/v3.0 | `docs/plans/v2.6/00-overview.md`, `15-final-review-and-autonomous-testing.md`, `15-review.md` |
 | v2.7 | WRAPPED 2026-10-09, symbolic (owner: private plugin, one user); NOT accepted, Phase C INCOMPLETE; every built feature on by default, below its floor too; open rows → v2.8 24 | `docs/plans/v2.7/39-test-from-zero.md` §Wrap record 2026-10-14, `src/runtime/settingsModel.ts` |
 | v2.8 | IN BUILD (2026-10-14): build-now pass merged, full gates green on `6642dc50`; harness auth + review fixes on branches; model/GPU/laptop acceptance deferred; 12/13/15/21 stay (owner 2026-10-14) | `docs/plans/v2.8/32-queue.md`, `00-overview.md` §Status, `40-build-now-no-gpu.md`, `24-test-plan.md` |
+| v2.9 | BUILT 2026-10-22, no GPU: 02, 04–09 merged, full gates green (`297e7234`); 03 S0–S2 on branch `v2.9-03-polish`, held (shadow polish spends sol quota: owner call); every real-LLM/lane row NOT run | `docs/plans/v2.9/00-overview.md` §Status 2026-10-22, plan Gate records |
+| v3.0 | DEFERRED (was v2.9 until 2026-10-21; renamed by the owner) | `docs/plans/v3.0/00-overview.md` |
 
 Older status paragraphs: `docs/plans/v2.3/status-history.md` (history only).
 

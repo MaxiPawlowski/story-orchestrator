@@ -132,6 +132,7 @@ export interface RuntimeExtras {
   /** NPC reply and talk draws, by message; quality rolls are reconstructed instead. */
   chance?: ChanceRuntimeState;
   checks?: ChecksRuntimeState;
+  observations?: import("./observationRecords").ObservationsRuntimeState;
   agendaProposals?: AgendaProposalsState;
   recap?: RecapRuntimeState;
   living?: LivingRuntimeState;
@@ -186,6 +187,7 @@ export interface MemoryRuntimeSettings {
   promises?: boolean;
   witness?: boolean;
   rumors?: boolean;
+  patterns?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
 
@@ -404,6 +406,7 @@ export interface RuntimeSnapshot {
   busy?: import("./busy").BusyJob[];
   features?: import("./featureResolve").ResolvedFeatures;
   featureOverrides?: import("@engine/featurePolicy").StoryFeatures;
+  storyDeclares?: { commitments: boolean };
   ready: boolean;
   storyId: string | null;
   storyHash: string | null;
@@ -540,7 +543,7 @@ export interface RuntimeSnapshot {
   rolls?: RollRecord[];
   presence?: PresenceView;
   /** The repetition miner over the latest reply and five earlier ones; Author view only, null otherwise. */
-  repetition?: RepetitionReport | null;
+  repetition?: (RepetitionReport & { byMember?: import("./deliveryPort").MemberRepetitionRow[] }) | null;
   game?: GameView | null;
   gameAuthor?: GameAuthorView | null;
   lifeAuthor?: LifeAuthorView | null;

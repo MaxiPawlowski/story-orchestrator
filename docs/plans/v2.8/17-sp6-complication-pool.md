@@ -160,7 +160,7 @@ Restated conditions (v2.5 bars unchanged; commit this section's final form befor
 - v2.8 22 living story director: lists complications among things that move on their own.
 - v2.7 06 C9 (b): the author Activity panel shows releases (moved from v2.8 04, user 2026-10-03).
 - v2.7 07 / v2.8 02 Adolion campaign: the authored pools and the lab data.
-- v2.8 16 SP5: the other v2.6 spike measured in v2.8. SP1 is deferred (v2.9 01); SP10 is v2.7 15.
+- v2.8 16 SP5: the other v2.6 spike measured in v2.8. SP1 is deferred (v3.0 01); SP10 is v2.7 15.
 
 ## Review 2026-10-03
 

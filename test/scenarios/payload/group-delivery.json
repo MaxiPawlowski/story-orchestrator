@@ -1,0 +1,143 @@
+{
+  "_note": "v2.9 plan 02 payload case group-delivery: Arin's drafted block carries her voice and delivery sheet and, once she repeats an authored habit in her own replies, a 'Lately you keep using' line; the resting payload and the narrator's never carry either. Run ONLY through `node scripts/debug/so-payload-golden.mts capture` (see group-opening.json for the probe and the tripwire).",
+  "requires": {
+    "authorView": true,
+    "briefingDraft": "off",
+    "innerBeat": "off",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "DM Narrator",
+      "Arin"
+    ],
+    "judge": "off",
+    "why": "a fixed cast state at the start of every capture and no judge request"
+  },
+  "steps": [
+    {
+      "eval": "if (!globalThis.__soPayloadGolden?.capture) throw new Error('this fixture runs only through node scripts/debug/so-payload-golden.mts capture (the capture probe is not installed)'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; globalThis.storyOrchestratorDebugLivingResponse = JSON.stringify({ ops: [] }); return { pinned: ['read', 'curator', 'living'] };"
+    },
+    {
+      "import_story": {
+        "id": "so-v29-02-payload",
+        "title": "SO-V29-02 Delivery payload",
+        "description": "v2.9 plan 02 payload case: Arin carries a voice and delivery sheet; the narrator has none.",
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a guide with a debt",
+            "polish": {
+              "notes": "Short sentences. Talks like a river pilot.",
+              "prefer": [
+                "mind the current"
+              ],
+              "avoid": [
+                "indeed"
+              ],
+              "tics": [
+                "smirks"
+              ],
+              "rhythm": "clipped"
+            }
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator",
+            "view": "omniscient"
+          }
+        ],
+        "qualities": [
+          {
+            "key": "crossed",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the party cross the old bridge?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "The road",
+            "type": "anchor",
+            "start": true,
+            "objective": "Reach the bridge."
+          }
+        ],
+        "transitions": [],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setExtractionSettings({ cadence: 0 }); const story = rt.getStory(); if (story?.id !== 'so-v29-02-payload') throw new Error('the story did not load: ' + story?.id); return { story: story.id };"
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "send": "Arin, will we make it over the bridge?"
+    },
+    {
+      "slash": "/sendas name=Arin raw=false Arin smirks and tests the first plank with her boot."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "return await globalThis.__soPayloadGolden.capture('sheet-rest');"
+    },
+    {
+      "eval": "return await globalThis.__soPayloadGolden.capture('sheet-arin', { member: 'Arin' });"
+    },
+    {
+      "eval": "return await globalThis.__soPayloadGolden.capture('sheet-dm', { member: 'DM Narrator' });"
+    },
+    {
+      "eval": "const ENTRY = (label) => globalThis.__soPayloadGolden.captures.find((entry) => entry.label === label); const has = (label, text) => { const entry = ENTRY(label); if (!entry) throw new Error('no capture ' + label); return entry.prompt.includes(text) || entry.blocks.some((b) => String(b.value).includes(text)); }; for (const label of [\"sheet-arin\"]) { for (const text of [\"How you speak (wording only; it never changes what you know, want or do): Short sentences. Talks like a river pilot.\", \"Words that are yours: mind the current.\"]) if (!has(label, text)) throw new Error(label + ': missing ' + text); for (const text of [\"Lately you keep using\"]) if (has(label, text)) throw new Error(label + ': carries ' + text); } return { sheetArin: 'ok' };"
+    },
+    {
+      "eval": "const ENTRY = (label) => globalThis.__soPayloadGolden.captures.find((entry) => entry.label === label); const has = (label, text) => { const entry = ENTRY(label); if (!entry) throw new Error('no capture ' + label); return entry.prompt.includes(text) || entry.blocks.some((b) => String(b.value).includes(text)); }; for (const label of [\"sheet-rest\", \"sheet-dm\"]) { for (const text of []) if (!has(label, text)) throw new Error(label + ': missing ' + text); for (const text of [\"How you speak\", \"Talks like a river pilot\", \"mind the current\", \"indeed\"]) if (has(label, text)) throw new Error(label + ': carries ' + text); } return { sheetOthers: 'ok' };"
+    },
+    {
+      "slash": "/sendas name=Arin raw=false Arin smirks at the dark water below."
+    },
+    {
+      "slash": "/sendas name=DM Narrator raw=false The bridge creaks under the wind."
+    },
+    {
+      "slash": "/sendas name=Arin raw=false Arin smirks and points at the far bank."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "return await globalThis.__soPayloadGolden.capture('repeat-arin', { member: 'Arin' });"
+    },
+    {
+      "eval": "return await globalThis.__soPayloadGolden.capture('repeat-dm', { member: 'DM Narrator' });"
+    },
+    {
+      "eval": "const ENTRY = (label) => globalThis.__soPayloadGolden.captures.find((entry) => entry.label === label); const has = (label, text) => { const entry = ENTRY(label); if (!entry) throw new Error('no capture ' + label); return entry.prompt.includes(text) || entry.blocks.some((b) => String(b.value).includes(text)); }; for (const label of [\"repeat-arin\"]) { for (const text of [\"Lately you keep using\"]) if (!has(label, text)) throw new Error(label + ': missing ' + text); for (const text of []) if (has(label, text)) throw new Error(label + ': carries ' + text); } return { repeatArin: 'ok' };"
+    },
+    {
+      "eval": "const ENTRY = (label) => globalThis.__soPayloadGolden.captures.find((entry) => entry.label === label); const has = (label, text) => { const entry = ENTRY(label); if (!entry) throw new Error('no capture ' + label); return entry.prompt.includes(text) || entry.blocks.some((b) => String(b.value).includes(text)); }; for (const label of [\"repeat-dm\"]) { for (const text of []) if (!has(label, text)) throw new Error(label + ': missing ' + text); for (const text of [\"Lately you keep using\", \"How you speak\"]) if (has(label, text)) throw new Error(label + ': carries ' + text); } return { repeatDm: 'ok' };"
+    }
+  ]
+}

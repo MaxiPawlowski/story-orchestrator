@@ -1,0 +1,209 @@
+{
+  "_note": "v2.9 08 (no-model lane): reaching the tower latches a plain observation ({reached}) and a passive one that always succeeds, while a passive one that always misses latches obs_<id>_missed and never reaches the page; the player projection (game.observations, the story card and Journal source) shows the two, fresh; two author roll chips; the story card shows the notice in player mode; assert-player-clean; a reopen keeps them; a swipe of the reply that reached the tower takes them back; a second reopen equals the replayed state. Run: node scripts/debug/so-scenario.mts run test/scenarios/v29-08-observations.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off",
+    "authorView": true
+  },
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); return { cleared: ctx.chat.length === 0 };"
+    },
+    {
+      "import_story": {
+        "id": "so-v29-08-observations",
+        "title": "SO-V29-08 Observations",
+        "description": "Plan v2.9 08 no-model fixture: a plain and a passive observation noticed on reaching the tower, one passive miss.",
+        "qualities": [
+          {
+            "key": "at_tower",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party reached the old tower?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "camp",
+            "name": "Camp",
+            "player_name": "The Camp",
+            "type": "anchor",
+            "start": true,
+            "objective": "Set out."
+          },
+          {
+            "id": "tower",
+            "name": "Tower",
+            "player_name": "The Old Tower",
+            "type": "anchor",
+            "objective": "Climb the tower."
+          }
+        ],
+        "transitions": [
+          {
+            "from": "camp",
+            "to": "tower",
+            "priority": 1,
+            "gate": {
+              "q": "at_tower",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "observations": [
+          {
+            "id": "bell",
+            "text": "The tower bell hangs without a clapper.",
+            "when": {
+              "reached": "tower"
+            }
+          },
+          {
+            "id": "soot",
+            "text": "Soot streaks the stones above the doorway.",
+            "when": {
+              "q": "at_tower",
+              "op": "==",
+              "v": true
+            },
+            "passive": {
+              "roll": {
+                "sides": 6,
+                "target": 1
+              }
+            }
+          },
+          {
+            "id": "thread",
+            "text": "A red thread is caught on the iron gate.",
+            "when": {
+              "q": "at_tower",
+              "op": "==",
+              "v": true
+            },
+            "passive": {
+              "roll": {
+                "sides": 6,
+                "target": 7
+              }
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "DM Narrator"
+          ]
+        }
+      }
+    },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const BELL = 'The tower bell hangs without a clapper.'; const SOOT = 'Soot streaks the stones above the doorway.'; const THREAD = 'A red thread is caught on the iron gate.'; const lines = () => rt.getSnapshot().game?.observations ?? []; const texts = () => lines().map((line) => line.text); const known = () => texts().includes(BELL) && texts().includes(SOOT); const saved = async () => { for (let i = 0; i < 100 && rt.getSnapshot().saveHealth?.pendingBoundary != null; i += 1) await pause(100); if (rt.getSnapshot().saveHealth?.pendingBoundary != null) throw new Error('the last boundary is not saved'); }; const reopen = async () => { const chatId = SillyTavern.getContext().chatId; await SillyTavern.getContext().reloadCurrentChat(); await until(() => rt.getSnapshot().storyId === 'so-v29-08-observations', 10000, 'the story to hydrate after the reopen'); if (SillyTavern.getContext().chatId !== chatId) throw new Error('the reopen moved the page'); rt.setUiSettings({ authorView: true }); await pause(1500); }; globalThis.__o08 = { pause, until, BELL, SOOT, THREAD, lines, texts, known, saved, reopen }; if (lines().length) throw new Error('a line shows before anything was noticed: ' + JSON.stringify(lines())); if (/clapper|Soot|red thread/.test(JSON.stringify(rt.getSnapshot().game ?? {}))) throw new Error('unnoticed text reached the player projection'); return { lines: lines() };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The road ends at an old tower with a silent bell."
+    },
+    {
+      "slash": "/cp set at_tower true"
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__o08; const rt = globalThis.storyOrchestratorRuntime; await c.until(() => rt.getSnapshot().activeCheckpointId === 'tower', 10000, 'the tower checkpoint'); await c.until(() => c.known(), 10000, 'the plain and passive lines to show'); if (JSON.stringify(rt.getSnapshot().game ?? {}).includes('red thread')) throw new Error('a missed passive line reached the player projection'); if (!c.lines().every((line) => line.fresh)) throw new Error('lines noticed this turn are not fresh: ' + JSON.stringify(c.lines())); const values = rt.getEngineState().blackboard.values; const obs = Object.fromEntries(Object.entries(values).filter(([k]) => k.startsWith('obs_'))); if (typeof obs.obs_bell !== 'number' || typeof obs.obs_soot !== 'number' || typeof obs.obs_thread_missed !== 'number' || obs.obs_thread !== undefined) throw new Error('latches: ' + JSON.stringify(obs)); const rolls = (rt.getSnapshot().rolls ?? []).filter((roll) => roll.source === 'observation'); if (rolls.length !== 2) throw new Error('author roll chips: ' + JSON.stringify(rolls)); c.reachedAt = rt.getEngineState().lastMessageId; if (c.reachedAt !== SillyTavern.getContext().chat.length - 1) throw new Error('the reaching boundary is not on the last message'); await c.saved(); return { lines: c.lines(), latches: obs, rolls: rolls.map((roll) => roll.outcome) };"
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__o08; const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: false }); await c.pause(800); const main = document.querySelector('#so-hud-main'); if (main) { main.click(); await c.pause(600); } const notice = document.querySelector('#so-hud-card-notice')?.textContent ?? null; if (main && document.querySelector('#so-hud-card')) { document.querySelector('#so-hud-card-close')?.click(); await c.pause(300); } if (notice !== null && (!notice.includes(c.BELL) || notice.includes('red thread'))) throw new Error('story card notice: ' + notice); return { authorView: false, notice };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); await globalThis.__o08.pause(800); return { authorView: true };"
+    },
+    {
+      "record_state": {
+        "as": "o08-noticed"
+      }
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__o08; await c.reopen(); if (!c.known()) throw new Error('the reopen lost the lines'); return { lines: c.lines() };"
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "o08-noticed",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const last = ctx.chat.length - 1; if (last !== globalThis.__o08.reachedAt) throw new Error('a message landed after the reaching reply'); const reply = ctx.chat[last]; if (reply.is_user) throw new Error('the reaching message is not a reply'); reply.swipes = [reply.mes, 'The road bends away from the tower and into the woods.']; reply.swipe_id = 0; reply.swipe_info = [{}, {}]; await ctx.saveChat(); return { swipeable: last };"
+    },
+    {
+      "swipe": {
+        "messageId": "last",
+        "swipeId": 1
+      }
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__o08; const rt = globalThis.storyOrchestratorRuntime; await c.until(() => c.lines().length === 0, 15000, 'the swipe to take the lines back'); const values = rt.getEngineState().blackboard.values; const left = Object.entries(values).filter(([k, v]) => k.startsWith('obs_') && v !== undefined && v !== null); if (left.length) throw new Error('an observation latch survived the swipe: ' + JSON.stringify(left)); if (rt.getSnapshot().activeCheckpointId !== 'camp') throw new Error('the swipe did not rewind the checkpoint: ' + rt.getSnapshot().activeCheckpointId); await c.saved(); return { lines: c.lines(), at: rt.getSnapshot().activeCheckpointId };"
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await globalThis.__o08.pause(800); return { authorView: false };"
+    },
+    {
+      "ui": {
+        "action": "assert-player-clean"
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); await globalThis.__o08.pause(800); return { authorView: true };"
+    },
+    {
+      "record_state": {
+        "as": "o08-replayed"
+      }
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__o08; await c.reopen(); if (c.lines().length) throw new Error('the reopen re-applied the lines'); return { lines: c.lines() };"
+    },
+    {
+      "expect": {
+        "stateEquals": {
+          "as": "o08-replayed",
+          "scope": [
+            "values",
+            "versions",
+            "active",
+            "path",
+            "boundary"
+          ]
+        }
+      }
+    }
+  ]
+}

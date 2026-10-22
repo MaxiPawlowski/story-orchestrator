@@ -7,6 +7,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 - [Illustrations and display](#presentation)
 - [Quests and milestones](#quests)
 - [Checks](#checks)
+- [Offers](#offers)
 - [Stats and story panels](#widgets)
 - [Clue walls and maps](#clues-and-maps)
 - [Story-made HTML panels](#html-panels)
@@ -15,6 +16,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 - [Warning bands](#display-warn)
 - [People and Places](#codex)
 - [Return visits](#codex-returns)
+- [Things the player notices](#observations)
 
 <a id="presentation"></a>
 
@@ -54,12 +56,26 @@ Fields: `quests[]` (`id`, `title`, `kind`, `visible_when`, `offered_when`, `done
 
 Topic `checks`.
 
-Fields: `checkpoints[].checks[]` and `transitions[].check` (`id`, `label`, `quality`, `roll` with `sides`, `target`, `dice`; `modifiers[]` with `q`, `v`, `add`, `label`; `narrate`, `outcome` with `quality`, `bands`, `partial_margin`; `twist`; `when`, checkpoint checks only) (`engine/storyChecks.ts`, `validate/checks.ts`, `validate/checkRefs.ts`, `runtime/storyCheckDraws.ts`).
+Fields: `checkpoints[].checks[]` and `transitions[].check` (`id`, `label`, `quality`, `roll` with `sides`, `target`, `dice`; `modifiers[]` with `q`, `v`, `add`, `label`, `hint`; `narrate`, `outcome` with `quality`, `bands`, `partial_margin`; `twist`; `when`, checkpoint checks only; `hint_when`) (`engine/storyChecks.ts`, `validate/checks.ts`, `validate/checkRefs.ts`, `runtime/storyCheckDraws.ts`, `runtime/suggestionAnchors.ts`).
 
 - **What it does.** A check rolls seeded dice once per visit to its checkpoint (the transition's `from`): the draw is keyed by the chat, the story, the boundary the checkpoint started at and `check:<id>:<die>`, so group replies, a swipe and a reopened chat see the same roll, and a re-entry rolls again. The total is the dice plus every `modifiers` row whose quality holds its value, read each turn: finding the rope can turn a miss into a success, asking again cannot. It writes `quality` (a code bool, true at or above `target`); `outcome` also writes a code enum of exactly `miss`, `weak` and `strong` (weak below `target + partial_margin`); `twist: {quality}` writes true when two or more dice match. A transition check is attempted when the rest of its gate holds; a checkpoint check when the checkpoint is reached, or, with `when` (an ordinary gate), at the first turn of the visit where `when` holds. Until then it is pending and writes nothing; it then rolls once for that visit, with the same seeded dice and the modifiers that hold at that turn, and keeps that outcome for the rest of the visit even if `when` turns false or a modifier changes. The story keeps the turn it rolled at in `check_<id>_rolled` (reserved), so a swipe or edit of the reply that rolled takes the roll back and the replay rolls the same dice, and a re-entry is pending again. `when` must name declared qualities (an unknown key is refused with the nearest one) and must not read what the check writes; its extracted keys are read while the checkpoint is active, so a quality used only there is still asked about; a transition check takes no `when`. Each attempt with a new outcome is recorded, and the next reply is told the outcome (never the dice). `narrate: "public"` also shows the roll under the message, "Climb: 15 + 4 vs 12, success"; `hidden` (the default) shows only what the story tells, and the roll only in Author view.
+- **What could help.** On a public check, a modifier may carry a `hint`: the player's words for the help, at most 60 characters ("a rope"). While the check waits for the attempt (a transition check whose gate's other conditions do not hold yet, or a checkpoint check with `when` that has not rolled this visit), What could I do? shows one line, "Climb — could help: a rope, a friend's hand", and may build a suggestion on it. It lists every hint of a modifier that adds, in the order written, whatever the dice and whether the modifier holds; a modifier whose quality is public adds "(you have it)" while it holds, a hidden one never shows its state. Never the dice, the target, the faces or whether it would succeed. `hint_when` (a gate, declared keys, not what the check writes) limits when the list shows. A hint on a hidden check is refused. A hint naming a place, quest or person the player may not have met warns (`check-hint-names-unknown`: "The help is held back while it names a place, quest or person the player has not met, so it may never show."), and at play every hint is checked against what the player knows and the secrets held from them before it shows.
 - **Good.** `"check": { "id": "climb", "label": "Climb", "quality": "climb_ok", "roll": { "sides": 20, "target": 12 }, "modifiers": [{ "q": "has_rope", "v": true, "add": 4, "label": "Rope" }], "narrate": "public" }` on `wall → rooftops`, gated on `tried_climb == true` and `climb_ok == true`. A checkpoint check that waits for the party to try: `"checks": [{ "id": "climb", "quality": "climb_ok", "roll": { "sides": 20, "target": 12 }, "when": { "q": "tried_climb", "op": "==", "v": true }, "narrate": "public" }]`.
 - **Bad.** A latching or extracted check quality (refused: the roll writes it every turn); two checks writing one quality (refused); a check on a generated beat (refused).
 - **If wrong.** A gate that waits only on the check quality fires the moment the checkpoint starts; pair it with a quality the player's attempt sets. A pending check keeps its qualities' last values (the start value on a first visit, the last roll on a re-entry), so a route reading them still needs the attempt too.
+
+<a id="offers"></a>
+
+## Offers
+
+Topic `offers`.
+
+Fields: `checkpoints[].offers[]` (`id`, `text`, `visible_when`, `needs` with `when`, `reason`) (`engine/offerSchema.ts`, `validate/offers.ts`, `runtime/suggestionAnchors.ts`, `studio/offerDiagnostics.ts`).
+
+- **What it does.** An offer is a line the player could say or do at one beat, written by you, like a clue's `action`: at most 8 a checkpoint, `text` at most 200 characters. While its checkpoint is active and `visible_when` holds (or has none), What could I do? may build one of its suggestions on it, and if the model leaves it out the offer is listed as you wrote it; picking it only fills the box where the player types. With `needs: {when, reason}`, an offer whose `when` does not hold yet is shown greyed with your `reason` ("You need a lantern first", at most 120 characters) and cannot be picked. Nothing is ever generated from the story's transitions, gates or checkpoint names, so greying never shows a hidden route. Each suggestion builds on at most three things the player already knows, picked in code: the current task, an open quest step, an open or older thread, a promise the player made, a clue's action, a check's help line, an offer or a story pattern about to complete.
+- **Good.** `"offers": [{ "id": "ask-toll", "text": "I ask the ferryman what the crossing costs." }, { "id": "go-below", "text": "I light the lantern and go below deck.", "needs": { "when": { "q": "has_lantern", "op": "==", "v": true }, "reason": "You need a lantern first." } }]`.
+- **Bad.** `needs` reading a check's result, its roll turn or a latch (refused: the grey row would tell the player a hidden outcome); an offer naming a checkpoint, quest or person the player has not reached or met (`offer-names-unknown`: "The offer is held back while it names a place, quest or person the player has not met, so it may never show."). At play every offer's text and reason is checked against the names the player knows and the secrets held from them before it shows.
+- **Story updates.** Offers are presentation: editing them is compatible and shows at the next open of the panel. Nothing about them is stored in the chat.
 
 <a id="widgets"></a>
 
@@ -165,6 +181,20 @@ Fields: `places[].returns[]` (`id`, `text`, `when`, `rev`) (`engine/codexSchema.
 - **Good.** `"returns": [{ "id": "door", "text": "The back door still hangs off one hinge.", "when": { "q": "dock_fight", "op": "==", "v": true } }]`.
 - **Bad.** A return on a person, on a place without `location`, or with `"start"` is refused; its text follows the fact rules (`disclosure-names-unknown-entity`, `codex-fact-never-read`).
 - **Story updates.** Rewording a return keeps it shown; changing its `when` or raising its `rev` makes the chat come back for it again.
+
+<a id="observations"></a>
+
+## Things the player notices
+
+Topic `observations`.
+
+Fields: `observations[]` (`id`, `text`, `when`, `source`, `rev`, `passive` with `roll` and `modifiers`), `display.observations` (`engine/observationSchema.ts`, `engine/observations.ts`, `validate/observations.ts`, `runtime/observationRecords.ts`, `runtime/observationView.ts`).
+
+- **What it does.** An observation is a small authored detail the player can notice: "The lock has fresh scratches." It shows once its `when` holds (a gate or `{"reached": "<checkpoint id>"}`; never `"start"`: a line known from the opening is a codex fact). The first turn it holds it latches as `obs_<id>` and stays; only a swipe, edit or delete of the reply that earned it takes it back. That turn the story card says "You notice: …" (at most 3 lines, then "and N more in the Journal"), and the Journal keeps it under **Noticed**, newest first, with "From <name>" once its `source` (a codex entry or roster id) is known, "At <place>" for a `reached` line, and a link back to the reply. With `passive` the player may not notice it at all: the first turn `when` holds the story rolls once, seeded by the chat, the story, that turn and the line (`roll {sides, target, dice}` plus `modifiers` that add when a quality has a value, as for checks), and nobody sees the roll. A success notices it; a miss is final (`obs_<id>_missed`), so repeating the move never fishes for it. An observation gated on another latch (a codex line, a label reveal, a quest close) lands one turn later on a turn without a transition, and the same turn when a transition fires. Page only: nothing about it is sent to any model, no character learns it, and the narrator is not told. The page shows a line only while it names no one the player has not met and restates no secret the story keeps from the player. While a line is unnoticed, the keys its gate reads are read for you in turn with the codex. `display.observations: false` hides the card line and the section. At most 60 a story; text up to 200 characters, plain (no macros); ids are lowercase letters, digits and `-`.
+- **Good.** `"observations": [{ "id": "scratches", "text": "Fresh scratches circle the lock of the dock shed.", "when": { "q": "searched_dock", "op": "==", "v": true } }, { "id": "pitch", "text": "A faint smell of pitch hangs in the air.", "when": { "reached": "boathouse" }, "passive": { "roll": { "sides": 20, "target": 12 } } }]`. Write what is there to see, hear or smell.
+- **Bad.** A line that tells the player what they feel, think, realise or suspect ("You sense he is lying": `observation-imposes-mind`), or what to do ("You should check the boat": `observation-instructs`); a line naming someone the player may not know yet (`disclosure-names-unknown-entity`); a gate on a checkpoint no path reaches or a value nothing writes (`observation-never-read`); a gate that holds before anything happens (`observation-gate-holds-at-start`). The wording checks are warnings: read the line again rather than fight the checker. A gate on the line's own `obs_` key, an unknown checkpoint or quality, an unknown `source`, two lines with one id, or an authored quality starting `obs_` is refused.
+- **Story updates.** Rewording `text` (same `when`, `passive` and `rev`) is a correction: a chat that noticed it sees the new words. Changing `when` or `passive`, or raising `rev`, makes it a new discovery: the chat loses the old one (and a miss) and notices the new one when its moment comes. Removing it drops it from the chat.
+- **If wrong.** A line gated on something read in a reply shows at the next reply, like every reading. Author view shows each passive roll as a chip under the reply.
 
 ---
 

@@ -18,7 +18,7 @@ export interface ChanceRuntimeState {
   draws: ChanceDrawRecord[];
 }
 
-export type RollSource = "quality" | ChanceDrawKind | "check";
+export type RollSource = "quality" | ChanceDrawKind | "check" | "observation";
 
 export interface RollRecord {
   source: RollSource;
@@ -98,7 +98,7 @@ export const composeRolls = (quality: RollRecord[], chance: ChanceRuntimeState, 
   [...quality, ...drawRecords(chance), ...checks].sort((left, right) => left.messageId - right.messageId || left.boundary - right.boundary);
 
 export const rollText = (roll: RollRecord): string => {
-  if (roll.source === "check") {
+  if (roll.source === "check" || roll.source === "observation") {
     const bonus = roll.modifiers ? ` ${roll.modifiers > 0 ? "+" : "-"} ${Math.abs(roll.modifiers)}` : "";
     return `${roll.key}: ${roll.draw}${bonus} vs ${roll.target}, ${roll.degree ?? roll.outcome}`;
   }

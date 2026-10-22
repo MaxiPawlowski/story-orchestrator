@@ -76,7 +76,24 @@ export interface GlobalSettings {
   sprites: SpriteSettings;
   spikes: SpikeSettings;
   help: HelpSettings;
+  characters: CharacterSettings;
 }
+
+export interface CharacterSettings {
+  delivery: boolean;
+  deliveryRepetition: boolean;
+  cues: boolean;
+  echoes: boolean;
+}
+
+export const defaultCharacterSettings = (): CharacterSettings => ({ delivery: true, deliveryRepetition: true, cues: true, echoes: true });
+
+const sanitizeCharacterSettings = (value: unknown): CharacterSettings => ({
+  delivery: !(isRecord(value) && value.delivery === false),
+  deliveryRepetition: !(isRecord(value) && value.deliveryRepetition === false),
+  cues: !(isRecord(value) && value.cues === false),
+  echoes: !(isRecord(value) && value.echoes === false),
+});
 
 export interface HelpSettings {
   checklistDismissed: boolean;
@@ -205,6 +222,7 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   promises: true,
   witness: true,
   rumors: true,
+  patterns: true,
 });
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
@@ -228,6 +246,7 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   sprites: defaultSpriteSettings(),
   spikes: defaultSpikeSettings(),
   help: defaultHelpSettings(),
+  characters: defaultCharacterSettings(),
 });
 
 const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRuntimeSettings): MemoryRuntimeSettings => {
@@ -237,6 +256,7 @@ const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRunti
   if (typeof memory.promises !== "boolean") memory.promises = defaults.promises;
   if (typeof memory.witness !== "boolean") memory.witness = defaults.witness;
   if (typeof memory.rumors !== "boolean") memory.rumors = defaults.rumors;
+  if (typeof memory.patterns !== "boolean") memory.patterns = defaults.patterns;
   return memory;
 };
 
@@ -332,6 +352,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     sprites: sanitizeSpriteSettings(value.sprites),
     spikes: sanitizeSpikeSettings(value.spikes),
     help: sanitizeHelpSettings(value.help),
+    characters: sanitizeCharacterSettings(value.characters),
   };
 };
 

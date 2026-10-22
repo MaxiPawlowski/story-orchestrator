@@ -34,6 +34,11 @@ export interface MemoryInjectorDeps {
   meanwhile?: (rosterId: string) => string[];
 }
 
+export interface PrivateStaging {
+  active: () => boolean;
+  perDraft: (rosterId: string) => boolean;
+}
+
 export interface StagedPrivateBlock {
   key: string;
   depth: number;
@@ -59,6 +64,7 @@ export class MemoryInjector {
   private lastInjection: MemoryInjectionView | null = null;
   private readonly highWater: Partial<Record<MemoryTier, number>> = {};
   private privateSources: Array<(rosterId: string) => string[]> = [];
+  private stagingSources: PrivateStaging[] = [];
   private disclosureSources: Array<() => ReadonlyArray<{ entryId: string; member: string }>> = [];
 
   constructor(private readonly deps: MemoryInjectorDeps) {}
@@ -133,8 +139,9 @@ export class MemoryInjector {
     this.disclosureSources = [...this.disclosureSources, source];
   }
 
-  addPrivateSource(source: (rosterId: string) => string[]): void {
+  addPrivateSource(source: (rosterId: string) => string[], staging?: PrivateStaging): void {
     this.privateSources = [...this.privateSources, source];
+    if (staging) this.stagingSources = [...this.stagingSources, staging];
   }
 
   private sourcedLines(story: NormalizedStory, id: string): string {
@@ -189,7 +196,8 @@ export class MemoryInjector {
     const capable = this.deps.capable();
     const voiced = hasInnerVoice(this.voices(story));
     if (voiced && !innerRender()) void loadInnerRender().then(() => this.update());
-    if (capable || voiced || story.life || story.factions?.length || story.carry_from || hasNarratedSheet(story)) {
+    if (capable || voiced || story.life || story.factions?.length || story.carry_from || hasNarratedSheet(story) || story.patterns?.length
+      || this.stagingSources.some((source) => source.active())) {
       const knowledge = this.knowledge();
       for (const id of this.stagedIds(story)) {
         const names = namesForRosterId(story, id);
@@ -286,9 +294,15 @@ export class MemoryInjector {
     const drafted = this.deps.beatFor(rosterId);
     const beat = drafted && keptFrom(drafted, this.secrets(story), namesForRosterId(story, rosterId)) ? "" : drafted;
     const narrates = story.roster.some((member) => member.id === rosterId && member.view === "omniscient");
-    const epistemic = beat || narrates ? this.memberBlock(story, rosterId, this.knowledge(), beat) : staged.epistemic;
+    const delivers = this.stagingSources.some((source) => source.perDraft(rosterId));
+    const epistemic = beat || narrates || delivers ? this.memberBlock(story, rosterId, this.knowledge(), beat) : staged.epistemic;
     this.draft = epistemic !== staged.epistemic ? { storyId: storyKey(story), rosterId, epistemic } : { storyId: storyKey(story), rosterId };
     this.setPrivateBlocks(staged.shared, epistemic);
+  }
+
+  refuses(text: string, rosterId: string | null): boolean {
+    const story = this.deps.getStory();
+    return Boolean(story && keptFrom(text, this.secrets(story), rosterId ? namesForRosterId(story, rosterId) : null));
   }
 
   heldSecretsKey(): string {

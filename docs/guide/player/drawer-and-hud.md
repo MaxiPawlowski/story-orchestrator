@@ -96,7 +96,7 @@ The extensions wand beside where you type also offers **Story recap**, **Story b
 ### This story → Features
 
 One card per feature (speaker direction, story reading, inner voice, illustrations and so on), each with its state:
-**Enabled**, **Off in this chat**, **Turned off by story**, **Off on this install**, or for the character stage
+**Enabled**, **Off in this chat**, **Turned off by this story**, **Off on this install**, or for the character stage
 **Automatic: on when the story directs the stage**. Open a card to change it for this chat only; **Reset to
 story/default** drops your change. The same cards under **Orchestrator → Defaults** set the default for every chat.
 How the scopes combine: [Settings reference](../setup/settings-reference.md#where-settings-live).

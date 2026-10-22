@@ -1,6 +1,6 @@
 # 05 — Deferred items (no plan of their own)
 
-**Status: DEFERRED to v2.9 (user, 2026-10-03).** Parts of plans that moved to v2.7 or v2.8 at the version split, whose
+**Status: DEFERRED to v3.0 (user, 2026-10-03).** Parts of plans that moved to v2.7 or v2.8 at the version split, whose
 deferred remainder lives here so the parent plan can close. Each entry: context, decision so far, reopen trigger,
 source. Old → new numbers: `docs/plans/v2.7/RENUMBER.md`. Overview: `00-overview.md` (this folder).
 
@@ -81,22 +81,22 @@ source. Old → new numbers: `docs/plans/v2.7/RENUMBER.md`. Overview: `00-overvi
   = 0), on a fixture that meets §6.2's minimums (≥ 20 witnessed positives, ≥ 20 unwitnessed exclusions with nonce
   markers, ≥ 3 asking members, ≥ 2 scenes holding a `[hiding]`/`[unaware]` row, ≥ 2 sessions; a fixture below them is
   refused, not scored) (review F29; Sol r3 R3-14: the old VR6 is retired and no longer exists); and a witness record
-  that reverses with the message exists, which is v2.9 02 option B. If the presence proxy passes on its
+  that reverses with the message exists, which is v3.0 02 option B. If the presence proxy passes on its
   own, runtime recall may start from it instead of waiting on 02 B; if not (v2.6 measured 4/40), it waits on 02 B.
-- **Dependency.** v2.9 02 (witness source); v2.8 01 Q-M5 with the P3 arm (the archive recall it is compared against).
+- **Dependency.** v3.0 02 (witness source); v2.8 01 Q-M5 with the P3 arm (the archive recall it is compared against).
 - **Source.** `docs/plans/v2.8/21-smart-context-harvest.md` §6.2 (VR1–VR5; VR1 + VR2 joint), §Review of the answers;
   v2.8 overview row 21.
 
-## 05.5 Items marked "not in v2.7" inside v2.8 plans (placed in v2.9: user, 2026-10-03)
+## 05.5 Items marked "not in v2.7" inside v2.8 plans (placed in v3.0: user, 2026-10-03)
 
 These were written as "not in v2.7" before the split moved their parent plans to v2.8. **Decided 2026-10-03 (user: as
-recommended): all three are v2.9**, deferred with the reopen triggers below; the parent v2.8 plans point here.
+recommended): all three are v3.0**, deferred with the reopen triggers below; the parent v2.8 plans point here.
 
 | Item | Parent | Decision so far | Reopen trigger | Source |
 |---|---|---|---|---|
-| Judge "does this persona fit the story" check | v2.8 03 player persona | deferred to v2.9 (2026-10-03); v2.8 03 ships the deterministic fit check (C) only | a calibrated judge use (20-case fixture + provider row) and a session where the deterministic check missed a misfit | `v2.8/03-player-persona-and-start-setup.md` options row C (`:111`), "No judge fit check" (`:167`), decision 5 (`:255`) |
-| Per-chat avatars (`force_avatar`) | v2.7 20 living cards | deferred to v2.9 (2026-10-03); revisit with on-demand images | v2.7 20's on-demand look sprites exist (after v2.7 18), so an image per look is available; group-save overwrite (`script.js:6767-6773`) and swipe rebuild measured first | `v2.7/20-living-cards.md` §Avatars (`:180-191`), recommendation "avatars deferred" (`:272`), decision 11 (`:315`) |
-| Same-Jev other hosts (A5) | v2.8 14 open-source Jev | deferred to v2.9 (2026-10-03); not measured unless TypeSafe pricing or availability changes | TypeSafe changes price, limits or availability | `v2.8/14-open-source-jev.md` research note 7 (`:260`), options row A5 (`:297`), decision 7 (`:344-348`) |
+| Judge "does this persona fit the story" check | v2.8 03 player persona | deferred to v3.0 (2026-10-03); v2.8 03 ships the deterministic fit check (C) only | a calibrated judge use (20-case fixture + provider row) and a session where the deterministic check missed a misfit | `v2.8/03-player-persona-and-start-setup.md` options row C (`:111`), "No judge fit check" (`:167`), decision 5 (`:255`) |
+| Per-chat avatars (`force_avatar`) | v2.7 20 living cards | deferred to v3.0 (2026-10-03); revisit with on-demand images | v2.7 20's on-demand look sprites exist (after v2.7 18), so an image per look is available; group-save overwrite (`script.js:6767-6773`) and swipe rebuild measured first | `v2.7/20-living-cards.md` §Avatars (`:180-191`), recommendation "avatars deferred" (`:272`), decision 11 (`:315`) |
+| Same-Jev other hosts (A5) | v2.8 14 open-source Jev | deferred to v3.0 (2026-10-03); not measured unless TypeSafe pricing or availability changes | TypeSafe changes price, limits or availability | `v2.8/14-open-source-jev.md` research note 7 (`:260`), options row A5 (`:297`), decision 7 (`:344-348`) |
 
 ## 05.6 Optional "Critic" role (v2.7 14 research decision 2; placed here by the user 2026-10-03)
 
@@ -131,4 +131,4 @@ Created at the split. Applied from `docs/plans/v2.7/review-2026-10-03.md` (old n
 **F29** (05.4 reopen trigger), **B12**/**F36** (version-qualified refs). Group-only per v2.7 03.
 
 Round 3 (Sol): R3-14, R3-15 (05.6 Critic; decided by the user 2026-10-03), R3-19, R3-21 applied. 2026-10-03 (user: as
-recommended): 05.5 placed in v2.9, 05.6 confirmed.
+recommended): 05.5 placed in v3.0, 05.6 confirmed.

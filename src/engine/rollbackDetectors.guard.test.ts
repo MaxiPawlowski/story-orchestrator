@@ -17,9 +17,13 @@ const everyCompiler = (): Record<string, unknown> => {
     roster: [
       { id: "tom", name: "Tom", mood: { baseline: "calm", values: ["calm", "angry"] }, relationships: [{ toward: "player", axes: ["trust"], public: [{ label: "wary" }, { label: "open", when: { q: "rel_tom_player_trust", op: ">=", v: 2 }, follows_feeling: true, hold: 2 }],
           secret: [{ id: "loyal", label: "secretly loyal", revealed_when: is("saw_mill") }] }],
-        agenda: [{ id: "plan", goal: "Leave", pace: "per_n_boundaries", every: 2, steps: [{ text: "packs" }, { text: "waits", repeat: true }] }] },
+        agenda: [{ id: "plan", goal: "Leave", pace: "per_n_boundaries", every: 2, steps: [{ text: "packs" }, { text: "waits", repeat: true }] }],
+        cues: [{ id: "mill", kind: "reaction", when: is("saw_mill"), cue: "the mill is burning" },
+          { id: "warn", kind: "remark", lane: "must", when: is("searched_dock"), cue: "the dock is watched", landed_when: is("saw_mill") }],
+        topics: [{ id: "mill", keys: ["mill"], tiers: [{ cue: "it was old" }] }] },
       { id: "ada", name: "Ada" },
     ],
+    norms: [{ id: "oath", label: "no lies at the shrine", broken_when: is("searched_dock"), noticed_by: ["ada"], cue: "someone searched the dock" }],
     living: { premise: "A river town.", authored_until: "end" },
     qualities: [...(raw.qualities as Quality[]), { key: "ford_ok", type: "bool", source: "code", rubric: "Did the ford hold?" }],
     checkpoints: (raw.checkpoints as Array<Record<string, unknown>>).map((checkpoint) => (checkpoint.id === "river" ? {
@@ -42,6 +46,7 @@ describe("SC1: every compiled code key has a rollback check", () => {
     expect(compiled.some((key) => key.startsWith("life_reveal_"))).toBe(true);
     expect(compiled.some((key) => key.startsWith("life_label_"))).toBe(true);
     expect(compiled).toContain("check_ford_rolled");
+    expect(compiled).toEqual(expect.arrayContaining(["cue_tom_mill_at", "cue_tom_warn_landed", "topic_tom_mill", "cue_norm_oath_at", "cue_norm_oath_ada_at"]));
     expect(uncoveredCodeKeys(story, authoredKeys(raw))).toEqual([]);
   });
 
@@ -73,6 +78,19 @@ describe("SC1: every compiled code key has a rollback check", () => {
     const restored = engine.rollbackTo(engine.boundaryBeforeMessage(2) ?? 0);
     expect(restored).toEqual({ ok: true, result: "applied" });
     expect(engine.serialize().blackboard.values[codexFactKey("places", "boathouse", "door")]).toBeUndefined();
+  });
+
+  test("code-only boundary: a boundary whose only change is a cue latch rolls back", () => {
+    const story = parseStoryOrThrow(everyCompiler());
+    const engine = new StoryEngine({ now: () => 0 });
+    engine.loadStory(story);
+    engine.enqueue({ source: "extractor", blackboardVersionSum: 0, deltas: [{ q: "saw_mill", v: true, source: "extractor" }] });
+    engine.commitBoundary({ lastMessageId: 2, chatLength: 3 });
+    const entry = engine.stateLog.at(-1)!;
+    expect(entry.after.blackboard.values.cue_tom_mill_at).toBe(1);
+    expect(rollbackMoved(story, entry.before.blackboard.values, entry.after.blackboard.values)).toBe(true);
+    expect(ROLLBACK_DETECTORS.find((detector) => detector.id === "cues")?.moved(story, { cue_tom_mill_at: 1 }, {})).toBe(true);
+    expect(ROLLBACK_DETECTORS.find((detector) => detector.id === "cue-topics")?.moved(story, { topic_tom_mill: 1 }, { topic_tom_mill: 0 })).toBe(true);
   });
 
   test("code-only boundary: an agenda wait or mood age that moved without a step rolls back, so a swipe replays clean", () => {
