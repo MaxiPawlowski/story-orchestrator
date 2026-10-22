@@ -459,7 +459,7 @@ const POLICY_TARGETS: Record<string, [import("@engine/featurePolicy").StoryFeatu
   "memory-lore": ["memoryLore", "enabled"], "late-lore": ["lateLore", "enabled"], curator: ["curator", "enabled"],
   "curator-create": ["curator", "create"], "curator-markers": ["curator", "acceptMode"], sprites: ["sprites", "enabled"],
   "meanwhile-proposals": ["meanwhile", "acceptMode"], "living-story": ["living", "enabled"], "story-branching": ["branching", "enabled"],
-  "witness-record": ["witness", "enabled"], rumors: ["rumors", "enabled"],
+  "witness-record": ["witness", "enabled"], rumors: ["rumors", "enabled"], "story-patterns": ["patterns", "enabled"],
 };
 
 export const SOURCE_FEATURES: readonly Feature[] = [

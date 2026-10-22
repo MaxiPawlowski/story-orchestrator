@@ -65,4 +65,7 @@ export const DIAGNOSTIC_CODES = [
   "relationship-secret-in-public",
   "commitment-broken-on-inaction",
   "commitment-what-names-a-side",
+  "pattern-label-names-unknown-entity",
+  "pattern-label-claims-cause",
+  "pattern-never-completes",
 ] as const;

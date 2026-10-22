@@ -186,6 +186,7 @@ export interface MemoryRuntimeSettings {
   promises?: boolean;
   witness?: boolean;
   rumors?: boolean;
+  patterns?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
 

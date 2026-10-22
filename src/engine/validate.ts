@@ -97,11 +97,11 @@ const orderOutgoing = (checkpoints: Checkpoint[], normalizedTransitions: Normali
 const readList = <T,>(value: unknown, prefix: string, read: (entry: unknown, path: string, errors: ValidationError[]) => T | null, errors: ValidationError[]) =>
   (value as unknown[]).map((entry, index) => read(entry, `${prefix}.${index}`, errors)).filter((entry): entry is T => entry !== null);
 
-type GameFields = Pick<NormalizedStory, "quests" | "milestones" | "widgets" | "codex" | "life">;
+type GameFields = Pick<NormalizedStory, "quests" | "milestones" | "widgets" | "codex" | "life" | "patterns">;
 
-const gameFields = ({ quests, milestones, widgets, codex, life }: GameFields): Partial<NormalizedStory> => ({
+const gameFields = ({ quests, milestones, widgets, codex, life, patterns }: GameFields): Partial<NormalizedStory> => ({
   ...(quests ? { quests } : {}), ...(milestones ? { milestones } : {}), ...(widgets ? { widgets } : {}), ...(codex ? { codex } : {}),
-  ...(life?.clock ? { clock: life.clock } : {}), ...(life ? { life } : {}),
+  ...(life?.clock ? { clock: life.clock } : {}), ...(life ? { life } : {}), ...(patterns ? { patterns } : {}),
 });
 
 export const parseStory = (json: unknown): NormalizedStory | ValidationError[] => {
@@ -120,6 +120,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   const quests = layer?.readQuests(json.quests, errors);
   const milestones = layer?.readMilestones(json.milestones, errors);
   const codex = layer?.codex.readCodex(json.codex, errors);
+  const patterns = layer?.patterns.readPatterns(json.patterns, errors);
   const builtin = addBuiltinTensionQuality(addProgressQualities(baseQualities, checkpoints, errors), errors);
   const life = layer?.life.readLife(json, errors);
   const factions = layer?.factions.readFactions(json.factions, errors);
@@ -164,6 +165,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   layer?.codex.checkCodex(codex, { checkpointById, qualityByKey, roster }, errors);
   const carried = layer?.carry.readCarry(json, { storyId, qualityByKey, qualities, roster, transitions, checkpoints, quests: game, milestones, factions }, errors);
   checkLiving(living, checkpointById, roster, qualityByKey, errors);
+  layer?.patterns.checkPatterns(patterns, { checkpointById, checkpoints, transitions, quests: game, milestones, chapters, roster, qualityByKey }, errors);
   const chapterIndex = indexChapters(chapters, checkpoints, errors);
   if (errors.length) return errors;
 
@@ -194,7 +196,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
     ...(chapters ? { chapters } : {}),
     ...(memoryOptions ? { memory: memoryOptions } : {}),
     ...(options.kind ? { kind: options.kind } : {}),
-    ...gameFields({ quests: game, milestones, widgets, codex, life }),
+    ...gameFields({ quests: game, milestones, widgets, codex, life, patterns }),
     ...(living ? { living } : {}),
     ...(factions ? { factions } : {}),
     ...(rumorNet ? { rumorNet } : {}),

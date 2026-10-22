@@ -14,7 +14,7 @@ export interface LabelRun {
   push: (code: LabelCode | "disclosure-names-unknown-entity", severity: "warning", path: string, message: string) => void;
 }
 
-const unknownNames = (draft: Story): string[] => codexItems({ codex: draft.codex }).filter(({ entry }) =>
+export const unknownNames = (draft: Story): string[] => codexItems({ codex: draft.codex }).filter(({ entry }) =>
   entryCondition(entry) !== CODEX_START && !entry.facts.some((fact) => fact.known_when === CODEX_START))
   .flatMap(({ entry }) => entityNames({ codex: draft.codex, roster: draft.roster }, entry));
 

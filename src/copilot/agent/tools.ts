@@ -211,6 +211,16 @@ setPoseCard: { backedBy: "setPoseCard", doc: "Set living card fields and charact
       gossip: opt("object", `{<member id>: {talks_to: [member id], contact?: together|any|${GATE}, when?: ${GATE}, delay?: {boundaries|days: [min, max]}, hops?: 1-3} | null}`),
     },
   },
+  setPatterns: {
+    backedBy: "setPatterns",
+    composes: ["addPattern", "updatePattern", "removePattern"],
+    doc: "Replace the story's patterns (the full list): an order of visible events (reached checkpoints, quest moves, milestones, public checks) matched in code, "
+      + "whose completion shows your label in What changed and your hint to the narrator. Order, never cause. Read the patterns guide first.",
+    args: {
+      patterns: req("array", "[{id (slug), steps: 1-3 [{kind: transition|quest|milestone|check, id?, to?, where?: {to|from|chapter|id|giver|outcome|quality: value | \"?var\"}}], "
+        + "unless?: [{kind, id?, to?, where?, between: [i, j]}], within? (turns), repeat?: once|each, label?: {text}, hint?, pending?}]"),
+    },
+  },
   setCodexEntry: {
     backedBy: "updateCodexEntry",
     doc: "Create or replace one People or Places page entry. Facts show to the player only once known_when holds; "
@@ -317,6 +327,7 @@ export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof Mutations, string>> 
   newWidget: "constructor; setWidgets takes the full list",
   newFaction: "constructor; setFactions takes the full list",
   newRumor: "constructor; setRumors takes the full list",
+  newPattern: "constructor; setPatterns takes the full list",
   CHARACTER_LIFE_FIELDS: "a constant, not a mutation: the fields setCharacterLife replaces",
   setCodex: "the Studio replaces the whole codex; the agent edits one entry at a time with setCodexEntry and removeCodexEntry",
   setCodexShown: "whether the story shows People and Places is a presence choice the author makes in the Studio",

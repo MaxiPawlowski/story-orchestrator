@@ -210,6 +210,7 @@ Every feature is on by default; the character stage is on in its automatic form.
 | **Promises remembered** | Remembers promises you make to a character, in your words. | A few extra lines in each story read. | You do not want promises tracked. |
 | **Who heard what** | Notes which characters heard each message. | A few extra lines in each story read. | You want the shortest possible reads. |
 | **Rumors and gossip** | Passes a story's rumors between characters as hearsay. | No model call. | News should reach characters only on stage. |
+| **Story patterns** | Notices an order of events the player saw and shows the story's callback line. | No model call. | What changed should list only single changes. |
 | **Off-stage events** | Proposes events toward the plans a story gives its characters. | One memory model call when the story moves on or a scene ends. | Characters should act only on stage. |
 | **Current character state** | Adds public character changes to replies without editing cards. | No model call. | Cards should be read exactly as written. |
 | **Lorebook curator** | Proposes changes to the lorebooks a story permits. New entries always wait for review. | Background curator calls. | A lorebook should never change during play. |

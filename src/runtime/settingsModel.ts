@@ -205,6 +205,7 @@ export const defaultMemorySettings = (): MemoryRuntimeSettings => ({
   promises: true,
   witness: true,
   rumors: true,
+  patterns: true,
 });
 
 export const defaultStagecraftSettings = (): StagecraftSettings => ({
@@ -237,6 +238,7 @@ const sanitizeInnerVoice = (memory: MemoryRuntimeSettings, defaults: MemoryRunti
   if (typeof memory.promises !== "boolean") memory.promises = defaults.promises;
   if (typeof memory.witness !== "boolean") memory.witness = defaults.witness;
   if (typeof memory.rumors !== "boolean") memory.rumors = defaults.rumors;
+  if (typeof memory.patterns !== "boolean") memory.patterns = defaults.patterns;
   return memory;
 };
 

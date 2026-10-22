@@ -24,6 +24,7 @@ const summarizeStory = (draft: Story): string => json({
   roster: draft.roster,
   ...(draft.codex ? { codex: Object.fromEntries(CODEX_PAGES.filter((page) => draft.codex?.[page]?.length).map((page) => [page, draft.codex?.[page]?.map((entry) => entry.id)])) } : {}),
   ...(draft.quests?.length ? { quests: draft.quests.map((quest) => quest.id) } : {}),
+  ...(draft.patterns?.length ? { patterns: draft.patterns } : {}),
   blocks: Object.fromEntries(BLOCKS.filter((key) => draft[key] !== undefined).map((key) => [key, draft[key]])),
 });
 

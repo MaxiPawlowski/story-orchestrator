@@ -11,12 +11,15 @@ export const hasNarratedSheet = (story: NormalizedStory | null | undefined): boo
 
 export const REQUESTED_BOUNDARIES_CAP = 32;
 
+export const PATTERN_HINT_HEADER = "A pattern the player has completed; let it colour the scene, never restate it as cause:";
+
 export interface NarratorSheetDeps {
   story: () => NormalizedStory | null;
   state: () => EngineState | null;
   log: () => readonly BoundaryLogEntry[];
   chatId: () => string | null;
   refresh: () => void;
+  hints?: () => string[];
 }
 
 export const deliveryFloor = (requested: readonly number[], boundary: number): number => {
@@ -45,14 +48,17 @@ export function createNarratorSheetPort(deps: NarratorSheetDeps) {
     lines(rosterId: string): string[] {
       const story = deps.story();
       const state = deps.state();
-      if (!story || !state || !hasNarratedSheet(story) || !story.roster.some((member) => member.id === rosterId && member.view === "omniscient")) return [];
+      if (!story || !state || !story.roster.some((member) => member.id === rosterId && member.view === "omniscient")) return [];
+      const hints = deps.hints?.() ?? [];
+      const hinted = hints.length ? [PATTERN_HINT_HEADER, ...hints.map((hint) => `- ${hint}`)] : [];
+      if (!hasNarratedSheet(story)) return hinted;
       if (!kit) {
         void loadNarratorSheet().then(() => deps.refresh());
-        return [];
+        return hinted;
       }
       sync(state.boundary);
       const floor = deliveryFloor(requested, state.boundary);
-      return kit.narratorLines(story, state, deps.log().filter((entry) => entry.boundary > floor && entry.boundary <= state.boundary));
+      return [...kit.narratorLines(story, state, deps.log().filter((entry) => entry.boundary > floor && entry.boundary <= state.boundary)), ...hinted];
     },
   };
 }

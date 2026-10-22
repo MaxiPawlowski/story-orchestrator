@@ -445,5 +445,6 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "widget-item-never-read": "clues-and-maps", "map-pin-unreachable": "clues-and-maps", "map-image-missing": "clues-and-maps",
   "html-widget-declared": "html-panels",
   "codex-fact-never-read": "codex", "codex-gate-holds-at-start": "codex", "disclosure-names-unknown-entity": "codex",
+  "pattern-label-names-unknown-entity": "patterns", "pattern-label-claims-cause": "patterns", "pattern-never-completes": "patterns",
 };
 

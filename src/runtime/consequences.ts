@@ -34,6 +34,7 @@ export interface RecapView {
   state: EngineState | null;
   recap: RecapRuntimeState | undefined;
   chat: readonly unknown[];
+  callbacks?: readonly RecapLine[];
 }
 
 type Values = Readonly<Record<string, PrimitiveValue>>;
@@ -257,13 +258,15 @@ export function lineFor(story: NormalizedStory, ref: EffectRef, chat: readonly u
 
 const TIER_RANK: Record<RecapTier, number> = { authored: 0, evidenced: 1, neutral: 2 };
 
-export function composeLines(story: NormalizedStory, state: EngineState, refs: readonly EffectRef[], chat: readonly unknown[], limit = RECAP_LINES): RecapLine[] {
+export function composeLines(story: NormalizedStory, state: EngineState, refs: readonly EffectRef[], chat: readonly unknown[], limit = RECAP_LINES,
+  callbacks: readonly RecapLine[] = []): RecapLine[] {
   const withheld = recapWithheld(story, state);
   const revisions: Revisions = new Map();
-  const ranked = refs.flatMap((ref, order) => {
+  const ranked = [...refs.flatMap((ref, order) => {
     const line = lineFor(story, ref, chat, withheld, revisions);
     return line ? [{ line, order }] : [];
-  }).sort((left, right) => TIER_RANK[left.line.tier] - TIER_RANK[right.line.tier] || right.line.boundary - left.line.boundary || right.order - left.order);
+  }), ...callbacks.map((line, at) => ({ line, order: refs.length + at }))]
+    .sort((left, right) => TIER_RANK[left.line.tier] - TIER_RANK[right.line.tier] || right.line.boundary - left.line.boundary || right.order - left.order);
   const seen = new Set<string>();
   return ranked.map(({ line }) => line).filter((line) => {
     if (seen.has(line.text)) return false;
@@ -293,7 +296,9 @@ export function currentSection(view: RecapView): RecapSection | null {
   const { story, state } = view;
   if (!story || !state || !view.recap?.refs.length) return null;
   const scoped = currentRefs(story, state, view.recap.refs);
-  return sectionOf(composeLines(story, state, scoped.refs, view.chat), scoped.recent);
+  const from = scoped.refs[0]?.boundary ?? Infinity;
+  const callbacks = (view.callbacks ?? []).filter((line) => line.boundary >= from);
+  return sectionOf(composeLines(story, state, scoped.refs, view.chat, RECAP_LINES, callbacks), scoped.recent);
 }
 
 export function cardSections(view: RecapView): Record<number, RecapSection> {

@@ -93,3 +93,11 @@ export const rumorStory = (): StoryDraft => {
     rumors: [{ id: "flood", from: first.id, claim: "the lower road flooded", versions: [{ text: "the lower road flooded", truth: "true", weight: 2 }] }],
   };
 };
+
+export const patternStory = (): StoryDraft => ({
+  ...gameStory(),
+  patterns: [{
+    id: "two-favours", steps: [{ kind: "quest", to: "done", where: { giver: "?who" } }, { kind: "quest", to: "done", where: { giver: "?who" } }],
+    label: { text: "Two favours done for the same patron." }, pending: "One more favour would make two.",
+  }],
+});

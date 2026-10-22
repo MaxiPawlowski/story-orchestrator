@@ -41,6 +41,7 @@ import { createRumorPort, rumorRevision } from "./rumorPort";
 import { beginRun } from "./runToken";
 import { fnv1a } from "./hash";
 import { createRecapPort } from "./recapPort";
+import { createPatternsPort, patternHints, patternResting, reconcilePatternsOnUpdate } from "./patternsPort";
 import { createCarryActions } from "./carryPort";
 import { gameLayer } from "@engine/validate/gameLayer";
 
@@ -80,6 +81,25 @@ function wirePromises(port: ManagerPort, memory: MemoryCoordinator) {
   });
   memory.injector.addPrivateSource((rosterId) => promises.reminder(rosterId));
   return promises;
+}
+
+function wirePatterns(port: ManagerPort, memory: MemoryCoordinator) {
+  const { view, engine, lifecycle } = port;
+  const on = () => port.extras().memory.settings.patterns !== false;
+  return {
+    port: createPatternsPort({
+      engine, loaded: port.loaded, extras: port.extras, enabled: on, persist: lifecycle.persist, notify: lifecycle.notify, refresh: () => memory.updateInjection(),
+    }),
+    hints: () => (on() ? patternHints(port.loaded()?.story ?? null, port.extras().patterns, port.loaded() ? engine.serialize() : null,
+      patternResting(enabledCharacterIds(view.getStory(), view.hosts.roster), memory.injector.restingFilter())) : []),
+    reconcile: (next: NormalizedStory) => {
+      const extras = port.extras();
+      const reconciled = reconcilePatternsOnUpdate(extras.patterns, next);
+      if (reconciled === extras.patterns) return;
+      extras.patterns = reconciled;
+      port.journal("author", "story patterns changed", `live partial matches dropped for: ${reconciled?.partial.join(", ") || "removed patterns"}`);
+    },
+  };
 }
 
 function wireRumors(port: ManagerPort, memory: MemoryCoordinator) {
@@ -142,12 +162,13 @@ export function wireCoordinators(port: ManagerPort) {
     },
   });
   const promises = wirePromises(port, memory);
-  const rumors = wireRumors(port, memory);
+  const rumors = wireRumors(port, memory), { port: patterns, ...patternsWiring } = wirePatterns(port, memory);
   const witness = createWitnessPort({ getStory: view.getStory, extras: port.extras, enabledIds: () => enabledCharacterIds(view.getStory(), view.hosts.roster) });
   memory.injector.addPrivateSource((rosterId) => gameLayer()?.carry.carryKnownLines(port.extras().carry, rosterId) ?? []);
   const narrator = createNarratorSheetPort({
     story: () => port.loaded()?.story ?? null, state: () => (port.loaded() ? engine.serialize() : null), log: () => (port.loaded() ? engine.stateLog : []),
     chatId: () => view.hosts.chat.chatId(), refresh: () => memory.updateInjection(),
+    hints: patternsWiring.hints,
   });
   memory.injector.addPrivateSource((rosterId) => narrator.lines(rosterId));
   const carry = createCarryActions(port, () => memory.updateInjection());
@@ -261,6 +282,7 @@ export function wireCoordinators(port: ManagerPort) {
     mergeStory: (raw, base) => expansion.mergedStoryOrBase(raw, base), ownership: lifecycle.ownership, living,
     chatOpen: () => Boolean(view.hosts.chat.chatId()),
     groupOpen: hasOpenGroup,
+    reconcile: patternsWiring.reconcile,
   };
-  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, promises, witness, rumors, carry, narrator };
+  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, patterns, promises, witness, rumors, carry, narrator };
 }

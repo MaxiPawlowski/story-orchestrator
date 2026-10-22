@@ -32,6 +32,7 @@ export interface StoryUpdateDeps {
   chatOpen: () => boolean;
   groupOpen?: () => boolean;
   living?: LivingUpdatePort;
+  reconcile?: (next: NormalizedStory) => void;
 }
 
 export interface LivingUpdatePort {
@@ -174,6 +175,7 @@ export async function applyStoryUpdate(deps: StoryUpdateDeps, target?: StoryLibr
 
   const history = state ? pruneEngineHistory(deps.getHistory?.() ?? null, next, diff) : null;
   if (refolded) deps.living?.commitAuthored(authored);
+  deps.reconcile?.(next);
   await deps.swapStory({ record: { ...record, raw: playedRaw }, story: next }, state ? pruneEngineState(state, next, diff) : null, Boolean(diff.reanchorTo), history);
   const outcome = { ...base, applied: true, choice };
   deps.journal(outcome);

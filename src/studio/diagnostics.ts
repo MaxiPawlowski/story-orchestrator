@@ -19,6 +19,7 @@ import { WIDGET_CONSEQUENCES, checkWidgets, scopedKeys, widgetGateKeys } from ".
 import { CODEX_CONSEQUENCES, checkCodexDraft } from "./codexDiagnostics";
 import { LABEL_CONSEQUENCES, checkLabelDiagnostics } from "./labelDiagnostics";
 import { COMMITMENT_CONSEQUENCES, checkCommitmentDiagnostics } from "./commitmentDiagnostics";
+import { PATTERN_CONSEQUENCES, checkPatternDiagnostics } from "./patternDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -85,6 +86,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   ...CODEX_CONSEQUENCES,
   ...LABEL_CONSEQUENCES,
   ...COMMITMENT_CONSEQUENCES,
+  ...PATTERN_CONSEQUENCES,
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -511,6 +513,7 @@ const DIAGNOSTIC_CHECKS = [
   checkCodexDraft,
   checkLabelDiagnostics,
   checkCommitmentDiagnostics,
+  checkPatternDiagnostics,
 ];
 
 export const runDiagnostics = (draft: Story, context: DiagnosticsContext = {}): Diagnostic[] => {

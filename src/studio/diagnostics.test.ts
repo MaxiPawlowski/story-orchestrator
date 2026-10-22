@@ -194,6 +194,11 @@ describe("runDiagnostics", () => {
         public: [{ label: "cold but loyal" }], secret: [{ id: "loyal", label: "loyal", revealed_when: { q: "rel_arin_player_trust", op: ">=", v: 3 } }] }] }] }),
       ...runDiagnostics({ ...clean, roster: [{ id: "arin", name: "Arin", commitments: [{ id: "gate", to: "player", what: "get you past the gate", made_when: "start",
         kept_when: { q: "trust", op: ">=", v: 3 }, broken_when: { not: { q: "trust", op: ">=", v: 1 } } }] }] }),
+      ...runDiagnostics({
+        ...clean, codex: { people: [{ id: "tobin", name: "Tobin", known_when: { q: "trust", op: ">=", v: 1 }, facts: [] }] },
+        quests: [{ id: "ferry", title: "Ferry", kind: "side", done_when: { q: "trust", op: ">=", v: 2 }, steps: [] }],
+        patterns: [{ id: "p", steps: [{ kind: "quest", id: "ferry", to: "failed" }], label: { text: "Tobin remembers it, because the ferry failed." } }],
+      }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

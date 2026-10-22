@@ -183,6 +183,11 @@ export const SETTING_COPY = {
     "In a story that declares rumors, news passes between characters along the channels it authors, after a delay, as hearsay the receiver may doubt. "
       + "No model call. A secret travels only to the one person a story's leak names.",
   ),
+  "memory.patterns": copy(
+    "Notice story patterns",
+    "In a story that declares patterns, an order of events the player saw (two favours for one patron, a failed climb then a successful one) shows the story's own "
+      + "callback line in What changed and a hint to the narrator. No model call. A line naming someone not yet met, or a secret, is withheld.",
+  ),
   "memory.innerFanOut": copy(
     "Inner beats for",
     "Prepare the beat for the likeliest speaker only, or for the two likeliest. Two costs one more call per turn.",

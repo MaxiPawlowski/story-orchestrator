@@ -9,10 +9,12 @@ import { readWidgets } from "@engine/validate/widgets";
 import { readLife } from "@engine/validate/life";
 import { checkRumors, readRumors } from "@engine/validate/rumors";
 import type { Rumor } from "@engine/rumorSchema";
+import type { StoryPattern } from "@engine/patternSchema";
+import { checkPatterns, readPatterns } from "@engine/validate/patterns";
 import type { CalendarInput, StoryClock } from "@engine/lifeSchema";
 import { isRecord } from "@utils/guards";
 import {
-  CHARACTER_LIFE_FIELDS, removeCodexEntry, setCalendar, setCharacterLife, setClock, setFactions, setMemberGossip, setRumors, updateCodexEntry,
+  CHARACTER_LIFE_FIELDS, removeCodexEntry, setCalendar, setCharacterLife, setClock, setFactions, setMemberGossip, setPatterns, setRumors, updateCodexEntry,
   setMilestones, setQualityDisplay, setQuests, setCheckpointChecks, setTransitionCheck, setWidgets, type CharacterLife,
 } from "../../studio/gameMutations";
 import type { OpDescription } from "../index";
@@ -30,11 +32,12 @@ export type GameAgentOp =
   | { kind: "setCodexEntry"; page: CodexPage; entry: CodexEntry }
   | { kind: "removeCodexEntry"; page: CodexPage; id: string }
   | { kind: "setFactions"; factions: Faction[] }
-  | { kind: "setRumors"; rumors: Rumor[]; gossip: Record<string, Record<string, unknown> | null> };
+  | { kind: "setRumors"; rumors: Rumor[]; gossip: Record<string, Record<string, unknown> | null> }
+  | { kind: "setPatterns"; patterns: StoryPattern[] };
 
 export const GAME_AGENT_KINDS: ReadonlySet<string> = new Set<GameAgentOp["kind"]>([
   "setQuests", "setMilestones", "setWidgets", "setQualityDisplay", "setCheckpointChecks", "setTransitionCheck", "setCharacterLife", "setClock", "setCodexEntry", "removeCodexEntry",
-  "setFactions", "setCalendar", "setRumors",
+  "setFactions", "setCalendar", "setRumors", "setPatterns",
 ]);
 
 const refused = (tool: string, errors: ValidationError[]) => ({ ok: false as const, message: errors.map((error) => `${tool}.${error.path}: ${error.message}`).join("; ") });
@@ -86,6 +89,10 @@ export const readGameCall = (tool: string, args: Record<string, unknown>): GameC
     const channels = Object.fromEntries(Object.entries(gossip).map(([id, channel]) => [id, isRecord(channel) ? channel : null]));
     return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setRumors", rumors: parsed?.rumors ?? [], gossip: channels } };
   }
+  if (tool === "setPatterns") {
+    const patterns = readPatterns(args.patterns ?? [], errors) ?? [];
+    return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setPatterns", patterns } };
+  }
   if (tool === "setCheckpointChecks") {
     const checks = readChecks(args.checks, "checks", errors);
     return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setCheckpointChecks", id: String(args.id).trim(), checks } };
@@ -109,6 +116,7 @@ export const applyGameOp = (draft: Story, op: GameAgentOp): Story => {
     case "removeCodexEntry": return removeCodexEntry(draft, op.page, op.id);
     case "setFactions": return setFactions(draft, op.factions);
     case "setRumors": return Object.entries(op.gossip).reduce((next, [id, channel]) => setMemberGossip(next, id, channel ?? undefined), setRumors(draft, op.rumors));
+    case "setPatterns": return setPatterns(draft, op.patterns);
   }
 };
 
@@ -146,6 +154,7 @@ export const describeGameOp = (op: GameAgentOp): OpDescription => {
       const label = op.rumors.length ? `Rumors: ${op.rumors.map((rumor) => rumor.id).join(" / ")}${channels ? `; gossip for ${channels} member(s)` : ""}` : "Remove every rumor";
       return { action: "update", entity: "story.rumors", label };
     }
+    case "setPatterns": return { action: "update", entity: "story.patterns", label: op.patterns.length ? `Patterns: ${op.patterns.map((pattern) => pattern.id).join(" / ")}` : "Remove every pattern" };
   }
 };
 
@@ -185,6 +194,11 @@ export const gameOpProblem = (draft: Story, op: GameAgentOp): string | null => {
     const next = applyGameOp(draft, op);
     const life = readLife({ roster: next.roster.map((member) => ({ ...member })), clock: next.clock }, []);
     checkRumors(readRumors({ ...next }, errors), { roster: next.roster, qualityByKey: byKey, hasClock: Boolean(next.clock), life }, errors);
+  }
+  if (op.kind === "setPatterns") {
+    const checkpointById = Object.fromEntries(draft.checkpoints.map((checkpoint) => [checkpoint.id, checkpoint]));
+    checkPatterns(op.patterns, { checkpointById, checkpoints: draft.checkpoints, transitions: draft.transitions, quests: draft.quests, milestones: draft.milestones,
+      chapters: draft.chapters, roster: draft.roster, qualityByKey: byKey }, errors);
   }
   if (op.kind === "setCheckpointChecks" && !draft.checkpoints.some((checkpoint) => checkpoint.id === op.id)) return `'${op.id}' is not a checkpoint`;
   if (op.kind === "setTransitionCheck" && !draft.transitions[op.index]) return `transition ${op.index} does not exist (readGraph numbers them)`;
