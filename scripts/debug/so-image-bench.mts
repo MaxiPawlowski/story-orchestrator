@@ -4,6 +4,7 @@ import { basename, join, resolve } from 'node:path';
 import { decodePng, encodePng, type RgbaImage } from './lib/pngNode.mts';
 import { cleanEdges, edgeReport } from '../../src/sprites/builder/edges.ts';
 import { seamScore } from '../../src/sprites/builder/seam.ts';
+import { eyeTone, gazeOffset, interior, irisSpan, renderOpenBall } from '../../src/sprites/liveHead/gaze.ts';
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import { raterPrompt, readRating, summarize, type SheetRating } from './lib/sheetRater.mts';
@@ -12,6 +13,7 @@ const USAGE = `Usage: node scripts/debug/so-image-bench.mts edges <raw dir> --ou
        node scripts/debug/so-image-bench.mts seams <raw dir>
        node scripts/debug/so-image-bench.mts sheets <raw dir> --out <dir>
        node scripts/debug/so-image-bench.mts rate <sheets dir>... [--model gpt-6.1-sol]
+       node scripts/debug/so-image-bench.mts eyes <raw dir>
 
 Plan 80 bench, CPU only. Walks <raw dir>/<character>/<set>/*.png for full-body sprites (base sets and lp_/look_ sets,
 not anim- frames or busts), runs the edge clean-up, and writes edges.json (fringe and bright-fringe counts before and
@@ -20,7 +22,9 @@ score of every saved face frame (anim-<set>/<label>.<kind>.png) against its base
 sheets per character for the rater: <name>.faces.png (base neutral, expressions, then each frame over its base)
 and <name>.bodies.png (base neutral, then every posed body and changed look), over mid grey, with sheets.json
 listing the panels in order. rate sends each sheet once to the rater through codex exec (read-only sandbox) and
-writes ratings.json with the identity share and the sheets flagged for an edge, eye or rectangle defect.`;
+writes ratings.json with the identity share and the sheets flagged for an edge, eye or rectangle defect. eyes renders
+every default rig's eyeballs (lane-settings.json liveHeadRigs) through the shipped CPU twin at gaze -1..1 x -1..1 in
+0.25 steps and counts pixels inside the eye opening that drop below alpha 0.9.`;
 
 const over = (image: RgbaImage, [r, g, b]: [number, number, number]): RgbaImage => {
   const data = new Uint8ClampedArray(image.data.length);
@@ -162,9 +166,45 @@ async function rate(dirs: string[], model: string) {
   console.log(JSON.stringify(summary));
 }
 
+const along = (values: number[], u: number): number => {
+  const f = Math.min(1, Math.max(0, u)) * (values.length - 1), i = Math.min(Math.floor(f), values.length - 2);
+  return values[i] + (values[i + 1] - values[i]) * (f - i);
+};
+
+async function eyes(root: string) {
+  const settings = JSON.parse(await readFile(join(root, 'lane-settings.json'), 'utf8')).extension_settings['story-orchestrator'].settings.sprites;
+  const rows = [];
+  for (const ref of Object.values(settings.liveHeadRigs ?? {}) as Array<{ member: string; look: string; manifest: string }>) {
+    if (ref.look !== 'default') continue;
+    const manifest = JSON.parse(decodeURIComponent(ref.manifest.slice(ref.manifest.indexOf(',') + 1)));
+    for (const [index, eye] of (manifest.rig.eyes as any[]).entries()) {
+      const layer = (manifest.layers as Array<{ name: string; rect: [number, number, number, number]; image: string }>).find((entry) => entry.name === `eye${index}_ball`);
+      if (!layer) { rows.push({ member: ref.member, eye: index, missing: true }); continue; }
+      const image = decodePng(Buffer.from(layer.image.slice(layer.image.indexOf(',') + 1), 'base64')), tone = eyeTone(image.data), span = irisSpan(image, layer.rect, eye, tone);
+      let worst = 0, total = 0, inside = 0;
+      for (let gx = -1; gx <= 1.001; gx += 0.25) for (let gy = -1; gy <= 1.001; gy += 0.25) {
+        const out = renderOpenBall(image, layer.rect, eye, gazeOffset(index, gx, gy), 'slide', tone, span);
+        let count = 0;
+        inside = 0;
+        for (let k = 0; k < out.width * out.height; k++) {
+          const px = layer.rect[0] + k % out.width + 0.5, py = layer.rect[1] + Math.floor(k / out.width) + 0.5, u = (px - eye.x0) / (eye.x1 - eye.x0);
+          if (u <= 0.05 || u >= 0.95 || interior(py, along(eye.top, u) + 1, along(eye.bot, u) - 1) < 1 || image.data[k * 4 + 3] < 230) continue;
+          inside++;
+          if (out.data[k * 4 + 3] < 230) count++;
+        }
+        total += count; worst = Math.max(worst, count);
+      }
+      rows.push({ member: ref.member, eye: index, inside, seeThroughTotal: total, worstGaze: worst, fallbackTone: tone.join(',') === '0.94,0.94,0.95' });
+      console.log(`${ref.member} eye${index}: ${inside} px inside, see-through ${total} over 81 gazes (worst ${worst})`);
+    }
+  }
+  return rows;
+}
+
 const [command, dir] = process.argv.slice(2);
 const outAt = process.argv.indexOf('--out');
 if (command === 'seams' && dir && existsSync(dir)) await seams(resolve(dir));
+else if (command === 'eyes' && dir && existsSync(dir)) await eyes(resolve(dir));
 else if (command === 'rate' && dir) await rate(process.argv.slice(3).filter((arg, at, all) => !arg.startsWith('--') && all[at - 1] !== '--model').map((arg) => resolve(arg)),
   process.argv.includes('--model') ? process.argv[process.argv.indexOf('--model') + 1] : 'gpt-6.1-sol');
 else if (command === 'sheets' && dir && existsSync(dir) && outAt > 0) await sheets(resolve(dir), resolve(process.argv[outAt + 1]));
