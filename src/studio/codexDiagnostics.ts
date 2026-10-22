@@ -18,7 +18,7 @@ export interface CodexRun {
 
 const MECHANICAL = new Set(["message_count", "messages_in_checkpoint", "elapsed", "player_turns_in_checkpoint"]);
 
-const writtenCodeKeys = (draft: Story): Set<string> => {
+export const writtenCodeKeys = (draft: Story): Set<string> => {
   const keys = new Set<string>(MECHANICAL);
   (draft.quests ?? []).forEach((quest) => Object.keys(quest.reward?.set ?? {}).forEach((key) => keys.add(key)));
   const checks = [...draft.checkpoints.flatMap((checkpoint) => checkpoint.checks ?? []), ...draft.transitions.flatMap((transition) => (transition.check ? [transition.check] : []))];

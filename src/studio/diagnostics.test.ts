@@ -190,6 +190,12 @@ describe("runDiagnostics", () => {
           moves: [{ id: "idle", when: { not: { q: "trust", op: ">=", v: 1 } }, add: -1, heard_by: "present" }] }],
       }),
       ...runDiagnostics(codexSeeded),
+      ...runDiagnostics({ ...clean, observations: [
+        { id: "a", text: "You sense the door was forced.", when: { reached: "cache" } },
+        { id: "b", text: "Check the boat before dawn.", when: { q: "trust", op: ">=", v: 2 } },
+        { id: "c", text: "A boot print by the post.", when: { reached: "nowhere" } },
+        { id: "d", text: "Mist lies on the water.", when: { not: { q: "trust", op: ">=", v: 5 } } },
+      ] }),
       ...runDiagnostics({ ...clean, roster: [{ id: "arin", name: "Arin", relationships: [{ toward: "player", axes: ["trust"], range: [-5, 5], step: 1, start: 0,
         public: [{ label: "cold but loyal" }], secret: [{ id: "loyal", label: "loyal", revealed_when: { q: "rel_arin_player_trust", op: ">=", v: 3 } }] }] }] }),
       ...runDiagnostics({ ...clean, roster: [{ id: "arin", name: "Arin", commitments: [{ id: "gate", to: "player", what: "get you past the gate", made_when: "start",

@@ -84,6 +84,14 @@ export const codexStory = (): StoryDraft => ({
   },
 });
 
+export const observationStory = (): StoryDraft => ({
+  ...codexStory(),
+  observations: [
+    { id: "scratches", text: "Fresh scratches circle the lock.", when: { reached: "infiltrate" }, source: "boathouse" },
+    { id: "pitch", text: "You sense a smell of pitch; you should check the boat.", when: { q: "trust", op: ">=", v: 1 }, passive: { roll: { sides: 20, target: 12 } } },
+  ],
+});
+
 export const rumorStory = (): StoryDraft => {
   const base = sampleStory();
   const [first] = base.roster;

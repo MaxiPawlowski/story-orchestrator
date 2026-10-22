@@ -227,6 +227,20 @@ setPoseCard: { backedBy: "setPoseCard", doc: "Set living card fields and charact
     doc: "Remove one People or Places page entry.",
     args: { page: req("string", "people | places"), id: req("string", "entry id") },
   },
+  setObservation: {
+    backedBy: "updateObservation",
+    doc: "Create or replace one line the player can notice. Write what is there to see; never what the player feels, concludes or does. "
+      + "It shows on the player's page only once when holds, and no model is told. Read the observations guide first.",
+    args: {
+      observation: req("object", `{id (slug, '-' not '_'), text (200 characters, plain), when: ${GATE} | {reached: checkpoint id}, source? (codex entry or roster id), rev?, `
+        + "passive?: {roll: {sides, target, dice?}, modifiers?: [{q, v, add, label?}]}}"),
+    },
+  },
+  removeObservation: {
+    backedBy: "removeObservation",
+    doc: "Remove one line the player can notice.",
+    args: { id: req("string", "observation id") },
+  },
   setClock: {
     backedBy: "setClock",
     doc: "Give the story a time of day and a day count, or null to remove it (and its calendar).",
@@ -320,6 +334,8 @@ export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof Mutations, string>> 
   CHARACTER_LIFE_FIELDS: "a constant, not a mutation: the fields setCharacterLife replaces",
   setCodex: "the Studio replaces the whole codex; the agent edits one entry at a time with setCodexEntry and removeCodexEntry",
   setCodexShown: "whether the story shows People and Places is a presence choice the author makes in the Studio",
+  setObservations: "the Studio replaces the whole list; the agent edits one line at a time with setObservation and removeObservation",
+  setObservationsShown: "whether the story shows what the player notices is a presence choice the author makes in the Studio",
 };
 
 export const renderArg = (name: string, spec: AgentArgSpec): string => `${name}${spec.required ? "" : "?"}: ${spec.type}${spec.doc ? ` (${spec.doc})` : ""}`;

@@ -5,6 +5,7 @@ import { getGlobalSettings } from "@runtime/settingsStore";
 import { useDraftStore } from "../draft";
 import { setFeaturePolicy } from "../mutations";
 import CodexEditor from "./CodexEditor";
+import ObservationsEditor from "./ObservationsEditor";
 
 export default function StoryFeaturesEditor() {
   const draft = useDraftStore((state) => state.draft);
@@ -44,5 +45,6 @@ export default function StoryFeaturesEditor() {
       </details>;
     })}
     <CodexEditor />
+    <ObservationsEditor />
   </section>;
 }

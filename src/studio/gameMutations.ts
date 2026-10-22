@@ -1,4 +1,4 @@
-import type { CodexEntry, CodexPage, Faction, Milestone, QualityDisplay, Quest, RelationshipDecl, RosterMember, StoryCheck, StoryCodex, StoryWidget } from "@engine/index";
+import type { CodexEntry, CodexPage, Faction, Milestone, Observation, QualityDisplay, Quest, RelationshipDecl, RosterMember, StoryCheck, StoryCodex, StoryWidget } from "@engine/index";
 import type { CalendarInput, Commitment, StoryClock } from "@engine/lifeSchema";
 import type { Rumor } from "@engine/rumorSchema";
 import type { StoryDraft } from "./draft";
@@ -201,6 +201,23 @@ export const updateCodexEntry = (draft: StoryDraft, page: CodexPage, entry: Code
 
 export const removeCodexEntry = (draft: StoryDraft, page: CodexPage, id: string): StoryDraft =>
   setCodex(draft, { ...draft.codex, [page]: (draft.codex?.[page] ?? []).filter((item) => item.id !== id) });
+
+export const setObservations = (draft: StoryDraft, observations: Observation[] | undefined): StoryDraft =>
+  (observations?.length ? { ...draft, observations } : without(draft, "observations"));
+
+export const updateObservation = (draft: StoryDraft, observation: Observation): StoryDraft => {
+  const list = draft.observations ?? [];
+  return setObservations(draft, list.some((item) => item.id === observation.id) ? list.map((item) => (item.id === observation.id ? observation : item)) : [...list, observation]);
+};
+
+export const removeObservation = (draft: StoryDraft, id: string): StoryDraft => setObservations(draft, (draft.observations ?? []).filter((item) => item.id !== id));
+
+export const setObservationsShown = (draft: StoryDraft, shown: boolean): StoryDraft => {
+  const display = { ...draft.display };
+  if (shown) delete display.observations;
+  else display.observations = false;
+  return Object.keys(display).length ? { ...draft, display } : without(draft, "display");
+};
 
 export const setCodexShown = (draft: StoryDraft, shown: boolean): StoryDraft => {
   const display = { ...draft.display };
