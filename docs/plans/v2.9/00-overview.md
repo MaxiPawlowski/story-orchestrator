@@ -162,3 +162,34 @@ typecheck, typecheck:test, debug:typecheck, lint, test:release, test:plugin, tes
 
 NOT run: live lane checks, payload goldens, every real-LLM row of 02/05/08 (no GPU, owner 2026-10-21). Not staged into ST,
 `plugins:install` not run (end of all waves).
+
+## Gate record 2026-10-22 (v2.9 wave 2 merge: 04, 06)
+
+Branch `v2.9-wave2` off master `65aebaa0`, worktree `../so-v29-wave2`. `v2.9-03-polish` NOT merged (its contract forbids S2
+alone; waits for the owner).
+
+Merges (`--no-ff`, in order):
+- 04 `v2.9-04-cues` @`8584be0b`: clean.
+- 06 `v2.9-06-next-actions` @`f1dc8490`: conflicts all both-sides unions: `diagnosticCodes.ts` (cue codes + `offer-names-unknown`,
+  `check-hint-names-unknown`), `diagnostics.ts` (cue + offer consequences and checks), `diagnostics.test.ts` every-code case
+  (cue story and offer/hint story kept as two `runDiagnostics` calls), `guideTabs.ts` game tab (`offers` after `checks`, `norms`
+  kept), `validate/gameLayer.ts` `usesGameLayer` (`norms` + `checkpoints[].offers`), `gameLayerImpl.ts` (`cues` + `offers`),
+  `copilot/agent/gameOps.ts` (`setCheckpointOffers` beside `...CUE_AGENT_KINDS`; 06's `readBeatCall` kept, called from 04's
+  `readCoreGameCall`, `readGameCall` stays 04's cue dispatcher). Regenerated: `npm run docs:guide`, `npm run docs:settings`,
+  `SO_RECORD_ARRIVAL_GOLDEN=1` for `test/goldens/arrival-findings.json` (04, 05, 06 scenario rows).
+- `npm run gates:quick` after the merges: green (replay 32 of 32).
+
+Main bundle (budget 1,300,000 B, not raised): master 1,297,590; combined 1,300,085 (over by 85). Fix: `package.json`
+`"sideEffects": ["*.css"]`, so webpack skips pure re-export barrels (`engine`, `memory`, `extraction`, `pacing`, `stagecraft`,
+`talk` `index.ts`) in the main chunk; also leaving main for lazy chunks only: `engine/offerSchema.ts`, `extraction/backlogPlan.ts`,
+`stHost/presets.ts`, `stagecraft/writeAhead.ts`. Webpack stats diff: no module dropped from the build; every moved module and
+barrel has no top-level statement besides declarations (CSS side-effect imports kept by the list). Final `dist/index.js`
+1,290,479 B: 9,521 B headroom for plan 07.
+
+Full gates on `5b5c7055` (no `--resume`, Storybook included, :6006 free): run 1 RED only at `test:debug` childTree "wrapper shell is
+killed" (known load flake); `npm run test:debug` alone: 1484 pass, 0 fail. Run 2 `npm run gates` -> `gates: all green in 327.4s`
+(build, typecheck, test:debug 1484/1484, test:replay, typecheck:test, debug:typecheck, test:plugin, test 862 suites / 10107 passed
++ 1 skipped, test:release, lint, test-storybook:ci 162 suites / 979 passed).
+
+NOT run: lane live scenarios `v29-04-cues.json`, `v29-06-anchored-suggestions.json`, payload goldens, every real-LLM row and floor of
+04/06 (no GPU, owner 2026-10-21). Not staged into ST, `plugins:install` not run (end of all waves).
