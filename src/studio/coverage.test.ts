@@ -19,7 +19,7 @@ const covered = (): StoryDraft => ({
     id: "start", name: "Start", objective: "Take it.", type: "anchor", start: true, tension_target: "calm", guidance: "slow", agency: { protect_player_choice: true },
     talk_control: { lead: "mara" }, effects: { background: { name: "harbour.jpg" }, author_note: { text: "x" }, world_info: { enable: ["a"] } }, motives: { mara: "see it delivered" },
   }],
-  roster: [{ id: "mara", name: "Mara", role: "clerk", drive: "keep her post" }],
+  roster: [{ id: "mara", name: "Mara", role: "clerk", drive: "keep her post", polish: { notes: "Clipped and formal." } }],
   transitions: [],
 });
 

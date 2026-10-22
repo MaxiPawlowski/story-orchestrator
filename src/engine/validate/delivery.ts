@@ -126,7 +126,7 @@ export const readNarrationSheet = (raw: unknown, ctx: DeliveryContext): Narratio
 
 const textsOf = (value: unknown): string[] => (typeof value === "string" ? [value] : Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : []);
 
-export const deliveryNames = (json: Record<string, unknown>): string[] => {
+export const deliveryNames = (json: { roster?: unknown; codex?: unknown }): string[] => {
   const roster = Array.isArray(json.roster) ? json.roster.filter(isRecord) : [];
   const codex = isRecord(json.codex) ? Object.values(json.codex).flatMap((page) => (Array.isArray(page) ? page.filter(isRecord) : [])) : [];
   return [...roster, ...codex].flatMap((entry) => [...textsOf(entry.name), ...textsOf(entry.id), ...textsOf(entry.aliases)]).map((name) => name.trim()).filter(Boolean);
