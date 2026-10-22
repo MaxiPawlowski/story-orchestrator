@@ -141,3 +141,40 @@ Informational, as always: a miss is recorded, never retuned.
   partial (`--only`) and `--keep` leaves its assets (header DIFF rows are those assets). Raw images: private showcase
   folder `q2-raw`, `q3-raw`, `q4-raw`.
 - Gates: `npm run gates:quick` green after each commit. Full `npm run gates` not run since `b88b3f3e`; stage A owes it.
+
+## Gate record — CPU: seam check, C2, C3, 2026-10-22
+
+- Q seam (`dadc37a7`): `seamScore` = absolute median signed luma shift between a frame and its base over the outer
+  feather (overlay alpha share 0.02–0.5, opaque base, at least 40 samples). A first version averaged absolute
+  differences and did not separate (rectangle frames 3.0, clean frames up to 5.4, redrawn hair strands count); the
+  signed median does. `node scripts/debug/so-image-bench.mts seams <raw dir>`: frames with the edit rectangle
+  (journey Bram blink, res1 Bram blink, both before the tone match) 1.5 and 1.9; every clean frame of res1/q4 0.0–1.1.
+  Limit 1.3 (margin 0.2 under the cleanest bad frame, 0.2 over the worst clean one). Refusal ends with "Render it
+  again", so the one automatic re-render applies. Frames only; a full composite has no feather and is not scored.
+- C2 (`5cfb7b29`, `bf81553c`):
+  - Play-time renders wait while SillyTavern generates: `waitForTextPriority` takes `loud`, set to
+    `isHostGenerating` (`is_send_press || is_group_generating`, script.js:604, so a group round still drafting
+    counts as queued) in the pose body, on-demand look and cast-scene hosts. It holds even when the broker is fair or
+    silent. The probe module loads only when a render waits (`hostGenerating`), since importing it at module load
+    pulls in SillyTavern's `script.js` and broke the PosesList/SpriteBuilder stories. Studio-only renders (batch, pose import, reference views) keep the broker rule.
+  - Preparation: `posesToPrepare` (`sprites/poses/prepareList.ts`) lists each member's default pose and every pose a
+    checkpoint's `effects.stage` directs at them, resolved through `replayPose` with the story's starting values,
+    skipping a directed `set`, a hidden member and the plain standing pose with no changed look (the stage skips
+    those too). Studio → Sprites → Poses **Prepare story poses before play** (`#so-prepare-poses`) renders them with
+    their blink/talk frames through `PoseBodies.render`; the stage finds them by stamp at first use.
+  - Journey: new step `poses` after `rig` (`stepPoses`), and `pose` records `waitedMs`. The C2 floor reads from these:
+    `poses` ready = total, and `pose` showing the posed bodies without a new render.
+- C3 not built (deviation). Measured on the showcase journey raw images: the only posed sets with face frames are
+  `happy` (Ash `anim-lp_af920321` happy.blink/happy.talk); neutral posed sets (`lp_*` neutral.png) are the step
+  before the expression edit and never get frames. A posed frame is always on a new expression edit, whose face is
+  not the base's, so reusing the base's frames would apply to zero frames in that run and has no real case to check a
+  warp against. Floor C3 is recorded as not applicable.
+- Gates: `npm run gates:quick` green after each commit; `npm run debug:typecheck` green; `node --test
+  scripts/debug/lib/pocDrivers.test.mts` 12/12.
+- Full gates on `bf81553c` (`ae124a2e` fixed the census rows that the `buildOnce` split and the new pose preparation
+  added, and moved the frame checks out of `buildOnce` to keep it within the 40-branch budget): every step green on
+  this exact tree, but only through `npm run gates -- --resume` after environment failures. The first run found the
+  census and Storybook problems (fixed above). Later runs failed on port 6006 held by another session's Storybook
+  (`so-v29-02-voice`, left alone), on `a driver whose wrapper shell is killed…` under load (green alone and on the
+  rerun) and on the OpenCode boot-timing test in `test:plugin` (340/340 alone, green on the third resume). No merge
+  is cited on these runs; the owner has not asked for a merge.
