@@ -27,7 +27,7 @@ Where the guide says "the reading model" it means the memory model that reads th
 
 ## Story fields
 
-Every field a story can carry: 68 topics on 8 pages, from the story as a whole down to the game layer.
+Every field a story can carry: 71 topics on 8 pages, from the story as a whole down to the game layer.
 
 - [The story as a whole](fields/story.md)
   - [Story feature policies](fields/story.md#feature-policies) (`feature-policies`)
@@ -47,6 +47,9 @@ Every field a story can carry: 68 topics on 8 pages, from the story as a whole d
   - [Rumors and gossip](fields/characters.md#rumors) (`rumors`)
   - [Relationship labels](fields/characters.md#relationship-labels) (`relationship-labels`)
   - [Promises to the player](fields/characters.md#commitments) (`commitments`)
+  - [Remarks and reactions](fields/characters.md#cues) (`cues`)
+  - [Topics a character deepens](fields/characters.md#topics) (`topics`)
+  - [Social norms](fields/characters.md#norms) (`norms`)
   - [Story time](fields/characters.md#story-time) (`story-time`)
   - [Living cards](fields/characters.md#living-cards) (`living-cards`)
   - [Poses and character layers](fields/characters.md#poses) (`poses`)

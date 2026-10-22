@@ -210,6 +210,12 @@ describe("runDiagnostics", () => {
         quests: [{ id: "ferry", title: "Ferry", kind: "side", done_when: { q: "trust", op: ">=", v: 2 }, steps: [] }],
         patterns: [{ id: "p", steps: [{ kind: "quest", id: "ferry", to: "failed" }], label: { text: "Tobin remembers it, because the ferry failed." } }],
       }),
+      ...runDiagnostics({
+        ...clean, roster: [{ id: "arin", name: "Arin", cues: [
+          { id: "idle", kind: "reaction", when: { not: { q: "trust", op: ">=", v: 1 } }, cue: "nothing has changed" },
+          { id: "glad", kind: "remark", when: { q: "trust", op: ">=", v: 2 }, cue: "you feel relieved to be home" },
+        ], topics: [{ id: "boat", keys: ["boat"], tiers: [{ cue: "the boat leaks" }, { cue: "the boat was sabotaged" }] }] }],
+      }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

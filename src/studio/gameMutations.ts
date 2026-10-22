@@ -2,10 +2,11 @@ import type { CodexEntry, CodexPage, Faction, Milestone, Observation, QualityDis
 import type { CalendarInput, Commitment, StoryClock } from "@engine/lifeSchema";
 import type { Rumor } from "@engine/rumorSchema";
 import type { StoryPattern } from "@engine/patternSchema";
+import type { MemberCue, MemberTopic, StoryNorm } from "@engine/cueSchema";
 import type { StoryDraft } from "./draft";
 import { nextId, updateCheckpoint, updateQuality, updateTransition } from "./mutations";
 
-type ListKey = "quests" | "milestones" | "widgets" | "factions" | "rumors" | "patterns";
+type ListKey = "quests" | "milestones" | "widgets" | "factions" | "rumors" | "patterns" | "norms";
 
 const withList = <K extends ListKey>(draft: StoryDraft, key: K, items: NonNullable<StoryDraft[K]>): StoryDraft => {
   const rest: StoryDraft = { ...draft };
@@ -119,6 +120,33 @@ export const setCommitments = (draft: StoryDraft, id: string, commitments: Commi
     return commitments.length ? { ...rest, commitments } : rest;
   }),
 });
+
+const upsert = <T extends { id: string }>(list: readonly T[], item: T): T[] =>
+  (list.some((entry) => entry.id === item.id) ? list.map((entry) => (entry.id === item.id ? item : entry)) : [...list, item]);
+
+const withMemberList = <K extends "cues" | "topics">(draft: StoryDraft, id: string, key: K, edit: (list: NonNullable<RosterMember[K]>) => NonNullable<RosterMember[K]>): StoryDraft => ({
+  ...draft,
+  roster: draft.roster.map((member) => {
+    if (member.id !== id) return member;
+    const rest: RosterMember = { ...member };
+    delete rest[key];
+    const list = edit((member[key] ?? []) as NonNullable<RosterMember[K]>);
+    return list.length ? { ...rest, [key]: list } : rest;
+  }),
+});
+
+export const setCue = (draft: StoryDraft, member: string, cue: MemberCue): StoryDraft => withMemberList(draft, member, "cues", (list) => upsert(list, cue));
+
+export const removeCue = (draft: StoryDraft, member: string, id: string): StoryDraft => withMemberList(draft, member, "cues", (list) => list.filter((cue) => cue.id !== id));
+
+export const setTopic = (draft: StoryDraft, member: string, topic: MemberTopic): StoryDraft => withMemberList(draft, member, "topics", (list) => upsert(list, topic));
+
+export const removeTopic = (draft: StoryDraft, member: string, id: string): StoryDraft =>
+  withMemberList(draft, member, "topics", (list) => list.filter((topic) => topic.id !== id));
+
+export const setNorm = (draft: StoryDraft, norm: StoryNorm): StoryDraft => withList(draft, "norms", upsert(draft.norms ?? [], norm));
+
+export const removeNorm = (draft: StoryDraft, id: string): StoryDraft => withList(draft, "norms", (draft.norms ?? []).filter((norm) => norm.id !== id));
 
 export const newFaction = (id: string): Faction => ({
   id, name: id, range: [-5, 5], start: 0, bands: [{ max: -2, label: "Hostile" }, { max: 1, label: "Neutral" }, { label: "Trusted" }], moves: [],

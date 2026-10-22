@@ -2,6 +2,7 @@ import type { LifeAuthorView } from "@runtime/lifeSnapshot";
 import type { LabelAuthorRow } from "@engine/life/labels";
 import type { AxisStep } from "@engine/life/beats";
 import type { CommitmentAuthorRow } from "@engine/life/commitments";
+import type { CuesAuthorView } from "@runtime/cuePort";
 
 const towardLabel = (toward: string, names: Record<string, string>) => (toward === "player" ? "the player" : names[toward] ?? toward);
 
@@ -54,7 +55,34 @@ const Commitments = ({ rows }: { rows: CommitmentAuthorRow[] }) => (rows.length 
   </ul>
 ) : null);
 
-export const CharacterLifePanel = ({ life, onDecide }: { life: LifeAuthorView; onDecide?: MeanwhileDecide }) => {
+const Cues = ({ cues, member }: { cues: CuesAuthorView | null | undefined; member: string }) => {
+  const rows = (cues?.rows ?? []).filter((row) => row.member === member);
+  const preview = cues?.previews.find((entry) => entry.member === member);
+  const lapses = (cues?.lapses ?? []).filter((lapse) => lapse.recipient === member).slice(-3);
+  if (!rows.length && !preview) return null;
+  return (
+    <ul data-so="life-cues" className="list-none p-0 m-0">
+      {rows.map((row) => (
+        <li key={row.key} data-so="life-cue" data-key={row.key} data-lane={row.lane}>
+          {row.kind} cue{row.lane === "must" ? " (must)" : ""}: {row.text} · offered {row.offers}
+          {row.latchedAt !== null ? ` · since boundary ${row.latchedAt}` : ""}{row.landedAt !== null ? ` · landed at boundary ${row.landedAt}` : ""}
+        </li>
+      ))}
+      {preview ? (
+        <li data-so="life-cue-next" className="opacity-80">
+          next reply: {preview.winner ?? "no cue"}{preview.tiedWith.length ? ` · tied with ${preview.tiedWith.join(", ")} (declaration order decides)` : ""}
+          {preview.ranked.length > 1 ? ` · then ${preview.ranked.slice(1).join(", ")}` : ""}
+          {preview.dropped.length ? ` · held: ${preview.dropped.map((entry) => `${entry.key} (${entry.reason})`).join(", ")}` : ""}
+        </li>
+      ) : null}
+      {lapses.map((lapse) => (
+        <li key={`${lapse.key}:${lapse.at}`} data-so="life-cue-lapse" className="opacity-70">lapsed: {lapse.key} ({lapse.reason}) at boundary {lapse.at}</li>
+      ))}
+    </ul>
+  );
+};
+
+export const CharacterLifePanel = ({ life, onDecide, cues }: { life: LifeAuthorView; onDecide?: MeanwhileDecide; cues?: CuesAuthorView | null }) => {
   const names = Object.fromEntries(life.rows.map((row) => [row.id, row.name]));
   const waiting = life.proposals.filter((proposal) => proposal.status === "proposed");
   const settled = life.proposals.filter((proposal) => proposal.status === "accepted" || proposal.status === "applied").slice(-6);
@@ -90,6 +118,7 @@ export const CharacterLifePanel = ({ life, onDecide }: { life: LifeAuthorView; o
           )}
           <Labels rows={(life.labels ?? []).filter((label) => label.member === row.id)} names={names} />
           <Commitments rows={(life.commitments ?? []).filter((commitment) => commitment.member === row.id)} />
+          <Cues cues={cues} member={row.id} />
           {row.agendas.map((agenda) => (
             <div key={agenda.id} data-so="life-agenda" data-agenda={agenda.id}>
               {agenda.goal}: {agenda.done} of {agenda.of}

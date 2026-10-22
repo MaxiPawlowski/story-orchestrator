@@ -20,6 +20,7 @@ import {
   setMilestones, setQualityDisplay, setQuests, setCheckpointChecks, setTransitionCheck, setWidgets, type CharacterLife,
 } from "../../studio/gameMutations";
 import type { OpDescription } from "../index";
+import { CUE_AGENT_KINDS, applyCueOp, cueOpProblem, describeCueOp, readCueCall, type CueAgentOp } from "./cueOps";
 
 export type GameAgentOp =
   | { kind: "setQuests"; quests: Quest[] }
@@ -37,11 +38,12 @@ export type GameAgentOp =
   | { kind: "removeObservation"; id: string }
   | { kind: "setFactions"; factions: Faction[] }
   | { kind: "setRumors"; rumors: Rumor[]; gossip: Record<string, Record<string, unknown> | null> }
-  | { kind: "setPatterns"; patterns: StoryPattern[] };
+  | { kind: "setPatterns"; patterns: StoryPattern[] }
+  | CueAgentOp;
 
 export const GAME_AGENT_KINDS: ReadonlySet<string> = new Set<GameAgentOp["kind"]>([
   "setQuests", "setMilestones", "setWidgets", "setQualityDisplay", "setCheckpointChecks", "setTransitionCheck", "setCharacterLife", "setClock", "setCodexEntry", "removeCodexEntry",
-  "setFactions", "setCalendar", "setRumors", "setObservation", "removeObservation", "setPatterns",
+  "setFactions", "setCalendar", "setRumors", "setObservation", "removeObservation", "setPatterns", ...CUE_AGENT_KINDS,
 ]);
 
 const refused = (tool: string, errors: ValidationError[]) => ({ ok: false as const, message: errors.map((error) => `${tool}.${error.path}: ${error.message}`).join("; ") });
@@ -59,7 +61,9 @@ const readCodexCall = (tool: string, args: Record<string, unknown>): GameCallChe
   return errors.length || !entry ? refused(tool, errors) : { ok: true, op: { kind: "setCodexEntry", page, entry } };
 };
 
-export const readGameCall = (tool: string, args: Record<string, unknown>): GameCallCheck => {
+const isCueOp = (op: GameAgentOp): op is CueAgentOp => (CUE_AGENT_KINDS as readonly string[]).includes(op.kind);
+
+const readCoreGameCall = (tool: string, args: Record<string, unknown>): GameCallCheck => {
   const errors: ValidationError[] = [];
   if (tool === "setQuests") {
     const quests = readQuests(args.quests, errors) ?? [];
@@ -110,7 +114,11 @@ export const readGameCall = (tool: string, args: Record<string, unknown>): GameC
   return errors.length ? refused(tool, errors) : { ok: true, op: { kind: "setTransitionCheck", index: Number(args.index), check } };
 };
 
+export const readGameCall = (tool: string, args: Record<string, unknown>): GameCallCheck =>
+  ((CUE_AGENT_KINDS as readonly string[]).includes(tool) ? readCueCall(tool, args) : readCoreGameCall(tool, args));
+
 export const applyGameOp = (draft: Story, op: GameAgentOp): Story => {
+  if (isCueOp(op)) return applyCueOp(draft, op);
   switch (op.kind) {
     case "setQuests": return setQuests(draft, op.quests);
     case "setMilestones": return setMilestones(draft, op.milestones);
@@ -132,6 +140,7 @@ export const applyGameOp = (draft: Story, op: GameAgentOp): Story => {
 };
 
 export const describeGameOp = (op: GameAgentOp): OpDescription => {
+  if (isCueOp(op)) return describeCueOp(op);
   switch (op.kind) {
     case "setQuests": return { action: "update", entity: "story.quests", label: op.quests.length ? `Quests: ${op.quests.map((quest) => quest.title).join(" / ")}` : "Remove every quest" };
     case "setMilestones": return { action: "update", entity: "story.milestones", label: op.milestones.length ? `${op.milestones.length} milestone(s)` : "Remove every milestone" };
@@ -177,6 +186,7 @@ const factionProblems = (draft: Story, errors: ValidationError[]) => {
 };
 
 export const gameOpProblem = (draft: Story, op: GameAgentOp): string | null => {
+  if (isCueOp(op)) return cueOpProblem(draft, op);
   const errors: ValidationError[] = [];
   const byKey = Object.fromEntries(draft.qualities.map((quality) => [quality.key, quality]));
   if (op.kind === "setWidgets") readWidgets(op.widgets, {

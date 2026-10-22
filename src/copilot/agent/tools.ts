@@ -11,6 +11,7 @@ import type * as PoseMutations from "../../studio/poseMutations";
 import { POSE_AGENT_KINDS, readPoseCall } from "./poseOps";
 import type * as GameMutations from "../../studio/gameMutations";
 import { GAME_AGENT_KINDS, readGameCall } from "./gameOps";
+import { CUE_EDIT_TOOLS } from "./cueTools";
 import { parseProposal } from "../index";
 import type { ProposalOpKind } from "../types";
 import type { AgentOnlyOp, AgentOp, AgentToolCall, AgentToolFamily } from "./types";
@@ -264,6 +265,7 @@ setPoseCard: { backedBy: "setPoseCard", doc: "Set living card fields and charact
     doc: "Remove one line the player can notice.",
     args: { id: req("string", "observation id") },
   },
+  ...CUE_EDIT_TOOLS,
   setClock: {
     backedBy: "setClock",
     doc: "Give the story a time of day and a day count, or null to remove it (and its calendar).",

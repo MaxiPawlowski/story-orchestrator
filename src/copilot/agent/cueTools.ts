@@ -1,0 +1,34 @@
+const GATE = "{q, op: ==|!=|>=|<=|>|<|in, v} | {all: gate[]} | {any: gate[]} | {not: gate}";
+
+const req = (type: "string" | "object", doc: string) => ({ type, required: true, doc });
+
+export const CUE_EDIT_TOOLS = {
+  setCue: {
+    backedBy: "setCue",
+    doc: "Create or replace one remark or reaction cue of a cast member: a short line it is handed privately, at most once per reply, when the gate holds. "
+      + "Write what the member noticed, never what the player does or feels. Read the cues guide first.",
+    args: {
+      member: req("string", "member id"),
+      cue: req("object", `{id (slug, '-' not '_'), kind: remark|reaction, when: ${GATE} (a reaction: an event), cue (160 characters), lane?: may|must, priority?, window? (reaction), `
+        + `repeat?: {cooldown}, landed_when?: ${GATE} (must only, required), max_offers? (must, 1-5)}`),
+    },
+  },
+  removeCue: { backedBy: "removeCue", doc: "Remove one cue of a cast member.", args: { member: req("string", "member id"), id: req("string", "cue id") } },
+  setTopic: {
+    backedBy: "setTopic",
+    doc: "Create or replace one topic of a cast member: when the player asks that member by name about one of its keys, the next tier is offered. Read the topics guide first.",
+    args: {
+      member: req("string", "member id"),
+      topic: req("object", `{id (slug), keys: [1-8 words the player says, never a cast name], tiers: 1-3 [{cue, when?: ${GATE}}] (shallow to deep), priority?}`),
+    },
+  },
+  removeTopic: { backedBy: "removeTopic", doc: "Remove one topic of a cast member.", args: { member: req("string", "member id"), id: req("string", "topic id") } },
+  setNorm: {
+    backedBy: "setNorm",
+    doc: "Create or replace one social norm: when an event breaks it, each listed witness who is present gets a reaction cue. No score. Read the norms guide first.",
+    args: {
+      norm: req("object", `{id (slug), label (yours only), broken_when: ${GATE} (an event), noticed_by: [member id], cue (160 characters), priority?, checkpoints?: [checkpoint id]}`),
+    },
+  },
+  removeNorm: { backedBy: "removeNorm", doc: "Remove one social norm.", args: { id: req("string", "norm id") } },
+} as const;

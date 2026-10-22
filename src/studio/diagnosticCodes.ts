@@ -75,4 +75,8 @@ export const DIAGNOSTIC_CODES = [
   "pattern-label-names-unknown-entity",
   "pattern-label-claims-cause",
   "pattern-never-completes",
+  "cue-needs-event",
+  "cue-tie",
+  "cue-narrates-player",
+  "topic-ungated-depth",
 ] as const;

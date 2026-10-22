@@ -44,6 +44,15 @@ export const LIFE_FEATURES: readonly Feature[] = [
     settings: [], guideTopic: "commitments", doc: authorGuideDoc("commitments"), status: "experimental", needs: ["story"],
   },
   {
+    id: "reactive-cues", name: "Reactive cues", area: "characters", audience: "author",
+    oneLine: "Characters notice what a story says they would, deepen a topic you ask them about again, and react when a social rule is broken.",
+    what: "A story can give a character remarks and reactions, topics with up to three tiers, and norms its witnesses notice. When one applies, that character alone is handed "
+      + "one short cue in its private notes, which it may use in its own words; it is never a posted message, never your actions or feelings, and never a secret kept from it. "
+      + "A topic goes one tier deeper only when you ask that character directly. A swipe takes it back. No model call.",
+    where: featureAt("cues", "enabled", "Reactive cues"),
+    settings: ["characters.cues"], guideTopic: "cues", doc: authorGuideDoc("cues"), status: "experimental", needs: ["story", "group-chat"],
+  },
+  {
     id: "meanwhile-proposals", name: "Off-stage events", area: "world", audience: "author",
     oneLine: "Adds what a character did off stage toward their plan; it applies on its own by default.",
     what: "When the story moves on or a scene ends, the memory model suggests one short off-stage event per character, kept inside that character's plan. "

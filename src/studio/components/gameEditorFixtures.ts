@@ -70,6 +70,19 @@ export const commitmentStory = (): StoryDraft => {
   };
 };
 
+export const cueStory = (): StoryDraft => {
+  const base = sampleStory();
+  return {
+    ...base,
+    roster: base.roster.map((member, index) => (index === 0 ? {
+      ...member,
+      cues: [{ id: "alarm", kind: "reaction", when: { q: "alarm", op: "==", v: true }, cue: "the alarm bell rang at the gate" }],
+      topics: [{ id: "gate", keys: ["gate"], tiers: [{ cue: "the gate sticks in the rain" }] }],
+    } : member)),
+    norms: [{ id: "bell", label: "nobody rings the bell for nothing", broken_when: { q: "alarm", op: "==", v: true }, noticed_by: [base.roster[0].id], cue: "someone rang the bell" }],
+  };
+};
+
 export const codexStory = (): StoryDraft => ({
   ...sampleStory(),
   qualities: [...sampleStory().qualities, { key: "location", type: "enum", values: ["gate", "boathouse"], source: "extractor", rubric: "Where the party is." }],
