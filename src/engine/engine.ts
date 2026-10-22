@@ -18,6 +18,7 @@ export interface DerivedQualityView {
   values: Readonly<Record<string, PrimitiveValue>>;
   versions?: Readonly<Record<string, number>>;
   applied?: Readonly<Record<string, AppliedKey>>;
+  offers?: import("./life/offers").OfferEvidence;
 }
 
 export interface EntryView {
@@ -31,6 +32,7 @@ export interface EngineHost {
   now(): number;
   derive?(view: DerivedQualityView): Array<{ q: string; v: PrimitiveValue }>;
   chanceIds?(): { chatId: string; storyId: string } | null;
+  offers?(): import("./life/offers").OfferEvidence | undefined;
 }
 
 export interface BoundaryContext {
@@ -494,7 +496,7 @@ export class StoryEngine {
     const view = {
       boundary: this.boundary, activeCheckpointId: this.activeCheckpointId, checkpointStartedBoundary: this.checkpointStartedBoundary,
       checkpointStartedMessageId: this.checkpointStartedMessageId, lastMessageId: this.lastMessageId, values: blackboard.entries(),
-      versions: blackboard.snapshot().versions, applied,
+      versions: blackboard.snapshot().versions, applied, offers: this.host.offers?.(),
     };
     for (const delta of this.host.derive?.(view) ?? []) blackboard.applyDelta({ q: delta.q, v: delta.v, source: "code" });
     applyQuestRewards(story, blackboard);

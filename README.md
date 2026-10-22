@@ -174,6 +174,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Characters | Standing with groups | How the groups in a story regard you, shown as a word such as "Wary" or "Trusted". | Experimental |
 | Characters | Relationship labels | Words for how a character treats you, and secrets about them you can learn, on their People page. | Experimental |
 | Characters | Promises to you | Things a character has promised you, which the character remembers and may keep, raise or break. | Experimental |
+| Characters | Reactive cues | Characters notice what a story says they would, deepen a topic you ask them about again, and react when a social rule is broken. | Experimental |
 | Characters | Promises remembered | A promise you make to a character is remembered in your own words. |  |
 | Characters | Voice and delivery | Each character is told privately how they word things. |  |
 | Characters | Rumors and gossip | News a story declares travels between characters along the channels it authors, and may change on the way. |  |

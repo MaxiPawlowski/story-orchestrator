@@ -300,6 +300,11 @@ export class MemoryInjector {
     this.setPrivateBlocks(staged.shared, epistemic);
   }
 
+  refuses(text: string, rosterId: string | null): boolean {
+    const story = this.deps.getStory();
+    return Boolean(story && keptFrom(text, this.secrets(story), rosterId ? namesForRosterId(story, rosterId) : null));
+  }
+
   heldSecretsKey(): string {
     const story = this.deps.getStory();
     const sorted = (values: Iterable<string>) => [...values].sort();

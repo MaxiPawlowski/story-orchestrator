@@ -25,7 +25,7 @@ export const HELPER_RULES: H.HelperRule[] = [
   { names: ["truncate"], home: "src/utils/string.ts" },
 ];
 export const WITHHOLDING_HOME = "src/runtime/generationLifecycle.ts";
-export const FNV_HOME = "src/runtime/hash.ts";
+export const FNV_HOME = "src/utils/fnv.ts";
 export const POPUP_HOME = "src/services/stHost/popup.ts";
 export const DEAD_EXPORT_ALLOWED = "src/engine/schema.ts";
 export const MODEL_CALL_ALLOWED = [

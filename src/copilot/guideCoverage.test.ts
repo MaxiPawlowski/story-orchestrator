@@ -1,6 +1,7 @@
 import type { PoseEntry, StoryPoses, MemberSprites, StageMember, CardFieldBinding, CodexEntry, CodexFact, CodexReturn, StoryCodex, Observation, ObservationPassive } from "@engine/schema";
 import type { CarryFrom, CarryMapEntry, OutcomeKey } from "@engine/carrySchema";
 import type { Commitment } from "@engine/lifeSchema";
+import type { MemberCue, MemberTopic, StoryNorm, TopicTier } from "@engine/cueSchema";
 import type { Checkpoint, CheckpointEffects, Quality, RosterMember, Story, Transition } from "@engine/index";
 import { GUIDE_TOPICS, type GuideTopicId } from "./guideTopics";
 import { PENDING_GUIDE_TOPICS, readGuide } from "./guideRead";
@@ -16,7 +17,7 @@ const STORY: Record<keyof Story, Covered> = {
   scaffolding: { none: "written by the road-ahead generator, never authored" },
   objective_block: "objective-agency", display: "presentation", chapters: "chapters", memory: "chapters", quests: "quests", milestones: "quests",
   widgets: "widgets", clock: "story-time", calendar: "story-time", living: "living-director", factions: "factions",
-  codex: "codex", observations: "observations", outcome: "outcome", carry_from: "carry-from", rumors: "rumors", patterns: "patterns",
+  codex: "codex", observations: "observations", outcome: "outcome", carry_from: "carry-from", rumors: "rumors", patterns: "patterns", norms: "norms",
 };
 
 const CHECKPOINT: Record<keyof Checkpoint, Covered> = {
@@ -39,7 +40,7 @@ const TRANSITION: Record<keyof Transition, Covered> = {
 const ROSTER: Record<keyof RosterMember, Covered> = {
   id: "roster", name: "roster", role: "roster", drive: "drives-motives", view: "roster", aliases: "roster", card: "living-cards", sprites: "poses",
   relationships: "character-life", mood: "character-life", agenda: "character-life", schedule: "character-life", factions: "factions", gossip: "rumors", commitments: "commitments",
-  polish: "roster-polish",
+  polish: "roster-polish", cues: "cues", topics: "topics",
 };
 
 const QUALITY: Record<keyof Quality, Covered> = {
@@ -72,7 +73,16 @@ const COMMITMENT: Record<keyof Commitment, Covered> = {
 const OUTCOME: Record<keyof OutcomeKey, Covered> = { key: "outcome", heritage_text: "outcome" };
 const CARRY: Record<keyof CarryFrom, Covered> = { story: "carry-from", mode: "carry-from", map: "carry-from", replay_map: "carry-from", previously: "carry-from", default: "carry-from" };
 const CARRY_MAP: Record<keyof CarryMapEntry, Covered> = { from: "carry-from", to: "carry-from", as: "carry-from", known_by: "carry-from" };
+const CUE: Record<keyof MemberCue, Covered> = {
+  id: "cues", kind: "cues", when: "cues", cue: "cues", lane: "cues", priority: "cues", window: "cues", repeat: "cues", landed_when: "cues", max_offers: "cues",
+};
+const TOPIC: Record<keyof MemberTopic, Covered> = { id: "topics", keys: "topics", tiers: "topics", priority: "topics" };
+const TIER: Record<keyof TopicTier, Covered> = { cue: "topics", when: "topics" };
+const NORM: Record<keyof StoryNorm, Covered> = {
+  id: "norms", label: "norms", broken_when: "norms", noticed_by: "norms", cue: "norms", priority: "norms", checkpoints: "norms",
+};
 const TABLES: Array<[string, Record<string, Covered>]> = [
+  ["roster[].cues[]", CUE], ["roster[].topics[]", TOPIC], ["roster[].topics[].tiers[]", TIER], ["norms[]", NORM],
   ["outcome[]", OUTCOME], ["carry_from", CARRY], ["carry_from.map[]", CARRY_MAP],
   ["codex", CODEX], ["codex.entry", CODEX_ENTRY], ["codex.fact", CODEX_FACT], ["roster[].commitments[]", COMMITMENT], ["codex.return", CODEX_RETURN],
   ["observations[]", OBSERVATION], ["observations[].passive", OBSERVATION_PASSIVE],

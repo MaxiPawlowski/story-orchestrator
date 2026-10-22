@@ -24,6 +24,7 @@ export const FEATURE_POLICY_FIELDS = {
   voices: { enabled: toggle, max: count(1, 6) },
   inner: { enabled: toggle, fanOut: choice("next", "top2"), harvestReasoning: toggle },
   delivery: { enabled: toggle, repetition: toggle },
+  cues: { enabled: toggle },
   promises: { enabled: toggle },
   witness: { enabled: toggle },
   rumors: { enabled: toggle },

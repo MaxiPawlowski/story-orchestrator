@@ -208,6 +208,7 @@ Every feature is on by default; the character stage is on in its automatic form.
 | **Several voices per turn** | Lets several characters answer before it is your turn. | Each extra voice is another reply, up to 3. | You want one character to answer at a time. |
 | **Private inner voice** | Prepares private intent for the next speaker. | Up to two memory model calls per turn, never while you wait. | Your memory model is slow or paid per token. |
 | **Voice and delivery** | Tells each character privately how they word things, and steers them off phrases they keep repeating. | About 120 tokens in each drafted character's prompt; no model call. | You are comparing replies with and without voice sheets. |
+| **Reactive cues** | Hands a character one authored cue, privately, when something it would notice happens or you ask it about a topic. | One short line in the drafted character's prompt when a cue applies; no model call. | You are comparing replies with and without cues, or a story's cues read wrong. |
 | **Promises remembered** | Remembers promises you make to a character, in your words. | A few extra lines in each story read. | You do not want promises tracked. |
 | **Who heard what** | Notes which characters heard each message. | A few extra lines in each story read. | You want the shortest possible reads. |
 | **Rumors and gossip** | Passes a story's rumors between characters as hearsay. | No model call. | News should reach characters only on stage. |

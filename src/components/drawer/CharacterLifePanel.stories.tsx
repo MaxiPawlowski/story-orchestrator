@@ -94,6 +94,29 @@ export const PromisesToThePlayer: Story = {
   },
 };
 
+export const ReactiveCues: Story = {
+  args: {
+    life: life(),
+    cues: {
+      rows: [
+        { member: "arin", key: "cue:arin:ledger", kind: "reaction", lane: "may", text: "the stolen ledger is back", latchedAt: 3, landedAt: null, offers: 1 },
+        { member: "arin", key: "cue:arin:warn", kind: "remark", lane: "must", text: "the guild is hunting the thief", latchedAt: null, landedAt: 5, offers: 2 },
+      ],
+      previews: [{ member: "arin", winner: "cue:arin:market", tiedWith: ["cue:arin:dock"], ranked: ["cue:arin:market", "cue:arin:dock"],
+        dropped: [{ key: "cue:arin:secret", reason: "held-secret" }] }],
+      receipts: [],
+      lapses: [{ key: "norm:steel:arin", recipient: "arin", at: 6, reason: "recipient-away", defRev: "d", source: { kind: "norm", normId: "steel", member: "arin" } }],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await expect(await within(canvasElement).findByText("Character life")).toBeInTheDocument();
+    await expect(canvasElement.querySelector('[data-so="life-cue"][data-lane="must"]')).toHaveTextContent("landed at boundary 5");
+    await expect(canvasElement.querySelector('[data-so="life-cue-next"]')).toHaveTextContent("tied with cue:arin:dock (declaration order decides)");
+    await expect(canvasElement.querySelector('[data-so="life-cue-next"]')).toHaveTextContent("cue:arin:secret (held-secret)");
+    await expect(canvasElement.querySelector('[data-so="life-cue-lapse"]')).toHaveTextContent("lapsed: norm:steel:arin (recipient-away)");
+  },
+};
+
 export const AwayOverflowAndProposals: Story = {
   args: {
     life: life({

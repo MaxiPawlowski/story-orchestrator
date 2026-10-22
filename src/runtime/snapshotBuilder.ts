@@ -131,6 +131,7 @@ export interface SnapshotSources {
   scopeContext?: ScopeSourceContext;
   enabled?: readonly string[];
   generating?: boolean;
+  cuesAuthor?: import("./cuePort").CuesAuthorView | null;
 }
 
 export interface SnapshotPort {
@@ -153,6 +154,7 @@ export interface SnapshotPort {
   scopeContext?: ScopeSourceContext;
   enabled?: readonly string[];
   generating?: boolean;
+  cues?: Pick<import("./cuePort").CuePort, "authorView">;
 }
 
 export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
@@ -185,6 +187,7 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   scopeContext: port.scopeContext,
   enabled: port.enabled,
   generating: port.generating,
+  cuesAuthor: port.cues?.authorView(port.extras.ui.authorView),
 });
 
 const routeGaps = () => {
@@ -264,7 +267,7 @@ const inlineView = (sources: SnapshotSources, story: NormalizedStory | null, liv
     agencyRecovery: live.agencyRecovery, lastRollback: sources.lastRollback, saveNotice: playerSaveNotice(extras.saveHealth), castNames,
     firstLines: firstLines(sources.chat), authorMoves: authorMoves(extras), resting: sources.resting,
     emptyReplies: recentEmptyReplies(sources.chat, settings.window), enabled: sources.enabled, sceneTests: authorView ? extras.living?.sceneTests : undefined,
-    patternCompletions: authorView ? extras.patterns?.completed : undefined,
+    patternCompletions: authorView ? extras.patterns?.completed : undefined, cueReceipts: authorView ? extras.cues?.receipts : undefined,
   });
 };
 
@@ -484,7 +487,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     memory: extras.memory, memoryShown: shownRows(extras.memory.entries, sources.resting ?? ((text: string) => text)),
     chapters,
     promises: promisesSlice(story, extras, blackboard),
-    rumorsAuthor: rumorAuthorSlice(story, extras), ...patternSlices(story, extras, state, sources),
+    rumorsAuthor: rumorAuthorSlice(story, extras), ...patternSlices(story, extras, state, sources), cuesAuthor: sources.cuesAuthor,
     pacing: extras.pacing,
     copilot: extras.copilot,
     ui: extras.ui,

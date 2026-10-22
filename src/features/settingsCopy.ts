@@ -178,6 +178,11 @@ export const SETTING_COPY = {
     "Phrases a character used in several of their own last six replies, and the habits a story lists for them, are named back to that character alone as something to vary. "
       + "Read from the chat each time, so a swipe or edit changes it. No model call.",
   ),
+  "characters.cues": copy(
+    "Give characters the cues a story authors",
+    "When an event a story names happens, or you ask a character directly about one of its topics, that character alone is handed one short cue it may use in its own words. "
+      + "Never a posted message and never your actions. No model call.",
+  ),
   "memory.promises": copy(
     "Remember promises you make",
     "When you promise a character something, the story keeps your exact words and reminds only that character, when the scene touches it. "

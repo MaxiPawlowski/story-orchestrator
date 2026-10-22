@@ -82,13 +82,15 @@ export interface GlobalSettings {
 export interface CharacterSettings {
   delivery: boolean;
   deliveryRepetition: boolean;
+  cues: boolean;
 }
 
-export const defaultCharacterSettings = (): CharacterSettings => ({ delivery: true, deliveryRepetition: true });
+export const defaultCharacterSettings = (): CharacterSettings => ({ delivery: true, deliveryRepetition: true, cues: true });
 
 const sanitizeCharacterSettings = (value: unknown): CharacterSettings => ({
   delivery: !(isRecord(value) && value.delivery === false),
   deliveryRepetition: !(isRecord(value) && value.deliveryRepetition === false),
+  cues: !(isRecord(value) && value.cues === false),
 });
 
 export interface HelpSettings {

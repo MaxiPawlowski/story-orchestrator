@@ -31,6 +31,7 @@ import { currentChatOwner, getPlayerName } from "@services/STAPI";
 import { storyEnded } from "./chapterPort";
 import { createNarratorSheetPort } from "./narratorSheetPort";
 import { createDeliveryPort } from "./deliveryPort";
+import { createCuePort } from "./cuePort";
 import { resolveFeatures } from "./featureResolve";
 import { hasOpenGroup } from "./persistence";
 import { createGamePort } from "./gamePort";
@@ -51,6 +52,7 @@ import { gameLayer } from "@engine/validate/gameLayer";
 const reconcileWith = (read: () => RuntimeExtras) => (previous: NormalizedStory, next: NormalizedStory): void => {
   const extras = read();
   extras.observations = observationKit()?.reconcile(extras.observations, previous, next) ?? extras.observations;
+  extras.cues = gameLayer()?.cues.reconcileCues(extras.cues, previous, next) ?? extras.cues;
 };
 
 export const restingTexts = <T extends { text: string }>(memory: MemoryCoordinator, rows: readonly T[]): T[] => shownRows(rows, memory.injector.restingFilter());
@@ -140,6 +142,12 @@ function wireDelivery(port: ManagerPort, memory: MemoryCoordinator) {
   return delivery;
 }
 
+function wireCues(port: ManagerPort, memory: MemoryCoordinator) {
+  const cues = createCuePort(port, memory);
+  memory.injector.addPrivateSource((id) => cues.lines(id), cues);
+  return cues;
+}
+
 function wireInner(port: ManagerPort, memory: MemoryCoordinator, pacing: () => PacingCoordinator) {
   let innerHost: InnerBeatHost | null = null;
   let innerLoad: Promise<InnerBeatHost> | null = null;
@@ -206,7 +214,7 @@ export function wireCoordinators(port: ManagerPort) {
     hints: patternsWiring.hints,
   });
   memory.injector.addPrivateSource((rosterId) => narrator.lines(rosterId));
-  const delivery = wireDelivery(port, memory);
+  const delivery = wireDelivery(port, memory), cues = wireCues(port, memory);
   const carry = createCarryActions(port, () => memory.updateInjection());
   const inner = wireInner(port, memory, () => pacing);
   const refusing = () => {
@@ -315,6 +323,6 @@ export function wireCoordinators(port: ManagerPort) {
   const storyUpdateDeps = storyUpdateDepsFor(port, expansion, living, patternsWiring.reconcile);
   return {
     memory, expansion, extraction, pacing, stagecraft, copilot, inner, game, meanwhile, living, rollbackDeps, storyUpdateDeps, recap, patterns, promises, witness, rumors,
-    carry, narrator, delivery,
+    carry, narrator, delivery, cues,
   };
 }

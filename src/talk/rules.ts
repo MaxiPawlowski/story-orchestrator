@@ -49,7 +49,7 @@ const EXCLUDED_BEFORE = new RegExp("\\b(?:without|except|but not|not even|keep(?
 
 const escapeWord = (word: string) => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
-const excluded = (clause: string, at: number, length: number): boolean =>
+export const excluded = (clause: string, at: number, length: number): boolean =>
   EXCLUDED_BEFORE.test(clause.slice(0, at)) || EXCLUDED_AFTER.test(clause.slice(at + length));
 
 const addressedIn = (clause: string, word: string): boolean =>
