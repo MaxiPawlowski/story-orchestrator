@@ -259,3 +259,59 @@ Findings from `10-review-sol.md` §09 and cross-plan items naming 09; code re-ve
 - Cross-plan held-secret filter, 04/07 offer API, 05/06 projection, new-only chunk activation, extras reconciliation, model
   routing: not applicable to 09 (no authored text, no extras slice, no model call); 09 shows on/off only.
 - Thinking and inner voice: untouched; Help only reports their state.
+
+## Gate record 2026-10-21 (v2.9 build, branch v2.9-09-feature-help)
+
+Built on `e7bcee5d`; commits `37a586b8` (S1), `2363f844` (S2+S3), `00fd4959` (live-check fixes).
+
+Built:
+- S1: `src/runtime/featureStatus.ts` (one word table, `featureStateWord` short form, `featureStatus` -> `{word, short, source, setup}`,
+  `waitingCount`); `FeaturePages` uses it; index wording unified to "Turned off by this story" (owner wording), player guide updated.
+- S2: `src/features/featureState.ts` (`FEATURE_STATE`: master / control / mode / parts / authored rows, `UNMAPPED_STORY_FEATURES`,
+  `UNMAPPED_CONTROLS` with reasons); `src/runtime/helpFeatureState.ts` (`helpFeatureState`, `findingsByFeature` over `setupFindings`
+  joined to `CHECKS` by `feature`); `HelpPanel` takes `stateOf`/`whereOf`/`findingsOf` (source chip Install / Story / This chat,
+  setup line, Experimental tag, check findings with Open setup -> This story > Play > Setup); `HelpHost` takes the snapshot from
+  `PanelsHost`; snapshot gains `storyDeclares.commitments`; `isOn` removed from every mapped registry row (incl. the three divergent
+  ones). No story: chips read "Default for new stories: ..." and Show me for a story feature goes to Orchestrator > Defaults
+  (`defaultsWhere`/`helpWhere`); a Show me into a story page that cannot render without a story is not offered.
+- S3: `meanwhile-proposals` copy (auto by default, Review waits, Off stops); curator, curator-markers and continuity-warden copy name
+  their default mode; parity test reads the default from `defaultGlobalSettings()`; off-stage-event paragraph in the character-life
+  topic (`story-guide.md`) and a short compact-twin line (800-char budget); `docs:guide`, `docs:settings` regenerated; Help `oneLine`/`what`.
+- Fixes found live: `so-player-promises` added to Play routing (was routed to Author, `where.ts` `PLAY_TARGETS`).
+
+Floors (informational):
+- 24 frozen cases (`src/runtime/featureStatus.cases.ts`): Help / Features index + detail / control agreement 24 of 24 (jest).
+- Author-only disclosures in player Help: 0 across the 24 (jest, `findingsByFeature` in player mode; model-role-outage with no player
+  copy shows to the author only); live: no author-audience row in any player view.
+- Show me, live (lane 41, no model): no story, player 48 offered / 44 reach, author 85 / 81, same at 1920x1080 and 390x844; loaded
+  synthetic story (story `pacing: off`, chat `meanwhile.acceptMode: review`, chat `speakers: off`), player 66 / 48, author 107 / 87, same
+  at both sizes. Every miss is a pre-existing conditional render, not a 09 row: content-dependent Play launchers (journal, stat sheet,
+  widgets, memory search, carry, living save, promises list) on a story with no game layer or memory, and install-conditional targets
+  (`so-announce-transitions`, `so-gpu-broker`, `so-judge-local-*`, `so-getting-started`, `so-cast-scene`, `so-character-life`,
+  `so-living-scene-tests`, `so-author-view`). Mapped (FEATURE_STATE) rows: no story 7/7 player, 20/20 author (5 and 18 land on
+  Defaults); story 7/9 and 20/22 (the two misses are npc-commitments and promises-remembered, content-conditional). Floor "all" NOT met
+  because of those pre-existing targets; recorded, not retuned.
+- Live chips matched `snapshot.features` and the Features index: pacing "Turned off by this story" [Story], speakers "Off in this chat"
+  [This chat], meanwhile "Review before applying" [This chat]; no story never showed "Off in this chat".
+
+Commands and results:
+- `npm run gates:quick`: green (typecheck, typecheck:test, lint, jest related 1776/1776, replay --cached 32/32 killed).
+- `npm run gates` (no --resume, on `00fd4959`): RED, both environment: `test-storybook:ci` EADDRINUSE :6006 (another v2.9 builder's
+  Storybook), `test:debug` `childTree.test.mts` timing case under load. build, typecheck, typecheck:test, test (9824 passed, 1
+  skipped), test:replay green.
+- `npm run gates -- --resume` (same tree): `test-storybook:ci` EADDRINUSE again, `test:plugin` OpenCode boot timing case (load);
+  build, debug:typecheck, lint, test:release, test:debug green.
+- `npm run gates -- --resume` after :6006 was free (same tree): all green; test:plugin green, test-storybook:ci 156 suites / 945 tests
+  (HelpPanel, FeaturePages pass). No full run without --resume is green; every step is green on this exact tree.
+- `npm run build`: main `dist/index.js` 1,291,372 B (budget 1,300,000); Help stays in its lazy chunk.
+- Live: isolated ST code copy `C:/dev/st-v29-09` (node_modules junctioned), staged with `stage.mjs --st-root`, lanes root
+  `C:/dev/so-v29-09-lanes` lane 41 (data copied from an offline no-model lane), judge/images off; owner ST and lane 0 untouched.
+  Sandbox chat deleted, story removed, overrides cleared, lane stopped.
+
+NOT run: real-LLM rows: none in this plan (no model call). Campaign adoption: none (owner decision).
+
+Deviations:
+- Finding Show me opens the Setup list (where the step's own Show me and Fix live) instead of the step's raw target.
+- Compact guide twin got a one-line mention only (topic at its 800-char budget).
+- Unresolved questions answered: Ask's knowledge reports no on/off (it lists setting paths only), left as is; agency, prefetch and
+  cardState have no Help row (reasons in `UNMAPPED_STORY_FEATURES`); the re-enable warning stays on the Features page only.
