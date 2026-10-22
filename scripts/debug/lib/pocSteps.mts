@@ -110,7 +110,7 @@ export async function stepPoses(ctx: StepEnv): Promise<StepResult> {
   const section = ctx.page.locator('#so-studio-poses');
   await section.locator('#so-prepare-poses').click({ force: true });
   await ctx.page.waitForFunction(() => /Prepared \d+ of \d+|Nothing to prepare|Fix the story/.test(document.querySelector('#so-studio-poses [role="status"]')?.textContent ?? ''),
-    undefined, { polling: 1000, timeout: 1_800_000 });
+    undefined, { polling: 1000, timeout: 3_600_000 });
   const note = (await section.locator('[role="status"]').textContent()) ?? '';
   const counts = /Prepared (\d+) of (\d+)/.exec(note);
   if (!counts) return { outcome: 'fail', detail: note.slice(0, 300) };
