@@ -1,4 +1,6 @@
-import type { CodexEntry, CodexPage, Faction, Milestone, Observation, QualityDisplay, Quest, RelationshipDecl, RosterMember, StoryCheck, StoryCodex, StoryWidget } from "@engine/index";
+import type {
+  CheckpointOffer, CodexEntry, CodexPage, Faction, Milestone, Observation, QualityDisplay, Quest, RelationshipDecl, RosterMember, StoryCheck, StoryCodex, StoryWidget,
+} from "@engine/index";
 import type { CalendarInput, Commitment, StoryClock } from "@engine/lifeSchema";
 import type { Rumor } from "@engine/rumorSchema";
 import type { StoryPattern } from "@engine/patternSchema";
@@ -71,6 +73,10 @@ export const setQualityDisplay = (draft: StoryDraft, key: string, display: Quali
 export const setCheckpointChecks = (draft: StoryDraft, id: string, checks: StoryCheck[]): StoryDraft => (checks.length
   ? updateCheckpoint(draft, id, { checks })
   : { ...draft, checkpoints: draft.checkpoints.map((checkpoint) => (checkpoint.id === id ? without(checkpoint, "checks") : checkpoint)) });
+
+export const setCheckpointOffers = (draft: StoryDraft, id: string, offers: CheckpointOffer[]): StoryDraft => (offers.length
+  ? updateCheckpoint(draft, id, { offers })
+  : { ...draft, checkpoints: draft.checkpoints.map((checkpoint) => (checkpoint.id === id ? without(checkpoint, "offers") : checkpoint)) });
 
 export const setTransitionCheck = (draft: StoryDraft, index: number, check: StoryCheck | undefined): StoryDraft => (check
   ? updateTransition(draft, index, { check })

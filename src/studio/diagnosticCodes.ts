@@ -75,4 +75,6 @@ export const DIAGNOSTIC_CODES = [
   "pattern-label-names-unknown-entity",
   "pattern-label-claims-cause",
   "pattern-never-completes",
+  "offer-names-unknown",
+  "check-hint-names-unknown",
 ] as const;

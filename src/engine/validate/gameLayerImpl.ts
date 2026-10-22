@@ -28,6 +28,7 @@ import { checkRumors, readRumors } from "./rumors";
 import { checkPatterns, readPatterns } from "./patterns";
 import { deliveryNames, readRosterPolish } from "./delivery";
 import { checkStretches, readStretch } from "./stretch";
+import { addOffers, checkOffers, readOffers } from "./offers";
 import { addLivingQualities, checkLiving, livingOpening, needsLivingOpening, readLiving } from "./living";
 import { spreadRumors } from "../../memory/rumors/spread";
 import { hearsayLines, rumorAuthorRows } from "../../memory/rumors/lines";
@@ -59,6 +60,8 @@ const DELIVERY = { readRosterPolish, deliveryNames };
 
 const STRETCH = { readStretch, checkStretches };
 
+const OFFERS = { readOffers, addOffers, checkOffers };
+
 const LIVING = { readLiving, needsLivingOpening, livingOpening, addLivingQualities, checkLiving };
 
 const LATCH_WRITERS = [codexLatches, factionLatches, labelLatches, commitmentLatches, observationLatches] as const;
@@ -70,6 +73,7 @@ const ENTRY_WRITERS = [timeEntry] as const;
 export const GAME_LAYER = {
   readCheck, readChecks, checkStoryChecks, addCheckQualities,
   checkDisplays, readDisplay, addRewardQualities, checkQuests, expandRequires, readMilestones, readQuests, readWidgets, life: LIFE, poses, validateCardLayers,
-  codex: CODEX, observations: OBSERVATIONS, factions: FACTIONS, carry: CARRY, rumors: RUMORS, patterns: PATTERNS, delivery: DELIVERY, living: LIVING, stretch: STRETCH, latchWriters: LATCH_WRITERS,
+  codex: CODEX, observations: OBSERVATIONS, factions: FACTIONS, carry: CARRY, rumors: RUMORS, patterns: PATTERNS, delivery: DELIVERY, living: LIVING, stretch: STRETCH, offers: OFFERS,
+  latchWriters: LATCH_WRITERS,
   discoveryUnits: DISCOVERY_UNITS, entryWriters: ENTRY_WRITERS,
 };

@@ -2,6 +2,7 @@ import type { GateNode, NpcReplyEffect, PrimitiveValue } from "./schema";
 
 export * from "./codexSchema";
 export * from "./observationSchema";
+export * from "./offerSchema";
 
 export const QUALITY_DISPLAY_AS = ["meter", "count", "word", "item", "boxes"] as const;
 export type QualityDisplayAs = (typeof QUALITY_DISPLAY_AS)[number];
@@ -108,6 +109,7 @@ export interface CheckModifier {
   v: PrimitiveValue;
   add: number;
   label?: string;
+  hint?: string;
 }
 
 export interface CheckOutcomeBands {
@@ -126,6 +128,7 @@ export interface StoryCheck {
   outcome?: CheckOutcomeBands;
   twist?: { quality: string };
   when?: GateNode;
+  hint_when?: GateNode;
 }
 
 export interface Milestone {

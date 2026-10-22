@@ -324,6 +324,7 @@ export const readCheckpoint = (value: unknown, path: string, errors: ValidationE
     const stretch = gameLayer()?.stretch.readStretch(value.stretch, `${path}.stretch`, errors, type);
     if (stretch) checkpoint.stretch = stretch;
   }
+  gameLayer()?.offers.addOffers(checkpoint, value.offers, path, errors);
   readCheckpointChapter(value, checkpoint, path, errors);
   const checks = gameLayer()?.readChecks(value.checks, `${path}.checks`, errors) ?? [];
   return checks.length ? { ...checkpoint, checks } : checkpoint;
