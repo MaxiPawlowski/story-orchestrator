@@ -1,5 +1,5 @@
 import { beginRun, type RunGuard, type RunOwnership } from "@runtime/runToken";
-import { blinkProblems, overBase, stillOpen, type EyeRead } from "./eyeOpen";
+import { blinkProblems, isCutout, overBase, stillOpen, type EyeRead } from "./eyeOpen";
 import { seamProblem } from "./seam";
 import { cleanEdges } from "./edges";
 import { checkPixels, checkMouthCoverage, pasteEdit, validateBox, type HeadBox, type PixelImage, type PixelQA } from "./pixels";
@@ -112,9 +112,17 @@ export class SpriteBuilder {
   }
 
   private async frameReasons(kind: SpriteBuildRequest["kind"], base: PixelImage, output: PixelImage, signal: AbortSignal, guard: () => void): Promise<string[]> {
+    if (kind === "base") return this.faceReasons(base, output, signal, guard);
     if (!isFrameKey(kind)) return [];
     const seam = seamProblem(base, output);
     return kind === "blink" ? [...seam, ...await this.blinkReasons(base, output, signal, guard)] : seam;
+  }
+
+  private async faceReasons(reference: PixelImage, output: PixelImage, signal: AbortSignal, guard: () => void): Promise<string[]> {
+    if (!this.deps.eyes || !isCutout(reference)) return [];
+    const read = await this.deps.eyes(output, signal).catch(() => null);
+    guard();
+    return read && read.faces === 0 ? ["The new look lost the head: no face is found in the render. Render it again."] : [];
   }
 
   private async blinkReasons(base: PixelImage, output: PixelImage, signal: AbortSignal, guard: () => void): Promise<string[]> {

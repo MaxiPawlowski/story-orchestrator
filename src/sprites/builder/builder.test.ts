@@ -235,6 +235,30 @@ test("a retryable refusal re-renders once with a new seed; any other refusal is 
   expect(seeds).toEqual([1]);
 });
 
+test("a new look rendered from a cut-out base must keep a face: a headless render is refused once and re-rendered; card art is never face-checked", async () => {
+  const { builder, deps } = fixture();
+  const cutout = { id: "installed_alpha", node: "BiRefNetRMBG" as const, model: "BiRefNet_toonout", files: [models.diffusion] };
+  const look = { ...request, kind: "base" as const, reference: "neutral", label: "neutral", cutout };
+  const neutral = image(32, 32);
+  for (let at = 0; at < 32 * 8; at++) neutral.data[at * 4 + 3] = 0;
+  deps.decode = async (src) => src === "neutral" ? neutral : image(32, 32, 80);
+  const faces = [0, 1];
+  const eyes = jest.fn(async (): Promise<EyeRead> => ({ boxes: null, openness: null, faces: faces.shift() ?? 1 }));
+  deps.eyes = eyes;
+  await builder.build(look);
+  expect(eyes).toHaveBeenCalledTimes(2);
+  expect(deps.render).toHaveBeenCalledTimes(2);
+  eyes.mockClear();
+  eyes.mockImplementation(async () => ({ boxes: null, openness: null, faces: 0 }));
+  await expect(builder.build(look)).rejects.toThrow("lost the head");
+  eyes.mockClear();
+  const card = image(32, 32);
+  for (let at = 3; at < card.data.length; at += 4) card.data[at] = 255;
+  deps.decode = async (src) => src === "card" ? card : image(32, 32, 80);
+  await builder.build({ ...look, reference: "card" });
+  expect(eyes).not.toHaveBeenCalled();
+});
+
 test("a failed reference cleanup still releases the GPU lease", async () => {
   const { builder, deps } = fixture();
   const release = jest.fn(async () => {});

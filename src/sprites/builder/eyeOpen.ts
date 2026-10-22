@@ -25,7 +25,17 @@ export function eyeBoxes(result: unknown, image: Pick<PixelImage, "width" | "hei
   return boxes;
 }
 
-export interface EyeRead { boxes: HeadBox[] | null; openness: number[] | null }
+export interface EyeRead { boxes: HeadBox[] | null; openness: number[] | null; faces?: number }
+
+export const faceCount = (result: unknown): number => readDetectorResult(result)?.faces.length ?? 0;
+
+export const CUTOUT_SHARE = 0.05;
+
+export function isCutout(image: PixelImage): boolean {
+  let clear = 0;
+  for (let at = 3; at < image.data.length; at += 4) if (image.data[at] < 16) clear++;
+  return clear > image.width * image.height * CUTOUT_SHARE;
+}
 
 export function eyeOpenness(result: unknown): number[] | null {
   const read = readDetectorResult(result);
