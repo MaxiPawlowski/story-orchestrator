@@ -35,6 +35,7 @@ export const FEATURE_STATE: Readonly<Record<string, FeatureStateRow>> = {
   images: master("illustrations"),
   sprites: master("sprites"),
   "pose-library": master("poses"),
+  "character-delivery": master("delivery"),
 };
 
 export const UNMAPPED_STORY_FEATURES: Readonly<Partial<Record<StoryFeatureId, string>>> = {
@@ -61,6 +62,7 @@ export const UNMAPPED_CONTROLS: Readonly<Record<string, string>> = {
   "illustrations.everyN": "Tuning number, not on or off.",
   "sprites.stage": "Display detail of the character stage.",
   "cardState.enabled": "See cardState in UNMAPPED_STORY_FEATURES.",
+  "delivery.repetition": "Part of voice and delivery (repeated-phrase notes), not a feature of its own; Story → Features.",
 };
 
 export const rowFeatures = (row: FeatureStateRow): Array<{ feature: StoryFeatureId; control: string }> => {

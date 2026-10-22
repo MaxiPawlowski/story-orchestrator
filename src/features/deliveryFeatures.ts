@@ -12,6 +12,5 @@ export const DELIVERY_FEATURES: readonly Feature[] = [
     where: featureAt("delivery", "enabled", "Voice and delivery"),
     settings: ["characters.delivery", "characters.deliveryRepetition"], guideTopic: "roster-polish", doc: authorGuideDoc("roster-polish"), status: "shipped",
     needs: ["story", "group-chat"],
-    isOn: (settings) => settings.characters.delivery !== false,
   },
 ];
