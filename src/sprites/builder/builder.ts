@@ -111,6 +111,22 @@ export class SpriteBuilder {
     }
   }
 
+  private async frameReasons(kind: SpriteBuildRequest["kind"], base: PixelImage, output: PixelImage, signal: AbortSignal, guard: () => void): Promise<string[]> {
+    if (!isFrameKey(kind)) return [];
+    const seam = seamProblem(base, output);
+    return kind === "blink" ? [...seam, ...await this.blinkReasons(base, output, signal, guard)] : seam;
+  }
+
+  private async blinkReasons(base: PixelImage, output: PixelImage, signal: AbortSignal, guard: () => void): Promise<string[]> {
+    const read = (image: PixelImage) => this.deps.eyes ? this.deps.eyes(image, signal).catch(() => null) : Promise.resolve(null);
+    const before = await read(base);
+    guard();
+    if (!before?.boxes) return [];
+    const shown = overBase(base, output), after = await read(shown);
+    guard();
+    return blinkProblems(base, shown, before.boxes, stillOpen(before.openness, after?.openness));
+  }
+
   private async buildOnce(request: SpriteBuildRequest): Promise<SpriteCandidate> {
     if (this.controller) throw new Error("Finish or cancel the current sprite first.");
     const resolution = validateBuildRequest(request);
@@ -190,17 +206,7 @@ reference: reference as string, instruction: editInstruction(request.kind, reque
         alphaPixels: output.data.filter((value, at) => at % 4 === 3 && value <= 8).length, ringDrift: 0 }
         : checkPixels(base, output, box, isFrameKey(request.kind));
       if (region) qa.reasons.push(...checkMouthCoverage(base, output, box, region, request.kind !== "rest"));
-      if (isFrameKey(request.kind)) qa.reasons.push(...seamProblem(base, output));
-      if (request.kind === "blink" && this.deps.eyes) {
-        const before = await this.deps.eyes(base, controller.signal).catch(() => null);
-        guard();
-        if (before?.boxes) {
-          const shown = overBase(base, output);
-          const after = await this.deps.eyes(shown, controller.signal).catch(() => null);
-          guard();
-          qa.reasons.push(...blinkProblems(base, shown, before.boxes, stillOpen(before.openness, after?.openness)));
-        }
-      }
+      qa.reasons.push(...await this.frameReasons(request.kind, base, output, controller.signal, guard));
       qa.maskImport = maskImport;
       qa.ok = qa.ok && !qa.reasons.length;
       if (!qa.ok) throw new Error(qa.reasons.join(" "));

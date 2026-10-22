@@ -77,11 +77,11 @@
       "status": "checked",
       "note": "Rechecks the owning chat/story and current look after the GPU frame answers, immediately before saving. SpriteBuilder.save independently checks its retained run. The caller rechecks before applying the complete pair; builder/builder.test.ts and lookFrames.test.ts cover stale renders and wait handoffs."
     },
-    "src/sprites/builder/builder.ts#SpriteBuilder.build.timed": {
+    "src/sprites/builder/builder.ts#SpriteBuilder.buildOnce.timed": {
       "status": "local",
       "note": "Per-candidate phase measurements only; writes no chat, draft or host state. Wall-time cleanup regression: sprites/builder/builder.test.ts."
     },
-    "src/sprites/builder/builder.ts#SpriteBuilder.build": {
+    "src/sprites/builder/builder.ts#SpriteBuilder.buildOnce": {
       "status": "checked",
       "note": "v2.7 18 + 21 Belle pilot: draft/chat RunGuard before reference upload, before rendering and before retaining a preview. Cancellation releases the lease in finally. Upload is a separate synchronous ownership check in SpriteBuilder.save. Tests: sprites/builder/builder.test.ts, old draft and cancellation controls."
     },
@@ -1001,6 +1001,10 @@
       "status": "checked",
       "note": "Plan 33: RunGuard and current-stage checks precede renders, saves and application. Tests: sprites/poses/bodyRenderer.test.ts."
     },
+    "src/studio/components/PosesList.tsx#host.prepare": {
+      "status": "delegate",
+      "note": "awaits PoseBodies.render, which holds the draft RunGuard before every render and save; afterwards only counts results into its own local list for the returned note."
+    },
     "src/studio/components/PosesList.tsx#PosesList.work": {
       "status": "checked",
       "note": "Plan 33: RunGuard and current-stage checks precede renders, saves and application. Tests: sprites/poses/bodyRenderer.test.ts."
@@ -1039,7 +1043,7 @@
     },
     "src/studio/components/BaseSpriteBuilder.tsx#BaseSpriteBuilder.build": {
       "status": "delegate",
-      "note": "awaits SpriteBuilder.build, which holds the draft RunGuard before upload, render and retaining a preview; afterwards only the component's candidate/error state, behind live.current."
+      "note": "awaits SpriteBuilder.buildOnce (through build and its one retry), which holds the draft RunGuard before upload, render and retaining a preview; afterwards only the component's candidate/error state, behind live.current."
     },
     "src/studio/components/BaseSpriteBuilder.tsx#BaseSpriteBuilder.keep": {
       "status": "checked",
@@ -1075,7 +1079,7 @@
     },
     "src/studio/components/SpriteBuilder.tsx#SpriteBuilder.generate": {
       "status": "delegate",
-      "note": "awaits SpriteBuilder.build, which holds the draft RunGuard before upload, render and retaining a preview; afterwards it annotates its own result's timings and sets component preview state."
+      "note": "awaits SpriteBuilder.buildOnce (through build and its one retry), which holds the draft RunGuard before upload, render and retaining a preview; afterwards it annotates its own result's timings and sets component preview state."
     },
     "src/studio/components/SpriteBuilder.tsx#SpriteBuilder.save": {
       "status": "local",
