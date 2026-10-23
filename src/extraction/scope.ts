@@ -1,4 +1,4 @@
-import { CLOCK_READ_KEY, TENSION_CURRENT_KEY, isStoryTimeKey, type BlackboardSnapshot, type GateNode, type NormalizedStory, type Quality } from "@engine/index";
+import { CLOCK_READ_KEY, TENSION_CURRENT_KEY, checksAt, isStoryTimeKey, type BlackboardSnapshot, type GateNode, type NormalizedStory, type Quality } from "@engine/index";
 import type { ExtraGateSource, ScopePull, ScopedQuality, ScopedQualityExplained } from "./types";
 import { readScopeSources, SCOPE_SOURCES, type ScopeSource, type ScopeSourceContext, type ScopeSourceResult } from "./scopeSources";
 
@@ -81,13 +81,19 @@ export function deriveScopeWithSources(
     }
   });
 
-  for (const check of story.checkpointById[activeCheckpointId]?.checks ?? []) {
-    if (!check.when) continue;
-    const gateKeys = new Set<string>();
-    collectGateKeys(check.when, gateKeys);
-    gateKeys.forEach((key) => {
+  for (const { check } of checksAt(story, activeCheckpointId)) {
+    const reads: Array<[string, string]> = [];
+    (["when", "hint_when"] as const).forEach((field) => {
+      const gate = check[field];
+      if (!gate) return;
+      const gateKeys = new Set<string>();
+      collectGateKeys(gate, gateKeys);
+      gateKeys.forEach((key) => reads.push([key, `check ${check.id} ${field}`]));
+    });
+    (check.modifiers ?? []).forEach((modifier) => reads.push([modifier.q, `check ${check.id} modifier`]));
+    reads.forEach(([key, detail]) => {
       keys.add(key);
-      addPull(key, { kind: "gate", checkpointId: activeCheckpointId, detail: `check ${check.id} when` });
+      addPull(key, { kind: "gate", checkpointId: activeCheckpointId, detail });
     });
   }
 

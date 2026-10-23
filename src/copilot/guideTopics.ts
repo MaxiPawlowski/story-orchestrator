@@ -326,7 +326,7 @@ export const GUIDE_TOPICS = {
       + "Total = dice + modifiers that hold, read each turn; quality is total >= target. outcome {quality, bands: margin, partial_margin} writes miss|weak|strong; "
       + "twist {quality} marks matching dice. A transition check is attempted when the rest of its gate holds. A checkpoint check with when (a gate, declared keys, "
       + "not its own) stays pending until when holds, then rolls once a visit; a swipe takes it back. The next reply is told the outcome; public adds a chip. "
-      + "A public modifier hint shows as help, no dice; hint_when gates it.",
+      + "A public modifier hint shows as help, no dice; hint_when gates it. Keys of when, hint_when and modifiers are read while the check is live.",
   },
   ...OFFER_TOPICS,
   widgets: {
