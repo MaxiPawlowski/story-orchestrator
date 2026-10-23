@@ -134,7 +134,7 @@ for (const arm of Object.keys(ARMS)) {
   }
 }
 
-const schema = await import(pathToFileURL(new URL("../../../../scripts/debug/lib/scenarioSchema.mts", import.meta.url).pathname.replace(/^/([A-Za-z]:)/, "$1")).href);
+const schema = await import(new URL("../../../../scripts/debug/lib/scenarioSchema.mts", import.meta.url).href);
 let bad = 0;
 for (const file of written) {
   const problems = schema.validateFixture(JSON.parse(file.text), file.name);
