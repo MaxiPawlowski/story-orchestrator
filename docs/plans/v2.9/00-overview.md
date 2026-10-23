@@ -246,4 +246,6 @@ NOT run: lane live scenarios `v29-04-cues.json`, `v29-06-anchored-suggestions.js
 - Not run (each > 1 h or needs a rater that does not exist yet): 02 S6, 03 rating floors, 04 C2/C5 corpus, 05 P1/P2, 06 LT,
   07 at its denominator, 08 O4, payload goldens with a model. No fix branch was needed for the product; the one harness note
   (06 fixture `ext_setting` wipes install settings for its run) is in 06's record.
+- `npm run gates -- --serial` on `f28f647f` (no `--resume`, Storybook included): `gates: all green in 612.3s` (test 881 suites /
+  10307 passed + 1 skipped, test-storybook:ci 165 / 993, replay 32 of 32 killed). Docs-only commit after it.
 - GPU left as found: controller manual hold, text unloaded; lanes 41/42 stopped (end-of-window evidence in this section's commit).
