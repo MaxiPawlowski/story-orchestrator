@@ -38,6 +38,9 @@ the owner's call: no GPU row starts until the owner says so.
 
 ### Development, owner decisions
 
+- v2.8 81 live head expressions (2026-10-23): built on `v2.8-81-live-head-expressions`, not merged; rater 9/9 (was
+  0/9); owner review of the showcase `expressions-2026-10-23.html`, then merge from a worktree outside `.claude/`
+  (Storybook runner); open: per-expression blink/talk frames (GPU renders), draw-time floor missed on 4 of 8.
 - Suggestion name filter over-drops public text naming an unreached checkpoint.
 - v2.9 06 help line and greyed offers on the player surface.
 - v2.9 folds into plans 69/63, A02, G07.

@@ -83,3 +83,61 @@ images) because the GPU is paused for lanes with models.
 - Should the frames step render blink/talk frames for every expression of the base set (6 more renders per member)?
   Without them an expression whose eye or mouth border changed blinks and talks with the mesh only.
 - An expression that narrows the eyes keeps the neutral eye outline for its blink; worth a per-expression outline?
+
+## Gate record 2026-10-23
+
+Commits: `0dae2a6f` (plan, floors), `d8054b6f` (build), `9c044fc9` (bench rater). Branch not merged, not pushed.
+
+- As built: `liveHead/expressions.ts` (label to texture: exact pack label, else family; alignment against the head box,
+  head oval ×1.6 without a box, 8 stray pixels; `cutHeadLayers` fitted to the rig's layer rects; gaze off for an eye whose
+  visible sclera drops below 70 % of neutral or whose ball has holes; drawn frames re-cut by `cutDrawn`; cache of 24 per
+  art hash, expression, bytes, box, frames; `HeadLooks` loads on demand and preloads up to four pack expressions 1.2 s
+  apart after the head shows). Renderer: one `Look` per expression (textures, tone, gaze limits, drawn sprites),
+  `showLook` crossfade 220 ms through `uTex2`/`uMix`, reduced motion cuts. `HeadDriver` drives no face warp on a
+  textured label. `browWeight` fades the brow warp to zero above the highest lid point (all labels). Stage:
+  `actorHeadLooks` hands every non-neutral sprite of the actor's set with its own frames, else the neutral frames.
+  No new setting (on with the live head; frames follow `liveHeadFrames`). Guide and settings copy updated
+  (`npm run docs:guide`, `npm run docs:settings`).
+- Deviation: the eye check is a sclera-area squint test plus a hole count, not the per-pixel change share first tried
+  (a15 eyes change 25–79 % of opening pixels from redrawn highlights while the sclera area stays within ±25 %); the 81-gaze
+  see-through render costs 180–630 ms per expression, so it runs in the bench only.
+- Deviation: `test/goldens/liveHead/frame-loop.json` regenerated (`SO_WRITE_LIVE_HEAD_GOLDEN=1`): new uniforms in every
+  frame and the lid guard on anger/sad/surprise arms.
+
+Measurements (offline fixtures: run a15/a14 raw images in the private showcase folder; captures on the showcase live
+player, same page and rig, master build `player.base81` vs branch build; Chromium headless, SwiftShader for captures):
+
+- Stage 0 baseline and after: `C:\dev\so-poc-showcase\expressions-2026-10-23\{before,after}` (face crops per label),
+  blind sheets `sheets-{before,after}` (`node scripts/debug/so-image-bench.mts expression-sheets <dir> --out <dir>`).
+- Rater (`node scripts/debug/so-image-bench.mts rate-expressions <sheets>`, `codex exec -m gpt-6.1-sol`, 6 calls):
+  after 9/9 textured captures read as intended (joy→happy, anger→angry, sadness→worried), identity 12/12, defects 0;
+  before 0/9 (all neutral), identity 12/12. Surprise (no sprite) reads neutral in both. Floors (≥ 90 %): met.
+- Alignment: 18/18 a14+a15 expression sprites accepted; shifted, resized and identical synthetic sprites refused (tests).
+  Met.
+- See-through: 0 pixels below alpha 0.9 at 81 gazes on every expression eye (a15, 3 members × 3 expressions × 2 eyes).
+  Met. Squint test: gaze stays on for all a15 eyes; on the showcase rig of Bram one eye of worried is held still.
+- Seam: median luma shift in a 12 px band inside the head box 0.0 on all nine sprites. Met.
+- Frame time (hardware ANGLE RTX 3090 D3D11, headless, 30 s per arm, q80-ash, `joy` held and a 1 s label switch, four
+  runs): rAF interval p95 16.7–16.8 ms both builds, every run (met). Draw time p95 vs master: joy +14 %, +17 %, −17 %,
+  +42 %; switch −5 %, −4 %, −10 %, +44 % (same-build run-to-run spread is as large); floor within 10 %: MISS on 4 of 8
+  comparisons, recorded. Before preloading, a first use of an expression stalled 100–133 ms (3 drops per 30 s); with the
+  preload one 50–83 ms frame lands once per head while it prepares. Records `perf-hw*.json` beside the captures.
+- Main bundle 1,298,020 B (≤ 1,300,000); the renderer and loader ride the live head chunk.
+- Not measured live in ST (GPU paused, no lane run); LI1 on lane 30 not run.
+
+Gates:
+
+- `npm run gates:quick`: green (416.7 s) before the census rows; `npx jest` on ownership/errorCopy/codeHealth guards
+  and `src/sprites` green after them (census rows `expressions.ts#HeadLooks.load`, `#prepareLook`, `#cutLook`;
+  `HeadRenderer.draw` split to stay inside the S4 branch budget).
+- `npm run gates` on `9c044fc9` (no `--resume`): every step green except `test-storybook:ci`: port 6006 held by another
+  session's Storybook (`EADDRINUSE`). Rerun by hand: the gate's own `.sb-static` served on 6116 and the test runner from a
+  copy outside `.claude/` (in this worktree path the runner's `src/**` glob skips the dot directory and finds no
+  stories): 165 suites, 996 tests passed. So Storybook is green, but not through one `npm run gates` command; a merge
+  needs a clean run from a worktree outside `.claude/` with 6006 free.
+- `node --test scripts/debug/lib/sheetRater.test.mts` 5/5.
+
+Showcase: `C:\dev\so-poc-showcasenim\live\player.js` rebuilt from the branch (backups `player.pre-81.{js,css,html}`,
+`players.pre-81.json`, `tools/live-entry.pre-81.tsx`, `index.pre-81.html`); players get an "expression textures (plan 81)"
+switch and `?label=`/`?size=` parameters; `expressions-2026-10-23.html` (before/after, live player) linked from
+`index.html`.
