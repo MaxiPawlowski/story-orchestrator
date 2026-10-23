@@ -403,3 +403,24 @@ NOT run:
 
 Deviations: payload goldens and the live payload check are fixture-only; the per-draft early-draft count is exposed by the
 port (`earlyDrafts`) but not surfaced in the UI; 09's resolver mapping/parity fixtures not extended (09 is not on this branch's base).
+
+### GPU run 2026-10-22
+
+- Window 2026-10-22 ~21:23-23:20 local (00:23-02:20Z), local 3090 via the controller (`cli.mjs automatic`, text loaded clean
+  after the earlier `crashed` code-1 status). Lanes 41 (master `a082a064`, served bundle `cb12b358`) and 42 (`v2.9-03-polish`
+  `639ae53c`, bundle `33506e23`, staged into the ST code copy `C:/dev/st-v29-08`), both `--allow-local --headed`, images and sprites
+  off in the lane copies, profile `Artemis RunPod RP` -> :18888, context 32768, thinking and inner voice on. Group
+  `Group: Arin, DM Narrator` (the lane copy also drafts two members outside each story's roster).
+- Rater: opencode `openai/gpt-6.1-sol` (`opencode run`, frozen prompt in the evidence folder). Evidence
+  `C:\dev\so-lanes\41\debug\v29gpu\`, `C:\dev\so-lanes\42\debug\v29gpu\` (+ each lane's `debug/runs/`), archived to so-sessions.
+- Pilots are NOT the predeclared corpora: small N, fixed fixtures, no frozen 40/100 denominators. They say whether the path works
+  with the real model and which way a floor leans; no floor below is claimed met.
+- Two model lanes shared one GPU: memory-model calls queued behind the other lane's replies (inner beat timeouts at 35 s,
+  suggestions at 50 s, below). Environment, not a product change; recorded.
+- Pilot inside plan 03's shadow runs (same story, Arin carries a `roster[].polish` sheet with an 18-phrase `avoid` list;
+  narrator a `polish.narration` sheet with 14): Arin real replies with >= 1 avoid phrase outside quotes: prevention on (free play,
+  `send_generate`) **0 of 8**; prevention off (chat override `delivery: off`, forced `/trigger` replies) **3 of 12**. Narrator: on 1 of 2,
+  off 9 of 12. Arms differ in elicitation (free vs forced), N is small: direction only.
+- S6 (attribution gain, repetition, token floors over the frozen arms with an independent rater): NOT run (needs the corpus, two
+  arms x 100 replies and a rater pass: > 1 h).
+- S5 wizard real-route check: NOT run (no time left in the window).

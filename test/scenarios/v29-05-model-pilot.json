@@ -1,0 +1,59 @@
+{
+  "_note": "v2.9 05 narrator-hint PILOT on real Artemis (GPU window 2026-10-22; not the P1/P2 corpus, no CL rater): the 05 fixture drives the two transitions (extraction on its real route), checks the pattern hint reached the omniscient narrator's applied block, then one real /trigger narrator reply; lexical colour and a causal-claim regex are rough hints only.",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "authorView": true
+  },
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); return { cleared: ctx.chat.length === 0 };"
+    },
+    {
+      "import_story": {
+        "file": "v29-05-patterns.story.json"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; globalThis.__p05 = { pause, until, LINE: 'Through the gate and on into the yard, without a halt.', PENDING: 'One more door stands between the party and rest.' }; return { at: rt.getSnapshot().activeCheckpointId, projection: Array.isArray(rt.getSnapshot().patterns) };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The road climbs toward a grey gatehouse."
+    },
+    {
+      "slash": "/cp set step 1"
+    },
+    {
+      "log": true,
+      "eval": "const p = globalThis.__p05; const rt = globalThis.storyOrchestratorRuntime; await p.until(() => rt.getSnapshot().activeCheckpointId === 'gatehouse', 10000, 'the gatehouse transition'); const shown = await p.until(() => { const list = rt.getSnapshot().patterns ?? []; return list.find((entry) => entry.phase === 'pending') ? list : null; }, 10000, 'the pending entry'); if (shown.length !== 1 || shown[0].text !== p.PENDING || shown[0].evidence.length !== 1 || shown[0].evidence[0].kind !== 'transition') throw new Error('unexpected projection: ' + JSON.stringify(shown)); if (rt.getSnapshot().patternsUnavailable) throw new Error('the patterns kit is reported unavailable'); return { projection: shown };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" Past the gate, the yard opens under the walls."
+    },
+    {
+      "slash": "/cp set step 2"
+    },
+    {
+      "log": true,
+      "eval": "const p = globalThis.__p05; const rt = globalThis.storyOrchestratorRuntime; await p.until(() => rt.getSnapshot().activeCheckpointId === 'yard', 10000, 'the yard transition'); const done = await p.until(() => (rt.getSnapshot().patterns ?? []).find((entry) => entry.phase === 'completed'), 10000, 'the completed entry'); if (done.text !== p.LINE || done.evidence.length !== 2) throw new Error('unexpected completion: ' + JSON.stringify(done)); if ((rt.getSnapshot().patterns ?? []).some((entry) => entry.phase === 'pending')) throw new Error('the pending entry outlived the completion'); const author = rt.getSnapshot().patternsAuthor; if (!author || author.completed.length !== 1 || author.live.length !== 0) throw new Error('author slice: ' + JSON.stringify(author)); const section = (rt.getSnapshot().narrative?.sections ?? []).find((s) => s.id === 'consequences'); if (!section || !section.lines.includes(p.LINE)) throw new Error('What changed has no callback line: ' + JSON.stringify(section)); return { completed: done, section };"
+    },
+    {
+      "log": true,
+      "eval": "const p = globalThis.__p05; const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const chid = ctx.characters.findIndex((c) => c.name === 'DM Narrator'); const HEADER = 'A pattern the player has completed'; await p.until(() => { rt.onMemberDrafted(chid); return (rt.getAppliedEpistemicBlock() ?? '').includes(HEADER); }, 20000, 'the pattern hint in the narrator block'); rt.onMemberDrafted(chid); const block = rt.getAppliedEpistemicBlock() ?? ''; return { hinted: block.includes('pushed on without stopping') };"
+    },
+    {
+      "slash": "/trigger await=true \"DM Narrator\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const id = ctx.chat.length - 1; const row = ctx.chat[id]; if (row.name !== 'DM Narrator') throw new Error('the last reply is not the narrator: ' + row.name); const t = (row.mes ?? '').toLowerCase(); return { reply: row.mes, reasoningLen: (row.extra?.reasoning ?? '').length, lexical: /without (a )?(stop|halt|rest|pause)|pushed on|no rest|kept moving|didn't stop|did not stop|pressing on|press on|relentless|tired|weary|breath/.test(t), causal: /because (you|the party) (pushed|kept|didn)/.test(t) };"
+    },
+    {
+      "eval": "delete globalThis.__p05; return { cleaned: true };"
+    }
+  ]
+}

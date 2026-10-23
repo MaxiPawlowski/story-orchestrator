@@ -271,3 +271,41 @@ Deviations:
 - No Studio coverage row for `polish` (optional policy; a gap would make the wizard propose it).
 - Stand-in accepts `includeScripted` so a no-model lane's `/sendas` rows count; shadow never holds the boundary.
 - Test mocks in `generationWiring` / `loreForceWiring` review tests now keep the generation wiring's subscriber (polish adds a second `GENERATION_STARTED` subscriber).
+
+### GPU run 2026-10-22
+
+- Window 2026-10-22 ~21:23-23:20 local (00:23-02:20Z), local 3090 via the controller (`cli.mjs automatic`, text loaded clean
+  after the earlier `crashed` code-1 status). Lanes 41 (master `a082a064`, served bundle `cb12b358`) and 42 (`v2.9-03-polish`
+  `639ae53c`, bundle `33506e23`, staged into the ST code copy `C:/dev/st-v29-08`), both `--allow-local --headed`, images and sprites
+  off in the lane copies, profile `Artemis RunPod RP` -> :18888, context 32768, thinking and inner voice on. Group
+  `Group: Arin, DM Narrator` (the lane copy also drafts two members outside each story's roster).
+- Rater: opencode `openai/gpt-6.1-sol` (`opencode run`, frozen prompt in the evidence folder). Evidence
+  `C:\dev\so-lanes\41\debug\v29gpu\`, `C:\dev\so-lanes\42\debug\v29gpu\` (+ each lane's `debug/runs/`), archived to so-sessions.
+- Pilots are NOT the predeclared corpora: small N, fixed fixtures, no frozen 40/100 denominators. They say whether the path works
+  with the real model and which way a floor leans; no floor below is claimed met.
+- Two model lanes shared one GPU: memory-model calls queued behind the other lane's replies (inner beat timeouts at 35 s,
+  suggestions at 50 s, below). Environment, not a product change; recorded.
+- Merge: master merged into `v2.9-03-polish` (`639ae53c`: cues/echoes unions in feature policy, controls, settings, copy,
+  game layer, coverage test, wiring; generated guide/settings regenerated; arrival golden re-recorded; `runtimeManager.ts` one line
+  packed for the 700 budget; polish agent tool specs moved to `copilot/agent/polishTools.ts` for the S3 600-line file budget).
+  `npm run gates -- --serial` on `6524a1ba` (no `--resume`, Storybook included): `gates: all green in 532.7s` (test 881 suites /
+  10307 passed + 1 skipped, test-storybook:ci 165 suites / 993, test:debug 1490/0, test:plugin 342/0, replay 32 of 32 killed).
+- Shadow run 1 `test/scenarios/v29-03-polish-shadow.json` (free play, 12 `send_generate` turns, prevention on): 22 replies, 1 eligible
+  (narrator, 2 avoid findings), 1 sol call accepted in 5.5 s, consumed by the next member's start. 02's line removed every Arin
+  finding, so polish had almost nothing to do. Cap step vacuous (no eligible reply after it).
+- Shadow run 2 `test/scenarios/v29-03-polish-shadow-forced.json` (prevention off in the chat, each turn one forced Arin and one
+  narrator reply): 25 replies, 13 sol calls, 15 records: **5 accepted, 6 refused** (`markup-changed` 7, `added-name` 2,
+  `added-number` 1), **4 rate-limited**; call latency n 11, p50 7.1 s, p95 12.9 s, max 12.9 s; consumed before the answer by
+  `player-sent` 6, `generation-started` 4 (under S3's abandon-once-consumed default 10 of 11 would have been abandoned).
+- Sanity (merge condition): no crash, no page error; **chat untouched: `mes` changed 0 of 24, `extra.reasoning` changed 0 of 24**
+  (23 with reasoning; hashes at `MESSAGE_RECEIVED` vs the end); **cap honoured**: `polishMaxPerHour` set to the 13 calls made, two
+  more turns gave 4 `rate-limited` records and 0 calls, restored to 40 after. Calls/hour: 13 in 14 min of forced play (about 55 an
+  hour before the cap); free play 1 in 17 min.
+- Finding: 2 of the 13 calls left no record (calls 13, records with a verdict 11): the shadow runner returns without recording when
+  its run token no longer owns the row or the story changed after the answer. Spent quota without a ring row; not fixed here.
+- Floors NOT run: zero-change, preference >= 60 %, attribution gain >= 10 points (need an independent rater that is not the polish
+  model: sol is both here, DeepSeek is pay-per-token), 100-reply denominator. Latency/coverage floors are S3 (not built).
+- Thought carry: untouched by construction in shadow (no write); verified by the reasoning hashes above. S3 stays unbuilt (P0).
+- Merged to master on this evidence (owner 2026-10-22 "validate these plans and merge them"); deviation from the plan's
+  S2+S3 joint-merge contract recorded: on by default means shadow sol calls (cap 40/h) on every story with polish sheets or a
+  narration sheet once a reply has a finding.

@@ -315,3 +315,7 @@ Deviations:
 - Compact guide twin got a one-line mention only (topic at its 800-char budget).
 - Unresolved questions answered: Ask's knowledge reports no on/off (it lists setting paths only), left as is; agency, prefetch and
   cardState have no Help row (reasons in `UNMAPPED_STORY_FEATURES`); the re-enable warning stays on the Features page only.
+
+### GPU run 2026-10-22
+
+- No real-LLM rows in this plan; nothing run.

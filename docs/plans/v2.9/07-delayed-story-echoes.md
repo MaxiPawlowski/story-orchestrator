@@ -453,3 +453,23 @@ Deviations:
   `OfferRegistry.relevance`, so a registered echo provider wakes the cue channel (and the per-draft staging path) only for
   stories with echoes. Without it, registering any provider made `cues.active()` true for every story.
 - Echo cue header stays 04's `CUE_COPY.echo` text.
+
+### GPU run 2026-10-22
+
+- Window 2026-10-22 ~21:23-23:20 local (00:23-02:20Z), local 3090 via the controller (`cli.mjs automatic`, text loaded clean
+  after the earlier `crashed` code-1 status). Lanes 41 (master `a082a064`, served bundle `cb12b358`) and 42 (`v2.9-03-polish`
+  `639ae53c`, bundle `33506e23`, staged into the ST code copy `C:/dev/st-v29-08`), both `--allow-local --headed`, images and sprites
+  off in the lane copies, profile `Artemis RunPod RP` -> :18888, context 32768, thinking and inner voice on. Group
+  `Group: Arin, DM Narrator` (the lane copy also drafts two members outside each story's roster).
+- Rater: opencode `openai/gpt-6.1-sol` (`opencode run`, frozen prompt in the evidence folder). Evidence
+  `C:\dev\so-lanes\41\debug\v29gpu\`, `C:\dev\so-lanes\42\debug\v29gpu\` (+ each lane's `debug/runs/`), archived to so-sessions.
+- Pilots are NOT the predeclared corpora: small N, fixed fixtures, no frozen 40/100 denominators. They say whether the path works
+  with the real model and which way a floor leans; no floor below is claimed met.
+- Two model lanes shared one GPU: memory-model calls queued behind the other lane's replies (inner beat timeouts at 35 s,
+  suggestions at 50 s, below). Environment, not a product change; recorded.
+- Same pilot as 04 (x5): echo `unpaid` (`to: narrator`, omniscient) scheduled at the transition, landed the next boundary,
+  staged in the narrator's applied block only (never Arin's), one real `/trigger` narrator reply, echo receipt from the real
+  settle path 5 of 5.
+- Narrator acknowledgement (sol rater): **0 of 5** (floor >= 80 %: MISSED on the pilot; denominator 5 landed-and-offered echoes,
+  0 abstentions). A loose lexical match hit 1 of 5, which the rater scored no. Artemis ignores a `may` narrator cue here.
+  Recorded, not retuned.
