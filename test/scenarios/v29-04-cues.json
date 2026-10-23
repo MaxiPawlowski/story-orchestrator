@@ -1,0 +1,64 @@
+{
+  "_note": "v2.9 04 (no-model lane, plumbing only, never sign-off): a reaction cue latches when its event is set; drafting Arin puts the cue line in the applied private block and drafting the narrator does not; a rendered Arin reply settled through the generation hook writes a receipt bound to its revision and a 'cue offered' journal row; a second draft offers nothing (spent); player mode stays clean; a swipe of the reply drops the receipt and the cue is offered again. Run: node scripts/debug/so-scenario.mts run test/scenarios/v29-04-cues.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": ["Arin", "DM Narrator"],
+    "judge": "off", "briefingDraft": "off", "innerBeat": "off",
+    "authorView": true
+  },
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); return { cleared: ctx.chat.length === 0 };"
+    },
+    {
+      "import_story": {
+        "id": "so-v29-04-cues",
+        "title": "SO-V29-04 Cues",
+        "description": "Plan v2.9 04 no-model fixture: one reaction cue for Arin, one topic, a witness outside the group.",
+        "qualities": [
+          { "key": "ledger_returned", "type": "bool", "source": "extractor", "rubric": "Was the stolen ledger returned to the guild?" }
+        ],
+        "checkpoints": [
+          { "id": "harbour", "name": "Harbour", "player_name": "The Harbour", "type": "anchor", "start": true, "objective": "Return the ledger." }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin", "name": "Arin", "role": "a clerk",
+            "cues": [{ "id": "ledger", "kind": "reaction", "when": { "q": "ledger_returned", "op": "==", "v": true }, "cue": "the stolen ledger is back in the guild's hands" }],
+            "topics": [{ "id": "accounts", "keys": ["ledger"], "tiers": [{ "cue": "the ledger lists debts the guild never paid" }] }]
+          },
+          { "id": "narrator", "name": "DM Narrator", "role": "narrator" }
+        ],
+        "requirements": { "members": ["Arin", "DM Narrator"] }
+      }
+    },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const LINE = 'If it fits, you may react to: the stolen ledger is back'; const chid = (name) => SillyTavern.getContext().characters.findIndex((character) => character.name === name); const receipts = () => rt.getSnapshot().cuesAuthor?.receipts ?? []; const block = (name) => { rt.onMemberDrafted(chid(name)); return rt.getAppliedEpistemicBlock(); }; globalThis.__c04 = { pause, until, LINE, chid, receipts, block }; if (block('Arin').includes(LINE)) throw new Error('the cue is offered before its event'); return { receipts: receipts().length };"
+    },
+    { "slash": "/sendas name=\"DM Narrator\" A courier sets the guild ledger on the counter." },
+    { "slash": "/cp set ledger_returned true" },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__c04; const rt = globalThis.storyOrchestratorRuntime; await c.until(() => typeof rt.getEngineState().blackboard.values.cue_arin_ledger_at === 'number', 10000, 'the reaction latch'); await c.until(() => c.block('Arin').includes(c.LINE), 10000, 'the cue in the applied block of Arin'); if (c.block('DM Narrator').includes(c.LINE)) throw new Error('the narrator was handed the cue of Arin'); return { at: rt.getEngineState().blackboard.values.cue_arin_ledger_at };"
+    },
+    { "slash": "/sendas name=\"Arin\" Back where it belongs, then." },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__c04; const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const id = ctx.chat.length - 1; if (!c.block('Arin').includes(c.LINE)) throw new Error('the cue is not staged for the reply'); rt.commitContinuityNote(true, id); await c.until(() => c.receipts().length === 1, 5000, 'a receipt'); const receipt = c.receipts()[0]; if (receipt.key !== 'cue:arin:ledger' || receipt.messageId !== id) throw new Error('receipt: ' + JSON.stringify(receipt)); if (c.block('Arin').includes(c.LINE)) throw new Error('a spent cue was offered again'); const journal = (rt.getSnapshot().journal ?? []).map((row) => row.summary ?? ''); return { receipt: receipt.key, journal: journal.filter((row) => row.includes('cue')).length };"
+    },
+    { "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await globalThis.__c04.pause(800); return { authorView: false };" },
+    { "ui": { "action": "assert-player-clean" } },
+    { "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); await globalThis.__c04.pause(800); return { authorView: true };" },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); const last = ctx.chat.length - 1; const reply = ctx.chat[last]; if (reply.is_user || reply.name !== 'Arin') throw new Error('the last message is not the reply of Arin'); reply.swipes = [reply.mes, 'Well. That changes the mood here.']; reply.swipe_id = 0; reply.swipe_info = [{}, {}]; await ctx.saveChat(); return { swipeable: last };"
+    },
+    { "swipe": { "messageId": "last", "swipeId": 1 } },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__c04; await c.until(() => c.receipts().length === 0, 15000, 'the swipe to drop the receipt'); await c.until(() => c.block('Arin').includes(c.LINE), 10000, 'the cue offered again after the swipe'); return { receipts: c.receipts().length };"
+    }
+  ]
+}

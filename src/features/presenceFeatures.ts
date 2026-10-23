@@ -64,7 +64,7 @@ export const PRESENCE_FEATURES: readonly Feature[] = [
     id: "suggestions", name: "What could I do?", area: "play", audience: "player",
     oneLine: "A button that suggests a few things you could try next, and puts the one you pick in the box where you type.",
     what: "Click What could I do? on This story → Play or the story card above the chat box, or pick it from the wand menu. "
-      + "The memory model suggests four things you could do or say, from what you have already seen. "
+      + "The memory model words four things to try, built on what you already know; a waiting check lists what could help, never dice, and an offer not open yet shows greyed. "
       + "Picking one only fills the box where you type; nothing is sent until you send it, and it never replaces something you started typing. A story can switch the button off.",
     where: drawerAt("#so-open-suggestions", "What could I do?"),
     settings: ["display.presence.suggestions"], doc: "player/playing.md", status: "shipped", needs: ["story", "memory-profile"],

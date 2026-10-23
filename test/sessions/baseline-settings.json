@@ -248,7 +248,9 @@
       "deliveryRepetition": true,
       "polish": true,
       "polishMode": "shadow",
-      "polishMaxPerHour": 40
+      "polishMaxPerHour": 40,
+      "cues": true,
+      "echoes": true
     }
   }
 }

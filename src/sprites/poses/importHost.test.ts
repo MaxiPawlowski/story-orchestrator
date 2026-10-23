@@ -4,6 +4,7 @@ import * as gpu from "@services/stHost/gpuBroker";
 import type { RunOwnership } from "@runtime/runToken";
 
 jest.mock("@services/stHost/media", () => ({ comfyDiscover: jest.fn(), comfyFingerprint: jest.fn(), comfyReference: jest.fn(), comfyReleaseReference: jest.fn(), comfyRenderOwned: jest.fn() }));
+jest.mock("@services/stHost/generation", () => ({ isHostGenerating: () => false }));
 jest.mock("@services/stHost/gpuBroker", () => ({ gpuBrokerStatus: jest.fn(async () => null), reserveGpu: jest.fn(), releaseGpu: jest.fn(), renewGpu: jest.fn() }));
 let owns = true;
 const ownership: RunOwnership = { mint: () => ({ chatId: "c", storyId: "s", storyHash: "h", sessionEpoch: 1, windowRevision: 0, window: null }),
@@ -36,8 +37,9 @@ test("ownership lapse after reservation releases that lease and uploads nothing"
 });
 
 test("owned import returns body18 and releases only its captured reference and lease", async () => {
-  const result = await importPoseImage("synthetic", ownership);
+  const result = await importPoseImage("data:image/png;base64,c3ludGhldGlj", ownership);
   expect(result.points).toHaveLength(18);
+  expect(media.comfyReference).toHaveBeenCalledWith("c3ludGhldGlj", expect.any(AbortSignal));
   expect(media.comfyFingerprint).toHaveBeenCalledTimes(2);
   expect(media.comfyReleaseReference).toHaveBeenCalledWith("owned.png");
   expect(gpu.releaseGpu).toHaveBeenCalledWith("owned-lease");
@@ -49,4 +51,26 @@ test("ownership lapse during upload cleans up without submitting the estimator",
   expect(media.comfyRenderOwned).not.toHaveBeenCalled();
   expect(media.comfyReleaseReference).toHaveBeenCalledWith("owned.png");
   expect(gpu.releaseGpu).toHaveBeenCalledTimes(1);
+});
+
+test("request-local cancellation during discovery stops pose setup before reservation", async () => {
+  const controller = new AbortController();
+  (media.comfyDiscover as jest.Mock).mockImplementationOnce(async (signal: AbortSignal) => {
+    controller.abort();
+    signal.throwIfAborted();
+  });
+  await expect(importPoseImage("synthetic", ownership, controller.signal)).rejects.toThrow();
+  expect(gpu.reserveGpu).not.toHaveBeenCalled();
+  expect(media.comfyReference).not.toHaveBeenCalled();
+});
+
+test("request-local cancellation during rendering releases the captured reference and lease", async () => {
+  const controller = new AbortController();
+  (media.comfyRenderOwned as jest.Mock).mockImplementationOnce(async (_graph, signal: AbortSignal) => {
+    controller.abort();
+    signal.throwIfAborted();
+  });
+  await expect(importPoseImage("synthetic", ownership, controller.signal)).rejects.toThrow();
+  expect(media.comfyReleaseReference).toHaveBeenCalledWith("owned.png");
+  expect(gpu.releaseGpu).toHaveBeenCalledWith("owned-lease");
 });

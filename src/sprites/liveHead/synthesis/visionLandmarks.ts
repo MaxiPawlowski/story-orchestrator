@@ -3,6 +3,7 @@ import type { ModelReply } from "@services/stHost/modelReply";
 import { isRecord } from "@utils/guards";
 import { visionRigRequest, VISION_RIG_MODEL } from "../visionRequest";
 import type { LandmarkProvider } from "./synthesize";
+import { landmarkProblems } from "./landmarks";
 
 export interface VisionLandmarkDeps {
   target(signal: AbortSignal): Promise<HarnessModel | undefined>;
@@ -31,9 +32,18 @@ export function visionLandmarkProvider(deps: VisionLandmarkDeps): LandmarkProvid
     const target = await deps.target(signal);
     signal.throwIfAborted();
     if (!target) throw new Error("The Sol vision model is not offered. Sign in to opencode, or import a rig instead.");
-    const reply = await deps.send(visionRigRequest({ sha256: request.sha256 }, request.png, target, signal, { width: request.width, height: request.height }));
+    const input = visionRigRequest({ sha256: request.sha256 }, request.png, target, signal, { width: request.width, height: request.height });
+    const reply = await deps.send(input);
     signal.throwIfAborted();
     if (!reply.ok) throw new Error(`The vision model could not place landmarks: ${reply.message}`);
-    return readLandmarkAnswer(reply.text);
+    const landmarks = readLandmarkAnswer(reply.text), problems = landmarkProblems(landmarks, request);
+    if (!problems.length) return landmarks;
+    const correction = `${input.prompt}\nYour previous landmark answer failed validation: ${problems.join("; ")}.\nPrevious answer:\n${JSON.stringify({ landmarks })}`
+      + "\nReinspect the same image and return a corrected complete answer. Keep all required points inside this crop."
+      + " Refuse if the visible anatomy cannot satisfy the contract. Do not clamp, invent hidden anatomy or change the image dimensions.";
+    const corrected = await deps.send({ ...input, prompt: correction });
+    signal.throwIfAborted();
+    if (!corrected.ok) throw new Error(`The vision model could not correct landmarks: ${corrected.message}`);
+    return readLandmarkAnswer(corrected.text);
   };
 }

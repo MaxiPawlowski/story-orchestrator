@@ -1,5 +1,6 @@
 import { webcrypto } from "node:crypto";
-import { SpriteBuilder, type BuilderDeps, type SpriteBuildRequest } from "./builder";
+import type { EyeRead } from "./eyeOpen";
+import { renderedBox, RETRY_SEED_STEP, SpriteBuilder, type BuilderDeps, type SpriteBuildRequest } from "./builder";
 import { checkPixels, pasteEdit, type PixelImage } from "./pixels";
 import { cropPixels } from "./maskImport";
 import { editKey } from "./recipes";
@@ -156,6 +157,106 @@ test("base creation accepts opaque card art only with a fingerprinted alpha step
   await expect(builder.build({ ...baseRequest, cutout: undefined })).rejects.toThrow("background-removal setup");
   deps.decode = async () => card;
   await expect(builder.build({ ...baseRequest, seed: 2 })).rejects.toThrow("transparent background");
+});
+
+test("a base keeps the rendered pixel count in the card's shape instead of shrinking to the card; a smaller render is not shrunk below it", async () => {
+  expect(renderedBox({ x: 0, y: 0, width: 400, height: 600 }, { width: 832, height: 1248 })).toEqual({ x: 0, y: 0, width: 832, height: 1248 });
+  expect(renderedBox({ x: 0, y: 0, width: 400, height: 600 }, { width: 1024, height: 1024 })).toEqual({ x: 0, y: 0, width: 683, height: 1024 });
+  expect(renderedBox({ x: 0, y: 0, width: 400, height: 600 }, { width: 256, height: 384 })).toEqual({ x: 0, y: 0, width: 400, height: 600 });
+  const { builder, deps } = fixture();
+  const card = image(32, 48);
+  card.data[3] = 255;
+  const sizes: Array<[number, number]> = [];
+  deps.decode = async (src) => src === "card" ? card : image(64, 96, 80);
+  deps.resize = (input, box) => { sizes.push([box.width, box.height]); return { width: box.width, height: box.height, data: new Uint8ClampedArray(box.width * box.height * 4).map((_, at) => at % 4 === 3 ? (at % 8 === 3 ? 0 : 255) : (at * 7) % 251) }; };
+  const cutout = { id: "installed_alpha", node: "BiRefNetRMBG" as const, model: "BiRefNet_toonout", files: [models.diffusion] };
+  await builder.build({ ...request, kind: "base", reference: "card", label: "neutral", cutout });
+  expect(sizes).toEqual([[64, 96]]);
+});
+
+test("a base render's fringe is cleaned before QA and save: background-coloured edge pixels take the subject's colour", async () => {
+  const { builder, deps } = fixture();
+  const card = image(16, 16);
+  card.data[3] = 255;
+  deps.decode = async (src) => src === "card" ? card : image(16, 16, 80);
+  deps.resize = (_input, box) => {
+    const data = new Uint8ClampedArray(box.width * box.height * 4);
+    for (let y = 2; y < 14; y++) for (let x = 4; x < 12; x++) data.set([180 + (x % 3) * 20, 40 + y, 30, 255], (y * box.width + x) * 4);
+    for (let y = 2; y < 14; y++) data.set([250, 250, 250, 128], (y * box.width + 3) * 4);
+    return { width: box.width, height: box.height, data };
+  };
+  let saved: PixelImage | null = null;
+  deps.encode = (output) => { saved = output; return "encoded"; };
+  const cutout = { id: "installed_alpha", node: "BiRefNetRMBG" as const, model: "BiRefNet_toonout", files: [models.diffusion] };
+  await builder.build({ ...request, kind: "base", reference: "card", label: "neutral", cutout });
+  const fringe = Array.from(saved!.data.subarray((8 * saved!.width + 3) * 4, (8 * saved!.width + 3) * 4 + 3));
+  expect(fringe.every((channel, i) => channel !== 250 || i > 0)).toBe(true);
+  expect(fringe[0]).toBeGreaterThanOrEqual(180);
+  expect(fringe[2]).toBe(30);
+});
+
+test("a blink frame is checked eye by eye when the face detector answers; expressions are not", async () => {
+  const { builder, deps } = fixture();
+  const white = image(32, 32);
+  for (let y = 11; y < 14; y++) for (let x = 10; x < 22; x++) white.data.set([246, 246, 248, 255], (y * 32 + x) * 4);
+  const kept = cropPixels(white, box);
+  for (let y = 4; y < 6; y++) for (let x = 3; x < 6; x++) kept.data.set([30, 30, 30, 255], (y * 16 + x) * 4);
+  deps.decode = async (src) => src === "base" ? white : kept;
+  const open = { boxes: [{ x: 10, y: 10, width: 5, height: 5 }, { x: 17, y: 10, width: 5, height: 5 }], openness: [0.8, 0.8] };
+  const eyes = jest.fn(async (): Promise<EyeRead> => open);
+  deps.eyes = eyes;
+  await expect(builder.build({ ...request, kind: "blink", label: "neutral", value: "neutral" })).rejects.toThrow(/eye open/);
+  expect(eyes).toHaveBeenCalledTimes(4);
+  eyes.mockResolvedValueOnce(open).mockResolvedValueOnce({ boxes: null, openness: [0.15, 0.1] });
+  await expect(builder.build({ ...request, kind: "blink", label: "neutral", value: "neutral" })).resolves.toBeDefined();
+  eyes.mockClear();
+  deps.decode = async (src) => src === "base" ? base : edit;
+  await builder.build(request).catch(() => undefined);
+  expect(eyes).not.toHaveBeenCalled();
+});
+
+test("a retryable refusal re-renders once with a new seed; any other refusal is not retried", async () => {
+  const { builder, deps } = fixture();
+  const seeds: number[] = [];
+  const render = jest.fn(async (graph: Record<string, unknown>) => { seeds.push(Number(JSON.stringify(graph).match(/"seed":(\d+)/)?.[1])); return { data: "result", format: "png" }; });
+  deps.render = render;
+  let calls = 0;
+  deps.eyes = async () => (calls++ ? null : { boxes: [{ x: 10, y: 10, width: 5, height: 5 }], openness: [0.8] });
+  const white = image(32, 32);
+  for (let y = 11; y < 14; y++) for (let x = 10; x < 22; x++) white.data.set([246, 246, 248, 255], (y * 32 + x) * 4);
+  const kept = cropPixels(white, box);
+  for (let y = 4; y < 6; y++) for (let x = 3; x < 6; x++) kept.data.set([30, 30, 30, 255], (y * 16 + x) * 4);
+  deps.decode = async (src) => src === "base" ? white : kept;
+  await builder.build({ ...request, kind: "blink", label: "neutral", value: "neutral" });
+  expect(seeds).toEqual([1, 1 + RETRY_SEED_STEP]);
+  seeds.length = 0;
+  deps.releaseReference = async () => { throw new Error("cleanup unavailable"); };
+  await expect(builder.build(request)).rejects.toThrow("cleanup unavailable");
+  expect(seeds).toEqual([1]);
+});
+
+test("a new look rendered from a cut-out base must keep a face: a headless render is refused once and re-rendered; card art is never face-checked", async () => {
+  const { builder, deps } = fixture();
+  const cutout = { id: "installed_alpha", node: "BiRefNetRMBG" as const, model: "BiRefNet_toonout", files: [models.diffusion] };
+  const look = { ...request, kind: "base" as const, reference: "neutral", label: "neutral", cutout };
+  const neutral = image(32, 32);
+  for (let at = 0; at < 32 * 8; at++) neutral.data[at * 4 + 3] = 0;
+  deps.decode = async (src) => src === "neutral" ? neutral : image(32, 32, 80);
+  const faces = [0, 1];
+  const eyes = jest.fn(async (): Promise<EyeRead> => ({ boxes: null, openness: null, faces: faces.shift() ?? 1 }));
+  deps.eyes = eyes;
+  await builder.build(look);
+  expect(eyes).toHaveBeenCalledTimes(2);
+  expect(deps.render).toHaveBeenCalledTimes(2);
+  eyes.mockClear();
+  eyes.mockImplementation(async () => ({ boxes: null, openness: null, faces: 0 }));
+  await expect(builder.build(look)).rejects.toThrow("lost the head");
+  eyes.mockClear();
+  const card = image(32, 32);
+  for (let at = 3; at < card.data.length; at += 4) card.data[at] = 255;
+  deps.decode = async (src) => src === "card" ? card : image(32, 32, 80);
+  await builder.build({ ...look, reference: "card" });
+  expect(eyes).not.toHaveBeenCalled();
 });
 
 test("a failed reference cleanup still releases the GPU lease", async () => {

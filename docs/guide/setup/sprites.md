@@ -54,8 +54,8 @@ A changed reference image makes a new cache key; an image changed during a rende
 ## Make a base when the character has no sprites
 
 Discover the image-edit setup, then open **Build a base from character-card art**. Choose the installed background-removal
-model and **Build four base candidates**. Review the face, clothing, framing and transparent edges, then keep one neutral
-base. Reload the Sprites tab and use that base to build its expressions. Candidates are previews until you choose one.
+model and **Build a base candidate** (the next seed is tried only when a candidate fails its checks; **Make another
+candidate** to compare). Review the face, clothing, framing and transparent edges, then keep one neutral base. Reload the Sprites tab and use that base to build its expressions. Candidates are previews until you choose one.
 Background removal needs an explicitly configured, installed model in the optional media plugin; nothing is downloaded.
 
 ## Blink and mouth

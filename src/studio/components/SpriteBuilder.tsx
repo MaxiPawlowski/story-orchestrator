@@ -2,7 +2,8 @@ import React, { lazy, Suspense, useEffect, useMemo, useRef, useState } from "rea
 import { comfyDiscover, comfyFingerprint, spriteManifest, generatedSpriteSets, deleteGeneratedSprite, spriteReferencePack, spriteReferenceSets, type ComfyDiscovery } from "@services/stHost/media";
 import { spriteBuilderMembers, spriteList, spriteReferences } from "@services/stHost/sprites";
 import { createSpriteBuilder } from "../../sprites/builder/host";
-import { decodeImage } from "../../sprites/builder/images";
+import { decodeImage, encodeImage } from "../../sprites/builder/images";
+import { referenceHeadBox } from "../../sprites/builder/headBox";
 import { EDIT_RECIPE, EXPRESSIONS, recipeProblems, type EditKind, type EditModels } from "../../sprites/builder/recipes";
 import type { HeadBox } from "../../sprites/builder/pixels";
 import type { SpriteBuilder as Builder, SpriteCandidate } from "../../sprites/builder/builder";
@@ -23,6 +24,28 @@ import { isMouthFrameKey } from "../../sprites/frameKeys";
 const PosesList = lazy(() => import("./PosesList"));
 const PreparePresentation = lazy(() => import("./PreparePresentation"));
 const ChangedLookRebuild = lazy(() => import("./ChangedLookRebuild"));
+
+async function selectedHeadBox(image: Awaited<ReturnType<typeof decodeImage>>, reference: string, character: string, services: SpriteBuilderHost) {
+  const config = getGlobalSettings().sprites.builders[character];
+  const saved = config && reference.includes(`/${config.baseSet}/`) ? config.box : undefined;
+  const detect = services.detect;
+  return referenceHeadBox(image, saved, detect ? () => detect(encodeImage(image)) : undefined);
+}
+
+function useReferenceBox(reference: string, character: string, services: SpriteBuilderHost, setSize: (size: { width: number; height: number }) => void,
+  setBox: (box: HeadBox) => void, setError: (error: string) => void): void {
+  useEffect(() => {
+    let current = true;
+    if (reference) void services.decode(reference).then(async (image) => {
+      if (!current) return;
+      const box = await selectedHeadBox(image, reference, character, services);
+      if (!current) return;
+      setSize({ width: image.width, height: image.height });
+      setBox(box);
+    }).catch((reason) => { if (current) setError(String(reason)); });
+    return () => { current = false; };
+  }, [character, reference, services, setBox, setError, setSize]);
+}
 
 export interface SpriteBuilderHost {
   discover: typeof comfyDiscover;
@@ -89,16 +112,7 @@ export default function SpriteBuilder({ services = host }: { services?: SpriteBu
     return () => { current = false; };
   }, [character, services]);
 
-  useEffect(() => {
-    let current = true;
-    if (reference) void services.decode(reference).then((image) => {
-      if (!current) return;
-      setSize({ width: image.width, height: image.height });
-      const width = Math.max(8, Math.round(image.width * 0.45)), height = Math.max(8, Math.round(image.height * 0.25));
-      setBox({ x: Math.round((image.width - width) / 2), y: 0, width, height });
-    }).catch((reason) => { if (current) setError(String(reason)); });
-    return () => { current = false; };
-  }, [reference, services]);
+  useReferenceBox(reference, character, services, setSize, setBox, setError);
 
   const discover = async () => {
     setBusy(true); setError(null);

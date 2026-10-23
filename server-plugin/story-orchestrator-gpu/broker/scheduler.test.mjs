@@ -19,7 +19,7 @@ function setup(overrides = {}) {
         unload: async () => { calls.push('unload'); backend.profile = null; backend.fitTarget = null; },
         load: async (name, options = {}) => { calls.push('load'); backend.profile = name; backend.fitTarget = Number.isFinite(options.fitTarget) ? options.fitTarget : null; },
     };
-    const config = { maxQueue: 2, queueTimeoutMs: 1000, reserves: { gpuMiB: 2048, ramMiB: 4096 }, shedCeilingMiB: 13000, defaultImageMiB: 12000, residencyObjective: 'switch', idleRestoreMs: 0, ...configOverrides };
+    const config = { maxQueue: 2, queueTimeoutMs: 1000, reserves: { gpuMiB: 2048, ramMiB: 4096 }, shedCeilingMiB: 13000, defaultImageMiB: 12000, residencyObjective: 'switch', idleRestoreMs: 0, imageCacheMode: 'evict', ...configOverrides };
     const scheduler = new ResidencyScheduler({ config, backend, snapshot: async () => free(22000),
         queue: async () => ({ queue_running: [], queue_pending: [] }), freeImages: async () => { calls.push('free'); }, startComfy: async () => {}, saveFootprints: async () => {}, ...rest });
     return { scheduler, calls, backend };
@@ -46,6 +46,152 @@ test('a foreign image job refuses the lease without unloading text or interrupti
     await assert.rejects(scheduler.reserve(), /existing job/);
     assert.deepEqual(calls, []);
     assert.equal(scheduler.status().phase, 'text');
+});
+
+function warmImages(overrides = {}) {
+    let snapshot = free(22000);
+    const { config = {}, ...rest } = overrides;
+    const result = setup({ config: { imageCacheMode: 'warm', defaultProfile: 'fast', ...config }, snapshot: async () => snapshot,
+        freeImages: async () => { result.calls.push('free'); snapshot = free(22000); return { mode: 'ram-warm' }; }, ...rest });
+    result.backend.profile = null;
+    return { ...result, render: () => { snapshot = { ...free(5000), host: { availableMiB: 14000, commitFreeMiB: 70000 } }; },
+        snapshot: (value) => { snapshot = value; } };
+}
+
+test('consecutive image leases retain GPU weights, avoid idle text reloads, and measure total demand across hot runs', async () => {
+    const { scheduler, calls, backend, render } = warmImages();
+    for (let index = 0; index < 3; index += 1) {
+        const { lease } = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000, needRamMiB: 11000 });
+        assert.equal(scheduler.lease.before.gpus[0].freeMiB, 22000);
+        render(); await scheduler.sampleLease();
+        scheduler.lease.seenJob = true;
+        await scheduler.release(lease);
+        assert.equal(scheduler.status().imageLease, false);
+        assert.equal(scheduler.lastCacheMode, 'gpu-warm');
+        assert.equal(scheduler.footprints[scheduler.lastMeasurement.key].gpuMiB, 17512);
+        await scheduler.keepResident(Date.now() + 6000);
+        assert.equal(backend.profile, null);
+    }
+    assert.deepEqual(calls, []);
+    assert.equal(scheduler.lastMeasurement.identity.cacheState, 'gpu-warm');
+    assert.equal(scheduler.footprints[scheduler.lastMeasurement.key].verified, true);
+    await scheduler.keepResident(Date.now() + 61000);
+    assert.deepEqual(calls, ['free', 'load']);
+    assert.equal(backend.profile, 'fast');
+});
+
+test('a text request reclaims hot images before loading text and waits for reclamation to finish', async () => {
+    const gate = deferred();
+    const { scheduler, calls, backend, render } = warmImages();
+    const { lease } = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000 });
+    render(); await scheduler.release(lease);
+    const reclaim = scheduler.freeImages;
+    scheduler.freeImages = async (options) => { calls.push('reclaiming'); await gate.promise; return reclaim(options); };
+    const text = scheduler.text(async () => { await backend.load('fast'); calls.push('reply'); });
+    await tick();
+    assert.deepEqual(calls, ['reclaiming']);
+    gate.resolve(); await text;
+    assert.deepEqual(calls, ['reclaiming', 'free', 'load', 'reply']);
+    assert.equal(scheduler.residentImages, null);
+});
+
+test('deferred text reclamation carries the cold GPU baseline through native-allocation failures and retries', async () => {
+    const targets = [];
+    let fail = true;
+    const { scheduler, render } = warmImages({ freeImages: async (options) => {
+        targets.push(options.maxUsedGpuMiB);
+        if (fail) throw new Error('Native CUDA allocations remain');
+        return { mode: 'evicted' };
+    } });
+    const { lease } = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000 });
+    render(); await scheduler.release(lease);
+    await assert.rejects(scheduler.text(async () => {}), /Native CUDA/);
+    fail = false;
+    await scheduler.text(async () => {});
+    assert.deepEqual(targets, [24576 - 22000 + 512, 24576 - 22000 + 512]);
+    assert.equal(scheduler.imageReleaseTargetMiB, null);
+});
+
+test('a failed hot-image reclamation refuses text and does not race a text load', async () => {
+    const { scheduler, calls, render } = warmImages({ freeImages: async () => { throw new Error('GPU release failed'); } });
+    const { lease } = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000 });
+    render(); await scheduler.release(lease);
+    await assert.rejects(scheduler.text(async () => { calls.push('reply'); }), /GPU release failed/);
+    await assert.rejects(scheduler.text(async () => { calls.push('reply'); }), /GPU release failed/);
+    assert.deepEqual(calls, []);
+    assert.equal(scheduler.status().activeText, 0);
+});
+
+test('a changed workflow, runtime or resident text invalidates hot-image credit and reclaims before admission', async () => {
+    for (const change of ['workflow', 'runtime', 'text']) {
+        let version = 1;
+        const { scheduler, calls, backend, render } = warmImages({ runtime: async () => ({ id: version }) });
+        const { lease } = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000 });
+        render(); await scheduler.release(lease);
+        if (change === 'runtime') version += 1;
+        if (change === 'text') backend.profile = 'fast';
+        await scheduler.reserve({ workflowKey: change === 'workflow' ? 'pose' : 'face-edit', needGpuMiB: 18000 });
+        assert.deepEqual(calls, ['free']);
+        assert.notEqual(scheduler.lease.identity.cacheState, 'gpu-warm');
+    }
+});
+
+test('hot images reclaim under GPU, RAM or commit pressure without weakening desktop reserves', async () => {
+    for (const pressure of ['gpu', 'ram', 'commit']) {
+        const { scheduler, calls, render, snapshot } = warmImages();
+        const { lease } = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000 });
+        render();
+        const low = free(pressure === 'gpu' ? 2047 : 5000);
+        if (pressure === 'ram') low.host.availableMiB = 4095;
+        if (pressure === 'commit') low.host.commitFreeMiB = 4095;
+        snapshot(low);
+        await scheduler.release(lease);
+        assert.deepEqual(calls, ['free']);
+        assert.equal(scheduler.residentImages, null);
+    }
+});
+
+test('a larger same-workflow demand reclaims hot images before considering unloading text', async () => {
+    const { scheduler, calls, render } = warmImages();
+    const { lease } = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000 });
+    render(); await scheduler.release(lease);
+    await assert.rejects(scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 24000 }), /admission refused/);
+    assert.equal(calls[0], 'free');
+    assert.equal(scheduler.status().imageLease, false);
+});
+
+test('a matching hot render carries the preceding measured RAM budget instead of charging cold-loader RAM again', async () => {
+    const { scheduler, calls, render, snapshot } = warmImages();
+    const cold = { ...free(22000), host: { availableMiB: 12500, commitFreeMiB: 70000 } };
+    snapshot(cold);
+    const key = footprintKey({ workflowKey: 'face-edit', runtime: { id: 'unknown', streaming: false }, models: [], cacheState: 'cold-or-unknown', text: null });
+    scheduler.footprints[key] = { revision: FOOTPRINT_REVISION, verified: true, gpuMiB: 18000, ramMiB: 1500 };
+    const first = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000 });
+    assert.equal(scheduler.lease.needRamMiB, 1500);
+    render(); snapshot({ ...free(5000), host: { availableMiB: 11000, commitFreeMiB: 68500 } });
+    scheduler.lease.seenJob = true;
+    await scheduler.release(first.lease);
+    const second = await scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000 });
+    assert.equal(scheduler.lease.needRamMiB, 2312);
+    assert.equal(scheduler.lastResidency.ramSource, 'resident-observation');
+    assert.deepEqual(calls, []);
+    await scheduler.release(second.lease);
+});
+
+test('RAM-pressure retries defer speculative text restoration even after image cache reclamation', async () => {
+    const { scheduler, backend, calls, snapshot } = warmImages();
+    snapshot({ ...free(22000), host: { availableMiB: 5000, commitFreeMiB: 70000 } });
+    scheduler.freeImages = async () => { scheduler.residentImages = null; throw new Error('Image memory admission refused after GPU release. Insufficient physical RAM headroom.'); };
+    await assert.rejects(scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000 }), /Host RAM is short/);
+    await scheduler.keepResident(Date.now() + 6000);
+    assert.equal(backend.profile, null);
+    assert.equal(calls.includes('load'), false);
+    await assert.rejects(scheduler.reserve({ workflowKey: 'face-edit', needGpuMiB: 18000 }), /Host RAM is short/);
+    await scheduler.keepResident(Date.now() + 59000);
+    assert.equal(calls.includes('load'), false);
+    scheduler.freeImages = async () => { calls.push('free'); };
+    await scheduler.text(async () => { await backend.load('fast'); });
+    assert.equal(backend.profile, 'fast', 'actual text bypasses the image retry grace');
 });
 
 test('cancelled queued text never runs after an image finishes', async () => {
@@ -414,7 +560,7 @@ const sdxl = { workflowKey: 'scene', modelFiles: [{ kind: 'checkpoints', name: '
 
 test('a measured streaming runtime keeps full text resident for an SDXL render instead of swapping it', async () => {
     const modelDirs = await fakeCheckpoint(6600);
-    const { scheduler, calls } = setup({ runtime: streamingRuntime, snapshot: async () => free(2700),
+    const { scheduler, calls } = setup({ runtime: streamingRuntime, snapshot: async () => free(4500),
         config: { modelDirs, streamImages: { enabled: true, minFreeGpuMiB: 2400, maxWeightMiB: 8192 } } });
     const lease = await scheduler.reserve(sdxl);
     assert.equal(lease.decision, 'stream-image');
@@ -425,7 +571,7 @@ test('streaming is off unless enabled, needs a streaming runtime, a small checkp
     const modelDirs = await fakeCheckpoint(6600);
     const decide = async (config, options = {}) => {
         let n = 0;
-        const { scheduler } = setup({ runtime: options.runtime ?? streamingRuntime, snapshot: options.snapshot ?? (async () => (n++ === 0 ? free(2700) : free(22000))),
+        const { scheduler } = setup({ runtime: options.runtime ?? streamingRuntime, snapshot: options.snapshot ?? (async () => (n++ === 0 ? free(4500) : free(22000))),
             config: { modelDirs, ...config } });
         return (await scheduler.reserve(sdxl)).decision;
     };
@@ -434,9 +580,22 @@ test('streaming is off unless enabled, needs a streaming runtime, a small checkp
     assert.notEqual(await decide({ streamImages: policy }, { runtime: async () => ({ id: 'r', streaming: false }) }), 'stream-image');
     assert.notEqual(await decide({ streamImages: { ...policy, maxWeightMiB: 4000 } }), 'stream-image');
     assert.notEqual(await decide({ streamImages: { ...policy, minFreeGpuMiB: 3000 } }), 'stream-image');
-    const lowRam = { highCadence: true, gpus: [{ usedMiB: 21876, freeMiB: 2700 }], host: { availableMiB: 5000, commitFreeMiB: 80000 } };
+    assert.equal(await decide({ streamImages: policy }), 'stream-image');
+    const lowRam = { highCadence: true, gpus: [{ usedMiB: 19876, freeMiB: 4500 }], host: { availableMiB: 5000, commitFreeMiB: 80000 } };
     let n = 0;
     assert.notEqual(await decide({ streamImages: policy }, { snapshot: async () => (n++ === 0 ? lowRam : free(22000)) }), 'stream-image');
+});
+
+test('streaming beside text keeps the GPU reserve: 2.5 GB free with a 1024 MiB reserve makes room for the image instead of spilling beside text (a10)', async () => {
+    const modelDirs = await fakeCheckpoint(6600);
+    const decide = async (freeMiB) => {
+        let n = 0;
+        const { scheduler } = setup({ runtime: streamingRuntime, snapshot: async () => (n++ === 0 ? free(freeMiB) : free(22000)),
+            config: { modelDirs, reserves: { gpuMiB: 1024, ramMiB: 2048 }, streamImages: { enabled: true, minFreeGpuMiB: 2400, maxWeightMiB: 8192 } } });
+        return (await scheduler.reserve(sdxl)).decision;
+    };
+    assert.notEqual(await decide(2510), 'stream-image');
+    assert.equal(await decide(3500), 'stream-image');
 });
 
 test('a queued image gets a fair window after a bounded number of text replies instead of waiting for an idle text queue', async () => {
@@ -497,7 +656,7 @@ test('a second image while one waits is told the GPU is owned, and a cancelled w
 test('host RAM short for an image is a retryable refusal that frees the broker for text and does not unload text again while RAM stays short', async () => {
     let available = 9000, textModel = null;
     const snapshot = async () => ({ ...free(textModel?.profile ? 3000 : 22000), host: { availableMiB: available, commitFreeMiB: 80000 } });
-    const { scheduler, calls, backend } = setup({ snapshot, freeImages: async ({ ramRequiredMiB }) => {
+    const { scheduler, calls, backend } = setup({ snapshot, config: { defaultProfile: 'fast', profiles: { fast: { estimatedRamMiB: 3000 } } }, freeImages: async ({ ramRequiredMiB }) => {
         calls.push('free');
         if (ramRequiredMiB && available + 1500 < ramRequiredMiB + 4096) throw new Error(`Image memory admission refused after GPU release. Insufficient physical RAM headroom. RAM available ${available + 1500} MiB; workload ${ramRequiredMiB} + reserve 4096 MiB.`);
     } });
@@ -519,4 +678,23 @@ test('host RAM short for an image is a retryable refusal that frees the broker f
     const lease = await scheduler.reserve({ workflowKey: 'scene', needGpuMiB: 17000, needRamMiB: 8139 });
     assert.equal(lease.decision, 'swap-text');
     await scheduler.release(lease.lease);
+});
+
+test('another workflow on the same resident model files keeps hot-image credit; other model files reclaim first', async () => {
+    const modelDirs = await fakeCheckpoint(6600);
+    const shared = { modelFiles: [{ kind: 'checkpoints', name: 'sdxl.safetensors' }], width: 1024, height: 1024 };
+    const same = warmImages({ config: { modelDirs } });
+    const first = await same.scheduler.reserve({ ...shared, workflowKey: 'face-edit', needGpuMiB: 18000 });
+    same.render(); same.scheduler.lease.seenJob = true; await same.scheduler.release(first.lease);
+    await same.scheduler.reserve({ ...shared, workflowKey: 'cast-scene', needGpuMiB: 18000 });
+    assert.deepEqual(same.calls, []);
+    assert.equal(same.scheduler.lease.identity.cacheState, 'gpu-warm');
+    const otherDirs = await fakeCheckpoint(6600);
+    const other = warmImages({ config: { modelDirs: { checkpoints: [...modelDirs.checkpoints, ...otherDirs.checkpoints] } } });
+    await fs.writeFile(path.join(otherDirs.checkpoints[0], 'other.safetensors'), await fs.readFile(path.join(otherDirs.checkpoints[0], 'sdxl.safetensors')));
+    const lease = await other.scheduler.reserve({ ...shared, workflowKey: 'face-edit', needGpuMiB: 18000 });
+    other.render(); await other.scheduler.release(lease.lease);
+    await other.scheduler.reserve({ ...shared, modelFiles: [{ kind: 'checkpoints', name: 'other.safetensors' }], workflowKey: 'cast-scene', needGpuMiB: 18000 });
+    assert.deepEqual(other.calls, ['free']);
+    assert.notEqual(other.scheduler.lease.identity.cacheState, 'gpu-warm');
 });

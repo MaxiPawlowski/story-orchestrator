@@ -6,6 +6,7 @@ import {
 } from "./schema";
 import { qualityAccepts } from "./blackboard";
 import { gateLeaves } from "./gates";
+import { gameLayer } from "./validate/gameLayer";
 
 // What changes when an author edits a story a chat is already playing. The table below is
 // the spec — every row is a jest fixture. "Live" always means the running chat actually holds the
@@ -13,66 +14,21 @@ import { gateLeaves } from "./gates";
 export type StoryChangeClass = "identical" | "compatible" | "invalidating";
 
 export type StoryDiffCode =
-  | "quality-added"
-  | "quality-removed"
-  | "quality-removed-live"
-  | "quality-retyped"
-  | "quality-retyped-live"
-  | "quality-enum-narrowed-live"
-  | "quality-latch-enabled-live"
-  | "quality-latch-disabled-live"
-  | "quality-source-changed-live"
-  | "quality-evidence-changed"
-  | "checkpoint-agency-changed"
-  | "checkpoint-changed"
-  | "roster-member-changed"
-  | "quality-changed"
-  | "checkpoint-added"
-  | "checkpoint-removed"
-  | "checkpoint-removed-visited"
-  | "active-checkpoint-removed"
-  | "start-changed"
-  | "start-changed-unplayed"
-  | "transition-added"
-  | "transition-removed"
-  | "gate-changed"
-  | "gate-changed-frontier"
-  | "gate-changed-latched"
-  | "roster-member-removed"
-  | "requirements-changed"
-  | "stagecraft-changed"
-  | "features-changed"
-  | "story-objective-block-changed"
-  | "story-display-changed"
-  | "story-presence-changed"
-  | "story-kind-changed"
-  | "scene-read-changed"
-  | "player-card-changed"
-  | "player-profile-changed"
-  | "lore-select-changed"
-  | "house-rules-changed"
-  | "arc-template-changed"
-  | "arc-bridges-changed"
-  | "chapters-changed"
-  | "game-changed"
-  | "quest-removed"
-  | "quest-removed-closed"
-  | "quest-reward-changed-earned"
-  | "check-changed"
-  | "codex-changed"
-  | "codex-entry-removed"
-  | "codex-entry-replaced"
-  | "codex-fact-removed"
-  | "codex-fact-replaced"
-  | "codex-fact-edited"
-  | "codex-return-removed"
-  | "codex-return-replaced"
-  | "codex-return-edited"
-  | "observations-changed"
-  | "observation-removed"
-  | "observation-replaced"
-  | "observation-edited"
-  | "text-changed";
+  | "quality-added" | "quality-removed" | "quality-removed-live" | "quality-retyped" | "quality-retyped-live"
+  | "quality-enum-narrowed-live" | "quality-latch-enabled-live" | "quality-latch-disabled-live"
+  | "quality-source-changed-live" | "quality-evidence-changed" | "checkpoint-agency-changed" | "checkpoint-changed"
+  | "roster-member-changed" | "quality-changed" | "checkpoint-added" | "checkpoint-removed"
+  | "checkpoint-removed-visited" | "active-checkpoint-removed" | "start-changed" | "start-changed-unplayed"
+  | "transition-added" | "transition-removed" | "gate-changed" | "gate-changed-frontier" | "gate-changed-latched"
+  | "roster-member-removed" | "requirements-changed" | "stagecraft-changed" | "features-changed"
+  | "story-objective-block-changed" | "story-display-changed" | "story-presence-changed" | "story-kind-changed"
+  | "scene-read-changed" | "player-card-changed" | "player-profile-changed" | "lore-select-changed"
+  | "house-rules-changed" | "arc-template-changed" | "arc-bridges-changed" | "chapters-changed" | "game-changed"
+  | "quest-removed" | "quest-removed-closed" | "quest-reward-changed-earned" | "check-changed" | "codex-changed"
+  | "codex-entry-removed" | "codex-entry-replaced" | "codex-fact-removed" | "codex-fact-replaced"
+  | "codex-fact-edited" | "codex-return-removed" | "codex-return-replaced" | "codex-return-edited"
+  | "observations-changed" | "observation-removed" | "cue-edited" | "cue-replaced" | "cue-removed"
+  | "observation-replaced" | "observation-edited" | "text-changed";
 
 export interface StoryDiffEntry {
   code: StoryDiffCode;
@@ -437,6 +393,11 @@ const diffObservations = (ctx: DiffContext) => {
   if (ctx.entries.length === before) ctx.push("compatible", "observations-changed", "observations", "The lines the player can notice changed; what this chat already noticed stays.");
 };
 
+const diffCueSources = (ctx: DiffContext) => (gameLayer()?.cues.diffCues(ctx.previous, ctx.next) ?? []).forEach((row) => {
+  row.drop.forEach((key) => dropLive(ctx, key));
+  ctx.push("compatible", row.code, row.path, row.message);
+});
+
 const diffStoryFields = (ctx: DiffContext) => {
   const { previous, next, push } = ctx;
   if (!sameValue(previous.requirements, next.requirements)) push("compatible", "requirements-changed", "requirements", "What the story needs from your setup changed.");
@@ -467,6 +428,7 @@ const diffStoryFields = (ctx: DiffContext) => {
   diffQuests(ctx);
   diffCodex(ctx);
   diffObservations(ctx);
+  diffCueSources(ctx);
   if (previous.title !== next.title || previous.description !== next.description) push("compatible", "text-changed", "story", "Title or description changed.");
 };
 

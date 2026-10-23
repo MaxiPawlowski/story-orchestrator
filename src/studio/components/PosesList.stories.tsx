@@ -40,3 +40,16 @@ export const InvalidImport: Story = {
     await expect(canvas.getByRole("button", { name: "Extract skeleton with installed DWPose" })).toBeDisabled();
   },
 };
+export const PrepareStoryPoses: Story = {
+  args: { services: { ...services, prepare: async () => "Prepared 2 of 2 story pose(s)." } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Prepare story poses before play" }));
+    await expect(await canvas.findByRole("status")).toHaveTextContent("Prepared 2 of 2 story pose(s).");
+  },
+};
+export const NoPrepareService: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(within(canvasElement).queryByRole("button", { name: "Prepare story poses before play" })).toBeNull();
+  },
+};

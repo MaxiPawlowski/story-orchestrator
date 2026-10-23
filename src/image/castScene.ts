@@ -9,6 +9,7 @@ export const CAST_SCENE_RECIPE = { id: "qwen21-current-look-cast-scene", version
 export const CAST_TWO_REFERENCE_MISSING = "Two characters need a second image input on ComfyUI's Qwen 2.1 text encoder node (TextEncodeQwenImage21, images.image_2), "
   + "and this ComfyUI does not offer it. Update ComfyUI's Qwen nodes, or draw one character.";
 export class CastSetupGap extends Error { override name = "CastSetupGap"; }
+export class LookPending extends Error { override name = "LookPending"; }
 export interface CastSceneMember { character: string; fields: Record<string, string>; source?: VisualManifest; card?: CardBinding }
 export interface CastSceneIdentity { character: string; root: string; signature: string; look: VisualLook; layered?: string[] }
 function layeredLook(member: CastSceneMember & { source: VisualManifest }): { signature: string; look: VisualLook; layered: string[] } | null {
@@ -28,7 +29,7 @@ export function castSceneIdentities(members: CastSceneMember[]): CastSceneIdenti
     if (look) return { character: member.character, root: visualRoot(source), signature, look };
     const layered = layeredLook({ ...member, source });
     if (layered) return { character: member.character, root: visualRoot(source), ...layered };
-    throw new Error("A selected character's current look is pending or stale. Prepare that look before illustrating the cast.");
+    throw new LookPending("A selected character's current look is pending or stale. Prepare that look before illustrating the cast.");
   });
 }
 type SceneBuilder = Pick<SpriteSettings["builders"][string], "models" | "steps" | "resolution">;

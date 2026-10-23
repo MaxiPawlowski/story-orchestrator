@@ -1,5 +1,7 @@
-import { comfyReference, comfyReleaseReference, comfyRenderOwned, saveGeneratedSprite } from "@services/stHost/media";
+import { comfyReference, comfyReleaseReference, comfyRenderOwned, saveGeneratedSprite } from "@services/stHost/media";
+import { eyeBoxes, eyeOpenness, faceCount } from "./eyeOpen";
 import { reserveGpu, releaseGpu, renewGpu } from "@services/stHost/gpuBroker";
+import { hostGenerating, leaseOutsideTurns, outsideTurns } from "./textPriority";
 import type { RunOwnership } from "@runtime/runToken";
 import { SpriteBuilder } from "./builder";
 import { decodeImage, encodeImage, cropReference, resizeEdit } from "./images";
@@ -15,15 +17,20 @@ import { busyWork } from "@runtime/busy";
 export function createSpriteBuilder(ownership: RunOwnership): SpriteBuilder {
   return new SpriteBuilder({
     ownership, decode: decodeImage, encode: encodeImage, crop: cropReference, resize: resizeEdit,
+    eyes: async (image, signal) => {
+      const reply = await (await import("@services/stHost/landmarkDetector")).detectFaceLandmarks(encodeImage(image), signal);
+      return reply.ok ? { boxes: eyeBoxes(reply.result, image), openness: eyeOpenness(reply.result), faces: faceCount(reply.result) } : null;
+    },
     lineage: async (request, signal) => {
       const source = getGlobalSettings().sprites.visualSources[request.character];
       if (!source) return null;
       await verifyVisualSource(source, signal);
       return { root: visualRoot(source), current: () => sourceStillCurrent(source) };
     },
-    uploadReference: comfyReference, render: async (...args) => {
+    uploadReference: comfyReference, render: async (graph, signal) => {
+      await outsideTurns({ loud: hostGenerating, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)), signal });
       const busy = busyWork.begin("sprite", ownership.mint().chatId);
-      try { return await comfyRenderOwned(...args); } finally { busy.end(); }
+      try { return await comfyRenderOwned(graph, signal); } finally { busy.end(); }
     },
     releaseReference: async (name) => {
       const result = await comfyReleaseReference(name);
@@ -42,8 +49,10 @@ export function createSpriteBuilder(ownership: RunOwnership): SpriteBuilder {
           { kind: "textEncoders", name: request.models.encoder.name },
           { kind: "vaes", name: request.models.vae.name },
          ] };
+      const reserve = () => leaseOutsideTurns({ acquire: () => reserveGpu(gpuRequest), release: async (held) => { if (held.lease) await releaseGpu(held.lease); },
+        loud: hostGenerating, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)), signal });
       const acquire = async () => {
-      const reservation = await reserveGpu(gpuRequest);
+      const reservation = await reserve();
       const timer = reservation.lease ? setInterval(() => { void renewGpu(reservation.lease).then((result) => {
         if (!result.ok) log.warn(result.reason);
       }).catch(() => {}); }, 30_000) : null;

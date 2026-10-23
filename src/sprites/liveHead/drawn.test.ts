@@ -1,4 +1,5 @@
-import type { RunGuard } from "@runtime/runToken";
+import type { RunGuard } from "@runtime/runToken";
+import { bustBox } from "../builder/headBox";
 import type { PixelImage } from "../builder/pixels";
 import { FakeWebGl, fakeCanvas, fakeLayerImage } from "../../../test/support/fakeWebGl";
 import { restHead, type HeadParameters } from "./drivers";
@@ -56,6 +57,18 @@ describe("cutting plan 19 frames into drawn sprites", () => {
     expect(cutDrawn(rig, art, full).refused).toEqual(["blink", "talk", "talk2", "mouth_o", "mouth_wide"].map((key) => `${key}: frame size differs from the rig artwork`));
     expect(cutDrawn(rig, art, full, { ...box, width: 100 }).sprites).toEqual([]);
     expect(cutDrawn(rig, art, full, { ...box, x: 150 }).refused[0]).toBe("blink: head box falls outside the frame");
+  });
+  test("a prepared bust's head box finds the wider bust crop the bust was cut with, so its frames are not refused", () => {
+    const hw = Array.from({ length: rig.image.width }, (_, at) => at + 1).find((width) => Math.round(width * 2.2) === rig.image.width);
+    const frame = { width: hw ? rig.image.width + 60 : rig.image.width, height: rig.image.height };
+    const head = { x: Math.round(frame.width / 2 - (hw ?? 40) / 2), y: 4, width: hw ?? 40, height: Math.round(rig.image.height / 2) };
+    const crop = bustBox(frame, head);
+    expect([crop.width, crop.height]).toEqual([rig.image.width, rig.image.height]);
+    expect(head.width).toBeLessThan(rig.image.width);
+    const full = Object.fromEntries(Object.entries(frames).map(([key, image]) => [key, pad(image, crop, frame.width, frame.height)]));
+    const result = cutDrawn(rig, art, full, head);
+    expect(result.refused).toEqual(cutDrawn(rig, art, frames).refused);
+    expect(result.sprites.map((sprite) => sprite.pixels)).toEqual(cutDrawn(rig, art, frames).sprites.map((sprite) => sprite.pixels));
   });
   test("the rounded and wide mouth frames pass the same guard: a drifting or empty shape is refused, the rest kept", () => {
     const empty: PixelImage = { ...art, data: new Uint8ClampedArray(art.data.length) };

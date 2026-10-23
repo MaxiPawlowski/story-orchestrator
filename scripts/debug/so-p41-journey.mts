@@ -4,10 +4,11 @@ import { resolve } from 'node:path';
 import type { Page } from 'playwright';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { DEBUG_DIR, PROJECT_ROOT } from './lib/connection.mts';
-import { activate, applyAuthoringRoute, captureSettings, freshPage, preflightCommon, restoreSettings, saveSoon, settleSaves, step, stepBase, stepPrepare, stepEdits, stepRig, chooseCharacter, type SettingsCapture, type StepEnv, type StepResult } from './lib/pocSteps.mts';
+import { activate, applyAuthoringRoute, captureSettings, freshPage, preflightCommon, restoreSettings, saveSoon, settleSaves, step, stepBase, stepPrepare, stepEdits, stepRig, stepPoses, chooseCharacter, type SettingsCapture, type StepEnv, type StepResult } from './lib/pocSteps.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
 import { assertRuntimeOnPage } from './lib/servedBundle.mts';
+import { ensureSTReady } from './lib/st-ready.mts';
 import { driveWizardAgent } from './lib/wizardAgentDrive.mts';
 import { laneHarness } from './lib/imageHarness.mts';
 import { comfyCleared, harnessGaps } from './lib/imageHarnessConfig.mts';
@@ -70,6 +71,7 @@ interface Ctx extends StepEnv {
   only: Set<string> | null;
   gpuBaseline: number | null;
   settings: SettingsCapture | null;
+  checkpoint?(): Promise<void>;
 }
 
 
@@ -88,7 +90,13 @@ const staleResult = (findings: string[], extra: Record<string, unknown> = {}): S
   ? { outcome: 'fail', detail: `stale: ${findings.slice(0, 3).join('; ')}`, data: { findings, ...extra } }
   : { data: { findings: [], ...extra } };
 
+const landmarksUp = async (): Promise<boolean> => {
+  const port = process.env.SO_LANDMARKS_PORT ?? '8096';
+  try { return (await fetch(`http://127.0.0.1:${port}/health`, { signal: AbortSignal.timeout(3000) })).ok; } catch { return false; }
+};
+
 async function stepPreflight(ctx: Ctx): Promise<StepResult> {
+  if (ctx.mode !== 'dry' && !(await landmarksUp())) return { outcome: 'fail', detail: 'the face landmark check is down (node scripts/local/landmarks.mjs start); without it the head box falls back to a fixed fraction' };
   const common = await preflightCommon(ctx, P41_MARKER);
   ctx.baseline = common.baseline;
   ctx.settings = await captureSettings(ctx.page);
@@ -175,10 +183,11 @@ async function playBlock(ctx: Ctx, from: number, count: number, label: string) {
   const rows: TurnResult[] = [];
   for (let at = 0; at < count; at += 1) {
     const line = PLAYER_LINES[(from + at) % PLAYER_LINES.length];
+    const startedAt = new Date().toISOString();
     const turn = await playTurn(ctx.page, line);
     rows.push(turn);
     ctx.turns.push(turn);
-    await appendFile(resolve(ctx.dir, 'turns.jsonl'), `${JSON.stringify({ block: label, ...turn })}\n`);
+    await appendFile(resolve(ctx.dir, 'turns.jsonl'), `${JSON.stringify({ block: label, startedAt, endedAt: new Date().toISOString(), ...turn })}\n`);
   }
   return rows;
 }
@@ -202,11 +211,12 @@ async function stepPose(ctx: Ctx): Promise<StepResult> {
   await activate(ctx, 'table');
   const wanted = Object.fromEntries(ctx.cast.map((member) => [member.name, member.poses[1]]));
   const posed = (actor: any, member: CastMember) => actor?.pose === wanted[member.name] && String(actor?.set ?? '').startsWith('lp_');
+  const posedAt = Date.now();
   const waited = await waitStage(ctx.page, (view) => ctx.cast.every((member) => posed(view.actors.find((actor: any) => actor.name === member.name), member)),
     ctx.mode === 'dry' ? 120000 : 1_800_000, 2000);
   const shown = Object.fromEntries(waited.view.actors.map((actor: any) => [actor.name, { pose: actor.pose, set: actor.set }]));
   const missing = ctx.cast.filter((member) => !posed(shown[member.name], member)).map((member) => `${member.name}: ${shown[member.name]?.pose ?? 'no actor'} on set ${shown[member.name]?.set ?? 'none'} (wanted a posed ${wanted[member.name]} body)`);
-  return { outcome: missing.length ? 'fail' : 'pass', detail: missing.join('; ') || undefined, data: { wanted, shown } };
+  return { outcome: missing.length ? 'fail' : 'pass', detail: missing.join('; ') || undefined, data: { wanted, shown, waitedMs: Date.now() - posedAt } };
 }
 
 async function stepLook(ctx: Ctx): Promise<StepResult> {
@@ -382,7 +392,21 @@ async function stepGpuIdle(ctx: Ctx, sampler: ReturnType<typeof startSampler>): 
 }
 
 async function cleanup(page: Page, baseline: Awaited<ReturnType<typeof snapshotAssets>> | null, settings: SettingsCapture | null = null) {
+  const recovery = await ensureSTReady(page).then(() => null, async (error) => {
+    await freshPage(page);
+    return { reloadedForCleanup: String(error) };
+  });
   await closeCheckpointStudio(page).catch(() => undefined);
+  const library = await removeStory(page, journeyStory(journeyCast()).id).catch((error) => ({ error: String(error) }));
+  await waitForIdle(page, 120000);
+  await page.waitForFunction(async () => {
+    const headers = (globalThis as any).SillyTavern.getContext().getRequestHeaders();
+    const response = await fetch('/api/plugins/story-orchestrator-gpu/status', { headers });
+    if (response.status === 404) return true;
+    if (!response.ok) throw new Error(`GPU cleanup status: ${response.status}`);
+    const status = await response.json();
+    return !status.imageLease && !status.imageWaiting;
+  }, undefined, { polling: 1000, timeout: 120000 });
   const removed = await removeMarkedAssets(page, P41_MARKER, { baseline });
   const scrub = await page.evaluate(async (marker: string) => {
     const root = globalThis as any, rt = root.storyOrchestratorRuntime, home = root.SillyTavern.getContext().extensionSettings['story-orchestrator'];
@@ -402,10 +426,10 @@ async function cleanup(page: Page, baseline: Awaited<ReturnType<typeof snapshotA
     return { dropped };
   }, P41_MARKER);
   await saveSoon(page);
-  const library = await removeStory(page, journeyStory(journeyCast()).id).catch((error) => ({ error: String(error) }));
   const restored = await restoreSettings(page, settings).catch((error) => ({ error: String(error) }));
   const found = await listMarkedAssets(page, P41_MARKER, { baseline });
-  return { removed: { characters: removed.removed.characters.length, groups: removed.removed.groups.length, errors: removed.removed.errors }, scrub, library, restored, leaked: leakCount(found), leakedAssets: leakNames(found) };
+  return { recovery, removed: { characters: removed.removed.characters.length, groups: removed.removed.groups.length,
+    errors: [...removed.removed.errors, ...removed.removed.sprites.errors, ...removed.removed.spriteReferences.errors] }, scrub, library, restored, leaked: leakCount(found), leakedAssets: leakNames(found) };
 }
 
 async function runJourney(page: Page) {
@@ -420,6 +444,12 @@ async function runJourney(page: Page) {
     dry: null, refusals: [], models: { diffusion: 'dry_edit.safetensors', encoder: 'dry_encoder.safetensors', vae: 'dry_vae.safetensors' }, alpha: 'dry_alpha', staleChecks: [],
     baseline: null, only: flag('--only') ? new Set(value('--only', '').split(',').filter(Boolean)) : null, gpuBaseline: null, settings: null, setOf: slug, seedOf: (member) => cast.findIndex((row) => row.id === member.id) };
   console.log(`p41 journey run ${run} (${mode}) -> ${dir}`);
+  ctx.checkpoint = async () => { await writeRecord(dir, 'record.json', {
+    kind: 'p41-journey', mode, run, startedAt: stamp, updatedAt: new Date().toISOString(), complete: false,
+    verdict: 'NOT GREEN', current: ctx.current, steps: ctx.rows, refusals: ctx.refusals,
+    cleanup: 'not completed', partial: Boolean(ctx.only),
+  }); if (ctx.current !== 'setup' && ctx.current !== 'cleanup') await ensureSTReady(page); };
+  await ctx.checkpoint();
   const distDir = mode === 'dry' || flag('--candidate') ? resolve(PROJECT_ROOT, 'dist') : null;
   let candidate: { stop(): Promise<void> } | null = null;
   if (mode === 'dry') ctx.dry = await installDryRoutes(page, owned, distDir);
@@ -443,6 +473,7 @@ async function runJourney(page: Page) {
     for (const member of cast) await step(ctx, 'expressions', member.name, () => stepEdits(ctx, member, ['happy', 'angry', 'worried'].map((label) => ({ label, kind: 'expression', reference: `${slug(member)}/neutral` }))));
     for (const member of cast) await step(ctx, 'frames', member.name, () => stepEdits(ctx, member, ['blink', 'talk'].map((kind) => ({ label: 'neutral', kind, reference: `${slug(member)}/neutral` }))));
     for (const member of cast) await step(ctx, 'rig', member.name, () => stepRig(ctx, member));
+    await step(ctx, 'poses', null, () => stepPoses(ctx));
     await step(ctx, 'play', null, () => stepPlay(ctx, Math.max(1, turns - 2)));
     await step(ctx, 'pose', null, () => stepPose(ctx));
     await step(ctx, 'look', null, () => stepLook(ctx));
@@ -459,6 +490,8 @@ async function runJourney(page: Page) {
     console.log(`ABORT ${error instanceof Error ? error.message : String(error)}`);
     ctx.rows.push({ id: 'abort', outcome: 'fail', ms: 0, startedAt: new Date().toISOString(), detail: error instanceof Error ? error.message : String(error) });
   } finally {
+    ctx.current = 'cleanup';
+    await ctx.checkpoint();
     sampler.stop();
     calls.stop();
     const headerAfter = await captureHeader(page, `p41-after-run${run}`).catch((error) => ({ error: String(error) }));
@@ -475,8 +508,8 @@ async function runJourney(page: Page) {
     if (ctx.rows.some((row) => row.id === 'abort')) misses.unshift(`aborted: ${ctx.rows.find((row) => row.id === 'abort')?.detail}`);
     const plumbing = plumbingProblems(ctx.rows, ctx.only ? [...ctx.only] : JOURNEY_STEPS, cleaned);
     const record = {
-      kind: 'p41-journey', mode, run, startedAt: stamp, finishedAt: new Date().toISOString(), partial: Boolean(ctx.only), floorsDate: FLOORS_DATE, floors: JOURNEY_FLOORS,
-      verdict: mode === 'dry' ? (plumbing.length ? 'PLUMBING-FAIL' : 'PLUMBING-OK (dry: no floor result)') : (misses.length || ctx.only ? 'NOT GREEN' : 'GREEN'),
+      kind: 'p41-journey', mode, run, complete: true, startedAt: stamp, finishedAt: new Date().toISOString(), partial: Boolean(ctx.only), floorsDate: FLOORS_DATE, floors: JOURNEY_FLOORS,
+      verdict: mode === 'dry' ? (plumbing.length ? 'PLUMBING-FAIL' : 'PLUMBING-OK (dry: no floor result)') : (misses.length || plumbing.length || ctx.only ? 'NOT GREEN' : 'GREEN'),
       plumbing, misses, steps: ctx.rows, stale: ctx.staleChecks, turns: ctx.turns, modelCalls: countCalls(calls.rows), refusals: ctx.refusals,
       samples: sampleSummary(sampler.samples), gpuBaselineMiB: ctx.gpuBaseline, cleanup: cleaned, headerDiff: diff, serverLog: serverSlice,
       dry: ctx.dry ? { fakeCalls: ctx.dry.fake.calls.length, renders: ctx.dry.fake.jobs.size, blocked: ctx.dry.blocked, textReplies: ctx.dry.replies } : null,
@@ -484,7 +517,7 @@ async function runJourney(page: Page) {
     const path = await writeRecord(dir, 'record.json', record);
     console.log(`RECORD ${path}`);
     console.log(`VERDICT ${record.verdict}${plumbing.length ? `\n  plumbing: ${plumbing.join('\n  plumbing: ')}` : ''}${misses.length ? `\n  ${misses.join('\n  ')}` : ''}`);
-    if (mode === 'real' && (misses.length || ctx.only)) process.exitCode = 1;
+    if (mode === 'real' && (misses.length || plumbing.length || ctx.only)) process.exitCode = 1;
     if (mode === 'dry' && plumbing.length) process.exitCode = 1;
   }
 }

@@ -6,7 +6,7 @@ import { decodeImage, encodeImage } from "../builder/images";
 import type { PixelImage } from "../builder/pixels";
 import { DWPOSE_FILES, NO_PERSON } from "./import";
 import { importPoseImage } from "./importHost";
-import { waitForTextPriority } from "../builder/textPriority";
+import { hostGenerating, waitForTextPriority } from "../builder/textPriority";
 import { PoseBodies } from "./bodyRenderer";
 import { getGlobalSettings } from "@runtime/settingsStore";
 import { visualRoot } from "../visualManifest";
@@ -18,7 +18,7 @@ export const createPoseBodies = (ownership: RunOwnership): PoseBodies => {
     try { for (const name of DWPOSE_FILES) await comfyFingerprint("poseModels", name, signal); }
     catch { signal.throwIfAborted(); return undefined; }
     signal.throwIfAborted();
-    try { return await importPoseImage(encodeImage(image), ownership); }
+    try { return await importPoseImage(encodeImage(image), ownership, signal); }
     catch (error) { signal.throwIfAborted(); return NO_PERSON.test(error instanceof Error ? error.message : String(error)) ? none : undefined; }
   };
   return new PoseBodies({
@@ -35,7 +35,7 @@ export const createPoseBodies = (ownership: RunOwnership): PoseBodies => {
       config.models.encoder, signal), comfyFingerprint("vaes", config.models.vae, signal)]);
     return { diffusion, encoder, vae };
   },
-  wait: (signal, current) => waitForTextPriority({ signal, current, status: gpuBrokerStatus, now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) }),
+  wait: (signal, current) => waitForTextPriority({ signal, current, status: gpuBrokerStatus, loud: hostGenerating, now: Date.now, sleep: () => new Promise((resolve) => setTimeout(resolve, 500)) }),
   proportions: async (image, discovery, signal) => (await measure(image, discovery, signal, undefined)) ?? undefined,
   head: (image, discovery, signal) => measure(image, discovery, signal, null),
   });

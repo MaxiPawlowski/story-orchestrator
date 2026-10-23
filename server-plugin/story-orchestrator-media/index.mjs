@@ -4,7 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { randomUUID } from 'node:crypto';
 import { createComfyTarget } from './comfyTarget.mjs';
 import { fingerprint, pngBytes, saveSprite, reconcileSet, deleteSprite, listSets, removeStorySprites, referencePack, referenceSets, spriteInventory, alphaRecipes,
-    digest, recordReference, ownsReference, releaseReference, pruneReferences } from './files.mjs';
+    digest, recordReference, ownsReference, releaseReference, pruneReferences, reapableReferences } from './files.mjs';
 import { createDownloads, SECRET_KEYS } from './downloads.mjs';
 import { mountDownloadRoutes } from './downloadRoutes.mjs';
 import { mountLandmarkRoutes } from './landmarkRoutes.mjs';
@@ -90,7 +90,9 @@ export async function init(router) {
     const prune = async (user, names, jobs) => {
         const queue = await (await jobs.request('/queue')).json();
         if (queue.queue_running?.length || queue.queue_pending?.length) return { deleted: [], errors: [], deferred: 'ComfyUI still has work; references stay on disk.' };
-        return pruneReferences(user, config.comfyInputRoot, names);
+        const report = await pruneReferences(user, config.comfyInputRoot, names);
+        const stale = (await reapableReferences(user)).filter((name) => !names.includes(name));
+        return stale.length ? { ...report, reaped: (await pruneReferences(user, config.comfyInputRoot, stale)).deleted } : report;
     };
     route('post', '/reference/release', async (req, user, comfy) => {
         const result = await releaseReference(user, req.body.name);

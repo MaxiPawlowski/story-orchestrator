@@ -3,12 +3,25 @@ import { admission, residencyChoice, textLatencyDecision } from './policy.mjs';
 import { measuredRamMiB } from './ramEstimates.mjs';
 import { estimateNeedMiB, modelIdentities, estimateRamMiB } from './models.mjs';
 import { footprintKey, observedFootprint, FOOTPRINT_REVISION } from './footprints.mjs';
+import { creditedSnapshot, imageResidency, residentCredit, IMAGE_IDLE_GRACE_MS } from './imageResidency.mjs';
 
 export const RAM_REFUSAL = /Insufficient (physical RAM|commit) headroom/;
 
 export class ResidencyScheduler {
     constructor({ config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints = {}, timings = {}, saveTimings = async () => {}, runtime = async () => ({ id: 'unknown', streaming: false }), log = () => {} }) {
         Object.assign(this, { config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints, timings, saveTimings, runtime, log });
+        this.residentImages = null;
+        this.imagesNeedRelease = false;
+        this.imageReleaseTargetMiB = null;
+        this.freeImages = async (options = {}) => {
+            this.residentImages = null;
+            this.imagesNeedRelease = true;
+            const result = await freeImages({ ...options, maxUsedGpuMiB: options.maxUsedGpuMiB ?? this.imageReleaseTargetMiB });
+            this.imagesNeedRelease = false;
+            this.imageReleaseTargetMiB = null;
+            this.lastCacheMode = result?.mode ?? null;
+            return result;
+        };
         this.pending = [];
         this.activeText = false;
         this.imagePending = false;
@@ -16,6 +29,7 @@ export class ResidencyScheduler {
         this.manualHold = false;
         this.restoring = false;
         this.lastLeaseAt = null;
+        this.lastImageRequestAt = null;
         this.lastDecision = null;
         this.lastResidency = null;
         this.lastNeedGpuMiB = null;
@@ -36,12 +50,12 @@ export class ResidencyScheduler {
         const state = this.backend.status();
         if (state.pid || state.loading) return;
         if (this.lastLeaseAt && now - this.lastLeaseAt < (this.config.textReloadGraceMs ?? 5000)) return;
+        if (this.imagesCooling(now)) return;
         if (this.reloadRetryAt && now < this.reloadRetryAt) return;
         this.restoring = true;
         const name = this.backend.desiredProfile ?? this.config.defaultProfile;
         try {
-            try { await this.freeImages({ ramRequiredMiB: this.config.profiles?.[name]?.estimatedRamMiB ?? 6500 }); }
-            catch (error) { this.lastError = error.message; }
+            await this.freeImages({ ramRequiredMiB: this.config.profiles?.[name]?.estimatedRamMiB ?? 6500 });
             await this.backend.load(name, { fitTarget: null });
             this.reloadFailures = 0; this.reloadRetryAt = null; this.lastError = null;
         } catch (error) {
@@ -80,6 +94,10 @@ export class ResidencyScheduler {
             if (state.fitTargetMiB != null && this.config.residencyObjective !== 'switch') {
                 this.lastTextDecision = textLatencyDecision({ budget: entry.budget, timings: this.timings, profile: state.profile, fitTarget: state.fitTargetMiB });
                 if (this.lastTextDecision.restore) await this.restoreText();
+            }
+            if (this.imagesNeedRelease) {
+                const name = this.backend.desiredProfile ?? this.config.defaultProfile;
+                await this.freeImages({ ramRequiredMiB: state.pid ? 0 : this.config.profiles?.[name]?.estimatedRamMiB ?? 6500 });
             }
             entry.resolve(await entry.run());
         }
@@ -124,6 +142,7 @@ export class ResidencyScheduler {
 
     async reserve(body = {}) {
         if (this.lease || this.imagePending || this.imageQueued) throw new Error('An image batch already owns the local GPU.');
+        this.lastImageRequestAt = Date.now();
         const deadline = Date.now() + this.config.queueTimeoutMs;
         this.imageQueued = { at: Date.now(), served: this.servedText };
         try {
@@ -145,23 +164,33 @@ export class ResidencyScheduler {
             const runtime = await this.runtime();
             const models = body.modelFiles?.length && this.config.modelDirs ? await modelIdentities(this.config.modelDirs, body.modelFiles) : [];
             const identity = { workflowKey: key, runtime, models,
-                cacheState: this.lastWorkflow === key && this.lastCacheMode === 'ram-warm' ? 'warm-possible' : 'cold-or-unknown',
                 text: this.backend.status().pid ? { profile: this.backend.status().profile, fitTarget: this.backend.status().fitTargetMiB } : null };
-            const observedKey = key ? footprintKey(identity) : null;
-            const needGpuMiB = await this.needFor(body, observedKey);
+            const memory = await this.imageMemory(identity);
+            identity.cacheState = memory.credit ? 'gpu-warm' : this.lastWorkflow === key && this.lastCacheMode === 'ram-warm' ? 'warm-possible' : 'cold-or-unknown';
+            let observedKey = key ? footprintKey(identity) : null;
+            let needGpuMiB = Math.max(await this.needFor(body, observedKey), memory.credit ? this.residentImages?.gpuMiB ?? 0 : 0);
             const footprint = observedKey ? this.footprints[observedKey] : null;
-            const { needRamMiB, ramSource } = this.ramNeed({ body, footprint, models, runtime });
-            const room = needGpuMiB + this.config.reserves.gpuMiB;
+            let { needRamMiB, ramSource } = this.ramNeed({ body, footprint, models, runtime, resident: memory.credit ? this.residentImages : null });
             const benchmarkMode = this.config.experiments ? body.benchmarkMode : null;
-            let snapshot = await this.snapshot({ fresh: true });
+            let snapshot = memory.snapshot;
             let decision;
+            if (memory.credit && (benchmarkMode === 'swap' || !admission(creditedSnapshot(snapshot, memory.credit), { gpuMiB: needGpuMiB, ramMiB: needRamMiB }, this.config.reserves).allowed)) {
+                await this.freeImages();
+                memory.credit = null;
+                snapshot = await this.snapshot({ fresh: true });
+                needGpuMiB = await this.needFor(body, null);
+                ({ needRamMiB, ramSource } = this.ramNeed({ body, models, runtime }));
+            }
+            const room = needGpuMiB + this.config.reserves.gpuMiB;
             const textState = this.backend.status();
             const textResident = Boolean(textState.pid);
-            const choice = residencyChoice({ snapshot, needGpuMiB, needRamMiB, reserves: this.config.reserves, textResident });
+            const choice = residencyChoice({ snapshot: creditedSnapshot(snapshot, memory.credit), needGpuMiB, needRamMiB, reserves: this.config.reserves, textResident });
             let reason = choice.reason;
+            if (memory.credit) reason += ` Reusing ${Math.round(memory.credit.gpuMiB)} MiB of resident image GPU allocations.`;
             this.lastResidency = { decision: 'deciding', reason, textResident, textProfile: textState.profile ?? null, needGpuMiB, needRamMiB, ramSource,
-                reserves: { ...this.config.reserves }, readings: choice.readings, shortBy: choice.shortBy, at: new Date().toISOString() };
-            const fits = () => admission(snapshot, { gpuMiB: needGpuMiB, ramMiB: needRamMiB }, this.config.reserves);
+                reserves: { ...this.config.reserves }, readings: { ...choice.readings, gpuFreeMiB: snapshot?.gpus?.[0]?.freeMiB ?? null, ramAvailableMiB: snapshot?.host?.availableMiB ?? null },
+                residentCredit: memory.credit, shortBy: choice.shortBy, at: new Date().toISOString() };
+            const fits = () => admission(creditedSnapshot(snapshot, this.residentImages ? memory.credit : null), { gpuMiB: needGpuMiB, ramMiB: needRamMiB }, this.config.reserves);
             const ramMemory = this.ramShort && Date.now() - this.ramShort.at < (this.config.ramShortMemoryMs ?? 600000) ? this.ramShort : null;
             const ramBefore = choice.readings?.ramAvailableMiB ?? null;
             const freeFor = async (ramRequiredMiB) => {
@@ -211,7 +240,11 @@ export class ResidencyScheduler {
             this.lastError = null;
             this.lastNeedGpuMiB = needGpuMiB;
             this.lastLeaseAt = Date.now();
-            this.lease = { id: randomUUID(), at: Date.now(), touched: Date.now(), key: observedKey, workflowKey: key, identity, before: snapshot,
+            const residentText = this.backend.status();
+            identity.text = residentText.pid ? { profile: residentText.profile, fitTarget: residentText.fitTargetMiB } : null;
+            if (!this.residentImages && identity.cacheState === 'gpu-warm') identity.cacheState = this.lastCacheMode === 'ram-warm' ? 'warm-possible' : 'cold-or-unknown';
+            observedKey = key ? footprintKey(identity) : null;
+            this.lease = { id: randomUUID(), at: Date.now(), touched: Date.now(), key: observedKey, workflowKey: key, identity, before: creditedSnapshot(snapshot, this.residentImages ? memory.credit : null),
                 peakGpu: snapshot.gpus[0].usedMiB, lowRam: snapshot.host.availableMiB, lowCommit: snapshot.host.commitFreeMiB,
                 lowGpu: snapshot.gpus[0].freeMiB, highCadence: snapshot.highCadence === true, seenJob: false, decision, needGpuMiB, needRamMiB,
                 trace: [] };
@@ -224,11 +257,22 @@ export class ResidencyScheduler {
         finally { this.imagePending = false; if (!this.lease) void this.pump(); }
     }
 
-    ramNeed({ body, footprint, models, runtime }) {
+    async imageMemory(identity) {
+        let snapshot = await this.snapshot({ fresh: true });
+        const credit = this.config.imageCacheMode === 'evict' ? null : residentCredit(this.residentImages, identity, snapshot, this.config.reserves);
+        if (this.imagesNeedRelease && !credit) {
+            await this.freeImages();
+            snapshot = await this.snapshot({ fresh: true });
+        }
+        return { snapshot, credit };
+    }
+
+    ramNeed({ body, footprint, models, runtime, resident = null }) {
         const requested = Number.isFinite(body.needRamMiB) && body.needRamMiB >= 0 ? body.needRamMiB : 0;
         const measured = footprint?.revision === FOOTPRINT_REVISION && footprint.verified && Number.isFinite(footprint.ramMiB) ? { ramMiB: footprint.ramMiB, source: 'footprint' } : null;
-        const table = measured ? null : measuredRamMiB({ models, width: body.width, height: body.height, hires: body.hires === true, streaming: runtime?.streaming === true, rows: this.config.ramEstimates });
-        const estimate = measured ?? table ?? (models.length ? { ramMiB: estimateRamMiB({ weightMiB: models.reduce((sum, row) => sum + row.weightsMiB, 0),
+        const retained = Number.isFinite(resident?.ramMiB) ? { ramMiB: resident.ramMiB, source: 'resident-observation' } : null;
+        const table = measured || retained ? null : measuredRamMiB({ models, width: body.width, height: body.height, hires: body.hires === true, streaming: runtime?.streaming === true, rows: this.config.ramEstimates });
+        const estimate = measured ?? retained ?? table ?? (models.length ? { ramMiB: estimateRamMiB({ weightMiB: models.reduce((sum, row) => sum + row.weightsMiB, 0),
             width: body.width, height: body.height, hires: body.hires, streaming: runtime?.streaming }), source: 'loader-estimate' } : { ramMiB: this.config.defaultImageRamMiB ?? 8192, source: 'default' });
         return requested > estimate.ramMiB ? { needRamMiB: Math.ceil(requested), ramSource: 'request' } : { needRamMiB: Math.ceil(estimate.ramMiB), ramSource: estimate.source };
     }
@@ -245,7 +289,7 @@ export class ResidencyScheduler {
         if (!policy?.enabled || !runtime?.streaming || !this.backend.status().pid || this.backend.status().fitTargetMiB != null) return false;
         if (!models.length || models.some((row) => !(policy.kinds ?? ['checkpoints']).includes(row.kind))) return false;
         if (models.reduce((sum, row) => sum + row.weightsMiB, 0) > (policy.maxWeightMiB ?? 8192)) return false;
-        return admission(snapshot, { gpuMiB: policy.minFreeGpuMiB ?? 2400, ramMiB: needRamMiB }, { gpuMiB: 0, ramMiB: this.config.reserves.ramMiB }).allowed;
+        return admission(snapshot, { gpuMiB: policy.minFreeGpuMiB ?? 2400, ramMiB: needRamMiB }, this.config.reserves).allowed;
     }
 
     renew(id) { if (this.lease?.id !== id) return false; this.lease.touched = Date.now(); return true; }
@@ -331,11 +375,19 @@ export class ResidencyScheduler {
         const profile = this.config.profiles?.[this.backend.desiredProfile ?? this.config.defaultProfile];
         let cache = null;
         try {
-            try {
+            const snapshot = this.config.imageCacheMode === 'evict' ? null : await this.snapshot({ fresh: true }).catch((error) => { this.lastError = error.message; return null; });
+            const warm = this.config.imageCacheMode !== 'evict' && snapshot && admission(snapshot, { gpuMiB: 0, ramMiB: 0 }, this.config.reserves).allowed;
+            if (warm) {
+                this.observe(snapshot);
+                this.residentImages = imageResidency(lease, snapshot, this.config.reserves);
+                this.imagesNeedRelease = true;
+                this.imageReleaseTargetMiB = lease.before.gpus[0].usedMiB + 512;
+                cache = { mode: 'gpu-warm' };
+            } else try {
                 cache = await this.freeImages({ ramRequiredMiB: this.backend.status().pid ? 0 : profile?.estimatedRamMiB ?? 6500,
                     maxUsedGpuMiB: lease.before.gpus[0].usedMiB + 512 });
             } catch (error) { this.lastError = error.message; }
-            try { this.observe(await this.snapshot({ fresh: true })); } catch (error) { this.lastError = error.message; }
+            if (!warm) try { this.observe(await this.snapshot({ fresh: true })); } catch (error) { this.lastError = error.message; }
             this.lastWorkflow = lease.workflowKey;
             this.lastCacheMode = cache?.mode ?? null;
             if (lease.key && lease.seenJob) {
@@ -358,12 +410,18 @@ export class ResidencyScheduler {
         if (this.lease || this.imagePending || this.imageQueued || this.activeText || this.manualHold || this.pending.length) return;
         if (this.backend.status().fitTargetMiB === null) return;
         if (!this.lastLeaseAt || Date.now() - this.lastLeaseAt < idleMs) return;
+        if (this.imagesCooling()) return;
         this.restoring = true;
         try {
             await this.restoreText();
             this.lastLeaseAt = null;
         } catch (error) { this.lastError = error.message; }
         finally { this.restoring = false; void this.pump(); }
+    }
+
+    imagesCooling(now = Date.now()) {
+        const since = Math.max(this.lastLeaseAt ?? 0, this.lastImageRequestAt ?? 0);
+        return this.config.imageCacheMode !== 'evict' && since > 0 && now - since < (this.config.imageIdleGraceMs ?? IMAGE_IDLE_GRACE_MS);
     }
 
     async restoreText() {
@@ -415,6 +473,7 @@ export class ResidencyScheduler {
             imageWaiting: Boolean(this.imageQueued), servedText: this.servedText, fairImages: true, ramShort: this.ramShort,
             text: this.backend.status(), objective: this.config.residencyObjective ?? 'total-wait', timings: this.timings, lastTextDecision: this.lastTextDecision,
             lastDecision: this.lastDecision, lastResidency: this.lastResidency, lastNeedGpuMiB: this.lastNeedGpuMiB, measurement: this.lastMeasurement ? { ...this.lastMeasurement, trace: undefined } : null,
+            imageResidency: { mode: this.residentImages ? 'gpu-warm' : this.lastCacheMode, awaitingReclaim: this.imagesNeedRelease },
             lastError: this.lastError };
     }
 }

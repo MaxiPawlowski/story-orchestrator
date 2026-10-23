@@ -64,7 +64,9 @@ model is refused before ComfyUI runs it. It never downloads weights for a recipe
 For local temporary-reference cleanup, set `comfyInputRoot` to that ComfyUI's existing input directory. Each upload is
 recorded before the host call in a per-user reference ledger. The builder releases its exact name in `finally`;
 cleanup removes only a released input whose bytes still match, and waits while ComfyUI has queued/running work.
-`/prune` takes an explicit list of ledgered names; it never scans or deletes unrelated inputs. Remote ComfyUI without
+`/prune` takes an explicit list of ledgered names; it never scans or deletes unrelated inputs. Each idle prune also
+removes ledgered references a deferred cleanup left, and active ones older than 30 minutes (a page reloaded mid-render
+never released them). Remote ComfyUI without
 a local input root keeps references and reports cleanup deferred. Test cleanup scopes references by set/story marker
 and a trusted pre-run inventory, the same as generated sprites.
 

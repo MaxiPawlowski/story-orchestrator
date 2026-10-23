@@ -1,4 +1,7 @@
-import { beginRun, type RunGuard, type RunOwnership } from "@runtime/runToken";
+import { beginRun, type RunGuard, type RunOwnership } from "@runtime/runToken";
+import { blinkProblems, isCutout, overBase, stillOpen, type EyeRead } from "./eyeOpen";
+import { seamProblem } from "./seam";
+import { cleanEdges } from "./edges";
 import { checkPixels, checkMouthCoverage, pasteEdit, validateBox, type HeadBox, type PixelImage, type PixelQA } from "./pixels";
 import { skeletonImage } from "../poses/skeleton";
 import type { PoseEntry } from "@engine/poseSchema";
@@ -62,15 +65,25 @@ export interface BuilderDeps {
   lease(request: SpriteBuildRequest, signal: AbortSignal): Promise<{ release(): Promise<void> }>;
   save(candidate: SpriteCandidate, expectedHash?: string): Promise<{ path: string; sha256: string }>;
   lineage?(request: SpriteBuildRequest, signal: AbortSignal): Promise<{ root: string; current(): boolean } | null>;
+  eyes?(image: PixelImage, signal: AbortSignal): Promise<EyeRead | null>;
+}
+
+export function renderedBox(box: HeadBox, raw: Pick<PixelImage, "width" | "height">): HeadBox {
+  const scale = Math.max(1, Math.min(raw.width / box.width, raw.height / box.height));
+  return { x: 0, y: 0, width: Math.round(box.width * scale), height: Math.round(box.height * scale) };
 }
 
 function composeEdit(base: PixelImage, raw: PixelImage, box: HeadBox, kind: EditKind, region: FrameRegion | undefined,
   resize: BuilderDeps["resize"]): { output: PixelImage; maskImport?: MaskImportReport } {
-  if (kind === "base" || kind === "pose") return { output: resize(raw, box) };
+  if (kind === "base") return { output: cleanEdges(resize(raw, renderedBox(box, raw))).image };
+  if (kind === "pose") return { output: cleanEdges(resize(raw, box)).image };
   if (!MASK_IMPORT_KINDS.includes(kind)) return { output: pasteEdit(base, resize(raw, box), box, kind, region) };
   const aligned = alignEdit(base, raw, box, kind, region, resize);
   return { output: pasteEdit(base, aligned.edit, box, kind, region), maskImport: aligned.report };
 }
+
+export const RETRY_REFUSAL = /Render it again|eye open \(/;
+export const RETRY_SEED_STEP = 7919;
 
 export class SpriteBuilder {
   private controller: AbortController | null = null;
@@ -91,6 +104,38 @@ export class SpriteBuilder {
   }
 
   async build(request: SpriteBuildRequest): Promise<SpriteCandidate> {
+    try { return await this.buildOnce(request); }
+    catch (error) {
+      if (!(error instanceof Error) || !RETRY_REFUSAL.test(error.message) || this.controller) throw error;
+      return this.buildOnce({ ...request, seed: (request.seed + RETRY_SEED_STEP) >>> 0 });
+    }
+  }
+
+  private async frameReasons(kind: SpriteBuildRequest["kind"], base: PixelImage, output: PixelImage, signal: AbortSignal, guard: () => void): Promise<string[]> {
+    if (kind === "base") return this.faceReasons(base, output, signal, guard);
+    if (!isFrameKey(kind)) return [];
+    const seam = seamProblem(base, output);
+    return kind === "blink" ? [...seam, ...await this.blinkReasons(base, output, signal, guard)] : seam;
+  }
+
+  private async faceReasons(reference: PixelImage, output: PixelImage, signal: AbortSignal, guard: () => void): Promise<string[]> {
+    if (!this.deps.eyes || !isCutout(reference)) return [];
+    const read = await this.deps.eyes(output, signal).catch(() => null);
+    guard();
+    return read && read.faces === 0 ? ["The new look lost the head: no face is found in the render. Render it again."] : [];
+  }
+
+  private async blinkReasons(base: PixelImage, output: PixelImage, signal: AbortSignal, guard: () => void): Promise<string[]> {
+    const read = (image: PixelImage) => this.deps.eyes ? this.deps.eyes(image, signal).catch(() => null) : Promise.resolve(null);
+    const before = await read(base);
+    guard();
+    if (!before?.boxes) return [];
+    const shown = overBase(base, output), after = await read(shown);
+    guard();
+    return blinkProblems(base, shown, before.boxes, stillOpen(before.openness, after?.openness));
+  }
+
+  private async buildOnce(request: SpriteBuildRequest): Promise<SpriteCandidate> {
     if (this.controller) throw new Error("Finish or cancel the current sprite first.");
     const resolution = validateBuildRequest(request);
     const controller = new AbortController();
@@ -169,6 +214,7 @@ reference: reference as string, instruction: editInstruction(request.kind, reque
         alphaPixels: output.data.filter((value, at) => at % 4 === 3 && value <= 8).length, ringDrift: 0 }
         : checkPixels(base, output, box, isFrameKey(request.kind));
       if (region) qa.reasons.push(...checkMouthCoverage(base, output, box, region, request.kind !== "rest"));
+      qa.reasons.push(...await this.frameReasons(request.kind, base, output, controller.signal, guard));
       qa.maskImport = maskImport;
       qa.ok = qa.ok && !qa.reasons.length;
       if (!qa.ok) throw new Error(qa.reasons.join(" "));

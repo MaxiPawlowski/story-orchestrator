@@ -65,3 +65,18 @@ export const RefusesEmptyReferencePack: Story = {
     await expect(await canvas.findByRole("alert")).toHaveTextContent("Choose an expression pack with a neutral reference.");
   },
 };
+
+export const DetectedReferenceBox: Story = {
+  args: { services: { ...services,
+    list: async () => [{ label: "neutral", path: "/characters/Test/measured/neutral.png" }],
+    decode: async () => ({ width: 400, height: 600, data: new Uint8ClampedArray(400 * 600 * 4) }),
+    detect: async () => ({ width: 400, height: 600, faces: [{ box: [150, 78, 250, 202, 0.95],
+      points: Array.from({ length: 28 }, (_, at) => at === 2 ? [200, 202, 0.9] : [200, 150, 0.9]) }] }),
+  } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await waitFor(() => expect(canvas.getByRole("spinbutton", { name: /^height$/ })).toHaveValue(248));
+    await expect(canvas.getByRole("spinbutton", { name: /^width$/ })).toHaveValue(298);
+    await expect(canvas.getByRole("spinbutton", { name: /^y$/ })).toHaveValue(21);
+  },
+};

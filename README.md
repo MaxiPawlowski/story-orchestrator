@@ -174,6 +174,8 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Characters | Standing with groups | How the groups in a story regard you, shown as a word such as "Wary" or "Trusted". | Experimental |
 | Characters | Relationship labels | Words for how a character treats you, and secrets about them you can learn, on their People page. | Experimental |
 | Characters | Promises to you | Things a character has promised you, which the character remembers and may keep, raise or break. | Experimental |
+| Characters | Reactive cues | Characters notice what a story says they would, deepen a topic you ask them about again, and react when a social rule is broken. | Experimental |
+| Characters | Delayed echoes | Something that happened comes back later: after a delay, if the story still fits, one character or the narrator is handed a cue about it. | Experimental |
 | Characters | Promises remembered | A promise you make to a character is remembered in your own words. |  |
 | Characters | Voice and delivery | Each character is told privately how they word things. |  |
 | Characters | Reply polish | Checks what a reply would read like with a character's off-voice words removed, without changing the chat. | Experimental |

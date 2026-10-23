@@ -96,11 +96,11 @@ const orderOutgoing = (checkpoints: Checkpoint[], normalizedTransitions: Normali
 const readList = <T,>(value: unknown, prefix: string, read: (entry: unknown, path: string, errors: ValidationError[]) => T | null, errors: ValidationError[]) =>
   (value as unknown[]).map((entry, index) => read(entry, `${prefix}.${index}`, errors)).filter((entry): entry is T => entry !== null);
 
-type GameFields = Pick<NormalizedStory, "quests" | "milestones" | "widgets" | "codex" | "observations" | "life" | "patterns">;
+type GameFields = Pick<NormalizedStory, "quests" | "milestones" | "widgets" | "codex" | "observations" | "life" | "patterns" | "echoes">;
 
-const gameFields = ({ quests, milestones, widgets, codex, observations, life, patterns }: GameFields): Partial<NormalizedStory> => ({
+const gameFields = ({ quests, milestones, widgets, codex, observations, life, patterns, echoes }: GameFields): Partial<NormalizedStory> => ({
   ...(quests ? { quests } : {}), ...(milestones ? { milestones } : {}), ...(widgets ? { widgets } : {}), ...(codex ? { codex } : {}), ...(observations ? { observations } : {}),
-  ...(life?.clock ? { clock: life.clock } : {}), ...(life ? { life } : {}), ...(patterns ? { patterns } : {}),
+  ...(life?.clock ? { clock: life.clock } : {}), ...(life ? { life } : {}), ...(patterns ? { patterns } : {}), ...(echoes ? { echoes } : {}),
 });
 
 const checkTurnsKey = (qualityByKey: Record<string, Quality>, errors: ValidationError[]): void => {
@@ -166,6 +166,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   checkIntermediates(checkpoints, checkpointById, reachableByCheckpoint, errors);
   checkTurnsKey(qualityByKey, errors);
   layer?.stretch.checkStretches(checkpoints, transitions, qualityByKey, errors);
+  layer?.offers.checkOffers(checkpoints, transitions, qualityByKey, errors, quests);
   layer?.checkDisplays(qualities, json.checkpoints as unknown[], errors);
   layer?.checkStoryChecks(checkpoints, transitions, qualityByKey, errors);
   const game = quests ? layer?.expandRequires(quests, errors) : undefined;
@@ -180,6 +181,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   const carried = layer?.carry.readCarry(json, { storyId, qualityByKey, qualities, roster, transitions, checkpoints, quests: game, milestones, factions }, errors);
   layer?.living.checkLiving(living, checkpointById, roster, qualityByKey, errors);
   layer?.patterns.checkPatterns(patterns, { checkpointById, checkpoints, transitions, quests: game, milestones, chapters, roster, qualityByKey }, errors);
+  const echoes = layer?.echoes.readEchoes(json.echoes, { roster, transitions, checkpoints, quests: game, milestones, qualityByKey, hasClock: Boolean(life?.clock) }, errors);
   const chapterIndex = indexChapters(chapters, checkpoints, errors);
   if (errors.length) return errors;
 
@@ -210,7 +212,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
     ...(chapters ? { chapters } : {}),
     ...(memoryOptions ? { memory: memoryOptions } : {}),
     ...(options.kind ? { kind: options.kind } : {}),
-    ...gameFields({ quests: game, milestones, widgets, codex, observations, life, patterns }), ...polish,
+    ...gameFields({ quests: game, milestones, widgets, codex, observations, life, patterns, echoes }), ...polish,
     ...(living ? { living } : {}),
     ...(factions ? { factions } : {}),
     ...(rumorNet ? { rumorNet } : {}),

@@ -85,9 +85,13 @@ export interface CharacterSettings {
   polish: boolean;
   polishMode: "shadow" | "off";
   polishMaxPerHour: number;
+  cues: boolean;
+  echoes: boolean;
 }
 
-export const defaultCharacterSettings = (): CharacterSettings => ({ delivery: true, deliveryRepetition: true, polish: true, polishMode: "shadow", polishMaxPerHour: 40 });
+export const defaultCharacterSettings = (): CharacterSettings => ({
+  delivery: true, deliveryRepetition: true, polish: true, polishMode: "shadow", polishMaxPerHour: 40, cues: true, echoes: true,
+});
 
 const sanitizeCharacterSettings = (value: unknown): CharacterSettings => ({
   delivery: !(isRecord(value) && value.delivery === false),
@@ -95,6 +99,8 @@ const sanitizeCharacterSettings = (value: unknown): CharacterSettings => ({
   polish: !(isRecord(value) && value.polish === false),
   polishMode: isRecord(value) && value.polishMode === "off" ? "off" : "shadow",
   polishMaxPerHour: isRecord(value) && Number.isInteger(value.polishMaxPerHour) && Number(value.polishMaxPerHour) >= 0 ? Number(value.polishMaxPerHour) : 40,
+  cues: !(isRecord(value) && value.cues === false),
+  echoes: !(isRecord(value) && value.echoes === false),
 });
 
 export interface HelpSettings {

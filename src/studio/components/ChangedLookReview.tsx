@@ -18,7 +18,7 @@ export default function ChangedLookReview({ rows, review, busy, error, notice, r
   return <section id="so-changed-look-rebuild" aria-label="Changed-look bust and rig" className="flex flex-col gap-2 st-subpanel p-3">
     <h3>Changed-look bust and rig</h3>
     <p>A changed look keeps static artwork in close shots until its bust and rig match the new artwork.
-      Rebuilding crops the look with the accepted head box and prepares a rig from face landmarks; nothing is saved until you accept.</p>
+      Rebuilding expands the accepted head box to retain the chin, shoulders and upper torso, then prepares a rig from face landmarks; nothing is saved until you accept.</p>
     {!rows.length && !review && <p role="status">Every published look has a matching bust and rig.</p>}
     {!!rows.length && <ul className="flex flex-col gap-2">{rows.map((row) => <li key={row.look} data-so="changed-look-row" className="flex flex-wrap gap-2 items-center">
       <img src={row.base.path} alt={`Current artwork for ${lookName(row.look)}`} style={{ maxWidth: 64 }} />

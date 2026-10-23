@@ -540,6 +540,18 @@ npm run typecheck:test: tsc -p tsconfig.test.json; exit 0. git diff --check: exi
 - Evidence: `test/sessions/evidence/phase-c/poc-sol-20261014/` (`pose-ratings.jsonl`, `pose-jobs.json`, `pose-cl-llm/`).
 - Gates (branch `v2.8-poc-sol`, code commit `82628211`): `npm run test:replay` (fresh worktree) 32 of 32 killed in 156.8 s; `npm run gates:quick` green in 31.1 s; `npm run gates -- --no-storybook --jobs 2` all green in 231.2 s (test, test:replay, build, typecheck, typecheck:test, test:debug, debug:typecheck, lint, test:release, test:plugin); staged Storybook (`%TEMP%\so-sb-pocsol` from `git archive HEAD`, `npm run test-storybook:ci`) 136 suites / 814 tests passed, copy removed. Not merged, pushed, staged or installed.
 
+## Gate record: full historical S0 visual panel (2026-10-19)
+
+Full S0 visual-panel follow-up (2026-10-19): direct Sol agent review now covers all twelve composite sheets, made
+from the 192 archived body/head sheets from 2026-10-12 (three members, eight poses, two seeds, two runs, P2/P3).
+Identity: P2 96/96 and P3 96/96; each run 48/48 per arm. Expression visibility, with missing crops counted as misses:
+P2 186/192 (96.875 %), P3 188/192 (97.917 %); each run P2 93/96, P3 94/96. Eight missing crops and two weak angry
+crops remain failures. Both historical panel floors are met. This completes the earlier provisional panel coverage;
+it does not replace the repaired lie_side measurements above (85 % label visibility and 0.333 PCK remain misses),
+nor measure the current candidate. Reviewer was the current `openai/gpt-6.1-sol` agent, directly reading the images,
+not a separately invoked CLI rater. Private evidence: `evidence/phase-c/image-pose-full-panel-2026-10-19/`, original
+sheet hashes, per-comparison ratings and summary included.
+
 ## Ready to run: Acceptance latency pair and product-path pose renders (driver built 2026-10-14, dry only)
 
 Driver: `scripts/debug/so-pose-latency.mts`. It shares its libraries with the plan 41 journey (`lib/pocDrivers.mts`,

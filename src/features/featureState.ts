@@ -38,6 +38,8 @@ export const FEATURE_STATE: Readonly<Record<string, FeatureStateRow>> = {
   "character-delivery": master("delivery"),
   "reply-polish": master("polish"),
   "story-patterns": master("patterns"),
+  "reactive-cues": master("cues"),
+  "delayed-echoes": master("echoes"),
 };
 
 export const UNMAPPED_STORY_FEATURES: Readonly<Partial<Record<StoryFeatureId, string>>> = {

@@ -1,3 +1,4 @@
+import { watchVoiceChain } from "./voiceBusy";
 import { getChatWindow } from "@extraction/index";
 import { checkLibraryIndex } from "./libraryIndexPort";
 import {
@@ -187,6 +188,7 @@ export function startRuntime() {
   const lore = startLore(runtimeDisposers, judgeRuntime, generation, access);
   startTalk(live, judgeRuntime, access, lore.onIntercept);
   globalThis.storyOrchestratorTalk = { chainPending: () => live.talk?.chainPending() ?? false };
+  runtimeDisposers.push(watchVoiceChain(() => live.talk?.chainPending() ?? false));
   void import("./agendaProposalsHost").then(({ attachAgendaProposals }) => { if (started) globalThis.storyOrchestratorAgendaProposals = attachAgendaProposals(runtimeManager); });
   runtimeDisposers.push(() => runtimeManager.meanwhile.attach(null));
   attachGenerationObservers(live, runtimeDisposers, generation);

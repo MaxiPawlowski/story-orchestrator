@@ -30,4 +30,13 @@ describe("a render that meets another render's lease waits for it instead of fai
     e.sleep.mockImplementation(async () => { abort.abort(new Error("cancelled")); });
     await expect(waitWhileBusy(always, { ...e, signal: abort.signal })).rejects.toThrow("cancelled");
   });
+  test("a background render holds while a player-facing render waits, and the hold does not spend its patience", async () => {
+    const c = clock(); let held = 3;
+    const attempt = jest.fn().mockResolvedValue({ lease: "l", brokered: true });
+    await expect(waitWhileBusy(attempt, { ...c, patienceMs: 1000, stepMs: 1500, held: () => held-- > 0 })).resolves.toEqual({ lease: "l", brokered: true });
+    expect(attempt).toHaveBeenCalledTimes(1); expect(c.sleep).toHaveBeenCalledTimes(3);
+    const busy = jest.fn().mockRejectedValue(new Error("An image batch already owns the local GPU.")), d = clock(); let hold = 2;
+    await expect(waitWhileBusy(busy, { ...d, patienceMs: 3000, stepMs: 1500, held: () => hold-- > 0 })).rejects.toThrow("already owns");
+    expect(busy).toHaveBeenCalledTimes(3);
+  });
 });

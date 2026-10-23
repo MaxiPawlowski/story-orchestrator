@@ -1,0 +1,154 @@
+# 79 — Image acceptance follow-up
+
+Owner 2026-10-18: continue image items 1–5; 3090 free for several hours. Branch `v2.8-image-acceptance-followup`.
+
+## Scope
+
+- Plan 41: expression/frame refusals, hatted-bust rig, third-member pose starvation, illustration contention, late render cleanup; then the unchanged clean journey pair.
+- Plans 28/33: same-build reply-latency and pose-quality acceptance, including lying poses. Record misses without changing floors.
+- Plans 36/74: eye-contour measurement, streamed motion-mouth gate and frame pacing on the idle desktop GPU. The unavailable laptop remains unmeasured.
+- Plan 74 body trial: investigate free-arm cutouts; reopen only with a concrete separation fix and the original visual floors.
+
+## Implementation
+
+- Follow `LookRebuild`/`VisualPreparation`'s request-local cancellation through `anySignal`: close/revalidate abort setup and waits as well as the active render.
+- Pose queue publishes queued cast bodies before spending slots on blink/talk frames. Direct builder calls retain their complete-result contract.
+- Vision landmarks retain strict geometry validation; one same-image correction can repair an invalid first answer. Hidden anatomy is refused, never clamped.
+
+## Validation
+
+- Targeted cancellation, queue-order and landmark-correction regressions; `npm run gates:quick`, then full gates on the frozen candidate.
+- Copied lane 33, candidate routing from this worktree; default Sol authoring, Artemis thinking/inner voice retained, unchanged image harness.
+- Focused real checks before the long pair. Private evidence via `so-evidence` and `sessions:archive`.
+
+## Gate record — 2026-10-18 (in progress)
+
+- `npm test -- --runInBand src/sprites/poses/bodyRenderer.test.ts`: 13/13 passed.
+- First `npm run gates:quick`: tool timed out at 120 s after lint, related Jest (164/164), typecheck and test typecheck passed; incomplete, not green.
+- Next quick run: lint rejected a 441-character correction prompt line; split without changing the prompt. Related Jest 192/192 passed.
+- First full run: RED on the new author-only correction error missing from `test/findings/errorCopy.json`; inventory updated. Storybook 942/942 passed.
+- `npm run docs:guide && npm run docs:settings && npm run gates:quick && npm run gates -- --jobs=3`: all 11 full steps green in 259.4 s, including 156 Storybook suites / 942 tests. Output `sh_1503b7985001iXUHigY8pg7yVY.out` in this OpenCode session's shell archive.
+- Live journey candidate run 1 started on copied lane 33 with `--candidate --label image-followup`. A separate read-only recorder captures GPU lease status/error responses, which were absent from the prior contention evidence. No main-install staging.
+- Body-cutout investigation: owner approved the 47,210,581-byte `Metal3d/deeplabv3p-resnet50-human` ONNX download to `C:/dev/models/body-segmentation/`; SHA256 `a6e823a82da10ba24c29adfb544130684568c46bfac865e215bbace3b4035a71` matches the published LFS identity. CPUExecutionProvider only; no new server or GPU job. Five free-arm examples: semantic arm masks cover 48.6/48.5/2.1/1.3/0.9% of the prior outlines. Bare arms are partly found; sleeves/armor are omitted. This model is not a viable free-arm cutout replacement. Body trial remains NO-GO; no dormant body code enabled.
+- Eye-contour investigation: six original real-art bust hashes verified; twelve source-only enlarged eye crops independently annotated by Sol (`openai/gpt-6.1-sol`, separate CLI session; no rig contours shown). All twelve annotations marked confident. Symmetric 8x-raster boundary distance against existing Sol rig openings: maxima 3.20–5.79 px, 0/12 within the unchanged 2 px floor. This is an independent-model reference, not human ground truth; a diagnostic miss, not acceptance. Private inputs, annotation and scores: lane 33 `debug/image-followup/eye-contours/`.
+- Campaign decision: no authored field or asset production introduced; campaign adoption remains behind the existing image acceptance work.
+
+## Follow-up — 2026-10-19 (in progress)
+
+- Owner renewed 3090 availability for focused checks. Previous journey stopped after `look`, with no final report or cleanup; acceptance remains NOT GREEN. Its last samples end at 19:25:52Z, about 67 minutes after start, before the wrapper's three-hour deadline. Stop cause remains unproven.
+- Previous real failures: three expression/frame mask refusals, two rig refusals, third member on the default set after 1,804,356 ms. Recorded play passed eight turns / fifteen replies; only two turns observed visemes.
+- Broker root cause: the local controller omitted `modelDirs.poseModels`, although media knew the installed pair. Added that explicit local mapping with a backup, restarted through the controller CLI. ONNX admission now uses file size instead of trying to parse safetensors.
+- Pose detection now carries request-local cancellation through discovery, fingerprints, text-priority wait, reservation, upload and rendering. A completed neutral pose is published before optional expression/decal work, retaining a visible pose when a face edit refuses.
+- Presentation now expands the edit box into a wider/deeper bust crop. The rig pivot may anchor to a visible collar opening; no hidden joints or skin are inferred. Face-edit masks and QA limits are unchanged.
+- Journey writes an incomplete NOT GREEN checkpoint before each active step and after durable step evidence, and marks cleanup before waiting for it. Presentation acceptance waits for a newer persisted source revision, not a previous status label.
+- Focused checks: broker model tests 3/3; head framing + pose-body tests 18/18; pose-import tests 6/6; harness checkpoint test 1/1. First quick gate green in 122.5 s (435 related tests, 32/32 defect replays).
+- Real browser candidate on copied lane 33: all three existing test bases re-reviewed as expanded busts (source revision 2), all three Sol rigs prepared and accepted. Independent CPU detector status: one agrees, two disagree; geometry/pipeline success is not contour-quality acceptance. First focused driver stopped on an obsolete `Poses` tab selector before DWPose; corrected driver targets the pose section inside Sprites. Evidence under lane 33 `debug/image-followup/focus-2026-10-19/`.
+- Existing generated-doc modifications were line-ending-only (`git diff --numstat` empty before these edits); content preserved and guides regenerated from source.
+- Further root cause: selecting a sprite reference unconditionally reset the base builder's detector-measured box to the old fractional box. Reference selection now preserves a valid saved box for that set and measures an unconfigured reference when the detector is available. Regression unit + Storybook interaction cover the reset. This also corrects the hatted mouth-mask location without widening QA limits.
+- Focused DWPose UI exposed a separate upload-contract bug: FileReader supplies a PNG data URL, while the media upload expects raw base64. Pose import now strips the PNG prefix; regression verifies the actual upload argument. First focused import correctly failed `Invalid PNG data` and released its reservation; rerun required.
+- Corrected real browser retry passed: DWPose imported 17 reliable points and the formerly stuck third member rendered a `sit_floor` body. Private result and screenshot under `focus-2026-10-19-pose-retry`; visual inspection confirms a floor-seated body. This is a focused pipeline pass, not the unchanged pose-quality panel or journey pair.
+- Quick gate green in 120.6 s. Full gate attempts exposed code-health length and optional-probe inventory requirements, then the new reference-preview ownership census row. Extracted reference hook and neutral-pose publisher, recorded optional detector fallback and effect-local preview ownership. Guard reruns passed code-health/error-copy; full rerun required after census update. Storybook passed 156 suites / 943 tests in both attempts.
+- Private evidence archived with `so-evidence archive --label image-followup-2026-10-19 --lanes 33 --pods 0 --since 2026-10-18T18:00:00Z --allow-incomplete`; 90 files, hash verification clean. `npm run sessions:archive` completed from the main checkout. New focused results will be appended to the archive.
+- All three formerly refused mask cases passed in the real browser with detector-measured boxes and unchanged QA limits: angry expression, blink and talk. Recorded total times 150.1 s / 170.7 s / 72.8 s, including lease waits 109.8 s / 128.0 s / 30.9 s; this is not the paired reply-latency gate. Focused evidence archived separately as `image-followup-focused-pass-2026-10-19` (36 files, 22,770,788 bytes, no verification problems); sessions archive completed.
+- `npm run gates:quick && npm run gates -- --jobs=3`: quick green; full run passed ten steps, with one transient settings Storybook interaction failure. `npm run gates -- --resume --jobs=3`: all eleven steps green on the exact unchanged tree in 177.7 s, ten reused; Storybook 156 suites / 943 tests passed. This resumed record does not close the plan or authorize merge.
+- Clean journey started on copied lane 33 with `--candidate --label image-fixed-clean`, run 1 then run 2 only if run 1 passes. Prior test assets cleaned with zero leaks after evidence preservation. Latency pair, full pose-quality panel, idle-GPU motion acceptance and clean journey verdicts remain outstanding; plan remains open, no installation.
+
+## Runner-stop investigation — 2026-10-19
+
+- Clean run 1 passed bases, presentation, every expression/frame edit, all three rigs, eight play turns, all three requested poses and the look change. Checkpoint remains incomplete at `look-rebuild`; final cleanup and run 2 did not execute.
+- Last evidence: sample 08:45:07.773Z; broker success 08:45:09.807Z. OpenCode's server log records `location services evicted` for this worktree at 08:45:09.818Z, followed by location reboot and MCP reconnection. Prior stopped run also coincides with a worktree-location eviction at 19:25:56.416Z. Overnight worktree evictions recur about every 61 minutes. The three-hour wrapper deadline was not reached in either stopped run.
+- Browser inspection after the runner died: changed-look rig successfully prepared and waiting on the acceptance button; independent detector disagreement remains visible. The app did not stall on rig synthesis. No runner process, final report or cleanup survived the location-service teardown. Evidence supports tool-location lifecycle as the runner-loss trigger, not a fixed one-hour journey timeout; no direct process-exit event survived to identify its exact termination code.
+- Preserved checkpoint, browser screenshot/state and narrowly filtered eviction logs in lane 33 `debug/p41/runner-stop-2026-10-19/` before cleanup.
+- Operational fix: bounded standalone supervisor launched through Windows WMI, parent `WmiPrvSE.exe`, outside the OpenCode shell tree. Follows the existing detached-tail pattern but avoids tool-parent lifetime entirely. Each child records start, PID, deadline, exit code/signal and completion; failed run 1 prevents run 2. Original three-hour per-journey watchdog retained. Supervisor/helper sources stay with private evidence, not campaign data in the public repo.
+- Standalone launcher smoke passed: child completed after launcher exit (code 0, no timeout), supervisor recorded `SMOKE PASS`; verified parent PID names `WmiPrvSE.exe`. This verifies launch independence, not a new journey acceptance result.
+- Archived stop evidence as `image-runner-stop-2026-10-19`: 35 files / 21,138,172 bytes, no verification problems; private sessions archive completed.
+- First standalone retry exited normally at wizard setup after OpenCode temporarily reported no OpenAI integration. It wrote a final NOT GREEN journey record, completed cleanup and recorded child exit 1 in the supervisor; run 2 did not start. A fresh read of the shipped harness status then reported service running, subscription login OK and Sol available, so a second standalone attempt was launched without changing credentials or routing.
+- Documentation-only follow-up validation: `npm run gates:quick` green in 53.4 s, 33 suites / 438 tests and 32/32 defect replays (29 reused). No product code changed during this investigation.
+
+## Image residency follow-up — 2026-10-19
+
+- Owner reported repeated VRAM reloads during the standalone journey and requested a fix. Stopped that supervisor intentionally, retaining its incremental evidence; run 2 did not start. This attempt is NOT GREEN, not an image acceptance result.
+- Existing pattern: `ImageCache.free` and `ResidencyScheduler` serialize text/image memory ownership and preserve the fixed desktop reserves. Previously every image release called `/free`, even with another compatible image immediately next; some loaders escalated that to eviction. Automatic text restoration could reload text five seconds later.
+- Warm mode now retains GPU image residency after an idle render while reserves hold. The next matching workflow/runtime/model/text layout reuses only the allocations still observed from the preceding render. Cold-equivalent measurement baselines preserve total workload budgets across hot runs; GPU-warm observations have distinct footprint identities. Changed identities, demand that no longer fits, pressure or explicit evict mode reclaim before admission.
+- Real text requests reclaim before running and skip the idle grace. Automatic text restoration waits through `imageIdleGraceMs` (60000 default). Failed reclamation remains pending and blocks later text until reclamation succeeds. Status exposes `imageResidency`; broker source hashing includes the helper.
+- Campaign decision: no authored campaign change; controller residency is install behavior, with no story field. Guide/local-controller docs updated.
+- Validation and real-GPU evidence pending; this does not close plan 79 or authorize merge/install of the image branch.
+- Initial real-browser residency check: all three expression previews passed QA; 136.0 s cold/setup, then 35.4 s and 39.1 s warm. Hot admissions reused 16,124 / 16,099 MiB; text load count stayed 1 across all three and past the former five-second restore window. The immediate text check failed 409: deferred cleanup had not carried the cold GPU baseline forward, so native CUDA allocations outside Torch remained and text admission correctly refused. Added baseline-preserving deferred reclamation and a failure/retry regression; no reserve changed.
+- GPU/controller unit suite after that correction: 135/135 green. `npm run gates:quick` green (33 suites / 438 tests, 32/32 defect replays, 136.5 s) before the Storybook wait correction below.
+- Initial full gates: code steps green; Storybook 155/156 suites, 942/943 tests, failed the same settings-connections lazy-panel assertion seen on the earlier run. Corrected its immediate DOM assertions to use the existing `waitFor` pattern. Code changed after that full run, so the final run must be non-resumed.
+- The next full run passed all 11 steps in 409.0 s, including Storybook 156 suites / 943 tests, but the live repeat then exposed a pressure/retry interaction: after text had been restored, the next image burst charged an unmeasured GPU-warm key the cold-loader RAM estimate again. Reclamation/refusal let speculative text reload between image retries. That full run predates the final correction and does not sign it off.
+- Final correction carries the preceding matching render's safe, high-cadence full-demand observation into warm admission (never below its prior admitted budget); pressure reclamation resets to cold estimates. Recent image attempts, including pressure refusals, defer speculative text restoration through the idle grace. Real text still bypasses it. Added regressions for the measured-RAM handoff and pressure/retry case. Unit suite 137/137; quick gates green in 106.6 s, 33 suites / 438 tests, 32/32 defect replays.
+- Two consecutive real-browser cycles passed on controller build `2d3a25054f20f6523ad0922cce6213f5f8981f727c843a9054787294e07d731e`, lane 33, unchanged QA/reserves, fresh seeds to defeat frontend cache hits. Each generated three QA-passing previews, retained image residency past the old five-second restore window, then reclaimed native CUDA allocations and answered a real text request (HTTP 200, 7 generated tokens). Text loads stayed 1/1/1 then 2/2/2 within the two image bursts and incremented only for the requested text reply.
+- Cycle 1: 53.3 / 33.3 / 33.2 s image work, 26.6 s text handoff; cycle 2: 39.8 / 33.8 / 33.7 s, 27.6 s handoff. Warm admissions reused 15,846–16,013 MiB. Lowest observed GPU/RAM: 4,634/10,873 MiB then 4,757/10,111 MiB, above unchanged 2,048/4,096 MiB reserves. Both browser captures have zero page errors, console errors and failed requests. These are residency checks, not the outstanding paired play-reply latency floor.
+- Evidence: lane 33 `debug/image-followup/residency-2026-10-19T10-21-03-446Z/` and `residency-2026-10-19T10-23-39-986Z/`, each with record, screenshots, helper source and controller-test output. Final non-resumed full gates pending; plan 79 remains open.
+
+### Residency gate record — 2026-10-19
+
+- Final `npm run gates -- --jobs=3`: all 11 steps exit 0; Storybook 156 suites / 943 tests green. `.build/gates-last.json` tree `67a7b0f687bdd71a0ee0e35db4d3642e5ef37a7a17d3ccee80d863124bb56d4a`, final step completed `2026-10-19T10:32:55.340Z`. No resume or Storybook exclusion. Subsequent changes are this gate record only.
+- `node --test "server-plugin/story-orchestrator-gpu/**/*.test.mjs" "server-plugin/story-orchestrator-gpu/*.test.mjs"`: 137 passed, 0 failed. `npm run gates:quick`: 33 suites / 438 tests, 32/32 defect replays green.
+- Real-browser command `node scripts/debug/st-lanes.mts run 33 -- <temp>/image-residency-live.mts`, twice consecutively: PASS/PASS, six generated previews and two successful text handoffs as recorded above.
+- Private evidence archives `image-residency-fixed-2026-10-19` (31 files, 19,283,171 B) and `image-residency-proof-2026-10-19` (21 files, 20,646,006 B, includes both detailed records and final gates), both zero archive problems. `npm run sessions:archive` completed from the main checkout.
+- Residency fix validated; full image journeys, paired play latency, pose-quality panel and live-head acceptance remain open. Image branch is not merged or installed into the owner's ST.
+
+## Completion pass — 2026-10-19 (in progress)
+
+- Owner requested completion of all remaining image acceptance work. Latest standalone journey ended normally, NOT GREEN after 90 minutes; run 2 correctly did not start. Bases/edits/frames/three rigs passed. Four initial play turns replied; four later sends failed, then pose/look timed out. Cleanup left two scoped reference uploads.
+- Primary outage evidence: first HTTP 403 at `10:58:06.873Z`, then chat saves, backend requests, ping and media calls all 403; lane server log explicitly reports `Invalid CSRF token`. Prior lease 409s say `An image batch already owns the local GPU` and are distinct contention. No cause claimed for the session becoming stale yet.
+- Existing readiness seam `ensureSTReady` already detects stale CSRF before scripts run. Extended that same check to each journey checkpoint and each played turn (also after a failed send), preserving an immediate NOT GREEN result instead of spending an hour on dependent waits. No token replacement or retry of a failed play turn.
+- Cleanup now removes the owned story before asset deletion, waits for text and image ownership to drain, and includes sprite/reference-removal errors in its report. A stale page may reload for cleanup only; that recovery is recorded and cannot green the failed journey.
+- Passive standalone recorder now captures response origin/path/status, request start time and cookie header names/attribute names only; no cookie/token values are logged. This is to locate the session reset without exposing credentials.
+- `node --test scripts/debug/lib/pocSteps.test.mts scripts/debug/lib/pocDrivers.test.mts scripts/debug/lib/pocFakes.test.mts`: 17/17. `npm run debug:typecheck`: green. `npm run gates:quick`: green in 120.9 s (33 suites / 438 tests, 32/32 replays). Lane 33 cleanup: zero errors, zero leaks, zero browser errors.
+- Failed-journey evidence archived privately as `image-journey-csrf-failure-2026-10-19` (36 files / 34,685,029 B, zero problems); `npm run sessions:archive` completed.
+- Full non-resumed `npm run gates -- --jobs=3` on `26350148`: all 11 steps green in 385.0 s, Storybook 156 suites / 943 tests. Tree `12abeb3189f0949aa9fc466d943c5a2cba5d4251bbd21c2a317ec942893dbf4a`; final step `2026-10-19T13:28:42.758Z`. Subsequent changes are gate-record documentation only.
+- Historical full S0 visual panel completed by direct Sol agent image review: twelve composite sheets covering all 192 original body/head sheets, 192 bodies and 376 generated expression crops. Identity 192/192; label visibility 374/384 attempted (eight missing crops count as misses, plus two weak angry crops). Per run: P2 93/96 = 96.875 %, P3 94/96 = 97.917 %, both above unchanged 90 % floor. This rates the 2026-10-12 artifacts; it is not a new candidate rendering measurement. Repaired-geometry lie_side still has its separately recorded 85 % label and 0.333 PCK misses; no aggregate erases those misses.
+- Panel evidence, per-comparison ratings, original-sheet hashes and full gate JSON archived privately as `image-pose-full-panel-2026-10-19` (16 files / 38,676,256 B, zero hash problems). Current-agent review, not a separate CLI-rater run; no additional model calls.
+
+## Automatic text-fit follow-up — 2026-10-19 (in progress)
+
+- Journey on `26350148` ended normally at `14:19:11Z`, NOT GREEN. Every step except play passed, including poses, look/rebuild, illustration, background, stale mutations and idle. Cleanup zero leaks. Two of eight close-shot turns were silent; three browser errors report native text-load reserve failures (GPU free 1690/1713/1705 MiB against 2048 MiB). No CSRF outage recurred; its original cause remains unproven.
+- Following `NativeBackend`'s existing measured post-load admission: an automatic-layer profile missing only GPU headroom retries once with the measured deficit plus a fitting margin. Retain that correction per profile for subsequent loads within the controller process. Status reports the correction. Host RAM/commit misses, fixed-layer profiles and a second failed fit refuse; owned failed backends stop. Admission reserves, context, KV and thinking remain unchanged. Campaign needs no changes: this is controller placement, no story feature.
+- `node --test server-plugin/story-orchestrator-gpu/broker/backend.test.mjs`: 13/13. `node --test server-plugin/story-orchestrator-gpu/broker/*.test.mjs`: 112/112. Tests exercise real load/spawn/health/admission code with controlled memory readings, bounded failure, no RAM retry, fixed layers, correction retention and unchanged context/reserves.
+- `npm run docs:guide && npm run docs:settings`: completed. `npm run gates:quick`: green in 102.2 s (33 suites / 438 tests, 32/32 defect replays). Real-CUDA refit proof and the clean journey pair remain required.
+- Failed-journey evidence archived privately as `image-journey-fit-failure-2026-10-19` (38 files / 31,528,019 B, zero hash problems).
+- Real 3090 proof: load the same Artemis 32K profile, allocate 768 MiB of actual CUDA memory after placement but before measured admission. The reserve miss was 384 MiB; a single refit learned +896 MiB. First cycle completed in 137.5 s including the original admission wait/retry, second load reused the correction in 36.3 s. GPU free after admission 2258 / 2137 MiB (floor 2048); physical RAM above 4096 MiB; both actual completions HTTP 200 with seven generated tokens. Temporary pressure process and owned test backend stopped; candidate controller restarted. Synthetic pressure regression, not paired reply-latency acceptance.
+- Full non-resumed `npm run gates -- --jobs=3`: all 11 steps green in 344.6 s, Storybook 156 suites / 943 tests. Tree `0e5140a2466ed7be5a8653d1975ef37d14d06ef9d3a91df0861f9453fb0f24cc`; final step `2026-10-19T14:31:31.050Z`. Only gate-record documentation changed afterward.
+- Proof, native logs, bounded pressure driver and full gate JSON archived privately as `image-text-fit-proof-2026-10-19` (7 files / 16,164 B, zero hash problems).
+
+## Idle-GPU head checks — 2026-10-19
+
+- Candidate `862f627c`, copied no-model lane 30, `ST_DEBUG_VIEWPORT=1440x900 node scripts/debug/st-lanes.mts run 30 -- scripts/debug/so-live-head-check.mts --row all|LI1 --candidate --rig-template <private-motion-template> --label image-idle-2026-10-19-run1|run2`. Template is the existing showcase motion rig with ten strands; source bytes match its art hash, embedded as a data URL for the fixture. Hardware ANGLE RTX 3090 D3D11, DPR 1; main 1,291,217 B, SHA `8638a08b2a73f54419adfe17dfb75eb20dc84b988fbd5c2e7cc61fc094fab1fb`.
+- LI1/LM1 PASS twice: 3,602 frames over 60,003.6 / 60,003.4 ms, p95 16.8 / 16.8 ms, max 25.0 / 20.9 ms, zero intervals above unchanged 33.34 ms floor; 32,418 uploads each, zero long tasks. Passive GPU/controller samples: 36 / 18 readings, no active text/image work, GPU utilization max 13 / 14 % from drawing. Earlier failed runs remain history.
+- Run 1 all 27 checks passed: nine LI3 failures fall back within one frame, zero stale publications; motion/reactions; scripted-token talking suppression (plumbing only); all six LI4 reduced-motion rows; keyboard import; 390/768/1440 layout and one context; simulated hidden-tab pause/resume; teardown zero contexts/resources. Both runs: zero page errors, zero model requests and zero leaked assets. Offline lane intentionally has no server plugins/backend; availability probes return 404/500. Fault injection includes an intentional failed fixture fetch. Lane stopped afterward.
+- Additional CPU measurement: `node scripts/live-head/frame-bench.mjs` and `--motion`, each 20,000 frames after 3,000 warm. Base 0.198 ms/frame, motion 0.250 ms/frame (1 ms CPU floor met). GC 136 vs 259 scavenges/10k frames: 1.904x, MISSES the 1.5x floor in this sample. Reduced arms zero uploads and zero scavenges. No floor changed; this does not erase the prior borderline GC record.
+- Private evidence `image-live-head-idle-2026-10-19` (50 files / 34,250,575 B) and `image-live-head-template-bench-2026-10-19` (3 files / 599,713 B), zero hash problems. Real streamed motion evidence is being collected during the new journey pair; scripted-token checks do not sign off that row.
+
+## Gate record — 2026-10-21 (Claude Code; 3090; lane 33)
+
+- Fixes, each with a test that fails without it:
+  - `0eaa78f3`: player-facing images (chat illustrations, cast scene) hold background renders off the GPU lease while they wait; resident image credit follows model files, runtime and text layout instead of the workflow key (the cast scene was charged a cold 8,139 MiB RAM estimate and evicted the loaded Qwen model).
+  - `dedc81b7`: controller doc.
+  - `7d0de9b7` and `ad7e013f`: a pose render cancelled mid-flight can be requested again, including during its unwind; only a real failure counts as tried. The journey preflight refuses to start without the face landmark check (without it the head box falls back to a fixed fraction and three face edits are refused the same way every time).
+  - `b88b3f3e`: live-head drawn frames find the widened bust crop from the saved head box. Since `2254d0fd` every blink/talk frame was refused as "head box differs from the rig artwork" and live heads fell back to the mesh.
+- §5 journey runs (`node scripts/debug/st-lanes.mts run 33 -- scripts/debug/so-p41-journey.mts run <k> --candidate --label <x>`), records under lane 33 `debug/p41/`:
+  - `c1021` run 1 (stock GPU): NOT GREEN. 3 mask-import refusals (landmark service down), Ash pose stuck on default (the cancelled-render bug). Illustration passed.
+  - `c1021b` run 1 (stock): GREEN, 50 min.
+  - `c1021b` run 2 (stock): NOT GREEN, GPU idle only: 18–19 % from the headed lane browser (3–4 % headless, 0 % with the lane closed). Cause of the idle draw not found.
+  - `c1021c` run 1 (stock, headless): NOT GREEN, one silent play turn: background model calls timed out at about 36 s, a chat save stuck ("Timeout waiting for chat to save" ×8), ST held the send over 60 s. Queue X2, not an image step.
+  - `showcase1021` run 1 (`--keep`, owner's GPU tensor unlock active): GREEN, 71 min.
+  - `showcase1021b` run 1 (`--keep`): NOT GREEN, GPU idle only: the reviewer's browser was running three live players at that moment.
+- Pair rule: two greens on one build, not consecutive. Not met.
+- GPU tensor unlock (owner, pre-boot; cuBLAS FP16 55.6 → 124, rechecked 120.5 TFLOPS): no measurable gain on this stack. Qwen 2.1 int8 edit renders 27–29 s unlocked against 28–34 s stock; Artemis 21–26 tokens/s either way. One unlocked run against three stock runs.
+- Full gates after the last code change: `npm run gates -- --jobs=3`, all 11 steps green in 390.4 s (Storybook included, no resume). The run before it was red only on the opencode boot-timing flake in test:plugin (340/340 alone).
+- Showcase: `C:\dev\so-poc-showcase\journey-2026-10-21.html` with live players for the three characters (product live-head bundle built from this branch), raw outputs in `journey-2026-10-21-raw`.
+- Owner 2026-10-21: no longer a POC; quality not good enough. Follow-up is [plan 80](80-image-quality.md). Branch not merged (owner).
+
+## Gate record — 2026-10-22 (Claude Code; 3090; lane 33)
+
+- Journey pair: a14 and a15 GREEN on one build (`19ad1461`), every §5 step; pair rule met. Detail and the fixes found on
+  the way (renders during replies, cast scene and pending looks, reworded looks, broker stream overcommit) are in
+  [plan 80](80-image-quality.md) §Gate record — stage A2.
+- Paired play latency (`so-pose-latency.mts`, plan 33 floor 1.10): run 1 1.214 MISS, run 2 0.792 GREEN; pose renders pass in
+  both once the harness prepares story poses before the arms (plan 80 C2). Not met as a pair.
+- Real-CUDA text-fit retry: proven 2026-10-19 above; no new run.
+- Still open: live-head acceptance with real streamed motion beyond the journey close shots; pose-quality panel on new
+  renders; lie_side labels.

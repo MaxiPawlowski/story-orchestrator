@@ -1,3 +1,4 @@
+import { EDGE_SOLID } from "./edges";
 import type { EditKind } from "./recipes";
 import { isFrameKey, isMouthFrameKey } from "../frameKeys";
 import { mouthRegion, regionWeight, validateRegion, type FrameRegion } from "./frameRegion";
@@ -28,18 +29,37 @@ export function editWeights(box: Pick<HeadBox, "width" | "height">, kind: EditKi
   return weights;
 }
 
+export const TONE_STILL = 24;
+
+export function toneOffset(base: PixelImage, edit: PixelImage, box: HeadBox, weights: Float64Array): [number, number, number] {
+  const channels: number[][] = [[], [], []];
+  for (let y = 0; y < box.height; y += 1) for (let x = 0; x < box.width; x += 1) {
+    if (!weights[y * box.width + x]) continue;
+    const target = ((box.y + y) * base.width + box.x + x) * 4, source = (y * edit.width + x) * 4;
+    if (base.data[target + 3] < 240 || edit.data[source + 3] < 240) continue;
+    const diff = [0, 1, 2].map((channel) => edit.data[source + channel] - base.data[target + channel]);
+    if (diff.some((value) => Math.abs(value) >= TONE_STILL)) continue;
+    diff.forEach((value, channel) => channels[channel].push(value));
+  }
+  if (channels[0].length < 16) return [0, 0, 0];
+  return channels.map((values) => { values.sort((a, b) => a - b); return values[values.length >> 1]; }) as [number, number, number];
+}
+
 export function pasteEdit(base: PixelImage, edit: PixelImage, box: HeadBox, kind: EditKind, frameRegion?: FrameRegion): PixelImage {
   validateBox(base, box);
   if (edit.width !== box.width || edit.height !== box.height) throw new Error("Resize the edit to the reference head box before compositing.");
   const frame = isFrameKey(kind);
   const weights = editWeights(box, kind, frameRegion);
+  const offset = toneOffset(base, edit, box, weights);
   const data = frame ? new Uint8ClampedArray(base.data.length) : new Uint8ClampedArray(base.data);
   for (let y = 0; y < box.height; y += 1) for (let x = 0; x < box.width; x += 1) {
     const weight = weights[y * box.width + x];
     if (!weight) continue;
     const target = ((box.y + y) * base.width + box.x + x) * 4, source = (y * edit.width + x) * 4;
+    const edge = base.data[target + 3] < EDGE_SOLID;
     for (let channel = 0; channel < 3; channel += 1) {
-      data[target + channel] = frame ? edit.data[source + channel] : Math.round(base.data[target + channel] * (1 - weight) + edit.data[source + channel] * weight);
+      const value = edge ? base.data[target + channel] : edit.data[source + channel] - offset[channel];
+      data[target + channel] = frame ? value : Math.round(base.data[target + channel] * (1 - weight) + value * weight);
     }
     data[target + 3] = frame ? Math.round(base.data[target + 3] * weight) : base.data[target + 3];
   }

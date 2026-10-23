@@ -16,6 +16,7 @@ import { readGate, validateGate } from "./gates";
 import { readCheckpointEffects } from "./checkpoints";
 import { GAME_ID_PATTERN } from "./checks";
 import { checkCommitments, commitmentQualities, readCommitments } from "./commitments";
+import { checkCueKeys, checkMemberCues, checkNorms, cueQualities, hasCueFields, readMemberCues, readNorms } from "./cues";
 
 const REL_KEYS = ["toward", "axes", "range", "step", "start", "label", "public", "secret"] as const;
 const PUBLIC_KEYS = ["label", "when", "follows_feeling", "hold"] as const;
@@ -40,7 +41,7 @@ const CALENDAR_MONTHS_MAX = 24;
 const CLOCK_SKIP_DAYS_MAX = 365;
 const AXIS_PATTERN = /^[a-z][a-z0-9]{0,23}$/;
 export const LIFE_TEXT_MAX = 200;
-export const LIFE_MEMBER_FIELDS = ["relationships", "mood", "agenda", "schedule", "commitments"] as const;
+export const LIFE_MEMBER_FIELDS = ["relationships", "mood", "agenda", "schedule", "commitments", "cues", "topics"] as const;
 
 const isInt = (value: unknown): value is number => typeof value === "number" && Number.isInteger(value);
 
@@ -216,7 +217,7 @@ const readMember = (member: Record<string, unknown>, path: string, ids: Set<stri
   const commitments = readCommitments(member.commitments, `${path}.commitments`, errors, readStepEffect);
   return {
     id, relationships, agenda, schedule: readArray(member.schedule, `${path}.schedule`, (entry, at) => readSchedule(entry, at, errors), errors), ...(mood ? { mood } : {}),
-    ...(commitments ? { commitments } : {}),
+    ...(commitments ? { commitments } : {}), ...readMemberCues(member, path, errors),
   };
 };
 
@@ -319,8 +320,9 @@ export const readLife = (json: Record<string, unknown>, errors: ValidationError[
   const calendar = readCalendar(json.calendar, clock, errors);
   const reached = clock ? timelineCheckpoints(json) : [];
   const names = Object.fromEntries(roster.flatMap((member) => (typeof member.id === "string" && typeof member.name === "string" && member.name.trim() ? [[member.id, member.name.trim()]] : [])));
-  return members.length || clock ? {
-    members, ...(clock ? { clock } : {}), ...(calendar ? { calendar } : {}), ...(reached.length ? { reached } : {}), ...(Object.keys(names).length ? { names } : {}),
+  const norms = readNorms(json, errors);
+  return members.length || clock || norms ? {
+    members, ...(norms ? { norms } : {}), ...(clock ? { clock } : {}), ...(calendar ? { calendar } : {}), ...(reached.length ? { reached } : {}), ...(Object.keys(names).length ? { names } : {}),
   } : undefined;
 };
 
@@ -389,7 +391,9 @@ export const addLifeQualities = (qualities: Quality[], life: StoryLife | undefin
   const members = life.members.flatMap((member) => [
     ...relationshipQualities(member, life), ...labelQualities(member), ...moodQualities(member, life), ...agendaQualities(member), ...commitmentQualities(member),
   ]);
-  const added = [...members, ...(life.clock ? clockQualities({ ...life, clock: life.clock }) : []), ...ticks];
+  const cues = cueQualities(life);
+  if (hasCueFields(life)) checkCueKeys(qualities, cues, errors);
+  const added = [...members, ...cues, ...(life.clock ? clockQualities({ ...life, clock: life.clock }) : []), ...ticks];
   const existing = new Set(qualities.map((quality) => quality.key));
   const compiled = new Set(added.map((quality) => quality.key));
   added.filter((quality) => existing.has(quality.key)).forEach((quality) => addError(errors, `qualities.${quality.key}`, "this key is kept for character life or the story clock"));
@@ -461,16 +465,20 @@ const checkTimeEffects = (clock: StoryClock | undefined, checkpoints: readonly C
 };
 
 export const checkLife = (
-  life: StoryLife | undefined, roster: Array<{ id: string }>, qualityByKey: Record<string, Quality>, errors: ValidationError[], hasChapters = false,
+  life: StoryLife | undefined, roster: Array<{ id: string; name?: string; aliases?: string[] }>, qualityByKey: Record<string, Quality>, errors: ValidationError[], hasChapters = false,
   checkpoints: readonly Checkpoint[] = [], startId = "",
 ) => {
-  const start = life?.members.some((member) => member.relationships.some(hasLabels) || member.commitments?.length) ? new Blackboard({ qualityByKey }).entries() : {};
+  const start = hasCueFields(life) || life?.members.some((member) => member.relationships.some(hasLabels) || member.commitments?.length)
+    ? new Blackboard({ qualityByKey }).entries() : {};
+  const cast = roster.flatMap((member) => [member.id, member.name ?? member.id, ...(member.aliases ?? [])]);
+  checkNorms(life?.norms, qualityByKey, start, errors);
   checkTimeEffects(life?.clock, checkpoints, startId, errors);
   for (const member of life?.members ?? []) {
     const path = `roster.${roster.findIndex((entry) => entry.id === member.id)}`;
     lifeGates(member).forEach(([field, gate]) => validateGate(gate, qualityByKey, `${path}.${field}`, errors));
     checkLabels(member, path, qualityByKey, start, errors);
     checkCommitments(member, path, qualityByKey, start, Boolean(life?.clock), errors);
+    checkMemberCues(member, path, qualityByKey, start, cast, errors);
     if (!hasChapters) member.agenda.forEach((agenda, index) => { if (agenda.pace === "per_chapter") addError(errors, `${path}.agenda.${index}.pace`, AGENDA_NO_CHAPTERS); });
   }
 };

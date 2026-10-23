@@ -18,7 +18,7 @@ import {
 } from './lib/pocDrivers.mts';
 import { attachCallRecorder, forceMotion, installCandidateRoute, installDryRoutes, installProbes, playTurn, sampleNow, startSampler, writeRecord, type DryRoutes, type TurnResult } from './lib/pocLive.mts';
 import {
-  DRY_MODELS, activate, captureSettings, freshPage, preflightCommon, restoreSettings, saveSoon, settleSaves, step, stepBase, stepPrepare, type SettingsCapture, type StepEnv, type StepResult,
+  DRY_MODELS, activate, captureSettings, freshPage, preflightCommon, restoreSettings, saveSoon, settleSaves, step, stepBase, stepPoses, stepPrepare, type SettingsCapture, type StepEnv, type StepResult,
 } from './lib/pocSteps.mts';
 
 const USAGE = `Usage (always through a lane >= 30):
@@ -27,7 +27,7 @@ const USAGE = `Usage (always through a lane >= 30):
   node scripts/debug/so-pose-latency.mts floors
 
 Plan 33 §6 Acceptance on one install: a synthetic 3-member story (3 looks x 4 directed poses x 3 labels).
-run <k> sets up the cast through the product path (cards, four-candidate base, Prepare presentation), then plays the
+run <k> sets up the cast through the product path (cards, base, Prepare presentation, Prepare story poses before play), then plays the
 arm pair on fresh chats of one group: "off" (sprites off, the no-sprites arm) and "on" (sprites, poses and on-demand
 renders on), order off->on for odd k and on->off for even k. Each arm plays --turns player turns (default 8) walking
 c1..c4 with /cp activate; send->reply is timed in the page (MESSAGE_SENT -> last CHARACTER_MESSAGE_RENDERED).
@@ -211,6 +211,7 @@ async function runPose(page: Page) {
     if (setup.outcome === 'fail') throw new Error(`setup-chat: ${setup.detail}`);
     for (const member of cast) await step(ctx, 'base', member.name, () => stepBase(ctx, member));
     for (const member of cast) await step(ctx, 'prepare', member.name, () => stepPrepare(ctx, member));
+    await step(ctx, 'poses', null, () => stepPoses(ctx));
     await closeCheckpointStudio(page).catch(() => undefined);
     for (const arm of order) {
       await step(ctx, `arm-${arm}`, null, () => playArm(ctx, arm, turns));
@@ -231,7 +232,7 @@ async function runPose(page: Page) {
     const ms = (arm: string) => (ctx.arms[arm]?.turns ?? []).map((row) => row.ms).filter((row): row is number => typeof row === 'number');
     const latency = latencyVerdict(ms('on'), ms('off'));
     const poses = ctx.rows.find((row) => row.id === 'pose-renders');
-    const required = ['preflight', 'provision', 'setup-chat', 'base', 'prepare', 'arm-off', 'arm-on', 'pose-renders'];
+    const required = ['preflight', 'provision', 'setup-chat', 'base', 'prepare', 'poses', 'arm-off', 'arm-on', 'pose-renders'];
     const plumbing = [
       ...ctx.rows.filter((row) => row.id === 'abort').map((row) => `aborted: ${row.detail}`),
       ...required.filter((id) => !ctx.rows.some((row) => row.id === id)).map((id) => `${id}: not run`),

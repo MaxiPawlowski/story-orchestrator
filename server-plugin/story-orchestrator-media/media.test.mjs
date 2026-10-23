@@ -6,7 +6,7 @@ import path from 'node:path';
 import { randomUUID } from 'node:crypto';
 import { ComfyJobs } from './jobs.mjs';
 import { saveSprite, deleteSprite, reconcileSet, removeStorySprites, fingerprint, digest, referencePack, referenceSets, alphaRecipes,
-    recordReference, ownsReference, releaseReference, pruneReferences, referenceInventory } from './files.mjs';
+    recordReference, ownsReference, releaseReference, pruneReferences, referenceInventory, reapableReferences, STALE_REFERENCE_MS } from './files.mjs';
 import { ALLOWED_NODES, init, unsupportedNode, validatePoseFiles } from './index.mjs';
 
 test('DWPose preflight accepts only both installed ONNX files and never fetches a model', async () => {
@@ -252,6 +252,21 @@ test('reference cleanup survives restart and removes only explicitly released, h
     assert.deepEqual(await referenceInventory(user), []);
     assert.equal(await fs.readFile(unrelated, 'utf8'), 'author input');
     await assert.rejects(pruneReferences(user, input, ['../my-input.png']), /explicit list/);
+});
+
+test('a reference left by a page that never released it is reaped once stale, a fresh one stays owned', async (t) => {
+    const user = await fs.mkdtemp(path.join(os.tmpdir(), 'so-reference-reap-'));
+    t.after(() => fs.rm(user, { recursive: true, force: true }));
+    const fresh = `story-orchestrator/so_${randomUUID()}.png`, orphan = `story-orchestrator/so_${randomUUID()}.png`, released = `story-orchestrator/so_${randomUUID()}.png`;
+    for (const name of [fresh, orphan, released]) await recordReference(user, name, digest(Buffer.from(name)));
+    await releaseReference(user, released);
+    const ledger = path.join(user, '.so-media-references.json');
+    const rows = JSON.parse(await fs.readFile(ledger, 'utf8'));
+    rows[orphan].createdAt -= STALE_REFERENCE_MS + 1;
+    await fs.writeFile(ledger, JSON.stringify(rows));
+    assert.deepEqual((await reapableReferences(user)).sort(), [orphan, released].sort());
+    assert.equal(await ownsReference(user, orphan), false);
+    assert.equal(await ownsReference(user, fresh), true);
 });
 
 const SHIPPED_NODES = ['BiRefNetRMBG', 'CLIPLoader', 'CLIPTextEncode', 'CheckpointLoaderSimple', 'DWPreprocessor', 'EmptyLatentImage', 'ImageScaleBy', 'ImageUpscaleWithModel',

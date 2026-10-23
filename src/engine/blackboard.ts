@@ -1,4 +1,5 @@
 import type { NormalizedStory, PrimitiveValue, Quality, QualitySource } from "./schema";
+import { isCardPlaceholder } from "./cardPlaceholder";
 
 export interface BlackboardDelta {
   q: string;
@@ -88,6 +89,9 @@ export class Blackboard {
     if (!quality) return { ok: false, key: delta.q, reason: "unknown quality" };
     if (this.story.cardFieldByQuality?.[delta.q] && typeof delta.v === "string" && delta.v.length > 240) {
       return { ok: false, key: delta.q, reason: "card field exceeds 240 characters" };
+    }
+    if (this.story.cardFieldByQuality?.[delta.q] && typeof delta.v === "string" && isCardPlaceholder(delta.v)) {
+      return { ok: false, key: delta.q, reason: "card field placeholder" };
     }
     if (delta.writer === "card-entry" && !this.story.cardFieldByQuality?.[delta.q]) return { ok: false, key: delta.q, reason: "writer not permitted" };
     if (delta.source && delta.source !== quality.source) return { ok: false, key: delta.q, reason: "source mismatch" };

@@ -75,7 +75,7 @@ const boundStoryForOpenChat = () => {
 export class RuntimeManager extends SettingsDelegates {
   readonly chance = createChanceSeams(() => chanceContext(this.loaded, this.loadedChatId, this.engine.currentBoundary));
   private engine = new StoryEngine({ now: () => Date.now(), chanceIds: () => this.chance.ids(),
-    derive: deriveQualities(this.chance, () => this.loaded?.story ?? null, coordinatorHosts.chat.chatRows) });
+    derive: deriveQualities(this.chance, () => this.loaded?.story ?? null, coordinatorHosts.chat.chatRows), offers: () => this.co.cues.evidence() });
   private loaded: LoadedStory | null = null;
   private loadedChatId: string | null = null;
   private extras: RuntimeExtras = createExtras(getGlobalSettings);
@@ -142,8 +142,7 @@ export class RuntimeManager extends SettingsDelegates {
       },
     },
   });
-  readonly polishHost = this.co.polish;
-  private readonly memory = this.co.memory;
+  readonly polishHost = this.co.polish; private readonly memory = this.co.memory;
   private readonly expansion = this.co.expansion;
   private readonly extraction = this.co.extraction;
   private readonly pacing = this.co.pacing;
@@ -589,6 +588,7 @@ export class RuntimeManager extends SettingsDelegates {
     if (withholds(type)) this.withholdTurnBlocks(); else { this.memory.releaseStaleHold(); this.pacing.releaseStaleGuidanceHold(); }
     this.memory.chapters.carryBridge(type);
     this.stagecraft.onGenerationStarted(type, dryRun);
+    if (!withholds(type) && dryRun !== true) this.co.cues.opened(type);
   }
 
   clearPrivateInjection() { if (!this.loaded) return; this.memory.releasePrivateInjection(); this.pacing.releaseDraftGuidance(); }

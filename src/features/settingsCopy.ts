@@ -191,6 +191,16 @@ export const SETTING_COPY = {
     "Polish calls per hour",
     "At most this many Reply polish calls in an hour, so a subscription route is not used up. Replies past the cap stay as written.",
   ),
+  "characters.cues": copy(
+    "Give characters the cues a story authors",
+    "When an event a story names happens, or you ask a character directly about one of its topics, that character alone is handed one short cue it may use in its own words. "
+      + "Never a posted message and never your actions. No model call.",
+  ),
+  "characters.echoes": copy(
+    "Let past events come back later",
+    "When a story names an event and a delay, the character or narrator it names is handed one short cue about it once the delay has passed and the story still fits. "
+      + "Used at most once per chat, never a posted message and never your actions. No model call.",
+  ),
   "memory.promises": copy(
     "Remember promises you make",
     "When you promise a character something, the story keeps your exact words and reminds only that character, when the scene touches it. "

@@ -7,7 +7,7 @@ import { restHead } from "./drivers";
 import { syntheticBust } from "./synthesis/syntheticBust";
 import { synthesizeRig } from "./synthesis/rigGeometry";
 import { cutHeadLayers } from "./synthesis/layers";
-import { gazeLimits, gazeOffset, interior, irisSpan, irisWeight, renderOpenBall, scleraTone, slideBall, type GazeMode, type Rgba, type Tone } from "./gaze";
+import { eyeTone, FALLBACK_SCLERA, gazeLimits, gazeOffset, interior, irisSpan, irisWeight, renderOpenBall, scleraTone, slideBall, type GazeMode, type Rgba, type Tone } from "./gaze";
 import { FS } from "./shaders";
 import { HeadRenderer } from "./renderer";
 import { syntheticHead } from "./synthetic";
@@ -190,6 +190,33 @@ describe("live head gaze keeps the iris round", () => {
     } finally { (globalThis as { OffscreenCanvas?: unknown }).OffscreenCanvas = saved; }
   });
 
+  test("shaded eye whites fall back to a near-white plate, so a gaze slide never shows through the eye; the warp without a tone did", () => {
+    for (const { eye, rect, image } of fixture()) {
+      const data = new Uint8ClampedArray(image.data);
+      for (let k = 0; k < data.length; k += 4) for (let c = 0; c < 3; c++) data[k + c] = Math.round(data[k + c] * 0.55);
+      const shaded: PixelImage = { ...image, data };
+      expect(scleraTone(shaded.data)).toBeNull();
+      expect(eyeTone(shaded.data)).toEqual(FALLBACK_SCLERA);
+      const tone = eyeTone(shaded.data), span = irisSpan(shaded, rect, eye, tone);
+      const seeThrough = (out: PixelImage): number => {
+        let count = 0;
+        for (let k = 0; k < out.width * out.height; k++) {
+          const px = rect[0] + k % out.width + 0.5, py = rect[1] + Math.floor(k / out.width) + 0.5, u = (px - eye.x0) / (eye.x1 - eye.x0);
+          if (u <= 0.05 || u >= 0.95 || interior(py, curve(eye.top, u) + 1, curve(eye.bot, u) - 1) < 1 || shaded.data[k * 4 + 3] < 230) continue;
+          if (out.data[k * 4 + 3] < 230) count++;
+        }
+        return count;
+      };
+      let warped = 0;
+      for (let gx = -1; gx <= 1; gx += 0.25) for (let gy = -1; gy <= 1; gy += 0.25) {
+        const offset: [number, number] = [gx * 14, -gy * 8.4];
+        expect(seeThrough(renderOpenBall(shaded, rect, eye, offset, "slide", tone, span))).toBe(0);
+        warped += seeThrough(renderOpenBall(shaded, rect, eye, offset, "slide", null, null));
+      }
+      expect(warped).toBeGreaterThan(0);
+    }
+  });
+
   test("the renderer passes a sclera tone only when it can read the ball pixels", () => {
     const draw = (offscreen: unknown) => {
       const saved = (globalThis as { OffscreenCanvas?: unknown }).OffscreenCanvas;
@@ -212,6 +239,15 @@ describe("live head gaze keeps the iris round", () => {
     expect(tone).toHaveLength(8);
     expect(tone[3]).toBe(1); expect(tone[7]).toBe(1);
     expect(tone[0]).toBeCloseTo(250 / 255, 5);
+    class Grey {
+      constructor(private readonly width: number, private readonly height: number) {}
+      getContext() {
+        return { drawImage: () => undefined, getImageData: () => ({ data: new Uint8ClampedArray(this.width * this.height * 4).fill(110) }) };
+      }
+    }
+    const [plate] = draw(Grey);
+    expect(plate.slice(0, 3).map((value) => Math.round(value * 100) / 100)).toEqual(FALLBACK_SCLERA);
+    expect(plate[3]).toBe(1);
     class Broken { getContext() { throw new Error("tainted"); } }
     expect(draw(Broken)).toEqual([]);
   });

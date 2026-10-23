@@ -28,7 +28,7 @@ import { deformInto, deformWeighted, eyeVertexY, headGrid, vertexWeights, type H
 import { HairPhysics, strandField } from "./hair";
 import { HandBones, handWeights } from "./hand";
 import { VS, FS } from "./shaders";
-import { GAZE_TRAVEL, gazeLimits, irisSpan, limitGaze, scleraTone, type IrisSpan, type Tone } from "./gaze";
+import { GAZE_TRAVEL, eyeTone, gazeLimits, irisSpan, limitGaze, type IrisSpan, type Tone } from "./gaze";
 import { DrawnDirector, mouthInner, squashVertex, type DrawnSprite, type DrawnState } from "./drawn";
 import { MeshMouth, meshMouthMode, mouthRegionProblem, type MeshMouthMode } from "./meshMouth";
 import { DEFAULT_MOUTH_CONFIG, type MouthConfig } from "../mouthConfig";
@@ -53,8 +53,7 @@ function readBall(image: HTMLImageElement, rect: HeadLayer["rect"], eye: Eye | u
     const canvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight), context = canvas.getContext("2d", { willReadFrequently: true });
     if (!context) return null;
     context.drawImage(image, 0, 0);
-    const data = context.getImageData(0, 0, image.naturalWidth, image.naturalHeight).data, tone = scleraTone(data);
-    if (!tone) return null;
+    const data = context.getImageData(0, 0, image.naturalWidth, image.naturalHeight).data, tone = eyeTone(data);
     return { tone, span: eye ? irisSpan({ width: image.naturalWidth, height: image.naturalHeight, data }, rect, eye, tone) : null };
   } catch { return null; }
 }

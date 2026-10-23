@@ -471,3 +471,47 @@ Sol's, informational, never retuned (rule 2). Denominators recorded.
 - **P2 cross-plan: model routing** — applied: rater Sol default, DeepSeek fallback only, route recorded; never Artemis.
 - Floors C1–C6 unchanged. Thinking and inner voice untouched. Topic default priority moved 10 → 30 (arbitration default, not
   a floor) so a raised topic outranks a waiting echo; listed in owner decision 4.
+
+## Gate record 2026-10-21 (v2.9 build, branch v2.9-04-cues)
+
+Built: slices A (remarks, reactions, must lane), B (topic tiers, direct address only), C (norms), D (receipts, lapses,
+journal rows, author view: Character life panel, inline level 3 chip), E (`diffCues` story-update rows, `reconcileCues`).
+Not built: F (owner 2026-10-21: topics advance on direct address only). Offer API (§Offer API) in `engine/life/offers.ts`,
+providers registered through `CuePort.addOfferProvider`/`onLapse` (`runtime/cuePort.ts`) for plan 07.
+
+Commands (worktree C:/dev/so-v29-04-cues):
+
+- `npm run gates:quick`: green (typecheck, typecheck:test, lint, jest related 668 suites / 8623 tests, replay 32 of 32).
+- `npm run gates -- --no-storybook`: two parallel runs RED only on load-timing tests: run 1 `test:plugin` OpenCode
+  boot timing (alone: 326 pass, 0 fail) and a real max-len lint error (fixed, `bf8dd4d2`); runs 2 and 3 `test:debug`
+  childTree "wrapper shell is killed" (alone: 1484 pass, 0 fail). Then a full run without `--resume`:
+  `npm run gates -- --no-storybook --serial`: `gates: all green in 409.9s` (test:replay, test, build, test:debug,
+  typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release); Storybook skipped there, run below.
+- `npm run storybook:build` ok; test-runner on :6204 `--maxWorkers 2`: 974 of 975 passed, 1 failed:
+  `Settings/SettingsPanel ConnectionsHoldTheInstallServices` (lazy image settings under load, known since plan 02; the
+  rendered story holds every assertion after 4 s). Rerun alone `--maxWorkers 1`: 8 of 8 passed.
+- Main bundle `dist/index.js` 1,299,824 B (master 1,297,590 B, +2,234 B; 176 B under the 1,300,000 B budget). Cue
+  runtime, editors and copy ride lazy chunks; the main cost is the door, keys, detectors and feature rows.
+
+Floors:
+
+- C1 cue selection corpus: 40 of 40 (`engine/life/cueSelection.corpus.test.ts`), floor 95 %.
+- C3 unauthorized topic progression: 0 (direct address and topic negatives in `engine/life/cues.test.ts`).
+- C4 held-secret disclosures: 0 (`runtime/cues.review.test.ts`: kept-from secret, narrator unknown entity, secret
+  introduced after an offer).
+- C6 rollback equals replay: every cut 1-6 (`cues.test.ts` C6), swipe/continue/edit receipt cases in the review test.
+- C2, C5 (RP + CL): NOT run: no GPU (owner 2026-10-21).
+- Live no-model scenario `test/scenarios/v29-04-cues.json`: written and schema-checked (`scenarioSchema.test.mts`
+  17 of 17); NOT run: unmerged branch, no staging (wave 2).
+
+Deviations:
+
+- Direct address reads the spoken text: quoted speech when the line has quotes, else the line minus `*narration*`
+  (plan text said "outside quoted speech"); a given-name word owned by one member counts as an address term.
+- Norms also latch the story-level `cue_norm_<id>_at` beside the per-witness keys; norm keys roll back through the
+  life-gated detectors (`cues`, `cue-topics`).
+- `OfferContext` carries `chatId`; `OfferReceipt` an optional `gap`; `OfferLapse` `defRev` and `source`.
+- Topic progress counts consumed receipts; a swipe of the same reply replaces its receipt (dedupe per message).
+- The cue runtime loads by dynamic import at startup (`cueRuntimeHost.ts`); until then the door answers no offers.
+- `fnv1a` moved to `src/utils/fnv.ts` (`runtime/hash.ts` re-exports); `codeHealthScan` `FNV_HOME` follows.
+- Settled generations pass `messageId` (`wiring/generation.ts`); `commitContinuityNote` also settles cue receipts.

@@ -20,7 +20,8 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-*/
+*/
+import { bustBox } from "../builder/headBox";
 import type { RunGuard } from "@runtime/runToken";
 import { FRAME_KEYS, type AnimationFrames, type MouthFrameKey } from "../frameKeys";
 import { classifyVowel as classifyMouthVowel } from "../mouthShape";
@@ -62,9 +63,10 @@ interface Window { image: PixelImage; x: number; y: number }
 function frameWindow(rig: Rig, image: PixelImage, box: HeadBox | undefined): Window | string {
   const { width, height } = rig.image;
   if (!box) return image.width === width && image.height === height ? { image, x: 0, y: 0 } : "frame size differs from the rig artwork";
-  if (box.width !== width || box.height !== height) return "head box differs from the rig artwork";
-  if (box.x < 0 || box.y < 0 || box.x + box.width > image.width || box.y + box.height > image.height) return "head box falls outside the frame";
-  return { image, x: box.x, y: box.y };
+  const crop = box.width === width && box.height === height ? box : bustBox(image, box);
+  if (crop.width !== width || crop.height !== height) return "head box differs from the rig artwork";
+  if (crop.x < 0 || crop.y < 0 || crop.x + crop.width > image.width || crop.y + crop.height > image.height) return "head box falls outside the frame";
+  return { image, x: crop.x, y: crop.y };
 }
 
 const at = (view: Window, x: number, y: number): number => ((view.y + y) * view.image.width + view.x + x) * 4;

@@ -80,6 +80,8 @@ export interface InlineSources {
   enabled?: readonly string[];
   sceneTests?: readonly SceneTestRecord[];
   patternCompletions?: ReadonlyArray<{ patternId: string; boundary: number; messageId: number; label?: string; refs: ReadonlyArray<{ kind: string; id: string }> }>;
+  cueReceipts?: ReadonlyArray<{ key: string; recipient: string; messageId: number; boundary: number }>;
+  echoLandings?: ReadonlyArray<{ echoId: string; recipient: string; landedAt?: { boundary: number; messageId: number } }>;
 }
 
 const RAW_LIMIT = 4000;
@@ -142,6 +144,20 @@ function patternItems(sources: InlineSources): Draft[] {
     id: `progress:pattern:${completion.patternId}:${completion.boundary}`, messageId: completion.messageId, category: "progress", level: 3, state: "applied",
     text: `Pattern: ${completion.patternId}`, detail: `${completion.label ? `${completion.label}; ` : ""}from ${completion.refs.map((ref) => `${ref.kind} ${ref.id}`).join(", ")}`,
   }));
+}
+
+function cueItems(sources: InlineSources): Draft[] {
+  return (sources.cueReceipts ?? []).map((receipt) => ({
+    id: `cast:cue:${receipt.key}:${receipt.messageId}`, messageId: receipt.messageId, category: "cast", level: 3, state: "applied",
+    text: `Cue offered: ${receipt.key}`, detail: `to ${memberName(sources, receipt.recipient)} at boundary ${receipt.boundary}`,
+  }));
+}
+
+function echoItems(sources: InlineSources): Draft[] {
+  return (sources.echoLandings ?? []).flatMap((event) => (event.landedAt ? [{
+    id: `cast:echo:${event.echoId}:${event.landedAt.messageId}`, messageId: event.landedAt.messageId, category: "cast" as const, level: 3 as const, state: "applied" as const,
+    text: `Echo landed: ${event.echoId}`, detail: `for ${memberName(sources, event.recipient)} at boundary ${event.landedAt.boundary}`,
+  }] : []));
 }
 
 function progressItems(sources: InlineSources): Draft[] {
@@ -445,7 +461,7 @@ export function composeInlineTimeline(sources: InlineSources): InlineView {
   const drafts = [
     ...progressItems(sources), ...sceneTestItems(sources), ...patternItems(sources), ...questItems(sources), ...revealItems(sources), ...memoryItems(sources),
     ...threadItems(sources), ...loreItems(sources),
-    ...castItems(sources), ...pacingItems(sources, newest), ...callItems(sources, newest), ...healthItems(sources, newest),
+    ...castItems(sources), ...cueItems(sources), ...echoItems(sources), ...pacingItems(sources, newest), ...callItems(sources, newest), ...healthItems(sources, newest),
   ];
   const level = effectiveInlineLevel(sources.settings.level, sources.authorView);
   const byMessage: Record<number, InlineItem[]> = {};

@@ -12,6 +12,10 @@ required and is reported verbatim on `/status`. Start/stop/load/unload/automatic
 restore/free-images/start-comfy are available through `node scripts/local/cli.mjs <action>` and the tray. Every text
 and lifecycle operation shares the lease queue; a manual hold requires Automatic or Load text to resume.
 
+Pose import and body measurements need `modelDirs.poseModels` pointing at the installed approved DWPose ONNX pair,
+matching the media plugin's `modelRoots.poseModels`. ONNX weights use their file size for conservative admission;
+they are not safetensors. Restart the controller after changing its model folders.
+
 ## Context
 
 Each profile's context is its `--ctx-size`. The gateway counts every completion request with the backend's own
@@ -43,15 +47,19 @@ SillyTavern and delay the player's own line by seconds (v2.8 31 F19).
   swap, a failed load, a failed restore) is reloaded at its desired profile once `textReloadGraceMs` (5000) has passed
   since the last lease; a failed load retries with backoff 5 s doubling to `textReloadMaxBackoffMs` (60000). The native
   backend's admission reads the fast NVML/GlobalMemoryStatusEx probe; the PowerShell CIM probe is only its fallback.
-- `streamImages` (default off; enabling it crosses the 2 GiB GPU reserve, owner decision): `{enabled, minFreeGpuMiB
+- `streamImages` (default off; owner 2026-10-22: a stream keeps the GPU reserve, so it starts only with `minFreeGpuMiB` plus
+  `reserves.gpuMiB` free, else text swaps or sheds): `{enabled, minFreeGpuMiB
   (2400), maxWeightMiB (8192), kinds (['checkpoints'])}`. On a DynamicVRAM runtime, an SDXL-sized render keeps full text
   resident (`stream-image`) and ComfyUI streams its weights from RAM; the physical-RAM reserve still applies.
   Measured in `docs/plans/v2.7/22b-residency-harvest-2026-10-07.md`.
 - `idleRestoreMs`: idle full-speed restore (600000 on this install), serialized with reads and renders.
-- `imageCacheMode`: `warm` (default) offloads image weights but preserves the Comfy execution cache while RAM allows;
+- `imageCacheMode`: `warm` (default) keeps image weights in GPU memory between compatible image jobs while reserves allow;
   `evict` also resets the cache. `cli.mjs cache-mode warm|evict` changes the running comparison arm, not disk config.
-  Pressure can evict a warm cache before the next workload. Warm means retained node/model references, not a pinned
-  guarantee: ComfyUI can reclaim them under RAM pressure.
+  a text request reclaims the image memory before text runs. `imageIdleGraceMs` (60000) prevents background text restoration
+  between image jobs; an actual text request skips that grace. A different runtime, model files or resident text layout
+  reclaims the cache before admission (a render without model files also reclaims on a different workflow). Admission on the
+  same model files credits only allocations still observed from the preceding render, and measurements retain the full workload cost rather than learning a near-zero hot-start demand.
+  Pressure can evict a warm cache before the next workload. ComfyUI can also reclaim its cache under RAM pressure.
 - ComfyUI `--cache-ram 8` is an **8 GiB headroom threshold**, not an 8 GiB cache capacity. `comfyExtraArgs` selects
   supported loading flags; `modelCacheRoot` keeps new HF/compile caches off C:. A supported CUDA-13 DynamicVRAM runtime
   with explicit `--fast-disk` receives a separate 8 GiB host-staging-window estimate plus activations. Legacy/non-streaming
@@ -63,14 +71,18 @@ SillyTavern and delay the player's own line by seconds (v2.8 31 F19).
   miss cannot promote a budget. `/measurement` exports the last owned render's trace.
 - A verified same-runtime RAM observation replaces the conservative loader estimate. An explicit caller RAM demand
   remains a lower bound. Unknown/unverified runtimes keep the estimate; the physical-RAM reserve always applies.
-- Image release observes RAM eviction as well as GPU release. A loader that cannot offload while cached escalates to
+- When reclamation is needed, image release observes RAM eviction as well as GPU release. A loader that cannot offload while cached escalates to
   cache eviction. NVML must return to the lease baseline (512 MiB tolerance), including native allocations outside torch.
 - `modelLoadMode`: optional native loading-mode comparison; overrides the profile's `--load-mode`. Leave unset on
   this 32 GiB host: the measured `mmap` arm violated the physical RAM floor. `--cache-ram 512` is a prompt-state cache,
   not a model-weight hot store. Dense weight/layer placement is fixed at native startup; shedding restarts the backend.
 
 `/status` names the resident/desired profile, fit target, load count/cost, objective, learned timings and image cache
-state. Timings are invalidated when model/binary identity, loading mode or profiles change. JSON and streaming replies
+  state (`imageResidency.mode` is `gpu-warm` while images stay resident). If an automatic-layer text load misses only the GPU reserve,
+  the backend retries once with its measured shortfall plus a margin added to llama-server's fit target. The learned correction
+  stays in memory for later loads of that profile; `/status` reports `text.fitCorrectionMiB` and `text.lastFitCorrection`.
+  Fixed-layer layouts and host-RAM misses refuse directly; a second failed fit refuses and stops its owned backend.
+  Context, KV settings and the admission reserves stay unchanged. Timings are invalidated when model/binary identity, loading mode or profiles change. JSON and streaming replies
 are forwarded unchanged; only numerical timings are retained.
 
 ## Performance modes
@@ -105,6 +117,8 @@ Why these numbers (records: `docs/plans/v2.7/22-local-residency.md`, `22b-reside
   279-520 MiB during every stream: fine when only playing, the overcommit risk when other apps use the GPU, so Safe
   turns it off. `minFreeGpuMiB` stays 2400 everywhere: a stream consumed ≈2.2-2.4 GiB of the free VRAM it started with,
   so a lower start would leave nothing.
+  On 2026-10-22 a stream started with 2.5 GiB free under a 1024 MiB reserve filled the card and the text model spilled
+  to shared memory (1.4 tok/s); since then the reserve is added on top.
 - Idle restore. Shed text runs 3.3-3.9 tok/s and a full reload takes 21-22 s, so one 256-token reply on shed text
   (≈66-78 s) already costs more than restoring; Max restores after 3 idle minutes. With streaming on, SDXL images do not
   shed at all, so this mostly matters for hires/LoRA/edit work.

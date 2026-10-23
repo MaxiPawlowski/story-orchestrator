@@ -1,0 +1,179 @@
+{
+  "_note": "v2.9 06 (no-model lane, plumbing only: debugResponse suggestions, never sign-off): anchored suggestions over a story with a public check hint and authored offers; the panel shows the help line without dice, a greyed offer with its reason, the dropped authored offer verbatim, one model call per ask, and the anchor row only in Author view.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off",
+    "briefingDraft": "off",
+    "innerBeat": "off"
+  },
+  "steps": [
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": "settings",
+        "value": {
+          "image": {
+            "enabled": false
+          },
+          "sprites": {
+            "enabled": false
+          }
+        }
+      }
+    },
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const s = globalThis.storyOrchestratorRuntime.getGlobalSettings(); if (s.image.enabled || s.sprites.enabled) throw new Error('media must be off'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const text = ['- [1] I look for another way past Arin.', '- [2] I search the square for a rope.', '- I listen at the gate.', '- I ask Arin about the fountain.'].join(String.fromCharCode(10)); globalThis.__v2906Asks = 0; Object.defineProperty(globalThis, 'storyOrchestratorDebugSuggestionsResponse', { configurable: true, get() { globalThis.__v2906Asks += 1; return text; } }); const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); return { cleared: true };"
+    },
+    {
+      "import_story": {
+        "id": "so-v29-06-anchored",
+        "title": "SO-V29-06 Anchored",
+        "description": "Synthetic anchored suggestions coverage.",
+        "qualities": [
+          {
+            "key": "tried",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player try to climb the wall?"
+          },
+          {
+            "key": "climb_ok",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Set by the climb check"
+          },
+          {
+            "key": "has_rope",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player hold a rope?"
+          },
+          {
+            "key": "has_lantern",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player hold a lantern?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "Test square",
+            "player_name": "The Square",
+            "player_text": "Get past Arin at the gate.",
+            "type": "anchor",
+            "start": true,
+            "objective": "Get past the guard.",
+            "offers": [
+              {
+                "id": "coin",
+                "text": "I offer the guard a coin."
+              },
+              {
+                "id": "cellar",
+                "text": "I slip down the cellar stairs.",
+                "needs": {
+                  "when": {
+                    "q": "has_lantern",
+                    "op": "==",
+                    "v": true
+                  },
+                  "reason": "You need a lantern first."
+                }
+              }
+            ]
+          },
+          {
+            "id": "yard",
+            "name": "Yard",
+            "player_name": "The Yard",
+            "type": "anchor",
+            "objective": "Cross the yard."
+          }
+        ],
+        "transitions": [
+          {
+            "from": "start",
+            "to": "yard",
+            "priority": 0,
+            "gate": {
+              "all": [
+                {
+                  "q": "tried",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "climb_ok",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            },
+            "check": {
+              "id": "climb",
+              "label": "Climb",
+              "quality": "climb_ok",
+              "roll": {
+                "sides": 20,
+                "target": 12
+              },
+              "narrate": "public",
+              "modifiers": [
+                {
+                  "q": "has_rope",
+                  "v": true,
+                  "add": 4,
+                  "hint": "a rope"
+                }
+              ]
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a guard"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      }
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false The square is quiet; Arin stands by the gate."
+    },
+    {
+      "slash": "/sendas name=\"Arin\" raw=false Arin leans on her spear and shakes her head."
+    },
+    {
+      "eval": "const pause = (ms) => new Promise((r) => setTimeout(r, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const v = await test(); if (v) return v; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const open = async () => { if (!document.querySelector('#so-workspace-modal[open]')) document.querySelector('#so-open-workspace').click(); const modal = await until(() => document.querySelector('#so-workspace-modal[open]'), 10000, 'the workspace'); if (modal.dataset.context !== 'story') { const tab = [...modal.querySelectorAll('button')].find((b) => b.textContent.trim() === 'This story'); if (!tab) throw new Error('no Story context button'); tab.click(); await until(() => modal.dataset.context === 'story', 5000, 'the Story context'); } (await until(() => modal.querySelector('#so-workspace-page-play'), 5000, 'the Play page')).click(); (await until(() => document.querySelector('#so-open-suggestions'), 10000, 'the suggestions button')).click(); await until(() => !document.querySelector('#so-workspace-modal[open]'), 5000, 'the workspace to close'); return until(() => document.querySelector('#so-panel-suggestions'), 5000, 'the suggestions panel'); }; globalThis.__v2906 = { pause, until, open }; return true;"
+    },
+    {
+      "log": true,
+      "eval": "const g = globalThis.__v2906; await g.open(); await g.until(() => document.querySelectorAll('#so-suggestions [data-so=suggestion]').length >= 3, 15000, 'suggestions'); const lines = [...document.querySelectorAll('#so-suggestions [data-so=suggestion]')].map((b) => b.textContent.trim()); const help = [...document.querySelectorAll('#so-suggestions [data-so=suggestions-help]')].map((d) => d.textContent.trim()); const greyed = [...document.querySelectorAll('#so-suggestions [data-so=suggestion-unavailable]')]; if (JSON.stringify(help) !== JSON.stringify(['Climb — could help: a rope'])) throw new Error('help line: ' + JSON.stringify(help)); if (greyed.length !== 1 || !greyed[0].disabled || !greyed[0].textContent.includes('You need a lantern first.')) throw new Error('greyed offer: ' + greyed.map((b) => b.textContent)); if (!lines.includes('I offer the guard a coin.')) throw new Error('the authored offer the model dropped is not listed: ' + JSON.stringify(lines)); const text = document.querySelector('#so-suggestions').textContent; for (const leak of ['d20', 'vs 12', 'The Yard', 'for:']) if (text.includes(leak)) throw new Error('player panel shows ' + leak); if (document.querySelector('#so-suggestions [data-so=suggestions-author]')) throw new Error('author row in player view'); if (globalThis.__v2906Asks !== 1) throw new Error('model calls per ask: ' + globalThis.__v2906Asks); return { lines, help };"
+    },
+    {
+      "log": true,
+      "eval": "const g = globalThis.__v2906; const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); const before = globalThis.__v2906Asks; document.querySelector('#so-suggestions [data-so=suggestions-again]').click(); await g.until(() => globalThis.__v2906Asks > before && document.querySelector('#so-suggestions [data-so=suggestions-author]'), 15000, 'the author row'); const row = document.querySelector('#so-suggestions [data-so=suggestions-author]').textContent; rt.setUiSettings({ authorView: false }); if (!/anchors .*objective/.test(row) || !/grounded \\d\\/\\d/.test(row)) throw new Error('author row: ' + row); if (globalThis.__v2906Asks !== before + 1) throw new Error('model calls per ask: ' + (globalThis.__v2906Asks - before)); return row;"
+    },
+    {
+      "eval": "document.querySelector('#so-panel-suggestions [data-so=\"panel-close\"]')?.click(); delete globalThis.storyOrchestratorDebugSuggestionsResponse; delete globalThis.__v2906Asks; delete globalThis.__v2906; return true;"
+    }
+  ]
+}

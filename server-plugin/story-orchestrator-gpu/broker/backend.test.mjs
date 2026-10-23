@@ -2,6 +2,10 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { ContextRefusal, NativeBackend, nativeArgs, profileContext } from './backend.mjs';
 import { withControllerDefaults } from './controllerStatus.mjs';
+import { EventEmitter } from 'node:events';
+import { mkdtemp, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
 
 const deferred = () => { let resolve; const promise = new Promise((done) => { resolve = done; }); return { promise, resolve }; };
 const config = { defaultProfile: 'fast', maxContext: 98304, profiles: { fast: { args: ['--ctx-size', '32768', '--load-mode', 'none'] }, normal: { args: ['--ctx-size', '98304'] } }, reserves: { gpuMiB: 2048 } };
@@ -126,4 +130,62 @@ test('the fit margin is added to the fit target llama-server plans for, never to
     const args = nativeArgs({ ...config, model: 'm', backendPort: 1, modelAlias: 'a', fitMarginMiB: 512 }, { args: [] });
     assert.equal(args[args.indexOf('--fit-target') + 1], '2560');
     assert.equal(nativeArgs({ ...config, model: 'm', backendPort: 1, modelAlias: 'a' }, { args: [] }, 11048)[nativeArgs({ ...config, model: 'm', backendPort: 1, modelAlias: 'a' }, { args: [] }, 11048).indexOf('--fit-target') + 1], '11048');
+});
+
+async function fittedBackend(t, { gpu = 1700, ram = 12000, layers = 'auto', alwaysShort = false } = {}) {
+    const stateDir = await mkdtemp(path.join(tmpdir(), 'so-fit-'));
+    let child = null;
+    const calls = [];
+    const backend = new NativeBackend({ ...config, stateDir, backendPort: 18889, model: 'fixture', modelAlias: 'fixture',
+        fitMarginMiB: 512, admissionWindowMs: 0, reserves: { gpuMiB: 2048, ramMiB: 4096 },
+        profiles: { fast: { args: ['--ctx-size', '32768', '--n-gpu-layers', layers], estimatedGpuMiB: 20500, estimatedRamMiB: 3000 } } }, {
+        snapshot: async () => ({ host: { availableMiB: child ? ram : 16000, commitFreeMiB: 30000 },
+            gpus: [{ freeMiB: child ? (alwaysShort || calls.length === 1 ? gpu : 2700) : 24000 }] }),
+        fetch: async () => { if (!child) throw new Error('not listening'); return { ok: true }; },
+        spawn: (_binary, args) => {
+            calls.push(args);
+            const next = new EventEmitter();
+            next.pid = calls.length; next.exitCode = null;
+            next.kill = () => { child = null; next.exitCode = 0; next.emit('exit', 0); };
+            child = next;
+            return next;
+        },
+    });
+    t.after(async () => { await backend.unload(); await rm(stateDir, { recursive: true, force: true }); });
+    return { backend, calls };
+}
+
+test('measured GPU reserve misses refit automatic layers once and retain the correction across image handoffs', async (t) => {
+    const { backend, calls } = await fittedBackend(t);
+    await backend.load('fast');
+    const targets = () => calls.map((args) => Number(args[args.indexOf('--fit-target') + 1]));
+    assert.deepEqual(targets(), [2560, 3420]);
+    assert.equal(backend.status().fitTargetMiB, null);
+    assert.equal(backend.status().fitCorrectionMiB, 860);
+    assert.equal(backend.status().lastFitCorrection.gpuShortMiB, 348);
+    assert.equal(backend.status().lastError, null);
+    await backend.ensure();
+    assert.equal(calls.length, 2);
+    await backend.unload(); await backend.load('fast');
+    assert.deepEqual(targets(), [2560, 3420, 3420]);
+    assert.equal(calls.every((args) => args[args.indexOf('--ctx-size') + 1] === '32768'), true);
+    assert.deepEqual(backend.config.reserves, { gpuMiB: 2048, ramMiB: 4096 });
+});
+
+test('a failed refit stays bounded and stops its owned text backend', async (t) => {
+    const { backend, calls } = await fittedBackend(t, { alwaysShort: true });
+    await assert.rejects(backend.load('fast'), /violates the measured memory reserve/);
+    assert.equal(calls.length, 2);
+    assert.equal(backend.status().pid, null);
+    assert.equal(backend.status().loading, false);
+});
+
+test('host RAM reserve misses and fixed layer profiles refuse without a GPU refit', async (t) => {
+    for (const options of [{ ram: 3500 }, { layers: 'all' }]) {
+        const { backend, calls } = await fittedBackend(t, options);
+        await assert.rejects(backend.load('fast'), /violates the measured memory reserve/);
+        assert.equal(calls.length, 1);
+        assert.equal(backend.status().pid, null);
+        assert.equal(backend.status().lastFitCorrection, null);
+    }
 });

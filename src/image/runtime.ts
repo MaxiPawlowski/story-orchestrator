@@ -1,4 +1,6 @@
 import { isHostGenerating, listConnectionProfiles, getScannableEntries } from "@services/STAPI";
+import { voiceChainPending } from "@runtime/voiceBusy";
+import { leaseOutsideTurns } from "../sprites/builder/textPriority";
 import {
   imageChat, imageModel, imageSave, imageDelete, imagePlace, imageChatSettings, imageWriteChatSettings, type ImageMedia,
 } from "@services/stHost/image";
@@ -275,9 +277,15 @@ export class StoryImageDirector {
     return Math.floor(Math.random() * 2 ** 32);
   }
 
+  private async reserveOutsideTurns(request: Omit<Parameters<typeof reserveGpu>[0], "signal" | "foreground">, signal: AbortSignal) {
+    await this.idle(signal);
+    return leaseOutsideTurns({ acquire: () => reserveGpu({ ...request, signal, foreground: true }), release: async (held) => { await releaseGpu(held.lease); },
+      loud: async () => isHostGenerating() || voiceChainPending(), sleep: () => new Promise((resolve) => setTimeout(resolve, 350)), signal });
+  }
+
   private async idle(signal: AbortSignal) {
     const deadline = Date.now() + 120_000;
-    while (isHostGenerating()) {
+    while (isHostGenerating() || voiceChainPending()) {
       if (signal.aborted) throw new DOMException("Image cancelled", "AbortError");
       if (Date.now() > deadline) throw new Error("The text turn has not finished yet.");
       await new Promise((resolve) => setTimeout(resolve, 350));
@@ -334,8 +342,7 @@ export class StoryImageDirector {
       const gpuFacts = renderFacts({ checkpoint: plan.route.checkpoint, loras: plan.route.loras, family: plan.route.family, aspect: plan.aspect, quality: plan.route.quality });
       const gpuRequest = { ...gpuFacts, workflowKey: renderKey(gpuFacts) };
       const candidates = await this.queue.enqueue(`${plan.route.purpose} · ${plan.route.checkpoint.label}`, async (signal) => {
-        await this.idle(signal);
-        const reservation = await reserveGpu({ ...gpuRequest, signal });
+        const reservation = await this.reserveOutsideTurns(gpuRequest, signal);
         try {
           const images: ImageCandidate[] = [];
           for (let index = 0; index < count; index += 1) images.push(await this.render(plan, index, signal, run));
@@ -350,8 +357,7 @@ export class StoryImageDirector {
         const review = this.reviewer ?? (await import("./ReviewGrid")).reviewImages;
         const result = await review(plan, candidates, async (index) => {
           const fresh = await this.queue.enqueue(`Regenerate image ${index + 1}`, async (signal) => {
-            await this.idle(signal);
-            const reservation = await reserveGpu({ ...gpuRequest, signal });
+            const reservation = await this.reserveOutsideTurns(gpuRequest, signal);
             try { return await this.render(plan, index, signal, run, Math.floor(Math.random() * 2 ** 32)); }
             finally { await releaseGpu(reservation.lease); }
           });

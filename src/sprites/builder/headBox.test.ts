@@ -1,4 +1,4 @@
-import { headBox, faceAnchor, fractionHeadBox } from "./headBox";
+import { headBox, faceAnchor, fractionHeadBox, bustBox, referenceHeadBox } from "./headBox";
 import { mouthRegion } from "./frameRegion";
 import { validateBox, type PixelImage } from "./pixels";
 
@@ -46,3 +46,21 @@ test("without a detector answer the head box stays the old fraction box", () => 
 });
 
 function image(): Pick<PixelImage, "width" | "height"> { return { width: W, height: H }; }
+
+test("presentation retains the hatted chin, neck and shoulders when the face detector is unavailable", () => {
+  const box = bustBox(image(), fractionHeadBox(image()));
+  validateBox(hatted(), box);
+  expect(box.y + box.height).toBeGreaterThan(230);
+  expect(box.x).toBeLessThanOrEqual(100);
+  expect(box.x + box.width).toBeGreaterThanOrEqual(300);
+  expect(bustBox(image(), { x: 200, y: 500, width: 200, height: 100 })).toEqual({ x: 0, y: 450, width: 400, height: 150 });
+  expect(bustBox(image(), { x: 120, y: 65, width: 160, height: 130 }).y).toBe(0);
+});
+
+test("selecting an existing reference preserves its valid measured edit box instead of resetting to fractions", async () => {
+  const saved = { x: 60, y: 25, width: 280, height: 250 }, detect = jest.fn(async () => null);
+  expect(await referenceHeadBox(image(), saved, detect)).toEqual(saved);
+  expect(detect).not.toHaveBeenCalled();
+  expect(await referenceHeadBox(image(), { ...saved, width: 900 }, detect)).toEqual(fractionHeadBox(image()));
+  expect(detect).toHaveBeenCalledTimes(1);
+});

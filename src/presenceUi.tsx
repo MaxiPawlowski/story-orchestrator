@@ -142,7 +142,7 @@ export const openPlay = async (row: ContinueRow) => {
 };
 
 export function createPresenceUi({ manager, useSnapshot, showFeature, openDrawer, jumpToMessage }: PresenceUiDeps) {
-  const requestSuggestions = async () => (await suggestionsHost()).askSuggestions(manager);
+  const requestSuggestions = async (again: number) => (await suggestionsHost()).askSuggestions(manager, again);
   let host: Awaited<ReturnType<typeof suggestionsHost>> | null = null;
   void suggestionsHost().then((loaded) => { host = loaded; });
   const fillSuggestion = (ask: SuggestionAsk, text: string): WriteResult =>

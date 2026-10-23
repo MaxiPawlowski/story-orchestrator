@@ -15,6 +15,10 @@ export function visionRigRequest(bust: Pick<VisualAsset, "sha256">, image: strin
     prompt: `Inspect this author-accepted bust. Source SHA256: ${bust.sha256}. `
       + (size ? `It is ${size.width} x ${size.height} pixels; use pixel coordinates with the origin at the top left. ` : "")
       + "Describe visible face landmarks, occlusions and whether a live-head rig can be safely prepared. "
+      + "Every landmark coordinate must lie within the supplied image dimensions, including brows, chin, neck and shoulders; only the optional elbow may lie outside. "
+      + "Use the visible shoulder points inside the crop, not extrapolated shoulder tips. If required anatomy is hidden or outside the crop, refuse with a reason instead of inventing coordinates. "
+      + "neck is the visible head-to-body attachment pivot below the chin; a visible collar opening can anchor this pivot even when clothing covers the neck skin. "
+      + "shoulders may be on visible clothing or armor. Do not infer a hidden joint or invent skin beneath a collar. "
       + "Each eye is a closed contour of 6 to 16 points tracing the visible opening (lid line to lid line), the image's left eye first. "
       + "face is the head outline (face and hair mass, no neck). ears lists both ears, image-left first; leave the ears key out entirely when either ear is hidden. "
       + "hair lists up to 10 loose locks that could sway (fringe locks, side locks, long hair over the shoulders), each a polyline of 3 to 5 points from root to tip "

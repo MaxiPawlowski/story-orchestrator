@@ -11,7 +11,7 @@ import { runtimeMemoryProfile } from './runtimeIdentity.mjs';
 import { withinReserve } from './policy.mjs';
 import { comfyPort } from './controllerStatus.mjs';
 
-export const BROKER_SOURCE_FILES = Object.freeze(['arbiter', 'backend', 'controllerStatus', 'estimate', 'fastTelemetry', 'footprints', 'gateway', 'gguf',
+export const BROKER_SOURCE_FILES = Object.freeze(['arbiter', 'backend', 'controllerStatus', 'estimate', 'fastTelemetry', 'footprints', 'gateway', 'gguf', 'imageResidency',
     'imageCache', 'models', 'policy', 'ramEstimates', 'responseTiming', 'runtimeIdentity', 'safetensors', 'scheduler', 'telemetry']);
 
 export async function brokerBuild(extra = []) {
@@ -215,7 +215,7 @@ export function createArbiter(config, deps = {}) {
             else if (action === 'automatic') { backend.crashed = null; scheduler.resume(); }
             else if (action === 'restore') await scheduler.restoreNow();
             else if (action === 'start-comfy') await scheduler.exclusive(startComfy);
-            else if (action === 'free-images') await scheduler.exclusive(() => freeImages({ clear: input.clear }));
+            else if (action === 'free-images') await scheduler.exclusive(() => scheduler.freeImages({ clear: input.clear }));
             else if (action === 'cache-mode') await scheduler.exclusive(async () => { config.imageCacheMode = input.profile; });
             return arbiter.status();
         },

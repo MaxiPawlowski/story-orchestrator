@@ -31,6 +31,10 @@ export function scleraTone(data: ArrayLike<number>): Tone | null {
   return luma(...tone) >= MIN_SCLERA_LUMA ? tone : null;
 }
 
+export const FALLBACK_SCLERA: Tone = [0.94, 0.94, 0.95];
+
+export const eyeTone = (data: ArrayLike<number>): Tone => scleraTone(data) ?? FALLBACK_SCLERA;
+
 export type Rgba = [number, number, number, number];
 
 export function irisWeight(c: Rgba, tone: Tone): number {

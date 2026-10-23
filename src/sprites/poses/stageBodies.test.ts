@@ -67,6 +67,9 @@ test("a changed look with its base published stands in on stage and its close sh
   outfit = "navy coat"; controller.choose(actor);
   expect([actor.set, actor.path]).toEqual(["look_39e5bf69", lookBase.path]);
   expect(actorHeadRef(actor, story.roster, refs, { Arin: source })).toEqual(ref);
+  outfit = "a long navy wool coat"; controller.choose(actor);
+  expect([actor.set, actor.path]).toEqual(["look_39e5bf69", lookBase.path]);
+  expect(actorHeadRef(actor, story.roster, refs, { Arin: source })).toEqual(ref);
   outfit = "plain shirt"; controller.choose(actor);
   expect(actor.set).toBe("default");
   controller.close();

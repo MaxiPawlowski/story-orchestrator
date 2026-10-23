@@ -2,6 +2,8 @@ import type { GuideTopic } from "./guideTopics";
 import { LABEL_DIAGNOSTIC_TOPICS, LABEL_TOPICS } from "./guideTopicsLabels";
 import { RUMOR_TOPICS } from "./guideTopicsRumors";
 import { COMMITMENT_DIAGNOSTIC_TOPICS, COMMITMENT_TOPICS } from "./guideTopicsCommitments";
+import { CUE_DIAGNOSTIC_TOPICS, CUE_TOPICS } from "./guideTopicsCues";
+import { ECHO_DIAGNOSTIC_TOPICS, ECHO_TOPICS } from "./guideTopicsEchoes";
 
 export const CHARACTER_TOPICS = {
   "character-life": {
@@ -25,10 +27,14 @@ export const CHARACTER_TOPICS = {
   ...RUMOR_TOPICS,
   ...LABEL_TOPICS,
   ...COMMITMENT_TOPICS,
+  ...CUE_TOPICS,
+  ...ECHO_TOPICS,
 } as const satisfies Record<string, GuideTopic>;
 
 export const FACTION_DIAGNOSTIC_TOPICS = {
   "faction-move-on-inaction": "factions", "faction-never-moves": "factions", "faction-no-visible-band": "factions", "faction-snapshot-key": "factions",
   ...LABEL_DIAGNOSTIC_TOPICS,
   ...COMMITMENT_DIAGNOSTIC_TOPICS,
+  ...CUE_DIAGNOSTIC_TOPICS,
+  ...ECHO_DIAGNOSTIC_TOPICS,
 } as const;

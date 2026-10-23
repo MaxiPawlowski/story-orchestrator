@@ -24,9 +24,9 @@ export async function modelIdentities(modelDirs, files) {
             if (full !== base && !full.startsWith(`${base}${path.sep}`)) continue;
             try {
                 const stat = await fs.stat(full);
-                const gguf = name.toLowerCase().endsWith('.gguf');
-                const bytes = gguf ? await readGGUFUpperBytes(full) : (await readSafetensorsBytes(full)).bytes;
-                identities.push({ kind: file.kind, name, size: stat.size, modified: stat.mtimeMs, weightsMiB: bytesToMiB(bytes), sizeKind: gguf ? 'file-upper-bound' : 'tensor-bytes' });
+                const gguf = name.toLowerCase().endsWith('.gguf'), onnx = name.toLowerCase().endsWith('.onnx');
+                const bytes = gguf ? await readGGUFUpperBytes(full) : onnx ? stat.size : (await readSafetensorsBytes(full)).bytes;
+                identities.push({ kind: file.kind, name, size: stat.size, modified: stat.mtimeMs, weightsMiB: bytesToMiB(bytes), sizeKind: gguf || onnx ? 'file-upper-bound' : 'tensor-bytes' });
                 found = true; break;
             }
             catch (error) { if (error.code === 'ENOENT') continue; throw error; }

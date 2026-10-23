@@ -31,6 +31,14 @@ export class ContextRefusal extends Error {
     }
 }
 
+export class MemoryReserveError extends Error {
+    constructor(snapshot, reserves, windowMs) {
+        super(`The loaded profile violates the measured memory reserve after ${Math.round(windowMs / 1000)}s (RAM ${Math.round(snapshot.host.availableMiB)} MiB free, GPU ${Math.round(snapshot.gpus[0].freeMiB)} MiB free).`);
+        this.gpuShortMiB = Math.max(0, reserves.gpuMiB - snapshot.gpus[0].freeMiB);
+        this.hostFits = snapshot.host.availableMiB >= reserves.ramMiB && snapshot.host.commitFreeMiB >= reserves.ramMiB;
+    }
+}
+
 export class NativeBackend {
     constructor(config, { snapshot = memorySnapshot, spawn = spawnDefault, killTree = null, fetch: fetchImpl = fetch } = {}) {
         this.config = config;
@@ -50,6 +58,8 @@ export class NativeBackend {
         this.loadMs = null;
         this.loads = 0;
         this.failedAt = new Map();
+        this.fitCorrections = new Map();
+        this.lastFitCorrection = null;
     }
 
     async load(name = this.config.defaultProfile, options = {}) {
@@ -58,7 +68,7 @@ export class NativeBackend {
         if (this.child && this.profile === name && this.fitTarget === fitTarget) return;
         const profile = this.config.profiles[name];
         if (!profile || profile.disabled) throw new Error('That residency profile is unavailable.');
-        this.loading = this.start(name, profile, fitTarget);
+        this.loading = this.startWithFit(name, profile, fitTarget);
         try { await this.loading; }
         catch (error) { this.lastError = error.message; await this.stopOwned(); throw error; }
         finally { this.loading = null; }
@@ -67,6 +77,19 @@ export class NativeBackend {
     async ensure(name = this.profile ?? this.config.defaultProfile) {
         while (this.loading) await this.loading;
         return this.load(name, { fitTarget: this.fitTarget });
+    }
+
+    async startWithFit(name, profile, fitTarget) {
+        try { await this.start(name, profile, fitTarget); }
+        catch (error) {
+            const layerAt = profile.args.indexOf('--n-gpu-layers');
+            if (!(error instanceof MemoryReserveError) || !error.hostFits || !(error.gpuShortMiB > 0)
+                || layerAt < 0 || profile.args[layerAt + 1] !== 'auto') throw error;
+            const correction = (this.fitCorrections.get(name) ?? 0) + Math.ceil(error.gpuShortMiB) + Math.max(256, this.config.fitMarginMiB ?? 0);
+            this.fitCorrections.set(name, correction);
+            this.lastFitCorrection = { profile: name, extraMiB: correction, gpuShortMiB: error.gpuShortMiB, at: new Date().toISOString() };
+            await this.start(name, profile, fitTarget);
+        }
     }
 
     async start(name, profile, fitTarget) {
@@ -86,7 +109,8 @@ export class NativeBackend {
         await fs.mkdir(this.config.stateDir, { recursive: true });
         const log = await fs.open(path.join(this.config.stateDir, `native-${Date.now()}-${name}.log`), 'a');
         this.crashed = null;
-        const child = this.spawn(this.config.binary, nativeArgs(this.config, profile, fitTarget ?? this.config.reserves.gpuMiB), { windowsHide: true, stdio: ['ignore', log.fd, log.fd] });
+        const fitConfig = { ...this.config, fitMarginMiB: (this.config.fitMarginMiB ?? 0) + (this.fitCorrections.get(name) ?? 0) };
+        const child = this.spawn(this.config.binary, nativeArgs(fitConfig, profile, fitTarget ?? this.config.reserves.gpuMiB), { windowsHide: true, stdio: ['ignore', log.fd, log.fd] });
         this.child = child;
         let spawnError;
         child.on('error', (error) => { spawnError = error; });
@@ -115,7 +139,7 @@ export class NativeBackend {
                         return;
                     }
                     admissionUntil ??= Date.now() + admissionWindowMs;
-                    if (Date.now() >= admissionUntil) throw new Error(`The loaded profile violates the measured memory reserve after ${Math.round(admissionWindowMs / 1000)}s (RAM ${Math.round(after.host.availableMiB)} MiB free, GPU ${Math.round(after.gpus[0].freeMiB)} MiB free).`);
+                    if (Date.now() >= admissionUntil) throw new MemoryReserveError(after, this.config.reserves, admissionWindowMs);
                 }
             } catch (error) { if (error.message.includes('memory reserve')) throw error; }
             await new Promise((resolve) => setTimeout(resolve, this.config.admissionPollMs ?? 1000));
@@ -208,5 +232,6 @@ export class NativeBackend {
         }
     }
 
-    status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
+    status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, fitCorrectionMiB: this.fitCorrections.get(this.profile) ?? 0,
+        lastFitCorrection: this.lastFitCorrection, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
 }

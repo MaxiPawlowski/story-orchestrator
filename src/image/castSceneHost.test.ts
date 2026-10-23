@@ -1,8 +1,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { webcrypto } from "node:crypto";
-import { drawPreparedCast } from "./castSceneHost";
-import { CAST_TWO_REFERENCE_MISSING } from "./castScene";
+import { drawPreparedCast, settledLooks } from "./castSceneHost";
+import { CAST_TWO_REFERENCE_MISSING, LookPending } from "./castScene";
+import { lookSignature, publishVisualLook, visualRoot } from "../sprites/visualManifest";
 import { ImageQueue } from "./queue";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { visualFixture } from "../sprites/visualFixtures";
@@ -24,7 +25,7 @@ jest.mock("@services/stHost/gpuBroker", () => ({ reserveGpu: jest.fn(), releaseG
 jest.mock("@runtime/settingsStore", () => ({ getGlobalSettings: jest.fn() }));
 jest.mock("../sprites/builder/images", () => ({ decodeImage: jest.fn(), encodeImage: () => "encoded-reference-bytes" }));
 jest.mock("../sprites/visualHost", () => ({ verifyVisualSource: jest.fn(), sourceStillCurrent: jest.fn() }));
-jest.mock("../sprites/builder/textPriority", () => ({ waitForTextPriority: jest.fn() }));
+jest.mock("../sprites/builder/textPriority", () => ({ waitForTextPriority: jest.fn(), hostGenerating: jest.fn() }));
 Object.defineProperty(globalThis, "crypto", { value: webcrypto, configurable: true });
 
 const setup = () => {
@@ -117,4 +118,21 @@ test.each(["refused", "threw"])("a cleanup that %s is logged and the original re
   await expect(drawPreparedCast(f.manager, f.queue, ["Synthetic"], "")).rejects.not.toThrow(/network down|did not remove/);
   expect(warn).toHaveBeenCalledWith(expect.stringContaining("/images/late.png was not removed"));
   warn.mockRestore();
+});
+
+test("a cast scene waits for a look still being prepared, and refuses once the wait runs out or the run is gone", async () => {
+  const source = visualFixture(), fields = { outfit: "blue coat" };
+  const ready = publishVisualLook(source, visualRoot(source), "look_blue", lookSignature(fields), { ...source.base, sha256: "e".repeat(64) });
+  const reads = [source, source, ready];
+  let clock = 0;
+  const settled = await settledLooks(() => [{ character: "Synthetic", fields, source: reads.shift() ?? ready }], { stillOwns: () => true }, 10_000,
+    async () => { clock += 3_000; }, () => clock);
+  expect(settled.identities[0].signature).toBe(lookSignature(fields));
+  clock = 0;
+  await expect(settledLooks(() => [{ character: "Synthetic", fields, source }], { stillOwns: () => true }, 5_000, async () => { clock += 3_000; }, () => clock))
+    .rejects.toBeInstanceOf(LookPending);
+  let owns = true;
+  await expect(settledLooks(() => [{ character: "Synthetic", fields, source }], { stillOwns: () => owns }, 60_000, async () => { owns = false; }, () => 0))
+    .rejects.toThrow("Request the cast scene again");
+  await expect(settledLooks(() => [], { stillOwns: () => true })).rejects.toThrow("Choose one or two");
 });

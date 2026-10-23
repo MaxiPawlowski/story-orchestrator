@@ -78,7 +78,7 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
     live.talk?.onGenerationEnded();
   },
   settled: (intent: IntentOf<"settled">) => {
-    runtimeManager.commitContinuityNote(settledOnReply(intent.rendered, intent.messageId, getContext().chat as unknown[] | undefined, residueTags(readReasoningTags())));
+    runtimeManager.commitContinuityNote(settledOnReply(intent.rendered, intent.messageId, getContext().chat as unknown[] | undefined, residueTags(readReasoningTags())), intent.messageId);
     lore.loreWatch.settled(intent.rendered);
   },
 });

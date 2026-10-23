@@ -38,7 +38,7 @@ export const BlackboardTab = ({ snapshot, onDecideMeanwhile }: { snapshot: Runti
         </table>
         </div>
       )}
-      {snapshot.lifeAuthor ? <CharacterLifePanel life={snapshot.lifeAuthor} onDecide={onDecideMeanwhile} /> : null}
+      {snapshot.lifeAuthor ? <CharacterLifePanel life={snapshot.lifeAuthor} onDecide={onDecideMeanwhile} cues={snapshot.cuesAuthor} /> : null}
       {snapshot.factionsAuthor ? <FactionsPanel factions={snapshot.factionsAuthor} /> : null}
     </div>
   );

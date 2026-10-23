@@ -1,6 +1,12 @@
 # Implementation Overview — Story Orchestrator v2.9
 
-**Status: PLANNED 2026-10-21 (owner).** v2.9 = player-experience additions and current-feature fixes from the 2026-10-21
+**Status 2026-10-22: BUILT, no GPU.** 02, 04, 05, 06, 07, 08, 09 on master (`297e7234`), full gates green (records below and
+in each plan). 03 S0–S2 built on `v2.9-03-polish` (`1bd5d6a6`), NOT merged: its merge contract keeps S2 off master alone
+(shadow polish on by default calls sol, cap 40/h); owner decides. NOT run anywhere: real-LLM floors, lane scenarios, payload
+goldens, campaign adoption. 07 record: plain gates red only on a foreign :6006 holder; `--no-storybook --serial` green +
+Storybook alone on :6207 985/985.
+
+**Was: PLANNED 2026-10-21 (owner).** v2.9 = player-experience additions and current-feature fixes from the 2026-10-21
 harvest, triaged by gpt-6.1-sol (`01-triage-sol.md`, codex exec, high reasoning, read-only, on `6861d989`). The previous
 v2.9 (deferred items) was renamed **v3.0** the same day (`docs/plans/v3.0/00-overview.md`). Nothing here is approved or built;
 v2.8 keeps its queue (`docs/plans/v2.8/32-queue.md`), and this set does not reorder it. No model time or pod budget is authorized.
@@ -162,3 +168,64 @@ typecheck, typecheck:test, debug:typecheck, lint, test:release, test:plugin, tes
 
 NOT run: live lane checks, payload goldens, every real-LLM row of 02/05/08 (no GPU, owner 2026-10-21). Not staged into ST,
 `plugins:install` not run (end of all waves).
+
+## Gate record 2026-10-22 (v2.9 wave 2 merge: 04, 06)
+
+Branch `v2.9-wave2` off master `65aebaa0`, worktree `../so-v29-wave2`. `v2.9-03-polish` NOT merged (its contract forbids S2
+alone; waits for the owner).
+
+Merges (`--no-ff`, in order):
+- 04 `v2.9-04-cues` @`8584be0b`: clean.
+- 06 `v2.9-06-next-actions` @`f1dc8490`: conflicts all both-sides unions: `diagnosticCodes.ts` (cue codes + `offer-names-unknown`,
+  `check-hint-names-unknown`), `diagnostics.ts` (cue + offer consequences and checks), `diagnostics.test.ts` every-code case
+  (cue story and offer/hint story kept as two `runDiagnostics` calls), `guideTabs.ts` game tab (`offers` after `checks`, `norms`
+  kept), `validate/gameLayer.ts` `usesGameLayer` (`norms` + `checkpoints[].offers`), `gameLayerImpl.ts` (`cues` + `offers`),
+  `copilot/agent/gameOps.ts` (`setCheckpointOffers` beside `...CUE_AGENT_KINDS`; 06's `readBeatCall` kept, called from 04's
+  `readCoreGameCall`, `readGameCall` stays 04's cue dispatcher). Regenerated: `npm run docs:guide`, `npm run docs:settings`,
+  `SO_RECORD_ARRIVAL_GOLDEN=1` for `test/goldens/arrival-findings.json` (04, 05, 06 scenario rows).
+- `npm run gates:quick` after the merges: green (replay 32 of 32).
+
+Main bundle (budget 1,300,000 B, not raised): master 1,297,590; combined 1,300,085 (over by 85). Fix: `package.json`
+`"sideEffects": ["*.css"]`, so webpack skips pure re-export barrels (`engine`, `memory`, `extraction`, `pacing`, `stagecraft`,
+`talk` `index.ts`) in the main chunk; also leaving main for lazy chunks only: `engine/offerSchema.ts`, `extraction/backlogPlan.ts`,
+`stHost/presets.ts`, `stagecraft/writeAhead.ts`. Webpack stats diff: no module dropped from the build; every moved module and
+barrel has no top-level statement besides declarations (CSS side-effect imports kept by the list). Final `dist/index.js`
+1,290,479 B: 9,521 B headroom for plan 07.
+
+Full gates on `5b5c7055` (no `--resume`, Storybook included, :6006 free): run 1 RED only at `test:debug` childTree "wrapper shell is
+killed" (known load flake); `npm run test:debug` alone: 1484 pass, 0 fail. Run 2 `npm run gates` -> `gates: all green in 327.4s`
+(build, typecheck, test:debug 1484/1484, test:replay, typecheck:test, debug:typecheck, test:plugin, test 862 suites / 10107 passed
++ 1 skipped, test:release, lint, test-storybook:ci 162 suites / 979 passed).
+
+NOT run: lane live scenarios `v29-04-cues.json`, `v29-06-anchored-suggestions.json`, payload goldens, every real-LLM row and floor of
+04/06 (no GPU, owner 2026-10-21). Not staged into ST, `plugins:install` not run (end of all waves).
+
+## Lane record 2026-10-22 (no-model)
+
+- Lane 41 (`st-lanes.mts seed 41 --fresh`, `no-model 41`, `image.enabled`/`sprites.enabled` off in the lane copy), restarted after
+  the staging of master `b220a868`; served bundle `cb12b35851ae` (`so-run-header` `run-header-v29-lane-pre.json`, matches
+  `dist/manifest.json` `bundleSha256`). Group `Group: Arin, DM Narrator` (`1759606632088`) from each fixture's `requires`. Evidence
+  `C:\dev\so-lanes\41\debug\v29runs\`, `payload-v29\`. Lane stopped at the end.
+- Scenarios present: 04, 05, 06, 07, 08 (no `v29-02-*` or `v29-09-*` scenario on master; `v29-03-polish-standin.json` is on
+  `v2.9-03-polish` only, skipped). None needs `lane: model`, so the GPU-run list from lane scenarios is empty.
+- `v29-04-cues.json`: pass x2 (15/15).
+- `v29-05-patterns.json`: pass x2.
+- `v29-06-anchored-suggestions.json`: pass x2.
+- `v29-07-echoes.json` on master: fail x2, step 7 "timed out after 10000 ms: the echo scheduled". Fixture bug: `/cp set` commits
+  its own boundary (as 04 and 08 rely on), so the transition fired and the echo was scheduled there (due next boundary), and the
+  following `/sendas` already landed it. Fix on this branch: the "walks out" `/sendas` moves before `/cp set`. With the fix:
+  pass x2 (17/17). `npm run gates:quick` green.
+- `v29-08-observations.json`: pass x2.
+- Memory-model breaker left open by every fixture (no backend on the lane) and closed by cleanup: expected on a no-model lane.
+- Real-LLM leak: the no-model lane still made 28 opencode `openai/gpt-6.1-sol` harness calls (subscription, `costUsd` 0), all
+  during scenario runs, none during payload captures. Cause: `st-lanes no-model` strips only text-model keys; the lane copy keeps
+  the owner's `routes.authoring` harness route (and an unset authoring role defaults to sol whenever the harness plugin offers
+  it), and 04/05/07/08 leave `briefingDraft` on, so the briefing draft on import ran on sol. No GPU use: the local controller
+  reported text unloaded throughout; ComfyUI untouched. Open: `no-model` should also take harness routes off the lane, or the
+  fixtures should declare `briefingDraft: "off"` / `innerBeat: "off"`. Not fixed here (lane tooling decision).
+- Payload goldens (`so-payload-golden.mts capture`, 8 cases, no model call): r1 and r3 failed in cleanup, "no
+  /api/settings/save answer within 15000 ms" (environment; the lane's `settings.json` is 11 MB); r2 and r4 complete.
+  `diff r2 r4`: identical. `diff` against the latest full baseline `C:\dev\so-live-lanes\81\payload-q55\q55` (`4c82f465`):
+  0 undeclared hunks; group-opening, group-memory, group-lore-placement same; group-away-notice, group-narrator-holdings,
+  group-relationships fixtures changed since that baseline, and group-commitments (vs `payload-q55b/r2`, fixture changed) and
+  group-delivery are not comparable. r2/r4 (`C:\dev\so-lanes\41\debug\payload-v29\`) are the new baseline for all 8.

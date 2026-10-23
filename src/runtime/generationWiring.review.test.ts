@@ -106,7 +106,7 @@ describe("runtime/index.ts generation wiring (v2.4 plan 01 T6)", () => {
     await emit("MESSAGE_RECEIVED", 4, "normal");
     expect(spies.clear).toHaveBeenCalledTimes(2);
     expect(spies.nudge).toHaveBeenCalledTimes(1);
-    expect(spies.commit).toHaveBeenCalledWith(true);
+    expect(spies.commit).toHaveBeenCalledWith(true, 4);
   });
 
   it("another extension's {source} STARTED/ENDED/STOPPED touch nothing", async () => {
@@ -156,6 +156,6 @@ describe("runtime/index.ts generation wiring (v2.4 plan 01 T6)", () => {
     await emit("GENERATION_STARTED", "normal", {}, false);
     await emit("GENERATION_STOPPED");
     expect(spies.clear).toHaveBeenCalledTimes(1);
-    expect(spies.commit).toHaveBeenCalledWith(false);
+    expect(spies.commit).toHaveBeenCalledWith(false, undefined);
   });
 });

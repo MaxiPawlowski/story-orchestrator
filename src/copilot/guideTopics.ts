@@ -7,6 +7,7 @@ import { CHARACTER_TOPICS, FACTION_DIAGNOSTIC_TOPICS } from "./guideTopicsCharac
 import { CARRY_TOPICS } from "./guideTopicsCarry";
 import { TIME_TOPICS } from "./guideTopicsTime";
 import { LIVING_TOPICS } from "./guideTopicsLiving";
+import { OFFER_DIAGNOSTIC_TOPICS, OFFER_TOPICS } from "./guideTopicsOffers";
 
 export interface GuideTopic {
   title: string;
@@ -320,12 +321,14 @@ export const GUIDE_TOPICS = {
   },
   checks: {
     title: "Checks",
-    fields: "checkpoints[].checks[], transitions[].check, roll, modifiers[], narrate, outcome, twist, when",
+    fields: "checkpoints[].checks[], transitions[].check, roll, modifiers[], narrate, outcome, twist, when, hint, hint_when",
     text: "A seeded roll once per visit: {id, label, quality (code bool), roll {sides, target, dice}, modifiers [{q, v, add, label}], narrate public|hidden}. "
       + "Total = dice + modifiers that hold, read each turn; quality is total >= target. outcome {quality, bands: margin, partial_margin} writes miss|weak|strong; "
       + "twist {quality} marks matching dice. A transition check is attempted when the rest of its gate holds. A checkpoint check with when (a gate, declared keys, "
-      + "not its own) stays pending until when holds, then rolls once that visit and keeps the outcome; a swipe of that reply takes it back. The next reply is told the outcome; public adds a chip.",
+      + "not its own) stays pending until when holds, then rolls once a visit; a swipe takes it back. The next reply is told the outcome; public adds a chip. "
+      + "A public modifier hint shows as help, no dice; hint_when gates it.",
   },
+  ...OFFER_TOPICS,
   widgets: {
     title: "Stats and story panels",
     fields: "qualities[].display, widgets[], bind, audience, rows[], dates, actions[], display.journal, display.stat_sheet, display.widgets, display.motion, display.standing",
@@ -450,5 +453,6 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "codex-fact-never-read": "codex", "codex-gate-holds-at-start": "codex", "disclosure-names-unknown-entity": "codex",
   ...OBSERVATION_DIAGNOSTIC_TOPICS,
   "pattern-label-names-unknown-entity": "patterns", "pattern-label-claims-cause": "patterns", "pattern-never-completes": "patterns",
+  ...OFFER_DIAGNOSTIC_TOPICS,
 };
 
