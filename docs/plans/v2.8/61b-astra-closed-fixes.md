@@ -96,7 +96,13 @@ before the fix; every fix is one commit whose regression test fails on the old c
 - Probes: held-secret recheck at curator/director accept: **probed and fixed 2026-10-22** (`v2.8-queue-2026-10-22`): both
   checked secrets only when drafting. A director proposal now re-runs `guardDraft` at apply with the current inputs and is
   withdrawn; a curator op restating a held secret fails with `CURATOR_SECRET_REFUSAL` (tests "61b probe: …" in
-  `livingCoordinator.review.test.ts` and `curatorCreate.review.test.ts`, both fail on the old code). HTML widget navigation
+  `livingCoordinator.review.test.ts` and `curatorCreate.review.test.ts`, both fail on the old code). Real-model live 2026-10-23
+  on master `bbd792f0`, lane 33, PASS ×2 consecutive each, first attempt: `test/scenarios/live-v28-61b-curator-secret.json`
+  (local Artemis curator proposes a rewrite; a planted hiding row restating it; apply refuses, lorebook file unchanged) and
+  `live-v28-61b-director-secret.json` (sol director via the opencode harness proposes a scene; planted row restating its
+  objective; the next boundary withdraws it, graph unchanged). Evidence: so-sessions `fc4927f8`
+  `evidence/phase-c/61b-secret-recheck-2026-10-23`. The curator fixture first left remove-or-reword open (the model chose
+  `disable` 4 of 4 in one run); its turn now asks for a reword. HTML widget navigation
   under sandbox/CSP: **probed 2026-10-22** in Chrome 152: `allow-scripts` alone blocks popups, top navigation and forms, CSP
   blocks images and fetches, but a frame may still navigate itself (script or `meta refresh`); CSP has no navigation
   directive. Navigating after load is caught (second load, `onNavigatedAway`), only afterwards. Navigating while parsing
