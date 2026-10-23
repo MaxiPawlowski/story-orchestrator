@@ -453,6 +453,13 @@ port (`earlyDrafts`) but not surfaced in the UI; 09's resolver mapping/parity fi
   stopped: "the lookup returned only his name, not his first message or example dialogue", per the guide rule "Record only what
   the card shows; never invent a trait". Finding: the wizard has no read tool that returns an existing card's `first_mes` /
   `mes_example`, so on the real route it cannot ground a sheet for an existing card. **Fixed 2026-10-23** (`v2.9-dev-2026-10-23`):
-  read tool `readCharacterCard` (`copilot/agent/readTools.ts`, test `cardRead.test.ts`); real-route recheck below. A first
+  read tool `readCharacterCard` (`copilot/agent/readTools.ts`, test `cardRead.test.ts`); real-route recheck below.
+- **S5 recheck 2026-10-23** (master `9d88d992`, lane 44 no-model, Studio open, authoring routed to `harness:opencode:openai/gpt-6.1-sol`
+  for the run and restored, `so-wizard-agent.mts recipes --fixture test/measurements/v2.9/02-s5/wizard-sheet.json --route harness` x2):
+  **arin-sheet passed 2 of 2** (readGuide, readCharacterCard returned the card's first message and example dialogue, setMemberPolish
+  proposed as an edit card and accepted, draft valid). luke-sheet 0 of 2, rightly: that card's `first_mes` and `mes_example` are empty
+  on this install (description only; checked after unshallow), so the agent left the sheet empty instead of inventing it. The
+  Luke task cannot pass by design; recorded as void, the fixture is not changed after the run. A first recheck the same hour read
+  no card at all because the debug drive built its own runner without `cards` (fixed `1e7631d3`). A first
   attempt with uncarded cast names was refused the same way; an unrouted first run fell back to the local model (Artemis) and is
   discarded (route mismatch, transport check failed).
