@@ -7,13 +7,15 @@ import { seamScore } from '../../src/sprites/builder/seam.ts';
 import { pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
-import { raterPrompt, readRating, summarize, type SheetRating } from './lib/sheetRater.mts';
+import { expressionPrompt, raterPrompt, readExpressionRating, readRating, summarize, summarizeExpressions, type ExpressionRating, type SheetRating } from './lib/sheetRater.mts';
 
 const USAGE = `Usage: node scripts/debug/so-image-bench.mts edges <raw dir> --out <dir>
        node scripts/debug/so-image-bench.mts seams <raw dir>
        node scripts/debug/so-image-bench.mts sheets <raw dir> --out <dir>
        node scripts/debug/so-image-bench.mts rate <sheets dir>... [--model gpt-6.1-sol]
        node scripts/debug/so-image-bench.mts eyes <raw dir>
+       node scripts/debug/so-image-bench.mts expression-sheets <capture dir> --out <dir> [--seed n]
+       node scripts/debug/so-image-bench.mts rate-expressions <sheets dir> [--model gpt-6.1-sol]
 
 Plan 80 bench, CPU only. Walks <raw dir>/<character>/<set>/*.png for full-body sprites (base sets and lp_/look_ sets,
 not anim- frames or busts), runs the edge clean-up, and writes edges.json (fringe and bright-fringe counts before and
@@ -24,7 +26,10 @@ and <name>.bodies.png (base neutral, then every posed body and changed look), ov
 listing the panels in order. rate sends each sheet once to the rater through codex exec (read-only sandbox) and
 writes ratings.json with the identity share and the sheets flagged for an edge, eye or rectangle defect. eyes renders
 every default rig's eyeballs (lane-settings.json liveHeadRigs) through the shipped CPU twin at gaze -1..1 x -1..1 in
-0.25 steps and counts pixels inside the eye opening that drop below alpha 0.9.`;
+0.25 steps and counts pixels inside the eye opening that drop below alpha 0.9. expression-sheets (plan 81) reads live-head
+face captures named <member>.<label>.face.png and writes one blind sheet per member: panel 1 the neutral capture, then
+the other captures in a seeded shuffle, no labels on the image; sheets.json keeps the order. rate-expressions asks the rater
+for each panel's expression and identity and writes expressions.json with the share read as intended.`;
 
 const over = (image: RgbaImage, [r, g, b]: [number, number, number]): RgbaImage => {
   const data = new Uint8ClampedArray(image.data.length);
@@ -166,6 +171,50 @@ async function rate(dirs: string[], model: string) {
   console.log(JSON.stringify(summary));
 }
 
+const shuffled = <T,>(items: T[], seed: number): T[] => {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    seed = (Math.imul(seed, 1103515245) + 12345) >>> 0;
+    const j = seed % (i + 1);
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+};
+
+async function expressionSheets(root: string, outDir: string, seed: number) {
+  await mkdir(outDir, { recursive: true });
+  const files = (await readdir(root)).filter((file) => file.endsWith('.face.png'));
+  const members = [...new Set(files.map((file) => file.split('.')[0]))].sort(), index: Record<string, string[]> = {};
+  for (const member of members) {
+    const labels = files.filter((file) => file.startsWith(`${member}.`)).map((file) => file.split('.')[1]);
+    if (!labels.includes('neutral')) continue;
+    const order = ['neutral', ...shuffled(labels.filter((label) => label !== 'neutral').sort(), seed + member.length)];
+    const panels = await Promise.all(order.map(async (label) => shrink(decodePng(await readFile(join(root, `${member}.${label}.face.png`))), 360)));
+    await writeFile(join(outDir, `${member}.png`), encodePng(panels.reduce((left, right) => side(left, right))));
+    index[member] = order;
+    console.log(`${member}: ${order.length} panels`);
+  }
+  await writeFile(join(outDir, 'sheets.json'), JSON.stringify(index, null, 1));
+}
+
+async function rateExpressions(dirs: string[], model: string) {
+  const ratings: ExpressionRating[] = [];
+  for (const dir of dirs) {
+    const index = JSON.parse(await readFile(join(dir, 'sheets.json'), 'utf8')) as Record<string, string[]>;
+    for (const [name, labels] of Object.entries(index)) {
+      const answer = join(tmpdir(), `so-rate-expr-${process.pid}.txt`);
+      execFileSync('codex', ['exec', '--skip-git-repo-check', '--ephemeral', '-s', 'read-only', '-m', model, '-i', JSON.stringify(join(dir, `${name}.png`)),
+        '-o', JSON.stringify(answer), '-'], { input: expressionPrompt(labels.length), stdio: ['pipe', 'ignore', 'inherit'], timeout: 600_000, shell: true });
+      const rating = readExpressionRating(`${basename(dir)}/${name}`, labels, await readFile(answer, 'utf8'));
+      ratings.push(rating);
+      console.log(`${rating.sheet}: ${rating.panels.map((row) => `${labels[row.panel - 1]}->${row.expression}${row.same ? '' : ' (not same)'}`).join(', ')}`);
+    }
+  }
+  const summary = summarizeExpressions(ratings);
+  await writeFile(join(dirs[0], 'expressions.json'), JSON.stringify({ model, summary, ratings }, null, 1));
+  console.log(JSON.stringify({ ...summary, confusion: undefined }));
+}
+
 const along = (values: number[], u: number): number => {
   const f = Math.min(1, Math.max(0, u)) * (values.length - 1), i = Math.min(Math.floor(f), values.length - 2);
   return values[i] + (values[i + 1] - values[i]) * (f - i);
@@ -207,6 +256,10 @@ const [command, dir] = process.argv.slice(2);
 const outAt = process.argv.indexOf('--out');
 if (command === 'seams' && dir && existsSync(dir)) await seams(resolve(dir));
 else if (command === 'eyes' && dir && existsSync(dir)) await eyes(resolve(dir));
+else if (command === 'expression-sheets' && dir && existsSync(dir) && outAt > 0) await expressionSheets(resolve(dir), resolve(process.argv[outAt + 1]),
+  process.argv.includes('--seed') ? Number(process.argv[process.argv.indexOf('--seed') + 1]) : 81);
+else if (command === 'rate-expressions' && dir) await rateExpressions(process.argv.slice(3).filter((arg, at, all) => !arg.startsWith('--') && all[at - 1] !== '--model').map((arg) => resolve(arg)),
+  process.argv.includes('--model') ? process.argv[process.argv.indexOf('--model') + 1] : 'gpt-6.1-sol');
 else if (command === 'rate' && dir) await rate(process.argv.slice(3).filter((arg, at, all) => !arg.startsWith('--') && all[at - 1] !== '--model').map((arg) => resolve(arg)),
   process.argv.includes('--model') ? process.argv[process.argv.indexOf('--model') + 1] : 'gpt-6.1-sol');
 else if (command === 'sheets' && dir && existsSync(dir) && outAt > 0) await sheets(resolve(dir), resolve(process.argv[outAt + 1]));
