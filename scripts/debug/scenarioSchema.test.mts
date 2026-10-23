@@ -165,3 +165,13 @@ test('every shipped journey declares the extraction it runs at (plan 01 §E)', (
   const broken = journeys.flatMap((file) => validateJourneyExtraction(file.doc.setup).map((problem) => `${file.name}: ${problem}`));
   assert.deepEqual(broken, []);
 });
+
+test('an ext_setting that replaces the whole story-orchestrator settings object is refused; a leaf path is not', () => {
+  const problems = validateSteps([
+    { ext_setting: { extension: 'story-orchestrator', key: 'settings', value: { image: { enabled: false } } } },
+    { ext_setting: { extension: 'story-orchestrator', key: ['settings'], value: {} } },
+    { ext_setting: { extension: 'story-orchestrator', key: ['settings', 'image', 'enabled'], value: false } },
+    { ext_setting: { extension: 'st-stepped-thinking', key: 'settings', value: {} } },
+  ]);
+  assert.deepEqual(problems.map((problem) => problem.split(':')[0]), ['steps[0].ext_setting', 'steps[1].ext_setting']);
+});

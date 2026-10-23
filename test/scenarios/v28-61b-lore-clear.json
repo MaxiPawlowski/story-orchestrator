@@ -9,15 +9,23 @@
     {
       "ext_setting": {
         "extension": "story-orchestrator",
-        "key": "settings",
-        "value": {
-          "image": {
-            "enabled": false
-          },
-          "sprites": {
-            "enabled": false
-          }
-        }
+        "key": [
+          "settings",
+          "image",
+          "enabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "sprites",
+          "enabled"
+        ],
+        "value": false
       }
     },
     {

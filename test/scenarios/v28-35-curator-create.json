@@ -1,29 +1,270 @@
 {
   "_note": "B6 no-model coverage: scripted lore creation against a real lane lorebook; review and accepted cards write only at a boundary, with a chat/group stamp; near-duplicate patch advice is rendered and the author declines. Delete the owned chat, decline its created-entry reaper, retry the deleted-chat event and accept; disk proves keep/delete. Current detection is advisory, not an acceptance refusal (plan 35 finding). Model quality and vector meaning remain separate owed gates.",
-  "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "authorView": true },
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off",
+    "authorView": true
+  },
   "steps": [
-    { "ext_setting": { "extension": "story-orchestrator", "key": "settings", "value": { "image": { "enabled": false }, "sprites": { "enabled": false }, "extraction": { "cadence": 0 }, "stagecraft": { "curatorEnabled": false, "wardenEnabled": false, "livingEnabled": false, "branchingEnabled": false, "prefetchEnabled": false, "createEnabled": true, "createRequireMeasured": false, "acceptMode": "review" } } } },
-    { "eval": "const rt = globalThis.storyOrchestratorRuntime; const s = rt.getGlobalSettings(); if (s.image.enabled || s.sprites.enabled) throw new Error('media must be off'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; globalThis.__b6create = { book: 'SO-V28-35 Create Lore', sleep: (ms) => new Promise((r) => setTimeout(r, ms)), read: async () => { const ctx = SillyTavern.getContext(); const response = await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-V28-35 Create Lore' }), cache: 'no-cache' }); if (!response.ok) throw new Error('book read failed: ' + response.status); return Object.values((await response.json()).entries ?? {}); } }; const created = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: globalThis.__b6create.book }, { requirements: { lorebooks: [] } }); if (!created.ok) throw new Error('fixture book create failed: ' + created.message); return { mediaOff: true, bookCreated: true };" },
-    { "import_story": { "id": "so-v28-35-create", "title": "SO-V28-35 Create", "description": "Synthetic curator creation coverage.", "qualities": [], "checkpoints": [{ "id": "start", "name": "Test square", "type": "anchor", "start": true, "objective": "Read the public notice." }], "transitions": [], "roster": [{ "id": "narrator", "name": "DM Narrator", "role": "narrator" }], "requirements": { "members": ["DM Narrator"], "lorebooks": ["SO-V28-35 Create Lore"] }, "stagecraft": { "lorebooks": ["SO-V28-35 Create Lore"], "createCap": 4 } } },
-    { "send": "The copper beacon stands in the square. The copper beacon rings at noon." },
-    { "slash": "/sendas name=\"DM Narrator\" raw=false The two public facts are confirmed." },
-    { "extract": { "debugResponse": "FACT importance=2 text=\"The copper beacon stands in the square.\" evidence=\"The copper beacon stands in the square.\"\nFACT importance=2 text=\"The copper beacon rings at noon.\" evidence=\"The copper beacon rings at noon.\"" } },
-    { "eval": "const rt = globalThis.storyOrchestratorRuntime; const b = globalThis.__b6create; if (rt.getExtractionFacts().filter((f) => f.text.includes('copper beacon')).length < 2) throw new Error('two established facts missing'); rt.setStagecraftSettings({ curatorEnabled: true }); const out = await rt.runLoreCreatePass('b6-create', '[create] SO-V28-35 Create Lore || Copper beacon || copper beacon || The copper beacon stands in the square and rings at noon.'); const op = out.record?.ops.find((e) => e.op.kind === 'create'); if (!op || op.status !== 'pending') throw new Error('create did not wait for review: ' + JSON.stringify(out)); b.card = { id: out.record.id, index: out.record.ops.indexOf(op) }; if ((await b.read()).some((e) => e.comment === 'Copper beacon')) throw new Error('proposal wrote before acceptance'); await rt.setCuratorOpDecision(b.card.id, b.card.index, 'accepted'); if ((await b.read()).some((e) => e.comment === 'Copper beacon')) throw new Error('acceptance wrote before boundary'); return { pendingBeforeAcceptance: true, acceptedBeforeBoundary: true };", "log": true },
-    { "slash": "/sendas name=\"DM Narrator\" raw=false The notice is copied into the record." },
-    { "wait": { "schedulerIdle": true, "quietMs": 1500, "timeoutMs": 30000 } },
-    { "eval": "const b = globalThis.__b6create; const rt = globalThis.storyOrchestratorRuntime; let entry; for (let i = 0; i < 100; i += 1) { entry = (await b.read()).find((e) => e.comment === 'Copper beacon'); if (entry) break; await b.sleep(100); } if (!entry || entry.disable) throw new Error('accepted create did not write at boundary'); const ctx = SillyTavern.getContext(); const stamp = '{{// so:created ' + ctx.chatId + ' | ' + ctx.groupId + '}}'; if (!entry.content.includes(stamp)) throw new Error('created stamp missing: ' + entry.content); if ((rt.getStagecraftState().created ?? []).length !== 1) throw new Error('created ledger not exactly one'); b.written = JSON.stringify(entry); return { boundaryWrite: true, stampPresent: true };", "log": true },
-    { "eval": "const rt = globalThis.storyOrchestratorRuntime; const out = await rt.runLoreCreatePass('b6-duplicate', '[create] SO-V28-35 Create Lore || Copper beacon record || copper beacon || The copper beacon stands in the square and rings at noon.'); const op = out.record?.ops.find((e) => e.op.kind === 'create'); if (!op || !op.nearDups?.length) throw new Error('near-duplicate comparison was not exercised: ' + JSON.stringify(out)); globalThis.__b6create.duplicate = { id: out.record.id, index: out.record.ops.indexOf(op) }; return { nearDuplicates: op.nearDups.length };", "log": true },
-    { "ui": { "action": "open-drawer" } },
-    { "ui": { "action": "drawer-tab", "label": "Scheduler" } },
-    { "expect_ui": { "selector": "[data-so=curator-near-dup]", "contains": "patch", "timeoutMs": 10000 } },
-    { "eval": "const b = globalThis.__b6create; const rt = globalThis.storyOrchestratorRuntime; await rt.setCuratorOpDecision(b.duplicate.id, b.duplicate.index, 'rejected'); const live = rt.getStagecraftState().proposals.find((p) => p.id === b.duplicate.id).ops[b.duplicate.index]; if (live.status !== 'rejected') throw new Error('author decline failed'); if ((await b.read()).some((e) => e.comment === 'Copper beacon record')) throw new Error('declined duplicate reached disk'); rt.setStagecraftSettings({ curatorEnabled: false }); return { declined: true };", "log": true },
-    { "eval": "const b = globalThis.__b6create; const ctx = SillyTavern.getContext(); b.chat = ctx.chatId; b.group = ctx.groupId; await b.sleep(3000); return { ownedChatRecorded: true };" },
-    { "slash": "/newchat", "adoptsNewChat": true },
-    { "eval": "const b = globalThis.__b6create; const ctx = SillyTavern.getContext(); if (ctx.chatId === b.chat || ctx.groupId !== b.group) throw new Error('new chat did not stay in the pinned group'); const groups = await import('/scripts/group-chats.js'); await groups.deleteGroupChat(b.group, b.chat, { jumpToNewChat: false }); const until = Date.now() + 15000; while (Date.now() < until) { const created = document.querySelector('[data-so-reap-kind=created]'); if (created) return { deletedChat: true, createdQuestion: true }; const mirror = document.querySelector('[data-so-reap-chat]'); if (mirror) mirror.closest('dialog').querySelector('.popup-button-cancel').click(); await b.sleep(100); } throw new Error('created-entry reaper did not ask after deletion');", "log": true },
-    { "ui": { "action": "pointer-click", "selector": "dialog:has([data-so-reap-kind=created]) .popup-button-cancel" } },
-    { "eval": "const b = globalThis.__b6create; await b.sleep(1500); if (JSON.stringify((await b.read()).find((e) => e.comment === 'Copper beacon')) !== b.written) throw new Error('declining reaper changed entry'); const ctx = SillyTavern.getContext(); await ctx.eventSource.emit(ctx.eventTypes.GROUP_CHAT_DELETED, b.chat); for (let i = 0; i < 100 && !document.querySelector('[data-so-reap-kind=created]'); i += 1) await b.sleep(100); if (!document.querySelector('[data-so-reap-kind=created]')) throw new Error('orphan retry did not ask'); return { declineKeptDiskEntry: true, retryQuestion: true };", "log": true },
-    { "ui": { "action": "pointer-click", "selector": "dialog:has([data-so-reap-kind=created]) .popup-button-ok" } },
-    { "eval": "const b = globalThis.__b6create; for (let i = 0; i < 100; i += 1) { const rows = await b.read(); if (!rows.some((e) => e.comment === 'Copper beacon')) return { acceptedReaperDeletedEntry: true }; await b.sleep(100); } throw new Error('accepted reaper left created entry on disk');", "log": true },
-    { "assets": { "action": "remove", "marker": "SO-V28-35 Create" } }
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "image",
+          "enabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "sprites",
+          "enabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "extraction",
+          "cadence"
+        ],
+        "value": 0
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "curatorEnabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "wardenEnabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "livingEnabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "branchingEnabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "prefetchEnabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "createEnabled"
+        ],
+        "value": true
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "createRequireMeasured"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "acceptMode"
+        ],
+        "value": "review"
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const s = rt.getGlobalSettings(); if (s.image.enabled || s.sprites.enabled) throw new Error('media must be off'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugCuratorResponse = 'NONE'; globalThis.__b6create = { book: 'SO-V28-35 Create Lore', sleep: (ms) => new Promise((r) => setTimeout(r, ms)), read: async () => { const ctx = SillyTavern.getContext(); const response = await fetch('/api/worldinfo/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ name: 'SO-V28-35 Create Lore' }), cache: 'no-cache' }); if (!response.ok) throw new Error('book read failed: ' + response.status); return Object.values((await response.json()).entries ?? {}); } }; const created = await rt.applyProvisioning({ kind: 'createStoryLorebook', name: globalThis.__b6create.book }, { requirements: { lorebooks: [] } }); if (!created.ok) throw new Error('fixture book create failed: ' + created.message); return { mediaOff: true, bookCreated: true };"
+    },
+    {
+      "import_story": {
+        "id": "so-v28-35-create",
+        "title": "SO-V28-35 Create",
+        "description": "Synthetic curator creation coverage.",
+        "qualities": [],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "Test square",
+            "type": "anchor",
+            "start": true,
+            "objective": "Read the public notice."
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "DM Narrator"
+          ],
+          "lorebooks": [
+            "SO-V28-35 Create Lore"
+          ]
+        },
+        "stagecraft": {
+          "lorebooks": [
+            "SO-V28-35 Create Lore"
+          ],
+          "createCap": 4
+        }
+      }
+    },
+    {
+      "send": "The copper beacon stands in the square. The copper beacon rings at noon."
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false The two public facts are confirmed."
+    },
+    {
+      "extract": {
+        "debugResponse": "FACT importance=2 text=\"The copper beacon stands in the square.\" evidence=\"The copper beacon stands in the square.\"\nFACT importance=2 text=\"The copper beacon rings at noon.\" evidence=\"The copper beacon rings at noon.\""
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const b = globalThis.__b6create; if (rt.getExtractionFacts().filter((f) => f.text.includes('copper beacon')).length < 2) throw new Error('two established facts missing'); rt.setStagecraftSettings({ curatorEnabled: true }); const out = await rt.runLoreCreatePass('b6-create', '[create] SO-V28-35 Create Lore || Copper beacon || copper beacon || The copper beacon stands in the square and rings at noon.'); const op = out.record?.ops.find((e) => e.op.kind === 'create'); if (!op || op.status !== 'pending') throw new Error('create did not wait for review: ' + JSON.stringify(out)); b.card = { id: out.record.id, index: out.record.ops.indexOf(op) }; if ((await b.read()).some((e) => e.comment === 'Copper beacon')) throw new Error('proposal wrote before acceptance'); await rt.setCuratorOpDecision(b.card.id, b.card.index, 'accepted'); if ((await b.read()).some((e) => e.comment === 'Copper beacon')) throw new Error('acceptance wrote before boundary'); return { pendingBeforeAcceptance: true, acceptedBeforeBoundary: true };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false The notice is copied into the record."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const b = globalThis.__b6create; const rt = globalThis.storyOrchestratorRuntime; let entry; for (let i = 0; i < 100; i += 1) { entry = (await b.read()).find((e) => e.comment === 'Copper beacon'); if (entry) break; await b.sleep(100); } if (!entry || entry.disable) throw new Error('accepted create did not write at boundary'); const ctx = SillyTavern.getContext(); const stamp = '{{// so:created ' + ctx.chatId + ' | ' + ctx.groupId + '}}'; if (!entry.content.includes(stamp)) throw new Error('created stamp missing: ' + entry.content); if ((rt.getStagecraftState().created ?? []).length !== 1) throw new Error('created ledger not exactly one'); b.written = JSON.stringify(entry); return { boundaryWrite: true, stampPresent: true };",
+      "log": true
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const out = await rt.runLoreCreatePass('b6-duplicate', '[create] SO-V28-35 Create Lore || Copper beacon record || copper beacon || The copper beacon stands in the square and rings at noon.'); const op = out.record?.ops.find((e) => e.op.kind === 'create'); if (!op || !op.nearDups?.length) throw new Error('near-duplicate comparison was not exercised: ' + JSON.stringify(out)); globalThis.__b6create.duplicate = { id: out.record.id, index: out.record.ops.indexOf(op) }; return { nearDuplicates: op.nearDups.length };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "ui": {
+        "action": "drawer-tab",
+        "label": "Scheduler"
+      }
+    },
+    {
+      "expect_ui": {
+        "selector": "[data-so=curator-near-dup]",
+        "contains": "patch",
+        "timeoutMs": 10000
+      }
+    },
+    {
+      "eval": "const b = globalThis.__b6create; const rt = globalThis.storyOrchestratorRuntime; await rt.setCuratorOpDecision(b.duplicate.id, b.duplicate.index, 'rejected'); const live = rt.getStagecraftState().proposals.find((p) => p.id === b.duplicate.id).ops[b.duplicate.index]; if (live.status !== 'rejected') throw new Error('author decline failed'); if ((await b.read()).some((e) => e.comment === 'Copper beacon record')) throw new Error('declined duplicate reached disk'); rt.setStagecraftSettings({ curatorEnabled: false }); return { declined: true };",
+      "log": true
+    },
+    {
+      "eval": "const b = globalThis.__b6create; const ctx = SillyTavern.getContext(); b.chat = ctx.chatId; b.group = ctx.groupId; await b.sleep(3000); return { ownedChatRecorded: true };"
+    },
+    {
+      "slash": "/newchat",
+      "adoptsNewChat": true
+    },
+    {
+      "eval": "const b = globalThis.__b6create; const ctx = SillyTavern.getContext(); if (ctx.chatId === b.chat || ctx.groupId !== b.group) throw new Error('new chat did not stay in the pinned group'); const groups = await import('/scripts/group-chats.js'); await groups.deleteGroupChat(b.group, b.chat, { jumpToNewChat: false }); const until = Date.now() + 15000; while (Date.now() < until) { const created = document.querySelector('[data-so-reap-kind=created]'); if (created) return { deletedChat: true, createdQuestion: true }; const mirror = document.querySelector('[data-so-reap-chat]'); if (mirror) mirror.closest('dialog').querySelector('.popup-button-cancel').click(); await b.sleep(100); } throw new Error('created-entry reaper did not ask after deletion');",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "pointer-click",
+        "selector": "dialog:has([data-so-reap-kind=created]) .popup-button-cancel"
+      }
+    },
+    {
+      "eval": "const b = globalThis.__b6create; await b.sleep(1500); if (JSON.stringify((await b.read()).find((e) => e.comment === 'Copper beacon')) !== b.written) throw new Error('declining reaper changed entry'); const ctx = SillyTavern.getContext(); await ctx.eventSource.emit(ctx.eventTypes.GROUP_CHAT_DELETED, b.chat); for (let i = 0; i < 100 && !document.querySelector('[data-so-reap-kind=created]'); i += 1) await b.sleep(100); if (!document.querySelector('[data-so-reap-kind=created]')) throw new Error('orphan retry did not ask'); return { declineKeptDiskEntry: true, retryQuestion: true };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "pointer-click",
+        "selector": "dialog:has([data-so-reap-kind=created]) .popup-button-ok"
+      }
+    },
+    {
+      "eval": "const b = globalThis.__b6create; for (let i = 0; i < 100; i += 1) { const rows = await b.read(); if (!rows.some((e) => e.comment === 'Copper beacon')) return { acceptedReaperDeletedEntry: true }; await b.sleep(100); } throw new Error('accepted reaper left created entry on disk');",
+      "log": true
+    },
+    {
+      "assets": {
+        "action": "remove",
+        "marker": "SO-V28-35 Create"
+      }
+    }
   ]
 }

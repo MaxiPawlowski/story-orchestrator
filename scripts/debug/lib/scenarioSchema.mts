@@ -191,6 +191,9 @@ export function validateSteps(steps: unknown, where = 'steps'): string[] {
     if (verb === 'eval') problems.push(...evalSyntaxProblems(value, `${at}.eval`));
     if (verb === 'branch_create') problems.push(...shapeProblems(() => branchSpec(value), `${at}.branch_create`));
     if (verb === 'solo_chat') problems.push(...shapeProblems(() => soloSpec(value), `${at}.solo_chat`));
+    if (verb === 'ext_setting' && isRecord(value) && value.extension === 'story-orchestrator' && [value.key].flat().join('.') === 'settings') {
+      problems.push(`${at}.ext_setting: replaces every install setting for the run (it wiped a lane's memory profile); write each leaf with a key path, e.g. ["settings", "image", "enabled"]`);
+    }
     if (verb === 'expect' && isRecord(value) && 'rollbackOutcome' in value) problems.push(...shapeProblems(() => rollbackOutcomeSpec(value.rollbackOutcome), `${at}.expect.rollbackOutcome`));
     if (verb === 'expect' && isRecord(value) && 'nextReadWindow' in value) problems.push(...shapeProblems(() => nextReadWindowSpec(value.nextReadWindow), `${at}.expect.nextReadWindow`));
     if (verb === 'expect') checkObject(value, EXPECT_KEYS, `${at}.expect`, problems);

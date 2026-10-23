@@ -14,28 +14,122 @@
     {
       "ext_setting": {
         "extension": "story-orchestrator",
-        "key": "settings",
-        "value": {
-          "image": {
-            "enabled": false
-          },
-          "sprites": {
-            "enabled": false
-          },
-          "extraction": {
-            "cadence": 0
-          },
-          "stagecraft": {
-            "curatorEnabled": false,
-            "wardenEnabled": false,
-            "livingEnabled": false,
-            "branchingEnabled": false,
-            "prefetchEnabled": false,
-            "createEnabled": true,
-            "createRequireMeasured": false,
-            "acceptMode": "review"
-          }
-        }
+        "key": [
+          "settings",
+          "image",
+          "enabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "sprites",
+          "enabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "extraction",
+          "cadence"
+        ],
+        "value": 0
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "curatorEnabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "wardenEnabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "livingEnabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "branchingEnabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "prefetchEnabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "createEnabled"
+        ],
+        "value": true
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "createRequireMeasured"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "acceptMode"
+        ],
+        "value": "review"
       }
     },
     {

@@ -4,51 +4,328 @@
   "requires": {
     "lane": "no-model",
     "group": "Group: Arin, DM Narrator",
-    "members": ["Arin", "DM Narrator"],
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
     "judge": "off",
     "why": "Director and judge answers are scripted in the page; this proves wiring, not model behaviour."
   },
   "steps": [
-    { "ext_setting": { "extension": "story-orchestrator", "key": "settings", "value": { "image": { "enabled": false }, "sprites": { "enabled": false }, "extraction": { "cadence": 0 }, "stagecraft": { "curatorEnabled": false, "wardenEnabled": false, "livingEnabled": true, "branchingEnabled": true, "prefetchEnabled": false } } } },
-    { "eval": "const s = globalThis.storyOrchestratorRuntime.getGlobalSettings(); if (s.image.enabled || s.sprites.enabled) throw new Error('media must be off'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugLivingResponse = JSON.stringify({ name: 'The cliff path', objective: 'Climb the cliff path the player chose and rejoin the road above.', tension: 'stirring', snapshot: {}, opens_when: { new: { key: 'cliff', rubric: 'Has the player started up the cliff?' } }, new_qualities: [], builds_on: null, new_chapter: false, final: false, reason: 'synthetic divergence plumbing' }); return { mediaOff: true };" },
-    { "import_story": { "id": "so-l40-living", "title": "SO-L40 Living", "description": "Synthetic divergence and prefetch plumbing.", "qualities": [{ "key": "arrived", "type": "bool", "source": "code", "rubric": "Scripted gate." }, { "key": "finished", "type": "bool", "source": "code", "rubric": "Scripted gate." }], "checkpoints": [{ "id": "start", "name": "The Road", "type": "anchor", "start": true, "objective": "Follow the road to the inn." }, { "id": "goal", "name": "The Inn", "type": "anchor", "objective": "Rest at the inn." }, { "id": "end", "name": "The Pass", "type": "anchor", "objective": "Cross the pass." }], "transitions": [{ "from": "start", "to": "goal", "priority": 1, "gate": { "q": "arrived", "op": "==", "v": true } }, { "from": "goal", "to": "end", "priority": 1, "gate": { "q": "finished", "op": "==", "v": true } }], "roster": [{ "id": "arin", "name": "Arin" }, { "id": "narrator", "name": "DM Narrator", "role": "narrator" }] } },
-    { "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setStagecraftSettings({ livingEnabled: true, branchingEnabled: true, prefetchEnabled: false }); const judge = rt.getJudge(); globalThis.__l40 = { judge, active: judge.active, ask: judge.ask, calls: [], reading: null, state: () => rt.extras.living, sleep: (ms) => new Promise((r) => setTimeout(r, ms)), jobs: () => (rt.getSnapshot().scheduler?.recent ?? []).map((j) => j.reason ?? j) }; judge.active = (use) => globalThis.__l40.reading !== null && use === 'divergence'; globalThis.__l40.other = []; judge.ask = async (use, request) => { if (use !== 'divergence') { globalThis.__l40.other.push(use); return { answers: null, fallback: 'disabled', latencyMs: 0, cached: false }; } globalThis.__l40.calls.push({ use, questions: Object.keys(request.questions) }); return { answers: globalThis.__l40.reading, latencyMs: 0, cached: false }; }; return { stubbed: true, divergenceActive: judge.active('divergence') };" },
-    { "send": "I leave the road and look up at the cliff." },
-    { "slash": "/sendas name=\"DM Narrator\" raw=false The road bends away below the cliff." },
-    { "wait": { "schedulerIdle": true, "quietMs": 1500, "timeoutMs": 30000 } },
-    { "eval": "const b = globalThis.__l40; const d = b.state()?.divergence; if (b.calls.length) throw new Error('judge-off control asked the judge'); if (d?.last) throw new Error('judge-off control wrote a reading: ' + JSON.stringify(d)); if ((b.state()?.proposals ?? []).length) throw new Error('judge-off control proposed a branch'); b.reading = { fit: { type: 'choice', choice: 'none', confidence: 0.85, probabilities: { none: 0.85, exit_1: 0.15 } }, commits: { type: 'noul', noul: 0.9 } }; return { control: 'no reading, no job', divergence: d ?? null };", "log": true },
-    { "send": "I start climbing the cliff instead of going to the inn." },
-    { "slash": "/sendas name=\"DM Narrator\" raw=false Loose stones skitter down as you climb." },
-    { "wait": { "schedulerIdle": true, "quietMs": 1500, "timeoutMs": 30000 } },
-    { "eval": "const b = globalThis.__l40; const d = b.state().divergence; if (b.calls.length !== 1 || b.calls[0].use !== 'divergence') throw new Error('expected one divergence read: ' + JSON.stringify(b.calls)); if (d.streak !== 1 || d.checkpointId !== 'start' || !d.last || d.last.none !== true) throw new Error('streak not 1 after one off-route turn: ' + JSON.stringify(d)); if ((b.state().proposals ?? []).length) throw new Error('branched after one reading'); b.firstTurn = d.lastTurn; return { streak: d.streak, last: d.last };", "log": true },
-    { "slash": "/sendas name=\"Arin\" raw=false Careful up there." },
-    { "wait": { "schedulerIdle": true, "quietMs": 1500, "timeoutMs": 30000 } },
-    { "eval": "const b = globalThis.__l40; const d = b.state().divergence; if (b.calls.length !== 1) throw new Error('a reply with no new player line was read again: ' + b.calls.length); if (d.streak !== 1 || d.lastTurn !== b.firstTurn) throw new Error('same turn moved the streak: ' + JSON.stringify(d)); return { sameTurn: 'skipped', streak: d.streak };", "log": true },
-    { "send": "I keep climbing toward the top of the cliff." },
-    { "slash": "/sendas name=\"DM Narrator\" raw=false The wind picks up near the ledge." },
-    { "wait": { "schedulerIdle": true, "quietMs": 2000, "timeoutMs": 30000 } },
-    { "eval": "const b = globalThis.__l40; const until = Date.now() + 10000; while (!(b.state().proposals ?? []).some((p) => p.kind === 'branch') && Date.now() < until) await b.sleep(100); const d = b.state().divergence; const branch = (b.state().proposals ?? []).find((p) => p.kind === 'branch'); if (b.calls.length !== 2) throw new Error('expected two reads: ' + b.calls.length); if (!branch) throw new Error('second off-route turn did not propose a branch: ' + JSON.stringify(d)); if (branch.prepared) throw new Error('divergence branch marked prepared'); if (!(d.branchedFrom ?? []).includes('start')) throw new Error('checkpoint not marked branched: ' + JSON.stringify(d)); if (branch.status !== 'accepted') throw new Error('player branch should be auto-accepted: ' + branch.status); b.branch = branch.id; return { streak: d.streak, branch: { id: branch.id, status: branch.status, why: branch.why, convergeTo: branch.convergeTo } };", "log": true },
-    { "send": "I reach the top of the cliff." },
-    { "slash": "/sendas name=\"DM Narrator\" raw=false A narrow path runs along the clifftop." },
-    { "wait": { "schedulerIdle": true, "quietMs": 2000, "timeoutMs": 30000 } },
-    { "eval": "const rt = globalThis.storyOrchestratorRuntime; const b = globalThis.__l40; const until = Date.now() + 10000; while (!rt.getStory()?.checkpointById?.liv_b1_way && Date.now() < until) await b.sleep(100); const story = rt.getStory(); const way = story.checkpointById.liv_b1_way; if (!way) throw new Error('branch stub not applied: ' + JSON.stringify(b.state().proposals.map((p) => [p.id, p.status]))); const edges = story.transitions.filter((t) => t.from === 'start' && t.to === 'liv_b1_way').length + story.transitions.filter((t) => t.from === 'liv_b1_way' && t.to === 'goal').length; if (edges !== 2) throw new Error('branch edges wrong: ' + JSON.stringify(story.transitions.map((t) => t.from + '>' + t.to))); if (!b.state().proposals.some((p) => p.id === b.branch && p.status === 'applied')) throw new Error('branch proposal not applied'); if (b.calls.length !== 2) throw new Error('checkpoint read again after its branch: ' + b.calls.length); b.reading = null; return { stub: 'liv_b1_way', edges, reads: b.calls.length };", "log": true },
-    { "slash": "/cp activate goal" },
-    { "wait": { "checkpoint": "goal", "timeoutMs": 20000 } },
-    { "eval": "globalThis.storyOrchestratorRuntime.setStagecraftSettings({ prefetchEnabled: true }); return { prefetch: true };" },
-    { "send": "We arrive at the inn and sit down." },
-    { "slash": "/sendas name=\"DM Narrator\" raw=false The innkeeper nods at you." },
-    { "wait": { "schedulerIdle": true, "quietMs": 2000, "timeoutMs": 30000 } },
-    { "eval": "const b = globalThis.__l40; const until = Date.now() + 10000; const prepared = () => (b.state().proposals ?? []).find((p) => p.kind === 'branch' && p.prepared); while (!prepared() && Date.now() < until) await b.sleep(100); const p = prepared(); if (!p) throw new Error('no prepared branch at the inn: ' + JSON.stringify(b.state().proposals.map((x) => [x.id, x.kind, x.prepared, x.status]))); if (b.calls.length !== 2) throw new Error('prefetch asked the judge'); if (!/prepared ahead/i.test(p.why ?? '')) throw new Error('prepared why wrong: ' + p.why); if (!(b.state().divergence.branchedFrom ?? []).includes('goal')) throw new Error('prefetch did not use up the checkpoint branch'); b.prepared = p.id; return { prepared: p.id, status: p.status, why: p.why };", "log": true },
-    { "slash": "/sendas name=\"Arin\" raw=false I will get us a table." },
-    { "wait": { "schedulerIdle": true, "quietMs": 2000, "timeoutMs": 30000 } },
-    { "eval": "const rt = globalThis.storyOrchestratorRuntime; const b = globalThis.__l40; const until = Date.now() + 10000; while (!rt.getStory()?.checkpointById?.liv_b2_way && Date.now() < until) await b.sleep(100); const story = rt.getStory(); if (!story.checkpointById.liv_b2_way) throw new Error('prepared branch not applied'); if (!story.transitions.some((t) => t.from === 'goal' && t.to === 'liv_b2_way') || !story.transitions.some((t) => t.from === 'liv_b2_way' && t.to === 'end')) throw new Error('prepared branch edges wrong'); rt.setStagecraftSettings({ prefetchEnabled: false }); b.branchCount = b.state().proposals.filter((p) => p.kind === 'branch').length; return { stub: 'liv_b2_way', branches: b.branchCount };", "log": true },
-    { "slash": "/sendas name=\"DM Narrator\" raw=false The fire crackles." },
-    { "wait": { "schedulerIdle": true, "quietMs": 2000, "timeoutMs": 30000 } },
-    { "eval": "const b = globalThis.__l40; const count = b.state().proposals.filter((p) => p.kind === 'branch').length; if (count !== b.branchCount) throw new Error('prepared another branch with preparing ahead off'); b.judge.active = b.active; b.judge.ask = b.ask; delete globalThis.storyOrchestratorDebugLivingResponse; delete globalThis.storyOrchestratorDebugExtractionResponse; return { branches: count, judgeRestored: true, otherUsesAsked: [...new Set(b.other)] };", "log": true }
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "image",
+          "enabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "sprites",
+          "enabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "extraction",
+          "cadence"
+        ],
+        "value": 0
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "curatorEnabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "wardenEnabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "livingEnabled"
+        ],
+        "value": true
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "branchingEnabled"
+        ],
+        "value": true
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "stagecraft",
+          "prefetchEnabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "eval": "const s = globalThis.storyOrchestratorRuntime.getGlobalSettings(); if (s.image.enabled || s.sprites.enabled) throw new Error('media must be off'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugLivingResponse = JSON.stringify({ name: 'The cliff path', objective: 'Climb the cliff path the player chose and rejoin the road above.', tension: 'stirring', snapshot: {}, opens_when: { new: { key: 'cliff', rubric: 'Has the player started up the cliff?' } }, new_qualities: [], builds_on: null, new_chapter: false, final: false, reason: 'synthetic divergence plumbing' }); return { mediaOff: true };"
+    },
+    {
+      "import_story": {
+        "id": "so-l40-living",
+        "title": "SO-L40 Living",
+        "description": "Synthetic divergence and prefetch plumbing.",
+        "qualities": [
+          {
+            "key": "arrived",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Scripted gate."
+          },
+          {
+            "key": "finished",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Scripted gate."
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "start",
+            "name": "The Road",
+            "type": "anchor",
+            "start": true,
+            "objective": "Follow the road to the inn."
+          },
+          {
+            "id": "goal",
+            "name": "The Inn",
+            "type": "anchor",
+            "objective": "Rest at the inn."
+          },
+          {
+            "id": "end",
+            "name": "The Pass",
+            "type": "anchor",
+            "objective": "Cross the pass."
+          }
+        ],
+        "transitions": [
+          {
+            "from": "start",
+            "to": "goal",
+            "priority": 1,
+            "gate": {
+              "q": "arrived",
+              "op": "==",
+              "v": true
+            }
+          },
+          {
+            "from": "goal",
+            "to": "end",
+            "priority": 1,
+            "gate": {
+              "q": "finished",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ]
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setStagecraftSettings({ livingEnabled: true, branchingEnabled: true, prefetchEnabled: false }); const judge = rt.getJudge(); globalThis.__l40 = { judge, active: judge.active, ask: judge.ask, calls: [], reading: null, state: () => rt.extras.living, sleep: (ms) => new Promise((r) => setTimeout(r, ms)), jobs: () => (rt.getSnapshot().scheduler?.recent ?? []).map((j) => j.reason ?? j) }; judge.active = (use) => globalThis.__l40.reading !== null && use === 'divergence'; globalThis.__l40.other = []; judge.ask = async (use, request) => { if (use !== 'divergence') { globalThis.__l40.other.push(use); return { answers: null, fallback: 'disabled', latencyMs: 0, cached: false }; } globalThis.__l40.calls.push({ use, questions: Object.keys(request.questions) }); return { answers: globalThis.__l40.reading, latencyMs: 0, cached: false }; }; return { stubbed: true, divergenceActive: judge.active('divergence') };"
+    },
+    {
+      "send": "I leave the road and look up at the cliff."
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false The road bends away below the cliff."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const b = globalThis.__l40; const d = b.state()?.divergence; if (b.calls.length) throw new Error('judge-off control asked the judge'); if (d?.last) throw new Error('judge-off control wrote a reading: ' + JSON.stringify(d)); if ((b.state()?.proposals ?? []).length) throw new Error('judge-off control proposed a branch'); b.reading = { fit: { type: 'choice', choice: 'none', confidence: 0.85, probabilities: { none: 0.85, exit_1: 0.15 } }, commits: { type: 'noul', noul: 0.9 } }; return { control: 'no reading, no job', divergence: d ?? null };",
+      "log": true
+    },
+    {
+      "send": "I start climbing the cliff instead of going to the inn."
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false Loose stones skitter down as you climb."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const b = globalThis.__l40; const d = b.state().divergence; if (b.calls.length !== 1 || b.calls[0].use !== 'divergence') throw new Error('expected one divergence read: ' + JSON.stringify(b.calls)); if (d.streak !== 1 || d.checkpointId !== 'start' || !d.last || d.last.none !== true) throw new Error('streak not 1 after one off-route turn: ' + JSON.stringify(d)); if ((b.state().proposals ?? []).length) throw new Error('branched after one reading'); b.firstTurn = d.lastTurn; return { streak: d.streak, last: d.last };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=\"Arin\" raw=false Careful up there."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const b = globalThis.__l40; const d = b.state().divergence; if (b.calls.length !== 1) throw new Error('a reply with no new player line was read again: ' + b.calls.length); if (d.streak !== 1 || d.lastTurn !== b.firstTurn) throw new Error('same turn moved the streak: ' + JSON.stringify(d)); return { sameTurn: 'skipped', streak: d.streak };",
+      "log": true
+    },
+    {
+      "send": "I keep climbing toward the top of the cliff."
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false The wind picks up near the ledge."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 2000,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const b = globalThis.__l40; const until = Date.now() + 10000; while (!(b.state().proposals ?? []).some((p) => p.kind === 'branch') && Date.now() < until) await b.sleep(100); const d = b.state().divergence; const branch = (b.state().proposals ?? []).find((p) => p.kind === 'branch'); if (b.calls.length !== 2) throw new Error('expected two reads: ' + b.calls.length); if (!branch) throw new Error('second off-route turn did not propose a branch: ' + JSON.stringify(d)); if (branch.prepared) throw new Error('divergence branch marked prepared'); if (!(d.branchedFrom ?? []).includes('start')) throw new Error('checkpoint not marked branched: ' + JSON.stringify(d)); if (branch.status !== 'accepted') throw new Error('player branch should be auto-accepted: ' + branch.status); b.branch = branch.id; return { streak: d.streak, branch: { id: branch.id, status: branch.status, why: branch.why, convergeTo: branch.convergeTo } };",
+      "log": true
+    },
+    {
+      "send": "I reach the top of the cliff."
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false A narrow path runs along the clifftop."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 2000,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const b = globalThis.__l40; const until = Date.now() + 10000; while (!rt.getStory()?.checkpointById?.liv_b1_way && Date.now() < until) await b.sleep(100); const story = rt.getStory(); const way = story.checkpointById.liv_b1_way; if (!way) throw new Error('branch stub not applied: ' + JSON.stringify(b.state().proposals.map((p) => [p.id, p.status]))); const edges = story.transitions.filter((t) => t.from === 'start' && t.to === 'liv_b1_way').length + story.transitions.filter((t) => t.from === 'liv_b1_way' && t.to === 'goal').length; if (edges !== 2) throw new Error('branch edges wrong: ' + JSON.stringify(story.transitions.map((t) => t.from + '>' + t.to))); if (!b.state().proposals.some((p) => p.id === b.branch && p.status === 'applied')) throw new Error('branch proposal not applied'); if (b.calls.length !== 2) throw new Error('checkpoint read again after its branch: ' + b.calls.length); b.reading = null; return { stub: 'liv_b1_way', edges, reads: b.calls.length };",
+      "log": true
+    },
+    {
+      "slash": "/cp activate goal"
+    },
+    {
+      "wait": {
+        "checkpoint": "goal",
+        "timeoutMs": 20000
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setStagecraftSettings({ prefetchEnabled: true }); return { prefetch: true };"
+    },
+    {
+      "send": "We arrive at the inn and sit down."
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false The innkeeper nods at you."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 2000,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const b = globalThis.__l40; const until = Date.now() + 10000; const prepared = () => (b.state().proposals ?? []).find((p) => p.kind === 'branch' && p.prepared); while (!prepared() && Date.now() < until) await b.sleep(100); const p = prepared(); if (!p) throw new Error('no prepared branch at the inn: ' + JSON.stringify(b.state().proposals.map((x) => [x.id, x.kind, x.prepared, x.status]))); if (b.calls.length !== 2) throw new Error('prefetch asked the judge'); if (!/prepared ahead/i.test(p.why ?? '')) throw new Error('prepared why wrong: ' + p.why); if (!(b.state().divergence.branchedFrom ?? []).includes('goal')) throw new Error('prefetch did not use up the checkpoint branch'); b.prepared = p.id; return { prepared: p.id, status: p.status, why: p.why };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=\"Arin\" raw=false I will get us a table."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 2000,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const b = globalThis.__l40; const until = Date.now() + 10000; while (!rt.getStory()?.checkpointById?.liv_b2_way && Date.now() < until) await b.sleep(100); const story = rt.getStory(); if (!story.checkpointById.liv_b2_way) throw new Error('prepared branch not applied'); if (!story.transitions.some((t) => t.from === 'goal' && t.to === 'liv_b2_way') || !story.transitions.some((t) => t.from === 'liv_b2_way' && t.to === 'end')) throw new Error('prepared branch edges wrong'); rt.setStagecraftSettings({ prefetchEnabled: false }); b.branchCount = b.state().proposals.filter((p) => p.kind === 'branch').length; return { stub: 'liv_b2_way', branches: b.branchCount };",
+      "log": true
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false The fire crackles."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 2000,
+        "timeoutMs": 30000
+      }
+    },
+    {
+      "eval": "const b = globalThis.__l40; const count = b.state().proposals.filter((p) => p.kind === 'branch').length; if (count !== b.branchCount) throw new Error('prepared another branch with preparing ahead off'); b.judge.active = b.active; b.judge.ask = b.ask; delete globalThis.storyOrchestratorDebugLivingResponse; delete globalThis.storyOrchestratorDebugExtractionResponse; return { branches: count, judgeRestored: true, otherUsesAsked: [...new Set(b.other)] };",
+      "log": true
+    }
   ],
   "cleanup": {
     "steps": [
-      { "eval": "const b = globalThis.__l40; if (b?.judge) { b.judge.active = b.active; b.judge.ask = b.ask; } return true;" }
+      {
+        "eval": "const b = globalThis.__l40; if (b?.judge) { b.judge.active = b.active; b.judge.ask = b.ask; } return true;"
+      }
     ]
   }
 }
