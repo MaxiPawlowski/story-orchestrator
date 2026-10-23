@@ -117,8 +117,9 @@ describe("Show me renders", () => {
     Object.keys(DRAWER_TAB_OF_CONTROL).forEach((control) => expect(whereOf(`#${control}`).workspace?.page).toBe("author"));
   });
 
-  test("the transition note routes to the library, where its row renders", () => {
+  test("the transition note and the getting-started list route to the library, where they render", () => {
     expect(whereOf("#so-announce-transitions").workspace?.page).toBe("library");
+    expect(whereOf("#so-getting-started").workspace?.page).toBe("library");
   });
 
   test("getting started waits on unknown host facts only when they decide it", () => {
