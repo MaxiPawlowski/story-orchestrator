@@ -99,7 +99,8 @@ const planFor = (manager: SuggestionManager, projection: PlayedProjection, snaps
     story, state, projection, arcs: snapshot.memory?.arcs ?? [], derived: snapshot.memory?.derived, promises: snapshot.promises ?? [], patterns: snapshot.patterns ?? [],
     game: snapshot.game ?? null, valuesThen: valuesThen(manager, state.boundary),
   }, screen);
-  const anchors = selectAnchors(rankAnchors(candidates, { chatId: openChatId(), storyId: story.id ?? story.title, boundary: state.boundary, again }));
+  const anchors = globalThis.storyOrchestratorDebugSuggestionAnchors === "off" ? []
+    : selectAnchors(rankAnchors(candidates, { chatId: openChatId(), storyId: story.id ?? story.title, boundary: state.boundary, again }));
   return { anchors, screen, help: stakesLines(story, state, screen), unavailable: offerRows(story, state, screen).unavailable };
 };
 

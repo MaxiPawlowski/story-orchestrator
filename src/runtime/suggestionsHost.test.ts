@@ -236,6 +236,22 @@ describe("v2.9 06: anchored asks, the help line, greyed offers and the render-ti
     expect(player.side?.author).toBeNull();
   });
 
+  it("the LT current arm: the debug seam sends no anchors and maps no line, and clearing it restores them", async () => {
+    const prompts: string[] = [];
+    const reply = "- [1] I look for another way past the guard.\n- I wait.\n- I hum.";
+    globalThis.storyOrchestratorDebugSuggestionAnchors = "off";
+    try {
+      const outcome = await askSuggestions(manager(false, () => reply, prompts, over(true)));
+      expect(prompts[0]).not.toContain("[1] Get past the guard.");
+      expect(outcome.ok && outcome.side?.author?.anchors).toEqual([]);
+      expect(outcome.ok && outcome.suggestions.some((line) => line.anchorId)).toBe(false);
+    } finally {
+      delete globalThis.storyOrchestratorDebugSuggestionAnchors;
+    }
+    await askSuggestions(manager(false, () => reply, prompts, over(true)));
+    expect(prompts[1]).toContain("[1] Get past the guard.");
+  });
+
   it("the help line and greyed offers survive a failed answer", async () => {
     const outcome = await askSuggestions(manager(false, () => "- one", [], over(false)));
     expect(outcome.ok).toBe(false);

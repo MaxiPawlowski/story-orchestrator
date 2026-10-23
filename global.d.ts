@@ -64,6 +64,7 @@ declare global {
   var storyOrchestratorDebugPolishStandIn: import("./src/runtime/polish/standIn").StandInConfig | null | undefined;
   var storyOrchestratorPolish: { standIn: () => import("./src/runtime/polish/standIn").StandInStats; shadowCalls: () => number; live: () => number } | undefined;
   var storyOrchestratorDebugSuggestionsResponse: string | null | undefined;
+  var storyOrchestratorDebugSuggestionAnchors: "off" | null | undefined;
   var storyOrchestratorDebugLoreResponse: string | null | undefined;
   var storyOrchestratorDebugLivingResponse: string | null | undefined;
   var storyOrchestratorDebugAskResponse: string | null | undefined;
