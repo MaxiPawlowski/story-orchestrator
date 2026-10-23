@@ -128,7 +128,9 @@ const withHints = (story: unknown, hints: LiveFixtureOptions["hints"]) => {
 
 export { liveReadTiers };
 
-const ROLE_PASS: Record<PassRole, ModelPass> = { read: "read", synthesis: "sceneSummary", authoring: "copilot", director: "director", curator: "curator", inner: "inner", lore: "loreCreate" };
+const ROLE_PASS: Record<PassRole, ModelPass> = {
+  read: "read", synthesis: "sceneSummary", authoring: "copilot", director: "director", curator: "curator", inner: "inner", lore: "loreCreate", polish: "polish",
+};
 
 const liveModel = (manager: RuntimeManager): ModelCall => createModelCall({ settings: () => manager.getExtractionSettings(), exists: profileExists, planted: false });
 

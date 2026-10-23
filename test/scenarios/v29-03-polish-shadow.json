@@ -1,0 +1,248 @@
+{
+  "_note": "v2.9 03 S2 shadow, real models (GPU window 2026-10-22): real Artemis replies on the local controller (thinking and inner voice on), polish role on its default route (opencode sol), story polish mode shadow. Records extras.polish; asserts nothing is written into the chat (mes and extra.reasoning hashes at MESSAGE_RECEIVED equal the end state) and the hourly cap holds (cap set to the calls made, two more turns add no call). Rating floors need an independent rater: not scored here. Run on a model lane: node scripts/debug/so-scenario.mts run test/scenarios/v29-03-polish-shadow.json --sandbox --group 'Group: Arin, DM Narrator'.",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "authorView": true
+  },
+  "steps": [
+    {
+      "log": true,
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const ctx = SillyTavern.getContext(); const received = {}; const hash = (s) => { let h = 2166136261; for (const ch of String(s ?? '')) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619) >>> 0; } return h.toString(16); }; const onReceived = (id) => { const row = ctx.chat[Number(id)]; if (!row || row.is_user) return; received[Number(id)] = { name: row.name, mes: hash(row.mes), len: (row.mes ?? '').length, reasoning: hash(row.extra?.reasoning), reasoningLen: (row.extra?.reasoning ?? '').length, swipe: row.swipe_id ?? 0, at: Date.now() }; }; ctx.eventSource.on(ctx.eventTypes.MESSAGE_RECEIVED, onReceived); globalThis.__s03 = { received, hash, onReceived, start: Date.now() }; const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); return { polishHost: Boolean(globalThis.storyOrchestratorPolish), calls: globalThis.storyOrchestratorPolish?.shadowCalls(), settings: rt.getGlobalSettings().characters, mainApi: ctx.mainApi, maxContext: ctx.maxContext };"
+    },
+    {
+      "import_story": {
+        "id": "so-v29-03-shadow",
+        "title": "SO-V29-03 Shadow",
+        "description": "Plan v2.9 03 S2 shadow run: real Artemis replies, polish role on sol, shadow mode records only.",
+        "qualities": [
+          {
+            "key": "door_open",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the keeper opened the archive door for the party?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "door",
+            "name": "Door",
+            "player_name": "The Archive Door",
+            "type": "anchor",
+            "start": true,
+            "objective": "Get the keeper to open the archive door."
+          },
+          {
+            "id": "inside",
+            "name": "Inside",
+            "player_name": "The Archive",
+            "type": "anchor",
+            "objective": "Look for the missing ledger."
+          }
+        ],
+        "transitions": [
+          {
+            "from": "door",
+            "to": "inside",
+            "priority": 1,
+            "gate": {
+              "q": "door_open",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a sharp archive clerk",
+            "polish": {
+              "notes": "Arin is dry, exact and impatient; she says what she means in few words.",
+              "rhythm": "clipped",
+              "prefer": [
+                "precisely",
+                "ledger",
+                "filed"
+              ],
+              "avoid": [
+                "smirk",
+                "a beat",
+                "barely above a whisper",
+                "doesn't miss a beat",
+                "eyes glint",
+                "a mix of",
+                "voice low",
+                "grin",
+                "raises an eyebrow",
+                "tilts her head",
+                "tilts his head",
+                "shrugs",
+                "sighs",
+                "leans in",
+                "chuckles",
+                "something like",
+                "for a moment",
+                "the corner of"
+              ]
+            }
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator",
+            "view": "omniscient"
+          }
+        ],
+        "polish": {
+          "mode": "shadow",
+          "narration": {
+            "notes": "Plain, concrete narration: what is seen and heard, no purple phrasing.",
+            "rhythm": "plain",
+            "avoid": [
+              "the air",
+              "palpable",
+              "a testament",
+              "tapestry",
+              "shiver",
+              "smirk",
+              "a beat",
+              "a mix of",
+              "for a moment",
+              "barely",
+              "the scent of",
+              "heavy with",
+              "seems to",
+              "hangs in"
+            ]
+          }
+        },
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      }
+    },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const snap = rt.getSnapshot(); return { ring: (rt.extras.polish ?? []).length, calls: globalThis.storyOrchestratorPolish.shadowCalls(), feature: JSON.stringify(snap.features?.polish ?? snap.features ?? null).slice(0, 400) };"
+    },
+    {
+      "send_generate": {
+        "text": "I knock on the archive door. \"Arin? It's us. We need the old harbour ledger.\"",
+        "timeoutMs": 900000
+      },
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "\"Come on, you know me. Five minutes inside, that's all.\" I hold up the guild token.",
+        "timeoutMs": 900000
+      },
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I look at the narrow window beside the door. What can I see through it?",
+        "timeoutMs": 900000
+      },
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "\"Who else has asked for that ledger this week, Arin?\"",
+        "timeoutMs": 900000
+      },
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I wait by the door, watching her face. \"You're nervous. Why?\"",
+        "timeoutMs": 900000
+      },
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "\"If the ledger is gone, someone took it. Help us find out who.\"",
+        "timeoutMs": 900000
+      },
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I offer her the silver coin the harbourmaster gave us. \"For your trouble.\"",
+        "timeoutMs": 900000
+      },
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "What does the street behind us look like right now?",
+        "timeoutMs": 900000
+      },
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "\"Fine. What would it take for you to open this door?\"",
+        "timeoutMs": 900000
+      },
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I tell her quietly: \"Nobody will know you helped us.\"",
+        "timeoutMs": 900000
+      },
+      "log": true
+    },
+    {
+      "log": true,
+      "eval": "const pause = (ms) => new Promise((r) => setTimeout(r, ms)); const end = Date.now() + 240000; for (;;) { if ((globalThis.storyOrchestratorPolish?.live?.() ?? 0) === 0) break; if (Date.now() > end) break; await pause(1000); } await pause(5000); return { live: globalThis.storyOrchestratorPolish.live() };"
+    },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const s = globalThis.__s03; const ring = rt.extras.polish ?? []; const by = {}; for (const r of ring) by[r.verdict] = (by[r.verdict] ?? 0) + 1; const refusals = {}; for (const r of ring) for (const c of r.refusals ?? []) refusals[c] = (refusals[c] ?? 0) + 1; const lat = ring.filter((r) => typeof r.latencyMs === 'number').map((r) => r.latencyMs).sort((a, b) => a - b); const q = (p) => lat.length ? lat[Math.min(lat.length - 1, Math.floor(p * lat.length))] : null; let changedMes = 0, changedReasoning = 0, checked = 0, withReasoning = 0; for (const [id, rec] of Object.entries(s.received)) { const row = ctx.chat[Number(id)]; if (!row) continue; if ((row.swipe_id ?? 0) !== rec.swipe) continue; checked++; if (s.hash(row.mes) !== rec.mes) changedMes++; if (s.hash(row.extra?.reasoning) !== rec.reasoning) changedReasoning++; if (rec.reasoningLen > 0) withReasoning++; } const replies = ctx.chat.filter((r) => !r.is_user && !r.is_system).length; const consumed = {}; for (const r of ring) if (r.consumedBy) consumed[r.consumedBy] = (consumed[r.consumedBy] ?? 0) + 1; return { replies, received: Object.keys(s.received).length, checked, withReasoning, changedMes, changedReasoning, ringLen: ring.length, verdicts: by, refusals, consumed, latency: { n: lat.length, p50: q(0.5), p95: q(0.95), max: lat.at(-1) ?? null }, calls: globalThis.storyOrchestratorPolish.shadowCalls(), routes: [...new Set(ring.map((r) => r.route).filter(Boolean))], minutes: Math.round((Date.now() - s.start) / 60000), records: JSON.parse(JSON.stringify(ring)), chat: ctx.chat.map((r, i) => ({ i, name: r.name, user: Boolean(r.is_user), mes: r.mes })) };"
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const root = ctx.extensionSettings['story-orchestrator']; root.settings ??= {}; root.settings.characters ??= {}; globalThis.__s03.capBefore = root.settings.characters.polishMaxPerHour; const calls = globalThis.storyOrchestratorPolish.shadowCalls(); root.settings.characters.polishMaxPerHour = calls; globalThis.__s03.capCalls = calls; globalThis.__s03.capRing = (rt.extras.polish ?? []).length; return { calls, readBack: rt.getGlobalSettings().characters.polishMaxPerHour };"
+    },
+    {
+      "send_generate": {
+        "text": "\"Arin, please. People will lose their homes if that ledger stays missing.\"",
+        "timeoutMs": 900000
+      },
+      "log": true
+    },
+    {
+      "send_generate": {
+        "text": "I listen at the door. Is anyone else inside the archive?",
+        "timeoutMs": 900000
+      },
+      "log": true
+    },
+    {
+      "log": true,
+      "eval": "const pause = (ms) => new Promise((r) => setTimeout(r, ms)); const end = Date.now() + 240000; for (;;) { if ((globalThis.storyOrchestratorPolish?.live?.() ?? 0) === 0) break; if (Date.now() > end) break; await pause(1000); } await pause(5000); return { live: globalThis.storyOrchestratorPolish.live() };"
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const s = globalThis.__s03; const ring = (rt.extras.polish ?? []).slice(s.capRing); const calls = globalThis.storyOrchestratorPolish.shadowCalls(); const root = ctx.extensionSettings['story-orchestrator']; if (s.capBefore === undefined) delete root.settings.characters.polishMaxPerHour; else root.settings.characters.polishMaxPerHour = s.capBefore; const by = {}; for (const r of ring) by[r.verdict] = (by[r.verdict] ?? 0) + 1; if (calls !== s.capCalls) throw new Error('calls passed the cap: ' + s.capCalls + ' -> ' + calls); return { capCalls: s.capCalls, callsAfter: calls, newRecords: ring.length, verdicts: by, restored: rt.getGlobalSettings().characters.polishMaxPerHour };"
+    },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const s = globalThis.__s03; const ring = rt.extras.polish ?? []; const by = {}; for (const r of ring) by[r.verdict] = (by[r.verdict] ?? 0) + 1; const refusals = {}; for (const r of ring) for (const c of r.refusals ?? []) refusals[c] = (refusals[c] ?? 0) + 1; const lat = ring.filter((r) => typeof r.latencyMs === 'number').map((r) => r.latencyMs).sort((a, b) => a - b); const q = (p) => lat.length ? lat[Math.min(lat.length - 1, Math.floor(p * lat.length))] : null; let changedMes = 0, changedReasoning = 0, checked = 0, withReasoning = 0; for (const [id, rec] of Object.entries(s.received)) { const row = ctx.chat[Number(id)]; if (!row) continue; if ((row.swipe_id ?? 0) !== rec.swipe) continue; checked++; if (s.hash(row.mes) !== rec.mes) changedMes++; if (s.hash(row.extra?.reasoning) !== rec.reasoning) changedReasoning++; if (rec.reasoningLen > 0) withReasoning++; } const replies = ctx.chat.filter((r) => !r.is_user && !r.is_system).length; const consumed = {}; for (const r of ring) if (r.consumedBy) consumed[r.consumedBy] = (consumed[r.consumedBy] ?? 0) + 1; return { replies, received: Object.keys(s.received).length, checked, withReasoning, changedMes, changedReasoning, ringLen: ring.length, verdicts: by, refusals, consumed, latency: { n: lat.length, p50: q(0.5), p95: q(0.95), max: lat.at(-1) ?? null }, calls: globalThis.storyOrchestratorPolish.shadowCalls(), routes: [...new Set(ring.map((r) => r.route).filter(Boolean))], minutes: Math.round((Date.now() - s.start) / 60000), records: JSON.parse(JSON.stringify(ring)), chat: ctx.chat.map((r, i) => ({ i, name: r.name, user: Boolean(r.is_user), mes: r.mes })) };"
+    },
+    {
+      "eval": "const ctx = SillyTavern.getContext(); ctx.eventSource.removeListener(ctx.eventTypes.MESSAGE_RECEIVED, globalThis.__s03.onReceived); return { ok: true };"
+    }
+  ]
+}

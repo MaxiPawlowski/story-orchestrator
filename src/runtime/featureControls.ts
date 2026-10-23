@@ -11,7 +11,7 @@ export interface FeatureControls {
   area: "Story direction" | "Memory" | "Characters" | "World and lore" | "Visuals";
   description: string;
   controls: readonly FeatureControl[];
-  role?: "read" | "synthesis" | "inner" | "director" | "curator" | "authoring";
+  role?: "read" | "synthesis" | "inner" | "director" | "curator" | "authoring" | "polish";
 }
 
 const control = (field: string, path: string, label: string): FeatureControl => ({ field, path, label });
@@ -79,6 +79,11 @@ export const FEATURE_CONTROLS: Record<StoryFeatureId, FeatureControls> = {
     description: "Tells each character privately how they word things, and steers them off phrases they keep repeating. Never changes what happens.",
     controls: [enabled("characters.delivery"),
       control("repetition", "characters.deliveryRepetition", "Steer away from repeated phrases")] },
+  polish: { name: "Reply polish",
+    area: "Characters",
+    description: "Checks off-voice wording in replies; records only.",
+    role: "polish",
+    controls: [enabled("characters.polish"), control("mode", "characters.polishMode", "Mode")] },
   cues: { name: "Reactive cues",
     area: "Characters",
     description: "Hands a character a cue it may use, privately, when it would notice something.",

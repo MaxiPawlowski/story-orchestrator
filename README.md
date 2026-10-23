@@ -178,6 +178,7 @@ Generated from the feature registry. "Experimental" means not yet measured; it i
 | Characters | Delayed echoes | Something that happened comes back later: after a delay, if the story still fits, one character or the narrator is handed a cue about it. | Experimental |
 | Characters | Promises remembered | A promise you make to a character is remembered in your own words. |  |
 | Characters | Voice and delivery | Each character is told privately how they word things. |  |
+| Characters | Reply polish | Checks what a reply would read like with a character's off-voice words removed, without changing the chat. | Experimental |
 | Characters | Rumors and gossip | News a story declares travels between characters along the channels it authors, and may change on the way. |  |
 | World | Story lorebook switching | Story lorebook entries switch on and off as the story moves. |  |
 | World | Story lorebooks | A story's lorebooks load only in the chats that play it. |  |

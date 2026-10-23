@@ -35,6 +35,8 @@ export function installSpikes(bridge: TurnBridge, manager: RuntimeManager): () =
   const swipe = new SwipeBack({ host: manager, store: chatStore, enabled: () => getGlobalSettings().spikes.swipeBackCache, chat: openChat });
   bridge.setMutationSeam((kind, messageId, entered) => edit.seam(kind, messageId, entered) ?? (entered ? null : swipe.seam(kind, messageId)));
   const thought = new ThoughtCarry(() => getGlobalSettings().spikes.thoughtCarry);
+  const polish = { release: null as (() => void) | null, stopped: false };
+  void import("../polish/install").then(({ installPolish }) => { if (!polish.stopped) polish.release = installPolish(bridge, manager); });
   const releaseHold = installSpikeSeams({ hold: (type) => edit.hold(type), ownsReread: () => edit.ownsReread(), carry: (input) => thought.carry(input) });
   const unpublish = publishSpikeDebug({
     swipeBackCache: { stats: () => ({ ...swipe.stats }) },
@@ -42,6 +44,8 @@ export function installSpikes(bridge: TurnBridge, manager: RuntimeManager): () =
     thoughtCarry: { stats: () => ({ ...thought.stats }) },
   });
   return () => {
+    polish.stopped = true;
+    polish.release?.();
     bridge.setMutationSeam(null);
     releaseHold();
     edit.dispose();

@@ -9,6 +9,14 @@ export const DELIVERY_TOPICS = {
       + "repeated phrases are named too. No names in avoid/tics, no word in both prefer and avoid, by_mood needs mood. About 120 tokens: prefer, avoid, repeats, "
       + "rhythm, then note sentences are cut. Record only what the card shows; never invent a trait.",
   },
+  "story-polish": {
+    title: "Reply polish",
+    fields: "polish, mode, narration",
+    text: "polish {mode shadow|off, narration {notes, prefer, avoid, tics, rhythm}}: edits wording, never what happens. Code finds an avoid word, a tic seen in 2 of "
+      + "the last 6 replies or a repeated phrase; one Reply polish call rewrites only those sentences, quotes frozen; guards keep names, numbers, negations, modals, "
+      + "player acts, length; any doubt keeps the original. This build runs shadow only: records for the author, never changes the chat. narration is the voice of "
+      + "an omniscient narrator without its own polish and needs one. No plot facts or names in it.",
+  },
 } as const satisfies Record<string, GuideTopic>;
 
 export const DELIVERY_DIAGNOSTIC_TOPICS = {

@@ -1,6 +1,7 @@
 import { isRecord } from "@utils/guards";
+import { vectorsWorldInfoOn } from "./vectorsWorldInfo";
 
-export type ExtensionConflict = "stepped-thinking-separated" | "presence" | "prompt-inspector" | "vectors-world-info" | "cc-send-if-empty" | "nemo-lorebook-spacing";
+export type ExtensionConflict = "stepped-thinking-separated" | "presence" | "prompt-inspector" | "vectors-world-info" | "cc-send-if-empty" | "nemo-lorebook-spacing" | "recast-autorun";
 
 export interface ExtensionConflictHost {
   settings: unknown;
@@ -44,12 +45,11 @@ const inspecting = (_settings: Settings, storage: (key: string) => string | null
 // (features/lorebook-spacing/runtime.js:7-14, matching.js:26-31); no setting turns it off, so loaded = on.
 const nemoSpacing = (): boolean => true;
 
-// Vector Storage: `enabled_world_info` (vectors/index.js:117, 791, 2003-2004); the exclusive lore select reads the
-// setting alone (loreExclusive.ts "vectors-wi"), so this one ignores whether the extension is loaded.
-export const vectorsWorldInfoOn = (root: unknown): boolean => {
-  const vectors = isRecord(root) ? root.vectors : undefined;
-  return isRecord(vectors) && vectors.enabled_world_info === true;
-};
+// Recast (closuretxt/recast-post-processing): settings at extension_settings.Recast (index.js:26-28), `enabled` and `autorun` default true
+// (settings/settingsManager.js:8-9); with both on it rewrites every received reply (index.js:830, 1404, MESSAGE_RECEIVED :1538).
+const recastAutorun = (settings: Settings): boolean => settings?.enabled !== false && settings?.autorun !== false;
+
+export { vectorsWorldInfoOn };
 
 // Chat Completion's "Replace empty message" (oai_settings.send_if_empty, st-context.js:227 chatCompletionSettings; main_api
 // "openai", st-context.js:200): when the last chat prompt message is the assistant's, ST appends it as a user message
@@ -62,6 +62,7 @@ export const KNOWN_EXTENSIONS: readonly KnownExtension[] = [
   { id: "presence", folder: "third-party/SillyTavern-Presence", settingsKey: "Presence", on: presenceOn },
   { id: "prompt-inspector", folder: "third-party/Extension-PromptInspector", on: inspecting },
   { id: "nemo-lorebook-spacing", folder: "third-party/NemoPresetExt", on: nemoSpacing },
+  { id: "recast-autorun", folder: "third-party/recast-post-processing", settingsKey: "Recast", on: recastAutorun },
 ];
 
 const safeStorage = (storage: ExtensionConflictHost["storage"]) => (key: string): string | null => {

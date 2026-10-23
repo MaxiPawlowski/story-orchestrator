@@ -37,6 +37,10 @@ The streamed-text mouth adapts TalkingHead modules/lipsync-en.mjs (2afe6d79), ht
 MIT License, Copyright (c) 2023-2024 Mika Suominen. English letter-to-viseme rules are in src/sprites/lipsync/lipsyncEn.ts,
 which retains the full copyright and permission notice.
 
+The reply polish editable-window check (src/polish/windows.ts, `align`) follows the window-and-anchor alignment idea of Lattice
+(c0a994b), https://github.com/MentallyQuill/Lattice, MIT License: only the sentences that hold a finding may change, every other byte must
+survive and the alignment must be unique. The code is written for this project from that description; no Lattice source is copied.
+
 ## Example files
 
 | File | Provenance | Licence |

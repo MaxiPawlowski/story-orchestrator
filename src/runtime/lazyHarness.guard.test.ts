@@ -35,6 +35,9 @@ const LAZY_DIET = ["src/runtime/storyUpdate.ts", "src/judge/director.ts", "src/w
 
 const LAZY_DELIVERY = ["src/runtime/delivery/kit.ts", "src/runtime/delivery/render.ts", "src/runtime/delivery/mine.ts"];
 
+const LAZY_POLISH = ["src/polish/plan.ts", "src/polish/guards.ts", "src/polish/windows.ts", "src/polish/prompt.ts", "src/polish/projection.ts", "src/polish/ledger.ts",
+  "src/polish/text.ts", "src/runtime/polish/install.ts", "src/runtime/polish/shadow.ts", "src/runtime/polish/standIn.ts", "src/services/stHost/polishWrite.ts"];
+
 const WARM_BATCH = ["src/sprites/builder/batchHost.ts", "src/sprites/builder/batchLease.ts"];
 
 const isHarness = (path: string) => HARNESS.includes(path) || CALIBRATION_PATTERN.test(path) || SPIKE_PATTERN.test(path);
@@ -71,6 +74,12 @@ describe("harness, calibration and spike modules ship as lazy chunks, never in t
     const present = new Set(files.map(rel));
     expect(LAZY_DELIVERY.filter((path) => !present.has(path))).toEqual([]);
     expect(staticReach(files).filter((path) => LAZY_DELIVERY.includes(path))).toEqual([]);
+  });
+
+  it("v2.9 plan 03: the reply polish core, its host and its writer load as their own chunk, never with the entry", () => {
+    const present = new Set(files.map(rel));
+    expect(LAZY_POLISH.filter((path) => !present.has(path))).toEqual([]);
+    expect(staticReach(files).filter((path) => LAZY_POLISH.includes(path))).toEqual([]);
   });
 
   it("control: a planted static import of the delivery kit from the entry is reached", () => {

@@ -133,6 +133,7 @@ export interface RuntimeExtras {
   chance?: ChanceRuntimeState;
   checks?: ChecksRuntimeState;
   observations?: import("./observationRecords").ObservationsRuntimeState;
+  polish?: import("./polish/ring").PolishRecord[];
   agendaProposals?: AgendaProposalsState;
   recap?: RecapRuntimeState;
   living?: LivingRuntimeState;

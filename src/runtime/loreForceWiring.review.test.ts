@@ -34,9 +34,8 @@ jest.mock("@services/STAPI", () => ({
   startSaveWatcherSurface: () => () => {},
   watchPendingWorldSaves: () => () => {},
   subscribeToHostEvents: (entries: Array<{ eventName: string; handler: (...args: unknown[]) => unknown }>) => {
-    if (entries.some((entry) => entry.eventName === "GENERATION_STARTED")) {
-      for (const entry of entries) mockWired.set(entry.eventName, entry.handler);
-    }
+    if (!entries.some((entry) => entry.eventName === "GROUP_MEMBER_DRAFTED")) return () => {};
+    for (const entry of entries) mockWired.set(entry.eventName, entry.handler);
     return () => mockWired.clear();
   },
   judgeTransport: async () => ({ model: null, answers: null }),

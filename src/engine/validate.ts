@@ -131,6 +131,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
   const codex = layer?.codex.readCodex(json.codex, errors);
   const observations = layer?.observations.readObservations(json.observations, errors);
   const patterns = layer?.patterns.readPatterns(json.patterns, errors);
+  const polish = layer?.delivery.storyPolishPart(json, errors);
   const builtin = addBuiltinTensionQuality(addProgressQualities(baseQualities, checkpoints, errors), errors);
   const life = layer?.life.readLife(json, errors);
   const factions = layer?.factions.readFactions(json.factions, errors);
@@ -211,7 +212,7 @@ export const parseStory = (json: unknown): NormalizedStory | ValidationError[] =
     ...(chapters ? { chapters } : {}),
     ...(memoryOptions ? { memory: memoryOptions } : {}),
     ...(options.kind ? { kind: options.kind } : {}),
-    ...gameFields({ quests: game, milestones, widgets, codex, observations, life, patterns, echoes }),
+    ...gameFields({ quests: game, milestones, widgets, codex, observations, life, patterns, echoes }), ...polish,
     ...(living ? { living } : {}),
     ...(factions ? { factions } : {}),
     ...(rumorNet ? { rumorNet } : {}),

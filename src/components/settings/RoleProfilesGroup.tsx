@@ -74,6 +74,7 @@ export const ROLE_EGRESS: Record<PassRole, string> = {
   curator: "The curator sends its lorebook entries and the recent turns",
   inner: "The inner voice sends the drafted character's private knowledge and the recent turns, before that character speaks",
   lore: "Lore creation sends the story's curator lorebook entries, the cast names and the established memory facts",
+  polish: "Reply polish sends one reply, the sentences to change, that character's voice sheet and the two messages before it",
 };
 
 export const TESTING_TEXT = "testing…";

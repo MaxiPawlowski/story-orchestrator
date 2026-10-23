@@ -48,6 +48,16 @@ describe("stHost extensionConflicts: which known extensions work against a story
     expect(extensionConflictsWith({ settings: null })).toEqual([]);
   });
 
+  it("v2.9 03: Recast is reported while it auto-runs (both switches default on), never with Auto-run or itself off", () => {
+    const quietSettings = { Presence: { enabled: false } };
+    const only = ["third-party/recast-post-processing"];
+    expect(extensionConflictsWith(host(quietSettings, { installed: only }))).toEqual(["recast-autorun"]);
+    expect(extensionConflictsWith(host({ ...quietSettings, Recast: { enabled: true, autorun: true } }, { installed: only }))).toEqual(["recast-autorun"]);
+    expect(extensionConflictsWith(host({ ...quietSettings, Recast: { autorun: false } }, { installed: only }))).toEqual([]);
+    expect(extensionConflictsWith(host({ ...quietSettings, Recast: { enabled: false } }, { installed: only }))).toEqual([]);
+    expect(extensionConflictsWith(host({ ...quietSettings, disabledExtensions: only }, { installed: only }))).toEqual([]);
+  });
+
   it("v2.8 69 K2: NemoPresetExt is reported while it is loaded and enabled, never when disabled or missing", () => {
     const others = ALL_FOLDERS.filter((folder) => folder !== "third-party/NemoPresetExt");
     expect(extensionConflictsWith(host({ Presence: { enabled: false } }, { installed: ["third-party/NemoPresetExt"] }))).toEqual(["nemo-lorebook-spacing"]);
@@ -56,7 +66,7 @@ describe("stHost extensionConflicts: which known extensions work against a story
   });
 
   it("v2.8 69 K10: Chat Completion with send_if_empty set is reported; Text Completion, an empty or blank filler is not", () => {
-    const quietSettings = { Presence: { enabled: false }, disabledExtensions: ["third-party/NemoPresetExt"] };
+    const quietSettings = { Presence: { enabled: false }, disabledExtensions: ["third-party/NemoPresetExt", "third-party/recast-post-processing"] };
     const cc = (filler: unknown, mainApi = "openai") => ({ ...host(quietSettings), mainApi, chatCompletion: { send_if_empty: filler } });
     expect(extensionConflictsWith(cc("[Continue.]"))).toEqual(["cc-send-if-empty"]);
     expect(extensionConflictsWith(cc("[Continue.]", "textgenerationwebui"))).toEqual([]);
@@ -69,6 +79,6 @@ describe("stHost extensionConflicts: which known extensions work against a story
     expect(vectorsWorldInfoOn({ vectors: { enabled_world_info: true } })).toBe(true);
     expect(vectorsWorldInfoOn({ vectors: { enabled_world_info: false } })).toBe(false);
     expect(vectorsWorldInfoOn(undefined)).toBe(false);
-    expect(extensionConflictsWith(host({ Presence: { enabled: false }, vectors: { enabled_world_info: true }, disabledExtensions: ["vectors", "third-party/NemoPresetExt"] }))).toEqual(["vectors-world-info"]);
+    expect(extensionConflictsWith(host({ Presence: { enabled: false }, vectors: { enabled_world_info: true }, disabledExtensions: ["vectors", "third-party/NemoPresetExt", "third-party/recast-post-processing"] }))).toEqual(["vectors-world-info"]);
   });
 });

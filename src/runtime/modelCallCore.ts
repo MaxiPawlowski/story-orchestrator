@@ -30,6 +30,7 @@ const DEBUG_RESPONSES: Record<ModelPass, () => string | null | undefined> = {
   living: () => globalThis.storyOrchestratorDebugLivingResponse,
   ask: () => globalThis.storyOrchestratorDebugAskResponse,
   briefing: () => globalThis.storyOrchestratorDebugBriefingResponse,
+  polish: () => globalThis.storyOrchestratorDebugPolishResponse,
 };
 
 export const debugResponseFor = (pass: ModelPass): string | null => DEBUG_RESPONSES[pass]() ?? null;
