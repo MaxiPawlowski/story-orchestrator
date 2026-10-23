@@ -83,8 +83,20 @@ describe("v2.8 09 owner 2026-10-10 (second decision): opencode gpt-6.1-sol is th
   it("the author's choice still wins over sol, and every other role ignores it", () => {
     const defaults = roleDefaultFrom(profiles, offered);
     expect(resolveRoute({ profileId: "memory", profiles: { authoring: "ds" } }, "authoring", ids, undefined, defaults)).toMatchObject({ route: { profileId: "ds" }, source: "role" });
-    for (const role of PASS_ROLES.filter((entry) => entry !== "authoring")) {
+    for (const role of PASS_ROLES.filter((entry) => entry !== "authoring" && entry !== "polish")) {
       expect(resolveRoute({ profileId: "memory" }, role, ids, undefined, defaults)).toMatchObject({ route: { profileId: "memory" }, source: "fallback" });
+    }
+  });
+
+  it("v2.9 03: reply polish takes sol by default, falls back to DeepSeek only after a failed call, and never to the play model", () => {
+    expect(resolveRoute({ profileId: "memory" }, "polish", ids, undefined, roleDefaultFrom(profiles, offered))).toEqual({ ok: true, route: sol, source: "default" });
+    expect(resolveRoute({ profileId: "memory" }, "polish", ids, undefined, roleDefaultFrom(profiles, () => false))).toMatchObject({ source: "fallback" });
+    setRoleDefault(roleDefaultFrom(profiles, offered));
+    try {
+      expect(fallbackRoute({ profileId: "memory" }, "polish", ids)).toEqual({ kind: "profile", profileId: "ds" });
+      expect(fallbackRoute({ profileId: "memory" }, "polish", exists(["memory"]))).toBeNull();
+    } finally {
+      setRoleDefault(null);
     }
   });
 

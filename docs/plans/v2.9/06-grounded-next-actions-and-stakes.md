@@ -384,3 +384,26 @@ NOT run:
 Decisions taken on open questions: offered quests are not anchors (their titles are withheld names, so the screen would drop them);
 dormant = open, unexcluded, unfolded arcs outside `currentThreads`; a dropped selected offer is listed verbatim; help line in the
 panel only (not on the widget check button).
+
+### GPU run 2026-10-22
+
+- Window 2026-10-22 ~21:23-23:20 local (00:23-02:20Z), local 3090 via the controller (`cli.mjs automatic`, text loaded clean
+  after the earlier `crashed` code-1 status). Lanes 41 (master `a082a064`, served bundle `cb12b358`) and 42 (`v2.9-03-polish`
+  `639ae53c`, bundle `33506e23`, staged into the ST code copy `C:/dev/st-v29-08`), both `--allow-local --headed`, images and sprites
+  off in the lane copies, profile `Artemis RunPod RP` -> :18888, context 32768, thinking and inner voice on. Group
+  `Group: Arin, DM Narrator` (the lane copy also drafts two members outside each story's roster).
+- Rater: opencode `openai/gpt-6.1-sol` (`opencode run`, frozen prompt in the evidence folder). Evidence
+  `C:\dev\so-lanes\41\debug\v29gpu\`, `C:\dev\so-lanes\42\debug\v29gpu\` (+ each lane's `debug/runs/`), archived to so-sessions.
+- Pilots are NOT the predeclared corpora: small N, fixed fixtures, no frozen 40/100 denominators. They say whether the path works
+  with the real model and which way a floor leans; no floor below is claimed met.
+- Two model lanes shared one GPU: memory-model calls queued behind the other lane's replies (inner beat timeouts at 35 s,
+  suggestions at 50 s, below). Environment, not a product change; recorded.
+- Pilot `test/scenarios/v29-06-model-pilot.json` (the 06 fixture without its debugResponse; first run aborted by a wiped
+  lane config, see below), 2 runs, 4 asks on the real read-role model: 2 answered, 2 timed out ("the memory model did not
+  answer within 50.6 s", queued behind lane 42's replies). Answered first ask: 5 lines, the selected offer verbatim, help line
+  `Climb — could help: a rope`, greyed cellar offer with its reason. Answered Other ideas: author row `anchors objective, offer,
+  check-help, grounded 3/4`.
+- LT acceptance (40 situations x 2 arms, rater): NOT run (> 1 h). Floors unmeasured.
+- Harness note: the master fixture's `ext_setting` step replaces the whole install settings object for the run (fine for the
+  no-model lane it targets); on a model lane it removes the memory profile mid-run. A run killed before its `finally` keeps the
+  wipe (happened once here; lane 41 settings restored from the owner's install copy before the remaining runs).

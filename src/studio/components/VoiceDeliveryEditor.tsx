@@ -20,7 +20,7 @@ const LISTS: Array<{ key: ListKey; label: string; help: string; placeholder: str
   },
 ];
 
-const ChipList = ({ name, label, help, placeholder, items, max, onChange }: {
+export const ChipList = ({ name, label, help, placeholder, items, max, onChange }: {
   name: string; label: string; help: string; placeholder: string; items: string[]; max: number; onChange: (items: string[]) => void;
 }) => {
   const [text, setText] = useState("");

@@ -221,6 +221,16 @@
       "reason": "serialization tail only; the promise returned to the caller still rejects"
     },
     {
+      "site": "src/runtime/turnBridge.ts#TurnBridge.enqueueBoundary",
+      "kind": 3,
+      "template": ".catch(() => undefined)",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "v2.9 03 reply-settle seam: a polish hold that fails keeps the reply as written and the boundary still commits"
+    },
+    {
       "site": "src/extraction/scheduler.ts#ExtractionScheduler.rereadAfterMutation",
       "kind": 3,
       "template": ".catch(() => undefined)",

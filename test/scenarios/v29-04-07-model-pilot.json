@@ -1,0 +1,158 @@
+{
+  "_note": "v2.9 04 C2 / 07 narrator-acknowledgement PILOT on real Artemis (GPU window 2026-10-22; not the predeclared 40-opportunity corpus, no independent rater): a reaction cue staged for Arin, one real /trigger reply from Arin, its receipt from the real settle path; then a narrator echo landed and one real narrator reply with its receipt. Lexical acknowledgement is a rough hint only; replies are returned for rating. Run on a model lane with --sandbox --group 'Group: Arin, DM Narrator'.",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "authorView": true
+  },
+  "steps": [
+    {
+      "eval": "const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); return { cleared: ctx.chat.length === 0 };"
+    },
+    {
+      "import_story": {
+        "id": "so-v29-cue-echo-pilot",
+        "title": "SO-V29 Cue Echo Pilot",
+        "description": "v2.9 04/07 real-model pilot: a reaction cue for Arin and a narrator echo after leaving the harbour.",
+        "qualities": [
+          {
+            "key": "ledger_returned",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Was the stolen ledger returned to the guild?"
+          },
+          {
+            "key": "left_harbour",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the party leave the harbour?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "harbour",
+            "name": "Harbour",
+            "player_name": "The Harbour",
+            "type": "anchor",
+            "start": true,
+            "objective": "Return the ledger, then leave the harbour."
+          },
+          {
+            "id": "road",
+            "name": "Road",
+            "player_name": "The Road",
+            "type": "anchor",
+            "objective": "Travel on."
+          }
+        ],
+        "transitions": [
+          {
+            "from": "harbour",
+            "to": "road",
+            "priority": 1,
+            "gate": {
+              "q": "left_harbour",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a clerk",
+            "cues": [
+              {
+                "id": "ledger",
+                "kind": "reaction",
+                "when": {
+                  "q": "ledger_returned",
+                  "op": "==",
+                  "v": true
+                },
+                "cue": "the stolen ledger is back in the guild's hands"
+              }
+            ]
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator",
+            "view": "omniscient"
+          }
+        ],
+        "echoes": [
+          {
+            "id": "unpaid",
+            "after": {
+              "transition": "harbour->road"
+            },
+            "delay": {
+              "boundaries": [
+                1,
+                1
+              ]
+            },
+            "to": "narrator",
+            "cue": "a harbour clerk is chasing the party for the fee they left unpaid"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      }
+    },
+    {
+      "log": true,
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(500); } }; const CUE = 'the stolen ledger is back'; const ECHO = 'chasing the party for the fee'; const chid = (name) => SillyTavern.getContext().characters.findIndex((character) => character.name === name); const receipts = () => rt.getSnapshot().cuesAuthor?.receipts ?? []; const rows = () => rt.getSnapshot().echoesAuthor?.rows ?? []; const block = (name) => { rt.onMemberDrafted(chid(name)); return rt.getAppliedEpistemicBlock() ?? ''; }; const last = () => { const ctx = SillyTavern.getContext(); const id = ctx.chat.length - 1; const row = ctx.chat[id]; return { id, name: row?.name, mes: row?.mes ?? '', reasoningLen: (row?.extra?.reasoning ?? '').length }; }; globalThis.__pilot = { pause, until, CUE, ECHO, chid, receipts, rows, block, last }; return { receipts: receipts().length, rows: rows().length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" A courier sets the guild's stolen ledger on the counter in front of Arin."
+    },
+    {
+      "slash": "/cp set ledger_returned true"
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__pilot; await c.until(() => c.block('Arin').includes(c.CUE), 20000, 'the cue in the applied block of Arin'); if (c.block('DM Narrator').includes(c.CUE)) throw new Error('the narrator was handed the cue of Arin'); return { staged: true };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__pilot; const reply = c.last(); if (reply.name !== 'Arin') throw new Error('the last reply is not Arin: ' + reply.name); await c.until(() => c.receipts().some((row) => row.key === 'cue:arin:ledger'), 60000, 'a cue receipt from the real generation'); globalThis.__pilot.cueReply = reply; const t = reply.mes.toLowerCase(); return { reply: reply.mes, reasoningLen: reply.reasoningLen, lexical: /ledger|book|returned|back/.test(t) };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The party walks out past the harbour gate onto the coast road."
+    },
+    {
+      "slash": "/cp set left_harbour true"
+    },
+    {
+      "slash": "/sendas name=\"Arin\" Keep moving. The road is long."
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__pilot; await c.until(() => c.rows().some((row) => row.state === 'landed-to-channel' || row.state === 'landed'), 30000, 'the echo landed'); await c.until(() => c.block('DM Narrator').includes(c.ECHO), 20000, 'the echo in the applied block of the narrator'); if (c.block('Arin').includes(c.ECHO)) throw new Error('Arin was handed the narrator echo'); return { state: c.rows()[0].state };"
+    },
+    {
+      "slash": "/trigger await=true \"DM Narrator\""
+    },
+    {
+      "log": true,
+      "eval": "const c = globalThis.__pilot; const reply = c.last(); if (reply.name !== 'DM Narrator') throw new Error('the last reply is not the narrator: ' + reply.name); await c.until(() => c.receipts().some((row) => row.source?.kind === 'echo'), 60000, 'an echo receipt from the real generation'); const t = reply.mes.toLowerCase(); return { reply: reply.mes, reasoningLen: reply.reasoningLen, lexical: /fee|clerk|unpaid|owe|debt|toll|harbour master|harbormaster/.test(t), state: c.rows()[0].state };"
+    },
+    {
+      "eval": "delete globalThis.__pilot; return { cleaned: true };"
+    }
+  ]
+}

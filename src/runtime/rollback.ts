@@ -113,6 +113,7 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     if (extras.chance) extras.chance = rollbackChanceDraws(extras.chance, messageId);
     if (extras.checks) extras.checks = rollbackChecks(extras.checks, messageId);
     if (extras.observations) extras.observations = rollbackObservations(extras.observations, messageId);
+    if (extras.polish) extras.polish = extras.polish.filter((row) => row?.messageId < messageId);
     if (extras.agendaProposals) extras.agendaProposals = rollbackAgendaProposals(extras.agendaProposals, messageId);
     if (extras.promises) extras.promises = rollbackPromises(extras.promises, messageId);
     if (extras.witness) extras.witness = rollbackWitness(extras.witness, messageId);

@@ -515,3 +515,21 @@ Deviations:
 - The cue runtime loads by dynamic import at startup (`cueRuntimeHost.ts`); until then the door answers no offers.
 - `fnv1a` moved to `src/utils/fnv.ts` (`runtime/hash.ts` re-exports); `codeHealthScan` `FNV_HOME` follows.
 - Settled generations pass `messageId` (`wiring/generation.ts`); `commitContinuityNote` also settles cue receipts.
+
+### GPU run 2026-10-22
+
+- Window 2026-10-22 ~21:23-23:20 local (00:23-02:20Z), local 3090 via the controller (`cli.mjs automatic`, text loaded clean
+  after the earlier `crashed` code-1 status). Lanes 41 (master `a082a064`, served bundle `cb12b358`) and 42 (`v2.9-03-polish`
+  `639ae53c`, bundle `33506e23`, staged into the ST code copy `C:/dev/st-v29-08`), both `--allow-local --headed`, images and sprites
+  off in the lane copies, profile `Artemis RunPod RP` -> :18888, context 32768, thinking and inner voice on. Group
+  `Group: Arin, DM Narrator` (the lane copy also drafts two members outside each story's roster).
+- Rater: opencode `openai/gpt-6.1-sol` (`opencode run`, frozen prompt in the evidence folder). Evidence
+  `C:\dev\so-lanes\41\debug\v29gpu\`, `C:\dev\so-lanes\42\debug\v29gpu\` (+ each lane's `debug/runs/`), archived to so-sessions.
+- Pilots are NOT the predeclared corpora: small N, fixed fixtures, no frozen 40/100 denominators. They say whether the path works
+  with the real model and which way a floor leans; no floor below is claimed met.
+- Two model lanes shared one GPU: memory-model calls queued behind the other lane's replies (inner beat timeouts at 35 s,
+  suggestions at 50 s, below). Environment, not a product change; recorded.
+- Pilot `test/scenarios/v29-04-07-model-pilot.json` x5 (lane 41, all 5 passed): reaction cue staged in Arin's applied block only,
+  one real `/trigger` Arin reply, receipt `cue:arin:ledger` written by the real settle path (no `commitContinuityNote`) 5 of 5.
+- C2 pilot (sol rater, blind to lane): cue used **5 of 5**. C5 pilot: player-action narration **0 of 5**. Not the 40-opportunity
+  corpus; C2/C5 floors not claimed.

@@ -1,6 +1,12 @@
 # Implementation Overview — Story Orchestrator v2.9
 
-**Status 2026-10-22: BUILT, no GPU.** 02, 04, 05, 06, 07, 08, 09 on master (`297e7234`), full gates green (records below and
+**Status 2026-10-22 (GPU window): 02-09 on master, 03 S0-S2 merged after a real-model shadow run; NOT accepted.** Real-model
+pilots ran for 02-08 (small N, not the predeclared corpora): 04 cue used 5/5, 07 narrator echo acknowledged 0/5 (floor 80 %
+missed), 05 narrator hint used 0/3, 06 suggestions 2 of 4 asks answered (grounded 3/4), 08 O3 CL 0/40, 03 shadow sane (chat and
+reasoning untouched 24/24, cap honoured, 5 accepted / 6 refused / 4 rate-limited). Every corpus floor still NOT run. Record:
+§GPU run 2026-10-22 below and each plan's `### GPU run 2026-10-22`.
+
+**Was: BUILT, no GPU (2026-10-22).** 02, 04, 05, 06, 07, 08, 09 on master (`297e7234`), full gates green (records below and
 in each plan). 03 S0–S2 built on `v2.9-03-polish` (`1bd5d6a6`), NOT merged: its merge contract keeps S2 off master alone
 (shadow polish on by default calls sol, cap 40/h); owner decides. NOT run anywhere: real-LLM floors, lane scenarios, payload
 goldens, campaign adoption. 07 record: plain gates red only on a foreign :6006 holder; `--no-storybook --serial` green +
@@ -199,3 +205,47 @@ killed" (known load flake); `npm run test:debug` alone: 1484 pass, 0 fail. Run 2
 
 NOT run: lane live scenarios `v29-04-cues.json`, `v29-06-anchored-suggestions.json`, payload goldens, every real-LLM row and floor of
 04/06 (no GPU, owner 2026-10-21). Not staged into ST, `plugins:install` not run (end of all waves).
+
+## Lane record 2026-10-22 (no-model)
+
+- Lane 41 (`st-lanes.mts seed 41 --fresh`, `no-model 41`, `image.enabled`/`sprites.enabled` off in the lane copy), restarted after
+  the staging of master `b220a868`; served bundle `cb12b35851ae` (`so-run-header` `run-header-v29-lane-pre.json`, matches
+  `dist/manifest.json` `bundleSha256`). Group `Group: Arin, DM Narrator` (`1759606632088`) from each fixture's `requires`. Evidence
+  `C:\dev\so-lanes\41\debug\v29runs\`, `payload-v29\`. Lane stopped at the end.
+- Scenarios present: 04, 05, 06, 07, 08 (no `v29-02-*` or `v29-09-*` scenario on master; `v29-03-polish-standin.json` is on
+  `v2.9-03-polish` only, skipped). None needs `lane: model`, so the GPU-run list from lane scenarios is empty.
+- `v29-04-cues.json`: pass x2 (15/15).
+- `v29-05-patterns.json`: pass x2.
+- `v29-06-anchored-suggestions.json`: pass x2.
+- `v29-07-echoes.json` on master: fail x2, step 7 "timed out after 10000 ms: the echo scheduled". Fixture bug: `/cp set` commits
+  its own boundary (as 04 and 08 rely on), so the transition fired and the echo was scheduled there (due next boundary), and the
+  following `/sendas` already landed it. Fix on this branch: the "walks out" `/sendas` moves before `/cp set`. With the fix:
+  pass x2 (17/17). `npm run gates:quick` green.
+- `v29-08-observations.json`: pass x2.
+- Memory-model breaker left open by every fixture (no backend on the lane) and closed by cleanup: expected on a no-model lane.
+- Real-LLM leak: the no-model lane still made 28 opencode `openai/gpt-6.1-sol` harness calls (subscription, `costUsd` 0), all
+  during scenario runs, none during payload captures. Cause: `st-lanes no-model` strips only text-model keys; the lane copy keeps
+  the owner's `routes.authoring` harness route (and an unset authoring role defaults to sol whenever the harness plugin offers
+  it), and 04/05/07/08 leave `briefingDraft` on, so the briefing draft on import ran on sol. No GPU use: the local controller
+  reported text unloaded throughout; ComfyUI untouched. Open: `no-model` should also take harness routes off the lane, or the
+  fixtures should declare `briefingDraft: "off"` / `innerBeat: "off"`. Not fixed here (lane tooling decision).
+- Payload goldens (`so-payload-golden.mts capture`, 8 cases, no model call): r1 and r3 failed in cleanup, "no
+  /api/settings/save answer within 15000 ms" (environment; the lane's `settings.json` is 11 MB); r2 and r4 complete.
+  `diff r2 r4`: identical. `diff` against the latest full baseline `C:\dev\so-live-lanes\81\payload-q55\q55` (`4c82f465`):
+  0 undeclared hunks; group-opening, group-memory, group-lore-placement same; group-away-notice, group-narrator-holdings,
+  group-relationships fixtures changed since that baseline, and group-commitments (vs `payload-q55b/r2`, fixture changed) and
+  group-delivery are not comparable. r2/r4 (`C:\dev\so-lanes\41\debug\payload-v29\`) are the new baseline for all 8.
+
+## GPU run 2026-10-22
+
+- Branch `v2.9-gpu-run` (worktree `C:/dev/so-v29-gpu`) off master `a082a064`: merges `v2.9-03-polish` (`6524a1ba`, master merged in
+  first, full gates green there), adds the real-model scenarios `v29-03-polish-shadow-forced.json`, `v29-04-07-model-pilot.json`,
+  `v29-05-model-pilot.json`, `v29-06-model-pilot.json` (`requires.lane: model`), arrival golden rows, the records.
+- Runs: lane 41 master (`cb12b358`): 04/07 pilot x5 pass, 06 pilot x2 (2 of 4 asks answered; one aborted run), 05 pilot x3 pass;
+  lane 42 03 branch (`33506e23`): shadow x2 (free, forced) pass. Numbers per plan.
+- Not run (each > 1 h or needs a rater that does not exist yet): 02 S6, 03 rating floors, 04 C2/C5 corpus, 05 P1/P2, 06 LT,
+  07 at its denominator, 08 O4, payload goldens with a model. No fix branch was needed for the product; the one harness note
+  (06 fixture `ext_setting` wipes install settings for its run) is in 06's record.
+- `npm run gates -- --serial` on `f28f647f` (no `--resume`, Storybook included): `gates: all green in 612.3s` (test 881 suites /
+  10307 passed + 1 skipped, test-storybook:ci 165 / 993, replay 32 of 32 killed). Docs-only commit after it.
+- GPU left as found: controller manual hold, text unloaded; lanes 41/42 stopped (end-of-window evidence in this section's commit).

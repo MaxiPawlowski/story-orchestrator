@@ -192,7 +192,18 @@ const runInner: Run = async (route, answer) => {
   return { passed: beat !== null, detail: beat ? "wrote a usable BEAT line" : "no usable BEAT line came back" };
 };
 
-const RUNS: Record<PassRole, Run> = { read: runRead, synthesis: runSynthesis, authoring: runAuthoring, director: runDirector, curator: runCurator, inner: runInner, lore: runLore };
+const runPolish: Run = async (route, answer) => {
+  const { planPolish, judgePolish } = await import("../polish/plan");
+  const plan = planPolish({ reply: "*Bel smirks at the door.* \"Late again,\" she says.", speaker: "Bel", sheet: { tics: ["smirks"] }, tics: ["smirks"], repeats: [], withheld: [], context: [] });
+  if ("skip" in plan) return { passed: false, detail: "the self-test reply had nothing to polish" };
+  const raw = await askText(routedModel(route), plan.prompt, { role: "polish", pass: "polish", maxTokens: plan.maxTokens, debugResponse: answer(0) });
+  const verdict = judgePolish(plan, { text: raw }, { names: ["Bel"], playerNames: [] });
+  return { passed: verdict.status === "accepted", detail: verdict.status === "accepted" ? "rewrote only the marked sentence" : `the rewrite was ${verdict.status}` };
+};
+
+const RUNS: Record<PassRole, Run> = {
+  read: runRead, synthesis: runSynthesis, authoring: runAuthoring, director: runDirector, curator: runCurator, inner: runInner, lore: runLore, polish: runPolish,
+};
 
 export async function runRoleSelfTest(role: PassRole, options: RoleSelfTestOptions): Promise<RoleSelfTestResult> {
   const ranAt = new Date().toISOString();

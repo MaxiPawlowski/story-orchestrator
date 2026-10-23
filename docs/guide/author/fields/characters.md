@@ -6,6 +6,7 @@ Each section is one guide topic. The Studio's "How to write this" and the wizard
 
 - [Cast](#roster)
 - [Voice and delivery](#roster-polish)
+- [Reply polish](#story-polish)
 - [Drives and motives](#drives-motives)
 - [Inner voice](#inner-voice)
 - [Speaker direction](#talk-control)
@@ -47,6 +48,19 @@ Fields: `roster[].polish` with `notes`, `prefer`, `avoid`, `tics`, `rhythm`, `by
 - **Good.** `{ "notes": "Short sentences. Talks in river terms. Never says sorry out loud.", "prefer": ["current", "mind the rope"], "avoid": ["indeed"], "tics": ["smirks"], "rhythm": "clipped" }`. Record only what the card already shows in its example dialogue; leave a field empty rather than invent a trait.
 - **Bad.** A plot fact or a secret in `notes` ("she is the smuggler"); a line about the player ("makes {{user}} nervous"); a name in `avoid` or `tics`; the same word in `prefer` and `avoid`.
 - **If wrong.** A name in `tics` or `avoid`, a word in both `prefer` and `avoid`, a cap passed, or `by_mood` without a mood (or with a mood the character does not have) stop the story from loading. Diagnostic `delivery-names-unknown-entity` ("The character is told about someone or somewhere the story has not introduced, and may bring them up early.") flags notes or a mood line naming a codex entry not yet known at the start. Diagnostic `delivery-directs-player` ("A voice note says how this character speaks, never what the player does.") flags a note whose subject is the player. Diagnostic `delivery-over-budget` ("Part of this sheet is left out of the prompt, because the whole addition would pass about 120 tokens.") names what is cut.
+
+<a id="story-polish"></a>
+
+## Reply polish
+
+Topic `story-polish`.
+
+Fields: `polish` with `mode` (`shadow` or `off`) and `narration` (`notes`, `prefer`, `avoid`, `tics`, `rhythm`) (`polishSchema.ts` `StoryPolish`, `validate/polish.ts` `readStoryPolish`); the story feature `polish` (`enabled`, `mode`). Settings: `characters.polish`, `characters.polishMode` (install-wide, on, shadow), `characters.polishMaxPerHour` (40). Role: Reply polish (Connections).
+
+- **What it does.** Polish edits wording, never what happens. After a cast member's reply arrives, and only when code finds a wording problem in it (a word from that member's `avoid`, a `tics` habit seen in two of their last six replies, or a phrase they keep repeating in their own replies), one call to the Reply polish route rewrites only the sentences that hold the problem, in that member's voice sheet (`roster[].polish`, see Voice and delivery). Quoted dialogue and every other sentence stay exactly as written. Code then checks the result: the problem must be gone, and no name, number, negation, "can/will/must", "you", player action, quote, markup or length may change; a held secret or a copied line from the context is refused; any doubt keeps the original. In this build polish runs in `shadow` mode only: it runs and records the result for the author (`chat_metadata.story_orchestrator.polish`, at most 200 rows, rolled back with the chat), and never changes the chat. The automatic rewrite is not built. `mode: "off"` switches it off for this story; the chat's own Features page can override. An `omniscient` narrator uses its own `roster[].polish`, or else the story's `narration` sheet (no `by_mood`). The call sends only that sheet (minus anything naming what the player has not met, and any sentence that would give away a secret), the problems, the reply and the two messages before it; never a card, memory, reasoning, lore or another member's sheet. The Reply polish route defaults to the subscription harness model and never falls back to the play model: with no route nothing is sent. At most `characters.polishMaxPerHour` calls an hour.
+- **Good.** `{ "mode": "shadow" }` while you check what polish would change; a narrator's `narration` of `{ "notes": "Present tense. Short paragraphs.", "avoid": ["suddenly"] }`.
+- **Bad.** A `narration` sheet with no narrator in the roster; a plot fact or a name in `narration.notes`; expecting polish to fix what a character does (it never repairs behaviour).
+- **If wrong.** An unknown `mode` or key, `by_mood` or `dialogue` in `narration`, a name in `narration.avoid` or `tics`, or a `narration` sheet without an `omniscient` member stop the story from loading. A reply polish route that is not answering is the setup row "Reply polish pauses until this model answers again". With another reply post-processor such as Recast running automatically, Setup shows "Two extensions rewrite replies" (`two-polishers`).
 
 <a id="drives-motives"></a>
 

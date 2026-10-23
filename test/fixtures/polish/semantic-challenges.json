@@ -1,0 +1,16 @@
+{
+  "frozen": "2026-10-21, v2.9 plan 03 S1, before any inference. Changes the structural guards cannot see. Scored and reported, never asserted refused; an independent rater judges guard-passing ones.",
+  "speaker": "Mara",
+  "sheet": { "avoid": ["indeed"], "tics": ["smirks"] },
+  "tics": ["smirks"],
+  "cases": [
+    { "id": "accept-to-refuse", "change": "agency", "reply": "*Mara smirks and takes the offered coin.*", "answer": "[1] *Mara grins and pushes the offered coin away.*" },
+    { "id": "tense-shift", "change": "event", "reply": "*Mara smirks while she waits by the door.*", "answer": "[1] *Mara grinned while she had waited by the door.*" },
+    { "id": "mental-state-swap", "change": "mental-state", "reply": "*She smirks to hide her fear of the deep water.*", "answer": "[1] *She grins, her fear of the deep water plain.*" },
+    { "id": "knowledge-swap", "change": "knowledge", "reply": "*Mara smirks; she knows the captain lied to them.*", "answer": "[1] *Mara grins; she guesses the captain lied to them.*" },
+    { "id": "certainty-swap", "change": "knowledge", "reply": "*Mara smirks, certain the storm will pass by dusk.*", "answer": "[1] *Mara grins, hoping the storm will pass by dusk.*" },
+    { "id": "event-dropped", "change": "event", "reply": "*Mara smirks and drops the knife on the deck.*", "answer": "[1] *Mara grins and sets her hands on the deck.*" },
+    { "id": "intent-added", "change": "mental-state", "reply": "*Mara smirks at the harbour master's hat.*", "answer": "[1] *Mara grins, plotting, at the harbour master's hat.*" },
+    { "id": "relation-swap", "change": "event", "reply": "*Mara smirks and steps toward the stranger.*", "answer": "[1] *Mara grins and steps away from the stranger.*" }
+  ]
+}

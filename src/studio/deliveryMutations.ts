@@ -1,4 +1,5 @@
-import type { RosterPolish } from "@engine/index";
+import type { NarrationSheet, RosterPolish } from "@engine/index";
+import type { StoryPolish } from "@engine/polishSchema";
 import type { StoryDraft } from "./draft";
 
 export type PolishPatch = { [K in keyof RosterPolish]?: RosterPolish[K] | undefined };
@@ -26,3 +27,17 @@ export const setMemberPolish = (draft: StoryDraft, id: string, patch: PolishPatc
     return polish ? { ...rest, polish } : rest;
   }),
 });
+
+export type StoryPolishPatch = { mode?: StoryPolish["mode"] | undefined; narration?: NarrationSheet | undefined };
+
+export const setStoryPolish = (draft: StoryDraft, patch: StoryPolishPatch | null): StoryDraft => {
+  const { polish: current, ...rest } = draft;
+  if (patch === null) return rest;
+  const next: Record<string, unknown> = { ...(current ?? {}) };
+  (Object.keys(patch) as Array<keyof StoryPolishPatch>).forEach((key) => {
+    const value = patch[key];
+    if (emptyValue(value)) delete next[key];
+    else next[key] = value;
+  });
+  return Object.keys(next).length ? { ...rest, polish: next as StoryPolish } : rest;
+};

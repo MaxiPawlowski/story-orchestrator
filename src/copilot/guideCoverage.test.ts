@@ -1,6 +1,7 @@
 import type { PoseEntry, StoryPoses, MemberSprites, StageMember, CardFieldBinding, CodexEntry, CodexFact, CodexReturn, StoryCodex, Observation, ObservationPassive } from "@engine/schema";
 import type { CarryFrom, CarryMapEntry, OutcomeKey } from "@engine/carrySchema";
 import type { Commitment } from "@engine/lifeSchema";
+import type { StoryPolish } from "@engine/polishSchema";
 import type { MemberCue, MemberTopic, StoryNorm, TopicTier } from "@engine/cueSchema";
 import type { StoryEcho } from "@engine/echoSchema";
 import type { Checkpoint, CheckpointEffects, Quality, RosterMember, Story, Transition } from "@engine/index";
@@ -18,7 +19,8 @@ const STORY: Record<keyof Story, Covered> = {
   scaffolding: { none: "written by the road-ahead generator, never authored" },
   objective_block: "objective-agency", display: "presentation", chapters: "chapters", memory: "chapters", quests: "quests", milestones: "quests",
   widgets: "widgets", clock: "story-time", calendar: "story-time", living: "living-director", factions: "factions",
-  codex: "codex", observations: "observations", outcome: "outcome", carry_from: "carry-from", rumors: "rumors", patterns: "patterns", norms: "norms", echoes: "echoes",
+  codex: "codex", observations: "observations", outcome: "outcome", carry_from: "carry-from", rumors: "rumors", patterns: "patterns", polish: "story-polish",
+  norms: "norms", echoes: "echoes",
 };
 
 const CHECKPOINT: Record<keyof Checkpoint, Covered> = {
@@ -71,6 +73,7 @@ const COMMITMENT: Record<keyof Commitment, Covered> = {
   id: "commitments", to: { none: "always \"player\"; another value is refused" }, what: "commitments", made_when: "commitments", kept_when: "commitments",
   broken_when: "commitments", due: "commitments", heard: "commitments", effect: "commitments",
 };
+const STORY_POLISH: Record<keyof StoryPolish, Covered> = { mode: "story-polish", narration: "story-polish" };
 const OUTCOME: Record<keyof OutcomeKey, Covered> = { key: "outcome", heritage_text: "outcome" };
 const CARRY: Record<keyof CarryFrom, Covered> = { story: "carry-from", mode: "carry-from", map: "carry-from", replay_map: "carry-from", previously: "carry-from", default: "carry-from" };
 const CARRY_MAP: Record<keyof CarryMapEntry, Covered> = { from: "carry-from", to: "carry-from", as: "carry-from", known_by: "carry-from" };
@@ -86,6 +89,7 @@ const ECHO: Record<keyof StoryEcho, Covered> = {
   id: "echoes", after: "echoes", delay: "echoes", when: "echoes", cancel_when: "echoes", expires: "echoes", to: "echoes", cue: "echoes", hold: "echoes",
 };
 const TABLES: Array<[string, Record<string, Covered>]> = [
+  ["polish", STORY_POLISH],
   ["roster[].cues[]", CUE], ["roster[].topics[]", TOPIC], ["roster[].topics[].tiers[]", TIER], ["norms[]", NORM], ["echoes[]", ECHO],
   ["outcome[]", OUTCOME], ["carry_from", CARRY], ["carry_from.map[]", CARRY_MAP],
   ["codex", CODEX], ["codex.entry", CODEX_ENTRY], ["codex.fact", CODEX_FACT], ["roster[].commitments[]", COMMITMENT], ["codex.return", CODEX_RETURN],

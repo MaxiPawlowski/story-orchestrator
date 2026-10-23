@@ -36,6 +36,7 @@ export const FEATURE_STATE: Readonly<Record<string, FeatureStateRow>> = {
   sprites: master("sprites"),
   "pose-library": master("poses"),
   "character-delivery": master("delivery"),
+  "reply-polish": master("polish"),
   "story-patterns": master("patterns"),
   "reactive-cues": master("cues"),
   "delayed-echoes": master("echoes"),
@@ -66,6 +67,7 @@ export const UNMAPPED_CONTROLS: Readonly<Record<string, string>> = {
   "sprites.stage": "Display detail of the character stage.",
   "cardState.enabled": "See cardState in UNMAPPED_STORY_FEATURES.",
   "delivery.repetition": "Part of voice and delivery (repeated-phrase notes), not a feature of its own; Story → Features.",
+  "polish.mode": "Shadow or off, a detail of reply polish; Story → Features.",
 };
 
 export const rowFeatures = (row: FeatureStateRow): Array<{ feature: StoryFeatureId; control: string }> => {

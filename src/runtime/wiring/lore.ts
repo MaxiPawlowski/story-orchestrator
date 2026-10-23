@@ -1,7 +1,6 @@
 import { draftedCardName, draftedLoreMember, forceActivateEntries, getContext, getScannableEntries, readScanBuffer, settingsReady, willAddUserMessage } from "@services/STAPI";
 import { transcriptCopiersOn } from "@services/stHost/transcriptCopiers";
 import { readCopiersWith } from "../transcriptCopiers";
-import { extensionConflictsWith } from "@services/stHost/extensionConflicts";
 import { tunnelVisionBooksWith } from "@services/stHost/tunnelVision";
 import { readTunnelVisionWith } from "../tunnelVision";
 import { readExtensionConflictsWith } from "../extensionConflicts";
@@ -106,16 +105,18 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
   const storyLore = startStoryLore({ chatId, ownedChat: () => runtimeManager.getLoadedChatId(), story: () => runtimeManager.getStory() });
   disposers.push(storyLore.dispose);
   disposers.push(readCopiersWith(() => transcriptCopiersOn(getContext().extensionSettings)));
-  disposers.push(readExtensionConflictsWith(() => {
-    const context = getContext();
-    return extensionConflictsWith({
-      settings: context.extensionSettings,
-      manifest: context.getExtensionManifest,
-      storage: (key) => globalThis.localStorage?.getItem(key) ?? null,
-      mainApi: context.mainApi,
-      chatCompletion: context.chatCompletionSettings,
+  const conflicts = { release: null as (() => void) | null, stopped: false };
+  disposers.push(() => { conflicts.stopped = true; conflicts.release?.(); });
+  void import("@services/stHost/extensionConflicts").then(({ extensionConflictsWith }) => {
+    if (conflicts.stopped) return;
+    conflicts.release = readExtensionConflictsWith(() => {
+      const context = getContext();
+      return extensionConflictsWith({
+        settings: context.extensionSettings, manifest: context.getExtensionManifest, storage: (key) => globalThis.localStorage?.getItem(key) ?? null,
+        mainApi: context.mainApi, chatCompletion: context.chatCompletionSettings,
+      });
     });
-  }));
+  });
   disposers.push(readTunnelVisionWith(() => {
     const context = getContext();
     return tunnelVisionBooksWith({ settings: context.extensionSettings, manifest: context.getExtensionManifest });

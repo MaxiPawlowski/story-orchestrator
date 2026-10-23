@@ -1,0 +1,44 @@
+{
+  "_note": "v2.9 03 S0 (no-model lane): the debug stand-in polish (fixed find/replace after a delay, no model call) writes a received reply before fireAfterSpeak and the boundary; the boundary consumes the polished text (no eventless-change journal, no rollback); a quiet GENERATION_STARTED during the hold abandons the next candidate and leaves the reply as sent. Scripted /sendas rows are admitted only through the stand-in's includeScripted flag, because a no-model lane has no generated replies. Run: node scripts/debug/so-scenario.mts run test/scenarios/v29-03-polish-standin.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": ["Arin", "DM Narrator"],
+    "judge": "off",
+    "authorView": true
+  },
+  "steps": [
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); return { cleared: ctx.chat.length === 0 };"
+    },
+    {
+      "import_story": {
+        "id": "so-v29-03-polish",
+        "title": "SO-V29-03 Polish stand-in",
+        "description": "Plan v2.9 03 S0 no-model fixture: timing of a stand-in reply polish.",
+        "qualities": [{ "key": "door_open", "type": "bool", "source": "extractor", "rubric": "Is the keeper's door open?" }],
+        "checkpoints": [
+          { "id": "door", "name": "Door", "player_name": "The Door", "type": "anchor", "start": true, "objective": "Get the keeper to open the door." },
+          { "id": "inside", "name": "Inside", "player_name": "Inside", "type": "anchor", "objective": "Look around." }
+        ],
+        "transitions": [{ "from": "door", "to": "inside", "priority": 1, "gate": { "q": "door_open", "op": "==", "v": true } }],
+        "roster": [{ "id": "narrator", "name": "DM Narrator", "role": "narrator", "view": "omniscient" }, { "id": "arin", "name": "Arin", "role": "companion" }]
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const stats = () => globalThis.storyOrchestratorPolish?.standIn(); if (!stats()) throw new Error('the polish host did not install'); const eventless = () => rt.getSessionJournal().filter((event) => String(event.summary ?? '').startsWith('eventless change')).length; globalThis.__p03 = { pause, until, stats, eventless, before: eventless() }; globalThis.storyOrchestratorDebugPolishStandIn = { delayMs: 400, find: 'smirks', replace: 'grins', includeScripted: true }; return { stats: stats() };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The keeper smirks and bolts the door."
+    },
+    {
+      "eval": "const c = globalThis.__p03; const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); await c.until(() => c.stats().written === 1, 10000, 'the stand-in write'); const last = ctx.chat.length - 1; const mes = ctx.chat[last].mes; if (!mes.includes('grins') || mes.includes('smirks')) throw new Error('the reply was not polished: ' + mes); await c.until(() => rt.getEngineState().lastMessageId === last, 10000, 'the boundary on the polished reply'); await c.pause(1500); if (c.eventless() !== c.before) throw new Error('the polished reply read as an eventless change'); if (ctx.chat[last].swipes?.[ctx.chat[last].swipe_id ?? 0] !== mes) throw new Error('the swipe slot keeps the original'); return { mes, stats: c.stats() };"
+    },
+    {
+      "eval": "const c = globalThis.__p03; const ctx = SillyTavern.getContext(); globalThis.storyOrchestratorDebugPolishStandIn = { delayMs: 2500, find: 'smirks', replace: 'grins', includeScripted: true }; const sent = ctx.executeSlashCommandsWithOptions('/sendas name=\"DM Narrator\" The keeper smirks again behind the door.'); await c.pause(600); await ctx.eventSource.emit(ctx.eventTypes.GENERATION_STARTED, 'quiet', {}, false); await sent; await c.until(() => (c.stats().abandoned['generation-started'] ?? 0) === 1, 10000, 'the quiet generation to abandon the candidate'); const mes = ctx.chat[ctx.chat.length - 1].mes; if (!mes.includes('smirks again')) throw new Error('an abandoned candidate was written: ' + mes); return { mes, stats: c.stats() };"
+    },
+    {
+      "eval": "delete globalThis.storyOrchestratorDebugPolishStandIn; delete globalThis.__p03; return { cleaned: true };"
+    }
+  ]
+}

@@ -5,7 +5,7 @@ export const STUDIO_TAB_GUIDE: Partial<Record<StudioTab, readonly GuideTopicId[]
   features: ["feature-policies", "codex", "codex-returns", "observations"],
   story: ["story-basics", "briefing", "player", "requirements", "arc-template", "living-director", "scene-test", "branching"],
   world: ["stagecraft", "lore-select", "lore-entries", "lore-content"],
-  presentation: ["presentation", "background"],
+  presentation: ["presentation", "story-polish", "background"],
   rules: ["arc-bridges", "scene-read", "house-rules"],
   chapters: ["chapters", "consequences", "outcome", "carry-from"],
   qualities: ["qualities", "quality-rubric", "latching", "quality-reads", "chance-roll"],

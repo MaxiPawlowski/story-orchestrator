@@ -15,6 +15,7 @@ export type AgentOnlyOp =
   | { kind: "setCheckpointMotive"; id: string; member: string; motive: string }
   | { kind: "setAppearance"; id: string; appearance: string }
   | { kind: "setMemberPolish"; id: string; polish: RosterPolish | null }
+  | { kind: "setStoryPolish"; polish: import("@engine/polishSchema").StoryPolish | null }
   | GameAgentOp
   | PoseAgentOp;
 

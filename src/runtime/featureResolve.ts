@@ -50,7 +50,7 @@ const defaultValue = (global: GlobalSettings, id: StoryFeatureId, field: string,
   return spec.kind === "boolean" ? true : spec.kind === "number" ? spec.min ?? 0 : spec.options?.[0] ?? "";
 };
 
-export const resolveFeatures = (global: GlobalSettings, story: Pick<Story, "features" | "reasoning"> | null, rawOverrides: StoryFeatures = {}): ResolvedFeatures => {
+export const resolveFeatures = (global: GlobalSettings, story: Pick<Story, "features" | "reasoning" | "polish"> | null, rawOverrides: StoryFeatures = {}): ResolvedFeatures => {
   const authored = readFeaturePolicies(story?.features);
   const overrides = readFeaturePolicies(rawOverrides);
   return Object.fromEntries(STORY_FEATURE_IDS.map((id) => {
@@ -63,7 +63,7 @@ export const resolveFeatures = (global: GlobalSettings, story: Pick<Story, "feat
     for (const control of FEATURE_CONTROLS[id].controls) {
       const value = defaultValue(global, id, control.field, control.path);
       const authoredValue = policy && policy !== "off" ? policy[control.field] : undefined;
-      const storyValue = authoredValue ?? (id === "thinking" && control.field === "effort" ? story?.reasoning : undefined);
+      const storyValue = authoredValue ?? (id === "thinking" && control.field === "effort" ? story?.reasoning : id === "polish" && control.field === "mode" ? story?.polish?.mode : undefined);
       const chatValue = chat && chat !== "off" ? chat[control.field] : undefined;
       controls[control.field] = chatValue !== undefined ? { value: chatValue, source: "chat" }
         : storyValue !== undefined ? { value: storyValue, source: "story" } : { value, source: "install" };

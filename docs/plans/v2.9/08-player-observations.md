@@ -380,3 +380,20 @@ Deviations:
 
 Unresolved (from the plan, unchanged): re-roll a missed passive line on re-entry (v1: never); Ask projection; caps (60/3);
 O4 rater and wording; same-pass latch visibility.
+
+### GPU run 2026-10-22
+
+- Window 2026-10-22 ~21:23-23:20 local (00:23-02:20Z), local 3090 via the controller (`cli.mjs automatic`, text loaded clean
+  after the earlier `crashed` code-1 status). Lanes 41 (master `a082a064`, served bundle `cb12b358`) and 42 (`v2.9-03-polish`
+  `639ae53c`, bundle `33506e23`, staged into the ST code copy `C:/dev/st-v29-08`), both `--allow-local --headed`, images and sprites
+  off in the lane copies, profile `Artemis RunPod RP` -> :18888, context 32768, thinking and inner voice on. Group
+  `Group: Arin, DM Narrator` (the lane copy also drafts two members outside each story's roster).
+- Rater: opencode `openai/gpt-6.1-sol` (`opencode run`, frozen prompt in the evidence folder). Evidence
+  `C:\dev\so-lanes\41\debug\v29gpu\`, `C:\dev\so-lanes\42\debug\v29gpu\` (+ each lane's `debug/runs/`), archived to so-sessions.
+- Pilots are NOT the predeclared corpora: small N, fixed fixtures, no frozen 40/100 denominators. They say whether the path works
+  with the real model and which way a floor leans; no floor below is claimed met.
+- Two model lanes shared one GPU: memory-model calls queued behind the other lane's replies (inner beat timeouts at 35 s,
+  suggestions at 50 s, below). Environment, not a product change; recorded.
+- O3 second-model review (CL, sol, frozen prompt): imposed inner state **0 of 40**, voluntary player action **0 of 40**; rerun with
+  two planted controls appended: the 40 again 0/0, controls caught (feeling `c01` F=yes, action `c02` A=yes).
+- O4 (owner or delegated task run) and the final-suite played row: NOT run.

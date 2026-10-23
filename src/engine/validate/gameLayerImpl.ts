@@ -27,6 +27,7 @@ import { readCarry } from "./carry";
 import { checkRumors, readRumors } from "./rumors";
 import { checkPatterns, readPatterns } from "./patterns";
 import { deliveryNames, readRosterPolish } from "./delivery";
+import { storyPolishPart } from "./polish";
 import { checkStretches, readStretch } from "./stretch";
 import { addOffers, checkOffers, readOffers } from "./offers";
 import { readEchoes } from "./echoes";
@@ -67,7 +68,7 @@ const OBSERVATIONS = { readObservations, addObservationQualities, checkObservati
 
 const PATTERNS = { readPatterns, checkPatterns };
 
-const DELIVERY = { readRosterPolish, deliveryNames };
+const DELIVERY = { readRosterPolish, deliveryNames, storyPolishPart };
 
 const STRETCH = { readStretch, checkStretches };
 
