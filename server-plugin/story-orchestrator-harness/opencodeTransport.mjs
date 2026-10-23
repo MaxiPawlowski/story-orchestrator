@@ -245,6 +245,7 @@ export function createOpencodeTransport({
     configWaitMs = OPENCODE_LIMITS.configMs,
     toolsSettleMs = OPENCODE_LIMITS.toolsSettleMs,
     connectWaitMs = OPENCODE_LIMITS.connectMs,
+    waitNow = Date.now,
 } = {}) {
     const entry = config.harnesses.opencode;
     const providers = [...new Set(entry.models.map((model) => splitModel(model.id)?.providerID).filter(Boolean))];
@@ -408,8 +409,8 @@ export function createOpencodeTransport({
                 agent = unwrap(await client.agent.get({ agentID: agentId, location: locationFor(directory) }));
                 break;
             } catch (error) {
-                until ??= Date.now() + configWaitMs;
-                if (error?._tag !== 'AgentNotFoundError' || Date.now() >= until) throw refusedFrom(error);
+                until ??= waitNow() + configWaitMs;
+                if (error?._tag !== 'AgentNotFoundError' || waitNow() >= until) throw refusedFrom(error);
                 await sleep(100);
             }
         }
@@ -419,7 +420,7 @@ export function createOpencodeTransport({
         return agent;
     };
 
-    const mcpConnected = async (client, directory, deadline, signal, shimSeen = null) => {
+    const mcpConnected = async (client, directory, { until, connectBy }, signal, shimSeen = null) => {
         const location = locationFor(directory);
         for (;;) {
             let listed = [];
@@ -435,7 +436,7 @@ export function createOpencodeTransport({
                 throw new Refused('config', `OpenCode could not connect the wizard's tool server (${status}${server.status.error ? `: ${clip(server.status.error, 200)}` : ''})`, { state: 'unavailable' });
             }
             if (signal?.aborted) throw new Refused('lapsed', 'the request was cancelled');
-            if (Date.now() >= deadline) throw new Refused('timeout', `OpenCode did not connect the wizard's tool server before the deadline${shimSeen ? (shimSeen() ? ' (its process reached the bridge, so OpenCode never reported the connection)' : ' (its process never reached the bridge: OpenCode did not start it in time)') : ''}`, { state: 'unavailable' });
+            if (Date.now() >= until || waitNow() >= connectBy) throw new Refused('timeout', `OpenCode did not connect the wizard's tool server before the deadline${shimSeen ? (shimSeen() ? ' (its process reached the bridge, so OpenCode never reported the connection)' : ' (its process never reached the bridge: OpenCode did not start it in time)') : ''}`, { state: 'unavailable' });
             await sleep(100);
         }
     };
@@ -752,8 +753,8 @@ export function createOpencodeTransport({
         try {
             writePrivate(path.join(owned.cwd, 'opencode.json'), bridgeConfig({ system: request.system, nodePath, pipe, secret, toolsFile, callTimeoutMs: request.callTimeoutMs }));
             await within(until - Date.now(), verifyAgent(checked.client, owned.cwd, BRIDGE_AGENT, (rules) => bridgeOnly(rules, request.tools.map((tool) => tool.name))), lapse, signal);
-            const connectBy = Math.min(until, Date.now() + connectWaitMs);
-            await within(until - Date.now(), mcpConnected(checked.client, owned.cwd, connectBy, signal, shimConnected), lapse, signal);
+            const connectBy = waitNow() + connectWaitMs;
+            await within(until - Date.now(), mcpConnected(checked.client, owned.cwd, { until, connectBy }, signal, shimConnected), lapse, signal);
             await within(until - Date.now(), sleep(toolsSettleMs), lapse, signal);
         } catch (error) {
             await evict(checked.client, owned.cwd);
