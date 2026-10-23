@@ -16,5 +16,6 @@
     "C5_both": "P=yes over all 60"
   },
   "floor": "none predeclared for the off arm or the effect (plan 04 C2 floor >= 80 % applies to U_on only); informational, never retuned",
-  "offered_check": "on arm: receipts offered at every cue opportunity, 0 on no-cue turns; off arm: 0 receipts"
+  "offered_check": "on arm: receipts offered at every cue opportunity, 0 on no-cue turns; off arm: 0 receipts",
+  "amended": "2026-10-23 before any inference: both arm fixtures switch image and sprites off for the run (leaf ext_settings, restored after); lane 33 had media on and the corpus refuses to run with it"
 }
