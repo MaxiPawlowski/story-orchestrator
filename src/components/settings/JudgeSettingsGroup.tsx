@@ -1,10 +1,11 @@
 import { useState } from "react";
 import {
   AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, JUDGE_PROVIDER_IDS, JUDGE_PROVIDERS, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES,
-  judgeProviderControlId, judgeUseActive, providerLeavesMachine, ridesWardenRoute, routedProvider, WARDEN_RIDERS, type JudgeMeterView, type JudgeProviderId,
+  judgeProviderControlId, providerLeavesMachine, ridesWardenRoute, WARDEN_RIDERS, type JudgeMeterView, type JudgeProviderId,
   type JudgeProviderRoutes, type JudgeReadinessKey, type JudgeReadinessRow,
   type JudgeSettings, type JudgeUseKey, type JudgeUses,
 } from "@judge/index";
+import { judgeProvidersInUse, offeredJudgeUses } from "@judge/useRows";
 import { judgeReadiness, judgeReadinessConcerns } from "@judge/readinessRows";
 import type { JudgeSelfTestReport } from "@judge/selfTest";
 import type { JudgeStatus } from "@services/STAPI";
@@ -38,11 +39,6 @@ export interface JudgeSettingsGroupProps {
   onRunSelfTest(): void;
 }
 
-export const offeredJudgeUses = (uses: readonly JudgeUseKey[], authorView: boolean): JudgeUseKey[] =>
-  uses.filter((use) => authorView || !AUTHOR_JUDGE_USES.includes(use));
-
-const kebab = (key: string) => key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
-
 const LOCAL_PROBLEM_COPY: Record<string, string> = {
   "no-url": "no local judge server is set on the SillyTavern server (see the Judge page of the guide)",
   "bad-url": "the local judge address on the SillyTavern server is not a web address",
@@ -66,11 +62,7 @@ const meterText = (meter: JudgeMeterView): string =>
   `This chat: ${meter.calls} ${meter.calls === 1 ? "call" : "calls"} (${meter.cachedCalls} from cache) · ${meter.inputTokens.toLocaleString("en-US")} input / ` +
     `${meter.outputTokens.toLocaleString("en-US")} output tokens${meter.cost > 0 ? ` · cost ${meter.cost}` : ""}`;
 
-const providersInUse = (settings: JudgeSettings, wardenEnabled: boolean): JudgeProviderId[] => {
-  if (!settings.enabled) return [];
-  const keys: JudgeReadinessKey[] = [...BUILT_JUDGE_USES.filter((use) => judgeUseActive(settings, use)), ...(wardenEnabled ? ["warden" as const] : [])];
-  return JUDGE_PROVIDER_IDS.filter((id) => keys.some((key) => routedProvider(settings, key) === id));
-};
+const kebab = (key: string) => key.replace(/[A-Z]/g, (letter) => `-${letter.toLowerCase()}`);
 
 const RIDES_WARDEN_TEXT = "Uses the warden's route: it shares the warden's call.";
 
@@ -201,7 +193,7 @@ export function JudgeSettingsGroup({
     .filter((row) => authorView || row.key === "warden" || !AUTHOR_JUDGE_USES.includes(row.key));
   const concerns = judgeReadinessConcerns(readiness);
   const enabledMeasured = readiness.filter((row) => row.verdict === "measured");
-  const inUse = providersInUse(settings, wardenEnabled);
+  const inUse = judgeProvidersInUse(settings, wardenEnabled);
 
   const [keyError, setKeyError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);

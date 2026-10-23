@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
-import type { ChatPanel } from "../../presenceUi";
+import type { ChatPanel } from "@runtime/chatPanels";
+import { wardenJudged } from "@runtime/surfaceShown";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import { capabilityReport, hostFacts, judgeStatus, stImageSource, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
@@ -152,7 +153,7 @@ const SettingsPanel = ({ snapshot, manager, host, workspaceSection }: SettingsPa
     probe(false);
   }, [recheck, probe]);
 
-  const wardenOn = snapshot.stagecraft.settings.wardenEnabled && snapshot.stagecraft.settings.wardenAcceptMode !== "off";
+  const wardenOn = wardenJudged(snapshot.stagecraft.settings);
   const [checklistDismissed, setChecklistDismissed] = useState(() => getGlobalSettings().help.checklistDismissed);
   const image = getGlobalSettings().image;
   const extraction = snapshot.extraction.settings;

@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { DEFAULT_OPEN_SECTIONS, TALK_CHAIN_FIXED, defaultGlobalSettings, sanitizeGlobalSettings } from "@runtime/settingsModel";
-import { offeredJudgeUses } from "@components/settings/JudgeSettingsGroup";
+import { offeredJudgeUses } from "@judge/useRows";
 import { chapterSettings } from "@runtime/chapters";
 import { BUILT_JUDGE_USES, JUDGE_USES_OFF_BY_DEFAULT } from "@judge/settings";
 import { AREA_LABELS, FEATURE_AREAS, FEATURES } from "./registry";
