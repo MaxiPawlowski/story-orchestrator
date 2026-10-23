@@ -1,5 +1,12 @@
 # Implementation Overview — Story Orchestrator v2.9
 
+**Status 2026-10-23 (afternoon, second session): NOT accepted.** 02 S5: `readCharacterCard` built; real-route recheck on sol
+arin-sheet 2/2 (luke-sheet void: the card has no first message or example dialogue). 04 C2 cue-off arm: on 30/30, off 30/30, cue
+effect 0 points (the corpus shows the event on screen; C2's 100 % does not isolate the cue). Inner-beat wait fixed (starts
+before the boundary's reads, reads yield up to 15 s); real-model recheck rides the v2.8 lean night. 06 LT corpus frozen
+(`test/measurements/v2.9/06-lt/`, 40 situations, 2 x 40 scenarios, anchors-off seam for the current arm); not run yet.
+Records: plans 02, 04 and this overview's side-finding line.
+
 **Status 2026-10-23 (GPU window 2): 02-09 on master with the GPU2 fixes; NOT accepted.** Fixed and re-measured on real
 Artemis: 07 narrator echo acknowledged 18/20 (was 0/5; floor 80 % met on the pilot) after the echo got the plan's own header;
 05 hint used 3/10 (was 0/3, no floor). Corpus rows run: 05 P1/P2 100 %/100 % (50 sol-labelled synthetic sequences), 04 C2 30/30
