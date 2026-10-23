@@ -47,7 +47,7 @@ the owner's call: no GPU row starts until the owner says so.
 
 - `.claude/CLAUDE.md` status rows for v2.8/v2.9.
 - Archive C2 arm evidence (`so-lanes/33/debug/runs/c2arms-2026-10-23`) to so-sessions.
-- Hazard for the owner: `C:\dev\so-suite-lanes"\data\default-user` is a symlink to the owner's real ST data
+- Hazard for the owner: `C:\dev\so-suite-lanes\42\data\default-user` is a symlink to the owner's real ST data
   (since 2026-10-15); a lane-42 run there writes the owner's chats and settings.
 - Owner ST on :8000 is down; build F staged for its next start.
 
