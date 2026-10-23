@@ -76,10 +76,11 @@ export function LiveHead(props: LiveHeadProps) {
       const current = latest.current, elapsed = performance.now() - start, speaker = current.activity.view();
       const speaking = speaker === current.name, presence: Presence = speaking ? "talking" : speaker ? "listening" : "idle";
       looks?.want(current.label, !current.motion);
-      const p = driver.drive(elapsed, current.label, speaking, current.motion, current.breathing, current.blink, current.mouth, looks?.textured() ?? false);
+      const textured = looks?.textured() ?? false;
+      const p = driver.drive(elapsed, current.label, speaking, current.motion, current.breathing, current.blink, current.mouth, textured);
       if (speaking && current.motion && current.mouth) visemeMouth(p, current.activity.mouth(current.name), mouthConfig);
       if (current.gesture && current.gesture.nonce !== gestureNonce) { gestureNonce = current.gesture.nonce; motion.start(current.gesture.id, elapsed); }
-      motion.apply(p, elapsed, current.label, presence, current.motion);
+      motion.apply(p, elapsed, current.label, presence, current.motion, !textured);
       if (!current.breathing) p.breath = 0;
       const gesture = motion.playing ?? "";
       if (element.dataset.liveHeadGesture !== gesture) element.dataset.liveHeadGesture = gesture;

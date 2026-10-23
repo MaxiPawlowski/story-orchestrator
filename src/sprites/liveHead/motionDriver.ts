@@ -127,6 +127,7 @@ export class MotionDriver {
   private playStart = 0;
   private playGain = 1;
   private headOnly = false;
+  private face = true;
   private lastSlot = "";
   private cachedPresence: Presence | null = null;
   private cachedSlot = -1;
@@ -146,9 +147,9 @@ export class MotionDriver {
     return true;
   }
 
-  apply(p: HeadParameters, elapsedMs: number, label: string, presence: Presence, motion: boolean): HeadParameters {
+  apply(p: HeadParameters, elapsedMs: number, label: string, presence: Presence, motion: boolean, face = true): HeadParameters {
     const previous = this.label;
-    this.label = label;
+    this.label = label; this.face = face;
     if (!motion || !Number.isFinite(elapsedMs)) {
       this.play = null; this.playing = null; this.talkNod = 0; this.lastMs = Number.NaN;
       return p;
@@ -196,6 +197,7 @@ export class MotionDriver {
     for (let i = 0; i < motion.tracks.length; i++) {
       const track = motion.tracks[i], key = track.key;
       if (this.headOnly && track.kind !== "add") continue;
+      if (!this.face && (track.kind === "face" || track.kind === "eye")) continue;
       if (talking && key === "mouthForm") continue;
       const value = sampleTrack(track.keys, at);
       if (track.kind === "add") track.write(p, value * weight * gain, 1);

@@ -6,6 +6,7 @@ import { actorHeadLooks } from "../liveHeadStage";
 import { restHead } from "./drivers";
 import { browWeight, deformInto } from "./geometry";
 import { HeadDriver } from "./headDriver";
+import { MotionDriver } from "./motionDriver";
 import { alignmentProblem, clearLookCache, cutLook, expressionTexture, HeadLooks, lookArt, prepareLook, squinted, type LookSurface, type PreparedLook } from "./expressions";
 import { HeadRenderer, LOOK_FADE_MS } from "./renderer";
 import { syntheticHead } from "./synthetic";
@@ -166,6 +167,22 @@ describe("a textured expression is not warped twice, and brows never move the li
     const plain = { ...driver.drive(0, "anger", false, false) }, textured = { ...driver.drive(0, "anger", false, false, true, true, true, true) };
     expect(plain.browY).toBeLessThan(0);
     expect([textured.browY, textured.browAngle, textured.mouthForm, textured.eyeSmile, textured.blush]).toEqual([0, 0, 0, 0, 0]);
+  });
+  test("switching to a textured anger keeps the sprite's own eyes through its head-shake reaction", () => {
+    const run = (textured: boolean) => {
+      const head = new HeadDriver("ash"), motion = new MotionDriver("ash"), seen: Array<[number, number]> = [];
+      for (let t = 0; t <= 2400; t += 50) {
+        const label = t < 200 ? "neutral" : "anger";
+        const p = head.drive(t, label, false, true, true, false, true, textured);
+        motion.apply(p, t, label, "idle", true, !textured);
+        if (t > 200) seen.push([p.eyeOpen, p.eyeSmile]);
+      }
+      return { open: Math.min(...seen.map(([open]) => open)), smile: Math.max(...seen.map(([, smile]) => smile)), playing: motion.playing };
+    };
+    const plain = run(false), textured = run(true);
+    expect(plain.open).toBeLessThan(0.6);
+    expect(plain.smile).toBeGreaterThan(0.9);
+    expect(textured).toEqual({ open: 1, smile: 0, playing: null });
   });
   test("the brow warp leaves the upper lid where it is", () => {
     const eye = rig.eyes[0], x = (eye.x0 + eye.x1) / 2, y = sampled(eye.top, 0.5), out = [0, 0];

@@ -141,3 +141,31 @@ Showcase: `C:\dev\so-poc-showcase\anim\live\player.js` rebuilt from the branch (
 `players.pre-81.json`, `tools/live-entry.pre-81.tsx`, `index.pre-81.html`); players get an "expression textures (plan 81)"
 switch and `?label=`/`?size=` parameters; `expressions-2026-10-23.html` (before/after, live player) linked from
 `index.html`.
+
+### Fix after owner review, 2026-10-23 evening
+
+- Owner: "the beginning of the angry does not look good. Lower eyelid is too high." Reproduced on the showcase player
+  (q80-ash, anger, motion on): from about 0.15 s to 1.4 s after the switch both eyes were half closed with the lower lid
+  over the iris; settled frames (and every capture above, taken with idle motion off) were fine.
+- Cause: not the cut layers. A label change plays its reaction gesture (`motionDriver.ts` `LABEL_REACTION`: anger `no`,
+  joy `nod`, sadness `sigh`), and those tracks carry face keys: `no` drives `eyeOpen` to 0 (floored at 0.5) and
+  `eyeSmile` to 1 for 1.25 s, `nod` 0.72/0.45, `sigh` 0.6. `eyeSmile` raises the lower-lid layer and the lid curves are
+  the neutral rig's, so on the textured expression the lower lid rose over the sprite's iris and the low-lid strip showed
+  as a pale smear. The plan's "no double expression" rule had been applied to `HeadDriver` only, not to the motion layer.
+- Fix: `MotionDriver.apply(..., face)`; `LiveHead` passes `face = !textured`, so on a textured expression reactions and
+  idle motions keep their head, body and gaze tracks and drop the face and eye-open tracks (blink stays). Untextured
+  labels unchanged (golden frame loop unchanged).
+- Test that fails on the previous code: `expressions.test.ts` "switching to a textured anger keeps the sprite's own eyes
+  through its head-shake reaction" (parameters through `HeadDriver` + `MotionDriver` over 2.4 s: untextured min eyeOpen
+  0.5 / max eyeSmile 1, textured 1 / 0; the old `apply` ignores the flag and gives 0.5 / 1).
+- Before/after (showcase player, hardware ANGLE, blink off): eye strips at 0.1–2.6 s for 3 members × anger/joy/sadness,
+  `C:\dev\so-poc-showcase\expressions-2026-10-23\switch-{before,after}.png`: before, anger and joy squint for ~1.5 s
+  on all three, sadness late; after, the sprite's eyes throughout.
+- Blind rater (same prompt, Sol via `codex exec`): faces captured 0.7 s after the switch, before 4/9 read as intended
+  (anger read as happy twice, joy as worried once, sadness as happy/neutral), after 9/9, identity 9/9 both, defects 0
+  (`sheets-mid-{before,after}`). At rest (motion off, recaptured on the fixed build): 9/9, identity 12/12, defects 0.
+- See-through: 0 on every expression eye (a15, 81 gazes), unchanged.
+- Gates: `npm run gates:quick` green (125.3 s). Full `npm run gates` not rerun for this fix (the coordinator re-merges
+  it in `C:\dev\so-81-merge`).
+- Showcase: `player.js`/`player.css` rebuilt from the fix; `expressions-2026-10-23.html` has the new after captures and
+  a "Fix 2026-10-23 evening" section with both strips.
