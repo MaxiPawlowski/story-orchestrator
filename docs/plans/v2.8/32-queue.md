@@ -34,7 +34,7 @@ the owner's call: no GPU row starts until the owner says so.
 
 ### Development, buildable
 
-- v2.9 09 Show-me conditional targets: offer Show me only when its target renders (~15 targets).
+- v2.9 09 Show-me conditional targets: BUILT on branch `v2.9-09-showme-renders` (2026-10-23, not merged); live offered == reached in all 8 cases; record `docs/plans/v2.9/09-effective-feature-help.md` §Show me conditional targets 2026-10-23. Merge needs one full `npm run gates` from a worktree outside `.claude/` (Storybook finds no tests there).
 
 ### Development, owner decisions
 

@@ -6,6 +6,7 @@ import { choosePlayerSetup, dismissBriefing, PLAYER_SETUP_CHOICES, readBriefingM
 import { parseCardCount, runAgentCards, type AgentCardKind } from './lib/agentCards.mts';
 import { writeJSON, writeScreenshot } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
+import { helpShowMeAudit } from './lib/helpShowMeAudit.mts';
 
 export const MEMORY_QUEUE_ACTIONS = ['keep', 'lock', 'reread', 'dismiss', 'reconfirm', 'discard'];
 
@@ -1436,7 +1437,7 @@ export async function agentNewGoal(page) {
   return getAgentState(page);
 }
 
-const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|briefing|briefing-dismiss|player-setup|player-setup-choose|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|agent-mode|agent-goal|agent-go|agent-continue|agent-new-goal|agent-state|agent-accept|agent-apply|stagecraft|curator-accept|curator-reject|memory-queue|model-calls|gate-replay|gate-replay-history|hit-test|branch-continue|inline|inline-level|screenshot> [label]
+const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|briefing|briefing-dismiss|player-setup|player-setup-choose|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|agent-mode|agent-goal|agent-go|agent-continue|agent-new-goal|agent-state|agent-accept|agent-apply|stagecraft|curator-accept|curator-reject|memory-queue|model-calls|gate-replay|gate-replay-history|hit-test|help-showme-audit|branch-continue|inline|inline-level|screenshot> [label]
 
 all: print settings + drawer state.
 settings: print settings panel state.
@@ -1477,6 +1478,8 @@ memory-queue [action] [--key <conflictKey>] [--side <n>] [--index <n>]: the reco
   Actions: keep|lock (--key, --side), reread|dismiss (--key), reconfirm|discard (--index into the quarantined list).
   It clicks the panel's own control, then re-reads, so the result shows what the author would see after the click.
 hit-test <selector>: ask which element is topmost at the target's own centre. Exits 1 when a real pointer would not land on it.
+help-showme-audit: open Help, click every offered Show me in turn and check its target lands topmost in the workspace. Prints offered/reached
+  with each miss; exits 1 when offered != reached (v2.9 plan 09). Run per view (player, author), per story state and per viewport.
 inline [mesid]: read the inline timeline under the chat (every chip opened in turn), the effective level and the attach-time median (v2.6 plan 08).
 inline-level <0-4>: set the install-wide inline level; prints requested vs effective (Author view caps it at 2).
 model-calls: the author Calls list (Scheduler tab): each row's kind, route ("route not recorded" for LLM passes until plan 13 H4) and result (v2.5 plan 07 A5).
@@ -1737,6 +1740,14 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       console.log(JSON.stringify(result, null, 2));
       await writeJSON(result, 'so-ui-hit-test');
       if (!result.clickable) process.exitCode = 1;
+    }
+
+    if (subcommand === 'help-showme-audit') {
+      const result = await helpShowMeAudit(page);
+      const { rows, ...summary } = result;
+      console.log(JSON.stringify(summary, null, 2));
+      await writeJSON({ ...summary, rows }, 'so-ui-help-showme-audit');
+      if (result.offered !== result.reached) process.exitCode = 1;
     }
 
     if (subcommand === 'branch-continue') {

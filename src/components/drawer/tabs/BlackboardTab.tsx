@@ -1,5 +1,6 @@
 import type { RuntimeSnapshot } from "@runtime/types";
 import { blackboardRows } from "@runtime/blackboardView";
+import { shownLife } from "@runtime/surfaceShown";
 import { CharacterLifePanel, type MeanwhileDecide } from "../CharacterLifePanel";
 import { FactionsPanel } from "../FactionsPanel";
 
@@ -11,6 +12,7 @@ const readerLabel = (meta: RuntimeSnapshot["blackboardMeta"][string] | undefined
 
 export const BlackboardTab = ({ snapshot, onDecideMeanwhile }: { snapshot: RuntimeSnapshot; onDecideMeanwhile?: MeanwhileDecide }) => {
   const rows = blackboardRows(snapshot);
+  const life = shownLife(snapshot);
   return (
     <div>
       <div className="font-medium mb-1">Blackboard</div>
@@ -38,7 +40,7 @@ export const BlackboardTab = ({ snapshot, onDecideMeanwhile }: { snapshot: Runti
         </table>
         </div>
       )}
-      {snapshot.lifeAuthor ? <CharacterLifePanel life={snapshot.lifeAuthor} onDecide={onDecideMeanwhile} cues={snapshot.cuesAuthor} /> : null}
+      {life ? <CharacterLifePanel life={life} onDecide={onDecideMeanwhile} cues={snapshot.cuesAuthor} /> : null}
       {snapshot.factionsAuthor ? <FactionsPanel factions={snapshot.factionsAuthor} /> : null}
     </div>
   );

@@ -12,7 +12,8 @@ import { connectionsIntent, inspectorIntent, repairIntent, storyPlayIntent } fro
 import { storyPageFor } from "@runtime/drawerTab";
 import type { WidgetDrawerTab } from "@engine/index";
 import { inlinePresence } from "@runtime/presence";
-import { chatPanelsShown, createPresenceUi, openChatPanel, openPlay, setPanel } from "./presenceUi";
+import { createPresenceUi, openChatPanel, openPlay, setPanel } from "./presenceUi";
+import { castPanelShown, chatPanelsShown } from "@runtime/chatPanels";
 import { requestGuide } from "@guide/request";
 import { onTourRequest } from "@guide/tour/request";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
@@ -325,7 +326,7 @@ const WorkspaceHost = () => {
   return <Lazy quiet><Workspace intent={intent} snapshot={snapshot} manager={manager} settingsHost={settingsHost} onClose={workspaceNavigation.close}
     onContinueBranch={continueBranch}
     imagePanel={<Lazy><ImageChatPanel manager={manager} snapshot={snapshot} /></Lazy>}
-    castPanel={snapshot.ui.authorView ? <Lazy><CastScenePanel manager={manager} snapshot={snapshot} /></Lazy> : null}
+    castPanel={castPanelShown(snapshot) ? <Lazy><CastScenePanel manager={manager} snapshot={snapshot} /></Lazy> : null}
     drawerProps={{ snapshot, manager,
       driver: { context: snapshot.driver, activeNudge: snapshot.activeNudge, controller: driverController, recovery: snapshot.lastFired },
       onOpenSettings: openStorySettings, onEditStory: launch(() => openStudio({ fromChat: true })),

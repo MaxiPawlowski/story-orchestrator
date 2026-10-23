@@ -4,9 +4,9 @@ import type { FeatureWhere } from "./registry";
 export const settingsAt = (selector: string, label: string): FeatureWhere => ({
   selector, label: `Orchestrator › ${label}`, surface: "settings",
   workspace: { context: "orchestrator", control: selector.replace(/^#/, ""),
-    page: /story-library|so-group-story|so-entry-|so-open-studio|so-new-story/.test(selector) ? "library"
-      : /so-presence-|so-hud-|so-your-move-|so-inline-|so-announce-|so-briefing-|so-player-setup/.test(selector) ? "interface"
-        : /so-help-|so-copilot-ask|so-getting-started/.test(selector) ? "help" : "connections" },
+    page: /story-library|so-group-story|so-entry-|so-open-studio|so-new-story|so-announce-transitions|so-getting-started/.test(selector) ? "library"
+      : /so-presence-|so-hud-|so-your-move-|so-inline-|so-briefing-|so-player-setup/.test(selector) ? "interface"
+        : /so-help-|so-copilot-ask/.test(selector) ? "help" : "connections" },
 });
 const PLAY_TARGETS = /so-player-overview|so-player-promises|so-memory-search|so-carry-|so-living-save|so-your-character|so-image-chat|so-open-(suggestions|journal|widgets|stat)/;
 

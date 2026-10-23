@@ -319,3 +319,53 @@ Deviations:
 ### GPU run 2026-10-22
 
 - No real-LLM rows in this plan; nothing run.
+
+### Show me conditional targets 2026-10-23
+
+Branch `v2.9-09-showme-renders` (not merged): `ec8b4821`, `58401bff`, `50f270a1` on master `7b381373`.
+
+Built:
+- `src/runtime/showMeRenders.ts`: `SHOW_ME_CONDITIONAL` (selector -> predicate over `{snapshot, authorView, settings, host}`) and
+  `pageRenders` (Play needs a loaded story; Author and Review need Author view, `#so-author-view` needs player view). HelpHost `placed`
+  returns null when the target will not render, so the row keeps its Where label and loses Show me; Ask's `showable` uses the same `placed`.
+- Shared render conditions, called by the component and the table: `runtime/chatPanels.ts` (`gamePanels`, `chatPanelsShown`, moved out
+  of `presenceUi.tsx`; `castPanelShown`), `runtime/surfaceShown.ts` (promises, carry, living save, memory search, character life, scene
+  tests, `wardenJudged`), `judge/useRows.ts` (`offeredJudgeUses`, `judgeProvidersInUse`, moved out of `JudgeSettingsGroup`).
+- Host facts not on the snapshot (`components/help/helpHostFacts.ts`, read once when Help opens): GPU broker status, judge key
+  configured, ST image source. Unknown = not offered; getting-started is offered only when every unknown value still shows it.
+- Conditional entries: the four Play launchers, promises, carry, living save, memory search, character life, scene tests, cast scene,
+  GPU broker, local judge, getting-started, road-ahead and the 14 author-only judge uses. Every other Help target is listed as always
+  rendered in `showMeRenders.test.ts` (or is a Features control); the guard fails on an unlisted one.
+- Routing fixes found while mapping: `so-character-life` and `so-living-scene-tests` sit in the Blackboard and Scheduler tabs, which
+  `DrawerTabs` now opens when the workspace intent's control names them (`DRAWER_TAB_OF_CONTROL`); `so-announce-transitions` and
+  `so-getting-started` render on Library, not Interface / Help (`where.ts`; label now "Playing › Advanced › Also post a chat note").
+- Harness: `node scripts/debug/so-ui.mts help-showme-audit` (`scripts/debug/lib/helpShowMeAudit.mts`) opens Help, clicks every
+  offered Show me, checks the target is topmost at the centre of its visible part; exits 1 when offered != reached.
+
+Floor (every offered Show me reaches its target): met in all 8 cases. Live (no-model lane 41 under `SO_LANES_ROOT=C:/dev/so-v29-09-lanes`,
+ST code copy `C:/dev/st-v29-09`, staged with `stage.mjs --st-root`; images, sprites, judge off; owner ST and lane 0 untouched):
+- No story (group chat, no story selected): player 47 offered / 47 reached at 1920x1080 and 390x844; author 88 / 88 at both sizes.
+- Loaded synthetic story (`test/fixtures/character-life.story.json`): player 51 / 51 at both sizes; author 95 / 95 at both sizes
+  (character life, cast scene, recent activity offered and reached; journal, stat sheet, widgets, suggestions, promises, carry, living save,
+  memory search, scene tests, GPU broker, local judge not offered: their content or service is absent).
+- Before the two routing fixes and the probe fix the same run read player no story 47 / 44 (getting-started on the wrong page; two tall
+  targets probed at their top-left, under the sticky header).
+- Cleanup: both sandbox chats deleted, story removed from the library, chat metadata wiped, Author view overrides cleared, lane stopped.
+
+Commands and results:
+- `npm run gates:quick`: green (typecheck, typecheck:test, lint, jest related, replay --cached 32/32 killed).
+- `npm run gates` (no --resume, tree of `58401bff`): RED at `test` (errorCopy guard: a silent `.catch` in `helpHostFacts.ts`, fixed in
+  `50f270a1`) and `test-storybook:ci` (environment, below).
+- `npm run gates` (no --resume, tree of `50f270a1`, with `STORYBOOK_PROJECT_ROOT` set): every step green (build, typecheck,
+  typecheck:test, lint, test 10371 passed / 1 skipped, test:replay, test:debug, debug:typecheck, test:plugin, test:release) except
+  `test-storybook:ci`: "No tests found" (testMatch `C:/dev/story-orchestrator\.claude/worktrees/...` matches nothing: this worktree sits
+  under `.claude/`, and Storybook's project root walks up to the main checkout's `.git`). Environment, not code.
+- `npm run test-storybook:ci` on a copy of the same tree at `C:/dev/so-v29-09-sbcheck` (node_modules junctioned, removed after): 165
+  suites / 995 tests passed. No single `npm run gates` run on this branch is green; a merge needs one from a worktree outside `.claude/`.
+- `npm run build`: main `dist/index.js` 1,298,152 B (budget 1,300,000; master about 1,297,996). Help code stays in its lazy chunk.
+
+Deviations:
+- Two routing fixes and one tab-opening change beyond "do not offer": the targets render when routed right, so they are now offered.
+- `so-author-view` stays mapped by page rule only: its feature is author-audience and the button shows only in player view, so it is
+  never offered (correct).
+- The audit's reach check is the centre of the target's visible part (a tall details block is scrolled to its middle by the reveal).
