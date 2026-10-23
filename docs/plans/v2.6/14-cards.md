@@ -2,7 +2,7 @@
 
 # Plan 14 charter cards
 
-Pinned Adolion build `c8b34b145fc98d52380df97b90d0a3820f4f0fbe`. 37 cards. Start one with `node scripts/debug/so-session.mts start <id> --lane <n>`.
+Pinned Adolion build `6716cfa514a6626e4b7dc35c6e3d7cc613ce6121`. 37 cards. Start one with `node scripts/debug/so-session.mts start <id> --lane <n>`.
 
 ## T0
 
