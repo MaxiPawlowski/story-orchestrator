@@ -320,6 +320,11 @@ export const READ_TOOLS = {
   lookupLorebooks: { family: "lookup", doc: "Lorebook names on this install.", args: { query: QUERY } },
   lookupGroups: { family: "lookup", doc: "Group names on this install.", args: { query: QUERY } },
   lookupBackgrounds: { family: "lookup", doc: "Background file names on this install.", args: { query: QUERY } },
+  readCharacterCard: {
+    family: "lookup",
+    doc: "An existing card's first message and example dialogue, as reference data, for a cast member of this draft (to ground a voice sheet).",
+    args: { name: req("string", "the card name, as a roster member names it") },
+  },
 } satisfies Record<string, Omit<AgentToolSpec, "name">>;
 
 export type ReadToolName = keyof typeof READ_TOOLS;

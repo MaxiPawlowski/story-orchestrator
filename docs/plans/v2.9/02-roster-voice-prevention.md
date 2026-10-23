@@ -452,6 +452,7 @@ port (`earlyDrafts`) but not surfaced in the UI; 09's resolver mapping/parity fi
   run and restored): **0 of 2** tasks proposed a sheet. Sol read `roster-polish`, found the card with `lookupCharacters`, and
   stopped: "the lookup returned only his name, not his first message or example dialogue", per the guide rule "Record only what
   the card shows; never invent a trait". Finding: the wizard has no read tool that returns an existing card's `first_mes` /
-  `mes_example`, so on the real route it cannot ground a sheet for an existing card. Not fixed here (a new read tool). A first
+  `mes_example`, so on the real route it cannot ground a sheet for an existing card. **Fixed 2026-10-23** (`v2.9-dev-2026-10-23`):
+  read tool `readCharacterCard` (`copilot/agent/readTools.ts`, test `cardRead.test.ts`); real-route recheck below. A first
   attempt with uncarded cast names was refused the same way; an unrouted first run fell back to the local model (Artemis) and is
   discarded (route mismatch, transport check failed).

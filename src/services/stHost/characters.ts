@@ -27,6 +27,31 @@ export function getCharacterIdByName(name: string): number | undefined {
   return hostCharacters().findIndex((character) => character.name?.trim().toLowerCase() === searchName);
 }
 
+export interface CharacterCardText {
+  firstMes: string;
+  mesExample: string;
+}
+
+const cardField = (value: unknown): string => (typeof value === "string" ? value : "");
+
+export async function readCharacterCardTexts(names: readonly string[]): Promise<Record<string, CharacterCardText>> {
+  const wanted = new Set(names.map((name) => name.trim().toLowerCase()).filter(Boolean));
+  const unshallow = (getContext() as unknown as { unshallowCharacter?: (id: number) => Promise<void> }).unshallowCharacter;
+  const cards: Record<string, CharacterCardText> = {};
+  for (const [index, character] of hostCharacters().entries()) {
+    const name = character?.name?.trim();
+    if (!name || !wanted.has(name.toLowerCase()) || cards[name]) continue;
+    try {
+      if (character.shallow === true && typeof unshallow === "function") await unshallow(index);
+    } catch (err) {
+      log.warn("Failed to load a character card's text", name, err);
+    }
+    const full = hostCharacters()[index] ?? character;
+    cards[name] = { firstMes: cardField(full.first_mes), mesExample: cardField(full.mes_example) };
+  }
+  return cards;
+}
+
 export function getAllCharacterNames(): string[] {
   try {
     return hostCharacters()

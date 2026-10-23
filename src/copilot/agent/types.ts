@@ -90,11 +90,17 @@ export type AgentReply =
   | { kind: "call"; thought?: string; call: AgentToolCall }
   | { kind: "done"; summary: string };
 
+export interface AgentCardText {
+  firstMes: string;
+  mesExample: string;
+}
+
 export interface AgentLookup {
   characters: () => string[];
   lorebooks: () => string[];
   groups: () => string[];
   backgrounds: () => string[];
+  card?: (name: string) => AgentCardText | null;
 }
 
 export const emptyLookup = (): AgentLookup => ({ characters: () => [], lorebooks: () => [], groups: () => [], backgrounds: () => [] });

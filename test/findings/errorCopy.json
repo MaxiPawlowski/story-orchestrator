@@ -12,6 +12,8 @@
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Optional landmark detector unreachable: a typed unavailable answer; the rig review notes the cross-check was skipped." },
     { "site": "src/services/stHost/landmarkDetector.ts#detectFaceLandmarks", "kind": 3, "template": ".catch(() => null)",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Non-JSON plugin answer becomes the typed unavailable answer, never an agreeing check." },
+    { "site": "src/copilot/agent/turn.ts#castCards", "kind": 3, "template": "catch {} #1",
+      "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "A card host that fails leaves readCharacterCard with no card; it answers that no card was found, so the wizard leaves the voice sheet empty instead of inventing it."},
     { "site": "src/sprites/visualManifest.ts#parseSignature", "kind": 3, "template": "catch {} #1",
       "surface": "player", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "An unreadable stored look signature is not a stand-in candidate; the stage keeps the card art and the exact look still renders." },
     { "site": "src/sprites/liveHead/synthesis/detectorCheck.ts#detectorChecker>callback", "kind": 3, "template": "catch {} #1",

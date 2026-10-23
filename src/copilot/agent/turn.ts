@@ -6,7 +6,7 @@ import { advanceAgent, type AgentContext, type AgentTurn } from "./loop";
 import { harnessRoute } from "./bridge";
 import { AgentRouteUnavailable, HARNESS_FALLBACK_KINDS, localRoute, type AgentRoute, type HarnessTransport } from "./route";
 import { AGENT_TOOLS, toolJsonSchema } from "./tools";
-import type { AgentRouteId, AgentSession } from "./types";
+import type { AgentCardText, AgentRouteId, AgentSession } from "./types";
 
 export interface AgentTurnInput {
   session: AgentSession;
@@ -21,7 +21,7 @@ export interface AgentTurnInput {
 
 export const agentToolSchemas = (): Array<Record<string, unknown>> => Object.values(AGENT_TOOLS).map(toolJsonSchema);
 
-const contextFor = (draft: Story, environment: ProvisioningEnvironment, backgrounds?: () => string[]): AgentContext => ({
+const contextFor = (draft: Story, environment: ProvisioningEnvironment, backgrounds?: () => string[], cards: Record<string, AgentCardText> = {}): AgentContext => ({
   draft,
   environment,
   lookup: {
@@ -29,8 +29,18 @@ const contextFor = (draft: Story, environment: ProvisioningEnvironment, backgrou
     lorebooks: () => environment.lorebookNames,
     groups: () => environment.groupNames,
     backgrounds: backgrounds ?? (() => []),
+    card: (name) => Object.entries(cards).find(([card]) => card.toLowerCase() === name.trim().toLowerCase())?.[1] ?? null,
   },
 });
+
+const castCards = async (input: AgentRunnerInput, draft: Story): Promise<Record<string, AgentCardText>> => {
+  if (!input.cards) return {};
+  try {
+    return await input.cards(draft.roster.map((member) => member.name ?? member.id));
+  } catch {
+    return {};
+  }
+};
 
 export const runAgentTurn = (input: AgentTurnInput): Promise<AgentTurn> => {
   const route = input.route === "harness"
@@ -43,6 +53,7 @@ export interface AgentRunnerInput {
   model: ModelCall;
   environment: (draft: Story) => ProvisioningEnvironment;
   backgrounds?: () => string[];
+  cards?: (names: string[]) => Promise<Record<string, AgentCardText>>;
   harness?: () => Promise<HarnessTransport | null>;
   debugResponse?: string;
 }
@@ -82,7 +93,7 @@ export const createAgentRunner = (input: AgentRunnerInput): AgentRunner => {
     return next;
   };
   const runner: AgentRunner = async (session, draft) => {
-    const context = contextFor(draft, input.environment(draft), input.backgrounds);
+    const context = contextFor(draft, input.environment(draft), input.backgrounds, await castCards(input, draft));
     const current = await route();
     try {
       const turn = await advanceAgent(session, context, current);

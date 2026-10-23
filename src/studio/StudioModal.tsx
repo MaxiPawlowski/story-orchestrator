@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { listAllLorebooks, listBackgrounds, listGroupMembers, listPersonas, showConfirmPopup } from "@services/STAPI";
+import { listAllLorebooks, listBackgrounds, listGroupMembers, listPersonas, readCharacterCardTexts, showConfirmPopup } from "@services/STAPI";
 import type { AuthoringStageInput, CopilotStage, ProposalResult } from "@copilot/index";
 import { useDraftStore } from "./draft";
 import { setStoryField } from "./mutations";
@@ -91,7 +91,10 @@ export const WIZARD_HARNESS = resolveAgentHarness;
 
 const agentTurnRunner = (model: ModelCall | undefined, host: WizardHost | undefined): AgentTurnRunner | undefined =>
   (model && host
-    ? wizardAgent.createAgentRunner({ model, environment: (draft) => host.environment(draft), backgrounds: () => readHostOptions().backgroundNames, harness: () => resolveAgentHarness() })
+    ? wizardAgent.createAgentRunner({
+      model, environment: (draft) => host.environment(draft), backgrounds: () => readHostOptions().backgroundNames, cards: readCharacterCardTexts,
+      harness: () => resolveAgentHarness(),
+    })
     : undefined);
 
 type Props = {

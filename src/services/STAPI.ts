@@ -41,6 +41,7 @@ export {
   getCharacterIdByName,
   getAllCharacterNames,
   getCharacters,
+  readCharacterCardTexts,
   getMessageTimeStamp,
 } from "@services/stHost/characters";
 export { executeSlashCommands } from "@services/stHost/slashCommands";
