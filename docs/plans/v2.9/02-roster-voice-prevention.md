@@ -424,3 +424,34 @@ port (`earlyDrafts`) but not surfaced in the UI; 09's resolver mapping/parity fi
 - S6 (attribution gain, repetition, token floors over the frozen arms with an independent rater): NOT run (needs the corpus, two
   arms x 100 replies and a rater pass: > 1 h).
 - S5 wizard real-route check: NOT run (no time left in the window).
+
+### GPU run 2026-10-23
+
+- Window 2026-10-23 ~05:40-09:00Z, local 3090 through the controller (`cli.mjs automatic`), ONE model lane at a time: lane 42
+  on branch `v2.9-gpu2-fixes` (base master `1b2beb9e`, fixes `137a359b`, served bundle `c28c0dcf`, staged into the ST code copy
+  `C:/dev/st-v29-08`), `--allow-local --headed`, images and sprites off, profile `Artemis RunPod RP` -> :18888, context 32768,
+  thinking and inner voice on, group `Group: Arin, DM Narrator` (members Luke, Ponticius, Arin, DM Narrator). Lane 41 (master
+  `45e4a83b` bundle) served the diagnosis runs before the fix. Rater opencode `openai/gpt-6.1-sol` (frozen prompts in each
+  `rate/` folder). Evidence `C:\dev\so-lanes\41\debug\v29gpu2\`, `C:\dev\so-lanes\42\debug\v29gpu2\` (+ each lane's
+  `debug/runs/`), archived to so-sessions.
+- **S6** (frozen before inference: `test/measurements/v2.9/02-s6/frozen.json`, scenarios `v29-02-s6-baseline.json` /
+  `v29-02-s6-prevention.json`): one synthetic guild-hall story, 3 self-voiced members (Luke, Ponticius, Arin) with authored
+  sheets, 20 narrator situations x 3 members = **60 real Artemis replies per arm**, baseline = `characters.delivery` off (through
+  the new `ext_setting` key path, restored after), prevention = on (default). Extraction pinned `SCENE_NONE` in both arms (not the
+  measured path). Rater sol, names stripped, all 120 replies shuffled blind to arm (`rate/s6/`).
+  - Blind speaker attribution: baseline **60/60**, prevention **60/60**, 0 unclear: gain **0 points** (floor >= 10: MISSED, at
+    the ceiling). These three cards already sound distinct to the rater without a sheet, so this corpus cannot show a gain;
+    a harder cast (similar cards) is the open design question. Recorded, not retuned.
+  - Targeted repetition (authored tics + avoid phrases per reply): baseline 2 hits / 60 replies, prevention 1 / 60 (-50 %, floor
+    -25 %: met on tiny counts; Artemis rarely used the authored tics here). Per-speaker hot phrases not scored.
+  - Added guidance per drafted member (delivery lines in the captured prompts, chars/4): n 60, max **113**, p95 109 tokens (floor
+    <= 120: met).
+  - Rater self-agreement repeat: not run (100 % in both arms leaves nothing to disagree on).
+- **S5 wizard real-route check** (lane 44 no-model, Studio open, fixture `test/measurements/v2.9/02-s5/wizard-sheet.json`,
+  `so-wizard-agent.mts recipes --fixture … --route harness`, authoring role routed to `harness:opencode:openai/gpt-6.1-sol` for the
+  run and restored): **0 of 2** tasks proposed a sheet. Sol read `roster-polish`, found the card with `lookupCharacters`, and
+  stopped: "the lookup returned only his name, not his first message or example dialogue", per the guide rule "Record only what
+  the card shows; never invent a trait". Finding: the wizard has no read tool that returns an existing card's `first_mes` /
+  `mes_example`, so on the real route it cannot ground a sheet for an existing card. Not fixed here (a new read tool). A first
+  attempt with uncarded cast names was refused the same way; an unrouted first run fell back to the local model (Artemis) and is
+  discarded (route mismatch, transport check failed).

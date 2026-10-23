@@ -533,3 +533,23 @@ Deviations:
   one real `/trigger` Arin reply, receipt `cue:arin:ledger` written by the real settle path (no `commitContinuityNote`) 5 of 5.
 - C2 pilot (sol rater, blind to lane): cue used **5 of 5**. C5 pilot: player-action narration **0 of 5**. Not the 40-opportunity
   corpus; C2/C5 floors not claimed.
+
+### GPU run 2026-10-23
+
+- Window 2026-10-23 ~05:40-09:00Z, local 3090 through the controller (`cli.mjs automatic`), ONE model lane at a time: lane 42
+  on branch `v2.9-gpu2-fixes` (base master `1b2beb9e`, fixes `137a359b`, served bundle `c28c0dcf`, staged into the ST code copy
+  `C:/dev/st-v29-08`), `--allow-local --headed`, images and sprites off, profile `Artemis RunPod RP` -> :18888, context 32768,
+  thinking and inner voice on, group `Group: Arin, DM Narrator` (members Luke, Ponticius, Arin, DM Narrator). Lane 41 (master
+  `45e4a83b` bundle) served the diagnosis runs before the fix. Rater opencode `openai/gpt-6.1-sol` (frozen prompts in each
+  `rate/` folder). Evidence `C:\dev\so-lanes\41\debug\v29gpu2\`, `C:\dev\so-lanes\42\debug\v29gpu2\` (+ each lane's
+  `debug/runs/`), archived to so-sessions.
+- **C2/C5 corpus** (frozen before inference: `test/measurements/v2.9/04-c2c5/frozen.json`, scenario
+  `v29-04-c2-corpus.json`): 40 opportunities in one guild-hall evening, 30 reaction cues (10 per member, Luke / Ponticius / Arin
+  round-robin, latched with `/cp set`) and 10 no-cue turns; one real Artemis `/trigger` reply each, thinking and inner voice on,
+  extraction pinned `SCENE_NONE` (not the measured path). Offered receipts from the real settle path: **30 of 30 cues offered**, 0
+  offers on no-cue turns (C1 shape held live). Rater sol, blind to lane, all 40 shuffled (`rate/c2/`).
+  - C2 realized relevant reaction among offered cues: **30/30 = 100 %** (floor >= 80 %: met), 10/10 per member.
+  - C5 player-action narration: **0/40** (floor 0: met).
+  - Caveat: each cue restates the event the narrator line just showed, and the corpus has no cue-off arm, so a reaction here
+    does not separate the cue from the scene. Recorded as the corpus was frozen.
+- 07's echo copy change (`137a359b`) touches only the `echo` offer copy; `react`/`must`/`topic` lines are unchanged.

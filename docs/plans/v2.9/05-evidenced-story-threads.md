@@ -499,3 +499,27 @@ Thinking and inner voice untouched.
 - Narrator hint real-Artemis gate (sol rater): reply coloured by the hint **0 of 3**; causal restatement 0 of 3. The hint reaches
   the prompt but Artemis does not use it in this fixture. Recorded, not retuned.
 - P1/P2 corpus (not built), P3 real-play part: NOT run (> 1 h).
+
+### GPU run 2026-10-23
+
+- Window 2026-10-23 ~05:40-09:00Z, local 3090 through the controller (`cli.mjs automatic`), ONE model lane at a time: lane 42
+  on branch `v2.9-gpu2-fixes` (base master `1b2beb9e`, fixes `137a359b`, served bundle `c28c0dcf`, staged into the ST code copy
+  `C:/dev/st-v29-08`), `--allow-local --headed`, images and sprites off, profile `Artemis RunPod RP` -> :18888, context 32768,
+  thinking and inner voice on, group `Group: Arin, DM Narrator` (members Luke, Ponticius, Arin, DM Narrator). Lane 41 (master
+  `45e4a83b` bundle) served the diagnosis runs before the fix. Rater opencode `openai/gpt-6.1-sol` (frozen prompts in each
+  `rate/` folder). Evidence `C:\dev\so-lanes\41\debug\v29gpu2\`, `C:\dev\so-lanes\42\debug\v29gpu2\` (+ each lane's
+  `debug/runs/`), archived to so-sessions.
+- Diagnosis (lane 41, pilot `v29-05-model-pilot.json`, captured narrator prompt `p05-prompt-narr.txt`): the hint was in the
+  narrator's depth-4 block under its header on the turn it was due; nothing withheld. The header asked only to "let it colour
+  the scene". The narrator's inner beat lost the 3 s draft wait by 150 ms (queued behind the extraction read), as in 07.
+- A/B on the captured prompt (10 seeds per arm, sol rater blind to arm, `ab/ab05-r1.json`, `ab/ab05-r2.json`, `rate/p05-ab/`):
+  current header **0/10**; three rewrites 5/10 (2 causal), **5/10 (0 causal)**, 4/10 (1 causal). Took the 0-causal one.
+- Fix `137a359b` (`src/runtime/narratorSheetPort.ts` `PATTERN_HINT_HEADER`): "Already true of the party, from what the player has
+  done (show it in this reply through bodies, mood and the world's response; never state it as the cause of anything):".
+- Re-measure on the real path (lane 42, fixed build, pilot x10, `rate/p05-real/`): reply coloured by the hint **3 of 10** (was 0/3
+  on 2026-10-22), causal restatement 1/10. No floor on hint use (§Predeclared floors: "Not a floor here"); recorded.
+- **P1/P2 corpus** (D + CL labels): 50 sequences (25 positive / 25 negative) written by sol from the `patterns` guide topic alone
+  and frozen before the first matcher run (`test/measurements/v2.9/05-p1p2/request.md`, `corpus.json`; story, refs and labels its
+  own). `SO_MEASURE=1 npx jest src/runtime/patternsCorpus.measure.test.ts` -> `result.json`: **precision 25/25 = 100 %** (floor
+  >= 95 %), **recall 25/25 = 100 %** (floor >= 85 %), exact completion counts 50/50, 0 invalid patterns. All rows synthetic: no
+  real-play rows, so no transcript labels; P3 real-play part still NOT run.

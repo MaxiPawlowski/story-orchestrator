@@ -407,3 +407,22 @@ panel only (not on the widget check button).
 - Harness note: the master fixture's `ext_setting` step replaces the whole install settings object for the run (fine for the
   no-model lane it targets); on a model lane it removes the memory profile mid-run. A run killed before its `finally` keeps the
   wipe (happened once here; lane 41 settings restored from the owner's install copy before the remaining runs).
+
+### GPU run 2026-10-23
+
+- Window 2026-10-23 ~05:40-09:00Z, local 3090 through the controller (`cli.mjs automatic`), ONE model lane at a time: lane 42
+  on branch `v2.9-gpu2-fixes` (base master `1b2beb9e`, fixes `137a359b`, served bundle `c28c0dcf`, staged into the ST code copy
+  `C:/dev/st-v29-08`), `--allow-local --headed`, images and sprites off, profile `Artemis RunPod RP` -> :18888, context 32768,
+  thinking and inner voice on, group `Group: Arin, DM Narrator` (members Luke, Ponticius, Arin, DM Narrator). Lane 41 (master
+  `45e4a83b` bundle) served the diagnosis runs before the fix. Rater opencode `openai/gpt-6.1-sol` (frozen prompts in each
+  `rate/` folder). Evidence `C:\dev\so-lanes\41\debug\v29gpu2\`, `C:\dev\so-lanes\42\debug\v29gpu2\` (+ each lane's
+  `debug/runs/`), archived to so-sessions.
+- Pilot `v29-06-model-pilot.json` x3 on one model lane (lane 42): **12 of 12 asks answered**, 0 timeouts (2026-10-22 on two
+  lanes: 2 of 4, 50.6 s timeouts), 12/12 with at least 3 usable lines, author row grounded 2/4 or 3/4 on every Other ideas
+  (3/4, 3/4, 3/4; 2/4, 3/4, 2/4; 2/4, 2/4, 2/4). Answered in about 4-8 s each. The round-1 timeouts were GPU sharing.
+- Fixture fix `137a359b`: `ext_setting` takes a key path and restores only that leaf (its old value or its absence) and any
+  container the write created (`scripts/debug/lib/interopVerbs.mts`, tests in `interopVerbs.test.mts`);
+  `v29-06-anchored-suggestions.json` now writes only `settings.image.enabled` and `settings.sprites.enabled`. Same whole-object
+  pattern still in seven v2.8 fixtures (`v28-35-*`, `v28-40-*`, `v28-61b-*`), left as they are (no-model lanes).
+- LT acceptance (40 synthetic stuck-player situations x 2 arms): NOT run; the 40 situations need 40 authored stories (quests,
+  arcs, promises, hinted checks, offers), more than 2 h to write before inference.

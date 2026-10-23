@@ -473,3 +473,29 @@ Deviations:
 - Narrator acknowledgement (sol rater): **0 of 5** (floor >= 80 %: MISSED on the pilot; denominator 5 landed-and-offered echoes,
   0 abstentions). A loose lexical match hit 1 of 5, which the rater scored no. Artemis ignores a `may` narrator cue here.
   Recorded, not retuned.
+
+### GPU run 2026-10-23
+
+- Window 2026-10-23 ~05:40-09:00Z, local 3090 through the controller (`cli.mjs automatic`), ONE model lane at a time: lane 42
+  on branch `v2.9-gpu2-fixes` (base master `1b2beb9e`, fixes `137a359b`, served bundle `c28c0dcf`, staged into the ST code copy
+  `C:/dev/st-v29-08`), `--allow-local --headed`, images and sprites off, profile `Artemis RunPod RP` -> :18888, context 32768,
+  thinking and inner voice on, group `Group: Arin, DM Narrator` (members Luke, Ponticius, Arin, DM Narrator). Lane 41 (master
+  `45e4a83b` bundle) served the diagnosis runs before the fix. Rater opencode `openai/gpt-6.1-sol` (frozen prompts in each
+  `rate/` folder). Evidence `C:\dev\so-lanes\41\debug\v29gpu2\`, `C:\dev\so-lanes\42\debug\v29gpu2\` (+ each lane's
+  `debug/runs/`), archived to so-sessions.
+- Diagnosis (lane 41, payload capture `p07-diag-payloads.jsonl`, pilot `v29-04-07-model-pilot.json`): the echo reached the
+  narrator's reply prompt on the turn it was due, in the depth-4 system block, but as a bare bullet with no header ("- If it
+  fits, you may bring up: … Say it as yourself …") right under the narrator's self-voiced directive, and with none of the plan's
+  S3 wording ("Coming back now, already decided by earlier events …"). Nothing was withheld; placement and timing were right; the
+  wording was ours. Side finding, not fixed: the narrator's inner beat for that turn (which itself picked the echo up) lost the
+  3 s draft wait (`INNER_DRAFT_WAIT_MS`) because it queued behind the extraction read on the one GPU, so the reply had no beat.
+- A/B on the captured narrator prompt (same request body to the controller, 10 seeds per arm, sol rater blind to arm,
+  `ab/ab07-r2.json`, `rate/p07-ab/`): current copy **0/10**, plan header **8/10**, header + "bring it into this reply through the
+  world or the people in it" **10/10** (player narration 1/10).
+- Fix `137a359b` (`src/engine/life/offers.ts` `ECHO_HEADER`): an echo renders as that header line plus its own bullet; guide and
+  tests follow. `gates:quick` green.
+- Re-measure on the real path (lane 42, fixed build, same pilot, full replies kept in localStorage, `pilot-replies.json`,
+  `rate/p07-real/`): narrator acknowledged **18 of 20** (90 %, floor >= 80 %: met on this pilot; denominator 20 landed echoes,
+  each staged in the narrator's applied block with one rendered narrator reply; 0 abstentions), player narration 0/20. Runs 1-8 of
+  the 28 kept only the runner's 800-character line; the 20 rated are runs 9-28. Still a single-fixture pilot, not the 40-schedule
+  corpus (which is D and green in jest).

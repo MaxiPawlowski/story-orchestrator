@@ -1,6 +1,14 @@
 # Implementation Overview — Story Orchestrator v2.9
 
-**Status 2026-10-22 (GPU window): 02-09 on master, 03 S0-S2 merged after a real-model shadow run; NOT accepted.** Real-model
+**Status 2026-10-23 (GPU window 2): 02-09 on master with the GPU2 fixes; NOT accepted.** Fixed and re-measured on real
+Artemis: 07 narrator echo acknowledged 18/20 (was 0/5; floor 80 % met on the pilot) after the echo got the plan's own header;
+05 hint used 3/10 (was 0/3, no floor). Corpus rows run: 05 P1/P2 100 %/100 % (50 sol-labelled synthetic sequences), 04 C2 30/30
+and C5 0/40, 02 S6 attribution gain 0 points at a 60/60 ceiling (missed) with repetition 2 -> 1 and guidance max 113 tokens,
+06 pilot 12/12 asks answered on one lane. 02 S5 wizard check 0/2 (no tool reads an existing card's text). NOT run: 08 O4,
+06 LT, 03 S2 at plan size (each > 2 h or needs a rater not authorized). Record: §GPU run 2026-10-23 below and each plan's
+`### GPU run 2026-10-23`.
+
+**Was 2026-10-22 (GPU window): 02-09 on master, 03 S0-S2 merged after a real-model shadow run; NOT accepted.** Real-model
 pilots ran for 02-08 (small N, not the predeclared corpora): 04 cue used 5/5, 07 narrator echo acknowledged 0/5 (floor 80 %
 missed), 05 narrator hint used 0/3, 06 suggestions 2 of 4 asks answered (grounded 3/4), 08 O3 CL 0/40, 03 shadow sane (chat and
 reasoning untouched 24/24, cap honoured, 5 accepted / 6 refused / 4 rate-limited). Every corpus floor still NOT run. Record:
@@ -249,3 +257,18 @@ NOT run: lane live scenarios `v29-04-cues.json`, `v29-06-anchored-suggestions.js
 - `npm run gates -- --serial` on `f28f647f` (no `--resume`, Storybook included): `gates: all green in 612.3s` (test 881 suites /
   10307 passed + 1 skipped, test-storybook:ci 165 / 993, replay 32 of 32 killed). Docs-only commit after it.
 - GPU left as found: controller manual hold, text unloaded; lanes 41/42 stopped (end-of-window evidence in this section's commit).
+
+## GPU run 2026-10-23
+
+- Branch `v2.9-gpu2-fixes` (worktree `C:/dev/so-v29-gpu2`) off master `1b2beb9e` (peer's v2.8 queue merge on `45e4a83b`):
+  `137a359b` fixes (07 echo header, 05 hint header, `ext_setting` key path + 06 fixture, `polishStandIn` test made deterministic),
+  `a4c2dc6b` corpora and harness (05 P1/P2 corpus + jest measure, 02 S6 arms, 04 C2 corpus, pilots keep full replies,
+  `so-wizard-agent recipes --fixture`), then these records.
+- Runs, one model lane at a time (lane 42 on the fixed build, bundle `c28c0dcf`, ST code copy `C:/dev/st-v29-08`; lane 41 on the
+  master bundle for the diagnosis; lane 44 no-model for the wizard check): 07 pilot x28 (20 rated), 05 pilot x10, 06 pilot x3,
+  02 S6 2 x 60 replies, 04 C2 40 replies, plus prompt A/B runs straight to the controller. Numbers per plan.
+- Side finding, not fixed: on one GPU the inner beat for a narrator draft regularly loses the 3 s `INNER_DRAFT_WAIT_MS` because it
+  queues behind the extraction read of the same boundary (07 and 05 diagnosis prompts carried no beat). The late beat lands for a
+  swipe only.
+- Not run: 08 O4 (needs 10 written tasks and a player in the UI), 06 LT (40 stories to author first), 03 S2 at plan size (> 2.5 h
+  at the 40/h cap; independent rater not authorized).

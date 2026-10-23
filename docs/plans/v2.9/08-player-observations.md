@@ -397,3 +397,15 @@ O4 rater and wording; same-pass latch visibility.
 - O3 second-model review (CL, sol, frozen prompt): imposed inner state **0 of 40**, voluntary player action **0 of 40**; rerun with
   two planted controls appended: the 40 again 0/0, controls caught (feeling `c01` F=yes, action `c02` A=yes).
 - O4 (owner or delegated task run) and the final-suite played row: NOT run.
+
+### GPU run 2026-10-23
+
+- Window 2026-10-23 ~05:40-09:00Z, local 3090 through the controller (`cli.mjs automatic`), ONE model lane at a time: lane 42
+  on branch `v2.9-gpu2-fixes` (base master `1b2beb9e`, fixes `137a359b`, served bundle `c28c0dcf`, staged into the ST code copy
+  `C:/dev/st-v29-08`), `--allow-local --headed`, images and sprites off, profile `Artemis RunPod RP` -> :18888, context 32768,
+  thinking and inner voice on, group `Group: Arin, DM Narrator` (members Luke, Ponticius, Arin, DM Narrator). Lane 41 (master
+  `45e4a83b` bundle) served the diagnosis runs before the fix. Rater opencode `openai/gpt-6.1-sol` (frozen prompts in each
+  `rate/` folder). Evidence `C:\dev\so-lanes\41\debug\v29gpu2\`, `C:\dev\so-lanes\42\debug\v29gpu2\` (+ each lane's
+  `debug/runs/`), archived to so-sessions.
+- O4 (10 synthetic tasks, the player finds the observation and reads it as information): NOT run. It needs the 10 tasks
+  written and a player (owner or delegated rater) working the UI; more than 2 h and not a sol-only row.

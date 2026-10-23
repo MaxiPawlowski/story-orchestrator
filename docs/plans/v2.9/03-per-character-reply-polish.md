@@ -309,3 +309,18 @@ Deviations:
 - Merged to master on this evidence (owner 2026-10-22 "validate these plans and merge them"); deviation from the plan's
   S2+S3 joint-merge contract recorded: on by default means shadow sol calls (cap 40/h) on every story with polish sheets or a
   narration sheet once a reply has a finding.
+
+### GPU run 2026-10-23
+
+- Window 2026-10-23 ~05:40-09:00Z, local 3090 through the controller (`cli.mjs automatic`), ONE model lane at a time: lane 42
+  on branch `v2.9-gpu2-fixes` (base master `1b2beb9e`, fixes `137a359b`, served bundle `c28c0dcf`, staged into the ST code copy
+  `C:/dev/st-v29-08`), `--allow-local --headed`, images and sprites off, profile `Artemis RunPod RP` -> :18888, context 32768,
+  thinking and inner voice on, group `Group: Arin, DM Narrator` (members Luke, Ponticius, Arin, DM Narrator). Lane 41 (master
+  `45e4a83b` bundle) served the diagnosis runs before the fix. Rater opencode `openai/gpt-6.1-sol` (frozen prompts in each
+  `rate/` folder). Evidence `C:\dev\so-lanes\41\debug\v29gpu2\`, `C:\dev\so-lanes\42\debug\v29gpu2\` (+ each lane's
+  `debug/runs/`), archived to so-sessions.
+- S2 shadow at plan size (100 eligible replies): NOT run. At the default cap of 40 calls/h and about 1 eligible reply per 2 in
+  forced play, 100 eligible is more than 2.5 h of sol calls alone; the independent rater (not sol) stays unauthorized (DeepSeek is
+  pay-per-token, judge use uncalibrated).
+- Test flake fixed in `137a359b`: `polishStandIn.review.test.ts` waited a fixed 60 ms for a 25 ms stand-in polish and failed
+  under full-gates load; it now waits for the stand-in to finish (`untilPolished`). No behaviour change.
