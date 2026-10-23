@@ -188,7 +188,7 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
   },
   {
     id: "inner-beat",
-    order: 58,
+    order: 9,
     when: ({ manager }) => manager.innerBeatDue(),
     run: ({ manager }) => {
       void manager.runInnerBeat().catch((error) => log.warn("inner beat failed", error));

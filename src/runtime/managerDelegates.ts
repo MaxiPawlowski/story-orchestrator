@@ -156,6 +156,7 @@ export abstract class CoordinatorDelegates {
   async prepareDraftedBeat(chId: number | [number]) { const id = this.co.memory.draftedRosterId(chId); return id ? this.co.inner.prepare(id) : false; }
   innerBeatDue(): boolean { return this.co.inner.due(); }
   runInnerBeat(): Promise<number> { return this.co.inner.run(); }
+  innerBeatPending(): Promise<unknown> | null { return this.co.inner.pending(); }
   commitContinuityNote(rendered: boolean, messageId?: number) {
     this.co.stagecraft.commitNote(rendered);
     this.co.memory.chapters.commitBridge(rendered);

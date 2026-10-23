@@ -1,3 +1,4 @@
+import { YieldGate } from "./yieldGate";
 import type { EngineState, NormalizedStory, NormalizedTransition } from "@engine/index";
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine } from "@memory/index";
 import type { ExtraGateSource, TypedJudge } from "./types";
@@ -87,6 +88,7 @@ export interface SchedulerHost {
   /** True while a multi-voice turn is running and its checkpoint asked extraction to wait for it. */
   holdCadence?(): boolean;
   readCursorSeed?(): number | null;
+  yieldTo?(): Promise<unknown> | null;
 }
 
 export const ANSWERED_SAMPLES = 8;
@@ -125,6 +127,7 @@ export class ExtractionScheduler {
   private cadenceBoundary = -1;
   private cadenceTo: number | null = null;
   private settling: Promise<void> | null = null;
+  private readonly beat = new YieldGate(() => this.host.yieldTo?.(), () => this.pump(), () => this.pumpHeavy());
 
   constructor(private readonly host: SchedulerHost) {}
 
@@ -467,7 +470,7 @@ export class ExtractionScheduler {
   }
 
   private async pump() {
-    if (this.inFlight || this.settling || this.breakerOpen()) return;
+    if (this.inFlight || this.settling || this.breakerOpen() || this.beat.holds()) return;
     const index = this.runnable(this.queue);
     if (index < 0) return;
     const [job] = this.queue.splice(index, 1);
@@ -531,7 +534,7 @@ export class ExtractionScheduler {
   }
 
   private async pumpHeavy() {
-    if (this.heavyInFlight || this.breakerOpen(this.host.heavyRouteKey?.() ?? this.readProfile())) return;
+    if (this.heavyInFlight || this.breakerOpen(this.host.heavyRouteKey?.() ?? this.readProfile()) || this.beat.holds()) return;
     const index = this.runnable(this.heavyQueue);
     const next = index < 0 ? undefined : this.heavyQueue[index];
     if (!next) return;

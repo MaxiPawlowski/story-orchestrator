@@ -48,6 +48,7 @@ const schedulerHost = (live: LiveParts): SchedulerHost => ({
   judgeTyped: () => live.typedJudge,
   holdCadence: () => runtimeManager.isExtractionHeld(),
   readCursorSeed: () => runtimeManager.getReadCursorSeed(),
+  yieldTo: () => runtimeManager.innerBeatPending(),
 });
 
 const scheduleSceneBreak = (live: LiveParts) => runtimeManager.onSceneBreakConfirmed((audit, collect) => {

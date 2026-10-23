@@ -267,7 +267,9 @@ NOT run: lane live scenarios `v29-04-cues.json`, `v29-06-anchored-suggestions.js
 - Runs, one model lane at a time (lane 42 on the fixed build, bundle `c28c0dcf`, ST code copy `C:/dev/st-v29-08`; lane 41 on the
   master bundle for the diagnosis; lane 44 no-model for the wizard check): 07 pilot x28 (20 rated), 05 pilot x10, 06 pilot x3,
   02 S6 2 x 60 replies, 04 C2 40 replies, plus prompt A/B runs straight to the controller. Numbers per plan.
-- Side finding, not fixed: on one GPU the inner beat for a narrator draft regularly loses the 3 s `INNER_DRAFT_WAIT_MS` because it
+- Side finding, **fixed 2026-10-23** (`v2.9-dev-2026-10-23`: boundary work `inner-beat` now runs at order 9, before
+  `scheduler-tick`, and the scheduler waits up to 15 s for an in-flight beat before a read, `extraction/yieldGate.ts`, test
+  `schedulerYield.review.test.ts`; real-model recheck owed): on one GPU the inner beat for a narrator draft regularly loses the 3 s `INNER_DRAFT_WAIT_MS` because it
   queues behind the extraction read of the same boundary (07 and 05 diagnosis prompts carried no beat). The late beat lands for a
   swipe only.
 - Not run: 08 O4 (needs 10 written tasks and a player in the UI), 06 LT (40 stories to author first), 03 S2 at plan size (> 2.5 h

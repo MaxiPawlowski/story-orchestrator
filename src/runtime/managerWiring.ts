@@ -155,14 +155,21 @@ function wireInner(port: ManagerPort, memory: MemoryCoordinator, pacing: () => P
   let innerLoad: Promise<InnerBeatHost> | null = null;
   const loadInner = () => (innerLoad ??= loadInnerRender().then(() => import("./innerBeatHost"))
     .then(({ innerBeatHostFor }) => (innerHost = innerBeatHostFor(port, memory, pacing()))));
+  const running = new Set<Promise<unknown>>();
+  const track = <T>(work: Promise<T>): Promise<T> => {
+    running.add(work);
+    void work.catch(() => undefined).then(() => running.delete(work));
+    return work;
+  };
   const inner = {
     due: () => port.extras().memory.settings.innerBeat === true && Boolean(port.view.getStory()),
-    run: async () => (await loadInner()).run(),
-    prepare: async (rosterId: string) => {
+    run: () => track((async () => (await loadInner()).run())()),
+    prepare: (rosterId: string) => track((async () => {
       if (!inner.due()) return false;
       await (await loadInner()).prepare(rosterId);
       return true;
-    },
+    })()),
+    pending: (): Promise<unknown> | null => (running.size ? Promise.all(running) : null),
     beatFor: (rosterId: string) => innerHost?.beatFor(rosterId) ?? "",
   };
   return inner;

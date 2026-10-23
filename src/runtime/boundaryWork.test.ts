@@ -62,9 +62,9 @@ describe("living story director (v2.8 22)", () => {
 });
 
 describe("inner beat (v2.6 plan 06 C)", () => {
-  it("runs off-path after the scene read, only while the switch is on, and never as a scheduler job", async () => {
+  it("starts before the scheduler tick (its request reaches the shared model ahead of the boundary's reads), only while the switch is on, and never as a scheduler job", async () => {
     const order = BOUNDARY_WORK.map((item) => item.id);
-    expect(order.indexOf("inner-beat")).toBeGreaterThan(order.indexOf("scene-read"));
+    expect(order.indexOf("inner-beat")).toBeLessThan(order.indexOf("scheduler-tick"));
     const runInnerBeat = jest.fn(async () => 1);
     const on = { ...manager, innerBeatDue: () => true, runInnerBeat } as unknown as RuntimeManager;
     const schedule = scheduler.schedule as unknown as jest.Mock;
