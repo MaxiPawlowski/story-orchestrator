@@ -5,6 +5,7 @@ import { lazyRetry } from "@utils/lazyRetry";
 import { BADGE_REFRESH_EVENTS, fillChatInput, mountStoryBadges, mountStoryWand, openStoryGroupChat, showTextPopup, subscribeToHostEvents } from "@services/STAPI";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
+import { chatPanelsShown, gamePanels, type ChatPanel } from "@runtime/chatPanels";
 import type { WidgetDrawerTab } from "@engine/index";
 import { onPlaysChanged, readBadgeMaps } from "@runtime/playsIndexHost";
 import type { ContinueRow } from "@runtime/playsIndex";
@@ -75,30 +76,9 @@ const usePanelViewport = () => {
   return state;
 };
 
-export const gamePanels = (snapshot: RuntimeSnapshot) => {
-  const game = snapshot.ready ? snapshot.game ?? null : null;
-  const shown = snapshot.presence?.shown;
-  return {
-    game, journal: Boolean(game && shown?.journal && (game.journal.length || game.milestones.length || game.codex)), statSheet: Boolean(game?.statSheet && shown?.statSheet),
-    widgets: game && shown?.widgets ? game.widgets : [],
-  };
-};
-
-export type ChatPanel = "journal" | "stat-sheet" | "widgets" | "suggestions";
-
 export const openChatPanel = (panel: ChatPanel, snapshot: RuntimeSnapshot) => {
   if (panel === "widgets") gamePanels(snapshot).widgets.forEach((widget) => setPanel(`widget-${widget.id}`, true));
   else setPanel(panel, true);
-};
-
-export const chatPanelsShown = (snapshot: RuntimeSnapshot): ChatPanel[] => {
-  const game = gamePanels(snapshot);
-  return [
-    ...(game.journal ? ["journal" as const] : []),
-    ...(game.statSheet ? ["stat-sheet" as const] : []),
-    ...(game.widgets.length ? ["widgets" as const] : []),
-    ...(snapshot.ready && snapshot.presence?.shown.suggestions === true ? ["suggestions" as const] : []),
-  ];
 };
 
 const LAUNCHERS: Record<ChatPanel, { id: string; icon: string; label: string }> = {

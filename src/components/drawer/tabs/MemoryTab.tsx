@@ -4,6 +4,7 @@ import { lazyRetry } from "@utils/lazyRetry";
 import { isEstablished, MEMORY_TIERS, withWithheld, type MemoryEntry, type MemoryTier } from "@memory/index";
 import { MEMORY_TIER_LABELS, memorizeProgressText, PLAYER_COPY, pinnedOverflowText } from "@runtime/narrative";
 import type { RuntimeSnapshot } from "@runtime/types";
+import { memoryEntriesFor, memorySearchable } from "@runtime/surfaceShown";
 import type { RuntimeManager } from "@runtime/index";
 
 const ConflictQueue = lazyRetry(() => import("../ConflictQueue"));
@@ -11,7 +12,6 @@ const AuthorMemoryPanels = lazyRetry(() => import("./MemoryPanels"));
 const AuthorMemoryControls = lazyRetry(() => import("./AuthorMemory").then((module) => ({ default: module.AuthorMemoryControls })));
 const AuthorMemoryRowExtras = lazyRetry(() => import("./AuthorMemory").then((module) => ({ default: module.AuthorMemoryRowExtras })));
 
-const MEMORY_SEARCH_FROM = 50;
 
 const characterName = (snapshot: RuntimeSnapshot, id: string) => snapshot.castNames?.[id] ?? id;
 
@@ -83,12 +83,12 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
   const [draftText, setDraftText] = useState("");
   const [excluded, setExcluded] = useState<{ entry: MemoryEntry | null; state: "excluded" | "refused" | "restored" } | null>(null);
 
-  const entries = authorView ? snapshot.memory.entries : snapshot.memoryShown ?? snapshot.memory.entries;
+  const entries = memoryEntriesFor(snapshot, authorView);
   const characterIds = Array.from(new Set(entries.map((entry) => entry.characterId).filter((id): id is string => Boolean(id)))).sort();
   const filtered = characterFilter ? entries.filter((entry) => entry.characterId === characterFilter) : entries;
   // Superseded and folded entries are bookkeeping: the player curates established facts only.
   const visible = authorView ? filtered : filtered.filter((entry) => !entry.supersededBy && (!entry.foldedInto || isEstablished(entry)) && entry.provenance?.validity !== "conflicted");
-  const searchable = entries.length > MEMORY_SEARCH_FROM;
+  const searchable = memorySearchable(snapshot, authorView);
   const needle = query.trim().toLowerCase();
   const shown = visible
     .filter((entry) => !hiddenTiers.includes(entry.tier))

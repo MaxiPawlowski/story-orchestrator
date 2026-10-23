@@ -1,10 +1,12 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, useSyncExternalStore, type ReactNode } from "react";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 import type { OneClickFix, ShowMe } from "@runtime/repair";
 import { chatUpdateSentence } from "@runtime/librarySave";
+import { DRAWER_TAB_OF_CONTROL } from "@runtime/surfaceShown";
+import { workspaceNavigation } from "@runtime/workspaceNavigation";
 import type { DriverController, RecoveryTarget } from "./DriverPanel";
 import { MessageJumpProvider } from "./MessageCitation";
 import { OverviewTab } from "./tabs/OverviewTab";
@@ -97,6 +99,12 @@ export const DrawerTabs = ({
   snapshot, manager, driver, onOpenSettings, onEditStory, onFixWithWizard, onNewStory, onBranchFromOldest, onJumpToMessage, inspect,
 }: DrawerTabsProps) => {
   const [active, setActive] = useState<DrawerTabId>("overview");
+  const intentControl = () => workspaceNavigation.read()?.control;
+  const control = useSyncExternalStore(workspaceNavigation.subscribe, intentControl, intentControl);
+  useEffect(() => {
+    const tab = control ? DRAWER_TAB_OF_CONTROL[control] : undefined;
+    if (tab) setActive(tab);
+  }, [control]);
   // A warden card cites the message a fact was read from, so its button has to land on
   // that fact. A `bound:` id is the blackboard's, and the blackboard tab is where it lives; a memory
   // row is focused in the Memory tab instead.

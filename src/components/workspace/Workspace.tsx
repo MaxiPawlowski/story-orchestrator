@@ -13,6 +13,7 @@ import { setupFindings } from "@runtime/repair";
 import PlayerOverview from "@components/drawer/PlayerOverview";
 import SetupSection from "@components/drawer/SetupSection";
 import { ChatPanelLaunchers } from "../../presenceUi";
+import { livingSaveShown } from "@runtime/surfaceShown";
 import "./workspace.css";
 import { getGlobalSettings } from "@runtime/settingsStore";
 import BranchNotice from "@components/drawer/BranchNotice";
@@ -65,7 +66,7 @@ export default function Workspace({ intent, snapshot, manager, settingsHost, dra
               onRetry={() => void manager.retryExtraction()} onRestart={() => void manager.restartStory()} onDismissPreviously={() => void manager.carry.dismiss()}
               onFlagChapter={(title) => void manager.flagMoment(`chapter summary looks wrong: ${title}`)} />
             {snapshot.playerSetup && <Lazy fallback={null}><YourCharacter snapshot={snapshot} /></Lazy>}
-            {snapshot.living?.canSave && <Lazy fallback={null}><LivingSave onSave={() => manager.living.saveAsStory({ includeUnreached: false })} /></Lazy>}
+            {livingSaveShown(snapshot) && <Lazy fallback={null}><LivingSave onSave={() => manager.living.saveAsStory({ includeUnreached: false })} /></Lazy>}
           </div>
           {settingsHost.openPanel && <ChatPanelLaunchers snapshot={snapshot} onLaunch={settingsHost.openPanel} />}
           {imagePanel && <div className="so-task-card">{imagePanel}</div>}
