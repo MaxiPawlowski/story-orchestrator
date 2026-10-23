@@ -73,7 +73,12 @@ const deadlines = () => {
     return { timers, fire };
 };
 
-function setup({ offer = true, concurrency, fsImpl, fake: fakeOptions = {}, connectWaitMs = SESSION_MS, toolsSettleMs = 300 } = {}) {
+const waitClock = () => {
+    let at = Date.now();
+    return { now: () => at, advance: (ms) => { at += ms; } };
+};
+
+function setup({ offer = true, concurrency, fsImpl, fake: fakeOptions = {}, configWaitMs = 150, connectWaitMs = SESSION_MS, toolsSettleMs = 300, waitNow } = {}) {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'so-bridge-test-'));
     const bin = path.join(root, 'opencode.exe');
     fs.writeFileSync(bin, '');
@@ -96,7 +101,7 @@ function setup({ offer = true, concurrency, fsImpl, fake: fakeOptions = {}, conn
         spawnImpl,
         ...(fsImpl ? { fsImpl } : {}),
         log: (line) => lines.push(line),
-        opencode: { loadLibs: async () => fake.libs, configWaitMs: 150, connectWaitMs, toolsSettleMs },
+        opencode: { loadLibs: async () => fake.libs, configWaitMs, connectWaitMs, toolsSettleMs, ...(waitNow ? { waitNow } : {}) },
         bridge: { timers: clock.timers },
     });
     return { root, config, service, fake, clock, lines, calls: () => (fs.existsSync(path.join(config.tmpRoot, 'calls')) ? fs.readdirSync(path.join(config.tmpRoot, 'calls')) : []) };
@@ -137,10 +142,20 @@ test('a tool call is parked, long-polled by next, answered to the shim, and the 
 });
 
 test('a slow OpenCode location boot does not eat the setup windows: the config wait starts once the location answers, the tool server wait once the config is loaded', async () => {
-    const ctx = setup({ fake: { bootDelayMs: 400, configDelayMs: 100, mcpDelayMs: 250 }, connectWaitMs: 500 });
-    const { service } = ctx;
+    const clock = waitClock();
+    const ctx = setup({ fake: { gates: ['boot', 'config', 'mcp'] }, configWaitMs: 10_000, connectWaitMs: 5_000, waitNow: clock.now });
+    const { service, fake } = ctx;
     const opened = await service.agent.open(openRequest([{ list: true }]));
     assert.equal(opened.ok, true, JSON.stringify(opened));
+    assert.ok(await until(() => fake.state.waiting.some((row) => row.name === 'boot')), 'the location is booting');
+    clock.advance(60_000);
+    fake.open('boot');
+    assert.ok(await until(() => fake.state.agentMisses > 0), 'the location answered and the config is still loading');
+    clock.advance(6_000);
+    fake.open('config');
+    assert.ok(await until(() => fake.state.mcpLists > 0), 'the config loaded and the tool server wait began');
+    clock.advance(4_000);
+    fake.open('mcp');
     const done = await nextEvent(service, opened.sessionId);
     assert.equal(done.kind, 'done', JSON.stringify(done));
     assert.deepEqual(JSON.parse(done.text).exposed, ['so_readStory', 'so_addQuality']);
