@@ -272,3 +272,7 @@ NOT run: lane live scenarios `v29-04-cues.json`, `v29-06-anchored-suggestions.js
   swipe only.
 - Not run: 08 O4 (needs 10 written tasks and a player in the UI), 06 LT (40 stories to author first), 03 S2 at plan size (> 2.5 h
   at the 40/h cap; independent rater not authorized).
+- `npm run gates -- --serial` on `41e907e3` (no `--resume`, Storybook included): `gates: all green in 439.9s` (test 885 suites /
+  10325 passed + 1 skipped, test-storybook:ci 165 / 995, replay 32 of 32 killed, test:debug 1491). A first run on `e270c89a` was red
+  at test:debug only (the 05 pilot store step read the 07 pilot global; fixed in `41e907e3`). Docs-only commit after it.
+- GPU left as found: controller manual hold, text unloaded, no llama-server process, 1449 MiB used (desktop); lanes 41/42/44 stopped.
