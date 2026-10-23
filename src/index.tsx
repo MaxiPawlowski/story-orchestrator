@@ -64,9 +64,9 @@ ui.global("storyOrchestratorAsk", {
   ask: async (question: string, persona?: "player" | "author") => (await askHost()).askInChat(manager, question, persona),
 });
 void loadDraft().then(({ useDraftStore }) => ui.global("storyOrchestratorStudioDraft", useDraftStore));
-void import("./studio/StudioModal").then(({ STUDIO_TAB_IDS, WIZARD_AGENT, WIZARD_HARNESS }) => {
+void import("./studio/StudioModal").then(({ STUDIO_TAB_IDS, WIZARD_AGENT, WIZARD_CARDS, WIZARD_HARNESS }) => {
   ui.global("storyOrchestratorStudioTabs", STUDIO_TAB_IDS);
-  ui.global("storyOrchestratorWizardAgent", { ...WIZARD_AGENT, resolveAgentHarness: WIZARD_HARNESS });
+  ui.global("storyOrchestratorWizardAgent", { ...WIZARD_AGENT, resolveAgentHarness: WIZARD_HARNESS, readCharacterCardTexts: WIZARD_CARDS });
 });
 
 // One Studio for the whole extension: the settings panel and the drawer's author view are separate

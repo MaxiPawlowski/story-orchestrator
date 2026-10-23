@@ -23,7 +23,7 @@ export interface BridgeEvent { op: 'open' | 'next' | 'answer' | 'close'; session
 export const LORE_PROVISION_KINDS = ['createStoryLorebook', 'upsertLorebookEntry'] as const;
 export interface BridgeEvidence { transport: 'none' | 'refusal' | 'bridge' | 'text'; refusal: string | null; events: BridgeEvent[] }
 
-export const UI_RUNNER_HANDLES = ['newAgentSession', 'approvePlan', 'pendingStep', 'decideStep', 'resolveProvisioning', 'applyDraftOp', 'applyProvisioningFollowUps', 'validationErrorCount', 'createAgentRunner', 'driveAgent', 'resolveAgentHarness'] as const;
+export const UI_RUNNER_HANDLES = ['newAgentSession', 'approvePlan', 'pendingStep', 'decideStep', 'resolveProvisioning', 'applyDraftOp', 'applyProvisioningFollowUps', 'validationErrorCount', 'createAgentRunner', 'driveAgent', 'resolveAgentHarness', 'readCharacterCardTexts'] as const;
 
 export function driveWizardAgent(page: any, input: WizardDriveInput) {
   return evaluateInST(page, async ({ input, handles }: { input: WizardDriveInput & { maxTokens?: number; timeoutMs?: number; loreKinds?: readonly string[] }; handles: readonly string[] }) => {
@@ -110,7 +110,7 @@ export function driveWizardAgent(page: any, input: WizardDriveInput) {
       return transport.bridge ? { ...transport, bridge: recording(transport.bridge) } : transport;
     };
     const loreKinds: readonly string[] = input.loreKinds ?? [];
-    const runner = agent.createAgentRunner({ model: rt.model, environment: (draft: unknown) => rt.getProvisioningEnvironment(draft), harness });
+    const runner = agent.createAgentRunner({ model: rt.model, environment: (draft: unknown) => rt.getProvisioningEnvironment(draft), cards: agent.readCharacterCardTexts, harness });
     const ownership = { mint: () => ({}), check: () => ({ ok: true }) };
     store.getState().newDraft();
     if (input.seed) store.getState().mutate(() => input.seed);

@@ -20,7 +20,9 @@ function install(transport: (() => Promise<any>) | null, omit: string[] = []) {
     applyProvisioningFollowUps: (current: any) => current,
     validationErrorCount: () => 0,
     resolveAgentHarness: async () => { calls.push('resolve'); return transport ? transport() : null; },
-    createAgentRunner: ({ harness }: any) => {
+    readCharacterCardTexts: async () => ({}),
+    createAgentRunner: ({ harness, cards }: any) => {
+      calls.push(cards === agent.readCharacterCardTexts ? 'cards' : 'no-cards');
       let open: string | null = null;
       let pending: string | null = null;
       let turns = 0;
@@ -85,6 +87,7 @@ test('AS-21 wizard drive: the measurement goes through the Studio runner and its
   const calls = install(async () => shared);
   const result = await driveWizardAgent(page, input);
   assert.ok(calls.includes('resolve') && calls.includes('drive') && calls.includes('runner'));
+  assert.ok(calls.includes('cards') && !calls.includes('no-cards'), 'the drive passes the Studio runner its card reader');
   assert.equal(result.bridge.transport, 'bridge');
   assert.deepEqual(result.bridge.events.map((event) => event.op), ['open', 'next', 'answer', 'next']);
   assert.deepEqual(bridgeEvidenceProblems('harness', result.bridge), []);

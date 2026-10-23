@@ -88,6 +88,7 @@ const readHostOptions = (): StudioHostOptions => {
 
 export const WIZARD_AGENT = wizardAgent;
 export const WIZARD_HARNESS = resolveAgentHarness;
+export const WIZARD_CARDS = readCharacterCardTexts;
 
 const agentTurnRunner = (model: ModelCall | undefined, host: WizardHost | undefined): AgentTurnRunner | undefined =>
   (model && host
