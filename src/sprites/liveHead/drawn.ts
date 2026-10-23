@@ -58,9 +58,9 @@ export function drawnLineage(artHash: string, source: DrawnSource, frames: Parti
     frames: DRAWN_FRAMES.map((key) => [key, frames[key]?.path ?? null, frames[key]?.sha256 ?? null]) });
 }
 
-interface Window { image: PixelImage; x: number; y: number }
+export interface Window { image: PixelImage; x: number; y: number }
 
-function frameWindow(rig: Rig, image: PixelImage, box: HeadBox | undefined): Window | string {
+export function frameWindow(rig: Rig, image: PixelImage, box: HeadBox | undefined): Window | string {
   const { width, height } = rig.image;
   if (!box) return image.width === width && image.height === height ? { image, x: 0, y: 0 } : "frame size differs from the rig artwork";
   const crop = box.width === width && box.height === height ? box : bustBox(image, box);
@@ -70,6 +70,17 @@ function frameWindow(rig: Rig, image: PixelImage, box: HeadBox | undefined): Win
 }
 
 const at = (view: Window, x: number, y: number): number => ((view.y + y) * view.image.width + view.x + x) * 4;
+
+export function rigWindow(rig: Rig, image: PixelImage, box: HeadBox | undefined): PixelImage | string {
+  const view = frameWindow(rig, image, box);
+  return typeof view === "string" ? view : windowPixels(rig, view);
+}
+
+export function windowPixels(rig: Rig, view: Window): PixelImage {
+  const image = view.image, { width, height } = rig.image, data = new Uint8ClampedArray(width * height * 4);
+  for (let y = 0; y < height; y++) data.set(image.data.subarray(at(view, 0, y), at(view, width, y)), y * width * 4);
+  return { width, height, data };
+}
 
 function cut(view: Window, art: PixelImage, rect: Rect, weight: (x: number, y: number) => number, guard: (x: number, y: number) => boolean): { pixels: Uint8Array; drift: number; ring: number } {
   const [rx, ry, rw, rh] = rect, pixels = new Uint8Array(rw * rh * 4), source = view.image.data;

@@ -30,6 +30,8 @@ export const FS = `#version 300 es
 precision highp float;
 in vec2 vUv; out vec4 outColor;
 uniform sampler2D uTex;
+uniform sampler2D uTex2;
+uniform float uMix;
 uniform vec4 uRect;
 uniform int uFace;
 uniform float uAlpha;
@@ -78,7 +80,11 @@ vec2 eyeLids(int e, float u, float top, float bot) {
   return vec2(top + max(d.x, raw.x), bot + min(d.y, raw.y));
 }
 
-vec4 texAt(vec2 p) { return texture(uTex, (p - uRect.xy) / uRect.zw); }
+vec4 texAt(vec2 p) {
+  vec2 uv = (p - uRect.xy) / uRect.zw;
+  vec4 c = texture(uTex, uv);
+  return uMix > 0.0 ? mix(c, texture(uTex2, uv), uMix) : c;
+}
 
 
 

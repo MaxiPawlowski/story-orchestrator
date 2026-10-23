@@ -965,6 +965,14 @@
       "status": "local",
       "note": "v2.8 A15: fills a local result array from a temporary vector collection it owns and purges; the caller (LoreCreator.run) checks ownership after it returns. Tests: runtime/createNearDups.test.ts."
     },
+    "src/sprites/liveHead/expressions.ts#HeadLooks.load": {
+      "status": "checked",
+      "note": "v2.8 81: re-checks the bound RunGuard after the neutral decode and after prepareLook before adding the look to the renderer or recording ready/failed; the catch records a failure only while the run still owns the head. loading.delete in finally is instance-local. Tests: liveHead/expressions.test.ts (loading looks on demand)."
+    },
+    "src/sprites/liveHead/expressions.ts#prepareLook": {
+      "status": "checked",
+      "note": "v2.8 81: fills a function-local frame map and the module look cache, re-checking the RunGuard after every await and returning null when lapsed; the renderer write happens in HeadLooks.load after its own check. Tests: liveHead/expressions.test.ts (stale run returns null)."
+    },
     "src/sprites/liveHead/drawn.ts#prepareDrawn": {
       "status": "checked",
       "note": "v2.8 36 drawn frames: fills function-local frame and source maps, re-checking the RunGuard after every await; attachHead checks again before any renderer write. Tests: liveHead/drawn.test.ts (stale run at each check)."

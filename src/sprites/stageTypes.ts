@@ -3,6 +3,7 @@ import type { LiveHeadRef } from "./liveHeadRefs";
 import type { Framing } from "./direction";
 import type { AnimationFrames } from "./animation";
 import type { DrawnSource } from "./liveHead/drawn";
+import type { ExpressionSources } from "./liveHead/expressions";
 import type { SpriteActivation, SpriteSettings } from "./settings";
 import type { Segment } from "./segment";
 import type { ExpressionRead } from "./classify";
@@ -19,6 +20,7 @@ export interface StageActor {
   frames?: AnimationFrames;
   liveHead?: LiveHeadRef;
   headFrames?: DrawnSource;
+  headLooks?: ExpressionSources;
 }
 
 export type StagePlacement = "vn" | "strip";

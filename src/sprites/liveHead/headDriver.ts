@@ -12,15 +12,16 @@ export class HeadDriver {
   private cycle = -1;
   private gap = 0;
   private label: string | null = null;
+  private textured = false;
   private expression: Partial<HeadParameters> = {};
 
   constructor(private readonly seed: string) {
     this.phase = Number.parseInt(fnv1a(seed), 16) / 0xffffffff * Math.PI * 2;
   }
 
-  drive(elapsedMs: number, label: string, streaming: boolean, motion: boolean, breathing = true, blink = true, mouth = true): HeadParameters {
+  drive(elapsedMs: number, label: string, streaming: boolean, motion: boolean, breathing = true, blink = true, mouth = true, textured = false): HeadParameters {
     const out = this.parameters;
-    if (label !== this.label) { this.label = label; this.expression = expressionHead(label); }
+    if (label !== this.label || textured !== this.textured) { this.label = label; this.textured = textured; this.expression = textured ? {} : expressionHead(label); }
     const expression = this.expression;
     out.breath = 0; out.angleX = 0; out.angleY = 0; out.angleZ = 0; out.gazeX = 0; out.gazeY = 0;
     out.eyeOpen = 1; out.eyeSmile = 0; out.mouthOpen = 0; out.mouthForm = 0; out.browY = 0; out.browAngle = 0; out.blush = 0;

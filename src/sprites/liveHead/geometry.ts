@@ -36,6 +36,23 @@ const sampled = (values: number[], u: number): number => {
 };
 
 const TAP_STEPS = [-2, -1, 0, 1, 2], TAP_WEIGHTS = [1, 2, 3, 2, 1];
+const LID_BANDS = new WeakMap<Rig, [number, number]>();
+
+export function lidGuard(rig: Rig): [number, number] {
+  let band = LID_BANDS.get(rig);
+  if (!band) {
+    const tops = rig.eyes.flatMap((eye) => eye.top), top = tops.length ? Math.min(...tops) : Number.POSITIVE_INFINITY;
+    const height = Math.max(0, ...rig.eyes.map((eye) => sampled(eye.bot, 0.5) - sampled(eye.top, 0.5)));
+    band = [top - 2 - Math.max(3, height * 0.6), top - 2];
+    LID_BANDS.set(rig, band);
+  }
+  return band;
+}
+
+export function browWeight(rig: Rig, x: number, y: number): number {
+  const brow = rig.face.brow, lid = lidGuard(rig);
+  return gaussian(x, y, brow) * (1 - smooth(brow.band[0], brow.band[1], y)) * (1 - smooth(lid[0], lid[1], y));
+}
 
 export function eyeVertexY(eye: Eye, part: string, x: number, y: number, open: number, smile: number): number {
   if (part !== "lash" && part !== "low" && part !== "crease") return y;
@@ -61,7 +78,7 @@ export function deformInto(rig: Rig, x: number, y: number, p: HeadParameters, ou
   const ax = p.angleX / 30, ay = p.angleY / 30;
   let px = x, py = y;
   if (p.browY !== 0 || p.browAngle !== 0) {
-    const brow = gaussian(x, y, face.brow) * (1 - smooth(face.brow.band[0], face.brow.band[1], y));
+    const brow = browWeight(rig, x, y);
     py -= p.browY * 7 * brow;
     py += (x - face.brow.cx) * Math.sin(p.browAngle * 0.12 * brow);
   }
@@ -134,7 +151,7 @@ export function vertexWeights(rig: Rig, rest: Float32Array): Float64Array {
   const head = rig.head, body = rig.body, face = rig.face, weights = new Float64Array(rest.length / 2 * WEIGHT_STRIDE);
   for (let i = 0, k = 0; i < rest.length; i += 2, k += WEIGHT_STRIDE) {
     const x = rest[i], y = rest[i + 1];
-    weights[k] = gaussian(x, y, face.brow) * (1 - smooth(face.brow.band[0], face.brow.band[1], y));
+    weights[k] = browWeight(rig, x, y);
     weights[k + 1] = gaussian(x, y, face.jaw); weights[k + 2] = smooth(face.jaw.band[0], face.jaw.band[1], y);
     weights[k + 3] = gaussian(x, y, face.nose); weights[k + 4] = gaussian(x, y, face.mouth);
     weights[k + 5] = gaussian(x, y, face.eyeA); weights[k + 6] = gaussian(x, y, face.eyeB);

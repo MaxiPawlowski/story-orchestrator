@@ -2,6 +2,7 @@ import { findLiveHead, type LiveHeadRef } from "./liveHeadRefs";
 import type { Actor } from "./castLoad";
 import { currentVisual, lookSignature, visualHead, type VisualManifest, type VisualSources } from "./visualManifest";
 import type { DrawnSource } from "./liveHead/drawn";
+import type { ExpressionSources } from "./liveHead/expressions";
 import { FRAME_KEYS } from "./frameKeys";
 
 type Member = { name: string; avatar: string };
@@ -40,10 +41,22 @@ export function actorHeadFrames(actor: Actor, sources?: VisualSources): DrawnSou
   return box ? { frames: { ...frames }, box: { ...box } } : { frames: { ...frames } };
 }
 
-export const actorHead = (actor: Actor, roster: Roster, settings: { liveHeadRigs: Record<string, LiveHeadRef>; liveHeadFrames: boolean; visualSources: VisualSources }) => ({
-  liveHead: actorHeadRef(actor, roster, settings.liveHeadRigs, settings.visualSources),
-  headFrames: settings.liveHeadFrames ? actorHeadFrames(actor, settings.visualSources) : undefined,
-});
+export function actorHeadLooks(actor: Actor, frames: boolean, sources?: VisualSources): ExpressionSources | undefined {
+  const pack = actor.packs.get(actor.set), sets = actor.frames.get(actor.set), neutral = sets?.get("neutral");
+  const looks = Object.fromEntries([...pack ?? []].filter(([label]) => label !== "neutral").map(([label, art]) => {
+    const own = sets?.get(label), chosen = FRAME_KEYS.some((key) => own?.[key]) ? own : neutral;
+    return [label, { art, frames: frames && chosen ? { ...chosen } : {} }];
+  }));
+  if (!Object.keys(looks).length) return undefined;
+  const box = sources?.[actor.profile.folder]?.box;
+  return box ? { box: { ...box }, looks } : { looks };
+}
+
+export function actorHead(actor: Actor, roster: Roster, settings: { liveHeadRigs: Record<string, LiveHeadRef>; liveHeadFrames: boolean; visualSources: VisualSources }) {
+  const liveHead = actorHeadRef(actor, roster, settings.liveHeadRigs, settings.visualSources);
+  return { liveHead, headFrames: settings.liveHeadFrames ? actorHeadFrames(actor, settings.visualSources) : undefined,
+    headLooks: liveHead ? actorHeadLooks(actor, settings.liveHeadFrames, settings.visualSources) : undefined };
+}
 
 export function castHeadStatus(actors: readonly Actor[], members: readonly Member[], roster: Roster, refs: Record<string, LiveHeadRef>, sources?: VisualSources) {
   return members.map((member) => {

@@ -32,6 +32,8 @@ import { GAZE_TRAVEL, eyeTone, gazeLimits, irisSpan, limitGaze, type IrisSpan, t
 import { DrawnDirector, mouthInner, squashVertex, type DrawnSprite, type DrawnState } from "./drawn";
 import { MeshMouth, meshMouthMode, mouthRegionProblem, type MeshMouthMode } from "./meshMouth";
 import { DEFAULT_MOUTH_CONFIG, type MouthConfig } from "../mouthConfig";
+import type { PixelImage } from "../builder/pixels";
+import type { PreparedLook } from "./expressions";
 
 interface LayerResources {
   layer: HeadLayer; mesh: HeadMesh; vao: WebGLVertexArrayObject; position: WebGLBuffer; texture: WebGLTexture; buffers: WebGLBuffer[];
@@ -45,7 +47,21 @@ interface DrawnResources {
   weights: Float64Array | null; inner: Float32Array | null; eye: number; dirty: boolean; squash: number; width: number;
 }
 
+interface Look {
+  name: string | null; textures: Map<string, WebGLTexture>; drawn: DrawnResources[]; director: DrawnDirector | null;
+  sclera: Float32Array; iris: Float32Array; limits: Array<[number, number] | null>; gaze: [boolean, boolean]; toned: boolean;
+}
+
 const ERROR_CHECK_EVERY = 120;
+export const LOOK_FADE_MS = 220;
+
+const newLook = (name: string | null, gaze: [boolean, boolean] = [true, true]): Look =>
+  ({ name, textures: new Map(), drawn: [], director: null, sclera: new Float32Array(8), iris: new Float32Array(8), limits: [null, null], gaze, toned: false });
+
+function ballPixels(image: PixelImage, rect: HeadLayer["rect"], eye: Eye | undefined): { tone: Tone; span: IrisSpan | null } {
+  const tone = eyeTone(image.data);
+  return { tone, span: eye ? irisSpan(image, rect, eye, tone) : null };
+}
 
 function readBall(image: HTMLImageElement, rect: HeadLayer["rect"], eye: Eye | undefined): { tone: Tone; span: IrisSpan | null } | null {
   if (typeof OffscreenCanvas === "undefined") return null;
@@ -53,8 +69,7 @@ function readBall(image: HTMLImageElement, rect: HeadLayer["rect"], eye: Eye | u
     const canvas = new OffscreenCanvas(image.naturalWidth, image.naturalHeight), context = canvas.getContext("2d", { willReadFrequently: true });
     if (!context) return null;
     context.drawImage(image, 0, 0);
-    const data = context.getImageData(0, 0, image.naturalWidth, image.naturalHeight).data, tone = eyeTone(data);
-    return { tone, span: eye ? irisSpan({ width: image.naturalWidth, height: image.naturalHeight, data }, rect, eye, tone) : null };
+    return ballPixels({ width: image.naturalWidth, height: image.naturalHeight, data: context.getImageData(0, 0, image.naturalWidth, image.naturalHeight).data }, rect, eye);
   } catch { return null; }
 }
 
@@ -70,16 +85,16 @@ export class HeadRenderer {
   private readonly eyeBot: Float32Array;
   private readonly cheeks: Float32Array;
   private readonly eyeState = new Float32Array(8);
-  private readonly sclera = new Float32Array(8);
-  private readonly iris = new Float32Array(8);
-  private readonly limits: Array<[number, number] | null> = [null, null];
-  private toned = false;
+  private readonly base = newLook(null);
+  private readonly looks = new Map<string, Look>();
+  private target: Look = this.base;
+  private from: Look | null = null;
+  private fade = 1;
+  private toneSent = false;
   private readonly uploaded = new Float64Array(14).fill(Number.NaN);
   private hair: HairPhysics | null = null;
   private hairShown = false;
   private hand: HandResources | null = null;
-  private readonly drawn: DrawnResources[] = [];
-  private director: DrawnDirector | null = null;
   private lastTime = Number.NaN;
   private readonly meshMouth: MeshMouth;
   private readonly mouthBroken: boolean;
@@ -156,12 +171,47 @@ export class HeadRenderer {
     if (hair && !this.hair) this.hair = new HairPhysics(rig, hair.offsets);
     this.layers.push({ layer, ...resources, eye: eye ? Number(eye[1]) : -1, part, lidded, weights: lidded ? null : vertexWeights(rig, resources.mesh.rest), hair });
     const index = Number(eye?.[1]), ball = part === "ball" ? readBall(image, layer.rect, rig.eyes[index]) : null;
-    if (ball) {
-      this.sclera.set([...ball.tone, 1], index * 4); this.toned = true;
-      if (ball.span) { this.iris.set([ball.span[0], ball.span[1], 1, 0], index * 4); this.limits[index] = gazeLimits(rig.eyes[index], ball.span); }
-    }
+    if (ball) this.tone(this.base, index, ball);
     this.upload(image);
   }
+
+  private tone(look: Look, index: number, ball: { tone: Tone; span: IrisSpan | null }): void {
+    look.sclera.set([...ball.tone, 1], index * 4); look.toned = true;
+    if (ball.span) { look.iris.set([ball.span[0], ball.span[1], 1, 0], index * 4); look.limits[index] = gazeLimits(this.manifest.rig.eyes[index], ball.span); }
+  }
+
+  addLook(prepared: PreparedLook): void {
+    if (this.closed || this.looks.has(prepared.name)) return;
+    const gl = this.gl, rig = this.manifest.rig, look = newLook(prepared.name, prepared.gaze);
+    try {
+      for (const resource of this.layers) {
+        const cut = prepared.layers.find((layer) => layer.name === resource.layer.name);
+        if (!cut || cut.rect.some((value, k) => value !== resource.layer.rect[k]) || cut.image.width !== cut.rect[2] || cut.image.height !== cut.rect[3])
+          throw new Error("Expression layers differ from the rig.");
+        const texture = gl.createTexture();
+        if (!texture) throw new Error("Could not allocate an expression texture.");
+        look.textures.set(resource.layer.name, texture);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, cut.rect[2], cut.rect[3], 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(cut.image.data.buffer, cut.image.data.byteOffset, cut.image.data.length));
+        this.sampling();
+        if (resource.part === "ball") this.tone(look, resource.eye, ballPixels(cut.image, cut.rect, rig.eyes[resource.eye]));
+      }
+      this.addSprites(look, prepared.sprites);
+      if (gl.getError() !== gl.NO_ERROR) throw new Error("Expression texture upload failed.");
+    } catch (error) { this.release(look); throw error; }
+    this.looks.set(prepared.name, look);
+  }
+
+  showLook(name: string | null, cut: boolean): void {
+    const next = name === null ? this.base : this.looks.get(name);
+    if (!next) return;
+    if (next === this.target) { if (cut) { this.from = null; this.fade = 1; } return; }
+    this.from = cut ? null : this.target; this.fade = cut ? 1 : 0; this.target = next;
+    this.meshMouth.mode = meshMouthMode(this.manifest.rig, next.director?.hasMouth() ?? false, this.mouth);
+  }
+
+  shownLook(): string | null { return this.target.name; }
 
   private upload(image: HTMLImageElement): void {
     const gl = this.gl;
@@ -176,11 +226,16 @@ export class HeadRenderer {
   motionParts(): { strands: number; hand: boolean } { return { strands: this.hair?.strands.length ?? 0, hand: this.hand !== null }; }
 
   addDrawn(sprites: readonly DrawnSprite[]): void {
+    this.addSprites(this.base, sprites);
+    if (this.target === this.base) this.meshMouth.mode = meshMouthMode(this.manifest.rig, this.base.director?.hasMouth() ?? false, this.mouth);
+  }
+
+  private addSprites(look: Look, sprites: readonly DrawnSprite[]): void {
     const gl = this.gl, rig = this.manifest.rig;
     for (const sprite of sprites) {
       const resources = this.allocate(sprite.rect, rig.mesh.spriteCell), rest = resources.mesh.rest, mouth = sprite.name.startsWith("mouth");
       const inner = mouth ? new Float32Array(rest.length / 2).map((_, k) => mouthInner(rig, rest[k * 2], rest[k * 2 + 1])) : null;
-      this.drawn.push({ sprite, ...resources, weights: mouth ? null : vertexWeights(rig, rest), inner, eye: sprite.name === "eyes_closed_1" ? 1 : sprite.name === "eyes_closed_0" ? 0 : -1,
+      look.drawn.push({ sprite, ...resources, weights: mouth ? null : vertexWeights(rig, rest), inner, eye: sprite.name === "eyes_closed_1" ? 1 : sprite.name === "eyes_closed_0" ? 0 : -1,
         dirty: true, squash: Number.NaN, width: Number.NaN });
       gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, sprite.rect[2], sprite.rect[3], 0, gl.RGBA, gl.UNSIGNED_BYTE, sprite.pixels);
@@ -188,11 +243,10 @@ export class HeadRenderer {
       this.sampling();
       if (gl.getError() !== gl.NO_ERROR) throw new Error("Drawn sprite upload failed.");
     }
-    this.director = this.drawn.length ? new DrawnDirector(new Set(this.drawn.map((entry) => entry.sprite.name)), this.mouth) : null;
-    this.meshMouth.mode = meshMouthMode(rig, this.director?.hasMouth() ?? false, this.mouth);
+    look.director = look.drawn.length ? new DrawnDirector(new Set(look.drawn.map((entry) => entry.sprite.name)), this.mouth) : null;
   }
 
-  drawnNames(): string[] { return this.drawn.map((entry) => entry.sprite.name); }
+  drawnNames(): string[] { return this.base.drawn.map((entry) => entry.sprite.name); }
 
   mouthMode(): MeshMouthMode { return this.meshMouth.mode; }
 
@@ -203,8 +257,9 @@ export class HeadRenderer {
 
   draw(input: HeadParameters, now = Number.NaN): void {
     const gl = this.gl, canvas = this.canvas, rig = this.manifest.rig;
-    const dt = Number.isFinite(now - this.lastTime) ? now - this.lastTime : 0, p = this.meshMouth.apply(input, dt);
-    const drawn = this.director?.update(this.mouthBroken ? p : input, dt) ?? null;
+    const dt = Number.isFinite(now - this.lastTime) ? now - this.lastTime : 0, p = this.meshMouth.apply(input, dt), look = this.target;
+    const mix = this.stepFade(dt), from = this.from;
+    const drawn = look.director?.update(this.mouthBroken ? p : input, dt) ?? null;
     this.lastTime = now;
     if (this.closed || gl.isContextLost()) throw new Error("Live head context was lost.");
     if (canvas.parentElement?.parentElement?.classList.contains("so-framed")) canvas.style.width = `${canvas.clientHeight * rig.image.width / rig.image.height}px`;
@@ -215,18 +270,8 @@ export class HeadRenderer {
     gl.viewport(0, 0, width, height); gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); gl.useProgram(this.program);
     gl.uniform2f(this.uniform("uScale"), 2 * scale / width, -2 * scale / height);
     gl.uniform2f(this.uniform("uOffset"), -rig.image.width * scale / width, 1 - 2 * (height - rig.image.height * scale) / height);
-    gl.uniform1i(this.uniform("uTex"), 0);
-    gl.uniform4fv(this.uniform("uEyeBox"), this.eyeBox);
-    gl.uniform1fv(this.uniform("uEyeTop"), this.eyeTop); gl.uniform1fv(this.uniform("uEyeBot"), this.eyeBot);
-    const state = this.eyeState;
-    state[0] = p.eyeOpen; state[1] = p.eyeSmile; state[2] = limitGaze(p.gazeX * GAZE_TRAVEL.x[0], this.limits[0]); state[3] = -p.gazeY * GAZE_TRAVEL.y;
-    state[4] = p.eyeOpen; state[5] = p.eyeSmile; state[6] = limitGaze(p.gazeX * GAZE_TRAVEL.x[1], this.limits[1]); state[7] = -p.gazeY * GAZE_TRAVEL.y;
-    gl.uniform4fv(this.uniform("uEyeState"), state);
-    if (this.toned) { gl.uniform4fv(this.uniform("uSclera"), this.sclera); gl.uniform4fv(this.uniform("uIris"), this.iris); }
-    gl.uniform4f(this.uniform("uMouth"), rig.mouth.cx, rig.mouth.cy, rig.mouth.angle, rig.mouth.halfLen);
-    gl.uniform4f(this.uniform("uMouthState"), this.director?.hasMouth() ? 0 : p.mouthOpen, p.mouthForm, rig.mouth.bow, Math.max(8, rig.face.jaw.cy + rig.face.jaw.ry - rig.mouth.cy));
-    gl.uniform4fv(this.uniform("uCheeks"), this.cheeks); gl.uniform1f(this.uniform("uCheek"), p.blush);
-    gl.activeTexture(gl.TEXTURE0);
+    gl.uniform1i(this.uniform("uTex"), 0); gl.uniform1i(this.uniform("uTex2"), 1);
+    this.faceUniforms(look, p);
     const { deformed, lids, hand: handMoved } = this.changes(p);
     const hair = this.hair, hairMoving = this.stepHair(p, dt);
     for (const resource of this.layers) {
@@ -241,23 +286,48 @@ export class HeadRenderer {
         }
         gl.bindBuffer(gl.ARRAY_BUFFER, resource.position); gl.bufferSubData(gl.ARRAY_BUFFER, 0, mesh.pos);
       }
-      gl.bindTexture(gl.TEXTURE_2D, resource.texture); gl.uniform4fv(this.uniform("uRect"), layer.rect);
+      const texture = look.textures.get(layer.name) ?? resource.texture, before = from ? from.textures.get(layer.name) ?? resource.texture : texture;
+      gl.activeTexture(gl.TEXTURE1); gl.bindTexture(gl.TEXTURE_2D, texture);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D, before);
+      gl.uniform1f(this.uniform("uMix"), before === texture ? 0 : mix); gl.uniform4fv(this.uniform("uRect"), layer.rect);
       gl.uniform1i(this.uniform("uFace"), part === "ball" ? 2 + resource.eye : layer.name === "base" ? 1 : 0);
       const blink = Math.min(1, Math.max(0, 1 - p.eyeOpen));
       gl.uniform1f(this.uniform("uAlpha"), part === "low" ? 1 - Math.min(1, blink * p.eyeSmile * 1.2) : part === "crease" ? 1 - 0.45 * blink : 1);
       if (!drawn || resource.eye < 0 || !drawn.covered[resource.eye]) gl.drawElements(gl.TRIANGLES, mesh.triangles.length, gl.UNSIGNED_INT, 0);
     }
-    if (drawn) this.drawSprites(p, drawn, deformed);
+    gl.uniform1f(this.uniform("uMix"), 0);
+    if (drawn) this.drawSprites(look, p, drawn, deformed);
     if (this.hand) this.drawHand(p, handMoved);
     gl.bindVertexArray(null);
     this.frames += 1;
     if ((this.frames <= 3 || this.frames % ERROR_CHECK_EVERY === 0) && gl.getError() !== gl.NO_ERROR) throw new Error("Live head draw failed.");
   }
 
-  private drawSprites(p: HeadParameters, drawn: DrawnState, deformed: boolean): void {
+  private stepFade(dt: number): number {
+    if (!this.from) return 0;
+    this.fade = dt > 0 ? Math.min(1, this.fade + dt / LOOK_FADE_MS) : 1;
+    if (this.fade >= 1) { this.from = null; return 0; }
+    return this.fade * this.fade * (3 - 2 * this.fade);
+  }
+
+  private faceUniforms(look: Look, p: HeadParameters): void {
+    const gl = this.gl, rig = this.manifest.rig, state = this.eyeState;
+    gl.uniform4fv(this.uniform("uEyeBox"), this.eyeBox);
+    gl.uniform1fv(this.uniform("uEyeTop"), this.eyeTop); gl.uniform1fv(this.uniform("uEyeBot"), this.eyeBot);
+    const g0 = look.gaze[0] ? 1 : 0, g1 = look.gaze[1] ? 1 : 0;
+    state[0] = p.eyeOpen; state[1] = p.eyeSmile; state[2] = g0 * limitGaze(p.gazeX * GAZE_TRAVEL.x[0], look.limits[0]); state[3] = -g0 * p.gazeY * GAZE_TRAVEL.y;
+    state[4] = p.eyeOpen; state[5] = p.eyeSmile; state[6] = g1 * limitGaze(p.gazeX * GAZE_TRAVEL.x[1], look.limits[1]); state[7] = -g1 * p.gazeY * GAZE_TRAVEL.y;
+    gl.uniform4fv(this.uniform("uEyeState"), state);
+    if (look.toned || this.toneSent) { gl.uniform4fv(this.uniform("uSclera"), look.sclera); gl.uniform4fv(this.uniform("uIris"), look.iris); this.toneSent = true; }
+    gl.uniform4f(this.uniform("uMouth"), rig.mouth.cx, rig.mouth.cy, rig.mouth.angle, rig.mouth.halfLen);
+    gl.uniform4f(this.uniform("uMouthState"), look.director?.hasMouth() ? 0 : p.mouthOpen, p.mouthForm, rig.mouth.bow, Math.max(8, rig.face.jaw.cy + rig.face.jaw.ry - rig.mouth.cy));
+    gl.uniform4fv(this.uniform("uCheeks"), this.cheeks); gl.uniform1f(this.uniform("uCheek"), p.blush);
+  }
+
+  private drawSprites(look: Look, p: HeadParameters, drawn: DrawnState, deformed: boolean): void {
     const gl = this.gl, rig = this.manifest.rig;
     gl.uniform1i(this.uniform("uFace"), 0);
-    for (const entry of this.drawn) {
+    for (const entry of look.drawn) {
       const name = entry.sprite.name, alpha = entry.eye >= 0 ? drawn.eyes[entry.eye] : name === drawn.mouth ? drawn.mouthAlpha : name === drawn.mouthFrom ? drawn.mouthFromAlpha : 0;
       const reshaped = entry.inner !== null && alpha > 0 && (entry.squash !== drawn.squash || entry.width !== drawn.width);
       if (deformed || reshaped) entry.dirty = true;
@@ -318,13 +388,21 @@ export class HeadRenderer {
     gl.drawElements(gl.TRIANGLES, hand.mesh.triangles.length, gl.UNSIGNED_INT, 0);
   }
 
+  private release(look: Look): void {
+    for (const texture of look.textures.values()) this.gl.deleteTexture(texture);
+    for (const entry of look.drawn) { this.gl.deleteTexture(entry.texture); this.gl.deleteVertexArray(entry.vao); entry.buffers.forEach((buffer) => this.gl.deleteBuffer(buffer)); }
+    look.textures.clear(); look.drawn.length = 0; look.director = null;
+  }
+
   destroy(): void {
     if (this.closed) return;
     this.closed = true;
-    for (const layer of [...this.layers, ...this.drawn, ...(this.hand ? [this.hand] : [])]) {
+    for (const layer of [...this.layers, ...(this.hand ? [this.hand] : [])]) {
       this.gl.deleteTexture(layer.texture); this.gl.deleteVertexArray(layer.vao); layer.buffers.forEach((buffer) => this.gl.deleteBuffer(buffer));
     }
-    this.layers.length = 0; this.drawn.length = 0; this.director = null; this.hand = null; this.hair = null;
+    for (const look of [this.base, ...this.looks.values()]) this.release(look);
+    this.looks.clear(); this.target = this.base; this.from = null;
+    this.layers.length = 0; this.hand = null; this.hair = null;
     this.gl.deleteProgram(this.program); this.gl.getExtension("WEBGL_lose_context")?.loseContext();
   }
 }

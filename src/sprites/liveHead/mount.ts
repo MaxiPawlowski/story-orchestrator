@@ -5,8 +5,12 @@ import { prepareHead, type HeadAssetDeps } from "./load";
 import { HeadRenderer } from "./renderer";
 import { drawnFrames, prepareDrawn, type DrawnDeps, type DrawnSet, type DrawnSource } from "./drawn";
 import { mouthRegionProblem, type MeshMouthMode } from "./meshMouth";
+import type { HeadLooks } from "./expressions";
 
-export interface HeadSurface { add: HeadRenderer["add"]; draw: HeadRenderer["draw"]; destroy(): void; addDrawn?: HeadRenderer["addDrawn"]; mouthMode?(): MeshMouthMode }
+export interface HeadSurface {
+  add: HeadRenderer["add"]; draw: HeadRenderer["draw"]; destroy(): void; addDrawn?: HeadRenderer["addDrawn"]; mouthMode?(): MeshMouthMode;
+  addLook?: HeadRenderer["addLook"]; showLook?: HeadRenderer["showLook"];
+}
 export type MouthReport = (mode: MeshMouthMode, problem: string | null) => void;
 export interface HeadDrawn { source: DrawnSource; deps: DrawnDeps; report?(set: DrawnSet | null, error?: unknown): void }
 
@@ -27,7 +31,7 @@ export function frameGate(interval = FRAME_MS, slack = FRAME_SLACK_MS): (now?: n
 export async function attachHead(canvas: HTMLCanvasElement, ref: LiveHeadRef, run: RunGuard, deps: HeadAssetDeps,
   parameters: () => HeadParameters, visible: (ready: boolean) => void,
   factory: (canvas: HTMLCanvasElement, manifest: import("./manifest").HeadManifest) => HeadSurface = (element, manifest) => new HeadRenderer(element, manifest),
-  drawn?: HeadDrawn, mouth?: MouthReport,
+  drawn?: HeadDrawn, mouth?: MouthReport, looks?: HeadLooks,
 ): Promise<(() => void) | null> {
   const prepared = await prepareHead(ref, run, deps);
   if (!prepared || !run.stillOwns()) return null;
@@ -51,7 +55,7 @@ export async function attachHead(canvas: HTMLCanvasElement, ref: LiveHeadRef, ru
   const draw = () => {
     if (closed) return;
     if (!run.stillOwns()) { stop(); return; }
-    try { renderer.draw(parameters(), performance.now()); if (!ready) { ready = true; visible(true); } }
+    try { const p = parameters(); looks?.frame(); renderer.draw(p, performance.now()); if (!ready) { ready = true; visible(true); } }
     catch { stop(); }
   };
   const tick = (time?: number) => {
@@ -70,6 +74,9 @@ export async function attachHead(canvas: HTMLCanvasElement, ref: LiveHeadRef, ru
     }
     if (sprites?.sprites.length && renderer.addDrawn) renderer.addDrawn(sprites.sprites);
     mouth?.(renderer.mouthMode?.() ?? "full", mouthRegionProblem(prepared.manifest.rig));
+    const { addLook, showLook } = renderer;
+    if (looks && addLook && showLook) looks.bind({ rig: prepared.manifest.rig, artHash: prepared.manifest.artHash, art: prepared.art, layers: prepared.manifest.layers, run,
+      surface: { addLook: (look) => addLook.call(renderer, look), showLook: (name, cut) => showLook.call(renderer, name, cut) } });
     if (!run.stillOwns()) { stop(); return null; }
     canvas.addEventListener("webglcontextlost", lost); document.addEventListener("visibilitychange", visibility);
     run.signal.addEventListener("abort", stop, { once: true });
