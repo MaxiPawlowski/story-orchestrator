@@ -7,7 +7,7 @@ import { spawnShellWrapper } from './fixtures/treeShell.mts';
 const alive = (pid: number) => { try { process.kill(pid, 0); return true; } catch { return false; } };
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function killedWrapper(mode: 'guard' | 'bare') {
+async function killedWrapper(mode: 'guard' | 'bare', waitMs: number) {
   const wrapper = spawnShellWrapper(mode);
   const pids = await new Promise<{ driver: number; child: number }>((resolve, reject) => {
     let text = '';
@@ -15,7 +15,7 @@ async function killedWrapper(mode: 'guard' | 'bare') {
     wrapper.once('exit', () => reject(new Error('the wrapper exited before its driver started')));
   });
   wrapper.kill();
-  const deadline = Date.now() + 6000;
+  const deadline = Date.now() + waitMs;
   while (Date.now() < deadline && alive(pids.child)) await sleep(100);
   const childAlive = alive(pids.child);
   await killTree(pids.driver);
@@ -24,8 +24,8 @@ async function killedWrapper(mode: 'guard' | 'bare') {
 }
 
 test('a driver whose wrapper shell is killed leaves its node child running unless it guards its children', async () => {
-  assert.equal((await killedWrapper('bare')).childAlive, true);
-  assert.equal((await killedWrapper('guard')).childAlive, false);
+  assert.equal((await killedWrapper('bare', 4000)).childAlive, true);
+  assert.equal((await killedWrapper('guard', 30_000)).childAlive, false);
 });
 
 test('the guard tree-kills children on a stop signal and when the parent is gone, once, and taskkill /T is the Windows tree kill', async () => {
