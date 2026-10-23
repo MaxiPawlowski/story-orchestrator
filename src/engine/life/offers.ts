@@ -90,14 +90,19 @@ export interface CuesState {
 export const CUE_RECEIPTS_CAP = 300;
 export const CUE_LAPSES_CAP = 300;
 
+export const ECHO_HEADER = "Coming back now, already decided by earlier events (bring it into this reply through the world or the people in it; never decide what the player does, says or feels):";
+
 export const CUE_COPY: Record<OfferCopy, (text: string) => string> = {
   react: (text) => `If it fits, you may react to: ${text}. React as yourself; the player's actions and feelings are theirs.`,
   must: (text) => `When it fits, you mean to bring this up: ${text}. Say it as yourself; the player's actions and feelings are theirs.`,
   topic: (text) => `The player asked you about this directly. If it fits, you may tell them: ${text}. Answer as yourself; the player's actions and feelings are theirs.`,
-  echo: (text) => `If it fits, you may bring up: ${text}. Say it as yourself; the player's actions and feelings are theirs.`,
+  echo: (text) => `${ECHO_HEADER}\n- ${text}`,
 };
 
-export const offerLine = (candidate: Pick<OfferCandidate, "copy" | "text">): string => `- ${CUE_COPY[candidate.copy](candidate.text.trim().replace(/[.!?]+$/, ""))}`;
+export const offerLine = (candidate: Pick<OfferCandidate, "copy" | "text">): string => {
+  const text = CUE_COPY[candidate.copy](candidate.text.trim().replace(/[.!?]+$/, ""));
+  return candidate.copy === "echo" ? text : `- ${text}`;
+};
 
 const SOURCE_RANK: Record<OfferSource["kind"], number> = { topic: 3, echo: 2, norm: 1, cue: 0 };
 

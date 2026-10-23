@@ -11,7 +11,8 @@ export const hasNarratedSheet = (story: NormalizedStory | null | undefined): boo
 
 export const REQUESTED_BOUNDARIES_CAP = 32;
 
-export const PATTERN_HINT_HEADER = "A pattern the player has completed; let it colour the scene, never restate it as cause:";
+export const PATTERN_HINT_HEADER = "Already true of the party, from what the player has done "
+  + "(show it in this reply through bodies, mood and the world's response; never state it as the cause of anything):";
 
 export interface NarratorSheetDeps {
   story: () => NormalizedStory | null;

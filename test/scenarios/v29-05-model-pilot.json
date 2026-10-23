@@ -43,7 +43,7 @@
     },
     {
       "log": true,
-      "eval": "const p = globalThis.__p05; const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const chid = ctx.characters.findIndex((c) => c.name === 'DM Narrator'); const HEADER = 'A pattern the player has completed'; await p.until(() => { rt.onMemberDrafted(chid); return (rt.getAppliedEpistemicBlock() ?? '').includes(HEADER); }, 20000, 'the pattern hint in the narrator block'); rt.onMemberDrafted(chid); const block = rt.getAppliedEpistemicBlock() ?? ''; return { hinted: block.includes('pushed on without stopping') };"
+      "eval": "const p = globalThis.__p05; const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const chid = ctx.characters.findIndex((c) => c.name === 'DM Narrator'); const HEADER = 'Already true of the party, from what the player has done'; await p.until(() => { rt.onMemberDrafted(chid); return (rt.getAppliedEpistemicBlock() ?? '').includes(HEADER); }, 20000, 'the pattern hint in the narrator block'); rt.onMemberDrafted(chid); const block = rt.getAppliedEpistemicBlock() ?? ''; return { hinted: block.includes('pushed on without stopping') };"
     },
     {
       "slash": "/trigger await=true \"DM Narrator\""

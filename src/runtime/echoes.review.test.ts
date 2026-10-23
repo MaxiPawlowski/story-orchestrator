@@ -2,7 +2,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { codexEntryKey, parseStoryOrThrow, type BoundaryLogEntry, type BoundaryResult, type EngineState, type NormalizedStory, type PrimitiveValue } from "@engine/index";
 import { cueAtKey } from "@engine/cueSchema";
-import { rollbackCues } from "@engine/life/offers";
+import { ECHO_HEADER, rollbackCues } from "@engine/life/offers";
 import { rollbackEchoes } from "@engine/life/echoes";
 import { heldSecrets, keptFrom } from "@memory/heldSecrets";
 import type { EpistemicEntry } from "@memory/types";
@@ -78,7 +78,7 @@ describe("v2.9 07 S3: an echo reaches its recipient only through plan 04's offer
     expect(h.journal.some((row) => row.startsWith("1 echo(es) landed to channel"))).toBe(true);
     expect(reply("tom", "Tom").join(" ")).not.toContain("docks crossing");
     const lines = reply("mara", "Mara Voss");
-    expect(lines).toEqual(["- If it fits, you may bring up: the harbour still talks about the docks crossing. Say it as yourself; the player's actions and feelings are theirs."]);
+    expect(lines).toEqual([`${ECHO_HEADER}\n- the harbour still talks about the docks crossing`]);
     expect(h.extras.cues?.receipts.filter((row) => row.source.kind === "echo")).toEqual([expect.objectContaining({ key: event(h)?.offerId, defRev: event(h)?.revision, recipient: "mara", source: expect.objectContaining({ kind: "echo" }) })]);
     expect(echoes.authorView(true)?.rows).toEqual([expect.objectContaining({ echoId: "ledger-back", state: "offered" })]);
     expect(echoes.authorView(false)).toBeNull();
@@ -109,7 +109,7 @@ describe("v2.9 07 S3: an echo reaches its recipient only through plan 04's offer
     h.rows.push({ name: "You", is_user: true, mes: "Mara, what about the ledger?" });
     expect(reply("mara", "Mara Voss")[0]).toContain("The player asked you about this directly");
     cues.draft("mara");
-    expect(cues.lines("mara")[0]).toContain("you may bring up: the harbour still talks");
+    expect(cues.lines("mara")[0]).toContain("- the harbour still talks");
   });
 
   it("turned off, schedules nothing and offers nothing, and stories without echoes do not wake the channel", () => {

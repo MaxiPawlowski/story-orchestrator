@@ -53,46 +53,75 @@ export async function emitGeneration(page: Page, value: unknown) {
   }, events);
 }
 
-export type ExtSetting = { extension: string; key: string; value: unknown };
-type Restore = ExtSetting & { existed: boolean };
+export type ExtSetting = { extension: string; key: string | string[]; value: unknown };
+type Restore = { extension: string; path: string[]; value: unknown; existed: boolean; created: number };
 
 const pendingRestores: Restore[] = [];
 
 export function extSettingSpec(value: unknown): ExtSetting {
   const spec = value as ExtSetting;
-  if (!spec || typeof spec.extension !== 'string' || !spec.extension || typeof spec.key !== 'string' || !spec.key || !('value' in spec)) {
-    throw new Error('ext_setting: expected {extension, key, value}');
+  const key = spec?.key;
+  const keyOk = (typeof key === 'string' && key) || (Array.isArray(key) && key.length > 0 && key.every((part) => typeof part === 'string' && part));
+  if (!spec || typeof spec.extension !== 'string' || !spec.extension || !keyOk || !('value' in spec)) {
+    throw new Error('ext_setting: expected {extension, key, value} (key: a name or a non-empty path of names)');
   }
   return { extension: spec.extension, key: spec.key, value: spec.value };
 }
 
+const pathOf = (key: string | string[]): string[] => (Array.isArray(key) ? key : [key]);
+
 export async function applyExtSetting(page: Page, value: unknown) {
   const spec = extSettingSpec(value);
-  const before = await evaluateInST(page, ({ extension, key, next }: { extension: string; key: string; next: unknown }) => {
+  const path = pathOf(spec.key);
+  const before = await evaluateInST(page, ({ extension, path, next }: { extension: string; path: string[]; next: unknown }) => {
     const settings = (globalThis as any).SillyTavern.getContext().extensionSettings;
-    const holder = settings[extension] ?? (settings[extension] = {});
-    const existed = Object.prototype.hasOwnProperty.call(holder, key);
-    const previous = holder[key];
-    holder[key] = next;
-    return { existed, previous };
-  }, { extension: spec.extension, key: spec.key, next: spec.value });
-  if (!pendingRestores.some((entry) => entry.extension === spec.extension && entry.key === spec.key)) {
-    pendingRestores.push({ extension: spec.extension, key: spec.key, value: before.previous, existed: before.existed });
+    let created = settings[extension] ? -1 : 0;
+    let holder = settings[extension] ?? (settings[extension] = {});
+    path.slice(0, -1).forEach((part, index) => {
+      if (!holder[part] || typeof holder[part] !== 'object') { holder[part] = {}; if (created < 0) created = index + 1; }
+      holder = holder[part];
+    });
+    const leaf = path[path.length - 1];
+    const existed = Object.prototype.hasOwnProperty.call(holder, leaf);
+    const previous = holder[leaf];
+    holder[leaf] = next;
+    return { existed, previous, created };
+  }, { extension: spec.extension, path, next: spec.value });
+  if (!pendingRestores.some((entry) => entry.extension === spec.extension && JSON.stringify(entry.path) === JSON.stringify(path))) {
+    pendingRestores.push({ extension: spec.extension, path, value: before.previous, existed: before.existed, created: before.created });
   }
   const saved = await saveSettingsNow(page);
   return { ...spec, previous: before.previous, saved };
 }
 
-/** Put every ext_setting back, newest first, and read each one back. The runners call this in `finally`. */
+/** Put every ext_setting back, newest first, and read each one back; containers a write created are removed again. The runners call this in `finally`. */
 export async function restoreExtSettings(page: Page) {
   const restores = pendingRestores.splice(0).reverse();
   if (!restores.length) return { restored: [] as unknown[] };
   const readBack = await evaluateInST(page, (list: Restore[]) => {
     const settings = (globalThis as any).SillyTavern.getContext().extensionSettings;
-    return list.map(({ extension, key, value, existed }) => {
-      const holder = settings[extension] ?? (settings[extension] = {});
-      if (existed) holder[key] = value; else delete holder[key];
-      return { extension, key, value: holder[key], existed: Object.prototype.hasOwnProperty.call(holder, key) };
+    return list.map(({ extension, path, value, existed, created }) => {
+      const chain: any[] = [settings];
+      let holder = settings[extension];
+      if (holder) {
+        chain.push(holder);
+        for (const part of path.slice(0, -1)) { holder = holder?.[part]; if (!holder || typeof holder !== 'object') break; chain.push(holder); }
+      }
+      const leaf = path[path.length - 1];
+      const parent = chain.length === path.length + 1 ? chain[chain.length - 1] : null;
+      if (parent) { if (existed) parent[leaf] = value; else delete parent[leaf]; }
+      if (created >= 0) {
+        const names = [extension, ...path.slice(0, -1)];
+        for (let depth = names.length - 1; depth >= created; depth -= 1) {
+          const container = chain[depth];
+          const child = container?.[names[depth]];
+          if (container && child && typeof child === 'object' && !Object.keys(child).length) delete container[names[depth]];
+        }
+      }
+      let now: any = settings[extension];
+      for (const part of path.slice(0, -1)) now = now?.[part];
+      const present = Boolean(now && typeof now === 'object' && Object.prototype.hasOwnProperty.call(now, leaf));
+      return { extension, key: path.length === 1 ? path[0] : path, value: present ? now[leaf] : undefined, existed: present };
     });
   }, restores);
   const saved = await saveSettingsNow(page);

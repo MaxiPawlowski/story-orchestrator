@@ -91,6 +91,8 @@ type Outcome = { seq: number; result: string; fromMessage: number | null } | nul
 const lastOutcome = (manager: RuntimeManager): Outcome => (manager as unknown as { notices: { lastOutcome?: Outcome } }).notices.lastOutcome;
 const journalSummaries = (manager: RuntimeManager) => (manager as unknown as { extras: { journal: Array<{ summary: string }> } }).extras.journal.map((record) => record.summary);
 const wait = (ms: number) => new Promise<void>((resolve) => { setTimeout(resolve, ms); });
+const finished = () => { const now = globalThis.storyOrchestratorPolish?.standIn(); return now ? now.written + now.unchanged + now.failed + now.skipped + Object.values(now.abandoned).reduce((sum, count) => sum + (count ?? 0), 0) : 0; };
+const untilPolished = async (count: number) => { for (let tries = 0; tries < 2000 && finished() < count; tries += 1) await wait(5); };
 const emit = (name: string, ...args: unknown[]) => { for (const handler of mockHandlers.get(name) ?? []) void handler(...args); };
 const line = (index: number): Row => ({ name: index % 2 ? "Arin" : "Player", is_user: index % 2 === 0, mes: `line ${index}`, send_date: `t${index}` });
 const reply = (mes = ORIGINAL, send = "t3"): Row => ({ name: "Clerk", is_user: false, mes, send_date: send, swipe_id: 0, swipes: [mes, ALT], extra: { reasoning: THOUGHT } });
@@ -124,8 +126,9 @@ async function receive(order: Order, during?: () => void) {
   const before = lastOutcome(ctx.manager);
   emit("MESSAGE_RECEIVED", 3, "normal");
   if (order.render === "same-tick") { observeRenderedReasoning(mockContext.chat[3]); emit("CHARACTER_MESSAGE_RENDERED", 3, "normal"); }
+  const target = finished() + 1;
   during?.();
-  await wait(60);
+  await untilPolished(target);
   await settleTurns(20);
   if (order.render === "after-boundary") { observeRenderedReasoning(mockContext.chat[3]); emit("CHARACTER_MESSAGE_RENDERED", 3, "normal"); await settleTurns(20); }
   return { ...ctx, before };
@@ -198,7 +201,7 @@ describe("v2.9 plan 03 S0: continue, carry and revision census", () => {
     globalThis.storyOrchestratorDebugPolishStandIn = { delayMs: 5, find: "zzz", replace: "grins" };
     mockContext.chat.push(line(2), reply("*The clerk smirks.*"));
     emit("MESSAGE_RECEIVED", 3, "normal");
-    await wait(30);
+    await untilPolished(1);
     await settleTurns(20);
     globalThis.storyOrchestratorDebugPolishStandIn = { delayMs: 5, find: "smirks", replace: "grins" };
     const row = mockContext.chat[3];
@@ -206,7 +209,7 @@ describe("v2.9 plan 03 S0: continue, carry and revision census", () => {
     row.swipes![0] = row.mes;
     (row as Row & { gen_finished?: number }).gen_finished = 2;
     emit("MESSAGE_RECEIVED", 3, "continue");
-    await wait(30);
+    await untilPolished(2);
     await settleTurns(20);
     expect(mockContext.chat[3].mes).toBe("*The clerk smirks.* *She grins again.*");
     expect(manager.getEngineState()?.lastMessageId).toBe(3);

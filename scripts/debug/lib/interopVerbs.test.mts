@@ -45,6 +45,19 @@ test('ext_setting writes in place and the restore puts back the value AND its ab
   assert.equal(pendingExtSettingRestores(), 0);
 });
 
+test('ext_setting with a key path writes only that leaf and restores it, its absence and any container it created', async () => {
+  const settings = withSettings({ so: { settings: { memory: { profileId: 'mem' }, image: { enabled: true } } } });
+  const memoryBefore = settings.so.settings;
+  await applyExtSetting(page as never, { extension: 'so', key: ['settings', 'image', 'enabled'], value: false });
+  await applyExtSetting(page as never, { extension: 'so', key: ['settings', 'sprites', 'enabled'], value: false });
+  assert.equal(settings.so.settings, memoryBefore, 'the write is in place');
+  assert.deepEqual(settings.so.settings, { memory: { profileId: 'mem' }, image: { enabled: false }, sprites: { enabled: false } });
+  const restored = await restoreExtSettings(page as never);
+  assert.equal(restored.ok, true);
+  assert.deepEqual(settings.so.settings, { memory: { profileId: 'mem' }, image: { enabled: true } }, 'the sprites section the write created is gone again');
+  await assert.rejects(applyExtSetting(page as never, { extension: 'so', key: [], value: 1 }), /non-empty path/);
+});
+
 test('control: a second write to the same key restores to the FIRST value, not the intermediate one', async () => {
   const settings = withSettings({ ext: { key: 'original' } });
   await applyExtSetting(page as never, { extension: 'ext', key: 'key', value: 'first' });
