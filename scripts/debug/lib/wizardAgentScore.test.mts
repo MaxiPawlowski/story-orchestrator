@@ -42,6 +42,9 @@ test('a recipe task passes only when the recipe was read, every required tool wa
   assert.deepEqual(scoreRecipeTask(task, { ...good, session: { ...good.session, steps: [good.session.steps[0], call('addQuality', 'accepted'), call('setQuests', 'rejected')] } }).missing, ['setQuests']);
   assert.equal(scoreRecipeTask(task, { ...good, validationErrors: 1 }).pass, false);
   assert.equal(scoreRecipeTask(task, { ...good, session: { ...good.session, status: 'stopped' } }).pass, false);
+  const free = { id: 'sheet', requires: ['setMemberPolish'] };
+  assert.equal(scoreRecipeTask(free, { session: { status: 'done', steps: [call('setMemberPolish', 'accepted')] }, validationErrors: 0 }).pass, true, 'a task naming no recipe needs no recipe read');
+  assert.equal(scoreRecipeTask(free, { session: { status: 'done', steps: [call('setMemberPolish', 'rejected')] }, validationErrors: 0 }).pass, false);
 });
 
 test('v2.8 52 C7: a recipe task with diagnosticsAbsent passes only when the agent read diagnostics after its last edit and none of the codes showed', () => {

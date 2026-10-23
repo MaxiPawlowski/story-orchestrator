@@ -1,0 +1,250 @@
+{
+ "frozen": "2026-10-23",
+ "opportunities": [
+  {
+   "id": "p01",
+   "member": "luke",
+   "event": "A courier drops a letter on the table; the seal is the brother's own mark.",
+   "cue": "a letter has come with your brother's seal on it"
+  },
+  {
+   "id": "p02",
+   "member": "ponticius",
+   "event": "The guild treasurer announces this month's pay will be late.",
+   "cue": "the guild's pay is late this month"
+  },
+  {
+   "id": "p03",
+   "member": "arin",
+   "event": "Someone has waxed and restrung the shortbow left on the rack.",
+   "cue": "someone took care of your bow while you were away"
+  },
+  {
+   "id": "n01",
+   "member": "luke",
+   "event": "The candles burn low and the hall goes quiet for a while.",
+   "cue": null
+  },
+  {
+   "id": "p04",
+   "member": "luke",
+   "event": "A map of the Sun Ruins is pinned up, with one corridor circled in red.",
+   "cue": "the corridor your brother was last seen in is circled on the new map"
+  },
+  {
+   "id": "p05",
+   "member": "ponticius",
+   "event": "Two recruits start a shoving match over the last bunk.",
+   "cue": "two recruits are fighting in your hall"
+  },
+  {
+   "id": "p06",
+   "member": "arin",
+   "event": "A barmaid sets down a free round 'from an admirer'.",
+   "cue": "a free drink arrived from someone who will not say who"
+  },
+  {
+   "id": "n02",
+   "member": "arin",
+   "event": "Outside, a cart rattles past on the wet cobbles.",
+   "cue": null
+  },
+  {
+   "id": "p07",
+   "member": "luke",
+   "event": "A mercenary laughs at the oversized chainmail hanging on its peg.",
+   "cue": "a mercenary is mocking your borrowed chainmail"
+  },
+  {
+   "id": "p08",
+   "member": "ponticius",
+   "event": "The city council's messenger demands the guild's roster by nightfall.",
+   "cue": "the council wants the guild roster by tonight"
+  },
+  {
+   "id": "p09",
+   "member": "arin",
+   "event": "A quiver of fresh arrows turns up, fletched with grey goose feathers.",
+   "cue": "a full quiver of good arrows has turned up"
+  },
+  {
+   "id": "n03",
+   "member": "ponticius",
+   "event": "A clock somewhere in the city strikes the hour.",
+   "cue": null
+  },
+  {
+   "id": "p10",
+   "member": "luke",
+   "event": "A traveller says she saw a young man in guild colours near the ruins last week.",
+   "cue": "a traveller may have seen your brother near the ruins"
+  },
+  {
+   "id": "p11",
+   "member": "ponticius",
+   "event": "The roof starts leaking right over the map table.",
+   "cue": "the hall roof is leaking onto the maps"
+  },
+  {
+   "id": "p12",
+   "member": "arin",
+   "event": "A dice game in the corner turns loud and someone accuses a cheat.",
+   "cue": "there is a cheating row at the dice table"
+  },
+  {
+   "id": "n04",
+   "member": "luke",
+   "event": "The wind changes, and the smoke from the hearth drifts toward the door.",
+   "cue": null
+  },
+  {
+   "id": "p13",
+   "member": "luke",
+   "event": "A guard captain asks for a volunteer to stand watch at the north gate.",
+   "cue": "the guard wants a volunteer for the north gate"
+  },
+  {
+   "id": "p14",
+   "member": "ponticius",
+   "event": "A retired adventurer toasts 'to old Ponticius, who once carried me home'.",
+   "cue": "an old friend is toasting a rescue you made years ago"
+  },
+  {
+   "id": "p15",
+   "member": "arin",
+   "event": "A pickpocket is caught with a guild badge sewn into his coat.",
+   "cue": "a thief was caught posing as a guild member"
+  },
+  {
+   "id": "n05",
+   "member": "arin",
+   "event": "A cat walks along the top of the map shelf and settles there.",
+   "cue": null
+  },
+  {
+   "id": "p16",
+   "member": "luke",
+   "event": "Someone has left a lucky charm on Luke's pack, a little carved fox.",
+   "cue": "someone left you a carved fox charm, like the one your brother had"
+  },
+  {
+   "id": "p17",
+   "member": "ponticius",
+   "event": "The guild's last healer gives notice; she is leaving for the coast.",
+   "cue": "the guild is losing its last healer"
+  },
+  {
+   "id": "p18",
+   "member": "arin",
+   "event": "A rival guild's banner is seen flying over the market.",
+   "cue": "a rival guild has hung its banner in the market"
+  },
+  {
+   "id": "n06",
+   "member": "ponticius",
+   "event": "Somebody opens a window, then thinks better of it and shuts it.",
+   "cue": null
+  },
+  {
+   "id": "p19",
+   "member": "luke",
+   "event": "An apprentice asks whether anyone can teach him to shoot straight.",
+   "cue": "an apprentice wants someone to teach him archery"
+  },
+  {
+   "id": "p20",
+   "member": "ponticius",
+   "event": "A list of volunteers for the ruins expedition is posted, and it is very short.",
+   "cue": "almost no one has volunteered for the ruins"
+  },
+  {
+   "id": "p21",
+   "member": "arin",
+   "event": "The kitchen runs out of bread and the cook blames the guild master.",
+   "cue": "the cook is blaming you for the bread running out"
+  },
+  {
+   "id": "n07",
+   "member": "luke",
+   "event": "The crowd in the hall thins as the evening goes on.",
+   "cue": null
+  },
+  {
+   "id": "p22",
+   "member": "luke",
+   "event": "A heavy rain closes the river ferry for three days.",
+   "cue": "the ferry is closed for three days"
+  },
+  {
+   "id": "p23",
+   "member": "ponticius",
+   "event": "A boy delivers a sword with a note: 'Your brother left this with us.'",
+   "cue": "a sword your brother left behind has been returned"
+  },
+  {
+   "id": "p24",
+   "member": "arin",
+   "event": "The hall's old founding plaque has been chipped off the wall.",
+   "cue": "someone damaged the guild's founding plaque"
+  },
+  {
+   "id": "n08",
+   "member": "arin",
+   "event": "A kettle starts to whistle in the back room.",
+   "cue": null
+  },
+  {
+   "id": "p25",
+   "member": "luke",
+   "event": "A drunk challenges anyone in the room to an arm-wrestle for coin.",
+   "cue": "a drunk is offering coin for an arm-wrestle"
+  },
+  {
+   "id": "p26",
+   "member": "ponticius",
+   "event": "A guild mapmaker admits the sewer map she sold was guesswork.",
+   "cue": "the sewer map you paid for was made up"
+  },
+  {
+   "id": "p27",
+   "member": "arin",
+   "event": "The merchant who owes the guild money walks in as if nothing happened.",
+   "cue": "the merchant who owes the guild is here"
+  },
+  {
+   "id": "n09",
+   "member": "ponticius",
+   "event": "Rain taps steadily at the shutters.",
+   "cue": null
+  },
+  {
+   "id": "p28",
+   "member": "luke",
+   "event": "Someone mentions that the brother's old room is being cleared out tomorrow.",
+   "cue": "your brother's old room is being cleared tomorrow"
+  },
+  {
+   "id": "p29",
+   "member": "ponticius",
+   "event": "A new recruit asks the guild master if the stories about the Sun Ruins are true.",
+   "cue": "a recruit is asking about the old Sun Ruins stories"
+  },
+  {
+   "id": "p30",
+   "member": "arin",
+   "event": "A pair of stolen daggers is found under a loose floorboard.",
+   "cue": "a pair of stolen daggers turned up under the floor"
+  },
+  {
+   "id": "n10",
+   "member": "luke",
+   "event": "A lantern is moved from one table to another.",
+   "cue": null
+  }
+ ],
+ "floors": {
+  "C2": ">= 80% realized relevant reaction among eligible (offered) cues",
+  "C5": "0 player-action narration in realized replies"
+ },
+ "rater": "opencode openai/gpt-6.1-sol, blind to lane; U = reply reacts to the note; P = narrates the player's actions"
+}

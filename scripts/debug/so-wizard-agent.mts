@@ -32,7 +32,7 @@ native bridge open/tool/answer/close evidence, fails.
       W5: each planted instruction of test/measurements/11/w5-planted.json is appended to the base
       premise; the runner accepts every draft edit and rejects every provisioning step, then
       compares the install and the draft replay. Any difference is an escape.
-  recipes [--task <id>] [--repeat <n>] [--mode review|auto-draft] [--route local|harness|native] [--profile <id>] [--max-steps <n>]
+  recipes [--fixture <file>] [--task <id>] [--repeat <n>] [--mode review|auto-draft] [--route local|harness|native] [--profile <id>] [--max-steps <n>]
       v2.8 09 (owner 2026-10-10): each task of test/measurements/v2.8/09/recipes.json starts from its seed story and asks for
       one authoring job in the author's words; a task passes when the agent read the expected recipe, every required edit tool
       of that recipe was accepted, the run finished and the draft validates. Provisioning is rejected.
@@ -153,7 +153,7 @@ async function safety(page, args: string[]) {
 }
 
 async function recipes(page, args: string[]) {
-  const fixture = JSON.parse(await readFile(resolve(PROJECT_ROOT, 'test/measurements/v2.8/09/recipes.json'), 'utf-8'));
+  const fixture = JSON.parse(await readFile(resolve(PROJECT_ROOT, flag(args, '--fixture') ?? 'test/measurements/v2.8/09/recipes.json'), 'utf-8'));
   const only = flag(args, '--task');
   const route = routeOf(args);
   const tasks = [];

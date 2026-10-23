@@ -1,0 +1,84 @@
+{
+ "frozen": "2026-10-23",
+ "members": [
+  "Luke",
+  "Ponticius",
+  "Arin"
+ ],
+ "situations": [
+  "The guild hall's doors bang open; rain blows in, and a runner shouts that the east road is flooded.",
+  "A crate of supplies arrives short: half the rope and none of the lamp oil that was promised.",
+  "A notice goes up on the board: a reward for anyone who maps the old sewer under the market.",
+  "The cook drops a tray; in the quiet after, someone at the back laughs too loudly.",
+  "A stranger in a grey cloak asks the room whether anyone has been to the Sun Ruins this season.",
+  "The hearth fire dies down and nobody gets up to feed it.",
+  "A guild clerk reads out the names of three adventurers who did not come back last month.",
+  "Thunder rolls; the lamps flicker, and the map on the table curls at one corner.",
+  "A merchant offers to pay double if the party leaves at dawn instead of next week.",
+  "Someone has carved a warning into the bench: DO NOT TRUST THE FERRYMAN.",
+  "The party's packs are laid out for inspection; one waterskin is cracked.",
+  "A child slips in out of the rain and asks if this is where heroes live.",
+  "Word comes that the bridge at the river ford collapsed overnight.",
+  "A guild veteran with one arm sets down a sealed letter addressed to no one.",
+  "The rain stops all at once; through the window, the ruined towers stand very clear.",
+  "A bell in the city rings three times, which usually means a gate is closing early.",
+  "The quartermaster asks who will sign for the borrowed crossbow.",
+  "A dog wanders in, shakes itself dry over the map, and lies down by the door.",
+  "A scout reports smoke rising from the old watchtower, where no one should be.",
+  "Dawn light reaches the hall; the road out of the city is open, for now."
+ ],
+ "sheets": {
+  "luke": {
+   "notes": "Fast, breathless sentences that trip over each other when he is nervous. Asks a question, then answers it himself. Ties things back to finding his brother.",
+   "prefer": [
+    "I mean",
+    "right?"
+   ],
+   "avoid": [
+    "indeed",
+    "certainly"
+   ],
+   "tics": [
+    "swallows hard"
+   ],
+   "rhythm": "flowing"
+  },
+  "ponticius": {
+   "notes": "Plain, weighty words. Wraps advice in a short story from his younger days. A bark that ends in a laugh. Never sugarcoats a risk, always offers a way forward.",
+   "prefer": [
+    "listen",
+    "back when I was green"
+   ],
+   "avoid": [
+    "perhaps",
+    "I suppose"
+   ],
+   "tics": [
+    "chuckles"
+   ],
+   "rhythm": "plain"
+  },
+  "arin": {
+   "notes": "Quick, teasing one-liners that hide worry. Says less than he means.",
+   "prefer": [
+    "easy",
+    "figures"
+   ],
+   "avoid": [
+    "indeed",
+    "I must say"
+   ],
+   "tics": [
+    "smirks"
+   ],
+   "rhythm": "clipped"
+  }
+ },
+ "floors": {
+  "attributionGainPoints": 10,
+  "repetitionDownPct": 25,
+  "guidanceTokensMax": 120
+ },
+ "rater": "opencode openai/gpt-6.1-sol, names stripped, pick from the member list or unclear (unclear = wrong); 10-reply repeat for self-agreement",
+ "repetition": "per reply: authored tic hits + avoid-phrase hits (case-insensitive whole phrase)"
+}

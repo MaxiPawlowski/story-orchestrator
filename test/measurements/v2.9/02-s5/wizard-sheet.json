@@ -1,0 +1,88 @@
+{
+ "plan": "v2.9 02 S5 wizard real-route check (GPU2 2026-10-23)",
+ "declared": "2026-10-23, before any run; informational. Revised once the same day before a scored run: the first seed named cast with no cards in the install, so the agent (rightly, by its seed-from-the-card rule) refused to write a sheet",
+ "marker": "SO-W29S5",
+ "route": "the authoring role on harness:opencode:openai/gpt-6.1-sol (default route), never Artemis",
+ "floor": "each task passes: setMemberPolish proposed as an ordinary edit card and accepted in review, the run finished, the draft validates; provisioning is rejected",
+ "seed": {
+  "id": "so-v29-02-s5-seed",
+  "title": "SO-V29-02 S5 Guild",
+  "description": "v2.9 02 S5 wizard check seed: two existing guild cards and the narrator, no voice and delivery sheets.",
+  "roster": [
+   {
+    "id": "arin",
+    "name": "Arin",
+    "role": "the player's guild partner"
+   },
+   {
+    "id": "luke",
+    "name": "Luke",
+    "role": "a young adventurer looking for his brother"
+   },
+   {
+    "id": "narrator",
+    "name": "DM Narrator",
+    "role": "narrator",
+    "view": "omniscient"
+   }
+  ],
+  "qualities": [
+   {
+    "key": "departed",
+    "type": "bool",
+    "source": "extractor",
+    "rubric": "Has the party left the guild hall?"
+   }
+  ],
+  "checkpoints": [
+   {
+    "id": "hall",
+    "name": "Guild Hall",
+    "type": "anchor",
+    "start": true,
+    "objective": "Get ready to leave."
+   },
+   {
+    "id": "road",
+    "name": "Road",
+    "type": "anchor",
+    "objective": "Travel on."
+   }
+  ],
+  "transitions": [
+   {
+    "from": "hall",
+    "to": "road",
+    "priority": 1,
+    "gate": {
+     "q": "departed",
+     "op": "==",
+     "v": true
+    }
+   }
+  ],
+  "requirements": {
+   "members": [
+    "Arin",
+    "Luke",
+    "DM Narrator"
+   ]
+  }
+ },
+ "tasks": [
+  {
+   "id": "arin-sheet",
+   "requires": [
+    "setMemberPolish"
+   ],
+   "goal": "Give Arin a voice and delivery sheet that matches how his card already has him talk. Only add the sheet; change nothing else."
+  },
+  {
+   "id": "luke-sheet",
+   "requires": [
+    "setMemberPolish"
+   ],
+   "goal": "Write Luke a voice and delivery sheet from his card: how he sounds when he is nervous. Only add the sheet; change nothing else."
+  }
+ ]
+}

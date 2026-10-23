@@ -152,6 +152,9 @@
       "eval": "const c = globalThis.__pilot; const reply = c.last(); if (reply.name !== 'DM Narrator') throw new Error('the last reply is not the narrator: ' + reply.name); await c.until(() => c.receipts().some((row) => row.source?.kind === 'echo'), 60000, 'an echo receipt from the real generation'); const t = reply.mes.toLowerCase(); return { reply: reply.mes, reasoningLen: reply.reasoningLen, lexical: /fee|clerk|unpaid|owe|debt|toll|harbour master|harbormaster/.test(t), state: c.rows()[0].state };"
     },
     {
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; const key = 'so-v29-pilot-07-' + Date.now(); localStorage.setItem(key, JSON.stringify({ name: row?.name ?? null, mes: row?.mes ?? '', cue: globalThis.__pilot?.cueReply?.mes ?? null })); return { stored: key };"
+    },
+    {
       "eval": "delete globalThis.__pilot; return { cleaned: true };"
     }
   ]

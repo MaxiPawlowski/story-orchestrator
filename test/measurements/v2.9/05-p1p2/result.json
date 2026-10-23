@@ -1,0 +1,11 @@
+{
+ "n": 50,
+ "invalid": [],
+ "tp": 25,
+ "fp": 0,
+ "fn": 0,
+ "precision": 1,
+ "recall": 1,
+ "exactCount": 50,
+ "disagreements": []
+}

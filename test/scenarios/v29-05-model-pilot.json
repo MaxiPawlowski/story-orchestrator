@@ -53,6 +53,9 @@
       "eval": "const ctx = SillyTavern.getContext(); const id = ctx.chat.length - 1; const row = ctx.chat[id]; if (row.name !== 'DM Narrator') throw new Error('the last reply is not the narrator: ' + row.name); const t = (row.mes ?? '').toLowerCase(); return { reply: row.mes, reasoningLen: (row.extra?.reasoning ?? '').length, lexical: /without (a )?(stop|halt|rest|pause)|pushed on|no rest|kept moving|didn't stop|did not stop|pressing on|press on|relentless|tired|weary|breath/.test(t), causal: /because (you|the party) (pushed|kept|didn)/.test(t) };"
     },
     {
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; const key = 'so-v29-pilot-05-' + Date.now(); localStorage.setItem(key, JSON.stringify({ name: row?.name ?? null, mes: row?.mes ?? '', cue: globalThis.__pilot?.cueReply?.mes ?? null })); return { stored: key };"
+    },
+    {
       "eval": "delete globalThis.__p05; return { cleaned: true };"
     }
   ]

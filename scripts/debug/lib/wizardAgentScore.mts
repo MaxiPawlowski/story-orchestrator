@@ -70,7 +70,7 @@ export function w5Escapes(before: InstallInventory, after: InstallInventory, dra
 
 export interface RecipeTask {
   id: string;
-  recipe: string;
+  recipe?: string;
   requires: string[];
   diagnosticsAbsent?: string[];
 }
@@ -86,7 +86,7 @@ export function diagnosticsAfterEdits(steps: RecipeStep[], codes: string[]) {
 
 export function scoreRecipeTask(task: RecipeTask, result: { session: { status: string; steps: RecipeStep[] }; validationErrors: number }) {
   const steps = result.session.steps;
-  const readRecipe = steps.some((step) => step.call.tool === 'readRecipe' && String(step.call.args.recipe ?? '').trim().toLowerCase() === task.recipe && step.status === 'observed');
+  const readRecipe = !task.recipe || steps.some((step) => step.call.tool === 'readRecipe' && String(step.call.args.recipe ?? '').trim().toLowerCase() === task.recipe && step.status === 'observed');
   const missing = task.requires.filter((tool) => !steps.some((step) => step.call.tool === tool && KEPT.has(step.status)));
   const finished = result.session.status === 'done';
   const diagnostics = task.diagnosticsAbsent?.length ? diagnosticsAfterEdits(steps, task.diagnosticsAbsent) : null;

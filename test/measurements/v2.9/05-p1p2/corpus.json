@@ -1,0 +1,2425 @@
+{
+ "_note": "v2.9 05 P1/P2 frozen corpus, written 2026-10-23 by opencode openai/gpt-6.1-sol from the patterns guide topic only (request.md), before any matcher run; labels are its own. Never edited after freezing.",
+ "cases": [
+  {
+   "id": "c01",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "Reached checkpoints match in recorded order.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "transition",
+      "to": "market"
+     },
+     {
+      "kind": "transition",
+      "to": "gate"
+     }
+    ],
+    "label": {
+     "text": "The road has led onward."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "transition",
+      "from": "dock",
+      "to": "market"
+     }
+    ],
+    [
+     {
+      "kind": "transition",
+      "from": "market",
+      "to": "gate"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c02",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "A bound giver must match on the later quest step.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "to": "done",
+      "where": {
+       "giver": "?who"
+      }
+     },
+     {
+      "kind": "quest",
+      "to": "done",
+      "where": {
+       "giver": "?who"
+      }
+     }
+    ],
+    "label": {
+     "text": "Two favours for one patron."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "nets",
+      "to": "done"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c03",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "A public milestone can precede a public check.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "milestone",
+      "id": "spring"
+     },
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "strong"
+     }
+    ],
+    "hint": "The party carries a fresh sense of confidence."
+   },
+   "turns": [
+    [
+     {
+      "kind": "milestone",
+      "id": "spring"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "strong"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c04",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "A first-to-last turn distance equal to within still matches.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "failure"
+     },
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     }
+    ],
+    "within": 2,
+    "label": {
+     "text": "A second attempt has landed."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "failure"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "offered"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c05",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "Transition filters can constrain both origin and destination chapter.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "transition",
+      "to": "gate",
+      "where": {
+       "from": "market",
+       "chapter": "two"
+      }
+     }
+    ],
+    "label": {
+     "text": "A new stretch of the journey."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "transition",
+      "from": "dock",
+      "to": "market"
+     }
+    ],
+    [
+     {
+      "kind": "transition",
+      "from": "market",
+      "to": "gate"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c06",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "Check quality and outcome are available as where attributes.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "check",
+      "where": {
+       "quality": "haggle_ok",
+       "outcome": "weak"
+      }
+     }
+    ],
+    "label": {
+     "text": "A modest result."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "miss"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "haggle",
+      "to": "weak"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c07",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "Two variables may bind a giver and a quest status across steps.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "to": "?status",
+      "where": {
+       "giver": "?who"
+      }
+     },
+     {
+      "kind": "quest",
+      "to": "?status",
+      "where": {
+       "giver": "?who"
+      }
+     }
+    ],
+    "label": {
+     "text": "Two undertakings stand alike."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "active"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "toll",
+      "to": "active"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c08",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "An unless row does not cancel on a different check outcome.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "active"
+     },
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ],
+    "unless": [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "failure",
+      "between": [
+       1,
+       2
+      ]
+     }
+    ],
+    "label": {
+     "text": "An undertaking is complete."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "active"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c09",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "An unless event before the first step is outside its window.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "milestone",
+      "id": "spring"
+     },
+     {
+      "kind": "milestone",
+      "id": "bridge"
+     }
+    ],
+    "unless": [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "failure",
+      "between": [
+       1,
+       2
+      ]
+     }
+    ],
+    "label": {
+     "text": "Two landmarks in memory."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "failure"
+     }
+    ],
+    [
+     {
+      "kind": "milestone",
+      "id": "spring"
+     }
+    ],
+    [
+     {
+      "kind": "milestone",
+      "id": "bridge"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c10",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "An unless event after the last step is outside its window.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "milestone",
+      "id": "spring"
+     },
+     {
+      "kind": "milestone",
+      "id": "bridge"
+     }
+    ],
+    "unless": [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "failure",
+      "between": [
+       1,
+       2
+      ]
+     }
+    ],
+    "label": {
+     "text": "Two landmarks in memory."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "milestone",
+      "id": "spring"
+     }
+    ],
+    [
+     {
+      "kind": "milestone",
+      "id": "bridge"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "failure"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c11",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "An unless giver variable uses the binding from the earlier step.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "to": "done",
+      "where": {
+       "giver": "?who"
+      }
+     },
+     {
+      "kind": "milestone",
+      "id": "bridge"
+     }
+    ],
+    "unless": [
+     {
+      "kind": "quest",
+      "to": "failed",
+      "where": {
+       "giver": "?who"
+      },
+      "between": [
+       1,
+       2
+      ]
+     }
+    ],
+    "label": {
+     "text": "A favour and a landmark."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "failed"
+     }
+    ],
+    [
+     {
+      "kind": "milestone",
+      "id": "bridge"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c12",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "A secret milestone cannot trigger even an unfiltered milestone unless row.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "active"
+     },
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ],
+    "unless": [
+     {
+      "kind": "milestone",
+      "between": [
+       1,
+       2
+      ]
+     }
+    ],
+    "label": {
+     "text": "The task is finished."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "active"
+     }
+    ],
+    [
+     {
+      "kind": "milestone",
+      "id": "vault"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c13",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "A hidden check cannot trigger even an unfiltered check unless row.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "active"
+     },
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "done"
+     }
+    ],
+    "unless": [
+     {
+      "kind": "check",
+      "between": [
+       1,
+       2
+      ]
+     }
+    ],
+    "label": {
+     "text": "Another undertaking is complete."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "active"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "sneak",
+      "to": "failure"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "done"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c14",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "Within a turn the checkpoint precedes quests regardless of input array order.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "transition",
+      "to": "market"
+     },
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "offered"
+     }
+    ],
+    "label": {
+     "text": "Arrival and an offer."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "offered"
+     },
+     {
+      "kind": "transition",
+      "from": "dock",
+      "to": "market"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "miss"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c15",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "Within a turn quests precede milestones regardless of input array order.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "id": "nets",
+      "to": "done"
+     },
+     {
+      "kind": "milestone",
+      "id": "spring"
+     }
+    ],
+    "label": {
+     "text": "A task and a landmark."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "milestone",
+      "id": "spring"
+     },
+     {
+      "kind": "quest",
+      "id": "nets",
+      "to": "done"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "haggle",
+      "to": "weak"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c16",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "Within a turn milestones precede checks regardless of input array order.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "milestone",
+      "id": "bridge"
+     },
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     }
+    ],
+    "label": {
+     "text": "A landmark and a sure ascent."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     },
+     {
+      "kind": "milestone",
+      "id": "bridge"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "toll",
+      "to": "offered"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c17",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "Three steps can complete in one turn under recap ordering.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "transition",
+      "to": "market"
+     },
+     {
+      "kind": "milestone",
+      "id": "spring"
+     },
+     {
+      "kind": "check",
+      "id": "haggle",
+      "to": "strong"
+     }
+    ],
+    "within": 1,
+    "label": {
+     "text": "A full day on the road."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "check",
+      "id": "haggle",
+      "to": "strong"
+     },
+     {
+      "kind": "milestone",
+      "id": "spring"
+     },
+     {
+      "kind": "transition",
+      "from": "dock",
+      "to": "market"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "offered"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c18",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "Unrelated visible and invisible events do not break an ordered match.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "miss"
+     },
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "strong"
+     }
+    ],
+    "label": {
+     "text": "A stronger finish."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "miss"
+     }
+    ],
+    [
+     {
+      "kind": "transition",
+      "from": "dock",
+      "to": "market"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "nets",
+      "to": "offered"
+     }
+    ],
+    [
+     {
+      "kind": "milestone",
+      "id": "vault"
+     },
+     {
+      "kind": "check",
+      "id": "sneak",
+      "to": "success"
+     }
+    ],
+    [
+     {
+      "kind": "milestone",
+      "id": "spring"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "strong"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c19",
+   "positive": true,
+   "expectedCompletions": 2,
+   "why": "Repeat each completes twice using two disjoint event pairs.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "failure"
+     },
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     }
+    ],
+    "repeat": "each",
+    "label": {
+     "text": "Another ascent completed."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "failure"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "failure"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c20",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "Repeat once permits only one completion despite two disjoint matching pairs.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "failure"
+     },
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     }
+    ],
+    "repeat": "once",
+    "label": {
+     "text": "An ascent completed."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "failure"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "failure"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c21",
+   "positive": true,
+   "expectedCompletions": 3,
+   "why": "Repeat each counts every qualifying event in a one-step pattern.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "check",
+      "where": {
+       "quality": "swim_ok",
+       "outcome": "success"
+      }
+     }
+    ],
+    "repeat": "each",
+    "label": {
+     "text": "A clean crossing."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "success"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "weak"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "success"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "success"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c22",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "Adjacent turns have a first-to-last distance of one.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "id": "toll",
+      "to": "offered"
+     },
+     {
+      "kind": "quest",
+      "id": "toll",
+      "to": "active"
+     }
+    ],
+    "within": 1,
+    "pending": "One step remains in this undertaking."
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "toll",
+      "to": "offered"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "toll",
+      "to": "active"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c23",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "A bound quest id can remain consistent across three status changes.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "id": "?task",
+      "to": "offered"
+     },
+     {
+      "kind": "quest",
+      "id": "?task",
+      "to": "active"
+     },
+     {
+      "kind": "quest",
+      "id": "?task",
+      "to": "done"
+     }
+    ],
+    "label": {
+     "text": "An undertaking followed through."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "offered"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "active"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c24",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "A chapter binding matches two destinations in the same chapter.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "transition",
+      "to": "gate",
+      "where": {
+       "chapter": "?section"
+      }
+     },
+     {
+      "kind": "transition",
+      "to": "yard",
+      "where": {
+       "chapter": "?section"
+      }
+     }
+    ],
+    "label": {
+     "text": "Further along the same stretch."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "transition",
+      "from": "dock",
+      "to": "market"
+     }
+    ],
+    [
+     {
+      "kind": "transition",
+      "from": "market",
+      "to": "gate"
+     }
+    ],
+    [
+     {
+      "kind": "transition",
+      "from": "gate",
+      "to": "yard"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c25",
+   "positive": true,
+   "expectedCompletions": 1,
+   "why": "Repeat each cannot reuse the middle event to complete a second pair.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "check",
+      "id": "haggle",
+      "to": "success"
+     },
+     {
+      "kind": "check",
+      "id": "haggle",
+      "to": "success"
+     }
+    ],
+    "repeat": "each",
+    "label": {
+     "text": "Two sound bargains."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "check",
+      "id": "haggle",
+      "to": "success"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "haggle",
+      "to": "success"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "haggle",
+      "to": "success"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c26",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "Events in reversed turn order do not satisfy the steps.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "failure"
+     },
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     }
+    ],
+    "label": {
+     "text": "A second attempt has landed."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "failure"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c27",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "Quest completions from different givers conflict with the bound giver.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "to": "done",
+      "where": {
+       "giver": "?who"
+      }
+     },
+     {
+      "kind": "quest",
+      "to": "done",
+      "where": {
+       "giver": "?who"
+      }
+     }
+    ],
+    "label": {
+     "text": "Two favours for one patron."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "done"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c28",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "A weak check outcome is not a success outcome.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "milestone",
+      "id": "spring"
+     },
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "success"
+     }
+    ],
+    "label": {
+     "text": "A sure crossing."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "milestone",
+      "id": "spring"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "weak"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c29",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "A turn distance of three exceeds a within limit of two.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "failure"
+     },
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     }
+    ],
+    "within": 2,
+    "label": {
+     "text": "A second attempt has landed."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "failure"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "offered"
+     }
+    ],
+    [
+     {
+      "kind": "milestone",
+      "id": "spring"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c30",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "The destination matches but the required transition origin does not.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "transition",
+      "to": "market",
+      "where": {
+       "from": "gate"
+      }
+     }
+    ],
+    "label": {
+     "text": "A familiar road revisited."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "transition",
+      "from": "dock",
+      "to": "market"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "nets",
+      "to": "offered"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c31",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "Destinations in different chapters conflict with the chapter binding.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "transition",
+      "to": "market",
+      "where": {
+       "chapter": "?section"
+      }
+     },
+     {
+      "kind": "transition",
+      "to": "gate",
+      "where": {
+       "chapter": "?section"
+      }
+     }
+    ],
+    "label": {
+     "text": "Further along the same stretch."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "transition",
+      "from": "dock",
+      "to": "market"
+     }
+    ],
+    [
+     {
+      "kind": "transition",
+      "from": "market",
+      "to": "gate"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c32",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "The later check has a different quality from the bound quality.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "check",
+      "to": "failure",
+      "where": {
+       "quality": "?skill"
+      }
+     },
+     {
+      "kind": "check",
+      "to": "success",
+      "where": {
+       "quality": "?skill"
+      }
+     }
+    ],
+    "label": {
+     "text": "A skill tried again."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "failure"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "success"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c33",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "Matching givers do not compensate for a conflicting bound status.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "to": "?status",
+      "where": {
+       "giver": "?who"
+      }
+     },
+     {
+      "kind": "quest",
+      "to": "?status",
+      "where": {
+       "giver": "?who"
+      }
+     }
+    ],
+    "label": {
+     "text": "Two undertakings stand alike."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "active"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "toll",
+      "to": "done"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c34",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "A matching unless event between the two steps cancels the match.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "active"
+     },
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ],
+    "unless": [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "failure",
+      "between": [
+       1,
+       2
+      ]
+     }
+    ],
+    "label": {
+     "text": "An undertaking is complete."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "active"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "failure"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c35",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "An unless event with the previously bound giver cancels the match.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "to": "done",
+      "where": {
+       "giver": "?who"
+      }
+     },
+     {
+      "kind": "milestone",
+      "id": "bridge"
+     }
+    ],
+    "unless": [
+     {
+      "kind": "quest",
+      "to": "failed",
+      "where": {
+       "giver": "?who"
+      },
+      "between": [
+       1,
+       2
+      ]
+     }
+    ],
+    "label": {
+     "text": "A favour and a landmark."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "nets",
+      "to": "failed"
+     }
+    ],
+    [
+     {
+      "kind": "milestone",
+      "id": "bridge"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c36",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "A public milestone between the steps triggers an unfiltered milestone unless row.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "active"
+     },
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ],
+    "unless": [
+     {
+      "kind": "milestone",
+      "between": [
+       1,
+       2
+      ]
+     }
+    ],
+    "label": {
+     "text": "The task is finished."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "active"
+     }
+    ],
+    [
+     {
+      "kind": "milestone",
+      "id": "vault"
+     }
+    ],
+    [
+     {
+      "kind": "milestone",
+      "id": "spring"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c37",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "A public check between the steps triggers an unfiltered check unless row.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "active"
+     },
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "done"
+     }
+    ],
+    "unless": [
+     {
+      "kind": "check",
+      "between": [
+       1,
+       2
+      ]
+     }
+    ],
+    "label": {
+     "text": "Another undertaking is complete."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "active"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "sneak",
+      "to": "failure"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "success"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "done"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c38",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "A secret milestone cannot satisfy even an unfiltered milestone step.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "milestone"
+     }
+    ],
+    "label": {
+     "text": "A landmark in memory."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "milestone",
+      "id": "vault"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "nets",
+      "to": "offered"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c39",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "A hidden check cannot satisfy even an unfiltered check step.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "check"
+     }
+    ],
+    "label": {
+     "text": "A moment of testing."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "check",
+      "id": "sneak",
+      "to": "success"
+     }
+    ],
+    [
+     {
+      "kind": "milestone",
+      "id": "vault"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c40",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "Recap order places the checkpoint before the quest, reversing the required steps.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "offered"
+     },
+     {
+      "kind": "transition",
+      "to": "market"
+     }
+    ],
+    "label": {
+     "text": "An offer followed by arrival."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "offered"
+     },
+     {
+      "kind": "transition",
+      "from": "dock",
+      "to": "market"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "miss"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c41",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "Recap order places the quest before the milestone, reversing the required steps.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "milestone",
+      "id": "spring"
+     },
+     {
+      "kind": "quest",
+      "id": "nets",
+      "to": "done"
+     }
+    ],
+    "label": {
+     "text": "A landmark followed by a finished task."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "milestone",
+      "id": "spring"
+     },
+     {
+      "kind": "quest",
+      "id": "nets",
+      "to": "done"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "haggle",
+      "to": "weak"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c42",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "Recap order places the milestone before the check, reversing the required steps.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     },
+     {
+      "kind": "milestone",
+      "id": "bridge"
+     }
+    ],
+    "label": {
+     "text": "An ascent followed by a landmark."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "check",
+      "id": "climb",
+      "to": "success"
+     },
+     {
+      "kind": "milestone",
+      "id": "bridge"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "toll",
+      "to": "offered"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c43",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "Recap order puts the quest unless event between the checkpoint and milestone steps.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "transition",
+      "to": "market"
+     },
+     {
+      "kind": "milestone",
+      "id": "spring"
+     }
+    ],
+    "unless": [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "failed",
+      "between": [
+       1,
+       2
+      ]
+     }
+    ],
+    "label": {
+     "text": "Arrival and a landmark."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "milestone",
+      "id": "spring"
+     },
+     {
+      "kind": "transition",
+      "from": "dock",
+      "to": "market"
+     },
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "failed"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "weak"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c44",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "A failed quest does not satisfy a done status step.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "active"
+     },
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "done"
+     }
+    ],
+    "label": {
+     "text": "An undertaking completed."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "active"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "lamp",
+      "to": "failed"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c45",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "Quest events from the wrong giver do not satisfy a literal giver filter.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "to": "done",
+      "where": {
+       "giver": "tobin"
+      }
+     }
+    ],
+    "label": {
+     "text": "A favour completed."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "nets",
+      "to": "done"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c46",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "The final quest id conflicts with the id bound by the earlier steps.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "id": "?task",
+      "to": "offered"
+     },
+     {
+      "kind": "quest",
+      "id": "?task",
+      "to": "active"
+     },
+     {
+      "kind": "quest",
+      "id": "?task",
+      "to": "done"
+     }
+    ],
+    "label": {
+     "text": "An undertaking followed through."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "offered"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "active"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "nets",
+      "to": "done"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c47",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "A three-step pattern does not complete when its final step never occurs.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "transition",
+      "to": "market"
+     },
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     },
+     {
+      "kind": "milestone",
+      "id": "bridge"
+     }
+    ],
+    "label": {
+     "text": "Three moments on the road."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "transition",
+      "from": "dock",
+      "to": "market"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ],
+    [
+     {
+      "kind": "milestone",
+      "id": "spring"
+     }
+    ],
+    [
+     {
+      "kind": "milestone",
+      "id": "vault"
+     },
+     {
+      "kind": "check",
+      "id": "sneak",
+      "to": "strong"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c48",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "Repeat each still requires two distinct events for two identical steps.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "check",
+      "id": "haggle",
+      "to": "success"
+     },
+     {
+      "kind": "check",
+      "id": "haggle",
+      "to": "success"
+     }
+    ],
+    "repeat": "each",
+    "label": {
+     "text": "Two sound bargains."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "check",
+      "id": "haggle",
+      "to": "success"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "haggle",
+      "to": "weak"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c49",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "The within limit measures first-to-last distance rather than each adjacent step gap.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "id": "toll",
+      "to": "offered"
+     },
+     {
+      "kind": "quest",
+      "id": "toll",
+      "to": "active"
+     },
+     {
+      "kind": "quest",
+      "id": "toll",
+      "to": "done"
+     }
+    ],
+    "within": 1,
+    "label": {
+     "text": "An undertaking followed through."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "toll",
+      "to": "offered"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "toll",
+      "to": "active"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "toll",
+      "to": "done"
+     }
+    ]
+   ]
+  },
+  {
+   "id": "c50",
+   "positive": false,
+   "expectedCompletions": 0,
+   "why": "An unless window spanning steps one through three includes events after step two.",
+   "pattern": {
+    "id": "p",
+    "steps": [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "offered"
+     },
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "active"
+     },
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ],
+    "unless": [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "failure",
+      "between": [
+       1,
+       3
+      ]
+     }
+    ],
+    "label": {
+     "text": "An undertaking followed through."
+    }
+   },
+   "turns": [
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "offered"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "active"
+     }
+    ],
+    [
+     {
+      "kind": "check",
+      "id": "swim",
+      "to": "failure"
+     }
+    ],
+    [
+     {
+      "kind": "quest",
+      "id": "crates",
+      "to": "done"
+     }
+    ]
+   ]
+  }
+ ]
+}

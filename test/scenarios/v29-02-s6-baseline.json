@@ -1,0 +1,631 @@
+{
+  "_note": "v2.9 02 S6 arm baseline (frozen 2026-10-23 before inference): 20 narrator situations x 3 self-voiced members (Luke, Ponticius, Arin) = 60 real Artemis replies, delivery off through characters.delivery; extraction pinned SCENE_NONE (not the measured path); thinking and inner voice on. Replies land in localStorage keys so-v29-s6-baseline-*. Run on a model lane with --sandbox --group 'Group: Arin, DM Narrator'.",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Luke",
+      "Ponticius",
+      "Arin",
+      "DM Narrator"
+    ]
+  },
+  "steps": [
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "characters",
+          "delivery"
+        ],
+        "value": false
+      }
+    },
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const s = globalThis.storyOrchestratorRuntime.getGlobalSettings(); if (s.image.enabled || s.sprites.enabled) throw new Error('media must be off'); if (s.characters.delivery !== false) throw new Error('delivery setting is not the arm'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); return { arm: 'baseline', delivery: s.characters.delivery };"
+    },
+    {
+      "import_story": {
+        "id": "so-v29-02-s6",
+        "title": "SO-V29-02 S6 Guild Hall",
+        "description": "v2.9 02 S6 corpus: three self-voiced members with voice and delivery sheets in one guild hall scene; the narrator sets each situation.",
+        "roster": [
+          {
+            "id": "luke",
+            "name": "Luke",
+            "role": "a young adventurer looking for his brother",
+            "polish": {
+              "notes": "Fast, breathless sentences that trip over each other when he is nervous. Asks a question, then answers it himself. Ties things back to finding his brother.",
+              "prefer": [
+                "I mean",
+                "right?"
+              ],
+              "avoid": [
+                "indeed",
+                "certainly"
+              ],
+              "tics": [
+                "swallows hard"
+              ],
+              "rhythm": "flowing"
+            }
+          },
+          {
+            "id": "ponticius",
+            "name": "Ponticius",
+            "role": "the guild master",
+            "polish": {
+              "notes": "Plain, weighty words. Wraps advice in a short story from his younger days. A bark that ends in a laugh. Never sugarcoats a risk, always offers a way forward.",
+              "prefer": [
+                "listen",
+                "back when I was green"
+              ],
+              "avoid": [
+                "perhaps",
+                "I suppose"
+              ],
+              "tics": [
+                "chuckles"
+              ],
+              "rhythm": "plain"
+            }
+          },
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "the player's guild partner",
+            "polish": {
+              "notes": "Quick, teasing one-liners that hide worry. Says less than he means.",
+              "prefer": [
+                "easy",
+                "figures"
+              ],
+              "avoid": [
+                "indeed",
+                "I must say"
+              ],
+              "tics": [
+                "smirks"
+              ],
+              "rhythm": "clipped"
+            }
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator",
+            "view": "omniscient"
+          }
+        ],
+        "qualities": [
+          {
+            "key": "departed",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party left the guild hall?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "hall",
+            "name": "Guild Hall",
+            "player_name": "The Guild Hall",
+            "type": "anchor",
+            "start": true,
+            "objective": "Get ready to leave the city."
+          },
+          {
+            "id": "road",
+            "name": "Road",
+            "type": "anchor",
+            "objective": "Travel on."
+          }
+        ],
+        "transitions": [
+          {
+            "from": "hall",
+            "to": "road",
+            "priority": 1,
+            "gate": {
+              "q": "departed",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Luke",
+            "Ponticius",
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); return true;"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The guild hall's doors bang open; rain blows in, and a runner shouts that the east road is flooded."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(1).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 1, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(1).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 1, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(1).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 1, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" A crate of supplies arrives short: half the rope and none of the lamp oil that was promised."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(2).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 2, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(2).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 2, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(2).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 2, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" A notice goes up on the board: a reward for anyone who maps the old sewer under the market."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(3).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 3, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(3).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 3, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(3).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 3, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The cook drops a tray; in the quiet after, someone at the back laughs too loudly."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(4).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 4, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(4).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 4, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(4).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 4, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" A stranger in a grey cloak asks the room whether anyone has been to the Sun Ruins this season."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(5).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 5, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(5).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 5, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(5).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 5, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The hearth fire dies down and nobody gets up to feed it."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(6).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 6, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(6).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 6, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(6).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 6, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" A guild clerk reads out the names of three adventurers who did not come back last month."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(7).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 7, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(7).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 7, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(7).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 7, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" Thunder rolls; the lamps flicker, and the map on the table curls at one corner."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(8).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 8, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(8).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 8, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(8).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 8, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" A merchant offers to pay double if the party leaves at dawn instead of next week."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(9).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 9, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(9).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 9, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(9).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 9, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" Someone has carved a warning into the bench: DO NOT TRUST THE FERRYMAN."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(10).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 10, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(10).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 10, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(10).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 10, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The party's packs are laid out for inspection; one waterskin is cracked."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(11).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 11, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(11).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 11, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(11).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 11, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" A child slips in out of the rain and asks if this is where heroes live."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(12).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 12, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(12).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 12, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(12).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 12, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" Word comes that the bridge at the river ford collapsed overnight."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(13).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 13, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(13).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 13, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(13).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 13, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" A guild veteran with one arm sets down a sealed letter addressed to no one."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(14).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 14, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(14).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 14, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(14).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 14, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The rain stops all at once; through the window, the ruined towers stand very clear."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(15).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 15, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(15).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 15, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(15).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 15, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" A bell in the city rings three times, which usually means a gate is closing early."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(16).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 16, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(16).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 16, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(16).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 16, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" The quartermaster asks who will sign for the borrowed crossbow."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(17).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 17, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(17).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 17, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(17).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 17, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" A dog wanders in, shakes itself dry over the map, and lies down by the door."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(18).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 18, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(18).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 18, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(18).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 18, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" A scout reports smoke rising from the old watchtower, where no one should be."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(19).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 19, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(19).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 19, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(19).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 19, member: 'Arin', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" Dawn light reaches the hall; the road out of the city is open, for now."
+    },
+    {
+      "slash": "/trigger await=true \"Luke\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Luke') throw new Error('last reply is not Luke: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(20).padStart(2, '0') + '-Luke', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 20, member: 'Luke', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Ponticius\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Ponticius') throw new Error('last reply is not Ponticius: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(20).padStart(2, '0') + '-Ponticius', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 20, member: 'Ponticius', length: (row.mes ?? '').length };"
+    },
+    {
+      "slash": "/trigger await=true \"Arin\""
+    },
+    {
+      "log": true,
+      "eval": "const ctx = SillyTavern.getContext(); const row = ctx.chat[ctx.chat.length - 1]; if (row?.name !== 'Arin') throw new Error('last reply is not Arin: ' + row?.name); localStorage.setItem('so-v29-s6-baseline-' + String(20).padStart(2, '0') + '-Arin', JSON.stringify({ mes: row.mes ?? '', reasoningLen: (row.extra?.reasoning ?? '').length, at: Date.now() })); return { stored: 20, member: 'Arin', length: (row.mes ?? '').length };"
+    }
+  ]
+}
