@@ -6,6 +6,51 @@ starts only when the rows above it are done or blocked. Row detail lives in the 
 
 Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instructions for every open sprite/pose/live-head item (part A, first) and every branch stopped on the 2026-10-10 quota stop (part B).
 
+## Queue to v2.9 (2026-10-23)
+
+Everything still open through v2.9, development and testing, in one list. Top to bottom. GPU paused 2026-10-23 on
+the owner's call: no GPU row starts until the owner says so.
+
+### Testing, GPU-ready (3090, owner's go)
+
+- v2.8 70 lean night, lane 45, build F `9d88d992`: resume 42 W4 recorder (reads saved; off arm via lab) -> GS6 ->
+  GS1 (doubles as inner-beat real recheck) -> 47 promises -> T8 -> 45 seal (`live-v28-45-seal.json`); then header
+  diffs, journey archive, `so-evidence archive`, plan 70 gate record. Deviation to record: freeze gates x1, not x2.
+- v2.9 06 LT: 80 scenarios (`test/measurements/v2.9/06-lt/scenarios/{current,anchored}`) on one model lane, then
+  blind sol rating.
+- Optional: 07 larger real-play count; 05 P3 real-play rows; 04 C2 corpus with the event off screen (cue effect
+  measured 0 pp because the corpus shows the event).
+
+### Testing, blocked on the owner
+
+- Pod or 3090-at-32K call: R2/R7 (B1-PFX/HIST), R12 SP6, R3 K5, R5 B1-NARR run 2 (needs >= 48K context).
+- R8 thinking A/B: model download needs OK.
+- R9 canon-lite data; R10 C7 / harness / labels.
+- v2.9 03 S2 at plan size: rater authorization (DeepSeek); S3 unbuilt, needs approval.
+- v2.9 08 O4: 10 written tasks + a player.
+- v2.9 02 S6: harder card set (design).
+- Human eval rows (v2.1-v2.4) and the owner's playthrough.
+- R1 GS2: moved to v3.0.
+
+### Development, buildable
+
+- v2.9 09 Show-me conditional targets: offer Show me only when its target renders (~15 targets).
+
+### Development, owner decisions
+
+- Suggestion name filter over-drops public text naming an unreached checkpoint.
+- v2.9 06 help line and greyed offers on the player surface.
+- v2.9 folds into plans 69/63, A02, G07.
+- Plan 53: does a group-disabled member hear a `present` move?
+
+### Housekeeping
+
+- `.claude/CLAUDE.md` status rows for v2.8/v2.9.
+- Archive C2 arm evidence (`so-lanes/33/debug/runs/c2arms-2026-10-23`) to so-sessions.
+- Hazard for the owner: `C:\dev\so-suite-lanes"\data\default-user` is a symlink to the owner's real ST data
+  (since 2026-10-15); a lane-42 run there writes the owner's chats and settings.
+- Owner ST on :8000 is down; build F staged for its next start.
+
 ## Now (running)
 
 - Queue pass 2026-10-22 (no GPU, branch `v2.8-queue-2026-10-22`, not merged): X11 epistemic echo rows, 60 B17 flush poll, B8 sampler overlay last, B4 harness auth/overflow, 61b held-secret recheck at apply, foreign-stamped entries, untracked divergence reset, HTML widget data after handshake, 53 storyDiff faction case + range tests. Each with a test failing on the old code. `npm run gates` all green on `039101c4` (first run red only on the known test:debug 194 flake, rerun fresh green). Lane 30 no-model, candidate dist: build boots; B8 overlay moves behind a peer listener on GENERATION_STARTED (master control: peer stays last). Curator and director recheck real-model PASS ×2 each on `bbd792f0` 2026-10-23 (61b record). Payload goldens: first baseline captured on `bbd792f0`, no-model lane 30, twice, identical (8 cases, 43 prompts); kept in so-sessions `evidence/phase-c/payload-baseline-2026-10-23` (prompts hold install persona and inventory, so not in this repo); diff a candidate against `bbd792f0-m1`.
