@@ -137,7 +137,7 @@ Gates:
   needs a clean run from a worktree outside `.claude/` with 6006 free.
 - `node --test scripts/debug/lib/sheetRater.test.mts` 5/5.
 
-Showcase: `C:\dev\so-poc-showcasenim\live\player.js` rebuilt from the branch (backups `player.pre-81.{js,css,html}`,
+Showcase: `C:\dev\so-poc-showcase\anim\live\player.js` rebuilt from the branch (backups `player.pre-81.{js,css,html}`,
 `players.pre-81.json`, `tools/live-entry.pre-81.tsx`, `index.pre-81.html`); players get an "expression textures (plan 81)"
 switch and `?label=`/`?size=` parameters; `expressions-2026-10-23.html` (before/after, live player) linked from
 `index.html`.
