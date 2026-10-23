@@ -323,6 +323,8 @@
   "test/scenarios/v29-03-polish-standin.json#0": [],
   "test/scenarios/v29-04-07-model-pilot.json#0": [],
   "test/scenarios/v29-04-c2-corpus.json#0": [],
+  "test/scenarios/v29-04-c2-cue-off.json#0": [],
+  "test/scenarios/v29-04-c2-cue-on.json#0": [],
   "test/scenarios/v29-04-cues.json#0": [],
   "test/scenarios/v29-05-patterns.story.json#0": [],
   "test/scenarios/v29-06-anchored-suggestions.json#0": [],

@@ -1,0 +1,20 @@
+{
+  "frozen": "2026-10-23, before any off-arm inference",
+  "plan": "v2.9 04 C2 caveat: the 2026-10-23 corpus had no cue-off arm, so a reaction did not separate the cue from the scene",
+  "corpus": "test/measurements/v2.9/04-c2c5/frozen.json (40 opportunities: 30 cues, 10 no-cue), unchanged",
+  "arms": {
+    "on": "test/scenarios/v29-04-c2-cue-on.json: characters.cues true (the shipped default)",
+    "off": "test/scenarios/v29-04-c2-cue-off.json: characters.cues false; every other step identical"
+  },
+  "runs": "each arm x1, same served bundle, same lane, on then off, real Artemis replies, thinking and inner voice on, extraction pinned SCENE_NONE",
+  "pack": "the 60 replies at the 30 cue opportunities (30 per arm) in one shuffled pack, blind to arm; each item shows the event note as 'EVENT NOTE (a rating aid; the speaker may or may not have been shown it)' and the reply",
+  "rater": "opencode openai/gpt-6.1-sol, one pass, prompt frozen in rate/prompt.txt; U = the reply clearly uses or acknowledges the note's content; P = the reply narrates the player's character",
+  "measures": {
+    "U_on": "U=yes among the 30 on-arm replies",
+    "U_off": "U=yes among the 30 off-arm replies",
+    "cue_effect": "U_on - U_off in percentage points",
+    "C5_both": "P=yes over all 60"
+  },
+  "floor": "none predeclared for the off arm or the effect (plan 04 C2 floor >= 80 % applies to U_on only); informational, never retuned",
+  "offered_check": "on arm: receipts offered at every cue opportunity, 0 on no-cue turns; off arm: 0 receipts"
+}
