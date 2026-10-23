@@ -111,7 +111,7 @@ const JUDGE_SYSTEM = 'You are a careful, impartial reader of roleplay fiction. Y
 
 function runOpencode(model: string, prompt: string, cwd: string, systemFile: string, variant: string | null) {
   return new Promise<{ code: number; stdout: string; stderr: string }>((done) => {
-    const child = spawn('opencode', ['run', '--pure', '--format', 'json', '--agent', 'so-judge', '-m', model, ...(variant ? ['--variant', variant] : []), '--dir', cwd], {
+    const child = spawn('opencode', ['run', '--standalone', '--format', 'json', '--agent', 'so-judge', '-m', variant ? `${model}#${variant}` : model], {
       cwd, env: { ...process.env, OPENCODE_CONFIG_CONTENT: opencodeConfig(systemFile) }, windowsHide: true,
     });
     let stdout = '';
@@ -136,7 +136,7 @@ async function judge(args: string[]) {
   const dir = join(out, argValue(args, '--judge-dir') ?? JUDGE_DIR);
   await mkdir(join(dir, 'raw'), { recursive: true });
   await writeText(join(dir, 'prompt.md'), [
-    '# Judge first pass: prompt', '', `Model: \`${model}\`${variant ? ` (variant \`${variant}\`)` : ''} via \`opencode run --pure\` (tools off, no login step; the CLI's existing provider auth).`, '',
+    '# Judge first pass: prompt', '', `Model: \`${model}\`${variant ? ` (variant \`${variant}\`)` : ''} via \`opencode run --standalone\` (tools off, no login step; the CLI's existing provider auth).`, '',
     'System text:', '', '```text', JUDGE_SYSTEM, '```', '', 'Per-turn prompt (T01 shown; every turn uses the same template over its own context and replies):', '', '```text', judgePrompt(pack.turns[0]), '```', '',
   ].join('\n'));
   const scoresPath = join(dir, 'scores.json');

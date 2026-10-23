@@ -156,7 +156,7 @@ async function rate(args: string[]) {
         const prompt = raterPrompt(entry, pack.rubric);
         const run = cli === 'claude'
           ? await runProcess('claude', claudeRaterArgv(model), prompt, home)
-          : await runProcess('opencode', ['run', '--pure', '--format', 'json', '--agent', 'so-rater', '-m', model, '--dir', home], prompt, home, { ...process.env, OPENCODE_CONFIG_CONTENT: opencodeConfig(systemFile) });
+          : await runProcess('opencode', ['run', '--standalone', '--format', 'json', '--agent', 'so-rater', '-m', model], prompt, home, { ...process.env, OPENCODE_CONFIG_CONTENT: opencodeConfig(systemFile) });
         const reply = cli === 'claude' ? claudeReply(run.stdout) : { text: opencodeText(run.stdout), served: [model] };
         reply.served.forEach((name) => served.add(name));
         await writeText(join(dir, 'raw', `${id}-${attempt}.txt`), `exit ${run.code}\nserved ${reply.served.join(',')}\n--- text ---\n${reply.text}\n--- stderr ---\n${run.stderr.slice(-1500)}\n`);

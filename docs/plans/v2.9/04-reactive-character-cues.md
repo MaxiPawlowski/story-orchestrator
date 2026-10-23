@@ -553,3 +553,18 @@ Deviations:
   - Caveat: each cue restates the event the narrator line just showed, and the corpus has no cue-off arm, so a reaction here
     does not separate the cue from the scene. Recorded as the corpus was frozen.
 - 07's echo copy change (`137a359b`) touches only the `echo` offer copy; `react`/`must`/`topic` lines are unchanged.
+### Cue-off arm 2026-10-23
+
+- Frozen before inference: `test/measurements/v2.9/04-c2c5/cue-arms.json` (amended once before inference: media off for the run),
+  scenarios `v29-04-c2-cue-on.json` / `v29-04-c2-cue-off.json` (the frozen corpus, `characters.cues` true / false, every other step
+  identical). Master `f0cca446`, staged, lane 33 (`C:\dev\so-lanes`), local 3090 via the controller, Artemis at 32K, thinking and
+  inner voice on, extraction pinned `SCENE_NONE`. On then off, x1 each, same served bundle.
+- Receipts: on arm 30 of 30 cues offered, off arm 0. Replies 40 + 40, none empty.
+- Rater opencode `openai/gpt-6.1-sol` (v2 CLI, `--standalone`), one blind pass over the 60 cue-opportunity replies shuffled (seed
+  20261023), each shown the event note as a rating aid (`rate-arms.mjs`, prompt and key in the evidence).
+  - U (reply uses the note's content): **on 30/30, off 30/30; cue effect 0 points** (10/10 per member in both arms).
+  - C5 player narration: 0/60.
+- Reading: in this corpus the narrator line already shows the event, so a member reacts to it with or without the cue. The
+  2026-10-23 C2 100 % therefore does not show the cue's own effect. Informational (no floor for the off arm or the effect); a
+  corpus where the event is not on screen (told only through the cue) would be needed to measure it.
+- Evidence `C:\dev\so-lanes\33\debug\c2arms\` (logs, replies, rate/), archived to so-sessions.
