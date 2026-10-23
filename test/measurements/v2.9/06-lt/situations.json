@@ -1,0 +1,6961 @@
+{
+  "corpus": "v2.9 06 LT frozen corpus (draft)",
+  "plan": "docs/plans/v2.9/06-grounded-next-actions-and-stakes.md §Predeclared floors",
+  "group": "Group: Arin, DM Narrator",
+  "seedOps": [
+    "say",
+    "set",
+    "player",
+    "promise",
+    "arcOpen",
+    "arcResolve",
+    "hiding",
+    "stuck"
+  ],
+  "situations": [
+    {
+      "id": "s01",
+      "mix": "quest",
+      "premise": "A lighthouse keeper asked for help relighting the lamp.",
+      "story": {
+        "id": "so-v29-06-lt-s01",
+        "title": "SO-V29-06 LT s01",
+        "description": "v2.9 06 LT synthetic stuck-player situation s01: A lighthouse keeper asked for help relighting the lamp.",
+        "qualities": [
+          {
+            "key": "accepted_lamp",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player agree to help the lighthouse keeper?"
+          },
+          {
+            "key": "found_oil",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player found lamp oil?"
+          },
+          {
+            "key": "lamp_lit",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the lighthouse lamp lit?"
+          },
+          {
+            "key": "lamp_done",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the lamp task finished?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "rocks",
+            "name": "Lighthouse Rocks",
+            "player_name": "The Lighthouse Rocks",
+            "objective": "Relight the lamp.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Help the keeper relight the lighthouse lamp before the fishing boats return."
+          }
+        ],
+        "transitions": [],
+        "quests": [
+          {
+            "id": "lamp",
+            "title": "The keeper's lamp",
+            "kind": "side",
+            "visible_when": {
+              "q": "accepted_lamp",
+              "op": "==",
+              "v": true
+            },
+            "done_when": {
+              "q": "lamp_done",
+              "op": "==",
+              "v": true
+            },
+            "steps": [
+              {
+                "text": "Find oil for the lamp",
+                "done_when": {
+                  "q": "found_oil",
+                  "op": "==",
+                  "v": true
+                }
+              },
+              {
+                "text": "Carry the oil up the tower",
+                "done_when": {
+                  "q": "lamp_lit",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ],
+            "giver": "narrator"
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Waves break on the rocks below a dark lighthouse. An old keeper waves you over."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin squints up at the tower. “No light at all. The boats will wreck.”"
+        },
+        {
+          "set": [
+            "accepted_lamp",
+            true
+          ]
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The keeper presses an empty oil can into your hands and points vaguely toward the village."
+        },
+        {
+          "stuck": "I turn the empty can over in my hands. I really don't know where to start."
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "quest-step"
+        ],
+        "absent": [],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "rocks",
+          "boundary": 4,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:rocks",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Help the keeper relight the lighthouse lamp before the fishing boats return."
+            },
+            {
+              "id": "quest-step:lamp.0",
+              "kind": "quest-step",
+              "weight": 3,
+              "text": "Find oil for the lamp"
+            }
+          ],
+          "selectedOffline": [
+            "objective:rocks",
+            "quest-step:lamp.0"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [],
+          "conditionalPromises": 0
+        }
+      }
+    },
+    {
+      "id": "s02",
+      "mix": "quest",
+      "premise": "Harvest helpers look for a missing cider press; a hidden step names who took it.",
+      "story": {
+        "id": "so-v29-06-lt-s02",
+        "title": "SO-V29-06 LT s02",
+        "description": "v2.9 06 LT synthetic stuck-player situation s02: Harvest helpers look for a missing cider press; a hidden step names who took it.",
+        "qualities": [
+          {
+            "key": "joined_harvest",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player join the orchard harvest?"
+          },
+          {
+            "key": "miller_exposed",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has it been shown that the miller sold the press?"
+          },
+          {
+            "key": "asked_pickers",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player asked the pickers about the press?"
+          },
+          {
+            "key": "press_done",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the press task finished?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "orchard",
+            "name": "Orchard",
+            "player_name": "The Orchard",
+            "objective": "Find the press.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Help the orchard find its missing cider press."
+          }
+        ],
+        "transitions": [],
+        "quests": [
+          {
+            "id": "press",
+            "title": "The missing cider press",
+            "kind": "side",
+            "visible_when": {
+              "q": "joined_harvest",
+              "op": "==",
+              "v": true
+            },
+            "done_when": {
+              "q": "press_done",
+              "op": "==",
+              "v": true
+            },
+            "steps": [
+              {
+                "text": "Prove the miller sold the press to the river barge",
+                "done_when": {
+                  "q": "miller_exposed",
+                  "op": "==",
+                  "v": true
+                },
+                "visible_when": {
+                  "q": "miller_exposed",
+                  "op": "==",
+                  "v": true
+                }
+              },
+              {
+                "text": "Ask the pickers who used the press last",
+                "done_when": {
+                  "q": "asked_pickers",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Rows of apple trees sag with fruit. The pressing shed stands open and empty."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin kicks at the bare floor where the press used to sit. “Someone carted it off.”"
+        },
+        {
+          "set": [
+            "joined_harvest",
+            true
+          ]
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The pickers keep working, glancing at you now and then."
+        },
+        {
+          "stuck": "This is a mess. What am I even supposed to do about a missing press?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "quest-step"
+        ],
+        "absent": [],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "orchard",
+          "boundary": 4,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:orchard",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Help the orchard find its missing cider press."
+            },
+            {
+              "id": "quest-step:press.1",
+              "kind": "quest-step",
+              "weight": 3,
+              "text": "Ask the pickers who used the press last"
+            }
+          ],
+          "selectedOffline": [
+            "objective:orchard",
+            "quest-step:press.1"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "hidden prerequisite: the first quest step (who took the press) is not visible yet; only the pickers step may anchor",
+      "leakNeedles": [
+        "miller sold",
+        "sold the press",
+        "river barge"
+      ]
+    },
+    {
+      "id": "s03",
+      "mix": "quest",
+      "premise": "An archive clerk's torn ledger; the only quest step names an unreached vault.",
+      "story": {
+        "id": "so-v29-06-lt-s03",
+        "title": "SO-V29-06 LT s03",
+        "description": "v2.9 06 LT synthetic stuck-player situation s03: An archive clerk's torn ledger; the only quest step names an unreached vault.",
+        "qualities": [
+          {
+            "key": "took_ledger_job",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player take the clerk's ledger job?"
+          },
+          {
+            "key": "vault_key",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player hold the vault key?"
+          },
+          {
+            "key": "in_vault",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party entered the sealed vault?"
+          },
+          {
+            "key": "ledger_done",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the ledger task finished?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "reading_room",
+            "name": "Reading Room",
+            "player_name": "The Reading Room",
+            "objective": "Mend the ledger.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Work out who tore the page from the archive ledger."
+          },
+          {
+            "id": "vault",
+            "name": "Sealed Vault",
+            "player_name": "The Sealed Vault",
+            "objective": "Search the vault.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "reading_room",
+            "to": "vault",
+            "priority": 0,
+            "gate": {
+              "q": "in_vault",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "quests": [
+          {
+            "id": "ledger",
+            "title": "The torn ledger",
+            "kind": "side",
+            "visible_when": {
+              "q": "took_ledger_job",
+              "op": "==",
+              "v": true
+            },
+            "done_when": {
+              "q": "ledger_done",
+              "op": "==",
+              "v": true
+            },
+            "steps": [
+              {
+                "text": "Find the key to the Sealed Vault",
+                "done_when": {
+                  "q": "vault_key",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Dust hangs in the lamplight of the archive reading room. A clerk frets over a ledger with a page torn out."
+        },
+        {
+          "set": [
+            "took_ledger_job",
+            true
+          ]
+        },
+        {
+          "say": "Arin",
+          "text": "Arin runs a finger along the ragged edge of the missing page. “Clean tear. Someone did this on purpose.”"
+        },
+        {
+          "arcOpen": "Someone tore a page out of the archive ledger and nobody knows who."
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The clerk wrings his hands and says nothing more."
+        },
+        {
+          "stuck": "Okay... I've got nothing. Where do I even go from here?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "thread"
+        ],
+        "absent": [
+          "quest-step:ledger.0"
+        ],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "reading_room",
+          "boundary": 4,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:reading_room",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Work out who tore the page from the archive ledger."
+            },
+            {
+              "id": "thread:b0b8afda-bea0-417a-ab44-ed0ee6e36b07",
+              "kind": "thread",
+              "weight": 2,
+              "text": "Someone tore a page out of the archive ledger and nobody knows who."
+            }
+          ],
+          "selectedOffline": [
+            "objective:reading_room",
+            "thread:b0b8afda-bea0-417a-ab44-ed0ee6e36b07"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "hidden prerequisite: the only open step names an unreached checkpoint, so the step must be screened out",
+      "leakNeedles": [
+        "Sealed Vault",
+        "vault key"
+      ]
+    },
+    {
+      "id": "s04",
+      "mix": "quest",
+      "premise": "A smith needs charcoal for a tourney blade; a hidden quest says the smith forges guild seals.",
+      "story": {
+        "id": "so-v29-06-lt-s04",
+        "title": "SO-V29-06 LT s04",
+        "description": "v2.9 06 LT synthetic stuck-player situation s04: A smith needs charcoal for a tourney blade; a hidden quest says the smith forges guild seals.",
+        "qualities": [
+          {
+            "key": "agreed_blade",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player agree to help the smith?"
+          },
+          {
+            "key": "has_charcoal",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player brought good charcoal?"
+          },
+          {
+            "key": "saw_stamping",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player seen the smith stamping seals?"
+          },
+          {
+            "key": "blade_done",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the blade task finished?"
+          },
+          {
+            "key": "seal_done",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the seal task finished?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "forge",
+            "name": "Smithy",
+            "player_name": "The Smithy",
+            "objective": "Help the smith.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Help the smith finish a blade in time for the tourney."
+          }
+        ],
+        "transitions": [],
+        "quests": [
+          {
+            "id": "blade",
+            "title": "A blade for the tourney",
+            "kind": "side",
+            "visible_when": {
+              "q": "agreed_blade",
+              "op": "==",
+              "v": true
+            },
+            "done_when": {
+              "q": "blade_done",
+              "op": "==",
+              "v": true
+            },
+            "steps": [
+              {
+                "text": "Bring the smith good charcoal",
+                "done_when": {
+                  "q": "has_charcoal",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          },
+          {
+            "id": "seal",
+            "title": "The smith's forged seals",
+            "kind": "side",
+            "visible_when": {
+              "q": "saw_stamping",
+              "op": "==",
+              "v": true
+            },
+            "done_when": {
+              "q": "seal_done",
+              "op": "==",
+              "v": true
+            },
+            "steps": [
+              {
+                "text": "Catch the smith stamping counterfeit guild seals",
+                "done_when": {
+                  "q": "saw_stamping",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "The smithy roars with heat. The smith hammers a half-finished blade and curses the poor coals."
+        },
+        {
+          "set": [
+            "agreed_blade",
+            true
+          ]
+        },
+        {
+          "say": "Arin",
+          "text": "Arin fans the smoke away. “Those coals are mostly dirt.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The smith goes back to hammering, muttering about the tourney."
+        },
+        {
+          "stuck": "Right. So... what now?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "quest-step"
+        ],
+        "absent": [
+          "quest-step:seal.0"
+        ],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "forge",
+          "boundary": 4,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:forge",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Help the smith finish a blade in time for the tourney."
+            },
+            {
+              "id": "quest-step:blade.0",
+              "kind": "quest-step",
+              "weight": 3,
+              "text": "Bring the smith good charcoal"
+            }
+          ],
+          "selectedOffline": [
+            "quest-step:blade.0",
+            "objective:forge"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "hidden quest: its title and step reveal a secret about the smith",
+      "leakNeedles": [
+        "counterfeit",
+        "guild seal",
+        "forged seal"
+      ]
+    },
+    {
+      "id": "s05",
+      "mix": "quest",
+      "premise": "Earning passage downriver; an offered-but-not-accepted quest about a drowned bell.",
+      "story": {
+        "id": "so-v29-06-lt-s05",
+        "title": "SO-V29-06 LT s05",
+        "description": "v2.9 06 LT synthetic stuck-player situation s05: Earning passage downriver; an offered-but-not-accepted quest about a drowned bell.",
+        "qualities": [
+          {
+            "key": "asked_fare",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player asked about the ferry fare?"
+          },
+          {
+            "key": "nets_mended",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player mended the ferryman's nets?"
+          },
+          {
+            "key": "heard_bell",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player heard the bell rumour?"
+          },
+          {
+            "key": "took_bell_job",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player accepted the bell job?"
+          },
+          {
+            "key": "bell_raised",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the bell been raised?"
+          },
+          {
+            "key": "passage_done",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the passage task finished?"
+          },
+          {
+            "key": "bell_done",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the bell task finished?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "landing",
+            "name": "Ferry Landing",
+            "player_name": "The Ferry Landing",
+            "objective": "Get passage.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Earn passage on the ferry downriver."
+          }
+        ],
+        "transitions": [],
+        "quests": [
+          {
+            "id": "passage",
+            "title": "Passage downriver",
+            "kind": "side",
+            "visible_when": {
+              "q": "asked_fare",
+              "op": "==",
+              "v": true
+            },
+            "done_when": {
+              "q": "passage_done",
+              "op": "==",
+              "v": true
+            },
+            "steps": [
+              {
+                "text": "Earn the fare by mending the ferryman's nets",
+                "done_when": {
+                  "q": "nets_mended",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          },
+          {
+            "id": "bell",
+            "title": "The drowned bell",
+            "kind": "side",
+            "visible_when": {
+              "q": "took_bell_job",
+              "op": "==",
+              "v": true
+            },
+            "done_when": {
+              "q": "bell_done",
+              "op": "==",
+              "v": true
+            },
+            "steps": [
+              {
+                "text": "Dive for the bell under the old pier",
+                "done_when": {
+                  "q": "bell_raised",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ],
+            "offered_when": {
+              "q": "heard_bell",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "A flat ferry bumps against the landing. The ferryman counts coins and shakes his head at you."
+        },
+        {
+          "set": [
+            "asked_fare",
+            true
+          ]
+        },
+        {
+          "set": [
+            "heard_bell",
+            true
+          ]
+        },
+        {
+          "say": "Arin",
+          "text": "Arin pats her empty purse. “We can't pay what he's asking.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "Torn nets lie in a heap beside the ferryman's hut."
+        },
+        {
+          "stuck": "I have no idea how we're getting on that boat."
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "quest-step"
+        ],
+        "absent": [
+          "quest:bell",
+          "quest-step:bell.0"
+        ],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "landing",
+          "boundary": 5,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:landing",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Earn passage on the ferry downriver."
+            },
+            {
+              "id": "quest-step:passage.0",
+              "kind": "quest-step",
+              "weight": 3,
+              "text": "Earn the fare by mending the ferryman's nets"
+            }
+          ],
+          "selectedOffline": [
+            "quest-step:passage.0",
+            "objective:landing"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "offered (not accepted) quest: its title is withheld and must not anchor",
+      "leakNeedles": [
+        "drowned bell",
+        "old pier"
+      ]
+    },
+    {
+      "id": "s06",
+      "mix": "quest",
+      "premise": "Crossing a mountain pass; a hidden latch says the guide will abandon the party.",
+      "story": {
+        "id": "so-v29-06-lt-s06",
+        "title": "SO-V29-06 LT s06",
+        "description": "v2.9 06 LT synthetic stuck-player situation s06: Crossing a mountain pass; a hidden latch says the guide will abandon the party.",
+        "qualities": [
+          {
+            "key": "planning_pass",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the party planning to cross the pass?"
+          },
+          {
+            "key": "hired_guide",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party hired a guide?"
+          },
+          {
+            "key": "at_ridge",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party reached the ridge?"
+          },
+          {
+            "key": "guide_abandons",
+            "type": "bool",
+            "source": "code",
+            "rubric": "The hired guide will abandon the party at the ridge."
+          },
+          {
+            "key": "pass_done",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the pass task finished?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "village",
+            "name": "Last Village",
+            "player_name": "The Last Village",
+            "objective": "Prepare.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Prepare to cross the mountain pass before winter."
+          },
+          {
+            "id": "ridge",
+            "name": "Empty Ridge",
+            "player_name": "The Empty Ridge",
+            "objective": "Survive the ridge.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "village",
+            "to": "ridge",
+            "priority": 0,
+            "gate": {
+              "q": "at_ridge",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "quests": [
+          {
+            "id": "pass",
+            "title": "Over the pass",
+            "kind": "side",
+            "visible_when": {
+              "q": "planning_pass",
+              "op": "==",
+              "v": true
+            },
+            "done_when": {
+              "q": "pass_done",
+              "op": "==",
+              "v": true
+            },
+            "steps": [
+              {
+                "text": "Hire a guide in the village",
+                "done_when": {
+                  "q": "hired_guide",
+                  "op": "==",
+                  "v": true
+                }
+              },
+              {
+                "text": "Reach the ridge before nightfall",
+                "done_when": {
+                  "q": "at_ridge",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Snow-capped peaks loom over a cluster of stone houses at the end of the road."
+        },
+        {
+          "set": [
+            "planning_pass",
+            true
+          ]
+        },
+        {
+          "set": [
+            "guide_abandons",
+            true
+          ]
+        },
+        {
+          "say": "Arin",
+          "text": "Arin pulls her cloak tight. “We won't make it over without someone who knows the way.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "Villagers hurry indoors as the wind picks up."
+        },
+        {
+          "stuck": "I'm kind of stuck. What should I do?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "quest-step"
+        ],
+        "absent": [],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "village",
+          "boundary": 5,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:village",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Prepare to cross the mountain pass before winter."
+            },
+            {
+              "id": "quest-step:pass.0",
+              "kind": "quest-step",
+              "weight": 3,
+              "text": "Hire a guide in the village"
+            }
+          ],
+          "selectedOffline": [
+            "quest-step:pass.0",
+            "objective:village"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "predetermined outcome: a hidden code latch says the guide will abandon the party; an unreached checkpoint names the ridge",
+      "leakNeedles": [
+        "abandon",
+        "Empty Ridge",
+        "betray"
+      ]
+    },
+    {
+      "id": "s07",
+      "mix": "dormant-arc",
+      "premise": "A carnival; an old request from the fortune teller sits under a new commotion.",
+      "story": {
+        "id": "so-v29-06-lt-s07",
+        "title": "SO-V29-06 LT s07",
+        "description": "v2.9 06 LT synthetic stuck-player situation s07: A carnival; an old request from the fortune teller sits under a new commotion.",
+        "qualities": [
+          {
+            "key": "entered_midway",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party entered the midway?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "gates",
+            "name": "Carnival Gates",
+            "player_name": "The Carnival Gates",
+            "objective": "Enter.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "midway",
+            "name": "Midway",
+            "player_name": "The Midway",
+            "objective": "Explore.",
+            "type": "anchor",
+            "player_text": "Enjoy the carnival without losing your purse."
+          }
+        ],
+        "transitions": [
+          {
+            "from": "gates",
+            "to": "midway",
+            "priority": 0,
+            "gate": {
+              "q": "entered_midway",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Music and lantern light spill from the carnival gates."
+        },
+        {
+          "arcOpen": "The fortune teller asked you to bring back her lost tarot deck."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin grins. “Did she just hire us?”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "A crowd sweeps you toward the gates."
+        },
+        {
+          "set": [
+            "entered_midway",
+            true
+          ]
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The midway is loud with barkers and the smell of fried dough."
+        },
+        {
+          "arcOpen": "A child is crying alone near the carousel."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin points. “That kid looks lost.”"
+        },
+        {
+          "stuck": "So much going on. I don't know what to do first."
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "thread",
+          "dormant-thread"
+        ],
+        "absent": [],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "midway",
+          "boundary": 6,
+          "checkpointStartedBoundary": 4,
+          "candidates": [
+            {
+              "id": "objective:midway",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Enjoy the carnival without losing your purse."
+            },
+            {
+              "id": "dormant-thread:04f20a1b-6710-41a2-a356-0269b5efe055",
+              "kind": "dormant-thread",
+              "weight": 1,
+              "text": "The fortune teller asked you to bring back her lost tarot deck."
+            },
+            {
+              "id": "thread:d903b9ca-91f9-4601-b36b-5a3d8db7be07",
+              "kind": "thread",
+              "weight": 2,
+              "text": "A child is crying alone near the carousel."
+            }
+          ],
+          "selectedOffline": [
+            "objective:midway",
+            "thread:d903b9ca-91f9-4601-b36b-5a3d8db7be07",
+            "dormant-thread:04f20a1b-6710-41a2-a356-0269b5efe055"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [],
+          "conditionalPromises": 0
+        }
+      }
+    },
+    {
+      "id": "s08",
+      "mix": "dormant-arc",
+      "premise": "A monastery; a closed subplot resurfaces an older open thread.",
+      "story": {
+        "id": "so-v29-06-lt-s08",
+        "title": "SO-V29-06 LT s08",
+        "description": "v2.9 06 LT synthetic stuck-player situation s08: A monastery; a closed subplot resurfaces an older open thread.",
+        "qualities": [
+          {
+            "key": "in_library",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party entered the monastery library?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "courtyard",
+            "name": "Courtyard",
+            "player_name": "The Courtyard",
+            "objective": "Arrive.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "library",
+            "name": "Library",
+            "player_name": "The Library",
+            "objective": "Read.",
+            "type": "anchor",
+            "player_text": "Find the record of the founding."
+          }
+        ],
+        "transitions": [
+          {
+            "from": "courtyard",
+            "to": "library",
+            "priority": 0,
+            "gate": {
+              "q": "in_library",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Bells ring over a quiet monastery courtyard."
+        },
+        {
+          "arcOpen": "Brother Anselm still owes you an answer about the bell tower key."
+        },
+        {
+          "arcOpen": "The courtyard well has run completely dry."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin peers into the well. “Bone dry.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "Monks pass in silence."
+        },
+        {
+          "set": [
+            "in_library",
+            true
+          ]
+        },
+        {
+          "say": "DM Narrator",
+          "text": "Shelves of old books climb to the ceiling of the library."
+        },
+        {
+          "arcOpen": "The librarian is searching for a misplaced psalter."
+        },
+        {
+          "arcResolve": "The courtyard well has been refilled with water."
+        },
+        {
+          "stuck": "Hmm. I'm not sure what to look at."
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "thread",
+          "dormant-thread"
+        ],
+        "absent": [],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "library",
+          "boundary": 5,
+          "checkpointStartedBoundary": 4,
+          "candidates": [
+            {
+              "id": "objective:library",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Find the record of the founding."
+            },
+            {
+              "id": "dormant-thread:1323002d-731c-452f-8a29-a370b82156cc",
+              "kind": "dormant-thread",
+              "weight": 2.5,
+              "text": "Brother Anselm still owes you an answer about the bell tower key."
+            },
+            {
+              "id": "thread:7e4bc648-ef53-4635-9dd1-0a6637c20034",
+              "kind": "thread",
+              "weight": 2,
+              "text": "The librarian is searching for a misplaced psalter."
+            }
+          ],
+          "selectedOffline": [
+            "objective:library",
+            "dormant-thread:1323002d-731c-452f-8a29-a370b82156cc",
+            "thread:7e4bc648-ef53-4635-9dd1-0a6637c20034"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [],
+          "conditionalPromises": 0
+        }
+      },
+      "note": "an arc resolved within 4 boundaries: dormant thread gets the +1.5 resurfacing bonus (weight 2.5)"
+    },
+    {
+      "id": "s09",
+      "mix": "dormant-arc",
+      "premise": "A space station; an older errand and a flickering hydroponics bay, no objective text.",
+      "story": {
+        "id": "so-v29-06-lt-s09",
+        "title": "SO-V29-06 LT s09",
+        "description": "v2.9 06 LT synthetic stuck-player situation s09: A space station; an older errand and a flickering hydroponics bay, no objective text.",
+        "player_intro": "You are a contract engineer just docked at a run-down orbital station.",
+        "qualities": [
+          {
+            "key": "in_hydro",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party entered hydroponics?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "ring",
+            "name": "Docking Ring",
+            "player_name": "The Docking Ring",
+            "objective": "Dock.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "hydro",
+            "name": "Hydroponics",
+            "player_name": "Hydroponics",
+            "objective": "Look around.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "ring",
+            "to": "hydro",
+            "priority": 0,
+            "gate": {
+              "q": "in_hydro",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "The docking ring hums. A tired quartermaster scrolls through an inventory pad."
+        },
+        {
+          "arcOpen": "The quartermaster wants the missing coolant canister found."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin reads over his shoulder. “Coolant missing, again.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "Alarms chirp somewhere far off."
+        },
+        {
+          "set": [
+            "in_hydro",
+            true
+          ]
+        },
+        {
+          "say": "DM Narrator",
+          "text": "Rows of plants glow under unsteady grow lamps."
+        },
+        {
+          "arcOpen": "The hydroponics grow lights keep flickering on and off."
+        },
+        {
+          "stuck": "What should I do now?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "thread",
+          "dormant-thread"
+        ],
+        "absent": [],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "hydro",
+          "boundary": 5,
+          "checkpointStartedBoundary": 4,
+          "candidates": [
+            {
+              "id": "dormant-thread:d1d56c63-8608-406b-b1e5-a554423ed8c8",
+              "kind": "dormant-thread",
+              "weight": 1,
+              "text": "The quartermaster wants the missing coolant canister found."
+            },
+            {
+              "id": "thread:f66dc905-e879-4232-a466-215cf170d1c5",
+              "kind": "thread",
+              "weight": 2,
+              "text": "The hydroponics grow lights keep flickering on and off."
+            }
+          ],
+          "selectedOffline": [
+            "thread:f66dc905-e879-4232-a466-215cf170d1c5",
+            "dormant-thread:d1d56c63-8608-406b-b1e5-a554423ed8c8"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [],
+          "conditionalPromises": 0
+        }
+      }
+    },
+    {
+      "id": "s10",
+      "mix": "dormant-arc",
+      "premise": "An inn; Arin holds a secret that an old arc restates.",
+      "story": {
+        "id": "so-v29-06-lt-s10",
+        "title": "SO-V29-06 LT s10",
+        "description": "v2.9 06 LT synthetic stuck-player situation s10: An inn; Arin holds a secret that an old arc restates.",
+        "qualities": [
+          {
+            "key": "in_stables",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party gone out to the stables?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "common",
+            "name": "Common Room",
+            "player_name": "The Common Room",
+            "objective": "Rest.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "stables",
+            "name": "Stables",
+            "player_name": "The Stables",
+            "objective": "Tend the horses.",
+            "type": "anchor",
+            "player_text": "Get the horses ready to leave by morning."
+          }
+        ],
+        "transitions": [
+          {
+            "from": "common",
+            "to": "stables",
+            "priority": 0,
+            "gate": {
+              "q": "in_stables",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "A fire crackles in the inn's common room."
+        },
+        {
+          "arcOpen": "The innkeeper asked you to find his runaway cat."
+        },
+        {
+          "hiding": {
+            "subject": "Arin",
+            "from": "DM Narrator",
+            "content": "Arin hid the stolen ruby inside the saddlebag of the grey mare."
+          }
+        },
+        {
+          "arcOpen": "Arin hid the stolen ruby inside the grey mare's saddlebag."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin stretches and yawns. “Long day.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The innkeeper wipes down the tables."
+        },
+        {
+          "set": [
+            "in_stables",
+            true
+          ]
+        },
+        {
+          "say": "DM Narrator",
+          "text": "Horses shift and snort in the dim stable."
+        },
+        {
+          "arcOpen": "The stable boy wants help calming a frightened horse."
+        },
+        {
+          "stuck": "I'm out of ideas. What now?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "thread",
+          "dormant-thread"
+        ],
+        "absent": [
+          "dormant-thread restating the ruby secret"
+        ],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "stables",
+          "boundary": 5,
+          "checkpointStartedBoundary": 4,
+          "candidates": [
+            {
+              "id": "objective:stables",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Get the horses ready to leave by morning."
+            },
+            {
+              "id": "dormant-thread:efa41678-dfbd-458d-8299-b372143b70ad",
+              "kind": "dormant-thread",
+              "weight": 1,
+              "text": "The innkeeper asked you to find his runaway cat."
+            },
+            {
+              "id": "thread:7cbcb80a-97f0-4f07-9e9e-057a2d8cd7bd",
+              "kind": "thread",
+              "weight": 2,
+              "text": "The stable boy wants help calming a frightened horse."
+            }
+          ],
+          "selectedOffline": [
+            "objective:stables",
+            "thread:7cbcb80a-97f0-4f07-9e9e-057a2d8cd7bd",
+            "dormant-thread:efa41678-dfbd-458d-8299-b372143b70ad"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "held secret: an open arc restates Arin's [hiding] row; the resting filter must drop it from threads and anchors",
+      "leakNeedles": [
+        "ruby",
+        "stolen ruby"
+      ]
+    },
+    {
+      "id": "s11",
+      "mix": "dormant-arc",
+      "premise": "A harbour; a hidden latch says the customs officer is an impostor.",
+      "story": {
+        "id": "so-v29-06-lt-s11",
+        "title": "SO-V29-06 LT s11",
+        "description": "v2.9 06 LT synthetic stuck-player situation s11: A harbour; a hidden latch says the customs officer is an impostor.",
+        "qualities": [
+          {
+            "key": "in_customs",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party entered the customs house?"
+          },
+          {
+            "key": "officer_impostor",
+            "type": "bool",
+            "source": "code",
+            "rubric": "The customs officer is an impostor wearing a stolen uniform."
+          },
+          {
+            "key": "in_cove",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party reached the cove?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "market",
+            "name": "Fish Market",
+            "player_name": "The Fish Market",
+            "objective": "Shop.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "customs",
+            "name": "Customs House",
+            "player_name": "The Customs House",
+            "objective": "Clear customs.",
+            "type": "anchor",
+            "player_text": "Get your papers stamped so you can sail tomorrow."
+          },
+          {
+            "id": "cove",
+            "name": "Smugglers' Cove",
+            "player_name": "The Smugglers' Cove",
+            "objective": "Hide.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "market",
+            "to": "customs",
+            "priority": 0,
+            "gate": {
+              "q": "in_customs",
+              "op": "==",
+              "v": true
+            }
+          },
+          {
+            "from": "customs",
+            "to": "cove",
+            "priority": 0,
+            "gate": {
+              "q": "in_cove",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Gulls scream over the fish market."
+        },
+        {
+          "arcOpen": "The net-mender lost a silver hook somewhere in the market."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin sniffs. “Smells like yesterday's catch.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "Carts rattle past."
+        },
+        {
+          "set": [
+            "in_customs",
+            true
+          ]
+        },
+        {
+          "set": [
+            "officer_impostor",
+            true
+          ]
+        },
+        {
+          "say": "DM Narrator",
+          "text": "A customs officer questions every sailor in the queue."
+        },
+        {
+          "arcOpen": "The customs officer is questioning every sailor at length."
+        },
+        {
+          "stuck": "Ugh. I don't know what to do."
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "thread",
+          "dormant-thread"
+        ],
+        "absent": [],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "customs",
+          "boundary": 6,
+          "checkpointStartedBoundary": 4,
+          "candidates": [
+            {
+              "id": "objective:customs",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Get your papers stamped so you can sail tomorrow."
+            },
+            {
+              "id": "dormant-thread:b1af84ce-ecfd-48c6-984d-7ef08174c590",
+              "kind": "dormant-thread",
+              "weight": 1,
+              "text": "The net-mender lost a silver hook somewhere in the market."
+            },
+            {
+              "id": "thread:ad03504a-56e0-4215-be83-49d0f5f5ad61",
+              "kind": "thread",
+              "weight": 2,
+              "text": "The customs officer is questioning every sailor at length."
+            }
+          ],
+          "selectedOffline": [
+            "objective:customs",
+            "thread:ad03504a-56e0-4215-be83-49d0f5f5ad61",
+            "dormant-thread:b1af84ce-ecfd-48c6-984d-7ef08174c590"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "predetermined outcome: a hidden code latch (officer is an impostor) and an unreached checkpoint name",
+      "leakNeedles": [
+        "impostor",
+        "stolen uniform",
+        "Smugglers' Cove"
+      ]
+    },
+    {
+      "id": "s12",
+      "mix": "dormant-arc",
+      "premise": "A village fair; a held secret arc and a resurfacing old thread.",
+      "story": {
+        "id": "so-v29-06-lt-s12",
+        "title": "SO-V29-06 LT s12",
+        "description": "v2.9 06 LT synthetic stuck-player situation s12: A village fair; a held secret arc and a resurfacing old thread.",
+        "qualities": [
+          {
+            "key": "at_mill",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party gone to the mill?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "green",
+            "name": "Village Green",
+            "player_name": "The Village Green",
+            "objective": "Enjoy the fair.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Enjoy the fair."
+          },
+          {
+            "id": "mill",
+            "name": "Mill",
+            "player_name": "The Mill",
+            "objective": "Visit the miller.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "green",
+            "to": "mill",
+            "priority": 0,
+            "gate": {
+              "q": "at_mill",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Bunting flutters over the village green."
+        },
+        {
+          "arcOpen": "The miller's daughter asked you to find her lost blue ribbon."
+        },
+        {
+          "hiding": {
+            "subject": "Arin",
+            "from": "DM Narrator",
+            "content": "Arin poisoned the prize pie so the baker would lose the contest."
+          }
+        },
+        {
+          "arcOpen": "Arin poisoned the baker's prize pie so the baker would lose the contest."
+        },
+        {
+          "arcOpen": "The judges' table collapsed in the middle of the contest."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin hums and looks away."
+        },
+        {
+          "set": [
+            "at_mill",
+            true
+          ]
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The mill stands silent beside the stream."
+        },
+        {
+          "arcOpen": "The great mill wheel has stopped turning."
+        },
+        {
+          "arcResolve": "The judges' table was repaired and the contest went on."
+        },
+        {
+          "stuck": "Now what? I'm stuck."
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "thread",
+          "dormant-thread"
+        ],
+        "absent": [],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "mill",
+          "boundary": 4,
+          "checkpointStartedBoundary": 3,
+          "candidates": [
+            {
+              "id": "dormant-thread:f7f3cce1-975b-450d-9b49-da148a7df164",
+              "kind": "dormant-thread",
+              "weight": 2.5,
+              "text": "The miller's daughter asked you to find her lost blue ribbon."
+            },
+            {
+              "id": "thread:fe8ec462-06f0-4dc4-8d6d-39e4ba481ede",
+              "kind": "thread",
+              "weight": 2,
+              "text": "The great mill wheel has stopped turning."
+            }
+          ],
+          "selectedOffline": [
+            "dormant-thread:f7f3cce1-975b-450d-9b49-da148a7df164",
+            "thread:fe8ec462-06f0-4dc4-8d6d-39e4ba481ede"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "held secret arc (dropped) next to a clean dormant arc with the resurfacing bonus",
+      "leakNeedles": [
+        "poison",
+        "prize pie"
+      ]
+    },
+    {
+      "id": "s13",
+      "mix": "promise",
+      "premise": "At a rope bridge the player promised to carry Arin's pack.",
+      "story": {
+        "id": "so-v29-06-lt-s13",
+        "title": "SO-V29-06 LT s13",
+        "description": "v2.9 06 LT synthetic stuck-player situation s13: At a rope bridge the player promised to carry Arin's pack.",
+        "qualities": [
+          {
+            "key": "across",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party crossed the gorge?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "bridge",
+            "name": "Rope Bridge",
+            "player_name": "The Rope Bridge",
+            "objective": "Cross.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Get everyone across the gorge."
+          },
+          {
+            "id": "far_side",
+            "name": "Far Side",
+            "player_name": "The Far Side",
+            "objective": "Rest.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "bridge",
+            "to": "far_side",
+            "priority": 0,
+            "gate": {
+              "q": "across",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "A rope bridge sways over a deep gorge."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin winces and rubs her twisted ankle. “I can barely walk, let alone carry all this.”"
+        },
+        {
+          "player": "Arin, I promise I will carry your pack across the bridge."
+        },
+        {
+          "promise": {
+            "to": "Arin",
+            "quote": "I promise I will carry your pack across the bridge"
+          }
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The wind picks up and the bridge creaks."
+        },
+        {
+          "stuck": "Okay. Now I'm frozen. What do I do?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "promise"
+        ],
+        "absent": [],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "bridge",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:bridge",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Get everyone across the gorge."
+            },
+            {
+              "id": "promise:p0",
+              "kind": "promise",
+              "weight": 2,
+              "text": "your promise to Arin: \"I promise I will carry your pack across the bridge\""
+            }
+          ],
+          "selectedOffline": [
+            "objective:bridge",
+            "promise:p0"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [],
+          "conditionalPromises": 0
+        }
+      }
+    },
+    {
+      "id": "s14",
+      "mix": "promise",
+      "premise": "At a bakery the player swore to repay a loan.",
+      "story": {
+        "id": "so-v29-06-lt-s14",
+        "title": "SO-V29-06 LT s14",
+        "description": "v2.9 06 LT synthetic stuck-player situation s14: At a bakery the player swore to repay a loan.",
+        "qualities": [
+          {
+            "key": "repaid",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player repaid Arin?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "bakery",
+            "name": "Bakery",
+            "player_name": "The Bakery",
+            "objective": "Work.",
+            "type": "anchor",
+            "start": true
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Warm bread scents the little bakery where you have been sleeping in the back room."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin counts the coins she lent you. “That was most of my savings.”"
+        },
+        {
+          "player": "Arin, I swear I'll repay the loan before the harvest festival."
+        },
+        {
+          "promise": {
+            "to": "Arin",
+            "quote": "I swear I'll repay the loan before the harvest festival"
+          }
+        },
+        {
+          "say": "DM Narrator",
+          "text": "Customers come and go."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin goes back to kneading dough."
+        },
+        {
+          "stuck": "I'm not sure what to do with myself."
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "promise"
+        ],
+        "absent": [],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "bakery",
+          "boundary": 4,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "promise:p0",
+              "kind": "promise",
+              "weight": 2,
+              "text": "your promise to Arin: \"I swear I'll repay the loan before the harvest festival\""
+            }
+          ],
+          "selectedOffline": [
+            "promise:p0"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.0"
+          ],
+          "conditionalPromises": 0
+        }
+      }
+    },
+    {
+      "id": "s15",
+      "mix": "promise",
+      "premise": "A watchtower; the player gave their word to light the signal fire.",
+      "story": {
+        "id": "so-v29-06-lt-s15",
+        "title": "SO-V29-06 LT s15",
+        "description": "v2.9 06 LT synthetic stuck-player situation s15: A watchtower; the player gave their word to light the signal fire.",
+        "qualities": [
+          {
+            "key": "fire_lit",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the signal fire lit?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "tower",
+            "name": "Watchtower",
+            "player_name": "The Watchtower",
+            "objective": "Keep watch.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Keep watch over the valley through the night."
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "From the watchtower you can see the whole valley under a red sky."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin hands you the flint. “If raiders come, the village needs the signal.”"
+        },
+        {
+          "player": "You have my word, Arin. I give you my word I will light the signal fire at dusk."
+        },
+        {
+          "promise": {
+            "to": "Arin",
+            "quote": "I give you my word I will light the signal fire at dusk"
+          }
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The sun sinks lower."
+        },
+        {
+          "stuck": "What should I be doing right now?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "promise"
+        ],
+        "absent": [],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "tower",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:tower",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Keep watch over the valley through the night."
+            },
+            {
+              "id": "promise:p0",
+              "kind": "promise",
+              "weight": 2,
+              "text": "your promise to Arin: \"I give you my word I will light the signal fire at dusk\""
+            }
+          ],
+          "selectedOffline": [
+            "objective:tower",
+            "promise:p0"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.0"
+          ],
+          "conditionalPromises": 0
+        }
+      }
+    },
+    {
+      "id": "s16",
+      "mix": "promise",
+      "premise": "A library; a promise to find a lost first volume plus a current thread.",
+      "story": {
+        "id": "so-v29-06-lt-s16",
+        "title": "SO-V29-06 LT s16",
+        "description": "v2.9 06 LT synthetic stuck-player situation s16: A library; a promise to find a lost first volume plus a current thread.",
+        "qualities": [
+          {
+            "key": "found_volume",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the first volume been found?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "stacks",
+            "name": "Stacks",
+            "player_name": "The Stacks",
+            "objective": "Search.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Help Arin finish her research before the library closes."
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Tall shelves fill the old library."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin slams a book shut. “The first volume is missing. Without it the rest is useless.”"
+        },
+        {
+          "player": "Arin, I promise I will find the lost first volume for you."
+        },
+        {
+          "promise": {
+            "to": "Arin",
+            "quote": "I promise I will find the lost first volume for you"
+          }
+        },
+        {
+          "arcOpen": "A bell will soon ring to close the library for the night."
+        },
+        {
+          "say": "DM Narrator",
+          "text": "A librarian glances at the clock."
+        },
+        {
+          "stuck": "Where would I even look? I'm stuck."
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "promise",
+          "thread"
+        ],
+        "absent": [],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "stacks",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:stacks",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Help Arin finish her research before the library closes."
+            },
+            {
+              "id": "thread:f16af0f1-87e7-4f1d-9429-3cac46a5b1a2",
+              "kind": "thread",
+              "weight": 2,
+              "text": "A bell will soon ring to close the library for the night."
+            },
+            {
+              "id": "promise:p0",
+              "kind": "promise",
+              "weight": 2,
+              "text": "your promise to Arin: \"I promise I will find the lost first volume for you\""
+            }
+          ],
+          "selectedOffline": [
+            "objective:stacks",
+            "promise:p0",
+            "thread:f16af0f1-87e7-4f1d-9429-3cac46a5b1a2"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.0"
+          ],
+          "conditionalPromises": 0
+        }
+      }
+    },
+    {
+      "id": "s17",
+      "mix": "promise",
+      "premise": "A tavern; only a conditional promise exists, so no promise anchor.",
+      "story": {
+        "id": "so-v29-06-lt-s17",
+        "title": "SO-V29-06 LT s17",
+        "description": "v2.9 06 LT synthetic stuck-player situation s17: A tavern; only a conditional promise exists, so no promise anchor.",
+        "qualities": [
+          {
+            "key": "has_horse",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player have Arin's horse?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "tavern",
+            "name": "Crossroads Tavern",
+            "player_name": "The Crossroads Tavern",
+            "objective": "Plan.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Find a way to reach the city before the gates close."
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Rain drums on the roof of the crossroads tavern."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin sips her ale. “My horse is in the yard, but I'm not handing it to just anyone.”"
+        },
+        {
+          "player": "Arin, if you lend me your horse, I promise I will return it by morning."
+        },
+        {
+          "promise": {
+            "to": "Arin",
+            "quote": "I promise I will return it by morning"
+          }
+        },
+        {
+          "say": "Arin",
+          "text": "Arin raises an eyebrow and says nothing."
+        },
+        {
+          "stuck": "I don't know what to try next."
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective"
+        ],
+        "absent": [
+          "promise (conditional rows are excluded)"
+        ],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "tavern",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:tavern",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Find a way to reach the city before the gates close."
+            }
+          ],
+          "selectedOffline": [
+            "objective:tavern"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.0"
+          ],
+          "conditionalPromises": 1
+        }
+      }
+    },
+    {
+      "id": "s18",
+      "mix": "promise",
+      "premise": "A walled garden; a promise to weed the beds, plus a hidden offer about a strongbox.",
+      "story": {
+        "id": "so-v29-06-lt-s18",
+        "title": "SO-V29-06 LT s18",
+        "description": "v2.9 06 LT synthetic stuck-player situation s18: A walled garden; a promise to weed the beds, plus a hidden offer about a strongbox.",
+        "qualities": [
+          {
+            "key": "weeded",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Are the herb beds weeded?"
+          },
+          {
+            "key": "found_strongbox_clue",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player learned about the strongbox?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "garden",
+            "name": "Walled Garden",
+            "player_name": "The Walled Garden",
+            "objective": "Tend.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Look after the herb garden while its owner is away.",
+            "offers": [
+              {
+                "id": "dig",
+                "text": "I dig up the buried strongbox under the sundial.",
+                "visible_when": {
+                  "q": "found_strongbox_clue",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Herbs grow wild inside a walled garden."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin frowns at the weeds. “The owner will be furious if the beds look like this.”"
+        },
+        {
+          "player": "I promise I'll weed the herb beds for you before the frost, Arin."
+        },
+        {
+          "promise": {
+            "to": "Arin",
+            "quote": "I promise I'll weed the herb beds for you before the frost"
+          }
+        },
+        {
+          "say": "DM Narrator",
+          "text": "A cold breeze rustles the leaves."
+        },
+        {
+          "stuck": "I'm lost. What now?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "promise"
+        ],
+        "absent": [
+          "offer:dig"
+        ],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "garden",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:garden",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Look after the herb garden while its owner is away."
+            },
+            {
+              "id": "promise:p0",
+              "kind": "promise",
+              "weight": 2,
+              "text": "your promise to Arin: \"I promise I'll weed the herb beds for you before the frost\""
+            }
+          ],
+          "selectedOffline": [
+            "objective:garden",
+            "promise:p0"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.0",
+            "warning quality-never-in-scope qualities.1"
+          ],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "hidden offer: visible_when false, its text names a buried strongbox",
+      "leakNeedles": [
+        "strongbox",
+        "sundial"
+      ]
+    },
+    {
+      "id": "s19",
+      "mix": "public-check-hint",
+      "premise": "A cliff climb with two disclosed helps.",
+      "story": {
+        "id": "so-v29-06-lt-s19",
+        "title": "SO-V29-06 LT s19",
+        "description": "v2.9 06 LT synthetic stuck-player situation s19: A cliff climb with two disclosed helps.",
+        "qualities": [
+          {
+            "key": "tried_climb",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player try to climb the cliff?"
+          },
+          {
+            "key": "climb_ok",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Set by the climb check"
+          },
+          {
+            "key": "has_rope",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player hold a rope?"
+          },
+          {
+            "key": "has_chalk",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player have climbing chalk?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "beach",
+            "name": "Cliff Beach",
+            "player_name": "The Cliff Beach",
+            "objective": "Climb.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Get up the cliff before the tide comes in."
+          },
+          {
+            "id": "clifftop",
+            "name": "Clifftop",
+            "player_name": "The Clifftop",
+            "objective": "Look around.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "beach",
+            "to": "clifftop",
+            "priority": 0,
+            "gate": {
+              "all": [
+                {
+                  "q": "tried_climb",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "climb_ok",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            },
+            "check": {
+              "quality": "climb_ok",
+              "narrate": "public",
+              "id": "climb",
+              "label": "Climb the cliff",
+              "roll": {
+                "sides": 20,
+                "target": 13
+              },
+              "modifiers": [
+                {
+                  "q": "has_rope",
+                  "v": true,
+                  "add": 4,
+                  "hint": "a rope"
+                },
+                {
+                  "q": "has_chalk",
+                  "v": true,
+                  "add": 2,
+                  "hint": "chalk for your hands"
+                }
+              ]
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "A sheer cliff rises from a narrow beach. The tide is creeping in."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin looks up. “That's a long way.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "Waves lap closer to your boots."
+        },
+        {
+          "stuck": "I don't know how to get up there."
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "check-help"
+        ],
+        "absent": [],
+        "help": [
+          "Climb the cliff — could help: a rope, chalk for your hands"
+        ],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "beach",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:beach",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Get up the cliff before the tide comes in."
+            },
+            {
+              "id": "check-help:climb",
+              "kind": "check-help",
+              "weight": 2,
+              "text": "Climb the cliff: a rope, chalk for your hands could help"
+            }
+          ],
+          "selectedOffline": [
+            "objective:beach",
+            "check-help:climb"
+          ],
+          "helpLines": [
+            "Climb the cliff — could help: a rope, chalk for your hands"
+          ],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.2",
+            "warning quality-never-in-scope qualities.3"
+          ],
+          "conditionalPromises": 0
+        }
+      }
+    },
+    {
+      "id": "s20",
+      "mix": "public-check-hint",
+      "premise": "Persuading a gatekeeper; one help is a public item the player holds.",
+      "story": {
+        "id": "so-v29-06-lt-s20",
+        "title": "SO-V29-06 LT s20",
+        "description": "v2.9 06 LT synthetic stuck-player situation s20: Persuading a gatekeeper; one help is a public item the player holds.",
+        "qualities": [
+          {
+            "key": "tried_persuade",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player try to persuade the gatekeeper?"
+          },
+          {
+            "key": "persuade_ok",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Set by the persuade check"
+          },
+          {
+            "key": "has_letter",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player hold a letter of introduction?",
+            "display": {
+              "public": true,
+              "label": "Letter of introduction",
+              "as": "item"
+            }
+          },
+          {
+            "key": "has_mayor_seal",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player carry the mayor's seal?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "gate",
+            "name": "City Gate",
+            "player_name": "The City Gate",
+            "objective": "Enter.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Get through the city gate before nightfall."
+          },
+          {
+            "id": "city",
+            "name": "City",
+            "player_name": "The City",
+            "objective": "Explore.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "gate",
+            "to": "city",
+            "priority": 0,
+            "gate": {
+              "all": [
+                {
+                  "q": "tried_persuade",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "persuade_ok",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            },
+            "check": {
+              "quality": "persuade_ok",
+              "narrate": "public",
+              "id": "persuade",
+              "label": "Persuade the gatekeeper",
+              "roll": {
+                "sides": 20,
+                "target": 14
+              },
+              "modifiers": [
+                {
+                  "q": "has_letter",
+                  "v": true,
+                  "add": 3,
+                  "hint": "a letter of introduction"
+                },
+                {
+                  "q": "has_mayor_seal",
+                  "v": true,
+                  "add": 5,
+                  "hint": "the mayor's seal"
+                }
+              ]
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "A stern gatekeeper blocks the city gate with a halberd."
+        },
+        {
+          "set": [
+            "has_letter",
+            true
+          ]
+        },
+        {
+          "say": "DM Narrator",
+          "text": "You feel the folded letter of introduction in your coat."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin whispers, “He doesn't look friendly.”"
+        },
+        {
+          "stuck": "How do I get past this guy?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "check-help"
+        ],
+        "absent": [],
+        "help": [
+          "Persuade the gatekeeper — could help: a letter of introduction (you have it), the mayor's seal"
+        ],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "gate",
+          "boundary": 4,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:gate",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Get through the city gate before nightfall."
+            },
+            {
+              "id": "check-help:persuade",
+              "kind": "check-help",
+              "weight": 2,
+              "text": "Persuade the gatekeeper: a letter of introduction, the mayor's seal could help"
+            }
+          ],
+          "selectedOffline": [
+            "objective:gate",
+            "check-help:persuade"
+          ],
+          "helpLines": [
+            "Persuade the gatekeeper — could help: a letter of introduction (you have it), the mayor's seal"
+          ],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.2",
+            "warning quality-never-in-scope qualities.3"
+          ],
+          "conditionalPromises": 0
+        }
+      }
+    },
+    {
+      "id": "s21",
+      "mix": "public-check-hint",
+      "premise": "Two checks: a swim with a disclosed help, and a lock whose help is not disclosed yet.",
+      "story": {
+        "id": "so-v29-06-lt-s21",
+        "title": "SO-V29-06 LT s21",
+        "description": "v2.9 06 LT synthetic stuck-player situation s21: Two checks: a swim with a disclosed help, and a lock whose help is not disclosed yet.",
+        "qualities": [
+          {
+            "key": "tried_swim",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player try to swim the channel?"
+          },
+          {
+            "key": "swim_ok",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Set by the swim check"
+          },
+          {
+            "key": "has_float",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player have a cork float?"
+          },
+          {
+            "key": "tried_lock",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player try to pick the lock?"
+          },
+          {
+            "key": "lock_ok",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Set by the lock check"
+          },
+          {
+            "key": "has_spare_key",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player hold the spare key?"
+          },
+          {
+            "key": "saw_boathouse",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player seen the boathouse?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "shore",
+            "name": "Channel Shore",
+            "player_name": "The Channel Shore",
+            "objective": "Cross.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Find a way across the cold channel."
+          },
+          {
+            "id": "island",
+            "name": "Island",
+            "player_name": "The Island",
+            "objective": "Explore.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "shore",
+            "to": "island",
+            "priority": 0,
+            "gate": {
+              "all": [
+                {
+                  "q": "tried_swim",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "swim_ok",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            },
+            "check": {
+              "quality": "swim_ok",
+              "narrate": "public",
+              "id": "swim",
+              "label": "Swim the channel",
+              "roll": {
+                "sides": 20,
+                "target": 12
+              },
+              "modifiers": [
+                {
+                  "q": "has_float",
+                  "v": true,
+                  "add": 3,
+                  "hint": "a cork float"
+                }
+              ]
+            }
+          },
+          {
+            "from": "shore",
+            "to": "island",
+            "priority": 0,
+            "gate": {
+              "all": [
+                {
+                  "q": "tried_lock",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "lock_ok",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            },
+            "check": {
+              "quality": "lock_ok",
+              "narrate": "public",
+              "id": "lock",
+              "label": "Pick the boathouse lock",
+              "roll": {
+                "sides": 20,
+                "target": 15
+              },
+              "hint_when": {
+                "q": "saw_boathouse",
+                "op": "==",
+                "v": true
+              },
+              "modifiers": [
+                {
+                  "q": "has_spare_key",
+                  "v": true,
+                  "add": 6,
+                  "hint": "the harbourmaster's spare key"
+                }
+              ]
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "A cold channel separates the shore from a wooded island."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin dips a hand in the water and shivers. “Freezing.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "Gulls wheel overhead."
+        },
+        {
+          "stuck": "I'm not sure how we get across."
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "check-help"
+        ],
+        "absent": [],
+        "help": [
+          "Swim the channel — could help: a cork float"
+        ],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "shore",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:shore",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Find a way across the cold channel."
+            },
+            {
+              "id": "check-help:swim",
+              "kind": "check-help",
+              "weight": 2,
+              "text": "Swim the channel: a cork float could help"
+            }
+          ],
+          "selectedOffline": [
+            "objective:shore",
+            "check-help:swim"
+          ],
+          "helpLines": [
+            "Swim the channel — could help: a cork float"
+          ],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.2",
+            "warning quality-never-in-scope qualities.5",
+            "warning quality-never-in-scope qualities.6"
+          ],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "undisclosed help: the lock check's hint_when is false, so neither its label nor its hint may show",
+      "leakNeedles": [
+        "spare key",
+        "boathouse"
+      ]
+    },
+    {
+      "id": "s22",
+      "mix": "public-check-hint",
+      "premise": "A river ford with a public help next to a hidden check.",
+      "story": {
+        "id": "so-v29-06-lt-s22",
+        "title": "SO-V29-06 LT s22",
+        "description": "v2.9 06 LT synthetic stuck-player situation s22: A river ford with a public help next to a hidden check.",
+        "qualities": [
+          {
+            "key": "tried_ford",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player try to ford the river?"
+          },
+          {
+            "key": "ford_ok",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Set by the ford check"
+          },
+          {
+            "key": "has_pole",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player have a long pole?"
+          },
+          {
+            "key": "near_shepherd",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the party near the shepherd?"
+          },
+          {
+            "key": "unmasked",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Set by the hidden check"
+          },
+          {
+            "key": "keen_eyes",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the player watching closely?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "ford",
+            "name": "Ford",
+            "player_name": "The Ford",
+            "objective": "Cross.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Ford the river with the flock."
+          },
+          {
+            "id": "meadow",
+            "name": "Far Meadow",
+            "player_name": "The Far Meadow",
+            "objective": "Rest.",
+            "type": "anchor"
+          },
+          {
+            "id": "camp",
+            "name": "Raiders' Camp",
+            "player_name": "The Raiders' Camp",
+            "objective": "Escape.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "ford",
+            "to": "meadow",
+            "priority": 0,
+            "gate": {
+              "all": [
+                {
+                  "q": "tried_ford",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "ford_ok",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            },
+            "check": {
+              "quality": "ford_ok",
+              "narrate": "public",
+              "id": "ford",
+              "label": "Ford the river",
+              "roll": {
+                "sides": 20,
+                "target": 11
+              },
+              "modifiers": [
+                {
+                  "q": "has_pole",
+                  "v": true,
+                  "add": 3,
+                  "hint": "a long pole"
+                }
+              ]
+            }
+          },
+          {
+            "from": "ford",
+            "to": "camp",
+            "priority": 0,
+            "gate": {
+              "all": [
+                {
+                  "q": "near_shepherd",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "unmasked",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            },
+            "check": {
+              "id": "unmask",
+              "label": "Unmask the false shepherd",
+              "quality": "unmasked",
+              "narrate": "hidden",
+              "roll": {
+                "sides": 20,
+                "target": 16
+              },
+              "modifiers": [
+                {
+                  "q": "keen_eyes",
+                  "v": true,
+                  "add": 4,
+                  "label": "watching the shepherd's hands"
+                }
+              ]
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "A wide, fast river cuts across the path. A shepherd waits with his flock on the bank."
+        },
+        {
+          "set": [
+            "near_shepherd",
+            true
+          ]
+        },
+        {
+          "say": "Arin",
+          "text": "Arin nods at the shepherd. “Friendly fellow. Offered to show us across.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The water churns over the stones."
+        },
+        {
+          "stuck": "What's the smart move here?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "check-help"
+        ],
+        "absent": [],
+        "help": [
+          "Ford the river — could help: a long pole"
+        ],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "ford",
+          "boundary": 4,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:ford",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Ford the river with the flock."
+            },
+            {
+              "id": "check-help:ford",
+              "kind": "check-help",
+              "weight": 2,
+              "text": "Ford the river: a long pole could help"
+            }
+          ],
+          "selectedOffline": [
+            "objective:ford",
+            "check-help:ford"
+          ],
+          "helpLines": [
+            "Ford the river — could help: a long pole"
+          ],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.2",
+            "warning quality-never-in-scope qualities.5"
+          ],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "hidden check: label and modifier label of a hidden check reveal the shepherd is false",
+      "leakNeedles": [
+        "false shepherd",
+        "unmask",
+        "Raiders' Camp",
+        "shepherd's hands"
+      ]
+    },
+    {
+      "id": "s23",
+      "mix": "public-check-hint",
+      "premise": "Bluffing a sentry; the player secretly holds a help on a non-public quality.",
+      "story": {
+        "id": "so-v29-06-lt-s23",
+        "title": "SO-V29-06 LT s23",
+        "description": "v2.9 06 LT synthetic stuck-player situation s23: Bluffing a sentry; the player secretly holds a help on a non-public quality.",
+        "qualities": [
+          {
+            "key": "tried_bluff",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player try to bluff the sentry?"
+          },
+          {
+            "key": "bluff_ok",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Set by the bluff check"
+          },
+          {
+            "key": "has_uniform",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the player wearing a guard's uniform?"
+          },
+          {
+            "key": "has_pass",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player hold a pass?",
+            "display": {
+              "public": true,
+              "label": "Pass",
+              "as": "item"
+            }
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "checkpoint",
+            "name": "Sentry Post",
+            "player_name": "The Sentry Post",
+            "objective": "Pass.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Get past the sentry post unseen or unchallenged."
+          },
+          {
+            "id": "barracks",
+            "name": "Barracks",
+            "player_name": "The Barracks",
+            "objective": "Search.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "checkpoint",
+            "to": "barracks",
+            "priority": 0,
+            "gate": {
+              "all": [
+                {
+                  "q": "tried_bluff",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "bluff_ok",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            },
+            "check": {
+              "quality": "bluff_ok",
+              "narrate": "public",
+              "id": "bluff",
+              "label": "Bluff past the sentry",
+              "roll": {
+                "sides": 20,
+                "target": 13
+              },
+              "modifiers": [
+                {
+                  "q": "has_uniform",
+                  "v": true,
+                  "add": 4,
+                  "hint": "a guard's uniform"
+                },
+                {
+                  "q": "has_pass",
+                  "v": true,
+                  "add": 3,
+                  "hint": "a signed pass"
+                }
+              ]
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "A lone sentry leans on a post at the edge of the barracks."
+        },
+        {
+          "set": [
+            "has_uniform",
+            true
+          ]
+        },
+        {
+          "say": "Arin",
+          "text": "Arin crouches behind a crate. “He's bored, at least.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "Torches flicker along the wall."
+        },
+        {
+          "stuck": "Okay, I need an idea."
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "check-help"
+        ],
+        "absent": [],
+        "help": [
+          "Bluff past the sentry — could help: a guard's uniform, a signed pass"
+        ],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "checkpoint",
+          "boundary": 4,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:checkpoint",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Get past the sentry post unseen or unchallenged."
+            },
+            {
+              "id": "check-help:bluff",
+              "kind": "check-help",
+              "weight": 2,
+              "text": "Bluff past the sentry: a guard's uniform, a signed pass could help"
+            }
+          ],
+          "selectedOffline": [
+            "objective:checkpoint",
+            "check-help:bluff"
+          ],
+          "helpLines": [
+            "Bluff past the sentry — could help: a guard's uniform, a signed pass"
+          ],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.2",
+            "warning quality-never-in-scope qualities.3"
+          ],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "non-public modifier state: the player holds the uniform (has_uniform, no display), which must never read \"you have it\"",
+      "leakNeedles": [
+        "you have it",
+        "already wearing"
+      ],
+      "baitInState": true
+    },
+    {
+      "id": "s24",
+      "mix": "public-check-hint",
+      "premise": "A bell tower; one check label names an unreached place, the other is clean.",
+      "story": {
+        "id": "so-v29-06-lt-s24",
+        "title": "SO-V29-06 LT s24",
+        "description": "v2.9 06 LT synthetic stuck-player situation s24: A bell tower; one check label names an unreached place, the other is clean.",
+        "qualities": [
+          {
+            "key": "tried_loft",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player try to climb to the loft?"
+          },
+          {
+            "key": "loft_ok",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Set by the loft check"
+          },
+          {
+            "key": "has_ladder",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player have a ladder?"
+          },
+          {
+            "key": "tried_dogs",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player try to calm the dogs?"
+          },
+          {
+            "key": "dogs_ok",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Set by the dogs check"
+          },
+          {
+            "key": "has_meat",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player have dried meat?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "square",
+            "name": "Bell Square",
+            "player_name": "The Bell Square",
+            "objective": "Enter the tower.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Get into the old bell tower."
+          },
+          {
+            "id": "loft",
+            "name": "Bell Loft",
+            "player_name": "The Bell Loft",
+            "objective": "Ring the bell.",
+            "type": "anchor"
+          },
+          {
+            "id": "tower_base",
+            "name": "Tower Base",
+            "player_name": "The Tower Base",
+            "objective": "Enter.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "square",
+            "to": "loft",
+            "priority": 0,
+            "gate": {
+              "all": [
+                {
+                  "q": "tried_loft",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "loft_ok",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            },
+            "check": {
+              "quality": "loft_ok",
+              "narrate": "public",
+              "id": "loft",
+              "label": "Climb to the Bell Loft",
+              "roll": {
+                "sides": 20,
+                "target": 15
+              },
+              "modifiers": [
+                {
+                  "q": "has_ladder",
+                  "v": true,
+                  "add": 5,
+                  "hint": "a ladder"
+                }
+              ]
+            }
+          },
+          {
+            "from": "square",
+            "to": "tower_base",
+            "priority": 0,
+            "gate": {
+              "all": [
+                {
+                  "q": "tried_dogs",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "dogs_ok",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            },
+            "check": {
+              "quality": "dogs_ok",
+              "narrate": "public",
+              "id": "dogs",
+              "label": "Calm the stray dogs",
+              "roll": {
+                "sides": 20,
+                "target": 10
+              },
+              "modifiers": [
+                {
+                  "q": "has_meat",
+                  "v": true,
+                  "add": 4,
+                  "hint": "a strip of dried meat"
+                }
+              ]
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Stray dogs growl at the foot of an old bell tower."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin keeps behind you. “I don't like dogs.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The tower door is half open behind the pack."
+        },
+        {
+          "stuck": "How do I deal with this?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "check-help"
+        ],
+        "absent": [],
+        "help": [
+          "Calm the stray dogs — could help: a strip of dried meat"
+        ],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "square",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:square",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Get into the old bell tower."
+            },
+            {
+              "id": "check-help:dogs",
+              "kind": "check-help",
+              "weight": 2,
+              "text": "Calm the stray dogs: a strip of dried meat could help"
+            }
+          ],
+          "selectedOffline": [
+            "objective:square",
+            "check-help:dogs"
+          ],
+          "helpLines": [
+            "Calm the stray dogs — could help: a strip of dried meat"
+          ],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.2",
+            "warning quality-never-in-scope qualities.5"
+          ],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "check label names an unreached checkpoint, so that help line must be screened out",
+      "leakNeedles": [
+        "Bell Loft",
+        "a ladder"
+      ]
+    },
+    {
+      "id": "s25",
+      "mix": "offer",
+      "premise": "A spice market with two offers and one greyed offer.",
+      "story": {
+        "id": "so-v29-06-lt-s25",
+        "title": "SO-V29-06 LT s25",
+        "description": "v2.9 06 LT synthetic stuck-player situation s25: A spice market with two offers and one greyed offer.",
+        "qualities": [
+          {
+            "key": "has_foreign_coin",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player hold a foreign coin?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "market",
+            "name": "Spice Market",
+            "player_name": "The Spice Market",
+            "objective": "Buy saffron.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Buy saffron for the healer.",
+            "offers": [
+              {
+                "id": "haggle",
+                "text": "I haggle with the spice merchant."
+              },
+              {
+                "id": "distract",
+                "text": "I ask Arin to distract the merchant."
+              },
+              {
+                "id": "foreign",
+                "text": "I pay with the foreign coin.",
+                "needs": {
+                  "when": {
+                    "q": "has_foreign_coin",
+                    "op": "==",
+                    "v": true
+                  },
+                  "reason": "You have no foreign coin."
+                }
+              }
+            ]
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Bright piles of spice crowd the market stalls."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin coughs at the pepper dust. “Saffron's the expensive one.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The spice merchant names a price far beyond your purse."
+        },
+        {
+          "stuck": "That's way too much. What can I do?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "offer"
+        ],
+        "absent": [],
+        "help": [],
+        "greyed": [
+          {
+            "text": "I pay with the foreign coin.",
+            "reason": "You have no foreign coin."
+          }
+        ],
+        "authoredOffers": [
+          "haggle",
+          "distract"
+        ],
+        "computed": {
+          "finalCheckpoint": "market",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:market",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Buy saffron for the healer."
+            },
+            {
+              "id": "offer:haggle",
+              "kind": "offer",
+              "weight": 2,
+              "text": "I haggle with the spice merchant."
+            },
+            {
+              "id": "offer:distract",
+              "kind": "offer",
+              "weight": 2,
+              "text": "I ask Arin to distract the merchant."
+            }
+          ],
+          "selectedOffline": [
+            "objective:market",
+            "offer:haggle"
+          ],
+          "helpLines": [],
+          "greyed": [
+            {
+              "text": "I pay with the foreign coin.",
+              "reason": "You have no foreign coin."
+            }
+          ],
+          "availableOffers": [
+            "haggle",
+            "distract"
+          ],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.0"
+          ],
+          "conditionalPromises": 0
+        }
+      }
+    },
+    {
+      "id": "s26",
+      "mix": "offer",
+      "premise": "A chapel with a visible offer and a hidden one about an ossuary.",
+      "story": {
+        "id": "so-v29-06-lt-s26",
+        "title": "SO-V29-06 LT s26",
+        "description": "v2.9 06 LT synthetic stuck-player situation s26: A chapel with a visible offer and a hidden one about an ossuary.",
+        "qualities": [
+          {
+            "key": "found_crypt_map",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player found the crypt map?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "chapel",
+            "name": "Hill Chapel",
+            "player_name": "The Hill Chapel",
+            "objective": "Visit.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Find shelter from the storm.",
+            "offers": [
+              {
+                "id": "knock",
+                "text": "I knock on the chapel door."
+              },
+              {
+                "id": "ossuary",
+                "text": "I follow the crypt map to the hidden ossuary.",
+                "visible_when": {
+                  "q": "found_crypt_map",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "A storm rolls over a small stone chapel on the hill."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin pulls her hood up. “We need to get out of this rain.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "Lightning flashes over the graveyard."
+        },
+        {
+          "stuck": "What do we do now?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "offer"
+        ],
+        "absent": [
+          "offer:ossuary"
+        ],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [
+          "knock"
+        ],
+        "computed": {
+          "finalCheckpoint": "chapel",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:chapel",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Find shelter from the storm."
+            },
+            {
+              "id": "offer:knock",
+              "kind": "offer",
+              "weight": 2,
+              "text": "I knock on the chapel door."
+            }
+          ],
+          "selectedOffline": [
+            "objective:chapel",
+            "offer:knock"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [
+            "knock"
+          ],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.0"
+          ],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "hidden offer: visible_when false, its text names a crypt map and an ossuary",
+      "leakNeedles": [
+        "ossuary",
+        "crypt map"
+      ]
+    },
+    {
+      "id": "s27",
+      "mix": "offer",
+      "premise": "A fishing village; one offer names an unreached place.",
+      "story": {
+        "id": "so-v29-06-lt-s27",
+        "title": "SO-V29-06 LT s27",
+        "description": "v2.9 06 LT synthetic stuck-player situation s27: A fishing village; one offer names an unreached place.",
+        "qualities": [
+          {
+            "key": "found_stair",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party found the stair?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "village",
+            "name": "Fishing Village",
+            "player_name": "The Fishing Village",
+            "objective": "Ask around.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Learn what the villagers fear about the sea.",
+            "offers": [
+              {
+                "id": "tides",
+                "text": "I ask the old fisherman about the tides."
+              },
+              {
+                "id": "stair",
+                "text": "I search for the path down to the Drowned Stair."
+              }
+            ]
+          },
+          {
+            "id": "stair",
+            "name": "Drowned Stair",
+            "player_name": "The Drowned Stair",
+            "objective": "Descend.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "village",
+            "to": "stair",
+            "priority": 0,
+            "gate": {
+              "q": "found_stair",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Nets dry on poles in a grey fishing village."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin watches the villagers. “Everyone here keeps looking at the water.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "An old fisherman mends a net by the shore."
+        },
+        {
+          "stuck": "Uh... what now?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "offer"
+        ],
+        "absent": [
+          "offer:stair"
+        ],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [
+          "tides"
+        ],
+        "computed": {
+          "finalCheckpoint": "village",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:village",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Learn what the villagers fear about the sea."
+            },
+            {
+              "id": "offer:tides",
+              "kind": "offer",
+              "weight": 2,
+              "text": "I ask the old fisherman about the tides."
+            }
+          ],
+          "selectedOffline": [
+            "objective:village",
+            "offer:tides"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [
+            "tides"
+          ],
+          "diagnostics": [
+            "warning offer-names-unknown checkpoints.0.offers.1.text"
+          ],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "offer names an unreached checkpoint (offer-names-unknown warning); runtime screen must drop it",
+      "leakNeedles": [
+        "Drowned Stair"
+      ]
+    },
+    {
+      "id": "s28",
+      "mix": "offer",
+      "premise": "A courthouse; one offer names an unknown codex person.",
+      "story": {
+        "id": "so-v29-06-lt-s28",
+        "title": "SO-V29-06 LT s28",
+        "description": "v2.9 06 LT synthetic stuck-player situation s28: A courthouse; one offer names an unknown codex person.",
+        "qualities": [
+          {
+            "key": "met_oren",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player met the magistrate?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "court",
+            "name": "Courthouse Steps",
+            "player_name": "The Courthouse Steps",
+            "objective": "Plead.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Get your friend released from the courthouse cells.",
+            "offers": [
+              {
+                "id": "notices",
+                "text": "I read the notices on the court board."
+              },
+              {
+                "id": "oren",
+                "text": "I ask Magistrate Oren for a pardon."
+              }
+            ]
+          }
+        ],
+        "transitions": [],
+        "codex": {
+          "people": [
+            {
+              "id": "oren",
+              "name": "Magistrate Oren",
+              "known_when": {
+                "q": "met_oren",
+                "op": "==",
+                "v": true
+              },
+              "facts": [
+                {
+                  "id": "role",
+                  "text": "The magistrate signs every release order.",
+                  "known_when": {
+                    "q": "met_oren",
+                    "op": "==",
+                    "v": true
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Clerks hurry up and down the courthouse steps."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin clenches her fists. “They locked him up for nothing.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "A crowd gathers at the notice board."
+        },
+        {
+          "stuck": "I don't know how this works. What should I do?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "offer"
+        ],
+        "absent": [
+          "offer:oren"
+        ],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [
+          "notices"
+        ],
+        "computed": {
+          "finalCheckpoint": "court",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:court",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Get your friend released from the courthouse cells."
+            },
+            {
+              "id": "offer:notices",
+              "kind": "offer",
+              "weight": 2,
+              "text": "I read the notices on the court board."
+            }
+          ],
+          "selectedOffline": [
+            "objective:court",
+            "offer:notices"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [
+            "notices"
+          ],
+          "diagnostics": [
+            "warning offer-names-unknown checkpoints.0.offers.1.text"
+          ],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "offer names a codex person the player has not met (unknown entity)",
+      "leakNeedles": [
+        "Oren"
+      ]
+    },
+    {
+      "id": "s29",
+      "mix": "offer",
+      "premise": "A keep gate; a greyed offer whose reason names an unknown place, another clean greyed offer.",
+      "story": {
+        "id": "so-v29-06-lt-s29",
+        "title": "SO-V29-06 LT s29",
+        "description": "v2.9 06 LT synthetic stuck-player situation s29: A keep gate; a greyed offer whose reason names an unknown place, another clean greyed offer.",
+        "qualities": [
+          {
+            "key": "has_pass",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player hold a keep pass?"
+          },
+          {
+            "key": "has_rope",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player have a rope?"
+          },
+          {
+            "key": "knows_thornwick",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player learned of Thornwick Keep?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "gate",
+            "name": "Pilgrim Gate",
+            "player_name": "The Pilgrim Gate",
+            "objective": "Get in.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Get inside the walls before the gate closes.",
+            "offers": [
+              {
+                "id": "queue",
+                "text": "I wait in line with the pilgrims."
+              },
+              {
+                "id": "pass",
+                "text": "I show a pass at the gate.",
+                "needs": {
+                  "when": {
+                    "q": "has_pass",
+                    "op": "==",
+                    "v": true
+                  },
+                  "reason": "Only a pass from Thornwick Keep opens this gate."
+                }
+              },
+              {
+                "id": "wall",
+                "text": "I climb the wall.",
+                "needs": {
+                  "when": {
+                    "q": "has_rope",
+                    "op": "==",
+                    "v": true
+                  },
+                  "reason": "You need a rope first."
+                }
+              }
+            ]
+          }
+        ],
+        "transitions": [],
+        "codex": {
+          "places": [
+            {
+              "id": "thornwick",
+              "name": "Thornwick Keep",
+              "known_when": {
+                "q": "knows_thornwick",
+                "op": "==",
+                "v": true
+              },
+              "facts": [
+                {
+                  "id": "lord",
+                  "text": "The keep issues passes to pilgrims.",
+                  "known_when": {
+                    "q": "knows_thornwick",
+                    "op": "==",
+                    "v": true
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Pilgrims crowd in front of a tall gate as the sun sets."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin stands on tiptoe. “The line isn't moving.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "A guard checks each pilgrim slowly."
+        },
+        {
+          "stuck": "We're never getting in at this rate. Ideas?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "offer"
+        ],
+        "absent": [
+          "greyed offer:pass"
+        ],
+        "help": [],
+        "greyed": [
+          {
+            "text": "I climb the wall.",
+            "reason": "You need a rope first."
+          }
+        ],
+        "authoredOffers": [
+          "queue"
+        ],
+        "computed": {
+          "finalCheckpoint": "gate",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:gate",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Get inside the walls before the gate closes."
+            },
+            {
+              "id": "offer:queue",
+              "kind": "offer",
+              "weight": 2,
+              "text": "I wait in line with the pilgrims."
+            }
+          ],
+          "selectedOffline": [
+            "objective:gate",
+            "offer:queue"
+          ],
+          "helpLines": [],
+          "greyed": [
+            {
+              "text": "I climb the wall.",
+              "reason": "You need a rope first."
+            }
+          ],
+          "availableOffers": [
+            "queue"
+          ],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.0",
+            "warning quality-never-in-scope qualities.1",
+            "warning offer-names-unknown checkpoints.0.offers.1.needs.reason"
+          ],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "greyed offer reason names an unknown codex place; the whole greyed row must be dropped",
+      "leakNeedles": [
+        "Thornwick"
+      ]
+    },
+    {
+      "id": "s30",
+      "mix": "offer",
+      "premise": "A tea house; an offer that became visible, plus a greyed card game.",
+      "story": {
+        "id": "so-v29-06-lt-s30",
+        "title": "SO-V29-06 LT s30",
+        "description": "v2.9 06 LT synthetic stuck-player situation s30: A tea house; an offer that became visible, plus a greyed card game.",
+        "qualities": [
+          {
+            "key": "asked_room",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player asked about the upstairs room?"
+          },
+          {
+            "key": "has_coins",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player have coins?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "teahouse",
+            "name": "Tea House",
+            "player_name": "The Tea House",
+            "objective": "Rest.",
+            "type": "anchor",
+            "start": true,
+            "offers": [
+              {
+                "id": "tea",
+                "text": "I order the house tea."
+              },
+              {
+                "id": "music",
+                "text": "I listen to the musicians."
+              },
+              {
+                "id": "room",
+                "text": "I ask the owner about the upstairs room.",
+                "visible_when": {
+                  "q": "asked_room",
+                  "op": "==",
+                  "v": true
+                }
+              },
+              {
+                "id": "cards",
+                "text": "I join the card game.",
+                "needs": {
+                  "when": {
+                    "q": "has_coins",
+                    "op": "==",
+                    "v": true
+                  },
+                  "reason": "You need a few coins to play."
+                }
+              }
+            ]
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Steam curls from teapots in a crowded tea house."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin sinks onto a cushion. “I could sleep for a week.”"
+        },
+        {
+          "set": [
+            "asked_room",
+            true
+          ]
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The owner bustles between tables."
+        },
+        {
+          "stuck": "So... what do I do here?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "offer"
+        ],
+        "absent": [],
+        "help": [],
+        "greyed": [
+          {
+            "text": "I join the card game.",
+            "reason": "You need a few coins to play."
+          }
+        ],
+        "authoredOffers": [
+          "tea",
+          "music",
+          "room"
+        ],
+        "computed": {
+          "finalCheckpoint": "teahouse",
+          "boundary": 4,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "offer:tea",
+              "kind": "offer",
+              "weight": 2,
+              "text": "I order the house tea."
+            },
+            {
+              "id": "offer:music",
+              "kind": "offer",
+              "weight": 2,
+              "text": "I listen to the musicians."
+            },
+            {
+              "id": "offer:room",
+              "kind": "offer",
+              "weight": 2,
+              "text": "I ask the owner about the upstairs room."
+            }
+          ],
+          "selectedOffline": [
+            "offer:music"
+          ],
+          "helpLines": [],
+          "greyed": [
+            {
+              "text": "I join the card game.",
+              "reason": "You need a few coins to play."
+            }
+          ],
+          "availableOffers": [
+            "tea",
+            "music",
+            "room"
+          ],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.0",
+            "warning quality-never-in-scope qualities.1"
+          ],
+          "conditionalPromises": 0
+        }
+      }
+    },
+    {
+      "id": "s31",
+      "mix": "mixed",
+      "premise": "A ranch: a quest step, a promise and a pending check with a help.",
+      "story": {
+        "id": "so-v29-06-lt-s31",
+        "title": "SO-V29-06 LT s31",
+        "description": "v2.9 06 LT synthetic stuck-player situation s31: A ranch: a quest step, a promise and a pending check with a help.",
+        "qualities": [
+          {
+            "key": "hired_on",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player hire on at the ranch?"
+          },
+          {
+            "key": "fence_fixed",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the fence fixed?"
+          },
+          {
+            "key": "tried_rope",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player try to rope the stallion?"
+          },
+          {
+            "key": "rope_ok",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Set by the roping check"
+          },
+          {
+            "key": "has_lasso",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player have a lasso?"
+          },
+          {
+            "key": "fence_done",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the fence task finished?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "corral",
+            "name": "Corral",
+            "player_name": "The Corral",
+            "objective": "Work.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Prove yourself on the ranch."
+          },
+          {
+            "id": "trail",
+            "name": "Cattle Trail",
+            "player_name": "The Cattle Trail",
+            "objective": "Ride.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "corral",
+            "to": "trail",
+            "priority": 0,
+            "gate": {
+              "all": [
+                {
+                  "q": "tried_rope",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "rope_ok",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            },
+            "check": {
+              "quality": "rope_ok",
+              "narrate": "public",
+              "id": "rope",
+              "label": "Rope the wild stallion",
+              "roll": {
+                "sides": 20,
+                "target": 14
+              },
+              "modifiers": [
+                {
+                  "q": "has_lasso",
+                  "v": true,
+                  "add": 4,
+                  "hint": "a lasso"
+                }
+              ]
+            }
+          }
+        ],
+        "quests": [
+          {
+            "id": "fence",
+            "title": "Mend the east fence",
+            "kind": "side",
+            "visible_when": {
+              "q": "hired_on",
+              "op": "==",
+              "v": true
+            },
+            "done_when": {
+              "q": "fence_done",
+              "op": "==",
+              "v": true
+            },
+            "steps": [
+              {
+                "text": "Mend the broken east fence",
+                "done_when": {
+                  "q": "fence_fixed",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Dust swirls around a busy corral."
+        },
+        {
+          "set": [
+            "hired_on",
+            true
+          ]
+        },
+        {
+          "say": "Arin",
+          "text": "Arin leans on the rail. “Ranch boss says the wild stallion broke the fence.”"
+        },
+        {
+          "player": "Arin, I promise I will help you break in that stallion."
+        },
+        {
+          "promise": {
+            "to": "Arin",
+            "quote": "I promise I will help you break in that stallion"
+          }
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The stallion stamps and snorts."
+        },
+        {
+          "stuck": "Where do I start?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "quest-step",
+          "promise",
+          "check-help"
+        ],
+        "absent": [],
+        "help": [
+          "Rope the wild stallion — could help: a lasso"
+        ],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "corral",
+          "boundary": 4,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:corral",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Prove yourself on the ranch."
+            },
+            {
+              "id": "quest-step:fence.0",
+              "kind": "quest-step",
+              "weight": 3,
+              "text": "Mend the broken east fence"
+            },
+            {
+              "id": "promise:p0",
+              "kind": "promise",
+              "weight": 2,
+              "text": "your promise to Arin: \"I promise I will help you break in that stallion\""
+            },
+            {
+              "id": "check-help:rope",
+              "kind": "check-help",
+              "weight": 2,
+              "text": "Rope the wild stallion: a lasso could help"
+            }
+          ],
+          "selectedOffline": [
+            "objective:corral",
+            "quest-step:fence.0",
+            "promise:p0"
+          ],
+          "helpLines": [
+            "Rope the wild stallion — could help: a lasso"
+          ],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.4"
+          ],
+          "conditionalPromises": 0
+        }
+      }
+    },
+    {
+      "id": "s32",
+      "mix": "mixed",
+      "premise": "A museum at night: a dormant thread, offers and a pending check.",
+      "story": {
+        "id": "so-v29-06-lt-s32",
+        "title": "SO-V29-06 LT s32",
+        "description": "v2.9 06 LT synthetic stuck-player situation s32: A museum at night: a dormant thread, offers and a pending check.",
+        "qualities": [
+          {
+            "key": "in_gallery",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party entered the gallery?"
+          },
+          {
+            "key": "tried_case",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player try to open the case?"
+          },
+          {
+            "key": "case_ok",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Set by the case check"
+          },
+          {
+            "key": "has_pin",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player have a hairpin?"
+          },
+          {
+            "key": "has_lamp",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player have a lamp?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "lobby",
+            "name": "Museum Lobby",
+            "player_name": "The Museum Lobby",
+            "objective": "Sneak in.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "gallery",
+            "name": "Gallery",
+            "player_name": "The Gallery",
+            "objective": "Find the map.",
+            "type": "anchor",
+            "player_text": "Find the old map before the night guard returns.",
+            "offers": [
+              {
+                "id": "listen",
+                "text": "I listen for the guard's footsteps."
+              },
+              {
+                "id": "dark",
+                "text": "I search the dark corner.",
+                "needs": {
+                  "when": {
+                    "q": "has_lamp",
+                    "op": "==",
+                    "v": true
+                  },
+                  "reason": "It is too dark without a lamp."
+                }
+              }
+            ]
+          },
+          {
+            "id": "archive",
+            "name": "Back Archive",
+            "player_name": "The Back Archive",
+            "objective": "Escape.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "lobby",
+            "to": "gallery",
+            "priority": 0,
+            "gate": {
+              "q": "in_gallery",
+              "op": "==",
+              "v": true
+            }
+          },
+          {
+            "from": "gallery",
+            "to": "archive",
+            "priority": 0,
+            "gate": {
+              "all": [
+                {
+                  "q": "tried_case",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "case_ok",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            },
+            "check": {
+              "quality": "case_ok",
+              "narrate": "public",
+              "id": "case",
+              "label": "Open the display case",
+              "roll": {
+                "sides": 20,
+                "target": 13
+              },
+              "modifiers": [
+                {
+                  "q": "has_pin",
+                  "v": true,
+                  "add": 3,
+                  "hint": "a hairpin"
+                }
+              ]
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Moonlight falls across the empty museum lobby."
+        },
+        {
+          "arcOpen": "The night guard dropped a ring of keys somewhere in the lobby."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin whispers, “Quiet.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "A clock ticks."
+        },
+        {
+          "set": [
+            "in_gallery",
+            true
+          ]
+        },
+        {
+          "say": "DM Narrator",
+          "text": "Glass cases line the gallery walls."
+        },
+        {
+          "arcOpen": "A display case at the far end holds a rolled-up map."
+        },
+        {
+          "stuck": "I'm not sure what to do first."
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "thread",
+          "dormant-thread",
+          "offer",
+          "check-help"
+        ],
+        "absent": [],
+        "help": [
+          "Open the display case — could help: a hairpin"
+        ],
+        "greyed": [
+          {
+            "text": "I search the dark corner.",
+            "reason": "It is too dark without a lamp."
+          }
+        ],
+        "authoredOffers": [
+          "listen"
+        ],
+        "computed": {
+          "finalCheckpoint": "gallery",
+          "boundary": 5,
+          "checkpointStartedBoundary": 4,
+          "candidates": [
+            {
+              "id": "objective:gallery",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Find the old map before the night guard returns."
+            },
+            {
+              "id": "dormant-thread:7a17da1e-19d8-4a2b-b2d7-0c2f91504efc",
+              "kind": "dormant-thread",
+              "weight": 1,
+              "text": "The night guard dropped a ring of keys somewhere in the lobby."
+            },
+            {
+              "id": "thread:ded62cb8-fe49-47bf-b3ff-22c19954cac7",
+              "kind": "thread",
+              "weight": 2,
+              "text": "A display case at the far end holds a rolled-up map."
+            },
+            {
+              "id": "check-help:case",
+              "kind": "check-help",
+              "weight": 2,
+              "text": "Open the display case: a hairpin could help"
+            },
+            {
+              "id": "offer:listen",
+              "kind": "offer",
+              "weight": 2,
+              "text": "I listen for the guard's footsteps."
+            }
+          ],
+          "selectedOffline": [
+            "objective:gallery",
+            "offer:listen",
+            "check-help:case"
+          ],
+          "helpLines": [
+            "Open the display case — could help: a hairpin"
+          ],
+          "greyed": [
+            {
+              "text": "I search the dark corner.",
+              "reason": "It is too dark without a lamp."
+            }
+          ],
+          "availableOffers": [
+            "listen"
+          ],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.3",
+            "warning quality-never-in-scope qualities.4"
+          ],
+          "conditionalPromises": 0
+        }
+      }
+    },
+    {
+      "id": "s33",
+      "mix": "mixed",
+      "premise": "A shipyard: a quest with a hidden first step, a hidden offer, a promise.",
+      "story": {
+        "id": "so-v29-06-lt-s33",
+        "title": "SO-V29-06 LT s33",
+        "description": "v2.9 06 LT synthetic stuck-player situation s33: A shipyard: a quest with a hidden first step, a hidden offer, a promise.",
+        "qualities": [
+          {
+            "key": "hired_shipwright",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player agree to help the shipwright?"
+          },
+          {
+            "key": "knows_saboteur",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player know who is sabotaging the ships?"
+          },
+          {
+            "key": "has_tar",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player brought tar?"
+          },
+          {
+            "key": "saw_ledger",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player seen the dockmaster's ledger?"
+          },
+          {
+            "key": "launch_done",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the launch task finished?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "yard",
+            "name": "Shipyard",
+            "player_name": "The Shipyard",
+            "objective": "Help.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Help the shipwright launch the new hull on time.",
+            "offers": [
+              {
+                "id": "caulk",
+                "text": "I help caulk the hull."
+              },
+              {
+                "id": "ledger",
+                "text": "I read the dockmaster's ledger for the saboteur's payments.",
+                "visible_when": {
+                  "q": "saw_ledger",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          }
+        ],
+        "transitions": [],
+        "quests": [
+          {
+            "id": "launch",
+            "title": "The launch",
+            "kind": "side",
+            "visible_when": {
+              "q": "hired_shipwright",
+              "op": "==",
+              "v": true
+            },
+            "done_when": {
+              "q": "launch_done",
+              "op": "==",
+              "v": true
+            },
+            "steps": [
+              {
+                "text": "Expose the dockmaster as the saboteur",
+                "done_when": {
+                  "q": "knows_saboteur",
+                  "op": "==",
+                  "v": true
+                },
+                "visible_when": {
+                  "q": "knows_saboteur",
+                  "op": "==",
+                  "v": true
+                }
+              },
+              {
+                "text": "Bring a barrel of tar",
+                "done_when": {
+                  "q": "has_tar",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Hammers ring across the shipyard."
+        },
+        {
+          "set": [
+            "hired_shipwright",
+            true
+          ]
+        },
+        {
+          "say": "Arin",
+          "text": "Arin points at a gash in the hull. “Someone did that with an axe.”"
+        },
+        {
+          "player": "Arin, I swear I'll find out who damaged the hull."
+        },
+        {
+          "promise": {
+            "to": "Arin",
+            "quote": "I swear I'll find out who damaged the hull"
+          }
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The shipwright curses at the damage."
+        },
+        {
+          "stuck": "What should I do?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "quest-step",
+          "promise",
+          "offer"
+        ],
+        "absent": [
+          "quest-step:launch.0",
+          "offer:ledger"
+        ],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [
+          "caulk"
+        ],
+        "computed": {
+          "finalCheckpoint": "yard",
+          "boundary": 4,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:yard",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Help the shipwright launch the new hull on time."
+            },
+            {
+              "id": "quest-step:launch.1",
+              "kind": "quest-step",
+              "weight": 3,
+              "text": "Bring a barrel of tar"
+            },
+            {
+              "id": "promise:p0",
+              "kind": "promise",
+              "weight": 2,
+              "text": "your promise to Arin: \"I swear I'll find out who damaged the hull\""
+            },
+            {
+              "id": "offer:caulk",
+              "kind": "offer",
+              "weight": 2,
+              "text": "I help caulk the hull."
+            }
+          ],
+          "selectedOffline": [
+            "objective:yard",
+            "quest-step:launch.1",
+            "offer:caulk"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [
+            "caulk"
+          ],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.3"
+          ],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "hidden first quest step and hidden offer both name the saboteur",
+      "leakNeedles": [
+        "dockmaster",
+        "saboteur's payments",
+        "Expose the"
+      ]
+    },
+    {
+      "id": "s34",
+      "mix": "mixed",
+      "premise": "A caravan camp: more candidate anchors than slots (objective, quest step, thread, promise, help, offer).",
+      "story": {
+        "id": "so-v29-06-lt-s34",
+        "title": "SO-V29-06 LT s34",
+        "description": "v2.9 06 LT synthetic stuck-player situation s34: A caravan camp: more candidate anchors than slots (objective, quest step, thread, promise, help, offer).",
+        "qualities": [
+          {
+            "key": "joined_caravan",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player join the caravan?"
+          },
+          {
+            "key": "water_found",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has water been found?"
+          },
+          {
+            "key": "tried_track",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player try to track the camels?"
+          },
+          {
+            "key": "track_ok",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Set by the tracking check"
+          },
+          {
+            "key": "has_map",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player have a map?"
+          },
+          {
+            "key": "water_done",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the water task finished?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "camp",
+            "name": "Caravan Camp",
+            "player_name": "The Caravan Camp",
+            "objective": "Survive.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Keep the caravan alive until the next oasis.",
+            "offers": [
+              {
+                "id": "stars",
+                "text": "I read the stars for the way north."
+              }
+            ]
+          },
+          {
+            "id": "sands",
+            "name": "Open Sands",
+            "player_name": "The Open Sands",
+            "objective": "Cross.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "camp",
+            "to": "sands",
+            "priority": 0,
+            "gate": {
+              "all": [
+                {
+                  "q": "tried_track",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "track_ok",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            },
+            "check": {
+              "quality": "track_ok",
+              "narrate": "public",
+              "id": "track",
+              "label": "Track the strayed camels",
+              "roll": {
+                "sides": 20,
+                "target": 12
+              },
+              "modifiers": [
+                {
+                  "q": "has_map",
+                  "v": true,
+                  "add": 3,
+                  "hint": "a map of the dunes"
+                }
+              ]
+            }
+          }
+        ],
+        "quests": [
+          {
+            "id": "water",
+            "title": "Water for the caravan",
+            "kind": "side",
+            "visible_when": {
+              "q": "joined_caravan",
+              "op": "==",
+              "v": true
+            },
+            "done_when": {
+              "q": "water_done",
+              "op": "==",
+              "v": true
+            },
+            "steps": [
+              {
+                "text": "Find water before the barrels run dry",
+                "done_when": {
+                  "q": "water_found",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Tents flap in the hot wind of the caravan camp."
+        },
+        {
+          "set": [
+            "joined_caravan",
+            true
+          ]
+        },
+        {
+          "say": "Arin",
+          "text": "Arin shakes an almost empty barrel. “Two days of water, maybe.”"
+        },
+        {
+          "arcOpen": "Three camels strayed from the camp during the night."
+        },
+        {
+          "player": "Arin, I promise I will get you to the oasis."
+        },
+        {
+          "promise": {
+            "to": "Arin",
+            "quote": "I promise I will get you to the oasis"
+          }
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The sun climbs higher."
+        },
+        {
+          "stuck": "There's too much to do. What first?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "quest-step",
+          "thread",
+          "promise",
+          "check-help",
+          "offer"
+        ],
+        "absent": [],
+        "help": [
+          "Track the strayed camels — could help: a map of the dunes"
+        ],
+        "greyed": [],
+        "authoredOffers": [
+          "stars"
+        ],
+        "computed": {
+          "finalCheckpoint": "camp",
+          "boundary": 4,
+          "checkpointStartedBoundary": 0,
+          "candidates": [
+            {
+              "id": "objective:camp",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Keep the caravan alive until the next oasis."
+            },
+            {
+              "id": "quest-step:water.0",
+              "kind": "quest-step",
+              "weight": 3,
+              "text": "Find water before the barrels run dry"
+            },
+            {
+              "id": "thread:e717d4c9-69e8-47ad-ad8f-689e018079c6",
+              "kind": "thread",
+              "weight": 2,
+              "text": "Three camels strayed from the camp during the night."
+            },
+            {
+              "id": "promise:p0",
+              "kind": "promise",
+              "weight": 2,
+              "text": "your promise to Arin: \"I promise I will get you to the oasis\""
+            },
+            {
+              "id": "check-help:track",
+              "kind": "check-help",
+              "weight": 2,
+              "text": "Track the strayed camels: a map of the dunes could help"
+            },
+            {
+              "id": "offer:stars",
+              "kind": "offer",
+              "weight": 2,
+              "text": "I read the stars for the way north."
+            }
+          ],
+          "selectedOffline": [
+            "quest-step:water.0",
+            "objective:camp",
+            "offer:stars"
+          ],
+          "helpLines": [
+            "Track the strayed camels — could help: a map of the dunes"
+          ],
+          "greyed": [],
+          "availableOffers": [
+            "stars"
+          ],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.4"
+          ],
+          "conditionalPromises": 0
+        }
+      },
+      "note": "six eligible kinds, three slots: tests ranking and seeded rotation, not coverage"
+    },
+    {
+      "id": "s35",
+      "mix": "mixed",
+      "premise": "A manor: dormant thread, promise, and a held secret arc.",
+      "story": {
+        "id": "so-v29-06-lt-s35",
+        "title": "SO-V29-06 LT s35",
+        "description": "v2.9 06 LT synthetic stuck-player situation s35: A manor: dormant thread, promise, and a held secret arc.",
+        "qualities": [
+          {
+            "key": "in_cellar",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party gone down to the cellar?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "hall",
+            "name": "Manor Hall",
+            "player_name": "The Manor Hall",
+            "objective": "Explore.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "cellar",
+            "name": "Wine Cellar",
+            "player_name": "The Wine Cellar",
+            "objective": "Search.",
+            "type": "anchor",
+            "player_text": "Find the missing heir before dawn."
+          }
+        ],
+        "transitions": [
+          {
+            "from": "hall",
+            "to": "cellar",
+            "priority": 0,
+            "gate": {
+              "q": "in_cellar",
+              "op": "==",
+              "v": true
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Portraits stare down from the walls of the manor hall."
+        },
+        {
+          "arcOpen": "The housekeeper asked you to look for the heir's silver locket."
+        },
+        {
+          "hiding": {
+            "subject": "Arin",
+            "from": "DM Narrator",
+            "content": "Arin burned the heir's letters in the hall fireplace last night."
+          }
+        },
+        {
+          "arcOpen": "Arin burned the heir's letters in the hall fireplace."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin warms her hands at the fire."
+        },
+        {
+          "set": [
+            "in_cellar",
+            true
+          ]
+        },
+        {
+          "say": "DM Narrator",
+          "text": "Wine racks stretch into darkness."
+        },
+        {
+          "player": "Arin, I promise I will find the heir for you."
+        },
+        {
+          "promise": {
+            "to": "Arin",
+            "quote": "I promise I will find the heir for you"
+          }
+        },
+        {
+          "arcOpen": "Something is scratching behind the wine racks."
+        },
+        {
+          "stuck": "Okay. What's my next move?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "thread",
+          "dormant-thread",
+          "promise"
+        ],
+        "absent": [],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "cellar",
+          "boundary": 4,
+          "checkpointStartedBoundary": 3,
+          "candidates": [
+            {
+              "id": "objective:cellar",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Find the missing heir before dawn."
+            },
+            {
+              "id": "dormant-thread:508d8029-108c-4082-b1b9-359e22cae295",
+              "kind": "dormant-thread",
+              "weight": 1,
+              "text": "The housekeeper asked you to look for the heir's silver locket."
+            },
+            {
+              "id": "thread:be3cf7fd-a910-48c2-8362-b3530cf611e1",
+              "kind": "thread",
+              "weight": 2,
+              "text": "Something is scratching behind the wine racks."
+            },
+            {
+              "id": "promise:p0",
+              "kind": "promise",
+              "weight": 2,
+              "text": "your promise to Arin: \"I promise I will find the heir for you\""
+            }
+          ],
+          "selectedOffline": [
+            "objective:cellar",
+            "promise:p0",
+            "thread:be3cf7fd-a910-48c2-8362-b3530cf611e1"
+          ],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "held secret: an arc restates Arin's [hiding] row about the letters",
+      "leakNeedles": [
+        "burned",
+        "letters"
+      ]
+    },
+    {
+      "id": "s36",
+      "mix": "mixed",
+      "premise": "An observatory: quest step, resurfaced dormant thread and a check whose help was just disclosed.",
+      "story": {
+        "id": "so-v29-06-lt-s36",
+        "title": "SO-V29-06 LT s36",
+        "description": "v2.9 06 LT synthetic stuck-player situation s36: An observatory: quest step, resurfaced dormant thread and a check whose help was just disclosed.",
+        "qualities": [
+          {
+            "key": "in_dome",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party entered the dome?"
+          },
+          {
+            "key": "helping_astronomer",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the player helping the astronomer?"
+          },
+          {
+            "key": "lens_cleaned",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the lens clean?"
+          },
+          {
+            "key": "tried_align",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player try to align the telescope?"
+          },
+          {
+            "key": "align_ok",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Set by the alignment check"
+          },
+          {
+            "key": "has_chart",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Does the player have the star chart?"
+          },
+          {
+            "key": "read_manual",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the player read the telescope manual?"
+          },
+          {
+            "key": "lens_done",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the lens task finished?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "stairs",
+            "name": "Observatory Stairs",
+            "player_name": "The Observatory Stairs",
+            "objective": "Climb.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "dome",
+            "name": "Dome",
+            "player_name": "The Dome",
+            "objective": "Observe.",
+            "type": "anchor",
+            "player_text": "Spot the comet before it sets."
+          },
+          {
+            "id": "roof",
+            "name": "Roof Walk",
+            "player_name": "The Roof Walk",
+            "objective": "Watch.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "stairs",
+            "to": "dome",
+            "priority": 0,
+            "gate": {
+              "q": "in_dome",
+              "op": "==",
+              "v": true
+            }
+          },
+          {
+            "from": "dome",
+            "to": "roof",
+            "priority": 0,
+            "gate": {
+              "all": [
+                {
+                  "q": "tried_align",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "align_ok",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            },
+            "check": {
+              "quality": "align_ok",
+              "narrate": "public",
+              "id": "align",
+              "label": "Align the telescope",
+              "roll": {
+                "sides": 20,
+                "target": 14
+              },
+              "hint_when": {
+                "q": "read_manual",
+                "op": "==",
+                "v": true
+              },
+              "modifiers": [
+                {
+                  "q": "has_chart",
+                  "v": true,
+                  "add": 4,
+                  "hint": "the star chart"
+                }
+              ]
+            }
+          }
+        ],
+        "quests": [
+          {
+            "id": "lens",
+            "title": "A clear lens",
+            "kind": "side",
+            "visible_when": {
+              "q": "helping_astronomer",
+              "op": "==",
+              "v": true
+            },
+            "done_when": {
+              "q": "lens_done",
+              "op": "==",
+              "v": true
+            },
+            "steps": [
+              {
+                "text": "Clean the dusty main lens",
+                "done_when": {
+                  "q": "lens_cleaned",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "A spiral stair winds up toward the observatory dome."
+        },
+        {
+          "arcOpen": "The astronomer's apprentice ran off with the star chart."
+        },
+        {
+          "arcOpen": "The stair lamp keeps going out."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin climbs ahead. “Mind the loose step.”"
+        },
+        {
+          "set": [
+            "in_dome",
+            true
+          ]
+        },
+        {
+          "set": [
+            "helping_astronomer",
+            true
+          ]
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The great telescope points at a slit of night sky."
+        },
+        {
+          "arcOpen": "The comet will sink below the hills within the hour."
+        },
+        {
+          "set": [
+            "read_manual",
+            true
+          ]
+        },
+        {
+          "arcResolve": "The stair lamp was fixed and stays lit."
+        },
+        {
+          "stuck": "I'm stuck. Help?"
+        }
+      ],
+      "expect": {
+        "kinds": [
+          "objective",
+          "quest-step",
+          "thread",
+          "dormant-thread",
+          "check-help"
+        ],
+        "absent": [],
+        "help": [
+          "Align the telescope — could help: the star chart"
+        ],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "dome",
+          "boundary": 6,
+          "checkpointStartedBoundary": 3,
+          "candidates": [
+            {
+              "id": "objective:dome",
+              "kind": "objective",
+              "weight": 3,
+              "text": "Spot the comet before it sets."
+            },
+            {
+              "id": "quest-step:lens.0",
+              "kind": "quest-step",
+              "weight": 3,
+              "text": "Clean the dusty main lens"
+            },
+            {
+              "id": "dormant-thread:445a66dc-2ce8-421e-a722-86b64d7491e3",
+              "kind": "dormant-thread",
+              "weight": 2.5,
+              "text": "The astronomer's apprentice ran off with the star chart."
+            },
+            {
+              "id": "thread:a3a57388-9065-4f1b-9956-7eba8e489cca",
+              "kind": "thread",
+              "weight": 2,
+              "text": "The comet will sink below the hills within the hour."
+            },
+            {
+              "id": "check-help:align",
+              "kind": "check-help",
+              "weight": 2,
+              "text": "Align the telescope: the star chart could help"
+            }
+          ],
+          "selectedOffline": [
+            "quest-step:lens.0",
+            "objective:dome",
+            "dormant-thread:445a66dc-2ce8-421e-a722-86b64d7491e3"
+          ],
+          "helpLines": [
+            "Align the telescope — could help: the star chart"
+          ],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.5",
+            "warning quality-never-in-scope qualities.6"
+          ],
+          "conditionalPromises": 0
+        }
+      },
+      "note": "dormant thread with the resurfacing bonus (an arc resolved within 4 boundaries) next to a current thread"
+    },
+    {
+      "id": "s37",
+      "mix": "none",
+      "premise": "A rainy road with nothing authored to anchor.",
+      "story": {
+        "id": "so-v29-06-lt-s37",
+        "title": "SO-V29-06 LT s37",
+        "description": "v2.9 06 LT synthetic stuck-player situation s37: A rainy road with nothing authored to anchor.",
+        "qualities": [
+          {
+            "key": "arrived",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party arrived somewhere dry?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "road",
+            "name": "Rainy Road",
+            "player_name": "The Rainy Road",
+            "objective": "Walk.",
+            "type": "anchor",
+            "start": true
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Rain pours on a muddy road between bare fields."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin trudges beside you. “I hate rain.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "The road stretches on."
+        },
+        {
+          "stuck": "I don't know what to do."
+        }
+      ],
+      "expect": {
+        "kinds": [],
+        "absent": [],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "road",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [],
+          "selectedOffline": [],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.0"
+          ],
+          "conditionalPromises": 0
+        }
+      }
+    },
+    {
+      "id": "s38",
+      "mix": "none",
+      "premise": "A forest clearing; a hidden quest and a hidden offer, no visible anchors.",
+      "story": {
+        "id": "so-v29-06-lt-s38",
+        "title": "SO-V29-06 LT s38",
+        "description": "v2.9 06 LT synthetic stuck-player situation s38: A forest clearing; a hidden quest and a hidden offer, no visible anchors.",
+        "qualities": [
+          {
+            "key": "found_cairn",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party found the cairn?"
+          },
+          {
+            "key": "cairn_opened",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the cairn opened?"
+          },
+          {
+            "key": "cairn_done",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the cairn task finished?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "clearing",
+            "name": "Clearing",
+            "player_name": "The Clearing",
+            "objective": "Rest.",
+            "type": "anchor",
+            "start": true,
+            "offers": [
+              {
+                "id": "cairn",
+                "text": "I move the stones of the witch's cairn.",
+                "visible_when": {
+                  "q": "found_cairn",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          }
+        ],
+        "transitions": [],
+        "quests": [
+          {
+            "id": "cairn",
+            "title": "The witch's cairn",
+            "kind": "side",
+            "visible_when": {
+              "q": "found_cairn",
+              "op": "==",
+              "v": true
+            },
+            "done_when": {
+              "q": "cairn_done",
+              "op": "==",
+              "v": true
+            },
+            "steps": [
+              {
+                "text": "Open the witch's cairn at moonrise",
+                "done_when": {
+                  "q": "cairn_opened",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Sunlight filters into a quiet forest clearing."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin sits on a log and unlaces her boots."
+        },
+        {
+          "say": "DM Narrator",
+          "text": "Birds sing in the trees."
+        },
+        {
+          "stuck": "What should I do here?"
+        }
+      ],
+      "expect": {
+        "kinds": [],
+        "absent": [
+          "offer:cairn",
+          "quest:cairn"
+        ],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "clearing",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [],
+          "selectedOffline": [],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning offer-names-unknown checkpoints.0.offers.0.text"
+          ],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "hidden quest and hidden offer about a witch's cairn",
+      "leakNeedles": [
+        "cairn",
+        "witch",
+        "moonrise"
+      ]
+    },
+    {
+      "id": "s39",
+      "mix": "none",
+      "premise": "A tavern cellar; only a hidden check and an unreached checkpoint.",
+      "story": {
+        "id": "so-v29-06-lt-s39",
+        "title": "SO-V29-06 LT s39",
+        "description": "v2.9 06 LT synthetic stuck-player situation s39: A tavern cellar; only a hidden check and an unreached checkpoint.",
+        "qualities": [
+          {
+            "key": "tried_listen",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did the player listen at the wall?"
+          },
+          {
+            "key": "heard_plot",
+            "type": "bool",
+            "source": "code",
+            "rubric": "Set by the hidden check"
+          },
+          {
+            "key": "in_tunnel",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the party in the tunnel?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "cellar",
+            "name": "Tavern Cellar",
+            "player_name": "The Tavern Cellar",
+            "objective": "Fetch ale.",
+            "type": "anchor",
+            "start": true
+          },
+          {
+            "id": "tunnel",
+            "name": "Rebel Tunnel",
+            "player_name": "The Rebel Tunnel",
+            "objective": "Follow.",
+            "type": "anchor"
+          }
+        ],
+        "transitions": [
+          {
+            "from": "cellar",
+            "to": "tunnel",
+            "priority": 0,
+            "gate": {
+              "all": [
+                {
+                  "q": "tried_listen",
+                  "op": "==",
+                  "v": true
+                },
+                {
+                  "q": "heard_plot",
+                  "op": "==",
+                  "v": true
+                }
+              ]
+            },
+            "check": {
+              "id": "listen",
+              "label": "Overhear the rebels' plot",
+              "quality": "heard_plot",
+              "narrate": "hidden",
+              "roll": {
+                "sides": 20,
+                "target": 15
+              }
+            }
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "Barrels line the damp tavern cellar."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin taps a keg. “This one's empty too.”"
+        },
+        {
+          "say": "DM Narrator",
+          "text": "A faint draft comes from somewhere."
+        },
+        {
+          "stuck": "Hmm. Now what?"
+        }
+      ],
+      "expect": {
+        "kinds": [],
+        "absent": [],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "cellar",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [],
+          "selectedOffline": [],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.2"
+          ],
+          "conditionalPromises": 0
+        }
+      },
+      "bait": "hidden check and unreached checkpoint about a rebel plot",
+      "leakNeedles": [
+        "rebel",
+        "plot",
+        "Rebel Tunnel"
+      ]
+    },
+    {
+      "id": "s40",
+      "mix": "none",
+      "premise": "A quiet camp; only a conditional promise, which never anchors.",
+      "story": {
+        "id": "so-v29-06-lt-s40",
+        "title": "SO-V29-06 LT s40",
+        "description": "v2.9 06 LT synthetic stuck-player situation s40: A quiet camp; only a conditional promise, which never anchors.",
+        "qualities": [
+          {
+            "key": "lent_knife",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Did Arin lend her knife?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "camp",
+            "name": "Night Camp",
+            "player_name": "The Night Camp",
+            "objective": "Rest.",
+            "type": "anchor",
+            "start": true
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      },
+      "seed": [
+        {
+          "say": "DM Narrator",
+          "text": "A small campfire crackles under the stars."
+        },
+        {
+          "say": "Arin",
+          "text": "Arin sharpens her knife."
+        },
+        {
+          "player": "If you lend me that knife, Arin, I promise I'll give it back tomorrow."
+        },
+        {
+          "promise": {
+            "to": "Arin",
+            "quote": "I promise I'll give it back tomorrow"
+          }
+        },
+        {
+          "say": "Arin",
+          "text": "Arin keeps sharpening."
+        },
+        {
+          "stuck": "I'm not sure what to do next."
+        }
+      ],
+      "expect": {
+        "kinds": [],
+        "absent": [
+          "promise (conditional)"
+        ],
+        "help": [],
+        "greyed": [],
+        "authoredOffers": [],
+        "computed": {
+          "finalCheckpoint": "camp",
+          "boundary": 3,
+          "checkpointStartedBoundary": 0,
+          "candidates": [],
+          "selectedOffline": [],
+          "helpLines": [],
+          "greyed": [],
+          "availableOffers": [],
+          "diagnostics": [
+            "warning quality-never-in-scope qualities.0"
+          ],
+          "conditionalPromises": 1
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,166 @@
+{
+  "_note": "v2.9 06 LT corpus s38 (none), arm anchored (anchors on). Real read-role model for the one suggestions ask; seeded state only (reads are seeded text, scheduled reads pinned to SCENE_NONE so both arms see the same state). Records one row in localStorage so-v29-06lt-anchored-s38. Corpus situations.json sha256 0fcb41347ba8bb57ce905e82dea4f5536a83163c3546d8b308effe8060041947. Premise: A forest clearing; a hidden quest and a hidden offer, no visible anchors.",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off"
+  },
+  "steps": [
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "image",
+          "enabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "sprites",
+          "enabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const s = globalThis.storyOrchestratorRuntime.getGlobalSettings(); if (s.image.enabled || s.sprites.enabled) throw new Error('media must be off'); if (s.memory?.promises === false) throw new Error('memory.promises is off on this install'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; delete globalThis.storyOrchestratorDebugSuggestionAnchors; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: false }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const pause = (ms) => new Promise((r) => setTimeout(r, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const v = await test(); if (v) return v; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const audit = (id, from, to) => ({ id, createdAt: new Date().toISOString(), priority: 0, reason: 'manual', contractHash: 'h', scope: [], window: { from, to }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [], rejected: [] }); const open = async () => { if (!document.querySelector('#so-workspace-modal[open]')) document.querySelector('#so-open-workspace').click(); const modal = await until(() => document.querySelector('#so-workspace-modal[open]'), 10000, 'the workspace'); if (modal.dataset.context !== 'story') { const tab = [...modal.querySelectorAll('button')].find((b) => b.textContent.trim() === 'This story'); if (!tab) throw new Error('no Story context button'); tab.click(); await until(() => modal.dataset.context === 'story', 5000, 'the Story context'); } (await until(() => modal.querySelector('#so-workspace-page-play'), 5000, 'the Play page')).click(); (await until(() => document.querySelector('#so-open-suggestions'), 10000, 'the suggestions button')).click(); await until(() => !document.querySelector('#so-workspace-modal[open]'), 5000, 'the workspace to close'); return until(() => document.querySelector('#so-panel-suggestions'), 5000, 'the suggestions panel'); }; globalThis.__lt = { pause, until, audit, open, id: \"s38\", arm: \"anchored\", corpus: \"0fcb41347ba8bb57ce905e82dea4f5536a83163c3546d8b308effe8060041947\" }; return { arm: \"anchored\", seam: globalThis.storyOrchestratorDebugSuggestionAnchors ?? null };"
+    },
+    {
+      "import_story": {
+        "id": "so-v29-06-lt-s38",
+        "title": "SO-V29-06 LT s38",
+        "description": "v2.9 06 LT synthetic stuck-player situation s38: A forest clearing; a hidden quest and a hidden offer, no visible anchors.",
+        "qualities": [
+          {
+            "key": "found_cairn",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the party found the cairn?"
+          },
+          {
+            "key": "cairn_opened",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the cairn opened?"
+          },
+          {
+            "key": "cairn_done",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Is the cairn task finished?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "clearing",
+            "name": "Clearing",
+            "player_name": "The Clearing",
+            "objective": "Rest.",
+            "type": "anchor",
+            "start": true,
+            "offers": [
+              {
+                "id": "cairn",
+                "text": "I move the stones of the witch's cairn.",
+                "visible_when": {
+                  "q": "found_cairn",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          }
+        ],
+        "transitions": [],
+        "quests": [
+          {
+            "id": "cairn",
+            "title": "The witch's cairn",
+            "kind": "side",
+            "visible_when": {
+              "q": "found_cairn",
+              "op": "==",
+              "v": true
+            },
+            "done_when": {
+              "q": "cairn_done",
+              "op": "==",
+              "v": true
+            },
+            "steps": [
+              {
+                "text": "Open the witch's cairn at moonrise",
+                "done_when": {
+                  "q": "cairn_opened",
+                  "op": "==",
+                  "v": true
+                }
+              }
+            ]
+          }
+        ],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; await globalThis.__lt.until(() => rt.getSnapshot().storyId === \"so-v29-06-lt-s38\", 10000, 'the story to load'); return { storyId: rt.getSnapshot().storyId, ledger: false };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false Sunlight filters into a quiet forest clearing."
+    },
+    {
+      "slash": "/sendas name=\"Arin\" raw=false Arin sits on a log and unlaces her boots."
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false Birds sing in the trees."
+    },
+    {
+      "send": "What should I do here?"
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const st = rt.getEngineState(); if (st.activeCheckpointId !== \"clearing\") throw new Error('seed did not land on clearing: ' + st.activeCheckpointId); const promises = (rt.getSnapshot().promises ?? []).length; if (promises !== 0) throw new Error('open player promises ' + promises + ', expected 0'); return { checkpoint: st.activeCheckpointId, boundary: st.boundary, checkpointStartedBoundary: st.checkpointStartedBoundary, arcs: rt.getArcs().map((a) => [a.status, a.openedAt, a.text]) };"
+    },
+    {
+      "log": true,
+      "eval": "const g = globalThis.__lt; const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); await g.pause(800); const t0 = Date.now(); await g.open(); const box = () => document.querySelector('#so-suggestions'); const end = Date.now() + 240000; let timedOut = false; for (;;) { const b = box(); const n = b ? b.querySelectorAll('[data-so=suggestion]').length : 0; if (n >= 3 || (b && b.querySelector('[data-so=suggestions-failed]'))) break; if (Date.now() > end) { timedOut = true; break; } await g.pause(250); } await g.pause(1500); const b = box(); const text = (n) => n?.textContent?.trim() ?? null; const lines = b ? [...b.querySelectorAll('[data-so=suggestion]')].map((btn) => ({ text: text(btn), anchor: text(btn.closest('li')?.querySelector('[data-so=suggestion-anchor]'))?.replace(/^for: /, '') ?? null })) : []; const help = b ? [...b.querySelectorAll('[data-so=suggestions-help]')].map(text) : []; const greyed = b ? [...b.querySelectorAll('[data-so=suggestion-unavailable]')].map((btn) => ({ text: text(btn), disabled: btn.disabled })) : []; const calls = (rt.getSnapshot().modelCalls ?? []).filter((row) => row.role === 'read:suggestions' && Date.parse(row.at) >= t0 - 1000); const ctx = SillyTavern.getContext(); const st = rt.getEngineState(); const record = { corpus: g.corpus, id: g.id, arm: g.arm, seam: globalThis.storyOrchestratorDebugSuggestionAnchors ?? null, at: new Date().toISOString(), chatId: ctx.chatId, storyId: rt.getSnapshot().storyId, checkpoint: st.activeCheckpointId, boundary: st.boundary, lines, usable: lines.length, help, greyed, authorRow: text(b?.querySelector('[data-so=suggestions-author]')), failed: text(b?.querySelector('[data-so=suggestions-failed]')), timedOut, asks: calls.length, calls: calls.map((row) => ({ at: row.at, route: row.route, result: row.result, ms: row.ms })), playerView: { sections: (rt.getSnapshot().narrative?.sections ?? []).map((s) => ({ label: s.label, lines: s.lines })), transcript: ctx.chat.filter((m) => !m.is_system).slice(-12).map((m) => ({ name: m.name, mes: m.mes })) } }; localStorage.setItem('so-v29-06lt-' + g.arm + '-' + g.id, JSON.stringify(record)); if (g.arm === 'current' && lines.some((line) => line.anchor)) throw new Error('current arm: a line carries an anchor tag, so the anchors-off seam did not apply'); return record;"
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: false }); document.querySelector('#so-panel-suggestions [data-so=\"panel-close\"]')?.click(); delete globalThis.storyOrchestratorDebugSuggestionAnchors; delete globalThis.storyOrchestratorDebugExtractionResponse; delete globalThis.__lt; return true;"
+    }
+  ]
+}

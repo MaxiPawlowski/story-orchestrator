@@ -1,0 +1,126 @@
+{
+  "_note": "v2.9 06 LT corpus s16 (promise), arm current (storyOrchestratorDebugSuggestionAnchors='off'). Real read-role model for the one suggestions ask; seeded state only (reads are seeded text, scheduled reads pinned to SCENE_NONE so both arms see the same state). Records one row in localStorage so-v29-06lt-current-s16. Corpus situations.json sha256 0fcb41347ba8bb57ce905e82dea4f5536a83163c3546d8b308effe8060041947. Premise: A library; a promise to find a lost first volume plus a current thread.",
+  "requires": {
+    "lane": "model",
+    "group": "Group: Arin, DM Narrator",
+    "members": [
+      "Arin",
+      "DM Narrator"
+    ],
+    "judge": "off"
+  },
+  "steps": [
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "image",
+          "enabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "ext_setting": {
+        "extension": "story-orchestrator",
+        "key": [
+          "settings",
+          "sprites",
+          "enabled"
+        ],
+        "value": false
+      }
+    },
+    {
+      "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const s = globalThis.storyOrchestratorRuntime.getGlobalSettings(); if (s.image.enabled || s.sprites.enabled) throw new Error('media must be off'); if (s.memory?.promises === false) throw new Error('memory.promises is off on this install'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugSuggestionAnchors = \"off\"; const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: false }); rt.setExtractionSettings({ cadence: 0, stabilityLag: 0 }); const pause = (ms) => new Promise((r) => setTimeout(r, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const v = await test(); if (v) return v; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const audit = (id, from, to) => ({ id, createdAt: new Date().toISOString(), priority: 0, reason: 'manual', contractHash: 'h', scope: [], window: { from, to }, prompt: 'p', rawResponse: 'r', acceptedDeltas: [], rejected: [] }); const open = async () => { if (!document.querySelector('#so-workspace-modal[open]')) document.querySelector('#so-open-workspace').click(); const modal = await until(() => document.querySelector('#so-workspace-modal[open]'), 10000, 'the workspace'); if (modal.dataset.context !== 'story') { const tab = [...modal.querySelectorAll('button')].find((b) => b.textContent.trim() === 'This story'); if (!tab) throw new Error('no Story context button'); tab.click(); await until(() => modal.dataset.context === 'story', 5000, 'the Story context'); } (await until(() => modal.querySelector('#so-workspace-page-play'), 5000, 'the Play page')).click(); (await until(() => document.querySelector('#so-open-suggestions'), 10000, 'the suggestions button')).click(); await until(() => !document.querySelector('#so-workspace-modal[open]'), 5000, 'the workspace to close'); return until(() => document.querySelector('#so-panel-suggestions'), 5000, 'the suggestions panel'); }; globalThis.__lt = { pause, until, audit, open, id: \"s16\", arm: \"current\", corpus: \"0fcb41347ba8bb57ce905e82dea4f5536a83163c3546d8b308effe8060041947\" }; return { arm: \"current\", seam: globalThis.storyOrchestratorDebugSuggestionAnchors ?? null };"
+    },
+    {
+      "import_story": {
+        "id": "so-v29-06-lt-s16",
+        "title": "SO-V29-06 LT s16",
+        "description": "v2.9 06 LT synthetic stuck-player situation s16: A library; a promise to find a lost first volume plus a current thread.",
+        "qualities": [
+          {
+            "key": "found_volume",
+            "type": "bool",
+            "source": "extractor",
+            "rubric": "Has the first volume been found?"
+          }
+        ],
+        "checkpoints": [
+          {
+            "id": "stacks",
+            "name": "Stacks",
+            "player_name": "The Stacks",
+            "objective": "Search.",
+            "type": "anchor",
+            "start": true,
+            "player_text": "Help Arin finish her research before the library closes."
+          }
+        ],
+        "transitions": [],
+        "roster": [
+          {
+            "id": "arin",
+            "name": "Arin",
+            "role": "a travelling companion"
+          },
+          {
+            "id": "narrator",
+            "name": "DM Narrator",
+            "role": "narrator"
+          }
+        ],
+        "requirements": {
+          "members": [
+            "Arin",
+            "DM Narrator"
+          ]
+        }
+      }
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; await globalThis.__lt.until(() => rt.getSnapshot().storyId === \"so-v29-06-lt-s16\", 10000, 'the story to load'); return { storyId: rt.getSnapshot().storyId, ledger: false };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false Tall shelves fill the old library."
+    },
+    {
+      "slash": "/sendas name=\"Arin\" raw=false Arin slams a book shut. “The first volume is missing. Without it the rest is useless.”"
+    },
+    {
+      "send": "Arin, I promise I will find the lost first volume for you."
+    },
+    {
+      "eval": "const g = globalThis.__lt; const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const m = ctx.chat.length - 1; if (!ctx.chat[m]?.is_user) throw new Error('the promise line is not the last player message'); const quote = \"I promise I will find the lost first volume for you\"; await rt.runExtractionNow(\"[promised] Arin | m=\" + m + ' | \"' + quote + '\"' + String.fromCharCode(10) + 'NO_DELTA', 'manual', { from: 0, to: m }); const rows = await g.until(() => { const r = (rt.getSnapshot().promises ?? []).filter((row) => row.quote === quote); return r.length ? r : null; }, 10000, 'the promise to be stored'); return { promise: rows[0].id, promisee: rows[0].promisee };"
+    },
+    {
+      "eval": "const g = globalThis.__lt; const rt = globalThis.storyOrchestratorRuntime; const last = Math.max(0, SillyTavern.getContext().chat.length - 1); await rt.applyExtractionAudit(g.audit('lt-arc-4', 0, last), [], [], [{ kind: 'open', text: \"A bell will soon ring to close the library for the night.\" }]); if (!rt.getArcs().some((a) => a.status === 'open' && a.text === \"A bell will soon ring to close the library for the night.\")) throw new Error('the arc did not open: ' + \"A bell will soon ring to close the library for the night.\"); return { open: rt.getArcs().filter((a) => a.status === 'open').length };"
+    },
+    {
+      "slash": "/sendas name=\"DM Narrator\" raw=false A librarian glances at the clock."
+    },
+    {
+      "send": "Where would I even look? I'm stuck."
+    },
+    {
+      "wait": {
+        "schedulerIdle": true,
+        "quietMs": 1500,
+        "timeoutMs": 60000
+      }
+    },
+    {
+      "log": true,
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const st = rt.getEngineState(); if (st.activeCheckpointId !== \"stacks\") throw new Error('seed did not land on stacks: ' + st.activeCheckpointId); const promises = (rt.getSnapshot().promises ?? []).length; if (promises !== 1) throw new Error('open player promises ' + promises + ', expected 1'); return { checkpoint: st.activeCheckpointId, boundary: st.boundary, checkpointStartedBoundary: st.checkpointStartedBoundary, arcs: rt.getArcs().map((a) => [a.status, a.openedAt, a.text]) };"
+    },
+    {
+      "log": true,
+      "eval": "const g = globalThis.__lt; const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); await g.pause(800); const t0 = Date.now(); await g.open(); const box = () => document.querySelector('#so-suggestions'); const end = Date.now() + 240000; let timedOut = false; for (;;) { const b = box(); const n = b ? b.querySelectorAll('[data-so=suggestion]').length : 0; if (n >= 3 || (b && b.querySelector('[data-so=suggestions-failed]'))) break; if (Date.now() > end) { timedOut = true; break; } await g.pause(250); } await g.pause(1500); const b = box(); const text = (n) => n?.textContent?.trim() ?? null; const lines = b ? [...b.querySelectorAll('[data-so=suggestion]')].map((btn) => ({ text: text(btn), anchor: text(btn.closest('li')?.querySelector('[data-so=suggestion-anchor]'))?.replace(/^for: /, '') ?? null })) : []; const help = b ? [...b.querySelectorAll('[data-so=suggestions-help]')].map(text) : []; const greyed = b ? [...b.querySelectorAll('[data-so=suggestion-unavailable]')].map((btn) => ({ text: text(btn), disabled: btn.disabled })) : []; const calls = (rt.getSnapshot().modelCalls ?? []).filter((row) => row.role === 'read:suggestions' && Date.parse(row.at) >= t0 - 1000); const ctx = SillyTavern.getContext(); const st = rt.getEngineState(); const record = { corpus: g.corpus, id: g.id, arm: g.arm, seam: globalThis.storyOrchestratorDebugSuggestionAnchors ?? null, at: new Date().toISOString(), chatId: ctx.chatId, storyId: rt.getSnapshot().storyId, checkpoint: st.activeCheckpointId, boundary: st.boundary, lines, usable: lines.length, help, greyed, authorRow: text(b?.querySelector('[data-so=suggestions-author]')), failed: text(b?.querySelector('[data-so=suggestions-failed]')), timedOut, asks: calls.length, calls: calls.map((row) => ({ at: row.at, route: row.route, result: row.result, ms: row.ms })), playerView: { sections: (rt.getSnapshot().narrative?.sections ?? []).map((s) => ({ label: s.label, lines: s.lines })), transcript: ctx.chat.filter((m) => !m.is_system).slice(-12).map((m) => ({ name: m.name, mes: m.mes })) } }; localStorage.setItem('so-v29-06lt-' + g.arm + '-' + g.id, JSON.stringify(record)); if (g.arm === 'current' && lines.some((line) => line.anchor)) throw new Error('current arm: a line carries an anchor tag, so the anchors-off seam did not apply'); return record;"
+    },
+    {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: false }); document.querySelector('#so-panel-suggestions [data-so=\"panel-close\"]')?.click(); delete globalThis.storyOrchestratorDebugSuggestionAnchors; delete globalThis.storyOrchestratorDebugExtractionResponse; delete globalThis.__lt; return true;"
+    }
+  ]
+}
