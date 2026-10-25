@@ -51,6 +51,45 @@ Order: C1 first (it feeds C2-C5), the rest in parallel where they do not share a
     `so-evidence archive` + `npm run sessions:archive` after the last GPU row, final freeze: one `npm run gates` + `suite:nomodel`
     on the frozen commit, staged, header captured.
 
+### C8 product defects
+
+Rows `suite:nomodel` keeps red because the product is wrong, not the fixture or the lane. Fixtures keep their strict
+assertions; src is not changed in C8. Evidence paths are row dirs listed per row.
+
+- **v27-d-01-in-app-walk, step 5: Show me for the memory model does nothing on Library.** Getting started's "Show me" and the
+  Repair row's "Show me the setting" call `settingsHost.revealSetting` (`src/index.tsx`), which only looks the id up in the DOM;
+  `#so-extraction-profile` renders only on Orchestrator > Connections (`SettingsPanel.tsx` `show()`), so it returns early.
+  Regressed in 7724042c. Fix: route an unmounted setting through `workspaceNavigation.open({...connectionsIntent(), control: id})`,
+  as the Setup row's Show me does. Evidence: `C:\dev\so-lanes\34\debug\batch\2026-10-25T12-18-59-202Z\v27-d-01-in-app-walk-run1\`.
+- **J6.11: a hidden consumed message stays in the next read's projection.** After `/hide 1` the queued read window still
+  lists message 1: `nextReadWindow()` (`src/extraction/scheduler.ts`) returned the window captured at scheduling while `pump()`
+  re-reads `getChatWindow`. Shows on no-model lanes, where the read waits behind the open breaker. Evidence:
+  `C:\dev\so-lanes\31\debug\batch\2026-10-25T12-18-59-202Z\J6-run1\` (and the same failure on lane 34, round 2). Fixed on master by edf81db3
+  (queued-window re-read through `rereadWindow`) after these runs; the lanes serve the staged build, so the row stays red until
+  that is staged. Not declared `expect: fail`: the check passes wherever the read drains (model lanes), so a declared failure
+  would turn red there and hide the fix.
+- **v27-d-08-thinking-warning, step 20: the "Nothing to read" inner-voice harvest line can never render.**
+  `#so-inner-harvest-silent` lives in `InnerVoiceControls` inside the settings "characters" area, which `SettingsPanel.tsx`
+  `show()` no longer allows since 7724042c (TalkGroup, InnerVoiceGroup, CharacterStateGroup are unmounted everywhere; the
+  feature registry's inner-voice `where` points at `#so-inner-beat`, also unmounted). Owner decision: bring the line back on
+  the inner-voice feature page, or drop it with the fixture's Author-view leg. Evidence:
+  `C:\dev\so-lanes\34\debug\batch\2026-10-25T12-18-59-202Z\v27-d-08-thinking-warning-run1\`.
+- **v27-d-10-edit-catch-up, step 13: "Catching up after your edit" never shows.** The `editReread` spike (on by default, 047d2335)
+  owns the re-read: `runtime/wiring/scheduler.ts` returns early on `spikeSeams.ownsReread()`, and `spikes/editRereadHost.ts`
+  calls `runExtractionNow` directly, bypassing the scheduler, the read lane and `rereadReason`, so `pipeline.ts`
+  `editRereadPending` never sees it. Fix: the spike path publishes the pending edit read (or schedules through the scheduler).
+  Evidence: `C:\dev\so-lanes\32\debug\batch\2026-10-25T12-18-59-202Z\v27-d-10-edit-catch-up-run1\`.
+- **live-v24-02-e3-save-evidence, step 10: a Defaults-page change names every settings section.** The install-mode `change()`
+  in `src/components/workspace/FeaturePages.tsx` passes the whole GlobalSettings to `setGlobalSettings`; `settingsStore.ts`
+  builds the save-failure label from `Object.keys(patch)`, so the curator toggle reads "extraction, pacing, display, ...: the
+  settings save answered 500" instead of "stagecraft: ...". Fix: pass only the touched section. Evidence: lane 30 round-2 logs
+  (`C:\Users\ROLAPO~1\AppData\Local\Temp\claude\C--dev-story-orchestrator\7d48ee9f-197f-409a-af1c-b6b4e186d736\scratchpad\c8groupA\e3-2.log`..`e3-5.log`) and the suite rows below.
+- **Candidate, live-effects-owned-restore (not red; fixture now waits for quiet): the first host effect after an import into an
+  empty bound-group chat is refused while the bound story auto-starts** (`PENDING_NOT_SAVED`, "write-ahead record could not be
+  saved"; 1 run in 3 before the fixture waited). Suspect `src/runtime/chatSave.ts` `landed()` / run ownership racing
+  `groupStoryBindingHost`. Evidence: `C:\dev\so-lanes\31\debug\runs\2026-10-25T13-09-30-853Z-so-scenario-run\`,
+  `C:\dev\so-lanes\31\debug\2026-10-25T13-09-41-536Z_so-scenario-failure.json`.
+
 ### C9 result 2026-10-25
 
 - Rater: Sol (`openai/gpt-6.1-sol`, `opencode run --standalone`, tools-off agent), one pass, as a first-time player, over the
@@ -107,4 +146,5 @@ About 2 h of model time plus the playtest.
 ## Unresolved questions
 
 - C2: should a `degraded` final record still count as an ended run for New Game+ (it carries the blackboard, not the summary)?
-- C8: should `suite:nomodel` select a memory profile on no-model lanes for checks that need one configured but never call it?
+- ~~C8: should `suite:nomodel` select a memory profile on no-model lanes for checks that need one configured but never call it?~~
+  Yes: the lane prepare selects a configured profile on the closed port 18079 (see §C8 result).
