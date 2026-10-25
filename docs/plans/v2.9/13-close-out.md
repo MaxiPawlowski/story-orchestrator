@@ -105,7 +105,7 @@ Order: C1 first (it feeds C2-C5), the rest in parallel where they do not share a
 - C11: evidence archived: `so-evidence archive --label close-out-20261025 --lanes 45,46 --since 2026-10-25T09:00:00Z` (301 files,
   0 problems) plus `extra/` (06 LT score and rater logs, the interrupted image journey run) and the C9 copy-check folder, so-sessions
   `bfe546ed`, `d09d7737`. Freeze open.
-- Image journey (p41, lane 46, owner-data seed, images on): stopped by the owner at 14:19Z to free the GPU, at rig[Bram]; 15 steps
+- Image journey (p41, lane 46, owner-data seed, images on): stopped by the owner at 14:19Z to free the GPU, after rig[Bram]; 17 steps
   pass, frames[Ash] refused 1 of 2 (0 mask-import). Full rerun owed when the GPU is back.
 
 ## Move to v3.0 (copied into `docs/plans/v3.0/05-deferred-items.md` §From the v2.8/v2.9 close-out)
