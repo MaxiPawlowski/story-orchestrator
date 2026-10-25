@@ -17,6 +17,7 @@ import { runtimeManager } from "./runtimeManager";
 import { DIRECTOR_WINDOW_MESSAGES } from "./talkControl";
 import { GenerationLifecycle } from "./generationLifecycle";
 import { settledWindowAccess } from "./settledWindow";
+import { readableLastId } from "./stoppedReply";
 import { LoudGenerationGate } from "./loudGenerationGate";
 import { isTurnMessageType, TurnBridge } from "./turnBridge";
 import { RequirementsWatch } from "./requirementsWatch";
@@ -181,7 +182,7 @@ export function startRuntime() {
   registerHostSurfaces();
   startWatches();
   const access = windowAccess();
-  globalThis.storyOrchestratorScheduler = { nextReadWindow: () => live.scheduler?.nextReadWindow(access.chatLastId()) ?? null };
+  globalThis.storyOrchestratorScheduler = { nextReadWindow: () => live.scheduler?.nextReadWindow(readableLastId(String(getContext().chatId ?? ""), access.chatLastId())) ?? null };
   const judgeRuntime = startJudge(live, access);
   void import("./judgeHarness").then(({ createJudgeHarness }) => {
     if (started && runtimeManager.getJudge() === judgeRuntime) globalThis.storyOrchestratorJudge = createJudgeHarness(judgeRuntime);

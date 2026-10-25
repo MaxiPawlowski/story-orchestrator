@@ -1,7 +1,7 @@
 import { TurnBridge } from "./turnBridge";
 import type { RuntimeManager } from "./runtimeManager";
 import { testOwnership } from "../../test/findings/testOwnership";
-import { clearStoppedReply, heldStoppedReply, readableEndBefore } from "./stoppedReply";
+import { clearStoppedReply, heldStoppedReply, readableEndBefore, readableLastId } from "./stoppedReply";
 import { userStoppedStream } from "@services/stHost/streamGuard";
 
 const handlers = new Map<string, (...args: unknown[]) => unknown>();
@@ -70,6 +70,8 @@ describe("a reply the player stopped mid-stream", () => {
     expect(order).toEqual([]);
     expect(heldStoppedReply("stop-chat")).toBe(2);
     expect(readableEndBefore("stop-chat")).toBe(1);
+    expect(readableLastId("stop-chat", 2)).toBe(1);
+    expect(readableLastId("other-chat", 2)).toBe(2);
     host.chat.push(player("Keep going."));
     await emit("MESSAGE_SENT", 3);
     expect(order).toEqual(["commit 2"]);

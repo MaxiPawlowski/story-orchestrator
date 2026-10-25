@@ -243,9 +243,30 @@ describe("v2.4 plan 02 §10: the window the scheduler would read next", () => {
     scheduler.schedule({ priority: 2, reason: "hold", run: async () => { await gate; } });
     await Promise.resolve();
     scheduler.schedule({ priority: 0, reason: "rollback:3", window: { from: 3, to: 9, messages: [] } });
-    expect(scheduler.nextReadWindow(11)).toEqual({ source: "queued", reason: "rollback:3", window: { from: 3, to: 9, messages: [] } });
+    const next = scheduler.nextReadWindow(11);
+    expect(next).toMatchObject({ source: "queued", reason: "rollback:3", window: { from: 3, to: 9 } });
+    expect(next?.window.messages.map((message) => message.messageId)).toEqual([3, 4, 5, 6, 7, 8, 9]);
     release();
     await flush();
+  });
+
+  it("a message hidden after the read was queued is left out of the queued window, as the run leaves it out", async () => {
+    let release = () => {};
+    const gate = new Promise<void>((resolve) => { release = resolve; });
+    const scheduler = new ExtractionScheduler(makeHost({ cadence: 1, stabilityLag: 0 }));
+    scheduler.schedule({ priority: 2, reason: "hold", run: async () => { await gate; } });
+    await Promise.resolve();
+    scheduler.onBoundary(1, false, 2);
+    expect(scheduler.nextReadWindow(2)?.window.messages.map((message) => message.messageId)).toEqual([0, 1, 2]);
+    (mockChat[1] as { is_system?: boolean }).is_system = true;
+    const next = scheduler.nextReadWindow(2);
+    expect(next).toMatchObject({ source: "queued", reason: "cadence", window: { from: 0, to: 2 } });
+    expect(next?.window.messages.map((message) => message.messageId)).toEqual([0, 2]);
+    const read = runSharedRead as jest.Mock;
+    read.mockClear();
+    release();
+    await flush();
+    expect(read.mock.calls[0][0].window.messages.map((message: { messageId: number }) => message.messageId)).toEqual(next?.window.messages.map((message) => message.messageId));
   });
 
   it("answers null before there is a stable message to read", () => {
