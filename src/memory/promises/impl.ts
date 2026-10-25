@@ -125,6 +125,13 @@ const locate = (message: PromiseWindowMessage, quote: string): { from: number; q
   return null;
 };
 
+const leadInAddressee = (cast: readonly PromiseCastMember[], text: string, sentenceStart: number): PromiseCastMember[] => {
+  if (sentenceStart <= 0) return [];
+  const lead = sentenceAround(text, sentenceStart - 1, sentenceStart - 1).text;
+  const members = cast.filter((entry) => named(lead, entry.names));
+  return members.length === 1 ? members : [];
+};
+
 const answeredSpeaker = (messages: readonly PromiseWindowMessage[], messageId: number): PromiseWindowMessage | undefined =>
   [...messages].reverse().find((message) => message.messageId < messageId && !message.isUser);
 
@@ -160,7 +167,8 @@ const acceptPromise = (state: PromisesState, line: ParsedPromiseLine, ctx: Promi
   const member = memberFor(ctx.cast, line.target);
   if (!member) return { reason: "promisee is not in the cast" };
   if (GROUP.test(sentence.text)) return { reason: "a promise to an unnamed group" };
-  const namedMembers = ctx.cast.filter((entry) => named(sentence.text, entry.names));
+  const inSentence = ctx.cast.filter((entry) => named(sentence.text, entry.names));
+  const namedMembers = inSentence.length ? inSentence : leadInAddressee(ctx.cast, message.text, sentence.start);
   const answered = answeredSpeaker(ctx.window.messages, message.messageId);
   if (namedMembers.length ? !namedMembers.includes(member) : !(answered && sameName(answered.speaker, member.names))) return { reason: "the promise is not addressed to that cast member" };
   if (!STRONG.test(verdict.matched) && !SECOND_PERSON.test(sentence.text) && !namedMembers.length) return { reason: "casual future tense without a commitment word or addressee" };

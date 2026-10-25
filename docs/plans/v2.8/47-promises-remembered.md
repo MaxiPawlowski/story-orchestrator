@@ -414,3 +414,25 @@ Branch `v2.8-prefreeze-47` (base `v2.8-prefreeze` `c909b40a`). Build and unit te
   read, unparsed promise lines, promise refusal notes), so the next run separates (a) from (b)/(c)/(d) without the server log.
 - GPU rerun (`GS6 --model judged`): a pass closes C3; a fail with `promise lines read 0` and covering reads >= 1 confirms the recorded model
   miss; `promise lines read` > 0 with refusal notes or unparsed > 0 is a product case to reopen.
+
+### C3 GPU rerun 2026-10-25 (lane 45 batch `2026-10-25T12-33-25-817Z`, branch build): product case
+
+- GS6.8 failed with the new counts: promise message 7, 3 of 14 reads covering it, 3 promise lines read, 0 unparsed, 3 refusal notes.
+  The three reads (server.log lines 14872, 15832, 16259) wrote the same line naming the member who replied after the promise (message 8).
+  Message 6, the line the player answered, was the narrator's. Offline through the shipped `applyPromiseLines` on the recorded window:
+  refused with `the promise is not addressed to that cast member` (no member named in the quoted sentence, answered speaker = narrator).
+  Naming the narrator would have been accepted. For that unnamed line the refusal is correct under the contract.
+- Two fixes:
+  - Journey step defect: "whoever spoke last" made the addressee depend on run state (a member in run 1, the narrator here). GS6.8 now
+    picks the latest non-narrator enabled member who spoke at run time, stores it in a chat variable and the send names it through
+    `{{getvar::gs6_promisee}}` (ST substitutes macros in the player message). A guard step fails if the macro is left unresolved or the
+    name is missing. Strictness unchanged: a row, byte-exact quote, one promisee.
+  - Product defect, found while checking the named form: the acceptor only looked for a member's name in the quoted pledge's own sentence.
+    In `I turn to <member>. "I promise you ..."` the name sits in the narration sentence just before, so the inner-quote line the read
+    is told to write was refused whenever the previous speaker was someone else (the toy scenario passed only because its answered speaker
+    was the promisee). `impl.ts` `leadInAddressee`: when the quoted sentence names nobody, the sentence right before it in the same
+    player message counts only if it names exactly one member; two or more fall back to the answered speaker. Test
+    `takes the member the player's narration names just before the quoted pledge (C3)` (synthetic) failed on the old code.
+- Offline on the recorded window with the fix: the unnamed line is still refused; the same line with the member named in the lead-in is
+  accepted, and a narrator line is then refused.
+- GPU rerun owed: GS6 `--model judged`. Pass closes C3. If it fails with promise lines read 0, record a model miss.
