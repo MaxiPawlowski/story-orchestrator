@@ -29,9 +29,9 @@ export const scopedKeys = (draft: Story): Set<string> => {
     .forEach((check) => [...gateList([check.when, check.hint_when]), ...(check.modifiers ?? []).map((modifier) => modifier.q)].forEach((key) => keys.add(key)));
   (draft.quests ?? []).forEach((quest) => gateList([quest.visible_when, quest.offered_when, quest.done_when, quest.failed_when,
     ...(quest.steps ?? []).flatMap((step) => [step.visible_when, step.done_when, step.failed_when])]).forEach((key) => keys.add(key)));
-  CODEX_PAGES.flatMap((page) => draft.codex?.[page] ?? []).flatMap((entry) => [entry.known_when, ...entry.facts.map((fact) => fact.known_when)])
+  [...CODEX_PAGES.flatMap((page) => draft.codex?.[page] ?? []).flatMap((entry) => [entry.known_when, ...entry.facts.map((fact) => fact.known_when)]),
+    ...(draft.observations ?? []).map((observation) => observation.when)]
     .forEach((when) => { if (when && when !== CODEX_START && !isReached(when)) gateKeys(when).forEach((key) => keys.add(key)); });
-  (draft.observations ?? []).forEach(({ when }) => { if (!isReached(when)) gateKeys(when).forEach((key) => keys.add(key)); });
   return keys;
 };
 
