@@ -330,13 +330,20 @@
       "dependsOn": [
         "GS6.1"
       ],
-      "goal": "Promise row. Closes: 47 (the player's promise to one member lands as a row whose quote is a byte-exact substring of the player's message, one promisee). Two real turns, then a read if none landed. Real-model only: a no-model lane cannot make the read, so this check fails there by construction.",
+      "goal": "Promise row. Closes: 47 (the player's promise to one member lands as a row whose quote is a byte-exact substring of the player's message, one promisee). The promise names its member, picked at run time (the latest non-narrator member who spoke, through a chat variable the send resolves), so the addressee never depends on who happened to speak last. Two real turns, then a read if none landed. Real-model only: a no-model lane cannot make the read, so this check fails there by construction.",
       "steps": [
         {
+          "eval": "const g = globalThis.__gs6; const ctx = SillyTavern.getContext(); const enabled = new Set(g.enabledMembers()); const roster = g.story()?.roster ?? []; const names = g.names(); const narrator = (name) => roster.some((member) => (names[member.id] === name || member.name === name) && /narrat|game ?master|\\b[dg]m\\b/i.test(member.id + ' ' + (member.role ?? ''))); const speakers = ctx.chat.filter((m) => !m.is_user && !m.is_system && enabled.has(m.name)).map((m) => String(m.name)).reverse(); const promisee = speakers.find((name) => !narrator(name)) ?? [...enabled].find((name) => !narrator(name)); if (!promisee) throw new Error('no enabled non-narrator member to promise'); ctx.variables.local.set('gs6_promisee', promisee); g.promisee = promisee; return { picked: true, fromChat: speakers.includes(promisee) };",
+          "log": true
+        },
+        {
           "send_generate": {
-            "text": "I turn to whoever spoke last. \"I promise you I will come back for you before nightfall.\"",
+            "text": "I turn to {{getvar::gs6_promisee}}. \"I promise you I will come back for you before nightfall.\"",
             "timeoutMs": 900000
           }
+        },
+        {
+          "eval": "const g = globalThis.__gs6; const chat = SillyTavern.getContext().chat; const mine = [...chat].reverse().find((m) => m.is_user && String(m.mes).includes('I promise you I will come back')); if (!mine) throw new Error('the promise turn was not posted'); if (String(mine.mes).includes('{{')) throw new Error('the promisee macro did not resolve in the player message'); if (!String(mine.mes).includes(g.promisee)) throw new Error('the player message does not name the picked member'); return { named: true };"
         },
         {
           "send_generate": {

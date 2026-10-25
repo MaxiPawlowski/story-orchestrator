@@ -114,6 +114,15 @@ describe("plan 47 acceptance: the quote resolves to a player span that commits a
     expect(accepted("I promise I'll find him.", "Bram").refused[0]?.reason).toBe("promisee is not in the cast");
   });
 
+  it("takes the member the player's narration names just before the quoted pledge (C3)", () => {
+    const pledge = "I promise you I will come back before nightfall.";
+    const turn = (lead: string, target: string) => made([answering, msg(4, "Rin", `${lead} "${pledge}"`)], [promise(target, 4, pledge)]);
+    expect(turn("I turn to Kael.", "Kael").state.rows.map((row) => row.promisee)).toEqual(["kael"]);
+    expect(turn("I turn to Kael.", "Mara").refused[0]?.reason).toBe("the promise is not addressed to that cast member");
+    expect(turn("I look from Kael to Ilsa.", "Mara").state.rows.map((row) => row.promisee)).toEqual(["mara"]);
+    expect(turn("I look from Kael to Ilsa.", "Kael").refused[0]?.reason).toBe("the promise is not addressed to that cast member");
+  });
+
   it("makes one row per named member when one span names several", () => {
     const text = "Mara, Kael, I promise I'll get you both out.";
     const result = made([msg(4, "Rin", text)], [promise("Mara", 4, text), promise("Kael", 4, text)]);
