@@ -64,10 +64,10 @@ assertions; src is not changed in C8. Evidence paths are row dirs listed per row
 - **J6.11: a hidden consumed message stays in the next read's projection.** After `/hide 1` the queued read window still
   lists message 1: `nextReadWindow()` (`src/extraction/scheduler.ts`) returned the window captured at scheduling while `pump()`
   re-reads `getChatWindow`. Shows on no-model lanes, where the read waits behind the open breaker. Evidence:
-  `C:\dev\so-lanes\31\debug\batch\2026-10-25T12-18-59-202Z\J6-run1\` (and the same failure on lane 34, round 2). Fixed on master by edf81db3
-  (queued-window re-read through `rereadWindow`) after these runs; the lanes serve the staged build, so the row stays red until
-  that is staged. Not declared `expect: fail`: the check passes wherever the read drains (model lanes), so a declared failure
-  would turn red there and hide the fix.
+  `C:\dev\so-lanes\31\debug\batch\2026-10-25T12-18-59-202Z\J6-run1\` (and the same failure on lane 34, round 2). FIXED by edf81db3
+  (queued-window re-read through `rereadWindow`); green in suite runs C and D once the staged build carried it (d0f41c3a).
+  Never declared `expect: fail`: the check passes wherever the read drains (model lanes), so a declared failure would have
+  turned red there and hidden the fix.
 - **v27-d-08-thinking-warning, step 20: the "Nothing to read" inner-voice harvest line can never render.**
   `#so-inner-harvest-silent` lives in `InnerVoiceControls` inside the settings "characters" area, which `SettingsPanel.tsx`
   `show()` no longer allows since 7724042c (TalkGroup, InnerVoiceGroup, CharacterStateGroup are unmounted everywhere; the
@@ -81,7 +81,7 @@ assertions; src is not changed in C8. Evidence paths are row dirs listed per row
   Evidence: `C:\dev\so-lanes\32\debug\batch\2026-10-25T12-18-59-202Z\v27-d-10-edit-catch-up-run1\`.
 - **live-v24-02-e3-save-evidence, step 10: a Defaults-page change names every settings section. FIXED in 31990bde**
   (`featureResolve.ts` `settingPatch` builds a one-section patch, `FeaturePages.tsx` sends it; test `install feature switch
-  writes only its own section (C8 E3)`); the lanes serve the staged build, so the row stays red until that is staged. The install-mode `change()`
+  writes only its own section (C8 E3)`); green in suite runs C and D on the staged build d0f41c3a. The install-mode `change()`
   in `src/components/workspace/FeaturePages.tsx` passes the whole GlobalSettings to `setGlobalSettings`; `settingsStore.ts`
   builds the save-failure label from `Object.keys(patch)`, so the curator toggle reads "extraction, pacing, display, ...: the
   settings save answered 500" instead of "stagecraft: ...". Fix: pass only the touched section. Evidence: lane 30 round-2 logs
