@@ -51,6 +51,30 @@ Order: C1 first (it feeds C2-C5), the rest in parallel where they do not share a
     `so-evidence archive` + `npm run sessions:archive` after the last GPU row, final freeze: one `npm run gates` + `suite:nomodel`
     on the frozen commit, staged, header captured.
 
+### C9 result 2026-10-25
+
+- Rater: Sol (`openai/gpt-6.1-sol`, `opencode run --standalone`, tools-off agent), one pass, as a first-time player, over the
+  start pane's product copy (briefing frame, Before you start lines, identity step, New Game+ step, onboarding) and the two
+  campaign stories' briefing and player fields at the pinned export. Prompt, raw answer and findings live outside this repo in
+  `C:\dev\so-sessions\copy-check-2026-10-25\` (`prompt.md`, `sol-answer.md`, `campaign-findings.md`).
+- Product copy: 0 blocker, 9 major, 7 minor, 0 nit (one major is a product/story contradiction: the persona-description warning
+  sat only in the story text, after the create form).
+- Campaign copy: 0 blocker, 3 major (2 spoilers in library descriptions, 1 unclear privacy line), 7 minor, 0 nit. Filed
+  generically in `campaign-findings.md` for a later campaign pass; campaign repo not edited.
+- Fixed (branch `v2.9-13-c9`, product strings only): missing-cast line says characters / this group, not people / this chat
+  (major); description field tells the player to leave out what the characters should not know (the contradiction, major);
+  lock bypass reads "Start without keeping this persona" (part of a major); opt-out reads "Don't open briefings automatically";
+  the memory onboarding line says where This story → Play is and what a pin does; the replay intro drops "heritage" for what
+  carries over (minor x3 + the label minor). Player guide updated for the opt-out label.
+- Follow-up (same branch): the settled line reads "This chat does not keep that persona…" after Start without keeping (`playingAsUnlocked`, keyed on `record.locked === false`), and the pane says "Closing this page keeps <name> as your persona." while the choice is open (`closeKeeps`); both majors fixed, Storybook `SettledUnlocked` added.
+- Left for C1 triage: five Before you start lines name no action inside the pane (memory model, read, story so far, lore,
+  persona; major; the Repair rows carry the actions). Kept as is: "persona" (SillyTavern's own term), "tension" / "story card" /
+  "lore" in onboarding (they name the UI as labelled).
+- Campaign follow-up: the 3 campaign majors fixed in the campaign repo (commit `abc94b5`, academy + saga; pin bump and re-import
+  by the coordinator); the 7 minors stay in `campaign-findings.md`.
+- Gates: `npm run gates:quick` green twice (typecheck, typecheck:test, lint, jest related, defect replay); test-storybook on
+  a static build (port 6177) over `PlayerSetupPane`, `BriefingModal`, `EntryPoints` stories: 3 suites, 31 tests passed.
+
 ## Move to v3.0 (copied into `docs/plans/v3.0/05-deferred-items.md` §From the v2.8/v2.9 close-out)
 
 - **v2.8 42 witness filter** (W4 FAIL 2026-10-25: real exact-set 13/147 vs presence 144/171; the read answers all-present). Needs a

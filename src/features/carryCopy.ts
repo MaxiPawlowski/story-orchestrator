@@ -2,7 +2,7 @@ export const CARRY_COPY = {
   heading: "From an earlier story",
   pickHeading: "Continue from a finished run",
   pickIntro: "This story continues one you finished. Pick the run it follows on from; only what you saw at its end carries over.",
-  replayIntro: "You finished this story before. Pick a run to carry its heritage into this one; the story itself starts over.",
+  replayIntro: "You finished this story before. Pick a run to carry over what you saw at its end; the story itself starts over.",
   loading: "Looking for your finished runs…",
   none: "No finished run of that story was found in your chats.",
   fresh: "Start fresh",
