@@ -1,0 +1,19 @@
+<|channel>thought
+<channel|>SUMMARY:
+Arin and Luke climbed the lantern tower and successfully relit the beacon, changing the coast's fate to lit. During their ascent, they discovered a ledger that revealed Mara's involvement with the guild. After relighting the lantern, they returned to the harbour where the mood had shifted to grateful. The guild's reputation with Arin and Luke improved significantly due to their actions. The discovery of the ledger and the relighting of the lantern marked the completion of their quest.
+
+SHORT:
+Arin and Luke relit the lantern tower beacon and discovered a ledger implicating Mara, earning them a positive reputation with the guild.
+
+CONSEQUENCES:
+- The coast's fate is now lit and the harbour mood is grateful [src: q:coast_fate, q:harbour_mood]
+- The lantern has been relit [src: q:lantern_relit]
+- A ledger was found and seen, revealing Mara's involvement [src: q:ledger_found, q:ledger_seen]
+- The guild's reputation with Arin and Luke increased to 3 [src: q:rep_guild, q:rep_guild_move_relit, q:rep_guild_seen_mara]
+
+PEOPLE:
+- Arin: Holds a positive reputation with the guild after relighting the lantern
+- Luke: Holds a positive reputation with the guild after relighting the lantern
+
+OPEN:
+- quest_ledger_closed | closed-offscreen | The ledger quest is marked as done

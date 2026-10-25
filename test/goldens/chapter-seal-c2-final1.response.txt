@@ -1,0 +1,19 @@
+<|channel>thought
+<channel|>SUMMARY:
+Arin and Luke climbed the lantern tower and successfully relit the beacon, changing the coast's fate to lit. During their time at the tower, they discovered and examined a ledger, which they then saw. This act of relighting the lantern shifted the harbour's mood to grateful. Their actions significantly improved their reputation with the guild, gaining points from both relighting the lantern and from having seen Mara. The quest involving the ledger was marked as done.
+
+SHORT:
+Arin and Luke relit the lantern tower beacon, improving their reputation with the guild and changing the coast's fate.
+
+CONSEQUENCES:
+- The coast's fate is now lit and the harbour's mood is grateful [src: q:coast_fate, q:harbour_mood]
+- The lantern has been relit [src: q:lantern_relit]
+- Arin and Luke's reputation with the guild increased to 3 [src: q:rep_guild, q:rep_guild_move_relit, q:rep_guild_seen_mara]
+- The ledger was found, seen, and the related quest is closed [src: q:ledger_found, q:ledger_seen, q:quest_ledger_closed]
+
+PEOPLE:
+- Arin: Holds a positive reputation with the guild after relighting the lantern
+- Luke: Holds a positive reputation with the guild after relighting the lantern
+
+OPEN:
+- quest_ledger_closed | closed-offscreen | The ledger quest is marked as done
