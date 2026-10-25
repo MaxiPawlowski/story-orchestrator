@@ -9,7 +9,8 @@ version, and the Part A test story is in your library.
 
 1. Start ST from the tray (or `node scripts/local/cli.mjs start-st`) and open http://127.0.0.1:8000 in your own browser.
 2. Connection profile **Artemis Local (Unsloth)** or **Artemis RunPod RP** (both point at the local model), preset
-   **Artemis v1.1 RP**, thinking on. Keep the default story settings: everything is on by default.
+   **Artemis v1.1 RP**, thinking on. Keep the default story settings: everything is on by default, except reply polish
+   (switched off by the owner for this run, 2026-10-25).
 3. Play in **player mode** (Author view off). The inline timeline at its default level (Story) is fine.
 
 ## Part A — "You notice…" (v2.9 08 O4)
