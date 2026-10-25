@@ -1,6 +1,6 @@
 # Plan 06 — Local controller performance (Artemis 31B on the 3090)
 
-**Status: PLAN + partial bench, 2026-10-25.** Offline spikes done (logs, payload captures, source). GPU bench run once
+**Status: MTP on, layout fixed, prompt reuse built (off until the owner's head change), 2026-10-25 evening; see Follow-up.** Earlier: PLAN + partial bench, 2026-10-25. Offline spikes done (logs, payload captures, source). GPU bench run once
 (owner lifted the GPU pause for this topic, then paused it again at 20:42Z; 15 arms finished, 1 diagnostic arm killed
 during load). No change to `src/`, `server-plugin/` or `config.json`. Bench: `scripts/local/bench-controller.mjs`; raw
 logs: `C:\dev\so-lanes\bench-controller\` (outside the repo: the corpus holds real prompts).
@@ -201,3 +201,167 @@ if B cannot be made to work in llama.cpp. Post-unlock idea: `llama-bench` with `
 - A against streaming: is +39 % decode worth fewer streamed images (≈0.85 GiB less free)? Owner's call.
 - B: may the preset's head be member-independent (owner's `Artemis v1.1 RP` preset, group join mode)?
 - Should the inner beat be merged into the read (E), given it is 44 % of side requests?
+
+## Follow-up 2026-10-25 (evening): checkpoint diagnostic, prompt reuse, layout, MTP
+
+Owner decisions 2026-10-25: enable MTP, fix the prompt layout, explore chunk-level reuse. Thinking and the inner voice
+stay on (nothing below touches them).
+
+### F5 Where llama.cpp b11388 checkpoints and when it restores (measured, verbose arm)
+
+Run `text-2026-10-25T21-12-23-698Z` (`base+v4`, `cram8192+cms1024c4+v4` on `corpus-diag.json`).
+
+- Every prompt gets exactly two context checkpoints, created while the prompt is processed: at `n_prompt - 4` and
+  `n_prompt - 516` (e.g. a 6,916-token prompt: `pos_max` 6,911 and 6,399; a 12-token prompt: 7). `--checkpoint-min-step`
+  does not stop the pair (seen with 8,192 and 1,024); it only drops a new checkpoint "too close to an earlier one". Each
+  holds the SWA window, 425 MiB at full size, in host RAM; at most `--ctx-checkpoints` per slot (default 32).
+- A checkpoint restores only when its first position is below `n_past - n_swa` (`checking checkpoint with [pos_min,
+  pos_max] against n_past-1024`), i.e. `pos_max < n_past + ~511`. Otherwise `forcing full prompt re-processing`.
+- So a prompt can resume another only when they share everything but the last ~1,000 tokens of the older one. Same-member
+  turns shared all but 1,105 tokens (LCP 5,811 of 6,916; checkpoint `[4864, 6399]` against 4,787): missed by ~80 tokens.
+  That is why `cms1024`/`cram8192` restored nothing.
+- The RAM prompt cache (`--cache-ram`) saves the slot's whole state (KV + SWA window + its checkpoints, 1.2-1.6 GiB per
+  prompt) every time a request arrives that shares < 10 % with the slot (`--slot-prompt-similarity`), including requests
+  pinned with `id_slot` ("selected slot by id" still runs the cache update); it loads the cached prompt with the best
+  similarity and evicts oldest first. Save + load took 0.37-0.77 s per switch.
+- Not tried: `--cache-reuse` (KV shifting); it cannot rebuild the SWA window of a shifted chunk either.
+
+### Chunk-level / position-independent reuse (assessment, source + measured)
+
+Reusing each message's KV on its own (CacheBlend / EPIC style) is not feasible on llama.cpp with Gemma 4: (1) llama.cpp
+only reuses a contiguous prefix (or a shifted chunk with `--cache-reuse`), never a set of independently computed
+chunks with a cross-attention fix-up; (2) 50 of 60 layers are SWA, whose window state at a position depends on the
+previous 1,024 tokens, so a message's KV is only valid behind the exact same predecessor; (3) recomputing a selected
+subset of tokens per layer (CacheBlend) needs custom attention kernels and a KV layout llama.cpp does not expose. It
+would need a custom inference engine (vLLM/SGLang fork) plus an AWQ/GPTQ Artemis export that may not exist. The
+practical equivalent is to make the prompt a growing prefix and checkpoint at the right place, below.
+
+### Stable-boundary prefill (built: `broker/promptReuse.mjs`, gateway, off by default)
+
+For a long `/completion` prompt the gateway finds its longest common prefix with the last 16 prompts, cuts it at a line
+break and sends that prefix alone (`n_predict: 0`) first: llama-server checkpoints exactly where the next turn will
+diverge. When idle it then sends a short park prompt so the finished state is saved to the RAM cache off the next
+request's clock. Config `promptReuse.enabled`, with `cacheRamMiB: 6144`, `ctxCheckpoints: 3` (README).
+
+Per-member slots were measured instead of built: `--parallel 2` pinned (chat slot 0, side slot 1, no RAM cache) costs
+0.35 GiB VRAM; one slot per member (3-5 members + side) needs 0.45 GiB SWA per slot plus a 48-64K unified pool
+(+0.7-1.4 GiB), which does not fit beside the model and MTP on 24 GB.
+
+### Layout (measured on rewritten real prompts)
+
+`bench-controller.mjs layout --mode joined|late|joined-late` rewrites the corpus chat prompts: `joined` = one head for
+every member (cards joined, the `Impersonate {{char}}` sentence moved after the history), `late` = every in-history
+system block (Author's Note, our depth 1-4 blocks) moved after the last message.
+
+| Arm (24 requests, seed 1234) | Chat TTFT p50 | Side TTFT p50 | Tokens processed / reused | GPU free min |
+|---|---|---|---|---|
+| base, recorded layout (F3) | 9.02 s | 2.20 s | 94,984 / 0 | 2,767 |
+| recorded layout + cram6144 ckpt3 reuse | 9.54 | 2.22 | 59,709 / 35,275 (cache misses) | 2,755 |
+| joined + cram6144 ckpt3 reuse | 4.69 | 2.22 | 44,646 / 53,991 | 2,843 |
+| joined-late + cram6144 (stock server) | 2.04 (one 11.1 s miss) | 2.40 | 48,513 / 50,124 | 2,638 |
+| **joined-late + cram6144 ckpt3 reuse** | **1.93** | 2.22 | 38,570 / 60,067 | 2,725 |
+| joined-late + parallel 2 pinned, no RAM cache | 1.87 | 2.38 | 38,570 / 60,067 | 2,378 |
+| joined-late + cram6144 ckpt3 reuse + MTP 2 | 2.18 | 2.28 | 38,570 / 60,067 | 2,002 |
+
+- With the recorded layout every member has its own head (diverges at character 172), so a member's state must survive
+  two other members' chat, inner-beat and read states in the cache; oldest-first eviction drops it. Reuse then only adds
+  its overhead (+0.5 s).
+- The late layout is half of the gain (4.69 to 1.93 s): blocks at depth 4 move every turn and break the prefix four
+  messages before the end.
+- Side passes do not benefit (their prompts share < 800 characters; plan E is the lever there).
+
+### Changes made
+
+- Extension: every per-turn block in `INJECTION_REGISTRY` at depth 0 (after the last message): memory tiers, epistemic,
+  ledger, guidance, story so far, player role, previously, pacing, scene tracker, chapter bridge, card overlay. Late
+  lore default depth 4 to 0 (before-card lore no longer goes one deeper at depth 0); Author's Note default depth 4 to 0
+  (a story's own `depth` still wins). Text, carry (quiet/impersonate) and private-member filtering unchanged. Guide,
+  settings copy and generated docs updated. No payload golden baseline exists yet (`test/measurements/v2.7/payload`
+  README: nothing captured), so there is no golden to re-declare.
+- Controller: `speculative` (MTP), `cacheRamMiB`, `ctxCheckpoints`, `promptReuse` keys; `recordTiming` keeps the median
+  of the last 15 replies (prompt ms and tok/s) instead of the maximum; timings keyed per drafter.
+- `scripts/local/stable-head.mjs`: the owner change below, plan/apply/revert with backups.
+
+### Owner change proposed, not applied to the owner's install
+
+The member-independent head is the owner's SillyTavern data, so it is prepared, not applied:
+
+1. System prompt: a copy of "Sphiratrioth - Roleplay - 3rd person" named "... (stable head)" whose main content keeps
+   the shared rules and whose post-history instruction holds the two `{{char}}` sentences ("Impersonate {{char}} ...
+   Balance {{char}} speech and narrative ..."). For text completion SillyTavern appends the post-history instruction as
+   the last user turn, after the depth-0 blocks.
+2. Groups that play stories: "Join character cards (exclude muted)" (`generation_mode` 1). All 12 groups are on swap (0).
+
+`node scripts/local/stable-head.mjs plan --data C:/dev/SillyTavern-MainBranch/data/default-user --group <id>` shows it;
+`apply` (ST stopped) backs up to `C:/dev/backups/story-orchestrator/stable-head-<time>/`; `revert --backup <dir>`.
+Then set `promptReuse: { enabled: true }`, `cacheRamMiB: 6144`, `ctxCheckpoints: 3` in the controller config (not set today: with per-speaker heads it only costs). RAM:
+the cache lowers available RAM by up to 6 GiB (measured minimum 10.9 GB with 6 GiB, against reserve 2 GiB + ComfyUI's
+8 GiB staging = 10 GiB).
+
+### Live check (lane 42, real generation through the gateway, thinking on)
+
+Lane 42 copy with the owner change applied (`stable-head.mjs apply`, reverted afterwards), controller on master
+`28eab941` with MTP 2, `promptReuse` on, `cacheRamMiB` 6144, `ctxCheckpoints` 3. Scenario: 5 player turns in the toy
+four-member group, 12 member replies, story imported fresh (`C:\dev\so-lanes\bench-controller\live-prompt-reuse.scenario.json`, `so-scenario --sandbox`, cleanup clean; log
+`live-lane42.log` beside it).
+
+- Real SillyTavern prompts: identical head for every member; every per-turn block plus the `Impersonate {{char}}` line
+  after the last message; consecutive member prompts diverge exactly at the end of the previous prompt's last message
+  (shared 9,296-15,847 characters of 18,897-23,007).
+- Chat replies processed 783-2,453 prompt tokens of ~5-6K (the rest restored), 1.2-3.0 s prefill; decode 37-50 tok/s
+  (median ~41.5) with real lengths (359-739 tokens, thinking on); MTP acceptance 0.50 on chat-length replies
+  (4,051 / 8,090), 0.51 overall. Gateway: 36 requests, 5 prefills, 24 parks.
+- Found live: llama-server's `--fit` cannot measure the MTP drafter ("failed to measure the memory of the extra model,
+  fitting without it"). Fixed in `b28fdaf8`: the drafter estimate is added to `--fit-target`, so a reduced fit for an
+  image keeps the drafter out of the image's room.
+
+### Before / after on the bench (the owner's config today = MTP only)
+
+Run `text-2026-10-25T22-45-07-416Z`, `text --arms base,config`, recorded corpus (per-speaker heads, as played today):
+
+| | base | config (MTP 2) |
+|---|---|---|
+| Chat TTFT p50 / p90 | 8.47 / 9.34 s | 8.66 / 9.61 s |
+| Side TTFT p50 | 2.10 s | 2.21 s |
+| Prefill | 1,032 tok/s | 958 tok/s (-7 %) |
+| Decode chat / side | 30.9 / 30.7 | 41.7 / 46.6 tok/s (+35 % / +52 %) |
+| MTP acceptance | | 0.59 |
+| Replay wall | 176.7 s | 155.9 s (-12 %) |
+| GPU free after load / min | 2,576 / 2,475 MiB | 1,758 / 1,547 MiB |
+| 17.3K prefill row | 17.5 s | 18.5 s |
+
+With the owner's head change and `promptReuse` the measured chat TTFT p50 is 2.18 s with MTP (table above), from 8.5-9.0 s.
+
+## Gate record 2026-10-25 (evening)
+
+- GPU time about 62 min: diagnostic 4, reuse spike 4.5, layout arms 22, par2 + MTP combo 7, image bench 6 (twice:
+  the first run measured ComfyUI cache hits, fixed by varying the seed per render), live lane 6, final bench 7.5,
+  controller loads.
+- `npm run gates` from `C:\dev\so-ctl`: run 1 RED at `test-storybook:ci` (Studio/CharacterTutorial
+  ReviewBlocksATakenName, 1 axe violation; no UI change in this plan); run 2 RED at `test-storybook:ci`
+  (Studio/PosesList Tablet smoke, while the image bench loaded the machine; tree also changed mid-run); run 3 on
+  `28eab941`'s tree: **all green in 301.2 s** (11 steps, Storybook included, no `--resume`); run 4 on `b28fdaf8`:
+  **all green in 324.5 s**. `npm run test:plugin` 358 tests, 353 pass, 0 fail (5 skipped).
+- Merged to master (`28eab941`, `b28fdaf8`, fast-forward), pushed, `npm run build && npm run stage && npm run
+  plugins:install` (restartNeeded: ST on 8000 restarted with `cli.mjs start-st`, twice).
+- Image bench (`image-2026-10-25T22-16-41-618Z`, SDPA, `Using pytorch attention`): median exec 10.4 s, wall 10.8 s for 28
+  steps at the wide size, 6 timed runs (11.8 to 8.2 s, drifting down; gates were running on the CPU at the same time, so
+  take it as a smoke run; rerun quiet for the unlock comparison).
+- Controller config: backed up to `C:\dev\backups\story-orchestrator\local-config.before-mtp-2026-10-25.json`;
+  `speculative` added. The live run's temporary `promptReuse`/`cacheRamMiB`/`ctxCheckpoints` were removed again
+  (`local-config.mtp-only-2026-10-25.json`). Controller left running with MTP (`text.speculative: draft-mtp2`).
+- Lane 42 restored (`stable-head.mjs revert`, backup `C:\dev\backups\story-orchestrator\stable-head-lane42-2026-10-25`)
+  and stopped. Owner's ST data untouched (`stable-head.mjs plan` read only).
+- Deviations: no payload golden diff (no baseline exists); the model-output gate for the depth-0 move is a 12-reply
+  live run, not a blind rating; the ST plugin's `supervise` adapter (`config.mjs`) does not pass the new keys (the
+  owner runs the managed controller).
+
+## Unresolved questions (2026-10-25 evening)
+
+- Apply the stable head to the owner's install (system prompt post-history + "Join character cards (exclude muted)" on
+  story groups) and turn `promptReuse` on (`cacheRamMiB` 6144 costs up to 6 GiB of RAM beside ComfyUI's staging)?
+- Or `--parallel 2` pinned (chat slot 0, side slot 1, no RAM cache): same TTFT, 0.35 GiB less VRAM instead of 6 GiB RAM.
+- MTP leaves ~1.6-1.8 GiB free, below `streamImages.minFreeGpuMiB` 2400: images now swap the text out. Accept, or
+  drop MTP while streaming?
+- Blind rating of replies with the per-turn blocks at depth 0 (was 1-4) before calling the layout change settled?
+- Side passes (78 % of requests) gain nothing from any of this; merging the inner beat into the read (E) is the lever.
