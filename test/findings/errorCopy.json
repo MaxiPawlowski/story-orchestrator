@@ -12,6 +12,8 @@
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Optional landmark detector unreachable: a typed unavailable answer; the rig review notes the cross-check was skipped." },
     { "site": "src/services/stHost/landmarkDetector.ts#detectFaceLandmarks", "kind": 3, "template": ".catch(() => null)",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Non-JSON plugin answer becomes the typed unavailable answer, never an agreeing check." },
+    { "site": "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.runCuratorPass", "kind": 3, "template": ".catch(() => undefined)",
+      "surface": "console", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Prefetch tail of the lazy curator pass kit only: a pass that reaches the prompt awaits the same promise, so a failed chunk load still lands in the pass's own lastError; an empty-scope pass never needed it." },
     { "site": "src/runtime/managerWiring.ts#track", "kind": 3, "template": ".catch(() => undefined)",
       "surface": "author", "rawError": false, "silentCatch": "probe", "verdict": "pass", "reason": "Bookkeeping only: drops a finished inner-beat run from the in-flight set; the run's own caller still sees its error (inner beat failed is logged by the boundary work)."},
     { "site": "src/copilot/agent/turn.ts#castCards", "kind": 3, "template": "catch {} #1",
