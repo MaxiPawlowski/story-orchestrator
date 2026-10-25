@@ -74,8 +74,8 @@ const boundStoryForOpenChat = () => {
 
 export class RuntimeManager extends SettingsDelegates {
   readonly chance = createChanceSeams(() => chanceContext(this.loaded, this.loadedChatId, this.engine.currentBoundary));
-  private engine = new StoryEngine({ now: () => Date.now(), chanceIds: () => this.chance.ids(),
-    derive: deriveQualities(this.chance, () => this.loaded?.story ?? null, coordinatorHosts.chat.chatRows), offers: () => this.co.cues.evidence() });
+  private engine = new StoryEngine({ now: () => Date.now(), enabled: () => this.getEnabledCharacterIds(),
+    derive: deriveQualities(this.chance, () => this.loaded?.story ?? null, coordinatorHosts.chat.chatRows), offers: () => this.co.cues.evidence(), chanceIds: () => this.chance.ids() });
   private loaded: LoadedStory | null = null;
   private loadedChatId: string | null = null;
   private extras: RuntimeExtras = createExtras(getGlobalSettings);

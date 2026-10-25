@@ -24,8 +24,8 @@ const presentAt = (story: Pick<NormalizedStory, "life">, member: string, values:
   return !life || !isAway(life, values);
 };
 
-export const hearers = (story: Pick<NormalizedStory, "roster" | "life">, faction: Faction, move: FactionMove, values: Values): string[] =>
-  memberIdsOf(story, faction.id).filter((member) => move.heard_by === "faction" || presentAt(story, member, values));
+export const hearers = (story: Pick<NormalizedStory, "roster" | "life">, faction: Faction, move: FactionMove, values: Values, enabled?: readonly string[]): string[] =>
+  memberIdsOf(story, faction.id).filter((member) => move.heard_by === "faction" || (presentAt(story, member, values) && (!enabled || enabled.includes(member))));
 
 export interface FiredMove {
   faction: string;
@@ -35,7 +35,9 @@ export interface FiredMove {
   heardBy: string[];
 }
 
-export const applyFactionMoves = (story: Pick<NormalizedStory, "factions" | "roster" | "life">, blackboard: Blackboard, boundary: number): FiredMove[] => {
+export const applyFactionMoves = (
+  story: Pick<NormalizedStory, "factions" | "roster" | "life">, blackboard: Blackboard, boundary: number, enabled?: readonly string[],
+): FiredMove[] => {
   const fired: FiredMove[] = [];
   for (const faction of story.factions ?? []) {
     for (const move of faction.moves) {
@@ -46,7 +48,7 @@ export const applyFactionMoves = (story: Pick<NormalizedStory, "factions" | "ros
       const outcome = blackboard.applyDelta({ q: key, v: before + move.add, source: "code" });
       if (!outcome.ok) continue;
       if (!blackboard.applyDelta({ q: latch, v: boundary, source: "code" }).ok) continue;
-      const heardBy = hearers(story, faction, move, blackboard.entries());
+      const heardBy = hearers(story, faction, move, blackboard.entries(), enabled);
       heardBy.forEach((member) => {
         const seen = seenStandingKey(faction.id, member);
         blackboard.applyDelta({ q: seen, v: num(blackboard.get(seen), faction.start) + move.add, source: "code" });
@@ -60,12 +62,13 @@ export const applyFactionMoves = (story: Pick<NormalizedStory, "factions" | "ros
 export interface FactionLatchView {
   boundary: number;
   values: Readonly<Record<string, PrimitiveValue>>;
+  enabled?: readonly string[];
 }
 
 export const factionLatches = (story: NormalizedStory, view: FactionLatchView): Array<{ q: string; v: PrimitiveValue }> => {
   if (!story.factions?.length) return [];
   const scratch = new Blackboard(story, { values: { ...view.values }, versions: {}, latched: {} });
-  applyFactionMoves(story, scratch, view.boundary);
+  applyFactionMoves(story, scratch, view.boundary, view.enabled);
   return Object.entries(scratch.entries()).filter(([key, value]) => isFactionKey(key) && view.values[key] !== value).map(([q, v]) => ({ q, v }));
 };
 

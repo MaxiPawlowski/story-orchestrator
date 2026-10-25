@@ -28,8 +28,8 @@ const rng = (seed: number) => {
   };
 };
 
-const play = (story: NormalizedStory = STORY) => {
-  const engine = new StoryEngine({ now: () => 0 });
+const play = (story: NormalizedStory = STORY, enabled?: () => readonly string[] | null) => {
+  const engine = new StoryEngine({ now: () => 0, ...(enabled ? { enabled } : {}) });
   engine.loadStory(story);
   let message = -1;
   const turn = (deltas: Record<string, PrimitiveValue> = {}) => {
@@ -209,6 +209,41 @@ describe("v2.8 plan 53: who hears, and who is told", () => {
     run.turn({ apprentice_saved: true });
     expect(run.values()[seenStandingKey("guild", "mara")]).toBe(2);
     expect(run.values()[seenStandingKey("guild", "tom")]).toBe(-1);
+  });
+
+  it("owner 2026-10-25: a group-disabled member does not hear a present move; a faction-wide move still reaches it", () => {
+    let enabled: readonly string[] = ["mara"];
+    const run = play(STORY, () => enabled);
+    run.turn({ met_guild: true, location: "hall" });
+    run.turn({ ledger_stolen: true });
+    expect(run.values()[standingKey("guild")]).toBe(-3);
+    expect(run.values()[seenStandingKey("guild", "mara")]).toBe(-3);
+    expect(run.values()[seenStandingKey("guild", "tom")]).toBe(0);
+    enabled = ["mara", "tom"];
+    run.turn({});
+    expect(run.values()[seenStandingKey("guild", "tom")]).toBe(0);
+    enabled = ["mara"];
+    run.turn({ apprentice_saved: true });
+    expect(run.values()[seenStandingKey("guild", "tom")]).toBe(2);
+    expect(run.values()[seenStandingKey("guild", "mara")]).toBe(-1);
+  });
+
+  it("without an enabled list (no host) every present member hears, as before", () => {
+    const run = play(STORY, () => null);
+    run.turn({ met_guild: true, location: "hall" });
+    run.turn({ ledger_stolen: true });
+    expect(run.values()[seenStandingKey("guild", "tom")]).toBe(-3);
+    expect(run.values()[seenStandingKey("guild", "mara")]).toBe(-3);
+  });
+
+  it("the latch writer and the atomic pass agree with a disabled member", () => {
+    const values: Record<string, PrimitiveValue> = { ...new Blackboard(STORY).entries(), location: "hall", ledger_stolen: true };
+    const direct = new Blackboard(STORY, { values: { ...values }, versions: {}, latched: {} });
+    applyFactionMoves(STORY, direct, 3, ["mara"]);
+    const viaWriter = new Blackboard(STORY, { values: { ...values }, versions: {}, latched: {} });
+    factionLatches(STORY, { boundary: 3, values, enabled: ["mara"] }).forEach((delta) => viaWriter.applyDelta({ ...delta, source: "code" }));
+    expect(viaWriter.entries()).toEqual(direct.entries());
+    expect(direct.entries()[seenStandingKey("guild", "tom")]).toBe(0);
   });
 
   it("F6: only members of a faction receive its line, after their own feelings, as a word and never a number (property)", () => {
