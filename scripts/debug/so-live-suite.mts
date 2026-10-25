@@ -12,8 +12,10 @@ import { fingerprintsOf, readRoleModel, type MeasurementFingerprints } from './l
 import { compareArms } from './lib/armCompare.mts';
 import { captureChatFingerprint, firstChange } from './lib/chatUntouched.mts';
 import { captureHeader } from './so-run-header.mts';
+import { evaluateStop, NO_STOP_FLAG, stopRecord, withOneRetry, type StopItem, type StopRecord } from './lib/stopRule.mts';
+import { liveSuiteDeclaration, liveSuiteItem, stoppedVerdict } from './lib/liveSuiteStop.mts';
 
-const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high] [--profile <name|id>] [--arm <label>] [--set extractor|time|adversarial]
+const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high] [--profile <name|id>] [--arm <label>] [--set extractor|time|adversarial] [--no-stop]
        node scripts/debug/so-live-suite.mts inventory|rescore [dir] [--out <file>] [--check]   (offline, v2.8 35: see so-live-rescore.mts)
        node scripts/debug/so-live-suite.mts compare <a-r1> <a-r2> <b-r1> <b-r2> [--declare prompt,scorer,model,config] [--out <file>]
                   (offline, v2.8 35 G5/G8: stable-pass, stable-fail, flaky, new, removed; regressed only on stable-pass to stable-fail;
@@ -27,6 +29,11 @@ so volunteered tension lines on plot fixtures are not errors. Requires a Connect
 memory profile selected in the extension settings.
 
   --min <n>       minimum accuracy for exit 0 (default 0.9)
+  --no-stop       run every fixture (v2.9 plan 11 stop rules off). By default the run stops on S1 (the --min or a tier floor is
+                  unreachable over N), S2 (Wilson 95% upper bound below a floor after the pilot min(10, ceil(N/4))) or S4 (every
+                  floor already met over N; not with --record, --arm or intents expectations, which need every fixture), and a
+                  fixture that throws twice stops the run as S5 (not a measurement, also under --no-stop). A stopped run records
+                  stopped {stopped, verdict, at, reason, counts} in its report.
   --filter <s>    only run fixtures whose name contains <s>
   --record        write each live raw response to test/goldens/live/<name>.response.txt
   --effort <lvl>  v2.6 plan 05 R3: pin the read role's reasoning effort for the run (restored and read back after);
@@ -100,7 +107,7 @@ async function discoverFixtures(filter, set: keyof typeof FIXTURE_SETS = 'extrac
   return fixtures;
 }
 
-async function runSuite(page, { min, filter, record, judge = false, floors = DEFAULT_TIER_FLOORS as Partial<Record<string, number>>, floorsGiven = [] as string[], expectCount = null, effort = null as EffortArm | null, profile = null as string | null, arm = null as string | null, set = 'extractor' as keyof typeof FIXTURE_SETS }) {
+async function runSuite(page, { min, filter, record, judge = false, floors = DEFAULT_TIER_FLOORS as Partial<Record<string, number>>, floorsGiven = [] as string[], expectCount = null, effort = null as EffortArm | null, profile = null as string | null, arm = null as string | null, set = 'extractor' as keyof typeof FIXTURE_SETS, noStop = false }) {
   if (effort && record) throw new Error('--effort is a measurement arm; it never records over the live goldens');
   if (profile && record) throw new Error('--profile is a measurement arm; it never records over the live goldens');
   const fixtures = await discoverFixtures(filter, set);
@@ -116,15 +123,23 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
   const results = [];
   const prompts: string[] = [];
   let fingerprints: MeasurementFingerprints | null = null;
+  const declaration = liveSuiteDeclaration(fixtures, { min, floors, record, arm });
+  const items: StopItem[] = [];
+  let stopped: StopRecord | null = null;
   try {
     for (const fixture of fixtures) {
       const startedAt = Date.now();
       try {
-        const live = await evaluateInST(page, async (spec) => {
+        const attempt = await withOneRetry(() => evaluateInST(page, async (spec) => {
           const suite = globalThis.storyOrchestratorLiveSuite;
           if (!suite) throw new Error('storyOrchestratorLiveSuite not registered');
           return suite.runFixture({ story: spec.story, transcript: spec.transcript, ...(spec.overrides ?? {}) }, spec.judge ? { judge: true, hints: spec.hints ?? {} } : {});
-        }, { story: fixture.story, transcript: fixture.transcript, overrides: fixture.expected?.spec ?? {}, judge, hints: fixture.hints });
+        }, { story: fixture.story, transcript: fixture.transcript, overrides: fixture.expected?.spec ?? {}, judge, hints: fixture.hints }));
+        if (attempt.ok === false) {
+          items.push({ plumbing: true, retried: true, error: `${fixture.name}: ${attempt.error}` });
+          throw new Error(`${attempt.error} (after one retry)`);
+        }
+        const live = attempt.value;
 
         if (typeof live.prompt === 'string') prompts.push(live.prompt);
         const { pass, expectedNorm, liveNorm } = scoreFixture(fixture.expected.deltas ?? [], live.deltas ?? []);
@@ -149,9 +164,16 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
         if (record && judge) await writeFile(join(JUDGE_GOLDEN_DIR, `${fixture.name}.json`), `${JSON.stringify({ rawResponse: live.rawResponse, judged: live.judged ?? null }, null, 2)}\n`);
         else if (record) await writeFile(join(LIVE_GOLDEN_DIR, `${fixture.name}.response.txt`), `${live.rawResponse}\n`);
         console.log(`${pass ? 'PASS' : 'FAIL'} ${fixture.name} expected=[${expectedNorm.join(', ')}] live=[${liveNorm.join(', ')}]${judge ? ` sources=[${sources.join(', ')}]` : ''}`);
+        items.push(liveSuiteItem(pass, tiers));
       } catch (err) {
         results.push({ name: fixture.name, pass: false, error: err instanceof Error ? err.message : String(err), ms: Date.now() - startedAt });
         console.log(`FAIL ${fixture.name} ERROR ${err instanceof Error ? err.message : String(err)}`);
+      }
+      const decision = evaluateStop(declaration, items);
+      if (decision.stop && (decision.stop.rule === 'S5' || !noStop)) {
+        stopped = stopRecord(decision);
+        console.log(`STOPPED ${decision.stop.rule} at ${decision.stop.at}: ${decision.stop.reason}`);
+        break;
       }
     }
     if (pinned) reasoning = await readRoleReasoning(page, 'read');
@@ -168,11 +190,15 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
   const incomplete = results.filter((entry) => entry.error).map((entry) => entry.name);
   // The headline has always meant plot deltas; it is labelled that way now, and every other tier
   // carries its own floor so a strong tier cannot carry a weak one.
-  const verdict = suiteVerdict({ plotAccuracy: accuracy, min, totals, ran: results.length, expectCount, incomplete });
+  const verdict = stoppedVerdict(stopped, suiteVerdict({ plotAccuracy: accuracy, min, totals, ran: stopped ? fixtures.length : results.length, expectCount, incomplete }));
   const report = {
     total: results.length,
     passed,
+    planned: fixtures.length,
+    plotDelta: { hits: passed, of: results.length, rate: results.length ? Number(accuracy.toFixed(4)) : null },
     plotDeltaAccuracy: Number(accuracy.toFixed(4)),
+    stopped,
+    noStop,
     min,
     tiers: totals,
     floors: Object.fromEntries(Object.entries(floors).map(([tier, floor]) => [tier, { floor, from: floorsGiven.includes(tier) ? 'given' : 'default' }])),
@@ -196,7 +222,7 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
     console.log(`${total.ok ? 'ok  ' : 'FAIL'} ${tier.padEnd(10)} ${total.passed}/${total.scored}${intents}${total.floor === undefined ? '' : ` floor ${total.floor}`}${total.vacuous.length ? `  [vacuous expectations: ${total.vacuous.join(', ')}]` : ''}`);
   }
   for (const reason of report.notGreen) console.log(`NOT GREEN: ${reason}`);
-  console.log(JSON.stringify({ total: report.total, passed, plotDeltaAccuracy: report.plotDeltaAccuracy, min, tiers: totals, ok: report.ok }, null, 2));
+  console.log(JSON.stringify({ total: report.total, passed, planned: report.planned, plotDelta: report.plotDelta, min, tiers: totals, stopped, ok: report.ok }, null, 2));
   return { ok: report.ok };
 }
 
@@ -236,5 +262,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(1);
   }
   const expectCountRaw = argValue('--expect-count', '');
-  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, floorsGiven: given, expectCount: expectCountRaw ? Number(expectCountRaw) : null, effort: parseEffortArm(argValue('--effort', '')), profile: argValue('--profile', '') || null, arm: argValue('--arm', '') || null, set: (['time', 'adversarial'] as const).find((name) => name === argValue('--set', 'extractor')) ?? 'extractor' }));
+  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, floorsGiven: given, expectCount: expectCountRaw ? Number(expectCountRaw) : null, effort: parseEffortArm(argValue('--effort', '')), profile: argValue('--profile', '') || null, arm: argValue('--arm', '') || null, set: (['time', 'adversarial'] as const).find((name) => name === argValue('--set', 'extractor')) ?? 'extractor', noStop: process.argv.includes(NO_STOP_FLAG) }));
 }

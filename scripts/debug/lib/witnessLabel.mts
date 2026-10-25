@@ -104,7 +104,7 @@ export async function labWitness({ source, out, ask = askClaude as Asker, log = 
   return report;
 }
 
-async function labelFiles(out: string, adjudicated = false): Promise<string[]> {
+export async function labelFiles(out: string, adjudicated = false): Promise<string[]> {
   const base = adjudicated ? join(out, 'adjudicated') : out;
   const dir = join(base, 'labels');
   const real = existsSync(dir) ? (await readdir(dir)).filter((name) => name.endsWith('.json')).sort().map((name) => join(dir, name)) : [];
