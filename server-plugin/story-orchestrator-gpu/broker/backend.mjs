@@ -37,7 +37,7 @@ export function nativeArgs(config, profile, fitTargetMiB = config.reserves.gpuMi
         '--offline', '--no-mmproj', '--no-webui', '--threads', '8', '--threads-batch', '8', '--parallel', '1', '--kv-unified',
         '--flash-attn', 'on', '--cache-type-k', 'q8_0', '--cache-type-v', 'q8_0', '--cache-ram', String(config.cacheRamMiB ?? 512), ...checkpoints,
         '--sleep-idle-seconds', '-1', ...speculativeArgs(config),
-        '--fit', 'on', '--fit-target', String(fitTargetMiB + (config.fitMarginMiB ?? 0)), ...args];
+        '--fit', 'on', '--fit-target', String(fitTargetMiB + (config.fitMarginMiB ?? 0) + (speculative(config)?.estimatedGpuMiB ?? 0)), ...args];
 }
 
 export function profileContext(profile) {

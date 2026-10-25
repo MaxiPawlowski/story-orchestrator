@@ -40,7 +40,9 @@ Optional `config.json` keys, all read by `broker/backend.mjs` `nativeArgs` (plan
 
 - `speculative: { model, type, nMax, estimatedGpuMiB, enabled }` adds `--model-draft <model> --spec-type <type>
   --spec-draft-n-max <nMax>` (defaults `draft-mtp`, 2, 900). `estimatedGpuMiB` is added to the profile's
-  `estimatedGpuMiB` in the load admission; `--fit` sizes the drafter itself. `/status` reports `text.speculative`
+  `estimatedGpuMiB` in the load admission and to `--fit-target`: llama-server's fit cannot measure the MTP drafter
+  ("failed to measure the memory of the extra model, fitting without it"), so without it a reduced fit target (an image
+  beside text) would lose the drafter's VRAM out of the image's room. `/status` reports `text.speculative`
   (`draft-mtp2`) and learned timings are keyed `<profile>+draft-mtp2:<fit>`, apart from timings without the drafter.
   On the 3090 (Artemis Q4_K_M + `mtp-Artemis-31B-v1m-Q8_0.gguf`): decode +28-39 % chat, +58 % side, acceptance
   0.56-0.59, prefill -6 %, about 0.85 GiB VRAM, so free VRAM after load drops from ~2.9 to ~2.0 GiB: below

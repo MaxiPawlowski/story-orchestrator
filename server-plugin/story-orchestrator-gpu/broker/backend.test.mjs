@@ -201,6 +201,7 @@ test('a configured MTP drafter adds the draft flags, its VRAM estimate and its s
     assert.equal(args[args.indexOf('--cache-ram') + 1], '6144');
     assert.equal(args[args.indexOf('--ctx-checkpoints') + 1], '3');
     assert.ok(args.indexOf('--model-draft') < args.indexOf('--fit'));
+    assert.equal(Number(args[args.indexOf('--fit-target') + 1]) - Number(base[base.indexOf('--fit-target') + 1]), 900, 'llama-server fits without the drafter, so its VRAM is added to the target');
     assert.equal(profileGpuMiB(spec, { estimatedGpuMiB: 20500 }), 21400);
     assert.equal(profileGpuMiB({ ...spec, speculative: { ...spec.speculative, enabled: false } }, { estimatedGpuMiB: 20500 }), 20500);
     assert.equal(new NativeBackend(spec).status().speculative, 'draft-mtp2');
