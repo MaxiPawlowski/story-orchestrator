@@ -26,7 +26,8 @@ added, ST Summarize enabled with automatic summaries off, the group SO-Open-Stre
 test cast seeded (so-image-cast seed --no-art) and the page probed. The copied library index
 (user/files/so-library-index.json) is removed and ST's side panels are unpinned (a pinned panel covers the phone-width
 launcher). --no-prepare runs on the lanes as they are;
---prepare-only prepares and leaves the lanes up. After a prepared run every lane is stopped again (--keep-lanes keeps
+Every row starts on a freshly reloaded page (st-lanes batch --fresh-page: a row's open dialog or unfinished
+generation never reaches the next row). --prepare-only prepares and leaves the lanes up. After a prepared run every lane is stopped again (--keep-lanes keeps
 them up). The default is two lanes, 30 and 31, to keep the machine quiet (owner 2026-10-25); 33 is never a default, another
 agent drives it (its page navigations made every "sandbox escaped" row of the first run).`;
 
@@ -137,7 +138,7 @@ async function runSuite(lanes, list) {
     return 2;
   }
   const items = [...list.journeys.map((journey) => journey.id), ...list.scenarios];
-  const { output } = await runBatch(['--lanes', lanes.join(','), '--strict', '--model', 'none', '--reload-journeys', '--group', list.group, ...items]);
+  const { output } = await runBatch(['--lanes', lanes.join(','), '--strict', '--model', 'none', '--fresh-page', '--group', list.group, ...items]);
   const summaryPath = output.match(/"summary":\s*"((?:[^"\\]|\\.)*)"/)?.[1]?.replace(/\\\\/g, '\\');
   if (!summaryPath || !existsSync(summaryPath)) {
     console.error('suite:nomodel: st-lanes batch wrote no summary');

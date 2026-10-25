@@ -54,11 +54,11 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
                                tunnel port 18080+k and record it in <lane>/pod.json; cloud points them at a
                                closed port (18079), so a cloud-only lane fails loudly on any pod call and
                                counts on no pod. The lane-load rule counts model lanes per pod
-  batch --lanes 1,2 [--repeat 2] [--strict] [--group <id>] [--wi-gating scan|file] [--model <classes>] [--reload-journeys] [--allow-load] <item...>
+  batch --lanes 1,2 [--repeat 2] [--strict] [--group <id>] [--wi-gating scan|file] [--model <classes>] [--fresh-page] [--allow-load] <item...>
                                run items across lanes, one at a time per lane; an item is a journey
                                id (J3) or a scenario file (test/scenarios/x.json). --repeat runs each
-                               item that many times back to back on the SAME lane (--reload-journeys also reloads
-                               the page before every journey's first run), so "twice" stays
+                               item that many times back to back on the SAME lane (--fresh-page also reloads
+                               the page before every row's first run), so "twice" stays
                                "two consecutive runs on one install". Refused while more than
                                SO_MAX_LLM_LANES (default 2) lanes with a model are up on one pod: on 2026-10-03 five
                                LLM lanes on one pod made a 4-token completion take 56 s and turned
@@ -369,7 +369,7 @@ export const itemArgs = (item: string, strict: boolean, group: string | null, wi
 export const BETWEEN_RUNS_SETTLE_MS = 10_000;
 export const betweenRunsArgs = (run: number, freshPage = false): string[] | null => (run > 1 || freshPage ? ['scripts/debug/st-session.mts', 'reload'] : null);
 
-async function batch(lanes: number[], items: string[], repeat: number, strict: boolean, group: string | null, wiGating: string | null = null, model: string | null = null, reloadJourneys = false) {
+async function batch(lanes: number[], items: string[], repeat: number, strict: boolean, group: string | null, wiGating: string | null = null, model: string | null = null, freshPage = false) {
   const queue = [...items];
   const results: BatchResult[] = [];
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -381,9 +381,9 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
         const rowDir = resolve(dir, rowDirName(item, run));
         await mkdir(rowDir, { recursive: true });
         const log = resolve(rowDir, ROW_FILES.runner);
-        const reloadArgs = betweenRunsArgs(run, reloadJourneys && isJourneyItem(item));
+        const reloadArgs = betweenRunsArgs(run, freshPage);
         const reload = reloadArgs ? await runNode(reloadArgs, laneEnv(n), { logPath: resolve(rowDir, 'reload.log') }) : null;
-        if (reload) console.log(`lane ${n} ${item} run ${run}: page reloaded before the run (${run > 1 ? 'rule 11, clears the judge cache' : '--reload-journeys: no dialog or page state from the row before'}): code ${reload.code}`);
+        if (reload) console.log(`lane ${n} ${item} run ${run}: page reloaded before the run (${run > 1 ? 'rule 11, clears the judge cache' : '--fresh-page: no dialog, generation or page state from the row before'}): code ${reload.code}`);
         if (reload) await sleep(BETWEEN_RUNS_SETTLE_MS);
         const ram = await waitForFreeRam(ramGateBytes(process.env), { freemem, sleep, log: (line) => console.log(line), now: Date.now }, `lane ${n} ${item} run ${run}`);
         const serverOffset = fileSize(lanePaths(n).log);
@@ -496,7 +496,7 @@ async function main() {
     if (load) throw new Error(`batch refused: ${load}`);
     const model = argValue('--model');
     if (model) parseModelFilter(model);
-    const result = await batch(lanes, items, Number(argValue('--repeat', '1')), rest.includes('--strict'), argValue('--group'), argValue('--wi-gating'), model, rest.includes('--reload-journeys'));
+    const result = await batch(lanes, items, Number(argValue('--repeat', '1')), rest.includes('--strict'), argValue('--group'), argValue('--wi-gating'), model, rest.includes('--fresh-page'));
     process.exitCode = batchExitCode(result);
     out = result;
   } else { console.log(USAGE); process.exitCode = 2; return; }
