@@ -1,7 +1,13 @@
 import type { Page } from 'playwright';
 import type { ReadRoute, RecordedCall } from './promptBatch.mts';
 
-export type ItemKind = 'witness' | 'fixture';
+export type ItemKind = 'witness' | 'fixture' | 'scenario';
+
+export interface RecorderRule { id: string; source: string; flags?: string; replies: string[] }
+
+export interface RecorderPlan { rules: RecorderRule[]; canned: string }
+
+export interface RuledCall extends RecordedCall { rule: string | null }
 
 export interface PageItem { kind: ItemKind; spec: unknown; canned: string }
 
@@ -19,9 +25,9 @@ type Evaluator = Pick<Page, 'evaluate'>;
 export async function installRecorder(page: Evaluator): Promise<{ installed: boolean }> {
   return page.evaluate(() => {
     const g = globalThis as any;
-    const state = g.__soPromptBatch ??= { armed: false, calls: [], refused: [], tokenizer: [], canned: '' };
+    const state = g.__soPromptBatch ??= { armed: false, calls: [], refused: [], tokenizer: [], canned: '', rules: [], used: {} };
     if (state.wrapped) return { installed: true };
-    const MODEL = /\/api\/(?:backends\/[a-z-]+\/generate|novelai\/generate|horde\/generate|plugins\/story-orchestrator-[a-z-]+\/(?!status))/;
+    const MODEL = /\/api\/(?:backends\/[a-z-]+\/generate|novelai\/generate|horde\/generate|plugins\/story-orchestrator-(?!lore\/)[a-z-]+\/(?!status))/;
     const TEXT = /\/api\/backends\/text-completions\/generate/;
     const TOKENIZER = /\/api\/tokenizers\//;
     const original = g.fetch;
@@ -31,8 +37,12 @@ export async function installRecorder(page: Evaluator): Promise<{ installed: boo
       if (live.armed && MODEL.test(url)) {
         const body = typeof init?.body === 'string' ? init.body : null;
         if (TEXT.test(url) && body !== null) {
-          live.calls.push({ url, body });
-          return new Response(live.canned, { status: 200, headers: { 'Content-Type': 'application/json' } });
+          const prompt = (() => { try { const parsed = JSON.parse(body); return typeof parsed.prompt === 'string' ? parsed.prompt : JSON.stringify(parsed.messages ?? ''); } catch { return ''; } })();
+          const rule = (live.rules ?? []).find((entry: any) => new RegExp(entry.source, entry.flags ?? '').test(prompt)) ?? null;
+          live.calls.push({ url, body, rule: rule ? rule.id : null });
+          const used = rule ? (live.used[rule.id] = (live.used[rule.id] ?? 0) + 1) - 1 : 0;
+          const reply = rule ? rule.replies[Math.min(used, rule.replies.length - 1)] : live.canned;
+          return new Response(reply, { status: 200, headers: { 'Content-Type': 'application/json' } });
         }
         live.refused.push({ url, body: body === null ? null : body.slice(0, 300) });
         throw new Error(`prompt-batch: refused model call ${url}`);
@@ -59,6 +69,8 @@ export async function runPageItem(page: Evaluator, item: PageItem): Promise<Page
     state.calls = [];
     state.refused = [];
     state.tokenizer = [];
+    state.rules = [];
+    state.used = {};
     state.canned = payload.canned;
     state.armed = true;
     const done = (ok: boolean, result: Record<string, unknown> | null, error?: string) => ({ ok, ...(error ? { error } : {}), result, calls: [...state.calls], refused: [...state.refused], tokenizer: [...state.tokenizer] });
@@ -108,4 +120,40 @@ export async function readRoute(page: Evaluator): Promise<ReadRoute & { stUrl: s
       instruct: preset ? { stop_sequence: pick('stop_sequence'), input_sequence: pick('input_sequence'), output_sequence: pick('output_sequence'), last_output_sequence: pick('last_output_sequence') } : null,
     };
   }) as Promise<ReadRoute & { stUrl: string; bundleSha256: string | null }>;
+}
+
+export const ARM_EVAL = "const s = globalThis.__soPromptBatch; if (!s?.wrapped || !s.plan) throw new Error('prompt-batch recorder is not installed or has no plan'); s.calls = []; s.refused = []; s.tokenizer = []; s.used = {}; s.rules = s.plan.rules; s.canned = s.plan.canned; s.armed = true; return { armed: true };";
+
+export const DISARM_EVAL = "const s = globalThis.__soPromptBatch; if (s) s.armed = false; return { disarmed: true, calls: s?.calls?.length ?? 0 };";
+
+export async function setRecorderPlan(page: Evaluator, plan: RecorderPlan): Promise<void> {
+  await page.evaluate((value: RecorderPlan) => {
+    const state = (globalThis as any).__soPromptBatch;
+    if (!state?.wrapped) throw new Error('prompt-batch recorder is not installed');
+    Object.assign(state, { plan: value, armed: false, calls: [], refused: [], tokenizer: [], used: {}, context: null });
+  }, plan);
+}
+
+export interface RecorderState { calls: RuledCall[]; refused: Array<{ url: string; body: string | null }>; tokenizer: Array<{ url: string; status: number }>; context: unknown }
+
+export async function drainRecorder(page: Evaluator): Promise<RecorderState> {
+  return page.evaluate(() => {
+    const state = (globalThis as any).__soPromptBatch;
+    if (!state) return { calls: [], refused: [], tokenizer: [], context: null };
+    const out = { calls: [...state.calls], refused: [...state.refused], tokenizer: [...state.tokenizer], context: state.context ?? null };
+    Object.assign(state, { armed: false, plan: null, rules: [], context: null });
+    return out;
+  }) as Promise<RecorderState>;
+}
+
+export async function servedBundleSha(page: Evaluator): Promise<string | null> {
+  return page.evaluate(async () => {
+    try {
+      const response = await fetch('/scripts/extensions/third-party/story-orchestrator/dist/index.js', { cache: 'no-store' });
+      if (!response.ok) return null;
+      return [...new Uint8Array(await crypto.subtle.digest('SHA-256', await response.arrayBuffer()))].map((byte) => byte.toString(16).padStart(2, '0')).join('');
+    } catch {
+      return null;
+    }
+  }) as Promise<string | null>;
 }

@@ -8,11 +8,15 @@ import {
   type BatchItem, type BatchManifest,
 } from './lib/promptBatch.mts';
 import { loadBatchKit, measurementFor, type MeasureArgs } from './lib/promptBatchMeasures.mts';
+import { DEFAULT_RATER_MODEL } from './lib/promptBatchRater.mts';
+import { pinMemoryProfile } from './lib/promptBatchScenario.mts';
 
 const USAGE = `Usage:
-  node scripts/debug/so-prompt-batch.mts capture --measurement w4|t8 --out <dir> [measurement options] [--profile <name|id>] [--limit <n>] [--verify <prior dir>]
-  node scripts/debug/so-prompt-batch.mts send --out <dir> [--base-url ${DEFAULT_BASE_URL}] [--stop <module.mts>] [--timeout-ms 600000] [--limit <n>]
+  node scripts/debug/so-prompt-batch.mts capture --measurement w4|t8|lt06|saga --out <dir> [measurement options] [--profile <name|id>] [--limit <n>] [--verify <prior dir>]
+  node scripts/debug/so-prompt-batch.mts send --out <dir> [--base-url ${DEFAULT_BASE_URL}] [--stop <module.mts> | --no-stop] [--timeout-ms 600000] [--limit <n>]
   node scripts/debug/so-prompt-batch.mts score --out <dir> [measurement options]
+  node scripts/debug/so-prompt-batch.mts merge --out <dir> --from <recapture dir>
+  node scripts/debug/so-prompt-batch.mts rate --out <dir> [--pass A|B|both] [--limit <n>] [--model ${DEFAULT_RATER_MODEL}] [--opencode <exe>]
 
 v2.9 plan 11 B2, class M: freeze the shipped prompt builders' exact request bodies on a no-model lane, send them to the
 model without a browser, and score the answers with the existing offline scorers.
@@ -29,6 +33,7 @@ capture (lane page, no model): installs a fetch recorder in the page, runs each 
 send (no ST): POSTs each frozen body, byte for byte, to <base-url><path>, sequentially; appends {sha, raw response, finish,
   tokens, ms} to <dir>/${FILES.responses}; resumes by skipping answered items; a transport error, non-2xx or non-JSON answer
   is retried once, then the row stops as S5 NOT A MEASUREMENT (<dir>/${FILES.stop}; a stopped row is never resumed).
+  A measurement with a declared stop rule (lt06) applies it unless --stop or --no-stop is given (--no-stop keeps S5 only).
   --stop <module> loads a stop callback (export stop or default: (progress) => {stop, rule, verdict, detail} | null),
   called after every answered item with {index, total, item, record, records, outcome}; outcome is the item's own pass
   when the measurement can score one item offline (t8), else null.
@@ -42,11 +47,35 @@ Measurements:
       both arms add Wc (token counts are the backend's). A first answer the page would retry (refusal) is scored as an
       outage and listed under retryOwed. Output must be under test/sessions/ or outside the repo.
   t8  live-suite time windows (test/fixtures/timewindow*): [--filter <s>]; score [--min 0.9] [--min-tier ...] [--expect-count <n>]
-      uses the so-live-suite scorer (scoreLiveFixture, tierTotals, suiteVerdict).`;
+      uses the so-live-suite scorer (scoreLiveFixture, tierTotals, suiteVerdict).
+  lt06 v2.9 06 LT acceptance, scenario items: [--only s01,s02] [--corpus-dir test/measurements/v2.9/06-lt]. capture runs every frozen
+      scenario (situation x arm, arm order per frozen.json) through so-scenario --sandbox as a no-model variant with the recorder
+      armed for the record step only; the one suggestions call is frozen and answered with canned lines, any other text call in
+      that window gets a neutral canned reply (counted). The ask's inputs (engine state, snapshot slices, chat, held secrets)
+      are frozen under <dir>/contexts/<sha>.json; the self-check rebuilds the prompt offline (it must sit inside the body) and
+      parses the canned answer offline (it must equal the panel's lines). send applies the declared stop rule: N = sendable rows,
+      usable >= 0.9 and grounded >= 0.85 over the anchored rows (S1/S2 on the mechanical upper bounds), a leak needle the
+      prompt does not already show is a zero floor (S3, both arms; a needle the prompt shows is listed for adjudication),
+      needsAll for the blind usefulness pair (never S4). score gives per-row facts and floors F1-F5 of
+      frozen.json (rater-dependent floors stay null until rate has run); --rows off drops the per-row list.
+  saga chapter-seal epilogue (src/runtime/chapterSeal.ts saga()): [--repeat 4] [--long-repeat 1] [--record-replies <json array>]
+      [--saga-reply <txt>]. capture runs test/scenarios/live-v28-45-seal.json up to the final seal as a no-model variant: the
+      recorder answers chapter records (canned, or --record-replies), the first epilogue ask with a reply cut at the token limit (so the
+      larger-token retry body is captured too) and the retry with a canned epilogue. Items saga#k (the epilogue body) and
+      saga-long#k (its retry body). score reports per response verifySaga's verdict and reasons (word count, the proper nouns
+      not in the records), reply refusals before verifySaga (cut, degenerate, thought-only), and the saga() two-attempt flow.
 
-const VALUE_FLAGS = ['--measurement', '--out', '--sessions', '--lab-rows', '--lab-story', '--arm', '--only', '--filter', '--profile', '--limit', '--verify', '--base-url', '--stop', '--timeout-ms', '--labels-from', '--freeze', '--min', '--min-tier', '--expect-count'];
-const BOOLEAN_FLAGS = ['--adjudicated'];
-const MEASURE_KEYS = ['sessions', 'lab-rows', 'lab-story', 'arm', 'only', 'filter'];
+merge (no ST): before any send, replaces the rows of <dir> that have a capture problem with the clean rows of the same id in a
+  recapture (--only <ids>) of the same measurement and route (the recapture's served bundle is kept on each merged row; every
+  row passed its own offline self-check against the builders); copies their bodies and contexts. Refuses once <dir>
+  has responses.
+rate (no ST, lt06): runs frozen.json's rater passes on opencode (default ${DEFAULT_RATER_MODEL}, tools off): pass A blind per situation
+  (both arms' shown lines as Set 1/Set 2, order from sha256(corpus sha + situation id)), pass B per tagged anchored line.
+  Answers land in <dir>/rater/; resumes; -fast models and DeepSeek are refused.`;
+
+const VALUE_FLAGS = ['--from', '--corpus-dir', '--repeat', '--long-repeat', '--record-replies', '--saga-reply', '--rows', '--pass', '--model', '--opencode', '--measurement', '--out', '--sessions', '--lab-rows', '--lab-story', '--arm', '--only', '--filter', '--profile', '--limit', '--verify', '--base-url', '--stop', '--timeout-ms', '--labels-from', '--freeze', '--min', '--min-tier', '--expect-count'];
+const BOOLEAN_FLAGS = ['--adjudicated', '--no-stop'];
+const MEASURE_KEYS = ['sessions', 'lab-rows', 'lab-story', 'arm', 'only', 'filter', 'corpus', 'situations', 'corpus-dir', 'repeat', 'long-repeat', 'record-replies', 'saga-reply'];
 
 export function parseArgs(argv: string[]): MeasureArgs {
   const args: MeasureArgs = {};
@@ -90,13 +119,28 @@ async function capture(args: MeasureArgs): Promise<number> {
   const { assertRuntimeOnPage } = await import('./lib/servedBundle.mts');
   const recorder = await import('./lib/promptBatchRecorder.mts');
   const bodies = new Map<string, string>();
+  let restoreProblem: string | null = null;
   const manifest = await withST(async (page) => {
     await assertRuntimeOnPage(page);
     const effort = await import('./lib/roleEffort.mts');
-    const pinned = typeof args.profile === 'string' ? await effort.pinRoleProfile(page, 'read', args.profile) : null;
+    const roles = measurement.roles ?? ['read'];
+    const pinned = typeof args.profile === 'string' ? await effort.pinRoleProfile(page, roles[0], args.profile) : null;
+    for (const role of roles.slice(1)) if (typeof args.profile === 'string') await effort.pinRoleProfile(page, role, args.profile);
+    const memoryBefore = pinned && measurement.pinMemory ? await pinMemoryProfile(page, pinned.profile.id) : undefined;
     try {
       await recorder.installRecorder(page);
       const route = await recorder.readRoute(page);
+      const { stUrl, bundleSha256, ...readRoute } = route;
+      const manifestOf = (rows: BatchItem[], tokenizer: { calls: number; failed: number }): BatchManifest => ({
+        format: BATCH_FORMAT, measurement: measurement.id, createdAt: new Date().toISOString(), synthetic: measurement.synthetic, source: { stUrl, bundleSha256 }, route: readRoute,
+        args: { ...measureArgs(args), ...(typeof args.limit === 'string' ? { limit: args.limit } : {}), ...(pinned ? { profile: pinned.profile.name, roles: [...roles, ...(measurement.pinMemory ? ['memory'] : [])].join(',') } : {}) }, items: rows, tokenizer,
+        problems: rows.filter((row) => row.problem).map((row) => `${row.id}: ${row.problem}`),
+      });
+      if (measurement.capture) {
+        const captured = await measurement.capture({ page, out, kit, instruct: route.instruct, items: limited, log: console.log });
+        for (const [sha, body] of captured.bodies) bodies.set(sha, body);
+        return manifestOf(captured.rows, { calls: 0, failed: 0 });
+      }
       const rows: BatchItem[] = [];
       const tokenizer = { calls: 0, failed: 0 };
       for (const item of limited) {
@@ -129,17 +173,13 @@ async function capture(args: MeasureArgs): Promise<number> {
         rows.push(row);
         console.log(`${row.problem ? 'FAIL' : 'ok  '} ${item.id} ${row.sha ? row.sha.slice(0, 12) : '(no call)'}${row.problem ? ` ${row.problem}` : ''}`);
       }
-      const { stUrl, bundleSha256, ...readRoute } = route;
-      const built: BatchManifest = {
-        format: BATCH_FORMAT, measurement: measurement.id, createdAt: new Date().toISOString(), synthetic: measurement.synthetic, source: { stUrl, bundleSha256 }, route: readRoute,
-        args: { ...measureArgs(args), ...(typeof args.limit === 'string' ? { limit: args.limit } : {}), ...(pinned ? { profile: pinned.profile.name } : {}) }, items: rows, tokenizer,
-        problems: rows.filter((row) => row.problem).map((row) => `${row.id}: ${row.problem}`),
-      };
-      return built;
+      return manifestOf(rows, tokenizer);
     } finally {
-      if (pinned) await effort.restoreRoleProfiles(page, pinned.before);
+      if (memoryBefore !== undefined) await pinMemoryProfile(page, memoryBefore).catch((error: unknown) => { restoreProblem = `the memory model was not restored: ${error instanceof Error ? error.message : String(error)}`; });
+      if (pinned) await effort.restoreRoleProfiles(page, pinned.before).catch((error: unknown) => { restoreProblem = `the pinned roles were not restored: ${error instanceof Error ? error.message : String(error)}`; });
     }
   });
+  if (restoreProblem) manifest.problems.push(restoreProblem);
   const { writeManifest } = await import('./lib/promptBatch.mts');
   await writeManifest(out, manifest, bodies);
   const summary = {
@@ -156,12 +196,42 @@ async function capture(args: MeasureArgs): Promise<number> {
   return code;
 }
 
+async function merge(args: MeasureArgs): Promise<number> {
+  const dir = resolve(need(args, 'out'));
+  const from = resolve(need(args, 'from'));
+  const { bodyFile, readBody, writeManifest } = await import('./lib/promptBatch.mts');
+  const { copyFile, mkdir } = await import('node:fs/promises');
+  if (existsSync(join(dir, FILES.responses))) throw new Error(`refused: ${dir} already has responses; merge only before send`);
+  const target = await readManifest(dir);
+  const source = await readManifest(from);
+  for (const key of ['measurement', 'route'] as const) if (JSON.stringify(source[key]) !== JSON.stringify(target[key])) throw new Error(`refused: the recapture differs in ${key}`);
+  const bodies = new Map<string, string>();
+  const replaced: string[] = [];
+  target.items = await Promise.all(target.items.map(async (row) => {
+    const fresh = source.items.find((entry) => entry.id === row.id);
+    if (!row.problem || !fresh || fresh.problem || !fresh.sha) return row;
+    bodies.set(fresh.sha, await readBody(from, fresh.sha));
+    const contextSha = (fresh.inPage as { contextSha?: string } | null)?.contextSha;
+    if (contextSha) {
+      await mkdir(join(dir, 'contexts'), { recursive: true });
+      await copyFile(join(from, 'contexts', `${contextSha}.json`), join(dir, 'contexts', `${contextSha}.json`));
+    }
+    replaced.push(row.id);
+    return { ...fresh, meta: { ...fresh.meta, mergedFrom: { createdAt: source.createdAt, bundleSha256: source.source.bundleSha256 } } };
+  }));
+  target.problems = target.items.filter((row) => row.problem).map((row) => `${row.id}: ${row.problem}`);
+  for (const sha of bodies.keys()) if (existsSync(bodyFile(dir, sha))) bodies.delete(sha);
+  await writeManifest(dir, target, bodies);
+  console.log(JSON.stringify({ replaced, problems: target.problems }, null, 1));
+  return target.problems.length ? 1 : 0;
+}
+
 async function send(args: MeasureArgs): Promise<number> {
   const dir = resolve(need(args, 'out'));
   const manifest = await readManifest(dir);
   const measurement = measurementFor(manifest.measurement);
   const kit = await loadBatchKit();
-  const stop = typeof args.stop === 'string' ? await loadStopCallback(args.stop) : undefined;
+  const stop = typeof args.stop === 'string' ? await loadStopCallback(args.stop) : args['no-stop'] === true ? undefined : measurement.stop?.(dir, manifest, kit);
   const result = await sendBatch({
     dir, baseUrl: typeof args['base-url'] === 'string' ? args['base-url'] : DEFAULT_BASE_URL, finishOf: kit.readFinish, stop,
     outcome: measurement.outcome ? (item, record) => measurement.outcome!(manifest, item, record, kit) : undefined,
@@ -196,6 +266,13 @@ export async function main(argv: string[]): Promise<number> {
   if (command === 'capture') return capture(args);
   if (command === 'send') return send(args);
   if (command === 'score') return score(args);
+  if (command === 'merge') return merge(args);
+  if (command === 'rate') {
+    const { rate } = await import('./lib/promptBatchRater.mts');
+    const result = await rate(resolve(need(args, 'out')), args);
+    console.log(JSON.stringify(result, null, 1));
+    return result.problems.length ? 1 : 0;
+  }
   throw new Error(`unknown command ${command}\n${USAGE}`);
 }
 

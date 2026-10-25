@@ -207,3 +207,52 @@ B5 `npm run suite:nomodel` (`scripts/suite/nomodel.mjs`; pure parts `scripts/deb
 
 - B3 (replay backend) and the `suite:mutation` review half of B6 move to v3.0. B1, B2, B4, B5 and B6's vacuous/denominator half
   are built and merged; the B2 extension (`lt06`, `saga`) is v2.9 13 C10; `suite:nomodel` to green is 13 C8.
+## B2 extension record 2026-10-25 (branch v2.9-11-b2-ext, not merged): lt06 + saga, scenario item kind
+
+- Scenario item kind (`lib/promptBatchScenario.mts`): `captureVariant` turns a so-scenario fixture into a no-model variant
+  (`requires.lane` no-model, relative `import_story.file` rebased) with the recorder armed by in-page eval steps (`ARM_EVAL`,
+  `DISARM_EVAL`) and a context eval after the measured step; `runScenarioItem` runs it through `runScenario --sandbox` and drains
+  the recorder. The recorder (`lib/promptBatchRecorder.mts`) gains rules: a text call whose prompt matches a rule is answered from
+  that rule's reply list in order, others get the plan's neutral reply; refused routes no longer include the lore plugin
+  (`story-orchestrator-lore` commits pass through); media refusals are not counted as model refusals.
+- `lt06` (`lib/promptBatchScenarios.mts`): plans the frozen corpus (situations.json + scenarios/{current,anchored} hashed LF-normalised
+  against frozen.json, refused on drift), arm order per frozen.json (odd current first), 80 items. Capture arms the recorder for the
+  record step only, freezes the one suggestions call and stores the ask's inputs (engine state, snapshot slices, chat, held secrets via
+  the memory injector) as `contexts/<sha>.json`. Self-check: the prompt rebuilt offline from the context
+  (`lib/promptBatchScenarioEntry.ts`: playedProjection, anchorCandidates/rankAnchors/selectAnchors, buildSuggestionPrompt) is inside
+  the body, and the canned answer parsed offline (parseSuggestionLines, refuseIncomplete, authored offers, screen) equals the panel's
+  lines and anchors; record.asks = 1. A scenario failure is retried once after a page reload (S5); a cleanup-only failure is a warning.
+  `merge` replaces problem rows with a `--only` recapture before any send.
+- lt06 stop declaration (built into `send`, `--no-stop` keeps S5 only): N = sendable rows; usable >= 0.9 and grounded >= 0.85 over the
+  anchored rows (mechanical upper bounds of F1/F2, so S1/S2 are sound); a leak needle the prompt does not already show is a zero
+  floor over both arms (S3; a needle the prompt shows is listed as `visibleNeedleHits` for adjudication); `needsAll` for the blind
+  pair (never S4).
+- lt06 score: per row usable (parsed >= 3), shown lines with anchor and kind, grounded (any anchor; strict goal/thread kinds and
+  model-only lines reported too), needle hits over lines, help and greyed rows, prompt needles, asks; floors F1-F5 exactly as
+  frozen.json, F1/F2/F3/F4 null until the rater has run. `rate`: frozen.json pass A (blind, Set 1/Set 2 from
+  sha256(corpus + id)) and pass B on opencode `openai/gpt-6.1-sol` (exe path, `--agent so-rater` tools off, `--file <prompt>`),
+  resumable, -fast and DeepSeek refused; F4 mean/median/wins/paired bootstrap (1000, seed corpus sha).
+- `saga`: captures test/scenarios/live-v28-45-seal.json up to the final seal (loop shortened to 20 tries) on the no-model lane; the
+  recorder answers chapter records (canned or `--record-replies`), the first epilogue ask with a reply cut at the limit and the
+  retry with a canned epilogue, so both the epilogue body (n_predict 2560) and its larger-token retry body (4096) are frozen. Items
+  `saga#1..4` + `saga-long#1`. Score: per response verifySaga's verdict and reasons (word count, proper nouns not in the records),
+  refusals before verifySaga (cut, degenerate, thought-only) and the two-attempt flow. Golden `test/measurements/v2.9/11-b2/saga-golden`.
+- Goldens + tests: `lt06-golden` (s01, s05), `saga-golden`; `promptBatchScenarios.test.mts`, `promptBatchLtGolden.test.mts`,
+  `promptBatchSagaGolden.test.mts`.
+- Capture 2026-10-25 on lane 33 (no-model, read/synthesis/memory pinned to `Story Orchestrator Memory RunPod` = Artemis 31B
+  llamacpp preset, as on the lane): lt06 80/80 rows clean after `merge` of a 12-item recapture (6 rows had harness flakes: judge
+  read-back, 15 MB settings saves timing out, a chunk load; one cleanup-only warning), 76 distinct bodies (the 4 `none` rows send the
+  same prompt in both arms), every row self-checked against master's builders. Frozen at `C:/dev/so-lanes/33/b2ext/lt06`
+  (outside the repo; served bundle moved mid-capture when another session restaged, rows re-checked offline, recaptured rows identical
+  sha). saga frozen at `C:/dev/so-lanes/33/b2ext/saga` = `saga-golden`.
+- Corpus finding (not fixed, corpus is DRAFT): 6 situations (s04, s05, s06, s11, s18, s26) show a leak needle in the prompt in both
+  arms, because the story `description` (shown as "About this story") states the hidden bait. frozen.json's offline check missed the
+  description section. Fix the corpus before freezing, or adjudicate those rows.
+- Dry run (canned fake backend on a free port, not a measurement): lt06 send stopped S2 at the 10-row pilot (grounded 1/5, canned
+  lines rarely ground), score produced per-row facts and F1-F5, rate ran pass A on s01 and pass B on its one tagged line through
+  opencode Sol (JSON parsed, resumable); saga send + score: 3/5 accepted, reasons and flows as expected.
+- GPU (not run): copy the frozen dir, `send --base-url http://127.0.0.1:18888` (lt06 stop rule built in), `score`, then for lt06
+  `rate` and `score` again. Exact lines in the handoff.
+- Open: the capture lane's memory profile/preset is the lane copy's, not necessarily the 2026-10-25 lane 45 one (saga sampler
+  temperature 0.1, n_predict 2560/4096); the F2 goal/thread kind question stays open (both readings reported); rater pass A
+  playerView carries the no-model lane's "Status" line (not in the prompt).

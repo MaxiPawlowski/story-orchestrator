@@ -1,0 +1,225 @@
+{
+ "format": "so-prompt-batch/1",
+ "measurement": "saga",
+ "createdAt": "2026-10-25T11:38:08.118Z",
+ "synthetic": true,
+ "source": {
+  "stUrl": "http://127.0.0.1:8133",
+  "bundleSha256": "9f0bfb781af5f7c55bbfc36d79cbd875ce2ce3c785e489e9f1c8aedee80c160a"
+ },
+ "route": {
+  "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+  "name": "Story Orchestrator Memory RunPod",
+  "api": "llamacpp",
+  "apiUrl": "http://127.0.0.1:18079",
+  "preset": "Artemis Extraction",
+  "instructName": "Gemma 4",
+  "instruct": {
+   "stop_sequence": "<turn|>",
+   "input_sequence": "<|turn>user\n",
+   "output_sequence": "<|turn>model\n",
+   "last_output_sequence": "<|turn>model\n<|channel>thought\n<channel|>"
+  }
+ },
+ "args": {
+  "profile": "Story Orchestrator Memory RunPod",
+  "roles": "synthesis,read,memory"
+ },
+ "items": [
+  {
+   "id": "saga#1",
+   "sha": "dbeabb89f8ddf368416b92ed4670660046db42ff3c976305ab472b2ed69f4a1e",
+   "path": "/completion",
+   "meta": {
+    "kind": "saga",
+    "sample": 1
+   },
+   "calls": 2,
+   "builderInBody": true,
+   "selfCheck": {
+    "ok": true
+   },
+   "inPage": {
+    "contextSha": "132445d5d26b05557c83a7da51fb0f34c1a96c9ac3f43aabcb424913c3514fa2",
+    "flow": [
+     "other",
+     "other",
+     "other",
+     "record",
+     "other",
+     "record",
+     "saga",
+     "saga"
+    ],
+    "maxTokens": {
+     "normal": 2560,
+     "long": 4096
+    },
+    "status": "sealed",
+    "refused": [
+     "/api/plugins/story-orchestrator-harness/complete",
+     "/api/plugins/story-orchestrator-harness/complete",
+     "/api/plugins/story-orchestrator-harness/complete",
+     "/api/plugins/story-orchestrator-harness/complete"
+    ]
+   }
+  },
+  {
+   "id": "saga#2",
+   "sha": "dbeabb89f8ddf368416b92ed4670660046db42ff3c976305ab472b2ed69f4a1e",
+   "path": "/completion",
+   "meta": {
+    "kind": "saga",
+    "sample": 2
+   },
+   "calls": 2,
+   "builderInBody": true,
+   "selfCheck": {
+    "ok": true
+   },
+   "inPage": {
+    "contextSha": "132445d5d26b05557c83a7da51fb0f34c1a96c9ac3f43aabcb424913c3514fa2",
+    "flow": [
+     "other",
+     "other",
+     "other",
+     "record",
+     "other",
+     "record",
+     "saga",
+     "saga"
+    ],
+    "maxTokens": {
+     "normal": 2560,
+     "long": 4096
+    },
+    "status": "sealed",
+    "refused": [
+     "/api/plugins/story-orchestrator-harness/complete",
+     "/api/plugins/story-orchestrator-harness/complete",
+     "/api/plugins/story-orchestrator-harness/complete",
+     "/api/plugins/story-orchestrator-harness/complete"
+    ]
+   }
+  },
+  {
+   "id": "saga#3",
+   "sha": "dbeabb89f8ddf368416b92ed4670660046db42ff3c976305ab472b2ed69f4a1e",
+   "path": "/completion",
+   "meta": {
+    "kind": "saga",
+    "sample": 3
+   },
+   "calls": 2,
+   "builderInBody": true,
+   "selfCheck": {
+    "ok": true
+   },
+   "inPage": {
+    "contextSha": "132445d5d26b05557c83a7da51fb0f34c1a96c9ac3f43aabcb424913c3514fa2",
+    "flow": [
+     "other",
+     "other",
+     "other",
+     "record",
+     "other",
+     "record",
+     "saga",
+     "saga"
+    ],
+    "maxTokens": {
+     "normal": 2560,
+     "long": 4096
+    },
+    "status": "sealed",
+    "refused": [
+     "/api/plugins/story-orchestrator-harness/complete",
+     "/api/plugins/story-orchestrator-harness/complete",
+     "/api/plugins/story-orchestrator-harness/complete",
+     "/api/plugins/story-orchestrator-harness/complete"
+    ]
+   }
+  },
+  {
+   "id": "saga#4",
+   "sha": "dbeabb89f8ddf368416b92ed4670660046db42ff3c976305ab472b2ed69f4a1e",
+   "path": "/completion",
+   "meta": {
+    "kind": "saga",
+    "sample": 4
+   },
+   "calls": 2,
+   "builderInBody": true,
+   "selfCheck": {
+    "ok": true
+   },
+   "inPage": {
+    "contextSha": "132445d5d26b05557c83a7da51fb0f34c1a96c9ac3f43aabcb424913c3514fa2",
+    "flow": [
+     "other",
+     "other",
+     "other",
+     "record",
+     "other",
+     "record",
+     "saga",
+     "saga"
+    ],
+    "maxTokens": {
+     "normal": 2560,
+     "long": 4096
+    },
+    "status": "sealed",
+    "refused": [
+     "/api/plugins/story-orchestrator-harness/complete",
+     "/api/plugins/story-orchestrator-harness/complete",
+     "/api/plugins/story-orchestrator-harness/complete",
+     "/api/plugins/story-orchestrator-harness/complete"
+    ]
+   }
+  },
+  {
+   "id": "saga-long#1",
+   "sha": "70ad9158b949e12b92481bbc8b05a7eb5424ee6195c9f8e1ec6634ac59e7af41",
+   "path": "/completion",
+   "meta": {
+    "kind": "saga-long",
+    "sample": 1
+   },
+   "calls": 2,
+   "builderInBody": true,
+   "selfCheck": {
+    "ok": true
+   },
+   "inPage": {
+    "contextSha": "132445d5d26b05557c83a7da51fb0f34c1a96c9ac3f43aabcb424913c3514fa2",
+    "flow": [
+     "other",
+     "other",
+     "other",
+     "record",
+     "other",
+     "record",
+     "saga",
+     "saga"
+    ],
+    "maxTokens": {
+     "normal": 2560,
+     "long": 4096
+    },
+    "status": "sealed",
+    "refused": [
+     "/api/plugins/story-orchestrator-harness/complete",
+     "/api/plugins/story-orchestrator-harness/complete",
+     "/api/plugins/story-orchestrator-harness/complete",
+     "/api/plugins/story-orchestrator-harness/complete"
+    ]
+   }
+  }
+ ],
+ "tokenizer": {
+  "calls": 0,
+  "failed": 0
+ },
+ "problems": []
+}
