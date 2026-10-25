@@ -70,6 +70,7 @@ describe("plan 47 acceptance: the quote resolves to a player span that commits a
     ["Kael, I swear I'll pay you back.", "Kael"],
     ["I give you my word: he comes home."],
     ["I will not rest until your brother is home. I promise.", "Mara", "I promise."],
+    ["I turn to whoever spoke last. \"I promise you I will come back for you before nightfall.\"", "Mara", "I promise you I will come back for you before nightfall."],
   ];
 
   it.each(PROMISES)("accepts %s", (text, target = "Mara", quote = text) => {
