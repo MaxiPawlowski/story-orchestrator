@@ -87,3 +87,20 @@ Retroactive check: the 2026-10-25 W4 run (exact-set 13/147 real) trips S2 at the
 
 - Reserved port for the replay stub (proposal 18078).
 - Whether B2 `send` needs the GPU broker lease or talks to the controller directly (controller queue already serializes).
+
+## B2 build record 2026-10-25 (branch v2.9-11-b2-batch, not merged)
+
+- `scripts/debug/so-prompt-batch.mts capture | send | score`; libs `lib/promptBatch.mts` (freeze, send, resume, S5, stop hook),
+  `lib/promptBatchRecorder.mts` (page fetch recorder), `lib/promptBatchMeasures.mts` (w4, t8), `lib/promptBatchEntry.ts` (src reply
+  processing and parsers for node). No src change.
+- Capture = the shipped in-page path (`runWitnessRead`, `runFixture`) with a page fetch recorder: the one
+  `/api/backends/text-completions/generate` call is recorded and answered with a canned backend reply, every other model route is
+  refused. ST forwards llama.cpp bodies verbatim (text-completions.js 315-328, only `localhost` -> `127.0.0.1` in `api_server`, applied
+  at freeze), so the frozen body is the controller's request. Other API types and chat completion are refused.
+- Contract: per item, the builder prompt is inside the body and offline reply processing + parse of the canned answer equal the
+  page's; `--verify` recapture gave 4/4 (t8) and 74/74 (w4) identical shas; golden `test/measurements/v2.9/11-b2/t8-golden`
+  (`promptBatchContract.test.mts`: builder drift, self-check, send bytes, score). Replaying the G-run W4 answers through send + score
+  reproduced `score-real-G.json` (real, null control, lab) and all 17 reads files byte for byte.
+- `send` takes `--stop <module>` (B1 interface: `(progress) => {stop, rule, verdict, detail}`); S5 built in.
+- Open: a W4 first answer the page would retry (refusal) is scored as an outage and listed `retryOwed`; W4 Wc uses
+  backend token counts; 06 LT needs a scenario item kind.

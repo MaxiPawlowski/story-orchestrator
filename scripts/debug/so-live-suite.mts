@@ -1,5 +1,5 @@
 import { spawnSync } from 'node:child_process';
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { PROJECT_ROOT } from './lib/connection.mts';
@@ -7,7 +7,8 @@ import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { latencyPercentiles, parseEffortArm, pinRoleEffort, pinRoleProfile, readRoleReasoning, restoreRoleEfforts, restoreRoleProfiles, type EffortArm } from './lib/roleEffort.mts';
-import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreClaims, scoreContains, scoreIntents, scoreQuoted, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
+import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreLiveFixture, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
+import { discoverFixtures, FIX_DIR, FIXTURE_SETS } from './lib/liveSuiteFixtures.mts';
 import { fingerprintsOf, readRoleModel, type MeasurementFingerprints } from './lib/measurementFingerprint.mts';
 import { compareArms } from './lib/armCompare.mts';
 import { captureChatFingerprint, firstChange } from './lib/chatUntouched.mts';
@@ -45,60 +46,17 @@ memory profile selected in the extension settings.
                   the rest (the cadence read's split). Needs the judge plugin; recordings go to
                   test/goldens/judge/live/<name>.json. Floor --min 0.85 before miss triage.`;
 
-const FIX_DIR = join(PROJECT_ROOT, 'test/fixtures');
 const LIVE_GOLDEN_DIR = join(PROJECT_ROOT, 'test/goldens/live');
 const JUDGE_GOLDEN_DIR = join(PROJECT_ROOT, 'test/goldens/judge/live');
 
 const readJson = async (path) => JSON.parse(await readFile(path, 'utf-8'));
-
-const TENSION_KEY = 'tension_current';
-const TENSION_TOLERANCE = 0.3;
-
-const normDeltas = (deltas) => deltas.map((d) => `${d.q}=${JSON.stringify(d.v)}`).sort();
-
-function scoreFixture(expectedDeltas, liveDeltas) {
-  const expectedNorm = normDeltas(expectedDeltas.filter((d) => d.q !== TENSION_KEY));
-  const liveNorm = normDeltas(liveDeltas.filter((d) => d.q !== TENSION_KEY));
-  const plotPass = JSON.stringify(expectedNorm) === JSON.stringify(liveNorm);
-  const expectedTension = expectedDeltas.find((d) => d.q === TENSION_KEY);
-  if (!expectedTension) return { pass: plotPass, expectedNorm, liveNorm };
-  const liveTension = liveDeltas.find((d) => d.q === TENSION_KEY);
-  const tensionPass = typeof liveTension?.v === 'number' && Math.abs(liveTension.v - expectedTension.v) <= TENSION_TOLERANCE;
-  return {
-    pass: plotPass && tensionPass,
-    expectedNorm: [...expectedNorm, `${TENSION_KEY}~${expectedTension.v}±${TENSION_TOLERANCE}`],
-    liveNorm: [...liveNorm, `${TENSION_KEY}=${liveTension?.v ?? 'none'}`],
-  };
-}
 
 function argValue(name, fallback) {
   const index = process.argv.indexOf(name);
   return index >= 0 && process.argv[index + 1] ? process.argv[index + 1] : fallback;
 }
 
-export const FIXTURE_SETS = { extractor: /^extractor.*\.story\.json$/, time: /^timewindow.*\.story\.json$/, adversarial: /^adversarial.*\.story\.json$/ } as const;
-
-async function discoverFixtures(filter, set: keyof typeof FIXTURE_SETS = 'extractor') {
-  const files = await readdir(FIX_DIR);
-  const names = files
-    .filter((file) => FIXTURE_SETS[set].test(file))
-    .map((file) => file.replace(/\.story\.json$/, ''))
-    .filter((name) => !filter || name.includes(filter))
-    .sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
-  const fixtures = [];
-  for (const name of names) {
-    try {
-      const story = await readJson(join(FIX_DIR, `${name}.story.json`));
-      const transcript = await readJson(join(FIX_DIR, `${name}.transcript.json`));
-      const expected = await readJson(join(FIX_DIR, `${name}.expected.json`));
-      const hints = await readJson(join(FIX_DIR, `${name}.hints.json`)).catch(() => null);
-      fixtures.push({ name, story, transcript, expected, hints });
-    } catch {
-      // skip fixtures without a full triple
-    }
-  }
-  return fixtures;
-}
+export { FIXTURE_SETS };
 
 async function runSuite(page, { min, filter, record, judge = false, floors = DEFAULT_TIER_FLOORS as Partial<Record<string, number>>, floorsGiven = [] as string[], expectCount = null, effort = null as EffortArm | null, profile = null as string | null, arm = null as string | null, set = 'extractor' as keyof typeof FIXTURE_SETS }) {
   if (effort && record) throw new Error('--effort is a measurement arm; it never records over the live goldens');
@@ -127,21 +85,7 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
         }, { story: fixture.story, transcript: fixture.transcript, overrides: fixture.expected?.spec ?? {}, judge, hints: fixture.hints });
 
         if (typeof live.prompt === 'string') prompts.push(live.prompt);
-        const { pass, expectedNorm, liveNorm } = scoreFixture(fixture.expected.deltas ?? [], live.deltas ?? []);
-        // §F: score every tier the fixture states, not only the plot deltas. `facts` and `rejected`
-        // expectations have been in these files all along with nothing reading them.
-        const tiers = [
-          { tier: 'deltas' as const, scored: true, pass, detail: `expected=[${expectedNorm.join(', ')}] live=[${liveNorm.join(', ')}]` },
-          scoreContains('facts', fixture.expected.facts, live.facts ?? []),
-          scoreRejected(fixture.expected.rejected, live.rejected ?? []),
-          scoreContains('memory', fixture.expected.memory, live.memory ?? []),
-          scoreContains('arcs', fixture.expected.arcs, live.arcs ?? []),
-          scoreContains('epistemic', fixture.expected.epistemic, live.epistemic ?? []),
-          scoreContains('ledger', fixture.expected.ledger, live.ledger ?? []),
-          scoreIntents(fixture.expected.intents, live.epistemic ?? [], fixture.transcript.filter((entry) => entry.is_user === true).map((entry) => entry.speaker)),
-          scoreClaims(fixture.expected.claims, [...(live.facts ?? []), ...(live.memory ?? []), ...(live.arcs ?? []), ...(live.epistemic ?? []), ...(live.ledger ?? [])]),
-          scoreQuoted(fixture.expected.quoted, [...(live.facts ?? []), ...(live.memory ?? []), ...(live.arcs ?? []), ...(live.epistemic ?? []), ...(live.ledger ?? [])]),
-        ].filter((row) => row.scored);
+        const { pass, expectedNorm, liveNorm, tiers } = scoreLiveFixture(fixture, live);
         const tierFailures = tiers.filter((row) => !row.pass);
         const sources = (live.deltas ?? []).map((d) => `${d.q}:${d.judge === undefined ? 'llm' : `judge@${d.judge}`}`);
         results.push({ name: fixture.name, pass, tiers, expected: expectedNorm, live: liveNorm, ...(judge ? { sources, judged: live.judged?.answered ?? [] } : {}), ms: Date.now() - startedAt });
