@@ -455,3 +455,6 @@ its W4 partial reads kept as `test/sessions/witness-real/reads-F-partial-2026-10
 - Verdict: PARTIAL. Green: GS1 9/9, 47 (H), 45 epilogue (I). Red: W4 (feature unconsumed; moved to v3.0), GS6.8 (13 C3), T8
   control (13 C4), 45 record/picker (13 C2). Defects fixed in this run: burst-delete rollback, journey cleanup order, epilogue
   name check.
+- 45 seal rerun 2026-10-25 (v2.9 13 C2, batch `2026-10-25T13-04-09-059Z`, lane 45, after `f6740313`: possessive names in the
+  record check, outcome names in verifySaga, fixture waits for the automatic seal): **PASS** x1. Epilogue not the fallback
+  (>= 120 words), final record not degraded, the picker lists the finished run, the carry seed lands before boundary 0.

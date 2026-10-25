@@ -79,7 +79,9 @@ assertions; src is not changed in C8. Evidence paths are row dirs listed per row
   calls `runExtractionNow` directly, bypassing the scheduler, the read lane and `rereadReason`, so `pipeline.ts`
   `editRereadPending` never sees it. Fix: the spike path publishes the pending edit read (or schedules through the scheduler).
   Evidence: `C:\dev\so-lanes\32\debug\batch\2026-10-25T12-18-59-202Z\v27-d-10-edit-catch-up-run1\`.
-- **live-v24-02-e3-save-evidence, step 10: a Defaults-page change names every settings section.** The install-mode `change()`
+- **live-v24-02-e3-save-evidence, step 10: a Defaults-page change names every settings section. FIXED in 31990bde**
+  (`featureResolve.ts` `settingPatch` builds a one-section patch, `FeaturePages.tsx` sends it; test `install feature switch
+  writes only its own section (C8 E3)`); the lanes serve the staged build, so the row stays red until that is staged. The install-mode `change()`
   in `src/components/workspace/FeaturePages.tsx` passes the whole GlobalSettings to `setGlobalSettings`; `settingsStore.ts`
   builds the save-failure label from `Object.keys(patch)`, so the curator toggle reads "extraction, pacing, display, ...: the
   settings save answered 500" instead of "stagecraft: ...". Fix: pass only the touched section. Evidence: lane 30 round-2 logs
@@ -127,6 +129,25 @@ assertions; src is not changed in C8. Evidence paths are row dirs listed per row
   contradicts owner decision 2; needs its assertion moved to Author view.
 - Lane note: a plain `seed --slim` lane keeps the memory profile on 127.0.0.1:18888 and the no-model requires probe reached it;
   seed no-model lanes with `SO_LANE_OFFLINE=1`.
+
+## Status 2026-10-25 (afternoon)
+
+- C1: owner playtest pending (owner starts later).
+- C2: DONE. `live-v28-45-seal.json` PASS on the 3090 (batch `2026-10-25T13-04-09-059Z`); fixes `c5e3546b`, `f6740313`.
+- C3: recorded model miss (plan 47 §C3 final GPU run): the read writes 0 promise lines; two product fixes merged on the way
+  (journey promisee via chat variable, `leadInAddressee`).
+- C4: DONE. T8 4/4 after the timewindow04 fixture correction (plan 50 §T8 fixture correction).
+- C5: DONE, F4 miss (plan 06 §LT run): F1 40/40, F2 36/40, F3 0 leaks, F4 +0.0 (floor +0.5), F5 80/80.
+- C6: DONE for 06 and 53 (no-model, green x2); A02 model scenario runs after the image journey frees the stage.
+- C7: DONE (headroom merged).
+- C8: in progress (agent).
+- C9: DONE.
+- C10: DONE (B2-ext merged).
+- C11: evidence archived: `so-evidence archive --label close-out-20261025 --lanes 45,46 --since 2026-10-25T09:00:00Z` (301 files,
+  0 problems) plus `extra/` (06 LT score and rater logs, the interrupted image journey run) and the C9 copy-check folder, so-sessions
+  `bfe546ed`, `d09d7737`. Freeze open.
+- Image journey (p41, lane 46, owner-data seed, images on): stopped by the owner at 14:19Z to free the GPU, after rig[Bram]; 17 steps
+  pass, frames[Ash] refused 1 of 2 (0 mask-import). Full rerun owed when the GPU is back.
 
 ## Move to v3.0 (copied into `docs/plans/v3.0/05-deferred-items.md` §From the v2.8/v2.9 close-out)
 

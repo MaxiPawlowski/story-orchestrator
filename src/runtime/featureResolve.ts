@@ -38,6 +38,13 @@ export const writeSettingPath = (root: object, path: string, value: unknown): vo
   target[parts[parts.length - 1]] = value;
 };
 
+export const settingPatch = (global: GlobalSettings, path: string, value: unknown): Partial<GlobalSettings> => {
+  const next = { ...global };
+  writeSettingPath(next, path, value);
+  const section = path.split(".")[0] as keyof GlobalSettings;
+  return { [section]: next[section] };
+};
+
 const defaultValue = (global: GlobalSettings, id: StoryFeatureId, field: string, path: string): FeaturePolicyValue => {
   const value = readSettingPath(global, path);
   if (id === "thinking" && field === "effort" && value === undefined) return DEFAULT_REPLY_EFFORT;

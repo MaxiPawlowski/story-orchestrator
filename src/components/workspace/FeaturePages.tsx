@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { STORY_FEATURE_IDS, type FeaturePolicyValue, type StoryFeatureId } from "@engine/featurePolicy";
 import { FEATURE_CONTROLS } from "@runtime/featureControls";
-import { resolveFeatures, writeSettingPath } from "@runtime/featureResolve";
+import { resolveFeatures, settingPatch } from "@runtime/featureResolve";
 import { featureStateWord, featureStatus, waitingCount } from "@runtime/featureStatus";
-import { getGlobalSettings, setGlobalSettings, type GlobalSettings } from "@runtime/settingsStore";
+import { getGlobalSettings, setGlobalSettings } from "@runtime/settingsStore";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { FeaturePolicyFields } from "./FeaturePolicyFields";
@@ -64,12 +64,12 @@ export const FeaturePages = ({ snapshot, manager, install, selected, onSelect, o
       if (!manager.setFeatureOverride(selected, { ...policy, [field]: value })) setFailure("The chat changed. Open its story again before editing preferences.");
       return;
     }
-    const next: GlobalSettings = { ...getGlobalSettings() };
     const path = config.controls.find((control) => control.field === field)?.path;
     if (!path) return;
-    writeSettingPath(next, path, value);
-    if (selected === "sprites") next.sprites.explicit = true;
-    setGlobalSettings(next);
+    const global = getGlobalSettings();
+    const patch = settingPatch(global, path, value);
+    if (selected === "sprites") patch.sprites = { ...(patch.sprites ?? global.sprites), explicit: true };
+    setGlobalSettings(patch);
     manager.notify();
     manager.reapplyPromptBlocks();
   };

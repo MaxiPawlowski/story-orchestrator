@@ -436,3 +436,11 @@ Branch `v2.8-prefreeze-47` (base `v2.8-prefreeze` `c909b40a`). Build and unit te
 - Offline on the recorded window with the fix: the unnamed line is still refused; the same line with the member named in the lead-in is
   accepted, and a narrator line is then refused.
 - GPU rerun owed: GS6 `--model judged`. Pass closes C3. If it fails with promise lines read 0, record a model miss.
+
+### C3 final GPU run 2026-10-25 (lane 45 batch `2026-10-25T13-18-24-524Z`, GS6 `--model judged`, build with `leadInAddressee`)
+
+- GS6.8 FAIL: promise message 7, 2 of 7 reads covering it, **promise lines read 0**, unparsed 0, refusal notes 0. The read wrote
+  no `[promised]` line at all: recorded as a **model miss**, prompt unchanged (C3 stop rule). GS6 automated 2 pass / 1 fail.
+- Cleanup reported 4 failures, 0 leaks (lane only; header diff below).
+- Candidate prompt line for v3.0, not applied: a promise said to "you" right after a cast member spoke is for that member;
+  write their name.

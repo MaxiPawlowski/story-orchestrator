@@ -1,5 +1,5 @@
 import { defaultGlobalSettings } from "./settingsModel";
-import { AUTOMATIC_STAGE, featureSettings, resolveFeatures } from "./featureResolve";
+import { AUTOMATIC_STAGE, featureSettings, resolveFeatures, settingPatch } from "./featureResolve";
 import { featureStateWord } from "./featureStatus";
 import { readFeaturePolicies } from "@engine/featurePolicy";
 import { applyDeviceSettings, deviceSettingsStore } from "./deviceSettings";
@@ -71,5 +71,16 @@ describe("device preferences", () => {
     expect(global.sprites.blink).toBe(true);
     store.set("sprites.blink", undefined);
     expect(store.read()).toEqual({});
+  });
+});
+
+describe("install feature switch writes only its own section (C8 E3)", () => {
+  it("the patch names one section and leaves the source settings untouched", () => {
+    const global = defaultGlobalSettings();
+    const before = JSON.stringify(global);
+    const patch = settingPatch(global, "stagecraft.curatorEnabled", false);
+    expect(Object.keys(patch)).toEqual(["stagecraft"]);
+    expect(patch.stagecraft).toMatchObject({ ...global.stagecraft, curatorEnabled: false });
+    expect(JSON.stringify(global)).toBe(before);
   });
 });
