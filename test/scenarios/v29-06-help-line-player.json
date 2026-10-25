@@ -1,0 +1,66 @@
+{
+  "model": "none",
+  "_note": "v2.9 06, owner decision 2026-10-25 (no-model lane, plumbing only: debugResponse suggestions, never sign-off): the help line is a player surface; a greyed offer is Author view only. Player mode: the suggestions panel shows the help line and no greyed row, and the unavailable offer's text and reason appear nowhere in the panel. Author view (asked again, since the side rows are decided per ask): the greyed row is listed, disabled, with its reason; the help line stays. Run: node scripts/debug/so-scenario.mts run test/scenarios/v29-06-help-line-player.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
+  "requires": {
+    "lane": "no-model",
+    "group": "Group: Arin, DM Narrator",
+    "members": ["Arin", "DM Narrator"],
+    "judge": "off",
+    "briefingDraft": "off",
+    "innerBeat": "off"
+  },
+  "steps": [
+    { "ext_setting": { "extension": "story-orchestrator", "key": ["settings", "image", "enabled"], "value": false } },
+    { "ext_setting": { "extension": "story-orchestrator", "key": ["settings", "sprites", "enabled"], "value": false } },
+    { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; const s = globalThis.storyOrchestratorRuntime.getGlobalSettings(); if (s.image.enabled || s.sprites.enabled) throw new Error('media must be off'); globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; const text = ['- [1] I look for another way past Arin.', '- [2] I search the square for a rope.', '- I listen at the gate.', '- I ask Arin about the fountain.'].join(String.fromCharCode(10)); globalThis.__v2906hAsks = 0; Object.defineProperty(globalThis, 'storyOrchestratorDebugSuggestionsResponse', { configurable: true, get() { globalThis.__v2906hAsks += 1; return text; } }); const ctx = SillyTavern.getContext(); for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error('the sandbox chat still holds ' + ctx.chat.length + ' message(s)'); globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); return { cleared: true };" },
+    {
+      "import_story": {
+        "id": "so-v29-06-help-line",
+        "title": "SO-V29-06 Help line",
+        "description": "Synthetic v2.9 06 fixture: a public check with a hint and an offer that is not yet available.",
+        "qualities": [
+          { "key": "tried", "type": "bool", "source": "extractor", "rubric": "Did the player try to climb the wall?" },
+          { "key": "climb_ok", "type": "bool", "source": "code", "rubric": "Set by the climb check" },
+          { "key": "has_rope", "type": "bool", "source": "extractor", "rubric": "Does the player hold a rope?" },
+          { "key": "has_lantern", "type": "bool", "source": "extractor", "rubric": "Does the player hold a lantern?" }
+        ],
+        "checkpoints": [
+          {
+            "id": "start", "name": "Test square", "player_name": "The Square", "player_text": "Get past Arin at the gate.", "type": "anchor", "start": true, "objective": "Get past the guard.",
+            "offers": [
+              { "id": "coin", "text": "I offer the guard a coin." },
+              { "id": "cellar", "text": "I slip down the cellar stairs.", "needs": { "when": { "q": "has_lantern", "op": "==", "v": true }, "reason": "You need a lantern first." } }
+            ]
+          },
+          { "id": "yard", "name": "Yard", "player_name": "The Yard", "type": "anchor", "objective": "Cross the yard." }
+        ],
+        "transitions": [
+          {
+            "from": "start", "to": "yard", "priority": 0,
+            "gate": { "all": [{ "q": "tried", "op": "==", "v": true }, { "q": "climb_ok", "op": "==", "v": true }] },
+            "check": { "id": "climb", "label": "Climb", "quality": "climb_ok", "roll": { "sides": 20, "target": 12 }, "narrate": "public", "modifiers": [{ "q": "has_rope", "v": true, "add": 4, "hint": "a rope" }] }
+          }
+        ],
+        "roster": [{ "id": "arin", "name": "Arin", "role": "a guard" }, { "id": "narrator", "name": "DM Narrator", "role": "narrator" }],
+        "requirements": { "members": ["Arin", "DM Narrator"] }
+      }
+    },
+    { "slash": "/sendas name=\"DM Narrator\" raw=false The square is quiet; Arin stands by the gate." },
+    { "slash": "/sendas name=\"Arin\" raw=false Arin leans on her spear and shakes her head." },
+    { "eval": "const pause = (ms) => new Promise((r) => setTimeout(r, ms)); const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const v = await test(); if (v) return v; if (Date.now() > end) throw new Error('timed out after ' + ms + ' ms: ' + what); await pause(200); } }; const open = async () => { if (!document.querySelector('#so-workspace-modal[open]')) document.querySelector('#so-open-workspace').click(); const modal = await until(() => document.querySelector('#so-workspace-modal[open]'), 10000, 'the workspace'); if (modal.dataset.context !== 'story') { const tab = [...modal.querySelectorAll('button')].find((b) => b.textContent.trim() === 'This story'); if (!tab) throw new Error('no Story context button'); tab.click(); await until(() => modal.dataset.context === 'story', 5000, 'the Story context'); } (await until(() => modal.querySelector('#so-workspace-page-play'), 5000, 'the Play page')).click(); (await until(() => document.querySelector('#so-open-suggestions'), 10000, 'the suggestions button')).click(); await until(() => !document.querySelector('#so-workspace-modal[open]'), 5000, 'the workspace to close'); return until(() => document.querySelector('#so-panel-suggestions'), 5000, 'the suggestions panel'); }; const read = () => { const root = document.querySelector('#so-suggestions'); return { lines: [...root.querySelectorAll('[data-so=suggestion]')].map((b) => b.textContent.trim()), help: [...root.querySelectorAll('[data-so=suggestions-help]')].map((d) => d.textContent.trim()), greyed: [...root.querySelectorAll('[data-so=suggestion-unavailable]')].map((b) => ({ text: b.textContent.trim(), disabled: b.disabled, aria: b.getAttribute('aria-disabled'), title: b.getAttribute('title') ?? '' })), author: root.querySelector('[data-so=suggestions-author]')?.textContent ?? null, text: root.textContent }; }; globalThis.__v2906h = { pause, until, open, read }; return true;" },
+    {
+      "log": true,
+      "eval": "const g = globalThis.__v2906h; if (globalThis.storyOrchestratorRuntime.getSnapshot().ui?.authorView) throw new Error('the player check runs in Author view'); await g.open(); await g.until(() => document.querySelectorAll('#so-suggestions [data-so=suggestion]').length >= 3, 15000, 'suggestions'); const view = g.read(); if (JSON.stringify(view.help) !== JSON.stringify(['Climb — could help: a rope'])) throw new Error('player help line: ' + JSON.stringify(view.help)); if (view.greyed.length) throw new Error('a greyed offer row reached player mode: ' + JSON.stringify(view.greyed)); for (const leak of ['You need a lantern first.', 'I slip down the cellar stairs.', 'd20', 'vs 12', 'The Yard']) if (view.text.includes(leak)) throw new Error('player panel shows ' + leak); if (view.author !== null) throw new Error('author row in player mode: ' + view.author); if (!view.lines.includes('I offer the guard a coin.')) throw new Error('the available authored offer is missing: ' + JSON.stringify(view.lines)); if (globalThis.__v2906hAsks !== 1) throw new Error('model calls per ask: ' + globalThis.__v2906hAsks); return { help: view.help, greyed: view.greyed.length, lines: view.lines };"
+    },
+    {
+      "log": true,
+      "eval": "const g = globalThis.__v2906h; const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); await g.pause(400); const before = globalThis.__v2906hAsks; document.querySelector('#so-suggestions [data-so=suggestions-again]').click(); await g.until(() => globalThis.__v2906hAsks > before && document.querySelector('#so-suggestions [data-so=suggestions-author]'), 15000, 'the Author view ask'); const view = g.read(); if (view.greyed.length !== 1) throw new Error('Author view greyed rows: ' + JSON.stringify(view.greyed)); const row = view.greyed[0]; if (!row.disabled || row.aria !== 'true') throw new Error('the greyed row is not disabled: ' + JSON.stringify(row)); if (!row.text.includes('I slip down the cellar stairs.') || !row.text.includes('You need a lantern first.') || !row.title.includes('You need a lantern first.')) throw new Error('the greyed row lacks its offer or reason: ' + JSON.stringify(row)); if (JSON.stringify(view.help) !== JSON.stringify(['Climb — could help: a rope'])) throw new Error('Author view help line: ' + JSON.stringify(view.help)); if (view.lines.includes('I slip down the cellar stairs.')) throw new Error('the unavailable offer is clickable'); if (globalThis.__v2906hAsks !== before + 1) throw new Error('model calls per ask: ' + (globalThis.__v2906hAsks - before)); return { greyed: row, help: view.help };"
+    },
+    {
+      "log": true,
+      "eval": "const g = globalThis.__v2906h; const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: false }); await g.pause(400); const before = globalThis.__v2906hAsks; document.querySelector('#so-suggestions [data-so=suggestions-again]').click(); await g.until(() => globalThis.__v2906hAsks > before && document.querySelectorAll('#so-suggestions [data-so=suggestion]').length >= 3, 15000, 'the player ask after Author view'); const view = g.read(); if (view.greyed.length || view.author !== null || view.text.includes('You need a lantern first.')) throw new Error('Author view rows survived the switch back to player mode: ' + JSON.stringify({ greyed: view.greyed, author: view.author })); if (view.help.length !== 1) throw new Error('help line lost: ' + JSON.stringify(view.help)); return { greyed: 0, help: view.help };"
+    },
+    { "eval": "document.querySelector('#so-panel-suggestions [data-so=\"panel-close\"]')?.click(); delete globalThis.storyOrchestratorDebugSuggestionsResponse; delete globalThis.__v2906hAsks; delete globalThis.__v2906h; return true;" },
+    { "ui": { "action": "assert-player-clean" } }
+  ]
+}

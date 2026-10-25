@@ -51,6 +51,21 @@ Order: C1 first (it feeds C2-C5), the rest in parallel where they do not share a
     `so-evidence archive` + `npm run sessions:archive` after the last GPU row, final freeze: one `npm run gates` + `suite:nomodel`
     on the frozen commit, staged, header captured.
 
+## C6 record 2026-10-25 (branch `v2.9-13-c6`, staged build `f6b259db`, lane 35 offline no-model)
+
+- `test/scenarios/v29-06-help-line-player.json` (no-model): player panel shows the help line, no greyed row, no offer text or
+  reason; Author view (asked again) lists the greyed row disabled with its reason; back in player mode the row is gone. Green x2.
+- `test/scenarios/v28-53-disabled-hears-no-present.json` (+ `.story.json`, no-model): Arin group-disabled by a checkpoint cast
+  change, a `present` move lands: `rep_guild_seen_narrator` -3, `rep_guild_seen_arin` stays at its start value 0 (seeded, not
+  unset); re-enabled, a later boundary and a reopen grant nothing. Green x2.
+- Both listed by `npm run suite:nomodel -- --list`.
+- `test/scenarios/v29-a02-stopped-reply.json` (`requires.lane: model`, `model: any`): written and schema/eval checked, not run (GPU).
+  Run: `node scripts/debug/st-lanes.mts run <model lane> -- scripts/debug/so-scenario.mts run test/scenarios/v29-a02-stopped-reply.json --sandbox --group "Group: Arin, DM Narrator"`, twice.
+- Stale: `v29-06-anchored-suggestions.json` step 8 still expects a greyed row in player mode (fails on lane 35, `greyed offer:`);
+  contradicts owner decision 2; needs its assertion moved to Author view.
+- Lane note: a plain `seed --slim` lane keeps the memory profile on 127.0.0.1:18888 and the no-model requires probe reached it;
+  seed no-model lanes with `SO_LANE_OFFLINE=1`.
+
 ## Move to v3.0 (copied into `docs/plans/v3.0/05-deferred-items.md` §From the v2.8/v2.9 close-out)
 
 - **v2.8 42 witness filter** (W4 FAIL 2026-10-25: real exact-set 13/147 vs presence 144/171; the read answers all-present). Needs a
