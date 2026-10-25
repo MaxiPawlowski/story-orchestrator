@@ -390,3 +390,27 @@ Branch `v2.8-prefreeze-47` (base `v2.8-prefreeze` `c909b40a`). Build and unit te
     filter (no held secrets in the fixture); the live director gets no promise until 42 B exists, so this is the prompt-level check only.
 - Still owed: every real run above (P1, P1s CL half, P2, P2w, P6, P8 with 42 RB), no-model plumbing runs on a lane serving this branch,
   archiving real-run records next to the sets; P4a, P7/P7h unchanged. Floors stay informational: record the miss, never retune.
+
+## C3 record 2026-10-25: GS6.8 no promise row (v2.9 13 C3, offline, no GPU)
+
+- Evidence: GS6 batch row lane 45 `2026-10-25T08-00-03-602Z/GS6-run1` (build `d6d6aed5`, Artemis v1.1), check GS6.8 08:18:42 to 08:26:47
+  UTC. The promise line is the journey's own generic text (`I turn to whoever spoke last. "I promise you ..."`), chat message 17; message 16
+  is one cast member's reply, so that member is the answered speaker.
+- Cause: **(a) model miss.** `server.log` holds 4 shared reads in the window (responses at lines 16950, 18551, 19030, 19739). Three cover
+  message 17 (WITNESS ranges 15-18, 0-21 (the step's manual read), 14-21), each with the promise section in its prompt and message 17 in its
+  transcript (request lines 16264, 18211, 18945); none emits a `[promised]` line. The first read writes a MEMORY row calling the player's
+  words vague instead. Not (b)/(c): there was no line to refuse or to span. Not (d): three windows covered the message. Not (e): the step
+  waits for the scheduler, runs a manual read and polls 180 s.
+- Offline proof: the four recorded responses through the shipped `parseSharedReadResponse` (esbuild entry outside the repo) give 0 promise
+  lines for each read covering message 17. The acceptor accepts the GS6 shape when the read does write it: a synthetic window (player line
+  with the same narration prefix and quoted pledge, promisee = the answered speaker) gives 1 row for the inner quote with and without
+  `by "before nightfall"` and for the whole message; another member is refused (`not addressed to that cast member`), as designed.
+- Precision note: a later read in the same run (line 28970) wrote a `[promised]` line citing the narrator's message 26; the acceptor refuses
+  it (`not the player's own words`, covered by the NPC test).
+- Prompt: unchanged (C3 rule). The instruction allows "the character the player is answering" but gives no example of an unnamed addressee,
+  and the GS6 line names nobody while the toy scenario names its promisee. Candidate one-line addition, to be measured on the P1 set before
+  shipping: `A promise said to "you" right after a cast member spoke is for that cast member: write their name.`
+- Journey: GS6.8 kept as strict; its failure now says why in counts (promise message index, reads covering it of all audits, promise lines
+  read, unparsed promise lines, promise refusal notes), so the next run separates (a) from (b)/(c)/(d) without the server log.
+- GPU rerun (`GS6 --model judged`): a pass closes C3; a fail with `promise lines read 0` and covering reads >= 1 confirms the recorded model
+  miss; `promise lines read` > 0 with refusal notes or unparsed > 0 is a product case to reopen.
