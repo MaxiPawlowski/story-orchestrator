@@ -10,7 +10,7 @@ const USAGE = `Usage:
   node scripts/debug/so-witness.mts label-merge --sessions <root> --out <dir>
   node scripts/debug/so-witness.mts lab --source <lab-rows.json> --out <dir>
   node scripts/debug/so-witness.mts adjudicate --sessions <root> --out <dir> [--width 2]
-  node scripts/debug/so-witness.mts record --sessions <root> --out <dir> --arm on|off|both [--lab-rows <f> --lab-story <f>] [--only <key,...>] [--plumbing]
+  node scripts/debug/so-witness.mts record --sessions <root> --out <dir> --arm on|off|both [--lab-rows <f> --lab-story <f>] [--only <key,...>] [--plumbing] [--adjudicated] [--no-stop]
   node scripts/debug/so-witness.mts reads --sessions <root> --out <dir> [--lab-rows <f> --lab-story <f>]
   node scripts/debug/so-witness.mts wc --out <dir>
   node scripts/debug/so-witness.mts score-real --out <dir> --freeze <freeze.json> [--adjudicated]
@@ -35,7 +35,11 @@ which; its verdict wins, undecided or unparsed answers become heard "unknown"; w
 freeze and presence use that set.
 record (GPU, the read model): on the lane page st-lanes env names, runs the shipped shared read through
 storyOrchestratorLiveSuite.runWitnessRead over each labelled window (real: first and last 8 of 12; lab: 5 x 8), witness lines on
-and/or off; resumes; writes <dir>/reads/<arm>/. reads turns the on arm into so-witness-reads/1 files (<dir>/reads/files/);
+and/or off, interleaved per read (on, off, on, off) so any stop leaves balanced pairs; resumes; writes <dir>/reads/<arm>/. Plan 11 stop
+rules (scripts/debug/lib/stopRule.mts) score each on-arm read against the frozen labels in <dir> (--adjudicated: the adjudicated set)
+with the W4 floors (exact set >= 0.9, W4fi <= 0.02, W4fe <= 0.10, W4cov >= 0.85; aside kept-out inclusion zero) and stop on S1-S3;
+Wc needs every pair, so no S4; a read that throws twice stops the run as S5 (not a measurement). A stopped run writes
+<dir>/reads/stop.json {stopped, verdict, at, reason, counts} and is never resumed; --no-stop runs every read (S5 still stops). reads turns the on arm into so-witness-reads/1 files (<dir>/reads/files/);
 --plumbing answers every read with a canned all-present witness reply (no model call) and marks the records; plumbing output is
 never a measurement. wc computes Wc against the off arm; score-real scores W4 per set against the frozen labels (real combined, lab apart).`;
 
@@ -71,16 +75,16 @@ async function labelCommand(command: string, args: string[]): Promise<number> {
       const arm = need(args, '--arm');
       const arms = (arm === 'both' ? ['off', 'on'] : [arm]) as Array<'on' | 'off'>;
       const { withST } = await import('./lib/cli.mts');
+      const noStop = args.includes('--no-stop');
+      const plumbing = args.includes('--plumbing') ? rec.plumbingReply : undefined;
+      const score = await rec.witnessReadScorer(await lib.labelFiles(out, args.includes('--adjudicated')));
       result = await withST(async (page) => {
         const run: import('./lib/witnessRecord.mts').Runner = (spec) => page.evaluate(async (payload) => {
           const suite = (globalThis as unknown as { storyOrchestratorLiveSuite?: { runWitnessRead(spec: unknown): Promise<unknown> } }).storyOrchestratorLiveSuite;
           if (!suite) throw new Error('storyOrchestratorLiveSuite not registered (extension not loaded?)');
           return suite.runWitnessRead(payload);
         }, spec) as ReturnType<import('./lib/witnessRecord.mts').Runner>;
-        const counts: Record<string, number> = {};
-        const plumbing = args.includes('--plumbing') ? rec.plumbingReply : undefined;
-        for (const set of sets) for (const one of arms) counts[`${one}`] = (counts[`${one}`] ?? 0) + (await rec.recordSet(set, one, run, out, console.log, plumbing)).length;
-        return { sets: sets.length, records: counts };
+        return rec.recordAll(sets, arms, run, out, { plumbing, score, noStop });
       });
     }
   } else if (command === 'wc') result = await (await import('./lib/witnessRecord.mts')).wcAll(out);
@@ -108,7 +112,8 @@ async function labelCommand(command: string, args: string[]): Promise<number> {
   } else throw new Error(`unknown command ${command}
 ${USAGE}`);
   console.log(JSON.stringify(result, null, 1));
-  return 0;
+  const stopped = (result as { stopped?: { verdict: string } | null } | null)?.stopped;
+  return stopped && stopped.verdict !== 'pass' ? 1 : 0;
 }
 
 export async function main(argv: string[]): Promise<number> {

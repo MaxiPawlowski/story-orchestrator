@@ -11,6 +11,8 @@ type SandboxGuard = Awaited<ReturnType<typeof beginSandboxSession>>['guard'];
 import { executeSlashCommand } from './st-actions.mts';
 import { journeyStoryRefs, splitJourneyLorebooks, storyListedBooks } from './lib/journeyLore.mts';
 import { deleteSandboxMirrorBooks, recordSandboxStory, releaseBlockedRoutes, runSteps } from './so-scenario.mts';
+import { NO_STOP_FLAG } from './lib/stopRule.mts';
+import { journeyS5, retriesAsPlumbing, stoppedRow, type JourneyStop } from './lib/journeyStop.mts';
 import { validateFixture } from './lib/scenarioSchema.mts';
 import { readExtractionSettings, restoreExtractionSettings } from './lib/extractionSettings.mts';
 import { closeStartDialog, fixtureDrivesBriefing, readBriefingSetting, readDisplaySetting, restoreBriefing, restorePlayerSetup, suppressBriefing, suppressPlayerSetup } from './lib/briefingHarness.mts';
@@ -61,6 +63,9 @@ run options:
   --wi-gating scan|file  lorebook gating mode for the run (v2.5 plan 01 G3/G4). scan goes through the
                   product's confirm, which normalises the install's story lorebooks: LANES ONLY. The
                   mode is captured before and put back at cleanup; normalised books stay normalised
+  --no-stop       v2.9 plan 11 S5 off: a check that fails on a harness defect (closed page, refused connection, stale CSRF
+                  or bundle) is not retried and the journey runs on. By default it is retried once; failing the same way again
+                  stops the journey (the check blocked, the rest not-runnable, runnerError set, record.stopped {stopped, at, counts})
 
 Check outcomes: pass | fail | blocked | not-runnable | skipped.
 
@@ -532,7 +537,7 @@ function renderChecklist(results) {
   ].join('\n');
 }
 
-export async function runJourney(page, idOrFile, { strict = false, keep = false, only = null, allowConfig = true, group = null, humanRecordFile = null, judgeMode = null as JudgeMode | null, wiGating = null as WiGatingMode | null } = {}) {
+export async function runJourney(page, idOrFile, { strict = false, keep = false, only = null, allowConfig = true, group = null, humanRecordFile = null, judgeMode = null as JudgeMode | null, wiGating = null as WiGatingMode | null, noStop = false } = {}) {
   const { journey, path } = await resolveJourney(idOrFile);
   await assertRuntimeOnPage(page);
   const pageMark = currentPageCapture()?.mark() ?? null;
@@ -547,6 +552,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
   const importedHashes = [];
   const setupApplied: SetupApplied = emptySetup();
   let runnerError = null;
+  let stopped: JourneyStop | null = null;
   let releasedRoutes: unknown = null;
   let assetBaseline = null;
   const capabilities = capabilityProbe(page, journey.capabilities);
@@ -576,8 +582,9 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
       // `reconcileExpected` lives in lib/journeyTallies.mts so it is unit-tested without a browser.
       const record = (summary, outcome, detail, extra = {}) => results.push({ ...reconcileExpected(summary, outcome, detail ?? ''), ...extra });
 
-      for (const check of checks) {
+      for (const [index, check] of checks.entries()) {
         const summary = summarize(check);
+        if (stopped) { results.push(stoppedRow(summary, stopped)); continue; }
         if (only && !only.includes(check.id)) { results.push({ ...summary, outcome: 'skipped', detail: 'not selected by --only' }); continue; }
         if (check.mode === 'human') { results.push({ ...summary, outcome: 'skipped', detail: 'human check — operator scores it' }); continue; }
         const unmet = unselectedDependencies(check, only);
@@ -594,8 +601,19 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
           continue;
         }
         console.log(`--- ${check.id} ${check.goal ?? ''}`);
-        const outcome = await runSteps(page, check.steps ?? [], { scenarioDir: JOURNEY_DIR, importedHashes, label: `${check.id} `, assetBaseline, guard: setupApplied.guard ?? null, requireStory: Boolean(only) });
-        record(summary, outcome.ok ? 'pass' : 'fail', outcome.error ?? '', { firstAttempt: firstAttemptOf(check.expect, outcome), retries: outcome.retries ?? [] });
+        const runCheck = () => runSteps(page, check.steps ?? [], { scenarioDir: JOURNEY_DIR, importedHashes, label: `${check.id} `, assetBaseline, guard: setupApplied.guard ?? null, requireStory: Boolean(only) });
+        const first = await runCheck();
+        const plumbingRetry = retriesAsPlumbing(first, noStop) ? first.error : null;
+        if (plumbingRetry) console.log(`${check.id} harness error, retrying the check once (S5): ${plumbingRetry}`);
+        const outcome = plumbingRetry ? await runCheck() : first;
+        if (plumbingRetry && retriesAsPlumbing(outcome, noStop)) {
+          stopped = journeyS5(check.id, index, checks.length, outcome.error, results);
+          record(summary, 'blocked', `${stopped.reason} (not a measurement)`, { plumbingRetry, retries: outcome.retries ?? [] });
+          runnerError = `stopped ${stopped.stopped} at ${stopped.at}: ${stopped.reason}`;
+          console.error(`Journey stopped: ${runnerError}`);
+          continue;
+        }
+        record(summary, outcome.ok ? 'pass' : 'fail', outcome.error ?? '', { firstAttempt: firstAttemptOf(check.expect, outcome), retries: outcome.retries ?? [], ...(plumbingRetry ? { plumbingRetry } : {}) });
         if (setupApplied.guard?.escaped) {
           runnerError = outcome.error;
           console.error(`Journey stopped: ${runnerError}`);
@@ -661,6 +679,8 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
     notGreen: reasons,
     humanRecord: humanRecordFile ?? null,
     runnerError,
+    stopped,
+    noStop,
     releasedRoutes,
     capabilities: capabilities.cache,
     results,
@@ -728,6 +748,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         humanRecordFile: argValue(args, '--require-human-record') ?? null,
         judgeMode: parseJudgeMode(argValue(args, "--judge-uses"), argValue(args, "--warden-mode")),
         wiGating: parseWiGating(argValue(args, '--wi-gating')),
+        noStop: args.includes(NO_STOP_FLAG),
       });
       return { ok };
     }, { pageCapture: 'journey' });

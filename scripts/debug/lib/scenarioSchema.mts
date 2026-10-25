@@ -11,8 +11,9 @@
 import { branchSpec, nextReadWindowSpec, rollbackOutcomeSpec } from './identityVerbs.mts';
 import { soloSpec } from './soloSandbox.mts';
 import { validateRequires } from './scenarioRequires.mts';
+import { preconditionProblems } from './stepPrecondition.mts';
 
-export const STEP_MODIFIERS = new Set(['adoptsNewChat', 'log', 'attempts', 'retryBack', 'expectFail']);
+export const STEP_MODIFIERS = new Set(['adoptsNewChat', 'log', 'attempts', 'retryBack', 'expectFail', 'precondition']);
 
 // send_generate accepts { text, timeoutMs, expectReply } — expectReply makes a silent turn fail.
 
@@ -169,6 +170,7 @@ export function validateSteps(steps: unknown, where = 'steps'): string[] {
       problems.push(`${at}: ${verbs.length} verbs in one step (${verbs.join(', ')}) — only the first would run; split them`);
       return;
     }
+    if ('precondition' in step) problems.push(...preconditionProblems(step.precondition, index, at));
     const [verb] = verbs;
     if (!STEP_VERBS.has(verb)) {
       problems.push(`${at}: unknown step verb "${verb}"${near(verb, STEP_VERBS)}`);

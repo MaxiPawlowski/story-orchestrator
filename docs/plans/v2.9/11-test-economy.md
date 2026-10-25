@@ -87,3 +87,23 @@ Retroactive check: the 2026-10-25 W4 run (exact-set 13/147 real) trips S2 at the
 
 - Reserved port for the replay stub (proposal 18078).
 - Whether B2 `send` needs the GPU broker lease or talks to the controller directly (controller queue already serializes).
+
+## Build record: B1 + B6 (2026-10-25, branch `v2.9-11-b1-stoprules`, no GPU, no lanes)
+
+- `scripts/debug/lib/stopRule.mts` (pure): S0 pilot `min(10, ceil(N/4))`; S1 exact (best reachable rate over the planned
+  denominator; a counted metric without `planned` skips S1/S4); S2 Wilson 95% (upper for `atLeast`, lower for `atMost`); S3 first
+  zero-floor hit, inside the pilot too; S4 only without `needsAll` and zero floors; S5 a plumbing item after one retry
+  (`withOneRetry`, `isPlumbingError`); `interleave` for pairs; `stopRecord` = `{stopped, verdict, at: "i/N", reason, counts}`.
+  Tests `stopRule.test.mts`: rule table, planted S4 pass at 15/20, `needsAll` never S4, the W4 shape (13/147, 0.9) S2 at 10/37,
+  balanced pairs.
+- `so-witness record`: `recordAll` interleaves on/off per read, scores each on-arm read against the frozen labels in its window
+  (`scoreOneRead`, W4/W4fi/W4fe/W4cov + aside kept-out zero floor), `needsAll` (Wc pairs); writes `reads/stop.json`, refuses to
+  resume a stopped run; `--no-stop` keeps S5 only. Exit 1 on a non-pass stop.
+- `so-live-suite run`: `--min` + every positive tier floor (`lib/liveSuiteStop.mts`); `needsAll` with `--record`, `--arm` or
+  intents expectations; a fixture that throws twice = S5; report gains `stopped`, `planned`, `plotDelta {hits, of, rate}`.
+- `so-journey`: S5 only; a check failing on a harness defect is retried once, a second one stops the journey (check `blocked`,
+  rest `not-runnable`, `runnerError`, `record.stopped`); `--no-stop` = old behaviour.
+- B6: step modifier `precondition {step, path, atLeast}` (`lib/stepPrecondition.mts`, schema-validated, earlier step only, remapped
+  by `withAuthorView`); an unmet one fails the step as `vacuous` without running it. 47 step 13 declares step 10 `kept >= 1`.
+  Wc `lengthRate` now carries `{hits, of, rate}`.
+- Open: 06 LT runner and 04 C2 arms not wired (no runner on master); `suite:mutation` no-kill review (B6 third item) not done.

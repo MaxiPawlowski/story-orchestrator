@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { mkdir, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
+import { evaluateStop, interleave, stopRecord, withOneRetry, type StopDeclaration, type StopFloor, type StopItem, type StopRecord, type Trial } from './stopRule.mts';
 import { fileOf, loadWitreal, readDir, readJson, selectRealSessions, writeJson, type ChatRow } from './witreal.mts';
 
 export type WitnessArm = 'on' | 'off';
@@ -119,28 +120,144 @@ export async function planLab(labRowsFile: string, labStoryFile: string): Promis
 
 export type ReadRecord = { plumbing?: boolean; readId: string; arm: WitnessArm; from: number; to: number; present: string[] | null; status: string; inputTokens: number; outputTokens: number; calls: RecordResult['calls']; response: string; scope: number; rejected: number };
 
+function specFor(set: PlannedSet, read: PlannedRead, arm: WitnessArm, plumbing?: (read: PlannedRead) => string): RecordSpec {
+  return {
+    story: set.story, chat: set.chat, from: read.from, to: read.to, state: read.state, present: arm === 'on' ? read.presentIds : null,
+    ...(read.activeCheckpointId ? { activeCheckpointId: read.activeCheckpointId } : {}),
+    ...(plumbing ? { debugResponse: plumbing(read) } : {}),
+  };
+}
+
+function recordOf(read: PlannedRead, arm: WitnessArm, result: RecordResult, plumbing: boolean): ReadRecord {
+  return {
+    ...(plumbing ? { plumbing: true } : {}),
+    readId: read.readId, arm, from: read.from, to: read.to, present: arm === 'on' ? read.presentNames : null, status: result.witness?.status ?? (arm === 'off' ? 'off' : 'outage'),
+    inputTokens: result.inputTokens, outputTokens: result.outputTokens, calls: result.calls, response: result.rawResponse, scope: result.scope, rejected: result.rejected,
+  };
+}
+
+const armFile = (out: string, arm: WitnessArm, key: string) => join(out, 'reads', arm, fileOf(key));
+
+async function loadRecords(out: string, arm: WitnessArm, key: string): Promise<ReadRecord[]> {
+  const file = armFile(out, arm, key);
+  return existsSync(file) ? (await readJson<{ records: ReadRecord[] }>(file)).records : [];
+}
+
 export async function recordSet(set: PlannedSet, arm: WitnessArm, run: Runner, out: string, log: (line: string) => void = console.log, plumbing?: (read: PlannedRead) => string) {
-  const dir = join(out, 'reads', arm);
-  await mkdir(dir, { recursive: true });
-  const file = join(dir, fileOf(set.key));
-  const done = existsSync(file) ? await readJson<{ records: ReadRecord[] }>(file) : { records: [] as ReadRecord[] };
-  const records = [...done.records];
+  await mkdir(join(out, 'reads', arm), { recursive: true });
+  const records = await loadRecords(out, arm, set.key);
   for (const read of set.reads) {
     if (records.some((entry) => entry.readId === read.readId)) continue;
-    const result = await run({
-      story: set.story, chat: set.chat, from: read.from, to: read.to, state: read.state, present: arm === 'on' ? read.presentIds : null,
-      ...(read.activeCheckpointId ? { activeCheckpointId: read.activeCheckpointId } : {}),
-      ...(plumbing ? { debugResponse: plumbing(read) } : {}),
-    });
-    records.push({
-      ...(plumbing ? { plumbing: true } : {}),
-      readId: read.readId, arm, from: read.from, to: read.to, present: arm === 'on' ? read.presentNames : null, status: result.witness?.status ?? (arm === 'off' ? 'off' : 'outage'),
-      inputTokens: result.inputTokens, outputTokens: result.outputTokens, calls: result.calls, response: result.rawResponse, scope: result.scope, rejected: result.rejected,
-    });
-    await writeJson(file, { key: set.key, arm, records });
+    const result = await run(specFor(set, read, arm, plumbing));
+    records.push(recordOf(read, arm, result, Boolean(plumbing)));
+    await writeJson(armFile(out, arm, set.key), { key: set.key, arm, records });
     log(`record ${arm} ${read.readId}: ${result.calls.map((call) => call.finish).join(',')}`);
   }
   return records;
+}
+
+export const WITNESS_STOP_FLOORS: readonly StopFloor[] = [
+  { id: 'exactSet', rate: 0.9, direction: 'atLeast' },
+  { id: 'falseInclusion', rate: 0.02, direction: 'atMost' },
+  { id: 'falseExclusion', rate: 0.1, direction: 'atMost' },
+  { id: 'coverage', rate: 0.85, direction: 'atLeast' },
+];
+
+export const witnessDeclaration = (N: number): StopDeclaration => ({ N, floors: [...WITNESS_STOP_FLOORS], zeroFloors: ['asideKeptOut'], needsAll: true });
+
+export type ReadScorer = (set: PlannedSet, record: ReadRecord) => Promise<Record<string, Trial>>;
+export type RecordAllResult = { sets: number; planned: number; records: Record<string, number>; stopped: StopRecord | null; noStop: boolean };
+
+export const stopFile = (out: string) => join(out, 'reads', 'stop.json');
+
+export async function recordAll(sets: readonly PlannedSet[], arms: readonly WitnessArm[], run: Runner, out: string, options: { log?: (line: string) => void; plumbing?: (read: PlannedRead) => string; score?: ReadScorer; noStop?: boolean } = {}): Promise<RecordAllResult> {
+  const log = options.log ?? console.log;
+  const noStop = options.noStop === true;
+  if (!noStop && existsSync(stopFile(out))) {
+    const prior = await readJson<StopRecord>(stopFile(out));
+    throw new Error(`refused: this run stopped ${prior.stopped} at ${prior.at} (${prior.reason}); a stopped run is never resumed to change a result (a full run is --no-stop into a fresh --out)`);
+  }
+  const units = sets.flatMap((set) => set.reads.map((read) => ({ set, read })));
+  const declaration = witnessDeclaration(units.length);
+  const store = new Map<string, ReadRecord[]>();
+  for (const set of sets) for (const arm of arms) store.set(`${arm}:${set.key}`, await loadRecords(out, arm, set.key));
+  for (const arm of arms) await mkdir(join(out, 'reads', arm), { recursive: true });
+  const items: StopItem[] = [];
+  const counts: Record<string, number> = Object.fromEntries(arms.map((arm) => [arm, 0]));
+  let stopped: StopRecord | null = null;
+  let pair: Partial<Record<WitnessArm, ReadRecord>> = {};
+  let broken: string | null = null;
+  for (const slot of interleave(units, arms)) {
+    const { set, read } = slot.unit;
+    const records = store.get(`${slot.arm}:${set.key}`) as ReadRecord[];
+    const done = records.find((entry) => entry.readId === read.readId);
+    if (done) pair[slot.arm] = done;
+    else if (!broken) {
+      const attempt = await withOneRetry(() => run(specFor(set, read, slot.arm, options.plumbing)));
+      if (attempt.ok === true) {
+        const record = recordOf(read, slot.arm, attempt.value, Boolean(options.plumbing));
+        records.push(record);
+        pair[slot.arm] = record;
+        await writeJson(armFile(out, slot.arm, set.key), { key: set.key, arm: slot.arm, records });
+        log(`record ${slot.arm} ${read.readId}: ${attempt.value.calls.map((call) => call.finish).join(',')}${attempt.retried ? ' (after one retry)' : ''}`);
+      } else {
+        broken = `${slot.arm} ${read.readId}: ${attempt.error}`;
+        log(`record ${slot.arm} ${read.readId}: harness error after one retry: ${attempt.error}`);
+      }
+    }
+    if (pair[slot.arm]) counts[slot.arm] += 1;
+    if (!slot.last) continue;
+    const on = pair.on;
+    items.push(broken ? { plumbing: true, retried: true, error: broken } : { metrics: on && !on.plumbing && options.score ? await options.score(set, on) : {} });
+    pair = {};
+    const decision = evaluateStop(declaration, items);
+    if (broken || (!noStop && decision.stop)) {
+      stopped = stopRecord(decision);
+      if (stopped) {
+        await writeJson(stopFile(out), stopped);
+        log(`stopped ${stopped.stopped} at ${stopped.at}: ${stopped.reason}`);
+      }
+      break;
+    }
+  }
+  return { sets: sets.length, planned: units.length, records: counts, stopped, noStop };
+}
+
+type Ratio = { hits: number; of: number; rate: number | null };
+type LabelSet = { format: string; set: string; synthetic: boolean; members: string[]; labels: Array<{ messageId: number }> };
+export type WitnessScoreKit = {
+  replayWitnessReads(reads: unknown[], messages: unknown[], roster: unknown[], present?: string[]): { state: unknown };
+  revisionOf(message: unknown): unknown;
+  witnessLookup(state: unknown, member: string, messageId: number, span?: [number, number], live?: unknown): unknown;
+  scoreWitness(set: unknown, predict: (messageId: number, member: string, span?: [number, number]) => unknown): {
+    exactSet: Ratio; falseInclusion: Ratio; falseExclusion: Ratio; coverage: Ratio; asideKeptOutIncluded: number;
+  };
+};
+
+export function scoreOneRead(kit: WitnessScoreKit, labels: LabelSet, set: PlannedSet, record: ReadRecord): Record<string, Trial> {
+  const window = { ...labels, labels: labels.labels.filter((label) => label.messageId >= record.from && label.messageId <= record.to) };
+  if (!window.labels.length) return {};
+  const { state } = kit.replayWitnessReads(readsFile(set, [record]).reads, set.messages, set.members);
+  const live = new Map(set.messages.map((message) => [message.messageId, kit.revisionOf(message)]));
+  const score = kit.scoreWitness(window, (messageId, member, span) => kit.witnessLookup(state, member, messageId, span, live.get(messageId) ?? null));
+  const trial = (ratio: Ratio) => ({ hits: ratio.hits, of: ratio.of });
+  return {
+    exactSet: trial(score.exactSet), falseInclusion: trial(score.falseInclusion), falseExclusion: trial(score.falseExclusion), coverage: trial(score.coverage),
+    asideKeptOut: score.asideKeptOutIncluded,
+  };
+}
+
+export async function witnessReadScorer(labelFiles: readonly string[]): Promise<ReadScorer> {
+  const kit = (await (await import('./witness.mts')).loadWitness()) as unknown as WitnessScoreKit;
+  const sets = new Map<string, LabelSet>();
+  for (const file of labelFiles) {
+    const labels = await readJson<LabelSet>(file);
+    sets.set(labels.set, labels);
+  }
+  return async (set, record) => {
+    const labels = sets.get(set.key);
+    return labels ? scoreOneRead(kit, labels, set, record) : {};
+  };
 }
 
 export function readsFile(set: PlannedSet, records: readonly ReadRecord[]) {
@@ -167,12 +284,15 @@ export function wcFrom(on: readonly ReadRecord[], off: readonly ReadRecord[]) {
   const latency = (record: ReadRecord) => record.calls.reduce((sum, call) => sum + call.ms, 0);
   const lengthRate = (records: readonly ReadRecord[]) => {
     const calls = records.flatMap((record) => record.calls);
-    return calls.length ? calls.filter((call) => call.finish === 'length').length / calls.length : null;
+    const hits = calls.filter((call) => call.finish === 'length').length;
+    return { hits, of: calls.length, rate: calls.length ? hits / calls.length : null };
   };
   const addedInput = p95(pairs.map(({ read, base }) => read.inputTokens - base.inputTokens));
   const addedOutput = p95(pairs.map(({ read, base }) => read.outputTokens - base.outputTokens));
-  const onRate = lengthRate(pairs.map(({ read }) => read));
-  const offRate = lengthRate(pairs.map(({ base }) => base));
+  const onLength = lengthRate(pairs.map(({ read }) => read));
+  const offLength = lengthRate(pairs.map(({ base }) => base));
+  const onRate = onLength.rate;
+  const offRate = offLength.rate;
   const onLatency = p95(pairs.map(({ read }) => latency(read)));
   const offLatency = p95(pairs.map(({ base }) => latency(base)));
   const floors = {
@@ -181,7 +301,7 @@ export function wcFrom(on: readonly ReadRecord[], off: readonly ReadRecord[]) {
     lengthRate: onRate === null || offRate === null ? null : onRate <= offRate + WC_FLOORS.lengthRateSlack + 1e-9,
     latencyP95: onLatency === null || offLatency === null ? null : onLatency <= offLatency * WC_FLOORS.latencyRatio + 1e-9,
   };
-  return { pairs: pairs.length, addedInputP95: addedInput, addedOutputP95: addedOutput, lengthRate: { on: onRate, off: offRate }, latencyP95: { on: onLatency, off: offLatency }, floors, liveSuite: 'owed (separate so-live-suite run)' };
+  return { pairs: pairs.length, addedInputP95: addedInput, addedOutputP95: addedOutput, lengthRate: { on: onLength, off: offLength }, latencyP95: { on: onLatency, off: offLatency, pairs: pairs.length }, floors, liveSuite: 'owed (separate so-live-suite run)' };
 }
 
 export async function readAll(out: string, arm: WitnessArm): Promise<Map<string, { key: string; records: ReadRecord[] }>> {

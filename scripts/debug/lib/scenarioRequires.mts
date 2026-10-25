@@ -159,9 +159,17 @@ export const AUTHOR_VIEW_STEP = { eval: "const rt = globalThis.storyOrchestrator
 
 export function withAuthorView(steps: unknown[], requires: ScenarioRequires): unknown[] {
   if (!requires.authorView) return steps;
-  return steps.flatMap((step) => {
-    const verb = step && typeof step === 'object' ? Object.keys(step).find((key) => STORY_LOADING_VERBS.has(key)) : undefined;
-    return verb ? [step, AUTHOR_VIEW_STEP] : [step];
+  const positions: number[] = [];
+  const out: unknown[] = [];
+  steps.forEach((step, index) => {
+    positions[index] = out.length;
+    out.push(step);
+    if (step && typeof step === 'object' && Object.keys(step).some((key) => STORY_LOADING_VERBS.has(key))) out.push(AUTHOR_VIEW_STEP);
+  });
+  return out.map((step) => {
+    const precondition = step && typeof step === 'object' ? (step as { precondition?: { step: number } }).precondition : undefined;
+    if (!precondition || positions[precondition.step - 1] === undefined) return step;
+    return { ...(step as object), precondition: { ...precondition, step: positions[precondition.step - 1] + 1 } };
   });
 }
 

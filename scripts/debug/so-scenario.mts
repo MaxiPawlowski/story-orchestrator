@@ -8,6 +8,7 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { touchPress } from './lib/touchPress.mts';
 import { STEP_MODIFIERS, validateFixture } from './lib/scenarioSchema.mts';
+import { vacuousReason } from './lib/stepPrecondition.mts';
 import { payloadFailures } from './lib/payloadAssert.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
 import { type LibraryCapture } from './lib/configRestore.mts';
@@ -1154,8 +1155,9 @@ async function runStep(page, key, value, { scenarioDir = PROJECT_ROOT, importedH
 // With a sandbox guard every step first proves the page is still on a chat the run created, so a
 // chat switched under the run (a shared debug browser) stops it before it writes anywhere else.
 async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashes = [], label = '', assetBaseline = null, guard = null, requireStory = false, dismissBlocks = false } = {}) {
-  const result: { steps: unknown[]; ok: boolean; error: string | null; retries: Array<{ index: number; key: string; attempt: number; of: number; error: string }>; firstAttempt?: 'pass' | 'fail'; blocksPaneDismissed?: Array<{ index: number; blocks: string[]; after: 'check' | 'intercept' }> } = { steps: [], ok: true, error: null, retries: [] };
+  const result: { steps: unknown[]; ok: boolean; error: string | null; vacuous?: boolean; retries: Array<{ index: number; key: string; attempt: number; of: number; error: string }>; firstAttempt?: 'pass' | 'fail'; blocksPaneDismissed?: Array<{ index: number; blocks: string[]; after: 'check' | 'intercept' }> } = { steps: [], ok: true, error: null, retries: [] };
   const attempts = new Map<number, number>();
+  const outputs: unknown[] = [];
   const intercepted = new Set<number>();
   const closeBlocksPane = async (index: number, after: 'check' | 'intercept') => {
     const closed = await dismissBlocksPane(page).catch(() => null);
@@ -1169,6 +1171,15 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
     const key = Object.keys(step).find((name) => !STEP_MODIFIERS.has(name));
     const startedAt = Date.now();
     let output;
+    const vacuous = step.precondition ? vacuousReason(step.precondition, outputs) : null;
+    if (vacuous) {
+      result.steps.push({ index, key, ok: false, vacuous: true, ms: 0, error: vacuous });
+      result.ok = false;
+      result.vacuous = true;
+      result.error = vacuous;
+      console.log(`${label}${index + 1}/${steps.length} ${key} VACUOUS ${vacuous}`);
+      break;
+    }
     try {
       if (guard) await assertInSandbox(page, guard, `before step ${index + 1} (${key})`);
       if (dismissBlocks) await closeBlocksPane(index, 'check');
@@ -1193,6 +1204,7 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
       if (chatsByGroupBefore) await adoptForeignChat(page, guard, chatsByGroupBefore);
       if (guard) await recordSandboxStory(page, guard);
       const entry = { index, key, ok: true, ms: Date.now() - startedAt };
+      outputs[index] = output;
       result.steps.push(entry);
       console.log(`${label}${index + 1}/${steps.length} ${key} ok ${entry.ms}ms`);
       if (step.log) console.log(`${label}${index + 1}/${steps.length} ${key} -> ${JSON.stringify(output ?? null).slice(0, typeof step.log === 'number' ? step.log : 800)}`);
