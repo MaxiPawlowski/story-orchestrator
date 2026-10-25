@@ -2,9 +2,10 @@ import { existsSync } from 'node:fs';
 import { cp, mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { loadEntry } from './bundleEntry.mts';
-import { latestOk, type BatchItem, type BatchManifest, type Finish, type InstructSequences, type ResponseRecord } from './promptBatch.mts';
+import { latestOk, type BatchItem, type BatchManifest, type Finish, type InstructSequences, type ResponseRecord, type StopCallback } from './promptBatch.mts';
 import type { ItemKind } from './promptBatchRecorder.mts';
 import type { LiveFixtureOutput } from './liveSuiteScore.mts';
+import { lt06, saga, type CaptureContext, type CaptureResult } from './promptBatchScenarios.mts';
 
 export interface KitReply { ok: boolean; text: string; finish: Finish; kind?: string; message?: string }
 
@@ -31,6 +32,10 @@ export interface Measurement {
   selfCheck(item: PlannedItem, inPage: Record<string, unknown>, calls: number, canned: string, kit: BatchKit, instruct: InstructSequences | null): Promise<SelfCheck>;
   outcome?(manifest: BatchManifest, item: BatchItem, record: ResponseRecord, kit: BatchKit): Promise<boolean | null>;
   score(dir: string, manifest: BatchManifest, records: ResponseRecord[], kit: BatchKit, args: MeasureArgs): Promise<{ ok: boolean | null; report: Record<string, unknown> }>;
+  capture?(ctx: CaptureContext): Promise<CaptureResult>;
+  roles?: string[];
+  pinMemory?: boolean;
+  stop?(dir: string, manifest: BatchManifest, kit: BatchKit): StopCallback;
 }
 
 export const CANNED_MODEL = 'prompt-batch-canned';
@@ -257,7 +262,7 @@ export const t8: Measurement = {
   },
 };
 
-export const MEASUREMENTS: Readonly<Record<string, Measurement>> = { w4, t8 };
+export const MEASUREMENTS: Readonly<Record<string, Measurement>> = { w4, t8, lt06, saga };
 
 export function measurementFor(id: string | undefined): Measurement {
   const found = id ? MEASUREMENTS[id] : undefined;

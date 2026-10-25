@@ -1,0 +1,186 @@
+{
+ "format": "so-prompt-batch/1",
+ "measurement": "lt06",
+ "createdAt": "2026-10-25T13:00:51.904Z",
+ "synthetic": true,
+ "source": {
+  "stUrl": "http://127.0.0.1:8133",
+  "bundleSha256": "9f0bfb781af5f7c55bbfc36d79cbd875ce2ce3c785e489e9f1c8aedee80c160a"
+ },
+ "route": {
+  "profileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+  "name": "Story Orchestrator Memory RunPod",
+  "api": "llamacpp",
+  "apiUrl": "http://127.0.0.1:18079",
+  "preset": "Artemis Extraction",
+  "instructName": "Gemma 4",
+  "instruct": {
+   "stop_sequence": "<turn|>",
+   "input_sequence": "<|turn>user\n",
+   "output_sequence": "<|turn>model\n",
+   "last_output_sequence": "<|turn>model\n<|channel>thought\n<channel|>"
+  }
+ },
+ "args": {
+  "corpus": "0fcb41347ba8bb57ce905e82dea4f5536a83163c3546d8b308effe8060041947",
+  "situations": "2",
+  "profile": "Story Orchestrator Memory RunPod",
+  "roles": "read",
+  "only": "s01,s05"
+ },
+ "items": [
+  {
+   "id": "s01/current",
+   "sha": "c247e0b9b374bf29c1b80d080f82d191f7be8bec2ac93ffe09670146ccc333bc",
+   "path": "/completion",
+   "calls": 1,
+   "builderInBody": true,
+   "selfCheck": {
+    "ok": true
+   },
+   "inPage": {
+    "contextSha": "0899fda16c7dd806e3154e7688c672c4c2080c67a2e7ce844906a52918887cbf",
+    "anchors": [],
+    "asks": 1,
+    "help": [],
+    "greyed": [],
+    "authorRow": "Suggestions: anchors none, grounded 0/4",
+    "promptNeedles": [],
+    "otherCalls": 0,
+    "refused": []
+   },
+   "meta": {
+    "situation": "s01",
+    "arm": "current",
+    "mix": "quest",
+    "fileSha": "1c8ec168ee381aec8b0a863321a23743053f26208be2807b730e6a978f4b2386",
+    "needles": [],
+    "corpus": "0fcb41347ba8bb57ce905e82dea4f5536a83163c3546d8b308effe8060041947"
+   }
+  },
+  {
+   "id": "s01/anchored",
+   "sha": "7f09759868a6897e2a36e01f8452fd069c0e1fb513ba48b262ae0b1a3c53136d",
+   "path": "/completion",
+   "calls": 1,
+   "builderInBody": true,
+   "selfCheck": {
+    "ok": true
+   },
+   "inPage": {
+    "contextSha": "a2df5ba11b55eec8d5e0dfdc7ea51f128ddae9d489371c94344f6ee5bd83bc44",
+    "anchors": [
+     {
+      "id": "quest-step:lamp.0",
+      "kind": "quest-step",
+      "text": "Find oil for the lamp"
+     },
+     {
+      "id": "objective:rocks",
+      "kind": "objective",
+      "text": "Help the keeper relight the lighthouse lamp before the fishing boats return."
+     }
+    ],
+    "asks": 1,
+    "help": [],
+    "greyed": [],
+    "authorRow": "Suggestions: anchors quest-step, objective, grounded 0/4",
+    "promptNeedles": [],
+    "otherCalls": 0,
+    "refused": []
+   },
+   "meta": {
+    "situation": "s01",
+    "arm": "anchored",
+    "mix": "quest",
+    "fileSha": "cf7fc5f46dced637bbb88a1fcd298e9134c4981e705b1c8c701133364d74c57e",
+    "needles": [],
+    "corpus": "0fcb41347ba8bb57ce905e82dea4f5536a83163c3546d8b308effe8060041947"
+   }
+  },
+  {
+   "id": "s05/current",
+   "sha": "2d08468e6b79f8ce79d2b61a22c3405ce18d6431d8b1b595f8d4098ff91b6f3c",
+   "path": "/completion",
+   "calls": 1,
+   "builderInBody": true,
+   "selfCheck": {
+    "ok": true
+   },
+   "inPage": {
+    "contextSha": "d1962800ea384701ca9e2151c2acecc4e9d35af9b4ec2e977e065ad40380b89e",
+    "anchors": [],
+    "asks": 1,
+    "help": [],
+    "greyed": [],
+    "authorRow": "Suggestions: anchors none, grounded 0/4",
+    "promptNeedles": [
+     "drowned bell"
+    ],
+    "otherCalls": 0,
+    "refused": []
+   },
+   "meta": {
+    "situation": "s05",
+    "arm": "current",
+    "mix": "quest",
+    "fileSha": "5699122b1b6e201abff866abbbc424e29acefc5e5a2b97e3bc4f8e7adeea4adc",
+    "needles": [
+     "drowned bell",
+     "old pier"
+    ],
+    "corpus": "0fcb41347ba8bb57ce905e82dea4f5536a83163c3546d8b308effe8060041947"
+   }
+  },
+  {
+   "id": "s05/anchored",
+   "sha": "edc46986532c8aef9c62824caf163b5e27c5521c10478a4614e449543c0b0916",
+   "path": "/completion",
+   "calls": 1,
+   "builderInBody": true,
+   "selfCheck": {
+    "ok": true
+   },
+   "inPage": {
+    "contextSha": "b3131c9e4bdb39a0fc252f04fa3e9336e56513185e470071b6763fa5b9462ec0",
+    "anchors": [
+     {
+      "id": "objective:landing",
+      "kind": "objective",
+      "text": "Earn passage on the ferry downriver."
+     },
+     {
+      "id": "quest-step:passage.0",
+      "kind": "quest-step",
+      "text": "Earn the fare by mending the ferryman's nets"
+     }
+    ],
+    "asks": 1,
+    "help": [],
+    "greyed": [],
+    "authorRow": "Suggestions: anchors objective, quest-step, grounded 0/4",
+    "promptNeedles": [
+     "drowned bell"
+    ],
+    "otherCalls": 0,
+    "refused": []
+   },
+   "meta": {
+    "situation": "s05",
+    "arm": "anchored",
+    "mix": "quest",
+    "fileSha": "0a5c3194446f7ae2a227aa732eb20763847d10970143fbcc27ea17b16a8f52a5",
+    "needles": [
+     "drowned bell",
+     "old pier"
+    ],
+    "corpus": "0fcb41347ba8bb57ce905e82dea4f5536a83163c3546d8b308effe8060041947"
+   }
+  }
+ ],
+ "tokenizer": {
+  "calls": 0,
+  "failed": 0
+ },
+ "problems": []
+}
