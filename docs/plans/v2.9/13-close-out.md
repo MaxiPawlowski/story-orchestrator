@@ -127,3 +127,10 @@ About 2 h of model time plus the playtest.
 
 - C2: should a `degraded` final record still count as an ended run for New Game+ (it carries the blackboard, not the summary)?
 - C8: should `suite:nomodel` select a memory profile on no-model lanes for checks that need one configured but never call it?
+
+## C8 product defects
+
+- E3 (found by C8 group A, `live-v24-02-e3-save-evidence`): an install feature switch on Defaults wrote the whole settings object,
+  so the save-evidence row named every section instead of the one changed. Fixed (branch `v2.9-13-feature-label`):
+  `featureResolve.ts` `settingPatch` builds a one-section patch; `FeaturePages.tsx` sends it (sprites keeps `explicit`). Test
+  `install feature switch writes only its own section (C8 E3)`. `gates:quick` green.
