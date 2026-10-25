@@ -435,8 +435,6 @@ export async function runCleanup(page, journey, { importedHashes, libraryBefore,
   if (activatedLorebooks?.length) report.lorebooks = await deactivateLorebooks(page, activatedLorebooks);
   // S11: put install-wide extraction settings back to the pre-run capture, always.
   report.extraction = await restoreExtractionSettings(page, extractionBefore).catch((error) => ({ error: error.message }));
-  report.briefing = await restoreBriefing(page, briefingBefore).catch((error) => ({ error: error.message }));
-  report.playerSetup = await restorePlayerSetup(page, playerSetupBefore).catch((error) => ({ error: error.message }));
   report.extensionSettings = await restoreExtSettings(page).catch((error) => ({ error: error.message }));
   if (judgeMode) report.judgeRestore = await restoreJudgeConfig(page, judgeMode.before).catch((error) => ({ error: error.message }));
   if (wiGating) report.wiGating = { mode: wiGating.mode, applied: wiGating.applied, restore: await restoreWiGating(page, wiGating.before).catch((error) => ({ error: error.message })) };
@@ -451,6 +449,8 @@ export async function runCleanup(page, journey, { importedHashes, libraryBefore,
   if (configSnapshot && allowConfig && cleanup.restoreConfig !== false) {
     report.config = await restoreGlobalConfig(page).catch((error) => ({ error: error.message }));
   }
+  report.briefing = await restoreBriefing(page, briefingBefore).catch((error) => ({ error: error.message }));
+  report.playerSetup = await restorePlayerSetup(page, playerSetupBefore).catch((error) => ({ error: error.message }));
   if (cleanup.removeImportedStories !== false) {
     report.importedStoryHashes = [...new Set(importedHashes)];
     report.library = await restoreLibrary(page, libraryBefore).catch((error) => ({ error: error.message }));
