@@ -33,6 +33,8 @@ const LAZY_MEANWHILE = ["src/runtime/agendaProposalsHost.ts", "src/runtime/coord
 
 const LAZY_DIET = ["src/runtime/storyUpdate.ts", "src/judge/director.ts", "src/wizard/provisioning.ts"];
 
+const LAZY_HEADROOM = ["src/runtime/slashCommands.ts", "src/runtime/curatorPassKit.ts", "src/judge/extraction.ts"];
+
 const LAZY_DELIVERY = ["src/runtime/delivery/kit.ts", "src/runtime/delivery/render.ts", "src/runtime/delivery/mine.ts"];
 
 const LAZY_POLISH = ["src/polish/plan.ts", "src/polish/guards.ts", "src/polish/windows.ts", "src/polish/prompt.ts", "src/polish/projection.ts", "src/polish/ledger.ts",
@@ -216,6 +218,13 @@ import "./runtime/spikes/toolTurnSummary";
     expect(LAZY_DIET.filter((path) => !present.has(path))).toEqual([]);
     expect(staticReach(files).filter((path) => LAZY_DIET.includes(path))).toEqual([]);
     expect([...reachableFrom(buildGraph(files, { includeDynamic: true }), ENTRY)].map(rel)).toEqual(expect.arrayContaining(LAZY_DIET));
+  });
+
+  it("bundle headroom 2026-10-25: slash commands, the curator pass kit and the judged typed read load as their own chunks", () => {
+    const present = new Set(files.map(rel));
+    expect(LAZY_HEADROOM.filter((path) => !present.has(path))).toEqual([]);
+    expect(staticReach(files).filter((path) => LAZY_HEADROOM.includes(path))).toEqual([]);
+    expect([...reachableFrom(buildGraph(files, { includeDynamic: true }), ENTRY)].map(rel)).toEqual(expect.arrayContaining(LAZY_HEADROOM));
   });
 
   it("SP7.b: the seeded chance seam ships in the prod entry graph, and its spike module is gone", () => {

@@ -12,6 +12,7 @@ export * from "./digest";
 export * from "./repetition";
 export * from "./createCandidate";
 export * from "./createPlan";
+export * from "./createProposal";
 export * from "./createEligibility";
 export * from "./createNearDup";
 export * from "./createdStamp";

@@ -3,7 +3,7 @@ import {
   type PrimitiveValue, type Quality, type QualityCriterion, type QualityRatingLevel, type QualityStepRule,
 } from "@engine/index";
 import { findNumbers, findStringCandidates } from "./numbers";
-import { EXTRACTION_CONFIDENCE, EXTRACTION_LATCHING_BUMP, STALL_DIRECT_P, STALL_GENUINE_P } from "./policy";
+import { EXTRACTION_CONFIDENCE, EXTRACTION_LATCHING_BUMP, STALL_DIRECT_P, STALL_GENUINE_P, TYPED_EVIDENCE_CHARS } from "./policy";
 import { choice, choiceAnswer, noul, noulAnswer, scoreAnswer, score } from "./questions";
 import type { JudgeAnswer, JudgeOption, JudgeQuestion, JudgeRequest } from "./types";
 
@@ -43,8 +43,6 @@ export interface TypedDelta {
   messageId?: number;
   sourceChars?: number;
 }
-
-export const TYPED_EVIDENCE_CHARS = 160;
 
 const msgKey = (message: TypedWindowMessage) => `msg_${message.id}`;
 

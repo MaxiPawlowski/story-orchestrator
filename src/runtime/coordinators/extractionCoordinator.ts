@@ -35,7 +35,6 @@ import type { SpikeSettings } from "../settingsModel";
 import { lazyBacklog, type BacklogPort } from "../memorizeBacklogPort";
 import type { PromisePort } from "../promisePort";
 import type { WitnessPort } from "../witnessPort";
-import { buildStallRequest, stallVerdict } from "@judge/extraction";
 import { buildVerifyRequest, readVerify, verifyVerdict } from "@judge/memory";
 import { STALL_TIMEOUT_MS, VERIFY_MAX_LINES_PER_CALL, VERIFY_TIMEOUT_MS } from "@judge/policy";
 import { log } from "@utils/log";
@@ -214,6 +213,7 @@ export class ExtractionCoordinator {
     // it — the apply queue, the reconciliation log, the judged-read ring — belongs to that chat.
     const run = beginRun(this.deps.ownership, { from: plan.window.from, to: plan.window.to });
     const window = plan.window.messages.map((message) => ({ id: message.index, speaker: message.speaker, text: message.text }));
+    const { buildStallRequest, stallVerdict } = await import("@judge/extraction");
     const result = await judge.ask("stall", buildStallRequest(plan.leaves, window), { timeoutMs: STALL_TIMEOUT_MS,
         summarize: (answers) => Object.fromEntries(plan.leaves.map((leaf,
         index) => [`${leaf.q}${leaf.op}${JSON.stringify(leaf.v)}`,
