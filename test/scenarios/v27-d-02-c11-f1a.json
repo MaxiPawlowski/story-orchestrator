@@ -98,13 +98,7 @@
       }
     },
     {
-      "ui": {
-        "action": "drawer-tab",
-        "label": "Overview"
-      }
-    },
-    {
-      "eval": "const text = document.querySelector('#drawer-manager')?.textContent ?? ''; if (/evidence cut|took_job/.test(text)) throw new Error('player mode shows the held row\\'s author detail'); return { playerClean: true };",
+      "eval": "const play = document.querySelector('#so-workspace-modal[open]'); if (!play?.querySelector('#so-player-overview')) throw new Error('the workspace Play page (#so-player-overview) is not showing (player overview moved from the drawer to the Play page in 7724042c)'); const text = play.textContent ?? ''; if (/evidence cut|took_job/.test(text)) throw new Error('player mode shows the held row\\'s author detail'); return { playerClean: true };",
       "log": true
     },
     {

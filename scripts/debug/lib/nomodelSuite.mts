@@ -1,11 +1,11 @@
 import { classOf, noModelRunnable } from './modelClass.mts';
 
-export const NOMODEL_LANES = [30, 31, 32, 33, 34];
+export const NOMODEL_LANES = [30, 31, 32, 34];
 
 export interface ScenarioRow {
   path: string;
   shape?: { needsLlm?: boolean } | null;
-  requires?: { lane?: string; prior?: string } | null;
+  requires?: { lane?: string; prior?: string; plugins?: string[] } | null;
   decision?: string;
   reason?: string;
 }
@@ -18,12 +18,12 @@ export interface SuiteList {
 }
 
 export function noModelScenarios(rows: ScenarioRow[], modelOf: (path: string) => unknown, noModelOf: (rows: ScenarioRow[]) => ScenarioRow[]): { scenarios: string[]; left: string[]; problems: string[] } {
-  const listed = noModelOf(rows.filter((row) => row.shape && !row.shape.needsLlm && row.decision === 'keep'));
+  const listed = noModelOf(rows.filter((row) => row.shape && !row.shape.needsLlm && row.decision === 'keep' && !row.requires?.plugins?.length));
   const problems = listed.filter((row) => modelOf(row.path) !== 'none').map((row) => `${row.path}: on the no-LLM no-model list but declares model ${String(modelOf(row.path))}`);
   const scenarios = listed.filter((row) => modelOf(row.path) === 'none').map((row) => row.path).sort();
   const left = rows
     .filter((row) => row.requires?.lane === 'no-model' && !scenarios.includes(row.path))
-    .map((row) => `${row.path}: ${row.requires?.prior ? `needs a prior step (${row.requires.prior})` : `decision ${row.decision ?? 'none'}${row.reason ? ` (${row.reason})` : ''}`}`)
+    .map((row) => `${row.path}: ${row.requires?.plugins?.length ? `needs server plugins, which the suite's offline lanes run without (${row.requires.plugins.join(', ')})` : row.requires?.prior ? `needs a prior step (${row.requires.prior})` : `decision ${row.decision ?? 'none'}${row.reason ? ` (${row.reason})` : ''}`}`)
     .sort();
   return { scenarios, left, problems };
 }
@@ -65,4 +65,58 @@ export function summarizeBatch(results: BatchRow[]): { counts: Record<string, nu
     lines.push(`${row.status.padEnd(12)} ${row.item} (lane ${row.lane})${why ? `: ${why}` : ''}`);
   }
   return { counts, lines, ok: results.length > 0 && counts.GREEN === results.length };
+}
+export const STRETCH_GROUP = 'SO-Open-Stretch-Curve';
+export const STRETCH_MEMBERS = ['Arin.png', 'DM Narrator.png'];
+export const KEYLESS_CC_PROFILE = { id: 'so-nomodel-deepseek-keyless', mode: 'cc', exclude: [], api: 'deepseek', model: 'deepseek-chat', name: 'SO no-model DeepSeek (keyless)' };
+
+const isObject = (value: unknown): value is Record<string, any> => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+
+export function prepareLaneSettings(settings: unknown): { next: Record<string, any>; profileId: string | null; changes: string[] } {
+  if (!isObject(settings) || !isObject(settings.extension_settings)) throw new Error('settings.json has no extension_settings');
+  const next = structuredClone(settings) as Record<string, any>;
+  const ext = next.extension_settings;
+  const changes: string[] = [];
+  ext.connectionManager = isObject(ext.connectionManager) ? ext.connectionManager : { profiles: [] };
+  const profiles: Array<Record<string, any>> = Array.isArray(ext.connectionManager.profiles) ? ext.connectionManager.profiles : [];
+  if (!profiles.some((profile) => profile.mode === 'cc' && profile.api === 'deepseek')) {
+    profiles.push({ ...KEYLESS_CC_PROFILE });
+    changes.push('added a keyless DeepSeek Chat Completion profile, unselected and on no role');
+  }
+  ext.connectionManager.profiles = profiles;
+  const home = isObject(ext['story-orchestrator']) ? ext['story-orchestrator'] : {};
+  const offered = profiles.filter((profile) => profile.mode !== 'cc');
+  const previous = isObject(home.settings) && isObject(home.settings.extraction) ? home.settings.extraction.profileId : null;
+  const profileId = offered.find((profile) => profile.id === previous)?.id ?? offered[0]?.id ?? null;
+  if ('v2Stories' in home) { delete home.v2Stories; changes.push('dropped the unread v2Stories copy'); }
+  home.settings = { judge: { enabled: false }, image: { enabled: false }, sprites: { enabled: false, explicit: true }, help: { onboardingSeen: true }, ...(profileId ? { extraction: { profileId } } : {}) };
+  changes.push(`Story Orchestrator settings reset to defaults (judge, images, sprites off; memory model ${profileId ?? 'none'})`);
+  ext['story-orchestrator'] = home;
+  const disabled: unknown[] = Array.isArray(ext.disabledExtensions) ? ext.disabledExtensions : [];
+  if (disabled.includes('memory')) changes.push('enabled SillyTavern Summarize (memory) with automatic summaries off');
+  ext.disabledExtensions = disabled.filter((name) => name !== 'memory');
+  ext.memory = { ...(isObject(ext.memory) ? ext.memory : {}), promptInterval: 0 };
+  ext.vectors = { ...(isObject(ext.vectors) ? ext.vectors : {}), enabled_chats: false };
+  if (isObject(next.accountStorage) && ['NavLockOn', 'NavOpened', 'WINavOpened'].some((key) => next.accountStorage[key] === 'true')) changes.push("ST's right and left panels unpinned and closed");
+  next.accountStorage = { ...(isObject(next.accountStorage) ? next.accountStorage : {}), NavLockOn: 'false', NavOpened: 'false', WINavOpened: 'false' };
+  return { next, profileId, changes };
+}
+
+export const LIBRARY_INDEX_FILE = ['user', 'files', 'so-library-index.json'];
+
+export function stretchGroupFile(now: number, stamp: string) {
+  return {
+    id: String(now), name: STRETCH_GROUP, members: STRETCH_MEMBERS, avatar_url: 'img/ai4.png', allow_self_responses: false, activation_strategy: 2,
+    generation_mode: 0, disabled_members: [], fav: false, chat_id: stamp, chats: [stamp], auto_mode_delay: 5, generation_mode_join_prefix: '', generation_mode_join_suffix: '',
+  };
+}
+
+export const PREPARE_PROBE = "const s=rt.getGlobalSettings(); const groups=ctx.groups.map((g)=>g.name); const ext=ctx.extensionSettings; return { image:s.image.enabled, sprites:s.sprites.enabled, judge:s.judge.enabled, profileId:s.extraction.profileId ?? null, stretch:groups.includes('SO-Open-Stretch-Curve'), cast:groups.includes('SOIMG Test cast'), arin:groups.includes('Group: Arin, DM Narrator'), memory:!ext.disabledExtensions.includes('memory'), sd:ext.disabledExtensions.includes('stable-diffusion'), deepseek:ext.connectionManager.profiles.some((p)=>p.mode==='cc'&&p.api==='deepseek') };";
+
+export function prepareProblems(probe: Record<string, unknown> | null): string[] {
+  if (!probe) return ['the lane page could not be probed'];
+  const want: Record<string, unknown> = { image: false, sprites: false, judge: false, stretch: true, cast: true, arin: true, memory: true, sd: true, deepseek: true };
+  const problems = Object.entries(want).filter(([key, value]) => probe[key] !== value).map(([key, value]) => `${key} reads ${JSON.stringify(probe[key])}, wanted ${JSON.stringify(value)}`);
+  if (!probe.profileId) problems.push('no memory model profile is selected');
+  return problems;
 }

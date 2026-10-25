@@ -803,9 +803,9 @@ const LAZY_DRAWER_TABS = ['blackboard', 'scheduler', 'payload'];
 
 export async function switchDrawerTab(page, label, { open = openStoryDrawer }: { open?: (page: any) => Promise<unknown> } = {}) {
   const drawer = page.locator('#drawer-manager');
-  if (!(await drawer.count())) throw new Error('Drawer (#drawer-manager) is not mounted.');
   await closeCharacterPanel(page);
   await open(page);
+  if (!(await drawer.count())) throw new Error('Drawer (#drawer-manager) is not mounted.');
   const tab = drawer.locator('[role="tablist"] button', { hasText: label });
   if (!(await tab.count())) throw new Error(`Drawer tab "${label}" not found.`);
   try {
@@ -1303,6 +1303,7 @@ export async function closeWorkspaceModal(page) {
 }
 
 export async function openStoryDrawer(page) {
+  if (await page.locator('#so-studio-modal[open]').count()) await closeCheckpointStudio(page);
   const toggle = page.locator('#so-drawer .drawer-toggle');
   if (!(await toggle.count())) throw new Error('Story drawer toggle (#so-drawer .drawer-toggle) not found.');
   const workspace = page.locator('#so-workspace-modal[open]');

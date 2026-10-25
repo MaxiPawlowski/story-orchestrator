@@ -1,7 +1,7 @@
 {
   "model": "none",
   "name": "v27-d-01-in-app-walk",
-  "objective": "v2.7 01 live (D) row, no model, no reply. The in-app walk from a cleared memory model to the first send: the settings panel's Getting started names the memory-model step (not done) and its Show me lands on #so-extraction-profile; with a group story loaded the settings Repair row (#so-entry-repair) names the memory-model step and its Show me lands on the same control; the settings-header '?' (#so-help-toggle, pointer click) opens the Help panel and a second press closes it; the drawer-header '?' (#so-help-toggle-drawer) toggles the same panel; player mode lists no author feature in Help; the first player line is sent compact (nothing generates); so-ui assert-player-clean sweeps every player surface including Help. Deviation from the plan's 'settings cleared': only the memory model is cleared (the runner restores it); a full clearGlobalConfig is the journey runner's job. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-01-in-app-walk.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
+  "objective": "v2.7 01 live (D) row, no model, no reply. The in-app walk from a cleared memory model to the first send, on the workspace (UI rework 7724042c, Help page b190faa2, ui audit 83473666): Orchestrator > Library's Getting started names the memory-model step (not done) and its Show me lands on #so-extraction-profile; with a group story loaded the Library Repair row (#so-entry-repair) names the memory-model step and its Show me lands on the same control; Orchestrator > Help > Help and Ask (#so-help-open-panel, pointer click) closes the workspace and opens the Help panel, which its close button closes (the settings-header and drawer-header '?' toggles are gone); player mode lists no author feature in Help; the first player line is sent compact (nothing generates); so-ui assert-player-clean sweeps every player surface including Help. Deviation from the plan's 'settings cleared': only the memory model is cleared (the runner restores it); a full clearGlobalConfig is the journey runner's job. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-01-in-app-walk.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
   "requires": {
     "lane": "no-model",
     "group": "Group: Arin, DM Narrator",
@@ -21,7 +21,7 @@
       }
     },
     {
-      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const step = await until(() => document.querySelector('#so-getting-started [data-so=\"getting-started-step\"][data-step=\"memory-model\"]'), 8000, 'Getting started with a memory-model step (#so-getting-started)'); if (step.getAttribute('data-done') !== 'false') throw new Error(`Getting started reads the memory model as set: data-done=${step.getAttribute('data-done')}`); if (!step.querySelector('[data-so=\"getting-started-reveal\"]')) throw new Error('the memory-model step has no Show me'); return { step: norm(step) };",
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const library = await until(() => document.querySelector('#so-workspace-modal[open] #so-workspace-page-library'), 5000, 'the Orchestrator > Library page button in the open workspace'); library.click(); const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const step = await until(() => document.querySelector('#so-getting-started [data-so=\"getting-started-step\"][data-step=\"memory-model\"]'), 8000, 'Getting started with a memory-model step (#so-getting-started)'); if (step.getAttribute('data-done') !== 'false') throw new Error(`Getting started reads the memory model as set: data-done=${step.getAttribute('data-done')}`); if (!step.querySelector('[data-so=\"getting-started-reveal\"]')) throw new Error('the memory-model step has no Show me'); return { step: norm(step) };",
       "log": true
     },
     {
@@ -77,7 +77,12 @@
       }
     },
     {
-      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const rt = globalThis.storyOrchestratorRuntime; if (!SillyTavern.getContext().groupId) throw new Error('not a group chat'); const repair = await until(() => document.querySelector('#so-entry-repair[data-area=\"memory-model\"]'), 8000, 'the settings Repair row naming the memory-model step'); if (rt.getSnapshot().pipeline.state !== 'not-configured') throw new Error(`the pipeline does not read not-configured with no memory model: ${rt.getSnapshot().pipeline.state}`); if (!norm(repair)) throw new Error('the Repair row is empty'); return { repair: norm(repair), pipeline: rt.getSnapshot().pipeline.text };",
+      "ui": {
+        "action": "open-settings"
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const rt = globalThis.storyOrchestratorRuntime; if (!SillyTavern.getContext().groupId) throw new Error('not a group chat'); const library = await until(() => document.querySelector('#so-workspace-modal[open] #so-workspace-page-library'), 5000, 'the Orchestrator > Library page button in the open workspace'); library.click(); const repair = await until(() => document.querySelector('#so-entry-repair[data-area=\"memory-model\"]'), 8000, 'the settings Repair row naming the memory-model step'); if (rt.getSnapshot().pipeline.state !== 'not-configured') throw new Error(`the pipeline does not read not-configured with no memory model: ${rt.getSnapshot().pipeline.state}`); if (!norm(repair)) throw new Error('the Repair row is empty'); return { repair: norm(repair), pipeline: rt.getSnapshot().pipeline.text };",
       "log": true
     },
     {
@@ -86,7 +91,7 @@
       }
     },
     {
-      "eval": "const button = document.querySelector('#so-entry-repair [data-so=\"repair-reveal\"]'); if (!button) throw new Error('the memory-model Repair row has no Show me'); button.scrollIntoView({ block: 'center' }); await new Promise((r) => setTimeout(r, 400)); return { scrolled: true };"
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const library = await until(() => document.querySelector('#so-workspace-modal[open] #so-workspace-page-library'), 5000, 'the Orchestrator > Library page button in the open workspace'); library.click(); const button = await until(() => document.querySelector('#so-entry-repair [data-so=\"repair-reveal\"]'), 5000, 'the memory-model Repair row Show me on the Library page').catch(() => null); if (!button) throw new Error('the memory-model Repair row has no Show me'); button.scrollIntoView({ block: 'center' }); await new Promise((r) => setTimeout(r, 400)); return { scrolled: true };"
     },
     {
       "ui": {
@@ -96,28 +101,23 @@
       "log": true
     },
     {
-      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const visible = (selector) => { const node = document.querySelector(selector); if (!node || node.offsetParent === null) return false; const box = node.getBoundingClientRect(); return box.width > 0 && box.height > 0; }; const reveal = document.querySelector('#so-entry-repair [data-so=\"repair-reveal\"]'); if (!reveal) throw new Error('the memory-model Repair row has no Show me'); reveal.click(); await until(() => visible('#so-extraction-profile'), 5000, 'Repair Show me to land on #so-extraction-profile'); document.querySelector('#so-help-toggle')?.scrollIntoView({ block: 'center' }); await new Promise((r) => setTimeout(r, 300)); if (document.querySelector('#so-help')) throw new Error('the Help panel is already open before the toggle was pressed'); return { landed: '#so-extraction-profile' };",
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const visible = (selector) => { const node = document.querySelector(selector); if (!node || node.offsetParent === null) return false; const box = node.getBoundingClientRect(); return box.width > 0 && box.height > 0; }; const reveal = document.querySelector('#so-entry-repair [data-so=\"repair-reveal\"]'); if (!reveal) throw new Error('the memory-model Repair row has no Show me'); reveal.click(); await until(() => visible('#so-extraction-profile'), 5000, 'Repair Show me to land on #so-extraction-profile'); if (document.querySelector('#so-help')) throw new Error('the Help panel is already open before the toggle was pressed'); return { landed: '#so-extraction-profile' };",
+      "log": true
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; if (document.querySelector('#so-help')) throw new Error('the Help panel is already open before Help was asked for'); const help = await until(() => document.querySelector('#so-workspace-modal[open] #so-workspace-page-help'), 5000, 'the Orchestrator > Help page button in the open workspace'); help.click(); const open = await until(() => document.querySelector('#so-workspace-modal[open] #so-help-open-panel'), 5000, 'Help and Ask (#so-help-open-panel) on the Help page'); open.scrollIntoView({ block: 'center' }); await new Promise((r) => setTimeout(r, 300)); return { helpPage: true };",
       "log": true
     },
     {
       "ui": {
         "action": "pointer-click",
-        "selector": "#so-help-toggle",
-        "expectVisible": "#so-help"
+        "selector": "#so-help-open-panel",
+        "expectVisible": "#so-panel-help #so-help"
       },
       "log": true
     },
     {
-      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rows = [...document.querySelectorAll('#so-help [data-so=\"help-feature\"]')]; if (!rows.length) throw new Error('the Help panel lists no feature'); const author = rows.filter((row) => row.getAttribute('data-audience') === 'author'); if (author.length) throw new Error(`player-mode Help lists ${author.length} author feature(s)`); document.querySelector('#so-help-toggle').click(); await until(() => !document.querySelector('#so-help'), 5000, 'a second press of #so-help-toggle to close the Help panel'); return { features: rows.length, closed: true };",
-      "log": true
-    },
-    {
-      "ui": {
-        "action": "open-drawer"
-      }
-    },
-    {
-      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const toggle = document.querySelector('#so-help-toggle-drawer'); if (!toggle) throw new Error('the drawer header has no ? (#so-help-toggle-drawer)'); toggle.click(); await until(() => document.querySelector('#so-panel-help #so-help'), 5000, 'the drawer ? to open the Help panel'); toggle.click(); await until(() => !document.querySelector('#so-help'), 5000, 'the drawer ? to close the Help panel'); return { toggled: true };",
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; if (document.getElementById('so-workspace-modal')?.open) throw new Error('Help and Ask opened its panel behind the open workspace instead of closing it first'); const rows = [...document.querySelectorAll('#so-help [data-so=\"help-feature\"]')]; if (!rows.length) throw new Error('the Help panel lists no feature'); const author = rows.filter((row) => row.getAttribute('data-audience') === 'author'); if (author.length) throw new Error(`player-mode Help lists ${author.length} author feature(s)`); const close = document.querySelector('#so-panel-help [data-so=\"panel-close\"]'); if (!close) throw new Error('the Help panel has no close button'); close.click(); await until(() => !document.querySelector('#so-help'), 5000, 'the Help panel close button to close it'); return { features: rows.length, closed: true };",
       "log": true
     },
     {

@@ -164,7 +164,7 @@ export async function applyJudgeMode(page, mode: JudgeMode) {
   if (!before) throw new Error('the judge settings could not be read, so a judge-on run could not be restored; refusing to write them');
   const next = judgeModeSettings(before, mode);
   const written = await writeJudgeConfig(page, next);
-  if (!written.ok) throw new Error(`the judge mode did not read back as written: ${JSON.stringify(written.verified)}`);
+  if (!written.ok) throw new Error(`the judge mode did not read back as written: ${JSON.stringify(written.verified)}; save: ${JSON.stringify(written.saved)}`);
   await markJudgeMode(page, mode);
   return { mode, before, applied: next };
 }

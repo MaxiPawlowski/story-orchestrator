@@ -29,7 +29,7 @@
     "wizard-stage": "(globalThis.storyOrchestratorRuntime?.getSnapshot?.() ? true : false) && typeof globalThis.storyOrchestratorRuntime.applyProvisioning === 'function'",
     "wizard-interview": "typeof globalThis.storyOrchestratorRuntime?.runCopilotStage === 'function' && Array.isArray(globalThis.storyOrchestratorStudioTabs)",
     "wizard-provisioning": "typeof globalThis.storyOrchestratorRuntime?.getProvisioningEnvironment === 'function'",
-    "wizard-entry-points": "Boolean(document.querySelector('#so-new-story-wizard'))",
+    "wizard-entry-points": "Boolean(document.querySelector('#so-open-workspace')) && Array.isArray(globalThis.storyOrchestratorStudioTabs) && globalThis.storyOrchestratorStudioTabs.includes('copilot')",
     "install-has-lorebook": "(globalThis.storyOrchestratorRuntime?.getProvisioningEnvironment?.()?.lorebookNames?.length ?? 0) > 0",
     "install-has-group": "(globalThis.storyOrchestratorRuntime?.getProvisioningEnvironment?.()?.groupNames?.length ?? 0) > 0"
   },
@@ -283,7 +283,7 @@
       "findings": [
         "U6"
       ],
-      "goal": "'Fix with wizard' from the requirements panel opens the provisioning step pre-filled with what is missing",
+      "goal": "'Fix with wizard' from the requirements panel opens the provisioning step pre-filled with what is missing (the fixture's unmet requirements are blocks, so since c699a0cc the Before you start pane opens over the chat at boundary 0; it is closed the player's way before the drawer is used)",
       "requires": [
         "wizard-entry-points"
       ],
@@ -303,6 +303,10 @@
         },
         {
           "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); const snapshot = rt.getSnapshot(); if (snapshot.storyId !== 'so-j9-fixme') throw new Error(`the fixture story is not selected: ${snapshot.storyId}`); if (snapshot.requirements.ready) throw new Error('the fixture story has nothing unmet — Fix with wizard has nothing to fix'); return { storyId: snapshot.storyId, requirements: snapshot.requirements };"
+        },
+        {
+          "eval": "const pane = () => document.querySelector('dialog[id$=\"-briefing\"]'); for (let tick = 0; tick < 12 && !pane()?.open; tick += 1) await new Promise((resolve) => setTimeout(resolve, 250)); if (!pane()?.open) return { pane: false }; const text = (pane().textContent || '').replace(/\\s+/g, ' ').trim().slice(0, 160); document.querySelector('[id$=\"-briefing-start\"]')?.click(); for (let tick = 0; tick < 20 && pane()?.open; tick += 1) await new Promise((resolve) => setTimeout(resolve, 250)); if (pane()?.open) throw new Error('the Before you start pane would not close: ' + text); return { pane: true, closed: true, text };",
+          "log": true
         },
         {
           "ui": {

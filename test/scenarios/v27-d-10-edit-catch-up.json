@@ -9,7 +9,8 @@
       "Arin"
     ],
     "judge": "off",
-    "why": "every read is mocked (SCENE_NONE pin, extract debugResponse); the hold is a scheduler job the scenario releases; the real re-read leg is v2.8 01 O10"
+    "innerBeat": "off",
+    "why": "every read is mocked (SCENE_NONE pin, extract debugResponse); the hold is a scheduler job the scenario releases; the real re-read leg is v2.8 01 O10. innerBeat off: the inner beat shares the memory model, and on a no-model lane its failed call opens the memory-model breaker, which stops the scheduler pumping the hold job"
   },
   "steps": [
     {

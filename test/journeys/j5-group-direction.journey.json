@@ -161,7 +161,7 @@
     },
     {
       "id": "J5.6",
-      "model": "none",
+      "model": "judged",
       "mode": "auto",
       "findings": [
         "U3"

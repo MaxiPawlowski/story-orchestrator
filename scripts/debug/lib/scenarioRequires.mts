@@ -15,6 +15,8 @@ export interface ScenarioRequires {
   macroEngine?: boolean;
   vectorsWorldInfo?: boolean;
   comfy?: true;
+  viewport?: string;
+  plugins?: string[];
   imageHarness?: ImageNeed[];
   prior?: string;
   why?: string;
@@ -44,13 +46,29 @@ export interface RequiresFacts {
   modelReachable?: boolean | null;
   modelProbe?: string | null;
   comfy?: ComfyFacts | null;
+  plugins?: Record<string, string>;
   harness?: HarnessFacts | null;
   profileNames?: string[];
   briefingDraft?: boolean;
   innerBeat?: boolean;
 }
 
-export const REQUIRES_KEYS = new Set(['lane', 'group', 'members', 'authorView', 'judge', 'briefingDraft', 'innerBeat', 'mainApi', 'roleProfiles', 'macroEngine', 'vectorsWorldInfo', 'comfy', 'imageHarness', 'prior', 'why']);
+export const REQUIRES_KEYS = new Set(['lane', 'group', 'members', 'authorView', 'judge', 'briefingDraft', 'innerBeat', 'mainApi', 'roleProfiles', 'macroEngine', 'vectorsWorldInfo', 'comfy', 'imageHarness', 'viewport', 'plugins', 'prior', 'why']);
+export const SERVER_PLUGIN_ID = /^story-orchestrator-[a-z]+$/;
+
+export function parseViewport(value: unknown): { width: number; height: number } | null {
+  const match = typeof value === 'string' ? /^(\d{3,4})x(\d{3,4})$/.exec(value.trim()) : null;
+  return match ? { width: Number(match[1]), height: Number(match[2]) } : null;
+}
+
+export async function applyRequiredViewport(page: { viewportSize(): { width: number; height: number } | null; setViewportSize(size: { width: number; height: number }): Promise<void> }, value: string | undefined) {
+  const wanted = parseViewport(value);
+  if (!wanted) return null;
+  const before = page.viewportSize() ?? { width: 1920, height: 1080 };
+  await page.setViewportSize(wanted);
+  return before;
+}
+
 export const LANE_KINDS = new Set<LaneKind>(['no-model', 'model']);
 export const MAIN_APIS = new Set(['textgenerationwebui', 'openai', 'kobold', 'novel', 'koboldhorde']);
 
@@ -74,6 +92,8 @@ export function validateRequires(value: unknown, where = 'requires'): string[] {
   for (const key of ['briefingDraft', 'innerBeat']) if (key in value && value[key] !== 'off') problems.push(`${where}.${key}: only "off" is a requirement`);
   if ('mainApi' in value && !MAIN_APIS.has(String(value.mainApi))) problems.push(`${where}.mainApi: expected one of ${[...MAIN_APIS].join(', ')}`);
   if ('roleProfiles' in value && value.roleProfiles !== 'text-completion') problems.push(`${where}.roleProfiles: only "text-completion" is a requirement`);
+  if ('plugins' in value && (!Array.isArray(value.plugins) || !value.plugins.length || value.plugins.some((id) => typeof id !== 'string' || !SERVER_PLUGIN_ID.test(id)))) problems.push(`${where}.plugins: expected a non-empty list of server plugin ids (story-orchestrator-*)`);
+  if ('viewport' in value && !parseViewport(value.viewport)) problems.push(`${where}.viewport: expected "<width>x<height>", e.g. "390x844"`);
   if ('comfy' in value && value.comfy !== true) problems.push(`${where}.comfy: only true is a requirement`);
   if (value.comfy === true && value.lane !== 'model') problems.push(`${where}.comfy: a ComfyUI scenario declares lane "model", so a no-model batch never reaches ComfyUI`);
   if ('imageHarness' in value) {
@@ -118,6 +138,7 @@ export function requiresProblems(requires: ScenarioRequires, facts: RequiresFact
   if (typeof requires.vectorsWorldInfo === 'boolean' && facts.vectorsWorldInfo !== requires.vectorsWorldInfo) problems.push(`needs Vectors > World Info ${requires.vectorsWorldInfo ? 'on' : 'off'}, it is ${facts.vectorsWorldInfo ? 'on' : 'off'}`);
   if (requires.lane === 'no-model' && facts.modelReachable !== false) problems.push(`needs a no-model lane (st-lanes.mts no-model <n>: keys removed, judge off), and the memory profile ${facts.modelReachable ? 'answered' : 'could not be probed'}${facts.modelProbe ? ` (${facts.modelProbe})` : ''}`);
   if (requires.lane === 'model' && facts.modelReachable !== true) problems.push(`needs a lane with a live model, and the memory profile did not answer${facts.modelProbe ? ` (${facts.modelProbe})` : ''}`);
+  for (const id of requires.plugins ?? []) if (facts.plugins?.[id] !== 'present') problems.push(`needs the ${id} server plugin (an offline lane, SO_LANE_OFFLINE=1, runs without server plugins), and /api/plugins/${id}/status reads ${facts.plugins?.[id] ?? 'unprobed'}`);
   if (requires.comfy) problems.push(...comfyProblems(facts.comfy ?? null));
   if (requires.imageHarness?.length) problems.push(...harnessProblems(requires.imageHarness, facts));
   return problems;

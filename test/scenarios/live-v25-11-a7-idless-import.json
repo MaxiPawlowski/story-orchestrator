@@ -1,7 +1,7 @@
 {
   "model": "none",
   "name": "live-v25-11-a7-idless-import",
-  "objective": "v2.5 plan 11 L5 (A7), no model. A fresh import of an id-less story (test/fixtures/linear.story.json, title 'Linear Vault') keys by its title slug in the library and in the chat blob; re-importing the same content keeps one record at the same version; an edited re-import updates that one record to version+1 instead of forking. Run with --sandbox: cleanup removes the imported record by hash. The last step removes the linear-vault record itself: sandbox cleanup removes imports by the hash the CHAT plays, and after the edited re-import the library record carries the edited hash while the chat keeps its pinned copy, so the record would outlive the run (found live, lane 3 run 2). Step 1 proves the record did not exist before the run.",
+  "objective": "v2.5 plan 11 L5 (A7), no model. A fresh import of an id-less story (test/fixtures/linear.story.json, title 'Linear Vault') keys by its title slug in the library and in the chat blob; re-importing the same content keeps one record with the same content hash; an edited re-import updates that one record in place (new content hash, same importedAt, edited description) instead of forking. Stories carry no version since 9460f28d (2026-10-07), so the record's content hash is what tells the versions apart. Run with --sandbox: cleanup removes the imported record by hash. The last step removes the linear-vault record itself: sandbox cleanup removes imports by the hash the CHAT plays, and after the edited re-import the library record carries the edited hash while the chat keeps its pinned copy, so the record would outlive the run (found live, lane 3 run 2). Step 1 proves the record did not exist before the run.",
   "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
   "steps": [
     {
@@ -21,7 +21,7 @@
       }
     },
     {
-      "eval": "const lib = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.stories ?? []); const blob = SillyTavern.getContext().chatMetadata.story_orchestrator; const records = lib.filter((r) => r.id === 'linear-vault'); const result = { records: records.length, version: records[0]?.version ?? null, title: records[0]?.title ?? null, libraryCount: lib.length, selected: blob?.selectedStoryId ?? null, keys: Object.keys(blob?.stories ?? {}) }; if (result.records !== 1 || result.libraryCount !== globalThis.__v2511A7.count + 1) throw new Error(`an id-less import did not add exactly one record keyed by its title slug: ${JSON.stringify(result)}`); if (result.selected !== 'linear-vault' || !result.keys.includes('linear-vault')) throw new Error(`the chat does not key the id-less story by its title slug: ${JSON.stringify(result)}`); globalThis.__v2511A7.version = result.version; return result;",
+      "eval": "const lib = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.stories ?? []); const blob = SillyTavern.getContext().chatMetadata.story_orchestrator; const records = lib.filter((r) => r.id === 'linear-vault'); const result = { records: records.length, hash: records[0]?.hash ?? null, importedAt: records[0]?.importedAt ?? null, title: records[0]?.title ?? null, libraryCount: lib.length, selected: blob?.selectedStoryId ?? null, keys: Object.keys(blob?.stories ?? {}) }; if (result.records !== 1 || result.libraryCount !== globalThis.__v2511A7.count + 1) throw new Error(`an id-less import did not add exactly one record keyed by its title slug: ${JSON.stringify(result)}`); if (result.selected !== 'linear-vault' || !result.keys.includes('linear-vault')) throw new Error(`the chat does not key the id-less story by its title slug: ${JSON.stringify(result)}`); if (typeof result.hash !== 'string' || !result.hash) throw new Error(`the library record carries no content hash: ${JSON.stringify(result)}`); globalThis.__v2511A7.hash = result.hash; globalThis.__v2511A7.importedAt = result.importedAt; return result;",
       "log": true
     },
     {
@@ -31,7 +31,7 @@
       "log": 200
     },
     {
-      "eval": "const lib = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.stories ?? []); const records = lib.filter((r) => r.id === 'linear-vault'); const result = { records: records.length, version: records[0]?.version ?? null, libraryCount: lib.length }; if (result.records !== 1 || result.libraryCount !== globalThis.__v2511A7.count + 1 || result.version !== globalThis.__v2511A7.version) throw new Error(`re-importing the same id-less story forked or re-versioned it: ${JSON.stringify(result)}`); return result;",
+      "eval": "const lib = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.stories ?? []); const records = lib.filter((r) => r.id === 'linear-vault'); const result = { records: records.length, hash: records[0]?.hash ?? null, importedAt: records[0]?.importedAt ?? null, libraryCount: lib.length }; if (result.records !== 1 || result.libraryCount !== globalThis.__v2511A7.count + 1 || result.hash !== globalThis.__v2511A7.hash || result.importedAt !== globalThis.__v2511A7.importedAt) throw new Error(`re-importing the same id-less story forked or changed it: ${JSON.stringify(result)}`); return result;",
       "log": true
     },
     {
@@ -109,7 +109,7 @@
       "log": 200
     },
     {
-      "eval": "const lib = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.stories ?? []); const records = lib.filter((r) => r.id === 'linear-vault'); const result = { records: records.length, version: records[0]?.version ?? null, description: records[0]?.raw?.description ?? records[0]?.story?.description ?? null, libraryCount: lib.length }; if (result.records !== 1 || result.libraryCount !== globalThis.__v2511A7.count + 1) throw new Error(`an edited id-less re-import forked the record instead of updating it: ${JSON.stringify(result)}`); if (result.version !== globalThis.__v2511A7.version + 1) throw new Error(`an edited id-less re-import did not bump the version by one: ${JSON.stringify(result)}`); return result;",
+      "eval": "const lib = (SillyTavern.getContext().extensionSettings['story-orchestrator']?.stories ?? []); const records = lib.filter((r) => r.id === 'linear-vault'); const result = { records: records.length, hash: records[0]?.hash ?? null, importedAt: records[0]?.importedAt ?? null, description: records[0]?.raw?.description ?? records[0]?.story?.description ?? null, libraryCount: lib.length }; if (result.records !== 1 || result.libraryCount !== globalThis.__v2511A7.count + 1) throw new Error(`an edited id-less re-import forked the record instead of updating it: ${JSON.stringify(result)}`); if (typeof result.hash !== 'string' || result.hash === globalThis.__v2511A7.hash || result.importedAt !== globalThis.__v2511A7.importedAt || !String(result.description ?? '').includes('edited for the v2.5 plan 11 A7')) throw new Error(`an edited id-less re-import did not update the one record in place (new content hash, same record, edited description): ${JSON.stringify({ ...result, firstHash: globalThis.__v2511A7.hash, firstImportedAt: globalThis.__v2511A7.importedAt })}`); return result;",
       "log": true
     },
     {

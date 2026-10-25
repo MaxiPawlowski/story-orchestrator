@@ -8,7 +8,7 @@ export async function readRequiresFacts(page, requires: ScenarioRequires): Promi
   const imageCheck = Boolean(requires.comfy || requires.imageHarness?.length);
   const loaded = imageCheck ? laneHarness() : null;
   const cleared = Boolean(loaded && comfyCleared(process.env, loaded.config));
-  const facts: RequiresFacts = await evaluateInST(page, async ({ probe, comfy, lane }) => {
+  const facts: RequiresFacts = await evaluateInST(page, async ({ probe, comfy, lane, plugins }) => {
     const ctx = SillyTavern.getContext();
     const group = (ctx.groups ?? []).find((entry) => String(entry.id) === String(ctx.groupId)) ?? null;
     const disabled = new Set((group?.disabled_members ?? []).map(String));
@@ -70,7 +70,17 @@ export async function readRequiresFacts(page, requires: ScenarioRequires): Promi
         }
       }
     }
+    const pluginStates = {};
+    for (const id of plugins) {
+      try {
+        const status = await fetch(`/api/plugins/${id}/status`, { headers: ctx.getRequestHeaders() });
+        pluginStates[id] = status.status === 404 ? 'absent' : status.ok ? 'present' : `error ${status.status}`;
+      } catch (error) {
+        pluginStates[id] = `error ${String(error?.message ?? error).slice(0, 120)}`;
+      }
+    }
     return {
+      plugins: pluginStates,
       groupId: group ? String(group.id) : null,
       groupName: group?.name ?? null,
       members,
@@ -85,7 +95,7 @@ export async function readRequiresFacts(page, requires: ScenarioRequires): Promi
       comfy: comfyFacts,
       profileNames: profiles.map((profile) => String(profile?.name ?? '')).filter(Boolean),
     };
-  }, { probe: Boolean(requires.lane), comfy: Boolean(requires.comfy) && cleared, lane: requires.lane ?? null });
+  }, { probe: Boolean(requires.lane), comfy: Boolean(requires.comfy) && cleared, lane: requires.lane ?? null, plugins: requires.plugins ?? [] });
   if (requires.comfy && !facts.comfy) facts.comfy = { cleared, plugin: null, discovered: null, probe: null };
   if (loaded) facts.harness = { path: loaded.path, gaps: harnessGaps(loaded, requires.imageHarness ?? []), config: loaded.config };
   return facts;

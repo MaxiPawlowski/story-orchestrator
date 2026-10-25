@@ -101,12 +101,6 @@
       }
     },
     {
-      "ui": {
-        "action": "drawer-tab",
-        "label": "Overview"
-      }
-    },
-    {
       "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const thinkRow = () => document.querySelector('#so-setup [data-so=\"setup-row\"][data-check=\"model-not-thinking\"]'); const row = await until(() => thinkRow(), 8000, 'the model-not-thinking Setup row in player mode'); if (!norm(row).includes(\"Characters' private intentions are not being tracked\")) throw new Error(`the player row does not carry the player copy: ${norm(row)}`); if (row.querySelector('[data-so=\"setup-detail\"]')) throw new Error('player mode shows the author detail'); const hud = document.querySelector('#so-hud-setup'); return { row: norm(row), hud: hud ? hud.getAttribute('data-check') : null };",
       "log": true
     },

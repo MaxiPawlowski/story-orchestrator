@@ -33,7 +33,7 @@
       "findings": [
         "U7"
       ],
-      "goal": "the Studio opens on an empty draft and offers every authoring surface",
+      "goal": "the Studio opens on an empty draft and offers every authoring surface (since 7724042c the Studio groups its sections under task buttons and shows only the active task's tabs, so Qualities, Roster and Diagnostics are reached through State and rules, Characters and Validation)",
       "steps": [
         {
           "eval": "globalThis.storyOrchestratorStudioDraft.getState().newDraft(); return true;"
@@ -48,10 +48,52 @@
             "selector": "#so-studio-modal",
             "contains": [
               "Story",
-              "Qualities",
               "Checkpoints",
               "Transitions",
-              "Roster",
+              "State and rules",
+              "Characters",
+              "Validation"
+            ]
+          }
+        },
+        {
+          "ui": {
+            "action": "studio-tab",
+            "label": "Qualities"
+          }
+        },
+        {
+          "expect_ui": {
+            "selector": "#so-studio-modal [role=\"tablist\"]",
+            "contains": [
+              "Qualities"
+            ]
+          }
+        },
+        {
+          "ui": {
+            "action": "studio-tab",
+            "label": "Roster"
+          }
+        },
+        {
+          "expect_ui": {
+            "selector": "#so-studio-modal [role=\"tablist\"]",
+            "contains": [
+              "Roster"
+            ]
+          }
+        },
+        {
+          "ui": {
+            "action": "studio-tab",
+            "label": "Diagnostics"
+          }
+        },
+        {
+          "expect_ui": {
+            "selector": "#so-studio-modal [role=\"tablist\"]",
+            "contains": [
               "Diagnostics"
             ]
           }
@@ -96,7 +138,7 @@
       "findings": [
         "U7"
       ],
-      "goal": "story identity, requirements, dramatic shape and thread bridges are authorable (labels since 544975fb: \"Library description\" + \"Player introduction\" replaced \"Description\")",
+      "goal": "story identity, requirements, dramatic shape and thread bridges are authorable (labels since 544975fb: \"Library description\" + \"Player introduction\" replaced \"Description\"; since 7724042c Stagecraft lives on the World tab and Thread bridges on Story rules)",
       "requires": [
         "studio-requirements-editor"
       ],
@@ -118,9 +160,35 @@
               "Requirements",
               "Persona",
               "Cast member",
-              "Lorebook",
+              "Lorebook"
+            ]
+          }
+        },
+        {
+          "ui": {
+            "action": "studio-tab",
+            "label": "World"
+          }
+        },
+        {
+          "expect_ui": {
+            "selector": "#so-studio-modal [data-so=\"stagecraft\"]",
+            "contains": [
               "Stagecraft",
-              "Curator lorebook",
+              "Curator lorebook"
+            ]
+          }
+        },
+        {
+          "ui": {
+            "action": "studio-tab",
+            "label": "Story rules"
+          }
+        },
+        {
+          "expect_ui": {
+            "selector": "#so-studio-modal [data-so=\"arc-bridges\"]",
+            "contains": [
               "Thread bridges"
             ]
           }
@@ -170,7 +238,7 @@
         "U2",
         "U7"
       ],
-      "goal": "the drawer's author view opens the Studio on the story this chat is playing",
+      "goal": "the drawer's author view opens the Studio on the story this chat is playing (Restart story left the author drawer for the Play page in 7724042c)",
       "requires": [
         "drawer-edit-story"
       ],
@@ -187,8 +255,7 @@
           "expect_ui": {
             "selector": "#drawer-manager",
             "contains": [
-              "Edit story",
-              "Restart story"
+              "Edit story"
             ]
           }
         },

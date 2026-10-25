@@ -1,12 +1,12 @@
 {
   "model": "none",
-  "_note": "v2.8 agenda proposals in play (plumbing, no model): the pass is on by default (review), a proposal waits for the author, the Accept button in Author view accepts it, it lands at the next boundary into Arin's private block only, deleting the landing reply takes the landing back, and nothing reaches a player surface. The proposal text comes from a debugResponse: plumbing only, the real-model check is v2.8 31 M16.",
+  "_note": "v2.8 agenda proposals in play (plumbing, no model): the pass is on by default (auto since 201bd784, owner 2026-10-10); the run switches it to review and restores it, a proposal waits for the author, the Accept button in Author view accepts it, it lands at the next boundary into Arin's private block only, deleting the landing reply takes the landing back, and nothing reaches a player surface. The proposal text comes from a debugResponse: plumbing only, the real-model check is v2.8 31 M16.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off" },
   "steps": [
     { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; return true;" },
     { "import_story": { "file": "v27-37-character-life.story.json" } },
     { "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: true }); return true;" },
-    { "eval": "const rt = globalThis.storyOrchestratorRuntime; for (let i = 0; i < 50 && !globalThis.storyOrchestratorAgendaProposals; i += 1) await new Promise((resolve) => setTimeout(resolve, 100)); if (!globalThis.storyOrchestratorAgendaProposals) throw new Error('the meanwhile coordinator never attached'); const mode = rt.getGlobalSettings().stagecraft.meanwhileAcceptMode; if (mode !== 'review') throw new Error('default mode is not review: ' + mode); const boundary = rt.getEngineState().boundary; return { mode, boundary, due: rt.meanwhile.due(boundary + 8) };", "log": true },
+    { "eval": "const rt = globalThis.storyOrchestratorRuntime; for (let i = 0; i < 50 && !globalThis.storyOrchestratorAgendaProposals; i += 1) await new Promise((resolve) => setTimeout(resolve, 100)); if (!globalThis.storyOrchestratorAgendaProposals) throw new Error('the meanwhile coordinator never attached'); const mode = rt.getGlobalSettings().stagecraft.meanwhileAcceptMode; if (mode !== 'auto') throw new Error('default mode is not auto: ' + mode); globalThis.__mwMode = mode; rt.setStagecraftSettings({ meanwhileAcceptMode: 'review' }); const now = rt.getGlobalSettings().stagecraft.meanwhileAcceptMode; if (now !== 'review') throw new Error('review mode not effective: ' + now); const boundary = rt.getEngineState().boundary; return { defaultMode: mode, mode: now, boundary, due: rt.meanwhile.due(boundary + 8) };", "log": true },
     { "eval": "const rt = globalThis.storyOrchestratorRuntime; const out = await globalThis.storyOrchestratorAgendaProposals.propose('MEANWHILE: arin | debt | SO-MEANWHILE-ONE counted the coins twice.'); if (!out.ok) throw new Error('propose refused: ' + JSON.stringify(out)); const proposals = rt.getSnapshot().lifeAuthor?.proposals ?? []; const mine = proposals.find((entry) => entry.text.includes('SO-MEANWHILE-ONE')); if (!mine || mine.status !== 'proposed') throw new Error('not stored as proposed: ' + JSON.stringify(proposals)); if (rt.meanwhile.due(rt.getEngineState().boundary + 50)) throw new Error('a waiting proposal must hold the next pass'); globalThis.__mwId = mine.id; return { id: mine.id, status: mine.status };", "log": true },
     { "ui": { "action": "open-drawer" } },
     { "ui": { "action": "drawer-tab", "label": "Blackboard" } },
@@ -20,5 +20,10 @@
     { "eval": "globalThis.storyOrchestratorRuntime.setUiSettings({ authorView: false }); await new Promise((resolve) => setTimeout(resolve, 500)); if (globalThis.storyOrchestratorRuntime.getSnapshot().lifeAuthor) throw new Error('lifeAuthor in player mode'); if (document.body.innerText.includes('SO-MEANWHILE-ONE')) throw new Error('the meanwhile text is on a player surface'); return true;" },
     { "ui": { "action": "open-drawer" } },
     { "ui": { "action": "assert-player-clean" }, "log": 1500 }
-  ]
+  ],
+  "cleanup": {
+    "steps": [
+      { "eval": "const rt = globalThis.storyOrchestratorRuntime; const before = globalThis.__mwMode; if (typeof before === 'string') rt.setStagecraftSettings({ meanwhileAcceptMode: before }); delete globalThis.__mwMode; return { modeRestored: before ?? null, mode: rt.getGlobalSettings().stagecraft.meanwhileAcceptMode };", "log": true }
+    ]
+  }
 }

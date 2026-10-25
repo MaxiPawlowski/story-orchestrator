@@ -9,7 +9,11 @@
       "DM Narrator"
     ],
     "judge": "off",
-    "authorView": true
+    "authorView": true,
+    "plugins": [
+      "story-orchestrator-lore"
+    ],
+    "why": "the commit race is the lore plugin's conditional commit; suite:nomodel lanes are offline and run without server plugins, so this row runs on a plugin lane (st-lanes no-model without SO_LANE_OFFLINE)"
   },
   "steps": [
     {

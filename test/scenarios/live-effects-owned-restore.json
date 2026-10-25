@@ -9,6 +9,10 @@
       "log": true
     },
     {
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const pause = (ms) => new Promise((r) => setTimeout(r, ms)); const bound = (ctx.extensionSettings['story-orchestrator']?.groupStories ?? {})[String(ctx.groupId)] ?? null; const end = Date.now() + 30000; if (bound) while (rt.getSnapshot().storyId !== bound && Date.now() < end) await pause(200); let quiet = 0; while (quiet < 2000 && Date.now() < end) { await pause(250); quiet = (ctx.isChatSaving || document.body.dataset.generating || (rt.getSnapshot().busy ?? []).length) ? 0 : quiet + 250; } return { boundStory: bound, started: bound ? rt.getSnapshot().storyId === bound : null, settled: quiet >= 2000 };",
+      "log": true
+    },
+    {
       "import_story": { "file": "../fixtures/effects-cast.story.json" }
     },
     {
@@ -36,6 +40,9 @@
       }
     },
     {
+      "send": "SO-06 a player line between the switches, so the hall switch is a decision at its own message"
+    },
+    {
       "slash": "/cp activate hall"
     },
     {
@@ -57,6 +64,9 @@
         },
         "groupDisabled": { "enabled": ["Tobias"] }
       }
+    },
+    {
+      "send": "SO-06 a player line between the switches, so the return to road is a decision at its own message"
     },
     {
       "slash": "/cp activate road"
@@ -82,7 +92,7 @@
       "unblock_route": {}
     },
     {
-      "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.persist(); const snapshot = rt.getSnapshot(); const health = snapshot.saveHealth; if (health.lastOutcome !== 'applied') throw new Error(`the write after the block did not land: ${JSON.stringify(health)}`); if (health.pendingBoundary !== null) throw new Error(`the outstanding write was not cleared: ${JSON.stringify(health)}`); const status = (snapshot.narrative?.sections ?? []).find((section) => section.id === 'status')?.lines ?? []; if (status.some((line) => /changes not saved/i.test(line))) throw new Error(`the player is still told the changes are unsaved: ${JSON.stringify(status)}`); if (health.lastAppliedBoundary !== snapshot.boundary) throw new Error(`the READ-BACK disagrees with what this chat wrote: the server's copy holds boundary ${JSON.stringify(health.lastAppliedBoundary)}, this chat believes it wrote ${snapshot.boundary}`); return { lastOutcome: health.lastOutcome, appliedBoundary: health.lastAppliedBoundary, boundary: snapshot.boundary, status };",
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.persist(); const snapshot = rt.getSnapshot(); const health = snapshot.saveHealth; if (health.lastOutcome !== 'applied') throw new Error(`the write after the block did not land: ${JSON.stringify(health)}`); if (health.pendingBoundary !== null) throw new Error(`the outstanding write was not cleared: ${JSON.stringify(health)}`); const status = (snapshot.narrative?.sections ?? []).find((section) => section.id === 'status')?.lines ?? []; if (status.some((line) => /changes not saved/i.test(line))) throw new Error(`the player is still told the changes are unsaved: ${JSON.stringify(status)}`); if (health.lastAppliedBoundary !== snapshot.boundary) throw new Error(`the READ-BACK disagrees with what this chat wrote: the server's copy holds boundary ${JSON.stringify(health.lastAppliedBoundary)}, this chat believes it wrote ${snapshot.boundary}`); globalThis.__so06LeftLedger = { chatId: SillyTavern.getContext().chatId, ids: (snapshot.effects.ledger ?? []).map((row) => row.id) }; return { lastOutcome: health.lastOutcome, appliedBoundary: health.lastAppliedBoundary, boundary: snapshot.boundary, status, leftLedgerRows: globalThis.__so06LeftLedger.ids.length };",
       "log": true
     },
     {
@@ -90,7 +100,7 @@
       "adoptsNewChat": true
     },
     {
-      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const group = (ctx.groups ?? []).find((entry) => String(entry.id) === String(globalThis.__so06Baseline.groupId)); if (!group) throw new Error('the group went away with the chat change'); const member = globalThis.__so06Baseline.member; const disabled = [...(group.disabled_members ?? [])]; const baseline = globalThis.__so06Baseline.disabled; if (JSON.stringify([...disabled].sort()) !== JSON.stringify([...baseline].sort())) throw new Error(`the chat that was LEFT must put back what it staged on the shared group; it holds ${JSON.stringify(disabled)} and the run started from ${JSON.stringify(baseline)}`); const rows = rt.getSnapshot().effects.ledger ?? []; if (rows.length) throw new Error(`a new chat must not inherit another chat's effect ledger: ${JSON.stringify(rows)}`); return { chatId: ctx.chatId, groupRestoredOnLeave: disabled, ledgerRows: rows.length };",
+      "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const group = (ctx.groups ?? []).find((entry) => String(entry.id) === String(globalThis.__so06Baseline.groupId)); if (!group) throw new Error('the group went away with the chat change'); const member = globalThis.__so06Baseline.member; const disabled = [...(group.disabled_members ?? [])]; const baseline = globalThis.__so06Baseline.disabled; if (JSON.stringify([...disabled].sort()) !== JSON.stringify([...baseline].sort())) throw new Error(`the chat that was LEFT must put back what it staged on the shared group; it holds ${JSON.stringify(disabled)} and the run started from ${JSON.stringify(baseline)}`); const left = globalThis.__so06LeftLedger; if (!left || !left.ids.length) throw new Error(`the left chat's ledger was not captured before the switch, so inheritance cannot be judged: ${JSON.stringify(left)}`); if (ctx.chatId === left.chatId) throw new Error('the chat did not change'); const rows = rt.getSnapshot().effects.ledger ?? []; const inherited = rows.filter((row) => left.ids.includes(row.id) || row.checkpointId === 'road' || row.checkpointId === 'hall' || row.effect === 'cast'); if (inherited.length) throw new Error(`a new chat must not inherit another chat's effect ledger (the road group is story-bound: since 544975fb a new chat in a bound group starts the bound story and writes its own rows, so only rows carried from the left chat count): ${JSON.stringify(inherited)}`); return { chatId: ctx.chatId, groupRestoredOnLeave: disabled, ownRows: rows.map((row) => `${row.checkpointId}:${row.effect}`), inheritedRows: 0 };",
       "log": true
     },
     {

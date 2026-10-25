@@ -1,14 +1,16 @@
 {
- "model": "none",
+ "model": "any",
  "name": "v2.8 29 LI: two purposes render on two marked SO- workflows, the player's selection is untouched",
  "requires": {
-  "lane": "no-model",
+  "lane": "model",
+  "comfy": true,
   "group": "Group: Arin, DM Narrator",
   "members": [
    "DM Narrator",
    "Arin"
   ],
-  "judge": "off"
+  "judge": "off",
+  "why": "renders three pictures through ComfyUI (img.direct, allRendered): a lane cleared for ComfyUI with the media path on, never a no-model lane; drive it with scripts/local/storyWorkflowLi.mjs"
  },
  "steps": [
   {
@@ -88,5 +90,12 @@
   {
    "eval": "const ctx=SillyTavern.getContext(); const sd=ctx.extensionSettings.sd; const img=globalThis.storyOrchestratorImage; const s=globalThis.__so29; const post=(route,body)=>fetch('/api/sd/comfy/'+route,{method:'POST',headers:ctx.getRequestHeaders(),body:JSON.stringify(body)}); const removed=[]; for(const name of Object.keys(s.made)){ if(!/^SO-LI-[AB]\\.json$/.test(name)) continue; const response=await post('delete-workflow',{file_name:name}); removed.push({name,status:response.status}); } const listed=await (await post('workflows',{url:sd.comfy_url})).json(); img.updateSettings(s.imageSettings); return {removed, leaked:listed.filter((name)=>/^SO-LI-/.test(name)), listedSame:JSON.stringify([...listed].sort())===JSON.stringify([...s.listedBefore].sort())};"
   }
- ]
+ ],
+ "cleanup": {
+  "steps": [
+   {
+    "eval": "const ctx=SillyTavern.getContext(); const sd=ctx.extensionSettings.sd; const img=globalThis.storyOrchestratorImage; const s=globalThis.__so29; const post=(route,body)=>fetch('/api/sd/comfy/'+route,{method:'POST',headers:ctx.getRequestHeaders(),body:JSON.stringify(body)}); const listed=await (await post('workflows',{url:sd?.comfy_url})).json().catch(()=>[]); const removed=[]; for(const name of (Array.isArray(listed)?listed:[]).filter((name)=>/^SO-LI-[AB]\\.json$/.test(name) && Boolean(s?.made?.[name]) && !s.listedBefore.includes(name))){ const response=await post('delete-workflow',{file_name:name}); removed.push({name,status:response.status}); } if(s?.imageSettings && img) img.updateSettings(s.imageSettings); delete globalThis.__so29; return {removed, imageRestored:Boolean(s?.imageSettings)};"
+   }
+  ]
+ }
 }

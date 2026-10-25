@@ -1,9 +1,10 @@
 {
   "model": "none",
   "name": "v28-40-mobile-touch-longpress",
-  "objective": "ui-rework owed row: on a phone-width viewport (run with ST_DEBUG_VIEWPORT=390x844) a real CDP touch long-press on a Studio graph checkpoint opens only the Checkpoint actions sheet (not the editor sheet underneath); Edit checkpoint opens the editor, an objective edit is saved to the library and applied to this chat, the Studio closes clean and the runner restores the library and deletes the chat. No model.",
+  "objective": "ui-rework owed row: on a phone-width viewport (requires.viewport 390x844, set by the runner) a real CDP touch long-press on a Studio graph checkpoint opens only the Checkpoint actions sheet (not the editor sheet underneath); Edit checkpoint opens the editor, an objective edit is saved to the library and applied to this chat, the Studio closes clean and the runner restores the library and deletes the chat. No model.",
   "requires": {
     "lane": "no-model",
+    "viewport": "390x844",
     "group": "Group: Arin, DM Narrator",
     "judge": "off",
     "briefingDraft": "off",

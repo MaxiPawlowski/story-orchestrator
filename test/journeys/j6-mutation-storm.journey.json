@@ -434,7 +434,7 @@
       "findings": [
         "E1"
       ],
-      "goal": "an edit older than the retained history says so and offers both ways out it names: re-read from here, or restart the story (V11)",
+      "goal": "an edit older than the retained history says so and offers both ways out it names: re-read from here, or restart the story (V11) (the notice and both buttons are on the Play page's player overview since 7724042c; the Overview drawer tab is author-only)",
       "steps": [
         {
           "import_story": {
@@ -467,12 +467,6 @@
         {
           "ui": {
             "action": "open-drawer"
-          }
-        },
-        {
-          "ui": {
-            "action": "drawer-tab",
-            "label": "Overview"
           }
         },
         {

@@ -106,14 +106,22 @@
       }
     },
     {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rt = globalThis.storyOrchestratorRuntime; if (rt.getSnapshot().ui.authorView) throw new Error('the without-secret player arm must run in player mode'); const a = await until(() => { const value = globalThis.__v27dK1.read(); return value.row && value.hud ? value : null; }, 8000, 'the transcript-copiers Setup row and the #so-hud-setup chip in player mode'); if (a.rowDetail) throw new Error(`player mode shows the author detail: ${a.rowDetail}`); if (!/Summarize/.test(a.row) || !/Vector Storage/.test(a.row)) throw new Error(`the player row does not name both copiers: ${a.row}`); globalThis.__v27dK1.playerA = a; return a;",
+      "log": true
+    },
+    {
       "ui": {
-        "action": "drawer-tab",
-        "label": "Overview"
+        "action": "open-settings"
       }
     },
     {
-      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rt = globalThis.storyOrchestratorRuntime; if (rt.getSnapshot().ui.authorView) throw new Error('the without-secret player arm must run in player mode'); const a = await until(() => { const value = globalThis.__v27dK1.read(); return value.row && value.hud ? value : null; }, 8000, 'the transcript-copiers Setup row and the #so-hud-setup chip in player mode'); if (a.rowDetail) throw new Error(`player mode shows the author detail: ${a.rowDetail}`); if (!/Summarize/.test(a.row) || !/Vector Storage/.test(a.row)) throw new Error(`the player row does not name both copiers: ${a.row}`); globalThis.__v27dK1.playerA = a; return a;",
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; if (globalThis.storyOrchestratorRuntime.getSnapshot().ui.authorView) throw new Error('the Repair row arm must run in player mode'); const library = await until(() => document.querySelector('#so-workspace-modal[open] #so-workspace-page-library'), 5000, 'the Orchestrator > Library page button in the open workspace'); library.click(); const row = await until(() => document.querySelector('#so-workspace-modal[open] #so-entry-repair'), 5000, 'the Library Repair row').catch(() => null); if (!row) throw new Error('the Library Repair row (#so-entry-repair) is not rendered, so K1 cannot compare it (moved off the drawer in 7724042c)'); const text = (row.textContent ?? '').replace(/\\s+/g, ' ').trim(); globalThis.__v27dK1.repairA = text; document.querySelector('#so-workspace-modal[open] [aria-label=\"Close Story Orchestrator\"]')?.click(); await until(() => !document.getElementById('so-workspace-modal')?.open, 5000, 'the story window to close'); return { repairA: text };",
       "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
     },
     {
       "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const rt = globalThis.storyOrchestratorRuntime; rt.setUiSettings({ authorView: true }); const a = await until(() => { const value = globalThis.__v27dK1.read(); return value.rowDetail ? value : null; }, 5000, 'the author detail of the transcript-copiers row in Author view'); if (!a.rowDetail.includes('No secret is held yet')) throw new Error(`the without-secret author detail does not say no secret is held: ${a.rowDetail}`); globalThis.__v27dK1.authorA = a; rt.setUiSettings({ authorView: false }); await until(() => !globalThis.__v27dK1.read().rowDetail, 5000, 'the detail to leave with Author view off'); return { authorDetail: a.rowDetail };",
@@ -124,7 +132,21 @@
       "log": true
     },
     {
-      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const b = await until(() => { const value = globalThis.__v27dK1.read(); return value.row && value.hud ? value : null; }, 5000, 'the player surfaces after the seed'); const a = globalThis.__v27dK1.playerA; if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`K1: the player-visible alert changed when a secret was held. without: ${JSON.stringify(a)} with: ${JSON.stringify(b)}`); const surfaces = ['#drawer-manager', '#so-hud-root', '#story-orchestrator-settings'].map((selector) => document.querySelector(selector)?.textContent ?? '').join(' '); if (/stolen ledger/i.test(surfaces)) throw new Error('the held secret itself appears on a player surface'); return { identical: true, player: b };",
+      "ui": {
+        "action": "open-settings"
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; if (globalThis.storyOrchestratorRuntime.getSnapshot().ui.authorView) throw new Error('the Repair row arm must run in player mode'); const library = await until(() => document.querySelector('#so-workspace-modal[open] #so-workspace-page-library'), 5000, 'the Orchestrator > Library page button in the open workspace'); library.click(); const row = await until(() => document.querySelector('#so-workspace-modal[open] #so-entry-repair'), 5000, 'the Library Repair row').catch(() => null); if (!row) throw new Error('the Library Repair row (#so-entry-repair) is not rendered, so K1 cannot compare it (moved off the drawer in 7724042c)'); const text = (row.textContent ?? '').replace(/\\s+/g, ' ').trim(); globalThis.__v27dK1.repairB = text; document.querySelector('#so-workspace-modal[open] [aria-label=\"Close Story Orchestrator\"]')?.click(); await until(() => !document.getElementById('so-workspace-modal')?.open, 5000, 'the story window to close'); return { repairB: text };",
+      "log": true
+    },
+    {
+      "ui": {
+        "action": "open-drawer"
+      }
+    },
+    {
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const b = await until(() => { const value = globalThis.__v27dK1.read(); return value.row && value.hud ? value : null; }, 5000, 'the player surfaces after the seed'); const a = globalThis.__v27dK1.playerA; if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(`K1: the player-visible alert changed when a secret was held. without: ${JSON.stringify(a)} with: ${JSON.stringify(b)}`); const repairA = globalThis.__v27dK1.repairA; const repairB = globalThis.__v27dK1.repairB; if (!repairA || !repairB) throw new Error('the Library Repair row (#so-entry-repair) is not rendered, so K1 cannot compare it (moved off the drawer in 7724042c)'); if (repairA !== repairB) throw new Error(`K1: the Library Repair row changed when a secret was held. without: ${repairA} with: ${repairB}`); const surfaces = ['#drawer-manager', '#so-hud-root', '#story-orchestrator-settings', '#so-workspace-modal', '#so-panels-root'].map((selector) => document.querySelector(selector)?.textContent ?? '').join(' '); if (/stolen ledger/i.test(surfaces)) throw new Error('the held secret itself appears on a player surface'); return { identical: true, player: b, repair: repairB };",
       "log": true
     },
     {

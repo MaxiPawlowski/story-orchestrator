@@ -11,7 +11,7 @@ import { evaluateInST } from './evaluate.mts';
 
 export const isSettingsSave = (url: string, method: string) => method === 'POST' && new URL(url, 'http://host').pathname === '/api/settings/save';
 
-export async function saveSettingsNow(page, timeoutMs = 15000): Promise<{ status: number }> {
+export async function saveSettingsNow(page, timeoutMs = 60000): Promise<{ status: number }> {
   const answered = page.waitForResponse((response) => isSettingsSave(response.url(), response.request().method()), { timeout: timeoutMs }).catch(() => null);
   await evaluateInST(page, async () => {
     const { saveSettings } = await import(/* webpackIgnore: true */ '/script.js' as string) as { saveSettings: () => Promise<void> };

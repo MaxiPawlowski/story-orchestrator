@@ -222,6 +222,10 @@
     {
       "id": "J8.3",
       "model": "none",
+      "dependsOn": [
+        "J8.1",
+        "J8.2"
+      ],
       "mode": "auto",
       "findings": [
         "D1"

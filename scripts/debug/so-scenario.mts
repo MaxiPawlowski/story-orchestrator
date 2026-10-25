@@ -30,7 +30,7 @@ import { branchCreate, cleanupBranchChats, expectNextReadWindow, expectRollbackO
 import { assertRuntimeOnPage } from './lib/servedBundle.mts';
 import { currentPageCapture } from './lib/pageCapture.mts';
 import { quiesceBeforeSwitch, type QuiesceOptions } from './lib/generationQuiesce.mts';
-import { notRunnableLine, requiredGroup, requiresOf, requiresProblems, withAuthorView } from './lib/scenarioRequires.mts';
+import { applyRequiredViewport, notRunnableLine, requiredGroup, requiresOf, requiresProblems, withAuthorView } from './lib/scenarioRequires.mts';
 import { establishChatRequires, establishGroupRequires, readRequiresFacts } from './lib/scenarioRequiresHost.mts';
 import { MODEL_FLAG, parseModelFilter, scenarioModelSkip } from './lib/modelClass.mts';
 import { captureResidue, residueCount, sweepResidue, type ResidueSnapshot } from './lib/runResidue.mts';
@@ -1261,6 +1261,14 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
   return result;
 }
 
+export async function closeLeftoverDialogs(page) {
+  const closed: string[] = [];
+  if (await page.locator('#so-studio-modal[open]').count()) { await closeCheckpointStudio(page); closed.push('studio'); }
+  if (await closeWorkspaceModal(page).catch(() => false)) closed.push('workspace');
+  if (closed.length) console.log(`closed dialogs an earlier run left open: ${closed.join(', ')}`);
+  return closed;
+}
+
 async function runScenario(page, file, { sandbox = false, keep = false, group = null } = {}) {
   const scenarioPath = resolve(PROJECT_ROOT, file);
   const scenarioDir = dirname(scenarioPath);
@@ -1281,10 +1289,12 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
   let transitionNoteBefore: boolean | null = null;
   const requires = requiresOf(scenario);
   const pinned = requiredGroup(requires, group);
+  const viewportBefore = await applyRequiredViewport(page, requires.viewport);
   let reenabled: string[] = [];
   let residueBefore: ResidueSnapshot | null = null;
   const modelSettingsBefore = sandbox ? await readModelSettings(page, requires) : null;
   if (sandbox) {
+    await closeLeftoverDialogs(page);
     if (pinned.group) {
       const opened = await openGroup(page, pinned.group).then(() => null, (error) => error);
       if (opened) {
@@ -1396,6 +1406,7 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
     }
   }
 
+  if (viewportBefore) await page.setViewportSize(viewportBefore).catch(() => undefined);
   const capture = currentPageCapture();
   if (capture && pageMark !== null) result.page = capture.summary(pageMark);
   await writeJSON(result, 'so-scenario-result');

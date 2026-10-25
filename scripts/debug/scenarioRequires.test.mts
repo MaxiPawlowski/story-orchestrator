@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { AUTHOR_VIEW_STEP, laneOf, membersToEnable, notRunnableLine, requiredGroup, requiresOf, requiresProblems, validateRequires, withAuthorView } from './lib/scenarioRequires.mts';
+import { applyRequiredViewport, AUTHOR_VIEW_STEP, laneOf, parseViewport, membersToEnable, notRunnableLine, requiredGroup, requiresOf, requiresProblems, validateRequires, withAuthorView } from './lib/scenarioRequires.mts';
 import { evalSyntaxProblems, validateFixture, validateSteps } from './lib/scenarioSchema.mts';
 import { judgeEnabledIn, stripModelSecrets, withJudgeEnabled } from './lib/laneModel.mts';
 import { TOY_GROUP_NAME } from '../lib/toyGroup.mjs';
@@ -179,4 +179,24 @@ test('no-model lane: only model keys leave secrets.json, and the judge flag is w
   assert.equal(judgeEnabledIn(withJudgeEnabled({}, true)), true);
   assert.equal(judgeEnabledIn({}), true, 'an unset judge.enabled reads as its default (on)');
   assert.throws(() => withJudgeEnabled(null, true), /not an object/);
+});
+test('requires.viewport is "<width>x<height>", set before the steps and handed back for restore', async () => {
+  assert.deepEqual(validateRequires({ viewport: '390x844' }, 'r'), []);
+  assert.match(validateRequires({ viewport: 'phone' }, 'r').join(), /r\.viewport: expected "<width>x<height>"/);
+  assert.deepEqual(parseViewport('390x844'), { width: 390, height: 844 });
+  assert.equal(parseViewport(390), null);
+  const sizes: Array<{ width: number; height: number }> = [];
+  const page = { viewportSize: () => ({ width: 1920, height: 1080 }), setViewportSize: async (size: { width: number; height: number }) => { sizes.push(size); } };
+  assert.deepEqual(await applyRequiredViewport(page, '390x844'), { width: 1920, height: 1080 });
+  assert.deepEqual(sizes, [{ width: 390, height: 844 }]);
+  assert.equal(await applyRequiredViewport(page, undefined), null);
+  assert.equal(sizes.length, 1);
+});
+test('requires.plugins names story-orchestrator server plugins and is unmet unless each status answers', () => {
+  assert.deepEqual(validateRequires({ plugins: ['story-orchestrator-lore'] }, 'r'), []);
+  assert.match(validateRequires({ plugins: [] }, 'r').join(), /r\.plugins: expected a non-empty list/);
+  assert.match(validateRequires({ plugins: ['other'] }, 'r').join(), /r\.plugins: expected/);
+  assert.deepEqual(requiresProblems({ plugins: ['story-orchestrator-lore'] }, { plugins: { 'story-orchestrator-lore': 'present' } }), []);
+  assert.match(requiresProblems({ plugins: ['story-orchestrator-lore'] }, { plugins: { 'story-orchestrator-lore': 'absent' } }).join(), /needs the story-orchestrator-lore server plugin .* reads absent/);
+  assert.match(requiresProblems({ plugins: ['story-orchestrator-lore'] }, {}).join(), /reads unprobed/);
 });

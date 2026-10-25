@@ -4,6 +4,10 @@
   "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off","why":"the mirror's relationship fact is planted through a mocked read the transcript does not support; judge memoryVerify (on by default since v2.6 rule 5) drops it on a judge-on lane, the mirror then skips as nothing-live (memoryMirror.ts mirroredEntries, 01 diagnosis) and the book half has nothing to check; the subject is the mirror, not the judge (green x2 on the judge-off no-model lane, T7 SUITE)"},
   "steps": [
     {
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; const G = globalThis.storyOrchestratorScanGating; if (!G) throw new Error('the lorebook gating is not installed'); const root = SillyTavern.getContext().extensionSettings['story-orchestrator']?.settings ?? {}; const was = Object.fromEntries(['gatingMode', 'gatingChosen'].map((key) => [key, root.worldInfo?.[key] ?? null])); sessionStorage.setItem('so-mirror-gating', JSON.stringify({ was })); if (rt.getGlobalSettings().worldInfo.gatingMode !== 'file') await G.requestFile(); const script = await import('/script.js'); await script.saveSettings(); const now = rt.getGlobalSettings().worldInfo.gatingMode; if (now !== 'file') throw new Error(`the mirror's chat lorebook slot binding and its unbind are FILE-mode behaviour (scan mode, the default since R7, scans the mirror unbound), and the run did not switch to file mode: ${now}`); return { was, now };",
+      "log": true
+    },
+    {
       "eval": "const ctx = SillyTavern.getContext(); const greetings = ctx.chat.length; for (let id = ctx.chat.length - 1; id >= 0; id -= 1) await ctx.deleteMessage(id, undefined, false); if (ctx.chat.length !== 0) throw new Error(`the sandbox chat still holds ${ctx.chat.length} message(s) after clearing its greetings, so every message id below would name the wrong line`); return { greetingsCleared: greetings };",
       "log": true
     },
@@ -112,5 +116,8 @@
       "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const branch = globalThis.__v24Branch.chatId; const blob = ctx.chatMetadata.story_orchestrator; if (blob?.chatId !== branch) throw new Error(`after Continue the blob is still stamped for ${JSON.stringify(blob?.chatId)}, not the branch`); if (blob.integrity !== ctx.chatMetadata.integrity) throw new Error(`after Continue the blob integrity ${JSON.stringify(blob.integrity)} is not the branch's ${ctx.chatMetadata.integrity}`); await rt.syncWorldInfo(); const book = rt.getSnapshot().memory.wiBook; if (!book?.name || book.chatId !== branch || !book.name.endsWith(` - ${branch}`)) throw new Error(`the branch did not get its own mirror book: ${JSON.stringify(book)}`); if (ctx.chatMetadata.world_info !== book.name) throw new Error(`the branch's slot names ${ctx.chatMetadata.world_info}, not its own book ${book.name}`); const parent = globalThis.__v24Parent; const data = await fetch('/api/chats/group/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ id: parent.chatId }) }).then((r) => r.json()); const parentBlob = Array.isArray(data) ? data[0]?.chat_metadata?.story_orchestrator : null; if (parentBlob?.chatId !== parent.chatId) throw new Error(`Continue touched the parent's blob: ${JSON.stringify(parentBlob?.chatId)}`); return { branchBook: book.name, parentBlob: parentBlob.chatId };",
       "log": true
     }
-  ]
+  ],
+  "cleanup": {"steps": [
+    {"eval": "const saved = JSON.parse(sessionStorage.getItem('so-mirror-gating') ?? 'null'); sessionStorage.removeItem('so-mirror-gating'); if (!saved) return { restored: false }; const ctx = SillyTavern.getContext(); const root = (ctx.extensionSettings['story-orchestrator'].settings ??= {}); const next = { ...(root.worldInfo ?? {}) }; for (const key of ['gatingMode', 'gatingChosen']) { if (saved.was?.[key] == null) delete next[key]; else next[key] = saved.was[key]; } root.worldInfo = next; const script = await import('/script.js'); await script.saveSettings(); await globalThis.storyOrchestratorScanGating?.sync(); return { restored: globalThis.storyOrchestratorRuntime.getGlobalSettings().worldInfo.gatingMode };", "log": true}
+  ]}
 }

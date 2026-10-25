@@ -105,13 +105,7 @@
       }
     },
     {
-      "ui": {
-        "action": "drawer-tab",
-        "label": "Overview"
-      }
-    },
-    {
-      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const rowsNow = () => [...document.querySelectorAll('#so-setup [data-so=\"setup-row\"]')].map((row) => ({ check: row.getAttribute('data-check'), severity: row.getAttribute('data-severity'), dismiss: Boolean(row.querySelector('[data-so=\"setup-dismiss\"]')), showMe: Boolean(row.querySelector('[data-so=\"setup-show-me\"]')), detail: Boolean(row.querySelector('[data-so=\"setup-detail\"]')), text: norm(row) })); const hudNow = () => { const hud = document.querySelector('#so-hud-setup'); return hud ? { blocks: Number(hud.getAttribute('data-blocks')), degrades: Number(hud.getAttribute('data-degrades')), text: norm(hud), title: hud.getAttribute('title') } : null; }; const rt = globalThis.storyOrchestratorRuntime; if (rt.getSnapshot().ui.authorView) throw new Error('the order arm must run in player mode'); const rows = await until(() => { const value = rowsNow(); return ['memory-model', 'cast-absent', 'transcript-copiers'].every((id) => value.some((row) => row.check === id)) ? value : null; }, 8000, 'memory-model, cast-absent and transcript-copiers in the drawer Setup section'); const at = (id) => rows.findIndex((row) => row.check === id); if (!(at('memory-model') < at('cast-absent') && at('cast-absent') < at('transcript-copiers'))) throw new Error(`the Setup rows are out of order: ${rows.map((row) => row.check).join(', ')}`); const rank = { blocks: 0, degrades: 1, info: 2 }; for (let index = 1; index < rows.length; index += 1) if (rank[rows[index].severity] < rank[rows[index - 1].severity]) throw new Error(`a ${rows[index].severity} row follows a ${rows[index - 1].severity} row: ${rows.map((row) => `${row.check}:${row.severity}`).join(', ')}`); const blockRows = rows.filter((row) => row.severity === 'blocks'); if (blockRows.some((row) => row.dismiss)) throw new Error(`a blocks row offers a dismiss: ${blockRows.filter((row) => row.dismiss).map((row) => row.check).join(', ')}`); if (!rows.find((row) => row.check === 'transcript-copiers').dismiss) throw new Error('the degrades row has no \"I know, keep it\"'); if (!rows.find((row) => row.check === 'memory-model').showMe) throw new Error('the memory-model row has no Show me'); if (rows.some((row) => row.detail)) throw new Error('player mode shows an author detail'); const before = document.querySelector('#so-before-you-start'); if (!before || !before.querySelector('[data-check=\"memory-model\"]')) throw new Error('Before you start does not list the memory-model blocker at boundary 0'); const hud = hudNow(); if (!hud) throw new Error('no #so-hud-setup chip'); const counted = (severity) => rows.filter((row) => row.severity === severity && row.check !== 'save-unconfirmed').length; if (hud.blocks !== counted('blocks') || hud.degrades !== counted('degrades')) throw new Error(`the HUD counts ${JSON.stringify(hud)} differ from the rows (blocks ${counted('blocks')}, degrades ${counted('degrades')}; info rows ${counted('info')} are never counted)`); globalThis.__v27d04.player = rows; globalThis.__v27d04.hud = hud; return { order: rows.map((row) => `${row.check}:${row.severity}`), hud };",
+      "eval": "const until = async (test, ms, what) => { const end = Date.now() + ms; for (;;) { const value = await test(); if (value) return value; if (Date.now() > end) throw new Error(`timed out after ${ms} ms: ${what}`); await new Promise((r) => setTimeout(r, 200)); } }; const norm = (node) => (node?.textContent ?? '').replace(/\\s+/g, ' ').trim(); const rowsNow = () => [...document.querySelectorAll('#so-setup [data-so=\"setup-row\"]')].map((row) => ({ check: row.getAttribute('data-check'), severity: row.getAttribute('data-severity'), dismiss: Boolean(row.querySelector('[data-so=\"setup-dismiss\"]')), showMe: Boolean(row.querySelector('[data-so=\"setup-show-me\"]')), detail: Boolean(row.querySelector('[data-so=\"setup-detail\"]')), text: norm(row) })); const hudNow = () => { const hud = document.querySelector('#so-hud-setup'); return hud ? { blocks: Number(hud.getAttribute('data-blocks')), degrades: Number(hud.getAttribute('data-degrades')), text: norm(hud), title: hud.getAttribute('title') } : null; }; const rt = globalThis.storyOrchestratorRuntime; if (rt.getSnapshot().ui.authorView) throw new Error('the order arm must run in player mode'); const rows = await until(() => { const value = rowsNow(); return ['memory-model', 'cast-absent', 'transcript-copiers'].every((id) => value.some((row) => row.check === id)) ? value : null; }, 8000, 'memory-model, cast-absent and transcript-copiers in the drawer Setup section'); const at = (id) => rows.findIndex((row) => row.check === id); if (!(at('memory-model') < at('cast-absent') && at('cast-absent') < at('transcript-copiers'))) throw new Error(`the Setup rows are out of order: ${rows.map((row) => row.check).join(', ')}`); const rank = { blocks: 0, degrades: 1, info: 2 }; for (let index = 1; index < rows.length; index += 1) if (rank[rows[index].severity] < rank[rows[index - 1].severity]) throw new Error(`a ${rows[index].severity} row follows a ${rows[index - 1].severity} row: ${rows.map((row) => `${row.check}:${row.severity}`).join(', ')}`); const blockRows = rows.filter((row) => row.severity === 'blocks'); if (blockRows.some((row) => row.dismiss)) throw new Error(`a blocks row offers a dismiss: ${blockRows.filter((row) => row.dismiss).map((row) => row.check).join(', ')}`); if (!rows.find((row) => row.check === 'transcript-copiers').dismiss) throw new Error('the degrades row has no \"I know, keep it\"'); if (!rows.find((row) => row.check === 'memory-model').showMe) throw new Error('the memory-model row has no Show me'); if (rows.some((row) => row.detail)) throw new Error('player mode shows an author detail'); const before = document.querySelector('#so-before-you-start'); if (!before || !before.querySelector('[data-check=\"memory-model\"]')) throw new Error('Before you start does not list the memory-model blocker at boundary 0'); const hud = hudNow(); if (!hud) throw new Error('no #so-hud-setup chip'); const counted = (severity) => rows.filter((row) => row.severity === severity && !['save-unconfirmed', 'library-lost-to-tab', 'state-size-large'].includes(row.check)).length; if (hud.blocks !== counted('blocks') || hud.degrades !== counted('degrades')) throw new Error(`the HUD counts ${JSON.stringify(hud)} differ from the rows (blocks ${counted('blocks')}, degrades ${counted('degrades')}; info rows ${counted('info')} and save-area rows (save-unconfirmed; library-lost-to-tab since d83862b4, state-size-large since 4f4e5df9) are never counted: setupCounts skips area save)`); globalThis.__v27d04.player = rows; globalThis.__v27d04.hud = hud; return { order: rows.map((row) => `${row.check}:${row.severity}`), hud };",
       "log": true
     },
     {
@@ -121,12 +115,6 @@
     {
       "ui": {
         "action": "open-drawer"
-      }
-    },
-    {
-      "ui": {
-        "action": "drawer-tab",
-        "label": "Overview"
       }
     },
     {
@@ -160,12 +148,6 @@
     {
       "ui": {
         "action": "open-drawer"
-      }
-    },
-    {
-      "ui": {
-        "action": "drawer-tab",
-        "label": "Overview"
       }
     },
     {

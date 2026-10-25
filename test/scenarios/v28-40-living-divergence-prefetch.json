@@ -10,7 +10,9 @@
       "DM Narrator"
     ],
     "judge": "off",
-    "why": "Director and judge answers are scripted in the page; this proves wiring, not model behaviour."
+    "briefingDraft": "off",
+    "innerBeat": "off",
+    "why": "Director and judge answers are scripted in the page; this proves wiring, not model behaviour. Briefing draft and inner beat are off: on a no-model lane their failed calls open the memory-model breaker on the read route, which holds the heavy queue and with it the scripted branch job."
   },
   "steps": [
     {

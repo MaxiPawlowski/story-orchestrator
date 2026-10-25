@@ -26,7 +26,7 @@
   "checks": [
     {
       "id": "J11.1",
-      "model": "none",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "the server plugin answers /status with a configured key, and reports where the key came from without the key itself. The body grew deliberately (v2.6 plan 12: providers, limits, adaptive, served), so the check no longer caps its size: it asserts keySource is named (and agrees with the typesafe provider row) and that no string value in the body looks like a key",
@@ -193,7 +193,7 @@
       "model": "none",
       "mode": "auto",
       "findings": [],
-      "goal": "judge settings set through the settings panel survive a reload, and the key appears nowhere in extension settings or chat metadata. The key-reference scan covers the whole settings root; the long-value heuristic is scoped to this journey's own story record (journey-j11-judge) plus settings and chat metadata, because other library stories' quality keys (e.g. an adolion-fresh library) are authored identifiers, not secrets (T7)",
+      "goal": "judge settings set through the settings panel survive a reload, and the key appears nowhere in extension settings or chat metadata. The key-reference scan covers the whole settings root; the long-value heuristic is scoped to this journey's own story record (journey-j11-judge) plus settings and chat metadata, because other library stories' quality keys (e.g. an adolion-fresh library) are authored identifiers, not secrets (T7) (since 7724042c open-settings opens the workspace Connections page, where the judge settings live)",
       "requires": [
         "judge-runtime"
       ],
@@ -209,7 +209,7 @@
           }
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const waitFor = async (test, ms = 6000) => { const end = Date.now() + ms; while (Date.now() < end) { const value = test(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 150)); } return null; }; if (!Boolean(document.querySelector('#rm_extensions_block')?.offsetParent)) throw new Error('the extensions panel is not open'); const turnOn = async (id, read) => { for (let attempt = 0; attempt < 4; attempt += 1) { if (read()) return true; const row = await waitFor(() => { const node = document.querySelector(id); return node && !node.disabled ? node : null; }); if (!row) throw new Error(`${id} never became clickable`); (row.closest('label') ?? row).click(); if (await waitFor(() => read(), 2000)) return true; } return false; }; if (!await turnOn('#so-judge-enabled', () => rt.getGlobalSettings().judge.enabled === true)) throw new Error('the judge master switch would not turn on'); if (!await turnOn('#so-judge-use-director', () => rt.getGlobalSettings().judge.uses.director === true)) throw new Error('the director row would not turn on'); const now = rt.getGlobalSettings().judge; ctx.saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); return { enabled: now.enabled, director: now.uses.director };",
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const waitFor = async (test, ms = 6000) => { const end = Date.now() + ms; while (Date.now() < end) { const value = test(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 150)); } return null; }; if (!document.querySelector('#so-workspace-modal[open] #so-workspace-settings[data-section=\"connections\"]')) throw new Error('the workspace Connections page (judge settings) is not open'); const turnOn = async (id, read) => { for (let attempt = 0; attempt < 4; attempt += 1) { if (read()) return true; const row = await waitFor(() => { const node = document.querySelector(id); return node && !node.disabled ? node : null; }); if (!row) throw new Error(`${id} never became clickable`); (row.closest('label') ?? row).click(); if (await waitFor(() => read(), 2000)) return true; } return false; }; if (!await turnOn('#so-judge-enabled', () => rt.getGlobalSettings().judge.enabled === true)) throw new Error('the judge master switch would not turn on'); if (!await turnOn('#so-judge-use-director', () => rt.getGlobalSettings().judge.uses.director === true)) throw new Error('the director row would not turn on'); const now = rt.getGlobalSettings().judge; ctx.saveSettingsDebounced(); await new Promise((resolve) => setTimeout(resolve, 2500)); return { enabled: now.enabled, director: now.uses.director };",
           "log": true
         },
         {
@@ -656,7 +656,7 @@
     },
     {
       "id": "J11.18",
-      "model": "none",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "a dry run (prompt itemization) and a quiet generation make no lore judge call",

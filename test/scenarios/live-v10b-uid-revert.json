@@ -23,10 +23,11 @@
       "log": true
     },
     {
-      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setStagecraftSettings({ curatorEnabled: true, acceptMode: 'auto' }); globalThis.storyOrchestratorDebugCuratorResponse = '[rewrite] The washed road || The road has drained; the bare stones are walkable.'; return rt.getStagecraftState().settings;",
+      "eval": "const rt = globalThis.storyOrchestratorRuntime; rt.setStagecraftSettings({ curatorEnabled: true });globalThis.storyOrchestratorDebugCuratorResponse = '[rewrite] The washed road || The road has drained; the bare stones are walkable.'; return rt.getStagecraftState().settings;",
       "log": true
     },
     { "stagecraft": { "action": "curate", "reason": "v10b", "expectProposal": true, "expectOps": 1, "attempts": 2 } },
+    { "stagecraft": { "action": "accept" } },
     {
       "eval": "const rt = globalThis.storyOrchestratorRuntime; await rt.applyCuratorProposals(); const op = rt.getStagecraftState().proposals.flatMap((record) => record.ops).find((entry) => entry.status === 'applied'); if (!op) throw new Error(`the curator write was not applied: ${JSON.stringify(rt.getStagecraftState().proposals)}`); if (typeof op.target?.uid !== 'number') throw new Error(`the applied op recorded no entry uid: ${JSON.stringify(op.target)}`); const book = await (await fetch('/api/worldinfo/get', { method: 'POST', headers: SillyTavern.getContext().getRequestHeaders(), body: JSON.stringify({ name: 'SO-V10B Lore' }), cache: 'no-cache' })).json(); const entry = book.entries[op.target.uid]; if (!String(entry?.content ?? '').includes('drained')) throw new Error(`the write did not reach the entry: ${JSON.stringify(entry)}`); globalThis.__v10bUid = op.target.uid; return { uid: op.target.uid, content: entry.content };",
       "log": true

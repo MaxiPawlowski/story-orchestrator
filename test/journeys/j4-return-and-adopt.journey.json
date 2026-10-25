@@ -66,7 +66,7 @@
       "model": "none",
       "mode": "auto",
       "findings": [],
-      "goal": "reopening the chat after a simulated multi-day gap shows the away recap",
+      "goal": "reopening the chat after a simulated multi-day gap shows the away recap (asserted on the host popup, dialog.popup: with extraction off and no reply yet, the Before you start pane opens beside it since c699a0cc/e3d2ee1f)",
       "requires": [
         "away-recap"
       ],
@@ -89,7 +89,7 @@
         },
         {
           "expect_ui": {
-            "selector": "dialog[open]",
+            "selector": "dialog.popup[open]",
             "contains": [
               "Welcome back",
               "Quest for the Sun Ruins"
@@ -111,7 +111,7 @@
       "steps": [
         {
           "expect_ui": {
-            "selector": "dialog[open]",
+            "selector": "dialog.popup[open]",
             "contains": [
               "Current scene",
               "Where you are"
@@ -120,10 +120,10 @@
           }
         },
         {
-          "eval": "const dialog = document.querySelector('dialog[open]'); if (!dialog) throw new Error('the recap dialog is not open'); const text = (dialog.querySelector('.popup-content') ?? dialog).textContent ?? ''; if (text.includes('Investigate the Job Board')) throw new Error('the recap shows the author checkpoint name instead of player copy'); return { playerCopy: true, excerpt: text.replace(/\\s+/g, ' ').trim().slice(0, 160) };"
+          "eval": "const dialog = document.querySelector('dialog.popup[open]'); if (!dialog) throw new Error('the recap dialog is not open'); const text = (dialog.querySelector('.popup-content') ?? dialog).textContent ?? ''; if (text.includes('Investigate the Job Board')) throw new Error('the recap shows the author checkpoint name instead of player copy'); return { playerCopy: true, excerpt: text.replace(/\\s+/g, ' ').trim().slice(0, 160) };"
         },
         {
-          "eval": "const button = document.querySelector('dialog[open] .popup-button-ok'); if (button) button.click(); await new Promise((done) => setTimeout(done, 500)); return { dismissed: !document.querySelector('dialog[open]') };"
+          "eval": "const button = document.querySelector('dialog.popup[open] .popup-button-ok'); if (button) button.click(); await new Promise((done) => setTimeout(done, 500)); return { dismissed: !document.querySelector('dialog.popup[open]') };"
         }
       ]
     },
@@ -165,12 +165,12 @@
     },
     {
       "id": "J4.7",
-      "model": "none",
+      "model": "any",
       "mode": "auto",
       "findings": [
         "S3"
       ],
-      "goal": "the recap never outlives the chat it describes: a brand-new chat is not blocked by it. The back-date is read back from the chat file before the reload (as J4.2 does; T7 r1 reloaded on an unverified back-date and no recap came), and any dialog left open is closed and asserted gone first, so the recap check cannot pass on J4.2's dialog (T7 r2 did)",
+      "goal": "the recap never outlives the chat it describes: a brand-new chat is not blocked by it. The back-date is read back from the chat file before the reload (as J4.2 does; T7 r1 reloaded on an unverified back-date and no recap came), and any dialog left open is closed and asserted gone first, so the recap check cannot pass on J4.2's dialog (T7 r2 did). The dialogs counted here are host popups (dialog.popup): the Before you start pane legitimately reopens at boundary 0 with extraction off and is not the recap. Class any: the final pointer probe is #send_but, which ST hides whenever the main API is disconnected, so the check needs a connected model API (it fails on a no-model lane, 2026-10-25 C8)",
       "requires": [
         "away-recap"
       ],
@@ -183,7 +183,7 @@
           }
         },
         {
-          "eval": "const ctx = SillyTavern.getContext(); for (const dialog of document.querySelectorAll('dialog[open]')) dialog.querySelector('.popup-button-ok, .popup-button-cancel')?.click(); await new Promise((done) => setTimeout(done, 500)); const stale = document.querySelectorAll('dialog[open]').length; if (stale) throw new Error(`${stale} dialog(s) still open before the reload, so the recap check could pass on a stale one`); const blob = ctx.chatMetadata.story_orchestrator; const id = blob?.selectedStoryId; if (!id) throw new Error('no story selected in chat metadata: ' + JSON.stringify(Object.keys(blob ?? {}))); const seeded = new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(); blob.stories[id].extras.lastSessionAt = seeded; await ctx.saveMetadata(); const response = await fetch('/api/chats/group/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ id: ctx.chatId }) }); const data = await response.json().catch(() => []); const onDisk = (Array.isArray(data) ? data[0] : null)?.chat_metadata?.story_orchestrator?.stories?.[id]?.extras?.lastSessionAt ?? null; if (onDisk !== seeded) throw new Error(`the gap never reached the chat file, so the recap cannot fire: memory ${seeded}, file ${onDisk}`); return { id, seeded, onDisk };",
+          "eval": "const ctx = SillyTavern.getContext(); for (const dialog of document.querySelectorAll('dialog.popup[open]')) dialog.querySelector('.popup-button-ok, .popup-button-cancel')?.click(); await new Promise((done) => setTimeout(done, 500)); const stale = document.querySelectorAll('dialog.popup[open]').length; if (stale) throw new Error(`${stale} dialog(s) still open before the reload, so the recap check could pass on a stale one`); const blob = ctx.chatMetadata.story_orchestrator; const id = blob?.selectedStoryId; if (!id) throw new Error('no story selected in chat metadata: ' + JSON.stringify(Object.keys(blob ?? {}))); const seeded = new Date(Date.now() - 3 * 24 * 3600 * 1000).toISOString(); blob.stories[id].extras.lastSessionAt = seeded; await ctx.saveMetadata(); const response = await fetch('/api/chats/group/get', { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify({ id: ctx.chatId }) }); const data = await response.json().catch(() => []); const onDisk = (Array.isArray(data) ? data[0] : null)?.chat_metadata?.story_orchestrator?.stories?.[id]?.extras?.lastSessionAt ?? null; if (onDisk !== seeded) throw new Error(`the gap never reached the chat file, so the recap cannot fire: memory ${seeded}, file ${onDisk}`); return { id, seeded, onDisk };",
           "log": true
         },
         {
@@ -193,7 +193,7 @@
         },
         {
           "expect_ui": {
-            "selector": "dialog[open]",
+            "selector": "dialog.popup[open]",
             "contains": [
               "Welcome back"
             ],
@@ -205,7 +205,7 @@
           "adoptsNewChat": true
         },
         {
-          "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const open = Array.from(document.querySelectorAll('dialog[open]')).map((d) => (d.textContent || '').replace(/\\s+/g, ' ').trim().slice(0, 120)); if (open.length) throw new Error(`the away recap outlived its chat: ${JSON.stringify(open)}`); if (rt.getAwayRecap()) throw new Error('a recap is still queued for a chat that is gone'); const blob = ctx.chatMetadata.story_orchestrator; return { chatId: ctx.chatId, chatLength: ctx.chat.length, story: rt.getSnapshot().storyId, blobChatId: blob?.chatId ?? null, blobSelected: blob?.selectedStoryId ?? null };"
+          "eval": "const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const open = Array.from(document.querySelectorAll('dialog.popup[open]')).map((d) => (d.textContent || '').replace(/\\s+/g, ' ').trim().slice(0, 120)); if (open.length) throw new Error(`the away recap outlived its chat: ${JSON.stringify(open)}`); if (rt.getAwayRecap()) throw new Error('a recap is still queued for a chat that is gone'); const blob = ctx.chatMetadata.story_orchestrator; return { chatId: ctx.chatId, chatLength: ctx.chat.length, story: rt.getSnapshot().storyId, blobChatId: blob?.chatId ?? null, blobSelected: blob?.selectedStoryId ?? null };"
         },
         {
           "ui": {
