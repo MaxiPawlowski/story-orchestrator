@@ -698,3 +698,23 @@ test('another workflow on the same resident model files keeps hot-image credit; 
     assert.deepEqual(other.calls, ['free']);
     assert.notEqual(other.scheduler.lease.identity.cacheState, 'gpu-warm');
 });
+
+test('recorded prompt time is the median of recent replies, so one slow outlier is not treated as the usual cost', async () => {
+    const saved = [];
+    const { scheduler } = setup({ saveTimings: async (timings) => { saved.push(structuredClone(timings)); } });
+    for (const promptMs of [9000, 103842, 8800, 9100, 2000]) await scheduler.recordTiming({ timings: { predicted_per_second: 29, predicted_n: 100, prompt_ms: promptMs } });
+    const row = scheduler.timings['fast:full'];
+    assert.equal(row.promptMs, 9000);
+    assert.equal(row.samples, 5);
+    assert.equal(row.promptSamples.length, 5);
+    for (let at = 0; at < 20; at += 1) await scheduler.recordTiming({ timings: { predicted_per_second: 30, predicted_n: 100, prompt_ms: 1500 } });
+    assert.equal(scheduler.timings['fast:full'].promptSamples.length, 15);
+    assert.equal(scheduler.timings['fast:full'].promptMs, 1500);
+    assert.equal(saved.length, 25);
+});
+
+test('timings measured with a draft model are kept apart from timings without it', async () => {
+    const { scheduler } = setup({ config: { speculative: { model: 'C:/m/mtp.gguf' } }, saveTimings: async () => {} });
+    await scheduler.recordTiming({ timings: { predicted_per_second: 40, predicted_n: 100, prompt_ms: 900 } });
+    assert.deepEqual(Object.keys(scheduler.timings), ['fast+draft-mtp2:full']);
+});

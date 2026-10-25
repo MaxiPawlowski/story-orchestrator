@@ -5,6 +5,26 @@ import { memorySnapshot } from './telemetry.mjs';
 import { withinReserve } from './policy.mjs';
 import { CONTROLLER_DEFAULTS } from './controllerStatus.mjs';
 
+export const SPECULATIVE_DEFAULTS = Object.freeze({ type: 'draft-mtp', nMax: 2, estimatedGpuMiB: 900 });
+
+export function speculative(config) {
+    const spec = config.speculative;
+    if (!spec || spec.enabled === false) return null;
+    if (typeof spec.model !== 'string' || !spec.model) throw new Error('speculative.model must name the draft model file.');
+    const merged = { ...SPECULATIVE_DEFAULTS, ...spec };
+    if (!Number.isInteger(merged.nMax) || merged.nMax < 1 || merged.nMax > 8) throw new Error('speculative.nMax must be a whole number from 1 to 8.');
+    return merged;
+}
+
+export function speculativeArgs(config) {
+    const spec = speculative(config);
+    return spec ? ['--model-draft', spec.model, '--spec-type', spec.type, '--spec-draft-n-max', String(spec.nMax)] : [];
+}
+
+export const speculativeTag = (config) => { const spec = speculative(config); return spec ? `${spec.type}${spec.nMax}` : null; };
+
+export const profileGpuMiB = (config, profile) => (profile.estimatedGpuMiB ?? 21500) + (speculative(config)?.estimatedGpuMiB ?? 0);
+
 export function nativeArgs(config, profile, fitTargetMiB = config.reserves.gpuMiB) {
     const args = [...profile.args];
     if (config.modelLoadMode) {
@@ -12,10 +32,12 @@ export function nativeArgs(config, profile, fitTargetMiB = config.reserves.gpuMi
         if (at >= 0) args.splice(at, 2);
         args.push('--load-mode', config.modelLoadMode);
     }
+    const checkpoints = Number.isInteger(config.ctxCheckpoints) ? ['--ctx-checkpoints', String(config.ctxCheckpoints)] : [];
     return ['--model', config.model, '--host', '127.0.0.1', '--port', String(config.backendPort), '--alias', config.modelAlias,
         '--offline', '--no-mmproj', '--no-webui', '--threads', '8', '--threads-batch', '8', '--parallel', '1', '--kv-unified',
-        '--flash-attn', 'on', '--cache-type-k', 'q8_0', '--cache-type-v', 'q8_0', '--cache-ram', '512', '--sleep-idle-seconds', '-1',
-        '--fit', 'on', '--fit-target', String(fitTargetMiB + (config.fitMarginMiB ?? 0)), ...args];
+        '--flash-attn', 'on', '--cache-type-k', 'q8_0', '--cache-type-v', 'q8_0', '--cache-ram', String(config.cacheRamMiB ?? 512), ...checkpoints,
+        '--sleep-idle-seconds', '-1', ...speculativeArgs(config),
+        '--fit', 'on', '--fit-target', String(fitTargetMiB + (config.fitMarginMiB ?? 0) + (speculative(config)?.estimatedGpuMiB ?? 0)), ...args];
 }
 
 export function profileContext(profile) {
@@ -101,7 +123,7 @@ export class NativeBackend {
         const snapshot = await this.snapshot();
         const gpu = snapshot.gpus[0];
         const gpuBudget = gpu.freeMiB - Math.max(this.config.reserves.gpuMiB, fitTarget ?? 0);
-        const spillMiB = Math.max(0, (profile.estimatedGpuMiB ?? 21500) - gpuBudget);
+        const spillMiB = Math.max(0, profileGpuMiB(this.config, profile) - gpuBudget);
         const ramRequired = (profile.estimatedRamMiB ?? 6000) + spillMiB;
         if (gpuBudget < 2048 || snapshot.host.availableMiB < ramRequired + this.config.reserves.ramMiB || snapshot.host.commitFreeMiB < ramRequired + this.config.reserves.ramMiB) {
             throw new Error('Not enough free GPU/physical RAM for this profile while preserving desktop headroom.');
@@ -233,5 +255,5 @@ export class NativeBackend {
     }
 
     status() { return { profile: this.profile, desiredProfile: this.desiredProfile, fitTargetMiB: this.fitTarget, fitCorrectionMiB: this.fitCorrections.get(this.profile) ?? 0,
-        lastFitCorrection: this.lastFitCorrection, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
+        lastFitCorrection: this.lastFitCorrection, speculative: speculativeTag(this.config), cacheRamMiB: this.config.cacheRamMiB ?? 512, pid: this.child?.pid ?? null, loading: Boolean(this.loading), loadMs: this.loadMs, loads: this.loads, lastError: this.lastError, crashed: this.crashed, servedContext: this.servedContext() }; }
 }

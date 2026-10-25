@@ -1,11 +1,22 @@
 import { randomUUID } from 'node:crypto';
 import { admission, residencyChoice, textLatencyDecision } from './policy.mjs';
 import { measuredRamMiB } from './ramEstimates.mjs';
+import { speculativeTag } from './backend.mjs';
 import { estimateNeedMiB, modelIdentities, estimateRamMiB } from './models.mjs';
 import { footprintKey, observedFootprint, FOOTPRINT_REVISION } from './footprints.mjs';
 import { creditedSnapshot, imageResidency, residentCredit, IMAGE_IDLE_GRACE_MS } from './imageResidency.mjs';
 
 export const RAM_REFUSAL = /Insufficient (physical RAM|commit) headroom/;
+export const TIMING_WINDOW = 15;
+
+export function median(values) {
+    const sorted = values.filter(Number.isFinite).sort((a, b) => a - b);
+    if (!sorted.length) return null;
+    const middle = Math.floor(sorted.length / 2);
+    return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
+}
+
+export const timingProfile = (config, profile) => { const tag = speculativeTag(config); return tag ? `${profile}+${tag}` : profile; };
 
 export class ResidencyScheduler {
     constructor({ config, backend, snapshot, queue, freeImages, startComfy, saveFootprints, footprints = {}, timings = {}, saveTimings = async () => {}, runtime = async () => ({ id: 'unknown', streaming: false }), log = () => {} }) {
@@ -92,7 +103,7 @@ export class ResidencyScheduler {
         try {
             const state = this.backend.status();
             if (state.fitTargetMiB != null && this.config.residencyObjective !== 'switch') {
-                this.lastTextDecision = textLatencyDecision({ budget: entry.budget, timings: this.timings, profile: state.profile, fitTarget: state.fitTargetMiB });
+                this.lastTextDecision = textLatencyDecision({ budget: entry.budget, timings: this.timings, profile: timingProfile(this.config, state.profile), fitTarget: state.fitTargetMiB });
                 if (this.lastTextDecision.restore) await this.restoreText();
             }
             if (this.imagesNeedRelease) {
@@ -297,8 +308,9 @@ export class ResidencyScheduler {
     shouldShed(room, budget = this.config.nextTextTokens ?? 256) {
         if (this.config.residencyObjective === 'switch') return true;
         const profile = this.backend.desiredProfile ?? this.config.defaultProfile;
-        const choice = textLatencyDecision({ budget, timings: this.timings, profile, fitTarget: room });
-        const reduced = this.timings[`${profile}:${room}`];
+        const timed = timingProfile(this.config, profile);
+        const choice = textLatencyDecision({ budget, timings: this.timings, profile: timed, fitTarget: room });
+        const reduced = this.timings[`${timed}:${room}`];
         return Number.isFinite(choice.retainedMs) && Number.isFinite(reduced?.loadMs) && reduced.loadMs + choice.retainedMs < choice.restoredMs;
     }
 
@@ -306,10 +318,13 @@ export class ResidencyScheduler {
         const state = this.backend.status();
         const timing = data?.timings;
         if (!state.profile || !Number.isFinite(timing?.predicted_per_second) || timing.predicted_per_second <= 0 || timing.predicted_n < 8) return;
-        const key = `${state.profile}:${state.fitTargetMiB ?? 'full'}`;
+        const key = `${timingProfile(this.config, state.profile)}:${state.fitTargetMiB ?? 'full'}`;
         const old = this.timings[key];
-        this.timings[key] = { loadMs: state.loadMs ?? old?.loadMs, tokensPerSecond: timing.predicted_per_second,
-            promptMs: Math.max(old?.promptMs ?? 0, timing.prompt_ms ?? 0), samples: (old?.samples ?? 0) + 1, at: new Date().toISOString() };
+        const recent = (values, value) => [...(Array.isArray(values) ? values : []), value].filter(Number.isFinite).slice(-TIMING_WINDOW);
+        const promptSamples = recent(old?.promptSamples, timing.prompt_ms);
+        const speedSamples = recent(old?.speedSamples, timing.predicted_per_second);
+        this.timings[key] = { loadMs: state.loadMs ?? old?.loadMs, tokensPerSecond: median(speedSamples), promptMs: median(promptSamples) ?? 0,
+            promptSamples, speedSamples, samples: (old?.samples ?? 0) + 1, at: new Date().toISOString() };
         await this.saveTimings(this.timings);
     }
 

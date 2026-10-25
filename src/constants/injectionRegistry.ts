@@ -27,32 +27,28 @@ const KEEP: InjectionCarry = { quiet: "keep", impersonate: "keep" };
 const WITHHOLD: InjectionCarry = { quiet: "withhold", impersonate: "withhold" };
 
 export const INJECTION_REGISTRY = {
-  pacing: { carry: WITHHOLD, key: "story_orchestrator_pacing", depth: 2, writer: "runtime/runtimeManager.applyPacingSteering" , label: "Pacing steering" },
-  memoryFacts: { carry: KEEP, key: `${MEMORY_INJECTION_KEY_PREFIX}facts`, depth: 4, writer: "memory/inject.applyMemoryInjection", label: "Memory — established facts", scannable: true },
-  memorySessionDetails: { carry: KEEP, key: `${MEMORY_INJECTION_KEY_PREFIX}session_details`, depth: 3, writer: "memory/inject.applyMemoryInjection", label: "Memory — session details" },
-  memoryShortTerm: { carry: KEEP, key: `${MEMORY_INJECTION_KEY_PREFIX}short_term`, depth: 2, writer: "memory/inject.applyMemoryInjection", label: "Memory — short term" },
-  memorySceneHistory: { carry: KEEP, key: `${MEMORY_INJECTION_KEY_PREFIX}scene_history`, depth: 4, writer: "memory/inject.applyMemoryInjection", label: "Memory — scene history", scannable: true },
-  epistemic: { carry: WITHHOLD, key: "story_orchestrator_epistemic", depth: 4, writer: "memory/inject.applyEpistemicInjection" , label: "What the speaker knows" },
-  ledger: { carry: KEEP, key: "story_orchestrator_ledger", depth: 4, writer: "memory/inject.applyLedgerInjection" , label: "State ledger" },
-  copilotNudge: { carry: KEEP, key: "story_copilot_nudge", depth: 4, writer: "runtime/runtimeManager.setCopilotNudge", dynamicDepth: true , label: "Author nudge" },
-  sceneTracker: { carry: KEEP, key: "story_orchestrator_scene", depth: 1, writer: "runtime/coordinators/sceneCoordinator" , label: "Scene so far" },
+  pacing: { carry: WITHHOLD, key: "story_orchestrator_pacing", depth: 0, writer: "runtime/runtimeManager.applyPacingSteering" , label: "Pacing steering" },
+  memoryFacts: { carry: KEEP, key: `${MEMORY_INJECTION_KEY_PREFIX}facts`, depth: 0, writer: "memory/inject.applyMemoryInjection", label: "Memory — established facts", scannable: true },
+  memorySessionDetails: { carry: KEEP, key: `${MEMORY_INJECTION_KEY_PREFIX}session_details`, depth: 0, writer: "memory/inject.applyMemoryInjection", label: "Memory — session details" },
+  memoryShortTerm: { carry: KEEP, key: `${MEMORY_INJECTION_KEY_PREFIX}short_term`, depth: 0, writer: "memory/inject.applyMemoryInjection", label: "Memory — short term" },
+  memorySceneHistory: { carry: KEEP, key: `${MEMORY_INJECTION_KEY_PREFIX}scene_history`, depth: 0, writer: "memory/inject.applyMemoryInjection", label: "Memory — scene history", scannable: true },
+  epistemic: { carry: WITHHOLD, key: "story_orchestrator_epistemic", depth: 0, writer: "memory/inject.applyEpistemicInjection" , label: "What the speaker knows" },
+  ledger: { carry: KEEP, key: "story_orchestrator_ledger", depth: 0, writer: "memory/inject.applyLedgerInjection" , label: "State ledger" },
+  copilotNudge: { carry: KEEP, key: "story_copilot_nudge", depth: 0, writer: "runtime/runtimeManager.setCopilotNudge", dynamicDepth: true , label: "Author nudge" },
+  sceneTracker: { carry: KEEP, key: "story_orchestrator_scene", depth: 0, writer: "runtime/coordinators/sceneCoordinator" , label: "Scene so far" },
   continuityNote: { carry: WITHHOLD, key: "story_orchestrator_continuity", depth: 0, writer: "runtime/coordinators/stagecraftCoordinator" , label: "Continuity note" },
-  checkpointGuidance: { carry: WITHHOLD, key: "story_orchestrator_guidance", depth: 4, writer: "runtime/coordinators/pacingCoordinator", label: "Checkpoint guidance", scannable: true },
-  storySoFar: { carry: KEEP, key: "story_orchestrator_story_so_far", depth: 4, writer: "runtime/memoryInjector", label: "The story so far" },
-  chapterBridge: { carry: WITHHOLD, key: "story_orchestrator_chapter_bridge", depth: 1, writer: "runtime/memoryInjector", label: "Chapter bridge" },
-  cardOverlay: { carry: KEEP, key: "story_orchestrator_card_overlay", depth: 1, writer: "runtime/cardOverlayHost", label: "Current public character state" },
-  playerRole: { carry: KEEP, key: "story_orchestrator_player_role", depth: 4, writer: "runtime/playerRoleHost", label: "Who the player is in this story" },
+  checkpointGuidance: { carry: WITHHOLD, key: "story_orchestrator_guidance", depth: 0, writer: "runtime/coordinators/pacingCoordinator", label: "Checkpoint guidance", scannable: true },
+  storySoFar: { carry: KEEP, key: "story_orchestrator_story_so_far", depth: 0, writer: "runtime/memoryInjector", label: "The story so far" },
+  chapterBridge: { carry: WITHHOLD, key: "story_orchestrator_chapter_bridge", depth: 0, writer: "runtime/memoryInjector", label: "Chapter bridge" },
+  cardOverlay: { carry: KEEP, key: "story_orchestrator_card_overlay", depth: 0, writer: "runtime/cardOverlayHost", label: "Current public character state" },
+  playerRole: { carry: KEEP, key: "story_orchestrator_player_role", depth: 0, writer: "runtime/playerRoleHost", label: "Who the player is in this story" },
   checkOutcome: { carry: WITHHOLD, key: "story_orchestrator_check_outcome", depth: 0, writer: "runtime/checkOutcomeHost", label: "Outcomes the story decided" },
   awayNotice: { carry: WITHHOLD, key: "story_orchestrator_away_notice", depth: 0, writer: "runtime/awayNotice", label: "Who is not here" },
-  previously: { carry: WITHHOLD, key: "story_orchestrator_previously", depth: 4, writer: "runtime/carryPort", label: "Previously" },
+  previously: { carry: WITHHOLD, key: "story_orchestrator_previously", depth: 0, writer: "runtime/carryPort", label: "Previously" },
 } as const satisfies Record<string, InjectionSpec>;
 
 export const INJECTION_DEPTH_COLLISION_ALLOWLIST: ReadonlyArray<ReadonlySet<string>> = [
-  new Set([INJECTION_REGISTRY.memoryFacts.key, INJECTION_REGISTRY.memorySceneHistory.key, INJECTION_REGISTRY.epistemic.key,
-    INJECTION_REGISTRY.ledger.key, INJECTION_REGISTRY.checkpointGuidance.key, INJECTION_REGISTRY.storySoFar.key, INJECTION_REGISTRY.playerRole.key, INJECTION_REGISTRY.previously.key]),
-  new Set([INJECTION_REGISTRY.memoryShortTerm.key, INJECTION_REGISTRY.pacing.key]),
-  new Set([INJECTION_REGISTRY.sceneTracker.key, INJECTION_REGISTRY.chapterBridge.key, INJECTION_REGISTRY.cardOverlay.key]),
-  new Set([INJECTION_REGISTRY.continuityNote.key, INJECTION_REGISTRY.checkOutcome.key, INJECTION_REGISTRY.awayNotice.key]),
+  new Set(Object.values(INJECTION_REGISTRY).filter((spec) => !("dynamicDepth" in spec)).map((spec) => spec.key)),
 ];
 
 const NEVER_SCANNABLE: ReadonlySet<string> = new Set(["epistemic", "ledger"]);

@@ -130,15 +130,16 @@ describe("late lore placement on the scan copies", () => {
     expect(lorePlacementFor(sources({ story: () => story("depth") })).refusal).toBeNull();
   });
 
-  it("clamps the depth and the install default is on at depth 4", () => {
-    expect(defaultWorldInfoSettings()).toMatchObject({ lateLore: true, lateLoreDepth: 4 });
+  it("clamps the depth and the install default is on at depth 0, after the last message", () => {
+    expect(defaultWorldInfoSettings()).toMatchObject({ lateLore: true, lateLoreDepth: 0 });
     expect(readGlobalSettings({ worldInfo: { lateLore: false, lateLoreDepth: 99 } }).worldInfo).toMatchObject({ lateLore: false, lateLoreDepth: 20 });
     expect(clampLateLoreDepth(-3)).toBe(0);
-    expect(clampLateLoreDepth("x")).toBe(4);
+    expect(clampLateLoreDepth("x")).toBe(0);
     const plan = lorePlacementFor(sources({ depth: () => 0 }));
     const scan = arrays();
     applyLorePlacement(scan, plan);
-    expect(scan.flat().find((row) => row.uid === 2)).toMatchObject({ depth: 1 });
+    expect(scan.flat().find((row) => row.uid === 2)).toMatchObject({ depth: 0 });
+    expect(scan.flat().find((row) => row.uid === 1)).toMatchObject({ depth: 0 });
   });
 
   it("rejects an unknown lore_select.position", () => {

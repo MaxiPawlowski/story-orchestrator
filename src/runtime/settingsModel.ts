@@ -163,7 +163,7 @@ export interface WorldInfoSettings {
   lateLoreDepth: number;
 }
 
-export const DEFAULT_LATE_LORE_DEPTH = 4;
+export const DEFAULT_LATE_LORE_DEPTH = 0;
 export const LATE_LORE_DEPTH_MIN = 0;
 export const LATE_LORE_DEPTH_MAX = 20;
 
