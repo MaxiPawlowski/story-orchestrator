@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { blockingDialogFor, emptySnapshotRefusal, mergeRestore, planLibraryRestore, shouldRecoverConfig, validateJourneyExtraction } from './configRestore.mts';
+import { blockingDialogFor, emptySnapshotRefusal, mergeRestore, planLibraryRestore, shouldRecoverConfig, validateJourneyExtraction, withDisplayBefore } from './configRestore.mts';
 
 test('a restore keeps a story and a wizard session another session created after the snapshot (S12)', () => {
   const snapshot = { settings: { cadence: 3 }, stories: [{ id: 'mine' }], wizardSessions: [{ key: 'mine' }] };
@@ -119,4 +119,12 @@ test('F15: a capture that could not read the settings is refused over a populate
   assert.match(emptySnapshotRefusal({ present: true, value: {} }, live) ?? '', /proves nothing/);
   assert.equal(emptySnapshotRefusal({ trusted: false, present: false, value: null }, []), null);
   assert.equal(emptySnapshotRefusal({ trusted: false, present: true, value: { settings: {} } }, live), null);
+});
+
+test('a config snapshot taken after the run suppressed the start panes restores the pre-run display values (GS6 2026-10-25)', () => {
+  const taken = { present: true, value: { settings: { display: { playerSetup: false, briefing: false, hudEnabled: true } }, stories: [] } };
+  const fixed = withDisplayBefore(taken, { playerSetup: true, briefing: null });
+  assert.deepEqual((fixed.value as any).settings.display, { playerSetup: true, briefing: false, hudEnabled: true });
+  assert.equal((taken.value as any).settings.display.playerSetup, false);
+  assert.equal(withDisplayBefore({ present: false, value: null }, { playerSetup: true }).value, null);
 });

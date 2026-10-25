@@ -155,3 +155,16 @@ export function validateJourneyExtraction(setup: unknown): string[] {
   if (value.profile !== 'inherit') problems.push(`${where}.profile must be "inherit"`);
   return problems;
 }
+
+export type DisplayBefore = { briefing?: boolean | null; playerSetup?: boolean | null };
+
+export function withDisplayBefore<T extends { value?: unknown }>(snapshot: T, before: DisplayBefore): T {
+  const keys = Object.entries(before).filter(([, value]) => typeof value === 'boolean') as Array<[string, boolean]>;
+  const root = snapshot.value;
+  if (!keys.length || !root || typeof root !== 'object') return snapshot;
+  const value = JSON.parse(JSON.stringify(root)) as Record<string, any>;
+  const settings = (value.settings ??= {});
+  const display = (settings.display ??= {});
+  for (const [key, on] of keys) display[key] = on;
+  return { ...snapshot, value };
+}

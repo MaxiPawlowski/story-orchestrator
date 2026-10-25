@@ -27,7 +27,7 @@ import { archiveJourneyRecord, fixtureSha256, unselectedDependencies } from './l
 import { trackJudgeRequests } from './lib/judgeSettle.mts';
 import { applyExtSetting, restoreExtSettings } from './lib/interopVerbs.mts';
 import { cleanupBranchChats, settleReapPrompts, withoutBranchChats } from './lib/identityVerbs.mts';
-import { BLOCKING_DIALOGS, emptySnapshotRefusal, mergeRestore, shouldRecoverConfig, validateJourneyExtraction, type DeclaredExtraction, type LibraryCapture } from './lib/configRestore.mts';
+import { BLOCKING_DIALOGS, emptySnapshotRefusal, mergeRestore, shouldRecoverConfig, validateJourneyExtraction, withDisplayBefore, type DeclaredExtraction, type DisplayBefore, type LibraryCapture } from './lib/configRestore.mts';
 import { applyJudgeMode, modeFromSetup, parseJudgeMode, restoreJudgeConfig, wardenNotes, wardenTally, type JudgeMode } from './lib/judgeHarness.mts';
 import { applyWiGating, parseWiGating, restoreWiGating, type WiGatingMode } from './lib/wiGatingHarness.mts';
 import { assertRuntimeOnPage } from './lib/servedBundle.mts';
@@ -163,6 +163,11 @@ async function writeGlobalConfig(page, value) {
   }, { key: EXTENSION_KEY, next });
   const saved = await saveSettingsNow(page);
   return { ...written, saved, preservedStories, preservedSessions };
+}
+
+async function rewriteSnapshotDisplay(before: DisplayBefore) {
+  const snapshot = await readJSON(CONFIG_SNAPSHOT).catch(() => null);
+  if (snapshot) await writeFile(CONFIG_SNAPSHOT, JSON.stringify(withDisplayBefore(snapshot, before), null, 2), 'utf-8');
 }
 
 export async function restoreGlobalConfig(page, file = CONFIG_SNAPSHOT) {
@@ -583,6 +588,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
       await applySetup(page, journey.setup ?? {}, { allowConfig, journey, group, judgeMode: judgeMode ?? modeFromSetup(journey.setup), wiGating, into: setupApplied });
       if (briefingPre.before !== null) setupApplied.briefingBefore = briefingPre.before;
       if (playerSetupPre.before !== null) setupApplied.playerSetupBefore = playerSetupPre.before;
+      if (setupApplied.configSnapshot) await rewriteSnapshotDisplay({ briefing: briefingPre.before, playerSetup: playerSetupPre.before });
       await suppressBriefing(page);
       await suppressPlayerSetup(page);
       // `reconcileExpected` lives in lib/journeyTallies.mts so it is unit-tested without a browser.
