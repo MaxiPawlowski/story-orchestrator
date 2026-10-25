@@ -234,6 +234,8 @@ describe("v2.9 06: anchored asks, the help line, greyed offers and the render-ti
     expect(outcome.side.author).toMatchObject({ grounded: 1, lines: 4 });
     const player = await askSuggestions(manager(false, () => reply, [], over(false)));
     expect(player.side?.author).toBeNull();
+    expect(player.side?.help).toEqual([{ checkId: "climb", label: "Climb", hints: [{ text: "a rope", have: false }] }]);
+    expect(player.side?.unavailable).toEqual([]);
   });
 
   it("the LT current arm: the debug seam sends no anchors and maps no line, and clearing it restores them", async () => {
@@ -252,10 +254,13 @@ describe("v2.9 06: anchored asks, the help line, greyed offers and the render-ti
     expect(prompts[1]).toContain("[1] Get past the guard.");
   });
 
-  it("the help line and greyed offers survive a failed answer", async () => {
+  it("the help line and greyed offers survive a failed answer; greyed offers only in author view", async () => {
     const outcome = await askSuggestions(manager(false, () => "- one", [], over(false)));
     expect(outcome.ok).toBe(false);
     expect(outcome.side?.help).toHaveLength(1);
+    expect(outcome.side?.unavailable).toEqual([]);
+    const author = await askSuggestions(manager(false, () => "- one", [], over(true)));
+    expect(author.side?.unavailable).toHaveLength(1);
   });
 
   it("a secret introduced after the panel opened drops the model-free line at render", async () => {

@@ -77,14 +77,14 @@ export const NothingCameBack: Story = {
   },
 };
 
-export const HelpLineAndGreyedOffer: Story = {
+export const HelpLineForThePlayer: Story = {
   args: { request: fn(async () => ({ ok: true as const, suggestions: LINES, ask: ASK, side: SIDE })) },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await expect(await canvas.findByText("Climb — could help: a rope, a friend's hand (you have it)")).toBeInTheDocument();
-    const greyed = canvas.getByRole("button", { name: /lantern/ });
-    await expect(greyed).toBeDisabled();
-    await expect(canvas.getByText("You need a lantern first.")).toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: /lantern/ })).toBeNull();
+    await expect(canvas.queryByText("You need a lantern first.")).toBeNull();
+    await expect(canvasElement.querySelector("[data-so=suggestion-unavailable]")).toBeNull();
     await expect(canvasElement.querySelector("[data-so=suggestions-author]")).toBeNull();
     await expect(canvasElement.querySelector("[data-so=suggestion-anchor]")).toBeNull();
     await expect(canvasElement.textContent).not.toMatch(/d20|target|\b12\b/);
@@ -110,6 +110,9 @@ export const GroundedLinesInAuthorView: Story = {
     await expect(await canvas.findByText("for: The ferryman's toll")).toBeInTheDocument();
     await expect(canvas.getByRole("button", { name: /knock on the ferryman's door/ })).toBeEnabled();
     await expect(canvas.getByText("Suggestions: anchors thread, check-help, offer, grounded 2/3")).toBeInTheDocument();
+    const greyed = canvas.getByRole("button", { name: /lantern/ });
+    await expect(greyed).toBeDisabled();
+    await expect(canvas.getByText("You need a lantern first.")).toBeInTheDocument();
   },
 };
 
@@ -129,3 +132,4 @@ export const InAPanelAt390 = framed(390, 844);
 export const InAPanelAt768 = framed(768, 1024);
 export const InAPanelAt1440 = framed(1440, 900);
 export const HelpAndOffersAt390 = framed(390, 844, SIDE);
+export const AuthorGreyedOffersAt390 = framed(390, 844, AUTHOR);
