@@ -137,7 +137,7 @@ async function runSuite(lanes, list) {
     return 2;
   }
   const items = [...list.journeys.map((journey) => journey.id), ...list.scenarios];
-  const { output } = await runBatch(['--lanes', lanes.join(','), '--strict', '--model', 'none', '--group', list.group, ...items]);
+  const { output } = await runBatch(['--lanes', lanes.join(','), '--strict', '--model', 'none', '--reload-journeys', '--group', list.group, ...items]);
   const summaryPath = output.match(/"summary":\s*"((?:[^"\\]|\\.)*)"/)?.[1]?.replace(/\\\\/g, '\\');
   if (!summaryPath || !existsSync(summaryPath)) {
     console.error('suite:nomodel: st-lanes batch wrote no summary');

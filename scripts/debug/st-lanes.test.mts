@@ -88,6 +88,7 @@ test('B1b H6: batch reloads the lane page before every repeat after the first (r
   const { betweenRunsArgs } = await import('./st-lanes.mts');
   assert.equal(betweenRunsArgs(1), null);
   assert.deepEqual(betweenRunsArgs(2), ['scripts/debug/st-session.mts', 'reload']);
+  assert.deepEqual(betweenRunsArgs(1, true), ['scripts/debug/st-session.mts', 'reload']);
   assert.deepEqual(betweenRunsArgs(3), ['scripts/debug/st-session.mts', 'reload']);
 });
 

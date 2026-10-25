@@ -651,10 +651,18 @@ async function restartStory(page, spec) {
     return { ok, activeCheckpointId: globalThis.storyOrchestratorRuntime.getSnapshot().activeCheckpointId };
   });
   const button = page.locator(confirm ? 'dialog[open] .popup-button-ok' : 'dialog[open] .popup-button-cancel');
-  await button.waitFor({ state: 'visible', timeout: 10000 }).catch(() => undefined);
-  await button.click().catch(() => undefined);
-  return pending;
+  let settled = false;
+  const answer = pending.finally(() => { settled = true; });
+  const deadline = Date.now() + RESTART_ANSWER_MS;
+  while (!settled && Date.now() < deadline) {
+    if (await button.isVisible().catch(() => false)) await button.click({ timeout: 5000 }).catch(() => undefined);
+    await Promise.race([answer.catch(() => undefined), page.waitForTimeout(500)]);
+  }
+  if (!settled) throw new Error(`restart_story: the restart confirmation was not answered within ${RESTART_ANSWER_MS / 1000} s (no ${confirm ? 'confirm' : 'cancel'} button became clickable)`);
+  return answer;
 }
+
+export const RESTART_ANSWER_MS = 60000;
 
 async function extract(page, spec) {
   const debugResponse = typeof spec === 'string' ? spec : spec?.debugResponse;
