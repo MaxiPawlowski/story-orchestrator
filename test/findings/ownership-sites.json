@@ -581,6 +581,10 @@
       "status": "checked",
       "note": "v2.3 plan 04; v2.6 final review finding 2 (2026-10-03). The rollback composition, extracted from the manager for its line budget. One RunGuard with NO window is minted at the top, after rollbackFromMessage recorded the mutation position on the owner, so it does not refuse its own rollback (a windowless token asks only whether the chat, story, version or epoch moved). It is checked after every await before the next write: the chapter kit load (CR-E7, rollbackKit.review.test.ts), the stagecraft revert, the checkpoint re-apply and the persist, on the noop and the applied path; a lapse returns noop and writes nothing more (rollbackOwnership.review.test.ts)."
     },
+    "src/runtime/rollback.ts#rollbackOnce.settleInPlace": {
+      "status": "checked",
+      "note": "v2.8 70 lean suite (2026-10-25): the in-place path, shared by \"the engine did not act on this message\" and \"the engine is already at the target boundary\" (a burst delete whose earlier delete stepped it back; 47 promises live left a kept event). It uses rollbackOnce's windowless RunGuard, checked after the stagecraft revert (before the injection and the persist) and after the persist (before notify), as the old inline noop path did (rollbackOwnership.review.test.ts; promiseRollback.review.test.ts \"a delete the engine already stepped back for ...\")."
+    },
     "src/runtime/rollback.ts#rollbackOnce.unavailable": {
       "status": "checked",
       "note": "v2.3 replan V11 (2026-09-23); v2.6 final review finding 2 (2026-10-03). The E1 path, shared by both ways the history can be gone. It uses rollbackOnce's windowless RunGuard and checks it after the stagecraft revert (before the notice, the journal line, the injection and the persist) and after the persist (before notify), so a chat switch during either await writes nothing into the next chat (rollbackOwnership.review.test.ts \"history-unavailable path: ...\")."
