@@ -185,7 +185,7 @@ async function contextOf(dir: string, sha: string): Promise<Record<string, unkno
   const key = `${dir}|${sha}`;
   if (!contextCache.has(key)) {
     const textValue = await readFile(join(dir, 'contexts', `${sha}.json`), 'utf-8');
-    if (sha256(textValue) !== sha) throw new Error(`refused: contexts/${sha}.json no longer hashes to its name`);
+    if (lfSha(textValue) !== sha) throw new Error(`refused: contexts/${sha}.json no longer hashes to its name`);
     contextCache.set(key, JSON.parse(textValue));
   }
   return contextCache.get(key) as Record<string, unknown>;
