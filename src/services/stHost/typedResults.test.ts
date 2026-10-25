@@ -26,6 +26,8 @@ const READS: Record<string, string> = {
   lapsed: "a question about whether a write guard's run is still current",
   isHostGenerating: "a question about ST's generating flag",
   isHostGeneratingFlag: "a question about ST's own body[data-generating] flag",
+  isUserStoppedReply: "a question about ST's streaming processor: did the player stop this reply (v2.9 A02)",
+  userStoppedStream: "the pure predicate behind isUserStoppedReply, over a stream snapshot",
   willAddUserMessage: "a question about what ST will do with this generation",
   executeSlashCommands: "the command interface itself: its boolean IS the answer, and every write seam turns it into a typed result",
   findTextGenPreset: "a lookup, not a write",

@@ -3,7 +3,7 @@ let held: { chatId: string; messageId: number } | null = null;
 export const holdStoppedReply = (chatId: string, messageId: number): void => { held = { chatId, messageId }; };
 
 export const heldStoppedReply = (chatId: string | null | undefined): number | null =>
-  held && chatId !== null && chatId !== undefined && held.chatId === chatId ? held.messageId : null;
+  held && held.chatId === chatId ? held.messageId : null;
 
 export const takeStoppedReply = (chatId: string | null | undefined): number | null => {
   const id = heldStoppedReply(chatId);
