@@ -17,3 +17,8 @@ export const readableEndBefore = (chatId: string | null | undefined): number | u
   const id = heldStoppedReply(chatId);
   return id === null ? undefined : id - 1;
 };
+
+export const readableLastId = (chatId: string | null | undefined, lastId: number): number => {
+  const end = readableEndBefore(chatId);
+  return end === undefined ? lastId : Math.min(lastId, end);
+};

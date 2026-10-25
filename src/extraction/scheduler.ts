@@ -444,7 +444,7 @@ export class ExtractionScheduler {
 
   nextReadWindow(lastMessageId: number): NextReadWindow | null {
     const queued = this.queue.find((job) => job.window);
-    if (queued?.window) return { source: "queued", reason: queued.reason, window: queued.window };
+    if (queued?.window) return { source: "queued", reason: queued.reason, window: getChatWindow(queued.window.from, queued.window.to) };
     const stableTo = lastMessageId - Math.max(0, this.host.getExtractionSettings().stabilityLag ?? 1);
     if (stableTo < 0) return null;
     return { source: "cadence", reason: "cadence", window: getChatWindow(cadenceWindowFrom(this.cursor(), stableTo), stableTo) };
