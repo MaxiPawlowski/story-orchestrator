@@ -17,6 +17,19 @@ export const candidateChats = (plays: PlaysIndex, story: string, openChat: strin
   .slice(0, CARRY_CANDIDATES_MAX)
   .map(([chatId]) => chatId);
 
+export interface CarryDrop {
+  chatId: string;
+  reason: string;
+}
+
+export const indexDrops = (plays: PlaysIndex, story: string, openChat: string | null): CarryDrop[] => {
+  const listed = new Set(candidateChats(plays, story, openChat));
+  return Object.entries(plays).filter(([chatId, row]) => row.storyId === story && !listed.has(chatId)).map(([chatId, row]) => ({
+    chatId,
+    reason: chatId === openChat ? "this is the open chat" : row.ended !== true ? "the story index does not mark the run ended" : `older than the newest ${CARRY_CANDIDATES_MAX} ended runs`,
+  }));
+};
+
 export interface CarryCandidate {
   chatId: string;
   endedAt: string;

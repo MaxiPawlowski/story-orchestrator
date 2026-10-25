@@ -1,6 +1,6 @@
 {
   "model": "judged",
-  "_note": "v2.8 70 lean row 45 seal, real model: v28-45-carry with the chapter seal and scene summary on the real memory model (only extraction stays pinned SCENE_NONE, not the measured path). Floor (70:76): the epilogue passes verifySaga (>= 120 words, not the joined-summaries fallback), the picker lists the run, the seed lands before boundary 0.",
+  "_note": "v2.8 70 lean row 45 seal, real model: v28-45-carry with the chapter seal and scene summary on the real memory model (only extraction stays pinned SCENE_NONE, not the measured path). Floor (70:76): the epilogue passes verifySaga (>= 120 words, not the joined-summaries fallback), the picker lists the run, the seed lands before boundary 0. Every ending value is set at the harbour and met_guild (the transition gate) last, and the run waits for the first chapter's record before the boundary that seals the final one: a background final seal freezes blackboardAt at its boundary, so a value set after it never reaches the run's ending (13 C2: coins and secret_pact were set after the final seal, the picker refused 'the run's ending holds no coins, secret_pact').",
   "requires": {
     "lane": "model",
     "group": "Group: Arin, DM Narrator",
@@ -29,9 +29,6 @@
       "slash": "/sendas name=\"DM Narrator\" The harbour lanterns gutter in the wind."
     },
     {
-      "slash": "/cp set met_guild true"
-    },
-    {
       "slash": "/cp set lantern_relit true"
     },
     {
@@ -51,6 +48,13 @@
     },
     {
       "slash": "/cp set secret_pact sworn"
+    },
+    {
+      "slash": "/cp set met_guild true"
+    },
+    {
+      "eval": "const c = globalThis.__c45; const rt = globalThis.storyOrchestratorRuntime; await c.until(() => rt.getSnapshot().activeCheckpointId === 'tower', 15000, 'the tower transition'); const first = await c.until(() => (rt.extras.memory.chapters ?? []).find((entry) => entry.final !== true) ?? null, 600000, 'the first chapter to seal before the final boundary'); return { at: 'tower', first: first.playerTitle, status: first.status };",
+      "log": true
     },
     {
       "slash": "/sendas name=\"DM Narrator\" The lamplighters lead the way up the tower."
@@ -80,7 +84,7 @@
     },
     {
       "log": true,
-      "eval": "const c = globalThis.__c45; const rt = globalThis.storyOrchestratorRuntime; const rows = await rt.carry.candidates(); const row = rows.find((r) => r.chatId === c.sourceChat); if (!row) throw new Error('the finished run is not offered: ' + JSON.stringify(rows)); const picked = await rt.carry.pick(c.sourceChat); if (!picked.ok) throw new Error('pick refused: ' + picked.reason); await c.pause(1500); const v = c.values(); return { row, values: { heritage_coast: v.heritage_coast, heritage_ledger: v.heritage_ledger, heritage_coins: v.heritage_coins, guild_trust: v.guild_trust, harbour_feeling: v.harbour_feeling, pact_state: v.pact_state }, boundary: rt.getEngineState().boundary };"
+      "eval": "const c = globalThis.__c45; const rt = globalThis.storyOrchestratorRuntime; const rows = await rt.carry.candidates(); const row = rows.find((r) => r.chatId === c.sourceChat); if (!row) throw new Error('the finished run is not offered: ' + JSON.stringify(rows) + ' dropped: ' + JSON.stringify((await rt.carry.explain()).dropped)); const picked = await rt.carry.pick(c.sourceChat); if (!picked.ok) throw new Error('pick refused: ' + picked.reason); await c.pause(1500); const v = c.values(); return { row, values: { heritage_coast: v.heritage_coast, heritage_ledger: v.heritage_ledger, heritage_coins: v.heritage_coins, guild_trust: v.guild_trust, harbour_feeling: v.harbour_feeling, pact_state: v.pact_state }, boundary: rt.getEngineState().boundary };"
     },
     {
       "log": true,

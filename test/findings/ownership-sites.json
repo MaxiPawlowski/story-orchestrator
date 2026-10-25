@@ -1181,9 +1181,9 @@
       "status": "delegate",
       "note": "awaits ReferencePackSession.accept, which checks run.stillOwns() before the settings write; the panel then writes only its own source/review/error/busy state behind a generation check."
     },
-    "src/runtime/carryUnit.ts#carryCandidates": {
+    "src/runtime/carryUnit.ts#carryExplain": {
       "status": "checked",
-      "note": "Pushes only to its own result list, after checking the run still owns the chat following each metadata read; returns [] when it lapsed."
+      "note": "Pushes only to its own offered/dropped lists, after checking the run still owns the chat following each metadata read; returns nothing offered, with the lapse as the one drop reason, when it lapsed. carryCandidates returns its offered list."
     },
     "src/runtime/carryUnit.ts#trophyShelf": {
       "status": "checked",

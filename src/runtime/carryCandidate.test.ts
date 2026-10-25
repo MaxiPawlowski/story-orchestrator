@@ -7,7 +7,7 @@ import { sagaOutcomeLines } from "@engine/carry";
 import { buildSagaPrompt } from "@memory/chapterRecord";
 import { estimateTokens } from "@memory/budget";
 import type { ChapterRecord } from "@memory/types";
-import { buildCarryState, candidateChats, carryCandidateFromBlob, previouslyText, PREVIOUSLY_HEADER } from "./carryCandidate";
+import { buildCarryState, candidateChats, carryCandidateFromBlob, indexDrops, previouslyText, PREVIOUSLY_HEADER } from "./carryCandidate";
 import { BLOB_VERSION } from "./persistence";
 import { playRow, playRowFromBlob, upsertPlay, type PlaysIndex } from "./playsIndex";
 
@@ -180,5 +180,39 @@ describe("v2.8 plan 45: the ended hint and the epilogue input", () => {
     ].join("\n"));
     expect(prompt).not.toMatch(/sworn|secret_pact|-3/);
     expect(buildSagaPrompt("Untold", [], sagaOutcomeLines(SEQUEL, END))).not.toMatch(/HOW IT ENDED|FINAL STATE/);
+  });
+});
+
+describe("v2.9 13 C2: the picker says why a run was dropped", () => {
+  it("names each index row of the story it did not offer", () => {
+    const row = (ended: boolean, at: string) => ({ storyId: "ngp-source", title: "t", groupId: "g", checkpointName: null, kind: "story" as const, ...(ended ? { ended: true as const } : {}), updatedAt: at });
+    const plays: PlaysIndex = {
+      ...Object.fromEntries(Array.from({ length: 21 }, (_, index) => [`c${index}`, row(true, `2026-10-01T00:00:${String(index).padStart(2, "0")}.000Z`)])),
+      open: row(true, "2026-10-02T00:00:00.000Z"), live: row(false, "2026-10-02T00:00:00.000Z"),
+      other: { ...row(true, "2026-10-02T00:00:00.000Z"), storyId: "ngp-other" },
+    };
+    expect(indexDrops(plays, "ngp-source", "open")).toEqual([
+      { chatId: "c0", reason: "older than the newest 20 ended runs" },
+      { chatId: "open", reason: "this is the open chat" },
+      { chatId: "live", reason: "the story index does not mark the run ended" },
+    ]);
+  });
+
+  it("the 45 seal run: a final record sealed before coins and secret_pact were set is refused for the missing keys", () => {
+    const scenario = (name: string) => JSON.parse(readFileSync(join(process.cwd(), `test/scenarios/${name}.story.json`), "utf8")) as Record<string, unknown>;
+    const sourceRaw = scenario("v28-45-carry-source");
+    const sequel = parseStoryOrThrow(scenario("v28-45-carry-sequel"));
+    const sealedAt = {
+      met_guild: true, lantern_relit: true, ledger_seen: true, ledger_found: true, coast_fate: "lit", harbour_mood: "grateful",
+      [questClosedKey("ledger")]: "done", [standingKey("guild")]: 3,
+    };
+    const run = (values: Record<string, unknown>) => ({
+      version: BLOB_VERSION, chatId: "src", selectedStoryId: "so-v28-45-source",
+      stories: { "so-v28-45-source": { storyId: "so-v28-45-source", pinnedStory: sourceRaw, contentHashAtLoad: "h", extras: { memory: { chapters: [
+        record("light", { playerTitle: "The Last Lantern", status: "degraded", final: true, blackboardAt: values }),
+      ] } } } },
+    });
+    expect(carryCandidateFromBlob(run(sealedAt), "src", sequel, OPTIONS)).toEqual({ ok: false, reason: "the run's ending holds no coins, secret_pact" });
+    expect(carryCandidateFromBlob(run({ ...sealedAt, coins: 7, secret_pact: "sworn" }), "src", sequel, OPTIONS).ok).toBe(true);
   });
 });

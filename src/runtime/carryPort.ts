@@ -27,6 +27,7 @@ export const createCarryActions = (port: ManagerPort, refresh: () => void) => {
     import("./carryUnit").then((unit) => use(unit, unit.carryDeps(port, refresh)));
   return {
     candidates: (): Promise<CarryCandidateRow[]> => run((unit, deps) => unit.carryCandidates(deps)),
+    explain: () => run((unit, deps) => unit.carryExplain(deps)),
     pick: (chatId: string): Promise<CarryOutcome> => run((unit, deps) => unit.pickCarry(deps, chatId)),
     decline: (): Promise<CarryOutcome> => run((unit, deps) => unit.declineCarry(deps)),
     dismiss: (): Promise<CarryOutcome> => run((unit, deps) => unit.dismissPreviously(deps)),
