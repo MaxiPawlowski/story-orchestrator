@@ -467,3 +467,12 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
 
 - M02 story-time span on chapter cards; M03 chronology (with 69 K1).
 - Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.
+
+## T8 fixture correction 2026-10-25 (v2.9 13 C4)
+
+- timewindow04 (flashback control) expected no time read, but its transcript states the present twice ("bright morning sun",
+  "in the morning light") and the read's rubric is "The time of day in the story, as the window shows it". The model's
+  `life_time_read="morning"` (3 of 3 runs, 2026-10 and 2026-10-25 G) is the correct present read; the control's purpose is that
+  the remembered night does not move the clock, and no run read night. Expected corrected to `morning`; a `night` read still
+  fails. The earlier 0.75 results were a fixture error, recorded here, not retuned: the floor (0.9) is unchanged. The B2 t8
+  golden canned answer follows the fixture (prompt bytes unchanged).

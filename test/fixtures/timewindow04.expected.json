@@ -1,8 +1,14 @@
 {
-  "deltas": [],
+  "deltas": [
+    {
+      "q": "life_time_read",
+      "v": "morning",
+      "evidence": "in the morning light"
+    }
+  ],
   "rejected": [],
   "facts": {
     "none": "time window: the story clock's read only"
   },
-  "note": "flashback: the night is remembered, the present stays morning; any advance is a false advance (T9-style control)"
+  "note": "flashback: the night is remembered, the present stays morning. The read's rubric is the time of day the window shows now, so morning is the right read; night (the remembered time) is the false advance this control catches. Corrected 2026-10-25: the earlier expectation (no read) contradicted the rubric (v2.9 13 C4)."
 }
