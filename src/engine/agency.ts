@@ -23,6 +23,8 @@ export const PLAYER_REF = "{{user}}";
 /** The clause every prompt and hint carries when the player's own acts are not narration's to write. */
 export const PLAYER_ACTION_CLAUSE = `${PLAYER_REF}'s own words and decisions are theirs to write: do not narrate ${PLAYER_REF} acting, accepting, agreeing or refusing.`;
 
+export const PLAYER_MIND_CLAUSE = `Never decide how ${PLAYER_REF} feels, what ${PLAYER_REF} believes or what ${PLAYER_REF} concludes: characters may guess at it, never settle it.`;
+
 /**
  * How the world may press, given which kind of objective this is. A `player_action` objective still
  * has stakes, but the move belongs to the player — so the world sets the situation up and stops.
@@ -41,7 +43,7 @@ export const PLAYER_ATTEMPTS_CLAUSE = `${PLAYER_REF}'s message states an attempt
 export const agencyClauses = (policy: AgencyPolicy): string[] => [
   objectiveClause(policy.objective_kind),
   ...(policy.protect_player_choice ? [`Never narrate ${PLAYER_REF} accepting what they refused, or going where they declined to go.`] : []),
-  ...(policy.never_narrate_player_action ? [PLAYER_ACTION_CLAUSE] : []),
+  ...(policy.never_narrate_player_action ? [PLAYER_ACTION_CLAUSE, PLAYER_MIND_CLAUSE] : []),
   ...(policy.player_attempts_only ? [PLAYER_ATTEMPTS_CLAUSE] : []),
 ];
 

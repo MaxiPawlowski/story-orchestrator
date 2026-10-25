@@ -1,4 +1,4 @@
-import { DEFAULT_AGENCY, NO_CLOSING_QUESTION_CLAUSE, NO_SKIP_CLAUSE, PLAYER_REF, type AgencyPolicy, type PullStage, type TensionLevel } from "@engine/index";
+import { DEFAULT_AGENCY, NO_CLOSING_QUESTION_CLAUSE, NO_SKIP_CLAUSE, PLAYER_MIND_CLAUSE, PLAYER_REF, type AgencyPolicy, type PullStage, type TensionLevel } from "@engine/index";
 import { DEFAULT_PACING_DRIFT_THRESHOLD } from "@constants/defaults";
 import { numericToLevel } from "./tension";
 
@@ -22,7 +22,7 @@ const STRONG_DRIFT_THRESHOLD = 0.5;
 // its own or the move belongs to the player, and the default (never narrate the player's acts) adds
 // one clause to every hint for every story that does not say otherwise.
 const playerClause = (policy: AgencyPolicy) =>
-  (policy.never_narrate_player_action ? ` Do not narrate ${PLAYER_REF}'s own words or decisions. ${NO_SKIP_CLAUSE} ${NO_CLOSING_QUESTION_CLAUSE}` : "");
+  (policy.never_narrate_player_action ? ` Do not narrate ${PLAYER_REF}'s own words or decisions. ${PLAYER_MIND_CLAUSE} ${NO_SKIP_CLAUSE} ${NO_CLOSING_QUESTION_CLAUSE}` : "");
 
 export const NOTHING_NEW_CLAUSE = `If nothing new is happening, hand the scene back to ${PLAYER_REF} in one short beat; never fill it with weather, silence or atmosphere.`;
 

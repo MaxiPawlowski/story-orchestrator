@@ -69,8 +69,10 @@ describe("warden findings", () => {
     expect(readWarden({ agency: scored(AGENCY_SCORE) }, all).map((finding) => finding.family)).toEqual([]);
     const [finding] = readWarden({ agency: scored(2.51) }, all);
     expect(finding).toEqual({ family: "agency", text: agencyNoteText("Max"), facts: [], score: 2.51 });
-    expect(finding.text).toBe("Agency: Max's own words and decisions are theirs to write: do not narrate Max acting, accepting, agreeing or refusing.");
-    expect(agencyNoteText("  ")).toBe("Agency: {{user}}'s own words and decisions are theirs to write: do not narrate {{user}} acting, accepting, agreeing or refusing.");
+    expect(finding.text).toBe("Agency: Max's own words and decisions are theirs to write: do not narrate Max acting, accepting, agreeing or refusing. "
+      + "Never decide how Max feels, what Max believes or what Max concludes: characters may guess at it, never settle it.");
+    expect(agencyNoteText("  ")).toBe("Agency: {{user}}'s own words and decisions are theirs to write: do not narrate {{user}} acting, accepting, agreeing or refusing. "
+      + "Never decide how {{user}} feels, what {{user}} believes or what {{user}} concludes: characters may guess at it, never settle it.");
   });
 
   it("names at most two broken rules verbatim, most certain first, at HOUSE_RULE_P", () => {

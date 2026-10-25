@@ -1,4 +1,4 @@
-import { PLAYER_ACTION_CLAUSE, PLAYER_REF } from "@engine/index";
+import { PLAYER_ACTION_CLAUSE, PLAYER_MIND_CLAUSE, PLAYER_REF } from "@engine/index";
 import { buildContinuityRequest, continuityNote } from "./curators";
 import {
   AGENCY_SCORE, ATTENTION_SCORE, VOICE_DRIVE_P, VOICE_MAX_FEELINGS, VOICE_SCORE,
@@ -114,7 +114,8 @@ export const LORE_CRITERIA = {
 
 export const agencyNoteText = (player: string): string => {
   const name = player.trim();
-  const clause = name ? PLAYER_ACTION_CLAUSE.split(PLAYER_REF).join(name) : PLAYER_ACTION_CLAUSE;
+  const both = `${PLAYER_ACTION_CLAUSE} ${PLAYER_MIND_CLAUSE}`;
+  const clause = name ? both.split(PLAYER_REF).join(name) : both;
   return `Agency: ${clause}`;
 };
 

@@ -598,4 +598,5 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda (18), §1. Verified on `e
 ## Folds from v2.9 triage (applied 2026-10-25, owner)
 
 - G02 margin word and whose attempt; G07 player authors feelings/beliefs (agency contract; owner decision 4 below).
+- G07 built 2026-10-25 (branch `v2.9-decided-2026-10-25`): `PLAYER_MIND_CLAUSE` (`engine/agency.ts`) rides `never_narrate_player_action` beside the action clause: agency policy clauses (expansion, encounters, living director, inner voice), every steering hint, the warden's agency note. Guards: the living/encounter `narratesPlayer` and the cue `cue-narrates-player` also catch believe/conclude/realize. Judge question unchanged (calibrated; it already asks about what the player thinks). No new field. Test: `runtime/playerMind.test.ts`. Real-model effect unmeasured.
 - Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.

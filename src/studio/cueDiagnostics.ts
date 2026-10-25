@@ -18,7 +18,9 @@ export interface CueRun {
 
 const PLAYER_ACT = /\bthe player\s+(?:feels?|felt|wants?|wanted|thinks?|thought|decides?|decided|fears?|loves?|hates?|is\s+(?:afraid|angry|sad|happy|sure))\b/i;
 
-export const narratesPlayer = (text: string): boolean => speaksForPlayer(text) || PLAYER_ACT.test(text);
+const PLAYER_CONCLUDES = /\bthe player\s+(?:believes?|believed|concludes?|concluded|reali[sz]es?|reali[sz]ed)\b/i;
+
+export const narratesPlayer = (text: string): boolean => speaksForPlayer(text) || PLAYER_ACT.test(text) || PLAYER_CONCLUDES.test(text);
 
 const startValues = (draft: Story) => Object.fromEntries(draft.qualities.flatMap((quality) => (quality.step_rule?.start !== undefined ? [[quality.key, quality.step_rule.start]] : [])));
 
