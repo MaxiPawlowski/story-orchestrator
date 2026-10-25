@@ -462,3 +462,8 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
 - `test/scenarios/v28-50-story-time.json`: green x2 on `d1f9ede2` (batch `2026-10-16T17-40-07-788Z`, `C:/dev/st-live`)
   and x2 on `7b3ef38b` (batch `2026-10-16T18-34-44-462Z`). No model call: plumbing.
 - Still owed: payload golden diff (no c0 baseline captured in `test/measurements/v2.7/payload/`); CL T8 read parity, RP T11.
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- M02 story-time span on chapter cards; M03 chronology (with 69 K1).
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.

@@ -336,3 +336,8 @@ Same branch, lane and gates as plan 69 §Gate record 2026-10-17. One commit per 
 - G7's swipe leg now fails when no request regenerating the reply carries the decided check outcome. Red ×2 on the old
   code (lane 80), green ×2 after the fix in plan 69 §Gate record 2026-10-17, follow-ups (bundle `43f34f1d38df`, runs
   `02-32-34`, `02-33-07`).
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- V10 existing-prompt fixtures; E01 interval + no-change fixtures; E02 real-play-model fixture prose + holdout; E03; E04; E05; M09; C01 (G9); G06; G07 fixtures; A04 witness acceptance; A06 thought-carry fresh corpus.
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.

@@ -323,3 +323,8 @@ sample on an idle GPU.
   MISS** against unchanged 1.5x floor. Reduced arms zero uploads/scavenges. No allocation/GC sign-off from this sample.
 - Commands, full measurements and private archive labels: plan 79, "Idle-GPU head checks". The real streamed motion
   row remains owed; scripted tokens prove plumbing only. Laptop remains unavailable. Body trial remains NO-GO.
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- A12 instrument the animation stall.
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.

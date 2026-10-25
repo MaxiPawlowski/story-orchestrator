@@ -359,3 +359,8 @@ What SP6 must deliver before anything else here is built
   boundaries (the `length > 1` exemption is gone). Test in `pacing/focus.test.ts`: `Q` drops "Q waits at the gate" and
   matches "q." at a sentence end; control: `Q` keeps "the quay at dusk", "Queen Ash's banner" and "Quiet and quick".
 - C4 stays green. The frozen-focus privacy re-check that uses this matcher is in plan 48's addendum (`99931d7d`).
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- G04 weighted outcomes (G19); N15.
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.

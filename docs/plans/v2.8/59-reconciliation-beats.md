@@ -119,3 +119,7 @@ Verified on master `3a716f2b`.
 - Should a repaired rupture also step a relationship axis automatically? Proposed: no; authors gate on `rec_*`.
 - Multiple ruptures between the same pair: one record each, read in order of opening; scope cap applies.
 - Rubric wording is a placeholder until B6's labelled set is drawn.
+
+## Owner decision 2026-10-25
+
+- Moved to v3.0 (not built in v2.8), listed in `docs/plans/v3.0/05-deferred-items.md` §From v2.8.

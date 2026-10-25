@@ -568,3 +568,8 @@ Deviations:
   2026-10-23 C2 100 % therefore does not show the cue's own effect. Informational (no floor for the off arm or the effect); a
   corpus where the event is not on screen (told only through the cue) would be needed to measure it.
 - Evidence `C:\dev\so-lanes\33\debug\c2arms\` (logs, replies, rate/), archived to so-sessions.
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- N01 storylet framing in the guide; N03 important vs optional cues; N04 topic tiers; N07 norm reactions.
+- Source: `docs/plans/v2.9/01-triage-sol.md`.

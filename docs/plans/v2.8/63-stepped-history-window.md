@@ -260,3 +260,8 @@ reports `stepsSpanned` (fewer than 3 = add turns). Deviation: the arms run at ST
   is what B would rely on. Evidence `test/sessions/hist63/plumb/` (gitignored).
 - Gates: as plan 62's gate record (same branch, same runs).
 - Owed: H1 and H6r on the 3090 (GPU queue above, about 125 GPU-minutes); H6 on CL (private probe pick, then `ask --relay sol`).
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- M05; M07; M14; M15.
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.

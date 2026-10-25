@@ -296,3 +296,7 @@ built here; Q2 yes, as queue row M55w, not now; Q3 keep one `what` with the warn
   build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release). The first run on `30b26053`'s
   working tree was red only on the arrival golden (the new payload case), re-recorded alone in `089bfbbc`. Storybook not
   run: no component or story changed.
+
+## Owner decision 2026-10-25
+
+- Moved to v3.0 (not built in v2.8), listed in `docs/plans/v3.0/05-deferred-items.md` §From v2.8.

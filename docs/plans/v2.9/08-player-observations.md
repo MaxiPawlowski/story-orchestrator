@@ -409,3 +409,7 @@ O4 rater and wording; same-pass latch visibility.
   `debug/runs/`), archived to so-sessions.
 - O4 (10 synthetic tasks, the player finds the observation and reads it as information): NOT run. It needs the 10 tasks
   written and a player (owner or delegated rater) working the UI; more than 2 h and not a sol-only row.
+
+## Owner decision 2026-10-25
+
+- O4: Sol writes the 10 tasks; the owner's own playthrough is the player.

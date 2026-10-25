@@ -594,3 +594,8 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda (18), §1. Verified on `e
     `score --out <dir>/run1 --json <dir>/run1/score.json`.
 - Deviation: §Gates by tier says S8 runs on the cloud reply model; per plan 70 owner decision D2 (2026-10-17) the reply model is Artemis.
 - Still owed: the plumbing lane run, the real S8 run with second-model labels; S7 (RP) stays deferred.
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- G02 margin word and whose attempt; G07 player authors feelings/beliefs (agency contract; owner decision 4 below).
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.

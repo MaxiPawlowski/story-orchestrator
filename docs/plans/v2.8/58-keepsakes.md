@@ -137,3 +137,12 @@ Source: `review-astra-harvest-2026-10-16.md` §1 (V19). Verified on `e8b9dd6d`.
 - **V19 — witness filtering answers "who knows this", presence "which nearby holders matter now"; fold into 58/ledger work,
   audience checks separate.** Accepted. → addendum above; presence ranks, audience still gates.
 - Rebutted: none.
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- E04; G08 holder-scoped reminders.
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.
+
+## Owner decision 2026-10-25
+
+- Moved to v3.0 (not built in v2.8), listed in `docs/plans/v3.0/05-deferred-items.md` §From v2.8.

@@ -598,3 +598,8 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
 - **09/22 — the director pointer is reasonable; keep the private-input restriction.** Accepted. → pointer updated to 62's
   revised stages; distance one from `outgoingByCheckpoint` (`src/engine/schema.ts:554`); no new private input to the director.
 - Rebutted: none.
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- N05 re-establish an interrupted conversation; N15 recovery after setbacks (with 49).
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.

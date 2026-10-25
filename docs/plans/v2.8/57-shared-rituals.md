@@ -114,3 +114,7 @@ Verified on master `3a716f2b`.
 - Should an offer be suppressed while a complication or scene-test interrupt is active (one disruption at a time,
   Astra's shared spacing idea)? Proposed: yes, a shared eligibility check once v2.8 48/49 exist.
 - Cap values (3 per member, 160 characters, default cooldown) are placeholders until the editor is drawn.
+
+## Owner decision 2026-10-25
+
+- Moved to v3.0 (not built in v2.8), listed in `docs/plans/v3.0/05-deferred-items.md` §From v2.8.

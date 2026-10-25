@@ -472,3 +472,8 @@ Deviations
 Design question
 
 - Should a shown return also add a log row ("Back at The Dock")? Recommended: no, decision 8 keeps it on the page.
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- G15 people met (option B); N20/A13 codex supersede.
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.

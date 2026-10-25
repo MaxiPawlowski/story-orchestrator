@@ -377,3 +377,8 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
 - `test/scenarios/v28-51-labels.json`: green x2 on `d1f9ede2` (batch `2026-10-16T17-40-07-788Z`) and x2 on `7b3ef38b`
   (batch `2026-10-16T18-34-44-462Z`). Seeded reveal, no model: plumbing.
 - Still owed: R5 payload goldens (no c0 baseline captured); CL/RP R7, R9 in the final real-LLM suite.
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- G05 slow-burn caps; G06; N06 mood causes; A08.
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.

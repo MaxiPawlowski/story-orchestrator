@@ -577,3 +577,8 @@ then `reads` (same set arguments), `wc --out …`, `score-real --out … --freez
 74 reads in all (37 per arm), roughly 30-60 min of 3090 time. The live-suite row of Wc and RB stay separate.
 
 Gates (branch `v2.8-witness-real-2`): `npm run gates -- --jobs=1 --no-storybook` all green in 270.6 s. Storybook skipped: no UI change. The first run was red on `ownership.guard` (the recorder's local call log, now classified `local` in `test/findings/ownership-sites.json`) and `codeHealth.guard` S5 (two lines over 200 characters, wrapped). The recorder hook is in the lazy live-suite chunk.
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- A04.
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.

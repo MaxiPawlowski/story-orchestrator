@@ -583,3 +583,8 @@ beats presence (plan 42 B). Tests: `src/memory/vr62.test.ts` (planted return-not
 fails VR2; under-minimum fixture refused).
 
 Gates (branch `v2.8-witness-real`): `npm run gates -- --jobs=1 --no-storybook` all green in 270.6 s (test 9,440+ passed, test:replay, build, test:debug, typecheck, typecheck:test, lint, debug:typecheck, test:plugin, test:release). Storybook skipped: no UI change. First run red on `codeHealth.guard` (a dead export in `vr62.ts`, removed) and then `typecheck:test` (a test fixture field), both fixed before the green run. No product code changed: the new modules are reached only from scripts and tests.
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- M10 recency scaled to chat length (experimental arm).
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.

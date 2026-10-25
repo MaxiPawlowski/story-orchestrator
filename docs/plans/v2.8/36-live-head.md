@@ -716,3 +716,8 @@ Gates:
   - Main bundle 1,280,994 B (was 1,280,736; budget 1,300,000).
   - Host RAM was about 11.5 GB free at the start; the suite was not stopped.
 - Live checks: NONE (CPU-only task). Every fix below is unit-proved only; the browser and GPU re-runs are owed.
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- A12 instrument the animation stall.
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.

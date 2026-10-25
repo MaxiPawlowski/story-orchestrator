@@ -324,3 +324,12 @@ Deviations:
   pay-per-token, judge use uncalibrated).
 - Test flake fixed in `137a359b`: `polishStandIn.review.test.ts` waited a fixed 60 ms for a 25 ms stand-in polish and failed
   under full-gates load; it now waits for the stand-in to finish (`untilPolished`). No behaviour change.
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- V04 immutable windows/anchors; V08 lexical ignore list; V10 (polish prompt); V13 final accepted text; N21.
+- Source: `docs/plans/v2.9/01-triage-sol.md`.
+
+## Owner decision 2026-10-25
+
+- S2 rater: Sol (opencode `openai/gpt-6.1-sol`) instead of DeepSeek; recorded caveat when Sol also wrote the rated text (self-rating). S3 moves to v3.0.

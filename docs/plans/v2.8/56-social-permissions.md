@@ -122,3 +122,7 @@ Verified on master `3a716f2b`.
 - Permissions between members (a member granted access by another): out of scope; one holder, the player.
 - Should a privilege appear in the next-turn preview for the author? Proposed: yes, author view only.
 - Cap values (60 characters, permissions per story) are placeholders until the editor is drawn.
+
+## Owner decision 2026-10-25
+
+- Moved to v3.0 (not built in v2.8), listed in `docs/plans/v3.0/05-deferred-items.md` §From v2.8.

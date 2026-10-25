@@ -686,3 +686,8 @@ informational rows for a later run. Built and run here; A6 itself stays 0/10 (no
 - Evidence: `C:\dev\so-live-lanes\evidence-2026-10-17\65a7\82\` (chain logs, run outputs, row dirs).
 - Gates: see `65-here-now-scene-card.md` §Gate record 2026-10-17 (same branch): full gates green on `01de63ad`, Storybook
   149/906.
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- V10 reference-not-instructions in existing prompts; V11 varied example dialogue + monotony warning.
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.

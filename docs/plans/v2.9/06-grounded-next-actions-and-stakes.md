@@ -426,3 +426,12 @@ panel only (not on the widget check button).
   pattern still in seven v2.8 fixtures (`v28-35-*`, `v28-40-*`, `v28-61b-*`), left as they are (no-model lanes).
 - LT acceptance (40 synthetic stuck-player situations x 2 arms): NOT run; the 40 situations need 40 authored stories (quests,
   arcs, promises, hinted checks, offers), more than 2 h to write before inference.
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- N14 greyed visible prerequisites (Author view only, owner decision 2); N25 visible ways to improve a pending check.
+- Source: `docs/plans/v2.9/01-triage-sol.md`.
+
+## Owner decision 2026-10-25
+
+- Help line ships on the player surface; greyed offers stay Author view only. Anything more waits for the LT result (plan 11 B2, stop rules).

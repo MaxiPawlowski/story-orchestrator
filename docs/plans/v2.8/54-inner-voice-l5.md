@@ -90,3 +90,8 @@ corpus and ratings hold campaign text: they stay in the debug dir or the private
 - Fix as described in §L5 as built; 3 new jest cases from synthetic counterexamples (8 author-voice lines, 6 player/persona variants with 2 controls that must still carry, 10 direction markers with 1 control); each family holds lines the old picker carried (checked by bundling the previous file).
 - Re-score, **informational only: same recorded corpus, not fresh** (the fix was designed after reading its misses, so this is not a floor test). Picks 32/106 (yield 0.30), Sol 4 calls (batch 8), one run: precision 0.906, meta leak 0.000, player lines 0. Files `items-fix.json`, `ratings-fix.jsonl` in the same private evidence dir. Total Sol calls for A13: 14. The CL verdict stays the recorded FAIL ×2 on the as-built picker; a floor verdict on the fixed picker needs a fresh corpus (the RP leg).
 - Gates on `3858d07e`: `npm run gates:quick` green; `npm run gates -- --no-storybook --jobs=2 --skip=test`: 8 of 9 steps green (build, test:replay 32/32 killed, test:debug, typecheck, typecheck:test, debug:typecheck, lint, test:release); test:plugin red once on a harness timing test outside this change (`agent.test.mjs:512`, "create: the setup call is pending"), green alone on re-run (288/288). `npx jest --maxWorkers=4`: 725 suites passed, 1 skipped; 8336 tests passed, 1 skipped. Main bundle 1,265,358 B (picker is in the spike chunk). No UI changed, no Storybook.
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- A06.
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.

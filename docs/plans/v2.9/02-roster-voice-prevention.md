@@ -463,3 +463,12 @@ port (`earlyDrafts`) but not surfaced in the UI; 09's resolver mapping/parity fi
   no card at all because the debug drive built its own runner without `cards` (fixed `1e7631d3`). A first
   attempt with uncarded cast names was refused the same way; an unrouted first run fell back to the local model (Artemis) and is
   discarded (route mismatch, transport check failed).
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- V03 per-speaker repetition/tics; V06 speaker-attribution measurement; A07 separate distinctness score; N08 per-character verbs and mood delivery; N21 quirk throttle.
+- Source: `docs/plans/v2.9/01-triage-sol.md`.
+
+## Owner decision 2026-10-25
+
+- S6: Sol writes a harder card set (gain was 0 at ceiling on the current set); floors unchanged.

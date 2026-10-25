@@ -101,10 +101,10 @@ option. Exceptions kept open: anything the plan marks as needing explicit approv
    Automatic polish also waits for a design preserving thought carry, or explicit owner approval of its reduction; retaining
    reasoning bytes alone is insufficient (review P0, `10-review-sol.md`).
 
-## Folds into existing plans (not yet applied)
+## Folds into existing plans (applied 2026-10-25)
 
-sol's FOLD verdicts name a destination plan. They are recorded here and in `01-triage-sol.md`; none of the destination plans has
-been edited yet.
+sol's FOLD verdicts name a destination plan. Applied 2026-10-25 (owner): each destination plan has a `## Folds from v2.9 triage`
+section; the V3.0 rows are in `docs/plans/v3.0/05-deferred-items.md`.
 
 - **v2.9 02:** V03 per-speaker repetition/tics, V06 speaker-attribution measurement, A07 separate distinctness score, N08
   per-character verbs and mood delivery, N21 quirk throttle.
@@ -285,3 +285,20 @@ NOT run: lane live scenarios `v29-04-cues.json`, `v29-06-anchored-suggestions.js
   10325 passed + 1 skipped, test-storybook:ci 165 / 995, replay 32 of 32 killed, test:debug 1491). A first run on `e270c89a` was red
   at test:debug only (the 05 pilot store step read the 07 pilot global; fixed in `41e907e3`). Docs-only commit after it.
 - GPU left as found: controller manual hold, text unloaded, no llama-server process, 1449 MiB used (desktop); lanes 41/42/44 stopped.
+
+## Owner decisions 2026-10-25
+
+1. Suggestion name filter: stays strict (a suggestion naming an unreached checkpoint is dropped).
+2. v2.9 06: help line on the player surface; greyed offers Author view only.
+3. A02: a user-stopped partial reply is not a turn until the player sends again (v2.8 69 K13).
+4. G07: the player owns their character's feelings and conclusions; NPC thinking and inner voice unchanged (v2.8 18 agency).
+5. Folds applied to their plans (above); V3.0 rows copied to v3.0 05.
+6. v2.8 53: a group-disabled member does not hear a `present` move.
+7. v2.8 55-59 move to v3.0.
+8. v2.9 03: S2 rater Sol (self-rating caveat recorded); S3 to v3.0.
+9. R8 thinking A/B dropped.
+10. Pod/context rows: those that fit 32K run on the 3090, informational; R5 (>= 48K) to v3.0.
+11. v2.9 08 O4: Sol writes the 10 tasks; the owner's playthrough is the player.
+12. v2.9 02 S6: Sol writes a harder card set.
+13. Human evaluation: the owner's own playthrough is the one human evaluation for v2.7-v2.9.
+- Test economy and stop rules: `11-test-economy.md`.

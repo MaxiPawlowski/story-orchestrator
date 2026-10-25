@@ -396,3 +396,7 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
 - **P2 — reconcile with the built implementation; keep explicit range precedence and initialization tests.** Accepted. →
   addendum marked built with file:line; precedence and initialization tests listed as owed.
 - Rebutted: none.
+
+## Owner decision 2026-10-25
+
+- A group-disabled member does not hear a `present` move: only enabled members, as `knownEntities`.

@@ -132,3 +132,14 @@ Created at the split. Applied from `docs/plans/v2.7/review-2026-10-03.md` (old n
 
 Round 3 (Sol): R3-14, R3-15 (05.6 Critic; decided by the user 2026-10-03), R3-19, R3-21 applied. 2026-10-03 (user: as
 recommended): 05.5 placed in v3.0, 05.6 confirmed.
+
+## From v2.8 and v2.9 (owner 2026-10-25)
+
+- v2.8 55 NPC commitments, 56 social permissions, 57 shared rituals, 58 keepsakes, 59 reconciliation beats (written, not built).
+- v2.9 03 S3 (automatic polish build).
+- v2.8 R5 B1-NARR run 2 (needs >= 48K context; the 3090 serves 32K).
+- v2.8 R8 thinking A/B dropped (owner keeps thinking on), not deferred.
+- v2.9 triage V3.0 rows: V07 LanguageTool guard, M01 player-safe character diary, M04 why-lore-fired provenance, G01 player-declared
+  attempt, G10 time-jump interrupt at a due event, N09 rumor evidence changes belief, N10 post-story rumor trail, N16 role-cast
+  set-pieces, N19 per-member phrase bias, N23 named player inner voices, N26 per-member typography, V06 runtime speaker-attribution
+  classifier, G05 automatic relationship decay toward baseline. Source `docs/plans/v2.9/01-triage-sol.md`.

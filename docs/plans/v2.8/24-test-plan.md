@@ -1040,3 +1040,8 @@ over-steer card with its completion contract), B4 (second-model raters for Adoli
 measurements' packs listed).
 
 Round 3 (Sol): R3-01, R3-02, R3-08, R3-09, R3-10, R3-15, R3-20 applied (both decided by the user 2026-10-03, as recommended).
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- Test rows folded with v2.8 35: V10, E01–E05, M09, C01, G06, G07, A04, A06 (detail in 35).
+- Source: `docs/plans/v2.9/01-triage-sol.md`.

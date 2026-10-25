@@ -538,3 +538,8 @@ root `C:\dev\so-live-lanes`.
   261.4 s** (test:replay 32/32, test 827 suites / 9,499 passed / 1 skipped, build, test:debug, typecheck, typecheck:test,
   lint, debug:typecheck, test:plugin, test:release). arrivalEquivalence did not trip.
 - Evidence: `C:\dev\so-live-lanes\evidence-2026-10-17\80\` (G7 `02-32-34`, `02-33-07`; `k3-ack\`; `gates-harvest-rest-2.log`).
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- M05 fold interior holes (fixture: two seals, retained middle rows, a coverage gap, a no-fold chapter); M06 VectFox copier keys; M12/A02 stopped partials (K13; owner decision 3: a stopped partial is not a turn until the player sends again); G03 stale-build check; G13 image upload read-back.
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.

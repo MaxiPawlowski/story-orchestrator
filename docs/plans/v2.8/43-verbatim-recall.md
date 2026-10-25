@@ -314,3 +314,8 @@ H13b time labels, R19.
   proxy, so neither branch holds. Labels are frozen for when reads exist (42 §Gate record: W4 real labels).
 - Also measured: VR3 (whole-message block) p95 1,274 tokens, far over 250; the runtime needs spans, as §5 already says.
 - Gate stays closed; nothing built at runtime.
+
+## Folds from v2.9 triage (applied 2026-10-25, owner)
+
+- M08 causal recall; A05.
+- Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.
