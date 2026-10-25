@@ -44,3 +44,5 @@ node test/measurements/v2.9/08-o4/rate.mjs <path>/answers.json <path>/o4-rate
 
 The owner plays the story knowing it is a test of the observation surface; the tasks never name what will be found, so finding
 and reading the line is still the player's own. One playthrough is the measurement; it is not repeated to change a result.
+
+Hashes are of the committed (LF) blobs: check with `git show HEAD:<path> | sha256sum`; a CRLF checkout hashes differently.

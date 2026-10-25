@@ -69,3 +69,5 @@ node scripts/debug/so-evidence.mts archive --label v29-02-s6h
 prevention arm, chars/4 per drafted request (n, max, p95; floor <= 120). Record in plan 02 as `### S6 harder run <date>`:
 counts and denominators only, never retuned. A row stopped by a harness error or backend outage is NOT A MEASUREMENT (stop rule
 S5); a partial run is scored only over situations complete in both arms.
+
+Hashes are of the committed (LF) blobs: check with `git show HEAD:<path> | sha256sum`; a CRLF checkout hashes differently.

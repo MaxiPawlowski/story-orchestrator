@@ -67,3 +67,5 @@ node scripts/debug/so-evidence.mts archive --label v29-03-s2
 ```
 
 Record in plan 03 `### S2 run <date>`: counts with denominators, rater, the self-rating caveat.
+
+Hashes are of the committed (LF) blobs: check with `git show HEAD:<path> | sha256sum`; a CRLF checkout hashes differently.
