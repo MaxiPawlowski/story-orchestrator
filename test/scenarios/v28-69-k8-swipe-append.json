@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 69 K8 (no-model lane). Host fact: a swipe added out of band (another extension pushing to chat[n].swipes and swipe_info without changing swipe_id or mes, then saveChat) emits no event and leaves the shown text alone; fingerprints hash mes, not swipes (runtime/fingerprints.ts). Expected outcome: no boundary and no rollback, before or after the next boundary. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-69-k8-swipe-append.json --sandbox --group 'Group: Arin, DM Narrator', twice. Also v2.8 69 K5: inline hosts sit beside .mes_text and assert-player-clean (which now sweeps .mes_text for SO nodes) finds nothing.",
   "requires": {
     "lane": "no-model",

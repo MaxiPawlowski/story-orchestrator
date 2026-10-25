@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 35 G7 (R13): the story blocks a request actually carries, read from the outgoing /generate body (dry runs skip interceptors, ST script.js:4562-4564). A normal turn carries every story block set at send time, the pacing hint and the check outcome included; a swipe of the round's last reply carries every block set at its send time, the pacing hint and the decided check outcome again (ST awaits MESSAGE_SWIPED before Generate('swipe'), and the rollback now lands inside that await; before the fix the outcome was missing, run 2026-10-17T01-38-10); an impersonate carries the kept blocks and neither declared-withhold block (INJECTION_REGISTRY carry). The swipe's lore-select window drops the reply being replaced (R14) is a jest case (loreSelect.test.ts), since lore select needs the judge. No-model lane, fetch stub as plan 60 B10. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-35-g7-shipped-blocks.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": {
     "lane": "no-model",

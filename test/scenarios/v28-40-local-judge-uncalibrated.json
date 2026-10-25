@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v28-40-local-judge-uncalibrated",
   "objective": "Plan 14: a judge use routed to the local provider (systemone-local, empty readiness table) or to llama-logprob (rows measured and failed) is refused as uncalibrated BEFORE any transport: no request to the judge plugin (not even /status) leaves the page during the ask, the call ring records fallback uncalibrated with the provider, and the journal says so. Control: the same ask on the default TypeSafe route reaches the status probe and falls back unavailable (no plugin on this lane), so the counter can see a request. The routing is visible in the Connections > Judge settings readiness rows (not calibrated there / measured there and refused) and the local judge status line. Settings are restored. No TypeSafe key, no plugin, no model.",
   "requires": {

@@ -1,4 +1,5 @@
 {
+  "model": "any",
   "name": "live-f20-long-chat",
   "objective": "v2.8 31 F20 (queue X1), live on the local controller: a group chat whose history is longer than the 32K the 3090 serves. Arm A keeps the connection's context at 98304 (the shipped Artemis preset): the controller must refuse the reply request cleanly (400 exceed_context_size_error; the wrapper reads the controller's load count and profile before and after, which the page cannot: the controller sends no CORS headers) and the context-over-server check must name it. Arm B sets the context to the served 32768: ST trims the history, prompt + reply stay under 32768, the request is answered (a thought-only reply is the model's own B1-EMPTY shape, left to the product's recovery, so the arm asserts the answered request, not the text), and the memory model's read is budgeted against the served context, not the preset's 98304.",
   "requires": {"lane": "model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "why": "real replies through the local controller on 127.0.0.1:18888 (lane started with --allow-local); the reply connection and the memory profile both point there"},

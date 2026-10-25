@@ -14,6 +14,7 @@ export interface CheckResult {
   outcome: Outcome;
   detail?: string;
   firstAttempt?: 'pass' | 'fail';
+  deselected?: boolean;
 }
 
 export interface Tallies {
@@ -23,6 +24,7 @@ export interface Tallies {
   /** S5/F1: of the checks that passed, how many needed no retry. "Passed eventually" is a weaker
    * claim than "passed first time", and only the second says a repair worked. */
   firstAttempt: { pass: number; retried: number; retriedIds: string[] };
+  deselected?: number;
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
@@ -66,8 +68,13 @@ export function computeTallies(results: CheckResult[], cleanupReport: unknown, s
   const scored = new Set(scoredHumanIds);
   const automated = { pass: 0, fail: 0, blocked: 0, notRunnable: 0, skipped: 0 };
   const human = { scored: 0, unscored: 0 };
+  let deselected = 0;
 
   for (const row of results) {
+    if (row.deselected) {
+      deselected += 1;
+      continue;
+    }
     if (row.mode === 'human') {
       if (scored.has(row.id)) human.scored += 1;
       else human.unscored += 1;
@@ -87,6 +94,7 @@ export function computeTallies(results: CheckResult[], cleanupReport: unknown, s
     human,
     cleanup: readCleanup(cleanupReport),
     firstAttempt: { pass: passed.length - retriedIds.length, retried: retriedIds.length, retriedIds },
+    ...(deselected ? { deselected } : {}),
   };
 }
 
@@ -117,7 +125,7 @@ export function gateFailures(tallies: Tallies, { strict, requireHumanRecord = fa
 export function renderTallies(tallies: Tallies): string {
   const { automated: a, human: h, cleanup: c } = tallies;
   return [
-    `automated: ${a.pass} pass, ${a.fail} fail, ${a.blocked} blocked, ${a.notRunnable} not-runnable, ${a.skipped} skipped`,
+    `automated: ${a.pass} pass, ${a.fail} fail, ${a.blocked} blocked, ${a.notRunnable} not-runnable, ${a.skipped} skipped${tallies.deselected ? `, ${tallies.deselected} deselected by --model` : ''}`,
     `human:     ${h.scored} scored, ${h.unscored} unscored`,
     `cleanup:   ${c.ok ? 'clean' : `${c.failed.length} failure(s), ${c.leaked.length} leak(s)`}`,
     `first try: ${tallies.firstAttempt.pass} of ${tallies.firstAttempt.pass + tallies.firstAttempt.retried} passing check(s) needed no retry${tallies.firstAttempt.retried ? ` (retried: ${tallies.firstAttempt.retriedIds.join(', ')})` : ''}`,

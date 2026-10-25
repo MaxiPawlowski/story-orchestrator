@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 48 (no-model lane): a premise-only living story with scene_test and a planted director answer. Tension is set to peak first, so most runs draw an unexpected scene (altered: the fixture has no open threads). The opening draws nothing; arriving at liv_1 plans one frozen scene test (one scene draw in the ring); three regenerates keep it; an author chip and the card row show it; the player view and assert-player-clean carry nothing of it; a reopen keeps it; a swipe past the planning reply steps the living story back and the replay draws the identical record (messageId aside). The director pass is started with rt.living.propose() because a no-model lane's scheduler does not place model jobs. Plumbing only: S7-S9/S11 need the real director. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-48-scene-test.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": {
     "lane": "no-model",

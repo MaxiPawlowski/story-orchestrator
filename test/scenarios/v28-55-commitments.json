@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 55 A (no-model lane, plumbing): Arin makes a commitment (People row 'open', holder line in Arin's applied private block only), keeps it (row 'kept', kept line once), a swipe of the keeping reply returns it to made, reopen is identical; player-clean throughout. Real-model holder behaviour (M7) is owed. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v28-55-commitments.json --sandbox --group 'Group: Arin, DM Narrator'.",
   "requires": {
     "lane": "no-model",

@@ -1,4 +1,5 @@
 {
+  "model": "any",
   "_note": "v2.4 plan 08 live gate 'Preview = capture' (group half). Real generation. Run twice, consecutively: node scripts/debug/so-scenario.mts run test/scenarios/live-v24-08-preview-capture.json --sandbox --group 'Group: Arin, DM Narrator' (or st-lanes batch --repeat 2 --strict). The preview is read straight before each send (after the off-path passes settle, and after the token counts finish): every own and foreign block the preview lists at a real position is present in the request ST posted (GENERATE_AFTER_DATA, the FIRST generation after the preview, i.e. the drafted member's), within one position/depth/role slot in ST's key order; a host-counted block's tokens equal getTokenCountAsync of the same string; M (the preview's budget) equals the interceptor's contextSize for that generation. A block that changed between the preview and the send is reported as that, not as missing. A conditional (filter) block may be absent. Private per-member blocks are J5's (target rows are skipped here).",
   "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Ponticius","Arin"]},
   "steps": [

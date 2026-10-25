@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v27-d-09-commit-hold",
   "objective": "v2.7 09 option E live (D) row, no model. A mocked read (storyOrchestratorDebugExtractionResponse through the extract verb) proposes took_job=true while the player's only line refuses it ('I don't take the job, not yet.'): the commit guard holds the reading, the story stays at the offer, and the session journal (the so-journal show read, via getSessionJournal) carries the held row with its reason '(negated)' and the player's own line ('the player wrote \"I don't take the job, not yet.\"'). Control: a later line that does take it commits through the same mocked read and the story moves on, so the guard is not blanket. The row is author detail: player mode never shows it. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-09-commit-hold.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
   "requires": {

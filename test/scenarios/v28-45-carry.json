@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 45 (no-model lane, plumbing): finish a source story with a final chapter (debugResponse seal), open a new chat on its sequel with a changed roster, pick the run, assert heritage and state keys, known_by lines only in the named members' applied blocks, the Previously block, player-clean, reopen and swipe keep the seed.",
   "requires": {
     "lane": "no-model",

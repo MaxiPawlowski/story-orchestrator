@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 61b (f734defe, no-model lane): the wizard provisioning write path on a real book: secondary keys, outlet and triggers set, kept by a step that leaves them out, cleared by a step that names them empty.",
   "requires": {
     "lane": "no-model",

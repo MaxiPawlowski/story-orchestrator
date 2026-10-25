@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v27-d-02-c13-curator-tiers",
   "objective": "v2.7 02 C13 live (D) row, no model. A story lorebook (marker SO-V27D13) holds 'The north gate' (a {{// so:protect}} span) and 'The market square' ({{// so:auto}}). With the curator on in accept mode auto, one mocked curator pass (stagecraft curate with debugResponse) proposes a rewrite of each: the gate rewrite drops the protected span and is refused at plan time ('touches protected text', no op on the card); the market rewrite is on an auto-tier entry and is accepted on the spot. The next rendered reply's boundary writes it; a swipe of that reply rolls it back to the entry's before-image, while the gate entry is never touched. Cleanup restores the stagecraft settings and deletes the marker book. Payload invariance on the curator request is the jest pin (curatorTiers.review.test.ts), not repeated here. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-02-c13-curator-tiers.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
   "requires": {

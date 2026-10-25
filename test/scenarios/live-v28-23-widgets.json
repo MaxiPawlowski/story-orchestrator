@@ -1,4 +1,5 @@
 {
+  "model": "any",
   "_note": "v2.8 31 pod round 2026-10-10, plan 23 quick real-model look: the widgets story in a group, real replies on the reply model, every role on the pod (no cloud route, so F23's egress line is not drawn). A reply after /cp set found_ledger brings the clue wall up; no widget text reaches a generation prompt; assert-player-clean.",
   "requires": {
     "lane": "model",

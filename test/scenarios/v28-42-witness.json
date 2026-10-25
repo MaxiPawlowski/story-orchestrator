@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 42 B (no-model lane, plumbing only; real-LLM W4/Wc/RB owed): the shared read carries the witness section, a planted read's WITNESS/SPAN lines land in extras.witness keyed by the read's input range, a swipe inside that range drops the read, and no player surface changes. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-42-witness.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "authorView": true },
   "steps": [

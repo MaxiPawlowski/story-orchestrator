@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.4 plan 01 T1 red fixture (no backend). Run: node scripts/debug/so-scenario.mts run test/scenarios/v24-01-cut-range.json --sandbox --group 'Group: Arin, DM Narrator'. Four player lines, one boundary each; record_state at the boundary before line 1, then `/cut 1-2`. /cut deletes one message per MESSAGE_DELETED, each after its own splice (host-facts 01-H4), so the two events carry chat lengths 3 then 2. Before the T1 fix the rollbacks start at 3 and 2, and lit_lamp (from a removed line) survives: stateEquals FAILS (red). After the fix each event re-diffs against the snapshot the previous one left and both decode to 1.",
   "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
   "steps": [

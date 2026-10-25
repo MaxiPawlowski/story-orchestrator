@@ -1,4 +1,5 @@
 {
+  "model": "any",
   "name": "live-v28-24-reply-effort",
   "objective": "v2.8 24 T-R4 (row R4-live): the install-wide reply thinking budget on Artemis through llama.cpp Text Completion (3090 controller or a pod lane). For each level off / low / medium / high, two real group turns: every request sent while ST is generating a reply carries reasoning_budget_tokens equal to the level's budget (off 1, low 128, medium 400; high sends none), and no request sent outside a reply generation (memory, curator, judge-adjacent passes) carries a budget key. The level is put back by the runner's extraction-settings restore; thinking returns to the shipped level afterwards. Synthetic story and group only. Written, validated by the loader, not run yet.",
   "requires": {"lane": "model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "why": "real replies on llama.cpp Text Completion; the budget overlay exists only there"},

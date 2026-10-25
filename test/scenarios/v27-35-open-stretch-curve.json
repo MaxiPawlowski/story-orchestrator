@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.7 35 Phase 2, the pull curve in a group chat. No backend: player lines are /send compact, replies are /sendas (each renders and commits a boundary). Run: node scripts/debug/st-lanes.mts run 33 --evidence -- scripts/debug/so-open-stretch-check.mts. The wrapper owns the marked group, serves this worktree's candidate without staging, restores lane settings, and runs twice. The start beat is an open stretch (pull_after 3, max_turns 6). Asserts: the current-checkpoint macro shows only the scene name; no objective line in guidance; a multi-speaker round counts one player turn; no hook before 3 player turns; the gentle hook from 3; a swipe to an existing alternative keeps the count; deleting a player line lowers it; the strong register at 6.",
   "requires": {"lane":"no-model","group":"SO-Open-Stretch-Curve","members":["Arin","DM Narrator"],"judge":"off"},
   "steps": [

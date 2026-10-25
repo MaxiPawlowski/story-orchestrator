@@ -31,6 +31,7 @@
   "checks": [
     {
       "id": "J7.1",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "cp1 → cp2: the player approaches the job board Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
@@ -113,6 +114,7 @@
     },
     {
       "id": "J7.2",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "cp2 → cp3: the party accepts the Sun Ruins mission Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
@@ -169,6 +171,7 @@
     },
     {
       "id": "J7.3",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "cp3 → cp-4a: the player agrees to bring Luke along Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
@@ -224,6 +227,7 @@
     },
     {
       "id": "J7.4",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "cp-4a → cp-4a1: the sphinx riddle is answered correctly Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
@@ -277,6 +281,7 @@
     },
     {
       "id": "J7.5",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "cp-4a1 → cp-5: the party enters the inner chamber, and convergence progress is recorded Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
@@ -331,6 +336,7 @@
     },
     {
       "id": "J7.6",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "cp-5 → cp-6: the artifact is secured and the party returns to the guild Before the checkpoint wait, the check lets the off-path reads settle and plays one neutral turn: an accepted delta applies only at the NEXT boundary and a boundary fires one transition, so a read that lands after the last turn (or a boundary whose deltas open two gates in a row) leaves the story one turn behind until the player speaks again. A real player always does; the 900 s wait with nobody talking did not (L2 2026-09-23: J7.4/J7.5 timed out at cp-4a/cp-4a1 with the gate already satisfied, and the story reached cp-6 by J7.6). After the neutral turn the check lets the reads settle AGAIN, and if the story is still short of the checkpoint it plays the neutral turn once more (attempts 2, retryBack 2): a read that finishes after the neutral turn's last boundary holds its accepted delta until the next boundary, and nobody talks during the wait (v2.4 acceptance 2026-09-25, J7 run 3: chamber_entered accepted on window 43-46 after the boundary at 47, J7.5 timed out at cp-4a1 with the write pending). A retry is recorded, so firstAttempt still says whether one turn was enough.",
@@ -393,6 +399,7 @@
     },
     {
       "id": "J7.7",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "every anchor was visited and none was skipped",
@@ -404,6 +411,7 @@
     },
     {
       "id": "J7.8",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "the long session left a coherent journal and memory behind",
@@ -415,6 +423,7 @@
     },
     {
       "id": "J7.9",
+      "model": "judged",
       "mode": "human",
       "findings": [],
       "prompt": "Over the whole play-through, did the story feel authored — arriving where it was meant to — or did it feel like it was dragging you along rails?",
@@ -422,6 +431,7 @@
     },
     {
       "id": "J7.10",
+      "model": "judged",
       "mode": "human",
       "findings": [],
       "prompt": "Did the finale land, given what actually happened in your run?",

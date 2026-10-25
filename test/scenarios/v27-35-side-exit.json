@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.7 plan 39 (NOT YET RUN; row S-09): an open stretch ends only through arrive_when. Two refused copies of v27-35-open-stretch.story.json add a second exit road -> camp (transitions.1, id to-camp): one gated player_turns_in_checkpoint >= 8, one on an always-true gate ({all: []}). Each import must be refused (import_story expectFail), the snapshot's validationErrors must name transitions.1 with 'ends only through arrive_when', and the library must not hold the refused id. Control: the shipped fixture v27-35-open-stretch.story.json imports clean with no validation errors. Not expressed here: the Studio diagnostics on edit (a refused story never loads, so the Studio has nothing to open; jest covers the validator, openStretch.review.test.ts 'refuses every exit but arrive_when') and the Adolion stretch stories (counted on an adolion-fresh lane only, rule 7). Run: node scripts/debug/so-scenario.mts run test/scenarios/v27-35-side-exit.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off" },
   "steps": [

@@ -25,6 +25,7 @@
   "checks": [
     {
       "id": "GS2.1",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "Lane guard, start, and the living director opening a way in from play. Closes: living-story (code pace fallback after 3 player turns, a liv_ checkpoint in the played graph), road-ahead; row M21 functional half (L1 premise start), queue N1.",
@@ -87,6 +88,7 @@
     },
     {
       "id": "GS2.2",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "On-script turns: the divergence reader reads and commits no branch. Closes: judge-use-divergence; rows M22 / queue R1 (false divergence on committed turns, informational, recorded), 33-W3-live (attention checks answer in a group). Counts judge calls by use from the run's own ring.",
@@ -123,6 +125,7 @@
     },
     {
       "id": "GS2.3",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "Off-script play branches, and a swipe and a delete take the branch back. Closes: story-branching, living rollback; rows M23 (L2 branch landing, swipe rollback F26, delete rollback). Two plainly off-route turns; a liv_b<n>_way branch is expected (a reading is model-dependent, so no branch is recorded as a miss with the readings, not retried); then the newest reply is swiped and deleted and the branch must be gone or withdrawn.",
@@ -181,6 +184,7 @@
     },
     {
       "id": "GS2.4",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "Prefetch at an anchor and the director's applied ops. Closes: living prefetch (row M23 L4: one way forward per checkpoint), save-run-as-story availability (canSave read; the save itself is the existing L5 leg on the CL lane, 24 §Targeted CL). Reads the living author view in Author view and switches back to player mode.",
@@ -205,6 +209,7 @@
     },
     {
       "id": "GS2.5",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "Curator in real play. Closes: curator, curator-create, curator-markers, judge-use-curator-filter; rows O7 (one real curator pass), O14 (promoted tiers hold), M17 functional half (proposal waits in review, written only at the next boundary). Assets the curator writes are removed by the journey's asset cleanup (baseline).",
@@ -240,6 +245,7 @@
     },
     {
       "id": "GS2.6",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "Lore selection, late lore and memory lore on the real judge. Closes: story-lorebooks, lorebook-switching, late-lore, memory-lore, judge-use-lore-select, judge-use-lore-exclusive; rows queue M10 (judge calls per reply, informational), 33-W1-V7-live context. Counts lore calls per loud turn from the ring; asserts the story's books are scanned for this chat only.",
@@ -264,6 +270,7 @@
     },
     {
       "id": "GS2.7",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "Character life, meanwhile and speaker direction. Closes: character-life, meanwhile-proposals, speaker-direction, talk-chain, judge-use-director, continuity-warden; rows M16 functional half (an accepted off-stage event lands in the holder's private block only), 38-C7-life (life half), 37-D1 live. Plays to a scene shift and reads the proposal and talk rings.",
@@ -305,6 +312,7 @@
     },
     {
       "id": "GS2.8",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "Close-out turns and player-clean sweep. Closes: repair (no blocks row in a seeded campaign chat), hud count chip; rows 16-04-health-center live, 37-spoiler live.",

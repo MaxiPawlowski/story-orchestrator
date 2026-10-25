@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 04 (no model): the Journal, Stat sheet and \"What could I do?\" panels in player mode on the v2.7 36 quest story. Suggestions come from the planted debug response: the lines naming the unreached scene (The rooftops) and the hidden quest are dropped, a click fills the box and sends nothing, a typed box is never overwritten; a story that switches its panels off shows no opener. Every write is a /cp set boundary. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-04-presence-panels.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off" },
   "steps": [

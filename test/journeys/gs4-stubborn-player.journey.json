@@ -22,6 +22,7 @@
   "checks": [
     {
       "id": "GS4.1",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "Lane guard and start. Closes: stories (esha unit of 38-C7), continuity-warden on shipped defaults.",
@@ -59,6 +60,7 @@
     },
     {
       "id": "GS4.2",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "The player declares outcomes. Closes: judge-use-agency-check, continuity-warden (an agency note raised, applied once to the outermost loud generation, lapsed after the next player line); rows C4-R6 functional half (the reply after the note is kept for the rater; the rubric score is informational), 33-W2 auto mode in real play.",
@@ -92,6 +94,7 @@
     },
     {
       "id": "GS4.3",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "The player refuses the prepared road. Closes: agency policy (a refusal streak is counted in player turns, the author recovery offered, never narrated compliance); row 33-W2-J8.10 live context. Two refusals in a row.",
@@ -127,6 +130,7 @@
     },
     {
       "id": "GS4.4",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "Hedges and double negatives do not latch. Closes: judge-use-typed-extraction on hedged lines (a hedge never moves a guarded value on that turn); the campaign's guarded-value cases are the campaign-side scenario v28-adolion-commit-model (24 §Targeted RP), not repeated here.",
@@ -160,6 +164,7 @@
     },
     {
       "id": "GS4.5",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "Silence and quiet turns, and a complication on the production path. Closes: experiments (SP6 complication release on an authored complication_after streak, its block placement, assert-player-clean on a release), judge-use-idle-check, judge-use-stall-check; rows 35-P3-K2 (released block on the production path), 35-K2 functional re-check. Jumps to the first checkpoint with authored complications (by structure), then quiet turns.",
@@ -204,6 +209,7 @@
     },
     {
       "id": "GS4.6",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "OOC in a tense scene and the end of the core run. Closes: rows S-19-OOC-b (a pending note stays pending through OOC lines and the next loud generation carries it), 33-D-clean live. Ends with a player-clean sweep.",

@@ -1,4 +1,5 @@
 {
+  "model": "any",
   "_note": "v2.5 plan 09 SP1 S3, LIVE on the dev build, spike flag ON. so-scenario run --sandbox --group <id>. One real turn (swipe 0, recorded after its reads settle), one generated swipe (/swipe direction=right, swipe 1, recorded the same way), then 10 swipe-backs alternating left/right between the two already-read swipes (ST emits only MESSAGE_SWIPED for an existing swipe, script.js:10315/10319). Each swipe-back must be a cache hit, start 0 read calls (audits created between the swipe and scheduler idle, quiet 8 s), and leave engine + queued writes + live memory rows equal to that swipe's recording (S1's projection).",
   "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Ponticius","Arin"]},
   "steps": [

@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 65 v1 (no-model lane): before Arin is met the card is absent and no Arin name, portrait or initials reach the player view or the DOM (N2/N2p); once met she is listed with her portrait and a People page link, the narrator never (N1); four scripted cast changes (N5); the page link opens the Journal on People; assert-player-clean. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-65-scene-card.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": {
     "lane": "no-model",

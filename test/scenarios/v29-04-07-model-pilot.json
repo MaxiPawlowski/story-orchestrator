@@ -1,4 +1,5 @@
 {
+  "model": "judged",
   "_note": "v2.9 04 C2 / 07 narrator-acknowledgement PILOT on real Artemis (GPU window 2026-10-22; not the predeclared 40-opportunity corpus, no independent rater): a reaction cue staged for Arin, one real /trigger reply from Arin, its receipt from the real settle path; then a narrator echo landed and one real narrator reply with its receipt. Lexical acknowledgement is a rough hint only; replies are returned for rating. Run on a model lane with --sandbox --group 'Group: Arin, DM Narrator'.",
   "requires": {
     "lane": "model",

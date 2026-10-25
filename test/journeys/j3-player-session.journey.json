@@ -34,6 +34,7 @@
   "checks": [
     {
       "id": "J3.1",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "the story loads and the first real transition fires from play alone",
@@ -104,6 +105,10 @@
     },
     {
       "id": "J3.2",
+      "model": "none",
+      "dependsOn": [
+        "J3.1"
+      ],
       "mode": "auto",
       "findings": [],
       "goal": "the checkpoint change is announced in the chat itself",
@@ -121,6 +126,10 @@
     },
     {
       "id": "J3.3",
+      "model": "none",
+      "dependsOn": [
+        "J3.1"
+      ],
       "mode": "auto",
       "findings": [
         "U3"
@@ -162,6 +171,10 @@
     },
     {
       "id": "J3.4",
+      "model": "none",
+      "dependsOn": [
+        "J3.1"
+      ],
       "mode": "auto",
       "findings": [
         "U8"
@@ -200,6 +213,10 @@
     },
     {
       "id": "J3.5",
+      "model": "none",
+      "dependsOn": [
+        "J3.1"
+      ],
       "mode": "auto",
       "findings": [
         "U4"
@@ -224,6 +241,10 @@
     },
     {
       "id": "J3.6",
+      "model": "any",
+      "dependsOn": [
+        "J3.1"
+      ],
       "mode": "auto",
       "findings": [
         "U5"
@@ -260,6 +281,10 @@
     },
     {
       "id": "J3.7",
+      "model": "judged",
+      "dependsOn": [
+        "J3.1"
+      ],
       "mode": "auto",
       "findings": [],
       "goal": "the session produced memory and injected it into the next generation",
@@ -288,6 +313,10 @@
     },
     {
       "id": "J3.8",
+      "model": "none",
+      "dependsOn": [
+        "J3.1"
+      ],
       "mode": "auto",
       "findings": [],
       "goal": "the session journal correlates extraction, transition, payload and flag on one timeline",
@@ -305,6 +334,7 @@
     },
     {
       "id": "J3.9",
+      "model": "none",
       "mode": "human",
       "findings": [
         "U4"
@@ -314,6 +344,7 @@
     },
     {
       "id": "J3.10",
+      "model": "judged",
       "mode": "human",
       "findings": [
         "U3"
@@ -323,6 +354,7 @@
     },
     {
       "id": "J3.11",
+      "model": "none",
       "mode": "human",
       "findings": [
         "U8"
@@ -332,6 +364,7 @@
     },
     {
       "id": "J3.12",
+      "model": "none",
       "mode": "human",
       "findings": [
         "U5"
@@ -341,6 +374,7 @@
     },
     {
       "id": "J3.13",
+      "model": "judged",
       "mode": "human",
       "findings": [],
       "prompt": "Pacing: did the story push when it should have pushed and breathe when it should have breathed?",

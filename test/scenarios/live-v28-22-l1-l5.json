@@ -1,4 +1,5 @@
 {
+  "model": "any",
   "_note": "v2.8 24 save-run-as-story L5 leg (22 L1 premise start, 12 turns, Save this run as a story; L5 cut 4 messages, reopen). Synthetic premise, campaign group by name only. Copied from the pod-round fixture (v2.8 31 M21) without its DeepSeek role pin: roles keep the lane's routes (reply and reads on the lane model, authoring on the default route). Curator off, judge on, Author view off for play.",
   "requires": {
     "lane": "model",

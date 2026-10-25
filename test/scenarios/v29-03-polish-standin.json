@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.9 03 S0 (no-model lane): the debug stand-in polish (fixed find/replace after a delay, no model call) writes a received reply before fireAfterSpeak and the boundary; the boundary consumes the polished text (no eventless-change journal, no rollback); a quiet GENERATION_STARTED during the hold abandons the next candidate and leaves the reply as sent. Scripted /sendas rows are admitted only through the stand-in's includeScripted flag, because a no-model lane has no generated replies. Run: node scripts/debug/so-scenario.mts run test/scenarios/v29-03-polish-standin.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": {
     "lane": "no-model",

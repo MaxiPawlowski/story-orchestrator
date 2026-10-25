@@ -1,4 +1,5 @@
 {
+  "model": "judged",
   "_note": "v2.9 04 C2/C5 corpus run (frozen 2026-10-23 before inference): 40 opportunities, 30 reaction cues (10 per member, Luke / Ponticius / Arin round-robin) and 10 no-cue turns; one real Artemis /trigger reply each, thinking and inner voice on; extraction pinned SCENE_NONE (cue latches come from /cp set, not the measured path). Replies and the offered receipt land in localStorage so-v29-c2-*. Run on a model lane with --sandbox --group 'Group: Arin, DM Narrator'.",
   "requires": {
     "lane": "model",

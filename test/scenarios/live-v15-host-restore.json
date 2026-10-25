@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "live-v15-host-restore",
   "objective": "v2.3 replan V15, live on a real group (no model): a checkpoint in chat A disables Luke on the group; LEAVING for chat B, which ALREADY plays another story (so-v15-other, which touches no cast: sun-ruins disables Luke itself at cp1 once story-scoped lore, f7342021, makes it ready), puts Luke back (before V15 only a storyless destination restored anything — the first draft of this check left for a fresh chat, took the storyless path, and passed with the fix removed, so the destination here is prepared first); RETURNING to A re-applies its cast from the mirror; RESTART puts Luke back again. Every step reads the group's own disabled_members.",
   "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Luke"],"judge":"off","why":"road disables Luke on the toy group and every leave/return/restart reads that group's disabled_members; the runner re-enables a Luke an earlier run left disabled"},

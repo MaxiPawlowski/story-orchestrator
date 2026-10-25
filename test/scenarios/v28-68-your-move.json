@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 68 v1 (no-model lane; PLUMBING level: the reply is answered by an in-page fetch stub and the director by its debug response, which hands back to the player). The real talk path records kind player with the reply's revision; the HUD shows Your move. for that revision only: an in-place edit, an in-place swipe, a new player line and a delete each turn it off (Y2), restoring the exact text or swipe turns it back on; assert-player-clean with the chip shown (Y5). Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-68-your-move.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": {
     "lane": "no-model",

@@ -12,6 +12,7 @@ import { branchSpec, nextReadWindowSpec, rollbackOutcomeSpec } from './identityV
 import { soloSpec } from './soloSandbox.mts';
 import { validateRequires } from './scenarioRequires.mts';
 import { preconditionProblems } from './stepPrecondition.mts';
+import { modelClassProblems } from './modelClass.mts';
 
 export const STEP_MODIFIERS = new Set(['adoptsNewChat', 'log', 'attempts', 'retryBack', 'expectFail', 'precondition']);
 
@@ -234,6 +235,7 @@ export function globalsReadButNeverWritten(files: Array<{ name: string; text: st
 export function validateFixture(doc: unknown, where = 'fixture'): string[] {
   if (!isRecord(doc)) return [`${where}: expected an object`];
   const problems: string[] = [...validateRequires(doc.requires, `${where}.requires`)];
+  problems.push(...modelClassProblems(doc.model, where));
   if (Array.isArray(doc.steps)) problems.push(...validateSteps(doc.steps, `${where}.steps`));
   if (Array.isArray(doc.setup)) problems.push(...validateSteps(doc.setup, `${where}.setup`));
   if (isRecord(doc.setup) && Array.isArray((doc.setup as Record<string, unknown>).steps)) {
@@ -246,6 +248,7 @@ export function validateFixture(doc: unknown, where = 'fixture'): string[] {
     doc.checks.forEach((check: unknown, index: number) => {
       if (!isRecord(check)) return;
       const id = typeof check.id === 'string' ? check.id : `#${index}`;
+      problems.push(...modelClassProblems(check.model, `${where}.${id}`));
       if (Array.isArray(check.steps)) problems.push(...validateSteps(check.steps, `${where}.${id}.steps`));
     });
   }

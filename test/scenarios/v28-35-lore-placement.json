@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "B6 no-model half of the third coverage gap: host getSortedEntries scans an owned synthetic book with before/after, constant and disabled entries. Setting-off control, late-depth treatment and unchanged server file. R7 same-speaker cache reuse and F29 payload captures remain separate measurements.",
   "requires": {
     "lane": "no-model",

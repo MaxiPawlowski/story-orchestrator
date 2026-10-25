@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v28-25-requirements-lorebook-list",
   "requires": {
     "lane": "no-model",

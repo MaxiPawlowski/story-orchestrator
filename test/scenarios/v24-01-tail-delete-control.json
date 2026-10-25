@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.4 plan 01 T1 control (no backend); must be GREEN before and after the fix. Run: node scripts/debug/so-scenario.mts run test/scenarios/v24-01-tail-delete-control.json --sandbox --group 'Group: Arin, DM Narrator'. Three player lines, one boundary each; record_state at the boundary before the LAST line, then ST's real deleteMessage removes that last line. At the tail the post-delete chat.length IS the removed message (host-facts 01-H2), so today's code already rolls back from the right place, and the decoder must agree with it exactly.",
   "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
   "steps": [

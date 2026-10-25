@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.9 07 (no-model lane, plumbing only, never sign-off): leaving the harbour fires the one transition and schedules Arin's echo; the next boundary lands it to plan 04's channel; drafting Arin puts the echo line in the applied private block and drafting the narrator does not; a rendered Arin reply settled through the generation hook writes an echo receipt and the author row reads offered; player mode stays clean; a swipe of the reply drops the receipt and the echo is offered again (once per chat: no second schedule). Run: node scripts/debug/so-scenario.mts run test/scenarios/v29-07-echoes.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": {
     "lane": "no-model",

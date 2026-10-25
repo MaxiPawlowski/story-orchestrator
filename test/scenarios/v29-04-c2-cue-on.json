@@ -1,4 +1,5 @@
 {
+  "model": "judged",
   "_note": "v2.9 04 C2 on arm (2026-10-23, same build as the paired arm): the 04 C2 corpus with characters.cues true; replies tagged so-v29-c2on-<id> in localStorage. Frozen with test/measurements/v2.9/04-c2c5/cue-arms.json before inference.",
   "requires": {
     "lane": "model",

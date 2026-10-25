@@ -1,4 +1,5 @@
 {
+  "model": "judged",
   "_note": "v2.9 06 real-model pilot (GPU window 2026-10-22; not the LT 40x2 corpus, no rater): the 06 fixture with the debugResponse removed: What could I do? asks the real read-role model (memory model on the local controller) once, then Other ideas three times in Author view; records the lines, help line, greyed offer and the author row (anchors, grounded n/m).",
   "requires": {
     "lane": "model",

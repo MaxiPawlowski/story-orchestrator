@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v28-09-card-readback",
   "requires": {
     "lane": "no-model",

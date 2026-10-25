@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 50 B1a/B1b (NOT YET RUN): the story clock driven without a model. Every write is a /cp set boundary: author sets move time forward, a schedule drops Arin at night and brings her back in the morning, entering a checkpoint with effects.time jumps two days in the same boundary, a quest fails on story_day, the Author view time row names the checkpoint as the last writer, and a reload keeps the label.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "authorView": true },
   "steps": [

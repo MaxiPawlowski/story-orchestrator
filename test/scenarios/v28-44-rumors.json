@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 44 (no-model lane): an open rumor starts with the narrator when its gate holds, lands as hearsay in Arin's private block one turn later, never reaches a player surface, shows in Author view, and a swipe of the landing reply takes the hop back to pending (hearsay and private line gone) and the next turn re-lands it at the same due point (G13); a reopen equals the replayed state. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-44-rumors.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": {
     "lane": "no-model",

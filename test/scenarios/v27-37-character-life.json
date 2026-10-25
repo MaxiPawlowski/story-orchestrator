@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.7 plan 37 (NOT YET RUN; batched into plan 39): an agenda step lands after two in-fiction boundaries, an OOC line neither moves it nor counts, a night schedule drops Arin, the drafted member's private block carries her own feelings and the narrator's carries only the public step, and none of it reaches a player surface. No model call: every write is a /cp set boundary.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off" },
   "steps": [

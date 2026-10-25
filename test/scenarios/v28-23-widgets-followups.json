@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 23 A4 (no model): a meter and a roster say when they changed (player) and which quality and turn changed them (Author view), a timeline lists reached named checkpoints with authored dates, a panel button opens the story workspace on Play with What the story remembers open and focused, a roll button puts the attempt in the box and goes away once the check is attempted, motion off reaches the DOM, and a deleted message takes it all back. Every write is a /cp set boundary. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-23-widgets-followups.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off" },
   "steps": [

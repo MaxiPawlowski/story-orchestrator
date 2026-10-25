@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v27-d-08-thinking-warning",
   "objective": "v2.7 08 option A live (D) row, no model. Harvest on and knowledge tracking on; five /sendas replies made into 'generated' replies through ST's own message fields (extra.api set, not 'manual'; extra.reasoning empty) and saved: four are not enough (no finding, the window is not filled), the fifth raises model-not-thinking (snapshot.thinkingSilent) with the player copy in player mode and no detail; Author view adds the detail and the settings line under the harvest switch (#so-inner-harvest-silent); one reply carrying reasoning clears it; with harvest off the same silent replies raise nothing. so-ui assert-player-clean with the finding shown. Cleanup restores the install-wide memory settings. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-08-thinking-warning.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
   "requires": {

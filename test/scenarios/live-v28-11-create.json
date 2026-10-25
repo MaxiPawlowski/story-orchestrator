@@ -1,4 +1,5 @@
 {
+  "model": "judged",
   "_note": "v2.8 31 M17 (v2.8 11 J8 create checks) live: group chat, main reply on the pod, curator + lore-creation route on DeepSeek (cloud). Guards first (measured, unestablished, hidden: none of them touches the positive), then the positive: a real lore pass over facts from real reads proposes a card that waits, the author accepts it, it is written at the next boundary and its content reaches the next prompt (activation proof); a run whose real pass proposes nothing is recorded P1 BLOCKED. Guards on the live host: unmeasured route refused with createRequireMeasured on (no call), unestablished name and hidden (gated / excluded) titles refused at plan time, auto mode never creates (a card stays pending across a boundary), createCap 2 skips the pass with no call, a card edited into the excluded title is refused at the write edge. Guard inputs are scripted lore replies (debugResponse) because a real model cannot be made to propose a refused card; the positive is never scripted.",
   "requires": {
     "lane": "model",

@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 65 A+ (no-model lane): the scene card's lines. Before Arin is met no line of hers reaches the player view; once met her public label shows and the secret label does not (N3); a visible group's band shows only with options.standing; label and band follow the story; the secret shows as 'Learned' only after its reveal; no recency mark (N4); assert-player-clean. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-65-scene-lines.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": {
     "lane": "no-model",

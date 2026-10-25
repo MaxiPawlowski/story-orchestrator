@@ -31,6 +31,7 @@
   "checks": [
     {
       "id": "J10.1",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "U2"
@@ -58,6 +59,7 @@
     },
     {
       "id": "J10.2",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "U1",
@@ -80,6 +82,7 @@
     },
     {
       "id": "J10.3",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "U2"
@@ -116,6 +119,7 @@
     },
     {
       "id": "J10.4",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "U2"
@@ -145,6 +149,7 @@
     },
     {
       "id": "J10.5",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "U2"
@@ -170,6 +175,7 @@
     },
     {
       "id": "J10.6",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "U1",
@@ -206,6 +212,7 @@
     },
     {
       "id": "J10.7",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "U2"
@@ -242,6 +249,7 @@
     },
     {
       "id": "J10.13",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "T11"
@@ -323,6 +331,7 @@
     },
     {
       "id": "J10.14",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "T2"
@@ -451,6 +460,7 @@
     },
     {
       "id": "J10.15",
+      "model": "any",
       "mode": "auto",
       "findings": [
         "T11"
@@ -500,6 +510,7 @@
     },
     {
       "id": "J10.9",
+      "model": "none",
       "mode": "human",
       "findings": [
         "U6"
@@ -509,6 +520,7 @@
     },
     {
       "id": "J10.10",
+      "model": "none",
       "mode": "human",
       "findings": [
         "U6"

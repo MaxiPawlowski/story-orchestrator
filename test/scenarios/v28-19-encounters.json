@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 19, the encounter pool and the quiet trigger in a group chat, no model. The pool is planted through the expand verb's debugResponse (plumbing only: it proves the cache entry, the guidance block, the quiet state and rollback/reopen, never generation quality). The start beat is an open stretch (pull after 3) that offers encounters. Asserts: no menu before 3 player turns; the menu from the 3rd while nothing the exit gate names has moved (a group round counts one turn); a /cp set on a gate quality (it commits its own boundary after turn 3) hides it while the move is inside the last 3 player turns (turns 4 and 5), and it returns at turn 6; a swipe keeps the block; deleting a player line takes the menu away; after a reload the pool, the turn count and the quiet read are the same and play resumes to the menu. No objective line anywhere.",
   "requires": {
     "lane": "no-model",

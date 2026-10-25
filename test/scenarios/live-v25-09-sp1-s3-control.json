@@ -1,4 +1,5 @@
 {
+  "model": "any",
   "_note": "v2.5 plan 09 SP1 S3 control arm (today), LIVE on the dev build, spike flag OFF. The same script as live-v25-09-sp1-s3.json; each swipe-back's read calls, hit count (always 0) and state equality are recorded, not asserted, as the 'today' column.",
   "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Ponticius","Arin"]},
   "steps": [

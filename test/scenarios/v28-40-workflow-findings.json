@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v28-40-workflow-findings",
   "objective": "Plans 28-30 on a clean host without server plugins: a story workflow map with a checkpoint override resolves per visited checkpoint (story map at the start, checkpoint override after the transition, unmapped purpose falls back to the player's selection, which stays untouched); with no ComfyUI source every mapped workflow is reported missing through the player-audience story-workflow-missing row (author detail names each file); the absent media plugin is reported by images-on-no-service with its detail, the absent GPU broker reads as no broker (fail-open, no row) and no blocking row appears. A page tripwire proves no render, workflow write, ComfyUI or download request left the page. Plans only, raw:true, no director model.",
   "requires": {

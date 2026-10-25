@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.7 plan 39 (NOT YET RUN): row 34-L-fixed. No model call. A story with player.name {mode: fixed, value: 'SO-V2734 Fixed'} while SO-V2734 Wren is selected: the pane names the fixed persona and offers no Keep, requirements.missingFixedName is set and the opener stays unposted; closing the start page locks Wren and the opener STILL waits (requirements not ready); the drawer's persona-fit finding opens the start page again ([data-so=setup-fix] 'Open the start page'); creating the persona (name prefilled read-only) locks it on the server copy, the requirement clears and the opener posts exactly once (chat and server). Cleanup restores the selected persona and auto-lock and removes the SO-V2734 personas. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-34-fixed-name.json --sandbox --group \"Group: Arin, DM Narrator\" on a no-model lane.",
   "requires": {"lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "why": "scripted opener only; the persona writes need a lane"},
   "steps": [

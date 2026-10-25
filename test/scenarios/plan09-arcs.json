@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
   "steps": [
     {

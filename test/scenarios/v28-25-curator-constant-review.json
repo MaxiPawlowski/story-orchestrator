@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v28-25-curator-constant-review",
   "objective": "A19 deterministic browser plumbing: a constant auto-marked entry waits for explicit review, applies at a boundary only after approval, and rolls back on swipe. Real-model curator quality is deferred.",
   "requires": {

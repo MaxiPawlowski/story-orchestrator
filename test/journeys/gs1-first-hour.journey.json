@@ -25,6 +25,7 @@
   "checks": [
     {
       "id": "GS1.1",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "Lane guard and start. Closes: features stories, group-binding, story-briefing, briefing-draft (real draft on the authoring route), player-setup; rows 34-RP (start setup, persona in the first prompt), 34-L-flow/34-L-fixed live, S-06 (role line once), O1 start half. Briefing and identity step are switched back on for this check (so-journey suppresses them by default) and restored by cleanup. Setup starts its chat with the start pane suppressed, and the group-bound story starts in it at once; the check switches the pane back on and opens a fresh chat, so the story starts with the start pane as a player gets it.",
@@ -85,6 +86,7 @@
     },
     {
       "id": "GS1.2",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "First four real turns on Artemis with thinking on. Closes: reply-thinking (thought kept out of the visible reply, harvest on), inner-voice (a beat recorded for a drafted member), talk-chain and speaker-direction (more than one voice on a turn the story drafts several), hud, inline-notes (level 1 chips), memory (audits land); rows O9 (thinking row, HUD chip and harvest line after real replies, player and Author view), 38-C7 start half. Thought-only replies counted for B1-EMPTY offline scoring (24 §Offline).",
@@ -135,6 +137,7 @@
     },
     {
       "id": "GS1.3",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "Reads drive the game layer in real play. Closes: quests, journal, stat-sheet, story-panels (player views fill from real reads), recap; rows 36-pilot-academy (counts only), 38-C7-quest, 36-P-live with a real read. A quest that no read opened in 6 turns is recorded (count), and the check then opens one through an author write so the panels still get exercised; the record says which path ran.",
@@ -178,6 +181,7 @@
     },
     {
       "id": "GS1.4",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "Story scenario in real replies. Closes: story-scenario (SP5), effects; rows O13, queue R11 (SP5 live legs), 16-02-C1 live. Jumps by author write to the first checkpoint whose effects carry a scenario (chosen by structure), plays two real turns, and asserts the scenario block in the drafted request and the effect ledger row.",
@@ -204,6 +208,7 @@
     },
     {
       "id": "GS1.5",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "Character life and private knowledge in real play. Closes: character-life, private-knowledge, inner-voice; rows 37-spoiler live, 38-C7-life (academy half). A drafted member with authored relationships gets a private block; no life value reaches a player surface.",
@@ -226,6 +231,7 @@
     },
     {
       "id": "GS1.6",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "Rollback in real play. Closes: branches (swipe), memory rollback; rows S-10 (requests during a swipe equal the chat with the reply deleted, rule 12: captured inputs), 16-10-catch-up live half, 38-C7 rollback half. A real swipe regenerates the newest reply; then a delete; the engine replays to the same checkpoint and boundary log. A turn that fires a transition ends on the transition note, which a player cannot swipe; the swipe then re-plays the turn (attempts 3, recorded as retries).",
@@ -282,6 +288,7 @@
     },
     {
       "id": "GS1.7",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "A real chapter seal. Closes: chapters (seal on the memory route, chapter card), recap; rows 16-06-presence chapter card on a real seal, 38-C7 chapter half. Jumps to the first checkpoint of the next authored chapter and answers the jump question with Seal it, so the seal runs on the real memory model; asserts a sealed record and a player chapter title.",
@@ -309,6 +316,7 @@
     },
     {
       "id": "GS1.8",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "Reopen. Closes: recap (welcome back), player-setup lock on reopen; rows 34-L-reopen live, 16-05-briefing not re-shown, 38-C7 reopen half. A real page reload; the chat reopens with the lock held, the start pane not re-offered, the story and boundary intact.",
@@ -339,6 +347,7 @@
     },
     {
       "id": "GS1.9",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "Player Ask and suggestions in a real story. Closes: ask (player route on the authoring model), suggestions; rows M20 re-check, 33-W4-live (fills the box, never sends), 33-W4-spoiler (no unreached checkpoint name), O2. The answer and the suggestion text are checked against the names of unreached checkpoints, read at run time from the pinned story, never written here.",
@@ -355,6 +364,7 @@
     },
     {
       "id": "GS1.10",
+      "model": "none",
       "mode": "human",
       "findings": [],
       "goal": "Start-pane and briefing copy read in play by the session's second model (never the owner: the campaign stays unspoiled). Closes row 34-copy. Each finding filed with severity; the record keeps counts only.",

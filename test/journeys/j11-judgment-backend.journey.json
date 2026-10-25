@@ -26,6 +26,7 @@
   "checks": [
     {
       "id": "J11.1",
+      "model": "none",
       "mode": "auto",
       "findings": [],
       "goal": "the server plugin answers /status with a configured key, and reports where the key came from without the key itself. The body grew deliberately (v2.6 plan 12: providers, limits, adaptive, served), so the check no longer caps its size: it asserts keySource is named (and agrees with the typesafe provider row) and that no string value in the body looks like a key",
@@ -40,6 +41,7 @@
     },
     {
       "id": "J11.2",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "judge off (the default): a real group turn is decided by today's chain and nothing reaches the plugin",
@@ -80,6 +82,7 @@
     },
     {
       "id": "J11.3",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "judge on with speaker direction opted in: the judge decides the turn inside its budget, records the answering model in its own ring, and adds nothing to the persisted journal",
@@ -118,6 +121,7 @@
     },
     {
       "id": "J11.4",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "a 1 ms judge budget falls back to today's chain, records the fallback, and the turn still gets a reply",
@@ -157,6 +161,7 @@
     },
     {
       "id": "J11.5",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "U3"
@@ -185,6 +190,7 @@
     },
     {
       "id": "J11.6",
+      "model": "none",
       "mode": "auto",
       "findings": [],
       "goal": "judge settings set through the settings panel survive a reload, and the key appears nowhere in extension settings or chat metadata. The key-reference scan covers the whole settings root; the long-value heuristic is scoped to this journey's own story record (journey-j11-judge) plus settings and chat metadata, because other library stories' quality keys (e.g. an adolion-fresh library) are authored identifiers, not secrets (T7)",
@@ -218,6 +224,7 @@
     },
     {
       "id": "J11.7",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "memoryVerify on (opt-in): a real read's memory lines are judged against the transcript before they are stored; every read with lines leaves a memoryVerify record, stored confidences follow policy Only entries a SHARED READ produced are counted: scene summaries and short-term compaction are their own passes, which memoryVerify does not cover by design (L2 2026-09-23: a scene summary, then mis-stamped as shared-read, failed this check).",
@@ -267,6 +274,7 @@
     },
     {
       "id": "J11.8",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "a scripted reply that contradicts itself, then a real read: an unsupported line lands in verifyDrops (author-visible, restorable), or the model wrote only supported lines; the check logs which branch ran Only entries a SHARED READ produced are counted: scene summaries and short-term compaction are their own passes, which memoryVerify does not cover by design (L2 2026-09-23: a scene summary, then mis-stamped as shared-read, failed this check).",
@@ -309,6 +317,7 @@
     },
     {
       "id": "J11.9",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "memoryPairs on (opt-in): seeded labelled pairs are consolidated by the judge; a duplicate is dropped, an update supersedes, and a pair about two different things (same owner or place) is never superseded or dropped",
@@ -335,6 +344,7 @@
     },
     {
       "id": "J11.10",
+      "model": "none",
       "mode": "auto",
       "findings": [],
       "goal": "memoryPairs off: the same seed consolidates by today's heuristic alone, with no memoryPairs call",
@@ -355,6 +365,7 @@
     },
     {
       "id": "J11.11",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "sceneTrigger + sceneTracker opted in, real play: one `scene` record per boundary, and the stored read belongs to the newest message",
@@ -385,6 +396,7 @@
     },
     {
       "id": "J11.12",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "a scripted time skip the regex misses (held-out SH01, judged 0.82-0.85 off-page) schedules the P0 `scene:judge` read on that boundary, and the LLM read runs",
@@ -422,6 +434,7 @@
     },
     {
       "id": "J11.13",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "the tracker block is in the prompt ST actually sends on the next generation, with only over-floor fields",
@@ -452,6 +465,7 @@
     },
     {
       "id": "J11.14",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "deleting the message a scene read belongs to clears the read and the block; the next boundary builds them again",
@@ -499,6 +513,7 @@
     },
     {
       "id": "J11.15",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "with cadence pinned high so no cadence read can mask it, every scene usage off: no scene read, no judge call; then trigger on + a blackboard `location` change away from the location the previous boundary recorded with no text cue: the heuristic's deterministic read still runs, and the judge adds no second one",
@@ -558,6 +573,7 @@
     },
     {
       "id": "J11.16",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "lore-select opted in: a player question whose answer lives in an entry whose keys never appear gets that entry forced into every generation of the turn; the first pick is made at MESSAGE_SENT, later group members pick again at GENERATION_STARTED",
@@ -603,6 +619,7 @@
     },
     {
       "id": "J11.17",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "an entry switched off in its book (as checkpoint gating does) is never asked about or forced, whatever the question",
@@ -639,6 +656,7 @@
     },
     {
       "id": "J11.18",
+      "model": "none",
       "mode": "auto",
       "findings": [],
       "goal": "a dry run (prompt itemization) and a quiet generation make no lore judge call",
@@ -659,6 +677,7 @@
     },
     {
       "id": "J11.19",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "lore-select off: nothing is forced, so the keywordless password entry stays out of the scan, and no lore call is made",
@@ -694,6 +713,7 @@
     },
     {
       "id": "J11.20",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "typed extraction opted in, cadence 50 (no LLM read for fifty boundaries): the player takes the key, the judge reads the hinted gate quality on that boundary, and the transition fires at the next boundary, long before any cadence read",
@@ -743,6 +763,7 @@
     },
     {
       "id": "J11.21",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "cadence 1 with typed extraction on: whatever the judge settles (on the read itself or on the boundary's own typed read) is left out of every LLM prompt, and a quality it did not settle stays in the scope",
@@ -780,6 +801,7 @@
     },
     {
       "id": "J11.22",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "a latching hinted quality is written by the judge only at confidence 0.9 or more (0.8 + 0.1)",
@@ -801,6 +823,7 @@
     },
     {
       "id": "J11.23",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "stall check opted in, reads off (cadence 50): a lever pulled six turns ago is written straight from the stall check with no LLM re-read; then a door nobody opens is a genuine stall the check closes with its note, and no 'catching up' signal stays behind (T1-6)",
@@ -895,6 +918,7 @@
     },
     {
       "id": "J11.24",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "typed extraction and the stall check off: reads carry no judged step and no judge-sourced delta, and nothing lands in the judged-read ring",
@@ -931,6 +955,7 @@
     },
     {
       "id": "J11.25",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "prepare-ahead with two variants: once the scene read says play is heading for the watchtower, the next boundary queues the tower's stub before the tower is reached; on arrival the prepared chain is used, or (stale / failed) re-queued and expanded anyway; the entry shows two generations and one pick After the approach turns the check lets the off-path passes settle and plays one neutral turn: the look-ahead is boundary work, and the judge's scene read that names the heading can land after the last boundary, so without a next boundary nothing reads it (L2 2026-09-24, from this check's own diagnostics: heading tower p 0.95 read at 07:00:53, after boundary 3, entries empty, active road). Revised 2026-09-25 (v2.4 plan 09 acceptance, lane 2): the scene judge fell back (timeout) on boundaries 2-4 and named the heading only on boundary 5, the last one, so no boundary followed it; the check now waits for a scene read that names the tower (or the stub already queued) and then plays one more neutral turn, so the boundary the claim is about exists.",
@@ -1024,6 +1049,7 @@
     },
     {
       "id": "J11.26",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "curator focus: with 40 entries in the curator's scope, the pre-filter asks once and the curator's prompt holds only what it kept (plus switched-off entries); with it off the prompt holds all 40 and no filter call is made. The 'proposed an entry it was not shown' assertion reads only the proposals THIS pass made (T7: it read proposals.at(-1), which was the off pass's record when the focused pass proposed nothing, and flagged the four routes the unfocused pass had proposed) and matches route titles exactly (\"Trade route 1\" is a prefix of \"Trade route 12\")",

@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 51 (no-model lane): Arin's public label shows on her People page, the secret stays out of the player view and other members' blocks; a seeded gate reveals it (log row, holder line says the player knows), assert-player-clean, a reopen equals the state, a swipe of the revealing reply takes it back (code-only boundary), a second reopen equals the replay. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-51-labels.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": {
     "lane": "no-model",

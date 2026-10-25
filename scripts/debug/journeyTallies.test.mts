@@ -201,3 +201,13 @@ test('a check that failed on its only attempt did not pass first try', () => {
   assert.equal(firstAttemptOf(undefined, { ok: true, retries: [{}] }), 'fail');
   assert.equal(firstAttemptOf('fail', { ok: false, retries: [{}] }), 'fail');
 });
+
+test('checks deselected by --model are counted apart and never fail --strict', () => {
+  const deselected = { id: 'd', mode: 'auto', outcome: 'skipped', deselected: true } as never;
+  const tallies = computeTallies([auto('a', 'pass'), deselected], clean);
+  assert.deepEqual(tallies.automated, { pass: 1, fail: 0, blocked: 0, notRunnable: 0, skipped: 0 });
+  assert.equal(tallies.deselected, 1);
+  assert.deepEqual(gateFailures(tallies, { strict: true }), []);
+  assert.match(renderTallies(tallies), /1 deselected by --model/);
+  assert.deepEqual(gateFailures(computeTallies([auto('a', 'pass'), auto('s', 'skipped')], clean), { strict: true }).length, 1);
+});

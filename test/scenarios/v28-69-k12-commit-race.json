@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 69 K12, review 2026-10-16 #3 (no-model lane WITH the story-orchestrator-lore plugin installed and enableServerPlugins on): another page's write lands between this page's preflight read and its save. The fetch wrapper performs that write the moment the story's conditional commit is sent, so the server already holds it when the commit arrives. Treatment: the commit answers 409, the story posts no /api/worldinfo/edit, the other page's edit survives and the gated entry stays off; re-entering the checkpoint lands the write with the edit kept. Fails without the plugin by design (the status probe throws). Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-69-k12-commit-race.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": {
     "lane": "no-model",

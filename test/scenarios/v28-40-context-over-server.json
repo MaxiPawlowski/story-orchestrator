@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v28-40-context-over-server",
   "objective": "v2.8 31 F20 deterministic: with scripted llama.cpp backend properties (ST's /props proxy answered in the page for a run-unique server URL that nothing listens on), a reply connection asking 98304 tokens of context against a server serving 32768 raises the player-audience context-over-server row (player copy in player view, served URL and size in Author view); lowering the context to the served size clears it, and a second scripted server that serves more than asked keeps it clear. Connection type, server URL, context size and fetch are restored. No backend, no model.",
   "requires": {

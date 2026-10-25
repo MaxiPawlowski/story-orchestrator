@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v27-d-01-in-app-walk",
   "objective": "v2.7 01 live (D) row, no model, no reply. The in-app walk from a cleared memory model to the first send: the settings panel's Getting started names the memory-model step (not done) and its Show me lands on #so-extraction-profile; with a group story loaded the settings Repair row (#so-entry-repair) names the memory-model step and its Show me lands on the same control; the settings-header '?' (#so-help-toggle, pointer click) opens the Help panel and a second press closes it; the drawer-header '?' (#so-help-toggle-drawer) toggles the same panel; player mode lists no author feature in Help; the first player line is sent compact (nothing generates); so-ui assert-player-clean sweeps every player surface including Help. Deviation from the plan's 'settings cleared': only the memory model is cleared (the runner restores it); a full clearGlobalConfig is the journey runner's job. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-01-in-app-walk.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
   "requires": {

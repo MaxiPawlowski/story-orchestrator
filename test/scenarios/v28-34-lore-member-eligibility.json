@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v28-34-lore-member-eligibility",
   "requires": {
     "lane": "no-model",

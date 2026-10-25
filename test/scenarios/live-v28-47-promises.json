@@ -1,4 +1,5 @@
 {
+  "model": "judged",
   "_note": "v2.8 47 CL legs, live carrier (P1s CL half, P2w live, H13a ids, rollback reopens): the player makes one promise to Arin in plain words, keeps it two turns later, then deletes the keeping turn. Real reads on the lane's read model (no debugResponse). Asserts: an accepted promise row names Arin, its quote is a byte-exact substring of the player's own message (paraphrase never stored), the keep event closes that same row id and no other, deleting the keeping turn reopens the row, and player surfaces stay clean. P1/P2 rates on the labelled sets stay owed (measurement, not this fixture). Synthetic story, group by name. Run: so-scenario run test/scenarios/live-v28-47-promises.json --sandbox --group 'Group: Arin, DM Narrator', twice. Step 13 declares precondition step 10 kept >= 1: no kept event read means the rollback leg fails vacuous, never a pass (v2.9 11 B6).",
   "requires": {
     "lane": "model",

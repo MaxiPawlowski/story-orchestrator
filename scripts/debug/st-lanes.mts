@@ -15,6 +15,7 @@ import { ROW_DIR_ENV } from './lib/pageCapture.mts';
 import { ramGateBytes, waitForFreeRam, type RamPause } from './lib/ramGate.mts';
 import { collectRowEvidence, fileSize, recordPathsIn, ROW_FILES, rowDirName, type RowLane } from './lib/rowEvidence.mts';
 import { guardChildren } from './lib/childTree.mts';
+import { parseModelFilter } from './lib/modelClass.mts';
 
 const USAGE = `Usage: node scripts/debug/st-lanes.mts <command> [...]
 
@@ -53,7 +54,7 @@ is shared: llama-server serves LLM_PARALLEL requests at once and queues the rest
                                tunnel port 18080+k and record it in <lane>/pod.json; cloud points them at a
                                closed port (18079), so a cloud-only lane fails loudly on any pod call and
                                counts on no pod. The lane-load rule counts model lanes per pod
-  batch --lanes 1,2 [--repeat 2] [--strict] [--group <id>] [--wi-gating scan|file] [--allow-load] <item...>
+  batch --lanes 1,2 [--repeat 2] [--strict] [--group <id>] [--wi-gating scan|file] [--model <classes>] [--allow-load] <item...>
                                run items across lanes, one at a time per lane; an item is a journey
                                id (J3) or a scenario file (test/scenarios/x.json). --repeat runs each
                                item that many times back to back on the SAME lane, so "twice" stays
@@ -360,14 +361,14 @@ export function runRowName(stamp: string, script: string[]): string {
 }
 
 export const isJourneyItem = (item: string) => /^(J|GS)\d+$/i.test(item);
-export const itemArgs = (item: string, strict: boolean, group: string | null, wiGating: string | null = null) => (isJourneyItem(item)
-  ? ['scripts/debug/so-journey.mts', 'run', item.toUpperCase(), ...(strict ? ['--strict'] : []), ...(wiGating ? ['--wi-gating', wiGating] : [])]
-  : ['scripts/debug/so-scenario.mts', 'run', item, '--sandbox', ...(group ? ['--group', group] : [])]);
+export const itemArgs = (item: string, strict: boolean, group: string | null, wiGating: string | null = null, model: string | null = null) => (isJourneyItem(item)
+  ? ['scripts/debug/so-journey.mts', 'run', item.toUpperCase(), ...(strict ? ['--strict'] : []), ...(wiGating ? ['--wi-gating', wiGating] : []), ...(model ? ['--model', model] : [])]
+  : ['scripts/debug/so-scenario.mts', 'run', item, '--sandbox', ...(group ? ['--group', group] : []), ...(model ? ['--model', model] : [])]);
 
 export const BETWEEN_RUNS_SETTLE_MS = 10_000;
 export const betweenRunsArgs = (run: number): string[] | null => (run > 1 ? ['scripts/debug/st-session.mts', 'reload'] : null);
 
-async function batch(lanes: number[], items: string[], repeat: number, strict: boolean, group: string | null, wiGating: string | null = null) {
+async function batch(lanes: number[], items: string[], repeat: number, strict: boolean, group: string | null, wiGating: string | null = null, model: string | null = null) {
   const queue = [...items];
   const results: BatchResult[] = [];
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
@@ -386,7 +387,7 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
         const ram = await waitForFreeRam(ramGateBytes(process.env), { freemem, sleep, log: (line) => console.log(line), now: Date.now }, `lane ${n} ${item} run ${run}`);
         const serverOffset = fileSize(lanePaths(n).log);
         const began = Date.now();
-        const { code, output } = await runNode(itemArgs(item, strict, group, wiGating), { ...laneEnv(n), [ROW_DIR_ENV]: rowDir }, { logPath: log });
+        const { code, output } = await runNode(itemArgs(item, strict, group, wiGating, model), { ...laneEnv(n), [ROW_DIR_ENV]: rowDir }, { logPath: log });
         const ended = Date.now();
         const notRunnable = output.match(/^not-runnable: (.*)$/m)?.[1]?.trim() ?? null;
         const paths = recordPathsIn(output);
@@ -410,7 +411,7 @@ async function batch(lanes: number[], items: string[], repeat: number, strict: b
   }));
   const summary = resolve(LANES_ROOT, `batch-${stamp}.json`);
   const incomplete = results.filter((result) => result.status === 'INCOMPLETE').map((result) => `${result.item} run ${result.run} (lane ${result.lane})`);
-  await writeFile(summary, JSON.stringify({ lanes, items, repeat, strict, incomplete, results }, null, 2), 'utf-8');
+  await writeFile(summary, JSON.stringify({ lanes, items, repeat, strict, model, incomplete, results }, null, 2), 'utf-8');
   for (const n of lanes) await writeFile(resolve(lanePaths(n).debug, 'batch', stamp, 'batch.json'), JSON.stringify({ lanes, items, repeat, strict, incomplete, results: results.filter((result) => result.lane === n) }, null, 2), 'utf-8').catch(() => undefined);
   return { summary, green: results.filter((result) => result.status === 'GREEN').length, runs: results.length, incomplete };
 }
@@ -486,13 +487,15 @@ async function main() {
     return;
   } else if (command === 'batch') {
     const lanes = refuseReservedLanes(String(argValue('--lanes', '1')).split(',').map(Number).filter(Boolean));
-    const flags = new Set(['--lanes', '--repeat', '--group', '--wi-gating']);
+    const flags = new Set(['--lanes', '--repeat', '--group', '--wi-gating', '--model']);
     const items = rest.filter((arg, index) => !arg.startsWith('--') && !flags.has(rest[index - 1] ?? ''));
     const refused = lanePreflight();
     if (refused) throw new Error(`batch refused: ${refused}`);
     const load = rest.includes('--allow-load') ? null : laneLoadProblem(await status(), Number(process.env.SO_MAX_LLM_LANES ?? DEFAULT_MAX_LLM_LANES));
     if (load) throw new Error(`batch refused: ${load}`);
-    const result = await batch(lanes, items, Number(argValue('--repeat', '1')), rest.includes('--strict'), argValue('--group'), argValue('--wi-gating'));
+    const model = argValue('--model');
+    if (model) parseModelFilter(model);
+    const result = await batch(lanes, items, Number(argValue('--repeat', '1')), rest.includes('--strict'), argValue('--group'), argValue('--wi-gating'), model);
     process.exitCode = batchExitCode(result);
     out = result;
   } else { console.log(USAGE); process.exitCode = 2; return; }

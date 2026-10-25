@@ -24,6 +24,7 @@
   "checks": [
     {
       "id": "GS3.1",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "Lane guard, start, four multi-voice turns. Closes: stories (the largest story starts), talk-chain, speaker-direction, effects (NPC replies, cast changes, the effect ledger); rows 36-pilot-saga start, 38-C7 (Saga unit).",
@@ -83,6 +84,7 @@
     },
     {
       "id": "GS3.2",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "OOC lines. Closes rows S-19 (an OOC line counts no player turn and yields no delta), S-19-OOC (an OOC-only window makes no read call), S-19-OOC-b (a pending warden note stays pending through OOC lines). An OOC line is posted without generation, a read is asked for, and the read and model-call rings must not move. A manual read reads from the last boundary, so its window can hold in-character lines; the check then requires the OOC lines to be kept out of character, and no call only when the window is OOC-only.",
@@ -123,6 +125,7 @@
     },
     {
       "id": "GS3.3",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "Story clock and schedule in real play. Closes: character-life (clock and schedule), recap of time; rows 37-S19 (time_of_day moves one step per boundary, story_day only on a wrap), 37-Q3 live occurrence (the away notice line, recorded when a scheduled member is away; the deterministic proof is the D row), plan 50 T11 when built.",
@@ -156,6 +159,7 @@
     },
     {
       "id": "GS3.4",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "A preset effect on llama.cpp. Closes: effects (preset as a per-request sampler overlay on loud requests only), reply-thinking on the textgen path; row J13 live occurrence on the campaign (the J13 journey stays the acceptance row). Jumps to the first checkpoint whose effects carry a preset (by structure) and plays one real turn.",
@@ -176,6 +180,7 @@
     },
     {
       "id": "GS3.5",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "Living on Artemis. Closes: living-story (a way in opens on the campaign's own living story with Artemis replies); row M21 Artemis half (anchors reached recorded, informational under the L1 floor).",
@@ -215,6 +220,7 @@
     },
     {
       "id": "GS3.6",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "goal": "Memory and context on a long chat. Closes: memory (tiers fill), memory-tab, chapters (canon prose), models-per-task, judge-use-memory-verify, judge-use-memory-pairs; rows S-17 live occurrence (scope budget, informational), context-over-server stays clear at the served 32K. Five more turns, then the memory, canon and context readouts.",
@@ -268,6 +274,7 @@
     },
     {
       "id": "GS3.7",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "Reopen a long chat. Closes: recap (welcome back), branches (reopen equals replay); row 38-C7 reopen half (Saga unit).",
