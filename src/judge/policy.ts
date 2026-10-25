@@ -1,6 +1,7 @@
 import { JUDGE_MAX_ESTIMATED_TOTAL_TOKENS } from "./types";
 
 export const JUDGE_DEFAULT_MODEL = "jev-1.13.0";
+export const TYPED_EVIDENCE_CHARS = 160;
 export const JUDGE_DEFAULT_TIMEOUT_MS = 1500;
 export const JUDGE_CALL_RING_LIMIT = 300;
 export const JUDGE_DEFAULT_MAX_IN_FLIGHT = 2;

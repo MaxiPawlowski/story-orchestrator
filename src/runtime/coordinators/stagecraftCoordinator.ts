@@ -4,10 +4,10 @@ import { askText, type ModelCall } from "@extraction/modelRoute";
 import { maxTokensForInput } from "@extraction/callBudget";
 import { cleanWindowMessage } from "@extraction/windowHygiene";
 import {
-  buildWiCuratorPrompt, curatorHasScope, curatorLorebooks, decidedOp, declinedOps, digestVocabulary, entriesForScope, isCuratorHidden,
-  refuseTitleOnlyEdits, selectCuratorDigest, isNoteOp, capProposalRing, parseCuratorResponse, planCuratorProposal, type CuratorEntryView, type CuratorPassOutcome,
+  curatorHasScope, curatorLorebooks, decidedOp, declinedOps, entriesForScope, isCuratorHidden,
+  isNoteOp, capProposalRing, type CuratorEntryView, type CuratorPassOutcome,
   type CuratorOp, type CuratorOpRecord, type CuratorOpStatus, type CuratorProposalRecord, type WardenNoteOp,
-  forgetDecline, mergeDeclined, refuseProtected, rememberDecline, routeByTier, standingDeclines,
+  forgetDecline, mergeDeclined, rememberDecline, standingDeclines,
   anyWardenFamily, composeWardenNote, newestCarriedNote, wardenFamilyMode, wardenFlagJournal, wardenNoteJournal, wardenNoteOps,
   wardenReason, wardenSummary, withdrawRemovedRules, type WardenCheckFinding, type WardenCheckInput,
   type WardenFamiliesActive, type WriteAheadCounts, CURATOR_SECRET_REFUSAL, curatorOpText,
@@ -24,8 +24,7 @@ import type { LoreCreateOutcome, LoreCreatorDeps } from "../loreCreator";
 import type { StagecraftKit } from "../stagecraftKit";
 import { log } from "@utils/log";
 
-// One curator pass every few boundaries at most: the reply path never waits for it, and a story that
-// moves fast should not fund a model call per turn.
+// One curator pass every few boundaries at most: a fast story should not fund a model call per turn.
 export const CURATOR_BOUNDARY_GAP = 4;
 
 export interface StagecraftCoordinatorDeps {
@@ -51,13 +50,12 @@ export interface StagecraftCoordinatorDeps {
   chatOwner?: () => CreatedStampOwner | null;
   persist: () => Promise<void>;
   notify: () => void;
-  // A curator pass reads the world, awaits a model for seconds, then writes
-  // through `setStagecraft` — which resolves to whatever chat is current when the promise lands,
-  // not the one the work belongs to. The token is minted before the awaits and checked at the
-  // write edge. Optional so an existing caller keeps today's behaviour until it supplies one.
   ownership: RunOwnership;
   hosts: { prompt: PromptHost; chat: Pick<ChatHost, "chatRows">; player: PlayerHost; curator: CuratorWiHost };
 }
+
+let curatorPass: typeof import("../curatorPassKit") | null = null;
+const loadCuratorPass = () => import("../curatorPassKit").then((kit) => (curatorPass = kit));
 
 const uniqueRecordId = (base: string, records: CuratorProposalRecord[]): string => {
   const taken = new Set(records.map((record) => record.id));
@@ -176,9 +174,12 @@ export class StagecraftCoordinator {
     const token = this.deps.ownership.mint();
     const hold: PassHold = { token };
     this.curatorHold = hold;
+    const passLoad = loadCuratorPass();
+    passLoad.catch(() => undefined);
     try {
       const entries = await this.readScope();
       if (!entries.length) return { ran: false, skipped: "empty-scope", record: null };
+      const pass = curatorPass ?? await passLoad;
       const checkpoint = story.checkpointById[state.activeCheckpointId];
       const checkpointName = checkpoint?.name ?? state.activeCheckpointId;
       const objective = checkpoint?.objective ?? "";
@@ -188,9 +189,9 @@ export class StagecraftCoordinator {
       const declined = mergeDeclined(declinedOps(this.state.proposals, state.activeCheckpointId, state.checkpointStartedBoundary ?? 0, { rejected: false }),
           standingDeclines(this.state.declines ?? [], entries, state.boundary));
       const scope = { storyTitle: story.title, checkpointName, objective, canon, openArcs, entries: shown, declined };
-      const digest = selectCuratorDigest(shown, scope);
-      const vocabulary = digest ? digestVocabulary(digest) : shown;
-      const prompt = buildWiCuratorPrompt(scope, digest);
+      const digest = pass.selectCuratorDigest(shown, scope);
+      const vocabulary = digest ? pass.digestVocabulary(digest) : shown;
+      const prompt = pass.buildWiCuratorPrompt(scope, digest);
       const response = await askText(this.deps.model, prompt, {
         role: "curator", pass: "curator",
         maxTokens: maxTokensForInput("curator", prompt),
@@ -205,9 +206,9 @@ export class StagecraftCoordinator {
         this.deps.journal(`World Info curator result discarded (${owned.reason})`, owned.detail);
         return { ran: true, record: null, discarded: owned.reason };
       }
-      const proposal = parseCuratorResponse(response, vocabulary);
-      const planned = planCuratorProposal(proposal, vocabulary, { mode: this.state.settings.acceptMode, declined });
-      const plan = refuseProtected(digest ? refuseTitleOnlyEdits(planned, digest) : planned, vocabulary);
+      const proposal = pass.parseCuratorResponse(response, vocabulary);
+      const planned = pass.planCuratorProposal(proposal, vocabulary, { mode: this.state.settings.acceptMode, declined });
+      const plan = pass.refuseProtected(digest ? pass.refuseTitleOnlyEdits(planned, digest) : planned, vocabulary);
       this.patch({
         lastRunBoundary: state.boundary,
         lastError: null,
@@ -233,7 +234,7 @@ export class StagecraftCoordinator {
         mode,
         // "auto" accepts on the spot so the next boundary writes it; "review" and "off" wait, and
         // "off" never leaves the ring at all.
-        ops: routeByTier(plan.records, vocabulary, mode),
+        ops: pass.routeByTier(plan.records, vocabulary, mode),
         dropped: plan.dropped,
         refused: plan.refused,
         provenance: { source: "curator", messageId: state.lastMessageId, boundary: state.boundary,

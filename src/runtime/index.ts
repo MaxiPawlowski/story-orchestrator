@@ -14,7 +14,6 @@ import { installPersonaHost } from "./playerSetupPort";
 import { livePersonaHost } from "./personaHostLive";
 import { startEmptyReplyRecovery } from "./emptyReplyHost";
 import { runtimeManager } from "./runtimeManager";
-import { registerSlashCommands } from "./slashCommands";
 import { DIRECTOR_WINDOW_MESSAGES } from "./talkControl";
 import { GenerationLifecycle } from "./generationLifecycle";
 import { settledWindowAccess } from "./settledWindow";
@@ -63,12 +62,15 @@ const startupLoad = () => loadAtStartup({ load: () => runtimeManager.loadSelecte
 
 const registerSlashCommandsWhenReady = (attempt = 0) => {
   if (slashRegistered) return;
-  try {
-    slashRegistered = registerSlashCommands(runtimeManager);
-  } catch (error) {
-    log.warn("slash command registration failed", error);
-  }
-  if (!slashRegistered && attempt < 100) window.setTimeout(() => registerSlashCommandsWhenReady(attempt + 1), 100);
+  void import("./slashCommands").then(({ registerSlashCommands }) => {
+    if (slashRegistered) return;
+    try {
+      slashRegistered = registerSlashCommands(runtimeManager);
+    } catch (error) {
+      log.warn("slash command registration failed", error);
+    }
+    if (!slashRegistered && attempt < 100) window.setTimeout(() => registerSlashCommandsWhenReady(attempt + 1), 100);
+  }, (error: unknown) => featureFailed("Slash commands", error));
 };
 
 const spikePort = () => ({

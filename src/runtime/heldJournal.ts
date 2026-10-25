@@ -1,4 +1,4 @@
-import { TYPED_EVIDENCE_CHARS } from "@judge/extraction";
+import { TYPED_EVIDENCE_CHARS } from "@judge/policy";
 import type { NormalizedStory, StoryEngine } from "@engine/index";
 import type { BeatReading, HeldBeat } from "@engine/life/beats";
 import { gameLayer } from "@engine/validate/gameLayer";
