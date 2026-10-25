@@ -276,6 +276,106 @@ async function textBench() {
     console.log(`Wrote ${dir}`);
 }
 
+const OPENAI_KEYS = { prompt: 'prompt', temperature: 'temperature', min_p: 'min_p', top_p: 'top_p', top_k: 'top_k', typical_p: 'typical_p', presence_penalty: 'presence_penalty',
+    frequency_penalty: 'frequency_penalty', repeat_penalty: 'repetition_penalty', repeat_last_n: 'penalty_range', dry_multiplier: 'dry_multiplier', dry_base: 'dry_base',
+    dry_allowed_length: 'dry_allowed_length', dry_penalty_last_n: 'dry_range', dry_sequence_breakers: 'dry_sequence_breakers', xtc_threshold: 'xtc_threshold',
+    xtc_probability: 'xtc_probability', top_n_sigma: 'top_n_sigma', stop: 'stop', min_keep: 'min_keep', adaptive_target: 'adaptive_target', adaptive_decay: 'adaptive_decay' };
+const openAiBody = (item, budget, model) => {
+    const body = {};
+    for (const [from, to] of Object.entries(OPENAI_KEYS)) if (item.body[from] !== undefined && item.body[from] !== '') body[to] = item.body[from];
+    if (body.penalty_range === 0) delete body.penalty_range;
+    const max = Math.min(item.body.n_predict ?? budget, budget);
+    return { ...body, ...(model ? { model } : {}), max_tokens: max, n_predict: max, seed, stream: true, stream_options: { include_usage: true }, cache_prompt: true };
+};
+
+async function completeOpenAi(url, body) {
+    const began = performance.now();
+    const headers = { 'content-type': 'application/json', ...(process.env.SO_BENCH_API_KEY ? { authorization: `Bearer ${process.env.SO_BENCH_API_KEY}` } : {}) };
+    const response = await fetch(`${url}/v1/completions`, { method: 'POST', headers, body: JSON.stringify(body), signal: AbortSignal.timeout(900000) });
+    if (!response.ok) throw new Error(`completions ${response.status}: ${(await response.text()).slice(0, 400)}`);
+    let firstToken = null; let lastToken = null; let text = ''; let usage = null; let timings = null; let chunks = 0; let buffer = '';
+    const decoder = new TextDecoder();
+    for await (const chunk of response.body) {
+        buffer += decoder.decode(chunk, { stream: true });
+        const events = buffer.split('\n'); buffer = events.pop();
+        for (const event of events) {
+            if (!event.startsWith('data: ') || event.startsWith('data: [DONE]')) continue;
+            const data = JSON.parse(event.slice(6));
+            const piece = data.choices?.[0]?.text ?? '';
+            if (piece) { const now = performance.now(); if (firstToken === null) firstToken = now; lastToken = now; chunks += 1; text += piece; }
+            if (data.usage) usage = data.usage;
+            if (data.timings) timings = data.timings;
+        }
+    }
+    const end = performance.now();
+    const promptTotal = usage?.prompt_tokens ?? timings?.prompt_n ?? null;
+    const cachedTokens = usage?.prompt_tokens_details?.cached_tokens ?? (Number.isFinite(timings?.cache_n) ? timings.cache_n : null);
+    const completionN = usage?.completion_tokens ?? timings?.predicted_n ?? chunks;
+    const ttftMs = firstToken === null ? null : Math.round(firstToken - began);
+    const decodeSpan = firstToken === null || lastToken === null ? 0 : (lastToken - firstToken) / 1000;
+    const processed = Number.isFinite(promptTotal) ? promptTotal - (cachedTokens ?? 0) : null;
+    return { ttftMs, totalMs: Math.round(end - began), text, promptN: processed, promptTotal, reused: cachedTokens, predictedN: completionN,
+        prefillTps: ttftMs && Number.isFinite(processed) ? processed / (ttftMs / 1000) : null, decodeTps: completionN > 1 && decodeSpan > 0 ? (completionN - 1) / decodeSpan : null,
+        draftN: timings?.draft_n ?? null, draftAccepted: timings?.draft_n_accepted ?? null, engineTimings: timings };
+}
+
+async function endpointBench() {
+    const label = option('label', 'endpoint');
+    const llamaArm = option('llama-arm');
+    const full = flag('full');
+    const fullCap = Number(option('full-tokens', 1024));
+    const model = option('model');
+    let url = option('url');
+    if (!url && !llamaArm) throw new Error('Usage: endpoint (--url http://127.0.0.1:<port> | --llama-arm <arm>) --label <name> [--corpus file] [--model id] [--full [--full-tokens 1024]] [--repeat 1]');
+    if (url && RESERVED.includes(Number(new URL(url).port))) throw new Error(`Port ${new URL(url).port} is reserved.`);
+    if (await listening(18888) || await listening(18889)) throw new Error('The local controller is running; stop it first (node scripts/local/cli.mjs stop).');
+    const config = await loadConfig();
+    const corpusFile = option('corpus', path.join(outRoot, 'corpus.json'));
+    const corpus = JSON.parse(await fs.readFile(corpusFile, 'utf8'));
+    const dir = path.join(outRoot, `endpoint-${label}-${stamp()}`);
+    await fs.mkdir(dir, { recursive: true });
+    const baselineFree = Number(gpuQuery('memory.free')[0]);
+    let server = null;
+    if (llamaArm) {
+        if (baselineFree < 21000) throw new Error(`Only ${baselineFree} MiB GPU free; need >= 21000 MiB for a llama-server arm.`);
+        if (await listening(port)) throw new Error(`Port ${port} is already in use.`);
+        server = await startServer(config, llamaArm, dir);
+        url = `http://127.0.0.1:${port}`;
+    }
+    const header = { at: new Date().toISOString(), label, url, llamaArm, binary: llamaArm ? config.binary : null, args: server?.args ?? null, loadMs: server?.loadMs ?? null, gpu: gpuInfo(),
+        baselineGpuFreeMiB: baselineFree, corpus: { file: corpusFile, items: corpus.items.length }, seed, chatCap: full ? fullCap : chatCap, sideCap: full ? fullCap : sideCap, full };
+    const telemetry = new Telemetry(); telemetry.start();
+    const raw = createWriteStream(path.join(dir, 'rows.jsonl'));
+    const outputs = createWriteStream(path.join(dir, 'outputs.jsonl'));
+    const rows = [];
+    try {
+        await sleep(1500);
+        const afterLoad = { gpuFreeMiB: Number(gpuQuery('memory.free')[0]), ramAvailMiB: Math.round(os.freemem() / 1048576) };
+        telemetry.tag = `${label}:warmup`;
+        await completeOpenAi(url, { prompt: '<|turn>user\nSay hello.<turn|>\n<|turn>model\n', ...(model ? { model } : {}), max_tokens: 8, seed, stream: true, cache_prompt: false });
+        const sequence = [...corpus.items.map((item, index) => ({ ...item, index })),
+            ...(full ? [] : [{ kind: 'long', body: corpus.long.body, index: 'long' }, { kind: 'swipe', body: corpus.items.findLast((item) => item.kind === 'chat').body, index: 'swipe' }])];
+        for (let pass = 0; pass < Number(option('repeat', 1)); pass += 1) for (const item of sequence) {
+            if (telemetry.lastRamMiB() < 3000) throw new Error(`RAM available fell to ${telemetry.lastRamMiB()} MiB; aborted.`);
+            const budget = full ? fullCap : item.kind === 'chat' ? chatCap : item.kind === 'long' || item.kind === 'swipe' ? 32 : sideCap;
+            const tag = `${label}:${pass}:${item.index}`;
+            telemetry.tag = tag;
+            const result = await completeOpenAi(url, openAiBody(item, budget, model));
+            await sleep(250);
+            const { text, engineTimings, ...kept } = result;
+            const row = { arm: label, pass, index: item.index, kind: item.kind, role: item.role ?? item.kind, promptChars: item.body.prompt.length, ...kept, outputChars: text.length, ...telemetry.window(tag) };
+            rows.push(row); raw.write(`${JSON.stringify(row)}\n`);
+            outputs.write(`${JSON.stringify({ label, pass, index: item.index, kind: item.kind, role: item.role ?? item.kind, text })}\n`);
+            process.stdout.write(`${label} ${pass}:${item.index} ${item.kind} ttft=${result.ttftMs} pn=${result.promptN} reused=${result.reused} tps=${result.decodeTps?.toFixed(1)} acc=${result.draftAccepted ?? '-'}/${result.draftN ?? '-'}\n`);
+        }
+        const summary = summarize({ arm: label, loadMs: server?.loadMs ?? null, afterLoad, counts: null, rows });
+        await fs.writeFile(path.join(dir, 'summary.json'), JSON.stringify({ header, summary }, null, 2));
+        console.log(JSON.stringify({ label, ttftChatP50: summary.ttftChat.p50, ttftSideP50: summary.ttftSide.p50, processed: summary.promptProcessedSum, reused: summary.reusedSum, prefill: summary.prefillTps,
+            decodeChat: summary.decodeTpsChat, decodeSide: summary.decodeTpsSide, acceptance: summary.draftAcceptance, gpuFreeAfterLoad: afterLoad.gpuFreeMiB, minGpuFree: summary.minGpuFreeMiB, minRam: summary.minRamAvailMiB }));
+        console.log(`Wrote ${dir}`);
+    } finally { telemetry.stop(); raw.end(); outputs.end(); if (server) await stopServer(server); }
+}
+
 const KIND = (body) => {
     const head = body.prompt.slice(0, 120);
     if (!(body.samplers ?? []).includes('tfs_z')) return ['chat', 'chat'];
@@ -428,9 +528,9 @@ async function imageBench() {
     } finally { telemetry.stop(); killTree(child.pid); await sleep(3000); }
 }
 
-const commands = { corpus: buildCorpus, layout: layoutCorpus, text: textBench, image: imageBench, all: async () => { await textBench(); await imageBench(); } };
+const commands = { corpus: buildCorpus, layout: layoutCorpus, text: textBench, endpoint: endpointBench, image: imageBench, all: async () => { await textBench(); await imageBench(); } };
 if (!commands[command]) {
-    console.log('Usage: node scripts/local/bench-controller.mjs corpus --from <payloads.jsonl> | text [--arms a,b+c] | image | all  [--out dir] [--port 18890] [--comfy-port 18288]');
+    console.log('Usage: node scripts/local/bench-controller.mjs corpus --from <payloads.jsonl> | text [--arms a,b+c] | endpoint (--url <openai base> | --llama-arm <arm>) --label <name> [--full] | image | all  [--out dir] [--port 18890] [--comfy-port 18288]');
     console.log(`Arms: ${Object.keys(MODIFIERS).join(', ')} (combine with +). Default: ${DEFAULT_ARMS.join(',')}`);
     process.exit(command === 'help' ? 0 : 1);
 }
