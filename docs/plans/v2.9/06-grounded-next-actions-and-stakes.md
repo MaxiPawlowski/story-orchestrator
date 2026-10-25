@@ -436,3 +436,16 @@ panel only (not on the widget check button).
 
 - Help line ships on the player surface; greyed offers stay Author view only. Anything more waits for the LT result (plan 11 B2, stop rules).
 - Built 2026-10-25 (branch `v2.9-decided-2026-10-25`): `suggestionsHost` `sideFor` sends `unavailable` only in Author view (the player outcome carries none) and `SuggestionsPanel` renders greyed rows only with `side.author`; the help line is unchanged for players. Storybook: `HelpLineForThePlayer` (no greyed row), `GroundedLinesInAuthorView` (greyed row disabled with its reason), `AuthorGreyedOffersAt390`. Test: `suggestionsHost.test.ts`.
+
+## LT run 2026-10-25 (3090, plan 11 B2 `lt06`)
+
+- Corpus: 40 frozen synthetic situations x 2 arms (current, anchored), 80/80 answered, real memory model, thinking on. Rater
+  Sol (`openai/gpt-6.1-sol`), passes A+B complete, 115 calls, no DeepSeek fallback. Evidence:
+  `C:\dev\so-lanes\gpu-b2ext\lt06-gpu1\score.json` (archived to so-sessions with the close-out).
+- F1 usable (>= 36/40): 40/40, pass. No abstentions in either arm.
+- F2 grounded (>= 34/40): rater 36/40, pass (strict mechanical 33/40, informational).
+- F3 leaks (0): 0 needle hits, 0 rater flags, pass.
+- F4 blind usefulness (>= +0.5): mean +0.0, median 0, 10 wins / 18 ties / 12 losses, CI95 [-0.25, +0.275]. **Miss**, floor unchanged.
+- F5 one call per ask: 80/80, pass.
+- Verdict: anchoring grounds and does not leak, but the blind rater does not prefer it over current suggestions. Feature stays on
+  (owner rule); recorded as a miss.
