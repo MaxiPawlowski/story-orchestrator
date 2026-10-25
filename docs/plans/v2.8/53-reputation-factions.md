@@ -400,3 +400,4 @@ Source: `review-astra-harvest-2026-10-16.md` §Addenda requiring correction. Ver
 ## Owner decision 2026-10-25
 
 - A group-disabled member does not hear a `present` move: only enabled members, as `knownEntities`.
+- Built 2026-10-25 (branch `v2.9-decided-2026-10-25`): `EngineHost.enabled` (the manager's `getEnabledCharacterIds`) rides the latch pass view; `hearers` keeps a `present` move to members that are present and enabled; a `faction` move still reaches every member; no host list keeps today's behaviour. The heard value is written at the move's boundary, so a later enable is not retroactive and rollback restores it from the snapshot. Tests: `engine/factions/factions.test.ts` (disabled member, no host, latch writer = atomic pass).

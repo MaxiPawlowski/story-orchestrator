@@ -1,4 +1,4 @@
-import { boundaryContextAt } from "./playerTurn";
+import { boundaryContextAt, readableEndBefore } from "./playerTurn";
 import { appendJudgeCall } from "@judge/settings";
 import type { JudgeCallRecord, SceneReadRecord } from "@judge/index";
 import type { JudgeRuntime } from "./judge";
@@ -74,8 +74,8 @@ const boundStoryForOpenChat = () => {
 
 export class RuntimeManager extends SettingsDelegates {
   readonly chance = createChanceSeams(() => chanceContext(this.loaded, this.loadedChatId, this.engine.currentBoundary));
-  private engine = new StoryEngine({ now: () => Date.now(), chanceIds: () => this.chance.ids(),
-    derive: deriveQualities(this.chance, () => this.loaded?.story ?? null, coordinatorHosts.chat.chatRows), offers: () => this.co.cues.evidence() });
+  private engine = new StoryEngine({ now: () => Date.now(), enabled: () => this.getEnabledCharacterIds(),
+    derive: deriveQualities(this.chance, () => this.loaded?.story ?? null, coordinatorHosts.chat.chatRows), offers: () => this.co.cues.evidence(), chanceIds: () => this.chance.ids() });
   private loaded: LoadedStory | null = null;
   private loadedChatId: string | null = null;
   private extras: RuntimeExtras = createExtras(getGlobalSettings);
@@ -253,7 +253,7 @@ export class RuntimeManager extends SettingsDelegates {
     this.refreshRequirements(); this.expansion.revalidateInserted();
     repairActiveCheckpoint(this.engine, (detail) => this.noteRecap(LOST_CHECKPOINT, detail));
     const pendingBridges = this.memory.enqueueArcBridges();
-    const result = this.engine.commitBoundary(this.getBoundaryContext(at));
+    const result = this.engine.commitBoundary(this.getBoundaryContext(at ?? readableEndBefore(this.loadedChatId)));
     this.chatSave.fingerprints.settle();
     this.memory.markBridgesApplied(pendingBridges);
     if (result.fired) {

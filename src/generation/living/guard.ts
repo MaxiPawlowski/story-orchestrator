@@ -8,7 +8,8 @@ const PLAYER_ACTS = [
   "leave", "leaves", "left", "answer", "answers", "answered", "reveal", "reveals", "revealed", "confess", "confesses", "confessed",
   "keep", "keeps", "kept", "break", "breaks", "broke", "broken", "fulfil", "fulfill", "fulfills", "fulfilled", "release", "releases", "released",
   "surrender", "surrenders", "surrendered", "give", "gives", "gave", "obey", "obeys", "obeyed", "submit", "submits", "submitted", "trust", "trusts", "trusted",
-  "yield", "yields", "yielded", "swear", "swears", "swore",
+  "yield", "yields", "yielded", "swear", "swears", "swore", "conclude", "concludes", "concluded", "believe", "believes", "believed",
+  "understand", "understands", "understood",
 ];
 
 const ACTS = PLAYER_ACTS.join("|");

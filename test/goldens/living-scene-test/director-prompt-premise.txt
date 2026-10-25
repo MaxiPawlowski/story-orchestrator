@@ -40,5 +40,6 @@ Agency policy:
 - This objective is world pressure: the world presses, answers and escalates on its own, without requiring {{user}} to comply.
 - Never narrate {{user}} accepting what they refused, or going where they declined to go.
 - {{user}}'s own words and decisions are theirs to write: do not narrate {{user}} acting, accepting, agreeing or refusing.
+- Never decide how {{user}} feels, what {{user}} believes or what {{user}} concludes: characters may guess at it, never settle it.
 Return exact JSON only:
 {"name":"...","objective":"...","tension":"calm|stirring|tense|critical|peak","snapshot":{},"opens_when":{"new":{"key":"...","rubric":"..."}},"new_qualities":[],"builds_on":"<the thread you build on, or null>","new_chapter":false,"chapter_title":null,"final":false,"reason":"<one sentence, for the author>"}

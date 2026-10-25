@@ -33,6 +33,7 @@ export interface EngineHost {
   derive?(view: DerivedQualityView): Array<{ q: string; v: PrimitiveValue }>;
   chanceIds?(): { chatId: string; storyId: string } | null;
   offers?(): import("./life/offers").OfferEvidence | undefined;
+  enabled?(): readonly string[] | null;
 }
 
 export interface BoundaryContext {
@@ -516,8 +517,9 @@ export class StoryEngine {
     if (!writers?.length) return;
     const story = this.requireStory();
     const blackboard = this.requireBlackboard();
-    const chance = this.host.chanceIds?.() ?? undefined;
-    const view = { boundary, values: blackboard.entries(), visitedPath: this.visitedPath, activeCheckpointId: this.activeCheckpointId, ...(chance ? { chance } : {}) };
+    const [chance, enabled] = [this.host.chanceIds?.() ?? undefined, this.host.enabled?.() ?? undefined];
+    const view = { boundary, values: blackboard.entries(), visitedPath: this.visitedPath, activeCheckpointId: this.activeCheckpointId,
+      ...(chance ? { chance } : {}), ...(enabled ? { enabled } : {}) };
     for (const writer of writers) for (const delta of writer(story, view)) blackboard.applyDelta({ q: delta.q, v: delta.v, source: "code" });
   }
 

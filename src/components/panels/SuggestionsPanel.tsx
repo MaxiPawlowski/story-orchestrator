@@ -17,7 +17,7 @@ const SideRows = ({ side }: { side: SuggestionSide }) => {
     const hints = line.hints.filter((hint) => side.shows(hint.text)).map((hint) => (hint.have ? SUGGESTION_SIDE_TEXT.youHaveIt(hint.text) : hint.text));
     return hints.length && side.shows(line.label) ? [{ id: line.checkId, text: SUGGESTION_SIDE_TEXT.couldHelp(line.label, hints.join(", ")) }] : [];
   });
-  const greyed = side.unavailable.filter((offer) => side.shows(offer.text) && side.shows(offer.reason));
+  const greyed = side.author ? side.unavailable.filter((offer) => side.shows(offer.text) && side.shows(offer.reason)) : [];
   return (
     <>
       {help.map((line) => <div key={line.id} data-so="suggestions-help" className="text-xs">{line.text}</div>)}

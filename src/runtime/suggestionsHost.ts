@@ -126,7 +126,7 @@ const withAuthoredOffers = (lines: SuggestionLine[], anchors: readonly Suggestio
 };
 
 const sideFor = (manager: SuggestionManager, plan: SuggestionPlan, lines: readonly SuggestionLine[], authorView: boolean): SuggestionSide => ({
-  help: plan.help, unavailable: plan.unavailable, shows: liveShows(manager),
+  help: plan.help, unavailable: authorView ? plan.unavailable : [], shows: liveShows(manager),
   author: authorView ? {
     anchors: plan.anchors.map(({ id, kind, text, evidence }) => ({ id, kind, text, evidence })),
     grounded: lines.filter((line) => line.anchorId).length, lines: lines.length,

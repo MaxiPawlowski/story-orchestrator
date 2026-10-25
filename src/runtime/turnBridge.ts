@@ -7,6 +7,7 @@ import type { ChatSave } from "./chatSave";
 import { currentChat, readChatChange, unbindBranchMirror, type LoadedChat } from "./chatIdentity";
 import { isThoughtOnlyReply, REASONING_RESIDUE_TAGS } from "./emptyReply";
 import { clearRegeneration, noteRegeneration, noteRenderAnchor, regeneratingMessage, resetRegeneration } from "./regeneration";
+import { clearStoppedReply, heldStoppedReply, holdStoppedReply, takeStoppedReply } from "./stoppedReply";
 
 const FLUSH_POLL_MS = 300;
 const FLUSH_POLL_MAX_MS = 60000;
@@ -54,6 +55,8 @@ export type MutationSeam = (kind: MutationKind, messageId: number, entered?: boo
 
 export type ReplySettle = (messageId: number, type: unknown) => Promise<void>;
 
+export type StopSeam = (messageId: number) => boolean;
+
 interface PendingBoundary {
   run: RunGuard;
   messageId: number | null;
@@ -77,6 +80,7 @@ export class TurnBridge {
   private seam: MutationSeam | null = null;
   private emptyReply: EmptyReplySeam | null = null;
   private settle: ReplySettle | null = null;
+  private stopped: StopSeam | null = null;
 
   constructor(private readonly manager: RuntimeManager, private readonly save: ChatSave | null = null) {}
 
@@ -88,7 +92,7 @@ export class TurnBridge {
       { eventName: "GROUP_WRAPPER_FINISHED", handler: () => void this.flushPending() },
       { eventName: "MESSAGE_RECEIVED", handler: (messageId, type) => void this.onRenderedReply(type, messageId) },
       { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (messageId, type) => void this.onRenderedReply(type, messageId) },
-      { eventName: "MESSAGE_SENT", handler: () => { clearRegeneration(); this.refreshIdentity(); } },
+      { eventName: "MESSAGE_SENT", handler: () => { clearRegeneration(); this.refreshIdentity(); void this.releaseStopped(); } },
       { eventName: "MESSAGE_SWIPE_DELETED", handler: () => this.refreshIdentity() },
       { eventName: "MESSAGE_SWIPED", handler: (messageId) => this.onMutation(messageId, "swipe") },
       { eventName: "MESSAGE_EDITED", handler: (messageId) => void this.onMutation(messageId, "edit") },
@@ -118,6 +122,24 @@ export class TurnBridge {
     this.settle = seam;
   }
 
+  setStopSeam(seam: StopSeam | null) {
+    this.stopped = seam;
+  }
+
+  private chatId(): string {
+    return String(getContext().chatId ?? "");
+  }
+
+  private async releaseStopped(before?: number) {
+    const held = heldStoppedReply(this.chatId());
+    if (held === null || (before !== undefined && held >= before)) return;
+    takeStoppedReply(this.chatId());
+    const row = (getContext().chat as Array<{ is_user?: unknown }> | undefined)?.[held];
+    if (!row || row.is_user === true || this.thoughtOnly(held)) return;
+    this.turnKeys.add(String(held));
+    await this.enqueueBoundary(held, false);
+  }
+
   private thoughtOnly(messageId: number): boolean {
     const chat = getContext().chat as unknown[] | undefined;
     return isThoughtOnlyReply(chat?.[messageId], this.emptyReply?.tags() ?? REASONING_RESIDUE_TAGS);
@@ -129,6 +151,7 @@ export class TurnBridge {
   }
 
   private reset() {
+    clearStoppedReply();
     this.cancelFlushPoll();
     this.pending = [];
     this.turnKeys.clear();
@@ -149,6 +172,15 @@ export class TurnBridge {
     const now = Date.now();
     const id = hostMessageId(messageId);
     if (id !== null && id !== regenerated) noteRenderAnchor(id, this.manager.getEngineState?.()?.lastMessageId);
+
+    if (id !== null) {
+      void this.releaseStopped(id);
+      if (heldStoppedReply(this.chatId()) === id) clearStoppedReply();
+      if (this.stopped?.(id)) {
+        holdStoppedReply(this.chatId(), id);
+        return;
+      }
+    }
 
     if (id !== null && this.thoughtOnly(id)) {
       this.emptyReply?.observe(id, type);
@@ -275,6 +307,8 @@ export class TurnBridge {
     if (!decoded) this.refreshIdentity();
     const drift = edited ? this.save?.firstDrift() ?? null : null;
     const from = decoded?.start ?? Math.min(messageId, drift ?? messageId);
+    const held = heldStoppedReply(this.chatId());
+    if (held !== null && held >= from && (kind === "delete" || kind === "swipe")) clearStoppedReply();
     for (const key of this.turnKeys) {
       const keyed = keyMessageId(key);
       if (decoded ? keyed >= from : keyed >= from && keyed <= messageId) this.turnKeys.delete(key);

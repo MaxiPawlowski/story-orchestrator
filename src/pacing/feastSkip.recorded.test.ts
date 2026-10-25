@@ -1,5 +1,5 @@
 import * as recorded from "../../test/fixtures/t1-6-feast-skip.payload.json";
-import { NO_SKIP_CLAUSE, agencyFor, type Checkpoint } from "@engine/index";
+import { NO_SKIP_CLAUSE, PLAYER_MIND_CLAUSE, agencyFor, type Checkpoint } from "@engine/index";
 import { composeGuidanceBlock } from "./guidance";
 import { getSteeringHint } from "./steering";
 
@@ -17,10 +17,10 @@ describe("T1-6: after two quiet turns at the feast the narrator skipped to dawn 
     expect(recorded.reply49).toMatch(/the party does so with her/);
   });
 
-  it("the recorded pacing block is today's hold hint without the stay-in-the-moment clause", () => {
+  it("the recorded pacing block is today's hold hint without the stay-in-the-moment and player-mind clauses", () => {
     const hint = getSteeringHint(SMOOTHED_AT_48, STIRRING, undefined, policy);
     expect(hint?.direction).toBe("hold");
-    expect(named(hint?.text ?? "").replace(` ${named(NO_SKIP_CLAUSE)}`, "")).toBe(recorded.pacingBlock);
+    expect(named(hint?.text ?? "").replace(` ${named(NO_SKIP_CLAUSE)}`, "").replace(` ${named(PLAYER_MIND_CLAUSE)}`, "")).toBe(recorded.pacingBlock);
     expect(recorded.pacingBlock).not.toMatch(/skip ahead in time/);
     expect(named(hint?.text ?? "")).toContain("never skip ahead in time or move Max Nightriver and their party somewhere new unless Max Nightriver chose to go");
   });

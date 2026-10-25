@@ -435,3 +435,4 @@ panel only (not on the widget check button).
 ## Owner decision 2026-10-25
 
 - Help line ships on the player surface; greyed offers stay Author view only. Anything more waits for the LT result (plan 11 B2, stop rules).
+- Built 2026-10-25 (branch `v2.9-decided-2026-10-25`): `suggestionsHost` `sideFor` sends `unavailable` only in Author view (the player outcome carries none) and `SuggestionsPanel` renders greyed rows only with `side.author`; the help line is unchanged for players. Storybook: `HelpLineForThePlayer` (no greyed row), `GroundedLinesInAuthorView` (greyed row disabled with its reason), `AuthorGreyedOffersAt390`. Test: `suggestionsHost.test.ts`.

@@ -6,6 +6,16 @@ export interface GuardedStream {
   onProgressStreaming: (messageId: number, text: string, isFinal: boolean) => Promise<void>;
 }
 
+export interface StopReadableStream {
+  messageId: number;
+  isStopped: boolean;
+  isFinished: boolean;
+  abortController: { signal?: { aborted?: boolean } };
+}
+
+export const userStoppedStream = (stream: StopReadableStream | null | undefined, messageId: number): boolean =>
+  Boolean(stream && stream.messageId === messageId && stream.isFinished && !stream.isStopped && stream.abortController?.signal?.aborted === true);
+
 export interface StreamGuardDeps {
   processor: () => GuardedStream | null;
   chatId: () => string;

@@ -84,7 +84,7 @@ export {
   addGroupMembers, getActiveGroup, groupMemberPosition, openGroupById, resolveGroupMemberId, setGroupMembersDisabled, setGroupMemberDisabled, setGroupMemberFlags, readGroupMemberDisabled,
 } from "@services/stHost/groups";
 export { fillChatInput, guardHostStream, readChatInput, watchHostChatMove, hostSystemUserName, isHostGenerating, stopHostGeneration, willAddUserMessage } from "@services/stHost/generation";
-export { startGroupVoice } from "@services/stHost/generation";
+export { isUserStoppedReply, startGroupVoice } from "@services/stHost/generation";
 export { draftedCardName, draftedLoreMember, forceActivateEntries, getScannableEntries, readScanBuffer, type HostScanBuffer, type HostScannableEntry } from "@services/stHost/worldInfoActivate";
 export { readLorebookEntries, setLorebookEntriesDisabled } from "@services/stHost/worldInfoFiles";
 export { observeWorldInfoScans, loadedEntries, type HostEntriesLoaded, type WorldInfoScanObservation } from "@services/stHost/worldInfoEvidence";
