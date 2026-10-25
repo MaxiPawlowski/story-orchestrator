@@ -46,6 +46,8 @@ export interface LibraryCapture {
   trusted: boolean;
   /** The whole library as it was, record for record: a restore writes these back verbatim. */
   records: unknown[];
+  /** The library index user file (so-library-index.json) as raw text, null when it did not exist; absent when not captured. */
+  index?: string | null;
 }
 
 export interface LibraryRestorePlan {

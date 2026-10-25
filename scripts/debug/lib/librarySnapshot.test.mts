@@ -36,7 +36,7 @@ test('the capture is a copy: a run that mutates a record in place cannot rewrite
 
 test('control: a run that left the library as it found it writes nothing', async () => {
   const before = await captureLibrary(fakePage);
-  assert.deepEqual(await restoreLibrary(fakePage, before, save), { changed: false, removed: [], restored: [] });
+  assert.deepEqual(await restoreLibrary(fakePage, before, save), { changed: false, removed: [], restored: [], index: { restored: false, reason: 'no index file before the run' } });
   assert.equal(saves, 0);
 });
 
@@ -49,4 +49,33 @@ test('an untrusted capture restores nothing (S6)', async () => {
   assert.equal((await restoreLibrary(fakePage, before, save) as any).untrusted, true);
   assert.equal(settings['story-orchestrator'].stories.length, 3);
   assert.equal(saves, 0);
+});
+test('the library index user file is put back as it was before the run, so imports the run made never read as lost', async () => {
+  const files: Record<string, string> = { '/user/files/so-library-index.json': '{"v":1,"stories":{"mine":{"hash":"story-original"}}}' };
+  const uploads: string[] = [];
+  const realFetch = g.fetch;
+  g.SillyTavern = { getContext: () => ({ extensionSettings: settings, getRequestHeaders: () => ({}) }) };
+  g.fetch = async (url: string, init?: { method?: string; body?: string }) => {
+    const path = String(url).split('?')[0];
+    if (init?.method === 'POST') {
+      const body = JSON.parse(String(init.body));
+      uploads.push(body.name);
+      files[`/user/files/${body.name}`] = new TextDecoder().decode(Uint8Array.from(atob(body.data), (c) => c.charCodeAt(0)));
+      return { ok: true, status: 200 };
+    }
+    return path in files ? { ok: true, status: 200, text: async () => files[path] } : { ok: false, status: 404, text: async () => '' };
+  };
+  try {
+    const before = await captureLibrary(fakePage);
+    assert.equal(before.index, files['/user/files/so-library-index.json']);
+    files['/user/files/so-library-index.json'] = '{"v":1,"stories":{"mine":{"hash":"story-original"},"run-made":{"hash":"story-edited"}}}';
+    const report = await restoreLibrary(fakePage, before, save) as any;
+    assert.deepEqual(report.index, { restored: true });
+    assert.deepEqual(uploads, ['so-library-index.json']);
+    assert.equal(files['/user/files/so-library-index.json'], before.index);
+    assert.deepEqual((await restoreLibrary(fakePage, before, save) as any).index, { restored: false, reason: 'unchanged' });
+    assert.equal(uploads.length, 1);
+  } finally {
+    g.fetch = realFetch;
+  }
 });
