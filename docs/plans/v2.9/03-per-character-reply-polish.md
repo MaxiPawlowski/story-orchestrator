@@ -351,3 +351,8 @@ Deviations:
   dbc639531f0fec2c697674babff0ad60781caee7910790563dc0bea2ede861ff, scenario
   b455bfc152a569b79e1248081ddaa957d5cfce32e93ea167da8e2e681afa2c11.
 - Run commands: `test/measurements/v2.9/03-s2/README.md`. S2 at plan size: NOT run (needs the 3090).
+
+## Owner decision 2026-10-25 (close-out)
+
+- S2 moves to v3.0 with S3 (nothing consumes it before the polish build). The Sol rater and the shadow scenario stay ready
+  (`test/measurements/v2.9/03-s2/`, `test/scenarios/v29-03-s2-shadow.json`).

@@ -302,3 +302,8 @@ NOT run: lane live scenarios `v29-04-cues.json`, `v29-06-anchored-suggestions.js
 12. v2.9 02 S6: Sol writes a harder card set.
 13. Human evaluation: the owner's own playthrough is the one human evaluation for v2.7-v2.9.
 - Test economy and stop rules: `11-test-economy.md`.
+
+## Close-out split 2026-10-25 (owner)
+
+- Close v2.8 and v2.9 with nothing open but the v3.0 list: `13-close-out.md` (do now C1-C11; move to v3.0 list).
+- Owner playtest guide: `12-owner-playtest.md` (C1).

@@ -489,3 +489,14 @@ port (`earlyDrafts`) but not surfaced in the UI; 09's resolver mapping/parity fi
   ce696cf129b83b39177f6339a676d49eb2637db55d1824eb9b6a719ab8ca2726, prevention arm
   2911f0376824cc9220f06ff4f3221f10d1ba672f27559edca184be1d8d615e86.
 - Run commands: `test/measurements/v2.9/02-s6/harder/README.md`. S6 harder: NOT run (needs the 3090).
+
+### S6 harder run 2026-10-25
+
+- Build H (`6d84dc1d`, bundle `6dde70ebffae`), lane 45 (adolion-fresh pin `4762f0ff`), Artemis v1.1 on the 3090, thinking and inner
+  voice on; arms `v29-02-s6h-baseline.json` then `-prevention.json`, x1 each, 144/143 steps, 0 failed; payload tail 7,069 lines.
+- Rater: opencode `openai/gpt-6.1-sol`, one blind pack of 120 replies (names stripped, arm hidden), plus a 10-reply repeat.
+- Attribution: baseline 0/60 correct (60 rated `unclear`), prevention 60/60 (20/20 per member). Gain 100 points (floor >= 10): MET.
+  Self-agreement 10/10. Name hits 0 in both arms. `repetitionDownPct` not computed by the rater (null): owed, not claimed.
+- Reading: with cards identical except hair and eye colour, baseline replies carry no voice to attribute; the delivery notes give
+  three distinct voices (clipped / ornate / loose and warm), checked by reading a sample. Mean reply length 148 vs 71 words.
+- Evidence: `so-evidence` label `lean-suite-G-20261025` (lane 45 `debug/s6h/`), so-sessions `0eb30314`.

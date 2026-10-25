@@ -6,50 +6,12 @@ starts only when the rows above it are done or blocked. Row detail lives in the 
 
 Codex handoff (2026-10-10): `37-codex-handoff.md` holds the step-by-step instructions for every open sprite/pose/live-head item (part A, first) and every branch stopped on the 2026-10-10 quota stop (part B).
 
-## Queue to v2.9 (2026-10-23, revised 2026-10-25)
+## Queue to v2.9 (2026-10-23, revised 2026-10-25 close-out)
 
-Everything still open through v2.9, development and testing, in one list. Top to bottom. Owner decisions 2026-10-25
-(13, all accepted) are in `docs/plans/v2.9/00-overview.md` §Owner decisions 2026-10-25; test classes and stop rules in
-`docs/plans/v2.9/11-test-economy.md`. Only the 3090: GPU rows are class E/M of plan 11 and carry its stop rules.
-
-### Testing, GPU (3090)
-
-- v2.8 70 lean suite on build G `d6d6aed5` (tag `v2.8-suite-G`, gates x1 green 2026-10-25, lane 45 re-seeded at pin
-  `4762f0ff`): 42 W4 recorder DONE (FAIL: real exact-set 0.09, presence control 0.84; Wc misses input/output/latency) ->
-  GS6 (running) -> GS1 -> 47 promises -> T8 -> 45 seal; then header diffs, journey archive, `so-evidence archive`, plan 70
-  gate record.
-- v2.9 06 LT through plan 11 B2 with stop rules; then blind Sol rating.
-- Context rows that fit 32K on the 3090, informational: R2/R7 (B1-PFX/HIST), R12 SP6, R3 K5.
-- Optional: 07 larger real-play count; 05 P3 real-play rows; 04 C2 corpus with the event off screen.
-
-### Testing, no GPU
-
-- v2.9 03 S2 at plan size with the Sol rater (self-rating caveat).
-- v2.9 08 O4: Sol writes the 10 tasks; the owner's playthrough is the player.
-- v2.9 02 S6: Sol writes a harder card set, then the measurement.
-- R9 canon-lite data; R10 C7 / harness / labels.
-- Human evaluation: the owner's own playthrough (decision 13).
-
-### Development, buildable
-
-- v2.9 11 test economy: B1 stop rules, B6 precision, B2 prompt batch, B4 journey split, B3 replay backend, B5 `suite:nomodel`.
-- Decided items to build: A02 stopped partial is not a turn (v2.8 69 K13); G07 player owns feelings/conclusions (v2.8 18);
-  v2.9 06 help line on the player surface, greyed offers Author view only; v2.8 53 disabled member hears no `present` move.
-- Folded items now listed in each destination plan (§Folds from v2.9 triage); built with that plan's next pass.
-
-### Moved out
-
-- v3.0: v2.8 55-59, v2.9 03 S3, R5 B1-NARR run 2 (>= 48K), R1 GS2, sol V3.0 rows (`docs/plans/v3.0/05-deferred-items.md`).
-- Dropped: R8 thinking A/B (thinking stays on).
-- Done: v2.9 09 Show-me conditional targets and v2.8 81 live head expressions merged (master `488288fc`, `636c25f8`).
-
-### Housekeeping
-
-- `.claude/CLAUDE.md` status rows for v2.8/v2.9.
-- Archive C2 arm evidence (`so-lanes/33/debug/runs/c2arms-2026-10-23`) to so-sessions.
-- Hazard for the owner: `C:\dev\so-suite-lanes\42\data\default-user` is a symlink to the owner's real ST data
-  (since 2026-10-15); a lane-42 run there writes the owner's chats and settings.
-- Owner ST on :8000 is down; build G staged for its next start.
+The open list through v2.9 is `docs/plans/v2.9/13-close-out.md` (owner 2026-10-25): do now C1-C11, everything else moved to v3.0
+(`docs/plans/v3.0/05-deferred-items.md` §From the v2.8/v2.9 close-out). Results so far: plan 70 Gate record 2026-10-25 (lean
+suite: GS1 9/9, 47 green after a rollback fix, W4 FAIL, GS6 11/12, T8 0.75, 45 epilogue fixed, record/picker open); v2.9 02 S6
+harder set gain 100 points (MET). Hazard closed: the `so-suite-lanes\42` symlink to the owner's ST data was removed 2026-10-25.
 
 ## Now (running)
 

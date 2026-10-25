@@ -143,3 +143,11 @@ recommended): 05.5 placed in v3.0, 05.6 confirmed.
   attempt, G10 time-jump interrupt at a due event, N09 rumor evidence changes belief, N10 post-story rumor trail, N16 role-cast
   set-pieces, N19 per-member phrase bias, N23 named player inner voices, N26 per-member typography, V06 runtime speaker-attribution
   classifier, G05 automatic relationship decay toward baseline. Source `docs/plans/v2.9/01-triage-sol.md`.
+
+## From the v2.8/v2.9 close-out (owner 2026-10-25, `docs/plans/v2.9/13-close-out.md`)
+
+- v2.8 42 witness filter: redesign (W4 2026-10-25 FAIL, the read answers all-present); the record stays unconsumed.
+- v2.9 03 S2 polish measurement (with S3).
+- v2.9 11 B3 replay backend; B6 `suite:mutation` review.
+- Long-context measurements: R2/R7 (B1-PFX/HIST), R12 SP6, R3 K5 at 32K (R5 B1-NARR >= 48K already listed).
+- Optional rows: v2.9 07 larger real-play count, 05 P3 real-play rows, 04 C2 with the event off screen.

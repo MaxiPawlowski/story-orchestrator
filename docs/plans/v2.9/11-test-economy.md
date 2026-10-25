@@ -202,3 +202,8 @@ B5 `npm run suite:nomodel` (`scripts/suite/nomodel.mjs`; pure parts `scripts/deb
 - Open: triage the 51 reds (fixture drift, no-model environment or product); whether `suite:nomodel` should select a memory
   profile for checks that need one configured; seed the two missing groups on no-model lanes; lane 33 flakiness; one run per
   row (no `--repeat 2`).
+
+## Owner decision 2026-10-25 (close-out)
+
+- B3 (replay backend) and the `suite:mutation` review half of B6 move to v3.0. B1, B2, B4, B5 and B6's vacuous/denominator half
+  are built and merged; the B2 extension (`lt06`, `saga`) is v2.9 13 C10; `suite:nomodel` to green is 13 C8.

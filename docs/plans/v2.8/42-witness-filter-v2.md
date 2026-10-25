@@ -582,3 +582,12 @@ Gates (branch `v2.8-witness-real-2`): `npm run gates -- --jobs=1 --no-storybook`
 
 - A04.
 - Source: `docs/plans/v2.9/01-triage-sol.md`. Not built; each item is scheduled with this plan's next build pass.
+
+## W4 real run 2026-10-25 and owner decision
+
+- Build G (`d6d6aed5`), lane 45, 74 reads (37 per arm), 0 outages. Real sessions: exact-set 13/147 (0.088; floor 0.9), false
+  inclusion 339/471 (0.72; floor 0.02), false exclusion 4/574, coverage 153/192, mixed 0/11. Presence null control: exact-set
+  144/171 (0.84). Lab: exact-set 3/21, 17 lines rejected ("unknown member player"). Wc: input p95 +150 (floor 120), output p95
+  +282 (floor 160), latency p95 24.6 s vs 21.1 s: miss. The read answers `heard=all-present` on almost every message.
+- Records: `test/sessions/witness-real/score-real-G.json` (private tree); plan 70 Gate record 2026-10-25.
+- Owner 2026-10-25 (v2.9 13): moved to v3.0 for a redesign; the witness record stays unconsumed, as before.
