@@ -26,7 +26,7 @@ test('J12 runner-error path: a setup that dies on the group keeps what it captur
   assert.deepEqual(writes, [{ cadence: 3, stabilityLag: 0 }], 'the declared cadence was written before the group failed');
   assert.equal(extraction.cadence, 3);
   assert.deepEqual(into.extractionBefore, { enabled: true, cadence: 1, stabilityLag: 0, profileId: 'memory', profiles: {} }, 'the pre-run cadence survives the throw for runCleanup');
-  assert.deepEqual(into.libraryBefore, { trusted: true, records: [] });
+  assert.deepEqual(into.libraryBefore, { trusted: true, records: [], index: null });
 });
 
 test('negative control: without a caller-owned object the capture is lost with the throw', async () => {
