@@ -3,7 +3,7 @@ import { getChatWindow } from "@extraction/index";
 import { checkLibraryIndex } from "./libraryIndexPort";
 import {
   clearStoryExtensionPrompt, getContext, loadPersonasModule, loadPersonaWrites, noteHostSettingsLoaded, readPersonas,
-  onGroupEdited, onLorebookListChanged, setStoryExtensionPrompt, settingsReady, startSaveWatcherSurface, subscribeToHostEvents, watchPendingWorldSaves,
+  isUserStoppedReply, onGroupEdited, onLorebookListChanged, setStoryExtensionPrompt, settingsReady, startSaveWatcherSurface, subscribeToHostEvents, watchPendingWorldSaves,
 } from "@services/STAPI";
 import { registerRuntimeMacros } from "./macros";
 import { startMirrorReaper } from "./mirrorReaperHost";
@@ -119,6 +119,7 @@ const registerHostSurfaces = () => {
 
 const startWatches = () => {
   bridge = new TurnBridge(runtimeManager, runtimeManager.chatSave);
+  bridge.setStopSeam(isUserStoppedReply);
   bridge.start();
   runtimeDisposers.push(startEmptyReplyRecovery(bridge, () => live.talk?.chainPending() ?? false));
   void import("./spikes").then(({ installSpikes }) => { if (started && bridge) runtimeDisposers.push(installSpikes(bridge, runtimeManager)); });

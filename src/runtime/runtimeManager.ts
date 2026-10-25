@@ -1,4 +1,4 @@
-import { boundaryContextAt } from "./playerTurn";
+import { boundaryContextAt, readableEndBefore } from "./playerTurn";
 import { appendJudgeCall } from "@judge/settings";
 import type { JudgeCallRecord, SceneReadRecord } from "@judge/index";
 import type { JudgeRuntime } from "./judge";
@@ -253,7 +253,7 @@ export class RuntimeManager extends SettingsDelegates {
     this.refreshRequirements(); this.expansion.revalidateInserted();
     repairActiveCheckpoint(this.engine, (detail) => this.noteRecap(LOST_CHECKPOINT, detail));
     const pendingBridges = this.memory.enqueueArcBridges();
-    const result = this.engine.commitBoundary(this.getBoundaryContext(at));
+    const result = this.engine.commitBoundary(this.getBoundaryContext(at ?? readableEndBefore(this.loadedChatId)));
     this.chatSave.fingerprints.settle();
     this.memory.markBridgesApplied(pendingBridges);
     if (result.fired) {

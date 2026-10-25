@@ -73,6 +73,7 @@ export interface ExtractionCoordinatorDeps {
   promises?: Pick<PromisePort, "open" | "ready" | "apply">;
   witness?: Pick<WitnessPort, "present" | "ready" | "apply">;
   journal?: (summary: string, note: string) => void;
+  heldReply?: (chatId: string | null) => number | null;
 }
 
 // Owns extras.extraction and every off-path read: the shared-read audit pipeline, the
@@ -326,9 +327,10 @@ export class ExtractionCoordinator {
     const state = this.deps.getState();
     if (!story || !state) return false;
     const memory = this.deps.memory;
-    const chatLength = this.deps.hosts.chat.chatRows().length;
-    const readState = chatLength - 1 > state.lastMessageId ? { ...state, lastMessageId: chatLength - 1, chatLength } : state;
     const chat = this.deps.hosts.chat;
+    const held = this.deps.heldReply?.(chat.chatId()) ?? null;
+    const chatLength = held === null ? chat.chatRows().length : Math.min(held, chat.chatRows().length);
+    const readState = chatLength - 1 > state.lastMessageId ? { ...state, lastMessageId: chatLength - 1, chatLength } : state;
     const named = window && window.from >= 0 ? { window: chat.chatWindow(window.from, window.to) } : {};
     const readWindow = sharedReadWindow({ state: readState, priority: 0, readWindow: chat.chatWindow, ...named });
     const read = beginRun(this.deps.ownership, { from: readWindow.from, to: readWindow.to });

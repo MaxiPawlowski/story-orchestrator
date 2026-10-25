@@ -4,7 +4,7 @@ import { getContext } from "./context";
 import { subscribeToHostEvent } from "./events";
 import { groupChatsModule, scriptModule } from "./modules";
 import { startVoice } from "./voiceStart";
-import { guardStreamToChat, watchChatMove, type GuardedStream, type StreamGuard } from "./streamGuard";
+import { guardStreamToChat, userStoppedStream, watchChatMove, type GuardedStream, type StreamGuard } from "./streamGuard";
 
 export function isHostGenerating(): boolean {
   return Boolean(scriptModule.isGenerating());
@@ -17,6 +17,8 @@ export function stopHostGeneration(): WriteResult<{ stopped: boolean }> {
     return couldNot(error instanceof Error ? error.message : "ST could not stop the generation");
   }
 }
+
+export const isUserStoppedReply = (messageId: number): boolean => userStoppedStream(scriptModule.streamingProcessor ?? null, messageId);
 
 export function guardHostStream(chatId: string): StreamGuard {
   return guardStreamToChat(chatId, {

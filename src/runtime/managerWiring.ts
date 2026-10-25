@@ -19,6 +19,7 @@ import type { JudgeRuntime } from "./judge";
 import type { JournalRecordKind } from "./journal";
 import { requestBudgetFor } from "./requestBudget";
 import { getGlobalSettings } from "./settingsStore";
+import { heldStoppedReply } from "./stoppedReply";
 import type { RollbackDeps } from "./rollback";
 import type { StoryUpdateDeps } from "./storyUpdate";
 import { observationKit } from "./observationRecords";
@@ -259,7 +260,7 @@ export function wireCoordinators(port: ManagerPort) {
     setStatus: (status) => port.setStatus(status),
     judge: () => port.judge(),
     requestBudget: (role) => requestBudgetFor(role),
-    spikes: () => getGlobalSettings().spikes, promises, witness, journal: (summary, note) => port.journal("story", summary, note),
+    spikes: () => getGlobalSettings().spikes, promises, witness, journal: (summary, note) => port.journal("story", summary, note), heldReply: heldStoppedReply,
     ...lifecycle,
   });
   const pacing = new PacingCoordinator({

@@ -1,5 +1,7 @@
 import { isInCharacterPlayerLine, isPlayerLine, type BoundaryContext } from "@engine/index";
 
+export { readableEndBefore } from "./stoppedReply";
+
 export function lastPlayerRow(chat: readonly unknown[]): number {
   for (let index = chat.length - 1; index > 0; index -= 1) {
     if (isPlayerLine(chat[index])) return index;
