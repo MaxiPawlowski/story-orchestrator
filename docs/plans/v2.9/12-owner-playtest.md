@@ -54,6 +54,16 @@ continue those for this.
 - UI that's confusing, broken, slow, or covers the chat;
 - long waits or empty replies.
 
+**Images and live characters (reviewed in this run too):** images are on (a scene illustration every few replies), live
+characters on, sprites made on demand for characters without one, poses on. Image work shares the 3090 with the text model,
+so an image can take a while and a reply may wait behind it. Flag:
+- an image that shows the wrong scene, wrong people, wrong place or time, or something not yet revealed;
+- faces/eyes/edges that look broken, a character who looks different from their card or their last image;
+- live character problems: wrong expression for the line, stiff or glitchy motion, mouth not matching speech, a character shown
+  who is not in the scene;
+- waits that feel too long (say roughly how long), or images that never arrive.
+Rate images separately at the end: 1-5 for how good they look and 1-5 for how well they fit the story.
+
 **Please don't:**
 - switch features off or change story settings (if something is unbearable, flag it and tell me instead);
 - use Author view, `/cp` commands or the Studio during this run (they change the story outside play);
