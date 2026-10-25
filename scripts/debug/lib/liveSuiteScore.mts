@@ -329,3 +329,47 @@ export function suiteVerdict(
   if (incomplete.length) reasons.push(`incomplete fixture(s): ${incomplete.join(', ')}`);
   return { ok: reasons.length === 0, reasons };
 }
+
+export const TENSION_KEY = 'tension_current';
+export const TENSION_TOLERANCE = 0.3;
+
+export interface LiveDelta { q: string; v: unknown; evidence?: string; judge?: number }
+
+const normDeltas = (deltas: LiveDelta[]): string[] => deltas.map((d) => `${d.q}=${JSON.stringify(d.v)}`).sort();
+
+export function scorePlotDeltas(expectedDeltas: LiveDelta[], liveDeltas: LiveDelta[]): { pass: boolean; expectedNorm: string[]; liveNorm: string[] } {
+  const expectedNorm = normDeltas(expectedDeltas.filter((d) => d.q !== TENSION_KEY));
+  const liveNorm = normDeltas(liveDeltas.filter((d) => d.q !== TENSION_KEY));
+  const plotPass = JSON.stringify(expectedNorm) === JSON.stringify(liveNorm);
+  const expectedTension = expectedDeltas.find((d) => d.q === TENSION_KEY);
+  if (!expectedTension) return { pass: plotPass, expectedNorm, liveNorm };
+  const liveTension = liveDeltas.find((d) => d.q === TENSION_KEY);
+  const tensionPass = typeof liveTension?.v === 'number' && typeof expectedTension.v === 'number' && Math.abs(liveTension.v - expectedTension.v) <= TENSION_TOLERANCE;
+  return {
+    pass: plotPass && tensionPass,
+    expectedNorm: [...expectedNorm, `${TENSION_KEY}~${expectedTension.v}±${TENSION_TOLERANCE}`],
+    liveNorm: [...liveNorm, `${TENSION_KEY}=${liveTension?.v ?? 'none'}`],
+  };
+}
+
+export interface LiveFixtureOutput { deltas?: LiveDelta[]; facts?: unknown[]; rejected?: Array<{ reason?: string }>; memory?: unknown[]; arcs?: unknown[]; epistemic?: LiveEpistemicRow[]; ledger?: unknown[] }
+
+export interface LiveFixtureInput { expected: Record<string, any>; transcript: Array<{ speaker: string; is_user?: boolean }> }
+
+export function scoreLiveFixture(fixture: LiveFixtureInput, live: LiveFixtureOutput): { pass: boolean; expectedNorm: string[]; liveNorm: string[]; tiers: TierOutcome[] } {
+  const { pass, expectedNorm, liveNorm } = scorePlotDeltas(fixture.expected.deltas ?? [], live.deltas ?? []);
+  const rows = [...(live.facts ?? []), ...(live.memory ?? []), ...(live.arcs ?? []), ...(live.epistemic ?? []), ...(live.ledger ?? [])];
+  const tiers = [
+    { tier: 'deltas' as const, scored: true, pass, detail: `expected=[${expectedNorm.join(', ')}] live=[${liveNorm.join(', ')}]` },
+    scoreContains('facts', fixture.expected.facts, live.facts ?? []),
+    scoreRejected(fixture.expected.rejected, live.rejected ?? []),
+    scoreContains('memory', fixture.expected.memory, live.memory ?? []),
+    scoreContains('arcs', fixture.expected.arcs, live.arcs ?? []),
+    scoreContains('epistemic', fixture.expected.epistemic, live.epistemic ?? []),
+    scoreContains('ledger', fixture.expected.ledger, live.ledger ?? []),
+    scoreIntents(fixture.expected.intents, live.epistemic ?? [], fixture.transcript.filter((entry) => entry.is_user === true).map((entry) => entry.speaker)),
+    scoreClaims(fixture.expected.claims, rows),
+    scoreQuoted(fixture.expected.quoted, rows),
+  ].filter((row) => row.scored);
+  return { pass, expectedNorm, liveNorm, tiers };
+}
