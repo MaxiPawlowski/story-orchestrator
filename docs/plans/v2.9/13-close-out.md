@@ -89,6 +89,21 @@ Order: C1 first (it feeds C2-C5), the rest in parallel where they do not share a
 - Lane note: a plain `seed --slim` lane keeps the memory profile on 127.0.0.1:18888 and the no-model requires probe reached it;
   seed no-model lanes with `SO_LANE_OFFLINE=1`.
 
+## Status 2026-10-25 (afternoon)
+
+- C1: owner playtest pending (owner starts later).
+- C2: DONE. `live-v28-45-seal.json` PASS on the 3090 (batch `2026-10-25T13-04-09-059Z`); fixes `c5e3546b`, `f6740313`.
+- C3: recorded model miss (plan 47 §C3 final GPU run): the read writes 0 promise lines; two product fixes merged on the way
+  (journey promisee via chat variable, `leadInAddressee`).
+- C4: DONE. T8 4/4 after the timewindow04 fixture correction (plan 50 §T8 fixture correction).
+- C5: DONE, F4 miss (plan 06 §LT run): F1 40/40, F2 36/40, F3 0 leaks, F4 +0.0 (floor +0.5), F5 80/80.
+- C6: DONE for 06 and 53 (no-model, green x2); A02 model scenario runs after the image journey frees the stage.
+- C7: DONE (headroom merged).
+- C8: in progress (agent).
+- C9: DONE.
+- C10: DONE (B2-ext merged).
+- C11: open (evidence archive, freeze).
+
 ## Move to v3.0 (copied into `docs/plans/v3.0/05-deferred-items.md` §From the v2.8/v2.9 close-out)
 
 - **v2.8 42 witness filter** (W4 FAIL 2026-10-25: real exact-set 13/147 vs presence 144/171; the read answers all-present). Needs a
