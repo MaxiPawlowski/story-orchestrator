@@ -1,0 +1,250 @@
+{
+ "id": "so-v29-08-o4",
+ "title": "SO-V29-08 O4 Observations",
+ "description": "During one evening in the canal hamlet of Pellwick, the player and their capable partner Arin trace an unaccounted-for delivery of lamp oil from the receiving quay to the communal lamp room.",
+ "qualities": [
+  {
+   "key": "examined_docket",
+   "type": "bool",
+   "source": "extractor",
+   "rubric": "Has the player examined the delivery docket on the receiving quay during this outing?"
+  },
+  {
+   "key": "examined_cradle",
+   "type": "bool",
+   "source": "extractor",
+   "rubric": "Has the player examined the empty unloading cradle on the receiving quay during this outing?"
+  },
+  {
+   "key": "entered_weigh_shed",
+   "type": "bool",
+   "source": "extractor",
+   "rubric": "Has the player entered the weigh shed during this outing?"
+  },
+  {
+   "key": "examined_scale",
+   "type": "bool",
+   "source": "extractor",
+   "rubric": "Has the player examined the scale platform inside the weigh shed during this outing?"
+  },
+  {
+   "key": "entered_wash_court",
+   "type": "bool",
+   "source": "extractor",
+   "rubric": "Has the player entered the wash court from the weigh shed during this outing?"
+  },
+  {
+   "key": "examined_drain",
+   "type": "bool",
+   "source": "extractor",
+   "rubric": "Has the player examined the drain grate in the wash court during this outing?"
+  },
+  {
+   "key": "entered_hoist_landing",
+   "type": "bool",
+   "source": "extractor",
+   "rubric": "Has the player reached the hoist landing from the wash court during this outing?"
+  },
+  {
+   "key": "examined_hoist_basket",
+   "type": "bool",
+   "source": "extractor",
+   "rubric": "Has the player examined the freight basket at the hoist landing during this outing?"
+  },
+  {
+   "key": "entered_lamp_room",
+   "type": "bool",
+   "source": "extractor",
+   "rubric": "Has the player entered the upstairs lamp room during this outing?"
+  },
+  {
+   "key": "uncovered_rack",
+   "type": "bool",
+   "source": "extractor",
+   "rubric": "Has the player lifted the canvas covering the storage rack in the lamp room during this outing?"
+  }
+ ],
+ "checkpoints": [
+  {
+   "id": "quay",
+   "name": "Receiving Quay",
+   "player_name": "The Receiving Quay",
+   "type": "anchor",
+   "start": true,
+   "objective": "Begin with Arin at Pellwick's receiving quay: the evening lamp-oil delivery is unaccounted for, and the adjoining weigh shed begins the route through the depot."
+  },
+  {
+   "id": "shed",
+   "name": "Weigh Shed",
+   "player_name": "The Weigh Shed",
+   "type": "anchor",
+   "objective": "Trace the delivery through the weigh shed, whose far doorway opens onto the wash court."
+  },
+  {
+   "id": "court",
+   "name": "Wash Court",
+   "player_name": "The Wash Court",
+   "type": "anchor",
+   "objective": "Continue tracing the delivery across the wash court to the adjacent hoist landing."
+  },
+  {
+   "id": "landing",
+   "name": "Hoist Landing",
+   "player_name": "The Hoist Landing",
+   "type": "anchor",
+   "objective": "Examine the freight-hoist area; a short staircase beside it leads to the upstairs lamp room."
+  },
+  {
+   "id": "lamproom",
+   "name": "Lamp Room",
+   "player_name": "The Lamp Room",
+   "type": "anchor",
+   "objective": "Finish accounting for the delivery among the lamp room's storage racks and report the result with Arin."
+  }
+ ],
+ "transitions": [
+  {
+   "from": "quay",
+   "to": "shed",
+   "priority": 1,
+   "gate": {
+    "q": "entered_weigh_shed",
+    "op": "==",
+    "v": true
+   }
+  },
+  {
+   "from": "shed",
+   "to": "court",
+   "priority": 1,
+   "gate": {
+    "q": "entered_wash_court",
+    "op": "==",
+    "v": true
+   }
+  },
+  {
+   "from": "court",
+   "to": "landing",
+   "priority": 1,
+   "gate": {
+    "q": "entered_hoist_landing",
+    "op": "==",
+    "v": true
+   }
+  },
+  {
+   "from": "landing",
+   "to": "lamproom",
+   "priority": 1,
+   "gate": {
+    "q": "entered_lamp_room",
+    "op": "==",
+    "v": true
+   }
+  }
+ ],
+ "observations": [
+  {
+   "id": "delivery-docket",
+   "text": "The evening docket lists one blue-banded oil drum, with its destination printed as 'Lamp Room'.",
+   "when": {
+    "q": "examined_docket",
+    "op": "==",
+    "v": true
+   }
+  },
+  {
+   "id": "cradle-tracks",
+   "text": "Two narrow wheel tracks run from the empty unloading cradle to the weigh-shed doorway.",
+   "when": {
+    "q": "examined_cradle",
+    "op": "==",
+    "v": true
+   }
+  },
+  {
+   "id": "shed-floor",
+   "text": "The wheel tracks cross the shed floor and curve through the doorway into the wash court.",
+   "when": {
+    "reached": "shed"
+   }
+  },
+  {
+   "id": "scale-ring",
+   "text": "A round wet print spans the scale platform, with a flake of blue paint caught at its edge.",
+   "when": {
+    "q": "examined_scale",
+    "op": "==",
+    "v": true
+   }
+  },
+  {
+   "id": "court-tracks",
+   "text": "A hose lies across the wet court; narrow wheel tracks continue through the water toward the hoist landing.",
+   "when": {
+    "reached": "court"
+   }
+  },
+  {
+   "id": "drain-flakes",
+   "text": "Blue paint flakes cling to the drain grate among pale soap bubbles.",
+   "when": {
+    "q": "examined_drain",
+    "op": "==",
+    "v": true
+   }
+  },
+  {
+   "id": "hoist-indicator",
+   "text": "The freight hoist's pointer rests beside 'Lamp Room'; fresh water beads on its lower loading sill.",
+   "when": {
+    "reached": "landing"
+   }
+  },
+  {
+   "id": "basket-print",
+   "text": "The empty freight basket has a drum-sized wet circle on its floor and a curved blue smear on its rail.",
+   "when": {
+    "q": "examined_hoist_basket",
+    "op": "==",
+    "v": true
+   }
+  },
+  {
+   "id": "rack-tracks",
+   "text": "Damp wheel tracks run from the upper hoist doors to a canvas-covered storage rack.",
+   "when": {
+    "reached": "lamproom"
+   }
+  },
+  {
+   "id": "stored-drum",
+   "text": "Beneath the canvas stands a blue-banded oil drum with an intact wax seal and a paper tag reading 'Evening delivery — reserve rack'.",
+   "when": {
+    "q": "uncovered_rack",
+    "op": "==",
+    "v": true
+   }
+  }
+ ],
+ "roster": [
+  {
+   "id": "arin",
+   "name": "Arin",
+   "role": "a capable companion on the night shift"
+  },
+  {
+   "id": "narrator",
+   "name": "DM Narrator",
+   "role": "narrator",
+   "view": "omniscient"
+  }
+ ],
+ "requirements": {
+  "members": [
+   "Arin",
+   "DM Narrator"
+  ]
+ }
+}

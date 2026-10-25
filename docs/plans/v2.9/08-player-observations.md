@@ -413,3 +413,19 @@ O4 rater and wording; same-pass latch visibility.
 ## Owner decision 2026-10-25
 
 - O4: Sol writes the 10 tasks; the owner's own playthrough is the player.
+
+### O4 prep 2026-10-25 (Sol, no GPU)
+
+- Sol (opencode `openai/gpt-6.1-sol`, `run --standalone`, tools-off agent, 1 call) wrote the synthetic story and the 10 tasks;
+  frozen before any run in `test/measurements/v2.9/08-o4/` (`frozen.json` holds every sha256). Story `so-v29-08-o4`: 5
+  checkpoints, 10 plain observations (no `passive`), cast Arin + DM Narrator; `parseStory` 0 errors. One edit after Sol, before
+  the freeze: Arin's roster role (the prompt's example wording tripped `roster-member-is-player`).
+- Player-facing `tasks.json` never names what will be found; `key.json` (observation, what it tells, the misreading to watch for)
+  is opened only after all 10 answers. The owner plays it in their own ST and group, player mode, real model; per task records
+  `shown` and one line; `rate.mjs` has Sol score each line (information, not instruction). Pass = shown and I=yes; floor >= 8/10.
+- sha256: `story.json` 9dc77716db9c146a82d02b00f18d4eaca93dfcce96688958e23db23b2ca6223d, `tasks.json`
+  55961f0e6ea33786ce55005446b47ae274c7b24e5f56ab4a729c7ac9ccdf8ca2, `key.json`
+  302b77c2f78b0920bf90e9030dc9dab00d62e8ce6c31821d9286c04868b226f9.
+- Finding (not fixed here): Studio `quality-never-in-scope` fires on qualities read only by an observation gate, though the
+  runtime reads them through the discovery units (`studio/widgetDiagnostics.ts` `scopedKeys` has no observation gates).
+- O4 itself: NOT run (owner playthrough owed).

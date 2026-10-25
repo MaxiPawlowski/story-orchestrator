@@ -1,0 +1,118 @@
+{
+ "note": "v2.9 08 O4 rater key: sealed from the player until all 10 answers are written.",
+ "harder_than_obvious": "Directional tracks, destination labels, and handling traces offer actionable clues without issuing commands, so a player can plausibly mistake information about the delivery's route for instructions about their next move.",
+ "key": [
+  {
+   "task": "T01",
+   "observation": "delivery-docket",
+   "text": "The evening docket lists one blue-banded oil drum, with its destination printed as 'Lamp Room'.",
+   "gate": {
+    "q": "examined_docket",
+    "op": "==",
+    "v": true
+   },
+   "information": "The delivery record identifies the expected container and its recorded destination.",
+   "instruction_trap": "A careless reader might describe the line as an order to go to the lamp room rather than as information recorded on a docket."
+  },
+  {
+   "task": "T02",
+   "observation": "cradle-tracks",
+   "text": "Two narrow wheel tracks run from the empty unloading cradle to the weigh-shed doorway.",
+   "gate": {
+    "q": "examined_cradle",
+    "op": "==",
+    "v": true
+   },
+   "information": "Wheeled traffic has left a visible connection between the unloading cradle and the weigh shed.",
+   "instruction_trap": "A careless reader might answer that the line tells them to follow the tracks into the shed."
+  },
+  {
+   "task": "T03",
+   "observation": "shed-floor",
+   "text": "The wheel tracks cross the shed floor and curve through the doorway into the wash court.",
+   "gate": {
+    "reached": "shed"
+   },
+   "information": "The visible track route continues through the shed into the wash court.",
+   "instruction_trap": "A careless reader might treat the route description as a command to leave the shed immediately."
+  },
+  {
+   "task": "T04",
+   "observation": "scale-ring",
+   "text": "A round wet print spans the scale platform, with a flake of blue paint caught at its edge.",
+   "gate": {
+    "q": "examined_scale",
+    "op": "==",
+    "v": true
+   },
+   "information": "The scale bears a circular wet trace and blue paint consistent with contact from the delivery drum.",
+   "instruction_trap": "A careless reader might say the line requires them to weigh something instead of describing evidence already on the scale."
+  },
+  {
+   "task": "T05",
+   "observation": "court-tracks",
+   "text": "A hose lies across the wet court; narrow wheel tracks continue through the water toward the hoist landing.",
+   "gate": {
+    "reached": "court"
+   },
+   "information": "The court is wet and the wheeled route extends toward the freight-hoist area.",
+   "instruction_trap": "A careless reader might present the line as an instruction to proceed to the hoist landing."
+  },
+  {
+   "task": "T06",
+   "observation": "drain-flakes",
+   "text": "Blue paint flakes cling to the drain grate among pale soap bubbles.",
+   "gate": {
+    "q": "examined_drain",
+    "op": "==",
+    "v": true
+   },
+   "information": "Blue paint and soapy water have reached the court's drain, providing physical evidence consistent with washing a blue-painted object nearby.",
+   "instruction_trap": "A careless reader might say the line tells them to clean or clear the drain rather than reporting what is on it."
+  },
+  {
+   "task": "T07",
+   "observation": "hoist-indicator",
+   "text": "The freight hoist's pointer rests beside 'Lamp Room'; fresh water beads on its lower loading sill.",
+   "gate": {
+    "reached": "landing"
+   },
+   "information": "The hoist indicator names the lamp room and its lower loading sill is freshly wet.",
+   "instruction_trap": "A careless reader might mistake the indicator's destination label for an instruction to operate the hoist or travel upstairs."
+  },
+  {
+   "task": "T08",
+   "observation": "basket-print",
+   "text": "The empty freight basket has a drum-sized wet circle on its floor and a curved blue smear on its rail.",
+   "gate": {
+    "q": "examined_hoist_basket",
+    "op": "==",
+    "v": true
+   },
+   "information": "The freight basket contains physical traces consistent with having carried a wet blue-painted drum.",
+   "instruction_trap": "A careless reader might interpret the line as telling them to load a drum into the basket."
+  },
+  {
+   "task": "T09",
+   "observation": "rack-tracks",
+   "text": "Damp wheel tracks run from the upper hoist doors to a canvas-covered storage rack.",
+   "gate": {
+    "reached": "lamproom"
+   },
+   "information": "A visible wheeled route connects the upper hoist doors with the covered storage rack.",
+   "instruction_trap": "A careless reader might answer only that the line orders them to uncover the rack."
+  },
+  {
+   "task": "T10",
+   "observation": "stored-drum",
+   "text": "Beneath the canvas stands a blue-banded oil drum with an intact wax seal and a paper tag reading 'Evening delivery — reserve rack'.",
+   "gate": {
+    "q": "uncovered_rack",
+    "op": "==",
+    "v": true
+   },
+   "information": "A sealed drum matching the delivery description is stored under the canvas and tagged as the evening delivery on the reserve rack.",
+   "instruction_trap": "A careless reader might treat the storage tag as an order to move the drum onto a reserve rack rather than as a label on the drum already present."
+  }
+ ]
+}

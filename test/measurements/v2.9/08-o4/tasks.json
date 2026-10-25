@@ -1,0 +1,65 @@
+{
+ "note": "v2.9 08 O4 player tasks (player-facing; no observation text). Written by opencode openai/gpt-6.1-sol 2026-10-25, frozen before any run.",
+ "tasks": [
+  {
+   "id": "T01",
+   "where": "The Receiving Quay",
+   "do": "Read the delivery docket on the quay with Arin.",
+   "question": "After the reply, open the story card (or the Journal). Write one line: what did you notice, and what does it tell you?"
+  },
+  {
+   "id": "T02",
+   "where": "The Receiving Quay",
+   "do": "Ask Arin to hold the lantern while you examine the empty unloading cradle and the ground around it.",
+   "question": "After the reply, open the story card (or the Journal). Write one line: what did you notice, and what does it tell you?"
+  },
+  {
+   "id": "T03",
+   "where": "The Receiving Quay",
+   "do": "Walk into the adjoining weigh shed with Arin.",
+   "question": "After the reply, open the story card (or the Journal). Write one line: what did you notice, and what does it tell you?"
+  },
+  {
+   "id": "T04",
+   "where": "The Weigh Shed",
+   "do": "Examine the scale platform while Arin lights its surface.",
+   "question": "After the reply, open the story card (or the Journal). Write one line: what did you notice, and what does it tell you?"
+  },
+  {
+   "id": "T05",
+   "where": "The Weigh Shed",
+   "do": "Go through the far doorway into the wash court with Arin.",
+   "question": "After the reply, open the story card (or the Journal). Write one line: what did you notice, and what does it tell you?"
+  },
+  {
+   "id": "T06",
+   "where": "The Wash Court",
+   "do": "Crouch beside the court's drain and examine its grate.",
+   "question": "After the reply, open the story card (or the Journal). Write one line: what did you notice, and what does it tell you?"
+  },
+  {
+   "id": "T07",
+   "where": "The Wash Court",
+   "do": "Cross to the adjacent hoist landing with Arin.",
+   "question": "After the reply, open the story card (or the Journal). Write one line: what did you notice, and what does it tell you?"
+  },
+  {
+   "id": "T08",
+   "where": "The Hoist Landing",
+   "do": "Examine the freight basket's interior with Arin holding the lantern.",
+   "question": "After the reply, open the story card (or the Journal). Write one line: what did you notice, and what does it tell you?"
+  },
+  {
+   "id": "T09",
+   "where": "The Hoist Landing",
+   "do": "Take the short staircase beside the hoist and enter the upstairs lamp room with Arin.",
+   "question": "After the reply, open the story card (or the Journal). Write one line: what did you notice, and what does it tell you?"
+  },
+  {
+   "id": "T10",
+   "where": "The Lamp Room",
+   "do": "Lift the canvas from the storage rack and examine what is underneath.",
+   "question": "After the reply, open the story card (or the Journal). Write one line: what did you notice, and what does it tell you?"
+  }
+ ]
+}
