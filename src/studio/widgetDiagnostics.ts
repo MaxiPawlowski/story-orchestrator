@@ -31,6 +31,7 @@ export const scopedKeys = (draft: Story): Set<string> => {
     ...(quest.steps ?? []).flatMap((step) => [step.visible_when, step.done_when, step.failed_when])]).forEach((key) => keys.add(key)));
   CODEX_PAGES.flatMap((page) => draft.codex?.[page] ?? []).flatMap((entry) => [entry.known_when, ...entry.facts.map((fact) => fact.known_when)])
     .forEach((when) => { if (when && when !== CODEX_START && !isReached(when)) gateKeys(when).forEach((key) => keys.add(key)); });
+  (draft.observations ?? []).forEach(({ when }) => { if (!isReached(when)) gateKeys(when).forEach((key) => keys.add(key)); });
   return keys;
 };
 
