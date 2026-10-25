@@ -1,6 +1,6 @@
 import { classOf, noModelRunnable } from './modelClass.mts';
 
-export const NOMODEL_LANES = [30, 31, 32, 34];
+export const NOMODEL_LANES = [30, 31];
 
 export interface ScenarioRow {
   path: string;

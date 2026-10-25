@@ -9,7 +9,7 @@ import { LIBRARY_INDEX_FILE, laneProblems, NOMODEL_LANES, noModelJourneys, noMod
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const LANES_SCRIPT = join('scripts', 'debug', 'st-lanes.mts');
-const USAGE = `Usage: npm run suite:nomodel [-- --lanes 30,31,32,34] [--list] [--no-prepare] [--prepare-only]
+const USAGE = `Usage: npm run suite:nomodel [-- --lanes 30,31] [--list] [--no-prepare] [--prepare-only] [--keep-lanes]
 
 v2.9 plan 11 B5. Runs the no-LLM scenario list (scripts/suite/decisions.mjs rules: kept, no model call by shape,
 requires.lane no-model, no prior step, model "none") and every journey's "none" checks whose dependencies are "none"
@@ -26,8 +26,9 @@ added, ST Summarize enabled with automatic summaries off, the group SO-Open-Stre
 test cast seeded (so-image-cast seed --no-art) and the page probed. The copied library index
 (user/files/so-library-index.json) is removed and ST's side panels are unpinned (a pinned panel covers the phone-width
 launcher). --no-prepare runs on the lanes as they are;
---prepare-only prepares and stops. The default lanes leave out 33, which another agent drives (2026-10-25: its page
-navigations made every "sandbox escaped" row of the first run).`;
+--prepare-only prepares and leaves the lanes up. After a prepared run every lane is stopped again (--keep-lanes keeps
+them up). The default is two lanes, 30 and 31, to keep the machine quiet (owner 2026-10-25); 33 is never a default, another
+agent drives it (its page navigations made every "sandbox escaped" row of the first run).`;
 
 const arg = (name, fallback) => {
   const at = process.argv.indexOf(name);
@@ -110,13 +111,26 @@ async function main() {
     for (const path of list.scenarios) console.log(`  ${path}`);
     return 0;
   }
-  if (!process.argv.includes('--no-prepare')) {
-    for (const n of lanes) {
-      const prepared = prepareLane(n);
-      console.log(`suite:nomodel: lane ${n} prepared: ${prepared.changes.join('; ')}`);
+  const prepare = !process.argv.includes('--no-prepare');
+  const stopAfter = prepare && !process.argv.includes('--prepare-only') && !process.argv.includes('--keep-lanes');
+  try {
+    if (prepare) {
+      for (const n of lanes) {
+        const prepared = prepareLane(n);
+        console.log(`suite:nomodel: lane ${n} prepared: ${prepared.changes.join('; ')}`);
+      }
+      if (process.argv.includes('--prepare-only')) return 0;
     }
-    if (process.argv.includes('--prepare-only')) return 0;
+    return await runSuite(lanes, list);
+  } finally {
+    if (stopAfter) {
+      const stopped = spawnSync(process.execPath, [LANES_SCRIPT, 'stop', ...lanes.map(String)], { cwd: ROOT, encoding: 'utf-8' });
+      console.log(`suite:nomodel: lanes ${lanes.join(',')} stopped (code ${stopped.status})`);
+    }
   }
+}
+
+async function runSuite(lanes, list) {
   const refused = laneProblems(laneStatus(), lanes);
   if (refused.length) {
     for (const problem of refused) console.error(`suite:nomodel refused: ${problem}`);
