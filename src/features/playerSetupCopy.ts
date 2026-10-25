@@ -8,7 +8,7 @@ export const PLAYER_SETUP_COPY = {
   pickButton: "Use this persona",
   create: "Create a persona for this story",
   createName: "Name",
-  createDescription: "Description (the characters read this)",
+  createDescription: "Description (the characters read this, so leave out anything they should not know)",
   createButton: "Create and use",
   noCreate: "This SillyTavern version cannot create personas from here; create one in Persona Management, then choose it.",
   playingAs: (name: string) => `Playing as ${name}. This chat keeps that persona for the whole story.`,
@@ -17,6 +17,6 @@ export const PLAYER_SETUP_COPY = {
   lockedHint: "Chosen when the story started. To play someone else, start the story again.",
   lockFailed: "SillyTavern did not keep this persona for this chat, so the story waits to start.",
   retryLock: "Try again",
-  continueUnlocked: "Start without keeping it",
+  continueUnlocked: "Start without keeping this persona",
   unlockedHint: "Without it, SillyTavern may switch your persona when this chat reopens.",
 } as const;

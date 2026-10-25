@@ -43,7 +43,7 @@ export const provisionableMissing = (requirements: Requirements) => ({
   lorebooks: requirements.absentLorebooks ?? requirements.missingLorebooks,
 });
 
-const MISSING_CAST = "The story expects people who are not in this chat, so their scenes never arrive.";
+const MISSING_CAST = "The story expects characters who are not in this group, so their scenes never arrive.";
 const MISSING_LORE = "The story reads from lore it cannot see, so nothing it needs to know is in play.";
 const them = (names: string[], one: string, many: string) => (names.length === 1 ? one : many);
 const quoted = (names: string[]) => names.map((name) => `"${name}"`).join(", ");

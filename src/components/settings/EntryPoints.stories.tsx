@@ -87,7 +87,7 @@ export const RepairOffersTheWizardForACast: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/people who are not in this chat/)).toBeInTheDocument();
+    await expect(canvas.getByText(/characters who are not in this group/)).toBeInTheDocument();
     await expect(canvas.getByText("No card on this install: Belle, Dalan")).toBeInTheDocument();
     // The cast is the step, not the lore behind it.
     await expect(canvasElement.querySelector("[data-so='repair-step']")).toHaveAttribute("data-area", "cast");

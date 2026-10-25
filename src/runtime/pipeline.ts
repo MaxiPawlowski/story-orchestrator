@@ -84,7 +84,7 @@ export const REPAIR_PLAYER_COPY = {
   memoryModel: "The story will not advance on its own until it is set up in the extension settings.",
   read: "The story will not advance on its own until this is fixed.",
   synthesis: "The story so far stops updating.",
-  cast: "The story expects people who are not in this chat, so their scenes never arrive.",
+  cast: "The story expects characters who are not in this group, so their scenes never arrive.",
   lore: "Background this story needs is not switched on in this chat, so it is not in play.",
   persona: "This story is written for a different player character than the one selected.",
   nothingMissing: "Nothing is missing.",

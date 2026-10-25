@@ -82,7 +82,7 @@ describe("nextRepairStep", () => {
     const step = nextRepairStep(snapshotWith({
       requirements: { ready: false, missingPersonas: [], missingMembers: ["Belle"], missingLorebooks: ["Wendhope"] },
     } as Partial<RuntimeSnapshot>));
-    const cast = "The story expects people who are not in this chat, so their scenes never arrive.";
+    const cast = "The story expects characters who are not in this group, so their scenes never arrive.";
     expect(step).toEqual(expected({ check: "cast-absent", area: "cast", severity: "blocks", consequence: cast, detail: "No card on this install: Belle", provisionable: true, player: cast }));
     const lore = nextRepairStep(snapshotWith({ requirements: { ready: false, missingPersonas: [], missingMembers: [], missingLorebooks: ["Wendhope"] } } as Partial<RuntimeSnapshot>));
     expect(lore).toEqual(expected({
