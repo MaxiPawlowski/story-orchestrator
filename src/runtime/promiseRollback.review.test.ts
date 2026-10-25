@@ -14,13 +14,13 @@ const row = (id: string, madeAt: number, keptAt?: number): PromiseRow => ({
   events: keptAt === undefined ? [] : [{ eventId: `${id}-kept`, kind: "kept", quote: "done", source: span(keptAt, false), at: { boundary: 2 } }],
 });
 
-function harness(rows: PromiseRow[], engineMoves = false) {
+function harness(rows: PromiseRow[], engineMoves = false, rolled: "applied" | "noop" = "applied") {
   const extras = { extraction: { audits: [] }, judge: { calls: [], meter: {} }, lore: { fired: [] }, tension: { levels: [], smoothed: null, history: [] }, promises: { rows } } as unknown as RuntimeExtras;
   const deps = {
     ownership: testOwnership(),
     engine: {
       shouldRollbackFromMessage: () => engineMoves, boundaryBeforeMessage: () => 0, serialize: () => ({ boundary: 7, checkpointStartedMessageId: 0 }),
-      clampToChat: () => false, discardPendingFrom: () => [], rollbackTo: () => ({ ok: true, result: "applied" }), ensureActiveCheckpoint: () => null, activeCheckpoint: null,
+      clampToChat: () => false, discardPendingFrom: () => [], rollbackTo: () => ({ ok: true, result: rolled }), ensureActiveCheckpoint: () => null, activeCheckpoint: null,
     },
     journal: { record: () => undefined },
     context: () => ({ lastMessageId: 9, chatLength: 10, journal: { boundary: 1, messageId: 9 } }),
@@ -57,5 +57,11 @@ describe("plan 47 rollback check: promise writes roll back on every mutation pat
     const h = harness([row("p1", 2, 5), row("p2", 6)], true);
     await runRollback(h.deps, 5);
     expect(h.extras.promises?.rows).toEqual([{ ...row("p1", 2) }]);
+  });
+
+  it("a delete the engine already stepped back for (a prior delete in the same burst) still drops the kept event", async () => {
+    const h = harness([row("p1", 2, 10)], true, "noop");
+    await runRollback(h.deps, 10);
+    expect(h.extras.promises?.rows[0]?.events).toEqual([]);
   });
 });

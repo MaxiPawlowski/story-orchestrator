@@ -149,7 +149,7 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
   // reaches past what the chat can reconstruct is the one case where "the engine did not act on it"
   // is not a reason to stay quiet.
   if (boundary === null) return unavailable(engine.historyFrom());
-  if (!engine.shouldRollbackFromMessage(messageId) && !deps.livingMovedAfter?.(boundary)) {
+  const settleInPlace = async (): Promise<RollbackOutcome> => {
     quarantine();
     // A curator write applied at a boundary that consumed the edited message was proposed from the
     // old text, whether or not the engine moved. The blackboard did not move, so the expansion
@@ -161,11 +161,12 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     if (!run.stillOwns()) return lapsed;
     deps.notify();
     return { ok: true, result: "noop" };
-  }
+  };
+  if (!engine.shouldRollbackFromMessage(messageId) && !deps.livingMovedAfter?.(boundary)) return settleInPlace();
   const before = engine.activeCheckpoint?.id ?? null;
   const outcome = engine.rollbackTo(boundary);
   if (!outcome.ok) return unavailable(outcome.oldest);
-  if (outcome.result !== "applied") return outcome;
+  if (outcome.result !== "applied") return settleInPlace();
   await deps.restoreLiving?.(engine.serialize().boundary, run);
   if (!run.stillOwns()) return lapsed;
   deps.notices.rollbackUnavailable = null;
