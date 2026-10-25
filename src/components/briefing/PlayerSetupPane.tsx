@@ -58,6 +58,7 @@ export const PlayerSetupPane = ({ view, rechoose = false, onChoose }: PlayerSetu
   const settled = view.record && !view.record.pending && !rechoose;
   const lockFailed = view.record?.pending ? view.record.lockFailed ?? null : null;
   const keepAllowed = Boolean(view.current) && (!view.fixedName || same(view.current?.name ?? "", view.fixedName));
+  const settledName = view.lockedName ?? view.current?.name ?? "";
   const run = (request: PlayerSetupRequest) => {
     setBusy(true);
     setError(null);
@@ -82,7 +83,7 @@ export const PlayerSetupPane = ({ view, rechoose = false, onChoose }: PlayerSetu
         </div>
       )}
       {settled ? (
-        <p data-so="player-setup-done" role="status" className="so-briefing-paragraph">{COPY.playingAs(view.lockedName ?? view.current?.name ?? "")}</p>
+        <p data-so="player-setup-done" role="status" className="so-briefing-paragraph">{view.record?.locked === false ? COPY.playingAsUnlocked(settledName) : COPY.playingAs(settledName)}</p>
       ) : (
         <div className="flex flex-col gap-2">
           {keepAllowed && view.current && (
@@ -101,6 +102,7 @@ export const PlayerSetupPane = ({ view, rechoose = false, onChoose }: PlayerSetu
           )}
           <CreateForm view={view} busy={busy} run={run} />
           {!view.beforeFirstMessage && <p data-so="player-setup-old-name" className="text-sm opacity-80">{COPY.oldName}</p>}
+          {keepAllowed && view.current && !lockFailed && !rechoose && <p data-so="player-setup-close-keeps" className="text-sm opacity-80">{COPY.closeKeeps(view.current.name)}</p>}
         </div>
       )}
       {error && <p data-so="player-setup-error" role="alert" className="text-sm">{error}</p>}

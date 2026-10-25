@@ -66,13 +66,14 @@ Order: C1 first (it feeds C2-C5), the rest in parallel where they do not share a
   lock bypass reads "Start without keeping this persona" (part of a major); opt-out reads "Don't open briefings automatically";
   the memory onboarding line says where This story → Play is and what a pin does; the replay intro drops "heritage" for what
   carries over (minor x3 + the label minor). Player guide updated for the opt-out label.
-- Not fixed, need more than a string: closing the pane keeps the current persona silently (major; wants a line naming it);
-  "Playing as X. This chat keeps that persona for the whole story." also shows after Start without keeping (major; needs a
-  conditional string); five Before you start lines name no action inside the pane (memory model, read, story so far, lore,
+- Follow-up (same branch): the settled line reads "This chat does not keep that persona…" after Start without keeping (`playingAsUnlocked`, keyed on `record.locked === false`), and the pane says "Closing this page keeps <name> as your persona." while the choice is open (`closeKeeps`); both majors fixed, Storybook `SettledUnlocked` added.
+- Left for C1 triage: five Before you start lines name no action inside the pane (memory model, read, story so far, lore,
   persona; major; the Repair rows carry the actions). Kept as is: "persona" (SillyTavern's own term), "tension" / "story card" /
-  "lore" in onboarding (they name the UI as labelled). These go to the C1 triage list.
-- Gates: `npm run gates:quick` green (typecheck, typecheck:test, lint, jest related, defect replay 32/32); Storybook story
-  `EntryPoints.stories.tsx` assertion updated, not run here.
+  "lore" in onboarding (they name the UI as labelled).
+- Campaign follow-up: the 3 campaign majors fixed in the campaign repo (commit `abc94b5`, academy + saga; pin bump and re-import
+  by the coordinator); the 7 minors stay in `campaign-findings.md`.
+- Gates: `npm run gates:quick` green twice (typecheck, typecheck:test, lint, jest related, defect replay); test-storybook on
+  a static build (port 6177) over `PlayerSetupPane`, `BriefingModal`, `EntryPoints` stories: 3 suites, 31 tests passed.
 
 ## Move to v3.0 (copied into `docs/plans/v3.0/05-deferred-items.md` §From the v2.8/v2.9 close-out)
 

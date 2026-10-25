@@ -12,6 +12,8 @@ export const PLAYER_SETUP_COPY = {
   createButton: "Create and use",
   noCreate: "This SillyTavern version cannot create personas from here; create one in Persona Management, then choose it.",
   playingAs: (name: string) => `Playing as ${name}. This chat keeps that persona for the whole story.`,
+  playingAsUnlocked: (name: string) => `Playing as ${name}. This chat does not keep that persona, so SillyTavern may switch it when the chat reopens.`,
+  closeKeeps: (name: string) => `Closing this page keeps ${name} as your persona.`,
   oldName: "Earlier messages in this chat keep the old name.",
   yourCharacter: "Your character in this story",
   lockedHint: "Chosen when the story started. To play someone else, start the story again.",

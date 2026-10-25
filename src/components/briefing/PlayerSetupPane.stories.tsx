@@ -31,6 +31,7 @@ export const Choose: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("heading", { name: PLAYER_SETUP_COPY.heading })).toBeVisible();
     await expect(canvas.getByText("a hired courier")).toBeVisible();
+    await expect(canvas.getByText(PLAYER_SETUP_COPY.closeKeeps("Max"))).toBeVisible();
     await expect(canvas.queryByText(/Quiet, careful/, { ignore: "textarea, script, style" })).toBeNull();
     await userEvent.click(canvas.getByRole("button", { name: PLAYER_SETUP_COPY.pickButton }));
     await expect(args.onChoose).toHaveBeenCalledWith({ choice: "pick", avatarId: "mara.png" });
@@ -60,6 +61,7 @@ export const FixedName: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(PLAYER_SETUP_COPY.fixed("Mara"))).toBeVisible();
     await expect(canvas.queryByRole("button", { name: PLAYER_SETUP_COPY.keep("Max") })).toBeNull();
+    await expect(canvas.queryByText(PLAYER_SETUP_COPY.closeKeeps("Max"))).toBeNull();
     await userEvent.click(canvas.getByText(PLAYER_SETUP_COPY.create));
     await expect(canvas.getByLabelText(PLAYER_SETUP_COPY.createName)).toHaveAttribute("readonly");
   },
@@ -80,6 +82,15 @@ export const Settled: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByRole("status")).toHaveTextContent(PLAYER_SETUP_COPY.playingAs("Max"));
     await expect(canvas.queryByRole("button", { name: PLAYER_SETUP_COPY.keep("Max") })).toBeNull();
+  },
+};
+
+export const SettledUnlocked: Story = {
+  args: { view: { ...view, pending: false, record: { pending: false, choice: "keep", avatarId: "max.png", name: "Max", locked: false }, lockedName: "Max" } },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByRole("status")).toHaveTextContent(PLAYER_SETUP_COPY.playingAsUnlocked("Max"));
+    await expect(canvas.queryByText(PLAYER_SETUP_COPY.playingAs("Max"))).toBeNull();
   },
 };
 
