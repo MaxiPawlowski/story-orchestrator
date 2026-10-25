@@ -292,3 +292,15 @@ describe("the context fold at the generation interceptor (v2.6 plan 07 task 17)"
     expect(fold(elsewhere.host, elsewhere.rows, "normal", elsewhere.live)).toBeNull();
   });
 });
+
+describe("epilogue verification (v2.8 70 lean suite 2026-10-25)", () => {
+  it("a name the prompt's own ending lines supplied is not an invented name", async () => {
+    const run = sealHarness();
+    const told = `the Lantern Coast was lit again and ${Array.from({ length: 130 }, (_, index) => `w${index}`).join(" ")}.`;
+    (run.deps.model() as jest.Mock).mockImplementation(async () => ({ text: told, finish: "stop" }));
+    const seal = new ChapterSeal(run.deps) as unknown as { saga: (story: NormalizedStory, sealed: ChapterRecord[], outcome: string[], run: unknown) => Promise<string | null> };
+    const guard = run.deps.ownership().mint();
+    const epilogue = await seal.saga(story, [record("arrival#1")], ["You relit the Lantern Coast."], { guard: { stillOwns: () => run.deps.ownership().check(guard) }, calls: 0, cuts: [] });
+    expect(epilogue).toBe(told);
+  });
+});

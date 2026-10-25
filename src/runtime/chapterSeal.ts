@@ -313,7 +313,7 @@ export class ChapterSeal {
       const prompt = buildSagaPrompt(story.title, records, outcome);
       const reply = stripChannelNoise(await this.ask(prompt, run));
       if (!run.guard.stillOwns()) return null;
-      if (reply && !verifySaga(reply, records, cast).length) text = reply;
+      if (reply && !verifySaga(reply, records, [...cast, ...outcome]).length) text = reply;
     }
     return text || records.map((record) => record.summary).join("\n\n");
   }
