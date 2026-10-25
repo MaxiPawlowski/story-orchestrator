@@ -1,0 +1,27 @@
+{
+  "id": "so-v28-53-disabled",
+  "title": "SO-V28-53 Disabled hears no present move",
+  "description": "v2.8 plan 53 no-model fixture, owner decision 2026-10-25: both cast members belong to one guild; a present-heard move fires while one of them is group-disabled.",
+  "roster": [
+    { "id": "arin", "name": "Arin", "factions": ["guild"] },
+    { "id": "narrator", "name": "DM Narrator", "factions": ["guild"] }
+  ],
+  "factions": [{
+    "id": "guild", "name": "The Lantern Guild",
+    "bands": [{ "max": -3, "label": "Hostile" }, { "max": -1, "label": "Wary" }, { "max": 2, "label": "Neutral" }, { "label": "Trusted" }],
+    "moves": [{ "id": "stole", "when": { "q": "ledger_stolen", "op": "==", "v": true }, "add": -3, "heard_by": "present" }]
+  }],
+  "qualities": [
+    { "key": "ledger_stolen", "type": "bool", "source": "extractor", "rubric": "Did the party steal the guild ledger?" },
+    { "key": "lamp_lit", "type": "bool", "source": "extractor", "rubric": "Is the hall lamp lit?" },
+    { "key": "left_town", "type": "bool", "source": "extractor", "rubric": "Has the party left town?" }
+  ],
+  "checkpoints": [
+    { "id": "hall", "name": "The guild hall", "player_name": "The guild hall", "objective": "The guild clerk asks for help.", "type": "anchor", "start": true },
+    { "id": "errand", "name": "Arin's errand", "player_name": "The guild hall", "objective": "Arin is out on an errand.", "type": "anchor", "effects": { "cast_changes": { "disable": ["Arin"] } } },
+    { "id": "return", "name": "Arin returns", "player_name": "The guild hall", "objective": "Arin is back.", "type": "anchor", "effects": { "cast_changes": { "enable": ["Arin"] } } },
+    { "id": "road", "name": "The road", "player_name": "The road", "objective": "Travel on.", "type": "anchor" }
+  ],
+  "transitions": [{ "from": "hall", "to": "road", "priority": 0, "gate": { "q": "left_town", "op": "==", "v": true } }],
+  "requirements": { "members": ["Arin", "DM Narrator"] }
+}
