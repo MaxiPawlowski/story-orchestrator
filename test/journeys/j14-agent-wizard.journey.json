@@ -27,6 +27,7 @@
   "checks": [
     {
       "id": "J14.1",
+      "model": "judged",
       "mode": "auto",
       "findings": [
         "W19"
@@ -67,6 +68,10 @@
     },
     {
       "id": "J14.2",
+      "model": "none",
+      "dependsOn": [
+        "J14.1"
+      ],
       "mode": "auto",
       "findings": [
         "AS-21"

@@ -24,6 +24,7 @@
   "checks": [
     {
       "id": "GS6.1",
+      "model": "any",
       "goal": "Lane guard, start and structure census. Closes: stories (the adopted carrier starts, picked by id, features found by structure). Fails before any turn when the pinned carrier lacks adopted data (codex facts behind a reached gate, a secret label, factions with moves, a clock, public checks with when, rumors, recap quests, narrated public qualities with an omniscient narrator, a scene widget, scene_test). Two real turns.",
       "steps": [
         {
@@ -79,6 +80,10 @@
     },
     {
       "id": "GS6.2",
+      "model": "none",
+      "dependsOn": [
+        "GS6.1"
+      ],
       "goal": "Narrator sheet and scene card in real play. Closes: 18 Q7 (the public sheet reaches only the omniscient narrator's block, never another member's), 65 scene card (present members known to the player, no narrator, no unmet name). Player-clean.",
       "steps": [
         {
@@ -103,6 +108,10 @@
     },
     {
       "id": "GS6.3",
+      "model": "judged",
+      "dependsOn": [
+        "GS6.1"
+      ],
       "goal": "Codex fact after its gate, gone on swipe. Closes: 52 (a People or Places fact latches when its reached checkpoint is entered, and a swipe of the message that carried the route takes the latch, the fact and the route back; story time rewinds with it). One real turn, then the shortest author-settable route to a checkpoint that reveals a fact (author writes, recorded), then a deterministic swipe of that reply. Player-clean before and after.",
       "steps": [
         {
@@ -165,6 +174,10 @@
     },
     {
       "id": "GS6.4",
+      "model": "any",
+      "dependsOn": [
+        "GS6.1"
+      ],
       "goal": "Relationship label reveal. Closes: 51 (the secret label's reveal latch life_reveal_* is set by its gate, by the read when it fires, else an author write, recorded; the reveal log row lands when holder and target are known). One real turn. Player-clean.",
       "steps": [
         {
@@ -198,6 +211,10 @@
     },
     {
       "id": "GS6.5",
+      "model": "any",
+      "dependsOn": [
+        "GS6.1"
+      ],
       "goal": "Faction band. Closes: 53 (a visible faction's move applies once, rep_* moves, and the player Standing view shows a band word with no number). One real turn, author writes for visibility and the move. Player-clean.",
       "steps": [
         {
@@ -231,6 +248,10 @@
     },
     {
       "id": "GS6.6",
+      "model": "any",
+      "dependsOn": [
+        "GS6.1"
+      ],
       "goal": "Rumor stays private. Closes: 44 (a started rumor lands at its origin and travels only along its channels; no claim text reaches a member who never heard it or any player view). One real turn, the rumor's start by author write, one more real turn for hops. Player-clean.",
       "steps": [
         {
@@ -281,6 +302,10 @@
     },
     {
       "id": "GS6.7",
+      "model": "none",
+      "dependsOn": [
+        "GS6.1"
+      ],
       "goal": "Recap What changed. Closes: 46 (a recap quest closed by author writes adds a consequences line under its recap heading on the player Overview narrative). Player-clean.",
       "steps": [
         {
@@ -301,6 +326,10 @@
     },
     {
       "id": "GS6.8",
+      "model": "judged",
+      "dependsOn": [
+        "GS6.1"
+      ],
       "goal": "Promise row. Closes: 47 (the player's promise to one member lands as a row whose quote is a byte-exact substring of the player's message, one promisee). Two real turns, then a read if none landed. Real-model only: a no-model lane cannot make the read, so this check fails there by construction.",
       "steps": [
         {
@@ -332,6 +361,10 @@
     },
     {
       "id": "GS6.9",
+      "model": "none",
+      "dependsOn": [
+        "GS6.1"
+      ],
       "goal": "Story time moves and never goes back. Closes: 50 (story_time sampled at every forward stop is non-decreasing, rollbacks recorded apart, and it moved over the session by play, else one author time step, recorded).",
       "steps": [
         {
@@ -344,6 +377,10 @@
     },
     {
       "id": "GS6.10",
+      "model": "any",
+      "dependsOn": [
+        "GS6.1"
+      ],
       "goal": "A public check waits for its attempt. Closes: 18 check when (after a jump to a checkpoint with a when-gated public check, the check is pending on arrival and after an idle turn, and rolls once its attempt holds: by the read when it fires, else an author write, recorded). Two real turns. Player-clean.",
       "steps": [
         {
@@ -398,6 +435,10 @@
     },
     {
       "id": "GS6.11",
+      "model": "none",
+      "dependsOn": [
+        "GS6.1"
+      ],
       "goal": "Scene test and carry census (informational). Closes: 48 plumbing on the carrier (every scene-test record well formed and author-only; counts of living checkpoints), 45 declarations (every carry target names a library source with an outcome). The real carry is the 45 seal row; S10 is read in the living row.",
       "steps": [
         {
@@ -418,6 +459,10 @@
     },
     {
       "id": "GS6.12",
+      "model": "any",
+      "dependsOn": [
+        "GS6.1"
+      ],
       "goal": "Reopen and close-out. Closes: recap and world-layer state across a reload (story back, blob readable, story time not back), one more real turn, final player-clean sweep.",
       "steps": [
         {

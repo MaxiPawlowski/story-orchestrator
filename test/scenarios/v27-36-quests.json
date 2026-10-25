@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.7 plan 36 (NOT YET RUN; batched into plan 39): the Journal, the Stat sheet and a public dice chip in player mode, with a hidden quest, an author note and an unearned secret milestone that must not reach any player surface. No model call: every write is a /cp set boundary.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off" },
   "steps": [

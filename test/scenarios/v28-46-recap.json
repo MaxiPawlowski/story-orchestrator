@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 46 (no-model lane): an authored recap line lands on the player Overview (section 'What changed' / 'Because of you') once its visible transition fires, and the chapter two title card carries the chapter one recap. The chapter seal summary is a debug response (plumbing only; the recap itself calls no model). assert-player-clean in player mode. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-46-recap.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "authorView": true },
   "steps": [

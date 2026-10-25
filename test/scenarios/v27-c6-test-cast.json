@@ -1,4 +1,5 @@
 {
+  "model": "judged",
   "name": "v2.7 39 C6: multi-character image rows on the SOIMG test cast (32 W5 builder, W6 frames, W7 look frames, W8 card overlay per member; rollback of a fired look is v27-card-rollback.json)",
   "requires": {
     "lane": "model",

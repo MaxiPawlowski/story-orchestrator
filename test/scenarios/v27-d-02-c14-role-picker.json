@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v27-d-02-c14-role-picker",
   "objective": "v2.7 02 C14 + 14 live (D) row, no model. The settings panel's role picker (#so-role-profile-read, under Advanced > Models per task) and the memory model picker (#so-extraction-profile) group the Connection Manager profiles by source with a cloud/local label: a Text Completion profile and a DeepSeek Chat Completion profile sit in different groups, DeepSeek in 'DeepSeek · cloud', no group mixes TC and CC, every listed profile appears exactly once, both pickers list the same profiles. A harness route group is recorded when the lane's plugin offers one. Opening the picker changes no route and makes no model call: the Connection Manager profiles, the selected profile and the extraction routing read back identical, and no /api/backends/*/generate request is sent. The batch's run-header diff (profiles) is the install-level half. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-02-c14-role-picker.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
   "requires": {

@@ -1,4 +1,5 @@
 {
+ "model": "none",
  "name": "v2.8 29 LI: two purposes render on two marked SO- workflows, the player's selection is untouched",
  "requires": {
   "lane": "no-model",

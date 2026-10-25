@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 61b (3e77c79f, no-model lane, plumbing): two chats play one story with one curator book; the entry the curator created in chat A (stamped) scans only in chat A, on the story route and on a global selection, while a plain entry of the same book scans in both.",
   "requires": {
     "lane": "no-model",

@@ -1,4 +1,5 @@
 {
+  "model": "any",
   "name": "v2.7 32 W5: reuse a test-cast member's original expressions without acquiring ownership of their art",
   "requires": {
     "lane": "model",

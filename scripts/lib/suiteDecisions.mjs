@@ -91,10 +91,17 @@ const describeRequires = (requires = {}) => [
   typeof requires.vectorsWorldInfo === 'boolean' ? `Vectors World Info ${requires.vectorsWorldInfo ? 'on' : 'off'}` : null,
 ].filter(Boolean).join('; ');
 
-export function noLlmSuiteRows(scenarios, { group = TOY_GROUP } = {}) {
+export function noLlmPartition(scenarios) {
   const runnable = scenarios.filter((row) => !row.requires?.prior);
-  const noModel = runnable.filter((row) => row.requires?.lane === 'no-model');
-  const live = runnable.filter((row) => row.requires?.lane !== 'no-model');
+  return {
+    noModel: runnable.filter((row) => row.requires?.lane === 'no-model'),
+    live: runnable.filter((row) => row.requires?.lane !== 'no-model'),
+    excluded: scenarios.filter((row) => row.requires?.prior),
+  };
+}
+
+export function noLlmSuiteRows(scenarios, { group = TOY_GROUP } = {}) {
+  const { noModel, live } = noLlmPartition(scenarios);
   const minutes = (list) => Math.round(list.reduce((sum, row) => sum + (row.est ?? 0), 0) / 60);
   const batch = (list) => `node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group ${shellArg(group)} ${list.map((row) => row.asset).join(' ')}`;
   const rows = [];

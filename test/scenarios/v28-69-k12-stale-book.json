@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 69 K12 (no-model lane): a whole-book world-info write never overwrites another page's change to another entry of the same book. The other page is a direct /api/worldinfo/edit from a fresh server copy, so this page's cached copy goes stale exactly as it would behind a second tab. Control: ST's own immediate save of the stale cached copy loses the other page's edit (hazard reproduced). Treatment: the story's file-mode checkpoint world_info write (setWIEntriesState) refuses, writes nothing, evicts the stale copy, and the other page's edit survives; the next write starts from the server copy and lands with the edit kept. Server reads per write are timed. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-69-k12-stale-book.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "authorView": true },
   "steps": [

@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 agenda proposals in play (plumbing, no model): the pass is on by default (review), a proposal waits for the author, the Accept button in Author view accepts it, it lands at the next boundary into Arin's private block only, deleting the landing reply takes the landing back, and nothing reaches a player surface. The proposal text comes from a debugResponse: plumbing only, the real-model check is v2.8 31 M16.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off" },
   "steps": [

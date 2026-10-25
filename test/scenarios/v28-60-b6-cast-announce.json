@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 60 B6 (no-model lane): a checkpoint cast_changes write is announced to ST: one GROUP_UPDATED per saved write, and the open group's member row for the changed member toggles its .disabled class (ST's own member list), then back on the re-enabling checkpoint. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-60-b6-cast-announce.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "authorView": true },
   "steps": [

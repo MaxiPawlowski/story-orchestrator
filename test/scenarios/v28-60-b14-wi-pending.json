@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 60 B14 (no-model lane): an edit to book A waiting in ST's 1 s world-info save debounce survives an immediate save of another book. Control: ST's own immediate save of book B cancels A's pending save (the server keeps the old text). Treatment: the story's own immediate write to book B (file-mode checkpoint world_info on /cp activate, inside the debounce window) saves A's pending edit too. Fetch order and timing are recorded so the treatment cannot pass by A's debounce firing first. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-60-b14-wi-pending.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "authorView": true },
   "steps": [

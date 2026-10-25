@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 69 K8 (no-model lane). Host fact: Recast's accept mutates chat[n].mes without touching swipes, calls updateMessageBlock, emits MESSAGE_EDITED and saves (recast R/index.js:1086-1097, docs/plans/v2.8/extension-research-2026-10-14/recast.md P2). TurnBridge routes an edit of the newest reply through the edit re-read seam (spikes/editReread.ts) after rollbackOnEnter. Expected outcome: the delayed rewrite (after the reply's boundary) is re-read once, the story steps back from the reply at most once, and the state then equals a replay of the rewritten text (here: the rewritten reply supports no lamp, so lit_lamp is gone and took_key stays). Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-69-k8-delayed-rewrite.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": {
     "lane": "no-model",

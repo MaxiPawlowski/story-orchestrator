@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v27-d-02-c11-f1a",
   "objective": "v2.7 02 C11-F1a live (D) row, no model. A held judge-typed commitment reading whose source message is longer than the 160-character typed-evidence cut: the reading is seeded in the exact shape runtime/typedRead.ts hands the commit guard (evidence = the first 160 characters, judge confidence, messageId, sourceChars) through applyExtractionAudit, and the player's line does not commit, so the guard holds it. The session journal (the so-journal show read, via getSessionJournal) carries a held row whose note says 'evidence cut to the first 160 of <n> characters of message 1'. Control: the same hold from an LLM-read delta with a short quote names no cut. The note is author detail: player mode never shows it. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-02-c11-f1a.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
   "requires": {

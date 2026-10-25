@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "requires": {"lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off"},
   "steps": [
     {"eval": "const rt = globalThis.storyOrchestratorRuntime; const G = globalThis.storyOrchestratorScanGating; if (!G) throw new Error('the lorebook gating is not installed'); const root = SillyTavern.getContext().extensionSettings['story-orchestrator']?.settings ?? {}; globalThis.__soU6WorldInfo = JSON.parse(JSON.stringify(root.worldInfo ?? {})); if (rt.getGlobalSettings().worldInfo.gatingMode !== 'file') await G.requestFile(); return { was: globalThis.__soU6WorldInfo.gatingMode ?? null, now: rt.getGlobalSettings().worldInfo.gatingMode };"},

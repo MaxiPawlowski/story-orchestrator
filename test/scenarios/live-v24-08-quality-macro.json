@@ -1,4 +1,5 @@
 {
+  "model": "any",
   "_note": "v2.4 plan 08 R15 live gate. Run: node scripts/debug/so-scenario.mts run test/scenarios/live-v24-08-quality-macro.json --sandbox --group 'Group: Arin, DM Narrator'. {{story_quality_<key>}} resolves to the blackboard value or (unset) on this install's macro engine, reaches a REAL prompt (an Author's Note carrying the macros, read back from GENERATE_AFTER_DATA), follows a /cp set at the next boundary, and is unregistered when the chat's story changes (the macro then stays literal text).",
   "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Ponticius","Arin"]},
   "steps": [

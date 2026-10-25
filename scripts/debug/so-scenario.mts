@@ -32,9 +32,13 @@ import { currentPageCapture } from './lib/pageCapture.mts';
 import { quiesceBeforeSwitch, type QuiesceOptions } from './lib/generationQuiesce.mts';
 import { notRunnableLine, requiredGroup, requiresOf, requiresProblems, withAuthorView } from './lib/scenarioRequires.mts';
 import { establishChatRequires, establishGroupRequires, readRequiresFacts } from './lib/scenarioRequiresHost.mts';
+import { MODEL_FLAG, parseModelFilter, scenarioModelSkip } from './lib/modelClass.mts';
 import { captureResidue, residueCount, sweepResidue, type ResidueSnapshot } from './lib/runResidue.mts';
 
-const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep] [--group <id|name>]
+const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep] [--group <id|name>] [--model <classes>]
+
+--model judged,any,none (v2.9 plan 11 B4) runs the scenario only when its declared model class is listed; otherwise it
+prints "not-runnable: model class ..." and exits 0 without touching the page.
 
 --sandbox runs in a new chat of the most recent group, or of --group when given, and only ever stays on,
 or deletes, chats the run created. Pin --group when the install has chats that are not yours: "most recent"
@@ -1405,6 +1409,12 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (process.argv[2] !== 'run' || !process.argv[3] || hasHelpFlag()) {
     console.log(USAGE);
     process.exit(hasHelpFlag() ? 0 : 1);
+  }
+  const modelFilter = parseModelFilter(readArgValue(MODEL_FLAG));
+  const modelSkip = modelFilter ? scenarioModelSkip(await loadFixture(resolve(PROJECT_ROOT, process.argv[3])), modelFilter) : null;
+  if (modelSkip) {
+    console.log(notRunnableLine([modelSkip]));
+    process.exit(0);
   }
   runCli((page) => runScenario(page, process.argv[3], { sandbox: readArgFlag('--sandbox'), keep: readArgFlag('--keep'), group: readArgValue('--group') }), { pageCapture: 'scenario' });
 }

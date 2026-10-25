@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v27-d-10-edit-catch-up",
   "objective": "v2.7 10 option C live (D) row, no model. A mocked read carries the story start -> door at the boundary of Arin's reply. The main read lane is then held by a scheduler job that waits for the scenario (so the edit's re-read stays queued until released; the hold is a scheduler job, not a model call). Editing the newest reply rolls the story back and queues the 'rollback:<id>:edit' re-read: the pipeline reads catching-up ('Catching up after your edit…', HUD chip 'catching up after your edit') while it waits, and assert-player-clean is green in that state. Control: before the edit the same held lane does not read catching-up. Released, the re-read runs on the pinned mock (SCENE_NONE), its audit lands, rereadReason clears and the pipeline settles to idle. The existing plan03a-edit-rollback never asserts catching-up. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-10-edit-catch-up.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
   "requires": {

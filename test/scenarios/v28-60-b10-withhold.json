@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 60 B10 (no-model lane, PLUMBING level: the generation request is answered by an in-page fetch stub and ST's online status is set to a stub label for the call, then restored; no model is called). With a pacing hint (critical target, tension 0.1) and a fresh check outcome both set, a real impersonate and a real quiet generation send a request body that carries neither block, the hold is on while the request is assembled, and once the run ends the blocks are back (a normal dry run carries both). A dry run never takes the hold (dry runs are ignored by design), so the control is a normal dry run. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-60-b10-withhold.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "authorView": true },
   "steps": [

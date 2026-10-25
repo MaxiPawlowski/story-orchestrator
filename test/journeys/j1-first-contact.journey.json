@@ -33,6 +33,7 @@
   "checks": [
     {
       "id": "J1.1",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "U6"
@@ -56,6 +57,7 @@
     },
     {
       "id": "J1.2",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "U1"
@@ -69,6 +71,7 @@
     },
     {
       "id": "J1.3",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "U1",
@@ -94,6 +97,7 @@
     },
     {
       "id": "J1.4",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "U6"
@@ -138,6 +142,7 @@
     },
     {
       "id": "J1.10",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "U6"
@@ -199,6 +204,7 @@
     },
     {
       "id": "J1.5",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "U6"
@@ -225,6 +231,7 @@
     },
     {
       "id": "J1.6",
+      "model": "judged",
       "mode": "auto",
       "findings": [
         "U1"
@@ -283,6 +290,10 @@
     },
     {
       "id": "J1.7",
+      "model": "none",
+      "dependsOn": [
+        "J1.6"
+      ],
       "mode": "auto",
       "findings": [
         "U6"
@@ -297,6 +308,7 @@
     },
     {
       "id": "J1.8",
+      "model": "none",
       "mode": "human",
       "findings": [
         "U6"
@@ -306,6 +318,7 @@
     },
     {
       "id": "J1.9",
+      "model": "none",
       "mode": "human",
       "findings": [
         "U1",

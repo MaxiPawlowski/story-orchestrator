@@ -1,4 +1,5 @@
 {
+  "model": "judged",
   "_note": "v2.9 03 S2 shadow, forced arm (prevention off in this chat via the delivery chat override, each turn a posted player line then one forced real reply each from Arin and the narrator, so polish has findings to work on), real models (GPU window 2026-10-22): real Artemis replies on the local controller (thinking and inner voice on), polish role on its default route (opencode sol), story polish mode shadow. Records extras.polish; asserts nothing is written into the chat (mes and extra.reasoning hashes at MESSAGE_RECEIVED equal the end state) and the hourly cap holds (cap set to the calls made, two more turns add no call). Rating floors need an independent rater: not scored here. Run on a model lane: node scripts/debug/so-scenario.mts run test/scenarios/v29-03-polish-shadow.json --sandbox --group 'Group: Arin, DM Narrator'.",
   "requires": {
     "lane": "model",

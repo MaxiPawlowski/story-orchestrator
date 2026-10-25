@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 47 (no-model lane, seeded: the reads are debug responses, so this is plumbing for the read and live for acceptance, store, Overview and rollback): the player's exact words to Arin become an open promise listed on the player Overview (#so-player-promises); a later read closes it as kept on Arin's reply, so it leaves the list; a swipe of that reply reopens it on the Overview; a reopen of the chat keeps it open. assert-player-clean in player mode. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-47-promises.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "authorView": true },
   "steps": [

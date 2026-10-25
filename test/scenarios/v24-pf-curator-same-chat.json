@@ -1,4 +1,5 @@
 {
+  "model": "any",
   "name": "v24-pf-curator-same-chat",
   "objective": "v2.4 post-freeze AE-01 same-chat control for v24-pf-curator-switch: the same real curator op and the same holds (write-edge read, write-ahead save, revert compare-and-set read) with NO chat switch. The boundary apply writes exactly once with before = original while a concurrent applyCuratorProposals writes nothing; the held revert restores the original exactly once and settles the op. Proves the holds themselves do not suppress a write, so the switch run's zero writes are the ownership check.",
   "requires": {"lane":"model","group":"Group: Arin, DM Narrator","why":"chat A plays in the toy group; chat B is created in the install's Dm group (Seliph, DM Narrator), found by name, so both groups must exist; the curator pass is a real model call"},

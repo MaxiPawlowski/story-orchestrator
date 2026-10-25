@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v28-40-provisioning-roundtrip",
   "objective": "Plan 34 owed no-model protocol: provision a marked owned lorebook through the runtime (regex primary key, NOT_ANY secondary logic, outlet, generation triggers) and a marked card; read every field back from the server file; refused shapes stay refused. Scanned-memory control: a NOT_ANY entry whose secondary key sits only in scanned memory is never classified certain (rated, not left to scan) and ST's own dry-run scan suppresses it; with memory scanning off the same entry is left to the keyword scan and ST activates it. The quiet-only entry is never rated or forced on a normal turn; the outlet entry keeps its authored position. Judge scripted, extraction scripted, no model.",
   "requires": {

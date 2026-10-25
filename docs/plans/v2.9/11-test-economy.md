@@ -123,3 +123,82 @@ Retroactive check: the 2026-10-25 W4 run (exact-set 13/147 real) trips S2 at the
 - `send` takes `--stop <module>` (B1 interface: `(progress) => {stop, rule, verdict, detail}`); S5 built in.
 - Open: a W4 first answer the page would retry (refusal) is scored as an outage and listed `retryOwed`; W4 Wc uses
   backend token counts; 06 LT needs a scenario item kind.
+
+## Build record: B4 + B5 (2026-10-25, branch `v2.9-11-b4b5`, no GPU; no-model lanes 30-34)
+
+B4 journey/scenario check classes:
+- `model: "judged" | "any" | "none"` on every top-level scenario with steps and every journey check (human rows too).
+  judged = the verdict depends on what a model wrote (reads, judge, curator, wizard, measurement corpora); any = needs a
+  model call or a configured model route, asserts plumbing around it; none = no model call (mocked reads count as none).
+- `scripts/debug/lib/modelClass.mts`: classes, schema problems (wired into `validateFixture`, so so-scenario and the journey
+  loader refuse an unknown class), `--model` parser, selection with `dependsOn` closure, `noModelRunnable`, census rules.
+- Census `scripts/debug/lib/modelClass.test.mts` (test:debug): fails on a missing class, `requires.lane no-model` not none,
+  `requires.lane model` none, or steps that call a model (`stepsShape`) marked none; planted controls.
+- Runner filter: `so-journey run <id> --model judged` (or `none,any`) runs the listed classes plus their declared `dependsOn`
+  (a none-only filter instead drops checks whose dependencies are not none); the rest are `skipped` with `deselected: true`,
+  counted apart (`tallies.deselected`) and not failed by `--strict`; the record is `partial` and keeps `model {filter,
+  selected, pulled, deselected}`. `so-scenario run <file> --model ...` prints `not-runnable: model class ...` and exits 0
+  without touching the page when its class is not listed. `st-lanes batch --model` forwards to both.
+- New `dependsOn` (state an earlier check leaves, found by reading or by the no-model run): GS6.2-GS6.12 on GS6.1, J14.2 on
+  J14.1, J3.2-J3.8 on J3.1, J6.2-J6.4 on J6.1, J5.5 on J5.4, J1.7 on J1.6.
+- Scenarios (305 with steps): judged 48, any 78, none 179. Every none is a `requires.lane no-model` file; every
+  `requires.lane model` file is any or judged.
+- Journey checks (188): judged 49, any 56, none 83.
+  - GS1: judged 2, any 7, none 1. judged GS1.3, GS1.9; any GS1.1, GS1.2, GS1.4, GS1.5, GS1.6, GS1.7, GS1.8; none GS1.10
+  - GS2: judged 3, any 5, none 0. judged GS2.2, GS2.3, GS2.6; any GS2.1, GS2.4, GS2.5, GS2.7, GS2.8
+  - GS3: judged 2, any 5, none 0. judged GS3.3, GS3.6; any GS3.1, GS3.2, GS3.4, GS3.5, GS3.7
+  - GS4: judged 3, any 3, none 0. judged GS4.2, GS4.3, GS4.4; any GS4.1, GS4.5, GS4.6
+  - GS6: judged 2, any 6, none 4. judged GS6.3 (codex read), GS6.8 (promise read); any GS6.1, GS6.4, GS6.5, GS6.6, GS6.10,
+    GS6.12; none GS6.2, GS6.7, GS6.9, GS6.11. GS6.9 (story time) makes no model call of its own (author time step fallback),
+    so it is none, not the judged "time read" the overlap cut assumed
+  - J0: none 6 (J0.1-J0.6)
+  - J1: judged 1, none 9. judged J1.6; none J1.1-J1.5, J1.7-J1.10
+  - J2: any 2, none 10. any J2.6, J2.9; none J2.1-J2.5, J2.7, J2.8, J2.10-J2.12
+  - J3: judged 4, any 1, none 8. judged J3.1, J3.7, J3.10, J3.13; any J3.6; none J3.2-J3.5, J3.8, J3.9, J3.11, J3.12
+  - J4: judged 1, none 6. judged J4.4; none J4.1-J4.3, J4.5-J4.7
+  - J5: any 3, none 5. any J5.4, J5.7, J5.8; none J5.1-J5.3, J5.5, J5.6
+  - J6: any 4, none 8. any J6.1, J6.6, J6.7, J6.8; none J6.2-J6.5, J6.9-J6.12
+  - J7: judged 10 (J7.1-J7.10)
+  - J8: judged 5, any 5, none 1. judged J8.5, J8.6, J8.10, J8.11, J8.12; any J8.1, J8.2, J8.4, J8.9, J8.13; none J8.3
+  - J9: judged 4, none 6. judged J9.1, J9.3, J9.5, J9.6; none J9.2, J9.2b, J9.2c, J9.2d, J9.4, J9.7
+  - J10: any 1, none 11. any J10.15; none J10.1-J10.7, J10.9, J10.10, J10.13, J10.14
+  - J11: judged 7, any 14, none 5. judged J11.9, J11.12, J11.16, J11.20, J11.22, J11.23, J11.25; any J11.2-J11.4, J11.7,
+    J11.8, J11.11, J11.13-J11.15, J11.17, J11.19, J11.21, J11.24, J11.26; none J11.1, J11.5, J11.6, J11.10, J11.18
+  - J12: judged 3, none 2. judged J12.3, J12.4, J12.5; none J12.1, J12.2
+  - J13: judged 1 (J13.1)
+  - J14: judged 1, none 1. judged J14.1; none J14.2
+- Judged scenarios: live-authority-real-model, live-curator-write, live-generated-fork-a/-b, live-l3b-warden-quarantine,
+  live-plan02/03/04/05/06/07/09/10/12, live-two-ways-bridge/-ferry, live-v13-refusal, live-v24-04-player-evidence (+control),
+  live-v24-05-mirror-rate, live-v24-06-curator, live-v25-04-negation, live-v25-08-l5-x1-exclusive/-keyword,
+  live-v25-08-mirror-rate, live-v28-09-ask-player-play, live-v28-11-create, live-v28-45-seal, live-v28-47-promises,
+  live-v28-61b-curator-secret/-director-secret, plan08-hygiene, v27-c6-test-cast, v27-card-art-base, v27-local-card-reply,
+  v29-02-s6(h)-baseline/-prevention, v29-03-polish-shadow(-forced), v29-03-s2-shadow, v29-04-07/05/06 model pilots,
+  v29-04-c2-corpus/-cue-off/-cue-on. Every other `requires.lane model` scenario is any.
+
+B5 `npm run suite:nomodel` (`scripts/suite/nomodel.mjs`; pure parts `scripts/debug/lib/nomodelSuite.mts` + test):
+- List: `collect()` + `decideAsset` + `noLlmPartition` (new export of `scripts/lib/suiteDecisions.mjs`; `noLlmSuiteRows` uses it),
+  i.e. decisions.mjs's rules without writing its docs: kept, no model call by shape, `requires.lane no-model`, no prior, and
+  declared none (a listed file that is not none is a problem, exit 1). Plus each journey's none checks whose dependencies are
+  none. At the run: 179 scenarios + 12 journeys (63 checks: J0-J6, J8-J12); the dependsOn added after it drop J1.7, J3.2-J3.8,
+  J5.5, J6.2-J6.4 (and J3 entirely) from the list: now 179 scenarios + 11 journeys (53 checks).
+- Refuses a lane not listed, not seeded, down, or with a model (`st-lanes status` `noModel`), exit 2; runs one
+  `st-lanes batch --lanes 30,...,34 --strict --model none --group 'Group: Arin, DM Narrator'`; prints counts and every
+  non-green row; exit 1 on any RED, INCOMPLETE or NOT-RUNNABLE row. `--list` prints the list only.
+- Lanes: `seed 30..34 --fresh --slim`, `no-model`, media off in each settings.json (`image.enabled` false, sprites off
+  explicit, ST `stable-diffusion` disabled), the 7 loopback URLs to the GPU controller (18888) pointed at the closed port 18079,
+  `start` (lane 33's browser needed a second start). No ComfyUI, GPU, lane 0, lane 45 or :8000.
+- Run 2026-10-25 10:21Z (batch summary `C:\dev\so-lanes\batch-2026-10-25T10-21-32-915Z.json`): 191 rows, GREEN 128,
+  RED 51, INCOMPLETE 7, NOT-RUNNABLE 5; exit 1. Not green.
+  - Journeys RED 10 of 12 (J0, J12 green): implicit dependencies on model checks (J3, J6.2-J6.4, J5.5, J1.7; now declared);
+    J5.1 extraction profile null on the no-model lane; J1.1 and J5.5 "sandbox escaped" (lane 33); J2.1/J2.3/J2.5 Studio and
+    drawer copy; J4.2/J4.3/J4.7 away recap not shown; J8.3 no curator proposal; J9.4 blocked (capability wizard-entry-points);
+    J10.14; J6.9, J6.11; J11.5, J11.6, J11.10.
+  - Scenarios: RED 41, INCOMPLETE 7 (runner ended without a record), NOT-RUNNABLE 5 (groups SO-Open-Stretch-Curve and SOIMG
+    Test cast absent from the install copy; one toy-group lookup on lane 33 during a page navigation). RED groups: v24-01
+    continuity-note cases (note "" on the no-model lane), mirror book not bound to the parent slot (v24-02 branch/checkpoint
+    continue, e5, I6), live-story-workflows (Image Generation extension disabled by the media-off rule), v27-d-*, v28-40/55/60
+    UI or setup rows, page navigations on lane 33.
+  - Not compared with a model lane: whether these rows are red on master with a model is unmeasured.
+- Open: triage the 51 reds (fixture drift, no-model environment or product); whether `suite:nomodel` should select a memory
+  profile for checks that need one configured; seed the two missing groups on no-model lanes; lane 33 flakiness; one run per
+  row (no `--repeat 2`).

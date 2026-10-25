@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.4 plan 01 T1 red fixture (no backend). Run: node scripts/debug/so-scenario.mts run test/scenarios/v24-01-middle-delete.json --sandbox --group 'Group: Arin, DM Narrator'. Three player lines, each consumed by its own boundary with one latching delta and one fact whose evidence quotes that line. record_state is taken at the boundary before the target line, then ST's real deleteMessage removes the MIDDLE line. MESSAGE_DELETED carries the post-delete chat.length (host-facts 01-H1), so before the T1 fix the rollback starts at 2 instead of 1: lit_lamp and the lamp fact, both derived from the removed line, survive and stateEquals FAILS (red). After the fix the decoder names message 1 and the state equals the recording.",
   "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},
   "steps": [

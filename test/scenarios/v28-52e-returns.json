@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 52 option E (no-model lane, plumbing): a place return line shows when the party comes back to a known place after the event; reopen keeps it; a swipe of the reply that came back takes it away while the waiting latch stays; second reopen equals the replayed state; player-clean. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v28-52e-returns.json --sandbox --group 'Group: Arin, DM Narrator'.",
   "requires": {
     "lane": "no-model",

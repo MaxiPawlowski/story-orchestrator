@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 45 option E (no-model lane, plumbing): finish a short story with a final chapter (debugResponse seal), then the Continue shelf verifies the run and shows its ending title and the earned non-secret milestone only; the settings Library page renders it after the player opens it; player-clean. Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v28-45e-shelf.json --sandbox --group 'Group: Arin, DM Narrator'.",
   "requires": {
     "lane": "no-model",

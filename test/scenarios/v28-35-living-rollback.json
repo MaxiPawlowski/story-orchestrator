@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "B6 no-model coverage: a scripted director proposal waits for review, applies only at a rendered boundary, survives reopen, rolls back on swipe and delete, and replay rebuilds the same graph. Synthetic story; no campaign content. Real director quality and L1/L5 pace remain separate measurements.",
   "requires": {
     "lane": "no-model",

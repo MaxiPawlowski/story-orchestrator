@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v27-d-05-briefing",
   "objective": "v2.7 05 live (D) row, no model, scripted messages only. With display.briefing on (the runner switches it off for every run and restores it): importing a briefed story into a group chat opens dialog#so-briefing once; after Set out it stays closed across a reload, a swipe and an edit of the reply (once per chat, extras.briefing.seen); Restart shows it again; /story intro and the drawer's Story briefing button (#so-story-briefing) re-open it; with display.briefing off a Restart does not show it. The C8 'how it works' section marks help.onboardingSeen, which cleanup puts back. Not here: Before you start in the modal (covered by v27-d-04 inline and the BriefingModal stories) and the opener payload capture (briefingActivation.test.ts payload invariance). Run twice: node scripts/debug/so-scenario.mts run test/scenarios/v27-d-05-briefing.json --sandbox --group \"Group: Arin, DM Narrator\" (a no-model lane: st-lanes.mts no-model <n>).",
   "requires": {

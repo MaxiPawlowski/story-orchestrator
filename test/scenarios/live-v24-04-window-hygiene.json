@@ -1,4 +1,5 @@
 {
+  "model": "any",
   "_note": "v2.4 plan 04 T7, LIVE (real model, extraction profile selected, no debugResponse). A group sandbox chat takes, in order: a visible /sd post in the host's own shape (stable-diffusion/index.js sendMessage, host fact 04-H6; posted by eval because no image backend is assumed on a lane, and emitted with the host's 'extension' type), a /sendas reply whose display:none block names two gate values (V2404TRACKER idol_taken: true; door_open: true), and a real turn. Asserts: every read whose window covers the tracker reply has a prompt without either foreign text, keeps the reply's visible half, states windowForm {hygiene:1, promptRegex:false}, and accepts no delta citing the tracker. Run x2: so-scenario run <this> --sandbox --group 'Group: Arin, DM Narrator'.",
   "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Luke","Ponticius","Arin","DM Narrator"]},
   "steps": [

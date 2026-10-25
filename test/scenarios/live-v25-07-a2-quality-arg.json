@@ -1,4 +1,5 @@
 {
+  "model": "any",
   "_note": "v2.5 plan 07 A2 live gate, new-engine leg (LANE ONLY, x2 consecutive). Run: node scripts/debug/so-scenario.mts run test/scenarios/live-v25-07-a2-quality-arg.json --sandbox --group <lane group id>. An Author's Note carrying {{story_quality::location}} and {{story_quality_location}} reaches the REAL request (GENERATE_AFTER_DATA) with the same value at send time, after a /cp set lands at a boundary; an undeclared key reads (no quality \"k\"); the Author's Note is restored at the end.",
   "requires": {"lane":"model","group":"Group: Arin, DM Narrator","members":["Ponticius","Arin"]},
   "steps": [

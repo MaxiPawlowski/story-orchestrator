@@ -1,4 +1,5 @@
 {
+  "model": "any",
   "_note": "v2.8 31 M16 live: agenda/meanwhile proposals in real play (default accept mode auto), real reply model, real memory model and a real curator route, no debugResponse. One pass on the checkpoint change, none on a scene break inside MEANWHILE_MIN_GAP (8) boundaries, one on a scene break past it; each auto-accepted proposal lands at the next boundary into Arin's private block only; cutting the landing reply puts it back to accepted and it lands again; one curator call per pass, <= 300 tokens; nothing on a player surface. Model-dependent branches are recorded in globalThis.__m16.notes, never asserted as the model's choice.",
   "requires": {
     "lane": "model",

@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.9 06 (no-model lane, plumbing only: debugResponse suggestions, never sign-off): anchored suggestions over a story with a public check hint and authored offers; the panel shows the help line without dice, a greyed offer with its reason, the dropped authored offer verbatim, one model call per ask, and the anchor row only in Author view.",
   "requires": {
     "lane": "no-model",

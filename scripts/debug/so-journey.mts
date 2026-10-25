@@ -34,6 +34,7 @@ import { assertRuntimeOnPage } from './lib/servedBundle.mts';
 import { quiesceBeforeSwitch, type QuiesceOptions } from './lib/generationQuiesce.mts';
 import { dumpEngineHistory } from './lib/engineHistoryDump.mts';
 import { currentPageCapture } from './lib/pageCapture.mts';
+import { classOf, deselectedDetail, MODEL_FLAG, modelSelection, parseModelFilter, type ModelClass } from './lib/modelClass.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
 const CONFIG_SNAPSHOT = resolve(DEBUG_DIR, 'so-journey-config-snapshot.json');
@@ -52,6 +53,9 @@ run options:
   --strict        treat "blocked" as failure (acceptance mode; baseline runs without it)
   --keep          skip cleanup (leave the sandbox chat and imported stories in place)
   --only <ids>    comma-separated check ids to run; the rest report "skipped"
+  --model <classes>  v2.9 plan 11 B4: run only checks whose declared model class (judged | any | none) is listed,
+                  plus the checks they declare in dependsOn; the rest report "skipped" (deselected, not counted
+                  by --strict). With --only, the class filter narrows that list. The record is partial
   --no-config     never touch global extension settings, whatever the journey's setup says
   --group <id>    pin the group for this run, overriding the journey's setup.group
   --require-human-record <file>  fail when a human check has no scored row in that file
@@ -537,8 +541,10 @@ function renderChecklist(results) {
   ].join('\n');
 }
 
-export async function runJourney(page, idOrFile, { strict = false, keep = false, only = null, allowConfig = true, group = null, humanRecordFile = null, judgeMode = null as JudgeMode | null, wiGating = null as WiGatingMode | null, noStop = false } = {}) {
+export async function runJourney(page, idOrFile, { strict = false, keep = false, only = null as string[] | null, allowConfig = true, group = null, humanRecordFile = null, judgeMode = null as JudgeMode | null, wiGating = null as WiGatingMode | null, noStop = false, model = null as ModelClass[] | null } = {}) {
   const { journey, path } = await resolveJourney(idOrFile);
+  const selection = model ? modelSelection(journey.checks ?? [], model, only) : null;
+  const runOnly = selection ? selection.only : only;
   await assertRuntimeOnPage(page);
   const pageMark = currentPageCapture()?.mark() ?? null;
   // A human check is scored in a file, not by the runner. Without --require-human-record the
@@ -585,9 +591,10 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
       for (const [index, check] of checks.entries()) {
         const summary = summarize(check);
         if (stopped) { results.push(stoppedRow(summary, stopped)); continue; }
-        if (only && !only.includes(check.id)) { results.push({ ...summary, outcome: 'skipped', detail: 'not selected by --only' }); continue; }
+        if (selection && check.id in selection.deselected) { results.push({ ...summary, outcome: 'skipped', detail: deselectedDetail(classOf(check), selection.filter), deselected: true }); continue; }
+        if (runOnly && !runOnly.includes(check.id)) { results.push({ ...summary, outcome: 'skipped', detail: 'not selected by --only' }); continue; }
         if (check.mode === 'human') { results.push({ ...summary, outcome: 'skipped', detail: 'human check — operator scores it' }); continue; }
-        const unmet = unselectedDependencies(check, only);
+        const unmet = unselectedDependencies(check, runOnly);
         if (unmet.length) {
           record(summary, 'blocked', `depends on ${unmet.join(', ')} (state it leaves), which --only did not select`);
           console.log(`${check.id} BLOCKED (depends on ${unmet.join(', ')})`);
@@ -601,7 +608,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
           continue;
         }
         console.log(`--- ${check.id} ${check.goal ?? ''}`);
-        const runCheck = () => runSteps(page, check.steps ?? [], { scenarioDir: JOURNEY_DIR, importedHashes, label: `${check.id} `, assetBaseline, guard: setupApplied.guard ?? null, requireStory: Boolean(only) });
+        const runCheck = () => runSteps(page, check.steps ?? [], { scenarioDir: JOURNEY_DIR, importedHashes, label: `${check.id} `, assetBaseline, guard: setupApplied.guard ?? null, requireStory: Boolean(runOnly) });
         const first = await runCheck();
         const plumbingRetry = retriesAsPlumbing(first, noStop) ? first.error : null;
         if (plumbingRetry) console.log(`${check.id} harness error, retrying the check once (S5): ${plumbingRetry}`);
@@ -659,7 +666,8 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
   console.log('');
   for (const row of results) console.log(`${(OUTCOME_ICON[row.outcome] ?? row.outcome).padEnd(12)} ${row.id.padEnd(8)} ${row.goal ?? row.prompt ?? ''}${row.detail ? ` — ${row.detail}` : ''}`);
   console.log(`\n${journey.id}\n${renderTallies(tallies)}`);
-  if (only) console.log('PARTIAL: --only ran a subset; this record cannot stand for a gate.');
+  if (selection) console.log(`MODEL FILTER: ${MODEL_FLAG} ${selection.filter.join(',')} ran ${selection.selected.length} check(s)${selection.pulled.length ? ` plus dependencies ${selection.pulled.join(', ')}` : ''}; ${Object.keys(selection.deselected).length} deselected.`);
+  if (runOnly) console.log('PARTIAL: --only ran a subset; this record cannot stand for a gate.');
   for (const reason of reasons) console.log(`NOT GREEN: ${reason}`);
   console.log(renderChecklist(results));
 
@@ -672,8 +680,9 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
     strict,
     // A subset run is marked in the record itself, so an archived matrix cannot be mistaken for a
     // full one later (T4: `--only` exited green over a handful of checks).
-    partial: Boolean(only),
+    partial: Boolean(runOnly),
     only: only ?? null,
+    model: selection ? { filter: selection.filter, selected: selection.selected, pulled: selection.pulled, deselected: selection.deselected } : null,
     tally,
     tallies,
     notGreen: reasons,
@@ -704,7 +713,7 @@ export function engineHistoryOfCleanup(cleanup: unknown): { file?: string; chats
 }
 
 function summarize(check) {
-  return { id: check.id, mode: check.mode ?? 'auto', findings: check.findings ?? [], goal: check.goal ?? '', prompt: check.prompt ?? '', anchors: check.anchors ?? '', ...(check.expect ? { expect: check.expect } : {}) };
+  return { id: check.id, mode: check.mode ?? 'auto', model: classOf(check), findings: check.findings ?? [], goal: check.goal ?? '', prompt: check.prompt ?? '', anchors: check.anchors ?? '', ...(check.expect ? { expect: check.expect } : {}) };
 }
 
 if (process.argv[1] === fileURLToPath(import.meta.url)) {
@@ -738,6 +747,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       process.exit(1);
     }
     const only = argValue(args, '--only');
+    const model = parseModelFilter(argValue(args, MODEL_FLAG));
     runCli(async (page) => {
       const { ok } = await runJourney(page, target, {
         strict: args.includes('--strict'),
@@ -749,6 +759,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
         judgeMode: parseJudgeMode(argValue(args, "--judge-uses"), argValue(args, "--warden-mode")),
         wiGating: parseWiGating(argValue(args, '--wi-gating')),
         noStop: args.includes(NO_STOP_FLAG),
+        model,
       });
       return { ok };
     }, { pageCapture: 'journey' });

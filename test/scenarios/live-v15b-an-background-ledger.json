@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "live-v15b-an-background-ledger",
   "objective": "v2.3 replan V15b on a real SillyTavern (no model needed: the writes under test are host effects): a checkpoint's Author's Note and background go through the effect ledger — a row records what each replaced BEFORE the host is touched, the host really holds the new values — and restarting the story puts both back from the rows' `before` values: the note returns to the text it replaced (a clear would leave it empty) and the background to the one it replaced. A restart empties the ledger, so the rows themselves are not readable afterwards. The background baseline is recorded first and restored at the end whatever happens, because a background is install state.",
   "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off"},

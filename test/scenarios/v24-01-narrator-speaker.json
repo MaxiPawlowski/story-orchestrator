@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v24-01-narrator-speaker",
   "objective": "v2.4 plan 01 T10, no backend. `/sys` posts extra.type:'narrator' named narrator_name or 'System' (host fact 01-H10, slash-commands.js:6019-6036). A narrator row whose name is not a roster member is not a character's turn: the speaker stays Luke (red on v2.3: null). A narrator row NAMED as a roster member ('DM Narrator') counts as that member (dm) - the kept case, green on both. Run: so-scenario run <this> --sandbox --group 'Group: Arin, DM Narrator'.",
   "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Luke","DM Narrator"],"judge":"off","why":"T10 needs Luke and DM Narrator enabled in the toy group (sun-ruins roster little_brother, dm); an earlier cast change leaves Luke disabled"},

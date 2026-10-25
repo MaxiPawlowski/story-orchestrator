@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "B6 no-model coverage: scripted lore creation against a real lane lorebook; review and accepted cards write only at a boundary, with a chat/group stamp; near-duplicate patch advice is rendered and the author declines. Delete the owned chat, decline its created-entry reaper, retry the deleted-chat event and accept; disk proves keep/delete. Current detection is advisory, not an acceptance refusal (plan 35 finding). Model quality and vector meaning remain separate owed gates.",
   "requires": {
     "lane": "no-model",

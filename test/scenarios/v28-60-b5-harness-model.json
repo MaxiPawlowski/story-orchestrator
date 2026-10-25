@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 60 B5 (no-model lane WITH server plugins, claude offered in the copy's harness config; spends one tiny call on the owner's Claude login): a plain harness call asked for the alias 'haiku' answers ok with `model` = the model Claude reports it served (a full claude-haiku id, not the alias) and `requested` = 'haiku'. codex and opencode are not offered on this lane (owed). Run on a lane started with plugins: node scripts/debug/so-scenario.mts run test/scenarios/v28-60-b5-harness-model.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off" },
   "steps": [

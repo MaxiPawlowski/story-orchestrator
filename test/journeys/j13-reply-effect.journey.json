@@ -26,6 +26,7 @@
   "checks": [
     {
       "id": "J13.1",
+      "model": "judged",
       "mode": "auto",
       "findings": [],
       "requires": [

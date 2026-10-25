@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 69 K9 early return (no-model lane). Host fact: Generate emits GENERATION_STARTED (script.js:4299) before its connection checks return early (script.js:4315-4335) with no GENERATION_ENDED, so an impersonate run on a disconnected lane takes the hold and never closes (the plan 60 B10 finding). Expected: the next loud run's GENERATION_STARTED closes the stale impersonate run (generationLifecycle staleWithhold) and the turn blocks come back. Setup steps are plan 60 B10's (v28-60-b10-withhold.json). Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-69-k9-early-return.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": {
     "lane": "no-model",

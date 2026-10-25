@@ -1,4 +1,5 @@
 {
+  "model": "judged",
   "_note": "v2.8 70 lean row 45 seal, real model: v28-45-carry with the chapter seal and scene summary on the real memory model (only extraction stays pinned SCENE_NONE, not the measured path). Floor (70:76): the epilogue passes verifySaga (>= 120 words, not the joined-summaries fallback), the picker lists the run, the seed lands before boundary 0.",
   "requires": {
     "lane": "model",

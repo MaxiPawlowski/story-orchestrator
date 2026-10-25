@@ -42,6 +42,7 @@
     "test:replay": "node scripts/suite/defect-replay.mjs",
     "suite:inventory": "node scripts/suite/inventory.mjs",
     "suite:mutation": "node scripts/suite/mutation-baseline.mjs",
+    "suite:nomodel": "node scripts/suite/nomodel.mjs",
     "test:release": "node --test \"scripts/release/*.test.mjs\" \"scripts/docs/*.test.mjs\"",
     "docs:guide": "node scripts/docs/split-guide.mjs && node scripts/docs/guide-bundle.mjs",
     "docs:settings": "node scripts/docs/settings-docs.mjs && node scripts/docs/guide-bundle.mjs",

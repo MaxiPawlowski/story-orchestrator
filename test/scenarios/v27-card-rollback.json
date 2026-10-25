@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v2.7 32 W8: public card values restore with a real fired transition (test cast, no model)",
   "requires": {
     "lane": "no-model",

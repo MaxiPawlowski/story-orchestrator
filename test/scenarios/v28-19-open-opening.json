@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 19, the open opening of an anchor, in a group chat, no model. Player lines are /send compact, replies are /sendas (each renders and commits a boundary). Run: node scripts/debug/st-lanes.mts run <lane> --evidence -- scripts/debug/so-open-stretch-check.mts (SO_STRETCH_SCENARIOS=test/scenarios/v28-19-open-opening.json). The start anchor opens free for 3 player turns. Asserts: the opening line and no objective line, and the current-checkpoint macro naming the scene only, at 1 and 2 player turns (a group round counts one); the ordinary objective line and the macro with the objective from the 3rd; a swipe keeps the state; deleting the 3rd player line reopens the opening; sending it again closes it.",
   "requires": {
     "lane": "no-model",

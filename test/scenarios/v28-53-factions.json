@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 53 (no-model lane): a faction move fires on a seeded gate, the band word changes on the player's Standing group and the member's private line, a swipe of that reply takes it back (a code-only boundary: the only change at the swiped boundary is the move), and a reopen equals the replayed state. Never a number on the player surface. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-53-factions.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "authorView": true },
   "steps": [

@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.9 plan 05 (no-model lane): a two-step pattern over visible transitions publishes its pending line (snapshot.patterns), completes on the second transition into an authored What changed line on the player Overview, shows in the Author panel only in Author view, and a delete of the completing turn takes the callback back (rollback). assert-player-clean in player mode with the callback shown. No model call: extraction is pinned to SCENE_NONE. Run: node scripts/debug/so-scenario.mts run test/scenarios/v29-05-patterns.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "briefingDraft": "off", "innerBeat": "off", "authorView": true },
   "steps": [

@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","judge":"off","why":"v2.8 10 D gate: a story with no briefing gets a per-chat draft in the open briefing page, and a draft naming a later beat is thrown away. The draft is planted (storyOrchestratorDebugBriefingResponse), so no model is called; the real-model floors are the CL row."},
   "steps": [
     { "eval": "for (const key of Object.keys(globalThis).filter((k) => k.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; globalThis.storyOrchestratorDebugExtractionResponse = 'SCENE_NONE'; globalThis.storyOrchestratorDebugBriefingResponse = JSON.stringify({ sections: [{ heading: 'Where you are', text: 'The Hall, at night.' }, { heading: 'How to play', text: 'Write what you do and say.' }] }); return true;" },

@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 52 (no-model lane): reaching a checkpoint latches a codex fact ({reached}) that the player projection (game.codex, the Journal's Places page source) then shows; a reopen keeps it; a swipe of the reply that reached the checkpoint takes it away; a second reopen equals the replayed state. assert-player-clean in player mode. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-52-codex.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "authorView": true },
   "steps": [

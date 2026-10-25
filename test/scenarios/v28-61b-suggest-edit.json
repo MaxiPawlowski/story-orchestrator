@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 61b (85cb5b0c, no-model lane, plumbing: debugResponse suggestions): the open Play panel asks once (a re-render does not ask again); a suggestion fills the input box; after an edit inside the transcript window the suggestions read, a fill is refused with the edited notice.",
   "requires": {
     "lane": "no-model",

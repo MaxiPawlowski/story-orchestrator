@@ -1,4 +1,5 @@
 {
+  "model": "any",
   "_note": "v2.8 24 AS-smoke, story adolion-aegis: every campaign story starts and plays on a real model. adolion-fresh CL lane (reply and memory on the cloud profile, authoring on Sol, judge on TypeSafe; no GPU). Run: node scripts/debug/so-scenario.mts run test/scenarios/live-v28-24-smoke-aegis.json --sandbox, twice in a row; the nine files run back to back as one batch (st-lanes.mts batch --lanes <n> --repeat 2 --strict test/scenarios/live-v28-24-smoke-*.json). Generic player lines; names no checkpoint or character. Closes rows 38-C7 (start, three real turns, reopen, swipe, counts only), C8-smoke, 16-07-A6 live half; replaces the nine 38-C7 units (24 §Cuts). Written, validated by the loader, not run yet.",
   "requires": {
     "lane": "model",

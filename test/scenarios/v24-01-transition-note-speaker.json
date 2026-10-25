@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v24-01-transition-note-speaker",
   "objective": "v2.4 plan 01 T10, no backend. Our own transition note is a `/comment` (host fact 01-H9: name 'Note', is_system:true, extra.type:'comment'). After it, the active speaker must still be the member who spoke last. Red on v2.3: activeSpeakerId returns null at the first named non-user row, so the Note blanks the speaker. Run: so-scenario run <this> --sandbox --group 'Group: Arin, DM Narrator'.",
   "requires": {"lane":"no-model","group":"Group: Arin, DM Narrator","members":["Luke"],"judge":"off","why":"T10 needs Luke (sun-ruins roster little_brother) enabled in the toy group; an earlier cast change leaves him disabled"},

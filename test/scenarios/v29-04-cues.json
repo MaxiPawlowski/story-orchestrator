@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.9 04 (no-model lane, plumbing only, never sign-off): a reaction cue latches when its event is set; drafting Arin puts the cue line in the applied private block and drafting the narrator does not; a rendered Arin reply settled through the generation hook writes a receipt bound to its revision and a 'cue offered' journal row; a second draft offers nothing (spent); player mode stays clean; a swipe of the reply drops the receipt and the cue is offered again. Run: node scripts/debug/so-scenario.mts run test/scenarios/v29-04-cues.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": {
     "lane": "no-model",

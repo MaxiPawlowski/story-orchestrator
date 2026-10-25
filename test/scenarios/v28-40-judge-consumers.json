@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "name": "v28-40-judge-consumers",
   "objective": "Plan 13 B4 shipped J7 consumers, scripted judge (PLUMBING ONLY: the JudgeRuntime's active/ask are stubbed in the page, no TypeSafe, no model). Each consumer is shown consuming a scripted verdict and, with the judge off, keeping its fallback: canonVerify drops the sentence the judge scores below 0.5 (off: canon kept whole); canonDraft writes a checked draft that accept moves into the canon (off: no draft); idleCheck, toneCheck, adversityTrend and repetitionCheck raise their warden notes at their predeclared counts (idle on the 4th low-change sample, tone on the 5th, adversity on the 20th, repetition once a phrase repeats in 4 replies; off: no idea notes). pictureCue needs a ready image service and is not runnable on a no-model lane.",
   "requires": {

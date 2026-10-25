@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 60 B3 (no-model lane): an install-wide setting written through our settings store leaves in its own save request within a few hundred ms (well inside ST's 1 s debounce) and survives a page reload made right after. The setting is put back the same way and read back after a second reload. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-60-b3-settings-reload.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": { "lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off" },
   "steps": [

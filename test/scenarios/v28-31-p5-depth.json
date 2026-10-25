@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 31 D-P5 offset proof, no model. Payload goldens carry none of the moved blocks, so this fixture proves the move directly: a story with a player block, eight player lines, then a dry run. The player-role block must be registered at depth 4 and land after the fifth-last chat line and before the fourth-last one; at the old depth 10 it sat above every line.",
   "requires": {"lane": "no-model", "group": "Group: Arin, DM Narrator", "members": ["Arin", "DM Narrator"], "judge": "off", "briefingDraft": "off", "innerBeat": "off", "why": "dry run only; no generation, no judge"},
   "steps": [

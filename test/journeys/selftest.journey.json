@@ -23,6 +23,7 @@
   "checks": [
     {
       "id": "J0.1",
+      "model": "none",
       "mode": "auto",
       "findings": [],
       "goal": "the runner starts on a virgin chat with no story selected",
@@ -38,6 +39,7 @@
     },
     {
       "id": "J0.2",
+      "model": "none",
       "mode": "auto",
       "findings": [],
       "goal": "the drawer opens and the flag control writes a journal record",
@@ -94,6 +96,7 @@
     },
     {
       "id": "J0.3",
+      "model": "none",
       "mode": "auto",
       "findings": [],
       "goal": "a check requiring a capability this build lacks reports blocked, not failed (its steps must never run)",
@@ -109,6 +112,7 @@
     },
     {
       "id": "J0.4",
+      "model": "none",
       "mode": "human",
       "findings": [],
       "prompt": "Ignore — selftest placeholder proving human checks are emitted as a checklist and reported as skipped.",
@@ -116,6 +120,7 @@
     },
     {
       "id": "J0.5",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "T3"
@@ -130,6 +135,7 @@
     },
     {
       "id": "J0.6",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "R12"

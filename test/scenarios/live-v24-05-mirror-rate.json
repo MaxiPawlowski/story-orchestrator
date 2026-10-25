@@ -1,4 +1,5 @@
 {
+  "model": "judged",
   "_note": "v2.4 plan 05 mirror key hygiene, MEASUREMENT (run on the same page right after `so-journey run J3` x2, with an `st-session reload` BEFORE the first J3 so the tally starts at zero; no reload in between: the tally is page memory). Reads LoreEvidence.mirrorRates(): per `so_` relationship entry of the chat's mirror book, the loud generations whose scan view held it enabled (eligible) and how many fired it. PREDECLARED RULE (decided 2026-09-23, never retuned): strip roster/persona names from mirror keys ONLY IF the median rate >= 0.8 over entries with eligible >= 3; otherwise record the rate and change nothing. This fixture applies the rule and returns the verdict; it asserts only that there was something to measure.",
   "requires": {"lane":"model","group":"Group: Arin, DM Narrator","prior":"st-session reload, then so-journey run J3 twice on the same page (the mirror-rate tally is page memory)","why":"a measurement over J3's real loud generations; run standalone in a batch it has nothing to measure"},
   "steps": [

@@ -32,6 +32,7 @@
   "checks": [
     {
       "id": "J6.1",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "a boundary is committed and a gate latches from a scripted turn",
@@ -95,6 +96,10 @@
     },
     {
       "id": "J6.2",
+      "model": "none",
+      "dependsOn": [
+        "J6.1"
+      ],
       "mode": "auto",
       "findings": [],
       "goal": "editing the message that carried the delta rolls the story back The check first waits for the group round J6.1 started to finish: a send returns before every member has replied, and an edit made mid-round is rolled back and then followed by the remaining replies' boundaries, which is a different scenario (L2 2026-09-23: J6.2 timed out on a still-generating round and J6.4 lost its notice to those boundaries).",
@@ -136,6 +141,10 @@
     },
     {
       "id": "J6.3",
+      "model": "none",
+      "dependsOn": [
+        "J6.1"
+      ],
       "mode": "auto",
       "findings": [],
       "goal": "deleting the last message leaves engine state consistent, not orphaned",
@@ -156,6 +165,10 @@
     },
     {
       "id": "J6.4",
+      "model": "none",
+      "dependsOn": [
+        "J6.1"
+      ],
       "mode": "auto",
       "findings": [
         "U5"
@@ -192,6 +205,7 @@
     },
     {
       "id": "J6.5",
+      "model": "none",
       "mode": "human",
       "findings": [
         "U5"
@@ -201,6 +215,7 @@
     },
     {
       "id": "J6.6",
+      "model": "any",
       "mode": "auto",
       "findings": [
         "R4"
@@ -278,6 +293,7 @@
     },
     {
       "id": "J6.7",
+      "model": "any",
       "mode": "auto",
       "findings": [
         "M3"
@@ -347,6 +363,7 @@
     },
     {
       "id": "J6.8",
+      "model": "any",
       "mode": "auto",
       "findings": [
         "M4"
@@ -412,6 +429,7 @@
     },
     {
       "id": "J6.9",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "E1"
@@ -491,6 +509,7 @@
     },
     {
       "id": "J6.10",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "T3"
@@ -614,6 +633,7 @@
     },
     {
       "id": "J6.11",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "D5"
@@ -786,6 +806,7 @@
     },
     {
       "id": "J6.12",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "T3"

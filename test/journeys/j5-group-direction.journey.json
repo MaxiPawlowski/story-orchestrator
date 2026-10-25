@@ -30,6 +30,7 @@
   "checks": [
     {
       "id": "J5.1",
+      "model": "none",
       "mode": "auto",
       "findings": [],
       "goal": "a talk-control checkpoint loads with speaker direction enabled",
@@ -63,6 +64,7 @@
     },
     {
       "id": "J5.2",
+      "model": "none",
       "mode": "auto",
       "findings": [],
       "goal": "cast_changes applied the checkpoint's roster (Luke disabled at the briefing)",
@@ -77,6 +79,7 @@
     },
     {
       "id": "J5.3",
+      "model": "none",
       "mode": "auto",
       "findings": [],
       "goal": "the scripted npc_reply for entering the checkpoint is held, then fires once (T6-4 held scene openers (97156c2f, src/runtime/openerDeferral.ts + EffectsApplier.fireOnEnter/releaseOpener)): the import enters `brief` while Arin's greeting addresses the player, so the opener waits (no line, no npcFired); it stays held after the player line alone, and fires exactly once, after the player line, at the next rendered reply (a /sendas line: the same afterSpeak path a real group reply takes)",
@@ -110,6 +113,7 @@
     },
     {
       "id": "J5.4",
+      "model": "any",
       "mode": "auto",
       "findings": [],
       "goal": "a real group turn is routed by speaker direction and the decision is recorded",
@@ -139,6 +143,10 @@
     },
     {
       "id": "J5.5",
+      "model": "none",
+      "dependsOn": [
+        "J5.4"
+      ],
       "mode": "auto",
       "findings": [],
       "goal": "the injected payload for that turn was captured",
@@ -153,6 +161,7 @@
     },
     {
       "id": "J5.6",
+      "model": "none",
       "mode": "auto",
       "findings": [
         "U3"
@@ -178,6 +187,7 @@
     },
     {
       "id": "J5.8",
+      "model": "any",
       "mode": "auto",
       "findings": [
         "U3"
@@ -212,6 +222,7 @@
     },
     {
       "id": "J5.7",
+      "model": "any",
       "mode": "human",
       "findings": [],
       "prompt": "Did the right characters speak at the right moments, and did silence read as a choice rather than a bug?",

@@ -1,4 +1,5 @@
 {
+  "model": "none",
   "_note": "v2.8 plan 69 K8 (no-model lane). Host fact: ST's saveChat (script.js) writes the chat file and emits no MESSAGE_* event, so another extension that rewrites chat[n].mes and saves leaves no event behind; our fingerprints (runtime/fingerprints.ts) are compared at the next boundary (chatSave.reconcile). Expected outcome: no rollback until the next boundary; then the fingerprint mismatch steps back from the rewritten reply once and the boundary commits once. Run: node scripts/debug/so-scenario.mts run test/scenarios/v28-69-k8-silent-rewrite.json --sandbox --group 'Group: Arin, DM Narrator', twice.",
   "requires": {
     "lane": "no-model",
