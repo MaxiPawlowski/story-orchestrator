@@ -1,0 +1,18 @@
+{
+ "player": "owner",
+ "playedOn": "",
+ "build": "",
+ "chat": "",
+ "answers": [
+  { "task": "T01", "shown": null, "line": "" },
+  { "task": "T02", "shown": null, "line": "" },
+  { "task": "T03", "shown": null, "line": "" },
+  { "task": "T04", "shown": null, "line": "" },
+  { "task": "T05", "shown": null, "line": "" },
+  { "task": "T06", "shown": null, "line": "" },
+  { "task": "T07", "shown": null, "line": "" },
+  { "task": "T08", "shown": null, "line": "" },
+  { "task": "T09", "shown": null, "line": "" },
+  { "task": "T10", "shown": null, "line": "" }
+ ]
+}

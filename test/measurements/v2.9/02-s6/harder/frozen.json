@@ -1,0 +1,63 @@
+{
+ "frozen": "2026-10-25",
+ "corpus": "v29-02-s6h (harder set; the 2026-10-23 set in ../frozen.json stays as it was)",
+ "plan": "docs/plans/v2.9/02-roster-voice-prevention.md",
+ "why": "the 2026-10-23 set scored blind attribution 60/60 in both arms (gain 0, at the ceiling); owner decision 2026-10-25 item 12: Sol writes a harder card set; floors unchanged",
+ "author": "opencode openai/gpt-6.1-sol (run --standalone, tools-off agent), one call, prompt sol-prompt.md; output used unedited",
+ "harderBecause": [
+  "Role, age, pronouns, rank, personality, available information, scenario, and opening message are matched; unlike the previous set, none supplies a speaker-specific motive, relationship, or life history.",
+  "The only differing card details are hair and eye colour, and no situation invokes them; the situations instead give all three clerks the same workplace evidence and the same opportunity to respond.",
+  "The sheets distinguish syntax, register, and rhythm rather than subject matter: fragments and direct openings, balanced formal clauses, or conversational linked clauses. Attribution must therefore depend on wording rather than a distinctive task or anecdote.",
+  "With sheets off, the prospective prediction is substantially lower attribution than the previous ceiling, potentially near the three-speaker chance level, because the underlying cards provide no systematic voice distinction.",
+  "If prevention works, the prospective prediction is an attribution gain of at least 10 percentage points and at least 25 percent fewer combined avoid-and-tic hits per reply; the compact sheets keep each rendered guidance line below 120 tokens under the specified character-based estimate.",
+  "If prevention does not work, the prospective prediction is little or no attribution gain and no reliable targeted-repetition reduction; continued ceiling attribution in both arms would instead indicate that this set still fails to remove attribution shortcuts."
+ ],
+ "design": {
+  "members": [
+   "Brelan",
+   "Nerik",
+   "Veska"
+  ],
+  "pronouns": "they/them",
+  "cardsDifferOnlyIn": "hair and eye colour (same role, age, rank, personality, scenario, first_mes; mes_example empty)",
+  "sheets": {
+   "Brelan": "clipped",
+   "Nerik": "ornate",
+   "Veska": "flowing"
+  },
+  "situations": 20,
+  "replyOrder": "rotates per situation (s1: Brelan, Nerik, Veska; s2: Nerik, Veska, Brelan; ...)",
+  "narrator": "DM Narrator posts each situation with /sendas (not generated)",
+  "guidanceEstimateTokens": "about 85-95 per member (chars/4 of the rendered line), under the 120 floor before measurement"
+ },
+ "floors": {
+  "attributionGainPoints": 10,
+  "repetitionDownPct": 25,
+  "guidanceTokensMax": 120
+ },
+ "floorsNote": "copied from ../frozen.json, unchanged",
+ "arms": {
+  "baseline": "characters.delivery off (ext_setting, restored by the runner)",
+  "prevention": "characters.delivery on (default)"
+ },
+ "stopRules": {
+  "N": "60 replies per arm (20 situations x 3)",
+  "zeroTolerance": "none in this row (leak floor is the jest/payload half)",
+  "blindMetric": "attribution is paired and blind: no S4 early pass; every situation runs",
+  "S5": "a harness error or backend outage stops the row as NOT A MEASUREMENT after one retry",
+  "pairs": "arms are separate chats run back to back (the 2026-10-23 protocol), not interleaved per item; the scorer counts only situations complete in both arms, so a stop leaves balanced pairs"
+ },
+ "rater": "rate.mjs: opencode openai/gpt-6.1-sol, names (members, DM Narrator, player names passed as args) replaced by [name], 120 replies shuffled blind to arm (seed 20261025), member list with each sheet notes, unclear = wrong; second call re-rates 10 prevention replies for self-agreement",
+ "repetition": "per reply: authored tic + avoid hits (case-insensitive whole phrase) for the speaker",
+ "guidance": "from the prevention arm payload capture (st-payload arm --persist): delivery line chars/4 per drafted request; report n, max, p95",
+ "files": {
+  "cards.json": "61468c52d2db8528dc28f32a805a65a31a70f90f5f3606b3e9ef2e26ce34c23a",
+  "sol-prompt.md": "39e5b086d0926d727aae5906e1a1070792b45582b1df629afd31c3eb7308f0e7",
+  "make-arms.mjs": "82c80a5cce161ee5991a58b97d4fa013a36dc7b8ff353d846c12dee0311e3c83",
+  "setup.js": "3e68350d007dbffd1b5d76fe71e478cc086d1230bf2d66e3263d4977510cdaf9",
+  "teardown.js": "6381fc4cd1fb745b306807b49c8aff6ce8dd4a0ce97b1ea80e52def7423548c9",
+  "rate.mjs": "3e8264816582ec0dd664843e1b1112bd9efeffd8369295d0e06b4f5d9f0e0728",
+  "../../../../scenarios/v29-02-s6h-baseline.json": "ce696cf129b83b39177f6339a676d49eb2637db55d1824eb9b6a719ab8ca2726",
+  "../../../../scenarios/v29-02-s6h-prevention.json": "2911f0376824cc9220f06ff4f3221f10d1ba672f27559edca184be1d8d615e86"
+ }
+}

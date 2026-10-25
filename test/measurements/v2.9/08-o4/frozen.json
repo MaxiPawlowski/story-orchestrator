@@ -1,0 +1,22 @@
+{
+ "frozen": "2026-10-25",
+ "plan": "docs/plans/v2.9/08-player-observations.md",
+ "row": "O4: understood as information",
+ "floor": "10 synthetic-story tasks: the player finds the observation and says it offers information, not an instruction. Floor >= 8/10. Verbatim from the plan; never retuned.",
+ "author": "opencode openai/gpt-6.1-sol (run --standalone, tools-off agent), one call, prompt sol-prompt.md",
+ "player": "the owner, in their own playthrough (owner decision 2026-10-25 item 11)",
+ "rater": "rate.mjs: opencode openai/gpt-6.1-sol scores the owner's one-line answers against key.json (I = information, not instruction); shown comes from the owner's answer, checked against the chat's Journal",
+ "pass": "a task passes only when shown is true AND I=yes; pass >= 8 of 10 meets the floor",
+ "editsAfterSol": [
+  "story.roster[arin].role changed from \"the player's partner\" (the wording given in the prompt's example) to \"a capable companion on the night shift\": the Studio diagnostic roster-member-is-player read the old role as marking Arin the player"
+ ],
+ "validation": "parseStory: 0 errors. runDiagnostics: 6 x quality-never-in-scope (observation gates are read through the discovery units, which that diagnostic does not count; not a story fault), 4 x quality-outcome-player-evidence (intended: the player's own line moving to the next room may count)",
+ "files": {
+  "story.json": "9dc77716db9c146a82d02b00f18d4eaca93dfcce96688958e23db23b2ca6223d",
+  "tasks.json": "55961f0e6ea33786ce55005446b47ae274c7b24e5f56ab4a729c7ac9ccdf8ca2",
+  "key.json": "302b77c2f78b0920bf90e9030dc9dab00d62e8ce6c31821d9286c04868b226f9",
+  "sol-prompt.md": "1db1000e4a186dc4ee0d373f6220ea5135487e4364cf707b0414b257aa7308ae",
+  "rate.mjs": "0e391dafc4424e2da1c557084ba4802a9eed4cbe2c17dc6ebdbe2c46c9426556",
+  "answers.template.json": "67851fb1121880d3296fc47ce051f673d166d2afc0ad5414767a57e6c1477004"
+ }
+}
