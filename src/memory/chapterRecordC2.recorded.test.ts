@@ -6,7 +6,7 @@ import type { ChapterInput } from "./chapterInput";
 import { buildChapterRecordPrompt, parseChapterRecord, properNouns, verifyChapterRecord, verifySaga } from "./chapterRecord";
 import type { ChapterRecord } from "./types";
 
-const golden = (name: string) => readFileSync(join(process.cwd(), "test/goldens", name), "utf8");
+const golden = (name: string) => readFileSync(join(process.cwd(), "test/goldens", name), "utf8").replace(/\r\n/g, "\n");
 const story = parseStoryOrThrow(JSON.parse(readFileSync(join(process.cwd(), "test/scenarios/v28-45-carry-source.story.json"), "utf8")) as Story);
 const roster = [{ id: "mara", name: "Arin" }, { id: "tom", name: "Luke" }, { id: "narrator", name: "DM Narrator" }];
 
