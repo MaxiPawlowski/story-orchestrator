@@ -2,7 +2,7 @@ import { parseStory, type NormalizedStory } from "@engine/index";
 import { isCarryState } from "@engine/carrySchema";
 import { loadGameLayer } from "@engine/validate/gameLayer";
 import { readGroupChatMetadata } from "@services/STAPI";
-import { buildCarryState, candidateChats, carryCandidateFromBlob, type CandidateResult } from "./carryCandidate";
+import { buildCarryState, candidateChats, carryCandidateFromBlob, indexDrops, type CandidateResult, type CarryDrop } from "./carryCandidate";
 import type { CarryCandidateRow, CarryOutcome } from "./carryPort";
 import type { ManagerPort } from "./managerWiring";
 import { BLOB_VERSION } from "./persistence";
@@ -26,17 +26,29 @@ const verify = async (target: NormalizedStory, chatId: string): Promise<Candidat
   return carryCandidateFromBlob(metadata?.story_orchestrator, chatId, target, { version: BLOB_VERSION, parse: parseStory });
 };
 
-export async function carryCandidates(deps: CarryDeps): Promise<CarryCandidateRow[]> {
+export interface CarryExplain {
+  offered: CarryCandidateRow[];
+  dropped: CarryDrop[];
+}
+
+export async function carryExplain(deps: CarryDeps): Promise<CarryExplain> {
   const story = deps.loaded()?.story;
-  if (!story?.carry_from) return [];
+  if (!story?.carry_from) return { offered: [], dropped: [] };
   const run = beginRun(deps.ownership);
-  const rows: CarryCandidateRow[] = [];
-  for (const chatId of candidateChats(readPlaysIndex(), story.carry_from.story, deps.chatId())) {
+  const plays = readPlaysIndex();
+  const offered: CarryCandidateRow[] = [];
+  const dropped = indexDrops(plays, story.carry_from.story, deps.chatId());
+  for (const chatId of candidateChats(plays, story.carry_from.story, deps.chatId())) {
     const result = await verify(story, chatId);
-    if (!run.stillOwns()) return [];
-    if (result.ok) rows.push({ chatId, title: result.candidate.projection.storyTitle, endingTitle: result.candidate.projection.endingTitle, endedAt: result.candidate.endedAt });
+    if (!run.stillOwns()) return { offered: [], dropped: [{ chatId, reason: "the chat changed while the runs were read" }] };
+    if (result.ok) offered.push({ chatId, title: result.candidate.projection.storyTitle, endingTitle: result.candidate.projection.endingTitle, endedAt: result.candidate.endedAt });
+    else dropped.push({ chatId, reason: result.reason });
   }
-  return rows;
+  return { offered, dropped };
+}
+
+export async function carryCandidates(deps: CarryDeps): Promise<CarryCandidateRow[]> {
+  return (await carryExplain(deps)).offered;
 }
 
 export async function trophyShelf(deps: CarryDeps, rows: readonly ContinueRow[]): Promise<TrophyRow[]> {

@@ -1,0 +1,13 @@
+<|channel>thought
+<channel|>SUMMARY:
+The harbour lanterns guttered in the wind as Arin and Luke arrived at the dark harbour. During their time there, they met with the guild for the first time, establishing an initial relationship with the organization. The encounter left them with a neutral reputation of zero, and they had not yet seen Mara during their interactions.
+
+SHORT:
+Arin and Luke visited the harbour and met with the guild, establishing their initial reputation.
+
+CONSEQUENCES:
+- Arin and Luke have now met the guild and established a neutral reputation [src: q:met_guild, q:rep_guild]
+
+PEOPLE:
+- Arin: Has met the guild and holds a neutral reputation with them
+- Luke: Has met the guild and holds a neutral reputation with them

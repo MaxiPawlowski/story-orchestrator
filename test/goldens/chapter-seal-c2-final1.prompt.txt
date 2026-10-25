@@ -1,0 +1,40 @@
+<|turn>user
+user: Write plain TEXT ONLY. Do NOT continue the roleplay or speak as any character. You are writing the record of a finished chapter.
+Base every line strictly on the INPUTS. Do not invent people, places or events.
+Output exactly these labelled sections, in this order:
+SUMMARY:
+[120-220 words, past tense, from the chapter's first events to its last, using names exactly as the inputs write them]
+SHORT:
+[one or two sentences, at most 45 words]
+CONSEQUENCES:
+- [a durable change the chapter left behind, at most 30 words] [src: <input id>, <input id>]
+PEOPLE:
+- [Name]: [where they stand now, and toward whom, at most 20 words]
+OPEN:
+- [thread id] | carry or closed-offscreen or abandoned | [why, at most 15 words]
+Every CONSEQUENCES line must end with [src: ...] naming input ids. Name only the listed cast in PEOPLE. Never reveal secrets one character hides from another.
+At most 6 CONSEQUENCES lines and 8 PEOPLE lines, the most important first.
+In OPEN list at most 8 threads, only the ones this chapter closed; every thread you leave out carries over. Then stop.
+
+STORY: SO-V28-45 Source
+CHAPTER: The Last Lantern
+PLACES VISITED: the lantern tower
+CAST: Arin, Luke, DM Narrator
+
+PREVIOUS CHAPTER (The Dark Harbour): Arin and Luke visited the harbour and met with the guild, establishing their initial reputation.
+- Arin: Has met the guild and holds a neutral reputation with them
+- Luke: Has met the guild and holds a neutral reputation with them
+
+INPUTS:
+[q:coast_fate] (state) coast_fate: null -> "lit"
+[q:harbour_mood] (state) harbour_mood: null -> "grateful"
+[q:lantern_relit] (state) lantern_relit: null -> true
+[q:ledger_found] (state) ledger_found: null -> true
+[q:ledger_seen] (state) ledger_seen: null -> true
+[q:quest_ledger_closed] (state) quest_ledger_closed: null -> "done"
+[q:rep_guild] (state) rep_guild: 0 -> 3
+[q:rep_guild_move_relit] (state) rep_guild_move_relit: null -> 3
+[q:rep_guild_seen_mara] (state) rep_guild_seen_mara: 0 -> 3
+
+OPEN THREADS: (none)<turn|>
+<|turn>model

@@ -99,7 +99,7 @@ const STOP = new Set(("I The A An And But Or In On At To Of It He She They We Yo
 export function properNouns(text: string): string[] {
   const found = new Set<string>();
   text.split(/(?<=[.!?:;])\s+|\n+/).forEach((sentence) => {
-    const words = sentence.split(/\s+/).map((word) => word.replace(/^[^\p{L}]+|[^\p{L}'’-]+$/gu, ""));
+    const words = sentence.split(/\s+/).map((word) => word.replace(/^[^\p{L}]+|[^\p{L}'’-]+$/gu, "").replace(/['’]s?$/u, ""));
     words.forEach((word, index) => {
       if (index === 0 || !word || STOP.has(word)) return;
       if (/^\p{Lu}[\p{Ll}'’-]+$/u.test(word)) found.add(word);
