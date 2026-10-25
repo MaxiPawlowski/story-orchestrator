@@ -50,6 +50,7 @@ No build order is set. If several reopen at once, by dependency: 02 B before 05.
 | 03 | moved to v2.8 45 (owner 2026-10-14) |
 | 05 | DEFERRED; entries recorded |
 | 06 | `06-local-controller-perf.md` local controller performance: PLAN + partial 3090 bench 2026-10-25 (MTP n-max 2 decode +39 %; prefix reuse 0 %, breaks found) |
+| 07 | `07-inference-engine-eval.md` engine evaluation (SGLang, vLLM, ExLlamaV3, llama.cpp options): RESEARCH 2026-10-25; ranking llama.cpp b11888 + member cache, then ExLlamaV3 spike (staged, no GPU yet) |
 
 ## Decisions (user, 2026-10-03: as recommended)
 
